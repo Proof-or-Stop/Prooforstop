@@ -11590,7 +11590,7 @@
         "packages/main/src/core/machine.ts": "6a747a10d80606990a18990558a9e01269b34b43c1bbf31d59900eba8fdc328c",
         "packages/main/src/core/store.ts": "d3a4793c3f25bec9fb132c84525b18814ddf222228e8daad5d96621d570d9c11",
         "packages/main/src/core/validation-evidence-size-policy.ts": "3186842f297cf62e58b946ef3d67b289a59f4e527cdb9213ebc7f862a3553a7f",
-        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
+        "packages/main/src/core/validation-executor.ts": "2a604d107b983a1f414effab0765d291c5963762aff3a73b2699cbca36f83cee",
         "packages/main/src/core/verification.ts": "f19c12db7bb2a694d3160cc5ff5d5e384326067b060cb1828835f85b83723e4b",
         "packages/main/src/core/workflow-policy.ts": "9a043d622356deec4b89a50b046572edb3efbc9d9cfa6fa165a80b1fd2024ced",
         "packages/main/src/handlers/acceptance-amendment.ts": "768eb0fb124163d2c3ad5fa99576120036d938e0e050e382b793f590fbf1c199",
@@ -11793,7 +11793,7 @@
         "packages/main/src/core/scope-anti-expansion.ts": "819e50f856f2d4647c69696d9176ff1e99fb8564b3b0b4ddf2f6ba8288be265c",
         "packages/main/src/core/store.ts": "d3a4793c3f25bec9fb132c84525b18814ddf222228e8daad5d96621d570d9c11",
         "packages/main/src/core/validation-evidence-size-policy.ts": "3186842f297cf62e58b946ef3d67b289a59f4e527cdb9213ebc7f862a3553a7f",
-        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
+        "packages/main/src/core/validation-executor.ts": "2a604d107b983a1f414effab0765d291c5963762aff3a73b2699cbca36f83cee",
         "packages/main/src/core/verification.ts": "f19c12db7bb2a694d3160cc5ff5d5e384326067b060cb1828835f85b83723e4b",
         "packages/main/src/core/workflow-policy.ts": "9a043d622356deec4b89a50b046572edb3efbc9d9cfa6fa165a80b1fd2024ced",
         "packages/main/src/handlers/acceptance-amendment.ts": "768eb0fb124163d2c3ad5fa99576120036d938e0e050e382b793f590fbf1c199",
@@ -12083,9 +12083,9 @@
       ],
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "2f091dd019083d15d54fc3a07ded36bc633c421aa22b6bf4305fdebd09c5301b",
-        "packages/main/src/core/validation-execution-lock.ts": "df2f9b991c04e6a7cda5344f8514fa569919bd5759831d0ed4242382c3785d48",
-        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
-        "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
+        "packages/main/src/core/validation-execution-lock.ts": "61e648866c218638e0a91d4b16e6559a0c17522c6219e1414a42d1d3f03f3606",
+        "packages/main/src/core/validation-executor.ts": "2a604d107b983a1f414effab0765d291c5963762aff3a73b2699cbca36f83cee",
+        "packages/main/src/core/validation-reservation-delegation.ts": "8fd738f2ea3e4805288071f02dc8d320299965f0c56938368c7834470828dbf2",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "2ea0c8ef35a8b1dae29e0ec9ad6338a49ef20ecb512cb4b87f23dcce5834e505",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
@@ -12104,7 +12104,7 @@
         "scripts/verify-nested-reservation-registration-race.mjs": "2abce7fb319062cf53e55db924d24258c78d72370e920d3965965278008b91be",
         "scripts/verify-nested-reservation-wrapper-transport.mjs": "8c464e360e00bf8d6e86c8afb03ec0ce175a3652f02430a9df612fec89fbe1bf",
         "scripts/verify-nested-source-loader-semantics.mjs": "9d26caa55d934139a4175af2d65888ba99c79a1bcb3d912c86d5bed2534927d6",
-        "scripts/verify-nested-validation-result-contract.mjs": "f1f7dd762ba067a7699c4e70633fe20b37e6e907147db27b942b506ac4bc9c50",
+        "scripts/verify-nested-validation-result-contract.mjs": "d66685425220b43288afc0fd3852ba1d1386e664602804c192cac5c3c800ef31",
         "scripts/verify-nested-verification-machine-owner.mjs": "5adf4a76802548e7628d2d4ed896dea5d11c236fb612771776006b809978a44d",
         "scripts/verify-nested-doctor-fence-projection.mjs": "bea64502818e2ee6903093e85d1b4a9f69e92c6237ddd5ddcdb30a29601b5d34"
       }
@@ -12113,7 +12113,7 @@
       "id": "EX-NESTED-RESERVATION-02",
       "key": "packages/main/src/core/validation-executor.ts:1115:execSync",
       "callDigest": "d10c0b5777dd3dcc84f47b2c6a0a523663a99328f0d337260ea780e00a2fa804",
-      "sourceDigest": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
+      "sourceDigest": "2a604d107b983a1f414effab0765d291c5963762aff3a73b2699cbca36f83cee",
       "configIndexes": [
         173,
         174,
@@ -12190,15 +12190,15 @@
           "file": "packages/main/src/core/validation-executor.ts",
           "startLine": 1114,
           "endLine": 1116,
-          "sourceDigest": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
+          "sourceDigest": "2a604d107b983a1f414effab0765d291c5963762aff3a73b2699cbca36f83cee",
           "excerpt": "  try {\n    const raw = execSync('git --no-optional-locks status --porcelain=v1 --untracked-files=all', {\n      cwd: gitCwd,"
         }
       ],
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "2f091dd019083d15d54fc3a07ded36bc633c421aa22b6bf4305fdebd09c5301b",
-        "packages/main/src/core/validation-execution-lock.ts": "df2f9b991c04e6a7cda5344f8514fa569919bd5759831d0ed4242382c3785d48",
-        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
-        "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
+        "packages/main/src/core/validation-execution-lock.ts": "61e648866c218638e0a91d4b16e6559a0c17522c6219e1414a42d1d3f03f3606",
+        "packages/main/src/core/validation-executor.ts": "2a604d107b983a1f414effab0765d291c5963762aff3a73b2699cbca36f83cee",
+        "packages/main/src/core/validation-reservation-delegation.ts": "8fd738f2ea3e4805288071f02dc8d320299965f0c56938368c7834470828dbf2",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "2ea0c8ef35a8b1dae29e0ec9ad6338a49ef20ecb512cb4b87f23dcce5834e505",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
@@ -12217,16 +12217,16 @@
         "scripts/verify-nested-reservation-registration-race.mjs": "2abce7fb319062cf53e55db924d24258c78d72370e920d3965965278008b91be",
         "scripts/verify-nested-reservation-wrapper-transport.mjs": "8c464e360e00bf8d6e86c8afb03ec0ce175a3652f02430a9df612fec89fbe1bf",
         "scripts/verify-nested-source-loader-semantics.mjs": "9d26caa55d934139a4175af2d65888ba99c79a1bcb3d912c86d5bed2534927d6",
-        "scripts/verify-nested-validation-result-contract.mjs": "f1f7dd762ba067a7699c4e70633fe20b37e6e907147db27b942b506ac4bc9c50",
+        "scripts/verify-nested-validation-result-contract.mjs": "d66685425220b43288afc0fd3852ba1d1386e664602804c192cac5c3c800ef31",
         "scripts/verify-nested-verification-machine-owner.mjs": "5adf4a76802548e7628d2d4ed896dea5d11c236fb612771776006b809978a44d",
         "scripts/verify-nested-doctor-fence-projection.mjs": "bea64502818e2ee6903093e85d1b4a9f69e92c6237ddd5ddcdb30a29601b5d34"
       }
     },
     {
       "id": "EX-NESTED-RESERVATION-03",
-      "key": "packages/main/src/core/validation-executor.ts:1688:spawn",
+      "key": "packages/main/src/core/validation-executor.ts:1698:spawn",
       "callDigest": "ae208362861616a0ef85b4e6e514049d0d74092fda653f09a9294d5e68678bff",
-      "sourceDigest": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
+      "sourceDigest": "2a604d107b983a1f414effab0765d291c5963762aff3a73b2699cbca36f83cee",
       "configIndexes": [
         173,
         174,
@@ -12301,17 +12301,17 @@
       "requiredEvidence": [
         {
           "file": "packages/main/src/core/validation-executor.ts",
-          "startLine": 1687,
-          "endLine": 1689,
-          "sourceDigest": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
+          "startLine": 1697,
+          "endLine": 1699,
+          "sourceDigest": "2a604d107b983a1f414effab0765d291c5963762aff3a73b2699cbca36f83cee",
           "excerpt": "    }\n    const child = spawn(command.command, command.args, {\n      cwd,"
         }
       ],
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "2f091dd019083d15d54fc3a07ded36bc633c421aa22b6bf4305fdebd09c5301b",
-        "packages/main/src/core/validation-execution-lock.ts": "df2f9b991c04e6a7cda5344f8514fa569919bd5759831d0ed4242382c3785d48",
-        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
-        "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
+        "packages/main/src/core/validation-execution-lock.ts": "61e648866c218638e0a91d4b16e6559a0c17522c6219e1414a42d1d3f03f3606",
+        "packages/main/src/core/validation-executor.ts": "2a604d107b983a1f414effab0765d291c5963762aff3a73b2699cbca36f83cee",
+        "packages/main/src/core/validation-reservation-delegation.ts": "8fd738f2ea3e4805288071f02dc8d320299965f0c56938368c7834470828dbf2",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "2ea0c8ef35a8b1dae29e0ec9ad6338a49ef20ecb512cb4b87f23dcce5834e505",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
@@ -12330,7 +12330,7 @@
         "scripts/verify-nested-reservation-registration-race.mjs": "2abce7fb319062cf53e55db924d24258c78d72370e920d3965965278008b91be",
         "scripts/verify-nested-reservation-wrapper-transport.mjs": "8c464e360e00bf8d6e86c8afb03ec0ce175a3652f02430a9df612fec89fbe1bf",
         "scripts/verify-nested-source-loader-semantics.mjs": "9d26caa55d934139a4175af2d65888ba99c79a1bcb3d912c86d5bed2534927d6",
-        "scripts/verify-nested-validation-result-contract.mjs": "f1f7dd762ba067a7699c4e70633fe20b37e6e907147db27b942b506ac4bc9c50",
+        "scripts/verify-nested-validation-result-contract.mjs": "d66685425220b43288afc0fd3852ba1d1386e664602804c192cac5c3c800ef31",
         "scripts/verify-nested-verification-machine-owner.mjs": "5adf4a76802548e7628d2d4ed896dea5d11c236fb612771776006b809978a44d",
         "scripts/verify-nested-doctor-fence-projection.mjs": "bea64502818e2ee6903093e85d1b4a9f69e92c6237ddd5ddcdb30a29601b5d34"
       }
@@ -12422,9 +12422,9 @@
       ],
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "2f091dd019083d15d54fc3a07ded36bc633c421aa22b6bf4305fdebd09c5301b",
-        "packages/main/src/core/validation-execution-lock.ts": "df2f9b991c04e6a7cda5344f8514fa569919bd5759831d0ed4242382c3785d48",
-        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
-        "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
+        "packages/main/src/core/validation-execution-lock.ts": "61e648866c218638e0a91d4b16e6559a0c17522c6219e1414a42d1d3f03f3606",
+        "packages/main/src/core/validation-executor.ts": "2a604d107b983a1f414effab0765d291c5963762aff3a73b2699cbca36f83cee",
+        "packages/main/src/core/validation-reservation-delegation.ts": "8fd738f2ea3e4805288071f02dc8d320299965f0c56938368c7834470828dbf2",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "2ea0c8ef35a8b1dae29e0ec9ad6338a49ef20ecb512cb4b87f23dcce5834e505",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
@@ -12443,7 +12443,7 @@
         "scripts/verify-nested-reservation-registration-race.mjs": "2abce7fb319062cf53e55db924d24258c78d72370e920d3965965278008b91be",
         "scripts/verify-nested-reservation-wrapper-transport.mjs": "8c464e360e00bf8d6e86c8afb03ec0ce175a3652f02430a9df612fec89fbe1bf",
         "scripts/verify-nested-source-loader-semantics.mjs": "9d26caa55d934139a4175af2d65888ba99c79a1bcb3d912c86d5bed2534927d6",
-        "scripts/verify-nested-validation-result-contract.mjs": "f1f7dd762ba067a7699c4e70633fe20b37e6e907147db27b942b506ac4bc9c50",
+        "scripts/verify-nested-validation-result-contract.mjs": "d66685425220b43288afc0fd3852ba1d1386e664602804c192cac5c3c800ef31",
         "scripts/verify-nested-verification-machine-owner.mjs": "5adf4a76802548e7628d2d4ed896dea5d11c236fb612771776006b809978a44d",
         "scripts/verify-nested-doctor-fence-projection.mjs": "bea64502818e2ee6903093e85d1b4a9f69e92c6237ddd5ddcdb30a29601b5d34"
       }
@@ -12535,9 +12535,9 @@
       ],
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "2f091dd019083d15d54fc3a07ded36bc633c421aa22b6bf4305fdebd09c5301b",
-        "packages/main/src/core/validation-execution-lock.ts": "df2f9b991c04e6a7cda5344f8514fa569919bd5759831d0ed4242382c3785d48",
-        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
-        "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
+        "packages/main/src/core/validation-execution-lock.ts": "61e648866c218638e0a91d4b16e6559a0c17522c6219e1414a42d1d3f03f3606",
+        "packages/main/src/core/validation-executor.ts": "2a604d107b983a1f414effab0765d291c5963762aff3a73b2699cbca36f83cee",
+        "packages/main/src/core/validation-reservation-delegation.ts": "8fd738f2ea3e4805288071f02dc8d320299965f0c56938368c7834470828dbf2",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "2ea0c8ef35a8b1dae29e0ec9ad6338a49ef20ecb512cb4b87f23dcce5834e505",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
@@ -12556,7 +12556,7 @@
         "scripts/verify-nested-reservation-registration-race.mjs": "2abce7fb319062cf53e55db924d24258c78d72370e920d3965965278008b91be",
         "scripts/verify-nested-reservation-wrapper-transport.mjs": "8c464e360e00bf8d6e86c8afb03ec0ce175a3652f02430a9df612fec89fbe1bf",
         "scripts/verify-nested-source-loader-semantics.mjs": "9d26caa55d934139a4175af2d65888ba99c79a1bcb3d912c86d5bed2534927d6",
-        "scripts/verify-nested-validation-result-contract.mjs": "f1f7dd762ba067a7699c4e70633fe20b37e6e907147db27b942b506ac4bc9c50",
+        "scripts/verify-nested-validation-result-contract.mjs": "d66685425220b43288afc0fd3852ba1d1386e664602804c192cac5c3c800ef31",
         "scripts/verify-nested-verification-machine-owner.mjs": "5adf4a76802548e7628d2d4ed896dea5d11c236fb612771776006b809978a44d",
         "scripts/verify-nested-doctor-fence-projection.mjs": "bea64502818e2ee6903093e85d1b4a9f69e92c6237ddd5ddcdb30a29601b5d34"
       }
@@ -12648,9 +12648,9 @@
       ],
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "2f091dd019083d15d54fc3a07ded36bc633c421aa22b6bf4305fdebd09c5301b",
-        "packages/main/src/core/validation-execution-lock.ts": "df2f9b991c04e6a7cda5344f8514fa569919bd5759831d0ed4242382c3785d48",
-        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
-        "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
+        "packages/main/src/core/validation-execution-lock.ts": "61e648866c218638e0a91d4b16e6559a0c17522c6219e1414a42d1d3f03f3606",
+        "packages/main/src/core/validation-executor.ts": "2a604d107b983a1f414effab0765d291c5963762aff3a73b2699cbca36f83cee",
+        "packages/main/src/core/validation-reservation-delegation.ts": "8fd738f2ea3e4805288071f02dc8d320299965f0c56938368c7834470828dbf2",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "2ea0c8ef35a8b1dae29e0ec9ad6338a49ef20ecb512cb4b87f23dcce5834e505",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
@@ -12669,7 +12669,7 @@
         "scripts/verify-nested-reservation-registration-race.mjs": "2abce7fb319062cf53e55db924d24258c78d72370e920d3965965278008b91be",
         "scripts/verify-nested-reservation-wrapper-transport.mjs": "8c464e360e00bf8d6e86c8afb03ec0ce175a3652f02430a9df612fec89fbe1bf",
         "scripts/verify-nested-source-loader-semantics.mjs": "9d26caa55d934139a4175af2d65888ba99c79a1bcb3d912c86d5bed2534927d6",
-        "scripts/verify-nested-validation-result-contract.mjs": "f1f7dd762ba067a7699c4e70633fe20b37e6e907147db27b942b506ac4bc9c50",
+        "scripts/verify-nested-validation-result-contract.mjs": "d66685425220b43288afc0fd3852ba1d1386e664602804c192cac5c3c800ef31",
         "scripts/verify-nested-verification-machine-owner.mjs": "5adf4a76802548e7628d2d4ed896dea5d11c236fb612771776006b809978a44d",
         "scripts/verify-nested-doctor-fence-projection.mjs": "bea64502818e2ee6903093e85d1b4a9f69e92c6237ddd5ddcdb30a29601b5d34"
       }
@@ -12761,9 +12761,9 @@
       ],
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "2f091dd019083d15d54fc3a07ded36bc633c421aa22b6bf4305fdebd09c5301b",
-        "packages/main/src/core/validation-execution-lock.ts": "df2f9b991c04e6a7cda5344f8514fa569919bd5759831d0ed4242382c3785d48",
-        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
-        "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
+        "packages/main/src/core/validation-execution-lock.ts": "61e648866c218638e0a91d4b16e6559a0c17522c6219e1414a42d1d3f03f3606",
+        "packages/main/src/core/validation-executor.ts": "2a604d107b983a1f414effab0765d291c5963762aff3a73b2699cbca36f83cee",
+        "packages/main/src/core/validation-reservation-delegation.ts": "8fd738f2ea3e4805288071f02dc8d320299965f0c56938368c7834470828dbf2",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "2ea0c8ef35a8b1dae29e0ec9ad6338a49ef20ecb512cb4b87f23dcce5834e505",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
@@ -12782,7 +12782,7 @@
         "scripts/verify-nested-reservation-registration-race.mjs": "2abce7fb319062cf53e55db924d24258c78d72370e920d3965965278008b91be",
         "scripts/verify-nested-reservation-wrapper-transport.mjs": "8c464e360e00bf8d6e86c8afb03ec0ce175a3652f02430a9df612fec89fbe1bf",
         "scripts/verify-nested-source-loader-semantics.mjs": "9d26caa55d934139a4175af2d65888ba99c79a1bcb3d912c86d5bed2534927d6",
-        "scripts/verify-nested-validation-result-contract.mjs": "f1f7dd762ba067a7699c4e70633fe20b37e6e907147db27b942b506ac4bc9c50",
+        "scripts/verify-nested-validation-result-contract.mjs": "d66685425220b43288afc0fd3852ba1d1386e664602804c192cac5c3c800ef31",
         "scripts/verify-nested-verification-machine-owner.mjs": "5adf4a76802548e7628d2d4ed896dea5d11c236fb612771776006b809978a44d",
         "scripts/verify-nested-doctor-fence-projection.mjs": "bea64502818e2ee6903093e85d1b4a9f69e92c6237ddd5ddcdb30a29601b5d34"
       }
@@ -12874,9 +12874,9 @@
       ],
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "2f091dd019083d15d54fc3a07ded36bc633c421aa22b6bf4305fdebd09c5301b",
-        "packages/main/src/core/validation-execution-lock.ts": "df2f9b991c04e6a7cda5344f8514fa569919bd5759831d0ed4242382c3785d48",
-        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
-        "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
+        "packages/main/src/core/validation-execution-lock.ts": "61e648866c218638e0a91d4b16e6559a0c17522c6219e1414a42d1d3f03f3606",
+        "packages/main/src/core/validation-executor.ts": "2a604d107b983a1f414effab0765d291c5963762aff3a73b2699cbca36f83cee",
+        "packages/main/src/core/validation-reservation-delegation.ts": "8fd738f2ea3e4805288071f02dc8d320299965f0c56938368c7834470828dbf2",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "2ea0c8ef35a8b1dae29e0ec9ad6338a49ef20ecb512cb4b87f23dcce5834e505",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
@@ -12895,7 +12895,7 @@
         "scripts/verify-nested-reservation-registration-race.mjs": "2abce7fb319062cf53e55db924d24258c78d72370e920d3965965278008b91be",
         "scripts/verify-nested-reservation-wrapper-transport.mjs": "8c464e360e00bf8d6e86c8afb03ec0ce175a3652f02430a9df612fec89fbe1bf",
         "scripts/verify-nested-source-loader-semantics.mjs": "9d26caa55d934139a4175af2d65888ba99c79a1bcb3d912c86d5bed2534927d6",
-        "scripts/verify-nested-validation-result-contract.mjs": "f1f7dd762ba067a7699c4e70633fe20b37e6e907147db27b942b506ac4bc9c50",
+        "scripts/verify-nested-validation-result-contract.mjs": "d66685425220b43288afc0fd3852ba1d1386e664602804c192cac5c3c800ef31",
         "scripts/verify-nested-verification-machine-owner.mjs": "5adf4a76802548e7628d2d4ed896dea5d11c236fb612771776006b809978a44d",
         "scripts/verify-nested-doctor-fence-projection.mjs": "bea64502818e2ee6903093e85d1b4a9f69e92c6237ddd5ddcdb30a29601b5d34"
       }
@@ -12987,9 +12987,9 @@
       ],
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "2f091dd019083d15d54fc3a07ded36bc633c421aa22b6bf4305fdebd09c5301b",
-        "packages/main/src/core/validation-execution-lock.ts": "df2f9b991c04e6a7cda5344f8514fa569919bd5759831d0ed4242382c3785d48",
-        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
-        "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
+        "packages/main/src/core/validation-execution-lock.ts": "61e648866c218638e0a91d4b16e6559a0c17522c6219e1414a42d1d3f03f3606",
+        "packages/main/src/core/validation-executor.ts": "2a604d107b983a1f414effab0765d291c5963762aff3a73b2699cbca36f83cee",
+        "packages/main/src/core/validation-reservation-delegation.ts": "8fd738f2ea3e4805288071f02dc8d320299965f0c56938368c7834470828dbf2",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "2ea0c8ef35a8b1dae29e0ec9ad6338a49ef20ecb512cb4b87f23dcce5834e505",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
@@ -13008,7 +13008,7 @@
         "scripts/verify-nested-reservation-registration-race.mjs": "2abce7fb319062cf53e55db924d24258c78d72370e920d3965965278008b91be",
         "scripts/verify-nested-reservation-wrapper-transport.mjs": "8c464e360e00bf8d6e86c8afb03ec0ce175a3652f02430a9df612fec89fbe1bf",
         "scripts/verify-nested-source-loader-semantics.mjs": "9d26caa55d934139a4175af2d65888ba99c79a1bcb3d912c86d5bed2534927d6",
-        "scripts/verify-nested-validation-result-contract.mjs": "f1f7dd762ba067a7699c4e70633fe20b37e6e907147db27b942b506ac4bc9c50",
+        "scripts/verify-nested-validation-result-contract.mjs": "d66685425220b43288afc0fd3852ba1d1386e664602804c192cac5c3c800ef31",
         "scripts/verify-nested-verification-machine-owner.mjs": "5adf4a76802548e7628d2d4ed896dea5d11c236fb612771776006b809978a44d",
         "scripts/verify-nested-doctor-fence-projection.mjs": "bea64502818e2ee6903093e85d1b4a9f69e92c6237ddd5ddcdb30a29601b5d34"
       }
@@ -13100,9 +13100,9 @@
       ],
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "2f091dd019083d15d54fc3a07ded36bc633c421aa22b6bf4305fdebd09c5301b",
-        "packages/main/src/core/validation-execution-lock.ts": "df2f9b991c04e6a7cda5344f8514fa569919bd5759831d0ed4242382c3785d48",
-        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
-        "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
+        "packages/main/src/core/validation-execution-lock.ts": "61e648866c218638e0a91d4b16e6559a0c17522c6219e1414a42d1d3f03f3606",
+        "packages/main/src/core/validation-executor.ts": "2a604d107b983a1f414effab0765d291c5963762aff3a73b2699cbca36f83cee",
+        "packages/main/src/core/validation-reservation-delegation.ts": "8fd738f2ea3e4805288071f02dc8d320299965f0c56938368c7834470828dbf2",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "2ea0c8ef35a8b1dae29e0ec9ad6338a49ef20ecb512cb4b87f23dcce5834e505",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
@@ -13121,7 +13121,7 @@
         "scripts/verify-nested-reservation-registration-race.mjs": "2abce7fb319062cf53e55db924d24258c78d72370e920d3965965278008b91be",
         "scripts/verify-nested-reservation-wrapper-transport.mjs": "8c464e360e00bf8d6e86c8afb03ec0ce175a3652f02430a9df612fec89fbe1bf",
         "scripts/verify-nested-source-loader-semantics.mjs": "9d26caa55d934139a4175af2d65888ba99c79a1bcb3d912c86d5bed2534927d6",
-        "scripts/verify-nested-validation-result-contract.mjs": "f1f7dd762ba067a7699c4e70633fe20b37e6e907147db27b942b506ac4bc9c50",
+        "scripts/verify-nested-validation-result-contract.mjs": "d66685425220b43288afc0fd3852ba1d1386e664602804c192cac5c3c800ef31",
         "scripts/verify-nested-verification-machine-owner.mjs": "5adf4a76802548e7628d2d4ed896dea5d11c236fb612771776006b809978a44d",
         "scripts/verify-nested-doctor-fence-projection.mjs": "bea64502818e2ee6903093e85d1b4a9f69e92c6237ddd5ddcdb30a29601b5d34"
       }
@@ -13213,9 +13213,9 @@
       ],
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "2f091dd019083d15d54fc3a07ded36bc633c421aa22b6bf4305fdebd09c5301b",
-        "packages/main/src/core/validation-execution-lock.ts": "df2f9b991c04e6a7cda5344f8514fa569919bd5759831d0ed4242382c3785d48",
-        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
-        "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
+        "packages/main/src/core/validation-execution-lock.ts": "61e648866c218638e0a91d4b16e6559a0c17522c6219e1414a42d1d3f03f3606",
+        "packages/main/src/core/validation-executor.ts": "2a604d107b983a1f414effab0765d291c5963762aff3a73b2699cbca36f83cee",
+        "packages/main/src/core/validation-reservation-delegation.ts": "8fd738f2ea3e4805288071f02dc8d320299965f0c56938368c7834470828dbf2",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "2ea0c8ef35a8b1dae29e0ec9ad6338a49ef20ecb512cb4b87f23dcce5834e505",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
@@ -13234,7 +13234,7 @@
         "scripts/verify-nested-reservation-registration-race.mjs": "2abce7fb319062cf53e55db924d24258c78d72370e920d3965965278008b91be",
         "scripts/verify-nested-reservation-wrapper-transport.mjs": "8c464e360e00bf8d6e86c8afb03ec0ce175a3652f02430a9df612fec89fbe1bf",
         "scripts/verify-nested-source-loader-semantics.mjs": "9d26caa55d934139a4175af2d65888ba99c79a1bcb3d912c86d5bed2534927d6",
-        "scripts/verify-nested-validation-result-contract.mjs": "f1f7dd762ba067a7699c4e70633fe20b37e6e907147db27b942b506ac4bc9c50",
+        "scripts/verify-nested-validation-result-contract.mjs": "d66685425220b43288afc0fd3852ba1d1386e664602804c192cac5c3c800ef31",
         "scripts/verify-nested-verification-machine-owner.mjs": "5adf4a76802548e7628d2d4ed896dea5d11c236fb612771776006b809978a44d",
         "scripts/verify-nested-doctor-fence-projection.mjs": "bea64502818e2ee6903093e85d1b4a9f69e92c6237ddd5ddcdb30a29601b5d34"
       }
@@ -13326,9 +13326,9 @@
       ],
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "2f091dd019083d15d54fc3a07ded36bc633c421aa22b6bf4305fdebd09c5301b",
-        "packages/main/src/core/validation-execution-lock.ts": "df2f9b991c04e6a7cda5344f8514fa569919bd5759831d0ed4242382c3785d48",
-        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
-        "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
+        "packages/main/src/core/validation-execution-lock.ts": "61e648866c218638e0a91d4b16e6559a0c17522c6219e1414a42d1d3f03f3606",
+        "packages/main/src/core/validation-executor.ts": "2a604d107b983a1f414effab0765d291c5963762aff3a73b2699cbca36f83cee",
+        "packages/main/src/core/validation-reservation-delegation.ts": "8fd738f2ea3e4805288071f02dc8d320299965f0c56938368c7834470828dbf2",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "2ea0c8ef35a8b1dae29e0ec9ad6338a49ef20ecb512cb4b87f23dcce5834e505",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
@@ -13347,7 +13347,7 @@
         "scripts/verify-nested-reservation-registration-race.mjs": "2abce7fb319062cf53e55db924d24258c78d72370e920d3965965278008b91be",
         "scripts/verify-nested-reservation-wrapper-transport.mjs": "8c464e360e00bf8d6e86c8afb03ec0ce175a3652f02430a9df612fec89fbe1bf",
         "scripts/verify-nested-source-loader-semantics.mjs": "9d26caa55d934139a4175af2d65888ba99c79a1bcb3d912c86d5bed2534927d6",
-        "scripts/verify-nested-validation-result-contract.mjs": "f1f7dd762ba067a7699c4e70633fe20b37e6e907147db27b942b506ac4bc9c50",
+        "scripts/verify-nested-validation-result-contract.mjs": "d66685425220b43288afc0fd3852ba1d1386e664602804c192cac5c3c800ef31",
         "scripts/verify-nested-verification-machine-owner.mjs": "5adf4a76802548e7628d2d4ed896dea5d11c236fb612771776006b809978a44d",
         "scripts/verify-nested-doctor-fence-projection.mjs": "bea64502818e2ee6903093e85d1b4a9f69e92c6237ddd5ddcdb30a29601b5d34"
       }
@@ -13439,9 +13439,9 @@
       ],
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "2f091dd019083d15d54fc3a07ded36bc633c421aa22b6bf4305fdebd09c5301b",
-        "packages/main/src/core/validation-execution-lock.ts": "df2f9b991c04e6a7cda5344f8514fa569919bd5759831d0ed4242382c3785d48",
-        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
-        "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
+        "packages/main/src/core/validation-execution-lock.ts": "61e648866c218638e0a91d4b16e6559a0c17522c6219e1414a42d1d3f03f3606",
+        "packages/main/src/core/validation-executor.ts": "2a604d107b983a1f414effab0765d291c5963762aff3a73b2699cbca36f83cee",
+        "packages/main/src/core/validation-reservation-delegation.ts": "8fd738f2ea3e4805288071f02dc8d320299965f0c56938368c7834470828dbf2",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "2ea0c8ef35a8b1dae29e0ec9ad6338a49ef20ecb512cb4b87f23dcce5834e505",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
@@ -13460,7 +13460,7 @@
         "scripts/verify-nested-reservation-registration-race.mjs": "2abce7fb319062cf53e55db924d24258c78d72370e920d3965965278008b91be",
         "scripts/verify-nested-reservation-wrapper-transport.mjs": "8c464e360e00bf8d6e86c8afb03ec0ce175a3652f02430a9df612fec89fbe1bf",
         "scripts/verify-nested-source-loader-semantics.mjs": "9d26caa55d934139a4175af2d65888ba99c79a1bcb3d912c86d5bed2534927d6",
-        "scripts/verify-nested-validation-result-contract.mjs": "f1f7dd762ba067a7699c4e70633fe20b37e6e907147db27b942b506ac4bc9c50",
+        "scripts/verify-nested-validation-result-contract.mjs": "d66685425220b43288afc0fd3852ba1d1386e664602804c192cac5c3c800ef31",
         "scripts/verify-nested-verification-machine-owner.mjs": "5adf4a76802548e7628d2d4ed896dea5d11c236fb612771776006b809978a44d",
         "scripts/verify-nested-doctor-fence-projection.mjs": "bea64502818e2ee6903093e85d1b4a9f69e92c6237ddd5ddcdb30a29601b5d34"
       }
@@ -13552,9 +13552,9 @@
       ],
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "2f091dd019083d15d54fc3a07ded36bc633c421aa22b6bf4305fdebd09c5301b",
-        "packages/main/src/core/validation-execution-lock.ts": "df2f9b991c04e6a7cda5344f8514fa569919bd5759831d0ed4242382c3785d48",
-        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
-        "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
+        "packages/main/src/core/validation-execution-lock.ts": "61e648866c218638e0a91d4b16e6559a0c17522c6219e1414a42d1d3f03f3606",
+        "packages/main/src/core/validation-executor.ts": "2a604d107b983a1f414effab0765d291c5963762aff3a73b2699cbca36f83cee",
+        "packages/main/src/core/validation-reservation-delegation.ts": "8fd738f2ea3e4805288071f02dc8d320299965f0c56938368c7834470828dbf2",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "2ea0c8ef35a8b1dae29e0ec9ad6338a49ef20ecb512cb4b87f23dcce5834e505",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
@@ -13573,16 +13573,16 @@
         "scripts/verify-nested-reservation-registration-race.mjs": "2abce7fb319062cf53e55db924d24258c78d72370e920d3965965278008b91be",
         "scripts/verify-nested-reservation-wrapper-transport.mjs": "8c464e360e00bf8d6e86c8afb03ec0ce175a3652f02430a9df612fec89fbe1bf",
         "scripts/verify-nested-source-loader-semantics.mjs": "9d26caa55d934139a4175af2d65888ba99c79a1bcb3d912c86d5bed2534927d6",
-        "scripts/verify-nested-validation-result-contract.mjs": "f1f7dd762ba067a7699c4e70633fe20b37e6e907147db27b942b506ac4bc9c50",
+        "scripts/verify-nested-validation-result-contract.mjs": "d66685425220b43288afc0fd3852ba1d1386e664602804c192cac5c3c800ef31",
         "scripts/verify-nested-verification-machine-owner.mjs": "5adf4a76802548e7628d2d4ed896dea5d11c236fb612771776006b809978a44d",
         "scripts/verify-nested-doctor-fence-projection.mjs": "bea64502818e2ee6903093e85d1b4a9f69e92c6237ddd5ddcdb30a29601b5d34"
       }
     },
     {
       "id": "EX-NESTED-RESERVATION-13",
-      "key": "scripts/verify-nested-validation-result-contract.mjs:172:spawnSync",
+      "key": "scripts/verify-nested-validation-result-contract.mjs:174:spawnSync",
       "callDigest": "92697110e2f1fbc2d71c79025bc2f5d23a6db94fb2e8cbdcb1edd353ffa3d09b",
-      "sourceDigest": "f1f7dd762ba067a7699c4e70633fe20b37e6e907147db27b942b506ac4bc9c50",
+      "sourceDigest": "d66685425220b43288afc0fd3852ba1d1386e664602804c192cac5c3c800ef31",
       "configIndexes": [
         173,
         174,
@@ -13657,17 +13657,17 @@
       "requiredEvidence": [
         {
           "file": "scripts/verify-nested-validation-result-contract.mjs",
-          "startLine": 171,
-          "endLine": 173,
-          "sourceDigest": "f1f7dd762ba067a7699c4e70633fe20b37e6e907147db27b942b506ac4bc9c50",
+          "startLine": 173,
+          "endLine": 175,
+          "sourceDigest": "d66685425220b43288afc0fd3852ba1d1386e664602804c192cac5c3c800ef31",
           "excerpt": " console.log('VALIDATION_RESULT_CONTRACT '+${JSON.stringify(mode)}+' PASS');`);\n try{const child=spawnSync(process.execPath,[entry],{env,encoding:'utf8',timeout:12000,maxBuffer:128*1024});process.stdout.write(child.stdout??'');process.stderr.write(child.stderr??'');assert.equal(child.status,0,'VALIDATION_RESULT_CONTRACT '+mode);}finally{rmSync(base,{recursive:true,force:true});}\n}"
         }
       ],
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "2f091dd019083d15d54fc3a07ded36bc633c421aa22b6bf4305fdebd09c5301b",
-        "packages/main/src/core/validation-execution-lock.ts": "df2f9b991c04e6a7cda5344f8514fa569919bd5759831d0ed4242382c3785d48",
-        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
-        "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
+        "packages/main/src/core/validation-execution-lock.ts": "61e648866c218638e0a91d4b16e6559a0c17522c6219e1414a42d1d3f03f3606",
+        "packages/main/src/core/validation-executor.ts": "2a604d107b983a1f414effab0765d291c5963762aff3a73b2699cbca36f83cee",
+        "packages/main/src/core/validation-reservation-delegation.ts": "8fd738f2ea3e4805288071f02dc8d320299965f0c56938368c7834470828dbf2",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "2ea0c8ef35a8b1dae29e0ec9ad6338a49ef20ecb512cb4b87f23dcce5834e505",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
@@ -13686,7 +13686,7 @@
         "scripts/verify-nested-reservation-registration-race.mjs": "2abce7fb319062cf53e55db924d24258c78d72370e920d3965965278008b91be",
         "scripts/verify-nested-reservation-wrapper-transport.mjs": "8c464e360e00bf8d6e86c8afb03ec0ce175a3652f02430a9df612fec89fbe1bf",
         "scripts/verify-nested-source-loader-semantics.mjs": "9d26caa55d934139a4175af2d65888ba99c79a1bcb3d912c86d5bed2534927d6",
-        "scripts/verify-nested-validation-result-contract.mjs": "f1f7dd762ba067a7699c4e70633fe20b37e6e907147db27b942b506ac4bc9c50",
+        "scripts/verify-nested-validation-result-contract.mjs": "d66685425220b43288afc0fd3852ba1d1386e664602804c192cac5c3c800ef31",
         "scripts/verify-nested-verification-machine-owner.mjs": "5adf4a76802548e7628d2d4ed896dea5d11c236fb612771776006b809978a44d",
         "scripts/verify-nested-doctor-fence-projection.mjs": "bea64502818e2ee6903093e85d1b4a9f69e92c6237ddd5ddcdb30a29601b5d34"
       }
@@ -13778,9 +13778,9 @@
       ],
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "2f091dd019083d15d54fc3a07ded36bc633c421aa22b6bf4305fdebd09c5301b",
-        "packages/main/src/core/validation-execution-lock.ts": "df2f9b991c04e6a7cda5344f8514fa569919bd5759831d0ed4242382c3785d48",
-        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
-        "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
+        "packages/main/src/core/validation-execution-lock.ts": "61e648866c218638e0a91d4b16e6559a0c17522c6219e1414a42d1d3f03f3606",
+        "packages/main/src/core/validation-executor.ts": "2a604d107b983a1f414effab0765d291c5963762aff3a73b2699cbca36f83cee",
+        "packages/main/src/core/validation-reservation-delegation.ts": "8fd738f2ea3e4805288071f02dc8d320299965f0c56938368c7834470828dbf2",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "2ea0c8ef35a8b1dae29e0ec9ad6338a49ef20ecb512cb4b87f23dcce5834e505",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
@@ -13799,7 +13799,7 @@
         "scripts/verify-nested-reservation-registration-race.mjs": "2abce7fb319062cf53e55db924d24258c78d72370e920d3965965278008b91be",
         "scripts/verify-nested-reservation-wrapper-transport.mjs": "8c464e360e00bf8d6e86c8afb03ec0ce175a3652f02430a9df612fec89fbe1bf",
         "scripts/verify-nested-source-loader-semantics.mjs": "9d26caa55d934139a4175af2d65888ba99c79a1bcb3d912c86d5bed2534927d6",
-        "scripts/verify-nested-validation-result-contract.mjs": "f1f7dd762ba067a7699c4e70633fe20b37e6e907147db27b942b506ac4bc9c50",
+        "scripts/verify-nested-validation-result-contract.mjs": "d66685425220b43288afc0fd3852ba1d1386e664602804c192cac5c3c800ef31",
         "scripts/verify-nested-verification-machine-owner.mjs": "5adf4a76802548e7628d2d4ed896dea5d11c236fb612771776006b809978a44d",
         "scripts/verify-nested-doctor-fence-projection.mjs": "bea64502818e2ee6903093e85d1b4a9f69e92c6237ddd5ddcdb30a29601b5d34"
       }
@@ -13891,9 +13891,9 @@
       ],
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "2f091dd019083d15d54fc3a07ded36bc633c421aa22b6bf4305fdebd09c5301b",
-        "packages/main/src/core/validation-execution-lock.ts": "df2f9b991c04e6a7cda5344f8514fa569919bd5759831d0ed4242382c3785d48",
-        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
-        "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
+        "packages/main/src/core/validation-execution-lock.ts": "61e648866c218638e0a91d4b16e6559a0c17522c6219e1414a42d1d3f03f3606",
+        "packages/main/src/core/validation-executor.ts": "2a604d107b983a1f414effab0765d291c5963762aff3a73b2699cbca36f83cee",
+        "packages/main/src/core/validation-reservation-delegation.ts": "8fd738f2ea3e4805288071f02dc8d320299965f0c56938368c7834470828dbf2",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "2ea0c8ef35a8b1dae29e0ec9ad6338a49ef20ecb512cb4b87f23dcce5834e505",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
@@ -13912,7 +13912,7 @@
         "scripts/verify-nested-reservation-registration-race.mjs": "2abce7fb319062cf53e55db924d24258c78d72370e920d3965965278008b91be",
         "scripts/verify-nested-reservation-wrapper-transport.mjs": "8c464e360e00bf8d6e86c8afb03ec0ce175a3652f02430a9df612fec89fbe1bf",
         "scripts/verify-nested-source-loader-semantics.mjs": "9d26caa55d934139a4175af2d65888ba99c79a1bcb3d912c86d5bed2534927d6",
-        "scripts/verify-nested-validation-result-contract.mjs": "f1f7dd762ba067a7699c4e70633fe20b37e6e907147db27b942b506ac4bc9c50",
+        "scripts/verify-nested-validation-result-contract.mjs": "d66685425220b43288afc0fd3852ba1d1386e664602804c192cac5c3c800ef31",
         "scripts/verify-nested-verification-machine-owner.mjs": "5adf4a76802548e7628d2d4ed896dea5d11c236fb612771776006b809978a44d",
         "scripts/verify-nested-doctor-fence-projection.mjs": "bea64502818e2ee6903093e85d1b4a9f69e92c6237ddd5ddcdb30a29601b5d34"
       }
@@ -14004,9 +14004,9 @@
       ],
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "2f091dd019083d15d54fc3a07ded36bc633c421aa22b6bf4305fdebd09c5301b",
-        "packages/main/src/core/validation-execution-lock.ts": "df2f9b991c04e6a7cda5344f8514fa569919bd5759831d0ed4242382c3785d48",
-        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
-        "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
+        "packages/main/src/core/validation-execution-lock.ts": "61e648866c218638e0a91d4b16e6559a0c17522c6219e1414a42d1d3f03f3606",
+        "packages/main/src/core/validation-executor.ts": "2a604d107b983a1f414effab0765d291c5963762aff3a73b2699cbca36f83cee",
+        "packages/main/src/core/validation-reservation-delegation.ts": "8fd738f2ea3e4805288071f02dc8d320299965f0c56938368c7834470828dbf2",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "2ea0c8ef35a8b1dae29e0ec9ad6338a49ef20ecb512cb4b87f23dcce5834e505",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
@@ -14025,7 +14025,7 @@
         "scripts/verify-nested-reservation-registration-race.mjs": "2abce7fb319062cf53e55db924d24258c78d72370e920d3965965278008b91be",
         "scripts/verify-nested-reservation-wrapper-transport.mjs": "8c464e360e00bf8d6e86c8afb03ec0ce175a3652f02430a9df612fec89fbe1bf",
         "scripts/verify-nested-source-loader-semantics.mjs": "9d26caa55d934139a4175af2d65888ba99c79a1bcb3d912c86d5bed2534927d6",
-        "scripts/verify-nested-validation-result-contract.mjs": "f1f7dd762ba067a7699c4e70633fe20b37e6e907147db27b942b506ac4bc9c50",
+        "scripts/verify-nested-validation-result-contract.mjs": "d66685425220b43288afc0fd3852ba1d1386e664602804c192cac5c3c800ef31",
         "scripts/verify-nested-verification-machine-owner.mjs": "5adf4a76802548e7628d2d4ed896dea5d11c236fb612771776006b809978a44d",
         "scripts/verify-nested-doctor-fence-projection.mjs": "bea64502818e2ee6903093e85d1b4a9f69e92c6237ddd5ddcdb30a29601b5d34"
       }
@@ -14117,9 +14117,9 @@
       ],
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "2f091dd019083d15d54fc3a07ded36bc633c421aa22b6bf4305fdebd09c5301b",
-        "packages/main/src/core/validation-execution-lock.ts": "df2f9b991c04e6a7cda5344f8514fa569919bd5759831d0ed4242382c3785d48",
-        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
-        "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
+        "packages/main/src/core/validation-execution-lock.ts": "61e648866c218638e0a91d4b16e6559a0c17522c6219e1414a42d1d3f03f3606",
+        "packages/main/src/core/validation-executor.ts": "2a604d107b983a1f414effab0765d291c5963762aff3a73b2699cbca36f83cee",
+        "packages/main/src/core/validation-reservation-delegation.ts": "8fd738f2ea3e4805288071f02dc8d320299965f0c56938368c7834470828dbf2",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "2ea0c8ef35a8b1dae29e0ec9ad6338a49ef20ecb512cb4b87f23dcce5834e505",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
@@ -14138,7 +14138,7 @@
         "scripts/verify-nested-reservation-registration-race.mjs": "2abce7fb319062cf53e55db924d24258c78d72370e920d3965965278008b91be",
         "scripts/verify-nested-reservation-wrapper-transport.mjs": "8c464e360e00bf8d6e86c8afb03ec0ce175a3652f02430a9df612fec89fbe1bf",
         "scripts/verify-nested-source-loader-semantics.mjs": "9d26caa55d934139a4175af2d65888ba99c79a1bcb3d912c86d5bed2534927d6",
-        "scripts/verify-nested-validation-result-contract.mjs": "f1f7dd762ba067a7699c4e70633fe20b37e6e907147db27b942b506ac4bc9c50",
+        "scripts/verify-nested-validation-result-contract.mjs": "d66685425220b43288afc0fd3852ba1d1386e664602804c192cac5c3c800ef31",
         "scripts/verify-nested-verification-machine-owner.mjs": "5adf4a76802548e7628d2d4ed896dea5d11c236fb612771776006b809978a44d",
         "scripts/verify-nested-doctor-fence-projection.mjs": "bea64502818e2ee6903093e85d1b4a9f69e92c6237ddd5ddcdb30a29601b5d34"
       }
@@ -14230,9 +14230,9 @@
       ],
       "dependencyDigests": {
         "packages/main/src/core/runtime-fact-registry.ts": "2f091dd019083d15d54fc3a07ded36bc633c421aa22b6bf4305fdebd09c5301b",
-        "packages/main/src/core/validation-execution-lock.ts": "df2f9b991c04e6a7cda5344f8514fa569919bd5759831d0ed4242382c3785d48",
-        "packages/main/src/core/validation-executor.ts": "7f8910d5f67f780e7d6da1edcaf51f8950144230ad15d6b01b0d1773ac9352cc",
-        "packages/main/src/core/validation-reservation-delegation.ts": "f72fd864a2aa65e4152dfb4d6e286b84cce613075641a3ef9b7dfed58fd4004a",
+        "packages/main/src/core/validation-execution-lock.ts": "61e648866c218638e0a91d4b16e6559a0c17522c6219e1414a42d1d3f03f3606",
+        "packages/main/src/core/validation-executor.ts": "2a604d107b983a1f414effab0765d291c5963762aff3a73b2699cbca36f83cee",
+        "packages/main/src/core/validation-reservation-delegation.ts": "8fd738f2ea3e4805288071f02dc8d320299965f0c56938368c7834470828dbf2",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "proof-or-stop.config.json": "2ea0c8ef35a8b1dae29e0ec9ad6338a49ef20ecb512cb4b87f23dcce5834e505",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
@@ -14252,7 +14252,7 @@
         "scripts/verify-nested-reservation-registration-race.mjs": "2abce7fb319062cf53e55db924d24258c78d72370e920d3965965278008b91be",
         "scripts/verify-nested-reservation-wrapper-transport.mjs": "8c464e360e00bf8d6e86c8afb03ec0ce175a3652f02430a9df612fec89fbe1bf",
         "scripts/verify-nested-source-loader-semantics.mjs": "9d26caa55d934139a4175af2d65888ba99c79a1bcb3d912c86d5bed2534927d6",
-        "scripts/verify-nested-validation-result-contract.mjs": "f1f7dd762ba067a7699c4e70633fe20b37e6e907147db27b942b506ac4bc9c50",
+        "scripts/verify-nested-validation-result-contract.mjs": "d66685425220b43288afc0fd3852ba1d1386e664602804c192cac5c3c800ef31",
         "scripts/verify-nested-verification-machine-owner.mjs": "5adf4a76802548e7628d2d4ed896dea5d11c236fb612771776006b809978a44d"
       }
     },
