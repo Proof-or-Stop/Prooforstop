@@ -138,7 +138,7 @@ function artifactTreeDigest(root: string): string {
  * re-appended, so a tree under a symlinked checkout and a tree a build has
  * not created yet compare in the same path space.
  */
-function canonicalizeExisting(path: string): string {
+export function canonicalizeExistingPath(path: string): string {
   let current = path;
   const tail: string[] = [];
   for (;;) {
@@ -183,7 +183,7 @@ function portableRelativePath(path: string): string {
  */
 export function logicalCommandCwd(projectRoot: string, cwd?: string): string {
   const root = resolve(projectRoot);
-  const rel = portableRelativePath(relative(canonicalizeExisting(root), canonicalizeExisting(launchedCommandCwd(root, cwd))));
+  const rel = portableRelativePath(relative(canonicalizeExistingPath(root), canonicalizeExistingPath(launchedCommandCwd(root, cwd))));
   return rel === '' ? '.' : rel;
 }
 

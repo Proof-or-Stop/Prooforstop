@@ -29,7 +29,7 @@ registerHooks({ load(url, context, nextLoad) {
 } });
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, linkSync, mkdtempSync, mkdirSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync, chmodSync } from 'node:fs';
+import { cpSync, existsSync, linkSync, lstatSync, mkdtempSync, mkdirSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync, chmodSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 
@@ -488,10 +488,25 @@ try {
       expectRepaired(modeAdmission.ok === false && modeAdmission.reasonCodes.includes('build_artifacts_mismatch'), `admissibility accepted a PASS after a directory's search bits changed (codes=${modeAdmission.reasonCodes.join(',')})`);
       chmodSync(emptyDir, 0o755);
       check(binding.currentBuildArtifactsHash(root) === searchable, 'control: restoring the search bits restores the identity');
-      // A directory this process cannot search is unavailable, never digested as empty.
+      // A directory this process cannot search is unavailable, never digested
+      // as empty. Root bypasses directory permissions (DAC), so the refusal is
+      // asserted only where the traversal actually fails; a process that can
+      // still traverse it must instead see a digest that reflects the mode.
       writeFileSync(join(emptyDir, 'inner.js'), 'process.exit(0);\n');
+      chmodSync(emptyDir, 0o755);
+      const searchableWithFile = binding.currentBuildArtifactsHash(root);
       chmodSync(emptyDir, 0o644);
-      expectRepaired(binding.currentBuildArtifactsHash(root) === undefined, 'a non-empty directory without search permission was digested instead of refused');
+      // Traversable only when an lstat INSIDE the directory succeeds; any
+      // failure means the refusal is expected (the safe direction).
+      let traversable = false;
+      try { lstatSync(join(emptyDir, 'inner.js')); traversable = true; } catch { traversable = false; }
+      if (!traversable) {
+        expectRepaired(binding.currentBuildArtifactsHash(root) === undefined, 'a non-empty directory without search permission was digested instead of refused');
+      } else {
+        const privileged = binding.currentBuildArtifactsHash(root);
+        expectRepaired(Boolean(privileged) && privileged !== searchableWithFile, 'a process that can still traverse a 0644 directory saw no change in the identity');
+        console.log('non-empty unsearchable directory case: this process can traverse it (privileged); asserted the mode-change digest instead of the refusal');
+      }
       chmodSync(emptyDir, 0o755);
     } finally {
       try { chmodSync(emptyDir, 0o755); } catch { /* already restored */ }
@@ -859,8 +874,29 @@ try {
         // wherever PATH found it; the self-test is reached only through the
         // fixture seam that waives that rule for a disposable wrapper.
         const replaceable = binding.resolveArtifactWriteProtection(h.root, { platform: 'linux', searchPath: brokenDir, cwd: sandbox });
-        expectRepaired(replaceable.enforced === false && replaceable.label.includes('could be replaced by a validation command') && replaceable.label.includes('is writable by this user'),
+        expectRepaired(replaceable.enforced === false && replaceable.label.includes('could be replaced by a validation command') && /owned by this user|writable by this user/.test(replaceable.label),
           `a wrapper in a directory this user can write was not refused as replaceable (${replaceable.label})`);
+        // Audit #28 (1): a failed W_OK check proves nothing for a component
+        // this user OWNS (its owner can chmod it writable again), so a
+        // read-only user-owned wrapper and a read-only user-owned ancestor
+        // are refused as replaceable — without the fixture exemption — and
+        // a component whose ownership cannot be inspected is refused too.
+        if (process.getuid?.() !== 0) {
+          const roDir = join(sandbox, 'ro-owned-wrapper'); mkdirSync(roDir, { recursive: true });
+          writeFileSync(join(roDir, 'bwrap'), '#!/bin/sh\nexit 3\n', { mode: 0o555 });
+          chmodSync(roDir, 0o555);
+          try {
+            const roWrapper = binding.wrapperReplaceableBy(join(roDir, 'bwrap'));
+            expectRepaired(typeof roWrapper === 'string' && roWrapper.includes('owned by this user'), `a read-only wrapper owned by this user was judged unreplaceable (${roWrapper})`);
+            const roAncestor = binding.wrapperReplaceableBy(roDir);
+            expectRepaired(typeof roAncestor === 'string' && roAncestor.includes('owned by this user'), `a read-only ancestor directory owned by this user was judged unreplaceable (${roAncestor})`);
+            const roResolved = binding.resolveArtifactWriteProtection(h.root, { platform: 'linux', searchPath: roDir, cwd: sandbox });
+            expectRepaired(roResolved.enforced === false && roResolved.label.includes('could be replaced by a validation command') && roResolved.label.includes('owned by this user'),
+              `the resolver trusted a read-only wrapper this user owns (${roResolved.label})`);
+          } finally { chmodSync(roDir, 0o755); }
+        }
+        const uninspectable = binding.wrapperReplaceableBy(join(sandbox, 'no-such-dir', 'bwrap'));
+        expectRepaired(typeof uninspectable === 'string' && uninspectable.includes('cannot be inspected'), `a wrapper whose ownership cannot be inspected was judged unreplaceable (${uninspectable})`);
         const broken = binding.resolveArtifactWriteProtection(h.root, { platform: 'linux', searchPath: brokenDir, cwd: sandbox, unsafeTrustReplaceableWrapperForFixture: true });
         expectRepaired(broken.enforced === false && broken.label.startsWith('unenforced:bwrap self-test'),
           `a discoverable wrapper that cannot operate was not reported as its own unenforced failure (${broken.label})`);
@@ -1411,6 +1447,42 @@ if (hostEnforced) {
       }
       writeFileSync(join(mainDist, 'x.js'), BUILD_A);
       rmSync(otherDir, { recursive: true, force: true });
+    }
+    // Audit #28 (2): the artifact root is canonicalised once per plan and
+    // every launch under protection runs in the canonical directory. A
+    // checkout reached through an alias that a command re-points at an
+    // identical second checkout mid-plan does not move where later commands
+    // run, what is observed, or what is protected.
+    {
+      const aliasSandbox = join(planSandbox, 'alias'); mkdirSync(aliasSandbox);
+      const realCheckout = join(aliasSandbox, 'real'); mkdirSync(realCheckout);
+      git(realCheckout, ['init', '-q', '-b', 'main']);
+      git(realCheckout, ['config', 'user.email', 'fixture@example.invalid']);
+      git(realCheckout, ['config', 'user.name', 'Build Binding Fixture']);
+      git(realCheckout, ['config', 'commit.gpgsign', 'false']);
+      writeFileSync(join(realCheckout, '.gitignore'), 'dist\n');
+      writeFileSync(join(realCheckout, 'where.js'), "process.stdout.write('cwd=' + require('node:fs').realpathSync(process.cwd()));\n");
+      writeFileSync(join(realCheckout, 'retarget.js'), "const fs = require('node:fs'); const link = process.env.FIXTURE_ALIAS; fs.unlinkSync(link); fs.symlinkSync(process.env.FIXTURE_SECOND, link, 'dir'); process.stdout.write('retargeted');\n");
+      git(realCheckout, ['add', '.']); git(realCheckout, ['commit', '-qm', 'aliased checkout']);
+      mkdirSync(join(realCheckout, 'packages/main/dist/tasks'), { recursive: true }); writeFileSync(join(realCheckout, 'packages/main/dist/tasks/x.js'), BUILD_A);
+      mkdirSync(join(realCheckout, 'packages/utils/dist'), { recursive: true }); writeFileSync(join(realCheckout, 'packages/utils/dist/index.js'), 'export const utils = 1;\n');
+      const secondCheckout = join(aliasSandbox, 'second'); cpSync(realCheckout, secondCheckout, { recursive: true });
+      const alias = join(aliasSandbox, 'link'); symlinkSync(realCheckout, alias, 'dir');
+      const aliased = await executeValidationPlan({ provider: 'build-binding-fixture', commands: [
+        { label: 'retarget alias', command: 'node', args: ['retarget.js'], env: { FIXTURE_ALIAS: alias, FIXTURE_SECOND: secondCheckout }, timeoutMs: 20_000 },
+        { label: 'where am I', command: 'node', args: ['where.js'], timeoutMs: 20_000 },
+      ], warnings: [] }, alias, undefined, undefined, {});
+      const retargeted = realpathSync(alias) === realpathSync(secondCheckout);
+      check(retargeted && (aliased.commands[0]?.output ?? '').includes('retargeted'), `control: the first command must re-point the alias at the second checkout (${aliased.commands[0]?.output})`);
+      expectRepaired((aliased.commands[1]?.output ?? '').includes(`cwd=${realpathSync(realCheckout)}`),
+        `a command launched after the alias was re-pointed ran in the second checkout (${(aliased.commands[1]?.output ?? '').slice(0, 160)})`);
+      expectRepaired(Boolean(aliased.buildArtifacts?.root) && realpathSync(aliased.buildArtifacts.root) === realpathSync(realCheckout) && aliased.buildArtifacts.root === realpathSync(aliased.buildArtifacts.root),
+        `the plan did not bind the canonical artifact root (${aliased.buildArtifacts?.root})`);
+      if (hostEnforced) {
+        expectRepaired(aliased.allPass === true && (aliased.buildArtifactsProtection ?? '').startsWith('enforced:'), `the aliased plan did not run enforced (allPass=${aliased.allPass}, ${aliased.buildArtifactsProtection}, ${aliased.details.join(' | ')})`);
+        const viaAlias = binding.resolveArtifactWriteProtection(alias);
+        expectRepaired(viaAlias.enforced === true && typeof viaAlias.verify === 'function' && viaAlias.verify() === undefined, `a resolution through the alias is not bound to the canonical root (${viaAlias.label})`);
+      }
     }
     // Linux only, where LD_PRELOAD is honoured: a preload library whose
     // constructor rewrites dist and exits 0 before the declared command runs.

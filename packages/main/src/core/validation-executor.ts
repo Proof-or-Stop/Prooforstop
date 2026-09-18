@@ -18,7 +18,7 @@ import {
 import { StoryStore } from './store.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import { defaultAuditWriter, evaluateDirtyGate, type EvaluateDirtyGateResult } from './dirty-gate-policy.js';
-import { currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand } from './build-artifacts-identity.js';
+import { canonicalizeExistingPath, currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand } from './build-artifacts-identity.js';
 import { BUILD_ONLY_PROTECTION_LABEL, REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied, artifactProtectionStale, hasAnyArtifactRoot, resolveArtifactWriteProtection, weakestProtectionLabel, type ArtifactWriteProtection } from './build-artifacts-protection.js';
 import {
   canonicalizeEntries,
@@ -182,6 +182,12 @@ export interface RunValidationCommandOptions {
    * executed (bound into its reuse key), never a fresh observation.
    */
   artifactBinding?: { root: string; configRoot?: string; protection: string };
+  /**
+   * The CANONICAL directory this command runs in under protection, resolved
+   * by the caller ONCE before the first launch of its plan or run. Resolving
+   * it at spawn time would follow an alias to wherever it points by then.
+   */
+  launchCwd?: string;
 }
 
 interface CapturedValidationCommandResult {
@@ -1749,8 +1755,15 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
     const launch = options.artifactWriteProtection?.enforced
       ? options.artifactWriteProtection.wrap({ command: command.command, args: command.args, shell: declaredShell, env: childEnv })
       : { command: command.command, args: [...command.args], shell: declaredShell, env: childEnv };
+    // Under protection the command runs in the CANONICAL directory the caller
+    // resolved before its first launch: the denial rules were written for
+    // canonical paths, and a symbolic link on the way to the declared cwd
+    // could otherwise be re-pointed at another checkout between two launches
+    // while the protection still covered the first. The declared cwd is what
+    // the result records.
+    const launchCwd = options.artifactWriteProtection?.enforced ? (options.launchCwd ?? cwd) : cwd;
     const child = spawn(launch.command, launch.args, {
-      cwd,
+      cwd: launchCwd,
       env: launch.env,
       shell: launch.shell,
       stdio: options.exactEnvironment ? ['ignore', 'pipe', 'pipe'] : validationReservationChildStdio(['ignore', 'pipe', 'pipe']),
@@ -2401,8 +2414,12 @@ export async function executeValidationPlan(
   // would refuse). Plan order is otherwise preserved.
   // One artifact root for the whole plan: the repository the commands execute
   // and publication digests, never the wrapper metadata root. Resolved before
-  // scheduling because build recognition is judged against it.
-  const artifactsRoot = options.gitCwd ?? resolvePlanGitCwd(projectRoot);
+  // scheduling because build recognition is judged against it, and
+  // CANONICALISED once: an alias above the project that a command re-points
+  // mid-plan must not move where later commands run, what is observed, or
+  // what is protected (every launch under protection runs in the canonical
+  // directory, see captureValidationCommand).
+  const artifactsRoot = canonicalizeExistingPath(options.gitCwd ?? resolvePlanGitCwd(projectRoot));
   const entries = canonicalizeEntries(resolveValidationPlanEntries(plan), projectRoot)
     // Judged on the same logical cwd (relative to the artifact root) as the
     // launch classification below, so a build declared with an absolute cwd,
@@ -2410,6 +2427,9 @@ export async function executeValidationPlan(
     // recognised; the two can never disagree about one command.
     .map((entry) => (isRegisteredPackagesMainBuildCommand(entry.command, projectRoot, artifactsRoot) ? { ...entry, priority: (entry.priority ?? 0) + 1 } : entry));
   const exclusiveCount = entries.filter((entry) => entry.exclusiveByDefault).length;
+  // Where each command runs under protection, resolved NOW for the whole
+  // plan: an alias re-pointed by an earlier command must not move a later one.
+  const canonicalLaunchCwds = new Map(entries.map((entry) => [entry.commandIndex, canonicalizeExistingPath(commandCwd(projectRoot, entry.command.cwd))] as const));
 
   // Completion order is not plan order, so results are parked by plan index and
   // read back in plan order below. `details` is assembled there too: pushing it
@@ -2462,6 +2482,7 @@ export async function executeValidationPlan(
     const result = await runValidationCommand(entry.command, projectRoot, DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, {
       ...(buildArtifactsRole === 'test' ? { artifactWriteProtection } : {}),
       artifactBinding: { root: artifactsRoot, configRoot: projectRoot, protection: buildArtifactsRole === 'build' ? REGISTERED_BUILD_PROTECTION_LABEL : artifactWriteProtection.label },
+      launchCwd: canonicalLaunchCwds.get(entry.commandIndex),
       progress: options.progress,
       heartbeatMs: options.heartbeatMs,
       commandIndex: entry.commandIndex,

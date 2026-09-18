@@ -25,10 +25,13 @@ import { BUILD_ARTIFACT_ROOTS, projectHasArtifactContract } from './build-artifa
  *
  * The wrapper is itself part of what is trusted, so it is held to the same
  * standard as the trees it protects: it must be an executable this user
- * cannot replace (neither the file nor any directory on its path is writable
- * by this process, see wrapperReplaceableBy); its identity (path, inode,
- * size, mtime, owner, mode and content digest) is bound when it passes the
- * self-test and re-verified before every launch (verify); and each self-test
+ * cannot replace (neither the file nor any directory on its path is owned by
+ * this user — an owner can always chmod what is read-only — or writable by
+ * this process, see wrapperReplaceableBy); its identity (path, inode, size,
+ * mtime, owner, mode and content digest) and that trust condition are bound
+ * when it passes the self-test and re-verified before every launch (verify);
+ * the artifact root is canonicalised once and every launch, observation and
+ * denial rule refers to that canonical root; and each self-test
  * probe must leave an execution witness that only a probe the wrapper really
  * ran can leave, so a wrapper's exit status alone never earns enforcement.
  * The wrapper is launched with a SANITISED environment: every variable the
@@ -62,10 +65,12 @@ export interface ArtifactWriteProtection {
   wrap(launch: WrapperLaunchInput): WrapperLaunch;
   /**
    * Re-checks, against the filesystem now, that the wrapper this resolution
-   * self-tested is still the executable a launch would run: same canonical
-   * path, inode, size, mtime, owner, mode and content digest. Returns the
-   * discrepancy, or undefined while the binding holds. Absent on a
-   * resolution that launches nothing through a wrapper.
+   * self-tested is still the executable a launch would run (same canonical
+   * path, inode, size, mtime, owner, mode and content digest), that it is
+   * still one this user cannot replace, and that the canonical artifact root
+   * still resolves to itself. Returns the discrepancy, or undefined while the
+   * binding holds. Absent on a resolution that launches nothing through a
+   * wrapper.
    */
   verify?: () => string | undefined;
   /** The wrapper identity an enforcing resolution is bound to (absent otherwise). */
@@ -235,9 +240,13 @@ export function resolveExecutableOnPath(name: string, searchPath: string = proce
  * when it cannot. A validation command runs as this user, so a wrapper it
  * could overwrite, or reach by renaming a directory on the wrapper's path, is
  * a wrapper it could substitute between two launches; such a wrapper is never
- * trusted, wherever PATH found it. The kernel answers for every component of
- * the canonical path up to and including the filesystem root (access(2)
- * W_OK). A process running as root passes that test everywhere and a root
+ * trusted, wherever PATH found it. Every component of the canonical path up
+ * to and including the filesystem root is judged: a component OWNED by this
+ * user is replaceable whatever its mode (its owner can chmod a read-only
+ * file or directory writable again, so a failed W_OK check proves nothing
+ * there); a component this process can write (access(2) W_OK) is replaceable;
+ * a component whose ownership cannot be inspected is refused rather than
+ * assumed safe. A process running as root passes every such test and a root
  * command keeps the privileges to leave either sandbox, so root is refused
  * outright rather than judged by permission bits.
  */
@@ -245,6 +254,11 @@ export function wrapperReplaceableBy(path: string, uid: number | undefined = pro
   if (uid === 0) return 'this process runs as root, which can replace any wrapper and leave any sandbox';
   let current = resolve(path);
   for (;;) {
+    let owner: number;
+    try { owner = statSync(current).uid; } catch (error) {
+      return `${current} cannot be inspected (${(error as NodeJS.ErrnoException).code ?? (error as Error).message}); its ownership is unknown`;
+    }
+    if (uid !== undefined && owner === uid) return `${current} is owned by this user, who can change its permissions`;
     let writable = false;
     try { accessSync(current, constants.W_OK); writable = true; } catch { /* not writable by this user */ }
     if (writable) return `${current} is writable by this user`;
@@ -288,7 +302,12 @@ function innerCommandLine(launch: WrapperLaunchInput): string[] {
   return launch.shell ? ['/bin/sh', '-c', [launch.command, ...launch.args].join(' ')] : [launch.command, ...launch.args];
 }
 
-type Mechanism = { name: 'sandbox-exec' | 'bwrap'; wrapper: WrapperIdentity; wrap: ArtifactWriteProtection['wrap'] };
+/**
+ * A mechanism: its wrapper identity, the launch rewrite, and `trust`, which
+ * re-checks everything the mechanism was admitted on (identity drift and the
+ * replaceability rule of every executable it launches through).
+ */
+type Mechanism = { name: 'sandbox-exec' | 'bwrap'; wrapper: WrapperIdentity; trust: () => string | undefined; wrap: ArtifactWriteProtection['wrap'] };
 
 type WrapperTrust = { unsafeTrustReplaceableWrapperForFixture?: boolean };
 
@@ -298,11 +317,15 @@ type WrapperTrust = { unsafeTrustReplaceableWrapperForFixture?: boolean };
  * which production callers never do) and its identity must be readable so
  * every launch can be held to it.
  */
+function replaceabilityRefusal(name: Mechanism['name'], path: string, trust: WrapperTrust): string | undefined {
+  if (trust.unsafeTrustReplaceableWrapperForFixture) return undefined;
+  const replaceable = wrapperReplaceableBy(path);
+  return replaceable ? `${name} wrapper ${path} could be replaced by a validation command (${replaceable}); only a wrapper this user neither owns nor can write, on a path this user neither owns nor can rename, is trusted` : undefined;
+}
+
 function trustWrapper(name: Mechanism['name'], path: string, trust: WrapperTrust): WrapperIdentity | string {
-  if (!trust.unsafeTrustReplaceableWrapperForFixture) {
-    const replaceable = wrapperReplaceableBy(path);
-    if (replaceable) return `${name} wrapper ${path} could be replaced by a validation command (${replaceable}); only a wrapper this user cannot write, on a path this user cannot rename, is trusted`;
-  }
+  const refusal = replaceabilityRefusal(name, path, trust);
+  if (refusal) return refusal;
   try { return readWrapperIdentity(path); } catch (error) {
     return `${name} wrapper ${path} cannot be bound by identity: ${(error as Error).message}`;
   }
@@ -339,14 +362,13 @@ function sandboxExecMechanism(denied: string[], trust: WrapperTrust): Mechanism 
   // /usr/bin/env, which must be as unreplaceable as the wrapper itself.
   let envBin: string;
   try { accessSync(ENV_BIN, constants.X_OK); envBin = realpathSync(ENV_BIN); } catch { return `${ENV_BIN} is not executable on this host`; }
-  if (!trust.unsafeTrustReplaceableWrapperForFixture) {
-    const replaceable = wrapperReplaceableBy(envBin);
-    if (replaceable) return `${ENV_BIN} could be replaced by a validation command (${replaceable})`;
-  }
+  const envRefusal = replaceabilityRefusal('sandbox-exec', envBin, trust);
+  if (envRefusal) return envRefusal;
   const profile = sandboxExecProfile(denied);
   return {
     name: 'sandbox-exec',
     wrapper,
+    trust: () => wrapperIdentityDrift(wrapper) ?? replaceabilityRefusal('sandbox-exec', executable, trust) ?? replaceabilityRefusal('sandbox-exec', envBin, trust),
     wrap: (launch) => {
       const { wrapperEnv, reapplied } = partitionLaunchEnvironment(launch.env ?? process.env);
       const inner = innerCommandLine(launch);
@@ -393,6 +415,7 @@ function bwrapMechanism(existingRoots: string[], allRoots: string[], discovery: 
   return {
     name: 'bwrap',
     wrapper,
+    trust: () => wrapperIdentityDrift(wrapper) ?? replaceabilityRefusal('bwrap', bwrap, discovery),
     wrap: (launch) => {
       const { wrapperEnv, reapplied } = partitionLaunchEnvironment(launch.env ?? process.env);
       // `--setenv` applies inside the namespace, after every mount is in place.
@@ -481,9 +504,10 @@ function selfTest(mechanism: Mechanism, existingRoots: string[], allRoots: strin
         if (rename.run.status !== PROBE_DENIED_EXIT) return `${mechanism.name} self-test did not deny moving the project's parent ${parent} aside (exit ${rename.run.status})`;
       }
     }
-    // The wrapper that passed every probe must still be the one on disk; a
-    // replacement during the self-test would otherwise be bound as trusted.
-    return wrapperIdentityDrift(mechanism.wrapper);
+    // The wrapper that passed every probe must still be the one on disk and
+    // still unreplaceable; a replacement during the self-test would otherwise
+    // be bound as trusted.
+    return mechanism.trust();
   } finally {
     try { rmSync(witnessDir, { recursive: true, force: true }); } catch { /* best effort */ }
   }
@@ -532,6 +556,13 @@ export function artifactProtectionStale(
  * `artifactContract` declaration) lives: the artifact root itself on a plain
  * layout, the wrapper metadata root on a wrapper-root layout whose
  * `gitRoot` subdirectory holds the artifacts.
+ *
+ * The artifact root is canonicalised here (symbolic links resolved on the
+ * part that exists) and the resolution binds to THAT directory: the denial
+ * rules, the self-test and `verify` all refer to the canonical root, so an
+ * alias above the project that a command later re-points cannot carry the
+ * protection's meaning to another checkout. Callers launch and observe
+ * against the same canonical root.
  */
 export function resolveArtifactWriteProtection(
   artifactsRoot: string,
@@ -549,7 +580,7 @@ export function resolveArtifactWriteProtection(
     unsafeTrustReplaceableWrapperForFixture?: boolean;
   } = {},
 ): ArtifactWriteProtection {
-  const root = resolve(artifactsRoot);
+  const root = canonicalize(resolve(artifactsRoot));
   const configRoot = options.configRoot ?? root;
   if (!projectHasArtifactContract(root, configRoot)) {
     return { enforced: false, label: NO_CONTRACT_PROTECTION_LABEL, wrap: passthrough };
@@ -565,9 +596,14 @@ export function resolveArtifactWriteProtection(
   if (typeof mechanism === 'string') {
     return unenforced(existingRoots.length === 0 ? `${mechanism}; no artifact tree exists yet, but a command could create, execute and remove one` : mechanism);
   }
-  const failure = selfTest(mechanism, existingRoots, allRoots, canonicalize(root));
+  const failure = selfTest(mechanism, existingRoots, allRoots, root);
   if (failure) return unenforced(failure);
-  const verify = () => wrapperIdentityDrift(mechanism.wrapper);
+  const rootStable = (): string | undefined => {
+    try { return realpathSync(root) === root ? undefined : `artifact root ${root} no longer resolves to itself`; } catch (error) {
+      return `artifact root ${root} can no longer be resolved: ${(error as Error).message}`;
+    }
+  };
+  const verify = () => mechanism.trust() ?? rootStable();
   return {
     enforced: true,
     label: `enforced:${mechanism.name}`,

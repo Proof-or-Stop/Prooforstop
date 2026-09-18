@@ -5,7 +5,7 @@ import { realpathSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { loadConfig, type ProofOrStopConfig } from './config.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
-import { BUILD_ARTIFACT_ROOTS, currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand } from './build-artifacts-identity.js';
+import { BUILD_ARTIFACT_ROOTS, canonicalizeExistingPath, currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand } from './build-artifacts-identity.js';
 import { REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied, artifactProtectionStale, hasAnyArtifactRoot, resolveArtifactWriteProtection } from './build-artifacts-protection.js';
 import type { StoryStore } from './store.js';
 import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, formatValidationCommand, resolveCommandTimeoutMs, runValidationCommand } from './validation-executor.js';
@@ -963,6 +963,10 @@ export async function runDoneRequiredValidation(args: {
 }): Promise<DoneRequiredEvidenceData> {
   const runtimeOptions = args.options ?? {};
   throwIfDoneRequiredDeadlineExceeded(runtimeOptions);
+  // The git cwd is canonicalised once for the whole run: every receipt,
+  // observation and denial rule refers to that directory, so an alias above
+  // the checkout that a command re-points cannot move a later receipt.
+  args = { ...args, gitCwd: canonicalizeExistingPath(args.gitCwd) };
   const policy = resolveDoneRequiredPolicy(args.projectRoot);
   const startedMs = Date.now();
   const startedAt = new Date(startedMs).toISOString();
@@ -992,6 +996,9 @@ export async function runDoneRequiredValidation(args: {
     // protection is re-resolved before any later non-build receipt, and the
     // refusal above is re-decided for the commands that remain.
     let buildRanSinceResolve = false;
+    // Where each command runs under protection, resolved NOW for the whole
+    // run: an alias re-pointed by an earlier command must not move a later one.
+    const canonicalLaunchCwds = policy.commands.map((command) => canonicalizeExistingPath(commandCwd(args.projectRoot, command.cwd)));
     for (let i = 0; !protectionRefusal && i < policy.commands.length; i++) {
       const command = policy.commands[i];
       throwIfDoneRequiredDeadlineExceeded(runtimeOptions);
@@ -1021,6 +1028,7 @@ export async function runDoneRequiredValidation(args: {
         // cached run); this writer records what the execution carried and never
         // relabels a result with what it observes afterwards.
         artifactBinding: { root: args.gitCwd, configRoot: args.projectRoot, protection: commandIsRegisteredBuild ? REGISTERED_BUILD_PROTECTION_LABEL : artifactWriteProtection.label },
+        launchCwd: canonicalLaunchCwds[i],
         progress: runtimeOptions.progress,
         heartbeatMs: runtimeOptions.heartbeatMs,
         abortSignal: runtimeOptions.abortSignal,
