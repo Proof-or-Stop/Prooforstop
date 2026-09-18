@@ -19,7 +19,7 @@ import { StoryStore } from './store.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import { defaultAuditWriter, evaluateDirtyGate, type EvaluateDirtyGateResult } from './dirty-gate-policy.js';
 import { currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand } from './build-artifacts-identity.js';
-import { REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied, resolveArtifactWriteProtection, type ArtifactWriteProtection } from './build-artifacts-protection.js';
+import { REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied, artifactProtectionStale, hasAnyArtifactRoot, resolveArtifactWriteProtection, type ArtifactWriteProtection } from './build-artifacts-protection.js';
 import {
   canonicalizeEntries,
   MAX_JOBS,
@@ -2386,7 +2386,10 @@ export async function executeValidationPlan(
   // instead of a build that is then replaced (which the binding rules below
   // would refuse). Plan order is otherwise preserved.
   const entries = canonicalizeEntries(resolveValidationPlanEntries(plan), projectRoot)
-    .map((entry) => (isRegisteredPackagesMainBuildCommand(entry.command) ? { ...entry, priority: (entry.priority ?? 0) + 1 } : entry));
+    // Judged on the same logical cwd as the launch classification below, so a
+    // build declared with an absolute cwd is prioritised exactly as it is
+    // recognised; the two can never disagree about one command.
+    .map((entry) => (isRegisteredPackagesMainBuildCommand(entry.command, projectRoot) ? { ...entry, priority: (entry.priority ?? 0) + 1 } : entry));
   const exclusiveCount = entries.filter((entry) => entry.exclusiveByDefault).length;
 
   // Completion order is not plan order, so results are parked by plan index and
@@ -2404,7 +2407,12 @@ export async function executeValidationPlan(
   // Boundary observations cannot see a swap that a command undoes before it
   // returns, so every non-build command is launched under a mechanism that
   // denies it, and its descendants, the right to write these trees at all.
-  const artifactWriteProtection = resolveArtifactWriteProtection(artifactsRoot);
+  let artifactWriteProtection = resolveArtifactWriteProtection(artifactsRoot);
+  // A resolution describes the host at one moment. A registered build may
+  // create or replace the trees, and a `not-applicable` exemption (no tree to
+  // protect) is valid only while that stays true, so the protection is
+  // re-resolved before a test launches whenever either has happened.
+  let buildRanSinceResolve = false;
   const buildArtifactsAtStart = currentBuildArtifactsHash(artifactsRoot);
   // Latched by whichever command first observes the plan deadline blown. The
   // sequential implementation threw at exactly that point and never started a
@@ -2429,6 +2437,10 @@ export async function executeValidationPlan(
     // A registered build is the one command allowed to change these trees, so
     // it alone runs unprotected; everything else is denied the write.
     const buildArtifactsRole = isRegisteredPackagesMainBuildCommand(entry.command, projectRoot) ? 'build' as const : 'test' as const;
+    if (buildArtifactsRole === 'test' && artifactProtectionStale(artifactWriteProtection, { buildRanSinceResolve, anyRootExists: hasAnyArtifactRoot(artifactsRoot) })) {
+      artifactWriteProtection = resolveArtifactWriteProtection(artifactsRoot);
+      buildRanSinceResolve = false;
+    }
     const result = await runValidationCommand(entry.command, projectRoot, DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, {
       ...(buildArtifactsRole === 'test' ? { artifactWriteProtection } : {}),
       artifactBinding: { root: artifactsRoot, protection: buildArtifactsRole === 'build' ? REGISTERED_BUILD_PROTECTION_LABEL : artifactWriteProtection.label },
@@ -2444,6 +2456,7 @@ export async function executeValidationPlan(
     // capture (an executed run) or from the reuse key (a cached run); the plan
     // never overwrites them with what it sees now.
     result.buildArtifactsRole = buildArtifactsRole;
+    if (buildArtifactsRole === 'build') buildRanSinceResolve = true;
     if (
       result.timedOut
       && typeof options.deadlineAt === 'number'

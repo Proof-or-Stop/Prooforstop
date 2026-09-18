@@ -126,7 +126,10 @@ export async function executeSharedValidationCommand(
     try {
       return causalCanonical(probe()) === initialCanonical && workspaceState() === workspace
         && causalCanonical(additionalInputs()) === inputFilesCanonical
-        && executionImplementationIdentity().digest === implementationDigest;
+        && executionImplementationIdentity().digest === implementationDigest
+        // The compiled artifacts are a reuse-key input like any other: a tree
+        // that moved since the key was built makes every later step stale.
+        && (!artifactBinding || currentBuildArtifactsHash(artifactBinding.root) === artifactBindingHash);
     } catch { return false; }
   };
   const {label: _label, optional: _optional, focus: _focus, ...execution} = normalized;
@@ -160,7 +163,12 @@ export async function executeSharedValidationCommand(
         // A run that changed the compiled artifacts is never reusable: a later
         // consumer would inherit a binding its own trees no longer match.
         partial:Boolean(fresh.worktreePollution?.paths.length) || captured.completeOutput.length > CAUSAL_MAX_OUTPUT_CHARS || !unchanged()
-          || Boolean(fresh.buildArtifactsBefore && fresh.buildArtifactsAfter && fresh.buildArtifactsBefore !== fresh.buildArtifactsAfter)};
+          || Boolean(fresh.buildArtifactsBefore && fresh.buildArtifactsAfter && fresh.buildArtifactsBefore !== fresh.buildArtifactsAfter)
+          // A receipt is published under the key's artifact identity and
+          // protection label, so the executed run must have observed exactly
+          // those: both observations present and equal to the key hash, and
+          // the label the capture recorded equal to the one the key names.
+          || Boolean(artifactBinding && (fresh.buildArtifactsBefore !== artifactBindingHash || fresh.buildArtifactsAfter !== artifactBindingHash || fresh.buildArtifactsProtection !== artifactBinding.protection))};
     },
   });
   assertActive();

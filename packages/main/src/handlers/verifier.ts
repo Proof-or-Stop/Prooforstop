@@ -2204,6 +2204,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               ...base,
               ...(noCommandPlan.buildArtifactsHash ? { buildArtifactsHash: noCommandPlan.buildArtifactsHash } : {}),
               ...(noCommandPlan.buildArtifacts ? { buildArtifacts: noCommandPlan.buildArtifacts } : {}),
+              ...(typeof noCommandPlan.buildArtifactsProtection === 'string' ? { buildArtifactsProtection: noCommandPlan.buildArtifactsProtection } : {}),
             };
             return {
               ...decorateAndMaybePersistStoryValidation(
@@ -2369,6 +2370,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                       commands: [...executedDynamic.buildResult.commands, ...executedDynamic.selectedResult.commands],
                       commandExecutions: executedDynamic.buildResult.commands.length + executedDynamic.selectedResult.commands.length,
                       ...(dynamicBuildArtifactsBinding(executedDynamic) ? { buildArtifactsHash: dynamicBuildArtifactsBinding(executedDynamic) } : {}),
+                      ...(typeof executedDynamic.buildArtifactsProtection === 'string' ? { buildArtifactsProtection: executedDynamic.buildArtifactsProtection } : {}),
                       disposition: 'executed',
                     },
                     catalog: executedDynamic.catalog,
@@ -2816,6 +2818,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                   commands: [...executedDynamic.buildResult.commands, ...executedDynamic.selectedResult.commands],
                   commandExecutions: executedDynamic.buildResult.commands.length + executedDynamic.selectedResult.commands.length,
                   ...(dynamicBuildArtifactsBinding(executedDynamic) ? { buildArtifactsHash: dynamicBuildArtifactsBinding(executedDynamic) } : {}),
+                  ...(typeof executedDynamic.buildArtifactsProtection === 'string' ? { buildArtifactsProtection: executedDynamic.buildArtifactsProtection } : {}),
                   disposition: 'executed' as const,
                 } : undefined,
                 catalog: executedDynamic.catalog,

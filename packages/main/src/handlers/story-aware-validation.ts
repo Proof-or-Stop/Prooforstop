@@ -1188,6 +1188,8 @@ export interface StoryAwareDynamicRun extends PreparedStoryAwareValidation {
   /** Validated binding of the whole run (build wave, then every selected plan and shard, with continuity between them); absent when the sequence could not bind. */
   buildArtifactsHash?: string;
   buildArtifacts?: { root?: string; start?: string; end?: string };
+  /** Weakest protection label any non-build command of the run executed under; publication records it with the binding. */
+  buildArtifactsProtection?: string;
   /** Every `✗ build binding:` diagnostic the run's plans and their aggregation produced; publication surfaces them. */
   buildArtifactsDiagnostics: string[];
   /** Verdict after accounting for both executed rows and admitted reuse rows. */
@@ -1434,6 +1436,7 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
     ...final, buildResult: wave, selectedResult, dynamicAllPass, authority, receipts, runtimeReport,
     ...(dynamicExecution.buildArtifactsHash ? { buildArtifactsHash: dynamicExecution.buildArtifactsHash } : {}),
     ...(dynamicExecution.buildArtifacts ? { buildArtifacts: dynamicExecution.buildArtifacts } : {}),
+    ...(dynamicExecution.buildArtifactsProtection ? { buildArtifactsProtection: dynamicExecution.buildArtifactsProtection } : {}),
     buildArtifactsDiagnostics: dynamicExecution.details.filter((line) => line.startsWith('✗ build binding:')),
   };
 

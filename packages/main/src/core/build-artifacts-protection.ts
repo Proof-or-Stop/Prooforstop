@@ -117,10 +117,16 @@ function sandboxExecMechanism(denied: string[]): Mechanism | string {
   };
 }
 
-function bwrapMechanism(existingRoots: string[]): Mechanism | string {
+function bwrapMechanism(existingRoots: string[], allRoots: string[]): Mechanism | string {
   const bwrap = executableOnPath('bwrap');
   if (!bwrap) return 'bwrap (bubblewrap) is not on PATH';
-  if (existingRoots.length === 0) return 'bwrap can only bind artifact trees that exist';
+  // bwrap re-binds a tree read-only over itself, so it can only protect a tree
+  // that exists. An absent root would stay creatable inside the namespace, and
+  // a command could create, execute and remove artifacts there between two
+  // observations of "absent"; that is not enforcement. Every configured root
+  // must therefore exist before bwrap is reported as enforcing anything.
+  const absent = allRoots.filter((root) => !existingRoots.includes(root));
+  if (absent.length > 0) return `bwrap cannot protect the absent artifact root(s) ${absent.join(', ')}; every configured root must exist (a build creates them) before evidence can be authoritative`;
   // The whole filesystem stays visible and writable as on the host; only the
   // artifact trees are re-bound read-only over themselves, for the command and
   // everything it spawns inside the namespace.
@@ -135,38 +141,66 @@ function bwrapMechanism(existingRoots: string[]): Mechanism | string {
 }
 
 /**
- * Attempt, under the wrapper, the exact write the mechanism must deny: a file
- * inside an existing artifact tree, or the creation of the tree itself when
- * none exists. Enforced only when the probe reports the refusal AND nothing
- * was written. Any other outcome (the write succeeded, the wrapper itself
- * failed to start, an unexpected exit) is reported, never assumed away.
+ * Attempt, under the wrapper, the exact write the mechanism must deny, on
+ * EVERY configured root: a file inside a tree that exists, or the creation of
+ * the tree itself where it does not. Enforced only when each probe reports the
+ * refusal AND nothing was written. Any other outcome (the write succeeded, the
+ * wrapper itself failed to start, an unexpected exit) is reported, never
+ * assumed away. An absent root whose parent directory is also absent cannot be
+ * probed without first creating that parent, which the mechanism does not deny;
+ * it is covered by the same rule as its siblings but is reported as unprobed.
  */
 function selfTest(mechanism: Mechanism, existingRoots: string[], allRoots: string[]): string | undefined {
-  const target = existingRoots.length > 0
-    ? join(existingRoots[0], `.proof-or-stop-write-probe-${process.pid}-${Date.now()}`)
-    : allRoots[0];
-  const creatingTree = existingRoots.length === 0;
-  const probe = creatingTree
-    ? `try { require('node:fs').mkdirSync(process.argv[1], { recursive: true }); process.exit(0); } catch (error) { process.exit(['EPERM','EACCES','EROFS'].includes(error && error.code) ? ${PROBE_DENIED_EXIT} : 4); }`
-    : `try { require('node:fs').writeFileSync(process.argv[1], 'probe'); process.exit(0); } catch (error) { process.exit(['EPERM','EACCES','EROFS'].includes(error && error.code) ? ${PROBE_DENIED_EXIT} : 4); }`;
-  const launch = mechanism.wrap({ command: process.execPath, args: ['-e', probe, target], shell: false });
-  const run = spawnSync(launch.command, launch.args, { encoding: 'utf8', timeout: 20_000, stdio: ['ignore', 'pipe', 'pipe'] });
-  const written = existsSync(target);
-  if (written) { try { rmSync(target, { recursive: true, force: true }); } catch { /* reported below */ } }
-  if (run.error) return `${mechanism.name} self-test could not start the wrapper: ${run.error.message}`;
-  if (written) return `${mechanism.name} self-test did not deny the write (exit ${run.status})`;
-  if (run.status !== PROBE_DENIED_EXIT) return `${mechanism.name} self-test ended unexpectedly (exit ${run.status}${run.signal ? `, signal ${run.signal}` : ''}): ${(run.stderr || '').trim().split('\n')[0].slice(0, 160)}`;
+  for (const root of allRoots) {
+    const existing = existingRoots.includes(root);
+    if (!existing && !isDirectory(dirname(root))) continue;
+    const target = existing ? join(root, `.proof-or-stop-write-probe-${process.pid}-${Date.now()}`) : root;
+    const probe = existing
+      ? `try { require('node:fs').writeFileSync(process.argv[1], 'probe'); process.exit(0); } catch (error) { process.exit(['EPERM','EACCES','EROFS'].includes(error && error.code) ? ${PROBE_DENIED_EXIT} : 4); }`
+      : `try { require('node:fs').mkdirSync(process.argv[1]); process.exit(0); } catch (error) { process.exit(['EPERM','EACCES','EROFS'].includes(error && error.code) ? ${PROBE_DENIED_EXIT} : 4); }`;
+    const launch = mechanism.wrap({ command: process.execPath, args: ['-e', probe, target], shell: false });
+    const run = spawnSync(launch.command, launch.args, { encoding: 'utf8', timeout: 20_000, stdio: ['ignore', 'pipe', 'pipe'] });
+    const written = existsSync(target);
+    if (written) { try { rmSync(target, { recursive: true, force: true }); } catch { /* reported below */ } }
+    if (run.error) return `${mechanism.name} self-test on ${root} could not start the wrapper: ${run.error.message}`;
+    if (written) return `${mechanism.name} self-test on ${root} did not deny the write (exit ${run.status})`;
+    if (run.status !== PROBE_DENIED_EXIT) return `${mechanism.name} self-test on ${root} ended unexpectedly (exit ${run.status}${run.signal ? `, signal ${run.signal}` : ''}): ${(run.stderr || '').trim().split('\n')[0].slice(0, 160)}`;
+  }
   return undefined;
+}
+
+/** Whether any configured artifact root exists under this project root right now. */
+export function hasAnyArtifactRoot(artifactsRoot: string): boolean {
+  const root = resolve(artifactsRoot);
+  return BUILD_ARTIFACT_ROOTS.some((relative) => isDirectory(canonicalize(join(root, relative))));
+}
+
+/**
+ * Whether a protection resolved earlier in a run may no longer describe the
+ * host: a registered build has run since (it may have created or replaced the
+ * trees), or the resolution was `not-applicable` because no tree existed and a
+ * tree exists now. The exemption for a project without artifact trees is valid
+ * only while that absence holds; a plan that starts without `dist`, builds it,
+ * and then tests must protect those tests. Callers re-resolve when this is true.
+ */
+export function artifactProtectionStale(
+  protection: Pick<ArtifactWriteProtection, 'label'>,
+  state: { buildRanSinceResolve: boolean; anyRootExists: boolean },
+): boolean {
+  if (state.buildRanSinceResolve) return true;
+  return protection.label === NOT_APPLICABLE_PROTECTION_LABEL && state.anyRootExists;
 }
 
 /**
  * Resolve the protection available for this platform and artifact root. Every
  * artifact root is denied whether or not it exists yet where the mechanism can
  * express that, so a command cannot create a tree that a later observation
- * would count. Where no mechanism exists on this host, a project that has no
- * artifact trees at all has nothing to protect and is outside the contract
- * (`not-applicable`); a project that does have them is `unenforced`, and the
- * consumers of that label refuse to treat its evidence as authoritative.
+ * would count; a mechanism that cannot express it for an absent root is not
+ * reported as enforcing. Where no mechanism exists on this host, a project that
+ * has no artifact trees at all has nothing to protect and is outside the
+ * contract (`not-applicable`, valid only while that remains true — see
+ * artifactProtectionStale); a project that does have them is `unenforced`, and
+ * the consumers of that label refuse to treat its evidence as authoritative.
  */
 export function resolveArtifactWriteProtection(artifactsRoot: string): ArtifactWriteProtection {
   const root = resolve(artifactsRoot);
@@ -174,7 +208,7 @@ export function resolveArtifactWriteProtection(artifactsRoot: string): ArtifactW
   const existingRoots = allRoots.filter((path) => isDirectory(path));
   let mechanism: Mechanism | string;
   if (process.platform === 'darwin') mechanism = sandboxExecMechanism(allRoots);
-  else if (process.platform === 'linux') mechanism = bwrapMechanism(existingRoots);
+  else if (process.platform === 'linux') mechanism = bwrapMechanism(existingRoots, allRoots);
   else mechanism = `no artifact write-protection mechanism is implemented for platform ${process.platform}`;
   if (typeof mechanism === 'string') {
     if (existingRoots.length === 0) {

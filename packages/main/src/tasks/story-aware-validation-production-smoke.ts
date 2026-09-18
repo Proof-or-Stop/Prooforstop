@@ -316,6 +316,9 @@ try {
     assert.equal(admitted.authority.authoritative, true, JSON.stringify(admitted.authority));
     assert.equal(admitted.dynamicAllPass, true);
     console.log('gate-owned authority PASS');
+    // The run carries the protection its commands executed under, so the
+    // evidence publication derives from it is reusable and admissible.
+    assert.match(admitted.buildArtifactsProtection ?? '', /^(enforced:|not-applicable:)/, 'an authoritative dynamic run must carry a satisfied protection label: ' + JSON.stringify(admitted.buildArtifactsProtection));
     // Every receipt this run earned binds the compiled artifacts the run
     // executed, under the protection contract, and carries the v3 schema.
     const earned = admitted.receipts.filter((receipt) => receipt.producedBy === 'story-execution');

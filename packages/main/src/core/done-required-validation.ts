@@ -6,7 +6,7 @@ import { basename, dirname, isAbsolute, join, relative, resolve } from 'node:pat
 import { loadConfig, type ProofOrStopConfig } from './config.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import { BUILD_ARTIFACT_ROOTS, currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand } from './build-artifacts-identity.js';
-import { REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied, resolveArtifactWriteProtection } from './build-artifacts-protection.js';
+import { REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied, artifactProtectionStale, hasAnyArtifactRoot, resolveArtifactWriteProtection } from './build-artifacts-protection.js';
 import type { StoryStore } from './store.js';
 import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, formatValidationCommand, resolveCommandTimeoutMs, runValidationCommand } from './validation-executor.js';
 import type {
@@ -960,13 +960,30 @@ export async function runDoneRequiredValidation(args: {
   }
 
   if (policy.required && policy.configErrors.length === 0) {
-    const artifactWriteProtection = resolveArtifactWriteProtection(args.gitCwd);
+    let artifactWriteProtection = resolveArtifactWriteProtection(args.gitCwd);
     // Unsupported host: decided before the first launch, never after the suite.
-    const protectionRefusal = doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands, args.projectRoot);
+    let protectionRefusal = doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands, args.projectRoot);
     if (protectionRefusal) reasons.push(protectionRefusal);
+    // A registered build may create or replace the trees, and a
+    // `not-applicable` exemption holds only while no tree exists, so the
+    // protection is re-resolved before any later non-build receipt, and the
+    // refusal above is re-decided for the commands that remain.
+    let buildRanSinceResolve = false;
     for (let i = 0; !protectionRefusal && i < policy.commands.length; i++) {
       const command = policy.commands[i];
       throwIfDoneRequiredDeadlineExceeded(runtimeOptions);
+      const commandIsRegisteredBuild = command.providesBuildProof === PACKAGES_MAIN_BUILD_PROOF
+        || command.proof === PACKAGES_MAIN_BUILD_PROOF
+        || isRegisteredPackagesMainBuildCommand(command, args.projectRoot);
+      if (!commandIsRegisteredBuild && artifactProtectionStale(artifactWriteProtection, { buildRanSinceResolve, anyRootExists: hasAnyArtifactRoot(args.gitCwd) })) {
+        artifactWriteProtection = resolveArtifactWriteProtection(args.gitCwd);
+        buildRanSinceResolve = false;
+        protectionRefusal = doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands.slice(i), args.projectRoot);
+        if (protectionRefusal) {
+          reasons.push(`${protectionRefusal} (protection re-resolved before ${command.label}, after the registered build created or replaced the artifact trees)`);
+          break;
+        }
+      }
       const receiptStartedMs = Date.now();
       const receiptStartedAt = new Date(receiptStartedMs).toISOString();
       // Per-receipt build identity: the dist this command started against and
@@ -975,9 +992,6 @@ export async function runDoneRequiredValidation(args: {
       // Boundary observations cannot see a swap a command undoes before it
       // returns, so every non-build receipt executes under a mechanism that
       // denies it, and its descendants, the right to write these trees.
-      const commandIsRegisteredBuild = command.providesBuildProof === PACKAGES_MAIN_BUILD_PROOF
-        || command.proof === PACKAGES_MAIN_BUILD_PROOF
-        || isRegisteredPackagesMainBuildCommand(command, args.projectRoot);
       const result = await runValidationCommand(command, args.projectRoot, DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, {
         ...(commandIsRegisteredBuild ? {} : { artifactWriteProtection }),
         // Observed at the spawn boundary (or inherited from the reuse key for a
@@ -992,6 +1006,7 @@ export async function runDoneRequiredValidation(args: {
         totalCommands: policy.commands.length,
       });
       throwIfDoneRequiredDeadlineExceeded(runtimeOptions);
+      if (commandIsRegisteredBuild) buildRanSinceResolve = true;
       const receiptEndedAt = new Date().toISOString();
       const headHash = currentGitHead(args.gitCwd);
       const materialHash = currentMaterialHash(args.gitCwd, 'HEAD', args.projectRoot);

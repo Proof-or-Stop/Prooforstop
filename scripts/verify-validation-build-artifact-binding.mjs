@@ -223,12 +223,64 @@ try {
     check(sat('enforced:sandbox-exec') && sat('enforced:bwrap') && sat('not-applicable:no-artifact-trees'), 'enforced and not-applicable labels satisfy the contract');
     expectRepaired(!sat('unenforced:x') && !sat('registered-build:writes-permitted') && !sat(undefined) && !sat(''),
       'an unenforced, registered-build, empty or missing label satisfied the executed-build contract');
+    // Platform-aware: the mechanism this host is expected to establish, or that
+    // it must honestly report as unavailable. macOS: sandbox-exec, which also
+    // denies creating an absent tree. Linux with bwrap on PATH: bwrap over
+    // existing trees only, so a treeless project is not-applicable there.
+    // Anything else: no mechanism; trees present -> unenforced, absent -> not-applicable.
+    const bwrapOnPath = process.platform === 'linux' && (process.env.PATH ?? '').split(':').some((dir) => dir && existsSync(join(dir, 'bwrap')));
+    const expectedMechanism = process.platform === 'darwin' ? 'enforced:sandbox-exec' : bwrapOnPath ? 'enforced:bwrap' : null;
     const resolved = binding.resolveArtifactWriteProtection(root);
-    expectRepaired(resolved.enforced === true && resolved.label === 'enforced:sandbox-exec',
-      `on this host the resolver did not establish and self-test sandbox-exec (${resolved.label})`);
+    if (expectedMechanism) {
+      expectRepaired(resolved.enforced === true && resolved.label === expectedMechanism,
+        `on this host the resolver did not establish and self-test ${expectedMechanism} for a project with artifact trees (${resolved.label})`);
+    } else {
+      expectRepaired(resolved.enforced === false && resolved.label.startsWith('unenforced:'),
+        `a host with no write-protection mechanism must report a project with artifact trees as unenforced (${resolved.label})`);
+    }
     const treeless = join(sandbox, 'treeless'); mkdirSync(treeless);
     const treelessProtection = binding.resolveArtifactWriteProtection(treeless);
-    check(treelessProtection.enforced === true, `on this host a project with no artifact trees is still protected against creating them (${treelessProtection.label})`);
+    if (process.platform === 'darwin') {
+      check(treelessProtection.enforced === true && treelessProtection.label === 'enforced:sandbox-exec', `on macOS a project with no artifact trees is still protected against creating them (${treelessProtection.label})`);
+    } else {
+      check(treelessProtection.enforced === false && treelessProtection.label === 'not-applicable:no-artifact-trees', `a project with no artifact trees and no mechanism able to deny their creation is not-applicable (${treelessProtection.label})`);
+    }
+    // Audit #11 (2): the self-test probes every configured root, and bwrap is
+    // never reported as enforcing while a configured root is absent (an absent
+    // root would stay creatable inside its namespace).
+    const protectionSource = readFileSync(join(repoRoot, 'packages/main/src/core/build-artifacts-protection.ts'), 'utf8');
+    expectRepaired(protectionSource.includes('for (const root of allRoots) {') && protectionSource.includes('self-test on ${root}'),
+      'the protection self-test does not probe every configured artifact root (source-text guard)');
+    expectRepaired(protectionSource.includes('const absent = allRoots.filter((root) => !existingRoots.includes(root));') && protectionSource.includes('bwrap cannot protect the absent artifact root(s)'),
+      'bwrap can be reported as enforcing while a configured artifact root is absent (source-text guard)');
+    // Audit #11 (1): a resolution is valid for one moment. After a registered
+    // build, or once a tree exists where the not-applicable exemption was
+    // granted, the protection must be re-resolved before a test launches.
+    if (binding.artifactProtectionStale && binding.hasAnyArtifactRoot) {
+      const stale = binding.artifactProtectionStale;
+      expectRepaired(stale({ label: 'not-applicable:no-artifact-trees' }, { buildRanSinceResolve: false, anyRootExists: true }) === true,
+        'a not-applicable exemption stayed valid after an artifact tree appeared');
+      expectRepaired(stale({ label: 'enforced:sandbox-exec' }, { buildRanSinceResolve: true, anyRootExists: true }) === true
+        && stale({ label: 'not-applicable:no-artifact-trees' }, { buildRanSinceResolve: true, anyRootExists: false }) === true,
+        'a protection resolved before a registered build stayed valid after it');
+      check(stale({ label: 'not-applicable:no-artifact-trees' }, { buildRanSinceResolve: false, anyRootExists: false }) === false, 'control: the exemption holds while no tree exists');
+      check(stale({ label: 'enforced:sandbox-exec' }, { buildRanSinceResolve: false, anyRootExists: true }) === false, 'control: an enforced resolution holds until a build runs');
+      check(binding.hasAnyArtifactRoot(root) === true && binding.hasAnyArtifactRoot(treeless) === false, 'hasAnyArtifactRoot reports the configured trees');
+      const executorSource2 = readFileSync(join(repoRoot, 'packages/main/src/core/validation-executor.ts'), 'utf8');
+      expectRepaired(executorSource2.includes("if (buildArtifactsRole === 'test' && artifactProtectionStale(artifactWriteProtection, { buildRanSinceResolve, anyRootExists: hasAnyArtifactRoot(artifactsRoot) })) {")
+        && executorSource2.includes("if (buildArtifactsRole === 'build') buildRanSinceResolve = true;"),
+        'the executor does not re-resolve protection before a test that follows a registered build or a newly created tree (source-text guard)');
+      const doneRequiredSource3 = readFileSync(join(repoRoot, 'packages/main/src/core/done-required-validation.ts'), 'utf8');
+      expectRepaired(doneRequiredSource3.includes('if (!commandIsRegisteredBuild && artifactProtectionStale(artifactWriteProtection, { buildRanSinceResolve, anyRootExists: hasAnyArtifactRoot(args.gitCwd) })) {')
+        && doneRequiredSource3.includes('protectionRefusal = doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands.slice(i), args.projectRoot);')
+        && doneRequiredSource3.includes('if (commandIsRegisteredBuild) buildRanSinceResolve = true;'),
+        'the DONE-required writer does not re-resolve protection (and re-decide the refusal) before a non-build receipt that follows a registered build (source-text guard)');
+      // Audit #11 (5): scheduling and launch classify a build the same way.
+      expectRepaired(executorSource2.includes('isRegisteredPackagesMainBuildCommand(entry.command, projectRoot) ? { ...entry, priority: (entry.priority ?? 0) + 1 } : entry'),
+        'build prioritisation judges the raw cwd while launch judges the logical cwd (source-text guard)');
+    } else {
+      expectRepaired(false, 'core/build-artifacts-protection exports no artifactProtectionStale / hasAnyArtifactRoot');
+    }
     // (5) one recogniser, judged on the logical cwd.
     const npmBuild = (cwd) => ({ command: 'npm', args: ['run', 'build'], cwd });
     check(binding.isRegisteredPackagesMainBuildCommand(npmBuild('packages/main'), root), 'control: relative packages/main cwd is a registered build');
@@ -704,6 +756,28 @@ try {
     const buildCommand = built.commands.find((command) => command.label === 'build');
     const testCommand = built.commands.find((command) => command.label === 'pass');
     expectRepaired(buildCommand?.buildArtifactsRole === 'build' && testCommand?.buildArtifactsRole === 'test', 'executor must recognise the registered build command');
+
+    // Audit #11 (5): a build declared by shape with an ABSOLUTE cwd (no
+    // providesBuildProof) must be prioritised exactly as it is recognised at
+    // launch, so a test listed before it still executes the rebuilt artifacts.
+    mkdirSync(join(root, 'packages/main'), { recursive: true });
+    writeFileSync(join(root, 'packages/main/package.json'), JSON.stringify({ name: 'fixture-main', private: true, scripts: {
+      build: "node -e \"require('node:fs').writeFileSync('dist/tasks/x.js', 'process.exit(0); // rebuilt by npm build\\n')\"",
+    } }, null, 2) + '\n');
+    git(root, ['add', 'packages/main/package.json']); git(root, ['commit', '-qm', 'fixture: npm build script']);
+    const preNpm = binding ? binding.currentBuildArtifactsHash(root) : undefined;
+    const ordered = await run([
+      { label: 'pass', command: 'node', args: ['-e', 'process.exit(0)'], timeoutMs: 20_000 },
+      { label: 'npm build', command: 'npm', args: ['run', 'build'], cwd: join(root, 'packages/main'), timeoutMs: 60_000 },
+    ]);
+    check(readFileSync(join(mainDist, 'x.js'), 'utf8').includes('rebuilt by npm build'), `control: the npm build must have rewritten dist (${ordered.details.join(' | ')})`);
+    const npmBuild = ordered.commands.find((command) => command.label === 'npm build');
+    const testBeforeNpm = ordered.commands.find((command) => command.label === 'pass');
+    expectRepaired(npmBuild?.buildArtifactsRole === 'build', 'an absolute-cwd npm build was not recognised as the registered build at launch');
+    expectRepaired(ordered.allPass === true && Boolean(testBeforeNpm?.buildArtifactsBefore) && testBeforeNpm?.buildArtifactsBefore === npmBuild?.buildArtifactsAfter,
+      `a test listed before an absolute-cwd npm build did not execute the rebuilt artifacts (allPass=${ordered.allPass}; ${ordered.details.join(' | ')})`);
+    if (binding) expectRepaired(ordered.buildArtifactsHash === binding.currentBuildArtifactsHash(root) && ordered.buildArtifactsHash !== preNpm, 'the plan must bind the artifacts the npm build produced');
+    writeFileSync(join(mainDist, 'x.js'), BUILD_A);
     expectRepaired(buildCommand?.buildArtifactsProtection === 'registered-build:writes-permitted',
       `the registered build must be launched unprotected so it can write (${buildCommand?.buildArtifactsProtection})`);
     expectRepaired(Boolean(testCommand?.buildArtifactsBefore) && testCommand?.buildArtifactsBefore === buildCommand?.buildArtifactsAfter,
@@ -948,6 +1022,30 @@ try {
       'no-validator evidence does not record the build identity the executor observed');
     check(noValidator.evidence()?.result === 'PASS' || noValidator.evidence()?.result === 'WARN',
       `control: the no-validator run must persist a non-failing result (got ${JSON.stringify(noValidator.evidence()?.result)})`);
+    // Audit #11 (4): evidence a successful run persists must carry the
+    // protection label its consumers require, on every path (validate file,
+    // no validator, dynamic), or the run can never be reused or admitted.
+    if (binding?.artifactProtectionSatisfied) {
+      expectRepaired(binding.artifactProtectionSatisfied(clean.evidence()?.buildArtifactsProtection),
+        `validate-file PASS evidence carries no satisfied protection label (${clean.evidence()?.buildArtifactsProtection})`);
+      expectRepaired(binding.artifactProtectionSatisfied(noValidator.evidence()?.buildArtifactsProtection),
+        `no-validator evidence carries no satisfied protection label (${noValidator.evidence()?.buildArtifactsProtection})`);
+      const verifierSource2 = readFileSync(join(repoRoot, 'packages/main/src/handlers/verifier.ts'), 'utf8');
+      expectRepaired((verifierSource2.match(/buildArtifactsProtection: executedDynamic\.buildArtifactsProtection/g) ?? []).length >= 2
+        && verifierSource2.includes('buildArtifactsProtection: noCommandPlan.buildArtifactsProtection'),
+        'the verifier drops the protection label when assembling the dynamic authoritative result or the no-validator result (source-text guard)');
+      const dynamicHandlerSource = readFileSync(join(repoRoot, 'packages/main/src/handlers/story-aware-validation.ts'), 'utf8');
+      expectRepaired(dynamicHandlerSource.includes('buildArtifactsProtection: dynamicExecution.buildArtifactsProtection'),
+        'the dynamic run drops the aggregate protection label (source-text guard)');
+      // Audit #11 (3): the shared-execution cache revalidates the artifact
+      // identity and publishes a reusable receipt only for a run that observed
+      // exactly the key's identity and label.
+      const sharedSource2 = readFileSync(join(repoRoot, 'packages/main/src/core/shared-validation-execution.ts'), 'utf8');
+      expectRepaired(sharedSource2.includes('&& (!artifactBinding || currentBuildArtifactsHash(artifactBinding.root) === artifactBindingHash);'),
+        'the shared-execution unchanged() check ignores the artifact identity in the reuse key (source-text guard)');
+      expectRepaired(sharedSource2.includes('fresh.buildArtifactsBefore !== artifactBindingHash || fresh.buildArtifactsAfter !== artifactBindingHash || fresh.buildArtifactsProtection !== artifactBinding.protection'),
+        'a run whose observations differ from the reuse key can still be cached as reusable (source-text guard)');
+    }
 
     // Target: a validate file that tries to rewrite the artifacts it tested and
     // prints a forged binding of its own. Through the real CLI the write is now
