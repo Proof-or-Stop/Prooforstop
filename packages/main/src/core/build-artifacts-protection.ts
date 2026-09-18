@@ -1,4 +1,4 @@
-import { accessSync, constants, existsSync, lstatSync, readdirSync, realpathSync, rmSync, rmdirSync } from 'node:fs';
+import { accessSync, constants, existsSync, lstatSync, realpathSync, rmSync, rmdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { basename, delimiter, dirname, join, resolve } from 'node:path';
 import { BUILD_ARTIFACT_ROOTS } from './build-artifacts-identity.js';
@@ -136,36 +136,27 @@ function bwrapMechanism(existingRoots: string[], allRoots: string[], projectRoot
   const absent = allRoots.filter((root) => !existingRoots.includes(root));
   if (absent.length > 0) return `bwrap cannot protect the absent artifact root(s) ${absent.join(', ')}; every configured root must exist (a build creates them) before evidence can be authoritative`;
   // The whole filesystem stays visible and writable as on the host, for the
-  // command and everything it spawns inside the namespace. A read-only bind
-  // on the tree alone is not enough: a mount travels with the directory it is
-  // on, so renaming `packages/main` aside would carry the protection away and
-  // leave a fresh, writable `packages/main/dist` creatable at the protected
-  // path. Every directory on the path from the project root down to each tree
-  // is therefore bound read-only, and each of its children that is not itself
-  // on that path is re-bound writable, so ordinary writes anywhere else in the
-  // project keep working while the chain cannot be renamed, removed or
-  // replaced. (macOS sandbox-exec rules are path-based and do not need this.)
-  // The namespace also gets its own PID space and a private /proc: with the
-  // host's /proc visible, a same-user process's /proc/<pid>/root (or cwd, or
-  // fd) is an alias into the host mount namespace, where the trees are still
-  // writable underneath the bind.
+  // command and everything it spawns inside the namespace; only the artifact
+  // trees are re-bound read-only over themselves. A read-only bind on the
+  // tree alone is not enough: a mount travels with the directory it is on, so
+  // renaming `packages/main` aside would carry the protection away and leave a
+  // fresh, writable `packages/main/dist` creatable at the protected path.
+  // Every directory on the path from the project root down to each tree is
+  // therefore bind-mounted onto ITSELF, writable: a mount point cannot be
+  // renamed or removed from inside the namespace (EBUSY), while creating,
+  // replacing and deleting entries anywhere else in the project — a coverage
+  // directory at the root, an atomically rewritten report — keeps working
+  // exactly as on the host. (macOS sandbox-exec rules are path-based and need
+  // none of this.) The namespace also gets its own PID space and a private
+  // /proc: with the host's /proc visible, a same-user process's
+  // /proc/<pid>/root (or cwd, or fd) is an alias into the host mount
+  // namespace, where the trees are still writable underneath the bind.
   const chain = new Set<string>([projectRoot]);
   for (const root of existingRoots) {
     let directory = dirname(root);
     while (directory.startsWith(projectRoot) && directory !== projectRoot) { chain.add(directory); directory = dirname(directory); }
   }
-  const binds: string[] = ['--ro-bind', projectRoot, projectRoot];
-  for (const directory of [...chain].sort()) {
-    let entries;
-    try { entries = readdirSync(directory, { withFileTypes: true }); } catch { continue; }
-    for (const entry of entries) {
-      const child = join(directory, entry.name);
-      // A symbolic link cannot be mounted over; it stays as the read-only
-      // parent presents it, and writes through it reach its target's own mount.
-      if (entry.isSymbolicLink() || chain.has(child) || existingRoots.includes(child)) continue;
-      binds.push('--bind', child, child);
-    }
-  }
+  const binds = [...chain].sort().flatMap((directory) => ['--bind', directory, directory]);
   for (const root of existingRoots) binds.push('--ro-bind', root, root);
   const prefix = ['--dev-bind', '/', '/', '--unshare-pid', '--proc', '/proc', ...binds, '--die-with-parent', '--'];
   return {

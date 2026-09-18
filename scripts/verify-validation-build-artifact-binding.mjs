@@ -37,7 +37,9 @@ const { evaluateRoutineValidationReuse, buildRoutineValidationIdentity } = await
 const { evaluateValidationEvidenceAdmissibility } = await import('../packages/main/src/core/validation-evidence-admissibility.ts');
 const { currentGitHead, currentMaterialHash, currentStoryFilesHash } = await import('../packages/main/src/core/evidence-freshness.ts');
 const { runDoneRequiredValidation, evaluateDoneRequiredEvidence, validateReceiptBuildBinding, doneRequiredProtectionRefusal } = await import('../packages/main/src/core/done-required-validation.ts');
-const { executeValidationPlan, evaluatePlanBuildArtifactsBinding: executorRules } = await import('../packages/main/src/core/validation-executor.ts');
+const { executeValidationPlan, runValidationCommand, evaluatePlanBuildArtifactsBinding: executorRules } = await import('../packages/main/src/core/validation-executor.ts');
+const { probeValidationCausalPreflightFacts } = await import('../packages/main/src/handlers/verifier.ts');
+const { acquireOwnerLease } = await import('../packages/main/src/core/story-owner-lease.ts');
 const { StoryStore } = await import('../packages/main/src/core/store.ts');
 const { resetConfigCache } = await import('../packages/main/src/core/config.ts');
 const { persistSyntheticAdmittedWindowForTest } = await import('../packages/main/src/core/certification-window.ts');
@@ -591,9 +593,14 @@ try {
       // Audit #15 (1): the ancestors of a tree are bound read-only (a mount
       // travels with a renamed directory) with every other child re-bound
       // writable, and the self-test probes that the ancestor cannot be moved.
-      expectRepaired(protectionSource3.includes("const binds: string[] = ['--ro-bind', projectRoot, projectRoot];") && protectionSource3.includes("binds.push('--bind', child, child);")
+      // Audit #16 (2) refines audit #15 (1): the ancestors are bind-mounted onto
+      // themselves WRITABLE (a mount point cannot be renamed or removed from
+      // inside the namespace) instead of read-only, so legitimate writes beside
+      // them keep working; the self-test still probes that the ancestor cannot
+      // be moved aside.
+      expectRepaired(protectionSource3.includes("const binds = [...chain].sort().flatMap((directory) => ['--bind', directory, directory]);") && !protectionSource3.includes("'--ro-bind', projectRoot, projectRoot")
         && protectionSource3.includes("self-test did not deny moving"),
-        'the bwrap wrapper leaves the artifact ancestors renameable, or does not probe it (source-text guard)');
+        'the bwrap wrapper leaves the artifact ancestors renameable, makes the project read-only, or does not probe the rename (source-text guard)');
       check(doneRequiredProtectionRefusal('enforced:sandbox-exec', REGISTERED_REBUILD_COMMANDS, h.root) === undefined, 'control: an enforced host is not refused');
       expectRepaired(typeof doneRequiredProtectionRefusal('not-applicable:no-artifact-trees', [...REGISTERED_REBUILD_COMMANDS].reverse(), h.root) === 'string', 'the retired not-applicable label was not refused up front');
       const doneRequiredWriterSource = readFileSync(join(repoRoot, 'packages/main/src/core/done-required-validation.ts'), 'utf8');
@@ -665,6 +672,81 @@ try {
     console.log('skip: DONE-required PASS and prevention cases need demonstrated artifact write protection on this host (refusal asserted instead)');
   } finally {
     rmTree(sandbox);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Audit #16 (3): the shared-execution cache (exact-inputs) through the REAL
+// causal key builder and receipt store. The compiled-artifact identity and the
+// protection label are key material, a cached result carries the binding of
+// the run that executed, and a run that changed the artifacts publishes
+// nothing reusable. (The source-text guard that preceded this case had been
+// guarding a binding placed beside the key's hashed fields, i.e. a no-op.)
+// ---------------------------------------------------------------------------
+{
+  const sharedSandbox = mkdtempSync(join(tmpdir(), 'pos-build-binding-shared-'));
+  try {
+    const root = join(sharedSandbox, 'repo'); mkdirSync(root);
+    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: '.', rootDir: '.', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements', workflow: { profile: 'light' } }, null, 2));
+    resetConfigCache();
+    writeFileSync(join(root, '.gitignore'), 'dist\n.proof-or-stop/\n');
+    writeFileSync(join(root, 'README.md'), '# shared execution fixture\n');
+    writeFileSync(join(root, 'input.txt'), 'input v1\n');
+    git(root, ['init', '-q', '-b', 'main']); git(root, ['config', 'user.email', 'fixture@example.invalid']); git(root, ['config', 'user.name', 'Build Binding Fixture']); git(root, ['config', 'commit.gpgsign', 'false']);
+    git(root, ['add', '.']); git(root, ['commit', '-qm', 'shared execution fixture']);
+    const store = new StoryStore(root); const storyId = 'B-bab-shared'; const now = '2026-06-20T00:00:00.000Z';
+    store.writeStory(storyId, { storyId, name: 'build-binding-shared', title: 'shared execution build binding', description: 'Disposable shared-execution build binding fixture.', type: 'chore', phase: 'TEST', priority: 'medium', createdAt: now, startedAt: now, endedAt: null });
+    store.writeChecklist(storyId, { items: [] });
+    const causalInputHashes = deriveCertificationDomainInputHashes(root, 'HEAD', root);
+    check(Boolean(causalInputHashes), 'shared-execution fixture must derive causal input hashes');
+    persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes });
+    acquireOwnerLease(store.storyDirPath(storyId), { command: 'fixture-owner', cwd: root });
+    const sharedMainDist = join(root, 'packages/main/dist/tasks'); mkdirSync(sharedMainDist, { recursive: true });
+    writeFileSync(join(sharedMainDist, 'x.js'), BUILD_A);
+    mkdirSync(join(root, 'packages/utils/dist'), { recursive: true }); writeFileSync(join(root, 'packages/utils/dist/index.js'), 'export const utils = 1;\n');
+    const ctx = { root, store, scanRoot: root };
+    const sharedExecution = { storyId, receiptStore: store, probe: (input) => probeValidationCausalPreflightFacts(ctx, storyId, input) };
+    const protection = binding ? binding.resolveArtifactWriteProtection(root) : { label: 'unresolved', wrap: (launch) => launch };
+    const identity = () => (binding ? binding.currentBuildArtifactsHash(root) : undefined);
+    const hashA = identity();
+    const cmd = { label: 'unit', command: 'node', args: ['-e', "process.stdout.write('unit ' + require('node:fs').readFileSync('input.txt', 'utf8')); process.exit(0)"], executionReuse: 'exact-inputs', executionInputs: ['input.txt'], timeoutMs: 20_000 };
+    const runShared = (opts = {}) => runValidationCommand(cmd, root, 20_000, { sharedExecution, artifactWriteProtection: protection, artifactBinding: { root, protection: protection.label }, ...opts });
+    const first = await runShared();
+    check(first.code === 0, `control: the shared-execution command must pass (code=${first.code}, ${first.output.slice(0, 200)})`);
+    expectRepaired(first.executionDecision?.disposition === 'executed' && first.buildArtifactsBefore === hashA && first.buildArtifactsAfter === hashA && first.buildArtifactsProtection === protection.label,
+      `the first shared-execution run must execute and carry the binding it observed (decision=${JSON.stringify(first.executionDecision)}, before=${first.buildArtifactsBefore}, label=${first.buildArtifactsProtection})`);
+    const second = await runShared();
+    expectRepaired(second.executionDecision?.disposition === 'reused' && second.buildArtifactsBefore === hashA && second.buildArtifactsAfter === hashA && second.buildArtifactsProtection === protection.label,
+      `an unchanged rerun was not served from the cache with the executed run's binding (decision=${JSON.stringify(second.executionDecision)}, before=${second.buildArtifactsBefore}, label=${second.buildArtifactsProtection})`);
+    writeFileSync(join(sharedMainDist, 'x.js'), BUILD_B);
+    const hashB = identity();
+    check(Boolean(hashB) && hashB !== hashA, 'control: rewriting dist changes the identity');
+    const changed = await runShared();
+    expectRepaired(changed.executionDecision?.disposition === 'executed' && changed.buildArtifactsBefore === hashB,
+      `a changed dist was served from the cache: the artifact identity is not in the causal execution key (decision=${JSON.stringify(changed.executionDecision)}, before=${changed.buildArtifactsBefore})`);
+    const changedAgain = await runShared();
+    expectRepaired(changedAgain.executionDecision?.disposition === 'reused' && changedAgain.buildArtifactsBefore === hashB,
+      `the rerun on the new dist was not reused with the new binding (decision=${JSON.stringify(changedAgain.executionDecision)}, before=${changedAgain.buildArtifactsBefore})`);
+    const otherLabel = await runShared({ artifactBinding: { root, protection: 'unenforced:probe' } });
+    expectRepaired(otherLabel.executionDecision?.disposition === 'executed' && otherLabel.buildArtifactsProtection === 'unenforced:probe',
+      `a different protection label was served from the cache: the label is not in the causal execution key (decision=${JSON.stringify(otherLabel.executionDecision)}, label=${otherLabel.buildArtifactsProtection})`);
+    // A command that rewrites the artifacts under the cache: its inputs changed
+    // during execution, so publication is refused and nothing reusable exists
+    // for it, run after run.
+    const rewriting = { ...cmd, label: 'rewriter', args: ['-e', "require('node:fs').writeFileSync('packages/main/dist/tasks/x.js', 'process.exit(0); // build C\\n'); process.exit(0)"] };
+    let refused = 0;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const published = await runValidationCommand(rewriting, root, 20_000, { sharedExecution, artifactBinding: { root, protection: protection.label } });
+        expectRepaired(published.executionDecision?.disposition !== 'reused', 'a command that rewrote dist was served from the cache');
+      } catch (error) {
+        if (/inputs changed before publication/.test(String(error && error.message))) refused++; else throw error;
+      }
+      writeFileSync(join(sharedMainDist, 'x.js'), BUILD_B);
+    }
+    expectRepaired(refused === 2, `a command that rewrote dist under the shared cache was published (${refused} of 2 attempts refused)`);
+  } finally {
+    rmTree(sharedSandbox);
   }
 }
 
@@ -883,6 +965,25 @@ if (hostEnforced) {
       `a test listed before an absolute-cwd npm build did not execute the rebuilt artifacts (allPass=${ordered.allPass}; ${ordered.details.join(' | ')})`);
     if (binding) expectRepaired(ordered.buildArtifactsHash === binding.currentBuildArtifactsHash(root) && ordered.buildArtifactsHash !== preNpm, 'the plan must bind the artifacts the npm build produced');
     writeFileSync(join(mainDist, 'x.js'), BUILD_A);
+
+    // Audit #16 (1): with jobs > 1 a registered build must still run FIRST and
+    // ALONE, whatever resources the caller declared, so no protected test can
+    // overlap the one command that writes the trees. The build rewrites dist
+    // late in its own life; the test passes only if it sees the rewritten
+    // bytes, which it can only do if it was not launched until the build
+    // returned.
+    const LATE_BUILD = "setTimeout(() => { require('node:fs').writeFileSync('packages/main/dist/tasks/x.js', 'process.exit(0); // rebuilt late\\n'); process.exit(0); }, 1500)";
+    const SEES_LATE_BUILD = "process.exit(require('node:fs').readFileSync('packages/main/dist/tasks/x.js', 'utf8').includes('rebuilt late') ? 0 : 1)";
+    const barrier = await executeValidationPlan({ provider: 'build-binding-fixture', commands: [
+      { label: 'test that needs the build', command: 'node', args: ['-e', SEES_LATE_BUILD], timeoutMs: 20_000, resources: [{ class: 'fixed-path', key: 'tests', access: 'shared' }] },
+      { label: 'late build', command: 'node', args: ['-e', LATE_BUILD], timeoutMs: 20_000, providesBuildProof: 'packages-main-build', resources: [{ class: 'fixed-path', key: 'packages/main/dist', access: 'exclusive' }] },
+    ], warnings: [] }, root, undefined, undefined, { jobs: 2 });
+    const barrierBuild = barrier.commands.find((command) => command.label === 'late build');
+    const barrierTest = barrier.commands.find((command) => command.label === 'test that needs the build');
+    check(readFileSync(join(mainDist, 'x.js'), 'utf8').includes('rebuilt late'), 'control: the late build must have rewritten dist');
+    expectRepaired(barrierTest?.code === 0 && barrier.allPass === true && Boolean(barrierTest?.buildArtifactsBefore) && barrierTest?.buildArtifactsBefore === barrierBuild?.buildArtifactsAfter,
+      `with jobs=2 a test overlapped the registered build instead of waiting for it (test code=${barrierTest?.code}, allPass=${barrier.allPass}; ${barrier.details.join(' | ')})`);
+    writeFileSync(join(mainDist, 'x.js'), BUILD_A);
     expectRepaired(buildCommand?.buildArtifactsProtection === 'registered-build:writes-permitted',
       `the registered build must be launched unprotected so it can write (${buildCommand?.buildArtifactsProtection})`);
     expectRepaired(Boolean(testCommand?.buildArtifactsBefore) && testCommand?.buildArtifactsBefore === buildCommand?.buildArtifactsAfter,
@@ -1022,8 +1123,8 @@ if (hostEnforced) {
     expectRepaired(!/result\.buildArtifactsBefore = |result\.buildArtifactsAfter = |result\.buildArtifactsProtection = /.test(executorSource),
       'the executor still stamps observations or protection onto results after they return (source-text guard)');
     const sharedSource = readFileSync(join(repoRoot, 'packages/main/src/core/shared-validation-execution.ts'), 'utf8');
-    expectRepaired(sharedSource.includes('artifactBinding:artifactBinding ? {hash:artifactBindingHash,protection:artifactBinding.protection} : null,'),
-      'the shared-execution reuse key does not include the artifact identity and protection (source-text guard)');
+    expectRepaired(sharedSource.includes("resources:command.resources ?? null},\n      // Inside `inputs`: the key builder hashes its declared fields only, so\n      // a binding placed beside them would be silently ignored (it was, once).\n      artifactBinding:artifactBinding ? {hash:artifactBindingHash,protection:artifactBinding.protection} : null},"),
+      'the shared-execution reuse key does not include the artifact identity and protection INSIDE the hashed inputs (source-text guard)');
     expectRepaired(sharedSource.includes('fresh.buildArtifactsBefore !== fresh.buildArtifactsAfter'),
       'a run that changed the artifacts can still be cached as reusable (source-text guard)');
     expectRepaired(sharedSource.includes('buildArtifactsBefore:artifactBindingHash,buildArtifactsAfter:artifactBindingHash,buildArtifactsProtection:artifactBinding.protection'),

@@ -140,9 +140,11 @@ export async function executeSharedValidationCommand(
     inputs:{execution,workspace,inputFiles,implementationDigest,materialHash:initial.gitMaterial?.materialHash,
       policy:{executionReuse:command.executionReuse,closurePolicy:command.closurePolicy ?? null,
         fullBaselineReusePolicy:command.fullBaselineReusePolicy ?? null,riskTier:command.riskTier ?? null,
-        resources:command.resources ?? null}},
+        resources:command.resources ?? null},
+      // Inside `inputs`: the key builder hashes its declared fields only, so
+      // a binding placed beside them would be silently ignored (it was, once).
+      artifactBinding:artifactBinding ? {hash:artifactBindingHash,protection:artifactBinding.protection} : null},
     storyFilesHash:initial.gitMaterial?.storyFilesHash,
-    artifactBinding:artifactBinding ? {hash:artifactBindingHash,protection:artifactBinding.protection} : null,
     effectiveEnvironment:effectiveCausalEnvironment(command.env,normalized.cwd),
     runtimeVersion:process.version,toolVersion:resolveCausalToolVersion(projectRoot),selectorPolicy:DEFAULT_CAUSAL_SELECTOR_POLICY,
   };

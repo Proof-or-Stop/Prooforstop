@@ -2434,7 +2434,7 @@ export async function executeValidationPlan(
   // to discard by throwing).
   let deadlineExceeded = false;
 
-  const scheduled = await withValidationPlanStages(() => runScheduled<ValidationScheduleEntry, ValidationScheduleResult>(entries, jobs, async (entry) => {
+  const runEntry = async (entry: ValidationScheduleEntry): Promise<ValidationScheduleResult> => {
     if (deadlineExceeded) return { name: entry.name, status: 'INTERRUPTED', commandIndex: entry.commandIndex };
     options.beforeLaunch?.();
     // Execution-boundary observation of the compiled artifacts, by content:
@@ -2478,14 +2478,26 @@ export async function executeValidationPlan(
     }
     executed[entry.commandIndex - 1] = result;
     return { name: entry.name, status: scheduledStatusForCommand(result), commandIndex: entry.commandIndex };
-  }, {
-    // run-all: a failing command must never cancel the others. Every gate and
-    // receipt downstream reads commands[] as a COMPLETE record of the plan
-    // (commandExecution.complete compares its length against the plan length),
-    // so a short array would read as an infrastructure failure, not as the one
-    // real command failure it is.
-    cancellation: 'run-all',
-  }));
+  };
+  // run-all: a failing command must never cancel the others. Every gate and
+  // receipt downstream reads commands[] as a COMPLETE record of the plan
+  // (commandExecution.complete compares its length against the plan length),
+  // so a short array would read as an infrastructure failure, not as the one
+  // real command failure it is.
+  const scheduleOptions = { cancellation: 'run-all' as const };
+  // Registered builds run FIRST and ALONE; everything else runs after the last
+  // of them has returned. A build is the one command that writes the trees, so
+  // no protected test may overlap it — whatever resources the caller declared:
+  // a build that replaced and restored the trees while a test ran would leave
+  // that test's two observations equal and its evidence false. The barrier is
+  // the plan's own, not the scheduler's declared-resource model, and the
+  // protection is re-resolved after the builds (artifactProtectionStale).
+  const buildEntries = entries.filter((entry) => isRegisteredPackagesMainBuildCommand(entry.command, projectRoot, artifactsRoot));
+  const testEntries = entries.filter((entry) => !buildEntries.includes(entry));
+  const scheduled = await withValidationPlanStages(async () => [
+    ...await runScheduled<ValidationScheduleEntry, ValidationScheduleResult>(buildEntries, 1, runEntry, scheduleOptions),
+    ...await runScheduled<ValidationScheduleEntry, ValidationScheduleResult>(testEntries, jobs, runEntry, scheduleOptions),
+  ]);
 
   if (deadlineExceeded) {
     throw options.deadlineError?.() ?? new Error(`validation plan deadline exceeded at ${options.deadlineAt}`);
