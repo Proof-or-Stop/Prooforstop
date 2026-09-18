@@ -2948,9 +2948,9 @@
     {
       "path": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
       "token": "LATTICE_NATIVE_REVIEW_ATTESTATION_FD",
-      "lineNumber": 299,
+      "lineNumber": 318,
       "lineSha256": "062420d088c8d222f4c37f7e209004fc05b415b766526d49ff319458c4b4a304",
-      "sourceSha256": "39c0e010aa15e54a3490a832595f10f98ff456f51edede2b87a495b6ba899236",
+      "sourceSha256": "6091fb1ca8c569614a6b68ded97f376eb41e5ae2c63c345093d22508ecc258b3",
       "tokenOccurrences": 2,
       "classification": "private-channel-or-adversarial-env-fixture",
       "reason": "Exact test-only broker callback reads its issued descriptor and forwards the paired private FD through stdio after sanitization; the scalar alone grants no authority and no public identity writer is exempted.",
@@ -2959,9 +2959,9 @@
     {
       "path": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
       "token": "process.env.LATTICE_NATIVE_REVIEW_ATTESTATION_FD",
-      "lineNumber": 293,
+      "lineNumber": 312,
       "lineSha256": "d42f9f1d27d0f7aedea7a0a0201a6b04018c16e65824a84d45912467a88b3a5e",
-      "sourceSha256": "39c0e010aa15e54a3490a832595f10f98ff456f51edede2b87a495b6ba899236",
+      "sourceSha256": "6091fb1ca8c569614a6b68ded97f376eb41e5ae2c63c345093d22508ecc258b3",
       "tokenOccurrences": 1,
       "classification": "private-channel-or-adversarial-env-fixture",
       "reason": "Exact test-only broker callback reads its issued descriptor and forwards the paired private FD through stdio after sanitization; the scalar alone grants no authority and no public identity writer is exempted.",

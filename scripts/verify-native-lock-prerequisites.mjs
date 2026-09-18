@@ -26,7 +26,12 @@ for(const signal of ['SIGTERM','SIGINT'])process.once(signal,()=>{
 const fixtureRuntime=createNativeLockTestRuntime();
 const signalContract=process.argv.includes('--signal-contract-child');
 if(signalContract)console.log('NATIVE_DRIVER_RUNTIME '+fixtureRuntime.root);
-const steps=signalContract?[[process.execPath,['-e',"console.log('NATIVE_DRIVER_CHILD '+process.pid);setInterval(()=>{},1000)"]]]:[
+const completeCapacity=process.argv.includes('--complete-capacity');
+const steps=signalContract?[[process.execPath,['-e',"console.log('NATIVE_DRIVER_CHILD '+process.pid);setInterval(()=>{},1000)"]]]:completeCapacity?[
+ [process.execPath,['scripts/verify-native-driver-signals.mjs']],
+ [process.execPath,['scripts/verify-native-lock-machine-isolation.mjs']],
+ [process.execPath,['packages/main/dist/tasks/validate-execution-lock-smoke.js','--complete-capacity-fixture']],
+]:[
  ['npm',['--prefix','packages/main','run','build']],
  ['npm',['--prefix','packages/utils','run','build']],
  [process.execPath,['scripts/verify-native-driver-signals.mjs']],

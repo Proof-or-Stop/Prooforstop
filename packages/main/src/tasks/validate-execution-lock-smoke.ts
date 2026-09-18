@@ -79,6 +79,25 @@ const NATIVE_ENTRY_WAIT_MS = 12000;
 // repairs are the input, while changes during this suite remain forbidden.
 const capacitySuiteBaselineHead = git(repoRoot(), ['rev-parse', 'HEAD']).trim();
 
+// The complete disposable suite must not compete with unrelated real machine
+// reservations. Reuse the tested native driver, which owns the private namespace,
+// child process group, signal forwarding and cleanup. Every assertion still runs
+// in the worker; the public default command remains unchanged.
+if (process.argv.length === 2) {
+  const driver = spawn(process.execPath, [join(repoRoot(), 'scripts/verify-native-lock-prerequisites.mjs'), '--complete-capacity'],
+    { cwd: repoRoot(), env: process.env, stdio: 'inherit' });
+  const onTerm = () => { driver.kill('SIGTERM'); };
+  const onInt = () => { driver.kill('SIGINT'); };
+  process.once('SIGTERM', onTerm); process.once('SIGINT', onInt);
+  const result = await new Promise<{code:number|null;signal:NodeJS.Signals|null}>((resolveResult, rejectResult) => {
+    driver.once('error', rejectResult);
+    driver.once('close', (code, signal) => resolveResult({code, signal}));
+  });
+  process.removeListener('SIGTERM', onTerm); process.removeListener('SIGINT', onInt);
+  process.exit(result.code ?? 1);
+}
+
+
 type ChildResult = {
   timedOut: boolean;
   code: number | null;
@@ -534,11 +553,12 @@ async function assertRetiredRaceSeamIsProductionUnreachable(): Promise<void> {
 async function assertDifferentWorktreesCanValidateConcurrently(): Promise<void> {
   const firstFixture = await setupFixture({ storyId: 'B-validate-a' });
   const secondFixture = await setupFixture({ storyId: 'B-validate-b' });
+  let first:SpawnedChild|undefined,second:SpawnedChild|undefined;
   try {
-    const first = spawnValidate(firstFixture.root, firstFixture.storyId, 'parallel-a');
-    const second = spawnValidate(secondFixture.root, secondFixture.storyId, 'parallel-b');
-    assert.equal(await waitForEntered(firstFixture.root, 1, 4000), true, 'first worktree validate entered');
-    assert.equal(await waitForEntered(secondFixture.root, 1, 4000), true, 'second worktree validate entered');
+    first = spawnValidate(firstFixture.root, firstFixture.storyId, 'parallel-a');
+    second = spawnValidate(secondFixture.root, secondFixture.storyId, 'parallel-b');
+    assert.equal(await waitForEntered(firstFixture.root, 1, 4000), true, 'first worktree validate entered: '+first.output());
+    assert.equal(await waitForEntered(secondFixture.root, 1, 4000), true, 'second worktree validate entered: '+second.output());
 
     release(firstFixture.root);
     release(secondFixture.root);
@@ -549,8 +569,9 @@ async function assertDifferentWorktreesCanValidateConcurrently(): Promise<void> 
     assert.equal(firstResult.code, 0, firstResult.output);
     assert.equal(secondResult.code, 0, secondResult.output);
   } finally {
-    rmSync(firstFixture.root, { recursive: true, force: true });
-    rmSync(secondFixture.root, { recursive: true, force: true });
+    release(firstFixture.root);release(secondFixture.root);
+    for(const proc of [first,second])if(proc&&proc.child.exitCode===null)await waitChild(proc,12000);
+    releaseNativeLockRoot(firstFixture.root);releaseNativeLockRoot(secondFixture.root);
   }
 }
 

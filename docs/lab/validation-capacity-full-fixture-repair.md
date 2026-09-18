@@ -36,3 +36,11 @@ loaders used to collect failures are outside the checkout and are not used for
 Lab GREEN. Full RED/GREEN logs and commit bindings are retained under the common
 Git directory's `lab-evidence-archives/validation-audit-20260918/remaining-performance-20260918`.
 These records are local maintenance evidence, not formal Story DONE or release.
+
+The default complete entrypoint delegates to the existing native fixture driver.
+The driver gives all 30 groups one private machine registry, exercises its real
+signal and namespace controls, and observes worker exit before removing the owned
+namespace. This prevents unrelated real machine reservations from being interpreted
+as a failed independent-worktree assertion. The original 4-second observation,
+8-second probe hold and 10-second command budget remain unchanged. Independent
+worktree cleanup releases both probes and waits for both children even on failure.
