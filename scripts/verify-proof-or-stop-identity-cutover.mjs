@@ -7427,7 +7427,7 @@ const REVIEWED_CONTEXT_READERS = [
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "156d58b8a347b6e6a994acf6133367f65f3b7aa639e6e9933d1c84f7e3cd7121"
+    "sha256": "d751bd9162b8baa85b09930308bda8ba2bd65866c0200ca56d753f60b5a99148"
   }
 ];
 function verifyReviewedContextReaders(root) {

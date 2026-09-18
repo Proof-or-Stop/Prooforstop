@@ -1881,10 +1881,16 @@ async function assertCapacityRepositoryScopeAndSelectiveModes(): Promise<void> {
 function assertProtectedInventoryAndTimeoutSourcesUnchanged(root = repoRoot()): void {
   // Protect the real caller's existing command and budget contracts. Legitimate
   // additive registrations and separately gated scope paths do not relax them.
-  const readAt = (ref: string, file: string): string | null => {
-    if (ref === 'working') return existsSync(join(root, file)) ? readFileSync(join(root, file), 'utf8') : null;
-    return git(root, ['ls-tree', '--name-only', ref, '--', file]).trim()
-      ? git(root, ['show', `${ref}:${file}`]) : null;
+  const baselineRef = git(root, ['merge-base', 'main', 'HEAD']);
+  const reads = new Map<string, string | null>();
+  const readAt = (requestedRef: string, file: string): string | null => {
+    const ref = requestedRef === 'main' ? baselineRef : requestedRef;
+    const key = `${ref}:${file}`;
+    if (reads.has(key)) return reads.get(key)!;
+    const value = ref === 'working'
+      ? (existsSync(join(root, file)) ? readFileSync(join(root, file), 'utf8') : null)
+      : (git(root, ['ls-tree', '--name-only', ref, '--', file]).trim() ? git(root, ['show', `${ref}:${file}`]) : null);
+    reads.set(key, value); return value;
   };
   const prefix = (before: unknown[] = [], after: unknown[] = [], label: string): void => {
     assert.deepEqual(after.slice(0, before.length), before, label);
@@ -1898,6 +1904,12 @@ function assertProtectedInventoryAndTimeoutSourcesUnchanged(root = repoRoot()): 
     prefix(oldOverrides, newOverrides, 'protected original evidence timeout overrides changed');
     const overrideKeys = newOverrides.map((row: any) => JSON.stringify([row.command, row.args ?? []]));
     assert.equal(new Set(overrideKeys).size, overrideKeys.length, 'duplicate evidence timeout override cannot shadow existing policy');
+    const originalCommandKeys = new Set((before.validate?.commands ?? [])
+      .map((row: any) => JSON.stringify([row.command, row.args ?? []])));
+    for (const row of newOverrides.slice(oldOverrides.length)) {
+      assert.equal(originalCommandKeys.has(JSON.stringify([row.command, row.args ?? []])), false,
+        'new evidence timeout override shadows a protected original command');
+    }
     if (before.validate?.evidenceCommandTimeoutOverrides) after.validate.evidenceCommandTimeoutOverrides = newOverrides.slice(0, oldOverrides.length);
     else if (after.validate) delete after.validate.evidenceCommandTimeoutOverrides;
     assert.deepEqual(after.storyScopeBudget?.limits, before.storyScopeBudget?.limits, 'protected scope budget limits changed');
@@ -1965,7 +1977,19 @@ function assertProtectedInventoryMutationControls(): void {
   try {
     for (const file of files) {
       if (!existsSync(join(sourceRoot, file))) continue;
-      const content = readFileSync(join(sourceRoot, file), 'utf8'); originals.set(file, content); write(file, content);
+      let content = readFileSync(join(sourceRoot, file), 'utf8');
+      if (CONFIG_FILENAMES.includes(file as typeof CONFIG_FILENAMES[number])) {
+        const value = JSON.parse(content);
+        const overrides = value.validate.evidenceCommandTimeoutOverrides ??= [];
+        while (overrides.length < 2) overrides.push({ command: 'node', args: [`fixture-override-${overrides.length}.mjs`], timeoutMs: 1000 });
+        value.storyScopeBudget ??= { limits: { responsibilityDomains: 1 } };
+        value.storyScopeBudget.responsibilities ??= [{ id: 'fixture', paths: ['src/fixture.ts'] }];
+        value.storyScopeBudget.validationGroups ??= [{ id: 'fixture', commandIds: [] }];
+        const ids = value.storyScopeBudget.validationGroups[0].commandIds ??= [];
+        while (ids.length < 2) ids.push(`fixture-command-${ids.length}`);
+        content = JSON.stringify(value, null, 2) + '\n';
+      }
+      originals.set(file, content); write(file, content);
     }
     const configFiles = CONFIG_FILENAMES.filter(file => originals.has(file));
     assert.ok(configFiles.length > 0, 'at least one actual protected config must seed the fixture');
@@ -1985,12 +2009,26 @@ function assertProtectedInventoryMutationControls(): void {
       const budget = Object.keys(baseline.storyScopeBudget?.limits ?? {}).find(key => typeof baseline.storyScopeBudget.limits[key] === 'number');
       assert.ok(budget, 'fixture must contain a real scope budget limit');
       mutate('scope-budget', /scope budget limits changed/, value => { value.storyScopeBudget.limits[budget!] += 1; });
+      mutate('override-change', /original evidence timeout overrides changed/, value => { value.validate.evidenceCommandTimeoutOverrides[0].timeoutMs += 1; });
+      mutate('override-removal', /original evidence timeout overrides changed/, value => { value.validate.evidenceCommandTimeoutOverrides.shift(); });
+      mutate('override-duplicate', /duplicate evidence timeout override/, value => { value.validate.evidenceCommandTimeoutOverrides.push(value.validate.evidenceCommandTimeoutOverrides[0]); });
+      mutate('override-shadow', /new evidence timeout override shadows/, value => { value.validate.evidenceCommandTimeoutOverrides.push({ ...value.validate.commands[0], timeoutMs: 999999 }); });
+      mutate('group-command-reorder', /validation group command membership changed/, value => { value.storyScopeBudget.validationGroups[0].commandIds.reverse(); });
+      mutate('group-command-removal', /validation group command membership changed/, value => { value.storyScopeBudget.validationGroups[0].commandIds.shift(); });
+      mutate('group-command-duplicate', /duplicate validation group command/, value => { const ids = value.storyScopeBudget.validationGroups[0].commandIds; ids.push(ids[0]); });
+      for (const field of ['responsibilities', 'validationGroups']) {
+        mutate(`${field}-shape`, new RegExp(`scope budget ${field} shape changed`), value => { value.storyScopeBudget[field].pop(); });
+      }
+      mutate('unapproved-policy', /configuration policy changed outside/, value => { value.unapprovedFixturePolicy = true; });
       cases.push({ name: `${file}:missing`, reason: /config presence changed/, changes: { [file]: null } });
     }
     for (const file of ['package.json', 'packages/main/package.json']) {
       const value = JSON.parse(originals.get(file)!); const key = Object.keys(value.scripts)[0]; assert.ok(key);
       value.scripts[key] = 'changed-protected-command';
       cases.push({ name: `${file}:script`, reason: /existing package script changed/, changes: { [file]: JSON.stringify(value, null, 2) + '\n' } });
+      const packageValue = JSON.parse(originals.get(file)!);
+      packageValue.dependencies = { ...packageValue.dependencies, '__fixture_probe__': '0.0.0' };
+      cases.push({ name: `${file}:configuration`, reason: /protected package configuration changed/, changes: { [file]: JSON.stringify(packageValue, null, 2) + '\n' } });
     }
     const runners = ['packages/main/src/tasks/full-suite-runner.ts', 'packages/main/src/tasks/full-suite-runner-smoke.ts'];
     for (const file of runners) cases.push({ name: `${file}:content`, reason: /runner source changed/, changes: { [file]: originals.get(file)! + '\nexport const protectedMutation = true;\n' } });
@@ -2240,8 +2278,7 @@ void (async () => {
     await runGroup(assertQueuedWaitFailureCleanupIsRecoverable);
     await runGroup(assertCapacityRepositoryScopeAndSelectiveModes);
     await runGroup(assertProtectedInventoryAndTimeoutSourcesUnchanged);
-    await runGroup(assertProtectedInventoryMutationControls);
-    execFileSync(process.execPath, [join(repoRoot(), 'packages/main/tests/protected-inventory-fixture.test.mjs')],
+    execFileSync(process.execPath, [join(repoRoot(), 'packages/main/tests/protected-inventory-fixture.test.mjs'), '--prebuilt'],
       { cwd: repoRoot(), stdio: 'inherit', timeout: 30000 });
     await runGroup(assertCapacityReclaimImplementationIsIdentityStable);
     await runGroup(assertManagedVerificationIntentPinSchemaRoundTrip);

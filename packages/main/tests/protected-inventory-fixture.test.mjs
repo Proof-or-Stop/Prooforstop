@@ -8,7 +8,7 @@ import { runInNewContext } from 'node:vm';
 import ts from 'typescript';
 
 const repo = fileURLToPath(new URL('../../..', import.meta.url));
-execFileSync(process.execPath, ['scripts/ensure-dist.mjs'], { cwd: repo, stdio: 'inherit' });
+if (!process.argv.includes('--prebuilt')) execFileSync(process.execPath, ['scripts/ensure-dist.mjs'], { cwd: repo, stdio: 'inherit' });
 const { CONFIG_FILENAMES } = await import('../dist/core/brand-paths.js');
 const sourcePath = join(repo, 'packages/main/src/tasks/validate-execution-lock-smoke.ts');
 const source = fs.readFileSync(sourcePath, 'utf8');
