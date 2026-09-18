@@ -25,6 +25,7 @@ const requiredEvidenceFacts = [
   'global-thin-native-hook-projection',
   'identity-canonical-digest-memo',
   'validation-machine-reservation-delegation',
+  'finding-evidence-fixture-deadlines',
   'command-observation-boundaries',
   'verification-output-integrity',
   'verification-receipt-layering',
@@ -97,6 +98,9 @@ async function main() {
   }
   try { prepareVerification(root, { shareBuild: true }); }
   catch (error) { throw new Error(verificationFailureMessage('runtime contract prerequisite', error)); }
+  execFileSync(process.execPath, [join(root, 'packages/main/tests/validation-audit-budgets.test.mjs')], {
+    cwd: root, stdio: 'inherit', timeout: 30000,
+  });
   const { MANAGED_REVIEW_READONLY_RUNTIME_POLICY: readonlyRuntime } = await importDist(root, 'packages/main/dist/core/runtime-fact-registry.js');
   assert(readonlyRuntime.environmentKeys.includes('CLAUDE_CODE_TMPDIR'), 'Provider Bash temporary files must be mapped to the admitted private lane');
   const { materializeHostRunLaunch: crossHostLaunch } = await importDist(root, 'packages/main/dist/core/host-run.js');

@@ -2,6 +2,7 @@ import { VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY as delegationPolicy } 
 import { validationReservationChildStdio, validationReservationChildEnvironment, registerValidationReservationChild, prepareValidationReservationChild, cancelValidationReservationChild, attemptValidationReservationSpawn, noteValidationReservationSpawn, observeValidationReservationChild, validationReservationOwnedGroupSignalTarget, validationReservationGroupIsAbsent, unregisteredValidationReservationChildGone } from '../core/validation-reservation-delegation.js';
 import { MANAGED_CRITIC_FIXTURE_RUNTIME_POLICY as criticBudget } from '../core/runtime-fact-registry.js';
 import { REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY as epochBudget } from '../core/runtime-fact-registry.js';
+import { FINDING_EVIDENCE_FIXTURE_RUNTIME_POLICY as findingFixtureBudget } from '../core/runtime-fact-registry.js';
 /** Test-only OS isolation for native-broker fixtures. Never used by production
  * handlers: no host policy, process observer or broker verification is replaced.
  * The worker owns only disposable test repositories and its own broker keys. */
@@ -228,7 +229,7 @@ worker.once('message', message=>{workerReady=message?.ready===true;if(message?.r
     const budgetStartedAt=Date.now();
     const budgetMs = file.endsWith('/finding-identity-lineage-smoke.js') ? 300_000
       : file.endsWith('/verify-review-epoch-certification-continuity.mjs') ? reviewEpochFixtureBudgetMs(process.env,budgetStartedAt)
-      : file.endsWith('/verify-managed-inventory-critic-import.mjs') ? managedCriticFixtureBudgetMs(process.env,budgetStartedAt) : 120_000;
+      : file.endsWith('/verify-managed-inventory-critic-import.mjs') ? managedCriticFixtureBudgetMs(process.env,budgetStartedAt) : findingFixtureBudget.workerMs;
     const deadline = budgetStartedAt + budgetMs;
     if(file.endsWith('/verify-review-epoch-certification-continuity.mjs')) process.stdout.write(`REVIEW_EPOCH_FIXTURE_BUDGET ${JSON.stringify({budgetMs,deadline,outerEnvelope:process.env[epochBudget.environmentKey]??null})}\n`);
     let workerExitedWithoutOutcome = false;

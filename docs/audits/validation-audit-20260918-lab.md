@@ -1,5 +1,13 @@
 # Validation audit Lab checkpoint
 
+## Continued repair acceptance
+
+The 2026-09-18 follow-up uses a finite 900-second wall-clock budget for each complete serial command #1, #16, #69 and #130. Historical unchanged-command runs needed up to 611 seconds; the former 180-second registration could truncate valid work. The process contract alone contains a child with a 720-second allowance. This change is a configuration repair and makes no speedup claim. Identical executable/argv, complete assertions, fixed committed source and build, one audit command at a time, and recorded host load are required for the new live runs. Concurrent unrelated host work is observed, not terminated.
+
+The #1 parent deadline also included launch and cleanup inside the same 120 seconds granted to its isolated worker. The worker retains 120 seconds; the parent receives 30 seconds for the surrounding lifecycle. The structural regression reads the actual parent call and worker default from their ASTs and checks their ordering against the registered lifecycle allowances. Runtime-contract verification invokes that regression. Full-suite passes are separate evidence and remain required.
+
+An initial process-contract diagnostic was invalidated because this assistant modified source during execution, triggering `SETUP_BUILD_STALE`. Its log is retained with `validEvidence: false`; its failure and elapsed time are excluded from RED/GREEN and performance conclusions.
+
 The user authorized preservation and continued bounded repair of the validation audit on 2026-09-18. This Lab starts from local main 0.3.420. Historical observations target 0.3.408 and do not become new Lab RED/GREEN records by being archived. The original external workspace remains intact.
 
 - Lab: `validation-audit-20260918`; branch: `codex/lab-validation-audit-20260918`.
