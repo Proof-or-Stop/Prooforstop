@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Reproduce repeated live Git probes in one authenticated multi-lane review read.
 import assert from 'node:assert/strict';
-import cp, { execFileSync } from 'node:child_process';
+import cp, { execFileSync, spawnSync } from 'node:child_process';
 import { syncBuiltinESMExports } from 'node:module';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -16,8 +16,20 @@ import { readOwnerLease, releaseOwnerLease } from '../packages/main/dist/core/st
 import { adapterSessionEnv, adapterSessionId } from '../packages/main/dist/tasks/adapter-session-env.js';
 import { currentGitHead } from '../packages/main/dist/core/evidence-freshness.js';
 import { assertGitObservationInactive } from '../packages/main/dist/core/git-tree-observation.js';
-import { runIsolatedFindingFixture } from '../packages/main/dist/tasks/isolated-finding-fixture.js';
-if (await runIsolatedFindingFixture(import.meta.url)) process.exit(0);
+// Use the existing isolated native-fixture host and its unchanged 120-second
+// budget. The short entry only imports this exact regression after isolation;
+// it does not impersonate the calling provider or supply review credentials.
+if (!process.argv.includes('--isolated-finding-fixture-worker')) {
+ const entryRoot = mkdtempSync(join(tmpdir(), 'review-observation-entry-'));
+ const entry = join(entryRoot, 'finding-material-reattestation-smoke.js');
+ const isolation = new URL('../packages/main/dist/tasks/isolated-finding-fixture.js', import.meta.url).href;
+ writeFileSync(entry, `import { runIsolatedFindingFixture } from ${JSON.stringify(isolation)};\nif (await runIsolatedFindingFixture(import.meta.url)) process.exit(0);\nawait import(${JSON.stringify(import.meta.url)});\n`);
+ let result;
+ try { result = spawnSync(process.execPath, [entry], { encoding: 'utf8', stdio: 'inherit', timeout: 130000 }); }
+ finally { rmSync(entryRoot, { recursive: true, force: true }); }
+ assert.equal(result.signal, null, 'isolated review regression must exit normally');
+ process.exit(result.status ?? 1);
+}
 const storyId = 'B-review-observation';
 const reviewRound = '2020-01-01T00:00:00.000Z';
 const cliPath = fileURLToPath(new URL('../bin/proof-or-stop.js', import.meta.url));
