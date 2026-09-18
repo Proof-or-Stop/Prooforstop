@@ -1,5 +1,16 @@
 # Changelog
 
+## Lab review-evidence-observation - v0.3.420 - 2026-09-18
+
+- Share identical read-only Git probes across one synchronous collection of authenticated reviewer evidence, addressing the repeated reads found while executing B-e6d9 transition-authority acceptance.
+- Retain signature, dispatch, scope and freshness checks. A later collection rereads Git; changed reviewed material is rejected and thrown reads release their observation.
+- Record native multi-lane RED/GREEN with the unchanged test command. Measured hot Git probes decreased from 46 to 13 and the sampled collection wall time from 1.368 seconds to 0.406 seconds; these are individual fixture measurements, not a general throughput guarantee.
+- Keep the original Story acceptance cases and time budgets unchanged. Lab evidence establishes only this bounded reader repair; the Story must independently complete its formal intents and lifecycle.
+
+Maintenance provenance: codex/lab-review-evidence-observation, repair bf075642877763d974b2d3078eff911fbad78c04.
+Verification command (replayed before integration and on main): `["node","scripts/verify-review-evidence-observation.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab benchmark-review-read-evidence-contract - v0.3.419 - 2026-09-18
 
 - Clarify managed reviewer prompts and provider schema descriptions: ordinary reviewers and inventory critics must actually read at least one relevant permitted file in full and report matching nonempty read evidence. Do not fabricate reading records or infer full-corpus coverage from this minimum.
