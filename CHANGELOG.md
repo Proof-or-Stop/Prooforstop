@@ -1,5 +1,49 @@
 # Changelog
 
+## Lab host-activity-log-during-validation - v0.3.422 - 2026-09-18
+
+- Stop the Claude host activity hook (`.claude/hooks/log-tools.cjs`) from appending into a worktree while that worktree validates: a line is written only while the hook holds the product's own workspace validation capacity ticket, and is dropped otherwise, fixing the 2026-09-17 quorum smoke run reported FAIL with 73/73 cases passing.
+- Resolve the real destination first and refuse symlinked logs, hard links, FIFOs, destinations outside the ticket's worktree and uncertain Git discovery; directories are created per component from the filesystem root (including Windows drive and UNC roots) without following links. A residual rename race remains an accepted limitation because Node has no openat/mkdirat.
+- Verification: `node scripts/verify-host-activity-log-during-validation.mjs` fails 29 expectations against main's hook and passes 83 checks after the repair, including interop with the real capacity allocator and failure on any hook timeout.
+- Details, measured data and the audit history: [docs/lab/host-activity-log-during-validation.md](docs/lab/host-activity-log-during-validation.md).
+
+Maintenance provenance: codex/lab-host-activity-log-during-validation, repair 77110791b350a3179b5acac9ed04dfca9acc9113.
+Verification command (replayed before integration and on main): `["node","scripts/verify-host-activity-log-during-validation.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab benchmark-review-digest-refresh - v0.3.421 - 2026-09-18
+
+- Refresh exactly four existing review-run.ts dependency digests after audited upstream 0.3.420 changed that source file.
+- Preserve every exception identity, source binding, command, resource policy, and verification requirement; no new exception is added.
+- Existing static scanner reproduced four NEEDS_REVIEW results before the repair and passed with zero after it. See b0980-parallel-diagnostic-20260918/dependency-drift.json for the diagnosis.
+- This bounded Lab repair restores the benchmark supporting static check; it is not formal Story DONE or benchmark runner delivery.
+
+Maintenance provenance: codex/lab-benchmark-review-digest-refresh, repair 5f91abdf2a50baf43f7e68633af70c995f479931.
+Verification command (replayed before integration and on main): `["node","scripts/verify-validation-static-edges.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab review-evidence-observation - v0.3.420 - 2026-09-18
+
+- Share identical read-only Git probes across one synchronous collection of authenticated reviewer evidence, addressing the repeated reads found while executing B-e6d9 transition-authority acceptance.
+- Retain signature, dispatch, scope and freshness checks. A later collection rereads Git; changed reviewed material is rejected and thrown reads release their observation.
+- Record native multi-lane RED/GREEN with the unchanged test command. Measured hot Git probes decreased from 46 to 13 and the sampled collection wall time from 1.368 seconds to 0.406 seconds; these are individual fixture measurements, not a general throughput guarantee.
+- Keep the original Story acceptance cases and time budgets unchanged. Lab evidence establishes only this bounded reader repair; the Story must independently complete its formal intents and lifecycle.
+
+Maintenance provenance: codex/lab-review-evidence-observation, repair bf075642877763d974b2d3078eff911fbad78c04.
+Verification command (replayed before integration and on main): `["node","scripts/verify-review-evidence-observation.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab benchmark-review-read-evidence-contract - v0.3.419 - 2026-09-18
+
+- Clarify managed reviewer prompts and provider schema descriptions: ordinary reviewers and inventory critics must actually read at least one relevant permitted file in full and report matching nonempty read evidence. Do not fabricate reading records or infer full-corpus coverage from this minimum.
+- Explain that a nonblank uncertaintyReason is required only for suspected Findings and must be omitted for verified Findings or an absent evidenceState.
+- Preserve all existing parser, signature, scope, receipt and independent-review requirements. Focused RED/GREEN coverage checks both prompt delivery and accepted/rejected ordinary, critic and Finding envelopes. The complete static-edge scan passes after refreshing exactly three existing dependency digests; exception commands and permissions are unchanged.
+- This bounded maintenance addresses B-0980 provider-output failures; it does not mark B-0980 DONE or claim the benchmark runner is delivered. Provider results and partial cost observations are retained in [the development evidence directory](/Users/jek/Documents/Proof-or-Stop-Benchmark-Plan/b0980-ri035-review-evidence).
+
+Maintenance provenance: codex/lab-benchmark-review-read-evidence-contract, repair f4759f22c17f210cbdeb6de4ec08de3e36bb85f0.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/managed-review-prompt-cwd-isolation-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab inventory-guard-fixture - v0.3.418 - 2026-09-18
 
 - Preserve a mechanical check of the real caller HEAD and working tree against the merge base with local main. Existing validation commands, argv, order, timeouts, budget limits, package scripts and runner sources remain protected. Bounded additive registrations and separately gated scope paths may change; new timeout overrides cannot shadow any original command or override.

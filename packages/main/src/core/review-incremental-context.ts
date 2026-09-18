@@ -24,6 +24,7 @@ import { isBuiltin } from 'node:module';
 import { lstatSync, readFileSync, realpathSync } from 'node:fs';
 import { dirname, extname, relative, resolve } from 'node:path';
 import ts from 'typescript';
+import { observedGit } from './git-tree-observation.js';
 import type { StoryStore } from './store.js';
 import type { Finding, ReviewPass, ReviewRun } from './types.js';
 import {
@@ -759,9 +760,10 @@ export function fixtureCaseClosure(
  */
 function resolveFullStoryCommitObject(gitCwd: string, ref: string): string | undefined {
   try {
-    return execFileSync('git', ['rev-parse', '--verify', `${ref}^{commit}`], {
+    const args = ['rev-parse', '--verify', `${ref}^{commit}`];
+    return observedGit(gitCwd, args, () => execFileSync('git', args, {
       cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 5000,
-    }).trim();
+    })).trim();
   } catch {
     return undefined;
   }

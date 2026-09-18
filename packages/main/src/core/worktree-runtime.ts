@@ -2,6 +2,7 @@ import { execFileSync } from 'child_process';
 import { existsSync, realpathSync } from 'fs';
 import { dirname, isAbsolute, join, relative } from 'path';
 import type { StoryStore } from './store.js';
+import { observedGit } from './git-tree-observation.js';
 
 export interface GitWorktreeEntry {
   path: string;
@@ -34,11 +35,11 @@ export interface StoryWorktreeRuntime {
 }
 
 function git(gitCwd: string, args: string[]): string {
-  return execFileSync('git', args, {
+  return observedGit(gitCwd, args, () => execFileSync('git', args, {
     cwd: gitCwd,
     encoding: 'utf-8',
     stdio: ['pipe', 'pipe', 'pipe'],
-  }).trim();
+  })).trim();
 }
 
 function canonicalPath(p: string): string {
@@ -91,14 +92,16 @@ function readBranches(root: string, args: string[]): Set<string> {
 
 export function listGitWorktrees(root: string, options: { throwOnError?: boolean } = {}): GitWorktreeEntry[] {
   // Git resolves its own worktree/common directory from this cwd. Keep the
-  // inventory live without two redundant rev-parse subprocesses per read.
+  // inventory live outside a synchronous observation. Repeated identical reads
+  // inside one observation share bytes, never parsed entries or authority.
   let raw = '';
   try {
-    raw = execFileSync('git', ['worktree', 'list', '--porcelain'], {
+    const args = ['worktree', 'list', '--porcelain'];
+    raw = observedGit(root, args, () => execFileSync('git', args, {
       cwd: root,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
-    });
+    }));
   } catch (error) {
     if (options.throwOnError) throw error;
     return [];
