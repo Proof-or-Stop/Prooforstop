@@ -32,8 +32,12 @@ for(const admitted of [false,true])for(const commands of [[],[eligible],specimen
 }
 const result={label:'witness',command:process.execPath,args:[],code:0,output:'PASS'};
 assert.deepEqual(summarize([result],1),summarize([{...result,executionDecision:{disposition:'executed',reason:'input_unreadable'}}],1));
-const ordinary=await executeSharedValidationCommand(eligible,process.cwd(),1000,async()=>result);
-assert.equal(ordinary,result);assert.equal(Object.hasOwn(ordinary,'executionDecision'),false);
+let captures=0;
+const ordinary=await executeSharedValidationCommand(eligible,process.cwd(),1000,async()=>{captures++;return {result,completeOutput:result.output};});
+assert.equal(captures,1,'Missing shared context must execute the capture exactly once');
+assert.deepEqual(ordinary,{...result,executionDecision:{disposition:'executed',reason:'shared_context_unavailable'}});
+assert.equal(Object.hasOwn(result,'executionDecision'),false,'Diagnostics must not mutate the original capture result');
+assert.equal(Object.hasOwn(ordinary,'executionReceipt'),false,'Missing context must not manufacture a shared receipt');
 console.log('INPUT_POLICY_EQUIVALENCE_GREEN '+combinations);
 const root=mkdtempSync(join(tmpdir(),'pos-input-snapshot-'));const tests=[];
 const check=(name,fn)=>{const t=performance.now();fn();tests.push({name,ms:performance.now()-t});};

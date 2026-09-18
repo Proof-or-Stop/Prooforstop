@@ -7,6 +7,19 @@ import { mkdtempSync, readFileSync, writeFileSync, rmSync, readdirSync } from 'n
 import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { registerHooks } from 'node:module';
+import { fileURLToPath } from 'node:url';
+import ts from 'typescript';
+// The oracle imports the production source graph, which may use non-erasable
+// TypeScript. Compile only this verifier process, preserving the source resolver.
+registerHooks({ load(url, context, nextLoad) {
+  if (!url.endsWith('.ts')) return nextLoad(url, context);
+  return { format: 'module', shortCircuit: true, source: ts.transpileModule(
+    readFileSync(fileURLToPath(url), 'utf8'),
+    { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext, esModuleInterop: true }, fileName: fileURLToPath(url) },
+  ).outputText };
+} });
+const G = await import('../packages/main/src/core/git-tree-observation.ts');
 const M = await import('../packages/main/src/core/evidence-freshness.ts');
 const store = await import('../packages/main/src/core/evidence/artifact-store.ts');
 const policy = await import('../packages/main/src/core/material-path-policy.ts');
@@ -27,6 +40,26 @@ function commit(manifest, parent) {
   return git(['commit-tree', git(['write-tree']), ...(parent ? ['-p', parent] : [])], 'Hash oracle fixture\n');
 }
 try {
+  // Exercise the native source import and preserve the failure wrapper semantics.
+  const refusal = Object.assign(new Error('isolated Git refusal'), { status: 1, signal: null });
+  let refusedCalls = 0;
+  const refusedProbe = () => { refusedCalls++; throw refusal; };
+  G.withGitTreeObservation(() => {
+    for (let i = 0; i < 2; i++) {
+      assert.throws(() => G.observedGit(root, ['fixture-refusal'], refusedProbe), error => error === refusal);
+    }
+  });
+  assert.equal(refusedCalls, 1, 'Completed Git refusal is shared within one synchronous observation');
+  assert.throws(() => G.observedGit(root, ['fixture-refusal'], refusedProbe), error => error === refusal);
+  assert.equal(refusedCalls, 2, 'A previous observation must not retain failed probes');
+  const timeout = Object.assign(new Error('isolated timeout'), { status: null, code: 'ETIMEDOUT' });
+  let timeoutCalls = 0;
+  G.withGitTreeObservation(() => {
+    for (let i = 0; i < 2; i++) {
+      assert.throws(() => G.observedGit(root, ['fixture-timeout'], () => { timeoutCalls++; throw timeout; }), error => error === timeout);
+    }
+  });
+  assert.equal(timeoutCalls, 2, 'Incomplete Git attempts must be retried within the observation');
   git(['init', '-q', '-b', 'main']);
   writeFileSync(join(root, 'proof-or-stop.config.json'), fixture.base['proof-or-stop.config.json']);
   const base = commit(fixture.base);

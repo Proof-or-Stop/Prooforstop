@@ -7,17 +7,10 @@ import {
   isByteIdenticalControllerRuntimeAsset,
 } from './runtime-artifact-registry.js';
 import type { StoryStore } from './store.js';
+import { DIRTY_WORKTREE_CATEGORIES } from './dirty-worktree-categories.js';
+export { DIRTY_WORKTREE_CATEGORIES } from './dirty-worktree-categories.js';
 
 // Task B-6326: central ownership classifier for dirty git porcelain rows.
-export const DIRTY_WORKTREE_CATEGORIES = [
-  'proof_or_stop_metadata_changes',
-  'runtime_artifact_changes',
-  'declared_artifact_changes',
-  'material_source_changes',
-  'fixture_changes',
-  'unexpected_dirty_files',
-] as const;
-
 export type DirtyWorktreeCategory = typeof DIRTY_WORKTREE_CATEGORIES[number];
 
 export interface DirtyWorktreeParsedRow {

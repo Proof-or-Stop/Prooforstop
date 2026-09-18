@@ -1325,3 +1325,10 @@ see story/B-5a28
 - `proof-or-stop validate` 全绿 = 可以提交
 - 调用出错时先 `proof-or-stop <command> --help`，不要靠记忆猜参数
 <!-- proof-or-stop:end -->
+
+## Changelog maintenance
+
+For CHANGELOG.md, prepend only 3-5 concise bullets describing final delivered
+changes. Link detailed investigation and audit records instead of copying them.
+Read only the current entry or relevant Git diff when updating it; consult older
+Git history only for a specific historical question. Do not regenerate the file.
