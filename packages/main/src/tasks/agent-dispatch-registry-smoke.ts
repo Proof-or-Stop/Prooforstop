@@ -643,7 +643,7 @@ try {
   }
   process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-verification-intent';
   for (const field of ['scope', 'expectation', 'requirementSource'] as const) {
-    const row: Record<string, string> = {
+    const row: import('../core/types.js').VerificationIntentItem = {
       desc: 'metadata negative control', type: 'logic', priority: 'must',
       scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story',
     };
