@@ -391,6 +391,33 @@ try {
     check(binding.isRegisteredPackagesMainBuildCommand({ command: './tsc', args: [], cwd: 'packages/main' }, root) && binding.isRegisteredPackagesMainBuildCommand({ command: 'tsc', args: ['-b'], cwd: 'packages/main' }, root), 'control: the exact tsc forms are recognised');
     check(binding.isRegisteredPackagesMainBuildCommand({ command: 'npm', args: ['--prefix', 'packages/main', 'run', 'build'], cwd: './' }, root), 'control: the root-form build with a ./ cwd is recognised');
     check(binding.logicalCommandCwd(root, join(root, 'packages', 'main')) === 'packages/main' && binding.logicalCommandCwd(root, undefined) === '.', 'logical cwd normalises absolute and empty cwds');
+    // Audit #27 (1): the cwd is judged exactly where the launcher runs it.
+    // Nothing is trimmed and no separator is rewritten on POSIX, where a
+    // backslash or a trailing space is part of a directory's name: such a cwd
+    // names ANOTHER directory and never earns the build exemption.
+    expectRepaired(!binding.isRegisteredPackagesMainBuildCommand(npmBuild('packages/main '), root) && !binding.isRegisteredPackagesMainBuildCommand(npmBuild(' packages/main'), root)
+      && binding.logicalCommandCwd(root, 'packages/main ') === 'packages/main ',
+      'a cwd with surrounding whitespace was trimmed into the packages/main build');
+    if (process.platform !== 'win32') {
+      expectRepaired(!binding.isRegisteredPackagesMainBuildCommand(npmBuild('packages\\main'), root) && !binding.isRegisteredPackagesMainBuildCommand(npmBuild(join(root, 'packages\\main')), root),
+        'a cwd naming the POSIX directory packages\\main was recognised as the packages/main build');
+      expectRepaired(binding.logicalCommandCwd(root, 'packages\\main') === 'packages\\main', `the logical cwd rewrote a POSIX backslash (${binding.logicalCommandCwd(root, 'packages\\main')})`);
+      // The DONE-required receipt recogniser judges the same way: a PASS
+      // receipt from the other directory that rewrote dist is a non-build
+      // rewrite, while the genuine build's receipt is not.
+      const otherReceipt = (cwd) => [{ label: 'build', status: 'PASS', command: 'npm', args: ['run', 'build'], cwd: join(root, cwd), buildArtifactsBefore: 'a'.repeat(64), buildArtifactsAfter: 'b'.repeat(64), buildArtifactsProtection: 'enforced:sandbox-exec' }];
+      const misnamed = validateReceiptBuildBinding({ receipts: otherReceipt('packages\\main'), buildArtifactsHash: 'b'.repeat(64) }, root, [{ label: 'build', command: 'npm', args: ['run', 'build'], cwd: 'packages\\main' }], root);
+      expectRepaired(misnamed.some((reason) => reason.startsWith('build-artifacts-changed-during-command[0]')),
+        `a DONE-required receipt from the POSIX directory packages\\main was accepted as the registered build (${misnamed.join(' | ') || 'no reason'})`);
+      const genuine = validateReceiptBuildBinding({ receipts: otherReceipt('packages/main'), buildArtifactsHash: 'b'.repeat(64) }, root, [{ label: 'build', command: 'npm', args: ['run', 'build'], cwd: 'packages/main' }], root);
+      check(!genuine.some((reason) => reason.startsWith('build-artifacts-changed-during-command')), 'control: the genuine build receipt is recognised');
+    }
+    if (typeof binding.launchedCommandCwd === 'function') {
+      check(binding.launchedCommandCwd(root, undefined) === root && binding.launchedCommandCwd(root, 'packages/main ') === join(root, 'packages/main ') && binding.launchedCommandCwd(root, join(root, 'x')) === join(root, 'x'),
+        'launchedCommandCwd resolves exactly as the executor does');
+    } else {
+      expectRepaired(false, 'core/build-artifacts-identity exports no launchedCommandCwd');
+    }
   } else {
     expectRepaired(false, 'core/build-artifacts-identity exports no logicalCommandCwd, or the protection module is not loadable');
   }
@@ -435,6 +462,50 @@ try {
       rmSync(emptyDir, { recursive: true });
     }
     check(reuse().reusable === true && admissibility().ok === true, 'removing the empty directory restores the recorded identity');
+  }
+
+  // Audit #27 (2): a directory's search bits are observable (a chdir or an
+  // X_OK probe fails on a 0644 directory with identical contents), so they are
+  // part of the identity — for every directory below a root and for the root
+  // itself — and a PASS bound to the searchable tree is neither reusable nor
+  // admissible once they change.
+  if (binding) {
+    const emptyDir = join(mainDist, 'ready');
+    mkdirSync(emptyDir);
+    try {
+      const searchable = binding.currentBuildArtifactsHash(root);
+      chmodSync(emptyDir, 0o644);
+      const unsearchable = binding.currentBuildArtifactsHash(root);
+      expectRepaired(Boolean(searchable) && Boolean(unsearchable) && searchable !== unsearchable, 'removing an empty directory\'s search bits left the identity unchanged');
+      const modeEvidence = { ...evidence, buildArtifactsHash: searchable };
+      const modeReuse = evaluateRoutineValidationReuse({
+        root, gitCwd: root, evidence: modeEvidence, currentIdentity: identity, currentCoverage: { missingRequired: 0 },
+        currentMaterialHash: materialHash, currentStoryFilesHash: storyFilesHash, clean: true, headBefore: head, headAfter: head,
+        currentBuildArtifactsHash: currentBuild(),
+      });
+      expectRepaired(modeReuse.reusable === false && modeReuse.refusalReasons.includes('build-artifacts-hash-changed-or-missing'), `reuse accepted a PASS after a directory's search bits changed (reasons=${modeReuse.refusalReasons.join(',')})`);
+      const modeAdmission = evaluateValidationEvidenceAdmissibility({ evidence: modeEvidence, expectedCommand: modeEvidence.command, currentCoverageSnapshot: 'coverage', recordedCoverageSnapshot: 'coverage', blockingDirtyReason: '', gitCwd: root, metadataRoot: root });
+      expectRepaired(modeAdmission.ok === false && modeAdmission.reasonCodes.includes('build_artifacts_mismatch'), `admissibility accepted a PASS after a directory's search bits changed (codes=${modeAdmission.reasonCodes.join(',')})`);
+      chmodSync(emptyDir, 0o755);
+      check(binding.currentBuildArtifactsHash(root) === searchable, 'control: restoring the search bits restores the identity');
+      // A directory this process cannot search is unavailable, never digested as empty.
+      writeFileSync(join(emptyDir, 'inner.js'), 'process.exit(0);\n');
+      chmodSync(emptyDir, 0o644);
+      expectRepaired(binding.currentBuildArtifactsHash(root) === undefined, 'a non-empty directory without search permission was digested instead of refused');
+      chmodSync(emptyDir, 0o755);
+    } finally {
+      try { chmodSync(emptyDir, 0o755); } catch { /* already restored */ }
+      rmSync(emptyDir, { recursive: true, force: true });
+    }
+    check(reuse().reusable === true && admissibility().ok === true, 'control: the recorded PASS is admissible again after the directory is removed');
+    // The artifact ROOT's own search bits, on an empty root.
+    const permRoot = join(sandbox, 'perm-root'); mkdirSync(join(permRoot, 'packages/main/dist'), { recursive: true }); mkdirSync(join(permRoot, 'packages/utils/dist'), { recursive: true });
+    const rootSearchable = binding.currentBuildArtifactsHash(permRoot);
+    chmodSync(join(permRoot, 'packages/utils/dist'), 0o644);
+    const rootUnsearchable = binding.currentBuildArtifactsHash(permRoot);
+    chmodSync(join(permRoot, 'packages/utils/dist'), 0o755);
+    expectRepaired(Boolean(rootSearchable) && Boolean(rootUnsearchable) && rootSearchable !== rootUnsearchable, 'removing an empty artifact root\'s search bits left the identity unchanged');
+    check(binding.currentBuildArtifactsHash(permRoot) === rootSearchable, 'control: restoring the root\'s search bits restores the identity');
   }
 
   // Audit #14 (1): a symbolic link on the PATH to a tree (`packages/main`)
@@ -1323,6 +1394,24 @@ if (hostEnforced) {
     const declaredPreload = await run([{ label: 'declared preload', command: 'node', args: ['-e', "process.stdout.write('preload=' + process.env.LD_PRELOAD)"], env: { LD_PRELOAD: '/fixture/preload.so' }, timeoutMs: 20_000 }]);
     expectRepaired(declaredPreload.allPass === true && (declaredPreload.buildArtifactsProtection ?? '').startsWith('enforced:') && (declaredPreload.commands[0]?.output ?? '').includes('preload=/fixture/preload.so'),
       `a command declaring LD_PRELOAD did not run enforced with its declared environment (allPass=${declaredPreload.allPass}, ${declaredPreload.buildArtifactsProtection}, ${JSON.stringify((declaredPreload.commands[0]?.output ?? '').slice(0, 80))})`);
+    // Audit #27 (1), through the executor: a build invocation declared in the
+    // POSIX directory `packages\\main` runs THERE, classified as a test,
+    // launched protected, and cannot rewrite the real packages/main/dist.
+    if (process.platform !== 'win32') {
+      const otherDir = join(root, 'packages\\main'); mkdirSync(otherDir, { recursive: true });
+      writeFileSync(join(otherDir, 'package.json'), JSON.stringify({ name: 'other-directory', private: true, scripts: { build: 'node rewrite.js' } }));
+      writeFileSync(join(otherDir, 'rewrite.js'), "require('node:fs').writeFileSync(require('node:path').join(__dirname, '..', 'main', 'dist', 'tasks', 'x.js'), 'process.exit(1); // rewritten from the other directory\\n');\n");
+      const otherBuild = await run([{ label: 'other-directory build', command: 'npm', args: ['run', 'build'], cwd: 'packages\\main', timeoutMs: 60_000 }]);
+      const otherCommand = otherBuild.commands[0];
+      expectRepaired(otherCommand?.buildArtifactsRole === 'test' && typeof otherCommand?.cwd === 'string' && otherCommand.cwd.endsWith('packages\\main'),
+        `a build declared in the POSIX directory packages\\main was classified as the registered build or launched elsewhere (role=${otherCommand?.buildArtifactsRole}, cwd=${otherCommand?.cwd})`);
+      if (hostEnforced) {
+        expectRepaired(readFileSync(join(mainDist, 'x.js'), 'utf8') === BUILD_A && otherBuild.allPass === false && (otherCommand?.buildArtifactsProtection ?? '').startsWith('enforced:'),
+          `a build declared in the POSIX directory packages\\main rewrote the real dist or ran unprotected (allPass=${otherBuild.allPass}, ${otherCommand?.buildArtifactsProtection}, dist ${readFileSync(join(mainDist, 'x.js'), 'utf8') === BUILD_A ? 'intact' : 'REWRITTEN'})`);
+      }
+      writeFileSync(join(mainDist, 'x.js'), BUILD_A);
+      rmSync(otherDir, { recursive: true, force: true });
+    }
     // Linux only, where LD_PRELOAD is honoured: a preload library whose
     // constructor rewrites dist and exits 0 before the declared command runs.
     // Applied inside the sandbox its write is denied (it exits 7 instead);

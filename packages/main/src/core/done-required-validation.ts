@@ -2,7 +2,7 @@ import { validateResourceClaims, type ResourceClaim } from './keyed-scheduler.js
 import { parseLegacyValidationCommandString } from './validation-command-identity.js';
 import { createHash } from 'node:crypto';
 import { realpathSync } from 'node:fs';
-import { basename, dirname, isAbsolute, join, relative, resolve } from 'node:path';
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { loadConfig, type ProofOrStopConfig } from './config.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import { BUILD_ARTIFACT_ROOTS, currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand } from './build-artifacts-identity.js';
@@ -435,8 +435,13 @@ function commandCwd(projectRoot: string, cwd?: string): string {
   return isAbsolute(cwd) ? cwd : resolve(projectRoot, cwd);
 }
 
+/** Separators rewritten to `/` only where the platform's separator IS `\`; a POSIX backslash is part of a name. */
+function portablePath(path: string): string {
+  return sep === '\\' ? path.replace(/\\/g, '/') : path;
+}
+
 function normalizedCommandCwd(projectRoot: string, cwd?: string): string {
-  return commandCwd(projectRoot, cwd).replace(/\\/g, '/');
+  return portablePath(commandCwd(projectRoot, cwd));
 }
 
 /**
@@ -496,14 +501,14 @@ function repoRelativeLogicalCwd(projectRoot: string, cwd?: string): string {
     // Relative/empty: both sides live in projectRoot's OWN path space, so a plain
     // resolve+relativize is exact and needs no symlink canonicalization.
     const absolute = resolve(projectRoot, cwd ?? '');
-    const rel = relative(projectRoot, absolute).replace(/\\/g, '/');
+    const rel = portablePath(relative(projectRoot, absolute));
     return rel === '' ? '.' : rel;
   }
   // Absolute: the configured/executed path may live in a different symlink space
   // than projectRoot, so canonicalize BOTH before relativizing against projectRoot.
   const anchor = canonicalizeExisting(projectRoot);
   const target = canonicalizeExisting(cwd);
-  const rel = relative(anchor, target).replace(/\\/g, '/');
+  const rel = portablePath(relative(anchor, target));
   return rel === '' ? '.' : rel;
 }
 
@@ -525,7 +530,7 @@ function receiptLogicalCwd(projectRoot: string, receipt: DoneRequiredCommandRece
     return spec.cwd;
   }
   const physical = typeof receipt.cwd === 'string' && receipt.cwd ? receipt.cwd : projectRoot;
-  const rel = relative(projectRoot, physical).replace(/\\/g, '/');
+  const rel = portablePath(relative(projectRoot, physical));
   return rel === '' ? '.' : rel;
 }
 

@@ -1,6 +1,6 @@
 import { createHash, type Hash } from 'node:crypto';
 import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync } from 'node:fs';
-import { isAbsolute, join, posix, relative, resolve } from 'node:path';
+import { basename, dirname, isAbsolute, join, posix, relative, resolve, sep } from 'node:path';
 import { gitObservationKey, readObservedGitState } from './git-tree-observation.js';
 import { weakestProtectionLabel } from './build-artifacts-protection.js';
 
@@ -35,7 +35,7 @@ import { weakestProtectionLabel } from './build-artifacts-protection.js';
 export const BUILD_ARTIFACT_ROOTS = ['packages/main/dist', 'packages/utils/dist'] as const;
 
 /** Versioned domain of the digest; bump it whenever the framing below changes. */
-const DIGEST_DOMAIN = 'proof-or-stop.build-artifacts-identity.v5';
+const DIGEST_DOMAIN = 'proof-or-stop.build-artifacts-identity.v6';
 
 /**
  * Unambiguous framing: every field is preceded by its byte length, so the
@@ -63,7 +63,11 @@ class BuildArtifactsIdentityUnavailable extends Error {
 /**
  * Every entry below the root, directories included: a directory's presence is
  * observable (an entry point may probe for it), so an empty directory added or
- * removed is a different tree even though no file changed.
+ * removed is a different tree even though no file changed. A directory's
+ * search bits are observable too (a `chdir` or an X_OK probe fails on a 0644
+ * directory with identical contents), so its execute mask is framed exactly
+ * as a file's; a directory this process cannot search is unavailable, never
+ * digested as empty.
  */
 function entriesBelow(root: string): Array<{ path: string; kind: 'directory' | 'file'; executeMask: number }> {
   const result: Array<{ path: string; kind: 'directory' | 'file'; executeMask: number }> = [];
@@ -71,7 +75,7 @@ function entriesBelow(root: string): Array<{ path: string; kind: 'directory' | '
     for (const entry of readdirSync(directory, { withFileTypes: true })) {
       const path = join(directory, entry.name);
       if (entry.isSymbolicLink()) throw new BuildArtifactsIdentityUnavailable(path);
-      if (entry.isDirectory()) { result.push({ path, kind: 'directory', executeMask: 0 }); visit(path); }
+      if (entry.isDirectory()) { result.push({ path, kind: 'directory', executeMask: lstatSync(path).mode & 0o111 }); visit(path); }
       else if (entry.isFile()) {
         const stat = lstatSync(path);
         // A regular file with more than one link has an alias outside this
@@ -115,6 +119,8 @@ function artifactTreeDigest(root: string): string {
   if (!stat.isDirectory()) throw new BuildArtifactsIdentityUnavailable(root, 'artifact root is not a directory');
   const hash = createHash('sha256');
   frame(hash, `${DIGEST_DOMAIN}/tree`);
+  // The root's own search bits, for the same reason as every directory below it.
+  frame(hash, String(stat.mode & 0o111));
   const entries = entriesBelow(root).filter((entry) => relative(root, entry.path) !== BUILD_BINDING_BASENAME);
   frame(hash, String(entries.length));
   for (const entry of entries) {
@@ -127,26 +133,57 @@ function artifactTreeDigest(root: string): string {
 }
 
 /**
+ * Longest-existing-prefix realpath: symbolic links on the part of the path
+ * that exists are resolved and the segments that do not exist yet are
+ * re-appended, so a tree under a symlinked checkout and a tree a build has
+ * not created yet compare in the same path space.
+ */
+function canonicalizeExisting(path: string): string {
+  let current = path;
+  const tail: string[] = [];
+  for (;;) {
+    try {
+      const real = realpathSync(current);
+      return tail.length ? join(real, ...tail.reverse()) : real;
+    } catch {
+      const parent = dirname(current);
+      if (parent === current) return path;
+      tail.push(basename(current));
+      current = parent;
+    }
+  }
+}
+
+/**
+ * Directory the launcher runs a command in, resolved exactly as the executor
+ * resolves it: the project root for an empty cwd, an absolute cwd as written,
+ * a relative cwd against the project root. Nothing is trimmed and no separator
+ * is rewritten: on POSIX a backslash or a trailing space is part of a
+ * directory's name, and a command declared there runs THERE.
+ */
+export function launchedCommandCwd(projectRoot: string, cwd?: string): string {
+  const root = resolve(projectRoot);
+  if (!cwd) return root;
+  return isAbsolute(cwd) ? cwd : resolve(root, cwd);
+}
+
+/** A repo-relative path with the platform's separator rewritten to `/` — only where that separator IS `\`. */
+function portableRelativePath(path: string): string {
+  return sep === '\\' ? path.replace(/\\/g, '/') : path;
+}
+
+/**
  * Repo-relative logical cwd of a command: `.` for the project root, otherwise a
- * `/`-separated path. A relative cwd is resolved in the project root's own path
- * space (so `./packages/../packages/main` is `packages/main`); an absolute cwd
- * is canonicalised through the filesystem together with the root, so a
- * symlinked checkout still resolves to the same logical location. Shared by the
+ * `/`-separated path. The cwd is first resolved exactly as it is launched
+ * (launchedCommandCwd) and then canonicalised through the filesystem together
+ * with the root, so a symlinked checkout still resolves to the same logical
+ * location while two distinct directories never share one. Shared by the
  * plan-time build recogniser and the DONE-required receipt recogniser so the
  * two can never classify one command differently.
  */
 export function logicalCommandCwd(projectRoot: string, cwd?: string): string {
   const root = resolve(projectRoot);
-  const raw = (cwd ?? '').trim();
-  if (!raw) return '.';
-  let rel: string;
-  if (isAbsolute(raw)) {
-    const canonical = (path: string): string => { try { return realpathSync(path); } catch { return resolve(path); } };
-    rel = relative(canonical(root), canonical(raw));
-  } else {
-    rel = relative(root, resolve(root, raw));
-  }
-  rel = rel.replace(/\\/g, '/').replace(/\/+$/, '');
+  const rel = portableRelativePath(relative(canonicalizeExisting(root), canonicalizeExisting(launchedCommandCwd(root, cwd))));
   return rel === '' ? '.' : rel;
 }
 
@@ -176,9 +213,14 @@ export function isRegisteredPackagesMainBuildCommand(command: {
   // never an invocation with anything appended to the build arguments.
   if (command.shell === true) return false;
   const args = Array.isArray(command.args) ? command.args : [];
-  const raw = (command.cwd ?? '').replace(/\\/g, '/');
+  // The cwd is judged where the launcher runs it (launchedCommandCwd, resolved
+  // against the PROJECT root) and located logically against the ARTIFACT
+  // root; a declared cwd that names a different directory on this platform
+  // (`packages\main` on POSIX, `packages/main ` anywhere) is that other
+  // directory, never the build's.
+  const raw = portableRelativePath(command.cwd ?? '');
   const cwd = projectRoot
-    ? logicalCommandCwd(artifactsRoot ?? projectRoot, isAbsolute(raw) ? raw : resolve(projectRoot, raw || '.'))
+    ? logicalCommandCwd(artifactsRoot ?? projectRoot, launchedCommandCwd(projectRoot, command.cwd))
     : (isAbsolute(raw) ? raw.replace(/\/+$/, '') : (posix.normalize(raw || '.').replace(/\/+$/, '') || '.'));
   const atRoot = cwd === '.';
   const atPackagesMain = cwd === 'packages/main';
