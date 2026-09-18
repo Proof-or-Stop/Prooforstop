@@ -39,19 +39,24 @@ process.stdin.on('end', () => {
       ? path.join(root, 'docs', 'story', 'actives', storyId)
       : path.join(root, 'docs', 'story');
     const line = JSON.stringify(entry) + '\n';
-    const worktree = discoverWorkspace(root);
-    if (worktree === 'uncertain') process.exit(0); // the repository may be validating: write nothing
-    const top = worktree === 'non-repository' ? null : worktree;
-    const destination = bindDestination(top, path.join(logDir, 'activity.jsonl'));
-    if (destination === null) process.exit(0); // the destination escapes this worktree
+    // Where the bytes would REALLY land, following the whole symlink chain. Everything
+    // below is decided about that destination, never about the spelling that produced it.
+    const destination = resolveDestination(path.join(logDir, 'activity.jsonl'));
+    if (destination === null) process.exit(0); // unknown, or not a plain log file
+    const anchor = nearestExistingAncestor(path.dirname(destination));
+    if (anchor === null) process.exit(0); // nothing of the destination's path exists to ask about
+    const owner = discoverWorkspace(anchor);
+    if (owner === 'uncertain') process.exit(0); // that repository may be validating
+    const top = owner === 'non-repository' ? null : owner;
+    if (top !== null && !insideDirectory(top, destination)) process.exit(0);
     const append = () => {
       fs.mkdirSync(path.dirname(destination), { recursive: true });
       fs.appendFileSync(destination, line);
     };
-    // Outside any repository nothing can be validating. Inside one, the line is written
-    // only while this hook holds the product's own workspace validation capacity ticket,
-    // so a validation can never overlap the write. When capacity cannot be held, the line
-    // is DROPPED: host bookkeeping must never delay or disturb a validation.
+    // A destination outside every repository cannot be validating. One inside a worktree
+    // is written only while this hook holds that worktree's own validation capacity
+    // ticket, so a validation can never overlap the write. When capacity cannot be held,
+    // the line is DROPPED: host bookkeeping must never delay or disturb a validation.
     if (top === null) append();
     else withWorkspaceWriteTicket(top, append);
   } catch {}
@@ -106,30 +111,41 @@ function resolveThroughExistingAncestor(target) {
 }
 
 /**
- * The path this line may actually be appended to: the directory chain resolved through
- * every existing symlink, and the log file itself resolved when it is a symlink - even a
- * dangling one, whose target is where the write would really land. The result must stay
- * inside the worktree this hook is about to hold a ticket for; anything else returns null
- * and the line is dropped.
+ * The path this line would really be appended to: the directory chain resolved through
+ * every existing symlink and then the log entry itself followed through its COMPLETE
+ * symlink chain, because appendFileSync follows all of it. Returns null when the chain
+ * cannot be resolved, loops, or ends at something that is not a plain file - a FIFO named
+ * activity.jsonl would otherwise block while a capacity ticket is held.
  */
-function bindDestination(top, target) {
-  const parent = resolveThroughExistingAncestor(path.dirname(target));
-  if (parent === null) return null;
-  if (top !== null && !insideDirectory(top, parent)) return null;
-  let destination = path.join(parent, path.basename(target));
-  let info = null;
-  try { info = fs.lstatSync(destination); } catch (error) { if (error.code !== 'ENOENT') return null; }
-  if (info !== null && info.isSymbolicLink()) {
-    let linked;
-    try { linked = path.resolve(path.dirname(destination), fs.readlinkSync(destination)); } catch { return null; }
-    const linkedParent = resolveThroughExistingAncestor(path.dirname(linked));
-    if (linkedParent === null) return null;
-    destination = path.join(linkedParent, path.basename(linked));
-    if (top !== null && !insideDirectory(top, destination)) return null;
-  } else if (info !== null && !info.isFile()) {
-    return null; // a FIFO or device named activity.jsonl is not a log
+function resolveDestination(target) {
+  let current = target;
+  for (let hop = 0; hop < 40; hop++) {
+    const parent = resolveThroughExistingAncestor(path.dirname(current));
+    if (parent === null) return null;
+    current = path.join(parent, path.basename(current));
+    let info = null;
+    try { info = fs.lstatSync(current); } catch (error) { return error.code === 'ENOENT' ? current : null; }
+    if (info.isSymbolicLink()) {
+      let link;
+      try { link = fs.readlinkSync(current); } catch { return null; }
+      current = path.resolve(path.dirname(current), link);
+      continue;
+    }
+    return info.isFile() ? current : null;
   }
-  return destination;
+  return null; // a symlink loop or an unreasonably long chain
+}
+
+/** The deepest ancestor of `target` that exists, so Git can be asked about it. */
+function nearestExistingAncestor(target) {
+  let current = path.resolve(target);
+  for (let depth = 0; depth < 64; depth++) {
+    try { if (fs.existsSync(current)) return current; } catch { return null; }
+    const parent = path.dirname(current);
+    if (parent === current) return null;
+    current = parent;
+  }
+  return null;
 }
 
 function pidAlive(pid) {

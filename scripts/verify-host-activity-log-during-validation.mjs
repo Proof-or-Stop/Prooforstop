@@ -80,9 +80,11 @@ function ticket(root, pid, workspace = root) {
   return dir;
 }
 const hookInput = (root, command) => JSON.stringify({ cwd: root, tool_name: 'Bash', tool_input: { command }, hook_event_name: 'PostToolUse', session_id: 'hook-fixture', tool_output: 'ok' });
-function callHook(root, command, env = {}) {
-  const r = spawnSync(process.execPath, [hook], { input: hookInput(root, command), env: { ...process.env, HOME: home, ...env }, encoding: 'utf8' });
-  if (r.status !== 0) throw new Error(`hook exited ${r.status}: ${r.stderr}`);
+function callHook(root, command, env = {}, timeout = 20_000) {
+  // A hook that blocks (an unreadable destination, a FIFO) is killed rather than hanging
+  // the run; scenarios that care report it.
+  const r = spawnSync(process.execPath, [hook], { input: hookInput(root, command), env: { ...process.env, HOME: home, ...env }, encoding: 'utf8', timeout, killSignal: 'SIGKILL' });
+  if (r.status !== 0 && !(r.error && r.error.code === 'ETIMEDOUT')) throw new Error(`hook exited ${r.status}: ${r.stderr}`);
   return r;
 }
 function callHookAsync(root, command, env = {}) {
@@ -221,6 +223,50 @@ try {
     rows.push({ scenario: `destination escapes through a ${name}`, during: escaped.length, detail: '-' });
     expectRepaired(escaped.length === 0, `a ${name} must not carry the line into another validating repository (wrote ${JSON.stringify(escaped)})`);
     rmSync(otherTicket, { recursive: true, force: true });
+  }
+  // A symlink CHAIN, and a link to something that is not a plain file.
+  {
+    const source = repo();
+    const other = repo();
+    mkdirSync(join(source, 'docs/story'), { recursive: true });
+    mkdirSync(join(other, 'docs/story'), { recursive: true });
+    writeFileSync(join(other, 'docs/story/activity.jsonl'), '');
+    symlinkSync(join(other, 'docs/story/activity.jsonl'), join(source, 'relay.jsonl'));
+    symlinkSync(join(source, 'relay.jsonl'), join(source, 'docs/story/activity.jsonl'));
+    const otherTicket = ticket(other, live.pid);
+    callHook(source, 'chained-symlink');
+    const escaped = readFileSync(join(other, 'docs/story/activity.jsonl'), 'utf8');
+    rows.push({ scenario: 'destination escapes through a symlink chain', during: escaped.length, detail: '-' });
+    expectRepaired(escaped.length === 0, `a symlink chain must not carry the line into another validating repository (wrote ${JSON.stringify(escaped)})`);
+    rmSync(otherTicket, { recursive: true, force: true });
+  }
+  {
+    const root = repo();
+    mkdirSync(join(root, 'docs/story'), { recursive: true });
+    spawnSync('mkfifo', [join(root, 'pipe')]);
+    symlinkSync(join(root, 'pipe'), join(root, 'docs/story/activity.jsonl'));
+    const started = Date.now();
+    const r = callHook(root, 'symlink-to-fifo', {}, 8000);
+    const elapsed = Date.now() - started;
+    const blocked = Boolean(r.error && r.error.code === 'ETIMEDOUT');
+    rows.push({ scenario: 'log symlink points at a FIFO', during: elapsed, detail: blocked ? 'blocked' : `exit ${r.status}` });
+    expectRepaired(!blocked && elapsed < 5000, `a FIFO destination must not block the hook (took ${elapsed}ms${blocked ? ', killed' : ''})`);
+  }
+  // A directory outside any repository whose destination resolves INTO a repository.
+  {
+    const plain = join(sandbox, `plain-redirect-${n++}`); mkdirSync(plain, { recursive: true });
+    const validating = repo();
+    mkdirSync(join(validating, 'docs/story'), { recursive: true });
+    symlinkSync(join(validating, 'docs'), join(plain, 'docs'));
+    const t = ticket(validating, live.pid);
+    callHook(plain, 'redirected-into-repository');
+    const escaped = lines(validating);
+    rows.push({ scenario: 'non-repository cwd redirected into a validating repository', during: escaped.length, detail: '-' });
+    expectRepaired(escaped.length === 0, `a destination inside a validating repository must not be written directly (found ${JSON.stringify(escaped)})`);
+    rmSync(t, { recursive: true, force: true });
+    callHook(plain, 'after-redirect');
+    expectRepaired(lines(validating).includes('after-redirect'),
+      `the redirected destination is written once nothing is validating (got ${JSON.stringify(lines(validating))})`);
   }
   // Discovery: uncertainty never reads as "no repository".
   for (const [name, script] of [
