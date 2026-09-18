@@ -253,9 +253,16 @@ try {
     const expectedMechanism = process.platform === 'darwin' ? 'enforced:sandbox-exec' : bwrapOnPath ? 'enforced:bwrap' : null;
     const resolved = binding.resolveArtifactWriteProtection(root);
     hostEnforced = resolved.enforced === true;
-    if (expectedMechanism) {
+    if (expectedMechanism === 'enforced:sandbox-exec') {
       expectRepaired(resolved.enforced === true && resolved.label === expectedMechanism,
         `on this host the resolver did not establish and self-test ${expectedMechanism} for a project with artifact trees (${resolved.label})`);
+    } else if (expectedMechanism === 'enforced:bwrap') {
+      // A bwrap file on PATH is discovery, not enforcement: where the wrapper
+      // cannot operate (no user namespaces, say) the resolver must say so,
+      // and the fail-closed paths below are what this host then exercises.
+      expectRepaired((resolved.enforced === true && resolved.label === expectedMechanism) || (resolved.enforced === false && resolved.label.startsWith('unenforced:bwrap')),
+        `with bwrap on PATH the resolver must either demonstrate enforcement or report the wrapper's own failure (${resolved.label})`);
+      console.log(`bwrap on PATH: resolver reports ${resolved.label}`);
     } else {
       expectRepaired(resolved.enforced === false && resolved.label.startsWith('unenforced:'),
         `a host with no write-protection mechanism must report a project with artifact trees as unenforced (${resolved.label})`);
@@ -610,6 +617,18 @@ try {
     // with the remedy, not after the whole suite has run for nothing. Pure
     // rule (the resolver cannot be made unenforced on this host), plus a guard
     // that the writer consults it ahead of the command loop.
+    // Audit #20 (1): the receipt recogniser judges the DECLARED shell mode of
+    // the policy command, not the transport flag the executor records (which
+    // is true for every command on Windows).
+    {
+      const buildArgs = ['--prefix', 'packages/main', 'run', 'build'];
+      const identityAfter = binding ? binding.currentBuildArtifactsHash(h.root) : 'x'.repeat(64);
+      const transportShellReceipt = { label: 'build', command: 'npm', args: buildArgs, cwd: h.root, shell: true, status: 'PASS', exitCode: 0, buildArtifactsBefore: identityAfter, buildArtifactsAfter: identityAfter, buildArtifactsProtection: 'registered-build:writes-permitted' };
+      const declared = validateReceiptBuildBinding({ receipts: [transportShellReceipt], buildArtifactsHash: identityAfter }, h.root, [{ label: 'build', command: 'npm', args: buildArgs, cwd: '.' }], h.root);
+      expectRepaired(declared.length === 0, `a Windows-transport shell receipt of a declared (non-shell) build was not recognised as the registered build (${declared.join(' | ')})`);
+      const declaredShell = validateReceiptBuildBinding({ receipts: [transportShellReceipt], buildArtifactsHash: identityAfter }, h.root, [{ label: 'build', command: 'npm', args: buildArgs, cwd: '.', shell: true }], h.root);
+      check(declaredShell.some((reason) => reason.startsWith('build-artifacts-protection-unenforced[0]')), 'control: a policy that DECLARES a shell command line is not a registered build');
+    }
     if (typeof doneRequiredProtectionRefusal === 'function') {
       const unenforcedLabel = 'unenforced:no artifact write-protection mechanism is implemented for platform win32';
       // Only the commands that would run under THIS resolution are judged: a
@@ -658,6 +677,21 @@ try {
           `the private /proc must be mounted after every bind, and the trees after their ancestors (${prefix.join(' ')})`);
       } else {
         expectRepaired(false, 'core/build-artifacts-protection exports no bwrapLaunchPrefix');
+      }
+      // Audit #20 (3): a discoverable wrapper whose startup fails must be
+      // reported as unenforced with its own failure, never as enforcement.
+      // Exercised on any host through the resolver's platform seam with a
+      // wrapper that exits 7 whatever it is asked to run.
+      {
+        const brokenDir = join(sandbox, 'broken-wrapper'); mkdirSync(brokenDir, { recursive: true });
+        writeFileSync(join(brokenDir, 'bwrap'), '#!/bin/sh\nexit 7\n', { mode: 0o755 });
+        const broken = binding.resolveArtifactWriteProtection(h.root, { platform: 'linux', searchPath: brokenDir, cwd: sandbox });
+        expectRepaired(broken.enforced === false && broken.label.startsWith('unenforced:bwrap self-test'),
+          `a discoverable wrapper that cannot operate was not reported as its own unenforced failure (${broken.label})`);
+        const missing = binding.resolveArtifactWriteProtection(h.root, { platform: 'linux', searchPath: join(sandbox, 'nowhere'), cwd: sandbox });
+        check(missing.enforced === false && missing.label.startsWith('unenforced:bwrap (bubblewrap) is not on PATH'), `control: no wrapper on PATH is reported as such (${missing.label})`);
+        const unsupported = binding.resolveArtifactWriteProtection(h.root, { platform: 'win32' });
+        check(unsupported.enforced === false && unsupported.label.startsWith('unenforced:no artifact write-protection mechanism is implemented for platform win32'), `control: an unsupported platform is reported as such (${unsupported.label})`);
       }
       // Audit #19 (1): the wrapper discovered on a RELATIVE PATH entry is
       // resolved to an absolute canonical executable, so the self-tested

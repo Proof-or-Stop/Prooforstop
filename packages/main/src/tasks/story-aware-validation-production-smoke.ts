@@ -11,6 +11,7 @@ import { configuredValidationCommands } from '../handlers/verifier.js';
 import { createValidationClosureCertificate, verifyValidationShardReceipt, verifyValidationClosureCertificate } from '../core/story-aware-validation.js';
 import { withValidationSigningRoot } from '../core/validation-signing-context.js';
 import { executeValidationPlan } from '../core/validation-executor.js';
+import { resolveArtifactWriteProtection } from '../core/build-artifacts-protection.js';
 
 const root = mkdtempSync(join(tmpdir(), 'proof-story-aware-production-'));
 const git = (args: string[]) => execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
@@ -316,6 +317,11 @@ try {
     assert.equal(admitted.authority.authoritative, true, JSON.stringify(admitted.authority));
     assert.equal(admitted.dynamicAllPass, true);
     console.log('gate-owned authority PASS');
+    // The receipt, reuse and label assertions below need enforcement to mean
+    // anything; on a host that cannot demonstrate it, the intended fallback
+    // is asserted instead: an unenforced label and no authoritative receipt.
+    const authorityProtection = resolveArtifactWriteProtection(authorityRoot);
+    if (authorityProtection.enforced) {
     // The run carries the protection its commands executed under, so the
     // evidence publication derives from it is reusable and admissible.
     assert.match(admitted.buildArtifactsProtection ?? '', /^enforced:/, 'an authoritative dynamic run must carry a satisfied protection label: ' + JSON.stringify(admitted.buildArtifactsProtection));
@@ -344,6 +350,11 @@ try {
     assert.ok(rebuiltBytes.receipts.some((receipt) => receipt.producedBy === 'story-execution' && receipt.buildArtifactsDigest === rebuiltBytes.buildArtifactsHash),
       'the re-executed command must earn a receipt bound to the new bytes');
     console.log('dynamic receipts lapse with compiled bytes PASS');
+    } else {
+      assert.match(admitted.buildArtifactsProtection ?? '', /^unenforced:/, 'without enforcement the run must carry an unenforced label: ' + JSON.stringify(admitted.buildArtifactsProtection));
+      assert.equal(admitted.receipts.filter((receipt) => receipt.producedBy === 'story-execution' && /^enforced:/.test(receipt.buildArtifactsProtection)).length, 0, 'without enforcement no receipt may claim enforced protection');
+      console.log('skip: receipt and reuse assertions need demonstrated artifact write protection on this host (' + authorityProtection.label + ')');
+    }
 
     // A REAL registered build as Wave-0 (recognised by shape: `./tsc` run in
     // packages/main, rewriting dist) followed by a selectable test. The
@@ -394,6 +405,8 @@ try {
       writeFileSync(join(legacyDir, 'receipts.json'), JSON.stringify([{ schema: 'proof-or-stop.validation-command-receipt.v2', id: 'legacy-v2-receipt', commandId: 'stale', signature: 'ed25519:validation-artifact-v1:00' }], null, 2) + '\n');
       const registeredArgs = { projectRoot: registeredRoot, gitCwd: registeredRoot, storyId: 'B-registered', baseHead: registeredHead, head: registeredHead, changedFiles: [], mode: 'enforce-low-risk' as const, commands: registeredCommands };
       const registeredFirst = await runStoryAwareDynamicValidation(registeredArgs);
+      const registeredProtection = resolveArtifactWriteProtection(registeredRoot);
+      if (registeredProtection.enforced) {
       assert.equal(registeredFirst.dynamicAllPass, true, JSON.stringify(registeredFirst.buildArtifactsDiagnostics));
       assert.equal(registeredFirst.authority.authoritative, true, JSON.stringify(registeredFirst.authority));
       assert.ok(registeredFirst.receipts.every((receipt) => receipt.schema === 'proof-or-stop.validation-command-receipt.v3'), 'a superseded-schema receipt must be dropped, not retained: ' + JSON.stringify(registeredFirst.receipts.map((receipt) => [receipt.id, receipt.schema])));
@@ -411,6 +424,11 @@ try {
       assert.match(registeredSecond.buildArtifactsProtection ?? '', /^enforced:/, 'an all-tests-reused rerun must carry a satisfied protection label: ' + JSON.stringify(registeredSecond.buildArtifactsProtection));
       assert.deepEqual(withValidationSigningRoot(registeredRoot, () => storedDynamicReceiptIntegrityReasons(registeredRoot, 'B-registered', registeredHead, registeredSecond.manifest, registeredRoot)), [], 'stored integrity must hold after the rerun');
       console.log('registered build receipts and legacy receipt recovery PASS');
+      } else {
+        assert.ok(registeredFirst.receipts.every((receipt) => receipt.schema === 'proof-or-stop.validation-command-receipt.v3'), 'a superseded-schema receipt must be dropped, not retained');
+        assert.equal(registeredFirst.receipts.filter((receipt) => /^enforced:/.test(receipt.buildArtifactsProtection)).length, 0, 'without enforcement no test receipt may claim enforced protection');
+        console.log('skip: registered-build receipt and reuse assertions need demonstrated artifact write protection on this host (' + registeredProtection.label + ')');
+      }
     } finally {
       rmSync(registeredRoot, { recursive: true, force: true });
     }

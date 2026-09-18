@@ -177,8 +177,8 @@ export function bwrapLaunchPrefix(existingRoots: readonly string[]): string[] {
   return ['--dev-bind', '/', '/', ...binds, '--unshare-pid', '--proc', '/proc', '--die-with-parent', '--'];
 }
 
-function bwrapMechanism(existingRoots: string[], allRoots: string[], projectRoot: string): Mechanism | string {
-  const bwrap = resolveExecutableOnPath('bwrap');
+function bwrapMechanism(existingRoots: string[], allRoots: string[], projectRoot: string, discovery: { searchPath?: string; cwd?: string } = {}): Mechanism | string {
+  const bwrap = resolveExecutableOnPath('bwrap', discovery.searchPath, discovery.cwd);
   if (!bwrap) return 'bwrap (bubblewrap) is not on PATH';
   // bwrap re-binds a tree read-only over itself, so it can only protect a tree
   // that exists. An absent root would stay creatable inside the namespace, and
@@ -286,14 +286,19 @@ export function artifactProtectionStale(
  * inside its own window. The consumers of that label refuse to treat the
  * evidence as authoritative, and the DONE-required writer refuses to launch.
  */
-export function resolveArtifactWriteProtection(artifactsRoot: string): ArtifactWriteProtection {
+export function resolveArtifactWriteProtection(
+  artifactsRoot: string,
+  /** TEST SEAM: the platform to resolve for and where to discover its wrapper. Production callers omit it. */
+  options: { platform?: NodeJS.Platform; searchPath?: string; cwd?: string } = {},
+): ArtifactWriteProtection {
   const root = resolve(artifactsRoot);
   const allRoots = BUILD_ARTIFACT_ROOTS.map((relative) => canonicalize(join(root, relative)));
   const existingRoots = allRoots.filter((path) => isDirectory(path));
+  const platform = options.platform ?? process.platform;
   let mechanism: Mechanism | string;
-  if (process.platform === 'darwin') mechanism = sandboxExecMechanism(allRoots);
-  else if (process.platform === 'linux') mechanism = bwrapMechanism(existingRoots, allRoots, canonicalize(root));
-  else mechanism = `no artifact write-protection mechanism is implemented for platform ${process.platform}`;
+  if (platform === 'darwin') mechanism = sandboxExecMechanism(allRoots);
+  else if (platform === 'linux') mechanism = bwrapMechanism(existingRoots, allRoots, canonicalize(root), { searchPath: options.searchPath, cwd: options.cwd });
+  else mechanism = `no artifact write-protection mechanism is implemented for platform ${platform}`;
   if (typeof mechanism === 'string') {
     return unenforced(existingRoots.length === 0 ? `${mechanism}; no artifact tree exists yet, but a command could create, execute and remove one` : mechanism);
   }

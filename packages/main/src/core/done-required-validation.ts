@@ -568,7 +568,10 @@ function isPackagesMainBuild(receipt: DoneRequiredCommandReceipt, projectRoot: s
     command: receipt.command,
     args: Array.isArray(receipt.args) ? receipt.args : [],
     cwd: receiptLogicalCwd(projectRoot, receipt),
-    shell: receipt.shell === true,
+    // The DECLARED shell mode: the executor records shell:true as a transport
+    // detail on Windows for every command, which says nothing about whether
+    // the policy asked for a shell command line.
+    shell: command?.shell === true,
   }, projectRoot, artifactsRoot);
 }
 
