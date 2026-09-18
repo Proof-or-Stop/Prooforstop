@@ -18,6 +18,12 @@ try {
   }));
   resetConfigCache();
   const store=new StoryStore(root),storyId='B-run-id',now=new Date().toISOString();
+  for(const args of [['init'],['config','user.email','review-guidance@example.invalid'],
+    ['config','user.name','Review Guidance Fixture'],['add','proof-or-stop.config.json'],
+    ['commit','-m','isolated fixture'],['checkout','-b',`story/${storyId}`]]) {
+    const result=spawnSync('git',args,{cwd:root,encoding:'utf8'});
+    assert.equal(result.status,0,result.stderr);
+  }
   store.writeStory(storyId,{
     storyId,name:'review-run-id-guidance',title:'Review run binding guidance',
     description:'Isolated pending REVIEW fixture for actual session guidance.',
