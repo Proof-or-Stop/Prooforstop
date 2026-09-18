@@ -44,12 +44,12 @@ process.stdin.on('end', () => {
     // One queue per cwd, whatever discovery says: publication, ordering and delivery all
     // read the same queue, so a record published while discovery was failing can never be
     // overtaken by a later one. Discovery decides only whether delivery may run now.
-    const identity = queueIdentity(root);
+    const identity = queueIdentity(root, discovered);
     // The record is bound to the canonical directory it belongs to and stores its target
     // RELATIVE to it. A symlink retargeted between publication and delivery can therefore
     // never redirect the line into another repository.
-    rememberUnresolvedSource(identity);
-    publishSpoolRecord(identity.dir, { root: identity.canonicalRoot, targetRelative, line });
+    // An unresolved record carries its own routing: the spelling it was published through.
+    publishSpoolRecord(identity.dir, { root: identity.canonicalRoot, source: identity.canonical ? null : identity.lexical, targetRelative, line });
     if (identity.canonical && discovered === 'non-repository') {
       // Positively outside a repository: nothing can be validating, so deliver directly.
       deliverQueue(identity, null);
@@ -99,85 +99,80 @@ function discoverWorkspace(root) {
  * alias share one queue. When canonicalization is unavailable the lexical identity is
  * used, the invocation delivers nothing, and a later canonical run adopts those records.
  */
-function queueIdentity(root) {
-  const spoolRoot = path.join(os.homedir(), '.proof-or-stop', 'activity-spool');
-  const dirFor = (value) => path.join(spoolRoot, crypto.createHash('sha256').update(value).digest('hex'));
-  const lexical = path.resolve(root);
-  try {
-    const canonical = fs.realpathSync(root);
-    return { dir: dirFor(canonical), canonicalRoot: canonical, canonical: true, spoolRoot };
-  } catch {
-    // Unresolved: the queue records the spelling that was used, so a later invocation
-    // through ANY spelling that canonicalizes to the same directory can find and adopt it.
-    return { dir: path.join(spoolRoot, `unresolved-${crypto.createHash('sha256').update(lexical).digest('hex')}`), lexical, canonicalRoot: null, canonical: false, spoolRoot };
+/**
+ * Canonicalize as far as the filesystem allows without creating anything: the deepest
+ * existing ancestor is resolved and the remaining segments appended, so a symlinked HOME
+ * is judged by where it really points even before its subdirectories exist.
+ */
+function resolveThroughExistingAncestor(target) {
+  const absolute = path.resolve(target);
+  const remainder = [];
+  let current = absolute;
+  for (let depth = 0; depth < 64; depth++) {
+    try { return path.join(fs.realpathSync(current), ...remainder); } catch { /* try the parent */ }
+    const parent = path.dirname(current);
+    if (parent === current) return absolute;
+    remainder.unshift(path.basename(current));
+    current = parent;
   }
+  return absolute;
+}
+
+/** Is `candidate` the same directory as `root`, or inside it? */
+function insideDirectory(root, candidate) {
+  return candidate === root || candidate.startsWith(`${root}${path.sep}`);
+}
+
+/**
+ * The queue must never live inside a worktree it is protecting - HOME itself can be the
+ * validated worktree - so the home location is used only when it is provably outside, and
+ * a per-user location under the system temporary directory is the fallback.
+ */
+function spoolRootOutside(protectedRoots) {
+  const candidates = [
+    path.join(os.homedir(), '.proof-or-stop', 'activity-spool'),
+    path.join(os.tmpdir(), `proof-or-stop-activity-spool-${typeof os.userInfo === 'function' ? os.userInfo().uid : 'user'}`),
+  ];
+  for (const candidate of candidates) {
+    // Judged WITHOUT creating it: creating a directory to test it would already be a write
+    // inside the worktree we are protecting.
+    const resolved = resolveThroughExistingAncestor(candidate);
+    if (!protectedRoots.some(root => root !== null && (insideDirectory(root, resolved) || insideDirectory(resolved, root)))) return resolved;
+  }
+  return candidates[candidates.length - 1];
+}
+
+function queueIdentity(root, discovered) {
+  const lexical = path.resolve(root);
+  let canonical = null;
+  try { canonical = fs.realpathSync(root); } catch { canonical = null; }
+  const worktree = typeof discovered === 'string' && discovered !== 'non-repository' && discovered !== 'uncertain' ? discovered : null;
+  const spoolRoot = spoolRootOutside([canonical, worktree]);
+  const dirFor = (value) => path.join(spoolRoot, crypto.createHash('sha256').update(value).digest('hex'));
+  if (canonical !== null) return { dir: dirFor(canonical), canonicalRoot: canonical, canonical: true, spoolRoot };
+  // Unresolved: each record carries the spelling that was used, so a later invocation
+  // through ANY spelling that canonicalizes to the same directory can adopt it.
+  return { dir: path.join(spoolRoot, `unresolved-${crypto.createHash('sha256').update(lexical).digest('hex')}`), lexical, canonicalRoot: null, canonical: false, spoolRoot };
 }
 
 /**
  * Move records published while canonicalization was unavailable into the canonical queue.
  * Anything unresolved blocks delivery, so a newer record can never pass an older one.
  */
-function adoptUnresolvedRecords(identity) {
-  if (!identity.canonical) return true;
-  let queues;
-  try { queues = fs.readdirSync(identity.spoolRoot).filter(name => name.startsWith('unresolved-')); } catch (error) {
-    return error.code === 'ENOENT';
-  }
-  for (const queue of queues) {
-    const dir = path.join(identity.spoolRoot, queue);
-    let records;
-    try { records = fs.readdirSync(dir).filter(name => RECORD_NAME.test(name)); } catch (error) {
-      if (error.code === 'ENOENT') continue;
-      return false;
-    }
-    let source;
-    try { source = JSON.parse(fs.readFileSync(path.join(dir, 'source.json'), 'utf8')); } catch (error) {
-      // The association cannot be read. An empty queue is harmless; one holding records
-      // may be older than anything here, so delivery waits rather than passing it.
-      if (error.code === 'ENOENT' && records.length === 0) continue;
-      return records.length === 0;
-    }
-    let resolved;
-    // The spelling is retried now: only a queue whose recorded path canonicalizes to THIS
-    // directory is adopted, whatever spelling either invocation used.
-    try { resolved = fs.realpathSync(source.path); } catch (error) {
-      // A spelling that does not exist cannot be this directory; anything else is unknown.
-      if (error.code === 'ENOENT' || records.length === 0) continue;
-      return false;
-    }
-    if (resolved !== identity.canonicalRoot) continue;
-    const names = records;
-    if (names.length === 0) continue;
-    try { fs.mkdirSync(identity.dir, { recursive: true, mode: 0o700 }); } catch { return false; }
-    for (const name of names) {
-      try { fs.renameSync(path.join(dir, name), path.join(identity.dir, name)); } catch {
-        try { fs.statSync(path.join(dir, name)); return false; } catch (error) {
-          if (error.code !== 'ENOENT') return false;
-        }
-      }
-    }
-  }
-  return true;
-}
-
 function pidAlive(pid) {
   if (!Number.isSafeInteger(pid) || pid <= 0 || pid > 2147483647) return false;
   try { process.kill(pid, 0); return true; } catch (error) { return error.code !== 'ESRCH'; }
 }
 
 /**
- * The product's own "this worktree is validating" signal: a live workspace
- * validation capacity ticket at
- * <shared root>/.proof-or-stop/locks/validation-capacity.lock/workspaces/<sha256(worktree)>/*.ticket.
+ * The product's own "this worktree is validating" signal: a live workspace validation
+ * capacity ticket under the shared root's validation-capacity lock.
  */
 function workspaceValidationActive(top) {
   try {
     if (!top) return true; // unknown workspace: assume a validation may be running
-    const commonRaw = git(top, 'rev-parse --git-common-dir');
-    const common = fs.realpathSync(path.isAbsolute(commonRaw) ? commonRaw : path.resolve(top, commonRaw));
-    const sharedRoot = path.basename(common) === '.git' ? path.dirname(common) : common;
-    const key = crypto.createHash('sha256').update(top).digest('hex');
-    const dir = path.join(sharedRoot, '.proof-or-stop', 'locks', 'validation-capacity.lock', 'workspaces', key);
+    const dir = workspaceCapacityDir(top);
+    if (!dir) return true;
     for (const name of fs.readdirSync(dir)) {
       if (!name.endsWith('.ticket') && !name.endsWith('.choosing')) continue;
       try {
@@ -191,17 +186,9 @@ function workspaceValidationActive(top) {
 
 /**
  * Publish one record as its own file, written under a private name and renamed into
- * place. Producers never share a file, so a concurrent flush can never rotate a file
- * out from under a half-written record.
+ * place. Producers never share a file, so a concurrent flush can never rotate a file out
+ * from under a half-written record.
  */
-function rememberUnresolvedSource(identity) {
-  if (identity.canonical) return;
-  try {
-    fs.mkdirSync(identity.dir, { recursive: true, mode: 0o700 });
-    fs.writeFileSync(path.join(identity.dir, 'source.json'), `${JSON.stringify({ path: identity.lexical })}\n`, { mode: 0o600 });
-  } catch { /* the record itself still carries the work */ }
-}
-
 function publishSpoolRecord(spool, record) {
   const name = `${String(Date.now()).padStart(14, '0')}-${String(process.pid).padStart(7, '0')}-${crypto.randomBytes(6).toString('hex')}`;
   const tmp = path.join(spool, `.${name}.tmp`);
@@ -223,15 +210,10 @@ function publishSpoolRecord(spool, record) {
   throw lastError;
 }
 
-// A record file's own name shape; `source.json` is queue metadata, never a record.
+// A record file's own name shape; nothing else in a queue directory is a record.
 const RECORD_NAME = /^\d{14}-\d{7}-[0-9a-f]{12}\.json$/;
 const RECORD_CLAIM = /^(\d{14}-\d{7}-[0-9a-f]{12}\.json)\.delivering-(\d+)$/;
 
-/**
- * One coherent view of the queue: every record, queued or in flight, ordered by its own
- * name. Selecting from this view can never skip a record another hook already claimed,
- * which a "list the unclaimed records" view could.
- */
 /**
  * The queue's records, queued or in flight, ordered by their own time-ordered names. One
  * directory, one listing: the view is always coherent. An enumeration failure other than
@@ -247,6 +229,50 @@ function queueView(spool) {
     if (match) entries.push({ name, base: match[1], claimedBy: Number(match[2]) });
   }
   return entries.sort((left, right) => (left.base < right.base ? -1 : left.base > right.base ? 1 : 0));
+}
+
+function adoptUnresolvedRecords(identity) {
+  if (!identity.canonical) return true;
+  let queues;
+  try { queues = fs.readdirSync(identity.spoolRoot).filter(name => name.startsWith('unresolved-')); } catch (error) {
+    return error.code === 'ENOENT';
+  }
+  for (const queue of queues) {
+    const dir = path.join(identity.spoolRoot, queue);
+    let names;
+    try { names = fs.readdirSync(dir).filter(name => RECORD_NAME.test(name)); } catch (error) {
+      if (error.code === 'ENOENT') continue; // a queue that vanished holds nothing
+      return false; // its contents are unknown and may be older than anything here
+    }
+    for (const name of names) {
+      // Each record carries the spelling it was published through, so routing never
+      // depends on separate metadata that could fail to be written or be lost.
+      let record;
+      try { record = JSON.parse(fs.readFileSync(path.join(dir, name), 'utf8')); } catch (error) {
+        if (error.code === 'ENOENT') continue; // adopted by another hook
+        return false; // unreadable: it may belong here and be older
+      }
+      if (typeof record?.source !== 'string') {
+        // Unroutable: it can never be associated with a directory, so it is discarded
+        // rather than blocking every workspace that shares this queue root.
+        try { fs.unlinkSync(path.join(dir, name)); } catch { /* already gone */ }
+        continue;
+      }
+      let resolved;
+      try { resolved = fs.realpathSync(record.source); } catch (error) {
+        if (error.code === 'ENOENT') continue; // that spelling does not exist: not ours
+        return false;
+      }
+      if (resolved !== identity.canonicalRoot) continue;
+      try { fs.mkdirSync(identity.dir, { recursive: true, mode: 0o700 }); } catch { return false; }
+      try { fs.renameSync(path.join(dir, name), path.join(identity.dir, name)); } catch {
+        try { fs.statSync(path.join(dir, name)); return false; } catch (error) {
+          if (error.code !== 'ENOENT') return false;
+        }
+      }
+    }
+  }
+  return true;
 }
 
 /**

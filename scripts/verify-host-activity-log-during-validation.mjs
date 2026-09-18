@@ -78,9 +78,14 @@ const spoolFor = (root) => join(home, '.proof-or-stop/activity-spool', createHas
 const unresolvedQueueFor = (spelling) => {
   const spoolRoot = join(home, '.proof-or-stop/activity-spool');
   try {
-    return readdirSync(spoolRoot).filter((name) => name.startsWith('unresolved-')).find((name) => {
-      try { return JSON.parse(readFileSync(join(spoolRoot, name, 'source.json'), 'utf8')).path === spelling; } catch { return false; }
+    const dir = readdirSync(spoolRoot).filter((name) => name.startsWith('unresolved-')).find((name) => {
+      try {
+        return readdirSync(join(spoolRoot, name)).some((record) => {
+          try { return JSON.parse(readFileSync(join(spoolRoot, name, record), 'utf8')).source === spelling; } catch { return false; }
+        });
+      } catch { return false; }
     });
+    return dir ? join(spoolRoot, dir) : undefined;
   } catch { return undefined; }
 };
 const queueNames = (root, predicate) => {
@@ -782,7 +787,8 @@ try {
     expectRepaired(retained >= 2, `an unresolvable record workspace must not discard the record (retained ${retained})`);
     expectRepaired(blocked.length === 0, `nothing may pass a record whose workspace cannot be resolved (found ${JSON.stringify(blocked)})`);
   }
-  // Unresolved-queue metadata that cannot be read blocks newer records.
+  // An unresolved record that cannot be read blocks newer records, and an unroutable one
+  // never blocks the queues other workspaces share.
   {
     const root = repo();
     const alias = join(sandbox, `alias-meta-${n++}`); symlinkSync(root, alias);
@@ -792,23 +798,22 @@ try {
       env: { ...process.env, HOME: home }, encoding: 'utf8',
     });
     mkdirSync(join(root, 'appears-later'), { recursive: true });
-    const spoolRoot = join(home, '.proof-or-stop/activity-spool');
-    // Earlier scenarios leave their own unresolved queues: pick the one for THIS path.
     const queue = unresolvedQueueFor(pendingDir);
-    // Losing the routing metadata is itself the defect, so report it instead of crashing.
-    if (!queue) red.push('an unresolved queue must keep its routing metadata');
-    if (queue) chmodSync(join(spoolRoot, queue, 'source.json'), 0o000);
+    if (!queue) red.push('an unresolved record must carry its own routing');
+    const record = queue ? readdirSync(queue).find((name) => name.endsWith('.json')) : undefined;
+    if (record) chmodSync(join(queue, record), 0o000);
     callHook(join(root, 'appears-later'), 'newer-canonical');
-    const blocked = queue ? lines(join(root, 'appears-later')) : [];
-    if (queue) chmodSync(join(spoolRoot, queue, 'source.json'), 0o600);
+    const blocked = record ? lines(join(root, 'appears-later')) : [];
+    if (record) chmodSync(join(queue, record), 0o600);
     callHook(join(root, 'appears-later'), 'after-metadata');
     const after = lines(join(root, 'appears-later'));
-    rows.push({ scenario: 'unresolved queue metadata unreadable', repoLinesDuring: blocked.length, after: JSON.stringify(after) });
-    expectRepaired(blocked.length === 0, `unreadable routing metadata must block newer records (found ${JSON.stringify(blocked)})`);
+    rows.push({ scenario: 'unresolved record unreadable', repoLinesDuring: blocked.length, after: JSON.stringify(after) });
+    expectRepaired(blocked.length === 0, `an unreadable unresolved record must block newer records (found ${JSON.stringify(blocked)})`);
     expectRepaired(JSON.stringify(after) === JSON.stringify(['older-unresolved', 'newer-canonical', 'after-metadata']),
-      `order is preserved once the metadata can be read (got ${JSON.stringify(after)})`);
+      `order is preserved once the record can be read (got ${JSON.stringify(after)})`);
   }
-  // Recovery must leave the unresolved queue discoverable for a producer still publishing.
+  // A record published into an unresolved queue after recovery ran is still adopted, and
+  // a record with no routing at all never blocks another workspace.
   {
     const root = repo();
     const alias = join(sandbox, `alias-late-pub-${n++}`); symlinkSync(root, alias);
@@ -818,18 +823,57 @@ try {
       env: { ...process.env, HOME: home }, encoding: 'utf8',
     });
     mkdirSync(join(root, 'later-dir'), { recursive: true });
-    callHook(join(root, 'later-dir'), 'canonical-recovery'); // adopts the first record
-    const spoolRoot = join(home, '.proof-or-stop/activity-spool');
     const queue = unresolvedQueueFor(pendingDir);
-    const stillRouted = Boolean(queue) && existsSync(join(spoolRoot, queue, 'source.json'));
-    // A producer that was still publishing when recovery ran must remain discoverable.
-    if (queue) writeFileSync(join(spoolRoot, queue, `99999999999999-0000001-eeeeeeeeeeee.json`), JSON.stringify({ root: null, targetRelative: 'docs/story/activity.jsonl', line: `${JSON.stringify({ detail: 'published-after-recovery' })}\n` }));
+    callHook(join(root, 'later-dir'), 'canonical-recovery'); // adopts the first record
+    if (queue) {
+      mkdirSync(queue, { recursive: true });
+      writeFileSync(join(queue, '99999999999999-0000001-eeeeeeeeeeee.json'), JSON.stringify({ root: null, source: pendingDir, targetRelative: 'docs/story/activity.jsonl', line: `${JSON.stringify({ detail: 'published-after-recovery' })}\n` }));
+      writeFileSync(join(queue, '99999999999999-0000002-ffffffffffff.json'), JSON.stringify({ root: null, targetRelative: 'docs/story/activity.jsonl', line: `${JSON.stringify({ detail: 'unroutable' })}\n` }));
+    }
     callHook(join(root, 'later-dir'), 'settle-late');
     const after = lines(join(root, 'later-dir'));
     rows.push({ scenario: 'record published after recovery ran', repoLinesDuring: '-', after: JSON.stringify(after) });
-    expectRepaired(stillRouted, 'recovery keeps the unresolved queue routing metadata');
     expectRepaired(after.includes('published-after-recovery'),
       `a record published after recovery is still adopted (got ${JSON.stringify(after)})`);
+    expectRepaired(!after.includes('unroutable') && after.includes('settle-late'),
+      `a record with no routing never blocks the queue (got ${JSON.stringify(after)})`);
+  }
+  // HOME itself inside the validated worktree: the queue must not live there, and NOTHING
+  // may be written anywhere inside that worktree while it is validating.
+  {
+    const root = repo();
+    const insideHome = join(root, 'home-inside'); mkdirSync(insideHome, { recursive: true });
+    const t = ticket(root, live.pid);
+    const snapshot = () => {
+      const seen = [];
+      const walk = (dir) => {
+        for (const entry of readdirSync(dir, { withFileTypes: true })) {
+          if (entry.name === '.git') continue;
+          const full = join(dir, entry.name);
+          seen.push(full);
+          if (entry.isDirectory()) walk(full);
+        }
+      };
+      walk(root);
+      return seen.sort();
+    };
+    const before = snapshot();
+    const r = spawnSync(process.execPath, [hook], {
+      input: JSON.stringify({ cwd: root, tool_name: 'Bash', tool_input: { command: 'home-inside-worktree' }, hook_event_name: 'PostToolUse', session_id: 'hook-fixture', tool_output: 'ok' }),
+      env: { ...process.env, HOME: insideHome }, encoding: 'utf8',
+    });
+    control(r.status === 0, 'the hook exits 0 with HOME inside the worktree');
+    const created = snapshot().filter((entry) => !before.includes(entry));
+    rows.push({ scenario: 'HOME inside the validated worktree', repoLinesDuring: created.length, after: '-' });
+    expectRepaired(created.length === 0, `nothing may be written inside a validating worktree (created ${JSON.stringify(created)})`);
+    rmSync(t, { recursive: true, force: true });
+    const r2 = spawnSync(process.execPath, [hook], {
+      input: JSON.stringify({ cwd: root, tool_name: 'Bash', tool_input: { command: 'after-home-inside' }, hook_event_name: 'PostToolUse', session_id: 'hook-fixture', tool_output: 'ok' }),
+      env: { ...process.env, HOME: insideHome }, encoding: 'utf8',
+    });
+    control(r2.status === 0, 'the follow-up hook exits 0');
+    expectRepaired(JSON.stringify(lines(root)) === JSON.stringify(['home-inside-worktree', 'after-home-inside']),
+      `the deferred lines are delivered in order once validation ends (got ${JSON.stringify(lines(root))})`);
   }
   // Controls: unchanged immediate writes.
   for (const [name, setup] of [
