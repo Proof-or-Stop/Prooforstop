@@ -25,3 +25,27 @@ The user authorized preservation and continued bounded repair of the validation 
 ## Execution boundary
 
 No integration, finish or push was requested. Keep this worktree, archive, commits and tool-owned Lab records. A fresh regression must be committed and fail with its target assertion through `lab:worktree red` before a repair is called a new Lab RED/GREEN cycle. A missing dependency or a killed/timeout command is not target RED. Fresh tests use independent local dependencies and dist; the archive is not a shared executable build.
+
+## First repair and continuation checkpoint
+
+The shared identity-free delegate regression was committed as `fd5026d041`. The local Lab tool recorded target RED with `IDENTITY_SHARED_DELEGATE_REJECTED`. Repair commit `af2abe3a5b` admits only the two reviewed owners and retains explicit identity-free classification. The exact pinned test then passed GREEN twice, including seven rejection controls. These records prove the local shared-owner repair, not the entire identity suite.
+
+The next repair cycle was synchronized with main and the complete configured identity-cutover command was run through Lab RED, with the original 2700000ms ceiling. It completed with ten failed assertions and recorded the target marker `owned identity use context changed`. The current Lab GREEN is therefore empty while this broader cycle remains unresolved; the earlier successful cycle remains in tool history and in `shared-owner-lab-status.txt` in the archive directory. Ten failed assertions are not a claim of ten independent root causes.
+
+Current complete-suite RED assertions:
+
+- `FAIL CHK-007:happy:0 active producer registry config and current baselines are proof-or-stop only: retired protocol identity exact count drift: packages/main/src/tasks/init-check-required-agents-smoke.ts:final-negative-context-2`
+- `FAIL CHK-007:adversarial:0 proofbound injection at every active boundary fails closed with zero mutation: prompt-measurement report schema: public prompt-baseline verifier did not report the identity failure: `
+- `FAIL F-060 all owned source and emitted identity sites have independent totality and public-operation cases: owned identity use context changed: packages/main/src/core/prompt-role-contract-registry.ts#proof-or-stop-product-reviewer`
+- `FAIL F-060 reconciled consumers still reject added and moved identity uses: owned identity use context changed: packages/main/src/core/prompt-role-contract-registry.ts#proof-or-stop-product-reviewer`
+- `FAIL F-060 memory v2 ownership retains exact consumer and mutation coverage: owned identity use context changed: packages/main/src/core/prompt-role-contract-registry.ts#proof-or-stop-product-reviewer`
+- `FAIL F-060 discovered-site omissions and new typed producers fail independently of registry agreement: owned identity use context changed: packages/main/src/core/prompt-role-contract-registry.ts#proof-or-stop-product-reviewer`
+- `FAIL CHK-007 canonical controls: every distinct registered public operation succeeds before mutation: missing public operation for active identity boundary maintenance-command-mode`
+- `FAIL CHK-007:adversarial:0 every registered identity boundary rejects through its public operation with zero mutation: every required identity path must be exercised through a registered public operation`
+- `FAIL CHK-007:adversarial:2 producer consumer config and baseline inventory omissions are mutation-detected: retired protocol identity exact count drift: packages/main/src/tasks/init-check-required-agents-smoke.ts:final-negative-context-2`
+- `FAIL complete identity certification includes real runtime and package witnesses once: FAIL identity-cutover: frozen boundary or lineage invalid`
+
+
+The current inventory diagnostic finds two changed role contexts, two missing protocol-site entries and fifteen changed import-use contexts. This diagnostic executes no tests and is not GREEN evidence. Before any re-pinning, reconcile the responsible source changes and public-operation coverage. Existing signing fixtures now run in this linked Lab; their prior missing-key clone failures must not be reported as still reproduced here.
+
+Continue from the saved complete-suite RED. The performance/configuration work for 16/69/130, the inner timeout in 1, and validator coordination integration for 50 remain open. Commands 7 and 14 retain their environmental classification. No whole-suite repair or main integration is claimed.
