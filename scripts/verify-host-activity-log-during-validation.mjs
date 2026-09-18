@@ -875,6 +875,79 @@ try {
     expectRepaired(JSON.stringify(lines(root)) === JSON.stringify(['home-inside-worktree', 'after-home-inside']),
       `the deferred lines are delivered in order once validation ends (got ${JSON.stringify(lines(root))})`);
   }
+  // Both candidate queue locations inside the validated worktree: nothing may be written.
+  {
+    const root = repo();
+    const insideHome = join(root, 'home2'); mkdirSync(insideHome, { recursive: true });
+    const insideTmp = join(root, 'tmp2'); mkdirSync(insideTmp, { recursive: true });
+    const aliasHome = join(sandbox, `alias-home-${n++}`); symlinkSync(insideHome, aliasHome); // symlinked equivalent
+    const t = ticket(root, live.pid);
+    const snapshot = () => {
+      const seen = [];
+      const walk = (dir) => {
+        for (const entry of readdirSync(dir, { withFileTypes: true })) {
+          if (entry.name === '.git') continue;
+          const full = join(dir, entry.name);
+          seen.push(full);
+          if (entry.isDirectory() && !entry.isSymbolicLink()) walk(full);
+        }
+      };
+      walk(root);
+      return seen.sort();
+    };
+    const before = snapshot();
+    const r = spawnSync(process.execPath, [hook], {
+      input: JSON.stringify({ cwd: root, tool_name: 'Bash', tool_input: { command: 'nowhere-outside' }, hook_event_name: 'PostToolUse', session_id: 'hook-fixture', tool_output: 'ok' }),
+      env: { ...process.env, HOME: aliasHome, TMPDIR: insideTmp }, encoding: 'utf8',
+    });
+    control(r.status === 0, 'the hook exits 0 when no queue location is outside the worktree');
+    const created = snapshot().filter((entry) => !before.includes(entry));
+    rows.push({ scenario: 'HOME and TMPDIR both inside the worktree', repoLinesDuring: created.length, after: '-' });
+    expectRepaired(created.length === 0, `nothing may be written inside the worktree when no queue location is safe (created ${JSON.stringify(created)})`);
+    rmSync(t, { recursive: true, force: true });
+    spawnSync(process.execPath, [hook], {
+      input: JSON.stringify({ cwd: root, tool_name: 'Bash', tool_input: { command: 'after-nowhere' }, hook_event_name: 'PostToolUse', session_id: 'hook-fixture', tool_output: 'ok' }),
+      env: { ...process.env, HOME: aliasHome, TMPDIR: insideTmp }, encoding: 'utf8',
+    });
+    control(lines(root).includes('after-nowhere'), 'logging resumes once nothing is validating');
+  }
+  // A nested cwd with a failed Git lookup must not move the queue under HOME inside the repo.
+  {
+    const root = repo();
+    const nested = join(root, 'src'); mkdirSync(nested, { recursive: true });
+    const insideHome = join(root, 'home3'); mkdirSync(insideHome, { recursive: true });
+    const t = ticket(root, live.pid);
+    const brokenGit = join(sandbox, 'broken-git-nested'); mkdirSync(brokenGit, { recursive: true });
+    writeFileSync(join(brokenGit, 'git'), '#!/bin/sh\nexit 128\n'); chmodSync(join(brokenGit, 'git'), 0o755);
+    const r = spawnSync(process.execPath, [hook], {
+      input: JSON.stringify({ cwd: nested, tool_name: 'Bash', tool_input: { command: 'nested-discovery-failed' }, hook_event_name: 'PostToolUse', session_id: 'hook-fixture', tool_output: 'ok' }),
+      env: { ...process.env, HOME: insideHome, PATH: `${brokenGit}:${process.env.PATH}` }, encoding: 'utf8',
+    });
+    control(r.status === 0, 'the hook exits 0 for a nested cwd with a failed lookup');
+    const insideQueue = existsSync(join(insideHome, '.proof-or-stop'));
+    rows.push({ scenario: 'failed discovery with HOME inside the repository', repoLinesDuring: insideQueue ? 'queue inside' : 'queue outside', after: '-' });
+    expectRepaired(!insideQueue, 'a failed lookup must not move the queue inside the repository');
+    rmSync(t, { recursive: true, force: true });
+    callHook(nested, 'nested-after');
+    expectRepaired(lines(nested).includes('nested-discovery-failed'),
+      `the record published during the failed lookup is recovered (got ${JSON.stringify(lines(nested))})`);
+  }
+  // A symlinked destination must not carry the line into another validating repository.
+  for (const [name, link] of [['directory symlink', 'docs'], ['log file symlink', 'docs/story/activity.jsonl']]) {
+    const source = repo();
+    const other = repo();
+    const t = ticket(source, live.pid);
+    callHook(source, `queued-${link.replace(/\W+/g, '-')}`);
+    rmSync(t, { recursive: true, force: true });
+    if (link === 'docs') { rmSync(join(source, 'docs'), { recursive: true, force: true }); symlinkSync(join(other, 'docs'), join(source, 'docs')); }
+    else { mkdirSync(join(source, 'docs/story'), { recursive: true }); mkdirSync(join(other, 'docs/story'), { recursive: true }); writeFileSync(join(other, 'docs/story/activity.jsonl'), ''); rmSync(join(source, 'docs/story/activity.jsonl'), { force: true }); symlinkSync(join(other, 'docs/story/activity.jsonl'), join(source, 'docs/story/activity.jsonl')); }
+    const otherTicket = ticket(other, live.pid); // the other repository is validating
+    callHook(source, `deliver-${link.replace(/\W+/g, '-')}`);
+    const escaped = lines(other);
+    rows.push({ scenario: `destination escapes through a ${name}`, repoLinesDuring: escaped.length, after: '-' });
+    expectRepaired(escaped.length === 0, `a ${name} must not carry the line into another validating repository (found ${JSON.stringify(escaped)})`);
+    rmSync(otherTicket, { recursive: true, force: true });
+  }
   // Controls: unchanged immediate writes.
   for (const [name, setup] of [
     ['no validation ticket', () => {}],

@@ -45,6 +45,20 @@ process.stdin.on('end', () => {
     // read the same queue, so a record published while discovery was failing can never be
     // overtaken by a later one. Discovery decides only whether delivery may run now.
     const identity = queueIdentity(root, discovered);
+    if (identity.spoolRoot === null) {
+      // Every candidate queue location lies inside the worktree this record belongs to.
+      // Writing there during a validation is exactly what this hook prevents, so the line
+      // is written only when nothing is validating, and otherwise dropped.
+      const worktree = typeof discovered === 'string' && discovered !== 'non-repository' && discovered !== 'uncertain' ? discovered : null;
+      if (discovered !== 'uncertain' && !workspaceValidationActive(worktree)) {
+        const destination = bindDestination(worktree, path.join(root, targetRelative));
+        if (destination !== null) {
+          fs.mkdirSync(path.dirname(destination), { recursive: true });
+          fs.appendFileSync(destination, line);
+        }
+      }
+      process.exit(0);
+    }
     // The record is bound to the canonical directory it belongs to and stores its target
     // RELATIVE to it. A symlink retargeted between publication and delivery can therefore
     // never redirect the line into another repository.
@@ -128,26 +142,62 @@ function insideDirectory(root, candidate) {
  * validated worktree - so the home location is used only when it is provably outside, and
  * a per-user location under the system temporary directory is the fallback.
  */
-function spoolRootOutside(protectedRoots) {
-  const candidates = [
+function spoolRootCandidates() {
+  return [
     path.join(os.homedir(), '.proof-or-stop', 'activity-spool'),
     path.join(os.tmpdir(), `proof-or-stop-activity-spool-${typeof os.userInfo === 'function' ? os.userInfo().uid : 'user'}`),
-  ];
-  for (const candidate of candidates) {
-    // Judged WITHOUT creating it: creating a directory to test it would already be a write
-    // inside the worktree we are protecting.
-    const resolved = resolveThroughExistingAncestor(candidate);
+  ].map(resolveThroughExistingAncestor);
+}
+
+function spoolRootOutside(protectedRoots) {
+  const candidates = spoolRootCandidates();
+  // Judged WITHOUT creating anything: creating a directory to test it would already be a
+  // write inside the worktree we are protecting.
+  for (const resolved of candidates) {
     if (!protectedRoots.some(root => root !== null && (insideDirectory(root, resolved) || insideDirectory(resolved, root)))) return resolved;
   }
-  return candidates[candidates.length - 1];
+  return null; // nowhere provably outside: never fall back to a location inside the worktree
+}
+
+/**
+ * The directories this invocation must not write into, computed the same way whatever Git
+ * says: the canonical cwd, the discovered worktree when there is one, and the nearest
+ * ancestor holding a `.git` entry (found without Git, so a failed lookup cannot silently
+ * drop the boundary and move the queue somewhere inside the repository).
+ */
+function protectedRootsFor(canonicalRoot, discovered) {
+  const roots = new Set();
+  if (canonicalRoot !== null) {
+    roots.add(canonicalRoot);
+    let current = canonicalRoot;
+    for (let depth = 0; depth < 64; depth++) {
+      try { if (fs.existsSync(path.join(current, '.git'))) { roots.add(current); break; } } catch { /* unreadable: keep walking */ }
+      const parent = path.dirname(current);
+      if (parent === current) break;
+      current = parent;
+    }
+  }
+  if (typeof discovered === 'string' && discovered !== 'non-repository' && discovered !== 'uncertain') roots.add(discovered);
+  return [...roots];
+}
+
+/**
+ * The destination this line may actually be appended to: the target resolved through
+ * every existing symlink, including the log file itself, and required to stay inside the
+ * worktree whose capacity ticket this delivery holds. Returns null when it escapes.
+ */
+function bindDestination(top, target) {
+  const resolved = resolveThroughExistingAncestor(target);
+  if (top === null) return resolved;
+  return insideDirectory(top, resolved) ? resolved : null;
 }
 
 function queueIdentity(root, discovered) {
   const lexical = path.resolve(root);
   let canonical = null;
   try { canonical = fs.realpathSync(root); } catch { canonical = null; }
-  const worktree = typeof discovered === 'string' && discovered !== 'non-repository' && discovered !== 'uncertain' ? discovered : null;
-  const spoolRoot = spoolRootOutside([canonical, worktree]);
+  const spoolRoot = spoolRootOutside(protectedRootsFor(canonical, discovered));
+  if (spoolRoot === null) return { dir: null, canonicalRoot: canonical, canonical: canonical !== null, spoolRoot: null };
   const dirFor = (value) => path.join(spoolRoot, crypto.createHash('sha256').update(value).digest('hex'));
   if (canonical !== null) return { dir: dirFor(canonical), canonicalRoot: canonical, canonical: true, spoolRoot };
   // Unresolved: each record carries the spelling that was used, so a later invocation
@@ -233,12 +283,24 @@ function queueView(spool) {
 
 function adoptUnresolvedRecords(identity) {
   if (!identity.canonical) return true;
-  let queues;
-  try { queues = fs.readdirSync(identity.spoolRoot).filter(name => name.startsWith('unresolved-')); } catch (error) {
-    return error.code === 'ENOENT';
+  // Which queue location is outside the worktree depends on where HOME and the temporary
+  // directory sit, so an earlier run may legitimately have used the other candidate: every
+  // candidate location is reconciled before anything newer is delivered.
+  const canonicalKey = crypto.createHash('sha256').update(identity.canonicalRoot).digest('hex');
+  const queues = [];
+  for (const root of spoolRootCandidates()) {
+    let names;
+    try { names = fs.readdirSync(root); } catch (error) {
+      if (error.code === 'ENOENT') continue;
+      return false;
+    }
+    for (const name of names) {
+      if (!name.startsWith('unresolved-') && !(name === canonicalKey && path.join(root, name) !== identity.dir)) continue;
+      if (path.join(root, name) === identity.dir) continue;
+      queues.push(path.join(root, name));
+    }
   }
-  for (const queue of queues) {
-    const dir = path.join(identity.spoolRoot, queue);
+  for (const dir of queues) {
     let names;
     try { names = fs.readdirSync(dir).filter(name => RECORD_NAME.test(name)); } catch (error) {
       if (error.code === 'ENOENT') continue; // a queue that vanished holds nothing
@@ -251,6 +313,18 @@ function adoptUnresolvedRecords(identity) {
       try { record = JSON.parse(fs.readFileSync(path.join(dir, name), 'utf8')); } catch (error) {
         if (error.code === 'ENOENT') continue; // adopted by another hook
         return false; // unreadable: it may belong here and be older
+      }
+      const isUnresolvedQueue = path.basename(dir).startsWith('unresolved-');
+      if (!isUnresolvedQueue) {
+        // A canonical queue in another candidate location belongs to this directory by its
+        // key alone; its records move as they are.
+        try { fs.mkdirSync(identity.dir, { recursive: true, mode: 0o700 }); } catch { return false; }
+        try { fs.renameSync(path.join(dir, name), path.join(identity.dir, name)); } catch {
+          try { fs.statSync(path.join(dir, name)); return false; } catch (error) {
+            if (error.code !== 'ENOENT') return false;
+          }
+        }
+        continue;
       }
       if (typeof record?.source !== 'string') {
         // Unroutable: it can never be associated with a directory, so it is discarded
@@ -349,10 +423,17 @@ function deliverQueue(identity, top) {
       try { fs.renameSync(claimed, path.join(spool, oldest.base)); } catch { /* recovered later */ }
       return;
     }
-    const target = path.join(liveRoot, record.targetRelative);
+    // The destination is resolved through every existing symlink and must stay inside the
+    // worktree this ticket protects: a symlinked docs/ or activity.jsonl must not redirect
+    // the line into another repository.
+    const destination = bindDestination(top, path.join(liveRoot, record.targetRelative));
+    if (destination === null) {
+      try { fs.renameSync(claimed, path.join(spool, oldest.base)); } catch { /* recovered later */ }
+      return;
+    }
     const append = () => {
-      fs.mkdirSync(path.dirname(target), { recursive: true });
-      fs.appendFileSync(target, record.line);
+      fs.mkdirSync(path.dirname(destination), { recursive: true });
+      fs.appendFileSync(destination, record.line);
     };
     let written;
     if (top === null) {
