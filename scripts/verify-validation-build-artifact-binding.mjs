@@ -235,6 +235,7 @@ try {
     if (typeof binding.weakestProtectionLabel === 'function' && binding.BUILD_ONLY_PROTECTION_LABEL) {
       const weakest = binding.weakestProtectionLabel; const buildOnly = binding.BUILD_ONLY_PROTECTION_LABEL;
       expectRepaired(sat(buildOnly), 'the build-only label does not satisfy the contract, so a build-only plan can never be admitted');
+      expectRepaired(sat('not-applicable:no-artifact-contract'), 'a project without the artifact contract can never be admitted');
       expectRepaired(weakest([buildOnly, 'enforced:sandbox-exec']) === 'enforced:sandbox-exec' && weakest(['enforced:sandbox-exec', buildOnly]) === 'enforced:sandbox-exec',
         'a build-only member outranked an enforced test label');
       expectRepaired(weakest([buildOnly, 'enforced:sandbox-exec', 'unenforced:x']) === 'unenforced:x' && weakest([undefined, buildOnly]) === buildOnly && weakest([]) === undefined,
@@ -267,12 +268,31 @@ try {
       expectRepaired(resolved.enforced === false && resolved.label.startsWith('unenforced:'),
         `a host with no write-protection mechanism must report a project with artifact trees as unenforced (${resolved.label})`);
     }
+    // Audit #21 (3): a project without the compiled-artifact contract (no
+    // self-host layout marker, no artifact tree) records that explicitly, on
+    // every platform, instead of being refused for lacking trees it never
+    // had; the layout marker alone brings the contract back.
     const treeless = join(sandbox, 'treeless'); mkdirSync(treeless);
     const treelessProtection = binding.resolveArtifactWriteProtection(treeless);
-    if (process.platform === 'darwin') {
-      check(treelessProtection.enforced === true && treelessProtection.label === 'enforced:sandbox-exec', `on macOS a project with no artifact trees is still protected against creating them (${treelessProtection.label})`);
+    expectRepaired(treelessProtection.enforced === false && treelessProtection.label === 'not-applicable:no-artifact-contract',
+      `a project without the artifact contract must record not-applicable:no-artifact-contract (${treelessProtection.label})`);
+    if (typeof binding.projectHasArtifactContract === 'function') {
+      check(binding.projectHasArtifactContract(treeless) === false && binding.projectHasArtifactContract(root) === true, 'the contract follows the self-host layout marker or an existing tree');
+      const markerOnly = join(sandbox, 'marker-only'); mkdirSync(join(markerOnly, 'packages/main'), { recursive: true });
+      writeFileSync(join(markerOnly, 'packages/main/package.json'), '{"name":"marker-only","private":true}\n');
+      check(binding.projectHasArtifactContract(markerOnly) === true, 'the layout marker alone establishes the contract');
+      const markerProtection = binding.resolveArtifactWriteProtection(markerOnly);
+      if (process.platform === 'darwin') {
+        check(markerProtection.enforced === true && markerProtection.label === 'enforced:sandbox-exec', `on macOS a self-host layout with no artifact trees yet is protected against creating them (${markerProtection.label})`);
+      } else {
+        check(markerProtection.label !== 'not-applicable:no-artifact-contract', `a self-host layout is never exempt (${markerProtection.label})`);
+      }
+      if (binding.currentBuildArtifactsHash) {
+        const treelessIdentity = binding.currentBuildArtifactsHash(treeless);
+        check(/^[a-f0-9]{64}$/.test(treelessIdentity ?? '') && treelessIdentity !== binding.currentBuildArtifactsHash(markerOnly), 'a project without the contract has a definite identity distinct from an absent-tree layout');
+      }
     } else {
-      expectRepaired(treelessProtection.enforced === false && treelessProtection.label.startsWith('unenforced:'), `a project with no artifact trees and no mechanism able to deny their creation must be unenforced, not exempt (${treelessProtection.label})`);
+      expectRepaired(false, 'core/build-artifacts-identity exports no projectHasArtifactContract');
     }
     // Audit #11 (2): the self-test probes every configured root, and bwrap is
     // never reported as enforcing while a configured root is absent (an absent
@@ -287,8 +307,9 @@ try {
     // granted, the protection must be re-resolved before a test launches.
     if (binding.artifactProtectionStale && binding.hasAnyArtifactRoot) {
       const stale = binding.artifactProtectionStale;
-      expectRepaired(stale({ label: 'not-applicable:no-artifact-trees' }, { buildRanSinceResolve: false, anyRootExists: true }) === true,
-        'a not-applicable exemption stayed valid after an artifact tree appeared');
+      expectRepaired(stale({ label: 'not-applicable:no-artifact-trees' }, { buildRanSinceResolve: false, anyRootExists: true }) === true
+        && stale({ label: 'not-applicable:no-artifact-contract' }, { buildRanSinceResolve: false, anyRootExists: true }) === true,
+        'a not-applicable exemption stayed valid after an artifact tree (or the layout marker) appeared');
       expectRepaired(stale({ label: 'enforced:sandbox-exec' }, { buildRanSinceResolve: true, anyRootExists: true }) === true
         && stale({ label: 'not-applicable:no-artifact-trees' }, { buildRanSinceResolve: true, anyRootExists: false }) === true,
         'a protection resolved before a registered build stayed valid after it');
@@ -338,6 +359,22 @@ try {
     expectRepaired(false, 'core/build-artifacts-identity exports no logicalCommandCwd, or the protection module is not loadable');
   }
   check(reuse().reusable === true && admissibility().ok === true, 'control: the recorded PASS is admissible again after the collision files are removed');
+
+  // Audit #21 (1): the execute bit is part of what a command finds. Identical
+  // bytes with the bit flipped are a different build.
+  {
+    const before = binding ? binding.currentBuildArtifactsHash(root) : undefined;
+    chmodSync(probe, 0o755);
+    try {
+      if (binding) expectRepaired(binding.currentBuildArtifactsHash(root) !== before, 'flipping an artifact\'s execute bit left the identity unchanged');
+      const flipped = reuse();
+      expectRepaired(flipped.reusable === false && flipped.refusalReasons.includes('build-artifacts-hash-changed-or-missing'), `reuse accepted a PASS after an artifact's execute bit changed (reasons=${flipped.refusalReasons.join(',')})`);
+      expectRepaired(admissibility().ok === false && admissibility().reasonCodes.includes('build_artifacts_mismatch'), `admissibility accepted a PASS after an artifact's execute bit changed (codes=${admissibility().reasonCodes.join(',')})`);
+    } finally {
+      chmodSync(probe, 0o644);
+    }
+    check(reuse().reusable === true && admissibility().ok === true, 'restoring the execute bit restores the recorded identity');
+  }
 
   // Audit #14 (1): a symbolic link on the PATH to a tree (`packages/main`)
   // re-targets the whole tree without touching a byte inside it, and no
@@ -692,6 +729,17 @@ try {
         check(missing.enforced === false && missing.label.startsWith('unenforced:bwrap (bubblewrap) is not on PATH'), `control: no wrapper on PATH is reported as such (${missing.label})`);
         const unsupported = binding.resolveArtifactWriteProtection(h.root, { platform: 'win32' });
         check(unsupported.enforced === false && unsupported.label.startsWith('unenforced:no artifact write-protection mechanism is implemented for platform win32'), `control: an unsupported platform is reported as such (${unsupported.label})`);
+      }
+      // Audit #21 (2): the macOS profile denies every ancestor of each tree as
+      // a LITERAL (rename, unlink, re-mode of the ancestor itself) up to but
+      // excluding the filesystem root, while entries beside them stay writable.
+      if (typeof binding.sandboxExecProfile === 'function') {
+        const profile = binding.sandboxExecProfile(['/tmp/p/repo/packages/main/dist', '/tmp/p/repo/packages/utils/dist']);
+        const literals = ['/tmp', '/tmp/p', '/tmp/p/repo', '/tmp/p/repo/packages', '/tmp/p/repo/packages/main', '/tmp/p/repo/packages/utils'];
+        expectRepaired(literals.every((path) => profile.includes(`(literal "${path}")`)) && !profile.includes('(literal "/")') && profile.includes('(subpath "/tmp/p/repo/packages/main/dist")'),
+          `the macOS profile must deny each ancestor as a literal, the trees as subpaths, and never the filesystem root (${profile})`);
+      } else {
+        expectRepaired(false, 'core/build-artifacts-protection exports no sandboxExecProfile');
       }
       // Audit #19 (1): the wrapper discovered on a RELATIVE PATH entry is
       // resolved to an absolute canonical executable, so the self-tested
@@ -1173,6 +1221,15 @@ if (hostEnforced) {
     }]);
     expectRepaired(allowed.allPass === true, `write protection blocked a command that only read the artifacts and wrote elsewhere (${allowed.details.join(' | ')})`);
     check(readFileSync(permittedWrite, 'utf8') === 'ok', 'control: the permitted write actually happened');
+    // Audit #21 (2): under the real protection a command may not move the
+    // tree's ancestor aside (the rename that takes the tree out from under a
+    // path rule or carries a mount away); it exits 3 when denied, 0 if it
+    // succeeded (and put the directory back).
+    const RENAME_ANCESTOR = "const fs = require('node:fs'); try { fs.renameSync('packages/main', 'packages/main.saved'); try { fs.renameSync('packages/main.saved', 'packages/main'); } catch {} process.exit(0); } catch (error) { process.exit(['EPERM','EACCES','EROFS','EBUSY'].includes(error && error.code) ? 3 : 4); }";
+    const ancestorMove = await run([{ label: 'move the ancestor aside', command: 'node', args: ['-e', RENAME_ANCESTOR], timeoutMs: 20_000 }]);
+    const moved = ancestorMove.commands.find((command) => command.label === 'move the ancestor aside');
+    expectRepaired(moved?.code === 3 && existsSync(join(root, 'packages/main/dist/tasks/x.js')),
+      `a protected command was allowed to move packages/main aside (code=${moved?.code}; ${ancestorMove.details.join(' | ')})`);
 
     // The plan-level rules stay the second line of defence for a host with no
     // protection mechanism, so they are exercised directly rather than through

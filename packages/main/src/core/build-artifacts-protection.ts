@@ -1,7 +1,7 @@
 import { accessSync, constants, existsSync, lstatSync, realpathSync, rmSync, rmdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { basename, delimiter, dirname, join, resolve } from 'node:path';
-import { BUILD_ARTIFACT_ROOTS } from './build-artifacts-identity.js';
+import { BUILD_ARTIFACT_ROOTS, projectHasArtifactContract } from './build-artifacts-identity.js';
 
 /**
  * Write protection for the compiled artifacts while a validation command runs.
@@ -52,6 +52,15 @@ export const REGISTERED_BUILD_PROTECTION_LABEL = 'registered-build:writes-permit
 export const NOT_APPLICABLE_PROTECTION_LABEL = 'not-applicable:no-artifact-trees';
 
 /**
+ * A project without the compiled-artifact contract (no self-host layout, no
+ * artifact tree; see projectHasArtifactContract): nothing these roots describe
+ * is executed, the identity records the same fact, and the label satisfies the
+ * contract. A tree or the layout marker appearing later makes the resolution
+ * stale (artifactProtectionStale), after which the ordinary rules apply.
+ */
+export const NO_CONTRACT_PROTECTION_LABEL = 'not-applicable:no-artifact-contract';
+
+/**
  * Whether a recorded label satisfies the executed-build contract: the writes
  * were demonstrably denied on this host, by a mechanism that passed its
  * self-test, and nothing else. An `unenforced:` label, the retired
@@ -59,7 +68,7 @@ export const NOT_APPLICABLE_PROTECTION_LABEL = 'not-applicable:no-artifact-trees
  * missing label never satisfies it.
  */
 export function artifactProtectionSatisfied(label: string | undefined): boolean {
-  return typeof label === 'string' && (label.startsWith('enforced:') || label === BUILD_ONLY_PROTECTION_LABEL);
+  return typeof label === 'string' && (label.startsWith('enforced:') || label === BUILD_ONLY_PROTECTION_LABEL || label === NO_CONTRACT_PROTECTION_LABEL);
 }
 
 /**
@@ -142,9 +151,31 @@ function unenforced(reason: string): ArtifactWriteProtection {
 
 type Mechanism = { name: 'sandbox-exec' | 'bwrap'; wrap: ArtifactWriteProtection['wrap'] };
 
+/**
+ * The macOS profile, pure so it can be checked without running it. Writes
+ * beneath each tree are denied whether or not the tree exists yet (subpath
+ * rules are path-based). That alone leaves the tree movable: a command could
+ * rename `packages/main` aside, edit and execute `main.saved/dist` outside
+ * the denied subpath, and put it back. So every ancestor of each tree, up to
+ * but excluding the filesystem root, is also denied as a LITERAL: renaming,
+ * unlinking or re-moding the ancestor itself is refused, while creating and
+ * replacing entries beside it (a coverage directory, a report) stays allowed,
+ * because those operations are checked against their own paths.
+ */
+export function sandboxExecProfile(denied: readonly string[]): string {
+  const ancestors = new Set<string>();
+  for (const path of denied) {
+    let directory = dirname(path);
+    while (dirname(directory) !== directory) { ancestors.add(directory); directory = dirname(directory); }
+  }
+  const subpaths = denied.map((path) => `(subpath ${quote(path)})`).join(' ');
+  const literals = [...ancestors].sort().map((path) => `(literal ${quote(path)})`).join(' ');
+  return `(version 1)(allow default)(deny file-write* ${subpaths} ${literals})`;
+}
+
 function sandboxExecMechanism(denied: string[]): Mechanism | string {
   try { accessSync(SANDBOX_EXEC, constants.X_OK); } catch { return 'sandbox-exec is not executable on this host'; }
-  const profile = `(version 1)(allow default)(deny file-write* ${denied.map((path) => `(subpath ${quote(path)})`).join(' ')})`;
+  const profile = sandboxExecProfile(denied);
   return {
     name: 'sandbox-exec',
     wrap: (launch) => (launch.shell
@@ -226,10 +257,11 @@ function selfTest(mechanism: Mechanism, existingRoots: string[], allRoots: strin
     if (run.error) return `${mechanism.name} self-test on ${root} could not start the wrapper: ${run.error.message}`;
     if (written) return `${mechanism.name} self-test on ${root} did not deny the write (exit ${run.status})`;
     if (run.status !== PROBE_DENIED_EXIT) return `${mechanism.name} self-test on ${root} ended unexpectedly (exit ${run.status}${run.signal ? `, signal ${run.signal}` : ''}): ${(run.stderr || '').trim().split('\n')[0].slice(0, 160)}`;
-    // A mount-based mechanism must also deny moving the tree's ancestor aside
-    // (the rename that would carry the read-only mount away): probe it, and
-    // if the rename unexpectedly succeeds, put the directory straight back.
-    if (mechanism.name === 'bwrap' && existing) {
+    // Every mechanism must also deny moving the tree's parent aside (the
+    // rename that would carry a mount away, or move the tree out from under a
+    // path rule): probe it, and if the rename unexpectedly succeeds, put the
+    // directory straight back.
+    if (existing) {
       const ancestor = dirname(root);
       const renameProbe = `const fs = require('node:fs'); const a = process.argv[1]; try { fs.renameSync(a, a + '.proof-or-stop-rename-probe'); try { fs.renameSync(a + '.proof-or-stop-rename-probe', a); } catch {} process.exit(0); } catch (error) { process.exit(['EPERM','EACCES','EROFS','EBUSY','EXDEV'].includes(error && error.code) ? ${PROBE_DENIED_EXIT} : 4); }`;
       const renameLaunch = mechanism.wrap({ command: process.execPath, args: ['-e', renameProbe, ancestor], shell: false });
@@ -256,7 +288,7 @@ function selfTest(mechanism: Mechanism, existingRoots: string[], allRoots: strin
 /** Whether any configured artifact root exists under this project root right now. */
 export function hasAnyArtifactRoot(artifactsRoot: string): boolean {
   const root = resolve(artifactsRoot);
-  return BUILD_ARTIFACT_ROOTS.some((relative) => isDirectory(canonicalize(join(root, relative))));
+  return projectHasArtifactContract(root) || BUILD_ARTIFACT_ROOTS.some((relative) => isDirectory(canonicalize(join(root, relative))));
 }
 
 /**
@@ -272,7 +304,7 @@ export function artifactProtectionStale(
   state: { buildRanSinceResolve: boolean; anyRootExists: boolean },
 ): boolean {
   if (state.buildRanSinceResolve) return true;
-  return protection.label === NOT_APPLICABLE_PROTECTION_LABEL && state.anyRootExists;
+  return (protection.label === NOT_APPLICABLE_PROTECTION_LABEL || protection.label === NO_CONTRACT_PROTECTION_LABEL) && state.anyRootExists;
 }
 
 /**
@@ -292,6 +324,9 @@ export function resolveArtifactWriteProtection(
   options: { platform?: NodeJS.Platform; searchPath?: string; cwd?: string } = {},
 ): ArtifactWriteProtection {
   const root = resolve(artifactsRoot);
+  if (!projectHasArtifactContract(root)) {
+    return { enforced: false, label: NO_CONTRACT_PROTECTION_LABEL, wrap: (launch) => ({ command: launch.command, args: [...launch.args], shell: launch.shell }) };
+  }
   const allRoots = BUILD_ARTIFACT_ROOTS.map((relative) => canonicalize(join(root, relative)));
   const existingRoots = allRoots.filter((path) => isDirectory(path));
   const platform = options.platform ?? process.platform;

@@ -1,5 +1,5 @@
 import { createHash, type Hash } from 'node:crypto';
-import { lstatSync, readFileSync, readdirSync, realpathSync } from 'node:fs';
+import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync } from 'node:fs';
 import { isAbsolute, join, posix, relative, resolve } from 'node:path';
 import { gitObservationKey, readObservedGitState } from './git-tree-observation.js';
 import { weakestProtectionLabel } from './build-artifacts-protection.js';
@@ -35,7 +35,7 @@ import { weakestProtectionLabel } from './build-artifacts-protection.js';
 export const BUILD_ARTIFACT_ROOTS = ['packages/main/dist', 'packages/utils/dist'] as const;
 
 /** Versioned domain of the digest; bump it whenever the framing below changes. */
-const DIGEST_DOMAIN = 'proof-or-stop.build-artifacts-identity.v2';
+const DIGEST_DOMAIN = 'proof-or-stop.build-artifacts-identity.v3';
 
 /**
  * Unambiguous framing: every field is preceded by its byte length, so the
@@ -60,25 +60,28 @@ class BuildArtifactsIdentityUnavailable extends Error {
   }
 }
 
-function filesBelow(root: string): string[] {
-  const result: string[] = [];
+function filesBelow(root: string): Array<{ path: string; executable: boolean }> {
+  const result: Array<{ path: string; executable: boolean }> = [];
   const visit = (directory: string): void => {
     for (const entry of readdirSync(directory, { withFileTypes: true })) {
       const path = join(directory, entry.name);
       if (entry.isSymbolicLink()) throw new BuildArtifactsIdentityUnavailable(path);
       if (entry.isDirectory()) visit(path);
       else if (entry.isFile()) {
+        const stat = lstatSync(path);
         // A regular file with more than one link has an alias outside this
         // tree through which its bytes stay writable whatever protection the
         // tree itself is under; such a tree is not one this process can vouch for.
-        if (lstatSync(path).nlink > 1) throw new BuildArtifactsIdentityUnavailable(path, 'hard-linked file');
-        result.push(path);
+        if (stat.nlink > 1) throw new BuildArtifactsIdentityUnavailable(path, 'hard-linked file');
+        // The execute bit is part of what a command finds: an entry point that
+        // lost it fails with EACCES with identical bytes.
+        result.push({ path, executable: (stat.mode & 0o111) !== 0 });
       }
       else throw new BuildArtifactsIdentityUnavailable(path);
     }
   };
   visit(root);
-  return result.sort();
+  return result.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
 }
 
 /**
@@ -105,11 +108,12 @@ function artifactTreeDigest(root: string): string {
   if (!stat.isDirectory()) throw new BuildArtifactsIdentityUnavailable(root, 'artifact root is not a directory');
   const hash = createHash('sha256');
   frame(hash, `${DIGEST_DOMAIN}/tree`);
-  const files = filesBelow(root).filter((path) => relative(root, path) !== BUILD_BINDING_BASENAME);
+  const files = filesBelow(root).filter((file) => relative(root, file.path) !== BUILD_BINDING_BASENAME);
   frame(hash, String(files.length));
-  for (const path of files) {
-    frame(hash, relative(root, path));
-    frame(hash, readFileSync(path));
+  for (const file of files) {
+    frame(hash, relative(root, file.path));
+    frame(hash, file.executable ? 'x' : '-');
+    frame(hash, readFileSync(file.path));
   }
   return hash.digest('hex');
 }
@@ -276,11 +280,28 @@ export function resolveReusedBuildArtifactsBinding(args: {
  * `undefined`, which every consumer treats as "cannot vouch" and refuses.
  * Memoized per synchronous git observation like the committed-tree digests.
  */
+/**
+ * Whether this project carries the compiled-artifact contract at all: it has
+ * the self-host layout (a tracked `packages/main/package.json`) or any of the
+ * artifact trees exists. A project with neither executes nothing these roots
+ * describe; its evidence records that explicitly instead of being refused for
+ * lacking trees it never had.
+ */
+export function projectHasArtifactContract(projectRoot: string): boolean {
+  const root = resolve(projectRoot);
+  if (existsSync(join(root, 'packages/main/package.json'))) return true;
+  return BUILD_ARTIFACT_ROOTS.some((relative) => { try { return lstatSync(join(root, relative)).isDirectory(); } catch { return false; } });
+}
+
 export function currentBuildArtifactsHash(projectRoot: string): string | undefined {
   const root = resolve(projectRoot);
   return readObservedGitState(gitObservationKey(['build-artifacts-hash', root, BUILD_ARTIFACT_ROOTS]), () => {
     try {
       const hash = createHash('sha256');
+      if (!projectHasArtifactContract(root)) {
+        frame(hash, `${DIGEST_DOMAIN}/no-artifact-contract`);
+        return hash.digest('hex');
+      }
       frame(hash, `${DIGEST_DOMAIN}/roots`);
       frame(hash, String(BUILD_ARTIFACT_ROOTS.length));
       for (const relativeRoot of BUILD_ARTIFACT_ROOTS) {
