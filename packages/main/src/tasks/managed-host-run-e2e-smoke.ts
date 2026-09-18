@@ -49,6 +49,7 @@ function submitArgs(root: string, deadlineMs: number, host: 'codex' | 'claude' =
     projectRootHash: 'sha256:managed-e2e-root',
     profile: 'managed_reviewer' as const,
     reviewBinding: {
+      managedPromptDigest: `sha256:${createHash('sha256').update('detached real worker review prompt').digest('hex')}`,
       headHash: 'head-managed-e2e',
       materialHash: 'material-managed-e2e',
       storyFilesHash: 'story-managed-e2e',
@@ -311,6 +312,15 @@ async function main(): Promise<void> {
       binding: binding.binding,
       expected,
     }).valid, true, 'the exact detached-worker receipt must be admissible to the formal reviewer consumer');
+    assert.equal(verifyManagedReviewEvidence({
+      root: completedRoot,
+      storyId: 'B-managed-e2e',
+      agent: 'lattice-review-quality',
+      lane: 'lattice-review-quality',
+      reviewRunId: 'B-managed-e2e:RR-001',
+      binding: binding.binding,
+      expected: { ...expected, managedPromptDigest: `sha256:${'0'.repeat(64)}` },
+    }).valid, false, 'a changed prompt digest must not reuse the detached-worker receipt');
 
     const crashedRoot = join(root, 'crashed');
     const crashReleasePath = join(root, 'crash-worker.release');
