@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 import cp, { execFileSync, spawnSync } from 'node:child_process';
 import { syncBuiltinESMExports } from 'node:module';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -148,7 +148,7 @@ const required = [...epoch.requiredLanes];
 function collectMeasured() {
  const calls = new Map(), raw = cp.execFileSync;
  cp.execFileSync = function(command, args, options) {
-  if (command === 'git' && options?.cwd === fixture.root) {
+  if (command === 'git' && options?.cwd && realpathSync(options.cwd) === realpathSync(fixture.root)) {
    const key = JSON.stringify(args); calls.set(key, (calls.get(key) ?? 0) + 1);
   }
   return raw.apply(this, arguments);
