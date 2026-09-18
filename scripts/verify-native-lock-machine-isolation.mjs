@@ -43,7 +43,7 @@ try {
  assert.equal(separate.signal,null);assert.equal(separate.status,0,'isolated native fixture must not wait on an unrelated machine queue: '+separate.output);
  assert.match(separate.output,/NATIVE_MACHINE_ADMITTED/);
  assert(!holderClosed,'independent fixture succeeds while the outer holder is still active');
- const cliPath=fileURLToPath(new URL('../packages/main/dist/cli.js',import.meta.url));
+ const cliPath=fileURLToPath(new URL('../bin/proof-or-stop.js',import.meta.url));
  const fixtureModule=new URL('../packages/main/dist/tasks/native-lock-fixture.js',import.meta.url).href;
  const observation=join(isolated.root,'actual-cli-namespace.json');
  const observer=join(isolated.root,'observe-cli.mjs');
