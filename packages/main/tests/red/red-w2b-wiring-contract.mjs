@@ -27,9 +27,6 @@ import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import {
   mkdtempSync,
-  mkdirSync,
-  readdirSync,
-  symlinkSync,
   readFileSync,
   writeFileSync,
   rmSync,
@@ -132,8 +129,8 @@ runContract('verify-process-fact-contract', 'node', [join(repoRoot, 'scripts', '
 //     patched command-policy.js — the red_evidence_binding_set entry stripped —
 //     for that ONE module while every other module loads unchanged;
 //   • verify-process-fact-contract reads command-policy.ts SOURCE TEXT, so it
-//     runs against a symlink-farm overlay whose ONLY real (non-symlink) file is a
-//     patched command-policy.ts; every other path resolves to the real repo.
+//     uses the verifier's existing input-mutation seam on its real source read.
+//     The same repository/build and all other inputs remain unchanged.
 // Each contract must exit non-zero AND name red_evidence_binding_set. The parent
 // pre-verifies that the strip actually changed each file, so a broken mechanism
 // (entry not found, loader not applied) fails loudly rather than passing vacuously.
@@ -213,33 +210,16 @@ try {
     /process-fact lifecycle entry red_evidence_binding_set[\s\S]*has no command-policy entry/,
   );
 
-  // (b) verify-process-fact-contract reads command-policy.ts SOURCE text, so run
-  // it against a symlink-farm overlay whose only real file is a patched
-  // command-policy.ts; every other path symlinks to the real repo (cwd-relative
-  // reads and dist imports both resolve to the unchanged real tree).
-  const overlay = scratch('src-overlay');
+  // (b) Remove the actual source registration through the verifier input seam.
+  // The source precondition and the named divergence exclude a no-op mutation;
+  // the full positive invocation above still exercises all real child proofs.
   const realPolicyTs = join(repoRoot, 'packages', 'main', 'src', 'core', 'command-policy.ts');
-  const patchedPolicyTs = stripBindingEntry(readFileSync(realPolicyTs, 'utf8'), 'src/core/command-policy.ts');
-  // Nested symlink farm: at each level mirror the real dir with symlinks, except
-  // descend (real dir) into the one child that leads to command-policy.ts, and
-  // replace command-policy.ts itself with the patched real file.
-  function mirror(realDir, ovDir, descend, patchName) {
-    mkdirSync(ovDir, { recursive: true });
-    for (const name of readdirSync(realDir)) {
-      if (name === descend || name === patchName) continue;
-      symlinkSync(join(realDir, name), join(ovDir, name));
-    }
-  }
-  mirror(repoRoot, overlay, 'packages');
-  mirror(join(repoRoot, 'packages'), join(overlay, 'packages'), 'main');
-  mirror(join(repoRoot, 'packages/main'), join(overlay, 'packages/main'), 'src');
-  mirror(join(repoRoot, 'packages/main/src'), join(overlay, 'packages/main/src'), 'core');
-  mirror(join(repoRoot, 'packages/main/src/core'), join(overlay, 'packages/main/src/core'), null, 'command-policy.ts');
-  writeFileSync(join(overlay, 'packages/main/src/core/command-policy.ts'), patchedPolicyTs);
+  stripBindingEntry(readFileSync(realPolicyTs, 'utf8'), 'src/core/command-policy.ts');
   {
     const r = spawnSync('node', [join(repoRoot, 'scripts', 'verify-process-fact-contract.mjs')], {
-      cwd: overlay,
+      cwd: repoRoot,
       encoding: 'utf8',
+      env: { ...process.env, PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION: 'drop-red-evidence-binding-policy' },
     });
     const out = `${r.stdout}\n${r.stderr}`;
     assert.notEqual(r.status, 0,

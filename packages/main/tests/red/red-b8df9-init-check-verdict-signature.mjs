@@ -56,17 +56,13 @@
  *
  * ── SCOPE OF THE CLAIM (read this before quoting the result) ────────────────
  *
- * This proves the record is not TAMPER-EVIDENT for those fields. It does NOT
- * prove anyone gains a capability: one caller can already satisfy every required
- * reviewer, and can already replace a recorded blocking issue with none, through
- * ordinary legal CLI calls. That is BY DESIGN (EXP-001 showed caller identity is
- * not mechanically verifiable) and is positively asserted by shipped smoke tests.
- * What tampering adds is the absence of an audit trail and a bypass of the actor
- * registry. A green run here must never be read as "reviewer coverage is
- * trustworthy" — it never was, and this story does not make it so. Row H1
- * MEASURES that boundary rather than asserting it: an editor who ALSO re-signs
- * with the product's own signing function is accepted, because the salt is a
- * public constant and this is a checksum, not a secret-keyed MAC.
+ * This regression checks verdict-domain tamper evidence and rejection of invalid
+ * carry-forward. Positive reviewers must now arrive through actual acknowledged
+ * managed dispatches; a bare caller-supplied role is not independent evidence.
+ * The fixture helper supplies that prerequisite without using repair fallback.
+ * H1 preserves the distinction: recomputing the public checksum can make the
+ * edited bytes verify, but cannot fabricate the required managed reviewer
+ * coverage, so the current gate must still refuse advancement.
  *
  * ── EVERYTHING IS DERIVED AT RUNTIME ────────────────────────────────────────
  *
@@ -213,7 +209,9 @@ const writeJ = (p, d) => writeFileSync(p, JSON.stringify(d, null, 2));
 /** The product's own recomputation — the exact call the gate makes. */
 const recompute = (root, sid) => recomputeInitCheckHash(sid, new StoryStore(root), root);
 /** Record one legal reviewer verdict through the CLI. */
-const record = (root, sid, agentId, issues = []) => run(root, 'init_check_set', { storyId: sid, issues, agentId });
+const record = (root, sid, agentId, issues = []) => execFileSync(process.execPath,
+  [join(here, '../support/record-managed-init-verdict.mjs'), root, sid, agentId, JSON.stringify(issues)],
+  { cwd: root, encoding: 'utf8', timeout: 180000 });
 /**
  * Attempt the advance and OBSERVE the outcome on disk rather than by matching a
  * success sentence: the phase the store reports is the ground truth, and the
@@ -532,12 +530,10 @@ try {
     // the product's own signing function over their edit and produce a record that
     // verifies. That is measured here instead of being written down, because a
     // sentence in a comment cannot go BROKEN when it stops being true — and the
-    // failure mode this whole story is about is a stale hand-written claim outliving
-    // the code it described. If a real secret is ever introduced this control flips
-    // and the reader is TOLD the scope moved, rather than inheriting rows B/C/E/F as
-    // if they had ever meant "reviewer coverage is trustworthy". They never did.
+    // The checksum and managed-coverage authorities remain independently live:
+    // re-signing restores only the former, never the missing provider receipt.
     {
-      const sid = makeStory(root, 'scope-resign', 'Scope re-signed tampering is accepted');
+      const sid = makeStory(root, 'scope-resign', 'Scope re-signed tampering lacks managed coverage');
       record(root, sid, partial[0]);
       const ic = readJ(icPath(root, sid));
       ic.agentResults.push({ agentId: withheld, checkedAt: INJECTED_AT, issues: [] });
@@ -551,8 +547,9 @@ try {
       const verifiesAfterReSigning = recompute(root, sid) === readJ(icPath(root, sid))._hash;
 
       const r = tryAdvance(root, sid);
-      ctl('H1', 'SCOPE BOUND: this is a checksum over public inputs, NOT a secret-keyed MAC — an editor who also RE-SIGNS is accepted, so what this story buys is tamper-evidence, never reviewer trustworthiness',
-        refusedBeforeReSigning && verifiesAfterReSigning && r.advanced,
+      ctl('H1', 'SCOPE BOUND: public checksum re-signing verifies but cannot fabricate required managed reviewer coverage',
+        refusedBeforeReSigning && verifiesAfterReSigning && !r.advanced
+          && r.out.includes(BLOCKER.missingAgent) && r.out.includes(withheld),
         `refusedBeforeReSigning=${refusedBeforeReSigning} verifiesAfterReSigning=${verifiesAfterReSigning} gateAdvancesOnTheReSignedRecord=${r.advanced} phase=${r.phase}`);
     }
   } catch (e) {

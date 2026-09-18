@@ -994,6 +994,14 @@ function read(relPath) {
   let text = readFileSync(absPath, 'utf8');
   const mutation = process.env.PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION;
   const roleId = canonicalRoleId(basename(relPath));
+  if (mutation === 'drop-red-evidence-binding-policy' && relPath === commandPolicyPath) {
+    // Mutate the actual input consumed by this verifier, preserving the real
+    // repository/build identity and every other source reader.
+    const stripped = text.replace(/^[^\n]*\bred_evidence_binding_set:[^\n]*\n/m, '');
+    nodeAssert.notEqual(stripped, text, 'w2b mutation must remove the actual policy entry');
+    nodeAssert(!/\bred_evidence_binding_set:/.test(stripped), 'w2b mutation must remove exactly the named policy');
+    text = stripped;
+  }
   if (mutation === 'drop-acceptance-basis-prompt' && roleId === 'proof-or-stop-implementer') {
     // B-cc10: accept either brand so the mutation actually drops the live prompt line.
     text = text.replace(/^Acceptance-basis boundary: only `(?:proof-or-stop|proofOrStop) acceptance_basis_generate`.*$/m, '');
@@ -2491,7 +2499,7 @@ function assertCloseoutTrustBoundary() {
     'b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98',
     // B-45a0 F-419: lockstep with the reviewed closeout-trust policy that
     // permits only receipt-bound verification_evidence_refresh_stale writes.
-    'fb21d100ac76f9211b3311c04c94e7d8856bc974e29292c8b3485cab485263f5',
+    '68d86faa065e9137986d20775fa8d72ab8e71af6ddf648c9ab94d48be2db7467',
     '7c345270f67ccc96bde83280cc2cf2fee2d7b7652b15cfc3e1e4b5b7f97c6fd9',
     // B-45a0 F-421: lockstep with the closeout smoke's canonical-writer and
     // noncanonical-writer retention regression checks, and with B-1e1f's
@@ -2521,7 +2529,7 @@ function assertCloseoutTrustBoundary() {
   // withValidationSigningRoot arrow preserves the runCli function anchor and
   // exact initPath producer/import argument. Both coupled pins move together;
   // this whole-file binding does not assert a separate loader provenance graph.
-    '52a283cfcdc3bfbb233feab6d31614d0eabf8470a41d3af10ad7786246905720',
+    '98877fb9b4540b07726b83a559d2e20726edd1aba2d57faad976d395776e5604',
     // B-6693 (merged in) also moved this canonical AST, only to separate
     // direct-validate watchdog cancellation from DONE-result classification.
     // The benign runCli/initPath/import(`file://${initPath}`) call site is unchanged.
@@ -2624,7 +2632,7 @@ function assertCloseoutTrustBoundary() {
     "'packages/main/src/handlers/fixture-executors.ts'",
     'aee0b8f72d15f79121d14a4805891fae125b76bc9de1cbe073a28ffe90a8eddf',
     'aee0b8f72d15f79121d14a4805891fae125b76bc9de1cbe073a28ffe90a8eddf',
-    'd0fa3e4ebad2c985e96f1faa64cd3ca7eac35492203f0eacc121e260298e715e',
+    '19b243083de02b86b17a76c104222709b35cc223b3a5e2ad4d40ff86e99ad0ed',
     'the twelve existing exact entries plus the B-49df test-only tracer kernel pin make thirteen; no broad pattern exemptions are allowed',
     'any executable drift revokes the envelope mutation loader fingerprint',
     'mutant path rebound to external input',
@@ -2632,7 +2640,7 @@ function assertCloseoutTrustBoundary() {
     'mutant producer nested shadow',
     'mutant URL helper shadow',
     'BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS',
-    'd0fa3e4ebad2c985e96f1faa64cd3ca7eac35492203f0eacc121e260298e715e',
+    '19b243083de02b86b17a76c104222709b35cc223b3a5e2ad4d40ff86e99ad0ed',
     '023017290826cb42ede2577f5e43a20b8f13733fc80599056dcd8367a68f8506',
     'PackageAliasEdge',
     'buildPackageAliasEdgeInventory',
@@ -5541,6 +5549,8 @@ function parseProcessFactLevelDefinitions() {
 let cachedCommandPolicyEntries = null;
 
 // Refuse the complete actual ownership contract before launching positive proofs.
+let cachedProcessFactRegistryEntries = null;
+let cachedFlowFactPolicyEntries = null;
 assertStoryWriterRuntimeAdmissionContract();
 if (failures.length) {
   console.error('');
@@ -5548,36 +5558,27 @@ if (failures.length) {
   for (const message of failures.sort()) console.error(`- ${message}`);
   process.exit(1);
 }
-
-// A rejected admission must not pay for these independent positive fixture checks.
-// Exercise the real verdict consumer, including raw-stream digest and refusal guards.
-execFileSync(process.execPath, ['packages/main/tests/codex-review-jsonl.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
-execFileSync(process.execPath, ['packages/main/tests/review-history-buffer.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
-// Match CLI module initialization before the actual sealed managed-review fixture.
-execFileSync(process.execPath, ['--import', './packages/main/dist/index.js', 'packages/main/dist/tasks/managed-review-evidence-smoke.js', '--supersession-regression'], { cwd: root, stdio: 'inherit', timeout: 120000 });
-execFileSync(process.execPath, ['packages/main/tests/certification-recovery-lineage.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 120000 });
-// Exercise managed delivery through an actual synthetic provider process and real CLI.
-execFileSync(process.execPath, ['packages/main/tests/managed-delivery-dispatch.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 180000 });
-
-// Real writer/coverage proofs use isolated fixtures; unavailable execution is never GREEN.
-for (const [file, marker, timeout] of [
-  ['experiments/acceptance-closure/regression.mjs', 'ACCEPTANCE_CLOSURE_GREEN', 60000],
-  ['experiments/acceptance-closure/publication-snapshot.mjs', 'PUBLICATION_SNAPSHOT_GREEN', 60000],
-  ['experiments/acceptance-closure/publication-lifecycle.mjs', 'PUBLICATION_LIFECYCLE_GREEN', 720000],
-]) {
-  try {
-    const output = execFileSync(process.execPath, [join(root, file)], { cwd: root, encoding: 'utf8', timeout });
-    nodeAssert(output.includes(marker), file + ' must emit its GREEN marker');
-    if (!quiet) process.stdout.write(output);
-  } catch (error) {
-    throw new Error(verificationFailureMessage('acceptance closure ' + file, error));
-  }
+assertProofStoryProgressiveBoundary();
+if (failures.length) {
+  console.error('');
+  console.error('Process fact contract failed:');
+  for (const message of failures.sort()) console.error(`- ${message}`);
+  process.exit(1);
 }
-
-// Durable ordering witness: its invalid child exits at the admission gate above.
-const admissionOrderOutput = execFileSync(process.execPath, [join(root, 'scripts/verify-process-runtime-admission-order.mjs')], { cwd: root, encoding: 'utf8', timeout: 60000 });
-nodeAssert(admissionOrderOutput.includes('PASS process runtime admission order:'), 'Runtime admission ordering witness must emit its PASS marker');
-if (!quiet) process.stdout.write(admissionOrderOutput);
+assertCommandPolicyInventory(extractCliToolNames(read('packages/main/src/cli/command-catalog.ts')));
+if (failures.length) {
+  console.error('');
+  console.error('Process fact contract failed:');
+  for (const message of failures.sort()) console.error(`- ${message}`);
+  process.exit(1);
+}
+assertProcessFactCommandInventory();
+if (failures.length) {
+  console.error('');
+  console.error('Process fact contract failed:');
+  for (const message of failures.sort()) console.error(`- ${message}`);
+  process.exit(1);
+}
 
 function readStringProperty(block, propertyName) {
   const match = new RegExp(`\\b${propertyName}\\s*:\\s*(['"\`])`).exec(block);
@@ -5715,7 +5716,7 @@ function duplicateNames(values) {
   return [...duplicates].sort();
 }
 
-let cachedProcessFactRegistryEntries = null;
+
 
 function parseTopLevelObjectBlocks(arrayBody, label) {
   const blocks = [];
@@ -5851,7 +5852,7 @@ function parseProcessFactRuntimeSemanticsFromSource(text) {
   return semantics;
 }
 
-let cachedFlowFactPolicyEntries = null;
+
 
 function parseFlowFactPolicies() {
   if (cachedFlowFactPolicyEntries) return cachedFlowFactPolicyEntries;
@@ -11128,7 +11129,6 @@ assertReviewRoundIsoDocs();
 assertEvidenceBoundaryDocs();
 assertCurrentVerificationReceiptModel();
 assertPromptEvidenceBoundaries(promptMap);
-assertProofStoryProgressiveBoundary();
 assertProofStoryGateConsumedFacts();
 assertCloseoutTrustBoundary();
 assertPhaseTransitionReopenAuditContract();
@@ -11157,7 +11157,6 @@ assert(entryDiagnosticSource.includes('diagnosticOnly: true') && entryDiagnostic
 assert(readFileSync(join(root, 'packages/main/src/handlers/story-review.ts'), 'utf8').includes('assessPlanTouchpointCoverage(understanding.touchpoints, cl.items)'),
   'entry preflight and Story review must share the existing touchpoint coverage semantics');
 assertReviewInventoryRemediationContract();
-assertProcessFactCommandInventory();
 assertDonePreflightPredicateInventoryParity();
 await assertLifecycleArtifactScopePolicy();
 assertStrengtheningRoadmapGovernanceLedger();
@@ -11974,6 +11973,44 @@ assert(managedCriticArtifact?.producer === 'handlers/managed-review-evidence.man
     'story_create must persist checklist.json before each safe creation commit');
 }
 
+if (failures.length) {
+  console.error('');
+  console.error('Process fact contract failed:');
+  for (const message of failures.sort()) console.error(`- ${message}`);
+  process.exit(1);
+}
+
+// A rejected admission must not pay for these independent positive fixture checks.
+// Exercise the real verdict consumer, including raw-stream digest and refusal guards.
+execFileSync(process.execPath, ['packages/main/tests/codex-review-jsonl.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
+execFileSync(process.execPath, ['packages/main/tests/review-history-buffer.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
+// Match CLI module initialization before the actual sealed managed-review fixture.
+execFileSync(process.execPath, ['--import', './packages/main/dist/index.js', 'packages/main/dist/tasks/managed-review-evidence-smoke.js', '--supersession-regression'], { cwd: root, stdio: 'inherit', timeout: 120000 });
+execFileSync(process.execPath, ['packages/main/tests/certification-recovery-lineage.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 120000 });
+// Exercise managed delivery through an actual synthetic provider process and real CLI.
+execFileSync(process.execPath, ['packages/main/tests/managed-delivery-dispatch.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 180000 });
+
+// Real writer/coverage proofs use isolated fixtures; unavailable execution is never GREEN.
+for (const [file, marker, timeout] of [
+  ['experiments/acceptance-closure/regression.mjs', 'ACCEPTANCE_CLOSURE_GREEN', 60000],
+  ['experiments/acceptance-closure/publication-snapshot.mjs', 'PUBLICATION_SNAPSHOT_GREEN', 60000],
+  ['experiments/acceptance-closure/publication-lifecycle.mjs', 'PUBLICATION_LIFECYCLE_GREEN', 720000],
+]) {
+  try {
+    const output = execFileSync(process.execPath, [join(root, file)], { cwd: root, encoding: 'utf8', timeout });
+    nodeAssert(output.includes(marker), file + ' must emit its GREEN marker');
+    if (!quiet) process.stdout.write(output);
+  } catch (error) {
+    throw new Error(verificationFailureMessage('acceptance closure ' + file, error));
+  }
+}
+
+// Durable ordering witness: its invalid child exits at the admission gate above.
+const admissionOrderOutput = execFileSync(process.execPath, [join(root, 'scripts/verify-process-runtime-admission-order.mjs')], { cwd: root, encoding: 'utf8', timeout: 60000 });
+nodeAssert(admissionOrderOutput.includes('PASS process runtime admission order:'), 'Runtime admission ordering witness must emit its PASS marker');
+if (!quiet) process.stdout.write(admissionOrderOutput);
+
+
 // Managed inventory transport checks must precede the final failure gate.
 assert(read('packages/main/src/core/managed-host-run.ts').includes('isManagedInventoryCritic'), 'Managed proposal writer must validate critic shape');
 assert(read('packages/main/src/core/managed-review-evidence.ts').includes('isManagedInventoryCritic'), 'Managed evidence consumer must validate critic shape');
@@ -12034,6 +12071,7 @@ if (failures.length) {
   for (const message of failures.sort()) console.error(`- ${message}`);
   process.exit(1);
 }
+
 
 console.log('');
 console.log('Process fact contract verified');

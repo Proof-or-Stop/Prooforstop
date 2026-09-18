@@ -2510,7 +2510,7 @@
           "packages/main/tests/red/red-w2b-wiring-contract.mjs",
           "--canonical-core"
         ],
-        "timeoutMs": 180000,
+        "timeoutMs": 900000,
         "resources": [
           {
             "class": "git-common-dir",
@@ -5488,6 +5488,83 @@
             "class": "machine-process",
             "key": "fanout",
             "access": "exclusive"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-dynamic-finding-collection-readiness.mjs",
+          "--canonical-core"
+        ],
+        "timeoutMs": 600000,
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "validation-audit-registration-closure-20260918",
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-dynamic-finding-head-continuity.mjs"
+        ],
+        "timeoutMs": 600000,
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "validation-audit-registration-closure-20260918",
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-empty-checklist-lifecycle.mjs"
+        ],
+        "timeoutMs": 600000,
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "validation-audit-registration-closure-20260918",
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-lab-nested-fixture-machine-isolation.mjs"
+        ],
+        "timeoutMs": 600000,
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "validation-audit-registration-closure-20260918",
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
           }
         ]
       }

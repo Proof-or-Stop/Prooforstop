@@ -1048,7 +1048,9 @@ export async function runCli(opts?: {
   const localStoryAlreadyProjected = Boolean(bootstrapStoryId
     && hasProjectConfigFile(process.cwd())
     && existsSync(new StoryStore(process.cwd()).storyDirPath(bootstrapStoryId)));
-  if (localStoryAlreadyProjected) {
+  // Discard recovery keeps the resolved controller root: its handler may remove
+  // an already invalid linked checkout before committing controller metadata.
+  if (cmd !== 'story_discard' && localStoryAlreadyProjected) {
     const localStore = new StoryStore(process.cwd());
     const localStoryRoot = localStore.storyDirPath(bootstrapStoryId!);
     const missingProjectionReceipt = CONTROLLER_PROJECTION_ARTIFACTS.some(descriptor =>
@@ -1070,7 +1072,7 @@ export async function runCli(opts?: {
     }
     root = process.cwd();
     activeStory = detectActiveStory(root);
-  } else if (bootstrapStoryId
+  } else if (cmd !== 'story_discard' && bootstrapStoryId
     && (bootstrapOwnership === 'storyScopedMutating' || bootstrapOwnership === 'dangerousMutating')
     && bootstrapMainRoot !== null && realpathSync(bootstrapMainRoot) === realpathSync(controllerRoot)) {
     // Every non-writing admission check precedes projection. Handler-level
