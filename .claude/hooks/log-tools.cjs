@@ -131,16 +131,28 @@ function resolveDestination(target) {
  * protected worktree. Anything else - including a destination swapped between the
  * inspection and the write - drops the line instead of writing it.
  */
+/**
+ * Accepted limitation, stated so it is never mistaken for a guarantee: Node exposes no
+ * openat/mkdirat, so every step below names a path. A local process that renames an
+ * ancestor at exactly the right instant can still move where a create or an append lands.
+ * The window is narrowed to the smallest it can be without those syscalls - each directory
+ * component is created without following links, the final open refuses a symlink, the
+ * descriptor is checked against the path it should be, and ownership is established before
+ * anything is created and again immediately before the write - and it is not closed. The
+ * threat this Lab addresses is the operator's own tools, not an adversary racing the hook.
+ */
 function appendVerified(destination, top, line) {
   if (top !== null && !insideDirectory(top, destination)) return;
   const parent = path.dirname(destination);
   // Nothing is created before the destination's OWNER is established: an ancestor replaced
   // by a link to another repository must not gain directories or an empty log file.
   if (!ownerMatches(parent, top)) return;
+  appendBarrierWait();
+  if (!ownerMatches(parent, top)) return; // the queue moved while we waited
   let before;
   let fd;
   try {
-    fs.mkdirSync(parent, { recursive: true });
+    if (!createDirectoryChain(parent)) return;
     // The parent's identity is captured before the open and re-checked after it, so a
     // directory replaced by a link during admission is caught.
     before = fs.lstatSync(parent);
@@ -164,6 +176,39 @@ function appendVerified(destination, top, line) {
     /* the line is dropped */
   } finally {
     try { fs.closeSync(fd); } catch { /* already closed */ }
+  }
+}
+
+/**
+ * Create every missing component of `directory` WITHOUT following links: a component that
+ * already exists must be a real directory, so an ancestor replaced by a symlink refuses
+ * the creation instead of silently creating inside the link's target.
+ */
+function createDirectoryChain(directory) {
+  const parts = path.resolve(directory).split(path.sep).filter(Boolean);
+  let current = path.sep;
+  for (const part of parts) {
+    current = path.join(current, part);
+    try {
+      fs.mkdirSync(current);
+    } catch (error) {
+      if (error.code !== 'EEXIST') return false;
+      let info;
+      try { info = fs.lstatSync(current); } catch { return false; }
+      if (!info.isDirectory()) return false; // a symlink or file stands where a directory must be
+    }
+  }
+  return true;
+}
+
+/** Test seam: pause immediately before the append, after ownership was established. */
+function appendBarrierWait() {
+  const barrier = process.env.PROOF_OR_STOP_ACTIVITY_APPEND_BARRIER;
+  if (!barrier) return;
+  try { fs.writeFileSync(`${barrier}.reached`, String(process.pid)); } catch { /* the wait still holds */ }
+  const deadline = Date.now() + 20000;
+  while (fs.existsSync(barrier) && Date.now() < deadline) {
+    try { execSync('sleep 0.05'); } catch { break; }
   }
 }
 

@@ -371,7 +371,9 @@ try {
     expectRepaired(created.length === 0, `a nested validating repository must gain nothing (created ${JSON.stringify(created)})`);
     rmSync(nestedTicket, { recursive: true, force: true });
   }
-  // A non-repository destination that becomes part of a repository after discovery.
+  // A non-repository destination that becomes part of a repository after discovery. The
+  // append barrier is the synchronization point: the hook pauses after establishing the
+  // owner and before writing, so the redirect really happens inside the window.
   {
     const plain = join(sandbox, `plain-late-${n++}`); mkdirSync(join(plain, 'docs/story'), { recursive: true });
     const validating = repo();
@@ -379,10 +381,9 @@ try {
     const barrier = join(sandbox, `barrier-plain-${n++}`);
     writeFileSync(barrier, 'hold');
     const beforeValidating = treeSnapshot(validating);
-    const writing = callHookAsync(plain, 'plain-redirected-late', { PROOF_OR_STOP_ACTIVITY_ADMISSION_BARRIER: barrier });
-    // Outside a repository the hook takes no ticket, so the barrier may not be reached;
-    // the swap happens immediately either way.
-    await waitUntil(() => false, 300);
+    const writing = callHookAsync(plain, 'plain-redirected-late', { PROOF_OR_STOP_ACTIVITY_APPEND_BARRIER: barrier });
+    const paused = await waitUntil(() => existsSync(`${barrier}.reached`), 8000);
+    expectRepaired(paused, 'the hook pauses before appending, after establishing the destination owner');
     rmSync(join(plain, 'docs'), { recursive: true, force: true });
     symlinkSync(join(validating, 'docs'), join(plain, 'docs'));
     const t = ticket(validating, live.pid);
@@ -392,6 +393,28 @@ try {
     rows.push({ scenario: 'non-repository destination redirected into a validating repository', during: created.length, detail: '-' });
     expectRepaired(created.length === 0, `a destination that became part of a repository must not be written without its ticket (created ${JSON.stringify(created)})`);
     rmSync(t, { recursive: true, force: true });
+  }
+  // The ancestor is swapped after the first ownership lookup, with the target directories
+  // already present: nothing may be created or appended there either.
+  {
+    const source = repo();
+    const other = repo();
+    mkdirSync(join(other, 'docs/story'), { recursive: true }); // the swap target exists
+    const barrier = join(sandbox, `barrier-after-owner-${n++}`);
+    writeFileSync(barrier, 'hold');
+    const beforeOther = treeSnapshot(other);
+    const writing = callHookAsync(source, 'swap-after-owner-lookup', { PROOF_OR_STOP_ACTIVITY_APPEND_BARRIER: barrier });
+    const paused = await waitUntil(() => existsSync(`${barrier}.reached`), 8000);
+    expectRepaired(paused, 'the hook reaches the append barrier with its own destination prepared');
+    rmSync(join(source, 'docs'), { recursive: true, force: true });
+    symlinkSync(join(other, 'docs'), join(source, 'docs'));
+    const otherTicket = ticket(other, live.pid);
+    rmSync(barrier, { force: true });
+    await writing;
+    const created = treeSnapshot(other).filter((entry) => !beforeOther.includes(entry));
+    rows.push({ scenario: 'ancestor swapped after the ownership lookup', during: created.length, detail: '-' });
+    expectRepaired(created.length === 0, `a swap after the ownership lookup must create and append nothing (created ${JSON.stringify(created)})`);
+    rmSync(otherTicket, { recursive: true, force: true });
   }
   // Discovery: uncertainty never reads as "no repository".
   for (const [name, script] of [
