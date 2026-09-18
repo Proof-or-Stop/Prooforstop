@@ -46,4 +46,30 @@ for (const member of members) {
   assert.equal(rows.length, 1, `one canonical registration required: ${member}`);
   assert.equal(rows[0].timeoutMs, 900000, `VALIDATION_COMPOSITE_BUDGET_MISMATCH: ${member}`);
 }
+
+// This parent runs both real verifiers and the public runtime/package fixtures.
+// Its deadline must cover the existing child allowances plus that other work.
+const identity = source('scripts/verify-proof-or-stop-identity-cutover.mjs');
+const runtimeCall = find(identity, node => ts.isVariableDeclaration(node)
+  && node.name.getText(identity) === 'runtimeCheck').initializer;
+assert.equal(runtimeCall.expression.getText(identity), 'execFileSync');
+const runtimeTimeout = runtimeCall.arguments[2].properties.find(node => node.name?.getText(identity) === 'timeout').initializer;
+const runtimeParentMs = Function('identityCertificationBudget', `return (${runtimeTimeout.getText(identity)});`)(facts.IDENTITY_CERTIFICATION_RUNTIME_POLICY);
+const childBudget = member => {
+  const rows = config.validate.commands.filter(row => row.args?.includes(member));
+  assert.equal(rows.length, 1, `one canonical runtime witness required: ${member}`);
+  assert.ok(Number.isSafeInteger(rows[0].timeoutMs) && rows[0].timeoutMs > 0);
+  return rows[0].timeoutMs;
+};
+const requiredRuntimeMs = childBudget('scripts/verify-process-fact-contract.mjs')
+  + childBudget('scripts/verify-runtime-fact-contract.mjs') + 300000;
+assert.ok(runtimeParentMs >= requiredRuntimeMs,
+  `IDENTITY_RUNTIME_PARENT_DEADLINE_PREEMPTS_FULL_WORKLOAD: parent=${runtimeParentMs}, required=${requiredRuntimeMs}`);
+const identityPolicy = facts.IDENTITY_CERTIFICATION_RUNTIME_POLICY;
+assert.equal(identityPolicy.publicRuntimeAndPackageMarginMs, 300000);
+assert.equal(runtimeParentMs, identityPolicy.runtimeGroupMs);
+const identityRows = config.validate.commands.filter(row => row.args?.includes('--group=identity-cutover'));
+assert.equal(identityRows.length, 1);
+assert.ok(identityRows[0].timeoutMs >= runtimeParentMs + identityPolicy.otherIdentityWitnessMs,
+  'identity outer command must retain a separate allowance for the other full identity witnesses');
 console.log('VALIDATION_AUDIT_BUDGET_CONTRACT_GREEN: structural deadline and configuration checks only; full suites required separately');
