@@ -37,6 +37,28 @@ import { listRuntimeArtifactIgnorePatterns } from '../core/runtime-artifact-regi
 import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
 import { deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
 
+// The optional focus runs the same extraction regression as the full smoke.
+function assertVariableStaleHintExtraction(): void {
+  assert.equal(extractStaleBlock('unrelated output'), '');
+  for (const count of [1, 3, 15]) {
+    const stale = Array.from({ length: count }, (_, index) => ({
+      intentRef: `CHK-001:happy:${index}`, itemId: 'CHK-001', reason: 'material drift',
+    }));
+    const expected = renderEvidenceStaleHint('B-stale-hint-boundary', stale, { currentHead: '123456789' });
+    for (const suffix of ['', '\n\nNext section\n  unrelated detail', '\nNext section']) {
+      assert.equal(extractStaleBlock(`Surface preamble\n${expected}${suffix}`), expected,
+        'variable stale-intent rows must retain the complete rendered recovery block');
+    }
+    assert.notEqual(extractStaleBlock(expected.replace(' --mergeMain', ' --wrong')), expected,
+      'altered recovery commands must remain detectable by the exact cross-surface assertion');
+  }
+}
+assertVariableStaleHintExtraction();
+if (process.argv.includes('--stale-hint-extraction-only')) {
+  console.log('STALE_HINT_EXTRACTION_PASS: variable rows, surface boundaries, recovery mutation');
+  process.exit(0);
+}
+
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
     cwd,
