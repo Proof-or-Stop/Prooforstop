@@ -80,17 +80,34 @@ function ticket(root, pid, workspace = root) {
   return dir;
 }
 const hookInput = (root, command) => JSON.stringify({ cwd: root, tool_name: 'Bash', tool_input: { command }, hook_event_name: 'PostToolUse', session_id: 'hook-fixture', tool_output: 'ok' });
-function callHook(root, command, env = {}, timeout = 20_000) {
-  // A hook that blocks (an unreadable destination, a FIFO) is killed rather than hanging
-  // the run; scenarios that care report it.
+// Every hook call must finish on its own, exit 0 and do so promptly: a hook that hangs
+// under contention and is killed would otherwise "pass" by leaving the log empty. Only
+// the FIFO scenarios, which measure blocking themselves, opt out with `mayBlock`.
+const HOOK_COMPLETION_BOUND_MS = 10_000;
+function expectCompleted(command, { status, signal, timedOut, elapsed }) {
+  expectRepaired(!timedOut && signal === null && status === 0 && elapsed < HOOK_COMPLETION_BOUND_MS,
+    `the hook for "${command}" must complete on its own with exit 0 within ${HOOK_COMPLETION_BOUND_MS}ms (status ${status}, signal ${signal}, ${timedOut ? 'killed after timeout, ' : ''}${elapsed}ms)`);
+}
+function callHook(root, command, env = {}, { timeout = 20_000, mayBlock = false } = {}) {
+  const started = Date.now();
   const r = spawnSync(process.execPath, [hook], { input: hookInput(root, command), env: { ...process.env, HOME: home, ...env }, encoding: 'utf8', timeout, killSignal: 'SIGKILL' });
-  if (r.status !== 0 && !(r.error && r.error.code === 'ETIMEDOUT')) throw new Error(`hook exited ${r.status}: ${r.stderr}`);
+  const timedOut = Boolean(r.error && r.error.code === 'ETIMEDOUT');
+  if (!mayBlock) expectCompleted(command, { status: r.status, signal: r.signal, timedOut, elapsed: Date.now() - started });
   return r;
 }
 function callHookAsync(root, command, env = {}) {
   return new Promise((resolveExit) => {
+    const started = Date.now();
     const child = spawn(process.execPath, [hook], { env: { ...process.env, HOME: home, ...env }, stdio: ['pipe', 'ignore', 'ignore'] });
-    child.on('exit', (code) => resolveExit(code));
+    let timedOut = false;
+    const killer = setTimeout(() => { timedOut = true; child.kill('SIGKILL'); }, 30_000);
+    child.on('exit', (code, signal) => {
+      clearTimeout(killer);
+      // Barrier scenarios pause the hook deliberately, so only a kill or a failure counts here.
+      expectRepaired(!timedOut && signal === null && code === 0,
+        `the hook for "${command}" must exit 0 on its own (code ${code}, signal ${signal}${timedOut ? ', killed after 30000ms' : ''})`);
+      resolveExit(code);
+    });
     child.stdin.end(hookInput(root, command));
   });
 }
@@ -247,7 +264,7 @@ try {
     spawnSync('mkfifo', [join(root, 'pipe')]);
     symlinkSync(join(root, 'pipe'), join(root, 'docs/story/activity.jsonl'));
     const started = Date.now();
-    const r = callHook(root, 'symlink-to-fifo', {}, 8000);
+    const r = callHook(root, 'symlink-to-fifo', {}, { timeout: 8000, mayBlock: true });
     const elapsed = Date.now() - started;
     const blocked = Boolean(r.error && r.error.code === 'ETIMEDOUT');
     rows.push({ scenario: 'log symlink points at a FIFO', during: elapsed, detail: blocked ? 'blocked' : `exit ${r.status}` });
@@ -291,7 +308,7 @@ try {
     mkdirSync(dir, { recursive: true });
     spawnSync('mkfifo', [join(dir, 'holder.json')]);
     const started = Date.now();
-    const r = callHook(root, 'fifo-holder', {}, 8000);
+    const r = callHook(root, 'fifo-holder', {}, { timeout: 8000, mayBlock: true });
     const elapsed = Date.now() - started;
     const blocked = Boolean(r.error && r.error.code === 'ETIMEDOUT');
     const leftover = readdirSync(capacityDirFor(root)).filter((name) => name.endsWith('.ticket') || name.endsWith('.choosing'));
@@ -461,6 +478,35 @@ try {
     callHook(plain, 'not-a-repository');
     rows.push({ scenario: 'control: directory outside any repository', during: lines(plain).length, detail: '-' });
     control(JSON.stringify(lines(plain)) === JSON.stringify(['not-a-repository']), 'a non-repository directory is logged immediately');
+  }
+  // Windows roots: directory creation must start at the drive or UNC share root, never
+  // try to create the root itself, and never fall back to the current drive. Native Windows
+  // is not available to this verifier, so the hook's own createDirectoryChain is driven
+  // with path.win32 and a recording filesystem in a child process.
+  {
+    const probe = `
+      const path = require('path');
+      const { createDirectoryChain } = require(${JSON.stringify(hook)});
+      const out = {};
+      for (const dir of ['C:\\\\repo\\\\docs\\\\story', '\\\\\\\\server\\\\share\\\\repo\\\\docs']) {
+        const made = [];
+        const fsApi = { mkdirSync: (p) => { made.push(p); }, lstatSync: () => ({ isDirectory: () => true }) };
+        out[dir] = { ok: createDirectoryChain(dir, path.win32, fsApi), made };
+      }
+      console.log(JSON.stringify(out));`;
+    const r = spawnSync(process.execPath, ['-e', probe], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 10_000 });
+    let got = null;
+    try { got = JSON.parse(r.stdout.trim()); } catch { /* the hook exposes no seam */ }
+    const expected = {
+      'C:\\repo\\docs\\story': { ok: true, made: ['C:\\repo', 'C:\\repo\\docs', 'C:\\repo\\docs\\story'] },
+      '\\\\server\\share\\repo\\docs': { ok: true, made: ['\\\\server\\share\\repo', '\\\\server\\share\\repo\\docs'] },
+    };
+    for (const [dir, want] of Object.entries(expected)) {
+      const seen = got && got[dir];
+      rows.push({ scenario: `Windows directory creation from ${dir}`, during: seen ? seen.made.length : '-', detail: seen ? JSON.stringify(seen.made) : 'no result' });
+      expectRepaired(JSON.stringify(seen) === JSON.stringify(want),
+        `creating ${dir} must walk only below its root (expected ${JSON.stringify(want.made)}, got ${JSON.stringify(seen)})`);
+    }
   }
   // A failing build must not leave this verifier's own children or sandboxes behind.
   if (!process.env.HOOK_VERIFIER_NESTED) {

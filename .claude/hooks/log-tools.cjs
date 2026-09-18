@@ -10,6 +10,8 @@ const path = require('path');
 const crypto = require('crypto');
 const { execSync } = require('child_process');
 
+// Run as the hook; when required (the verifier's unit seam) only export helpers.
+if (require.main === module) {
 let input = '';
 process.stdin.setEncoding('utf8');
 process.stdin.on('data', chunk => { input += chunk; });
@@ -60,6 +62,9 @@ process.stdin.on('end', () => {
   } catch {}
   process.exit(0);
 });
+}
+
+module.exports = { createDirectoryChain };
 
 function git(root, args) {
   // Inherited repository-selection variables are dropped: discovery must describe the
@@ -184,17 +189,21 @@ function appendVerified(destination, top, line) {
  * already exists must be a real directory, so an ancestor replaced by a symlink refuses
  * the creation instead of silently creating inside the link's target.
  */
-function createDirectoryChain(directory) {
-  const parts = path.resolve(directory).split(path.sep).filter(Boolean);
-  let current = path.sep;
+function createDirectoryChain(directory, pathApi = path, fsApi = fs) {
+  // Start at the filesystem root itself ("/", "C:\\" or "\\\\server\\share\\"), never create it,
+  // and walk only the components below it.
+  const absolute = pathApi.resolve(directory);
+  const root = pathApi.parse(absolute).root;
+  const parts = absolute.slice(root.length).split(pathApi.sep).filter(Boolean);
+  let current = root;
   for (const part of parts) {
-    current = path.join(current, part);
+    current = pathApi.join(current, part);
     try {
-      fs.mkdirSync(current);
+      fsApi.mkdirSync(current);
     } catch (error) {
       if (error.code !== 'EEXIST') return false;
       let info;
-      try { info = fs.lstatSync(current); } catch { return false; }
+      try { info = fsApi.lstatSync(current); } catch { return false; }
       if (!info.isDirectory()) return false; // a symlink or file stands where a directory must be
     }
   }
