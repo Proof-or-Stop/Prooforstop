@@ -80,10 +80,23 @@ try {
   write(CONFIG_FILENAMES[0], formatted);
   assert.doesNotThrow(() => runInNewContext(emitted, context, { timeout: 30000 }), 'formatting alone is not semantic command drift');
   write(CONFIG_FILENAMES[0], bytesBefore);
+  const additive = JSON.parse(bytesBefore);
+  additive.validate.evidenceCommandTimeoutOverrides = [{ ...additive.validate.commands[1], timeoutMs: 1000 }];
+  write(CONFIG_FILENAMES[0], JSON.stringify(additive));
+  assert.doesNotThrow(() => runInNewContext(emitted, context, { timeout: 30000 }), 'new command may have its own non-shadowing override');
+  write(CONFIG_FILENAMES[0], bytesBefore);
+  // Preserve the historical three-dot boundary when upstream advances independently.
+  git(root, ['switch', 'main']);
+  const upstream = JSON.parse(fs.readFileSync(join(root, CONFIG_FILENAMES[0]), 'utf8'));
+  upstream.validate.commands.push({ command: 'node', args: ['upstream.js'], timeoutMs: 1000 });
+  write(CONFIG_FILENAMES[0], JSON.stringify(upstream));
+  git(root, ['add', '.']); git(root, ['commit', '-qm', 'independent upstream command addition']);
+  git(root, ['switch', 'story/legitimate-feature']);
+  assert.doesNotThrow(() => runInNewContext(emitted, context, { timeout: 30000 }), 'upstream-only drift uses the merge-base boundary');
   const mutations = ts.transpileModule(declarations + '\nassertProtectedInventoryMutationControls();',
     { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
   runInNewContext(mutations, context, { timeout: 30000 });
-  assert.ok(source.includes("join(repoRoot(), 'packages/main/tests/protected-inventory-fixture.test.mjs')"),
+  assert.ok(source.includes("['packages/main/tests/protected-inventory-fixture.test.mjs', '--prebuilt']"),
     'the full native smoke invokes this actual-source regression');
   assert.ok(created.length > 0, 'the regression owns its mutation fixture');
   assert.ok(created.every(path => !fs.existsSync(path)), 'owned mutation fixtures are removed');

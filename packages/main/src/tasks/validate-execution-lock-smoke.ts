@@ -2278,7 +2278,7 @@ void (async () => {
     await runGroup(assertQueuedWaitFailureCleanupIsRecoverable);
     await runGroup(assertCapacityRepositoryScopeAndSelectiveModes);
     await runGroup(assertProtectedInventoryAndTimeoutSourcesUnchanged);
-    execFileSync(process.execPath, [join(repoRoot(), 'packages/main/tests/protected-inventory-fixture.test.mjs'), '--prebuilt'],
+    execFileSync(process.execPath, ['packages/main/tests/protected-inventory-fixture.test.mjs', '--prebuilt'],
       { cwd: repoRoot(), stdio: 'inherit', timeout: 30000 });
     await runGroup(assertCapacityReclaimImplementationIsIdentityStable);
     await runGroup(assertManagedVerificationIntentPinSchemaRoundTrip);
