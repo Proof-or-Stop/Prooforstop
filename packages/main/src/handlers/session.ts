@@ -1365,7 +1365,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
               storyId,
               title: `REVIEW waiting for ${pending}`,
               retry: `proof-or-stop reviewer_batch '{"storyId":"${storyId}"}' to obtain the pending lanes and their canonical fresh-context launch instructions`,
-              fix: 'Follow each reviewer_batch launchInstruction exactly: use the canonical dispatch prompt unchanged, retain every nonempty returned child id, require distinct ids for parallel lanes, and wait only on those exact ids. The reviewer then records its own review_run_start plus finding_add or review_pass_set result.',
+              fix: 'Follow each reviewer_batch launchInstruction exactly: use the canonical dispatch prompt unchanged, retain every nonempty returned child id, require distinct ids for parallel lanes, and wait only on those exact ids. The reviewer then records its own review_run_start plus finding_add or review_pass_set result, using its returned <reviewRunId from proof-or-stop review_run_start>.',
             });
           }
         } else {
