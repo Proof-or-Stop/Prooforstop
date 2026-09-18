@@ -29,6 +29,17 @@ The current repair addresses its four findings:
   historical hashes, object IDs and a missing tracked changelog.
 - The regression Git reader uses the existing identity verifier's 64 MiB buffer.
 
+Audit `6790fd09-510e-460b-9ad8-0894111adb29` confirmed the compaction gate and
+regressions, but its snapshot lacked the subsequently completed process-contract
+result. It also identified a misplaced existing registry comment. The comment is
+now immediately above its original owner-coverage entry. No registry declaration
+changed. The focused verifier additionally executes the actual parent wiring
+block and its actual `assert`/`fail` collectors in an isolated VM. A controlled
+child boundary verifies the executable, argv and 60-second budget; missing GREEN
+output, a thrown child failure and missing registration each collect exactly one
+failure, while the success control collects none. This avoids recursive child
+launches and preserves the real parent aggregation code rather than duplicating it.
+
 ## Developer-run observations
 
 These observations supplement the tool-owned local Lab RED/GREEN records.
@@ -43,11 +54,23 @@ These observations supplement the tool-owned local Lab RED/GREEN records.
   on both the stated main baseline and the repaired Lab. Their diagnostic sets
   contain the same 238 lines, with no added or removed diagnostic. This is a
   pre-existing repository-health failure, not a passing identity-suite claim.
-- The process-fact contract passed before the independent audit repair. Its
-  subsequent rerun stopped in the unchanged managed supersession fixture with
-  `supersession fixture provider must complete`; replaying that exact child
-  command reported `MANAGED_SUPERSESSION_PASS`. This is not a claim that the
-  complete contract passed on the final candidate.
+- After an earlier transient managed-supersession failure, the full command
+  `node scripts/verify-process-fact-contract.mjs --quiet` completed with exit 0 at
+  candidate `f2e0fed7787e005952434fcf3666c5e14b986384`. Its parent wiring is unchanged
+  by the second audit repair. The literal final output was:
+
+  ```text
+  Process fact contract verified
+  execution_assertion_reuse_contract=PASS
+  Process-fact contract verification passed
+  ```
+
+  The subsequent focused run exercises the added parent negative controls and
+  the real child/Git gate in one invocation: observed wall time 1.454 seconds,
+  against the parent's 60-second budget. Static-edge validation again reports
+  `U18_STATIC_PASS` with zero needs-review, nested or unexpanded commands. The
+  dependency binding now also includes the imported failure formatter and its
+  build-binding module; the formatter's build preparation function is not invoked.
 
 The history gate still binds the original frozen blob and the exact compact
 baseline. Missing Git content, failed ancestry, modified pointers, arbitrary

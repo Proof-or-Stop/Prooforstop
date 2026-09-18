@@ -2,7 +2,9 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { resolve } from 'node:path';
+import { join, resolve } from 'node:path';
+import { runInNewContext } from 'node:vm';
+import { verificationFailureMessage } from './verification-subprocess-budget.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const git = (...args) => execFileSync('git', args, { cwd: root, maxBuffer: 64 * 1024 * 1024 });
@@ -48,4 +50,34 @@ for (const changed of [{ ...row, byteSha256: '0'.repeat(64) }, { ...row, gitBlob
     'real gate must reject invalid historical byte or object bindings');
 }
 assert(verifyFrozenFiles(root, new Set([...tracked].filter(path => path !== 'CHANGELOG.md'))).some(error => error.includes('changelog-history') && error.includes('missing tracked path')));
+// Exercise the actual parent block and failure collector without recursively launching this child.
+const contract = readFileSync(join(root, 'scripts/verify-process-fact-contract.mjs'), 'utf8');
+const blockStart = contract.indexOf('assert(read(processFactRegistryPath).includes("name: \'runtime:changelog_history_compaction\'"),');
+const blockEnd = contract.indexOf('\nfunction parseDonePreflightPredicateInventory', blockStart);
+assert(blockStart >= 0 && blockEnd > blockStart, 'parent wiring block must be found');
+const collectors = ['fail', 'assert'].map(name => {
+  const match = contract.match(new RegExp(`function ${name}\\([^]*?\\n\\}`));
+  assert(match, `parent ${name} collector must be found`);
+  return match[0];
+}).join('\n');
+for (const scenario of ['pass', 'missing-marker', 'child-failure', 'missing-registration']) {
+  const failures = [];
+  let launches = 0;
+  runInNewContext(collectors + '\n' + contract.slice(blockStart, blockEnd), {
+    failures, root, join, process: { execPath: process.execPath }, verificationFailureMessage,
+    processFactRegistryPath: 'packages/main/src/core/process-fact-registry.ts',
+    read: path => scenario === 'missing-registration' ? '' : readFileSync(join(root, path), 'utf8'),
+    execFileSync: (executable, argv, options) => {
+      launches++;
+      assert.equal(executable, process.execPath);
+      assert.deepEqual(Array.from(argv), [join(root, 'scripts/verify-changelog-compaction.mjs')]);
+      assert.equal(options.timeout, 60000);
+      if (scenario === 'child-failure') throw Error('controlled child exit failure');
+      return scenario === 'missing-marker' ? 'child output without selector' : 'CHANGELOG_COMPACTION_GREEN';
+    },
+  });
+  assert.equal(launches, 1);
+  assert.equal(failures.length, scenario === 'pass' ? 0 : 1, `parent must collect ${scenario}`);
+  if (scenario === 'child-failure') assert.match(failures[0], /PROOF_ASSERTION_FAILED: changelog compaction/);
+}
 console.log('CHANGELOG_COMPACTION_GREEN retained Git bytes, compact baseline, prepend and tamper controls');
