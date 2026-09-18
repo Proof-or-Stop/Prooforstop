@@ -3,6 +3,7 @@ export {evaluatePersistedReviewToTestIndexTransition} from './review-test-index-
 import { isRefreshRetainableArtifactPath, isCurrentVerifiedEvidenceRefreshArtifact, createReviewRefreshReadCache, type ReviewRefreshReadCache } from './review-evidence-refresh.js';
 import { readReviewPromptBody } from './prompt-body-store.js';
 import { createHash } from 'crypto';
+import { observedGit, withGitTreeObservation } from './git-tree-observation.js';
 import { execFileSync } from 'child_process';
 import { existsSync, realpathSync } from 'fs';
 import { isAbsolute, relative, resolve } from 'node:path';
@@ -421,11 +422,12 @@ function isGitRepository(gitCwd: string): boolean {
   // the already-resolved signedWorkspaceRoot (authoritativeCwd), never a bare
   // metadataRoot. Pure rename, zero behavior change.
   try {
-    const result = execFileSync('git', ['rev-parse', '--is-inside-work-tree'], {
+    const args = ['rev-parse', '--is-inside-work-tree'];
+    const result = observedGit(gitCwd, args, () => execFileSync('git', args, {
       cwd: gitCwd,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
+    })).trim();
     return result === 'true';
   } catch {
     return false;
@@ -1838,6 +1840,18 @@ export function collectReviewerEvidenceState(
   storyId: string,
   projectRoot: string,
   options: ReviewerEvidenceCollectionOptions = {},
+): ReviewerEvidenceState {
+  // Each synchronous collection checks all lanes against one read-only Git
+  // observation. The next collection (including final commit validation) reads
+  // afresh; signatures, authority, freshness and verdicts are never cached.
+  return withGitTreeObservation(() => collectReviewerEvidenceStateObserved(store, storyId, projectRoot, options));
+}
+
+function collectReviewerEvidenceStateObserved(
+  store: StoryStore,
+  storyId: string,
+  projectRoot: string,
+  options: ReviewerEvidenceCollectionOptions,
 ): ReviewerEvidenceState {
   const refreshCache=createReviewRefreshReadCache();
   const story = store.readStory(storyId);
