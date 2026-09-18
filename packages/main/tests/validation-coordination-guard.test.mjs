@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, realpathSync, lstatSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, realpathSync, lstatSync, symlinkSync } from 'node:fs';
 import { tmpdir, hostname } from 'node:os';
 import { join, relative, resolve } from 'node:path';
 import { spawnSync, spawn, execFileSync } from 'node:child_process';
@@ -20,6 +20,8 @@ if (!process.argv.includes('--private-machine')) {
 }
 
 const root = realpathSync(mkdtempSync(join(tmpdir(), 'validation-coordination-guard-')));
+const roots = [root];
+const freshRoot = () => { const value = realpathSync(mkdtempSync(join(tmpdir(), 'validation-coordination-boundary-'))); roots.push(value); return value; };
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const options = { root, workspaceRoot: root, command: 'coordination-guard-regression', deadlineAt: Date.now() + 20000 };
 try {
@@ -65,5 +67,23 @@ try {
     rmSync(ticket, { recursive: true }); await waiting;
     assert.equal(entered, true);
   } finally { holder.kill('SIGTERM'); await new Promise(resolve => holder.once('close', resolve)); rmSync(ticket, { recursive: true, force: true }); }
-  console.log('VALIDATION_COORDINATION_GUARD_GREEN: real heartbeat accepted; material and runtime write-restore rejected; legacy ticket still serializes');
-} finally { rmSync(root, { recursive: true, force: true }); }
+  const blocked = freshRoot(); const blockedPath = validationCapacityLockPath(blocked);
+  mkdirSync(blockedPath, { recursive: true });
+  writeFileSync(join(blockedPath, 'unknown-owner'), 'preserve unknown coordination state');
+  await assert.rejects(withWorkspaceValidationCapacity({ ...options, root: blocked, workspaceRoot: blocked, deadlineAt: Date.now() + 120 }, () => {
+    assert.fail('a populated legacy directory cannot be bypassed');
+  }), /capacity wait deadline/);
+  assert.equal(lstatSync(blockedPath).isDirectory(), true);
+  assert.equal(readFileSync(join(blockedPath, 'unknown-owner'), 'utf8'), 'preserve unknown coordination state');
+  rmSync(join(blockedPath, 'unknown-owner'));
+  let active = 0; let peak = 0;
+  await Promise.all(Array.from({ length: 8 }, () => withWorkspaceValidationCapacity({ ...options, root: blocked, workspaceRoot: blocked }, async () => {
+    peak = Math.max(peak, ++active); await delay(10); active--;
+  })));
+  assert.equal(peak, 1, 'concurrent migration must retain one exclusive queue');
+  const foreign = freshRoot(); const foreignPath = validationCapacityLockPath(foreign);
+  mkdirSync(resolve(foreignPath, '..'), { recursive: true });
+  symlinkSync(realpathSync(legacy), foreignPath, 'dir');
+  await assert.rejects(withWorkspaceValidationCapacity({ ...options, root: foreign, workspaceRoot: foreign }, () => assert.fail('foreign alias admitted')), /unowned queue/);
+  console.log('VALIDATION_COORDINATION_GUARD_GREEN: real heartbeat accepted; material and runtime write-restore rejected; legacy ticket serializes; unknown state preserved; eight concurrent migrations serialize; foreign alias refused');
+} finally { for (const path of roots) rmSync(path, { recursive: true, force: true }); }

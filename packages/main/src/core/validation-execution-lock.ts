@@ -392,6 +392,34 @@ async function prepareWorkspaceValidationCoordination(options: ValidationCapacit
     }
   }
   mkdirSync(dirname(legacyPath), { recursive: true });
+  const validAlias = (): boolean => {
+    let stat;
+    try { stat = lstatSync(legacyPath); } catch (error: any) { if (error.code !== 'ENOENT') throw error; }
+    if (!stat?.isSymbolicLink()) return false;
+    if (realpathSync(legacyPath) !== realpathSync(target)) throw new Error('workspace validation coordination alias points at an unowned queue');
+    return true;
+  };
+  if (validAlias()) return;
+  const migrationPath = target + WORKSPACE_VALIDATION_COORDINATION_ARTIFACT.migrationLockSuffix;
+  let migration: AcquiredMkdirLock | undefined;
+  while (!migration) {
+    assertCapacityWaitActive(options);
+    if (validAlias()) return;
+    try {
+      migration = acquireMkdirLock(migrationPath, {
+        label: 'workspace coordination migration', deadlineMs: 1, pollMs: 1,
+        failFastIfHeld: true, heldMessage: 'WORKSPACE_COORDINATION_MIGRATION_BUSY',
+        classifyExistingLock: classifyValidationCapacityLock, requireHolderToken: true,
+        holderInfo: { lockId: randomUUID(), pid: process.pid, hostname: hostname(),
+          command: 'workspace coordination migration', acquiredAt: new Date().toISOString(), processStartTimeMs: currentProcessStartTimeMs() },
+      });
+    } catch (error: any) {
+      if (!existsSync(migrationPath) || (!error.message.includes('WORKSPACE_COORDINATION_MIGRATION_BUSY')
+        && !error.message.startsWith('workspace coordination migration lock timeout'))) throw error;
+      await waitForCapacityRetry(options, Math.max(10, options.pollMs ?? VALIDATION_CAPACITY_WAIT_POLL_MS));
+    }
+  }
+  try {
   const pruneEmptyQueue = (path: string): void => {
     // Reuse the existing owner classifier; age alone never reclaims a ticket.
     activeCapacityCandidates(path, '.choosing', options.staleMs ?? VALIDATION_EXECUTION_LOCK_STALE_MS);
@@ -402,7 +430,9 @@ async function prepareWorkspaceValidationCoordination(options: ValidationCapacit
     for (const name of readdirSync(workspaces)) {
       if (!/^[a-f0-9]{64}$/.test(name)) continue;
       const child = join(workspaces, name);
-      if (!lstatSync(child).isDirectory() || lstatSync(child).isSymbolicLink()) continue;
+      let stat;
+      try { stat = lstatSync(child); } catch (error: any) { if (error.code === 'ENOENT') continue; throw error; }
+      if (!stat.isDirectory() || stat.isSymbolicLink()) continue;
       activeCapacityCandidates(child, '.choosing', options.staleMs ?? VALIDATION_EXECUTION_LOCK_STALE_MS);
       activeCapacityCandidates(child, '.ticket', options.staleMs ?? VALIDATION_EXECUTION_LOCK_STALE_MS);
       try { rmdirSync(child); } catch (error: any) { if (!['ENOENT', 'ENOTEMPTY', 'EEXIST'].includes(error.code)) throw error; }
@@ -431,6 +461,7 @@ async function prepareWorkspaceValidationCoordination(options: ValidationCapacit
     catch (error: any) { if (error.code !== 'EEXIST') throw error; }
     // Verify the winner before the caller can publish any ticket.
   }
+  } finally { migration.release(); }
 }
 
 /**
