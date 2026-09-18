@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab dynamic-selection-cost - v0.3.411 - 2026-09-18
+
+- Enable `validate.dynamic.mode=enforce-low-risk`. The production handler now executes the selected subset for eligible low-risk inputs; signed evidence admission, catalog risk floors, mandatory full-only policy and fail-closed full fallback remain unchanged. The user requested local integration after reviewing the measured limitations.
+- Add a frozen, reproducible experiment: `node scripts/lab-dynamic-selection-cost.mjs`. Identical harness and contract digests produced target RED at `8274105adeb70c71486d4718f1fc723597206b57` and GREEN at `1b3cf3ad8778aefa371902deaba94dcff749f4b3`. The historical A/B/B/A sample reduced actual launches from six to two (66.7%), while mean wall time increased from 3.964 to 5.528 seconds (39.5%). Finish separately replays and records the prepared candidate; no latency improvement is claimed.
+- Preserve fault detection and evidence boundaries: both modes caught the same injected arithmetic defect; missing baseline, shared-risk inventory and unmapped source changes each triggered one full fallback. An unchanged signed PASS reused evidence without launching children in both modes, and missing signatures were refused. Frozen acceptance, selector pinning, atomic remediation with one proof for two Findings, and shared receipt publication are covered by existing regression controls. These bounded cases do not establish population error reduction or sequential-remediation speedup.
+- Disclose experiment limits in `docs/lab/dynamic-selection-cost/CONTRACT.md`: synthetic workloads and fixture-only OS-home queue isolation use real selector/executor/signing/consumer paths but synthetic causal/PRE_CERT prerequisites, not a full Story lifecycle. The inspected real catalog had 240 commands, 117 non-local risk rows and 65 full-only rows, so its existing full-catalog risk floor still forces conservative full execution. Real-repository savings remain unproven. Mechanical workloads made no model-service calls; development token costs were unavailable, not zero.
+- Preserve detailed evidence at `.git/lab-maintenance/dynamic-selection-cost-measurements/REPORT.md`, raw measurements in the same directory, and the signed local Lab record at `.git/lab-maintenance/dynamic-selection-cost.json`. Build, exact candidate replay, independent different-vendor audit and post-merge replay are required by finish. This local maintenance record does not claim formal Story DONE or independent product-release evidence. No remote push is requested.
+
+Maintenance provenance: codex/lab-dynamic-selection-cost, repair 41167c56239c58adbfa62afcdee95fc6128ac744.
+Verification command (replayed before integration and on main): `["node","scripts/lab-dynamic-selection-cost.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab changelog-compact-history - v0.3.410 - 2026-09-18
 
 - Compact legacy CHANGELOG entries, preserving newer releases and a Git link to the complete earlier history.
