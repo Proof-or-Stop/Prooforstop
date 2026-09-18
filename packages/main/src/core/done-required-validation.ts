@@ -775,7 +775,14 @@ export function validateSelfHostBuildProof(
  * exist but cannot be write-protected, every non-build receipt would be refused
  * by validateReceiptBuildBinding after the run anyway. Deciding that here means
  * an unsupported host learns why in seconds, with the remedy, instead of after
- * the whole suite, and nothing is executed whose evidence could not count. A
+ * the whole suite, and nothing is executed whose evidence could not count.
+ *
+ * Only the commands that would run under THIS resolution are judged: the
+ * non-build commands before the first registered build. A registered build may
+ * repair the very topology that made the resolution unenforced (a missing
+ * artifact tree that bwrap could not bind), and the writer re-resolves the
+ * protection after it; the commands that follow are decided then, by the
+ * same rule, and refused there if enforcement is still unavailable. A
  * `not-applicable` host (no artifact trees, nothing to protect) and a policy
  * made only of registered builds are not refused.
  */
@@ -786,11 +793,12 @@ export function doneRequiredProtectionRefusal(
   artifactsRoot: string = projectRoot,
 ): string | undefined {
   if (artifactProtectionSatisfied(protectionLabel)) return undefined;
-  const unprotected = commands.filter((command) => !(
-    command.providesBuildProof === PACKAGES_MAIN_BUILD_PROOF
+  const isBuild = (command: DoneRequiredCommand): boolean => command.providesBuildProof === PACKAGES_MAIN_BUILD_PROOF
     || command.proof === PACKAGES_MAIN_BUILD_PROOF
-    || isRegisteredPackagesMainBuildCommand(command, projectRoot, artifactsRoot)
-  ));
+    || isRegisteredPackagesMainBuildCommand(command, projectRoot, artifactsRoot);
+  const firstBuild = commands.findIndex(isBuild);
+  const exposed = firstBuild < 0 ? commands : commands.slice(0, firstBuild);
+  const unprotected = exposed.filter((command) => !isBuild(command));
   if (unprotected.length === 0) return undefined;
   const labels = unprotected.map((command) => command.label).join(', ');
   return `build-artifacts-protection-unavailable: ${protectionLabel}; ${unprotected.length} non-build DONE-required command(s) (${labels}) would run without enforced artifact write protection and their receipts would be refused, so nothing was executed. Provide a write-protection mechanism for this host (macOS: /usr/bin/sandbox-exec; Linux: bwrap on PATH) or remove the compiled artifact trees (${BUILD_ARTIFACT_ROOTS.join(', ')}) if this project does not execute them.`;

@@ -544,10 +544,19 @@ try {
     // that the writer consults it ahead of the command loop.
     if (typeof doneRequiredProtectionRefusal === 'function') {
       const unenforcedLabel = 'unenforced:no artifact write-protection mechanism is implemented for platform win32';
-      const refused = doneRequiredProtectionRefusal(unenforcedLabel, REGISTERED_REBUILD_COMMANDS, h.root);
+      // Only the commands that would run under THIS resolution are judged: a
+      // non-build command BEFORE the first registered build is refused up
+      // front; one AFTER it is decided after the build re-resolves protection
+      // (the build may create the very tree that made the host unenforced).
+      const refused = doneRequiredProtectionRefusal(unenforcedLabel, [...REGISTERED_REBUILD_COMMANDS].reverse(), h.root);
       expectRepaired(typeof refused === 'string' && refused.startsWith('build-artifacts-protection-unavailable:') && refused.includes(unenforcedLabel) && refused.includes('(pass)') && refused.includes('nothing was executed'),
-        `an unenforced host with a non-build DONE-required command was not refused up front (${refused})`);
+        `an unenforced host with a non-build DONE-required command before any build was not refused up front (${refused})`);
+      expectRepaired(doneRequiredProtectionRefusal(unenforcedLabel, REGISTERED_REBUILD_COMMANDS, h.root) === undefined,
+        'a non-build command that follows the registered build was refused before the build could repair the artifact topology');
       check(doneRequiredProtectionRefusal(unenforcedLabel, [REGISTERED_REBUILD_COMMANDS[0]], h.root) === undefined, 'control: a policy made only of registered builds needs no protection');
+      // Linux: the namespace must not expose the host mount namespace through
+      // /proc/<host-pid>/root (or cwd, fd) aliases: PID isolation + private /proc.
+      expectRepaired(readFileSync(join(repoRoot, 'packages/main/src/core/build-artifacts-protection.ts'), 'utf8').includes("'--unshare-pid', '--proc', '/proc'"), 'the bwrap wrapper exposes the host /proc (source-text guard)');
       check(doneRequiredProtectionRefusal('enforced:sandbox-exec', REGISTERED_REBUILD_COMMANDS, h.root) === undefined, 'control: an enforced host is not refused');
       check(doneRequiredProtectionRefusal('not-applicable:no-artifact-trees', REGISTERED_REBUILD_COMMANDS, h.root) === undefined, 'control: a host with no artifact trees is not refused');
       const doneRequiredWriterSource = readFileSync(join(repoRoot, 'packages/main/src/core/done-required-validation.ts'), 'utf8');

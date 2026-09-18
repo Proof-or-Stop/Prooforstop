@@ -129,9 +129,12 @@ function bwrapMechanism(existingRoots: string[], allRoots: string[]): Mechanism 
   if (absent.length > 0) return `bwrap cannot protect the absent artifact root(s) ${absent.join(', ')}; every configured root must exist (a build creates them) before evidence can be authoritative`;
   // The whole filesystem stays visible and writable as on the host; only the
   // artifact trees are re-bound read-only over themselves, for the command and
-  // everything it spawns inside the namespace.
+  // everything it spawns inside the namespace. The namespace gets its own PID
+  // space and a private /proc: with the host's /proc visible, a same-user
+  // process's /proc/<pid>/root (or cwd, or fd) is an alias into the host mount
+  // namespace, where the trees are still writable underneath the bind.
   const binds = existingRoots.flatMap((root) => ['--ro-bind', root, root]);
-  const prefix = ['--dev-bind', '/', '/', ...binds, '--die-with-parent', '--'];
+  const prefix = ['--dev-bind', '/', '/', '--unshare-pid', '--proc', '/proc', ...binds, '--die-with-parent', '--'];
   return {
     name: 'bwrap',
     wrap: (launch) => (launch.shell
