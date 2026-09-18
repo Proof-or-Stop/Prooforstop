@@ -1,5 +1,16 @@
 # Changelog
 
+## Lab inventory-guard-fixture - v0.3.418 - 2026-09-18
+
+- Replace the historical caller-main-to-HEAD audit in the validation execution-lock smoke with a repeatable owned Git fixture, seeded from the current real configuration, package scripts and timeout sources. The group now tests the guard against owned mutations; it is not an audit of arbitrary caller branch changes. Actual Story scope and review remain separate requirements.
+- Preserve the zero-diff and original timeout assertions inside the fixture checker. Reject working-tree and committed command, timeout, budget, configuration-presence, package-script and runner-source mutations; restored fixture baselines must pass. The caller workspace remains untouched.
+- Add an actual-source regression that first fails on the old implementation with a legitimate feature-branch configuration addition, then passes the same test with the isolated mutation fixture. Official Lab RED and GREEN are recorded. Existing source bindings are refreshed only for unchanged excerpts in the changed test source; unrelated baseline records are preserved.
+- This is test-harness maintenance. Production validation behavior, budgets and Story acceptance requirements are unchanged; the full native execution-lock replay and formal B-e6d9 evidence remain separate pending validation.
+
+Maintenance provenance: codex/lab-inventory-guard-fixture, repair c43f564b10e2eb4075e0578bcdcde65dd5b977f9.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/protected-inventory-fixture.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab causal-fixture-compat - v0.3.417 - 2026-09-18
 
 - Restore causal receipt tests against current output-storage and bounded persistence-retry contracts without changing production authority.
