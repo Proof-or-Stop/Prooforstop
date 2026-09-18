@@ -1,0 +1,38 @@
+# Complete validation capacity fixture repair
+
+The retained `validation-audit-20260918` Lab reproduced the complete supplemental
+capacity suite twice at `b9e182c703`: its completed checklist item had no acceptance
+intent or executable receipt. This suite is separate from the 73-check coordination
+suite used by audit target #50. It is not a registered validation command.
+
+The repair gives the original completed checklist item a closed dependency manifest
+and real CLI-executed acceptance receipt. Native review producers prepare an
+unconsumed certification admission before each actual full validation consumer.
+Producer and consumer use the public bootstrap consistently; the publication lock
+observer is installed before receipt preparation so its runtime identity stays
+stable. REVIEW-to-TEST consumes an actual routine PASS and proves no extra command
+is run. No gate or production timeout is relaxed.
+
+Filesystem fault fixtures now initialize the coordination alias before simulating
+an unpublished writer and restore the required private 0700 permissions after
+simulated release faults. Unknown populated legacy directories must still block
+migration. Callback failures retain their original identity; released tickets must
+be reclaimed without affecting a live owner.
+
+The caller inventory check freezes the committed input to this suite, allowing the
+preceding explicit Lab repairs. Its default main merge-base comparison remains
+available. Both modes retain working and committed mutation controls. Real Git
+output includes a newline, so revision consumers trim it; the regression no longer
+silently normalizes the Git helper output and masks this defect.
+
+The retired-race check exercises actual focused validation twice. Current CLI
+parsing ignores the unsupported legacy flag; a missing-prerequisite refusal was
+never evidence of flag rejection. The check now proves the legacy flag and inherited
+environment cannot create a ready/hold file while real probes execute.
+
+Acceptance requires the unchanged default entrypoint to complete all 30 groups,
+the verified original 26-group subset and the production regressions. Diagnostic
+loaders used to collect failures are outside the checkout and are not used for
+Lab GREEN. Full RED/GREEN logs and commit bindings are retained under the common
+Git directory's `lab-evidence-archives/validation-audit-20260918/remaining-performance-20260918`.
+These records are local maintenance evidence, not formal Story DONE or release.

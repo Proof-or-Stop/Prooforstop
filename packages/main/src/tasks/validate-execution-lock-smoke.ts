@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import {createNativeLockFixture,lockFixtureCli,assertNativeLockFixture,NATIVE_FIXTURE_CLI_TIMEOUT_MS,allocateNativeLockRoot,cleanupNativeLockRoots,releaseNativeLockRoot} from './native-lock-fixture.js';
+import {createNativeLockFixture,prepareNativeLockFixtureStory,lockFixtureCli,assertNativeLockFixture,NATIVE_FIXTURE_CLI_TIMEOUT_MS,allocateNativeLockRoot,cleanupNativeLockRoots,releaseNativeLockRoot} from './native-lock-fixture.js';
 import {sanitizedFixtureChildEnvironment} from './fixture-environment.js';
 import {runBrokeredNativeReviewCli,withBrokeredNativeDeliveryInvocation,nativeReviewFixtureHostEnvironment} from './native-review-fixture.js';
 
@@ -16,8 +16,8 @@ import {runBrokeredNativeReviewCli,withBrokeredNativeDeliveryInvocation,nativeRe
  *  - different story worktrees: validates can still run at the same time;
  *  - reviewer and delivery metadata writes refuse explicitly during validation,
  *    then persist on retry without another validation execution;
- *  - story_advance REVIEW→TEST can run its internal validate gate without
- *    self-deadlocking;
+ *  - story_advance REVIEW→TEST consumes current routine evidence without
+ *    self-deadlocking or launching another suite;
  *  - done_required_validate shares the same story execution lock with validate;
  *  - stale locks are reclaimed, vanished or mismatched holders are stale, and
  *    same async-context nesting is reentrant without letting a concurrent async
@@ -42,7 +42,7 @@ import {
 } from 'node:fs';
 import { hostname, tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 import {
@@ -63,6 +63,9 @@ import { CONFIG_FILENAMES, PROOF_OR_STOP_CONFIG_FILENAME } from '../core/brand-p
 import { PROOF_OR_STOP_ACTIVITY_LOG, PROOF_OR_STOP_DIR, PROOF_OR_STOP_STORY_DIR } from '../core/proof-or-stop-paths.js';
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { createVerifierHandlers as unownedcreateVerifierHandlers } from '../handlers/verifier.js';
+import {buildVerificationReuseCapsuleInvocation} from '../core/verification-reuse-capsule.js';
+import { validateVerificationReceipt } from '../core/verification-execution-evidence.js';
+import {nativeReviewFixtureBrokers} from './native-review-fixture.js';
 import { createVerdictHandlers } from '../handlers/verdict.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { assessStoredValidationPassAdmissibility } from '../handlers/phase-gates.js';
@@ -72,6 +75,9 @@ const DEFAULT_STORY_ID = 'B-validate-lock';
 const NOW = '2026-06-24T00:00:00.000Z';
 // Startup observation includes real admission checks; probe/production deadlines are unchanged.
 const NATIVE_ENTRY_WAIT_MS = 12000;
+// Freeze the committed caller before any fixture runs; approved earlier Lab
+// repairs are the input, while changes during this suite remain forbidden.
+const capacitySuiteBaselineHead = git(repoRoot(), ['rev-parse', 'HEAD']).trim();
 
 type ChildResult = {
   timedOut: boolean;
@@ -88,6 +94,7 @@ type SpawnedChild = {
 };
 
 type FixtureOptions = {
+  root?: string;
   storyId?: string;
   phase?: StoryInfo['phase'];
   priority?: StoryInfo['priority'];
@@ -160,6 +167,7 @@ function checklist(): ChecklistData {
       status: 'done',
       startTime: NOW,
       endTime: NOW,
+      verificationIntent: {happy:[{id:'LOCK-SUBJECT',desc:'Read the complete declared disposable lock subject and observe its exact exported value.',type:'cli',priority:'must'}],edge:[],adversarial:[]},
     }],
   };
 }
@@ -320,9 +328,10 @@ function assertBusyRefusal(error: unknown): boolean {
   return true;
 }
 
-function setupFixture(options: FixtureOptions = {}): { root: string; storyId: string } {
+async function setupFixture(options: FixtureOptions = {}): Promise<{ root: string; storyId: string }> {
   const storyId = options.storyId ?? DEFAULT_STORY_ID;
-  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-lock-'));
+  const root = options.root ?? allocateNativeLockRoot();
+  assertNativeLockFixture(root);
   legacyFixtureRoots.add(root);
   write(root, '.gitignore', [
     'entered.log',
@@ -336,13 +345,16 @@ function setupFixture(options: FixtureOptions = {}): { root: string; storyId: st
     command: process.execPath,
     args: ['validate-probe.mjs'],
     timeoutMs: 10000,
+    focus: ['fast','lock'],
+    resources: [{class:'fixed-path',key:'.',access:'exclusive'}],
   };
   write(root, PROOF_OR_STOP_CONFIG_FILENAME, JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: PROOF_OR_STOP_STORY_DIR,
     requirementsDir: 'docs/requirements',
-    ...(options.workflowProfile ? { workflow: { profile: options.workflowProfile } } : {}),
+    workflow: { profile: options.workflowProfile ?? 'light' },
+    nativeReviewInvocation: {brokers:nativeReviewFixtureBrokers()},
     validate: { commands: [validateCommand] },
     ...(options.doneRequired ? { doneRequiredCommands: [validateCommand] } : {}),
   }, null, 2) + '\n');
@@ -360,16 +372,40 @@ console.log('probe ' + label + ' passed');
   write(root, 'package.json', JSON.stringify({ scripts: { test: 'node bare-test-probe.mjs' } }, null, 2) + '\n');
   write(root, 'bare-test-probe.mjs', "import{appendFileSync}from'node:fs';appendFileSync('bare-entered.log','bare npm test\\n');console.log('bare npm test passed');\n");
   write(root, 'packages/main/src/index.ts', 'export const validateLockSmoke = true;\n');
+  write(root, 'packages/main/package.json', JSON.stringify({name:'@proof-or-stop/core',version:'0.0.0-smoke',type:'module'}));
+  write(root, 'lock-subject.verification-dependencies.json', JSON.stringify({schemaVersion:'proof-or-stop.verifier-dependency-manifest.v2',capsuleProfile:'proof-or-stop.verification-reuse-capsule.v1',files:['packages/main/src/index.ts']}));
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   commitAll(root, 'seed validate lock fixture');
 
   const store = new StoryStore(root);
-  store.writeStory(storyId, story(storyId, options.phase ?? 'TEST', options.priority ?? 'high'));
+  store.writeStory(storyId, story(storyId, 'REVIEW', options.priority ?? 'high'));
   store.writeChecklist(storyId, checklist());
   commitAll(root, 'seed story metadata');
-
+  await prepareLegacyAcceptance(root,storyId);
+  if (!options.doneRequired) {
+    release(root);
+    // Queue tests must own an unconsumed admission; the transition control
+    // explicitly requests preparation-time routine evidence.
+    await prepareNativeLockFixtureStory(root,storyId,'REVIEW',options.phase==='REVIEW');
+  }
   return { root, storyId };
+}
+
+async function prepareLegacyAcceptance(root:string,storyId:string):Promise<void> {
+ const store=new StoryStore(root);
+ const file='lock-subject.verification-dependencies.json';
+ const command=buildVerificationReuseCapsuleInvocation({cwd:root,manifestPath:file,files:['packages/main/src/index.ts']}).command;
+ const selector='export const validateLockSmoke = true;';
+ lockFixtureCli(root,storyId,'verification_evidence_add',{
+  storyId,itemId:'CHK-001',intentRef:'LOCK-SUBJECT',kind:'integration_test',command,selector,file,
+  note:'Execute and authenticate the disposable subject prerequisite before testing lock behavior.'});
+ const evidence=store.readChecklist(storyId).items[0].verificationEvidence?.find(row=>row.intentRef==='LOCK-SUBJECT');
+ assert(evidence?.receipt,'fixture acceptance requires a genuine execution receipt');
+ const validated=validateVerificationReceipt(root,evidence.receipt,{storyId,intentRef:'LOCK-SUBJECT',command,selector});
+ assert.equal(validated.ok,true,validated.errors.join('; '));
+ assert.ok(validated.output?.includes(selector));
+ commitAll(root,'record tool-executed lock fixture acceptance');
 }
 
 function release(root: string): void {
@@ -377,106 +413,74 @@ function release(root: string): void {
 }
 
 async function assertWorkspaceWaitAndRun(): Promise<void> {
-  const { root, storyId } = setupFixture({ storyId: 'B-capacity-a' });
+  const { root, storyId } = await setupFixture({ storyId: 'B-capacity-a' });
   const secondStoryId = 'B-capacity-b';
   const store = new StoryStore(root);
-  store.writeStory(secondStoryId, story(secondStoryId));
+  store.writeStory(secondStoryId, story(secondStoryId,'REVIEW'));
   store.writeChecklist(secondStoryId, checklist());
   commitAll(root, 'seed second story metadata');
-  const originalCwd = process.cwd();
+  await prepareLegacyAcceptance(root,secondStoryId);
+  release(root);
+  await prepareNativeLockFixtureStory(root,secondStoryId,'REVIEW',false);
+  let first:SpawnedChild|undefined,second:SpawnedChild|undefined;
   try {
-    process.chdir(root);
-    process.env.PROOF_OR_STOP_VALIDATE_LOCK_SMOKE_LABEL = 'first';
-    const firstLog: string[] = [];
-    const firstHandlers = createVerifierHandlers({
-      root, scanRoot: join(root, 'packages/main'), store,
-      log: (message) => firstLog.push(message),
-    });
-    const first = firstHandlers.validate({ story: storyId, json: true, noSync: true }) as Promise<string>;
-    const firstEntered = await waitForEntered(root, 1, 4000);
-    if (!firstEntered) {
-      release(root);
-      const firstResult = await first;
-      assert.fail([
-        'precondition: first validate command entered the probe',
-        `firstOutput=${firstResult.slice(0, 2000)}`,
-      ].join('\n'));
-    }
-
-    process.env.PROOF_OR_STOP_VALIDATE_LOCK_SMOKE_LABEL = 'second';
-    const secondLog: string[] = [];
-    const secondHandlers = createVerifierHandlers({
-      root, scanRoot: join(root, 'packages/main'), store,
-      log: (message) => secondLog.push(message),
-    });
-    const second = secondHandlers.validate({ story: secondStoryId, json: true, noSync: true }) as Promise<string>;
-    const secondEnteredBeforeRelease = await waitForEntered(root, 2, 1500);
-    assert.equal(secondEnteredBeforeRelease, false, 'second story must wait outside its validation callback');
-    assert.match(secondLog.join('\n'), /waiting for workspace validation capacity/);
-    assert.match(secondLog.join('\n'), /validate for B-capacity-a/);
-    assert.match(secondLog.join('\n'), /heartbeat/);
-
+    first=spawnValidate(root,storyId,'first');
+    assert.equal(await waitForEntered(root,1,NATIVE_ENTRY_WAIT_MS),true,'first actual CLI must enter: '+first.output());
+    second=spawnValidate(root,secondStoryId,'second');
+    assert.equal(await waitForEntered(root,2,1500),false,'second Story must wait outside its validation callback');
+    assert.match(second.stderr(),/waiting for workspace validation capacity/);
+    assert.match(second.stderr(),/validate for B-capacity-a/);
+    assert.match(second.stderr(),/heartbeat/);
     release(root);
-    const [firstRaw, secondRaw] = await Promise.all([first, second]);
-    const firstResult = JSON.parse(firstRaw) as { status?: string };
-    const secondResult = JSON.parse(secondRaw) as { status?: string };
-
-    assert.equal(firstResult.status, 'pass', firstRaw);
-    assert.equal(secondResult.status, 'pass', secondRaw);
-    assert.equal(enteredCount(root), 2, 'queued story must run automatically after the holder releases');
-    const evidenceStore = new StoryStore(root);
-    const firstEvidence = evidenceStore.readTestEvidence(storyId);
-    const secondEvidence = evidenceStore.readTestEvidence(secondStoryId);
-    assert.equal(firstEvidence?.result, 'PASS', `first evidence=${JSON.stringify(firstEvidence)}`);
-    assert.equal(secondEvidence?.result, 'PASS', `second evidence=${JSON.stringify(secondEvidence)}`);
+    const outcomes=await Promise.all([waitChild(first,12000),waitChild(second,12000)]);
+    for(const result of outcomes){assert.equal(result.timedOut,false);assert.equal(result.code,0,result.output);}
+    for(const proc of [first,second])assert.equal(JSON.parse(proc.stdout()).status,'pass',proc.output());
+    assert.equal(enteredCount(root),2,'queued Story must run automatically after the holder releases');
+    assert.equal(store.readTestEvidence(storyId)?.result,'PASS');
+    assert.equal(store.readTestEvidence(secondStoryId)?.result,'PASS');
   } finally {
-    delete process.env.PROOF_OR_STOP_VALIDATE_LOCK_SMOKE_LABEL;
-    process.chdir(originalCwd);
-    rmSync(root, { recursive: true, force: true });
+    release(root);
+    for(const proc of [first,second])if(proc&&proc.child.exitCode===null)await waitChild(proc,12000);
+    releaseNativeLockRoot(root);
   }
 }
 
 async function assertPostCommandPersistenceHoldsLock(): Promise<void> {
-  const { root, storyId } = setupFixture({ storyId: 'B-validate-evidence-race' });
-  const originalCwd = process.cwd();
+  const root=allocateNativeLockRoot(),storyId='B-validate-evidence-race';
+  const previousNodeOptions=process.env.NODE_OPTIONS;
+  const observer=mkdtempSync(join(tmpdir(),'lock-persistence-observer-'));
+  const observed=join(observer,'observed'),hook=join(observer,'hook.mjs');
   try {
-    // Exercise the real verifier handler and instrument only its fixed StoryStore
-    // capability. The callback cannot select a path, command, argv, cwd, or shell.
-    writeFileSync(join(root, 'release'), 'allow configured command to finish\n', 'utf8');
-    const targetStore = new StoryStore(root);
-    let persistenceObserved = false;
-    const instrumentedStore = new Proxy(targetStore, {
-      get(target, property) {
-        if (property === 'writeTestEvidence') {
-          return (...args: Parameters<StoryStore['writeTestEvidence']>) => {
-            assert.equal(enteredCount(root), 1, 'real configured command must finish before evidence persistence');
-            assert.equal(existsSync(validationExecutionLockPath(root, storyId)), true,
-              'real verifier evidence persistence must remain inside the story validation lock');
-            assert.equal(capacityTicketPaths(root).length, 1,
-              'real verifier evidence persistence must remain inside workspace capacity');
-            persistenceObserved = true;
-            return target.writeTestEvidence(...args);
-          };
-        }
-        const value = Reflect.get(target, property, target);
-        return typeof value === 'function' ? value.bind(target) : value;
-      },
-    });
-    process.chdir(root);
-    const handlers = createVerifierHandlers({ root, scanRoot: join(root, 'packages/main'), store: instrumentedStore });
-    const raw = await handlers.validate({ story: storyId, json: true, noSync: true });
-    const result = JSON.parse(raw) as { status?: string; commandExecutions?: number };
-    assert.equal(result.status, 'pass');
-    assert.equal(result.commandExecutions, 1);
-    assert.equal(persistenceObserved, true, 'real verifier must call the instrumented evidence writer');
-    assert.equal(existsSync(validationExecutionLockPath(root, storyId)), false,
-      'validation lock releases only after the real handler returns');
-    assert.equal(capacityTicketPaths(root).length, 0,
-      'workspace capacity releases only after the real handler returns');
-    assert.ok(targetStore.readTestEvidence(storyId), 'real verifier persists story evidence');
+    // Observe the actual CLI's real publication call. The preload may only
+    // assert its owned fixture locks and record that the observation happened.
+    writeFileSync(hook,`import assert from 'node:assert/strict';import{existsSync,readdirSync,readFileSync,writeFileSync}from'node:fs';
+import{StoryStore}from ${JSON.stringify(pathToFileURL(join(repoRoot(),'packages/main/dist/core/store.js')).href)};
+import{validationExecutionLockPath,validationCapacityLockPath}from ${JSON.stringify(pathToFileURL(join(repoRoot(),'packages/main/dist/core/validation-execution-lock.js')).href)};
+const root=${JSON.stringify(root)},storyId=${JSON.stringify(storyId)},original=StoryStore.prototype.writePreparedTestEvidence;
+StoryStore.prototype.writePreparedTestEvidence=function(id,...args){
+ if(this.projectRoot===root&&id===storyId){
+  assert.equal(readFileSync(root+'/entered.log','utf8').trim().split('\\n').length,1);
+  assert(existsSync(validationExecutionLockPath(root,id)),'publication must hold its Story lock');
+  assert.equal(readdirSync(validationCapacityLockPath(root)).filter(name=>name.endsWith('.ticket')).length,1,'publication must hold workspace capacity');
+  writeFileSync(${JSON.stringify(observed)},'actual publication observed');
+ }
+ return Reflect.apply(original,this,[id,...args]);
+};`);
+    // Receipt producers and the consumer must share the same observed runtime.
+    process.env.NODE_OPTIONS=[previousNodeOptions??'','--import='+JSON.stringify(hook)].join(' ');
+    await setupFixture({root,storyId});
+    release(root);
+    const proc=spawnValidate(root,storyId,'persistence-observer');
+    const result=await waitChild(proc,12000);
+    assert.equal(result.timedOut,false);assert.equal(result.code,0,result.output);
+    const parsed=JSON.parse(proc.stdout());assert.equal(parsed.status,'pass');assert.equal(parsed.commandExecutions,1);
+    assert(existsSync(observed),'real CLI must call its instrumented publication writer');
+    assert.equal(existsSync(validationExecutionLockPath(root,storyId)),false);
+    assert.equal(capacityTicketPaths(root).length,0);
+    assert.equal(new StoryStore(root).readTestEvidence(storyId)?.result,'PASS');
   } finally {
-    process.chdir(originalCwd);
-    rmSync(root, { recursive: true, force: true });
+    if(previousNodeOptions===undefined)delete process.env.NODE_OPTIONS;else process.env.NODE_OPTIONS=previousNodeOptions;
+    releaseNativeLockRoot(root);rmSync(observer,{recursive:true,force:true});
   }
 }
 
@@ -494,22 +498,25 @@ async function assertRetiredRaceSeamIsProductionUnreachable(): Promise<void> {
   assert.equal(Object.keys(validateSchema).some(key => /SMOKE|TEST.*(?:FILE|COMMAND|HOLD|READY)/i.test(key)), false,
     'public validate schema exposes no race capability');
 
-  const { root, storyId } = setupFixture({ storyId: 'B-retired-seam-unreachable' });
+  const { root, storyId } = await setupFixture({ storyId: 'B-retired-seam-unreachable' });
   const trapReady = join(root, 'caller-selected.ready');
   const trapHold = join(root, 'caller-selected.hold');
   try {
+    release(root);
     const unknownFlag = spawnCommand(root, [
       'validate',
       `--story=${storyId}`,
-      '--json',
+      '--json', '--focus=lock',
       `--PROOF_OR_STOP_VALIDATE_LOCK_SMOKE_POST_COMMAND_READY_FILE=${trapReady}`,
     ], 'unknown-race-flag');
-    const rejected = await waitChild(unknownFlag, 5000);
-    assertOrdinaryRefusal(rejected);
+    const unsupported = await waitChild(unknownFlag, 12000);
+    assert.equal(unsupported.timedOut, false);
+    assert.equal(unsupported.code, 0, unsupported.output);
+    assert.equal(JSON.parse(unknownFlag.stdout()).status, 'pass', 'the ignored legacy flag cannot prevent actual focused validation');
     assert.equal(existsSync(trapReady), false, 'unknown flag must not create caller-selected ready path');
 
     release(root);
-    const inherited = spawnValidate(root, storyId, 'retired-env-control', {
+    const inherited = spawnCommand(root, ['validate', `--story=${storyId}`, '--focus=lock', '--json'], 'retired-env-control', {
       PROOF_OR_STOP_VALIDATE_LOCK_SMOKE_POST_COMMAND_HOLD_FILE: trapHold,
       PROOF_OR_STOP_VALIDATE_LOCK_SMOKE_POST_COMMAND_READY_FILE: trapReady,
       PROOF_OR_STOP_VALIDATE_LOCK_SMOKE_POST_COMMAND_TIMEOUT_MS: '1',
@@ -518,14 +525,15 @@ async function assertRetiredRaceSeamIsProductionUnreachable(): Promise<void> {
     assert.equal(result.code, 0, result.output);
     assert.equal(existsSync(trapReady), false, 'inherited environment cannot create caller-selected ready path');
     assert.equal(existsSync(trapHold), false, 'inherited environment cannot create caller-selected hold path');
+    assert.equal(enteredCount(root), 2, 'both legacy flag and environment controls must execute the actual probe');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
 }
 
 async function assertDifferentWorktreesCanValidateConcurrently(): Promise<void> {
-  const firstFixture = setupFixture({ storyId: 'B-validate-a' });
-  const secondFixture = setupFixture({ storyId: 'B-validate-b' });
+  const firstFixture = await setupFixture({ storyId: 'B-validate-a' });
+  const secondFixture = await setupFixture({ storyId: 'B-validate-b' });
   try {
     const first = spawnValidate(firstFixture.root, firstFixture.storyId, 'parallel-a');
     const second = spawnValidate(secondFixture.root, secondFixture.storyId, 'parallel-b');
@@ -655,40 +663,21 @@ async function assertDeliveryCheckCoordinatesWithValidation(): Promise<void> {
   }
 }
 
-async function assertStoryAdvanceInternalValidateDoesNotSelfLock(): Promise<void> {
-  const { root, storyId } = setupFixture({
-    storyId: 'B-advance-validate',
-    phase: 'REVIEW',
-    priority: 'medium',
-    workflowProfile: 'light',
+async function assertStoryAdvanceConsumesRoutineWithoutSelfLock(): Promise<void> {
+  const { root, storyId } = await setupFixture({
+    storyId: 'B-advance-validate', phase: 'REVIEW', priority: 'medium', workflowProfile: 'light',
   });
   try {
-    const advance = spawnCommand(root, [
-      'story_advance',
-      JSON.stringify({ storyId, phase: 'TEST' }),
-    ], 'story-advance-test');
-
-    const internalValidateEntered = await waitForEntered(root, 1, 4000);
-    if (!internalValidateEntered) {
-      release(root);
-      const earlyResult = await waitChild(advance, 4000);
-      assert.fail([
-        'story_advance did not enter its internal validate command',
-        `exit=${earlyResult.code}`,
-        `output=${earlyResult.output.slice(0, 2000)}`,
-      ].join('\n'));
-    }
-
-    release(root);
+    const store = new StoryStore(root), before=store.readTestEvidence(storyId);
+    assert.equal(before?.result,'PASS','the transition requires real current routine evidence');
+    const advance = spawnCommand(root, ['story_advance', JSON.stringify({storyId,phase:'TEST'})], 'story-advance-test');
     const result = await waitChild(advance, 12000);
+    assert.equal(result.timedOut,false,'the actual transition must complete without self-locking');
     assert.equal(result.code, 0, result.output);
-
-    const store = new StoryStore(root);
     assert.equal(store.readStory(storyId).phase, 'TEST', 'story_advance should persist TEST phase');
-    assert.equal(store.readTestEvidence(storyId)?.result, 'PASS', 'story_advance internal validate should write PASS test evidence');
-  } finally {
-    rmSync(root, { recursive: true, force: true });
-  }
+    assert.equal(enteredCount(root),0,'REVIEW to TEST consumes the prepared routine PASS without executing another suite');
+    assert.deepEqual(store.readTestEvidence(storyId),before,'the transition preserves the actual routine evidence');
+  } finally {rmSync(root,{recursive:true,force:true});}
 }
 
 async function assertQueuedDonePolicyDriftRefuses(): Promise<void> {
@@ -725,7 +714,7 @@ async function assertQueuedDonePolicyDriftRefuses(): Promise<void> {
 }
 
 async function assertUnadmittedDoneRequiredNeverExecutes(): Promise<void> {
-  const { root, storyId } = setupFixture({ storyId: 'B-required-unadmitted', doneRequired: true });
+  const { root, storyId } = await setupFixture({ storyId: 'B-required-unadmitted', doneRequired: true });
   new StoryStore(root).writeChecklist(storyId,{items:[]});
   commitAll(root,'isolate unadmitted certification without unrelated acceptance obligations');
   try {
@@ -1236,6 +1225,9 @@ await withWorkspaceValidationCapacity({ root: ${JSON.stringify(root)}, workspace
 
 async function assertKilledBeforeCapacityPublicationDoesNotBlock(): Promise<void> {
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-capacity-killed-before-publish-'));
+  // Real writers prepare the coordination alias before publishing private
+  // preparation paths. A raw legacy directory is a separate migration case.
+  await withWorkspaceValidationCapacity({root,workspaceRoot:root,command:'prepare-prepublication-fixture'},()=>undefined);
   const lockRoot = validationCapacityLockPath(root);
   const ready = join(root, 'preparing-ready');
   const helper = join(root, 'capacity-preparing-owner.mjs');
@@ -1267,6 +1259,13 @@ await new Promise(() => { setInterval(() => {}, 1000); });
       'a killed process before atomic publication must not leave a queue-visible ownerless choosing entry');
     assert.equal(existsSync(abandonedPreparation), true,
       'the simulation must retain the private killed preparation while the successor acquires');
+    const legacyRoot=mkdtempSync(join(tmpdir(),'capacity-unknown-legacy-preparation-'));
+    try {
+      const unknown=join(validationCapacityLockPath(legacyRoot),'unknown.preparing');
+      mkdirSync(unknown,{recursive:true});
+      await assert.rejects(()=>withWorkspaceValidationCapacity({root:legacyRoot,workspaceRoot:legacyRoot,command:'unknown-migration-contender',deadlineAt:Date.now()+100},()=>assert.fail('unknown legacy ownership must not create a second queue')),/capacity wait deadline/);
+      assert(existsSync(unknown),'migration must preserve unknown legacy preparation data');
+    } finally {rmSync(legacyRoot,{recursive:true,force:true});}
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -1424,7 +1423,7 @@ async function assertCapacityAsyncWaitAbortReentrancyAndRelease(): Promise<void>
 }
 
 async function assertBareNpmAndReadOnlyCommandsBypassCapacity(): Promise<void> {
-  const { root, storyId } = setupFixture({ storyId: 'B-capacity-bypass' });
+  const { root, storyId } = await setupFixture({ storyId: 'B-capacity-bypass' });
   try {
     const holder = spawnValidate(root, storyId, 'bypass-holder');
     assert.equal(await waitForEntered(root, 1, 4000), true, 'official validate must hold capacity');
@@ -1458,7 +1457,7 @@ async function assertBareNpmAndReadOnlyCommandsBypassCapacity(): Promise<void> {
 // Hermetic contract: even a refusal must occur inside the capacity boundary.
 // Successful admissible publication is covered by the separate native case.
 async function assertDerivedVerdictRefusalWaitsForCapacity():Promise<void> {
- const {root,storyId}=setupFixture({storyId:'B-derived-refusal-contract'});
+ const {root,storyId}=await setupFixture({storyId:'B-derived-refusal-contract'});
  const store=new StoryStore(root),originalCwd=process.cwd();
  let releaseOwner!:()=>void;
  let holder:Promise<void>|undefined;
@@ -1620,7 +1619,7 @@ async function assertCapacityReleaseFailureIsExplicitAndRecoverable(): Promise<v
     assert.equal(capacityTicketPaths(root).length, 1,
       'deterministic chmod fault must leave the exact numbered ticket for successor recovery');
 
-    chmodSync(lockRoot, 0o755);
+    chmodSync(lockRoot, 0o700);
     let successorEntered = false;
     await withWorkspaceValidationCapacity({
       root,
@@ -1650,7 +1649,7 @@ async function assertCapacityReleaseFailureIsExplicitAndRecoverable(): Promise<v
       'release cleanup failure must preserve the original callback error object and semantics');
     assert.equal(capacityTicketPaths(root).length, 1,
       'original callback failure path must still mark its exact ticket for recovery');
-    chmodSync(lockRoot, 0o755);
+    chmodSync(lockRoot, 0o700);
     let errorSuccessorEntered = false;
     await withWorkspaceValidationCapacity({
       root,
@@ -1662,7 +1661,7 @@ async function assertCapacityReleaseFailureIsExplicitAndRecoverable(): Promise<v
       'successor must recover after a callback error plus release isolation failure');
     assert.equal(capacityTicketPaths(root).length, 0);
   } finally {
-    try { chmodSync(lockRoot, 0o755); } catch { /* fixture may not have created the lock root */ }
+    try { chmodSync(lockRoot, 0o700); } catch { /* fixture may not have created the lock root */ }
     rmSync(root, { recursive: true, force: true });
   }
 }
@@ -1717,7 +1716,7 @@ async function assertQueuedWaitFailureCleanupIsRecoverable(): Promise<void> {
       assert.equal(capacityTicketPaths(root).length, 2,
         `${mode}: permission fault must retain owner plus released-marker waiter tickets before repair`);
 
-      chmodSync(lockRoot, 0o755);
+      chmodSync(lockRoot, 0o700);
       releaseOwner();
       await owner;
       owner = null;
@@ -1734,14 +1733,14 @@ async function assertQueuedWaitFailureCleanupIsRecoverable(): Promise<void> {
         `${mode}: post-repair successor must mechanically reclaim the failed waiter's released ticket`);
       assert.equal(capacityTicketPaths(root).length, 0, `${mode}: successor release must leave no ticket leak`);
     } finally {
-      try { chmodSync(lockRoot, 0o755); } catch { /* fixture may not have created the lock root */ }
+      try { chmodSync(lockRoot, 0o700); } catch { /* fixture may not have created the lock root */ }
       releaseOwner();
       if (owner) await owner.catch(() => undefined);
       rmSync(root, { recursive: true, force: true });
     }
   }
 
-  const cliFixture = setupFixture({ storyId: 'B-capacity-cli-watchdog' });
+  const cliFixture = await setupFixture({ storyId: 'B-capacity-cli-watchdog' });
   let releaseCliOwner: () => void = () => {};
   let cliOwner: Promise<void> | null = null;
   try {
@@ -1805,8 +1804,8 @@ async function assertQueuedWaitFailureCleanupIsRecoverable(): Promise<void> {
 }
 
 async function assertCapacityRepositoryScopeAndSelectiveModes(): Promise<void> {
-  const first = setupFixture({ storyId: 'B-cap-scope' });
-  const second = setupFixture({ storyId: 'B-independent' });
+  const first = await setupFixture({ storyId: 'B-cap-scope' });
+  const second = await setupFixture({ storyId: 'B-independent' });
   const linked = join(tmpdir(), `proof-or-stop-capacity-linked-${process.pid}-${Date.now()}`);
   const wrapper = mkdtempSync(join(tmpdir(), 'proof-or-stop-capacity-wrapper-'));
   try {
@@ -1878,10 +1877,10 @@ async function assertCapacityRepositoryScopeAndSelectiveModes(): Promise<void> {
   }
 }
 
-function assertProtectedInventoryAndTimeoutSourcesUnchanged(root = repoRoot()): void {
+function assertProtectedInventoryAndTimeoutSourcesUnchanged(root = repoRoot(), declaredBaseline?: string): void {
   // Protect the real caller's existing command and budget contracts. Legitimate
   // additive registrations and separately gated scope paths do not relax them.
-  const baselineRef = git(root, ['merge-base', 'main', 'HEAD']);
+  const baselineRef = (declaredBaseline ?? git(root, ['merge-base', 'main', 'HEAD'])).trim();
   const reads = new Map<string, string | null>();
   const readAt = (requestedRef: string, file: string): string | null => {
     const ref = requestedRef === 'main' ? baselineRef : requestedRef;
@@ -1961,6 +1960,10 @@ function assertProtectedInventoryAndTimeoutSourcesUnchanged(root = repoRoot()): 
     }
   }
   console.log('PROTECTED_CALLER_INVENTORY_PASS existing commands, timeouts, budgets and runner sources unchanged');
+}
+
+function assertCallerInventoryUnchangedDuringSuite():void {
+  assertProtectedInventoryAndTimeoutSourcesUnchanged(repoRoot(),capacitySuiteBaselineHead);
 }
 
 function assertProtectedInventoryMutationControls(): void {
@@ -2199,7 +2202,7 @@ function legacySelectorGroups(){return [
  assertCapacityReleaseFailureIsExplicitAndRecoverable,
  assertQueuedWaitFailureCleanupIsRecoverable,
  assertCapacityRepositoryScopeAndSelectiveModes,
- assertProtectedInventoryAndTimeoutSourcesUnchanged,
+ assertCallerInventoryUnchangedDuringSuite,
  assertCapacityReclaimImplementationIsIdentityStable,
  assertManagedVerificationIntentPinSchemaRoundTrip,
  assertPostCommandPersistenceHoldsLock,
@@ -2207,7 +2210,7 @@ function legacySelectorGroups(){return [
  assertDifferentWorktreesCanValidateConcurrently,
  assertReviewerWritesCoordinateWithValidation,
  assertDeliveryCheckCoordinatesWithValidation,
- assertStoryAdvanceInternalValidateDoesNotSelfLock,
+ assertStoryAdvanceConsumesRoutineWithoutSelfLock,
  assertDoneRequiredSharesValidateLock,
  assertStaleLockReclaimed,
  assertVanishedOwnerReclaimed,
@@ -2264,7 +2267,11 @@ void (async () => {
     }
     let executedGroups=0;
     const completedGroups=new Set<()=>void|Promise<void>>();
-    const runGroup=async(group:()=>void|Promise<void>)=>{await group();executedGroups++;completedGroups.add(group);};
+    const runGroup=async(group:()=>void|Promise<void>)=>{
+      const started=performance.now();console.log('CAPACITY_CASE_START '+group.name);
+      try{await group();executedGroups++;completedGroups.add(group);console.log('CAPACITY_CASE_PASS '+JSON.stringify({name:group.name,elapsedMs:performance.now()-started}));}
+      catch(error){console.error('CAPACITY_CASE_FAIL '+group.name);throw error;}
+    };
     await runGroup(assertWorkspaceWaitAndRun);
     await runGroup(assertCapacityAtomicStaleQuarantineStress);
     await runGroup(assertKilledCapacityOwnerReplacement);
@@ -2277,7 +2284,7 @@ void (async () => {
     await runGroup(assertCapacityReleaseFailureIsExplicitAndRecoverable);
     await runGroup(assertQueuedWaitFailureCleanupIsRecoverable);
     await runGroup(assertCapacityRepositoryScopeAndSelectiveModes);
-    await runGroup(assertProtectedInventoryAndTimeoutSourcesUnchanged);
+    await runGroup(assertCallerInventoryUnchangedDuringSuite);
     execFileSync(process.execPath, ['packages/main/tests/protected-inventory-fixture.test.mjs', '--prebuilt'],
       { cwd: repoRoot(), stdio: 'inherit', timeout: 30000 });
     await runGroup(assertCapacityReclaimImplementationIsIdentityStable);
@@ -2293,7 +2300,7 @@ void (async () => {
     await runGroup(assertDifferentWorktreesCanValidateConcurrently);
     await runGroup(assertReviewerWritesCoordinateWithValidation);
     await runGroup(assertDeliveryCheckCoordinatesWithValidation);
-    await runGroup(assertStoryAdvanceInternalValidateDoesNotSelfLock);
+    await runGroup(assertStoryAdvanceConsumesRoutineWithoutSelfLock);
     await runGroup(assertQueuedDonePolicyDriftRefuses);
     await runGroup(assertUnadmittedDoneRequiredNeverExecutes);
     await runGroup(assertDoneRequiredSharesValidateLock);
@@ -2310,7 +2317,8 @@ void (async () => {
     assertLegacySelectorCoverage(completedGroups);
     console.log(`Legacy verification selector (verified original subset): validate-execution-lock smoke passed: ${LEGACY_SELECTOR_GROUP_COUNT} assertion groups plus production regressions`);
   } catch (error) {
-    console.error(error instanceof Error ? error.message : String(error));
+    console.error(error instanceof Error ? error.stack : String(error));
+    if (error && typeof error === 'object' && 'stdout' in error) console.error(String(error.stdout));
     process.exit(1);
   }
 })();

@@ -25,7 +25,7 @@ const emitted = ts.transpileModule(declarations + '\nassertProtectedInventoryAnd
 const root = fs.mkdtempSync(join(tmpdir(), 'protected-inventory-caller-'));
 const env = { ...process.env, GIT_AUTHOR_NAME: 'Fixture', GIT_AUTHOR_EMAIL: 'fixture@example.test',
   GIT_COMMITTER_NAME: 'Fixture', GIT_COMMITTER_EMAIL: 'fixture@example.test' };
-const git = (cwd, args) => execFileSync('git', args, { cwd, env, encoding: 'utf8', stdio: 'pipe' }).trim();
+const git = (cwd, args) => execFileSync('git', args, { cwd, env, encoding: 'utf8', stdio: 'pipe' });
 const write = (file, content) => { fs.mkdirSync(dirname(join(root, file)), { recursive: true }); fs.writeFileSync(join(root, file), content); };
 try {
   const config = { validate: { commands: [{ command: 'node', args: ['original.js'], timeoutMs: 120000 }] },
@@ -60,6 +60,23 @@ try {
   git(root, ['add', '.']); git(root, ['commit', '-qm', 'mutate caller original timeout']);
   assert.throws(() => runInNewContext(emitted, context, { timeout: 30000 }),
     /protected original validation commands\/timeouts changed/, 'committed caller timeout mutation must be refused');
+  // A full suite may start from an explicitly reviewed repair commit. Its
+  // frozen baseline must still reject both working and committed later drift.
+  const approvedHead=git(root,['rev-parse','HEAD']).trim();
+  const approvedBytes=fs.readFileSync(join(root,CONFIG_FILENAMES[0]),'utf8');
+  const frozen=ts.transpileModule(declarations+'\nassertProtectedInventoryAndTimeoutSourcesUnchanged(repoRoot(),'+JSON.stringify(approvedHead)+');',
+    {compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
+  assert.doesNotThrow(()=>runInNewContext(frozen,context,{timeout:30000}));
+  config.validate.commands[0].timeoutMs+=1;write(CONFIG_FILENAMES[0],JSON.stringify(config));
+  assert.throws(()=>runInNewContext(frozen,context,{timeout:30000}),/protected original validation commands\/timeouts changed/);
+  git(root,['add','.']);git(root,['commit','-qm','mutate after frozen suite baseline']);
+  assert.throws(()=>runInNewContext(frozen,context,{timeout:30000}),/protected original validation commands\/timeouts changed/);
+  write(CONFIG_FILENAMES[0],approvedBytes);git(root,['add','.']);git(root,['commit','-qm','restore approved suite input']);
+  assert.doesNotThrow(()=>runInNewContext(frozen,context,{timeout:30000}));
+  assert(source.includes("const capacitySuiteBaselineHead = git(repoRoot(), ['rev-parse', 'HEAD']).trim();")
+    && source.includes('assertProtectedInventoryAndTimeoutSourcesUnchanged(repoRoot(),capacitySuiteBaselineHead);')
+    && source.includes('await runGroup(assertCallerInventoryUnchangedDuringSuite);'),
+    'the full suite must freeze and actually consume its caller baseline');
   write(CONFIG_FILENAMES[0], bytesBefore);
   git(root, ['add', '.']); git(root, ['commit', '-qm', 'restore caller original timeout']);
   assert.doesNotThrow(() => runInNewContext(emitted, context, { timeout: 30000 }));
