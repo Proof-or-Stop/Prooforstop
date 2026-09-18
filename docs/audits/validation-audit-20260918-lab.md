@@ -43,7 +43,7 @@ The next repair cycle was synchronized with main and the complete configured ide
 Current complete-suite RED assertions:
 
 - `FAIL CHK-007:happy:0 active producer registry config and current baselines are proof-or-stop only: retired protocol identity exact count drift: packages/main/src/tasks/init-check-required-agents-smoke.ts:final-negative-context-2`
-- `FAIL CHK-007:adversarial:0 proofbound injection at every active boundary fails closed with zero mutation: prompt-measurement report schema: public prompt-baseline verifier did not report the identity failure: `
+- `FAIL CHK-007:adversarial:0 retired-identity injection at every active boundary fails closed with zero mutation: prompt-measurement report schema: public prompt-baseline verifier did not report the identity failure: `
 - `FAIL F-060 all owned source and emitted identity sites have independent totality and public-operation cases: owned identity use context changed: packages/main/src/core/prompt-role-contract-registry.ts#proof-or-stop-product-reviewer`
 - `FAIL F-060 reconciled consumers still reject added and moved identity uses: owned identity use context changed: packages/main/src/core/prompt-role-contract-registry.ts#proof-or-stop-product-reviewer`
 - `FAIL F-060 memory v2 ownership retains exact consumer and mutation coverage: owned identity use context changed: packages/main/src/core/prompt-role-contract-registry.ts#proof-or-stop-product-reviewer`
@@ -57,3 +57,13 @@ Current complete-suite RED assertions:
 The current inventory diagnostic finds two changed role contexts, two missing protocol-site entries and fifteen changed import-use contexts. This diagnostic executes no tests and is not GREEN evidence. Before any re-pinning, reconcile the responsible source changes and public-operation coverage. Existing signing fixtures now run in this linked Lab; their prior missing-key clone failures must not be reported as still reproduced here.
 
 Continue from the saved complete-suite RED. The performance/configuration work for 16/69/130, the inner timeout in 1, and validator coordination integration for 50 remain open. Commands 7 and 14 retain their environmental classification. No whole-suite repair or main integration is claimed.
+
+## Identity repair candidate after the full RED
+
+The candidate now covers the maintenance dry-run public operation, two missing owned protocol sites, all twelve optional project-config role/version inputs, and all six identity-free delegate boundary instances. Private self-host clones establish the candidate commit on their checked-out main branch before the no-mutation oracle; the source candidate commit is unchanged. Real public consumer refusals remain required with raw CLI identity preflight ablated.
+
+Reviewed metadata follows current source ownership rather than admitting whole files or directories: unchanged historical lines are rebound by source and line digest; explicit new private signed-transport, negative-fixture and frozen-observation rows have exact counts and provenance. Obsolete negative rows are removed only when their literal no longer exists. JSON literals remain pointer-bound. New witness coverage executes real reader mutations, including missing, duplicated, changed and relocated inputs. The scanner self-test passed 924 current-witness checks before the final dependency closure refresh.
+
+The prompt baseline reflects current managed delivery, canonical scope-owner dispositions, pre-REVIEW intent boundaries and INIT product readiness. Its complete verifier passed the real source/assembled mutation campaign and rejected direct transcript writes and transfer of the exact read-only reference to another role. Runtime private protocol constants and their producer/consumer authority are unchanged. The graph exceptions retain their original rationale and exact call bindings; source/dependency digests and unchanged excerpt positions follow the reviewed edits. The two new local runtime regressions use literal relative argv under an explicit root cwd, so static analysis can resolve them without adding child-process exemptions.
+
+Complete identity GREEN still requires the committed candidate to pass the exact Lab-pinned full command twice. A focused pass or a refreshed digest alone is not that result. Current before/after results and every excluded run are maintained in the external followup report and the local evidence archive.

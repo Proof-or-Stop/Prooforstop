@@ -99,10 +99,10 @@ async function main() {
   }
   try { prepareVerification(root, { shareBuild: true }); }
   catch (error) { throw new Error(verificationFailureMessage('runtime contract prerequisite', error)); }
-  execFileSync(process.execPath, [join(root, 'packages/main/tests/validation-audit-budgets.test.mjs')], {
+  execFileSync(process.execPath, ['packages/main/tests/validation-audit-budgets.test.mjs'], {
     cwd: root, stdio: 'inherit', timeout: 30000,
   });
-  execFileSync(process.execPath, [join(root, 'packages/main/tests/validation-coordination-guard.test.mjs')], {
+  execFileSync(process.execPath, ['packages/main/tests/validation-coordination-guard.test.mjs'], {
     cwd: root, stdio: 'inherit', timeout: 30000,
   });
   const { MANAGED_REVIEW_READONLY_RUNTIME_POLICY: readonlyRuntime } = await importDist(root, 'packages/main/dist/core/runtime-fact-registry.js');

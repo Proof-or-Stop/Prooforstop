@@ -81,7 +81,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-behavior',
-    templateHash: '6ea2ff09d4e12b34a20bd57c1738a086bd87c4e345cabecc1f6da786020d3135',
+    templateHash: 'aeec7d9356cf60b9099fb029e353f3f1ad05dd0bfd8d4cc3eed60beabf8efb38',
   },
   {
     role: 'proof-or-stop-review-channel',
@@ -89,23 +89,23 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-concept',
-    templateHash: 'f1a0f2885595e35dd951ffcc5055438073ce1c67b4e58a7c66259fe404c296db',
+    templateHash: '839a5200d0f326abcbdc78797249b99a37ecaba723343cca5ad6f91df113e291',
   },
   {
     role: 'proof-or-stop-review-delivery',
-    templateHash: 'c6fbc3d2d5d50e09a0be5492633e2dc30cd73dc40da83824d4050971aad53c20',
+    templateHash: 'c1b71346d6c7447c0d5c20eb7e3a9880de16217385c5c3cc36d21131b3843c96',
   },
   {
     role: 'proof-or-stop-review-docs',
-    templateHash: '7a6f90644c3d20ba6e6e042c48fb598ee5b03f5747623f987dde2bc3440d7b91',
+    templateHash: '9877c8a47c8db9b23f769c922678fb3150b927930abbe5fef30abf26914fd09d',
   },
   {
     role: 'proof-or-stop-review-quality',
-    templateHash: 'ee57c82c12e797a774b66832f619c33355ea669a8c43cd77c034bfca7089142e',
+    templateHash: 'e1785c1f8b342eaadadbf10da383a5d715fa4cafb5ceb1b33ec1a414d26b4942',
   },
   {
     role: 'proof-or-stop-review-scope-plan',
-    templateHash: '3200879c4a43463bc21ed40d32b733a4d096c772b56503bcc74aebea1bebe841',
+    templateHash: '7d75ec609b693de35b479abe3bf0ad6ac06ddd13fd124fd5ce21f2074eeb1ae4',
   },
   {
     role: 'proof-or-stop-review-story-init',
@@ -113,11 +113,11 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-test-coverage',
-    templateHash: '07c394e014734e93392f93954ea6a8388f91c627badb7b82e1cb1304c29df50a',
+    templateHash: 'decf908da84557a066ccb26c28ad41a9d519a2ed010d46b1eb0ac984c40f6727',
   },
   {
     role: 'proof-or-stop-review-topology-critic',
-    templateHash: '85aa26b5a69ffbbd5e7d0103295b65ae0ceb95e5719f8124797aa958655b23db',
+    templateHash: '76cf6abe823dd97a6bdc89e451cefc3dbd13ff205201577ab7fde45e729ad928',
   },
   {
     role: 'proof-or-stop-product-reviewer',
@@ -136,15 +136,15 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   {
     role: 'proof-or-stop-verification-intent',
     // B-5a88/F-445: active PLAN role; writes only verificationIntent.
-    templateHash: '62918913d034c565153fb95b88a60499ff7984bdfb2d2548f2752c991bb3c20b',
+    templateHash: 'd3aedf44932bbb2b1965178bc8f1ec307b16dd87e92c8d5941f50e3967d7b329',
   },
 ].map(entry => Object.freeze(entry)));
 const APPROVED_ROLE_BODY_ROLLOUT_MANIFEST = Object.freeze([
-  ["proof-or-stop-review-behavior", "0ed3c4231e5fbfe4be1bbc55cf950adc887553434bdbc59336b035c9e2731715", "5d6aa06bfbcad5ba32964c1cd8c994fef8bd07c68fd39b0f6877e1eb528d96bd", "a5955b3e99bd085ad94f934d72503d6c80cec536ebb8f3d37dfeba4b04236284", "da21fe7f325b623070ee79e608637682556b3f6c0ea7d89eb41debf7df71ecd9", "8d5b6710830315125b139260b69008dc9ec82351b0f8ad53f10f25172e166f3a"],
-  ["proof-or-stop-review-concept", "b6bb6fc97ecfd4a00fafac8ab55649531cee341874be6368c3a9fd570a263c3e", "54148eb541957fc2a400e0e6255f2e9180ce11c815847c45153c243862fc8728", "603b8f81dd9f11c952266535a3cc28351738023716d20956ad5641bf023ef672", "43740d16ff08d361be41c44479e3aa7220b6547e5a66d501b82bee70863e6a10", "b13b0e11590982c649d7c50e0007b1ffe5062abd931f673bf3fe30ff3f44b8bb"],
-  ["proof-or-stop-review-docs", "370efcdcf72b2fff69edd8a7c2ceab4d63f4ca48af1450f445c2b10545550d3a", "c40127c2e1647c76576a83fc58f603ec6ead7fa6ee6d4ddd9129849229e59e43", "e26f0478430646884838e893705134b1c91af9cc2b001d9e25f77ca3a5baa3d5", "7db03c224380d85db9f66d65cdbc95957af27f5e31d83893ea25d1666a009f8c", "9bac8e97bea657f76e50fc32ec85dbb408abf88c3497a4b3677b81734ffa55ab"],
-  ["proof-or-stop-review-quality", "a151d7c61bc79d47322ef4c0f5152dc40d1ee381078446d2b32bbe0f5e3893f3", "f921da5fa466448df54d24257c9c07db1505ca08c4e639beb6f1c73a90ac65ff", "89c283f91c5271f06d26869a8c3e2bd750200f093d6297245af85b24a02b7ade", "e50dfeef97a6b44394c88640de418aa7d201ce6ed025f3e66089ceaa340d3475", "56aba886e46a16bd5d3468898e27312eec50d9ef36e6abf9ace0deaea187373b"],
-  ["proof-or-stop-review-test-coverage", "c7230232be9018a75dddd24bc37964747cd3707e10fbb5c5e5839e3dea33c67c", "f919fc963b1e6dbe3f98b468ad1b3aa9bf8d0e189bba9752e904f3527c1cc615", "8e50977df835851837918f59998022b274bc6aaaf0d997a44418a1501038a81e", "648745f022b74c894bf4e327fc987a289f7bc3a0cd42f97721b62eba8ea225f7", "0c8213d735ac9fbbf977112fecaacef919789d43df8b8ed683561450e17984ab"],
+  ["proof-or-stop-review-behavior", "aefae08ddacd30c52be142ce5e4ebf7f78b7555de68b7b2e60433e9dbb464dd0", "5d6aa06bfbcad5ba32964c1cd8c994fef8bd07c68fd39b0f6877e1eb528d96bd", "b7b49797823499177b6e5b0143e5c3e97a5de7f9229de2b05289338c224ba12d", "55a2f12287d8a90618ef84a31255a8a98e39674ef73c4d178fa64e3009e736b9", "2e41b634607a546066f22951ae6d6a0763ca5516c4ef871499c2fa29526384c4"],
+  ["proof-or-stop-review-concept", "604a884ce42a4e0cf9b4c91d48967e8b6f10196b7b602572e5fee53505361ab7", "54148eb541957fc2a400e0e6255f2e9180ce11c815847c45153c243862fc8728", "ee35202c067f7bbc9907e47ecf3eda2d49d0eb0e04e3c7fb96406bc709cdb7fe", "71fd2177d4afe896b94d428a7721665c06675fd54fb58f363d7987547730ac6b", "fddbc4eef65fcde36d116c2855e5005ed58b605587df7f515afa58ce055b4120"],
+  ["proof-or-stop-review-docs", "04fbdc3f19960d9af0f9a3b063b5d0c4bdd93259469d35c3236f0a512886303d", "c40127c2e1647c76576a83fc58f603ec6ead7fa6ee6d4ddd9129849229e59e43", "13aabf3a2f99b639b920a11906ea35c12e12eb2635add93db7c573126ce206b8", "364f11994c5f66461f3ac11ad0ba3aa05b867cb7d80bf75ee903b5e70e80e49d", "c0e4253253ff5fe99161755bccd296871318969604f08ce860f1fb9309cd300d"],
+  ["proof-or-stop-review-quality", "138fcfe32ffbc137ddd6ef7bc09024e5fb7fc0e767994ed7fc9548fec795ac39", "f921da5fa466448df54d24257c9c07db1505ca08c4e639beb6f1c73a90ac65ff", "43c2484ef955fae21b1a9f1ca8472e219ca60734c842ada53f9c2f2b7ef5ae30", "9ce8f5281b08e3845f624d44aab6797001cc7d3384f8f621382ac4d056fcfbf3", "6c6f1fd6df0b2118779c8908eb7e51932c685a433c3ce1338b2ae3efda178bc7"],
+  ["proof-or-stop-review-test-coverage", "3c4aba60dd2a1bb4feb6313691b8d48138cbea59d2fca329b3504bfa98c1cb9c", "f919fc963b1e6dbe3f98b468ad1b3aa9bf8d0e189bba9752e904f3527c1cc615", "44e718a0ba19414e94cd8fd71615992947fac23989b9f91e3280c81d79219288", "c2022c6848a51a782adf8fa6417d18174d360f7977cc210c8255dd2b7c3c5416", "9d8f271bd248a823941643efea2fa77ce276c941411875eb9a9776606dae97f6"],
 ].map(([role, modularBodySha256, roleSemanticDigest, roleRenderDigest, modularClaudeRenderDigest, modularCodexRenderDigest]) => Object.freeze({
   role, modularBodySha256, roleSemanticDigest, roleRenderDigest, modularClaudeRenderDigest, modularCodexRenderDigest,
 })));
@@ -258,6 +258,11 @@ const DIRECT_STORY_REFERENCE_ALLOWLIST = [
     role: 'proof-or-stop-product-reviewer',
     classification: 'read-only-reference',
     excerpt: '- If available, `docs/story/actives/<storyId>/evidence/live-smoke-transcript.json`',
+  },
+  {
+    role: 'proof-or-stop-review-delivery',
+    classification: 'read-only-reference',
+    excerpt: '- If present, `docs/story/actives/<storyId>/evidence/live-smoke-transcript.json`, the canonical executed user-facing transcript',
   },
 ];
 const DIRECT_STORY_POLICY_RULE =
@@ -442,12 +447,12 @@ const ROLE_MATRIX_DEFAULTS = {
     phase: 'TEST/DONE',
     purpose: 'Reviews final delivery claims, docs promises, real machine tests, and closeout.',
     commands: 'git diff; source grep; delivery_check_set.',
-    directFileAccess: 'Reads git diff and repository files; explicitly avoids process-events, reviewer outputs, and test-evidence contents.',
-    inputs: 'storyId, git diff main...HEAD, and repository files.',
+    directFileAccess: 'Reads git diff, repository files, and the optional canonical delivery transcript; avoids process-events, prior reviewer outputs, and test-evidence contents.',
+    inputs: 'storyId, git diff main...HEAD, repository files, and optional canonical live-smoke transcript.',
     outputs: 'Signed delivery-check.json via delivery_check_set, or refusal text.',
     capabilities: 'Delivery completeness; closeout self-check; final docs-promise fallback.',
     overlapCategory: 'overlaps docs and product',
-    notes: 'Fresh-context review independently derives docs promises and real-machine test coverage; it does not consume prior docs review, other reviewer results, or test-evidence.json.',
+    notes: 'Fresh-context review independently derives docs promises and real-machine coverage; native or managed authenticated delivery binds the producer. The canonical transcript is optional read-only evidence; prior reviewer results and test-evidence.json remain excluded.',
   },
   'proof-or-stop-review-docs': {
     status: 'active',
@@ -479,11 +484,11 @@ const ROLE_MATRIX_DEFAULTS = {
     purpose: 'Reviews story/checklist scope against source-of-truth requirements.',
     commands: 'config; dev_memory_preflight; dev_memory_search; Glob/rg candidate search; scope_check_save.',
     directFileAccess: 'Reads candidate docs and CLI-provided story/checklist context; scope evidence through ProofOrStop CLI.',
-    inputs: 'Story, checklist, candidate requirement docs, risk signals.',
-    outputs: 'scope_check_save artifact.',
-    capabilities: 'Scope coverage; orphan requirement detection; candidate spec review.',
+    inputs: 'Story, checklist, candidate requirement docs, risk signals, and canonical process-owner registry paths.',
+    outputs: 'scope_check_save artifact with explicit ownerDispositions.',
+    capabilities: 'Scope coverage; orphan requirement detection; candidate spec review; independently derived canonical process-owner coverage.',
     overlapCategory: 'PLAN scope owner',
-    notes: 'Should avoid default full decisions-directory scans without escalation.',
+    notes: 'Avoid default full decisions-directory scans without escalation; account explicitly for every canonical owner and retain the source pointer for each disposition.',
   },
   'proof-or-stop-review-story-init': {
     status: 'active',
@@ -531,19 +536,19 @@ const ROLE_MATRIX_DEFAULTS = {
     outputs: 'Structured verificationIntent with happy, edge, and adversarial coverage lanes.',
     capabilities: 'Adversarial acceptance-intent authoring; observable coverage design; verification boundary enforcement.',
     overlapCategory: 'PLAN verification-intent owner',
-    notes: 'Active replacement for legacy test-intent authoring; does not write status or verificationEvidence.',
+    notes: 'Active replacement for legacy test-intent authoring; does not write status or verificationEvidence. Pre-REVIEW acceptance intent must not require REVIEW gate facts that create a lifecycle cycle.',
   },
   'proof-or-stop-product-reviewer': {
     status: 'compatibility',
-    phase: 'INIT/DONE advisory',
-    purpose: 'Reviews user-facing transcript and product closure.',
-    commands: 'init_check_set when asked to perform INIT compatibility review; otherwise none.',
-    directFileAccess: 'Reads transcript/product context and optional transcript diff; no code, test, or story metadata writes.',
-    inputs: 'Final transcript, product outcome, optional transcript diff.',
-    outputs: 'Text product review or product-reviewer init_check_set record.',
-    capabilities: 'User-value closure; product wording review.',
-    overlapCategory: 'overlaps delivery and evaluator',
-    notes: 'INIT compatibility remains until product reviewer routing is migrated.',
+    phase: 'INIT',
+    purpose: 'Reviews whether planned requirements define a complete, observable, verifiable user outcome before implementation begins.',
+    commands: 'agent_prompt --readOnly; init_check_set.',
+    directFileAccess: 'Reads authoritative INIT context through Proof-or-Stop CLI and bounded requirement sources; writes only structured INIT review evidence through init_check_set.',
+    inputs: 'Story background, checklist userSees, planned verificationIntent, scope and safety boundaries.',
+    outputs: 'Structured init_check_set pass or complete issue set with exact requirementRef for blocking issues.',
+    capabilities: 'INIT user-outcome readiness; requirement ambiguity, executable verification plan, and scope or safety boundary review.',
+    overlapCategory: 'INIT product readiness, distinct from final delivery',
+    notes: 'Compatibility roster classification does not change its mandatory INIT review contract. Missing post-implementation evidence is deferred, never an INIT blocker; this role does not certify final delivery.',
   },
   'proof-or-stop-test-case-reviewer': {
     status: 'legacy',
@@ -576,6 +581,15 @@ function roleMatrixDefaultsFor(role) {
 }
 
 const DIRECT_STORY_CLASSIFIER_PROBES = [
+  { name: 'delivery transcript is an exact read-only input', role: 'proof-or-stop-review-delivery',
+    excerpt: '- If present, `docs/story/actives/<storyId>/evidence/live-smoke-transcript.json`, the canonical executed user-facing transcript',
+    classification: 'read-only-reference', grandfathered: true },
+  { name: 'delivery transcript cannot authorize a direct write', role: 'proof-or-stop-review-delivery',
+    excerpt: 'Write docs/story/actives/<storyId>/evidence/live-smoke-transcript.json',
+    classification: 'direct-write', grandfathered: false },
+  { name: 'delivery transcript reference is not transferable to another role', role: 'proof-or-stop-review-quality',
+    excerpt: '- If present, `docs/story/actives/<storyId>/evidence/live-smoke-transcript.json`, the canonical executed user-facing transcript',
+    classification: 'unclassified-actionable', grandfathered: false },
   // These probes intentionally retain deprecated lattice-* role IDs to prove
   // that compatibility reads still classify old prompt evidence correctly.
   {
