@@ -74,6 +74,15 @@ function callHookAsync(root, command, env = {}) {
 }
 // One queue per canonical working directory.
 const spoolFor = (root) => join(home, '.proof-or-stop/activity-spool', createHash('sha256').update(realpathSync(root)).digest('hex'));
+// The unresolved queue whose recorded spelling is exactly this path.
+const unresolvedQueueFor = (spelling) => {
+  const spoolRoot = join(home, '.proof-or-stop/activity-spool');
+  try {
+    return readdirSync(spoolRoot).filter((name) => name.startsWith('unresolved-')).find((name) => {
+      try { return JSON.parse(readFileSync(join(spoolRoot, name, 'source.json'), 'utf8')).path === spelling; } catch { return false; }
+    });
+  } catch { return undefined; }
+};
 const queueNames = (root, predicate) => {
   try { return readdirSync(spoolFor(root)).filter(predicate).map((name) => ({ dir: spoolFor(root), name })); } catch { return []; }
 };
@@ -733,6 +742,94 @@ try {
     rows.push({ scenario: 'unresolved record adopted through another alias', repoLinesDuring: '-', after: JSON.stringify(after) });
     expectRepaired(JSON.stringify(after) === JSON.stringify(['before-resolvable', 'after-resolvable']),
       `an unresolved record is adopted through any equivalent spelling (got ${JSON.stringify(after)})`);
+  }
+  // A workspace that cannot be resolved right now is uncertain, not removed.
+  {
+    const parent = join(sandbox, `resolve-parent-${n++}`); mkdirSync(parent, { recursive: true });
+    const root = join(parent, 'repo'); mkdirSync(root);
+    execFileSync('git', ['-c', 'user.name=Hook Fixture', '-c', 'user.email=fixture@example.invalid', 'init', '-q'], { cwd: root, stdio: 'ignore' });
+    writeFileSync(join(root, '.gitignore'), '**/activity.jsonl\n');
+    execFileSync('git', ['-c', 'user.name=Hook Fixture', '-c', 'user.email=fixture@example.invalid', 'add', '.'], { cwd: root, stdio: 'ignore' });
+    execFileSync('git', ['-c', 'user.name=Hook Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'base'], { cwd: root, stdio: 'ignore' });
+    const t = ticket(root, live.pid);
+    callHook(root, 'queued-before-unresolvable');
+    rmSync(t, { recursive: true, force: true });
+    chmodSync(parent, 0o000); // the workspace cannot be resolved for now
+    callHook(root, 'while-unresolvable');
+    const blocked = lines(root);
+    chmodSync(parent, 0o700);
+    callHook(root, 'after-resolvable-again');
+    const after = lines(root);
+    rows.push({ scenario: 'workspace temporarily unresolvable', repoLinesDuring: blocked.length, after: JSON.stringify(after) });
+    expectRepaired(blocked.length === 0, `an unresolvable workspace must not deliver or discard (found ${JSON.stringify(blocked)})`);
+    expectRepaired(after.length === 3 && after[0] === 'queued-before-unresolvable',
+      `the retained record is delivered first once the workspace resolves again (got ${JSON.stringify(after)})`);
+  }
+  // Only the RECORD's workspace is unresolvable: the record must be kept, not discarded.
+  {
+    const root = repo();
+    const parent = join(sandbox, `record-parent-${n++}`); mkdirSync(parent, { recursive: true });
+    const recordRoot = join(parent, 'workspace'); mkdirSync(recordRoot, { recursive: true });
+    const queue = spoolFor(root);
+    mkdirSync(queue, { recursive: true });
+    writeFileSync(join(queue, '00000000000002-0000001-ffffffffffff.json'), JSON.stringify({ root: realpathSync(recordRoot), targetRelative: 'docs/story/activity.jsonl', line: `${JSON.stringify({ detail: 'foreign-workspace' })}\n` }));
+    chmodSync(parent, 0o000); // only that record's workspace cannot be resolved
+    callHook(root, 'newer-after-foreign');
+    const blocked = lines(root);
+    const retained = spoolRecords(root).length + spoolClaims(root).length;
+    chmodSync(parent, 0o700);
+    rows.push({ scenario: 'record workspace temporarily unresolvable', repoLinesDuring: blocked.length, after: `${retained} retained` });
+    expectRepaired(retained >= 2, `an unresolvable record workspace must not discard the record (retained ${retained})`);
+    expectRepaired(blocked.length === 0, `nothing may pass a record whose workspace cannot be resolved (found ${JSON.stringify(blocked)})`);
+  }
+  // Unresolved-queue metadata that cannot be read blocks newer records.
+  {
+    const root = repo();
+    const alias = join(sandbox, `alias-meta-${n++}`); symlinkSync(root, alias);
+    const pendingDir = join(alias, 'appears-later');
+    spawnSync(process.execPath, [hook], {
+      input: JSON.stringify({ cwd: pendingDir, tool_name: 'Bash', tool_input: { command: 'older-unresolved' }, hook_event_name: 'PostToolUse', session_id: 'hook-fixture', tool_output: 'ok' }),
+      env: { ...process.env, HOME: home }, encoding: 'utf8',
+    });
+    mkdirSync(join(root, 'appears-later'), { recursive: true });
+    const spoolRoot = join(home, '.proof-or-stop/activity-spool');
+    // Earlier scenarios leave their own unresolved queues: pick the one for THIS path.
+    const queue = unresolvedQueueFor(pendingDir);
+    // Losing the routing metadata is itself the defect, so report it instead of crashing.
+    if (!queue) red.push('an unresolved queue must keep its routing metadata');
+    if (queue) chmodSync(join(spoolRoot, queue, 'source.json'), 0o000);
+    callHook(join(root, 'appears-later'), 'newer-canonical');
+    const blocked = queue ? lines(join(root, 'appears-later')) : [];
+    if (queue) chmodSync(join(spoolRoot, queue, 'source.json'), 0o600);
+    callHook(join(root, 'appears-later'), 'after-metadata');
+    const after = lines(join(root, 'appears-later'));
+    rows.push({ scenario: 'unresolved queue metadata unreadable', repoLinesDuring: blocked.length, after: JSON.stringify(after) });
+    expectRepaired(blocked.length === 0, `unreadable routing metadata must block newer records (found ${JSON.stringify(blocked)})`);
+    expectRepaired(JSON.stringify(after) === JSON.stringify(['older-unresolved', 'newer-canonical', 'after-metadata']),
+      `order is preserved once the metadata can be read (got ${JSON.stringify(after)})`);
+  }
+  // Recovery must leave the unresolved queue discoverable for a producer still publishing.
+  {
+    const root = repo();
+    const alias = join(sandbox, `alias-late-pub-${n++}`); symlinkSync(root, alias);
+    const pendingDir = join(alias, 'later-dir');
+    spawnSync(process.execPath, [hook], {
+      input: JSON.stringify({ cwd: pendingDir, tool_name: 'Bash', tool_input: { command: 'first-unresolved' }, hook_event_name: 'PostToolUse', session_id: 'hook-fixture', tool_output: 'ok' }),
+      env: { ...process.env, HOME: home }, encoding: 'utf8',
+    });
+    mkdirSync(join(root, 'later-dir'), { recursive: true });
+    callHook(join(root, 'later-dir'), 'canonical-recovery'); // adopts the first record
+    const spoolRoot = join(home, '.proof-or-stop/activity-spool');
+    const queue = unresolvedQueueFor(pendingDir);
+    const stillRouted = Boolean(queue) && existsSync(join(spoolRoot, queue, 'source.json'));
+    // A producer that was still publishing when recovery ran must remain discoverable.
+    if (queue) writeFileSync(join(spoolRoot, queue, `99999999999999-0000001-eeeeeeeeeeee.json`), JSON.stringify({ root: null, targetRelative: 'docs/story/activity.jsonl', line: `${JSON.stringify({ detail: 'published-after-recovery' })}\n` }));
+    callHook(join(root, 'later-dir'), 'settle-late');
+    const after = lines(join(root, 'later-dir'));
+    rows.push({ scenario: 'record published after recovery ran', repoLinesDuring: '-', after: JSON.stringify(after) });
+    expectRepaired(stillRouted, 'recovery keeps the unresolved queue routing metadata');
+    expectRepaired(after.includes('published-after-recovery'),
+      `a record published after recovery is still adopted (got ${JSON.stringify(after)})`);
   }
   // Controls: unchanged immediate writes.
   for (const [name, setup] of [

@@ -125,18 +125,28 @@ function adoptUnresolvedRecords(identity) {
   }
   for (const queue of queues) {
     const dir = path.join(identity.spoolRoot, queue);
-    let source;
-    try { source = JSON.parse(fs.readFileSync(path.join(dir, 'source.json'), 'utf8')); } catch { continue; }
-    let resolved;
-    // The spelling is retried now: only a queue whose recorded path canonicalizes to THIS
-    // directory is adopted, whatever spelling either invocation used.
-    try { resolved = fs.realpathSync(source.path); } catch { continue; }
-    if (resolved !== identity.canonicalRoot) continue;
-    let names;
-    try { names = fs.readdirSync(dir).filter(name => name.endsWith('.json')); } catch (error) {
+    let records;
+    try { records = fs.readdirSync(dir).filter(name => RECORD_NAME.test(name)); } catch (error) {
       if (error.code === 'ENOENT') continue;
       return false;
     }
+    let source;
+    try { source = JSON.parse(fs.readFileSync(path.join(dir, 'source.json'), 'utf8')); } catch (error) {
+      // The association cannot be read. An empty queue is harmless; one holding records
+      // may be older than anything here, so delivery waits rather than passing it.
+      if (error.code === 'ENOENT' && records.length === 0) continue;
+      return records.length === 0;
+    }
+    let resolved;
+    // The spelling is retried now: only a queue whose recorded path canonicalizes to THIS
+    // directory is adopted, whatever spelling either invocation used.
+    try { resolved = fs.realpathSync(source.path); } catch (error) {
+      // A spelling that does not exist cannot be this directory; anything else is unknown.
+      if (error.code === 'ENOENT' || records.length === 0) continue;
+      return false;
+    }
+    if (resolved !== identity.canonicalRoot) continue;
+    const names = records;
     if (names.length === 0) continue;
     try { fs.mkdirSync(identity.dir, { recursive: true, mode: 0o700 }); } catch { return false; }
     for (const name of names) {
@@ -213,7 +223,9 @@ function publishSpoolRecord(spool, record) {
   throw lastError;
 }
 
-const RECORD_CLAIM = /^(.*\.json)\.delivering-(\d+)$/;
+// A record file's own name shape; `source.json` is queue metadata, never a record.
+const RECORD_NAME = /^\d{14}-\d{7}-[0-9a-f]{12}\.json$/;
+const RECORD_CLAIM = /^(\d{14}-\d{7}-[0-9a-f]{12}\.json)\.delivering-(\d+)$/;
 
 /**
  * One coherent view of the queue: every record, queued or in flight, ordered by its own
@@ -230,7 +242,7 @@ function queueView(spool) {
   try { names = fs.readdirSync(spool); } catch (error) { return error.code === 'ENOENT' ? [] : null; }
   const entries = [];
   for (const name of names) {
-    if (name.endsWith('.json')) { entries.push({ name, base: name, claimedBy: null }); continue; }
+    if (RECORD_NAME.test(name)) { entries.push({ name, base: name, claimedBy: null }); continue; }
     const match = RECORD_CLAIM.exec(name);
     if (match) entries.push({ name, base: match[1], claimedBy: Number(match[2]) });
   }
@@ -291,10 +303,18 @@ function deliverQueue(identity, top) {
     // The destination is re-derived from the workspace the record was bound to, and only
     // ever inside the workspace this delivery holds a ticket for.
     const recordRoot = record.root ?? identity.canonicalRoot;
-    let liveRoot;
-    try { liveRoot = fs.realpathSync(recordRoot); } catch { liveRoot = null; }
+    let liveRoot = null;
+    try { liveRoot = fs.realpathSync(recordRoot); } catch (error) {
+      if (error.code !== 'ENOENT') {
+        // The workspace cannot be resolved right now (a transient failure): keep the
+        // record and stop, rather than treating uncertainty as removal.
+        try { fs.renameSync(claimed, path.join(spool, oldest.base)); } catch { /* recovered later */ }
+        return;
+      }
+    }
     if (liveRoot === null) {
-      // The directory this record belonged to is gone, so its log cannot exist either.
+      // Confirmed absent: the directory this record belonged to is gone, so its log cannot
+      // exist either and the record can never be delivered.
       try { fs.unlinkSync(claimed); } catch { /* already gone */ }
       continue;
     }
