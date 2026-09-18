@@ -36,6 +36,12 @@ for(const file of fixturePaths){
  const barrier=statements.slice(oracleIndex+1,index).find(n=>ts.isIfStatement(n)&&n.expression.getText(ast)==='failures.length');
  assert(barrier&&barrier.getText(ast).includes('process.exit(1)'),`actual refusal barrier must precede ${file}`);
 }
+const inventoryFixture='scripts/verify-inventory-critic-metadata-head.mjs';
+const inventoryLaunches=statements.filter(n=>ts.isTryStatement(n)&&n.getText(ast).includes(`join(root, '${inventoryFixture}')`));
+assert.equal(inventoryLaunches.length,1,'PROCESS_REFUSAL_ORDER_RED: inventory critic proof must be a retained top-level positive workload');
+const inventoryIndex=statements.indexOf(inventoryLaunches[0]);
+assert(inventoryIndex>oracleIndex&&inventoryIndex<loopIndex,'inventory critic proof must run after admission and before acceptance proofs');
+assert(statements.slice(oracleIndex+1,inventoryIndex).some(n=>ts.isIfStatement(n)&&n.expression.getText(ast)==='failures.length'&&n.getText(ast).includes('process.exit(1)')),'inventory critic proof requires the actual refusal barrier');
 const dependencies=['root','failures','commandPolicyPath','storyRuntimeAdmissionPath','ALL_PHASES','builtCommandPolicyModule','_sourceFileCache','cachedCommandPolicyEntries'];
 for(const name of dependencies){
  const index=statements.findIndex(n=>ts.isVariableStatement(n)&&n.declarationList.declarations.some(d=>ts.isIdentifier(d.name)&&d.name.text===name));
@@ -44,17 +50,19 @@ for(const name of dependencies){
 const scratch=mkdtempSync(join(tmpdir(),'process-admission-order-'));
 try {
  const preload=join(scratch,'observer.cjs');
- writeFileSync(preload,`const cp=require('node:child_process');const {syncBuiltinESMExports}=require('node:module');const {join,resolve}=require('node:path');const original=cp.execFileSync;const proofs=new Set([...${JSON.stringify(fixturePaths)}.map(file=>resolve(file)),...['regression.mjs','publication-snapshot.mjs','publication-lifecycle.mjs'].map(file=>join(process.cwd(),'experiments/acceptance-closure',file))]);cp.execFileSync=function(file,args,...rest){if(file===process.execPath&&Array.isArray(args)&&args.some(arg=>typeof arg==='string'&&proofs.has(resolve(arg)))){process.stderr.write('ORDER_OBSERVED_POSITIVE\\n');}return Reflect.apply(original,this,[file,args,...rest]);};syncBuiltinESMExports();\n`);
+ writeFileSync(preload,`const cp=require('node:child_process');const {syncBuiltinESMExports}=require('node:module');const {join,resolve}=require('node:path');const original=cp.execFileSync;const proofs=new Set([...${JSON.stringify([...fixturePaths, inventoryFixture])}.map(file=>resolve(file)),...['regression.mjs','publication-snapshot.mjs','publication-lifecycle.mjs'].map(file=>join(process.cwd(),'experiments/acceptance-closure',file))]);cp.execFileSync=function(file,args,...rest){if(file===process.execPath&&Array.isArray(args)&&args.some(arg=>typeof arg==='string'&&proofs.has(resolve(arg)))){process.stderr.write('ORDER_OBSERVED_POSITIVE\\n');}return Reflect.apply(original,this,[file,args,...rest]);};syncBuiltinESMExports();\n`);
+ for (const mutation of ['synthetic-story-writer-partial-runtime-admission','drop-acceptance-basis-registry']) {
  const result=spawnSync(process.execPath,['--require',preload,verifier,'--quiet'],{
   cwd:root,encoding:'utf8',timeout:60000,maxBuffer:32*1024*1024,
-  env:{...process.env,PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION:'synthetic-story-writer-partial-runtime-admission'},
+  env:{...process.env,PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION:mutation},
  });
  assert(!result.error&&result.signal===null,'actual refusal execution must be available within its diagnostic budget');
  assert.notEqual(result.status,0,'actual mutated admission must refuse');
- assert.match(result.stderr,/actual Story-write capability|Story runtime admission|coverage must derive from the effective ownership registry/i,'actual oracle must supply relevant refusal');
+ assert.match(result.stderr,mutation==='drop-acceptance-basis-registry' ? /required process fact missing/ : /actual Story-write capability|Story runtime admission|coverage must derive from the effective ownership registry/i,'actual oracle must supply relevant refusal');
  const launches=(result.stderr.match(/ORDER_OBSERVED_POSITIVE/g)||[]).length;
- console.log(`ORDER_ACTUAL_MUTATION_REFUSED positiveProofLaunches=${launches}`);
+ console.log(`ORDER_ACTUAL_MUTATION_REFUSED mutation=${mutation} positiveProofLaunches=${launches}`);
  assert.equal(launches,0,'known actual admission refusal must precede positive proof launches');
+ }
  assert(oracleIndex<loopIndex,'actual admission oracle must precede positive workloads');
  const barrier=statements.slice(oracleIndex+1,loopIndex).find(n=>ts.isIfStatement(n)&&n.expression.getText(ast)==='failures.length');
  assert(barrier,'actual failure barrier must separate oracle and positive workloads');

@@ -10242,17 +10242,6 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
   assert(read('packages/main/src/core/prompt-registry.ts').includes('A metadata-only HEAD advance does not replace the signed inventory cutoff')
     && registrySource.includes('Metadata-only HEAD advancement may differ from the original cutoff HEAD'),
     'metadata-only critic admission requires matching prompt and registry contracts');
-  // Execute the real behavior from this registered serial-reference driver.
-  // Formatting or operand swaps cannot substitute for a two-wave witness.
-  try {
-    const output = execFileSync(process.execPath, [join(root, 'scripts/verify-inventory-critic-metadata-head.mjs')], {
-      cwd: root, encoding: 'utf8', timeout: 900000, maxBuffer: 8 * 1024 * 1024,
-    });
-    process.stdout.write(output);
-    assert(output.includes('INVENTORY_CRITIC_METADATA_HEAD_GREEN'), 'registered critic proof requires its exact selector');
-  } catch (error) {
-    throw new Error(verificationFailureMessage('inventory critic metadata HEAD', error));
-  }
   assert(read('packages/main/src/tasks/inventory-critic-live-metadata-projection-smoke.ts').includes('managed inventory critic receives current signed uncommitted inventory metadata in its sealed prompt'), 'managed inventory critic live metadata projection requires focused RED/GREEN coverage');
   assert(read('packages/main/src/core/managed-execution-input-identity.ts').includes('fingerprintCapturedManagedProviderState'), 'execution identity must bind captured provider inputs');
   assert(read('scripts/verify-u08-execution-identity.mjs').includes('fixture-env-secret'), 'input identity requires actual secret/environment drift regression');
@@ -11981,6 +11970,17 @@ if (failures.length) {
 }
 
 // A rejected admission must not pay for these independent positive fixture checks.
+// Execute the real behavior from this registered serial-reference driver.
+// Formatting or operand swaps cannot substitute for a two-wave witness.
+try {
+  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-inventory-critic-metadata-head.mjs')], {
+    cwd: root, encoding: 'utf8', timeout: 900000, maxBuffer: 8 * 1024 * 1024,
+  });
+  process.stdout.write(output);
+  assert(output.includes('INVENTORY_CRITIC_METADATA_HEAD_GREEN'), 'registered critic proof requires its exact selector');
+} catch (error) {
+  throw new Error(verificationFailureMessage('inventory critic metadata HEAD', error));
+}
 // Exercise the real verdict consumer, including raw-stream digest and refusal guards.
 execFileSync(process.execPath, ['packages/main/tests/codex-review-jsonl.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
 execFileSync(process.execPath, ['packages/main/tests/review-history-buffer.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
