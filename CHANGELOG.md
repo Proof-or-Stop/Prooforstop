@@ -1,5 +1,37 @@
 # Changelog
 
+## Lab inventory-guard-fixture - v0.3.418 - 2026-09-18
+
+- Preserve a mechanical check of the real caller HEAD and working tree against the merge base with local main. Existing validation commands, argv, order, timeouts, budget limits, package scripts and runner sources remain protected. Bounded additive registrations and separately gated scope paths may change; new timeout overrides cannot shadow any original command or override.
+- Keep the legacy verification slot bound to that real-caller check. Separate owned Git mutations test changes, removals, reordering, duplicates, collection shape, non-script package configuration and each 120/180/300-second timeout literal. Refusals must match the intended reason in working and committed states; restored baselines pass. Missing policy branches are explicitly seeded only in owned fixtures so controls cannot be vacuous.
+- Register the actual-source regression in the existing native smoke. It proves legitimate additive registration and formatting-only changes pass, while caller timeout and appended-override shadowing fail before and after commit. The nested invocation uses the already built runtime and runs the mutation suite once; per-check reads are reused. Independent audit feedback has specific observed RED/GREEN coverage.
+- Refresh only unchanged reviewed source bindings. Production validation policy and original smoke budgets are unchanged. This Lab is test maintenance, not formal B-e6d9 DONE; complete native smoke and Story lifecycle evidence remain separate requirements.
+
+Maintenance provenance: codex/lab-inventory-guard-fixture, repair 8059632d3004637036c16f631ed6b7e1d08783bc.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/protected-inventory-fixture.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab causal-fixture-compat - v0.3.417 - 2026-09-18
+
+- Restore causal receipt tests against current output-storage and bounded persistence-retry contracts without changing production authority.
+- Use the real receipt store for oversized selector output and exhaust both index-write retries while proving one execution and immutable receipt recovery.
+- Close the isolated acceptance fixture over registered snapshot inputs; retain complete-topology assertions and add a missing-source negative control.
+- Lab RED reproduced all three original failures; GREEN replays the same three original cases with the additional negative assertions. This does not claim full causal-suite or Story DONE evidence.
+
+Maintenance provenance: codex/lab-causal-fixture-compat, repair 99a20aa833cb2d9aaf2d45e35b3b6d43a4bf55cd.
+Verification command (replayed before integration and on main): `["node","-e","const{execFileSync}=require('node:child_process');execFileSync(process.execPath,['scripts/ensure-dist.mjs'],{stdio:'inherit'});execFileSync(process.execPath,['--test','--test-name-pattern=oversized output probes|injected index-write failure|verifier-owned topology and pre-review','packages/main/tests/causal-evidence.test.mjs'],{stdio:'inherit'});"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab stale-hint-extraction - v0.3.416 - 2026-09-18
+
+- Fix stale-evidence smoke extraction to retain the complete indented hint when stale-intent rows vary.
+- Keep byte-exact cross-surface assertions and exercise one, three, and fifteen stale intents, surrounding output, and altered recovery commands.
+- Lab RED reproduced truncation; GREEN replays the same built focused regression. Full native Story freshness replay remains a separate acceptance requirement.
+
+Maintenance provenance: codex/lab-stale-hint-extraction, repair e7c80f9cc153fc5405a17e4f39a507a30040e824.
+Verification command (replayed before integration and on main): `["node","-e","const{execFileSync}=require('node:child_process');execFileSync(process.execPath,['scripts/ensure-dist.mjs'],{stdio:'inherit'});execFileSync(process.execPath,['packages/main/dist/tasks/verification-freshness-smoke.js','--stale-hint-extraction-only'],{stdio:'inherit'});"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab review-run-id-guidance - v0.3.415 - 2026-09-18
 
 Pending REVIEW guidance now explicitly tells the independent reviewer to bind its finding or pass to the run ID returned by review_run_start. Canonical dispatch, distinct child IDs, exact child waits, and reviewer ownership remain unchanged.
