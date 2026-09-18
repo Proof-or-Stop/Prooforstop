@@ -1,5 +1,16 @@
 # Changelog
 
+## Lab inventory-guard-fixture - v0.3.418 - 2026-09-18
+
+- Keep a mechanical check of the real caller branch and working tree against local main. Existing validation commands, argv, ordering, timeouts, scope budget limits, package scripts and runner sources must remain unchanged. Permit additive command and distinct timeout-override registrations, additive validation-group command IDs, patch-version metadata and independently gated scope paths; reject other configuration drift.
+- Keep the legacy verification slot bound to that real-caller check. Add a separate owned Git mutation group that rejects working and committed semantic command, timeout, budget, script, configuration-presence and runner changes; each refusal must match its intended reason. Remove each 120/180/300-second source literal as an additional negative control, and verify restored baselines pass.
+- Register the actual-source fixture regression in the native execution-lock smoke. It proves legitimate additive feature registration and formatting-only edits pass while an original caller timeout mutation fails both before and after commit. It also checks caller isolation and temporary-root cleanup. Independent audit feedback is covered by a new observed RED followed by GREEN.
+- Existing identity/source bindings are refreshed for unchanged reviewed lines only. This is test-harness maintenance, not a production policy bypass or formal Story DONE; complete native execution-lock validation and B-e6d9 lifecycle evidence remain separate requirements.
+
+Maintenance provenance: codex/lab-inventory-guard-fixture, repair fa391f0453d2dbf8ea071e80008c8ca32c5c63f1.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/protected-inventory-fixture.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab causal-fixture-compat - v0.3.417 - 2026-09-18
 
 - Restore causal receipt tests against current output-storage and bounded persistence-retry contracts without changing production authority.
