@@ -1,5 +1,15 @@
 # Changelog
 
+## Lab review-run-id-guidance - v0.3.415 - 2026-09-18
+
+Pending REVIEW guidance now explicitly tells the independent reviewer to bind its finding or pass to the run ID returned by review_run_start. Canonical dispatch, distinct child IDs, exact child waits, and reviewer ownership remain unchanged.
+
+The regression executes the actual session handler against an isolated pending REVIEW Story and checks both the existing dispatch contract and the restored returned-ID placeholder. The original flow assertions are preserved. No signature gate or production review authority changes; this Lab does not complete Story B-e6d9.
+
+Maintenance provenance: codex/lab-review-run-id-guidance, repair 8846628a6499974cdf5cf2ba537c59be702616f9.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/review-run-id-guidance.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab dirty-category-init - v0.3.414 - 2026-09-18
 
 - Fix the existing circular initialization that prevents the flow validation entry from starting: dirty-worktree reaches its eager policy through evidence freshness and the validation executor before its category constant has initialized.
