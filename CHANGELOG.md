@@ -1,5 +1,16 @@
 # Changelog
 
+## Lab validation-companion-compat - v0.3.413 - 2026-09-18
+
+- Update the validation input companion to use the current complete-capture API and require one physical execution, exact diagnostic reason, unchanged original result, and no fabricated shared receipt when context is absent.
+- Check the current bounded display contract: the truncation marker is included within the configured cap. Preserve oversize non-reuse, small-output reuse, signed-receipt diagnostic exclusion, and tamper refusal.
+- Add one committed runner for all seven existing companion invocations with unchanged 120-second child limits and per-invocation timings. Current-main RED reproduced both stale expectations; GREEN passed all seven in 33.045 seconds including orchestration.
+- This bounded Lab changes tests only. It makes no production gate changes or performance claim and does not mark B-e6d9 DONE.
+
+Maintenance provenance: codex/lab-validation-companion-compat, repair 4f137a1cc48c8bb75f6b1ec6a86e48dd3d7969c0.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/validation-companion-compat.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab verification-enum-diagnostic - v0.3.412 - 2026-09-18
 
 - Restore the received invalid verification type in CLI enum diagnostics, so an evidence kind such as `integration_test` produces an actionable error alongside the permitted verification types.
