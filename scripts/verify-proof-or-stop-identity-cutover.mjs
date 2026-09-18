@@ -5477,7 +5477,7 @@ const CURRENT_COMPATIBLE_SCHEMA_ROWS = [
     "path": "scripts/lab/u18-static-edges/exceptions.json",
     "token": "lattice.native_review_invocation_attestation.v1",
     "count": 4,
-    "contextSha256": "4a9f39f7ae7aab728564fc9617cb3836b5dbddd5b32939c6228505cbad98684a"
+    "contextSha256": "0e62c8752a7f7840794d21f483760e0fb0672081fdeaf7cd3f31e3ad12f49bc7"
   },
   {
     "path": "scripts/verify-crosshost-preflight-handler.mjs",
@@ -7474,7 +7474,7 @@ const REVIEWED_CONTEXT_READERS = [
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "dfd5dc0d7ef5de510bbe098de76ec11d62c2ac2cd43f6b83e103a8375e0fcb72"
+    "sha256": "c654dadb80ff38207a684ea6bc47dd3ae4c93bda6fb80479eb1f221fed10d9ca"
   }
 ];
 function verifyReviewedContextReaders(root) {
