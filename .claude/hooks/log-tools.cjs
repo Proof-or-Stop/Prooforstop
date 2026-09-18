@@ -4,6 +4,7 @@
  * 和 CLI 日志合并在同一个文件，用 source 字段区分
  */
 const fs = require('fs');
+const { constants: fsConstants } = require('fs');
 const os = require('os');
 const path = require('path');
 const crypto = require('crypto');
@@ -49,10 +50,7 @@ process.stdin.on('end', () => {
     if (owner === 'uncertain') process.exit(0); // that repository may be validating
     const top = owner === 'non-repository' ? null : owner;
     if (top !== null && !insideDirectory(top, destination)) process.exit(0);
-    const append = () => {
-      fs.mkdirSync(path.dirname(destination), { recursive: true });
-      fs.appendFileSync(destination, line);
-    };
+    const append = () => appendVerified(destination, top, line);
     // A destination outside every repository cannot be validating. One inside a worktree
     // is written only while this hook holds that worktree's own validation capacity
     // ticket, so a validation can never overlap the write. When capacity cannot be held,
@@ -111,29 +109,61 @@ function resolveThroughExistingAncestor(target) {
 }
 
 /**
- * The path this line would really be appended to: the directory chain resolved through
- * every existing symlink and then the log entry itself followed through its COMPLETE
- * symlink chain, because appendFileSync follows all of it. Returns null when the chain
- * cannot be resolved, loops, or ends at something that is not a plain file - a FIFO named
- * activity.jsonl would otherwise block while a capacity ticket is held.
+ * The plain log path this line may be appended to: its directory chain resolved, and the
+ * log entry itself required to be a plain file. A symlinked log is REFUSED outright - the
+ * hook never follows one - so no link chain, `..` traversal or retarget can move the write
+ * somewhere else. The write itself is then done through a verified descriptor.
  */
 function resolveDestination(target) {
-  let current = target;
-  for (let hop = 0; hop < 40; hop++) {
-    const parent = resolveThroughExistingAncestor(path.dirname(current));
-    if (parent === null) return null;
-    current = path.join(parent, path.basename(current));
-    let info = null;
-    try { info = fs.lstatSync(current); } catch (error) { return error.code === 'ENOENT' ? current : null; }
-    if (info.isSymbolicLink()) {
-      let link;
-      try { link = fs.readlinkSync(current); } catch { return null; }
-      current = path.resolve(path.dirname(current), link);
-      continue;
-    }
-    return info.isFile() ? current : null;
+  const parent = resolveThroughExistingAncestor(path.dirname(target));
+  if (parent === null) return null;
+  const destination = path.join(parent, path.basename(target));
+  try {
+    const info = fs.lstatSync(destination);
+    if (!info.isFile()) return null; // a symlink, FIFO or device is not a log this hook writes
+  } catch (error) { if (error.code !== 'ENOENT') return null; }
+  return destination;
+}
+
+/**
+ * Append through a descriptor opened without following a final symlink and then verified:
+ * a plain file, not hard-linked elsewhere, and still the intended path inside the
+ * protected worktree. Anything else - including a destination swapped between the
+ * inspection and the write - drops the line instead of writing it.
+ */
+function appendVerified(destination, top, line) {
+  if (top !== null && !insideDirectory(top, destination)) return;
+  const parent = path.dirname(destination);
+  let before;
+  let fd;
+  try {
+    fs.mkdirSync(parent, { recursive: true });
+    // The parent's identity is captured before the open and re-checked after it, so a
+    // directory replaced by a link to another repository during admission is caught.
+    before = fs.lstatSync(parent);
+    if (!before.isDirectory()) return;
+    fd = fs.openSync(destination, fsConstants.O_WRONLY | fsConstants.O_APPEND | fsConstants.O_CREAT | fsConstants.O_NOFOLLOW | fsConstants.O_NONBLOCK, 0o644);
+  } catch { return; }
+  try {
+    const opened = fs.fstatSync(fd);
+    // A FIFO or device would block; a hard link would change another repository's file.
+    if (!opened.isFile() || opened.nlink !== 1) return;
+    const after = fs.lstatSync(parent);
+    if (!after.isDirectory() || after.dev !== before.dev || after.ino !== before.ino) return;
+    // Canonical containment, not just the spelling: an ancestor replaced by a link to
+    // another repository leaves the path looking local while the file is not.
+    let canonicalParent;
+    try { canonicalParent = fs.realpathSync(parent); } catch { return; }
+    if (top !== null && !insideDirectory(top, canonicalParent)) return;
+    const named = fs.lstatSync(destination);
+    // The descriptor must still be exactly the file this path names.
+    if (!named.isFile() || named.dev !== opened.dev || named.ino !== opened.ino) return;
+    fs.writeSync(fd, line);
+  } catch {
+    /* the line is dropped */
+  } finally {
+    try { fs.closeSync(fd); } catch { /* already closed */ }
   }
-  return null; // a symlink loop or an unreasonably long chain
 }
 
 /** The deepest ancestor of `target` that exists, so Git can be asked about it. */
@@ -146,6 +176,24 @@ function nearestExistingAncestor(target) {
     current = parent;
   }
   return null;
+}
+
+/**
+ * Read a queue holder record without following symlinks and without ever blocking: a FIFO
+ * named holder.json would otherwise hang the hook while it holds its own ticket.
+ */
+function readHolderRecord(file) {
+  let fd;
+  try { fd = fs.openSync(file, fsConstants.O_RDONLY | fsConstants.O_NONBLOCK | fsConstants.O_NOFOLLOW); } catch { return null; }
+  try {
+    const info = fs.fstatSync(fd);
+    if (!info.isFile() || info.size > 64 * 1024) return null;
+    return JSON.parse(fs.readFileSync(fd, 'utf8'));
+  } catch {
+    return null;
+  } finally {
+    try { fs.closeSync(fd); } catch { /* already closed */ }
+  }
 }
 
 function pidAlive(pid) {
@@ -172,8 +220,8 @@ function workspaceCapacityDir(top) {
  * already admitted. Only a readable record with a dead pid is 'dead'.
  */
 function capacityHolderState(entryPath) {
-  let holder;
-  try { holder = JSON.parse(fs.readFileSync(path.join(entryPath, 'holder.json'), 'utf8')); } catch { return 'uncertain'; }
+  const holder = readHolderRecord(path.join(entryPath, 'holder.json'));
+  if (holder === null) return 'uncertain';
   if (!Number.isSafeInteger(holder?.pid)) return 'uncertain';
   return pidAlive(holder.pid) ? 'alive' : 'dead';
 }

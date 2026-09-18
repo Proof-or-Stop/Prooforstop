@@ -268,6 +268,64 @@ try {
     expectRepaired(lines(validating).includes('after-redirect'),
       `the redirected destination is written once nothing is validating (got ${JSON.stringify(lines(validating))})`);
   }
+  // A hard link shares an inode with another repository: writing it changes that file.
+  {
+    const source = repo();
+    const other = repo();
+    mkdirSync(join(source, 'docs/story'), { recursive: true });
+    mkdirSync(join(other, 'docs/story'), { recursive: true });
+    writeFileSync(join(other, 'docs/story/activity.jsonl'), '');
+    execFileSync('ln', [join(other, 'docs/story/activity.jsonl'), join(source, 'docs/story/activity.jsonl')]);
+    const otherTicket = ticket(other, live.pid);
+    callHook(source, 'hard-linked-log');
+    const escaped = readFileSync(join(other, 'docs/story/activity.jsonl'), 'utf8');
+    rows.push({ scenario: 'log hard-linked into another repository', during: escaped.length, detail: '-' });
+    expectRepaired(escaped.length === 0, `a hard-linked log must not change another validating repository's file (wrote ${JSON.stringify(escaped)})`);
+    rmSync(otherTicket, { recursive: true, force: true });
+  }
+  // A holder record that is a FIFO must not hang the hook while it holds its own ticket.
+  {
+    const root = repo();
+    const dir = join(capacityDirFor(root), '0000000000000001-fifo-holder.ticket');
+    mkdirSync(dir, { recursive: true });
+    spawnSync('mkfifo', [join(dir, 'holder.json')]);
+    const started = Date.now();
+    const r = callHook(root, 'fifo-holder', {}, 8000);
+    const elapsed = Date.now() - started;
+    const blocked = Boolean(r.error && r.error.code === 'ETIMEDOUT');
+    const leftover = readdirSync(capacityDirFor(root)).filter((name) => name.endsWith('.ticket') || name.endsWith('.choosing'));
+    rows.push({ scenario: 'capacity holder record is a FIFO', during: elapsed, detail: blocked ? 'blocked' : `${leftover.length} entries left` });
+    expectRepaired(!blocked, `a FIFO holder record must not block the hook (took ${elapsed}ms)`);
+    expectRepaired(leftover.length === 1, `the hook removes its own ticket (left ${JSON.stringify(leftover)})`);
+    rmSync(dir, { recursive: true, force: true });
+  }
+  // The destination is replaced during admission: the write must not follow it.
+  for (const [name, swap] of [
+    ['log replaced by a symlink', (source, other) => { rmSync(join(source, 'docs/story/activity.jsonl'), { force: true }); symlinkSync(join(other, 'docs/story/activity.jsonl'), join(source, 'docs/story/activity.jsonl')); }],
+    ['parent replaced by a symlink', (source, other) => { rmSync(join(source, 'docs'), { recursive: true, force: true }); symlinkSync(join(other, 'docs'), join(source, 'docs')); }],
+  ]) {
+    const source = repo();
+    const other = repo();
+    mkdirSync(join(source, 'docs/story'), { recursive: true });
+    mkdirSync(join(other, 'docs/story'), { recursive: true });
+    writeFileSync(join(source, 'docs/story/activity.jsonl'), '');
+    writeFileSync(join(other, 'docs/story/activity.jsonl'), '');
+    const barrier = join(sandbox, `barrier-swap-${n++}`);
+    writeFileSync(barrier, 'hold');
+    const writing = callHookAsync(source, `swap-${name.replace(/\W+/g, '-')}`, { PROOF_OR_STOP_ACTIVITY_ADMISSION_BARRIER: barrier });
+    // Taking a ticket at all is part of the repair; without it there is no admitted
+    // interval in which the destination could be swapped.
+    const admitted = await waitUntil(() => { try { return readdirSync(capacityDirFor(source)).some((entry) => entry.endsWith('.ticket')); } catch { return false; } }, 4000);
+    expectRepaired(admitted, `the hook takes a ticket before writing (${name})`);
+    swap(source, other);
+    const otherTicket = ticket(other, live.pid); // the destination repository is validating
+    rmSync(barrier, { force: true });
+    await writing;
+    const escaped = readFileSync(join(other, 'docs/story/activity.jsonl'), 'utf8');
+    rows.push({ scenario: `destination swapped during admission (${name})`, during: escaped.length, detail: '-' });
+    expectRepaired(escaped.length === 0, `a ${name} during admission must not redirect the write (wrote ${JSON.stringify(escaped)})`);
+    rmSync(otherTicket, { recursive: true, force: true });
+  }
   // Discovery: uncertainty never reads as "no repository".
   for (const [name, script] of [
     ['git exits without a diagnostic', '#!/bin/sh\nexit 128\n'],
