@@ -23,7 +23,11 @@ timeout.
   reservation can extend past Node's 2^31-1 ms timer ceiling for timeouts near the supported maximum. The
   delegation module's handshake and grant-expiry timers therefore use a segmented `deadlineTimer` that
   re-arms in bounded steps instead of passing the whole duration to `setTimeout` (which would silently
-  fire after 1 ms). Found by the first independent audit of this Lab.
+  fire after 1 ms). The lock module's grant-wait timer uses the same segmented timer. Found by the first
+  and second independent audits of this Lab.
+- The capacity wait's own deadline error is a typed `ValidationCapacityWaitDeadlineError`; the executor turns
+  only that type into a code-124 result, so a caller-supplied deadline error is rethrown unchanged whatever
+  its message (second audit).
 - The earlier contract - "a queue wait consumes the configured budget", recorded in
   `docs/lab/nested-verification-machine-owner.md` and asserted by mode `queue-wait-cap` of
   `scripts/verify-nested-validation-result-contract.mjs`, and "a queued command timeout launches zero" in
@@ -47,7 +51,12 @@ Audit round 1 regression: an outer command and its delegated nested command both
 exits 0. (On main before this Lab the reservation never exceeded the ceiling, so this scenario guards the
 new bound rather than an old defect.)
 
-Before: 4 failing expectations. After: 10 checks. Controls kept in both: an uncontended command runs; a
+Audit round 2 regressions, both failing on the round-1 candidate: a delegated admission whose wait bound lies
+beyond the timer ceiling (with an ordinary 60 s caller deadline) was aborted at once with a
+`TimeoutOverflowWarning`, and a queued caller whose own deadline error carried the capacity message received a
+code-124 result instead of its error. Both pass now.
+
+Before: 4 failing expectations. After: 12 checks. Controls kept in both: an uncontended command runs; a
 command overrunning its own timeout is still killed; an outer deadline still bounds the queue wait; work
 admitted in time runs past the wait bound; a caller deadline still reports the caller's own error.
 `verify-nested-validation-result-contract.mjs queue-wait-cap` after the change: queued ~1.6 s, armed 4000 ms,

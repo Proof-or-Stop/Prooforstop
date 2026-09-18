@@ -2,7 +2,7 @@ import { validationReservationChildEnvironment, validationReservationChildStdio,
 import { isWithinValidationEvidenceWriteBound } from './validation-evidence-size-policy.js';
 import { withValidationPlanStages, withValidationCommandStage } from './validation-execution-lock.js';
 import { VALIDATION_RUNTIME_TRACE_POLICY, VALIDATION_SOURCE_PROVENANCE_SCHEMA, VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY, MACHINE_FIXED_PORT_RUNTIME_POLICY } from './runtime-fact-registry.js';
-import { withMachineValidationResources } from './validation-execution-lock.js';
+import { isValidationCapacityWaitDeadlineError, withMachineValidationResources } from './validation-execution-lock.js';
 import { executeSharedValidationCommand, type SharedValidationExecutionContext } from './shared-validation-execution.js';
 import { execFileSync, execSync, spawn } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from 'node:fs';
@@ -1428,9 +1428,9 @@ async function runValidationCommandWithCompleteOutputUnscheduled(
       });
   } catch (error) {
     const aborted = options.abortSignal?.aborted && (error === options.abortSignal.reason || boundedValidationErrorMessage(error) === 'workspace validation capacity wait aborted');
-    // With a caller deadline error, the plain capacity message can only come from the queue's own
-    // wait bound (the caller's deadline reports the caller's error), so it is a result, not a throw.
-    const expired = boundedValidationErrorMessage(error) === 'workspace validation capacity wait deadline exceeded';
+    // Only the capacity wait's own typed deadline error becomes a result; a caller-supplied deadline
+    // error is rethrown unchanged whatever its message says.
+    const expired = isValidationCapacityWaitDeadlineError(error);
     const delegationRefused = isValidationDelegationError(error);
     if (completedCapture) {
       // The complete authenticated artifact is preserved verbatim with the cleanup diagnostic

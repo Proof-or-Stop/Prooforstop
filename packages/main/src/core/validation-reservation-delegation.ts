@@ -237,12 +237,13 @@ function conflict(a: ResourceClaim[] | null, b: ResourceClaim[] | null): boolean
 // is silently reduced to 1 ms, so an absolute deadline beyond it would fire at once.
 const MAX_TIMER_DELAY_MS = 2_147_483_647;
 /** Fire once `deadlineAt` has passed, re-arming in bounded segments when it lies beyond the timer ceiling. */
-export function deadlineTimer(deadlineAt: number, fire: () => void): { cancel(): void } {
+export function deadlineTimer(deadlineAt: number, fire: () => void, options: { unref?: boolean } = {}): { cancel(): void } {
   let handle: NodeJS.Timeout | undefined, cancelled = false;
   const arm = (): void => {
     if (cancelled) return;
     const remaining = deadlineAt - Date.now();
     handle = remaining > MAX_TIMER_DELAY_MS ? setTimeout(arm, MAX_TIMER_DELAY_MS) : setTimeout(fire, Math.max(1, remaining));
+    if (options.unref) handle.unref();
   };
   arm();
   return { cancel: () => { cancelled = true; clearTimeout(handle); } };

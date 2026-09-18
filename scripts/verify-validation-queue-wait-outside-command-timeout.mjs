@@ -107,6 +107,52 @@ function nestedAtMaximum() {
   return { outerCode: code, inner: inner ? JSON.parse(inner[1]) : null, overflow: /TimeoutOverflowWarning/.test(output) };
 }
 
+// A delegated admission whose wait bound lies beyond the timer ceiling while the caller's deadline is
+// an ordinary 60 s: the grant request must be admitted, not aborted after 1 ms.
+const farWaitScript = join(sandbox, 'far-wait.mjs');
+writeFileSync(farWaitScript, `
+const { withMachineValidationResources } = await import(${JSON.stringify(`file://${join(dist, 'core/validation-execution-lock.js')}`)});
+const { MAX_NODE_TIMER_DELAY_MS } = await import(${JSON.stringify(`file://${join(dist, 'core/validation-executor.js')}`)});
+let ran = false, error = null;
+try {
+  await withMachineValidationResources({ root: process.argv[2], workspaceRoot: process.argv[2], command: 'far-wait', resources: [{ class: 'machine-cpu', key: 'heavy', access: 'exclusive' }],
+    deadlineAt: Date.now() + 60_000, waitDeadlineAt: Date.now() + MAX_NODE_TIMER_DELAY_MS + 1_000_000 }, async () => { await new Promise((r) => setTimeout(r, 200)); ran = true; });
+} catch (e) { error = e instanceof Error ? e.message : String(e); }
+console.log('INNER ' + JSON.stringify({ code: ran ? 0 : 1, ran, error }));
+`);
+const farOuterScript = join(sandbox, 'far-outer.mjs');
+writeFileSync(farOuterScript, `
+const { runValidationCommand } = await import(${JSON.stringify(`file://${join(dist, 'core/validation-executor.js')}`)});
+const r = await runValidationCommand({ label: 'outer', command: process.execPath, args: [${JSON.stringify(farWaitScript)}, process.argv[2]], timeoutMs: 30_000, resources: [{ class: 'machine-cpu', key: 'heavy', access: 'exclusive' }] }, process.argv[2]);
+console.log('OUTER ' + JSON.stringify({ code: r.code, output: r.output }));
+`);
+function delegatedFarWait() {
+  const r = spawnSync(process.execPath, [farOuterScript, workspace], { env: machineEnv, encoding: 'utf8', timeout: 60_000 });
+  const outer = r.stdout.match(/OUTER (\{.*\})/);
+  if (r.status !== 0 || !outer) throw new Error(`far-wait runner failed (not the target RED): ${r.stdout}${r.stderr}`);
+  const { code, output } = JSON.parse(outer[1]);
+  const inner = output.match(/INNER (\{.*\})/);
+  return { outerCode: code, inner: inner ? JSON.parse(inner[1]) : null, overflow: /TimeoutOverflowWarning/.test(output) };
+}
+// A caller-supplied deadline error whose message equals the capacity wait's own must still be thrown.
+const callerErrorScript = join(sandbox, 'caller-error.mjs');
+writeFileSync(callerErrorScript, `
+const { runValidationCommand } = await import(${JSON.stringify(`file://${join(dist, 'core/validation-executor.js')}`)});
+const mine = new Error('workspace validation capacity wait deadline exceeded');
+let outcome;
+try {
+  const r = await runValidationCommand({ label: 'caller-error', command: process.execPath, args: ['-e', 'console.log("COMMAND-RAN")'], timeoutMs: 2000 }, process.argv[2], undefined, { deadlineAt: Date.now() + 1000, deadlineError: () => mine });
+  outcome = { threw: false, code: r.code };
+} catch (e) { outcome = { threw: true, identical: e === mine }; }
+console.log('CALLER ' + JSON.stringify(outcome));
+`);
+function callerError() {
+  const r = spawnSync(process.execPath, [callerErrorScript, workspace], { env: machineEnv, encoding: 'utf8', timeout: 60_000 });
+  const m = r.stdout.match(/CALLER (\{.*\})/);
+  if (!m) throw new Error(`caller-error runner failed (not the target RED): ${r.stdout}${r.stderr}`);
+  return JSON.parse(m[1]);
+}
+
 async function waitFor(path, ms) {
   const deadline = Date.now() + ms;
   while (!existsSync(path)) { if (Date.now() > deadline) return false; await new Promise((r) => setTimeout(r, 50)); }
@@ -169,6 +215,15 @@ try {
   rows.push({ scenario: 'delegated nested command, both at the maximum timeout', code: maximum.inner?.code, timedOut: maximum.inner?.timedOut, ran: maximum.inner?.ran, effectiveTimeoutMs: '-', wallMs: maximum.overflow ? 'timer overflow' : '-' });
   expectRepaired(maximum.outerCode === 0 && maximum.inner?.code === 0 && maximum.inner.ran && !maximum.overflow,
     `a delegated command at the maximum timeout stays active after admission (inner ${JSON.stringify(maximum.inner)}, overflow ${maximum.overflow})`);
+
+  const far = delegatedFarWait();
+  rows.push({ scenario: 'delegated admission, wait bound beyond the timer ceiling, caller deadline 60s', code: far.inner?.code, timedOut: far.inner?.error, ran: far.inner?.ran, effectiveTimeoutMs: '-', wallMs: far.overflow ? 'timer overflow' : '-' });
+  expectRepaired(far.outerCode === 0 && far.inner?.ran === true && !far.overflow,
+    `a wait bound beyond the timer ceiling must not abort a delegated admission (inner ${JSON.stringify(far.inner)}, overflow ${far.overflow})`);
+
+  const caller = await behindHolder(4000, async () => callerError());
+  rows.push({ scenario: 'queued, caller deadline error named like the capacity wait', code: caller.code ?? '-', timedOut: caller.threw ? 'threw' : 'result', ran: '-', effectiveTimeoutMs: '-', wallMs: '-' });
+  expectRepaired(caller.threw && caller.identical, `the caller's own deadline error is thrown unchanged (got ${JSON.stringify(caller)})`);
 } finally {
   rmSync(sandbox, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
   machine.cleanup();

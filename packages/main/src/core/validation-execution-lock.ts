@@ -1,4 +1,4 @@
-import { withInheritedMachineReservation, withMachineReservationController, machineReservationResidualsPresent, inheritedValidationReservationPortAlreadyHeld, currentValidationReservationAbortSignal } from './validation-reservation-delegation.js';
+import { withInheritedMachineReservation, withMachineReservationController, machineReservationResidualsPresent, inheritedValidationReservationPortAlreadyHeld, currentValidationReservationAbortSignal, deadlineTimer } from './validation-reservation-delegation.js';
 import { VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS, MACHINE_FIXED_PORT_RUNTIME_POLICY, VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY, VALIDATION_RESOURCE_KEY_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import { withSharedValidationExecutions, type SharedValidationExecutionContext } from './shared-validation-execution.js';
 import { AsyncLocalStorage } from 'node:async_hooks';
@@ -505,12 +505,25 @@ export interface OfficialValidationExecutionOptions extends ValidationCapacityLo
   ownerLeaseHeartbeat?: OwnerLeaseHeartbeatOptions;
 }
 
+/** The capacity wait's own deadline error, distinguishable from any caller-supplied deadline error by type. */
+export class ValidationCapacityWaitDeadlineError extends Error {
+  constructor() { super('workspace validation capacity wait deadline exceeded'); this.name = 'ValidationCapacityWaitDeadlineError'; capacityWaitDeadlineErrors.add(this); }
+}
+const capacityWaitDeadlineErrors = new WeakSet<object>();
+/**
+ * Identity check for the capacity wait's own deadline error. It reads nothing from the value (no prototype
+ * walk, no property access), so a hostile thrown value can neither spoof it nor replace the original error.
+ */
+export function isValidationCapacityWaitDeadlineError(error: unknown): boolean {
+  return typeof error === 'object' && error !== null && capacityWaitDeadlineErrors.has(error);
+}
+
 function capacityDeadlineError(options: ValidationCapacityLockOptions): Error {
   // A caller's deadline error describes the caller's own deadline; an expired admission-wait
   // bound alone is reported as the capacity wait deadline it is.
   const callerDeadlineReached = typeof options.deadlineAt === 'number' && Number.isFinite(options.deadlineAt) && Date.now() >= options.deadlineAt;
   const waitOnly = typeof options.waitDeadlineAt === 'number' && !callerDeadlineReached;
-  return (waitOnly ? undefined : options.deadlineError?.()) ?? new Error('workspace validation capacity wait deadline exceeded');
+  return (waitOnly ? undefined : options.deadlineError?.()) ?? new ValidationCapacityWaitDeadlineError();
 }
 
 /** The earlier of the caller's overall deadline and its admission-wait deadline. */
@@ -858,14 +871,14 @@ export async function withMachineValidationResources<T>(options: ValidationCapac
   ] }], options.workspaceRoot)[0]!.resources : undefined;
   // A separate admission-wait bound applies only to the grant request, never to the granted frame.
   const grantWait = typeof options.waitDeadlineAt === 'number' && Number.isFinite(options.waitDeadlineAt) ? new AbortController() : undefined;
-  const grantWaitTimer = grantWait ? setTimeout(() => grantWait.abort(new Error('grant wait deadline')), Math.max(1, options.waitDeadlineAt! - Date.now())) : undefined;
-  grantWaitTimer?.unref();
+  // Segmented, so a wait bound beyond Node's timer ceiling never fires at once.
+  const grantWaitTimer = grantWait ? deadlineTimer(options.waitDeadlineAt!, () => grantWait.abort(new Error('grant wait deadline')), { unref: true }) : undefined;
   let inherited: Awaited<ReturnType<typeof withInheritedMachineReservation<T>>>;
   let entered = false;
   try {
     inherited = await withInheritedMachineReservation(claims ?? null, options.deadlineAt ?? Date.now() + MACHINE_FIXED_PORT_RUNTIME_POLICY.queueDeadlineMs, options.abortSignal, async () => {
       entered = true;
-      clearTimeout(grantWaitTimer);
+      grantWaitTimer?.cancel();
       for (const claim of (claims ?? []).filter(claim => claim.class === 'fixed-port' && claim.access === 'exclusive')) if(!inheritedValidationReservationPortAlreadyHeld(claim.key)) await probeMachineFixedPort(Number(claim.key));
       currentValidationReservationAbortSignal()?.throwIfAborted();
       assertCapacityWaitActive(options); return await fn();
@@ -874,7 +887,7 @@ export async function withMachineValidationResources<T>(options: ValidationCapac
     if (!entered && grantWait?.signal.aborted && error === grantWait.signal.reason) throw capacityDeadlineError(options);
     throw error;
   } finally {
-    clearTimeout(grantWaitTimer);
+    grantWaitTimer?.cancel();
   }
   if (inherited.inherited) return inherited.value;
   const nested = currentContextOwns(lockKey);
