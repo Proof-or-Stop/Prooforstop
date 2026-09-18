@@ -72,8 +72,16 @@ class BuildArtifactsIdentityUnavailable extends Error {
 function entriesBelow(root: string): Array<{ path: string; kind: 'directory' | 'file'; executeMask: number }> {
   const result: Array<{ path: string; kind: 'directory' | 'file'; executeMask: number }> = [];
   const visit = (directory: string): void => {
-    for (const entry of readdirSync(directory, { withFileTypes: true })) {
-      const path = join(directory, entry.name);
+    // Names are read as BYTES: a name that is not valid UTF-8 (a raw 0x80,
+    // say) decodes to the same string as a distinct name spelled with U+FFFD,
+    // and a string-addressed walker would read one file twice and the other
+    // never. Such a name cannot be addressed unambiguously by this walker,
+    // so the tree is unavailable rather than digested around it.
+    for (const raw of readdirSync(directory, { withFileTypes: true, encoding: 'buffer' })) {
+      const name = raw.name.toString('utf8');
+      if (!Buffer.from(name, 'utf8').equals(raw.name)) throw new BuildArtifactsIdentityUnavailable(join(directory, name), 'entry name is not valid UTF-8');
+      const entry = raw;
+      const path = join(directory, name);
       if (entry.isSymbolicLink()) throw new BuildArtifactsIdentityUnavailable(path);
       if (entry.isDirectory()) { result.push({ path, kind: 'directory', executeMask: lstatSync(path).mode & 0o111 }); visit(path); }
       else if (entry.isFile()) {

@@ -523,6 +523,33 @@ try {
     check(binding.currentBuildArtifactsHash(permRoot) === rootSearchable, 'control: restoring the root\'s search bits restores the identity');
   }
 
+  // Audit #29 (2): entry names are BYTES. A name that is not valid UTF-8 (a raw
+  // 0x80) decodes to the same string as a distinct name spelled with U+FFFD,
+  // so a string-addressed walker reads one file twice and the other never; a
+  // tree holding such a name is unavailable, not digested around it. Where the
+  // filesystem refuses the raw name (APFS does) the case says so; the U+FFFD
+  // name alone is an ordinary, distinct artifact.
+  if (binding) {
+    const replacementName = join(mainDist, 'raw-\uFFFD.js');
+    const rawName = Buffer.concat([Buffer.from(join(mainDist, 'raw-')), Buffer.from([0x80]), Buffer.from('.js')]);
+    writeFileSync(replacementName, 'process.exit(0); // replacement-character name\n');
+    let rawCreated = false;
+    try {
+      const withReplacement = binding.currentBuildArtifactsHash(root);
+      check(Boolean(withReplacement) && withReplacement !== recordedBuild, 'control: a U+FFFD-named artifact is a distinct, digestible entry');
+      try { writeFileSync(rawName, 'process.exit(0); // raw-byte name\n'); rawCreated = true; } catch (error) { console.log(`raw-byte filename case skipped: this filesystem refuses the name (${error?.code ?? error})`); }
+      if (rawCreated) {
+        expectRepaired(binding.currentBuildArtifactsHash(root) === undefined, 'an artifact whose name is not valid UTF-8 was digested (a string-addressed walker collides it with the U+FFFD name)');
+        writeFileSync(rawName, 'process.exit(1); // raw-byte name, rewritten\n');
+        expectRepaired(binding.currentBuildArtifactsHash(root) === undefined, 'a rewritten raw-byte-named artifact still yielded an identity');
+      }
+    } finally {
+      if (rawCreated) rmSync(rawName, { force: true });
+      rmSync(replacementName, { force: true });
+    }
+    check(binding.currentBuildArtifactsHash(root) === recordedBuild, 'control: removing both names restores the recorded identity');
+  }
+
   // Audit #14 (1): a symbolic link on the PATH to a tree (`packages/main`)
   // re-targets the whole tree without touching a byte inside it, and no
   // protection of the resolved tree covers the link: identity unavailable.
@@ -1185,6 +1212,50 @@ try {
       writeFileSync(join(sharedMainDist, 'x.js'), BUILD_B);
     }
     expectRepaired(refused === 2, `a command that rewrote dist under the shared cache was published (${refused} of 2 attempts refused)`);
+    // Audit #29 (1): the cache keys, snapshots and probes the PINNED canonical
+    // directory the command executes in, never the declared cwd. The project
+    // is reached through an alias (`linkRepo` -> checkout A); a second
+    // checkout B carries a different committed input, its own lease and
+    // window, and shares the receipt store. A run declared through the alias
+    // is pinned to A before its first launch (as the executor pins every
+    // command); an earlier command of that run re-points the alias at B; the
+    // exact-inputs command still executes in A and its receipt must describe
+    // A's inputs. A later run pinned to B must execute and fail — never reuse
+    // A's PASS on the strength of a receipt that described B.
+    if (binding && typeof binding.canonicalizeExistingPath === 'function') {
+      writeFileSync(join(sharedMainDist, 'x.js'), BUILD_A);
+      const checkoutA = root;
+      const checkoutB = join(sharedSandbox, 'repo-b'); cpSync(checkoutA, checkoutB, { recursive: true });
+      writeFileSync(join(checkoutB, 'input.txt'), 'input v2\n');
+      git(checkoutB, ['add', '.']); git(checkoutB, ['commit', '-qm', 'second checkout: different input']);
+      const storeB = new StoryStore(checkoutB);
+      persistSyntheticAdmittedWindowForTest({ store: storeB, storyId, projectRoot: checkoutB, causalInputHashes: deriveCertificationDomainInputHashes(checkoutB, 'HEAD', checkoutB) });
+      acquireOwnerLease(storeB.storyDirPath(storyId), { command: 'fixture-owner', cwd: checkoutB });
+      const linkRepo = join(sharedSandbox, 'linkRepo'); symlinkSync(checkoutA, linkRepo, 'dir');
+      const aliasCmd = { label: 'alias unit', command: 'node', args: ['-e', "const v = require('node:fs').readFileSync('input.txt', 'utf8').trim(); process.stdout.write('alias ' + v); process.exit(v === 'input v1' ? 0 : 1)"], executionReuse: 'exact-inputs', executionInputs: ['input.txt'], timeoutMs: 20_000 };
+      const sharedAtA = sharedExecution;
+      const sharedAtB = { storyId, receiptStore: store, probe: (input) => probeValidationCausalPreflightFacts({ root: checkoutB, store: storeB, scanRoot: checkoutB }, storyId, input) };
+      const runAliased = async (shared, launchCwd) => {
+        try { return await runValidationCommand(aliasCmd, linkRepo, 20_000, { sharedExecution: shared, artifactWriteProtection: protection, artifactBinding: { root: launchCwd, protection: protection.label }, launchCwd }); }
+        catch (error) { return { refused: String(error && error.message).slice(0, 200) }; }
+      };
+      const pinnedToA = binding.canonicalizeExistingPath(linkRepo);
+      check(pinnedToA === realpathSync(checkoutA), 'control: the alias is pinned to checkout A before the first launch');
+      rmSync(linkRepo); symlinkSync(checkoutB, linkRepo, 'dir');
+      check(realpathSync(linkRepo) === realpathSync(checkoutB), 'control: an earlier command re-pointed the alias at checkout B');
+      const pinnedRun = await runAliased(sharedAtA, pinnedToA);
+      expectRepaired(!pinnedRun.refused && pinnedRun.executionDecision?.disposition === 'executed' && pinnedRun.code === 0 && (pinnedRun.output ?? '').includes('alias input v1'),
+        `the pinned command did not execute in checkout A (${pinnedRun.refused ?? `decision=${JSON.stringify(pinnedRun.executionDecision)}, code=${pinnedRun.code}, ${(pinnedRun.output ?? '').slice(0, 80)}`})`);
+      const pinnedToB = binding.canonicalizeExistingPath(linkRepo);
+      const laterRun = await runAliased(sharedAtB, pinnedToB);
+      expectRepaired(!laterRun.refused && laterRun.executionDecision?.disposition === 'executed' && laterRun.code === 1 && (laterRun.output ?? '').includes('alias input v2'),
+        `a later run pinned to checkout B reused the PASS earned in A (${laterRun.refused ?? `decision=${JSON.stringify(laterRun.executionDecision)}, code=${laterRun.code}, ${(laterRun.output ?? '').slice(0, 80)}`})`);
+      rmSync(linkRepo); symlinkSync(checkoutA, linkRepo, 'dir');
+      const backToA = await runAliased(sharedAtA, binding.canonicalizeExistingPath(linkRepo));
+      check(!backToA.refused && backToA.executionDecision?.disposition === 'reused' && backToA.code === 0, `control: pinned back to A the PASS earned there is reused (${backToA.refused ?? `decision=${JSON.stringify(backToA.executionDecision)}, code=${backToA.code}`})`);
+    } else {
+      expectRepaired(false, 'core/build-artifacts-identity exports no canonicalizeExistingPath');
+    }
   } finally {
     rmTree(sharedSandbox);
   }

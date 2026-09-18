@@ -47,6 +47,14 @@ export async function executeSharedValidationCommand(
   command: ValidationCommand, projectRoot: string, timeoutMs: number,
   capture: () => Promise<{ result: ValidationCommandResult; completeOutput: string }>, explicitContext?: SharedValidationExecutionContext, assertActive: () => void = () => {},
   artifactBinding?: { root: string; configRoot?: string; protection: string },
+  /**
+   * The CANONICAL directory the command executes in, pinned by the caller
+   * before its plan's first launch. Every identity this function derives —
+   * executable and environment, input snapshots, git probes, the cache key —
+   * is taken in that directory, never through the declared cwd, so a receipt
+   * can never describe inputs from one directory for an execution in another.
+   */
+  launchCwd?: string,
 ): Promise<ValidationCommandResult> {
   const run = async () => (await capture()).result;
   const context = explicitContext ?? contexts.getStore();
@@ -67,7 +75,7 @@ export async function executeSharedValidationCommand(
   const economicsKey = context.reuseEconomics === 'measured' ? causalCanonical({
     projectRoot: resolve(projectRoot), command, timeoutMs,
   }) : undefined;
-  const normalized = normalizeRoutineValidationCommand({projectRoot,command:{...command,timeoutMs}});
+  const normalized = normalizeRoutineValidationCommand({projectRoot,command:{...command,...(launchCwd ? {cwd:launchCwd} : {}),timeoutMs}});
   const observedCost = economicsKey ? (uneconomicCommands.get(context)?.get(economicsKey) ?? readValidationReuseCost(projectRoot,economicsKey)) : undefined;
   if (observedCost !== undefined) {
     // This branch runs the real command. It consumes no cached PASS and grants

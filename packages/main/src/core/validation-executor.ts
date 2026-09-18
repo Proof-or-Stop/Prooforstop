@@ -1411,7 +1411,7 @@ export function runValidationCommand(
       if (options.deadlineAt !== undefined && Date.now() >= options.deadlineAt) {
         throw options.deadlineError?.() ?? new Error('shared validation deadline exceeded');
       }
-    }, options.artifactBinding), options);
+    }, options.artifactBinding, options.launchCwd), options);
 }
 
 /**
@@ -1579,8 +1579,10 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
   // projectRoot), so resolve the dirty-status probe cwd with the id-independent
   // project-level resolver — config loaded so a configured gitRoot subdir on a
   // wrapper-root layout is honored. Plain repos / unresolved → projectRoot
-  // verbatim (byte-identical).
-  const statusGitCwd = resolvePlanGitCwd(projectRoot);
+  // verbatim (byte-identical). A caller that pinned the plan's canonical
+  // artifact root observes provenance THERE, so head and status describe the
+  // checkout the command runs in, not wherever an alias points by now.
+  const statusGitCwd = options.artifactBinding?.root ?? resolvePlanGitCwd(projectRoot);
   const headBefore = readValidationSourceHead(statusGitCwd);
   const statusBefore = readGitStatus(statusGitCwd);
   // The runtime tracer is a useful ordinary-command observation aid, but its
@@ -1755,13 +1757,14 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
     const launch = options.artifactWriteProtection?.enforced
       ? options.artifactWriteProtection.wrap({ command: command.command, args: command.args, shell: declaredShell, env: childEnv })
       : { command: command.command, args: [...command.args], shell: declaredShell, env: childEnv };
-    // Under protection the command runs in the CANONICAL directory the caller
-    // resolved before its first launch: the denial rules were written for
-    // canonical paths, and a symbolic link on the way to the declared cwd
-    // could otherwise be re-pointed at another checkout between two launches
-    // while the protection still covered the first. The declared cwd is what
+    // The command runs in the CANONICAL directory the caller resolved before
+    // its first launch: the denial rules were written for canonical paths, a
+    // symbolic link on the way to the declared cwd could otherwise be
+    // re-pointed at another checkout between two launches while the
+    // protection still covered the first, and the shared-execution cache
+    // keys and snapshots the same pinned directory. The declared cwd is what
     // the result records.
-    const launchCwd = options.artifactWriteProtection?.enforced ? (options.launchCwd ?? cwd) : cwd;
+    const launchCwd = options.launchCwd ?? cwd;
     const child = spawn(launch.command, launch.args, {
       cwd: launchCwd,
       env: launch.env,
