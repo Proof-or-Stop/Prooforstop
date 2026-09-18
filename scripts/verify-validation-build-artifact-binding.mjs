@@ -230,6 +230,18 @@ try {
   if (binding?.artifactProtectionSatisfied && binding?.logicalCommandCwd) {
     const sat = binding.artifactProtectionSatisfied;
     check(sat('enforced:sandbox-exec') && sat('enforced:bwrap'), 'enforced labels satisfy the contract');
+    // Audit #18 (2): a plan of registered builds and nothing else is explicitly
+    // build-only, admissible on its own terms, and never outranks a test label.
+    if (typeof binding.weakestProtectionLabel === 'function' && binding.BUILD_ONLY_PROTECTION_LABEL) {
+      const weakest = binding.weakestProtectionLabel; const buildOnly = binding.BUILD_ONLY_PROTECTION_LABEL;
+      expectRepaired(sat(buildOnly), 'the build-only label does not satisfy the contract, so a build-only plan can never be admitted');
+      expectRepaired(weakest([buildOnly, 'enforced:sandbox-exec']) === 'enforced:sandbox-exec' && weakest(['enforced:sandbox-exec', buildOnly]) === 'enforced:sandbox-exec',
+        'a build-only member outranked an enforced test label');
+      expectRepaired(weakest([buildOnly, 'enforced:sandbox-exec', 'unenforced:x']) === 'unenforced:x' && weakest([undefined, buildOnly]) === buildOnly && weakest([]) === undefined,
+        'the weakest-label order is not unenforced < build-only < enforced');
+    } else {
+      expectRepaired(false, 'core/build-artifacts-protection exports no weakestProtectionLabel / BUILD_ONLY_PROTECTION_LABEL');
+    }
     expectRepaired(!sat('unenforced:x') && !sat('registered-build:writes-permitted') && !sat('not-applicable:no-artifact-trees') && !sat(undefined) && !sat(''),
       'an unenforced, retired not-applicable, registered-build, empty or missing label satisfied the executed-build contract');
     // Platform-aware: the mechanism this host is expected to establish, or that
@@ -615,9 +627,26 @@ try {
         'the bwrap wrapper leaves the artifact ancestors renameable, makes the project read-only, or does not probe the rename (source-text guard)');
       // Audit #17 (1): the chain reaches the filesystem root, and the self-test
       // probes that the project's own parent cannot be moved aside.
-      expectRepaired(protectionSource3.includes("for (;;) { chain.add(directory); const parent = dirname(directory); if (parent === directory) break; directory = parent; }")
+      expectRepaired(protectionSource3.includes("while (dirname(directory) !== directory) { chain.add(directory); directory = dirname(directory); }")
         && protectionSource3.includes("self-test did not deny moving the project's parent"),
         'the bwrap mount chain stops at the project root, so a parent above it can be renamed with every protected mount inside (source-text guard)');
+      // Audit #18 (1): the generated bwrap arguments themselves, checked
+      // directly (no Linux host needed): the host filesystem first, every
+      // ancestor of each tree self-bound EXCEPT the filesystem root, the trees
+      // read-only, and the private PID space and /proc AFTER every bind so
+      // nothing re-exposes the host's /proc.
+      if (typeof binding.bwrapLaunchPrefix === 'function') {
+        const prefix = binding.bwrapLaunchPrefix(['/tmp/p/repo/packages/main/dist', '/tmp/p/repo/packages/utils/dist']);
+        const pairs = []; for (let i = 0; i + 2 < prefix.length; i++) if (prefix[i] === '--bind' || prefix[i] === '--ro-bind' || prefix[i] === '--dev-bind') pairs.push([prefix[i], prefix[i + 1]]);
+        const self = pairs.filter(([flag]) => flag === '--bind').map(([, path]) => path);
+        expectRepaired(prefix[0] === '--dev-bind' && prefix[1] === '/' && !self.includes('/') && ['/tmp', '/tmp/p', '/tmp/p/repo', '/tmp/p/repo/packages', '/tmp/p/repo/packages/main', '/tmp/p/repo/packages/utils'].every((dir) => self.includes(dir)),
+          `the bwrap chain must self-bind every ancestor up to but excluding the filesystem root (self-binds: ${self.join(', ')})`);
+        const lastBind = Math.max(...prefix.map((value, index) => (value === '--bind' || value === '--ro-bind' || value === '--dev-bind' ? index : -1)));
+        expectRepaired(prefix.indexOf('--proc') > lastBind && prefix.indexOf('--unshare-pid') > lastBind && prefix.indexOf('--ro-bind') > prefix.lastIndexOf('--bind'),
+          `the private /proc must be mounted after every bind, and the trees after their ancestors (${prefix.join(' ')})`);
+      } else {
+        expectRepaired(false, 'core/build-artifacts-protection exports no bwrapLaunchPrefix');
+      }
       // Audit #17 (3): a sharded entry's oracle joins the binding sequence.
       const shardedHandlerSource = readFileSync(join(repoRoot, 'packages/main/src/handlers/story-aware-validation.ts'), 'utf8');
       expectRepaired(shardedHandlerSource.includes('const withOracle = combineSequencedBuildArtifactsBindings([oracle, ...results]);'),
@@ -1004,6 +1033,31 @@ if (hostEnforced) {
     check(readFileSync(join(mainDist, 'x.js'), 'utf8').includes('rebuilt late'), 'control: the late build must have rewritten dist');
     expectRepaired(barrierTest?.code === 0 && barrier.allPass === true && Boolean(barrierTest?.buildArtifactsBefore) && barrierTest?.buildArtifactsBefore === barrierBuild?.buildArtifactsAfter,
       `with jobs=2 a test overlapped the registered build instead of waiting for it (test code=${barrierTest?.code}, allPass=${barrier.allPass}; ${barrier.details.join(' | ')})`);
+    writeFileSync(join(mainDist, 'x.js'), BUILD_A);
+
+    // Audit #18 (2): a plan of ONLY registered builds records the build-only
+    // label and binds what it produced; routine evidence carrying that label is
+    // admissible and reusable while the artifacts stay, refused once they drift.
+    const buildOnlyPlan = await run([{ label: 'build', command: 'node', args: ['-e', REWRITE], timeoutMs: 20_000, providesBuildProof: 'packages-main-build' }]);
+    expectRepaired(buildOnlyPlan.allPass === true && buildOnlyPlan.buildArtifactsProtection === 'build-only:registered-builds-only' && /^[a-f0-9]{64}$/.test(buildOnlyPlan.buildArtifactsHash ?? ''),
+      `a build-only plan must record the build-only label and its binding (label=${buildOnlyPlan.buildArtifactsProtection}, hash=${buildOnlyPlan.buildArtifactsHash})`);
+    if (binding) {
+      const rootHead = currentGitHead(root); const rootMaterial = currentMaterialHash(root, 'HEAD', root); const rootStoryFiles = currentStoryFilesHash(root, 'HEAD', root);
+      const buildOnlyIdentity = buildRoutineValidationIdentity({ projectRoot: root, sourceKind: 'configured', sourceInputs: { fixture: 'build-only' }, commands: [{ label: 'build', command: 'node', args: ['-e', REWRITE], providesBuildProof: 'packages-main-build' }], profile: 'balanced', verificationPolicyInputs: { fixture: 'build-only' } });
+      const buildOnlyEvidence = {
+        command: 'proof-or-stop validate --story=B-bab --json', output: JSON.stringify({ allPass: true }), result: 'PASS', timestamp: new Date().toISOString(),
+        headHash: rootHead, materialHash: rootMaterial, storyFilesHash: rootStoryFiles, buildArtifactsHash: buildOnlyPlan.buildArtifactsHash, buildArtifactsProtection: buildOnlyPlan.buildArtifactsProtection,
+        verificationCoverage: { missingRequired: 0 },
+        commandExecution: { schema: 'proofOrStop.routine-validation-command-execution', version: 1, status: 'PASS', complete: true, commandCount: 1, requiredFailureCount: 0, optionalFailureCount: 0 },
+        disposition: 'executed', routineValidationIdentity: buildOnlyIdentity,
+      };
+      const buildOnlyReuse = () => evaluateRoutineValidationReuse({ root, gitCwd: root, evidence: buildOnlyEvidence, currentIdentity: buildOnlyIdentity, currentCoverage: { missingRequired: 0 }, currentMaterialHash: rootMaterial, currentStoryFilesHash: rootStoryFiles, clean: true, headBefore: rootHead, headAfter: rootHead, currentBuildArtifactsHash: binding.currentBuildArtifactsHash(root) });
+      const buildOnlyAdmission = () => evaluateValidationEvidenceAdmissibility({ evidence: buildOnlyEvidence, expectedCommand: buildOnlyEvidence.command, currentCoverageSnapshot: 'coverage', recordedCoverageSnapshot: 'coverage', blockingDirtyReason: '', gitCwd: root, metadataRoot: root });
+      expectRepaired(buildOnlyReuse().reusable === true && buildOnlyAdmission().ok === true,
+        `build-only evidence was refused while its artifacts were unchanged (reuse=${buildOnlyReuse().refusalReasons.join(',')}; admission=${buildOnlyAdmission().reasonCodes.join(',')})`);
+      writeFileSync(join(mainDist, 'x.js'), BUILD_B);
+      expectRepaired(buildOnlyReuse().reusable === false && buildOnlyAdmission().ok === false, 'build-only evidence was accepted after its artifacts drifted');
+    }
     writeFileSync(join(mainDist, 'x.js'), BUILD_A);
     expectRepaired(buildCommand?.buildArtifactsProtection === 'registered-build:writes-permitted',
       `the registered build must be launched unprotected so it can write (${buildCommand?.buildArtifactsProtection})`);

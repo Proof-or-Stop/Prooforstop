@@ -1,7 +1,7 @@
 import { withValidationSigningRoot } from '../core/validation-signing-context.js';
 import { loadConfig } from '../core/config.js';
 import { resolveProjectGitRoot } from '../core/story-signed-workspace-resolution.js';
-import { REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied } from '../core/build-artifacts-protection.js';
+import { REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied, weakestProtectionLabel } from '../core/build-artifacts-protection.js';
 import { VALIDATION_RECEIPT_SCHEMA } from '../core/story-aware-validation.js';
 function projectSigningRoot(projectRoot: string): string {
  const configured=loadConfig(projectRoot).gitRoot;
@@ -1478,8 +1478,7 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
     .filter((row) => row.disposition === 'reuse' && row.receiptId)
     .map((row) => receipts.find((receipt) => receipt.id === row.receiptId)?.buildArtifactsProtection)
     .filter((label): label is string => typeof label === 'string');
-  const runLabels = [...(dynamicExecution.buildArtifactsProtection ? [dynamicExecution.buildArtifactsProtection] : []), ...reusedLabels];
-  const runProtection = runLabels.find((label) => !artifactProtectionSatisfied(label)) ?? runLabels[0];
+  const runProtection = weakestProtectionLabel([dynamicExecution.buildArtifactsProtection, ...reusedLabels]);
   return {
     ...final, buildResult: wave, selectedResult, dynamicAllPass, authority, receipts, runtimeReport,
     ...(dynamicExecution.buildArtifactsHash ? { buildArtifactsHash: dynamicExecution.buildArtifactsHash } : {}),

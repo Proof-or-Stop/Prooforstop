@@ -59,7 +59,31 @@ export const NOT_APPLICABLE_PROTECTION_LABEL = 'not-applicable:no-artifact-trees
  * missing label never satisfies it.
  */
 export function artifactProtectionSatisfied(label: string | undefined): boolean {
-  return typeof label === 'string' && label.startsWith('enforced:');
+  return typeof label === 'string' && (label.startsWith('enforced:') || label === BUILD_ONLY_PROTECTION_LABEL);
+}
+
+/**
+ * A plan that executed registered builds and nothing else. No command ran
+ * that the contract requires protection for, so the evidence is admissible
+ * on its own terms: it proves that the build ran and what it produced, and a
+ * PASS reused on unchanged artifacts asserts nothing about protected tests.
+ * It never stands in for the tests' label where tests did run (see
+ * weakestProtectionLabel).
+ */
+export const BUILD_ONLY_PROTECTION_LABEL = 'build-only:registered-builds-only';
+
+/**
+ * The label a set of labels collectively earns, weakest first: any label the
+ * contract refuses, then a build-only label, then an enforced one. A plan or
+ * run that mixes a build-only member with enforced tests is enforced; one that
+ * mixes anything with an unenforced member is unenforced.
+ */
+export function weakestProtectionLabel(labels: readonly (string | undefined)[]): string | undefined {
+  const present = labels.filter((label): label is string => typeof label === 'string' && label.length > 0);
+  return present.find((label) => !artifactProtectionSatisfied(label))
+    ?? present.find((label) => label.startsWith('enforced:'))
+    ?? present.find((label) => label === BUILD_ONLY_PROTECTION_LABEL)
+    ?? present[0];
 }
 
 const SANDBOX_EXEC = '/usr/bin/sandbox-exec';
@@ -125,6 +149,27 @@ function sandboxExecMechanism(denied: string[]): Mechanism | string {
   };
 }
 
+/**
+ * The bwrap arguments that precede the command, pure so they can be checked
+ * without a Linux host. Order matters: the host filesystem first, then every
+ * ancestor of each tree bind-mounted onto itself (writable; a mount point
+ * cannot be renamed or removed from inside the namespace) — the filesystem
+ * root excluded, since it is already the namespace root and re-binding it
+ * would overlay everything mounted before — then the trees read-only, and
+ * only THEN the private PID space and /proc, so nothing re-exposes the host's
+ * /proc (whose /proc/<pid>/root aliases would reach the writable host mounts).
+ */
+export function bwrapLaunchPrefix(existingRoots: readonly string[]): string[] {
+  const chain = new Set<string>();
+  for (const root of existingRoots) {
+    let directory = dirname(root);
+    while (dirname(directory) !== directory) { chain.add(directory); directory = dirname(directory); }
+  }
+  const binds = [...chain].sort().flatMap((directory) => ['--bind', directory, directory]);
+  for (const root of existingRoots) binds.push('--ro-bind', root, root);
+  return ['--dev-bind', '/', '/', ...binds, '--unshare-pid', '--proc', '/proc', '--die-with-parent', '--'];
+}
+
 function bwrapMechanism(existingRoots: string[], allRoots: string[], projectRoot: string): Mechanism | string {
   const bwrap = executableOnPath('bwrap');
   if (!bwrap) return 'bwrap (bubblewrap) is not on PATH';
@@ -135,35 +180,8 @@ function bwrapMechanism(existingRoots: string[], allRoots: string[], projectRoot
   // must therefore exist before bwrap is reported as enforcing anything.
   const absent = allRoots.filter((root) => !existingRoots.includes(root));
   if (absent.length > 0) return `bwrap cannot protect the absent artifact root(s) ${absent.join(', ')}; every configured root must exist (a build creates them) before evidence can be authoritative`;
-  // The whole filesystem stays visible and writable as on the host, for the
-  // command and everything it spawns inside the namespace; only the artifact
-  // trees are re-bound read-only over themselves. A read-only bind on the
-  // tree alone is not enough: a mount travels with the directory it is on, so
-  // renaming `packages/main` aside would carry the protection away and leave a
-  // fresh, writable `packages/main/dist` creatable at the protected path.
-  // Every directory on the path from the project root down to each tree is
-  // therefore bind-mounted onto ITSELF, writable: a mount point cannot be
-  // renamed or removed from inside the namespace (EBUSY), while creating,
-  // replacing and deleting entries anywhere else in the project — a coverage
-  // directory at the root, an atomically rewritten report — keeps working
-  // exactly as on the host. (macOS sandbox-exec rules are path-based and need
-  // none of this.) The namespace also gets its own PID space and a private
-  // /proc: with the host's /proc visible, a same-user process's
-  // /proc/<pid>/root (or cwd, or fd) is an alias into the host mount
-  // namespace, where the trees are still writable underneath the bind.
-  // The chain runs all the way up to the filesystem root: a writable parent
-  // ABOVE the project (`/tmp/p` for a checkout at `/tmp/p/repo`) could
-  // otherwise be renamed aside with every protected mount inside it, and a
-  // fresh tree created at the original pathname. Every ancestor becomes a
-  // mount point and so cannot be moved; nothing else about it changes.
-  const chain = new Set<string>();
-  for (const root of existingRoots) {
-    let directory = dirname(root);
-    for (;;) { chain.add(directory); const parent = dirname(directory); if (parent === directory) break; directory = parent; }
-  }
-  const binds = [...chain].sort().flatMap((directory) => ['--bind', directory, directory]);
-  for (const root of existingRoots) binds.push('--ro-bind', root, root);
-  const prefix = ['--dev-bind', '/', '/', '--unshare-pid', '--proc', '/proc', ...binds, '--die-with-parent', '--'];
+  void projectRoot;
+  const prefix = bwrapLaunchPrefix(existingRoots);
   return {
     name: 'bwrap',
     wrap: (launch) => (launch.shell

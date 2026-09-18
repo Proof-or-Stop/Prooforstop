@@ -2,6 +2,7 @@ import { createHash, type Hash } from 'node:crypto';
 import { lstatSync, readFileSync, readdirSync, realpathSync } from 'node:fs';
 import { isAbsolute, join, posix, relative, resolve } from 'node:path';
 import { gitObservationKey, readObservedGitState } from './git-tree-observation.js';
+import { weakestProtectionLabel } from './build-artifacts-protection.js';
 
 /**
  * Content identity of the compiled artifacts that validation commands execute.
@@ -234,8 +235,7 @@ export function combineSequencedBuildArtifactsBindings(members: readonly Sequenc
   if (failures.length > 0) return { failures };
   // The sequence ran under the weakest protection any member ran under: one
   // unenforced member makes the whole sequence observation-only.
-  const labels = active.map((member) => member.buildArtifactsProtection).filter((value): value is string => typeof value === 'string' && value.length > 0);
-  const protection = labels.find((value) => !(value.startsWith('enforced:') || value === 'not-applicable:no-artifact-trees')) ?? labels[0];
+  const protection = weakestProtectionLabel(active.map((member) => member.buildArtifactsProtection));
   return {
     buildArtifactsHash: final,
     buildArtifacts: {

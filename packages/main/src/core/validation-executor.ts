@@ -19,7 +19,7 @@ import { StoryStore } from './store.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import { defaultAuditWriter, evaluateDirtyGate, type EvaluateDirtyGateResult } from './dirty-gate-policy.js';
 import { currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand } from './build-artifacts-identity.js';
-import { REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied, artifactProtectionStale, hasAnyArtifactRoot, resolveArtifactWriteProtection, type ArtifactWriteProtection } from './build-artifacts-protection.js';
+import { BUILD_ONLY_PROTECTION_LABEL, REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied, artifactProtectionStale, hasAnyArtifactRoot, resolveArtifactWriteProtection, weakestProtectionLabel, type ArtifactWriteProtection } from './build-artifacts-protection.js';
 import {
   canonicalizeEntries,
   MAX_JOBS,
@@ -2653,8 +2653,12 @@ export async function executeValidationPlan(
       // that could have swapped the trees; it records the host's resolution so
       // its evidence is judged on whether this host can enforce at all.
       if (commands.length === 0) return { buildArtifactsProtection: artifactWriteProtection.label };
-      const labels = commands.filter((result) => result.buildArtifactsRole !== 'build').map((result) => result.buildArtifactsProtection).filter((label): label is string => typeof label === 'string');
-      const weakest = labels.find((label) => !artifactProtectionSatisfied(label)) ?? labels[0];
+      const tests = commands.filter((result) => result.buildArtifactsRole !== 'build');
+      // Registered builds and nothing else: explicitly build-only, which the
+      // contract accepts on its own terms (no command ran that it protects)
+      // and which never outranks an enforced or unenforced test label.
+      if (tests.length === 0) return { buildArtifactsProtection: BUILD_ONLY_PROTECTION_LABEL };
+      const weakest = weakestProtectionLabel(tests.map((result) => result.buildArtifactsProtection));
       return weakest ? { buildArtifactsProtection: weakest } : {};
     })(),
     buildArtifacts: {
