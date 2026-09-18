@@ -105,7 +105,8 @@ const treeSnapshot = (root) => {
   const seen = [];
   const walk = (dir) => {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
-      if (entry.name === '.git') continue;
+      // `.git` and the capacity lock are fixture bookkeeping, not hook writes.
+      if (entry.name === '.git' || entry.name === '.proof-or-stop') continue;
       const full = join(dir, entry.name);
       seen.push(full);
       if (entry.isDirectory() && !entry.isSymbolicLink()) walk(full);
@@ -325,6 +326,72 @@ try {
     rows.push({ scenario: `destination swapped during admission (${name})`, during: escaped.length, detail: '-' });
     expectRepaired(escaped.length === 0, `a ${name} during admission must not redirect the write (wrote ${JSON.stringify(escaped)})`);
     rmSync(otherTicket, { recursive: true, force: true });
+  }
+  // Swapping in a destination whose directories do NOT exist must not create anything there.
+  {
+    const source = repo();
+    const other = repo();
+    const barrier = join(sandbox, `barrier-missing-${n++}`);
+    writeFileSync(barrier, 'hold');
+    const beforeOther = treeSnapshot(other);
+    const writing = callHookAsync(source, 'swap-missing-destination', { PROOF_OR_STOP_ACTIVITY_ADMISSION_BARRIER: barrier });
+    const admitted = await waitUntil(() => { try { return readdirSync(capacityDirFor(source)).some((entry) => entry.endsWith('.ticket')); } catch { return false; } }, 4000);
+    expectRepaired(admitted, 'the hook takes a ticket before writing (missing destination swap)');
+    rmSync(join(source, 'docs'), { recursive: true, force: true });
+    symlinkSync(join(other, 'docs'), join(source, 'docs')); // the target directories do not exist
+    const otherTicket = ticket(other, live.pid);
+    rmSync(barrier, { force: true });
+    await writing;
+    const created = treeSnapshot(other).filter((entry) => !beforeOther.includes(entry));
+    rows.push({ scenario: 'swapped destination whose directories do not exist', during: created.length, detail: '-' });
+    expectRepaired(created.length === 0, `a swapped destination must gain no entries at all (created ${JSON.stringify(created)})`);
+    rmSync(otherTicket, { recursive: true, force: true });
+  }
+  // A NESTED repository holding its own capacity: containment inside the outer worktree is
+  // not ownership, and the nested repository's ticket is the one that matters.
+  {
+    const outer = repo();
+    const nested = join(outer, 'nested'); mkdirSync(nested, { recursive: true });
+    const git = (args, cwd) => execFileSync('git', ['-c', 'user.name=Hook Fixture', '-c', 'user.email=fixture@example.invalid', ...args], { cwd, stdio: 'ignore' });
+    git(['init', '-q'], nested); writeFileSync(join(nested, '.gitignore'), '**/activity.jsonl\n'); git(['add', '.'], nested); git(['commit', '-qm', 'base'], nested);
+    mkdirSync(join(nested, 'docs/story'), { recursive: true });
+    const barrier = join(sandbox, `barrier-nested-${n++}`);
+    writeFileSync(barrier, 'hold');
+    const beforeNested = treeSnapshot(nested);
+    const writing = callHookAsync(outer, 'swap-into-nested', { PROOF_OR_STOP_ACTIVITY_ADMISSION_BARRIER: barrier });
+    const admitted = await waitUntil(() => { try { return readdirSync(capacityDirFor(outer)).some((entry) => entry.endsWith('.ticket')); } catch { return false; } }, 4000);
+    expectRepaired(admitted, 'the hook takes a ticket before writing (nested redirect)');
+    rmSync(join(outer, 'docs'), { recursive: true, force: true });
+    symlinkSync(join(nested, 'docs'), join(outer, 'docs'));
+    const nestedTicket = ticket(nested, live.pid); // the nested repository is validating
+    rmSync(barrier, { force: true });
+    await writing;
+    const created = treeSnapshot(nested).filter((entry) => !beforeNested.includes(entry));
+    rows.push({ scenario: 'destination redirected into a nested validating repository', during: created.length, detail: '-' });
+    expectRepaired(created.length === 0, `a nested validating repository must gain nothing (created ${JSON.stringify(created)})`);
+    rmSync(nestedTicket, { recursive: true, force: true });
+  }
+  // A non-repository destination that becomes part of a repository after discovery.
+  {
+    const plain = join(sandbox, `plain-late-${n++}`); mkdirSync(join(plain, 'docs/story'), { recursive: true });
+    const validating = repo();
+    mkdirSync(join(validating, 'docs/story'), { recursive: true });
+    const barrier = join(sandbox, `barrier-plain-${n++}`);
+    writeFileSync(barrier, 'hold');
+    const beforeValidating = treeSnapshot(validating);
+    const writing = callHookAsync(plain, 'plain-redirected-late', { PROOF_OR_STOP_ACTIVITY_ADMISSION_BARRIER: barrier });
+    // Outside a repository the hook takes no ticket, so the barrier may not be reached;
+    // the swap happens immediately either way.
+    await waitUntil(() => false, 300);
+    rmSync(join(plain, 'docs'), { recursive: true, force: true });
+    symlinkSync(join(validating, 'docs'), join(plain, 'docs'));
+    const t = ticket(validating, live.pid);
+    rmSync(barrier, { force: true });
+    await writing;
+    const created = treeSnapshot(validating).filter((entry) => !beforeValidating.includes(entry));
+    rows.push({ scenario: 'non-repository destination redirected into a validating repository', during: created.length, detail: '-' });
+    expectRepaired(created.length === 0, `a destination that became part of a repository must not be written without its ticket (created ${JSON.stringify(created)})`);
+    rmSync(t, { recursive: true, force: true });
   }
   // Discovery: uncertainty never reads as "no repository".
   for (const [name, script] of [

@@ -134,12 +134,15 @@ function resolveDestination(target) {
 function appendVerified(destination, top, line) {
   if (top !== null && !insideDirectory(top, destination)) return;
   const parent = path.dirname(destination);
+  // Nothing is created before the destination's OWNER is established: an ancestor replaced
+  // by a link to another repository must not gain directories or an empty log file.
+  if (!ownerMatches(parent, top)) return;
   let before;
   let fd;
   try {
     fs.mkdirSync(parent, { recursive: true });
     // The parent's identity is captured before the open and re-checked after it, so a
-    // directory replaced by a link to another repository during admission is caught.
+    // directory replaced by a link during admission is caught.
     before = fs.lstatSync(parent);
     if (!before.isDirectory()) return;
     fd = fs.openSync(destination, fsConstants.O_WRONLY | fsConstants.O_APPEND | fsConstants.O_CREAT | fsConstants.O_NOFOLLOW | fsConstants.O_NONBLOCK, 0o644);
@@ -150,20 +153,35 @@ function appendVerified(destination, top, line) {
     if (!opened.isFile() || opened.nlink !== 1) return;
     const after = fs.lstatSync(parent);
     if (!after.isDirectory() || after.dev !== before.dev || after.ino !== before.ino) return;
-    // Canonical containment, not just the spelling: an ancestor replaced by a link to
-    // another repository leaves the path looking local while the file is not.
-    let canonicalParent;
-    try { canonicalParent = fs.realpathSync(parent); } catch { return; }
-    if (top !== null && !insideDirectory(top, canonicalParent)) return;
     const named = fs.lstatSync(destination);
     // The descriptor must still be exactly the file this path names.
     if (!named.isFile() || named.dev !== opened.dev || named.ino !== opened.ino) return;
+    // And the owner is established once more, now that the file exists: ownership decides
+    // which capacity ticket protects this write, and it must not have moved.
+    if (!ownerMatches(parent, top)) return;
     fs.writeSync(fd, line);
   } catch {
     /* the line is dropped */
   } finally {
     try { fs.closeSync(fd); } catch { /* already closed */ }
   }
+}
+
+/**
+ * Does `directory` still belong to the worktree this hook holds a ticket for (or to no
+ * repository at all when it holds none)? Canonical containment alone is not enough: a
+ * nested repository inside the same tree has its own capacity, and a destination that
+ * became part of a repository after discovery must not be written without its ticket.
+ */
+function ownerMatches(directory, top) {
+  const anchor = nearestExistingAncestor(directory);
+  if (anchor === null) return false;
+  let canonical;
+  try { canonical = fs.realpathSync(anchor); } catch { return false; }
+  if (top !== null && !insideDirectory(top, canonical)) return false;
+  const owner = discoverWorkspace(canonical);
+  if (owner === 'uncertain') return false;
+  return top === null ? owner === 'non-repository' : owner === top;
 }
 
 /** The deepest ancestor of `target` that exists, so Git can be asked about it. */
