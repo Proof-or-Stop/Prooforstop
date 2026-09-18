@@ -168,6 +168,52 @@ function main(): void {
     'legacy compatibility ingress also refuses a topology critic proposal without inventoryCritic');
   assert.equal(isManagedInventoryCriticEnvelopeValid(undefined, validProposal.lane, validProposal.providerAgent, 0), true,
     'ordinary managed reviewer compatibility proposals remain valid without inventoryCritic');
+  const validCriticProposal = {
+    ...validProposal,
+    providerAgent: criticLane,
+    lane: criticLane,
+    inventoryCritic: { epochId: 'B-137a:RI-001', wave: 1, findingDispositions: [] },
+  };
+  for (const proposal of [validProposal, validCriticProposal]) {
+    assert.equal(classifyManagedReviewFinalEnvelope(JSON.stringify(proposal)).kind, 'valid',
+      'ordinary and inventory reviewers can submit truthful nonempty read evidence');
+    assert.equal(classifyManagedReviewFinalEnvelope(JSON.stringify({
+      ...proposal,
+      readManifest: { ...proposal.readManifest, filesReadFully: [], filesTriagedByName: fullyRead },
+      readLog: { ...proposal.readLog, filesReadFully: [], filesTriagedByName: fullyRead,
+        summary: { readCount: 0, tokenCount: null } },
+    })).kind, 'malformed', 'triage-only evidence cannot substitute for an actual full read');
+  }
+  const finding = { desc: 'Current must-intent execution evidence is stale.', severity: 'high', category: 'missing' };
+  for (const [findingFields, expected] of [
+    [{ evidenceState: 'verified' }, 'valid'],
+    [{ evidenceState: 'verified', uncertaintyReason: 'Unexecuted witness.' }, 'malformed'],
+    [{ evidenceState: 'suspected', uncertaintyReason: 'The witness could not be executed.' }, 'valid'],
+    [{ evidenceState: 'suspected' }, 'malformed'],
+    [{ evidenceState: 'suspected', uncertaintyReason: ' ' }, 'malformed'],
+    [{}, 'valid'],
+    [{ uncertaintyReason: 'No suspected state.' }, 'malformed'],
+  ] as const) {
+    assert.equal(classifyManagedReviewFinalEnvelope(JSON.stringify({
+      ...validProposal, conclusion: 'findings', findings: [{ ...finding, ...findingFields }],
+    })).kind, expected, 'the existing evidence-state/uncertainty contract is unchanged');
+  }
+  for (const schema of [finalProposalSchema, managedReviewFinalProposalJsonSchema({
+    storyId: REVIEW_RUN.storyId, reviewRunId: REVIEW_RUN.reviewRunId, lane: criticLane, agentType: criticLane,
+  }) as typeof finalProposalSchema]) {
+    for (const field of ['readManifest', 'readLog']) {
+      assert.match(JSON.stringify(schema.properties[field]?.properties?.filesReadFully), /at least one.*fully read/i,
+        'MANAGED_REVIEW_NONEMPTY_READ_GUIDANCE_MISSING');
+    }
+    assert.match(JSON.stringify(schema.properties.findings), /uncertaintyReason.*only.*suspected/i,
+      'MANAGED_REVIEW_UNCERTAINTY_GUIDANCE_MISSING');
+  }
+  assert.match(providerPrompt, /at least one[^\n]*in-scope file[^\n]*in full/i,
+    'managed protocol requires a real bounded full read before submitting');
+  assert.match(providerPrompt, /Do not invent full reads/,
+    'managed protocol must not encourage fabrication to satisfy its minimum');
+  assert.match(providerPrompt, /uncertaintyReason[^\n]*suspected[^\n]*omit[^\n]*verified/i,
+    'managed protocol explains the same finding-field dependency as the terminal parser');
   assert.match(
     providerPrompt,
     /do not cd to, run commands from, or write to that canonical path\./,
