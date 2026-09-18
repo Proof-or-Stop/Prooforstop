@@ -28,7 +28,21 @@ const originalUserInfo = os.userInfo;
 os.userInfo = (...args) => ({ ...originalUserInfo(...args), homedir: isolatedHome });
 syncBuiltinESMExports();
 const isolationPath = join(out, `${runId}-isolate-home.mjs`);
-writeFileSync(isolationPath, `import os from 'node:os';import {syncBuiltinESMExports} from 'node:module';const original=os.userInfo;os.userInfo=(...args)=>({...original(...args),homedir:${JSON.stringify(isolatedHome)}});syncBuiltinESMExports();\n`);
+writeFileSync(isolationPath, `import os from 'node:os';
+import cp from 'node:child_process';import {basename} from 'node:path';import {fileURLToPath} from 'node:url';
+import {syncBuiltinESMExports} from 'node:module';
+const original=os.userInfo;os.userInfo=(...args)=>({...original(...args),homedir:${JSON.stringify(isolatedHome)}});
+// Propagate only to named regression workers, never to measured commands,
+// permission capsules, fake provider adapters or arbitrary subprocesses.
+const workers=new Set(['narrowing-repin-smoke.js','verify-convergence-progress-evidence.mjs']);
+for(const method of ['spawn','spawnSync','execFile','execFileSync']){
+ const run=cp[method];cp[method]=function(command,args,...rest){
+  if(command===process.execPath&&Array.isArray(args)&&workers.has(basename(args[0]||'')))
+   args=['--import',fileURLToPath(import.meta.url),...args];
+  return run.call(this,command,args,...rest);
+ };
+}
+syncBuiltinESMExports();\n`);
 const results = {
   schema: 'lab.dynamic-selection-cost.v1', runId, head: gitAt(repo, 'rev-parse', 'HEAD'),
   node: process.version, platform: process.platform, arch: process.arch,
@@ -117,7 +131,7 @@ async function scenario(arm, options = {}) {
     const baselineLaunches = launches(root).length;
     git('checkout', '-qb', 'story');
     put('packages/main/src/local.cjs', options.defect ? 'module.exports=(a,b)=>a-b;\n' : 'module.exports=(a,b)=>a+b; // local change\n');
-    if (options.unknownMaterial) put('unknown.txt', 'unclassified changed input\n');
+    if (options.unknownMaterial) put('packages/main/src/unclassified.cjs', 'module.exports=42;\n');
     git('add', '.'); git('commit', '-qm', 'Apply bounded local change');
     const head = git('rev-parse', 'HEAD');
     acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: root });
