@@ -1919,7 +1919,7 @@ function assertProtectedInventoryAndTimeoutSourcesUnchanged(): void {
       'diff', '--exit-code', 'HEAD', '--', ...protectedFiles,
     ], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] }),
     'CHK-003 adversarial inventory proof requires zero uncommitted diff over protected command/timeout sources');
-  
+
     const runnerSource = readFileSync(join(root, 'packages/main/src/tasks/full-suite-runner.ts'), 'utf8');
     const smokeSource = readFileSync(join(root, 'packages/main/src/tasks/full-suite-runner-smoke.ts'), 'utf8');
     assert.match(runnerSource, /120_000|120000/, '120-second member timeout source must remain present');
