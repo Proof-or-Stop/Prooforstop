@@ -283,7 +283,7 @@ export async function registerValidationReservationChild(pid: number, pendingTok
   const cleanup=pendingToken && cleanupCapabilities.get(pendingToken);if(!cleanup || cleanup.reservation!==bootstrap.lockId)throw failure('pending mutation capability unavailable');
   const bounded = handshake(bootstrap, options); const response = await request(bootstrap, { operation: 'register', targetPid: pid, pendingToken, cleanupCapability:cleanup.capability, parentGrantId: local?.grantId, deadlineAt: bounded.deadlineAt }, bounded.signal); response.socket.end();if(pendingToken)cleanupCapabilities.delete(pendingToken);
 }
-export async function withInheritedMachineReservation<T>(resources: ResourceClaim[] | null, deadlineAt: number, signal: AbortSignal | undefined, fn: () => Promise<T> | T): Promise<{ inherited: false } | { inherited: true; value: T }> {
+export async function withInheritedMachineReservation<T>(resources: ResourceClaim[] | null, deadlineAt: number, signal: AbortSignal | undefined, fn: () => Promise<T> | T, grantWaitSignal?: AbortSignal): Promise<{ inherited: false } | { inherited: true; value: T }> {
   const current = frames.getStore();
   if (current?.register) {if(!current.active)throw failure('invocation no longer active');return { inherited: false };}
   if (current && (!current.active || current.abort.signal.aborted)) throw failure('nested reservation revocation');
@@ -308,7 +308,9 @@ export async function withInheritedMachineReservation<T>(resources: ResourceClai
   }
   if (current) signal = signal ? AbortSignal.any([signal,current.abort.signal]) : current.abort.signal;
   if (signal?.aborted) throw signal.reason;
-  const response = await request(bootstrap, { operation: 'grant', resources, parentGrantId: current?.grantId, deadlineAt: Math.min(deadlineAt, bootstrap.deadlineAt) }, signal);
+  // grantWaitSignal bounds only the wait for this grant; once granted, the frame follows `signal` alone.
+  const requestSignal = grantWaitSignal ? (signal ? AbortSignal.any([signal, grantWaitSignal]) : grantWaitSignal) : signal;
+  const response = await request(bootstrap, { operation: 'grant', resources, parentGrantId: current?.grantId, deadlineAt: Math.min(deadlineAt, bootstrap.deadlineAt) }, requestSignal);
   const abort = new AbortController(), revoke = () => abort.abort(failure('live reservation revoked'));
   response.revocation.addEventListener('abort', revoke, {once:true}); if(response.revocation.aborted)revoke();
   response.socket.once('close', revoke); const timer = setTimeout(revoke, Math.max(1, response.grant.deadlineAt - Date.now()));
