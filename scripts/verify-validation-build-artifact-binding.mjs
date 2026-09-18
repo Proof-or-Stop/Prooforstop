@@ -420,6 +420,23 @@ try {
     }
   }
 
+  // Audit #23 (1): a directory's presence is observable (an entry point may
+  // probe for it), so an empty directory added under the tree is a different
+  // tree even though no file changed.
+  {
+    const emptyDir = join(mainDist, 'ready');
+    mkdirSync(emptyDir);
+    try {
+      if (binding) expectRepaired(binding.currentBuildArtifactsHash(root) !== recordedBuild, 'adding an empty directory under the tree left the identity unchanged');
+      const withDir = reuse();
+      expectRepaired(withDir.reusable === false && withDir.refusalReasons.includes('build-artifacts-hash-changed-or-missing'), `reuse accepted a PASS after an empty directory appeared under the tree (reasons=${withDir.refusalReasons.join(',')})`);
+      expectRepaired(admissibility().ok === false && admissibility().reasonCodes.includes('build_artifacts_mismatch'), `admissibility accepted a PASS after an empty directory appeared under the tree (codes=${admissibility().reasonCodes.join(',')})`);
+    } finally {
+      rmSync(emptyDir, { recursive: true });
+    }
+    check(reuse().reusable === true && admissibility().ok === true, 'removing the empty directory restores the recorded identity');
+  }
+
   // Audit #14 (1): a symbolic link on the PATH to a tree (`packages/main`)
   // re-targets the whole tree without touching a byte inside it, and no
   // protection of the resolved tree covers the link: identity unavailable.

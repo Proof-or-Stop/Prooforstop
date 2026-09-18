@@ -35,7 +35,7 @@ import { weakestProtectionLabel } from './build-artifacts-protection.js';
 export const BUILD_ARTIFACT_ROOTS = ['packages/main/dist', 'packages/utils/dist'] as const;
 
 /** Versioned domain of the digest; bump it whenever the framing below changes. */
-const DIGEST_DOMAIN = 'proof-or-stop.build-artifacts-identity.v4';
+const DIGEST_DOMAIN = 'proof-or-stop.build-artifacts-identity.v5';
 
 /**
  * Unambiguous framing: every field is preceded by its byte length, so the
@@ -60,13 +60,18 @@ class BuildArtifactsIdentityUnavailable extends Error {
   }
 }
 
-function filesBelow(root: string): Array<{ path: string; executeMask: number }> {
-  const result: Array<{ path: string; executeMask: number }> = [];
+/**
+ * Every entry below the root, directories included: a directory's presence is
+ * observable (an entry point may probe for it), so an empty directory added or
+ * removed is a different tree even though no file changed.
+ */
+function entriesBelow(root: string): Array<{ path: string; kind: 'directory' | 'file'; executeMask: number }> {
+  const result: Array<{ path: string; kind: 'directory' | 'file'; executeMask: number }> = [];
   const visit = (directory: string): void => {
     for (const entry of readdirSync(directory, { withFileTypes: true })) {
       const path = join(directory, entry.name);
       if (entry.isSymbolicLink()) throw new BuildArtifactsIdentityUnavailable(path);
-      if (entry.isDirectory()) visit(path);
+      if (entry.isDirectory()) { result.push({ path, kind: 'directory', executeMask: 0 }); visit(path); }
       else if (entry.isFile()) {
         const stat = lstatSync(path);
         // A regular file with more than one link has an alias outside this
@@ -77,7 +82,7 @@ function filesBelow(root: string): Array<{ path: string; executeMask: number }> 
         // that lost the owner's bit fails with EACCES with identical bytes, and
         // 0755 and 0655 are different builds to the owner who runs them, so the
         // exact mask is framed, not whether any bit is set.
-        result.push({ path, executeMask: stat.mode & 0o111 });
+        result.push({ path, kind: 'file', executeMask: stat.mode & 0o111 });
       }
       else throw new BuildArtifactsIdentityUnavailable(path);
     }
@@ -110,12 +115,13 @@ function artifactTreeDigest(root: string): string {
   if (!stat.isDirectory()) throw new BuildArtifactsIdentityUnavailable(root, 'artifact root is not a directory');
   const hash = createHash('sha256');
   frame(hash, `${DIGEST_DOMAIN}/tree`);
-  const files = filesBelow(root).filter((file) => relative(root, file.path) !== BUILD_BINDING_BASENAME);
-  frame(hash, String(files.length));
-  for (const file of files) {
-    frame(hash, relative(root, file.path));
-    frame(hash, String(file.executeMask));
-    frame(hash, readFileSync(file.path));
+  const entries = entriesBelow(root).filter((entry) => relative(root, entry.path) !== BUILD_BINDING_BASENAME);
+  frame(hash, String(entries.length));
+  for (const entry of entries) {
+    frame(hash, relative(root, entry.path));
+    frame(hash, entry.kind);
+    frame(hash, String(entry.executeMask));
+    frame(hash, entry.kind === 'file' ? readFileSync(entry.path) : '');
   }
   return hash.digest('hex');
 }

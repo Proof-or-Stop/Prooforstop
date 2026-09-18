@@ -730,6 +730,9 @@ function assertHandlerExecutedThenReused(
       storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'light' },
+      // An external project with no compiled-artifact trees declares the
+      // contract inapplicable; absence alone would not exempt it.
+      artifactContract: 'none',
       ...(sourceKind === 'configured' ? { validate: { commands: configuredCommands } } : {}),
     }, null, 2), 'utf8');
     if (sourceKind === 'fallback') {
