@@ -16,7 +16,11 @@ const ast = ts.createSourceFile(sourcePath, source, ts.ScriptTarget.Latest, true
 const matches = ast.statements.filter(node => ts.isFunctionDeclaration(node)
   && node.name?.text === 'assertProtectedInventoryAndTimeoutSourcesUnchanged');
 assert.equal(matches.length, 1, 'execute exactly the actual smoke group source');
-const emitted = ts.transpileModule(matches[0].getText(ast) + '\nassertProtectedInventoryAndTimeoutSourcesUnchanged();',
+const helpers = ast.statements.filter(node => ts.isFunctionDeclaration(node)
+  && node.name?.text === 'assertProtectedInventoryMutationControls');
+assert.equal(helpers.length, 1, 'mutation self-test is separate from the caller guard');
+const declarations = [matches[0], helpers[0]].map(node => node.getText(ast)).join('\n');
+const emitted = ts.transpileModule(declarations + '\nassertProtectedInventoryAndTimeoutSourcesUnchanged();',
   { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
 const root = fs.mkdtempSync(join(tmpdir(), 'protected-inventory-caller-'));
 const env = { ...process.env, GIT_AUTHOR_NAME: 'Fixture', GIT_AUTHOR_EMAIL: 'fixture@example.test',
@@ -52,8 +56,22 @@ try {
   config.validate.commands[0].timeoutMs += 1;
   write(CONFIG_FILENAMES[0], JSON.stringify(config));
   assert.throws(() => runInNewContext(emitted, context, { timeout: 30000 }),
-    undefined, 'caller original command/timeout mutation must be refused');
+    /protected original validation commands\/timeouts changed/, 'caller original command/timeout mutation must be refused');
+  git(root, ['add', '.']); git(root, ['commit', '-qm', 'mutate caller original timeout']);
+  assert.throws(() => runInNewContext(emitted, context, { timeout: 30000 }),
+    /protected original validation commands\/timeouts changed/, 'committed caller timeout mutation must be refused');
   write(CONFIG_FILENAMES[0], bytesBefore);
+  git(root, ['add', '.']); git(root, ['commit', '-qm', 'restore caller original timeout']);
+  assert.doesNotThrow(() => runInNewContext(emitted, context, { timeout: 30000 }));
+  const formatted = JSON.stringify(JSON.parse(bytesBefore), null, 2) + '\n';
+  write(CONFIG_FILENAMES[0], formatted);
+  assert.doesNotThrow(() => runInNewContext(emitted, context, { timeout: 30000 }), 'formatting alone is not semantic command drift');
+  write(CONFIG_FILENAMES[0], bytesBefore);
+  const mutations = ts.transpileModule(declarations + '\nassertProtectedInventoryMutationControls();',
+    { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
+  runInNewContext(mutations, context, { timeout: 30000 });
+  assert.ok(source.includes("join(repoRoot(), 'packages/main/tests/protected-inventory-fixture.test.mjs')"),
+    'the full native smoke invokes this actual-source regression');
   assert.ok(created.length > 0, 'the regression owns its mutation fixture');
   assert.ok(created.every(path => !fs.existsSync(path)), 'owned mutation fixtures are removed');
   assert.ok(messages.some(message => message.startsWith('PROTECTED_INVENTORY_MUTATIONS_PASS ')),

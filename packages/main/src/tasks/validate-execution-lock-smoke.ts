@@ -1878,10 +1878,80 @@ async function assertCapacityRepositoryScopeAndSelectiveModes(): Promise<void> {
   }
 }
 
-function assertProtectedInventoryAndTimeoutSourcesUnchanged(): void {
-  // This group is a repeatable regression for command/timeout protection. Its
-  // mutation history belongs to an owned fixture, not to the caller's feature
-  // branch. Story scope and integration reviews audit that caller branch.
+function assertProtectedInventoryAndTimeoutSourcesUnchanged(root = repoRoot()): void {
+  // Protect the real caller's existing command and budget contracts. Legitimate
+  // additive registrations and separately gated scope paths do not relax them.
+  const readAt = (ref: string, file: string): string | null => {
+    if (ref === 'working') return existsSync(join(root, file)) ? readFileSync(join(root, file), 'utf8') : null;
+    return git(root, ['ls-tree', '--name-only', ref, '--', file]).trim()
+      ? git(root, ['show', `${ref}:${file}`]) : null;
+  };
+  const prefix = (before: unknown[] = [], after: unknown[] = [], label: string): void => {
+    assert.deepEqual(after.slice(0, before.length), before, label);
+  };
+  const compareConfig = (beforeText: string, afterText: string): void => {
+    const before = JSON.parse(beforeText), after = JSON.parse(afterText);
+    prefix(before.validate?.commands, after.validate?.commands, 'protected original validation commands/timeouts changed');
+    if (before.validate?.commands) after.validate.commands = after.validate.commands.slice(0, before.validate.commands.length);
+    const oldOverrides = before.validate?.evidenceCommandTimeoutOverrides ?? [];
+    const newOverrides = after.validate?.evidenceCommandTimeoutOverrides ?? [];
+    prefix(oldOverrides, newOverrides, 'protected original evidence timeout overrides changed');
+    const overrideKeys = newOverrides.map((row: any) => JSON.stringify([row.command, row.args ?? []]));
+    assert.equal(new Set(overrideKeys).size, overrideKeys.length, 'duplicate evidence timeout override cannot shadow existing policy');
+    if (before.validate?.evidenceCommandTimeoutOverrides) after.validate.evidenceCommandTimeoutOverrides = newOverrides.slice(0, oldOverrides.length);
+    else if (after.validate) delete after.validate.evidenceCommandTimeoutOverrides;
+    assert.deepEqual(after.storyScopeBudget?.limits, before.storyScopeBudget?.limits, 'protected scope budget limits changed');
+    for (const field of ['responsibilities', 'validationGroups']) {
+      const oldRows = before.storyScopeBudget?.[field], newRows = after.storyScopeBudget?.[field];
+      if (!oldRows && !newRows) continue;
+      assert.ok(Array.isArray(oldRows) && Array.isArray(newRows) && oldRows.length === newRows.length,
+        `protected scope budget ${field} shape changed`);
+      for (let index = 0; index < oldRows.length; index++) {
+        const oldRow: Record<string, any> = oldRows[index];
+        const newRow: Record<string, any> = newRows[index];
+        if (field === 'responsibilities') { delete oldRow.paths; delete newRow.paths; }
+        if (oldRow.commandIds || newRow.commandIds) {
+          prefix(oldRow.commandIds, newRow.commandIds, 'protected validation group command membership changed');
+          assert.equal(new Set(newRow.commandIds).size, newRow.commandIds.length, 'duplicate validation group command');
+          if (oldRow.commandIds) newRow.commandIds = newRow.commandIds.slice(0, oldRow.commandIds.length);
+          else delete newRow.commandIds;
+        }
+      }
+    }
+    assert.deepEqual(after, before, 'protected configuration policy changed outside additive command registration and scope paths');
+  };
+  const configs = CONFIG_FILENAMES.filter(file => readAt('main', file) !== null);
+  assert.ok(configs.length > 0, 'at least one actual protected config must be present on main');
+  for (const ref of ['HEAD', 'working']) {
+    for (const file of CONFIG_FILENAMES) {
+      const before = readAt('main', file), after = readAt(ref, file);
+      assert.equal(after !== null, before !== null, `protected config presence changed: ${ref}:${file}`);
+      if (before !== null && after !== null) compareConfig(before, after);
+    }
+    for (const file of ['package.json', 'packages/main/package.json']) {
+      const before = JSON.parse(readAt('main', file)!), after = JSON.parse(readAt(ref, file)!);
+      for (const [key, value] of Object.entries(before.scripts ?? {})) {
+        assert.equal(after.scripts?.[key], value, `protected existing package script changed: ${file}:${key}`);
+      }
+      // Patch release metadata and new script names are not existing commands.
+      delete before.version; delete after.version; delete before.scripts; delete after.scripts;
+      assert.deepEqual(after, before, `protected package configuration changed: ${file}`);
+    }
+    const runnerFile = 'packages/main/src/tasks/full-suite-runner.ts';
+    const smokeFile = 'packages/main/src/tasks/full-suite-runner-smoke.ts';
+    const runnerSource = readAt(ref, runnerFile), smokeSource = readAt(ref, smokeFile);
+    assert.ok(runnerSource !== null && smokeSource !== null, 'protected timeout sources must remain present');
+    assert.match(runnerSource, /120_000|120000/, '120-second member timeout source must remain present');
+    assert.match(runnerSource + smokeSource, /180_000|180000/, '180-second member timeout source must remain present');
+    assert.match(runnerSource + smokeSource, /300_000|300000/, '300-second proof threshold source must remain present');
+    for (const file of [runnerFile, smokeFile]) {
+      assert.equal(readAt(ref, file)?.trim(), readAt('main', file)?.trim(), `protected runner source changed: ${ref}:${file}`);
+    }
+  }
+  console.log('PROTECTED_CALLER_INVENTORY_PASS existing commands, timeouts, budgets and runner sources unchanged');
+}
+
+function assertProtectedInventoryMutationControls(): void {
   const sourceRoot = repoRoot();
   const root = mkdtempSync(join(tmpdir(), 'protected-inventory-mutations-'));
   const files = [...CONFIG_FILENAMES, 'package.json', 'packages/main/package.json',
@@ -1889,94 +1959,62 @@ function assertProtectedInventoryAndTimeoutSourcesUnchanged(): void {
   const originals = new Map<string, string>();
   const write = (file: string, value: string | null): void => {
     if (value === null) { rmSync(join(root, file), { force: true }); return; }
-    mkdirSync(dirname(join(root, file)), { recursive: true });
-    writeFileSync(join(root, file), value);
+    mkdirSync(dirname(join(root, file)), { recursive: true }); writeFileSync(join(root, file), value);
   };
-  const check = (): void => {
-    for (const file of CONFIG_FILENAMES) {
-      const mainHas = git(root, ['ls-tree', '--name-only', 'main', '--', file]).trim() !== '';
-      const headHas = git(root, ['ls-tree', '--name-only', 'HEAD', '--', file]).trim() !== '';
-      const workingHas = existsSync(join(root, file));
-      assert.equal(headHas, mainHas, 'protected config committed presence must remain unchanged');
-      assert.equal(workingHas, mainHas, 'protected config working presence must remain unchanged');
-    }
-    // B-cc10 CHK-007: `git diff -- <path>` on a path that does not exist on EITHER side
-    // silently diffs nothing and passes vacuously, so naming only one config spelling
-    // would quietly stop protecting this file after the rename. Both accepted spellings
-    // are listed so whichever one the checkout has is really compared.
-    const protectedFiles = [
-      ...CONFIG_FILENAMES,
-      'package.json',
-      'packages/main/package.json',
-      'packages/main/src/tasks/full-suite-runner.ts',
-      'packages/main/src/tasks/full-suite-runner-smoke.ts',
-    ];
-    assert.doesNotThrow(() => execFileSync('git', [
-      'diff', '--exit-code', 'main...HEAD', '--', ...protectedFiles,
-    ], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] }),
-    'CHK-003 adversarial inventory proof requires zero story-branch diff over protected command/timeout sources');
-    assert.doesNotThrow(() => execFileSync('git', [
-      'diff', '--exit-code', 'HEAD', '--', ...protectedFiles,
-    ], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] }),
-    'CHK-003 adversarial inventory proof requires zero uncommitted diff over protected command/timeout sources');
-
-    const runnerSource = readFileSync(join(root, 'packages/main/src/tasks/full-suite-runner.ts'), 'utf8');
-    const smokeSource = readFileSync(join(root, 'packages/main/src/tasks/full-suite-runner-smoke.ts'), 'utf8');
-    assert.match(runnerSource, /120_000|120000/, '120-second member timeout source must remain present');
-    assert.match(runnerSource + smokeSource, /180_000|180000/, '180-second member timeout source must remain present');
-    assert.match(runnerSource + smokeSource, /300_000|300000/, '300-second proof threshold source must remain present');
-  };
+  const check = (): void => assertProtectedInventoryAndTimeoutSourcesUnchanged(root);
   try {
     for (const file of files) {
       if (!existsSync(join(sourceRoot, file))) continue;
-      const content = readFileSync(join(sourceRoot, file), 'utf8');
-      originals.set(file, content); write(file, content);
+      const content = readFileSync(join(sourceRoot, file), 'utf8'); originals.set(file, content); write(file, content);
     }
     const configFiles = CONFIG_FILENAMES.filter(file => originals.has(file));
     assert.ok(configFiles.length > 0, 'at least one actual protected config must seed the fixture');
-    git(root, ['init', '-q', '-b', 'main']);
-    git(root, ['add', '.']); git(root, ['commit', '-qm', 'protected inventory baseline']);
-    git(root, ['switch', '-c', 'story/protected-inventory']);
-    check();
-    const cases: Array<{ name: string; changes: Record<string, string | null> }> = [];
+    git(root, ['init', '-q', '-b', 'main']); git(root, ['add', '.']); git(root, ['commit', '-qm', 'protected inventory baseline']);
+    git(root, ['switch', '-c', 'story/protected-inventory']); check();
+    const cases: Array<{ name: string; changes: Record<string, string | null>; reason: RegExp }> = [];
     for (const file of configFiles) {
       const baseline = JSON.parse(originals.get(file)!);
-      const mutate = (name: string, change: (value: typeof baseline) => void): void => {
+      const mutate = (name: string, reason: RegExp, change: (value: typeof baseline) => void): void => {
         const value = JSON.parse(originals.get(file)!); change(value);
-        cases.push({ name: `${file}:${name}`, changes: { [file]: JSON.stringify(value) } });
+        cases.push({ name: `${file}:${name}`, reason, changes: { [file]: JSON.stringify(value, null, 2) + '\n' } });
       };
       assert.ok(baseline.validate?.commands?.length > 0, 'fixture must contain original command coverage');
-      mutate('command', value => { value.validate.commands[0].command = 'mutated-command'; });
-      mutate('timeout', value => { value.validate.commands[0].timeoutMs = (value.validate.commands[0].timeoutMs ?? 120000) + 1; });
-      mutate('command-removal', value => { value.validate.commands.shift(); });
+      mutate('command', /original validation commands\/timeouts changed/, value => { value.validate.commands[0].command = 'mutated-command'; });
+      mutate('timeout', /original validation commands\/timeouts changed/, value => { value.validate.commands[0].timeoutMs = (value.validate.commands[0].timeoutMs ?? 120000) + 1; });
+      mutate('command-removal', /original validation commands\/timeouts changed/, value => { value.validate.commands.shift(); });
       const budget = Object.keys(baseline.storyScopeBudget?.limits ?? {}).find(key => typeof baseline.storyScopeBudget.limits[key] === 'number');
       assert.ok(budget, 'fixture must contain a real scope budget limit');
-      mutate('scope-budget', value => { value.storyScopeBudget.limits[budget!] += 1; });
-      cases.push({ name: `${file}:missing`, changes: { [file]: null } });
+      mutate('scope-budget', /scope budget limits changed/, value => { value.storyScopeBudget.limits[budget!] += 1; });
+      cases.push({ name: `${file}:missing`, reason: /config presence changed/, changes: { [file]: null } });
     }
-    for (const file of files.filter(file => !CONFIG_FILENAMES.includes(file as typeof CONFIG_FILENAMES[number]))) {
-      const before = originals.get(file); assert.ok(before, `protected source is present: ${file}`);
-      const changed = file.endsWith('.json')
-        ? JSON.stringify({ ...JSON.parse(before), scripts: { ...JSON.parse(before).scripts, test: 'changed-protected-command' } })
-        : before + '\nexport const protectedMutation = true;\n';
-      cases.push({ name: `${file}:content`, changes: { [file]: changed } });
+    for (const file of ['package.json', 'packages/main/package.json']) {
+      const value = JSON.parse(originals.get(file)!); const key = Object.keys(value.scripts)[0]; assert.ok(key);
+      value.scripts[key] = 'changed-protected-command';
+      cases.push({ name: `${file}:script`, reason: /existing package script changed/, changes: { [file]: JSON.stringify(value, null, 2) + '\n' } });
+    }
+    const runners = ['packages/main/src/tasks/full-suite-runner.ts', 'packages/main/src/tasks/full-suite-runner-smoke.ts'];
+    for (const file of runners) cases.push({ name: `${file}:content`, reason: /runner source changed/, changes: { [file]: originals.get(file)! + '\nexport const protectedMutation = true;\n' } });
+    for (const seconds of [120, 180, 300]) {
+      const pattern = new RegExp(`${seconds}_000|${seconds}000`, 'g');
+      cases.push({ name: `missing-${seconds}-second-literal`, reason: new RegExp(`${seconds}-second .* source must remain present`),
+        changes: Object.fromEntries(runners.map(file => [file, originals.get(file)!.replace(pattern, '119_999')])) });
     }
     for (const file of CONFIG_FILENAMES.filter(file => !originals.has(file))) {
-      cases.push({ name: `${file}:added`, changes: { [file]: originals.get(configFiles[0])! } });
-      cases.push({ name: `${file}:renamed`, changes: { [configFiles[0]]: null, [file]: originals.get(configFiles[0])! } });
+      cases.push({ name: `${file}:added`, reason: /config presence changed/, changes: { [file]: originals.get(configFiles[0])! } });
+      cases.push({ name: `${file}:renamed`, reason: /config presence changed/, changes: { [configFiles[0]]: null, [file]: originals.get(configFiles[0])! } });
     }
     for (const test of cases) {
       for (const [file, value] of Object.entries(test.changes)) write(file, value);
-      assert.throws(check, { name: 'AssertionError' }, `working mutation rejected: ${test.name}`);
+      assert.throws(check, test.reason, `working semantic mutation rejected: ${test.name}`);
       git(root, ['add', '.']); git(root, ['commit', '-qm', `mutate ${test.name}`]);
-      assert.throws(check, { name: 'AssertionError' }, `committed mutation rejected: ${test.name}`);
+      assert.throws(check, test.reason, `committed semantic mutation rejected: ${test.name}`);
       for (const file of Object.keys(test.changes)) write(file, originals.get(file) ?? null);
-      git(root, ['add', '.']); git(root, ['commit', '-qm', `restore ${test.name}`]);
-      check();
+      git(root, ['add', '.']); git(root, ['commit', '-qm', `restore ${test.name}`]); check();
     }
-    console.log(`PROTECTED_INVENTORY_MUTATIONS_PASS ${cases.length} working and committed controls; restored baselines pass`);
+    console.log(`PROTECTED_INVENTORY_MUTATIONS_PASS ${cases.length} working and committed semantic controls; restored baselines pass`);
   } finally { rmSync(root, { recursive: true, force: true }); }
 }
+
 
 function assertCapacityReclaimImplementationIsIdentityStable(): void {
   const source = readFileSync(join(repoRoot(), 'packages/main/src/core/validation-execution-lock.ts'), 'utf8');
@@ -2202,6 +2240,9 @@ void (async () => {
     await runGroup(assertQueuedWaitFailureCleanupIsRecoverable);
     await runGroup(assertCapacityRepositoryScopeAndSelectiveModes);
     await runGroup(assertProtectedInventoryAndTimeoutSourcesUnchanged);
+    await runGroup(assertProtectedInventoryMutationControls);
+    execFileSync(process.execPath, [join(repoRoot(), 'packages/main/tests/protected-inventory-fixture.test.mjs')],
+      { cwd: repoRoot(), stdio: 'inherit', timeout: 30000 });
     await runGroup(assertCapacityReclaimImplementationIsIdentityStable);
     await runGroup(assertManagedVerificationIntentPinSchemaRoundTrip);
     if (process.argv.includes('--workspace-capacity-contract-only')) {
