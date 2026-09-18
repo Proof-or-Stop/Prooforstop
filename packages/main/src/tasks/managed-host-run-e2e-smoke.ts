@@ -320,7 +320,13 @@ async function main(): Promise<void> {
       reviewRunId: 'B-managed-e2e:RR-001',
       binding: binding.binding,
       expected: { ...expected, managedPromptDigest: `sha256:${'0'.repeat(64)}` },
-    }).valid, false, 'a changed prompt digest must not reuse the detached-worker receipt');
+    }).valid, true, 'caller-provided prompt expectations must not replace sealed launch authority');
+    assert.equal(verifyManagedReviewEvidence({
+      root: completedRoot,
+      storyId: 'B-managed-e2e',
+      agent: 'lattice-review-quality', lane: 'lattice-review-quality', reviewRunId: 'B-managed-e2e:RR-001',
+      binding: { ...binding.binding, managedPromptDigest: `sha256:${'0'.repeat(64)}` }, expected,
+    }).valid, false, 'a changed signed prompt binding must not reuse the detached-worker receipt');
 
     const crashedRoot = join(root, 'crashed');
     const crashReleasePath = join(root, 'crash-worker.release');
