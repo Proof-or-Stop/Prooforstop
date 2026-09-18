@@ -953,6 +953,10 @@ export function managedReviewFinalProposalJsonSchema(args: ManagedReviewFinalPro
   // local envelope parser before any bytes are sealed as evidence.
   const nonBlankString = { type: 'string' };
   const stringArray = { type: 'array', items: { type: 'string' } };
+  const fullyReadFiles = {
+    ...stringArray,
+    description: 'List at least one relevant permitted in-scope file actually fully read. Greps, parsed excerpts and partial reads belong in filesTriagedByName; do not invent full reads. This minimum also applies to inventory-completeness critics.',
+  };
   // Match normalizeReviewerReadManifest: existing native and managed evidence
   // accepts either the canonical raw digest or its explicit sha256: form.
   const routingDigest = { type: 'string', pattern: '^(?:sha256:)?[a-f0-9]{64}$' };
@@ -962,7 +966,7 @@ export function managedReviewFinalProposalJsonSchema(args: ManagedReviewFinalPro
     additionalProperties: false,
     required: [...MANAGED_REVIEW_READ_MANIFEST_FIELDS],
     properties: {
-      filesReadFully: stringArray,
+      filesReadFully: fullyReadFiles,
       filesTriagedByName: stringArray,
       scanEscalationReason: { type: ['string', 'null'] },
       candidateSpecSetDigest: routingDigest,
@@ -974,7 +978,7 @@ export function managedReviewFinalProposalJsonSchema(args: ManagedReviewFinalPro
     additionalProperties: false,
     required: [...MANAGED_REVIEW_READ_LOG_FIELDS],
     properties: {
-      filesReadFully: stringArray,
+      filesReadFully: fullyReadFiles,
       filesTriagedByName: stringArray,
       summary: {
         type: 'object',
@@ -1011,7 +1015,10 @@ export function managedReviewFinalProposalJsonSchema(args: ManagedReviewFinalPro
       category: { enum: ['happy', 'edge', 'adversarial', 'missing'] },
       files: { type: 'array', items: nonBlankString },
       evidenceState: { enum: ['suspected', 'verified'] },
-      uncertaintyReason: nonBlankString,
+      uncertaintyReason: {
+        ...nonBlankString,
+        description: 'Include a nonblank uncertaintyReason only when evidenceState is suspected, where it is required. Omit this field when evidenceState is verified or absent; put general review limitations in note instead.',
+      },
     },
   };
   return {
