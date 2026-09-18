@@ -44,13 +44,14 @@ process.stdin.on('end', () => {
     // One queue per cwd, whatever discovery says: publication, ordering and delivery all
     // read the same queue, so a record published while discovery was failing can never be
     // overtaken by a later one. Discovery decides only whether delivery may run now.
-    publishSpoolRecord(queueDir(root), { target, line });
-    if (discovered === 'non-repository') {
+    const identity = queueIdentity(root);
+    publishSpoolRecord(identity.dir, { target, line });
+    if (identity.canonical && discovered === 'non-repository') {
       // Positively outside a repository: nothing can be validating, so deliver directly.
-      deliverQueue(root, null);
-    } else if (discovered !== 'uncertain') {
+      deliverQueue(identity, null);
+    } else if (identity.canonical && discovered !== 'uncertain') {
       // Inside a worktree: every write is guarded by a workspace capacity ticket.
-      deliverQueue(root, discovered);
+      deliverQueue(identity, discovered);
     }
     // 'uncertain': the repository may be validating, so the record simply waits.
   } catch {}
@@ -58,8 +59,12 @@ process.stdin.on('end', () => {
 });
 
 function git(root, args) {
+  // Inherited repository-selection variables are dropped: discovery must describe the
+  // directory this record belongs to, never a repository some parent process selected.
+  const env = { ...process.env };
+  for (const key of ['GIT_DIR', 'GIT_WORK_TREE', 'GIT_COMMON_DIR', 'GIT_INDEX_FILE', 'GIT_OBJECT_DIRECTORY', 'GIT_ALTERNATE_OBJECT_DIRECTORIES', 'GIT_CEILING_DIRECTORIES']) delete env[key];
   // stderr is captured, never printed: classifying "not a git repository" needs it.
-  return execSync(`git ${args}`, { cwd: root, encoding: 'utf8', timeout: 2000, stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+  return execSync(`git ${args}`, { cwd: root, env, encoding: 'utf8', timeout: 2000, stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 }
 
 /**
@@ -74,9 +79,7 @@ function discoverWorkspace(root) {
     // ONLY git's "searched every parent and found nothing" wording proves absence. A
     // diagnostic naming a path ("not a git repository: /work/.git") means the metadata is
     // broken or an inherited GIT_DIR is wrong - the worktree may exist and be validating.
-    const searchedEveryParent = /not a git repository \(or any of the parent directories\)/i.test(detail);
-    const overridden = process.env.GIT_DIR !== undefined || process.env.GIT_WORK_TREE !== undefined;
-    return searchedEveryParent && !overridden ? 'non-repository' : 'uncertain';
+    return /not a git repository \(or any of the parent directories\)/i.test(detail) ? 'non-repository' : 'uncertain';
   }
 }
 
@@ -86,13 +89,43 @@ function discoverWorkspace(root) {
  * only so a record is still retained when the primary cannot be written; delivery reads
  * both as one queue, ordered by the records' own time-ordered names.
  */
-function queueDir(root) {
-  // The key is the canonical directory identity, so '/work', '/work/' and a symlink alias
-  // all select the SAME queue. Lexical resolution is the fallback when the path cannot be
-  // canonicalized (it no longer exists), which is also when its log target is unreachable.
-  let canonical;
-  try { canonical = fs.realpathSync(root); } catch { canonical = path.resolve(root); }
-  return path.join(os.homedir(), '.proof-or-stop', 'activity-spool', crypto.createHash('sha256').update(canonical).digest('hex'));
+/**
+ * The queue identity for one hook invocation, computed ONCE and passed everywhere: the
+ * canonical directory identity when it is available, so '/work', '/work/' and a symlink
+ * alias share one queue. When canonicalization is unavailable the lexical identity is
+ * used, the invocation delivers nothing, and a later canonical run adopts those records.
+ */
+function queueIdentity(root) {
+  const dirFor = (value) => path.join(os.homedir(), '.proof-or-stop', 'activity-spool', crypto.createHash('sha256').update(value).digest('hex'));
+  const lexical = path.resolve(root);
+  try {
+    const canonical = fs.realpathSync(root);
+    return { dir: dirFor(canonical), lexicalDir: dirFor(lexical), canonical: true };
+  } catch {
+    return { dir: dirFor(lexical), lexicalDir: dirFor(lexical), canonical: false };
+  }
+}
+
+/**
+ * Move records published while canonicalization was unavailable into the canonical queue.
+ * Anything unresolved blocks delivery, so a newer record can never pass an older one.
+ */
+function adoptLexicalRecords(identity) {
+  if (!identity.canonical || identity.lexicalDir === identity.dir) return true;
+  let names;
+  try { names = fs.readdirSync(identity.lexicalDir).filter(name => name.endsWith('.json')); } catch (error) {
+    return error.code === 'ENOENT';
+  }
+  if (names.length === 0) return true;
+  try { fs.mkdirSync(identity.dir, { recursive: true, mode: 0o700 }); } catch { return false; }
+  for (const name of names) {
+    try { fs.renameSync(path.join(identity.lexicalDir, name), path.join(identity.dir, name)); } catch {
+      try { fs.statSync(path.join(identity.lexicalDir, name)); return false; } catch (error) {
+        if (error.code !== 'ENOENT') return false;
+      }
+    }
+  }
+  return true;
 }
 
 function pidAlive(pid) {
@@ -187,8 +220,9 @@ function queueView(spool) {
  * target, so nothing is lost on a crash or a write failure - delivery is therefore
  * at-least-once: a crash between the append and the removal can repeat one line.
  */
-function deliverQueue(root, top) {
-  const spool = queueDir(root);
+function deliverQueue(identity, top) {
+  if (!adoptLexicalRecords(identity)) return; // older records unresolved: deliver nothing
+  const spool = identity.dir;
   for (let delivered = 0; delivered < 10000; delivered++) {
     const view = queueView(spool);
     if (view === null) return; // unknown queue contents: deliver nothing

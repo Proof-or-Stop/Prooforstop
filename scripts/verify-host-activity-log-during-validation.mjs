@@ -641,6 +641,46 @@ try {
     expectRepaired(JSON.stringify(after) === JSON.stringify(['plain-spelling', 'trailing-slash', 'symlink-alias', 'settle-alias']),
       `every spelling is delivered in publication order (got ${JSON.stringify(after)})`);
   }
+  // Inherited repository overrides must not redirect discovery: the record belongs to the
+  // cwd's worktree, and that worktree's validation must keep the hook out.
+  {
+    const validating = repo();
+    const other = repo();
+    const t = ticket(validating, live.pid);
+    const r = spawnSync(process.execPath, [hook], {
+      input: JSON.stringify({ cwd: validating, tool_name: 'Bash', tool_input: { command: 'override-redirected' }, hook_event_name: 'PostToolUse', session_id: 'hook-fixture', tool_output: 'ok' }),
+      env: { ...process.env, HOME: home, GIT_DIR: join(other, '.git'), GIT_WORK_TREE: other }, encoding: 'utf8',
+    });
+    control(r.status === 0, 'the hook exits 0 with repository overrides set');
+    const during = lines(validating);
+    rows.push({ scenario: 'GIT_DIR/GIT_WORK_TREE point at another repository', repoLinesDuring: during.length, after: '-' });
+    expectRepaired(during.length === 0, `overrides must not bypass the cwd worktree's validation (found ${JSON.stringify(during)})`);
+    control(lines(other).length === 0, 'nothing is written into the overridden repository either');
+    rmSync(t, { recursive: true, force: true });
+    callHook(validating, 'after-override');
+    expectRepaired(JSON.stringify(lines(validating)) === JSON.stringify(['override-redirected', 'after-override']),
+      `the deferred record is delivered in order afterwards (got ${JSON.stringify(lines(validating))})`);
+  }
+  // A cwd that cannot be canonicalized yet: the record waits and a later canonical run
+  // adopts it, so nothing is stranded and order is preserved.
+  {
+    const base = repo();
+    // Through a symlink alias, the lexical and canonical identities genuinely differ.
+    const alias = join(sandbox, `alias-late-${n++}`);
+    symlinkSync(base, alias);
+    const later = join(alias, 'created-later');
+    const r = spawnSync(process.execPath, [hook], {
+      input: JSON.stringify({ cwd: later, tool_name: 'Bash', tool_input: { command: 'before-cwd-exists' }, hook_event_name: 'PostToolUse', session_id: 'hook-fixture', tool_output: 'ok' }),
+      env: { ...process.env, HOME: home }, encoding: 'utf8',
+    });
+    control(r.status === 0, 'the hook exits 0 when its cwd cannot be canonicalized');
+    mkdirSync(join(base, 'created-later'), { recursive: true });
+    callHook(later, 'after-cwd-exists');
+    const after = lines(later);
+    rows.push({ scenario: 'cwd canonicalization unavailable, then available', repoLinesDuring: '-', after: JSON.stringify(after) });
+    expectRepaired(JSON.stringify(after) === JSON.stringify(['before-cwd-exists', 'after-cwd-exists']),
+      `a record published before canonicalization is adopted and delivered first (got ${JSON.stringify(after)})`);
+  }
   // Controls: unchanged immediate writes.
   for (const [name, setup] of [
     ['no validation ticket', () => {}],
