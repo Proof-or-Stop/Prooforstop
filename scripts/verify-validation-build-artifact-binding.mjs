@@ -31,7 +31,7 @@ import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, linkSync, mkdtempSync, mkdirSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync, chmodSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, isAbsolute, join, resolve } from 'node:path';
 
 const { evaluateRoutineValidationReuse, buildRoutineValidationIdentity } = await import('../packages/main/src/core/validation-evidence-reuse.ts');
 const { evaluateValidationEvidenceAdmissibility } = await import('../packages/main/src/core/validation-evidence-admissibility.ts');
@@ -395,6 +395,18 @@ try {
   rmTree(join(root, 'packages/main/dist'));
   expectRefusedByBuild('PASS recorded against build A was accepted after packages/main/dist disappeared');
   if (binding) check(/^[a-f0-9]{64}$/.test(binding.currentBuildArtifactsHash(root) ?? ''), 'a confirmed missing root still yields a definite identity (absent marker)');
+  // Audit #19 (2): a regular file AT the root's path is not "absent" — it
+  // exists, can change, and can change what a command finds there. It is not
+  // a tree either: identity unavailable, every consumer refuses.
+  writeFileSync(join(root, 'packages/main/dist'), 'not a directory\n');
+  try {
+    if (binding) expectRepaired(binding.currentBuildArtifactsHash(root) === undefined, 'a regular file at an artifact root\'s path was digested as the absent tree');
+    const fileRoot = reuse();
+    expectRepaired(fileRoot.reusable === false && fileRoot.refusalReasons.includes('build-artifacts-hash-changed-or-missing'), `reuse accepted a PASS while an artifact root was a regular file (reasons=${fileRoot.refusalReasons.join(',')})`);
+    expectRepaired(admissibility().ok === false && admissibility().reasonCodes.includes('build_artifacts_unavailable'), `admissibility accepted a PASS while an artifact root was a regular file (codes=${admissibility().reasonCodes.join(',')})`);
+  } finally {
+    rmSync(join(root, 'packages/main/dist'));
+  }
 
   // Audit #6: an observation failure is not "absent". A root this process
   // cannot lstat (its parent denies search) must make the identity unavailable
@@ -646,6 +658,20 @@ try {
           `the private /proc must be mounted after every bind, and the trees after their ancestors (${prefix.join(' ')})`);
       } else {
         expectRepaired(false, 'core/build-artifacts-protection exports no bwrapLaunchPrefix');
+      }
+      // Audit #19 (1): the wrapper discovered on a RELATIVE PATH entry is
+      // resolved to an absolute canonical executable, so the self-tested
+      // wrapper and every launch are the same file whatever cwd a command
+      // declares.
+      if (typeof binding.resolveExecutableOnPath === 'function') {
+        const toolsDir = join(sandbox, 'tools'); mkdirSync(toolsDir, { recursive: true });
+        const fakeWrapper = join(toolsDir, 'fake-wrapper'); writeFileSync(fakeWrapper, '#!/bin/sh\nexit 0\n', { mode: 0o755 });
+        const found = binding.resolveExecutableOnPath('fake-wrapper', ['tools', '/usr/bin'].join(':'), sandbox);
+        expectRepaired(typeof found === 'string' && isAbsolute(found) && found === realpathSync(fakeWrapper),
+          `a wrapper found on a relative PATH entry was not resolved to its absolute canonical path (${found})`);
+        check(binding.resolveExecutableOnPath('fake-wrapper', '/usr/bin', sandbox) === undefined, 'control: a wrapper absent from PATH is not found');
+      } else {
+        expectRepaired(false, 'core/build-artifacts-protection exports no resolveExecutableOnPath');
       }
       // Audit #17 (3): a sharded entry's oracle joins the binding sequence.
       const shardedHandlerSource = readFileSync(join(repoRoot, 'packages/main/src/handlers/story-aware-validation.ts'), 'utf8');

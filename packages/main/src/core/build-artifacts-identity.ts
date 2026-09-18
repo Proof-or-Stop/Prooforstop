@@ -99,7 +99,10 @@ function artifactTreeDigest(root: string): string {
     throw new BuildArtifactsIdentityUnavailable(root);
   }
   if (stat.isSymbolicLink()) throw new BuildArtifactsIdentityUnavailable(root);
-  if (!stat.isDirectory()) return 'absent';
+  // A regular file (or anything else) AT the root's path is not "absent": it
+  // exists, can change, and can change what a command finds there. It is not
+  // a tree either, so the identity is unavailable rather than narrowed.
+  if (!stat.isDirectory()) throw new BuildArtifactsIdentityUnavailable(root, 'artifact root is not a directory');
   const hash = createHash('sha256');
   frame(hash, `${DIGEST_DOMAIN}/tree`);
   const files = filesBelow(root).filter((path) => relative(root, path) !== BUILD_BINDING_BASENAME);

@@ -116,11 +116,18 @@ function isDirectory(path: string): boolean {
   try { return lstatSync(path).isDirectory(); } catch { return false; }
 }
 
-function executableOnPath(name: string): string | undefined {
-  for (const dir of (process.env.PATH ?? '').split(delimiter)) {
+/**
+ * The wrapper executable, as an ABSOLUTE canonical path. A relative PATH
+ * entry (`tools`) resolves against this process's cwd here, and the same
+ * path is then used for every launch whatever cwd the command declares;
+ * returning the relative candidate would self-test one executable and launch
+ * another from `<command cwd>/tools/bwrap`.
+ */
+export function resolveExecutableOnPath(name: string, searchPath: string = process.env.PATH ?? '', cwd: string = process.cwd()): string | undefined {
+  for (const dir of searchPath.split(delimiter)) {
     if (!dir) continue;
-    const candidate = join(dir, name);
-    try { accessSync(candidate, constants.X_OK); return candidate; } catch { /* next */ }
+    const candidate = resolve(cwd, dir, name);
+    try { accessSync(candidate, constants.X_OK); return realpathSync(candidate); } catch { /* next */ }
   }
   return undefined;
 }
@@ -171,7 +178,7 @@ export function bwrapLaunchPrefix(existingRoots: readonly string[]): string[] {
 }
 
 function bwrapMechanism(existingRoots: string[], allRoots: string[], projectRoot: string): Mechanism | string {
-  const bwrap = executableOnPath('bwrap');
+  const bwrap = resolveExecutableOnPath('bwrap');
   if (!bwrap) return 'bwrap (bubblewrap) is not on PATH';
   // bwrap re-binds a tree read-only over itself, so it can only protect a tree
   // that exists. An absent root would stay creatable inside the namespace, and
