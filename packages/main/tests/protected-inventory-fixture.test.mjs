@@ -63,6 +63,19 @@ try {
   write(CONFIG_FILENAMES[0], bytesBefore);
   git(root, ['add', '.']); git(root, ['commit', '-qm', 'restore caller original timeout']);
   assert.doesNotThrow(() => runInNewContext(emitted, context, { timeout: 30000 }));
+  const shadowed = JSON.parse(bytesBefore);
+  shadowed.validate.evidenceCommandTimeoutOverrides = [{ ...shadowed.validate.commands[0], timeoutMs: 999999 }];
+  write(CONFIG_FILENAMES[0], JSON.stringify(shadowed));
+  assert.throws(() => runInNewContext(emitted, context, { timeout: 30000 }),
+    /new evidence timeout override shadows a protected original command/,
+    'appended override must not loosen an original caller command');
+  git(root, ['add', '.']); git(root, ['commit', '-qm', 'append shadowing timeout override']);
+  assert.throws(() => runInNewContext(emitted, context, { timeout: 30000 }),
+    /new evidence timeout override shadows a protected original command/,
+    'committed override must not loosen an original caller command');
+  write(CONFIG_FILENAMES[0], bytesBefore);
+  git(root, ['add', '.']); git(root, ['commit', '-qm', 'remove shadowing timeout override']);
+  assert.doesNotThrow(() => runInNewContext(emitted, context, { timeout: 30000 }));
   const formatted = JSON.stringify(JSON.parse(bytesBefore), null, 2) + '\n';
   write(CONFIG_FILENAMES[0], formatted);
   assert.doesNotThrow(() => runInNewContext(emitted, context, { timeout: 30000 }), 'formatting alone is not semantic command drift');
