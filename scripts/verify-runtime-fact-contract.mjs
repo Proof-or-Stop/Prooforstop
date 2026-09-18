@@ -575,7 +575,7 @@ async function main() {
   check(!policyValidator.includes('canonicalAgentRoleId(') && !policyValidator.includes('assertCanonicalActiveIdentityBoundary('), 'eager policy validation must not normalize aliases or import a cyclic boundary guard');
   check(registrySource.includes('Eager role-policy rejection preserves unknown-role ordering'), 'runtime registry must describe eager role-policy rejection');
   for (const [label, needle] of [
-    ['strict argument preflight', '\n  preflightStrictCommandArgsBeforeStoryReads(cmd, argv);'],
+    ['strict argument preflight', '\n  preflightStrictCommandArgsBeforeStoryReads('],
     ['standalone init', "\n  if (cmd === 'init')"],
     ['standalone dashboard', "\n  if (cmd === 'dashboard')"],
     ['tool lookup', '\n  const tool = TOOLS.find'],

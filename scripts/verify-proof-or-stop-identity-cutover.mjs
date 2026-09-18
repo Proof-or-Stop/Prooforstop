@@ -3267,7 +3267,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "scripts/verify-runtime-fact-contract.mjs",
-    "sha256": "1feb69121321ac39ed762b1575b1189a13b90c05591bad003a1053c6f1339bc3"
+    "sha256": "8f2b5ec6d8e80bf66516ed8f546986c6b6a9970416590ff7f0ffa45a21736fd9"
   }
 ];
 const CLOSED_ROLE_NEGATIVE_ROWS = [
