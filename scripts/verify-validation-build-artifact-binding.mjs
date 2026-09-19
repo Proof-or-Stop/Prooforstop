@@ -1244,7 +1244,7 @@ try {
           expectRepaired(dyldLaunch.command === '/usr/bin/sandbox-exec' && dyldLaunch.args[0] === '-p' && dyldLaunch.args[2] === '--' && dyldLaunch.args[3] === '/usr/bin/perl' && dyldLaunch.args[4] === '/dev/fd/3' && dyldLaunch.args[5] === process.execPath && !dyldLaunch.args.includes('/usr/bin/env')
             && !dyldLaunch.args.some((argument) => argument.includes('/fixture/insert.dylib') || argument.includes('/fixture/preload.so'))
             && Object.keys(dyldLaunch.env).every((key) => binding.isWrapperEnvironmentVariable(key))
-            && dyldLaunch.confidential?.fd === 3 && dyldLaunch.confidential.payload.toString('utf8').includes(`$ENV{'DYLD_INSERT_LIBRARIES'} = pack('H*', '${hex('/fixture/insert.dylib')}');\n`) && dyldLaunch.confidential.payload.toString('utf8').includes(`$ENV{'LD_PRELOAD'} = pack('H*', '${hex('/fixture/preload.so')}');\n`) && dyldLaunch.confidential.payload.toString('utf8').endsWith('exec { $ARGV[0] } @ARGV or exit 127;\n'),
+            && dyldLaunch.confidential?.fd === 3 && dyldLaunch.confidential.payload.toString('utf8').includes(`$ENV{pack('H*', '${hex('DYLD_INSERT_LIBRARIES')}')} = pack('H*', '${hex('/fixture/insert.dylib')}');\n`) && dyldLaunch.confidential.payload.toString('utf8').includes(`$ENV{pack('H*', '${hex('LD_PRELOAD')}')} = pack('H*', '${hex('/fixture/preload.so')}');\n`) && dyldLaunch.confidential.payload.toString('utf8').endsWith('exec { $ARGV[0] } @ARGV or exit 127;\n'),
             `sandbox-exec was launched with loader variables in its own environment, or without the trampoline that restores them inside (${JSON.stringify(dyldLaunch.args.slice(0, 6))}, env keys ${Object.keys(dyldLaunch.env).filter((key) => /^(LD_|DYLD_)/.test(key)).join(',')})`);
           const plainLaunch = hostProtection.wrap({ command: process.execPath, args: ['-e', '0'], shell: false, env: { HOME: process.env.HOME ?? '/', USER: process.env.USER ?? 'user' } });
           check(!plainLaunch.args.includes('/usr/bin/env') && plainLaunch.args[2] === '--' && plainLaunch.args[3] === process.execPath, 'control: a launch with nothing to withhold runs directly, behind the wrapper-owned option terminator');
@@ -2225,15 +2225,15 @@ if (hostEnforced) {
       check(hijack.status === 0 && !hijack.stdout.includes('RAN_VALIDATOR'), `control: without a separator env reads a dash-named assignment as its -S option and never runs the validator (${hijack.status})`);
       const separated = spawnSync('/usr/bin/env', ['--', '-SFOO= /usr/bin/true', 'PATH=/usr/bin', dashValidator], { encoding: 'utf8' });
       check(separated.status === 1 && separated.stdout.includes('RAN_VALIDATOR'), `control: with -- the validator runs and fails (${separated.status})`);
-      // A name that is not a portable identifier cannot be restored as data by
-      // any launcher; it is refused up front, and nothing runs in its place.
-      let dashRefusal = null;
-      try { eqProtection.wrap({ command: dashValidator, args: [], shell: false, env: { ...process.env, '-SFOO': ' /usr/bin/true' }, confidentialFd: 3 }); } catch (error) { dashRefusal = error; }
-      expectRepaired(dashRefusal && String(dashRefusal.message).includes('[artifact_protection_launch_unsupported]') && String(dashRefusal.message).includes('-SFOO'),
-        `a dash-named variable was accepted for transfer into the sandbox (${dashRefusal ? dashRefusal.message : 'no refusal'})`);
+      // Audit #51: any name a process environment can carry is data to the
+      // trampoline (names and values are both hex-packed), so a dash-named
+      // variable is delivered as declared and the declared validator runs.
+      const dashLaunch = eqProtection.wrap({ command: dashValidator, args: [], shell: false, env: { ...process.env, '-SFOO': ' /usr/bin/true' }, confidentialFd: 3 });
+      expectRepaired(!dashLaunch.args.some((argument) => argument.startsWith('-SFOO') || argument.includes('/usr/bin/env')) && dashLaunch.confidential?.payload.toString('utf8').includes(`$ENV{pack('H*', '${Buffer.from('-SFOO', 'utf8').toString('hex')}')}`),
+        `a dash-named variable reached argv or was not transferred as bytes (${JSON.stringify(dashLaunch.args.slice(-3))})`);
       const dashRun = await runValidationCommand({ label: 'dash env key', command: dashValidator, args: [], env: { '-SFOO': ' /usr/bin/true' }, timeoutMs: 20_000 }, root, 20_000, { artifactWriteProtection: eqProtection, artifactBinding: { root: realpathSync(root), protection: eqProtection.label } });
-      expectRepaired(dashRun.code !== 0 && dashRun.output.includes('[artifact_protection_launch_refused]') && !dashRun.output.includes('RAN_VALIDATOR') && dashRun.launchCwd === undefined,
-        `a dash-named environment variable was launched anyway (code=${dashRun.code}, ${dashRun.output.slice(0, 120)})`);
+      expectRepaired(dashRun.code === 1 && dashRun.output.includes('RAN_VALIDATOR'),
+        `a dash-named environment variable let something other than the declared validator run (code=${dashRun.code}, ${dashRun.output.slice(0, 120)})`);
       rmSync(dashDir, { recursive: true, force: true });
       // Audit #45 (1): no credential from the launch environment appears in
       // the wrapper's argv, and every variable still reaches the command.
@@ -2251,7 +2251,7 @@ if (hostEnforced) {
       check(unrestricted.status !== 0, `control: an unrestricted binary honours DYLD_INSERT_LIBRARIES and fails on the absent library (${unrestricted.status})`);
       const secretValue = 'synthetic-credential-7c1d';
       const secretLaunch = eqProtection.wrap({ command: process.execPath, args: ['-e', 'process.stdout.write(String(process.env.POS_SYNTHETIC_SECRET))'], shell: false, env: { ...process.env, POS_SYNTHETIC_SECRET: secretValue }, confidentialFd: 3 });
-      expectRepaired(!secretLaunch.args.some((argument) => argument.includes(secretValue)) && !('POS_SYNTHETIC_SECRET' in secretLaunch.env) && secretLaunch.confidential?.payload.toString('utf8').includes(`$ENV{'POS_SYNTHETIC_SECRET'} = pack('H*', '${Buffer.from(secretValue, 'utf8').toString('hex')}');\n`) && !secretLaunch.confidential.payload.toString('utf8').includes(secretValue),
+      expectRepaired(!secretLaunch.args.some((argument) => argument.includes(secretValue)) && !('POS_SYNTHETIC_SECRET' in secretLaunch.env) && secretLaunch.confidential?.payload.toString('utf8').includes(`$ENV{pack('H*', '${Buffer.from('POS_SYNTHETIC_SECRET', 'utf8').toString('hex')}')} = pack('H*', '${Buffer.from(secretValue, 'utf8').toString('hex')}');\n`) && !secretLaunch.confidential.payload.toString('utf8').includes(secretValue),
         `a launch-environment credential is in the wrapper's argv or environment, or missing from the confidential payload (${JSON.stringify(secretLaunch.args.slice(-4))})`);
       const secretDirect = spawnWrapped(secretLaunch);
       expectRepaired(secretDirect.status === 0 && secretDirect.stdout === secretValue, `the command under sandbox-exec did not receive the credential (${secretDirect.status}, ${secretDirect.stdout} ${(secretDirect.stderr || '').slice(0, 80)})`);
@@ -2269,7 +2269,9 @@ if (hostEnforced) {
       // shell-special names (SHLVL, SHELLOPTS, read-only identifiers) and
       // values with quotes, newlines and non-ASCII arrive as declared, because
       // the trampoline places bytes, not shell variables.
-      const exactEnv = { ...process.env, SHELLOPTS: 'nounset', SHLVL: '7', UID: '1', EUID: '2', PPID: '3', BASH_VERSINFO: 'x', PS1: '$ ', IFS: 'x', POS_QUOTED: "it's \"quoted\"\nsecond line \u00e9\u4e2d", DYLD_LIBRARY_PATH: '/fixture/lib', POS_SYNTHETIC_SECRET: secretValue };
+      const exactEnv = { ...process.env, SHELLOPTS: 'nounset', SHLVL: '7', UID: '1', EUID: '2', PPID: '3', BASH_VERSINFO: 'x', PS1: '$ ', IFS: 'x', POS_QUOTED: "it's \"quoted\"\nsecond line \u00e9\u4e2d", DYLD_LIBRARY_PATH: '/fixture/lib', POS_SYNTHETIC_SECRET: secretValue,
+        // Audit #51: valid non-identifier names (an exported bash function, a dotted dashed name, a dash-leading name) are environment entries too.
+        'BASH_FUNC_pos_probe%%': '() { :; }', 'pos-dash.key': 'dashed', '-SFOO': ' /usr/bin/true' };
       const envProbe = ['-e', 'process.stdout.write(JSON.stringify(process.env))'];
       const directEnv = spawnSync(process.execPath, envProbe, { encoding: 'utf8', env: exactEnv, timeout: 20_000 });
       const wrappedEnv = spawnWrapped(eqProtection.wrap({ command: process.execPath, args: envProbe, shell: false, env: exactEnv, confidentialFd: 3 }));
@@ -2301,6 +2303,10 @@ if (hostEnforced) {
         const dashCommandRun = await runValidationCommand({ label: `dash command ${dashCommand}`, command: dashCommand, args: [], env: { POS_SYNTHETIC_SECRET: secretValue }, timeoutMs: 20_000 }, root, 20_000, { artifactWriteProtection: eqProtection, artifactBinding: { root: realpathSync(root), protection: eqProtection.label } });
         expectRepaired(dashCommandRun.code !== 0, `a missing executable named ${dashCommand} passed under protection without running (${dashCommandRun.code}, ${dashCommandRun.output.slice(0, 80)})`);
       }
+      // Only what no environment entry can hold is refused: '=' in a name.
+      let eqNameRefusal = null;
+      try { eqProtection.wrap({ command: process.execPath, args: ['-e', '0'], shell: false, env: { ...process.env, 'BAD=NAME': 'x' }, confidentialFd: 3 }); } catch (error) { eqNameRefusal = error; }
+      expectRepaired(eqNameRefusal && String(eqNameRefusal.message).includes('[artifact_protection_launch_unsupported]'), `a name containing '=' was serialised for transfer (${eqNameRefusal ? eqNameRefusal.message : 'no refusal'})`);
       // Audit #46 (1): a NUL byte in a value is refused before any payload
       // exists (it would end one token and begin another).
       let nulRefusal = null;

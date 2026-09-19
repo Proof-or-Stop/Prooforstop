@@ -329,27 +329,32 @@ const SANDBOX_EXEC = '/usr/bin/sandbox-exec';
 const CSRUTIL = '/usr/bin/csrutil';
 /** The trampoline that restores the withheld variables INSIDE the sandbox from a private descriptor before exec-ing the command. */
 const TRAMPOLINE = '/usr/bin/perl';
-const ENVIRONMENT_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
 
 /**
  * The environment a mechanism must transfer confidentially, checked before
- * any serialisation: a name that is not a portable identifier could be read
- * as an option or an assignment by whatever restores it, and an embedded NUL
- * would end one NUL-separated token and begin another (a value could smuggle
- * a `--bind` into bwrap's argument stream). Either refuses the launch.
+ * any serialisation. Any name a process environment can carry is accepted
+ * as data (exported shell functions such as `BASH_FUNC_x%%`, names with
+ * dashes or dots, names beginning with '-'): both mechanisms restore names
+ * and values as bytes, never as code or options. Only what no environment
+ * entry can hold is refused: an empty name, a name containing '=' (the
+ * entry could not be delimited), or a NUL in a name or value (an embedded
+ * NUL would end one NUL-separated token and begin another, letting a value
+ * smuggle a `--bind` into bwrap's argument stream).
  */
 function checkTransferableEnvironment(reapplied: readonly [string, string][]): void {
   for (const [name, value] of reapplied) {
-    if (!ENVIRONMENT_NAME.test(name)) throw new Error(`${LAUNCH_UNSUPPORTED_TAG} environment variable name ${JSON.stringify(name)} is not a portable identifier and cannot be transferred into the sandbox`);
-    if (value.includes('\0')) throw new Error(`${LAUNCH_UNSUPPORTED_TAG} environment variable ${name} contains a NUL byte and cannot be transferred into the sandbox`);
+    if (name.length === 0 || name.includes('=')) throw new Error(`${LAUNCH_UNSUPPORTED_TAG} environment variable name ${JSON.stringify(name)} cannot be an environment entry and cannot be transferred into the sandbox`);
+    if (name.includes('\0') || value.includes('\0')) throw new Error(`${LAUNCH_UNSUPPORTED_TAG} environment variable ${JSON.stringify(name)} contains a NUL byte and cannot be transferred into the sandbox`);
   }
 }
 
 /**
  * The trampoline script: each withheld variable is placed into the
- * environment as BYTES (hex-packed, so a value is data whatever it contains
- * and no variable has shell semantics — SHLVL, SHELLOPTS or a read-only
- * identifier arrive exactly as declared), then the command is exec'd with
+ * environment as BYTES (name and value both hex-packed, so either is data
+ * whatever it contains — an exported shell function's `BASH_FUNC_x%%`, a
+ * name beginning with '-' — and no variable has shell semantics: SHLVL,
+ * SHELLOPTS or a read-only identifier arrive exactly as declared), then the
+ * command is exec'd with
  * its first argument named explicitly as the program, so an executable
  * called `--` or `-x` is a program to run (and to fail on when absent),
  * never an option. The interpreter is a restricted platform binary launched
@@ -360,7 +365,8 @@ function checkTransferableEnvironment(reapplied: readonly [string, string][]): v
  */
 export function trampolineScript(reapplied: readonly [string, string][]): string {
   checkTransferableEnvironment(reapplied);
-  const lines = reapplied.map(([name, value]) => `$ENV{'${name}'} = pack('H*', '${Buffer.from(value, 'utf8').toString('hex')}');`);
+  const hex = (text: string): string => Buffer.from(text, 'utf8').toString('hex');
+  const lines = reapplied.map(([name, value]) => `$ENV{pack('H*', '${hex(name)}')} = pack('H*', '${hex(value)}');`);
   return `${lines.join('\n')}${lines.length ? '\n' : ''}exec { $ARGV[0] } @ARGV or exit 127;\n`;
 }
 /** A launch the mechanism cannot express unambiguously; thrown by `wrap`, never reinterpreted. */
