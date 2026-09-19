@@ -2410,8 +2410,13 @@ if (hostEnforced) {
       const rebuilt = await run([
         { label: 'build', command: 'node', args: ['-e', RECREATE], providesBuildProof: 'packages-main-build', timeoutMs: 20_000 },
         { label: 'test in recreated dist', command: 'node', args: ['-e', 'process.exit(0)'], cwd: 'packages/main/dist', timeoutMs: 20_000 },
+        // Audit #56: a NESTED directory of the recreated tree is inside it too.
+        { label: 'test in recreated nested dist', command: 'node', args: ['-e', 'process.exit(0)'], cwd: 'packages/main/dist/tasks', timeoutMs: 20_000 },
         { label: 'test in replaced unrelated dir', command: 'node', args: ['-e', 'process.exit(0)'], cwd: 'unrelated-cwd', timeoutMs: 20_000 },
       ]);
+      const inNested = rebuilt.commands.find((command) => command.label === 'test in recreated nested dist');
+      expectRepaired(inNested?.code === 0 && inNested.launchCwd === join(distDir, 'tasks') && !(inNested.output ?? '').includes('[launch_directory_drift]'),
+        `a test whose cwd is a nested directory of the recreated artifact tree was refused as drift (code=${inNested?.code}, launchCwd=${inNested?.launchCwd}, ${(inNested?.output ?? '').slice(0, 120)})`);
       const inDist = rebuilt.commands.find((command) => command.label === 'test in recreated dist');
       const inUnrelated = rebuilt.commands.find((command) => command.label === 'test in replaced unrelated dir');
       check(lstatSync(distDir).ino !== beforeIno, 'control: the registered build recreated the artifact tree with a new inode');
@@ -2436,6 +2441,20 @@ if (hostEnforced) {
       const refreshedDrift = dynamicCore.frozenLaunchDirectoryDrift(refreshedFrozen);
       expectRepaired(refreshedDrift.length === 1 && refreshedDrift[0].startsWith('outside: '), `after the refresh, drift is reported for the wrong directories (${JSON.stringify(refreshedDrift)})`);
       rmSync(artRoot, { recursive: true, force: true });
+      // Audit #56: containment is judged with the platform's path semantics:
+      // descendants of both artifact roots are inside, siblings are not, on
+      // POSIX (real directories) and on Windows (through the walker seam).
+      const containRoot = join(sandbox, 'contain'); for (const tree of ['packages/main/dist/tasks', 'packages/utils/dist/lib', 'packages/main/dist-other', 'packages/main/src']) mkdirSync(join(containRoot, tree), { recursive: true });
+      const cr = realpathSync(containRoot);
+      expectRepaired(binding.insideBuildArtifactTrees(join(cr, 'packages/main/dist'), cr) && binding.insideBuildArtifactTrees(join(cr, 'packages/main/dist/tasks'), cr) && binding.insideBuildArtifactTrees(join(cr, 'packages/utils/dist/lib'), cr)
+        && !binding.insideBuildArtifactTrees(join(cr, 'packages/main/dist-other'), cr) && !binding.insideBuildArtifactTrees(join(cr, 'packages/main/src'), cr) && !binding.insideBuildArtifactTrees(cr, cr),
+        'artifact-tree containment misjudges a descendant or a sibling on POSIX');
+      const winTree = new Map([['C:\\repo', 'dir'], ['C:\\repo\\packages', 'dir'], ['C:\\repo\\packages\\main', 'dir'], ['C:\\repo\\packages\\main\\dist', 'dir'], ['C:\\repo\\packages\\main\\dist\\tasks', 'dir'], ['C:\\repo\\packages\\main\\dist-other', 'dir'], ['C:\\repo\\packages\\utils', 'dir'], ['C:\\repo\\packages\\utils\\dist', 'dir'], ['C:\\repo\\packages\\utils\\dist\\lib', 'dir']]);
+      const containSeam = { platform: 'win32', cwd: 'C:\\repo', lstat: (path) => { const kind = winTree.get(path); if (!kind) throw new Error('ENOENT'); return { isSymbolicLink: () => false, isDirectory: () => kind === 'dir' }; }, readlink: () => { throw new Error('not a link'); }, searchable: () => true };
+      expectRepaired(binding.insideBuildArtifactTrees('C:\\repo\\packages\\main\\dist\\tasks', 'C:\\repo', containSeam) && binding.insideBuildArtifactTrees('C:\\repo\\packages\\main\\dist', 'C:\\repo', containSeam) && binding.insideBuildArtifactTrees('C:\\repo\\packages\\utils\\dist\\lib', 'C:\\repo', containSeam)
+        && !binding.insideBuildArtifactTrees('C:\\repo\\packages\\main\\dist-other', 'C:\\repo', containSeam) && !binding.insideBuildArtifactTrees('D:\\repo\\packages\\main\\dist\\tasks', 'C:\\repo', containSeam),
+        'artifact-tree containment misjudges a Windows descendant, sibling or other-drive path');
+      rmSync(containRoot, { recursive: true, force: true });
       const executorSource13 = readFileSync(join(repoRoot, 'packages/main/src/core/validation-executor.ts'), 'utf8');
       const doneRequiredSource13 = readFileSync(join(repoRoot, 'packages/main/src/core/done-required-validation.ts'), 'utf8');
       const handlerSource13 = readFileSync(join(repoRoot, 'packages/main/src/handlers/story-aware-validation.ts'), 'utf8');

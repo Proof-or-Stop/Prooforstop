@@ -279,12 +279,20 @@ export function bindLaunchDirectoryIdentity(canonicalPath: string): LaunchDirect
   } catch { return undefined; }
 }
 
-/** Whether this canonical path is one of the artifact trees or lies inside one. */
-export function insideBuildArtifactTrees(canonicalPath: string, artifactsRoot: string): boolean {
-  const root = canonicalizeExistingPath(artifactsRoot);
+/**
+ * Whether this canonical path is one of the artifact trees or lies inside
+ * one, judged with the path semantics of the platform the path belongs to
+ * (a seam selects the other family for tests): the tree is an ancestor
+ * exactly when the relative path from it neither climbs out nor leaves the
+ * drive, so `dist-other` next to `dist` is outside and `dist\tasks` inside.
+ */
+export function insideBuildArtifactTrees(canonicalPath: string, artifactsRoot: string, seam?: PathWalkSeam): boolean {
+  const api = pathApiFor(seam);
+  const root = canonicalizeExistingPath(artifactsRoot, seam);
   return BUILD_ARTIFACT_ROOTS.some((tree) => {
-    const treePath = join(root, tree);
-    return canonicalPath === treePath || canonicalPath.startsWith(`${treePath}/`);
+    const treePath = api.join(root, ...tree.split('/'));
+    const relativePath = api.relative(treePath, canonicalPath);
+    return relativePath === '' || (!api.isAbsolute(relativePath) && relativePath !== '..' && !relativePath.startsWith(`..${api.sep}`));
   });
 }
 
