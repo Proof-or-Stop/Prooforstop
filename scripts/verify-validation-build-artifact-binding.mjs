@@ -1954,6 +1954,23 @@ if (hostEnforced) {
       const dynElsewhere = dynamic.buildDynamicValidationPlan({ storyId: 'B-bab-dyn', baseHead: 'base', head: 'head', inventory: dynInventory, catalog: dynCatalog, changes: dynChanges, closures: dynClosures, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe', projectRoot: dynOther, buildArtifactsHash: 'fixture-build-artifacts', receipts: [dynReceipt] }).rows.find((row) => row.commandId === 'aliased');
       expectRepaired(dynElsewhere?.disposition === 'execute' && dynElsewhere.inputDigest !== dynFirstRow.inputDigest && dynElsewhere.resolvedCwd === realpathSync(join(dynOther, 'dyn-a')),
         `a receipt earned in one workspace was reused by a selection planned in another (${JSON.stringify(dynElsewhere)})`);
+      // Audit #50: replay predicates. A registered build's receipt (the
+      // writes-permitted label) is mandatory execution whatever the entry's
+      // policy, and reused rows are bound to the artifacts their receipts
+      // executed: a selected plan that left other bytes invalidates them.
+      const selectable = { assurance: 'story-selectable', closurePolicy: 'static-and-traced', fullBaselineReusePolicy: 'not-applicable' };
+      expectRepaired(dynamic.replayMandatoryExecution(selectable, { buildArtifactsProtection: 'registered-build:writes-permitted' }) === true
+        && dynamic.replayMandatoryExecution(selectable, { buildArtifactsProtection: 'enforced:sandbox-exec' }) === false
+        && dynamic.replayMandatoryExecution({ ...selectable, assurance: 'always' }, { buildArtifactsProtection: 'enforced:sandbox-exec' }) === true
+        && dynamic.replayMandatoryExecution({ ...selectable, closurePolicy: 'never-reuse' }) === true
+        && dynamic.replayMandatoryExecution({ assurance: 'full-only', closurePolicy: 'whole-repository', fullBaselineReusePolicy: 'forbidden' }) === true,
+        'the replay classifies a registered-build receipt (or a mandatory-execution policy) as reusable');
+      const A = 'a'.repeat(64), B = 'b'.repeat(64);
+      expectRepaired(dynamic.reusedReceiptsStillBound({ reused: 0, receiptBuild: A, executedBuild: B }) === undefined
+        && dynamic.reusedReceiptsStillBound({ reused: 2, receiptBuild: A, executedBuild: A }) === undefined
+        && typeof dynamic.reusedReceiptsStillBound({ reused: 2, receiptBuild: A, executedBuild: B }) === 'string'
+        && typeof dynamic.reusedReceiptsStillBound({ reused: 1, receiptBuild: A, executedBuild: undefined }) === 'string',
+        'a replay whose selected plan left different artifacts still trusts its reused rows');
       const dynSame = dynamic.buildDynamicValidationPlan({ storyId: 'B-bab-dyn', baseHead: 'base', head: 'head', inventory: dynInventory, catalog: dynCatalog, changes: dynChanges, closures: dynClosures, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe', projectRoot: root, buildArtifactsHash: 'fixture-build-artifacts', receipts: [dynReceipt] });
       check(dynSame.rows.find((row) => row.commandId === 'aliased')?.disposition === 'reuse' && dynSame.totals.reused === 1, 'control: planned in the workspace that earned it, the receipt is reused and counted');
       rmSync(dynOther, { recursive: true, force: true });
@@ -1963,7 +1980,10 @@ if (hostEnforced) {
         && !replaySource.includes('freshHead')
         && replaySource.includes("buildProofDigest: 'paired-performance', graph: currentGraph, mode: 'shadow', gitCwd: pairedRoot,")
         && replaySource.includes('does not name the selection\'s input identity (launch directory disagreement)')
-        && replaySource.includes('const mandatoryExecution = (entry: ValidationCatalogEntry): boolean => entry.assurance === \'always\' || entry.closurePolicy === \'never-reuse\' || (entry.assurance === \'full-only\' && entry.fullBaselineReusePolicy === \'forbidden\');')
+        && replaySource.includes('if (replayMandatoryExecution(entry, receipt)) assert.equal(row?.disposition, \'execute\'')
+        && replaySource.includes('const reusable = receiptedEntries.filter(({ entry, receipt }) => !replayMandatoryExecution(entry, receipt));')
+        && replaySource.includes('const reuseBinding = reusedReceiptsStillBound({ reused: dynamicManifest.totals.reused, receiptBuild: full.buildArtifactsHash, executedBuild: dynamic.buildArtifactsHash });')
+        && replaySource.includes('const iterationBinding = reusedReceiptsStillBound({ reused: pairedSelection.totals.reused, receiptBuild: baseline.buildArtifactsHash, executedBuild: result.buildArtifactsHash });')
         && replaySource.includes("assert.ok(reusable.length > 0, 'paired: no reusable command with a baseline receipt; the campaign has no positive reuse control');")
         && replaySource.includes('assert.equal(pairedSelection.totals.reused, reusable.length,'),
         'the historical replay prepares baseline identities or plans the selection outside the workspace the baseline ran in, or asserts no positive reuse (source-text guard)');

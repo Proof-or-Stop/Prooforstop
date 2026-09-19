@@ -956,6 +956,32 @@ function singletonUnion(contributions: ValidationSingletonContribution[]): Set<s
   return new Set(contributions.flatMap(row => row.commandIds));
 }
 /**
+ * Replay campaigns: whether a receipted command must execute rather than be
+ * reused. The planner never reuses always-assurance, never-reuse-closure or
+ * forbidden full-only commands, nor the registered build's receipt (it
+ * carries the writes-permitted label and vouches for the OUTPUT it produced,
+ * not for a test that could be skipped on its strength).
+ */
+export function replayMandatoryExecution(entry: Pick<ValidationCatalogEntry, 'assurance' | 'closurePolicy' | 'fullBaselineReusePolicy'>, receipt?: Pick<ValidationCommandReceipt, 'buildArtifactsProtection'>): boolean {
+  if (receipt?.buildArtifactsProtection === REGISTERED_BUILD_PROTECTION_LABEL) return true;
+  return entry.assurance === 'always' || entry.closurePolicy === 'never-reuse' || (entry.assurance === 'full-only' && entry.fullBaselineReusePolicy === 'forbidden');
+}
+
+/**
+ * Replay campaigns: reused rows vouch only for the artifacts their receipts
+ * executed. A selected plan that left different artifacts behind (a
+ * registered build re-ran and produced other bytes) means the skipped tests
+ * covered bytes that are no longer the ones under test; the reason names
+ * the disagreement, undefined means the reuse still holds.
+ */
+export function reusedReceiptsStillBound(args: { reused: number; receiptBuild?: string; executedBuild?: string }): string | undefined {
+  if (args.reused === 0) return undefined;
+  if (!args.receiptBuild || !args.executedBuild) return `${args.reused} reused row(s) but the artifact identity is unavailable (receipts bound to ${args.receiptBuild ?? 'nothing'}, execution left ${args.executedBuild ?? 'nothing'})`;
+  if (args.receiptBuild !== args.executedBuild) return `${args.reused} reused row(s) are bound to artifacts ${args.receiptBuild.slice(0, 12)} but the selected plan left ${args.executedBuild.slice(0, 12)}; the skipped tests covered other bytes`;
+  return undefined;
+}
+
+/**
  * The clean-tree digest every PASS receipt must carry: the tree was observed
  * clean at the command's start AND end under the executor's provenance
  * schema. One definition for the producers (the dynamic run, the replay

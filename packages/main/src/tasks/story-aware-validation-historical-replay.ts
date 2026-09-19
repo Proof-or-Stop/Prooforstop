@@ -14,7 +14,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { buildDualRevisionImpactGraph, buildDynamicValidationPlan, buildStoryChangeManifest, classifyFullValidationReasons, compileValidationCatalog, createValidationClosureCertificate, createValidationCommandReceipt, discoverValidationInventory, signPayload, stableDigest, verifyPayload, verifyValidationClosureCertificate, verifyValidationSelectionManifest, type StoryChangedFile, type ValidationCatalogEntry, type ValidationCommandReceipt, receiptCleanTreeDigest } from '../core/story-aware-validation.js';
+import { buildDualRevisionImpactGraph, buildDynamicValidationPlan, buildStoryChangeManifest, classifyFullValidationReasons, compileValidationCatalog, createValidationClosureCertificate, createValidationCommandReceipt, discoverValidationInventory, signPayload, stableDigest, verifyPayload, verifyValidationClosureCertificate, verifyValidationSelectionManifest, type StoryChangedFile, type ValidationCatalogEntry, type ValidationCommandReceipt, receiptCleanTreeDigest, replayMandatoryExecution, reusedReceiptsStillBound } from '../core/story-aware-validation.js';
 import { VALIDATION_SOURCE_PROVENANCE_SCHEMA } from '../core/runtime-fact-registry.js';
 import { loadConfig } from '../core/config.js';
 import { resolveProjectGitCwd } from '../core/story-signed-workspace-resolution.js';
@@ -472,6 +472,11 @@ for (const candidate of replayStories) {
       const selectedIds = new Set(dynamicManifest.rows.filter(row => row.disposition === 'execute').map(row => row.commandId));
       const selectedCommands = catalog.filter(entry => selectedIds.has(entry.id)).map(entry => ({ label: entry.label, command: entry.command, args: entry.args, cwd: entry.cwd, env: entry.env, resources: entry.resources }));
       const dynamic = await executeValidationPlan({ provider: 'historical-replay-dynamic', commands: selectedCommands, warnings: [] }, historicalRoot, candidate.pair.head, candidate.storyId);
+      // Reused rows vouch only for the artifacts the full plan left; a selected
+      // plan that re-ran a registered build and left other bytes invalidates
+      // them, and the replay refuses to sign equivalence for skipped tests.
+      const reuseBinding = reusedReceiptsStillBound({ reused: dynamicManifest.totals.reused, receiptBuild: full.buildArtifactsHash, executedBuild: dynamic.buildArtifactsHash });
+      assert.equal(reuseBinding, undefined, `${candidate.storyId}: ${reuseBinding}`);
       const fullFailures = full.commands.flatMap((row, index) => row.code === 0 ? [] : [catalog[index]!.id]);
       assert.ok(fullFailures.every(id => selectedIds.has(id)), `${candidate.storyId} omitted a full-plan failure`);
       const fullVerdicts = commandVerdicts(full);
@@ -797,17 +802,16 @@ if (paired) {
     // and every command the planner must always execute (always-assurance,
     // never-reuse closure, forbidden full-only baseline reuse) is executed.
     // At least one reusable command is required as the positive control.
-    const mandatoryExecution = (entry: ValidationCatalogEntry): boolean => entry.assurance === 'always' || entry.closurePolicy === 'never-reuse' || (entry.assurance === 'full-only' && entry.fullBaselineReusePolicy === 'forbidden');
     const receiptedEntries = baselineReceipts.map((receipt) => ({ receipt, entry: catalog.find((entry) => entry.id === receipt.commandId)! }));
     for (const { receipt, entry } of receiptedEntries) {
       const row = pairedSelection.rows.find((candidateRow) => candidateRow.commandId === receipt.commandId);
       assert.equal(row?.inputDigest, receipt.inputDigest, `paired: baseline receipt for ${receipt.commandId} does not name the selection's input identity (launch directory disagreement)`);
       if (pairedSelection.fullEscalated) continue;
-      if (mandatoryExecution(entry)) assert.equal(row?.disposition, 'execute', `paired: ${receipt.commandId} must always execute but was ${row?.disposition}`);
+      if (replayMandatoryExecution(entry, receipt)) assert.equal(row?.disposition, 'execute', `paired: ${receipt.commandId} must always execute but was ${row?.disposition}`);
       else assert.equal(row?.disposition, 'reuse', `paired: ${receipt.commandId} has a valid receipt in this workspace but was ${row?.disposition}; the paired campaign would silently run full-versus-full`);
     }
     if (!pairedSelection.fullEscalated) {
-      const reusable = receiptedEntries.filter(({ entry }) => !mandatoryExecution(entry));
+      const reusable = receiptedEntries.filter(({ entry, receipt }) => !replayMandatoryExecution(entry, receipt));
       assert.ok(reusable.length > 0, 'paired: no reusable command with a baseline receipt; the campaign has no positive reuse control');
       assert.equal(pairedSelection.totals.reused, reusable.length, `paired: ${reusable.length} reusable receipts but ${pairedSelection.totals.reused} reused rows`);
     }
@@ -827,6 +831,13 @@ if (paired) {
         }, pairedRoot, currentHead, 'B-current-paired');
         const wallTimeMs = Date.now() - startedAt;
         const cpu = process.cpuUsage(cpuBefore);
+        if (mode === 'dynamic') {
+          // The reused rows of every dynamic iteration are bound to the
+          // baseline's artifacts; an iteration that left other bytes behind
+          // (a registered build re-ran) is refused rather than reported.
+          const iterationBinding = reusedReceiptsStillBound({ reused: pairedSelection.totals.reused, receiptBuild: baseline.buildArtifactsHash, executedBuild: result.buildArtifactsHash });
+          assert.equal(iterationBinding, undefined, `paired iteration ${pair + 1}: ${iterationBinding}`);
+        }
         runs.push({
           pair: pair + 1,
           mode,
