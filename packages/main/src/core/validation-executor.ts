@@ -1405,6 +1405,12 @@ export function runValidationCommand(
   defaultTimeoutMs: number = DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
   options: RunValidationCommandOptions = {},
 ): Promise<ValidationCommandResult> {
+  // The canonical launch directory is pinned HERE, once, when the caller has
+  // not pinned it for a whole plan or run: the cache identity, the child
+  // environment and the launch all read this one binding, so a direct
+  // invocation through an alias and one through the real path can never
+  // share an identity while seeing different directories.
+  if (options.launchCwd === undefined) options = { ...options, launchCwd: canonicalizeExistingPath(commandCwd(projectRoot, command.cwd)) };
   return withValidationCommandStage(command, () => executeSharedValidationCommand(command, projectRoot, resolveCommandTimeoutMs(command, defaultTimeoutMs),
     () => (command.executionReuse === 'exact-inputs' ? runValidationCommandWithCompleteOutput : runValidationCommandWithCompleteOutputUnscheduled)(command, projectRoot, defaultTimeoutMs, options), options.sharedExecution, () => {
       if (options.abortSignal?.aborted) throw options.abortSignal.reason ?? new Error('shared validation aborted');

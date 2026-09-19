@@ -16,6 +16,7 @@ import { VALIDATION_SOURCE_PROVENANCE_SCHEMA } from './runtime-fact-registry.js'
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, posix, resolve } from 'node:path';
+import { canonicalizeExistingPath } from './build-artifacts-identity.js';
 import ts from 'typescript';
 import { PROOF_OR_STOP_CONFIG_FILENAME } from './brand-paths.js';
 import { pickProjectConfigPath } from './config.js';
@@ -864,6 +865,13 @@ export function computeValidationInputDigest(args: {
   certifiedPaths: Array<{ path: string; blobId?: string }>;
   commandIdentityDigest?: string; environmentDigest?: string; runnerDigest?: string; catalogDigest?: string;
   graphDigest?: string; closureCertificateDigest?: string; baselineEpoch?: string; toolchainDigest?: string; buildProofDigest?: string;
+  /**
+   * The CANONICAL directory the command runs in (the executor's pinned launch
+   * directory), independent of the declared cwd: a receipt earned while an
+   * ignored symbolic link pointed elsewhere is not this command's receipt,
+   * whatever the tracked inputs and artifacts say.
+   */
+  resolvedCwd?: string;
 }): string {
   const paths = args.certifiedPaths.map(row => normalPath(row.path) + '\0' + (row.blobId || '<deleted>')).sort();
   return stableDigest({
@@ -871,6 +879,7 @@ export function computeValidationInputDigest(args: {
     environmentDigest: args.environmentDigest || '', runnerDigest: args.runnerDigest || '', catalogDigest: args.catalogDigest || '',
     graphDigest: args.graphDigest || '', closureCertificateDigest: args.closureCertificateDigest || '',
     baselineEpoch: args.baselineEpoch || '', toolchainDigest: args.toolchainDigest || '', buildProofDigest: args.buildProofDigest || '',
+    resolvedCwd: args.resolvedCwd || '',
   });
 }
 export function loadBestMatchingAdmissiblePassReceipt(args: { commandId: string; inputDigest: string; baselineEpochId: string; receipts: ValidationCommandReceipt[]; now?: number }): ValidationCommandReceipt | undefined {
@@ -937,10 +946,19 @@ function isTrustedAncestor(sourceHead: string, currentHead: string, gitCwd = pro
   if (sourceHead === currentHead) return true;
   try { execFileSync('git', ['merge-base', '--is-ancestor', sourceHead, currentHead], { cwd: gitCwd, stdio: 'ignore' }); return true; } catch { return false; }
 }
-/** Bind declared values to the same ambient/overlay normalization as execution. */
-function declaredEnvironmentDigest(entry: ValidationCatalogEntry, ctx: DynamicValidationContext): string {
+/**
+ * The CANONICAL directory a catalog entry runs in, exactly as the executor
+ * pins it before launching (an ignored symbolic link re-pointed at another
+ * directory is a different directory).
+ */
+function canonicalEntryCwd(entry: Pick<ValidationCatalogEntry, 'cwd'>, ctx: Pick<DynamicValidationContext, 'projectRoot' | 'gitCwd'>): string {
   const projectRoot = ctx.projectRoot || ctx.gitCwd || process.cwd();
-  const cwd = resolve(projectRoot, entry.cwd || '.');
+  return canonicalizeExistingPath(resolve(projectRoot, entry.cwd || '.'));
+}
+
+/** Bind declared values to the same ambient/overlay normalization as execution: the effective environment (PWD included) of the canonical directory. */
+function declaredEnvironmentDigest(entry: ValidationCatalogEntry, ctx: DynamicValidationContext): string {
+  const cwd = canonicalEntryCwd(entry, ctx);
   const effective = effectiveValidationCommandEnvironment(process.env, entry.env, cwd);
   const keys = [...new Set((entry.declaredEnvironmentKeys || Object.keys(entry.env || {})).map(key => process.platform === 'win32' ? key.toUpperCase() : key))].sort();
   return stableDigest(keys.map(key => Object.prototype.hasOwnProperty.call(effective, key)
@@ -1174,6 +1192,7 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     const inputDigest = computeValidationInputDigest({
       command: entry, certifiedPaths: paths.map(path => ({ path })),
       environmentDigest: declaredEnvironmentDigest(entry, ctx),
+      resolvedCwd: canonicalEntryCwd(entry, ctx),
       catalogDigest: digestCanonicalJson(ctx.catalog),
       graphDigest: ctx.graph ? stableDigest({ base: ctx.graph.baseGraphDigest, head: ctx.graph.headGraphDigest }) : '',
       closureCertificateDigest: closure ? closure.signature : '', baselineEpoch: ctx.baselineEpochId,
@@ -1200,6 +1219,7 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     const inputDigest = computeValidationInputDigest({
       command: entry, certifiedPaths: paths.map(path => ({ path })),
       environmentDigest: declaredEnvironmentDigest(entry, ctx),
+      resolvedCwd: canonicalEntryCwd(entry, ctx),
       catalogDigest: digestCanonicalJson(ctx.catalog),
       graphDigest: ctx.graph ? stableDigest({ base: ctx.graph.baseGraphDigest, head: ctx.graph.headGraphDigest }) : '',
       closureCertificateDigest: closure ? closure.signature : '', baselineEpoch: ctx.baselineEpochId,

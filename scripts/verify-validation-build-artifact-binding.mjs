@@ -1410,6 +1410,26 @@ try {
       const pwdNamesCanonical = { ...pwdNamesAlias, label: 'pwd names canonical', args: ['-e', `process.exit(process.env.PWD === ${JSON.stringify(canonicalA)} ? 0 : 1)`] };
       const canonicalFirst = await runPwd(pwdNamesCanonical, linkRepo);
       const canonicalSecond = await runPwd(pwdNamesCanonical, checkoutA);
+      // Audit #36 (2): the public runValidationCommand boundary pins the
+      // canonical launch directory itself when the caller omits it, so a
+      // direct exact-inputs invocation through the alias and one through the
+      // real path see one PWD and one identity even with no launchCwd given.
+      const runPwdUnpinned = async (commandSpec, projectRootForLaunch) => {
+        try { return await runValidationCommand(commandSpec, projectRootForLaunch, 20_000, { sharedExecution: sharedAtA, artifactWriteProtection: protection, artifactBinding: { root: canonicalA, protection: protection.label } }); }
+        catch (error) { return { refused: String(error && error.message).slice(0, 200) }; }
+      };
+      const pwdNamesAliasUnpinned = { ...pwdNamesAlias, label: 'pwd names alias (unpinned)' };
+      const aliasUnpinned = await runPwdUnpinned(pwdNamesAliasUnpinned, linkRepo);
+      expectRepaired(!aliasUnpinned.refused && aliasUnpinned.code === 1 && (aliasUnpinned.output ?? '').includes(`pwd=${canonicalA}`),
+        `without a caller-supplied launchCwd, a command launched through the alias saw a PWD other than the canonical directory (${aliasUnpinned.refused ?? `code=${aliasUnpinned.code}, ${(aliasUnpinned.output ?? '').slice(0, 160)}`})`);
+      const realUnpinned = await runPwdUnpinned(pwdNamesAliasUnpinned, checkoutA);
+      expectRepaired(!realUnpinned.refused && realUnpinned.executionDecision?.disposition === 'executed' && realUnpinned.code === 1,
+        `without a caller-supplied launchCwd, the real-path invocation inherited a verdict earned through the alias (${realUnpinned.refused ?? `decision=${JSON.stringify(realUnpinned.executionDecision)}, code=${realUnpinned.code}`})`);
+      const pwdNamesCanonicalUnpinned = { ...pwdNamesCanonical, label: 'pwd names canonical (unpinned)' };
+      const canonicalUnpinnedFirst = await runPwdUnpinned(pwdNamesCanonicalUnpinned, linkRepo);
+      const canonicalUnpinnedSecond = await runPwdUnpinned(pwdNamesCanonicalUnpinned, checkoutA);
+      check(!canonicalUnpinnedFirst.refused && canonicalUnpinnedFirst.code === 0 && !canonicalUnpinnedSecond.refused && canonicalUnpinnedSecond.code === 0 && canonicalUnpinnedSecond.executionDecision?.disposition === 'reused',
+        `control: without a caller-supplied launchCwd a canonical-PWD verdict passes through the alias and is reused through the real path (${canonicalUnpinnedFirst.refused ?? canonicalUnpinnedSecond.refused ?? JSON.stringify(canonicalUnpinnedSecond.executionDecision)})`);
       check(!canonicalFirst.refused && canonicalFirst.code === 0 && canonicalFirst.executionDecision?.disposition === 'executed'
         && !canonicalSecond.refused && canonicalSecond.code === 0 && canonicalSecond.executionDecision?.disposition === 'reused',
         `control: a verdict that depends on the canonical PWD passes through the alias and is reused through the real path (${canonicalFirst.refused ?? canonicalSecond.refused ?? `${JSON.stringify(canonicalFirst.executionDecision)} / ${JSON.stringify(canonicalSecond.executionDecision)}`})`);
@@ -1778,6 +1798,48 @@ if (hostEnforced) {
       const rerun = await run(pwdCommands);
       expectRepaired(rerun.allPass === false, 're-executing through the re-pointed link must fail the command (it did not)');
       rmSync(pwdLink); rmSync(pwdA, { recursive: true, force: true }); rmSync(pwdB, { recursive: true, force: true });
+    }
+    // Audit #36 (1): dynamic selection and its receipts are bound to the same
+    // canonical directory the executor pins: the command identity carries
+    // the resolved directory and the declared-environment digest is taken
+    // there. A receipt earned while an ignored cwd symlink pointed at dyn-a
+    // is reused while the link is unchanged and refused — the command is
+    // selected for execution under a new input digest — once the link points
+    // at dyn-b, with tracked inputs and artifacts untouched.
+    if (typeof binding.canonicalizeExistingPath === 'function') {
+      const dynamic = await import('../packages/main/src/core/story-aware-validation.ts');
+      const dynA = join(root, 'dyn-a'); mkdirSync(dynA); const dynB = join(root, 'dyn-b'); mkdirSync(dynB);
+      const dynLink = join(root, 'dyn-link'); symlinkSync(dynA, dynLink, 'dir');
+      const dynInventory = dynamic.discoverValidationInventory(root, [
+        // story-selectable, with a changed file inside its input root: an
+        // `always` command is executed on every run and never reused.
+        { id: 'aliased', label: 'aliased', command: 'node', args: ['-e', 'process.exit(0)'], cwd: 'dyn-link', inputRoots: ['dyn-input.ts'], inputsComplete: true, assurance: 'story-selectable', riskTier: 'local', originalIndex: 0 },
+      ]);
+      const dynCatalog = dynamic.compileValidationCatalog(dynInventory);
+      // No changed files (nothing to map, no graph escalation), no gitCwd (the
+      // fixture receipt carries no real head), and the context names the build
+      // the receipt executed — the shape the story-aware smoke reuses under.
+      const dynChanges = dynamic.buildStoryChangeManifest({ storyId: 'B-bab-dyn', gitCwd: '.', baseHead: 'base', head: 'head', changedFiles: [] });
+      const dynClosures = new Map(dynCatalog.map((entry) => [entry.id, dynamic.createValidationClosureCertificate({ commandId: entry.id, baseHead: 'base', inventoryDigest: dynInventory.digest, catalogDigest: 'catalog', staticPaths: entry.inputRoots })]));
+      const dynPlan = (receipts) => dynamic.buildDynamicValidationPlan({ storyId: 'B-bab-dyn', baseHead: 'base', head: 'head', inventory: dynInventory, catalog: dynCatalog, changes: dynChanges, closures: dynClosures, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe', projectRoot: root, buildArtifactsHash: 'fixture-build-artifacts', receipts });
+      const dynFirst = dynPlan([]);
+      const dynFirstRow = dynFirst.rows.find((row) => row.commandId === 'aliased');
+      check(dynFirstRow && dynFirstRow.disposition === 'execute', `control: with no receipt the aliased command is selected for execution (${JSON.stringify(dynFirstRow)})`);
+      const dynReceipt = dynamic.createValidationCommandReceipt({
+        buildArtifactsDigest: 'fixture-build-artifacts', buildArtifactsProtection: 'enforced:fixture', id: 'receipt-aliased', commandId: 'aliased', commandIdentityDigest: 'command',
+        inputDigest: dynFirstRow.inputDigest, closureCertificateDigest: dynClosures.get('aliased').signature, catalogDigest: dynamic.stableDigest(dynCatalog), inventoryDigest: dynInventory.digest,
+        runnerDigest: 'runner', toolchainDigest: 'toolchain', buildProofDigest: 'build', sourceHead: 'head', sourceBaseHead: 'base', canonicalBaselineEpochId: 'epoch', producedBy: 'story-execution',
+        cleanTreeDigest: 'clean', executionEnvironmentDigest: 'environment', result: 'PASS', exitCode: 0, outputDigest: 'output', durationMs: 1, createdAt: new Date().toISOString(), revocationLedgerDigest: dynamic.stableDigest({}),
+      });
+      const dynSecondRow = dynPlan([dynReceipt]).rows.find((row) => row.commandId === 'aliased');
+      check(dynSecondRow?.disposition === 'reuse' && dynSecondRow.receiptId === 'receipt-aliased', `control: with the link unchanged the receipt is reused (${JSON.stringify(dynSecondRow)})`);
+      rmSync(dynLink); symlinkSync(dynB, dynLink, 'dir');
+      const dynThirdRow = dynPlan([dynReceipt]).rows.find((row) => row.commandId === 'aliased');
+      expectRepaired(dynThirdRow?.disposition === 'execute' && dynThirdRow.inputDigest !== dynFirstRow.inputDigest,
+        `after the ignored cwd symlink moved, dynamic selection kept the old identity or reused its receipt (${JSON.stringify(dynThirdRow)})`);
+      rmSync(dynLink); symlinkSync(dynA, dynLink, 'dir');
+      check(dynPlan([dynReceipt]).rows.find((row) => row.commandId === 'aliased')?.disposition === 'reuse', 'control: pointing the link back restores reuse');
+      rmSync(dynLink); rmSync(dynA, { recursive: true, force: true }); rmSync(dynB, { recursive: true, force: true });
     }
     // Linux only, where LD_PRELOAD is honoured: a preload library whose
     // constructor rewrites dist and exits 0 before the declared command runs.
