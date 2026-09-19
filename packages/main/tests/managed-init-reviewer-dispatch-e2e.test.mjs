@@ -113,6 +113,20 @@ try {
     /managed reviewer model.*not qualified/i,
     'public managedReview must reject an unqualified Claude model before ReviewRun lookup',
   );
+  await assert.rejects(
+    qualificationHandlers.host_run({
+      host: 'codex', model: 'gpt-5.6-sol', reasoningEffort: 'high', storyId,
+      reviewRunId: '00000000-0000-4000-8000-000000000003',
+      lane: 'proof-or-stop-review-quality', agentType: 'proof-or-stop-review-quality',
+      managedReview: true, detach: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
+    }),
+    error => {
+      assert.doesNotMatch(error.message, /managed reviewer (?:model|reasoningEffort).*not qualified/i);
+      assert.match(error.message, /REVIEW_EVIDENCE_PHASE_REQUIRED|ReviewRun|review run|review_run/i);
+      return true;
+    },
+    'a qualified public managedReview selection must pass qualification and reach ReviewRun validation',
+  );
   assert.throws(
     () => resolveQualifiedManagedReviewerSelection({ host: 'claude', model: 'fable', reasoningEffort: 'high' }),
     /managed reviewer model.*not qualified/i,

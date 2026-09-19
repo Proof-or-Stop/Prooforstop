@@ -190,6 +190,8 @@ ReviewPass/Finding flow. A cross-provider CLI reviewer uses a two-phase flow:
    qualification policy. If a named default is unavailable, the operator starts
    a fresh run and key with an explicitly available qualified selector. Existing
    selector-less historical specs retain their exact compatibility semantics.
+   The advisory-only `cross_host_review` profile remains outside this formal
+   evidence boundary and retains provider-owned model selection.
 3. The managed prompt requires the provider's final assistant result to be one
    bounded `lattice.managed_review_final_proposal.v1` JSON envelope with
    pass-or-findings and truthful read evidence. It cannot write final

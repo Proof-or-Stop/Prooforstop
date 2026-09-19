@@ -101,6 +101,9 @@ import {
   normalizeReviewerReadManifest,
 } from './reviewer-read-evidence.js';
 import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
+import { QUALIFIED_MANAGED_REVIEWER_DEFAULTS } from './managed-reviewer-qualification.js';
+
+export { QUALIFIED_MANAGED_REVIEWER_DEFAULTS } from './managed-reviewer-qualification.js';
 
 export type HostRunHost = CanonicalReviewHost;
 
@@ -109,15 +112,12 @@ export const HOST_RUN_REASONING_EFFORTS = [
 ] as const;
 export type HostRunReasoningEffort = typeof HOST_RUN_REASONING_EFFORTS[number];
 
-export const QUALIFIED_MANAGED_REVIEWER_DEFAULTS = {
-  codex: { model: 'gpt-5.6-sol', reasoningEffort: 'high' },
-  claude: { model: 'opus', reasoningEffort: 'high' },
-} as const satisfies Record<Extract<HostRunHost, 'codex' | 'claude'>, { model: string; reasoningEffort: HostRunReasoningEffort }>;
-
 /**
  * Formal review must never inherit the implementation agent's ambient model.
  * Resolve omitted selectors before the immutable run spec is created, and keep
  * the deliberately narrow qualification boundary visible at the controller.
+ * cross_host_review_codex is a separate advisory launch profile and retains
+ * provider-owned selection; it cannot produce sealed formal REVIEW evidence.
  */
 export function resolveQualifiedManagedReviewerSelection(args: {
   host: HostRunHost;
@@ -142,7 +142,10 @@ export function resolveQualifiedManagedReviewerSelection(args: {
   }
   if (!['high', 'xhigh', 'max', 'ultra'].includes(reasoningEffort)
     || (args.host === 'claude' && reasoningEffort === 'ultra')) {
-    throw new Error(`host_run: managed reviewer reasoningEffort ${JSON.stringify(reasoningEffort)} is not qualified for host ${args.host}; expected high, xhigh, or max${args.host === 'codex' ? ', or ultra' : ''}`);
+    const allowed = args.host === 'codex'
+      ? 'high, xhigh, max, or ultra'
+      : 'high, xhigh, or max';
+    throw new Error(`host_run: managed reviewer reasoningEffort ${JSON.stringify(reasoningEffort)} is not qualified for host ${args.host}; expected ${allowed}`);
   }
   return { model, reasoningEffort };
 }

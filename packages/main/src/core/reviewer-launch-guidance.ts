@@ -1,4 +1,4 @@
-import { QUALIFIED_MANAGED_REVIEWER_DEFAULTS } from './host-run.js';
+import { QUALIFIED_MANAGED_REVIEWER_DEFAULTS } from './managed-reviewer-qualification.js';
 
 export function renderQualifiedManagedCodexDispatchCommand(storyId: string, agentType: string): string {
   const selection = QUALIFIED_MANAGED_REVIEWER_DEFAULTS.codex;

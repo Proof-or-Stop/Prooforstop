@@ -40,6 +40,10 @@ assert.match(reviewerLaunchGuidance, /managedDispatch: true/,
   'the shared INIT reviewer renderer must use the controller-owned delivery path');
 assert.match(reviewerLaunchGuidance, /QUALIFIED_MANAGED_REVIEWER_DEFAULTS/,
   'managed reviewer guidance must consume the controller qualification defaults');
+assert.match(reviewerLaunchGuidance, /managed-reviewer-qualification\.js/,
+  'state-machine guidance must import defaults from the dependency-free qualification leaf');
+assert.doesNotMatch(reviewerLaunchGuidance, /from '.\/host-run\.js'/,
+  'state-machine guidance must not pull the provider launch graph into machine imports');
 assert.match(reviewerLaunchGuidance, /renderQualifiedManagedCodexDispatchCommand/,
   'managed reviewer guidance must use one shared qualified Codex command renderer');
 assert.match(storyReview, /renderQualifiedManagedCodexDispatchCommand\(args\.storyId, 'proof-or-stop-review-scope-plan'\)/,
