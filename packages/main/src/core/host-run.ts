@@ -113,7 +113,7 @@ export const HOST_RUN_REASONING_EFFORTS = [
 export type HostRunReasoningEffort = typeof HOST_RUN_REASONING_EFFORTS[number];
 
 /**
- * Formal review must never inherit the implementation agent's ambient model.
+ * Formal review must never silently inherit the implementation agent's ambient model.
  * Resolve omitted selectors before the immutable run spec is created, and keep
  * the deliberately narrow qualification boundary visible at the controller.
  * cross_host_review_codex is a separate advisory launch profile and retains

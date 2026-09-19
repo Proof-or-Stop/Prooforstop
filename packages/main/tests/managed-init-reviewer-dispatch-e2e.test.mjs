@@ -115,6 +115,16 @@ try {
   );
   await assert.rejects(
     qualificationHandlers.host_run({
+      host: 'claude', model: 'opus', reasoningEffort: 'low', storyId,
+      reviewRunId: '00000000-0000-4000-8000-000000000004',
+      lane: 'proof-or-stop-review-quality', agentType: 'proof-or-stop-review-quality',
+      managedReview: true, detach: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
+    }),
+    /managed reviewer reasoningEffort.*not qualified/i,
+    'public managedReview must reject sub-high Claude reasoning before ReviewRun lookup',
+  );
+  await assert.rejects(
+    qualificationHandlers.host_run({
       host: 'codex', model: 'gpt-5.6-sol', reasoningEffort: 'high', storyId,
       reviewRunId: '00000000-0000-4000-8000-000000000003',
       lane: 'proof-or-stop-review-quality', agentType: 'proof-or-stop-review-quality',
@@ -212,6 +222,17 @@ try {
   substituted._hash = recomputeInitCheckHash(storyId, store, root, substituted);
   assert.match(invalidInitReviewerDeliveries(substituted, root, storyId)[0]?.reason ?? '', /not found|ENOENT/i,
     'a re-signed caller-substituted delivery id must still fail receipt validation');
+  const modelSelectionSmoke = spawnSync(process.execPath, [
+    join(repository, 'packages/main/dist/tasks/managed-host-run-smoke.js'),
+    '--model-selection',
+  ], {
+    cwd: repository,
+    encoding: 'utf8',
+    env: { ...process.env, PROOF_OR_STOP_USAGE_LEDGER: '0' },
+  });
+  assert.equal(modelSelectionSmoke.status, 0, `${modelSelectionSmoke.stderr}\n${modelSelectionSmoke.stdout}`);
+  assert.match(modelSelectionSmoke.stdout, /managed-host-run model-selection PASS/,
+    'the recorded GREEN command must cover ordinary null sealing and historical selector idempotency');
   console.log('MANAGED_INIT_REVIEWER_DISPATCH_E2E_GREEN');
 } finally {
   if (oldPath === undefined) delete process.env.PATH; else process.env.PATH = oldPath;
