@@ -998,7 +998,9 @@ try {
           // honours `--setenv` the way bwrap does (inside the sandbox), so the
           // audit #25 case below can observe both sides of the partition.
           const wrapperEnvWitness = join(delegatingDir, 'wrapper-env-witness');
-          writeFileSync(join(delegatingDir, 'bwrap'), `#!/bin/sh\nprintf '%s' "\${LD_PRELOAD-unset}" > '${wrapperEnvWitness}'\nassign=""\nwhile [ "$1" != "--" ]; do if [ "$1" = "--setenv" ]; then assign="$assign $2=$3"; shift 3; else shift; fi; done; shift\nexec /usr/bin/env $assign /usr/bin/sandbox-exec -p '${delegatingProfile}' "$@"\n`, { mode: 0o755 });
+          // `export "$2=$3"` keeps values with spaces intact: every variable is
+          // re-applied through --setenv now, not just the loader's.
+          writeFileSync(join(delegatingDir, 'bwrap'), `#!/bin/sh\nprintf '%s' "\${LD_PRELOAD-unset}" > '${wrapperEnvWitness}'\nwhile [ "$1" != "--" ]; do if [ "$1" = "--setenv" ]; then export "$2=$3"; shift 3; else shift; fi; done; shift\nexec /usr/bin/sandbox-exec -p '${delegatingProfile}' "$@"\n`, { mode: 0o755 });
           const seam = { platform: 'linux', searchPath: delegatingDir, cwd: sandbox, unsafeTrustReplaceableWrapperForFixture: true };
           const bound = binding.resolveArtifactWriteProtection(h.root, seam);
           check(bound.enforced === true && bound.label === 'enforced:bwrap', `control: a fixture wrapper that really denies the writes must earn enforcement (${bound.label})`);
@@ -1007,11 +1009,13 @@ try {
           // inside the sandbox (`--setenv`, placed before `--`). Observed on
           // both sides: the wrapper saw LD_PRELOAD unset, the command saw it.
           const preloadLaunch = bound.wrap({ command: process.execPath, args: ['-e', "process.stdout.write('inner=' + process.env.LD_PRELOAD)"], shell: false, env: { ...process.env, LD_PRELOAD: '/fixture/preload.so' } });
-          const setenvAt = preloadLaunch.args.indexOf('--setenv');
-          expectRepaired(setenvAt >= 0 && preloadLaunch.args[setenvAt + 1] === 'LD_PRELOAD' && preloadLaunch.args[setenvAt + 2] === '/fixture/preload.so' && preloadLaunch.args.indexOf('--') > setenvAt,
-            `LD_PRELOAD was not re-applied inside the bwrap namespace (${JSON.stringify(preloadLaunch.args.slice(0, setenvAt + 4))})`);
-          expectRepaired(preloadLaunch.env && !('LD_PRELOAD' in preloadLaunch.env) && preloadLaunch.env.PATH === process.env.PATH,
-            'the bwrap wrapper process was launched with LD_PRELOAD in its own environment');
+          // Every withheld variable is re-applied as its own `--setenv NAME VALUE`
+          // triple before `--`; LD_PRELOAD is one of them.
+          const preloadSetenvAt = preloadLaunch.args.findIndex((argument, index) => argument === '--setenv' && preloadLaunch.args[index + 1] === 'LD_PRELOAD');
+          expectRepaired(preloadSetenvAt >= 0 && preloadLaunch.args[preloadSetenvAt + 2] === '/fixture/preload.so' && preloadLaunch.args.indexOf('--') > preloadSetenvAt,
+            `LD_PRELOAD was not re-applied inside the bwrap namespace (${JSON.stringify(preloadLaunch.args.filter((argument, index) => preloadLaunch.args[index - 1] === '--setenv'))})`);
+          expectRepaired(preloadLaunch.env && !('LD_PRELOAD' in preloadLaunch.env) && Object.keys(preloadLaunch.env).every((key) => binding.isWrapperEnvironmentVariable(key)),
+            `the bwrap wrapper process was launched with LD_PRELOAD or another withheld variable in its own environment (${Object.keys(preloadLaunch.env).join(',')})`);
           const preloadRun = spawnSync(preloadLaunch.command, preloadLaunch.args, { encoding: 'utf8', env: preloadLaunch.env, timeout: 20_000 });
           expectRepaired(preloadRun.status === 0 && preloadRun.stdout === 'inner=/fixture/preload.so' && readFileSync(wrapperEnvWitness, 'utf8') === 'unset',
             `the wrapper saw LD_PRELOAD=${readFileSync(wrapperEnvWitness, 'utf8')} while the command saw ${JSON.stringify(preloadRun.stdout)} (exit ${preloadRun.status})`);
@@ -1030,16 +1034,56 @@ try {
           const rebound = binding.resolveArtifactWriteProtection(h.root, seam);
           expectRepaired(rebound.enforced === false && rebound.label.includes('left no execution witness'),
             `re-resolving against the replacement accepted its exit status as enforcement (${rebound.label})`);
+          // Audit #33 (1): a script wrapper is bound through its interpreter
+          // chain, an interpreter resolved through PATH cannot be bound, and
+          // an interpreter's startup hooks never reach the wrapper process. A
+          // Node-based bwrap shim (shebang naming node by absolute path) that
+          // really enforces earns enforcement with node bound as its
+          // interpreter; a command-specific NODE_OPTIONS hook then runs only
+          // inside the sandbox, in the command, where its dist write is denied.
+          expectRepaired(Array.isArray(bound.interpreters) && bound.interpreters.length === 1 && bound.interpreters[0].path === realpathSync('/bin/sh') && /^[a-f0-9]{64}$/.test(bound.interpreters[0].digest),
+            `the shell shim's interpreter chain is not bound (${JSON.stringify(bound.interpreters)})`);
+          if (typeof binding.wrapperInterpreterChain === 'function') {
+            const envShimDir = join(sandbox, 'env-shim'); mkdirSync(envShimDir, { recursive: true });
+            writeFileSync(join(envShimDir, 'bwrap'), '#!/usr/bin/env node\nprocess.exit(3)\n', { mode: 0o755 });
+            const envShim = binding.resolveArtifactWriteProtection(h.root, { ...seam, searchPath: envShimDir });
+            expectRepaired(envShim.enforced === false && envShim.label.includes('resolves its interpreter through PATH'), `a wrapper whose interpreter is resolved through PATH was not refused (${envShim.label})`);
+            check(Array.isArray(binding.wrapperInterpreterChain('/usr/bin/sandbox-exec')) && binding.wrapperInterpreterChain('/usr/bin/sandbox-exec').length === 0, 'control: a native executable has an empty interpreter chain');
+          } else {
+            expectRepaired(false, 'core/build-artifacts-protection exports no wrapperInterpreterChain');
+          }
+          const nodeShimDir = join(sandbox, 'node-shim'); mkdirSync(nodeShimDir, { recursive: true });
+          const nodeBin = realpathSync(process.execPath);
+          writeFileSync(join(nodeShimDir, 'bwrap'), `#!${nodeBin}\nconst { spawnSync } = require('node:child_process');\nconst args = process.argv.slice(2); const env = { ...process.env }; let i = 0;\nwhile (i < args.length && args[i] !== '--') { if (args[i] === '--setenv') { env[args[i + 1]] = args[i + 2]; i += 3; } else i++; }\nconst r = spawnSync('/usr/bin/sandbox-exec', ['-p', ${JSON.stringify(binding.sandboxExecProfile(deniedRoots))}, ...args.slice(i + 1)], { stdio: 'inherit', env });\nprocess.exit(r.status ?? 1);\n`, { mode: 0o755 });
+          const nodeShim = binding.resolveArtifactWriteProtection(h.root, { ...seam, searchPath: nodeShimDir });
+          check(nodeShim.enforced === true && nodeShim.label === 'enforced:bwrap', `control: a Node-based shim that really denies the writes must earn enforcement (${nodeShim.label})`);
+          expectRepaired(Array.isArray(nodeShim.interpreters) && nodeShim.interpreters.length === 1 && nodeShim.interpreters[0].path === nodeBin, `the Node shim's interpreter is not bound (${JSON.stringify(nodeShim.interpreters)})`);
+          const hookLog = join(nodeShimDir, 'hook.log'); const hookFile = join(nodeShimDir, 'hook.js');
+          const distTarget = join(h.root, 'packages/main/dist/tasks/x.js');
+          writeFileSync(hookFile, `const fs = require('node:fs'); fs.appendFileSync(${JSON.stringify(hookLog)}, 'hook argv=' + process.argv.join(' ') + '\\n'); try { fs.writeFileSync(${JSON.stringify(distTarget)}, 'process.exit(1); // rewritten by the startup hook\\n'); fs.appendFileSync(${JSON.stringify(hookLog)}, 'dist-written\\n'); } catch (error) { fs.appendFileSync(${JSON.stringify(hookLog)}, 'dist-denied:' + error.code + '\\n'); }\n`);
+          const hooked = nodeShim.wrap({ command: process.execPath, args: ['-e', "process.stdout.write('inner ' + process.env.NODE_OPTIONS)"], shell: false, env: { ...process.env, NODE_OPTIONS: `--require ${hookFile}` } });
+          expectRepaired(Object.keys(hooked.env).every((key) => binding.isWrapperEnvironmentVariable(key)) && !('NODE_OPTIONS' in hooked.env) && hooked.args.includes('--setenv') && hooked.args[hooked.args.indexOf('NODE_OPTIONS') + 1] === `--require ${hookFile}`,
+            `NODE_OPTIONS reached the wrapper process or was not re-applied inside (env keys ${Object.keys(hooked.env).join(',')})`);
+          const distBefore = readFileSync(distTarget, 'utf8');
+          const hookedRun = spawnSync(hooked.command, hooked.args, { encoding: 'utf8', env: hooked.env, timeout: 20_000 });
+          const hookLines = existsSync(hookLog) ? readFileSync(hookLog, 'utf8').trim().split('\n') : [];
+          expectRepaired(hookedRun.status === 0 && (hookedRun.stdout ?? '').includes(`inner --require ${hookFile}`) && hookLines.filter((line) => line.startsWith('hook argv=')).length === 1 && !hookLines.some((line) => line.includes(join(nodeShimDir, 'bwrap'))) && hookLines.includes('dist-denied:EPERM') && readFileSync(distTarget, 'utf8') === distBefore,
+            `a NODE_OPTIONS startup hook ran outside enforcement or rewrote dist (status=${hookedRun.status}, stdout=${JSON.stringify((hookedRun.stdout ?? '').slice(0, 80))}, log=${hookLines.join(' | ')}, dist ${readFileSync(distTarget, 'utf8') === distBefore ? 'intact' : 'REWRITTEN'})`);
         }
         // Audit #25 (1): the partition itself, pure: every LD_* / DYLD_* name
         // and glibc's unsecure list is withheld from the wrapper and re-applied
         // inside; everything else reaches the wrapper unchanged.
         if (typeof binding.partitionLaunchEnvironment === 'function') {
-          const split = binding.partitionLaunchEnvironment({ PATH: '/usr/bin', HOME: '/h', LD_PRELOAD: '/x.so', LD_AUDIT: '/a.so', LD_LIBRARY_PATH: '/l', DYLD_INSERT_LIBRARIES: '/d.dylib', GLIBC_TUNABLES: 'g', TMPDIR: '/t' });
-          expectRepaired(JSON.stringify(split.wrapperEnv) === JSON.stringify({ HOME: '/h', PATH: '/usr/bin' })
-            && JSON.stringify(split.reapplied) === JSON.stringify([['DYLD_INSERT_LIBRARIES', '/d.dylib'], ['GLIBC_TUNABLES', 'g'], ['LD_AUDIT', '/a.so'], ['LD_LIBRARY_PATH', '/l'], ['LD_PRELOAD', '/x.so'], ['TMPDIR', '/t']]),
-            `the launch environment partition lets loader variables reach the wrapper (${JSON.stringify(split)})`);
+          // Audit #33 (1): the wrapper sees ONLY a fixed allowlist; the loader's
+          // variables, every interpreter's startup hooks and PATH itself are
+          // withheld and re-applied inside.
+          const split = binding.partitionLaunchEnvironment({ PATH: '/usr/bin', HOME: '/h', LD_PRELOAD: '/x.so', LD_AUDIT: '/a.so', LD_LIBRARY_PATH: '/l', DYLD_INSERT_LIBRARIES: '/d.dylib', GLIBC_TUNABLES: 'g', TMPDIR: '/t', NODE_OPTIONS: '--require /hook.js', PYTHONPATH: '/p', BASH_ENV: '/b', TERM: 'xterm' });
+          expectRepaired(JSON.stringify(split.wrapperEnv) === JSON.stringify({ HOME: '/h', TERM: 'xterm' })
+            && JSON.stringify(split.reapplied) === JSON.stringify([['BASH_ENV', '/b'], ['DYLD_INSERT_LIBRARIES', '/d.dylib'], ['GLIBC_TUNABLES', 'g'], ['LD_AUDIT', '/a.so'], ['LD_LIBRARY_PATH', '/l'], ['LD_PRELOAD', '/x.so'], ['NODE_OPTIONS', '--require /hook.js'], ['PATH', '/usr/bin'], ['PYTHONPATH', '/p'], ['TMPDIR', '/t']]),
+            `the launch environment partition lets loader variables, interpreter startup hooks or PATH reach the wrapper (${JSON.stringify(split)})`);
           check(binding.isLoaderEnvironmentVariable('LD_AUDIT') && binding.isLoaderEnvironmentVariable('DYLD_FORCE_FLAT_NAMESPACE') && !binding.isLoaderEnvironmentVariable('NODE_OPTIONS'), 'loader-variable classification');
+          expectRepaired(typeof binding.isWrapperEnvironmentVariable === 'function' && binding.isWrapperEnvironmentVariable('HOME') && !binding.isWrapperEnvironmentVariable('NODE_OPTIONS') && !binding.isWrapperEnvironmentVariable('PATH'),
+            'NODE_OPTIONS or PATH is allowed into the wrapper process');
         } else {
           expectRepaired(false, 'core/build-artifacts-protection exports no partitionLaunchEnvironment');
         }
@@ -1058,14 +1102,14 @@ try {
           const reappliedArgs = envAt >= 0 && commandAt > envAt ? dyldLaunch.args.slice(envAt + 1, commandAt) : [];
           expectRepaired(dyldLaunch.command === '/usr/bin/sandbox-exec' && envAt === 2 && commandAt > envAt
             && reappliedArgs.includes('DYLD_INSERT_LIBRARIES=/fixture/insert.dylib') && reappliedArgs.includes('LD_PRELOAD=/fixture/preload.so')
-            && reappliedArgs.every((assignment) => binding.isLoaderEnvironmentVariable(assignment.split('=')[0]))
-            && Object.keys(dyldLaunch.env).every((key) => !binding.isLoaderEnvironmentVariable(key)),
+            && reappliedArgs.every((assignment) => !binding.isWrapperEnvironmentVariable(assignment.split('=')[0]))
+            && Object.keys(dyldLaunch.env).every((key) => binding.isWrapperEnvironmentVariable(key)),
             `sandbox-exec was launched with loader variables in its own environment or without re-applying them inside (${JSON.stringify(dyldLaunch.args.slice(0, 7))}, env keys ${Object.keys(dyldLaunch.env).filter((key) => /^(LD_|DYLD_)/.test(key)).join(',')})`);
           const innerLaunch = hostProtection.wrap({ command: process.execPath, args: ['-e', "process.stdout.write('inner=' + process.env.LD_PRELOAD + '|' + process.env.GLIBC_TUNABLES + '|' + process.env.HOME)"], shell: false, env: { ...process.env, LD_PRELOAD: '/fixture/preload.so', GLIBC_TUNABLES: 'glibc.malloc.check=1' } });
           const innerRun = spawnSync(innerLaunch.command, innerLaunch.args, { encoding: 'utf8', env: innerLaunch.env, timeout: 20_000 });
           expectRepaired(innerRun.status === 0 && innerRun.stdout === `inner=/fixture/preload.so|glibc.malloc.check=1|${process.env.HOME}`,
             `the command under sandbox-exec did not see its declared environment (${JSON.stringify(innerRun.stdout)}, exit ${innerRun.status}, ${(innerRun.stderr || '').slice(0, 120)})`);
-          const plainLaunch = hostProtection.wrap({ command: process.execPath, args: ['-e', '0'], shell: false, env: { PATH: process.env.PATH ?? '' } });
+          const plainLaunch = hostProtection.wrap({ command: process.execPath, args: ['-e', '0'], shell: false, env: { HOME: process.env.HOME ?? '/h' } });
           check(!plainLaunch.args.includes('/usr/bin/env') && plainLaunch.args[2] === process.execPath, 'control: a launch with nothing to withhold is not routed through /usr/bin/env');
         }
         const executorSource6 = readFileSync(join(repoRoot, 'packages/main/src/core/validation-executor.ts'), 'utf8');
@@ -1109,6 +1153,27 @@ try {
         'the sharded entry binds only its shards, leaving the oracle\'s artifacts and protection out of the sequence (source-text guard)');
       check(doneRequiredProtectionRefusal('enforced:sandbox-exec', REGISTERED_REBUILD_COMMANDS, h.root) === undefined, 'control: an enforced host is not refused');
       expectRepaired(typeof doneRequiredProtectionRefusal('not-applicable:no-artifact-trees', [...REGISTERED_REBUILD_COMMANDS].reverse(), h.root) === 'string', 'the retired not-applicable label was not refused up front');
+      // Audit #33 (2): the refusal's recovery advice must be followable. A
+      // tree-less project without the layout marker is told to declare the
+      // contract inapplicable at its configuration root, and doing so clears
+      // the refusal; an applicable project is told to keep or rebuild its
+      // roots and provide a mechanism, never to remove the trees.
+      {
+        const treelessAdvice = join(sandbox, 'treeless-advice'); mkdirSync(treelessAdvice);
+        writeFileSync(join(treelessAdvice, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: '.', rootDir: '.' }));
+        const unenforcedTreeless = binding.resolveArtifactWriteProtection(treelessAdvice, { platform: 'win32' });
+        check(unenforcedTreeless.enforced === false, 'control: the win32 seam yields an unenforced label');
+        const advice = doneRequiredProtectionRefusal(unenforcedTreeless.label, [{ label: 'unit', command: 'node', args: ['unit.js'] }], treelessAdvice, treelessAdvice) ?? '';
+        expectRepaired(advice.includes('"artifactContract": "none"') && advice.includes(join(treelessAdvice, 'proof-or-stop.config.json')) && !/remov(e|ing) the (compiled )?artifact trees/i.test(advice.replace('Removing the artifact trees does not lift the contract', '')),
+          `the refusal for a tree-less project does not advise the declaration at its configuration root (${advice.slice(-260)})`);
+        writeFileSync(join(treelessAdvice, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: '.', rootDir: '.', artifactContract: 'none' }));
+        const declaredTreeless = binding.resolveArtifactWriteProtection(treelessAdvice, { platform: 'win32' });
+        expectRepaired(declaredTreeless.label === 'not-applicable:no-artifact-contract' && doneRequiredProtectionRefusal(declaredTreeless.label, [{ label: 'unit', command: 'node', args: ['unit.js'] }], treelessAdvice, treelessAdvice) === undefined,
+          `following the advertised recovery did not clear the refusal (${declaredTreeless.label})`);
+        const applicableAdvice = doneRequiredProtectionRefusal('unenforced:no artifact write-protection mechanism is implemented for platform win32', [{ label: 'unit', command: 'node', args: ['unit.js'] }], h.root, h.root) ?? '';
+        expectRepaired(applicableAdvice.includes('Removing the artifact trees does not lift the contract') && !applicableAdvice.includes('"artifactContract": "none"') && /keep or rebuild/.test(applicableAdvice),
+          `the refusal for an applicable project advises the wrong recovery (${applicableAdvice.slice(-260)})`);
+      }
       const doneRequiredWriterSource = readFileSync(join(repoRoot, 'packages/main/src/core/done-required-validation.ts'), 'utf8');
       const loopStart = doneRequiredWriterSource.indexOf('for (let i = 0; !protectionRefusal && i < policy.commands.length; i++) {');
       const refusalCall = doneRequiredWriterSource.indexOf('doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands, args.projectRoot, args.gitCwd, canonicalLaunchCwds)');

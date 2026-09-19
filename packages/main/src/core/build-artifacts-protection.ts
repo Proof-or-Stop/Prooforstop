@@ -1,8 +1,8 @@
-import { accessSync, constants, existsSync, lstatSync, mkdtempSync, readFileSync, realpathSync, rmSync, rmdirSync, statSync } from 'node:fs';
+import { accessSync, closeSync, constants, existsSync, lstatSync, mkdtempSync, openSync, readFileSync, readSync, realpathSync, rmSync, rmdirSync, statSync } from 'node:fs';
 import { createHash, randomBytes } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { spawnSync, type SpawnSyncReturns } from 'node:child_process';
-import { basename, delimiter, dirname, join, resolve } from 'node:path';
+import { basename, delimiter, dirname, isAbsolute, join, resolve } from 'node:path';
 import { BUILD_ARTIFACT_ROOTS, projectHasArtifactContract } from './build-artifacts-identity.js';
 
 /**
@@ -34,13 +34,20 @@ import { BUILD_ARTIFACT_ROOTS, projectHasArtifactContract } from './build-artifa
  * denial rule refers to that canonical root; and each self-test
  * probe must leave an execution witness that only a probe the wrapper really
  * ran can leave, so a wrapper's exit status alone never earns enforcement.
- * The wrapper is launched with a SANITISED environment: every variable the
- * dynamic loader honours before the wrapper's own code runs (`LD_*`,
- * `DYLD_*`, glibc's unsecure list) is withheld from the wrapper process and
- * re-applied only inside the established sandbox, so a launch environment
- * cannot run code ahead of the mechanism (partitionLaunchEnvironment). What
- * this does not cover: the wrapper's dynamically linked libraries, which are
- * assumed to belong to the same root-owned domain as the executable and are
+ * The wrapper is launched with a MINIMAL environment: only a fixed allowlist
+ * of harmless variables reaches the wrapper process; everything else — the
+ * dynamic loader's variables (`LD_*`, `DYLD_*`, glibc's unsecure list), every
+ * interpreter's startup hooks (`NODE_OPTIONS`, `PYTHONPATH`, `PERL5OPT`,
+ * `RUBYOPT`, `BASH_ENV`, `JAVA_TOOL_OPTIONS`, …) and `PATH` itself — is
+ * withheld from it and re-applied only inside the established sandbox, so a
+ * launch environment cannot run code ahead of the mechanism
+ * (partitionLaunchEnvironment). A wrapper that is a script is bound through
+ * its complete interpreter chain (wrapperInterpreterChain): each interpreter
+ * must be as unreplaceable as the wrapper and is identity-bound and
+ * re-verified with it; an interpreter resolved through PATH (`#!/usr/bin/env
+ * node`) cannot be bound and is refused. What this does not cover: the
+ * dynamically linked libraries of the wrapper and its interpreters, which are
+ * assumed to belong to the same root-owned domain as the executables and are
  * not enumerated here.
  *
  * What this does NOT establish, on any platform: that a command executed the
@@ -75,6 +82,8 @@ export interface ArtifactWriteProtection {
   verify?: () => string | undefined;
   /** The wrapper identity an enforcing resolution is bound to (absent otherwise). */
   wrapper?: WrapperIdentity;
+  /** The wrapper's interpreter chain, outermost first (empty for a native executable; absent when not enforcing). */
+  interpreters?: WrapperIdentity[];
 }
 
 /**
@@ -88,10 +97,24 @@ export interface WrapperLaunchInput { command: string; args: readonly string[]; 
 export interface WrapperLaunch { command: string; args: string[]; shell: boolean; env: NodeJS.ProcessEnv }
 
 /**
+ * The only variables the WRAPPER process may see. A native wrapper needs none
+ * of the rest, and anything else could run code ahead of the sandbox: the
+ * loader's variables, an interpreter's startup hooks, or `PATH` (through
+ * which an interpreted wrapper would find its interpreter). Everything not
+ * listed here is withheld from the wrapper and re-applied inside.
+ */
+const WRAPPER_ENVIRONMENT = new Set(['HOME', 'USER', 'LOGNAME', 'LANG', 'LC_ALL', 'LC_CTYPE', 'TERM']);
+export function isWrapperEnvironmentVariable(name: string): boolean {
+  return WRAPPER_ENVIRONMENT.has(name);
+}
+
+/**
  * Environment variables the dynamic loader reads before the executable's own
  * code runs: glibc's unsecure list, plus every `LD_*` (glibc) and `DYLD_*`
  * (macOS) name. Any of them in a wrapper's launch environment can load code
  * into the wrapper process ahead of the sandbox it is about to establish.
+ * They are one class of what partitionLaunchEnvironment withholds; the
+ * partition withholds everything outside WRAPPER_ENVIRONMENT.
  */
 const LOADER_ENVIRONMENT = new Set(['GCONV_PATH', 'GETCONF_DIR', 'GLIBC_TUNABLES', 'HOSTALIASES', 'LOCALDOMAIN', 'LOCPATH', 'MALLOC_TRACE', 'NIS_PATH', 'NLSPATH', 'RESOLV_HOST_CONF', 'RES_OPTIONS', 'TMPDIR', 'TZDIR']);
 export function isLoaderEnvironmentVariable(name: string): boolean {
@@ -99,10 +122,11 @@ export function isLoaderEnvironmentVariable(name: string): boolean {
 }
 
 /**
- * Split a launch environment into what the WRAPPER process may see (nothing
- * the loader honours) and what is re-applied to the command inside the
- * sandbox (exactly the withheld variables, in stable order), so the command's
- * own environment is unchanged while the wrapper loads with none of it.
+ * Split a launch environment into what the WRAPPER process may see (the
+ * fixed allowlist only) and what is re-applied to the command inside the
+ * sandbox (every other variable, in stable order), so the command's own
+ * environment is unchanged while the wrapper starts with nothing that the
+ * loader or any interpreter would act on.
  */
 export function partitionLaunchEnvironment(env: NodeJS.ProcessEnv): { wrapperEnv: NodeJS.ProcessEnv; reapplied: [string, string][] } {
   const wrapperEnv: NodeJS.ProcessEnv = {};
@@ -110,9 +134,44 @@ export function partitionLaunchEnvironment(env: NodeJS.ProcessEnv): { wrapperEnv
   for (const name of Object.keys(env).sort()) {
     const value = env[name];
     if (value === undefined) continue;
-    if (isLoaderEnvironmentVariable(name)) reapplied.push([name, value]); else wrapperEnv[name] = value;
+    if (isWrapperEnvironmentVariable(name)) wrapperEnv[name] = value; else reapplied.push([name, value]);
   }
   return { wrapperEnv, reapplied };
+}
+
+const INTERPRETER_CHAIN_DEPTH = 4;
+
+/**
+ * The interpreters a script wrapper runs under, outermost first, as canonical
+ * paths — empty for a native executable. Read from the `#!` line of the
+ * wrapper and of each interpreter that is itself a script. An interpreter
+ * named relatively, resolved through PATH (`#!/usr/bin/env node`) or nested
+ * deeper than INTERPRETER_CHAIN_DEPTH cannot be bound, and the reason is
+ * returned instead.
+ */
+export function wrapperInterpreterChain(path: string): string[] | string {
+  const chain: string[] = [];
+  let current = path;
+  for (let depth = 0; depth < INTERPRETER_CHAIN_DEPTH; depth++) {
+    let head: Buffer;
+    try {
+      const fd = openSync(current, 'r');
+      try { const buffer = Buffer.alloc(512); const length = readSync(fd, buffer, 0, buffer.length, 0); head = buffer.subarray(0, length); } finally { closeSync(fd); }
+    } catch (error) {
+      return `${current} cannot be read to determine its interpreter: ${(error as Error).message}`;
+    }
+    if (!(head.length >= 2 && head[0] === 0x23 && head[1] === 0x21)) return chain;
+    const line = head.toString('utf8').split(/\r?\n/)[0].slice(2).trim();
+    const interpreter = line.split(/\s+/)[0] ?? '';
+    if (!interpreter) return `${current} has an empty interpreter line`;
+    if (basename(interpreter) === 'env') return `${current} resolves its interpreter through PATH (#!${line}); such a wrapper cannot be bound`;
+    if (!isAbsolute(interpreter)) return `${current} names a relative interpreter (#!${line})`;
+    let canonical: string;
+    try { canonical = realpathSync(interpreter); } catch (error) { return `${current} names an interpreter that cannot be resolved (#!${line}): ${(error as Error).message}`; }
+    chain.push(canonical);
+    current = canonical;
+  }
+  return `${path} nests interpreters deeper than ${INTERPRETER_CHAIN_DEPTH} levels`;
 }
 
 /** Identity of the wrapper executable a resolution self-tested; every field is re-compared before a launch. */
@@ -307,7 +366,19 @@ function innerCommandLine(launch: WrapperLaunchInput): string[] {
  * re-checks everything the mechanism was admitted on (identity drift and the
  * replaceability rule of every executable it launches through).
  */
-type Mechanism = { name: 'sandbox-exec' | 'bwrap'; wrapper: WrapperIdentity; trust: () => string | undefined; wrap: ArtifactWriteProtection['wrap'] };
+type Mechanism = { name: 'sandbox-exec' | 'bwrap'; wrapper: WrapperIdentity; interpreters: WrapperIdentity[]; trust: () => string | undefined; wrap: ArtifactWriteProtection['wrap'] };
+
+/** A wrapper executable together with the interpreters it runs under, all identity-bound. */
+type TrustedWrapper = { wrapper: WrapperIdentity; interpreters: WrapperIdentity[] };
+
+/** Re-check every executable a trusted wrapper involves: identity drift first, then replaceability. */
+function trustedWrapperDrift(name: Mechanism['name'], trusted: TrustedWrapper, trust: WrapperTrust): string | undefined {
+  for (const identity of [trusted.wrapper, ...trusted.interpreters]) {
+    const drift = wrapperIdentityDrift(identity) ?? replaceabilityRefusal(name, identity.path, trust);
+    if (drift) return drift;
+  }
+  return undefined;
+}
 
 type WrapperTrust = { unsafeTrustReplaceableWrapperForFixture?: boolean };
 
@@ -323,10 +394,21 @@ function replaceabilityRefusal(name: Mechanism['name'], path: string, trust: Wra
   return replaceable ? `${name} wrapper ${path} could be replaced by a validation command (${replaceable}); only a wrapper this user neither owns nor can write, on a path this user neither owns nor can rename, is trusted` : undefined;
 }
 
-function trustWrapper(name: Mechanism['name'], path: string, trust: WrapperTrust): WrapperIdentity | string {
+function trustWrapper(name: Mechanism['name'], path: string, trust: WrapperTrust): TrustedWrapper | string {
   const refusal = replaceabilityRefusal(name, path, trust);
   if (refusal) return refusal;
-  try { return readWrapperIdentity(path); } catch (error) {
+  const chain = wrapperInterpreterChain(path);
+  if (typeof chain === 'string') return `${name} wrapper ${path}: ${chain}`;
+  try {
+    const wrapper = readWrapperIdentity(path);
+    const interpreters: WrapperIdentity[] = [];
+    for (const interpreter of chain) {
+      const interpreterRefusal = replaceabilityRefusal(name, interpreter, trust);
+      if (interpreterRefusal) return `${name} wrapper ${path} runs under ${interpreterRefusal}`;
+      interpreters.push(readWrapperIdentity(interpreter));
+    }
+    return { wrapper, interpreters };
+  } catch (error) {
     return `${name} wrapper ${path} cannot be bound by identity: ${(error as Error).message}`;
   }
 }
@@ -356,8 +438,8 @@ export function sandboxExecProfile(denied: readonly string[]): string {
 function sandboxExecMechanism(denied: string[], trust: WrapperTrust): Mechanism | string {
   let executable: string;
   try { accessSync(SANDBOX_EXEC, constants.X_OK); executable = realpathSync(SANDBOX_EXEC); } catch { return 'sandbox-exec is not executable on this host'; }
-  const wrapper = trustWrapper('sandbox-exec', executable, trust);
-  if (typeof wrapper === 'string') return wrapper;
+  const trusted = trustWrapper('sandbox-exec', executable, trust);
+  if (typeof trusted === 'string') return trusted;
   // The re-application of withheld variables runs INSIDE the sandbox through
   // /usr/bin/env, which must be as unreplaceable as the wrapper itself.
   let envBin: string;
@@ -367,8 +449,9 @@ function sandboxExecMechanism(denied: string[], trust: WrapperTrust): Mechanism 
   const profile = sandboxExecProfile(denied);
   return {
     name: 'sandbox-exec',
-    wrapper,
-    trust: () => wrapperIdentityDrift(wrapper) ?? replaceabilityRefusal('sandbox-exec', executable, trust) ?? replaceabilityRefusal('sandbox-exec', envBin, trust),
+    wrapper: trusted.wrapper,
+    interpreters: trusted.interpreters,
+    trust: () => trustedWrapperDrift('sandbox-exec', trusted, trust) ?? replaceabilityRefusal('sandbox-exec', envBin, trust),
     wrap: (launch) => {
       const { wrapperEnv, reapplied } = partitionLaunchEnvironment(launch.env ?? process.env);
       const inner = innerCommandLine(launch);
@@ -409,13 +492,14 @@ function bwrapMechanism(existingRoots: string[], allRoots: string[], discovery: 
   // must therefore exist before bwrap is reported as enforcing anything.
   const absent = allRoots.filter((root) => !existingRoots.includes(root));
   if (absent.length > 0) return `bwrap cannot protect the absent artifact root(s) ${absent.join(', ')}; every configured root must exist (a build creates them) before evidence can be authoritative`;
-  const wrapper = trustWrapper('bwrap', bwrap, discovery);
-  if (typeof wrapper === 'string') return wrapper;
+  const trusted = trustWrapper('bwrap', bwrap, discovery);
+  if (typeof trusted === 'string') return trusted;
   const prefix = bwrapLaunchPrefix(existingRoots);
   return {
     name: 'bwrap',
-    wrapper,
-    trust: () => wrapperIdentityDrift(wrapper) ?? replaceabilityRefusal('bwrap', bwrap, discovery),
+    wrapper: trusted.wrapper,
+    interpreters: trusted.interpreters,
+    trust: () => trustedWrapperDrift('bwrap', trusted, discovery),
     wrap: (launch) => {
       const { wrapperEnv, reapplied } = partitionLaunchEnvironment(launch.env ?? process.env);
       // `--setenv` applies inside the namespace, after every mount is in place.
@@ -608,6 +692,7 @@ export function resolveArtifactWriteProtection(
     enforced: true,
     label: `enforced:${mechanism.name}`,
     wrapper: mechanism.wrapper,
+    interpreters: mechanism.interpreters,
     verify,
     wrap: (launch) => {
       const drift = verify();

@@ -1,11 +1,11 @@
 import { validateResourceClaims, type ResourceClaim } from './keyed-scheduler.js';
 import { parseLegacyValidationCommandString } from './validation-command-identity.js';
 import { createHash } from 'node:crypto';
-import { realpathSync } from 'node:fs';
+import { existsSync, realpathSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { loadConfig, type ProofOrStopConfig } from './config.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
-import { BUILD_ARTIFACT_ROOTS, canonicalizeExistingPath, currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand } from './build-artifacts-identity.js';
+import { BUILD_ARTIFACT_ROOTS, canonicalizeExistingPath, currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand, projectHasArtifactContract } from './build-artifacts-identity.js';
 import { REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied, artifactProtectionStale, hasAnyArtifactRoot, resolveArtifactWriteProtection } from './build-artifacts-protection.js';
 import type { StoryStore } from './store.js';
 import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, formatValidationCommand, resolveCommandTimeoutMs, runValidationCommand } from './validation-executor.js';
@@ -811,7 +811,16 @@ export function doneRequiredProtectionRefusal(
   const unprotected = exposed.filter((command, index) => !isBuild(command, index));
   if (unprotected.length === 0) return undefined;
   const labels = unprotected.map((command) => command.label).join(', ');
-  return `build-artifacts-protection-unavailable: ${protectionLabel}; ${unprotected.length} non-build DONE-required command(s) (${labels}) would run without enforced artifact write protection and their receipts would be refused, so nothing was executed. Provide a write-protection mechanism for this host (macOS: /usr/bin/sandbox-exec; Linux: bwrap on PATH) or remove the compiled artifact trees (${BUILD_ARTIFACT_ROOTS.join(', ')}) if this project does not execute them.`;
+  // Recovery advice depends on whether this project carries the contract at
+  // all. A project with the layout marker or anything at an artifact root
+  // must keep or rebuild its roots and provide a working mechanism; removing
+  // the trees lifts nothing. Only a project with neither may declare the
+  // contract inapplicable, at its configuration root.
+  const applicable = projectHasArtifactContract(artifactsRoot, projectRoot) && (existsSync(join(artifactsRoot, 'packages/main/package.json')) || BUILD_ARTIFACT_ROOTS.some((relative) => existsSync(join(artifactsRoot, relative))));
+  const recovery = applicable
+    ? `This project carries the compiled-artifact contract (its layout marker or an artifact root is present), so keep or rebuild the artifact roots and provide a working write-protection mechanism: on macOS /usr/bin/sandbox-exec must be executable and unreplaceable; on Linux install bubblewrap so that \`bwrap\` is on PATH at a location this user neither owns nor can write, with every configured artifact root present (a registered build creates them). Removing the artifact trees does not lift the contract.`
+    : `If this project genuinely has no compiled-artifact contract (no packages/main/package.json layout marker and nothing at ${BUILD_ARTIFACT_ROOTS.join(' or ')}), declare it: add \`"artifactContract": "none"\` at the top level of ${join(projectRoot, 'proof-or-stop.config.json')} and commit it. Otherwise provide a working write-protection mechanism (macOS: /usr/bin/sandbox-exec executable and unreplaceable; Linux: bubblewrap with \`bwrap\` on PATH at a location this user neither owns nor can write) and keep every configured artifact root present.`;
+  return `build-artifacts-protection-unavailable: ${protectionLabel}; ${unprotected.length} non-build DONE-required command(s) (${labels}) would run without enforced artifact write protection and their receipts would be refused, so nothing was executed. ${recovery}`;
 }
 
 export function validateReceiptBuildBinding(
