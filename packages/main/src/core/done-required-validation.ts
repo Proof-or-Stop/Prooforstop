@@ -800,14 +800,16 @@ export function doneRequiredProtectionRefusal(
   commands: DoneRequiredCommand[],
   projectRoot: string,
   artifactsRoot: string = projectRoot,
+  /** The pinned canonical launch directory of each command, index-aligned with `commands`. */
+  launchCwds?: readonly string[],
 ): string | undefined {
   if (artifactProtectionSatisfied(protectionLabel)) return undefined;
-  const isBuild = (command: DoneRequiredCommand): boolean => command.providesBuildProof === PACKAGES_MAIN_BUILD_PROOF
+  const isBuild = (command: DoneRequiredCommand, index: number): boolean => command.providesBuildProof === PACKAGES_MAIN_BUILD_PROOF
     || command.proof === PACKAGES_MAIN_BUILD_PROOF
-    || isRegisteredPackagesMainBuildCommand(command, projectRoot, artifactsRoot);
+    || isRegisteredPackagesMainBuildCommand(command, projectRoot, artifactsRoot, launchCwds?.[index]);
   const firstBuild = commands.findIndex(isBuild);
   const exposed = firstBuild < 0 ? commands : commands.slice(0, firstBuild);
-  const unprotected = exposed.filter((command) => !isBuild(command));
+  const unprotected = exposed.filter((command, index) => !isBuild(command, index));
   if (unprotected.length === 0) return undefined;
   const labels = unprotected.map((command) => command.label).join(', ');
   return `build-artifacts-protection-unavailable: ${protectionLabel}; ${unprotected.length} non-build DONE-required command(s) (${labels}) would run without enforced artifact write protection and their receipts would be refused, so nothing was executed. Provide a write-protection mechanism for this host (macOS: /usr/bin/sandbox-exec; Linux: bwrap on PATH) or remove the compiled artifact trees (${BUILD_ARTIFACT_ROOTS.join(', ')}) if this project does not execute them.`;
@@ -988,27 +990,28 @@ export async function runDoneRequiredValidation(args: {
     // The contract declaration is read from the configuration root
     // (projectRoot), which on a wrapper-root layout is not the artifact root.
     let artifactWriteProtection = resolveArtifactWriteProtection(args.gitCwd, { configRoot: args.projectRoot });
+    // Where each command runs, and therefore what it IS, resolved NOW for the
+    // whole run: an alias re-pointed by an earlier command must neither move a
+    // later one nor turn it into a registered build at launch time.
+    const canonicalLaunchCwds = policy.commands.map((command) => canonicalizeExistingPath(commandCwd(args.projectRoot, command.cwd)));
     // Unsupported host: decided before the first launch, never after the suite.
-    let protectionRefusal = doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands, args.projectRoot, args.gitCwd);
+    let protectionRefusal = doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands, args.projectRoot, args.gitCwd, canonicalLaunchCwds);
     if (protectionRefusal) reasons.push(protectionRefusal);
     // A registered build may create or replace the trees, and a
     // `not-applicable` exemption holds only while no tree exists, so the
     // protection is re-resolved before any later non-build receipt, and the
     // refusal above is re-decided for the commands that remain.
     let buildRanSinceResolve = false;
-    // Where each command runs under protection, resolved NOW for the whole
-    // run: an alias re-pointed by an earlier command must not move a later one.
-    const canonicalLaunchCwds = policy.commands.map((command) => canonicalizeExistingPath(commandCwd(args.projectRoot, command.cwd)));
     for (let i = 0; !protectionRefusal && i < policy.commands.length; i++) {
       const command = policy.commands[i];
       throwIfDoneRequiredDeadlineExceeded(runtimeOptions);
       const commandIsRegisteredBuild = command.providesBuildProof === PACKAGES_MAIN_BUILD_PROOF
         || command.proof === PACKAGES_MAIN_BUILD_PROOF
-        || isRegisteredPackagesMainBuildCommand(command, args.projectRoot, args.gitCwd);
+        || isRegisteredPackagesMainBuildCommand(command, args.projectRoot, args.gitCwd, canonicalLaunchCwds[i]);
       if (!commandIsRegisteredBuild && artifactProtectionStale(artifactWriteProtection, { buildRanSinceResolve, anyRootExists: hasAnyArtifactRoot(args.gitCwd, args.projectRoot) })) {
         artifactWriteProtection = resolveArtifactWriteProtection(args.gitCwd, { configRoot: args.projectRoot });
         buildRanSinceResolve = false;
-        protectionRefusal = doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands.slice(i), args.projectRoot, args.gitCwd);
+        protectionRefusal = doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands.slice(i), args.projectRoot, args.gitCwd, canonicalLaunchCwds.slice(i));
         if (protectionRefusal) {
           reasons.push(`${protectionRefusal} (protection re-resolved before ${command.label}, after the registered build created or replaced the artifact trees)`);
           break;
@@ -1048,9 +1051,12 @@ export async function runDoneRequiredValidation(args: {
         label: result.label,
         command: result.command,
         args: result.args,
-        commandSpec: buildDoneRequiredCommandSpecEnvelope(args.projectRoot, command, result),
+        // The receipt describes the directory the command actually ran in: the
+        // canonical launch directory pinned before the first launch, so receipt
+        // validation classifies exactly what the writer classified.
+        commandSpec: buildDoneRequiredCommandSpecEnvelope(args.projectRoot, command, { ...result, cwd: canonicalLaunchCwds[i] }),
         ...(result.shell ? { shell: true } : {}),
-        cwd: result.cwd ?? commandCwd(args.projectRoot, command.cwd),
+        cwd: canonicalLaunchCwds[i],
         status,
         exitCode: result.code,
         durationMs: result.durationMs,

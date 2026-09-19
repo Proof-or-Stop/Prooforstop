@@ -213,7 +213,7 @@ export function isRegisteredPackagesMainBuildCommand(command: {
   shell?: boolean;
   providesBuildProof?: unknown;
   proof?: unknown;
-}, projectRoot?: string, artifactsRoot: string | undefined = projectRoot): boolean {
+}, projectRoot?: string, artifactsRoot: string | undefined = projectRoot, launchCwd?: string): boolean {
   if (command.providesBuildProof === 'packages-main-build' || command.proof === 'packages-main-build') return true;
   // Recognition by shape exempts a command from write protection, so only a
   // COMPLETE, unambiguous build invocation qualifies: never a shell command
@@ -225,10 +225,13 @@ export function isRegisteredPackagesMainBuildCommand(command: {
   // against the PROJECT root) and located logically against the ARTIFACT
   // root; a declared cwd that names a different directory on this platform
   // (`packages\main` on POSIX, `packages/main ` anywhere) is that other
-  // directory, never the build's.
+  // directory, never the build's. A caller that has PINNED the canonical
+  // directory the command will run in (`launchCwd`, resolved once before its
+  // plan's first launch) is judged on that directory, so an alias re-pointed
+  // by an earlier command cannot turn a test into a build at launch time.
   const raw = portableRelativePath(command.cwd ?? '');
   const cwd = projectRoot
-    ? logicalCommandCwd(artifactsRoot ?? projectRoot, launchedCommandCwd(projectRoot, command.cwd))
+    ? logicalCommandCwd(artifactsRoot ?? projectRoot, launchCwd ?? launchedCommandCwd(projectRoot, command.cwd))
     : (isAbsolute(raw) ? raw.replace(/\/+$/, '') : (posix.normalize(raw || '.').replace(/\/+$/, '') || '.'));
   const atRoot = cwd === '.';
   const atPackagesMain = cwd === 'packages/main';

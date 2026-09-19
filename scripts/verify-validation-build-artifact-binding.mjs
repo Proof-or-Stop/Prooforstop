@@ -358,12 +358,22 @@ try {
         'the executor does not re-resolve protection before a test that follows a registered build or a newly created tree (source-text guard)');
       const doneRequiredSource3 = readFileSync(join(repoRoot, 'packages/main/src/core/done-required-validation.ts'), 'utf8');
       expectRepaired(doneRequiredSource3.includes('if (!commandIsRegisteredBuild && artifactProtectionStale(artifactWriteProtection, { buildRanSinceResolve, anyRootExists: hasAnyArtifactRoot(args.gitCwd, args.projectRoot) })) {')
-        && doneRequiredSource3.includes('protectionRefusal = doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands.slice(i), args.projectRoot, args.gitCwd);')
+        && doneRequiredSource3.includes('protectionRefusal = doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands.slice(i), args.projectRoot, args.gitCwd, canonicalLaunchCwds.slice(i));')
         && doneRequiredSource3.includes('if (commandIsRegisteredBuild) buildRanSinceResolve = true;'),
         'the DONE-required writer does not re-resolve protection (and re-decide the refusal) before a non-build receipt that follows a registered build (source-text guard)');
       // Audit #11 (5): scheduling and launch classify a build the same way.
-      expectRepaired(executorSource2.includes('isRegisteredPackagesMainBuildCommand(entry.command, projectRoot, artifactsRoot) ? { ...entry, priority: (entry.priority ?? 0) + 1 } : entry'),
-        'build prioritisation judges the raw cwd while launch judges the logical cwd (source-text guard)');
+      // Audit #30 (1): scheduling, the build wave and the launch-time role all
+      // read ONE binding derived from the pinned canonical launch directory.
+      expectRepaired(executorSource2.includes("isRegisteredPackagesMainBuildCommand(entry.command, projectRoot, artifactsRoot, canonicalLaunchCwds.get(entry.commandIndex)) ? 'build' as const : 'test' as const")
+        && executorSource2.includes("buildRoles.get(entry.commandIndex) === 'build' ? { ...entry, priority: (entry.priority ?? 0) + 1 } : entry")
+        && executorSource2.includes("const buildArtifactsRole = buildRoles.get(entry.commandIndex) ?? 'test';")
+        && executorSource2.includes("const buildEntries = entries.filter((entry) => buildRoles.get(entry.commandIndex) === 'build');")
+        && !executorSource2.includes('isRegisteredPackagesMainBuildCommand(entry.command, projectRoot, artifactsRoot) ?'),
+        'build classification is not pinned to the canonical launch directory for scheduling, the build wave and the launch role alike (source-text guard)');
+      expectRepaired(doneRequiredSource3.includes('isRegisteredPackagesMainBuildCommand(command, args.projectRoot, args.gitCwd, canonicalLaunchCwds[i])')
+        && doneRequiredSource3.includes('doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands, args.projectRoot, args.gitCwd, canonicalLaunchCwds)')
+        && doneRequiredSource3.includes('cwd: canonicalLaunchCwds[i],'),
+        'the DONE-required writer classifies or receipts a command on the declared cwd instead of the pinned launch directory (source-text guard)');
     } else {
       expectRepaired(false, 'core/build-artifacts-protection exports no artifactProtectionStale / hasAnyArtifactRoot');
     }
@@ -1072,7 +1082,7 @@ try {
       expectRepaired(typeof doneRequiredProtectionRefusal('not-applicable:no-artifact-trees', [...REGISTERED_REBUILD_COMMANDS].reverse(), h.root) === 'string', 'the retired not-applicable label was not refused up front');
       const doneRequiredWriterSource = readFileSync(join(repoRoot, 'packages/main/src/core/done-required-validation.ts'), 'utf8');
       const loopStart = doneRequiredWriterSource.indexOf('for (let i = 0; !protectionRefusal && i < policy.commands.length; i++) {');
-      const refusalCall = doneRequiredWriterSource.indexOf('doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands, args.projectRoot, args.gitCwd)');
+      const refusalCall = doneRequiredWriterSource.indexOf('doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands, args.projectRoot, args.gitCwd, canonicalLaunchCwds)');
       expectRepaired(refusalCall >= 0 && loopStart > refusalCall, 'the DONE-required writer does not consult the protection refusal before its command loop (source-text guard)');
     } else {
       expectRepaired(false, 'core/done-required-validation exports no doneRequiredProtectionRefusal');
@@ -1554,6 +1564,34 @@ if (hostEnforced) {
         const viaAlias = binding.resolveArtifactWriteProtection(alias);
         expectRepaired(viaAlias.enforced === true && typeof viaAlias.verify === 'function' && viaAlias.verify() === undefined, `a resolution through the alias is not bound to the canonical root (${viaAlias.label})`);
       }
+    }
+    // Audit #30 (1): the build role is derived from the pinned launch
+    // directory, never re-resolved at launch. An IGNORED alias `build-link`
+    // first points at `other` (a package whose build script rewrites the real
+    // packages/main/dist); `npm run build` declared in `build-link` is pinned
+    // to `other` and classified as a test; an earlier command re-points the
+    // alias at packages/main; at launch the command must STILL be a test,
+    // launched protected in `other`, and unable to rewrite dist.
+    if (process.platform !== 'win32') {
+      const otherPkg = join(root, 'other'); mkdirSync(otherPkg, { recursive: true });
+      writeFileSync(join(otherPkg, 'package.json'), JSON.stringify({ name: 'other-package', private: true, scripts: { build: 'node rewrite.js' } }));
+      writeFileSync(join(otherPkg, 'rewrite.js'), "require('node:fs').writeFileSync(require('node:path').join(__dirname, '..', 'packages', 'main', 'dist', 'tasks', 'x.js'), 'process.exit(1); // rewritten by the aliased package\\n');\n");
+      const buildLink = join(root, 'build-link'); symlinkSync(otherPkg, buildLink, 'dir');
+      writeFileSync(join(root, 'retarget-build-link.js'), "const fs = require('node:fs'); fs.unlinkSync('build-link'); fs.symlinkSync(require('node:path').join(__dirname, 'packages', 'main'), 'build-link', 'dir'); process.stdout.write('retargeted');\n");
+      const flipped = await run([
+        { label: 'retarget build alias', command: 'node', args: ['retarget-build-link.js'], timeoutMs: 20_000 },
+        { label: 'aliased build', command: 'npm', args: ['run', 'build'], cwd: 'build-link', timeoutMs: 60_000 },
+      ]);
+      const aliasedBuild = flipped.commands[1];
+      check((flipped.commands[0]?.output ?? '').includes('retargeted') && realpathSync(buildLink) === realpathSync(join(root, 'packages/main')), 'control: the first command re-pointed the build alias at packages/main');
+      expectRepaired(aliasedBuild?.buildArtifactsRole === 'test',
+        `a command pinned to another directory was reclassified as the registered build after its alias was re-pointed (role=${aliasedBuild?.buildArtifactsRole})`);
+      if (hostEnforced) {
+        expectRepaired(readFileSync(join(mainDist, 'x.js'), 'utf8') === BUILD_A && flipped.allPass === false && (aliasedBuild?.buildArtifactsProtection ?? '').startsWith('enforced:'),
+          `the re-aliased command rewrote dist or ran unprotected (allPass=${flipped.allPass}, ${aliasedBuild?.buildArtifactsProtection}, dist ${readFileSync(join(mainDist, 'x.js'), 'utf8') === BUILD_A ? 'intact' : 'REWRITTEN'})`);
+      }
+      writeFileSync(join(mainDist, 'x.js'), BUILD_A);
+      rmSync(buildLink, { force: true }); rmSync(join(root, 'retarget-build-link.js'), { force: true }); rmSync(otherPkg, { recursive: true, force: true });
     }
     // Linux only, where LD_PRELOAD is honoured: a preload library whose
     // constructor rewrites dist and exits 0 before the declared command runs.

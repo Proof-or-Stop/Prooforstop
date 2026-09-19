@@ -2423,16 +2423,20 @@ export async function executeValidationPlan(
   // what is protected (every launch under protection runs in the canonical
   // directory, see captureValidationCommand).
   const artifactsRoot = canonicalizeExistingPath(options.gitCwd ?? resolvePlanGitCwd(projectRoot));
-  const entries = canonicalizeEntries(resolveValidationPlanEntries(plan), projectRoot)
-    // Judged on the same logical cwd (relative to the artifact root) as the
-    // launch classification below, so a build declared with an absolute cwd,
-    // or under a wrapper-root layout, is prioritised exactly as it is
-    // recognised; the two can never disagree about one command.
-    .map((entry) => (isRegisteredPackagesMainBuildCommand(entry.command, projectRoot, artifactsRoot) ? { ...entry, priority: (entry.priority ?? 0) + 1 } : entry));
+  // Where each command runs, and therefore what it IS, resolved NOW for the
+  // whole plan: the canonical launch directory is pinned before the first
+  // launch, and the build role is derived from that same directory once, so
+  // an alias re-pointed by an earlier command can neither move a later
+  // command nor turn it into a registered build at launch time. Scheduling
+  // priority, the build wave, the protection decision and the recorded role
+  // all read this one binding.
+  const planEntries = resolveValidationPlanEntries(plan);
+  const canonicalLaunchCwds = new Map(planEntries.map((entry) => [entry.commandIndex, canonicalizeExistingPath(commandCwd(projectRoot, entry.command.cwd))] as const));
+  const buildRoles = new Map(planEntries.map((entry) => [entry.commandIndex,
+    isRegisteredPackagesMainBuildCommand(entry.command, projectRoot, artifactsRoot, canonicalLaunchCwds.get(entry.commandIndex)) ? 'build' as const : 'test' as const] as const));
+  const entries = canonicalizeEntries(planEntries, projectRoot)
+    .map((entry) => (buildRoles.get(entry.commandIndex) === 'build' ? { ...entry, priority: (entry.priority ?? 0) + 1 } : entry));
   const exclusiveCount = entries.filter((entry) => entry.exclusiveByDefault).length;
-  // Where each command runs under protection, resolved NOW for the whole
-  // plan: an alias re-pointed by an earlier command must not move a later one.
-  const canonicalLaunchCwds = new Map(entries.map((entry) => [entry.commandIndex, canonicalizeExistingPath(commandCwd(projectRoot, entry.command.cwd))] as const));
 
   // Completion order is not plan order, so results are parked by plan index and
   // read back in plan order below. `details` is assembled there too: pushing it
@@ -2477,7 +2481,7 @@ export async function executeValidationPlan(
     // states the bound); that needs OS-enforced write denial, not observation.
     // A registered build is the one command allowed to change these trees, so
     // it alone runs unprotected; everything else is denied the write.
-    const buildArtifactsRole = isRegisteredPackagesMainBuildCommand(entry.command, projectRoot, artifactsRoot) ? 'build' as const : 'test' as const;
+    const buildArtifactsRole = buildRoles.get(entry.commandIndex) ?? 'test';
     if (buildArtifactsRole === 'test' && artifactProtectionStale(artifactWriteProtection, { buildRanSinceResolve, anyRootExists: hasAnyArtifactRoot(artifactsRoot, projectRoot) })) {
       artifactWriteProtection = resolveArtifactWriteProtection(artifactsRoot, { configRoot: projectRoot });
       buildRanSinceResolve = false;
@@ -2522,7 +2526,7 @@ export async function executeValidationPlan(
   // that test's two observations equal and its evidence false. The barrier is
   // the plan's own, not the scheduler's declared-resource model, and the
   // protection is re-resolved after the builds (artifactProtectionStale).
-  const buildEntries = entries.filter((entry) => isRegisteredPackagesMainBuildCommand(entry.command, projectRoot, artifactsRoot));
+  const buildEntries = entries.filter((entry) => buildRoles.get(entry.commandIndex) === 'build');
   const testEntries = entries.filter((entry) => !buildEntries.includes(entry));
   const scheduled = await withValidationPlanStages(async () => [
     ...await runScheduled<ValidationScheduleEntry, ValidationScheduleResult>(buildEntries, 1, runEntry, scheduleOptions),
