@@ -1,5 +1,5 @@
 import { createHash, type Hash } from 'node:crypto';
-import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync } from 'node:fs';
+import { existsSync, lstatSync, readFileSync, readdirSync, readlinkSync, realpathSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, posix, relative, resolve, sep } from 'node:path';
 import { gitObservationKey, readObservedGitState } from './git-tree-observation.js';
 import { weakestProtectionLabel } from './build-artifacts-protection.js';
@@ -141,25 +141,55 @@ function artifactTreeDigest(root: string): string {
 }
 
 /**
- * Longest-existing-prefix realpath: symbolic links on the part of the path
- * that exists are resolved and the segments that do not exist yet are
- * re-appended, so a tree under a symlinked checkout and a tree a build has
- * not created yet compare in the same path space.
+ * The directory the KERNEL reaches for `path`: components are walked in
+ * filesystem order, every symbolic link on the way is followed, and `..`
+ * applies to the directory reached so far — so `/repo/alias/../checks` with
+ * `alias -> /elsewhere/tree` is `/elsewhere/checks`, exactly where a launch
+ * with that cwd runs. (Node's realpath normalises `..` lexically first and
+ * would say `/repo/checks`.) Segments that do not exist yet are appended as
+ * written, so a tree a build has not created yet compares in the same path
+ * space as an existing one.
  */
+/**
+ * The directory a launch with this declared cwd NAMES, joined to its base the
+ * way a spawn would interpret it: a relative cwd is appended to the base as
+ * written, never normalised, because `..` after a symbolic link steps out of
+ * the link's TARGET at the kernel and a lexical join would step out of the
+ * link's parent instead. Only canonicalizeExistingPath decides where that
+ * name lands.
+ */
+export function launchDirectoryOf(base: string, cwd?: string): string {
+  if (!cwd) return base;
+  if (isAbsolute(cwd)) return cwd;
+  return base.endsWith('/') ? `${base}${cwd}` : `${base}/${cwd}`;
+}
+
 export function canonicalizeExistingPath(path: string): string {
-  let current = path;
-  const tail: string[] = [];
-  for (;;) {
-    try {
-      const real = realpathSync(current);
-      return tail.length ? join(real, ...tail.reverse()) : real;
-    } catch {
-      const parent = dirname(current);
-      if (parent === current) return path;
-      tail.push(basename(current));
-      current = parent;
+  const absolute = launchDirectoryOf(process.cwd(), path);
+  let remaining = absolute.split('/').filter(Boolean);
+  let current = '/';
+  let hops = 0;
+  while (remaining.length > 0) {
+    const component = remaining.shift()!;
+    if (component === '.') continue;
+    if (component === '..') { current = dirname(current); continue; }
+    const next = join(current, component);
+    let entry;
+    try { entry = lstatSync(next); } catch {
+      // Nothing exists from here on: the rest is appended as written.
+      return join(next, ...remaining);
     }
+    if (entry.isSymbolicLink()) {
+      if (++hops > 40) return absolute;
+      let target: string;
+      try { target = readlinkSync(next); } catch { return join(next, ...remaining); }
+      remaining = [...target.split('/').filter(Boolean), ...remaining];
+      if (isAbsolute(target)) current = '/';
+      continue;
+    }
+    current = next;
   }
+  return current;
 }
 
 /**

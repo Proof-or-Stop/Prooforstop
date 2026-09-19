@@ -5,7 +5,7 @@ import { existsSync, realpathSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { loadConfig, type ProofOrStopConfig } from './config.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
-import { BUILD_ARTIFACT_ROOTS, canonicalizeExistingPath, currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand, projectHasArtifactContract } from './build-artifacts-identity.js';
+import { BUILD_ARTIFACT_ROOTS, canonicalizeExistingPath, currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand, launchDirectoryOf, projectHasArtifactContract } from './build-artifacts-identity.js';
 import { REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied, artifactProtectionStale, hasAnyArtifactRoot, resolveArtifactWriteProtection } from './build-artifacts-protection.js';
 import type { StoryStore } from './store.js';
 import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, formatValidationCommand, resolveCommandTimeoutMs, runValidationCommand } from './validation-executor.js';
@@ -431,8 +431,7 @@ export function resolveDoneRequiredPolicy(projectRoot: string): DoneRequiredPoli
 }
 
 function commandCwd(projectRoot: string, cwd?: string): string {
-  if (!cwd) return projectRoot;
-  return isAbsolute(cwd) ? cwd : resolve(projectRoot, cwd);
+  return launchDirectoryOf(projectRoot, cwd);
 }
 
 /** Separators rewritten to `/` only where the platform's separator IS `\`; a POSIX backslash is part of a name. */
@@ -444,29 +443,6 @@ function normalizedCommandCwd(projectRoot: string, cwd?: string): string {
   return portablePath(commandCwd(projectRoot, cwd));
 }
 
-/**
- * Longest-existing-prefix realpath: resolves symlinks on the part of `p` that
- * exists on disk (e.g. macOS /var -> /private/var) and re-appends any trailing
- * segments that do not exist yet. Falls back to the input verbatim when nothing
- * resolves. Used to symlink-normalize BOTH the anchor and an absolute cwd before
- * relativizing, so a symlinked workspace root does not produce a spurious '..'.
- */
-function canonicalizeExisting(p: string): string {
-  let current = p;
-  const tail: string[] = [];
-  // Bounded by path depth; dirname() reaches a fixed point at the filesystem root.
-  for (;;) {
-    try {
-      const real = realpathSync(current);
-      return tail.length ? join(real, ...tail.reverse()) : real;
-    } catch {
-      const parent = dirname(current);
-      if (parent === current) return p;
-      tail.push(basename(current));
-      current = parent;
-    }
-  }
-}
 
 /**
  * Portable LOGICAL cwd for the command-spec digest, anchored at the STORY'S OWN
@@ -505,8 +481,8 @@ function repoRelativeLogicalCwd(projectRoot: string, cwd?: string): string {
   // or an unchanged `alias -> actual` symlink cwd would mismatch its own
   // receipt forever, while an alias re-pointed since the receipt was written
   // still mismatches, as it must. The result stays root-relative and portable.
-  const anchor = canonicalizeExisting(projectRoot);
-  const target = canonicalizeExisting(cwd ? (isAbsolute(cwd) ? cwd : resolve(projectRoot, cwd)) : projectRoot);
+  const anchor = canonicalizeExistingPath(projectRoot);
+  const target = canonicalizeExistingPath(launchDirectoryOf(projectRoot, cwd));
   const rel = portablePath(relative(anchor, target));
   return rel === '' ? '.' : rel;
 }

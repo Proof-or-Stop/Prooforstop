@@ -18,7 +18,7 @@ import {
 import { StoryStore } from './store.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import { defaultAuditWriter, evaluateDirtyGate, type EvaluateDirtyGateResult } from './dirty-gate-policy.js';
-import { canonicalizeExistingPath, currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand } from './build-artifacts-identity.js';
+import { canonicalizeExistingPath, currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand, launchDirectoryOf } from './build-artifacts-identity.js';
 import { BUILD_ONLY_PROTECTION_LABEL, REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied, artifactProtectionStale, hasAnyArtifactRoot, resolveArtifactWriteProtection, weakestProtectionLabel, type ArtifactWriteProtection } from './build-artifacts-protection.js';
 import {
   canonicalizeEntries,
@@ -333,8 +333,7 @@ function resolvePlanGitCwd(projectRoot: string): string {
 }
 
 function commandCwd(projectRoot: string, cwd?: string): string {
-  if (!cwd) return projectRoot;
-  return isAbsolute(cwd) ? cwd : resolve(projectRoot, cwd);
+  return launchDirectoryOf(projectRoot, cwd);
 }
 
 function trimOutput(output: string, retainFailureTail: boolean): string {

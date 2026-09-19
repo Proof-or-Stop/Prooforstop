@@ -16,7 +16,7 @@ import { VALIDATION_SOURCE_PROVENANCE_SCHEMA } from './runtime-fact-registry.js'
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, posix, resolve } from 'node:path';
-import { canonicalizeExistingPath } from './build-artifacts-identity.js';
+import { canonicalizeExistingPath, launchDirectoryOf } from './build-artifacts-identity.js';
 import ts from 'typescript';
 import { PROOF_OR_STOP_CONFIG_FILENAME } from './brand-paths.js';
 import { pickProjectConfigPath } from './config.js';
@@ -957,7 +957,7 @@ function isTrustedAncestor(sourceHead: string, currentHead: string, gitCwd = pro
  */
 export function canonicalEntryCwd(entry: Pick<ValidationCatalogEntry, 'cwd'>, ctx: Pick<DynamicValidationContext, 'projectRoot' | 'gitCwd'>): string {
   const projectRoot = ctx.projectRoot || ctx.gitCwd || process.cwd();
-  return canonicalizeExistingPath(resolve(projectRoot, entry.cwd || '.'));
+  return canonicalizeExistingPath(launchDirectoryOf(projectRoot, entry.cwd || undefined));
 }
 
 /** Bind declared values to the same ambient/overlay normalization as execution: the effective environment (PWD included) of the canonical directory. */

@@ -736,6 +736,22 @@ if (hostEnforced) {
   check(evaluateDoneRequiredEvidence({ projectRoot: aliased.root, storyId: aliased.storyId, store: aliased.store, gitCwd: aliased.root }).ok === true, 'control: pointing the alias back at actual restores the PASS');
 }
 
+// Audit #38 (2), DONE-required: the writer launches, receipts and evaluates a
+// `..`-after-symlink cwd at the kernel destination.
+if (hostEnforced) {
+  const dotdot = doneRequiredFixture('done-required-dotdot-cwd', [{ label: 'dotdot', command: 'node', args: ['validate.js'], cwd: 'alias/../checks' }], (root) => {
+    mkdirSync(join(root, 'checks')); writeFileSync(join(root, 'checks', 'validate.js'), 'process.exit(1);\n');
+    mkdirSync(join(root, 'elsewhere', 'tree'), { recursive: true }); mkdirSync(join(root, 'elsewhere', 'checks'));
+    writeFileSync(join(root, 'elsewhere', 'checks', 'validate.js'), 'process.exit(0);\n');
+    symlinkSync('elsewhere/tree', join(root, 'alias'), 'dir');
+  });
+  const dotdotRun = await runDoneRequiredValidation({ projectRoot: dotdot.root, storyId: dotdot.storyId, store: dotdot.store, gitCwd: dotdot.root });
+  expectRepaired(dotdotRun.status === 'PASS' && dotdotRun.receipts?.[0]?.cwd === join(realpathSync(dotdot.root), 'elsewhere', 'checks'),
+    `the DONE-required writer launched or receipted a \`..\`-after-symlink cwd at the lexical destination (status=${dotdotRun.status}, cwd=${dotdotRun.receipts?.[0]?.cwd}, reasons=${dotdotRun.reasons.join(', ')})`);
+  const dotdotEvaluation = evaluateDoneRequiredEvidence({ projectRoot: dotdot.root, storyId: dotdot.storyId, store: dotdot.store, gitCwd: dotdot.root });
+  expectRepaired(dotdotEvaluation.ok === true, `the DONE-required evaluation refuses its own receipt for a \`..\`-after-symlink cwd (reasons=${dotdotEvaluation.reasons.join(', ')})`);
+}
+
 if (hostEnforced) {
 try {
   const f = doneRequiredFixture('done-required', [{ label: 'pass', command: 'node', args: ['-e', 'process.exit(0)'] }]);
@@ -933,8 +949,15 @@ try {
       // Exercised on any host through the resolver's platform seam with a
       // wrapper that exits 7 whatever it is asked to run.
       {
+        // Audit #38 (1): only a native wrapper is trusted, so every fixture
+        // wrapper that must reach the self-test is a compiled program.
+        const nativeExitWrapper = (directory, status) => {
+          writeFileSync(join(directory, 'wrapper.c'), `int main(void) { return ${status}; }\n`);
+          const compiled = spawnSync('cc', ['-std=c11', '-o', join(directory, 'bwrap'), join(directory, 'wrapper.c')], { encoding: 'utf8' });
+          check(compiled.status === 0, `control: a native exit-${status} fixture wrapper must compile (${compiled.stderr})`);
+        };
         const brokenDir = join(sandbox, 'broken-wrapper'); mkdirSync(brokenDir, { recursive: true });
-        writeFileSync(join(brokenDir, 'bwrap'), '#!/bin/sh\nexit 7\n', { mode: 0o755 });
+        nativeExitWrapper(brokenDir, 7);
         // Audit #24 (1): a wrapper this user could replace (it sits in a
         // directory this user can write) is refused before any probe runs,
         // wherever PATH found it; the self-test is reached only through the
@@ -970,7 +993,7 @@ try {
         // never earns enforcement: every probe must leave the execution
         // witness that only a probe the wrapper really ran can leave.
         const exit3Dir = join(sandbox, 'exit3-wrapper'); mkdirSync(exit3Dir, { recursive: true });
-        writeFileSync(join(exit3Dir, 'bwrap'), '#!/bin/sh\nexit 3\n', { mode: 0o755 });
+        nativeExitWrapper(exit3Dir, 3);
         const exit3 = binding.resolveArtifactWriteProtection(h.root, { platform: 'linux', searchPath: exit3Dir, cwd: sandbox, unsafeTrustReplaceableWrapperForFixture: true });
         expectRepaired(exit3.enforced === false && exit3.label.includes('left no execution witness (exit 3)'),
           `a wrapper that only exits 3 was accepted as enforcing (${exit3.label})`);
@@ -991,26 +1014,41 @@ try {
         // resolution reports itself stale, refuses to launch through the
         // replacement, and a fresh resolution refuses the replacement too.
         if (process.platform === 'darwin' && hostEnforced && typeof binding.sandboxExecProfile === 'function') {
+          // Audit #38 (1): only a NATIVE wrapper is trusted, so the fixture
+          // wrapper is a compiled program: it records the environment it was
+          // launched with (the LD_PRELOAD witness), applies `--setenv` the way
+          // bwrap does and execs sandbox-exec with the profile for h.root.
           const delegatingDir = join(sandbox, 'delegating-wrapper'); mkdirSync(delegatingDir, { recursive: true });
           const deniedRoots = ['packages/main/dist', 'packages/utils/dist'].map((relative) => join(realpathSync(h.root), relative));
-          const delegatingProfile = binding.sandboxExecProfile(deniedRoots).replace(/'/g, "'\\''");
-          // The fixture also records the environment IT was launched with and
-          // honours `--setenv` the way bwrap does (inside the sandbox), so the
-          // audit #25 case below can observe both sides of the partition.
           const wrapperEnvWitness = join(delegatingDir, 'wrapper-env-witness');
-          // `export "$2=$3"` keeps values with spaces intact: every variable is
-          // re-applied through --setenv now, not just the loader's.
-          writeFileSync(join(delegatingDir, 'bwrap'), `#!/bin/sh\nprintf '%s' "\${LD_PRELOAD-unset}" > '${wrapperEnvWitness}'\nwhile [ "$1" != "--" ]; do if [ "$1" = "--setenv" ]; then export "$2=$3"; shift 3; else shift; fi; done; shift\nexec /usr/bin/sandbox-exec -p '${delegatingProfile}' "$@"\n`, { mode: 0o755 });
+          const profilePath = join(delegatingDir, 'profile.sb'); writeFileSync(profilePath, binding.sandboxExecProfile(deniedRoots));
+          const nativeWrapperSource = [
+            '#include <stdio.h>', '#include <stdlib.h>', '#include <string.h>', '#include <unistd.h>',
+            'int main(int argc, char **argv) {',
+            '  FILE *witness = fopen(WITNESS_PATH, "w"); if (witness) { const char *preload = getenv("LD_PRELOAD"); fputs(preload ? preload : "unset", witness); fclose(witness); }',
+            '  int i = 1; while (i < argc && strcmp(argv[i], "--") != 0) { if (strcmp(argv[i], "--setenv") == 0 && i + 2 < argc) { setenv(argv[i + 1], argv[i + 2], 1); i += 3; } else { i++; } }',
+            '  if (i >= argc) return 125;',
+            '  FILE *profileFile = fopen(PROFILE_PATH, "r"); if (!profileFile) return 126;',
+            '  static char profile[65536]; size_t length = fread(profile, 1, sizeof(profile) - 1, profileFile); profile[length] = 0; fclose(profileFile);',
+            '  char **inner = argv + i + 1; int count = argc - i - 1;',
+            '  char **exec = calloc((size_t)count + 4, sizeof(char *)); if (!exec) return 126;',
+            '  exec[0] = "sandbox-exec"; exec[1] = "-p"; exec[2] = profile; for (int k = 0; k < count; k++) exec[3 + k] = inner[k];',
+            '  execv("/usr/bin/sandbox-exec", exec); perror("execv"); return 127;',
+            '}', '',
+          ].join('\n');
+          writeFileSync(join(delegatingDir, 'bwrap.c'), nativeWrapperSource);
+          const compileWrapper = (directory) => spawnSync('cc', ['-std=c11', '-Wall', '-Werror', '-o', join(directory, 'bwrap'), join(delegatingDir, 'bwrap.c'), `-DWITNESS_PATH="${wrapperEnvWitness}"`, `-DPROFILE_PATH="${profilePath}"`], { encoding: 'utf8' });
+          const compiled = compileWrapper(delegatingDir);
+          check(compiled.status === 0, `control: the native fixture wrapper must compile (${compiled.stderr})`);
           const seam = { platform: 'linux', searchPath: delegatingDir, cwd: sandbox, unsafeTrustReplaceableWrapperForFixture: true };
           const bound = binding.resolveArtifactWriteProtection(h.root, seam);
-          check(bound.enforced === true && bound.label === 'enforced:bwrap', `control: a fixture wrapper that really denies the writes must earn enforcement (${bound.label})`);
+          check(bound.enforced === true && bound.label === 'enforced:bwrap', `control: a native fixture wrapper that really denies the writes must earn enforcement (${bound.label})`);
+          expectRepaired(Array.isArray(bound.interpreters) && bound.interpreters.length === 0, `a native wrapper carries an interpreter chain (${JSON.stringify(bound.interpreters)})`);
           // Audit #25 (1): the wrapper process is launched WITHOUT the
           // variables the dynamic loader honours; they reach only the command
           // inside the sandbox (`--setenv`, placed before `--`). Observed on
           // both sides: the wrapper saw LD_PRELOAD unset, the command saw it.
           const preloadLaunch = bound.wrap({ command: process.execPath, args: ['-e', "process.stdout.write('inner=' + process.env.LD_PRELOAD)"], shell: false, env: { ...process.env, LD_PRELOAD: '/fixture/preload.so' } });
-          // Every withheld variable is re-applied as its own `--setenv NAME VALUE`
-          // triple before `--`; LD_PRELOAD is one of them.
           const preloadSetenvAt = preloadLaunch.args.findIndex((argument, index) => argument === '--setenv' && preloadLaunch.args[index + 1] === 'LD_PRELOAD');
           expectRepaired(preloadSetenvAt >= 0 && preloadLaunch.args[preloadSetenvAt + 2] === '/fixture/preload.so' && preloadLaunch.args.indexOf('--') > preloadSetenvAt,
             `LD_PRELOAD was not re-applied inside the bwrap namespace (${JSON.stringify(preloadLaunch.args.filter((argument, index) => preloadLaunch.args[index - 1] === '--setenv'))})`);
@@ -1019,10 +1057,17 @@ try {
           const preloadRun = spawnSync(preloadLaunch.command, preloadLaunch.args, { encoding: 'utf8', env: preloadLaunch.env, timeout: 20_000 });
           expectRepaired(preloadRun.status === 0 && preloadRun.stdout === 'inner=/fixture/preload.so' && readFileSync(wrapperEnvWitness, 'utf8') === 'unset',
             `the wrapper saw LD_PRELOAD=${readFileSync(wrapperEnvWitness, 'utf8')} while the command saw ${JSON.stringify(preloadRun.stdout)} (exit ${preloadRun.status})`);
+          // Audit #24 (1): the wrapper that passed the self-test is bound by
+          // identity and re-verified before every launch. Replaced by a native
+          // program that only exits 3, the resolution reports itself stale,
+          // refuses to launch through the replacement, and a fresh resolution
+          // refuses the replacement for leaving no witness.
           expectRepaired(bound.wrapper && bound.wrapper.path === realpathSync(join(delegatingDir, 'bwrap')) && /^[a-f0-9]{64}$/.test(bound.wrapper.digest) && typeof bound.verify === 'function' && bound.verify() === undefined,
             'an enforcing resolution does not bind the wrapper executable by identity');
           check(binding.artifactProtectionStale(bound, { buildRanSinceResolve: false, anyRootExists: true }) === false, 'control: the resolution holds while the wrapper is unchanged');
-          writeFileSync(join(delegatingDir, 'bwrap'), '#!/bin/sh\nexit 3\n', { mode: 0o755 });
+          writeFileSync(join(delegatingDir, 'exit3.c'), 'int main(void) { return 3; }\n');
+          const compiledExit3 = spawnSync('cc', ['-std=c11', '-o', join(delegatingDir, 'bwrap'), join(delegatingDir, 'exit3.c')], { encoding: 'utf8' });
+          check(compiledExit3.status === 0, `control: the exit-3 replacement must compile (${compiledExit3.stderr})`);
           expectRepaired(typeof bound.verify() === 'string' && bound.verify().includes('changed since it was self-tested'),
             `replacing the wrapper between launches was not detected (${bound.verify()})`);
           expectRepaired(binding.artifactProtectionStale(bound, { buildRanSinceResolve: false, anyRootExists: true }) === true,
@@ -1034,29 +1079,41 @@ try {
           const rebound = binding.resolveArtifactWriteProtection(h.root, seam);
           expectRepaired(rebound.enforced === false && rebound.label.includes('left no execution witness'),
             `re-resolving against the replacement accepted its exit status as enforcement (${rebound.label})`);
-          // Audit #33 (1): a script wrapper is bound through its interpreter
-          // chain, an interpreter resolved through PATH cannot be bound, and
-          // an interpreter's startup hooks never reach the wrapper process. A
-          // Node-based bwrap shim (shebang naming node by absolute path) that
-          // really enforces earns enforcement with node bound as its
-          // interpreter; a command-specific NODE_OPTIONS hook then runs only
-          // inside the sandbox, in the command, where its dist write is denied.
-          expectRepaired(Array.isArray(bound.interpreters) && bound.interpreters.length === 1 && bound.interpreters[0].path === realpathSync('/bin/sh') && /^[a-f0-9]{64}$/.test(bound.interpreters[0].digest),
-            `the shell shim's interpreter chain is not bound (${JSON.stringify(bound.interpreters)})`);
+          // Audit #33 / #38 (1): an interpreted wrapper is never trusted. An
+          // interpreter reads startup files the LAUNCH chooses before the
+          // wrapper's own code runs — zsh reads $HOME/.zshenv — so a launch
+          // supplying such a HOME would return the interpreter's clean exit
+          // without ever running the command; binding bytes cannot bound that.
           if (typeof binding.wrapperInterpreterChain === 'function') {
             const envShimDir = join(sandbox, 'env-shim'); mkdirSync(envShimDir, { recursive: true });
             writeFileSync(join(envShimDir, 'bwrap'), '#!/usr/bin/env node\nprocess.exit(3)\n', { mode: 0o755 });
             const envShim = binding.resolveArtifactWriteProtection(h.root, { ...seam, searchPath: envShimDir });
             expectRepaired(envShim.enforced === false && envShim.label.includes('resolves its interpreter through PATH'), `a wrapper whose interpreter is resolved through PATH was not refused (${envShim.label})`);
             check(Array.isArray(binding.wrapperInterpreterChain('/usr/bin/sandbox-exec')) && binding.wrapperInterpreterChain('/usr/bin/sandbox-exec').length === 0, 'control: a native executable has an empty interpreter chain');
+            const zshShimDir = join(sandbox, 'zsh-shim'); mkdirSync(zshShimDir, { recursive: true });
+            writeFileSync(join(zshShimDir, 'bwrap'), `#!/bin/zsh\nwhile [[ "$1" != "--" ]]; do if [[ "$1" == "--setenv" ]]; then export "$2=$3"; shift 3; else shift; fi; done; shift\nexec /usr/bin/sandbox-exec -p "$(cat ${JSON.stringify(profilePath)})" "$@"\n`, { mode: 0o755 });
+            // Control: zsh really does run $HOME/.zshenv before the script body,
+            // so a launch-chosen HOME decides whether the wrapper runs at all.
+            const hijackHome = join(zshShimDir, 'home'); mkdirSync(hijackHome); writeFileSync(join(hijackHome, '.zshenv'), 'exit 0\n');
+            const hijacked = spawnSync(join(zshShimDir, 'bwrap'), ['--', process.execPath, '-e', 'process.exit(7)'], { encoding: 'utf8', env: { ...process.env, HOME: hijackHome }, timeout: 20_000 });
+            check(hijacked.status === 0, `control: a HOME whose .zshenv exits 0 pre-empts a zsh wrapper entirely (exit ${hijacked.status}, ${(hijacked.stderr || '').slice(0, 80)})`);
+            const zshShim = binding.resolveArtifactWriteProtection(h.root, { ...seam, searchPath: zshShimDir });
+            expectRepaired(zshShim.enforced === false && zshShim.label.includes('interpreted script') && zshShim.label.includes('/bin/zsh'), `a zsh wrapper was trusted although its startup file is chosen by the launch (${zshShim.label})`);
+            const shShimDir = join(sandbox, 'sh-shim'); mkdirSync(shShimDir, { recursive: true });
+            writeFileSync(join(shShimDir, 'bwrap'), `#!/bin/sh\nwhile [ "$1" != "--" ]; do if [ "$1" = "--setenv" ]; then export "$2=$3"; shift 3; else shift; fi; done; shift\nexec /usr/bin/sandbox-exec -p "$(cat ${JSON.stringify(profilePath)})" "$@"\n`, { mode: 0o755 });
+            const shShim = binding.resolveArtifactWriteProtection(h.root, { ...seam, searchPath: shShimDir });
+            expectRepaired(shShim.enforced === false && shShim.label.includes('interpreted script'), `a shell wrapper that really enforces was trusted although it is interpreted (${shShim.label})`);
+            const nodeShimDir = join(sandbox, 'node-shim'); mkdirSync(nodeShimDir, { recursive: true });
+            writeFileSync(join(nodeShimDir, 'bwrap'), `#!${realpathSync(process.execPath)}\nprocess.exit(3)\n`, { mode: 0o755 });
+            const nodeShim = binding.resolveArtifactWriteProtection(h.root, { ...seam, searchPath: nodeShimDir });
+            expectRepaired(nodeShim.enforced === false && nodeShim.label.includes('interpreted script'), `a Node-based wrapper was trusted although it is interpreted (${nodeShim.label})`);
           } else {
             expectRepaired(false, 'core/build-artifacts-protection exports no wrapperInterpreterChain');
           }
           // Audit #35 (1): the path a `#!` line DECLARES is resolved one
           // component at a time; every symbolic link on the way is recorded
-          // and judged by its own entry, the resolution is re-checked before
-          // every launch, and an alias re-pointed after the self-test makes
-          // the resolution stale and the launch refused.
+          // and judged by its own entry (the interpreted wrapper itself is
+          // refused, and the refusal names the declared interpreter).
           if (typeof binding.resolvePathRecordingLinks === 'function' && typeof binding.interpreterResolutionDrift === 'function') {
             const aliasShimDir = join(sandbox, 'alias-interpreter-shim'); mkdirSync(aliasShimDir, { recursive: true });
             const interpreterAlias = join(aliasShimDir, 'interp'); symlinkSync('/bin/sh', interpreterAlias);
@@ -1065,23 +1122,17 @@ try {
               `resolving a declared interpreter path did not record the alias it crossed (${JSON.stringify(aliasResolution)})`);
             const aliasEntry = binding.wrapperReplaceableBy(interpreterAlias);
             expectRepaired(typeof aliasEntry === 'string' && aliasEntry.includes('owned by this user'), `a user-owned symbolic-link entry on an interpreter path was judged unreplaceable (${aliasEntry})`);
-            writeFileSync(join(aliasShimDir, 'bwrap'), `#!${interpreterAlias}\nwhile [ "$1" != "--" ]; do if [ "$1" = "--setenv" ]; then export "$2=$3"; shift 3; else shift; fi; done; shift\nexec /usr/bin/sandbox-exec -p '${delegatingProfile}' "$@"\n`, { mode: 0o755 });
+            writeFileSync(join(aliasShimDir, 'bwrap'), `#!${interpreterAlias}\nexit 3\n`, { mode: 0o755 });
             const aliasChain = binding.wrapperInterpreterChain(join(aliasShimDir, 'bwrap'));
             expectRepaired(Array.isArray(aliasChain) && aliasChain.length === 1 && aliasChain[0].declared === interpreterAlias && aliasChain[0].canonical === realpathSync('/bin/sh') && aliasChain[0].links.length >= 1,
               `the interpreter chain does not keep the declared path and its links (${JSON.stringify(aliasChain)})`);
             const viaAlias = binding.resolveArtifactWriteProtection(h.root, { ...seam, searchPath: aliasShimDir });
-            check(viaAlias.enforced === true && viaAlias.label === 'enforced:bwrap' && viaAlias.interpreters?.[0]?.path === realpathSync('/bin/sh'), `control: under the fixture seam a shim whose interpreter alias points at /bin/sh earns enforcement (${viaAlias.label})`);
-            check(viaAlias.verify() === undefined, 'control: the alias resolution verifies while unchanged');
+            expectRepaired(viaAlias.enforced === false && viaAlias.label.includes('interpreted script') && viaAlias.label.includes(interpreterAlias), `a shim whose interpreter is an alias was trusted (${viaAlias.label})`);
             writeFileSync(join(aliasShimDir, 'fake-sh'), '#!/bin/sh\nexit 3\n', { mode: 0o755 });
+            const boundInterpreter = { declared: interpreterAlias, links: aliasChain[0].links, canonical: aliasChain[0].canonical };
+            check(binding.interpreterResolutionDrift(boundInterpreter) === undefined, 'control: an unchanged alias resolution shows no drift');
             rmSync(interpreterAlias); symlinkSync(join(aliasShimDir, 'fake-sh'), interpreterAlias);
-            const aliasDrift = viaAlias.verify();
-            expectRepaired(typeof aliasDrift === 'string' && aliasDrift.includes('now resolves to'), `re-pointing the interpreter alias after the self-test was not detected (${aliasDrift})`);
-            expectRepaired(binding.artifactProtectionStale(viaAlias, { buildRanSinceResolve: false, anyRootExists: true }) === true, 'a resolution whose interpreter alias was re-pointed was not reported stale');
-            let aliasLaunch = null; let aliasRefusal = null;
-            try { aliasLaunch = viaAlias.wrap({ command: process.execPath, args: ['-e', 'process.exit(0)'], shell: false, env: process.env }); } catch (error) { aliasRefusal = error; }
-            expectRepaired(aliasLaunch === null && aliasRefusal && String(aliasRefusal.message).includes('[artifact_protection_wrapper_drift]'), 'a launch was handed to a wrapper whose interpreter alias had been re-pointed');
-            rmSync(interpreterAlias); symlinkSync('/bin/sh', interpreterAlias);
-            check(viaAlias.verify() === undefined, 'control: pointing the alias back restores the resolution');
+            expectRepaired(typeof binding.interpreterResolutionDrift(boundInterpreter) === 'string' && binding.interpreterResolutionDrift(boundInterpreter).includes('now resolves to'), 're-pointing an interpreter alias is not reported as resolution drift');
           } else {
             expectRepaired(false, 'core/build-artifacts-protection exports no resolvePathRecordingLinks / interpreterResolutionDrift');
           }
@@ -1093,9 +1144,6 @@ try {
           {
             mkdirSync(join(sandbox, 'dotdot-interpreter'));
             const dotDir = realpathSync(join(sandbox, 'dotdot-interpreter')); mkdirSync(join(dotDir, 'trusted'), { recursive: true }); mkdirSync(join(dotDir, 'user', 'tree'), { recursive: true });
-            // A COPY of /bin/sh is a platform binary macOS refuses to run from
-            // elsewhere (killed by signal); a link to it is executed through
-            // the user path, which is what the kernel resolution must reach.
             symlinkSync('/bin/sh', join(dotDir, 'user', 'sh')); writeFileSync(join(dotDir, 'trusted', 'sh'), '#!/bin/sh\nexit 9\n', { mode: 0o755 });
             symlinkSync(join(dotDir, 'user', 'tree'), join(dotDir, 'trusted', 'alias'));
             const declaredInterpreter = `${dotDir}/trusted/alias/../sh`;
@@ -1128,23 +1176,6 @@ try {
           } else {
             expectRepaired(false, 'core/build-artifacts-protection exports no firstMissingProtectedAncestor');
           }
-          const nodeShimDir = join(sandbox, 'node-shim'); mkdirSync(nodeShimDir, { recursive: true });
-          const nodeBin = realpathSync(process.execPath);
-          writeFileSync(join(nodeShimDir, 'bwrap'), `#!${nodeBin}\nconst { spawnSync } = require('node:child_process');\nconst args = process.argv.slice(2); const env = { ...process.env }; let i = 0;\nwhile (i < args.length && args[i] !== '--') { if (args[i] === '--setenv') { env[args[i + 1]] = args[i + 2]; i += 3; } else i++; }\nconst r = spawnSync('/usr/bin/sandbox-exec', ['-p', ${JSON.stringify(binding.sandboxExecProfile(deniedRoots))}, ...args.slice(i + 1)], { stdio: 'inherit', env });\nprocess.exit(r.status ?? 1);\n`, { mode: 0o755 });
-          const nodeShim = binding.resolveArtifactWriteProtection(h.root, { ...seam, searchPath: nodeShimDir });
-          check(nodeShim.enforced === true && nodeShim.label === 'enforced:bwrap', `control: a Node-based shim that really denies the writes must earn enforcement (${nodeShim.label})`);
-          expectRepaired(Array.isArray(nodeShim.interpreters) && nodeShim.interpreters.length === 1 && nodeShim.interpreters[0].path === nodeBin, `the Node shim's interpreter is not bound (${JSON.stringify(nodeShim.interpreters)})`);
-          const hookLog = join(nodeShimDir, 'hook.log'); const hookFile = join(nodeShimDir, 'hook.js');
-          const distTarget = join(h.root, 'packages/main/dist/tasks/x.js');
-          writeFileSync(hookFile, `const fs = require('node:fs'); fs.appendFileSync(${JSON.stringify(hookLog)}, 'hook argv=' + process.argv.join(' ') + '\\n'); try { fs.writeFileSync(${JSON.stringify(distTarget)}, 'process.exit(1); // rewritten by the startup hook\\n'); fs.appendFileSync(${JSON.stringify(hookLog)}, 'dist-written\\n'); } catch (error) { fs.appendFileSync(${JSON.stringify(hookLog)}, 'dist-denied:' + error.code + '\\n'); }\n`);
-          const hooked = nodeShim.wrap({ command: process.execPath, args: ['-e', "process.stdout.write('inner ' + process.env.NODE_OPTIONS)"], shell: false, env: { ...process.env, NODE_OPTIONS: `--require ${hookFile}` } });
-          expectRepaired(Object.keys(hooked.env).every((key) => binding.isWrapperEnvironmentVariable(key)) && !('NODE_OPTIONS' in hooked.env) && hooked.args.includes('--setenv') && hooked.args[hooked.args.indexOf('NODE_OPTIONS') + 1] === `--require ${hookFile}`,
-            `NODE_OPTIONS reached the wrapper process or was not re-applied inside (env keys ${Object.keys(hooked.env).join(',')})`);
-          const distBefore = readFileSync(distTarget, 'utf8');
-          const hookedRun = spawnSync(hooked.command, hooked.args, { encoding: 'utf8', env: hooked.env, timeout: 20_000 });
-          const hookLines = existsSync(hookLog) ? readFileSync(hookLog, 'utf8').trim().split('\n') : [];
-          expectRepaired(hookedRun.status === 0 && (hookedRun.stdout ?? '').includes(`inner --require ${hookFile}`) && hookLines.filter((line) => line.startsWith('hook argv=')).length === 1 && !hookLines.some((line) => line.includes(join(nodeShimDir, 'bwrap'))) && hookLines.includes('dist-denied:EPERM') && readFileSync(distTarget, 'utf8') === distBefore,
-            `a NODE_OPTIONS startup hook ran outside enforcement or rewrote dist (status=${hookedRun.status}, stdout=${JSON.stringify((hookedRun.stdout ?? '').slice(0, 80))}, log=${hookLines.join(' | ')}, dist ${readFileSync(distTarget, 'utf8') === distBefore ? 'intact' : 'REWRITTEN'})`);
         }
         // Audit #25 (1): the partition itself, pure: every LD_* / DYLD_* name
         // and glibc's unsecure list is withheld from the wrapper and re-applied
@@ -1918,6 +1949,24 @@ if (hostEnforced) {
       const sharedSource7 = readFileSync(join(repoRoot, 'packages/main/src/core/shared-validation-execution.ts'), 'utf8');
       expectRepaired(sharedSource7.includes('launchCwd:normalized.cwd,'), 'a cache-served result carries no launch directory, so no receipt could ever be issued for it (source-text guard)');
       rmSync(waveLink); rmSync(waveA, { recursive: true, force: true }); rmSync(waveB, { recursive: true, force: true }); rmSync(join(root, 'retarget-wave-link.js'), { force: true }); rmSync(join(root, 'wave-where.js'), { force: true });
+    }
+    // Audit #38 (2): an absolute cwd is resolved as the KERNEL resolves it —
+    // `..` after a symbolic link steps out of the link's target — so the
+    // command runs, and is recorded, where a launch with that cwd actually
+    // lands. Distinct validators sit at the lexical and the kernel-resolved
+    // destinations: the kernel-resolved one must be the one that runs.
+    if (hostEnforced) {
+      const canonicalRoot = realpathSync(root);
+      mkdirSync(join(canonicalRoot, 'checks')); writeFileSync(join(canonicalRoot, 'checks', 'validate.js'), 'process.stdout.write("lexical destination"); process.exit(1);\n');
+      mkdirSync(join(canonicalRoot, 'elsewhere', 'tree'), { recursive: true }); mkdirSync(join(canonicalRoot, 'elsewhere', 'checks'));
+      writeFileSync(join(canonicalRoot, 'elsewhere', 'checks', 'validate.js'), 'process.stdout.write("kernel destination"); process.exit(0);\n');
+      symlinkSync(join(canonicalRoot, 'elsewhere', 'tree'), join(canonicalRoot, 'alias'));
+      const dotDotCwd = `${canonicalRoot}/alias/../checks`;
+      check(binding.canonicalizeExistingPath(dotDotCwd) === join(canonicalRoot, 'elsewhere', 'checks'), `control: the canonical walker reaches the kernel destination (${binding.canonicalizeExistingPath(dotDotCwd)})`);
+      const dotDotRun = await run([{ label: 'dotdot cwd', command: 'node', args: ['validate.js'], cwd: dotDotCwd, timeoutMs: 20_000 }]);
+      expectRepaired(dotDotRun.allPass === true && (dotDotRun.commands[0]?.output ?? '').includes('kernel destination') && dotDotRun.commands[0]?.launchCwd === join(canonicalRoot, 'elsewhere', 'checks'),
+        `a cwd with \`..\` after a symbolic link was launched or recorded at the lexical destination (allPass=${dotDotRun.allPass}, launchCwd=${dotDotRun.commands[0]?.launchCwd}, ${(dotDotRun.commands[0]?.output ?? '').slice(0, 60)})`);
+      rmSync(join(canonicalRoot, 'alias')); rmSync(join(canonicalRoot, 'checks'), { recursive: true, force: true }); rmSync(join(canonicalRoot, 'elsewhere'), { recursive: true, force: true });
     }
     // Linux only, where LD_PRELOAD is honoured: a preload library whose
     // constructor rewrites dist and exits 0 before the declared command runs.

@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { artifactProtectionSatisfied } from './build-artifacts-protection.js';
-import { canonicalizeExistingPath } from './build-artifacts-identity.js';
+import { canonicalizeExistingPath, launchDirectoryOf } from './build-artifacts-identity.js';
 import { existsSync, readFileSync } from 'node:fs';
 import { delimiter, isAbsolute, join, posix, resolve, win32 } from 'node:path';
 import { classifyMergeLineage } from './validation-lineage.js';
@@ -119,9 +119,7 @@ export function resolveValidationCommandCwd(
   projectRoot: string,
   command: Pick<ValidationCommand, 'cwd'>,
 ): string {
-  return command.cwd
-    ? (isAbsolute(command.cwd) ? command.cwd : resolve(projectRoot, command.cwd))
-    : projectRoot;
+  return launchDirectoryOf(projectRoot, command.cwd);
 }
 
 /**

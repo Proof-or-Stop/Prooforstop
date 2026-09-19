@@ -41,14 +41,13 @@ import { BUILD_ARTIFACT_ROOTS, projectHasArtifactContract } from './build-artifa
  * `RUBYOPT`, `BASH_ENV`, `JAVA_TOOL_OPTIONS`, …) and `PATH` itself — is
  * withheld from it and re-applied only inside the established sandbox, so a
  * launch environment cannot run code ahead of the mechanism
- * (partitionLaunchEnvironment). A wrapper that is a script is bound through
- * its complete interpreter chain (wrapperInterpreterChain): the path each
- * `#!` line DECLARES is resolved one component at a time, every symbolic
- * link met on the way is recorded (its own entry and its target) and judged
- * replaceable like a wrapper, the canonical interpreter is identity-bound,
- * and before every launch the declared path is resolved again and must yield
- * the same links and the same executable; an interpreter resolved through
- * PATH (`#!/usr/bin/env node`) cannot be bound and is refused. What this does not cover: the
+ * (partitionLaunchEnvironment). Only a NATIVE wrapper is trusted: a script
+ * wrapper's interpreter reads startup files the launch chooses (zsh reads
+ * `$HOME/.zshenv`) before the wrapper's own code runs, which no binding of
+ * the wrapper's or the interpreter's bytes can bound, so an interpreted
+ * wrapper is refused (wrapperInterpreterChain still reads the `#!` chain,
+ * resolving each declared path in filesystem order and recording every link,
+ * so the refusal names exactly what would have run). What this does not cover: the
  * dynamically linked libraries of the wrapper and its interpreters, which are
  * assumed to belong to the same root-owned domain as the executables and are
  * not enumerated here.
@@ -485,6 +484,14 @@ function trustWrapper(name: Mechanism['name'], path: string, trust: WrapperTrust
   if (refusal) return refusal;
   const chain = wrapperInterpreterChain(path);
   if (typeof chain === 'string') return `${name} wrapper ${path}: ${chain}`;
+  // Only a NATIVE executable is trusted. An interpreter runs startup files
+  // before the wrapper's own code (zsh reads $HOME/.zshenv, bash $BASH_ENV,
+  // …), and those inputs come from the launch, not from anything bound
+  // here: a launch that supplies a HOME whose startup file exits 0 would
+  // never run the command yet return the wrapper's clean exit. Binding the
+  // interpreter's bytes cannot bound that, so an interpreted wrapper is
+  // refused outright; the chain is reported so the refusal names it.
+  if (chain.length > 0) return `${name} wrapper ${path} is an interpreted script (#!${chain[0].declared}); only a native executable is trusted, because an interpreter reads startup files chosen by the launch before the wrapper's own code runs`;
   try {
     const wrapper = readWrapperIdentity(path);
     const interpreters: TrustedInterpreter[] = [];
