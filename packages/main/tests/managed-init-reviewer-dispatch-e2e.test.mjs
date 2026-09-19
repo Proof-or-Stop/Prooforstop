@@ -9,7 +9,10 @@ const repository = fileURLToPath(new URL('../../..', import.meta.url));
 const cli = join(repository, 'packages/main/dist/cli.js');
 const { StoryStore } = await import('../dist/core/store.js');
 const { createHostRunHandlers } = await import('../dist/handlers/host-run.js');
-const { resolveQualifiedManagedReviewerSelection } = await import('../dist/core/host-run.js');
+const {
+  normalizeHostRunModelSelection,
+  resolveQualifiedManagedReviewerSelection,
+} = await import('../dist/core/host-run.js');
 const { runManagedHostRunWorker } = await import('../dist/core/managed-host-run.js');
 const { invalidInitReviewerDeliveries, missingRequiredInitCheckAgents, recomputeInitCheckHash } = await import('../dist/core/init-check-gate.js');
 
@@ -90,6 +93,26 @@ try {
     /managed reviewer model.*not qualified/i,
     'a managed INIT reviewer must not use an implementation-only model through the Codex host',
   );
+  await assert.rejects(
+    qualificationHandlers.host_run({
+      host: 'codex', model: 'deepseek-v4.1-flash', reasoningEffort: 'high', storyId,
+      reviewRunId: '00000000-0000-4000-8000-000000000001',
+      lane: 'proof-or-stop-review-quality', agentType: 'proof-or-stop-review-quality',
+      managedReview: true, detach: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
+    }),
+    /managed reviewer model.*not qualified/i,
+    'public managedReview must reject an unqualified Codex model before ReviewRun lookup',
+  );
+  await assert.rejects(
+    qualificationHandlers.host_run({
+      host: 'claude', model: 'fable', reasoningEffort: 'high', storyId,
+      reviewRunId: '00000000-0000-4000-8000-000000000002',
+      lane: 'proof-or-stop-review-quality', agentType: 'proof-or-stop-review-quality',
+      managedReview: true, detach: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
+    }),
+    /managed reviewer model.*not qualified/i,
+    'public managedReview must reject an unqualified Claude model before ReviewRun lookup',
+  );
   assert.throws(
     () => resolveQualifiedManagedReviewerSelection({ host: 'claude', model: 'fable', reasoningEffort: 'high' }),
     /managed reviewer model.*not qualified/i,
@@ -99,6 +122,41 @@ try {
     resolveQualifiedManagedReviewerSelection({ host: 'claude', model: null, reasoningEffort: null }),
     { model: 'opus', reasoningEffort: 'high' },
     'model-less formal Claude review must resolve Opus/high before immutable submission',
+  );
+  assert.throws(
+    () => resolveQualifiedManagedReviewerSelection({ host: 'codex', model: 'gpt-5.6-sol', reasoningEffort: 'medium' }),
+    /reasoningEffort.*not qualified/i,
+    'formal Codex review must reject sub-high reasoning effort',
+  );
+  assert.throws(
+    () => resolveQualifiedManagedReviewerSelection({ host: 'claude', model: 'opus', reasoningEffort: 'low' }),
+    /reasoningEffort.*not qualified/i,
+    'formal Claude review must reject sub-high reasoning effort',
+  );
+  assert.deepEqual(
+    resolveQualifiedManagedReviewerSelection({ host: 'codex', model: 'gpt-5.6-sol', reasoningEffort: 'ultra' }),
+    { model: 'gpt-5.6-sol', reasoningEffort: 'ultra' },
+    'formal Codex review may explicitly select ultra reasoning effort',
+  );
+  assert.throws(
+    () => resolveQualifiedManagedReviewerSelection({ host: 'claude', model: 'opus', reasoningEffort: 'ultra' }),
+    /reasoningEffort.*not qualified/i,
+    'formal Claude review must reject its unsupported ultra reasoning effort',
+  );
+  assert.deepEqual(
+    resolveQualifiedManagedReviewerSelection({ host: 'codex', model: 'gpt-6-astra', reasoningEffort: 'xhigh' }),
+    { model: 'gpt-6-astra', reasoningEffort: 'xhigh' },
+    'an explicitly available qualified Codex selector must remain unchanged',
+  );
+  assert.deepEqual(
+    normalizeHostRunModelSelection({ host: 'codex' }),
+    { model: null, reasoningEffort: null },
+    'ordinary selector-less managed runs must preserve provider-owned defaults',
+  );
+  assert.deepEqual(
+    resolveQualifiedManagedReviewerSelection({ host: 'grok', model: null, reasoningEffort: null }),
+    { model: null, reasoningEffort: null },
+    'Grok formal review must preserve its separately audited provider-owned selector contract',
   );
   const agentTypes = ['proof-or-stop-review-story-init', 'proof-or-stop-product-reviewer'];
   const results = await Promise.all(agentTypes.map(async agentType => {

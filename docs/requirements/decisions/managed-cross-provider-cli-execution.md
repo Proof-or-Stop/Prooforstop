@@ -185,6 +185,11 @@ ReviewPass/Finding flow. A cross-provider CLI reviewer uses a two-phase flow:
    in the GPT or Opus reviewer family at `high` or greater effort. This keeps
    a reviewer from silently inheriting the implementation agent's model. Grok
    remains governed by its separate managed-review-only adapter contract.
+   Qualification happens only at submission, before immutable spec creation;
+   import verifies exact sealed selector equality rather than re-deriving the
+   qualification policy. If a named default is unavailable, the operator starts
+   a fresh run and key with an explicitly available qualified selector. Existing
+   selector-less historical specs retain their exact compatibility semantics.
 3. The managed prompt requires the provider's final assistant result to be one
    bounded `lattice.managed_review_final_proposal.v1` JSON envelope with
    pass-or-findings and truthful read evidence. It cannot write final

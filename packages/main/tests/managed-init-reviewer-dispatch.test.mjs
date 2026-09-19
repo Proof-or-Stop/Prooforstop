@@ -7,6 +7,8 @@ const hostRun = readFileSync(`${root}/packages/main/src/handlers/host-run.ts`, '
 const catalog = readFileSync(`${root}/packages/main/src/cli/command-catalog.ts`, 'utf8');
 const machine = readFileSync(`${root}/packages/main/src/core/machine.ts`, 'utf8');
 const reviewerLaunchGuidance = readFileSync(`${root}/packages/main/src/core/reviewer-launch-guidance.ts`, 'utf8');
+const storyReview = readFileSync(`${root}/packages/main/src/handlers/story-review.ts`, 'utf8');
+const transitionEffects = readFileSync(`${root}/packages/main/src/handlers/transition-effects.ts`, 'utf8');
 const initCheck = readFileSync(`${root}/packages/main/src/handlers/init-check.ts`, 'utf8');
 const managedHostRun = readFileSync(`${root}/packages/main/src/core/managed-host-run.ts`, 'utf8');
 
@@ -36,8 +38,14 @@ assert.match(machine, /renderManagedInitReviewerDispatches\(storyId, missingAgen
   'INIT recovery guidance must use the shared controller-owned delivery renderer');
 assert.match(reviewerLaunchGuidance, /managedDispatch: true/,
   'the shared INIT reviewer renderer must use the controller-owned delivery path');
-assert.match(reviewerLaunchGuidance, /model: 'gpt-5\.6-sol'.*reasoningEffort: 'high'/s,
-  'managed INIT reviewer guidance must pin the qualified Codex reviewer default');
+assert.match(reviewerLaunchGuidance, /QUALIFIED_MANAGED_REVIEWER_DEFAULTS/,
+  'managed reviewer guidance must consume the controller qualification defaults');
+assert.match(reviewerLaunchGuidance, /renderQualifiedManagedCodexDispatchCommand/,
+  'managed reviewer guidance must use one shared qualified Codex command renderer');
+assert.match(storyReview, /renderQualifiedManagedCodexDispatchCommand\(args\.storyId, 'proof-or-stop-review-scope-plan'\)/,
+  'PLAN scope-review recovery must use the shared qualified managed dispatch command');
+assert.match(transitionEffects, /renderQualifiedManagedCodexDispatchCommand\(storyId, 'proof-or-stop-review-delivery'\)/,
+  'TEST delivery-review recovery must use the shared qualified managed dispatch command');
 assert.match(hostRun, /resolveQualifiedManagedReviewerSelection/,
   'formal managed dispatch must resolve and validate reviewer qualification before submission');
 assert.match(catalog, /reject unqualified model families/,

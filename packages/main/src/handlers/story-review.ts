@@ -47,6 +47,7 @@ import { reviewGateVerificationIntentIssue } from '../core/review-gate-verificat
 import {
   renderClaudeFreshReviewerHandoff,
   renderCodexFreshReviewerHandoff,
+  renderQualifiedManagedCodexDispatchCommand,
   REVIEWER_CHILD_ID_WAIT_BOUNDARY,
 } from '../core/reviewer-launch-guidance.js';
 
@@ -613,7 +614,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         issues.push({
           type: 'missing_scope_check',
           severity: 'blocker',
-          message: `missing_scope_check: scope-check.json is missing PLAN gate evidence. Preferred controller-owned path: \`proof-or-stop host_run '{"host":"codex","model":"gpt-5.6-sol","reasoningEffort":"high","storyId":"${args.storyId}","agentType":"proof-or-stop-review-scope-plan","managedDispatch":true,"detach":true,"json":true}'\`; this path derives the canonical dispatch prompt and cannot complete without an exact signed scope_check_save delivery. Native-host alternative: first run \`proof-or-stop dispatch --storyId=${args.storyId} --agentType=proof-or-stop-review-scope-plan\`. For Codex, launch exactly one child with \`${renderCodexFreshReviewerHandoff('review_scope_plan', '<the exact returned prompt>')}\`; for Claude, launch exactly one child with \`${renderClaudeFreshReviewerHandoff('proof-or-stop-review-scope-plan', '<the exact returned prompt>')}\`. ${REVIEWER_CHILD_ID_WAIT_BOUNDARY} The reviewer must execute the scope review directly and must not spawn or delegate another reviewer; dispatch output is not gate evidence, and the proof-or-stop-review-scope-plan / scope-plan reviewer must finish by calling \`proof-or-stop scope_check_save\`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion.`,
+          message: `missing_scope_check: scope-check.json is missing PLAN gate evidence. Preferred controller-owned path: \`${renderQualifiedManagedCodexDispatchCommand(args.storyId, 'proof-or-stop-review-scope-plan')}\`; this path derives the canonical dispatch prompt and cannot complete without an exact signed scope_check_save delivery. Native-host alternative: first run \`proof-or-stop dispatch --storyId=${args.storyId} --agentType=proof-or-stop-review-scope-plan\`. For Codex, launch exactly one child with \`${renderCodexFreshReviewerHandoff('review_scope_plan', '<the exact returned prompt>')}\`; for Claude, launch exactly one child with \`${renderClaudeFreshReviewerHandoff('proof-or-stop-review-scope-plan', '<the exact returned prompt>')}\`. ${REVIEWER_CHILD_ID_WAIT_BOUNDARY} The reviewer must execute the scope review directly and must not spawn or delegate another reviewer; dispatch output is not gate evidence, and the proof-or-stop-review-scope-plan / scope-plan reviewer must finish by calling \`proof-or-stop scope_check_save\`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion.`,
         });
       } else if (scopeData) {
         // Verify both legacy and read-manifest-bound signatures without relying on cwd.

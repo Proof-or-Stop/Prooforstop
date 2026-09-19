@@ -176,14 +176,25 @@ omitted selectors resolve to `gpt-5.6-sol` / `high` for Codex and
 must use a GPT-family Codex model or an Opus-family Claude model, with at least
 `high` reasoning effort. These effective values are normalized before submission,
 included in the idempotency input, sealed into the immutable spec and binding
-projection, copied into the result and terminal receipt, and checked again when
-the proposal is imported as REVIEW evidence. Codex receives `--model` plus
+projection, and copied into the result and terminal receipt. Qualification is
+enforced before immutable spec creation; import does not re-run model-family or
+effort qualification and instead verifies exact equality among the sealed spec,
+projection, result, and receipt. Codex receives `--model` plus
 `--config model_reasoning_effort=...`; Claude receives `--model` plus
 `--effort`. Claude accepts `low`, `medium`, `high`, `xhigh`, or `max`.
 These fields prove the exact selector placed on the protected provider argv;
 they do not claim that a provider-side alias resolved to a particular hidden
 model revision. Grok formal review uses its separately audited managed-review-only
 adapter and preserves that adapter's provider-owned model selection.
+
+The named defaults are controller policy, not a promise that every installed
+provider CLI exposes those aliases. If a default alias is unavailable, inspect
+the provider launch diagnostic and submit a fresh run with an explicitly
+available qualified GPT or Opus model and supported effort of at least `high`.
+Because resolved selectors are part of the idempotency input, a pre-upgrade
+selector-less formal run cannot be retried through the current handler with its
+old idempotency key: use a fresh key. Its already sealed historical spec remains
+readable and importable under the existing exact receipt compatibility checks.
 
 ### Reviewer launch
 
