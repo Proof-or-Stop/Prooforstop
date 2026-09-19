@@ -3171,7 +3171,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
-    "sha256": "56edd0ad74205f334bbbe7ec6a98e5431dd0fe2740fbc9e6586ad69c9f33f934"
+    "sha256": "51b368943464c6703e5f9b5bdf827cbfa12f2a4c8b4cf463bfbad4eeed2d5bc2"
   },
   {
     "path": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
