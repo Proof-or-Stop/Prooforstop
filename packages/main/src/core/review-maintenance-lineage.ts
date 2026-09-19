@@ -2,6 +2,7 @@ import {reportHealthIssue} from './health.js';
 import {isVerifiedEvidenceRefreshCommit, isOwnerLeaseHeartbeatOnly} from './review-evidence-refresh.js';
 /** Narrow writer/consumer compatibility for authenticated review bookkeeping. */
 import { execFileSync } from 'node:child_process';
+import { REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES } from './runtime-fact-registry.js';
 import { relative } from 'node:path';
 import { realpathSync } from 'node:fs';
 import { StoryStore } from './store.js';
@@ -19,7 +20,7 @@ export function isVerifiedReviewMaintenanceCommit(args: {
   gitCwd: string; metadataRoot: string; storyId: string; commit: string; reviewedHeadHash: string; reviewedMaterialHash?: string; reviewedStoryFilesHash?: string;
 }): boolean {
   const { gitCwd, metadataRoot, storyId, commit, reviewedHeadHash } = args;
-  const git = (argv: string[]) => execFileSync('git', argv, { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore','pipe','pipe'] }).trim();
+  const git = (argv: string[]) => execFileSync('git', argv, { cwd: gitCwd, encoding: 'utf8', maxBuffer: REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES, stdio: ['ignore','pipe','pipe'] }).trim();
   try {
     const store = new StoryStore(metadataRoot);
     const prefix = relative(realpathSync(gitCwd), realpathSync(store.storyDirPath(storyId))).replaceAll('\\','/') + '/';
@@ -120,7 +121,7 @@ export function isVerifiedReviewMaintenanceCommit(args: {
     const substantive = artifacts.filter(path => !incidental.has(path) && path !== CLOSEOUT_WRITE_RECEIPTS_PATH);
     if (!substantive.length) return false;
     const priorExists = (path: string) => Boolean(git(['ls-tree','--name-only',parents[0],'--',prefix + path]));
-    const rawAt = (ref: string, path: string) => execFileSync('git',['show',`${ref}:${prefix}${path}`], { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore','pipe','pipe'] });
+    const rawAt = (ref: string, path: string) => execFileSync('git',['show',`${ref}:${prefix}${path}`], { cwd: gitCwd, encoding: 'utf8', maxBuffer: REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES, stdio: ['ignore','pipe','pipe'] });
     const readReceipts = (ref: string): CloseoutWriteReceipt[] => rawAt(ref,CLOSEOUT_WRITE_RECEIPTS_PATH).split('\n').filter(Boolean).map(line => JSON.parse(line));
     const priorReceipts = priorExists(CLOSEOUT_WRITE_RECEIPTS_PATH) ? readReceipts(parents[0]) : [];
     const receipts = artifacts.includes(CLOSEOUT_WRITE_RECEIPTS_PATH) ? readReceipts(commit) : priorReceipts;
@@ -142,8 +143,21 @@ export function isVerifiedReviewMaintenanceCommit(args: {
         if (digestCanonicalJson(after.windows.slice(0,before.windows.length)) !== digestCanonicalJson(before.windows)
           || digestCanonicalJson(after.receipts.slice(0,before.receipts.length)) !== digestCanonicalJson(before.receipts)) return false;
         if (writer === 'certification_window_begin') {
-          if (after.windows.length !== before.windows.length + 1 || after.windows.at(-1)?.state !== 'ADMITTED') return false;
+          if (after.windows.length !== before.windows.length + 1) return false;
           const window = after.windows.at(-1)!;
+          if (window.state === 'BLOCKED') {
+            // A refused begin publishes diagnostics, not admission. Preserve the
+            // review lineage so its prescribed cheap-check retry can use the
+            // same finalized inventory. Never accept heavy authority here.
+            const diagnosticKeys = new Set(['schemaVersion', 'windowId', 'storyId', 'state',
+              'createdAt', 'updatedAt', 'blockerCode', 'blockerDetail', 'inventory', '_hash']);
+            if (Object.keys(window).some(key => !diagnosticKeys.has(key))
+              || !window.blockerCode?.trim() || !window.blockerDetail?.trim()
+              || after.receipts.slice(before.receipts.length).some(row => row.schemaVersion === PRECERT_RECEIPT_SCHEMA)
+              || substantive.some(path => path !== CERTIFICATION_WINDOW_FILE)) return false;
+            continue;
+          }
+          if (window.state !== 'ADMITTED') return false;
           const receipt = after.receipts.find(row => row.receiptId === window.receiptId);
           if (!receipt || receipt.schemaVersion !== PRECERT_RECEIPT_SCHEMA || receipt.windowId !== window.windowId
             || digestCanonicalJson(receipt.frozen) !== digestCanonicalJson(window.frozen)) return false;

@@ -26,6 +26,7 @@ import { currentMaterialHash, currentStoryFilesHash, EMPTY_STORY_FILES_HASH } fr
 import { DELIVERY_REVIEW_LANE, deliveryReviewInvocationId } from './delivery-review-authority.js';
 import { verifyNativeReviewEvidenceBinding } from './native-review-evidence.js';
 import { agentRoleIdsEqual } from './agent-role-identity.js';
+import { verifyManagedDispatchDelivery } from './managed-host-run.js';
 
 export const DELIVERY_CHECK_SALT = 'proof-or-stop-delivery-check-integrity-v1';
 
@@ -50,6 +51,7 @@ export function signDeliveryCheck(
   materialHash?: string,
   storyFilesHash?: string,
   nativeEvidenceBinding?: NativeReviewEvidenceBinding,
+  managedDeliveryRunId?: string,
 ): string {
   const payload = [
     storyId,
@@ -60,6 +62,7 @@ export function signDeliveryCheck(
     ...(materialHash ? [materialHash] : []),
     ...(storyFilesHash ? [storyFilesHash] : []),
     ...(nativeEvidenceBinding ? [JSON.stringify(nativeEvidenceBinding)] : []),
+    ...(managedDeliveryRunId ? [JSON.stringify({ managedDeliveryRunId })] : []),
     DELIVERY_CHECK_SALT,
   ].join(':');
   return createHash('sha256').update(payload).digest('hex');
@@ -81,6 +84,7 @@ export function recomputeDeliveryCheckHash(storyId: string, store: StoryStore): 
     data.materialHash,
     data.storyFilesHash,
     data.nativeEvidenceBinding,
+    data.managedDeliveryRunId,
   );
 }
 
@@ -182,6 +186,14 @@ export function evaluateDeliveryCheckFreshness(
       deliveryCheck,
       expectedHash,
     };
+  }
+
+  if (deliveryCheck.managedDeliveryRunId && (deliveryCheck.nativeEvidenceBinding
+    || !verifyManagedDispatchDelivery({ root: metadataRoot, storyId,
+      runId: deliveryCheck.managedDeliveryRunId, agentType: DELIVERY_REVIEW_LANE }).valid)) {
+    return { ok: false, code: 'delivery_check_tampered',
+      reason: 'delivery-check managed invocation or sealed terminal output is invalid',
+      deliveryCheck, expectedHash };
   }
 
   // New delivery checks carry the one-shot native broker evidence that

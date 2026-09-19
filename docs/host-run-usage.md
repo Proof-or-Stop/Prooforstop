@@ -169,7 +169,7 @@ non-zero exit (or a cap refusal) propagates as a non-zero process exit; in
 
 `host_run` also accepts optional `--model` and `--reasoningEffort` selectors.
 For an ordinary managed run, omitting either selector preserves the provider
-default and records `null`. Formal `--managedReview` and
+default and records `null`. Formal Codex/Claude `--managedReview` and
 `--managedDispatch` runs never inherit the ambient implementation-agent model:
 omitted selectors resolve to `gpt-5.6-sol` / `high` for Codex and
 `opus` / `high` for Claude before submission. Explicit formal selections
@@ -182,7 +182,8 @@ the proposal is imported as REVIEW evidence. Codex receives `--model` plus
 `--effort`. Claude accepts `low`, `medium`, `high`, `xhigh`, or `max`.
 These fields prove the exact selector placed on the protected provider argv;
 they do not claim that a provider-side alias resolved to a particular hidden
-model revision.
+model revision. Grok formal review uses its separately audited managed-review-only
+adapter and preserves that adapter's provider-owned model selection.
 
 ### Reviewer launch
 

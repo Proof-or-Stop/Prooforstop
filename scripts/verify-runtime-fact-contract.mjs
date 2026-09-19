@@ -97,6 +97,40 @@ async function main() {
   }
   try { prepareVerification(root, { shareBuild: true }); }
   catch (error) { throw new Error(verificationFailureMessage('runtime contract prerequisite', error)); }
+  const { MANAGED_REVIEW_READONLY_RUNTIME_POLICY: readonlyRuntime } = await importDist(root, 'packages/main/dist/core/runtime-fact-registry.js');
+  assert(readonlyRuntime.environmentKeys.includes('CLAUDE_CODE_TMPDIR'), 'Provider Bash temporary files must be mapped to the admitted private lane');
+  const { materializeHostRunLaunch: crossHostLaunch } = await importDist(root, 'packages/main/dist/core/host-run.js');
+  const crossHostArgs = {host:'codex',launchProfile:'cross_host_review_codex',cwd:root,root,promptText:'Runtime profile selection control only; no provider is launched.',env:{},storyId:null,agentType:'runtime-contract',recordedAt:new Date().toISOString(),projectRootHash:'fixture'};
+  const providerSandbox = args => { const launch=crossHostLaunch(args); return launch.argv[launch.argv.indexOf('-s')+1]; };
+  const {prepareManagedReadonlyLaunch: guardedCrossHostLaunch}=await importDist(root,'packages/main/dist/core/managed-review-readonly.js');
+  assert.throws(()=>guardedCrossHostLaunch({}, {command:process.execPath,argv:[],cwd:root}),
+    'A layout-shaped selection alone must not admit a provider launch');
+  assert(readonlyRuntime.crossHostProviderSandbox.unconfined === 'read-only'
+    && providerSandbox(crossHostArgs) === 'read-only', 'Unconfined cross-host review must retain the provider read-only sandbox');
+  // A layout-shaped input selects argv only. It grants no launch authority:
+  // the actual consumer below must still prepare and enforce the outer lane.
+  assert(readonlyRuntime.crossHostProviderSandbox.confined === 'danger-full-access'
+    && providerSandbox({...crossHostArgs,managedReadonlyLayout:{}}) === 'danger-full-access',
+    'Confined cross-host review must avoid a nested provider sandbox');
+  const hostRunSource=read(root,'packages/main/src/core/host-run.ts');
+  assert(hostRunSource.includes('MANAGED_REVIEW_READONLY_RUNTIME_POLICY.crossHostProviderSandbox.confined')
+    && hostRunSource.includes('MANAGED_REVIEW_READONLY_RUNTIME_POLICY.crossHostProviderSandbox.unconfined')
+    && hostRunSource.includes('prepareManagedReadonlyLaunch(args.managedReadonlyLayout, {command: launch.command, argv: launch.argv, cwd: args.cwd})')
+    && hostRunSource.indexOf('spawn = await runner({',hostRunSource.indexOf('const guardedLaunch =')) > hostRunSource.indexOf('prepareManagedReadonlyLaunch(args.managedReadonlyLayout'),
+    'Cross-host provider argv must remain behind the actual outer-lane consumer');
+
+  console.log('CROSSHOST_SANDBOX_RUNTIME_CONTRACT_GREEN');
+  const { REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES: historyBytes } = await importDist(root, 'packages/main/dist/core/runtime-fact-registry.js');
+  assert.equal(historyBytes, 64 * 1024 * 1024);
+  assert.equal((read(root, 'packages/main/src/core/review-maintenance-lineage.ts').match(/maxBuffer: REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES/g) ?? []).length, 2);
+  assert(read(root, 'scripts/verify-process-fact-contract.mjs').includes("['packages/main/tests/review-history-buffer.test.mjs']"));
+  const { MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY: deliveryRuntime } = await importDist(root, 'packages/main/dist/core/runtime-fact-registry.js');
+  assert.deepEqual({role:deliveryRuntime.role, phase:deliveryRuntime.phase, artifact:deliveryRuntime.artifact},
+    {role:'proof-or-stop-review-delivery', phase:'TEST', artifact:'delivery-check.json'});
+  // The process contract executes the actual provider/CLI regression once.
+  assert(read(root, 'scripts/verify-process-fact-contract.mjs')
+    .includes("['packages/main/tests/managed-delivery-dispatch.test.mjs']"));
+  console.log('MANAGED_DELIVERY_RUNTIME_CONTRACT_GREEN');
   const trackedBootstrap = execFileSync(process.execPath, [join(root, 'scripts/verify-tracked-controller-bootstrap.mjs')], { cwd: root, encoding: 'utf8', timeout: 270000 });
   check(trackedBootstrap.includes('TRACKED_CONFIG_BOOTSTRAP_GREEN'), 'Executed tracked controller bootstrap control');
   execFileSync(process.execPath, [join(root, 'scripts/verify-pending-performance-reconciliation.mjs')],
@@ -106,9 +140,9 @@ async function main() {
     { cwd: root, stdio: 'inherit', timeout: 60_000 });
   check(registrySource.includes('static-scanner-source-ast-reuse'), 'Static AST runtime fact is registered');
   // Outer 180s exceeds two 60s scanner arms plus setup and failure reporting.
-  for (const [test, marker] of [['verify-static-ast-reuse.mjs', 'STATIC_AST_REUSE_GREEN'], ['verify-static-ast-reuse-boundaries.mjs', 'STATIC_AST_REUSE_BOUNDARIES_GREEN']]) {
+  for (const [test, marker] of [['verify-static-ast-reuse.mjs', 'STATIC_AST_REUSE_GREEN'], ['verify-static-ast-reuse-boundaries.mjs', 'STATIC_AST_REUSE_BOUNDARIES_GREEN'], ['../packages/main/tests/validation-capacity-resource-keys.test.mjs', 'VALIDATION_CAPACITY_RESOURCE_KEYS_PASS']]) {
     const output = execFileSync(process.execPath, [join(root, 'scripts', test)], { cwd: root, encoding: 'utf8', timeout: 180_000 });
-    check(output.includes(marker), 'Executed static AST control: ' + test);
+    check(output.includes(marker), 'Executed runtime control: ' + test);
   }
   check(registrySource.includes('packages/main/src/core/runtime-package-version.ts')
     && read(root, 'packages/main/src/cli-engine.ts').includes('assertRuntimePackageVersion();'),
@@ -148,6 +182,7 @@ async function main() {
 
   check(registrySource.includes('VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS'), 'validation execution defaults must be registered');
   check(registrySource.includes('MANAGED_EXECUTION_IDENTITY_RUNTIME_POLICY') && read(root, 'packages/main/src/core/managed-execution-identity-key.ts').includes('policy.keyBytes') && read(root, 'packages/main/src/core/managed-execution-input-identity.ts').includes('policy.maxExecutableBytes'), 'execution identity IO bounds must be registered and consumed');
+  check(registrySource.includes('MANAGED_REVIEW_AUTH_RUNTIME_POLICY') && ['hosts','keychainExecutable','claudeKeychainService','keychainTimeoutMs','grokEnvironmentKey','grokSharedLeader','grokAutoUpdate','grokDisableAutoUpdater'].every(field => read(root, 'packages/main/src/core/managed-review-provider-state.ts').includes('authPolicy.'+field)), 'isolated reviewer authentication must consume the registered credential transport policy');
   check(registrySource.includes('MANAGED_PROVIDER_SEED_RUNTIME_POLICY') && read(root, 'packages/main/src/core/managed-review-provider-state.ts').includes('seedPolicy.encodedFileMultiplier') && read(root, 'packages/main/src/core/managed-review-provider-state.ts').includes('REVIEWER_BATCH_ADMISSION_ARTIFACT.seedFileSuffix'), 'private provider seed bounds and filenames must consume runtime registries');
   check(registrySource.includes('REVIEWER_BATCH_PRODUCER_RUNTIME_POLICY') && read(root, 'packages/main/src/core/reviewer-batch-producer.ts').includes('policy.versionTimeoutMs') && read(root, 'packages/main/src/core/reviewer-batch-producer.ts').includes('policy.readinessTimeoutMs') && read(root, 'packages/main/src/core/reviewer-batch-producer.ts').includes('artifact.seedDirectoryName'), 'batch producer probes and private storage consume registered runtime policies');
   const batchAdmission = read(root, 'packages/main/src/core/reviewer-batch-admission.ts');

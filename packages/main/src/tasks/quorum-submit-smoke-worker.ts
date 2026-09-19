@@ -726,8 +726,12 @@ function createOwnedTempBase(): { base: OwnedDirectory; removeBase: boolean } {
   } else {
     const tempParent = checkedDirectory(realpathSync(tmpdir()), 'quorum smoke ambient temp parent');
     // Refuse before mkdtemp: allocating and then deleting inside a worktree is
-    // already a protected write even if the final tree looks unchanged.
-    if (overlapsProtectedRoot(tempParent.path)) {
+    // already a protected write even if the final tree looks unchanged. A temp
+    // parent that merely CONTAINS a worktree (for example a managed review's
+    // worktree registered under the shared TMPDIR) is not refused: the fresh
+    // mkdtemp child below cannot be inside that sibling, and the created base is
+    // still checked against every protected root in both directions.
+    if (protectedRoots.some(root => containedBy(root, tempParent.path))) {
       throw new Error('quorum smoke ambient temp parent overlaps the repository or git common directory');
     }
     if (ambientTempParentIsInsideGitRepository(tempParent.path)) {
@@ -865,6 +869,14 @@ function authenticatedRuntimeTraceFragment(candidate: string, traceFile: string 
 }
 
 /**
+ * Fail-closed contract: every write observed inside a protected root is a mutation,
+ * including an append to a gitignored host activity log. A content-based exemption for
+ * such appends was implemented and withdrawn: comparing a file before and after cannot
+ * distinguish an append from a destructive rewrite followed by an append, so it could
+ * hide a real mutation. Host logging is instead kept out of the repository while a
+ * validation runs, by the host hook itself.
+ */
+/**
  * Observe the caller-selected protected roots for the complete worker window.
  * A before/after status check cannot detect write-then-restore or
  * create-then-delete behavior; the watcher makes either action a negative
@@ -929,7 +941,9 @@ export function createQuorumSmokeProtectedMutationGuard(
         exactFrameworkTracePaths.includes(candidate)
           || (exactFrameworkTracePaths.length > 0 && candidate === traceDirectory)
       )).sort();
-      const unownedPaths = [...paths].filter(candidate => !frameworkTracePaths.includes(candidate)).sort();
+      const unownedPaths = [...paths]
+        .filter(candidate => !frameworkTracePaths.includes(candidate))
+        .sort();
       const stateMatched = baselineDigest === finalDigest;
       return {
         clean: unownedPaths.length === 0 && errors.length === 0 && stateMatched,

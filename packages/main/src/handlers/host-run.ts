@@ -1,3 +1,4 @@
+import { MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY } from '../core/runtime-fact-registry.js';
 import { renderManagedRunDurationEstimate } from '../core/managed-run-duration-estimate.js';
 /**
  * B-70e9 CHK-001 / CHK-002 / CHK-007: the `host_run` CLI command.
@@ -240,8 +241,9 @@ function wantsJson(args: FormatArgs | undefined): boolean {
 function normalizeHost(raw: string): HostRunHost {
   const value = raw.trim().toLowerCase();
   if (value === 'codex') return 'codex';
+  if (value === 'grok') return 'grok';
   if (value === 'claude' || value === 'claude-code') return 'claude';
-  throw new Error(`host_run: unsupported host "${raw}" (expected codex | claude)`);
+  throw new Error(`host_run: unsupported host "${raw}" (expected codex | claude | grok)`);
 }
 
 function projectRootHashFor(root: string): string {
@@ -389,6 +391,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
   return {
     async host_run(args: HostRunCommandArgs): Promise<HostRunCommandResult | HostRunDetachResult | string> {
       const host = normalizeHost(normalizeString(args.host));
+      if (host === 'grok' && args.managedReview !== true) throw new Error('grok supports only --managedReview / acceptance_amendment_review');
       let selection = normalizeHostRunModelSelection({
         host,
         model: args.model,
@@ -465,11 +468,13 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         if (hasPrompt || hasPromptFile) {
           throw new Error('host_run: --managedDispatch derives the exact canonical prompt; do not pass --prompt or --promptFile');
         }
-        const managedDispatchPhase = agentType === 'proof-or-stop-review-scope-plan' ? 'PLAN' : 'INIT';
+        const managedDispatchPhase = agentType === MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role ? MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.phase
+          : agentType === 'proof-or-stop-review-scope-plan' ? 'PLAN' : 'INIT';
         if (!storyId || ![
           'proof-or-stop-review-story-init',
           'proof-or-stop-product-reviewer',
           'proof-or-stop-review-scope-plan',
+          MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role,
         ].includes(agentType)) {
           throw new Error('host_run: --managedDispatch requires storyId and a supported required reviewer agentType');
         }

@@ -2201,7 +2201,7 @@ export interface ManagedReviewEvidenceBinding {
   terminalDigest: string;
   importedAt: string;
   providerAgent: string;
-  providerHost: 'codex' | 'claude' | 'agy';
+  providerHost: 'codex' | 'claude' | 'grok' | 'agy';
   /** Exact model selector used by the managed provider; absent on historical evidence. */
   model?: string | null;
   /** Exact reasoning selector used by the managed provider; absent on historical evidence. */
@@ -3344,6 +3344,8 @@ export interface ClosingSelfCheck {
 
 export interface DeliveryCheckData {
   storyId: string;
+  /** Exact one-shot managed delivery invocation, sealed into its completed output. */
+  managedDeliveryRunId?: string;
   /** ISO 8601 write timestamp */
   checkedAt: string;
   /** Git HEAD at delivery review time, retained for audit/debug only. */

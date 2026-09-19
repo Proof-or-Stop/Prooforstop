@@ -2,7 +2,8 @@
  * Task B-4b22: Single-source-of-truth dirty gate policy table + evaluator
  *
  * One pure-data table maps every `DIRTY_WORKTREE_CATEGORIES` entry (defined in
- * dirty-worktree.ts, B-6326) to a `{ blocking, auditReason }` decision.
+ * dirty-worktree-categories.ts and re-exported by dirty-worktree.ts, B-6326)
+ * to a `{ blocking, auditReason }` decision.
  * `evaluateDirtyGate` consumes a typed classification + gate context and emits
  * an aggregate result (counts, audit events, single-line summary) consumed by
  * BOTH `core/done-oracle.ts` (the TEST pre-check + DONE gate `git-working-tree`
@@ -28,10 +29,10 @@
  */
 
 import { join } from 'path';
-import {
-  DIRTY_WORKTREE_CATEGORIES,
-  type DirtyWorktreeCategory,
-  type DirtyWorktreeClassification,
+import { DIRTY_WORKTREE_CATEGORIES } from './dirty-worktree-categories.js';
+import type {
+  DirtyWorktreeCategory,
+  DirtyWorktreeClassification,
 } from './dirty-worktree.js';
 import { appendProcessEventRecord } from './process-events.js';
 import { storyRuntimeLockPath } from './validation-execution-lock.js';

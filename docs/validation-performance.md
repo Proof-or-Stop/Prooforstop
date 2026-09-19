@@ -1,5 +1,12 @@
 # Production validation execution and repair entry
 
+Validation capacity preserves the literal keys of machine CPU, process,
+validation-barrier and fixed-port claims. Filesystem claims are resolved against
+the command working directory. Whole-invocation declarations and per-command
+stages use the same normalization after validating the original claims; malformed
+keys, access modes and ownership remain errors. This preserves existing machine
+admission identities and limits across worktrees.
+
 Official `validate` and `done_required_validate` retain independent acceptance,
 freshness, resource, owner and build-proof checks. These changes optimize the
 execution mechanisms; they do not turn Lab records into Story evidence.
@@ -1304,3 +1311,71 @@ cancellation. Finalize and cancel share a publication subject; admission still
 requires the latest signed FINALIZED epoch and its valid unconsumed receipt.
 The four-case version measured 76 seconds; the expanded six-case verifier has a
 bounded 240-second fixture budget for host contention. Production budgets are unchanged.
+
+### Retry after a refused certification begin
+
+A refused `certification_window_begin` may publish a signed BLOCKED diagnostic.
+Follow its fast-check remedy and retry begin with the same finalized inventory;
+do not recreate review merely because that official metadata commit changed HEAD.
+The shared strict lineage reader accepts an append-only BLOCKED diagnostic and
+valid cheap-check receipts carried by that diagnostic publication. Fast receipts
+still bind the exact current HEAD: after any later commit, run the fast check
+again before retrying admission. This change grants no new inventory continuity
+for a `validate` metadata commit. It rejects
+rewritten history, other Story or source paths, invalid signatures, inventory
+consumption and heavy-authority fields or receipts in a diagnostic publication.
+This preserves review only. Current inventory, cheap-check identity, coverage,
+findings, clean-tree and main checks still decide admission, and only the signed
+admitted window plus its PRE_CERT receipt authorizes heavy certification.
+
+`packages/main/tests/certification-recovery-lineage.test.mjs` exercises the actual
+refused handler publication and retry on a disposable Story branch with a frozen
+synthetic inventory cutoff, plus negative lineage and authority controls.
+
+Managed review supersession authenticates an unambiguous managed transport before classifying live freshness. Unbound and conflicting records retain their prior freshness, scope and retention ordering. An observed material-hash mismatch or changed head lineage follows the existing stale-run policy: a newer valid record on the same lane may supersede the old PASS, without promoting or deleting it. Unavailable identity and invalid managed seals remain blocking. Open findings still require their own disposition; a newer PASS cannot hide them. The focused `managed-review-evidence-smoke --supersession-regression` fixture exercises imported signed passes and an open finding, material movement, missing replacement, and terminal-byte tampering. Reviewers should retain historical records and inspect the current collector result rather than request duplicate reviews to replace already valid evidence.
+
+Authenticated resolved or dismissed managed findings with ordinary material or
+lineage drift follow the existing F-019 terminal-finding forgiveness rule without
+a newer lane replacement. For a latest-lane finding reaching this authentication
+path, invalid managed terminal seals remain blocking. The earlier non-latest
+`stale_run` handling is unchanged by this repair. The regression imports a real
+latest-lane managed finding, resolves it through `finding_resolve`,
+and checks material drift, terminal tampering and exact restoration.
+
+Dual-binding PASS controls deliberately assert `invalid_evidence_signature` for
+both fresh and stale runs. `verifyReviewPass` in `core/finding-verify.ts` explicitly
+returns false when both bindings are present before computing any digest, and
+`signReviewPass` rejects that input too. Thus a caller-computed outer hash cannot
+reach the later conflicting-authority branch through the real PASS collector.
+These controls prove that outer rejection, not execution of the downstream
+defense. The unchanged late guard ordering is checked by the process contract.
+
+## Canonical benchmark regression membership
+
+The serial reference and resource policy both include the benchmark framework
+hardening regression. The managed review final-schema regression retains its
+original command and membership. The canonical benchmark hardening npm alias
+uses `--prebuilt`: it verifies the current build binding before either child and
+refuses missing or stale output instead of rebuilding while peer tests read it.
+Direct invocation of the verifier without that option retains its build-first
+behavior. Both the hardening smoke and recovery scan remain required children.
+The registered full-suite smoke exercises real inventory mutations and a private
+prebuilt wrapper fixture covering stale/missing bindings, restoration, unknown
+options and propagation of a child failure. Those fixture markers are test
+observations, not benchmark scores or Story completion evidence.
+
+## Process-contract refusal ordering
+
+The process-contract verifier evaluates its actual Story-writer runtime admission
+contract and terminating failure barrier before the independent JSONL, review
+history, managed supersession, certification recovery and managed delivery
+fixtures. A positive run still executes every fixture with its original argv and
+deadline. This prevents the runtime-admission negative witness from paying for
+those unrelated positive fixtures before it can report the intended rejection.
+
+`verify-process-runtime-admission-order.mjs` requires exactly one retained call
+for each fixture after the real barrier and before the existing acceptance proof
+loop. Its subprocess observer forwards actual execution and observes all five
+fixtures and the three acceptance proofs; the mutated admission must reject
+with zero observed positive launches. No validation budget or production
+permission rule changes. This local regression is not benchmark scoring.

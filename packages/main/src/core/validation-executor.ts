@@ -1074,6 +1074,8 @@ export function formatValidationProgressEvent(event: ValidationProgressEvent): s
       return `validate progress: command ${index} started ${event.label}: ${commandText} timeoutMs=${event.timeoutMs}`;
     case 'heartbeat':
       return `validate heartbeat: command ${index} ${event.label} elapsedMs=${event.elapsedMs} timeoutMs=${event.timeoutMs}`;
+    case 'capacity_wait':
+      return `validate heartbeat: command ${index} ${event.label} waiting for machine validation capacity elapsedMs=${event.elapsedMs} timeoutMs=${event.timeoutMs}${event.waitDetail ? ` (${event.waitDetail})` : ''}`;
     case 'command_timeout':
       return `validate timeout: command ${index} ${event.label}: command=${event.command} args=${JSON.stringify(event.args)} timeoutMs=${event.timeoutMs} elapsedMs=${event.elapsedMs}`;
     case 'command_end':
@@ -1390,9 +1392,27 @@ async function runValidationCommandWithCompleteOutputUnscheduled(
   let enteredCapture = false;
   let completedCapture: CapturedValidationCommandResult | undefined;
   try {
+    // The machine queue is shared by every repository of this OS user. A wait
+    // behind another validation is activity, not silence: report it at the same
+    // heartbeat cadence as a running command so the CLI idle watchdog does not
+    // kill a healthy queued validation. The wait itself stays bounded by the
+    // queue deadline and this command's deadline, both unchanged.
+    const waitHeartbeatMs = options.heartbeatMs ?? resolveValidateHeartbeatMs();
+    const onWaitProgress = options.progress ? (detail: string) => {
+      emitValidationProgress(options.progress, {
+        ...validationProgressEvent('capacity_wait', command, {
+          commandIndex: options.commandIndex ?? 1,
+          totalCommands: options.totalCommands ?? 1,
+          timeoutMs: reportedTimeoutMs,
+          started,
+        }),
+        waitDetail: detail,
+      });
+    } : undefined;
     return await withMachineValidationResources({ root: projectRoot, workspaceRoot: projectRoot, command: command.label,
     resources: command.resources?.length ? command.resources : undefined, abortSignal: options.abortSignal, deadlineAt,
-      deadlineError: options.deadlineError }, () => {
+      deadlineError: options.deadlineError,
+      ...(onWaitProgress ? { onWaitProgress, progressIntervalMs: waitHeartbeatMs } : {}) }, () => {
         enteredCapture = true;
         // The capture receives the bounded deadline derived above, whose budget started before the
         // capacity wait, so a queue wait consumes the configured budget exactly as before delegation

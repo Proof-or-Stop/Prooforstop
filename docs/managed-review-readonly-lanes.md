@@ -6,6 +6,14 @@ It currently supports Darwin with the local `sandbox-exec` capability and the
 registered Proof-or-Stop project layout. Unsupported requested configurations
 fail before provider startup; projects without this opt-in keep their existing behavior.
 
+Cross-host Codex review inside a verified outer lane uses Codex's
+`danger-full-access` inner mode to avoid creating a nested Darwin sandbox. The
+outer `sandbox-exec` wrapper remains mandatory and still denies writes to review
+source and original Git state. A cross-host call without that outer layout keeps
+Codex's `read-only` mode. The worker verifies the sealed lane and snapshot before
+launch, and `runHostRun` prepares the outer wrapper before calling its runner;
+profile selection alone is not permission to execute without confinement.
+
 Tracked review source and original project/Git files remain read-only to the
 provider. A fresh managed review also creates a second detached worktree at the
 same HEAD and starts the provider there. Tests, formatters, and generators may
@@ -134,3 +142,42 @@ admission inspection writes no state and performs no probes.
 These checks establish local admission, isolation and launch behavior. Native
 fixture readiness is not evidence of a real external login, review PASS, or
 population-wide performance and reliability targets.
+
+## Managed delivery dispatch
+
+`host_run --host=codex --storyId=B-xxxx --agentType=proof-or-stop-review-delivery --managedDispatch`
+supports the required independent TEST delivery reviewer through the existing
+managed-dispatch transport. It derives the canonical prompt, accepts no caller
+verdict, and preserves the existing dispatch sandbox policy. This is distinct
+from the readonly managed REVIEW lanes described above.
+
+The reviewer calls `delivery_check_set` through its live one-shot controller
+invocation. The handler validates role, phase, payload and current dispatch
+bindings before consumption, then binds the managed run ID into the artifact.
+The worker rejects missing, invalid or unconsumed output and seals its exact
+bytes only on safe completion. DONE checks that completed receipt and output
+digest as well as normal delivery freshness and promise checks. Neither a raw
+agent name nor an exit-zero provider is sufficient. Native broker delivery
+remains unchanged; a managed report cannot also claim native provenance.
+Post-terminal replacement, including a waiver amendment, requires fresh review.
+`delivery_waiver_add` refuses managed reports before writing, preserving existing
+evidence. A new delivery review can replace the live report. Earlier run receipts
+remain readable and archivable; the DONE consumer still rejects any live report
+whose bytes differ from the referenced run's terminal seal.
+
+## Cross-host verdict transport
+
+Managed Codex execution retains JSONL events for telemetry. The cross-host verdict
+consumer accepts one schema-valid JSON object from the final `agent_message` in
+one completed turn, followed only by the CLI's `turn.completed` record. Earlier
+ordinary progress is not a verdict, and command output cannot supply one.
+Duplicate or conflicting verdicts, later assistant/tool activity, failed turns,
+unknown or malformed events, mixed raw/event streams and incomplete turns are
+rejected. Legacy plain-text extraction keeps its existing strict trailing-content
+checks. Process exit, cleanup, truncation and material-hash checks still apply;
+the stdout digest continues to bind the original stream rather than extracted
+text. A local cross-host result remains subject to its existing assurance limits.
+
+`node packages/main/tests/codex-review-jsonl.test.mjs` exercises synthetic protocol
+controls through the actual parser and review leaf. It does not create an
+independent provider credential.

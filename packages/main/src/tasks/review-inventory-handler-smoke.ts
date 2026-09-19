@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { collectReviewerEvidenceState } from '../core/review-run.js';
+import { collectReviewerEvidenceState, verifyReviewRun } from '../core/review-run.js';
 import { buildManagedReviewerPrompt, resolveManagedReviewerBasePrompt } from '../core/managed-review-evidence.js';
 import { runManagedBurnFixture } from './managed-burn-fixture.js';
 import { assessConvergenceProgressGate } from '../core/convergence-progress-gate.js';
@@ -9,7 +9,7 @@ import { nativeReviewFixtureBrokers, runBrokeredNativeReviewCli } from './native
 import { readConvergenceProgress, recordConvergenceProgress, acknowledgeConvergenceProgress } from '../core/convergence-progress-journal.js';
 import assert from 'node:assert/strict';
 import { execFile, execFileSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, mkdirSync, readFileSync, renameSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -50,7 +50,7 @@ import { computeFinalReviewRoster, projectFinalReviewRoster, renderFinalReviewRo
 import { readOwnerLease, releaseOwnerLease } from '../core/story-owner-lease.js';
 import { adapterSessionEnv, adapterSessionId } from './adapter-session-env.js';
 import { getSessionId } from '../core/owner-session.js';
-import { deriveReviewerBatchSubject } from '../core/reviewer-batch-subject.js';
+import { deriveReviewerBatchSubject, validateReviewerBatchAssignments } from '../core/reviewer-batch-subject.js';
 
 const storyId = 'B-inventory-handler';
 const reviewRound = '2020-01-01T00:00:00.000Z';
@@ -709,6 +709,285 @@ async function criticDiscoveryRecovery(): Promise<void> {
     /Completeness critic: complete/, 'F-002 exact own-finding disposition must be accepted');
     console.log('B29BC_CRITIC_OWN_FINDING_DISPOSITION PASS');
   } finally { rmSync(fixture.root, { recursive: true, force: true }); }
+}
+
+// Disposable real CLI regression: an unchanged-material metadata commit must
+// preserve a complete wave and admit the next wave's purpose-bound critic.
+async function criticMetadataHeadRecovery(receipt?: { path: string; nonce: string }): Promise<void> {
+  const fixture = setup(undefined, true);
+  const cwd = process.cwd();
+  const critic = 'proof-or-stop-review-topology-critic';
+  const reads = {
+    readManifest: { filesReadFully: ['packages/main/src/subject.ts'], filesTriagedByName: [], scanEscalationReason: null },
+    readEvents: [{ path: 'packages/main/src/subject.ts', mode: 'full', action: 'Read', tokenCount: 8 }],
+  };
+  try {
+    process.chdir(fixture.root);
+    cli(fixture.root, 'review_inventory_begin', { storyId, maxWaves: 2 });
+    const epoch = fixture.store.readReviewInventoryEpochs(storyId).epochs[0];
+    let findingId = '';
+    let negativeControls = 0;
+    for (const wave of [1, 2]) {
+      for (const [index, lane] of epoch.requiredLanes.entries()) {
+        const env = { PROOF_OR_STOP_AGENT: lane, PROOF_OR_STOP_SESSION_ID: `metadata-wave-${wave}-${lane}` };
+        cli(fixture.root, 'dispatch', { storyId, agentType: lane }, env);
+        const started = cli(fixture.root, 'review_run_start', { storyId, agent: lane }, env);
+        let reviewRunId = started.match(/Review run (\S+) started/)?.[1];
+        assert.ok(reviewRunId);
+        if (wave === 1 && index === 0) {
+          const out = await fixtureReviewCli(fixture, 'finding_add', {
+            storyId, agent: lane, reviewRunId, desc: 'Disposable verified family requires a second inventory wave.',
+            severity: 'medium', category: 'missing', evidenceState: 'verified',
+            files: ['packages/main/src/subject.ts'], ...reads,
+          });
+          findingId = out.match(/(B-inventory-handler:F-\d+)/)?.[1] ?? '';
+          assert.ok(findingId);
+        } else {
+          await fixtureReviewCli(fixture, 'review_pass_set', {
+            storyId, agent: lane, reviewRunId, note: 'Disposable lane completed the current signed wave.', ...reads,
+          });
+        }
+      }
+      const inventoryBefore = fixture.store.readReviewInventoryEpochs(storyId);
+      const passesBefore = fixture.store.readReviewPasses(storyId);
+      if (wave === 2) {
+        git(fixture.root, ['add', fixture.store.storyDirPath(storyId)]);
+        git(fixture.root, ['commit', '-m', 'publish unchanged-material review metadata']);
+        assert.notEqual(git(fixture.root, ['rev-parse', 'HEAD']), epoch.cutoff.headHash);
+      }
+      const env = { PROOF_OR_STOP_AGENT: critic, PROOF_OR_STOP_SESSION_ID: `metadata-wave-${wave}-critic` };
+      const purpose = { reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId };
+      cli(fixture.root, 'dispatch', { storyId, agentType: critic, ...purpose }, env);
+      const started = cli(fixture.root, 'review_run_start', { storyId, agent: critic, ...purpose }, env);
+      let reviewRunId = started.match(/Review run (\S+) started/)?.[1];
+      assert.ok(reviewRunId);
+      if (wave === 1) {
+        assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), epoch.cutoff.headHash);
+        assert.ok(deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic),
+          'EXACT_CUTOFF_HEAD_CRITIC_ADMISSION');
+      }
+      if (wave === 2) {
+        const run = fixture.store.readReviewRuns(storyId).runs.find(row => row.reviewRunId === reviewRunId)!;
+        assert.notEqual(run.headHash, epoch.cutoff.headHash);
+        const subject = deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId });
+        assert.ok(subject.requiredLanes.includes(critic),
+          'METADATA_HEAD_CRITIC_ADMISSION: valid wave-two critic survives a metadata-only HEAD change');
+        validateReviewerBatchAssignments(subject.requiredLanes,
+          subject.requiredLanes.map(lane => ({ lane, kind: 'managed', host: 'codex' })));
+        assert.deepEqual(fixture.store.readReviewInventoryEpochs(storyId), inventoryBefore);
+        assert.deepEqual(fixture.store.readReviewPasses(storyId), passesBefore);
+        git(fixture.root, ['commit', '--allow-empty', '-m', 'another metadata-only HEAD tick']);
+        assert.equal(deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).subjectIdentity, subject.subjectIdentity);
+        assert.throws(() => deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId, wave: 1 }), /BATCH_SUBJECT_REQUEST_MISMATCH/);
+        assert.throws(() => deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId, epochId: 'wrong-epoch' }), /BATCH_SUBJECT_REQUEST_MISMATCH/);
+        const validRuns = fixture.store.readReviewRuns(storyId);
+        for (const mutation of [
+          { _hash: 'tampered' }, { storyId: 'B-wrong-story' }, { reviewRound: 'wrong-round' },
+          { reviewPurpose: 'topology' }, { materialHash: 'wrong-material' }, { storyFilesHash: 'wrong-files' },
+          { inventoryBinding: { ...run.inventoryBinding, wave: 1 } },
+          { inventoryBinding: { ...run.inventoryBinding, epochId: 'wrong-epoch' } },
+        ]) {
+          try {
+            fixture.store.writeReviewRuns(storyId, { ...validRuns, runs: validRuns.runs.map(row =>
+              row.reviewRunId === reviewRunId ? { ...row, ...mutation } : row) } as typeof validRuns);
+            assert.ok(!deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic),
+              `invalid current critic cannot borrow prior-wave authority: ${JSON.stringify(mutation)}`);
+            negativeControls++;
+          } finally { fixture.store.writeReviewRuns(storyId, validRuns); }
+        }
+        const current = inventoryBefore.epochs.at(-1)!;
+        for (const mutation of [
+          { cutoff: { ...current.cutoff, materialHash: 'wrong-material' } },
+          { cutoff: { ...current.cutoff, storyFilesHash: 'wrong-files' } },
+          { scopeDigest: 'wrong-scope' }, { requiredLanes: [] },
+          { candidateSpecSetDigest: 'wrong-candidate' }, { corpusDigest: 'wrong-corpus' },
+        ]) {
+          const { _hash, ...unsigned } = { ...current, ...mutation };
+          try {
+            fixture.store.writeReviewInventoryEpochs(storyId, { ...inventoryBefore,
+              epochs: [{ ...unsigned, _hash: signReviewInventoryEpoch(unsigned) }] });
+            assert.throws(() => deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }),
+              /BATCH_SUBJECT_(CUTOFF_DRIFT|SCOPE_OR_ROSTER_DRIFT|CANDIDATE_DRIFT)/);
+            negativeControls++;
+          } finally { fixture.store.writeReviewInventoryEpochs(storyId, inventoryBefore); }
+        }
+        // A real signed run from a divergent equal tree must not borrow the
+        // cutoff's authority. All material/scope guards still match here.
+        const originalBranch = git(fixture.root, ['branch', '--show-current']);
+        const originalHead = git(fixture.root, ['rev-parse', 'HEAD']);
+        const divergentHead = git(fixture.root, ['commit-tree', `${originalHead}^{tree}`,
+          '-p', `${epoch.cutoff.headHash}^`, '-m', 'disposable divergent equal-tree witness']);
+        let divergentRuns = fixture.store.readReviewRuns(storyId);
+        try {
+          git(fixture.root, ['checkout', '--detach', divergentHead]);
+          cli(fixture.root, 'dispatch', { storyId, agentType: critic, ...purpose }, env);
+          const divergentStarted = cli(fixture.root, 'review_run_start', { storyId, agent: critic, ...purpose }, env);
+          const divergentId = divergentStarted.match(/Review run (\S+) started/)?.[1];
+          assert.ok(divergentId);
+          divergentRuns = fixture.store.readReviewRuns(storyId);
+          const divergent = divergentRuns.runs.find(row => row.reviewRunId === divergentId)!;
+          assert.equal(verifyReviewRun(divergent, fixture.store), true);
+          assert.equal(divergent.headHash, divergentHead);
+          assert.equal(divergent.materialHash, epoch.cutoff.materialHash);
+          assert.equal(divergent.storyFilesHash, epoch.cutoff.storyFilesHash);
+          assert.throws(() => git(fixture.root, ['merge-base', '--is-ancestor', epoch.cutoff.headHash, divergentHead]));
+          // Keep the prior valid same-wave critic: it must not rescue a divergent current workspace.
+          assert.ok(!deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic),
+            'DIVERGENT_EQUAL_TREE_CRITIC_REFUSED');
+          negativeControls++;
+        } finally {
+          fixture.store.writeReviewRuns(storyId, divergentRuns);
+          git(fixture.root, ['checkout', originalBranch]);
+        }
+        assert.ok(deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic),
+          'MIXED_RUNS_RETAIN_A_VALID_CRITIC_WITNESS_ON_VALID_CURRENT_HEAD');
+        const onlyDivergent = { ...divergentRuns, runs: divergentRuns.runs.filter(row =>
+          row.lane !== critic || row.headHash === divergentHead || row.inventoryBinding?.wave !== 2) };
+        try {
+          fixture.store.writeReviewRuns(storyId, onlyDivergent);
+          assert.ok(!deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic),
+            'DIVERGENT_RUN_ON_VALID_CURRENT_HEAD_REFUSED');
+          negativeControls++;
+          git(fixture.root, ['replace', '--graft', divergentHead, epoch.cutoff.headHash]);
+          try {
+            git(fixture.root, ['merge-base', '--is-ancestor', epoch.cutoff.headHash, divergentHead]);
+            assert.ok(!deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic),
+              'REPLACE_GRAFT_CANNOT_LAUNDER_CRITIC_LINEAGE');
+            negativeControls++;
+          } finally { git(fixture.root, ['replace', '-d', divergentHead]); }
+          const grafts = join(fixture.root, '.git', 'info', 'grafts');
+          assert.equal(existsSync(grafts), false);
+          writeFileSync(grafts, `${divergentHead} ${epoch.cutoff.headHash}\n`, { flag: 'wx' });
+          try {
+            git(fixture.root, ['merge-base', '--is-ancestor', epoch.cutoff.headHash, divergentHead]);
+            assert.ok(!deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic),
+              'LEGACY_GRAFT_CANNOT_LAUNDER_CRITIC_LINEAGE');
+            negativeControls++;
+          } finally { unlinkSync(grafts); }
+        } finally { fixture.store.writeReviewRuns(storyId, divergentRuns); }
+        // Real object loss, not a PATH shim: a pruned old run is a non-witness,
+        // and cannot hide a later valid candidate. Losing the cutoff itself is
+        // a different recovery condition, checked before ancestry traversal.
+        const objectBackup = mkdtempSync(join(tmpdir(), 'critic-pruned-object-'));
+        const removeObject = (oid: string, action: () => void) => {
+          const object = join(fixture.root, '.git', 'objects', oid.slice(0, 2), oid.slice(2));
+          const backup = join(objectBackup, oid);
+          assert.ok(existsSync(object), 'disposable commit must have its own loose object');
+          renameSync(object, backup);
+          try {
+            assert.throws(() => git(fixture.root, ['cat-file', '-e', `${oid}^{commit}`]));
+            action();
+          } finally { renameSync(backup, object); }
+        };
+        try {
+          removeObject(divergentHead, () => {
+            fixture.store.writeReviewRuns(storyId, onlyDivergent);
+            assert.doesNotThrow(() => {
+              const missing = deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId });
+              assert.ok(!missing.requiredLanes.includes(critic));
+              assert.deepEqual(missing.requiredLanes, epoch.requiredLanes);
+            }, 'ABSENT_CRITIC_RUN_IS_NON_WITNESS');
+            negativeControls++;
+            fixture.store.writeReviewRuns(storyId, { ...divergentRuns, runs: [
+              ...divergentRuns.runs.filter(row => row.headHash === divergentHead),
+              ...divergentRuns.runs.filter(row => row.headHash !== divergentHead),
+            ] });
+            assert.ok(deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic),
+              'ABSENT_EARLIER_RUN_DOES_NOT_HIDE_LATER_VALID_WITNESS');
+          });
+          fixture.store.writeReviewRuns(storyId, divergentRuns);
+          assert.ok(deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic));
+          removeObject(epoch.cutoff.headHash, () => {
+            assert.throws(() => deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }),
+              /BATCH_SUBJECT_CUTOFF_OBJECT_MISSING.*review_inventory_cancel.*review_inventory_begin/,
+              'MISSING_CUTOFF_HAS_ACTIONABLE_INVENTORY_RECOVERY');
+            negativeControls++;
+          });
+          assert.ok(deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic));
+        } finally {
+          fixture.store.writeReviewRuns(storyId, divergentRuns);
+          rmSync(objectBackup, { recursive: true, force: true });
+        }
+        // Force only the ancestry subprocess to fail; all snapshot commands keep
+        // using the real Git binary, proving failure is not a semantic rejection.
+        const shimRoot = mkdtempSync(join(tmpdir(), 'critic-git-query-'));
+        const realGit = execFileSync('which', ['git'], { encoding: 'utf8' }).trim();
+        const oldPath = process.env.PATH;
+        const oldGitDir = process.env.GIT_DIR;
+        const oldFailure = process.env.CRITIC_FIXTURE_GIT_FAILURE;
+        writeFileSync(join(shimRoot, 'git'), `#!${process.execPath}
+const {spawnSync}=require('node:child_process');
+const args=process.argv.slice(2);
+if(args[0]==='--no-replace-objects' && args[1]==='merge-base') {
+  if(process.env.CRITIC_FIXTURE_GIT_FAILURE==='error'){console.error('FIXTURE_GIT_IO_FAILURE');process.exit(128);}
+  if(process.env.CRITIC_FIXTURE_GIT_FAILURE==='timeout'){Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10000);}
+  if(process.env.GIT_DIR){console.error('FIXTURE_GIT_REDIRECTION_LEAK');process.exit(128);}
+}
+const r=spawnSync(${JSON.stringify(realGit)},args,{stdio:'inherit'});process.exit(r.status??2);
+`, { mode: 0o755 });
+        try {
+          process.env.PATH = `${shimRoot}:${oldPath ?? ''}`;
+          for (const failure of ['error', 'timeout']) {
+            process.env.CRITIC_FIXTURE_GIT_FAILURE = failure;
+            assert.throws(() => deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }),
+              error => error instanceof Error && /BATCH_SUBJECT_LINEAGE_UNVERIFIABLE/.test(error.message)
+                && /timeoutMs=5000/.test(error.message) && /elapsedMs=/.test(error.message)
+                && (failure === 'timeout' ? /ETIMEDOUT/.test(error.message) : /FIXTURE_GIT_IO_FAILURE/.test(error.message)),
+              `LINEAGE_INFRASTRUCTURE_FAILURE_IS_EXPLICIT:${failure}`);
+            negativeControls++;
+            delete process.env.CRITIC_FIXTURE_GIT_FAILURE;
+            assert.ok(deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic));
+          }
+          process.env.GIT_DIR = join(fixture.root, '.git');
+          assert.ok(deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic),
+            'ANCESTRY_QUERY_STRIPS_GIT_REDIRECTION');
+        } finally {
+          if (oldPath === undefined) delete process.env.PATH; else process.env.PATH = oldPath;
+          if (oldGitDir === undefined) delete process.env.GIT_DIR; else process.env.GIT_DIR = oldGitDir;
+          if (oldFailure === undefined) delete process.env.CRITIC_FIXTURE_GIT_FAILURE; else process.env.CRITIC_FIXTURE_GIT_FAILURE = oldFailure;
+          rmSync(shimRoot, { recursive: true, force: true });
+        }
+        cli(fixture.root, 'dispatch', { storyId, agentType: critic, ...purpose }, env);
+        const restored = cli(fixture.root, 'review_run_start', { storyId, agent: critic, ...purpose }, env);
+        reviewRunId = restored.match(/Review run (\S+) started/)?.[1];
+        assert.ok(reviewRunId);
+        assert.ok(deriveReviewerBatchSubject(fixture.store, fixture.root, { storyId }).requiredLanes.includes(critic));
+      }
+      await fixtureReviewCli(fixture, 'review_pass_set', {
+        storyId, agent: critic, reviewRunId, note: 'Disposable independent critic inspected the current complete wave.', ...reads,
+      });
+      cli(fixture.root, 'review_inventory_critic_set', {
+        storyId, epochId: epoch.epochId, reviewRunId, agent: critic,
+        findingDispositions: wave === 1 ? [{ findingId, disposition: 'verified_family', familyKey: `finding:${findingId}`,
+          reason: 'Retain the verified disposable first-wave family.' }] : [],
+      }, env);
+      if (wave === 1) assert.match(cli(fixture.root, 'review_inventory_wave_advance', { storyId }), /Current wave: 2\/2/);
+    }
+    assert.match(cli(fixture.root, 'review_inventory_finalize', { storyId }), /State: FINALIZED/);
+    const complete = fixture.store.readReviewInventoryEpochs(storyId);
+    assert.equal(complete.epochs[0].waves.length, 2);
+    assert.deepEqual(complete.epochs[0].cutoff, epoch.cutoff);
+    assert.equal(complete.criticReceipts.length, 2);
+    assert.equal(negativeControls, 22);
+    if (receipt) writeFileSync(receipt.path, JSON.stringify({
+      schemaVersion: 'inventory-critic-metadata-fixture.v1', nonce: receipt.nonce,
+      selector: 'METADATA_HEAD_CRITIC_ADMISSION_PASS', negativeControls,
+      waves: complete.epochs[0].waves.length, criticReceipts: complete.criticReceipts.length,
+      state: complete.epochs[0].state,
+    }), { flag: 'wx' });
+    console.log('METADATA_HEAD_CRITIC_ADMISSION_PASS both waves and exact signed cutoff preserved through finalization');
+  } finally {
+    process.chdir(cwd);
+    rmSync(fixture.root, { recursive: true, force: true });
+  }
+}
+if (process.argv.includes('--metadata-critic-admission-only')) {
+  const receiptIndex = process.argv.indexOf('--metadata-critic-receipt');
+  const nonceIndex = process.argv.indexOf('--metadata-critic-nonce');
+  assert.ok(receiptIndex > 0 && nonceIndex > 0 && process.argv[receiptIndex + 1] && process.argv[nonceIndex + 1],
+    'focused metadata regression requires its caller-owned receipt path and nonce');
+  await criticMetadataHeadRecovery({ path: process.argv[receiptIndex + 1]!, nonce: process.argv[nonceIndex + 1]! });
+  process.exit(0);
 }
 
 if (process.argv.includes('--discovery-only')) {

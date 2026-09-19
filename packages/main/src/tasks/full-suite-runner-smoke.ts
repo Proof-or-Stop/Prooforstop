@@ -97,7 +97,108 @@ function evaluateRealInventory(input: RealInventoryInput): { mainChain: string; 
   return { mainChain, composedChain, prefixMembers };
 }
 
+function assertBenchmarkPrebuiltGuard(): void {
+  const root = mkdtempSync(join(tmpdir(), 'benchmark-prebuilt-guard-'));
+  const source = join(root, 'packages/main/src/input.ts');
+  const binding = join(root, 'packages/main/dist/full-suite-build-binding.json');
+  const seen = join(root, 'observed.log');
+  try {
+    for (const directory of ['scripts', 'packages/main/src', 'packages/main/dist/tasks']) mkdirSync(join(root, directory), { recursive: true });
+    writeFileSync(source, 'export const input = true;\n');
+    writeFileSync(join(root, 'packages/main/package.json'), '{}\n');
+    writeFileSync(join(root, 'packages/main/tsconfig.json'), '{}\n');
+    for (const file of ['verify-benchmark-framework-hardening.mjs', 'full-suite-build-binding.mjs']) {
+      writeFileSync(join(root, 'scripts', file), readFileSync(join(process.cwd(), 'scripts', file)));
+    }
+    const smoke = join(root, 'packages/main/dist/tasks/benchmark-framework-hardening-smoke.js');
+    writeFileSync(smoke, `require('node:fs').appendFileSync(${JSON.stringify(seen)},'smoke\\n');`);
+    writeFileSync(join(root, 'scripts/verify-done-recovery-scan.mjs'), `import{appendFileSync}from'node:fs';appendFileSync(${JSON.stringify(seen)},'recovery\\n');`);
+    const bind = () => execFileSync(process.execPath, ['--input-type=module', '-e',
+      `import{writeBuildBinding}from${JSON.stringify(pathToFileURL(join(root, 'scripts/full-suite-build-binding.mjs')).href)};writeBuildBinding(${JSON.stringify(root)});`],
+    { cwd: root, timeout: 10000, stdio: 'pipe' });
+    const run = (args: string[], timeoutMs = 10000) => spawnSync(process.execPath, [join(root, 'scripts/verify-benchmark-framework-hardening.mjs'), ...args],
+      { cwd: root, encoding: 'utf8', timeout: timeoutMs, maxBuffer: 1024 * 1024 });
+    bind();
+    assert(run(['--prebuilt']).status === 0, 'prebuilt guard executes both fixture verification children');
+    const observed = readFileSync(seen, 'utf8');
+    assert(observed === 'smoke\nrecovery\n', 'both children execute exactly once');
+    writeFileSync(source, 'export const input = false;\n');
+    const stale = run(['--prebuilt']);
+    assert(stale.status !== 0 && !stale.signal, 'stale prebuilt input fails without a rebuild');
+    assert(readFileSync(seen, 'utf8') === observed, 'stale input starts neither verification child');
+    writeFileSync(source, 'export const input = true;\n');
+    assert(run(['--prebuilt']).status === 0, 'exact source restoration restores execution');
+    const restored = readFileSync(seen, 'utf8');
+    rmSync(binding);
+    assert(run(['--prebuilt']).status !== 0, 'missing build binding fails closed');
+    assert(readFileSync(seen, 'utf8') === restored, 'missing binding starts neither child');
+    bind();
+    assert(run(['--unknown']).status !== 0, 'unknown option fails closed');
+    assert(readFileSync(seen, 'utf8') === restored, 'unknown option starts neither child');
+    writeFileSync(smoke, 'process.exit(7);'); bind();
+    assert(run(['--prebuilt']).status === 7, 'actual child failure propagates with its exit code');
+    assert(readFileSync(seen, 'utf8') === restored, 'failed smoke prevents the recovery child');
+    writeFileSync(smoke, `require('node:fs').appendFileSync(${JSON.stringify(seen)},'smoke\\n');`);
+    writeFileSync(join(root, 'packages/main/package.json'), JSON.stringify({ scripts: { build: 'node ../../scripts/fixture-build.cjs' } }));
+    writeFileSync(join(root, 'scripts/fixture-build.cjs'), `require('node:fs').appendFileSync(${JSON.stringify(seen)},'build\\n');`);
+    const defaultRun = run([], 60000);
+    assert(defaultRun.signal === null, 'default fixture npm build must finish without a timeout signal');
+    assert(defaultRun.status === 0, 'direct default invocation retains its build-first path');
+    assert(readFileSync(seen, 'utf8') === restored + 'build\nsmoke\nrecovery\n',
+      'default mode executes its build command before both verification children');
+  } finally { rmSync(root, { recursive: true, force: true }); }
+}
+
+function assertBenchmarkSuiteRegistration(): void {
+  const pkg = JSON.parse(readFileSync(resolve(process.cwd(), 'package.json'), 'utf8')) as { scripts: Record<string, string> };
+  const policy = Object.fromEntries(FULL_SUITE_ENTRIES.map(item => [item.name, item]));
+  const chain = [pkg.scripts['test:serial-reference-prefix'], pkg.scripts['test:serial-reference']].join(' && ');
+  let entries: FullSuiteEntry[];
+  try { entries = entriesFromSerialReference(chain, pkg.scripts, policy); }
+  catch (error) { throw new Error(`BENCHMARK_SUITE_REGISTRATION_RED: ${error instanceof Error ? error.message : String(error)}`); }
+  validateInventory(entries, chain, pkg.scripts);
+  for (const name of ['test:benchmark-framework-hardening', 'test:managed-review-final-schema']) {
+    assert(entries.filter(row => row.name === name).length === 1, `exactly one registered ${name}`);
+    assert(typeof pkg.scripts[name] === 'string' && pkg.scripts[name].length > 0, `executable script retained for ${name}`);
+  }
+  const rejects = (action: () => unknown, fragment: string) => {
+    let reason = '';
+    try { action(); } catch (error) { reason = error instanceof Error ? error.message : String(error); }
+    assert(reason.includes(fragment), `registration mutation must fail with ${fragment}; observed ${reason}`);
+  };
+  assert(pkg.scripts['test:benchmark-framework-hardening'] === 'node scripts/verify-benchmark-framework-hardening.mjs --prebuilt',
+    'canonical benchmark hardening consumes verified prebuilt output without an in-suite rebuild');
+  assert(pkg.scripts['test:managed-review-final-schema'] === 'node packages/main/dist/tasks/managed-review-prompt-cwd-isolation-smoke.js',
+    'restored managed schema member executes its original reviewed regression');
+  const scriptTargetExists = (script: string): boolean => {
+    const words = script.trim().split(/\s+/);
+    if (words[0] !== 'node' || !words[1]) return false;
+    const target = resolve(process.cwd(), words[1]);
+    return existsSync(target) && lstatSync(target).isFile();
+  };
+  for (const name of ['test:benchmark-framework-hardening', 'test:managed-review-final-schema']) {
+    assert(scriptTargetExists(pkg.scripts[name]!), `restored ${name} target is an existing regular file`);
+    const scratchScripts = { ...pkg.scripts, [name]: 'node scripts/benchmark-registration-missing-target.mjs' };
+    assert(!existsSync(resolve(process.cwd(), 'scripts/benchmark-registration-missing-target.mjs')), 'negative target is absent');
+    assert(!scriptTargetExists(scratchScripts[name]!), `missing-target mutation rejects ${name}`);
+    assert(scriptTargetExists(pkg.scripts[name]!), `restoration retains the real ${name} target`);
+  }
+  const removedPolicy = { ...policy }; delete removedPolicy['test:benchmark-framework-hardening'];
+  rejects(() => entriesFromSerialReference(chain, pkg.scripts, removedPolicy), 'unknownPolicy=[test:benchmark-framework-hardening]');
+  const removedScript = { ...pkg.scripts }; delete removedScript['test:managed-review-final-schema'];
+  rejects(() => entriesFromSerialReference(chain, removedScript, policy), 'missingScripts=[test:managed-review-final-schema]');
+  const removedMember = chain.split(' && ').filter(step => step !== 'npm run test:managed-review-final-schema').join(' && ');
+  rejects(() => entriesFromSerialReference(removedMember, pkg.scripts, policy), 'stalePolicy=[test:managed-review-final-schema]');
+  rejects(() => entriesFromSerialReference(chain + ' && npm run test:benchmark-framework-hardening', pkg.scripts, policy), 'duplicate canonical members');
+  // Every negative uses copies; the unchanged actual inventory must still validate.
+  validateInventory(entriesFromSerialReference(chain, pkg.scripts, policy), chain, pkg.scripts);
+  assertBenchmarkPrebuiltGuard();
+  process.stdout.write('BENCHMARK_SUITE_REGISTRATION_PASS\n');
+}
+
 async function main(): Promise<void> {
+  assertBenchmarkSuiteRegistration();
+  if (process.argv.includes('--benchmark-registration')) return;
   const observations = {
     aliasCollisions: 0, failClosedThrows: 0, completedMembers: 0,
     schedulerIsolation: false, cancellationPolicies: { cancelOnFirstFailure: false, runAll: false },

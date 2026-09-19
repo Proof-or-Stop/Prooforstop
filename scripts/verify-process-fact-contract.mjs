@@ -5549,6 +5549,16 @@ if (failures.length) {
   process.exit(1);
 }
 
+// A rejected admission must not pay for these independent positive fixture checks.
+// Exercise the real verdict consumer, including raw-stream digest and refusal guards.
+execFileSync(process.execPath, ['packages/main/tests/codex-review-jsonl.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
+execFileSync(process.execPath, ['packages/main/tests/review-history-buffer.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
+// Match CLI module initialization before the actual sealed managed-review fixture.
+execFileSync(process.execPath, ['--import', './packages/main/dist/index.js', 'packages/main/dist/tasks/managed-review-evidence-smoke.js', '--supersession-regression'], { cwd: root, stdio: 'inherit', timeout: 120000 });
+execFileSync(process.execPath, ['packages/main/tests/certification-recovery-lineage.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 120000 });
+// Exercise managed delivery through an actual synthetic provider process and real CLI.
+execFileSync(process.execPath, ['packages/main/tests/managed-delivery-dispatch.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 180000 });
+
 // Real writer/coverage proofs use isolated fixtures; unavailable execution is never GREEN.
 for (const [file, marker, timeout] of [
   ['experiments/acceptance-closure/regression.mjs', 'ACCEPTANCE_CLOSURE_GREEN', 60000],
@@ -6047,6 +6057,15 @@ function processFactRegistryMap() {
   return new Map(parseProcessFactRegistry().map(entry => [entry.name, entry]));
 }
 
+assert(read(processFactRegistryPath).includes("name: 'runtime:changelog_history_compaction'"),
+  'The exact changelog compaction exception must remain registered');
+try {
+  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-changelog-compaction.mjs')], { cwd: root, encoding: 'utf8', timeout: 60000 });
+  assert(output.includes('CHANGELOG_COMPACTION_GREEN'), 'changelog compaction executable proof must pass');
+} catch (error) {
+  assert(false, verificationFailureMessage('changelog compaction', error));
+}
+
 function parseDonePreflightPredicateInventory(sourceText) {
   const body = extractExportedArrayBody(sourceText, 'DONE_PREFLIGHT_PREDICATE_INVENTORY');
   return parseTopLevelObjectBlocks(body, `${processFactRegistryPath} DONE_PREFLIGHT_PREDICATE_INVENTORY`)
@@ -6448,7 +6467,11 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
   // validation-lineage.ts classifier (used by both the reuse and admissibility copies).
   // The net-endpoint diff replaces the per-commit union, so rev-list is no longer used.
   const lineageText = read('packages/main/src/core/validation-lineage.ts');
-  for (const token of ['merge-base', '--is-ancestor', 'diff-tree', 'isStoryMetadataPath']) {
+  // Lab reuse-lineage-material-policy: lineage trust uses the same path policy as
+  // materialHash, so a material-excluded commit cannot force identical re-execution.
+  assert(!lineageText.includes('isStoryMetadataPath'),
+    'shared merge-lineage classifier must not narrow trust back to story metadata only (materialHash ignores more paths)');
+  for (const token of ['merge-base', '--is-ancestor', 'diff-tree', 'isMaterialExcludedPath']) {
     assert(lineageText.includes(token), `shared merge-lineage classifier contract missing ${token}`);
   }
   const validationEnvironmentText = read('packages/main/src/core/validation-command-environment.ts');
@@ -7349,9 +7372,20 @@ function assertDeliveryPromiseOutcomeContract(registry, levelRegistry) {
 function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   const subjectReader = read('packages/main/src/core/review-run.ts');
   const subjectOffset = subjectReader.indexOf('const inventorySubject = managedInventorySubjectState(store, run,');
-  const managedOffset = subjectReader.indexOf("if (authority.reviewGatePath === 'managed-receipt' && managedBinding)");
+  const managedOffset = subjectReader.indexOf("if (authority.reviewGatePath === 'managed-receipt' && managedBinding && !nativeBinding)");
   assert(subjectOffset >= 0 && managedOffset >= 0 && subjectOffset < managedOffset,
     'inventory subject classification must precede both execution authority paths');
+  const liveOffset = subjectReader.indexOf('const live = verifyManagedReviewLiveBinding({', subjectOffset);
+  assert(managedOffset >= 0 && liveOffset > managedOffset,
+    'managed transport authentication must precede supersedable live freshness classification');
+  assert(subjectReader.includes("code: classifyManagedLiveBindingFailure(live.reason, nativeBinding !== undefined)")
+    && subjectReader.includes("export function classifyManagedLiveBindingFailure(")
+    && subjectReader.includes("return knownDrift ? 'stale_run_hash' : 'managed_receipt_invalid'"),
+    'only recognized observable managed freshness drift is supersedable; unknown identity stays refused');
+  const retentionOffset = subjectReader.indexOf('const retention = evaluateReviewRunMetadataRetention');
+  assert(subjectReader.indexOf('if (!managedBinding && !nativeBinding) {', subjectOffset) > retentionOffset
+    && subjectReader.indexOf('if (managedBinding && nativeBinding) {', subjectOffset) > retentionOffset,
+    'unbound and conflicting evidence must retain their existing freshness/scope/retention ordering');
   const nativeOffset=subjectReader.indexOf("if (authority.reviewGatePath === 'direct-signed-review' && nativeBinding)");
   const supersededOffset=subjectReader.indexOf("if (inventorySubject === 'superseded') return {");
   assert(nativeOffset>=0 && supersededOffset>managedOffset && supersededOffset>nativeOffset,
@@ -10208,6 +10242,20 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
   assert(read('packages/main/src/core/managed-review-provider-state.ts').includes('provider seed integrity mismatch') && read('packages/main/src/core/managed-review-provider-state.ts').includes('provider seed binding mismatch'), 'cross-process seeds must verify keyed integrity and exact expected binding');
   assert(read('packages/main/src/core/reviewer-batch-subject.ts').includes('verifyReviewInventoryEpoch(epoch)') && read('packages/main/src/core/reviewer-batch-subject.ts').includes('BATCH_SUBJECT_CUTOFF_DRIFT') && read('packages/main/src/core/reviewer-batch-subject.ts').includes('BATCH_ASSIGNMENT_MISSING_LANES'), 'batch subject must verify signed current epoch, material cutoff and complete assignments');
   assert(read('packages/main/src/core/reviewer-batch-subject.ts').includes('reviewerBatchAdmissionLanes') && read('packages/main/src/core/reviewer-batch-subject.ts').includes("run.reviewPurpose === 'inventory-completeness'") && read('packages/main/src/core/reviewer-batch-subject.ts').includes('admissionLanesDigest'), 'managed batch admission must include only a current purpose-bound inventory critic in a distinct admission subject');
+  assert(read('packages/main/src/core/prompt-registry.ts').includes('A metadata-only HEAD advance does not replace the signed inventory cutoff')
+    && registrySource.includes('Metadata-only HEAD advancement may differ from the original cutoff HEAD'),
+    'metadata-only critic admission requires matching prompt and registry contracts');
+  // Execute the real behavior from this registered serial-reference driver.
+  // Formatting or operand swaps cannot substitute for a two-wave witness.
+  try {
+    const output = execFileSync(process.execPath, [join(root, 'scripts/verify-inventory-critic-metadata-head.mjs')], {
+      cwd: root, encoding: 'utf8', timeout: 900000, maxBuffer: 8 * 1024 * 1024,
+    });
+    process.stdout.write(output);
+    assert(output.includes('INVENTORY_CRITIC_METADATA_HEAD_GREEN'), 'registered critic proof requires its exact selector');
+  } catch (error) {
+    throw new Error(verificationFailureMessage('inventory critic metadata HEAD', error));
+  }
   assert(read('packages/main/src/tasks/inventory-critic-live-metadata-projection-smoke.ts').includes('managed inventory critic receives current signed uncommitted inventory metadata in its sealed prompt'), 'managed inventory critic live metadata projection requires focused RED/GREEN coverage');
   assert(read('packages/main/src/core/managed-execution-input-identity.ts').includes('fingerprintCapturedManagedProviderState'), 'execution identity must bind captured provider inputs');
   assert(read('scripts/verify-u08-execution-identity.mjs').includes('fixture-env-secret'), 'input identity requires actual secret/environment drift regression');
@@ -10216,6 +10264,7 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
   assert(read('packages/main/src/core/host-execution-readiness.ts').includes('runSupervisedProviderProcess(args.executablePath'), 'readiness probes must share supervised provider lifetime');
   assert(read('scripts/verify-u08-supervised-readiness.mjs').includes('readiness probe must reap its live descendant before returning'), 'readiness has an actual descendant regression');
   assert(read('packages/main/src/core/managed-review-provider-state.ts').includes('materializeManagedProviderState(cache,captureManagedProviderState(host,env))'), 'provider state creation must use the captured input seam');
+  assert(registrySource.includes('Grok refuses compatibility-proposal completion') && registrySource.includes('Grok uses its own host identity') && registrySource.includes('Grok requires the configured read-only lane') && read('scripts/verify-managed-provider-state.mjs').includes('ISOLATED_REVIEW_AUTH_PASS'), 'isolated authentication and Grok structured review intake require registered semantics and executable negative controls');
   assert(read('scripts/verify-u08-private-state-capture.mjs').includes('capture must prevent source credential drift'), 'provider input drift has a real file regression');
   assert(registrySource.includes('canonical validation command IDs'), 'scope budget canonical validation identities must be registered');
   const legacyBudget = read('packages/main/src/core/story-scope-budget-legacy.ts');

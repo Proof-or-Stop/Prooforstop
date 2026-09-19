@@ -1,6 +1,6 @@
 {
   "name": "proof-or-stop",
-  "version": "0.3.386",
+  "version": "0.3.418",
   "description": "",
   "main": "index.js",
   "directories": {
@@ -22,7 +22,7 @@
     "pretest": "node scripts/ensure-dist.mjs",
     "test": "node packages/main/dist/tasks/full-suite-runner.js",
     "test:serial-reference-prefix": "npm run test:full-suite-runner-smoke && npm run test:full-suite-resource-sentinel && npm run test:benchmark-framework-hardening",
-    "test:serial-reference": "npm run test:reviewed-source-bindings && npm run test:main-write-lock-coverage && npm run test:production-test-seam-guard && npm run test:proof-or-stop-residue && npm run test:residue-inject-repro && npm run test:retired-authority-vocabulary-guard && npm run test:proof-or-stop-prompt-baseline && npm run test:init-reviewer-story-metadata-contract && npm run test:codex-heartbeat-timeout && npm run test:audit-scan-bin-token && npm run test:review-convergence-smoke && npm run test:review-loop-smoke && npm run test:delivery-context-pack-smoke && npm run test:flow-stability-smoke && npm run test:review-assurance-floor-smoke && npm run test:proofstory-intent-hardening-smoke && npm run test:scope-shrinkage-withdrawal-floor-smoke && npm run test:withdrawn-disposition-smoke && npm run test:milestone-status && npm run test:global-core-realpath && npm run test:brand-path-resolver-smoke && npm run test:config-filename-migration-smoke && npm run test:core-package-rename && npm run test:state-dir-migration && npm run test:identity-state-migrate-atomicity && npm run test:migration-contract && npm run test:review-incremental-context-smoke && npm run test:review-assurance-floor-storyfileshash-smoke && npm run test:docs-drift-smoke && npm run test:docs-drift-wrapper-root && npm run test:graph-story-flag-smoke && npm run test:gitroot-cwd-contract && npm run test:review-gate-intent-cycle && npm run test:process-fact-contract && npm run test:scope-approval-continuity && npm run test:review-epoch-certification-continuity && npm run test:route-reattestation-dependency-direction && npm run test:closeout-trust && npm run test:verifier-causal-preflight && npm run test:runtime-fact-contract && npm run test:evidence-quality && npm run test:anti-stall && npm run test:storydir-inside-gitroot-smoke && npm run test:gitroot-cwd-routing && npm run test:bare-gate-gitroot-cwd && npm run test:project-gitroot-cwd && npm run test:done-oracle-wrapper-root && npm run test:done-premerge-mainsha-recheck && npm run test:done-escalation-drift-advisory && npm run test:review-escalation-freshness-root && npm run test:dispatch-checklist-doctor-wrapper-root && npm run test:graceful-sites-gitroot-cwd && npm run test:experience-hint-worktree-cache && npm run test:done-merge-experience-refresh && npm run test:experience-coverage-gap && npm run test:nested-worktree-bootstrap && npm run test:e2e && npm run test:experience-arm-gate && npm run test:experience-arm-isolation-e2e && npm run test:brief-output && npm run test:experiments && npm run test:convergence-breaker && npm run test:proofstory-acceptance-rollout && npm run test:topology-signing-source-guard && npm run test:signing-guard-mutation-proof && npm run test:validation-tier-planner && npm run test:single-owner-extraction && npm run test:validation-protocol && npm run test:narrowing-repin && npm run test:review-inventory-epoch && npm run test:verification-run-and-guard-smoke && npm run test:dynamic-finding-applicability && npm run test:intent-owner-lease && npm run test:receipt-authority-v5 && npm run test:scope-diff-pack && npm run test:verification-key-location",
+    "test:serial-reference": "npm run test:reviewed-source-bindings && npm run test:main-write-lock-coverage && npm run test:production-test-seam-guard && npm run test:proof-or-stop-residue && npm run test:residue-inject-repro && npm run test:retired-authority-vocabulary-guard && npm run test:proof-or-stop-prompt-baseline && npm run test:init-reviewer-story-metadata-contract && npm run test:codex-heartbeat-timeout && npm run test:audit-scan-bin-token && npm run test:review-convergence-smoke && npm run test:review-loop-smoke && npm run test:delivery-context-pack-smoke && npm run test:flow-stability-smoke && npm run test:review-assurance-floor-smoke && npm run test:proofstory-intent-hardening-smoke && npm run test:scope-shrinkage-withdrawal-floor-smoke && npm run test:withdrawn-disposition-smoke && npm run test:milestone-status && npm run test:global-core-realpath && npm run test:brand-path-resolver-smoke && npm run test:config-filename-migration-smoke && npm run test:core-package-rename && npm run test:state-dir-migration && npm run test:identity-state-migrate-atomicity && npm run test:migration-contract && npm run test:review-incremental-context-smoke && npm run test:review-assurance-floor-storyfileshash-smoke && npm run test:docs-drift-smoke && npm run test:docs-drift-wrapper-root && npm run test:graph-story-flag-smoke && npm run test:gitroot-cwd-contract && npm run test:review-gate-intent-cycle && npm run test:managed-review-final-schema && npm run test:process-fact-contract && npm run test:scope-approval-continuity && npm run test:review-epoch-certification-continuity && npm run test:route-reattestation-dependency-direction && npm run test:closeout-trust && npm run test:verifier-causal-preflight && npm run test:runtime-fact-contract && npm run test:evidence-quality && npm run test:anti-stall && npm run test:storydir-inside-gitroot-smoke && npm run test:gitroot-cwd-routing && npm run test:bare-gate-gitroot-cwd && npm run test:project-gitroot-cwd && npm run test:done-oracle-wrapper-root && npm run test:done-premerge-mainsha-recheck && npm run test:done-escalation-drift-advisory && npm run test:review-escalation-freshness-root && npm run test:dispatch-checklist-doctor-wrapper-root && npm run test:graceful-sites-gitroot-cwd && npm run test:experience-hint-worktree-cache && npm run test:done-merge-experience-refresh && npm run test:experience-coverage-gap && npm run test:nested-worktree-bootstrap && npm run test:e2e && npm run test:experience-arm-gate && npm run test:experience-arm-isolation-e2e && npm run test:brief-output && npm run test:experiments && npm run test:convergence-breaker && npm run test:proofstory-acceptance-rollout && npm run test:topology-signing-source-guard && npm run test:signing-guard-mutation-proof && npm run test:validation-tier-planner && npm run test:single-owner-extraction && npm run test:validation-protocol && npm run test:narrowing-repin && npm run test:review-inventory-epoch && npm run test:verification-run-and-guard-smoke && npm run test:dynamic-finding-applicability && npm run test:intent-owner-lease && npm run test:receipt-authority-v5 && npm run test:scope-diff-pack && npm run test:verification-key-location",
     "test:full-suite-runner-smoke": "node packages/main/dist/tasks/full-suite-runner-smoke.js",
     "test:validate-parallel-equivalence": "node scripts/run-validation-fixture-suite.mjs packages/main/dist/tasks/validate-parallel-equivalence-smoke.js",
     "bench:validate-parallel": "node packages/main/dist/tasks/validate-parallel-benchmark.js",
@@ -133,6 +133,7 @@
     "test:parallel-policy": "node scripts/verify-parallel-execution-policy.mjs",
     "test:review-epoch-certification-continuity": "node scripts/verify-review-epoch-certification-continuity.mjs",
     "test:process-fact-contract": "node scripts/verify-process-fact-contract.mjs",
+    "test:managed-review-final-schema": "node packages/main/dist/tasks/managed-review-prompt-cwd-isolation-smoke.js",
     "test:closeout-trust": "node packages/main/dist/tasks/closeout-trust-smoke.js",
     "test:verifier-causal-preflight": "node packages/main/dist/tasks/verifier-causal-preflight-smoke.js",
     "test:tracked-controller-bootstrap": "node scripts/verify-tracked-controller-bootstrap.mjs",
@@ -183,7 +184,7 @@
     "test:memory-query-timing": "node scripts/verify-memory-query-timing.mjs",
     "test:scope-approval-continuity": "node scripts/verify-scope-approval-continuity.mjs",
     "test:review-gate-intent-cycle": "node scripts/verify-review-gate-intent-cycle.mjs",
-    "test:benchmark-framework-hardening": "node scripts/verify-benchmark-framework-hardening.mjs"
+    "test:benchmark-framework-hardening": "node scripts/verify-benchmark-framework-hardening.mjs --prebuilt"
   },
   "repository": {
     "type": "git"
@@ -202,8 +203,8 @@
   },
   "devDependencies": {
     "@types/node": "^22.19.19",
+    "@yao-pkg/pkg": "^6.22.0",
     "c8": "^12.0.0",
-    "pkg": "^5.8.1",
     "semver": "^7.8.0",
     "typescript": "^5.9.3"
   }

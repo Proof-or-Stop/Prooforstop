@@ -1,3 +1,5 @@
+import { spawnSync } from 'node:child_process';
+import { devNull } from 'node:os';
 import { realpathSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { StoryStore } from './store.js';
@@ -9,6 +11,47 @@ import { captureReviewInventoryScope } from '../handlers/review-inventory.js';
 import type { ReviewerBatchAssignment } from './reviewer-batch-admission.js';
 
 const INVENTORY_CRITIC_LANE = 'proof-or-stop-review-topology-critic';
+
+type CriticGitUnavailable = { state: 'unverifiable'; diagnostic: string };
+
+function queryCriticGit(root: string, args: string[], input?: string) {
+  const timeoutMs = 5000;
+  const started = Date.now();
+  const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_')));
+  env.GIT_NO_REPLACE_OBJECTS = '1';
+  env.GIT_GRAFT_FILE = devNull;
+  env.GIT_NO_LAZY_FETCH = '1';
+  env.GIT_TERMINAL_PROMPT = '0';
+  const result = spawnSync('git', ['--no-replace-objects', ...args], {
+    cwd: root, env, input, timeout: timeoutMs, encoding: 'utf8', maxBuffer: 64 * 1024,
+  });
+  const unavailable: CriticGitUnavailable = { state: 'unverifiable',
+    diagnostic: `timeoutMs=${timeoutMs}; elapsedMs=${Date.now() - started}; code=${(result.error as NodeJS.ErrnoException | undefined)?.code ?? 'none'}; status=${result.status}; signal=${result.signal}; stderr=${(result.stderr ?? '').trim().slice(0, 2000)}` };
+  return { result, unavailable };
+}
+
+/** Batch output distinguishes a missing commit from Git execution failures. */
+function criticCommitPresence(root: string, head: string): { state: 'present' | 'absent' } | CriticGitUnavailable {
+  if (!/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(head)) return { state: 'absent' };
+  const { result, unavailable } = queryCriticGit(root, ['cat-file', '--batch-check=%(objectname) %(objecttype)'], `${head}\n`);
+  if (result.error || result.signal || result.status !== 0) return unavailable;
+  const output = result.stdout.trim();
+  if (output === `${head} commit`) return { state: 'present' };
+  if (['missing', 'blob', 'tree', 'tag'].some(type => output === `${head} ${type}`)) return { state: 'absent' };
+  return { ...unavailable, diagnostic: `${unavailable.diagnostic}; unexpected object-presence response` };
+}
+
+/** Equal content is insufficient: preserve the signed root's real Git lineage. */
+function criticHeadLineage(root: string, cutoffHead: string, runHead: string):
+  { state: 'descendant' | 'divergent' | 'absent' } | CriticGitUnavailable {
+  const presence = criticCommitPresence(root, runHead);
+  if (presence.state === 'unverifiable') return presence;
+  if (presence.state === 'absent') return { state: 'absent' };
+  const { result, unavailable } = queryCriticGit(root, ['merge-base', '--is-ancestor', cutoffHead, runHead]);
+  if (!result.error && !result.signal && result.status === 0) return { state: 'descendant' };
+  if (!result.error && !result.signal && result.status === 1) return { state: 'divergent' };
+  return unavailable;
+}
 
 export function reviewerBatchAdmissionLanes(requiredLanes: readonly string[], includeInventoryCritic: boolean): string[] {
   const lanes = [...requiredLanes];
@@ -32,6 +75,29 @@ export function deriveReviewerBatchSubject(store: StoryStore, root: string, args
   const signedRoot = workspace.signedWorkspaceRoot || workspace.snapshotRoot;
   if (!signedRoot) fail('BATCH_SUBJECT_WORKSPACE_UNKNOWN');
   const metadataRoot = workspace.metadataRoot || root;
+  const candidates = store.readReviewRuns(args.storyId).runs.filter(run =>
+    verifyReviewRun(run, store)
+    && run.lane === INVENTORY_CRITIC_LANE
+    && run.agent === INVENTORY_CRITIC_LANE
+    && run.reviewPurpose === 'inventory-completeness'
+    && inventoryPurposeMatchesEpoch(run.inventoryBinding, epoch)
+    && run.reviewRound === epoch.reviewRound
+    && run.materialHash === epoch.cutoff.materialHash
+    && (run.storyFilesHash ?? '') === (epoch.cutoff.storyFilesHash ?? ''),
+  );
+  const unavailable = (diagnostic: string): never => {
+    throw new Error(`BATCH_SUBJECT_LINEAGE_UNVERIFIABLE; ${diagnostic}; Repair the Git query failure and retry. Execution failure alone does not establish divergence or authorize an epoch restart.`);
+  };
+  // Diagnose an actually lost cutoff before snapshot ancestry traversal can mask
+  // it as generic material drift. No critic candidates means no added Git query.
+  if (candidates.length > 0) {
+    const cutoff = criticCommitPresence(signedRoot!, epoch.cutoff.headHash);
+    if (cutoff.state === 'absent') {
+      throw new Error(`BATCH_SUBJECT_CUTOFF_OBJECT_MISSING; The signed cutoff commit is absent or invalid in this repository. Preserve the records, then use proof-or-stop review_inventory_cancel --storyId=${args.storyId} --reason=<missing-cutoff-recovery> and proof-or-stop review_inventory_begin --storyId=${args.storyId}; earn fresh review evidence.`);
+    }
+    if (cutoff.state === 'unverifiable') unavailable(cutoff.diagnostic);
+  }
+
   const snapshot = captureReviewRunSnapshot(signedRoot!, { storyId: args.storyId, storyPhase: story.phase, currentReviewRound: story.currentReviewRound }, metadataRoot);
   const scope = captureReviewInventoryScope({ store, root: metadataRoot, scanRoot: resolve(metadataRoot, loadConfig(metadataRoot).scanRoot) }, args.storyId);
   if (snapshot.materialHash !== epoch.cutoff.materialHash || (snapshot.storyFilesHash ?? '') !== (epoch.cutoff.storyFilesHash ?? '')) fail('BATCH_SUBJECT_CUTOFF_DRIFT');
@@ -40,17 +106,20 @@ export function deriveReviewerBatchSubject(store: StoryStore, root: string, args
   const after = currentOpenReviewInventory(store, args.storyId);
   const afterStory = store.readStory(args.storyId);
   if (!after || after._hash !== epoch._hash || afterStory.phase !== 'REVIEW' || afterStory.currentReviewRound !== story.currentReviewRound) fail('BATCH_SUBJECT_CHANGED_DURING_CAPTURE');
-  const includeInventoryCritic = store.readReviewRuns(args.storyId).runs.some(run =>
-    verifyReviewRun(run, store)
-    && run.lane === INVENTORY_CRITIC_LANE
-    && run.agent === INVENTORY_CRITIC_LANE
-    && run.reviewPurpose === 'inventory-completeness'
-    && inventoryPurposeMatchesEpoch(run.inventoryBinding, epoch)
-    && run.reviewRound === epoch.reviewRound
-    && run.headHash === epoch.cutoff.headHash
-    && run.materialHash === epoch.cutoff.materialHash
-    && (run.storyFilesHash ?? '') === (epoch.cutoff.storyFilesHash ?? ''),
-  );
+  // The purpose binding retains the exact original cutoff (including HEAD).
+  // A valid new run may start after a metadata-only descendant commit. Keep
+  // ancestry as well as material identity; a divergent equal tree is refused.
+  const retainsCutoff = (head: string, currentWorkspace = false): boolean => {
+    const lineage = criticHeadLineage(signedRoot!, epoch.cutoff.headHash, head);
+    if (lineage.state === 'unverifiable') unavailable(lineage.diagnostic);
+    if (lineage.state === 'absent' && currentWorkspace) {
+      throw new Error('BATCH_SUBJECT_CURRENT_HEAD_MISSING; Current workspace commit disappeared during capture; restore the repository and retry.');
+    }
+    return lineage.state === 'descendant';
+  };
+  // An absent historical run is not a witness; continue to later valid runs.
+  const includeInventoryCritic = candidates.length > 0 && retainsCutoff(snapshot.headHash, true)
+    && candidates.some(run => retainsCutoff(run.headHash));
   const requiredLanes = reviewerBatchAdmissionLanes(epoch.requiredLanes, includeInventoryCritic);
   const subject = { schema: 'reviewer-batch-subject.v1', worktreeRoot: realpathSync(signedRoot!), metadataRoot: realpathSync(metadataRoot), binding,
     candidateSpecSetDigest: scope.candidateSpecSetDigest ?? '', corpusDigest: scope.corpusDigest ?? '',

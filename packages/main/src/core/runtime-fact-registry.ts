@@ -1,11 +1,14 @@
 import { posix as pathPosix } from 'node:path';
 
+/** Bounded history transport; larger or incomplete Git output remains invalid. */
+export const REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES = 64 * 1024 * 1024;
+
 // DEV acceptance transport uses only proof-or-stop.acceptance_amendment_review_final.v1; old inner schemas cannot be produced or consumed. The outer worker-signed receipt remains a compatibility container, never an alias for the inner schema.
 export const REVIEWER_BATCH_PRODUCER_RUNTIME_POLICY = { versionTimeoutMs: 10000, readinessTimeoutMs: 30000, maxRecordBytes: 4194304, ordinaryProfile: 'managed_reviewer', generatedPathPlan: { schema: 'batch-generated-paths.v1', probeCwd: 'canonical-verified-subject-workspace', providerHome: 'controller/provider-seeds/work/generation/host/provider-host', probeTemp: 'controller/provider-seeds/work/generation/host/tmp', lanePaths: 'separately-sealed-readonly-layout-no-base-env-omission' } } as const;
 export const MANAGED_PROVIDER_SEED_RUNTIME_POLICY = { maxFiles: 2, encodedFileMultiplier: 4, envelopeAllowanceBytes: 4096 } as const;
 export const MANAGED_EXECUTION_IDENTITY_RUNTIME_POLICY = { keyBytes: 32, maxExecutableBytes: 256 * 1024 * 1024, readChunkBytes: 64 * 1024 } as const;
 export const REVIEWER_BATCH_ADMISSION_RUNTIME_POLICY = { maxWaitMs: 10000, readyTtlMs: 60000, lockStaleMs: 200, lockDeadlineMs: 500, lockPollMs: 20, waitPollMs: 25 } as const;
-export const MANAGED_REVIEW_READONLY_RUNTIME_POLICY = { adapter: 'prooforstop-main-v1', providerStateAdapter: 'isolated-file-cache-v1', providerFileMaxBytes: 1024*1024, platform: 'darwin', buildTimeoutMs: 180000, builderGraceMs: 5000, capabilityTimeoutMs: 3000, directoryMode: 0o700, environmentKeys: ['TMPDIR','TMP','TEMP','XDG_CACHE_HOME','PROOF_OR_STOP_REVIEW_BUILD_SOURCE','PROOF_OR_STOP_REVIEW_BUILD_OUTPUT'], optionalEnvironmentKeys: ['PROOF_OR_STOP_REVIEW_EXECUTION_CWD'], credentials: 'original-read-only-private-copy-refresh-writable', writable: 'sealed-source-plus-disposable-execution-worktree-and-declared-output-temp-cache' } as const;
+export const MANAGED_REVIEW_READONLY_RUNTIME_POLICY = { crossHostProviderSandbox: { confined: 'danger-full-access', unconfined: 'read-only' }, adapter: 'prooforstop-main-v1', providerStateAdapter: 'isolated-file-cache-v1', providerFileMaxBytes: 1024*1024, platform: 'darwin', buildTimeoutMs: 180000, builderGraceMs: 5000, capabilityTimeoutMs: 3000, directoryMode: 0o700, environmentKeys: ['TMPDIR','TMP','TEMP','CLAUDE_CODE_TMPDIR','XDG_CACHE_HOME','PROOF_OR_STOP_REVIEW_BUILD_SOURCE','PROOF_OR_STOP_REVIEW_BUILD_OUTPUT'], optionalEnvironmentKeys: ['PROOF_OR_STOP_REVIEW_EXECUTION_CWD'], credentials: 'original-read-only-private-copy-refresh-writable', writable: 'sealed-source-plus-disposable-execution-worktree-and-declared-output-temp-cache' } as const;
 export const SUPERVISED_PROVIDER_RUNTIME_POLICY = { termGraceMs: 250, closeWaitMs: 300, parentGraceMs: 3000, maxOutputBytes: 8 * 1024 * 1024 } as const;
 export const MACHINE_PROVIDER_ADMISSION_RUNTIME_POLICY = { maxConcurrent: 4, directoryMode: 0o700, scope: 'same-os-user-across-projects' } as const;
 export const MANAGED_CRITIC_FIXTURE_RUNTIME_POLICY = {
@@ -21,8 +24,16 @@ export const REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY = {
   maxOuterMs: 675000, cleanupMarginMs: 30000,
 } as const;
 export const MACHINE_HEAVY_RESOURCE_POLICY = { cpuKey: 'heavy', processKey: 'fanout', access: 'exclusive', admission: 'one-heavy-member-per-os-user' } as const;
+export const VALIDATION_RESOURCE_KEY_RUNTIME_POLICY = { literalClasses: ['fixed-port', 'machine-cpu', 'machine-process', 'machine-validation'], pathResolution: 'command-cwd', validation: 'before-normalization' } as const;
 export const VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY = { descriptor: 4, descriptorEnvironment: 'PROOF_OR_STOP_VALIDATION_RESERVATION_FD', diagnosticsEnvironment: 'PROOF_OR_STOP_DELEGATION_DIAGNOSTICS', maxMessageBytes: 32768, kernelObservationMs: 1000, workerRegistrationMs: 5000, cleanupMs: 2000, observationRetries: 3, observationBackoffMs: 50, retirementPollMs: 20, retirementPollMaxMs: 500, platform: 'darwin', authority: 'live-machine-ticket-and-kernel-matched-inherited-descriptor', forwarding: 'explicit-node-spawn-boundary-only', cleanup: 'registered-group-absence-before-release' } as const;
 export const MACHINE_FIXED_PORT_RUNTIME_POLICY = { directoryMode: 0o700, probeTimeoutMs: 1000, queueDeadlineMs: 300000, scope: 'same-os-user-across-repositories', admissionBoundary: 'actual-command-child', unknownResources: 'exclusive-machine-queue', classifiedEmptyResources: 'shared-machine-barrier', barrierKey: 'admission' } as const;
+export const MANAGED_REVIEW_AUTH_RUNTIME_POLICY = {
+  hosts: ['codex', 'claude', 'grok'],
+  claudeKeychainService: 'Claude Code-credentials', keychainExecutable: '/usr/bin/security',
+  keychainTimeoutMs: 10000,
+  grokEnvironmentKey: 'GROK_HOME', grokSharedLeader: false, grokAutoUpdate: false,
+  grokDisableAutoUpdater: '1',
+} as const;
 export const MANAGED_REVIEW_TEMP_RUNTIME_POLICY = { environmentKeys: ['TMPDIR', 'TMP', 'TEMP'], directoryMode: 0o700, isolation: 'per-managed-review-scratch' } as const;
 export const OWNER_SESSION_IDENTITY_RUNTIME_POLICY = {
   primaryWorktreeProbeCommand: 'git worktree list --porcelain -z',
@@ -613,4 +624,11 @@ export const EXECUTION_IMPLEMENTATION_PIN_POLICY = {
   mismatch: 'refuse-before-dispatch',
   missingWhenRequired: 'refuse',
   scope: 'loaded-core-bootstrap-workspace-extensions-dependency-closure-and-node',
+} as const;
+
+/** Existing managed-dispatch authority also carries independent TEST delivery output. */
+export const MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY = {
+  role: 'proof-or-stop-review-delivery', phase: 'TEST', profile: 'managed_dispatch',
+  artifact: 'delivery-check.json',
+  authority: 'live-one-shot-invocation-and-safe-terminal-sealed-output',
 } as const;

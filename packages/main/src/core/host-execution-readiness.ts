@@ -4,7 +4,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { isAbsolute, join } from 'node:path';
 
-export const CANONICAL_REVIEW_HOSTS = ['codex', 'claude', 'agy'] as const;
+export const CANONICAL_REVIEW_HOSTS = ['codex', 'claude', 'grok', 'agy'] as const;
 export type CanonicalReviewHost = typeof CANONICAL_REVIEW_HOSTS[number];
 export const CANONICAL_CODEX_NONINTERACTIVE_FLAGS = [
   '--skip-git-repo-check',
@@ -81,6 +81,12 @@ export function canonicalReviewHostCommand(host: CanonicalReviewHost): string {
 }
 
 export function canonicalReviewHostLauncherSpec(host: CanonicalReviewHost): HostExecutionLauncherSpec {
+  if (host === 'grok') return {
+    host, command: 'grok', launcher: 'grok --output-format streaming-messages-json --prompt-file',
+    launcherArgv: ['grok','--output-format','streaming-messages-json','--no-subagents','--disable-web-search','--prompt-file','<prompt-file>'],
+    progressMode:'stream-json', observable:true,
+    remediation:'Use authenticated Grok headless mode with an isolated GROK_HOME and protected prompt file.',
+  };
   if (host === 'claude') {
     return {
       host,
@@ -256,7 +262,11 @@ export function classifyReviewHostLauncher(host: CanonicalReviewHost, argv: read
   let failureKind: HostExecutionFailureKind = 'none';
   let launcherSupport: HostLauncherSupport = 'supported';
 
-  if (host === 'claude') {
+  if (host === 'grok') {
+    const ready=argvHas(argv,'--prompt-file')&&outputFormatValue(argv)==='streaming-messages-json';
+    progressMode=ready?'stream-json':'none';
+    if(!ready){reasons.push('grok requires protected prompt file and streaming-messages-json');failureKind='wrong_launcher';launcherSupport='wrong_launcher';}
+  } else if (host === 'claude') {
     const hasPrint = argvHas(argv, '--print') || argvHas(argv, '-p');
     const hasVerbose = argvHas(argv, '--verbose');
     const hasStreamJson = outputFormatValue(argv) === 'stream-json';

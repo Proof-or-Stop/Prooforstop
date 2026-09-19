@@ -1,3 +1,4 @@
+import { MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import { isManagedInventoryCriticEnvelopeValid, type ManagedInventoryCritic } from './managed-inventory-critic.js';
 import { MANAGED_RUN_DASHBOARD_POLICY } from './runtime-fact-registry.js';
 import { normalizeExecutionBatchEnvironment, revokeExecutionBatchBinding } from './reviewer-batch-producer.js';
@@ -99,6 +100,7 @@ import { managedRunStage, managedSupervisionAction, type ManagedRunStage,
 import { StoryStore } from './store.js';
 import { initCheckSignatureIsValid } from './init-check-gate.js';
 import { verifyScopeCheckContentSignature } from './scope-check-integrity.js';
+import { recomputeDeliveryCheckHash } from './delivery-check-hash.js';
 import type { InitCheckData } from './types.js';
 
 export const MANAGED_HOST_RUN_SCHEMA_VERSION = 'lattice.managed_host_run.v1' as const;
@@ -1717,7 +1719,7 @@ function readTerminal(paths: ManagedHostRunPaths): ManagedHostRunTerminal | null
  */
 function cleanupManagedClaudePromptForTerminal(paths: ManagedHostRunPaths): void {
   const { text: specText, value: spec } = readManagedHostRunSpec(paths);
-  if (!isIsolatedReviewerProfile(spec.profile) || spec.host !== 'claude') return;
+  if (!isIsolatedReviewerProfile(spec.profile) || (spec.host !== 'claude' && spec.host !== 'grok')) return;
 
   const owner = readManagedHostRunOwner(paths);
   if (
@@ -1810,6 +1812,19 @@ export function managedDispatchOutputValidation(input: {
   if (!input.storyId) return { failureReason: 'managed_dispatch_story_missing', outputDigest: null };
   try {
     const storyStore = new StoryStore(input.root);
+    if (input.agentType === MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role) {
+      const data = storyStore.readDeliveryCheck(input.storyId);
+      if (!data || data.managedDeliveryRunId !== input.runId) {
+        return { failureReason: 'managed_dispatch_output_missing', outputDigest: null };
+      }
+      if (data.storyId !== input.storyId || data.nativeEvidenceBinding
+        || data._hash !== recomputeDeliveryCheckHash(input.storyId, storyStore)) {
+        return { failureReason: 'managed_dispatch_output_invalid', outputDigest: null };
+      }
+      return managedDispatchInvocationConsumptionIsValid({ ...input, storyId: input.storyId })
+        ? { failureReason: null, outputDigest: digestFile(storyStore.storyFilePath(input.storyId, MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.artifact)) }
+        : { failureReason: 'managed_dispatch_invocation_unconsumed', outputDigest: null };
+    }
     if (input.agentType === 'proof-or-stop-review-scope-plan') {
       const scopePath = storyStore.storyFilePath(input.storyId, 'scope-check.json');
       if (!existsSync(scopePath)) return { failureReason: 'managed_dispatch_output_missing', outputDigest: null };
@@ -2101,12 +2116,15 @@ function assertSealedManagedHostRunArtifacts(paths: ManagedHostRunPaths, termina
   if (digestFile(paths.evidenceProposal) !== terminal.evidenceProposalDigest) mismatches.push('proposal');
   if (terminal.managedDispatchOutputDigest) {
     const spec = readManagedHostRunSpec(paths).value;
-    const currentOutputDigest = spec.profile === 'managed_dispatch'
-      && spec.agentType === 'proof-or-stop-review-scope-plan'
-      && spec.storyId
-      ? digestFile(new StoryStore(spec.root).storyFilePath(spec.storyId, 'scope-check.json'))
-      : null;
-    if (currentOutputDigest !== terminal.managedDispatchOutputDigest) mismatches.push('managed-dispatch-output');
+    // Delivery receipts describe a historical run. A later delivery review may
+    // replace the live Story report; only its evidence consumer compares that
+    // live file with this sealed digest. Preserve the existing scope contract.
+    if (spec.agentType !== MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role) {
+      const currentOutputDigest = spec.profile === 'managed_dispatch'
+        && spec.agentType === 'proof-or-stop-review-scope-plan' && spec.storyId
+        ? digestFile(new StoryStore(spec.root).storyFilePath(spec.storyId, 'scope-check.json')) : null;
+      if (currentOutputDigest !== terminal.managedDispatchOutputDigest) mismatches.push('managed-dispatch-output');
+    }
   }
   const hasEvidenceBinding = existsSync(paths.evidenceBinding);
   const hasEvidenceBindingSeal = existsSync(paths.evidenceBindingSeal);
@@ -2651,6 +2669,7 @@ export async function submitManagedHostRun(
   args: ManagedHostRunSubmitArgs,
   deps: ManagedHostRunSubmitDeps = {},
 ): Promise<ManagedHostRunProjection> {
+  if (args.host === 'grok' && !isIsolatedReviewerProfile(args.profile)) throw new Error('grok supports only --managedReview / acceptance_amendment_review');
   if (!args.root || !args.cwd) throw new Error('managed host run: root and cwd are required');
   if (!args.promptText) throw new Error('managed host run: prompt is empty; refuse pre-spawn');
   if (!args.phase || !args.agentType) throw new Error('managed host run: phase and agentType are required');
@@ -2691,6 +2710,7 @@ export async function submitManagedHostRun(
 
   const requestedReadonlyLane = args.isolateManagedReview === true || args.profile === 'cross_host_review_codex'
     ? resolveManagedReviewIsolation(args.root) : null;
+  if (args.host === 'grok' && !requestedReadonlyLane) throw new Error('grok requires configured managedReviewIsolation and isolated managed review');
   const now = deps.now ?? Date.now;
   const burnTokenLimit = managedBurnTokenLimit(args.environment ?? process.env);
   const createdMs = now();
@@ -2761,6 +2781,7 @@ export async function submitManagedHostRun(
       sealedEnvironment = normalizeExecutionBatchEnvironment({...process.env,...args.environment});
       admission = await consumeManagedLaunchAdmission(args, sealedEnvironment, {runId,deadlineAt});
       if (!admission) throw new Error('managed launch requires execution admission');
+      if (args.host === 'grok' && (admission.binding.execution.host !== 'grok' || !admission.providerState)) throw new Error('grok requires admitted private provider state');
     }
     if (args.isolateManagedReview === true) {
       managedReviewScratch = createManagedReviewScratchWorktree({
@@ -3470,6 +3491,9 @@ export async function runManagedHostRunWorker(
         runId: spec.runId,
         hasValidProposal: existingProposal !== null,
       });
+      if (spec.host === 'grok' && existingProposal) {
+        return writeTerminal(paths, 'failed', 'grok_compatibility_proposal_unsupported', result.replacementSafe, result, now());
+      }
       // Older adapters may already have submitted one descriptor-attested,
       // immutable proposal before their ordinary final prose is emitted. That
       // proposal is the compatibility authority; only runs without it use the
@@ -3492,7 +3516,7 @@ export async function runManagedHostRunWorker(
           // the final-result writer takes the immutable-file fence. Its valid
           // proposal is the authority; malformed or absent competitors still
           // leave this final result fail-closed.
-          if (readValidManagedReviewEvidenceProposal(spec.root, spec.runId, spec)) {
+          if (spec.host !== 'grok' && readValidManagedReviewEvidenceProposal(spec.root, spec.runId, spec)) {
             return writeTerminal(paths, 'completed', 'provider_completed', result.replacementSafe, result, now());
           }
           return writeTerminal(
@@ -3516,7 +3540,8 @@ export async function runManagedHostRunWorker(
       }
       deps.afterManagedDispatchOutputValidated?.({ root: spec.root, runId: spec.runId, outputDigest: output.outputDigest });
       if (output.outputDigest && spec.storyId
-        && digestFile(new StoryStore(spec.root).storyFilePath(spec.storyId, 'scope-check.json')) !== output.outputDigest) {
+        && digestFile(new StoryStore(spec.root).storyFilePath(spec.storyId,
+          spec.agentType === MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role ? MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.artifact : 'scope-check.json')) !== output.outputDigest) {
         return writeTerminal(paths, 'failed', 'managed_dispatch_output_changed_before_seal', result.replacementSafe, result, now());
       }
       return writeTerminal(paths, 'completed', 'provider_completed', result.replacementSafe, result, now(), undefined, output.outputDigest);
@@ -4801,6 +4826,12 @@ export function verifyManagedDispatchDelivery(args: {
       if (!receipt.managedDispatchOutputDigest
         || currentDigest !== receipt.managedDispatchOutputDigest) {
         return { valid: false, reason: 'managed dispatch scope output does not match the completed receipt' };
+      }
+    }
+    if (args.agentType === MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role) {
+      const currentDigest = digestFile(new StoryStore(args.root).storyFilePath(args.storyId, MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.artifact));
+      if (!receipt.managedDispatchOutputDigest || currentDigest !== receipt.managedDispatchOutputDigest) {
+        return { valid: false, reason: 'managed dispatch delivery output does not match the completed receipt' };
       }
     }
     return { valid: true };

@@ -32,7 +32,7 @@ export function createAcceptanceAmendmentHandlers(ctx: HandlerContext, reviewDep
       });
       return JSON.stringify({ ...result, ...(commitHint ? { commitHint } : {}) });
     },
-    async acceptance_amendment_review(args: { storyId: string; amendmentId: string; host: 'codex' | 'claude' }) {
+    async acceptance_amendment_review(args: { storyId: string; amendmentId: string; host: 'codex' | 'claude' | 'grok' }) {
       assertActiveIdentityConsumerContract('acceptance-amendment-review', ACCEPTANCE_REVIEW_FINAL_SCHEMA);
       authorize('acceptance_amendment_review', args, ['storyId', 'amendmentId', 'host']);
       // Do not commit the key pin after capturing reviewer HEAD: its signed journal is already durable.

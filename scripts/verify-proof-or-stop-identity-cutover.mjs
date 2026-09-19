@@ -12,7 +12,7 @@ import { inspectDevMemoryFinishDecision, readDevMemoryFinishDecision } from '../
 import { reviewedDataResidueAllowed, validateReviewedDataSources } from './identity-reviewed-json-contexts.mjs';
 import { reviewedFixtureResidueAllowed, validateReviewedFixtureSources } from './identity-reviewed-fixture-contexts.mjs';
 import { reviewedSourceResidueAllowed, validateReviewedSourceSources } from './identity-reviewed-source-contexts.mjs';
-import {changelogPreservesHistory,isRetiredGeneratedCache,reviewedProvenanceAmendment,MAINTENANCE_SCHEMA_PROVENANCE_ROWS,MAINTENANCE_SCHEMA_WITNESSES} from './identity-maintenance-boundaries.mjs';
+import {changelogPreservesHistory,reviewedChangelogCompaction,isRetiredGeneratedCache,reviewedProvenanceAmendment,MAINTENANCE_SCHEMA_PROVENANCE_ROWS,MAINTENANCE_SCHEMA_WITNESSES} from './identity-maintenance-boundaries.mjs';
 
 const SCRIPT_PATH = 'scripts/verify-proof-or-stop-identity-cutover.mjs';
 const CONCEPT_PROVENANCE_MANIFEST_PATH = 'scripts/proof-or-stop-identity-concept-provenance.json';
@@ -6089,7 +6089,7 @@ function verifyAppendOnlyJsonlPrefix(row, frozenBytes, currentBytes) {
   return errors;
 }
 
-function verifyFrozenFiles(root, tracked, baselines = FROZEN_FILE_BASELINES) {
+export function verifyFrozenFiles(root, tracked, baselines = FROZEN_FILE_BASELINES) {
   const errors = [];
   if (baselines.length !== EXPECTED_FROZEN_FILE_BASELINE_COUNT) {
     errors.push(`frozen baseline row count ${baselines.length}, expected ${EXPECTED_FROZEN_FILE_BASELINE_COUNT}`);
@@ -6121,7 +6121,7 @@ function verifyFrozenFiles(root, tracked, baselines = FROZEN_FILE_BASELINES) {
       try { frozen = git(['cat-file', 'blob', row.gitBlobOid], { cwd: root, encoding: null }); }
       catch { errors.push(`frozen baseline ${row.id}: byte mutation (pinned Git blob unavailable)`); continue; }
       const current = readFileSync(resolve(root, row.path));
-      if (row.id === 'changelog-history' && sha256(frozen) === row.byteSha256 && changelogPreservesHistory(frozen, current)) continue;
+      if ((row.id === 'changelog-history' && sha256(frozen) === row.byteSha256 && changelogPreservesHistory(frozen, current)) || reviewedChangelogCompaction(row, frozen, current, commit => git(['show', `${commit}:CHANGELOG.md`], { cwd: root, encoding: null }), commit => { git(['merge-base', '--is-ancestor', commit, 'HEAD'], { cwd: root }); return true; })) continue;
       if (reviewedProvenanceAmendment(row, frozen, current)) continue;
     }
     let actualOid;
@@ -7427,7 +7427,7 @@ const REVIEWED_CONTEXT_READERS = [
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "faf0b82a74ec795496b46195b3d7231ef634484a77a98d9d1541967653c9ac99"
+    "sha256": "f8cb7d82127112c9fe4becc23dc7e02d262efccdc311ca2ca5971f394ee7c846"
   }
 ];
 function verifyReviewedContextReaders(root) {

@@ -212,7 +212,7 @@ function listStoryBranches(root: string): string[] | null {
   return raw.split(/\r?\n/).map(line => line.trim()).filter(line => line.startsWith('refs/heads/story/'));
 }
 
-function readStoryFromBranch(root: string, storyDirRel: string, branch: string, storyId: string): StoryInfo | null {
+export function readStoryFromBranch(root: string, storyDirRel: string, branch: string, storyId: string): StoryInfo | null {
   try {
     const raw = git(root, ['show', `${branch}:${storyDirRel}/${storyId}/index.json`]);
     return JSON.parse(raw) as StoryInfo;

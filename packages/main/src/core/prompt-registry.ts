@@ -357,7 +357,7 @@ export function renderCodexPromptContent(content: string): string {
     .replace(/\.claude\/agents\//g, `${PROOF_OR_STOP_ADAPTER_DIR}/agents/`);
 }
 
-export function renderPromptForHost(content: string, host: PromptHost): string {
+export function renderPromptForHost(content: string, host: PromptHost | 'grok'): string {
   if (host === 'codex') return renderCodexPromptContent(content);
   return content;
 }
@@ -499,12 +499,13 @@ interface AcceptanceReviewPromptSource {
 }
 export function projectPromptAsset(entry:PromptRegistryEntry, host:PromptHost, options?:PromptProjectionOptions):Readonly<RegistryPromptProjection>;
 export function projectPromptAsset(entry:GlobalShimPromptSource, host:PromptHost):Readonly<{roleId:string;materialized:string}>;
-export function projectPromptAsset(entry:AcceptanceReviewPromptSource, host:PromptHost):Readonly<{roleId:string;hostBody:string}>;
+export function projectPromptAsset(entry:AcceptanceReviewPromptSource, host:PromptHost | 'grok'):Readonly<{roleId:string;hostBody:string}>;
 export function projectPromptAsset(
   entry: PromptRegistryEntry | GlobalShimPromptSource | AcceptanceReviewPromptSource,
-  host: PromptHost,
+  host: PromptHost | 'grok',
   options: PromptProjectionOptions = {},
 ): Readonly<RegistryPromptProjection | {roleId:string;materialized:string} | {roleId:string;hostBody:string}> {
+  if (host === 'grok' && (!('kind' in entry) || entry.kind !== 'acceptance-review')) throw new Error('Grok asset generation is unsupported; use the managed review transport');
   if ('kind' in entry) {
     if (entry.kind === 'global-shim') {
       const {frontmatter,name} = extractTemplateFrontmatter(entry.raw,entry.file);
@@ -552,7 +553,7 @@ export function projectPromptAsset(
 /** Compose the trusted purpose instructions without modifying package template bytes. */
 function purposeSelectedCriticBody(roleId: string, body: string): string {
   if (canonicalAgentRoleId(roleId) !== 'proof-or-stop-review-topology-critic') return body;
-  return `${body.trimEnd()}\n\n<!-- proof-or-stop:critic-purpose-selection:v1 -->\n## Trusted purpose selection\n\nThe preceding topology certification duties and business-author independence rules apply to default or explicit topology purpose, unchanged. Select inventory duties only from a mechanically validated dispatch/run with reviewPurpose=inventory-completeness and the exact current signed OPEN epoch, wave and cutoff. Missing or untrusted bindings are not permission to infer an inventory assignment.\n\nFor that explicit inventory-only assignment, preserve real Git authors, inspect every required-lane signed terminal/read record and exact aggregate Finding, start review_run_start with reviewPurpose and inventoryEpochId, submit finding_add or review_pass_set with complete read evidence, and then review_inventory_critic_set with one justified disposition per Finding. You remain an independent reviewer, never an implementer; do not edit source or Story artifacts. This branch does not require role-named Git commits and cannot supply topology business-author provenance. Do not call topology_critic_receipt_set from it. An inventory credential never proves topology, TEST, DONE, dependency approval or independent-host assurance. Never retry a topology refusal as inventory; request a fresh explicit assignment instead.\n`;
+  return `${body.trimEnd()}\n\n<!-- proof-or-stop:critic-purpose-selection:v1 -->\n## Trusted purpose selection\n\nThe preceding topology certification duties and business-author independence rules apply to default or explicit topology purpose, unchanged. Select inventory duties only from a mechanically validated dispatch/run with reviewPurpose=inventory-completeness and the exact current signed OPEN epoch, wave and cutoff. Missing or untrusted bindings are not permission to infer an inventory assignment. A metadata-only HEAD advance does not replace the signed inventory cutoff or require restarting a wave: admission still verifies the exact original purpose binding, current material and Story-file hashes, scope, roster and candidate subject. Both the critic run HEAD and current workspace HEAD must be the cutoff commit or its descendant; an older valid critic cannot authorize an equal tree on a divergent or rewound current history. Ancestry uses the signed root with ambient Git redirection, replacement refs and legacy grafts disabled. A missing historical critic commit is excluded as a witness while later valid runs remain eligible. BATCH_SUBJECT_CUTOFF_OBJECT_MISSING means the frozen commit is gone or invalid: the owner must preserve records, cancel the old inventory and begin a fresh inventory with new evidence. BATCH_SUBJECT_LINEAGE_UNVERIFIABLE instead means Git execution could not be verified: repair the query environment and retry; that error alone is not divergence or permission to restart the epoch. Never interpret this tolerance as permission to ignore substantive drift.\n\nFor that explicit inventory-only assignment, preserve real Git authors, inspect every required-lane signed terminal/read record and exact aggregate Finding, start review_run_start with reviewPurpose and inventoryEpochId, submit finding_add or review_pass_set with complete read evidence, and then review_inventory_critic_set with one justified disposition per Finding. You remain an independent reviewer, never an implementer; do not edit source or Story artifacts. This branch does not require role-named Git commits and cannot supply topology business-author provenance. Do not call topology_critic_receipt_set from it. An inventory credential never proves topology, TEST, DONE, dependency approval or independent-host assurance. Never retry a topology refusal as inventory; request a fresh explicit assignment instead.\n`;
 }
 
 export function buildShimBody(role: string): string {
