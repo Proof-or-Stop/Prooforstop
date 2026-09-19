@@ -626,7 +626,11 @@ function sandboxExecMechanism(denied: string[], trust: WrapperTrust): Mechanism 
       const { wrapperEnv, reapplied } = partitionLaunchEnvironment(launch.env ?? process.env);
       const inner = innerCommandLine(launch);
       // Nothing withheld: the command is launched directly under the sandbox.
-      if (reapplied.length === 0) return { command: executable, args: ['-p', profile, ...inner], shell: false, env: wrapperEnv };
+      // The wrapper-owned `--` ends sandbox-exec's option parsing, so the
+      // declared executable is the program whatever its spelling: a command
+      // named `--` is a (missing) program, never the option terminator that
+      // would let its first argument run in its place.
+      if (reapplied.length === 0) return { command: executable, args: ['-p', profile, '--', ...inner], shell: false, env: wrapperEnv };
       // The withheld variables (loader variables and credentials alike) are
       // restored INSIDE the sandbox by the trampoline, which reads its script
       // from a private descriptor: a restricted wrapper would strip DYLD_*
@@ -638,7 +642,7 @@ function sandboxExecMechanism(denied: string[], trust: WrapperTrust): Mechanism 
         throw new Error(`${LAUNCH_UNSUPPORTED_TAG} the launch environment must be transferred into the sandbox through a confidential descriptor, and the launcher offered none`);
       }
       const payload = Buffer.from(trampolineScript(reapplied), 'utf8');
-      return { command: executable, args: ['-p', profile, trampoline, `/dev/fd/${launch.confidentialFd}`, ...inner], shell: false, env: wrapperEnv, confidential: { fd: launch.confidentialFd, payload } };
+      return { command: executable, args: ['-p', profile, '--', trampoline, `/dev/fd/${launch.confidentialFd}`, ...inner], shell: false, env: wrapperEnv, confidential: { fd: launch.confidentialFd, payload } };
     },
   };
 }

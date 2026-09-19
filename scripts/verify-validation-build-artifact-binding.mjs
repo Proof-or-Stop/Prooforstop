@@ -1241,13 +1241,13 @@ try {
           // the sandbox by the /bin/sh trampoline, from a private descriptor.
           const dyldLaunch = hostProtection.wrap({ command: process.execPath, args: ['-e', '0'], shell: false, env: { ...process.env, DYLD_INSERT_LIBRARIES: '/fixture/insert.dylib', LD_PRELOAD: '/fixture/preload.so' }, confidentialFd: 3 });
           const hex = (value) => Buffer.from(value, 'utf8').toString('hex');
-          expectRepaired(dyldLaunch.command === '/usr/bin/sandbox-exec' && dyldLaunch.args[0] === '-p' && dyldLaunch.args[2] === '/usr/bin/perl' && dyldLaunch.args[3] === '/dev/fd/3' && dyldLaunch.args[4] === process.execPath && !dyldLaunch.args.includes('/usr/bin/env')
+          expectRepaired(dyldLaunch.command === '/usr/bin/sandbox-exec' && dyldLaunch.args[0] === '-p' && dyldLaunch.args[2] === '--' && dyldLaunch.args[3] === '/usr/bin/perl' && dyldLaunch.args[4] === '/dev/fd/3' && dyldLaunch.args[5] === process.execPath && !dyldLaunch.args.includes('/usr/bin/env')
             && !dyldLaunch.args.some((argument) => argument.includes('/fixture/insert.dylib') || argument.includes('/fixture/preload.so'))
             && Object.keys(dyldLaunch.env).every((key) => binding.isWrapperEnvironmentVariable(key))
             && dyldLaunch.confidential?.fd === 3 && dyldLaunch.confidential.payload.toString('utf8').includes(`$ENV{'DYLD_INSERT_LIBRARIES'} = pack('H*', '${hex('/fixture/insert.dylib')}');\n`) && dyldLaunch.confidential.payload.toString('utf8').includes(`$ENV{'LD_PRELOAD'} = pack('H*', '${hex('/fixture/preload.so')}');\n`) && dyldLaunch.confidential.payload.toString('utf8').endsWith('exec { $ARGV[0] } @ARGV or exit 127;\n'),
-            `sandbox-exec was launched with loader variables in its own environment, or without the trampoline that restores them inside (${JSON.stringify(dyldLaunch.args.slice(0, 5))}, env keys ${Object.keys(dyldLaunch.env).filter((key) => /^(LD_|DYLD_)/.test(key)).join(',')})`);
+            `sandbox-exec was launched with loader variables in its own environment, or without the trampoline that restores them inside (${JSON.stringify(dyldLaunch.args.slice(0, 6))}, env keys ${Object.keys(dyldLaunch.env).filter((key) => /^(LD_|DYLD_)/.test(key)).join(',')})`);
           const plainLaunch = hostProtection.wrap({ command: process.execPath, args: ['-e', '0'], shell: false, env: { HOME: process.env.HOME ?? '/', USER: process.env.USER ?? 'user' } });
-          check(!plainLaunch.args.includes('/usr/bin/env') && plainLaunch.args[2] === process.execPath, 'control: a launch with nothing to withhold is not routed through /usr/bin/env');
+          check(!plainLaunch.args.includes('/usr/bin/env') && plainLaunch.args[2] === '--' && plainLaunch.args[3] === process.execPath, 'control: a launch with nothing to withhold runs directly, behind the wrapper-owned option terminator');
         }
         const executorSource6 = readFileSync(join(repoRoot, 'packages/main/src/core/validation-executor.ts'), 'utf8');
         expectRepaired(executorSource6.includes('.wrap({ command: command.command, args: command.args, shell: declaredShell, env: childEnv, confidentialFd })') && executorSource6.includes('      env: launch.env,'),
@@ -2258,6 +2258,19 @@ if (hostEnforced) {
       const sortedEntries = (text) => { try { return JSON.stringify(Object.entries(JSON.parse(text)).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))); } catch { return text; } };
       expectRepaired(directEnv.status === 0 && wrappedEnv.status === 0 && sortedEntries(directEnv.stdout) === sortedEntries(wrappedEnv.stdout),
         `the protected command's environment differs from the declared one (${wrappedEnv.status}; ${(wrappedEnv.stderr || '').slice(0, 120)}; ${(() => { try { const a = JSON.parse(directEnv.stdout), b = JSON.parse(wrappedEnv.stdout); return Object.keys({ ...a, ...b }).filter((key) => a[key] !== b[key]).map((key) => `${key}: ${JSON.stringify(a[key])} vs ${JSON.stringify(b[key])}`).join(', ').slice(0, 300); } catch { return 'unparseable'; } })()})`);
+      // Audit #49: on the DIRECT branch (nothing withheld) the wrapper's own
+      // `--` ends sandbox-exec's option parsing, so a command named `--` is
+      // a missing program, never the terminator that would let its first
+      // argument run in its place.
+      for (const directEnv of [{}, { HOME: process.env.HOME ?? '/', USER: process.env.USER ?? 'user' }]) {
+        for (const dashCommand of ['--', '-x']) {
+          const directLaunch = eqProtection.wrap({ command: dashCommand, args: ['/usr/bin/true'], shell: false, env: directEnv });
+          expectRepaired(!directLaunch.confidential && directLaunch.args[2] === '--' && directLaunch.args[3] === dashCommand && directLaunch.args[4] === '/usr/bin/true',
+            `the direct branch hands sandbox-exec the declared command without an option terminator (${JSON.stringify(directLaunch.args.slice(0, 5))})`);
+          const directRun = spawnWrapped(directLaunch, { cwd: root });
+          expectRepaired(directRun.status !== 0, `a missing executable named ${dashCommand} let its argument /usr/bin/true run in its place on the direct branch (status ${directRun.status})`);
+        }
+      }
       // Audit #47 (1): an executable named `--` (or `-x`) is a program, never
       // an option of the trampoline: absent, it fails as it does directly.
       for (const dashCommand of ['--', '-x']) {
@@ -2279,7 +2292,7 @@ if (hostEnforced) {
       expectRepaired(secretRun.code === 0 && secretRun.output.includes(secretValue), `the executor's protected launch lost the credential (${secretRun.code}, ${secretRun.output.slice(0, 80)})`);
       const protectionSource12 = readFileSync(join(repoRoot, 'packages/main/src/core/build-artifacts-protection.ts'), 'utf8');
       expectRepaired(!/const ENV_BIN|envBin/.test(protectionSource12) && protectionSource12.includes("'--args', String(launch.confidentialFd), '--'") && protectionSource12.includes('const sip = systemIntegrityProtectionRefusal(trust);')
-        && protectionSource12.includes('trampoline, `/dev/fd/${launch.confidentialFd}`, ...inner]') && protectionSource12.includes('checkTransferableEnvironment(reapplied);\n      const payload = Buffer.from(reapplied.flatMap(')
+        && protectionSource12.includes("'--', trampoline, `/dev/fd/${launch.confidentialFd}`, ...inner]") && protectionSource12.includes("args: ['-p', profile, '--', ...inner]") && protectionSource12.includes('checkTransferableEnvironment(reapplied);\n      const payload = Buffer.from(reapplied.flatMap(')
         && protectionSource12.includes("const TRAMPOLINE = '/usr/bin/perl';") && protectionSource12.includes('exec { $ARGV[0] } @ARGV or exit 127;') && !protectionSource12.includes('exec "$@"'),
         'the protection still re-applies the environment through /usr/bin/env or bwrap argv (source-text guard)');
       rmSync(dyldDir, { recursive: true, force: true });
