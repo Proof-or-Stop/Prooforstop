@@ -50,6 +50,16 @@ Keep hooks enabled and preserve prompt plus mechanical enforcement for process
 facts. Local records are not formal Story REVIEW, TEST, DONE, or signed
 artifact/capability-release evidence. No Story JSON is created or advanced.
 
+### Root-install dependency regression
+
+Run `npm run test:root-ws-types` after changing root build dependencies or their
+lockfile. This opt-in installation check runs root-only `npm ci` in a temporary
+directory, typechecks the main sources, and checks static and dynamic WebSocket
+types. It is intentionally outside the default validation suite: unlike ordinary
+source checks, it installs the locked root dependency tree and may need npm
+registry access when packages are not cached. Use it explicitly in a
+network-enabled maintenance or CI job; installation failure is never target RED.
+
 ## Carry a blocked Story patch
 
 An explicitly authorized Lab may carry one clean Story patch when its intended
