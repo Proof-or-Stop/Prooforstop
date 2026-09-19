@@ -88,7 +88,7 @@ import {
 } from '../core/validation-tier-planner.js';
 import { digestCanonicalJson } from '../core/digest.js';
 import { narrowPortableValidationCommandTuple, provisionalValidationCommandId } from '../core/validation-command-portable-id.js';
-import { combineSequencedBuildArtifactsBindings } from '../core/build-artifacts-identity.js';
+import { combineSequencedBuildArtifactsBindings, type LaunchDirectoryIdentity } from '../core/build-artifacts-identity.js';
 
 export interface PrepareStoryAwareValidationArgs {
   findingConstraints?: import('../core/finding-validation.js').FindingValidationConstraints;
@@ -866,6 +866,8 @@ async function executeShardedEntry(args: {
   projectRoot: string;
   /** The canonical directory frozen for this entry at planning; every oracle and shard launches there. */
   launchCwd?: string;
+  /** The identity bound to launchCwd at planning; every oracle and shard re-verifies the directory against it. */
+  launchIdentity?: LaunchDirectoryIdentity;
   /** Git worktree root may differ from the config/project root on wrapper layouts; the executor digests artifacts under it. */
   gitCwd?: string;
   storyId: string;
@@ -891,6 +893,7 @@ async function executeShardedEntry(args: {
   }, args.projectRoot, args.head, args.storyId, {
     ...(args.gitCwd ? { gitCwd: args.gitCwd } : {}),
     launchCwds: [args.launchCwd],
+    launchIdentities: [args.launchIdentity],
     progress: args.progress,
     abortSignal: args.abortSignal,
     deadlineAt: args.deadlineAt,
@@ -977,6 +980,7 @@ async function executeShardedEntry(args: {
     }, args.projectRoot, args.head, args.storyId, {
       ...(args.gitCwd ? { gitCwd: args.gitCwd } : {}),
       launchCwds: [args.launchCwd],
+    launchIdentities: [args.launchIdentity],
       progress: args.progress,
       abortSignal: args.abortSignal,
       deadlineAt: args.deadlineAt,
@@ -1347,6 +1351,7 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
   const wave = await executeValidationPlan({ provider: 'story-aware-dynamic-wave-0', commands: [waveCommand], warnings: [] }, args.projectRoot, head, args.storyId, {
     ...(args.gitCwd ? { gitCwd: args.gitCwd } : {}),
     launchCwds: [first.manifest.rows.find((row) => row.commandId === waveId)?.resolvedCwd],
+    launchIdentities: [first.manifest.rows.find((row) => row.commandId === waveId)?.resolvedCwdIdentity],
     progress: args.progress,
     abortSignal: args.abortSignal,
     deadlineAt: args.deadlineAt,
@@ -1401,6 +1406,7 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
       }, args.projectRoot, head, args.storyId, {
         ...(args.gitCwd ? { gitCwd: args.gitCwd } : {}),
         launchCwds: ordinaryEntries.map((entry) => final.manifest.rows.find((row) => row.commandId === entry.id)?.resolvedCwd),
+        launchIdentities: ordinaryEntries.map((entry) => final.manifest.rows.find((row) => row.commandId === entry.id)?.resolvedCwdIdentity),
         progress: args.progress,
         abortSignal: args.abortSignal,
         deadlineAt: args.deadlineAt,
@@ -1412,6 +1418,7 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
       const sharded = await executeShardedEntry({
         entry, prepared: final, commands: args.commands, projectRoot: args.projectRoot, gitCwd: args.gitCwd,
         launchCwd: final.manifest.rows.find((row) => row.commandId === entry.id)?.resolvedCwd,
+        launchIdentity: final.manifest.rows.find((row) => row.commandId === entry.id)?.resolvedCwdIdentity,
         storyId: args.storyId, head, progress: args.progress, abortSignal: args.abortSignal,
         deadlineAt: args.deadlineAt, deadlineError: args.deadlineError, beforeLaunch: args.beforeLaunch, buildProofDigest,
       });

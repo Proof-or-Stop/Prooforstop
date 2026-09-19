@@ -1,6 +1,8 @@
 import { createHash, type Hash } from 'node:crypto';
-import { existsSync, lstatSync, readFileSync, readdirSync, readlinkSync, realpathSync } from 'node:fs';
-import { basename, dirname, isAbsolute, join, posix, relative, resolve, sep } from 'node:path';
+import { accessSync, constants as fsConstants, existsSync, lstatSync, readFileSync, readdirSync, readlinkSync, realpathSync } from 'node:fs';
+import { basename, dirname, isAbsolute, join, posix, relative, resolve, sep, win32 } from 'node:path';
+
+const X_OK = fsConstants.X_OK;
 import { gitObservationKey, readObservedGitState } from './git-tree-observation.js';
 import { weakestProtectionLabel } from './build-artifacts-protection.js';
 
@@ -141,15 +143,28 @@ function artifactTreeDigest(root: string): string {
 }
 
 /**
- * The directory the KERNEL reaches for `path`: components are walked in
- * filesystem order, every symbolic link on the way is followed, and `..`
- * applies to the directory reached so far — so `/repo/alias/../checks` with
- * `alias -> /elsewhere/tree` is `/elsewhere/checks`, exactly where a launch
- * with that cwd runs. (Node's realpath normalises `..` lexically first and
- * would say `/repo/checks`.) Segments that do not exist yet are appended as
- * written, so a tree a build has not created yet compares in the same path
- * space as an existing one.
+ * Path semantics for the walker: the host's by default, a seam for tests of
+ * the other family (a Windows drive or UNC root cannot be walked on POSIX).
  */
+export interface PathWalkSeam {
+  platform?: 'win32' | 'posix';
+  cwd?: string;
+  lstat?: (path: string) => { isSymbolicLink(): boolean; isDirectory(): boolean };
+  readlink?: (path: string) => string;
+  /** Whether this directory may be traversed (search permission). */
+  searchable?: (path: string) => boolean;
+}
+
+function pathApiFor(seam?: PathWalkSeam): typeof posix | typeof win32 {
+  if (seam?.platform === 'win32') return win32;
+  if (seam?.platform === 'posix') return posix;
+  return sep === '\\' ? win32 : posix;
+}
+
+function splitComponents(api: typeof posix | typeof win32, path: string): string[] {
+  return (api === win32 ? path.split(/[\\/]+/) : path.split('/')).filter(Boolean);
+}
+
 /**
  * The directory a launch with this declared cwd NAMES, joined to its base the
  * way a spawn would interpret it: a relative cwd is appended to the base as
@@ -158,38 +173,103 @@ function artifactTreeDigest(root: string): string {
  * link's parent instead. Only canonicalizeExistingPath decides where that
  * name lands.
  */
-export function launchDirectoryOf(base: string, cwd?: string): string {
+export function launchDirectoryOf(base: string, cwd?: string, seam?: PathWalkSeam): string {
+  const api = pathApiFor(seam);
   if (!cwd) return base;
-  if (isAbsolute(cwd)) return cwd;
-  return base.endsWith('/') ? `${base}${cwd}` : `${base}/${cwd}`;
+  if (api.isAbsolute(cwd)) return cwd;
+  const last = base[base.length - 1];
+  return last === '/' || last === api.sep ? `${base}${cwd}` : `${base}${api.sep}${cwd}`;
 }
 
-export function canonicalizeExistingPath(path: string): string {
-  const absolute = launchDirectoryOf(process.cwd(), path);
-  let remaining = absolute.split('/').filter(Boolean);
-  let current = '/';
+/**
+ * The directory the KERNEL reaches for `path`: components are walked in
+ * filesystem order, every symbolic link on the way is followed, and `..`
+ * applies to the directory reached so far — so `/repo/alias/../checks` with
+ * `alias -> /elsewhere/tree` is `/elsewhere/checks`, exactly where a launch
+ * with that cwd runs. (Node's realpath normalises `..` lexically first and
+ * would say `/repo/checks`.) The walk stops where the kernel's would fail:
+ * at a component that does not exist, at one that is not a directory, or at
+ * a directory that cannot be searched, the rest is appended AS WRITTEN —
+ * `..` included — so `existing-file/..` and `missing/..` stay the invalid
+ * names a launch refuses (ENOTDIR, ENOENT) instead of collapsing into their
+ * valid parent, while a tree a build has not created yet still compares in
+ * the same path space as an existing one. The root of the path (`/`, a
+ * Windows drive or a UNC share) is preserved as parsed.
+ */
+export function canonicalizeExistingPath(path: string, seam?: PathWalkSeam): string {
+  const api = pathApiFor(seam);
+  const lstat = seam?.lstat ?? lstatSync;
+  const readlink = seam?.readlink ?? readlinkSync;
+  const searchable = seam?.searchable ?? ((directory: string) => { try { accessSync(directory, X_OK); return true; } catch { return false; } });
+  const absolute = launchDirectoryOf(seam?.cwd ?? process.cwd(), path, seam);
+  const root = api.parse(absolute).root;
+  let current = root;
+  let remaining = splitComponents(api, absolute.slice(root.length));
   let hops = 0;
+  // Everything from `from` on is unresolved: it is spelled exactly as the
+  // launch would spell it, never normalised.
+  const unresolved = (from: string, rest: string[]): string => (rest.length === 0 ? from : `${from}${from.endsWith(api.sep) ? '' : api.sep}${rest.join(api.sep)}`);
   while (remaining.length > 0) {
     const component = remaining.shift()!;
     if (component === '.') continue;
-    if (component === '..') { current = dirname(current); continue; }
-    const next = join(current, component);
+    if (component === '..') { current = api.dirname(current); continue; }
+    const next = api.join(current, component);
     let entry;
-    try { entry = lstatSync(next); } catch {
+    try { entry = lstat(next); } catch {
       // Nothing exists from here on: the rest is appended as written.
-      return join(next, ...remaining);
+      return unresolved(next, remaining);
     }
     if (entry.isSymbolicLink()) {
       if (++hops > 40) return absolute;
       let target: string;
-      try { target = readlinkSync(next); } catch { return join(next, ...remaining); }
-      remaining = [...target.split('/').filter(Boolean), ...remaining];
-      if (isAbsolute(target)) current = '/';
+      try { target = readlink(next); } catch { return unresolved(next, remaining); }
+      const targetRoot = api.isAbsolute(target) ? api.parse(target).root : '';
+      remaining = [...splitComponents(api, target.slice(targetRoot.length)), ...remaining];
+      if (targetRoot) current = targetRoot;
       continue;
     }
+    // A component the kernel could not traverse: not a directory, or a
+    // directory this user may not search. What follows it — `..` included —
+    // is not resolvable and stays spelled as written.
+    if (remaining.length > 0 && (!entry.isDirectory() || !searchable(next))) return unresolved(next, remaining);
     current = next;
   }
   return current;
+}
+
+/** Filesystem identity of a directory, bound with its canonical path. */
+export interface LaunchDirectoryIdentity { readonly dev: number; readonly ino: number }
+
+/**
+ * The filesystem identity of the directory at this canonical path, if it is
+ * a directory that exists now; undefined for a directory a later command may
+ * still create (a missing tail keeps its spelling; see the walker).
+ */
+export function bindLaunchDirectoryIdentity(canonicalPath: string): LaunchDirectoryIdentity | undefined {
+  try {
+    const entry = lstatSync(canonicalPath);
+    return entry.isDirectory() ? { dev: entry.dev, ino: entry.ino } : undefined;
+  } catch { return undefined; }
+}
+
+/**
+ * Whether the directory a launch was pinned to is still that directory:
+ * its path must resolve to itself (no component has become a link since it
+ * was pinned) and, when an identity was bound, the directory there must be
+ * the same filesystem object (not a directory renamed or copied into place).
+ * The reason names the drift; undefined means the pin holds.
+ */
+export function launchDirectoryDrift(canonicalPath: string, identity: LaunchDirectoryIdentity | undefined, seam?: PathWalkSeam): string | undefined {
+  const now = canonicalizeExistingPath(canonicalPath, seam);
+  if (now !== canonicalPath) return `the pinned launch directory ${canonicalPath} now resolves to ${now}`;
+  if (!identity) return undefined;
+  let entry;
+  try { entry = lstatSync(canonicalPath); } catch (error) {
+    return `the pinned launch directory ${canonicalPath} no longer exists (${error instanceof Error ? error.message : String(error)})`;
+  }
+  if (!entry.isDirectory()) return `the pinned launch directory ${canonicalPath} is no longer a directory`;
+  if (entry.dev !== identity.dev || entry.ino !== identity.ino) return `the pinned launch directory ${canonicalPath} was replaced by another directory (dev/ino ${identity.dev}/${identity.ino} became ${entry.dev}/${entry.ino})`;
+  return undefined;
 }
 
 /**

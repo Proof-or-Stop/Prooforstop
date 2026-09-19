@@ -16,7 +16,7 @@ import { VALIDATION_SOURCE_PROVENANCE_SCHEMA } from './runtime-fact-registry.js'
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, posix, resolve } from 'node:path';
-import { canonicalizeExistingPath, launchDirectoryOf } from './build-artifacts-identity.js';
+import { bindLaunchDirectoryIdentity, canonicalizeExistingPath, launchDirectoryOf, type LaunchDirectoryIdentity } from './build-artifacts-identity.js';
 import ts from 'typescript';
 import { PROOF_OR_STOP_CONFIG_FILENAME } from './brand-paths.js';
 import { pickProjectConfigPath } from './config.js';
@@ -892,6 +892,8 @@ export interface SelectionRow {
   commandId: string; disposition: DynamicDisposition; reasons: string[]; inputDigest: string; receiptId?: string; closureCertificateDigest?: string;
   /** The canonical directory the command runs in, resolved ONCE at planning: every execution wave launches there and a receipt is issued only for a result that did. */
   resolvedCwd?: string;
+  /** The filesystem identity of resolvedCwd at planning; every launch re-verifies the directory against it before running there. */
+  resolvedCwdIdentity?: LaunchDirectoryIdentity;
 }
 export interface ValidationSingletonContribution {
   /** The independently computed singleton input that contributed commands. */
@@ -1262,7 +1264,11 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     if (receipt) return { commandId: row.id, disposition: 'reuse', reasons: ['certified-input-closure-unchanged'], inputDigest, receiptId: receipt.id, closureCertificateDigest: closure.signature };
     return { commandId: row.id, disposition: 'execute', reasons: ['no-admissible-reusable-receipt'], inputDigest, closureCertificateDigest: closure.signature };
   });
-  for (const row of rows) row.resolvedCwd = resolvedCwds.get(row.commandId);
+  for (const row of rows) {
+    row.resolvedCwd = resolvedCwds.get(row.commandId);
+    const identity = row.resolvedCwd ? bindLaunchDirectoryIdentity(row.resolvedCwd) : undefined;
+    if (identity) row.resolvedCwdIdentity = identity;
+  }
   const coveredByIndependentInputs = singletonUnion([...contributionSets.entries()].map(([source, ids]) => ({ source, commandIds: [...ids] })));
   for (const row of rows) {
     if (coveredByIndependentInputs.has(row.commandId)) continue;

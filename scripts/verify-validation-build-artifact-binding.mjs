@@ -29,7 +29,7 @@ registerHooks({ load(url, context, nextLoad) {
 } });
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { cpSync, existsSync, linkSync, lstatSync, mkdtempSync, mkdirSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync, chmodSync } from 'node:fs';
+import { cpSync, existsSync, linkSync, lstatSync, mkdtempSync, mkdirSync, readFileSync, realpathSync, renameSync, rmSync, symlinkSync, writeFileSync, chmodSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 
@@ -1967,6 +1967,128 @@ if (hostEnforced) {
       expectRepaired(dotDotRun.allPass === true && (dotDotRun.commands[0]?.output ?? '').includes('kernel destination') && dotDotRun.commands[0]?.launchCwd === join(canonicalRoot, 'elsewhere', 'checks'),
         `a cwd with \`..\` after a symbolic link was launched or recorded at the lexical destination (allPass=${dotDotRun.allPass}, launchCwd=${dotDotRun.commands[0]?.launchCwd}, ${(dotDotRun.commands[0]?.output ?? '').slice(0, 60)})`);
       rmSync(join(canonicalRoot, 'alias')); rmSync(join(canonicalRoot, 'checks'), { recursive: true, force: true }); rmSync(join(canonicalRoot, 'elsewhere'), { recursive: true, force: true });
+    }
+    // Audit #39 (1): the directory a command is pinned to is bound by
+    // filesystem identity and re-verified before the cache is consulted and
+    // immediately before the spawn. A directory renamed away and replaced —
+    // by a link to another directory, or by another real directory — refuses
+    // the launch: nothing runs, no launch directory is recorded, so no
+    // receipt can be attributed to the pinned directory.
+    if (hostEnforced) {
+      const canonicalRoot = realpathSync(root);
+      const pinnedDir = join(canonicalRoot, 'pinned-checks'); mkdirSync(pinnedDir); writeFileSync(join(pinnedDir, 'validate.js'), 'process.stdout.write("pinned directory"); process.exit(0);\n');
+      const otherDir = join(canonicalRoot, 'other-checks'); mkdirSync(otherDir); writeFileSync(join(otherDir, 'validate.js'), 'process.stdout.write("OTHER directory"); process.exit(0);\n');
+      const pinnedIdentity = binding.bindLaunchDirectoryIdentity(pinnedDir);
+      expectRepaired(pinnedIdentity && Number.isInteger(pinnedIdentity.ino) && Number.isInteger(pinnedIdentity.dev), `no filesystem identity is bound for a pinned directory (${JSON.stringify(pinnedIdentity)})`);
+      check(binding.launchDirectoryDrift(pinnedDir, pinnedIdentity) === undefined, 'control: an untouched pinned directory shows no drift');
+      const pinnedCommand = { label: 'pinned', command: 'node', args: ['validate.js'], cwd: pinnedDir, timeoutMs: 20_000 };
+      const pinnedRun = await runValidationCommand(pinnedCommand, root, 20_000, { launchCwd: pinnedDir, launchIdentity: pinnedIdentity });
+      check(pinnedRun.code === 0 && pinnedRun.launchCwd === pinnedDir && pinnedRun.output.includes('pinned directory'), `control: the pinned directory runs and is recorded while untouched (${pinnedRun.code}, ${pinnedRun.launchCwd})`);
+      // (a) replaced by a link to another directory
+      renameSync(pinnedDir, join(canonicalRoot, 'pinned-checks-moved')); symlinkSync(otherDir, pinnedDir);
+      const linkDrift = binding.launchDirectoryDrift(pinnedDir, pinnedIdentity);
+      expectRepaired(typeof linkDrift === 'string' && linkDrift.includes('now resolves to'), `a pinned directory replaced by a link is not reported as drift (${linkDrift})`);
+      const viaLink = await runValidationCommand(pinnedCommand, root, 20_000, { launchCwd: pinnedDir, launchIdentity: pinnedIdentity });
+      expectRepaired(viaLink.code !== 0 && viaLink.launchCwd === undefined && viaLink.output.includes('[launch_directory_drift]') && !viaLink.output.includes('OTHER directory'),
+        `a launch pinned to a directory that became a link ran through the link or recorded the pinned directory (code=${viaLink.code}, launchCwd=${viaLink.launchCwd}, ${viaLink.output.slice(0, 120)})`);
+      rmSync(pinnedDir); renameSync(join(canonicalRoot, 'pinned-checks-moved'), pinnedDir);
+      // (b) replaced by another real directory (rename swap): same path, other object
+      renameSync(pinnedDir, join(canonicalRoot, 'pinned-checks-moved')); renameSync(otherDir, pinnedDir);
+      const swapDrift = binding.launchDirectoryDrift(pinnedDir, pinnedIdentity);
+      expectRepaired(typeof swapDrift === 'string' && swapDrift.includes('was replaced by another directory'), `a pinned directory swapped for another real directory is not reported as drift (${swapDrift})`);
+      const viaSwap = await runValidationCommand(pinnedCommand, root, 20_000, { launchCwd: pinnedDir, launchIdentity: pinnedIdentity });
+      expectRepaired(viaSwap.code !== 0 && viaSwap.launchCwd === undefined && viaSwap.output.includes('[launch_directory_drift]'),
+        `a launch pinned to a directory swapped for another ran in the replacement (code=${viaSwap.code}, launchCwd=${viaSwap.launchCwd}, ${viaSwap.output.slice(0, 120)})`);
+      // (c) within one plan: the first command replaces the second's pinned
+      // directory (identity bound at plan start, before the first launch).
+      renameSync(pinnedDir, otherDir); renameSync(join(canonicalRoot, 'pinned-checks-moved'), pinnedDir);
+      const swapScript = join(canonicalRoot, 'swap.js');
+      writeFileSync(swapScript, `const fs = require('node:fs'); fs.renameSync(${JSON.stringify(pinnedDir)}, ${JSON.stringify(join(canonicalRoot, 'pinned-checks-moved'))}); fs.symlinkSync(${JSON.stringify(otherDir)}, ${JSON.stringify(pinnedDir)}); process.exit(0);\n`);
+      const planRun = await executeValidationPlan({ provider: 'build-binding-fixture', commands: [
+        { label: 'swap', command: 'node', args: [swapScript], timeoutMs: 20_000 },
+        { label: 'pinned in plan', command: 'node', args: ['validate.js'], cwd: 'pinned-checks', timeoutMs: 20_000 },
+      ], warnings: [] }, root, undefined, undefined, { jobs: 1 });
+      const swapped = planRun.commands.find((command) => command.label === 'pinned in plan');
+      expectRepaired(planRun.allPass === false && swapped && swapped.code !== 0 && swapped.launchCwd === undefined && swapped.output.includes('[launch_directory_drift]'),
+        `a plan command whose pinned directory an earlier command replaced ran anyway or was attributed to the pinned directory (allPass=${planRun.allPass}, code=${swapped?.code}, launchCwd=${swapped?.launchCwd}, ${(swapped?.output ?? '').slice(0, 120)})`);
+      // (d) the receipt path and the reuse path both read the verified launch
+      // directory: the handler passes the planning-time identity through and
+      // the executor records launchCwd only for a launch it verified.
+      const handlerSource9 = readFileSync(join(repoRoot, 'packages/main/src/handlers/story-aware-validation.ts'), 'utf8');
+      const executorSource9 = readFileSync(join(repoRoot, 'packages/main/src/core/validation-executor.ts'), 'utf8');
+      const storyAwareSource9 = readFileSync(join(repoRoot, 'packages/main/src/core/story-aware-validation.ts'), 'utf8');
+      expectRepaired((handlerSource9.match(/launchIdentities: \[args\.launchIdentity\]/g) ?? []).length === 2
+        && handlerSource9.includes('launchIdentities: ordinaryEntries.map((entry) => final.manifest.rows.find((row) => row.commandId === entry.id)?.resolvedCwdIdentity)')
+        && handlerSource9.includes('launchIdentities: [first.manifest.rows.find((row) => row.commandId === waveId)?.resolvedCwdIdentity]')
+        && handlerSource9.includes('launchIdentity: final.manifest.rows.find((row) => row.commandId === entry.id)?.resolvedCwdIdentity,')
+        && storyAwareSource9.includes('row.resolvedCwdIdentity = identity'),
+        'the dynamic handler does not pass the planning-time directory identity to every wave, shard and oracle (source-text guard)');
+      expectRepaired(executorSource9.includes('const drift = launchDirectoryDrift(options.launchCwd!, options.launchIdentity); if (drift) return Promise.resolve(refusedLaunchResult(')
+        && executorSource9.includes('const drift = launchDirectoryDrift(options.launchCwd, options.launchIdentity);\n    if (drift) { const result = refusedLaunchResult('),
+        'the executor does not verify the pinned directory both before the cache and immediately before the spawn (source-text guard)');
+      rmSync(pinnedDir, { force: true }); rmSync(join(canonicalRoot, 'pinned-checks-moved'), { recursive: true, force: true }); rmSync(otherDir, { recursive: true, force: true }); rmSync(swapScript, { force: true });
+    }
+    // Audit #39 (3): the walker stops where the kernel's resolution would
+    // fail and keeps the rest spelled as written, so `existing-file/..`,
+    // `missing/..` and `unsearchable/..` remain the invalid names a launch
+    // refuses instead of collapsing into their valid parent and running there.
+    if (hostEnforced) {
+      const canonicalRoot = realpathSync(root);
+      const negRoot = join(canonicalRoot, 'negative-cwd'); mkdirSync(negRoot); writeFileSync(join(negRoot, 'validate.js'), 'process.stdout.write("parent ran"); process.exit(0);\n');
+      writeFileSync(join(negRoot, 'a-file'), 'not a directory\n');
+      const cases = [
+        { name: 'file/..', cwd: `${negRoot}/a-file/..`, expectedError: /ENOTDIR|ENOENT|not a directory/ },
+        { name: 'missing/..', cwd: `${negRoot}/missing/..`, expectedError: /ENOENT|no such file/ },
+      ];
+      if (process.getuid?.() !== 0) { mkdirSync(join(negRoot, 'locked')); chmodSync(join(negRoot, 'locked'), 0o000); cases.push({ name: 'unsearchable/..', cwd: `${negRoot}/locked/..`, expectedError: /EACCES|ENOENT|permission denied/ }); }
+      try {
+        for (const testCase of cases) {
+          const canonical = binding.canonicalizeExistingPath(testCase.cwd);
+          expectRepaired(canonical === testCase.cwd, `the walker collapsed ${testCase.name} into a launchable parent (${canonical})`);
+          // Control: the kernel refuses that cwd.
+          const kernel = spawnSync(process.execPath, ['-e', 'process.exit(0)'], { cwd: testCase.cwd, encoding: 'utf8' });
+          check(kernel.error !== undefined && testCase.expectedError.test(String(kernel.error.code ?? kernel.error.message)), `control: the kernel refuses ${testCase.name} as a cwd (${kernel.error?.code ?? kernel.status})`);
+          const launched = await run([{ label: testCase.name, command: 'node', args: ['validate.js'], cwd: testCase.cwd, timeoutMs: 20_000 }]);
+          expectRepaired(launched.allPass === false && !(launched.commands[0]?.output ?? '').includes('parent ran') && launched.commands[0]?.launchCwd !== negRoot,
+            `a declared cwd of ${testCase.name} was executed in its parent directory (allPass=${launched.allPass}, launchCwd=${launched.commands[0]?.launchCwd}, ${(launched.commands[0]?.output ?? '').slice(0, 100)})`);
+        }
+      } finally { if (existsSync(join(negRoot, 'locked'))) chmodSync(join(negRoot, 'locked'), 0o755); }
+      // The tail a build has not created yet still keeps its spelling in the
+      // same path space (no `..` involved): dist under an existing package.
+      check(binding.canonicalizeExistingPath(`${negRoot}/packages/main/dist`) === join(negRoot, 'packages', 'main', 'dist'), 'control: a missing tail without `..` is appended as written');
+      rmSync(negRoot, { recursive: true, force: true });
+    }
+    // Audit #39 (2): the walker preserves the root of the path as parsed for
+    // the platform it walks — `/`, a Windows drive, a UNC share — and joins
+    // with that platform's separator; Windows semantics are exercised through
+    // the walker's seam with an in-memory tree (no Windows host here).
+    {
+      const tree = new Map([
+        ['C:\\repo', 'dir'], ['C:\\repo\\alias', 'link:C:\\elsewhere\\tree'], ['C:\\elsewhere', 'dir'], ['C:\\elsewhere\\tree', 'dir'], ['C:\\elsewhere\\checks', 'dir'],
+        ['C:\\repo\\checks', 'dir'], ['C:\\work', 'dir'], ['C:\\repo\\a-file', 'file'],
+        ['\\\\server\\share\\dir', 'dir'], ['\\\\server\\share\\other', 'dir'],
+      ]);
+      const winSeam = {
+        platform: 'win32', cwd: 'C:\\work',
+        lstat: (path) => { const kind = tree.get(path); if (!kind) { const error = new Error('ENOENT'); throw error; } return { isSymbolicLink: () => kind.startsWith('link:'), isDirectory: () => kind === 'dir' }; },
+        readlink: (path) => tree.get(path).slice(5),
+        searchable: () => true,
+      };
+      const winCases = [
+        ['C:\\repo', 'C:\\repo', 'a drive-rooted directory keeps its drive'],
+        ['C:\\repo\\alias\\..\\checks', 'C:\\elsewhere\\checks', '`..` after a drive-rooted link steps out of the link target'],
+        ['\\\\server\\share\\dir\\..\\other', '\\\\server\\share\\other', 'a UNC path keeps its share root'],
+        ['sub', 'C:\\work\\sub', 'a relative cwd joins the base with the platform separator'],
+        ['C:\\repo\\a-file\\..', 'C:\\repo\\a-file\\..', '`..` after a file stays as written on Windows too'],
+        ['C:\\repo\\missing\\dist', 'C:\\repo\\missing\\dist', 'a missing tail is appended as written under a drive root'],
+      ];
+      for (const [input, expected, why] of winCases) {
+        const got = binding.canonicalizeExistingPath(input, winSeam);
+        expectRepaired(got === expected, `Windows path semantics: ${why} (${input} -> ${got}, expected ${expected})`);
+      }
+      expectRepaired(binding.launchDirectoryOf('C:\\repo', 'alias\\..\\checks', { platform: 'win32' }) === 'C:\\repo\\alias\\..\\checks' && binding.launchDirectoryOf('C:\\repo', 'D:\\other', { platform: 'win32' }) === 'D:\\other',
+        'launchDirectoryOf does not honour Windows absolute paths and separators');
+      check(binding.canonicalizeExistingPath('/', { platform: 'posix' }) === '/', 'control: the POSIX root canonicalises to itself');
     }
     // Linux only, where LD_PRELOAD is honoured: a preload library whose
     // constructor rewrites dist and exits 0 before the declared command runs.

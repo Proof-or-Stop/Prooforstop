@@ -5,7 +5,7 @@ import { existsSync, realpathSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { loadConfig, type ProofOrStopConfig } from './config.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
-import { BUILD_ARTIFACT_ROOTS, canonicalizeExistingPath, currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand, launchDirectoryOf, projectHasArtifactContract } from './build-artifacts-identity.js';
+import { BUILD_ARTIFACT_ROOTS, bindLaunchDirectoryIdentity, canonicalizeExistingPath, currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand, launchDirectoryOf, projectHasArtifactContract } from './build-artifacts-identity.js';
 import { REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied, artifactProtectionStale, hasAnyArtifactRoot, resolveArtifactWriteProtection } from './build-artifacts-protection.js';
 import type { StoryStore } from './store.js';
 import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, formatValidationCommand, resolveCommandTimeoutMs, runValidationCommand } from './validation-executor.js';
@@ -978,6 +978,9 @@ export async function runDoneRequiredValidation(args: {
     // whole run: an alias re-pointed by an earlier command must neither move a
     // later one nor turn it into a registered build at launch time.
     const canonicalLaunchCwds = policy.commands.map((command) => canonicalizeExistingPath(commandCwd(args.projectRoot, command.cwd)));
+    // And what each of those directories IS: every launch re-verifies its
+    // directory against the identity bound here, before the first launch.
+    const launchIdentities = canonicalLaunchCwds.map((cwd) => bindLaunchDirectoryIdentity(cwd));
     // Unsupported host: decided before the first launch, never after the suite.
     let protectionRefusal = doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands, args.projectRoot, args.gitCwd, canonicalLaunchCwds);
     if (protectionRefusal) reasons.push(protectionRefusal);
@@ -1016,6 +1019,7 @@ export async function runDoneRequiredValidation(args: {
         // relabels a result with what it observes afterwards.
         artifactBinding: { root: args.gitCwd, configRoot: args.projectRoot, protection: commandIsRegisteredBuild ? REGISTERED_BUILD_PROTECTION_LABEL : artifactWriteProtection.label },
         launchCwd: canonicalLaunchCwds[i],
+        launchIdentity: launchIdentities[i],
         progress: runtimeOptions.progress,
         heartbeatMs: runtimeOptions.heartbeatMs,
         abortSignal: runtimeOptions.abortSignal,

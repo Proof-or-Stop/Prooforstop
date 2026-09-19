@@ -18,7 +18,7 @@ import {
 import { StoryStore } from './store.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import { defaultAuditWriter, evaluateDirtyGate, type EvaluateDirtyGateResult } from './dirty-gate-policy.js';
-import { canonicalizeExistingPath, currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand, launchDirectoryOf } from './build-artifacts-identity.js';
+import { bindLaunchDirectoryIdentity, canonicalizeExistingPath, currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand, launchDirectoryDrift, launchDirectoryOf, type LaunchDirectoryIdentity } from './build-artifacts-identity.js';
 import { BUILD_ONLY_PROTECTION_LABEL, REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied, artifactProtectionStale, hasAnyArtifactRoot, resolveArtifactWriteProtection, weakestProtectionLabel, type ArtifactWriteProtection } from './build-artifacts-protection.js';
 import {
   canonicalizeEntries,
@@ -188,6 +188,15 @@ export interface RunValidationCommandOptions {
    * it at spawn time would follow an alias to wherever it points by then.
    */
   launchCwd?: string;
+  /**
+   * The filesystem identity bound to launchCwd when it was pinned. The
+   * directory is re-verified against it (and its path re-resolved) before
+   * the cache is consulted and again immediately before the spawn: a
+   * directory renamed away, replaced by a link or by another directory
+   * between the pin and the launch refuses the launch instead of running,
+   * and being attributed to, the pinned directory.
+   */
+  launchIdentity?: LaunchDirectoryIdentity;
 }
 
 interface CapturedValidationCommandResult {
@@ -222,6 +231,8 @@ export interface ExecuteValidationPlanOptions {
    * shard and oracle launches exactly where the planning identity says.
    */
   launchCwds?: readonly (string | undefined)[];
+  /** The identities bound to `launchCwds` at planning, in the same order; bound at plan start for any entry without one. */
+  launchIdentities?: readonly (LaunchDirectoryIdentity | undefined)[];
 }
 
 /**
@@ -1417,6 +1428,11 @@ export function runValidationCommand(
   // invocation through an alias and one through the real path can never
   // share an identity while seeing different directories.
   if (options.launchCwd === undefined) options = { ...options, launchCwd: canonicalizeExistingPath(commandCwd(projectRoot, command.cwd)) };
+  if (options.launchIdentity === undefined) options = { ...options, launchIdentity: bindLaunchDirectoryIdentity(options.launchCwd!) };
+  // The pinned directory is verified BEFORE the shared cache is consulted: a
+  // cached verdict must not be served for a directory that is no longer the
+  // one it was earned in.
+  { const drift = launchDirectoryDrift(options.launchCwd!, options.launchIdentity); if (drift) return Promise.resolve(refusedLaunchResult(command, projectRoot, LAUNCH_DIRECTORY_DRIFT_TAG, drift, resolveCommandTimeoutMs(command, defaultTimeoutMs))); }
   return withValidationCommandStage(command, () => executeSharedValidationCommand(command, projectRoot, resolveCommandTimeoutMs(command, defaultTimeoutMs),
     () => (command.executionReuse === 'exact-inputs' ? runValidationCommandWithCompleteOutput : runValidationCommandWithCompleteOutputUnscheduled)(command, projectRoot, defaultTimeoutMs, options), options.sharedExecution, () => {
       if (options.abortSignal?.aborted) throw options.abortSignal.reason ?? new Error('shared validation aborted');
@@ -1562,6 +1578,35 @@ function boundedValidationErrorMessage(error: unknown): string {
   return 'unavailable error detail';
 }
 
+/**
+ * A command that was NOT launched because the directory it was pinned to is
+ * no longer that directory. The result records no launch directory (nothing
+ * ran anywhere), fails closed as an infrastructure failure, and names the
+ * drift so the receipt consumers refuse it and the operator sees why.
+ */
+export const LAUNCH_DIRECTORY_DRIFT_TAG = '[launch_directory_drift]';
+/** A launch the host refused synchronously (a cwd that is not a directory or cannot be searched, say): bounded, not thrown. */
+export const SPAWN_REFUSED_TAG = '[spawn_refused]';
+function refusedLaunchResult(command: ValidationCommand, projectRoot: string, tag: string, reason: string, timeoutMs: number): ValidationCommandResult {
+  const cwd = commandCwd(projectRoot, command.cwd);
+  const at = new Date().toISOString();
+  return {
+    label: command.label,
+    command: command.command,
+    args: [...command.args],
+    ...(command.shell || process.platform === 'win32' ? { shell: true } : {}),
+    ...(command.cwd ? { cwd } : {}),
+    code: 1,
+    output: `${tag} ${command.label} was not launched: ${reason}`,
+    ...(command.optional ? { optional: true } : {}),
+    timeoutMs,
+    effectiveTimeoutMs: 0,
+    failureKind: 'infra_failure',
+    durationMs: 0,
+    runtimeTrace: { command: command.command, argv: [...command.args], cwd, environmentKeys: [], startedAt: at, endedAt: at, exitCode: 1, events: ['launch-refused'], unknownRuntimeInputs: [`command not launched: ${tag}`] },
+  };
+}
+
 async function captureValidationCommand(command: ValidationCommand, projectRoot: string, defaultTimeoutMs: number, options: RunValidationCommandOptions, reportedTimeoutMs: number): Promise<CapturedValidationCommandResult> {
   const delegationSignal = currentValidationReservationAbortSignal();
   if (delegationSignal) options = { ...options, abortSignal: options.abortSignal ? AbortSignal.any([options.abortSignal, delegationSignal]) : delegationSignal };
@@ -1629,6 +1674,13 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
     return undefined;
   };
   { const stop = callerStop(); if (stop) throw stop; }
+  // Verified again here, immediately before the launch fence and the spawn
+  // (nothing between this check and the spawn runs a command): the pinned
+  // directory must still resolve to itself and be the same filesystem object.
+  if (options.launchCwd !== undefined) {
+    const drift = launchDirectoryDrift(options.launchCwd, options.launchIdentity);
+    if (drift) { const result = refusedLaunchResult(command, projectRoot, LAUNCH_DIRECTORY_DRIFT_TAG, drift, reportedTimeoutMs); return { result, completeOutput: result.output }; }
+  }
   let pendingSpawn: string | undefined;
   try { pendingSpawn = await prepareValidationReservationChild({deadlineAt: options.deadlineAt, signal: options.abortSignal}); }
   catch (error) { const stop = callerStop(); throw stop ?? error; }
@@ -1781,21 +1833,35 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
     // symbolic link on the way to the declared cwd could otherwise be
     // re-pointed at another checkout between two launches while the
     // protection still covered the first, and the shared-execution cache
-    // keys and snapshots the same pinned directory. The declared cwd is what
-    // the result records.
+    // keys and snapshots the same pinned directory. The result records the
+    // directory that was VERIFIED (path and filesystem identity) immediately
+    // before this spawn, never merely the string it was pinned with.
     const launchCwd = options.launchCwd ?? cwd;
-    const child = spawn(launch.command, launch.args, {
-      cwd: launchCwd,
-      env: launch.env,
-      shell: launch.shell,
-      stdio: options.exactEnvironment ? ['ignore', 'pipe', 'pipe'] : validationReservationChildStdio(['ignore', 'pipe', 'pipe']),
-      // POSIX: give the child its own process group (it becomes group leader) so the
-      // timeout can signal the WHOLE tree. Wrapper commands (npm, `/bin/sh -c …`) spawn
-      // grandchildren that survive a direct child.kill() and keep the stdout/stderr pipe
-      // open — which delays, or with an infinite grandchild prevents, the 'close' event,
-      // re-introducing the exact hang this guards against. Not unref'd: we still await it.
-      ...(isWindows ? {} : { detached: true }),
-    });
+    // A launch the host refuses synchronously (Node throws for a cwd that is
+    // not a directory or cannot be searched; only ENOENT is reported
+    // asynchronously) is a bounded infrastructure failure of THIS command,
+    // never an exception out of the plan: nothing ran, no launch directory
+    // is recorded, and the pending fence is withdrawn below as unspawned.
+    let child: ReturnType<typeof spawn>;
+    try {
+      child = spawn(launch.command, launch.args, {
+        cwd: launchCwd,
+        env: launch.env,
+        shell: launch.shell,
+        stdio: options.exactEnvironment ? ['ignore', 'pipe', 'pipe'] : validationReservationChildStdio(['ignore', 'pipe', 'pipe']),
+        // POSIX: give the child its own process group (it becomes group leader) so the
+        // timeout can signal the WHOLE tree. Wrapper commands (npm, `/bin/sh -c …`) spawn
+        // grandchildren that survive a direct child.kill() and keep the stdout/stderr pipe
+        // open — which delays, or with an infinite grandchild prevents, the 'close' event,
+        // re-introducing the exact hang this guards against. Not unref'd: we still await it.
+        ...(isWindows ? {} : { detached: true }),
+      });
+    } catch (error) {
+      runtimeEvents.push('spawn-refused');
+      const result = refusedLaunchResult(command, projectRoot, SPAWN_REFUSED_TAG, `the host refused the launch in ${launchCwd}: ${boundedValidationErrorMessage(error)}`, reportedTimeoutMs);
+      resolveResult({ result, completeOutput: result.output });
+      return;
+    }
     spawned = child.pid !== undefined;
     spawnedPid = child.pid;
     // The spawned PID is noted on the fence before the registration handshake, so an owner lost
@@ -2451,6 +2517,9 @@ export async function executeValidationPlan(
   // all read this one binding.
   const planEntries = resolveValidationPlanEntries(plan);
   const canonicalLaunchCwds = new Map(planEntries.map((entry) => [entry.commandIndex, options.launchCwds?.[entry.commandIndex - 1] ?? canonicalizeExistingPath(commandCwd(projectRoot, entry.command.cwd))] as const));
+  // The filesystem identity of each pinned directory, bound NOW (or carried
+  // from planning): every launch re-verifies its directory against it.
+  const launchIdentities = new Map(planEntries.map((entry) => [entry.commandIndex, options.launchIdentities?.[entry.commandIndex - 1] ?? bindLaunchDirectoryIdentity(canonicalLaunchCwds.get(entry.commandIndex)!)] as const));
   const buildRoles = new Map(planEntries.map((entry) => [entry.commandIndex,
     isRegisteredPackagesMainBuildCommand(entry.command, projectRoot, artifactsRoot, canonicalLaunchCwds.get(entry.commandIndex)) ? 'build' as const : 'test' as const] as const));
   const entries = canonicalizeEntries(planEntries, projectRoot)
@@ -2509,6 +2578,7 @@ export async function executeValidationPlan(
       ...(buildArtifactsRole === 'test' ? { artifactWriteProtection } : {}),
       artifactBinding: { root: artifactsRoot, configRoot: projectRoot, protection: buildArtifactsRole === 'build' ? REGISTERED_BUILD_PROTECTION_LABEL : artifactWriteProtection.label },
       launchCwd: canonicalLaunchCwds.get(entry.commandIndex),
+      launchIdentity: launchIdentities.get(entry.commandIndex),
       progress: options.progress,
       heartbeatMs: options.heartbeatMs,
       commandIndex: entry.commandIndex,
