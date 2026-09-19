@@ -328,7 +328,7 @@ const SANDBOX_EXEC = '/usr/bin/sandbox-exec';
 /** Reports System Integrity Protection; only its exact "enabled" verdict lets sandbox-exec receive the launch environment directly. */
 const CSRUTIL = '/usr/bin/csrutil';
 /** The trampoline that restores the withheld variables INSIDE the sandbox from a private descriptor before exec-ing the command. */
-const TRAMPOLINE_SH = '/bin/sh';
+const TRAMPOLINE = '/usr/bin/perl';
 const ENVIRONMENT_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
 
 /**
@@ -346,19 +346,22 @@ function checkTransferableEnvironment(reapplied: readonly [string, string][]): v
 }
 
 /**
- * A POSIX shell script that exports each withheld variable (single-quoted,
- * so a value is data whatever it contains) and then execs the command it
- * was handed as its arguments. The shell that runs it is a restricted
- * platform binary launched with the allowlisted environment only: the
- * loader ignores DYLD_* for it, and no launch-chosen startup file exists for
- * a non-interactive, non-login `sh` (only root-owned system files), so the
- * variables reach the COMMAND — the process that must see them — and no
- * process listing ever shows them.
+ * The trampoline script: each withheld variable is placed into the
+ * environment as BYTES (hex-packed, so a value is data whatever it contains
+ * and no variable has shell semantics — SHLVL, SHELLOPTS or a read-only
+ * identifier arrive exactly as declared), then the command is exec'd with
+ * its first argument named explicitly as the program, so an executable
+ * called `--` or `-x` is a program to run (and to fail on when absent),
+ * never an option. The interpreter is a restricted platform binary launched
+ * with the allowlisted environment only: the loader ignores DYLD_* for it and
+ * it reads no launch-chosen startup file or option variable, so the
+ * variables reach the COMMAND and no process listing ever shows them. A
+ * failed exec exits 127, like a shell would.
  */
 export function trampolineScript(reapplied: readonly [string, string][]): string {
   checkTransferableEnvironment(reapplied);
-  const lines = reapplied.map(([name, value]) => `export ${name}='${value.replace(/'/g, `'\\''`)}'`);
-  return `${lines.join('\n')}${lines.length ? '\n' : ''}exec "$@"\n`;
+  const lines = reapplied.map(([name, value]) => `$ENV{'${name}'} = pack('H*', '${Buffer.from(value, 'utf8').toString('hex')}');`);
+  return `${lines.join('\n')}${lines.length ? '\n' : ''}exec { $ARGV[0] } @ARGV or exit 127;\n`;
 }
 /** A launch the mechanism cannot express unambiguously; thrown by `wrap`, never reinterpreted. */
 export const LAUNCH_UNSUPPORTED_TAG = '[artifact_protection_launch_unsupported]';
@@ -610,7 +613,7 @@ function sandboxExecMechanism(denied: string[], trust: WrapperTrust): Mechanism 
   const sip = systemIntegrityProtectionRefusal(trust);
   if (sip) return sip;
   let trampoline: string;
-  try { accessSync(TRAMPOLINE_SH, constants.X_OK); trampoline = realpathSync(TRAMPOLINE_SH); } catch { return `${TRAMPOLINE_SH} is not executable on this host`; }
+  try { accessSync(TRAMPOLINE, constants.X_OK); trampoline = realpathSync(TRAMPOLINE); } catch { return `${TRAMPOLINE} is not executable on this host`; }
   const trampolineRefusal = replaceabilityRefusal('sandbox-exec', trampoline, trust);
   if (trampolineRefusal) return trampolineRefusal;
   const profile = sandboxExecProfile(denied);
@@ -629,7 +632,8 @@ function sandboxExecMechanism(denied: string[], trust: WrapperTrust): Mechanism 
       // from a private descriptor: a restricted wrapper would strip DYLD_*
       // from an environment handed to it directly, and argv would expose
       // every value to any process listing. The command and its arguments
-      // are the trampoline's arguments, data whatever their spelling.
+      // are the trampoline's arguments, data whatever their spelling (the
+      // script names its first argument as the program explicitly).
       if (launch.confidentialFd === undefined) {
         throw new Error(`${LAUNCH_UNSUPPORTED_TAG} the launch environment must be transferred into the sandbox through a confidential descriptor, and the launcher offered none`);
       }
