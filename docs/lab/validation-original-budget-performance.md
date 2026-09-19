@@ -1,7 +1,29 @@
-# Complete validation within the original command budget
+# Complete validation and the authorized Lab budget
+
+## Authorized acceptance amendment, 2026-09-19
+
+The user explicitly replaced the 180-second Lab acceptance threshold with
+260 seconds for complete targets 16, 69 and 130. The tracked local contract is
+`docs/lab/validation-audit-acceptance.json`. This is an acceptance-budget change,
+not evidence of further performance improvement or a claim that the former
+180-second target was met. Production validation command timeouts are unchanged;
+this amendment applies to the Lab measurement and finish replay only.
+
+The original driver, its hashes, and all historical RED/GREEN observations stay
+unchanged. The replacement driver is retained under the Git common directory at
+`lab-evidence-archives/validation-audit-20260918/remaining-performance-20260918/finish/budget-260/verify-authorized-lab-budget.mjs`.
+Its command is registered through the official Lab RED handler. The new target
+RED is the actual 180000-ms setting failing the explicitly requested 260000-ms
+configuration assertion. GREEN then requires the committed setting plus two
+fresh serial runs of each complete target. Commands, selectors, semantic checks,
+isolated fixture namespace, diagnostic execution caps and result recording
+remain identical. This configuration RED must not be presented as a performance
+RED against 260 seconds. No historical failure is relabeled as success.
+
+## Historical 180-second experiment
 
 This local Lab repair covers validation inventory entries 16, 69 and 130. The
-original registered commands must complete within 180 seconds. The prior
+original acceptance condition required complete runs within 180 seconds. The prior
 900-second configuration permitted complete diagnosis but did not establish a
 performance repair. The retained pre-change measurement runs each complete
 command twice, serially, in the same private fixture machine namespace, and
@@ -19,7 +41,8 @@ and output drain remains active. Both lanes must settle; failures propagate,
 and the final success marker requires nine actual successful completions.
 No partial selector, cached assertion result or skipped child supplies a pass.
 Output markers and diagnostics remain available; independent output order may
-change. The three registered command budgets return to 180000 milliseconds.
+change. The three production command budgets were restored to 180000 milliseconds.
+The later user-authorized Lab threshold is described above.
 
 During finish, repeated complete measurements at candidate `6d92619bb4`
 exposed insufficient margin: the latest fixed-candidate pair took
