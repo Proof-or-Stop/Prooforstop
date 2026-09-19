@@ -7,6 +7,12 @@ repairs are ready for its current-candidate replay and independent vendor audit;
 integration is not claimed until finish completes. Historical checkpoint
 statements below describe earlier stages and do not override this status.
 
+The entrypoint and static/runtime dependency repairs completed their separate
+Lab finish at local main `c05ef68409ccc49735be98122be76d6628bad270` (0.3.424).
+That exact candidate passed independent vendor audit and the complete pinned
+checks again on main before its worktree was removed. This remaining Lab is
+synchronized to that integration. See [the split repair review](validation-entrypoint-pin-review-20260919.md).
+
 Commands #16, #69 and #130 now retain all complete assertions and original
 180-second registered budgets. Two independent positive fixture lanes overlap
 after the unchanged admission refusal barrier; all nine actual child completions
