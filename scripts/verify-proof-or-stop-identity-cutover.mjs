@@ -20,7 +20,7 @@ const CONCEPT_PROVENANCE_MANIFEST_PATH = 'scripts/proof-or-stop-identity-concept
 const CONCEPT_PROVENANCE_MANIFEST_SHA256 = 'b97d6d33dc481c3e16a928606c44827bae2986bc69156bfc7ed108ab32a3b963';
 const EXPECTED_CONCEPT_PROVENANCE_ROW_COUNT = 51;
 const CURRENT_LEGACY_CONTEXT_MANIFEST_PATH = 'scripts/proof-or-stop-identity-current-legacy-contexts.json';
-const CURRENT_LEGACY_CONTEXT_MANIFEST_SHA256 = '4842dda9cf93f4fa1b4b3434842026b3c88b221f75181bcb4254dd1348d4d0e4';
+const CURRENT_LEGACY_CONTEXT_MANIFEST_SHA256 = '186aa62b2d7b027d46f0eb0e2f2868763a83e31395e729aef3c372d9d08c8795';
 const EXPECTED_CURRENT_LEGACY_CONTEXT_ROW_COUNT = 211;
 const POLICY_PATH = 'docs/requirements/decisions/proof-or-stop-identity-cutover.md';
 const STORY_INIT_COMMIT = '1bde8a8280d68fe652dadfcdf42aad5190350ba7';
@@ -7475,7 +7475,7 @@ const REVIEWED_CONTEXT_READERS = [
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "e30cf252c7fab9a43feb7af5b9a9f0b2669a227c44e7b6331b8a234596fd80a7"
+    "sha256": "1fed328a9f98bfec93bc3fee6d3d1039fb7ddc244f354d3fe53cc4301f27d4ce"
   }
 ];
 function verifyReviewedContextReaders(root) {
