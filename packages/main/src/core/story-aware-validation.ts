@@ -1009,9 +1009,15 @@ export function canonicalEntryCwd(entry: Pick<ValidationCatalogEntry, 'cwd'>, ct
   return canonicalizeExistingPath(launchDirectoryOf(projectRoot, entry.cwd || undefined));
 }
 
-/** Bind declared values to the same ambient/overlay normalization as execution: the effective environment (PWD included) of the canonical directory. */
+/**
+ * Bind declared values to the same ambient/overlay normalization as execution:
+ * the effective environment (PWD included) of the directory the command is
+ * BOUND to — the frozen one when this run froze it before Wave-0, so a
+ * re-pointed alias changes neither where the command runs nor the PWD its
+ * identity records.
+ */
 function declaredEnvironmentDigest(entry: ValidationCatalogEntry, ctx: DynamicValidationContext): string {
-  const cwd = canonicalEntryCwd(entry, ctx);
+  const cwd = entryLaunchDirectory(entry, ctx).path;
   const effective = effectiveValidationCommandEnvironment(process.env, entry.env, cwd);
   const keys = [...new Set((entry.declaredEnvironmentKeys || Object.keys(entry.env || {})).map(key => process.platform === 'win32' ? key.toUpperCase() : key))].sort();
   return stableDigest(keys.map(key => Object.prototype.hasOwnProperty.call(effective, key)

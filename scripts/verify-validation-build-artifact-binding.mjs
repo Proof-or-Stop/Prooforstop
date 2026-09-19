@@ -1917,7 +1917,9 @@ if (hostEnforced) {
       const dynInventory = dynamic.discoverValidationInventory(root, [
         // story-selectable, with a changed file inside its input root: an
         // `always` command is executed on every run and never reused.
-        { id: 'aliased', label: 'aliased', command: 'node', args: ['-e', 'process.exit(0)'], cwd: 'dyn-link', inputRoots: ['dyn-input.ts'], inputsComplete: true, assurance: 'story-selectable', riskTier: 'local', originalIndex: 0 },
+        // Audit #48: PWD is declared, so the environment digest binds the
+        // launch directory too and must follow the FROZEN one after Wave-0.
+        { id: 'aliased', label: 'aliased', command: 'node', args: ['-e', 'process.exit(0)'], cwd: 'dyn-link', inputRoots: ['dyn-input.ts'], inputsComplete: true, declaredEnvironmentKeys: ['PWD'], assurance: 'story-selectable', riskTier: 'local', originalIndex: 0 },
       ]);
       const dynCatalog = dynamic.compileValidationCatalog(dynInventory);
       // No changed files (nothing to map, no graph escalation), no gitCwd (the
@@ -1975,7 +1977,10 @@ if (hostEnforced) {
       rmSync(dynLink); symlinkSync(dynB, dynLink, 'dir');
       const replanned = dynamic.buildDynamicValidationPlan({ storyId: 'B-bab-dyn', baseHead: 'base', head: 'head', inventory: dynInventory, catalog: dynCatalog, changes: dynChanges, closures: dynClosures, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe', projectRoot: root, buildArtifactsHash: 'fixture-build-artifacts', receipts: [dynReceipt], launchDirectories: frozenDirs }).rows.find((row) => row.commandId === 'aliased');
       expectRepaired(replanned?.resolvedCwd === realpathSync(dynA) && replanned.resolvedCwdIdentity?.ino === frozenDirs.get('aliased').identity.ino && replanned.inputDigest === dynFirstRow.inputDigest && replanned.disposition === 'reuse',
-        `the post-build planning re-resolved the alias instead of keeping the frozen directory (${JSON.stringify(replanned)})`);
+        `the post-build planning re-resolved the alias instead of keeping the frozen directory, or digested PWD from the re-pointed one (${JSON.stringify(replanned)})`);
+      const coreSource48 = readFileSync(join(repoRoot, 'packages/main/src/core/story-aware-validation.ts'), 'utf8');
+      expectRepaired(coreSource48.includes('function declaredEnvironmentDigest(entry: ValidationCatalogEntry, ctx: DynamicValidationContext): string {\n  const cwd = entryLaunchDirectory(entry, ctx).path;'),
+        'the environment digest resolves the cwd again instead of using the bound launch directory (source-text guard)');
       check(dynamic.frozenLaunchDirectoryDrift(frozenDirs).length === 0, 'control: re-pointing the alias does not move the pinned directory itself');
       rmSync(dynLink); symlinkSync(dynA, dynLink, 'dir');
       renameSync(dynA, `${dynA}-moved`); mkdirSync(dynA);
