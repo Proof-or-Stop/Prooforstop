@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab validation-audit-20260918 - v0.3.427 - 2026-09-19
+
+- Repair validation fixtures and registrations using current public CLI admission and signed evidence, restore complete identity-operation coverage, and bind reviewed source/context metadata without broadening identity exceptions.
+- Integrate owned coordination-directory handling and repair the complete capacity fixture with isolated machine queues, real contention and publication controls; preserve worker execution limits while allowing parent lifecycle cleanup.
+- Overlap independent complete proof lanes and isolated boundary fixtures while preserving semantic assertions and failure propagation. Apply the explicitly authorized 260-second Lab acceptance threshold to process-fact and both RED-evidence consumers; retain the historical 180-second failures without claiming that target was achieved or changing production command timeouts.
+- Preserve the historical full audit and target-specific RED/GREEN evidence; the supplemental capacity suite passed 30 groups plus production regressions twice. The retained Lab command replays three complete performance targets twice; it is not a new all-240 campaign, and environmental observations remain qualified.
+- Details: [audit and evidence boundaries](docs/audits/validation-audit-20260918-lab.md), [capacity fixture repair](docs/lab/validation-capacity-full-fixture-repair.md), and [Lab acceptance amendment and historical performance contract](docs/lab/validation-original-budget-performance.md).
+
+Maintenance provenance: codex/lab-validation-audit-20260918, repair 9c0577a23fe485d646e5f07c9f7f32b49910c974.
+Verification command (replayed before integration and on main): `["node","/Users/jek/Documents/GitHub/Prooforstop/.git/lab-evidence-archives/validation-audit-20260918/remaining-performance-20260918/finish/budget-260/verify-authorized-lab-budget.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab ws-types - v0.3.426 - 2026-09-19
 
 - Add the missing root `@types/ws` development dependency and lockfile entry so root-only installs can typecheck the WebSocket bridge and proxy sources.
