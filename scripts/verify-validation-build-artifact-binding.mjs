@@ -65,6 +65,14 @@ let hostEnforced = false;
 function check(value, message) { assert(value, message); checks++; }
 function expectRepaired(value, message) { if (value) checks++; else red.push(message); }
 function git(root, args) { return execFileSync(realGit, args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim(); }
+/** spawnSync a wrapped launch, delivering its confidential payload (if any) on the descriptor the mechanism named. */
+function spawnWrapped(launch, options = {}) {
+  if (!launch.confidential) return spawnSync(launch.command, launch.args, { encoding: 'utf8', env: launch.env, timeout: 20_000, ...options });
+  const file = join(sandbox, `confidential-${process.pid}-${Math.random().toString(16).slice(2)}`); writeFileSync(file, launch.confidential.payload);
+  const fd = openSync(file, 'r');
+  const stdio = ['ignore', 'pipe', 'pipe']; while (stdio.length < launch.confidential.fd) stdio.push('ignore'); stdio[launch.confidential.fd] = fd;
+  try { return spawnSync(launch.command, launch.args, { encoding: 'utf8', env: launch.env, timeout: 20_000, ...options, stdio }); } finally { closeSync(fd); rmSync(file, { force: true }); }
+}
 function rmTree(path) { rmSync(path, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 }); }
 
 const BUILD_A = 'process.exit(0); // compiled from probe.ts, build A\n';
@@ -1062,6 +1070,11 @@ try {
           let withoutDescriptor = null;
           try { bound.wrap({ command: process.execPath, args: ['-e', 'process.exit(0)'], shell: false, env: { ...process.env, LD_PRELOAD: '/fixture/preload.so' } }); } catch (error) { withoutDescriptor = error; }
           expectRepaired(withoutDescriptor && String(withoutDescriptor.message).includes('[artifact_protection_launch_unsupported]'), `bwrap was handed the environment without a confidential descriptor (${withoutDescriptor ? withoutDescriptor.message : 'no refusal'})`);
+          // Audit #46 (1): a NUL inside a value would end one token and begin
+          // another (`--bind` after the read-only mounts); refused up front.
+          let bwrapNul = null;
+          try { bound.wrap({ command: process.execPath, args: ['-e', '0'], shell: false, env: { ...process.env, POS_NUL: `ok\0--bind\0${deniedRoots[0]}\0${deniedRoots[0]}` }, confidentialFd: 3 }); } catch (error) { bwrapNul = error; }
+          expectRepaired(bwrapNul && String(bwrapNul.message).includes('[artifact_protection_launch_unsupported]') && String(bwrapNul.message).includes('NUL'), `a NUL-bearing value reached bwrap's argument stream (${bwrapNul ? bwrapNul.message : 'no refusal'})`);
           const preloadLaunch = bound.wrap({ command: process.execPath, args: ['-e', "process.stdout.write('inner=' + process.env.LD_PRELOAD)"], shell: false, env: { ...process.env, LD_PRELOAD: '/fixture/preload.so', POS_SYNTHETIC_SECRET: 'synthetic-credential-0f3a' }, confidentialFd: 3 });
           const argsAt = preloadLaunch.args.indexOf('--args');
           expectRepaired(argsAt >= 0 && preloadLaunch.args[argsAt + 1] === '3' && preloadLaunch.args.indexOf('--') > argsAt && !preloadLaunch.args.some((argument) => argument.includes('/fixture/preload.so') || argument.includes('synthetic-credential-0f3a') || argument === '--setenv')
@@ -1223,11 +1236,15 @@ try {
           // platform binary restricted, so the loader ignores DYLD_* for it and
           // the launch environment is handed to sandbox-exec directly; no
           // variable, loader or credential, is ever placed in argv.
-          const dyldLaunch = hostProtection.wrap({ command: process.execPath, args: ['-e', '0'], shell: false, env: { ...process.env, DYLD_INSERT_LIBRARIES: '/fixture/insert.dylib', LD_PRELOAD: '/fixture/preload.so' } });
-          expectRepaired(dyldLaunch.command === '/usr/bin/sandbox-exec' && dyldLaunch.args[0] === '-p' && dyldLaunch.args[2] === process.execPath && !dyldLaunch.args.includes('/usr/bin/env')
+          // Audit #46 (2): a restricted wrapper strips DYLD_* from an environment
+          // handed to it directly, so the withheld variables are restored INSIDE
+          // the sandbox by the /bin/sh trampoline, from a private descriptor.
+          const dyldLaunch = hostProtection.wrap({ command: process.execPath, args: ['-e', '0'], shell: false, env: { ...process.env, DYLD_INSERT_LIBRARIES: '/fixture/insert.dylib', LD_PRELOAD: '/fixture/preload.so' }, confidentialFd: 3 });
+          expectRepaired(dyldLaunch.command === '/usr/bin/sandbox-exec' && dyldLaunch.args[0] === '-p' && dyldLaunch.args[2] === '/bin/sh' && dyldLaunch.args[3] === '/dev/fd/3' && dyldLaunch.args[4] === process.execPath && !dyldLaunch.args.includes('/usr/bin/env')
             && !dyldLaunch.args.some((argument) => argument.includes('/fixture/insert.dylib') || argument.includes('/fixture/preload.so'))
-            && dyldLaunch.env.DYLD_INSERT_LIBRARIES === '/fixture/insert.dylib' && dyldLaunch.env.LD_PRELOAD === '/fixture/preload.so',
-            `sandbox-exec is still routed through /usr/bin/env, or a launch variable is in its argv or missing from its environment (${JSON.stringify(dyldLaunch.args.slice(0, 4))})`);
+            && Object.keys(dyldLaunch.env).every((key) => binding.isWrapperEnvironmentVariable(key))
+            && dyldLaunch.confidential?.fd === 3 && dyldLaunch.confidential.payload.toString('utf8').includes("export DYLD_INSERT_LIBRARIES='/fixture/insert.dylib'\n") && dyldLaunch.confidential.payload.toString('utf8').includes("export LD_PRELOAD='/fixture/preload.so'\n") && dyldLaunch.confidential.payload.toString('utf8').endsWith('exec "$@"\n'),
+            `sandbox-exec was launched with loader variables in its own environment, or without the trampoline that restores them inside (${JSON.stringify(dyldLaunch.args.slice(0, 5))}, env keys ${Object.keys(dyldLaunch.env).filter((key) => /^(LD_|DYLD_)/.test(key)).join(',')})`);
           const plainLaunch = hostProtection.wrap({ command: process.execPath, args: ['-e', '0'], shell: false, env: { HOME: process.env.HOME ?? '/', USER: process.env.USER ?? 'user' } });
           check(!plainLaunch.args.includes('/usr/bin/env') && plainLaunch.args[2] === process.execPath, 'control: a launch with nothing to withhold is not routed through /usr/bin/env');
         }
@@ -2163,7 +2180,7 @@ if (hostEnforced) {
       // Audit #45 (1): the environment no longer passes through /usr/bin/env
       // at all (sandbox-exec, SIP-restricted, receives it directly), so an
       // executable is argv data whatever its name: it runs and fails.
-      const eqLaunch = eqProtection.wrap({ command: eqValidator, args: [], shell: false, env: { ...process.env, POS_ENV_DUMP_WITNESS: 'dumped-secret' } });
+      const eqLaunch = eqProtection.wrap({ command: eqValidator, args: [], shell: false, env: { ...process.env, POS_ENV_DUMP_WITNESS: 'dumped-secret' }, confidentialFd: 3 });
       expectRepaired(!eqLaunch.args.includes(realpathSync('/usr/bin/env')) && eqLaunch.args[eqLaunch.args.length - 1] === eqValidator && !eqLaunch.args.some((argument) => argument.includes('dumped-secret')),
         `the environment is still re-applied through env, or a value of it is in argv (${JSON.stringify(eqLaunch.args.slice(-3))})`);
       const eqRun = await runValidationCommand({ label: 'eq validator', command: eqValidator, args: [], env: { POS_ENV_DUMP_WITNESS: 'dumped-secret' }, timeoutMs: 20_000 }, root, 20_000, { artifactWriteProtection: eqProtection, artifactBinding: { root: realpathSync(root), protection: eqProtection.label } });
@@ -2182,12 +2199,15 @@ if (hostEnforced) {
       check(hijack.status === 0 && !hijack.stdout.includes('RAN_VALIDATOR'), `control: without a separator env reads a dash-named assignment as its -S option and never runs the validator (${hijack.status})`);
       const separated = spawnSync('/usr/bin/env', ['--', '-SFOO= /usr/bin/true', 'PATH=/usr/bin', dashValidator], { encoding: 'utf8' });
       check(separated.status === 1 && separated.stdout.includes('RAN_VALIDATOR'), `control: with -- the validator runs and fails (${separated.status})`);
-      const dashLaunch = eqProtection.wrap({ command: dashValidator, args: [], shell: false, env: { ...process.env, '-SFOO': ' /usr/bin/true' } });
-      expectRepaired(!dashLaunch.args.includes(realpathSync('/usr/bin/env')) && !dashLaunch.args.some((argument) => argument.startsWith('-SFOO')),
-        `a dash-named variable reached argv, where env could read it as an option (${JSON.stringify(dashLaunch.args.slice(-3))})`);
+      // A name that is not a portable identifier cannot be restored as data by
+      // any launcher; it is refused up front, and nothing runs in its place.
+      let dashRefusal = null;
+      try { eqProtection.wrap({ command: dashValidator, args: [], shell: false, env: { ...process.env, '-SFOO': ' /usr/bin/true' }, confidentialFd: 3 }); } catch (error) { dashRefusal = error; }
+      expectRepaired(dashRefusal && String(dashRefusal.message).includes('[artifact_protection_launch_unsupported]') && String(dashRefusal.message).includes('-SFOO'),
+        `a dash-named variable was accepted for transfer into the sandbox (${dashRefusal ? dashRefusal.message : 'no refusal'})`);
       const dashRun = await runValidationCommand({ label: 'dash env key', command: dashValidator, args: [], env: { '-SFOO': ' /usr/bin/true' }, timeoutMs: 20_000 }, root, 20_000, { artifactWriteProtection: eqProtection, artifactBinding: { root: realpathSync(root), protection: eqProtection.label } });
-      expectRepaired(dashRun.code === 1 && dashRun.output.includes('RAN_VALIDATOR'),
-        `a dash-named environment variable let env run a command of the launch's choosing instead of the declared validator (code=${dashRun.code}, ${dashRun.output.slice(0, 120)})`);
+      expectRepaired(dashRun.code !== 0 && dashRun.output.includes('[artifact_protection_launch_refused]') && !dashRun.output.includes('RAN_VALIDATOR') && dashRun.launchCwd === undefined,
+        `a dash-named environment variable was launched anyway (code=${dashRun.code}, ${dashRun.output.slice(0, 120)})`);
       rmSync(dashDir, { recursive: true, force: true });
       // Audit #45 (1): no credential from the launch environment appears in
       // the wrapper's argv, and every variable still reaches the command.
@@ -2204,15 +2224,33 @@ if (hostEnforced) {
       const unrestricted = spawnSync(join(dyldDir, 'plain'), [], { encoding: 'utf8', env: dyldEnv, timeout: 20_000 });
       check(unrestricted.status !== 0, `control: an unrestricted binary honours DYLD_INSERT_LIBRARIES and fails on the absent library (${unrestricted.status})`);
       const secretValue = 'synthetic-credential-7c1d';
-      const secretLaunch = eqProtection.wrap({ command: process.execPath, args: ['-e', 'process.stdout.write(String(process.env.POS_SYNTHETIC_SECRET))'], shell: false, env: { ...process.env, POS_SYNTHETIC_SECRET: secretValue } });
-      expectRepaired(!secretLaunch.args.some((argument) => argument.includes(secretValue)) && secretLaunch.env.POS_SYNTHETIC_SECRET === secretValue,
-        `a launch-environment credential is in the wrapper's argv or missing from its environment (${JSON.stringify(secretLaunch.args.slice(-4))})`);
-      const secretDirect = spawnSync(secretLaunch.command, secretLaunch.args, { encoding: 'utf8', env: secretLaunch.env, timeout: 20_000 });
-      expectRepaired(secretDirect.status === 0 && secretDirect.stdout === secretValue, `the command under sandbox-exec did not receive the credential (${secretDirect.status}, ${secretDirect.stdout})`);
+      const secretLaunch = eqProtection.wrap({ command: process.execPath, args: ['-e', 'process.stdout.write(String(process.env.POS_SYNTHETIC_SECRET))'], shell: false, env: { ...process.env, POS_SYNTHETIC_SECRET: secretValue }, confidentialFd: 3 });
+      expectRepaired(!secretLaunch.args.some((argument) => argument.includes(secretValue)) && !('POS_SYNTHETIC_SECRET' in secretLaunch.env) && secretLaunch.confidential?.payload.toString('utf8').includes(`export POS_SYNTHETIC_SECRET='${secretValue}'\n`),
+        `a launch-environment credential is in the wrapper's argv or environment, or missing from the confidential payload (${JSON.stringify(secretLaunch.args.slice(-4))})`);
+      const secretDirect = spawnWrapped(secretLaunch);
+      expectRepaired(secretDirect.status === 0 && secretDirect.stdout === secretValue, `the command under sandbox-exec did not receive the credential (${secretDirect.status}, ${secretDirect.stdout} ${(secretDirect.stderr || '').slice(0, 80)})`);
+      // Audit #46 (2): SIP strips DYLD_* from a restricted wrapper's own
+      // environment (control), so a directly handed environment would lose
+      // them; through the trampoline the command still sees them.
+      const dyldProbe = ['-e', 'process.stdout.write(String(process.env.DYLD_LIBRARY_PATH))'];
+      const stripped = spawnSync('/usr/bin/sandbox-exec', ['-p', '(version 1)(allow default)', process.execPath, ...dyldProbe], { encoding: 'utf8', env: { ...process.env, DYLD_LIBRARY_PATH: '/fixture/lib' }, timeout: 20_000 });
+      check(stripped.status === 0 && stripped.stdout === 'undefined', `control: a restricted wrapper handed DYLD_LIBRARY_PATH directly strips it before the command runs (${stripped.stdout})`);
+      const dyldRun = await runValidationCommand({ label: 'dyld delivery', command: process.execPath, args: dyldProbe, env: { DYLD_LIBRARY_PATH: '/fixture/lib' }, timeoutMs: 20_000 }, root, 20_000, { artifactWriteProtection: eqProtection, artifactBinding: { root: realpathSync(root), protection: eqProtection.label } });
+      expectRepaired(dyldRun.code === 0 && dyldRun.output.includes('/fixture/lib'), `the protected launch lost DYLD_LIBRARY_PATH, so the command ran with inputs other than the ones its environment digest records (${dyldRun.code}, ${dyldRun.output.slice(0, 80)})`);
+      const dyldDirect = spawnWrapped(eqProtection.wrap({ command: process.execPath, args: dyldProbe, shell: false, env: { ...process.env, DYLD_LIBRARY_PATH: '/fixture/lib' }, confidentialFd: 3 }));
+      check(dyldDirect.status === 0 && dyldDirect.stdout === '/fixture/lib', `control: the trampoline restores DYLD_LIBRARY_PATH for the command (${dyldDirect.stdout})`);
+      // Audit #46 (1): a NUL byte in a value is refused before any payload
+      // exists (it would end one token and begin another).
+      let nulRefusal = null;
+      try { eqProtection.wrap({ command: process.execPath, args: ['-e', '0'], shell: false, env: { ...process.env, POS_NUL: 'ok\0--bind\0/x\0/x' }, confidentialFd: 3 }); } catch (error) { nulRefusal = error; }
+      expectRepaired(nulRefusal && String(nulRefusal.message).includes('[artifact_protection_launch_unsupported]') && String(nulRefusal.message).includes('NUL'), `a value containing NUL was serialised for transfer (${nulRefusal ? nulRefusal.message : 'no refusal'})`);
+      const nulRun = await runValidationCommand({ label: 'nul env', command: process.execPath, args: ['-e', 'process.stdout.write("RAN")'], env: { POS_NUL: 'ok\0--bind\0/x\0/x' }, timeoutMs: 20_000 }, root, 20_000, { artifactWriteProtection: eqProtection, artifactBinding: { root: realpathSync(root), protection: eqProtection.label } });
+      expectRepaired(nulRun.code !== 0 && !nulRun.output.includes('RAN') && nulRun.launchCwd === undefined, `a launch whose environment carries a NUL byte ran anyway (code=${nulRun.code}, ${nulRun.output.slice(0, 120)})`);
       const secretRun = await runValidationCommand({ label: 'secret delivery', command: process.execPath, args: ['-e', 'process.stdout.write(String(process.env.POS_SYNTHETIC_SECRET))'], env: { POS_SYNTHETIC_SECRET: secretValue }, timeoutMs: 20_000 }, root, 20_000, { artifactWriteProtection: eqProtection, artifactBinding: { root: realpathSync(root), protection: eqProtection.label } });
       expectRepaired(secretRun.code === 0 && secretRun.output.includes(secretValue), `the executor's protected launch lost the credential (${secretRun.code}, ${secretRun.output.slice(0, 80)})`);
       const protectionSource12 = readFileSync(join(repoRoot, 'packages/main/src/core/build-artifacts-protection.ts'), 'utf8');
-      expectRepaired(!/const ENV_BIN|envBin/.test(protectionSource12) && protectionSource12.includes("'--args', String(launch.confidentialFd), '--'") && protectionSource12.includes('const sip = systemIntegrityProtectionRefusal(trust);'),
+      expectRepaired(!/const ENV_BIN|envBin/.test(protectionSource12) && protectionSource12.includes("'--args', String(launch.confidentialFd), '--'") && protectionSource12.includes('const sip = systemIntegrityProtectionRefusal(trust);')
+        && protectionSource12.includes('trampoline, `/dev/fd/${launch.confidentialFd}`, ...inner]') && protectionSource12.includes('checkTransferableEnvironment(reapplied);\n      const payload = Buffer.from(reapplied.flatMap('),
         'the protection still re-applies the environment through /usr/bin/env or bwrap argv (source-text guard)');
       rmSync(dyldDir, { recursive: true, force: true });
     }

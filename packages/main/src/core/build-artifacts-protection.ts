@@ -327,6 +327,39 @@ export function weakestProtectionLabel(labels: readonly (string | undefined)[]):
 const SANDBOX_EXEC = '/usr/bin/sandbox-exec';
 /** Reports System Integrity Protection; only its exact "enabled" verdict lets sandbox-exec receive the launch environment directly. */
 const CSRUTIL = '/usr/bin/csrutil';
+/** The trampoline that restores the withheld variables INSIDE the sandbox from a private descriptor before exec-ing the command. */
+const TRAMPOLINE_SH = '/bin/sh';
+const ENVIRONMENT_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
+
+/**
+ * The environment a mechanism must transfer confidentially, checked before
+ * any serialisation: a name that is not a portable identifier could be read
+ * as an option or an assignment by whatever restores it, and an embedded NUL
+ * would end one NUL-separated token and begin another (a value could smuggle
+ * a `--bind` into bwrap's argument stream). Either refuses the launch.
+ */
+function checkTransferableEnvironment(reapplied: readonly [string, string][]): void {
+  for (const [name, value] of reapplied) {
+    if (!ENVIRONMENT_NAME.test(name)) throw new Error(`${LAUNCH_UNSUPPORTED_TAG} environment variable name ${JSON.stringify(name)} is not a portable identifier and cannot be transferred into the sandbox`);
+    if (value.includes('\0')) throw new Error(`${LAUNCH_UNSUPPORTED_TAG} environment variable ${name} contains a NUL byte and cannot be transferred into the sandbox`);
+  }
+}
+
+/**
+ * A POSIX shell script that exports each withheld variable (single-quoted,
+ * so a value is data whatever it contains) and then execs the command it
+ * was handed as its arguments. The shell that runs it is a restricted
+ * platform binary launched with the allowlisted environment only: the
+ * loader ignores DYLD_* for it, and no launch-chosen startup file exists for
+ * a non-interactive, non-login `sh` (only root-owned system files), so the
+ * variables reach the COMMAND — the process that must see them — and no
+ * process listing ever shows them.
+ */
+export function trampolineScript(reapplied: readonly [string, string][]): string {
+  checkTransferableEnvironment(reapplied);
+  const lines = reapplied.map(([name, value]) => `export ${name}='${value.replace(/'/g, `'\\''`)}'`);
+  return `${lines.join('\n')}${lines.length ? '\n' : ''}exec "$@"\n`;
+}
 /** A launch the mechanism cannot express unambiguously; thrown by `wrap`, never reinterpreted. */
 export const LAUNCH_UNSUPPORTED_TAG = '[artifact_protection_launch_unsupported]';
 /** Exit status the self-test probe uses to report "the write was refused". */
@@ -571,22 +604,38 @@ function sandboxExecMechanism(denied: string[], trust: WrapperTrust): Mechanism 
   try { accessSync(SANDBOX_EXEC, constants.X_OK); executable = realpathSync(SANDBOX_EXEC); } catch { return 'sandbox-exec is not executable on this host'; }
   const trusted = trustWrapper('sandbox-exec', executable, trust);
   if (typeof trusted === 'string') return trusted;
-  // The wrapper receives the launch environment DIRECTLY (credentials
-  // included, argv untouched): that is safe only while SIP keeps
-  // /usr/bin/sandbox-exec restricted, so the loader ignores DYLD_* for it.
+  // The wrapper and the trampoline are restricted platform binaries: with
+  // SIP enabled the loader ignores (and strips) DYLD_* for them, so neither
+  // can be pre-empted by the launch environment. Both must be unreplaceable.
   const sip = systemIntegrityProtectionRefusal(trust);
   if (sip) return sip;
+  let trampoline: string;
+  try { accessSync(TRAMPOLINE_SH, constants.X_OK); trampoline = realpathSync(TRAMPOLINE_SH); } catch { return `${TRAMPOLINE_SH} is not executable on this host`; }
+  const trampolineRefusal = replaceabilityRefusal('sandbox-exec', trampoline, trust);
+  if (trampolineRefusal) return trampolineRefusal;
   const profile = sandboxExecProfile(denied);
   return {
     name: 'sandbox-exec',
     wrapper: trusted.wrapper,
     interpreters: trusted.interpreters.map((interpreter) => interpreter.identity),
-    trust: () => trustedWrapperDrift('sandbox-exec', trusted, trust) ?? systemIntegrityProtectionRefusal(trust),
-    // The command and its arguments are handed to spawn as data (never
-    // through /usr/bin/env, whose option and assignment parsing reinterpreted
-    // executable names and variable names), and the environment reaches the
-    // command through the wrapper's own environment, never through argv.
-    wrap: (launch) => ({ command: executable, args: ['-p', profile, ...innerCommandLine(launch)], shell: false, env: { ...(launch.env ?? process.env) } }),
+    trust: () => trustedWrapperDrift('sandbox-exec', trusted, trust) ?? systemIntegrityProtectionRefusal(trust) ?? replaceabilityRefusal('sandbox-exec', trampoline, trust),
+    wrap: (launch) => {
+      const { wrapperEnv, reapplied } = partitionLaunchEnvironment(launch.env ?? process.env);
+      const inner = innerCommandLine(launch);
+      // Nothing withheld: the command is launched directly under the sandbox.
+      if (reapplied.length === 0) return { command: executable, args: ['-p', profile, ...inner], shell: false, env: wrapperEnv };
+      // The withheld variables (loader variables and credentials alike) are
+      // restored INSIDE the sandbox by the trampoline, which reads its script
+      // from a private descriptor: a restricted wrapper would strip DYLD_*
+      // from an environment handed to it directly, and argv would expose
+      // every value to any process listing. The command and its arguments
+      // are the trampoline's arguments, data whatever their spelling.
+      if (launch.confidentialFd === undefined) {
+        throw new Error(`${LAUNCH_UNSUPPORTED_TAG} the launch environment must be transferred into the sandbox through a confidential descriptor, and the launcher offered none`);
+      }
+      const payload = Buffer.from(trampolineScript(reapplied), 'utf8');
+      return { command: executable, args: ['-p', profile, trampoline, `/dev/fd/${launch.confidentialFd}`, ...inner], shell: false, env: wrapperEnv, confidential: { fd: launch.confidentialFd, payload } };
+    },
   };
 }
 
@@ -639,6 +688,9 @@ function bwrapMechanism(existingRoots: string[], allRoots: string[], discovery: 
       if (launch.confidentialFd === undefined) {
         throw new Error(`${LAUNCH_UNSUPPORTED_TAG} the launch environment must be transferred to bwrap through a confidential descriptor, and the launcher offered none`);
       }
+      // A NUL inside a name or value would end one token and begin another
+      // (a `--bind` smuggled after the read-only mounts); refused up front.
+      checkTransferableEnvironment(reapplied);
       const payload = Buffer.from(reapplied.flatMap(([name, value]) => ['--setenv', name, value]).map((argument) => `${argument}\0`).join(''), 'utf8');
       return { command: bwrap, args: [...prefix.slice(0, -1), '--args', String(launch.confidentialFd), '--', ...innerCommandLine(launch)], shell: false, env: wrapperEnv, confidential: { fd: launch.confidentialFd, payload } };
     },
