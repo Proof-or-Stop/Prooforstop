@@ -11756,25 +11756,40 @@ execFileSync(process.execPath, [join(root, 'packages/main/tests/certification-mu
 // Each focused proof has separate 180s setup and 240s body budgets; outer 450s
 // reserves 30s for fixture IO. Setup/body timeout is unavailable evidence, not assertion RED.
 // A loaded machine can exhaust this bound; that never establishes a product defect or a PASS. These are failure budgets, not speed gains.
-// Real CLI reader admission and handler non-mutation, including protected negative paths.
-try {
-  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-reviewer-read-boundaries.mjs')], {
-    cwd: root, encoding: 'utf8', timeout: 450000,
-  });
-  assert(output.includes('REVIEWER_READ_BOUNDARY_GREEN'), 'reviewer read boundary executable proof must pass');
-} catch (error) {
-  assert(false, verificationFailureMessage('reviewer read boundary', error));
+// These two actual CLI proofs use distinct mkdtemp roots and child-local
+// sessions. Both verify the shared build binding; neither changes repository
+// source. Observe both outcomes before continuing, including after a failure.
+function boundaryProofCompletion(resolveProof, rejectProof, label, marker) {
+  return (error, stdout, stderr) => {
+    try {
+      if (error) { Object.assign(error, { stdout, stderr }); throw error; }
+      nodeAssert(stdout.includes(marker), label + ' requires its exact completion selector');
+      resolveProof();
+    } catch (failure) {
+      rejectProof(new Error(failure?.signal
+        ? 'PROOF_UNAVAILABLE: ' + label + '\n' + String(failure) + '\n' + stdout + '\n' + stderr
+        : verificationFailureMessage(label, failure)));
+    }
+  };
 }
-
-// Real preview calls, parameter admission, protected writer negatives and reader guidance.
-try {
-  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-maintenance-preview-boundaries.mjs')], {
-    cwd: root, encoding: 'utf8', timeout: 450000,
-  });
-  assert(output.includes('MAINTENANCE_PREVIEW_GREEN'), 'maintenance preview executable proof must pass');
-} catch (error) {
-  assert(false, verificationFailureMessage('maintenance preview', error));
+const boundaryProofResults = await Promise.allSettled([
+  new Promise((resolveProof, rejectProof) => {
+    execFile(process.execPath, [join(root, 'scripts/verify-reviewer-read-boundaries.mjs')], {
+      cwd: root, encoding: 'utf8', timeout: 450000,
+    }, boundaryProofCompletion(resolveProof, rejectProof, 'reviewer read boundary', 'REVIEWER_READ_BOUNDARY_GREEN'));
+  }),
+  new Promise((resolveProof, rejectProof) => {
+    execFile(process.execPath, [join(root, 'scripts/verify-maintenance-preview-boundaries.mjs')], {
+      cwd: root, encoding: 'utf8', timeout: 450000,
+    }, boundaryProofCompletion(resolveProof, rejectProof, 'maintenance preview', 'MAINTENANCE_PREVIEW_GREEN'));
+  }),
+]);
+for (const result of boundaryProofResults) {
+  if (result.status === 'rejected') assert(false, String(result.reason));
 }
+if (boundaryProofResults.every(result => result.status === 'fulfilled')) console.log('PROCESS_BOUNDARY_PROOFS_COMPLETE 2');
+assert(read(processFactRegistryPath).includes('Focused process-boundary proofs retain both actual CLI executions'),
+  'Process boundary proof concurrency must remain registered with complete failure propagation');
 
 // Parameterized writes cannot inherit a name-only reader exemption.
 {

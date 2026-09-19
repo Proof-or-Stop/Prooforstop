@@ -21,6 +21,26 @@ No partial selector, cached assertion result or skipped child supplies a pass.
 Output markers and diagnostics remain available; independent output order may
 change. The three registered command budgets return to 180000 milliseconds.
 
+During finish, repeated complete measurements at candidate `6d92619bb4`
+exposed insufficient margin: the latest fixed-candidate pair took
+186.918/191.068 seconds for #16, 190.446/181.233 for #69, and
+184.089/173.565 for #130. All six semantic suites completed successfully;
+five exceeded the unchanged 180-second threshold. Neither this failed replay
+nor the intervening 176.080-second observer diagnostic is recorded as GREEN.
+
+The follow-up overlaps only the existing reviewer-read and maintenance-preview
+boundary subprocesses at their original execution point. They own separate
+mkdtemp roots and child-local sessions; shared build reuse still verifies the
+current source and output bindings. Each keeps its exact executable, argv,
+450-second outer bound and completion selector. Both results settle before
+the parent continues, and either failure remains a parent failure. This does
+not overlap these children with the later nine-proof group, alter their setup
+or body budgets, cache assertions, or change machine-capacity policy.
+The actual callback has real success, nonzero exit, missing-selector, timeout,
+restored-success and failed/slow-peer drainage controls. The actual admission
+mutations must also launch neither boundary subprocess. Fresh complete
+measurements, rather than this design description, determine performance PASS.
+
 The admission-order regression observes real synchronous and asynchronous
 launches. Both actual invalid-admission mutations must refuse before any
 positive workload starts. Separate real child controls exercise the actual

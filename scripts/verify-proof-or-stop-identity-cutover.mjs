@@ -3255,7 +3255,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "scripts/verify-process-fact-contract.mjs",
-    "sha256": "6d1bb067eb73556d313824e09e6944c8c2dac8c4be99b27bcfbb2009fa3185aa"
+    "sha256": "98e761dfc05c7a24634327f2f43e8271807d6d441f157a3f7f11b875c62d59b9"
   },
   {
     "path": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
@@ -7475,7 +7475,7 @@ const REVIEWED_CONTEXT_READERS = [
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "7559a0e4b4615e5edda7bfdf0fab914860eb962228f2860e59985b268312ea31"
+    "sha256": "cf296aeb72bdb7330656697eb83fc50ab024b4fbe964901e985c1729a23d054a"
   }
 ];
 function verifyReviewedContextReaders(root) {

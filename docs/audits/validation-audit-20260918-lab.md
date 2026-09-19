@@ -23,6 +23,36 @@ are required. Complete before/after pairs at repair `8218bf7123` were
 regression now checks those restored budgets while #1 retains 900 seconds.
 See [the performance contract](../lab/validation-original-budget-performance.md).
 
+The later finish candidate `6d92619bb4` failed its original-budget replay.
+One six-run attempt had three overruns; a diagnostic observer then completed
+in 176.080 seconds without qualifying as GREEN. The same candidate and command
+were retried after observed load decreased, but five of six complete runs
+still exceeded 180 seconds (186.918/191.068, 190.446/181.233,
+184.089/173.565 seconds for #16/#69/#130). All semantic executions passed;
+load observations alone do not prove an exclusive environmental cause.
+Official reopen retained these failed records before the follow-up repair.
+
+The follow-up changes only the two existing focused CLI boundary launches from
+synchronous sequencing to concurrent execution with both outcomes awaited.
+Their private roots, child-local sessions, exact commands, selectors, current
+build verification, timeouts and negative assertions remain unchanged.
+The executable ordering witness covers both launches and exercises the actual
+callback with real children, including failure and timeout refusal plus a
+slower peer after an early failure. Process-fact registration describes this
+execution-only concurrency. Static binding review updates only the two changed
+launch expressions, their exact source excerpts and current dependency bytes;
+unchanged calls retain their call digests. No wider child target or authority
+is admitted. The before/after diff and binding review remain in the local
+`remaining-performance-20260918/finish/` archive.
+
+The source-binding consumer additionally refused ten existing process-verifier
+fixture rows after this edit. All ten original lines, line hashes, token counts,
+classifications, reasons and row positions were compared and remain identical;
+only the whole-file source digest, its independent negative-source checksum and
+the authenticated fixture-reader chain are refreshed. The inventory still has exactly 296 rows. Its actual consumer,
+schema self-test, and stale/mutated-input refusal checks must pass after this
+refresh; the retained RED log is `boundary-overlap-source-bindings.log`.
+
 The supplemental complete capacity fixture has two full GREEN runs at
 `5ef010169d` (531.825/531.817 seconds, 30 groups plus production regressions),
 separate from #50's 73-case suite. See
