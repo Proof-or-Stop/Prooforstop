@@ -2163,6 +2163,22 @@ if (hostEnforced) {
         && !optionalPlan.details.some((line) => line.includes('build_artifacts_observation_missing')) && !(optionalResult.output ?? '').includes('OPTIONAL RAN'),
         `an optional command that never launched failed the whole plan as unobserved (allPass=${optionalPlan.allPass}, outcome=${optionalResult?.launchOutcome}, code=${optionalResult?.code}, ${optionalPlan.details.join(' | ').slice(0, 200)})`);
       rmSync(optDir, { force: true }); rmSync(`${optDir}-moved`, { recursive: true, force: true }); rmSync(optOther, { recursive: true, force: true });
+      // Audit #44 (1): a plan whose only commands were optional and never
+      // launched executed nothing; its label is the host's resolution (as for
+      // a plan with nothing to run), so the persisted PASS stays admissible
+      // instead of being refused as unenforced.
+      const onlyDir = join(canonicalRoot, 'only-dir'); mkdirSync(onlyDir); writeFileSync(join(onlyDir, 'validate.js'), 'process.exit(0);\n');
+      const onlyOther = join(canonicalRoot, 'only-other'); mkdirSync(onlyOther);
+      const onlyOptional = await executeValidationPlan({ provider: 'build-binding-fixture', commands: [
+        { label: 'only optional never launched', command: 'node', args: ['validate.js'], cwd: 'only-dir', optional: true, timeoutMs: 20_000 },
+      ], warnings: [] }, root, undefined, undefined, { jobs: 1, beforeLaunch: () => { if (existsSync(onlyDir) && !lstatSync(onlyDir).isSymbolicLink()) { renameSync(onlyDir, `${onlyDir}-moved`); symlinkSync(onlyOther, onlyDir); } } });
+      const hostLabel = binding.resolveArtifactWriteProtection(root).label;
+      expectRepaired(onlyOptional.allPass === true && onlyOptional.commands[0]?.launchOutcome === 'not-launched' && onlyOptional.buildArtifactsProtection === hostLabel && typeof onlyOptional.buildArtifactsHash === 'string' && binding.artifactProtectionSatisfied(onlyOptional.buildArtifactsProtection),
+        `a plan whose only optional command never launched recorded no admissible protection label (allPass=${onlyOptional.allPass}, label=${onlyOptional.buildArtifactsProtection}, hash=${onlyOptional.buildArtifactsHash}, ${onlyOptional.details.join(' | ').slice(0, 160)})`);
+      const executorSource11 = readFileSync(join(repoRoot, 'packages/main/src/core/validation-executor.ts'), 'utf8');
+      expectRepaired(executorSource11.includes("const executed = commands.filter((result) => result.launchOutcome !== 'not-launched');") && executorSource11.includes("const tests = executed.filter((result) => result.buildArtifactsRole !== 'build');"),
+        'the plan label aggregates commands that never launched (source-text guard)');
+      rmSync(onlyDir, { force: true }); rmSync(`${onlyDir}-moved`, { recursive: true, force: true }); rmSync(onlyOther, { recursive: true, force: true });
     }
     // Audit #39 (3): the walker stops where the kernel's resolution would
     // fail and keeps the rest spelled as written, so `existing-file/..`,
@@ -2203,12 +2219,15 @@ if (hostEnforced) {
         ['C:\\repo', 'dir'], ['C:\\repo\\alias', 'link:C:\\elsewhere\\tree'], ['C:\\elsewhere', 'dir'], ['C:\\elsewhere\\tree', 'dir'], ['C:\\elsewhere\\checks', 'dir'],
         ['C:\\repo\\checks', 'dir'], ['C:\\work', 'dir'], ['C:\\repo\\a-file', 'file'],
         ['\\\\server\\share\\dir', 'dir'], ['\\\\server\\share\\other', 'dir'],
+        ['D:\\workspace', 'dir'], ['D:\\workspace\\checks', 'dir'],
       ]);
       const winSeam = {
         platform: 'win32', cwd: 'C:\\work',
         lstat: (path) => { const kind = tree.get(path); if (!kind) { const error = new Error('ENOENT'); throw error; } return { isSymbolicLink: () => kind.startsWith('link:'), isDirectory: () => kind === 'dir' }; },
         readlink: (path) => tree.get(path).slice(5),
         searchable: () => true,
+        // Audit #44 (2): Windows keeps a current directory per drive.
+        driveCurrentDirectory: (drive) => (drive.toUpperCase() === 'D' ? 'D:\\workspace' : undefined),
       };
       const winCases = [
         ['C:\\repo', 'C:\\repo', 'a drive-rooted directory keeps its drive'],
@@ -2220,7 +2239,9 @@ if (hostEnforced) {
         // Audit #43 (2): drive-relative and rooted-without-drive names.
         ['C:checks', 'C:\\work\\checks', 'a same-drive drive-relative cwd is relative to the base'],
         ['c:checks', 'C:\\work\\checks', 'drive letters compare case-insensitively'],
-        ['D:checks', 'D:\\checks', 'a different-drive drive-relative cwd is rooted at that drive'],
+        ['D:checks', 'D:\\workspace\\checks', 'a different-drive drive-relative cwd is anchored at that drive\'s current directory'],
+        ['D:alias\\..\\checks', 'D:\\workspace\\alias\\..\\checks', 'the remaining components after a drive anchor stay as written'],
+        ['E:checks', 'E:\\checks', 'a drive with no known current directory falls back to its root'],
         ['\\repo', 'C:\\repo', 'a rooted cwd without a drive takes the base drive'],
       ];
       for (const [input, expected, why] of winCases) {
@@ -2232,6 +2253,8 @@ if (hostEnforced) {
       expectRepaired(binding.launchDirectoryOf('C:\\repo', 'C:checks', { platform: 'win32' }) === 'C:\\repo\\checks'
         && binding.launchDirectoryOf('C:\\repo', 'C:alias\\..\\checks', { platform: 'win32' }) === 'C:\\repo\\alias\\..\\checks'
         && binding.launchDirectoryOf('C:\\repo', 'D:checks', { platform: 'win32' }) === 'D:\\checks'
+        && binding.launchDirectoryOf('C:\\repo', 'D:checks', winSeam) === 'D:\\workspace\\checks'
+        && binding.launchDirectoryOf('C:\\repo', 'd:', winSeam) === 'D:\\workspace'
         && binding.launchDirectoryOf('C:\\repo', '\\checks', { platform: 'win32' }) === 'C:\\checks'
         && binding.launchDirectoryOf('\\\\server\\share\\dir', '\\other', { platform: 'win32' }) === '\\\\server\\share\\other',
         'launchDirectoryOf corrupts Windows drive-relative or rooted-without-drive cwds');

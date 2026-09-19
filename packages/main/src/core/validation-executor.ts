@@ -2811,8 +2811,13 @@ export async function executeValidationPlan(
       // A plan with nothing to run (no validator configured) executed nothing
       // that could have swapped the trees; it records the host's resolution so
       // its evidence is judged on whether this host can enforce at all.
-      if (commands.length === 0) return { buildArtifactsProtection: artifactWriteProtection.label };
-      const tests = commands.filter((result) => result.buildArtifactsRole !== 'build');
+      // A command the executor never launched executed nothing that could
+      // have touched the trees either, so it neither carries nor weakens a
+      // label: only EXECUTED commands are aggregated. A plan in which nothing
+      // executed at all is judged exactly like a plan with nothing to run.
+      const executed = commands.filter((result) => result.launchOutcome !== 'not-launched');
+      if (executed.length === 0) return { buildArtifactsProtection: artifactWriteProtection.label };
+      const tests = executed.filter((result) => result.buildArtifactsRole !== 'build');
       // Registered builds and nothing else: explicitly build-only, which the
       // contract accepts on its own terms (no command ran that it protects)
       // and which never outranks an enforced or unenforced test label.

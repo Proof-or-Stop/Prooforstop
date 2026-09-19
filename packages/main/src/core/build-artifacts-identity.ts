@@ -153,6 +153,8 @@ export interface PathWalkSeam {
   readlink?: (path: string) => string;
   /** Whether this directory may be traversed (search permission). */
   searchable?: (path: string) => boolean;
+  /** Windows: the current directory of a drive other than the base's (Node keeps it in `process.env['=D:']`). */
+  driveCurrentDirectory?: (drive: string) => string | undefined;
 }
 
 function pathApiFor(seam?: PathWalkSeam): typeof posix | typeof win32 {
@@ -182,16 +184,20 @@ export function launchDirectoryOf(base: string, cwd?: string, seam?: PathWalkSea
   };
   if (api === win32) {
     // A drive-relative name (`C:checks`) is relative to that drive's current
-    // directory: the base when it is on the same drive, the drive's root
-    // otherwise (no other current directory is known for it). A rooted name
-    // without a drive (`\checks`) is rooted at the base's own root (drive or
-    // UNC share). Both keep their remaining components as written.
+    // directory: the base when it is on the same drive; otherwise the current
+    // directory Windows keeps per drive (Node exposes it as `process.env['=D:']`,
+    // exactly what path.resolve consults), and only when none is known the
+    // drive's root. A rooted name without a drive (`\checks`) is rooted at
+    // the base's own root (drive or UNC share). All keep their remaining
+    // components as written, never normalised.
     const driveRelative = /^([A-Za-z]):(?![\\/])(.*)$/.exec(cwd);
     if (driveRelative) {
+      const drive = driveRelative[1]!;
       const baseDrive = /^([A-Za-z]):/.exec(base)?.[1];
       const rest = driveRelative[2]!;
-      if (baseDrive && baseDrive.toLowerCase() === driveRelative[1]!.toLowerCase()) return rest ? appended(base, rest) : base;
-      return `${driveRelative[1]}:\\${rest}`;
+      if (baseDrive && baseDrive.toLowerCase() === drive.toLowerCase()) return rest ? appended(base, rest) : base;
+      const anchor = seam?.driveCurrentDirectory?.(drive) ?? process.env[`=${drive.toUpperCase()}:`] ?? `${drive}:\\`;
+      return rest ? appended(anchor, rest) : anchor;
     }
     if (/^[\\/](?![\\/])/.test(cwd)) {
       const root = api.parse(base).root;
