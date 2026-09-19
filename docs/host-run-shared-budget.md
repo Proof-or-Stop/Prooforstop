@@ -31,11 +31,15 @@ reopening it. Corrupt state, invalid settings, policy drift and lock failure do 
 launch the provider. Turning off the optional usage ledger does not turn off an
 explicit shared budget. Provider accounting remains null when not reported.
 
-A throwing host transport now writes an unavailable terminal usage row linked to
-its preflight record when the ledger is enabled. Raw exception text is never stored
-as the accounting reason. The original exception still propagates. This does not
-recover usage that the provider never returned; an interrupted process can still
-leave only a preflight row, while the budget reservation remains charged.
+A throwing host transport writes a terminal usage row linked to its preflight
+record when the ledger is enabled. A bounded stdout scanner preserves provider
+usage received before the exception through the normal provider adapters. Missing
+usage, stderr-only numbers and a later truncated candidate remain unavailable.
+These are the provider-reported counters, not a claim that an interrupted run's
+entire bill is known. Raw exception text is never stored as the accounting reason.
+The original exception still propagates. Abrupt process death can still leave only
+a preflight row, while the budget reservation remains charged. Verify the exception
+path with `node scripts/verify-benchmark-exception-usage.mjs`.
 
 This is a **host invocation count**, not a token, price, model-turn or elapsed-time
 upper bound. A provider CLI can perform multiple model turns within one invocation.

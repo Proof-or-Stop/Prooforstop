@@ -2658,7 +2658,7 @@ export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = ([
     producerSourceRefs: ['packages/main/src/core/host-run-budget.ts', 'packages/main/src/core/runtime-fact-registry.ts', 'packages/main/src/core/runtime-artifact-registry.ts'],
     consumerSourceRefs: ['packages/main/src/core/host-run.ts'],
     consumerGate: 'Explicit grouped host_run admission before provider transport',
-    rationale: 'Canonical-project atomic reservations enforce total and repair call ceilings across processes. Same ID cannot change its policy. Unknown and crashed attempts retain capacity; only proven non-spawn releases it. Optional UTF-8 prompt byte cap refuses the entire oversized prompt without truncating review requirements. Transport exceptions retain an unavailable final usage row. This opt-in bound does not govern desktop scheduling, provider-internal turns, direct CLI launchers, or promise a token or money ceiling.',
+    rationale: 'Throwing transports preserve bounded stdout provider usage through the normal adapters; missing or stale truncated usage remains unavailable, and the original error propagates. Canonical-project atomic reservations enforce total and repair call ceilings across processes. Same ID cannot change its policy. Unknown and crashed attempts retain capacity; only proven non-spawn releases it. Optional UTF-8 prompt byte cap refuses the entire oversized prompt without truncating review requirements. Transport exceptions retain an unavailable final usage row. This opt-in bound does not govern desktop scheduling, provider-internal turns, direct CLI launchers, or promise a token or money ceiling.',
   },
   {
     name: 'runtime:planned_provider_budget_admission', kind: 'runtime-behavior', level: 'L4',

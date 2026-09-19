@@ -22,6 +22,8 @@ const failures = [];
 const sharedHostBudget = readFileSync(join(root, 'packages/main/src/core/host-run.ts'), 'utf8');
 if (!sharedHostBudget.includes('reserveHostRunBudget(args.root, args.usageEnv ?? args.env, args.promptText)') || !sharedHostBudget.includes('settleHostRunBudget(reservation, { spawned: result.spawned, ...result.usageSummary })')) failures.push('Host runs must bind explicit shared reservations and settle actual execution outcomes');
 if (!sharedHostBudget.includes('host_runner_exception_usage_unavailable')) failures.push('Throwing host transports must preserve unavailable terminal usage');
+if (!sharedHostBudget.includes('exceptionUsage.push(chunk.text)')
+  || !sharedHostBudget.includes('exceptionUsage.truncated')) failures.push('Throwing host transports must preserve bounded reported usage and truncation semantics');
 
 if (!readFileSync(join(root, 'packages/main/src/core/process-fact-registry.ts'), 'utf8').includes('runtime:planned_provider_budget_admission')) failures.push('Planned provider budget admission must register its limited process authority');
 const plannedBudgetSource = readFileSync(join(root, 'packages/main/src/core/planned-steps-executor.ts'), 'utf8');

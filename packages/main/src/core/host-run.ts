@@ -2401,6 +2401,8 @@ async function runAdmittedHostRun(args: HostRunArgs, deps: HostRunDeps): Promise
   assertReviewRunIdBinding(args.storyId, args.reviewRunId);
   let providerSpawnObserved = false;
   let runnerInvoked = false;
+  // Retain only bounded usage candidates for the exceptional transport path.
+  const exceptionUsage = new UsageLineScanner(usageLineRetainerFor(args.host));
   const releaseAdmissionAfterResult = (
     admission: ProviderProcessAdmission,
     spawn: HostRunSpawnResult,
@@ -2444,6 +2446,7 @@ async function runAdmittedHostRun(args: HostRunArgs, deps: HostRunDeps): Promise
     let streamed = false;
     const onChunk = (chunk: HostRunChunk): void => {
       streamed = true;
+      if (chunk.stream === 'stdout') exceptionUsage.push(chunk.text);
       safeDeliver(chunk);
     };
     let spawn: HostRunSpawnResult;
@@ -2744,9 +2747,19 @@ async function runAdmittedHostRun(args: HostRunArgs, deps: HostRunDeps): Promise
     spawn = await invokeRunner(materializeHostRunLaunch(args), admission);
   } catch (error) {
     if (!providerSpawnObserved) releaseProviderProcessAdmission(admission);
-    // A throwing transport still needs a terminal row; never expose raw error text.
-    if (runnerInvoked) recordDispatchUnavailableFinal(args.root, ctx, handle?.correlation ?? null,
-      handle?.estimateRecordId ?? null, blockedProvider, 'host_runner_exception_usage_unavailable', opts);
+    // Preserve reported usage received before failure, using the same bounded
+    // scanner and provider adapters as normal completion. Later truncation still
+    // invalidates a retained candidate; stderr never supplies accounting facts.
+    if (runnerInvoked) {
+      exceptionUsage.flush();
+      if (exceptionUsage.retainedText() || exceptionUsage.truncated) {
+        recordFinalForHost(args, ctx, handle, opts, exceptionUsage.retainedText(),
+          exceptionUsage.truncated, '', false);
+      } else {
+        recordDispatchUnavailableFinal(args.root, ctx, handle?.correlation ?? null,
+          handle?.estimateRecordId ?? null, blockedProvider, 'host_runner_exception_usage_unavailable', opts);
+      }
+    }
     throw error;
   }
   // F-025: token-verified release — never deletes a reclaimed+reacquired slot.
