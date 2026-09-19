@@ -35,16 +35,18 @@ assert.ok(parentMs >= workerMs + lifecycleMarginMs,
 
 const config = JSON.parse(readFileSync(resolve(root, 'proof-or-stop.config.json'), 'utf8'));
 const members = [
-  'test:dynamic-finding-evidence-closure', 'scripts/verify-process-fact-contract.mjs',
-  'packages/main/dist/tasks/red-evidence-target-binding-smoke.js',
-  'packages/main/dist/tasks/red-evidence-envelope-smoke.js',
+  ['test:dynamic-finding-evidence-closure', 900000],
+  ['scripts/verify-process-fact-contract.mjs', 180000],
+  ['packages/main/dist/tasks/red-evidence-target-binding-smoke.js', 180000],
+  ['packages/main/dist/tasks/red-evidence-envelope-smoke.js', 180000],
 ];
-// Audit acceptance: complete assertions, serial invocation, 900 s total per member.
-// This is a configuration contract, not an assertion of a speed improvement.
-for (const member of members) {
+// The complete process-fact consumers returned to their original 180 s budget
+// after measured double GREEN. The finding closure retains its 900 s allowance.
+// This checks the configuration; full timed executions are separate evidence.
+for (const [member, budgetMs] of members) {
   const rows = config.validate.commands.filter(row => row.args?.includes(member));
   assert.equal(rows.length, 1, `one canonical registration required: ${member}`);
-  assert.equal(rows[0].timeoutMs, 900000, `VALIDATION_COMPOSITE_BUDGET_MISMATCH: ${member}`);
+  assert.equal(rows[0].timeoutMs, budgetMs, `VALIDATION_COMPOSITE_BUDGET_MISMATCH: ${member}`);
 }
 
 // This parent runs both real verifiers and the public runtime/package fixtures.

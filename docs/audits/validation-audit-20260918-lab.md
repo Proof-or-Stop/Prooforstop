@@ -1,5 +1,34 @@
 # Validation audit Lab checkpoint
 
+## Current finish candidate, 2026-09-19
+
+The user requested the local Lab finish workflow on 2026-09-19. The retained
+repairs are ready for its current-candidate replay and independent vendor audit;
+integration is not claimed until finish completes. Historical checkpoint
+statements below describe earlier stages and do not override this status.
+
+Commands #16, #69 and #130 now retain all complete assertions and original
+180-second registered budgets. Two independent positive fixture lanes overlap
+after the unchanged admission refusal barrier; all nine actual child completions
+are required. Complete before/after pairs at repair `8218bf7123` were
+201.664/215.793 -> 162.043/161.495 seconds (#16),
+211.440/216.424 -> 160.571/153.669 seconds (#69), and
+213.933/206.270 -> 167.757/152.917 seconds (#130). The structural budget
+regression now checks those restored budgets while #1 retains 900 seconds.
+See [the performance contract](../lab/validation-original-budget-performance.md).
+
+The supplemental complete capacity fixture has two full GREEN runs at
+`5ef010169d` (531.825/531.817 seconds, 30 groups plus production regressions),
+separate from #50's 73-case suite. See
+[the capacity repair](../lab/validation-capacity-full-fixture-repair.md).
+Earlier #1/#148/#50 and other target proofs remain bound to their archived
+commits; this does not claim a new full 240-command campaign. #7/#14 retain
+their environmental qualification. Complete commands, source archives, logs,
+hashes and local Lab records remain under the Git common directory's
+`lab-evidence-archives/validation-audit-20260918/`.
+
+## Historical checkpoints (superseded where noted above)
+
 ## Continued repair acceptance
 
 The 2026-09-18 follow-up uses a finite 900-second wall-clock budget for each complete serial command #1, #16, #69 and #130. Historical unchanged-command runs needed up to 611 seconds; the former 180-second registration could truncate valid work. The process contract alone contains a child with a 720-second allowance. This change is a configuration repair and makes no speedup claim. Identical executable/argv, complete assertions, fixed committed source and build, one audit command at a time, and recorded host load are required for the new live runs. Concurrent unrelated host work is observed, not terminated.
