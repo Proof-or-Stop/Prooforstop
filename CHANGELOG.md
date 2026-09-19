@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab validation-audit-entrypoints-20260919 - v0.3.424 - 2026-09-19
+
+- Align dispatch help with registry-defined target cardinality so CLI guidance matches the enforced command contract.
+- Keep story discard recovery rooted at the controller checkout when removing an invalid linked worktree.
+- Refresh reviewed source fingerprints in the retired-authority guard while retaining its token and call restrictions.
+- Preserve shared AST parser reuse and recognize multiline CLI preflight calls while retaining ordering checks; rebind exact dependencies without broadening static exceptions.
+- Verify complete static/runtime contracts and three complete entrypoint suites in two rounds; retain RED/GREEN and independent audit records. See [source and dependency review](docs/audits/validation-entrypoint-pin-review-20260919.md). This is local Lab integration, not Story DONE.
+
+Maintenance provenance: codex/lab-validation-audit-entrypoints-20260919, repair d3706199a0693d5d932c7d72c7196ab002559821.
+Verification command (replayed before integration and on main): `["node","/Users/jek/Documents/GitHub/Prooforstop/.git/lab-evidence-archives/validation-audit-20260918/remaining-performance-20260918/finish/verify-entrypoints-and-bindings.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab validation-queue-wait-outside-command-timeout - v0.3.423 - 2026-09-18
 
 - Stop counting time spent waiting on the same-user machine validation queue toward a validation command's configured timeout: the wait is bounded by the 300 s queue deadline and the caller's outer deadline, and the command is armed with its whole timeout once admitted.
