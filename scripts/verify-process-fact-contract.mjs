@@ -19,6 +19,9 @@ catch (error) { console.error(verificationFailureMessage('process contract prere
 const quiet = process.argv.slice(2).includes('--quiet');
 const closeoutPolicyModule = await import(pathToFileURL(join(root, 'packages/main/dist/core/closeout-trust.js')).href);
 const failures = [];
+if (!readFileSync(join(root, 'packages/main/src/core/process-fact-registry.ts'), 'utf8').includes('runtime:planned_provider_budget_admission')) failures.push('Planned provider budget admission must register its limited process authority');
+const plannedBudgetSource = readFileSync(join(root, 'packages/main/src/core/planned-steps-executor.ts'), 'utf8');
+if (!plannedBudgetSource.includes('budgetMeter.providerAllowance(attempts, timeoutMs)') || !plannedBudgetSource.includes('providerAttempts: result.attempts')) failures.push('Planned provider admission must constrain transport and meter actual retry attempts');
 const readonlyLaneSources = ['packages/main/src/core/managed-review-lane.ts','packages/main/src/core/managed-review-lane-build.mjs','packages/main/src/core/managed-review-lane-policy.ts'];
 for (const path of readonlyLaneSources) if (!existsSync(join(root,path))) failures.push(`Missing managed readonly source ${path}`);
 const readonlyManagedSource=readFileSync(join(root,'packages/main/src/core/managed-host-run.ts'),'utf8');
