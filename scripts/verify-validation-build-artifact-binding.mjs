@@ -1493,6 +1493,34 @@ try {
       const builds = existsSync(witness) ? readFileSync(witness, 'utf8').split('\n').filter(Boolean).length : 0;
       expectRepaired(firstBuild.code === 0 && secondBuild.code === 0 && builds === 2 && secondBuild.executionDecision?.disposition !== 'reused',
         `a shape-recognised registered build with executionReuse was served from the cache instead of executing again (codes ${firstBuild.code}/${secondBuild.code}, builds=${builds}, decision=${JSON.stringify(secondBuild.executionDecision)}; ${(secondBuild.output ?? '').slice(0, 120)})`);
+      // Audit #62: through the AMBIENT context too (no explicit context handed
+      // to the executor), and in every cwd form the recogniser accepts —
+      // absolute, symlink alias, wrapper-root — the build executes every time.
+      const countBuilds = () => (existsSync(witness) ? readFileSync(witness, 'utf8').split('\n').filter(Boolean).length : 0);
+      const mainAbs = join(realpathSync(root), 'packages', 'main');
+      symlinkSync(mainAbs, join(root, 'main-alias'), 'dir'); mkdirSync(join(root, 'wrapper-project'), { recursive: true });
+      const buildForms = [
+        ['absolute cwd', { label: 'abs build', command: 'npm', args: ['run', 'build'], cwd: mainAbs, executionReuse: 'exact-inputs', executionInputs: ['packages/main/package.json'], timeoutMs: 120_000 }, root],
+        ['symlink alias cwd', { label: 'alias build', command: 'npm', args: ['run', 'build'], cwd: 'main-alias', executionReuse: 'exact-inputs', executionInputs: ['packages/main/package.json'], timeoutMs: 120_000 }, root],
+        ['wrapper-root cwd', { label: 'wrapper build', command: 'npm', args: ['run', 'build'], cwd: mainAbs, executionReuse: 'exact-inputs', executionInputs: ['packages/main/package.json'], timeoutMs: 120_000 }, join(root, 'wrapper-project')],
+      ];
+      for (const [form, buildCommand, projectRootForm] of buildForms) {
+        const before = countBuilds();
+        const [firstAmbient, secondAmbient] = await sharedPolicy.withSharedValidationExecutions(sharedExecution, async () => [
+          await runValidationCommand(buildCommand, projectRootForm, 120_000, { artifactBinding: { root: realpathSync(root), protection: protection.label } }),
+          await runValidationCommand(buildCommand, projectRootForm, 120_000, { artifactBinding: { root: realpathSync(root), protection: protection.label } }),
+        ]);
+        expectRepaired(firstAmbient.code === 0 && secondAmbient.code === 0 && countBuilds() === before + 2 && secondAmbient.executionDecision?.disposition !== 'reused' && secondAmbient.executionDecision?.reason === 'registered_build',
+          `a registered build (${form}) was served from the ambient shared cache or not classified as a build (codes ${firstAmbient.code}/${secondAmbient.code}, builds ${countBuilds() - before}, decision=${JSON.stringify(secondAmbient.executionDecision)}; ${(secondAmbient.output ?? '').slice(0, 120)})`);
+        const formPolicy = sharedPolicy.sharedValidationReusePolicy(buildCommand, { projectRoot: projectRootForm, artifactsRoot: realpathSync(root), launchCwd: binding.canonicalizeExistingPath(binding.launchDirectoryOf(projectRootForm, buildCommand.cwd)) });
+        expectRepaired(formPolicy.eligible === false && formPolicy.reason === 'registered_build', `the reuse policy considers a registered build (${form}) eligible when judged with the executor's roots (${JSON.stringify(formPolicy)})`);
+      }
+      rmSync(join(root, 'main-alias')); rmSync(join(root, 'wrapper-project'), { recursive: true, force: true });
+      const sharedSource3 = readFileSync(join(repoRoot, 'packages/main/src/core/shared-validation-execution.ts'), 'utf8');
+      const executorSource16 = readFileSync(join(repoRoot, 'packages/main/src/core/validation-executor.ts'), 'utf8');
+      expectRepaired(sharedSource3.indexOf("if (registeredBuild) return executeWithoutReuse('registered_build');") > 0 && sharedSource3.indexOf("if (registeredBuild) return executeWithoutReuse('registered_build');") < sharedSource3.indexOf('const context = explicitContext ?? contexts.getStore();')
+        && sharedSource3.includes('sharedValidationReusePolicy(command, { projectRoot, artifactsRoot: artifactBinding?.root, launchCwd })') && executorSource16.includes('options.artifactBinding, options.launchCwd, registeredBuild), options);'),
+        'the registered-build exclusion is not enforced before the ambient context lookup, or the policy is judged without the executor roots (source-text guard)');
       rmSync(join(root, 'packages/main/package.json'), { force: true }); rmSync(join(root, 'packages/main/build-witness.js'), { force: true }); rmSync(witness, { force: true });
       // DONE-required: a build receipt served from a cache is no build proof.
       const buildReceipt = (disposition) => ({ label: 'build', command: 'npm', args: ['--prefix', 'packages/main', 'run', 'build'], cwd: realpathSync(root), status: 'PASS', materialHash: 'material', ...(disposition ? { executionReceipt: { disposition, executionKey: 'key', receiptHash: 'hash', executedAt: new Date().toISOString() } } : {}) });

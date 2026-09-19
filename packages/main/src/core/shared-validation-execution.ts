@@ -29,12 +29,14 @@ export function withSharedValidationExecutions<T>(context: SharedValidationExecu
 }
 
 /** Diagnostic reasons never expand the existing reuse permission predicate. */
-export function sharedValidationReusePolicy(command: ValidationCommand): { eligible: boolean; reason: string } {
+export function sharedValidationReusePolicy(command: ValidationCommand, roots?: { projectRoot?: string; artifactsRoot?: string; launchCwd?: string }): { eligible: boolean; reason: string } {
   const proof = command as ValidationCommand & { requiresBuildProof?: unknown; providesBuildProof?: unknown; proof?: unknown };
   if (proof.requiresBuildProof || proof.providesBuildProof || proof.proof) return { eligible: false, reason: 'build_proof_required' };
   // A build recognised by its shape is a registered build too: its execution
-  // is the proof, so it is never served from the cache.
-  if (isRegisteredPackagesMainBuildCommand(command)) return { eligible: false, reason: 'registered_build' };
+  // is the proof, so it is never served from the cache. Judged with the same
+  // roots and pinned directory the executor classifies with, so an absolute,
+  // aliased or wrapper-root cwd form is recognised exactly as at launch.
+  if (isRegisteredPackagesMainBuildCommand(command, roots?.projectRoot, roots?.artifactsRoot ?? roots?.projectRoot, roots?.launchCwd)) return { eligible: false, reason: 'registered_build' };
   if (command.fullBaselineReusePolicy === 'forbidden') return { eligible: false, reason: 'policy_forbidden' };
   if (command.closurePolicy === 'never-reuse') return { eligible: false, reason: 'policy_never_reuse' };
   if (command.riskTier === 'gate' || command.riskTier === 'validation-infra') return { eligible: false, reason: 'policy_risk_tier' };
@@ -58,14 +60,19 @@ export async function executeSharedValidationCommand(
    * can never describe inputs from one directory for an execution in another.
    */
   launchCwd?: string,
+  /** The caller's own classification of this command as a registered build: enforced BEFORE any context, explicit or ambient, is consulted. */
+  registeredBuild?: boolean,
 ): Promise<ValidationCommandResult> {
   const run = async () => (await capture()).result;
-  const context = explicitContext ?? contexts.getStore();
   const executeWithoutReuse = async (reason: string): Promise<ValidationCommandResult> => ({
     ...await run(), executionDecision: { disposition: 'executed', reason },
   });
-  const policy = sharedValidationReusePolicy(command);
+  // A registered build's execution is its proof: it never enters the cache,
+  // whatever context (explicit or ambient) would otherwise serve it.
+  if (registeredBuild) return executeWithoutReuse('registered_build');
+  const policy = sharedValidationReusePolicy(command, { projectRoot, artifactsRoot: artifactBinding?.root, launchCwd });
   if (!policy.eligible) return executeWithoutReuse(policy.reason);
+  const context = explicitContext ?? contexts.getStore();
   if (!context) return executeWithoutReuse('shared_context_unavailable');
   // The compiled artifacts the command executes and the protection it runs
   // under are inputs of the reuse key: a receipt earned against other bytes or

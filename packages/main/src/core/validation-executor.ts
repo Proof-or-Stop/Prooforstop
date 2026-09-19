@@ -1451,7 +1451,7 @@ export function runValidationCommand(
       if (options.deadlineAt !== undefined && Date.now() >= options.deadlineAt) {
         throw options.deadlineError?.() ?? new Error('shared validation deadline exceeded');
       }
-    }, options.artifactBinding, options.launchCwd), options);
+    }, options.artifactBinding, options.launchCwd, registeredBuild), options);
 }
 
 /**
