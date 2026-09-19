@@ -1441,8 +1441,12 @@ export function runValidationCommand(
   // cached verdict must not be served for a directory that is no longer the
   // one it was earned in.
   { const drift = launchDirectoryDrift(options.launchCwd!, options.launchIdentity); if (drift) return Promise.resolve(refusedLaunchResult(command, projectRoot, LAUNCH_DIRECTORY_DRIFT_TAG, drift, resolveCommandTimeoutMs(command, defaultTimeoutMs))); }
+  // A registered build (classified by the plan that pinned it, by declared
+  // proof or by shape) is the one command whose EXECUTION is the proof: it is
+  // never served from the shared cache, whatever reuse it opted into.
+  const registeredBuild = options.artifactBinding?.protection === REGISTERED_BUILD_PROTECTION_LABEL || isRegisteredPackagesMainBuildCommand(command, projectRoot, options.artifactBinding?.root, options.launchCwd);
   return withValidationCommandStage(command, () => executeSharedValidationCommand(command, projectRoot, resolveCommandTimeoutMs(command, defaultTimeoutMs),
-    () => (command.executionReuse === 'exact-inputs' ? runValidationCommandWithCompleteOutput : runValidationCommandWithCompleteOutputUnscheduled)(command, projectRoot, defaultTimeoutMs, options), options.sharedExecution, () => {
+    () => (command.executionReuse === 'exact-inputs' && !registeredBuild ? runValidationCommandWithCompleteOutput : runValidationCommandWithCompleteOutputUnscheduled)(command, projectRoot, defaultTimeoutMs, options), registeredBuild ? undefined : options.sharedExecution, () => {
       if (options.abortSignal?.aborted) throw options.abortSignal.reason ?? new Error('shared validation aborted');
       if (options.deadlineAt !== undefined && Date.now() >= options.deadlineAt) {
         throw options.deadlineError?.() ?? new Error('shared validation deadline exceeded');
@@ -1841,10 +1845,13 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
     const baseStdio = options.exactEnvironment ? ['ignore', 'pipe', 'pipe'] : validationReservationChildStdio(['ignore', 'pipe', 'pipe']);
     const stdio: Array<StdioNull | StdioPipe | number | Stream | 'ipc' | undefined> = Array.isArray(baseStdio) ? [...baseStdio] as Array<StdioNull | StdioPipe | number | Stream | 'ipc' | undefined> : [baseStdio, baseStdio, baseStdio];
     const confidentialFd = stdio.length;
+    // Descriptors above stderr the child inherits (the reservation delegation
+    // transport): a mechanism that cannot carry them across its exec refuses.
+    const inheritedDescriptors = stdio.map((entry, index) => (index > 2 && typeof entry === 'number' ? index : -1)).filter((index) => index >= 0);
     let launch: WrapperLaunch;
     try {
       launch = options.artifactWriteProtection?.enforced
-        ? options.artifactWriteProtection.wrap({ command: command.command, args: command.args, shell: declaredShell, env: childEnv, confidentialFd })
+        ? options.artifactWriteProtection.wrap({ command: command.command, args: command.args, shell: declaredShell, env: childEnv, confidentialFd, inheritedDescriptors })
         : { command: command.command, args: [...command.args], shell: declaredShell, env: childEnv };
       if (launch.confidential) { while (stdio.length < launch.confidential.fd) stdio.push('ignore'); stdio[launch.confidential.fd] = 'pipe'; }
     } catch (error) {

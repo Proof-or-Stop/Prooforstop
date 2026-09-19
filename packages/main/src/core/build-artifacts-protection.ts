@@ -106,6 +106,13 @@ export interface WrapperLaunchInput {
    * credentials.
    */
   confidentialFd?: number;
+  /**
+   * Descriptors above stderr the launcher hands the child and the child must
+   * still hold after the wrapper (the reservation delegation transport). A
+   * mechanism that cannot carry them across its own exec refuses the launch
+   * rather than run a child that has silently lost its transport.
+   */
+  inheritedDescriptors?: readonly number[];
 }
 export interface WrapperLaunch {
   command: string; args: string[]; shell: boolean; env: NodeJS.ProcessEnv;
@@ -693,6 +700,13 @@ function bwrapMechanism(existingRoots: string[], allRoots: string[], discovery: 
     interpreters: trusted.interpreters.map((interpreter) => interpreter.identity),
     trust: () => trustedWrapperDrift('bwrap', trusted, discovery),
     wrap: (launch) => {
+      // bubblewrap closes every descriptor above stderr that it was not told
+      // to consume itself, and offers no pass-through option, so a child that
+      // must inherit the reservation delegation transport cannot be launched
+      // under it: refused, bounded, never a child that lost its transport.
+      if (launch.inheritedDescriptors && launch.inheritedDescriptors.length > 0) {
+        throw new Error(`${LAUNCH_UNSUPPORTED_TAG} bwrap closes inherited descriptors above stderr and cannot preserve descriptor(s) ${launch.inheritedDescriptors.join(', ')} (the reservation delegation transport) for the command`);
+      }
       const { wrapperEnv, reapplied } = partitionLaunchEnvironment(launch.env ?? process.env);
       if (reapplied.length === 0) return { command: bwrap, args: [...prefix.slice(0, -1), '--', ...innerCommandLine(launch)], shell: false, env: wrapperEnv };
       // `--setenv` applies inside the namespace, after every mount is in

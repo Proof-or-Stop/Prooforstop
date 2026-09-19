@@ -36,7 +36,7 @@ import { dirname, isAbsolute, join, resolve } from 'node:path';
 const { evaluateRoutineValidationReuse, buildRoutineValidationIdentity } = await import('../packages/main/src/core/validation-evidence-reuse.ts');
 const { evaluateValidationEvidenceAdmissibility } = await import('../packages/main/src/core/validation-evidence-admissibility.ts');
 const { currentGitHead, currentMaterialHash, currentStoryFilesHash } = await import('../packages/main/src/core/evidence-freshness.ts');
-const { runDoneRequiredValidation, evaluateDoneRequiredEvidence, validateReceiptBuildBinding, doneRequiredProtectionRefusal } = await import('../packages/main/src/core/done-required-validation.ts');
+const { runDoneRequiredValidation, evaluateDoneRequiredEvidence, validateReceiptBuildBinding, doneRequiredProtectionRefusal, validateSelfHostBuildProof } = await import('../packages/main/src/core/done-required-validation.ts');
 const { executeValidationPlan, runValidationCommand, evaluatePlanBuildArtifactsBinding: executorRules } = await import('../packages/main/src/core/validation-executor.ts');
 const { probeValidationCausalPreflightFacts, launchDirectoryMismatch, freezeLaunchBindings, isLaunchDirectoryDriftError } = await import('../packages/main/src/handlers/verifier.ts');
 const { acquireOwnerLease } = await import('../packages/main/src/core/story-owner-lease.ts');
@@ -1128,6 +1128,14 @@ try {
           let bwrapNul = null;
           try { bound.wrap({ command: process.execPath, args: ['-e', '0'], shell: false, env: { ...process.env, POS_NUL: `ok\0--bind\0${deniedRoots[0]}\0${deniedRoots[0]}` }, confidentialFd: 3 }); } catch (error) { bwrapNul = error; }
           expectRepaired(bwrapNul && String(bwrapNul.message).includes('[artifact_protection_launch_unsupported]') && String(bwrapNul.message).includes('NUL'), `a NUL-bearing value reached bwrap's argument stream (${bwrapNul ? bwrapNul.message : 'no refusal'})`);
+          // Finish-gate audit (#61, 1): bwrap closes every descriptor above
+          // stderr it was not told to consume and offers no pass-through, so
+          // a child that must inherit the reservation delegation transport is
+          // refused rather than launched without it.
+          let inheritedRefusal = null;
+          try { bound.wrap({ command: process.execPath, args: ['-e', '0'], shell: false, env: { ...process.env, LD_PRELOAD: '/fixture/preload.so' }, confidentialFd: 3, inheritedDescriptors: [4] }); } catch (error) { inheritedRefusal = error; }
+          expectRepaired(inheritedRefusal && String(inheritedRefusal.message).includes('[artifact_protection_launch_unsupported]') && String(inheritedRefusal.message).includes('descriptor(s) 4'),
+            `bwrap was handed a child that must inherit descriptor 4 (${inheritedRefusal ? inheritedRefusal.message : 'no refusal'})`);
           const preloadLaunch = bound.wrap({ command: process.execPath, args: ['-e', "process.stdout.write('inner=' + process.env.LD_PRELOAD)"], shell: false, env: { ...process.env, LD_PRELOAD: '/fixture/preload.so', POS_SYNTHETIC_SECRET: 'synthetic-credential-0f3a' }, confidentialFd: 3 });
           const argsAt = preloadLaunch.args.indexOf('--args');
           expectRepaired(argsAt >= 0 && preloadLaunch.args[argsAt + 1] === '3' && preloadLaunch.args.indexOf('--') > argsAt && !preloadLaunch.args.some((argument) => argument.includes('/fixture/preload.so') || argument.includes('synthetic-credential-0f3a') || argument === '--setenv')
@@ -1303,7 +1311,7 @@ try {
           check(!plainLaunch.args.includes('/usr/bin/env') && plainLaunch.args[2] === '--' && plainLaunch.args[3] === process.execPath, 'control: a launch with nothing to withhold runs directly, behind the wrapper-owned option terminator');
         }
         const executorSource6 = readFileSync(join(repoRoot, 'packages/main/src/core/validation-executor.ts'), 'utf8');
-        expectRepaired(executorSource6.includes('.wrap({ command: command.command, args: command.args, shell: declaredShell, env: childEnv, confidentialFd })') && executorSource6.includes('      env: launch.env,'),
+        expectRepaired(executorSource6.includes('.wrap({ command: command.command, args: command.args, shell: declaredShell, env: childEnv, confidentialFd, inheritedDescriptors })') && executorSource6.includes('      env: launch.env,'),
           'the executor spawns the wrapper with the command environment instead of the environment the wrapper returns (source-text guard)');
         const protectionSource6 = readFileSync(join(repoRoot, 'packages/main/src/core/build-artifacts-protection.ts'), 'utf8');
         expectRepaired(protectionSource6.includes("stdio: ['ignore', 'pipe', 'pipe'], env: launch.env });"), 'the self-test launches the wrapper with the auditor process environment instead of the partitioned one (source-text guard)');
@@ -1469,6 +1477,32 @@ try {
     const sharedExecution = { storyId, receiptStore: store, probe: (input) => probeValidationCausalPreflightFacts(ctx, storyId, input) };
     const protection = binding ? binding.resolveArtifactWriteProtection(root) : { label: 'unresolved', wrap: (launch) => launch };
     const identity = () => (binding ? binding.currentBuildArtifactsHash(root) : undefined);
+    // Finish-gate audit (#61, 2): a registered build recognised by its SHAPE
+    // is never served from the shared cache, whatever reuse it opted into:
+    // its execution is the proof. Run twice, it builds twice.
+    {
+      const sharedPolicy = await import('../packages/main/src/core/shared-validation-execution.ts');
+      const shapeBuild = { label: 'shape build', command: 'npm', args: ['--prefix', 'packages/main', 'run', 'build'], executionReuse: 'exact-inputs', executionInputs: ['packages/main/package.json'], timeoutMs: 120_000 };
+      const shapePolicy = sharedPolicy.sharedValidationReusePolicy(shapeBuild);
+      expectRepaired(shapePolicy.eligible === false && shapePolicy.reason === 'registered_build', `a shape-recognised registered build is eligible for shared-cache reuse (${JSON.stringify(shapePolicy)})`);
+      const witness = join(sharedMainDist, '..', 'build-witness.txt');
+      writeFileSync(join(root, 'packages/main/package.json'), JSON.stringify({ name: 'fixture-main', version: '0.0.0', private: true, scripts: { build: 'node build-witness.js' } }));
+      writeFileSync(join(root, 'packages/main/build-witness.js'), `require('node:fs').appendFileSync(${JSON.stringify(witness)}, 'built\\n');`);
+      const buildOnce = () => runValidationCommand(shapeBuild, root, 120_000, { sharedExecution, artifactBinding: { root: realpathSync(root), protection: protection.label } });
+      const firstBuild = await buildOnce(); const secondBuild = await buildOnce();
+      const builds = existsSync(witness) ? readFileSync(witness, 'utf8').split('\n').filter(Boolean).length : 0;
+      expectRepaired(firstBuild.code === 0 && secondBuild.code === 0 && builds === 2 && secondBuild.executionDecision?.disposition !== 'reused',
+        `a shape-recognised registered build with executionReuse was served from the cache instead of executing again (codes ${firstBuild.code}/${secondBuild.code}, builds=${builds}, decision=${JSON.stringify(secondBuild.executionDecision)}; ${(secondBuild.output ?? '').slice(0, 120)})`);
+      rmSync(join(root, 'packages/main/package.json'), { force: true }); rmSync(join(root, 'packages/main/build-witness.js'), { force: true }); rmSync(witness, { force: true });
+      // DONE-required: a build receipt served from a cache is no build proof.
+      const buildReceipt = (disposition) => ({ label: 'build', command: 'npm', args: ['--prefix', 'packages/main', 'run', 'build'], cwd: realpathSync(root), status: 'PASS', materialHash: 'material', ...(disposition ? { executionReceipt: { disposition, executionKey: 'key', receiptHash: 'hash', executedAt: new Date().toISOString() } } : {}) });
+      const proofCommands = [{ label: 'build', command: 'npm', args: ['--prefix', 'packages/main', 'run', 'build'] }, { label: 'test', command: 'node', args: ['-e', '0'], requiresBuildProof: 'packages-main-build' }];
+      const testReceipt = { label: 'test', command: 'node', args: ['-e', '0'], cwd: realpathSync(root), status: 'PASS', materialHash: 'material' };
+      expectRepaired(validateSelfHostBuildProof({ receipts: [buildReceipt('reused'), testReceipt] }, root, proofCommands).some((reason) => reason.startsWith('missing-build-proof'))
+        && validateSelfHostBuildProof({ receipts: [buildReceipt('executed'), testReceipt] }, root, proofCommands).length === 0
+        && validateSelfHostBuildProof({ receipts: [buildReceipt(undefined), testReceipt] }, root, proofCommands).length === 0,
+        'a build receipt served from a cache was accepted as fresh build proof');
+    }
     const hashA = identity();
     const cmd = { label: 'unit', command: 'node', args: ['-e', "process.stdout.write('unit ' + require('node:fs').readFileSync('input.txt', 'utf8')); process.exit(0)"], executionReuse: 'exact-inputs', executionInputs: ['input.txt'], timeoutMs: 20_000 };
     const runShared = (opts = {}) => runValidationCommand(cmd, root, 20_000, { sharedExecution, artifactWriteProtection: protection, artifactBinding: { root, protection: protection.label }, ...opts });
@@ -2385,6 +2419,24 @@ if (hostEnforced) {
       let eqNameRefusal = null;
       try { eqProtection.wrap({ command: process.execPath, args: ['-e', '0'], shell: false, env: { ...process.env, 'BAD=NAME': 'x' }, confidentialFd: 3 }); } catch (error) { eqNameRefusal = error; }
       expectRepaired(eqNameRefusal && String(eqNameRefusal.message).includes('[artifact_protection_launch_unsupported]'), `a name containing '=' was serialised for transfer (${eqNameRefusal ? eqNameRefusal.message : 'no refusal'})`);
+      // Finish-gate audit (#61, 1): sandbox-exec is a plain exec, so a
+      // descriptor above stderr the launcher hands the child (the reservation
+      // delegation transport) reaches the command through the trampoline.
+      const transportFile = join(sandbox, 'transport-witness'); writeFileSync(transportFile, 'delegation-transport');
+      const transportFd = openSync(transportFile, 'r');
+      try {
+        const transportLaunch = eqProtection.wrap({ command: process.execPath, args: ['-e', "process.stdout.write(require('node:fs').readFileSync('/dev/fd/4', 'utf8'))"], shell: false, env: { ...process.env, POS_SYNTHETIC_SECRET: secretValue }, confidentialFd: 3, inheritedDescriptors: [4] });
+        const payloadFile2 = join(sandbox, 'transport-payload'); writeFileSync(payloadFile2, transportLaunch.confidential.payload); const payloadFd2 = openSync(payloadFile2, 'r');
+        const transportRun = spawnSync(transportLaunch.command, transportLaunch.args, { encoding: 'utf8', env: transportLaunch.env, timeout: 20_000, stdio: ['ignore', 'pipe', 'pipe', payloadFd2, transportFd] });
+        closeSync(payloadFd2); rmSync(payloadFile2, { force: true });
+        expectRepaired(transportRun.status === 0 && transportRun.stdout === 'delegation-transport', `an inherited descriptor did not reach the command under sandbox-exec (${transportRun.status}, ${transportRun.stdout}, ${(transportRun.stderr || '').slice(0, 80)})`);
+      } finally { closeSync(transportFd); rmSync(transportFile, { force: true }); }
+      const executorSource15 = readFileSync(join(repoRoot, 'packages/main/src/core/validation-executor.ts'), 'utf8');
+      expectRepaired(executorSource15.includes("const inheritedDescriptors = stdio.map((entry, index) => (index > 2 && typeof entry === 'number' ? index : -1)).filter((index) => index >= 0);")
+        && executorSource15.includes('confidentialFd, inheritedDescriptors })')
+        && executorSource15.includes("const registeredBuild = options.artifactBinding?.protection === REGISTERED_BUILD_PROTECTION_LABEL || isRegisteredPackagesMainBuildCommand(command, projectRoot, options.artifactBinding?.root, options.launchCwd);")
+        && executorSource15.includes('registeredBuild ? undefined : options.sharedExecution'),
+        'the executor does not hand the inherited descriptors to the mechanism, or lets a registered build consult the shared cache (source-text guard)');
       // Audit #46 (1): a NUL byte in a value is refused before any payload
       // exists (it would end one token and begin another).
       let nulRefusal = null;

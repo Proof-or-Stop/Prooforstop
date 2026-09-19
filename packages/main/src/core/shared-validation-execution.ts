@@ -1,5 +1,5 @@
 import {readValidationReuseCost,saveValidationReuseCost} from './validation-reuse-costs.js';
-import { currentBuildArtifactsHash } from './build-artifacts-identity.js';
+import { currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand } from './build-artifacts-identity.js';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { executionImplementationIdentity } from './execution-implementation.js';
 import { execFileSync } from 'node:child_process';
@@ -32,6 +32,9 @@ export function withSharedValidationExecutions<T>(context: SharedValidationExecu
 export function sharedValidationReusePolicy(command: ValidationCommand): { eligible: boolean; reason: string } {
   const proof = command as ValidationCommand & { requiresBuildProof?: unknown; providesBuildProof?: unknown; proof?: unknown };
   if (proof.requiresBuildProof || proof.providesBuildProof || proof.proof) return { eligible: false, reason: 'build_proof_required' };
+  // A build recognised by its shape is a registered build too: its execution
+  // is the proof, so it is never served from the cache.
+  if (isRegisteredPackagesMainBuildCommand(command)) return { eligible: false, reason: 'registered_build' };
   if (command.fullBaselineReusePolicy === 'forbidden') return { eligible: false, reason: 'policy_forbidden' };
   if (command.closurePolicy === 'never-reuse') return { eligible: false, reason: 'policy_never_reuse' };
   if (command.riskTier === 'gate' || command.riskTier === 'validation-infra') return { eligible: false, reason: 'policy_risk_tier' };

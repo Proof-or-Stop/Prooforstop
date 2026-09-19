@@ -537,6 +537,9 @@ function receiptLine(receipt: DoneRequiredCommandReceipt): string {
 
 function isPackagesMainBuild(receipt: DoneRequiredCommandReceipt, projectRoot: string, command?: DoneRequiredCommand, artifactsRoot: string = projectRoot): boolean {
   if (receipt.status !== 'PASS') return false;
+  // Build proof is an EXECUTION: a receipt served from a cache proves nothing
+  // about the artifacts this run's later commands executed.
+  if (receipt.executionReceipt?.disposition === 'reused') return false;
   if (command?.providesBuildProof === PACKAGES_MAIN_BUILD_PROOF || command?.proof === PACKAGES_MAIN_BUILD_PROOF) return true;
   // Compare on the portable LOGICAL cwd (not the absolute physical receipt.cwd)
   // so a build proof written in worktree A is still recognized when evaluated
