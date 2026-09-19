@@ -9,6 +9,7 @@
  */
 import { execFileSync } from 'node:child_process';
 import { REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied } from './build-artifacts-protection.js';
+import type { ValidationCommandResult } from './validation-types.js';
 import { authorityRevisionClosure, validationAuthoritySources } from './validation-authority-graph.js';
 import { readStoryGitBytes } from './story-git-bytes.js';
 import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
@@ -1034,6 +1035,26 @@ export function refreshFrozenLaunchDirectoriesAfterBuild(frozen: ReadonlyMap<str
     refreshed.set(commandId, result.drift || !result.identity ? directory : { path: directory.path, identity: result.identity });
   }
   return refreshed;
+}
+
+/**
+ * Whether a result demonstrably ran in the directory its selection row is
+ * bound to: the receipt a producer signs for that row's input digest is only
+ * ever issued for such a result (the executor records launchCwd only for a
+ * launch it verified). One predicate for the dynamic run and the replay.
+ */
+export function resultRanInBoundDirectory(row: Pick<SelectionRow, 'resolvedCwd'>, result: Pick<ValidationCommandResult, 'launchCwd'>): boolean {
+  return Boolean(row.resolvedCwd) && result.launchCwd === row.resolvedCwd;
+}
+
+/**
+ * The launch bindings a manifest froze, in the order of the commands a plan
+ * built from `catalog` will carry, for an executor call that must run every
+ * command where the manifest bound it.
+ */
+export function frozenLaunchOptionsOf(manifest: Pick<ValidationSelectionManifest, 'rows'>, catalog: readonly Pick<ValidationCatalogEntry, 'id'>[]): { launchCwds: (string | undefined)[]; launchIdentities: (LaunchDirectoryIdentity | undefined)[] } {
+  const rows = catalog.map((entry) => manifest.rows.find((row) => row.commandId === entry.id));
+  return { launchCwds: rows.map((row) => row?.resolvedCwd), launchIdentities: rows.map((row) => row?.resolvedCwdIdentity) };
 }
 
 /** Every frozen directory that is no longer the directory it was frozen as (re-verified after Wave-0, before anything launches there). */

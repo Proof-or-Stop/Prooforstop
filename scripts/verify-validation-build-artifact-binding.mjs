@@ -2062,6 +2062,31 @@ if (hostEnforced) {
       const finalAt = handlerSource10.indexOf('launchDirectories: frozenLaunchDirectories,');
       expectRepaired(freezeAt > 0 && waveAt > freezeAt && driftAt > waveAt && finalAt > driftAt && handlerSource10.includes("throw new Error(`[launch_directory_drift] a launch directory frozen before Wave-0"),
         'the dynamic run does not freeze launch directories before Wave-0, verify them after it, and keep them for the post-build planning (source-text guard)');
+      // Audit #55: a baseline receipt is signed only for a result that ran in
+      // the directory its row is bound to. The alias is re-pointed from A to
+      // B by an earlier command of the same plan: the aliased command still
+      // runs in A (frozen), and a manifest planned afterwards (bound to B)
+      // cannot receive A's PASS as B's receipt.
+      const retarget = join(root, 'dyn-retarget.js');
+      writeFileSync(retarget, `const fs = require('node:fs'); fs.rmSync(${JSON.stringify(dynLink)}); fs.symlinkSync(${JSON.stringify(dynB)}, ${JSON.stringify(dynLink)}, 'dir'); process.exit(0);\n`);
+      const frozenA = dynamic.frozenLaunchOptionsOf(dynFirst, [{ id: 'retarget' }, { id: 'aliased' }]);
+      const duringRun = await executeValidationPlan({ provider: 'build-binding-fixture', commands: [
+        { label: 'retarget', command: 'node', args: [retarget], timeoutMs: 20_000 },
+        { label: 'aliased', command: 'node', args: ['-e', 'process.exit(0)'], cwd: 'dyn-link', timeoutMs: 20_000 },
+      ], warnings: [] }, root, undefined, undefined, { jobs: 1, launchCwds: frozenA.launchCwds, launchIdentities: frozenA.launchIdentities });
+      const aliasedResult = duringRun.commands.find((command) => command.label === 'aliased');
+      check(aliasedResult?.code === 0 && aliasedResult.launchCwd === realpathSync(dynA), `control: the aliased command ran in the frozen directory A although the alias now points at B (${aliasedResult?.launchCwd})`);
+      const plannedAfter = dynPlan([]).rows.find((row) => row.commandId === 'aliased');
+      check(plannedAfter?.resolvedCwd === realpathSync(dynB), 'control: a manifest planned after the re-point binds the aliased command to B');
+      expectRepaired(dynamic.resultRanInBoundDirectory(plannedAfter, aliasedResult) === false && dynamic.resultRanInBoundDirectory(dynFirstRow, aliasedResult) === true && dynamic.resultRanInBoundDirectory({ resolvedCwd: undefined }, aliasedResult) === false,
+        'a PASS earned in directory A can be signed as the receipt of a row bound to directory B');
+      const replaySource3 = readFileSync(join(repoRoot, 'packages/main/src/tasks/story-aware-validation-historical-replay.ts'), 'utf8');
+      expectRepaired(replaySource3.indexOf('const baselineManifest = buildDynamicValidationPlan({') < replaySource3.indexOf("const full = await executeValidationPlan({ provider: 'historical-replay-full'")
+        && replaySource3.includes("candidate.storyId, { ...frozenLaunchOptionsOf(baselineManifest, catalog) });")
+        && replaySource3.includes("'B-current-paired', { ...frozenLaunchOptionsOf(pairedBaseline, catalog) });")
+        && replaySource3.includes('if (!resultRanInBoundDirectory(args.row, args.result)) return undefined;'),
+        'the replay executes its baseline before freezing the launch bindings, or signs a baseline receipt for a result that did not run in the bound directory (source-text guard)');
+      rmSync(retarget, { force: true }); rmSync(dynLink); symlinkSync(dynA, dynLink, 'dir');
       rmSync(dynLink); rmSync(dynA, { recursive: true, force: true }); rmSync(dynB, { recursive: true, force: true });
       // Audit #37 (1): one FROZEN canonical directory per command for planning
       // and every execution wave. The manifest row binds it; a later wave is
@@ -2093,7 +2118,7 @@ if (hostEnforced) {
         && handlerSource7.includes('launchCwds: ordinaryEntries.map((entry) => final.manifest.rows.find((row) => row.commandId === entry.id)?.resolvedCwd)')
         && handlerSource7.includes('launchCwds: [first.manifest.rows.find((row) => row.commandId === waveId)?.resolvedCwd]')
         && handlerSource7.includes('launchCwd: final.manifest.rows.find((row) => row.commandId === entry.id)?.resolvedCwd,')
-        && handlerSource7.includes('if (!args.row.resolvedCwd || args.result.launchCwd !== args.row.resolvedCwd) return undefined;'),
+        && handlerSource7.includes('if (!resultRanInBoundDirectory(args.row, args.result)) return undefined;'),
         'the dynamic handler does not launch every wave, shard and oracle in the planning-bound directory or issues receipts without checking it (source-text guard)');
       const sharedSource7 = readFileSync(join(repoRoot, 'packages/main/src/core/shared-validation-execution.ts'), 'utf8');
       expectRepaired(sharedSource7.includes('launchCwd:normalized.cwd,'), 'a cache-served result carries no launch directory, so no receipt could ever be issued for it (source-text guard)');

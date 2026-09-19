@@ -2,7 +2,7 @@ import { withValidationSigningRoot } from '../core/validation-signing-context.js
 import { loadConfig } from '../core/config.js';
 import { resolveProjectGitRoot } from '../core/story-signed-workspace-resolution.js';
 import { REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied, weakestProtectionLabel } from '../core/build-artifacts-protection.js';
-import { VALIDATION_RECEIPT_SCHEMA, frozenLaunchDirectoriesOf, frozenLaunchDirectoryDrift, type FrozenLaunchDirectory, receiptCleanTreeDigest, refreshFrozenLaunchDirectoriesAfterBuild } from '../core/story-aware-validation.js';
+import { VALIDATION_RECEIPT_SCHEMA, frozenLaunchDirectoriesOf, frozenLaunchDirectoryDrift, type FrozenLaunchDirectory, receiptCleanTreeDigest, refreshFrozenLaunchDirectoriesAfterBuild, resultRanInBoundDirectory } from '../core/story-aware-validation.js';
 function projectSigningRoot(projectRoot: string): string {
  const configured=loadConfig(projectRoot).gitRoot;
  const resolved=resolveProjectGitRoot(projectRoot, configured);
@@ -1172,7 +1172,7 @@ function receiptForResult(args: {
   // The receipt is signed for the input digest planning computed for ONE
   // canonical directory; a result that did not demonstrably run there (or a
   // row that never bound one) is not that command's receipt.
-  if (!args.row.resolvedCwd || args.result.launchCwd !== args.row.resolvedCwd) return undefined;
+  if (!resultRanInBoundDirectory(args.row, args.result)) return undefined;
   // A receipt vouches for what its command executed: it must have started and
   // ended on the same compiled artifacts, under enforced (or not-applicable)
   // write protection, or it is not a receipt at all. The registered build is

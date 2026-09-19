@@ -14,7 +14,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { buildDualRevisionImpactGraph, buildDynamicValidationPlan, buildStoryChangeManifest, classifyFullValidationReasons, compileValidationCatalog, createValidationClosureCertificate, createValidationCommandReceipt, discoverValidationInventory, signPayload, stableDigest, verifyPayload, verifyValidationClosureCertificate, verifyValidationSelectionManifest, type StoryChangedFile, type ValidationCatalogEntry, type ValidationCommandReceipt, receiptCleanTreeDigest, replayMandatoryExecution, reusedReceiptsStillBound } from '../core/story-aware-validation.js';
+import { buildDualRevisionImpactGraph, buildDynamicValidationPlan, buildStoryChangeManifest, classifyFullValidationReasons, compileValidationCatalog, createValidationClosureCertificate, createValidationCommandReceipt, discoverValidationInventory, signPayload, stableDigest, verifyPayload, verifyValidationClosureCertificate, verifyValidationSelectionManifest, type StoryChangedFile, type ValidationCatalogEntry, type ValidationCommandReceipt, receiptCleanTreeDigest, replayMandatoryExecution, reusedReceiptsStillBound, resultRanInBoundDirectory, frozenLaunchOptionsOf } from '../core/story-aware-validation.js';
 import { VALIDATION_SOURCE_PROVENANCE_SCHEMA } from '../core/runtime-fact-registry.js';
 import { loadConfig } from '../core/config.js';
 import { resolveProjectGitCwd } from '../core/story-signed-workspace-resolution.js';
@@ -339,7 +339,7 @@ function validationCommands(entries: ValidationCatalogEntry[]) {
 
 function receiptForBaseline(args: {
   entry: ValidationCatalogEntry;
-  row: { inputDigest: string; closureCertificateDigest?: string };
+  row: { inputDigest: string; closureCertificateDigest?: string; resolvedCwd?: string };
   result: Awaited<ReturnType<typeof executeValidationPlan>>['commands'][number];
   storyId: string;
   baseHead: string;
@@ -350,6 +350,10 @@ function receiptForBaseline(args: {
   buildProofDigest: string;
 }): ValidationCommandReceipt | undefined {
   if (args.result.code !== 0 || args.result.timedOut || !args.row.closureCertificateDigest) return undefined;
+  // The receipt is signed for the input digest the manifest computed for ONE
+  // bound directory; a result that did not demonstrably run there is not
+  // that command's receipt (the production receipt builder's rule).
+  if (!resultRanInBoundDirectory(args.row, args.result)) return undefined;
   // The baseline receipt follows the production provenance contract: the
   // executor observed the tree clean at the command's start and end, on this
   // head, under the provenance schema the planner requires — otherwise the
@@ -432,10 +436,11 @@ for (const candidate of replayStories) {
       // Establish a canonical full result on this exact historical head, then
       // feed signed PASS receipts back into the selector. Without this step a
       // replay is merely full-vs-full because no reusable baseline exists.
-      const full = await executeValidationPlan({ provider: 'historical-replay-full', commands, warnings: [] }, historicalRoot, candidate.pair.head, candidate.storyId);
       // A receipt binds the canonical directory its command ran in, so the
       // baseline identities are prepared in the workspace the full plan
-      // actually executed in — not in the invoking checkout — and the
+      // executes in — not in the invoking checkout — and BEFORE it runs: the
+      // full plan launches every command where the manifest bound it, and a
+      // receipt is signed only for a result that demonstrably ran there. The
       // selection that consumes them is planned and executed in that same
       // workspace. (A second, fresh checkout cannot host the dynamic pass:
       // it is another directory, and no receipt from here is its receipt.)
@@ -444,6 +449,7 @@ for (const candidate of replayStories) {
         inventory, catalog, changes, closures, baselineEpochId: candidate.pair.base, graph,
         buildProofDigest: 'historical-replay-plan', mode: 'shadow', gitCwd: historicalRoot,
       });
+      const full = await executeValidationPlan({ provider: 'historical-replay-full', commands, warnings: [] }, historicalRoot, candidate.pair.head, candidate.storyId, { ...frozenLaunchOptionsOf(baselineManifest, catalog) });
       const baselineReceipts = catalog.flatMap((entry, index) => {
         const row = baselineManifest.rows.find((candidateRow) => candidateRow.commandId === entry.id);
         const result = full.commands[index];
@@ -779,7 +785,7 @@ if (paired) {
       changes: currentChanges, closures: currentClosures, baselineEpochId: currentHead,
       buildProofDigest: 'paired-performance', graph: currentGraph, mode: 'shadow', gitCwd: pairedRoot,
     });
-    const baseline = await executeValidationPlan({ provider: 'historical-paired-canonical-baseline', commands: fullCommands, warnings: [] }, pairedRoot, currentHead, 'B-current-paired');
+    const baseline = await executeValidationPlan({ provider: 'historical-paired-canonical-baseline', commands: fullCommands, warnings: [] }, pairedRoot, currentHead, 'B-current-paired', { ...frozenLaunchOptionsOf(pairedBaseline, catalog) });
     const baselineReceipts = catalog.flatMap((entry, index) => {
       const row = pairedBaseline.rows.find((candidateRow) => candidateRow.commandId === entry.id);
       const result = baseline.commands[index];
