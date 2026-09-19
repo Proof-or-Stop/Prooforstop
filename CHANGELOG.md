@@ -1,5 +1,16 @@
 # Changelog
 
+## Lab benchmark-monitor-change-filter - v0.3.425 - 2026-09-19
+
+- Add a Lab-only semantic-state filter and reproducible comparison harness for redundant benchmark monitor wake decisions; live automation remains unchanged.
+- Replay 110 fresh historical observations with 110 periodic dispatch intents versus one cold-start filtered intent, a 99.09% reduction; exclude one unrecoverable observation and reconcile historical response-token accounting.
+- Preserve wake decisions for phase, revision, approval binding, execution identity, progress, completion and failure changes, with RED/GREEN coverage for unchanged states, invalid input, recovery and returning states.
+- Report local decision overhead and historical usage separately from unknown live token savings. Detailed comparison and limitations: [experiment report](/Users/jek/Documents/Proof-or-Stop-Benchmark-Plan/monitor-change-filter-lab-20260919/report.md).
+
+Maintenance provenance: codex/lab-benchmark-monitor-change-filter, repair 1b93dcfa9d13eaf568f6f448a3acdc07416f549b.
+Verification command (replayed before integration and on main): `["node","scripts/lab/benchmark-monitor-change-filter/verify.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab validation-audit-entrypoints-20260919 - v0.3.424 - 2026-09-19
 
 - Align dispatch help with registry-defined target cardinality so CLI guidance matches the enforced command contract.
