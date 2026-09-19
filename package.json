@@ -1,6 +1,6 @@
 {
   "name": "proof-or-stop",
-  "version": "0.3.425",
+  "version": "0.3.426",
   "description": "",
   "main": "index.js",
   "directories": {
@@ -14,6 +14,7 @@
     "test:lab-audit-contract": "node scripts/verify-lab-audit-contract.mjs",
     "test:lab-fixture-sources": "node scripts/verify-lab-fixture-sources.mjs",
     "test:lab-worktree": "node scripts/verify-lab-worktree.mjs",
+    "test:root-ws-types": "node packages/main/tests/root-ws-types.test.mjs",
     "audit:silent-catches": "node scripts/audit-silent-catches.mjs",
     "build": "npm --prefix packages/main run build && npm --prefix packages/utils run build && npm --prefix packages/graph run build && node scripts/verify-full-suite-build-binding.mjs",
     "build:lab": "npm --prefix packages/lab run build",
@@ -203,6 +204,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.19.19",
+    "@types/ws": "^8.18.1",
     "@yao-pkg/pkg": "^6.22.0",
     "c8": "^12.0.0",
     "semver": "^7.8.0",

@@ -1,5 +1,16 @@
 # Changelog
 
+## Lab ws-types - v0.3.426 - 2026-09-19
+
+- Add the missing root `@types/ws` development dependency and lockfile entry so root-only installs can typecheck the WebSocket bridge and proxy sources.
+- Add `npm run test:root-ws-types` to verify an isolated root install, all main TypeScript sources, and static/dynamic WebSocket type checks with negative controls.
+- Verify the repair through Lab RED/GREEN and main/utils builds; document the regression as an opt-in installation check that may require npm registry access in the [Lab maintenance guide](docs/lab-maintenance.md#root-install-dependency-regression).
+- Refresh existing static-review dependency bindings for the changed root manifests; the static scanner passes with exception classifications, call bindings and evidence excerpts preserved.
+
+Maintenance provenance: codex/lab-ws-types, repair cf6ce9fa73e8e463728baa59f1efa2fad92d659d.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/root-ws-types.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab benchmark-monitor-change-filter - v0.3.425 - 2026-09-19
 
 - Add a Lab-only semantic-state filter and reproducible comparison harness for redundant benchmark monitor wake decisions; live automation remains unchanged.
