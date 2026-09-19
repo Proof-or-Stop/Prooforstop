@@ -198,7 +198,7 @@ export async function executeSharedValidationCommand(
   if (fresh) return {...fresh,executionReceipt,executionDecision:{disposition:'executed',reason:causal.receipt.reusable ? 'no_matching_receipt' : fresh.code !== 0 ? 'execution_failed' : 'result_not_reusable'}};
   if (causal.receipt.status !== 'pass' || !causal.receipt.reusable) throw new Error('shared validation refused non-PASS receipt');
   return {label:command.label,command:command.command,args:[...command.args],shell:normalized.shell,
-    cwd:resolve(normalized.cwd),code:causal.receipt.exitCode,output:causal.receipt.outputProbe,
+    cwd:resolve(normalized.cwd),launchCwd:normalized.cwd,code:causal.receipt.exitCode,output:causal.receipt.outputProbe,
     optional:command.optional,durationMs:causal.receipt.durationMs ?? 0,timeoutMs:causal.receipt.timeoutMs,executionReceipt,executionDecision:{disposition:'reused',reason:'matching_receipt'},
     // Derived from the reuse key, which the executed run matched exactly: the
     // artifacts it ran against equal the artifacts on disk now, and its

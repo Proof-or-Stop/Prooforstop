@@ -76,6 +76,8 @@ export interface ValidationCommand {
 }
 
 export interface ValidationCommandResult {
+  /** The canonical directory the command was actually launched in (pinned before the first launch of its plan or run). */
+  launchCwd?: string;
   /** Diagnostic intra-plan resource-conflict wait; excludes worker slots and cross-process capacity. */
   schedulerWaitMs?: number;
   /** Context-local diagnostics only; never evidence or permission to reuse. */

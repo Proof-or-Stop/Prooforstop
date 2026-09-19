@@ -1085,6 +1085,49 @@ try {
           } else {
             expectRepaired(false, 'core/build-artifacts-protection exports no resolvePathRecordingLinks / interpreterResolutionDrift');
           }
+          // Audit #37 (2): a declared interpreter path is resolved in FILESYSTEM
+          // order, so `..` after a symbolic link steps out of the link's TARGET
+          // as the kernel does. Node's own realpath normalises `..` first and
+          // reports the wrong executable, so the kernel itself is the control
+          // here: executing the shim runs the `sh` under `user`, not `trusted`.
+          {
+            mkdirSync(join(sandbox, 'dotdot-interpreter'));
+            const dotDir = realpathSync(join(sandbox, 'dotdot-interpreter')); mkdirSync(join(dotDir, 'trusted'), { recursive: true }); mkdirSync(join(dotDir, 'user', 'tree'), { recursive: true });
+            // A COPY of /bin/sh is a platform binary macOS refuses to run from
+            // elsewhere (killed by signal); a link to it is executed through
+            // the user path, which is what the kernel resolution must reach.
+            symlinkSync('/bin/sh', join(dotDir, 'user', 'sh')); writeFileSync(join(dotDir, 'trusted', 'sh'), '#!/bin/sh\nexit 9\n', { mode: 0o755 });
+            symlinkSync(join(dotDir, 'user', 'tree'), join(dotDir, 'trusted', 'alias'));
+            const declaredInterpreter = `${dotDir}/trusted/alias/../sh`;
+            writeFileSync(join(dotDir, 'shim'), `#!${declaredInterpreter}\nexit 3\n`, { mode: 0o755 });
+            const kernel = spawnSync(join(dotDir, 'shim'), [], { encoding: 'utf8', timeout: 10_000 });
+            check(kernel.status === 3, `control: the kernel resolves the declared interpreter through the link's target (exit ${kernel.status}, signal ${kernel.signal}, ${kernel.error ? kernel.error.message : (kernel.stderr || '').slice(0, 80)})`);
+            const walked = binding.resolvePathRecordingLinks(declaredInterpreter);
+            expectRepaired(typeof walked === 'object' && walked.canonical === realpathSync('/bin/sh')
+              && walked.links.some((link) => link.path === join(dotDir, 'trusted', 'alias')) && walked.links.some((link) => link.path === join(dotDir, 'user', 'sh')),
+              `the interpreter resolution normalised \`..\` before following the link (${JSON.stringify(walked)})`);
+            const dotChain = binding.wrapperInterpreterChain(join(dotDir, 'shim'));
+            expectRepaired(Array.isArray(dotChain) && dotChain[0]?.canonical === realpathSync('/bin/sh') && dotChain[0]?.links.some((link) => link.path === join(dotDir, 'user', 'sh')),
+              `the interpreter chain audits an executable the kernel would not run (${JSON.stringify(dotChain)})`);
+            mkdirSync(join(dotDir, 'wrapper'));
+            writeFileSync(join(dotDir, 'wrapper', 'bwrap'), `#!${declaredInterpreter}\nexit 3\n`, { mode: 0o755 });
+            const dotResolved = binding.resolveArtifactWriteProtection(h.root, { platform: 'linux', searchPath: join(dotDir, 'wrapper'), cwd: sandbox });
+            expectRepaired(dotResolved.enforced === false && dotResolved.label.includes('could be replaced by a validation command'), `a shim whose kernel-resolved interpreter is user-replaceable was not refused (${dotResolved.label})`);
+          }
+          // Audit #37 (3): enforcement is never reported without a witnessed,
+          // denied probe. A project with no artifact root and no root parent
+          // is probed through the first missing protected ancestor.
+          if (typeof binding.firstMissingProtectedAncestor === 'function') {
+            const bare = join(sandbox, 'bare-project'); mkdirSync(join(bare, 'packages'), { recursive: true });
+            expectRepaired(binding.firstMissingProtectedAncestor(join(bare, 'packages/main/dist')) === join(bare, 'packages', 'main'), 'the first missing protected ancestor of a bare project is not packages/main');
+            const bareResolved = binding.resolveArtifactWriteProtection(bare);
+            check(bareResolved.enforced === true && bareResolved.label === 'enforced:sandbox-exec' && !existsSync(join(bare, 'packages', 'main')), `control: on macOS a bare project is enforced through a denied ancestor probe that leaves nothing behind (${bareResolved.label})`);
+            const protectionSource7 = readFileSync(join(repoRoot, 'packages/main/src/core/build-artifacts-protection.ts'), 'utf8');
+            expectRepaired(protectionSource7.includes('if (probed === 0) {') && protectionSource7.includes('firstMissingProtectedAncestor(allRoots[0])') && protectionSource7.includes('the topology cannot be tested'),
+              'the self-test reports enforcement without any probe when no root parent exists (source-text guard)');
+          } else {
+            expectRepaired(false, 'core/build-artifacts-protection exports no firstMissingProtectedAncestor');
+          }
           const nodeShimDir = join(sandbox, 'node-shim'); mkdirSync(nodeShimDir, { recursive: true });
           const nodeBin = realpathSync(process.execPath);
           writeFileSync(join(nodeShimDir, 'bwrap'), `#!${nodeBin}\nconst { spawnSync } = require('node:child_process');\nconst args = process.argv.slice(2); const env = { ...process.env }; let i = 0;\nwhile (i < args.length && args[i] !== '--') { if (args[i] === '--setenv') { env[args[i + 1]] = args[i + 2]; i += 3; } else i++; }\nconst r = spawnSync('/usr/bin/sandbox-exec', ['-p', ${JSON.stringify(binding.sandboxExecProfile(deniedRoots))}, ...args.slice(i + 1)], { stdio: 'inherit', env });\nprocess.exit(r.status ?? 1);\n`, { mode: 0o755 });
@@ -1840,6 +1883,41 @@ if (hostEnforced) {
       rmSync(dynLink); symlinkSync(dynA, dynLink, 'dir');
       check(dynPlan([dynReceipt]).rows.find((row) => row.commandId === 'aliased')?.disposition === 'reuse', 'control: pointing the link back restores reuse');
       rmSync(dynLink); rmSync(dynA, { recursive: true, force: true }); rmSync(dynB, { recursive: true, force: true });
+      // Audit #37 (1): one FROZEN canonical directory per command for planning
+      // and every execution wave. The manifest row binds it; a later wave is
+      // launched with it (executeValidationPlan's launchCwds) instead of
+      // re-resolving an alias an earlier wave re-pointed; the result records
+      // where it ran, and a receipt is issued only for a result that ran there.
+      const waveA = join(root, 'wave-a'); mkdirSync(waveA); const waveB = join(root, 'wave-b'); mkdirSync(waveB);
+      const waveLink = join(root, 'wave-link'); symlinkSync(waveA, waveLink, 'dir');
+      writeFileSync(join(root, 'retarget-wave-link.js'), "const fs = require('node:fs'); fs.unlinkSync('wave-link'); fs.symlinkSync(require('node:path').join(__dirname, 'wave-b'), 'wave-link', 'dir'); process.stdout.write('retargeted');\n");
+      writeFileSync(join(root, 'wave-where.js'), "process.stdout.write('cwd=' + require('node:fs').realpathSync(process.cwd()));\n");
+      const frozenInventory = dynamic.discoverValidationInventory(root, [
+        { id: 'wave-aliased', label: 'wave aliased', command: 'node', args: [join(root, 'wave-where.js')], cwd: 'wave-link', inputRoots: ['dyn-input.ts'], inputsComplete: true, assurance: 'story-selectable', riskTier: 'local', originalIndex: 0 },
+      ]);
+      const frozenCatalog = dynamic.compileValidationCatalog(frozenInventory);
+      const frozenClosures = new Map(frozenCatalog.map((entry) => [entry.id, dynamic.createValidationClosureCertificate({ commandId: entry.id, baseHead: 'base', inventoryDigest: frozenInventory.digest, catalogDigest: 'catalog', staticPaths: entry.inputRoots })]));
+      const frozenManifest = dynamic.buildDynamicValidationPlan({ storyId: 'B-bab-dyn', baseHead: 'base', head: 'head', inventory: frozenInventory, catalog: frozenCatalog, changes: dynChanges, closures: frozenClosures, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe', projectRoot: root, buildArtifactsHash: 'fixture-build-artifacts', receipts: [] });
+      const frozenRow = frozenManifest.rows.find((row) => row.commandId === 'wave-aliased');
+      expectRepaired(frozenRow?.resolvedCwd === realpathSync(waveA), `the manifest row does not bind the canonical directory resolved at planning (${JSON.stringify(frozenRow)})`);
+      const earlierWave = await run([{ label: 'retarget wave link', command: 'node', args: ['retarget-wave-link.js'], timeoutMs: 20_000 }]);
+      check(earlierWave.allPass === true && realpathSync(waveLink) === realpathSync(waveB), 'control: an earlier wave re-pointed the alias at wave-b');
+      const laterWave = await executeValidationPlan({ provider: 'build-binding-fixture', commands: [{ label: 'wave aliased', command: 'node', args: [join(root, 'wave-where.js')], cwd: 'wave-link', timeoutMs: 20_000 }], warnings: [] }, root, undefined, undefined, { launchCwds: [frozenRow?.resolvedCwd] });
+      const laterCommand = laterWave.commands[0];
+      expectRepaired(laterWave.allPass === true && laterCommand?.launchCwd === realpathSync(waveA) && (laterCommand?.output ?? '').includes(`cwd=${realpathSync(waveA)}`),
+        `a later wave launched with the frozen directory did not run there or did not record it (launchCwd=${laterCommand?.launchCwd}, ${(laterCommand?.output ?? '').slice(0, 120)})`);
+      const unfrozenWave = await executeValidationPlan({ provider: 'build-binding-fixture', commands: [{ label: 'wave aliased', command: 'node', args: [join(root, 'wave-where.js')], cwd: 'wave-link', timeoutMs: 20_000 }], warnings: [] }, root, undefined, undefined, {});
+      check(unfrozenWave.commands[0]?.launchCwd === realpathSync(waveB), 'control: without the frozen directory a fresh plan pins wherever the alias points now, which is exactly why every wave must receive the planning binding');
+      const handlerSource7 = readFileSync(join(repoRoot, 'packages/main/src/handlers/story-aware-validation.ts'), 'utf8');
+      expectRepaired((handlerSource7.match(/launchCwds: \[args\.launchCwd\]/g) ?? []).length === 2
+        && handlerSource7.includes('launchCwds: ordinaryEntries.map((entry) => final.manifest.rows.find((row) => row.commandId === entry.id)?.resolvedCwd)')
+        && handlerSource7.includes('launchCwds: [first.manifest.rows.find((row) => row.commandId === waveId)?.resolvedCwd]')
+        && handlerSource7.includes('launchCwd: final.manifest.rows.find((row) => row.commandId === entry.id)?.resolvedCwd,')
+        && handlerSource7.includes('if (!args.row.resolvedCwd || args.result.launchCwd !== args.row.resolvedCwd) return undefined;'),
+        'the dynamic handler does not launch every wave, shard and oracle in the planning-bound directory or issues receipts without checking it (source-text guard)');
+      const sharedSource7 = readFileSync(join(repoRoot, 'packages/main/src/core/shared-validation-execution.ts'), 'utf8');
+      expectRepaired(sharedSource7.includes('launchCwd:normalized.cwd,'), 'a cache-served result carries no launch directory, so no receipt could ever be issued for it (source-text guard)');
+      rmSync(waveLink); rmSync(waveA, { recursive: true, force: true }); rmSync(waveB, { recursive: true, force: true }); rmSync(join(root, 'retarget-wave-link.js'), { force: true }); rmSync(join(root, 'wave-where.js'), { force: true });
     }
     // Linux only, where LD_PRELOAD is honoured: a preload library whose
     // constructor rewrites dist and exits 0 before the declared command runs.

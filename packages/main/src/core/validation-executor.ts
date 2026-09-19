@@ -215,6 +215,13 @@ export interface ExecuteValidationPlanOptions {
    * projectRoot verbatim on a plain repository.
    */
   gitCwd?: string;
+  /**
+   * Canonical launch directories FROZEN by the caller for this plan, one per
+   * plan command in plan order (undefined entries are pinned here). A dynamic
+   * run passes the directories it bound at planning so that every wave,
+   * shard and oracle launches exactly where the planning identity says.
+   */
+  launchCwds?: readonly (string | undefined)[];
 }
 
 /**
@@ -1699,6 +1706,8 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
         args: command.args,
         ...(command.shell || isWindows ? { shell: true } : {}),
         ...(command.cwd ? { cwd } : {}),
+        // The canonical directory the command was actually launched in.
+        launchCwd,
         ...(buildArtifactsBefore ? { buildArtifactsBefore } : {}),
         ...(buildArtifactsAfter ? { buildArtifactsAfter } : {}),
         ...(options.artifactBinding ? { buildArtifactsProtection: options.artifactBinding.protection } : {}),
@@ -2442,7 +2451,7 @@ export async function executeValidationPlan(
   // priority, the build wave, the protection decision and the recorded role
   // all read this one binding.
   const planEntries = resolveValidationPlanEntries(plan);
-  const canonicalLaunchCwds = new Map(planEntries.map((entry) => [entry.commandIndex, canonicalizeExistingPath(commandCwd(projectRoot, entry.command.cwd))] as const));
+  const canonicalLaunchCwds = new Map(planEntries.map((entry) => [entry.commandIndex, options.launchCwds?.[entry.commandIndex - 1] ?? canonicalizeExistingPath(commandCwd(projectRoot, entry.command.cwd))] as const));
   const buildRoles = new Map(planEntries.map((entry) => [entry.commandIndex,
     isRegisteredPackagesMainBuildCommand(entry.command, projectRoot, artifactsRoot, canonicalLaunchCwds.get(entry.commandIndex)) ? 'build' as const : 'test' as const] as const));
   const entries = canonicalizeEntries(planEntries, projectRoot)

@@ -157,11 +157,18 @@ export interface ResolvedLink { path: string; target: string }
  */
 export function resolvePathRecordingLinks(path: string): { canonical: string; links: ResolvedLink[] } | string {
   const links: ResolvedLink[] = [];
-  let remaining = resolve(path).split('/').filter(Boolean);
+  // Components are walked in FILESYSTEM order, never normalised first: a
+  // `..` after a symbolic link steps out of the link's TARGET, as the kernel
+  // does, not out of the link's parent, so `/trusted/alias/../sh` with
+  // `alias -> /user/tree` reaches /user/sh and records the link.
+  let remaining = (isAbsolute(path) ? path : join(process.cwd(), path)).split('/').filter(Boolean);
   let current = '/';
   let hops = 0;
   while (remaining.length > 0) {
-    const next = join(current, remaining.shift()!);
+    const component = remaining.shift()!;
+    if (component === '.') continue;
+    if (component === '..') { current = dirname(current); continue; }
+    const next = join(current, component);
     let entry;
     try { entry = lstatSync(next); } catch (error) {
       return `${next} cannot be inspected while resolving ${path}: ${(error as NodeJS.ErrnoException).code ?? (error as Error).message}`;
@@ -171,8 +178,11 @@ export function resolvePathRecordingLinks(path: string): { canonical: string; li
       let target: string;
       try { target = readlinkSync(next); } catch (error) { return `${next} cannot be read as a symbolic link: ${(error as Error).message}`; }
       links.push({ path: next, target });
-      remaining = [...resolve(dirname(next), target).split('/').filter(Boolean), ...remaining];
-      current = '/';
+      // The target's own components (its `..` included) are walked next, from
+      // the filesystem root for an absolute target or from the link's
+      // directory for a relative one.
+      remaining = [...target.split('/').filter(Boolean), ...remaining];
+      if (isAbsolute(target)) current = '/';
       continue;
     }
     current = next;
@@ -622,10 +632,12 @@ function selfTest(mechanism: Mechanism, existingRoots: string[], allRoots: strin
   try { witnessDir = mkdtempSync(join(tmpdir(), 'proof-or-stop-protection-witness-')); } catch (error) {
     return `${mechanism.name} self-test cannot create its witness directory: ${(error as Error).message}`;
   }
+  let probed = 0;
   try {
     for (const root of allRoots) {
       const existing = existingRoots.includes(root);
       if (!existing && !isDirectory(dirname(root))) continue;
+      probed++;
       const target = existing ? join(root, `.proof-or-stop-write-probe-${process.pid}-${Date.now()}`) : root;
       const body = existing
         ? `try { fs.writeFileSync(process.argv[1], 'probe'); process.exit(0); } catch (error) { process.exit(['EPERM','EACCES','EROFS'].includes(error && error.code) ? ${PROBE_DENIED_EXIT} : 4); }`
@@ -664,6 +676,23 @@ function selfTest(mechanism: Mechanism, existingRoots: string[], allRoots: strin
         if (rename.run.status !== PROBE_DENIED_EXIT) return `${mechanism.name} self-test did not deny moving the project's parent ${parent} aside (exit ${rename.run.status})`;
       }
     }
+    // Enforcement is never reported without a witnessed, denied probe. When
+    // no root and no root's parent exists, the topology is probed through
+    // the first MISSING protected ancestor of the first root: creating it is
+    // a write the mechanism must deny (the ancestors are denied as literals),
+    // and the wrapper must demonstrably run the probe. A topology that cannot
+    // be probed at all fails closed.
+    if (probed === 0) {
+      const missingAncestor = firstMissingProtectedAncestor(allRoots[0]);
+      if (!missingAncestor) return `${mechanism.name} self-test found nothing to probe for ${allRoots.join(', ')}; the topology cannot be tested`;
+      const { run, witnessed } = runProbe(mechanism, witnessDir, `try { fs.mkdirSync(process.argv[1]); process.exit(0); } catch (error) { process.exit(['EPERM','EACCES','EROFS'].includes(error && error.code) ? ${PROBE_DENIED_EXIT} : 4); }`, missingAncestor);
+      const written = run.status === 0 && isDirectory(missingAncestor);
+      if (written) { try { rmdirSync(missingAncestor); } catch { /* reported below */ } }
+      if (run.error) return `${mechanism.name} self-test on ${missingAncestor} could not start the wrapper: ${run.error.message}`;
+      if (written) return `${mechanism.name} self-test on ${missingAncestor} did not deny creating the protected ancestor (exit ${run.status})`;
+      if (!witnessed) return `${mechanism.name} self-test on ${missingAncestor} left no execution witness (exit ${run.status}${run.signal ? `, signal ${run.signal}` : ''}); the wrapper did not demonstrably run the probe`;
+      if (run.status !== PROBE_DENIED_EXIT) return `${mechanism.name} self-test on ${missingAncestor} ended unexpectedly (exit ${run.status}${run.signal ? `, signal ${run.signal}` : ''}): ${(run.stderr || '').trim().split('\n')[0].slice(0, 160)}`;
+    }
     // The wrapper that passed every probe must still be the one on disk and
     // still unreplaceable; a replacement during the self-test would otherwise
     // be bound as trusted.
@@ -671,6 +700,15 @@ function selfTest(mechanism: Mechanism, existingRoots: string[], allRoots: strin
   } finally {
     try { rmSync(witnessDir, { recursive: true, force: true }); } catch { /* best effort */ }
   }
+}
+
+/** The first component on the path to `root` that does not exist yet (a protected ancestor or the root itself) whose parent does, or undefined. */
+export function firstMissingProtectedAncestor(root: string): string | undefined {
+  const chain: string[] = [];
+  let current = root;
+  while (dirname(current) !== current) { chain.unshift(current); current = dirname(current); }
+  for (const path of chain) if (!existsSync(path)) return isDirectory(dirname(path)) ? path : undefined;
+  return undefined;
 }
 
 /**

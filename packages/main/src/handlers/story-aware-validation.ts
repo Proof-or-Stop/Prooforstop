@@ -864,6 +864,8 @@ async function executeShardedEntry(args: {
   prepared: PreparedStoryAwareValidation;
   commands?: ValidationCommand[];
   projectRoot: string;
+  /** The canonical directory frozen for this entry at planning; every oracle and shard launches there. */
+  launchCwd?: string;
   /** Git worktree root may differ from the config/project root on wrapper layouts; the executor digests artifacts under it. */
   gitCwd?: string;
   storyId: string;
@@ -888,6 +890,7 @@ async function executeShardedEntry(args: {
     warnings: [],
   }, args.projectRoot, args.head, args.storyId, {
     ...(args.gitCwd ? { gitCwd: args.gitCwd } : {}),
+    launchCwds: [args.launchCwd],
     progress: args.progress,
     abortSignal: args.abortSignal,
     deadlineAt: args.deadlineAt,
@@ -973,6 +976,7 @@ async function executeShardedEntry(args: {
       commands: [command], warnings: [],
     }, args.projectRoot, args.head, args.storyId, {
       ...(args.gitCwd ? { gitCwd: args.gitCwd } : {}),
+      launchCwds: [args.launchCwd],
       progress: args.progress,
       abortSignal: args.abortSignal,
       deadlineAt: args.deadlineAt,
@@ -1158,6 +1162,10 @@ function receiptForResult(args: {
   revocationLedger: ReceiptRevocationLedger;
 }): ValidationCommandReceipt | undefined {
   if (args.result.code !== 0 || args.result.timedOut || !args.row.closureCertificateDigest) return undefined;
+  // The receipt is signed for the input digest planning computed for ONE
+  // canonical directory; a result that did not demonstrably run there (or a
+  // row that never bound one) is not that command's receipt.
+  if (!args.row.resolvedCwd || args.result.launchCwd !== args.row.resolvedCwd) return undefined;
   // A receipt vouches for what its command executed: it must have started and
   // ended on the same compiled artifacts, under enforced (or not-applicable)
   // write protection, or it is not a receipt at all. The registered build is
@@ -1334,8 +1342,11 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
   if (!waveId) throw new Error('dynamic validation inventory is empty; cannot execute Wave-0 build');
   const waveEntry = first.catalog.find((entry) => entry.id === waveId)!;
   const waveCommand = commandForEntry(waveEntry, args.commands);
+  // The directory each command runs in was frozen at planning (row.resolvedCwd);
+  // every wave, shard and oracle launches there, never where an alias points now.
   const wave = await executeValidationPlan({ provider: 'story-aware-dynamic-wave-0', commands: [waveCommand], warnings: [] }, args.projectRoot, head, args.storyId, {
     ...(args.gitCwd ? { gitCwd: args.gitCwd } : {}),
+    launchCwds: [first.manifest.rows.find((row) => row.commandId === waveId)?.resolvedCwd],
     progress: args.progress,
     abortSignal: args.abortSignal,
     deadlineAt: args.deadlineAt,
@@ -1389,6 +1400,7 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
         commands: ordinaryEntries.map((entry) => commandForEntry(entry, args.commands)), warnings: [],
       }, args.projectRoot, head, args.storyId, {
         ...(args.gitCwd ? { gitCwd: args.gitCwd } : {}),
+        launchCwds: ordinaryEntries.map((entry) => final.manifest.rows.find((row) => row.commandId === entry.id)?.resolvedCwd),
         progress: args.progress,
         abortSignal: args.abortSignal,
         deadlineAt: args.deadlineAt,
@@ -1399,6 +1411,7 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
       shardCommandIds.add(entry.id);
       const sharded = await executeShardedEntry({
         entry, prepared: final, commands: args.commands, projectRoot: args.projectRoot, gitCwd: args.gitCwd,
+        launchCwd: final.manifest.rows.find((row) => row.commandId === entry.id)?.resolvedCwd,
         storyId: args.storyId, head, progress: args.progress, abortSignal: args.abortSignal,
         deadlineAt: args.deadlineAt, deadlineError: args.deadlineError, beforeLaunch: args.beforeLaunch, buildProofDigest,
       });

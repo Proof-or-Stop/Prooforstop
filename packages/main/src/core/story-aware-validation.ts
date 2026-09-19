@@ -888,7 +888,11 @@ export function loadBestMatchingAdmissiblePassReceipt(args: { commandId: string;
     .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt) || b.id.localeCompare(a.id))[0];
 }
 
-export interface SelectionRow { commandId: string; disposition: DynamicDisposition; reasons: string[]; inputDigest: string; receiptId?: string; closureCertificateDigest?: string; }
+export interface SelectionRow {
+  commandId: string; disposition: DynamicDisposition; reasons: string[]; inputDigest: string; receiptId?: string; closureCertificateDigest?: string;
+  /** The canonical directory the command runs in, resolved ONCE at planning: every execution wave launches there and a receipt is issued only for a result that did. */
+  resolvedCwd?: string;
+}
 export interface ValidationSingletonContribution {
   /** The independently computed singleton input that contributed commands. */
   source: string;
@@ -951,7 +955,7 @@ function isTrustedAncestor(sourceHead: string, currentHead: string, gitCwd = pro
  * pins it before launching (an ignored symbolic link re-pointed at another
  * directory is a different directory).
  */
-function canonicalEntryCwd(entry: Pick<ValidationCatalogEntry, 'cwd'>, ctx: Pick<DynamicValidationContext, 'projectRoot' | 'gitCwd'>): string {
+export function canonicalEntryCwd(entry: Pick<ValidationCatalogEntry, 'cwd'>, ctx: Pick<DynamicValidationContext, 'projectRoot' | 'gitCwd'>): string {
   const projectRoot = ctx.projectRoot || ctx.gitCwd || process.cwd();
   return canonicalizeExistingPath(resolve(projectRoot, entry.cwd || '.'));
 }
@@ -1212,6 +1216,10 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
   // though the caller normally routes directly to its complete-plan fallback.
   if (fullEscalated) for (const entry of ctx.catalog) select(entry.id, 'full-escalation', 'full-escalation');
   const selectorRepositoryFull = canonicalTierDecision?.effectiveTier === 'repository-full';
+  // One frozen canonical directory per command for the whole run: the input
+  // digest binds it here, every execution wave launches there, and a receipt
+  // is issued only for a result that ran there (the handler checks).
+  const resolvedCwds = new Map(inventory.map(row => { const entry = catalogById.get(row.id); if (!entry) throw new Error('inventory command absent from catalog: ' + row.id); return [row.id, canonicalEntryCwd(entry, ctx)] as const; }));
   const rows: SelectionRow[] = inventory.map(row => {
     const entry = catalogById.get(row.id); if (!entry) throw new Error('inventory command absent from catalog: ' + row.id);
     const closure = closures.get(row.id);
@@ -1219,7 +1227,7 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     const inputDigest = computeValidationInputDigest({
       command: entry, certifiedPaths: paths.map(path => ({ path })),
       environmentDigest: declaredEnvironmentDigest(entry, ctx),
-      resolvedCwd: canonicalEntryCwd(entry, ctx),
+      resolvedCwd: resolvedCwds.get(row.id),
       catalogDigest: digestCanonicalJson(ctx.catalog),
       graphDigest: ctx.graph ? stableDigest({ base: ctx.graph.baseGraphDigest, head: ctx.graph.headGraphDigest }) : '',
       closureCertificateDigest: closure ? closure.signature : '', baselineEpoch: ctx.baselineEpochId,
@@ -1254,6 +1262,7 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     if (receipt) return { commandId: row.id, disposition: 'reuse', reasons: ['certified-input-closure-unchanged'], inputDigest, receiptId: receipt.id, closureCertificateDigest: closure.signature };
     return { commandId: row.id, disposition: 'execute', reasons: ['no-admissible-reusable-receipt'], inputDigest, closureCertificateDigest: closure.signature };
   });
+  for (const row of rows) row.resolvedCwd = resolvedCwds.get(row.commandId);
   const coveredByIndependentInputs = singletonUnion([...contributionSets.entries()].map(([source, ids]) => ({ source, commandIds: [...ids] })));
   for (const row of rows) {
     if (coveredByIndependentInputs.has(row.commandId)) continue;
