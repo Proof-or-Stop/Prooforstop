@@ -1,5 +1,16 @@
 # Changelog
 
+## Lab managed-reviewer-model-qualification - v0.3.419 - 2026-09-19
+
+- Formal managedReview and managedDispatch now resolve omitted Codex or Claude selectors to qualified reviewer defaults before immutable submission.
+- Unqualified model families and sub-high reasoning effort fail before ReviewRun lookup or provider launch, with executable boundary coverage for both hosts.
+- INIT, PLAN scope, and TEST delivery guidance share one dependency-free qualified Codex command renderer, preventing selector drift without importing provider launch dependencies into the state machine.
+- Documentation now states submission-only qualification, sealed import equality, default-alias recovery, historical idempotency migration, and the separate advisory cross_host_review boundary.
+
+Maintenance provenance: codex/lab-managed-reviewer-model-qualification, repair 8a70d096163b78b9a6f37f12e7087a9e188384c2.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/managed-init-reviewer-dispatch-e2e.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab inventory-guard-fixture - v0.3.418 - 2026-09-18
 
 - Preserve a mechanical check of the real caller HEAD and working tree against the merge base with local main. Existing validation commands, argv, order, timeouts, budget limits, package scripts and runner sources remain protected. Bounded additive registrations and separately gated scope paths may change; new timeout overrides cannot shadow any original command or override.
