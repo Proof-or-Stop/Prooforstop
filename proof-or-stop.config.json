@@ -545,7 +545,7 @@
           "scripts/verify-process-fact-contract.mjs",
           "--quiet"
         ],
-        "timeoutMs": 900000,
+        "timeoutMs": 180000,
         "resources": [
           {
             "class": "git-common-dir",
@@ -1680,7 +1680,7 @@
           "packages/main/dist/tasks/red-evidence-target-binding-smoke.js",
           "--canonical-core"
         ],
-        "timeoutMs": 900000,
+        "timeoutMs": 180000,
         "resources": [
           {
             "class": "git-common-dir",
@@ -2995,7 +2995,7 @@
           "packages/main/dist/tasks/red-evidence-envelope-smoke.js",
           "--canonical-core"
         ],
-        "timeoutMs": 900000,
+        "timeoutMs": 180000,
         "resources": [
           {
             "class": "fixed-path",

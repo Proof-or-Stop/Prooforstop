@@ -3,7 +3,7 @@ import { prepareVerification, verificationFailureMessage } from './verification-
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { execFileSync } from 'node:child_process';
+import { execFile, execFileSync } from 'node:child_process';
 import { basename, dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
@@ -15,7 +15,7 @@ try { prepareVerification(root, { shareBuild: true }); }
 catch (error) { console.error(verificationFailureMessage('process contract prerequisite', error)); process.exit(1); }
 // --quiet suppresses only the verbose listings (registry entries, inventory
 // file paths). Verification logic and asserted literals are unchanged; the
-// default (no flag) output stays byte-identical.
+// complete proof markers and diagnostics remain present; concurrent output order may vary.
 const quiet = process.argv.slice(2).includes('--quiet');
 const closeoutPolicyModule = await import(pathToFileURL(join(root, 'packages/main/dist/core/closeout-trust.js')).href);
 const failures = [];
@@ -11970,40 +11970,71 @@ if (failures.length) {
 }
 
 // A rejected admission must not pay for these independent positive fixture checks.
-// Execute the real behavior from this registered serial-reference driver.
-// Formatting or operand swaps cannot substitute for a two-wave witness.
-try {
-  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-inventory-critic-metadata-head.mjs')], {
+// These two lanes own disjoint disposable fixtures. Keep every real command and
+// timeout, and observe both lanes before allowing the final success marker.
+// Asynchronous children keep each timeout and output drain live during overlap.
+let completedPositiveProofs = 0;
+function positiveProofCompletion(resolveProof, rejectProof, label, marker, display) {
+  return (error, stdout, stderr) => {
+    try {
+      if (error) { Object.assign(error, { stdout, stderr }); throw error; }
+      if (marker) nodeAssert(stdout.includes(marker), label + ' requires its exact completion selector');
+      if (display) { process.stdout.write(stdout); process.stderr.write(stderr); }
+      completedPositiveProofs++;
+      resolveProof();
+    } catch (failure) {
+      rejectProof(new Error(failure?.signal
+        ? 'PROOF_UNAVAILABLE: ' + label + '\n' + String(failure) + '\n' + stdout + '\n' + stderr
+        : verificationFailureMessage(label, failure)));
+    }
+  };
+}
+const inventoryCriticProof = new Promise((resolveProof, rejectProof) => {
+  execFile(process.execPath, [join(root, 'scripts/verify-inventory-critic-metadata-head.mjs')], {
     cwd: root, encoding: 'utf8', timeout: 900000, maxBuffer: 8 * 1024 * 1024,
+  }, positiveProofCompletion(resolveProof, rejectProof, 'inventory critic metadata HEAD', 'INVENTORY_CRITIC_METADATA_HEAD_GREEN', true));
+});
+const remainingPositiveProofs = (async () => {
+  // Real verdict consumer, raw-stream digest and refusal guards remain mandatory.
+  await new Promise((resolveProof, rejectProof) => {
+    execFile(process.execPath, ['packages/main/tests/codex-review-jsonl.test.mjs'], { cwd: root, encoding: 'utf8', timeout: 30000, maxBuffer: 8 * 1024 * 1024 },
+      positiveProofCompletion(resolveProof, rejectProof, 'codex review JSONL', null, true));
   });
-  process.stdout.write(output);
-  assert(output.includes('INVENTORY_CRITIC_METADATA_HEAD_GREEN'), 'registered critic proof requires its exact selector');
-} catch (error) {
-  throw new Error(verificationFailureMessage('inventory critic metadata HEAD', error));
-}
-// Exercise the real verdict consumer, including raw-stream digest and refusal guards.
-execFileSync(process.execPath, ['packages/main/tests/codex-review-jsonl.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
-execFileSync(process.execPath, ['packages/main/tests/review-history-buffer.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
-// Match CLI module initialization before the actual sealed managed-review fixture.
-execFileSync(process.execPath, ['--import', './packages/main/dist/index.js', 'packages/main/dist/tasks/managed-review-evidence-smoke.js', '--supersession-regression'], { cwd: root, stdio: 'inherit', timeout: 120000 });
-execFileSync(process.execPath, ['packages/main/tests/certification-recovery-lineage.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 120000 });
-// Exercise managed delivery through an actual synthetic provider process and real CLI.
-execFileSync(process.execPath, ['packages/main/tests/managed-delivery-dispatch.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 180000 });
-
-// Real writer/coverage proofs use isolated fixtures; unavailable execution is never GREEN.
-for (const [file, marker, timeout] of [
-  ['experiments/acceptance-closure/regression.mjs', 'ACCEPTANCE_CLOSURE_GREEN', 60000],
-  ['experiments/acceptance-closure/publication-snapshot.mjs', 'PUBLICATION_SNAPSHOT_GREEN', 60000],
-  ['experiments/acceptance-closure/publication-lifecycle.mjs', 'PUBLICATION_LIFECYCLE_GREEN', 720000],
-]) {
-  try {
-    const output = execFileSync(process.execPath, [join(root, file)], { cwd: root, encoding: 'utf8', timeout });
-    nodeAssert(output.includes(marker), file + ' must emit its GREEN marker');
-    if (!quiet) process.stdout.write(output);
-  } catch (error) {
-    throw new Error(verificationFailureMessage('acceptance closure ' + file, error));
+  await new Promise((resolveProof, rejectProof) => {
+    execFile(process.execPath, ['packages/main/tests/review-history-buffer.test.mjs'], { cwd: root, encoding: 'utf8', timeout: 30000, maxBuffer: 8 * 1024 * 1024 },
+      positiveProofCompletion(resolveProof, rejectProof, 'review history buffer', null, true));
+  });
+  // Match CLI module initialization before the actual sealed managed-review fixture.
+  await new Promise((resolveProof, rejectProof) => {
+    execFile(process.execPath, ['--import', './packages/main/dist/index.js', 'packages/main/dist/tasks/managed-review-evidence-smoke.js', '--supersession-regression'], { cwd: root, encoding: 'utf8', timeout: 120000, maxBuffer: 8 * 1024 * 1024 },
+      positiveProofCompletion(resolveProof, rejectProof, 'managed review supersession', null, true));
+  });
+  await new Promise((resolveProof, rejectProof) => {
+    execFile(process.execPath, ['packages/main/tests/certification-recovery-lineage.test.mjs'], { cwd: root, encoding: 'utf8', timeout: 120000, maxBuffer: 8 * 1024 * 1024 },
+      positiveProofCompletion(resolveProof, rejectProof, 'certification recovery lineage', null, true));
+  });
+  // Managed delivery still uses an actual provider process and real CLI.
+  await new Promise((resolveProof, rejectProof) => {
+    execFile(process.execPath, ['packages/main/tests/managed-delivery-dispatch.test.mjs'], { cwd: root, encoding: 'utf8', timeout: 180000, maxBuffer: 8 * 1024 * 1024 },
+      positiveProofCompletion(resolveProof, rejectProof, 'managed delivery dispatch', null, true));
+  });
+  // Real writer/coverage proofs; unavailable execution can never grant GREEN.
+  for (const [file, marker, timeout] of [
+    ['experiments/acceptance-closure/regression.mjs', 'ACCEPTANCE_CLOSURE_GREEN', 60000],
+    ['experiments/acceptance-closure/publication-snapshot.mjs', 'PUBLICATION_SNAPSHOT_GREEN', 60000],
+    ['experiments/acceptance-closure/publication-lifecycle.mjs', 'PUBLICATION_LIFECYCLE_GREEN', 720000],
+  ]) {
+    await new Promise((resolveProof, rejectProof) => {
+      execFile(process.execPath, [join(root, file)], { cwd: root, encoding: 'utf8', timeout, maxBuffer: 8 * 1024 * 1024 },
+        positiveProofCompletion(resolveProof, rejectProof, 'acceptance closure ' + file, marker, !quiet));
+    });
   }
-}
+})();
+const positiveProofResults = await Promise.allSettled([inventoryCriticProof, remainingPositiveProofs]);
+const positiveProofFailures = positiveProofResults.filter(result => result.status === 'rejected').map(result => result.reason);
+if (positiveProofFailures.length) throw new AggregateError(positiveProofFailures, 'Complete positive process-fact proofs failed');
+nodeAssert.equal(completedPositiveProofs, 9, 'all nine actual positive child completions are required');
+console.log('PROCESS_POSITIVE_PROOFS_COMPLETE 9');
 
 // Durable ordering witness: its invalid child exits at the admission gate above.
 const admissionOrderOutput = execFileSync(process.execPath, [join(root, 'scripts/verify-process-runtime-admission-order.mjs')], { cwd: root, encoding: 'utf8', timeout: 60000 });
