@@ -1029,9 +1029,14 @@ function runAsOfRunEligibilityRegression(firstBaseOnly = false): void {
       const base = resolveFullStoryBaseHead(store, root, storyId)!;
       assert.equal(envelope.fullStoryBaseHead, base, 'FIRST_REVIEW_BASE_NOT_BOUND');
       const options = { ...verifierOptions(runA), asOfRef: runA.headHash };
+      const { fullStoryBaseHead: _signedBase, ...implicitBaseOptions } = options;
+      const implicit = reviewIncrementalContext(store, root, storyId, role, implicitBaseOptions);
+      assert.ok(implicit.changedFiles.includes('src/feature.ts'), 'ordinary callers resolve the frozen Story base without main/master');
+      assert.equal(implicit.eligibilityDigest, envelope.eligibilityDigest, 'implicit Story base matches the signed run-start context');
       // Preserve the historical omitted-field digest check without weakening
-      // the production reproduction above: review_run_start already succeeded
-      // with no local main, then this temporary compatibility ref is removed.
+      // the production reproduction above: both review_run_start and the
+      // ordinary context call succeeded with no local main, then this temporary
+      // compatibility ref is removed.
       git(root, ['branch', 'main', integrationBase]);
       const legacy = reviewIncrementalContext(store, root, storyId, role, { ...options, fullStoryBaseHead: undefined });
       git(root, ['branch', '-D', 'main']);
@@ -1087,7 +1092,7 @@ function runAsOfRunEligibilityRegression(firstBaseOnly = false): void {
       assert.deepEqual(verifyReviewRunPromptEnvelope(store, runA), { ok: true }, 'Even a later integration branch containing the reviewed commit cannot choose a new historical base');
       git(root, ['branch', '-m', movedIntegrationBranch, 'final-integration']);
       assert.equal(resolveFullStoryBaseHead(store, root, storyId), integrationBase, 'The frozen Story base remains resolvable after the branch is renamed');
-      console.log(`${MARKER} FIRST-REVIEW-BASE GREEN: pinned Story creation commit without local main, tamper/ref/missing-object refusals, live material refusal, merged-head replay`);
+      console.log(`${MARKER} FIRST-REVIEW-BASE GREEN: implicit and signed Story creation bases without local main, tamper/ref/missing-object refusals, live material refusal, merged-head replay`);
       return;
     }
     const passA = signedPass(storyId, `${runA.reviewRunId}:PASS`, role, ts(6), round);

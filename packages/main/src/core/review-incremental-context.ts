@@ -827,13 +827,23 @@ export function reviewIncrementalContext(
      * receipt-bound envelope's eligibilityDigest / reviewBasisDigest.
      */
     asOfRef?: string;
-    /** Explicit run-start base; omission preserves legacy digest and diff behavior. */
+    /**
+     * Explicit run-start base. When the property is absent, resolve the Story's
+     * frozen integration base. Historical verifiers may pass the property with
+     * an explicit `undefined` value to replay the pre-field digest exactly.
+     */
     fullStoryBaseHead?: string;
   } = {},
 ): ReviewIncrementalContext {
   const gitCwd = resolveGitCwd({ store, storyId, metadataRoot: projectRoot, projectRoot });
   const asOfRef = options.asOfRef?.trim() || 'HEAD';
-  const fullStoryBaseHead = options.fullStoryBaseHead;
+  const hasExplicitFullStoryBaseHead = Object.prototype.hasOwnProperty.call(options, 'fullStoryBaseHead');
+  const fullStoryBaseHead = hasExplicitFullStoryBaseHead
+    ? options.fullStoryBaseHead
+    : resolveFullStoryBaseHead(store, projectRoot, storyId);
+  if (!hasExplicitFullStoryBaseHead && fullStoryBaseHead === undefined) {
+    throw new Error(`FULL_STORY_BASE_UNAVAILABLE: repository integration baseline could not be resolved for Story ${storyId}`);
+  }
   if (fullStoryBaseHead !== undefined) {
     validateFullStoryBaseHead(fullStoryBaseHead);
     if (resolveFullStoryCommitObject(gitCwd, fullStoryBaseHead) !== fullStoryBaseHead) {
