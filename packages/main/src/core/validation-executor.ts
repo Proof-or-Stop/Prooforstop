@@ -1544,6 +1544,8 @@ async function runValidationCommandWithCompleteOutputUnscheduled(
     const output = diagnostic;
     return { completeOutput: output, result: {
       label: command.label, command: command.command, args: command.args,
+      // No child was launched (the wait ended before the spawn): tool-owned.
+      launchOutcome: 'not-launched',
       ...(command.optional ? { optional: true } : {}),
       code: delegationRefused ? 1 : 124, ...(delegationRefused ? {} : { timedOut: true }), failureKind: 'infra_failure', output,
       timeoutMs: reportedTimeoutMs, effectiveTimeoutMs: 0, durationMs: Date.now() - started,
@@ -1607,6 +1609,7 @@ function refusedLaunchResult(command: ValidationCommand, projectRoot: string, ta
     ...(command.cwd ? { cwd } : {}),
     code: 1,
     output: `${tag} ${command.label} was not launched: ${reason}`,
+    launchOutcome: 'not-launched',
     ...(command.optional ? { optional: true } : {}),
     timeoutMs,
     effectiveTimeoutMs: 0,
@@ -2468,7 +2471,7 @@ function scheduledStatusForCommand(result: ValidationCommandResult): ScheduledSt
  * write protection is for.
  */
 export function evaluatePlanBuildArtifactsBinding(input: {
-  commands: readonly Pick<ValidationCommandResult, 'label' | 'buildArtifactsBefore' | 'buildArtifactsAfter' | 'buildArtifactsRole'>[];
+  commands: readonly Pick<ValidationCommandResult, 'label' | 'buildArtifactsBefore' | 'buildArtifactsAfter' | 'buildArtifactsRole' | 'launchOutcome'>[];
   start?: string;
   end?: string;
 }): string[] {
@@ -2480,6 +2483,10 @@ export function evaluatePlanBuildArtifactsBinding(input: {
   }
   const buildRan = commands.some((result) => result.buildArtifactsRole === 'build');
   for (const result of commands) {
+    // A command the executor never launched executed nothing: there is no
+    // execution to bind, and its failure is judged by its own status. Only
+    // an EXECUTED command with missing observations is unbound.
+    if (result.launchOutcome === 'not-launched') continue;
     if (!result.buildArtifactsBefore || !result.buildArtifactsAfter) {
       failures.push(`${result.label}: build artifacts were not observed around this command [build_artifacts_observation_missing]`);
       continue;

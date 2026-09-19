@@ -176,9 +176,30 @@ function splitComponents(api: typeof posix | typeof win32, path: string): string
 export function launchDirectoryOf(base: string, cwd?: string, seam?: PathWalkSeam): string {
   const api = pathApiFor(seam);
   if (!cwd) return base;
+  const appended = (from: string, rest: string): string => {
+    const last = from[from.length - 1];
+    return last === '/' || last === api.sep ? `${from}${rest}` : `${from}${api.sep}${rest}`;
+  };
+  if (api === win32) {
+    // A drive-relative name (`C:checks`) is relative to that drive's current
+    // directory: the base when it is on the same drive, the drive's root
+    // otherwise (no other current directory is known for it). A rooted name
+    // without a drive (`\checks`) is rooted at the base's own root (drive or
+    // UNC share). Both keep their remaining components as written.
+    const driveRelative = /^([A-Za-z]):(?![\\/])(.*)$/.exec(cwd);
+    if (driveRelative) {
+      const baseDrive = /^([A-Za-z]):/.exec(base)?.[1];
+      const rest = driveRelative[2]!;
+      if (baseDrive && baseDrive.toLowerCase() === driveRelative[1]!.toLowerCase()) return rest ? appended(base, rest) : base;
+      return `${driveRelative[1]}:\\${rest}`;
+    }
+    if (/^[\\/](?![\\/])/.test(cwd)) {
+      const root = api.parse(base).root;
+      return `${root}${cwd.slice(1)}`;
+    }
+  }
   if (api.isAbsolute(cwd)) return cwd;
-  const last = base[base.length - 1];
-  return last === '/' || last === api.sep ? `${base}${cwd}` : `${base}${api.sep}${cwd}`;
+  return appended(base, cwd);
 }
 
 /**

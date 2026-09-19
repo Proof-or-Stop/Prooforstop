@@ -16,7 +16,7 @@ import { VALIDATION_SOURCE_PROVENANCE_SCHEMA } from './runtime-fact-registry.js'
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, posix, resolve } from 'node:path';
-import { bindLaunchDirectoryIdentity, canonicalizeExistingPath, launchDirectoryOf, type LaunchDirectoryIdentity } from './build-artifacts-identity.js';
+import { bindLaunchDirectoryIdentity, canonicalizeExistingPath, launchDirectoryDrift, launchDirectoryOf, type LaunchDirectoryIdentity } from './build-artifacts-identity.js';
 import ts from 'typescript';
 import { PROOF_OR_STOP_CONFIG_FILENAME } from './brand-paths.js';
 import { pickProjectConfigPath } from './config.js';
@@ -929,6 +929,14 @@ export interface DynamicValidationContext {
   graph?: DualRevisionImpactGraph; scopeContract?: ScopeContractData; gitCwd?: string; now?: number;
   /** Stable build/Wave-0 command that must execute on every dynamic run. */
   buildCommandId?: string;
+  /**
+   * Launch directories FROZEN by an earlier planning of this same run (the
+   * planning before Wave-0): a command listed here keeps that canonical
+   * directory and identity instead of resolving its cwd again, so a Wave-0
+   * command that re-points an alias cannot move where a later command runs
+   * or what identity its receipt is signed for.
+   */
+  launchDirectories?: ReadonlyMap<string, FrozenLaunchDirectory>;
   /** Canonical Story-relevance decision generated from the same Story snapshot as validation_plan. */
   tierSelection?: AutomaticValidationTierSelectionBinding;
 }
@@ -957,6 +965,35 @@ function isTrustedAncestor(sourceHead: string, currentHead: string, gitCwd = pro
  * pins it before launching (an ignored symbolic link re-pointed at another
  * directory is a different directory).
  */
+/** A command's canonical launch directory with the filesystem identity bound when it was frozen. */
+export interface FrozenLaunchDirectory { readonly path: string; readonly identity?: LaunchDirectoryIdentity }
+
+/** The launch directory a command is bound to: the frozen one when this run froze it earlier, otherwise resolved and bound now. */
+export function entryLaunchDirectory(entry: Pick<ValidationCatalogEntry, 'id' | 'cwd'>, ctx: Pick<DynamicValidationContext, 'projectRoot' | 'gitCwd' | 'launchDirectories'>): FrozenLaunchDirectory {
+  const frozen = ctx.launchDirectories?.get(entry.id);
+  if (frozen) return frozen;
+  const path = canonicalEntryCwd(entry, ctx);
+  const identity = bindLaunchDirectoryIdentity(path);
+  return identity ? { path, identity } : { path };
+}
+
+/** The launch directories a selection manifest froze, keyed by command id, for the run's later plannings. */
+export function frozenLaunchDirectoriesOf(manifest: Pick<ValidationSelectionManifest, 'rows'>): Map<string, FrozenLaunchDirectory> {
+  const frozen = new Map<string, FrozenLaunchDirectory>();
+  for (const row of manifest.rows) if (row.resolvedCwd) frozen.set(row.commandId, row.resolvedCwdIdentity ? { path: row.resolvedCwd, identity: row.resolvedCwdIdentity } : { path: row.resolvedCwd });
+  return frozen;
+}
+
+/** Every frozen directory that is no longer the directory it was frozen as (re-verified after Wave-0, before anything launches there). */
+export function frozenLaunchDirectoryDrift(frozen: ReadonlyMap<string, FrozenLaunchDirectory>): string[] {
+  const reasons: string[] = [];
+  for (const [commandId, directory] of frozen) {
+    const drift = launchDirectoryDrift(directory.path, directory.identity);
+    if (drift) reasons.push(`${commandId}: ${drift}`);
+  }
+  return reasons;
+}
+
 export function canonicalEntryCwd(entry: Pick<ValidationCatalogEntry, 'cwd'>, ctx: Pick<DynamicValidationContext, 'projectRoot' | 'gitCwd'>): string {
   const projectRoot = ctx.projectRoot || ctx.gitCwd || process.cwd();
   return canonicalizeExistingPath(launchDirectoryOf(projectRoot, entry.cwd || undefined));
@@ -1198,7 +1235,7 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     const inputDigest = computeValidationInputDigest({
       command: entry, certifiedPaths: paths.map(path => ({ path })),
       environmentDigest: declaredEnvironmentDigest(entry, ctx),
-      resolvedCwd: canonicalEntryCwd(entry, ctx),
+      resolvedCwd: entryLaunchDirectory(entry, ctx).path,
       catalogDigest: digestCanonicalJson(ctx.catalog),
       graphDigest: ctx.graph ? stableDigest({ base: ctx.graph.baseGraphDigest, head: ctx.graph.headGraphDigest }) : '',
       closureCertificateDigest: closure ? closure.signature : '', baselineEpoch: ctx.baselineEpochId,
@@ -1221,7 +1258,8 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
   // One frozen canonical directory per command for the whole run: the input
   // digest binds it here, every execution wave launches there, and a receipt
   // is issued only for a result that ran there (the handler checks).
-  const resolvedCwds = new Map(inventory.map(row => { const entry = catalogById.get(row.id); if (!entry) throw new Error('inventory command absent from catalog: ' + row.id); return [row.id, canonicalEntryCwd(entry, ctx)] as const; }));
+  const launchDirectories = new Map(inventory.map(row => { const entry = catalogById.get(row.id); if (!entry) throw new Error('inventory command absent from catalog: ' + row.id); return [row.id, entryLaunchDirectory(entry, ctx)] as const; }));
+  const resolvedCwds = new Map([...launchDirectories].map(([id, directory]) => [id, directory.path] as const));
   const rows: SelectionRow[] = inventory.map(row => {
     const entry = catalogById.get(row.id); if (!entry) throw new Error('inventory command absent from catalog: ' + row.id);
     const closure = closures.get(row.id);
@@ -1265,8 +1303,9 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     return { commandId: row.id, disposition: 'execute', reasons: ['no-admissible-reusable-receipt'], inputDigest, closureCertificateDigest: closure.signature };
   });
   for (const row of rows) {
-    row.resolvedCwd = resolvedCwds.get(row.commandId);
-    const identity = row.resolvedCwd ? bindLaunchDirectoryIdentity(row.resolvedCwd) : undefined;
+    const directory = launchDirectories.get(row.commandId);
+    row.resolvedCwd = directory?.path;
+    const identity = directory?.identity;
     if (identity) row.resolvedCwdIdentity = identity;
   }
   const coveredByIndependentInputs = singletonUnion([...contributionSets.entries()].map(([source, ids]) => ({ source, commandIds: [...ids] })));

@@ -1931,8 +1931,34 @@ if (hostEnforced) {
         && !replaySource.includes('freshHead')
         && replaySource.includes("buildProofDigest: 'paired-performance', graph: currentGraph, mode: 'shadow', gitCwd: pairedRoot,")
         && replaySource.includes('does not name the selection\'s input identity (launch directory disagreement)')
-        && replaySource.includes('assert.equal(pairedSelection.totals.reused, baselineReceipts.length,'),
+        && replaySource.includes('const mandatoryExecution = (entry: ValidationCatalogEntry): boolean => entry.assurance === \'always\' || entry.closurePolicy === \'never-reuse\' || (entry.assurance === \'full-only\' && entry.fullBaselineReusePolicy === \'forbidden\');')
+        && replaySource.includes("assert.ok(reusable.length > 0, 'paired: no reusable command with a baseline receipt; the campaign has no positive reuse control');")
+        && replaySource.includes('assert.equal(pairedSelection.totals.reused, reusable.length,'),
         'the historical replay prepares baseline identities or plans the selection outside the workspace the baseline ran in, or asserts no positive reuse (source-text guard)');
+      // Audit #43 (1): the run's launch directories are FROZEN by the planning
+      // before Wave-0 and kept by the post-build planning: a Wave-0 command
+      // that re-points the alias cannot move where the selected command runs
+      // or what identity its receipt is signed for, and a pinned directory
+      // replaced during Wave-0 is reported as drift before anything launches.
+      const frozenDirs = dynamic.frozenLaunchDirectoriesOf(dynFirst);
+      check(frozenDirs.get('aliased')?.path === realpathSync(dynA) && Number.isInteger(frozenDirs.get('aliased')?.identity?.ino), `control: the first planning froze the canonical directory with its identity (${JSON.stringify([...frozenDirs])})`);
+      rmSync(dynLink); symlinkSync(dynB, dynLink, 'dir');
+      const replanned = dynamic.buildDynamicValidationPlan({ storyId: 'B-bab-dyn', baseHead: 'base', head: 'head', inventory: dynInventory, catalog: dynCatalog, changes: dynChanges, closures: dynClosures, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe', projectRoot: root, buildArtifactsHash: 'fixture-build-artifacts', receipts: [dynReceipt], launchDirectories: frozenDirs }).rows.find((row) => row.commandId === 'aliased');
+      expectRepaired(replanned?.resolvedCwd === realpathSync(dynA) && replanned.resolvedCwdIdentity?.ino === frozenDirs.get('aliased').identity.ino && replanned.inputDigest === dynFirstRow.inputDigest && replanned.disposition === 'reuse',
+        `the post-build planning re-resolved the alias instead of keeping the frozen directory (${JSON.stringify(replanned)})`);
+      check(dynamic.frozenLaunchDirectoryDrift(frozenDirs).length === 0, 'control: re-pointing the alias does not move the pinned directory itself');
+      rmSync(dynLink); symlinkSync(dynA, dynLink, 'dir');
+      renameSync(dynA, `${dynA}-moved`); mkdirSync(dynA);
+      const frozenDrift = dynamic.frozenLaunchDirectoryDrift(frozenDirs);
+      expectRepaired(frozenDrift.some((reason) => reason.startsWith('aliased: ') && reason.includes('was replaced by another directory')), `a pinned directory replaced during Wave-0 was not reported as drift (${JSON.stringify(frozenDrift)})`);
+      rmSync(dynA, { recursive: true, force: true }); renameSync(`${dynA}-moved`, dynA);
+      const handlerSource10 = readFileSync(join(repoRoot, 'packages/main/src/handlers/story-aware-validation.ts'), 'utf8');
+      const freezeAt = handlerSource10.indexOf('const frozenLaunchDirectories = frozenLaunchDirectoriesOf(first.manifest);');
+      const waveAt = handlerSource10.indexOf("provider: 'story-aware-dynamic-wave-0'");
+      const driftAt = handlerSource10.indexOf('const launchDirectoryDriftReasons = frozenLaunchDirectoryDrift(frozenLaunchDirectories);');
+      const finalAt = handlerSource10.indexOf('launchDirectories: frozenLaunchDirectories,');
+      expectRepaired(freezeAt > 0 && waveAt > freezeAt && driftAt > waveAt && finalAt > driftAt && handlerSource10.includes("throw new Error(`[launch_directory_drift] a launch directory frozen before Wave-0"),
+        'the dynamic run does not freeze launch directories before Wave-0, verify them after it, and keep them for the post-build planning (source-text guard)');
       rmSync(dynLink); rmSync(dynA, { recursive: true, force: true }); rmSync(dynB, { recursive: true, force: true });
       // Audit #37 (1): one FROZEN canonical directory per command for planning
       // and every execution wave. The manifest row binds it; a later wave is
@@ -2119,6 +2145,25 @@ if (hostEnforced) {
         `a dash-named environment variable let env run a command of the launch's choosing instead of the declared validator (code=${dashRun.code}, ${dashRun.output.slice(0, 120)})`);
       rmSync(dashDir, { recursive: true, force: true });
     }
+    // Audit #43 (4): an OPTIONAL command that never launched (its pinned
+    // directory was replaced before its turn) fails optionally, as it always
+    // did: the plan still passes on its required commands and reports no
+    // missing observation for a command that executed nothing.
+    if (hostEnforced) {
+      const canonicalRoot = realpathSync(root);
+      const optDir = join(canonicalRoot, 'opt-dir'); mkdirSync(optDir); writeFileSync(join(optDir, 'validate.js'), 'process.stdout.write("OPTIONAL RAN"); process.exit(0);\n');
+      const optOther = join(canonicalRoot, 'opt-other'); mkdirSync(optOther);
+      let launches = 0;
+      const optionalPlan = await executeValidationPlan({ provider: 'build-binding-fixture', commands: [
+        { label: 'required', command: 'node', args: ['-e', 'process.exit(0)'], timeoutMs: 20_000 },
+        { label: 'optional never launched', command: 'node', args: ['validate.js'], cwd: 'opt-dir', optional: true, timeoutMs: 20_000 },
+      ], warnings: [] }, root, undefined, undefined, { jobs: 1, beforeLaunch: () => { launches += 1; if (launches === 2) { renameSync(optDir, `${optDir}-moved`); symlinkSync(optOther, optDir); } } });
+      const optionalResult = optionalPlan.commands.find((command) => command.label === 'optional never launched');
+      expectRepaired(optionalPlan.allPass === true && optionalResult?.launchOutcome === 'not-launched' && optionalResult.code !== 0 && optionalResult.output.includes('[launch_directory_drift]')
+        && !optionalPlan.details.some((line) => line.includes('build_artifacts_observation_missing')) && !(optionalResult.output ?? '').includes('OPTIONAL RAN'),
+        `an optional command that never launched failed the whole plan as unobserved (allPass=${optionalPlan.allPass}, outcome=${optionalResult?.launchOutcome}, code=${optionalResult?.code}, ${optionalPlan.details.join(' | ').slice(0, 200)})`);
+      rmSync(optDir, { force: true }); rmSync(`${optDir}-moved`, { recursive: true, force: true }); rmSync(optOther, { recursive: true, force: true });
+    }
     // Audit #39 (3): the walker stops where the kernel's resolution would
     // fail and keeps the rest spelled as written, so `existing-file/..`,
     // `missing/..` and `unsearchable/..` remain the invalid names a launch
@@ -2172,6 +2217,11 @@ if (hostEnforced) {
         ['sub', 'C:\\work\\sub', 'a relative cwd joins the base with the platform separator'],
         ['C:\\repo\\a-file\\..', 'C:\\repo\\a-file\\..', '`..` after a file stays as written on Windows too'],
         ['C:\\repo\\missing\\dist', 'C:\\repo\\missing\\dist', 'a missing tail is appended as written under a drive root'],
+        // Audit #43 (2): drive-relative and rooted-without-drive names.
+        ['C:checks', 'C:\\work\\checks', 'a same-drive drive-relative cwd is relative to the base'],
+        ['c:checks', 'C:\\work\\checks', 'drive letters compare case-insensitively'],
+        ['D:checks', 'D:\\checks', 'a different-drive drive-relative cwd is rooted at that drive'],
+        ['\\repo', 'C:\\repo', 'a rooted cwd without a drive takes the base drive'],
       ];
       for (const [input, expected, why] of winCases) {
         const got = binding.canonicalizeExistingPath(input, winSeam);
@@ -2179,6 +2229,12 @@ if (hostEnforced) {
       }
       expectRepaired(binding.launchDirectoryOf('C:\\repo', 'alias\\..\\checks', { platform: 'win32' }) === 'C:\\repo\\alias\\..\\checks' && binding.launchDirectoryOf('C:\\repo', 'D:\\other', { platform: 'win32' }) === 'D:\\other',
         'launchDirectoryOf does not honour Windows absolute paths and separators');
+      expectRepaired(binding.launchDirectoryOf('C:\\repo', 'C:checks', { platform: 'win32' }) === 'C:\\repo\\checks'
+        && binding.launchDirectoryOf('C:\\repo', 'C:alias\\..\\checks', { platform: 'win32' }) === 'C:\\repo\\alias\\..\\checks'
+        && binding.launchDirectoryOf('C:\\repo', 'D:checks', { platform: 'win32' }) === 'D:\\checks'
+        && binding.launchDirectoryOf('C:\\repo', '\\checks', { platform: 'win32' }) === 'C:\\checks'
+        && binding.launchDirectoryOf('\\\\server\\share\\dir', '\\other', { platform: 'win32' }) === '\\\\server\\share\\other',
+        'launchDirectoryOf corrupts Windows drive-relative or rooted-without-drive cwds');
       check(binding.canonicalizeExistingPath('/', { platform: 'posix' }) === '/', 'control: the POSIX root canonicalises to itself');
     }
     // Linux only, where LD_PRELOAD is honoured: a preload library whose
@@ -2426,6 +2482,10 @@ if (hostEnforced) {
         'the rules no longer catch a plan that ended on bytes the registered build did not produce');
       expectRepaired(rules([{ label: 'unobserved' }], A, A).some((line) => line.includes('build_artifacts_observation_missing')),
         'the rules no longer catch a command with no observations');
+      // Audit #43 (4): a command the executor never launched executed nothing
+      // and is not "unobserved": its own status decides, the binding holds.
+      expectRepaired(rules([cmd('t', A, A, 'test'), { label: 'never launched', launchOutcome: 'not-launched' }], A, A).length === 0,
+        'a tool-owned no-launch result is treated as an executed command with missing observations');
       expectRepaired(rules([cmd('t', A, A, 'test')], undefined, A).some((line) => line.includes('build_artifacts_identity_unavailable')),
         'the rules no longer refuse a plan whose artifact identity is unavailable');
     } else {

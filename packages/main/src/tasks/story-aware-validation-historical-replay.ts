@@ -784,14 +784,24 @@ if (paired) {
       mode: 'shadow', gitCwd: pairedRoot,
     });
     // Positive reuse contract for the paired campaign: nothing changed, so
-    // every command with a PASS receipt from the baseline is reused, and every
-    // receipt names the identity the selection computes in this workspace.
-    for (const receipt of baselineReceipts) {
+    // every receipt names the identity the selection computes in this
+    // workspace, every receipt whose command the planner MAY reuse is reused,
+    // and every command the planner must always execute (always-assurance,
+    // never-reuse closure, forbidden full-only baseline reuse) is executed.
+    // At least one reusable command is required as the positive control.
+    const mandatoryExecution = (entry: ValidationCatalogEntry): boolean => entry.assurance === 'always' || entry.closurePolicy === 'never-reuse' || (entry.assurance === 'full-only' && entry.fullBaselineReusePolicy === 'forbidden');
+    const receiptedEntries = baselineReceipts.map((receipt) => ({ receipt, entry: catalog.find((entry) => entry.id === receipt.commandId)! }));
+    for (const { receipt, entry } of receiptedEntries) {
       const row = pairedSelection.rows.find((candidateRow) => candidateRow.commandId === receipt.commandId);
       assert.equal(row?.inputDigest, receipt.inputDigest, `paired: baseline receipt for ${receipt.commandId} does not name the selection's input identity (launch directory disagreement)`);
+      if (pairedSelection.fullEscalated) continue;
+      if (mandatoryExecution(entry)) assert.equal(row?.disposition, 'execute', `paired: ${receipt.commandId} must always execute but was ${row?.disposition}`);
+      else assert.equal(row?.disposition, 'reuse', `paired: ${receipt.commandId} has a valid receipt in this workspace but was ${row?.disposition}; the paired campaign would silently run full-versus-full`);
     }
     if (!pairedSelection.fullEscalated) {
-      assert.equal(pairedSelection.totals.reused, baselineReceipts.length, `paired: ${baselineReceipts.length} baseline receipts but ${pairedSelection.totals.reused} reused rows; the paired campaign would silently run full-versus-full`);
+      const reusable = receiptedEntries.filter(({ entry }) => !mandatoryExecution(entry));
+      assert.ok(reusable.length > 0, 'paired: no reusable command with a baseline receipt; the campaign has no positive reuse control');
+      assert.equal(pairedSelection.totals.reused, reusable.length, `paired: ${reusable.length} reusable receipts but ${pairedSelection.totals.reused} reused rows`);
     }
     pairedManifest = pairedSelection;
     selectedIds = new Set(pairedSelection.rows.filter((row) => row.disposition === 'execute').map((row) => row.commandId));

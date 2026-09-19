@@ -2,7 +2,7 @@ import { withValidationSigningRoot } from '../core/validation-signing-context.js
 import { loadConfig } from '../core/config.js';
 import { resolveProjectGitRoot } from '../core/story-signed-workspace-resolution.js';
 import { REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied, weakestProtectionLabel } from '../core/build-artifacts-protection.js';
-import { VALIDATION_RECEIPT_SCHEMA } from '../core/story-aware-validation.js';
+import { VALIDATION_RECEIPT_SCHEMA, frozenLaunchDirectoriesOf, frozenLaunchDirectoryDrift, type FrozenLaunchDirectory } from '../core/story-aware-validation.js';
 function projectSigningRoot(projectRoot: string): string {
  const configured=loadConfig(projectRoot).gitRoot;
  const resolved=resolveProjectGitRoot(projectRoot, configured);
@@ -115,6 +115,8 @@ export interface PrepareStoryAwareValidationArgs {
   /** Configured commands retain env/optional/focus fields omitted by inventory discovery. */
   commands?: ValidationCommand[];
   tierSelection?: AutomaticValidationTierSelectionBinding;
+  /** Launch directories frozen by this run's planning before Wave-0; the post-build planning keeps them. */
+  launchDirectories?: ReadonlyMap<string, FrozenLaunchDirectory>;
   tierSelectionResolver?: (args: {
     catalog: ValidationCatalogEntry[];
     graph?: DualRevisionImpactGraph;
@@ -483,6 +485,7 @@ function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValid
     buildCommandId: waveZeroCommand(catalog),
     findingConstraints: args.findingConstraints,
     tierSelection,
+    ...(args.launchDirectories ? { launchDirectories: args.launchDirectories } : {}),
   };
   const manifest = buildDynamicValidationPlan(context);
   return {
@@ -1339,6 +1342,11 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
   args = { ...args, beforeLaunch: () => { checkFindingConstraints(); originalBeforeLaunch?.(); } };
   const prior = readStoryAwareValidationArtifacts(args.projectRoot, args.storyId);
   const first = prepare({ ...args, receipts: args.receipts || prior.receipts, revocationLedger: args.revocationLedger || prior.revocationLedger });
+  // Every launch directory of this run is frozen HERE, before Wave-0 runs:
+  // the post-build planning keeps these bindings (a Wave-0 command that
+  // re-points an alias cannot move a later command), and each is re-verified
+  // after Wave-0 before anything launches there.
+  const frozenLaunchDirectories = frozenLaunchDirectoriesOf(first.manifest);
   const resolvedTierSelection = args.tierSelection ?? first.manifest.selectorBinding;
   const head = args.head || currentHead(args.gitCwd || args.projectRoot);
   const waveId = first.catalog.find((entry) => first.manifest.rows.some((row) => row.commandId === entry.id && row.reasons.includes('wave-0-build')))?.id
@@ -1362,10 +1370,15 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
   // stdout: a build that produces different compiled bytes with identical
   // output is a different build, and every receipt bound to the old one lapses.
   const buildProofDigest = stableDigest({ commandId: waveId, allPass: wave.allPass, buildArtifactsHash: wave.buildArtifactsHash ?? null, commands: wave.commands.map((row) => ({ code: row.code, timedOut: row.timedOut, output: row.output })) });
+  const launchDirectoryDriftReasons = frozenLaunchDirectoryDrift(frozenLaunchDirectories);
+  if (launchDirectoryDriftReasons.length > 0) {
+    throw new Error(`[launch_directory_drift] a launch directory frozen before Wave-0 is no longer that directory; refusing to plan or launch anything there: ${launchDirectoryDriftReasons.join('; ')}`);
+  }
   const final = prepare({
     ...args,
     receipts: prior.receipts,
     revocationLedger: prior.revocationLedger,
+    launchDirectories: frozenLaunchDirectories,
     buildProofDigest,
     ...(wave.buildArtifactsHash ? { buildArtifactsHash: wave.buildArtifactsHash } : {}),
     ...(resolvedTierSelection ? { tierSelection: resolvedTierSelection, tierSelectionResolver: undefined } : {}),

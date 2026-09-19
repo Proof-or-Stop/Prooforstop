@@ -78,6 +78,14 @@ export interface ValidationCommand {
 export interface ValidationCommandResult {
   /** The canonical directory the command was actually launched in (pinned before the first launch of its plan or run). */
   launchCwd?: string;
+  /**
+   * Tool-owned: set only when the executor itself never launched a child for
+   * this command (a refused or drifted launch, a capacity wait that expired
+   * before the spawn). Such a result executed nothing, so it carries no
+   * artifact observations and the plan-level binding does not demand them;
+   * the command's own failure still counts by its required/optional status.
+   */
+  launchOutcome?: 'not-launched';
   /** Diagnostic intra-plan resource-conflict wait; excludes worker slots and cross-process capacity. */
   schedulerWaitMs?: number;
   /** Context-local diagnostics only; never evidence or permission to reuse. */
