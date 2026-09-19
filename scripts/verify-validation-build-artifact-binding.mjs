@@ -1052,6 +1052,39 @@ try {
           } else {
             expectRepaired(false, 'core/build-artifacts-protection exports no wrapperInterpreterChain');
           }
+          // Audit #35 (1): the path a `#!` line DECLARES is resolved one
+          // component at a time; every symbolic link on the way is recorded
+          // and judged by its own entry, the resolution is re-checked before
+          // every launch, and an alias re-pointed after the self-test makes
+          // the resolution stale and the launch refused.
+          if (typeof binding.resolvePathRecordingLinks === 'function' && typeof binding.interpreterResolutionDrift === 'function') {
+            const aliasShimDir = join(sandbox, 'alias-interpreter-shim'); mkdirSync(aliasShimDir, { recursive: true });
+            const interpreterAlias = join(aliasShimDir, 'interp'); symlinkSync('/bin/sh', interpreterAlias);
+            const aliasResolution = binding.resolvePathRecordingLinks(interpreterAlias);
+            expectRepaired(typeof aliasResolution === 'object' && aliasResolution.canonical === realpathSync('/bin/sh') && aliasResolution.links.some((link) => link.path === realpathSync(aliasShimDir) + '/interp' && link.target === '/bin/sh'),
+              `resolving a declared interpreter path did not record the alias it crossed (${JSON.stringify(aliasResolution)})`);
+            const aliasEntry = binding.wrapperReplaceableBy(interpreterAlias);
+            expectRepaired(typeof aliasEntry === 'string' && aliasEntry.includes('owned by this user'), `a user-owned symbolic-link entry on an interpreter path was judged unreplaceable (${aliasEntry})`);
+            writeFileSync(join(aliasShimDir, 'bwrap'), `#!${interpreterAlias}\nwhile [ "$1" != "--" ]; do if [ "$1" = "--setenv" ]; then export "$2=$3"; shift 3; else shift; fi; done; shift\nexec /usr/bin/sandbox-exec -p '${delegatingProfile}' "$@"\n`, { mode: 0o755 });
+            const aliasChain = binding.wrapperInterpreterChain(join(aliasShimDir, 'bwrap'));
+            expectRepaired(Array.isArray(aliasChain) && aliasChain.length === 1 && aliasChain[0].declared === interpreterAlias && aliasChain[0].canonical === realpathSync('/bin/sh') && aliasChain[0].links.length >= 1,
+              `the interpreter chain does not keep the declared path and its links (${JSON.stringify(aliasChain)})`);
+            const viaAlias = binding.resolveArtifactWriteProtection(h.root, { ...seam, searchPath: aliasShimDir });
+            check(viaAlias.enforced === true && viaAlias.label === 'enforced:bwrap' && viaAlias.interpreters?.[0]?.path === realpathSync('/bin/sh'), `control: under the fixture seam a shim whose interpreter alias points at /bin/sh earns enforcement (${viaAlias.label})`);
+            check(viaAlias.verify() === undefined, 'control: the alias resolution verifies while unchanged');
+            writeFileSync(join(aliasShimDir, 'fake-sh'), '#!/bin/sh\nexit 3\n', { mode: 0o755 });
+            rmSync(interpreterAlias); symlinkSync(join(aliasShimDir, 'fake-sh'), interpreterAlias);
+            const aliasDrift = viaAlias.verify();
+            expectRepaired(typeof aliasDrift === 'string' && aliasDrift.includes('now resolves to'), `re-pointing the interpreter alias after the self-test was not detected (${aliasDrift})`);
+            expectRepaired(binding.artifactProtectionStale(viaAlias, { buildRanSinceResolve: false, anyRootExists: true }) === true, 'a resolution whose interpreter alias was re-pointed was not reported stale');
+            let aliasLaunch = null; let aliasRefusal = null;
+            try { aliasLaunch = viaAlias.wrap({ command: process.execPath, args: ['-e', 'process.exit(0)'], shell: false, env: process.env }); } catch (error) { aliasRefusal = error; }
+            expectRepaired(aliasLaunch === null && aliasRefusal && String(aliasRefusal.message).includes('[artifact_protection_wrapper_drift]'), 'a launch was handed to a wrapper whose interpreter alias had been re-pointed');
+            rmSync(interpreterAlias); symlinkSync('/bin/sh', interpreterAlias);
+            check(viaAlias.verify() === undefined, 'control: pointing the alias back restores the resolution');
+          } else {
+            expectRepaired(false, 'core/build-artifacts-protection exports no resolvePathRecordingLinks / interpreterResolutionDrift');
+          }
           const nodeShimDir = join(sandbox, 'node-shim'); mkdirSync(nodeShimDir, { recursive: true });
           const nodeBin = realpathSync(process.execPath);
           writeFileSync(join(nodeShimDir, 'bwrap'), `#!${nodeBin}\nconst { spawnSync } = require('node:child_process');\nconst args = process.argv.slice(2); const env = { ...process.env }; let i = 0;\nwhile (i < args.length && args[i] !== '--') { if (args[i] === '--setenv') { env[args[i + 1]] = args[i + 2]; i += 3; } else i++; }\nconst r = spawnSync('/usr/bin/sandbox-exec', ['-p', ${JSON.stringify(binding.sandboxExecProfile(deniedRoots))}, ...args.slice(i + 1)], { stdio: 'inherit', env });\nprocess.exit(r.status ?? 1);\n`, { mode: 0o755 });

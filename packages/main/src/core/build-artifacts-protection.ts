@@ -1,4 +1,4 @@
-import { accessSync, closeSync, constants, existsSync, lstatSync, mkdtempSync, openSync, readFileSync, readSync, realpathSync, rmSync, rmdirSync, statSync } from 'node:fs';
+import { accessSync, closeSync, constants, existsSync, lstatSync, mkdtempSync, openSync, readFileSync, readSync, readlinkSync, realpathSync, rmSync, rmdirSync, statSync } from 'node:fs';
 import { createHash, randomBytes } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { spawnSync, type SpawnSyncReturns } from 'node:child_process';
@@ -42,10 +42,13 @@ import { BUILD_ARTIFACT_ROOTS, projectHasArtifactContract } from './build-artifa
  * withheld from it and re-applied only inside the established sandbox, so a
  * launch environment cannot run code ahead of the mechanism
  * (partitionLaunchEnvironment). A wrapper that is a script is bound through
- * its complete interpreter chain (wrapperInterpreterChain): each interpreter
- * must be as unreplaceable as the wrapper and is identity-bound and
- * re-verified with it; an interpreter resolved through PATH (`#!/usr/bin/env
- * node`) cannot be bound and is refused. What this does not cover: the
+ * its complete interpreter chain (wrapperInterpreterChain): the path each
+ * `#!` line DECLARES is resolved one component at a time, every symbolic
+ * link met on the way is recorded (its own entry and its target) and judged
+ * replaceable like a wrapper, the canonical interpreter is identity-bound,
+ * and before every launch the declared path is resolved again and must yield
+ * the same links and the same executable; an interpreter resolved through
+ * PATH (`#!/usr/bin/env node`) cannot be bound and is refused. What this does not cover: the
  * dynamically linked libraries of the wrapper and its interpreters, which are
  * assumed to belong to the same root-owned domain as the executables and are
  * not enumerated here.
@@ -140,17 +143,57 @@ export function partitionLaunchEnvironment(env: NodeJS.ProcessEnv): { wrapperEnv
 }
 
 const INTERPRETER_CHAIN_DEPTH = 4;
+const SYMLINK_HOPS = 40;
+
+/** A symbolic link met while resolving a declared path: the link entry and what it pointed at. */
+export interface ResolvedLink { path: string; target: string }
 
 /**
- * The interpreters a script wrapper runs under, outermost first, as canonical
- * paths — empty for a native executable. Read from the `#!` line of the
- * wrapper and of each interpreter that is itself a script. An interpreter
- * named relatively, resolved through PATH (`#!/usr/bin/env node`) or nested
- * deeper than INTERPRETER_CHAIN_DEPTH cannot be bound, and the reason is
- * returned instead.
+ * Resolve a path one component at a time, recording every symbolic link met
+ * on the way (a link is followed, and the walk continues through its target).
+ * Unlike realpath this keeps the links themselves, so each can be judged and
+ * later re-checked: an alias re-pointed after admission is a different
+ * resolution even when the wrapper's own bytes never changed.
  */
-export function wrapperInterpreterChain(path: string): string[] | string {
-  const chain: string[] = [];
+export function resolvePathRecordingLinks(path: string): { canonical: string; links: ResolvedLink[] } | string {
+  const links: ResolvedLink[] = [];
+  let remaining = resolve(path).split('/').filter(Boolean);
+  let current = '/';
+  let hops = 0;
+  while (remaining.length > 0) {
+    const next = join(current, remaining.shift()!);
+    let entry;
+    try { entry = lstatSync(next); } catch (error) {
+      return `${next} cannot be inspected while resolving ${path}: ${(error as NodeJS.ErrnoException).code ?? (error as Error).message}`;
+    }
+    if (entry.isSymbolicLink()) {
+      if (++hops > SYMLINK_HOPS) return `${path} resolves through more than ${SYMLINK_HOPS} symbolic links`;
+      let target: string;
+      try { target = readlinkSync(next); } catch (error) { return `${next} cannot be read as a symbolic link: ${(error as Error).message}`; }
+      links.push({ path: next, target });
+      remaining = [...resolve(dirname(next), target).split('/').filter(Boolean), ...remaining];
+      current = '/';
+      continue;
+    }
+    current = next;
+  }
+  return { canonical: current, links };
+}
+
+/** One interpreter of a script wrapper: the path its `#!` line declares, the links that resolution crossed, and the executable it reached. */
+export interface DeclaredInterpreter { declared: string; links: ResolvedLink[]; canonical: string }
+
+/**
+ * The interpreters a script wrapper runs under, outermost first — empty for
+ * a native executable. Read from the `#!` line of the wrapper and of each
+ * interpreter that is itself a script; each is kept as DECLARED, with the
+ * symbolic links its resolution crossed and the canonical executable it
+ * reached. An interpreter named relatively, resolved through PATH
+ * (`#!/usr/bin/env node`) or nested deeper than INTERPRETER_CHAIN_DEPTH
+ * cannot be bound, and the reason is returned instead.
+ */
+export function wrapperInterpreterChain(path: string): DeclaredInterpreter[] | string {
+  const chain: DeclaredInterpreter[] = [];
   let current = path;
   for (let depth = 0; depth < INTERPRETER_CHAIN_DEPTH; depth++) {
     let head: Buffer;
@@ -166,12 +209,23 @@ export function wrapperInterpreterChain(path: string): string[] | string {
     if (!interpreter) return `${current} has an empty interpreter line`;
     if (basename(interpreter) === 'env') return `${current} resolves its interpreter through PATH (#!${line}); such a wrapper cannot be bound`;
     if (!isAbsolute(interpreter)) return `${current} names a relative interpreter (#!${line})`;
-    let canonical: string;
-    try { canonical = realpathSync(interpreter); } catch (error) { return `${current} names an interpreter that cannot be resolved (#!${line}): ${(error as Error).message}`; }
-    chain.push(canonical);
-    current = canonical;
+    const resolved = resolvePathRecordingLinks(interpreter);
+    if (typeof resolved === 'string') return `${current} names an interpreter that cannot be resolved (#!${line}): ${resolved}`;
+    chain.push({ declared: interpreter, links: resolved.links, canonical: resolved.canonical });
+    current = resolved.canonical;
   }
   return `${path} nests interpreters deeper than ${INTERPRETER_CHAIN_DEPTH} levels`;
+}
+
+/** What differs between a bound interpreter and what its declared path resolves to now, or undefined. */
+export function interpreterResolutionDrift(bound: DeclaredInterpreter): string | undefined {
+  const now = resolvePathRecordingLinks(bound.declared);
+  if (typeof now === 'string') return `interpreter ${bound.declared} no longer resolves: ${now}`;
+  if (now.canonical !== bound.canonical) return `interpreter ${bound.declared} now resolves to ${now.canonical} instead of ${bound.canonical}`;
+  if (now.links.length !== bound.links.length || now.links.some((link, index) => link.path !== bound.links[index].path || link.target !== bound.links[index].target)) {
+    return `a symbolic link on the path of interpreter ${bound.declared} was re-pointed since it was self-tested`;
+  }
+  return undefined;
 }
 
 /** Identity of the wrapper executable a resolution self-tested; every field is re-compared before a launch. */
@@ -314,7 +368,9 @@ export function wrapperReplaceableBy(path: string, uid: number | undefined = pro
   let current = resolve(path);
   for (;;) {
     let owner: number;
-    try { owner = statSync(current).uid; } catch (error) {
+    // lstat: a symbolic-link entry is judged by ITS OWN owner (its owner can
+    // re-point it), not by the owner of whatever it currently points at.
+    try { owner = lstatSync(current).uid; } catch (error) {
       return `${current} cannot be inspected (${(error as NodeJS.ErrnoException).code ?? (error as Error).message}); its ownership is unknown`;
     }
     if (uid !== undefined && owner === uid) return `${current} is owned by this user, who can change its permissions`;
@@ -368,14 +424,34 @@ function innerCommandLine(launch: WrapperLaunchInput): string[] {
  */
 type Mechanism = { name: 'sandbox-exec' | 'bwrap'; wrapper: WrapperIdentity; interpreters: WrapperIdentity[]; trust: () => string | undefined; wrap: ArtifactWriteProtection['wrap'] };
 
-/** A wrapper executable together with the interpreters it runs under, all identity-bound. */
-type TrustedWrapper = { wrapper: WrapperIdentity; interpreters: WrapperIdentity[] };
+/** A bound interpreter: how it was declared and resolved, and the identity of the executable reached. */
+type TrustedInterpreter = DeclaredInterpreter & { identity: WrapperIdentity };
 
-/** Re-check every executable a trusted wrapper involves: identity drift first, then replaceability. */
+/** A wrapper executable together with the interpreters it runs under, all identity-bound. */
+type TrustedWrapper = { wrapper: WrapperIdentity; interpreters: TrustedInterpreter[] };
+
+/**
+ * Re-check everything a trusted wrapper involves: the wrapper's identity and
+ * replaceability, and for each interpreter that its declared path still
+ * resolves through the same links to the same executable, that the
+ * executable's identity holds, and that neither it nor any link on the way
+ * has become replaceable.
+ */
 function trustedWrapperDrift(name: Mechanism['name'], trusted: TrustedWrapper, trust: WrapperTrust): string | undefined {
-  for (const identity of [trusted.wrapper, ...trusted.interpreters]) {
-    const drift = wrapperIdentityDrift(identity) ?? replaceabilityRefusal(name, identity.path, trust);
+  const wrapperDrift = wrapperIdentityDrift(trusted.wrapper) ?? replaceabilityRefusal(name, trusted.wrapper.path, trust);
+  if (wrapperDrift) return wrapperDrift;
+  for (const interpreter of trusted.interpreters) {
+    const drift = interpreterResolutionDrift(interpreter) ?? wrapperIdentityDrift(interpreter.identity) ?? interpreterReplaceabilityRefusal(name, interpreter, trust);
     if (drift) return drift;
+  }
+  return undefined;
+}
+
+/** The executable an interpreter resolves to, and every link crossed on the way, must each be unreplaceable. */
+function interpreterReplaceabilityRefusal(name: Mechanism['name'], interpreter: DeclaredInterpreter, trust: WrapperTrust): string | undefined {
+  for (const path of [...interpreter.links.map((link) => link.path), interpreter.canonical]) {
+    const refusal = replaceabilityRefusal(name, path, trust);
+    if (refusal) return `interpreter ${interpreter.declared}: ${refusal}`;
   }
   return undefined;
 }
@@ -401,11 +477,11 @@ function trustWrapper(name: Mechanism['name'], path: string, trust: WrapperTrust
   if (typeof chain === 'string') return `${name} wrapper ${path}: ${chain}`;
   try {
     const wrapper = readWrapperIdentity(path);
-    const interpreters: WrapperIdentity[] = [];
+    const interpreters: TrustedInterpreter[] = [];
     for (const interpreter of chain) {
-      const interpreterRefusal = replaceabilityRefusal(name, interpreter, trust);
+      const interpreterRefusal = interpreterReplaceabilityRefusal(name, interpreter, trust);
       if (interpreterRefusal) return `${name} wrapper ${path} runs under ${interpreterRefusal}`;
-      interpreters.push(readWrapperIdentity(interpreter));
+      interpreters.push({ ...interpreter, identity: readWrapperIdentity(interpreter.canonical) });
     }
     return { wrapper, interpreters };
   } catch (error) {
@@ -450,7 +526,7 @@ function sandboxExecMechanism(denied: string[], trust: WrapperTrust): Mechanism 
   return {
     name: 'sandbox-exec',
     wrapper: trusted.wrapper,
-    interpreters: trusted.interpreters,
+    interpreters: trusted.interpreters.map((interpreter) => interpreter.identity),
     trust: () => trustedWrapperDrift('sandbox-exec', trusted, trust) ?? replaceabilityRefusal('sandbox-exec', envBin, trust),
     wrap: (launch) => {
       const { wrapperEnv, reapplied } = partitionLaunchEnvironment(launch.env ?? process.env);
@@ -498,7 +574,7 @@ function bwrapMechanism(existingRoots: string[], allRoots: string[], discovery: 
   return {
     name: 'bwrap',
     wrapper: trusted.wrapper,
-    interpreters: trusted.interpreters,
+    interpreters: trusted.interpreters.map((interpreter) => interpreter.identity),
     trust: () => trustedWrapperDrift('bwrap', trusted, discovery),
     wrap: (launch) => {
       const { wrapperEnv, reapplied } = partitionLaunchEnvironment(launch.env ?? process.env);
