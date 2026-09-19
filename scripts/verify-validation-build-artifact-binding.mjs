@@ -2098,6 +2098,26 @@ if (hostEnforced) {
       const eqShell = eqProtection.wrap({ command: eqValidator, args: [], shell: true, env: process.env });
       check(eqShell.args.includes('/bin/sh'), 'control: a shell launch hands /bin/sh to env, so the command string is never parsed as an assignment');
       rmSync(eqDir, { recursive: true, force: true });
+      // Audit #42 (1): env parses OPTIONS before assignments, so a variable
+      // whose NAME begins with '-' (`-SFOO= /usr/bin/true`) is read as env's
+      // -S option and runs a command of the launch's choosing instead of the
+      // declared validator, exit 0 and all. `--` must end option parsing
+      // before the first assignment.
+      const dashDir = join(sandbox, 'dash-env-key'); mkdirSync(dashDir, { recursive: true });
+      const dashValidator = join(dashDir, 'validator');
+      writeFileSync(dashValidator, '#!/bin/sh\necho RAN_VALIDATOR\nexit 1\n', { mode: 0o755 });
+      const hijack = spawnSync('/usr/bin/env', ['-SFOO= /usr/bin/true', 'PATH=/usr/bin', dashValidator], { encoding: 'utf8' });
+      check(hijack.status === 0 && !hijack.stdout.includes('RAN_VALIDATOR'), `control: without a separator env reads a dash-named assignment as its -S option and never runs the validator (${hijack.status})`);
+      const separated = spawnSync('/usr/bin/env', ['--', '-SFOO= /usr/bin/true', 'PATH=/usr/bin', dashValidator], { encoding: 'utf8' });
+      check(separated.status === 1 && separated.stdout.includes('RAN_VALIDATOR'), `control: with -- the validator runs and fails (${separated.status})`);
+      const dashLaunch = eqProtection.wrap({ command: dashValidator, args: [], shell: false, env: { ...process.env, '-SFOO': ' /usr/bin/true' } });
+      const envAt = dashLaunch.args.indexOf(realpathSync('/usr/bin/env'));
+      expectRepaired(envAt >= 0 && dashLaunch.args[envAt + 1] === '--' && dashLaunch.args.slice(envAt + 2, -1).every((argument) => argument.includes('=')),
+        `env is launched without '--' before the re-applied assignments, so a dash-named variable becomes an env option (${JSON.stringify(dashLaunch.args.slice(envAt, envAt + 3))})`);
+      const dashRun = await runValidationCommand({ label: 'dash env key', command: dashValidator, args: [], env: { '-SFOO': ' /usr/bin/true' }, timeoutMs: 20_000 }, root, 20_000, { artifactWriteProtection: eqProtection, artifactBinding: { root: realpathSync(root), protection: eqProtection.label } });
+      expectRepaired(dashRun.code === 1 && dashRun.output.includes('RAN_VALIDATOR'),
+        `a dash-named environment variable let env run a command of the launch's choosing instead of the declared validator (code=${dashRun.code}, ${dashRun.output.slice(0, 120)})`);
+      rmSync(dashDir, { recursive: true, force: true });
     }
     // Audit #39 (3): the walker stops where the kernel's resolution would
     // fail and keeps the rest spelled as written, so `existing-file/..`,

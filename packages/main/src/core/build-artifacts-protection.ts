@@ -558,7 +558,12 @@ function sandboxExecMechanism(denied: string[], trust: WrapperTrust): Mechanism 
       if (reapplied.length > 0 && inner[0]!.includes('=')) {
         throw new Error(`${LAUNCH_UNSUPPORTED_TAG} ${inner[0]} cannot be launched under sandbox-exec: the withheld environment is re-applied through ${ENV_BIN}, which parses an executable name containing '=' as an assignment and would print the environment instead of running the command; launch it through a name without '='`);
       }
-      const applied = reapplied.length > 0 ? [envBin, ...reapplied.map(([name, value]) => `${name}=${value}`), ...inner] : inner;
+      // `--` ends env's OPTION parsing before the first assignment: a variable
+      // whose name begins with '-' (`-SFOO= /usr/bin/true`) would otherwise be
+      // read as env's -S option and run a command of the launch's choosing.
+      // Assignments are still parsed after `--`, which is exactly what the
+      // re-application needs; the '='-name refusal above stays as it is.
+      const applied = reapplied.length > 0 ? [envBin, '--', ...reapplied.map(([name, value]) => `${name}=${value}`), ...inner] : inner;
       return { command: executable, args: ['-p', profile, ...applied], shell: false, env: wrapperEnv };
     },
   };
