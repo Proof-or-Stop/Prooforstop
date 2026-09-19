@@ -1,5 +1,27 @@
 # Changelog
 
+## Lab validation-build-artifact-binding - v0.3.424 - 2026-09-19
+
+# Lab validation-build-artifact-binding — release notes
+
+Opened 2026-09-17 from a RED reproduction: stale compiled artifacts (`packages/main/dist`, `packages/utils/dist`) were admitted as fresh validation evidence, so a validation command could execute old bytes and still sign a PASS for new source. Forty-one independent Codex audits each found one more way to earn such a PASS; every finding was repaired in the Lab with a regression. The full per-audit record (findings, reproductions, repairs, GREEN/RED history) is in `NOTES.md` next to this file.
+
+## What changed
+
+- Artifact identity. Every validation command observes a content digest of the compiled artifacts immediately before launch and after it returns (path, kind, execute bits, directory search bits framed unambiguously; symbolic links, hard links, non-UTF-8 names and uninspectable roots refused). Receipts, reuse, dynamic aggregates and DONE-required evidence bind to the bytes that executed; only the registered `packages/main` build may change them, and it runs first and alone.
+- OS-level write protection. Non-build commands run under a mechanism that denies writes to the artifact trees and their ancestors (`sandbox-exec` on macOS, `bwrap` on Linux with the mount chain extended to the filesystem root and a private `/proc`). Protection is self-tested with nonce witnesses and re-resolved after any build. Enforcement is never reported without a witnessed, denied probe.
+- Wrapper trust. Only a native, unreplaceable, identity-bound wrapper is trusted; interpreted wrappers are refused because an interpreter reads launch-chosen startup files before the wrapper's code runs. The wrapper's identity and its `/usr/bin/env` helper are re-verified before every launch. The wrapper process receives a minimal allowlisted environment; loader variables are re-applied only inside the sandbox. An executable whose name contains `=` is refused under env re-application rather than misparsed as an assignment.
+- Launch directory. One canonical launch directory is resolved before the first launch of a plan or run, walked in filesystem order exactly as the kernel resolves it (`..` after a symbolic link, platform roots preserved, unresolvable tails kept as written), bound by filesystem identity (dev/ino), and re-verified before the shared cache is consulted and synchronously before the spawn. The executor, shared cache, routine identity, dynamic planner and its receipts, the DONE-required writer and the historical replay all read that one binding.
+- Honest consumers. A printed PASS is not a PASS unless the executor reports success; a synchronously refused spawn or a refused protection launch is a bounded per-command failure, never an unprotected launch or an exception out of the plan; the historical replay plans and executes its selection in the workspace whose baseline earned the receipts and asserts positive reuse.
+
+## Verification
+
+`scripts/verify-validation-build-artifact-binding.mjs` (482 checks at the final GREEN) plus the production, DONE-required, story-aware, reuse, merge-lineage, parallel-equivalence and process-fact-contract smokes, all green on the final candidate. Audits #1–#41 were repaired; audit #42 could not run because the auditor provider's usage quota was exhausted.
+
+Maintenance provenance: codex/lab-validation-build-artifact-binding, repair 7f5b797da57c580ab08191c77d739fa7c4d71e34.
+Verification command (replayed before integration and on main): `["node","scripts/verify-validation-build-artifact-binding.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab validation-queue-wait-outside-command-timeout - v0.3.423 - 2026-09-18
 
 - Stop counting time spent waiting on the same-user machine validation queue toward a validation command's configured timeout: the wait is bounded by the 300 s queue deadline and the caller's outer deadline, and the command is armed with its whole timeout once admitted.
