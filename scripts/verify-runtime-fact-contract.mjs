@@ -9,6 +9,9 @@ import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const failures = [];
+const groupedBudgetSource = readFileSync(new URL('../packages/main/src/core/host-run-budget.ts', import.meta.url), 'utf8');
+if (!groupedBudgetSource.includes('HOST_RUN_BUDGET_RUNTIME_POLICY') || !groupedBudgetSource.includes('HOST_RUN_BUDGET_ARTIFACT') || !groupedBudgetSource.includes('resolveCanonicalRuntimeProjectRoot(root)')) failures.push('Shared host budget must consume canonical runtime policy, artifact and project identity');
+
 
 const requiredFacts = [
   ['entrypoint-authority', 'runtimeEntrypointAuthority'],

@@ -1,3 +1,4 @@
+import { reserveHostRunBudget, settleHostRunBudget } from './host-run-budget.js';
 import { MANAGED_REVIEW_READONLY_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import { isManagedInventoryCritic, managedInventoryCriticJsonSchema, type ManagedInventoryCritic } from './managed-inventory-critic.js';
 import { prepareManagedReadonlyLaunch, type ManagedReadonlyLayout } from './managed-review-readonly.js';
@@ -2357,6 +2358,19 @@ function appendFailedSummary(provider: string | null, reason: string | null): Ho
  * blocked row is written) with a nonzero exit and NO spawn.
  */
 export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Promise<HostRunResult> {
+  const reservation = reserveHostRunBudget(args.root, args.usageEnv ?? args.env, args.promptText);
+  let result: HostRunResult;
+  try { result = await runAdmittedHostRun(args, deps); }
+  catch (error) {
+    // An uncertain attempt keeps its reservation; a retry cannot reset the cap.
+    try { settleHostRunBudget(reservation, null); } catch { /* Persisted reservation remains charged. */ }
+    throw error;
+  }
+  settleHostRunBudget(reservation, { spawned: result.spawned, ...result.usageSummary });
+  return result;
+}
+
+async function runAdmittedHostRun(args: HostRunArgs, deps: HostRunDeps): Promise<HostRunResult> {
   if (args.host === 'grok' && args.launchProfile !== 'managed_reviewer') throw new Error('grok supports only --managedReview / acceptance_amendment_review');
   if (args.host === 'grok' && !args.managedReadonlyLayout) throw new Error('grok requires a sealed managed readonly layout before provider launch');
   // B-137a:F-110 — `agy` is accepted as a RECOGNISED host id here but is refused
@@ -2386,6 +2400,7 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
   const phase = resolvePhase(args.storyId, args.phase, deps.resolveStory);
   assertReviewRunIdBinding(args.storyId, args.reviewRunId);
   let providerSpawnObserved = false;
+  let runnerInvoked = false;
   const releaseAdmissionAfterResult = (
     admission: ProviderProcessAdmission,
     spawn: HostRunSpawnResult,
@@ -2436,6 +2451,7 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
       const guardedLaunch = args.managedReadonlyLayout
         ? prepareManagedReadonlyLaunch(args.managedReadonlyLayout, {command: launch.command, argv: launch.argv, cwd: args.cwd})
         : {command: launch.command, argv: launch.argv, cwd: args.cwd};
+      runnerInvoked = true;
       spawn = await runner({
         command: guardedLaunch.command,
         argv: guardedLaunch.argv,
@@ -2728,6 +2744,9 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
     spawn = await invokeRunner(materializeHostRunLaunch(args), admission);
   } catch (error) {
     if (!providerSpawnObserved) releaseProviderProcessAdmission(admission);
+    // A throwing transport still needs a terminal row; never expose raw error text.
+    if (runnerInvoked) recordDispatchUnavailableFinal(args.root, ctx, handle?.correlation ?? null,
+      handle?.estimateRecordId ?? null, blockedProvider, 'host_runner_exception_usage_unavailable', opts);
     throw error;
   }
   // F-025: token-verified release — never deletes a reclaimed+reacquired slot.

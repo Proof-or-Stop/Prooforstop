@@ -1,3 +1,4 @@
+export const HOST_RUN_BUDGET_RUNTIME_POLICY = { lockTimeoutMs: 2000, maxStateBytes: 8 * 1024 * 1024, scope: 'explicit-group-canonical-project', crash: 'retain-reservation' } as const;
 import { posix as pathPosix } from 'node:path';
 
 /** Per-plan synchronous provider admission; does not govern desktop model calls. */
