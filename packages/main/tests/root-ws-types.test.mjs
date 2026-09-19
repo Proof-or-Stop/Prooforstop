@@ -43,8 +43,8 @@ try {
   assert.equal(install.status, 0, 'clean root dependency installation must succeed');
   assert.equal(existsSync(join(main, 'node_modules')), false, 'no nested installation may mask missing root types');
 
-  // These directives must consume real type errors; an any-only declaration or
-  // disabled strictness would fail with TS2578 instead of satisfying the test.
+  // These directives must consume real type errors; an any-only declaration
+  // would fail with TS2578 instead of satisfying the test.
   writeFileSync(join(main, 'src/root-ws-type-contract.ts'), `
 import { WebSocket, WebSocketServer } from 'ws';
 const server = new WebSocketServer({ noServer: true });
