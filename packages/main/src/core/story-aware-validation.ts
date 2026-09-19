@@ -955,6 +955,16 @@ function normalizeSingletonContributions(contributions: ValidationSingletonContr
 function singletonUnion(contributions: ValidationSingletonContribution[]): Set<string> {
   return new Set(contributions.flatMap(row => row.commandIds));
 }
+/**
+ * The clean-tree digest every PASS receipt must carry: the tree was observed
+ * clean at the command's start AND end under the executor's provenance
+ * schema. One definition for the producers (the dynamic run, the replay
+ * baseline) and the consumer (receiptAdmissible), so a receipt a producer
+ * signs is one the planner can reuse.
+ */
+export function receiptCleanTreeDigest(head: string, storyId: string): string {
+  return stableDigest({ head, storyId, status: 'clean-at-command-start-and-end', provenanceSchema: VALIDATION_SOURCE_PROVENANCE_SCHEMA });
+}
 function isTrustedAncestor(sourceHead: string, currentHead: string, gitCwd = process.cwd()): boolean {
   if (!sourceHead) return false;
   if (sourceHead === currentHead) return true;
@@ -1064,8 +1074,7 @@ function receiptAdmissible(receipt: ValidationCommandReceipt | undefined, entry:
       const sourceHead = execFileSync('git', ['rev-parse', '--verify', '--end-of-options', `${receipt.sourceHead}^{commit}`], { cwd: ctx.gitCwd, encoding: 'utf8' }).trim();
       if (sourceHead !== receipt.sourceHead || !isTrustedAncestor(sourceHead, actualHead, ctx.gitCwd)) return false;
       const status = execFileSync('git', ['status', '--porcelain'], { cwd: ctx.gitCwd, encoding: 'utf8' }).trim();
-      const cleanTreeDigest = stableDigest({ head: receipt.sourceHead, storyId: ctx.storyId, status: 'clean-at-command-start-and-end', provenanceSchema: VALIDATION_SOURCE_PROVENANCE_SCHEMA });
-      if (status || receipt.cleanTreeDigest !== cleanTreeDigest) return false;
+      if (status || receipt.cleanTreeDigest !== receiptCleanTreeDigest(receipt.sourceHead, ctx.storyId)) return false;
       if (!certifiedTreesEqual(ctx.gitCwd, sourceHead, actualHead, entry, closure)) return false;
     } catch {
       return false;

@@ -95,8 +95,23 @@ export interface ArtifactWriteProtection {
  * environment sanitised and the withheld variables re-applied inside the
  * sandbox, so the command still sees exactly the declared environment.
  */
-export interface WrapperLaunchInput { command: string; args: readonly string[]; shell: boolean; env?: NodeJS.ProcessEnv }
-export interface WrapperLaunch { command: string; args: string[]; shell: boolean; env: NodeJS.ProcessEnv }
+export interface WrapperLaunchInput {
+  command: string; args: readonly string[]; shell: boolean; env?: NodeJS.ProcessEnv;
+  /**
+   * A descriptor number the launcher will connect to a private pipe on the
+   * wrapper process, for a mechanism that must transfer the child's
+   * environment confidentially (bwrap reads NUL-separated arguments from it
+   * through `--args FD`). Never in argv: a process listing exposes argv more
+   * broadly than the environment, and ordinary launch environments carry
+   * credentials.
+   */
+  confidentialFd?: number;
+}
+export interface WrapperLaunch {
+  command: string; args: string[]; shell: boolean; env: NodeJS.ProcessEnv;
+  /** Bytes the launcher must write to this descriptor of the wrapper process and then close; absent when nothing confidential is transferred. */
+  confidential?: { fd: number; payload: Buffer };
+}
 
 /**
  * The only variables the WRAPPER process may see. A native wrapper needs none
@@ -310,8 +325,8 @@ export function weakestProtectionLabel(labels: readonly (string | undefined)[]):
 }
 
 const SANDBOX_EXEC = '/usr/bin/sandbox-exec';
-/** Applies the withheld loader variables INSIDE a sandbox-exec sandbox (bwrap has --setenv). */
-const ENV_BIN = '/usr/bin/env';
+/** Reports System Integrity Protection; only its exact "enabled" verdict lets sandbox-exec receive the launch environment directly. */
+const CSRUTIL = '/usr/bin/csrutil';
 /** A launch the mechanism cannot express unambiguously; thrown by `wrap`, never reinterpreted. */
 export const LAUNCH_UNSUPPORTED_TAG = '[artifact_protection_launch_unsupported]';
 /** Exit status the self-test probe uses to report "the write was refused". */
@@ -530,42 +545,48 @@ export function sandboxExecProfile(denied: readonly string[]): string {
   return `(version 1)(allow default)(deny file-write* ${subpaths} ${literals})`;
 }
 
+/**
+ * Whether this host's System Integrity Protection is fully enabled. With SIP
+ * enabled, dyld ignores every DYLD_* variable for a platform binary such as
+ * /usr/bin/sandbox-exec (it is "restricted"), so the wrapper can be handed
+ * the launch environment as it is: nothing in it can run ahead of the
+ * mechanism, and nothing has to be re-applied through argv. Any other verdict
+ * (disabled, a custom configuration, an unreadable report) is a refusal.
+ */
+export function systemIntegrityProtectionRefusal(trust: WrapperTrust): string | undefined {
+  let reporter: string;
+  try { accessSync(CSRUTIL, constants.X_OK); reporter = realpathSync(CSRUTIL); } catch { return `${CSRUTIL} is not executable on this host, so System Integrity Protection cannot be verified`; }
+  const replaceable = replaceabilityRefusal('sandbox-exec', reporter, trust);
+  if (replaceable) return replaceable;
+  const report = spawnSync(reporter, ['status'], { encoding: 'utf8', env: {}, timeout: 10_000 });
+  const text = `${report.stdout ?? ''}${report.stderr ?? ''}`;
+  if (report.status !== 0 || !/^System Integrity Protection status: enabled\.\s*$/m.test(text) || /Custom Configuration|disabled/i.test(text)) {
+    return `System Integrity Protection is not fully enabled (${text.trim().split('\n')[0] || `csrutil exit ${report.status}`}); sandbox-exec would honour launch-chosen loader variables`;
+  }
+  return undefined;
+}
+
 function sandboxExecMechanism(denied: string[], trust: WrapperTrust): Mechanism | string {
   let executable: string;
   try { accessSync(SANDBOX_EXEC, constants.X_OK); executable = realpathSync(SANDBOX_EXEC); } catch { return 'sandbox-exec is not executable on this host'; }
   const trusted = trustWrapper('sandbox-exec', executable, trust);
   if (typeof trusted === 'string') return trusted;
-  // The re-application of withheld variables runs INSIDE the sandbox through
-  // /usr/bin/env, which must be as unreplaceable as the wrapper itself.
-  let envBin: string;
-  try { accessSync(ENV_BIN, constants.X_OK); envBin = realpathSync(ENV_BIN); } catch { return `${ENV_BIN} is not executable on this host`; }
-  const envRefusal = replaceabilityRefusal('sandbox-exec', envBin, trust);
-  if (envRefusal) return envRefusal;
+  // The wrapper receives the launch environment DIRECTLY (credentials
+  // included, argv untouched): that is safe only while SIP keeps
+  // /usr/bin/sandbox-exec restricted, so the loader ignores DYLD_* for it.
+  const sip = systemIntegrityProtectionRefusal(trust);
+  if (sip) return sip;
   const profile = sandboxExecProfile(denied);
   return {
     name: 'sandbox-exec',
     wrapper: trusted.wrapper,
     interpreters: trusted.interpreters.map((interpreter) => interpreter.identity),
-    trust: () => trustedWrapperDrift('sandbox-exec', trusted, trust) ?? replaceabilityRefusal('sandbox-exec', envBin, trust),
-    wrap: (launch) => {
-      const { wrapperEnv, reapplied } = partitionLaunchEnvironment(launch.env ?? process.env);
-      const inner = innerCommandLine(launch);
-      // /usr/bin/env parses EVERY leading argument containing '=' as an
-      // assignment (`--` does not stop that), so an executable name with '='
-      // would become one more assignment and env, left with no command,
-      // would print the environment and exit 0: an enforced PASS without the
-      // validator ever running. Such a name is refused, never reinterpreted.
-      if (reapplied.length > 0 && inner[0]!.includes('=')) {
-        throw new Error(`${LAUNCH_UNSUPPORTED_TAG} ${inner[0]} cannot be launched under sandbox-exec: the withheld environment is re-applied through ${ENV_BIN}, which parses an executable name containing '=' as an assignment and would print the environment instead of running the command; launch it through a name without '='`);
-      }
-      // `--` ends env's OPTION parsing before the first assignment: a variable
-      // whose name begins with '-' (`-SFOO= /usr/bin/true`) would otherwise be
-      // read as env's -S option and run a command of the launch's choosing.
-      // Assignments are still parsed after `--`, which is exactly what the
-      // re-application needs; the '='-name refusal above stays as it is.
-      const applied = reapplied.length > 0 ? [envBin, '--', ...reapplied.map(([name, value]) => `${name}=${value}`), ...inner] : inner;
-      return { command: executable, args: ['-p', profile, ...applied], shell: false, env: wrapperEnv };
-    },
+    trust: () => trustedWrapperDrift('sandbox-exec', trusted, trust) ?? systemIntegrityProtectionRefusal(trust),
+    // The command and its arguments are handed to spawn as data (never
+    // through /usr/bin/env, whose option and assignment parsing reinterpreted
+    // executable names and variable names), and the environment reaches the
+    // command through the wrapper's own environment, never through argv.
+    wrap: (launch) => ({ command: executable, args: ['-p', profile, ...innerCommandLine(launch)], shell: false, env: { ...(launch.env ?? process.env) } }),
   };
 }
 
@@ -610,9 +631,16 @@ function bwrapMechanism(existingRoots: string[], allRoots: string[], discovery: 
     trust: () => trustedWrapperDrift('bwrap', trusted, discovery),
     wrap: (launch) => {
       const { wrapperEnv, reapplied } = partitionLaunchEnvironment(launch.env ?? process.env);
-      // `--setenv` applies inside the namespace, after every mount is in place.
-      const setenv = reapplied.flatMap(([name, value]) => ['--setenv', name, value]);
-      return { command: bwrap, args: [...prefix.slice(0, -1), ...setenv, '--', ...innerCommandLine(launch)], shell: false, env: wrapperEnv };
+      if (reapplied.length === 0) return { command: bwrap, args: [...prefix.slice(0, -1), '--', ...innerCommandLine(launch)], shell: false, env: wrapperEnv };
+      // `--setenv` applies inside the namespace, after every mount is in
+      // place. The triples travel through a private descriptor (`--args FD`
+      // reads NUL-separated arguments from it), never through argv, so no
+      // process listing sees a credential the launch environment carried.
+      if (launch.confidentialFd === undefined) {
+        throw new Error(`${LAUNCH_UNSUPPORTED_TAG} the launch environment must be transferred to bwrap through a confidential descriptor, and the launcher offered none`);
+      }
+      const payload = Buffer.from(reapplied.flatMap(([name, value]) => ['--setenv', name, value]).map((argument) => `${argument}\0`).join(''), 'utf8');
+      return { command: bwrap, args: [...prefix.slice(0, -1), '--args', String(launch.confidentialFd), '--', ...innerCommandLine(launch)], shell: false, env: wrapperEnv, confidential: { fd: launch.confidentialFd, payload } };
     },
   };
 }
@@ -628,7 +656,9 @@ function runProbe(mechanism: Mechanism, witnessDir: string, body: string, target
   const nonce = randomBytes(16).toString('hex');
   const witness = join(witnessDir, `witness-${nonce}`);
   const script = `const fs = require('node:fs'); fs.writeFileSync(process.argv[2], process.argv[3]); ${body}`;
-  const launch = mechanism.wrap({ command: process.execPath, args: ['-e', script, target, witness, nonce], shell: false, env: process.env });
+  // The probe needs nothing from the ambient environment, so the wrapper is
+  // handed only the allowlisted variables and nothing has to be transferred.
+  const launch = mechanism.wrap({ command: process.execPath, args: ['-e', script, target, witness, nonce], shell: false, env: partitionLaunchEnvironment(process.env).wrapperEnv });
   const run = spawnSync(launch.command, launch.args, { encoding: 'utf8', timeout: 20_000, stdio: ['ignore', 'pipe', 'pipe'], env: launch.env });
   let witnessed = false;
   try { witnessed = readFileSync(witness, 'utf8') === nonce; } catch { witnessed = false; }

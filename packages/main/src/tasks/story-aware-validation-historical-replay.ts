@@ -14,7 +14,8 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { buildDualRevisionImpactGraph, buildDynamicValidationPlan, buildStoryChangeManifest, classifyFullValidationReasons, compileValidationCatalog, createValidationClosureCertificate, createValidationCommandReceipt, discoverValidationInventory, signPayload, stableDigest, verifyPayload, verifyValidationClosureCertificate, verifyValidationSelectionManifest, type StoryChangedFile, type ValidationCatalogEntry, type ValidationCommandReceipt } from '../core/story-aware-validation.js';
+import { buildDualRevisionImpactGraph, buildDynamicValidationPlan, buildStoryChangeManifest, classifyFullValidationReasons, compileValidationCatalog, createValidationClosureCertificate, createValidationCommandReceipt, discoverValidationInventory, signPayload, stableDigest, verifyPayload, verifyValidationClosureCertificate, verifyValidationSelectionManifest, type StoryChangedFile, type ValidationCatalogEntry, type ValidationCommandReceipt, receiptCleanTreeDigest } from '../core/story-aware-validation.js';
+import { VALIDATION_SOURCE_PROVENANCE_SCHEMA } from '../core/runtime-fact-registry.js';
 import { loadConfig } from '../core/config.js';
 import { resolveProjectGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { executeValidationPlan } from '../core/validation-executor.js';
@@ -349,6 +350,13 @@ function receiptForBaseline(args: {
   buildProofDigest: string;
 }): ValidationCommandReceipt | undefined {
   if (args.result.code !== 0 || args.result.timedOut || !args.row.closureCertificateDigest) return undefined;
+  // The baseline receipt follows the production provenance contract: the
+  // executor observed the tree clean at the command's start and end, on this
+  // head, under the provenance schema the planner requires — otherwise the
+  // planner refuses the receipt and the campaign silently degenerates.
+  const provenance = (args.result as { sourceProvenance?: { schemaVersion: string; cleanBefore: boolean; cleanAfter: boolean; headBefore: string | null; headAfter: string | null } }).sourceProvenance;
+  if (!provenance || provenance.schemaVersion !== VALIDATION_SOURCE_PROVENANCE_SCHEMA || !provenance.cleanBefore || !provenance.cleanAfter
+    || provenance.headBefore !== args.head || provenance.headAfter !== args.head) return undefined;
   const createdAt = new Date().toISOString();
   return createValidationCommandReceipt({
     id: `historical-receipt-${stableDigest({ storyId: args.storyId, commandId: args.entry.id, inputDigest: args.row.inputDigest, head: args.head }).slice(0, 24)}`,
@@ -365,7 +373,7 @@ function receiptForBaseline(args: {
     sourceBaseHead: args.baseHead,
     canonicalBaselineEpochId: args.baselineEpoch,
     producedBy: 'canonical-full-baseline',
-    cleanTreeDigest: stableDigest({ head: args.head, storyId: args.storyId, status: 'clean-at-command-start' }),
+    cleanTreeDigest: receiptCleanTreeDigest(args.head, args.storyId),
     executionEnvironmentDigest: stableDigest({ node: process.version, platform: process.platform, arch: process.arch }),
     result: 'PASS',
     exitCode: 0,

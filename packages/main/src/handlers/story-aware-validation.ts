@@ -2,7 +2,7 @@ import { withValidationSigningRoot } from '../core/validation-signing-context.js
 import { loadConfig } from '../core/config.js';
 import { resolveProjectGitRoot } from '../core/story-signed-workspace-resolution.js';
 import { REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied, weakestProtectionLabel } from '../core/build-artifacts-protection.js';
-import { VALIDATION_RECEIPT_SCHEMA, frozenLaunchDirectoriesOf, frozenLaunchDirectoryDrift, type FrozenLaunchDirectory } from '../core/story-aware-validation.js';
+import { VALIDATION_RECEIPT_SCHEMA, frozenLaunchDirectoriesOf, frozenLaunchDirectoryDrift, type FrozenLaunchDirectory, receiptCleanTreeDigest } from '../core/story-aware-validation.js';
 function projectSigningRoot(projectRoot: string): string {
  const configured=loadConfig(projectRoot).gitRoot;
  const resolved=resolveProjectGitRoot(projectRoot, configured);
@@ -1193,7 +1193,7 @@ function receiptForResult(args: {
     || !provenance.cleanBefore || !provenance.cleanAfter
     || provenance.headBefore !== args.head || provenance.headAfter !== args.head) return undefined;
   const outputDigest = stableDigest(args.result.output);
-  const cleanTreeDigest = stableDigest({ head: args.head, storyId: args.prepared.manifest.storyId, status: 'clean-at-command-start-and-end', provenanceSchema: VALIDATION_SOURCE_PROVENANCE_SCHEMA });
+  const cleanTreeDigest = receiptCleanTreeDigest(args.head, args.prepared.manifest.storyId);
   const executionEnvironmentDigest = stableDigest({ node: process.version, platform: process.platform, arch: process.arch });
   const createdAt = new Date().toISOString();
   return createValidationCommandReceipt({

@@ -4,7 +4,8 @@ import { withValidationPlanStages, withValidationCommandStage } from './validati
 import { VALIDATION_RUNTIME_TRACE_POLICY, VALIDATION_SOURCE_PROVENANCE_SCHEMA, VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY, MACHINE_FIXED_PORT_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import { isValidationCapacityWaitDeadlineError, withMachineValidationResources } from './validation-execution-lock.js';
 import { executeSharedValidationCommand, type SharedValidationExecutionContext } from './shared-validation-execution.js';
-import { execFileSync, execSync, spawn } from 'node:child_process';
+import { execFileSync, execSync, spawn, type StdioNull, type StdioPipe } from 'node:child_process';
+import type { Stream, Writable } from 'node:stream';
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { loadConfig, type EvidenceCommandTimeoutOverrideConfig } from './config.js';
@@ -1833,11 +1834,19 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
     // A launch the mechanism refuses to express (its wrapper drifted, or the
     // executable name cannot be handed over unambiguously) is a bounded
     // failure of THIS command: nothing is launched unprotected instead.
+    // The child's descriptors, fixed before the wrapper is asked to rewrite
+    // the launch: the next free descriptor is offered to the mechanism for a
+    // confidential transfer (bwrap's `--args FD`), and connected to a pipe
+    // only when the mechanism uses it.
+    const baseStdio = options.exactEnvironment ? ['ignore', 'pipe', 'pipe'] : validationReservationChildStdio(['ignore', 'pipe', 'pipe']);
+    const stdio: Array<StdioNull | StdioPipe | number | Stream | 'ipc' | undefined> = Array.isArray(baseStdio) ? [...baseStdio] as Array<StdioNull | StdioPipe | number | Stream | 'ipc' | undefined> : [baseStdio, baseStdio, baseStdio];
+    const confidentialFd = stdio.length;
     let launch: WrapperLaunch;
     try {
       launch = options.artifactWriteProtection?.enforced
-        ? options.artifactWriteProtection.wrap({ command: command.command, args: command.args, shell: declaredShell, env: childEnv })
+        ? options.artifactWriteProtection.wrap({ command: command.command, args: command.args, shell: declaredShell, env: childEnv, confidentialFd })
         : { command: command.command, args: [...command.args], shell: declaredShell, env: childEnv };
+      if (launch.confidential) { while (stdio.length < launch.confidential.fd) stdio.push('ignore'); stdio[launch.confidential.fd] = 'pipe'; }
     } catch (error) {
       runtimeEvents.push('launch-refused');
       const result = refusedLaunchResult(command, projectRoot, PROTECTION_LAUNCH_REFUSED_TAG, boundedValidationErrorMessage(error), reportedTimeoutMs);
@@ -1880,7 +1889,7 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
         cwd: launchCwd,
         env: launch.env,
         shell: launch.shell,
-        stdio: options.exactEnvironment ? ['ignore', 'pipe', 'pipe'] : validationReservationChildStdio(['ignore', 'pipe', 'pipe']),
+        stdio,
         // POSIX: give the child its own process group (it becomes group leader) so the
         // timeout can signal the WHOLE tree. Wrapper commands (npm, `/bin/sh -c …`) spawn
         // grandchildren that survive a direct child.kill() and keep the stdout/stderr pipe
@@ -1896,6 +1905,11 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
     }
     spawned = child.pid !== undefined;
     spawnedPid = child.pid;
+    if (launch.confidential) {
+      // Written once and closed; the wrapper reads it before it execs the command.
+      const pipe = child.stdio[launch.confidential.fd] as Writable | null | undefined;
+      if (pipe) { pipe.on('error', () => { /* the wrapper exited before reading; its exit status reports that */ }); pipe.end(launch.confidential.payload); }
+    }
     // The spawned PID is noted on the fence before the registration handshake, so an owner lost
     // between this spawn call and the applied registration leaves a fence that resolves once the
     // child and its whole group are proven absent instead of a terminal one.
