@@ -497,17 +497,16 @@ function canonicalizeExisting(p: string): string {
  * Forward-slash normalized; '.' when equal to projectRoot.
  */
 function repoRelativeLogicalCwd(projectRoot: string, cwd?: string): string {
-  if (!cwd || !isAbsolute(cwd)) {
-    // Relative/empty: both sides live in projectRoot's OWN path space, so a plain
-    // resolve+relativize is exact and needs no symlink canonicalization.
-    const absolute = resolve(projectRoot, cwd ?? '');
-    const rel = portablePath(relative(projectRoot, absolute));
-    return rel === '' ? '.' : rel;
-  }
-  // Absolute: the configured/executed path may live in a different symlink space
-  // than projectRoot, so canonicalize BOTH before relativizing against projectRoot.
+  // Relative or empty cwds resolve against projectRoot; absolute ones may live
+  // in a different symlink space. Either way BOTH sides are canonicalised
+  // through the filesystem before relativising: a receipt records the
+  // directory the command actually ran in (the pinned canonical launch
+  // directory), so the expected location must be canonicalised the same way
+  // or an unchanged `alias -> actual` symlink cwd would mismatch its own
+  // receipt forever, while an alias re-pointed since the receipt was written
+  // still mismatches, as it must. The result stays root-relative and portable.
   const anchor = canonicalizeExisting(projectRoot);
-  const target = canonicalizeExisting(cwd);
+  const target = canonicalizeExisting(cwd ? (isAbsolute(cwd) ? cwd : resolve(projectRoot, cwd)) : projectRoot);
   const rel = portablePath(relative(anchor, target));
   return rel === '' ? '.' : rel;
 }

@@ -678,7 +678,7 @@ try {
 // ---------------------------------------------------------------------------
 // DONE-required validation: the real writer and the real freshness evaluator.
 // ---------------------------------------------------------------------------
-function doneRequiredFixture(name, doneRequiredCommands) {
+function doneRequiredFixture(name, doneRequiredCommands, prepare) {
   const root = join(sandbox, name); mkdirSync(root);
   writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
@@ -691,7 +691,10 @@ function doneRequiredFixture(name, doneRequiredCommands) {
   git(root, ['config', 'user.email', 'fixture@example.invalid']);
   git(root, ['config', 'user.name', 'Build Binding Fixture']);
   git(root, ['config', 'commit.gpgsign', 'false']);
-  git(root, ['add', '.gitignore', 'README.md', 'proof-or-stop.config.json']); git(root, ['commit', '-qm', 'base']);
+  // Extra committed layout (directories, symbolic links) goes into the base
+  // commit, so the admitted window and the receipts bind the same HEAD.
+  prepare?.(root);
+  git(root, ['add', '-A']); git(root, ['commit', '-qm', 'base']);
   const store = new StoryStore(root);
   const storyId = 'B-bab-done';
   const now = '2026-06-20T00:00:00.000Z';
@@ -705,6 +708,32 @@ function doneRequiredFixture(name, doneRequiredCommands) {
   const utilsDist = join(root, 'packages/utils/dist'); mkdirSync(utilsDist, { recursive: true });
   writeFileSync(join(utilsDist, 'index.js'), 'export const utils = 1;\n');
   return { root, store, storyId, mainFile: join(mainDist, 'x.js'), utilsFile: join(utilsDist, 'index.js') };
+}
+
+// Audit #31 (1): a receipt records the pinned canonical launch directory, so
+// the evaluator must canonicalise the CONFIGURED cwd the same way: a policy
+// command declared in a relative symbolic-link cwd (`alias -> actual`, both
+// committed) writes a receipt in `actual` and must evaluate as its own PASS
+// for as long as the alias is unchanged; once the alias is re-pointed the
+// receipt no longer describes where the command would run and is refused.
+if (hostEnforced) {
+  const aliased = doneRequiredFixture('done-required-alias-cwd', [{ label: 'aliased', command: 'node', args: ['-e', 'process.exit(0)'], cwd: 'alias' }], (root) => {
+    mkdirSync(join(root, 'actual')); writeFileSync(join(root, 'actual', '.keep'), '');
+    mkdirSync(join(root, 'other')); writeFileSync(join(root, 'other', '.keep'), '');
+    symlinkSync('actual', join(root, 'alias'), 'dir');
+  });
+  const aliasedRun = await runDoneRequiredValidation({ projectRoot: aliased.root, storyId: aliased.storyId, store: aliased.store, gitCwd: aliased.root });
+  expectRepaired(aliasedRun.status === 'PASS', `a DONE-required command declared in a relative symlink cwd did not run to a PASS (reasons=${aliasedRun.reasons.join(', ')})`);
+  expectRepaired(aliasedRun.receipts?.[0]?.cwd === realpathSync(join(aliased.root, 'actual')), `the receipt does not record the canonical launch directory (${aliasedRun.receipts?.[0]?.cwd})`);
+  const aliasedEvaluation = evaluateDoneRequiredEvidence({ projectRoot: aliased.root, storyId: aliased.storyId, store: aliased.store, gitCwd: aliased.root });
+  expectRepaired(aliasedEvaluation.ok === true && !aliasedEvaluation.reasons.some((reason) => reason.startsWith('receipt-cwd-mismatch')),
+    `an unchanged relative symlink cwd is refused by its own receipt (reasons=${aliasedEvaluation.reasons.join(', ')})`);
+  rmSync(join(aliased.root, 'alias')); symlinkSync('other', join(aliased.root, 'alias'), 'dir');
+  const retargetedEvaluation = evaluateDoneRequiredEvidence({ projectRoot: aliased.root, storyId: aliased.storyId, store: aliased.store, gitCwd: aliased.root });
+  check(retargetedEvaluation.ok === false && retargetedEvaluation.reasons.some((reason) => reason.startsWith('receipt-cwd-mismatch')),
+    `a receipt written in actual must be refused once the alias points at other (reasons=${retargetedEvaluation.reasons.join(', ')})`);
+  rmSync(join(aliased.root, 'alias')); symlinkSync('actual', join(aliased.root, 'alias'), 'dir');
+  check(evaluateDoneRequiredEvidence({ projectRoot: aliased.root, storyId: aliased.storyId, store: aliased.store, gitCwd: aliased.root }).ok === true, 'control: pointing the alias back at actual restores the PASS');
 }
 
 if (hostEnforced) {
