@@ -2011,6 +2011,25 @@ if (hostEnforced) {
       const swapped = planRun.commands.find((command) => command.label === 'pinned in plan');
       expectRepaired(planRun.allPass === false && swapped && swapped.code !== 0 && swapped.launchCwd === undefined && swapped.output.includes('[launch_directory_drift]'),
         `a plan command whose pinned directory an earlier command replaced ran anyway or was attributed to the pinned directory (allPass=${planRun.allPass}, code=${swapped?.code}, launchCwd=${swapped?.launchCwd}, ${(swapped?.output ?? '').slice(0, 120)})`);
+      // (e) Audit #40: the directory is replaced INSIDE the asynchronous
+      // window between the launch's reservation handshakes and the spawn (a
+      // concurrent process, not an earlier command); the final verification
+      // runs after every await, so nothing launches in the replacement.
+      // After (c) the pinned path is the link the swap script left; restore the real directory.
+      rmSync(pinnedDir); renameSync(join(canonicalRoot, 'pinned-checks-moved'), pinnedDir);
+      const lateIdentity = binding.bindLaunchDirectoryIdentity(pinnedDir);
+      const lateLink = await runValidationCommand(pinnedCommand, root, 20_000, { launchCwd: pinnedDir, launchIdentity: lateIdentity,
+        unsafeAfterReservationForFixture: () => { renameSync(pinnedDir, join(canonicalRoot, 'pinned-checks-moved')); symlinkSync(otherDir, pinnedDir); } });
+      expectRepaired(lateLink.code !== 0 && lateLink.launchCwd === undefined && lateLink.output.includes('[launch_directory_drift]') && !lateLink.output.includes('OTHER directory'),
+        `a directory replaced by a link while the reservation was pending was launched through or attributed (code=${lateLink.code}, launchCwd=${lateLink.launchCwd}, ${lateLink.output.slice(0, 120)})`);
+      rmSync(pinnedDir); renameSync(join(canonicalRoot, 'pinned-checks-moved'), pinnedDir);
+      const lateSwap = await runValidationCommand(pinnedCommand, root, 20_000, { launchCwd: pinnedDir, launchIdentity: lateIdentity,
+        unsafeAfterReservationForFixture: () => { renameSync(pinnedDir, join(canonicalRoot, 'pinned-checks-moved')); renameSync(otherDir, pinnedDir); } });
+      expectRepaired(lateSwap.code !== 0 && lateSwap.launchCwd === undefined && lateSwap.output.includes('was replaced by another directory') && !lateSwap.output.includes('OTHER directory'),
+        `a directory swapped while the reservation was pending was launched in the replacement (code=${lateSwap.code}, launchCwd=${lateSwap.launchCwd}, ${lateSwap.output.slice(0, 120)})`);
+      renameSync(pinnedDir, otherDir); renameSync(join(canonicalRoot, 'pinned-checks-moved'), pinnedDir);
+      const untouchedLate = await runValidationCommand(pinnedCommand, root, 20_000, { launchCwd: pinnedDir, launchIdentity: lateIdentity, unsafeAfterReservationForFixture: () => {} });
+      check(untouchedLate.code === 0 && untouchedLate.launchCwd === pinnedDir, `control: the same launch with the directory untouched in that window runs and is recorded (${untouchedLate.code}, ${untouchedLate.launchCwd})`);
       // (d) the receipt path and the reuse path both read the verified launch
       // directory: the handler passes the planning-time identity through and
       // the executor records launchCwd only for a launch it verified.
@@ -2023,10 +2042,13 @@ if (hostEnforced) {
         && handlerSource9.includes('launchIdentity: final.manifest.rows.find((row) => row.commandId === entry.id)?.resolvedCwdIdentity,')
         && storyAwareSource9.includes('row.resolvedCwdIdentity = identity'),
         'the dynamic handler does not pass the planning-time directory identity to every wave, shard and oracle (source-text guard)');
+      const finalCheckAt = executorSource9.indexOf('const drift = launchDirectoryDrift(options.launchCwd, options.launchIdentity);');
+      const lastAwaitAt = executorSource9.lastIndexOf('await attemptValidationReservationSpawn(');
+      const spawnAt = executorSource9.indexOf('child = spawn(launch.command, launch.args, {');
       expectRepaired(executorSource9.includes('const drift = launchDirectoryDrift(options.launchCwd!, options.launchIdentity); if (drift) return Promise.resolve(refusedLaunchResult(')
-        && executorSource9.includes('const drift = launchDirectoryDrift(options.launchCwd, options.launchIdentity);\n    if (drift) { const result = refusedLaunchResult('),
-        'the executor does not verify the pinned directory both before the cache and immediately before the spawn (source-text guard)');
-      rmSync(pinnedDir, { force: true }); rmSync(join(canonicalRoot, 'pinned-checks-moved'), { recursive: true, force: true }); rmSync(otherDir, { recursive: true, force: true }); rmSync(swapScript, { force: true });
+        && finalCheckAt > lastAwaitAt && lastAwaitAt > 0 && spawnAt > finalCheckAt && !/\bawait\b/.test(executorSource9.slice(finalCheckAt, spawnAt)),
+        'the executor does not verify the pinned directory before the cache and again after every reservation await, synchronously before the spawn (source-text guard)');
+      rmSync(pinnedDir, { recursive: true, force: true }); rmSync(join(canonicalRoot, 'pinned-checks-moved'), { recursive: true, force: true }); rmSync(otherDir, { recursive: true, force: true }); rmSync(swapScript, { force: true });
     }
     // Audit #39 (3): the walker stops where the kernel's resolution would
     // fail and keeps the rest spelled as written, so `existing-file/..`,

@@ -197,6 +197,13 @@ export interface RunValidationCommandOptions {
    * and being attributed to, the pinned directory.
    */
   launchIdentity?: LaunchDirectoryIdentity;
+  /**
+   * TEST SEAM. Runs after the reservation handshakes have been awaited and
+   * before the final launch-directory verification, so a regression can
+   * replace the pinned directory inside that asynchronous window and prove
+   * the verification happens after it. Never set by production callers.
+   */
+  unsafeAfterReservationForFixture?: () => void;
 }
 
 interface CapturedValidationCommandResult {
@@ -1674,13 +1681,6 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
     return undefined;
   };
   { const stop = callerStop(); if (stop) throw stop; }
-  // Verified again here, immediately before the launch fence and the spawn
-  // (nothing between this check and the spawn runs a command): the pinned
-  // directory must still resolve to itself and be the same filesystem object.
-  if (options.launchCwd !== undefined) {
-    const drift = launchDirectoryDrift(options.launchCwd, options.launchIdentity);
-    if (drift) { const result = refusedLaunchResult(command, projectRoot, LAUNCH_DIRECTORY_DRIFT_TAG, drift, reportedTimeoutMs); return { result, completeOutput: result.output }; }
-  }
   let pendingSpawn: string | undefined;
   try { pendingSpawn = await prepareValidationReservationChild({deadlineAt: options.deadlineAt, signal: options.abortSignal}); }
   catch (error) { const stop = callerStop(); throw stop ?? error; }
@@ -1842,6 +1842,22 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
     // asynchronously) is a bounded infrastructure failure of THIS command,
     // never an exception out of the plan: nothing ran, no launch directory
     // is recorded, and the pending fence is withdrawn below as unspawned.
+    // The pinned directory is verified HERE, after every await of the
+    // reservation handshakes (a concurrent process could replace it while
+    // they were pending) and synchronously before the spawn call: it must
+    // still resolve to itself and be the same filesystem object it was
+    // pinned as. Drift is a bounded failure that records no launch
+    // directory; the pending fence is withdrawn below as unspawned.
+    options.unsafeAfterReservationForFixture?.();
+    if (options.launchCwd !== undefined) {
+      const drift = launchDirectoryDrift(options.launchCwd, options.launchIdentity);
+      if (drift) {
+        runtimeEvents.push('launch-refused');
+        const result = refusedLaunchResult(command, projectRoot, LAUNCH_DIRECTORY_DRIFT_TAG, drift, reportedTimeoutMs);
+        resolveResult({ result, completeOutput: result.output });
+        return;
+      }
+    }
     let child: ReturnType<typeof spawn>;
     try {
       child = spawn(launch.command, launch.args, {
