@@ -1568,9 +1568,14 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
   // A policy-owned reuse capsule supplies its already-closed environment. Do not
   // merge ambient variables back into that boundary while retaining the normal
   // validation environment construction for every ordinary command.
+  // The child environment (PWD included) is built from the PINNED canonical
+  // launch directory, the same input the shared cache derives its identity
+  // and its executable resolution from: two invocations of one command
+  // through an alias and through the real path must see one environment, or
+  // a verdict that depends on PWD could earn a PASS the other inherits.
   const effectiveEnv = options.exactEnvironment
     ? { ...options.exactEnvironment }
-    : effectiveValidationCommandEnvironment(process.env, command.env, cwd);
+    : effectiveValidationCommandEnvironment(process.env, command.env, options.launchCwd ?? cwd);
   const startedAt = new Date(started).toISOString();
   const commandIndex = options.commandIndex ?? 1;
   const totalCommands = options.totalCommands ?? 1;

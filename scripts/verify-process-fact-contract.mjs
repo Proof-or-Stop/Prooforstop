@@ -6548,7 +6548,10 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
   const validationExecutorEnvironmentText = read('packages/main/src/core/validation-executor.ts');
   assert(
     routineReuseText.includes('effectiveValidationCommandEnvironment(processEnvironment, command.env, cwd, platform)')
-      && validationExecutorEnvironmentText.includes('effectiveValidationCommandEnvironment(process.env, command.env, cwd)'),
+      // The spawn builds the child environment from the PINNED canonical launch
+      // directory (the same directory the routine identity normalises against
+      // when the caller pins one), through the same normaliser.
+      && validationExecutorEnvironmentText.includes('effectiveValidationCommandEnvironment(process.env, command.env, options.launchCwd ?? cwd)'),
     'routine identity and validation command spawn must consume the same effective environment normalizer',
   );
   const budgetText = read('packages/main/src/core/done-required-timeout-budget.ts');

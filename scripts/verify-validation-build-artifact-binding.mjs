@@ -1292,6 +1292,29 @@ try {
       rmSync(linkRepo); symlinkSync(checkoutA, linkRepo, 'dir');
       const backToA = await runAliased(sharedAtA, binding.canonicalizeExistingPath(linkRepo));
       check(!backToA.refused && backToA.executionDecision?.disposition === 'reused' && backToA.code === 0, `control: pinned back to A the PASS earned there is reused (${backToA.refused ?? `decision=${JSON.stringify(backToA.executionDecision)}, code=${backToA.code}`})`);
+      // Audit #32 (1): the child environment is built from the pinned
+      // canonical directory exactly as the cache identity is, so an
+      // invocation through the alias and one through the real path see ONE
+      // PWD. A verdict that depends on PWD naming the alias can therefore
+      // never earn a PASS that the real-path invocation inherits.
+      const canonicalA = realpathSync(checkoutA);
+      const runPwd = async (commandSpec, projectRootForLaunch) => {
+        try { return await runValidationCommand(commandSpec, projectRootForLaunch, 20_000, { sharedExecution: sharedAtA, artifactWriteProtection: protection, artifactBinding: { root: canonicalA, protection: protection.label }, launchCwd: binding.canonicalizeExistingPath(projectRootForLaunch) }); }
+        catch (error) { return { refused: String(error && error.message).slice(0, 200) }; }
+      };
+      const pwdNamesAlias = { label: 'pwd names alias', command: 'node', args: ['-e', "process.stdout.write('pwd=' + process.env.PWD); process.exit(String(process.env.PWD).endsWith('/linkRepo') ? 0 : 1)"], executionReuse: 'exact-inputs', executionInputs: ['input.txt'], timeoutMs: 20_000 };
+      const aliasPwd = await runPwd(pwdNamesAlias, linkRepo);
+      expectRepaired(!aliasPwd.refused && aliasPwd.code === 1 && (aliasPwd.output ?? '').includes(`pwd=${canonicalA}`),
+        `a command launched through the alias saw a PWD other than the canonical directory (${aliasPwd.refused ?? `code=${aliasPwd.code}, ${(aliasPwd.output ?? '').slice(0, 160)}`})`);
+      const realPwd = await runPwd(pwdNamesAlias, checkoutA);
+      expectRepaired(!realPwd.refused && realPwd.executionDecision?.disposition === 'executed' && realPwd.code === 1,
+        `the real-path invocation inherited a verdict earned through the alias (${realPwd.refused ?? `decision=${JSON.stringify(realPwd.executionDecision)}, code=${realPwd.code}`})`);
+      const pwdNamesCanonical = { ...pwdNamesAlias, label: 'pwd names canonical', args: ['-e', `process.exit(process.env.PWD === ${JSON.stringify(canonicalA)} ? 0 : 1)`] };
+      const canonicalFirst = await runPwd(pwdNamesCanonical, linkRepo);
+      const canonicalSecond = await runPwd(pwdNamesCanonical, checkoutA);
+      check(!canonicalFirst.refused && canonicalFirst.code === 0 && canonicalFirst.executionDecision?.disposition === 'executed'
+        && !canonicalSecond.refused && canonicalSecond.code === 0 && canonicalSecond.executionDecision?.disposition === 'reused',
+        `control: a verdict that depends on the canonical PWD passes through the alias and is reused through the real path (${canonicalFirst.refused ?? canonicalSecond.refused ?? `${JSON.stringify(canonicalFirst.executionDecision)} / ${JSON.stringify(canonicalSecond.executionDecision)}`})`);
     } else {
       expectRepaired(false, 'core/build-artifacts-identity exports no canonicalizeExistingPath');
     }
