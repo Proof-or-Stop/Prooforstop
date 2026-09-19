@@ -88,6 +88,31 @@ test('every token dimension is independently reserved, zero budget means zero', 
     assert.equal(launches, 0, dimension); assert.equal(result.status, 'blocked');
   }
 });
+test('caller cannot lower call reservation or dispatch while external block is active', async () => {
+  const opts = options(); opts.limits = { ...limits, calls: 0 };
+  const c = createController(opts); const input = request('A'); input.ceiling.calls = 0;
+  let launches = 0; const execute = async () => { launches++; return receipt('A'); };
+  assert.equal((await c.run(input, execute)).status, 'blocked');
+  const blocked = createController(options()); blocked.observe(event());
+  assert.equal((await blocked.run(request('B'), execute)).reason, 'external_dependency');
+  blocked.observe(event({ blocker: null }));
+  assert.equal((await blocked.run(request('B'), execute)).status, 'completed');
+  assert.equal(launches, 1);
+});
+test('settled reservations release unused tokens, caller mutations cannot alter them', async () => {
+  const opts = options(); opts.limits = { ...limits, cachedInput: 11, uncachedInput: 17, output: 13 };
+  const c = createController(opts);
+  const input = request('A'); let release; const wait = new Promise(r => { release = r; });
+  const first = c.run(input, async () => { await wait; return receipt('settle-A'); });
+  input.ceiling.cachedInput = 0; input.candidate = 'mutated';
+  assert.equal((await c.run(request('B'), async () => receipt('settle-B'))).status, 'blocked');
+  release(); await first;
+  // Actual cache usage is 4, so a second ceiling of 7 now fits exactly.
+  const second = request('B'); second.ceiling.cachedInput = 7;
+  assert.equal((await c.run(second, async () => receipt('settle-B'))).status, 'completed');
+  const ledger = c.ledger(); ledger[0].usage.cachedInput = 0;
+  assert.equal(c.ledger()[0].usage.cachedInput, 4);
+});
 test('unknown usage is retained and prevents further dispatch', async () => {
   const c = createController(options());
   await c.run(request('A', 'repair', 'external_cli'), async () => ({ responseId: 'unknown', usage: null }));
