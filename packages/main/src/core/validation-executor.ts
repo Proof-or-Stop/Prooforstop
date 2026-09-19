@@ -19,7 +19,7 @@ import { StoryStore } from './store.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import { defaultAuditWriter, evaluateDirtyGate, type EvaluateDirtyGateResult } from './dirty-gate-policy.js';
 import { bindLaunchDirectoryIdentity, canonicalizeExistingPath, currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand, launchDirectoryDrift, launchDirectoryOf, type LaunchDirectoryIdentity } from './build-artifacts-identity.js';
-import { BUILD_ONLY_PROTECTION_LABEL, REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied, artifactProtectionStale, hasAnyArtifactRoot, resolveArtifactWriteProtection, weakestProtectionLabel, type ArtifactWriteProtection } from './build-artifacts-protection.js';
+import { BUILD_ONLY_PROTECTION_LABEL, REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied, artifactProtectionStale, hasAnyArtifactRoot, resolveArtifactWriteProtection, weakestProtectionLabel, type ArtifactWriteProtection, type WrapperLaunch } from './build-artifacts-protection.js';
 import {
   canonicalizeEntries,
   MAX_JOBS,
@@ -1594,6 +1594,8 @@ function boundedValidationErrorMessage(error: unknown): string {
 export const LAUNCH_DIRECTORY_DRIFT_TAG = '[launch_directory_drift]';
 /** A launch the host refused synchronously (a cwd that is not a directory or cannot be searched, say): bounded, not thrown. */
 export const SPAWN_REFUSED_TAG = '[spawn_refused]';
+/** The protection mechanism refused to express this launch (wrapper drift, an unsupported executable name): bounded failure of this command. */
+export const PROTECTION_LAUNCH_REFUSED_TAG = '[artifact_protection_launch_refused]';
 function refusedLaunchResult(command: ValidationCommand, projectRoot: string, tag: string, reason: string, timeoutMs: number): ValidationCommandResult {
   const cwd = commandCwd(projectRoot, command.cwd);
   const at = new Date().toISOString();
@@ -1825,9 +1827,20 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
     // wrapper too: it withholds what the loader would honour from its own
     // process and re-applies it inside the sandbox, so the command still sees
     // exactly `childEnv` while nothing in it can run ahead of the mechanism.
-    const launch = options.artifactWriteProtection?.enforced
-      ? options.artifactWriteProtection.wrap({ command: command.command, args: command.args, shell: declaredShell, env: childEnv })
-      : { command: command.command, args: [...command.args], shell: declaredShell, env: childEnv };
+    // A launch the mechanism refuses to express (its wrapper drifted, or the
+    // executable name cannot be handed over unambiguously) is a bounded
+    // failure of THIS command: nothing is launched unprotected instead.
+    let launch: WrapperLaunch;
+    try {
+      launch = options.artifactWriteProtection?.enforced
+        ? options.artifactWriteProtection.wrap({ command: command.command, args: command.args, shell: declaredShell, env: childEnv })
+        : { command: command.command, args: [...command.args], shell: declaredShell, env: childEnv };
+    } catch (error) {
+      runtimeEvents.push('launch-refused');
+      const result = refusedLaunchResult(command, projectRoot, PROTECTION_LAUNCH_REFUSED_TAG, boundedValidationErrorMessage(error), reportedTimeoutMs);
+      resolveResult({ result, completeOutput: result.output });
+      return;
+    }
     // The command runs in the CANONICAL directory the caller resolved before
     // its first launch: the denial rules were written for canonical paths, a
     // symbolic link on the way to the declared cwd could otherwise be

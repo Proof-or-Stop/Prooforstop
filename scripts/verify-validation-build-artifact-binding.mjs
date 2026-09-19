@@ -1913,6 +1913,26 @@ if (hostEnforced) {
         `after the ignored cwd symlink moved, dynamic selection kept the old identity or reused its receipt (${JSON.stringify(dynThirdRow)})`);
       rmSync(dynLink); symlinkSync(dynA, dynLink, 'dir');
       check(dynPlan([dynReceipt]).rows.find((row) => row.commandId === 'aliased')?.disposition === 'reuse', 'control: pointing the link back restores reuse');
+      // Audit #41 (2): a receipt binds the canonical directory its command
+      // ran in, so the identity a selection computes in ANOTHER workspace of
+      // the same tree is a different identity: the receipt is not reused
+      // there, and a replay must therefore plan its selection in the
+      // workspace whose baseline earned the receipts.
+      const dynOther = join(sandbox, 'dyn-other-workspace'); mkdirSync(dynOther, { recursive: true }); mkdirSync(join(dynOther, 'dyn-a')); symlinkSync(join(dynOther, 'dyn-a'), join(dynOther, 'dyn-link'), 'dir');
+      const dynElsewhere = dynamic.buildDynamicValidationPlan({ storyId: 'B-bab-dyn', baseHead: 'base', head: 'head', inventory: dynInventory, catalog: dynCatalog, changes: dynChanges, closures: dynClosures, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe', projectRoot: dynOther, buildArtifactsHash: 'fixture-build-artifacts', receipts: [dynReceipt] }).rows.find((row) => row.commandId === 'aliased');
+      expectRepaired(dynElsewhere?.disposition === 'execute' && dynElsewhere.inputDigest !== dynFirstRow.inputDigest && dynElsewhere.resolvedCwd === realpathSync(join(dynOther, 'dyn-a')),
+        `a receipt earned in one workspace was reused by a selection planned in another (${JSON.stringify(dynElsewhere)})`);
+      const dynSame = dynamic.buildDynamicValidationPlan({ storyId: 'B-bab-dyn', baseHead: 'base', head: 'head', inventory: dynInventory, catalog: dynCatalog, changes: dynChanges, closures: dynClosures, baselineEpochId: 'epoch', buildProofDigest: 'build', mode: 'observe', projectRoot: root, buildArtifactsHash: 'fixture-build-artifacts', receipts: [dynReceipt] });
+      check(dynSame.rows.find((row) => row.commandId === 'aliased')?.disposition === 'reuse' && dynSame.totals.reused === 1, 'control: planned in the workspace that earned it, the receipt is reused and counted');
+      rmSync(dynOther, { recursive: true, force: true });
+      const replaySource = readFileSync(join(repoRoot, 'packages/main/src/tasks/story-aware-validation-historical-replay.ts'), 'utf8');
+      expectRepaired((replaySource.match(/mode: 'shadow', gitCwd: historicalRoot,/g) ?? []).length === 2
+        && replaySource.includes("executeValidationPlan({ provider: 'historical-replay-dynamic', commands: selectedCommands, warnings: [] }, historicalRoot,")
+        && !replaySource.includes('freshHead')
+        && replaySource.includes("buildProofDigest: 'paired-performance', graph: currentGraph, mode: 'shadow', gitCwd: pairedRoot,")
+        && replaySource.includes('does not name the selection\'s input identity (launch directory disagreement)')
+        && replaySource.includes('assert.equal(pairedSelection.totals.reused, baselineReceipts.length,'),
+        'the historical replay prepares baseline identities or plans the selection outside the workspace the baseline ran in, or asserts no positive reuse (source-text guard)');
       rmSync(dynLink); rmSync(dynA, { recursive: true, force: true }); rmSync(dynB, { recursive: true, force: true });
       // Audit #37 (1): one FROZEN canonical directory per command for planning
       // and every execution wave. The manifest row binds it; a later wave is
@@ -2049,6 +2069,35 @@ if (hostEnforced) {
         && finalCheckAt > lastAwaitAt && lastAwaitAt > 0 && spawnAt > finalCheckAt && !/\bawait\b/.test(executorSource9.slice(finalCheckAt, spawnAt)),
         'the executor does not verify the pinned directory before the cache and again after every reservation await, synchronously before the spawn (source-text guard)');
       rmSync(pinnedDir, { recursive: true, force: true }); rmSync(join(canonicalRoot, 'pinned-checks-moved'), { recursive: true, force: true }); rmSync(otherDir, { recursive: true, force: true }); rmSync(swapScript, { force: true });
+    }
+    // Audit #41 (1): under sandbox-exec the withheld environment is re-applied
+    // through /usr/bin/env, which parses every leading argument containing
+    // '=' as an assignment (`--` does not stop it). An executable whose name
+    // contains '=' would become one more assignment, and env, left with no
+    // command, prints the environment and exits 0: an enforced PASS without
+    // the validator running, with the environment copied into the output.
+    // Such a launch is refused outright; nothing is launched unprotected.
+    if (process.platform === 'darwin' && hostEnforced) {
+      const eqDir = join(sandbox, 'eq-executable'); mkdirSync(eqDir, { recursive: true });
+      const eqValidator = join(eqDir, 'validator=must-run');
+      writeFileSync(eqValidator, '#!/bin/sh\necho RAN_VALIDATOR\nexit 5\n', { mode: 0o755 });
+      const direct = spawnSync(eqValidator, [], { encoding: 'utf8' });
+      check(direct.status === 5 && direct.stdout.includes('RAN_VALIDATOR'), `control: the '='-named validator runs and fails when executed directly (${direct.status})`);
+      const viaEnv = spawnSync('/usr/bin/env', ['POS_ENV_DUMP_WITNESS=dumped-secret', eqValidator], { encoding: 'utf8' });
+      check(viaEnv.status === 0 && viaEnv.stdout.includes('POS_ENV_DUMP_WITNESS=dumped-secret') && !viaEnv.stdout.includes('RAN_VALIDATOR'), `control: /usr/bin/env treats the '='-named validator as an assignment and dumps the environment (${viaEnv.status})`);
+      const eqProtection = binding.resolveArtifactWriteProtection(root);
+      check(eqProtection.enforced === true && eqProtection.label === 'enforced:sandbox-exec', `control: this host enforces through sandbox-exec (${eqProtection.label})`);
+      let eqLaunch = null; let eqRefusal = null;
+      try { eqLaunch = eqProtection.wrap({ command: eqValidator, args: [], shell: false, env: { ...process.env, POS_ENV_DUMP_WITNESS: 'dumped-secret' } }); } catch (error) { eqRefusal = error; }
+      expectRepaired(eqLaunch === null && eqRefusal && String(eqRefusal.message).includes('[artifact_protection_launch_unsupported]'),
+        `an executable name containing '=' was handed to /usr/bin/env as an assignment (${eqLaunch ? JSON.stringify(eqLaunch.args.slice(-3)) : eqRefusal?.message})`);
+      const eqRun = await runValidationCommand({ label: 'eq validator', command: eqValidator, args: [], timeoutMs: 20_000 }, root, 20_000, { artifactWriteProtection: eqProtection, artifactBinding: { root: realpathSync(root), protection: eqProtection.label } });
+      expectRepaired(eqRun.code !== 0 && eqRun.output.includes('[artifact_protection_launch_refused]') && eqRun.output.includes('[artifact_protection_launch_unsupported]') && !eqRun.output.includes('POS_ENV_DUMP_WITNESS=') && !eqRun.output.includes('RAN_VALIDATOR') && eqRun.launchCwd === undefined,
+        `a '='-named validator under sandbox-exec passed without running, dumped the environment, or was launched unprotected (code=${eqRun.code}, launchCwd=${eqRun.launchCwd}, ${eqRun.output.slice(0, 160)})`);
+      // A shell launch is unaffected: the executable env sees is /bin/sh.
+      const eqShell = eqProtection.wrap({ command: eqValidator, args: [], shell: true, env: process.env });
+      check(eqShell.args.includes('/bin/sh'), 'control: a shell launch hands /bin/sh to env, so the command string is never parsed as an assignment');
+      rmSync(eqDir, { recursive: true, force: true });
     }
     // Audit #39 (3): the walker stops where the kernel's resolution would
     // fail and keeps the rest spelled as written, so `existing-file/..`,

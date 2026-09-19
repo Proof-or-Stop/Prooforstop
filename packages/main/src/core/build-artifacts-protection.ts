@@ -312,6 +312,8 @@ export function weakestProtectionLabel(labels: readonly (string | undefined)[]):
 const SANDBOX_EXEC = '/usr/bin/sandbox-exec';
 /** Applies the withheld loader variables INSIDE a sandbox-exec sandbox (bwrap has --setenv). */
 const ENV_BIN = '/usr/bin/env';
+/** A launch the mechanism cannot express unambiguously; thrown by `wrap`, never reinterpreted. */
+export const LAUNCH_UNSUPPORTED_TAG = '[artifact_protection_launch_unsupported]';
 /** Exit status the self-test probe uses to report "the write was refused". */
 const PROBE_DENIED_EXIT = 3;
 
@@ -548,6 +550,14 @@ function sandboxExecMechanism(denied: string[], trust: WrapperTrust): Mechanism 
     wrap: (launch) => {
       const { wrapperEnv, reapplied } = partitionLaunchEnvironment(launch.env ?? process.env);
       const inner = innerCommandLine(launch);
+      // /usr/bin/env parses EVERY leading argument containing '=' as an
+      // assignment (`--` does not stop that), so an executable name with '='
+      // would become one more assignment and env, left with no command,
+      // would print the environment and exit 0: an enforced PASS without the
+      // validator ever running. Such a name is refused, never reinterpreted.
+      if (reapplied.length > 0 && inner[0]!.includes('=')) {
+        throw new Error(`${LAUNCH_UNSUPPORTED_TAG} ${inner[0]} cannot be launched under sandbox-exec: the withheld environment is re-applied through ${ENV_BIN}, which parses an executable name containing '=' as an assignment and would print the environment instead of running the command; launch it through a name without '='`);
+      }
       const applied = reapplied.length > 0 ? [envBin, ...reapplied.map(([name, value]) => `${name}=${value}`), ...inner] : inner;
       return { command: executable, args: ['-p', profile, ...applied], shell: false, env: wrapperEnv };
     },
