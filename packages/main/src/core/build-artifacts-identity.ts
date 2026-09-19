@@ -27,9 +27,9 @@ import { weakestProtectionLabel } from './build-artifacts-protection.js';
  * OS-enforced write denial on the trees for every non-build command and its
  * descendants, which is a platform policy rather than an observation.
  *
- * The digest covers the same files as the distDigest of
- * scripts/full-suite-build-binding.mjs (relative path plus bytes, the binding
- * manifest itself excluded) but frames every field by its byte length under a
+ * The digest covers the files the distDigest of
+ * scripts/full-suite-build-binding.mjs covers (relative path plus bytes) AND
+ * the binding manifest itself, and frames every field by its byte length under a
  * versioned domain string, so two different trees cannot share an identity
  * through NUL bytes inside a file (a single file holding `X\0b.js\0Y` is not
  * the pair `a.js=X, b.js=Y`). The two digests are therefore not comparable.
@@ -37,7 +37,7 @@ import { weakestProtectionLabel } from './build-artifacts-protection.js';
 export const BUILD_ARTIFACT_ROOTS = ['packages/main/dist', 'packages/utils/dist'] as const;
 
 /** Versioned domain of the digest; bump it whenever the framing below changes. */
-const DIGEST_DOMAIN = 'proof-or-stop.build-artifacts-identity.v6';
+const DIGEST_DOMAIN = 'proof-or-stop.build-artifacts-identity.v7';
 
 /**
  * Unambiguous framing: every field is preceded by its byte length, so the
@@ -48,8 +48,14 @@ function frame(hash: Hash, value: string | Buffer): void {
   hash.update(String(bytes.length)).update(':').update(bytes).update(';');
 }
 
-/** Written by the build scripts inside each dist tree; it changes on every write, so it never folds into the tree digest. */
-const BUILD_BINDING_BASENAME = 'full-suite-build-binding.json';
+/**
+ * The build-binding manifest the build scripts write inside each dist tree
+ * (schema, source digest, dist digest: nothing volatile). It is one more
+ * artifact a command may read or assert, so its presence and bytes are part
+ * of the identity like every other entry: a manifest corrupted or deleted
+ * after a PASS is a different tree, and that PASS is not reused for it.
+ */
+export const BUILD_BINDING_BASENAME = 'full-suite-build-binding.json';
 
 /**
  * A symbolic link anywhere in an artifact tree makes the digest meaningless:
@@ -131,7 +137,7 @@ function artifactTreeDigest(root: string): string {
   frame(hash, `${DIGEST_DOMAIN}/tree`);
   // The root's own search bits, for the same reason as every directory below it.
   frame(hash, String(stat.mode & 0o111));
-  const entries = entriesBelow(root).filter((entry) => relative(root, entry.path) !== BUILD_BINDING_BASENAME);
+  const entries = entriesBelow(root);
   frame(hash, String(entries.length));
   for (const entry of entries) {
     frame(hash, relative(root, entry.path));

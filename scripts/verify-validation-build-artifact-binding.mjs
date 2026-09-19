@@ -627,6 +627,30 @@ try {
   check(reuse().reusable === true, 'removing the links restores the recorded identity');
   check(admissibility().ok === true, 'removing the links restores admissibility');
 
+  // Finish-gate audit (#60): the build-binding manifest the build writes inside
+  // dist is an artifact a command may read or assert, so its presence and
+  // bytes are part of the identity: a manifest corrupted or deleted after a
+  // PASS is a different tree and the PASS is not reused for it.
+  {
+    const beforeManifest = evidence.buildArtifactsHash;
+    const manifestPath = join(root, 'packages/main/dist', 'full-suite-build-binding.json');
+    const validManifest = `${JSON.stringify({ schema: 'proof-or-stop.main-build-binding.v1', sourceDigest: 'a'.repeat(64), distDigest: 'b'.repeat(64) }, null, 2)}\n`;
+    writeFileSync(manifestPath, validManifest);
+    const withManifest = currentBuild();
+    expectRepaired(withManifest !== beforeManifest, 'writing the build-binding manifest inside dist did not change the artifact identity');
+    evidence.buildArtifactsHash = withManifest;
+    check(reuse().reusable === true && admissibility().ok === true, 'control: a PASS recorded with the manifest present is reusable while it is unchanged');
+    writeFileSync(manifestPath, '{ not json');
+    expectRefusedByBuild('PASS was accepted after the build-binding manifest was corrupted');
+    writeFileSync(manifestPath, validManifest);
+    check(reuse().reusable === true, 'control: restoring the manifest bytes restores the recorded identity');
+    rmSync(manifestPath);
+    expectRefusedByBuild('PASS was accepted after the build-binding manifest was deleted');
+    check(currentBuild() === beforeManifest, 'control: without the manifest the identity is the one recorded before it was written');
+    evidence.buildArtifactsHash = beforeManifest;
+    check(reuse().reusable === true, 'control: the recorded identity is restored');
+  }
+
   // A missing artifact tree is not the recorded one either.
   rmTree(join(root, 'packages/main/dist'));
   expectRefusedByBuild('PASS recorded against build A was accepted after packages/main/dist disappeared');
@@ -747,7 +771,7 @@ if (hostEnforced) {
 // Finish-gate audit (#54), DONE-required: the registered build recreates the
 // artifact tree the next command runs in; its receipt is issued, not refused.
 if (hostEnforced) {
-  const RECREATE_DONE = "const fs = require('node:fs'); fs.rmSync('packages/main/dist', { recursive: true, force: true }); fs.mkdirSync('packages/main/dist/tasks', { recursive: true }); fs.writeFileSync('packages/main/dist/tasks/x.js', 'process.exit(0); // recreated\\n');";
+  const RECREATE_DONE = "const fs = require('node:fs'); fs.rmSync('packages/main/dist', { recursive: true, force: true }); fs.mkdirSync('packages/main/dist/tasks', { recursive: true }); fs.writeFileSync('packages/main/dist/tasks/x.js', 'process.exit(0); // recreated\\n'); fs.writeFileSync('packages/main/dist/full-suite-build-binding.json', JSON.stringify({ schema: 'proof-or-stop.main-build-binding.v1', sourceDigest: 'a'.repeat(64), distDigest: 'b'.repeat(64) }) + '\\n');";
   const recreated = doneRequiredFixture('done-required-recreated-tree-cwd', [
     { label: 'build', command: 'node', args: ['-e', RECREATE_DONE], providesBuildProof: 'packages-main-build' },
     { label: 'test in recreated dist', command: 'node', args: ['-e', 'process.exit(0)'], cwd: 'packages/main/dist' },
@@ -755,6 +779,22 @@ if (hostEnforced) {
   const recreatedRun = await runDoneRequiredValidation({ projectRoot: recreated.root, storyId: recreated.storyId, store: recreated.store, gitCwd: recreated.root });
   expectRepaired(recreatedRun.status === 'PASS' && recreatedRun.receipts?.[1]?.status === 'PASS' && recreatedRun.receipts?.[1]?.cwd === join(realpathSync(recreated.root), 'packages', 'main', 'dist'),
     `the DONE-required writer refused a test whose cwd is the tree its registered build recreated (status=${recreatedRun.status}, reasons=${recreatedRun.reasons.join(', ').slice(0, 200)})`);
+  // Finish-gate audit (#60): the receipts bind the manifest the build wrote;
+  // corrupting or deleting it afterwards refuses the DONE evidence.
+  const recreatedEvaluate = () => evaluateDoneRequiredEvidence({ projectRoot: recreated.root, storyId: recreated.storyId, store: recreated.store, gitCwd: recreated.root });
+  check(recreatedEvaluate().ok === true, `control: the DONE-required evaluation accepts its own receipts (${recreatedEvaluate().reasons.join(', ').slice(0, 160)})`);
+  const recreatedManifest = join(recreated.root, 'packages/main/dist/full-suite-build-binding.json');
+  const recreatedManifestBytes = readFileSync(recreatedManifest);
+  writeFileSync(recreatedManifest, '{ not json');
+  const corruptedEvaluation = recreatedEvaluate();
+  expectRepaired(corruptedEvaluation.ok === false && corruptedEvaluation.reasons.some((reason) => /build.artifacts|artifact/i.test(reason)),
+    `DONE evidence stayed valid after the build-binding manifest was corrupted (reasons=${corruptedEvaluation.reasons.join(', ').slice(0, 200)})`);
+  writeFileSync(recreatedManifest, recreatedManifestBytes);
+  check(recreatedEvaluate().ok === true, 'control: restoring the manifest bytes restores the receipted tree');
+  rmSync(recreatedManifest);
+  const deletedEvaluation = recreatedEvaluate();
+  expectRepaired(deletedEvaluation.ok === false && deletedEvaluation.reasons.some((reason) => /build.artifacts|artifact/i.test(reason)),
+    `DONE evidence stayed valid after the build-binding manifest was deleted (reasons=${deletedEvaluation.reasons.join(', ').slice(0, 200)})`);
 }
 
 // Audit #38 (2), DONE-required: the writer launches, receipts and evaluates a
