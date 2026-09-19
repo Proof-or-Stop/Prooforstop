@@ -31,6 +31,10 @@ try {
     copyFileSync(join(root, 'packages/main', file), join(main, file));
   }
   cpSync(join(root, 'packages/main/src'), join(main, 'src'), { recursive: true });
+  mkdirSync(join(sandbox, 'scripts'));
+  for (const file of ['build-lock-target.mjs', 'build-lock-target.d.mts']) {
+    copyFileSync(join(root, 'scripts', file), join(sandbox, 'scripts', file));
+  }
 
   // Only root dependencies are installed. Installation failures are environment
   // failures and must never emit the target regression's RED marker.
@@ -63,7 +67,7 @@ client.nonexistentWebSocketMethod();
 
   const compile = run(process.execPath, [join(sandbox, 'node_modules/typescript/bin/tsc'),
     '--project', 'packages/main/tsconfig.json', '--noEmit']);
-  if (compile.status !== 0 && /TS7016: Could not find a declaration file for module 'ws'/.test(compile.output)) {
+  if (compile.status !== 0 && /src\/verifier\/(?:bridge-host|serve)\.ts[^\n]*TS7016: Could not find a declaration file for module 'ws'/.test(compile.output)) {
     assert.fail('ROOT_WS_TYPES_MISSING: clean root install cannot typecheck the actual main sources');
   }
   assert.equal(compile.status, 0, 'main sources and static/dynamic WebSocket type controls must compile');
