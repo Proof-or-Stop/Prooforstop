@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { artifactProtectionSatisfied } from './build-artifacts-protection.js';
+import { canonicalizeExistingPath } from './build-artifacts-identity.js';
 import { existsSync, readFileSync } from 'node:fs';
 import { delimiter, isAbsolute, join, posix, resolve, win32 } from 'node:path';
 import { classifyMergeLineage } from './validation-lineage.js';
@@ -144,7 +145,12 @@ export function normalizeRoutineValidationCommand(args: {
   const processEnvironment = args.processEnvironment ?? process.env;
   const platform = args.platform ?? process.platform;
   const command = args.command;
-  const cwd = resolveValidationCommandCwd(args.projectRoot, command);
+  // The identity binds the CANONICAL directory the command runs in — the
+  // same directory the executor pins before its first launch and builds the
+  // child environment (PWD) from — never the declared path. An ignored
+  // symbolic link re-pointed at another directory therefore changes the
+  // identity, and a PASS earned through the old target is not reused.
+  const cwd = canonicalizeExistingPath(resolveValidationCommandCwd(args.projectRoot, command));
   const effectiveEnvironment = effectiveValidationCommandEnvironment(processEnvironment, command.env, cwd, platform);
   // node:child_process uses an implicit command shell on Windows even when
   // ValidationCommand.shell is false. Bind identity to that actual execution

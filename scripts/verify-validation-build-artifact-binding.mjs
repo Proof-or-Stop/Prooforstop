@@ -1710,6 +1710,42 @@ if (hostEnforced) {
       writeFileSync(join(mainDist, 'x.js'), BUILD_A);
       rmSync(buildLink, { force: true }); rmSync(join(root, 'retarget-build-link.js'), { force: true }); rmSync(otherPkg, { recursive: true, force: true });
     }
+    // Audit #34 (1): the whole-routine identity binds the CANONICAL directory
+    // a command runs in, like the executor's launch and its PWD. A PASS
+    // earned through an ignored cwd symlink pointing at pwdA is not reusable
+    // once the link points at pwdB — nothing tracked and no artifact changed,
+    // but the command now runs, and fails, elsewhere.
+    if (hostEnforced) {
+      const pwdA = join(root, 'pwd-a'); mkdirSync(pwdA); const pwdB = join(root, 'pwd-b'); mkdirSync(pwdB);
+      const pwdLink = join(root, 'pwd-link'); symlinkSync(pwdA, pwdLink, 'dir');
+      const pwdCommands = [{ label: 'pwd names a', command: 'node', args: ['-e', "process.exit(String(process.env.PWD).endsWith('/pwd-a') ? 0 : 1)"], cwd: 'pwd-link', timeoutMs: 20_000 }];
+      const earned = await run(pwdCommands);
+      check(earned.allPass === true, `control: through the link at pwd-a the command passes (${earned.details.join(' | ')})`);
+      const identityInputs = { projectRoot: root, sourceKind: 'configured', sourceInputs: { fixture: 'build-binding-pwd-link' }, commands: pwdCommands, profile: 'balanced', verificationPolicyInputs: { fixture: 'build-binding-pwd-link' } };
+      const identityAtA = buildRoutineValidationIdentity(identityInputs);
+      const pwdHead = currentGitHead(root); const pwdMaterial = currentMaterialHash(root, 'HEAD', root); const pwdStoryFiles = currentStoryFilesHash(root, 'HEAD', root);
+      const pwdEvidence = {
+        command: 'proof-or-stop validate --story=B-bab --json', output: JSON.stringify({ allPass: true }), result: 'PASS', timestamp: new Date().toISOString(),
+        headHash: pwdHead, materialHash: pwdMaterial, storyFilesHash: pwdStoryFiles, buildArtifactsHash: earned.buildArtifactsHash, buildArtifactsProtection: earned.buildArtifactsProtection,
+        verificationCoverage: { missingRequired: 0 },
+        commandExecution: { schema: 'proofOrStop.routine-validation-command-execution', version: 1, status: 'PASS', complete: true, commandCount: 1, requiredFailureCount: 0, optionalFailureCount: 0 },
+        disposition: 'executed', routineValidationIdentity: identityAtA,
+      };
+      const pwdReuse = (currentIdentity) => evaluateRoutineValidationReuse({
+        root, gitCwd: root, evidence: pwdEvidence, currentIdentity, currentCoverage: { missingRequired: 0 },
+        currentMaterialHash: pwdMaterial, currentStoryFilesHash: pwdStoryFiles, clean: true, headBefore: pwdHead, headAfter: pwdHead,
+        currentBuildArtifactsHash: binding.currentBuildArtifactsHash(root),
+      });
+      check(pwdReuse(buildRoutineValidationIdentity(identityInputs)).reusable === true, 'control: with the link unchanged the PASS is reusable');
+      rmSync(pwdLink); symlinkSync(pwdB, pwdLink, 'dir');
+      const identityAtB = buildRoutineValidationIdentity(identityInputs);
+      expectRepaired(identityAtB.digest !== identityAtA.digest, 'the routine identity did not change when the ignored cwd symlink was re-pointed');
+      const retargetedReuse = pwdReuse(identityAtB);
+      expectRepaired(retargetedReuse.reusable === false, `a PASS earned through the link at pwd-a stayed reusable after the link moved to pwd-b (reasons=${retargetedReuse.refusalReasons.join(',')})`);
+      const rerun = await run(pwdCommands);
+      expectRepaired(rerun.allPass === false, 're-executing through the re-pointed link must fail the command (it did not)');
+      rmSync(pwdLink); rmSync(pwdA, { recursive: true, force: true }); rmSync(pwdB, { recursive: true, force: true });
+    }
     // Linux only, where LD_PRELOAD is honoured: a preload library whose
     // constructor rewrites dist and exits 0 before the declared command runs.
     // Applied inside the sandbox its write is denied (it exits 7 instead);
@@ -2206,6 +2242,16 @@ if (hostEnforced) {
     expectRepaired(withJson.status !== 0, 'a validate file that tried to rewrite dist was reported successful with --json');
     expectRepaired(rewriting.evidence()?.result !== 'PASS', 'a PASS was persisted for a validate file that tried to rewrite the artifacts it tested');
     expectRepaired(rewriting.evidence()?.buildArtifactsHash !== 'f'.repeat(64), 'the binding printed by the validate file reached the evidence');
+    // Audit #34 (2): a validate file that prints valid PASS JSON FIRST and
+    // then attempts the denied write exits nonzero with the artifacts
+    // unchanged and no binding diagnostic. The printed PASS must not be
+    // believed: the executor verdict and the child's completion decide.
+    const PASS_THEN_WRITE = `${PASS_JSON}\nrequire('node:fs').writeFileSync('packages/main/dist/tasks/x.js', 'process.exit(0); // rewritten after printing PASS\\n');\n`;
+    const passThenWrite = seed('pass-then-write', PASS_THEN_WRITE);
+    const passThenWriteJson = passThenWrite.runCli(['--json']);
+    check(readFileSync(join(passThenWrite.mainDist, 'x.js'), 'utf8') === BUILD_A, 'control: the write after the printed PASS is denied');
+    expectRepaired(passThenWriteJson.status !== 0, `a validate file that printed PASS JSON and then failed on a denied write was reported successful with --json (${passThenWriteJson.text.slice(0, 300)})`);
+    expectRepaired(passThenWrite.evidence()?.result !== 'PASS', `a PASS was persisted for a validate file that printed PASS JSON and then exited nonzero (result=${passThenWrite.evidence()?.result})`);
     // The synthetic certification window authorizes exactly one heavy execution
     // per fixture (a second run is refused as pre_cert_window_already_consumed
     // before it renders anything), so the plain-text scenario gets its own.

@@ -2940,9 +2940,17 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           const bound: Record<string, unknown> = validation.buildArtifactsHash
             ? { ...rest, buildArtifactsHash: validation.buildArtifactsHash, ...(validation.buildArtifacts ? { buildArtifacts: validation.buildArtifacts } : {}), ...protection }
             : { ...rest, ...protection };
-          if (executorBindingDetails.length === 0) return bound as unknown as T;
+          // A printed PASS is believed only when the executor's own verdict
+          // passed AND the child completed successfully: a validate file can
+          // print PASS JSON and then attempt a denied artifact write, exiting
+          // nonzero with the artifacts unchanged and no binding diagnostic.
+          const executorFailure = validation.allPass === false || (typeof commandResult.code === 'number' && commandResult.code !== 0)
+            ? [`validation command exited with code ${commandResult.code ?? 'unknown'} (executor verdict ${validation.allPass === false ? 'FAIL' : 'not PASS'}); a printed PASS is not accepted without successful completion`]
+            : [];
+          const failures = [...executorBindingDetails, ...executorFailure];
+          if (failures.length === 0) return bound as unknown as T;
           const details = Array.isArray(bound.details) ? bound.details as unknown[] : [];
-          return { ...bound, status: 'fail', allPass: false, details: [...details, ...executorBindingDetails] } as unknown as T;
+          return { ...bound, status: 'fail', allPass: false, details: [...details, ...failures] } as unknown as T;
         };
         const attachDynamic = <T extends Record<string, unknown>>(value: T): T => {
           const bound = withExecutorBinding(value);
