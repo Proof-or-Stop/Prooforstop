@@ -5,7 +5,7 @@ import { existsSync, realpathSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { loadConfig, type ProofOrStopConfig } from './config.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
-import { BUILD_ARTIFACT_ROOTS, bindLaunchDirectoryIdentity, canonicalizeExistingPath, currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand, launchDirectoryOf, projectHasArtifactContract } from './build-artifacts-identity.js';
+import { BUILD_ARTIFACT_ROOTS, bindLaunchDirectoryIdentity, canonicalizeExistingPath, currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand, launchDirectoryOf, projectHasArtifactContract, refreshLaunchIdentityAfterBuild } from './build-artifacts-identity.js';
 import { REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied, artifactProtectionStale, hasAnyArtifactRoot, resolveArtifactWriteProtection } from './build-artifacts-protection.js';
 import type { StoryStore } from './store.js';
 import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, formatValidationCommand, resolveCommandTimeoutMs, runValidationCommand } from './validation-executor.js';
@@ -1028,7 +1028,17 @@ export async function runDoneRequiredValidation(args: {
         totalCommands: policy.commands.length,
       });
       throwIfDoneRequiredDeadlineExceeded(runtimeOptions);
-      if (commandIsRegisteredBuild) buildRanSinceResolve = true;
+      if (commandIsRegisteredBuild) {
+        buildRanSinceResolve = true;
+        // The build may have recreated the artifact trees: pinned directories
+        // inside them are re-bound to the recreated inode (same canonical path).
+        if (result.code === 0) {
+          for (let j = i + 1; j < canonicalLaunchCwds.length; j++) {
+            const refreshed = refreshLaunchIdentityAfterBuild(canonicalLaunchCwds[j]!, launchIdentities[j], args.gitCwd);
+            if (!refreshed.drift) launchIdentities[j] = refreshed.identity;
+          }
+        }
+      }
       const receiptEndedAt = new Date().toISOString();
       const headHash = currentGitHead(args.gitCwd);
       const materialHash = currentMaterialHash(args.gitCwd, 'HEAD', args.projectRoot);

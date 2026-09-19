@@ -19,7 +19,7 @@ import {
 import { StoryStore } from './store.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import { defaultAuditWriter, evaluateDirtyGate, type EvaluateDirtyGateResult } from './dirty-gate-policy.js';
-import { bindLaunchDirectoryIdentity, canonicalizeExistingPath, currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand, launchDirectoryDrift, launchDirectoryOf, type LaunchDirectoryIdentity } from './build-artifacts-identity.js';
+import { bindLaunchDirectoryIdentity, canonicalizeExistingPath, currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand, launchDirectoryDrift, launchDirectoryOf, refreshLaunchIdentityAfterBuild, type LaunchDirectoryIdentity } from './build-artifacts-identity.js';
 import { BUILD_ONLY_PROTECTION_LABEL, REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied, artifactProtectionStale, hasAnyArtifactRoot, resolveArtifactWriteProtection, weakestProtectionLabel, type ArtifactWriteProtection, type WrapperLaunch } from './build-artifacts-protection.js';
 import {
   canonicalizeEntries,
@@ -2641,7 +2641,20 @@ export async function executeValidationPlan(
     // capture (an executed run) or from the reuse key (a cached run); the plan
     // never overwrites them with what it sees now.
     result.buildArtifactsRole = buildArtifactsRole;
-    if (buildArtifactsRole === 'build') buildRanSinceResolve = true;
+    if (buildArtifactsRole === 'build') {
+      buildRanSinceResolve = true;
+      // The registered build is permitted to recreate the artifact trees, so a
+      // pinned directory INSIDE them is re-bound to the recreated inode (its
+      // canonical path must still resolve to itself); directories outside the
+      // trees keep the identity they were pinned with. Builds run first and
+      // alone, so no later command has launched yet.
+      if (result.code === 0) {
+        for (const [index, path] of canonicalLaunchCwds) {
+          const refreshed = refreshLaunchIdentityAfterBuild(path, launchIdentities.get(index), artifactsRoot);
+          if (!refreshed.drift) launchIdentities.set(index, refreshed.identity);
+        }
+      }
+    }
     if (
       result.timedOut
       && typeof options.deadlineAt === 'number'

@@ -279,6 +279,30 @@ export function bindLaunchDirectoryIdentity(canonicalPath: string): LaunchDirect
   } catch { return undefined; }
 }
 
+/** Whether this canonical path is one of the artifact trees or lies inside one. */
+export function insideBuildArtifactTrees(canonicalPath: string, artifactsRoot: string): boolean {
+  const root = canonicalizeExistingPath(artifactsRoot);
+  return BUILD_ARTIFACT_ROOTS.some((tree) => {
+    const treePath = join(root, tree);
+    return canonicalPath === treePath || canonicalPath.startsWith(`${treePath}/`);
+  });
+}
+
+/**
+ * After a successful REGISTERED build, the identity of a pinned launch
+ * directory that lies inside the artifact trees is re-bound: the build is
+ * the one command permitted to recreate those trees, and a recreated tree
+ * has a new inode without being another directory. The canonical path must
+ * still resolve to itself (an alias re-pointed elsewhere is still drift);
+ * a directory outside the trees keeps the identity it was pinned with.
+ */
+export function refreshLaunchIdentityAfterBuild(canonicalPath: string, identity: LaunchDirectoryIdentity | undefined, artifactsRoot: string): { identity: LaunchDirectoryIdentity | undefined; drift?: string } {
+  if (!insideBuildArtifactTrees(canonicalPath, artifactsRoot)) return { identity };
+  const now = canonicalizeExistingPath(canonicalPath);
+  if (now !== canonicalPath) return { identity, drift: `the pinned launch directory ${canonicalPath} now resolves to ${now}` };
+  return { identity: bindLaunchDirectoryIdentity(canonicalPath) };
+}
+
 /**
  * Whether the directory a launch was pinned to is still that directory:
  * its path must resolve to itself (no component has become a link since it

@@ -2,7 +2,7 @@ import { withValidationSigningRoot } from '../core/validation-signing-context.js
 import { loadConfig } from '../core/config.js';
 import { resolveProjectGitRoot } from '../core/story-signed-workspace-resolution.js';
 import { REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied, weakestProtectionLabel } from '../core/build-artifacts-protection.js';
-import { VALIDATION_RECEIPT_SCHEMA, frozenLaunchDirectoriesOf, frozenLaunchDirectoryDrift, type FrozenLaunchDirectory, receiptCleanTreeDigest } from '../core/story-aware-validation.js';
+import { VALIDATION_RECEIPT_SCHEMA, frozenLaunchDirectoriesOf, frozenLaunchDirectoryDrift, type FrozenLaunchDirectory, receiptCleanTreeDigest, refreshFrozenLaunchDirectoriesAfterBuild } from '../core/story-aware-validation.js';
 function projectSigningRoot(projectRoot: string): string {
  const configured=loadConfig(projectRoot).gitRoot;
  const resolved=resolveProjectGitRoot(projectRoot, configured);
@@ -1370,6 +1370,12 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
   // stdout: a build that produces different compiled bytes with identical
   // output is a different build, and every receipt bound to the old one lapses.
   const buildProofDigest = stableDigest({ commandId: waveId, allPass: wave.allPass, buildArtifactsHash: wave.buildArtifactsHash ?? null, commands: wave.commands.map((row) => ({ code: row.code, timedOut: row.timedOut, output: row.output })) });
+  // A successful Wave-0 build may have recreated the artifact trees: frozen
+  // directories inside them are re-bound to the recreated inode before the
+  // verification, every other one is verified as frozen.
+  if (wave.allPass) {
+    for (const [commandId, directory] of refreshFrozenLaunchDirectoriesAfterBuild(frozenLaunchDirectories, args.gitCwd ?? args.projectRoot)) frozenLaunchDirectories.set(commandId, directory);
+  }
   const launchDirectoryDriftReasons = frozenLaunchDirectoryDrift(frozenLaunchDirectories);
   if (launchDirectoryDriftReasons.length > 0) {
     throw new Error(`[launch_directory_drift] a launch directory frozen before Wave-0 is no longer that directory; refusing to plan or launch anything there: ${launchDirectoryDriftReasons.join('; ')}`);

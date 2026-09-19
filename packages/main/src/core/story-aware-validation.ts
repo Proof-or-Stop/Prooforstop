@@ -16,7 +16,7 @@ import { VALIDATION_SOURCE_PROVENANCE_SCHEMA } from './runtime-fact-registry.js'
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, posix, resolve } from 'node:path';
-import { bindLaunchDirectoryIdentity, canonicalizeExistingPath, launchDirectoryDrift, launchDirectoryOf, type LaunchDirectoryIdentity } from './build-artifacts-identity.js';
+import { bindLaunchDirectoryIdentity, canonicalizeExistingPath, launchDirectoryDrift, launchDirectoryOf, refreshLaunchIdentityAfterBuild, type LaunchDirectoryIdentity } from './build-artifacts-identity.js';
 import ts from 'typescript';
 import { PROOF_OR_STOP_CONFIG_FILENAME } from './brand-paths.js';
 import { pickProjectConfigPath } from './config.js';
@@ -1018,6 +1018,22 @@ export function frozenLaunchDirectoriesOf(manifest: Pick<ValidationSelectionMani
   const frozen = new Map<string, FrozenLaunchDirectory>();
   for (const row of manifest.rows) if (row.resolvedCwd) frozen.set(row.commandId, row.resolvedCwdIdentity ? { path: row.resolvedCwd, identity: row.resolvedCwdIdentity } : { path: row.resolvedCwd });
   return frozen;
+}
+
+/**
+ * After a successful Wave-0 build: frozen directories inside the artifact
+ * trees are re-bound to the recreated inode (the build may recreate the
+ * trees; their canonical path must still resolve to itself), every other
+ * frozen directory keeps its identity. The result is the map the post-build
+ * planning and every later launch must use.
+ */
+export function refreshFrozenLaunchDirectoriesAfterBuild(frozen: ReadonlyMap<string, FrozenLaunchDirectory>, artifactsRoot: string): Map<string, FrozenLaunchDirectory> {
+  const refreshed = new Map<string, FrozenLaunchDirectory>();
+  for (const [commandId, directory] of frozen) {
+    const result = refreshLaunchIdentityAfterBuild(directory.path, directory.identity, artifactsRoot);
+    refreshed.set(commandId, result.drift || !result.identity ? directory : { path: directory.path, identity: result.identity });
+  }
+  return refreshed;
 }
 
 /** Every frozen directory that is no longer the directory it was frozen as (re-verified after Wave-0, before anything launches there). */

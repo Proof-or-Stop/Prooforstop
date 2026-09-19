@@ -362,12 +362,12 @@ try {
       check(binding.hasAnyArtifactRoot(root) === true && binding.hasAnyArtifactRoot(treeless) === true && binding.hasAnyArtifactRoot(declared) === false, 'hasAnyArtifactRoot reports the contract (trees, or an undeclared project) and not a declared-none project');
       const executorSource2 = readFileSync(join(repoRoot, 'packages/main/src/core/validation-executor.ts'), 'utf8');
       expectRepaired(executorSource2.includes("if (buildArtifactsRole === 'test' && artifactProtectionStale(artifactWriteProtection, { buildRanSinceResolve, anyRootExists: hasAnyArtifactRoot(artifactsRoot, projectRoot) })) {")
-        && executorSource2.includes("if (buildArtifactsRole === 'build') buildRanSinceResolve = true;"),
+        && executorSource2.includes("if (buildArtifactsRole === 'build') {\n      buildRanSinceResolve = true;"),
         'the executor does not re-resolve protection before a test that follows a registered build or a newly created tree (source-text guard)');
       const doneRequiredSource3 = readFileSync(join(repoRoot, 'packages/main/src/core/done-required-validation.ts'), 'utf8');
       expectRepaired(doneRequiredSource3.includes('if (!commandIsRegisteredBuild && artifactProtectionStale(artifactWriteProtection, { buildRanSinceResolve, anyRootExists: hasAnyArtifactRoot(args.gitCwd, args.projectRoot) })) {')
         && doneRequiredSource3.includes('protectionRefusal = doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands.slice(i), args.projectRoot, args.gitCwd, canonicalLaunchCwds.slice(i));')
-        && doneRequiredSource3.includes('if (commandIsRegisteredBuild) buildRanSinceResolve = true;'),
+        && doneRequiredSource3.includes('if (commandIsRegisteredBuild) {\n        buildRanSinceResolve = true;'),
         'the DONE-required writer does not re-resolve protection (and re-decide the refusal) before a non-build receipt that follows a registered build (source-text guard)');
       // Audit #11 (5): scheduling and launch classify a build the same way.
       // Audit #30 (1): scheduling, the build wave and the launch-time role all
@@ -742,6 +742,19 @@ if (hostEnforced) {
     `a receipt written in actual must be refused once the alias points at other (reasons=${retargetedEvaluation.reasons.join(', ')})`);
   rmSync(join(aliased.root, 'alias')); symlinkSync('actual', join(aliased.root, 'alias'), 'dir');
   check(evaluateDoneRequiredEvidence({ projectRoot: aliased.root, storyId: aliased.storyId, store: aliased.store, gitCwd: aliased.root }).ok === true, 'control: pointing the alias back at actual restores the PASS');
+}
+
+// Finish-gate audit (#54), DONE-required: the registered build recreates the
+// artifact tree the next command runs in; its receipt is issued, not refused.
+if (hostEnforced) {
+  const RECREATE_DONE = "const fs = require('node:fs'); fs.rmSync('packages/main/dist', { recursive: true, force: true }); fs.mkdirSync('packages/main/dist/tasks', { recursive: true }); fs.writeFileSync('packages/main/dist/tasks/x.js', 'process.exit(0); // recreated\\n');";
+  const recreated = doneRequiredFixture('done-required-recreated-tree-cwd', [
+    { label: 'build', command: 'node', args: ['-e', RECREATE_DONE], providesBuildProof: 'packages-main-build' },
+    { label: 'test in recreated dist', command: 'node', args: ['-e', 'process.exit(0)'], cwd: 'packages/main/dist' },
+  ]);
+  const recreatedRun = await runDoneRequiredValidation({ projectRoot: recreated.root, storyId: recreated.storyId, store: recreated.store, gitCwd: recreated.root });
+  expectRepaired(recreatedRun.status === 'PASS' && recreatedRun.receipts?.[1]?.status === 'PASS' && recreatedRun.receipts?.[1]?.cwd === join(realpathSync(recreated.root), 'packages', 'main', 'dist'),
+    `the DONE-required writer refused a test whose cwd is the tree its registered build recreated (status=${recreatedRun.status}, reasons=${recreatedRun.reasons.join(', ').slice(0, 200)})`);
 }
 
 // Audit #38 (2), DONE-required: the writer launches, receipts and evaluates a
@@ -2357,6 +2370,54 @@ if (hostEnforced) {
       expectRepaired(executorSource11.includes("const executed = commands.filter((result) => result.launchOutcome !== 'not-launched');") && executorSource11.includes("const tests = executed.filter((result) => result.buildArtifactsRole !== 'build');"),
         'the plan label aggregates commands that never launched (source-text guard)');
       rmSync(onlyDir, { force: true }); rmSync(`${onlyDir}-moved`, { recursive: true, force: true }); rmSync(onlyOther, { recursive: true, force: true });
+    }
+    // Finish-gate audit (#54): a registered build may RECREATE the artifact
+    // tree a later test uses as its cwd. The pinned identity of a directory
+    // inside the trees is re-bound after the successful build (same canonical
+    // path, recreated inode); a directory outside the trees replaced during
+    // the build is still refused as drift.
+    if (hostEnforced) {
+      const canonicalRoot = realpathSync(root);
+      const distDir = join(canonicalRoot, 'packages', 'main', 'dist');
+      const unrelated = join(canonicalRoot, 'unrelated-cwd'); mkdirSync(unrelated); const unrelatedOther = join(canonicalRoot, 'unrelated-other'); mkdirSync(unrelatedOther);
+      const beforeIno = lstatSync(distDir).ino;
+      const RECREATE = `const fs = require('node:fs'); fs.rmSync('packages/main/dist', { recursive: true, force: true }); fs.mkdirSync('packages/main/dist/tasks', { recursive: true }); fs.writeFileSync('packages/main/dist/tasks/x.js', ${JSON.stringify(BUILD_A)}); fs.renameSync('unrelated-cwd', 'unrelated-cwd-moved'); fs.symlinkSync('unrelated-other', 'unrelated-cwd');`;
+      const rebuilt = await run([
+        { label: 'build', command: 'node', args: ['-e', RECREATE], providesBuildProof: 'packages-main-build', timeoutMs: 20_000 },
+        { label: 'test in recreated dist', command: 'node', args: ['-e', 'process.exit(0)'], cwd: 'packages/main/dist', timeoutMs: 20_000 },
+        { label: 'test in replaced unrelated dir', command: 'node', args: ['-e', 'process.exit(0)'], cwd: 'unrelated-cwd', timeoutMs: 20_000 },
+      ]);
+      const inDist = rebuilt.commands.find((command) => command.label === 'test in recreated dist');
+      const inUnrelated = rebuilt.commands.find((command) => command.label === 'test in replaced unrelated dir');
+      check(lstatSync(distDir).ino !== beforeIno, 'control: the registered build recreated the artifact tree with a new inode');
+      expectRepaired(inDist?.code === 0 && inDist.launchCwd === distDir && inDist.buildArtifactsRole === 'test' && !(inDist.output ?? '').includes('[launch_directory_drift]'),
+        `a test whose cwd is the artifact tree the registered build recreated was refused as drift (code=${inDist?.code}, launchCwd=${inDist?.launchCwd}, ${(inDist?.output ?? '').slice(0, 120)})`);
+      expectRepaired(inUnrelated?.code !== 0 && (inUnrelated?.output ?? '').includes('[launch_directory_drift]') && inUnrelated?.launchCwd === undefined,
+        `a directory outside the artifact trees replaced during the build was launched anyway (code=${inUnrelated?.code}, launchCwd=${inUnrelated?.launchCwd})`);
+      rmSync(join(canonicalRoot, 'unrelated-cwd'), { force: true }); rmSync(join(canonicalRoot, 'unrelated-cwd-moved'), { recursive: true, force: true }); rmSync(unrelatedOther, { recursive: true, force: true });
+      // Dynamic: the frozen map is refreshed the same way after Wave-0.
+      const artRoot = join(sandbox, 'frozen-refresh'); mkdirSync(join(artRoot, 'packages', 'main', 'dist'), { recursive: true }); mkdirSync(join(artRoot, 'elsewhere'));
+      const frozenBefore = new Map([
+        ['inside', { path: join(realpathSync(artRoot), 'packages', 'main', 'dist'), identity: binding.bindLaunchDirectoryIdentity(join(realpathSync(artRoot), 'packages', 'main', 'dist')) }],
+        ['outside', { path: join(realpathSync(artRoot), 'elsewhere'), identity: binding.bindLaunchDirectoryIdentity(join(realpathSync(artRoot), 'elsewhere')) }],
+      ]);
+      rmSync(join(artRoot, 'packages', 'main', 'dist'), { recursive: true }); mkdirSync(join(artRoot, 'packages', 'main', 'dist'));
+      rmSync(join(artRoot, 'elsewhere'), { recursive: true }); mkdirSync(join(artRoot, 'elsewhere'));
+      const dynamicCore = await import('../packages/main/src/core/story-aware-validation.ts');
+      const refreshedFrozen = dynamicCore.refreshFrozenLaunchDirectoriesAfterBuild(frozenBefore, artRoot);
+      expectRepaired(refreshedFrozen.get('inside')?.identity?.ino !== frozenBefore.get('inside').identity.ino && refreshedFrozen.get('inside')?.identity?.ino === lstatSync(join(artRoot, 'packages', 'main', 'dist')).ino
+        && refreshedFrozen.get('outside')?.identity?.ino === frozenBefore.get('outside').identity.ino,
+        `the frozen directories were not re-bound inside the artifact trees only (${JSON.stringify([...refreshedFrozen])})`);
+      const refreshedDrift = dynamicCore.frozenLaunchDirectoryDrift(refreshedFrozen);
+      expectRepaired(refreshedDrift.length === 1 && refreshedDrift[0].startsWith('outside: '), `after the refresh, drift is reported for the wrong directories (${JSON.stringify(refreshedDrift)})`);
+      rmSync(artRoot, { recursive: true, force: true });
+      const executorSource13 = readFileSync(join(repoRoot, 'packages/main/src/core/validation-executor.ts'), 'utf8');
+      const doneRequiredSource13 = readFileSync(join(repoRoot, 'packages/main/src/core/done-required-validation.ts'), 'utf8');
+      const handlerSource13 = readFileSync(join(repoRoot, 'packages/main/src/handlers/story-aware-validation.ts'), 'utf8');
+      expectRepaired(executorSource13.includes('const refreshed = refreshLaunchIdentityAfterBuild(path, launchIdentities.get(index), artifactsRoot);')
+        && doneRequiredSource13.includes('const refreshed = refreshLaunchIdentityAfterBuild(canonicalLaunchCwds[j]!, launchIdentities[j], args.gitCwd);')
+        && handlerSource13.includes('refreshFrozenLaunchDirectoriesAfterBuild(frozenLaunchDirectories, args.gitCwd ?? args.projectRoot)'),
+        'a consumer does not re-bind pinned identities inside the artifact trees after the registered build (source-text guard)');
     }
     // Audit #39 (3): the walker stops where the kernel's resolution would
     // fail and keeps the rest spelled as written, so `existing-file/..`,
