@@ -11,7 +11,7 @@ const copy = () => structuredClone(base);
 const monitor = createMonitor();
 assert.equal(monitor.observe(copy()).wake, true, 'cold start must initialize');
 const unchanged = Array.from({ length: 100 }, copy);
-const before = unchanged.filter(alwaysWake).length;
+const before = unchanged.filter(x => alwaysWake(x).wake).length;
 const after = unchanged.filter(x => monitor.observe(x).wake).length;
 assert.equal(before, 100);
 assert.equal(after, 0, 'UNCHANGED_WAKE_REGRESSION: 100 unchanged observations must add zero wakes');
