@@ -38,7 +38,7 @@ const { evaluateValidationEvidenceAdmissibility } = await import('../packages/ma
 const { currentGitHead, currentMaterialHash, currentStoryFilesHash } = await import('../packages/main/src/core/evidence-freshness.ts');
 const { runDoneRequiredValidation, evaluateDoneRequiredEvidence, validateReceiptBuildBinding, doneRequiredProtectionRefusal } = await import('../packages/main/src/core/done-required-validation.ts');
 const { executeValidationPlan, runValidationCommand, evaluatePlanBuildArtifactsBinding: executorRules } = await import('../packages/main/src/core/validation-executor.ts');
-const { probeValidationCausalPreflightFacts } = await import('../packages/main/src/handlers/verifier.ts');
+const { probeValidationCausalPreflightFacts, launchDirectoryMismatch, freezeLaunchBindings, isLaunchDirectoryDriftError } = await import('../packages/main/src/handlers/verifier.ts');
 const { acquireOwnerLease } = await import('../packages/main/src/core/story-owner-lease.ts');
 const { StoryStore } = await import('../packages/main/src/core/store.ts');
 const { resetConfigCache } = await import('../packages/main/src/core/config.ts');
@@ -2925,12 +2925,13 @@ if (hostEnforced) {
   check(existsSync(cli), `handler-level validate-file regression requires a built CLI at ${cli}`);
   const handlerSandbox = mkdtempSync(join(tmpdir(), 'pos-build-binding-handler-'));
   try {
-    const seed = (name, validateTs) => {
+    const seed = (name, validateTs, extraConfig = {}, prepare = () => {}) => {
       const root = join(handlerSandbox, name); mkdirSync(root);
       const storyId = 'B-bab-handler';
       writeFileSync(join(root, '.gitignore'), '.proof-or-stop/activity.jsonl\n.proof-or-stop/locks/\n.proof-or-stop/runtime/\nnode_modules\ndist\n');
       writeFileSync(join(root, 'source.ts'), 'export const handlerBinding = true;\n');
-      writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: '.', rootDir: '.', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements', workflow: { profile: 'light' } }, null, 2));
+      writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: '.', rootDir: '.', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements', workflow: { profile: 'light' }, ...extraConfig }, null, 2));
+      prepare(root);
       // null: a project with no validator at all (no validate.ts, no configured
       // validate.commands, no discoverable fallback).
       if (validateTs !== null) writeFileSync(join(root, 'validate.ts'), validateTs);
@@ -2965,6 +2966,60 @@ if (hostEnforced) {
       return { root, mainDist, runCli, evidence };
     };
     const PASS_JSON = "console.log(JSON.stringify({ provider: 'validate-file-fixture', status: 'pass', allPass: true, summary: 'semantic PASS', details: [], warnings: [] }));";
+    // Finish-gate audit (#58): the routine identity's launch bindings are
+    // frozen with the identity and carried into the plan that earns the
+    // evidence, and a PASS is signed for the identity only when every executed
+    // command ran where it binds it. Through the public verifier: an ignored
+    // alias re-pointed by an earlier configured command does not move the
+    // later one, and a pinned directory replaced by an earlier command refuses
+    // the later one instead of publishing another directory's PASS.
+    {
+      const bindingsUnit = freezeLaunchBindings(realpathSync(handlerSandbox), [{ label: 'a', command: 'node', args: [] }]);
+      check(bindingsUnit[0].path === realpathSync(handlerSandbox) && Number.isInteger(bindingsUnit[0].identity?.ino), 'control: the frozen binding carries the canonical path and its identity');
+      expectRepaired(typeof launchDirectoryMismatch(bindingsUnit, [{ label: 'a', launchCwd: join(realpathSync(handlerSandbox), 'other'), code: 0 }]) === 'string'
+        && launchDirectoryMismatch(bindingsUnit, [{ label: 'a', launchCwd: realpathSync(handlerSandbox), code: 0 }]) === undefined
+        && launchDirectoryMismatch(bindingsUnit, [{ label: 'a', launchOutcome: 'not-launched', code: 1 }]) === undefined
+        && launchDirectoryMismatch(bindingsUnit, [{ label: 'a', executionReceipt: { disposition: 'reused' }, code: 0 }]) === undefined
+        && typeof launchDirectoryMismatch(bindingsUnit, [{ label: 'a', code: 0 }]) === 'string'
+        && isLaunchDirectoryDriftError(new Error('[launch_directory_drift] x')) === true && isLaunchDirectoryDriftError(new Error('other')) === false,
+        'a result that executed in a directory other than the one the routine identity binds can be signed for the identity');
+      const configured = (retargetScript) => ({
+        validate: { commands: [
+          { label: 'retarget', command: 'node', args: ['retarget.js'] },
+          // The probe lives at the project root; from the alias target (a
+          // root-level directory, whichever one) it is one level up.
+          { label: 'aliased', command: 'node', args: ['../probe.js'], cwd: 'alias' },
+        ] },
+      });
+      const prepareAlias = (root) => {
+        // The alias and the directories it can point at are IGNORED (like a
+        // build output): re-pointing or replacing them dirties nothing tracked.
+        writeFileSync(join(root, '.gitignore'), readFileSync(join(root, '.gitignore'), 'utf8') + 'alias\ndir-a\ndir-b\ndir-a-moved\n');
+        mkdirSync(join(root, 'dir-a')); mkdirSync(join(root, 'dir-b'));
+        writeFileSync(join(root, 'probe.js'), "const fs = require('node:fs'); const here = fs.realpathSync(process.cwd()); process.stdout.write('cwd=' + here); process.exit(here.endsWith('/dir-a') ? 0 : 1);\n");
+        symlinkSync(join(root, 'dir-a'), join(root, 'alias'), 'dir');
+      };
+      const repointed = seed('fallback-repointed', null, configured(), (root) => { prepareAlias(root); writeFileSync(join(root, 'retarget.js'), "const fs = require('node:fs'); fs.rmSync('alias'); fs.symlinkSync(require('node:path').join(process.cwd(), 'dir-b'), 'alias', 'dir'); process.exit(0);\n"); });
+      const repointedJson = repointed.runCli(['--json']);
+      const repointedAliased = (repointed.evidence()?.commands ?? []).find((command) => command.label === 'aliased');
+      // The probe prints the directory it really ran in and exits 0 only in
+      // dir-a; the persisted evidence keeps the command output.
+      const repointedWhere = `cwd=${join(realpathSync(repointed.root), 'dir-a')}`;
+      expectRepaired(repointedJson.status === 0 && repointed.evidence()?.result === 'PASS' && (repointedAliased?.output ?? repointedJson.text).includes(repointedWhere) && !(repointedAliased?.output ?? '').includes('/dir-b'),
+        `the configured plan let an alias re-pointed by an earlier command move a later command, or its evidence records another directory (status=${repointedJson.status}, result=${repointed.evidence()?.result}, ${(repointedAliased?.output ?? repointedJson.text).slice(0, 300)})`);
+      const replaced = seed('fallback-replaced', null, configured(), (root) => { prepareAlias(root); writeFileSync(join(root, 'retarget.js'), "const fs = require('node:fs'); fs.renameSync('dir-a', 'dir-a-moved'); fs.symlinkSync(require('node:path').join(process.cwd(), 'dir-b'), 'dir-a', 'dir'); process.exit(0);\n"); });
+      const replacedJson = replaced.runCli(['--json']);
+      const replacedAliased = (replaced.evidence()?.commands ?? []).find((command) => command.label === 'aliased');
+      expectRepaired(replacedJson.status !== 0 && replaced.evidence()?.result !== 'PASS' && (!replacedAliased || (replacedAliased.code !== 0 && replacedAliased.launchCwd === undefined)),
+        `a pinned directory replaced by an earlier configured command still produced a PASS, or the later command was attributed to it (status=${replacedJson.status}, result=${replaced.evidence()?.result}, launchCwd=${replacedAliased?.launchCwd}, ${replacedJson.text.slice(0, 300)})`);
+      const verifierSource14 = readFileSync(join(repoRoot, 'packages/main/src/handlers/verifier.ts'), 'utf8');
+      expectRepaired((verifierSource14.match(/if \(isLaunchDirectoryDriftError\(error\)\) throw error;/g) ?? []).length === 2
+        && verifierSource14.includes('launchBindings: freezeLaunchBindings(args.ctx.root, args.commands),')
+        && (verifierSource14.match(/launchCwds: (?:built|launchBindings)\.?(?:launchBindings)?\.map\(\(binding\) => binding\.path\)/g) ?? []).length === 2
+        && verifierSource14.includes('const mismatch = launchDirectoryMismatch(launchBindings, commandResults);')
+        && (verifierSource14.match(/built\?\.launchBindings/g) ?? []).length >= 6,
+        'the verifier absorbs a launch-directory drift into its fallback, runs the fallback where the alias points now, or signs evidence without checking where the commands ran (source-text guard)');
+    }
 
     // Control: a validate file that leaves the artifacts alone earns a bound PASS.
     const clean = seed('clean', `${PASS_JSON}\n`);

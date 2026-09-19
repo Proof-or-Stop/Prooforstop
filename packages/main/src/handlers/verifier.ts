@@ -78,7 +78,7 @@ import { runLintGateCli, resolveChangedFiles } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
 import { createVerificationEvidenceGateEvaluator } from '../core/proof-admissibility.js';
 import { isCanonicalGitHeadHash, captureEvidenceHashSnapshot, checkEvidenceFreshnessForGit, checkEvidenceHashSnapshotReuse, classifyEvidenceHashSnapshot, currentMaterialHash, currentStoryFilesHash, isMaterialExcludedPath } from '../core/evidence-freshness.js';
-import { currentBuildArtifactsHash, resolveReusedBuildArtifactsBinding } from '../core/build-artifacts-identity.js';
+import { bindLaunchDirectoryIdentity, canonicalizeExistingPath, currentBuildArtifactsHash, resolveReusedBuildArtifactsBinding, type LaunchDirectoryIdentity } from '../core/build-artifacts-identity.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { createAuthoritativeFindingMutation } from './finding-ledger.js';
 import { resolveGitCwd, resolveProjectGitRoot, evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
@@ -93,6 +93,7 @@ import {
   isReusableCommandPass,
   summarizeRoutineCommandExecution,
   type RoutineValidationReuseEvaluation,
+  resolveValidationCommandCwd,
 } from '../core/validation-evidence-reuse.js';
 import {
   captureDonePrepareGeneratedMetadataTransaction,
@@ -841,6 +842,47 @@ function routineVerificationSnapshot(ctx: HandlerContext, storyId: string) {
   };
 }
 
+/** A command's launch directory as the routine identity binds it: canonical path and filesystem identity, frozen with the identity. */
+export interface FrozenLaunchBinding { label: string; path: string; identity: LaunchDirectoryIdentity | undefined }
+
+/**
+ * The launch bindings frozen ALONGSIDE the routine identity, from the same
+ * declared commands and the same canonical resolution the identity uses, so
+ * the plan that earns the evidence runs every command where the identity
+ * says it runs, and a published PASS never describes another directory.
+ */
+export function freezeLaunchBindings(projectRoot: string, commands: readonly ValidationCommand[]): FrozenLaunchBinding[] {
+  return commands.map((command) => {
+    const path = canonicalizeExistingPath(resolveValidationCommandCwd(projectRoot, command));
+    return { label: command.label, path, identity: bindLaunchDirectoryIdentity(path) };
+  });
+}
+
+const LAUNCH_DIRECTORY_DRIFT_TAG = '[launch_directory_drift]';
+/** A launch-directory drift refusal is never absorbed into a fallback: the run fails closed. */
+export function isLaunchDirectoryDriftError(error: unknown): boolean {
+  return error instanceof Error && error.message.includes(LAUNCH_DIRECTORY_DRIFT_TAG);
+}
+
+/**
+ * Whether every EXECUTED result ran in the directory the routine identity
+ * binds for its command (a reused result carries its receipt's binding, a
+ * result that never launched executed nothing). The reason names the first
+ * disagreement; undefined means the evidence may be signed for the identity.
+ */
+export function launchDirectoryMismatch(bindings: readonly FrozenLaunchBinding[] | undefined, results: readonly ValidationCommandResult[] | undefined): string | undefined {
+  if (!bindings || !results) return undefined;
+  for (const result of results) {
+    if (result.launchOutcome === 'not-launched' || result.executionReceipt?.disposition === 'reused') continue;
+    const bound = bindings.filter((binding) => binding.label === result.label);
+    if (bound.length === 0) continue;
+    if (!result.launchCwd || !bound.some((binding) => binding.path === result.launchCwd)) {
+      return `${result.label}: executed in ${result.launchCwd ?? 'no verified directory'} but the routine identity binds ${bound.map((binding) => binding.path).join(' or ')}`;
+    }
+  }
+  return undefined;
+}
+
 function buildStoryRoutineIdentity(args: {
   ctx: HandlerContext;
   storyId: string;
@@ -854,6 +896,7 @@ function buildStoryRoutineIdentity(args: {
     const snapshot = routineVerificationSnapshot(args.ctx, args.storyId);
     return {
       snapshot,
+      launchBindings: freezeLaunchBindings(args.ctx.root, args.commands),
       identity: buildRoutineValidationIdentity({
         projectRoot: args.ctx.root,
         sourceKind: args.sourceKind,
@@ -1852,8 +1895,13 @@ function decorateAndMaybePersistStoryValidation(
   semanticCommandPass?: boolean,
   invocation?: PrecertCheapCheckInvocation,
   reuseAttribution?: RoutineReuseTerminalAttribution,
+  launchBindings?: readonly FrozenLaunchBinding[],
 ): any {
   if (!storyId) return result;
+  // Signed for the identity only if every executed command ran where the
+  // identity binds it: a PASS earned elsewhere is not this identity's PASS.
+  const mismatch = launchDirectoryMismatch(launchBindings, commandResults);
+  if (mismatch) throw new Error(`[launch_directory_mismatch] ${mismatch}; refusing to persist evidence under the routine identity`);
   const decorated = decorateStoryVerification(ctx, storyId, result);
   // The build identity is observed by the executor at execution boundaries
   // (core/validation-executor stamps it on the result only when its per-command
@@ -2417,6 +2465,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               }
             } catch (error) {
               launchGate.rethrowRefusal();
+              if (isLaunchDirectoryDriftError(error)) throw error;
               ctx.log?.('dynamic validation execution unavailable; retaining complete-plan oracle: ' + (error instanceof Error ? error.message : String(error)));
               dynamicPreview = { mode: dynamicMode, authority: 'full-plan-oracle', ...dynamicValidationDegradation(error) };
             }
@@ -2478,7 +2527,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               authoritative.commandExecutions,
               authoritative.allPass,
               undefined,
-              reuseAttribution,
+              reuseAttribution, built?.launchBindings,
             );
             return respond(decorated);
           }
@@ -2495,6 +2544,9 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             ...(focus ? { focus } : {}),
           }, projectRoot, currentHead(handlerGitCwd), args.story, {
             gitCwd: handlerGitCwd,
+            // Every command runs where the routine identity binds it, with the
+            // identity frozen before any command (or the dynamic run) launched.
+            ...(built ? { launchCwds: built.launchBindings.map((binding) => binding.path), launchIdentities: built.launchBindings.map((binding) => binding.identity) } : {}),
             progress: validationProgressReporter(ctx),
             abortSignal: args.abortSignal,
             deadlineAt: args.deadlineAt,
@@ -2647,7 +2699,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             commands.length,
             undefined,
             args,
-            reuseAttribution,
+            reuseAttribution, built?.launchBindings,
           );
           return reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated;
         };
@@ -2660,7 +2712,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
 
       const identityCommand = buildValidateFileCommand(ctx, { ...args, focus }, validateFile);
       const tsArgs = identityCommand.args.slice(1);
-      const runValidateFile = (beforeLaunch?: () => void) => {
+      const runValidateFile = (beforeLaunch?: () => void, launchBindings?: readonly FrozenLaunchBinding[]) => {
         ctx.log?.(`running: npx tsx ${tsArgs.join(' ')}`);
         return executeValidationPlan({
           provider: 'proof-or-stop-verifier-validate-file',
@@ -2669,6 +2721,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           ...(focus ? { focus } : {}),
         }, projectRoot, currentHead(handlerGitCwd), args.story, {
           gitCwd: handlerGitCwd,
+          ...(launchBindings ? { launchCwds: launchBindings.map((binding) => binding.path), launchIdentities: launchBindings.map((binding) => binding.identity) } : {}),
           progress: validationProgressReporter(ctx),
           abortSignal: args.abortSignal,
           deadlineAt: args.deadlineAt,
@@ -2827,6 +2880,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             ctx.log?.(dynamicValidation.report || 'dynamic validation prepared for validate-file entrypoint');
           } catch (error) {
             launchGate.rethrowRefusal();
+            if (isLaunchDirectoryDriftError(error)) throw error;
             ctx.log?.('dynamic validation execution unavailable; retaining validate-file oracle: ' + (error instanceof Error ? error.message : String(error)));
             dynamicValidation = { mode: dynamicMode, authority: 'full-plan-oracle', ...dynamicValidationDegradation(error) };
           }
@@ -2851,11 +2905,11 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             authoritative.commandExecutions,
             authoritative.allPass,
             undefined,
-            reuseAttribution,
+            reuseAttribution, built?.launchBindings,
           );
           return respond(decorated);
         }
-        const validation = await runValidateFile(launchGate.beforeLaunch);
+        const validation = await runValidateFile(launchGate.beforeLaunch, built?.launchBindings);
         const commandResult = validation.commands[0];
         const { code: childCode, output } = commandResult;
         // The executor's build-binding verdict is part of the validate file's
@@ -2979,7 +3033,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             commands: [commandResult],
           }));
           const focusedPolluted = focus ? markFocusedResult(polluted, focus) : polluted;
-          const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, focusedPolluted, built?.identity, [commandResult], 1, undefined, args, reuseAttribution);
+          const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, focusedPolluted, built?.identity, [commandResult], 1, undefined, args, reuseAttribution, built?.launchBindings);
           const surfaced = reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated;
           return respond(surfaced);
         }
@@ -3007,7 +3061,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               1,
               semanticCommandPass,
               args,
-              reuseAttribution,
+              reuseAttribution, built?.launchBindings,
             );
             return respond(reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated);
           }
@@ -3029,7 +3083,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             commands: [commandResult],
             ...(code === 0 ? {} : { failureKind: commandResult.failureKind ?? 'validation_failure' }),
           }), focus ?? '');
-          const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, wrapped, built?.identity, [commandResult], 1, undefined, args, reuseAttribution);
+          const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, wrapped, built?.identity, [commandResult], 1, undefined, args, reuseAttribution, built?.launchBindings);
           return respond(reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated);
         }
 

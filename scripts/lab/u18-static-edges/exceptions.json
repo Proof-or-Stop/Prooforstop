@@ -11594,7 +11594,7 @@
         "packages/main/src/core/verification.ts": "f19c12db7bb2a694d3160cc5ff5d5e384326067b060cb1828835f85b83723e4b",
         "packages/main/src/core/workflow-policy.ts": "9a043d622356deec4b89a50b046572edb3efbc9d9cfa6fa165a80b1fd2024ced",
         "packages/main/src/handlers/acceptance-amendment.ts": "768eb0fb124163d2c3ad5fa99576120036d938e0e050e382b793f590fbf1c199",
-        "packages/main/src/handlers/verifier.ts": "84495c77e052ae87c5f02adb46dec9141d9f2ef7ccedcd4bedc3627feed78973",
+        "packages/main/src/handlers/verifier.ts": "d704ced9938de1d59acb9e868bbda82ec77004d2df10952e033904f43bdf2890",
         "scripts/ensure-dist.mjs": "2888be4137a602d465257d0f39a964ed280174033656b989755c671e0d9f6131",
         "scripts/full-suite-build-binding.mjs": "947d6ea2e0bc3c45bf220607aef43d514987446f9fa9e0de976f98d6fed899e6",
         "scripts/verification-subprocess-budget.mjs": "c1b62e79bf0a0f4e92e8b43767f06bc27cd29f57b19a350e73aca0a3af9abd43",
@@ -11797,7 +11797,7 @@
         "packages/main/src/core/verification.ts": "f19c12db7bb2a694d3160cc5ff5d5e384326067b060cb1828835f85b83723e4b",
         "packages/main/src/core/workflow-policy.ts": "9a043d622356deec4b89a50b046572edb3efbc9d9cfa6fa165a80b1fd2024ced",
         "packages/main/src/handlers/acceptance-amendment.ts": "768eb0fb124163d2c3ad5fa99576120036d938e0e050e382b793f590fbf1c199",
-        "packages/main/src/handlers/verifier.ts": "84495c77e052ae87c5f02adb46dec9141d9f2ef7ccedcd4bedc3627feed78973",
+        "packages/main/src/handlers/verifier.ts": "d704ced9938de1d59acb9e868bbda82ec77004d2df10952e033904f43bdf2890",
         "proof-or-stop.config.json": "424652dea8e7b8e16f35850461d9f4fa753c75a0de71f16d3c0cc178b4a3ec82",
         "scripts/ensure-dist.mjs": "2888be4137a602d465257d0f39a964ed280174033656b989755c671e0d9f6131",
         "scripts/full-suite-build-binding.mjs": "947d6ea2e0bc3c45bf220607aef43d514987446f9fa9e0de976f98d6fed899e6",
@@ -14575,7 +14575,7 @@
       "id": "EX-BUILD-BINDING-01",
       "key": "scripts/verify-validation-build-artifact-binding.mjs:67:execFileSync",
       "callDigest": "9694942edc8fd6e35b1ef9fb573f20bf8910fdff5d99dd91b836d44e4f493438",
-      "sourceDigest": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f",
+      "sourceDigest": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee",
       "configIndexes": [
         240
       ],
@@ -14586,20 +14586,20 @@
           "file": "scripts/verify-validation-build-artifact-binding.mjs",
           "startLine": 66,
           "endLine": 68,
-          "sourceDigest": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f",
+          "sourceDigest": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee",
           "excerpt": "function expectRepaired(value, message) { if (value) checks++; else red.push(message); }\nfunction git(root, args) { return execFileSync(realGit, args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim(); }\n/** spawnSync a wrapped launch, delivering its confidential payload (if any) on the descriptor the mechanism named. */"
         }
       ],
       "dependencyDigests": {
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
-        "scripts/verify-validation-build-artifact-binding.mjs": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f"
+        "scripts/verify-validation-build-artifact-binding.mjs": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee"
       }
     },
     {
       "id": "EX-BUILD-BINDING-02",
       "key": "scripts/verify-validation-build-artifact-binding.mjs:70:spawnSync",
       "callDigest": "a53cfcd339bae6a4d5f971f12e5b6c05307c2daadd1a3b5afb94ebbb02a95d66",
-      "sourceDigest": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f",
+      "sourceDigest": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee",
       "configIndexes": [
         240
       ],
@@ -14610,20 +14610,20 @@
           "file": "scripts/verify-validation-build-artifact-binding.mjs",
           "startLine": 69,
           "endLine": 71,
-          "sourceDigest": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f",
+          "sourceDigest": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee",
           "excerpt": "function spawnWrapped(launch, options = {}) {\n  if (!launch.confidential) return spawnSync(launch.command, launch.args, { encoding: 'utf8', env: launch.env, timeout: 20_000, ...options });\n  const file = join(sandbox, `confidential-${process.pid}-${Math.random().toString(16).slice(2)}`); writeFileSync(file, launch.confidential.payload);"
         }
       ],
       "dependencyDigests": {
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
-        "scripts/verify-validation-build-artifact-binding.mjs": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f"
+        "scripts/verify-validation-build-artifact-binding.mjs": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee"
       }
     },
     {
       "id": "EX-BUILD-BINDING-03",
       "key": "scripts/verify-validation-build-artifact-binding.mjs:74:spawnSync",
       "callDigest": "3f78dc225798d755cacf0db01ad49978871ecb57b779c3b409dc22224bcd4b1d",
-      "sourceDigest": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f",
+      "sourceDigest": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee",
       "configIndexes": [
         240
       ],
@@ -14634,20 +14634,20 @@
           "file": "scripts/verify-validation-build-artifact-binding.mjs",
           "startLine": 73,
           "endLine": 75,
-          "sourceDigest": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f",
+          "sourceDigest": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee",
           "excerpt": "  const stdio = ['ignore', 'pipe', 'pipe']; while (stdio.length < launch.confidential.fd) stdio.push('ignore'); stdio[launch.confidential.fd] = fd;\n  try { return spawnSync(launch.command, launch.args, { encoding: 'utf8', env: launch.env, timeout: 20_000, ...options, stdio }); } finally { closeSync(fd); rmSync(file, { force: true }); }\n}"
         }
       ],
       "dependencyDigests": {
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
-        "scripts/verify-validation-build-artifact-binding.mjs": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f"
+        "scripts/verify-validation-build-artifact-binding.mjs": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee"
       }
     },
     {
       "id": "EX-BUILD-BINDING-04",
       "key": "scripts/verify-validation-build-artifact-binding.mjs:1100:spawnSync",
       "callDigest": "fde4e991492c71c62feab70f8c485ed6c3069747d959f5ae42f637c513ba4f24",
-      "sourceDigest": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f",
+      "sourceDigest": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee",
       "configIndexes": [
         240
       ],
@@ -14658,20 +14658,20 @@
           "file": "scripts/verify-validation-build-artifact-binding.mjs",
           "startLine": 1099,
           "endLine": 1101,
-          "sourceDigest": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f",
+          "sourceDigest": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee",
           "excerpt": "          const payloadFd = openSync(payloadFile, 'r');\n          const preloadRun = spawnSync(preloadLaunch.command, preloadLaunch.args, { encoding: 'utf8', env: preloadLaunch.env, timeout: 20_000, stdio: ['ignore', 'pipe', 'pipe', payloadFd] });\n          closeSync(payloadFd); rmSync(payloadFile, { force: true });"
         }
       ],
       "dependencyDigests": {
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
-        "scripts/verify-validation-build-artifact-binding.mjs": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f"
+        "scripts/verify-validation-build-artifact-binding.mjs": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee"
       }
     },
     {
       "id": "EX-BUILD-BINDING-05",
       "key": "scripts/verify-validation-build-artifact-binding.mjs:1142:spawnSync",
       "callDigest": "d3c18f32e674f29fb15364b1b3db6de1a9cae7bbf39cc6445f74e796761cc9e9",
-      "sourceDigest": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f",
+      "sourceDigest": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee",
       "configIndexes": [
         240
       ],
@@ -14682,20 +14682,20 @@
           "file": "scripts/verify-validation-build-artifact-binding.mjs",
           "startLine": 1141,
           "endLine": 1143,
-          "sourceDigest": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f",
+          "sourceDigest": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee",
           "excerpt": "            const hijackHome = join(zshShimDir, 'home'); mkdirSync(hijackHome); writeFileSync(join(hijackHome, '.zshenv'), 'exit 0\\n');\n            const hijacked = spawnSync(join(zshShimDir, 'bwrap'), ['--', process.execPath, '-e', 'process.exit(7)'], { encoding: 'utf8', env: { ...process.env, HOME: hijackHome }, timeout: 20_000 });\n            check(hijacked.status === 0, `control: a HOME whose .zshenv exits 0 pre-empts a zsh wrapper entirely (exit ${hijacked.status}, ${(hijacked.stderr || '').slice(0, 80)})`);"
         }
       ],
       "dependencyDigests": {
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
-        "scripts/verify-validation-build-artifact-binding.mjs": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f"
+        "scripts/verify-validation-build-artifact-binding.mjs": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee"
       }
     },
     {
       "id": "EX-BUILD-BINDING-06",
       "key": "scripts/verify-validation-build-artifact-binding.mjs:1195:spawnSync",
       "callDigest": "4fc8e69a43611a85ada8eb4a2e685a531aef063350549d737af52ee6fba16f8e",
-      "sourceDigest": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f",
+      "sourceDigest": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee",
       "configIndexes": [
         240
       ],
@@ -14706,20 +14706,20 @@
           "file": "scripts/verify-validation-build-artifact-binding.mjs",
           "startLine": 1194,
           "endLine": 1196,
-          "sourceDigest": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f",
+          "sourceDigest": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee",
           "excerpt": "            writeFileSync(join(dotDir, 'shim'), `#!${declaredInterpreter}\\nexit 3\\n`, { mode: 0o755 });\n            const kernel = spawnSync(join(dotDir, 'shim'), [], { encoding: 'utf8', timeout: 10_000 });\n            check(kernel.status === 3, `control: the kernel resolves the declared interpreter through the link's target (exit ${kernel.status}, signal ${kernel.signal}, ${kernel.error ? kernel.error.message : (kernel.stderr || '').slice(0, 80)})`);"
         }
       ],
       "dependencyDigests": {
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
-        "scripts/verify-validation-build-artifact-binding.mjs": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f"
+        "scripts/verify-validation-build-artifact-binding.mjs": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee"
       }
     },
     {
       "id": "EX-BUILD-BINDING-07",
       "key": "scripts/verify-validation-build-artifact-binding.mjs:2238:spawnSync",
       "callDigest": "d603e4ffa600a383f4fa87228b3d1540bb975bf6e10a52d038711ee45b351dbf",
-      "sourceDigest": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f",
+      "sourceDigest": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee",
       "configIndexes": [
         240
       ],
@@ -14730,20 +14730,20 @@
           "file": "scripts/verify-validation-build-artifact-binding.mjs",
           "startLine": 2237,
           "endLine": 2239,
-          "sourceDigest": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f",
+          "sourceDigest": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee",
           "excerpt": "      writeFileSync(eqValidator, '#!/bin/sh\\necho RAN_VALIDATOR\\nexit 5\\n', { mode: 0o755 });\n      const direct = spawnSync(eqValidator, [], { encoding: 'utf8' });\n      check(direct.status === 5 && direct.stdout.includes('RAN_VALIDATOR'), `control: the '='-named validator runs and fails when executed directly (${direct.status})`);"
         }
       ],
       "dependencyDigests": {
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
-        "scripts/verify-validation-build-artifact-binding.mjs": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f"
+        "scripts/verify-validation-build-artifact-binding.mjs": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee"
       }
     },
     {
       "id": "EX-BUILD-BINDING-08",
       "key": "scripts/verify-validation-build-artifact-binding.mjs:2288:spawnSync",
       "callDigest": "099becc11f167b6b53232b13d583d728bcfeab243c299090d2d29a230787cd38",
-      "sourceDigest": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f",
+      "sourceDigest": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee",
       "configIndexes": [
         240
       ],
@@ -14754,20 +14754,20 @@
           "file": "scripts/verify-validation-build-artifact-binding.mjs",
           "startLine": 2287,
           "endLine": 2289,
-          "sourceDigest": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f",
+          "sourceDigest": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee",
           "excerpt": "      check(restricted.status === 0, `control: the restricted platform binary ignores DYLD_INSERT_LIBRARIES (${restricted.status}, ${(restricted.stderr || '').slice(0, 80)})`);\n      const unrestricted = spawnSync(join(dyldDir, 'plain'), [], { encoding: 'utf8', env: dyldEnv, timeout: 20_000 });\n      check(unrestricted.status !== 0, `control: an unrestricted binary honours DYLD_INSERT_LIBRARIES and fails on the absent library (${unrestricted.status})`);"
         }
       ],
       "dependencyDigests": {
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
-        "scripts/verify-validation-build-artifact-binding.mjs": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f"
+        "scripts/verify-validation-build-artifact-binding.mjs": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee"
       }
     },
     {
       "id": "EX-BUILD-BINDING-09",
       "key": "scripts/verify-validation-build-artifact-binding.mjs:2314:spawnSync",
       "callDigest": "3d1289b99bda406751a33311fd2865cb18f511becb5078e1cae4aa9748211418",
-      "sourceDigest": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f",
+      "sourceDigest": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee",
       "configIndexes": [
         240
       ],
@@ -14778,20 +14778,20 @@
           "file": "scripts/verify-validation-build-artifact-binding.mjs",
           "startLine": 2313,
           "endLine": 2315,
-          "sourceDigest": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f",
+          "sourceDigest": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee",
           "excerpt": "      const envProbe = ['-e', 'process.stdout.write(JSON.stringify(process.env))'];\n      const directEnv = spawnSync(process.execPath, envProbe, { encoding: 'utf8', env: exactEnv, timeout: 20_000 });\n      const wrappedEnv = spawnWrapped(eqProtection.wrap({ command: process.execPath, args: envProbe, shell: false, env: exactEnv, confidentialFd: 3 }));"
         }
       ],
       "dependencyDigests": {
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
-        "scripts/verify-validation-build-artifact-binding.mjs": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f"
+        "scripts/verify-validation-build-artifact-binding.mjs": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee"
       }
     },
     {
       "id": "EX-BUILD-BINDING-10",
       "key": "scripts/verify-validation-build-artifact-binding.mjs:2337:spawnSync",
       "callDigest": "76b2087d047fdb1c58051b722765597f4eb9a20745277c8a3f53614053fb77be",
-      "sourceDigest": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f",
+      "sourceDigest": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee",
       "configIndexes": [
         240
       ],
@@ -14802,20 +14802,20 @@
           "file": "scripts/verify-validation-build-artifact-binding.mjs",
           "startLine": 2336,
           "endLine": 2338,
-          "sourceDigest": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f",
+          "sourceDigest": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee",
           "excerpt": "      for (const dashCommand of ['--', '-x']) {\n        const directDash = spawnSync(dashCommand, [], { encoding: 'utf8', cwd: root, timeout: 20_000 });\n        check(directDash.error?.code === 'ENOENT', `control: a missing executable named ${dashCommand} fails directly (${directDash.error?.code})`);"
         }
       ],
       "dependencyDigests": {
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
-        "scripts/verify-validation-build-artifact-binding.mjs": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f"
+        "scripts/verify-validation-build-artifact-binding.mjs": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee"
       }
     },
     {
       "id": "EX-BUILD-BINDING-11",
       "key": "scripts/verify-validation-build-artifact-binding.mjs:2484:spawnSync",
       "callDigest": "10b812b0793d709d6a9d6b34fa919278e4fb18871f1d0fb32a21834463df3564",
-      "sourceDigest": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f",
+      "sourceDigest": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee",
       "configIndexes": [
         240
       ],
@@ -14826,20 +14826,20 @@
           "file": "scripts/verify-validation-build-artifact-binding.mjs",
           "startLine": 2483,
           "endLine": 2485,
-          "sourceDigest": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f",
+          "sourceDigest": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee",
           "excerpt": "          // Control: the kernel refuses that cwd.\n          const kernel = spawnSync(process.execPath, ['-e', 'process.exit(0)'], { cwd: testCase.cwd, encoding: 'utf8' });\n          check(kernel.error !== undefined && testCase.expectedError.test(String(kernel.error.code ?? kernel.error.message)), `control: the kernel refuses ${testCase.name} as a cwd (${kernel.error?.code ?? kernel.status})`);"
         }
       ],
       "dependencyDigests": {
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
-        "scripts/verify-validation-build-artifact-binding.mjs": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f"
+        "scripts/verify-validation-build-artifact-binding.mjs": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee"
       }
     },
     {
       "id": "EX-BUILD-BINDING-12",
       "key": "scripts/verify-validation-build-artifact-binding.mjs:2729:spawnSync",
       "callDigest": "3997b05a9132762d8e2dcaa2d13f47ede65eb24eca6856f819b6195a43ae34ae",
-      "sourceDigest": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f",
+      "sourceDigest": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee",
       "configIndexes": [
         240
       ],
@@ -14850,20 +14850,20 @@
           "file": "scripts/verify-validation-build-artifact-binding.mjs",
           "startLine": 2728,
           "endLine": 2730,
-          "sourceDigest": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f",
+          "sourceDigest": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee",
           "excerpt": "    check(readFileSync(join(mainDist, 'x.js'), 'utf8').includes('build A'), 'control: the registered build produced build A');\n    check(spawnSync(process.execPath, [join(mainDist, 'x.js')]).status === 1,\n      'trap: the installed build A must fail, so a passing inner test could only have executed build B');"
         }
       ],
       "dependencyDigests": {
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
-        "scripts/verify-validation-build-artifact-binding.mjs": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f"
+        "scripts/verify-validation-build-artifact-binding.mjs": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee"
       }
     },
     {
       "id": "EX-BUILD-BINDING-13",
-      "key": "scripts/verify-validation-build-artifact-binding.mjs:2958:spawnSync",
+      "key": "scripts/verify-validation-build-artifact-binding.mjs:2959:spawnSync",
       "callDigest": "4922cc3a9a63615b2dfea2a62da3acad5583b46940603c8fec5a1696e1355233",
-      "sourceDigest": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f",
+      "sourceDigest": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee",
       "configIndexes": [
         240
       ],
@@ -14872,15 +14872,15 @@
       "requiredEvidence": [
         {
           "file": "scripts/verify-validation-build-artifact-binding.mjs",
-          "startLine": 2957,
-          "endLine": 2959,
-          "sourceDigest": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f",
+          "startLine": 2958,
+          "endLine": 2960,
+          "sourceDigest": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee",
           "excerpt": "      const runCli = (extra) => {\n        const r = spawnSync(process.execPath, [cli, 'validate', `--story=${storyId}`, ...extra], {\n          cwd: root, encoding: 'utf8', timeout: 300_000,"
         }
       ],
       "dependencyDigests": {
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
-        "scripts/verify-validation-build-artifact-binding.mjs": "fef8e7e03ece964fb710e2a41348163f332c2902f80ad3926d215850f276cf1f"
+        "scripts/verify-validation-build-artifact-binding.mjs": "a71b83f30272f7b21c9d9719533b6a757fa98f1331f0e04965f0c6d44221a8ee"
       }
     }
   ]
