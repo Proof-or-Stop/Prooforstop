@@ -125,6 +125,16 @@ try {
   );
   await assert.rejects(
     qualificationHandlers.host_run({
+      host: 'grok', model: 'caller-owned-grok', reasoningEffort: 'none', storyId,
+      reviewRunId: '00000000-0000-4000-8000-000000000005',
+      lane: 'proof-or-stop-review-quality', agentType: 'proof-or-stop-review-quality',
+      managedReview: true, detach: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
+    }),
+    /Grok managed review uses provider-owned model selection/i,
+    'public Grok managedReview must refuse caller-owned model and effort selectors',
+  );
+  await assert.rejects(
+    qualificationHandlers.host_run({
       host: 'codex', model: 'gpt-5.6-sol', reasoningEffort: 'high', storyId,
       reviewRunId: '00000000-0000-4000-8000-000000000003',
       lane: 'proof-or-stop-review-quality', agentType: 'proof-or-stop-review-quality',
@@ -181,6 +191,11 @@ try {
     resolveQualifiedManagedReviewerSelection({ host: 'grok', model: null, reasoningEffort: null }),
     { model: null, reasoningEffort: null },
     'Grok formal review must preserve its separately audited provider-owned selector contract',
+  );
+  assert.throws(
+    () => resolveQualifiedManagedReviewerSelection({ host: 'agy', model: null, reasoningEffort: null }),
+    /managed reviewer host "agy" is not qualified/i,
+    'the exported qualifier must fail closed for internal AGY callers even though the public host parser excludes AGY',
   );
   const agentTypes = ['proof-or-stop-review-story-init', 'proof-or-stop-product-reviewer'];
   const results = await Promise.all(agentTypes.map(async agentType => {

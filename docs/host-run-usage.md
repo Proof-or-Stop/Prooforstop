@@ -185,7 +185,8 @@ projection, result, and receipt. Codex receives `--model` plus
 These fields prove the exact selector placed on the protected provider argv;
 they do not claim that a provider-side alias resolved to a particular hidden
 model revision. Grok formal review uses its separately audited managed-review-only
-adapter and preserves that adapter's provider-owned model selection.
+adapter and preserves that adapter's provider-owned model selection; callers
+must omit both selectors because explicit Grok model or effort values are refused.
 `cross_host_review` is a separate advisory host-verdict profile rather than
 sealed formal REVIEW evidence; its Codex leaf also retains provider-owned model
 selection and is outside this qualification boundary.

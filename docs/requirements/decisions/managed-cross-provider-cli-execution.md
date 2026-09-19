@@ -184,7 +184,8 @@ ReviewPass/Finding flow. A cross-provider CLI reviewer uses a two-phase flow:
    `gpt-5.6-sol/high` or Claude `opus/high`. Explicit selections must remain
    in the GPT or Opus reviewer family at `high` or greater effort. This keeps
    a reviewer from silently inheriting the implementation agent's model. Grok
-   remains governed by its separate managed-review-only adapter contract.
+   remains governed by its separate managed-review-only adapter contract and
+   rejects caller-supplied model or effort selectors.
    Qualification happens only at submission, before immutable spec creation;
    import verifies exact sealed selector equality rather than re-deriving the
    qualification policy. If a named default is unavailable, the operator starts

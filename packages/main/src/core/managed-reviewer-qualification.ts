@@ -7,3 +7,10 @@ export const QUALIFIED_MANAGED_REVIEWER_DEFAULTS = {
   codex: { model: 'gpt-5.6-sol', reasoningEffort: 'high' },
   claude: { model: 'opus', reasoningEffort: 'high' },
 } as const;
+
+export const CLAUDE_SUPPORTED_REASONING_EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max'] as const;
+
+export const QUALIFIED_MANAGED_REVIEWER_EFFORTS = {
+  codex: ['high', 'xhigh', 'max', 'ultra'],
+  claude: ['high', 'xhigh', 'max'],
+} as const;

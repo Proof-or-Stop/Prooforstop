@@ -7570,7 +7570,7 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   ]) {
     assert(hostRunText.includes(token), `packages/main/src/core/host-run.ts: required managed model-selection launch token missing: ${token}`);
   }
-  for (const token of ['QUALIFIED_MANAGED_REVIEWER_DEFAULTS', "model: 'gpt-5.6-sol'", "model: 'opus'", "reasoningEffort: 'high'"]) {
+  for (const token of ['QUALIFIED_MANAGED_REVIEWER_DEFAULTS', 'CLAUDE_SUPPORTED_REASONING_EFFORTS', 'QUALIFIED_MANAGED_REVIEWER_EFFORTS', "model: 'gpt-5.6-sol'", "model: 'opus'", "reasoningEffort: 'high'"]) {
     assert(managedReviewerQualificationText.includes(token), `packages/main/src/core/managed-reviewer-qualification.ts: required reviewer qualification default missing: ${token}`);
   }
   const smokeText = read('packages/main/src/tasks/managed-review-evidence-smoke.ts');
