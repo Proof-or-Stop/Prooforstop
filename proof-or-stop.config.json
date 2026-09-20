@@ -5517,6 +5517,40 @@
             "access": "shared"
           }
         ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/validation-production-budget-260.test.mjs"
+        ],
+        "timeoutMs": 60000,
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-lab-maintenance",
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "package.json",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "proof-or-stop.config.json",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "scripts",
+            "access": "shared"
+          }
+        ]
       }
     ],
     "evidenceCommandTimeoutOverrides": [

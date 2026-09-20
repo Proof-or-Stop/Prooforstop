@@ -29,9 +29,21 @@ for (const entry of manifest.entries) {
 }
 const scripts = JSON.parse(readFileSync(new URL('package.json', root))).scripts;
 assert.equal(scripts['test:validation-production-budget-260'], 'node packages/main/tests/validation-production-budget-260.test.mjs');
-assert.ok(scripts['test:serial-reference'].includes('npm run test:reviewed-source-bindings'));
-assert.ok(scripts['test:reviewed-source-bindings'].endsWith(' && npm run test:validation-production-budget-260'));
+const guards = config.validate.commands.filter(row => row.command === 'node'
+  && JSON.stringify(row.args) === JSON.stringify(['packages/main/tests/validation-production-budget-260.test.mjs']));
+assert.equal(guards.length, 1, 'production validation must register the budget guard');
+for (const key of ['package.json', 'proof-or-stop.config.json']) {
+  assert.ok(guards[0].resources.some(row => row.class === 'fixed-path' && row.key === key && row.access === 'shared'));
+}
 // Replay the actual consumer, including every package/lockfile/excerpt binding.
-await import(new URL('scripts/verify-validation-static-edges.mjs', root));
+let verifierOutput = '';
+const originalWrite = process.stdout.write;
+process.stdout.write = function (...args) {
+  verifierOutput += String(args[0]);
+  return originalWrite.apply(this, args);
+};
+try { await import(new URL('scripts/verify-validation-static-edges.mjs', root)); }
+finally { process.stdout.write = originalWrite; }
 assert.equal(process.exitCode ?? 0, 0, 'the actual static-edge verifier must pass');
+assert.match(verifierOutput, /^U18_STATIC_PASS$/m, 'an inert verifier import cannot supply GREEN');
 console.log('PRODUCTION_VALIDATION_260_GREEN: all three complete production commands use 260000 ms; static configuration bindings match');
