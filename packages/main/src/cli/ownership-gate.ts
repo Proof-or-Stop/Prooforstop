@@ -504,8 +504,11 @@ export function enforceStoryOwnerLeaseGate(
 
   // The handler revalidates and consumes this exact capability only after it
   // has atomically prepared the run-bound subagent_result and checklist write.
-  // This pre-handler probe grants no reusable owner lease and performs no
-  // mutation, so a failed write remains retryable by the same managed run.
+  // This repeatable pre-handler probe grants no reusable owner lease and
+  // performs no mutation; the checklist lock serializes persistence, and a
+  // failed consume rolls both prepared writes back before releasing that lock.
+  // The one-shot boundary is persistence plus consumption, not this probe, so
+  // a failed write remains retryable by the same managed run.
   if (admitsManagedImplementerCompletion(cmd, args, projectRoot, storyId)) return;
 
   if (options?.readOnlyAdmission) {
