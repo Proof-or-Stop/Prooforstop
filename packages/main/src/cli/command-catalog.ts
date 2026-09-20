@@ -1269,7 +1269,7 @@ Behavior:
     launch: z.boolean().optional().describe('Unsupported; reviewer_batch is read-only and launches no reviewer. true fails closed.'),
     run: z.boolean().optional().describe('Unsupported; reviewer_batch is read-only and runs no command. true fails closed.'),
   }},
-  { name: 'evidence_refresh', description: 'Opt-in one-pass refresh-only orchestrator: default is a read-only dry preview of the refresh-only evidence bucket; --apply performs AT MOST ONE re-stamp pass via verification_evidence_refresh_stale and reclassifies (refreshed / rerun_required / hard_stale). Never runs a verification command, advances phase, launches reviewers, or widens local assurance.', schema: {
+  { name: 'evidence_refresh', description: 'Opt-in one-pass refresh-only orchestrator: default is a read-only metadata-drift preview, explicitly not executable admission or reuse eligibility; use evidence_plan for executable verdicts; --apply performs AT MOST ONE re-stamp pass via verification_evidence_refresh_stale and reclassifies (refreshed / rerun_required / hard_stale). Never runs a verification command, advances phase, launches reviewers, or widens local assurance.', schema: {
     storyId: z.string().describe('Story ID'),
     apply: z.boolean().optional().describe('Perform AT MOST ONE refresh pass via verification_evidence_refresh_stale, then reclassify. Default false = read-only dry preview. --apply is ownership/scope gated.'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),

@@ -55,6 +55,11 @@ interface EscalatedRow extends RefreshCandidate {
 
 export interface EvidenceRefreshReport {
   storyId: string;
+  previewSemantics: {
+    kind: 'metadata-drift-only';
+    executableAdmission: 'not-evaluated';
+    nextCommand: string;
+  };
   mode: {
     /** evidence_refresh NEVER runs a verification command. */
     runCommands: false;
@@ -258,6 +263,8 @@ export function renderEvidenceRefreshReport(
   const lines = [
     `Evidence refresh (${report.storyId})`,
     modeLine,
+    'preview: metadata drift only; not executable receipt admission or reuse eligibility.',
+    `For executable verdicts: ${report.previewSemantics.nextCommand}`,
     `summary: candidates=${report.summary.candidates} refreshed=${report.summary.refreshed} escalated=${report.summary.escalated}`,
   ];
 
@@ -354,6 +361,10 @@ export function createEvidenceRefreshHandlers(ctx: HandlerContext): Record<strin
 
     const report: EvidenceRefreshReport = {
       storyId: args.storyId,
+      previewSemantics: {
+        kind: 'metadata-drift-only', executableAdmission: 'not-evaluated',
+        nextCommand: `proof-or-stop evidence_plan --storyId=${args.storyId}`,
+      },
       mode: { runCommands: false, writeEvidence: didWrite },
       candidates,
       refreshed,

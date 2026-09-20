@@ -1581,8 +1581,8 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
   consumerSourceRefs: readonly string[];
 }> = {
   'evidence_plan': {
-    producerSourceRefs: ['packages/main/src/core/verification-intent-fingerprints.ts'],
-    consumerSourceRefs: ['packages/main/src/handlers/evidence-plan.ts', 'packages/main/src/core/proof-admissibility.ts'],
+    producerSourceRefs: ['packages/main/src/core/verification-intent-fingerprints.ts', 'packages/main/src/core/proof-admissibility.ts'],
+    consumerSourceRefs: ['packages/main/src/handlers/evidence-plan.ts'],
   },
   'cross_host_review': {
     producerSourceRefs: ['packages/main/src/core/host-run.ts', 'packages/main/src/core/codex-review-leaf.ts'],

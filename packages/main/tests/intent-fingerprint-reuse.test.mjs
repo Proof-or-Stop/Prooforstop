@@ -8,6 +8,7 @@ import { resetConfigCache } from '../dist/core/config.js';
 import { acquireOwnerLease } from '../dist/core/story-owner-lease.js';
 import { createChecklistHandlers } from '../dist/handlers/checklist.js';
 import { createEvidencePlanHandlers } from '../dist/handlers/evidence-plan.js';
+import { createEvidenceRefreshHandlers } from '../dist/handlers/evidence-refresh.js';
 import { buildVerificationReuseCapsuleInvocation } from '../dist/core/verification-reuse-capsule.js';
 import { runSingleAllowlistedCommand } from '../dist/core/validation-executor.js';
 
@@ -35,7 +36,12 @@ try {
   } };
   const handlers = createChecklistHandlers(ctx);
   const planner = createEvidencePlanHandlers(ctx);
-  const report = () => planner.evidence_plan({ storyId, json: true });
+  const report = () => {
+    const before = executions;
+    const result = planner.evidence_plan({ storyId, json: true });
+    assert.equal(executions, before, 'read-only planner executes zero verification commands for executable intents');
+    return result;
+  };
   const pin = (intentRef, command, selector, file) => handlers.verification_evidence_add({ storyId, itemId: 'CHK-001', intentRef, kind: 'integration_test', command, selector, ...(file ? { file } : {}), result: 'pass', note: 'Real tool-executed fixture result.' });
   const shared = 'packages/main/src/shared.txt';
   write(shared, 'SHARED\n');
@@ -69,6 +75,12 @@ try {
   assert.equal(row(unrelated, 'INT-A').action, 'reuse');
   assert.equal(readFileSync(store.storyFilePath(storyId, 'checklist.json'), 'utf8'), beforeChecklist, 'plan never rewrites evidence');
   assert.equal(git('status', '--porcelain'), beforeGit, 'plan never changes the checkout');
+  const previewer = createEvidenceRefreshHandlers(ctx);
+  const preview = previewer.evidence_refresh({ storyId, json: true });
+  assert.equal(preview.previewSemantics?.kind, 'metadata-drift-only', 'legacy preview explicitly identifies its limited authority');
+  assert.equal(preview.previewSemantics.executableAdmission, 'not-evaluated');
+  assert.match(previewer.evidence_refresh({ storyId }), /metadata drift only; not executable receipt admission/);
+  assert.match(previewer.evidence_refresh({ storyId }), /evidence_plan/);
   executions = 0;
   await handlers.verification_evidence_refresh_stale({ storyId });
   assert.equal(executions, 1, 'unrelated drift reruns only the ordinary command');
@@ -85,6 +97,15 @@ try {
   executions = 0;
   await handlers.verification_evidence_refresh_stale({ storyId });
   assert.equal(executions, 2, 'one changed reusable group plus ordinary fallback, not one launch per intent');
+  const fanout = report();
+  assert.equal(row(fanout, 'INT-A').action, 'current', 'first selector has independently admissible current evidence');
+  assert.equal(row(fanout, 'INT-A-SECOND').action, 'current', 'second selector has independently admissible current evidence');
+  assert.equal(row(fanout, 'INT-A').executionKey, row(fanout, 'INT-A-SECOND').executionKey);
+  const fanoutEvidence = store.readChecklist(storyId).items[0].verificationEvidence;
+  const firstAssertion = fanoutEvidence.find(e => e.intentRef === 'INT-A').receipt;
+  const secondAssertion = fanoutEvidence.find(e => e.intentRef === 'INT-A-SECOND').receipt;
+  assert.equal(firstAssertion.executionReceipt.executionReceiptDigest, secondAssertion.executionReceipt.executionReceiptDigest, 'both assertions bind the single execution');
+  assert.notEqual(firstAssertion.assertionReceipt.assertionReceiptDigest, secondAssertion.assertionReceipt.assertionReceiptDigest, 'selectors retain distinct authenticated assertions');
   assert.equal(store.readChecklist(storyId).items[0].verificationEvidence.find(e => e.intentRef === 'INT-B').receipt.executionReceipt.executionReceiptDigest, originalExecution, 'unaffected execution stays immutable');
   write(shared, 'SHARED changed\n'); commit('change shared dependency');
   const sharedChange = report();

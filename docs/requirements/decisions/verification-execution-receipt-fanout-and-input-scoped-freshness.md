@@ -125,7 +125,11 @@ These fingerprints are diagnostic-only: equality never replaces signature/output
 validation, pin binding, lifecycle expiry or current state checks. Executable rows
 use the shared gate receipt evaluator and report current, reuse, rerun or invalid.
 The existing signed refresh writer remains the only execution/reuse producer.
-An unsigned or stale ordinary pass is never advertised as a hash-only refresh.
+In `evidence_plan`, an unsigned or stale ordinary pass is never advertised as a hash-only refresh.
+The legacy `evidence_refresh` compatibility preview explicitly labels its JSON and
+text as metadata drift only, without evaluating executable admission, and directs
+the operator to `evidence_plan` for execution/reuse requirements. Its existing
+metadata-only apply path is unchanged; it never substitutes for command re-execution.
 Non-executable attestations and existing waivers retain their separate compatibility
 behavior. A waiver is reported as manual policy coverage and never authorizes execution reuse.
 
@@ -139,7 +143,9 @@ Regression: `node packages/main/tests/intent-fingerprint-reuse.test.mjs`, also c
 by the existing evidence-plan smoke, executes the real producer and refresh handlers.
 It checks dynamic membership/descriptions, unrelated and affected input groups,
 shared-command fan-out, strict ordinary fallback, immutable reuse, tampering and
-read-only reports. Fixture results are not real-Story acceptance receipts.
+read-only reports, zero planner executions and individually admitted assertions
+after shared-command fan-out. The smoke imports this regression in its own supervised
+process rather than launching an unmanaged child. Fixture results are not real-Story acceptance receipts.
 
 At maintenance base `db43a2611c25bb8153d1a32db67c6d39be1b4e3e`, the full process-fact
 verifier has a pre-existing failure: it expects the retired-vocabulary guard to

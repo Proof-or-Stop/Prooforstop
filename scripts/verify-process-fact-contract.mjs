@@ -11985,6 +11985,19 @@ assert(managedCriticArtifact?.producer === 'handlers/managed-review-evidence.man
     'story_create must persist checklist.json before each safe creation commit');
 }
 
+// Intent fingerprints are derived diagnostics, not a second gate or caller-owned freshness authority.
+{
+  const planner = read('packages/main/src/handlers/evidence-plan.ts');
+  const fingerprints = read('packages/main/src/core/verification-intent-fingerprints.ts');
+  for (const token of ['collectVerificationIntents(item)', 'evaluateVerificationEvidenceForGate', "authority: 'diagnostic-only'", 'identity.reusable', 'materialHash', 'storyFilesHash']) {
+    assert(fingerprints.includes(token), `Intent fingerprint diagnostic contract missing ${token}`);
+  }
+  assert(planner.includes('buildIntentFingerprintReport') && planner.includes('row.description'), 'Evidence planner must display actual dynamic intent fingerprints and descriptions');
+  assert(read(processFactRegistryPath).includes('packages/main/src/core/verification-intent-fingerprints.ts'), 'Intent fingerprint diagnostic source must be registered');
+  const refreshPreview = read('packages/main/src/handlers/evidence-refresh.ts');
+  assert(refreshPreview.includes("kind: 'metadata-drift-only'") && refreshPreview.includes("executableAdmission: 'not-evaluated'") && refreshPreview.includes('metadata drift only; not executable receipt admission'), 'Legacy refresh preview must expose its limited semantics in JSON and text');
+}
+
 // Managed inventory transport checks must precede the final failure gate.
 assert(read('packages/main/src/core/managed-host-run.ts').includes('isManagedInventoryCritic'), 'Managed proposal writer must validate critic shape');
 assert(read('packages/main/src/core/managed-review-evidence.ts').includes('isManagedInventoryCritic'), 'Managed evidence consumer must validate critic shape');
@@ -12037,17 +12050,6 @@ assert(read('packages/main/src/core/managed-review-evidence.ts').includes('isMan
  for (const token of required) {
    nodeAssert(missing(source.replaceAll(token, '')).includes(token), 'Managed critic negative control must detect removed authority token: ' + token);
  }
-}
-
-// Intent fingerprints are derived diagnostics, not a second gate or caller-owned freshness authority.
-{
-  const planner = read('packages/main/src/handlers/evidence-plan.ts');
-  const fingerprints = read('packages/main/src/core/verification-intent-fingerprints.ts');
-  for (const token of ['collectVerificationIntents(item)', 'evaluateVerificationEvidenceForGate', "authority: 'diagnostic-only'", 'identity.reusable', 'materialHash', 'storyFilesHash']) {
-    assert(fingerprints.includes(token), `Intent fingerprint diagnostic contract missing ${token}`);
-  }
-  assert(planner.includes('buildIntentFingerprintReport') && planner.includes('row.description'), 'Evidence planner must display actual dynamic intent fingerprints and descriptions');
-  assert(read(processFactRegistryPath).includes('packages/main/src/core/verification-intent-fingerprints.ts'), 'Intent fingerprint diagnostic source must be registered');
 }
 
 if (failures.length) {

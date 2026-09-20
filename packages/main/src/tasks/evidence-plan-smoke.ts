@@ -4,7 +4,6 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { fileURLToPath } from 'node:url';
 import { join, relative } from 'node:path';
 import { getCommandPolicy } from '../core/command-policy.js';
 import { DEFAULT_PHASE_TOOLS, isCommandAllowed, resetConfigCache } from '../core/config.js';
@@ -394,5 +393,24 @@ assert.equal(isCommandAllowed('evidence_plan', 'DONE', DEFAULT_PHASE_TOOLS), tru
   }
 }
 
-execFileSync(process.execPath, [fileURLToPath(new URL('../../tests/intent-fingerprint-reuse.test.mjs', import.meta.url))], { stdio: 'inherit' });
+// Executable rows remain covered by the original metadata/git/no-authority checks.
+{
+  const { root, store, ctx } = createFixture((r) => allFreshChecklist(r));
+  try {
+    const checklist = store.readChecklist(STORY_ID);
+    checklist.items[0].verificationIntent!.happy[0].type = 'cli';
+    store.writeChecklist(STORY_ID, checklist);
+    const before = snapshotDir(root, store.storyDirPath(STORY_ID));
+    const status = gitStatus(root);
+    const handler = createMainRegistry(ctx).get('evidence_plan')!;
+    const report = handler({ storyId: STORY_ID, json: true }) as EvidencePlanReport;
+    assert.equal(report.fingerprints.intents.find(row => row.intentRef === 'CHK-001:happy:0')!.action, 'invalid', 'unsigned executable evidence does not inherit manual coverage');
+    assert.deepEqual(snapshotDir(root, store.storyDirPath(STORY_ID)), before);
+    assert.equal(gitStatus(root), status);
+    assertNoAuthorityOrEvidenceArtifacts(store);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+}
+
+// Execute in this already supervised task: no extra child process or reservation boundary.
+await import(new URL('../../tests/intent-fingerprint-reuse.test.mjs', import.meta.url).href);
 process.stdout.write('evidence_plan smoke passed\n');
