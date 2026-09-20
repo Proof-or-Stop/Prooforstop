@@ -3255,7 +3255,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "scripts/verify-process-fact-contract.mjs",
-    "sha256": "af47d9b81f158642ad519606d11b329743aa52b60422c4148afeebc50a2a7cb1"
+    "sha256": "6fb33cf9690192064957889df88a2afccda88dc7538949e2a0eccf49d0aa52f2"
   },
   {
     "path": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
@@ -7467,7 +7467,7 @@ function verifySchemaInventory(root, schemas) {
 const REVIEWED_CONTEXT_READERS = [
   {
     "path": "scripts/identity-reviewed-source-contexts.mjs",
-    "sha256": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229"
+    "sha256": "0cdf2f2ae46d512f6a39862ef32803205e50f2782347f9812b4fcf4a5f4d6bed"
   },
   {
     "path": "scripts/identity-reviewed-json-contexts.mjs",
@@ -7475,7 +7475,7 @@ const REVIEWED_CONTEXT_READERS = [
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "1c17f1e6165006c590bae30e5276b1a737da872ab0e54f66c947d71527a7da18"
+    "sha256": "4849fd634e254e817ff067347186430da928b8bdb2cc227189c3c4cc3b8133bd"
   }
 ];
 function verifyReviewedContextReaders(root) {

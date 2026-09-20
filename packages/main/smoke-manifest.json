@@ -2,6 +2,11 @@
   "$schema-doc": "B-6efb / B1: in-house smoke runner manifest. Entries override directory-scan defaults; unlisted smokes are still discovered automatically. Schema: { smokes: [{ name, tags?, timeoutMs?, skip? }] }.",
   "smokes": [
     {
+      "name": "evidence-plan",
+      "tags": ["regression", "evidence"],
+      "timeoutMs": 180000
+    },
+    {
       "name": "run-all-smokes",
       "tags": [
         "runner",
