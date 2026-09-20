@@ -1,11 +1,23 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createController } from './controller.mjs';
+import { createController as createBaseline } from './baseline.mjs';
 
 import { limits, options, event, request, receipt } from './fixtures.mjs';
 
 const tests = [];
 const test = (name, fn) => tests.push([name, fn]);
+test('uncontrolled baseline retains progress wakes and repeated dispatch', async () => {
+  const baseline = createBaseline(); baseline.observe(event());
+  let wakes = 0;
+  for (let i = 1; i <= 1000; i++) wakes += Number(baseline.observe(event({
+    observedAt: i, execution: { id: 'run-A', status: 'running', progress: i },
+  })).wake);
+  assert.equal(wakes, 1000);
+  let launches = 0;
+  await Promise.all(Array.from({ length: 10 }, () => baseline.run(request('same'), async () => receipt(`baseline-${++launches}`))));
+  assert.equal(launches, 10); assert.equal(baseline.ledger().length, 10);
+});
 test('BLOCKED_PROGRESS_WAKE_REGRESSION', () => {
   const c = createController(options());
   assert.equal(c.observe(event()).wake, true);

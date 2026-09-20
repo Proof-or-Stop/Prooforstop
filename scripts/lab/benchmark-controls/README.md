@@ -81,7 +81,11 @@ The current `verify.mjs` always runs its nonempty suite, including when imported
 by a module wrapper. Shared fixture imports live in `fixtures.mjs`; comparison
 does not execute tests as an import side effect. `verify-entry.mjs` additionally
 checks both the ordinary CLI and module-wrapper invocation and requires the
-structured nonempty result. Four negative-check groups exercise invalid budgets,
+structured result with exactly 21 checks. `verify-entry-contract.mjs` runs both
+entries and proves that removing a negative check in a disposable copy fails the
+entry gate. A deterministic baseline check exercises the cross-Lab monitor import,
+1,000 progress-driven wakes and ten repeated dispatches without historical input.
+Four negative-check groups exercise invalid budgets,
 requests, partitions and context shapes. None of these checks launches a model.
 
 Historical extraction is reused unchanged from
