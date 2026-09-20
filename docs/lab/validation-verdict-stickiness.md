@@ -68,9 +68,13 @@ yet; the same command without `--legacy` reports it once Stories validate again.
   identity digest. Publication binds a failure as completely as a PASS and refuses any
   result whose material or story files cannot be identified; the terminal writer takes
   that validated identity and looks nothing up again, where it used to recompute the
-  hashes and write empty strings when a lookup failed. Admission refuses a stored PASS
-  without its identity (`validation_identity_incomplete`); terminals from before the
-  artifact binding stay valid history and are simply never matched.
+  hashes and write empty strings when a lookup failed. The material and the story
+  files are identified before launch and kept with the identity, so a lookup that
+  fails only after the commands ran falls back to them and the executed verdict is
+  still recorded. A validate file whose provider result does not parse is a recorded
+  validation failure, not an exception. Admission refuses a stored PASS without its
+  identity (`validation_identity_incomplete`); terminals from before the artifact
+  binding stay valid history and are simply never matched.
 - History is `{ terminals }` or `{ unreadable }`. Only a confirmed absence (`ENOENT`)
   is an empty history. A directory that cannot be located, a denied or non-directory
   lookup, a file that cannot be read, a line that is not a process event (a JSON object
@@ -94,7 +98,7 @@ yet; the same command without `--legacy` reports it once Stories validate again.
 
 `node scripts/verify-validation-verdict-stickiness.mjs`, registered as the last
 `validate.commands` entry. At RED: 7 failing expectations, 9 controls passed. At GREEN:
-129 checks — the pure rule, both core consumers, the DONE-side consumer over a fixture
+138 checks — the pure rule, both core consumers, the DONE-side consumer over a fixture
 Story with signed evidence, corrupt and missing histories, the report, the
 `done_prepare` trust decision, source guards, and end-to-end runs through the built
 CLI on a validate file that reads a switch outside the repository: FAIL then PASS on
@@ -112,7 +116,8 @@ returning null, and a plain-text run publishes nothing. With the production sour
 an audit's repair reverted, exactly that audit's expectations fail: 10 for the second
 (the laundered PASS among them, `exit=0 evidence=PASS/reused`), 12 for the third (the
 mixed failure recorded as `infra_failure` among them), 6 for the fourth (the recovery
-refused with `verdict_flip_refused` among them) and 5 for the fifth.
+refused with `verdict_flip_refused` among them), 5 for the fifth and 4 for the sixth
+(a failing run with malformed validator output that left no record among them).
 
 On the final Lab tree the checks that share these code paths pass:
 `validation-evidence-reuse-smoke` (its coverage-only recovery included),
@@ -176,6 +181,13 @@ failed, so fully bound FAIL evidence could leave a terminal no identity matched,
 the reader skipped it. The writer now records the identity its publication validated,
 a failure is refused publication without it, and such a terminal is unreadable history.
 
+The sixth audit (of `04a604e8be`, rejected) found two ways an executed failure left no
+record (both high): a material or story-files lookup that failed only after the
+commands ran refused the publication and dropped the verdict, and a failing validate
+file that printed unparsable provider JSON threw before anything was persisted. The
+run is now bound before launch with a fallback at publication, and malformed output is
+a persisted validation failure.
+
 ## Limitations
 
 - Any commit changes the committed material and releases the stickiness. The rule
@@ -194,6 +206,12 @@ a failure is refused publication without it, and such a terminal is unreadable h
   publish neither, so they neither stick nor count, exactly like running the command
   by hand. DONE-required validation receipts and per-intent verification receipts keep
   their own bindings and are not changed here.
+- Only a published run is a verdict of record. A publication that is refused - the
+  Story's metadata was already dirty, the record exceeds its size bound, the compiled
+  artifacts moved, the metadata commit failed - writes neither evidence nor terminal
+  and leaves the metadata as it was: it publishes no PASS, and the next run is judged
+  against the same history. That is the standing of running the commands by hand, and
+  this Lab does not change it; what can be bound is bound before launch instead.
 - The history is the Story's process-events file. Like every other lifecycle fact it is
   protected by the repository's metadata transaction and review, not by this rule: an
   actor who rewrites that file can remove a failure from it.

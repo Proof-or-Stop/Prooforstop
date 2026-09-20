@@ -885,6 +885,36 @@ export function launchDirectoryMismatch(bindings: readonly FrozenLaunchBinding[]
   return undefined;
 }
 
+/**
+ * The committed material and story files a run executes against, captured
+ * BEFORE launch and kept with the identity object the run is bound to. The
+ * publication binds its record and its terminal to them when its own lookup
+ * fails afterwards: a lookup that fails only after the commands ran must not
+ * leave an executed verdict without a record.
+ */
+const preLaunchBindings = new WeakMap<RoutineValidationIdentity, { materialHash: string; storyFilesHash: string }>();
+const isSha256Hex = (value: unknown): value is string => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
+
+/**
+ * Exported for the fail-sticky regression. What a publication binds: its own
+ * lookup, and where that lookup fails only after the commands ran, what the
+ * run was bound to before it launched.
+ */
+export function publicationBindings(
+  lookedUp: { materialHash?: string; storyFilesHash?: string },
+  boundBeforeLaunch?: { materialHash: string; storyFilesHash: string },
+): { materialHash?: string; storyFilesHash?: string } {
+  return {
+    materialHash: lookedUp.materialHash ?? boundBeforeLaunch?.materialHash,
+    storyFilesHash: lookedUp.storyFilesHash ?? boundBeforeLaunch?.storyFilesHash,
+  };
+}
+
+/** Exported for the fail-sticky regression: what a run was bound to before it launched. */
+export function preLaunchBindingsFor(identity: RoutineValidationIdentity): { materialHash: string; storyFilesHash: string } | undefined {
+  return preLaunchBindings.get(identity);
+}
+
 /** Exported for the fail-sticky regression: an identity that cannot be built is a refusal, never a null the caller executes past. */
 export function buildStoryRoutineIdentity(args: {
   ctx: HandlerContext;
@@ -897,10 +927,7 @@ export function buildStoryRoutineIdentity(args: {
 }) {
   try {
     const snapshot = routineVerificationSnapshot(args.ctx, args.storyId);
-    return {
-      snapshot,
-      launchBindings: freezeLaunchBindings(args.ctx.root, args.commands),
-      identity: buildRoutineValidationIdentity({
+    const identity = bindBeforeLaunch(args.ctx, args.storyId, buildRoutineValidationIdentity({
         projectRoot: args.ctx.root,
         sourceKind: args.sourceKind,
         sourceInputs: sourceInputSnapshot(args.ctx.root, args.sourceKind),
@@ -910,14 +937,33 @@ export function buildStoryRoutineIdentity(args: {
         ...(args.focus ? { focus: args.focus } : {}),
         profile: snapshot.workflowPolicy.profile,
         verificationPolicyInputs: snapshot.identityPolicyInputs,
-      }),
-    };
+    }));
+    return { snapshot, launchBindings: freezeLaunchBindings(args.ctx.root, args.commands), identity };
   } catch (error) {
     // A run that cannot be bound to what it validates is refused before it
     // launches. Executing it would record a failure under a digest no later
     // identity can match, so an unchanged retry would not be recognised as one.
     throw new Error(`[${IDENTITY_UNAVAILABLE_CODE}] the routine validation identity of ${args.storyId} could not be built, so this run cannot be bound to what it validates and is refused before launch: ${error instanceof Error ? error.message : String(error)}`);
   }
+}
+
+/**
+ * In a git-backed Story the material and the story files must be identifiable
+ * before anything executes; a run that could not be bound afterwards would
+ * execute for nothing. A store without a repository has no such identity and
+ * keeps its legacy failure-only fallback.
+ */
+function bindBeforeLaunch(ctx: HandlerContext, storyId: string, identity: RoutineValidationIdentity): RoutineValidationIdentity {
+  let gitCwd: string | undefined;
+  try { gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root }); } catch { gitCwd = undefined; }
+  if (!gitCwd || !currentHead(gitCwd)) return identity;
+  const materialHash = currentMaterialHash(gitCwd, 'HEAD', ctx.root);
+  const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', ctx.root);
+  if (!isSha256Hex(materialHash) || !isSha256Hex(storyFilesHash)) {
+    throw new Error('the committed material or the story files could not be identified before launch');
+  }
+  preLaunchBindings.set(identity, { materialHash, storyFilesHash });
+  return identity;
 }
 
 export function evaluateStoryRoutineReuse(args: {
@@ -1475,6 +1521,11 @@ function persistStoryValidationEvidence(
   const statusPass = result.status === 'pass';
   const allPass = Boolean(result.allPass ?? result.allPassed ?? statusPass);
   const failureKind = validationFailureKindFromResult(result, allPass);
+  // A refused publication is not a verdict of record. It writes neither
+  // evidence nor terminal and leaves the Story's metadata exactly as it was:
+  // it publishes no PASS, and the next run is judged against the same
+  // history - the standing of running the commands by hand. What CAN be
+  // bound is bound before launch, so that an executed verdict is recorded.
   const persistenceFailure = (reason: string, extraDetails: string[] = []) => ({
     ...externalResult({
       provider: 'proof-or-stop-verifier-executed-persistence',
@@ -1592,10 +1643,15 @@ function persistStoryValidationEvidence(
     if (executionBuildArtifactsHash !== publicationBuildArtifactsHash) {
       return persistenceFailure('build artifacts changed between execution and publication; rerun validate [build_artifacts_drift_before_publication]');
     }
+    // A lookup that fails only now, after the commands ran, falls back to
+    // what this run was bound to before it launched: the verdict it executed
+    // is recorded against the material it executed on, never dropped.
     hashes = {
       headHash: currentHead(gitCwd) ?? result.headSha ?? result.headHash,
-      materialHash: currentMaterialHash(gitCwd, 'HEAD', ctx.root),
-      storyFilesHash: currentStoryFilesHash(gitCwd, 'HEAD', ctx.root),
+      ...publicationBindings({
+        materialHash: currentMaterialHash(gitCwd, 'HEAD', ctx.root),
+        storyFilesHash: currentStoryFilesHash(gitCwd, 'HEAD', ctx.root),
+      }, preLaunchBindings.get(identity)),
       buildArtifactsHash: executionBuildArtifactsHash,
       ...(typeof result.buildArtifactsProtection === 'string' ? { buildArtifactsProtection: result.buildArtifactsProtection } : {}),
     };
@@ -3118,7 +3174,21 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           // Look for JSON object in output
           const jsonMatch = stripped.match(/\{[\s\S]*"provider"\s*:\s*"[^"]+"[\s\S]*\}/);
           if (jsonMatch) {
-            const parsed = JSON.parse(jsonMatch[0]);
+            // Output that looks like a provider result but does not parse is a
+            // validation failure with the executor's own command outcome, and
+            // is persisted like one. Throwing here would leave an executed
+            // run without a record, whatever its exit code was.
+            let parsed: any;
+            try { parsed = JSON.parse(jsonMatch[0]); } catch (parseError) {
+              parsed = {
+                provider: 'proof-or-stop-verifier-malformed-validator-output',
+                status: 'fail',
+                allPass: false,
+                summary: 'The validate file printed a provider result that is not valid JSON',
+                details: [`malformed validator JSON: ${parseError instanceof Error ? parseError.message : String(parseError)}`, ...stripped.split('\n').filter((line) => line.trim()).slice(0, 40)],
+                warnings: [],
+              };
+            }
             const semanticCommandPass = String(parsed?.status ?? '').trim().toLowerCase() === 'pass'
               && parsed?.allPass !== false
               && parsed?.allPassed !== false;

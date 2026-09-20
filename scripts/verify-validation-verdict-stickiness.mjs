@@ -522,6 +522,37 @@ try {
   const afterUnbound = unbound.runCli();
   check(afterUnbound.status === 0 && unbound.evidence()?.result === 'PASS', `control: the unchanged inputs validate once the identity can be built (${afterUnbound.text.slice(0, 300)})`);
 
+  // Audit 6: the material and the story files are identified BEFORE launch and
+  // kept with the identity; a lookup that fails only after the commands ran
+  // falls back to them, so an executed verdict is recorded, never dropped.
+  const verifierModule = await import('../packages/main/src/handlers/verifier.ts');
+  expectRepaired(typeof verifierModule.preLaunchBindingsFor === 'function' && typeof verifierModule.publicationBindings === 'function', 'nothing is bound before launch');
+  if (typeof verifierModule.preLaunchBindingsFor === 'function' && typeof verifierModule.publicationBindings === 'function') {
+    const boundRun = verifierModule.buildStoryRoutineIdentity({ ctx: { root: unbound.root, store: unbound.store, scanRoot: unbound.root }, storyId: unbound.storyId, sourceKind: 'no-validator', commands: [] });
+    const before = verifierModule.preLaunchBindingsFor(boundRun.identity);
+    expectRepaired(before?.materialHash === currentMaterialHash(unbound.root, 'HEAD', unbound.root) && before?.storyFilesHash === currentStoryFilesHash(unbound.root, 'HEAD', unbound.root) && /^[a-f0-9]{64}$/.test(before?.materialHash ?? ''),
+      `a run was not bound to its material and story files before launch (${JSON.stringify(before)})`);
+    const lost = verifierModule.publicationBindings({ materialHash: undefined, storyFilesHash: undefined }, before);
+    expectRepaired(lost.materialHash === before?.materialHash && lost.storyFilesHash === before?.storyFilesHash, 'a lookup that failed after the commands ran left the publication unbound');
+    const fresh = verifierModule.publicationBindings({ materialHash: H('e'), storyFilesHash: H('f') }, before);
+    check(fresh.materialHash === H('e') && fresh.storyFilesHash === H('f'), 'control: a publication lookup that succeeds is what the record binds');
+    check(verifierModule.publicationBindings({}, undefined).materialHash === undefined, 'control: a run that was never bound stays unbound and is refused');
+  }
+
+  // Audit 6: a validate file that fails and prints a provider result that does
+  // not parse is a recorded validation failure, not an exception that leaves
+  // the run without a record; the valid PASS it prints next is a flipped verdict.
+  const malformed = seed('malformed', `const verdict = require('node:fs').readFileSync(process.env.STICKINESS_SWITCH, 'utf8').trim();\nif (verdict === 'pass') { console.log(JSON.stringify({ provider: 'flaky-fixture', status: 'pass', allPass: true, summary: 'pass', details: [], warnings: [] })); process.exit(0); }\nconsole.log('{"provider":"flaky-fixture","status":fail}');\nprocess.exit(1);\n`);
+  writeFileSync(switchPath, 'fail\n');
+  const malformedRun = malformed.runCli();
+  check(malformedRun.status !== 0, `control: malformed failing output fails the run (${malformedRun.text.slice(0, 300)})`);
+  expectRepaired(kinds(malformed.history()) === JSON.stringify([['fail', 'executed', 'validation_failure']]) && malformed.evidence()?.result === 'FAIL',
+    `a failing run with malformed validator output left no record (${kinds(malformed.history())} evidence=${malformed.evidence()?.result}; ${malformedRun.text.slice(0, 300)})`);
+  malformed.admit();
+  writeFileSync(switchPath, 'pass\n');
+  const malformedRetry = malformed.runCli();
+  expectRepaired(malformedRetry.status !== 0 && malformedRetry.text.includes('verdict_flip_refused') && malformed.evidence()?.result !== 'PASS', 'malformed failing output exempted the retry from stickiness');
+
   // Audit 5: the terminal records exactly the identity its publication
   // validated. Here nothing it could look up exists - the context has no
   // repository at all - and the bindings are not the fixture's own, so any
@@ -597,6 +628,9 @@ expectRepaired((verifierSource.match(/passPublicationRefusal\(/g) ?? []).length 
 expectRepaired(/if \(allPass\) \{\s+const flipRefusal = passPublicationRefusal\(/.test(verifierSource) && verifierSource.includes('verdictIdentityFromParts({ commandSetHash: identity.digest, ...hashes })') && !/if \(allPass && identity/.test(verifierSource),
   'the executed publication asks the shared refusal only when it already has an identity (source-text guard)');
 expectRepaired(verifierSource.includes('failureKind: classifyValidationTerminalFailure({'), 'the executed terminal kind is not derived from the command outcomes (source-text guard)');
+// Audit 6: the publication binds through the pre-launch fallback.
+expectRepaired(verifierSource.includes('}, preLaunchBindings.get(identity)),') && verifierSource.includes('preLaunchBindings.set(identity, { materialHash, storyFilesHash });'),
+  'the publication does not fall back to what the run was bound to before launch (source-text guard)');
 // Audit 5: every publication is bound as completely as a PASS, and the
 // terminal writer takes that identity instead of looking anything up again.
 const writerStart = verifierSource.indexOf('export function recordValidationTerminal(');
