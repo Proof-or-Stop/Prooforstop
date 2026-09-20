@@ -9,6 +9,10 @@ import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const failures = [];
+const groupedBudgetSource = readFileSync(new URL('../packages/main/src/core/host-run-budget.ts', import.meta.url), 'utf8');
+if (!groupedBudgetSource.includes('HOST_RUN_BUDGET_RUNTIME_POLICY') || !groupedBudgetSource.includes('HOST_RUN_BUDGET_ARTIFACT') || !groupedBudgetSource.includes('resolveCanonicalRuntimeProjectRoot(root)')) failures.push('Shared host budget must consume canonical runtime policy, artifact and project identity');
+if (!groupedBudgetSource.includes('accountingCount(outcome.input)') || !groupedBudgetSource.includes('row.input = accountingCount(row.input)')) failures.push('Shared budget accounting must normalize invalid counters on write and recovery without releasing reservations');
+
 
 const requiredFacts = [
   ['entrypoint-authority', 'runtimeEntrypointAuthority'],
@@ -86,6 +90,9 @@ async function main() {
   check(read(root, 'packages/main/src/core/runtime-fact-registry.ts').includes('MANAGED_CRITIC_FIXTURE_RUNTIME_POLICY'), 'Managed critic fixture runtime policy must be registered');
   check(read(root, 'packages/main/src/tasks/isolated-finding-fixture.ts').includes('managedCriticFixtureBudgetMs(process.env,budgetStartedAt)'), 'Isolated fixture must consume the managed critic budget');
   const registrySource = read(root, 'packages/main/src/core/runtime-fact-registry.ts');
+  check(registrySource.includes('PLANNED_PROVIDER_BUDGET_RUNTIME_POLICY'), 'Planned provider budget boundary must be registered');
+  check(read(root, 'packages/main/src/core/budget-meter.ts').includes('PLANNED_PROVIDER_BUDGET_RUNTIME_POLICY.minimumAttemptTimeoutMs'), 'Budget allowance consumes the registered minimum attempt timeout');
+  check(read(root, 'packages/main/src/core/planned-steps-executor.ts').includes('budgetMeter.providerAllowance(attempts, timeoutMs)'), 'Actual planned provider transport must use budget admission');
   check(registrySource.includes('Controller HEAD and index own the selected regular config'), 'Repository-owned bootstrap assets must retain their material ownership contract');
   for (const file of ['packages/main/src/cli-engine.ts', 'packages/main/src/cli/runtime-root.ts', 'packages/main/src/core/runtime-artifact-registry.ts']) {
     check(read(root, file).includes('hasRepositoryOwnedControllerAssets'), `${file} must share the repository-owned asset predicate`);
@@ -913,6 +920,7 @@ process.stdout.write(JSON.stringify({ registry: RUNTIME_FACT_REGISTRY.length, pr
 
 main().catch((error) => {
   console.error('Runtime fact contract failed:');
+  for (const failure of failures) console.error(`- ${failure}`);
   console.error(`- ${error instanceof Error ? error.message : String(error)}`);
   process.exit(1);
 });

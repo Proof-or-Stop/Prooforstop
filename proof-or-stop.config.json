@@ -5566,6 +5566,20 @@
       {
         "command": "node",
         "args": [
+          "scripts/verify-benchmark-behavior.mjs"
+        ],
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
           "packages/main/tests/red/red-dynamic-finding-collection-readiness.mjs",
           "--canonical-core"
         ],

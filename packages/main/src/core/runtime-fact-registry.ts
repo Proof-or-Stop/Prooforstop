@@ -1,4 +1,13 @@
+export const HOST_RUN_BUDGET_RUNTIME_POLICY = { lockTimeoutMs: 2000, maxStateBytes: 8 * 1024 * 1024, scope: 'explicit-group-canonical-project', crash: 'retain-reservation' } as const;
 import { posix as pathPosix } from 'node:path';
+
+/** Per-plan synchronous provider admission; does not govern desktop model calls. */
+export const PLANNED_PROVIDER_BUDGET_RUNTIME_POLICY = {
+  minimumAttemptTimeoutMs: 1,
+  admission: 'before-provider-transport',
+  attemptAccounting: 'reported-attempts-not-step-count',
+  scope: 'single-planned-execution',
+} as const;
 
 /** Bounded history transport; larger or incomplete Git output remains invalid. */
 export const REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES = 64 * 1024 * 1024;

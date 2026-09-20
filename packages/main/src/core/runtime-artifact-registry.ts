@@ -1,3 +1,4 @@
+export const HOST_RUN_BUDGET_ARTIFACT = { directoryName: 'host-run-budgets', location: 'canonical-project-runtime' } as const;
 export const VALIDATION_RESERVATION_DELEGATION_ARTIFACT = { residualFile: 'delegated-processes.json', bootFile: 'machine-boot.json', temporaryPrefix: 'validation-owner-', bootstrapFile: 'bootstrap', socketFile: 's', location: 'machine-ticket-and-owned-temporary-directory', cleanup: 'observed-owned-group-absence' } as const;
 export const REVIEWER_BATCH_ADMISSION_ARTIFACT = { directoryName: 'reviewer-batch-admission', identityKeyFile: 'execution-identity.key', seedDirectoryName: 'provider-seeds', seedFileSuffix: '.seed.json', rosterFile: 'assignments.json', rosterLockDirectory: 'assignments.lock', probeWorkDirectoryName: 'work', probeTemporaryDirectoryName: 'tmp', inputPlanPrefix: 'input-plan-', inputPlanSuffix: '.json', launchReservationDirectoryName: 'launch-reservations', launchReservationFileSuffix: '.json', launchReservationLockSuffix: '.lock', location: 'canonical-project-runtime' } as const;
 export const MANAGED_REVIEW_LANE_ARTIFACT = { directoryName: 'readonly-lane', buildSource: 'build-source', executionWorktree: 'execution-worktree', scratchAdminMarker: 'proof-or-stop-managed-review-identity', output: 'output', sourceOutput: '.proof-or-stop/runtime/managed-review-build', temporary: 'tmp', cache: 'cache', probe: 'probe', launchers: 'launchers', binding: 'build-binding.json', location: 'sealed-scratch-parent-and-git-admin', cleanup: 'owned-scratch-terminal-cleanup' } as const;
@@ -577,6 +578,12 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     matchers: stateDirPrefix(`runtime/${REVIEWER_BATCH_ADMISSION_ARTIFACT.directoryName}/`),
     ignorePatterns: stateDirIgnore(`runtime/${REVIEWER_BATCH_ADMISSION_ARTIFACT.directoryName}/`),
     materialHash: 'exclude', volatile: true, repairableTrackedArtifact: true,
+  },
+  {
+    id: 'host-run-budgets', description: 'Durable explicit host-run call reservations; no Story gate authority.',
+    matchers: stateDirPrefix(`runtime/${HOST_RUN_BUDGET_ARTIFACT.directoryName}/`),
+    ignorePatterns: stateDirIgnore(`runtime/${HOST_RUN_BUDGET_ARTIFACT.directoryName}/`),
+    materialHash: 'exclude', volatile: true, repairableTrackedArtifact: false,
   },
   {
     id: 'managed-host-runs',
