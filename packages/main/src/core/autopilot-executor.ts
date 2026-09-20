@@ -1,3 +1,4 @@
+import { runWithProviderCallBudget } from './provider-call-budget.js';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
@@ -415,12 +416,12 @@ export function runClaudeRepair(
 
   let repairResult: AutopilotCommandResult;
   try {
-    repairResult = runner({
+    repairResult = runWithProviderCallBudget(root, env, prompt, () => runner({
       executable: claudeCommand,
       args: claudeArgs,
       cwd: root,
       timeoutMS: positiveInteger(args.claudeTimeoutMS, DEFAULT_CLAUDE_TIMEOUT_MS),
-    });
+    }));
   } finally {
     // F-016: release the admission slot exactly like host_run — token-verified
     // (F-025; a reclaimed+reacquired slot is never deleted), best-effort (pid-

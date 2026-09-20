@@ -1,3 +1,4 @@
+import { runWithProviderCallBudgetAsync } from './provider-call-budget.js';
 /**
  * codex-review-leaf — auto-run Codex as an independent, read-only adversarial
  * reviewer over a materialHash-bound change and capture a STRUCTURED verdict.
@@ -726,12 +727,13 @@ export async function runCodexReviewLeaf(
 
   let outcome: CodexReviewRunnerResult;
   try {
-    outcome = await runner({
+    const invoke = async () => await runner({
       prompt,
       storyWorktree: opts.storyWorktree,
       timeoutMs: opts.timeoutMs,
       ...(opts.env ? { env: opts.env } : {}),
     });
+    outcome = opts.managedExecution ? await invoke() : await runWithProviderCallBudgetAsync(admissionRoot, admissionEnv, prompt, invoke);
   } finally {
     // F-017: release the admission slot exactly like host_run / the autopilot
     // repair — token-verified (F-025; a reclaimed+reacquired slot is never

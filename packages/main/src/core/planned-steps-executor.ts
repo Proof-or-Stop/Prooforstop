@@ -1,3 +1,4 @@
+import { runBudgetedProviderRequest } from './provider-call-budget.js';
 import { createHash } from 'node:crypto';
 import type {
   JobPlan,
@@ -469,7 +470,8 @@ function executeRealProviderStep(
     if (allowance?.report.exceeded) return block(BUDGET_EXCEEDED_STOP_REASON, {
       provider, budgetAdmissionReport: allowance.report, validationSatisfied: false,
     });
-    result = ctx.executor.run({
+    result = runBudgetedProviderRequest({
+      budgetRoot: ctx.root, budgetEnv: ctx.env,
       admission,
       provider,
       argv,
@@ -477,7 +479,7 @@ function executeRealProviderStep(
       timeoutMs: allowance?.timeoutMs ?? step.timeoutMs,
       maxAttempts: allowance?.attempts ?? step.maxAttempts,
       env: redactedProviderEnv(ctx.env, ctx.policy.credentialsEnvAllowlist),
-    });
+    }, request => ctx.executor.run(request));
   } finally {
     releaseProviderProcessAdmission(admission);
   }

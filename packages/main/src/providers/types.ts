@@ -44,6 +44,9 @@ export interface ILLMProvider {
 export type BoundedProviderName = 'codex' | 'claude' | 'gemini';
 
 export interface ProviderExecRequest {
+  /** Trusted parent quota context, separate from provider credential projection. */
+  budgetRoot?: string;
+  budgetEnv?: NodeJS.ProcessEnv;
   admission?: ProviderProcessAdmission;
   provider: BoundedProviderName;
   /** Bounded argv. Shell strings are rejected by the executor before this point. */

@@ -14,6 +14,9 @@ if (!groupedBudgetSource.includes('HOST_RUN_BUDGET_RUNTIME_POLICY') || !groupedB
 if (!groupedBudgetSource.includes('accountingCount(outcome.input)') || !groupedBudgetSource.includes('row.input = accountingCount(row.input)')) failures.push('Shared budget accounting must normalize invalid counters on write and recovery without releasing reservations');
 
 
+const quotaRuntimeSource = readFileSync(new URL('../packages/main/src/core/runtime-fact-registry.ts', import.meta.url), 'utf8');
+if (!quotaRuntimeSource.includes('SHARED_PROVIDER_QUOTA_RUNTIME_POLICY') || !quotaRuntimeSource.includes('submission-spec-digest')) failures.push('Shared provider quota coverage and managed binding must be registered runtime facts');
+
 const requiredFacts = [
   ['entrypoint-authority', 'runtimeEntrypointAuthority'],
   ['cli-entrypoint', 'cliEntrypoint'],

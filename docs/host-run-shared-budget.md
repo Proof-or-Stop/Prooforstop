@@ -1,8 +1,10 @@
-# Explicit shared host-run budget
+# Explicit shared provider invocation quota
 
 Use one stable `PROOF_OR_STOP_RUN_BUDGET_ID` for the entire bounded job, with
 `PROOF_OR_STOP_RUN_BUDGET_MAX_CALLS` as a positive integer. Every participating
-`host_run` must inherit both settings. Canonical project identity makes linked
+job owner must supply both settings. The same ID and canonical project identify
+one quota across host runs, managed workers, plans, standalone reviews, repairs,
+general dispatch, bounded adapters, supervised processes and custom Lab audits. Canonical project identity makes linked
 worktrees share the same atomic reservation file. Separate processes and restarted
 clients consume the same ceiling. This opt-in policy does not change unconfigured
 callers or attach a budget to an existing desktop conversation.
@@ -44,8 +46,10 @@ path with `node scripts/verify-benchmark-exception-usage.mjs`.
 This is a **host invocation count**, not a token, price, model-turn or elapsed-time
 upper bound. A provider CLI can perform multiple model turns within one invocation.
 The byte ceiling covers the prompt supplied by this repository, not hidden provider
-instructions, files loaded by the provider or desktop conversation history. Calls
-outside `host_run` and callers that omit the group are outside this contract.
+instructions, files loaded by the provider or desktop conversation history. External processes outside these registered launch owners and jobs that never
+configure a group remain outside this opt-in contract. A job must not remove or
+change its ID to evade the quota. This does not configure the Codex Desktop
+scheduler or limit provider-internal model turns.
 The runtime files are operational accounting, not signed Story evidence or an
 independent usage audit. Existing managed idempotency remains the duplicate-run
 mechanism; a shared budget is not a replacement for execution keys.
@@ -79,8 +83,8 @@ verdict or formal Story completion evidence.
 
 Routine behavioral coverage runs through `npm run test:benchmark-behavior`, the
 canonical `npm test` inventory and the registered `proof-or-stop validate` command.
-It runs six private-fixture regressions without building or calling the contract
-verifiers. Individual `test:benchmark-*` aliases remain available. The Lab release
+It runs the shared-quota regression and six existing private-fixture regressions
+without building or calling the process/runtime contract verifiers. Individual `test:benchmark-*` aliases remain available. The Lab release
 entry separately owns build/typecheck, registration and full-suite inventory smoke
 checks, static evidence, usage smokes and complete contract invocations.
 
@@ -91,3 +95,37 @@ complete normalized assertion diagnostic, including Node stack/version. It does
 not infer unchanged runtime facts from an umbrella assertion message. Any binding
 or diagnostic drift refuses the exception. That baseline failure stops the runtime
 verifier; checks ordered after it remain unexecuted and are not claimed as passed.
+
+## Shared launch ownership and retry accounting
+
+A task's launch owners consume the same durable reservations. Per-plan budget
+meters and concurrent-process slots remain additional restrictions, never
+substitutes for the cumulative quota. Configure the quota once on the owning
+job process and keep the ID stable across all stages. No default number is
+implied by the regression fixtures.
+
+Managed submissions capture only the quota variables in their immutable spec
+and bind them to idempotency input identity. The worker restores that binding
+even if its ambient environment loses the settings. A worker or resumed
+submission claiming a different quota is refused; provider output and runtime
+observation cannot replace this submission-owned policy. Historical records
+without the field retain their original opt-in environment behavior.
+
+Bounded provider requests reserve their available retry allowance atomically
+before transport and pass only that allowance to the adapter. A valid positive
+attempt count releases unused retries; errors, malformed counts and interrupted
+work retain reservations. This conservative accounting can underuse a quota,
+but does not authorize extra work. Late settlement failures preserve the
+execution outcome and emit a diagnostic. Nested planner/adapter/supervisor
+layers reuse an active in-process object identity so the same attempt is
+charged once; serialized or copied objects cannot declare themselves exempt.
+Other independent calls always obtain their own reservation.
+
+`SHARED_PROVIDER_QUOTA_RUNTIME_POLICY` registers the owners and their quota
+call edges. `node scripts/verify-shared-provider-quota.mjs` exercises all five
+previous cross-route counterexamples, retry/exception cases and live binding
+behavior. The coverage verifier checks the current provider inventory and
+rejects an unregistered owner or a removed call site. It is a structural
+regression guard, not a claim to prove arbitrary dynamic JavaScript or external
+provider subprocesses. The same verifier runs in the routine benchmark behavior
+suite. Test transport is intercepted; no paid model call is required.

@@ -1,3 +1,4 @@
+import { runBudgetedSupervisedProcess } from '../core/provider-call-budget.js';
 import { SUPERVISED_PROVIDER_RUNTIME_POLICY } from '../core/runtime-fact-registry.js';
 /** Synchronous API over a process-group owner with an independent control pipe. */
 import { spawnSync } from 'node:child_process';
@@ -6,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { acquireProviderProcessAdmission, releaseProviderProcessAdmission, type ProviderProcessAdmission } from '../core/provider-process-admission.js';
 
 export interface SupervisedProcessOptions {
+  budgetRoot?: string; budgetEnv?: NodeJS.ProcessEnv;
   cwd: string; env: NodeJS.ProcessEnv; timeoutMs: number; stdin?: string;
   admission?: ProviderProcessAdmission;
 }
@@ -15,6 +17,9 @@ export interface SupervisedProcessOutcome {
 }
 
 export function runSupervisedProviderProcess(binary: string, argv: string[], options: SupervisedProcessOptions): SupervisedProcessOutcome {
+  return runBudgetedSupervisedProcess(options, argv, () => runAdmittedSupervisedProcess(binary, argv, options));
+}
+function runAdmittedSupervisedProcess(binary: string, argv: string[], options: SupervisedProcessOptions): SupervisedProcessOutcome {
   const admission = options.admission ?? acquireProviderProcessAdmission({ root: options.cwd, env: options.env,
     host: binary, storyId: null, agentType: 'bounded-provider' });
   if (!admission.admitted) return { status: null, stdout: '', stderr: '', error: Object.assign(new Error('provider concurrency cap exceeded'), { code: 'EBUSY' }), replacementSafe: true };

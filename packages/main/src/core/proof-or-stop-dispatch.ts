@@ -1,3 +1,4 @@
+import { runBudgetedProviderRequest } from './provider-call-budget.js';
 import { runSupervisedProviderProcess } from '../providers/supervised-process.js';
 import { execFileSync, execSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -2497,7 +2498,8 @@ function runBoundedRealLeafDispatch(
 
   let result;
   try {
-    result = runner({
+    result = runBudgetedProviderRequest({
+      budgetRoot: root, budgetEnv: process.env,
       admission,
       provider: hostKind,
       argv,
@@ -2506,7 +2508,7 @@ function runBoundedRealLeafDispatch(
       maxAttempts: 1,
       env: providerEnv,
       ...(promptStdin !== undefined ? { stdin: promptStdin } : {}),
-    });
+    }, request => runner(request));
   } finally {
     releaseProviderProcessAdmission(admission);
   }
@@ -2742,6 +2744,7 @@ function runClaudeCodeRealLeafDispatch(
   let result;
   try {
     result = runSupervisedProviderProcess('claude', spawnArgs, {
+      budgetRoot: root, budgetEnv: process.env,
       admission,
       cwd: worktreeAbs,
       env: commandEnv,

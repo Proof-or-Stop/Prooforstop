@@ -11,12 +11,15 @@ import {tmpdir} from 'node:os';
 const snapshot=fileURLToPath(new URL('../',import.meta.url));
 const scenario=process.argv[2];
 if(!scenario){
+ execFileSync(process.execPath,['--input-type=module','-e',"await import('./scripts/lab-audit.mjs')"],{cwd:snapshot,stdio:'inherit',timeout:30000});
  const failures=[];
- for(const name of ['direct','managed-inherited','managed-task-env-only','planned-after-host','repair-after-host','custom-audit-after-host','separate-plans']){
+ for(const name of ['direct','managed-inherited','managed-task-env-only','planned-after-host','repair-after-host','custom-audit-after-host','separate-plans','mixed-positive']){
   try{process.stdout.write(execFileSync(process.execPath,[fileURLToPath(import.meta.url),name],{encoding:'utf8',timeout:30000}));}
   catch(e){process.stdout.write(String(e.stdout??''));failures.push(name);}
  }
  assert.deepEqual(failures,[],'SHARED_ROUTE_QUOTA_RED: every owned launch must debit the same configured job quota');
+ execFileSync(process.execPath,['scripts/verify-shared-provider-quota-edges.mjs'],{cwd:snapshot,stdio:'inherit',timeout:30000});
+ execFileSync(process.execPath,['scripts/verify-shared-provider-quota-contract.mjs'],{cwd:snapshot,stdio:'inherit',timeout:30000});
  console.log('SHARED_ROUTE_QUOTA_GREEN');
  process.exit(0);
 }
@@ -46,7 +49,18 @@ async function planned(count=1){
   return {status:r.status,stopReason:r.stopReason,meteredCalls:r.budgetUsage.usage.providerCalls};
 }
 try{
-  if(scenario==='separate-plans'){
+  if(scenario==='mixed-positive'){
+    const {runClaudeRepair}=await mod('packages/main/src/core/autopilot-executor.ts');
+    const repair=runClaudeRepair(root,{},()=>{total++;otherCalls++;return{exitCode:0,stdout:'fixture',stderr:''};},
+      {id:'fixture'}, {executable:'node',args:[],cwd:root,timeoutMS:10}, {exitCode:1,stdout:'',stderr:''},
+      {story:{storyId:null},mode:'local',targetPhase:'DEV'},env);
+    assert.equal(repair.status,'passed');
+    const {runCustomAuditAdapter}=await mod('scripts/lab-audit.mjs');
+    const admissionApi=await mod('packages/main/src/core/provider-process-admission.ts');
+    await runCustomAuditAdapter({command:'fixture',argv:[],cwd:root,env,stdinText:'fixture',timeoutMs:10},root,new AbortController(),
+      {admissionApi,runner:async()=>{total++;otherCalls++;return outcome();}});
+    assert.equal(total,2);assert.equal(await host(),false);
+  }else if(scenario==='separate-plans'){
     details.firstPlan=await planned(2);details.secondPlan=await planned(2);
   }else{
     assert.equal(await host(),true);assert.equal(await host(),true);
@@ -64,7 +78,8 @@ try{
       }});
       await worker;
       const state=await getManagedHostRunStatus({root,runId:submitted.runId});
-      details.managedState=state.run.state;details.managedTerminal=state.run.terminal;
+      details.managedState=state.run.state;details.managedReason=state.run.terminal?.reason;
+      if(otherCalls===0)assert.equal(details.managedReason,'worker_error:host_run_budget_refused: total call reservations exhausted');
     }else if(scenario==='planned-after-host')details.plan=await planned(1);
     else if(scenario==='repair-after-host'){
       try {
