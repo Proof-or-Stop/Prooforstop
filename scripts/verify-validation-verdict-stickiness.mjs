@@ -568,6 +568,28 @@ try {
     const usable = normalize({ provider: 'fixture', status: 'pass', allPass: true, summary: 'ok', details: ['a', { toString: null }, 3], warnings: [] });
     check(usable.status === 'pass' && usable.allPass === true && usable.provider === 'fixture' && JSON.stringify(usable.details) === JSON.stringify(['a', '{"toString":null}', '3']), `control: a usable result passes through, with list entries made strings (${JSON.stringify(usable)})`);
   }
+  // Audit 8: normalization is total. A details entry nested thousands of
+  // levels deep parses, and overflows the stack when it is serialized again.
+  const deepText = (levels) => `{"provider":"flaky-fixture","status":"fail","allPass":false,"details":[{"toJSON":null,"v":${'['.repeat(levels)}${']'.repeat(levels)}}]}`;
+  if (typeof verifierModule.normalizeValidatorResult === 'function') {
+    let deepResult; try { deepResult = verifierModule.normalizeValidatorResult(deepText(8000)); } catch (error) { deepResult = { threw: String(error) }; }
+    expectRepaired(!deepResult.threw && deepResult.status === 'fail' && deepResult.provider === 'proof-or-stop-verifier-malformed-validator-output', `a deeply nested provider result threw out of normalization (${String(deepResult.threw ?? deepResult.provider).slice(0, 120)})`);
+    let deepElsewhere; try { deepElsewhere = verifierModule.normalizeValidatorResult(`{"provider":"flaky-fixture","status":"pass","allPass":true,"extra":${'['.repeat(8000)}${']'.repeat(8000)}}`); } catch (error) { deepElsewhere = { threw: String(error) }; }
+    expectRepaired(!deepElsewhere.threw && deepElsewhere.status === 'fail', 'a provider result nested too deeply outside its lists was accepted, to overflow when it is persisted');
+    const shallow = verifierModule.normalizeValidatorResult(`{"provider":"flaky-fixture","status":"pass","allPass":true,"extra":${'['.repeat(40)}${']'.repeat(40)}}`);
+    check(shallow.status === 'pass' && shallow.provider === 'flaky-fixture', 'control: ordinary nesting is a usable result');
+  }
+  const deeplyNested = seed('deeply-nested', `const verdict = require('node:fs').readFileSync(process.env.STICKINESS_SWITCH, 'utf8').trim();\nif (verdict === 'pass') { console.log(JSON.stringify({ provider: 'flaky-fixture', status: 'pass', allPass: true, summary: 'pass', details: [], warnings: [] })); process.exit(0); }\nconsole.log('{"provider":"flaky-fixture","status":"fail","allPass":false,"details":[{"toJSON":null,"v":' + '['.repeat(8000) + ']'.repeat(8000) + '}]}');\nprocess.exit(1);\n`);
+  writeFileSync(switchPath, 'fail\n');
+  const deepRun = deeplyNested.runCli();
+  check(deepRun.status !== 0, `control: a failing run with deeply nested output fails (${deepRun.text.slice(0, 200)})`);
+  expectRepaired(kinds(deeplyNested.history()) === JSON.stringify([['fail', 'executed', 'validation_failure']]) && deeplyNested.evidence()?.result === 'FAIL',
+    `a failing run with deeply nested validator output left no record (${kinds(deeplyNested.history())} evidence=${deeplyNested.evidence()?.result}; ${deepRun.text.slice(0, 200)})`);
+  deeplyNested.admit();
+  writeFileSync(switchPath, 'pass\n');
+  const deepRetry = deeplyNested.runCli();
+  expectRepaired(deepRetry.status !== 0 && deepRetry.text.includes('verdict_flip_refused') && deeplyNested.evidence()?.result !== 'PASS', 'deeply nested failing output exempted the retry from stickiness');
+
   const unusableStatus = seed('unusable-status', `const verdict = require('node:fs').readFileSync(process.env.STICKINESS_SWITCH, 'utf8').trim();\nif (verdict === 'pass') { console.log(JSON.stringify({ provider: 'flaky-fixture', status: 'pass', allPass: true, summary: 'pass', details: [], warnings: [] })); process.exit(0); }\nconsole.log(JSON.stringify({ provider: 'flaky-fixture', status: { toString: null }, allPass: false }));\nprocess.exit(1);\n`);
   writeFileSync(switchPath, 'fail\n');
   const unusableRun = unusableStatus.runCli();

@@ -908,24 +908,51 @@ export function normalizeValidatorResult(text: string, output = text): Record<st
     status: 'fail',
     allPass: false,
     summary: 'The validate file printed a provider result this verifier cannot use',
-    details: [`malformed validator result: ${reason}`, ...output.split('\n').filter((line) => line.trim()).slice(0, 40)],
+    details: [`malformed validator result: ${reason}`, ...String(output).split('\n').filter((line) => line.trim()).slice(0, 40).map((line) => line.slice(0, 2000))],
     warnings: [] as string[],
   });
-  let parsed: unknown;
-  try { parsed = JSON.parse(text); } catch (error) { return malformed(error instanceof Error ? error.message : 'not valid JSON'); }
-  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return malformed('the provider result is not an object');
-  const result = parsed as Record<string, any>;
-  if (typeof result.provider !== 'string' || typeof result.status !== 'string') return malformed('provider and status must be strings');
-  for (const flag of ['allPass', 'allPassed']) {
-    if (result[flag] !== undefined && typeof result[flag] !== 'boolean') return malformed(`${flag} must be a boolean`);
+  // Total by construction: whatever the child printed, and whatever goes wrong
+  // while it is being examined, the answer is a result or the structured
+  // failure - never an exception between the command and its record.
+  try {
+    const parsed: unknown = JSON.parse(text);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return malformed('the provider result is not an object');
+    if (nestedDeeperThan(parsed, VALIDATOR_RESULT_MAX_DEPTH)) return malformed(`the provider result is nested deeper than ${VALIDATOR_RESULT_MAX_DEPTH} levels`);
+    const result = parsed as Record<string, any>;
+    if (typeof result.provider !== 'string' || typeof result.status !== 'string') return malformed('provider and status must be strings');
+    for (const flag of ['allPass', 'allPassed']) {
+      if (result[flag] !== undefined && typeof result[flag] !== 'boolean') return malformed(`${flag} must be a boolean`);
+    }
+    if (result.summary !== undefined && typeof result.summary !== 'string') return malformed('summary must be a string');
+    for (const list of ['details', 'warnings']) {
+      if (result[list] === undefined) continue;
+      if (!Array.isArray(result[list])) return malformed(`${list} must be an array`);
+      result[list] = (result[list] as unknown[]).map((entry) => (typeof entry === 'string' ? entry : JSON.stringify(entry) ?? 'null'));
+    }
+    // The whole result is serialized again when it is persisted; one that
+    // cannot be is unusable now rather than an exception then.
+    JSON.stringify(result);
+    return result as Record<string, any> & { status: string };
+  } catch (error) {
+    return malformed(error instanceof Error ? error.message : 'the provider result could not be examined');
   }
-  if (result.summary !== undefined && typeof result.summary !== 'string') return malformed('summary must be a string');
-  for (const list of ['details', 'warnings']) {
-    if (result[list] === undefined) continue;
-    if (!Array.isArray(result[list])) return malformed(`${list} must be an array`);
-    result[list] = (result[list] as unknown[]).map((entry) => (typeof entry === 'string' ? entry : JSON.stringify(entry) ?? 'null'));
+}
+
+/** Deeper than any real provider result, shallow enough that nothing downstream can exhaust the stack walking it. */
+const VALIDATOR_RESULT_MAX_DEPTH = 64;
+
+/** Iterative, so the measurement cannot itself overflow on the input it is guarding against. */
+function nestedDeeperThan(value: unknown, limit: number): boolean {
+  const pending: Array<{ value: unknown; depth: number }> = [{ value, depth: 1 }];
+  while (pending.length > 0) {
+    const current = pending.pop()!;
+    if (!current.value || typeof current.value !== 'object') continue;
+    if (current.depth > limit) return true;
+    for (const child of Array.isArray(current.value) ? current.value : Object.values(current.value as Record<string, unknown>)) {
+      if (child && typeof child === 'object') pending.push({ value: child, depth: current.depth + 1 });
+    }
   }
-  return result as Record<string, any> & { status: string };
+  return false;
 }
 
 /**

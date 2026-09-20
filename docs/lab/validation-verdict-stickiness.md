@@ -72,9 +72,10 @@ yet; the same command without `--legacy` reports it once Stories validate again.
   files are identified before launch and kept with the identity, so a lookup that
   fails only after the commands ran falls back to them and the executed verdict is
   still recorded. A validate file's printed provider result is normalized without ever
-  throwing (`normalizeValidatorResult`): one that does not parse, or whose fields are
-  not of the types the pipeline coerces, is a recorded validation failure, not an
-  exception between the command and its record. Admission refuses a stored PASS without its
+  throwing (`normalizeValidatorResult`, total by construction): one that does not
+  parse, whose fields are not of the types the pipeline coerces, that is nested deeper
+  than 64 levels or that cannot be serialized again is a recorded validation failure,
+  not an exception between the command and its record. Admission refuses a stored PASS without its
   identity (`validation_identity_incomplete`); terminals from before the artifact
   binding stay valid history and are simply never matched.
 - History is `{ terminals }` or `{ unreadable }`. Only a confirmed absence (`ENOENT`)
@@ -99,8 +100,15 @@ yet; the same command without `--legacy` reports it once Stories validate again.
 ## Verification
 
 `node scripts/verify-validation-verdict-stickiness.mjs`, registered as the last
-`validate.commands` entry. At RED: 7 failing expectations, 9 controls passed. At GREEN:
-146 checks — the pure rule, both core consumers, the DONE-side consumer over a fixture
+`validate.commands` entry with the 260-second production budget (it runs 95 to 160
+seconds here, most of it in fixture runs of the built CLI). Its six child-process call
+sites - four runs of the read-only report and two of the built CLI, all on fixture
+repositories in its sandbox - are reviewed in the static-edge manifest
+(`EX-VERDICT-STICKINESS-01` to `-06`), whose configuration digest and the dependency
+digests of the entries that read the configuration or the two changed handlers are
+refreshed; `verify-validation-static-edges` reports `U18_STATIC_PASS` with 1698
+exceptions, the 1692 of main and these six. At RED: 7 failing expectations, 9 controls passed. At GREEN:
+152 checks — the pure rule, both core consumers, the DONE-side consumer over a fixture
 Story with signed evidence, corrupt and missing histories, the report, the
 `done_prepare` trust decision, source guards, and end-to-end runs through the built
 CLI on a validate file that reads a switch outside the repository: FAIL then PASS on
@@ -119,8 +127,8 @@ an audit's repair reverted, exactly that audit's expectations fail: 10 for the s
 (the laundered PASS among them, `exit=0 evidence=PASS/reused`), 12 for the third (the
 mixed failure recorded as `infra_failure` among them), 6 for the fourth (the recovery
 refused with `verdict_flip_refused` among them), 5 for the fifth, 4 for the sixth (a
-failing run with malformed validator output that left no record among them) and 4 for
-the seventh.
+failing run with malformed validator output that left no record among them), 4 for the
+seventh and 2 for the eighth.
 
 On the final Lab tree the checks that share these code paths pass:
 `validation-evidence-reuse-smoke` (its coverage-only recovery included),
@@ -196,6 +204,13 @@ status cannot be coerced to a string still threw before the record (high), and t
 report deduplicated lines before resolving the Story, so identical legacy lines in two
 Story directories collapsed into one (medium). Normalization now validates every field
 the pipeline coerces, and the report keys a copy by Story and line.
+
+The eighth audit (of `c679871e99`, rejected) found one (medium): a list entry nested
+thousands of levels deep parses and then overflows the stack when normalization
+serializes it. Normalization is now total - any exception is the structured failure -
+bounds nesting iteratively and proves the whole result serializable before returning
+it. Through the built CLI that payload was already recorded as a failure before this
+repair, so the end-to-end case is a control and the defect was in the function alone.
 
 ## Limitations
 
