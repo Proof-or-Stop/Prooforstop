@@ -3614,15 +3614,25 @@ export async function runManagedHostRunWorker(
       }
     }
     if (spec.profile === 'managed_dispatch') {
-      const output = managedDispatchOutputValidation(spec);
-      if (output.failureReason) {
-        return writeTerminal(paths, 'failed', output.failureReason, result.replacementSafe, result, now());
+      const completedResult = result;
+      const validateAndSeal = () => {
+        const output = managedDispatchOutputValidation(spec);
+        if (output.failureReason) {
+          return writeTerminal(paths, 'failed', output.failureReason, completedResult.replacementSafe, completedResult, now());
+        }
+        deps.afterManagedDispatchOutputValidated?.({ root: spec.root, runId: spec.runId, outputDigest: output.outputDigest });
+        if (output.outputDigest && currentManagedDispatchOutputDigest(spec) !== output.outputDigest) {
+          return writeTerminal(paths, 'failed', 'managed_dispatch_output_changed_before_seal', completedResult.replacementSafe, completedResult, now());
+        }
+        return writeTerminal(paths, 'completed', 'provider_completed', completedResult.replacementSafe, completedResult, now(), undefined, output.outputDigest);
+      };
+      if (spec.agentType === 'proof-or-stop-implementer' && spec.storyId) {
+        const checklistLock = new StoryStore(spec.root).runtimeLockDirPath(spec.storyId, 'checklist', 'checklist');
+        return withMkdirLock(checklistLock, validateAndSeal, {
+          label: 'managed implementer terminal seal', heartbeatMs: 1_000,
+        });
       }
-      deps.afterManagedDispatchOutputValidated?.({ root: spec.root, runId: spec.runId, outputDigest: output.outputDigest });
-      if (output.outputDigest && currentManagedDispatchOutputDigest(spec) !== output.outputDigest) {
-        return writeTerminal(paths, 'failed', 'managed_dispatch_output_changed_before_seal', result.replacementSafe, result, now());
-      }
-      return writeTerminal(paths, 'completed', 'provider_completed', result.replacementSafe, result, now(), undefined, output.outputDigest);
+      return validateAndSeal();
     }
     return writeTerminal(paths, 'completed', 'provider_completed', result.replacementSafe, result, now());
   } catch (error) {

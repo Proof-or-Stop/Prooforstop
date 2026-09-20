@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -114,14 +114,22 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
   process.env.PROOF_OR_STOP_SESSION_ID = 'managed-implementer-owner';
   process.env.HOME = root;
 
+  let managedDispatchValidationHook;
   const handlers = createHostRunHandlers({ root, scanRoot: root, store }, {
     launchWorker: async request => {
-      void runManagedHostRunWorker(request, { env: process.env });
+      void runManagedHostRunWorker(request, {
+        env: process.env,
+        afterManagedDispatchOutputValidated: args => managedDispatchValidationHook?.(args),
+      });
       return { pid: process.pid };
     },
   });
 
   let result;
+  let checklistSealLockObserved = false;
+  managedDispatchValidationHook = () => {
+    checklistSealLockObserved = existsSync(store.runtimeLockDirPath(storyId, 'checklist', 'checklist'));
+  };
   try {
     result = await handlers.host_run({
       host: 'codex', model: 'deepseek-v4.1-flash', reasoningEffort: 'high',
@@ -132,6 +140,9 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
     assert.fail(`MANAGED_IMPLEMENTER_DISPATCH_REQUIRED: ${error instanceof Error ? error.message : String(error)}`);
   }
   assert.equal(result.exitCode, 0, JSON.stringify(result));
+  managedDispatchValidationHook = undefined;
+  assert.equal(checklistSealLockObserved, true,
+    'live output revalidation and terminal seal must hold the checklist write lock');
   assert.equal(result.model, 'deepseek-v4.1-flash');
   assert.equal(store.readChecklist(storyId).items.find(item => item.id === itemId)?.status, 'done');
   assert.match(readFileSync(join(root, 'delivered-implementer-prompt.txt'), 'utf8'),
