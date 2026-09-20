@@ -53,6 +53,14 @@ hashes bind those exact AST differences; added-use and same-count movement
 negative controls remain required. Focused identity-sites and source-binding
 checks passed after the repair; complete current-candidate GREEN is still required.
 
+The next full #148 run passed identity coverage but exposed four nested runtime
+topology failures. Their shared fixture passed an empty environment to Git,
+discarding the selected host toolchain; the real probe exited 69 instead of
+resolving the worktree. The fixture now retains only PATH and DEVELOPER_DIR.
+The focused topology group changed from three failures to GREEN with identical
+admission assertions. Production runtime authority and host configuration are
+unchanged; the complete runtime and identity groups remain required for finish.
+
 ### Historical 180-second performance checkpoints
 
 The following measurements describe the earlier 180-second experiment; they do

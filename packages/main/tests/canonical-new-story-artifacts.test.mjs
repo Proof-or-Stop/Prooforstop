@@ -726,7 +726,7 @@ function runtimeTopologyInput(command, projectRoot, runtimeRoot) {
     projectRoot,
     invokedEntrypoint: join(runtimeRoot, 'bin', 'proof-or-stop.js'),
     loadedCorePackageRoot: join(runtimeRoot, 'packages', 'main'),
-    env: {},
+    env: { PATH: process.env.PATH, DEVELOPER_DIR: process.env.DEVELOPER_DIR },
   };
 }
 
