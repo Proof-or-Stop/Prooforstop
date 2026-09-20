@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab intent-fingerprint-reuse - v0.3.431 - 2026-09-20
+
+- Derive per-execution, per-intent and aggregate fingerprints from each Story's actual verification intents, displaying original descriptions and item-scoped identities without fixed counts; invalid execution groups fail closed.
+- Use authenticated receipt admission for executable planning, distinguish pending reuse publication from current evidence and print its signed refresh command, and use one item-scoped evidence selector; preserve documentation attestations with informational command text and existing waivers.
+- Preserve immutable signed reuse and strict fallback for incomplete dependencies, and explicitly label legacy refresh previews as metadata-only diagnostics. Historical ordinary-script evidence is not retroactively upgraded.
+- Verify real producer/refresh fan-out, independent assertions, zero planner executions, dynamic membership and tampering through the existing test:all smoke discovery, with explicit 180-second smoke budget and invalid-to-rerun bucket assertions. Correct the planner smoke's obsolete local-assurance assertions and verify metadata-only apply plus item ownership before and after refresh. See docs/requirements/decisions/verification-execution-receipt-fanout-and-input-scoped-freshness.md for the exact suite command and static-binding checks.
+- Baseline limitations remain: the process-fact retired-vocabulary fingerprint mismatch and the unchanged legacy refresh smoke's obsolete renderer/head-only assumptions. Focused comparison reproduces the refresh failure with the main handler; these unrelated checks remain unchanged. Focused RED/GREEN, suite and static checks are the repair evidence; repository-wide success is not claimed.
+
+Maintenance provenance: codex/lab-intent-fingerprint-reuse, repair 3376bb28787e9056a8fc9dde89eec92055237ab1.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/intent-fingerprint-reuse.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab benchmark-real-entry-regression - v0.3.430 - 2026-09-20
 
 - Enforce planned-provider attempt and remaining-time allowances before dispatch, preserving retries and post-transport spawn-error attempts.
