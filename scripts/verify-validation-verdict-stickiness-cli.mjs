@@ -331,15 +331,9 @@ try {
   expectRepaired(providerRetry.status !== 0 && providerRetry.text.includes('verdict_flip_refused') && numericProvider.evidence()?.result !== 'PASS', 'a printed failure with an unusable provider exempted the retry from stickiness');
 
   // Audit 10: JSON lets a key be written with escapes, so the literal text
-  // "provider" proves nothing. A structured result is recognized from the
-  // parsed object; plain text still goes to the exit-code wrapper.
-  expectRepaired(typeof verifierModule.structuredValidatorCandidate === 'function', 'a structured validator result is still recognized by a literal key');
-  if (typeof verifierModule.structuredValidatorCandidate === 'function') {
-    const candidate = verifierModule.structuredValidatorCandidate;
-    check(candidate('{"\\u0070rovider":"fixture","status":"fail","allPass":false}') !== null && candidate('log line\n{"status":"fail"}\n') !== null && candidate('{"\\u0070rovider":"fixture","status":fail}') !== null,
-      'an escaped provider key, a result without a provider, and an unparsable result that names one are all structured candidates');
-    check(candidate('all 12 tests passed') === null && candidate('{ debug } done') === null && candidate('[1,2]') === null, 'control: plain text, braces in a log line and a non-object are not structured candidates');
-  }
+  // "provider" proves nothing. What marks a structured attempt is checked as a
+  // pure function in scripts/verify-validation-verdict-stickiness.mjs; here a
+  // printed failure with an escaped provider key goes through the built CLI.
   const escapedKey = seed('escaped-key', `const verdict = require('node:fs').readFileSync(process.env.STICKINESS_SWITCH, 'utf8').trim();\nif (verdict === 'pass') { console.log(JSON.stringify({ provider: 'flaky-fixture', status: 'pass', allPass: true, summary: 'pass', details: [], warnings: [] })); process.exit(0); }\nconsole.log('{"\\\\u0070rovider":"flaky-fixture","status":"fail","allPass":false}');\nprocess.exit(0);\n`);
   writeFileSync(switchPath, 'fail\n');
   const escapedRun = escapedKey.runCli();

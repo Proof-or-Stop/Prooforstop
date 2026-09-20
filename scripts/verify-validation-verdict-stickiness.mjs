@@ -376,6 +376,29 @@ expectRepaired(scheduler.claimsConflict(ownEntry, rebuildEntry) === true, 'the e
 expectRepaired(verifierSource.includes('aggregateVerdictResults.has(result),') && (verifierSource.match(/aggregateVerdictResults\.add\(authoritative\);/g) ?? []).length === 2
   && !/semanticIsAggregate:\s*result\??\.dynamicValidation/.test(verifierSource) && verifierSource.includes('dynamicValidation: _printedDynamic, ...rest }'),
   'the origin of the semantic verdict is read from the result a validate file can shape (source-text guard)');
+// Audit 10 and the finish-time audit: what marks an ATTEMPT at a structured
+// provider result. JSON lets a key be written with escapes, so the literal
+// text "provider" proves nothing; an attempt is marked by the protocol's own
+// key names in the parsed object, or - where the output does not parse or is
+// truncated before its closing brace - in its text with the escapes decoded.
+// An attempt that cannot be used is a recorded failure, never plain text that
+// passes on exit code zero. The key "status" alone marks nothing.
+const verifierModule = await import('../packages/main/src/handlers/verifier.ts');
+expectRepaired(typeof verifierModule.structuredValidatorCandidate === 'function' && typeof verifierModule.normalizeValidatorResult === 'function', 'a structured validator result is still recognized by a literal key');
+if (typeof verifierModule.structuredValidatorCandidate === 'function' && typeof verifierModule.normalizeValidatorResult === 'function') {
+  const candidate = verifierModule.structuredValidatorCandidate;
+  const failsWhenNormalized = (text) => { const span = candidate(text); return span !== null && verifierModule.normalizeValidatorResult(span[0], text).status === 'fail'; };
+  expectRepaired(failsWhenNormalized('{"\\u0070rovider":"fixture","status":"fail","allPass":false}') && failsWhenNormalized('{"\\u0070rovider":"fixture","status":fail}'), 'a result whose provider key is written with an escape was read as plain text');
+  expectRepaired(failsWhenNormalized('{"provider":"fixture","status":"fail","allPass":false'), 'a provider result truncated before its closing brace was read as plain text');
+  expectRepaired(failsWhenNormalized('{"status":fail,"allPass":false}') && failsWhenNormalized('log\n{"status":"fail","allPassed":false}'), 'a result that names allPass or allPassed but no provider was read as plain text');
+  const usableSpan = candidate('log line\n{"provider":"fixture","status":"pass","allPass":true}\n');
+  check(usableSpan !== null && verifierModule.normalizeValidatorResult(usableSpan[0]).status === 'pass', 'control: a usable provider result after a log line is recognized and passes through');
+  check(candidate('all 12 tests passed') === null && candidate('{ debug } done') === null && candidate('[1,2]') === null, 'control: plain text, braces in a log line and a non-object are not structured attempts');
+  // An earlier repair in this Lab also took "status" for a marker, which would
+  // have failed every plain-text validate file whose log prints a JSON object.
+  expectRepaired(candidate('GET /health -> {"status":"ok"}\nall tests passed') === null && candidate('{"status":fail}') === null,
+    'ordinary output that prints a status was read as a failed attempt at a structured result; the key "status" alone marks nothing');
+}
 // Audit 6: the publication binds through the pre-launch fallback.
 expectRepaired(verifierSource.includes('}, preLaunchBindings.get(identity)),') && verifierSource.includes('preLaunchBindings.set(identity, { materialHash, storyFilesHash });'),
   'the publication does not fall back to what the run was bound to before launch (source-text guard)');

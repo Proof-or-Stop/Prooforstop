@@ -904,27 +904,32 @@ const isSha256Hex = (value: unknown): value is string => typeof value === 'strin
 
 /**
  * Exported for the fail-sticky regression. The span of a validate file's output
- * that is a structured provider result, or null when the output is plain text
- * for the exit-code wrapper. It is recognized from the PARSED object and its
- * decoded property names - JSON lets a key be written with escapes, so the
- * literal text "provider" proves nothing - and, where the span does not parse,
- * from its text with those escapes decoded, so that a malformed result is a
- * recorded failure rather than plain text that passes on exit code zero.
+ * that is an ATTEMPT at a structured provider result, or null when the output
+ * is plain text for the exit-code wrapper. An attempt is marked by the
+ * protocol's own key names - provider, allPass, allPassed - read from the parsed
+ * object, or, where the output does not parse (malformed, or truncated before
+ * its closing brace), from its text with JSON escapes decoded, since JSON lets a
+ * key be written with escapes. An attempt that cannot be used is a recorded
+ * failure, never plain text that passes on exit code zero. The key "status"
+ * alone marks nothing: ordinary logs print it, and a validate file that does not
+ * speak the protocol is judged by its exit code, as it always was.
  */
+const STRUCTURED_RESULT_MARKERS = ['provider', 'allPass', 'allPassed'];
 export function structuredValidatorCandidate(output: string): [string] | null {
   const start = output.indexOf('{');
+  if (start < 0) return null;
   const end = output.lastIndexOf('}');
-  if (start < 0 || end <= start) return null;
-  const text = output.slice(start, end + 1);
-  try {
-    const parsed: unknown = JSON.parse(text);
-    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)
-      && ['provider', 'status', 'allPass', 'allPassed'].some((key) => Object.prototype.hasOwnProperty.call(parsed, key))) return [text];
-    return null;
-  } catch {
-    const decoded = text.replace(/\\u([0-9a-fA-F]{4})/g, (_match, hex: string) => String.fromCharCode(parseInt(hex, 16)));
-    return /"provider"\s*:/.test(decoded) ? [text] : null;
+  const closed = end > start ? output.slice(start, end + 1) : null;
+  if (closed !== null) {
+    try {
+      const parsed: unknown = JSON.parse(closed);
+      const isObject = Boolean(parsed) && typeof parsed === 'object' && !Array.isArray(parsed);
+      return isObject && STRUCTURED_RESULT_MARKERS.some((key) => Object.prototype.hasOwnProperty.call(parsed, key)) ? [closed] : null;
+    } catch { /* not valid JSON: judged from its text below */ }
   }
+  const rest = output.slice(start);
+  const decoded = rest.replace(/\\u([0-9a-fA-F]{4})/g, (_match, hex: string) => String.fromCharCode(parseInt(hex, 16)));
+  return STRUCTURED_RESULT_MARKERS.some((key) => new RegExp(`"${key}"\\s*:`).test(decoded)) ? [rest] : null;
 }
 
 /**

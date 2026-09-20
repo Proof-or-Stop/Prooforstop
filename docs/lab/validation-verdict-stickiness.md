@@ -100,13 +100,14 @@ yet; the same command without `--legacy` reports it once Stories validate again.
 ## Verification
 
 Two registered commands, the last two `validate.commands` entries.
-`node scripts/verify-validation-verdict-stickiness.mjs` (97 checks, about 5 seconds, the
+`node scripts/verify-validation-verdict-stickiness.mjs` (104 checks, about 5 seconds, the
 Lab's RED command) covers the pure rule, both core consumers, the DONE-side consumer
 over a fixture Story with signed evidence, corrupt, missing, denied and malformed
-histories, the failure classifier, the report, the `done_prepare` trust decision, the
-scheduler conflict and the source guards.
-`node scripts/verify-validation-verdict-stickiness-cli.mjs` (65 checks, about 160
-seconds, a 600-second budget) runs the built CLI on disposable fixture projects; it
+histories, the failure classifier, what marks an attempt at a structured validator
+result, the report, the `done_prepare` trust decision, the scheduler conflict and the
+source guards.
+`node scripts/verify-validation-verdict-stickiness-cli.mjs` (about 160 seconds, a
+600-second budget) runs the built CLI on disposable fixture projects; it
 reserves `packages/main/dist` shared, so it cannot be scheduled beside a rebuild of the
 tree it executes. Their six child-process call sites - four runs of the read-only
 report and two of the built CLI, all on fixture repositories in a sandbox - are
@@ -115,8 +116,8 @@ configuration digest and the dependency digests of the entries that read the
 configuration or the two changed handlers are refreshed; `verify-validation-static-edges`
 reports `U18_STATIC_PASS` with 1698 exceptions, the 1692 of main and these six.
 
-At RED: 7 failing expectations, 9 controls passed. At GREEN: 162 checks across the two
-commands. The end-to-end runs use a validate file that reads a switch outside the
+At RED: 7 failing expectations, 9 controls passed. At GREEN every expectation of both
+commands holds. The end-to-end runs use a validate file that reads a switch outside the
 repository: FAIL then PASS on
 the identical identity is refused with `verdict_flip_refused` and publishes no PASS, a
 spoofed `infra_failure` still sticks, PASS then PASS succeeds, the terminal the real
@@ -135,7 +136,8 @@ mixed failure recorded as `infra_failure` among them), 6 for the fourth (the rec
 refused with `verdict_flip_refused` among them), 5 for the fifth, 4 for the sixth (a
 failing run with malformed validator output that left no record among them), 4 for the
 seventh, 2 for the eighth and 8 for the ninth (a printed failure with exit code zero
-and a numeric provider published as `exit=0 evidence=PASS` among them).
+and a numeric provider published as `exit=0 evidence=PASS` among them), 6 for the tenth
+and 3 for the audit that `finish` ran.
 
 On the final Lab tree the checks that share these code paths pass:
 `validation-evidence-reuse-smoke` (its coverage-only recovery included),
@@ -231,6 +233,23 @@ guard, not by a dynamic-authority fixture. And the regression executed the compi
 without reserving `packages/main/dist` (medium): the end-to-end runs are now their own
 command with that reservation and a budget that fits them.
 
+The tenth audit (of `5e56a72353`, rejected) found two (both high): whether the semantic
+argument is an aggregate was read from a field a validate file can print, and a
+structured result was recognized by the literal text of its provider key, which JSON
+lets a validate file write with escapes. The origin now reaches the classifier from the
+two dynamic-authority callers through a registry of result objects, a printed dynamic
+block is discarded, and a result is recognized from its parsed keys.
+
+The audit that `finish` ran on the prepared 0.3.435 candidate (rejected, candidate
+reopened) found one (high): a provider result truncated before its closing brace, or
+one that names `allPass` but no provider and does not parse, was still plain text and
+passed on exit code zero. An attempt at a structured result is now marked by the
+protocol's own key names - `provider`, `allPass`, `allPassed` - in the parsed object or,
+where the output does not parse or is truncated, in its text with JSON escapes decoded.
+The tenth repair had also taken `status` for a marker, which would have failed every
+plain-text validate file whose log prints a JSON object; that is withdrawn, and both
+directions are checked as a pure function in the first command.
+
 ## Limitations
 
 - Any commit changes the committed material and releases the stickiness. The rule
@@ -255,6 +274,12 @@ command with that reservation and a budget that fits them.
   and leaves the metadata as it was: it publishes no PASS, and the next run is judged
   against the same history. That is the standing of running the commands by hand, and
   this Lab does not change it; what can be bound is bound before launch instead.
+- A validate file that does not speak the provider protocol is judged by its exit code,
+  as it always was. Output that names none of `provider`, `allPass` or `allPassed` is
+  plain text - the key `status` alone marks nothing, because ordinary logs print it -
+  so a validate file that prints a bare `{"status":"fail"}` and exits zero still
+  passes. Treating such output as a failed attempt would fail every plain-text
+  validator whose log happens to contain a JSON object.
 - The history is the Story's process-events file. Like every other lifecycle fact it is
   protected by the repository's metadata transaction and review, not by this rule: an
   actor who rewrites that file can remove a failure from it.
