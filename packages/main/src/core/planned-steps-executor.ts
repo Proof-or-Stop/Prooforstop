@@ -367,8 +367,8 @@ function executeRealProviderStep(
   startedAt: string,
   now: () => Date,
 ): PlannedStepExecution {
-  const block = (reason: string, summary: Record<string, unknown>) =>
-    executionRecord(step, 'blocked', startedAt, now().toISOString(), 1, { ...summary, providerAttempts: 0 }, reason);
+  const block = (reason: string, summary: Record<string, unknown>, providerAttempts = 0) =>
+    executionRecord(step, 'blocked', startedAt, now().toISOString(), 1, { ...summary, providerAttempts }, reason);
 
   // Gate 1 — explicit policy enablement.
   if (!ctx.policy.allowedProviders.includes(provider)) {
@@ -516,7 +516,7 @@ function executeRealProviderStep(
     return block('provider_unavailable', {
       ...evidence,
       note: 'provider CLI could not be spawned at execution time',
-    });
+    }, result.attempts);
   }
   if (result.timedOut) {
     // A single bounded attempt that times out is a retryable provider_timeout.

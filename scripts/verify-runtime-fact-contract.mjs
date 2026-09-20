@@ -11,6 +11,7 @@ import { pathToFileURL } from 'node:url';
 const failures = [];
 const groupedBudgetSource = readFileSync(new URL('../packages/main/src/core/host-run-budget.ts', import.meta.url), 'utf8');
 if (!groupedBudgetSource.includes('HOST_RUN_BUDGET_RUNTIME_POLICY') || !groupedBudgetSource.includes('HOST_RUN_BUDGET_ARTIFACT') || !groupedBudgetSource.includes('resolveCanonicalRuntimeProjectRoot(root)')) failures.push('Shared host budget must consume canonical runtime policy, artifact and project identity');
+if (!groupedBudgetSource.includes('accountingCount(outcome.input)') || !groupedBudgetSource.includes('row.input = accountingCount(row.input)')) failures.push('Shared budget accounting must normalize invalid counters on write and recovery without releasing reservations');
 
 
 const requiredFacts = [
@@ -908,6 +909,7 @@ process.stdout.write(JSON.stringify({ registry: RUNTIME_FACT_REGISTRY.length, pr
 
 main().catch((error) => {
   console.error('Runtime fact contract failed:');
+  for (const failure of failures) console.error(`- ${failure}`);
   console.error(`- ${error instanceof Error ? error.message : String(error)}`);
   process.exit(1);
 });

@@ -24,10 +24,13 @@ if (!sharedHostBudget.includes('reserveHostRunBudget(args.root, args.usageEnv ??
 if (!sharedHostBudget.includes('host_runner_exception_usage_unavailable')) failures.push('Throwing host transports must preserve unavailable terminal usage');
 if (!sharedHostBudget.includes('exceptionUsage.push(chunk.text)')
   || !sharedHostBudget.includes('exceptionUsage.truncated')) failures.push('Throwing host transports must preserve bounded reported usage and truncation semantics');
+if (!sharedHostBudget.includes('execution.runnerInvoked ? null :')
+  || !sharedHostBudget.includes("budgetSettlementError: 'host_run_budget_settlement_failed'")) failures.push('Shared budget must release known pre-runner refusals and preserve completed results on settlement failure');
 
 if (!readFileSync(join(root, 'packages/main/src/core/process-fact-registry.ts'), 'utf8').includes('runtime:planned_provider_budget_admission')) failures.push('Planned provider budget admission must register its limited process authority');
 const plannedBudgetSource = readFileSync(join(root, 'packages/main/src/core/planned-steps-executor.ts'), 'utf8');
 if (!plannedBudgetSource.includes('budgetMeter.providerAllowance(attempts, timeoutMs)') || !plannedBudgetSource.includes('providerAttempts: result.attempts')) failures.push('Planned provider admission must constrain transport and meter actual retry attempts');
+if (!plannedBudgetSource.includes('}, result.attempts);')) failures.push('Post-transport spawn failures must preserve actual provider attempts');
 const readonlyLaneSources = ['packages/main/src/core/managed-review-lane.ts','packages/main/src/core/managed-review-lane-build.mjs','packages/main/src/core/managed-review-lane-policy.ts'];
 for (const path of readonlyLaneSources) if (!existsSync(join(root,path))) failures.push(`Missing managed readonly source ${path}`);
 const readonlyManagedSource=readFileSync(join(root,'packages/main/src/core/managed-host-run.ts'),'utf8');

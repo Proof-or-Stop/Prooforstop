@@ -12,6 +12,8 @@ type Row = { id: string; category: 'product' | 'repair'; state: 'reserved' | 'co
 type State = { schema: 1; policy: Policy; rows: Row[] };
 export type HostRunBudgetReservation = { file: string; id: string; policy: Policy };
 const prefix = 'PROOF_OR_STOP_RUN_BUDGET_';
+const accountingCount = (value: unknown): number | null =>
+  typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : null;
 function refused(reason: string): never { throw new Error(`host_run_budget_refused: ${reason}`); }
 function integer(raw: string | undefined, field: string, required = false): number | null {
   if (raw === undefined && !required) return null;
@@ -29,8 +31,12 @@ function readState(file: string, policy: Policy, allowNew: boolean): State {
   const ids = new Set<string>();
   for (const row of state.rows) {
     if (!row || typeof row.id !== 'string' || ids.has(row.id) || !['product','repair'].includes(row.category)
-      || !['reserved','completed','unknown'].includes(row.state)
-      || [row.input,row.cacheRead,row.output].some(n => n !== null && (!Number.isSafeInteger(n) || n < 0))) refused('invalid reservation record');
+      || !['reserved','completed','unknown'].includes(row.state)) refused('invalid reservation record');
+    // Counters are descriptive provider data, never authority to release a call.
+    // Recover malformed old accounting without discarding the charged reservation.
+    row.input = accountingCount(row.input);
+    row.cacheRead = accountingCount(row.cacheRead);
+    row.output = accountingCount(row.output);
     ids.add(row.id);
   }
   return state;
@@ -84,7 +90,7 @@ export function settleHostRunBudget(reservation: HostRunBudgetReservation | null
     else {
       row.state = outcome ? 'completed' : 'unknown';
       if (outcome?.recorded === 'provider-reported') {
-        row.input=outcome.input; row.cacheRead=outcome.cacheRead; row.output=outcome.output;
+        row.input=accountingCount(outcome.input); row.cacheRead=accountingCount(outcome.cacheRead); row.output=accountingCount(outcome.output);
       }
     }
     writeState(reservation.file,state);

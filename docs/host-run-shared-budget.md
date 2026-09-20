@@ -50,15 +50,27 @@ The runtime files are operational accounting, not signed Story evidence or an
 independent usage audit. Existing managed idempotency remains the duplicate-run
 mechanism; a shared budget is not a replacement for execution keys.
 
+Malformed provider counters become null in reservation accounting; recovering old
+malformed counters never releases a charged call. Refusals before the trusted
+runner boundary release their reservation, while runner exceptions remain charged.
+If settlement fails after a completed run, `HostRunResult.budgetSettlementError`
+reports `host_run_budget_settlement_failed`; stdout, exit status and usage remain
+available. A corrupt reservation structure still blocks subsequent launches.
+
 Reproduce with `node scripts/verify-benchmark-shared-budget.mjs` and
 `node scripts/verify-benchmark-budget-adversarial.mjs`. Both use actual host-run
 entry logic with the paid transport intercepted, isolated runtime state and
 fixture usage. They create no paid model requests and do not mutate active Stories.
 
-For the complete local Lab replay, build with `node scripts/ensure-dist.mjs`, then
-run `node scripts/verify-benchmark-release.mjs`. It covers the focused entry,
+For the complete local Lab replay, run `node scripts/verify-benchmark-release.mjs`.
+It owns the content-bound build and explicit TypeScript check before the dist
+smokes. It covers the focused entry,
 reservation, restart, exception, budget-meter and usage regressions plus static
 source-evidence consistency. The source bindings were regenerated after reviewing
 the added registry assertions; existing subprocess expressions, classifications,
-reasons and invocation restrictions are preserved. This replay is not a full
-repository-health verdict or formal Story completion evidence.
+reasons and invocation restrictions are preserved. Both process/runtime contract
+verifiers execute in the replay. Only their exact recorded baseline failure lists,
+causes and unchanged source bindings are admitted; extra failures, command errors,
+signals or changed baseline sources fail the replay. The known failures remain
+printed as failures, not PASS evidence. This replay is not a full repository-health
+verdict or formal Story completion evidence.
