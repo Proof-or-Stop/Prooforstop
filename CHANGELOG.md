@@ -1,5 +1,16 @@
 # Changelog
 
+## Lab shared-call-quota-rg - v0.3.434 - 2026-09-20
+
+- Enforce one explicit cumulative provider invocation quota across host runs, managed workers, plans, repairs, standalone reviews, bounded adapters and custom audits.
+- Preserve submitted quotas across worker environment loss, record armed retry allowances, and retain structured refusal results with final accounting; reference-mode prompts use their full byte size.
+- Reproduce five quota bypasses with RED/GREEN: an allowance of two now stops routes previously reaching three or four calls; preserve positive and adversarial regression coverage.
+- Document invocation-count boundaries and separate existing repository-health failures from quota acceptance; see [the Lab evidence and verification guide](docs/lab/shared-provider-call-quota.md).
+
+Maintenance provenance: codex/lab-shared-call-quota-rg, repair 08249bb19cbf0cbf90f836c91f1b49e7332d4a18.
+Verification command (replayed before integration and on main): `["node","scripts/verify-shared-provider-quota.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab validation-manifest-encoding-20260920 - v0.3.433 - 2026-09-20
 
 - Restore the static evidence manifest's canonical ASCII JSON encoding required by the existing Lab version transaction, preserving every parsed value and evidence obligation.
