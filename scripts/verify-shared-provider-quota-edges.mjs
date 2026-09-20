@@ -35,6 +35,10 @@ try{
    assert.equal(attempts,2);assert.throws(()=>adapter(req,()=>{attempts++;return success;}),/reservations exhausted/);assert.equal(attempts,2);
   });
  }
+ test('reference-mode prompt content enforces the byte ceiling',()=>{
+  const req={...request('codex',{...environment('reference'),PROOF_OR_STOP_RUN_BUDGET_MAX_PROMPT_BYTES:'40'}),argv:['prompt.txt'],budgetPrompt:'x'.repeat(41)};
+  let calls=0;assert.throws(()=>adapters.codex(req,()=>{calls++;return success;}),/prompt byte ceiling exceeded/);assert.equal(calls,0);
+ });
  test('exceptions retain all reserved attempts and preserve exception identity',()=>{
   const req=request('codex',environment('exception'));const original=Object.freeze(new Error('fixture transport failed'));
   assert.throws(()=>adapters.codex(req,()=>{throw original;}),e=>e===original);
@@ -91,7 +95,8 @@ try{
   const env=environment('leaf',1);let calls=0;
   const opts={storyId:'B-lab',materialHash:'fixture',storyWorktree:root,timeoutMs:1000,env};
   await runCodexReviewLeaf(opts,async()=>{calls++;return{stdout:'',exitCode:1,timedOut:false};});
-  await assert.rejects(()=>runCodexReviewLeaf(opts,async()=>{calls++;return{stdout:'',exitCode:1,timedOut:false};}),/reservations exhausted/);
+  const blocked=await runCodexReviewLeaf(opts,async()=>{calls++;return{stdout:'',exitCode:1,timedOut:false};});
+  assert.equal(blocked.hostBVerdict.decision,'blocked');assert.match(JSON.stringify(blocked),/codex_review_call_quota_refused/);
   assert.equal(calls,1);results.push('standalone review leaf debits shared quota');
  }
 

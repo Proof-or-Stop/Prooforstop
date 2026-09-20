@@ -44,8 +44,7 @@ async function planned(count=1){
   plan.plannedSteps=Array.from({length:count},(_,i)=>({stepId:`step-${i}`,type:'provider.codex',args:{argv:['exec','bounded-fixture']},timeoutMs:1000,maxAttempts:1}));
   plan.providerPolicy={primaryProvider:'codex',allowedProviders:['codex'],fallbackProviders:[],productionDoneProviders:[],allowFakeProviderForProductionDone:false,credentialsEnvAllowlist:[],secretRefs:['opaque-test-ref'],providerAvailability:'fail_closed'};
   plan.budgetPolicy={maxProviderCalls:cap,maxWallClockMs:0,maxTokenOrCostBudget:0};
-  let r; try { r=executePlannedSteps({root,jobPlan:plan,store:{readStory:()=>({storyId:'B-lab',phase:'DEV'}),storyExists:()=>true,listStoryIds:()=>['B-lab'],appendProcessEvent:()=>{}},env,providerExecutor:{available:()=>true,run:req=>{total++;otherCalls++;return{provider:'codex',argvDigest:'fixture',exitCode:0,stdoutDigest:'fixture',stderrDigest:'fixture',stdoutBytes:0,stderrBytes:0,durationMs:0,attempts:1,timedOut:false,spawnError:false};}}});
-  } catch(e){if(!e.message.startsWith('host_run_budget_refused:'))throw e;return {blocked:e.message};}
+  const r=executePlannedSteps({root,jobPlan:plan,store:{readStory:()=>({storyId:'B-lab',phase:'DEV'}),storyExists:()=>true,listStoryIds:()=>['B-lab'],appendProcessEvent:()=>{}},env,providerExecutor:{available:()=>true,run:req=>{total++;otherCalls++;return{provider:'codex',argvDigest:'fixture',exitCode:0,stdoutDigest:'fixture',stderrDigest:'fixture',stdoutBytes:0,stderrBytes:0,durationMs:0,attempts:1,timedOut:false,spawnError:false};}}});
   return {status:r.status,stopReason:r.stopReason,meteredCalls:r.budgetUsage.usage.providerCalls};
 }
 try{
@@ -80,15 +79,13 @@ try{
       const state=await getManagedHostRunStatus({root,runId:submitted.runId});
       details.managedState=state.run.state;details.managedReason=state.run.terminal?.reason;
       if(otherCalls===0)assert.equal(details.managedReason,'worker_error:host_run_budget_refused: total call reservations exhausted');
-    }else if(scenario==='planned-after-host')details.plan=await planned(1);
+    }else if(scenario==='planned-after-host'){details.plan=await planned(1);assert.equal(details.plan.status,'blocked');assert.equal(details.plan.stopReason,'budget_exceeded');}
     else if(scenario==='repair-after-host'){
-      try {
       const {runClaudeRepair}=await mod('packages/main/src/core/autopilot-executor.ts');
       const r=runClaudeRepair(root,{},req=>{total++;otherCalls++;return{exitCode:0,stdout:'fixture repair completed',stderr:''};},{id:'step-1',title:'fixture',command:'verify',kind:'command',reason:'fixture'},
         {executable:'node',args:['verify.mjs'],cwd:root,timeoutMS:1000},{exitCode:1,stdout:'',stderr:'fixture failure'},
         {story:{storyId:null},mode:'local',targetPhase:'DEV'},env);
-      details.repairStatus=r.status;
-      } catch(e){if(!e.message.startsWith('host_run_budget_refused:'))throw e;details.blocked=e.message;}
+      details.repairStatus=r.status;assert.equal(r.status,'failed');assert.equal(r.exitCode,3);assert.match(r.stderrExcerpt,/shared_call_quota_refused/);
     }else if(scenario==='custom-audit-after-host'){
       const {runCustomAuditAdapter}=await mod('scripts/lab-audit.mjs');
       const admissionApi=await mod('packages/main/src/core/provider-process-admission.ts');
