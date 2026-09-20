@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab story-baseline-default-branch - v0.3.420 - 2026-09-20
+
+- Resolve ordinary incremental-review context from the Story's frozen integration target when callers omit fullStoryBaseHead, so repositories whose default branch is master or another name do not fail on a hard-coded main diff.
+- Preserve exact historical digest replay for callers that explicitly provide fullStoryBaseHead as undefined.
+- Cover current and legacy master resolution, malformed and unavailable target refusals through the ordinary context path, and historical envelope replay without an integrationTarget.
+
+Verification: the real temporary master-only repository reproducer changed from MASTER_BASELINE_RED to MASTER_BASELINE_GREEN; the focused permanent first-base smoke passes. The broader smoke reached all baseline assertions and later exposed a pre-existing concurrent reviewer write serialization failure reproduced on unmodified 0.3.418 main, outside this Lab's bounded baseline defect.
+
+Maintenance provenance: codex/lab-story-baseline-default-branch, repair 05ca629f0963fb2a8947e2df43354f8bffc514e7.
+Verification command (replayed before integration and on main): `["node","/tmp/pos-reviewer-master-baseline-repro.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab managed-reviewer-model-qualification - v0.3.419 - 2026-09-19
 
 - Formal managedReview and managedDispatch now resolve omitted Codex or Claude selectors to qualified reviewer defaults before immutable submission.
