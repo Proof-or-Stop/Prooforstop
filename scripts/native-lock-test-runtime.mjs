@@ -13,6 +13,6 @@ export function createNativeLockTestRuntime(baseEnvironment=process.env) {
   // NODE_OPTIONS propagates the same namespace to actual CLI descendants; an
   // in-process override alone would leave those children in the real pool.
   const env={...baseEnvironment,NODE_OPTIONS:[baseEnvironment.NODE_OPTIONS??'','--import='+JSON.stringify(bootstrap)].join(' ').trim()};
-  return {root,env,dispose(){rmSync(root,{recursive:true,force:true});}};
+  return {root,home,env,dispose(){rmSync(root,{recursive:true,force:true});}};
  } catch(error){rmSync(root,{recursive:true,force:true});throw error;}
 }

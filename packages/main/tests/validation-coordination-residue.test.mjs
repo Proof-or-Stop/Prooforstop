@@ -7,19 +7,25 @@ import { once } from 'node:events';
 import { fileURLToPath } from 'node:url';
 import { withWorkspaceValidationCapacity, validationCapacityLockPath } from '../dist/core/validation-execution-lock.js';
 import { createFixtureMachineEnvironment } from '../dist/tasks/helpers/fixture-machine-environment.js';
+import { WORKSPACE_VALIDATION_COORDINATION_FIXTURE_RUNTIME_POLICY as coordinationFixtureBudget } from '../dist/core/runtime-fact-registry.js';
+import { observeFixtureCoordination, assertFixtureCoordinationRemoved, assertObservedCoordinationAliases } from '../../../scripts/fixture-coordination-observation.mjs';
 
 // The runtime verifier imports this module. Do not exit its process after the
 // child completes: subsequent runtime assertions must still execute.
 if (!process.argv.includes('--private-coordination-residue')) {
   const fixture = createFixtureMachineEnvironment();
   const result = spawnSync(process.execPath, [fileURLToPath(import.meta.url), '--private-coordination-residue'], {
-    env: fixture.env, stdio: 'inherit', timeout: 30000,
+    env: fixture.env, stdio: ['ignore', 'pipe', 'inherit'], encoding: 'utf8', timeout: coordinationFixtureBudget.childMs,
   });
+  if (result.stdout) process.stdout.write(result.stdout);
   assert.equal(result.error, undefined, 'residue fixture must execute');
   assert.equal(result.signal, null, 'residue fixture must close normally');
   assert.equal(result.status, 0, 'residue fixture must pass before namespace cleanup');
+  const targets = observeFixtureCoordination(fixture, 10);
+  assert.equal(targets.length, 10, 'successful and refused migration paths must all use the private home');
+  assertObservedCoordinationAliases(result.stdout, targets, 2);
   fixture.cleanup();
-  assert.equal(existsSync(fixture.root), false, 'all ten residue cases must release their private external namespace');
+  assertFixtureCoordinationRemoved(fixture, targets);
 } else {
 const child = spawn(process.execPath, ['-e', 'setInterval(()=>{},1000)'], {stdio:'ignore'});
 await once(child, 'spawn');
@@ -35,17 +41,18 @@ for (const suffix of ['preparing', 'quarantine']) {
     // A separate live process avoids claiming the current process with a false start identity.
     let live;
     if(owner==='live') {live=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'});await once(live,'spawn');writeFileSync(join(residue,'holder.json'),JSON.stringify({...holder,pid:live.pid,lockId:'migration-regression',command:'fixture',acquiredAt:new Date().toISOString()}));}
-    let entered=false,target;
+    let entered=false;
     try {
       const invoke=()=>withWorkspaceValidationCapacity({root,workspaceRoot:root,command:'migration-regression',deadlineAt:Date.now()+300},()=>{entered=true;});
       if(owner==='dead') {
         await assert.doesNotReject(invoke,`DEAD_COORDINATION_RESIDUE_BLOCKS_MIGRATION: ${suffix}`);
-        assert.equal(entered,true);assert.equal(existsSync(residue),false);target=realpathSync(legacy);
+        assert.equal(entered,true);assert.equal(existsSync(residue),false);
+        console.log('COORDINATION_ALIAS_TARGET ' + JSON.stringify(realpathSync(legacy)));
       } else {
         await assert.rejects(invoke,error=>{assert.match(String(error),/WORKSPACE_COORDINATION_MIGRATION_BLOCKED/);assert.ok(String(error).includes(legacy));assert.ok(String(error).includes(`retained.${suffix}`));return true;},'MALFORMED_COORDINATION_OWNER_MUST_NOT_BE_RECLAIMED: '+owner);
         assert.equal(entered,false);assert.equal(existsSync(residue),true,'unproven ownership must survive');
       }
-    } finally {if(live){const done=once(live,'close');live.kill();await done;}rmSync(root,{recursive:true,force:true});if(target)rmSync(target,{recursive:true,force:true});}
+    } finally {if(live){const done=once(live,'close');live.kill();await done;}rmSync(root,{recursive:true,force:true});}
   }
 }
 console.log('COORDINATION_RESIDUE_GREEN: dead preparation/quarantine reclaimed; live and unknown owners preserved with named migration diagnostic');

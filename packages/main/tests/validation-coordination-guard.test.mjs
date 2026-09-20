@@ -8,15 +8,21 @@ import { fileURLToPath } from 'node:url';
 import { createFixtureMachineEnvironment } from '../dist/tasks/helpers/fixture-machine-environment.js';
 import { withWorkspaceValidationCapacity, validationCapacityLockPath, isValidationCapacityWaitDeadlineError } from '../dist/core/validation-execution-lock.js';
 import { createQuorumSmokeProtectedMutationGuard } from '../dist/tasks/quorum-submit-smoke-worker.js';
+import { WORKSPACE_VALIDATION_COORDINATION_FIXTURE_RUNTIME_POLICY as coordinationFixtureBudget } from '../dist/core/runtime-fact-registry.js';
+import { observeFixtureCoordination, assertFixtureCoordinationRemoved, assertObservedCoordinationAliases } from '../../../scripts/fixture-coordination-observation.mjs';
 
 if (!process.argv.includes('--private-machine')) {
   const fixture = createFixtureMachineEnvironment();
   const result = spawnSync(process.execPath, [fileURLToPath(import.meta.url), '--private-machine'], {
-    env: fixture.env, stdio: 'inherit', timeout: 30000,
+    env: fixture.env, stdio: ['ignore', 'pipe', 'inherit'], encoding: 'utf8', timeout: coordinationFixtureBudget.childMs,
   });
+  if (result.stdout) process.stdout.write(result.stdout);
   if (result.status === 0) {
+    const targets = observeFixtureCoordination(fixture, 4);
+    assert.equal(targets.length, 4, 'repeated admissions must reuse one target per canonical project');
+    assertObservedCoordinationAliases(result.stdout, targets, 3);
     fixture.cleanup();
-    assert.equal(existsSync(fixture.root), false, 'fixture cleanup must remove the external coordination namespace');
+    assertFixtureCoordinationRemoved(fixture, targets);
   }
   else console.error('Coordination fixture retained: ' + fixture.root);
   process.exit(result.status ?? 1);
@@ -42,6 +48,7 @@ try {
   const legacy = validationCapacityLockPath(root);
   assert.equal(lstatSync(legacy).isSymbolicLink(), true, 'legacy callers must retain one shared queue through the compatibility path');
   assert.ok(relative(root, realpathSync(legacy)).startsWith('..'), 'physical coordination must be outside the protected root');
+  console.log('COORDINATION_ALIAS_TARGET ' + JSON.stringify(realpathSync(legacy)));
 
   for (const path of ['subject.txt', '.proof-or-stop/real-write.txt']) {
     await withWorkspaceValidationCapacity(options, async () => {
@@ -95,6 +102,7 @@ try {
     } finally { rmSync(oldTicket, { recursive: true, force: true }); await migrating; }
     assert.equal(migrated, true);
     assert.equal(lstatSync(oldPath).isSymbolicLink(), true);
+    console.log('COORDINATION_ALIAS_TARGET ' + JSON.stringify(realpathSync(oldPath)));
   } finally { holder.kill('SIGTERM'); await new Promise(resolve => holder.once('close', resolve)); rmSync(ticket, { recursive: true, force: true }); }
   const blocked = freshRoot(); const blockedPath = validationCapacityLockPath(blocked);
   mkdirSync(blockedPath, { recursive: true });
@@ -115,6 +123,7 @@ try {
     peak = Math.max(peak, ++active); await delay(10); active--;
   })));
   assert.equal(peak, 1, 'concurrent migration must retain one exclusive queue');
+  console.log('COORDINATION_ALIAS_TARGET ' + JSON.stringify(realpathSync(blockedPath)));
   const foreign = freshRoot(); const foreignPath = validationCapacityLockPath(foreign);
   mkdirSync(resolve(foreignPath, '..'), { recursive: true });
   symlinkSync(realpathSync(legacy), foreignPath, 'dir');

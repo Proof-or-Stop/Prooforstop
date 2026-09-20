@@ -211,3 +211,22 @@ The policy-removal negative mutates the verifier's actual source-read input, pre
 The INIT signature fixture now obtains acknowledged managed reviewer records through the existing native provider fixture. Public checksum re-signing cannot substitute for a missing provider receipt. The managed prompt-digest regression varies only the digest on the actual signed role binding and separately rejects a different caller role. No production signature or reviewer-admission requirement is relaxed.
 
 Diagnostic checks passed the complete retired-authority guard and all 24 INIT signature rows, plus current registration, static subprocess closure and identity-site boundaries. These diagnostics are not the required committed double GREEN campaign. Exact commands, commits, budgets, logs and exclusions remain in the external comparison table and evidence archive. The first #136 detached-clone attempt lacked main-worktree runtime authority and is excluded; its corrected main-branch baseline still fails during unsupported caller-authored reviewer construction. Command #150 already contains the earlier main fix and passed its complete baseline; this task claims verification, not authorship of that earlier repair.
+
+### Final coordination and inventory audit controls
+
+The protected inventory guard permits the unchanged original composite budgets as
+well as the two explicitly reviewed 180000-to-900000 amendments; it still rejects
+other timeout, argv or policy drift, and explicit frozen suite baselines remain
+strict. The coordination fixture controller reserves 45000 ms for its 30000 ms
+child plus 15000 ms startup and cleanup margin. This fixture budget does not
+change the three production validation commands' 260000 ms policy.
+
+Guard, residue and native capacity fixtures preload a private OS-user home in all
+CLI descendants. Tests observe actual compatibility alias destinations inside
+that home and confirm those destinations disappear after children close and the
+fixture is disposed. Refused migration targets are included. Production retains
+one stable empty queue identity per canonical repository, not one per invocation;
+release removes admission tickets without racing concurrent callers by deleting
+the shared identity. No production garbage collection is claimed. Native driver
+cleanup reports secondary failures without replacing an original verification
+error or requested termination; cleanup failure alone still rejects success.

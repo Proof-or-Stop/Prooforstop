@@ -107,11 +107,12 @@ async function main() {
   }
   try { prepareVerification(root, { shareBuild: true }); }
   catch (error) { throw new Error(verificationFailureMessage('runtime contract prerequisite', error)); }
+  const { WORKSPACE_VALIDATION_COORDINATION_FIXTURE_RUNTIME_POLICY: coordinationFixtureBudget } = await importDist(root, 'packages/main/dist/core/runtime-fact-registry.js');
   execFileSync(process.execPath, ['packages/main/tests/validation-audit-budgets.test.mjs'], {
     cwd: root, stdio: 'inherit', timeout: 30000,
   });
   execFileSync(process.execPath, ['packages/main/tests/validation-coordination-guard.test.mjs'], {
-    cwd: root, stdio: 'inherit', timeout: 30000,
+    cwd: root, stdio: 'inherit', timeout: coordinationFixtureBudget.controllerMs,
   });
   const { MANAGED_REVIEW_READONLY_RUNTIME_POLICY: readonlyRuntime } = await importDist(root, 'packages/main/dist/core/runtime-fact-registry.js');
   assert(readonlyRuntime.environmentKeys.includes('CLAUDE_CODE_TMPDIR'), 'Provider Bash temporary files must be mapped to the admitted private lane');

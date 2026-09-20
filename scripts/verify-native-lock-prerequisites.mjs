@@ -1,8 +1,8 @@
 import {spawn} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
-import {existsSync} from 'node:fs';
 import {createNativeLockTestRuntime} from './native-lock-test-runtime.mjs';
+import {observeFixtureCoordination, assertFixtureCoordinationRemoved} from './fixture-coordination-observation.mjs';
 const root=fileURLToPath(new URL('..',import.meta.url));
 let active;
 let stopping=false;
@@ -28,6 +28,16 @@ const fixtureRuntime=createNativeLockTestRuntime();
 const signalContract=process.argv.includes('--signal-contract-child');
 if(signalContract)console.log('NATIVE_DRIVER_RUNTIME '+fixtureRuntime.root);
 const completeCapacity=process.argv.includes('--complete-capacity');
+function cleanupFixtureRuntime(primaryFailed) {
+ try {
+  const targets=observeFixtureCoordination(fixtureRuntime,completeCapacity&&!primaryFailed&&!stopping?1:0);
+  fixtureRuntime.dispose();
+  assertFixtureCoordinationRemoved(fixtureRuntime,targets);
+ } catch(error) {
+  if(!primaryFailed&&!stopping)throw error;
+  console.error('NATIVE_DRIVER_CLEANUP_WARNING '+String(error));
+ }
+}
 const steps=signalContract?[[process.execPath,['-e',"console.log('NATIVE_DRIVER_CHILD '+process.pid);setInterval(()=>{},1000)"]]]:completeCapacity?[
  [process.execPath,['scripts/verify-native-driver-signals.mjs']],
  [process.execPath,['scripts/verify-native-lock-machine-isolation.mjs']],
@@ -41,6 +51,7 @@ const steps=signalContract?[[process.execPath,['-e',"console.log('NATIVE_DRIVER_
  [process.execPath,['packages/main/dist/tasks/validate-execution-lock-smoke.js','--derived-refusal-contract-only']],
  [process.execPath,['packages/main/dist/tasks/validate-execution-lock-smoke.js','--native-prerequisites-only']],
 ];
+let primaryFailed=false;
 try {
 for(const [command,args] of steps) {
  if(stopping)break;
@@ -55,4 +66,5 @@ for(const [command,args] of steps) {
  assert.equal(result.status,0,command+' native prerequisites verification failed');
 }
 
-} finally {clearTimeout(escalation);clearTimeout(reapDeadline);fixtureRuntime.dispose();assert.equal(existsSync(fixtureRuntime.root),false,'native fixture cleanup must remove its external workspace coordination namespace');}
+} catch(error) {primaryFailed=true;throw error;}
+finally {clearTimeout(escalation);clearTimeout(reapDeadline);cleanupFixtureRuntime(primaryFailed);}

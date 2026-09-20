@@ -6,6 +6,7 @@ import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {NATIVE_FIXTURE_CLI_TIMEOUT_MS} from '../packages/main/dist/tasks/native-lock-fixture.js';
 import {createNativeLockTestRuntime} from './native-lock-test-runtime.mjs';
+import {observeFixtureCoordination, assertFixtureCoordinationRemoved, assertObservedCoordinationAliases} from './fixture-coordination-observation.mjs';
 
 const root=mkdtempSync(join(tmpdir(),'native-machine-isolation-control-'));
 const release=join(root,'release');
@@ -16,6 +17,7 @@ const outerEnv={...process.env,NODE_OPTIONS:[process.env.NODE_OPTIONS??'','--imp
 const isolated=createNativeLockTestRuntime(outerEnv);
 let holder,holderClosed=false,holderError,holderExit,holderOutput='';
 let primaryFailed=false;
+let observedTargets=[];
 const started=performance.now();
 const options={root,workspaceRoot:root,command:'native machine isolation control'};
 try {
@@ -49,10 +51,12 @@ try {
  const observer=join(isolated.root,'observe-cli.mjs');
  writeFileSync(observer,`import {writeFileSync} from 'node:fs';import {userInfo} from 'node:os';if(process.argv[1]===${JSON.stringify(cliPath)})writeFileSync(${JSON.stringify(observation)},JSON.stringify({pid:process.pid,cli:process.argv[1],home:userInfo().homedir}));`);
  const cliEnvironment={...isolated.env,NODE_OPTIONS:isolated.env.NODE_OPTIONS+' --import='+JSON.stringify(observer)};
- const cliProgram=`const f=await import(${JSON.stringify(fixtureModule)});const root=f.allocateNativeLockRoot();try{console.log('NATIVE_CLI_PARENT_PID '+process.pid);console.log(f.lockFixtureCli(root,'B-namespace-proof','--version',{}));}finally{f.releaseNativeLockRoot(root);}`;
+ const cliProgram=`import {realpathSync} from 'node:fs';const f=await import(${JSON.stringify(fixtureModule)});const c=await import(${JSON.stringify(core)});const root=f.allocateNativeLockRoot();try{await c.withWorkspaceValidationCapacity({root,workspaceRoot:root,command:'actual native fixture alias proof',deadlineAt:Date.now()+5000},()=>console.log('COORDINATION_ALIAS_TARGET '+JSON.stringify(realpathSync(c.validationCapacityLockPath(root)))));console.log('NATIVE_CLI_PARENT_PID '+process.pid);console.log(f.lockFixtureCli(root,'B-namespace-proof','--version',{}));}finally{f.releaseNativeLockRoot(root);}`;
  const cliStarted=performance.now();
  const cliOutput=execFileSync(process.execPath,['--input-type=module','-e',cliProgram],{env:cliEnvironment,encoding:'utf8',timeout:NATIVE_FIXTURE_CLI_TIMEOUT_MS+10000,stdio:['ignore','pipe','pipe']});
  assert.match(cliOutput,/Proof-or-Stop \d+\.\d+\.\d+/);
+ observedTargets=observeFixtureCoordination(isolated,1);
+ assertObservedCoordinationAliases(cliOutput,observedTargets,1);
  const observed=JSON.parse(readFileSync(observation,'utf8'));
  assert.equal(observed.cli,cliPath);assert.equal(observed.home,join(isolated.root,'home'));
  const parentPid=Number(cliOutput.match(/NATIVE_CLI_PARENT_PID (\d+)/)?.[1]);assert(parentPid>0&&observed.pid>0);assert.notEqual(observed.pid,parentPid,'the observation must come from the actual CLI descendant');
@@ -66,7 +70,7 @@ try {
  while(holder&&!holderClosed&&!holderError&&Date.now()<deadline)await new Promise(r=>setTimeout(r,10));
  if(holder&&!holderClosed&&!holderError){holder.kill('SIGKILL');const killDeadline=Date.now()+1000;while(!holderClosed&&Date.now()<killDeadline)await new Promise(r=>setTimeout(r,10));}
  if(holder&&!holderClosed&&!holderError)throw new Error('isolation holder cleanup did not observe close; retain runtime');
- isolated.dispose();rmSync(root,{recursive:true,force:true});
+ isolated.dispose();assertFixtureCoordinationRemoved(isolated,observedTargets);rmSync(root,{recursive:true,force:true});
  if(holderClosed)assert.deepEqual(holderExit,{code:0,signal:null},'outer queue holder must release and close successfully');
  } catch(error){if(!primaryFailed)throw error;console.error('NATIVE_MACHINE_ISOLATION_CLEANUP_WARNING '+String(error));}
  finally {console.log('NATIVE_MACHINE_ISOLATION_TOTAL '+JSON.stringify({elapsedMs:performance.now()-started}));}

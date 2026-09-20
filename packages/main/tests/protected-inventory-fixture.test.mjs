@@ -78,6 +78,12 @@ try {
   const frozen=ts.transpileModule(declarations+'\nassertProtectedInventoryAndTimeoutSourcesUnchanged(repoRoot(),'+JSON.stringify(approvedHead)+');',
     {compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
   assert.doesNotThrow(()=>runInNewContext(frozen,context,{timeout:30000}));
+  const frozenAmendment=JSON.parse(approvedBytes);
+  frozenAmendment.validate.commands[2].timeoutMs=900000;
+  write(CONFIG_FILENAMES[0],JSON.stringify(frozenAmendment));
+  assert.throws(()=>runInNewContext(frozen,context,{timeout:30000}),/protected original validation commands\/timeouts changed/,
+    'a reviewed main-baseline amendment cannot alter an explicit frozen suite baseline');
+  write(CONFIG_FILENAMES[0],approvedBytes);
   config.validate.commands[0].timeoutMs+=1;write(CONFIG_FILENAMES[0],JSON.stringify(config));
   assert.throws(()=>runInNewContext(frozen,context,{timeout:30000}),/protected original validation commands\/timeouts changed/);
   git(root,['add','.']);git(root,['commit','-qm','mutate after frozen suite baseline']);

@@ -1947,9 +1947,10 @@ function assertProtectedInventoryAndTimeoutSourcesUnchanged(root = repoRoot(), d
       [JSON.stringify(['node', ['packages/main/tests/red/red-w2b-wiring-contract.mjs','--canonical-core']]), [180000,900000]],
     ]);
     const originalCommands = JSON.parse(JSON.stringify(before.validate?.commands ?? []));
-    for (const row of originalCommands) {
+    for (const [index, row] of originalCommands.entries()) {
       const amendment = approved.get(JSON.stringify([row.command,row.args ?? []]));
-      if (declaredBaseline === undefined && amendment && row.timeoutMs === amendment[0]) row.timeoutMs=amendment[1];
+      if (declaredBaseline === undefined && amendment && row.timeoutMs === amendment[0]
+        && after.validate?.commands?.[index]?.timeoutMs === amendment[1]) row.timeoutMs=amendment[1];
     }
     prefix(originalCommands, after.validate?.commands, 'protected original validation commands/timeouts changed');
     for (let index=0;index<originalCommands.length;index++) {

@@ -27,7 +27,12 @@ const coordinationTimeout = (call, ast) => Function('coordinationFixtureBudget',
   + call.arguments[2].properties.find(node => node.name?.getText(ast) === 'timeout').initializer.getText(ast) + ');')(facts.WORKSPACE_VALIDATION_COORDINATION_FIXTURE_RUNTIME_POLICY);
 const coordinationChildMs = coordinationTimeout(coordinationChildCall, coordinationChild);
 const coordinationParentMs = coordinationTimeout(coordinationParentCall, coordinationParent);
-assert.ok(coordinationParentMs >= coordinationChildMs + 15000,
+const coordinationPolicy = facts.WORKSPACE_VALIDATION_COORDINATION_FIXTURE_RUNTIME_POLICY;
+assert.equal(coordinationPolicy.childMs, 30000);
+assert.equal(coordinationPolicy.lifecycleMarginMs, 15000);
+assert.equal(coordinationChildMs, coordinationPolicy.childMs);
+assert.equal(coordinationParentMs, coordinationPolicy.controllerMs);
+assert.ok(coordinationParentMs >= coordinationChildMs + coordinationPolicy.lifecycleMarginMs,
   `COORDINATION_PARENT_DEADLINE_PREEMPTS_CHILD: parent=${coordinationParentMs}, child=${coordinationChildMs}, required margin=15000`);
 const parent = source('packages/main/tests/red/red-dynamic-finding-evidence-closure.mjs');
 const call = find(parent, node => ts.isCallExpression(node) && node.expression.getText(parent) === 'spawnSync');
