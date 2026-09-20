@@ -81,6 +81,10 @@ try {
   assert.equal(row(initial, 'INT-A').currentFingerprint, row(unrelated, 'INT-A').currentFingerprint, 'unrelated material does not change a proven complete input fingerprint');
   assert.notEqual(row(initial, 'INT-ORDINARY').currentFingerprint, row(unrelated, 'INT-ORDINARY').currentFingerprint, 'incomplete input closure keeps strict material binding');
   assert.equal(row(unrelated, 'INT-A').action, 'reuse');
+  assert.ok(unrelated.buckets.refreshOnly.some(r => r.intentRef === 'INT-A'), 'admitted reusable evidence belongs in refresh-only until republication');
+  assert.equal(unrelated.buckets.fresh.some(r => r.intentRef === 'INT-A'), false, 'reuse does not hide pending republication in fresh');
+  assert.deepEqual(unrelated.buckets.refreshOnly.map(r => r.intentRef).sort(), ['INT-A', 'INT-A-SECOND', 'INT-B']);
+  assert.equal(unrelated.summary.refreshOnly, 3, 'count reusable intents rather than shared execution groups');
   assert.equal(readFileSync(store.storyFilePath(storyId, 'checklist.json'), 'utf8'), beforeChecklist, 'plan never rewrites evidence');
   assert.equal(git('status', '--porcelain'), beforeGit, 'plan never changes the checkout');
   const previewer = createEvidenceRefreshHandlers(ctx);
@@ -93,6 +97,9 @@ try {
   await handlers.verification_evidence_refresh_stale({ storyId });
   assert.equal(executions, 1, 'unrelated drift reruns only the ordinary command');
   const refreshed = report();
+  assert.equal(refreshed.summary.refreshOnly, 0, 'signed republication clears the pending reuse bucket');
+  assert.equal(refreshed.summary.fresh, 4, 'all four evidenced intents are current after signed refresh');
+  assert.ok(refreshed.buckets.fresh.some(r => r.intentRef === 'INT-A'));
   assert.equal(row(refreshed, 'INT-A').currentFingerprint, row(unrelated, 'INT-A').currentFingerprint, 'publication timestamps and hashes do not perturb input fingerprints');
   const originalExecution = store.readChecklist(storyId).items[0].verificationEvidence.find(e => e.intentRef === 'INT-B').receipt.executionReceipt.executionReceiptDigest;
   write(a.input, 'A_OK A_SECOND changed\n'); commit('change one shared input');

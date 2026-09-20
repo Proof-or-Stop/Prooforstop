@@ -132,12 +132,14 @@ function isWaiver(ev: VerificationEvidence): boolean {
  *                  missing_verification_evidence). Lower-priority intents with no
  *                  passing evidence/waiver are also listed under missing, tagged
  *                  with their priority via `required:false`.
- *  - rerun:        evidence exists but result=fail OR no result field
- *                  (cannot prove pass) → must re-execute the command.
- *  - refresh-only: non-executable attestation result=pass BUT checkEvidenceFreshnessForGit reports
- *                  NOT fresh (hash drift; logic still valid) → the existing attestation refresh path applies (verification_evidence_refresh_stale, P4).
- *  - fresh:        evidence result=pass AND checkEvidenceFreshnessForGit reports
- *                  fresh → no action.
+ *  - rerun:        failed, invalid or stale non-reusable executable evidence,
+ *                  or a non-executable record that cannot prove pass.
+ *  - refresh-only: authenticated executable reuse awaiting republication through
+ *                  verification_evidence_refresh_stale; no new execution is needed
+ *                  while its complete input binding remains valid. Also preserves
+ *                  the existing hash-drift refresh policy for manual attestations.
+ *  - fresh:        current admitted executable evidence, a current passing manual
+ *                  attestation, or a waiver under its existing coverage policy.
  */
 function classifyIntent(
   collected: { ref: string; itemId: string; lane: VerificationLane; intent: { priority?: VerificationPriority } },
@@ -167,7 +169,7 @@ function classifyIntent(
   if (fingerprint.executable && evidence) {
     return {
       ...base, hasEvidence: true, result: evidence.result,
-      bucket: fingerprint.action === 'current' || fingerprint.action === 'reuse' ? 'fresh' : 'rerun',
+      bucket: fingerprint.action === 'current' ? 'fresh' : fingerprint.action === 'reuse' ? 'refresh-only' : 'rerun',
       ...(fingerprint.command ? { command: fingerprint.command } : {}),
       driftReason: fingerprint.reason,
     };

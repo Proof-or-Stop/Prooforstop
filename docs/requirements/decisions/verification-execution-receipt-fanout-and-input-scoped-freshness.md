@@ -126,6 +126,11 @@ validation, pin binding, lifecycle expiry or current state checks. Executable ro
 use the shared gate receipt evaluator and report current, reuse, rerun or invalid.
 The existing signed refresh writer remains the only execution/reuse producer.
 In `evidence_plan`, an unsigned or stale ordinary pass is never advertised as a hash-only refresh.
+An authenticated `reuse` row appears in `refresh-only`, separately from `current`
+rows in `fresh`. This counts each pending intent republication, including distinct
+assertions sharing one execution. The signed `verification_evidence_refresh_stale`
+writer rechecks eligibility and publishes reuse without re-executing an unchanged
+complete input group; a changed or incomplete group still executes normally.
 The legacy `evidence_refresh` compatibility preview explicitly labels its JSON and
 text as metadata drift only, without evaluating executable admission, and directs
 the operator to `evidence_plan` for execution/reuse requirements. Its existing

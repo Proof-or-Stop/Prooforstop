@@ -26,8 +26,8 @@ interface EvidenceRefreshArgs {
 
 /**
  * A row that ONE refresh pass could re-stamp: result=pass evidence that
- * checkEvidenceFreshnessForGit reports NOT fresh (hash drift only — logic still
- * validity is not established by this preview). This compatibility preview is
+ * checkEvidenceFreshnessForGit reports NOT fresh. Hash drift alone does not
+ * establish that the underlying logic is still valid. This compatibility preview is
  * not executable receipt admission; evidence_plan reports authoritative per-intent
  * execution requirements. The apply path never grants or renews executable authority.
  */

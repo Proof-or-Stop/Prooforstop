@@ -12002,13 +12002,26 @@ assert(managedCriticArtifact?.producer === 'handlers/managed-review-evidence.man
 {
   const planner = read('packages/main/src/handlers/evidence-plan.ts');
   const fingerprints = read('packages/main/src/core/verification-intent-fingerprints.ts');
-  for (const token of ['collectVerificationIntents(item)', 'evaluateVerificationEvidenceForGate', "authority: 'diagnostic-only'", 'identity.reusable', 'materialHash', 'storyFilesHash']) {
-    assert(fingerprints.includes(token), `Intent fingerprint diagnostic contract missing ${token}`);
-  }
-  assert(planner.includes('buildIntentFingerprintReport') && planner.includes('row.description'), 'Evidence planner must display actual dynamic intent fingerprints and descriptions');
-  assert(read(processFactRegistryPath).includes('packages/main/src/core/verification-intent-fingerprints.ts'), 'Intent fingerprint diagnostic source must be registered');
-  const refreshPreview = read('packages/main/src/handlers/evidence-refresh.ts');
-  assert(refreshPreview.includes("kind: 'metadata-drift-only'") && refreshPreview.includes("executableAdmission: 'not-evaluated'") && refreshPreview.includes('metadata drift only; not executable receipt admission'), 'Legacy refresh preview must expose its limited semantics in JSON and text');
+  const requireTokens = (label, source, tokens) => {
+    const missing = candidate => tokens.filter(token => !candidate.includes(token));
+    assert(missing(source).length === 0, `${label} missing: ${missing(source).join(', ')}`);
+    for (const token of tokens) {
+      nodeAssert(missing(source.replaceAll(token, '')).includes(token), `${label} negative control must detect removal of ${token}`);
+    }
+  };
+  requireTokens('Intent fingerprint diagnostic contract', fingerprints, [
+    'collectVerificationIntents(item)',
+    'const admission = evaluateVerificationEvidenceForGate({',
+    "authority: 'diagnostic-only', storyId: input.storyId",
+    "isReusableVerificationReceipt(evidence.receipt) && row.action !== 'invalid'",
+    '...(identity.reusable ? {} : { materialHash: materialHash ?? null, storyFilesHash: storyFilesHash ?? null })',
+    '...(identity.reusable && execution.inputClosureComplete ? {} : { materialHash: evidence.materialHash ?? null, storyFilesHash: evidence.storyFilesHash ?? null })',
+  ]);
+  requireTokens('Dynamic evidence planner', planner, ['buildIntentFingerprintReport', 'row.description']);
+  requireTokens('Intent fingerprint registration', read(processFactRegistryPath), ['packages/main/src/core/verification-intent-fingerprints.ts']);
+  requireTokens('Legacy refresh preview semantics', read('packages/main/src/handlers/evidence-refresh.ts'), [
+    "kind: 'metadata-drift-only'", "executableAdmission: 'not-evaluated'", 'metadata drift only; not executable receipt admission',
+  ]);
 }
 
 // Managed inventory transport checks must precede the final failure gate.
