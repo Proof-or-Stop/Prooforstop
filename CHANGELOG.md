@@ -1,15 +1,5 @@
 # Changelog
 
-## Lab validation-production-budget-260-20260920 - v0.3.428 - 2026-09-20
-
-- Set the three complete production validation commands for process-fact, RED-evidence target binding and RED-evidence envelopes to the explicitly authorized 260000 ms timeout, replacing 180000 ms.
-- Keep command arguments, resources, assertion bodies and unrelated budgets unchanged; refresh only the affected static configuration digests and two exact source excerpts.
-- Record a real configuration RED and passing focused regression plus static verification. This changes the enforced budget and makes no speedup or full-suite rerun claim; see [production budget evidence](docs/lab/validation-production-budget-260.md).
-
-Maintenance provenance: codex/lab-validation-production-budget-260-20260920, repair c61c043d4cbc21ea06b5ebaf7389413bf5b49a69.
-Verification command (replayed before integration and on main): `["node","packages/main/tests/validation-production-budget-260.test.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab validation-build-artifact-binding - v0.3.427 - 2026-09-20
 
 # Lab validation-build-artifact-binding — release notes
