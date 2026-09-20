@@ -1,3 +1,19 @@
+import { QUALIFIED_MANAGED_REVIEWER_DEFAULTS } from './managed-reviewer-qualification.js';
+
+export function renderQualifiedManagedCodexDispatchCommand(storyId: string, agentType: string): string {
+  const selection = QUALIFIED_MANAGED_REVIEWER_DEFAULTS.codex;
+  return `proof-or-stop host_run '${JSON.stringify({
+    host: 'codex',
+    model: selection.model,
+    reasoningEffort: selection.reasoningEffort,
+    storyId,
+    agentType,
+    managedDispatch: true,
+    detach: true,
+    json: true,
+  })}'`;
+}
+
 export function renderCodexFreshReviewerHandoff(
   taskName: string,
   promptPlaceholder: string,
@@ -47,7 +63,7 @@ export function renderManagedInitReviewerDispatches(storyId: string, agentIds: s
     if (agentId !== 'proof-or-stop-review-story-init' && agentId !== 'proof-or-stop-product-reviewer') {
       throw new Error(`unsupported required INIT reviewer: ${agentId}`);
     }
-    return `   proof-or-stop host_run '${JSON.stringify({ host: 'codex', storyId, agentType: agentId, managedDispatch: true, detach: true, json: true })}'`;
+    return `   ${renderQualifiedManagedCodexDispatchCommand(storyId, agentId)}`;
   });
   return `→ Preferred: have the Story owner submit only the missing reviewers through the controller-owned exact delivery path:\n${dispatches.join('\n')}\n` +
     `   Retain each returned nonempty runId and poll it with host_run_status. Never use a host wait with an empty receiver set.\n` +
