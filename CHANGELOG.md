@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab intent-fingerprint-reuse - v0.3.430 - 2026-09-20
+
+- Derive execution, per-intent and aggregate fingerprints from each Story's actual verification intents, displaying original descriptions and missing requirements without fixed counts.
+- Make executable evidence planning use authenticated receipt admission: distinguish proven reuse, required re-execution and invalid evidence instead of recommending a hash-only refresh for ordinary stale commands.
+- Preserve immutable signed execution/reuse records and strict fallback for incomplete dependencies; this does not extend the policy-owned capsule to arbitrary scripts or retroactively upgrade historical evidence.
+- Verify real producer/refresh behavior for shared commands, isolated and shared input changes, dynamic intent membership, missing manifests, duplicate IDs, tampered signatures, zero planner executions and independently admitted fan-out assertions; retain non-executable and waiver compatibility and label the legacy refresh preview explicitly. See docs/requirements/decisions/verification-execution-receipt-fanout-and-input-scoped-freshness.md for the contract and command.
+- Full process-fact verification retains one pre-existing retired-vocabulary fingerprint mismatch on the Lab base; its exact baseline predicate was checked and the unrelated guard was not changed. The focused RED/GREEN and planning/composition checks are the repair evidence, not a claim of repository-wide success.
+
+Maintenance provenance: codex/lab-intent-fingerprint-reuse, repair ce2b18b31fbd2d3b6ab47aa73d37a8fda58a5fc2.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/intent-fingerprint-reuse.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab validation-production-budget-260-20260920 - v0.3.429 - 2026-09-20
 
 - Set the three complete production validation commands for process-fact, RED-evidence target binding and RED-evidence envelopes to the explicitly authorized 260000 ms timeout, replacing 180000 ms.
