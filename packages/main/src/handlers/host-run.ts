@@ -489,9 +489,6 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         const managedDispatchPhase = agentType === 'proof-or-stop-implementer' ? 'DEV'
           : agentType === MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role ? MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.phase
             : agentType === 'proof-or-stop-review-scope-plan' ? 'PLAN' : 'INIT';
-        if (!storyId) {
-          throw new Error('host_run: --managedDispatch requires storyId');
-        }
         if (!managedDispatchAgentTypeSupported) {
           if (agentType.startsWith('proof-or-stop-review-')) {
             throw new Error(
@@ -502,6 +499,9 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
             );
           }
           throw new Error('host_run: --managedDispatch requires storyId and a supported INIT, PLAN scope, DEV implementer, or TEST delivery agentType');
+        }
+        if (!storyId) {
+          throw new Error('host_run: --managedDispatch requires storyId');
         }
         if (agentType === 'proof-or-stop-implementer' && !itemId) {
           throw new Error('host_run: --managedDispatch proof-or-stop-implementer requires exactly one itemId');

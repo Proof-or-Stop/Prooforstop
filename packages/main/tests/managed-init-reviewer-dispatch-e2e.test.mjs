@@ -128,6 +128,20 @@ try {
   );
   await assert.rejects(
     qualificationHandlers.host_run({
+      host: 'codex', model: 'deepseek-v4.1-flash', reasoningEffort: 'high',
+      agentType: 'proof-or-stop-review-concept', managedDispatch: true,
+      detach: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
+    }),
+    error => {
+      assert.match(error.message, /REVIEW lanes use the formal managed-review flow/i);
+      assert.match(error.message, /storyId/);
+      assert.doesNotMatch(error.message, /^host_run: --managedDispatch requires storyId$/i);
+      return true;
+    },
+    'an unsupported REVIEW lane must receive the formal recovery before missing-story qualification',
+  );
+  await assert.rejects(
+    qualificationHandlers.host_run({
       host: 'codex', model: 'gpt-5.6-sol', reasoningEffort: 'high',
       agentType: 'proof-or-stop-review-story-init', managedDispatch: true,
       detach: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
