@@ -67,6 +67,7 @@ import { fileURLToPath } from 'node:url';
 
 import {
   classifyIncrementalBindingReasons,
+  computeCanonicalDependencyClosure,
   fixtureCaseClosure,
   reviewIncrementalContext,
   resolveFullStoryBaseHead,
@@ -2492,7 +2493,42 @@ function runScheduleMutationTrial(): {
   }
 }
 
+function runLargeTrackedInventoryRegression(): void {
+  const root = mkdtempSync(join(tmpdir(), 'pos-review-large-inventory-'));
+  const gitHere = (args: string[], input?: string) => execFileSync('git', args, {
+    cwd: root, encoding: 'utf8', input, maxBuffer: 64 * 1024 * 1024,
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  try {
+    gitHere(['init', '-q']);
+    mkdirSync(join(root, 'tests'));
+    writeFileSync(join(root, 'tests/isolated.test.ts'), 'export const isolated = true;\n');
+    gitHere(['add', 'tests/isolated.test.ts']);
+    const small = computeCanonicalDependencyClosure(root, ['tests/isolated.test.ts']);
+    assert.equal(small.complete, true, JSON.stringify(small));
+    const blob = gitHere(['hash-object', '-w', '--stdin'], '').trim();
+    // Real Git index output, no child-process mocks. Non-source historical
+    // records need no worktree bytes for this read-only source closure.
+    const records = Array.from({ length: 46_476 }, (_, index) =>
+      `100644 ${blob}\tarchive/${String(index).padStart(6, '0')}/historical-inventory-record-padding.txt\0`).join('');
+    gitHere(['update-index', '-z', '--index-info'], records);
+    const inventory = gitHere(['ls-files', '-z']);
+    const bytes = Buffer.byteLength(inventory);
+    assert(bytes > 2 * 1024 * 1024, 'fixture must exceed the actual default Git output buffer');
+    const large = computeCanonicalDependencyClosure(root, ['tests/isolated.test.ts']);
+    console.log('REVIEW_REWORK_INVENTORY=' + JSON.stringify({ paths: inventory.split('\0').filter(Boolean).length, bytes, small, large }));
+    assert.equal(large.complete, true, 'REVIEW_REWORK_LARGE_INVENTORY: irrelevant inventory size must not destroy a complete dependency proof');
+    assert.deepEqual(large.files, small.files, 'unrelated tracked records must not widen dependency closure');
+    writeFileSync(join(root, 'tests/isolated.test.ts'), 'import("./" + process.env.MODULE);\n');
+    const opaque = computeCanonicalDependencyClosure(root, ['tests/isolated.test.ts']);
+    assert.equal(opaque.complete, false, 'opaque dependencies must still fail closed at large inventory size');
+    assert.match(opaque.reason ?? '', /opaque dynamic dependency/);
+    console.log('REVIEW_REWORK_LARGE_INVENTORY PASS');
+  } finally { rmSync(root, { recursive: true, force: true }); }
+}
+
 async function run(): Promise<void> {
+  runLargeTrackedInventoryRegression();
   runPolicyCases();
   runBoundedPathsDegradationCase();
   runFixtureDuplicateIdentityCases();
@@ -2595,6 +2631,8 @@ if (isDirectRun) {
     console.log(`GUARD_SCENARIO_RECEIPT=${JSON.stringify({ mask, iteration, observation: runConcurrentReviewerWriteCase(mask, iteration) })}`);
   } else if (process.argv.includes('--guard-timeout-fixture')) {
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 60_000);
+  } else if (process.argv.includes('--large-inventory-only')) {
+    runLargeTrackedInventoryRegression();
   } else if (process.argv.includes('--aba-only')) {
     runDeterministicTicketReclaimAbaCase();
   } else if (process.argv.includes('--cutoff-verifier-only')) {
