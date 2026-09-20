@@ -3219,6 +3219,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       }
 
       const cl = store.readChecklist(args.storyId);
+      const checklistBeforeUpdate = structuredClone(cl);
       const item = cl.items.find(i => i.id === args.itemId);
       if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
       let ownerProposalApproved = false;
@@ -3417,10 +3418,14 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         results.push('owner-approved proposal applied; independent authorship is advisory, not host-attested');
       }
 
-      const managedDispatchRunId = args.status === 'done'
+      const isManagedImplementerCompletion = args.status === 'done'
         && oldStatus !== 'done'
         && dispatchedRole?.canonicalName === 'proof-or-stop-implementer'
-        && typeof process.env.LATTICE_MANAGED_INIT_INVOCATION === 'string'
+        && typeof process.env.LATTICE_MANAGED_INIT_INVOCATION === 'string';
+      if (isManagedImplementerCompletion && args.success === false) {
+        throw new Error('managed implementer completion requires success=true; failed work must not mark the checklist item done');
+      }
+      const managedDispatchRunId = isManagedImplementerCompletion
         ? resolveManagedDispatchInvocation({
           root,
           storyId: args.storyId,
@@ -3458,6 +3463,10 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
             });
           }
         } catch (e) {
+          if (managedDispatchRunId && args.status === 'done') {
+            store.writeChecklist(args.storyId, checklistBeforeUpdate);
+            throw new Error(`managed implementer completion could not record its bound result: ${(e as Error).message}`);
+          }
           console.warn(`[process-events] append failed for ${args.storyId}:`, (e as Error).message);
         }
       }
