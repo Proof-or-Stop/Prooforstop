@@ -28,7 +28,7 @@ const env = { ...process.env, GIT_AUTHOR_NAME: 'Fixture', GIT_AUTHOR_EMAIL: 'fix
 const git = (cwd, args) => execFileSync('git', args, { cwd, env, encoding: 'utf8', stdio: 'pipe' });
 const write = (file, content) => { fs.mkdirSync(dirname(join(root, file)), { recursive: true }); fs.writeFileSync(join(root, file), content); };
 try {
-  const config = { validate: { commands: [{ command: 'node', args: ['original.js'], timeoutMs: 120000 }] },
+  const config = { validate: { commands: [{ command: 'node', args: ['original.js'], timeoutMs: 120000 }, { command: 'node', args: ['default-budget.js'] }] },
     storyScopeBudget: { limits: { responsibilityDomains: 1 } } };
   write(CONFIG_FILENAMES[0], JSON.stringify(config));
   write('package.json', JSON.stringify({ scripts: { test: 'node original.js' } }));
@@ -98,7 +98,7 @@ try {
   assert.doesNotThrow(() => runInNewContext(emitted, context, { timeout: 30000 }), 'formatting alone is not semantic command drift');
   write(CONFIG_FILENAMES[0], bytesBefore);
   const additive = JSON.parse(bytesBefore);
-  additive.validate.evidenceCommandTimeoutOverrides = [{ ...additive.validate.commands[1], timeoutMs: 1000 }];
+  additive.validate.evidenceCommandTimeoutOverrides = [{ ...additive.validate.commands.find(row => row.args[0] === 'feature.js'), timeoutMs: 1000 }];
   write(CONFIG_FILENAMES[0], JSON.stringify(additive));
   assert.doesNotThrow(() => runInNewContext(emitted, context, { timeout: 30000 }), 'new command may have its own non-shadowing override');
   write(CONFIG_FILENAMES[0], bytesBefore);

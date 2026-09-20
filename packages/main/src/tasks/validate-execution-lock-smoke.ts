@@ -1952,7 +1952,10 @@ function assertProtectedInventoryAndTimeoutSourcesUnchanged(root = repoRoot(), d
       if (declaredBaseline === undefined && amendment && row.timeoutMs === amendment[0]) row.timeoutMs=amendment[1];
     }
     prefix(originalCommands, after.validate?.commands, 'protected original validation commands/timeouts changed');
-    for (let index=0;index<originalCommands.length;index++) after.validate.commands[index].timeoutMs=before.validate.commands[index].timeoutMs;
+    for (let index=0;index<originalCommands.length;index++) {
+      if (Object.hasOwn(before.validate.commands[index], 'timeoutMs')) after.validate.commands[index].timeoutMs=before.validate.commands[index].timeoutMs;
+      else delete after.validate.commands[index].timeoutMs;
+    }
     if (before.validate?.commands) after.validate.commands = after.validate.commands.slice(0, before.validate.commands.length);
     const oldOverrides = before.validate?.evidenceCommandTimeoutOverrides ?? [];
     const newOverrides = after.validate?.evidenceCommandTimeoutOverrides ?? [];
