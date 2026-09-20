@@ -20,7 +20,7 @@ const { resolveLedgerPath, verifyLedgerChain } = await import('../packages/main/
 
 const root = mkdtempSync(join(tmpdir(), 'benchmark-real-entry-'));
 const measurements = {};
-function plannerCase({ count = 6, cap = 4, attempts = 1, wall = 0, clockStep = 0 } = {}) {
+function plannerCase({ count = 6, cap = 4, attempts = 1, wall = 0, clockStep = 0, spawnError = false } = {}) {
   const plan = buildJobPlan(buildPlannerDraft(root, { request: 'Verify actual planned provider budget enforcement',
     mode: 'local', until: 'DONE', allowUnattendedPlanning: true }), 'B-lab', 'lab', {});
   // Isolated in-memory plan/store, no real Story or gate mutation.
@@ -40,7 +40,7 @@ function plannerCase({ count = 6, cap = 4, attempts = 1, wall = 0, clockStep = 0
       requests.push({ maxAttempts: request.maxAttempts, timeoutMs: request.timeoutMs });
       return { provider: 'codex', argvDigest: 'fixture', exitCode: 0, stdoutDigest: 'fixture', stderrDigest: 'fixture',
         stdoutBytes: 0, stderrBytes: 0, durationMs: 0, attempts: request.maxAttempts,
-        timedOut: false, spawnError: false };
+        timedOut: false, spawnError };
     } },
   });
   return { interceptedRequests: requests.length, authorizedAttempts: requests.reduce((n, r) => n + r.maxAttempts, 0),
@@ -53,6 +53,7 @@ try {
   measurements.expiredWall = plannerCase({ count: 1, cap: 2, wall: 1, clockStep: 10 });
   measurements.remainingWall = plannerCase({ count: 1, cap: 2, attempts: 2, wall: 20 });
   measurements.generousBudget = plannerCase({ count: 2, cap: 8 });
+  measurements.spawnFailure = plannerCase({ count: 1, cap: 2, attempts: 2, spawnError: true });
   const hostRoot = mkdtempSync(join(tmpdir(), 'benchmark-host-entry-'));
   try {
     let spawned = 0;
@@ -81,6 +82,7 @@ try {
   assert.equal(measurements.callCeiling.interceptedRequests, 4, 'REAL_ENTRY_PROVIDER_CAP: ceiling must prevent the fifth transport invocation');
   assert.equal(measurements.retryCeiling.authorizedAttempts, 2, 'REAL_ENTRY_RETRY_CAP: retries must fit remaining calls');
   assert.equal(measurements.retryCeiling.recordedCalls, 2, 'actual retry attempts must be metered');
+  assert.equal(measurements.spawnFailure.recordedCalls, 2, 'SPAWN_ATTEMPTS_LOST: post-transport spawn failures consume reported attempts');
   assert.equal(measurements.expiredWall.interceptedRequests, 0, 'REAL_ENTRY_WALL_CAP: expired work cannot reach transport');
   assert.ok(measurements.remainingWall.requests[0].timeoutMs * measurements.remainingWall.requests[0].maxAttempts <= 20,
     'actual provider request must fit the remaining wall allowance');

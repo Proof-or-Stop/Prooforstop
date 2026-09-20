@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('../', import.meta.url));
 // Keep source evidence and every repaired entry boundary in the official Lab replay.
 const scripts = [
+  'scripts/verify-benchmark-audit-paths.mjs',
   'scripts/verify-static-ast-reuse.mjs',
   'scripts/verify-benchmark-real-entry.mjs',
   'scripts/verify-benchmark-shared-budget.mjs',
