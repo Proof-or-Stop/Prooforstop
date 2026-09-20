@@ -1,7 +1,7 @@
 {
   "schema": "u18-static-exceptions.v1",
   "status": "reviewed-local-lab",
-  "configDigest": "ce5c07ab72e25afe012754ed924c307f4433227cedefbd5b373d4ab66f7f4660",
+  "configDigest": "46a61aec2a1bb05bce8dc9c96ab9474b45242580469e6d563d2f41221f027d5b",
   "binding": "Source/call and invoking source/helper/package digests; any drift requires renewed review. These are local static review records, not Story or release credentials.",
   "entries": [
     {
@@ -9883,7 +9883,7 @@
           "file": "proof-or-stop.config.json",
           "startLine": 2800,
           "endLine": 2823,
-          "sourceDigest": "f8153ff1e5cc7eeb1068688cb582348691adf33923993bb6d356ff7bac4c3bfe",
+          "sourceDigest": "4431622d24fc637a2bfd543a6cae1c73918dcac0530814fbbf9a46002a1a3d42",
           "excerpt": "      {\n        \"command\": \"node\",\n        \"args\": [\n          \"scripts/verify-external-worktree-go-pre-review.mjs\"\n        ],\n        \"timeoutMs\": 120000,\n        \"resources\": [\n          {\n            \"class\": \"git-common-dir\",\n            \"key\": \".\",\n            \"access\": \"shared\"\n          },\n          {\n            \"class\": \"fixed-path\",\n            \"key\": \"packages/main/dist\",\n            \"access\": \"exclusive\"\n          }\n        ],\n        \"assurance\": \"full-only\",\n        \"riskTier\": \"validation-infra\",\n        \"closurePolicy\": \"whole-repository\",\n        \"fullBaselineReusePolicy\": \"forbidden\",\n        \"policySource\": \"external-worktree-go-pre-review-v1\"\n      },"
         },
         "Entry-local resource-policy dependency: the complete configuration file is hashed above. The scanner also independently hashes all validate.commands including resources at its top-level configDigest; these are separate checks, not a claim that raw resource drift previously bypassed the scanner."
@@ -9893,7 +9893,7 @@
         "packages/main/package-lock.json": "596b48401c23b6a41501880c06d1954e65656b59b4f11d9e35c6338b369d038a",
         "packages/main/package.json": "10aa47309699382d98e178ae2d5bfcea4c41f8588edfb1c002592eeeeb573e80",
         "packages/main/tsconfig.json": "a8a98c56a83af79c199c671f6face94690bf94f95bbe1fc16cf1b7cf11f712ed",
-        "proof-or-stop.config.json": "f8153ff1e5cc7eeb1068688cb582348691adf33923993bb6d356ff7bac4c3bfe",
+        "proof-or-stop.config.json": "4431622d24fc637a2bfd543a6cae1c73918dcac0530814fbbf9a46002a1a3d42",
         "scripts/build-lock.mjs": "e45143d992ee16b08cf506ec990bcf8d79a6704cd303ada58a5ad65a517dd192",
         "scripts/build-main-with-binding.mjs": "5679bcdf1d09393ce17906d9fc3cb18ed1cebf51d7d8294bed16233216bfb794",
         "scripts/full-suite-build-binding.mjs": "947d6ea2e0bc3c45bf220607aef43d514987446f9fa9e0de976f98d6fed899e6",
@@ -10420,7 +10420,7 @@
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
-        "proof-or-stop.config.json": "f8153ff1e5cc7eeb1068688cb582348691adf33923993bb6d356ff7bac4c3bfe",
+        "proof-or-stop.config.json": "4431622d24fc637a2bfd543a6cae1c73918dcac0530814fbbf9a46002a1a3d42",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
         "scripts/support/nested-reservation-lifecycle.mjs": "abf4ffd9fcdb1bfb482af72cf3e72c20584ba95f659a6177b1cb1e28d30d3cff",
         "scripts/support/nested-reservation-source-runtime.mjs": "338dbd9150e7e8d007814481fc892ae600397d299d76982fdd93ef4ec6ee264e",
@@ -10533,7 +10533,7 @@
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
-        "proof-or-stop.config.json": "f8153ff1e5cc7eeb1068688cb582348691adf33923993bb6d356ff7bac4c3bfe",
+        "proof-or-stop.config.json": "4431622d24fc637a2bfd543a6cae1c73918dcac0530814fbbf9a46002a1a3d42",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
         "scripts/support/nested-reservation-lifecycle.mjs": "abf4ffd9fcdb1bfb482af72cf3e72c20584ba95f659a6177b1cb1e28d30d3cff",
         "scripts/support/nested-reservation-source-runtime.mjs": "338dbd9150e7e8d007814481fc892ae600397d299d76982fdd93ef4ec6ee264e",
@@ -10646,7 +10646,7 @@
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
-        "proof-or-stop.config.json": "f8153ff1e5cc7eeb1068688cb582348691adf33923993bb6d356ff7bac4c3bfe",
+        "proof-or-stop.config.json": "4431622d24fc637a2bfd543a6cae1c73918dcac0530814fbbf9a46002a1a3d42",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
         "scripts/support/nested-reservation-lifecycle.mjs": "abf4ffd9fcdb1bfb482af72cf3e72c20584ba95f659a6177b1cb1e28d30d3cff",
         "scripts/support/nested-reservation-source-runtime.mjs": "338dbd9150e7e8d007814481fc892ae600397d299d76982fdd93ef4ec6ee264e",
@@ -10759,7 +10759,7 @@
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
-        "proof-or-stop.config.json": "f8153ff1e5cc7eeb1068688cb582348691adf33923993bb6d356ff7bac4c3bfe",
+        "proof-or-stop.config.json": "4431622d24fc637a2bfd543a6cae1c73918dcac0530814fbbf9a46002a1a3d42",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
         "scripts/support/nested-reservation-lifecycle.mjs": "abf4ffd9fcdb1bfb482af72cf3e72c20584ba95f659a6177b1cb1e28d30d3cff",
         "scripts/support/nested-reservation-source-runtime.mjs": "338dbd9150e7e8d007814481fc892ae600397d299d76982fdd93ef4ec6ee264e",
@@ -10872,7 +10872,7 @@
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
-        "proof-or-stop.config.json": "f8153ff1e5cc7eeb1068688cb582348691adf33923993bb6d356ff7bac4c3bfe",
+        "proof-or-stop.config.json": "4431622d24fc637a2bfd543a6cae1c73918dcac0530814fbbf9a46002a1a3d42",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
         "scripts/support/nested-reservation-lifecycle.mjs": "abf4ffd9fcdb1bfb482af72cf3e72c20584ba95f659a6177b1cb1e28d30d3cff",
         "scripts/support/nested-reservation-source-runtime.mjs": "338dbd9150e7e8d007814481fc892ae600397d299d76982fdd93ef4ec6ee264e",
@@ -10985,7 +10985,7 @@
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
-        "proof-or-stop.config.json": "f8153ff1e5cc7eeb1068688cb582348691adf33923993bb6d356ff7bac4c3bfe",
+        "proof-or-stop.config.json": "4431622d24fc637a2bfd543a6cae1c73918dcac0530814fbbf9a46002a1a3d42",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
         "scripts/support/nested-reservation-lifecycle.mjs": "abf4ffd9fcdb1bfb482af72cf3e72c20584ba95f659a6177b1cb1e28d30d3cff",
         "scripts/support/nested-reservation-source-runtime.mjs": "338dbd9150e7e8d007814481fc892ae600397d299d76982fdd93ef4ec6ee264e",
@@ -11098,7 +11098,7 @@
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
-        "proof-or-stop.config.json": "f8153ff1e5cc7eeb1068688cb582348691adf33923993bb6d356ff7bac4c3bfe",
+        "proof-or-stop.config.json": "4431622d24fc637a2bfd543a6cae1c73918dcac0530814fbbf9a46002a1a3d42",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
         "scripts/support/nested-reservation-lifecycle.mjs": "abf4ffd9fcdb1bfb482af72cf3e72c20584ba95f659a6177b1cb1e28d30d3cff",
         "scripts/support/nested-reservation-source-runtime.mjs": "338dbd9150e7e8d007814481fc892ae600397d299d76982fdd93ef4ec6ee264e",
@@ -11211,7 +11211,7 @@
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
-        "proof-or-stop.config.json": "f8153ff1e5cc7eeb1068688cb582348691adf33923993bb6d356ff7bac4c3bfe",
+        "proof-or-stop.config.json": "4431622d24fc637a2bfd543a6cae1c73918dcac0530814fbbf9a46002a1a3d42",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
         "scripts/support/nested-reservation-lifecycle.mjs": "abf4ffd9fcdb1bfb482af72cf3e72c20584ba95f659a6177b1cb1e28d30d3cff",
         "scripts/support/nested-reservation-source-runtime.mjs": "338dbd9150e7e8d007814481fc892ae600397d299d76982fdd93ef4ec6ee264e",
@@ -11324,7 +11324,7 @@
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
-        "proof-or-stop.config.json": "f8153ff1e5cc7eeb1068688cb582348691adf33923993bb6d356ff7bac4c3bfe",
+        "proof-or-stop.config.json": "4431622d24fc637a2bfd543a6cae1c73918dcac0530814fbbf9a46002a1a3d42",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
         "scripts/support/nested-reservation-lifecycle.mjs": "abf4ffd9fcdb1bfb482af72cf3e72c20584ba95f659a6177b1cb1e28d30d3cff",
         "scripts/support/nested-reservation-source-runtime.mjs": "338dbd9150e7e8d007814481fc892ae600397d299d76982fdd93ef4ec6ee264e",
@@ -11437,7 +11437,7 @@
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
-        "proof-or-stop.config.json": "f8153ff1e5cc7eeb1068688cb582348691adf33923993bb6d356ff7bac4c3bfe",
+        "proof-or-stop.config.json": "4431622d24fc637a2bfd543a6cae1c73918dcac0530814fbbf9a46002a1a3d42",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
         "scripts/support/nested-reservation-lifecycle.mjs": "abf4ffd9fcdb1bfb482af72cf3e72c20584ba95f659a6177b1cb1e28d30d3cff",
         "scripts/support/nested-reservation-source-runtime.mjs": "338dbd9150e7e8d007814481fc892ae600397d299d76982fdd93ef4ec6ee264e",
@@ -11550,7 +11550,7 @@
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
-        "proof-or-stop.config.json": "f8153ff1e5cc7eeb1068688cb582348691adf33923993bb6d356ff7bac4c3bfe",
+        "proof-or-stop.config.json": "4431622d24fc637a2bfd543a6cae1c73918dcac0530814fbbf9a46002a1a3d42",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
         "scripts/support/nested-reservation-lifecycle.mjs": "abf4ffd9fcdb1bfb482af72cf3e72c20584ba95f659a6177b1cb1e28d30d3cff",
         "scripts/support/nested-reservation-source-runtime.mjs": "338dbd9150e7e8d007814481fc892ae600397d299d76982fdd93ef4ec6ee264e",
@@ -11663,7 +11663,7 @@
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
-        "proof-or-stop.config.json": "f8153ff1e5cc7eeb1068688cb582348691adf33923993bb6d356ff7bac4c3bfe",
+        "proof-or-stop.config.json": "4431622d24fc637a2bfd543a6cae1c73918dcac0530814fbbf9a46002a1a3d42",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
         "scripts/support/nested-reservation-lifecycle.mjs": "abf4ffd9fcdb1bfb482af72cf3e72c20584ba95f659a6177b1cb1e28d30d3cff",
         "scripts/support/nested-reservation-source-runtime.mjs": "338dbd9150e7e8d007814481fc892ae600397d299d76982fdd93ef4ec6ee264e",
@@ -11776,7 +11776,7 @@
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
-        "proof-or-stop.config.json": "f8153ff1e5cc7eeb1068688cb582348691adf33923993bb6d356ff7bac4c3bfe",
+        "proof-or-stop.config.json": "4431622d24fc637a2bfd543a6cae1c73918dcac0530814fbbf9a46002a1a3d42",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
         "scripts/support/nested-reservation-lifecycle.mjs": "abf4ffd9fcdb1bfb482af72cf3e72c20584ba95f659a6177b1cb1e28d30d3cff",
         "scripts/support/nested-reservation-source-runtime.mjs": "338dbd9150e7e8d007814481fc892ae600397d299d76982fdd93ef4ec6ee264e",
@@ -11889,7 +11889,7 @@
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
-        "proof-or-stop.config.json": "f8153ff1e5cc7eeb1068688cb582348691adf33923993bb6d356ff7bac4c3bfe",
+        "proof-or-stop.config.json": "4431622d24fc637a2bfd543a6cae1c73918dcac0530814fbbf9a46002a1a3d42",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
         "scripts/support/nested-reservation-lifecycle.mjs": "abf4ffd9fcdb1bfb482af72cf3e72c20584ba95f659a6177b1cb1e28d30d3cff",
         "scripts/support/nested-reservation-source-runtime.mjs": "338dbd9150e7e8d007814481fc892ae600397d299d76982fdd93ef4ec6ee264e",
@@ -12002,7 +12002,7 @@
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
-        "proof-or-stop.config.json": "f8153ff1e5cc7eeb1068688cb582348691adf33923993bb6d356ff7bac4c3bfe",
+        "proof-or-stop.config.json": "4431622d24fc637a2bfd543a6cae1c73918dcac0530814fbbf9a46002a1a3d42",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
         "scripts/support/nested-reservation-lifecycle.mjs": "abf4ffd9fcdb1bfb482af72cf3e72c20584ba95f659a6177b1cb1e28d30d3cff",
         "scripts/support/nested-reservation-source-runtime.mjs": "338dbd9150e7e8d007814481fc892ae600397d299d76982fdd93ef4ec6ee264e",
@@ -12115,7 +12115,7 @@
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
-        "proof-or-stop.config.json": "f8153ff1e5cc7eeb1068688cb582348691adf33923993bb6d356ff7bac4c3bfe",
+        "proof-or-stop.config.json": "4431622d24fc637a2bfd543a6cae1c73918dcac0530814fbbf9a46002a1a3d42",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
         "scripts/support/nested-reservation-lifecycle.mjs": "abf4ffd9fcdb1bfb482af72cf3e72c20584ba95f659a6177b1cb1e28d30d3cff",
         "scripts/support/nested-reservation-source-runtime.mjs": "338dbd9150e7e8d007814481fc892ae600397d299d76982fdd93ef4ec6ee264e",
@@ -12228,7 +12228,7 @@
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
-        "proof-or-stop.config.json": "f8153ff1e5cc7eeb1068688cb582348691adf33923993bb6d356ff7bac4c3bfe",
+        "proof-or-stop.config.json": "4431622d24fc637a2bfd543a6cae1c73918dcac0530814fbbf9a46002a1a3d42",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
         "scripts/support/nested-reservation-lifecycle.mjs": "abf4ffd9fcdb1bfb482af72cf3e72c20584ba95f659a6177b1cb1e28d30d3cff",
         "scripts/support/nested-reservation-source-runtime.mjs": "338dbd9150e7e8d007814481fc892ae600397d299d76982fdd93ef4ec6ee264e",
@@ -12341,7 +12341,7 @@
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
-        "proof-or-stop.config.json": "f8153ff1e5cc7eeb1068688cb582348691adf33923993bb6d356ff7bac4c3bfe",
+        "proof-or-stop.config.json": "4431622d24fc637a2bfd543a6cae1c73918dcac0530814fbbf9a46002a1a3d42",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
         "scripts/support/nested-reservation-lifecycle.mjs": "abf4ffd9fcdb1bfb482af72cf3e72c20584ba95f659a6177b1cb1e28d30d3cff",
         "scripts/support/nested-reservation-source-runtime.mjs": "338dbd9150e7e8d007814481fc892ae600397d299d76982fdd93ef4ec6ee264e",
@@ -12454,7 +12454,7 @@
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
-        "proof-or-stop.config.json": "f8153ff1e5cc7eeb1068688cb582348691adf33923993bb6d356ff7bac4c3bfe",
+        "proof-or-stop.config.json": "4431622d24fc637a2bfd543a6cae1c73918dcac0530814fbbf9a46002a1a3d42",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
         "scripts/support/nested-reservation-lifecycle.mjs": "abf4ffd9fcdb1bfb482af72cf3e72c20584ba95f659a6177b1cb1e28d30d3cff",
         "scripts/support/nested-reservation-source-runtime.mjs": "338dbd9150e7e8d007814481fc892ae600397d299d76982fdd93ef4ec6ee264e",
@@ -12567,7 +12567,7 @@
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
-        "proof-or-stop.config.json": "f8153ff1e5cc7eeb1068688cb582348691adf33923993bb6d356ff7bac4c3bfe",
+        "proof-or-stop.config.json": "4431622d24fc637a2bfd543a6cae1c73918dcac0530814fbbf9a46002a1a3d42",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
         "scripts/support/nested-reservation-lifecycle.mjs": "abf4ffd9fcdb1bfb482af72cf3e72c20584ba95f659a6177b1cb1e28d30d3cff",
         "scripts/support/nested-reservation-source-runtime.mjs": "338dbd9150e7e8d007814481fc892ae600397d299d76982fdd93ef4ec6ee264e",
@@ -14166,7 +14166,7 @@
           "file": "proof-or-stop.config.json",
           "startLine": 542,
           "endLine": 556,
-          "sourceDigest": "f8153ff1e5cc7eeb1068688cb582348691adf33923993bb6d356ff7bac4c3bfe",
+          "sourceDigest": "4431622d24fc637a2bfd543a6cae1c73918dcac0530814fbbf9a46002a1a3d42",
           "excerpt": "            \"class\": \"git-common-dir\",\n            \"key\": \".\",\n            \"access\": \"shared\"\n          }\n        ],\n        \"assurance\": \"story-selectable\",\n        \"riskTier\": \"shared\",\n        \"closurePolicy\": \"static-and-traced\",\n        \"fullBaselineReusePolicy\": \"not-applicable\",\n        \"policySource\": \"explicit-dyn1-audit-v1\"\n      },\n      {\n        \"command\": \"node\",\n        \"args\": [\n          \"scripts/verify-process-fact-contract.mjs\","
         },
         {
@@ -14196,7 +14196,7 @@
         "packages/main/src/core/workflow-policy.ts": "9a043d622356deec4b89a50b046572edb3efbc9d9cfa6fa165a80b1fd2024ced",
         "packages/main/src/handlers/acceptance-amendment.ts": "768eb0fb124163d2c3ad5fa99576120036d938e0e050e382b793f590fbf1c199",
         "packages/main/src/handlers/verifier.ts": "883b6827538e4d53d838530f5c6aa0c3d89e57cf2b5a34021fa45a286405d12c",
-        "proof-or-stop.config.json": "f8153ff1e5cc7eeb1068688cb582348691adf33923993bb6d356ff7bac4c3bfe",
+        "proof-or-stop.config.json": "4431622d24fc637a2bfd543a6cae1c73918dcac0530814fbbf9a46002a1a3d42",
         "scripts/ensure-dist.mjs": "2888be4137a602d465257d0f39a964ed280174033656b989755c671e0d9f6131",
         "scripts/full-suite-build-binding.mjs": "947d6ea2e0bc3c45bf220607aef43d514987446f9fa9e0de976f98d6fed899e6",
         "scripts/verification-subprocess-budget.mjs": "c1b62e79bf0a0f4e92e8b43767f06bc27cd29f57b19a350e73aca0a3af9abd43",
@@ -14903,7 +14903,7 @@
       "callDigest": "f235f82aae02ee9b1fcbd0c400e11ed18d8241436f77e03f8f5f8ee975cbf483",
       "sourceDigest": "2716374c7693bdbda8b0f13dfa2336fc8283165e710c13b919acad1e3c9a34ec",
       "configIndexes": [
-        243
+        244
       ],
       "invocations": [
         {
@@ -14923,7 +14923,7 @@
         }
       ],
       "dependencyDigests": {
-        "proof-or-stop.config.json": "f8153ff1e5cc7eeb1068688cb582348691adf33923993bb6d356ff7bac4c3bfe",
+        "proof-or-stop.config.json": "4431622d24fc637a2bfd543a6cae1c73918dcac0530814fbbf9a46002a1a3d42",
         "packages/main/src/tasks/dynamic-finding-runtime-integration-smoke.ts": "456315fb31f53aeb23c2b2baa7ea2e783ef4557410511c64577aa53ea6615028",
         "packages/main/tests/red/red-dynamic-finding-collection-readiness.mjs": "2716374c7693bdbda8b0f13dfa2336fc8283165e710c13b919acad1e3c9a34ec"
       }
@@ -14936,7 +14936,7 @@
       "callDigest": "3fcb195d10d7f6158f9ebb9058dfd982ff090e03d24362a1d13aa45c6dc8a5f1",
       "sourceDigest": "9af2f855cda611311127208c8dc9fa58452e7872e1f476e969486cf4a5a1d1fc",
       "configIndexes": [
-        244
+        245
       ],
       "invocations": [
         {
@@ -14967,7 +14967,7 @@
       "callDigest": "950e3f22b1d4bb55c5f9042b938d21e1823206a0f2d2d44b2ff716c7c3f0ece6",
       "sourceDigest": "da4dcecb6ee2d8df3b4ee53072482b30c20f6b10247ce0a4ad52a6377b91f126",
       "configIndexes": [
-        246
+        247
       ],
       "invocations": [
         {
