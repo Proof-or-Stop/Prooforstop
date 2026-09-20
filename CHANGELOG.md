@@ -1,17 +1,5 @@
 # Changelog
 
-## Lab validation-prompt-baseline-split-20260920 - v0.3.431 - 2026-09-20
-
-- Repair validation prompt-baseline failures caused by approval hashes and role-matrix expectations lagging the current canonical role contracts.
-- Bind the complete current prompt bodies and measurement sidecar for all 18 roles; preserve rejection of altered bodies, unknown roles, and direct Story writes.
-- Cover the exact optional delivery transcript read, reject the same path as a write or as another role's inherited authority, and retain independent mutation controls.
-- Record target RED on main and replay the full 18-role prompt-baseline suite during Lab integration. This is local maintenance evidence, not Story DONE.
-- Split these four already-reviewed files from the remaining validation audit so each independent Lab audit stays within its existing input bound; the unrelated reviewed-source-binding failure is identical on main and remains owned by the original validation Lab. Detailed evidence is retained in the validation audit Lab archive.
-
-Maintenance provenance: codex/lab-validation-prompt-baseline-split-20260920, repair c01e9edfda620eb16b93098b8f07b676f292c5aa.
-Verification command (replayed before integration and on main): `["node","scripts/verify-proof-or-stop-prompt-baseline.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab benchmark-real-entry-regression - v0.3.430 - 2026-09-20
 
 - Enforce planned-provider attempt and remaining-time allowances before dispatch, preserving retries and post-transport spawn-error attempts.
