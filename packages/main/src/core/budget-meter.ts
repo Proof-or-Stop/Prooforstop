@@ -1,4 +1,5 @@
 import type { JobBudgetPolicy, JobPlan, JobStopPolicy, PlannerPolicy } from './planner.js';
+import { PLANNED_PROVIDER_BUDGET_RUNTIME_POLICY } from './runtime-fact-registry.js';
 
 // Budget metering for the bounded Stage B / planner executor (X6 + §B5 stopPolicy).
 //
@@ -67,6 +68,8 @@ export interface BudgetMeter {
   usage(): BudgetUsage;
   /** Evaluate usage against the limits into a structured report. */
   evaluate(): BudgetReport;
+  /** Pre-transport allowance; execution is synchronous and records before the next admission. */
+  providerAllowance(attempts: number, timeoutMs: number): { attempts: number; timeoutMs: number; report: BudgetReport };
 }
 
 /** Defensive normalization (Handler encoding convention): any non-positive / non-finite limit means "no limit". */
@@ -158,7 +161,8 @@ export function createBudgetMeter(limits: BudgetLimits, now: () => Date = () => 
   function recordStep(step: BudgetStepEvent): void {
     steps += 1;
     if (typeof step.type === 'string' && step.type.startsWith('provider.')) {
-      providerCalls += 1;
+      const attempts = numeric(step.summary?.providerAttempts);
+      providerCalls += attempts === null ? 1 : Math.floor(attempts);
     }
     const cost = extractStepCost(step.summary);
     if (cost !== null) {
@@ -199,5 +203,26 @@ export function createBudgetMeter(limits: BudgetLimits, now: () => Date = () => 
     };
   }
 
-  return { recordStep, usage, evaluate };
+  function providerAllowance(requestedAttempts: number, requestedTimeoutMs: number) {
+    const report = evaluate();
+    const current = report.usage;
+    const remainingCalls = limits.maxProviderCalls > 0 ? Math.max(0, limits.maxProviderCalls - current.providerCalls) : Infinity;
+    const remainingMs = limits.maxWallClockMs > 0 ? Math.max(0, limits.maxWallClockMs - current.wallClockMs) : Infinity;
+    const minimum = PLANNED_PROVIDER_BUDGET_RUNTIME_POLICY.minimumAttemptTimeoutMs;
+    const requested = Number.isFinite(requestedAttempts) && requestedAttempts > 0 ? Math.floor(requestedAttempts) : 1;
+    let attempts = Math.min(Math.max(1, requested), remainingCalls, Math.floor(remainingMs / minimum));
+    let dimension = report.exceededDimension;
+    if (remainingMs < minimum) dimension = 'wall_clock';
+    else if (remainingCalls < 1) dimension = 'provider_calls';
+    else if (limits.maxTokenOrCostBudget > 0 && current.tokenOrCost >= limits.maxTokenOrCostBudget) dimension = 'token_or_cost';
+    if (dimension !== null) {
+      attempts = 0;
+      Object.assign(report, { exceeded: true, exceededDimension: dimension, stopReason: BUDGET_EXCEEDED_STOP_REASON,
+        nextAction: `Budget exhausted before provider launch (${dimension}). The run stops blocked; never triggers provider fallback or extra review waves.` });
+    }
+    const requestedTimeout = Number.isFinite(requestedTimeoutMs) && requestedTimeoutMs >= minimum ? Math.floor(requestedTimeoutMs) : minimum;
+    const timeoutMs = attempts > 0 ? Math.min(requestedTimeout, Math.floor(remainingMs / attempts)) : 0;
+    return { attempts, timeoutMs, report };
+  }
+  return { recordStep, usage, evaluate, providerAllowance };
 }

@@ -142,6 +142,7 @@ export const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntrie
   ]),
   // Canonical invocation verifies its prebuilt runtime; all test mutations use private fixtures.
   repoRead('test:benchmark-framework-hardening'),
+  repoRead('test:benchmark-behavior', { timeoutMs: 180_000 }),
   repoRead('test:main-write-lock-coverage'),
   // Exact parser regression reads this build and uses only private Git fixtures.
   repoRead('test:scope-diff-pack'),
