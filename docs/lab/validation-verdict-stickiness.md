@@ -65,14 +65,18 @@ yet; the same command without `--legacy` reports it once Stories validate again.
   cannot be built is refused before it launches (`validation_identity_unavailable`);
   it used to execute unbound and record its failure under a fallback digest no later
   identity could match. That fallback is gone: a terminal's command set is the routine
-  identity digest. Publication refuses a result without the identity, and admission
-  refuses a stored PASS without it (`validation_identity_incomplete`); terminals from
-  before the artifact binding stay valid history and are simply never matched.
+  identity digest. Publication binds a failure as completely as a PASS and refuses any
+  result whose material or story files cannot be identified; the terminal writer takes
+  that validated identity and looks nothing up again, where it used to recompute the
+  hashes and write empty strings when a lookup failed. Admission refuses a stored PASS
+  without its identity (`validation_identity_incomplete`); terminals from before the
+  artifact binding stay valid history and are simply never matched.
 - History is `{ terminals }` or `{ unreadable }`. Only a confirmed absence (`ENOENT`)
   is an empty history. A directory that cannot be located, a denied or non-directory
   lookup, a file that cannot be read, a line that is not a process event (a JSON object
-  with a type) or a validation terminal whose result or disposition is unknown is
-  unreadable, and reuse (`validation-history-unreadable`), admission
+  with a type), a validation terminal whose result or disposition is unknown, or an
+  executed failure that claims the compiled-artifact identity without carrying all of
+  it is unreadable - a failure that cannot count proves nothing either - and reuse (`validation-history-unreadable`), admission
   (`validation_history_unreadable`) and publication all refuse. Every one of this
   repository's 410 Story directories reads cleanly under it (928 terminals).
 - `done_prepare` trusts the reused terminal the verifier appends again: its exact key
@@ -90,7 +94,7 @@ yet; the same command without `--legacy` reports it once Stories validate again.
 
 `node scripts/verify-validation-verdict-stickiness.mjs`, registered as the last
 `validate.commands` entry. At RED: 7 failing expectations, 9 controls passed. At GREEN:
-121 checks — the pure rule, both core consumers, the DONE-side consumer over a fixture
+129 checks — the pure rule, both core consumers, the DONE-side consumer over a fixture
 Story with signed evidence, corrupt and missing histories, the report, the
 `done_prepare` trust decision, source guards, and end-to-end runs through the built
 CLI on a validate file that reads a switch outside the repository: FAIL then PASS on
@@ -107,8 +111,8 @@ waiver completes coverage, an identity that cannot be built refuses instead of
 returning null, and a plain-text run publishes nothing. With the production source of
 an audit's repair reverted, exactly that audit's expectations fail: 10 for the second
 (the laundered PASS among them, `exit=0 evidence=PASS/reused`), 12 for the third (the
-mixed failure recorded as `infra_failure` among them) and 6 for the fourth (the
-recovery refused with `verdict_flip_refused` among them).
+mixed failure recorded as `infra_failure` among them), 6 for the fourth (the recovery
+refused with `verdict_flip_refused` among them) and 5 for the fifth.
 
 On the final Lab tree the checks that share these code paths pass:
 `validation-evidence-reuse-smoke` (its coverage-only recovery included),
@@ -165,6 +169,12 @@ separate. And a plain-text validate-file run records nothing (medium): that is t
 existing contract of that mode, not a gap in this rule - it publishes no PASS either,
 so there is nothing to flip - and it is now stated at the branch, pinned by a
 regression and listed under the limitations instead of changing what the mode does.
+
+The fifth audit (of `9257ddcf0d`, rejected) found one (high): the terminal writer
+recomputed the material and story-files hashes and wrote empty strings when a lookup
+failed, so fully bound FAIL evidence could leave a terminal no identity matched, and
+the reader skipped it. The writer now records the identity its publication validated,
+a failure is refused publication without it, and such a terminal is unreadable history.
 
 ## Limitations
 

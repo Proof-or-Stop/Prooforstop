@@ -105,9 +105,10 @@ export const HISTORY_UNREADABLE_ADMISSION_CODE = 'validation_history_unreadable'
  * CONFIRMED absence (ENOENT) is an empty history. Any other failure to read -
  * a parent that cannot be searched, a path component that is not a directory,
  * an I/O error - is UNREADABLE, and so is a line that is not a process event
- * (a JSON object with a type) or a validation terminal whose result or
- * disposition is not one this rule knows: an empty history would prove that no
- * failure exists, and an unreadable one proves nothing. Terminals recorded
+ * (a JSON object with a type), a validation terminal whose result or
+ * disposition is not one this rule knows, or an executed failure that claims
+ * the compiled-artifact identity without carrying all of it: an empty history
+ * would prove that no failure exists, and an unreadable one proves nothing. Terminals recorded
  * before the compiled-artifact identity existed are valid and simply unmatched.
  */
 export function readValidationHistory(store: { storyDirPath(storyId: string): string }, storyId: string): ValidationHistory {
@@ -132,6 +133,13 @@ export function readValidationHistory(store: { storyDirPath(storyId: string): st
     if (fact.type !== 'validation_terminal') continue;
     if ((fact.result !== 'pass' && fact.result !== 'fail') || (fact.disposition !== 'executed' && fact.disposition !== 'reused')) {
       return { unreadable: `${path}: line ${index + 1} is not a recognized validation terminal` };
+    }
+    // An executed failure that claims the compiled-artifact identity but does
+    // not carry all four parts is a failure nothing can be matched against.
+    // It is not skipped: a failure that cannot count proves nothing either.
+    // A terminal from before the artifact binding has no such claim.
+    if (fact.result === 'fail' && fact.disposition === 'executed' && fact.buildArtifactsHash !== undefined && !verdictIdentityFromParts(fact)) {
+      return { unreadable: `${path}: line ${index + 1} is an executed failure with a malformed validation identity` };
     }
     terminals.push(fact);
   }

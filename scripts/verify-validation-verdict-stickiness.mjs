@@ -245,6 +245,16 @@ try {
     expectRepaired('unreadable' in historyOf([terminal({ result: 'maybe' })]) && 'unreadable' in historyOf([terminal({ disposition: undefined })]), 'a malformed validation terminal was read as history');
     const legacyHistory = historyOf([{ type: 'dispatch', storyId }, terminal({ buildArtifactsHash: undefined, failureKind: undefined }), terminal({ result: 'pass', disposition: 'reused', failureKind: undefined })]);
     check('terminals' in legacyHistory && legacyHistory.terminals.length === 2, 'control: other events, legacy terminals and reused terminals are a readable history');
+    // Audit 5: an executed failure that claims the compiled-artifact identity
+    // but lost a part of it - a lookup that failed when it was written - can
+    // be matched by nothing. Skipping it would let the unchanged retry publish.
+    const lostMaterial = historyOf([terminal({ materialHash: '' })]);
+    const lostStoryFiles = historyOf([terminal({ storyFilesHash: undefined })]);
+    expectRepaired('unreadable' in lostMaterial && 'unreadable' in lostStoryFiles, 'an executed failure with a lost material or story-files binding was skipped as history');
+    expectRepaired(typeof stickiness.passPublicationRefusal === 'function' && String(stickiness.passPublicationRefusal(lostMaterial, identityA)).includes('[validation_history_unreadable]'),
+      'an unchanged retry could publish a PASS past a failure whose binding was lost');
+    const tolerated = historyOf([terminal({ buildArtifactsHash: undefined, materialHash: '' }), terminal({ result: 'pass', materialHash: '' }), terminal({ disposition: 'reused', result: 'pass', storyFilesHash: '' })]);
+    check('terminals' in tolerated && tolerated.terminals.length === 3, 'control: a legacy failure, and a pass or reused terminal, never need a complete identity to be history');
   }
   const eventsPath = join(root, '.proof-or-stop/story/actives', storyId, 'process-events.jsonl');
   const intact = readFileSync(eventsPath, 'utf8');
@@ -512,6 +522,22 @@ try {
   const afterUnbound = unbound.runCli();
   check(afterUnbound.status === 0 && unbound.evidence()?.result === 'PASS', `control: the unchanged inputs validate once the identity can be built (${afterUnbound.text.slice(0, 300)})`);
 
+  // Audit 5: the terminal records exactly the identity its publication
+  // validated. Here nothing it could look up exists - the context has no
+  // repository at all - and the bindings are not the fixture's own, so any
+  // second lookup would show as an empty or a different hash.
+  const { recordValidationTerminal } = await import('../packages/main/src/handlers/verifier.ts');
+  expectRepaired(typeof recordValidationTerminal === 'function', 'the terminal writer cannot be exercised');
+  if (typeof recordValidationTerminal === 'function') {
+    const validated = { commandSetHash: H('a'), materialHash: H('b'), storyFilesHash: H('c'), buildArtifactsHash: H('d') };
+    let written = false;
+    try { written = Boolean(recordValidationTerminal({ root: join(cliSandbox, 'no-repository'), store: unbound.store, scanRoot: join(cliSandbox, 'no-repository') }, unbound.storyId, { status: 'fail', allPass: false, failureKind: 'validation_failure', disposition: 'executed', commandExecutions: 1 }, validated)); } catch { written = false; }
+    const lastTerminal = 'terminals' in unbound.history() ? unbound.history().terminals.at(-1) : undefined;
+    expectRepaired(written && Object.entries(validated).every(([key, value]) => lastTerminal?.[key] === value) && lastTerminal?.result === 'fail' && lastTerminal?.failureKind === 'validation_failure',
+      `the terminal did not record the identity its publication validated (${JSON.stringify(lastTerminal)})`);
+    check(stickiness.stickyFailuresFor(validated, unbound.history().terminals ?? []).length === 1, 'control: that failure is matched by exactly the validated identity');
+  }
+
   // Audit 4: a plain-text validate-file run is a dry run. It publishes neither
   // evidence nor terminal, so its PASS is evidence nowhere and nothing flips.
   const dryRun = seed('dry-run', flaky());
@@ -568,12 +594,19 @@ expectRepaired((verifierSource.match(/passPublicationRefusal\(/g) ?? []).length 
   'the executed and the reused publication do not both read the shared publication refusal (source-text guard)');
 // Audit 3: every executed PASS asks, with whatever identity it has; a missing
 // identity is the refusal's business, never a reason not to ask.
-expectRepaired(/if \(allPass\) \{\s+const flipRefusal = passPublicationRefusal\(/.test(verifierSource) && verifierSource.includes('verdictIdentityFromParts({ commandSetHash: identity.digest, ...hashes })'),
+expectRepaired(/if \(allPass\) \{\s+const flipRefusal = passPublicationRefusal\(/.test(verifierSource) && verifierSource.includes('verdictIdentityFromParts({ commandSetHash: identity.digest, ...hashes })') && !/if \(allPass && identity/.test(verifierSource),
   'the executed publication asks the shared refusal only when it already has an identity (source-text guard)');
 expectRepaired(verifierSource.includes('failureKind: classifyValidationTerminalFailure({'), 'the executed terminal kind is not derived from the command outcomes (source-text guard)');
+// Audit 5: every publication is bound as completely as a PASS, and the
+// terminal writer takes that identity instead of looking anything up again.
+const writerStart = verifierSource.indexOf('export function recordValidationTerminal(');
+const writerSource = writerStart >= 0 ? verifierSource.slice(writerStart, verifierSource.indexOf('\n}\n', writerStart)) : '';
+expectRepaired(writerSource.length > 0 && !/currentMaterialHash\(|currentStoryFilesHash\(|currentBuildArtifactsHash\(/.test(writerSource) && writerSource.includes('materialHash: bindings.materialHash'),
+  'the terminal writer still looks its bindings up a second time (source-text guard)');
+expectRepaired(/if \(!verdictIdentity\) \{\s+return persistenceFailure\(/.test(verifierSource), 'a failure can still be published without its full identity (source-text guard)');
 // Audit 4: a terminal's command set is the routine identity digest, never a
 // differently built fallback that no later identity could match.
-expectRepaired(verifierSource.includes('commandSetHash: identity.digest,') && !verifierSource.includes('commandSetHash: identity?.digest ??'), 'a terminal can still record a fallback command-set digest (source-text guard)');
+expectRepaired(!verifierSource.includes('commandSetHash: identity?.digest ??') && (verifierSource.includes('commandSetHash: identity.digest,') || verifierSource.includes('commandSetHash: bindings.commandSetHash,')), 'a terminal can still record a fallback command-set digest (source-text guard)');
 expectRepaired(verifierSource.includes('failureKind: _printedKind, ...rest }') && verifierSource.includes("failureKind: validation.failureKind ?? 'validation_failure'"),
   'the validate-file path still trusts a child-printed failureKind (source-text guard)');
 

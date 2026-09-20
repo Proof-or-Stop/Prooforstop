@@ -8,7 +8,7 @@ import { readFindingValidationConstraints } from '../core/finding-validation.js'
 import { signTestValidationEvidence, verifyTestValidationEvidence } from '../core/validation-artifact-signing.js';
 import { acceptanceCompletionBlocker } from '../core/acceptance-amendment-gates.js';
 import { commandFromString, configuredValidationCommands, filterFocusedConfiguredCommands, sourceInputSnapshot, routineIdentityPolicySnapshot, buildValidateFileCommand } from './validation-identity.js';
-import { COVERAGE_INCOMPLETE_FAILURE_KIND, IDENTITY_UNAVAILABLE_CODE, passPublicationRefusal, readValidationHistory, verdictIdentityFromParts } from '../core/validation-verdict-stickiness.js';
+import { COVERAGE_INCOMPLETE_FAILURE_KIND, IDENTITY_UNAVAILABLE_CODE, passPublicationRefusal, readValidationHistory, verdictIdentityFromParts, type ValidationVerdictIdentity } from '../core/validation-verdict-stickiness.js';
 export { configuredValidationCommands, sourceInputSnapshot } from './validation-identity.js';
 import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 /**
@@ -1123,17 +1123,15 @@ function reusedStoryValidationResult(args: {
   // Fail is sticky where a reused PASS is published too: this function signs
   // an older record as a fresh PASS without executing anything, so it reads
   // the same history the executed publication reads.
-  const flipRefusal = passPublicationRefusal(
-    readValidationHistory(args.ctx.store, args.storyId),
-    verdictIdentityFromParts({ commandSetHash: args.identity.digest, materialHash, storyFilesHash, buildArtifactsHash }),
-  );
-  if (flipRefusal) {
+  const reusedIdentity = verdictIdentityFromParts({ commandSetHash: args.identity.digest, materialHash, storyFilesHash, buildArtifactsHash });
+  const flipRefusal = passPublicationRefusal(readValidationHistory(args.ctx.store, args.storyId), reusedIdentity);
+  if (flipRefusal || !reusedIdentity) {
     return externalResult({
       provider: 'proof-or-stop-verifier-reuse-persistence',
       status: 'fail',
       failureKind: 'infra_failure',
       summary: 'Validation reuse refused because this identity has an executed failure on record',
-      details: ['canonical-pass-persistence-failed', flipRefusal],
+      details: ['canonical-pass-persistence-failed', flipRefusal ?? `[${IDENTITY_UNAVAILABLE_CODE}]`],
       warnings: [],
       commands: [],
     });
@@ -1230,11 +1228,10 @@ function reusedStoryValidationResult(args: {
     args.ctx.store.writePreparedTestEvidence(args.storyId, prepared);
     // The terminal carries the compiled-artifact identity and protection of
     // the record that was reused, exactly what done_prepare binds it to.
-    const terminal = recordValidationTerminal(args.ctx, args.storyId, args.gitCwd, {
+    const terminal = recordValidationTerminal(args.ctx, args.storyId, {
       ...reused,
-      buildArtifactsHash,
       ...(priorEvidence.buildArtifactsProtection ? { buildArtifactsProtection: priorEvidence.buildArtifactsProtection } : {}),
-    }, args.identity);
+    }, reusedIdentity);
     if (!terminal) throw new Error('VALIDATION_TERMINAL_RECEIPT_MISSING: canonical publication requires a terminal append receipt');
     const terminalHashes = publicationOutputHashes(transaction, storyRel, prepared.sha256, terminal);
     expectedHashes.set(`${storyRel}/process-events.jsonl`, terminalHashes.get(`${storyRel}/process-events.jsonl`)!);
@@ -1397,12 +1394,17 @@ function dynamicBuildArtifactsBinding(executedDynamic: {
   return bound;
 }
 
-function recordValidationTerminal(
+/**
+ * Exported for the fail-sticky regression. The terminal records exactly the
+ * identity its publication validated and bound the evidence to. It looks
+ * nothing up again: a second lookup that failed would write a terminal no
+ * identity can match, and the failure it records would stop counting.
+ */
+export function recordValidationTerminal(
   ctx: HandlerContext,
   storyId: string,
-  gitCwd: string,
   result: any,
-  identity: RoutineValidationIdentity,
+  bindings: ValidationVerdictIdentity,
   reuseAttribution?: RoutineReuseTerminalAttribution,
 ) {
   let story;
@@ -1415,7 +1417,7 @@ function recordValidationTerminal(
     reviewRound: story.currentReviewRound ?? '',
     // The command set IS the routine identity digest. There is no fallback
     // digest: one built differently could never match a later identity.
-    commandSetHash: identity.digest,
+    commandSetHash: bindings.commandSetHash,
     disposition: result.disposition === 'reused' ? 'reused' : 'executed',
     commandExecutions: Number(result.commandExecutions ?? result.commands?.length ?? 0),
     result: result.allPass === false || result.status === 'fail' ? 'fail' : 'pass',
@@ -1425,15 +1427,14 @@ function recordValidationTerminal(
     ...((result.allPass === false || result.status === 'fail')
       && (result.failureKind === 'infra_failure' || result.failureKind === 'validation_failure' || result.failureKind === COVERAGE_INCOMPLETE_FAILURE_KIND)
       ? { failureKind: result.failureKind } : {}),
-    materialHash: currentMaterialHash(gitCwd, 'HEAD', ctx.root) ?? '',
-    storyFilesHash: currentStoryFilesHash(gitCwd, 'HEAD', ctx.root) ?? '',
+    materialHash: bindings.materialHash,
+    storyFilesHash: bindings.storyFilesHash,
     // Observable build identity: two executions against different compiled
     // trees are no longer indistinguishable from a verdict flip on unchanged
-    // material. Executed results carry the end-of-execution identity; reused
-    // results bind the dist on disk now. The B-f824 duplicate-suite grouping
-    // keeps its three-key contract.
-    buildArtifactsHash: (typeof result.buildArtifactsHash === 'string' && result.buildArtifactsHash)
-      || currentBuildArtifactsHash(gitCwd, ctx.root) || '',
+    // material. Executed results bind the end-of-execution identity, reused
+    // results the identity of the record they republish. The B-f824
+    // duplicate-suite grouping keeps its three-key contract.
+    buildArtifactsHash: bindings.buildArtifactsHash,
     ...(typeof result.buildArtifactsProtection === 'string' ? { buildArtifactsProtection: result.buildArtifactsProtection } : {}),
     ...(reuseAttribution && result.disposition !== 'reused' ? { reuse: reuseAttribution } : {}),
   });
@@ -1564,6 +1565,7 @@ function persistStoryValidationEvidence(
   let storyRel: string;
   let transaction: ReturnType<typeof captureDonePrepareGeneratedMetadataTransaction>;
   let hashes: { headHash?: string; materialHash?: string; storyFilesHash?: string; buildArtifactsHash?: string; buildArtifactsProtection?: string };
+  let verdictIdentity: ValidationVerdictIdentity | null;
   try {
     gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
     // The build identity is observed at the end of execution (the funnel stamps
@@ -1602,11 +1604,9 @@ function persistStoryValidationEvidence(
     // reports failure instead of signing it. The refusal is a persistence
     // failure (infrastructure), so it does not itself become a sticky verdict;
     // the original failure already is one.
+    verdictIdentity = verdictIdentityFromParts({ commandSetHash: identity.digest, ...hashes });
     if (allPass) {
-      const flipRefusal = passPublicationRefusal(
-        readValidationHistory(ctx.store, storyId),
-        verdictIdentityFromParts({ commandSetHash: identity.digest, ...hashes }),
-      );
+      const flipRefusal = passPublicationRefusal(readValidationHistory(ctx.store, storyId), verdictIdentity);
       if (flipRefusal) return persistenceFailure(flipRefusal);
     }
     storyRel = normalizeRelPath(relative(
@@ -1655,6 +1655,13 @@ function persistStoryValidationEvidence(
     return persistenceFailure(reason);
   }
 
+  // A failure is bound as completely as a PASS. A record whose material or
+  // story files could not be identified would leave a terminal no identity
+  // matches, and the failure it records would stop counting on the retry.
+  if (!verdictIdentity) {
+    return persistenceFailure(`the committed material or the story files could not be identified, so this result cannot be bound to what it validated [${IDENTITY_UNAVAILABLE_CODE}]`);
+  }
+  const terminalBindings = verdictIdentity;
   // Reduce the hash-bearing candidate once. The store then captures immutable
   // serialized bytes: publication and commit digests never re-read this object.
   const persistedBound = boundEvidence(hashes);
@@ -1692,7 +1699,7 @@ function persistStoryValidationEvidence(
         concurrentPollutionBlocking: Boolean(result?.concurrentWorktreePollution && result.concurrentWorktreePollution.blocking !== false),
       }),
     };
-    const terminal = recordValidationTerminal(ctx, storyId, gitCwd, terminalResult, identity, reuseAttribution);
+    const terminal = recordValidationTerminal(ctx, storyId, terminalResult, terminalBindings, reuseAttribution);
     if (!terminal) throw new Error('VALIDATION_TERMINAL_RECEIPT_MISSING: canonical publication requires a terminal append receipt');
     const terminalHashes = publicationOutputHashes(transaction, storyRel, prepared.sha256, terminal);
     expectedHashes.set(`${storyRel}/process-events.jsonl`, terminalHashes.get(`${storyRel}/process-events.jsonl`)!);
