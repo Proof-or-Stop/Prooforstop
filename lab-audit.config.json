@@ -1,0 +1,15 @@
+{
+  "adapters": [
+    {
+      "id": "grok",
+      "vendor": "xai",
+      "command": "/Users/qipan/.local/bin/grok-lab-audit-adapter",
+      "argv": [
+        "--schema",
+        "{schema}"
+      ],
+      "protocol": "lab-json"
+    }
+  ],
+  "preferredAuditor": "grok"
+}
