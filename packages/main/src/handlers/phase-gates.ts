@@ -65,6 +65,7 @@ import { assessStoredValidationPassAdmissibility, requiresDynamicValidationAdmis
 export { assessStoredValidationPassAdmissibility } from './validation-pass-admissibility.js';
 import { assertTestAdmissibleRoutineValidationWindow } from './verifier.js';
 import { PRE_CERT_ROUTINE_PASS_REQUIRED } from '../core/certification-window.js';
+import { checkCommitAuthor, renderChannelResult } from './validate-channel.js';
 
 type ScopeLifecycleRow = {
   id?: string;
@@ -295,6 +296,44 @@ export function runReviewLoopGate(storyId: string, store: StoryStore): void {
     `${details.join('\n')}\n\n` +
     `→ 关闭所有 open loop（review_loop_close --status=resolved）后确保 trigger refs 已 resolved，再重跑 story_advance --phase=TEST`,
   );
+}
+
+/**
+ * Refuse DEV→REVIEW before reviewer work starts when a normal-channel Story has
+ * no canonical implementation-worker dispatch/result evidence. This consumes
+ * the same evaluator as `validate --channel`, so the early lifecycle gate and
+ * later validation cannot disagree about author text versus process evidence.
+ */
+export function runImplementationWorkerAuthorityGate(
+  ctx: Pick<HandlerContext, 'store' | 'root'>,
+  storyId: string,
+): void {
+  let gitCwd: string;
+  try {
+    gitCwd = resolveGitCwd({
+      store: ctx.store,
+      storyId,
+      metadataRoot: ctx.root,
+      projectRoot: ctx.root,
+    });
+  } catch (error) {
+    throw new Error(
+      `Cannot enter REVIEW: implementation worker authority could not resolve the Story git workspace [implementation_worker_authority_unavailable]\n` +
+      `  - ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+  const result = checkCommitAuthor(storyId, {
+    store: ctx.store,
+    projectRoot: ctx.root,
+    gitCwd,
+  });
+  if (result.status === 'fail') {
+    throw new Error(
+      `Cannot enter REVIEW: canonical implementation worker evidence is missing or invalid [implementation_worker_authority_invalid]\n` +
+      `${renderChannelResult(result)}\n` +
+      `→ For each non-exempt checklist item, either launch the exact proof-or-stop dispatch prompt through a native host task with a nonempty task identity, or use host_run with storyId, itemId, agentType=proof-or-stop-implementer, and managedDispatch=true. Retain the successful subagent_result evidence before retrying REVIEW; never wait on an empty target list.`,
+    );
+  }
 }
 
 function scopeRowId(v: ScopeViolation): string {

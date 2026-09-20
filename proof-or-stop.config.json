@@ -5565,6 +5565,25 @@
             "access": "shared"
           }
         ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/managed-implementer-dispatch-e2e.test.mjs"
+        ],
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "machine-process",
+            "key": "fanout",
+            "access": "exclusive"
+          }
+        ]
       }
     ],
     "evidenceCommandTimeoutOverrides": [

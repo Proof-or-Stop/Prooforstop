@@ -1,6 +1,6 @@
 {
   "name": "proof-or-stop",
-  "version": "0.3.432",
+  "version": "0.3.433",
   "description": "",
   "main": "index.js",
   "directories": {
@@ -78,6 +78,7 @@
     "test:audit-scan-bin-token": "node packages/main/dist/tasks/audit-scan-bin-token-smoke.js",
     "test:docs-drift-wrapper-root": "npm --prefix packages/main run test:docs-drift-wrapper-root",
     "test:managed-assets-wrapper-root": "npm --prefix packages/main run test:managed-assets-wrapper-root",
+    "test:managed-implementer-dispatch": "npm --prefix packages/main run build && node packages/main/tests/managed-implementer-dispatch-e2e.test.mjs && node scripts/verify-validation-static-edges.mjs",
     "test:evidence-quality": "node scripts/verify-evidence-quality.mjs",
     "test:done-oracle-wrapper-root": "npm --prefix packages/main run test:done-oracle-wrapper-root",
     "test:done-required-validation-smoke": "node scripts/run-validation-fixture-suite.mjs packages/main/dist/tasks/done-required-validation-smoke.js",

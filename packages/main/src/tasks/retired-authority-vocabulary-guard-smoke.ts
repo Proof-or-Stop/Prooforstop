@@ -499,7 +499,9 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // withValidationSigningRoot arrow preserves the runCli function anchor and
   // exact initPath producer/import argument. Both coupled pins move together;
   // this whole-file binding does not assert a separate loader provenance graph.
-  ['packages/main/src/cli-engine.ts', '98877fb9b4540b07726b83a559d2e20726edd1aba2d57faad976d395776e5604'],
+  // 2026-09-20 merge re-approval: the owner-lease admission change adds no
+  // loader call and preserves the exact initPath producer/import argument.
+  ['packages/main/src/cli-engine.ts', '631ac1fde46c71126614b7ad293fedc43a79b14c166b10d2f8b7e3cd2b69d408'],
   ['packages/main/src/verifier/serve.ts', 'c13ec647c3fe547c4430390779b28da2620d5db24d8ba8609ec6142968f89739'],
   ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '1bf3f1ebd8b63e66965966228a147748c48370bb6bbdf688ff1be149aa4aa82f'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],

@@ -8,6 +8,8 @@ import { rethrowIntentAmendmentIntegrityError } from '../core/verification-inten
 import { inspectIntentCheckpointRecovery } from '../core/verification-intent-checkpoint.js';
 import { acceptanceIntentHash, acceptanceScopeHash, createIntentAmendment, createIntentRevision } from '../core/verification-intent-amendment.js';
 import { currentGitHead } from '../core/evidence-freshness.js';
+import { resolveManagedDispatchInvocation } from '../core/managed-host-run.js';
+import type { ProcessEventAppendIdentity } from '../core/process-events.js';
 
 import { accessSync, constants, existsSync, readFileSync, realpathSync, statSync } from 'fs';
 import { dirname, isAbsolute, join, resolve } from 'path';
@@ -193,6 +195,32 @@ export function summarizeChecklist(cl: ChecklistData): {
     pending: cl.items.filter(item => item.status === 'pending').length,
     withdrawn: cl.items.filter(item => isWithdrawnChecklistStatus(item.status)).length,
   };
+}
+
+export function restoreManagedChecklistItemAfterFailure(
+  store: Pick<HandlerContext['store'], 'readChecklist' | 'writeChecklist'>,
+  storyId: string,
+  beforeItem: ChecklistItem,
+  transition?: { timestamp: string; from: ChecklistStatus; to: ChecklistStatus },
+): void {
+  const current = store.readChecklist(storyId);
+  const index = current.items.findIndex(candidate => candidate.id === beforeItem.id);
+  if (index < 0) throw new Error(`managed implementer rollback cannot find checklist item ${beforeItem.id}`);
+  current.items[index] = structuredClone(beforeItem);
+  if (transition && current.auditLog) {
+    let removed = false;
+    current.auditLog = current.auditLog.filter(entry => {
+      const matches = !removed
+        && entry.timestamp === transition.timestamp
+        && entry.itemId === beforeItem.id
+        && entry.action === 'update'
+        && entry.from === transition.from
+        && entry.to === transition.to;
+      if (matches) removed = true;
+      return !matches;
+    });
+  }
+  store.writeChecklist(storyId, current);
 }
 
 export function renderSlimChecklist(storyId: string, cl: ChecklistData): Record<string, unknown> {
@@ -3218,6 +3246,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       }
 
       const cl = store.readChecklist(args.storyId);
+      const checklistBeforeUpdate = structuredClone(cl);
       const item = cl.items.find(i => i.id === args.itemId);
       if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
       let ownerProposalApproved = false;
@@ -3416,7 +3445,55 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         results.push('owner-approved proposal applied; independent authorship is advisory, not host-attested');
       }
 
-      store.writeChecklist(args.storyId, cl);
+      const managedDispatchRunId = args.status === 'done' && oldStatus !== 'done'
+        ? resolveManagedDispatchInvocation({
+          root,
+          storyId: args.storyId,
+          agentType: 'proof-or-stop-implementer',
+          itemId: args.itemId,
+          optionalWhenAbsent: true,
+          consume: false,
+        })
+        : undefined;
+      const managedCompletionBeforeItem = managedDispatchRunId
+        ? structuredClone(checklistBeforeUpdate.items.find(candidate => candidate.id === args.itemId)!)
+        : undefined;
+      if (managedDispatchRunId && args.success === false) {
+        throw new Error('managed implementer completion requires success=true; failed work must not mark the checklist item done');
+      }
+
+      // A managed completion spans checklist.json and process-events.jsonl. Write
+      // the bound result first so an event-write failure cannot leave the item
+      // visibly done and then depend on a compensating checklist rewrite. The
+      // enclosing checklist lock prevents another checklist writer from racing
+      // this prepare/commit interval.
+      let managedCompletionAppend: ProcessEventAppendIdentity | undefined;
+      if (managedDispatchRunId && args.status === 'done' && oldStatus !== 'done') {
+        try {
+          managedCompletionAppend = store.appendProcessEvent(args.storyId, {
+            type: 'subagent_result',
+            checklistId: args.itemId,
+            success: true,
+            managedDispatchRunId,
+          });
+        } catch (error) {
+          throw new Error(`managed implementer completion could not record its bound result: ${(error as Error).message}`);
+        }
+      }
+      try {
+        store.writeChecklist(args.storyId, cl);
+      } catch (error) {
+        if (managedCompletionAppend) {
+          try { store.rollbackProcessEventAppend(args.storyId, managedCompletionAppend); }
+          catch (rollbackError) {
+            throw new Error(
+              `managed implementer completion checklist write failed and its prepared result could not be rolled back: `
+              + `${(error as Error).message}; rollback: ${(rollbackError as Error).message}`,
+            );
+          }
+        }
+        throw error;
+      }
       if (args.verificationIntent !== undefined) {
         try {
           store.appendProcessEvent(args.storyId, {type: 'plan_updated', action: 'verification_intent_applied', itemId: args.itemId,
@@ -3436,15 +3513,36 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
               checklistId: args.itemId,
               ...(args.agent ? { agent: args.agent } : {}),
             });
-          } else if (args.status === 'done') {
-            store.appendProcessEvent(args.storyId, {
+          } else if (args.status === 'done' && !managedDispatchRunId) {
+            const appendIdentity = store.appendProcessEvent(args.storyId, {
               type: 'subagent_result',
               checklistId: args.itemId,
               success: args.success !== false,
             });
+            void appendIdentity;
           }
         } catch (e) {
           console.warn(`[process-events] append failed for ${args.storyId}:`, (e as Error).message);
+        }
+      }
+
+      if (managedDispatchRunId) {
+        try {
+          const consumedRunId = resolveManagedDispatchInvocation({
+            root,
+            storyId: args.storyId,
+            agentType: 'proof-or-stop-implementer',
+            itemId: args.itemId,
+          });
+          if (consumedRunId !== managedDispatchRunId) {
+            throw new Error('managed implementation invocation changed between persistence and consumption');
+          }
+        } catch (error) {
+          if (managedCompletionAppend) store.rollbackProcessEventAppend(args.storyId, managedCompletionAppend);
+          restoreManagedChecklistItemAfterFailure(store, args.storyId, managedCompletionBeforeItem!, {
+            timestamp: now, from: oldStatus, to: args.status!,
+          });
+          throw new Error(`managed implementer completion could not consume its bound invocation: ${(error as Error).message}`);
         }
       }
 
