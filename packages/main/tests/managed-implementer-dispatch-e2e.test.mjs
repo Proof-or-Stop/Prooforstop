@@ -36,6 +36,8 @@ try {
     'owner takeover metadata must not widen the managed completion capability');
   assert.equal(isManagedImplementerCompletionPayload({ storyId, itemId, status: 'done', context: 'foreign mutation' }, storyId, itemId), false,
     'checklist definition metadata must remain owner-gated even on a completion-shaped request');
+  assert.equal(isManagedImplementerCompletionPayload({ storyId, itemId, status: 'done', verificationIntent: {} }, storyId, itemId), false,
+    'verification intent metadata must remain owner-gated even on a completion-shaped request');
   assert.equal(isManagedImplementerCompletionPayload({ storyId, itemId, status: 'done', success: false }, storyId, itemId), false,
     'a failed result must not qualify as a managed completion');
   assert.equal(isManagedImplementerCompletionPayload({ storyId, itemId: 'CHK-999', status: 'done' }, storyId, itemId), false,
