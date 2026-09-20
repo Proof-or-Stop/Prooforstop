@@ -2175,7 +2175,7 @@ Behavior:
   }},
 
   // Verifier (Proof-or-Stop built-in code verification).
-  { name: 'validate', description: 'Run project verification under shared workspace validation capacity; bare npm test is outside this lease', longHelp: VALIDATE_LONG, schema: {
+  { name: 'validate', description: 'Run project verification under shared workspace validation capacity; bare npm test is outside this lease. Unsupported CLI keys are ignored for compatibility; known selectors must satisfy their schemas.', longHelp: VALIDATE_LONG, schema: {
     full: z.union([z.string(), z.boolean()]).optional().describe('Include real-machine tests (--full or --full=PvE to filter by name).'),
     focus: z.string().optional().describe('Run an explicit focused validate profile, for example --focus=fast. Configured commands must opt in with focus tags; no-focus validate remains full.'),
     dynamicMode: z.enum(['off', 'observe', 'shadow', 'enforce-low-risk']).optional().describe('Story-aware validation mode. Unconfigured projects default to off; off is the immediate complete-plan rollback.'),

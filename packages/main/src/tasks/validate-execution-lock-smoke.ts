@@ -119,6 +119,7 @@ type FixtureOptions = {
   priority?: StoryInfo['priority'];
   workflowProfile?: 'light' | 'balanced' | 'strict';
   doneRequired?: boolean;
+  prepareRoutine?: boolean;
 };
 
 function repoRoot(): string {
@@ -406,7 +407,7 @@ console.log('probe ' + label + ' passed');
     release(root);
     // Queue tests must own an unconsumed admission; the transition control
     // explicitly requests preparation-time routine evidence.
-    await prepareNativeLockFixtureStory(root,storyId,'REVIEW',options.phase==='REVIEW');
+    await prepareNativeLockFixtureStory(root,storyId,'REVIEW',options.prepareRoutine ?? options.phase==='REVIEW');
   }
   return { root, storyId };
 }
@@ -533,6 +534,16 @@ async function assertRetiredRaceSeamIsProductionUnreachable(): Promise<void> {
     assert.equal(unsupported.code, 0, unsupported.output);
     assert.equal(JSON.parse(unknownFlag.stdout()).status, 'pass', 'the ignored legacy flag cannot prevent actual focused validation');
     assert.equal(existsSync(trapReady), false, 'unknown flag must not create caller-selected ready path');
+    // validate retains the non-strict CLI compatibility contract: unknown keys
+    // are stripped, while known selectors must still pass their own schemas.
+    const beforeInvalidMode = enteredCount(root);
+    const invalidMode = spawnCommand(root, ['validate', `--story=${storyId}`, '--json', '--dynamicMode=skip-all'], 'invalid-validation-mode');
+    const rejectedMode = await waitChild(invalidMode, 12000);
+    assert.equal(rejectedMode.timedOut, false);
+    assert.notEqual(rejectedMode.code, 0, 'a known validation mode cannot admit an unsupported bypass value');
+    assert.match(rejectedMode.output, /dynamicMode/);
+    assert.equal(enteredCount(root), beforeInvalidMode, 'invalid known selector must refuse before execution');
+
 
     release(root);
     const inherited = spawnCommand(root, ['validate', `--story=${storyId}`, '--focus=lock', '--json'], 'retired-env-control', {
@@ -699,6 +710,19 @@ async function assertStoryAdvanceConsumesRoutineWithoutSelfLock(): Promise<void>
     assert.equal(enteredCount(root),0,'REVIEW to TEST consumes the prepared routine PASS without executing another suite');
     assert.deepEqual(store.readTestEvidence(storyId),before,'the transition preserves the actual routine evidence');
   } finally {rmSync(root,{recursive:true,force:true});}
+  const missing = await setupFixture({storyId:'B-advance-missing-routine',phase:'REVIEW',prepareRoutine:false,priority:'medium',workflowProfile:'light'});
+  try {
+    const store = new StoryStore(missing.root), before=store.readTestEvidence(missing.storyId);
+    const advance=spawnCommand(missing.root,['story_advance',JSON.stringify({storyId:missing.storyId,phase:'TEST'})],'story-advance-without-routine');
+    const result=await waitChild(advance,12000);
+    assert.equal(result.timedOut,false);
+    assert.notEqual(result.code,0,'missing routine evidence must refuse instead of launching internal validation');
+    assert.match(result.output,/routine|certification|test evidence|PRE_CERT/i,'refusal must name the actual evidence prerequisite');
+    assert.equal(store.readStory(missing.storyId).phase,'REVIEW');
+    assert.equal(enteredCount(missing.root),0);
+    assert.deepEqual(store.readTestEvidence(missing.storyId),before);
+    console.log('REVIEW_TEST_ROUTINE_CONSUMPTION_GREEN: prepared PASS consumed; missing PASS refuses without internal validation');
+  } finally {rmSync(missing.root,{recursive:true,force:true});}
 }
 
 async function assertQueuedDonePolicyDriftRefuses(): Promise<void> {
@@ -1284,7 +1308,7 @@ await new Promise(() => { setInterval(() => {}, 1000); });
     try {
       const unknown=join(validationCapacityLockPath(legacyRoot),'unknown.preparing');
       mkdirSync(unknown,{recursive:true});
-      await assert.rejects(()=>withWorkspaceValidationCapacity({root:legacyRoot,workspaceRoot:legacyRoot,command:'unknown-migration-contender',deadlineAt:Date.now()+100},()=>assert.fail('unknown legacy ownership must not create a second queue')),/capacity wait deadline/);
+      await assert.rejects(()=>withWorkspaceValidationCapacity({root:legacyRoot,workspaceRoot:legacyRoot,command:'unknown-migration-contender',deadlineAt:Date.now()+100},()=>assert.fail('unknown legacy ownership must not create a second queue')),/WORKSPACE_COORDINATION_MIGRATION_BLOCKED/);
       assert(existsSync(unknown),'migration must preserve unknown legacy preparation data');
     } finally {rmSync(legacyRoot,{recursive:true,force:true});}
   } finally {
@@ -1917,7 +1941,18 @@ function assertProtectedInventoryAndTimeoutSourcesUnchanged(root = repoRoot(), d
   };
   const compareConfig = (beforeText: string, afterText: string): void => {
     const before = JSON.parse(beforeText), after = JSON.parse(afterText);
-    prefix(before.validate?.commands, after.validate?.commands, 'protected original validation commands/timeouts changed');
+    // Explicitly reviewed composite deadlines; all argv and other fields remain protected.
+    const approved = new Map([
+      [JSON.stringify(['npm', ['--prefix','packages/main','run','test:dynamic-finding-evidence-closure']]), [180000,900000]],
+      [JSON.stringify(['node', ['packages/main/tests/red/red-w2b-wiring-contract.mjs','--canonical-core']]), [180000,900000]],
+    ]);
+    const originalCommands = JSON.parse(JSON.stringify(before.validate?.commands ?? []));
+    for (const row of originalCommands) {
+      const amendment = approved.get(JSON.stringify([row.command,row.args ?? []]));
+      if (declaredBaseline === undefined && amendment && row.timeoutMs === amendment[0]) row.timeoutMs=amendment[1];
+    }
+    prefix(originalCommands, after.validate?.commands, 'protected original validation commands/timeouts changed');
+    for (let index=0;index<originalCommands.length;index++) after.validate.commands[index].timeoutMs=before.validate.commands[index].timeoutMs;
     if (before.validate?.commands) after.validate.commands = after.validate.commands.slice(0, before.validate.commands.length);
     const oldOverrides = before.validate?.evidenceCommandTimeoutOverrides ?? [];
     const newOverrides = after.validate?.evidenceCommandTimeoutOverrides ?? [];
@@ -1984,6 +2019,7 @@ function assertProtectedInventoryAndTimeoutSourcesUnchanged(root = repoRoot(), d
 }
 
 function assertCallerInventoryUnchangedDuringSuite():void {
+  assertProtectedInventoryAndTimeoutSourcesUnchanged(repoRoot());
   assertProtectedInventoryAndTimeoutSourcesUnchanged(repoRoot(),capacitySuiteBaselineHead);
 }
 

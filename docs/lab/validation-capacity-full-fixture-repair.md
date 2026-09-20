@@ -19,9 +19,10 @@ simulated release faults. Unknown populated legacy directories must still block
 migration. Callback failures retain their original identity; released tickets must
 be reclaimed without affecting a live owner.
 
-The caller inventory check freezes the committed input to this suite, allowing the
-preceding explicit Lab repairs. Its default main merge-base comparison remains
-available. Both modes retain working and committed mutation controls. Real Git
+The caller inventory check compares the real repository against the main merge
+base as well as freezing the committed suite input. Only the two named composite
+commands may change from 180000 to 900000 ms under their explicit reviewed budget
+amendments; all executable, argv and other policy fields remain protected. Both modes retain working and committed mutation controls. Real Git
 output includes a newline, so revision consumers trim it; the regression no longer
 silently normalizes the Git helper output and masks this defect.
 
@@ -44,3 +45,12 @@ namespace. This prevents unrelated real machine reservations from being interpre
 as a failed independent-worktree assertion. The original 4-second observation,
 8-second probe hold and 10-second command budget remain unchanged. Independent
 worktree cleanup releases both probes and waits for both children even on failure.
+
+The finish audit follow-up reclaims dead legacy preparation/quarantine residue
+using proven local process death. Live/unknown residue remains intact and now
+names the blocking migration path immediately. The runtime contract executes the
+six-case regression. REVIEW-to-TEST additionally proves that missing routine
+PASS refuses without running an internal suite. The requested internal-validation
+positive would contradict the current public transition contract. The retired
+flag remains ignored under the existing non-strict schema; unsupported values for
+the known `dynamicMode` selector refuse before any probe executes.

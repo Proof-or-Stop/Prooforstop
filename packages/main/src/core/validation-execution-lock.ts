@@ -420,24 +420,38 @@ async function prepareWorkspaceValidationCoordination(options: ValidationCapacit
     }
   }
   try {
-  const pruneEmptyQueue = (path: string): void => {
-    // Reuse the existing owner classifier; age alone never reclaims a ticket.
+  const pruneEmptyQueue = (path: string): string[] => {
+    const blocked: string[] = [];
+    // Queue-visible tickets preserve their existing live-owner wait semantics.
     activeCapacityCandidates(path, '.choosing', options.staleMs ?? VALIDATION_EXECUTION_LOCK_STALE_MS);
     activeCapacityCandidates(path, '.ticket', options.staleMs ?? VALIDATION_EXECUTION_LOCK_STALE_MS);
-    const workspaces = join(path, 'workspaces');
-    if (!existsSync(workspaces)) return;
-    if (!lstatSync(workspaces).isDirectory() || lstatSync(workspaces).isSymbolicLink()) return;
-    for (const name of readdirSync(workspaces)) {
-      if (!/^[a-f0-9]{64}$/.test(name)) continue;
-      const child = join(workspaces, name);
+    for (const name of readdirSync(path)) {
+      const child = join(path, name);
       let stat;
       try { stat = lstatSync(child); } catch (error: any) { if (error.code === 'ENOENT') continue; throw error; }
-      if (!stat.isDirectory() || stat.isSymbolicLink()) continue;
-      activeCapacityCandidates(child, '.choosing', options.staleMs ?? VALIDATION_EXECUTION_LOCK_STALE_MS);
-      activeCapacityCandidates(child, '.ticket', options.staleMs ?? VALIDATION_EXECUTION_LOCK_STALE_MS);
-      try { rmdirSync(child); } catch (error: any) { if (!['ENOENT', 'ENOTEMPTY', 'EEXIST'].includes(error.code)) throw error; }
+      if (/\.(preparing|quarantine)$/.test(name) && stat.isDirectory() && !stat.isSymbolicLink()) {
+        const holder = readMkdirLockHolder(child);
+        // Unpublished or quarantined state is removable only with local owner
+        // death, never merely age, a mismatched heartbeat, or an unknown owner.
+        if (holder?.hostname === hostname() && !pidAppearsAlive(holder.pid)
+          && classifyValidationCapacityLock({lockDir:child,holder,ageMs:0,staleMs:VALIDATION_EXECUTION_LOCK_STALE_MS,nowMs:Date.now()}) === 'stale') {
+          quarantineValidationCapacityCandidate(child, 'stale');
+          if (!existsSync(child)) continue;
+        }
+        blocked.push(child);
+      } else if (name === 'workspaces' && stat.isDirectory() && !stat.isSymbolicLink()) {
+        for (const workspace of readdirSync(child)) {
+          const queue = join(child, workspace);
+          let queueStat;
+          try { queueStat = lstatSync(queue); } catch (error: any) { if (error.code === 'ENOENT') continue; throw error; }
+          if (!/^[a-f0-9]{64}$/.test(workspace) || !queueStat.isDirectory() || queueStat.isSymbolicLink()) { blocked.push(queue); continue; }
+          blocked.push(...pruneEmptyQueue(queue));
+          try { rmdirSync(queue); } catch (error: any) { if (!['ENOENT', 'ENOTEMPTY', 'EEXIST'].includes(error.code)) throw error; }
+        }
+        try { rmdirSync(child); } catch (error: any) { if (!['ENOENT', 'ENOTEMPTY', 'EEXIST'].includes(error.code)) throw error; }
+      } else if (!/\.(choosing|ticket)$/.test(name) || !stat.isDirectory() || stat.isSymbolicLink()) blocked.push(child);
     }
-    try { rmdirSync(workspaces); } catch (error: any) { if (!['ENOENT', 'ENOTEMPTY', 'EEXIST'].includes(error.code)) throw error; }
+    return blocked;
   };
   while (true) {
     assertCapacityWaitActive(options);
@@ -450,7 +464,8 @@ async function prepareWorkspaceValidationCoordination(options: ValidationCapacit
     }
     if (stat) {
       if (!stat.isDirectory()) throw new Error('workspace validation coordination legacy path is not a directory');
-      pruneEmptyQueue(legacyPath);
+      const blocked = pruneEmptyQueue(legacyPath);
+      if (blocked.length) throw new Error(`WORKSPACE_COORDINATION_MIGRATION_BLOCKED: ${legacyPath}; retained entries: ${blocked.join(', ')}. Inspect their owners and repair abandoned residue before retrying; live or unknown ownership is never removed.`);
       try { rmdirSync(legacyPath); }
       catch (error: any) {
         if (!['ENOENT', 'ENOTEMPTY', 'EEXIST'].includes(error.code)) throw error;

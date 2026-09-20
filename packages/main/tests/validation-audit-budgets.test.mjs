@@ -36,18 +36,27 @@ assert.ok(parentMs >= workerMs + lifecycleMarginMs,
 const config = JSON.parse(readFileSync(resolve(root, 'proof-or-stop.config.json'), 'utf8'));
 const members = [
   ['test:dynamic-finding-evidence-closure', 900000],
-  ['scripts/verify-process-fact-contract.mjs', 180000],
-  ['packages/main/dist/tasks/red-evidence-target-binding-smoke.js', 180000],
-  ['packages/main/dist/tasks/red-evidence-envelope-smoke.js', 180000],
+  ['packages/main/tests/red/red-w2b-wiring-contract.mjs', 900000],
+  ['packages/main/tests/red/red-dynamic-finding-collection-readiness.mjs', 600000],
+  ['packages/main/tests/red/red-dynamic-finding-head-continuity.mjs', 600000],
+  ['packages/main/tests/red/red-empty-checklist-lifecycle.mjs', 600000],
+  ['packages/main/tests/red/red-lab-nested-fixture-machine-isolation.mjs', 600000],
+
+  ['scripts/verify-process-fact-contract.mjs', 260000],
+  ['packages/main/dist/tasks/red-evidence-target-binding-smoke.js', 260000],
+  ['packages/main/dist/tasks/red-evidence-envelope-smoke.js', 260000],
 ];
-// The complete process-fact consumers returned to their original 180 s budget
-// after measured double GREEN. The finding closure retains its 900 s allowance.
+// The complete process-fact consumers use the user-authorized 260 s budget.
+// Composite finding closure and wiring retain their reviewed 900 s allowances.
 // This checks the configuration; full timed executions are separate evidence.
 for (const [member, budgetMs] of members) {
   const rows = config.validate.commands.filter(row => row.args?.includes(member));
   assert.equal(rows.length, 1, `one canonical registration required: ${member}`);
   assert.equal(rows[0].timeoutMs, budgetMs, `VALIDATION_COMPOSITE_BUDGET_MISMATCH: ${member}`);
 }
+
+const acceptance=JSON.parse(readFileSync(resolve(root,'docs/lab/validation-audit-acceptance.json'),'utf8'));
+for (const index of acceptance.targetIndexes) assert.ok(acceptance.thresholdMs <= config.validate.commands[index-1].timeoutMs,'Lab acceptance must fit the production budget');
 
 // This parent runs both real verifiers and the public runtime/package fixtures.
 // Its deadline must cover the existing child allowances plus that other work.

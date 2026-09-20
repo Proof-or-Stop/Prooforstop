@@ -1,6 +1,14 @@
 # Complete validation and the authorized Lab budget
 
-## Authorized acceptance amendment, 2026-09-19
+## Current production and Lab budget, 2026-09-20
+
+The explicit follow-up authorization raises the three production registrations to
+260000 ms, integrated on main at 3a404ce2d1. The original Lab now consumes those
+same registrations. Its 260000-ms acceptance threshold cannot exceed their
+production timeout, enforced by `validation-audit-budgets.test.mjs`. Historical
+180-second results below remain historical and are not relabeled.
+
+## Historical Lab-only acceptance amendment, 2026-09-19
 
 The user explicitly replaced the 180-second Lab acceptance threshold with
 260 seconds for complete targets 16, 69 and 130. The tracked local contract is

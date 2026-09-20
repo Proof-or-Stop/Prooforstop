@@ -1742,6 +1742,8 @@ const COMMAND_PROCESS_FACTS: ProcessFactRegistryDeclaration[] = PROCESS_FACT_LEV
   };
 });
 
+COMMAND_PROCESS_FACTS.push({name:'runtime:validate_argument_compatibility',kind:'runtime-behavior',level:'L4',semantics:['runtime-behavior','verification-policy'],paths:['packages/main/src/cli-engine.ts','packages/main/src/cli/command-catalog.ts','packages/main/src/tasks/validate-execution-lock-smoke.ts'],producer:'validate CLI argument schema',consumerGate:'validate handler admission',rationale:'The non-strict validate CLI schema strips unsupported keys for compatibility; ignored retired race flags grant no file or execution capability. Known selectors retain schema validation: an unsupported dynamicMode bypass value refuses before command execution. This records existing behavior and does not change strict command families.'});
+
 COMMAND_PROCESS_FACTS.push({
   name: 'runtime:changelog_history_compaction', kind: 'runtime-behavior', level: 'L3',
   semantics: ['artifact', 'gate-evidence', 'verification-policy'],

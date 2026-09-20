@@ -12134,3 +12134,5 @@ console.log('');
 console.log('Process fact contract verified');
 console.log('execution_assertion_reuse_contract=PASS');
 console.log('Process-fact contract verification passed');
+
+nodeAssert(readFileSync('packages/main/src/core/process-fact-registry.ts', 'utf8').includes('runtime:validate_argument_compatibility'), 'validate argument compatibility must remain registered');
