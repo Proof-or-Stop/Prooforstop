@@ -54,3 +54,11 @@ Reproduce with `node scripts/verify-benchmark-shared-budget.mjs` and
 `node scripts/verify-benchmark-budget-adversarial.mjs`. Both use actual host-run
 entry logic with the paid transport intercepted, isolated runtime state and
 fixture usage. They create no paid model requests and do not mutate active Stories.
+
+For the complete local Lab replay, build with `node scripts/ensure-dist.mjs`, then
+run `node scripts/verify-benchmark-release.mjs`. It covers the focused entry,
+reservation, restart, exception, budget-meter and usage regressions plus static
+source-evidence consistency. The source bindings were regenerated after reviewing
+the added registry assertions; existing subprocess expressions, classifications,
+reasons and invocation restrictions are preserved. This replay is not a full
+repository-health verdict or formal Story completion evidence.
