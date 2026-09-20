@@ -191,8 +191,11 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
     'live output revalidation and terminal seal must hold the checklist write lock');
   assert.equal(result.model, 'deepseek-v4.1-flash');
   assert.equal(store.readChecklist(storyId).items.find(item => item.id === itemId)?.status, 'done');
-  assert.match(readFileSync(join(root, 'delivered-implementer-prompt.txt'), 'utf8'),
-    /proof-or-stop checklist_update/);
+  const deliveredImplementerPrompt = readFileSync(join(root, 'delivered-implementer-prompt.txt'), 'utf8');
+  assert.match(deliveredImplementerPrompt, /proof-or-stop checklist_update/);
+  assert.match(deliveredImplementerPrompt,
+    /Managed implementation status contract:[\s\S]*Do not call checklist_update with status=in_progress/,
+    'MANAGED_IMPLEMENTER_PROMPT_DONE_ONLY_REQUIRED');
   const completion = store.readProcessEvents(storyId).find(event =>
     event.type === 'subagent_result' && event.checklistId === itemId && event.success === true);
   assert.equal(completion?.managedDispatchRunId, result.runId,
@@ -236,8 +239,8 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
       commands: `printf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
     {
-      name: 'in-progress-only', expectedStatus: 'pending',
-      commands: `"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"in_progress"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
+      name: 'in-progress-then-done', expectedStatus: 'done', expectCompleted: true,
+      commands: `if "${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"in_progress"}'; then exit 90; fi\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
     {
       name: 'metadata-mutation', expectedStatus: 'pending',
