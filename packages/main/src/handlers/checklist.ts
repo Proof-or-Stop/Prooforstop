@@ -3469,6 +3469,10 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           consume: false,
         })
         : undefined;
+      // The resolver includes the shared exact-key payload predicate. A normal
+      // owner write with definition, intent, evidence, actor, reason, or other
+      // checklist fields therefore stays an owner write: it cannot append a
+      // run-bound result or consume the managed implementer's invocation.
       const managedCompletionBeforeItem = managedDispatchRunId
         ? structuredClone(checklistBeforeUpdate.items.find(candidate => candidate.id === args.itemId)!)
         : undefined;
