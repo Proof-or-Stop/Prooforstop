@@ -181,6 +181,12 @@ function classifyIntent(
     required,
   };
 
+  // A waiver counts as covered for the missing predicate (V1: passing
+  // evidence OR waiver). It needs no command and no hash re-stamp.
+  if (evidence && isWaiver(evidence)) {
+    return { ...base, bucket: 'fresh', hasEvidence: true, result: evidence.result };
+  }
+
   // Executable rows use the same authenticated receipt verdict as lifecycle gates.
   // Hash drift alone never establishes that a command needs only a metadata refresh.
   if (fingerprint.executable && evidence) {
@@ -190,12 +196,6 @@ function classifyIntent(
       ...(fingerprint.command ? { command: fingerprint.command } : {}),
       driftReason: fingerprint.reason,
     };
-  }
-
-  // A waiver counts as covered for the missing predicate (V1: passing
-  // evidence OR waiver). It needs no command and no hash re-stamp.
-  if (evidence && isWaiver(evidence)) {
-    return { ...base, bucket: 'fresh', hasEvidence: true, result: evidence.result };
   }
 
   // No evidence proving pass → missing.

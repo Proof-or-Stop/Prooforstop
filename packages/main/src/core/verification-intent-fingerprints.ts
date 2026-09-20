@@ -62,7 +62,9 @@ export function buildIntentFingerprintReport(input: {
           inputClosure: executable ? 'unavailable' : 'not-executable', action: evidence ? 'manual' : 'missing',
           reason: evidence ? 'non-executable attestation uses its existing policy' : 'no evidence recorded', changed: null, inputFiles: [],
         };
-        if (executable && evidence) {
+        if (evidence?.kind === 'waiver') {
+          row.reason = 'waiver uses its existing coverage policy; it does not authorize execution reuse';
+        } else if (executable && evidence) {
           if (!pin) {
             row.action = 'invalid'; row.reason = 'missing immutable verification command/selector pin';
           } else {

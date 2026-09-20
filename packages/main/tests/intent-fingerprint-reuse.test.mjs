@@ -103,6 +103,15 @@ try {
   assert.equal(row(report(), 'INT-B').action, 'rerun', 'a matching receipt never overrides a recorded failure');
   failedProjection.items[0].verificationEvidence.find(e => e.intentRef === 'INT-B').result = 'pass';
   store.writeChecklist(storyId, failedProjection);
+  const waivedProjection = structuredClone(failedProjection);
+  delete waivedProjection.items[0].verificationIntent.happy.find(i => i.id === 'INT-ORDINARY').verification;
+  waivedProjection.items[0].verificationEvidence = waivedProjection.items[0].verificationEvidence.filter(e => e.intentRef !== 'INT-ORDINARY');
+  waivedProjection.items[0].verificationEvidence.push({ intentRef: 'INT-ORDINARY', kind: 'waiver', result: 'pass', note: 'Existing policy waiver remains a waiver, not executable evidence.' });
+  store.writeChecklist(storyId, waivedProjection);
+  const waived = report();
+  assert.ok(waived.buckets.fresh.some(r => r.intentRef === 'INT-ORDINARY'), 'existing waiver policy must not become executable rerun advice');
+  assert.equal(row(waived, 'INT-ORDINARY').action, 'manual', 'waiver uses existing policy and never grants execution reuse');
+  store.writeChecklist(storyId, failedProjection);
   const current = report();
   const cl = store.readChecklist(storyId);
   cl.items[0].verificationIntent.happy.push(intent('INT-ADDED', 'A newly requested user outcome'));
