@@ -32,6 +32,12 @@ export interface IntentFingerprintReport {
   executions: Array<{ executionKey: string; command: string; intentRefs: string[]; requiresExecution: boolean }>;
 }
 
+/** Match the writer's item ownership; a foreign item's record is never borrowed. */
+export function selectItemIntentEvidence(item: ChecklistData['items'][number], ref: string): VerificationEvidence | undefined {
+  const candidates = (item.verificationEvidence ?? []).filter(e => e.intentRef === ref);
+  return candidates.find(e => e.result === 'pass') ?? candidates[0];
+}
+
 /** Derived index, never proof authority. Gate validation still authenticates every row. */
 export function buildIntentFingerprintReport(input: {
   projectRoot: string;
@@ -50,12 +56,10 @@ export function buildIntentFingerprintReport(input: {
         const { ref, intent, lane } = collected;
         if (ids.has(ref)) throw new Error(`Duplicate verification intent identity: ${ref}`);
         ids.add(ref);
-        const candidates = (item.verificationEvidence ?? []).filter(e => e.intentRef === ref);
-        // Match the existing planner's first-pass preference without importing another item's evidence.
-        const evidence: VerificationEvidence | undefined = candidates.find(e => e.result === 'pass') ?? candidates[0];
+        const evidence = selectItemIntentEvidence(item, ref);
         const pin = intent.verification;
         const command = pin?.command ?? evidence?.command ?? null;
-        const executable = isExecutableIntentType(intent.type) || Boolean(command);
+        const executable = isExecutableIntentType(intent.type) || Boolean(pin);
         const row: IntentFingerprintRow = {
           intentRef: ref, itemId: item.id, lane, description: intent.desc, executable, command,
           executionKey: null, currentFingerprint: '', executionFingerprint: null, recordedExecutionFingerprint: null,
@@ -99,7 +103,7 @@ export function buildIntentFingerprintReport(input: {
             }
           }
         }
-        if (command && !row.executionKey) row.executionKey = digest({ command, cwd: input.gitCwd, unresolvedExecution: true });
+        if (executable && command && !row.executionKey) row.executionKey = digest({ command, cwd: input.gitCwd, unresolvedExecution: true });
         const { verification, ...semantics } = intent;
         row.currentFingerprint = digest({
           schemaVersion: 'proof-or-stop.intent-input-fingerprint.v1', storyId: input.storyId,

@@ -1,4 +1,4 @@
-import { buildIntentFingerprintReport, type IntentFingerprintReport, type IntentFingerprintRow } from '../core/verification-intent-fingerprints.js';
+import { buildIntentFingerprintReport, selectItemIntentEvidence, type IntentFingerprintReport, type IntentFingerprintRow } from '../core/verification-intent-fingerprints.js';
 import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 import type { HandlerContext } from './context.js';
 import {
@@ -118,31 +118,6 @@ function readChecklist(ctx: HandlerContext, storyId: string): ChecklistData {
   } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
     return { items: [] };
   }
-}
-
-/**
- * Build the by-intentRef evidence lookup. The report's
- * artifacts.verificationEvidence flattens every checklist evidence record and
- * carries the headHash/materialHash/storyFilesHash needed to drive
- * checkEvidenceFreshnessForGit. We resolve from the live checklist evidence
- * (full VerificationEvidence) and key by intentRef.
- */
-function evidenceByIntentRef(checklist: ChecklistData): Map<string, VerificationEvidence> {
-  const byRef = new Map<string, VerificationEvidence>();
-  for (const item of checklist.items) {
-    for (const ev of item.verificationEvidence ?? []) {
-      if (typeof ev.intentRef !== 'string') continue;
-      // First passing evidence wins; otherwise keep the first seen so a fail is
-      // still surfaced when no passing record exists.
-      const existing = byRef.get(ev.intentRef);
-      if (!existing) {
-        byRef.set(ev.intentRef, ev);
-      } else if (existing.result !== 'pass' && ev.result === 'pass') {
-        byRef.set(ev.intentRef, ev);
-      }
-    }
-  }
-  return byRef;
 }
 
 function isWaiver(ev: VerificationEvidence): boolean {
@@ -295,7 +270,6 @@ export function createEvidencePlanHandlers(ctx: HandlerContext): Record<string, 
     });
 
     const checklist = readChecklist(ctx, args.storyId);
-    const byRef = evidenceByIntentRef(checklist);
     const gitCwd = resolveGitCwd({
       store: ctx.store,
       storyId: args.storyId,
@@ -314,7 +288,7 @@ export function createEvidencePlanHandlers(ctx: HandlerContext): Record<string, 
 
     for (const item of checklist.items) {
       for (const collected of collectVerificationIntents(item)) {
-        const entry = classifyIntent(collected, byRef.get(collected.ref), gitCwd, ctx.root, fingerprintByRef.get(collected.ref)!);
+        const entry = classifyIntent(collected, selectItemIntentEvidence(item, collected.ref), gitCwd, ctx.root, fingerprintByRef.get(collected.ref)!);
         switch (entry.bucket) {
           case 'missing':
             buckets.missing.push(entry);
