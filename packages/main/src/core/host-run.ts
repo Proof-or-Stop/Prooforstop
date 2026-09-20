@@ -101,6 +101,13 @@ import {
   normalizeReviewerReadManifest,
 } from './reviewer-read-evidence.js';
 import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
+import {
+  CLAUDE_SUPPORTED_REASONING_EFFORTS,
+  QUALIFIED_MANAGED_REVIEWER_DEFAULTS,
+  QUALIFIED_MANAGED_REVIEWER_EFFORTS,
+} from './managed-reviewer-qualification.js';
+
+export { QUALIFIED_MANAGED_REVIEWER_DEFAULTS } from './managed-reviewer-qualification.js';
 
 export type HostRunHost = CanonicalReviewHost;
 
@@ -108,6 +115,49 @@ export const HOST_RUN_REASONING_EFFORTS = [
   'none', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max', 'ultra',
 ] as const;
 export type HostRunReasoningEffort = typeof HOST_RUN_REASONING_EFFORTS[number];
+
+/**
+ * Formal review must never silently inherit the implementation agent's ambient model.
+ * Resolve omitted selectors before the immutable run spec is created, and keep
+ * the deliberately narrow qualification boundary visible at the controller.
+ * cross_host_review_codex is a separate advisory launch profile and retains
+ * provider-owned selection; it cannot produce sealed formal REVIEW evidence.
+ */
+export function resolveQualifiedManagedReviewerSelection(args: {
+  host: HostRunHost;
+  model: string | null;
+  reasoningEffort: HostRunReasoningEffort | null;
+}): { model: string | null; reasoningEffort: HostRunReasoningEffort | null } {
+  if (args.host === 'agy') {
+    throw new Error('host_run: managed reviewer host "agy" is not qualified; expected codex, claude, or grok');
+  }
+  // Grok uses its separately audited managed-review-only adapter. Its provider
+  // owns model selection, so caller-supplied selectors are forbidden rather
+  // than being passed through into formal evidence.
+  if (args.host === 'grok') {
+    if (args.model !== null || args.reasoningEffort !== null) {
+      throw new Error('host_run: Grok managed review uses provider-owned model selection; omit --model and --reasoningEffort');
+    }
+    return { model: null, reasoningEffort: null };
+  }
+  const defaults = QUALIFIED_MANAGED_REVIEWER_DEFAULTS[args.host];
+  const model = args.model ?? defaults.model;
+  const reasoningEffort = args.reasoningEffort ?? defaults.reasoningEffort;
+  const qualifiedModel = args.host === 'codex'
+    ? /^gpt-[a-z0-9][a-z0-9._-]*$/i.test(model)
+    : /^(?:opus|claude-opus(?:[-.][a-z0-9][a-z0-9._-]*)?)$/i.test(model);
+  if (!qualifiedModel) {
+    throw new Error(`host_run: managed reviewer model ${JSON.stringify(model)} is not qualified for host ${args.host}`);
+  }
+  const qualifiedEfforts: readonly string[] = QUALIFIED_MANAGED_REVIEWER_EFFORTS[args.host];
+  if (!qualifiedEfforts.includes(reasoningEffort)) {
+    const allowed = qualifiedEfforts.length === 4
+      ? 'high, xhigh, max, or ultra'
+      : 'high, xhigh, or max';
+    throw new Error(`host_run: managed reviewer reasoningEffort ${JSON.stringify(reasoningEffort)} is not qualified for host ${args.host}; expected ${allowed}`);
+  }
+  return { model, reasoningEffort };
+}
 
 export function normalizeHostRunModelSelection(args: {
   host: HostRunHost;
@@ -128,7 +178,7 @@ export function normalizeHostRunModelSelection(args: {
     throw new Error(`host_run: --reasoningEffort must be one of ${HOST_RUN_REASONING_EFFORTS.join(', ')}`);
   }
   if (args.host === 'claude' && reasoningEffort !== null
-    && !['low', 'medium', 'high', 'xhigh', 'max'].includes(reasoningEffort)) {
+    && !(CLAUDE_SUPPORTED_REASONING_EFFORTS as readonly string[]).includes(reasoningEffort)) {
     throw new Error('host_run: Claude --reasoningEffort must be one of low, medium, high, xhigh, max');
   }
   return { model, reasoningEffort: reasoningEffort as HostRunReasoningEffort | null };

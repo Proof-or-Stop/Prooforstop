@@ -7550,11 +7550,15 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
     assert(aggregateWitness.includes(obligation), `aggregate observation requires executable boundary coverage: ${obligation}`);
   }
   const hostRunText = read('packages/main/src/core/host-run.ts');
+  const managedReviewerQualificationText = read('packages/main/src/core/managed-reviewer-qualification.ts');
   for (const token of ['classifyManagedReviewFinalEnvelope', "classification.kind === 'ordinary'", 'MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION', 'MANAGED_REVIEW_CLAUDE_JSON_SCHEMA_MAX_BYTES', 'managedClaudePromptDirectoryForRun', 'managedRunId', "join(args.cwd, PROOF_OR_STOP_DIR, 'runtime', 'host-run-prompts')", "'--permission-mode', 'bypassPermissions'", "'--json-schema', args.finalResultSchema === ACCEPTANCE_REVIEW_FINAL_SCHEMA ? JSON.stringify(acceptanceReviewJsonSchema()) : managedReviewClaudeJsonSchema(args)", "hasOwnProperty.call(event, 'structured_output')", "event.subtype !== 'success'", 'JSON.stringify(event.structured_output)']) {
     assert(hostRunText.includes(token), `packages/main/src/core/host-run.ts: required Codex proposal candidate classifier token missing: ${token}`);
   }
   for (const token of [
     'normalizeHostRunModelSelection',
+    'resolveQualifiedManagedReviewerSelection',
+    'managed reviewer model',
+    'managed reviewer reasoningEffort',
     "'--model', selection.model",
     'model_reasoning_effort=',
     "'--effort', selection.reasoningEffort",
@@ -7565,6 +7569,9 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
     'canonical Codex launcher ends in its protected stdin marker',
   ]) {
     assert(hostRunText.includes(token), `packages/main/src/core/host-run.ts: required managed model-selection launch token missing: ${token}`);
+  }
+  for (const token of ['QUALIFIED_MANAGED_REVIEWER_DEFAULTS', 'CLAUDE_SUPPORTED_REASONING_EFFORTS', 'QUALIFIED_MANAGED_REVIEWER_EFFORTS', "model: 'gpt-5.6-sol'", "model: 'opus'", "reasoningEffort: 'high'"]) {
+    assert(managedReviewerQualificationText.includes(token), `packages/main/src/core/managed-reviewer-qualification.ts: required reviewer qualification default missing: ${token}`);
   }
   const smokeText = read('packages/main/src/tasks/managed-review-evidence-smoke.ts');
   for (const token of ['absence of a managed binding is not proof', 'isolated broker-signature fixture succeeds without consulting ambient provider ancestry', 'withoutManagedAmbientAuthority', "'--brokered-native-binding-fixture'", 'raw provider cannot self-mint authority', 'mixed tree is rejected', 'real raw cross-provider CLI review_pass_set must fail', 'real raw cross-provider CLI finding_add must fail', 'idempotent importer replay revalidates the exact persisted provider finding', 'multiple proposal artifacts also fail the persisted REVIEW gate', 'DISPATCH_START reviewer accepted the managed assignment', 'Reviewed the first evidence group; continuing with adversarial paths.', 'the exact provider final-result proposal is importable without a provider tool-shell callback', 'public managed Claude prompt is inside the exact provider cwd', 'public managed Claude launch cannot block on interactive tool approval', 'public managed Claude launch supplies its bounded structured-output schema', 'worker descriptor capability metadata is not inherited as ordinary provider authority', 'public managed Claude final proposal is exactly importable', "name: 'model'", "name: 'reasoningEffort'", "name: 'missing'", "name: 'malformed'", "name: 'multiple'", "name: 'oversize'", 'final result fails closed', 'controller must not be able to add or override proposal verdict fields', 'injected crash before story evidence persistence']) {
