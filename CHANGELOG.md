@@ -1,5 +1,19 @@
 # Changelog
 
+## Lab managed-worker-owner-lease - v0.3.425 - 2026-09-20
+
+Problem: a detached host_run_worker refreshed the Story owner lease with its short-lived PID and heartbeat. After the provider exited, the durable submitter appeared displaced and later owner operations waited for the stale threshold.
+
+Fix: runtime-continuation CLI admission now validates the existing logical Story owner without acquiring or refreshing the lease. The managed-run handler continues to enforce its exclusive worker claim, and a foreign session cannot gain authority by reusing a live runId.
+
+Verification: the public CLI regression reproduces the original lease takeover, proves the repaired worker reaches a successful terminal while preserving the submitter lease, and proves a foreign session reusing the live runId is rejected. Command ownership, managed-host-run smoke, and the process-fact contract pass. Grok/xAI independently reviewed and approved the exact committed candidate.
+
+Limit: this repair covers detached managed-worker lease admission. Reviewer-run deduplication, reviewer worktree write isolation, and incremental evidence/review invalidation remain separate issues for the next benchmark-driven repair cycle.
+
+Maintenance provenance: codex/lab-managed-worker-owner-lease, repair 5bace5917f041c80be3a375ecde4450b0293b81f.
+Verification command (replayed before integration and on main): `["node","scripts/verify-managed-worker-owner-lease.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab managed reviewer qualification and Story baseline resolution - v0.3.424 - 2026-09-20
 
 - Formal Codex and Claude managed reviewers now use qualified model and reasoning defaults, reject unqualified selectors before provider launch, and keep Grok selection provider-owned; see the [managed execution contract](docs/requirements/decisions/managed-cross-provider-cli-execution.md).
