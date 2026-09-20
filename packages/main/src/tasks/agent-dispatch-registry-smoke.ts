@@ -984,6 +984,26 @@ try {
   delete process.env.PROOF_OR_STOP_AGENT;
   store.writeStory(storyId, { ...store.readStory(storyId), phase: 'DEV' });
   try {
+    const cliDispatchOutput = execFileSync(process.execPath, [
+      join(packageRoot, 'cli.js'),
+      'dispatch',
+      `--storyId=${storyId}`,
+      '--findingId=F-001',
+      '--agentType=proof-or-stop-finding-repair',
+      '--json',
+    ], {
+      cwd: root,
+      env: { ...process.env },
+      encoding: 'utf8',
+      maxBuffer: 4 * 1024 * 1024,
+    });
+    const cliDispatchResult = JSON.parse(cliDispatchOutput);
+    assert.deepEqual(cliDispatchResult.nativeLaunchContract, {
+      dispatchState: 'prompt-prepared',
+      hostTaskRequired: true,
+      waitTarget: 'nonempty-task-identity',
+      missingWorkerDisposition: 'keep-finding-open',
+    }, 'real dispatch --json output must preserve the native launch contract');
     findingHandlers.finding_resolve({
       storyId,
       findingId: `${storyId}:F-001`,
