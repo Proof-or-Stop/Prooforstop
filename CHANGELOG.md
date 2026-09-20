@@ -1,17 +1,5 @@
 # Changelog
 
-## Lab benchmark-real-entry-regression - v0.3.429 - 2026-09-20
-
-- Enforce planned-provider attempt and remaining-time allowances before dispatch, preserving actual retry accounting and refusing expired work.
-- Add opt-in durable shared host-invocation reservations across processes and linked worktrees, repair-category ceilings and supplied-prompt byte limits; these are not total token or desktop context caps.
-- Preserve bounded provider-reported usage received before transport exceptions, while keeping missing, stderr-only or stale truncated usage unknown and propagating the original error.
-- Validate focused RED/GREEN regressions, shared-budget concurrency and crash recovery, refreshed static source bindings, and 91 host-run usage checks; see docs/host-run-shared-budget.md for configuration and explicit coverage limits.
-- Preserve explicit repository-health limits: the process contract retains its unchanged retired-vocabulary expectation failure, and the runtime contract reaches a validation-snapshot failure reproduced on local main; the focused checks do not claim full repository success.
-
-Maintenance provenance: codex/lab-benchmark-real-entry-regression, repair 982c57534c69caf96376763604e0871d8be5af94.
-Verification command (replayed before integration and on main): `["node","scripts/verify-benchmark-release.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab benchmark-control-red-green - v0.3.428 - 2026-09-20
 
 - Add an isolated benchmark controller experiment that ignores unchanged blocked progress, deduplicates executions, bounds context, and reserves shared and repair budgets before dispatch.
