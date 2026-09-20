@@ -1775,6 +1775,19 @@ COMMAND_PROCESS_FACTS.push({
 });
 
 COMMAND_PROCESS_FACTS.push({
+  name: 'runtime:milestone_validation_capability_selection', kind: 'runtime-behavior', level: 'L4',
+  semantics: ['runtime-behavior', 'verification-policy'],
+  paths: ['packages/main/tests/milestone-status.test.mjs',
+    'packages/main/tests/milestone-status/cli.mjs', 'packages/main/tests/milestone-status/support.mjs',
+    'packages/main/tests/milestone-status/reporting.mjs', 'packages/main/tests/milestone-status/planning.mjs',
+    'packages/main/tests/milestone-status/freshness.mjs', 'packages/main/tests/milestone-status/coverage.mjs',
+    'packages/main/tests/milestone-status/read-only.mjs', 'packages/main/tests/milestone-status/closeout.mjs',
+    'packages/main/tests/milestone-status/cli-behavior.mjs'],
+  producer: 'milestone status verification capability CLI', consumerGate: 'explicit verifier invocation only',
+  rationale: 'Thirty-one independently scoped fixture blocks retain their original execution order by default. Seven capability groups select explicit subsets; invalid arguments reject before cases run, duplicate selections run once, and partial runs cannot emit the complete suite selector. Unknown public CLI arguments must produce only the current structured validation error in JSON mode, without Story facts. Internal grouping adds no routine validation registrations and grants no dynamic exclusion.',
+});
+
+COMMAND_PROCESS_FACTS.push({
   name: 'runtime:changelog_history_compaction', kind: 'runtime-behavior', level: 'L3',
   semantics: ['artifact', 'gate-evidence', 'verification-policy'],
   paths: ['scripts/identity-maintenance-boundaries.mjs', 'scripts/verify-proof-or-stop-identity-cutover.mjs'],

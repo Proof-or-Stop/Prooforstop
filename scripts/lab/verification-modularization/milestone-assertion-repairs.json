@@ -1,0 +1,10 @@
+[
+  {
+    "before": "    assert.equal(unknownFlag.stdout, '', 'unknown flags must fail before story facts are printed');\n    assert.match(unknownFlag.stderr, /Argument validation failed[\\s\\S]*surpriseFlag/);",
+    "after": "    const unknownFlagError = JSON.parse(unknownFlag.stdout);\n    assert.deepEqual(Object.keys(unknownFlagError).sort(), ['command', 'issues', 'nextCommand', 'ok', 'reasonCode', 'recoverable']);\n    assert.deepEqual(unknownFlagError, {\n      ok: false, reasonCode: 'argument_validation_failed', recoverable: true,\n      command: 'milestone_status', nextCommand: 'proof-or-stop milestone_status --help',\n      issues: [{ path: [], code: 'unrecognized_keys', message: 'Unrecognized key: \"surpriseFlag\"' }],\n    }, 'unknown flags must fail before story facts are printed');\n    assert.equal(unknownFlag.stderr, '', 'JSON validation errors must remain machine-readable');"
+  },
+  {
+    "before": "    assert.equal(unknownCloseoutFlag.stdout, '', 'unknown closeout flags must fail before story facts are printed');\n    assert.match(unknownCloseoutFlag.stderr, /Argument validation failed[\\s\\S]*surpriseFlag/);",
+    "after": "    const unknownCloseoutFlagError = JSON.parse(unknownCloseoutFlag.stdout);\n    assert.deepEqual(Object.keys(unknownCloseoutFlagError).sort(), ['command', 'issues', 'nextCommand', 'ok', 'reasonCode', 'recoverable']);\n    assert.deepEqual(unknownCloseoutFlagError, {\n      ok: false, reasonCode: 'argument_validation_failed', recoverable: true,\n      command: 'milestone_closeout', nextCommand: 'proof-or-stop milestone_closeout --help',\n      issues: [{ path: [], code: 'unrecognized_keys', message: 'Unrecognized key: \"surpriseFlag\"' }],\n    }, 'unknown closeout flags must fail before story facts are printed');\n    assert.equal(unknownCloseoutFlag.stderr, '', 'JSON validation errors must remain machine-readable');"
+  }
+]
