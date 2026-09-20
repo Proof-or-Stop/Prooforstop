@@ -86,6 +86,21 @@ try {
   });
   await assert.rejects(
     qualificationHandlers.host_run({
+      host: 'grok', storyId,
+      agentType: 'proof-or-stop-review-concept', managedDispatch: true,
+      detach: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
+    }),
+    error => {
+      assert.match(error.message, /REVIEW lanes use the formal managed-review flow/i);
+      assert.match(error.message, /candidate_spec_route/);
+      assert.match(error.message, /review_run_start/);
+      assert.match(error.message, /managedReview/);
+      return true;
+    },
+    'a REVIEW-lane managedDispatch refusal must provide the exact safe recovery sequence',
+  );
+  await assert.rejects(
+    qualificationHandlers.host_run({
       host: 'codex', model: 'deepseek-v4.1-flash', reasoningEffort: 'high', storyId,
       agentType: 'proof-or-stop-review-story-init', managedDispatch: true,
       detach: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
