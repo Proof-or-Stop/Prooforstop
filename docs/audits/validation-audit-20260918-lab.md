@@ -61,6 +61,23 @@ The focused topology group changed from three failures to GREEN with identical
 admission assertions. Production runtime authority and host configuration are
 unchanged; the complete runtime and identity groups remain required for finish.
 
+The complete pinned closeout passed on `a366ead284`: registered #148 took
+826.1 seconds, the runtime/source-binding/capacity checks passed, and all six
+target executions completed within the authorized 260-second budgets.
+Subsequent integration with main `b91dee1678` requires new merged-source evidence.
+The merge preserves both branches' validation registrations and adds the two
+current checklist implementer identity uses to the existing public-operation
+mutation campaign. The checklist import pin now binds the actual unchanged main
+source (929 uses); its previous main pin recorded only 922. The coupled CLI AST
+pin retains main's measured owner-lease admission fingerprint. Existing negative
+controls and all Lab concurrency repairs remain required.
+The merged managed-implementer end-to-end test contributes five exact private
+credential cleanup or stale-input fixture rows. They are bound by full source
+digest, exact line digest, token spelling and total occurrence count; no file
+exemption is added. The corresponding identity metadata fragment retains its
+exact byte witness after main's implementer occurrence count changed from eight
+to nine. Both additions remain subject to the existing mutation controls.
+
 ### Historical 180-second performance checkpoints
 
 The following measurements describe the earlier 180-second experiment; they do
@@ -98,7 +115,7 @@ The source-binding consumer additionally refused ten existing process-verifier
 fixture rows after this edit. All ten original lines, line hashes, token counts,
 classifications, reasons and row positions were compared and remain identical;
 only the whole-file source digest, its independent negative-source checksum and
-the authenticated fixture-reader chain are refreshed. The inventory still has exactly 296 rows. Its actual consumer,
+the authenticated fixture-reader chain are refreshed. That checkpoint retained 296 rows; the current merged inventory has 301 after the five exact private fixture rows described above. Its actual consumer,
 schema self-test, and stale/mutated-input refusal checks must pass after this
 refresh; the retained RED log is `boundary-overlap-source-bindings.log`.
 

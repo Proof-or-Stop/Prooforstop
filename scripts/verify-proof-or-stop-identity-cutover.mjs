@@ -3127,7 +3127,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/src/core/runtime-environment-checks.ts",
-    "sha256": "e8912fe16f18b82f9d6d01b6aa809de463e9735d8c76a3ae2568eb65c61f145a"
+    "sha256": "02afe26ceb22b9fa4c0597aa326c2f02cbb5a65f6fd1d8f1137ba5b867a0ed1a"
   },
   {
     "path": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
@@ -3143,7 +3143,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/src/tasks/flow-stability-smoke.ts",
-    "sha256": "d47d58b6c4916259db151870373242edf976fa02a2c9c2fc2ea7794ea2785faf"
+    "sha256": "48b043c9ae0c3b02451b6cd6edd8f873a4c227d0b9c46a418aac83cb564a3705"
   },
   {
     "path": "packages/main/src/tasks/global-agents-unit-smoke.ts",
@@ -3171,7 +3171,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
-    "sha256": "51b368943464c6703e5f9b5bdf827cbfa12f2a4c8b4cf463bfbad4eeed2d5bc2"
+    "sha256": "0148ddf4e99b3efdb4fa914596c474d22c17ac893bc05a74bab61962ecc81d7c"
   },
   {
     "path": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
@@ -3203,7 +3203,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
-    "sha256": "8ced46caa276fca2bd939f378c35d41554283e466b6eb684145287c5a15a41a3"
+    "sha256": "8e04b5ca1403f1ded79f50d8e8cdbadaf468d82ac394054dc8e7105a84c3ddba"
   },
   {
     "path": "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs",
@@ -3255,11 +3255,11 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "scripts/verify-process-fact-contract.mjs",
-    "sha256": "6fb33cf9690192064957889df88a2afccda88dc7538949e2a0eccf49d0aa52f2"
+    "sha256": "389645342f1cde18b4fe7b055c15c18626b6d415ff0e932009871ec4262591c7"
   },
   {
     "path": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
-    "sha256": "402f397963572e44d037d468b38030bbd40f5d0587cfd5484e639b1cbb6442b3"
+    "sha256": "8594c7d7fbd448a33725ecee1a25dec9a9cadc81c3a0dcd5086aa27990c657ce"
   },
   {
     "path": "scripts/verify-proof-or-stop-residue.mjs",
@@ -3401,7 +3401,7 @@ const OWNED_IDENTITY_MUTATION_CONTEXT_ROWS = [
   ["proofbound-evaluator",8,"98315a6ac3f8f96d949b1417a59108fa032eb755a47db35aa8f8a835b9d3f3ef"],
   ["proofbound-evaluator-cli",4,"b29d4346ec3c85c1f59857752a1d6f98c3b10232f174bee2273777aa69849d46"],
   ["proofbound-implementation-reviewer",4,"c53ade05bdfec81e0c56e04e101a9c3de39eafe7a5034545f9750377ea0436ab"],
-  ["proofbound-implementer",8,"2291076edc15a9abd4d04dbc44447fb27d429b7bba48605698f0e5075e16d367"],
+  ["proofbound-implementer",8,"638ed385f4e95baed86faab28f5a12481aba68b084cca2d557ef85286f694355"],
   ["proofbound-memory-baseline-global-",1,"ad24bd05e6064cbd42e7543353bf441957bdf8f5b2a727066a8f83afdcdb3b55"],
   ["proofbound-memory-baseline-matrix-",1,"81b010c6c3abc8e2caa180216b562d98f96d17061b8acf6291bc96f9aafed134"],
   ["proofbound-memory-baseline-runtime-",2,"23998295137b6ad03d351d093c1f27dbc81698011fe63c871d13142cbd62d725"],
@@ -3570,7 +3570,7 @@ const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [1,"ebdcc59f439a3e890e6a4c6b7a0a6c523cc0cb37a343cea8af0aa5d1cb498748"],
   [2,"d1261e4856fd3441f6ba185e3cc3a0e3222145e69218180ca3567888f848a694"],
   [3,"65b3a71a775eef59f9398fc88bae41728f07d0ff832b3164fc4a6305f2829b78"],
-  [4,"8ced46caa276fca2bd939f378c35d41554283e466b6eb684145287c5a15a41a3"],
+  [4,"8e04b5ca1403f1ded79f50d8e8cdbadaf468d82ac394054dc8e7105a84c3ddba"],
   [14,"6ce71b767c7003c53068880527a14a0986692d4e80283ffbae217fad0af98fa5"],
   [15,"9101f015dcbfe0affcca0cecc2bc15ac9d1e691af1c5febbe249746d16536b60"],
   [16,"c182058690e5e55d41d91f5bc496acbe21b126e29e310525e4f4b1f3895cba21"],
@@ -3606,7 +3606,7 @@ const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [48,"cc44ed2de501ece64b10585468721b50cfc9f628f62e0deb03af8240d4615847"],
   [49,"8c9b8d8a5a9bf9b715ffaaaebb88c42c8bcc38258e2953356e09be5aabc44b3a"],
   [51,"6266521612a843fb549a70c35df31e281f153749c0e7fcba2b2aa4eccce19fa4"],
-  [52,"e8912fe16f18b82f9d6d01b6aa809de463e9735d8c76a3ae2568eb65c61f145a"],
+  [52,"02afe26ceb22b9fa4c0597aa326c2f02cbb5a65f6fd1d8f1137ba5b867a0ed1a"],
   [55,"0a0e8086be494cbf378b488a2d891a43db5559f077042ac6da87cfd4a90375d0"],
   [60,"bb56479da5c58cf6baccddf3cbde7255e82c0e0fd805acc6a412ffee6a728758"],
   [62,"9ee8a71dcfaacfc632a7756be28b1ade7039a97650843eb0389591d0747c44ca"],
@@ -3971,7 +3971,7 @@ const SCANNER_RETIRED_LINE_CONTEXTS = [
   ["3e0b48632a52119949f649a0c0cca41ef244ded5dd5b1b5ad3743050e292e0ba",1,[3401]],
   ["b50aadd26b200dd0ba3fcd68bd051cc96dce393da73d69308cc0e6fbe4b29008",1,[3402]],
   ["edb18bf0dfb89789fec602166b9eef80838fcd9742cfc1b8f9f08e93926cbffc",1,[3403]],
-  ["b63892912fbed3bbfea8bbe1b86ad12bb4f275328af16afde92a2a905604790b",1,[3404]],
+  ["42c8a388bd7fe6baa37bca222c37c7e5f17b8ae2487d8cf50706b14121b6d136",1,[3404]],
   ["02e62241513b488a50da3f033e48d6da394462f43c893260e53fa3fb4d14bef1",1,[3405]],
   ["9821b7074fbb46833b3f3189aa1bb6091302177b22a4d6c3745f3ea4298f8cdf",1,[3406]],
   ["c5bb29b9f113a127cbec9e5d932c14702d86e01b14d5d950342dfff457385e8a",1,[3407]],
@@ -7467,7 +7467,7 @@ function verifySchemaInventory(root, schemas) {
 const REVIEWED_CONTEXT_READERS = [
   {
     "path": "scripts/identity-reviewed-source-contexts.mjs",
-    "sha256": "927334a18762909c9423fb13b397a6109e7142337c9d72be35043d7c15d77b8c"
+    "sha256": "15500c3e3fe9971cbe26971b6fba629457a1300fb9716b65398cc05b753a6877"
   },
   {
     "path": "scripts/identity-reviewed-json-contexts.mjs",
@@ -7475,7 +7475,7 @@ const REVIEWED_CONTEXT_READERS = [
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "f1eccea27441a975a0fe6e52ff519ce46b4c3ca2f0a9eef4c134b3038b16ac93"
+    "sha256": "0d4625bcef73210fa3bfd8de54a7eab2c65fe007107562086548e6ad0e2a7315"
   }
 ];
 function verifyReviewedContextReaders(root) {
@@ -7718,7 +7718,7 @@ function verifyCurrentWitnessCoverage(root, files, expect) {
   const allJsonRows = [...jsonRows, ...incomingJsonRows, ...criticJsonRows, ...auditJsonRows];
   const fixtureRows = JSON.parse(read('scripts/identity-reviewed-fixture-data.json')).entries.slice(268);
   const provenanceRows = CURRENT_LEGACY_CONTEXT_ROWS.filter(row => row.id.startsWith('current-witness-coverage-'));
-  expect(jsonRows.length === 45 && fixtureRows.length === 28 && provenanceRows.length === 12,
+  expect(jsonRows.length === 45 && fixtureRows.length === 33 && provenanceRows.length === 12,
     'current witness coverage requires every reviewed addition');
   const scratch = mkdtempSync(join(tmpdir(), 'identity-current-witness-'));
   let controls = 0;

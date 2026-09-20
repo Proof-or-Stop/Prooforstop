@@ -1,5 +1,13 @@
 # Changelog
 
+## Lab integrated-validation-and-managed-implementation - v0.3.433 - 2026-09-20
+
+- Integrate the complete local `0.3.429` through `0.3.432` repair history with Pan Qi's remote `0.3.429` and `0.3.430` managed-worker and managed-implementer history; both pre-merge heads remain ancestors of this release.
+- Enforce provider budgets, shared invocation accounting, 260-second production validation limits, intent-bound evidence reuse, and current prompt-reference baselines with focused RED/GREEN verification.
+- Require canonical implementation-worker authority and add managed checklist implementation dispatch whose signed completion remains bound across retries, transport loss, rollback, and unmanaged completion probes.
+- Preserve fail-closed behavior for invalid evidence groups, stale prompt authority, missing implementation receipts, incomplete managed completion, duplicate execution, unknown usage, and unsafe mixed-Story refresh advice.
+- Reconcile the combined validation registry, static-edge evidence, package metadata, and CLI version at `0.3.433`; detailed component evidence remains in [host-run budgets](docs/host-run-shared-budget.md), [intent fingerprinting](docs/requirements/decisions/verification-execution-receipt-fanout-and-input-scoped-freshness.md), and [managed host usage](docs/host-run-usage.md).
+
 ## Lab validation-prompt-baseline-split-20260920 - v0.3.432 - 2026-09-20
 
 - Repair prompt validation that rejected current canonical role bodies because its approval hashes, role matrix, and measurement baseline were stale.
@@ -46,6 +54,30 @@ Maintenance provenance: codex/lab-validation-production-budget-260-20260920, rep
 Verification command (replayed before integration and on main): `["node","packages/main/tests/validation-production-budget-260.test.mjs"]`.
 This entry does not assert formal Story DONE or signed product-release credentials.
 
+## Lab managed-implementer-dispatch - v0.3.430 - 2026-09-20
+
+- Add controller-owned managed dispatch for one exact DEV checklist implementer target.
+- Bind successful completion to the managed run, Story, item, consumed invocation, and signed terminal receipt.
+- Refuse empty native wait targets and document the managed fallback for hosts without a child task identity.
+- Roll back checklist completion when bound process-event persistence fails, preserving a safe replacement path.
+- Cover successful delivery, no completion, in-progress-only, wrong-item, and event-write-failure cases.
+
+Maintenance provenance: codex/lab-managed-implementer-dispatch, repair be0abcff6e3af7e6584cec65d72e4a43ec67ddab.
+Verification command (replayed before integration and on main): `["npm","run","test:managed-implementer-dispatch"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab implementation-worker-authority - v0.3.429 - 2026-09-20
+
+- Remove commit-author fallback as normal-channel implementation authority.
+- Require canonical dispatch or successful subagent-result evidence for every non-exempt item.
+- Block DEV to REVIEW before reviewers start when implementation-worker evidence is missing.
+- Give agents exact canonical dispatch guidance and retain commit author only as audit attribution.
+- Add focused RED/GREEN coverage for rejected unregistered workers and admitted registered results.
+
+Maintenance provenance: codex/lab-implementation-worker-authority, repair dcb7f69c9d614014e23a22ff697736cd1963085d.
+Verification command (replayed before integration and on main): `["node","scripts/verify-implementation-worker-authority.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab benchmark-control-red-green - v0.3.428 - 2026-09-20
 
 - Add an isolated benchmark controller experiment that ignores unchanged blocked progress, deduplicates executions, bounds context, and reserves shared and repair budgets before dispatch.
@@ -56,6 +88,16 @@ This entry does not assert formal Story DONE or signed product-release credentia
 Maintenance provenance: codex/lab-benchmark-control-red-green, repair b0168e3bd76ceffb60c307f2ac61e08d053df1df.
 Verification command (replayed before integration and on main): `["node","scripts/lab/benchmark-controls/verify-entry-contract.mjs"]`.
 This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab managed-worker-owner-lease - integrated in v0.3.428 - 2026-09-20
+
+- Keep the durable Story owner lease bound to the submitting session when a detached `host_run_worker` starts and exits; the worker validates ownership without refreshing the lease with its short-lived PID.
+- Retain the managed run's exclusive worker claim and prove that a foreign session cannot gain write authority by reusing a live run ID.
+- Add a public CLI RED/GREEN regression and refresh the affected U-18 static-edge bindings; owner-command, managed-host-run, process-fact and static-edge checks pass.
+- Record the exact committed candidate's independent Grok/xAI Lab audit in the authenticated Lab maintenance record; this entry does not assert formal Story DONE.
+
+Maintenance provenance: codex/lab-managed-worker-owner-lease, repair 0cd268e1dc5e4191f81c17169076641d34857b23.
+Verification command (replayed before integration and on main): `["node","scripts/verify-managed-worker-owner-lease.mjs"]`.
 
 ## Lab validation-build-artifact-binding - v0.3.427 - 2026-09-20
 

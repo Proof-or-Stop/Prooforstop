@@ -84,6 +84,7 @@ import {
   runLegacyReceiptTransitionGate,
   runReviewToTestPreflightGate,
   runValidateGate,
+  runImplementationWorkerAuthorityGate,
 } from './phase-gates.js';
 import { runGuardSessionGate } from './guard-session.js';
 import { captureMilestoneCloseoutSnapshotFromStore } from './milestone-status.js';
@@ -493,7 +494,8 @@ function readIntegrationBranchSha(gitCwd: string, integrationBranch: string): st
  *   meta guard → readStory → cwd guard → deps advisory → session advisory →
  *   IDEA→PLAN checklist guard → [DONE: acquire merge lock + pre-check] →
  *   create + start actor → resolve event (incl. REPLAN fallback) →
- *   guard check (actor.can) → [REVIEW→TEST preflight gate] → [validate gate] →
+ *   guard check (actor.can) → [DEV→REVIEW worker-authority gate] →
+ *   [REVIEW→TEST preflight gate] → [validate gate] →
  *   [DONE pre-merge gate] → actor.send → writeStory(state mutation) →
  *   post effects (metrics / hooks / metadata commit / docsHint / nextSteps /
  *   [DONE: applyDoneMergeEffects]) → advisory segments → return.
@@ -1216,6 +1218,13 @@ async function runStoryTransitionInner(
       // B-56d3: cwd/guard-failure adapter in phase-gates.ts. B-6974: it no
       // longer stops the actor — the orchestrator's finally owns that.
       throw resolveGuardFailure(actor, args.storyId, store, args.phase, ctx.root);
+    }
+
+    // Stop an unregistered or improvised implementation worker before REVIEW
+    // mints a round or starts managed reviewers. Commit author text alone is
+    // attribution and cannot satisfy this process-evidence boundary.
+    if (args.phase === 'REVIEW' && story.phase === 'DEV') {
+      runImplementationWorkerAuthorityGate(ctx, args.storyId);
     }
 
     let scopeGateReport = acceptanceTopologyGateReport + preReviewGateReport;

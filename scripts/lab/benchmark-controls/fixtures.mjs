@@ -14,4 +14,3 @@ export const request = (id, partition = 'product', source = 'main') => ({
 });
 export const receipt = id => ({ responseId: id,
   usage: { input_tokens: 10, cached_input_tokens: 4, output_tokens: 2, reasoning_output_tokens: 1 } });
-

@@ -2736,6 +2736,7 @@ const OWNED_IDENTITY_SITE_CONTEXTS = [
   ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-record.v1",2,"467bd70741396cce3c7ff4133b8503c1ea1728fad55372540a5126e95046efa8"],
   ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-reuse-receipt.v1",2,"49cb86dacf51a745bcb97d13e2f1af5f67ed5387959d86063ab1590fbf9f6484"],
   ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verifier-dependency-manifest-binding.v1",1,"6cdbe616948e4595c15ece6c9a50cb22bd41e5c6c186ed82c421e020c2d70849"],
+  ["packages/main/src/handlers/checklist.ts","proof-or-stop-implementer",2,"19fcc470d02faf604a28e83ea8f710eaebb88868642d7cc7706d2b4d1092bfed"],
   ["packages/main/src/handlers/checklist.ts","proof-or-stop-product-reviewer",1,"54ea216564ffb2a3d1937f30aaed38faa3855aebe8e49a8dc5d8d2637de26104"],
   ["packages/main/src/handlers/checklist.ts","proof-or-stop-review-story-init",1,"54ea216564ffb2a3d1937f30aaed38faa3855aebe8e49a8dc5d8d2637de26104"],
   ["packages/main/src/handlers/checklist.ts","proof-or-stop.verification-execution-receipt.v3",4,"90bcf066b48695e791b83bc4ecd7f810814367e614337f98be5421f819a40cdb"],
@@ -3153,7 +3154,7 @@ const OWNED_IMPORT_USE_CONTEXTS = [
   {"sourcePath": "packages/main/src/core/verification-execution-evidence.ts", "occurrences": 307, "contextSha256": "0743090c1c375cda6541dfa5358ce83005efae266f3bea33a801675eee7ddb8a"},
   {"sourcePath": "packages/main/src/handlers/agent-prompt.ts", "occurrences": 130, "contextSha256": "41f4365fe97330bf11de73586d60cda95e7b0c3c408ba67fcef3a0ad1bbddcdf"},
   {"sourcePath": "packages/main/src/handlers/candidate-spec-routing.ts", "occurrences": 98, "contextSha256": "805e2b7f0ad70e9ae12ce6cf5b6f67e44dec22d603a47dc3e6dd626ad3684900"},
-  {"sourcePath": "packages/main/src/handlers/checklist.ts", "occurrences": 917, "contextSha256": "d85326ffa9e5dcf5750ae3d74d72c692ad123d0df5cde166e772eb38a8a6606b"},
+  {"sourcePath": "packages/main/src/handlers/checklist.ts", "occurrences": 929, "contextSha256": "3202569cee6b15eb64fdb1e2fac98656cc8eeed4cd619c3d0a16ef7c020afccd"},
   {"sourcePath": "packages/main/src/handlers/done-effects.ts", "occurrences": 295, "contextSha256": "d11789fc61fe6745b79c47cbbc920defc06b8971c2c0cff7b9f5c8bd34768eaf"},
   {
     "sourcePath": "packages/main/src/handlers/playbook-runtime-memory.ts",

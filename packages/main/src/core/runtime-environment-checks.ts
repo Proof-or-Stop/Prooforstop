@@ -362,7 +362,7 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   'packages/main/src/core/evidence-freshness.ts': 'd3120733e853509d3cc1a5643fe1316e1a820f68b20f27affd0254699f99257c',
   'packages/main/src/core/review-inventory-epoch.ts': '2e48dbfd6c2b74c7785ceb336b55700608651f731bb591583afcf7a02ee46308',
   'packages/main/src/core/verification-execution-evidence.ts': '728e76f065e83fe8fdec672986f40ef37e2d8ae8dbc96eda4d01ccd2584cf5cf',
-  'packages/main/src/handlers/checklist.ts': '61a612f00cc5df6846b39e334941ff1f98b7ee5417343cdc82a5f225650edb0e',
+  'packages/main/src/handlers/checklist.ts': 'b8e4428e1866d0e9d7e394d7343e9fe43a1a71b94b46a32da947091dce309450',
   'packages/main/src/core/maintenance-command-mode.ts': '9c94f1c1a20abf5ed3b93208f5d52e13d63246af12a85612c1e07f99e72258e2',
 });
 
@@ -600,6 +600,7 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-record.v1", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
       identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-reuse-receipt.v1", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
       identitySite('packages/main/src/handlers/checklist.ts', 'proof-or-stop.plan-acceptance-batch.v1', undefined, undefined, undefined, undefined, { canonical: 2, retired: 0 }),
+      identitySite("packages/main/src/handlers/checklist.ts", "proof-or-stop-implementer", undefined, undefined, undefined, undefined, { canonical: 2, retired: 0 }),
       identitySite("packages/main/src/handlers/checklist.ts", "proof-or-stop-product-reviewer", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
       identitySite("packages/main/src/handlers/checklist.ts", "proof-or-stop-review-story-init", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
       identitySite("packages/main/src/handlers/checklist.ts", "proof-or-stop.verification-execution-receipt.v3", undefined, undefined, undefined, undefined, { canonical: 4, retired: 0 }),
@@ -636,6 +637,7 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-record-authenticity.v1"),
       identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-record.v1"),
       identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-reuse-receipt.v1"),
+      identityMutationCase("packages/main/src/handlers/checklist.ts", "proof-or-stop-implementer"),
       identityMutationCase("packages/main/src/handlers/checklist.ts", "proof-or-stop-product-reviewer"),
       identityMutationCase("packages/main/src/handlers/checklist.ts", "proof-or-stop-review-story-init"),
       identityMutationCase("packages/main/src/handlers/checklist.ts", "proof-or-stop.verification-execution-receipt.v3"),
@@ -941,7 +943,7 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       ),
       identitySite('packages/main/src/handlers/agent-prompt.ts', 'proof-or-stop.agent-prompt-response.v1'),
       identitySite('packages/main/src/handlers/story-dispatch.ts', 'proof-or-stop-review-story-init'),
-      identitySite("packages/main/src/handlers/story-dispatch.ts", "proof-or-stop-implementer", "proof-or-stop-implementer", "proofbound-implementer", "proofbound-implementer", undefined, { canonical: 8, retired: 0 }),
+      identitySite("packages/main/src/handlers/story-dispatch.ts", "proof-or-stop-implementer", "proof-or-stop-implementer", "proofbound-implementer", "proofbound-implementer", undefined, { canonical: 9, retired: 0 }),
       identitySite("packages/main/src/handlers/story-dispatch.ts", "proof-or-stop-review-behavior", "proof-or-stop-review-behavior", "proofbound-review-behavior", "proofbound-review-behavior", undefined, { canonical: 2, retired: 0 }),
       identitySite("packages/main/src/handlers/story-dispatch.ts", "proof-or-stop-review-channel", "proof-or-stop-review-channel", "proofbound-review-channel", "proofbound-review-channel", undefined, { canonical: 2, retired: 0 }),
       identitySite("packages/main/src/handlers/story-dispatch.ts", "proof-or-stop-review-concept", "proof-or-stop-review-concept", "proofbound-review-concept", "proofbound-review-concept", undefined, { canonical: 2, retired: 0 }),
@@ -1199,7 +1201,7 @@ function assertNoRetiredPromptConfigIdentity(projectRoot: string, label: string)
 // This exact source fragment is mutation-input data, not an active schema
 // reader. Its byte/count witness grants no exemption to surrounding code.
 const IDENTITY_MUTATION_DATA_FRAGMENTS = [
-  { marker: 'const OWNED_IDENTITY_MUTATION_CONTEXT_ROWS = [', sha256: '5a3cdb833a71bcfcc8533044f5d7b3f953cdca5fd95de5bcf7e5f3f1fcf49622' },
+  { marker: 'const OWNED_IDENTITY_MUTATION_CONTEXT_ROWS = [', sha256: '0a946f2912e82923fe5c21fcf953334476b7f118bd495741ec65fd7d8dd56668' },
   { marker: 'const BOTH_FAMILY_CONTEXT_ROWS = [', sha256: 'b7d3c4a55bd9742fe532ff73cb7db1ef86a5ee913e608146f4d0b6b2781adc6a' },
 ] as const;
 function activeIdentitySourceBytes(sourcePath: string, bytes: string): string {

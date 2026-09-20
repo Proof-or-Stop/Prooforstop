@@ -2542,7 +2542,7 @@ function assertCloseoutTrustBoundary() {
   // withValidationSigningRoot arrow preserves the runCli function anchor and
   // exact initPath producer/import argument. Both coupled pins move together;
   // this whole-file binding does not assert a separate loader provenance graph.
-    '98877fb9b4540b07726b83a559d2e20726edd1aba2d57faad976d395776e5604',
+    '631ac1fde46c71126614b7ad293fedc43a79b14c166b10d2f8b7e3cd2b69d408',
     // B-6693 (merged in) also moved this canonical AST, only to separate
     // direct-validate watchdog cancellation from DONE-result classification.
     // The benign runCli/initPath/import(`file://${initPath}`) call site is unchanged.

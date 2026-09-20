@@ -141,7 +141,7 @@ function resolveBackgroundPolicy(agentType: string | undefined): BackgroundPolic
 
 function appendImplementerCommitSteps(lines: string[], message: string): void {
   lines.push(`- git commit --author="${IMPLEMENTER_COMMIT_AUTHOR}" -m "${message.replace(/"/g, "'")}"`);
-  lines.push('- Do not omit `--author`; normal-channel author fallback only accepts author=proof-or-stop-implementer.');
+  lines.push('- Keep the canonical implementer author for audit attribution. Author text never replaces the required dispatch/subagent_result process evidence.');
 }
 
 /**
@@ -909,6 +909,11 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       // 8. Assemble implementer prompt
       const lines: string[] = [];
       lines.push(`As ${resolvedAgent.canonicalType} implementing ${args.storyId} ${args.itemId}: ${item.title}`);
+      lines.push('');
+      lines.push('Controller launch contract (the worker does not perform this step):');
+      lines.push('- A native dispatch exists only after the host returns a nonempty child task identity. Never claim dispatch or call a wait tool with an empty target list.');
+      lines.push(`- If the host cannot return a native child identity, the controller must launch this exact Story/item through host_run with agentType=proof-or-stop-implementer, managedDispatch=true, storyId=${args.storyId}, and itemId=${args.itemId}; then monitor the returned runId.`);
+      lines.push('- A successful managed run is terminal only after the item is done and its subagent_result is receipt-bound to that exact run.');
       lines.push('');
       // B-9d95 CHK-001: inject worktree absolute path. Root cause retrospective (B-ed3e F-001): subagent inherits parent process cwd
       // which does not necessarily land in the worktree (especially cross-repo scenarios), causing reviewer/handler to read docs/story/... in the main repo cwd

@@ -33,7 +33,7 @@ index c3ba1bb775..9af4ab65ab 100644
 +++ b/bin/bootstrap-runner.js
 @@ -27,6 +27,12 @@ const UTILS_DIST = join(repoRoot, 'packages', 'utils', 'dist', 'index.js');
  const LAB_DIST = join(repoRoot, 'packages', 'lab', 'dist', 'index.js');
- 
+
  function printBootstrapFailure(error) {
 +  if (/^(?:Error:[ \t]*)?CLI_RUNTIME_VERSION_(?:MISMATCH|METADATA_INVALID):/m.test(String(error?.message ?? ''))) {
 +    // Both entry shapes would reject the same installation. Do not advertise
