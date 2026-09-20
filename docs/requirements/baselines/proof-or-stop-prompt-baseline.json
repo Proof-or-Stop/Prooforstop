@@ -957,51 +957,6 @@
           "excerpt": "- The full text of `docs/story/actives/<storyId>/process-events.jsonl` (dispatch evidence source)"
         },
         {
-          "role": "proof-or-stop-review-story-init",
-          "classification": "read-only-reference",
-          "excerpt": "3. `docs/story/actives/<storyId>/background.md` (full text)"
-        },
-        {
-          "role": "proof-or-stop-review-story-init",
-          "classification": "read-only-reference",
-          "excerpt": "4. `docs/story/actives/<storyId>/index.json` — read only the `title` / `description` / `type` / `priority` / `riskSignals` fields"
-        },
-        {
-          "role": "proof-or-stop-review-story-init",
-          "classification": "read-only-reference",
-          "excerpt": "5. `docs/story/actives/<storyId>/checklist.json` — read only `items[].title` / `items[].context`"
-        },
-        {
-          "role": "proof-or-stop-review-story-init",
-          "classification": "other",
-          "excerpt": "- Other story directories (`docs/story/actives/<other-id>/` or `docs/story/archived/`)"
-        },
-        {
-          "role": "proof-or-stop-review-story-init",
-          "classification": "direct-read",
-          "excerpt": "2. **Read background.md**: `Read docs/story/actives/<storyId>/background.md` in full. Note all letter codes, abbreviations, jargon, and where they are first defined, **and mark all factual claims about the existing system** (e.g., \"X only supports Y\", \"all projects have Z\")."
-        },
-        {
-          "role": "proof-or-stop-review-story-init",
-          "classification": "direct-read",
-          "excerpt": "3. **Read index.json**: `Read docs/story/actives/<storyId>/index.json` and extract `title` / `description` / `type` / `priority` / `riskSignals`."
-        },
-        {
-          "role": "proof-or-stop-review-story-init",
-          "classification": "direct-read",
-          "excerpt": "4. **Read checklist.json**: `Read docs/story/actives/<storyId>/checklist.json`, iterate over `items[]`, look only at `title` and `context`."
-        },
-        {
-          "role": "proof-or-stop-review-story-init",
-          "classification": "direct-read",
-          "excerpt": "cat docs/story/actives/<storyId>/init-self-check.json"
-        },
-        {
-          "role": "proof-or-stop-product-reviewer",
-          "classification": "read-only-reference",
-          "excerpt": "- If available, `docs/story/actives/<storyId>/evidence/live-smoke-transcript.json`"
-        },
-        {
           "role": "proof-or-stop-review-delivery",
           "classification": "read-only-reference",
           "excerpt": "- If present, `docs/story/actives/<storyId>/evidence/live-smoke-transcript.json`, the canonical executed user-facing transcript"

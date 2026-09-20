@@ -215,51 +215,6 @@ const DIRECT_STORY_REFERENCE_ALLOWLIST = [
     excerpt: '- The full text of `docs/story/actives/<storyId>/process-events.jsonl` (dispatch evidence source)',
   },
   {
-    role: 'proof-or-stop-review-story-init',
-    classification: 'read-only-reference',
-    excerpt: '3. `docs/story/actives/<storyId>/background.md` (full text)',
-  },
-  {
-    role: 'proof-or-stop-review-story-init',
-    classification: 'read-only-reference',
-    excerpt: '4. `docs/story/actives/<storyId>/index.json` — read only the `title` / `description` / `type` / `priority` / `riskSignals` fields',
-  },
-  {
-    role: 'proof-or-stop-review-story-init',
-    classification: 'read-only-reference',
-    excerpt: '5. `docs/story/actives/<storyId>/checklist.json` — read only `items[].title` / `items[].context`',
-  },
-  {
-    role: 'proof-or-stop-review-story-init',
-    classification: 'other',
-    excerpt: '- Other story directories (`docs/story/actives/<other-id>/` or `docs/story/archived/`)',
-  },
-  {
-    role: 'proof-or-stop-review-story-init',
-    classification: 'direct-read',
-    excerpt: '2. **Read background.md**: `Read docs/story/actives/<storyId>/background.md` in full. Note all letter codes, abbreviations, jargon, and where they are first defined, **and mark all factual claims about the existing system** (e.g., "X only supports Y", "all projects have Z").',
-  },
-  {
-    role: 'proof-or-stop-review-story-init',
-    classification: 'direct-read',
-    excerpt: '3. **Read index.json**: `Read docs/story/actives/<storyId>/index.json` and extract `title` / `description` / `type` / `priority` / `riskSignals`.',
-  },
-  {
-    role: 'proof-or-stop-review-story-init',
-    classification: 'direct-read',
-    excerpt: '4. **Read checklist.json**: `Read docs/story/actives/<storyId>/checklist.json`, iterate over `items[]`, look only at `title` and `context`.',
-  },
-  {
-    role: 'proof-or-stop-review-story-init',
-    classification: 'direct-read',
-    excerpt: 'cat docs/story/actives/<storyId>/init-self-check.json',
-  },
-  {
-    role: 'proof-or-stop-product-reviewer',
-    classification: 'read-only-reference',
-    excerpt: '- If available, `docs/story/actives/<storyId>/evidence/live-smoke-transcript.json`',
-  },
-  {
     role: 'proof-or-stop-review-delivery',
     classification: 'read-only-reference',
     excerpt: '- If present, `docs/story/actives/<storyId>/evidence/live-smoke-transcript.json`, the canonical executed user-facing transcript',
@@ -1329,18 +1284,18 @@ const PROMPT_POLICY_DIRECT_COLLECTION_PROBES = [
   },
   {
     name: 'registered reference followed across a blank line',
-    role: 'proof-or-stop-review-story-init',
-    addition: `${DIRECT_STORY_REFERENCE_ALLOWLIST[3].excerpt}\n\nFrobnicate it.`,
+    role: 'proof-or-stop-review-delivery',
+    addition: `${DIRECT_STORY_REFERENCE_ALLOWLIST.find(entry => entry.role === 'proof-or-stop-review-delivery').excerpt}\n\nFrobnicate it.`,
   },
   {
     name: 'registered reference followed across heading and list boundaries',
-    role: 'proof-or-stop-review-story-init',
-    addition: `${DIRECT_STORY_REFERENCE_ALLOWLIST[3].excerpt}\n\n## Next\n\n- Frobnicate it.`,
+    role: 'proof-or-stop-review-delivery',
+    addition: `${DIRECT_STORY_REFERENCE_ALLOWLIST.find(entry => entry.role === 'proof-or-stop-review-delivery').excerpt}\n\n## Next\n\n- Frobnicate it.`,
   },
   {
     name: 'action prepended across a blank line to a registered reference',
-    role: 'proof-or-stop-review-story-init',
-    addition: `Frobnicate it.\n\n${DIRECT_STORY_REFERENCE_ALLOWLIST[3].excerpt}`,
+    role: 'proof-or-stop-review-delivery',
+    addition: `Frobnicate it.\n\n${DIRECT_STORY_REFERENCE_ALLOWLIST.find(entry => entry.role === 'proof-or-stop-review-delivery').excerpt}`,
   },
 ];
 
@@ -2108,6 +2063,10 @@ function collectDirectStoryFindings(roleEntries) {
   assertApprovedPromptPolicyManifest(roleEntries);
   const findings = scanStoryFileReferences(roleEntries);
   assertDirectStoryWritePolicy(findings);
+  const referenceErrors = directStoryReferenceExerciseErrors(findings);
+  if (referenceErrors.length) {
+    throw new Error(`Exact current story-reference policy failed:\n- ${referenceErrors.join('\n- ')}`);
+  }
   return findings;
 }
 
@@ -3040,6 +2999,49 @@ function verifyDirectStoryReferencePolicy(current, baseline, failures) {
     'baseline directStoryFileReferences.policy',
     failures,
   );
+  for (const [label, value] of [['current', current], ['baseline', baseline]]) {
+    for (const error of directStoryReferenceExerciseErrors(value.directStoryFileReferences.findings)) {
+      failures.push(`${label} exact story-reference exercise: ${error}`);
+    }
+  }
+  const findings = current.directStoryFileReferences.findings;
+  for (const allow of DIRECT_STORY_REFERENCE_ALLOWLIST) {
+    const matches = finding => canonicalPromptRoleId(finding.role) === canonicalPromptRoleId(allow.role)
+      && finding.excerpt === allow.excerpt;
+    const finding = findings.find(matches);
+    for (const [label, changed] of [
+      ['missing', findings.filter(row => !matches(row))],
+      ['duplicate', [...findings, finding]],
+      ['classification', findings.map(row => matches(row) ? { ...row, classification: 'unclassified-actionable' } : row)],
+      ['authority', findings.map(row => matches(row) ? { ...row, grandfathered: false } : row)],
+    ]) {
+      requireEqual(directStoryReferenceExerciseErrors(changed).length > 0, true,
+        `exact story-reference ${label} refusal for ${allow.role}`, failures);
+    }
+  }
+  requireEqual(directStoryReferenceExerciseErrors(findings, [...DIRECT_STORY_REFERENCE_ALLOWLIST,
+    { role: 'proof-or-stop-product-reviewer', classification: 'read-only-reference',
+      excerpt: '- If available, `docs/story/actives/<storyId>/evidence/live-smoke-transcript.json`' }]).length > 0,
+    true, 'stale story-reference allow entry refused', failures);
+  requireEqual(directStoryReferenceExerciseErrors(findings,
+    [...DIRECT_STORY_REFERENCE_ALLOWLIST, DIRECT_STORY_REFERENCE_ALLOWLIST[0]]).length > 0,
+    true, 'duplicate story-reference allow entry refused', failures);
+}
+
+function directStoryReferenceExerciseErrors(findings, allowlist = DIRECT_STORY_REFERENCE_ALLOWLIST) {
+  const errors = [], seen = new Set();
+  for (const allow of allowlist) {
+    const role = canonicalPromptRoleId(allow.role), key = JSON.stringify([role, allow.excerpt]);
+    if (seen.has(key)) errors.push(`duplicate exact story-reference allow entry for ${allow.role}`);
+    seen.add(key);
+    const matches = findings.filter(finding => finding
+      && canonicalPromptRoleId(finding.role) === role && finding.excerpt === allow.excerpt
+      && finding.classification === allow.classification && finding.grandfathered === true);
+    if (matches.length !== 1) {
+      errors.push(`exact story-reference allow entry must match exactly once for ${allow.role}: matched ${matches.length}`);
+    }
+  }
+  return errors;
 }
 
 function verifyLegacyVocabularyPolicyProbes(failures) {
@@ -3649,6 +3651,7 @@ async function verifyBaseline() {
   console.log('PASS proof-or-stop prompt baseline: legacy vocabulary findings classified');
   console.log('INFO proof-or-stop prompt baseline: legacy occurrence scanner diagnostics audited inside manifest-approved prompt bodies');
   console.log('PASS proof-or-stop prompt baseline: direct story-file findings classified');
+  console.log(`PASS proof-or-stop prompt baseline: ${DIRECT_STORY_REFERENCE_ALLOWLIST.length} exact references exercised once; missing, duplicate, altered, and stale entries rejected`);
   console.log(`INFO proof-or-stop prompt baseline: story-reference scanner diagnostics audit ${DIRECT_STORY_REFERENCE_ALLOWLIST.length} exact references inside manifest-approved prompt bodies`);
   console.log('PASS proof-or-stop prompt baseline: direct story-write diagnostics allow no active StoryStore writes');
   console.log('PASS proof-or-stop prompt baseline: story-init source, Claude mirror, Codex mirror, and assembled prompt are CLI-only');
