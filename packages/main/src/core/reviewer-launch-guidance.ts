@@ -14,6 +14,31 @@ export function renderQualifiedManagedCodexDispatchCommand(storyId: string, agen
   })}'`;
 }
 
+export function formalManagedReviewSubmissionArgs(storyId: string, agentType: string): {
+  grok: Record<string, unknown>;
+  codex: Record<string, unknown>;
+} {
+  const common = {
+    storyId,
+    agentType,
+    reviewRunId: '<reviewRunId returned by review_run_start>',
+    lane: agentType,
+    managedReview: true,
+    detach: true,
+    json: true,
+  };
+  const codexSelection = QUALIFIED_MANAGED_REVIEWER_DEFAULTS.codex;
+  return {
+    grok: { host: 'grok', ...common },
+    codex: {
+      host: 'codex',
+      model: codexSelection.model,
+      reasoningEffort: codexSelection.reasoningEffort,
+      ...common,
+    },
+  };
+}
+
 /**
  * Render the controller-owned fallback for REVIEW lanes when the host cannot
  * provide a native broker-attested reviewer. REVIEW is deliberately excluded
@@ -23,19 +48,13 @@ export function renderQualifiedManagedCodexDispatchCommand(storyId: string, agen
 export function renderFormalManagedReviewLaunch(storyId: string, agentType: string): string {
   const route = `proof-or-stop candidate_spec_route '${JSON.stringify({ storyId })}'`;
   const start = `proof-or-stop review_run_start '${JSON.stringify({ storyId, agent: agentType })}'`;
-  const submit = `proof-or-stop host_run '${JSON.stringify({
-    host: '<qualified-review-host>',
-    storyId,
-    agentType,
-    reviewRunId: '<reviewRunId returned by review_run_start>',
-    lane: agentType,
-    managedReview: true,
-    detach: true,
-    json: true,
-  })}'`;
+  const submissions = formalManagedReviewSubmissionArgs(storyId, agentType);
+  const grokSubmit = `proof-or-stop host_run '${JSON.stringify(submissions.grok)}'`;
+  const codexSubmit = `proof-or-stop host_run '${JSON.stringify(submissions.codex)}'`;
   return `If no native broker-backed reviewer is available, use the formal managed-review flow: ` +
-    `(1) ${route}; (2) ${start}; (3) ${submit}. Replace <qualified-review-host> with a configured ` +
-    `formal reviewer host and follow that host's model-selection policy. Poll the returned runId with ` +
+    `(1) ${route}; (2) ${start}; (3) choose exactly one configured formal reviewer command and replace only ` +
+    `<reviewRunId returned by review_run_start>: Grok ${grokSubmit}; qualified Codex ${codexSubmit}. ` +
+    `Poll the returned runId with ` +
     `host_run_status, then import its terminal receipt with managed_review_evidence_import.`;
 }
 

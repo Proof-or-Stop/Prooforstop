@@ -14,6 +14,7 @@ const {
   resolveQualifiedManagedReviewerSelection,
 } = await import('../dist/core/host-run.js');
 const { runManagedHostRunWorker } = await import('../dist/core/managed-host-run.js');
+const { formalManagedReviewSubmissionArgs, renderFormalManagedReviewLaunch } = await import('../dist/core/reviewer-launch-guidance.js');
 const { invalidInitReviewerDeliveries, missingRequiredInitCheckAgents, recomputeInitCheckHash } = await import('../dist/core/init-check-gate.js');
 
 const root = mkdtempSync(join(tmpdir(), 'managed-init-dispatch-e2e-'));
@@ -96,6 +97,20 @@ try {
   const qualificationHandlers = createHostRunHandlers({ root, scanRoot: root, store }, {
     launchWorker: async () => ({ pid: process.pid }),
   });
+  const formalSubmissions = formalManagedReviewSubmissionArgs(storyId, 'proof-or-stop-review-concept');
+  assert.deepEqual(formalSubmissions.grok, {
+    host: 'grok', storyId, agentType: 'proof-or-stop-review-concept',
+    reviewRunId: '<reviewRunId returned by review_run_start>', lane: 'proof-or-stop-review-concept',
+    managedReview: true, detach: true, json: true,
+  }, 'Grok recovery must be a schema-valid managedReview payload without caller-owned selectors');
+  assert.deepEqual(formalSubmissions.codex, {
+    host: 'codex', model: 'gpt-5.6-sol', reasoningEffort: 'high', storyId,
+    agentType: 'proof-or-stop-review-concept', reviewRunId: '<reviewRunId returned by review_run_start>',
+    lane: 'proof-or-stop-review-concept', managedReview: true, detach: true, json: true,
+  }, 'Codex recovery must carry the qualified default selectors and exact ReviewRun binding fields');
+  const renderedFormalLaunch = renderFormalManagedReviewLaunch(storyId, 'proof-or-stop-review-concept');
+  assert.match(renderedFormalLaunch, new RegExp(JSON.stringify(formalSubmissions.grok).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  assert.match(renderedFormalLaunch, new RegExp(JSON.stringify(formalSubmissions.codex).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   await assert.rejects(
     qualificationHandlers.host_run({
       host: 'codex', model: 'deepseek-v4.1-flash', reasoningEffort: 'high', storyId,
