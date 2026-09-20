@@ -94,6 +94,8 @@ try {
   git('commit', '-qm', 'fixture');
 
   const fakeCodex = join(bin, 'codex');
+  // Every generated provider script below asserts the controller-stamped role
+  // before invoking the CLI, so an outer test-runner identity cannot mask it.
   const detachedChecklist = join(root, 'detached-checklist.cjs');
   writeFileSync(detachedChecklist, `const { spawnSync } = require('node:child_process');
 const env = { ...process.env };
