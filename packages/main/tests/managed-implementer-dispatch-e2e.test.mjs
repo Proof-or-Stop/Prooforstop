@@ -129,6 +129,22 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
     },
   });
 
+  await assert.rejects(
+    handlers.host_run({
+      host: 'codex', agentType: 'ad-hoc-worker', itemId, prompt: 'Do bounded work.', json: true,
+    }),
+    /--itemId is valid only with --managedDispatch and agentType=proof-or-stop-implementer/,
+    'unmanaged runs must reject an implementer-only target at the host_run boundary',
+  );
+  await assert.rejects(
+    handlers.host_run({
+      host: 'codex', agentType: 'proof-or-stop-review-quality', storyId, itemId,
+      reviewRunId: `${storyId}:quality:1`, lane: 'proof-or-stop-review-quality', managedReview: true, json: true,
+    }),
+    /--itemId is valid only with --managedDispatch and agentType=proof-or-stop-implementer/,
+    'managed reviewers must reject an implementer-only target before review binding resolution',
+  );
+
   let result;
   let checklistSealLockObserved = false;
   managedDispatchValidationHook = () => {

@@ -425,6 +425,11 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
       if (args.managedReview === true && args.managedDispatch === true) {
         throw new Error('host_run: --managedReview and --managedDispatch are mutually exclusive');
       }
+      if (itemId && !(args.managedDispatch === true && agentType === 'proof-or-stop-implementer')) {
+        throw new Error(
+          'host_run: --itemId is valid only with --managedDispatch and agentType=proof-or-stop-implementer',
+        );
+      }
       if (args.managedReview === true
         || (args.managedDispatch === true && agentType !== 'proof-or-stop-implementer')) {
         selection = resolveQualifiedManagedReviewerSelection({ host, ...selection });
@@ -557,7 +562,9 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           model: selection.model,
           reasoningEffort: selection.reasoningEffort,
           storyId,
-          ...(itemId ? { managedDispatchTarget: { itemId } } : {}),
+          ...(managedDispatch && agentType === 'proof-or-stop-implementer' && itemId
+            ? { managedDispatchTarget: { itemId } }
+            : {}),
           agentType,
           phase,
           promptText,
