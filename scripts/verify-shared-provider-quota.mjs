@@ -67,6 +67,7 @@ try{
       details.managedState=state.run.state;details.managedTerminal=state.run.terminal;
     }else if(scenario==='planned-after-host')details.plan=await planned(1);
     else if(scenario==='repair-after-host'){
+      try {
       const {runClaudeRepair}=await mod('packages/main/src/core/autopilot-executor.ts');
       const r=runClaudeRepair(root,{},req=>{total++;otherCalls++;return{exitCode:0,stdout:'fixture repair completed',stderr:''};},{id:'step-1',title:'fixture',command:'verify',kind:'command',reason:'fixture'},
         {executable:'node',args:['verify.mjs'],cwd:root,timeoutMS:1000},{exitCode:1,stdout:'',stderr:'fixture failure'},
