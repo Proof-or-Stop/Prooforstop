@@ -30,6 +30,8 @@ function git(...args) {
 }
 
 try {
+  // These assertions pin the same post-command-schema object consumed by both
+  // the owner gate and checklist handler; neither layer receives a wider view.
   assert.equal(isManagedImplementerCompletionPayload({ storyId, itemId, status: 'done' }, storyId, itemId), true,
     'the exact managed completion payload must qualify');
   assert.equal(isManagedImplementerCompletionPayload({ storyId, itemId, status: 'done', takeover: false }, storyId, itemId), false,
