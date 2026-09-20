@@ -113,6 +113,20 @@ if (process.argv[3] === 'assert-pending') {
   if (target.status !== 'pending') throw new Error('failed bound-result append must leave the managed item pending');
   process.exit(0);
 }
+if (process.argv[3] === 'assert-pending-unconsumed') {
+  if (target.status !== 'pending') throw new Error('a refused in_progress update must leave the managed item pending');
+  if (store.readProcessEvents(process.argv[2]).some(event => event.type === 'subagent_result' && event.managedDispatchRunId)) {
+    throw new Error('a refused in_progress update must not create bound completion evidence');
+  }
+  process.exit(0);
+}
+if (process.argv[3] === 'assert-in-progress-unconsumed') {
+  if (target.status !== 'in_progress') throw new Error('the owner must be able to mark the managed item in progress');
+  if (store.readProcessEvents(process.argv[2]).some(event => event.type === 'subagent_result' && event.managedDispatchRunId)) {
+    throw new Error('an owner in_progress update must not create managed completion evidence');
+  }
+  process.exit(0);
+}
 if (process.argv[3] === 'reset') { target.status = 'pending'; other.status = 'in_progress'; }
 else target.status = 'done';
 store.writeChecklist(process.argv[2], checklist);
@@ -240,7 +254,11 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
     },
     {
       name: 'in-progress-then-done', expectedStatus: 'done', expectCompleted: true,
-      commands: `if "${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"in_progress"}'; then exit 90; fi\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
+      commands: `refusal_status=0\nrefusal=$("${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"in_progress"}' 2>&1) || refusal_status=$?\ntest "$refusal_status" -ne 0\nprintf '%s' "$refusal" | grep -q managed_implementer_done_only\n"${process.execPath}" "${mutateChecklist}" "__STORY__" assert-pending-unconsumed\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
+    },
+    {
+      name: 'owner-in-progress-then-managed-done', expectedStatus: 'done', expectCompleted: true,
+      commands: `env -u LATTICE_MANAGED_INIT_INVOCATION -u PROOF_OR_STOP_AGENT PROOF_OR_STOP_SESSION_ID=managed-implementer-owner "${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"in_progress"}'\n"${process.execPath}" "${mutateChecklist}" "__STORY__" assert-in-progress-unconsumed\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
     {
       name: 'metadata-mutation', expectedStatus: 'pending',

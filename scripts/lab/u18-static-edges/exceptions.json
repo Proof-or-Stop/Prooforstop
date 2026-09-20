@@ -44,7 +44,7 @@
         "packages/main/src/core/version-bump.ts": "60fa22f71e6fafc6e00bc8a5063c392d49283c6d09d09ee6de293bafdc39825e",
         "scripts/lab-audit-fixture-provider.mjs": "77c4d40a9a41c2a5151909e461b8ee9fdaaf08c4a76b3a8848414e4bea9095c1",
         "scripts/lab-fixture-sources.mjs": "d110af54f4a7e6496b6b3b1ca0ba36089cf1bb27faf32ddcf4705ff882071c10",
-        "scripts/lab-version-source-evidence.mjs": "ec61ec5b73b29cbe2593fb84a01ef7bc00775a69214dd87608931747c15608bd",
+        "scripts/lab-version-source-evidence.mjs": "a575de5716b5262cbe2d6de45aefe76cd4a09f3f48005e7cd2258a7188826794",
         "scripts/lab-worktree.mjs": "60236c3bf36307af9b71bbcf50b227322330cdda8c537621fc649ea87b73d4c2",
         "scripts/static-source-evidence.mjs": "18e24dbb33327dc1b9ac862018b98c02613e797ccbb05f985e7b1829582db86f",
         "scripts/verify-lab-worktree.mjs": "b75538b66b280f6e8e1c88670fed0c71a90b20d9189b59c77bd69d46c0ab03ef"
@@ -81,7 +81,7 @@
         "packages/main/src/core/version-bump.ts": "60fa22f71e6fafc6e00bc8a5063c392d49283c6d09d09ee6de293bafdc39825e",
         "scripts/lab-audit-fixture-provider.mjs": "77c4d40a9a41c2a5151909e461b8ee9fdaaf08c4a76b3a8848414e4bea9095c1",
         "scripts/lab-fixture-sources.mjs": "d110af54f4a7e6496b6b3b1ca0ba36089cf1bb27faf32ddcf4705ff882071c10",
-        "scripts/lab-version-source-evidence.mjs": "ec61ec5b73b29cbe2593fb84a01ef7bc00775a69214dd87608931747c15608bd",
+        "scripts/lab-version-source-evidence.mjs": "a575de5716b5262cbe2d6de45aefe76cd4a09f3f48005e7cd2258a7188826794",
         "scripts/lab-worktree.mjs": "60236c3bf36307af9b71bbcf50b227322330cdda8c537621fc649ea87b73d4c2",
         "scripts/static-source-evidence.mjs": "18e24dbb33327dc1b9ac862018b98c02613e797ccbb05f985e7b1829582db86f",
         "scripts/verify-lab-worktree.mjs": "b75538b66b280f6e8e1c88670fed0c71a90b20d9189b59c77bd69d46c0ab03ef"
@@ -14282,7 +14282,7 @@
         "experiments/acceptance-closure/publication-snapshot.mjs": "97510ff4fa804fa8c2ec94a8daa6200bfb0f49ba7ea9ac08b42bae8164b59347",
         "experiments/acceptance-closure/regression.mjs": "b5e531befc1318eca7a44cda2d234b5b32dae3ed66148aeb628e4465a4bfd50c",
         "packages/main/src/cli-engine.ts": "b2fee2c9dd6887742ec306ce79eb78f3a4718e77d1d91c355a8c9d2f43afaf62",
-        "packages/main/src/cli/ownership-gate.ts": "25d4f925f31adee6d31f132f6e3e5e53b8c71e280c01cffb0c5569eaf4b2da1c",
+        "packages/main/src/cli/ownership-gate.ts": "ac43a8a78a96d255870380e47cd4f079497805f186b4506c332c623f80a6469f",
         "packages/main/src/cli/story-runtime-admission.ts": "f3e88a1d606d73492b30e19da4862246fd5307090261f945f0c7b79e92336e90",
         "packages/main/src/core/acceptance-amendment.ts": "e8d09dfc5c51021ee9de47ff6c58ba514b2e6dd4e115fb1557ed820e921991be",
         "packages/main/src/core/auto-commit-metadata.ts": "489a89682db39b08b5df375ef622c2530caf96f1d51744dfb7106168f400a81f",
@@ -14375,7 +14375,7 @@
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f",
-        "packages/main/src/core/process-fact-registry.ts": "71a455624935a611a5fa0162e3f9fe69b84f5d26eefb519ab376b8e6cae26062",
+        "packages/main/src/core/process-fact-registry.ts": "07f23e01a0c574ddfaa81e74f65c026944c51580cbe4218fa993a3f7d9960160",
         "scripts/verify-process-fact-contract.mjs": "b7936330c25f630266af9c913f125d44d0312d4267e460ae9f0d33b4018b7fd4",
         "scripts/verify-changelog-compaction.mjs": "e9c3a1553295724ee853a84d4de60a18d76b491d1c1b08fe2a60c0533dadf677",
         "packages/main/src/core/runtime-artifact-registry.ts": "6a542cff9bab41b6855c7d26e025030fc832b70a9142d9d60ee7f64db4c8e6ef",
@@ -14427,7 +14427,7 @@
         "packages/main/src/core/reviewer-batch-subject.ts": "b50f4c61ef9dd6726c3195cc4a551a0ee1c609b3f2c31311aa7258245699613e",
         "packages/main/src/core/review-inventory-epoch.ts": "613ef82656e7d81acf513c0ac5f1debfff8862821fdf15abe84bcb9095bddce5",
         "packages/main/src/core/review-run.ts": "0dbb0eca9363218afc1ae0d7fb82540e804158e3cdccbcbcf4b16861fa2cfa29",
-        "packages/main/src/core/process-fact-registry.ts": "71a455624935a611a5fa0162e3f9fe69b84f5d26eefb519ab376b8e6cae26062"
+        "packages/main/src/core/process-fact-registry.ts": "07f23e01a0c574ddfaa81e74f65c026944c51580cbe4218fa993a3f7d9960160"
       },
       "invocations": [
         {
@@ -14459,7 +14459,7 @@
         "Bounded static source/dependency review proposal. This record is not a native execution receipt, formal Story PASS, operational qualification, or permission to suppress unrelated scanner errors."
       ],
       "dependencyDigests": {
-        "packages/main/src/core/process-fact-registry.ts": "71a455624935a611a5fa0162e3f9fe69b84f5d26eefb519ab376b8e6cae26062",
+        "packages/main/src/core/process-fact-registry.ts": "07f23e01a0c574ddfaa81e74f65c026944c51580cbe4218fa993a3f7d9960160",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
         "scripts/verify-process-fact-contract.mjs": "b7936330c25f630266af9c913f125d44d0312d4267e460ae9f0d33b4018b7fd4",
         "scripts/verify-process-runtime-admission-order.mjs": "9599413ddf59306fc3d921d5e064ea06685e954db8ff8c9e8345a6753b57f416"

@@ -915,6 +915,11 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push(`- If the host cannot return a native child identity, the controller must launch this exact Story/item through host_run with agentType=proof-or-stop-implementer, managedDispatch=true, storyId=${args.storyId}, and itemId=${args.itemId}; then monitor the returned runId.`);
       lines.push('- A successful managed run is terminal only after the item is done and its subagent_result is receipt-bound to that exact run.');
       lines.push('');
+      lines.push('Managed implementation status contract:');
+      lines.push('- The Story owner/controller owns the start transition. Do not call checklist_update with status=in_progress; begin the assigned implementation directly.');
+      lines.push(`- After the implementation is committed, call only: proof-or-stop checklist_update '{"storyId":"${args.storyId}","itemId":"${args.itemId}","status":"done"}'`);
+      lines.push('- An owner-gate refusal of an accidental in_progress call does not consume the item-bound completion capability. Continue the implementation and use the exact done call after commit.');
+      lines.push('');
       // B-9d95 CHK-001: inject worktree absolute path. Root cause retrospective (B-ed3e F-001): subagent inherits parent process cwd
       // which does not necessarily land in the worktree (especially cross-repo scenarios), causing reviewer/handler to read docs/story/... in the main repo cwd
       // failing to see the worktree copy and producing false reports. ctx.root is already bound to the worktree root at MCP handler initialization,

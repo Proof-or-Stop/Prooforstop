@@ -15,7 +15,7 @@ import { getCommandPolicy, isOwnershipClass, type OwnershipClass } from '../core
 import { PROOF_OR_STOP_DIR } from '../core/proof-or-stop-paths.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import type { ProofOrStopConfig } from '../core/config.js';
-import { isManagedImplementerCompletionPayload, managedHostRunStoryIdForOwnership, resolveManagedImplementerCompletionInvocation } from '../core/managed-host-run.js';
+import { isManagedImplementerCompletionPayload, managedHostRunStoryIdForOwnership, resolveManagedDispatchInvocation, resolveManagedImplementerCompletionInvocation } from '../core/managed-host-run.js';
 import { readBrandEnv } from '../core/brand-env.js';
 import { resolveRegisteredAgentActor } from '../core/agent-dispatch-registry.js';
 import { agentRoleIdsEqual } from '../core/agent-role-identity.js';
@@ -452,6 +452,33 @@ function admitsManagedImplementerCompletion(
   }) !== undefined;
 }
 
+function managedImplementerDoneOnlyHint(
+  cmd: string,
+  args: Record<string, unknown>,
+  projectRoot: string,
+  storyId: string,
+): string | null {
+  if (cmd !== 'checklist_update'
+    || args.status !== 'in_progress'
+    || typeof args.itemId !== 'string'
+    || !args.itemId.trim()) return null;
+  const actor = readBrandEnv('AGENT')?.trim();
+  if (!actor || !agentRoleIdsEqual(actor, 'proof-or-stop-implementer')) return null;
+  const runId = resolveManagedDispatchInvocation({
+    root: projectRoot,
+    storyId,
+    agentType: 'proof-or-stop-implementer',
+    itemId: args.itemId,
+    optionalWhenAbsent: true,
+    consume: false,
+  });
+  return runId
+    ? `Managed implementer run ${runId} is item-bound and permits only the exact final checklist_update status=done after commit. `
+      + 'The Story owner/controller owns status=in_progress. This refusal did not consume the completion capability; continue the assigned work and retry the exact done call after commit. '
+      + '[managed_implementer_done_only]'
+    : null;
+}
+
 export function enforceStoryOwnerLeaseGate(
   cmd: string,
   args: Record<string, unknown>,
@@ -510,6 +537,13 @@ export function enforceStoryOwnerLeaseGate(
   // The one-shot boundary is persistence plus consumption, not this probe, so
   // a failed write remains retryable by the same managed run.
   if (admitsManagedImplementerCompletion(cmd, args, projectRoot, storyId)) return;
+  // Refuse an accidental worker-side in_progress before owner-lease mutation.
+  // This is intentionally capability-specific rather than the generic foreign
+  // owner path: even a provider that inherited the owner's session id must not
+  // turn its one-shot completion authority into general checklist authority.
+  // The probe is read-only, so the exact final done call remains redeemable.
+  const doneOnlyHint = managedImplementerDoneOnlyHint(cmd, args, projectRoot, storyId);
+  if (doneOnlyHint) throw new Error(doneOnlyHint);
 
   if (options?.readOnlyAdmission) {
     const lease = readOwnerLease(storyDir);
