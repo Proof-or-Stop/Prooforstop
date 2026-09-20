@@ -634,6 +634,8 @@ try {
   try {
     assert.throws(() => checklistHandlers.checklist_update({
       storyId, itemId: 'CHK-001',
+      // Keep the fixture valid under the current verification-intent schema so
+      // this assertion reaches the retired-actor authority boundary it tests.
       verificationIntent: { happy: [{ desc: 'retired actor must not persist', type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }], edge: [], adversarial: [] },
       agent: 'verification-intent',
     }), /agent_dispatch_actor_unknown/);
@@ -891,11 +893,18 @@ try {
                 ? { clusterId: 'CL-001' }
                 : {};
           const expectedPromptBuilder = resolveAgentDispatchPromptBuilder(entry, identifierKind ?? undefined);
-          const prompt = handlers.dispatch({ storyId, agentType, ...target }).prompt;
+          const dispatchResult = handlers.dispatch({ storyId, agentType, ...target });
+          const prompt = dispatchResult.prompt;
           const label = `${agentType}/${identifierKind || 'story'}/${phase}`;
           assert.match(prompt, promptPatterns[expectedPromptBuilder], `${label} must render ${expectedPromptBuilder}`);
           assertCanonicalLivenessGuidance(prompt, label);
           if (expectedPromptBuilder === 'finding-repair') {
+            assert.deepEqual(dispatchResult.nativeLaunchContract, {
+              dispatchState: 'prompt-prepared',
+              hostTaskRequired: true,
+              waitTarget: 'nonempty-task-identity',
+              missingWorkerDisposition: 'keep-finding-open',
+            }, 'finding repair dispatch must expose a machine-readable native launch prerequisite');
             assert.match(prompt, /Controller launch contract \(the repair worker does not perform this step\)/,
               'FINDING_REPAIR_CONTROLLER_LAUNCH_REQUIRED');
             assert.match(prompt, /dispatch prepares the canonical prompt only; it does not start a host task/i,

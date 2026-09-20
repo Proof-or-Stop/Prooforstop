@@ -78,6 +78,19 @@ import {
 // B-45ed CHK-008: agent-type → background injection strategy mapping table
 // Source: CLAUDE.md "background.md tiered injection (subagent)" subsection
 type BackgroundPolicy = 'required' | 'advisory' | 'none';
+type NativeLaunchContract = {
+  dispatchState: 'prompt-prepared';
+  hostTaskRequired: true;
+  waitTarget: 'nonempty-task-identity';
+  missingWorkerDisposition: 'keep-finding-open';
+};
+type DispatchResult = { prompt: string; nativeLaunchContract?: NativeLaunchContract };
+const FINDING_REPAIR_NATIVE_LAUNCH_CONTRACT: NativeLaunchContract = Object.freeze({
+  dispatchState: 'prompt-prepared',
+  hostTaskRequired: true,
+  waitTarget: 'nonempty-task-identity',
+  missingWorkerDisposition: 'keep-finding-open',
+});
 const AGENT_BG_POLICY: Record<string, BackgroundPolicy> = {
   'proof-or-stop-implementer': 'required',
   'proof-or-stop-review-scope-plan': 'required',
@@ -714,7 +727,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     storyId: string;
     findingId: string;
     agentType?: string;
-  }): { prompt: string } {
+  }): DispatchResult {
       if (!args.storyId) throw new Error('storyId is required');
       if (!args.findingId) throw new Error('findingId is required');
 
@@ -798,7 +811,13 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push('- Return the commit SHA, focused verification output, and repair summary to the Story owner/controller. The repair worker must not call finding_resolve.');
       lines.push(`- The Story owner/controller verifies the repair and then runs: proof-or-stop finding_resolve '{"storyId":"${args.storyId}","findingId":"${finding.id}","resolution":"<verified repair description>"}'`);
 
-      return { prompt: lines.join('\n') };
+      return {
+        prompt: lines.join('\n'),
+        // Proof-or-Stop cannot invoke or intercept the host's native task/wait API.
+        // This structured result lets host controllers enforce the same boundary
+        // without parsing prose; the prompt remains the contract for LLM controllers.
+        nativeLaunchContract: FINDING_REPAIR_NATIVE_LAUNCH_CONTRACT,
+      };
   }
 
   function buildItemPrompt(args: {
@@ -996,7 +1015,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
      * and role. Validation completes before any prompt builder is selected.
      *
      * Mutual exclusion validation: exactly one of the three must be provided; more / fewer both throw Error.
-     * Returns: { prompt: string } — byte-identical to the old entry (clusterId branch reuses cluster.ts text).
+     * Returns: { prompt: string, nativeLaunchContract?: object }. Finding repair
+     * exposes the host-owned launch prerequisite as structured data; other prompt
+     * bytes remain unchanged (the clusterId branch reuses cluster.ts text).
      */
     dispatch(args: {
       storyId: string;
@@ -1006,7 +1027,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       agentType?: string;
       reviewPurpose?: 'topology' | 'inventory-completeness';
       inventoryEpochId?: string;
-    }): { prompt: string } {
+    }): DispatchResult {
       if (!args.storyId) throw new Error('storyId is required');
       let story;
       try {
