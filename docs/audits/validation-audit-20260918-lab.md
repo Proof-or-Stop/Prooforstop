@@ -25,7 +25,7 @@ See [the performance contract](../lab/validation-original-budget-performance.md)
 
 The final closeout command now includes the exact registered #148 invocation,
 `node packages/main/tests/canonical-new-story-artifacts.test.mjs --group=identity-cutover`,
-after the existing runtime, capacity, source-binding and six performance checks.
+alongside the existing runtime, capacity, source-binding and six performance checks.
 Its successful transcript must include the full identity-cutover selector,
 identity-sites and runtime group selectors, the exact frozen-boundary scan, and
 the packed clean-install boundary. The identity-cutover group includes all tests
@@ -43,6 +43,15 @@ checkpoint below is historical; fresh full identity success is required before
 this candidate can finish. Coordination regression invocations now obtain a new
 20-second deadline each, while the intentional one-second live-holder deadline
 remains unchanged. Actual-source clock advancement and every call site are checked.
+
+The current complete #148 RED exposed an outdated exact config-reference count:
+the integrated production-budget regression adds the fourteenth reference.
+The identity inventory now accounts for that reviewed registration, the existing
+CLI argument-compatibility process-fact registration (32 imported uses), and the
+single imported-result use changed by full runtime stdout forwarding. Context
+hashes bind those exact AST differences; added-use and same-count movement
+negative controls remain required. Focused identity-sites and source-binding
+checks passed after the repair; complete current-candidate GREEN is still required.
 
 ### Historical 180-second performance checkpoints
 

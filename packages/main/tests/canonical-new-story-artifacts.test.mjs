@@ -2587,9 +2587,9 @@ const PROJECT_CONFIG_IDENTITY_CASES = [
 // Exact non-protocol classifications are obligations, never file exemptions.
 // Active role/path references are not relabeled as inert protocol history.
 const OWNED_NON_PROTOCOL_IDENTITY_CONTEXTS = [
-  { sourcePath: 'proof-or-stop.config.json', canonical: 'proof-or-stop.config.json', occurrences: 13,
-    contextSha256: 'b069aeffc954e08bcf57cea9a89b33738dc193f25494041081d00f91e5e271d6',
-    kind: 'scope-source-path', reason: 'Thirteen exact scope and validation source references name the config file; these are not prompt schema or role values.',
+  { sourcePath: 'proof-or-stop.config.json', canonical: 'proof-or-stop.config.json', occurrences: 14,
+    contextSha256: 'e016954e5d457ab0d561bc0bafe2fc8096c4fcc39ea99ea74a34165bd58e5cb6',
+    kind: 'scope-source-path', reason: 'Fourteen exact scope and validation source references, including the registered production-budget regression resource, name the config file; these are not prompt schema or role values.',
     proof: 'node scripts/verify-root-scope-budget-policy.mjs' },
   {"sourcePath": "packages/main/src/core/process-fact-registry.ts", "canonical": "proof-or-stop.config.json", "occurrences": 1, "contextSha256": "d76aa4750daa0a3bd2e672550d9704eb42847abd42415fae9a20f8fe301b6eb1", "kind": "registry-source-path", "reason": "Exact P0m source inventory path; not a parser, protocol producer, or compatibility reader.", "proof": "node packages/main/tests/red/red-repro-first-p0m-component-mapping.mjs"},
   {"sourcePath":"proof-or-stop.config.json","canonical":"proof-or-stop-experience-layer-v1.1-zh.md","occurrences":1,"contextSha256":"a0430b5c5f5727862f4f3c486638fdda0d0dd464c26f80a09fafe6c6acded30c","kind":"scope-governance-document-path","reason":"Exact responsibility-domain source path names the existing experience-layer design document; not an executable protocol identity or compatibility reader.","proof":"node scripts/verify-root-scope-budget-policy.mjs"},
@@ -2950,7 +2950,7 @@ const OWNED_IDENTITY_SITE_CONTEXTS = [
   ["proof-or-stop.config.json","proof-or-stop-review-story-init",1,"5ea47c68b9182e7ab115b79cb802b35ec1afd5ceba48f34d83f71e7fcf6524a3"],
   ["proof-or-stop.config.json","proof-or-stop-review-test-coverage",1,"32564b076fb47134fc47aee191af578c83a565f5fc5e9c77047302b669d7889c"],
   ["proof-or-stop.config.json","proof-or-stop-review-topology-critic",1,"6d9565bbb95a41a02dff2e93bbcc7f493ff87ce5958d656f1c534e0fc8529099"],
-  ["proof-or-stop.config.json", "proof-or-stop.config.json", 13, "b069aeffc954e08bcf57cea9a89b33738dc193f25494041081d00f91e5e271d6"],
+  ["proof-or-stop.config.json", "proof-or-stop.config.json", 14, "e016954e5d457ab0d561bc0bafe2fc8096c4fcc39ea99ea74a34165bd58e5cb6"],
   ["proof-or-stop.config.json","proof-or-stop.prompt-envelope-rollout.v1",1,"3dd20408fa21226f6db5e926c57851e63443785775af0f734591ee2c6384f503"],
 ].map(([sourcePath, canonical, occurrences, contextSha256]) => ({ sourcePath, canonical, occurrences, contextSha256 }));
 
@@ -3111,7 +3111,7 @@ const OWNED_IMPORT_USE_CONTEXTS = [
     "occurrences": 377,
     "contextSha256": "3f79c6ccaf1d5bbca3bbbe8a19b48db43926794b35a6b852e5748c94e04945cf"
   },
-  {"sourcePath": "packages/main/src/core/process-fact-registry.ts", "occurrences": 31, "contextSha256": "ee2109955f52867db0aa6bde0c52acfad35c8d22afd324e5662693c89a122cca"},
+  {"sourcePath": "packages/main/src/core/process-fact-registry.ts", "occurrences": 32, "contextSha256": "bda76d115a3c7032cf406769ad1895976162ba85aaa4f8db14dc5ac262524317"},
   {
     "sourcePath": "packages/main/src/core/prompt-budget.ts",
     "occurrences": 4,
@@ -3173,7 +3173,7 @@ const OWNED_IMPORT_USE_CONTEXTS = [
     "contextSha256": "ccd4fe3e8ae44b0b260c36ee4ed2c71d095e98d904df2d200655aa1360d91fea"
   },
   {"sourcePath": "packages/main/src/cli-init.ts", "occurrences": 521, "contextSha256": "d10e5c27a6c8083295649d2ec4c932763b26c71f3d3595e2254b4338aedd3de6"},
-  {"sourcePath":"scripts/verify-proof-or-stop-identity-cutover.mjs","occurrences":576,"contextSha256":"cbceb5683962fa377ea0ca1a14168f593692bc20e1a35f387d84fbcf7a545aca"}
+  {"sourcePath":"scripts/verify-proof-or-stop-identity-cutover.mjs","occurrences":576,"contextSha256":"25c99e77fb20fb22c27ded01735e5face80ac986480ce1405fb16c99fd12cc4f"}
 ];
 
 function assertOwnedImportUseIntegrity(sourceMap, pins = OWNED_IMPORT_USE_CONTEXTS) {
