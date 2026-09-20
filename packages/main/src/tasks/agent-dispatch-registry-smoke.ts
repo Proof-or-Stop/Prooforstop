@@ -919,6 +919,9 @@ try {
               'finding repair must hand resolution closure back to the owner');
             assert.doesNotMatch(prompt, /^-\s+proof-or-stop finding_resolve\b/m,
               'finding repair prompt must not restore the removed worker-facing resolution command');
+          } else {
+            assert.equal(dispatchResult.nativeLaunchContract, undefined,
+              `${label} must not inherit the finding-repair-only native launch contract`);
           }
           if (!entry.commitAllowed) assert.doesNotMatch(prompt, /git commit --author=/, `${label} must not receive commit instructions`);
           if (entry.roleClass === 'verification-intent') assert.doesNotMatch(prompt, /status["': ]+done/i, `${label} must not complete an item`);
