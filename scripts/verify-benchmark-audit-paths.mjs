@@ -62,6 +62,7 @@ await test('settlement failure preserves provider result and blocks later corrup
   assert.equal(result.stdout, stdout); assert.equal(result.exitCode, 7);
   assert.equal(result.usageSummary.recorded, 'provider-reported');
   assert.match(result.budgetSettlementError, /budget_settlement_failed/);
+  assert.match(result.budgetSettlementError, /JSON|Unexpected token/, 'Settlement diagnostic must retain its specific cause');
   await assert.rejects(runHostRun(args(root), { runner: async () => { launches++; return runner(); } }));
   assert.equal(launches, 1);
 });
@@ -78,6 +79,17 @@ for (const [name, overrides, deps] of [
   assert.equal(launches, 0);
   assert.deepEqual(JSON.parse(readFileSync(budgetFile(root), 'utf8')).rows, []);
   assert.equal((await runHostRun(args(root), { runner })).exitCode, 0);
+});
+await test('failed settlement diagnoses its cause without replacing a frozen transport error', async root => {
+  const original = Object.freeze(new Error('original frozen transport failure'));
+  const diagnostics = []; const write = process.stderr.write;
+  process.stderr.write = chunk => { diagnostics.push(String(chunk)); return true; };
+  try {
+    await assert.rejects(runHostRun(args(root), { runner: async () => {
+      writeFileSync(budgetFile(root), 'corrupt'); throw original;
+    } }), error => error === original);
+  } finally { process.stderr.write = write; }
+  assert.match(diagnostics.join(''), /host_run_budget_settlement_failed:.*(?:JSON|Unexpected token)/);
 });
 await test('corrupt ledger cannot replace original transport exception', async root => {
   const original = new Error('original transport failure');

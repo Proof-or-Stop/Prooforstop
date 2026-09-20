@@ -8,6 +8,7 @@ execFileSync(process.execPath, [fileURLToPath(import.meta.resolve('typescript/bi
 console.log('BENCHMARK_BUILD_AND_TYPECHECK_GREEN');
 // Keep source evidence and every repaired entry boundary in the official Lab replay.
 const scripts = [
+  'scripts/verify-benchmark-registration.mjs',
   'scripts/verify-benchmark-audit-paths.mjs',
   'scripts/verify-static-ast-reuse.mjs',
   'scripts/verify-benchmark-real-entry.mjs',
