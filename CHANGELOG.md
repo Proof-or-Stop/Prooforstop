@@ -1,17 +1,5 @@
 # Changelog
 
-## Lab validation-audit-20260918 - v0.3.431 - 2026-09-20
-
-- Repair validation audit fixtures and public identity coverage; retain the historical RED/GREEN archive and exact negative controls.
-- Restore the real main-baseline inventory guard with two explicit composite deadline amendments; keep production and Lab acceptance at the authorized 260 seconds for targets 16, 69 and 130.
-- Integrate external validation coordination and safely recover provably dead legacy preparation/quarantine residue; preserve live and unknown owners with actionable migration diagnostics.
-- Verify current source bindings, the complete capacity suite, and two complete runs of each of the three 260-second targets through the pinned Lab closeout command. These local maintenance records do not claim Story DONE or a remote release.
-- Details: docs/lab/validation-capacity-full-fixture-repair.md and docs/lab/validation-original-budget-performance.md; retained evidence: .git/lab-evidence-archives/validation-audit-20260918/remaining-performance-20260918/finish/original-closeout/.
-
-Maintenance provenance: codex/lab-validation-audit-20260918, repair 432bcc12a9f014030c38dbf733ff0d921907b56b.
-Verification command (replayed before integration and on main): `["node","/Users/jek/Documents/GitHub/Prooforstop/.git/lab-evidence-archives/validation-audit-20260918/remaining-performance-20260918/finish/original-closeout/verify-closeout.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab benchmark-real-entry-regression - v0.3.430 - 2026-09-20
 
 - Enforce planned-provider attempt and remaining-time allowances before dispatch, preserving retries and post-transport spawn-error attempts.
