@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab managed-implementer-dispatch - v0.3.430 - 2026-09-20
+
+- Add controller-owned managed dispatch for one exact DEV checklist implementer target.
+- Bind successful completion to the managed run, Story, item, consumed invocation, and signed terminal receipt.
+- Refuse empty native wait targets and document the managed fallback for hosts without a child task identity.
+- Roll back checklist completion when bound process-event persistence fails, preserving a safe replacement path.
+- Cover successful delivery, no completion, in-progress-only, wrong-item, and event-write-failure cases.
+
+Maintenance provenance: codex/lab-managed-implementer-dispatch, repair be0abcff6e3af7e6584cec65d72e4a43ec67ddab.
+Verification command (replayed before integration and on main): `["npm","run","test:managed-implementer-dispatch"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab implementation-worker-authority - v0.3.429 - 2026-09-20
 
 - Remove commit-author fallback as normal-channel implementation authority.
