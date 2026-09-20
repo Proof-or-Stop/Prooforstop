@@ -1788,6 +1788,24 @@ COMMAND_PROCESS_FACTS.push({
 });
 
 COMMAND_PROCESS_FACTS.push({
+  name: 'runtime:flow_validation_capability_selection', kind: 'runtime-behavior', level: 'L4',
+  semantics: ['runtime-behavior', 'verification-policy'],
+  paths: ['packages/main/src/tasks/flow-stability-smoke.ts',
+    'packages/main/src/tasks/flow-stability/artifacts.ts',
+    'packages/main/src/tasks/flow-stability/cli.ts',
+    'packages/main/src/tasks/flow-stability/done-convergence.ts',
+    'packages/main/src/tasks/flow-stability/done-reporting.ts',
+    'packages/main/src/tasks/flow-stability/lifecycle.ts',
+    'packages/main/src/tasks/flow-stability/phase-effects.ts',
+    'packages/main/src/tasks/flow-stability/review-evidence.ts',
+    'packages/main/src/tasks/flow-stability/review-routing.ts',
+    'packages/main/src/tasks/flow-stability/support.ts',
+    'packages/main/src/tasks/flow-stability/workspace.ts'],
+  producer: 'flow stability capability CLI', consumerGate: 'explicit verifier invocation only',
+  rationale: 'Default execution preserves all original flow checks and their ordering, including liveness and historical commit compatibility. Legacy canonical-core and diagnostic modes remain available. Capability selections are deduplicated and invalid arguments reject before checks run. Partial runs emit a scoped marker and do not grant full-suite evidence or dynamic exclusion.',
+});
+
+COMMAND_PROCESS_FACTS.push({
   name: 'runtime:changelog_history_compaction', kind: 'runtime-behavior', level: 'L3',
   semantics: ['artifact', 'gate-evidence', 'verification-policy'],
   paths: ['scripts/identity-maintenance-boundaries.mjs', 'scripts/verify-proof-or-stop-identity-cutover.mjs'],

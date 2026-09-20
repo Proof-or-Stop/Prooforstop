@@ -3585,7 +3585,7 @@ function assertPhaseTransitionReopenAuditContract() {
   // the ordinary builder output shape by deepEqual, and the reopen roundtrip
   // smoke asserts key presence/absence on REAL persisted events plus the
   // fault-injected crash-window recovery end to end.
-  const flowStabilityText = read('packages/main/src/tasks/flow-stability-smoke.ts');
+  const flowStabilityText = read('packages/main/src/tasks/flow-stability/done-convergence.ts');
   assert(/assert\.deepEqual\(buildPhaseTransitionProcessEvent\(/.test(flowStabilityText) && !/transitionType/.test(flowStabilityText), 'packages/main/src/tasks/flow-stability-smoke.ts: the ordinary phase_transition builder shape must stay pinned by deepEqual with NO reopen audit keys');
   const reopenSmokeText = read('packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts');
   for (const token of [
@@ -11051,7 +11051,7 @@ const inventory = [
         patterns: ['PHASE_EVENT_BY_TARGET', 'CWD_GATED_LIFECYCLE_PHASES'],
       },
       {
-        relPath: 'packages/main/src/tasks/flow-stability-smoke.ts',
+        relPath: 'packages/main/src/tasks/flow-stability/lifecycle.ts',
         patterns: ['assertLifecycleRegistryConsistency', 'Lifecycle registry mismatch', 'assertStoryAdvanceTestGateFailClosedContracts'],
       },
     ],
