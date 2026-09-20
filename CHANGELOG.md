@@ -1,5 +1,16 @@
 # Changelog
 
+## Lab benchmark-control-red-green - v0.3.428 - 2026-09-20
+
+- Add an isolated benchmark controller experiment that ignores unchanged blocked progress, deduplicates executions, bounds context, and reserves shared and repair budgets before dispatch.
+- Preserve unknown usage and reconcile synthetic receipts without double-counting cached input or reasoning output; these experiments do not activate desktop or production controls.
+- Verify the RED/GREEN regression and fail-closed verifier entry with 20 checks, including 1,000 unchanged observations producing zero wakeup intents and fifty duplicate requests producing one local subprocess.
+- Record measurement scope and reproducible comparisons in scripts/lab/benchmark-controls/README.md; this release is local Lab maintenance, not benchmark product completion.
+
+Maintenance provenance: codex/lab-benchmark-control-red-green, repair 9cc9f760acbee8c707376664023296820d7de906.
+Verification command (replayed before integration and on main): `["node","scripts/lab/benchmark-controls/verify-entry.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab validation-build-artifact-binding - v0.3.427 - 2026-09-20
 
 # Lab validation-build-artifact-binding — release notes
