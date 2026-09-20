@@ -9,6 +9,7 @@ import { inspectIntentCheckpointRecovery } from '../core/verification-intent-che
 import { acceptanceIntentHash, acceptanceScopeHash, createIntentAmendment, createIntentRevision } from '../core/verification-intent-amendment.js';
 import { currentGitHead } from '../core/evidence-freshness.js';
 import { resolveManagedDispatchInvocation } from '../core/managed-host-run.js';
+import type { ProcessEventAppendIdentity } from '../core/process-events.js';
 
 import { accessSync, constants, existsSync, readFileSync, realpathSync, statSync } from 'fs';
 import { dirname, isAbsolute, join, resolve } from 'path';
@@ -3425,6 +3426,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           agentType: 'proof-or-stop-implementer',
           itemId: args.itemId,
           optionalWhenAbsent: true,
+          consume: false,
         })
         : undefined;
       if (managedDispatchRunId && args.success === false) {
@@ -3443,6 +3445,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
 
 
       // B-3511: append process events on status transitions
+      let managedCompletionAppend: ProcessEventAppendIdentity | undefined;
       if (args.status && oldStatus !== args.status) {
         try {
           if (args.status === 'in_progress') {
@@ -3452,12 +3455,13 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
               ...(args.agent ? { agent: args.agent } : {}),
             });
           } else if (args.status === 'done') {
-            store.appendProcessEvent(args.storyId, {
+            const appendIdentity = store.appendProcessEvent(args.storyId, {
               type: 'subagent_result',
               checklistId: args.itemId,
               success: args.success !== false,
               ...(managedDispatchRunId ? { managedDispatchRunId } : {}),
             });
+            if (managedDispatchRunId) managedCompletionAppend = appendIdentity;
           }
         } catch (e) {
           if (managedDispatchRunId && args.status === 'done') {
@@ -3465,6 +3469,24 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
             throw new Error(`managed implementer completion could not record its bound result: ${(e as Error).message}`);
           }
           console.warn(`[process-events] append failed for ${args.storyId}:`, (e as Error).message);
+        }
+      }
+
+      if (managedDispatchRunId) {
+        try {
+          const consumedRunId = resolveManagedDispatchInvocation({
+            root,
+            storyId: args.storyId,
+            agentType: 'proof-or-stop-implementer',
+            itemId: args.itemId,
+          });
+          if (consumedRunId !== managedDispatchRunId) {
+            throw new Error('managed implementation invocation changed between persistence and consumption');
+          }
+        } catch (error) {
+          if (managedCompletionAppend) store.rollbackProcessEventAppend(args.storyId, managedCompletionAppend);
+          store.writeChecklist(args.storyId, checklistBeforeUpdate);
+          throw new Error(`managed implementer completion could not consume its bound invocation: ${(error as Error).message}`);
         }
       }
 

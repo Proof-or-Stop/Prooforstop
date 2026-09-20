@@ -111,6 +111,23 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
   assert.deepEqual(verifyManagedDispatchDelivery({
     root, runId: result.runId, storyId, agentType: 'proof-or-stop-implementer', itemId,
   }), { valid: true }, 'unrelated later process events must not invalidate the sealed implementation receipt');
+  const happyChecklist = store.readChecklist(storyId);
+  const happyItem = happyChecklist.items.find(item => item.id === itemId);
+  happyItem.status = 'in_progress';
+  store.writeChecklist(storyId, happyChecklist);
+  assert.equal(verifyManagedDispatchDelivery({
+    root, runId: result.runId, storyId, agentType: 'proof-or-stop-implementer', itemId,
+  }).valid, false, 'reverting the completed item must invalidate the sealed implementation receipt');
+  happyItem.status = 'done';
+  store.writeChecklist(storyId, happyChecklist);
+  const happyEventsPath = join(root, '.proof-or-stop/story/actives', storyId, 'process-events.jsonl');
+  const happyEvents = readFileSync(happyEventsPath, 'utf8');
+  writeFileSync(happyEventsPath, happyEvents.split('\n').filter(line =>
+    !line.includes(`\"managedDispatchRunId\":\"${result.runId}\"`)).join('\n'));
+  assert.equal(verifyManagedDispatchDelivery({
+    root, runId: result.runId, storyId, agentType: 'proof-or-stop-implementer', itemId,
+  }).valid, false, 'deleting the bound completion event must invalidate the sealed implementation receipt');
+  writeFileSync(happyEventsPath, happyEvents);
   assert.equal(verifyManagedDispatchDelivery({
     root, runId: result.runId, storyId, agentType: 'proof-or-stop-implementer', itemId: 'CHK-999',
   }).valid, false, 'a completed implementation run must not authorize another checklist item');
@@ -129,8 +146,12 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
       commands: `"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"CHK-002","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
     {
-      name: 'event-write-failure', expectedStatus: 'pending', breakProcessEvents: true,
-      commands: `rm -f "${root}/.proof-or-stop/story/actives/__STORY__/process-events.jsonl"\nmkdir "${root}/.proof-or-stop/story/actives/__STORY__/process-events.jsonl"\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
+      name: 'failed-success-retry', expectedStatus: 'done', expectCompleted: true,
+      commands: `"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done","success":false}' || true\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
+    },
+    {
+      name: 'event-write-retry', expectedStatus: 'done', expectCompleted: true,
+      commands: `rm -f "${root}/.proof-or-stop/story/actives/__STORY__/process-events.jsonl"\nmkdir "${root}/.proof-or-stop/story/actives/__STORY__/process-events.jsonl"\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}' || true\nrm -rf "${root}/.proof-or-stop/story/actives/__STORY__/process-events.jsonl"\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
   ];
   for (const scenario of negativeScenarios) {
@@ -157,22 +178,23 @@ grep -q "implementing ${negativeStoryId} ${itemId}" "${root}/delivered-${scenari
 ${scenario.commands.replaceAll('__STORY__', negativeStoryId)}
 `);
     chmodSync(fakeCodex, 0o755);
-    const processEventsPath = join(root, '.proof-or-stop/story/actives', negativeStoryId, 'process-events.jsonl');
     const negative = await handlers.host_run({
       host: 'codex', model: 'deepseek-v4.1-flash', reasoningEffort: 'high',
       storyId: negativeStoryId, itemId, agentType: 'proof-or-stop-implementer',
       managedDispatch: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
     });
-    if (scenario.breakProcessEvents) rmSync(processEventsPath, { recursive: true, force: true });
-    assert.notEqual(negative.exitCode, 0, `${scenario.name} must not produce a completed managed terminal`);
+    if (scenario.expectCompleted) assert.equal(negative.exitCode, 0, `${scenario.name} must complete after retry`);
+    else assert.notEqual(negative.exitCode, 0, `${scenario.name} must not produce a completed managed terminal`);
     assert.equal(store.readChecklist(negativeStoryId).items.find(item => item.id === itemId)?.status,
       scenario.expectedStatus, `${scenario.name} must preserve the expected target state`);
     assert.equal(store.readProcessEvents(negativeStoryId).some(event =>
-      event.type === 'subagent_result' && event.success === true && event.managedDispatchRunId === negative.runId), false,
-    `${scenario.name} must not create bound successful completion evidence`);
-    assert.equal(verifyManagedDispatchDelivery({
+      event.type === 'subagent_result' && event.success === true && event.managedDispatchRunId === negative.runId),
+    scenario.expectCompleted === true,
+    `${scenario.name} completion evidence must match its expected terminal state`);
+    const verified = verifyManagedDispatchDelivery({
       root, runId: negative.runId, storyId: negativeStoryId, agentType: 'proof-or-stop-implementer', itemId,
-    }).valid, false, `${scenario.name} must not verify as delivered`);
+    }).valid;
+    assert.equal(verified, scenario.expectCompleted === true, `${scenario.name} delivery verification must match its terminal state`);
   }
 
   console.log('MANAGED_IMPLEMENTER_DISPATCH_E2E_GREEN');

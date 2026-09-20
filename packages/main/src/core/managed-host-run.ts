@@ -1806,6 +1806,36 @@ function managedDispatchInvocationConsumptionIsValid(input: {
   }
 }
 
+function managedImplementerOutputDigest(input: {
+  root: string;
+  storyId: string;
+  itemId: string;
+  runId: string;
+}): string | null {
+  const storyStore = new StoryStore(input.root);
+  const item = storyStore.readChecklist(input.storyId).items.find(candidate => candidate.id === input.itemId);
+  const completions = storyStore.readProcessEvents(input.storyId).filter(event =>
+    event.type === 'subagent_result'
+    && event.checklistId === input.itemId
+    && event.success === true
+    && event.managedDispatchRunId === input.runId);
+  if (item?.status !== 'done' || completions.length !== 1) return null;
+  const completion = completions[0]!;
+  return sha256(canonicalJson({
+    schemaVersion: 'proof-or-stop.managed-implementer-output.v2',
+    runId: input.runId,
+    storyId: input.storyId,
+    item: { id: item.id, status: item.status },
+    completion: {
+      type: completion.type,
+      checklistId: completion.checklistId,
+      success: completion.success,
+      managedDispatchRunId: completion.managedDispatchRunId,
+      timestamp: completion.timestamp,
+    },
+  }));
+}
+
 export function managedDispatchOutputValidation(input: {
   root: string;
   storyId: string | null;
@@ -1819,13 +1849,10 @@ export function managedDispatchOutputValidation(input: {
     if (input.agentType === 'proof-or-stop-implementer') {
       const itemId = input.managedDispatchTarget?.itemId;
       if (!itemId) return { failureReason: 'managed_dispatch_target_missing', outputDigest: null };
-      const item = storyStore.readChecklist(input.storyId).items.find(candidate => candidate.id === itemId);
-      const completion = storyStore.readProcessEvents(input.storyId).find(event =>
-        event.type === 'subagent_result'
-        && event.checklistId === itemId
-        && event.success === true
-        && event.managedDispatchRunId === input.runId);
-      if (item?.status !== 'done' || !completion) {
+      const outputDigest = managedImplementerOutputDigest({
+        root: input.root, storyId: input.storyId, itemId, runId: input.runId,
+      });
+      if (!outputDigest) {
         return { failureReason: 'managed_dispatch_output_missing', outputDigest: null };
       }
       if (!managedDispatchInvocationConsumptionIsValid({ ...input, storyId: input.storyId })) {
@@ -1833,13 +1860,7 @@ export function managedDispatchOutputValidation(input: {
       }
       return {
         failureReason: null,
-        outputDigest: sha256(canonicalJson({
-          schemaVersion: 'proof-or-stop.managed-implementer-output.v1',
-          runId: input.runId,
-          storyId: input.storyId,
-          itemId,
-          success: true,
-        })),
+        outputDigest,
       };
     }
     if (input.agentType === MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role) {
@@ -1908,13 +1929,9 @@ function currentManagedDispatchOutputDigest(spec: ManagedHostRunSpec): string | 
   }
   if (spec.agentType === 'proof-or-stop-implementer') {
     const itemId = spec.managedDispatchTarget?.itemId;
-    return spec.storyId && itemId ? sha256(canonicalJson({
-      schemaVersion: 'proof-or-stop.managed-implementer-output.v1',
-      runId: spec.runId,
-      storyId: spec.storyId,
-      itemId,
-      success: true,
-    })) : null;
+    return itemId ? managedImplementerOutputDigest({
+      root: spec.root, storyId: spec.storyId, itemId, runId: spec.runId,
+    }) : null;
   }
   return null;
 }
@@ -3786,6 +3803,7 @@ function consumeManagedInitInvocationAttestation(args: {
   agentType: string;
   itemId?: string;
   attestation: ManagedInitInvocationAttestation;
+  consume?: boolean;
 }): string {
   const { attestation } = args;
   assertRunId(attestation.runId);
@@ -3818,6 +3836,7 @@ function consumeManagedInitInvocationAttestation(args: {
       && attestation.expiresAt === spec.deadlineAt
       && verifyCanonical(claims, signature, owner.proposalInvocationPublicKey);
     if (!valid) throw new Error('managed INIT invocation attestation is invalid or mismatched');
+    if (args.consume === false) return attestation.runId;
     const consumedAt = new Date(now).toISOString();
     if (!writeExclusive(paths.initInvocationConsumption, {
       schemaVersion: 'lattice.managed_dispatch_invocation_consumption.v2',
@@ -3830,13 +3849,18 @@ function consumeManagedInitInvocationAttestation(args: {
     })) {
       throw new Error('managed INIT invocation attestation was already consumed');
     }
-    appendFileSync(paths.events, `${canonicalJson({
-      schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION,
-      runId: attestation.runId,
-      at: consumedAt,
-      type: 'managed_init_invocation_consumed',
-      detail: { storyId: attestation.storyId, providerAgent: attestation.providerAgent },
-    })}\n`, { encoding: 'utf8', mode: 0o600 });
+    try {
+      appendFileSync(paths.events, `${canonicalJson({
+        schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION,
+        runId: attestation.runId,
+        at: consumedAt,
+        type: 'managed_init_invocation_consumed',
+        detail: { storyId: attestation.storyId, providerAgent: attestation.providerAgent },
+      })}\n`, { encoding: 'utf8', mode: 0o600 });
+    } catch (error) {
+      rmSync(paths.initInvocationConsumption, { force: true });
+      throw error;
+    }
     return attestation.runId;
   });
 }
@@ -3859,6 +3883,7 @@ type ManagedDispatchInvocationArgs = {
   callerPid?: number;
   environment?: NodeJS.ProcessEnv;
   optionalWhenAbsent?: boolean;
+  consume?: boolean;
 };
 export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocationArgs & { optionalWhenAbsent: true }): string | undefined;
 export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocationArgs & { optionalWhenAbsent?: false }): string;
@@ -3873,6 +3898,7 @@ export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocation
         agentType: args.agentType,
         ...(args.itemId ? { itemId: args.itemId } : {}),
         attestation,
+        consume: args.consume !== false,
       });
     }
   } catch (error) {
@@ -3942,6 +3968,7 @@ export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocation
       || (process.platform !== 'darwin' && leader.sessionId !== caller.sessionId)) {
       throw new Error('managed dispatch process-group invocation is no longer live or matched');
     }
+    if (args.consume === false) return runId;
     const consumedAt = new Date().toISOString();
     if (!writeExclusive(paths.initInvocationConsumption, {
       schemaVersion: 'lattice.managed_dispatch_process_group_consumption.v1',
@@ -3954,13 +3981,18 @@ export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocation
     })) {
       throw new Error('managed dispatch process-group invocation was already consumed');
     }
-    appendFileSync(paths.events, `${canonicalJson({
-      schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION,
-      runId,
-      at: consumedAt,
-      type: 'managed_dispatch_process_group_invocation_consumed',
-      detail: { storyId: args.storyId, providerAgent: args.agentType, callerPid },
-    })}\n`, { encoding: 'utf8', mode: 0o600 });
+    try {
+      appendFileSync(paths.events, `${canonicalJson({
+        schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION,
+        runId,
+        at: consumedAt,
+        type: 'managed_dispatch_process_group_invocation_consumed',
+        detail: { storyId: args.storyId, providerAgent: args.agentType, callerPid },
+      })}\n`, { encoding: 'utf8', mode: 0o600 });
+    } catch (error) {
+      rmSync(paths.initInvocationConsumption, { force: true });
+      throw error;
+    }
     return runId;
   });
 }
@@ -4909,13 +4941,9 @@ export function verifyManagedDispatchDelivery(args: {
     }
     if (args.agentType === 'proof-or-stop-implementer') {
       if (!args.itemId) return { valid: false, reason: 'managed implementation delivery requires itemId' };
-      const expectedDigest = sha256(canonicalJson({
-        schemaVersion: 'proof-or-stop.managed-implementer-output.v1',
-        runId: args.runId,
-        storyId: args.storyId,
-        itemId: args.itemId,
-        success: true,
-      }));
+      const expectedDigest = managedImplementerOutputDigest({
+        root: args.root, storyId: args.storyId, itemId: args.itemId, runId: args.runId,
+      });
       if (!receipt.managedDispatchOutputDigest || expectedDigest !== receipt.managedDispatchOutputDigest) {
         return { valid: false, reason: 'managed implementation output does not match the completed receipt' };
       }
