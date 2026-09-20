@@ -126,7 +126,8 @@ validation, pin binding, lifecycle expiry or current state checks. Executable ro
 use the shared gate receipt evaluator and report current, reuse, rerun or invalid.
 The existing signed refresh writer remains the only execution/reuse producer.
 An unsigned or stale ordinary pass is never advertised as a hash-only refresh.
-Non-executable attestations retain their separate compatibility behavior.
+Non-executable attestations and existing waivers retain their separate compatibility
+behavior. A waiver is reported as manual policy coverage and never authorizes execution reuse.
 
 Legacy receipts without complete input authority are not upgraded by inventing a
 manifest. A genuine eligible execution must establish that authority first. This
