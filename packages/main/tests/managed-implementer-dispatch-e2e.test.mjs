@@ -11,6 +11,7 @@ const { StoryStore } = await import('../dist/core/store.js');
 const { createHostRunHandlers } = await import('../dist/handlers/host-run.js');
 const { managedHostRunReceipt, resolveManagedDispatchInvocation, runManagedHostRunWorker, verifyManagedDispatchDelivery } = await import('../dist/core/managed-host-run.js');
 const { restoreManagedChecklistItemAfterFailure } = await import('../dist/handlers/checklist.js');
+const { acquireOrRefreshOwnerLease } = await import('../dist/core/story-owner-lease.js');
 
 const root = mkdtempSync(join(tmpdir(), 'managed-implementer-dispatch-e2e-'));
 const storyId = 'B-managed-implementer-e2e';
@@ -114,12 +115,9 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
   process.env.PROOF_OR_STOP_PROJECT_ROOT = root;
   process.env.PROOF_OR_STOP_SESSION_ID = 'managed-implementer-owner';
   process.env.HOME = root;
-  execFileSync(process.execPath, [cli, 'checklist_update', JSON.stringify({
-    storyId, itemId, status: 'in_progress',
-  })], { cwd: root, env: process.env, stdio: ['ignore', 'pipe', 'pipe'] });
-  const leasedChecklist = store.readChecklist(storyId);
-  leasedChecklist.items.find(item => item.id === itemId).status = 'pending';
-  store.writeChecklist(storyId, leasedChecklist);
+  acquireOrRefreshOwnerLease(store.storyDirPath(storyId), {
+    command: 'managed-implementer-fixture-owner', cwd: root,
+  });
 
   let managedDispatchValidationHook;
   const handlers = createHostRunHandlers({ root, scanRoot: root, store }, {
@@ -221,8 +219,16 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
       commands: `printf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
     {
-      name: 'in-progress-only', expectedStatus: 'in_progress',
+      name: 'in-progress-only', expectedStatus: 'pending',
       commands: `"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"in_progress"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
+    },
+    {
+      name: 'metadata-mutation', expectedStatus: 'pending',
+      commands: `"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done","context":"foreign mutation"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
+    },
+    {
+      name: 'phase-advance', expectedStatus: 'pending', expectedPhase: 'DEV',
+      commands: `"${process.execPath}" "${cli}" story_advance '{"storyId":"__STORY__","phase":"REVIEW"}' || true\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
     {
       name: 'wrong-item', expectedStatus: 'pending',
@@ -270,9 +276,13 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
 set -eu
 cat > "${root}/delivered-${scenario.name}-prompt.txt"
 grep -q "implementing ${negativeStoryId} ${itemId}" "${root}/delivered-${scenario.name}-prompt.txt"
+export PROOF_OR_STOP_SESSION_ID=managed-implementer-child
 ${scenario.commands.replaceAll('__STORY__', negativeStoryId)}
 `);
     chmodSync(fakeCodex, 0o755);
+    acquireOrRefreshOwnerLease(store.storyDirPath(negativeStoryId), {
+      command: 'managed-implementer-fixture-owner', cwd: root,
+    });
     const negative = await handlers.host_run({
       host: 'codex', model: 'deepseek-v4.1-flash', reasoningEffort: 'high',
       storyId: negativeStoryId, itemId, agentType: 'proof-or-stop-implementer',
@@ -285,6 +295,10 @@ ${scenario.commands.replaceAll('__STORY__', negativeStoryId)}
     if (scenario.expectedOtherStatus) {
       assert.equal(store.readChecklist(negativeStoryId).items.find(item => item.id === 'CHK-002')?.status,
         scenario.expectedOtherStatus, `${scenario.name} must preserve the other item's concurrent update`);
+    }
+    if (scenario.expectedPhase) {
+      assert.equal(store.readStory(negativeStoryId).phase, scenario.expectedPhase,
+        `${scenario.name} must not gain lifecycle authority from the item capability`);
     }
     assert.equal(store.readProcessEvents(negativeStoryId).some(event =>
       event.type === 'subagent_result' && event.success === true && event.managedDispatchRunId === negative.runId),

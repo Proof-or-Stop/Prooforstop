@@ -15,7 +15,7 @@ import { getCommandPolicy, isOwnershipClass, type OwnershipClass } from '../core
 import { PROOF_OR_STOP_DIR } from '../core/proof-or-stop-paths.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import type { ProofOrStopConfig } from '../core/config.js';
-import { managedHostRunStoryIdForOwnership } from '../core/managed-host-run.js';
+import { managedHostRunStoryIdForOwnership, resolveManagedDispatchInvocation } from '../core/managed-host-run.js';
 import { readBrandEnv } from '../core/brand-env.js';
 import { resolveRegisteredAgentActor } from '../core/agent-dispatch-registry.js';
 import { agentRoleIdsEqual } from '../core/agent-role-identity.js';
@@ -418,6 +418,39 @@ export function resolveTakeoverIntent(args: Record<string, unknown>): TakeoverIn
   return 'none';
 }
 
+const MANAGED_IMPLEMENTER_COMPLETION_KEYS = new Set(['storyId', 'itemId', 'status', 'success']);
+
+/**
+ * A managed implementer is not the Story owner. It may, however, redeem the
+ * controller's one-shot run capability for the single completion write that
+ * the managed-dispatch contract requires. Keep this admission narrower than
+ * checklist_update's schema: no definition, intent, evidence, actor, reason,
+ * takeover, or lifecycle mutation can travel through this seam.
+ */
+function admitsManagedImplementerCompletion(
+  cmd: string,
+  args: Record<string, unknown>,
+  projectRoot: string,
+  storyId: string,
+): boolean {
+  if (cmd !== 'checklist_update'
+    || args.status !== 'done'
+    || args.success === false
+    || typeof args.itemId !== 'string'
+    || !args.itemId.trim()
+    || [...Object.keys(args)].some(key => !MANAGED_IMPLEMENTER_COMPLETION_KEYS.has(key))) return false;
+  const actor = readBrandEnv('AGENT')?.trim();
+  if (!actor || !agentRoleIdsEqual(actor, 'proof-or-stop-implementer')) return false;
+  return resolveManagedDispatchInvocation({
+    root: projectRoot,
+    storyId,
+    agentType: 'proof-or-stop-implementer',
+    itemId: args.itemId,
+    optionalWhenAbsent: true,
+    consume: false,
+  }) !== undefined;
+}
+
 export function enforceStoryOwnerLeaseGate(
   cmd: string,
   args: Record<string, unknown>,
@@ -467,6 +500,12 @@ export function enforceStoryOwnerLeaseGate(
 
   const storyDir = store.storyDirPath(storyId);
   if (!existsSync(storyDir)) return;
+
+  // The handler revalidates and consumes this exact capability only after it
+  // has atomically prepared the run-bound subagent_result and checklist write.
+  // This pre-handler probe grants no reusable owner lease and performs no
+  // mutation, so a failed write remains retryable by the same managed run.
+  if (admitsManagedImplementerCompletion(cmd, args, projectRoot, storyId)) return;
 
   if (options?.readOnlyAdmission) {
     const lease = readOwnerLease(storyDir);
