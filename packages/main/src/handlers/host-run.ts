@@ -47,6 +47,7 @@ import {
   type HostRunRunner,
   type HostRunStoryResolver,
   normalizeHostRunModelSelection,
+  resolveQualifiedManagedReviewerSelection,
 } from '../core/host-run.js';
 import {
   cancelManagedHostRun,
@@ -391,7 +392,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
     async host_run(args: HostRunCommandArgs): Promise<HostRunCommandResult | HostRunDetachResult | string> {
       const host = normalizeHost(normalizeString(args.host));
       if (host === 'grok' && args.managedReview !== true) throw new Error('grok supports only --managedReview / acceptance_amendment_review');
-      const selection = normalizeHostRunModelSelection({
+      let selection = normalizeHostRunModelSelection({
         host,
         model: args.model,
         reasoningEffort: args.reasoningEffort,
@@ -421,6 +422,9 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
       let managedDispatch = false;
       if (args.managedReview === true && args.managedDispatch === true) {
         throw new Error('host_run: --managedReview and --managedDispatch are mutually exclusive');
+      }
+      if (args.managedReview === true || args.managedDispatch === true) {
+        selection = resolveQualifiedManagedReviewerSelection({ host, ...selection });
       }
       if (args.managedReview === true) {
         if (hasPrompt || hasPromptFile) {
