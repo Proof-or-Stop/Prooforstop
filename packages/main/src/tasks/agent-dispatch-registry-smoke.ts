@@ -984,6 +984,8 @@ try {
   delete process.env.PROOF_OR_STOP_AGENT;
   store.writeStory(storyId, { ...store.readStory(storyId), phase: 'DEV' });
   try {
+    assert.equal(store.readReviewRuns(storyId).runs.length, 0,
+      'owner DEV resolution fixture must prove the no-review-run repair path');
     const cliDispatchOutput = execFileSync(process.execPath, [
       join(packageRoot, 'cli.js'),
       'dispatch',
