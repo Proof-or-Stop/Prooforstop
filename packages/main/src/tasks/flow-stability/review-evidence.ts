@@ -946,6 +946,7 @@ export function assertReviewPreflightDoesNotDowngradePromptEnvelopeDriftToStoryH
     driftedEnvelope.assembledPromptDigest = '0'.repeat(64);
     store.writePromptEnvelopes(storyId, driftedEnvelopes);
 
+
     const preflight = runReviewCliGates(storyId, {
       store,
       projectRoot: root,
