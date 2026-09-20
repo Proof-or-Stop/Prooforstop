@@ -437,8 +437,8 @@ async function prepareWorkspaceValidationCoordination(options: ValidationCapacit
           command: 'workspace coordination migration', acquiredAt: new Date().toISOString(), processStartTimeMs: currentProcessStartTimeMs() },
       });
     } catch (error: any) {
-      if (!existsSync(migrationPath) || (!error.message.includes('WORKSPACE_COORDINATION_MIGRATION_BUSY')
-        && !error.message.startsWith('workspace coordination migration lock timeout'))) throw error;
+      if (!error.message.includes('WORKSPACE_COORDINATION_MIGRATION_BUSY')
+        && !error.message.startsWith('workspace coordination migration lock timeout')) throw error;
       await waitForMigration(migrationPath);
     }
   }

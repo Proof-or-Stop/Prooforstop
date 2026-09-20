@@ -1,3 +1,34 @@
+/** Every registered provider execution surface must name its cumulative quota owner.
+ * Concurrency slots never substitute for these invocation reservations. */
+export const SHARED_PROVIDER_QUOTA_RUNTIME_POLICY = {
+  scope: 'explicit-task-id-canonical-project',
+  retries: 'reserve-before-attempt-release-unused',
+  managedBinding: 'submission-spec-digest',
+  refusal: 'branded-pre-spawn-error-to-owner-blocked-result-and-final-accounting',
+  promptBytes: 'full-prompt-content-including-reference-mode',
+  attemptEvidence: 'configured-maximum-and-actual-armed-allowance',
+  supervisorContext: 'explicit-owner-root-and-budget-environment',
+  supervisorPayload: 'parent-only-quota-context-excluded-from-worker-payload',
+  coverage: {
+    'core/host-run.ts': ['reserveHostRunBudget'],
+    'core/managed-host-run.ts': ['runHostRun', 'restoreHostRunBudgetEnvironment'],
+    'core/codex-review-leaf.ts': ['runWithProviderCallBudgetAsync'],
+    'core/autopilot-executor.ts': ['runWithProviderCallBudget'],
+    'core/planned-steps-executor.ts': ['runBudgetedProviderRequest'],
+    'core/proof-or-stop-dispatch.ts': ['runBudgetedProviderRequest', 'runSupervisedProviderProcess'],
+    'handlers/candidate-spec-routing.ts': ['runHostRun'],
+    'handlers/cross-host-review.ts': ['submitManagedHostRun'],
+    'providers/codex-cli.ts': ['runBudgetedProviderRequest', 'runCoveredProviderTransport'],
+    'providers/claude-cli.ts': ['runBudgetedProviderRequest', 'runCoveredProviderTransport'],
+    'providers/gemini-cli.ts': ['runBudgetedProviderRequest', 'runCoveredProviderTransport'],
+    'providers/supervised-process.ts': ['runBudgetedSupervisedProcess'],
+    // The parent bridge carries its reservation; the child never mints another.
+    'providers/supervised-process-worker.ts': ['transferProviderProcessAdmissionToProvider'],
+    'core/host-execution-readiness.ts': ['runSupervisedProviderProcess'],
+    'core/reviewer-batch-producer.ts': ['runSupervisedProviderProcess'],
+    'handlers/host-run.ts': ['submitManagedHostRun'],
+  },
+} as const;
 export const HOST_RUN_BUDGET_RUNTIME_POLICY = { lockTimeoutMs: 2000, maxStateBytes: 8 * 1024 * 1024, scope: 'explicit-group-canonical-project', crash: 'retain-reservation' } as const;
 import { posix as pathPosix } from 'node:path';
 

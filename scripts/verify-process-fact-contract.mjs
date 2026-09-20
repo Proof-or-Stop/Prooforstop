@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+import { readFileSync as readQuotaFactSource } from 'node:fs';
+const quotaFactSource = readQuotaFactSource(new URL('../packages/main/src/core/process-fact-registry.ts', import.meta.url), 'utf8');
+if (!quotaFactSource.includes('core/provider-call-budget.ts') || !quotaFactSource.includes('Managed submissions seal quota settings') || !quotaFactSource.includes('Branded pre-spawn quota refusals') || !quotaFactSource.includes('actual armed allowance') || !quotaFactSource.includes('strips parent-only budget context')) throw new Error('SHARED_QUOTA_PROCESS_FACT_MISSING');
 import { prepareVerification, verificationFailureMessage } from './verification-subprocess-budget.mjs';
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
@@ -12114,6 +12117,8 @@ nodeAssert(admissionOrderOutput.includes('PASS process runtime admission order:'
 if (!quiet) process.stdout.write(admissionOrderOutput);
 
 
+if (!read('packages/main/src/core/process-fact-registry.ts').includes('runtime:validate_argument_compatibility')) failures.push('validate argument compatibility must remain registered');
+
 // Managed inventory transport checks must precede the final failure gate.
 assert(read('packages/main/src/core/managed-host-run.ts').includes('isManagedInventoryCritic'), 'Managed proposal writer must validate critic shape');
 assert(read('packages/main/src/core/managed-review-evidence.ts').includes('isManagedInventoryCritic'), 'Managed evidence consumer must validate critic shape');
@@ -12180,5 +12185,3 @@ console.log('');
 console.log('Process fact contract verified');
 console.log('execution_assertion_reuse_contract=PASS');
 console.log('Process-fact contract verification passed');
-
-nodeAssert(readFileSync('packages/main/src/core/process-fact-registry.ts', 'utf8').includes('runtime:validate_argument_compatibility'), 'validate argument compatibility must remain registered');

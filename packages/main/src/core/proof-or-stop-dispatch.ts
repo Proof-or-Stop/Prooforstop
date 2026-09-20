@@ -1,3 +1,5 @@
+import { isHostRunBudgetRefusal } from './host-run-budget.js';
+import { runBudgetedProviderRequest } from './provider-call-budget.js';
 import { runSupervisedProviderProcess } from '../providers/supervised-process.js';
 import { execFileSync, execSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -56,6 +58,7 @@ import {
   recordBudgetBlock,
   recordConcurrencyBlock,
   recordDispatchFinal,
+  recordDispatchUnavailableFinal,
   recordDispatchFinalForProvider,
   recordDispatchPreflight,
   type DispatchUsageContext,
@@ -2364,7 +2367,9 @@ function buildProviderAdmissionBlockedDispatchResult(
     ...record,
     status: 'failed',
     warnings: [...removeScaffoldedOnlyWarnings(record.warnings), warning],
-    nextAction: `Provider launch ${record.dispatchId} was refused by the shared provider-process registry. Wait for a live holder to finish or repair the registry; do not bypass the cap.`,
+    nextAction: detail.startsWith('shared_call_quota_refused')
+      ? `Provider launch ${record.dispatchId} was refused by its cumulative call quota. Review the quota policy; waiting or retrying does not reset it. A new budget requires explicit authorization.`
+      : `Provider launch ${record.dispatchId} was refused by the shared provider-process registry. Wait for a live holder to finish or repair the registry; do not bypass the cap.`,
   });
   writeJson(resolve(root, blocked.collectFile), leafDispatchCollection(root, blocked, pack));
   return {
@@ -2420,6 +2425,7 @@ function runBoundedRealLeafDispatch(
   const timeoutMs = Math.ceil(executionPolicy.maxRuntimeMs);
   const runner = providerRunner ?? (hostKind === 'codex' ? runBoundedCodexProvider : runBoundedGeminiProvider);
   const pack = readPack(root, record.dispatchId);
+  const budgetPrompt = promptStdin ?? readFileSync(promptFile, 'utf8');
   const providerEnv = buildCanonicalHostRuntimeEnv(
     executionPolicy,
     record.selectedHost,
@@ -2497,7 +2503,8 @@ function runBoundedRealLeafDispatch(
 
   let result;
   try {
-    result = runner({
+    result = runBudgetedProviderRequest({
+      budgetRoot: root, budgetEnv: process.env, budgetPrompt,
       admission,
       provider: hostKind,
       argv,
@@ -2506,7 +2513,12 @@ function runBoundedRealLeafDispatch(
       maxAttempts: 1,
       env: providerEnv,
       ...(promptStdin !== undefined ? { stdin: promptStdin } : {}),
-    });
+    }, request => runner(request));
+  } catch (error) {
+    if (!isHostRunBudgetRefusal(error)) throw error;
+    if (ledgerOn) recordDispatchUnavailableFinal(root, ledgerCtx, ledgerHandle?.correlation ?? null, ledgerHandle?.estimateRecordId ?? null,
+      { name: hostKind === 'codex' ? 'openai' : 'gemini', model: null }, 'shared_call_quota_refused', ledgerOpts);
+    return buildProviderAdmissionBlockedDispatchResult(root, record, pack, transcriptPath, `shared_call_quota_refused:${error.message}`);
   } finally {
     releaseProviderProcessAdmission(admission);
   }
@@ -2742,11 +2754,17 @@ function runClaudeCodeRealLeafDispatch(
   let result;
   try {
     result = runSupervisedProviderProcess('claude', spawnArgs, {
+      budgetRoot: root, budgetEnv: process.env, budgetPrompt: promptText,
       admission,
       cwd: worktreeAbs,
       env: commandEnv,
       timeoutMs,
     });
+  } catch (error) {
+    if (!isHostRunBudgetRefusal(error)) throw error;
+    if (ledgerOn) recordDispatchUnavailableFinal(root, ledgerCtx, ledgerHandle?.correlation ?? null, ledgerHandle?.estimateRecordId ?? null,
+      { name: 'anthropic', model: null }, 'shared_call_quota_refused', ledgerOpts);
+    return buildProviderAdmissionBlockedDispatchResult(root, record, pack, transcriptPath, `shared_call_quota_refused:${error.message}`);
   } finally {
     releaseProviderProcessAdmission(admission);
   }

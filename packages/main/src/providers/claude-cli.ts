@@ -1,3 +1,4 @@
+import { runBudgetedProviderRequest, runCoveredProviderTransport } from '../core/provider-call-budget.js';
 import { runSupervisedProviderProcess, type SupervisedProcessOptions } from './supervised-process.js';
 
 import { join } from 'path';
@@ -333,6 +334,12 @@ export function runBoundedClaudeProvider(
   request: ProviderExecRequest,
   runner: ProviderProcessRunner = defaultClaudeProcessRunner,
 ): ProviderExecResult {
+  return runBudgetedProviderRequest(request, admitted => runAdmittedClaudeProvider(admitted, runner));
+}
+function runAdmittedClaudeProvider(
+  request: ProviderExecRequest,
+  runner: ProviderProcessRunner = defaultClaudeProcessRunner,
+): ProviderExecResult {
   // Delegated `provider.claude` is evidence-only execution; it must never mint local authority receipts or alter DONE semantics.
   const startedAt = Date.now();
   const maxAttempts = Math.max(1, Math.min(request.maxAttempts, 5));
@@ -346,12 +353,13 @@ export function runBoundedClaudeProvider(
 
   while (attempts < maxAttempts) {
     attempts++;
-    const out = runner(CLAUDE_CLI_BINARY, request.argv, {
+    const transportOptions: SupervisedProcessOptions = {
       cwd: request.cwd,
       env: request.env,
       timeoutMs: request.timeoutMs,
       admission: request.admission,
-    });
+    };
+    const out = runCoveredProviderTransport(request, transportOptions, () => runner(CLAUDE_CLI_BINARY, request.argv, transportOptions));
     spawnError = !!out.error && out.error.code === 'ENOENT';
     replacementSafe = out.replacementSafe;
     timedOut = out.timedOut ?? (out.signal === 'SIGTERM' || out.signal === 'SIGKILL'

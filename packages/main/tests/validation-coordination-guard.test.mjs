@@ -12,6 +12,7 @@ import { WORKSPACE_VALIDATION_COORDINATION_FIXTURE_RUNTIME_POLICY as coordinatio
 import { observeFixtureCoordination, assertFixtureCoordinationRemoved, assertObservedCoordinationAliases } from '../../../scripts/fixture-coordination-observation.mjs';
 
 if (!process.argv.includes('--private-machine')) {
+  await import('./validation-audit-final-regressions.test.mjs');
   const fixture = createFixtureMachineEnvironment();
   const result = spawnSync(process.execPath, [fileURLToPath(import.meta.url), '--private-machine'], {
     env: fixture.env, stdio: ['ignore', 'pipe', 'inherit'], encoding: 'utf8', timeout: coordinationFixtureBudget.childMs,

@@ -285,3 +285,11 @@ release removes admission tickets without racing concurrent callers by deleting
 the shared identity. No production garbage collection is claimed. Native driver
 cleanup reports secondary failures without replacing an original verification
 error or requested termination; cleanup failure alone still rejects success.
+
+## Final independent audit follow-up (2026-09-20)
+
+Candidate ee3bf52d084a3b166cd4eb9cf38808870357cd9e completed the full registered identity suite, capacity suite, binding checks and six authorized-budget runs. Audit attempt 9092775e-7590-4558-8e86-6f7d7971cdf9 returned two findings and omitted three changed-data read references, so it was not accepted and the candidate was not integrated. Its release preparation was officially reopened.
+
+The migration-lock contention regression executes the actual production function with a deterministic holder-release schedule: the prior code propagated BUSY after the lock disappeared; the repair retries, while unrelated acquisition errors and caller cancellation retain their original identities. The verifier regression executes the actual registration assertion and terminal failure/success statements: missing registration must fail without success markers, while present registration passes through the existing source-read helper. Both controls are imported by the existing coordination regression and run in its regular validation path. The real coordination suite also passed.
+
+Main d6e4b94a0d brought independently integrated provider-quota changes during the audit. The merge retains those changes and the Lab repairs. Exact unchanged-line identity bindings were relocated and source digests renewed; the complete identity boundary check passed. Prior candidate receipts remain historical and do not certify this new merged repair head.

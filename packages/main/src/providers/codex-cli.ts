@@ -1,3 +1,4 @@
+import { runBudgetedProviderRequest, runCoveredProviderTransport } from '../core/provider-call-budget.js';
 import { runSupervisedProviderProcess, type SupervisedProcessOptions } from './supervised-process.js';
 
 import { createHash } from 'crypto';
@@ -217,6 +218,12 @@ export function runBoundedCodexProvider(
   request: ProviderExecRequest,
   runner: ProviderProcessRunner = defaultCodexProcessRunner,
 ): ProviderExecResult {
+  return runBudgetedProviderRequest(request, admitted => runAdmittedCodexProvider(admitted, runner));
+}
+function runAdmittedCodexProvider(
+  request: ProviderExecRequest,
+  runner: ProviderProcessRunner = defaultCodexProcessRunner,
+): ProviderExecResult {
   const startedAt = Date.now();
   const maxAttempts = Math.max(1, Math.min(request.maxAttempts, 5));
   let attempts = 0;
@@ -231,13 +238,14 @@ export function runBoundedCodexProvider(
 
   while (attempts < maxAttempts) {
     attempts++;
-    const out = runner(CODEX_CLI_BINARY, request.argv, {
+    const transportOptions: SupervisedProcessOptions = {
       cwd: request.cwd,
       env: request.env,
       timeoutMs: request.timeoutMs,
       admission: request.admission,
       stdin: request.stdin,
-    });
+    };
+    const out = runCoveredProviderTransport(request, transportOptions, () => runner(CODEX_CLI_BINARY, request.argv, transportOptions));
     replacementSafe = out.replacementSafe;
     timedOut = out.timedOut ?? (out.signal === 'SIGTERM' || out.signal === 'SIGKILL'
       || (!!out.error && out.error.code === 'ETIMEDOUT'));
