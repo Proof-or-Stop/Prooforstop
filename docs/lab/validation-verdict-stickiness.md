@@ -40,12 +40,19 @@ yet; the same command without `--legacy` reports it once Stories validate again.
   `result: fail` on an identity — command set, committed material, story files and
   compiled artifacts — makes any PASS on that identical identity a flipped verdict,
   whichever came first. Infrastructure failures, reused terminals and terminals
-  without the compiled-artifact identity do not stick. A failure that recorded no
-  failure kind is a verdict. The rule applies only to a record that claims a PASS.
+  without the compiled-artifact identity do not stick. Neither does a coverage-only
+  failure (`coverage_incomplete`): every required command passed and only required
+  verification coverage was missing, which is the one failure the reuse evaluator
+  republishes as a PASS once coverage is complete. The producer classifies it with
+  the evaluator's own predicate (`isCoverageOnlyFailure`), from the record it is about
+  to publish. A failure that recorded no failure kind is a verdict.
 - Four consumers apply it: routine reuse (`verdict-flip-unattested`), evidence
   admission and the DONE-side stored-PASS consumer (`verdict_flip_unattested`), and
-  publication, which refuses to write the PASS and reports `verdict_flip_refused`.
-  That refusal is a persistence failure, so it does not itself become a sticky verdict.
+  publication (`verdict_flip_refused`). Reuse judges every candidate it can republish
+  as a PASS, a coverage-only FAIL included. Both publications - the executed one and
+  the reused one, which signs an older record as a fresh PASS without executing
+  anything - read one shared refusal (`passPublicationRefusal`). A refusal is a
+  persistence failure, so it does not itself become a sticky verdict.
 - `validation_terminal` events record `failureKind`. The validate-file path strips a
   kind printed by the child and derives it from the executor's verdict, so a validate
   file cannot exempt its own failure by printing `infra_failure`.
@@ -57,7 +64,8 @@ yet; the same command without `--legacy` reports it once Stories validate again.
 - `done_prepare` trusts the reused terminal the verifier appends again: its exact key
   allowlist had not followed the artifact binding. The artifact fields are typed (a
   sha256 digest and a satisfied protection label) and, when `done_prepare` knows the
-  reused evidence's identity and protection, bound to exactly those values.
+  reused evidence's identity and protection, bound to exactly those values. The reuse
+  path now writes both onto the terminal it appends; it used to omit the protection.
 - `scripts/report-validation-verdict-flips.mjs` is read-only. It groups per Story and
   full identity, counts re-executions, flips and a failure followed by an executed or
   a reused pass in log order, reads a Story's own linked worktree copy as well as the
@@ -68,12 +76,17 @@ yet; the same command without `--legacy` reports it once Stories validate again.
 
 `node scripts/verify-validation-verdict-stickiness.mjs`, registered as the last
 `validate.commands` entry. At RED: 7 failing expectations, 9 controls passed. At GREEN:
-60 checks — the pure rule, both core consumers, the DONE-side consumer over a fixture
+81 checks — the pure rule, both core consumers, the DONE-side consumer over a fixture
 Story with signed evidence, corrupt and missing histories, the report, the
-`done_prepare` trust decision, source guards, and an end-to-end run through the built
+`done_prepare` trust decision, source guards, and end-to-end runs through the built
 CLI on a validate file that reads a switch outside the repository: FAIL then PASS on
 the identical identity is refused with `verdict_flip_refused` and publishes no PASS, a
-spoofed `infra_failure` still sticks, and PASS then PASS succeeds.
+spoofed `infra_failure` still sticks, PASS then PASS succeeds, the terminal the real
+reuse path appends is the one `done_prepare` trusts, a real coverage-only failure
+records `coverage_incomplete`, a genuine coverage-only failure still recovers by reuse,
+and a failed identity laundered through a coverage-only record is refused. With the
+production source of the second audit's repair reverted, exactly its 10 expectations
+fail, the laundered PASS among them (`exit=0 evidence=PASS/reused`).
 
 On the final Lab tree the checks that share these code paths pass:
 `validation-evidence-reuse-smoke`, `validation-reuse-merge-lineage-smoke`,
@@ -92,6 +105,16 @@ and not at publication (high); the failure kind was copied from what the child p
 (high); an unreadable history read as an empty one (high); the reused-terminal
 allowlist accepted the artifact fields by name only (medium); the report merged two
 Stories that shared an identity (medium).
+
+The second audit (of `ef02f935e2`, rejected) found two more, repaired together: reuse
+checked the history only for a record claiming PASS, so a coverage-only FAIL - which
+the evaluator republishes as a PASS once coverage is complete - bypassed both the
+sticky failure and the unreadable history, and the reused publication had no check of
+its own (high); and the terminal the real reuse path appends lacked the protection
+label the new trust predicate requires, which the regression had hidden by building
+that terminal by hand (medium). Repairing the first exposed that a coverage-only
+failure would itself have stuck and refused the recovery it exists for; it is now its
+own failure kind.
 
 ## Limitations
 

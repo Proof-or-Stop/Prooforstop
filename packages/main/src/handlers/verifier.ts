@@ -8,7 +8,7 @@ import { readFindingValidationConstraints } from '../core/finding-validation.js'
 import { signTestValidationEvidence, verifyTestValidationEvidence } from '../core/validation-artifact-signing.js';
 import { acceptanceCompletionBlocker } from '../core/acceptance-amendment-gates.js';
 import { commandFromString, configuredValidationCommands, filterFocusedConfiguredCommands, sourceInputSnapshot, routineIdentityPolicySnapshot, buildValidateFileCommand } from './validation-identity.js';
-import { describeStickyFailure, readValidationHistory, stickyFailuresFor } from '../core/validation-verdict-stickiness.js';
+import { COVERAGE_INCOMPLETE_FAILURE_KIND, passPublicationRefusal, readValidationHistory, verdictIdentityFromParts } from '../core/validation-verdict-stickiness.js';
 export { configuredValidationCommands, sourceInputSnapshot } from './validation-identity.js';
 import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 /**
@@ -91,6 +91,7 @@ import {
   routineReuseTerminalAttribution,
   type RoutineReuseTerminalAttribution,
   isCompleteRoutineValidationIdentity,
+  isCoverageOnlyFailure,
   isReusableCommandPass,
   summarizeRoutineCommandExecution,
   type RoutineValidationReuseEvaluation,
@@ -1116,6 +1117,24 @@ function reusedStoryValidationResult(args: {
     });
   }
   const buildArtifactsHash = reusedBinding.buildArtifactsHash;
+  // Fail is sticky where a reused PASS is published too: this function signs
+  // an older record as a fresh PASS without executing anything, so it reads
+  // the same history the executed publication reads.
+  const flipRefusal = passPublicationRefusal(
+    readValidationHistory(args.ctx.store, args.storyId),
+    verdictIdentityFromParts({ commandSetHash: args.identity.digest, materialHash, storyFilesHash, buildArtifactsHash }),
+  );
+  if (flipRefusal) {
+    return externalResult({
+      provider: 'proof-or-stop-verifier-reuse-persistence',
+      status: 'fail',
+      failureKind: 'infra_failure',
+      summary: 'Validation reuse refused because this identity has an executed failure on record',
+      details: ['canonical-pass-persistence-failed', flipRefusal],
+      warnings: [],
+      commands: [],
+    });
+  }
   const storyRel = normalizeRelPath(relative(
     realpathSync(args.gitCwd),
     realpathSync(args.ctx.store.storyDirPath(args.storyId)),
@@ -1206,7 +1225,13 @@ function reusedStoryValidationResult(args: {
     expectedHashes = publicationOutputHashes(transaction, storyRel, prepared.sha256);
     assertCurrentValidationPublicationOwner(args.ctx.root, args.storyId);
     args.ctx.store.writePreparedTestEvidence(args.storyId, prepared);
-    const terminal = recordValidationTerminal(args.ctx, args.storyId, args.gitCwd, reused, args.identity);
+    // The terminal carries the compiled-artifact identity and protection of
+    // the record that was reused, exactly what done_prepare binds it to.
+    const terminal = recordValidationTerminal(args.ctx, args.storyId, args.gitCwd, {
+      ...reused,
+      buildArtifactsHash,
+      ...(priorEvidence.buildArtifactsProtection ? { buildArtifactsProtection: priorEvidence.buildArtifactsProtection } : {}),
+    }, args.identity);
     if (!terminal) throw new Error('VALIDATION_TERMINAL_RECEIPT_MISSING: canonical publication requires a terminal append receipt');
     const terminalHashes = publicationOutputHashes(transaction, storyRel, prepared.sha256, terminal);
     expectedHashes.set(`${storyRel}/process-events.jsonl`, terminalHashes.get(`${storyRel}/process-events.jsonl`)!);
@@ -1401,7 +1426,7 @@ function recordValidationTerminal(
     result: result.allPass === false || result.status === 'fail' ? 'fail' : 'pass',
     // A verdict about the code or an infrastructure failure: fail-sticky
     // treats only the former as a verdict, and a missing kind as a verdict.
-    ...(result.failureKind === 'infra_failure' || result.failureKind === 'validation_failure' ? { failureKind: result.failureKind } : {}),
+    ...(result.failureKind === 'infra_failure' || result.failureKind === 'validation_failure' || result.failureKind === COVERAGE_INCOMPLETE_FAILURE_KIND ? { failureKind: result.failureKind } : {}),
     materialHash: currentMaterialHash(gitCwd, 'HEAD', ctx.root) ?? '',
     storyFilesHash: currentStoryFilesHash(gitCwd, 'HEAD', ctx.root) ?? '',
     // Observable build identity: two executions against different compiled
@@ -1574,16 +1599,12 @@ function persistStoryValidationEvidence(
     // reports failure instead of signing it. The refusal is a persistence
     // failure (infrastructure), so it does not itself become a sticky verdict;
     // the original failure already is one.
-    if (allPass && identity?.digest && hashes.materialHash && hashes.storyFilesHash && hashes.buildArtifactsHash) {
-      const history = readValidationHistory(ctx.store, storyId);
-      if ('unreadable' in history) {
-        return persistenceFailure(`the Story's validation history could not be read (${history.unreadable}); a PASS cannot be published without knowing whether this identity has failed [validation_history_unreadable]`);
-      }
-      const verdictIdentity = { commandSetHash: identity.digest, materialHash: hashes.materialHash, storyFilesHash: hashes.storyFilesHash, buildArtifactsHash: hashes.buildArtifactsHash };
-      const sticky = stickyFailuresFor(verdictIdentity, history.terminals);
-      if (sticky.length > 0) {
-        return persistenceFailure(`${describeStickyFailure(verdictIdentity, sticky)} [verdict_flip_refused]`);
-      }
+    if (allPass) {
+      const flipRefusal = passPublicationRefusal(
+        readValidationHistory(ctx.store, storyId),
+        verdictIdentityFromParts({ commandSetHash: identity?.digest, ...hashes }),
+      );
+      if (flipRefusal) return persistenceFailure(flipRefusal);
     }
     storyRel = normalizeRelPath(relative(
       realpathSync(gitCwd),
@@ -1652,7 +1673,13 @@ function persistStoryValidationEvidence(
     expectedHashes = publicationOutputHashes(transaction, storyRel, prepared.sha256);
     assertCurrentValidationPublicationOwner(ctx.root, storyId);
     ctx.store.writePreparedTestEvidence(storyId, prepared);
-    const terminal = recordValidationTerminal(ctx, storyId, gitCwd, result, identity, reuseAttribution);
+    // Every required command passed and only required coverage is missing:
+    // not a verdict about the code. The kind is derived from the record being
+    // published, with the predicate the reuse evaluator republishes it under.
+    const terminalResult = isCoverageOnlyFailure(persistedBound.record, expectedCommandCount)
+      ? { ...result, failureKind: COVERAGE_INCOMPLETE_FAILURE_KIND }
+      : result;
+    const terminal = recordValidationTerminal(ctx, storyId, gitCwd, terminalResult, identity, reuseAttribution);
     if (!terminal) throw new Error('VALIDATION_TERMINAL_RECEIPT_MISSING: canonical publication requires a terminal append receipt');
     const terminalHashes = publicationOutputHashes(transaction, storyRel, prepared.sha256, terminal);
     expectedHashes.set(`${storyRel}/process-events.jsonl`, terminalHashes.get(`${storyRel}/process-events.jsonl`)!);

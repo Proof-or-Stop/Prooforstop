@@ -380,6 +380,25 @@ export interface RoutineValidationReuseEvaluation {
   refusalReasons: string[];
 }
 
+/**
+ * A FAIL whose only recorded shortfall is required verification coverage: every
+ * required command passed. It is the one failing record the evaluator below
+ * republishes as a PASS once coverage is complete, and the terminal producer
+ * classifies its failure with the same predicate, so the failure that may be
+ * republished and the failure that does not stick are one class by construction.
+ */
+export function isCoverageOnlyFailure(
+  evidence: Pick<TestEvidenceData, 'result' | 'verificationCoverage' | 'commandExecution'> | null | undefined,
+  expectedCommandCount: number,
+): boolean {
+  return Boolean(evidence)
+    && evidence!.result === 'FAIL'
+    && evidence!.verificationCoverage !== undefined
+    && Number.isInteger(evidence!.verificationCoverage.missingRequired)
+    && evidence!.verificationCoverage.missingRequired > 0
+    && isReusableCommandPass(evidence!.commandExecution, expectedCommandCount);
+}
+
 export function evaluateRoutineValidationReuse(args: {
   root: string;
   gitCwd: string;
@@ -430,9 +449,11 @@ export function evaluateRoutineValidationReuse(args: {
   // Fail is sticky: a PASS on an identity an executed run failed on is a
   // flipped verdict, and re-running until it passes is exactly the pattern the
   // history showed. Only a change to the material or the build releases it.
-  // Only a record that claims a passing verdict can be a flipped verdict; a
-  // record of a failed execution already refuses on its own terms above.
-  if (args.validationHistory && evidence.result === 'PASS' && evidence.commandExecution?.status === 'PASS') {
+  // Every candidate that can become a reused PASS is judged: a record that
+  // claims a passing verdict, and a coverage-only FAIL whose passing commands
+  // are republished as a PASS once coverage is complete. A record of a failed
+  // execution already refuses on its own terms above.
+  if (args.validationHistory && (evidence.result === 'PASS' || priorCoverageOnlyFailure) && evidence.commandExecution?.status === 'PASS') {
     if ('unreadable' in args.validationHistory) reasons.push(HISTORY_UNREADABLE_REUSE_REASON);
     else {
       const verdictIdentity = validationVerdictIdentity(evidence);

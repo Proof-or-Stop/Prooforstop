@@ -58,6 +58,19 @@ if (stickiness?.stickyFailuresFor) {
   check(sticky([terminal({ buildArtifactsHash: undefined })]).length === 0, 'a legacy terminal without the compiled-artifact identity cannot be matched and must not stick');
   expectRepaired(sticky([terminal({ failureKind: undefined })]).length === 1, 'a failure that recorded no failureKind must be treated as a verdict (fail closed), not as infrastructure');
   check(sticky([terminal({ timestamp: '2027-01-01T00:00:00.000Z' })]).length === 1, 'order does not matter: a later failure on the same identity still dominates an earlier pass');
+  // Audit 2: a coverage-only failure - every required command passed, only
+  // required coverage was missing - is the failure the reuse evaluator later
+  // republishes as a PASS. It is not a verdict about the code.
+  expectRepaired(sticky([terminal({ failureKind: 'coverage_incomplete' })]).length === 0, 'a coverage-only failure stuck, which would refuse the coverage recovery the evaluator is built to allow');
+  // Audit 2: one refusal for both publications, the executed and the reused.
+  expectRepaired(typeof stickiness.passPublicationRefusal === 'function', 'there is no shared publication refusal for the executed and the reused publication');
+  if (typeof stickiness.passPublicationRefusal === 'function') {
+    const refusal = stickiness.passPublicationRefusal;
+    check(String(refusal({ terminals: [terminal()] }, identityA)).includes('[verdict_flip_refused]'), 'publication must refuse a PASS on an identity with an executed failure');
+    check(String(refusal({ unreadable: 'line 3 is not valid JSON' }, identityA)).includes('[validation_history_unreadable]'), 'publication must refuse a PASS over an unreadable history');
+    check(refusal({ terminals: [terminal({ failureKind: 'coverage_incomplete' }), terminal({ failureKind: 'infra_failure' })] }, identityA) === null, 'control: coverage-only and infrastructure failures do not refuse publication');
+    check(refusal({ terminals: [terminal()] }, null) === null && stickiness.verdictIdentityFromParts({ ...identityA, buildArtifactsHash: 'short' }) === null, 'control: an identity with a missing or malformed part is never matched');
+  }
 } else {
   expectRepaired(false, 'core/validation-verdict-stickiness does not exist');
 }
@@ -118,6 +131,21 @@ try {
   });
   check(failedReuse.reusable === false && !failedReuse.refusalReasons.includes('verdict-flip-unattested'),
     `control: a record of a failed execution refuses on its own terms, without the flip reason (${failedReuse.refusalReasons.join(',')})`);
+  // Audit 2: a coverage-only FAIL is republished as a PASS once coverage is
+  // complete, so it is a candidate like any PASS and is judged against the
+  // same history. Its own coverage-only terminal does not refuse the recovery.
+  const coverageOnly = { ...evidence, result: 'FAIL', verificationCoverage: { missingRequired: 1 } };
+  const reuseCoverageOnly = (validationHistory) => evaluateRoutineValidationReuse({
+    root, gitCwd: root, evidence: coverageOnly, currentIdentity: identity, currentCoverage: { missingRequired: 0 },
+    currentMaterialHash: materialHash, currentStoryFilesHash: storyFilesHash, currentBuildArtifactsHash: buildArtifactsHash, clean: true, headBefore: head, headAfter: head,
+    validationHistory,
+  });
+  check(reuseCoverageOnly({ terminals: [] }).reusable === true, `control: a coverage-only FAIL is reusable once coverage is complete (${reuseCoverageOnly({ terminals: [] }).refusalReasons.join(',')})`);
+  check(reuseCoverageOnly({ terminals: [terminal({ ...real, storyId, failureKind: 'coverage_incomplete' })] }).reusable === true, 'control: the coverage-only failure on record does not refuse its own recovery');
+  expectRepaired(reuseCoverageOnly({ terminals: [failed] }).refusalReasons.includes('verdict-flip-unattested'),
+    `a coverage-only FAIL was reusable as a PASS although an executed run failed on its identity (${reuseCoverageOnly({ terminals: [failed] }).refusalReasons.join(',') || 'no refusal'})`);
+  expectRepaired(reuseCoverageOnly({ unreadable: 'process-events.jsonl: line 3 is not valid JSON' }).refusalReasons.includes('validation-history-unreadable'),
+    'a coverage-only FAIL was reusable as a PASS over an unreadable history');
   const failedAdmit = evaluateValidationEvidenceAdmissibility({
     evidence: { ...evidence, result: 'FAIL' }, expectedCommand: evidence.command, currentCoverageSnapshot: 'coverage', recordedCoverageSnapshot: 'coverage', blockingDirtyReason: '', gitCwd: root, metadataRoot: root,
     validationHistory: { terminals: [failed] },
@@ -224,7 +252,7 @@ const { deriveCertificationDomainInputHashes } = await import('../packages/main/
 const cliSandbox = mkdtempSync(join(tmpdir(), 'pos-verdict-stickiness-cli-'));
 const switchPath = join(cliSandbox, 'switch.txt');
 try {
-  const seed = (name, validateTs) => {
+  const seed = (name, validateTs, priority = 'should') => {
     const root = join(cliSandbox, name); mkdirSync(root);
     const storyId = 'B-stk-cli';
     const git = (a) => execFileSync('git', a, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
@@ -239,7 +267,7 @@ try {
     const now = '2026-09-20T00:00:00.000Z';
     const store = new StoryStore(root);
     store.writeStory(storyId, { storyId, name: 'verdict-stickiness-cli', title: 'Verdict stickiness through the CLI', description: 'Disposable fixture: a flaky validate file on an unchanged identity.', type: 'bug', phase: 'TEST', priority: 'medium', createdAt: now, startedAt: now, endedAt: null, riskSignals: [], currentReviewRound: now, events: [{ phase: 'TEST', action: 'advance', timestamp: now }] });
-    store.writeChecklist(storyId, { items: [{ id: 'CHK-001', title: 'flaky', context: 'validate file', status: 'done', verificationIntent: { happy: [{ desc: 'validate file runs', type: 'logic', priority: 'should' }], edge: [], adversarial: [] }, startTime: now, endTime: now }] });
+    store.writeChecklist(storyId, { items: [{ id: 'CHK-001', title: 'flaky', context: 'validate file', status: 'done', verificationIntent: { happy: [{ desc: 'validate file runs', type: 'logic', priority }], edge: [], adversarial: [] }, startTime: now, endTime: now }] });
     const admit = () => {
       persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes: deriveCertificationDomainInputHashes(root, 'HEAD', root) });
       git(['add', '.proof-or-stop']); git(['commit', '-qm', 'admit one execution']);
@@ -257,7 +285,7 @@ try {
     const evidencePath = join(root, `.proof-or-stop/story/actives/${storyId}/test-evidence.json`);
     const evidence = () => existsSync(evidencePath) ? JSON.parse(readFileSync(evidencePath, 'utf8')) : null;
     const history = () => (stickiness ? stickiness.readValidationHistory(store, storyId) : { terminals: [] });
-    return { root, admit, runCli, evidence, history };
+    return { root, storyId, store, git, admit, runCli, evidence, history };
   };
   const flaky = (extraJson = '') => `const verdict = require('node:fs').readFileSync(process.env.STICKINESS_SWITCH, 'utf8').trim();\nconsole.log(JSON.stringify({ provider: 'flaky-fixture', status: verdict === 'pass' ? 'pass' : 'fail', allPass: verdict === 'pass', summary: verdict, details: [], warnings: []${extraJson} }));\nprocess.exit(verdict === 'pass' ? 0 : 1);\n`;
   const kinds = (h) => JSON.stringify(('terminals' in h ? h.terminals : []).map((t) => [t.result, t.disposition, t.failureKind]));
@@ -297,9 +325,68 @@ try {
   writeFileSync(switchPath, 'pass\n');
   const steadyFirst = steady.runCli();
   check(steadyFirst.status === 0 && steady.evidence()?.result === 'PASS', `control: a passing run must pass (${steadyFirst.text.slice(0, 300)})`);
+  // Audit 2: the terminal the REAL reuse path appends must be the one
+  // done_prepare trusts, bound to the reused evidence's identity and protection.
+  const reusedRun = steady.runCli();
+  const reusedHistory = steady.history();
+  const realReused = 'terminals' in reusedHistory ? reusedHistory.terminals.find((t) => t.disposition === 'reused') : undefined;
+  check(reusedRun.status === 0 && Boolean(realReused), `control: a second run on an unchanged identity is reused (${kinds(reusedHistory)} ${reusedRun.text.slice(0, 200)})`);
+  const reusedEvidence = steady.evidence();
+  const trust = (await import('../packages/main/src/core/done-prepare-generated-metadata.ts')).isTrustedReusedValidationTerminal;
+  const story = steady.store.readStory(steady.storyId);
+  const binding = realReused ? {
+    storyId: steady.storyId, attemptId: story.currentReviewRound ?? '', reviewRound: story.currentReviewRound ?? '', phase: 'TEST', disposition: 'reused', result: 'pass', commandExecutions: 0,
+    commandSetHash: reusedEvidence.routineValidationIdentity.digest, materialHash: reusedEvidence.materialHash, storyFilesHash: reusedEvidence.storyFilesHash,
+    buildArtifactsHash: reusedEvidence.buildArtifactsHash, buildArtifactsProtection: reusedEvidence.buildArtifactsProtection,
+    notBefore: '2000-01-01T00:00:00.000Z', notAfter: '2100-01-01T00:00:00.000Z',
+  } : null;
+  expectRepaired(Boolean(realReused) && typeof realReused.buildArtifactsProtection === 'string' && realReused.buildArtifactsProtection === reusedEvidence?.buildArtifactsProtection && realReused.buildArtifactsHash === reusedEvidence?.buildArtifactsHash,
+    `the real reused terminal does not carry the reused evidence's compiled-artifact identity and protection (${JSON.stringify(realReused)})`);
+  expectRepaired(Boolean(binding) && typeof trust === 'function' && trust(realReused, binding) === true, 'done_prepare refuses the terminal the real reuse path writes');
   steady.admit();
   const steadySecond = steady.runCli();
   check(steadySecond.status === 0 && !steadySecond.text.includes('verdict_flip_refused'), `control: a second pass on a never-failed identity must not be refused (${steadySecond.text.slice(0, 300)})`);
+
+  // Audit 2: a real coverage-only failure - the commands pass, a required
+  // intent has no evidence - records its own kind, from the executor's facts.
+  const uncovered = seed('uncovered', flaky(), 'must');
+  writeFileSync(switchPath, 'pass\n');
+  const uncoveredRun = uncovered.runCli();
+  const uncoveredEvidence = uncovered.evidence();
+  check(uncoveredRun.status !== 0 && uncoveredEvidence?.result === 'FAIL' && uncoveredEvidence?.commandExecution?.status === 'PASS' && uncoveredEvidence?.verificationCoverage?.missingRequired === 1,
+    `control: passing commands with a missing required intent fail on coverage alone (${uncoveredRun.text.slice(0, 300)})`);
+  expectRepaired(kinds(uncovered.history()) === JSON.stringify([['fail', 'executed', 'coverage_incomplete']]), `a coverage-only failure is not recorded as one (${kinds(uncovered.history())})`);
+  // A commands failure with the same missing coverage is a verdict all the same.
+  const uncoveredFailing = seed('uncovered-failing', flaky(), 'must');
+  writeFileSync(switchPath, 'fail\n');
+  uncoveredFailing.runCli();
+  check(kinds(uncoveredFailing.history()) === JSON.stringify([['fail', 'executed', 'validation_failure']]), `control: failing commands are a validation failure whatever the coverage (${kinds(uncoveredFailing.history())})`);
+
+  // Audit 2: a flipped verdict laundered through a coverage-only FAIL. The
+  // stored record says the commands passed and only coverage was missing; the
+  // history says an executed run FAILED on that identity. Coverage is complete
+  // now, so before the repair the evaluator republished the record as a PASS.
+  // The record is a trusted fixture, re-signed the way the reuse smoke does it.
+  const { signTestValidationEvidence: signEvidence } = await import('../packages/main/src/core/validation-artifact-signing.ts');
+  const launder = (name, failureKind) => {
+    const fixture = seed(name, flaky());
+    writeFileSync(switchPath, 'pass\n');
+    const earned = fixture.runCli();
+    const pass = fixture.evidence();
+    check(earned.status === 0 && pass?.result === 'PASS', `control: ${name} earns a PASS first (${earned.text.slice(0, 200)})`);
+    fixture.store.writeTestEvidence(fixture.storyId, signEvidence(fixture.storyId, { ...pass, result: 'FAIL', failureKind: 'validation_failure', verificationCoverage: { ...pass.verificationCoverage, required: 1, missingRequired: 1 } }, fixture.root));
+    fixture.store.appendProcessEvent(fixture.storyId, { ...terminal({ storyId: fixture.storyId, failureKind, commandSetHash: pass.routineValidationIdentity.digest, materialHash: pass.materialHash, storyFilesHash: pass.storyFilesHash, buildArtifactsHash: pass.buildArtifactsHash }), timestamp: undefined });
+    fixture.git(['add', '.proof-or-stop']); fixture.git(['commit', '-qm', 'record a coverage-only failure and the failure history']);
+    fixture.admit();
+    return { fixture, run: fixture.runCli() };
+  };
+  const recovered = launder('recovered', 'coverage_incomplete');
+  check(recovered.run.status === 0 && recovered.fixture.evidence()?.result === 'PASS' && recovered.fixture.evidence()?.disposition === 'reused',
+    `control: a genuine coverage-only failure still recovers by reuse once coverage is complete (${recovered.run.text.slice(0, 400)})`);
+  const laundered = launder('laundered', 'validation_failure');
+  expectRepaired(laundered.run.status !== 0 && laundered.fixture.evidence()?.result !== 'PASS',
+    `a failed identity was republished as a PASS through a coverage-only record (exit=${laundered.run.status} evidence=${laundered.fixture.evidence()?.result}/${laundered.fixture.evidence()?.disposition})`);
+  expectRepaired(laundered.run.text.includes('verdict_flip_refused') || laundered.run.text.includes('verdict-flip-unattested'), `the laundered retry's output does not name the refusal (${laundered.run.text.slice(0, 400)})`);
 } finally {
   rmSync(cliSandbox, { recursive: true, force: true });
 }
@@ -316,8 +403,8 @@ const admissionHandler = readFileSync(join(repoRoot, 'packages/main/src/handlers
 expectRepaired(admissionHandler.includes('validationHistory: readValidationHistory(ctx.store, storyId)'), 'the DONE-side admissibility handler does not hand the Story history to the evaluator (source-text guard)');
 // Audit: the flip is refused where the PASS would be published, and the
 // validate-file path never trusts a child-printed failure kind.
-expectRepaired(verifierSource.includes('[verdict_flip_refused]') && verifierSource.includes('const sticky = stickyFailuresFor(verdictIdentity, history.terminals);'),
-  'publication does not refuse a PASS on an identity that failed (source-text guard)');
+expectRepaired((verifierSource.match(/passPublicationRefusal\(/g) ?? []).length === 2,
+  'the executed and the reused publication do not both read the shared publication refusal (source-text guard)');
 expectRepaired(verifierSource.includes('failureKind: _printedKind, ...rest }') && verifierSource.includes("failureKind: validation.failureKind ?? 'validation_failure'"),
   'the validate-file path still trusts a child-printed failureKind (source-text guard)');
 

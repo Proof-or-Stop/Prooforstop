@@ -11,11 +11,15 @@
  * either executed again or reused from older evidence.
  *
  * What does not stick: an infrastructure failure (a timeout, a refused launch,
- * a persistence failure) is not a verdict about the code; a reused terminal
- * executed nothing; and a legacy terminal without the compiled-artifact
- * identity cannot be matched to anything and is left alone rather than guessed.
- * A failure that recorded no failure kind at all is treated as a verdict, so a
- * producer that forgets the kind fails closed rather than open.
+ * a persistence failure) is not a verdict about the code; neither is a
+ * coverage-only failure, where every required command passed and only required
+ * verification coverage was missing - that is the one failure the reuse
+ * evaluator republishes as a PASS once coverage is complete, and the commands'
+ * verdict never changed. A reused terminal executed nothing; and a legacy
+ * terminal without the compiled-artifact identity cannot be matched to anything
+ * and is left alone rather than guessed. A failure that recorded no failure kind
+ * at all is treated as a verdict, so a producer that forgets the kind fails
+ * closed rather than open.
  */
 
 import { existsSync, readFileSync } from 'node:fs';
@@ -43,6 +47,9 @@ export interface ValidationTerminalFact {
 
 export const VERDICT_FLIP_REUSE_REASON = 'verdict-flip-unattested';
 export const VERDICT_FLIP_ADMISSION_CODE = 'verdict_flip_unattested';
+export const VERDICT_FLIP_PUBLICATION_CODE = 'verdict_flip_refused';
+/** Terminal failure kind of a run whose required commands all passed and whose only shortfall was required verification coverage. */
+export const COVERAGE_INCOMPLETE_FAILURE_KIND = 'coverage_incomplete';
 
 const isSha256 = (value: unknown): value is string => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
 
@@ -58,12 +65,19 @@ export function validationVerdictIdentity(evidence: {
   return { commandSetHash, materialHash: evidence.materialHash, storyFilesHash: evidence.storyFilesHash, buildArtifactsHash: evidence.buildArtifactsHash };
 }
 
+/** The identity a publication is about to bind, or null when any part is missing or malformed. */
+export function verdictIdentityFromParts(parts: { commandSetHash?: unknown; materialHash?: unknown; storyFilesHash?: unknown; buildArtifactsHash?: unknown }): ValidationVerdictIdentity | null {
+  if (!isSha256(parts.commandSetHash) || !isSha256(parts.materialHash) || !isSha256(parts.storyFilesHash) || !isSha256(parts.buildArtifactsHash)) return null;
+  return { commandSetHash: parts.commandSetHash, materialHash: parts.materialHash, storyFilesHash: parts.storyFilesHash, buildArtifactsHash: parts.buildArtifactsHash };
+}
+
 /** Executed validation failures recorded on exactly this identity; order is irrelevant. */
 export function stickyFailuresFor(identity: ValidationVerdictIdentity, terminals: readonly ValidationTerminalFact[]): ValidationTerminalFact[] {
   return terminals.filter((terminal) => terminal.type === 'validation_terminal'
     && terminal.result === 'fail'
     && terminal.disposition === 'executed'
     && terminal.failureKind !== 'infra_failure'
+    && terminal.failureKind !== COVERAGE_INCOMPLETE_FAILURE_KIND
     && terminal.commandSetHash === identity.commandSetHash
     && terminal.materialHash === identity.materialHash
     && terminal.storyFilesHash === identity.storyFilesHash
@@ -107,4 +121,18 @@ export function readValidationHistory(store: { storyDirPath(storyId: string): st
     if ((event as ValidationTerminalFact).type === 'validation_terminal') terminals.push(event as ValidationTerminalFact);
   }
   return { terminals };
+}
+
+/**
+ * Why a PASS on this identity must not be published, or null when it may be.
+ * Both publications read it: the executed one, and the reused one that
+ * republishes an older record as a fresh PASS without executing anything.
+ */
+export function passPublicationRefusal(history: ValidationHistory, identity: ValidationVerdictIdentity | null): string | null {
+  if (!identity) return null;
+  if ('unreadable' in history) {
+    return `the Story's validation history could not be read (${history.unreadable}); a PASS cannot be published without knowing whether this identity has failed [${HISTORY_UNREADABLE_ADMISSION_CODE}]`;
+  }
+  const sticky = stickyFailuresFor(identity, history.terminals);
+  return sticky.length > 0 ? `${describeStickyFailure(identity, sticky)} [${VERDICT_FLIP_PUBLICATION_CODE}]` : null;
 }

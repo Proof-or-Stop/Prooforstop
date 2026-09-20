@@ -75,13 +75,16 @@ function summarise(terminals, keys) {
     // One Story's history is its own: the same identity in two Stories is two
     // histories, never one retry attributed to whichever Story came first.
     const key = `${event.storyId}|${identity}`;
-    const group = groups.get(key) ?? { identity, storyId: event.storyId, executions: 0, pass: 0, fail: 0, infraFail: 0, failed: false, executedPassAfterFail: 0, reusedPassAfterFail: 0 };
+    const group = groups.get(key) ?? { identity, storyId: event.storyId, executions: 0, pass: 0, fail: 0, infraFail: 0, coverageFail: 0, failed: false, executedPassAfterFail: 0, reusedPassAfterFail: 0 };
     if (isReused) {
       if (event.result === 'pass' && group.failed) group.reusedPassAfterFail += 1;
     } else {
       group.executions += 1;
       if (event.result === 'pass') { group.pass += 1; if (group.failed) group.executedPassAfterFail += 1; }
       else if (event.failureKind === 'infra_failure') group.infraFail += 1;
+      // Every required command passed and only required coverage was missing:
+      // not a verdict about the code, so a later pass is not a flip.
+      else if (event.failureKind === 'coverage_incomplete') group.coverageFail += 1;
       else { group.fail += 1; group.failed = true; }
     }
     groups.set(key, group);
@@ -98,7 +101,7 @@ function summarise(terminals, keys) {
     failThenExecutedPassIdentities: rows.filter((group) => group.executedPassAfterFail > 0).length,
     failThenReusedPassIdentities: rows.filter((group) => group.reusedPassAfterFail > 0).length,
     reusedPassesAfterFail: rows.reduce((sum, group) => sum + group.reusedPassAfterFail, 0),
-    flips: flipped.map((group) => ({ storyId: group.storyId, identity: group.identity.slice(0, 12), pass: group.pass, fail: group.fail, infraFail: group.infraFail })),
+    flips: flipped.map((group) => ({ storyId: group.storyId, identity: group.identity.slice(0, 12), pass: group.pass, fail: group.fail, infraFail: group.infraFail, coverageFail: group.coverageFail })),
   };
 }
 
@@ -124,7 +127,7 @@ const report = {
 const lines = (title, block) => [
   `${title}: identities ${block.identities}; re-executed ${block.reExecutedIdentities}; redundant executions ${block.redundantExecutions}; flipped (fail and pass on one identity) ${block.flippedIdentities}`,
   `  a failure followed by a pass on the identical identity: executed again ${block.failThenExecutedPassIdentities}; reused from older evidence ${block.failThenReusedPassIdentities} (${block.reusedPassesAfterFail} reused passes)`,
-  ...block.flips.map((flip) => `  flip ${flip.storyId} ${flip.identity}… pass=${flip.pass} fail=${flip.fail} infra=${flip.infraFail}`),
+  ...block.flips.map((flip) => `  flip ${flip.storyId} ${flip.identity}… pass=${flip.pass} fail=${flip.fail} infra=${flip.infraFail} coverage=${flip.coverageFail}`),
 ];
 if (asJson) console.log(JSON.stringify(report, null, 2));
 else {
