@@ -6,8 +6,9 @@
  * identity failed, a PASS on the same identity is not fresh evidence: nothing
  * changed and the verdict changed. The failure stands until the material or the
  * build changes, whichever way round the two runs happened. This is the rule the
- * measured history asked for: 23 of 57 re-validated identities flipped fail to
- * pass with nothing changed, all in the passing direction.
+ * recorded history asked for (docs/lab/validation-verdict-stickiness.md): a
+ * failure on an identity was followed, with nothing changed, by a pass that was
+ * either executed again or reused from older evidence.
  *
  * What does not stick: an infrastructure failure (a timeout, a refused launch,
  * a persistence failure) is not a verdict about the code; a reused terminal
