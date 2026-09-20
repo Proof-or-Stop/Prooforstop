@@ -95,7 +95,7 @@ export function evaluateValidationEvidenceAdmissibility(
     else if (input.recordedCoverageSnapshot !== input.currentCoverageSnapshot) add('coverage_stale', 'validation evidence verificationCoverage does not match current checklist inputs/evidence');
   }
   if (input.blockingDirtyReason) add('blocking_dirty', input.blockingDirtyReason);
-  if (input.validationTerminals) {
+  if (input.validationTerminals && evidence.result === 'PASS') {
     const identity = validationVerdictIdentity(evidence);
     const failures = identity ? stickyFailuresFor(identity, input.validationTerminals) : [];
     if (identity && failures.length > 0) add(VERDICT_FLIP_ADMISSION_CODE, describeStickyFailure(identity, failures));

@@ -430,7 +430,9 @@ export function evaluateRoutineValidationReuse(args: {
   // Fail is sticky: a PASS on an identity an executed run failed on is a
   // flipped verdict, and re-running until it passes is exactly the pattern the
   // history showed. Only a change to the material or the build releases it.
-  if (args.validationTerminals) {
+  // Only a record that claims a passing verdict can be a flipped verdict; a
+  // record of a failed execution already refuses on its own terms above.
+  if (args.validationTerminals && evidence.result === 'PASS' && evidence.commandExecution?.status === 'PASS') {
     const verdictIdentity = validationVerdictIdentity(evidence);
     if (verdictIdentity && stickyFailuresFor(verdictIdentity, args.validationTerminals).length > 0) reasons.push(VERDICT_FLIP_REUSE_REASON);
   }
