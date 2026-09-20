@@ -9,6 +9,7 @@ import { resetConfigCache } from '../packages/main/dist/core/config.js';
 import { StoryStore } from '../packages/main/dist/core/store.js';
 import { buildNextSteps } from '../packages/main/dist/handlers/transition-effects.js';
 import { checkCommitAuthor } from '../packages/main/dist/handlers/validate-channel.js';
+import { runImplementationWorkerAuthorityGate } from '../packages/main/dist/handlers/phase-gates.js';
 
 const root = mkdtempSync(join(tmpdir(), 'implementation-worker-authority-'));
 const write = (path, content) => {
@@ -84,6 +85,10 @@ try {
   );
   assert.match(result.summary, /missing dispatch\/subagent_result evidence/);
   assert.match(result.details.join('\n'), /canonical proof-or-stop dispatch/);
+  assert.throws(
+    () => runImplementationWorkerAuthorityGate({ store, root }, storyId),
+    /implementation_worker_authority_invalid/,
+  );
 
   const devGuidance = buildNextSteps(store, root, storyId).DEV;
   assert.match(devGuidance, /First run proof-or-stop dispatch/);
@@ -100,6 +105,7 @@ try {
   const registered = checkCommitAuthor(storyId, { store, projectRoot: root });
   assert.equal(registered.status, 'pass', JSON.stringify(registered));
   assert.equal(registered.evidenceSource, 'subagent_result');
+  assert.doesNotThrow(() => runImplementationWorkerAuthorityGate({ store, root }, storyId));
   console.log('IMPLEMENTATION_WORKER_AUTHORITY_GREEN');
 } finally {
   rmSync(root, { recursive: true, force: true });

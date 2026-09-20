@@ -3084,7 +3084,8 @@ function assertChannelGateRejectsProofOrStopSubjectForRealFiles(): void {
     assert.match(result.summary, /missing dispatch\/subagent_result evidence/);
     assert.match(result.summary, /unexpected implementation attribution/);
     assert.match(result.details.join('\n'), /proof-or-stop: implement real code/);
-    assert.match(result.details.join('\n'), /normal channel primary evidence must be dispatch\/subagent_result/);
+    assert.match(result.details.join('\n'), /canonical proof-or-stop dispatch\/subagent_result evidence is required/);
+    assert.match(result.details.join('\n'), /commit author is an independent audit signal/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
