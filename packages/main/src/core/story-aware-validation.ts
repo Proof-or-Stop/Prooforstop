@@ -8,6 +8,8 @@
  * identity and cache keys; they are not provenance signatures.
  */
 import { execFileSync } from 'node:child_process';
+import { REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied } from './build-artifacts-protection.js';
+import type { ValidationCommandResult } from './validation-types.js';
 import { authorityRevisionClosure, validationAuthoritySources } from './validation-authority-graph.js';
 import { readStoryGitBytes } from './story-git-bytes.js';
 import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
@@ -15,6 +17,7 @@ import { VALIDATION_SOURCE_PROVENANCE_SCHEMA } from './runtime-fact-registry.js'
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, posix, resolve } from 'node:path';
+import { bindLaunchDirectoryIdentity, canonicalizeExistingPath, launchDirectoryDrift, launchDirectoryOf, refreshLaunchIdentityAfterBuild, type LaunchDirectoryIdentity } from './build-artifacts-identity.js';
 import ts from 'typescript';
 import { PROOF_OR_STOP_CONFIG_FILENAME } from './brand-paths.js';
 import { pickProjectConfigPath } from './config.js';
@@ -44,7 +47,8 @@ import {
 
 export const STORY_CHANGE_MANIFEST_SCHEMA = 'proof-or-stop.story-change-manifest.v1' as const;
 export const VALIDATION_CATALOG_SCHEMA = 'proof-or-stop.validation-catalog.v1' as const;
-export const VALIDATION_RECEIPT_SCHEMA = 'proof-or-stop.validation-command-receipt.v2' as const;
+/** v3: a receipt binds the compiled artifacts its command executed and the protection it ran under; v2 receipts fail verification and are re-earned. */
+export const VALIDATION_RECEIPT_SCHEMA = 'proof-or-stop.validation-command-receipt.v3' as const;
 export const VALIDATION_SHARD_RECEIPT_SCHEMA = 'proof-or-stop.validation-shard-receipt.v1' as const;
 export const VALIDATION_SELECTION_SCHEMA = 'proof-or-stop.validation-selection.v1' as const;
 export const VALIDATION_CLOSURE_SCHEMA = 'proof-or-stop.validation-closure-certificate.v1' as const;
@@ -796,6 +800,10 @@ export interface ValidationCommandReceipt {
   producedBy: 'canonical-full-baseline' | 'story-execution'; cleanTreeDigest: string;
   executionEnvironmentDigest: string; result: 'PASS' | 'FAIL' | 'TIMEOUT'; exitCode: number;
   outputDigest: string; durationMs: number; createdAt: string; expiresAt: string;
+  /** core/build-artifacts-identity digest the command executed (equal before and after it ran). */
+  buildArtifactsDigest: string;
+  /** Protection the command ran under; only an enforced or not-applicable label makes the receipt authoritative. */
+  buildArtifactsProtection: string;
   revocationLedgerDigest: string; signature: string;
 }
 export interface ReceiptRevocationLedger {
@@ -819,7 +827,19 @@ export function verifyValidationCommandReceipt(receipt: ValidationCommandReceipt
   if (!Number.isFinite(created) || !Number.isFinite(expiry) || expiry <= created || expiry - created > MAX_RECEIPT_AGE_MS) reasons.push('expiry-policy-invalid');
   if (!Number.isFinite(expiry) || now >= expiry) reasons.push('expired');
   if (!receipt.inputDigest || !receipt.buildProofDigest || !receipt.cleanTreeDigest) reasons.push('missing-source-first-proof');
+  if (!receipt.buildArtifactsDigest || !receiptProtectionAcceptable(receipt.buildArtifactsProtection)) reasons.push('missing-executed-build-binding');
   return { ok: reasons.length === 0, reasons };
+}
+/**
+ * A receipt's protection label is acceptable when the command ran under
+ * enforced (or not-applicable) protection, OR when the receipt is the
+ * registered build's own: the build is the one command permitted to write the
+ * artifacts, its receipt binds the OUTPUT it produced, and stored-evidence
+ * integrity needs that receipt for the Wave-0 row. A registered-build receipt
+ * never authorises reuse (see receiptAdmissible).
+ */
+export function receiptProtectionAcceptable(label: string | undefined): boolean {
+  return artifactProtectionSatisfied(label) || label === REGISTERED_BUILD_PROTECTION_LABEL;
 }
 export const verifyReceipt = verifyValidationCommandReceipt;
 export const createReceipt = createValidationCommandReceipt;
@@ -846,6 +866,13 @@ export function computeValidationInputDigest(args: {
   certifiedPaths: Array<{ path: string; blobId?: string }>;
   commandIdentityDigest?: string; environmentDigest?: string; runnerDigest?: string; catalogDigest?: string;
   graphDigest?: string; closureCertificateDigest?: string; baselineEpoch?: string; toolchainDigest?: string; buildProofDigest?: string;
+  /**
+   * The CANONICAL directory the command runs in (the executor's pinned launch
+   * directory), independent of the declared cwd: a receipt earned while an
+   * ignored symbolic link pointed elsewhere is not this command's receipt,
+   * whatever the tracked inputs and artifacts say.
+   */
+  resolvedCwd?: string;
 }): string {
   const paths = args.certifiedPaths.map(row => normalPath(row.path) + '\0' + (row.blobId || '<deleted>')).sort();
   return stableDigest({
@@ -853,6 +880,7 @@ export function computeValidationInputDigest(args: {
     environmentDigest: args.environmentDigest || '', runnerDigest: args.runnerDigest || '', catalogDigest: args.catalogDigest || '',
     graphDigest: args.graphDigest || '', closureCertificateDigest: args.closureCertificateDigest || '',
     baselineEpoch: args.baselineEpoch || '', toolchainDigest: args.toolchainDigest || '', buildProofDigest: args.buildProofDigest || '',
+    resolvedCwd: args.resolvedCwd || '',
   });
 }
 export function loadBestMatchingAdmissiblePassReceipt(args: { commandId: string; inputDigest: string; baselineEpochId: string; receipts: ValidationCommandReceipt[]; now?: number }): ValidationCommandReceipt | undefined {
@@ -861,7 +889,13 @@ export function loadBestMatchingAdmissiblePassReceipt(args: { commandId: string;
     .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt) || b.id.localeCompare(a.id))[0];
 }
 
-export interface SelectionRow { commandId: string; disposition: DynamicDisposition; reasons: string[]; inputDigest: string; receiptId?: string; closureCertificateDigest?: string; }
+export interface SelectionRow {
+  commandId: string; disposition: DynamicDisposition; reasons: string[]; inputDigest: string; receiptId?: string; closureCertificateDigest?: string;
+  /** The canonical directory the command runs in, resolved ONCE at planning: every execution wave launches there and a receipt is issued only for a result that did. */
+  resolvedCwd?: string;
+  /** The filesystem identity of resolvedCwd at planning; every launch re-verifies the directory against it before running there. */
+  resolvedCwdIdentity?: LaunchDirectoryIdentity;
+}
 export interface ValidationSingletonContribution {
   /** The independently computed singleton input that contributed commands. */
   source: string;
@@ -891,9 +925,19 @@ export interface DynamicValidationContext {
   closures?: Map<string, ValidationClosureCertificate> | Record<string, ValidationClosureCertificate>;
   receipts?: ValidationCommandReceipt[]; baselineEpochId?: string; revocationLedger?: ReceiptRevocationLedger;
   buildProofDigest?: string; toolchainDigest?: string; runnerDigest?: string; mode?: DynamicValidationMode;
+  /** Identity of the compiled artifacts this run's Wave-0 build left; a receipt may be reused only if its command executed exactly these bytes. */
+  buildArtifactsHash?: string;
   graph?: DualRevisionImpactGraph; scopeContract?: ScopeContractData; gitCwd?: string; now?: number;
   /** Stable build/Wave-0 command that must execute on every dynamic run. */
   buildCommandId?: string;
+  /**
+   * Launch directories FROZEN by an earlier planning of this same run (the
+   * planning before Wave-0): a command listed here keeps that canonical
+   * directory and identity instead of resolving its cwd again, so a Wave-0
+   * command that re-points an alias cannot move where a later command runs
+   * or what identity its receipt is signed for.
+   */
+  launchDirectories?: ReadonlyMap<string, FrozenLaunchDirectory>;
   /** Canonical Story-relevance decision generated from the same Story snapshot as validation_plan. */
   tierSelection?: AutomaticValidationTierSelectionBinding;
 }
@@ -912,15 +956,131 @@ function normalizeSingletonContributions(contributions: ValidationSingletonContr
 function singletonUnion(contributions: ValidationSingletonContribution[]): Set<string> {
   return new Set(contributions.flatMap(row => row.commandIds));
 }
+/**
+ * Replay campaigns: whether a receipted command must execute rather than be
+ * reused. The planner never reuses always-assurance, never-reuse-closure or
+ * forbidden full-only commands, nor the registered build's receipt (it
+ * carries the writes-permitted label and vouches for the OUTPUT it produced,
+ * not for a test that could be skipped on its strength).
+ */
+export function replayMandatoryExecution(entry: Pick<ValidationCatalogEntry, 'assurance' | 'closurePolicy' | 'fullBaselineReusePolicy'>, receipt?: Pick<ValidationCommandReceipt, 'buildArtifactsProtection'>): boolean {
+  if (receipt?.buildArtifactsProtection === REGISTERED_BUILD_PROTECTION_LABEL) return true;
+  return entry.assurance === 'always' || entry.closurePolicy === 'never-reuse' || (entry.assurance === 'full-only' && entry.fullBaselineReusePolicy === 'forbidden');
+}
+
+/**
+ * Replay campaigns: reused rows vouch only for the artifacts their receipts
+ * executed. A selected plan that left different artifacts behind (a
+ * registered build re-ran and produced other bytes) means the skipped tests
+ * covered bytes that are no longer the ones under test; the reason names
+ * the disagreement, undefined means the reuse still holds.
+ */
+export function reusedReceiptsStillBound(args: { reused: number; receiptBuild?: string; executedBuild?: string }): string | undefined {
+  if (args.reused === 0) return undefined;
+  if (!args.receiptBuild || !args.executedBuild) return `${args.reused} reused row(s) but the artifact identity is unavailable (receipts bound to ${args.receiptBuild ?? 'nothing'}, execution left ${args.executedBuild ?? 'nothing'})`;
+  if (args.receiptBuild !== args.executedBuild) return `${args.reused} reused row(s) are bound to artifacts ${args.receiptBuild.slice(0, 12)} but the selected plan left ${args.executedBuild.slice(0, 12)}; the skipped tests covered other bytes`;
+  return undefined;
+}
+
+/**
+ * The clean-tree digest every PASS receipt must carry: the tree was observed
+ * clean at the command's start AND end under the executor's provenance
+ * schema. One definition for the producers (the dynamic run, the replay
+ * baseline) and the consumer (receiptAdmissible), so a receipt a producer
+ * signs is one the planner can reuse.
+ */
+export function receiptCleanTreeDigest(head: string, storyId: string): string {
+  return stableDigest({ head, storyId, status: 'clean-at-command-start-and-end', provenanceSchema: VALIDATION_SOURCE_PROVENANCE_SCHEMA });
+}
 function isTrustedAncestor(sourceHead: string, currentHead: string, gitCwd = process.cwd()): boolean {
   if (!sourceHead) return false;
   if (sourceHead === currentHead) return true;
   try { execFileSync('git', ['merge-base', '--is-ancestor', sourceHead, currentHead], { cwd: gitCwd, stdio: 'ignore' }); return true; } catch { return false; }
 }
-/** Bind declared values to the same ambient/overlay normalization as execution. */
-function declaredEnvironmentDigest(entry: ValidationCatalogEntry, ctx: DynamicValidationContext): string {
+/**
+ * The CANONICAL directory a catalog entry runs in, exactly as the executor
+ * pins it before launching (an ignored symbolic link re-pointed at another
+ * directory is a different directory).
+ */
+/** A command's canonical launch directory with the filesystem identity bound when it was frozen. */
+export interface FrozenLaunchDirectory { readonly path: string; readonly identity?: LaunchDirectoryIdentity }
+
+/** The launch directory a command is bound to: the frozen one when this run froze it earlier, otherwise resolved and bound now. */
+export function entryLaunchDirectory(entry: Pick<ValidationCatalogEntry, 'id' | 'cwd'>, ctx: Pick<DynamicValidationContext, 'projectRoot' | 'gitCwd' | 'launchDirectories'>): FrozenLaunchDirectory {
+  const frozen = ctx.launchDirectories?.get(entry.id);
+  if (frozen) return frozen;
+  const path = canonicalEntryCwd(entry, ctx);
+  const identity = bindLaunchDirectoryIdentity(path);
+  return identity ? { path, identity } : { path };
+}
+
+/** The launch directories a selection manifest froze, keyed by command id, for the run's later plannings. */
+export function frozenLaunchDirectoriesOf(manifest: Pick<ValidationSelectionManifest, 'rows'>): Map<string, FrozenLaunchDirectory> {
+  const frozen = new Map<string, FrozenLaunchDirectory>();
+  for (const row of manifest.rows) if (row.resolvedCwd) frozen.set(row.commandId, row.resolvedCwdIdentity ? { path: row.resolvedCwd, identity: row.resolvedCwdIdentity } : { path: row.resolvedCwd });
+  return frozen;
+}
+
+/**
+ * After a successful Wave-0 build: frozen directories inside the artifact
+ * trees are re-bound to the recreated inode (the build may recreate the
+ * trees; their canonical path must still resolve to itself), every other
+ * frozen directory keeps its identity. The result is the map the post-build
+ * planning and every later launch must use.
+ */
+export function refreshFrozenLaunchDirectoriesAfterBuild(frozen: ReadonlyMap<string, FrozenLaunchDirectory>, artifactsRoot: string): Map<string, FrozenLaunchDirectory> {
+  const refreshed = new Map<string, FrozenLaunchDirectory>();
+  for (const [commandId, directory] of frozen) {
+    const result = refreshLaunchIdentityAfterBuild(directory.path, directory.identity, artifactsRoot);
+    refreshed.set(commandId, result.drift || !result.identity ? directory : { path: directory.path, identity: result.identity });
+  }
+  return refreshed;
+}
+
+/**
+ * Whether a result demonstrably ran in the directory its selection row is
+ * bound to: the receipt a producer signs for that row's input digest is only
+ * ever issued for such a result (the executor records launchCwd only for a
+ * launch it verified). One predicate for the dynamic run and the replay.
+ */
+export function resultRanInBoundDirectory(row: Pick<SelectionRow, 'resolvedCwd'>, result: Pick<ValidationCommandResult, 'launchCwd'>): boolean {
+  return Boolean(row.resolvedCwd) && result.launchCwd === row.resolvedCwd;
+}
+
+/**
+ * The launch bindings a manifest froze, in the order of the commands a plan
+ * built from `catalog` will carry, for an executor call that must run every
+ * command where the manifest bound it.
+ */
+export function frozenLaunchOptionsOf(manifest: Pick<ValidationSelectionManifest, 'rows'>, catalog: readonly Pick<ValidationCatalogEntry, 'id'>[]): { launchCwds: (string | undefined)[]; launchIdentities: (LaunchDirectoryIdentity | undefined)[] } {
+  const rows = catalog.map((entry) => manifest.rows.find((row) => row.commandId === entry.id));
+  return { launchCwds: rows.map((row) => row?.resolvedCwd), launchIdentities: rows.map((row) => row?.resolvedCwdIdentity) };
+}
+
+/** Every frozen directory that is no longer the directory it was frozen as (re-verified after Wave-0, before anything launches there). */
+export function frozenLaunchDirectoryDrift(frozen: ReadonlyMap<string, FrozenLaunchDirectory>): string[] {
+  const reasons: string[] = [];
+  for (const [commandId, directory] of frozen) {
+    const drift = launchDirectoryDrift(directory.path, directory.identity);
+    if (drift) reasons.push(`${commandId}: ${drift}`);
+  }
+  return reasons;
+}
+
+export function canonicalEntryCwd(entry: Pick<ValidationCatalogEntry, 'cwd'>, ctx: Pick<DynamicValidationContext, 'projectRoot' | 'gitCwd'>): string {
   const projectRoot = ctx.projectRoot || ctx.gitCwd || process.cwd();
-  const cwd = resolve(projectRoot, entry.cwd || '.');
+  return canonicalizeExistingPath(launchDirectoryOf(projectRoot, entry.cwd || undefined));
+}
+
+/**
+ * Bind declared values to the same ambient/overlay normalization as execution:
+ * the effective environment (PWD included) of the directory the command is
+ * BOUND to — the frozen one when this run froze it before Wave-0, so a
+ * re-pointed alias changes neither where the command runs nor the PWD its
+ * identity records.
+ */
+function declaredEnvironmentDigest(entry: ValidationCatalogEntry, ctx: DynamicValidationContext): string {
+  const cwd = entryLaunchDirectory(entry, ctx).path;
   const effective = effectiveValidationCommandEnvironment(process.env, entry.env, cwd);
   const keys = [...new Set((entry.declaredEnvironmentKeys || Object.keys(entry.env || {})).map(key => process.platform === 'win32' ? key.toUpperCase() : key))].sort();
   return stableDigest(keys.map(key => Object.prototype.hasOwnProperty.call(effective, key)
@@ -959,6 +1119,13 @@ function receiptAdmissible(receipt: ValidationCommandReceipt | undefined, entry:
   if (receipt.catalogDigest !== digestCanonicalJson(ctx.catalog) || receipt.inventoryDigest !== currentInventoryDigest(ctx.inventory)) return false;
   if (ctx.runnerDigest && receipt.runnerDigest !== ctx.runnerDigest) return false;
   if (ctx.buildProofDigest && receipt.buildProofDigest !== ctx.buildProofDigest) return false;
+  // The registered build's receipt vouches for the output it produced (stored
+  // integrity consumes it); it is not a test that could be skipped on its
+  // strength, so it never makes a row reusable.
+  if (receipt.buildArtifactsProtection === REGISTERED_BUILD_PROTECTION_LABEL) return false;
+  // Without a known current build there is nothing a prior execution can be
+  // proven to match; with one, the receipt must have executed exactly it.
+  if (!ctx.buildArtifactsHash || receipt.buildArtifactsDigest !== ctx.buildArtifactsHash) return false;
   if (receipt.sourceBaseHead !== ctx.baseHead || receipt.canonicalBaselineEpochId !== (ctx.baselineEpochId || '')) return false;
   if (ctx.gitCwd) {
     const executionEnvironmentDigest = stableDigest({ node: process.version, platform: process.platform, arch: process.arch });
@@ -976,8 +1143,7 @@ function receiptAdmissible(receipt: ValidationCommandReceipt | undefined, entry:
       const sourceHead = execFileSync('git', ['rev-parse', '--verify', '--end-of-options', `${receipt.sourceHead}^{commit}`], { cwd: ctx.gitCwd, encoding: 'utf8' }).trim();
       if (sourceHead !== receipt.sourceHead || !isTrustedAncestor(sourceHead, actualHead, ctx.gitCwd)) return false;
       const status = execFileSync('git', ['status', '--porcelain'], { cwd: ctx.gitCwd, encoding: 'utf8' }).trim();
-      const cleanTreeDigest = stableDigest({ head: receipt.sourceHead, storyId: ctx.storyId, status: 'clean-at-command-start-and-end', provenanceSchema: VALIDATION_SOURCE_PROVENANCE_SCHEMA });
-      if (status || receipt.cleanTreeDigest !== cleanTreeDigest) return false;
+      if (status || receipt.cleanTreeDigest !== receiptCleanTreeDigest(receipt.sourceHead, ctx.storyId)) return false;
       if (!certifiedTreesEqual(ctx.gitCwd, sourceHead, actualHead, entry, closure)) return false;
     } catch {
       return false;
@@ -1147,6 +1313,7 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     const inputDigest = computeValidationInputDigest({
       command: entry, certifiedPaths: paths.map(path => ({ path })),
       environmentDigest: declaredEnvironmentDigest(entry, ctx),
+      resolvedCwd: entryLaunchDirectory(entry, ctx).path,
       catalogDigest: digestCanonicalJson(ctx.catalog),
       graphDigest: ctx.graph ? stableDigest({ base: ctx.graph.baseGraphDigest, head: ctx.graph.headGraphDigest }) : '',
       closureCertificateDigest: closure ? closure.signature : '', baselineEpoch: ctx.baselineEpochId,
@@ -1166,6 +1333,11 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
   // though the caller normally routes directly to its complete-plan fallback.
   if (fullEscalated) for (const entry of ctx.catalog) select(entry.id, 'full-escalation', 'full-escalation');
   const selectorRepositoryFull = canonicalTierDecision?.effectiveTier === 'repository-full';
+  // One frozen canonical directory per command for the whole run: the input
+  // digest binds it here, every execution wave launches there, and a receipt
+  // is issued only for a result that ran there (the handler checks).
+  const launchDirectories = new Map(inventory.map(row => { const entry = catalogById.get(row.id); if (!entry) throw new Error('inventory command absent from catalog: ' + row.id); return [row.id, entryLaunchDirectory(entry, ctx)] as const; }));
+  const resolvedCwds = new Map([...launchDirectories].map(([id, directory]) => [id, directory.path] as const));
   const rows: SelectionRow[] = inventory.map(row => {
     const entry = catalogById.get(row.id); if (!entry) throw new Error('inventory command absent from catalog: ' + row.id);
     const closure = closures.get(row.id);
@@ -1173,6 +1345,7 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     const inputDigest = computeValidationInputDigest({
       command: entry, certifiedPaths: paths.map(path => ({ path })),
       environmentDigest: declaredEnvironmentDigest(entry, ctx),
+      resolvedCwd: resolvedCwds.get(row.id),
       catalogDigest: digestCanonicalJson(ctx.catalog),
       graphDigest: ctx.graph ? stableDigest({ base: ctx.graph.baseGraphDigest, head: ctx.graph.headGraphDigest }) : '',
       closureCertificateDigest: closure ? closure.signature : '', baselineEpoch: ctx.baselineEpochId,
@@ -1207,6 +1380,12 @@ function buildDynamicValidationPlanInternal(ctx: DynamicValidationContext): Vali
     if (receipt) return { commandId: row.id, disposition: 'reuse', reasons: ['certified-input-closure-unchanged'], inputDigest, receiptId: receipt.id, closureCertificateDigest: closure.signature };
     return { commandId: row.id, disposition: 'execute', reasons: ['no-admissible-reusable-receipt'], inputDigest, closureCertificateDigest: closure.signature };
   });
+  for (const row of rows) {
+    const directory = launchDirectories.get(row.commandId);
+    row.resolvedCwd = directory?.path;
+    const identity = directory?.identity;
+    if (identity) row.resolvedCwdIdentity = identity;
+  }
   const coveredByIndependentInputs = singletonUnion([...contributionSets.entries()].map(([source, ids]) => ({ source, commandIds: [...ids] })));
   for (const row of rows) {
     if (coveredByIndependentInputs.has(row.commandId)) continue;

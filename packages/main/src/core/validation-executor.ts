@@ -4,7 +4,8 @@ import { withValidationPlanStages, withValidationCommandStage } from './validati
 import { VALIDATION_RUNTIME_TRACE_POLICY, VALIDATION_SOURCE_PROVENANCE_SCHEMA, VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY, MACHINE_FIXED_PORT_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import { isValidationCapacityWaitDeadlineError, withMachineValidationResources } from './validation-execution-lock.js';
 import { executeSharedValidationCommand, type SharedValidationExecutionContext } from './shared-validation-execution.js';
-import { execFileSync, execSync, spawn } from 'node:child_process';
+import { execFileSync, execSync, spawn, type StdioNull, type StdioPipe } from 'node:child_process';
+import type { Stream, Writable } from 'node:stream';
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { loadConfig, type EvidenceCommandTimeoutOverrideConfig } from './config.js';
@@ -18,6 +19,8 @@ import {
 import { StoryStore } from './store.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import { defaultAuditWriter, evaluateDirtyGate, type EvaluateDirtyGateResult } from './dirty-gate-policy.js';
+import { bindLaunchDirectoryIdentity, canonicalizeExistingPath, currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand, launchDirectoryDrift, launchDirectoryOf, refreshLaunchIdentityAfterBuild, type LaunchDirectoryIdentity } from './build-artifacts-identity.js';
+import { BUILD_ONLY_PROTECTION_LABEL, REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied, artifactProtectionStale, hasAnyArtifactRoot, resolveArtifactWriteProtection, weakestProtectionLabel, type ArtifactWriteProtection, type WrapperLaunch } from './build-artifacts-protection.js';
 import {
   canonicalizeEntries,
   MAX_JOBS,
@@ -164,6 +167,44 @@ export interface RunValidationCommandOptions {
   deadlineError?: () => Error;
   /** Exact tool-owned environment for the canonical reuse capsule only. */
   exactEnvironment?: Record<string, string>;
+  /**
+   * Denies this command and every process it spawns the right to write the
+   * compiled artifacts. Applied at the spawn boundary only: the recorded
+   * command, args and every identity derived from them stay the command the
+   * plan declared, never the wrapper.
+   */
+  artifactWriteProtection?: ArtifactWriteProtection;
+  /**
+   * Binds the command to the compiled artifacts it executes: the root whose
+   * trees are digested immediately before the child launches and immediately
+   * after it returns, and the protection label the caller decided for it. The
+   * observations are taken at the spawn boundary, so a result served from the
+   * shared-execution cache carries the provenance of the run that was actually
+   * executed (bound into its reuse key), never a fresh observation.
+   */
+  artifactBinding?: { root: string; configRoot?: string; protection: string };
+  /**
+   * The CANONICAL directory this command runs in under protection, resolved
+   * by the caller ONCE before the first launch of its plan or run. Resolving
+   * it at spawn time would follow an alias to wherever it points by then.
+   */
+  launchCwd?: string;
+  /**
+   * The filesystem identity bound to launchCwd when it was pinned. The
+   * directory is re-verified against it (and its path re-resolved) before
+   * the cache is consulted and again immediately before the spawn: a
+   * directory renamed away, replaced by a link or by another directory
+   * between the pin and the launch refuses the launch instead of running,
+   * and being attributed to, the pinned directory.
+   */
+  launchIdentity?: LaunchDirectoryIdentity;
+  /**
+   * TEST SEAM. Runs after the reservation handshakes have been awaited and
+   * before the final launch-directory verification, so a regression can
+   * replace the pinned directory inside that asynchronous window and prove
+   * the verification happens after it. Never set by production callers.
+   */
+  unsafeAfterReservationForFixture?: () => void;
 }
 
 interface CapturedValidationCommandResult {
@@ -182,6 +223,24 @@ export interface ExecuteValidationPlanOptions {
   jobs?: number;
   /** Refuse each child launch if the caller's preflight snapshot is no longer valid. */
   beforeLaunch?: () => void;
+  /**
+   * The resolved git working directory whose compiled artifacts the commands
+   * execute and publication binds (the verifier passes its own resolved cwd so
+   * execution, publication, reuse and admission digest one root). Defaults to
+   * resolveProjectGitCwd(projectRoot), exactly as runValidationCommand resolves
+   * its dirty-status probe: the configured gitRoot on a wrapper-root layout,
+   * projectRoot verbatim on a plain repository.
+   */
+  gitCwd?: string;
+  /**
+   * Canonical launch directories FROZEN by the caller for this plan, one per
+   * plan command in plan order (undefined entries are pinned here). A dynamic
+   * run passes the directories it bound at planning so that every wave,
+   * shard and oracle launches exactly where the planning identity says.
+   */
+  launchCwds?: readonly (string | undefined)[];
+  /** The identities bound to `launchCwds` at planning, in the same order; bound at plan start for any entry without one. */
+  launchIdentities?: readonly (LaunchDirectoryIdentity | undefined)[];
 }
 
 /**
@@ -278,9 +337,22 @@ function formatTimeoutDiagnostics(
   ];
 }
 
+/**
+ * Id-independent git cwd of a validation plan: the configured gitRoot subdir on
+ * a wrapper-root layout, projectRoot verbatim on a plain repository or when
+ * nothing resolves. Shared by the dirty-status probe and the artifact digests
+ * so both observe the repository the commands actually execute.
+ */
+function resolvePlanGitCwd(projectRoot: string): string {
+  try {
+    return resolveProjectGitCwd(projectRoot, projectRoot, loadConfig(projectRoot));
+  } catch {
+    return projectRoot;
+  }
+}
+
 function commandCwd(projectRoot: string, cwd?: string): string {
-  if (!cwd) return projectRoot;
-  return isAbsolute(cwd) ? cwd : resolve(projectRoot, cwd);
+  return launchDirectoryOf(projectRoot, cwd);
 }
 
 function trimOutput(output: string, retainFailureTail: boolean): string {
@@ -1358,13 +1430,28 @@ export function runValidationCommand(
   defaultTimeoutMs: number = DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
   options: RunValidationCommandOptions = {},
 ): Promise<ValidationCommandResult> {
+  // The canonical launch directory is pinned HERE, once, when the caller has
+  // not pinned it for a whole plan or run: the cache identity, the child
+  // environment and the launch all read this one binding, so a direct
+  // invocation through an alias and one through the real path can never
+  // share an identity while seeing different directories.
+  if (options.launchCwd === undefined) options = { ...options, launchCwd: canonicalizeExistingPath(commandCwd(projectRoot, command.cwd)) };
+  if (options.launchIdentity === undefined) options = { ...options, launchIdentity: bindLaunchDirectoryIdentity(options.launchCwd!) };
+  // The pinned directory is verified BEFORE the shared cache is consulted: a
+  // cached verdict must not be served for a directory that is no longer the
+  // one it was earned in.
+  { const drift = launchDirectoryDrift(options.launchCwd!, options.launchIdentity); if (drift) return Promise.resolve(refusedLaunchResult(command, projectRoot, LAUNCH_DIRECTORY_DRIFT_TAG, drift, resolveCommandTimeoutMs(command, defaultTimeoutMs))); }
+  // A registered build (classified by the plan that pinned it, by declared
+  // proof or by shape) is the one command whose EXECUTION is the proof: it is
+  // never served from the shared cache, whatever reuse it opted into.
+  const registeredBuild = options.artifactBinding?.protection === REGISTERED_BUILD_PROTECTION_LABEL || isRegisteredPackagesMainBuildCommand(command, projectRoot, options.artifactBinding?.root, options.launchCwd);
   return withValidationCommandStage(command, () => executeSharedValidationCommand(command, projectRoot, resolveCommandTimeoutMs(command, defaultTimeoutMs),
-    () => (command.executionReuse === 'exact-inputs' ? runValidationCommandWithCompleteOutput : runValidationCommandWithCompleteOutputUnscheduled)(command, projectRoot, defaultTimeoutMs, options), options.sharedExecution, () => {
+    () => (command.executionReuse === 'exact-inputs' && !registeredBuild ? runValidationCommandWithCompleteOutput : runValidationCommandWithCompleteOutputUnscheduled)(command, projectRoot, defaultTimeoutMs, options), registeredBuild ? undefined : options.sharedExecution, () => {
       if (options.abortSignal?.aborted) throw options.abortSignal.reason ?? new Error('shared validation aborted');
       if (options.deadlineAt !== undefined && Date.now() >= options.deadlineAt) {
         throw options.deadlineError?.() ?? new Error('shared validation deadline exceeded');
       }
-    }), options);
+    }, options.artifactBinding, options.launchCwd, registeredBuild, options.launchIdentity), options);
 }
 
 /**
@@ -1462,6 +1549,8 @@ async function runValidationCommandWithCompleteOutputUnscheduled(
     const output = diagnostic;
     return { completeOutput: output, result: {
       label: command.label, command: command.command, args: command.args,
+      // No child was launched (the wait ended before the spawn): tool-owned.
+      launchOutcome: 'not-launched',
       ...(command.optional ? { optional: true } : {}),
       code: delegationRefused ? 1 : 124, ...(delegationRefused ? {} : { timedOut: true }), failureKind: 'infra_failure', output,
       timeoutMs: reportedTimeoutMs, effectiveTimeoutMs: 0, durationMs: Date.now() - started,
@@ -1503,6 +1592,38 @@ function boundedValidationErrorMessage(error: unknown): string {
   return 'unavailable error detail';
 }
 
+/**
+ * A command that was NOT launched because the directory it was pinned to is
+ * no longer that directory. The result records no launch directory (nothing
+ * ran anywhere), fails closed as an infrastructure failure, and names the
+ * drift so the receipt consumers refuse it and the operator sees why.
+ */
+export const LAUNCH_DIRECTORY_DRIFT_TAG = '[launch_directory_drift]';
+/** A launch the host refused synchronously (a cwd that is not a directory or cannot be searched, say): bounded, not thrown. */
+export const SPAWN_REFUSED_TAG = '[spawn_refused]';
+/** The protection mechanism refused to express this launch (wrapper drift, an unsupported executable name): bounded failure of this command. */
+export const PROTECTION_LAUNCH_REFUSED_TAG = '[artifact_protection_launch_refused]';
+function refusedLaunchResult(command: ValidationCommand, projectRoot: string, tag: string, reason: string, timeoutMs: number): ValidationCommandResult {
+  const cwd = commandCwd(projectRoot, command.cwd);
+  const at = new Date().toISOString();
+  return {
+    label: command.label,
+    command: command.command,
+    args: [...command.args],
+    ...(command.shell || process.platform === 'win32' ? { shell: true } : {}),
+    ...(command.cwd ? { cwd } : {}),
+    code: 1,
+    output: `${tag} ${command.label} was not launched: ${reason}`,
+    launchOutcome: 'not-launched',
+    ...(command.optional ? { optional: true } : {}),
+    timeoutMs,
+    effectiveTimeoutMs: 0,
+    failureKind: 'infra_failure',
+    durationMs: 0,
+    runtimeTrace: { command: command.command, argv: [...command.args], cwd, environmentKeys: [], startedAt: at, endedAt: at, exitCode: 1, events: ['launch-refused'], unknownRuntimeInputs: [`command not launched: ${tag}`] },
+  };
+}
+
 async function captureValidationCommand(command: ValidationCommand, projectRoot: string, defaultTimeoutMs: number, options: RunValidationCommandOptions, reportedTimeoutMs: number): Promise<CapturedValidationCommandResult> {
   const delegationSignal = currentValidationReservationAbortSignal();
   if (delegationSignal) options = { ...options, abortSignal: options.abortSignal ? AbortSignal.any([options.abortSignal, delegationSignal]) : delegationSignal };
@@ -1521,9 +1642,14 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
   // A policy-owned reuse capsule supplies its already-closed environment. Do not
   // merge ambient variables back into that boundary while retaining the normal
   // validation environment construction for every ordinary command.
+  // The child environment (PWD included) is built from the PINNED canonical
+  // launch directory, the same input the shared cache derives its identity
+  // and its executable resolution from: two invocations of one command
+  // through an alias and through the real path must see one environment, or
+  // a verdict that depends on PWD could earn a PASS the other inherits.
   const effectiveEnv = options.exactEnvironment
     ? { ...options.exactEnvironment }
-    : effectiveValidationCommandEnvironment(process.env, command.env, cwd);
+    : effectiveValidationCommandEnvironment(process.env, command.env, options.launchCwd ?? cwd);
   const startedAt = new Date(started).toISOString();
   const commandIndex = options.commandIndex ?? 1;
   const totalCommands = options.totalCommands ?? 1;
@@ -1532,13 +1658,10 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
   // projectRoot), so resolve the dirty-status probe cwd with the id-independent
   // project-level resolver — config loaded so a configured gitRoot subdir on a
   // wrapper-root layout is honored. Plain repos / unresolved → projectRoot
-  // verbatim (byte-identical).
-  let statusGitCwd: string;
-  try {
-    statusGitCwd = resolveProjectGitCwd(projectRoot, projectRoot, loadConfig(projectRoot));
-  } catch {
-    statusGitCwd = projectRoot;
-  }
+  // verbatim (byte-identical). A caller that pinned the plan's canonical
+  // artifact root observes provenance THERE, so head and status describe the
+  // checkout the command runs in, not wherever an alias points by now.
+  const statusGitCwd = options.artifactBinding?.root ?? resolvePlanGitCwd(projectRoot);
   const headBefore = readValidationSourceHead(statusGitCwd);
   const statusBefore = readGitStatus(statusGitCwd);
   // The runtime tracer is a useful ordinary-command observation aid, but its
@@ -1549,6 +1672,9 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
     ? join(projectRoot, RUNTIME_TRACE_DIR, `${process.pid}-${commandIndex}-${Date.now()}.json`)
     : undefined;
   const spawnEnv = { ...effectiveEnv };
+  // Observed immediately before launch, in the same scope the result is built
+  // in; the matching observation is taken the moment the child has finished.
+  const buildArtifactsBefore = options.artifactBinding ? currentBuildArtifactsHash(options.artifactBinding.root, options.artifactBinding.configRoot) : undefined;
   if (tracer && traceFile) {
     mkdirSync(join(projectRoot, RUNTIME_TRACE_DIR), { recursive: true });
     spawnEnv.PROOF_OR_STOP_RUNTIME_TRACE_FILE = traceFile;
@@ -1622,6 +1748,7 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
       runtimeEvents.push('finish');
       const failureKind = commandFailureKind({ code, timedOut, runnerFailure });
       const statusAfter = readGitStatus(statusGitCwd);
+      const buildArtifactsAfter = options.artifactBinding ? currentBuildArtifactsHash(options.artifactBinding.root, options.artifactBinding.configRoot) : undefined;
       const headAfter = readValidationSourceHead(statusGitCwd);
       const pollutionStatusLines = detectNewDirtyStatus(statusBefore, statusAfter);
       const completeOutput = stripAnsi(output);
@@ -1640,6 +1767,11 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
         args: command.args,
         ...(command.shell || isWindows ? { shell: true } : {}),
         ...(command.cwd ? { cwd } : {}),
+        // The canonical directory the command was actually launched in.
+        launchCwd,
+        ...(buildArtifactsBefore ? { buildArtifactsBefore } : {}),
+        ...(buildArtifactsAfter ? { buildArtifactsAfter } : {}),
+        ...(options.artifactBinding ? { buildArtifactsProtection: options.artifactBinding.protection } : {}),
         code,
         output: delegationDiagnostic === undefined ? trimOutput(completeOutput, code !== 0) : `${trimOutput(completeOutput, true)}\n${delegationDiagnostic}`,
         ...(delegationDiagnostic === undefined ? {} : { delegationDiagnostic, observedExitCode }),
@@ -1695,20 +1827,96 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
     if (options.deadlineAt !== undefined && Date.now() >= options.deadlineAt) {
       throw options.deadlineError?.() ?? new Error('shared validation deadline exceeded');
     }
-    const child = spawn(command.command, command.args, {
-      cwd,
-      env: options.exactEnvironment ? spawnEnv : validationReservationChildEnvironment(spawnEnv),
-      shell: command.shell || isWindows,
-      stdio: options.exactEnvironment ? ['ignore', 'pipe', 'pipe'] : validationReservationChildStdio(['ignore', 'pipe', 'pipe']),
-      // POSIX: give the child its own process group (it becomes group leader) so the
-      // timeout can signal the WHOLE tree. Wrapper commands (npm, `/bin/sh -c …`) spawn
-      // grandchildren that survive a direct child.kill() and keep the stdout/stderr pipe
-      // open — which delays, or with an infinite grandchild prevents, the 'close' event,
-      // re-introducing the exact hang this guards against. Not unref'd: we still await it.
-      ...(isWindows ? {} : { detached: true }),
-    });
+    const declaredShell = Boolean(command.shell || isWindows);
+    const childEnv = options.exactEnvironment ? spawnEnv : validationReservationChildEnvironment(spawnEnv);
+    // The protection wrapper replaces only what is handed to spawn. Everything
+    // recorded about this command — label, command, args, identity digests —
+    // still describes the declared command. The environment is handed to the
+    // wrapper too: it withholds what the loader would honour from its own
+    // process and re-applies it inside the sandbox, so the command still sees
+    // exactly `childEnv` while nothing in it can run ahead of the mechanism.
+    // A launch the mechanism refuses to express (its wrapper drifted, or the
+    // executable name cannot be handed over unambiguously) is a bounded
+    // failure of THIS command: nothing is launched unprotected instead.
+    // The child's descriptors, fixed before the wrapper is asked to rewrite
+    // the launch: the next free descriptor is offered to the mechanism for a
+    // confidential transfer (bwrap's `--args FD`), and connected to a pipe
+    // only when the mechanism uses it.
+    const baseStdio = options.exactEnvironment ? ['ignore', 'pipe', 'pipe'] : validationReservationChildStdio(['ignore', 'pipe', 'pipe']);
+    const stdio: Array<StdioNull | StdioPipe | number | Stream | 'ipc' | undefined> = Array.isArray(baseStdio) ? [...baseStdio] as Array<StdioNull | StdioPipe | number | Stream | 'ipc' | undefined> : [baseStdio, baseStdio, baseStdio];
+    const confidentialFd = stdio.length;
+    // Descriptors above stderr the child inherits (the reservation delegation
+    // transport): a mechanism that cannot carry them across its exec refuses.
+    const inheritedDescriptors = stdio.map((entry, index) => (index > 2 && typeof entry === 'number' ? index : -1)).filter((index) => index >= 0);
+    let launch: WrapperLaunch;
+    try {
+      launch = options.artifactWriteProtection?.enforced
+        ? options.artifactWriteProtection.wrap({ command: command.command, args: command.args, shell: declaredShell, env: childEnv, confidentialFd, inheritedDescriptors })
+        : { command: command.command, args: [...command.args], shell: declaredShell, env: childEnv };
+      if (launch.confidential) { while (stdio.length < launch.confidential.fd) stdio.push('ignore'); stdio[launch.confidential.fd] = 'pipe'; }
+    } catch (error) {
+      runtimeEvents.push('launch-refused');
+      const result = refusedLaunchResult(command, projectRoot, PROTECTION_LAUNCH_REFUSED_TAG, boundedValidationErrorMessage(error), reportedTimeoutMs);
+      resolveResult({ result, completeOutput: result.output });
+      return;
+    }
+    // The command runs in the CANONICAL directory the caller resolved before
+    // its first launch: the denial rules were written for canonical paths, a
+    // symbolic link on the way to the declared cwd could otherwise be
+    // re-pointed at another checkout between two launches while the
+    // protection still covered the first, and the shared-execution cache
+    // keys and snapshots the same pinned directory. The result records the
+    // directory that was VERIFIED (path and filesystem identity) immediately
+    // before this spawn, never merely the string it was pinned with.
+    const launchCwd = options.launchCwd ?? cwd;
+    // A launch the host refuses synchronously (Node throws for a cwd that is
+    // not a directory or cannot be searched; only ENOENT is reported
+    // asynchronously) is a bounded infrastructure failure of THIS command,
+    // never an exception out of the plan: nothing ran, no launch directory
+    // is recorded, and the pending fence is withdrawn below as unspawned.
+    // The pinned directory is verified HERE, after every await of the
+    // reservation handshakes (a concurrent process could replace it while
+    // they were pending) and synchronously before the spawn call: it must
+    // still resolve to itself and be the same filesystem object it was
+    // pinned as. Drift is a bounded failure that records no launch
+    // directory; the pending fence is withdrawn below as unspawned.
+    options.unsafeAfterReservationForFixture?.();
+    if (options.launchCwd !== undefined) {
+      const drift = launchDirectoryDrift(options.launchCwd, options.launchIdentity);
+      if (drift) {
+        runtimeEvents.push('launch-refused');
+        const result = refusedLaunchResult(command, projectRoot, LAUNCH_DIRECTORY_DRIFT_TAG, drift, reportedTimeoutMs);
+        resolveResult({ result, completeOutput: result.output });
+        return;
+      }
+    }
+    let child: ReturnType<typeof spawn>;
+    try {
+      child = spawn(launch.command, launch.args, {
+        cwd: launchCwd,
+        env: launch.env,
+        shell: launch.shell,
+        stdio,
+        // POSIX: give the child its own process group (it becomes group leader) so the
+        // timeout can signal the WHOLE tree. Wrapper commands (npm, `/bin/sh -c …`) spawn
+        // grandchildren that survive a direct child.kill() and keep the stdout/stderr pipe
+        // open — which delays, or with an infinite grandchild prevents, the 'close' event,
+        // re-introducing the exact hang this guards against. Not unref'd: we still await it.
+        ...(isWindows ? {} : { detached: true }),
+      });
+    } catch (error) {
+      runtimeEvents.push('spawn-refused');
+      const result = refusedLaunchResult(command, projectRoot, SPAWN_REFUSED_TAG, `the host refused the launch in ${launchCwd}: ${boundedValidationErrorMessage(error)}`, reportedTimeoutMs);
+      resolveResult({ result, completeOutput: result.output });
+      return;
+    }
     spawned = child.pid !== undefined;
     spawnedPid = child.pid;
+    if (launch.confidential) {
+      // Written once and closed; the wrapper reads it before it execs the command.
+      const pipe = child.stdio[launch.confidential.fd] as Writable | null | undefined;
+      if (pipe) { pipe.on('error', () => { /* the wrapper exited before reading; its exit status reports that */ }); pipe.end(launch.confidential.payload); }
+    }
     // The spawned PID is noted on the fence before the registration handshake, so an owner lost
     // between this spawn call and the applied registration leaves a fence that resolves once the
     // child and its whole group are proven absent instead of a terminal one.
@@ -2270,6 +2478,60 @@ function scheduledStatusForCommand(result: ValidationCommandResult): ScheduledSt
   return result.code === 0 ? 'PASS' : 'FAIL';
 }
 
+/**
+ * Plan-level build binding rules over the executor's own observations. Pure and
+ * exported so every rule can be exercised directly: with write protection
+ * enforced, most of these violations can no longer be produced by running a
+ * command, and this is the second line of defence that still catches them on a
+ * host where protection could not be established.
+ *
+ * Every observation is a content digest, so the rules hold against a swap that
+ * is later restored ACROSS commands: the swap, every command that ran on the
+ * swapped bytes, and the restore each fail their own comparison. They cannot
+ * see a swap that happens and is undone inside one command; that is what the
+ * write protection is for.
+ */
+export function evaluatePlanBuildArtifactsBinding(input: {
+  commands: readonly Pick<ValidationCommandResult, 'label' | 'buildArtifactsBefore' | 'buildArtifactsAfter' | 'buildArtifactsRole' | 'launchOutcome'>[];
+  start?: string;
+  end?: string;
+}): string[] {
+  const failures: string[] = [];
+  const { commands, start, end } = input;
+  if (!start || !end) {
+    failures.push('build artifacts identity is unavailable (symbolic link or unreadable artifact tree); the plan cannot bind what it executed [build_artifacts_identity_unavailable]');
+    return failures;
+  }
+  const buildRan = commands.some((result) => result.buildArtifactsRole === 'build');
+  for (const result of commands) {
+    // A command the executor never launched executed nothing: there is no
+    // execution to bind, and its failure is judged by its own status. Only
+    // an EXECUTED command with missing observations is unbound.
+    if (result.launchOutcome === 'not-launched') continue;
+    if (!result.buildArtifactsBefore || !result.buildArtifactsAfter) {
+      failures.push(`${result.label}: build artifacts were not observed around this command [build_artifacts_observation_missing]`);
+      continue;
+    }
+    if (result.buildArtifactsRole === 'build') continue;
+    if (result.buildArtifactsBefore !== result.buildArtifactsAfter) {
+      failures.push(`${result.label}: compiled artifacts changed while this non-build command ran${buildRan ? ' (a registered build overlapped it)' : ''} [build_artifacts_changed_by_non_build_command]`);
+    }
+    if (result.buildArtifactsBefore !== end) {
+      failures.push(`${result.label}: executed bytes that differ from the artifacts the plan ended on; rerun it against the final build [receipt_not_bound_to_final_build]`);
+    }
+  }
+  // The plan may only end on the exact bytes the last registered build
+  // produced (or, when no build ran, the bytes it started with).
+  const builds = commands.filter((result) => result.buildArtifactsRole === 'build' && result.buildArtifactsAfter);
+  const expectedFinalContent = builds.length > 0 ? builds[builds.length - 1].buildArtifactsAfter : start;
+  if (end !== expectedFinalContent) {
+    failures.push(buildRan
+      ? 'compiled artifacts differ from the output of the last registered packages/main build; a later command rewrote them [build_artifacts_changed_after_build]'
+      : 'compiled artifacts changed during the plan without a registered packages/main build [build_artifacts_changed_by_non_build_command]');
+  }
+  return failures;
+}
+
 export async function executeValidationPlan(
   plan: ValidationPlan,
   projectRoot: string,
@@ -2290,7 +2552,35 @@ export async function executeValidationPlan(
   // Canonicalization is what makes the claims comparable (and it REFUSES an
   // undeclarable one), so it happens before anything is launched. Every entry
   // keeps its plan position in `commandIndex`.
-  const entries = canonicalizeEntries(resolveValidationPlanEntries(plan), projectRoot);
+  // A registered packages/main build launches ahead of every other entry: it is
+  // the only command allowed to change the compiled artifacts, so running it
+  // first means every later command executes the build the evidence binds
+  // instead of a build that is then replaced (which the binding rules below
+  // would refuse). Plan order is otherwise preserved.
+  // One artifact root for the whole plan: the repository the commands execute
+  // and publication digests, never the wrapper metadata root. Resolved before
+  // scheduling because build recognition is judged against it, and
+  // CANONICALISED once: an alias above the project that a command re-points
+  // mid-plan must not move where later commands run, what is observed, or
+  // what is protected (every launch under protection runs in the canonical
+  // directory, see captureValidationCommand).
+  const artifactsRoot = canonicalizeExistingPath(options.gitCwd ?? resolvePlanGitCwd(projectRoot));
+  // Where each command runs, and therefore what it IS, resolved NOW for the
+  // whole plan: the canonical launch directory is pinned before the first
+  // launch, and the build role is derived from that same directory once, so
+  // an alias re-pointed by an earlier command can neither move a later
+  // command nor turn it into a registered build at launch time. Scheduling
+  // priority, the build wave, the protection decision and the recorded role
+  // all read this one binding.
+  const planEntries = resolveValidationPlanEntries(plan);
+  const canonicalLaunchCwds = new Map(planEntries.map((entry) => [entry.commandIndex, options.launchCwds?.[entry.commandIndex - 1] ?? canonicalizeExistingPath(commandCwd(projectRoot, entry.command.cwd))] as const));
+  // The filesystem identity of each pinned directory, bound NOW (or carried
+  // from planning): every launch re-verifies its directory against it.
+  const launchIdentities = new Map(planEntries.map((entry) => [entry.commandIndex, options.launchIdentities?.[entry.commandIndex - 1] ?? bindLaunchDirectoryIdentity(canonicalLaunchCwds.get(entry.commandIndex)!)] as const));
+  const buildRoles = new Map(planEntries.map((entry) => [entry.commandIndex,
+    isRegisteredPackagesMainBuildCommand(entry.command, projectRoot, artifactsRoot, canonicalLaunchCwds.get(entry.commandIndex)) ? 'build' as const : 'test' as const] as const));
+  const entries = canonicalizeEntries(planEntries, projectRoot)
+    .map((entry) => (buildRoles.get(entry.commandIndex) === 'build' ? { ...entry, priority: (entry.priority ?? 0) + 1 } : entry));
   const exclusiveCount = entries.filter((entry) => entry.exclusiveByDefault).length;
 
   // Completion order is not plan order, so results are parked by plan index and
@@ -2299,6 +2589,21 @@ export async function executeValidationPlan(
   // another's, and formatWorktreePollutionDetails also appends dirty-gate audit
   // lines to process-events.jsonl, which stays single-writer this way.
   const executed: (ValidationCommandResult | null)[] = new Array(totalCommands).fill(null);
+  // Content digest of the compiled artifacts before anything launches; the
+  // matching digest after the plan is the identity the evidence binds and the
+  // per-command content digests attribute every change in between.
+  // Boundary observations cannot see a swap that a command undoes before it
+  // returns, so every non-build command is launched under a mechanism that
+  // denies it, and its descendants, the right to write these trees at all.
+  // The contract declaration is read from the project's configuration root
+  // (projectRoot), which on a wrapper-root layout is not the artifact root.
+  let artifactWriteProtection = resolveArtifactWriteProtection(artifactsRoot, { configRoot: projectRoot });
+  // A resolution describes the host at one moment. A registered build may
+  // create or replace the trees, and a `not-applicable` exemption (no tree to
+  // protect) is valid only while that stays true, so the protection is
+  // re-resolved before a test launches whenever either has happened.
+  let buildRanSinceResolve = false;
+  const buildArtifactsAtStart = currentBuildArtifactsHash(artifactsRoot, projectRoot);
   // Latched by whichever command first observes the plan deadline blown. The
   // sequential implementation threw at exactly that point and never started a
   // later command; entries still pending here are skipped for the same reason
@@ -2307,10 +2612,30 @@ export async function executeValidationPlan(
   // to discard by throwing).
   let deadlineExceeded = false;
 
-  const scheduled = await withValidationPlanStages(() => runScheduled<ValidationScheduleEntry, ValidationScheduleResult>(entries, jobs, async (entry) => {
+  const runEntry = async (entry: ValidationScheduleEntry): Promise<ValidationScheduleResult> => {
     if (deadlineExceeded) return { name: entry.name, status: 'INTERRUPTED', commandIndex: entry.commandIndex };
     options.beforeLaunch?.();
+    // Execution-boundary observation of the compiled artifacts, by content:
+    // the exact bytes this command started against and the exact bytes it
+    // left behind. Content, not sizes or timestamps, so a swap that is later
+    // restored is still attributed to the commands that ran in between. A
+    // digest of the 57 MB tree costs about 90 ms warm; the plan-level rules
+    // below turn these observations into the binding the evidence carries.
+    // Boundary observations only: a command that swaps and restores the trees
+    // inside its own window is not observable here (build-artifacts-identity.ts
+    // states the bound); that needs OS-enforced write denial, not observation.
+    // A registered build is the one command allowed to change these trees, so
+    // it alone runs unprotected; everything else is denied the write.
+    const buildArtifactsRole = buildRoles.get(entry.commandIndex) ?? 'test';
+    if (buildArtifactsRole === 'test' && artifactProtectionStale(artifactWriteProtection, { buildRanSinceResolve, anyRootExists: hasAnyArtifactRoot(artifactsRoot, projectRoot) })) {
+      artifactWriteProtection = resolveArtifactWriteProtection(artifactsRoot, { configRoot: projectRoot });
+      buildRanSinceResolve = false;
+    }
     const result = await runValidationCommand(entry.command, projectRoot, DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, {
+      ...(buildArtifactsRole === 'test' ? { artifactWriteProtection } : {}),
+      artifactBinding: { root: artifactsRoot, configRoot: projectRoot, protection: buildArtifactsRole === 'build' ? REGISTERED_BUILD_PROTECTION_LABEL : artifactWriteProtection.label },
+      launchCwd: canonicalLaunchCwds.get(entry.commandIndex),
+      launchIdentity: launchIdentities.get(entry.commandIndex),
       progress: options.progress,
       heartbeatMs: options.heartbeatMs,
       commandIndex: entry.commandIndex,
@@ -2319,6 +2644,24 @@ export async function executeValidationPlan(
       deadlineAt: options.deadlineAt,
       deadlineError: options.deadlineError,
     });
+    // The observations and the protection label arrive on the result from the
+    // capture (an executed run) or from the reuse key (a cached run); the plan
+    // never overwrites them with what it sees now.
+    result.buildArtifactsRole = buildArtifactsRole;
+    if (buildArtifactsRole === 'build') {
+      buildRanSinceResolve = true;
+      // The registered build is permitted to recreate the artifact trees, so a
+      // pinned directory INSIDE them is re-bound to the recreated inode (its
+      // canonical path must still resolve to itself); directories outside the
+      // trees keep the identity they were pinned with. Builds run first and
+      // alone, so no later command has launched yet.
+      if (result.code === 0) {
+        for (const [index, path] of canonicalLaunchCwds) {
+          const refreshed = refreshLaunchIdentityAfterBuild(path, launchIdentities.get(index), artifactsRoot);
+          if (!refreshed.drift) launchIdentities.set(index, refreshed.identity);
+        }
+      }
+    }
     if (
       result.timedOut
       && typeof options.deadlineAt === 'number'
@@ -2328,14 +2671,26 @@ export async function executeValidationPlan(
     }
     executed[entry.commandIndex - 1] = result;
     return { name: entry.name, status: scheduledStatusForCommand(result), commandIndex: entry.commandIndex };
-  }, {
-    // run-all: a failing command must never cancel the others. Every gate and
-    // receipt downstream reads commands[] as a COMPLETE record of the plan
-    // (commandExecution.complete compares its length against the plan length),
-    // so a short array would read as an infrastructure failure, not as the one
-    // real command failure it is.
-    cancellation: 'run-all',
-  }));
+  };
+  // run-all: a failing command must never cancel the others. Every gate and
+  // receipt downstream reads commands[] as a COMPLETE record of the plan
+  // (commandExecution.complete compares its length against the plan length),
+  // so a short array would read as an infrastructure failure, not as the one
+  // real command failure it is.
+  const scheduleOptions = { cancellation: 'run-all' as const };
+  // Registered builds run FIRST and ALONE; everything else runs after the last
+  // of them has returned. A build is the one command that writes the trees, so
+  // no protected test may overlap it — whatever resources the caller declared:
+  // a build that replaced and restored the trees while a test ran would leave
+  // that test's two observations equal and its evidence false. The barrier is
+  // the plan's own, not the scheduler's declared-resource model, and the
+  // protection is re-resolved after the builds (artifactProtectionStale).
+  const buildEntries = entries.filter((entry) => buildRoles.get(entry.commandIndex) === 'build');
+  const testEntries = entries.filter((entry) => !buildEntries.includes(entry));
+  const scheduled = await withValidationPlanStages(async () => [
+    ...await runScheduled<ValidationScheduleEntry, ValidationScheduleResult>(buildEntries, 1, runEntry, scheduleOptions),
+    ...await runScheduled<ValidationScheduleEntry, ValidationScheduleResult>(testEntries, jobs, runEntry, scheduleOptions),
+  ]);
 
   if (deadlineExceeded) {
     throw options.deadlineError?.() ?? new Error(`validation plan deadline exceeded at ${options.deadlineAt}`);
@@ -2408,6 +2763,20 @@ export async function executeValidationPlan(
   if (concurrentPollution) {
     details.push(...formatConcurrentWorktreePollutionDetails(concurrentPollution, projectRoot, storyId));
   }
+  // Build-identity binding. The evidence binds the compiled artifacts as the
+  // plan left them; every change in between must be a registered packages/main
+  // build, and every non-build command must have started against that final
+  // build. A test that ran before or alongside a build executed a build that
+  // was then replaced, so it is refused instead of relabelled; a non-build
+  // command that changed the artifacts rewrote the dist under test. Legacy or
+  // unobservable trees (symbolic links) cannot vouch and are refused.
+  const buildArtifactsAtEnd = currentBuildArtifactsHash(artifactsRoot, projectRoot);
+  const buildBindingFailures = evaluatePlanBuildArtifactsBinding({
+    commands,
+    start: buildArtifactsAtStart,
+    end: buildArtifactsAtEnd,
+  });
+  for (const line of buildBindingFailures) details.push(`✗ build binding: ${line}`);
   // Appended, never prepended: details[0] is the first command line (or the
   // focus banner) and callers read it as the headline.
   details.push(
@@ -2433,7 +2802,8 @@ export async function executeValidationPlan(
     && concurrentPollution!.statusLines.length > 0
     && concurrentPollution!.blocking !== false;
   const anyPollutionFailure = pollutionFailures.length > 0 || concurrentPollutionBlocking;
-  const allPass = requiredFailures.length === 0 && !anyPollutionFailure;
+  const buildBindingFailed = buildBindingFailures.length > 0;
+  const allPass = requiredFailures.length === 0 && !anyPollutionFailure && !buildBindingFailed;
   const status = allPass ? (optionalFailures.length > 0 || warnings.length > 0 ? 'warn' : 'pass') : 'fail';
   const failureKind: ValidationFailureKind | undefined = allPass
     ? undefined
@@ -2444,6 +2814,8 @@ export async function executeValidationPlan(
     ? optionalFailures.length > 0
       ? 'Required validation commands passed with optional failures'
       : 'Project validation commands passed'
+    : buildBindingFailed && requiredFailures.length === 0 && !anyPollutionFailure
+      ? 'Project validation commands could not bind the compiled artifacts they executed'
     : anyPollutionFailure && requiredFailures.length === 0
       ? 'Project validation commands dirtied the worktree'
     : 'Project validation commands failed';
@@ -2462,6 +2834,36 @@ export async function executeValidationPlan(
     ...(headSha ? { headSha } : {}),
     commands,
     ...(concurrentPollution ? { concurrentWorktreePollution: concurrentPollution } : {}),
+    // The identity the evidence binds: only stamped when the binding rules held.
+    ...(!buildBindingFailed && buildArtifactsAtEnd ? { buildArtifactsHash: buildArtifactsAtEnd } : {}),
+    // The plan's label is the weakest protection any NON-build command ran
+    // under. A plan that ran only registered builds records none: it proves
+    // nothing about protected execution, and a resolution taken before its
+    // build (possibly unenforced because a tree was still missing) must not
+    // be carried into an aggregate whose tests ran enforced afterwards.
+    ...((): { buildArtifactsProtection?: string } => {
+      // A plan with nothing to run (no validator configured) executed nothing
+      // that could have swapped the trees; it records the host's resolution so
+      // its evidence is judged on whether this host can enforce at all.
+      // A command the executor never launched executed nothing that could
+      // have touched the trees either, so it neither carries nor weakens a
+      // label: only EXECUTED commands are aggregated. A plan in which nothing
+      // executed at all is judged exactly like a plan with nothing to run.
+      const executed = commands.filter((result) => result.launchOutcome !== 'not-launched');
+      if (executed.length === 0) return { buildArtifactsProtection: artifactWriteProtection.label };
+      const tests = executed.filter((result) => result.buildArtifactsRole !== 'build');
+      // Registered builds and nothing else: explicitly build-only, which the
+      // contract accepts on its own terms (no command ran that it protects)
+      // and which never outranks an enforced or unenforced test label.
+      if (tests.length === 0) return { buildArtifactsProtection: BUILD_ONLY_PROTECTION_LABEL };
+      const weakest = weakestProtectionLabel(tests.map((result) => result.buildArtifactsProtection));
+      return weakest ? { buildArtifactsProtection: weakest } : {};
+    })(),
+    buildArtifacts: {
+      root: artifactsRoot,
+      ...(buildArtifactsAtStart ? { start: buildArtifactsAtStart } : {}),
+      ...(buildArtifactsAtEnd ? { end: buildArtifactsAtEnd } : {}),
+    },
     ...(focus ? { focus: { name: focus, mode: 'focused' as const, finalFullValidation: false as const, doneRequiredProof: false as const } } : {}),
   };
 }

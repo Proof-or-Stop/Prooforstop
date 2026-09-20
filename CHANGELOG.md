@@ -1,5 +1,28 @@
 # Changelog
 
+## Lab validation-build-artifact-binding - v0.3.427 - 2026-09-20
+
+# Lab validation-build-artifact-binding — release notes
+
+Opened 2026-09-17 from a RED reproduction: stale compiled artifacts (`packages/main/dist`, `packages/utils/dist`) were admitted as fresh validation evidence, so a validation command could execute old bytes and still sign a PASS for new source. Sixty-two independent Codex audits each found one more way to earn such a PASS; every finding was repaired in the Lab with a regression, and the sixty-third audit passed. The full per-audit record (findings, reproductions, repairs, GREEN/RED history) is in `NOTES.md` next to this file.
+
+## What changed
+
+- Artifact identity. Every validation command observes a content digest of the compiled artifacts immediately before launch and after it returns (path, kind, execute bits, directory search bits framed unambiguously; symbolic links, hard links, non-UTF-8 names and uninspectable roots refused). Receipts, reuse, dynamic aggregates and DONE-required evidence bind to the bytes that executed, the build-binding manifest inside each tree included; only the registered `packages/main` build may change them, it runs first and alone, and it is never served from the shared execution cache nor accepted as build proof when it was.
+- OS-level write protection. Non-build commands run under a mechanism that denies writes to the artifact trees and their ancestors (`sandbox-exec` on macOS, `bwrap` on Linux with the mount chain extended to the filesystem root and a private `/proc`). Protection is self-tested with nonce witnesses and re-resolved after any build. Enforcement is never reported without a witnessed, denied probe.
+- Wrapper trust and confidential environment transfer. Only a native, unreplaceable, identity-bound wrapper is trusted; interpreted wrappers are refused because an interpreter reads launch-chosen startup files before the wrapper's code runs. The wrapper process receives only an allowlisted environment; everything else reaches the command inside the sandbox through a private descriptor, never argv: on macOS (with System Integrity Protection verified enabled) a restricted `/usr/bin/perl` trampoline sets names and values as bytes and execs the explicitly named program, on Linux bwrap reads its `--setenv` triples with `--args FD`, and a launch whose child must inherit further descriptors (the reservation delegation transport, which bwrap cannot carry) is refused rather than run without them. Only an empty name, `=` in a name or a NUL byte refuses a transfer.
+- Launch directory. One canonical launch directory is resolved before the first launch of a plan or run (and, for a directory inside the artifact trees, re-bound after the registered build recreates it), walked in filesystem order exactly as the kernel resolves it (`..` after a symbolic link, platform roots preserved, unresolvable tails kept as written), bound by filesystem identity (dev/ino), and re-verified before the shared cache is consulted and synchronously before the spawn. The executor, shared cache, routine identity, dynamic planner and its receipts, the DONE-required writer and the historical replay all read that one binding.
+- Honest consumers. The verifier freezes each command's launch binding alongside the routine identity, runs its fallback plans where the identity binds them, never degrades a launch-directory drift refusal into a fallback, and signs evidence only when every executed command ran where the identity binds it. A printed PASS is not a PASS unless the executor reports success; a synchronously refused spawn or a refused protection launch is a bounded per-command failure, never an unprotected launch or an exception out of the plan; the historical replay plans and executes its selection in the workspace whose baseline earned the receipts and asserts positive reuse.
+- Integrated reviewer fixes. Formal managed reviewers use qualified provider-specific defaults and reject unqualified selectors before launch; incremental review resolves the Story's frozen integration target instead of assuming a local `main` branch, while historical envelopes with an explicitly omitted base retain byte-exact replay.
+
+## Verification
+
+`scripts/verify-validation-build-artifact-binding.mjs` (589 checks at the final GREEN) plus the production, DONE-required, story-aware, reuse, merge-lineage and parallel-equivalence smokes, all green on the final candidate; the process-fact-contract smoke fails on main itself over a retired-vocabulary pin introduced by another Lab (recorded in `NOTES.md`, not touched here). Sixty-two independent audits (including four finish-gate audits) found and had repaired every earlier way to earn a false PASS; audit #63 passed with no findings on the candidate merged with main at 0.3.426.
+
+Maintenance provenance: codex/lab-validation-build-artifact-binding, repair 52c9981b37270a2e6b0df61934c3b69367da05ed.
+Verification command (replayed before integration and on main): `["node","scripts/verify-validation-build-artifact-binding.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab ws-types - v0.3.426 - 2026-09-19
 
 - Add the missing root `@types/ws` development dependency and lockfile entry so root-only installs can typecheck the WebSocket bridge and proxy sources.
@@ -33,7 +56,6 @@ This entry does not assert formal Story DONE or signed product-release credentia
 Maintenance provenance: codex/lab-validation-audit-entrypoints-20260919, repair d3706199a0693d5d932c7d72c7196ab002559821.
 Verification command (replayed before integration and on main): `["node","/Users/jek/Documents/GitHub/Prooforstop/.git/lab-evidence-archives/validation-audit-20260918/remaining-performance-20260918/finish/verify-entrypoints-and-bindings.mjs"]`.
 This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab validation-queue-wait-outside-command-timeout - v0.3.423 - 2026-09-18
 
 - Stop counting time spent waiting on the same-user machine validation queue toward a validation command's configured timeout: the wait is bounded by the 300 s queue deadline and the caller's outer deadline, and the command is armed with its whole timeout once admitted.

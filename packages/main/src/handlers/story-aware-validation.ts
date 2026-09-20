@@ -1,6 +1,8 @@
 import { withValidationSigningRoot } from '../core/validation-signing-context.js';
 import { loadConfig } from '../core/config.js';
 import { resolveProjectGitRoot } from '../core/story-signed-workspace-resolution.js';
+import { REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied, weakestProtectionLabel } from '../core/build-artifacts-protection.js';
+import { VALIDATION_RECEIPT_SCHEMA, frozenLaunchDirectoriesOf, frozenLaunchDirectoryDrift, type FrozenLaunchDirectory, receiptCleanTreeDigest, refreshFrozenLaunchDirectoriesAfterBuild, resultRanInBoundDirectory } from '../core/story-aware-validation.js';
 function projectSigningRoot(projectRoot: string): string {
  const configured=loadConfig(projectRoot).gitRoot;
  const resolved=resolveProjectGitRoot(projectRoot, configured);
@@ -86,6 +88,7 @@ import {
 } from '../core/validation-tier-planner.js';
 import { digestCanonicalJson } from '../core/digest.js';
 import { narrowPortableValidationCommandTuple, provisionalValidationCommandId } from '../core/validation-command-portable-id.js';
+import { combineSequencedBuildArtifactsBindings, type LaunchDirectoryIdentity } from '../core/build-artifacts-identity.js';
 
 export interface PrepareStoryAwareValidationArgs {
   findingConstraints?: import('../core/finding-validation.js').FindingValidationConstraints;
@@ -103,6 +106,8 @@ export interface PrepareStoryAwareValidationArgs {
   mode?: DynamicValidationMode;
   baselineEpochId?: string;
   buildProofDigest?: string;
+  /** Identity of the artifacts this run's Wave-0 build left, once known; gates receipt reuse. */
+  buildArtifactsHash?: string;
   toolchainDigest?: string;
   runtimeTraces?: Map<string, ValidationRuntimeTrace>;
   receipts?: ValidationCommandReceipt[];
@@ -110,6 +115,8 @@ export interface PrepareStoryAwareValidationArgs {
   /** Configured commands retain env/optional/focus fields omitted by inventory discovery. */
   commands?: ValidationCommand[];
   tierSelection?: AutomaticValidationTierSelectionBinding;
+  /** Launch directories frozen by this run's planning before Wave-0; the post-build planning keeps them. */
+  launchDirectories?: ReadonlyMap<string, FrozenLaunchDirectory>;
   tierSelectionResolver?: (args: {
     catalog: ValidationCatalogEntry[];
     graph?: DualRevisionImpactGraph;
@@ -192,7 +199,7 @@ function baselineEpoch(args: PrepareStoryAwareValidationArgs): string {
   return args.baselineEpochId || args.baseHead;
 }
 
-export const DYNAMIC_RUNNER_DIGEST = stableDigest({ provider: 'story-aware-dynamic', version: 9, executor: 'validation-executor', selector: 'validation-tier-planner' });
+export const DYNAMIC_RUNNER_DIGEST = stableDigest({ provider: 'story-aware-dynamic', version: 10, executor: 'validation-executor', selector: 'validation-tier-planner' });
 
 function waveZeroCommand(catalog: ValidationCatalogEntry[]): string | undefined {
   const build = catalog.find((entry) =>
@@ -309,6 +316,8 @@ export function persistCanonicalFullBaseline(args: {
   sourceHead: string;
   result: ValidationResult;
   buildProofDigest?: string;
+  /** Identity of the artifacts this run's Wave-0 build left, once known; gates receipt reuse. */
+  buildArtifactsHash?: string;
   toolchainDigest?: string;
   commands?: ValidationCommand[];
 }): CanonicalFullBaseline | undefined {
@@ -470,11 +479,13 @@ function prepare(args: PrepareStoryAwareValidationArgs): PreparedStoryAwareValid
     mode: args.mode || 'observe',
     gitCwd,
     buildProofDigest: args.buildProofDigest,
+    ...(args.buildArtifactsHash ? { buildArtifactsHash: args.buildArtifactsHash } : {}),
     toolchainDigest,
     scopeContract: args.scopeContract,
     buildCommandId: waveZeroCommand(catalog),
     findingConstraints: args.findingConstraints,
     tierSelection,
+    ...(args.launchDirectories ? { launchDirectories: args.launchDirectories } : {}),
   };
   const manifest = buildDynamicValidationPlan(context);
   return {
@@ -521,10 +532,12 @@ export function storedDynamicReceiptIntegrityReasons(
     // Strict reads are deliberate: the execution cache's empty-ledger recovery
     // cannot be used to accept an existing PASS after evidence disappears.
     const ledger = JSON.parse(readFileSync(join(dir, 'revocation-ledger.json'), 'utf8')) as ReceiptRevocationLedger;
-    const receipts = JSON.parse(readFileSync(join(dir, 'receipts.json'), 'utf8')) as ValidationCommandReceipt[];
+    const storedReceipts = JSON.parse(readFileSync(join(dir, 'receipts.json'), 'utf8')) as ValidationCommandReceipt[];
     if (!verifyRevocationLedger(ledger) || ledger.digest !== manifest.receiptRevocationLedgerDigest)
       return ['dynamic_revocation_ledger_changed_or_invalid'];
-    if (!Array.isArray(receipts)) return ['dynamic_receipts_invalid'];
+    if (!Array.isArray(storedReceipts)) return ['dynamic_receipts_invalid'];
+    // Superseded-schema receipts are history (see readStoryAwareValidationArtifacts).
+    const receipts = storedReceipts.filter((receipt) => receipt && typeof receipt === 'object' && receipt.schema === VALIDATION_RECEIPT_SCHEMA);
     const baseline = readCanonicalFullBaseline(projectRoot);
     if (!baseline || baseline.sourceHead !== manifest.baseHead || baseline.epochId !== manifest.canonicalBaselineEpochId
       || baseline.inventoryDigest !== manifest.inventoryDigest || baseline.catalogDigest !== manifest.catalogDigest
@@ -673,7 +686,12 @@ export function readStoryAwareValidationArtifacts(projectRoot: string, storyId: 
   let revocationLedger = buildRevocationLedger([], []);
   try {
     const parsed = JSON.parse(readFileSync(join(dir, 'receipts.json'), 'utf8')) as unknown;
-    if (Array.isArray(parsed)) receipts = parsed as ValidationCommandReceipt[];
+    // A receipt of a superseded schema is history, not evidence: it can
+    // neither be reused nor verified, so keeping it would only make every
+    // "all receipts verify" predicate false forever and send each run to the
+    // complete-plan fallback. It is dropped here and replaced by the receipts
+    // the next run earns; revocation is still checked on what remains.
+    if (Array.isArray(parsed)) receipts = (parsed as ValidationCommandReceipt[]).filter((receipt) => receipt && typeof receipt === 'object' && receipt.schema === VALIDATION_RECEIPT_SCHEMA);
   } catch { /* first run / corrupt cache -> fail closed and execute */ }
   try {
     const parsed = JSON.parse(readFileSync(join(dir, 'revocation-ledger.json'), 'utf8')) as ReceiptRevocationLedger;
@@ -849,6 +867,12 @@ async function executeShardedEntry(args: {
   prepared: PreparedStoryAwareValidation;
   commands?: ValidationCommand[];
   projectRoot: string;
+  /** The canonical directory frozen for this entry at planning; every oracle and shard launches there. */
+  launchCwd?: string;
+  /** The identity bound to launchCwd at planning; every oracle and shard re-verifies the directory against it. */
+  launchIdentity?: LaunchDirectoryIdentity;
+  /** Git worktree root may differ from the config/project root on wrapper layouts; the executor digests artifacts under it. */
+  gitCwd?: string;
   storyId: string;
   head: string;
   progress?: ValidationProgressReporter;
@@ -870,6 +894,9 @@ async function executeShardedEntry(args: {
     commands: [{ ...baseCommand, ...(Object.keys(oracleEnv).length ? { env: oracleEnv } : { env: undefined }) }],
     warnings: [],
   }, args.projectRoot, args.head, args.storyId, {
+    ...(args.gitCwd ? { gitCwd: args.gitCwd } : {}),
+    launchCwds: [args.launchCwd],
+    launchIdentities: [args.launchIdentity],
     progress: args.progress,
     abortSignal: args.abortSignal,
     deadlineAt: args.deadlineAt,
@@ -954,6 +981,9 @@ async function executeShardedEntry(args: {
       provider: `story-aware-dynamic-${domain}-${shard.shardId}`,
       commands: [command], warnings: [],
     }, args.projectRoot, args.head, args.storyId, {
+      ...(args.gitCwd ? { gitCwd: args.gitCwd } : {}),
+      launchCwds: [args.launchCwd],
+    launchIdentities: [args.launchIdentity],
       progress: args.progress,
       abortSignal: args.abortSignal,
       deadlineAt: args.deadlineAt,
@@ -1070,24 +1100,61 @@ async function executeShardedEntry(args: {
     aggregation.errors.push(`aggregate verdict mismatch: original=${originalOracle.verdict} aggregate=${aggregateVerdict}`);
   }
   const artifact: DynamicShardArtifact = { commandId: args.entry.id, domain, shards, receipts, aggregation, residue, originalOracle };
-  return { result: combineResults(results, `story-aware-dynamic-${domain}`, args.head), artifact };
+  // The oracle ran first, against these same trees; its observations and its
+  // protection belong in the binding sequence even though its verdict is
+  // reported separately: an oracle that passed on one build followed by
+  // shards that passed on another must not bind as one execution.
+  const combined = combineResults(results, `story-aware-dynamic-${domain}`, args.head);
+  const withOracle = combineSequencedBuildArtifactsBindings([oracle, ...results]);
+  const oracleFailures = withOracle.failures.map((failure) => `✗ build binding: ${failure}`);
+  const { buildArtifactsHash: _h, buildArtifacts: _b, buildArtifactsProtection: _p, ...unbound } = combined;
+  return {
+    result: {
+      ...unbound,
+      allPass: combined.allPass && withOracle.failures.length === 0,
+      status: combined.allPass && withOracle.failures.length === 0 ? combined.status : 'fail',
+      details: [...combined.details, ...oracleFailures],
+      ...(withOracle.buildArtifactsHash ? { buildArtifactsHash: withOracle.buildArtifactsHash } : {}),
+      ...(withOracle.buildArtifacts ? { buildArtifacts: withOracle.buildArtifacts } : {}),
+      ...(withOracle.buildArtifactsProtection ? { buildArtifactsProtection: withOracle.buildArtifactsProtection } : {}),
+    },
+    artifact,
+  };
 }
 
-function combineResults(results: ValidationResult[], provider: string, head: string): ValidationResult {
+/**
+ * Aggregate of plans that ran one after another. The build binding of the
+ * aggregate is the validated binding of the sequence (core/build-artifacts-
+ * identity combineSequencedBuildArtifactsBindings): every non-empty member
+ * bound, continuity between members, one final identity. A sequence that
+ * cannot bind fails the aggregate and reports why, so publication refuses it
+ * with the diagnostics instead of an unbound PASS. Exported for the Lab
+ * regression script.
+ */
+export function combineResults(results: ValidationResult[], provider: string, head: string): ValidationResult {
   const commands = results.flatMap((result) => result.commands);
-  const allPass = results.every((result) => result.allPass);
+  const binding = combineSequencedBuildArtifactsBindings(results);
+  const bindingDetails = binding.failures.map((failure) => `✗ build binding: ${failure}`);
+  const allPass = results.every((result) => result.allPass) && binding.failures.length === 0;
   return {
     provider,
     status: allPass ? (results.some((result) => result.status === 'warn') ? 'warn' : 'pass') : 'fail',
     allPass,
-    summary: allPass ? 'Dynamic selected validation commands passed' : 'Dynamic selected validation commands failed',
-    details: results.flatMap((result) => result.details),
+    summary: allPass
+      ? 'Dynamic selected validation commands passed'
+      : binding.failures.length > 0 && results.every((result) => result.allPass)
+        ? 'Dynamic validation plans could not bind the compiled artifacts they executed'
+        : 'Dynamic selected validation commands failed',
+    details: [...results.flatMap((result) => result.details), ...bindingDetails],
     warnings: results.flatMap((result) => result.warnings),
     timestamp: new Date().toISOString(),
     headSha: head,
     commands,
     commandExecutions: commands.length,
     disposition: 'executed',
+    ...(binding.buildArtifactsHash ? { buildArtifactsHash: binding.buildArtifactsHash } : {}),
+    ...(binding.buildArtifacts ? { buildArtifacts: binding.buildArtifacts } : {}),
+    ...(binding.buildArtifactsProtection ? { buildArtifactsProtection: binding.buildArtifactsProtection } : {}),
   };
 }
 
@@ -1102,12 +1169,31 @@ function receiptForResult(args: {
   revocationLedger: ReceiptRevocationLedger;
 }): ValidationCommandReceipt | undefined {
   if (args.result.code !== 0 || args.result.timedOut || !args.row.closureCertificateDigest) return undefined;
+  // The receipt is signed for the input digest planning computed for ONE
+  // canonical directory; a result that did not demonstrably run there (or a
+  // row that never bound one) is not that command's receipt.
+  if (!resultRanInBoundDirectory(args.row, args.result)) return undefined;
+  // A receipt vouches for what its command executed: it must have started and
+  // ended on the same compiled artifacts, under enforced (or not-applicable)
+  // write protection, or it is not a receipt at all. The registered build is
+  // the exception the contract names: it is the one command permitted to
+  // write the artifacts, so its receipt binds the OUTPUT it left behind and
+  // carries the registered-build label; stored-evidence integrity consumes it
+  // for the Wave-0 row, and reuse never accepts it (receiptAdmissible).
+  const registeredBuild = args.result.buildArtifactsProtection === REGISTERED_BUILD_PROTECTION_LABEL;
+  const executedBuild = registeredBuild ? args.result.buildArtifactsAfter : args.result.buildArtifactsBefore;
+  if (!executedBuild) return undefined;
+  if (registeredBuild) {
+    if (!args.result.buildArtifactsBefore) return undefined;
+  } else if (args.result.buildArtifactsAfter !== executedBuild || !artifactProtectionSatisfied(args.result.buildArtifactsProtection)) {
+    return undefined;
+  }
   const provenance = args.result.sourceProvenance;
   if (!provenance || provenance.schemaVersion !== VALIDATION_SOURCE_PROVENANCE_SCHEMA
     || !provenance.cleanBefore || !provenance.cleanAfter
     || provenance.headBefore !== args.head || provenance.headAfter !== args.head) return undefined;
   const outputDigest = stableDigest(args.result.output);
-  const cleanTreeDigest = stableDigest({ head: args.head, storyId: args.prepared.manifest.storyId, status: 'clean-at-command-start-and-end', provenanceSchema: VALIDATION_SOURCE_PROVENANCE_SCHEMA });
+  const cleanTreeDigest = receiptCleanTreeDigest(args.head, args.prepared.manifest.storyId);
   const executionEnvironmentDigest = stableDigest({ node: process.version, platform: process.platform, arch: process.arch });
   const createdAt = new Date().toISOString();
   return createValidationCommandReceipt({
@@ -1131,6 +1217,8 @@ function receiptForResult(args: {
     exitCode: 0,
     outputDigest,
     durationMs: args.result.durationMs,
+    buildArtifactsDigest: executedBuild,
+    buildArtifactsProtection: args.result.buildArtifactsProtection as string,
     createdAt,
     revocationLedgerDigest: args.revocationLedger.digest,
   });
@@ -1149,6 +1237,13 @@ export interface RunStoryAwareValidationArgs extends PrepareStoryAwareValidation
 export interface StoryAwareDynamicRun extends PreparedStoryAwareValidation {
   buildResult: ValidationResult;
   selectedResult: ValidationResult;
+  /** Validated binding of the whole run (build wave, then every selected plan and shard, with continuity between them); absent when the sequence could not bind. */
+  buildArtifactsHash?: string;
+  buildArtifacts?: { root?: string; start?: string; end?: string };
+  /** Weakest protection label any non-build command of the run executed under; publication records it with the binding. */
+  buildArtifactsProtection?: string;
+  /** Every `✗ build binding:` diagnostic the run's plans and their aggregation produced; publication surfaces them. */
+  buildArtifactsDiagnostics: string[];
   /** Verdict after accounting for both executed rows and admitted reuse rows. */
   dynamicAllPass: boolean;
   authority: DynamicAuthorityDecision;
@@ -1172,6 +1267,8 @@ export function deriveGateOwnedPrerequisites(args: {
   baseline?: CanonicalFullBaseline;
   buildResult?: ValidationResult;
   buildProofDigest?: string;
+  /** Identity of the artifacts this run's Wave-0 build left, once known; gates receipt reuse. */
+  buildArtifactsHash?: string;
   receipts: ValidationCommandReceipt[];
   shardArtifacts: DynamicShardArtifact[];
 }): Partial<Parameters<typeof evaluateDynamicAuthority>[0]['prerequisites']> {
@@ -1245,6 +1342,11 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
   args = { ...args, beforeLaunch: () => { checkFindingConstraints(); originalBeforeLaunch?.(); } };
   const prior = readStoryAwareValidationArtifacts(args.projectRoot, args.storyId);
   const first = prepare({ ...args, receipts: args.receipts || prior.receipts, revocationLedger: args.revocationLedger || prior.revocationLedger });
+  // Every launch directory of this run is frozen HERE, before Wave-0 runs:
+  // the post-build planning keeps these bindings (a Wave-0 command that
+  // re-points an alias cannot move a later command), and each is re-verified
+  // after Wave-0 before anything launches there.
+  const frozenLaunchDirectories = frozenLaunchDirectoriesOf(first.manifest);
   const resolvedTierSelection = args.tierSelection ?? first.manifest.selectorBinding;
   const head = args.head || currentHead(args.gitCwd || args.projectRoot);
   const waveId = first.catalog.find((entry) => first.manifest.rows.some((row) => row.commandId === entry.id && row.reasons.includes('wave-0-build')))?.id
@@ -1252,19 +1354,41 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
   if (!waveId) throw new Error('dynamic validation inventory is empty; cannot execute Wave-0 build');
   const waveEntry = first.catalog.find((entry) => entry.id === waveId)!;
   const waveCommand = commandForEntry(waveEntry, args.commands);
+  // The directory each command runs in was frozen at planning (row.resolvedCwd);
+  // every wave, shard and oracle launches there, never where an alias points now.
   const wave = await executeValidationPlan({ provider: 'story-aware-dynamic-wave-0', commands: [waveCommand], warnings: [] }, args.projectRoot, head, args.storyId, {
+    ...(args.gitCwd ? { gitCwd: args.gitCwd } : {}),
+    launchCwds: [first.manifest.rows.find((row) => row.commandId === waveId)?.resolvedCwd],
+    launchIdentities: [first.manifest.rows.find((row) => row.commandId === waveId)?.resolvedCwdIdentity],
     progress: args.progress,
     abortSignal: args.abortSignal,
     deadlineAt: args.deadlineAt,
     deadlineError: args.deadlineError, beforeLaunch: args.beforeLaunch,
     jobs: 1,
   });
-  const buildProofDigest = stableDigest({ commandId: waveId, allPass: wave.allPass, commands: wave.commands.map((row) => ({ code: row.code, timedOut: row.timedOut, output: row.output })) });
+  // The proof of the build is the build's OUTPUT, not merely its exit and
+  // stdout: a build that produces different compiled bytes with identical
+  // output is a different build, and every receipt bound to the old one lapses.
+  const buildProofDigest = stableDigest({ commandId: waveId, allPass: wave.allPass, buildArtifactsHash: wave.buildArtifactsHash ?? null, commands: wave.commands.map((row) => ({ code: row.code, timedOut: row.timedOut, output: row.output })) });
+  // A successful Wave-0 build may have recreated the artifact trees: frozen
+  // directories inside them are re-bound to the recreated inode before the
+  // verification, every other one is verified as frozen.
+  if (wave.allPass) {
+    // The artifact root is the one the executor resolved for the wave (the
+    // configured git root on a wrapper-root layout), never re-derived here.
+    for (const [commandId, directory] of refreshFrozenLaunchDirectoriesAfterBuild(frozenLaunchDirectories, wave.buildArtifacts?.root ?? args.gitCwd ?? args.projectRoot)) frozenLaunchDirectories.set(commandId, directory);
+  }
+  const launchDirectoryDriftReasons = frozenLaunchDirectoryDrift(frozenLaunchDirectories);
+  if (launchDirectoryDriftReasons.length > 0) {
+    throw new Error(`[launch_directory_drift] a launch directory frozen before Wave-0 is no longer that directory; refusing to plan or launch anything there: ${launchDirectoryDriftReasons.join('; ')}`);
+  }
   const final = prepare({
     ...args,
     receipts: prior.receipts,
     revocationLedger: prior.revocationLedger,
+    launchDirectories: frozenLaunchDirectories,
     buildProofDigest,
+    ...(wave.buildArtifactsHash ? { buildArtifactsHash: wave.buildArtifactsHash } : {}),
     ...(resolvedTierSelection ? { tierSelection: resolvedTierSelection, tierSelectionResolver: undefined } : {}),
   });
   const selectedEntries = final.manifest.rows
@@ -1301,6 +1425,9 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
         provider: 'story-aware-dynamic-selected',
         commands: ordinaryEntries.map((entry) => commandForEntry(entry, args.commands)), warnings: [],
       }, args.projectRoot, head, args.storyId, {
+        ...(args.gitCwd ? { gitCwd: args.gitCwd } : {}),
+        launchCwds: ordinaryEntries.map((entry) => final.manifest.rows.find((row) => row.commandId === entry.id)?.resolvedCwd),
+        launchIdentities: ordinaryEntries.map((entry) => final.manifest.rows.find((row) => row.commandId === entry.id)?.resolvedCwdIdentity),
         progress: args.progress,
         abortSignal: args.abortSignal,
         deadlineAt: args.deadlineAt,
@@ -1310,7 +1437,9 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
     for (const entry of shardEntries) {
       shardCommandIds.add(entry.id);
       const sharded = await executeShardedEntry({
-        entry, prepared: final, commands: args.commands, projectRoot: args.projectRoot,
+        entry, prepared: final, commands: args.commands, projectRoot: args.projectRoot, gitCwd: args.gitCwd,
+        launchCwd: final.manifest.rows.find((row) => row.commandId === entry.id)?.resolvedCwd,
+        launchIdentity: final.manifest.rows.find((row) => row.commandId === entry.id)?.resolvedCwdIdentity,
         storyId: args.storyId, head, progress: args.progress, abortSignal: args.abortSignal,
         deadlineAt: args.deadlineAt, deadlineError: args.deadlineError, beforeLaunch: args.beforeLaunch, buildProofDigest,
       });
@@ -1381,7 +1510,23 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
   const runtimeReport = formatDynamicValidationReport({ manifest: final.manifest, authority, durationMs: dynamicExecution.commands.reduce((sum, row) => sum + row.durationMs, 0) });
   checkFindingConstraints();
   persistStoryAwareValidationArtifacts({ projectRoot: args.projectRoot, storyId: args.storyId, manifest: final.manifest, report: runtimeReport, receipts, revocationLedger: final.revocationLedger, shardArtifacts });
-  return { ...final, buildResult: wave, selectedResult, dynamicAllPass, authority, receipts, runtimeReport };
+  // The run's protection is the weakest any test ran under, whether it ran in
+  // this invocation or was admitted as a reused receipt: when every test is
+  // reused only the build wave executed, which records no label of its own,
+  // and the label must then come from the receipts the manifest admitted
+  // (each already verified against the current build by receiptAdmissible).
+  const reusedLabels = final.manifest.rows
+    .filter((row) => row.disposition === 'reuse' && row.receiptId)
+    .map((row) => receipts.find((receipt) => receipt.id === row.receiptId)?.buildArtifactsProtection)
+    .filter((label): label is string => typeof label === 'string');
+  const runProtection = weakestProtectionLabel([dynamicExecution.buildArtifactsProtection, ...reusedLabels]);
+  return {
+    ...final, buildResult: wave, selectedResult, dynamicAllPass, authority, receipts, runtimeReport,
+    ...(dynamicExecution.buildArtifactsHash ? { buildArtifactsHash: dynamicExecution.buildArtifactsHash } : {}),
+    ...(dynamicExecution.buildArtifacts ? { buildArtifacts: dynamicExecution.buildArtifacts } : {}),
+    ...(runProtection ? { buildArtifactsProtection: runProtection } : {}),
+    buildArtifactsDiagnostics: dynamicExecution.details.filter((line) => line.startsWith('✗ build binding:')),
+  };
 
   });
 }

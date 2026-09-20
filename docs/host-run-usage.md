@@ -168,16 +168,37 @@ non-zero exit (or a cap refusal) propagates as a non-zero process exit; in
 `--json` mode `exitCode` is a field.
 
 `host_run` also accepts optional `--model` and `--reasoningEffort` selectors.
-For a formal managed review these values are normalized before submission,
+For an ordinary managed run, omitting either selector preserves the provider
+default and records `null`. Formal Codex/Claude `--managedReview` and
+`--managedDispatch` runs never inherit the ambient implementation-agent model:
+omitted selectors resolve to `gpt-5.6-sol` / `high` for Codex and
+`opus` / `high` for Claude before submission. Explicit formal selections
+must use a GPT-family Codex model or an Opus-family Claude model, with at least
+`high` reasoning effort. These effective values are normalized before submission,
 included in the idempotency input, sealed into the immutable spec and binding
-projection, copied into the result and terminal receipt, and checked again when
-the proposal is imported as REVIEW evidence. Codex receives `--model` plus
+projection, and copied into the result and terminal receipt. Qualification is
+enforced before immutable spec creation; import does not re-run model-family or
+effort qualification and instead verifies exact equality among the sealed spec,
+projection, result, and receipt. Codex receives `--model` plus
 `--config model_reasoning_effort=...`; Claude receives `--model` plus
 `--effort`. Claude accepts `low`, `medium`, `high`, `xhigh`, or `max`.
-Omitting either selector preserves the provider default and records `null`.
 These fields prove the exact selector placed on the protected provider argv;
 they do not claim that a provider-side alias resolved to a particular hidden
-model revision.
+model revision. Grok formal review uses its separately audited managed-review-only
+adapter and preserves that adapter's provider-owned model selection; callers
+must omit both selectors because explicit Grok model or effort values are refused.
+`cross_host_review` is a separate advisory host-verdict profile rather than
+sealed formal REVIEW evidence; its Codex leaf also retains provider-owned model
+selection and is outside this qualification boundary.
+
+The named defaults are controller policy, not a promise that every installed
+provider CLI exposes those aliases. If a default alias is unavailable, inspect
+the provider launch diagnostic and submit a fresh run with an explicitly
+available qualified GPT or Opus model and supported effort of at least `high`.
+Because resolved selectors are part of the idempotency input, a pre-upgrade
+selector-less formal run cannot be retried through the current handler with its
+old idempotency key: use a fresh key. Its already sealed historical spec remains
+readable and importable under the existing exact receipt compatibility checks.
 
 ### Reviewer launch
 
@@ -277,9 +298,9 @@ Linux Docker/OCI 中的 Codex reviewer 已位于外层容器隔离边界。PoS �
 `--skip-git-repo-check --ephemeral --ignore-rules`；容器检测只决定 sandbox mode。
 
 ```bash
-proof-or-stop host_run '{"host":"codex","storyId":"B-xxxx","agentType":"proof-or-stop-review-story-init","managedDispatch":true,"detach":true,"json":true}'
-proof-or-stop host_run '{"host":"codex","storyId":"B-xxxx","agentType":"proof-or-stop-product-reviewer","managedDispatch":true,"detach":true,"json":true}'
-proof-or-stop host_run '{"host":"codex","storyId":"B-xxxx","agentType":"proof-or-stop-review-scope-plan","managedDispatch":true,"detach":true,"json":true}'
+proof-or-stop host_run '{"host":"codex","model":"gpt-5.6-sol","reasoningEffort":"high","storyId":"B-xxxx","agentType":"proof-or-stop-review-story-init","managedDispatch":true,"detach":true,"json":true}'
+proof-or-stop host_run '{"host":"codex","model":"gpt-5.6-sol","reasoningEffort":"high","storyId":"B-xxxx","agentType":"proof-or-stop-product-reviewer","managedDispatch":true,"detach":true,"json":true}'
+proof-or-stop host_run '{"host":"codex","model":"gpt-5.6-sol","reasoningEffort":"high","storyId":"B-xxxx","agentType":"proof-or-stop-review-scope-plan","managedDispatch":true,"detach":true,"json":true}'
 ```
 
 For a formal managed review, the provider must remain in its host-configured
