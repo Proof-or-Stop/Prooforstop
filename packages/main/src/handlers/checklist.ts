@@ -3539,11 +3539,12 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
 
       if (managedDispatchRunId) {
         try {
-          const consumedRunId = resolveManagedDispatchInvocation({
+          const consumedRunId = resolveManagedImplementerCompletionInvocation({
             root,
             storyId: args.storyId,
-            agentType: 'proof-or-stop-implementer',
             itemId: args.itemId,
+            payload: args,
+            consume: true,
           });
           if (consumedRunId !== managedDispatchRunId) {
             throw new Error('managed implementation invocation changed between persistence and consumption');
