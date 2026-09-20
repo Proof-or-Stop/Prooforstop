@@ -263,7 +263,7 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
     },
     {
       name: 'spoofed-actor-without-capability-retry', expectedStatus: 'done', expectCompleted: true,
-      commands: `"${process.execPath}" "${detachedChecklist}" "__STORY__" || true\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
+      commands: `"${process.execPath}" "${detachedChecklist}" "__STORY__" || true\n"${process.execPath}" "${mutateChecklist}" "__STORY__" assert-pending\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
     {
       name: 'consumed-invocation-refusal', expectedStatus: 'done', expectedOtherStatus: 'in_progress', expectCompleted: true,
