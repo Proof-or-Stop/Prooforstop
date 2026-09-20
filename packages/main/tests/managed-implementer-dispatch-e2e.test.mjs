@@ -32,8 +32,8 @@ function git(...args) {
 try {
   assert.equal(isManagedImplementerCompletionPayload({ storyId, itemId, status: 'done' }, storyId, itemId), true,
     'the exact managed completion payload must qualify');
-  assert.equal(isManagedImplementerCompletionPayload({ storyId, itemId, status: 'done', json: true }, storyId, itemId), false,
-    'CLI output metadata must not widen the managed completion capability');
+  assert.equal(isManagedImplementerCompletionPayload({ storyId, itemId, status: 'done', takeover: false }, storyId, itemId), false,
+    'owner takeover metadata must not widen the managed completion capability');
   assert.equal(isManagedImplementerCompletionPayload({ storyId, itemId: 'CHK-999', status: 'done' }, storyId, itemId), false,
     'another item must not qualify for the target-bound capability');
 
@@ -232,7 +232,11 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
       commands: `"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done","context":"foreign mutation"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
     {
-      name: 'cli-meta-does-not-qualify', expectedStatus: 'done', expectCompleted: true,
+      name: 'json-output-metadata', expectedStatus: 'done', expectCompleted: true,
+      commands: `"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done","json":true}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
+    },
+    {
+      name: 'takeover-meta-does-not-qualify', expectedStatus: 'done', expectCompleted: true,
       commands: `"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done","json":true,"takeover":false}' || true\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
     {
