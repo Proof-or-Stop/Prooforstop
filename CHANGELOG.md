@@ -1,17 +1,5 @@
 # Changelog
 
-## Lab intent-fingerprint-reuse - v0.3.431 - 2026-09-20
-
-- Derive per-execution, per-intent and aggregate fingerprints from each Story's actual verification intents, displaying original descriptions and missing requirements without fixed counts.
-- Use authenticated receipt admission for executable planning, distinguish pending reuse publication from current evidence, and use one item-scoped evidence selector; preserve documentation attestations with informational command text and existing waivers.
-- Preserve immutable signed reuse and strict fallback for incomplete dependencies, and explicitly label legacy refresh previews as metadata-only diagnostics. Historical ordinary-script evidence is not retroactively upgraded.
-- Verify real producer/refresh fan-out, independent assertions, zero planner executions, dynamic membership and tampering through the existing test:all smoke discovery, with explicit 180-second smoke budget and invalid-to-rerun bucket assertions. Correct the smoke's obsolete local-assurance text assertions. See docs/requirements/decisions/verification-execution-receipt-fanout-and-input-scoped-freshness.md for the exact suite command and static-binding checks.
-- Full process-fact verification retains one pre-existing retired-vocabulary fingerprint mismatch on the Lab base; the unrelated guard remains unchanged. Focused RED/GREEN, suite and static checks are the repair evidence; repository-wide success is not claimed.
-
-Maintenance provenance: codex/lab-intent-fingerprint-reuse, repair 4d8f225b49eb2001af3bd316d337bf6b095565d6.
-Verification command (replayed before integration and on main): `["node","packages/main/tests/intent-fingerprint-reuse.test.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab benchmark-real-entry-regression - v0.3.430 - 2026-09-20
 
 - Enforce planned-provider attempt and remaining-time allowances before dispatch, preserving retries and post-transport spawn-error attempts.
