@@ -230,6 +230,7 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
   }).valid, false, 'a completed implementation run must not authorize another checklist item');
 
   const negativeScenarios = [
+    // Retry scenarios exit explicitly if their forbidden first command succeeds.
     {
       name: 'no-completion', expectedStatus: 'pending',
       commands: `printf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
