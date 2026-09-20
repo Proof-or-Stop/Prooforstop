@@ -8,9 +8,9 @@
     "runIdentityVerifier": "6d16caecdb08bd40ec3cfc5fe013a92dab6c5cd7406941becc59a45cfdafcd16",
     "createIdentityVerifierClone": "4e0a464942e41cc98125de3be88108fcdb4e3649e2d0401838991895fb009bc3",
     "createIdentityRedVerifierClone": "ff8590080c602bca764d6f447a3ea26672104b70b9c1d2be9ad9099f47d068fa",
-    "main": "b01bba9ce6d68758d0a4f699c5a0555a543f8e7e05a0835c3e2fc5a8c6617752",
+    "main": "cd2ca7a3e24473734eb4ccabd67318a9e50315a56a279f63e9bda0d436de582c",
     "boundaryOnly": "aafd00e7bb95c8b8ea93679d321a74ce496f34f656d0445f76ecddae939701f1",
-    "NEGATIVE_SCHEMA_WITNESSES": "d5a52fa74a229fc488c2b0cd191463ac28c92485f3e88fecd40f58adfe6717fa",
+    "NEGATIVE_SCHEMA_WITNESSES": "914877e1969c285c6a4fbe8573ebb33652b4188b327924862facaf0e5ccb0fbc",
     "CLOSED_ROLE_RUNTIME_WITNESSES": "4c43ce9144744e6e70dab1e673e110ea50751b6fa323001e69b4e7ac9239d016"
   },
   "groups": [
@@ -149,9 +149,9 @@
     },
     {
       "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
-      "line": 7529,
-      "callDigest": "4b4f14c1d215fe9e7d9e79bdf227050be4da9b1c81bbb994c9ca0f71b1c31c03",
-      "ownerDigest": "ab4449e2e368540f2a4b4f66b084ab10da3261da6d6ae398e445eb6747277617",
+      "line": 7588,
+      "callDigest": "7a73523fbba3e577140d5ceaa7a49fc486336aef4dcdd18cad5f945b70c02dc0",
+      "ownerDigest": "434ff29aa94f284c27ba45edda69df274f5aa2f500a2a45be0915e8651ddac48",
       "targets": [
         {
           "file": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
@@ -161,7 +161,7 @@
         }
       ],
       "selector": "GREEN B-49df: runtime group pass.",
-      "expression": "execFileSync(process.execPath, [resolve(root, 'packages/main/tests/canonical-new-story-artifacts.test.mjs'), '--group=runtime'], { cwd: root, encoding: 'utf8', timeout: 300000 })"
+      "expression": "execFileSync(process.execPath, [resolve(root, 'packages/main/tests/canonical-new-story-artifacts.test.mjs'), '--group=runtime'], { cwd: root, encoding: 'utf8', timeout: identityCertificationBudget.runtimeGroupMs })"
     },
     {
       "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
@@ -186,7 +186,7 @@
         {
           "file": "packages/main/dist/tasks/codex-registry-mode-smoke.js",
           "argv": [],
-          "selector": "\u2713 codex registry mode smoke passed"
+          "selector": "✓ codex registry mode smoke passed"
         },
         {
           "file": "packages/main/tests/artifact-schema-migration.test.mjs",

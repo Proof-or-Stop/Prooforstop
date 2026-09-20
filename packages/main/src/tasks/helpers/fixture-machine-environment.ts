@@ -137,7 +137,7 @@ export function pruneRetainedFixtureMachines(
   return { removed };
 }
 
-export function createFixtureMachineEnvironment(): { env: NodeJS.ProcessEnv; root: string; cleanup: () => void } {
+export function createFixtureMachineEnvironment(): { env: NodeJS.ProcessEnv; root: string; home: string; cleanup: () => void } {
   const root = mkdtempSync(join(tmpdir(), FIXTURE_MACHINE_PREFIX));
   writeFileSync(join(root, 'owner.json'), JSON.stringify({ schema: FIXTURE_MACHINE_OWNER_SCHEMA, pid: process.pid, createdAtMs: Date.now() }), { mode: 0o600 });
   pruneRetainedFixtureMachines(tmpdir(), { exclude: root });
@@ -155,6 +155,7 @@ syncBuiltinESMExports();
   const flag = `--import=${pathToFileURL(preload).href}`;
   return {
     root,
+    home,
     env: { ...process.env, NODE_OPTIONS: [process.env.NODE_OPTIONS, flag].filter(Boolean).join(' ') },
     cleanup: () => {
       const entries = readdirSync(home, { recursive: true });

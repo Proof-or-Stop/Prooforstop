@@ -734,7 +734,7 @@ function runtimeTopologyInput(command, projectRoot, runtimeRoot) {
     projectRoot,
     invokedEntrypoint: join(runtimeRoot, 'bin', 'proof-or-stop.js'),
     loadedCorePackageRoot: join(runtimeRoot, 'packages', 'main'),
-    env: {},
+    env: { PATH: process.env.PATH, DEVELOPER_DIR: process.env.DEVELOPER_DIR },
   };
 }
 
@@ -1116,8 +1116,13 @@ function createPublicOperationClone(prefix, copyFindingTrust = true, sourceRoot 
   assert.ok(sourceRoot === repoRoot || fixtureRoots.includes(sourceRoot), 'clone source must be the repository or a registered private producer');
   const cloned = spawnSync('git', ['clone', '--shared', '--quiet', '--no-checkout', sourceRoot, root], { encoding: 'utf8' });
   assert.equal(cloned.status, 0, `${cloned.stdout}${cloned.stderr}`);
-  if (spawnSync('git', ['show-ref', '--verify', '--quiet', 'refs/heads/main'], { cwd: root }).status !== 0) {
-    git(root, ['branch', 'main', git(sourceRoot, ['rev-parse', 'refs/heads/main'])]);
+  // A disposable self-host clone needs a checked-out integration branch even
+  // when its producer is a Lab branch. A mere un-checked-out main ref cannot
+  // satisfy authoritative-runtime admission after a mode-delegate refusal.
+  // Keep the candidate commit unchanged and establish refs before the oracle.
+  if (git(root, ['rev-parse', '--abbrev-ref', 'HEAD']) !== 'main') {
+    git(root, ['branch', '--force', 'main', 'HEAD']);
+    git(root, ['symbolic-ref', 'HEAD', 'refs/heads/main']);
   }
   const head = git(root, ['rev-parse', 'HEAD']);
   const refs = git(root, ['for-each-ref', '--format=%(refname) %(objectname)']);
@@ -1192,6 +1197,7 @@ function activeIdentityBoundaryOperation(boundaryId, storyId) {
     'playbook-runtime-memory': ['playbook_runtime_health', { json: true }],
     'lifecycle-control': ['global_control_status', { storyIds: [storyId], json: true }],
     'milestone-status': ['milestone_status', { storyId, json: true }],
+    'maintenance-command-mode': ['quorum_prune', { storyId, dryRun: true, json: true }],
     'process-fact-registry': ['session_brief', {}],
     'prompt-runtime': ['agent_prompt', { role: 'proof-or-stop-review-quality' }],
     'claim-admissibility-pack': ['pinn_claim_check', { fixture: 'complete', json: true }],
@@ -1232,7 +1238,7 @@ function assertCanonicalPublicIdentityOperations(fixture, label) {
   for (const boundary of ACTIVE_IDENTITY_OPERATION_BOUNDARIES) {
     const [defaultCommand, payload] = activeIdentityBoundaryOperation(boundary.id, 'B-49df');
     const root = boundary.id === 'canonical-journal-authority' ? fixture.journalRoot : boundary.id === 'process-fact-registry' ? fixture.externalRoot : fixture.root;
-    for (const site of boundary.retiredIdentityCases) {
+    for (const site of boundary.retiredIdentityCases.length ? boundary.retiredIdentityCases : [{ command: defaultCommand }]) {
       const command = site.command ?? defaultCommand;
       operations.set(JSON.stringify([root, command, payload]), { root, command, payload });
     }
@@ -1281,6 +1287,15 @@ function assertCanonicalOperationResponse(command, payload, root, stdout) {
   assert.equal(Object.hasOwn(value, 'error'), false, `${command}: structured error is not success`);
   assert.notEqual(value.ok, false, `${command}: failed envelope is not success`);
   switch (command) {
+    case 'quorum_prune':
+      assert.equal(value.schemaVersion, 'proof-or-stop.quorum_prune.v1');
+      assert.equal(value.storyId, payload.storyId);
+      assert.equal(value.dryRun, true);
+      assert.equal(value.applied, false);
+      assert.equal(value.removedVerdictCount, 0);
+      assert.equal(value.metadataCommitSha, null);
+      assert.ok(Array.isArray(value.duplicateGroups) && Array.isArray(value.refusedGroups));
+      break;
     case 'acceptance_amendment_propose':
       assert.equal(value.schemaVersion, 'proof-or-stop.acceptance_amendment.v1');
       assert.equal(value.storyId, payload.storyId);
@@ -1550,6 +1565,9 @@ const retiredReviewRunSalt = ['lat', 'tice-review-run-integrity-v1'].join('');
 const currentDigestPrefix = 'proof-or-stop.digest.v1';
 const currentReviewRunSalt = 'proof-or-stop-review-run-integrity-v1';
 const IDENTITY_CUTOVER_REQUIRED_PATHS = Object.freeze([
+  "packages/main/src/core/git-tree-observation.ts",
+  "packages/main/src/core/executable-digest-observation.ts",
+  "packages/main/src/core/maintenance-command-mode.ts",
   'packages/main/src/core/acceptance-amendment-journal.ts',
   'packages/main/src/core/convergence-effective-progress.ts',
   'packages/main/src/core/convergence-progress-journal.ts',
@@ -1856,8 +1874,8 @@ function assertIdentityCutoverInventoryTotal(sourceMap, { reviewed = identityCut
   // altered row or relocated literal must fail, even in the verifier itself.
   const verifierPath = 'scripts/verify-proof-or-stop-identity-cutover.mjs';
   const verifierLines = cache.get(verifierPath, sourceMap.get(verifierPath)).lines.filter(line => new RegExp(`${retiredProtocolStem}[.:\\-][a-z0-9._:-]+`, 'i').test(line));
-  assert.equal(verifierLines.length, 116, 'retired protocol identity verifier data row count drift');
-  assert.equal(createHash('sha256').update(verifierLines.join('\n')).digest('hex'), '2666fd9785cc1e7e70e961f261891ec22ae048a8c4ac2f91cbc54c6c49f86122', 'retired protocol identity verifier data context drift');
+  assert.equal(verifierLines.length, 115, 'retired protocol identity verifier data row count drift');
+  assert.equal(createHash('sha256').update(verifierLines.join('\n')).digest('hex'), '18181b2a5219393f83aee1e0424f8e4c4259d558c134a06b6400ac41ab14c5f9', 'retired protocol identity verifier data context drift');
   assert.deepEqual(
     retiredHits.filter((hit) => {
       if (allowed.has(`${hit.path}\0${hit.token}`)) return false;
@@ -2561,9 +2579,26 @@ function deriveOwnedIdentityLiterals(sourceMap, { emitted = false } = {}) {
   return result;
 }
 
+// Independent input cases, separate from immutable packaged executable owners.
+// Every role/version in the repository config is exercised through agent_prompt;
+// other projects may legitimately omit these optional settings.
+const PROJECT_CONFIG_IDENTITY_CASES = [
+  ...['evaluator', 'implementer', 'review-behavior', 'review-concept', 'review-delivery',
+    'review-docs', 'review-quality', 'review-scope-plan', 'review-story-init',
+    'review-test-coverage', 'review-topology-critic'].map(name => ({
+      canonical: `proof-or-stop-${name}`, field: 'role-key',
+    })),
+  { canonical: 'proof-or-stop.prompt-envelope-rollout.v1', field: 'version' },
+].map(row => ({ ...row, sourcePath: 'proof-or-stop.config.json',
+  siteId: `proof-or-stop.config.json#${row.canonical}` }));
+
 // Exact non-protocol classifications are obligations, never file exemptions.
 // Active role/path references are not relabeled as inert protocol history.
 const OWNED_NON_PROTOCOL_IDENTITY_CONTEXTS = [
+  { sourcePath: 'proof-or-stop.config.json', canonical: 'proof-or-stop.config.json', occurrences: 14,
+    contextSha256: 'e016954e5d457ab0d561bc0bafe2fc8096c4fcc39ea99ea74a34165bd58e5cb6',
+    kind: 'scope-source-path', reason: 'Fourteen exact scope and validation source references, including the registered production-budget regression resource, name the config file; these are not prompt schema or role values.',
+    proof: 'node scripts/verify-root-scope-budget-policy.mjs' },
   {"sourcePath": "packages/main/src/core/process-fact-registry.ts", "canonical": "proof-or-stop.config.json", "occurrences": 1, "contextSha256": "d76aa4750daa0a3bd2e672550d9704eb42847abd42415fae9a20f8fe301b6eb1", "kind": "registry-source-path", "reason": "Exact P0m source inventory path; not a parser, protocol producer, or compatibility reader.", "proof": "node packages/main/tests/red/red-repro-first-p0m-component-mapping.mjs"},
   {"sourcePath":"proof-or-stop.config.json","canonical":"proof-or-stop-experience-layer-v1.1-zh.md","occurrences":1,"contextSha256":"a0430b5c5f5727862f4f3c486638fdda0d0dd464c26f80a09fafe6c6acded30c","kind":"scope-governance-document-path","reason":"Exact responsibility-domain source path names the existing experience-layer design document; not an executable protocol identity or compatibility reader.","proof":"node scripts/verify-root-scope-budget-policy.mjs"},
   {"sourcePath": "proof-or-stop.config.json", "canonical": "proof-or-stop-real-root-admission", "occurrences": 8, "contextSha256": "6925f132289490e9370c679f50b5c425477621b904ff14ce6d94fc8eb7ddcc41", "kind": "validation-resource-key", "reason": "Eight exact exclusive admission claims name a scheduler resource, not a protocol producer or compatibility alias. Removing claims is independently mutation-tested.", "proof": "node packages/main/tests/red/red-bcae-admission-coscheduling.mjs"},
@@ -2671,6 +2706,8 @@ const OWNED_NON_PROTOCOL_IDENTITY_CONTEXTS = [
 // Each observed use is bound as well as its value: an existing role/path value
 // cannot silently authorize a new schema producer or a moved acceptance branch.
 const OWNED_IDENTITY_SITE_CONTEXTS = [
+  ["packages/main/src/cli-init.ts", "proof-or-stop.prompt-envelope-rollout.v1", 1, "22eae501b4a9bc4f1be1ef4db9fdbfaf9f41b8283e44f832d832a32458b8b876"],
+  ["packages/main/src/handlers/checklist.ts", "proof-or-stop.plan-acceptance-batch.v1", 2, "e89f46c374f4b7b4ba7b72bc891f5d83eedd1023463f833d2be4beb2226abf49"],
   ["packages/main/src/core/acceptance-amendment-journal.ts", "proof-or-stop.acceptance_amendment.v1", 2, "1e463e0e08311325a96d08af7b8af3c7696df7ffe6cd6ff0a60cf095a46b2691"],
   ["packages/main/src/core/acceptance-amendment-journal.ts", "proof-or-stop.acceptance_amendments.v1", 2, "d2c1713750a7a4735af15847ee69566291f17759a0297d21367ffcf7d9044913"],
   ["packages/main/src/core/convergence-effective-progress.ts", "proof-or-stop.effective_progress.v1", 1, "25f66117c33b2122f2e32ab982482b67d73e7cddf1111cc086f2a494c0a9be3d"],
@@ -2707,6 +2744,7 @@ const OWNED_IDENTITY_SITE_CONTEXTS = [
   ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-record.v1",2,"467bd70741396cce3c7ff4133b8503c1ea1728fad55372540a5126e95046efa8"],
   ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verification-reuse-receipt.v1",2,"49cb86dacf51a745bcb97d13e2f1af5f67ed5387959d86063ab1590fbf9f6484"],
   ["packages/main/src/core/verification-execution-evidence.ts","proof-or-stop.verifier-dependency-manifest-binding.v1",1,"6cdbe616948e4595c15ece6c9a50cb22bd41e5c6c186ed82c421e020c2d70849"],
+  ["packages/main/src/handlers/checklist.ts","proof-or-stop-implementer",2,"19fcc470d02faf604a28e83ea8f710eaebb88868642d7cc7706d2b4d1092bfed"],
   ["packages/main/src/handlers/checklist.ts","proof-or-stop-product-reviewer",1,"54ea216564ffb2a3d1937f30aaed38faa3855aebe8e49a8dc5d8d2637de26104"],
   ["packages/main/src/handlers/checklist.ts","proof-or-stop-review-story-init",1,"54ea216564ffb2a3d1937f30aaed38faa3855aebe8e49a8dc5d8d2637de26104"],
   ["packages/main/src/handlers/checklist.ts","proof-or-stop.verification-execution-receipt.v3",4,"90bcf066b48695e791b83bc4ecd7f810814367e614337f98be5421f819a40cdb"],
@@ -2845,7 +2883,7 @@ const OWNED_IDENTITY_SITE_CONTEXTS = [
   ["packages/main/src/core/prompt-role-contract-registry.ts","proof-or-stop-evaluator-cli",1,"3e8a068a52fdacb6250be32ecaac9b886966d875c0ab3b879d97da05e65ffe51"],
   ["packages/main/src/core/prompt-role-contract-registry.ts","proof-or-stop-implementation-reviewer",2,"0183fee39fae706c82ba4819cca03396c1052ecd5ab32b7c842987f5aca76a05"],
   ["packages/main/src/core/prompt-role-contract-registry.ts","proof-or-stop-implementer",1,"dc2c9f5dd02bd758f687d97f87de31e2f268440e2886fa4970683550782de892"],
-  ["packages/main/src/core/prompt-role-contract-registry.ts","proof-or-stop-product-reviewer",2,"de6b6440cfbc99e1aadc90c6d781047f17979f5a68338e2f1106ddc93efd0ba4"],
+  ["packages/main/src/core/prompt-role-contract-registry.ts","proof-or-stop-product-reviewer",2,"2c9fdd46c8090a2a13581e6f06fca6b4f4cbdbee64e682c1558090494e74b774"],
   ["packages/main/src/core/prompt-role-contract-registry.ts","proof-or-stop-review-behavior",1,"4da1ee933cca52f7d3ab52ee4dfd3be1a2e11fc76c20f2f5f177e97f482da686"],
   ["packages/main/src/core/prompt-role-contract-registry.ts","proof-or-stop-review-channel",3,"67848bdb68a7b98374d94b5a54e9382c20fe2e3428d32739191404f111b15015"],
   ["packages/main/src/core/prompt-role-contract-registry.ts","proof-or-stop-review-concept",1,"97446144206c4f867ebda05effef527dfd6761c885f4b75d515ee11fb7ed7c43"],
@@ -2853,7 +2891,7 @@ const OWNED_IDENTITY_SITE_CONTEXTS = [
   ["packages/main/src/core/prompt-role-contract-registry.ts","proof-or-stop-review-docs",1,"af317854885f1906359a4d843875ef482c6c959825b1c4c6a9c406b0d148f6a8"],
   ["packages/main/src/core/prompt-role-contract-registry.ts","proof-or-stop-review-quality",2,"939b731c47e4d4edbeadb922acdd66b09c0d73ac63eed530da9c6a06b4e78269"],
   ["packages/main/src/core/prompt-role-contract-registry.ts","proof-or-stop-review-scope-plan",1,"14e230e149e56ca51298f1113a17a95af8baacc17487c0e150dbb74f6a3f2a45"],
-  ["packages/main/src/core/prompt-role-contract-registry.ts","proof-or-stop-review-story-init",1,"cc36f9efa02f75e8d11de339a925b98b3728c0151c3b30c5b4d24929f3687e97"],
+  ["packages/main/src/core/prompt-role-contract-registry.ts","proof-or-stop-review-story-init",1,"206d77915eaa4d0e0523e8ffebad3a201cee3e2348893a68051aa42495a574c1"],
   ["packages/main/src/core/prompt-role-contract-registry.ts","proof-or-stop-review-test-coverage",2,"783e6cc807aedd15e5cc59a179d8130d4c542cc6737764e9ace0e070cff5cf10"],
   ["packages/main/src/core/prompt-role-contract-registry.ts","proof-or-stop-review-topology-critic",5,"01cbfc8a383326fa0fc26c5bd3883f4a0782a5d150aeb7cf28842391177344ed"],
   ["packages/main/src/core/prompt-role-contract-registry.ts","proof-or-stop-test-case-reviewer",2,"e92653935944999c34f9d6f7cd6907a815603b4607d36c87a8cba459683ed9c7"],
@@ -2921,7 +2959,7 @@ const OWNED_IDENTITY_SITE_CONTEXTS = [
   ["proof-or-stop.config.json","proof-or-stop-review-story-init",1,"5ea47c68b9182e7ab115b79cb802b35ec1afd5ceba48f34d83f71e7fcf6524a3"],
   ["proof-or-stop.config.json","proof-or-stop-review-test-coverage",1,"32564b076fb47134fc47aee191af578c83a565f5fc5e9c77047302b669d7889c"],
   ["proof-or-stop.config.json","proof-or-stop-review-topology-critic",1,"6d9565bbb95a41a02dff2e93bbcc7f493ff87ce5958d656f1c534e0fc8529099"],
-  ["proof-or-stop.config.json", "proof-or-stop.config.json", 13, "b069aeffc954e08bcf57cea9a89b33738dc193f25494041081d00f91e5e271d6"],
+  ["proof-or-stop.config.json", "proof-or-stop.config.json", 14, "e016954e5d457ab0d561bc0bafe2fc8096c4fcc39ea99ea74a34165bd58e5cb6"],
   ["proof-or-stop.config.json","proof-or-stop.prompt-envelope-rollout.v1",1,"3dd20408fa21226f6db5e926c57851e63443785775af0f734591ee2c6384f503"],
 ].map(([sourcePath, canonical, occurrences, contextSha256]) => ({ sourcePath, canonical, occurrences, contextSha256 }));
 
@@ -3002,10 +3040,13 @@ function deriveOwnedImportUseContexts(sourceMap) {
 }
 
 const OWNED_IMPORT_USE_CONTEXTS = [
+  {"sourcePath":"packages/main/src/core/git-tree-observation.ts","occurrences":19,"contextSha256":"add70073c7794496189777db23fab2c08e57fb95eafe2c9bd013add0fb11ee8f"},
+  {"sourcePath":"packages/main/src/core/executable-digest-observation.ts","occurrences":12,"contextSha256":"4ad68ee819a37a752af8a80fe1b17eddaede59b25761b0f92a2c673a7d42c2d2"},
+  {"sourcePath":"packages/main/src/core/maintenance-command-mode.ts","occurrences":0,"contextSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
   {"sourcePath": "packages/main/src/core/acceptance-amendment-journal.ts", "occurrences": 142, "contextSha256": "d28ea6092aab3965a3cd60fe223b52a5a872555987eddbc3dd8759a2556c66e1"},
   {"sourcePath": "packages/main/src/core/convergence-effective-progress.ts", "occurrences": 10, "contextSha256": "bc2270202ea1d97d87984dcb1d4b9b100d761160d5cef8791985d335eff515ed"},
   {"sourcePath": "packages/main/src/core/convergence-progress-journal.ts", "occurrences": 78, "contextSha256": "f10c90cfef4cc8702ef4747345bce332cc539ded292a04fae34ce7dbb304b1fd"},
-  {"sourcePath": "packages/main/src/core/store.ts", "occurrences": 411, "contextSha256": "07464549c7d89dc09529a7ccc5c38222f3ab1ee3ee43bfaaca8ff2cc28a6474f"},
+  {"sourcePath": "packages/main/src/core/store.ts", "occurrences": 415, "contextSha256": "463fd53536b0d5848e1ee356e75024ef42ae831a3d3f06978ed72fbcc2204c7e"},
 
   {"sourcePath":"packages/main/src/core/delivery-review-authority.ts","occurrences":68,"contextSha256":"d140fc7cff221fdaddf92834a0e97b7fa777608ae309f08b574a6f169c72e893"},
   {"sourcePath": "packages/main/src/core/acceptance-amendment-review.ts", "occurrences": 0, "contextSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
@@ -3015,23 +3056,15 @@ const OWNED_IMPORT_USE_CONTEXTS = [
     "occurrences": 39,
     "contextSha256": "b95e9b29eb348caf5e4f06a088ff48c7bbda588ee1ed885994d036eee0a0e0a6"
   },
-  {
-    "sourcePath": "packages/main/src/core/candidate-spec-routing.ts",
-    "occurrences": 127,
-    "contextSha256": "112f0f04fb82fd718d7da0a02e3cc1b0d15215655aebe60fbe9c18f107323190"
-  },
+  {"sourcePath": "packages/main/src/core/candidate-spec-routing.ts", "occurrences": 130, "contextSha256": "cae5a9e88c5c0fd437993ba6d31f239c0010fa7d6fd0786bc99f4daa6c60b348"},
   {
     "sourcePath": "packages/main/src/core/capability-release.ts",
     "occurrences": 77,
     "contextSha256": "da05592fe9ce8137db1b38e50343b62c3b6ebfc5ebf4bf20ccc56bafcf0e5ca7"
   },
   {"sourcePath": "packages/main/src/core/certification-window.ts", "occurrences": 65, "contextSha256": "b9c6c0fe1ae6c6868cd307a530afe9ed9f493901a9d88d330de5f519295590b9"},
-  {
-    "sourcePath": "packages/main/src/core/config.ts",
-    "occurrences": 67,
-    "contextSha256": "cb73ec333d6f047b5dbf022a20641177a05de86bf2c5d691a372f0e820361581"
-  },
-  {"sourcePath": "packages/main/src/core/evidence-freshness.ts", "occurrences": 174, "contextSha256": "d83318dacae758180af3e7695fc307768b7a92aa21dff0d464e5fe01a972a50c"},
+  {"sourcePath": "packages/main/src/core/config.ts", "occurrences": 82, "contextSha256": "e00e3b3edb548526d08264ec8014522c8609df05f55c8f7ac54c9625076c4bf5"},
+  {"sourcePath": "packages/main/src/core/evidence-freshness.ts", "occurrences": 190, "contextSha256": "a1735afb675fd2bebcc2214f9899f1638a03a50d1ecd8299b2f2cdff8eb1c8bb"},
   {
     "sourcePath": "packages/main/src/core/experience-layer-types.ts",
     "occurrences": 0,
@@ -3087,7 +3120,7 @@ const OWNED_IMPORT_USE_CONTEXTS = [
     "occurrences": 377,
     "contextSha256": "3f79c6ccaf1d5bbca3bbbe8a19b48db43926794b35a6b852e5748c94e04945cf"
   },
-  {"sourcePath": "packages/main/src/core/process-fact-registry.ts", "occurrences": 24, "contextSha256": "75a4cf47700a818b8afffdaf9c9015d9c1f84c77c2e00db0026aa5f1347b4ad2"},
+  {"sourcePath": "packages/main/src/core/process-fact-registry.ts", "occurrences": 32, "contextSha256": "bda76d115a3c7032cf406769ad1895976162ba85aaa4f8db14dc5ac262524317"},
   {
     "sourcePath": "packages/main/src/core/prompt-budget.ts",
     "occurrences": 4,
@@ -3118,35 +3151,19 @@ const OWNED_IMPORT_USE_CONTEXTS = [
     "occurrences": 137,
     "contextSha256": "fd828982bd0633d28b94af5f8ca03b09e6f6035be4e44495b2ded6a229fc15c1"
   },
-  {"sourcePath": "packages/main/src/core/review-incremental-context.ts", "occurrences": 319, "contextSha256": "9b927d4281078f740c35c5998b03478484b328c5862c8f2d03fcefb3596dd497"},
+  {"sourcePath": "packages/main/src/core/review-incremental-context.ts", "occurrences": 332, "contextSha256": "e04750f29c13f37e7f17b60122b66df61bf715f53ef26f92c9b4403aa0ffa62c"},
   {"sourcePath": "packages/main/src/core/review-inventory-epoch.ts", "occurrences": 63, "contextSha256": "0c751e0c5d92604e461b1fd5d0df82538f3313cc4b3840c818a3a06157972aa7"},
-  {"sourcePath": "packages/main/src/core/review-run.ts", "occurrences": 289, "contextSha256": "23fc9eb3c28ad727261f9e4645dcffb6eedf56e2fbd252d871bffb0cea3098a3"},
+  {"sourcePath": "packages/main/src/core/review-run.ts", "occurrences": 293, "contextSha256": "e70a77d9c0980112eff92daf83103575c63f132ee8ad289eba724056e1718a18"},
   {
     "sourcePath": "packages/main/src/core/source-lineage-audit.ts",
     "occurrences": 131,
     "contextSha256": "ee2d591e1f0fad9b2de7d1cde798eb873dd6e1fc743e6190109d8b6255debade"
   },
-  {
-    "sourcePath": "packages/main/src/core/verification-execution-evidence.ts",
-    "occurrences": 296,
-    "contextSha256": "8653fc4bebf66e733177010bc48a5b4c922917bddf8ad5849d289dd38c740e91"
-  },
-  {
-    "sourcePath": "packages/main/src/handlers/agent-prompt.ts",
-    "occurrences": 130,
-    "contextSha256": "574bd09e82f47aa279a905cf63a658c3f36d8443967607d457f3447f46f4b052"
-  },
-  {
-    "sourcePath": "packages/main/src/handlers/candidate-spec-routing.ts",
-    "occurrences": 95,
-    "contextSha256": "03a898d8331a0fdec5728ab334e998d9e62dfd09162a37e290787328a04459d1"
-  },
-  {"sourcePath": "packages/main/src/handlers/checklist.ts", "occurrences": 922, "contextSha256": "41f3b9b2557e7e75912f545235dc72ae6f53474497ae9e3148a2fe6331d9decc"},
-  {
-    "sourcePath": "packages/main/src/handlers/done-effects.ts",
-    "occurrences": 257,
-    "contextSha256": "cbf92bf0551e2c7c0b31dbc5da03304b27c31ee0c8389c13da4c54447a6ef805"
-  },
+  {"sourcePath": "packages/main/src/core/verification-execution-evidence.ts", "occurrences": 307, "contextSha256": "0743090c1c375cda6541dfa5358ce83005efae266f3bea33a801675eee7ddb8a"},
+  {"sourcePath": "packages/main/src/handlers/agent-prompt.ts", "occurrences": 130, "contextSha256": "41f4365fe97330bf11de73586d60cda95e7b0c3c408ba67fcef3a0ad1bbddcdf"},
+  {"sourcePath": "packages/main/src/handlers/candidate-spec-routing.ts", "occurrences": 98, "contextSha256": "805e2b7f0ad70e9ae12ce6cf5b6f67e44dec22d603a47dc3e6dd626ad3684900"},
+  {"sourcePath": "packages/main/src/handlers/checklist.ts", "occurrences": 929, "contextSha256": "3202569cee6b15eb64fdb1e2fac98656cc8eeed4cd619c3d0a16ef7c020afccd"},
+  {"sourcePath": "packages/main/src/handlers/done-effects.ts", "occurrences": 295, "contextSha256": "d11789fc61fe6745b79c47cbbc920defc06b8971c2c0cff7b9f5c8bd34768eaf"},
   {
     "sourcePath": "packages/main/src/handlers/playbook-runtime-memory.ts",
     "occurrences": 66,
@@ -3157,23 +3174,15 @@ const OWNED_IMPORT_USE_CONTEXTS = [
     "occurrences": 297,
     "contextSha256": "40a0d7eb4476cc7d20ed1b91a0e1be4e6c5cb70d0422b70dcacd5ccca7c17477"
   },
-  {"sourcePath": "packages/main/src/handlers/review-run.ts", "occurrences": 229, "contextSha256": "ddb5b84e1b53ddb52a24853e950747b783edc3b9082bf3917c30d592095bee30"},
-  {
-    "sourcePath": "packages/main/src/handlers/story-dispatch.ts",
-    "occurrences": 316,
-    "contextSha256": "5dd9126eaeb21f160d6e9fc526e1c4576eeaa3c1587fd6e2202dd47e10c6bccb"
-  },
+  {"sourcePath": "packages/main/src/handlers/review-run.ts", "occurrences": 237, "contextSha256": "9b3fa36ca2e4c05deecf4f0f7fc428043a3e00302e3140d2efd238c9859d8896"},
+  {"sourcePath": "packages/main/src/handlers/story-dispatch.ts", "occurrences": 342, "contextSha256": "c8a7cd5c5e2137aef624f99cd9605fac7fb407d77eefb0d8c4f78ec58cc08957"},
   {
     "sourcePath": "packages/main/src/core/claim-admissibility/pack-framework.ts",
     "occurrences": 49,
     "contextSha256": "ccd4fe3e8ae44b0b260c36ee4ed2c71d095e98d904df2d200655aa1360d91fea"
   },
   {"sourcePath": "packages/main/src/cli-init.ts", "occurrences": 521, "contextSha256": "d10e5c27a6c8083295649d2ec4c932763b26c71f3d3595e2254b4338aedd3de6"},
-  {
-    "sourcePath": "scripts/verify-proof-or-stop-identity-cutover.mjs",
-    "occurrences": 568,
-    "contextSha256": "853b60f057eca75cc6794322fa49210de58ac3346719036c5832dfdbffabc7ed"
-  }
+  {"sourcePath":"scripts/verify-proof-or-stop-identity-cutover.mjs","occurrences":576,"contextSha256":"9faf50d76aeac99b60428270dba913500179d2df8efb766945871f8b1c8c13a1"}
 ];
 
 function assertOwnedImportUseIntegrity(sourceMap, pins = OWNED_IMPORT_USE_CONTEXTS) {
@@ -3187,8 +3196,9 @@ function assertOwnedIdentitySiteTotality(sourceMap, boundaries = ACTIVE_IDENTITY
 }
 
 function assertDerivedIdentitySiteTotality(derived, boundaries, classifications, options = {}) {
-  const sites = boundaries.flatMap(boundary => boundary.identitySites);
-  const cases = boundaries.flatMap(boundary => boundary.retiredIdentityCases);
+  const configCases = options.projectConfigCases ?? PROJECT_CONFIG_IDENTITY_CASES;
+  const sites = [...boundaries.flatMap(boundary => boundary.identitySites), ...configCases];
+  const cases = [...boundaries.flatMap(boundary => boundary.retiredIdentityCases), ...configCases];
   const missing = [];
   for (const row of derived) {
     const owners = sites.filter(site => site.sourcePath === row.sourcePath && site.canonical === row.canonical);
@@ -3245,6 +3255,11 @@ await check(['identity-cutover', 'identity-sites'], 'F-060 reconciled consumers 
     additional.set(path, `${sources.get(path)}\nvoid ${importedName};\n`);
     assert.throws(() => assertOwnedImportUseIntegrity(additional), /owned import use changed/, 'new imported use must be refused');
   }
+  for (const inputCase of PROJECT_CONFIG_IDENTITY_CASES) {
+    assert.throws(() => assertOwnedIdentitySiteTotality(sources, ACTIVE_IDENTITY_OPERATION_BOUNDARIES,
+      OWNED_NON_PROTOCOL_IDENTITY_CONTEXTS, { projectConfigCases: PROJECT_CONFIG_IDENTITY_CASES.filter(row => row !== inputCase) }),
+      /unclassified owned executable identity sites/, `omitted config case: ${inputCase.siteId}`);
+  }
   const registryPath = 'packages/main/src/core/process-fact-registry.ts';
   const registryDefault = 'entries: readonly unknown[] = PROCESS_FACT_REGISTRY';
   assert.equal(sources.get(registryPath).split(registryDefault).length - 1, 1, 'reviewed registry default must be unique');
@@ -3274,7 +3289,7 @@ await check(['identity-cutover', 'identity-sites'], 'F-060 reconciled consumers 
   const config = JSON.parse(sources.get('proof-or-stop.config.json'));
   config.unreviewedIdentityConsumer = 'proof-or-stop.config.json';
   changedConfig.set('proof-or-stop.config.json', JSON.stringify(config));
-  assert.throws(() => assertOwnedIdentitySiteTotality(changedConfig), /owned identity use count changed/, 'reviewed command-index movement does not admit a new config use');
+  assert.throws(() => assertOwnedIdentitySiteTotality(changedConfig), /owned identity classification count drift/, 'reviewed command-index movement does not admit a new config use');
   // Move one actual scheduler claim to another command without adding/removing
   // any canonical literal. Classification context must reject this too.
   const resourceMoved = new Map(sources);
@@ -3415,6 +3430,13 @@ await check(['identity-cutover', 'identity-sites', 'round24'], 'F-060 discovered
       assert.throws(() => assertDerivedIdentitySiteTotality(derived, missingCase, OWNED_NON_PROTOCOL_IDENTITY_CONTEXTS), /owned identity case missing\/duplicate/, site.siteId);
       const missingContext = OWNED_IDENTITY_SITE_CONTEXTS.filter(entry => entry.sourcePath !== row.sourcePath || entry.canonical !== row.canonical);
       assert.throws(() => assertDerivedIdentitySiteTotality(derived, ACTIVE_IDENTITY_OPERATION_BOUNDARIES, OWNED_NON_PROTOCOL_IDENTITY_CONTEXTS, { contextPins: missingContext }), /owned identity occurrence context missing\/duplicate/, site.siteId);
+    } else if (PROJECT_CONFIG_IDENTITY_CASES.some(entry => entry.sourcePath === row.sourcePath && entry.canonical === row.canonical)) {
+      const omitted = PROJECT_CONFIG_IDENTITY_CASES.filter(entry => entry.sourcePath !== row.sourcePath || entry.canonical !== row.canonical);
+      assert.throws(() => assertDerivedIdentitySiteTotality(derived, ACTIVE_IDENTITY_OPERATION_BOUNDARIES, OWNED_NON_PROTOCOL_IDENTITY_CONTEXTS,
+        { projectConfigCases: omitted }), /unclassified owned executable identity sites/, row.canonical);
+      const pins = OWNED_IDENTITY_SITE_CONTEXTS.filter(entry => entry.sourcePath !== row.sourcePath || entry.canonical !== row.canonical);
+      assert.throws(() => assertDerivedIdentitySiteTotality(derived, ACTIVE_IDENTITY_OPERATION_BOUNDARIES, OWNED_NON_PROTOCOL_IDENTITY_CONTEXTS,
+        { contextPins: pins }), /owned identity occurrence context missing\/duplicate/, row.canonical);
     } else {
       const omitted = OWNED_NON_PROTOCOL_IDENTITY_CONTEXTS.filter(entry => entry.sourcePath !== row.sourcePath || entry.canonical !== row.canonical);
       assert.throws(() => assertDerivedIdentitySiteTotality(derived, ACTIVE_IDENTITY_OPERATION_BOUNDARIES, omitted), /unclassified owned executable identity sites/, row.canonical);
@@ -3613,7 +3635,7 @@ await check(['round23'], 'F-059 every registered path has an explicit owned-site
       if (binding.classification === 'owned-site') {
         assert.ok(binding.siteIds.length > 0, `${boundary.id}/${binding.sourcePath}: owned-site path has no sites`);
       } else {
-        assert.match(binding.evidence ?? '', /type-only|no emitted identity|generated consumer/i, `${boundary.id}/${binding.sourcePath}: identity-free classification lacks evidence`);
+        assert.ok(binding.evidence, `${boundary.id}/${binding.sourcePath}: identity-free classification lacks rationale`);
         const registeredPath = boundary.paths.find((entry) => entry.sourcePath === binding.sourcePath);
         const absolute = registeredPath.scope === 'runtime-package'
           ? join(packageRoot, registeredPath.path)
@@ -3745,8 +3767,9 @@ await check(['identity-cutover', 'identity-config-boundary', 'identity-policy-bo
   const registeredOperationPaths = ACTIVE_IDENTITY_OPERATION_BOUNDARIES
     .flatMap((boundary) => boundary.paths.map((registeredPath) => registeredPath.sourcePath));
   assertActiveIdentityOperationOwnership(ACTIVE_IDENTITY_OPERATION_BOUNDARIES);
+  assert.equal(registeredOperationPaths.includes('proof-or-stop.config.json'), false, 'dynamic config cannot be a required packaged executable');
   assert.deepEqual(
-    [...IDENTITY_CUTOVER_REQUIRED_PATHS].filter((path) => !registeredOperationPaths.includes(path)),
+    [...IDENTITY_CUTOVER_REQUIRED_PATHS].filter((path) => !registeredOperationPaths.includes(path) && !PROJECT_CONFIG_IDENTITY_CASES.some(row => row.sourcePath === path)),
     [],
     'every required identity path must be exercised through a registered public operation',
   );
@@ -3782,7 +3805,7 @@ await check(['identity-cutover', 'identity-config-boundary', 'identity-policy-bo
   };
   for (const boundary of ACTIVE_IDENTITY_OPERATION_BOUNDARIES) {
     assert.ok(
-      Array.isArray(boundary.identitySites) && boundary.identitySites.length > 0,
+      Array.isArray(boundary.identitySites) && (boundary.identitySites.length > 0 || boundary.pathBindings.every(row => row.classification === 'identity-free')),
       `${boundary.id}: identity-site registry is required`,
     );
     assert.ok(
@@ -3808,11 +3831,11 @@ await check(['identity-cutover', 'identity-config-boundary', 'identity-policy-bo
         }
       } else {
         assert.equal(binding.classification, 'identity-free', `${boundary.id}/${binding.sourcePath}: unknown path classification`);
-        assert.match(
-          binding.evidence ?? '',
-          /type-only|no emitted identity|generated consumer/i,
-          `${boundary.id}/${binding.sourcePath}: identity-free path needs mechanical evidence`,
-        );
+        assert.ok(binding.evidence, `${boundary.id}/${binding.sourcePath}: identity-free rationale required`);
+        const path = boundary.paths.find(row => row.sourcePath === binding.sourcePath);
+        const absolute = join(path.scope === 'runtime-package' ? packageRoot : repoRoot, path.path);
+        assert.doesNotMatch(readFileSync(absolute, 'utf8'), /proof-or-stop[.-]/,
+          `${boundary.id}/${binding.sourcePath}: emitted delegate must remain identity-free`);
       }
     }
     assert.deepEqual(
@@ -3821,10 +3844,29 @@ await check(['identity-cutover', 'identity-config-boundary', 'identity-policy-bo
       `${boundary.id}: every identity site must have a canonical-to-retired public-operation mutation case`,
     );
     assert.ok(
-      Array.isArray(boundary.retiredIdentityCases) && boundary.retiredIdentityCases.length > 0,
+      Array.isArray(boundary.retiredIdentityCases) && (boundary.retiredIdentityCases.length > 0 || boundary.pathBindings.every(row => row.classification === 'identity-free')),
       `${boundary.id}: public-operation coverage must declare the boundary's actual canonical and retired identity values`,
     );
     const [defaultCommand, payload] = activeIdentityBoundaryOperation(boundary.id, 'B-49df');
+    // Zero-literal delegates still require real public-operation mutation proof.
+    // Valid JavaScript changes the executable binding without adding an identity.
+    for (const binding of boundary.pathBindings.filter(row => row.classification === 'identity-free')) {
+      const path = boundary.paths.find(row => row.sourcePath === binding.sourcePath);
+      const injectedPath = join(path.scope === 'runtime-package' ? join(operationRuntimeRoot, 'packages/main') : operationRuntimeRoot, path.path);
+      const original = readFileSync(injectedPath);
+      const operationRoot = boundary.id === 'process-fact-registry' ? externalReadRoot : operationRuntimeRoot;
+      const observer = observerFor(operationRoot);
+      try {
+        writeFileSync(injectedPath, `${original}\nvoid 1;\n`);
+        const before = observer.before(injectedPath);
+        const result = runCli(operationRoot, defaultCommand, payload, {}, { entrypoint: operationEntrypoint });
+        assert.notEqual(result.status, 0, `${boundary.id}: identity-free executable mutation admitted`);
+        const diagnostic = `${result.stdout}${result.stderr}`;
+        assert.ok(diagnostic.includes(binding.sourcePath) && diagnostic.includes('executable declaration/producer/consumer binding changed'), diagnostic);
+        observer.after(before, `${boundary.id}: rejected delegate changed state`);
+      } finally { writeFileSync(injectedPath, original); }
+      process.stdout.write(`PASS identity-free public executable mutation ${boundary.id}/${binding.sourcePath}\n`);
+    }
     // Imported authorities require BOTH a consumer-expression mutation and an
     // origin-only mutation with the consuming expression left byte-identical.
     // The latter reproduced an actual accepted retired pinn_claim_check schema.
@@ -3900,7 +3942,32 @@ await check(['identity-cutover', 'identity-config-boundary', 'identity-policy-bo
       writeFileSync(injectedPath, canonicalBytes);
       process.stdout.write(`PASS exact public identity mutation ${identityCase.siteId} (${identityCase.originMutation ? 'origin-only' : 'consumer-source'}) elapsedMs=${Date.now() - caseStartedAt}\n`);
     }
-  }  process.stdout.write('IDENTITY_OBSERVER_STATS ' + JSON.stringify([...observers.values()].map(o => o.stats)) + '\n');
+  }
+  const configPath = join(operationRuntimeRoot, 'proof-or-stop.config.json');
+  const configBytes = readFileSync(configPath);
+  for (const inputCase of PROJECT_CONFIG_IDENTITY_CASES) {
+    const config = JSON.parse(configBytes);
+    const retired = inputCase.canonical.replace('proof-or-stop', ['proof', 'bound'].join(''));
+    if (inputCase.field === 'role-key') {
+      assert.ok(Object.hasOwn(config.promptEnvelope.roles, inputCase.canonical));
+      config.promptEnvelope.roles[retired] = config.promptEnvelope.roles[inputCase.canonical];
+      delete config.promptEnvelope.roles[inputCase.canonical];
+    } else {
+      assert.equal(config.promptEnvelope.version, inputCase.canonical);
+      config.promptEnvelope.version = retired;
+    }
+    try {
+      writeFileSync(configPath, JSON.stringify(config));
+      const observer = observerFor(operationRuntimeRoot); const before = observer.before(configPath);
+      const rejected = runCli(operationRuntimeRoot, 'agent_prompt', { role: 'proof-or-stop-review-quality' }, {}, { entrypoint: operationEntrypoint });
+      assert.notEqual(rejected.status, 0, `${inputCase.siteId}: retired config accepted`);
+      const diagnostic = `${rejected.stdout}${rejected.stderr}`;
+      assert.ok(diagnostic.includes(retired) && diagnostic.includes('proof-or-stop.config.json') && diagnostic.includes('not admitted by prompt-runtime'), diagnostic);
+      observer.after(before, `${inputCase.siteId}: rejection changed state`);
+    } finally { writeFileSync(configPath, configBytes); }
+    process.stdout.write(`PASS project config public mutation ${inputCase.siteId}\n`);
+  }
+  process.stdout.write('IDENTITY_OBSERVER_STATS ' + JSON.stringify([...observers.values()].map(o => o.stats)) + '\n');
 });
 
 await check(['identity-cutover'], 'CHK-007:adversarial:1 mixed and lookalike identity families are rejected exactly', () => {
@@ -4175,6 +4242,7 @@ await check(['identity-cutover'], 'complete identity certification includes real
   assert.match(result.stdout, /^PASS identity-cutover$/m);
   assert.match(result.stdout, /PASS proof-or-stop packed clean-install boundary/);
   assert.doesNotMatch(result.stdout, /^PASS identity-boundary-scan$/m);
+  process.stdout.write(result.stdout);
 });
 
 function identityVerifierFixtureEntrypoint(root) {

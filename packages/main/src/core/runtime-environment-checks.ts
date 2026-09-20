@@ -599,6 +599,8 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-record-authenticity.v1", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
       identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-record.v1", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
       identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-reuse-receipt.v1", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
+      identitySite('packages/main/src/handlers/checklist.ts', 'proof-or-stop.plan-acceptance-batch.v1', undefined, undefined, undefined, undefined, { canonical: 2, retired: 0 }),
+      identitySite("packages/main/src/handlers/checklist.ts", "proof-or-stop-implementer", undefined, undefined, undefined, undefined, { canonical: 2, retired: 0 }),
       identitySite("packages/main/src/handlers/checklist.ts", "proof-or-stop-product-reviewer", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
       identitySite("packages/main/src/handlers/checklist.ts", "proof-or-stop-review-story-init", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
       identitySite("packages/main/src/handlers/checklist.ts", "proof-or-stop.verification-execution-receipt.v3", undefined, undefined, undefined, undefined, { canonical: 4, retired: 0 }),
@@ -615,6 +617,7 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       identityMutationCase('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.inventory-verification-observation.v1'),
       identityMutationCase('packages/main/src/core/review-inventory-epoch.ts', 'proof-or-stop.verification-receipt-bundle.v5'),
       identityMutationCase('packages/main/src/core/verification-execution-evidence.ts', 'proof-or-stop.verification-receipt-bundle.v5'),
+      identityMutationCase('packages/main/src/handlers/checklist.ts', 'proof-or-stop.plan-acceptance-batch.v1'),
       identityMutationCase('packages/main/src/handlers/checklist.ts', 'proof-or-stop.verification-receipt-bundle.v5'),
       identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop-verification-receipt-signer-v1.key"),
       identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-assertion-receipt.v1"),
@@ -634,6 +637,7 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-record-authenticity.v1"),
       identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-record.v1"),
       identityMutationCase("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-reuse-receipt.v1"),
+      identityMutationCase("packages/main/src/handlers/checklist.ts", "proof-or-stop-implementer"),
       identityMutationCase("packages/main/src/handlers/checklist.ts", "proof-or-stop-product-reviewer"),
       identityMutationCase("packages/main/src/handlers/checklist.ts", "proof-or-stop-review-story-init"),
       identityMutationCase("packages/main/src/handlers/checklist.ts", "proof-or-stop.verification-execution-receipt.v3"),
@@ -947,6 +951,7 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       identitySite("packages/main/src/handlers/story-dispatch.ts", "proof-or-stop-review-quality", "proof-or-stop-review-quality", "proofbound-review-quality", "proofbound-review-quality", undefined, { canonical: 2, retired: 0 }),
       identitySite("packages/main/src/handlers/story-dispatch.ts", "proof-or-stop-review-scope-plan", "proof-or-stop-review-scope-plan", "proofbound-review-scope-plan", "proofbound-review-scope-plan", undefined, { canonical: 6, retired: 0 }),
       identitySite("packages/main/src/handlers/story-dispatch.ts", "proof-or-stop-review-topology-critic", "proof-or-stop-review-topology-critic", "proofbound-review-topology-critic", "proofbound-review-topology-critic", undefined, { canonical: 6, retired: 0 }),
+      identitySite('packages/main/src/cli-init.ts', 'proof-or-stop.prompt-envelope-rollout.v1', undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
       identitySite(
         'packages/main/src/cli-init.ts',
         'proof-or-stop.js',
@@ -1062,6 +1067,7 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       identityMutationCase("packages/main/src/handlers/story-dispatch.ts", "proof-or-stop-review-quality"),
       identityMutationCase("packages/main/src/handlers/story-dispatch.ts", "proof-or-stop-review-scope-plan"),
       identityMutationCase("packages/main/src/handlers/story-dispatch.ts", "proof-or-stop-review-topology-critic"),
+      identityMutationCase('packages/main/src/cli-init.ts', 'proof-or-stop.prompt-envelope-rollout.v1'),
       identityMutationCase('packages/main/src/cli-init.ts', 'proof-or-stop.js'),
       identityMutationCase('docs/requirements/baselines/role-prompt-measurement-baseline.json', 'proof-or-stop.prompt-measurement.v1'),
       identityMutationCase("docs/requirements/baselines/role-prompt-measurement-baseline.json", "proof-or-stop-evaluator"),
@@ -1195,7 +1201,7 @@ function assertNoRetiredPromptConfigIdentity(projectRoot: string, label: string)
 // This exact source fragment is mutation-input data, not an active schema
 // reader. Its byte/count witness grants no exemption to surrounding code.
 const IDENTITY_MUTATION_DATA_FRAGMENTS = [
-  { marker: 'const OWNED_IDENTITY_MUTATION_CONTEXT_ROWS = [', sha256: 'ec1dc6a835c8d94d275b26245e01f47be62b312f3fa4b1843fb302f7c10cc763' },
+  { marker: 'const OWNED_IDENTITY_MUTATION_CONTEXT_ROWS = [', sha256: '0a946f2912e82923fe5c21fcf953334476b7f118bd495741ec65fd7d8dd56668' },
   { marker: 'const BOTH_FAMILY_CONTEXT_ROWS = [', sha256: 'b7d3c4a55bd9742fe532ff73cb7db1ef86a5ee913e608146f4d0b6b2781adc6a' },
 ] as const;
 function activeIdentitySourceBytes(sourcePath: string, bytes: string): string {

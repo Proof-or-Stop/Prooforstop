@@ -15,7 +15,9 @@ import {PROOF_OR_STOP_STORY_DIR} from '../core/proof-or-stop-paths.js';
 import {sanitizedFixtureChildEnvironment} from './fixture-environment.js';
 import {nativeReviewFixtureAmbientHost,nativeReviewFixtureBrokers,runBrokeredNativeReviewCli} from './native-review-fixture.js';
 
-const cliPath=fileURLToPath(new URL('../cli.js',import.meta.url));
+// Use the same public bootstrap as the validation consumers so receipt
+// implementation identities are bound to one execution entrypoint.
+const cliPath=fileURLToPath(new URL('../../../../bin/proof-or-stop.js',import.meta.url));
 const roots=new Set<string>();
 export const NATIVE_FIXTURE_CLI_TIMEOUT_MS=60000;
 export const NATIVE_FIXTURE_HOLD_MS=90000;
@@ -80,6 +82,19 @@ console.log('native lock probe passed');\n`);
   store.writeStory(storyId,{storyId,name:'native-lock-fixture',title:'Native lock fixture',description:'Disposable integration subject for the real CLI.',type:'bug',phase:'REVIEW',priority:'medium',createdAt:round,startedAt:round,endedAt:null,currentReviewRound:round,events:[{phase:'REVIEW',action:'advance',timestamp:round}]});
   store.writeChecklist(storyId,{items:[]});
   git('add','.');git('commit','-m','seed disposable lock subject');
+  const files=await prepareNativeLockFixtureStory(root,storyId,phase,routine);
+  return {root,storyId,store,files};
+ } catch(error){releaseNativeLockRoot(root);throw error;}
+ finally {console.log('NATIVE_LOCK_SETUP_TOTAL '+JSON.stringify({storyId,elapsedMs:performance.now()-start}));}
+}
+
+/** Admit an already seeded disposable Story through the real CLI producers. */
+export async function prepareNativeLockFixtureStory(root:string,storyId:string,phase:'REVIEW'|'TEST'='TEST',routine=true) {
+ assertNativeLockFixture(root);
+ const store=new StoryStore(root);
+ const git=(...args:string[])=>execFileSync('git',args,{cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe'],
+  env:{...process.env,GIT_AUTHOR_NAME:'Native lock fixture',GIT_AUTHOR_EMAIL:'fixture@example.test',GIT_COMMITTER_NAME:'Native lock fixture',GIT_COMMITTER_EMAIL:'fixture@example.test'}}).trim();
+ const cli=(command:string,payload:Record<string,unknown>,agent='main')=>lockFixtureCli(root,storyId,command,payload,agent);
   cli('review_inventory_begin',{storyId});
   const epoch=store.readReviewInventoryEpochs(storyId).epochs.at(-1)!;
   assert.equal(epoch.state,'OPEN');
@@ -117,7 +132,5 @@ console.log('native lock probe passed');\n`);
   if(routine)assert.equal(store.readTestEvidence(storyId)?.result,'PASS');
   else {assert.equal(store.readTestEvidence(storyId),null);assert.equal(loadVerifiedCertificationWindow(store,storyId).window?.state,'ADMITTED');}
   rmSync(join(root,'entered.log'),{force:true});rmSync(join(root,'release'));
-  return {root,storyId,store,files};
- } catch(error){releaseNativeLockRoot(root);throw error;}
- finally {console.log('NATIVE_LOCK_SETUP_TOTAL '+JSON.stringify({storyId,elapsedMs:performance.now()-start}));}
+  return files;
 }

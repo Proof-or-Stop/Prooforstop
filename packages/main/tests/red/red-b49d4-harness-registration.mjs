@@ -280,7 +280,7 @@ if (!Array.isArray(config?.validate?.commands) || config.validate.commands.lengt
 const F031_ENTRY = 'packages/main/dist/tasks/finding-identity-lineage-smoke.js';
 const F031_SOURCE = 'packages/main/src/tasks/finding-identity-lineage-smoke.ts';
 // Source pin: delivery bypasses the routes-only isolation exit; build verification separately binds dist.
-const F031_SOURCE_SHA256 = '119c1e9c2e1e66b7fc94f6d3e1c89796a9755de12a3d2f1bf1d47a3f431899dc';
+const F031_SOURCE_SHA256 = '09a954da77ac46579857ac16fb9fb47a7c131d24cbeb81043bfd4c375ad27417';
 function f031DeliveryCovered(candidateConfig, source, expectedSourceDigest = F031_SOURCE_SHA256) {
   const entries = candidateConfig?.validate?.commands ?? [];
   if (entries.filter(entry => JSON.stringify(entryArgv(entry)) === JSON.stringify(['node', F031_ENTRY, '--section=delivery'])).length !== 1) return false;
@@ -343,7 +343,7 @@ function packageLeafDeclared(candidateConfig, scriptName, fileName, packageReade
   try { command = packageReader(join(repoRoot, prefix, 'package.json'))?.scripts?.[scriptName]; } catch { return false; }
   if (typeof command !== 'string' || /[\r\n|;<>$`"'\\#&]/.test(command.replaceAll('&&', ''))) return false;
   const segments = command.split('&&').map(part => part.trim().split(/\s+/));
-  if (!segments.every(argv => argv.length === 2 && argv[0] === 'node' && /^[A-Za-z0-9_.-]+(?:\/[A-Za-z0-9_.-]+)+$/.test(argv[1])
+  if (!segments.every(argv => argv.length >= 2 && argv[0] === 'node' && argv.slice(2).every(arg => /^--[a-z][a-z0-9-]*(?:=[A-Za-z0-9_.-]+)?$/.test(arg)) && /^[A-Za-z0-9_.-]+(?:\/[A-Za-z0-9_.-]+)+$/.test(argv[1])
       && !argv[1].split('/').some(part => part === '.' || part === '..'))) return false;
   return segments.filter(argv => JSON.stringify(argv) === JSON.stringify(['node', `tests/red/${fileName}`])).length === 1;
 }
@@ -360,7 +360,12 @@ for (const [fileName, scriptName] of DYNAMIC_PACKAGE_HARNESSES) {
   duplicate.validate.commands.push(duplicate.validate.commands.find(matching));
   const wrongPrefix = structuredClone(config);
   wrongPrefix.validate.commands.find(matching).args[1] = 'packages/other';
+  const siblingWithFlags = `node tests/red/registration-sibling.mjs --mode=complete && ${leaf}`;
+  const validSiblingPackage = { ...packageData, scripts: { ...packageData.scripts, [scriptName]: siblingWithFlags } };
+  if (!packageLeafDeclared(config, scriptName, fileName, () => validSiblingPackage)) fail('package_registration_positive', 'a sibling script option cannot hide the exact unmodified target leaf');
   const cases = [
+    ['unsafe sibling argument', config, `node tests/red/registration-sibling.mjs --mode=$(touch) && ${leaf}`],
+    ['flagged target is not exact', config, `${leaf} --mode=complete`],
     ['removed root command', removed, script],
     ['duplicate root command', duplicate, script],
     ['wrong prefix', wrongPrefix, script],

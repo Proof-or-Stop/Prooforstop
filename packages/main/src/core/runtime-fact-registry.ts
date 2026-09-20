@@ -51,6 +51,20 @@ export const REVIEWER_BATCH_ADMISSION_RUNTIME_POLICY = { maxWaitMs: 10000, ready
 export const MANAGED_REVIEW_READONLY_RUNTIME_POLICY = { crossHostProviderSandbox: { confined: 'danger-full-access', unconfined: 'read-only' }, adapter: 'prooforstop-main-v1', providerStateAdapter: 'isolated-file-cache-v1', providerFileMaxBytes: 1024*1024, platform: 'darwin', buildTimeoutMs: 180000, builderGraceMs: 5000, capabilityTimeoutMs: 3000, directoryMode: 0o700, environmentKeys: ['TMPDIR','TMP','TEMP','CLAUDE_CODE_TMPDIR','XDG_CACHE_HOME','PROOF_OR_STOP_REVIEW_BUILD_SOURCE','PROOF_OR_STOP_REVIEW_BUILD_OUTPUT'], optionalEnvironmentKeys: ['PROOF_OR_STOP_REVIEW_EXECUTION_CWD'], credentials: 'original-read-only-private-copy-refresh-writable', writable: 'sealed-source-plus-disposable-execution-worktree-and-declared-output-temp-cache' } as const;
 export const SUPERVISED_PROVIDER_RUNTIME_POLICY = { termGraceMs: 250, closeWaitMs: 300, parentGraceMs: 3000, maxOutputBytes: 8 * 1024 * 1024 } as const;
 export const MACHINE_PROVIDER_ADMISSION_RUNTIME_POLICY = { maxConcurrent: 4, directoryMode: 0o700, scope: 'same-os-user-across-projects' } as const;
+// The parent includes launcher registration and proven group cleanup; the
+// worker retains its existing execution limit. This is test infrastructure only.
+export const FINDING_EVIDENCE_FIXTURE_RUNTIME_POLICY = {
+  workerMs: 120000, lifecycleMarginMs: 30000, controllerMs: 150000,
+} as const;
+// Registered verifiers use 260s and 180s. Keep the existing composite envelope:
+// 300s covers public/package fixtures and 640s is explicit conservative headroom,
+// not a claim that any verifier has a 900s allowance. The budget regression binds
+// this sum to the actual registrations. Other identity witnesses remain separate.
+export const IDENTITY_CERTIFICATION_RUNTIME_POLICY = {
+  runtimeGroupMs: 260000 + 180000 + 300000 + 640000,
+  publicRuntimeAndPackageMarginMs: 300000, conservativeHeadroomMs: 640000,
+  otherIdentityWitnessMs: 900000,
+} as const;
 export const MANAGED_CRITIC_FIXTURE_RUNTIME_POLICY = {
   environmentKey: 'PROOF_OR_STOP_MANAGED_CRITIC_FIXTURE_BUDGET',
   entry: 'managed-inventory-critic-import', standaloneMs: 120000,
@@ -99,6 +113,9 @@ export const REQUIRED_RUNTIME_FACT_IDS = [
  * alongside (but never inserted into) REQUIRED_RUNTIME_FACT_IDS.
  */
 export const RUNTIME_EVIDENCE_FACT_REGISTRY = [
+  { id: 'workspace-validation-coordination', owner: 'validation-execution-lock', semantics: 'Workspace capacity tickets live outside guarded repository roots in a private OS-user directory keyed by the canonical shared repository root. The original path remains a symlink to that single queue for legacy readers and writers. Migration only removes an atomically empty legacy directory; live or unknown tickets block migration under the original deadline, with holder and heartbeat progress plus the legacy path; new callers join only after that legacy queue drains. Unpublished preparation and quarantine residue is reclaimed only for a valid local holder PID with a kernel ESRCH observation; malformed PIDs and other observation errors preserve ownership; live, unknown, or unrecognized residue refuses migration immediately with its path and remediation diagnostic. The populated queue itself is never moved or erased. Foreign aliases and unsafe external directories refuse admission. Kernel mutation guards retain every material and runtime write-and-restore refusal. Disposable guard, residue and full capacity fixtures use private OS-user namespaces; actual alias targets are observed inside those private roots and confirmed absent after child close and cleanup, including external queues created on refused migration paths. Coordination fixture controllers allow the registered 30000ms child budget plus 15000ms startup and cleanup margin; persistent production queue identities are not recursively reclaimed on release.' },
+  { id: 'finding-evidence-fixture-deadlines', owner: 'isolated-finding-fixture + red-dynamic-finding-evidence-closure', semantics: 'The default isolated Finding worker retains its 120-second execution deadline. The enclosing evidence regression allows a separate 30-second lifecycle margin for launcher registration, observation and proven process-group cleanup. A signal, timeout, missing output marker or failed assertion remains a failure. Composite audit commands have a finite 900-second serial acceptance budget; this is a configuration correction, not a performance claim.' },
+  { id: 'identity-certification-composite-deadline', owner: 'verify-proof-or-stop-identity-cutover', semantics: 'The complete runtime certification retains both registered process/runtime verifier workloads, public operations and installed-package checks. Its finite parent budget covers the registered 260-second and 180-second verifier allowances, 300 seconds for public/package witnesses, and an explicit 640-second conservative headroom that preserves the existing composite envelope. The budget regression binds this sum to the actual registrations. The outer identity command retains a separate allowance for other identity witnesses. Timeouts, signals and missing success selectors remain non-PASS; no verification is skipped or reused by this budget policy.' },
   { id: 'story-integration-target', owner: 'story-create + story-integration-target + done-effects + release', semantics: 'Story creation freezes the checked-out non-Story parent branch and its commit. DONE synchronization, conflict checks, recovery and local release approval consume that branch; legacy Stories resolve the repository baseline without inventing main. A Story branch, detached HEAD, or missing target grants no integration authority.' },
   { id: 'global-thin-native-hook-projection', owner: 'runtime-root + controller-runtime-projection + scope-path-classifier', semantics: 'An explicitly registered linked Story worktree may receive only the exact Codex hook manifest and two Proof-or-Stop hook programs from a global-thin primary controller. Both copies and a signed common-dir plus Story receipt must remain byte-identical; symlinks, tracked-path replacement, controller drift and worktree drift fail closed. Controller HEAD and index own the selected regular config and every present native hook; a controller hook absent from disk, HEAD and index remains absent after a legitimate removal. The branch retains a tracked regular config, while candidate hook edits, deletions and renames remain ordinary material under cleanliness and scope gates. Canonical root aliases are accepted; no runtime exemption is granted and untracked controller hooks retain strict projection authority.' },
   { id: 'causal-environment-confidentiality', owner: 'causal-evidence', semantics: 'Causal identity stores plaintext only for a fixed locale and terminal allowlist; every other environment value is represented by a one-way digest. All persisted output projections share one credential-only redaction stream: token, secret, password, credential, authorization, cookie, credential-bearing proxy, database DSN, SSH private-key and cloud credential values are scrubbed, while benign profile, region, session-label and no-proxy values remain selector-visible.' },
@@ -547,6 +564,13 @@ export const VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS = {
   ownerLeaseLossDuringCapacityWait: 'abort-before-callback-preserving-caller-cancellation',
   unknownResources: 'exclusive',
   receiptReusePolicy: 'exact-inputs',
+} as const;
+
+/** Fixture controllers preserve child execution plus startup and cleanup time. */
+export const WORKSPACE_VALIDATION_COORDINATION_FIXTURE_RUNTIME_POLICY = {
+  childMs: 30000,
+  lifecycleMarginMs: 15000,
+  controllerMs: 45000,
 } as const;
 
 /** In-process scheduler coordination does not replace machine-wide leases. */

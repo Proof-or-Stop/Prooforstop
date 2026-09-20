@@ -32,6 +32,9 @@ const requiredEvidenceFacts = [
   'global-thin-native-hook-projection',
   'identity-canonical-digest-memo',
   'validation-machine-reservation-delegation',
+  'finding-evidence-fixture-deadlines',
+  'identity-certification-composite-deadline',
+  'workspace-validation-coordination',
   'command-observation-boundaries',
   'verification-output-integrity',
   'verification-receipt-layering',
@@ -107,6 +110,13 @@ async function main() {
   }
   try { prepareVerification(root, { shareBuild: true }); }
   catch (error) { throw new Error(verificationFailureMessage('runtime contract prerequisite', error)); }
+  const { WORKSPACE_VALIDATION_COORDINATION_FIXTURE_RUNTIME_POLICY: coordinationFixtureBudget } = await importDist(root, 'packages/main/dist/core/runtime-fact-registry.js');
+  execFileSync(process.execPath, ['packages/main/tests/validation-audit-budgets.test.mjs'], {
+    cwd: root, stdio: 'inherit', timeout: 30000,
+  });
+  execFileSync(process.execPath, ['packages/main/tests/validation-coordination-guard.test.mjs'], {
+    cwd: root, stdio: 'inherit', timeout: coordinationFixtureBudget.controllerMs,
+  });
   const { MANAGED_REVIEW_READONLY_RUNTIME_POLICY: readonlyRuntime } = await importDist(root, 'packages/main/dist/core/runtime-fact-registry.js');
   assert(readonlyRuntime.environmentKeys.includes('CLAUDE_CODE_TMPDIR'), 'Provider Bash temporary files must be mapped to the admitted private lane');
   const { materializeHostRunLaunch: crossHostLaunch } = await importDist(root, 'packages/main/dist/core/host-run.js');
@@ -899,6 +909,8 @@ process.stdout.write(JSON.stringify({ registry: RUNTIME_FACT_REGISTRY.length, pr
   execFileSync(process.execPath, [join(root, 'packages/main/tests/planning-observation.test.mjs')], {cwd: root, stdio: 'inherit', timeout: 30000});
 
   execFileSync(process.execPath, [join(root, 'packages/main/tests/validation-tree-delegate-binding.mjs')], {cwd: root, stdio: 'inherit', timeout: 30000});
+
+  await import(pathToFileURL(join(root, 'packages/main/tests/validation-coordination-residue.test.mjs')).href);
 
   if (failures.length > 0) {
     console.error('Runtime fact contract failed:');

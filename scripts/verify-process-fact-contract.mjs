@@ -6,7 +6,7 @@ import { prepareVerification, verificationFailureMessage } from './verification-
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { execFileSync } from 'node:child_process';
+import { execFile, execFileSync } from 'node:child_process';
 import { basename, dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
@@ -18,7 +18,7 @@ try { prepareVerification(root, { shareBuild: true }); }
 catch (error) { console.error(verificationFailureMessage('process contract prerequisite', error)); process.exit(1); }
 // --quiet suppresses only the verbose listings (registry entries, inventory
 // file paths). Verification logic and asserted literals are unchanged; the
-// default (no flag) output stays byte-identical.
+// complete proof markers and diagnostics remain present; concurrent output order may vary.
 const quiet = process.argv.slice(2).includes('--quiet');
 const closeoutPolicyModule = await import(pathToFileURL(join(root, 'packages/main/dist/core/closeout-trust.js')).href);
 const failures = [];
@@ -1010,6 +1010,14 @@ function read(relPath) {
   let text = readFileSync(absPath, 'utf8');
   const mutation = process.env.PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION;
   const roleId = canonicalRoleId(basename(relPath));
+  if (mutation === 'drop-red-evidence-binding-policy' && relPath === commandPolicyPath) {
+    // Mutate the actual input consumed by this verifier, preserving the real
+    // repository/build identity and every other source reader.
+    const stripped = text.replace(/^[^\n]*\bred_evidence_binding_set:[^\n]*\n/m, '');
+    nodeAssert.notEqual(stripped, text, 'w2b mutation must remove the actual policy entry');
+    nodeAssert(!/\bred_evidence_binding_set:/.test(stripped), 'w2b mutation must remove exactly the named policy');
+    text = stripped;
+  }
   if (mutation === 'drop-acceptance-basis-prompt' && roleId === 'proof-or-stop-implementer') {
     // B-cc10: accept either brand so the mutation actually drops the live prompt line.
     text = text.replace(/^Acceptance-basis boundary: only `(?:proof-or-stop|proofOrStop) acceptance_basis_generate`.*$/m, '');
@@ -2507,7 +2515,7 @@ function assertCloseoutTrustBoundary() {
     'b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98',
     // B-45a0 F-419: lockstep with the reviewed closeout-trust policy that
     // permits only receipt-bound verification_evidence_refresh_stale writes.
-    'fb21d100ac76f9211b3311c04c94e7d8856bc974e29292c8b3485cab485263f5',
+    '68d86faa065e9137986d20775fa8d72ab8e71af6ddf648c9ab94d48be2db7467',
     '7c345270f67ccc96bde83280cc2cf2fee2d7b7652b15cfc3e1e4b5b7f97c6fd9',
     // B-45a0 F-421: lockstep with the closeout smoke's canonical-writer and
     // noncanonical-writer retention regression checks, and with B-1e1f's
@@ -2532,9 +2540,11 @@ function assertCloseoutTrustBoundary() {
     // Moved again with the guard by commit 32a083b987 (delivery-review follow-up:
     // one diagnostic string + a BRAND_ENV_PREFIX import in cli-engine.ts). This time
     // both copies were updated in the same commit, as the note above requires.
-    // 2026-09-20 merged owner-lease admission re-approval: the canonical AST
-    // changed without adding a loader call or changing the exact initPath
-    // producer/import argument. Keep this coupled to the guard's source pin.
+  // Merged-source audit: origin/main d354d2b43d measured b4f27e9a, already
+  // stale against the old b9eb52d0 pin. Candidate measures 52a283cf. The new
+  // withValidationSigningRoot arrow preserves the runCli function anchor and
+  // exact initPath producer/import argument. Both coupled pins move together;
+  // this whole-file binding does not assert a separate loader provenance graph.
     '631ac1fde46c71126614b7ad293fedc43a79b14c166b10d2f8b7e3cd2b69d408',
     // B-6693 (merged in) also moved this canonical AST, only to separate
     // direct-validate watchdog cancellation from DONE-result classification.
@@ -2638,7 +2648,7 @@ function assertCloseoutTrustBoundary() {
     "'packages/main/src/handlers/fixture-executors.ts'",
     'aee0b8f72d15f79121d14a4805891fae125b76bc9de1cbe073a28ffe90a8eddf',
     'aee0b8f72d15f79121d14a4805891fae125b76bc9de1cbe073a28ffe90a8eddf',
-    'd0fa3e4ebad2c985e96f1faa64cd3ca7eac35492203f0eacc121e260298e715e',
+    '19b243083de02b86b17a76c104222709b35cc223b3a5e2ad4d40ff86e99ad0ed',
     'the twelve existing exact entries plus the B-49df test-only tracer kernel pin make thirteen; no broad pattern exemptions are allowed',
     'any executable drift revokes the envelope mutation loader fingerprint',
     'mutant path rebound to external input',
@@ -2646,7 +2656,7 @@ function assertCloseoutTrustBoundary() {
     'mutant producer nested shadow',
     'mutant URL helper shadow',
     'BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS',
-    'd0fa3e4ebad2c985e96f1faa64cd3ca7eac35492203f0eacc121e260298e715e',
+    '19b243083de02b86b17a76c104222709b35cc223b3a5e2ad4d40ff86e99ad0ed',
     '023017290826cb42ede2577f5e43a20b8f13733fc80599056dcd8367a68f8506',
     'PackageAliasEdge',
     'buildPackageAliasEdgeInventory',
@@ -5555,6 +5565,8 @@ function parseProcessFactLevelDefinitions() {
 let cachedCommandPolicyEntries = null;
 
 // Refuse the complete actual ownership contract before launching positive proofs.
+let cachedProcessFactRegistryEntries = null;
+let cachedFlowFactPolicyEntries = null;
 assertStoryWriterRuntimeAdmissionContract();
 if (failures.length) {
   console.error('');
@@ -5562,36 +5574,27 @@ if (failures.length) {
   for (const message of failures.sort()) console.error(`- ${message}`);
   process.exit(1);
 }
-
-// A rejected admission must not pay for these independent positive fixture checks.
-// Exercise the real verdict consumer, including raw-stream digest and refusal guards.
-execFileSync(process.execPath, ['packages/main/tests/codex-review-jsonl.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
-execFileSync(process.execPath, ['packages/main/tests/review-history-buffer.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 30000 });
-// Match CLI module initialization before the actual sealed managed-review fixture.
-execFileSync(process.execPath, ['--import', './packages/main/dist/index.js', 'packages/main/dist/tasks/managed-review-evidence-smoke.js', '--supersession-regression'], { cwd: root, stdio: 'inherit', timeout: 120000 });
-execFileSync(process.execPath, ['packages/main/tests/certification-recovery-lineage.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 120000 });
-// Exercise managed delivery through an actual synthetic provider process and real CLI.
-execFileSync(process.execPath, ['packages/main/tests/managed-delivery-dispatch.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 180000 });
-
-// Real writer/coverage proofs use isolated fixtures; unavailable execution is never GREEN.
-for (const [file, marker, timeout] of [
-  ['experiments/acceptance-closure/regression.mjs', 'ACCEPTANCE_CLOSURE_GREEN', 60000],
-  ['experiments/acceptance-closure/publication-snapshot.mjs', 'PUBLICATION_SNAPSHOT_GREEN', 60000],
-  ['experiments/acceptance-closure/publication-lifecycle.mjs', 'PUBLICATION_LIFECYCLE_GREEN', 720000],
-]) {
-  try {
-    const output = execFileSync(process.execPath, [join(root, file)], { cwd: root, encoding: 'utf8', timeout });
-    nodeAssert(output.includes(marker), file + ' must emit its GREEN marker');
-    if (!quiet) process.stdout.write(output);
-  } catch (error) {
-    throw new Error(verificationFailureMessage('acceptance closure ' + file, error));
-  }
+assertProofStoryProgressiveBoundary();
+if (failures.length) {
+  console.error('');
+  console.error('Process fact contract failed:');
+  for (const message of failures.sort()) console.error(`- ${message}`);
+  process.exit(1);
 }
-
-// Durable ordering witness: its invalid child exits at the admission gate above.
-const admissionOrderOutput = execFileSync(process.execPath, [join(root, 'scripts/verify-process-runtime-admission-order.mjs')], { cwd: root, encoding: 'utf8', timeout: 60000 });
-nodeAssert(admissionOrderOutput.includes('PASS process runtime admission order:'), 'Runtime admission ordering witness must emit its PASS marker');
-if (!quiet) process.stdout.write(admissionOrderOutput);
+assertCommandPolicyInventory(extractCliToolNames(read('packages/main/src/cli/command-catalog.ts')));
+if (failures.length) {
+  console.error('');
+  console.error('Process fact contract failed:');
+  for (const message of failures.sort()) console.error(`- ${message}`);
+  process.exit(1);
+}
+assertProcessFactCommandInventory();
+if (failures.length) {
+  console.error('');
+  console.error('Process fact contract failed:');
+  for (const message of failures.sort()) console.error(`- ${message}`);
+  process.exit(1);
+}
 
 function readStringProperty(block, propertyName) {
   const match = new RegExp(`\\b${propertyName}\\s*:\\s*(['"\`])`).exec(block);
@@ -5729,7 +5732,7 @@ function duplicateNames(values) {
   return [...duplicates].sort();
 }
 
-let cachedProcessFactRegistryEntries = null;
+
 
 function parseTopLevelObjectBlocks(arrayBody, label) {
   const blocks = [];
@@ -5865,7 +5868,7 @@ function parseProcessFactRuntimeSemanticsFromSource(text) {
   return semantics;
 }
 
-let cachedFlowFactPolicyEntries = null;
+
 
 function parseFlowFactPolicies() {
   if (cachedFlowFactPolicyEntries) return cachedFlowFactPolicyEntries;
@@ -10266,17 +10269,6 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
   assert(read('packages/main/src/core/prompt-registry.ts').includes('A metadata-only HEAD advance does not replace the signed inventory cutoff')
     && registrySource.includes('Metadata-only HEAD advancement may differ from the original cutoff HEAD'),
     'metadata-only critic admission requires matching prompt and registry contracts');
-  // Execute the real behavior from this registered serial-reference driver.
-  // Formatting or operand swaps cannot substitute for a two-wave witness.
-  try {
-    const output = execFileSync(process.execPath, [join(root, 'scripts/verify-inventory-critic-metadata-head.mjs')], {
-      cwd: root, encoding: 'utf8', timeout: 900000, maxBuffer: 8 * 1024 * 1024,
-    });
-    process.stdout.write(output);
-    assert(output.includes('INVENTORY_CRITIC_METADATA_HEAD_GREEN'), 'registered critic proof requires its exact selector');
-  } catch (error) {
-    throw new Error(verificationFailureMessage('inventory critic metadata HEAD', error));
-  }
   assert(read('packages/main/src/tasks/inventory-critic-live-metadata-projection-smoke.ts').includes('managed inventory critic receives current signed uncommitted inventory metadata in its sealed prompt'), 'managed inventory critic live metadata projection requires focused RED/GREEN coverage');
   assert(read('packages/main/src/core/managed-execution-input-identity.ts').includes('fingerprintCapturedManagedProviderState'), 'execution identity must bind captured provider inputs');
   assert(read('scripts/verify-u08-execution-identity.mjs').includes('fixture-env-secret'), 'input identity requires actual secret/environment drift regression');
@@ -11153,7 +11145,6 @@ assertReviewRoundIsoDocs();
 assertEvidenceBoundaryDocs();
 assertCurrentVerificationReceiptModel();
 assertPromptEvidenceBoundaries(promptMap);
-assertProofStoryProgressiveBoundary();
 assertProofStoryGateConsumedFacts();
 assertCloseoutTrustBoundary();
 assertPhaseTransitionReopenAuditContract();
@@ -11182,7 +11173,6 @@ assert(entryDiagnosticSource.includes('diagnosticOnly: true') && entryDiagnostic
 assert(readFileSync(join(root, 'packages/main/src/handlers/story-review.ts'), 'utf8').includes('assessPlanTouchpointCoverage(understanding.touchpoints, cl.items)'),
   'entry preflight and Story review must share the existing touchpoint coverage semantics');
 assertReviewInventoryRemediationContract();
-assertProcessFactCommandInventory();
 assertDonePreflightPredicateInventoryParity();
 await assertLifecycleArtifactScopePolicy();
 assertStrengtheningRoadmapGovernanceLedger();
@@ -11793,25 +11783,40 @@ execFileSync(process.execPath, [join(root, 'packages/main/tests/certification-mu
 // Each focused proof has separate 180s setup and 240s body budgets; outer 450s
 // reserves 30s for fixture IO. Setup/body timeout is unavailable evidence, not assertion RED.
 // A loaded machine can exhaust this bound; that never establishes a product defect or a PASS. These are failure budgets, not speed gains.
-// Real CLI reader admission and handler non-mutation, including protected negative paths.
-try {
-  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-reviewer-read-boundaries.mjs')], {
-    cwd: root, encoding: 'utf8', timeout: 450000,
-  });
-  assert(output.includes('REVIEWER_READ_BOUNDARY_GREEN'), 'reviewer read boundary executable proof must pass');
-} catch (error) {
-  assert(false, verificationFailureMessage('reviewer read boundary', error));
+// These two actual CLI proofs use distinct mkdtemp roots and child-local
+// sessions. Both verify the shared build binding; neither changes repository
+// source. Observe both outcomes before continuing, including after a failure.
+function boundaryProofCompletion(resolveProof, rejectProof, label, marker) {
+  return (error, stdout, stderr) => {
+    try {
+      if (error) { Object.assign(error, { stdout, stderr }); throw error; }
+      nodeAssert(stdout.includes(marker), label + ' requires its exact completion selector');
+      resolveProof();
+    } catch (failure) {
+      rejectProof(new Error(failure?.signal
+        ? 'PROOF_UNAVAILABLE: ' + label + '\n' + String(failure) + '\n' + stdout + '\n' + stderr
+        : verificationFailureMessage(label, failure)));
+    }
+  };
 }
-
-// Real preview calls, parameter admission, protected writer negatives and reader guidance.
-try {
-  const output = execFileSync(process.execPath, [join(root, 'scripts/verify-maintenance-preview-boundaries.mjs')], {
-    cwd: root, encoding: 'utf8', timeout: 450000,
-  });
-  assert(output.includes('MAINTENANCE_PREVIEW_GREEN'), 'maintenance preview executable proof must pass');
-} catch (error) {
-  assert(false, verificationFailureMessage('maintenance preview', error));
+const boundaryProofResults = await Promise.allSettled([
+  new Promise((resolveProof, rejectProof) => {
+    execFile(process.execPath, [join(root, 'scripts/verify-reviewer-read-boundaries.mjs')], {
+      cwd: root, encoding: 'utf8', timeout: 450000,
+    }, boundaryProofCompletion(resolveProof, rejectProof, 'reviewer read boundary', 'REVIEWER_READ_BOUNDARY_GREEN'));
+  }),
+  new Promise((resolveProof, rejectProof) => {
+    execFile(process.execPath, [join(root, 'scripts/verify-maintenance-preview-boundaries.mjs')], {
+      cwd: root, encoding: 'utf8', timeout: 450000,
+    }, boundaryProofCompletion(resolveProof, rejectProof, 'maintenance preview', 'MAINTENANCE_PREVIEW_GREEN'));
+  }),
+]);
+for (const result of boundaryProofResults) {
+  if (result.status === 'rejected') assert(false, String(result.reason));
 }
+if (boundaryProofResults.every(result => result.status === 'fulfilled')) console.log('PROCESS_BOUNDARY_PROOFS_COMPLETE 2');
+assert(read(processFactRegistryPath).includes('Focused process-boundary proofs retain both actual CLI executions'),
+  'Process boundary proof concurrency must remain registered with complete failure propagation');
 
 // Parameterized writes cannot inherit a name-only reader exemption.
 {
@@ -12032,6 +12037,88 @@ assert(managedCriticArtifact?.producer === 'handlers/managed-review-evidence.man
   ]);
 }
 
+if (failures.length) {
+  console.error('');
+  console.error('Process fact contract failed:');
+  for (const message of failures.sort()) console.error(`- ${message}`);
+  process.exit(1);
+}
+
+// A rejected admission must not pay for these independent positive fixture checks.
+// These two lanes own disjoint disposable fixtures. Keep every real command and
+// timeout, and observe both lanes before allowing the final success marker.
+// Asynchronous children keep each timeout and output drain live during overlap.
+let completedPositiveProofs = 0;
+function positiveProofCompletion(resolveProof, rejectProof, label, marker, display) {
+  return (error, stdout, stderr) => {
+    try {
+      if (error) { Object.assign(error, { stdout, stderr }); throw error; }
+      if (marker) nodeAssert(stdout.includes(marker), label + ' requires its exact completion selector');
+      if (display) { process.stdout.write(stdout); process.stderr.write(stderr); }
+      completedPositiveProofs++;
+      resolveProof();
+    } catch (failure) {
+      rejectProof(new Error(failure?.signal
+        ? 'PROOF_UNAVAILABLE: ' + label + '\n' + String(failure) + '\n' + stdout + '\n' + stderr
+        : verificationFailureMessage(label, failure)));
+    }
+  };
+}
+const inventoryCriticProof = new Promise((resolveProof, rejectProof) => {
+  execFile(process.execPath, [join(root, 'scripts/verify-inventory-critic-metadata-head.mjs')], {
+    cwd: root, encoding: 'utf8', timeout: 900000, maxBuffer: 8 * 1024 * 1024,
+  }, positiveProofCompletion(resolveProof, rejectProof, 'inventory critic metadata HEAD', 'INVENTORY_CRITIC_METADATA_HEAD_GREEN', true));
+});
+const remainingPositiveProofs = (async () => {
+  // Real verdict consumer, raw-stream digest and refusal guards remain mandatory.
+  await new Promise((resolveProof, rejectProof) => {
+    execFile(process.execPath, ['packages/main/tests/codex-review-jsonl.test.mjs'], { cwd: root, encoding: 'utf8', timeout: 30000, maxBuffer: 8 * 1024 * 1024 },
+      positiveProofCompletion(resolveProof, rejectProof, 'codex review JSONL', null, true));
+  });
+  await new Promise((resolveProof, rejectProof) => {
+    execFile(process.execPath, ['packages/main/tests/review-history-buffer.test.mjs'], { cwd: root, encoding: 'utf8', timeout: 30000, maxBuffer: 8 * 1024 * 1024 },
+      positiveProofCompletion(resolveProof, rejectProof, 'review history buffer', null, true));
+  });
+  // Match CLI module initialization before the actual sealed managed-review fixture.
+  await new Promise((resolveProof, rejectProof) => {
+    execFile(process.execPath, ['--import', './packages/main/dist/index.js', 'packages/main/dist/tasks/managed-review-evidence-smoke.js', '--supersession-regression'], { cwd: root, encoding: 'utf8', timeout: 120000, maxBuffer: 8 * 1024 * 1024 },
+      positiveProofCompletion(resolveProof, rejectProof, 'managed review supersession', null, true));
+  });
+  await new Promise((resolveProof, rejectProof) => {
+    execFile(process.execPath, ['packages/main/tests/certification-recovery-lineage.test.mjs'], { cwd: root, encoding: 'utf8', timeout: 120000, maxBuffer: 8 * 1024 * 1024 },
+      positiveProofCompletion(resolveProof, rejectProof, 'certification recovery lineage', null, true));
+  });
+  // Managed delivery still uses an actual provider process and real CLI.
+  await new Promise((resolveProof, rejectProof) => {
+    execFile(process.execPath, ['packages/main/tests/managed-delivery-dispatch.test.mjs'], { cwd: root, encoding: 'utf8', timeout: 180000, maxBuffer: 8 * 1024 * 1024 },
+      positiveProofCompletion(resolveProof, rejectProof, 'managed delivery dispatch', null, true));
+  });
+  // Real writer/coverage proofs; unavailable execution can never grant GREEN.
+  for (const [file, marker, timeout] of [
+    ['experiments/acceptance-closure/regression.mjs', 'ACCEPTANCE_CLOSURE_GREEN', 60000],
+    ['experiments/acceptance-closure/publication-snapshot.mjs', 'PUBLICATION_SNAPSHOT_GREEN', 60000],
+    ['experiments/acceptance-closure/publication-lifecycle.mjs', 'PUBLICATION_LIFECYCLE_GREEN', 720000],
+  ]) {
+    await new Promise((resolveProof, rejectProof) => {
+      execFile(process.execPath, [join(root, file)], { cwd: root, encoding: 'utf8', timeout, maxBuffer: 8 * 1024 * 1024 },
+        positiveProofCompletion(resolveProof, rejectProof, 'acceptance closure ' + file, marker, !quiet));
+    });
+  }
+})();
+const positiveProofResults = await Promise.allSettled([inventoryCriticProof, remainingPositiveProofs]);
+const positiveProofFailures = positiveProofResults.filter(result => result.status === 'rejected').map(result => result.reason);
+if (positiveProofFailures.length) throw new AggregateError(positiveProofFailures, 'Complete positive process-fact proofs failed');
+nodeAssert.equal(completedPositiveProofs, 9, 'all nine actual positive child completions are required');
+console.log('PROCESS_POSITIVE_PROOFS_COMPLETE 9');
+
+// Durable ordering witness: its invalid child exits at the admission gate above.
+const admissionOrderOutput = execFileSync(process.execPath, [join(root, 'scripts/verify-process-runtime-admission-order.mjs')], { cwd: root, encoding: 'utf8', timeout: 60000 });
+nodeAssert(admissionOrderOutput.includes('PASS process runtime admission order:'), 'Runtime admission ordering witness must emit its PASS marker');
+if (!quiet) process.stdout.write(admissionOrderOutput);
+
+
+if (!read('packages/main/src/core/process-fact-registry.ts').includes('runtime:validate_argument_compatibility')) failures.push('validate argument compatibility must remain registered');
+
 // Managed inventory transport checks must precede the final failure gate.
 assert(read('packages/main/src/core/managed-host-run.ts').includes('isManagedInventoryCritic'), 'Managed proposal writer must validate critic shape');
 assert(read('packages/main/src/core/managed-review-evidence.ts').includes('isManagedInventoryCritic'), 'Managed evidence consumer must validate critic shape');
@@ -12092,6 +12179,7 @@ if (failures.length) {
   for (const message of failures.sort()) console.error(`- ${message}`);
   process.exit(1);
 }
+
 
 console.log('');
 console.log('Process fact contract verified');

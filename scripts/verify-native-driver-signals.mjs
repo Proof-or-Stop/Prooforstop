@@ -1,11 +1,34 @@
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
-import {existsSync, mkdtempSync, writeFileSync, rmSync} from 'node:fs';
+import {existsSync, mkdtempSync, writeFileSync, readFileSync, rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {runInNewContext} from 'node:vm';
+import ts from 'typescript';
 
 const driver=fileURLToPath(new URL('./verify-native-lock-prerequisites.mjs',import.meta.url));
+const driverSource=readFileSync(driver,'utf8');
+const driverAst=ts.createSourceFile(driver,driverSource,ts.ScriptTarget.Latest,true);
+const cleanup=driverAst.statements.filter(node=>ts.isFunctionDeclaration(node)&&node.name?.text==='cleanupFixtureRuntime');
+assert.equal(cleanup.length,1,'execute the actual native driver cleanup implementation');
+for(const stage of ['observation','dispose','assertion']) {
+ const primary=new Error('original verification failure');
+ const cleanupError=new Error('controlled cleanup failure: '+stage);
+ const warnings=[];
+ const context={completeCapacity:true,stopping:false,
+  fixtureRuntime:{dispose(){if(stage==='dispose')throw cleanupError;}},
+  observeFixtureCoordination(){if(stage==='observation')throw cleanupError;return [];},
+  assertFixtureCoordinationRemoved(){if(stage==='assertion')throw cleanupError;},
+  console:{error:message=>warnings.push(message)}};
+ const invoke=failed=>runInNewContext(cleanup[0].getText(driverAst)+'\ncleanupFixtureRuntime('+failed+');',context);
+ assert.throws(()=>{try{throw primary;}finally{invoke(true);}},error=>error===primary,
+  'NATIVE_CLEANUP_MASKS_PRIMARY_FAILURE: '+stage);
+ assert.match(warnings[0],/NATIVE_DRIVER_CLEANUP_WARNING/);
+ assert.throws(()=>invoke(false),error=>error===cleanupError,'cleanup failure must reject an otherwise successful run');
+ context.stopping=true;
+ assert.doesNotThrow(()=>invoke(false),'cleanup failure must preserve requested signal termination');
+}
 const scratch=mkdtempSync(join(tmpdir(),'native-driver-signal-proof-'));
 try {
  const preload=join(scratch,'deny-first-signal.mjs');
