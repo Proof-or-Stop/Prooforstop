@@ -1,17 +1,5 @@
 # Changelog
 
-## Lab intent-fingerprint-reuse - v0.3.429 - 2026-09-20
-
-- Derive execution, per-intent and aggregate fingerprints from each Story's actual verification intents, displaying original descriptions and missing requirements without fixed counts.
-- Make executable evidence planning use authenticated receipt admission: distinguish proven reuse, required re-execution and invalid evidence instead of recommending a hash-only refresh for ordinary stale commands.
-- Preserve immutable signed execution/reuse records and strict fallback for incomplete dependencies; this does not extend the policy-owned capsule to arbitrary scripts or retroactively upgrade historical evidence.
-- Verify real producer/refresh behavior for shared commands, isolated and shared input changes, dynamic intent membership, missing manifests, duplicate IDs and tampered signatures; retain non-executable planning compatibility. See docs/requirements/decisions/verification-execution-receipt-fanout-and-input-scoped-freshness.md for the contract and command.
-- Full process-fact verification retains one pre-existing retired-vocabulary fingerprint mismatch on the Lab base; its exact baseline predicate was checked and the unrelated guard was not changed. The focused RED/GREEN and planning/composition checks are the repair evidence, not a claim of repository-wide success.
-
-Maintenance provenance: codex/lab-intent-fingerprint-reuse, repair 9532ec0faafea6d418c994c30aee80b63a96f33d.
-Verification command (replayed before integration and on main): `["node","packages/main/tests/intent-fingerprint-reuse.test.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab benchmark-control-red-green - v0.3.428 - 2026-09-20
 
 - Add an isolated benchmark controller experiment that ignores unchanged blocked progress, deduplicates executions, bounds context, and reserves shared and repair budgets before dispatch.
