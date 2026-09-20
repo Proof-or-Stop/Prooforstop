@@ -9,7 +9,7 @@ import { basename } from 'path';
  * fail loudly — the bump silently stops finding the constant. It is kept
  * verbatim and aliased forward instead; see PROOF_OR_STOP_CLI_VERSION below.
  */
-export const PROOF_OR_STOP_CLI_VERSION = '0.3.420' as const;
+export const PROOF_OR_STOP_CLI_VERSION = '0.3.419' as const;
 
 /**
  * Brand-forward READ alias for {@link PROOF_OR_STOP_CLI_VERSION}. New code should read
