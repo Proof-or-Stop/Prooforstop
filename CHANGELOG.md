@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab managed-implementer-done-only-guidance - v0.3.434 - 2026-09-20
+
+- Align the managed implementer prompt with its item-bound, done-only lifecycle capability.
+- Keep accidental `in_progress` refusals non-consuming and return a recovery hint that directs the worker to continue and complete the exact item.
+- Extend the managed dispatch regression to prove refusal, capability retention, exact completion, and run-bound evidence.
+- Refresh the prompt-policy and static-edge baselines for the reviewed contract.
+- Preserve canonical UTF-8 static evidence during Lab patch-version transactions so release preparation remains reachable.
+
+Maintenance provenance: codex/lab-managed-implementer-done-only-guidance, repair a32c130a2e040ed4ace38407ae25120840a235c7.
+Verification command (replayed before integration and on main): `["npm","run","test:managed-implementer-dispatch"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab managed-implementer-item-capability - v0.3.431 - 2026-09-20
 
 Problem: A controller-owned managed implementer runs in a child logical session. Its exact checklist completion was rejected by the Story owner lease, so host_run reported managed_dispatch_output_missing even after implementation succeeded.
