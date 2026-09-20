@@ -4,6 +4,7 @@ import { refreshStaleEvidenceMetadataOnly } from './checklist.js';
 import { checkEvidenceFreshnessForGit } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { collectVerificationIntents } from '../core/verification.js';
+import { selectItemIntentEvidence } from '../core/verification-intent-fingerprints.js';
 import type {
   ChecklistData,
   VerificationEvidence,
@@ -26,9 +27,10 @@ interface EvidenceRefreshArgs {
 
 /**
  * A row that ONE refresh pass could re-stamp: result=pass evidence that
- * checkEvidenceFreshnessForGit reports NOT fresh (hash drift only — logic still
- * valid). This is the SAME refresh-only predicate evidence_plan (P3) uses; we
- * call checkEvidenceFreshnessForGit identically rather than inventing a new one.
+ * checkEvidenceFreshnessForGit reports NOT fresh. Hash drift alone does not
+ * establish that the underlying logic is still valid. This compatibility preview is
+ * not executable receipt admission; evidence_plan reports authoritative per-intent
+ * execution requirements. The apply path never grants or renews executable authority.
  */
 interface RefreshCandidate {
   intentRef: string;
@@ -54,6 +56,11 @@ interface EscalatedRow extends RefreshCandidate {
 
 export interface EvidenceRefreshReport {
   storyId: string;
+  previewSemantics: {
+    kind: 'metadata-drift-only';
+    executableAdmission: 'not-evaluated';
+    nextCommand: string;
+  };
   mode: {
     /** evidence_refresh NEVER runs a verification command. */
     runCommands: false;
@@ -128,31 +135,10 @@ function isWaiver(ev: VerificationEvidence): boolean {
 }
 
 /**
- * Build the by-intentRef evidence lookup, mirroring evidence-plan.ts: first
- * passing evidence wins, otherwise keep the first seen so a fail is still
- * surfaced when no passing record exists.
- */
-function evidenceByIntentRef(checklist: ChecklistData): Map<string, VerificationEvidence> {
-  const byRef = new Map<string, VerificationEvidence>();
-  for (const item of checklist.items) {
-    for (const ev of item.verificationEvidence ?? []) {
-      if (typeof ev.intentRef !== 'string') continue;
-      const existing = byRef.get(ev.intentRef);
-      if (!existing) {
-        byRef.set(ev.intentRef, ev);
-      } else if (existing.result !== 'pass' && ev.result === 'pass') {
-        byRef.set(ev.intentRef, ev);
-      }
-    }
-  }
-  return byRef;
-}
-
-/**
  * The refresh-only predicate: result=pass evidence (not a waiver) whose git
  * freshness is NOT fresh. Returns the drift reason when refresh-only, otherwise
- * null. This is the SAME classification evidence_plan applies — we call
- * checkEvidenceFreshnessForGit identically, never inventing a new predicate.
+ * null. This metadata compatibility predicate does not prove executable freshness
+ * or cross-commit reuse; evidence_plan uses authenticated receipt admission for those rows.
  */
 function refreshOnlyDrift(
   evidence: VerificationEvidence | undefined,
@@ -207,14 +193,13 @@ function reclassifyAfterPass(
 /** Collect the refresh-only candidates from the current checklist facts. */
 function collectCandidates(
   checklist: ChecklistData,
-  byRef: Map<string, VerificationEvidence>,
   gitCwd: string,
   metadataRoot: string,
 ): RefreshCandidate[] {
   const candidates: RefreshCandidate[] = [];
   for (const item of checklist.items) {
     for (const collected of collectVerificationIntents(item)) {
-      const evidence = byRef.get(collected.ref);
+      const evidence = selectItemIntentEvidence(item, collected.ref);
       const drift = refreshOnlyDrift(evidence, gitCwd, metadataRoot);
       if (drift === null) continue;
       candidates.push({
@@ -257,6 +242,8 @@ export function renderEvidenceRefreshReport(
   const lines = [
     `Evidence refresh (${report.storyId})`,
     modeLine,
+    'preview: metadata drift only; not executable receipt admission or reuse eligibility.',
+    `For executable verdicts: ${report.previewSemantics.nextCommand}`,
     `summary: candidates=${report.summary.candidates} refreshed=${report.summary.refreshed} escalated=${report.summary.escalated}`,
   ];
 
@@ -314,7 +301,6 @@ export function createEvidenceRefreshHandlers(ctx: HandlerContext): Record<strin
     const beforeChecklist = readChecklist(ctx, args.storyId);
     const candidates = collectCandidates(
       beforeChecklist,
-      evidenceByIntentRef(beforeChecklist),
       gitCwd,
       ctx.root,
     );
@@ -340,9 +326,11 @@ export function createEvidenceRefreshHandlers(ctx: HandlerContext): Record<strin
       //    facts. Fresh → refreshed; still-not-fresh → escalate (no loop, no
       //    second pass, no command execution).
       const afterChecklist = readChecklist(ctx, args.storyId);
-      const afterByRef = evidenceByIntentRef(afterChecklist);
+      const afterByItem = new Map(afterChecklist.items.map(item => [item.id, item]));
       for (const candidate of candidates) {
-        const verdict = reclassifyAfterPass(afterByRef.get(candidate.intentRef), gitCwd, ctx.root);
+        const owner = afterByItem.get(candidate.itemId);
+        const evidence = owner ? selectItemIntentEvidence(owner, candidate.intentRef) : undefined;
+        const verdict = reclassifyAfterPass(evidence, gitCwd, ctx.root);
         if (verdict === 'fresh') {
           refreshed.push({ ...candidate, outcome: 'refreshed' });
         } else {
@@ -353,6 +341,10 @@ export function createEvidenceRefreshHandlers(ctx: HandlerContext): Record<strin
 
     const report: EvidenceRefreshReport = {
       storyId: args.storyId,
+      previewSemantics: {
+        kind: 'metadata-drift-only', executableAdmission: 'not-evaluated',
+        nextCommand: `proof-or-stop evidence_plan --storyId=${args.storyId}`,
+      },
       mode: { runCommands: false, writeEvidence: didWrite },
       candidates,
       refreshed,
