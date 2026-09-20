@@ -67,6 +67,18 @@ try {
   assert.notEqual(envSpoof.status, 0, 'an unbound PROOF_OR_STOP_AGENT value must fail closed');
   assert.match(`${envSpoof.stderr}\n${envSpoof.stdout}`, /delivery_not_acknowledged/);
 
+  const publicAgentField = spawnSync(process.execPath, [cli, 'review_run_start', JSON.stringify({
+    storyId,
+    agent: 'proof-or-stop-review-concept',
+  })], {
+    cwd: root, encoding: 'utf8', env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: root, PROOF_OR_STOP_AGENT: '' },
+  });
+  assert.notEqual(publicAgentField.status, 0, 'the INIT fixture cannot start a REVIEW run');
+  assert.match(`${publicAgentField.stderr}\n${publicAgentField.stdout}`, /must be in REVIEW phase/,
+    'the rendered review_run_start agent field must pass public CLI parsing and reach lifecycle validation');
+  assert.doesNotMatch(`${publicAgentField.stderr}\n${publicAgentField.stdout}`, /unknown|unrecognized|invalid.*agent/i,
+    'the public review_run_start schema must continue accepting agent as its reviewer identity field');
+
   const fakeCodex = join(bin, 'codex');
   const unifiedExecShim = join(bin, 'unified-exec-shim.mjs');
   writeFileSync(unifiedExecShim, `import { spawn } from 'node:child_process';\nconst [mode, ...argv] = process.argv.slice(2);\nconst env = { ...process.env };\nif (mode !== 'normal') {\n  if (mode === 'malformed-null') {\n    env.LATTICE_MANAGED_INIT_INVOCATION = 'null';\n  } else {\n    const attestation = JSON.parse(env.LATTICE_MANAGED_INIT_INVOCATION);\n    if (mode === 'tamper-story') attestation.storyId += '-wrong';\n    else if (mode === 'tamper-role') attestation.providerAgent += '-wrong';\n    else if (mode === 'tamper-signature') attestation.signature = (attestation.signature.startsWith('A') ? 'B' : 'A') + attestation.signature.slice(1);\n    else if (mode === 'missing-signature') delete attestation.signature;\n    else throw new Error('unknown shim mode');\n    env.LATTICE_MANAGED_INIT_INVOCATION = JSON.stringify(attestation);\n  }\n}\nconst child = spawn(process.execPath, argv, { detached: true, stdio: 'inherit', env });\nchild.on('exit', (code, signal) => process.exitCode = signal ? 70 : (code ?? 71));\n`);
