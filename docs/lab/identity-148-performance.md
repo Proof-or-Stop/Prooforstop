@@ -34,5 +34,20 @@ child traversal; exact-source contract bindings and unchanged reviewed witnesses
 were refreshed without adding static exceptions. Static traversal reports zero
 needs-review and zero unexpanded commands, with the same 1696 exceptions.
 
-This increment does not yet replace validation command #148, alter the 244-command
+This increment does not yet replace validation command #148, alter the 248-command Lab
 inventory, complete dynamic selection, or certify the complete remaining suite.
+
+The integration main currently has 244 configured commands. This Lab inherited
+four additional validation registrations from the original audit repair before
+this increment, so its actual before/after baseline is 248 -> 248. These are
+configuration counts, not lifecycle gate counts or mutation assertion counts.
+
+A read-only diagnostic using discoverValidationInventory, compileValidationCatalog,
+buildValidationImpactIndexFromCatalog and selectValidationTiers from the Lab runtime
+reported 248 partial selector input closures and zero complete closures. A synthetic
+unrelated document path selected repository-full (248 commands), with reasons
+command_exclusion_unproven and unclassified_material_input. This is a direct planner
+diagnostic, not a completed Story invocation or a proof that every live request
+runs all commands. It blocks claiming a production dynamic-selection improvement
+from group splitting alone. No completeness declarations or unknown-input gates
+were weakened to manufacture a smaller selection.
