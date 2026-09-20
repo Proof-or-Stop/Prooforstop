@@ -86,7 +86,7 @@ try {
   });
   await assert.rejects(
     qualificationHandlers.host_run({
-      host: 'grok', storyId,
+      host: 'codex', model: 'deepseek-v4.1-flash', reasoningEffort: 'high', storyId,
       agentType: 'proof-or-stop-review-concept', managedDispatch: true,
       detach: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
     }),
