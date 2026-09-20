@@ -2,21 +2,7 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createController } from './controller.mjs';
 
-export const limits = { calls: 4, cachedInput: 100, uncachedInput: 100, output: 100 };
-export const options = () => ({ limits, partitions: {
-  repair: { ...limits, calls: 2 }, product: { ...limits, calls: 3 },
-}, maxWallMs: 2000, maxContextBytes: 4096 });
-export const event = (overrides = {}) => ({ verified: true, task: 'benchmark',
-  phase: 'REVIEW', candidate: 'commit-A', policy: 'policy-A',
-  blocker: { code: 'approval_required', binding: 'binding-A', dependencies: { approval: 'pending' } },
-  execution: { id: 'run-A', status: 'running', progress: 0 }, ...overrides });
-export const request = (id, partition = 'product', source = 'main') => ({
-  task: 'benchmark', candidate: id, policy: 'policy-A', cwd: '/isolated/lab',
-  command: ['node', 'verify.mjs'], witness: 'witness-A', partition, source, provider: 'local-stub',
-  ceiling: { cachedInput: 10, uncachedInput: 10, output: 10 },
-});
-export const receipt = id => ({ responseId: id,
-  usage: { input_tokens: 10, cached_input_tokens: 4, output_tokens: 2, reasoning_output_tokens: 1 } });
+import { limits, options, event, request, receipt } from './fixtures.mjs';
 
 const tests = [];
 const test = (name, fn) => tests.push([name, fn]);
@@ -179,7 +165,47 @@ test('one actual local process, one completion, no polling-driven execution', as
   assert.equal(processes, 1); assert.ok(results.every(r => r.status === 'completed'));
 });
 
-if (process.argv[1]?.endsWith('/verify.mjs')) {
-  for (const [name, run] of tests) { await run(); console.log(`PASS ${name}`); }
-  console.log(JSON.stringify({ tests: tests.length, realModelCalls: 0, scope: 'Lab control prototype, not live host integration' }));
-}
+test('invalid budget shapes and numbers fail closed', () => {
+  const bad = [null, [], { ...options(), partitions: [] },
+    { ...options(), limits: { ...limits, calls: -1 } },
+    { ...options(), limits: { ...limits, output: 0.5 } },
+    { ...options(), partitions: { product: { ...limits, output: -1 } } }];
+  for (const field of ['maxWallMs', 'maxContextBytes']) {
+    const missing = options(); delete missing[field]; bad.push(missing);
+  }
+  for (const config of bad) assert.throws(() => createController(config), /invalid_budget/);
+});
+test('invalid requests never launch or reserve', async () => {
+  const bad = [null, [], { ...request('A'), command: [] },
+    { ...request('A'), command: [1] },
+    { ...request('A'), ceiling: { ...request('A').ceiling, output: 0.5 } }];
+  for (const field of ['task', 'candidate', 'policy', 'cwd', 'witness', 'provider', 'source', 'partition']) {
+    const missing = request('A'); delete missing[field]; bad.push(missing);
+  }
+  const c = createController(options()); let launches = 0;
+  for (const input of bad) assert.equal((await c.run(input, async () => {
+    launches++; return receipt('unexpected');
+  })).reason, 'invalid_request');
+  assert.equal(launches, 0); assert.deepEqual(c.ledger(), []);
+});
+test('unknown partition never launches or reserves', async () => {
+  const c = createController(options()); let launches = 0;
+  assert.equal((await c.run(request('A', 'absent'), async () => {
+    launches++; return receipt('unexpected');
+  })).reason, 'unknown_partition');
+  assert.equal(launches, 0); assert.deepEqual(c.ledger(), []);
+});
+test('invalid context shape is rejected without dropping facts', () => {
+  const c = createController(options());
+  const good = { task: 't', phase: 'p', blocker: null, decision: 'd', logRefs: ['local://r'] };
+  const bad = [null, [], { ...good, extra: 'x' }, { ...good, blocker: {} },
+    { ...good, logRefs: [1] }, { ...good, logRefs: 'x' }];
+  for (const field of Object.keys(good)) { const missing = { ...good }; delete missing[field]; bad.push(missing); }
+  for (const value of bad) assert.throws(() => c.context(value), /invalid_context/);
+  assert.deepEqual(JSON.parse(c.context(good)), good);
+});
+
+// Dedicated executable verifier. Compare imports fixtures.mjs, never this runner.
+assert.ok(tests.length > 0, 'EMPTY_VERIFICATION');
+for (const [name, run] of tests) { await run(); console.log(`PASS ${name}`); }
+console.log(JSON.stringify({ tests: tests.length, realModelCalls: 0, scope: 'Lab control prototype, not live host integration' }));

@@ -10,7 +10,10 @@ still wake the model despite an unchanged external blocker. The uncontrolled
 execution and full-history context paths are experimental comparison fixtures,
 not claims that we have reconstructed the whole production host.
 
-The same committed regression command is used for RED and GREEN:
+The historical RED commit `528a347380984bbb647948e1f068a8c5004bef6c`
+re-exports `baseline.mjs` from `controller.mjs`. The GREEN commit
+`e53b608f672291286b3d98b7ce5bebaaf8eb5cdc` replaces that re-export with the
+repair. The same command was run on those two different committed trees:
 
     node scripts/lab/benchmark-controls/verify.mjs
 
@@ -23,8 +26,8 @@ saved tokens. This Lab cannot establish that all 1.56 billion historical tokens
 would have been avoided.
 
 Scope exclusions: production integration, cross-process persistent reservations,
-durable dispatch acknowledgements, operator approvals, Story DONE, independent
-audit and local-main integration. The worktree is retained for review.
+durable dispatch acknowledgements, operator approvals and Story DONE. Local Lab
+integration uses the separate mandatory independent-audit/finish workflow.
 
 ## Mechanical boundary and measurements
 
@@ -60,8 +63,26 @@ this contract; this Lab cannot shorten this desktop conversation retroactively.
 and call-ceiling-tampering coverage. `compare.mjs HISTORY.json OUTPUT.json`
 reports deterministic before/after counts, UTF-8 context bytes, three alternating
 rounds of real local-process elapsed time, and a separate historical projection
-replay. The RED failure exits at its first assertion; its elapsed time is not
-compared to the full GREEN suite as a performance improvement.
+replay. The historical RED commit failed at its first assertion; this refers to the
+recorded old tree, not an alternate runtime arm in the current repaired tree. Its
+elapsed time is not compared to the full GREEN suite as a performance improvement.
+The comparison requires a separately extracted HISTORY.json and is not part of
+the deterministic regression command. To reproduce historical RED without editing
+the active checkout:
+
+```sh
+benchmark_red_dir=$(mktemp -d)
+git archive 528a347380984bbb647948e1f068a8c5004bef6c scripts/lab/benchmark-controls scripts/lab/benchmark-monitor-change-filter | tar -x -C "$benchmark_red_dir"
+node "$benchmark_red_dir/scripts/lab/benchmark-controls/verify.mjs"
+# Expected nonzero exit and BLOCKED_PROGRESS_WAKE_REGRESSION.
+```
+
+The current `verify.mjs` always runs its nonempty suite, including when imported
+by a module wrapper. Shared fixture imports live in `fixtures.mjs`; comparison
+does not execute tests as an import side effect. `verify-entry.mjs` additionally
+checks both the ordinary CLI and module-wrapper invocation and requires the
+structured nonempty result. Four negative-check groups exercise invalid budgets,
+requests, partitions and context shapes. None of these checks launches a model.
 
 Historical extraction is reused unchanged from
 `../benchmark-monitor-change-filter/extract-history.py`. It reconciles per-response

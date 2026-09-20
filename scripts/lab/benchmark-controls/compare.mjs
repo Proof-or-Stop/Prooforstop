@@ -6,7 +6,7 @@ import { createHash } from 'node:crypto';
 import { createController as before } from './baseline.mjs';
 import { createController as after } from './controller.mjs';
 import { createMonitor } from '../benchmark-monitor-change-filter/policy.mjs';
-import { options, event, request, receipt } from './verify.mjs';
+import { options, event, request, receipt } from './fixtures.mjs';
 
 const [historyPath, outputPath] = process.argv.slice(2);
 if (!historyPath || !outputPath) throw new Error('Usage: node compare.mjs HISTORY.json OUTPUT.json');
