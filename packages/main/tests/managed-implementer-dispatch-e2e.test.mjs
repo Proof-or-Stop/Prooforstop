@@ -68,6 +68,7 @@ set -eu
 cat > "${root}/delivered-implementer-prompt.txt"
 grep -q "implementing ${storyId} ${itemId}" "${root}/delivered-implementer-prompt.txt"
 "${process.execPath}" "${cli}" checklist_update '{"storyId":"${storyId}","itemId":"${itemId}","status":"in_progress"}'
+unset LATTICE_MANAGED_INIT_INVOCATION PROOF_OR_STOP_AGENT PROOFBOUND_AGENT || true
 "${process.execPath}" "${cli}" checklist_update '{"storyId":"${storyId}","itemId":"${itemId}","status":"done"}'
 printf '%s\n' '{"type":"turn.completed","usage":{}}'
 `);
@@ -106,6 +107,10 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
   assert.deepEqual(verifyManagedDispatchDelivery({
     root, runId: result.runId, storyId, agentType: 'proof-or-stop-implementer', itemId,
   }), { valid: true });
+  store.appendProcessEvent(storyId, { type: 'dispatch', checklistId: 'CHK-unrelated-after-completion' });
+  assert.deepEqual(verifyManagedDispatchDelivery({
+    root, runId: result.runId, storyId, agentType: 'proof-or-stop-implementer', itemId,
+  }), { valid: true }, 'unrelated later process events must not invalidate the sealed implementation receipt');
   assert.equal(verifyManagedDispatchDelivery({
     root, runId: result.runId, storyId, agentType: 'proof-or-stop-implementer', itemId: 'CHK-999',
   }).valid, false, 'a completed implementation run must not authorize another checklist item');

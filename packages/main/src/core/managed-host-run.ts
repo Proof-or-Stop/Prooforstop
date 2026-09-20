@@ -1834,11 +1834,11 @@ export function managedDispatchOutputValidation(input: {
       return {
         failureReason: null,
         outputDigest: sha256(canonicalJson({
+          schemaVersion: 'proof-or-stop.managed-implementer-output.v1',
           runId: input.runId,
           storyId: input.storyId,
           itemId,
-          completion,
-          status: item.status,
+          success: true,
         })),
       };
     }
@@ -1907,7 +1907,14 @@ function currentManagedDispatchOutputDigest(spec: ManagedHostRunSpec): string | 
     return digestFile(new StoryStore(spec.root).storyFilePath(spec.storyId, 'scope-check.json'));
   }
   if (spec.agentType === 'proof-or-stop-implementer') {
-    return managedDispatchOutputValidation(spec).outputDigest;
+    const itemId = spec.managedDispatchTarget?.itemId;
+    return spec.storyId && itemId ? sha256(canonicalJson({
+      schemaVersion: 'proof-or-stop.managed-implementer-output.v1',
+      runId: spec.runId,
+      storyId: spec.storyId,
+      itemId,
+      success: true,
+    })) : null;
   }
   return null;
 }
@@ -3844,14 +3851,18 @@ function consumeManagedInitInvocationAttestation(args: {
  * container isolation boundary. The legacy same-process-group path remains for
  * older managed adapters.
  */
-export function resolveManagedDispatchInvocation(args: {
+type ManagedDispatchInvocationArgs = {
   root: string;
   storyId: string;
   agentType: string;
   itemId?: string;
   callerPid?: number;
   environment?: NodeJS.ProcessEnv;
-}): string {
+  optionalWhenAbsent?: boolean;
+};
+export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocationArgs & { optionalWhenAbsent: true }): string | undefined;
+export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocationArgs & { optionalWhenAbsent?: false }): string;
+export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocationArgs): string | undefined {
   let attestation: ManagedInitInvocationAttestation | null;
   try {
     attestation = readManagedInitInvocationFromEnvironment(args.environment ?? process.env);
@@ -3900,6 +3911,7 @@ export function resolveManagedDispatchInvocation(args: {
       // A corrupt, partial, stale, or foreign run can never grant authority.
     }
   }
+  if (candidates.length === 0 && args.optionalWhenAbsent) return undefined;
   if (candidates.length !== 1) {
     throw new Error(
       `init_check_set refused: required INIT reviewer delivery was not acknowledged by exactly one active managed dispatch (matched ${candidates.length}). `
@@ -4897,9 +4909,14 @@ export function verifyManagedDispatchDelivery(args: {
     }
     if (args.agentType === 'proof-or-stop-implementer') {
       if (!args.itemId) return { valid: false, reason: 'managed implementation delivery requires itemId' };
-      const spec = readManagedHostRunSpec(pathsFor(args.root, args.runId)).value;
-      const currentDigest = currentManagedDispatchOutputDigest(spec);
-      if (!receipt.managedDispatchOutputDigest || currentDigest !== receipt.managedDispatchOutputDigest) {
+      const expectedDigest = sha256(canonicalJson({
+        schemaVersion: 'proof-or-stop.managed-implementer-output.v1',
+        runId: args.runId,
+        storyId: args.storyId,
+        itemId: args.itemId,
+        success: true,
+      }));
+      if (!receipt.managedDispatchOutputDigest || expectedDigest !== receipt.managedDispatchOutputDigest) {
         return { valid: false, reason: 'managed implementation output does not match the completed receipt' };
       }
     }

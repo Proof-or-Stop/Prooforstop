@@ -3418,21 +3418,18 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         results.push('owner-approved proposal applied; independent authorship is advisory, not host-attested');
       }
 
-      const isManagedImplementerCompletion = args.status === 'done'
-        && oldStatus !== 'done'
-        && dispatchedRole?.canonicalName === 'proof-or-stop-implementer'
-        && typeof process.env.LATTICE_MANAGED_INIT_INVOCATION === 'string';
-      if (isManagedImplementerCompletion && args.success === false) {
-        throw new Error('managed implementer completion requires success=true; failed work must not mark the checklist item done');
-      }
-      const managedDispatchRunId = isManagedImplementerCompletion
+      const managedDispatchRunId = args.status === 'done' && oldStatus !== 'done'
         ? resolveManagedDispatchInvocation({
           root,
           storyId: args.storyId,
           agentType: 'proof-or-stop-implementer',
           itemId: args.itemId,
+          optionalWhenAbsent: true,
         })
         : undefined;
+      if (managedDispatchRunId && args.success === false) {
+        throw new Error('managed implementer completion requires success=true; failed work must not mark the checklist item done');
+      }
 
       store.writeChecklist(args.storyId, cl);
       if (args.verificationIntent !== undefined) {
