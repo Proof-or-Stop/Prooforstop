@@ -1,5 +1,5 @@
 import {readValidationReuseCost,saveValidationReuseCost} from './validation-reuse-costs.js';
-import { currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand } from './build-artifacts-identity.js';
+import { currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand, launchDirectoryDrift, type LaunchDirectoryIdentity } from './build-artifacts-identity.js';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { executionImplementationIdentity } from './execution-implementation.js';
 import { execFileSync } from 'node:child_process';
@@ -62,8 +62,17 @@ export async function executeSharedValidationCommand(
   launchCwd?: string,
   /** The caller's own classification of this command as a registered build: enforced BEFORE any context, explicit or ambient, is consulted. */
   registeredBuild?: boolean,
+  /** The filesystem identity bound to launchCwd when it was pinned: re-verified inside every reuse-key check and again after the awaited lookup, so a directory replaced at the same path during the lookup is never served a cached PASS. */
+  launchIdentity?: LaunchDirectoryIdentity,
 ): Promise<ValidationCommandResult> {
   const run = async () => (await capture()).result;
+  const launchDrift = (): string | undefined => (launchCwd ? launchDirectoryDrift(launchCwd, launchIdentity) : undefined);
+  const refusedForDrift = (drift: string): ValidationCommandResult => ({
+    label: command.label, command: command.command, args: [...command.args], ...(command.shell ? { shell: true } : {}), ...(command.cwd ? { cwd: command.cwd } : {}),
+    code: 1, output: `[launch_directory_drift] ${command.label} was not served from the shared cache: ${drift}`, launchOutcome: 'not-launched',
+    ...(command.optional ? { optional: true } : {}), timeoutMs, effectiveTimeoutMs: 0, failureKind: 'infra_failure', durationMs: 0,
+    executionDecision: { disposition: 'executed', reason: 'launch_directory_drift' },
+  });
   const executeWithoutReuse = async (reason: string): Promise<ValidationCommandResult> => ({
     ...await run(), executionDecision: { disposition: 'executed', reason },
   });
@@ -142,7 +151,10 @@ export async function executeSharedValidationCommand(
   const inputFilesCanonical = causalCanonical(inputFiles);
   const unchanged = () => {
     try {
-      return causalCanonical(probe()) === initialCanonical && workspaceState() === workspace
+      // The pinned launch directory is a reuse-key input like any other: a
+      // directory replaced at the same path (new inode) is not the directory
+      // the receipt was earned in, whatever Git and the input bytes say.
+      return launchDrift() === undefined && causalCanonical(probe()) === initialCanonical && workspaceState() === workspace
         && causalCanonical(additionalInputs()) === inputFilesCanonical
         && executionImplementationIdentity().digest === implementationDigest
         // The compiled artifacts are a reuse-key input like any other: a tree
@@ -192,6 +204,9 @@ export async function executeSharedValidationCommand(
     },
   });
   assertActive();
+  // Immediately after the awaited lookup: a directory replaced while the
+  // lookup was pending is refused, bounded, before any cached PASS is served.
+  { const drift = launchDrift(); if (drift && !fresh) return refusedForDrift(drift); }
   if (!unchanged()) throw new Error('shared validation inputs changed before publication');
   if (economicsKey && fresh?.code === 0 && causal.receipt.reusable) {
     const overhead = performance.now() - started - executionWallMs;

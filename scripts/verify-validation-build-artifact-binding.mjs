@@ -1519,9 +1519,50 @@ try {
       const sharedSource3 = readFileSync(join(repoRoot, 'packages/main/src/core/shared-validation-execution.ts'), 'utf8');
       const executorSource16 = readFileSync(join(repoRoot, 'packages/main/src/core/validation-executor.ts'), 'utf8');
       expectRepaired(sharedSource3.indexOf("if (registeredBuild) return executeWithoutReuse('registered_build');") > 0 && sharedSource3.indexOf("if (registeredBuild) return executeWithoutReuse('registered_build');") < sharedSource3.indexOf('const context = explicitContext ?? contexts.getStore();')
-        && sharedSource3.includes('sharedValidationReusePolicy(command, { projectRoot, artifactsRoot: artifactBinding?.root, launchCwd })') && executorSource16.includes('options.artifactBinding, options.launchCwd, registeredBuild), options);'),
+        && sharedSource3.includes('sharedValidationReusePolicy(command, { projectRoot, artifactsRoot: artifactBinding?.root, launchCwd })') && executorSource16.includes('options.artifactBinding, options.launchCwd, registeredBuild, options.launchIdentity), options);'),
         'the registered-build exclusion is not enforced before the ambient context lookup, or the policy is judged without the executor roots (source-text guard)');
       rmSync(join(root, 'packages/main/package.json'), { force: true }); rmSync(join(root, 'packages/main/build-witness.js'), { force: true }); rmSync(witness, { force: true });
+      // Finish-gate audit (#65): the pinned launch directory is a reuse-key
+      // input inside the shared cache too. Warm the real cache, then replace
+      // the launch directory (the project root itself: the shared preflight
+      // accepts no other launch directory) with a byte-identical copy at the
+      // same path WHILE the cache lookup is pending, changing nothing Git or
+      // the input bytes can see: no cached PASS may be served for the new
+      // directory.
+      {
+        const checkoutC = join(sandbox, 'repo-c'); cpSync(root, checkoutC, { recursive: true });
+        mkdirSync(join(checkoutC, 'sub')); writeFileSync(join(checkoutC, 'sub', 'input.txt'), 'sub input\n');
+        git(checkoutC, ['add', '.']); git(checkoutC, ['commit', '-qm', 'third checkout: committed sub directory']);
+        const storeC = new StoryStore(checkoutC);
+        persistSyntheticAdmittedWindowForTest({ store: storeC, storyId, projectRoot: checkoutC, causalInputHashes: deriveCertificationDomainInputHashes(checkoutC, 'HEAD', checkoutC) });
+        acquireOwnerLease(storeC.storyDirPath(storyId), { command: 'fixture-owner', cwd: checkoutC });
+        const sharedC = { storyId, receiptStore: storeC, probe: (input) => probeValidationCausalPreflightFacts({ root: checkoutC, store: storeC, scanRoot: checkoutC }, storyId, input) };
+        const subCmd = { label: 'root reuse', command: 'node', args: ['-e', 'process.exit(0)'], executionReuse: 'exact-inputs', executionInputs: ['input.txt'], timeoutMs: 20_000 };
+        const pinnedSub = realpathSync(checkoutC);
+        const pinnedSubIdentity = binding.bindLaunchDirectoryIdentity(pinnedSub);
+        const runSub = (shared) => runValidationCommand(subCmd, checkoutC, 20_000, { sharedExecution: shared, launchCwd: pinnedSub, launchIdentity: pinnedSubIdentity });
+        const warm = await runSub(sharedC); const served = await runSub(sharedC);
+        check(warm.code === 0 && served.code === 0 && served.executionDecision?.disposition === 'reused', `control: the second run of an unchanged command is served from the shared cache (${JSON.stringify(served.executionDecision)}; ${(warm.output ?? '').slice(0, 120)})`);
+        let swapped = false;
+        const outsideOld = join(sandbox, 'sub-old'); const outsideCopy = join(sandbox, 'sub-copy');
+        const swappingStore = new Proxy(storeC, { get(target, property, receiver) {
+          const value = Reflect.get(target, property, receiver);
+          if (property === 'readCausalEvidenceReceipt') return (...args) => { if (!swapped) { swapped = true; cpSync(pinnedSub, outsideCopy, { recursive: true }); renameSync(pinnedSub, outsideOld); renameSync(outsideCopy, pinnedSub); } return value.apply(target, args); };
+          return typeof value === 'function' ? value.bind(target) : value;
+        } });
+        let duringLookup = null; let lookupError = null;
+        try { duringLookup = await runSub({ ...sharedC, receiptStore: swappingStore }); } catch (error) { lookupError = error; }
+        check(swapped && lstatSync(pinnedSub).ino !== pinnedSubIdentity.ino, 'control: the launch directory was replaced at the same path during the lookup');
+        expectRepaired(duringLookup?.executionDecision?.disposition !== 'reused' && (lookupError !== null || (duringLookup && duringLookup.code !== 0 && duringLookup.output.includes('[launch_directory_drift]'))),
+          `a cached PASS was served for a launch directory replaced during the lookup (${lookupError ? lookupError.message.slice(0, 120) : JSON.stringify({ code: duringLookup?.code, decision: duringLookup?.executionDecision, output: (duringLookup?.output ?? '').slice(0, 120) })})`);
+        rmSync(outsideOld, { recursive: true, force: true });
+        const sharedSource4 = readFileSync(join(repoRoot, 'packages/main/src/core/shared-validation-execution.ts'), 'utf8');
+        const executorSource17 = readFileSync(join(repoRoot, 'packages/main/src/core/validation-executor.ts'), 'utf8');
+        expectRepaired(sharedSource4.includes('return launchDrift() === undefined && causalCanonical(probe()) === initialCanonical')
+          && sharedSource4.indexOf('{ const drift = launchDrift(); if (drift && !fresh) return refusedForDrift(drift); }') < sharedSource4.indexOf("if (!unchanged()) throw new Error('shared validation inputs changed before publication');")
+          && executorSource17.includes('options.artifactBinding, options.launchCwd, registeredBuild, options.launchIdentity), options);'),
+          'the shared cache does not re-verify the pinned launch directory inside its key check and after the awaited lookup (source-text guard)');
+      }
       // DONE-required: a build receipt served from a cache is no build proof.
       const buildReceipt = (disposition) => ({ label: 'build', command: 'npm', args: ['--prefix', 'packages/main', 'run', 'build'], cwd: realpathSync(root), status: 'PASS', materialHash: 'material', ...(disposition ? { executionReceipt: { disposition, executionKey: 'key', receiptHash: 'hash', executedAt: new Date().toISOString() } } : {}) });
       const proofCommands = [{ label: 'build', command: 'npm', args: ['--prefix', 'packages/main', 'run', 'build'] }, { label: 'test', command: 'node', args: ['-e', '0'], requiresBuildProof: 'packages-main-build' }];
