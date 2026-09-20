@@ -1580,6 +1580,10 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
   producerSourceRefs: readonly string[];
   consumerSourceRefs: readonly string[];
 }> = {
+  'evidence_plan': {
+    producerSourceRefs: ['packages/main/src/core/verification-intent-fingerprints.ts', 'packages/main/src/core/proof-admissibility.ts'],
+    consumerSourceRefs: ['packages/main/src/handlers/evidence-plan.ts'],
+  },
   'cross_host_review': {
     producerSourceRefs: ['packages/main/src/core/host-run.ts', 'packages/main/src/core/codex-review-leaf.ts'],
     consumerSourceRefs: ['packages/main/src/handlers/cross-host-review.ts', 'packages/main/src/core/codex-review-leaf.ts', 'packages/main/tests/codex-review-jsonl.test.mjs'],
@@ -2371,10 +2375,10 @@ export const PROCESS_FACT_ARTIFACTS = [
     kind: 'artifact',
     semantics: ['artifact', 'gate-evidence'],
     level: 'L4',
-    producer: 'handlers/verify-codex',
-    consumerGate: 'Codex adapter REVIEW and DONE evidence gate',
+    producer: 'handlers/verify-codex + handlers/story-dispatch + handlers/checklist',
+    consumerGate: 'Codex adapter REVIEW and DONE evidence gate; DEV to REVIEW implementation-worker authority gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.verify_codex,
-    rationale: 'Codex adapter verification evidence is recorded in process events and consumed by adapter gates.',
+    rationale: 'Codex adapter verification evidence is recorded in process events and consumed by adapter gates. Implementation dispatch and successful subagent_result rows are consumed by the DEV to REVIEW authority gate; controller-owned managed implementation additionally binds the exact Story, checklist item and one-shot provider invocation to managedDispatchRunId, while an empty native target or provider exit alone confers no authority.',
   },
   {
     name: 'artifact:story-evidence-binding',

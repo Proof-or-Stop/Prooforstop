@@ -2529,12 +2529,10 @@ function assertCloseoutTrustBoundary() {
     // Moved again with the guard by commit 32a083b987 (delivery-review follow-up:
     // one diagnostic string + a BRAND_ENV_PREFIX import in cli-engine.ts). This time
     // both copies were updated in the same commit, as the note above requires.
-  // Merged-source audit: origin/main d354d2b43d measured b4f27e9a, already
-  // stale against the old b9eb52d0 pin. Candidate measures 52a283cf. The new
-  // withValidationSigningRoot arrow preserves the runCli function anchor and
-  // exact initPath producer/import argument. Both coupled pins move together;
-  // this whole-file binding does not assert a separate loader provenance graph.
-    '52a283cfcdc3bfbb233feab6d31614d0eabf8470a41d3af10ad7786246905720',
+    // 2026-09-20 merged owner-lease admission re-approval: the canonical AST
+    // changed without adding a loader call or changing the exact initPath
+    // producer/import argument. Keep this coupled to the guard's source pin.
+    '631ac1fde46c71126614b7ad293fedc43a79b14c166b10d2f8b7e3cd2b69d408',
     // B-6693 (merged in) also moved this canonical AST, only to separate
     // direct-validate watchdog cancellation from DONE-result classification.
     // The benign runCli/initPath/import(`file://${initPath}`) call site is unchanged.
@@ -11996,6 +11994,39 @@ assert(managedCriticArtifact?.producer === 'handlers/managed-review-evidence.man
     && checklistWrites[1] < creationCommits[1]
     && checklistWrites[1] < creationCommits[2],
     'story_create must persist checklist.json before each safe creation commit');
+}
+
+// Intent fingerprints are derived diagnostics, not a second gate or caller-owned freshness authority.
+{
+  const planner = read('packages/main/src/handlers/evidence-plan.ts');
+  const fingerprints = read('packages/main/src/core/verification-intent-fingerprints.ts');
+  const requireTokens = (label, source, tokens) => {
+    for (const requirement of tokens) {
+      const [token, expected] = typeof requirement === 'string' ? [requirement, 1] : requirement;
+      const occurrences = source.split(token).length - 1;
+      assert(occurrences === expected, `${label}: expected ${expected} source occurrence(s) of ${token}, found ${occurrences}`);
+    }
+  };
+  requireTokens('Intent fingerprint diagnostic contract', fingerprints, [
+    'collectVerificationIntents(item)',
+    'intentFingerprintKey(item.id, ref)',
+    'group.intentKeys.push(row.intentKey)',
+    "group.requiresExecution ||= row.action !== 'current' && row.action !== 'reuse' && row.action !== 'manual'",
+    'const admission = evaluateVerificationEvidenceForGate({',
+    "authority: 'diagnostic-only', storyId: input.storyId",
+    "isReusableVerificationReceipt(evidence.receipt) && row.action !== 'invalid'",
+    '...(identity.reusable ? {} : { materialHash: materialHash ?? null, storyFilesHash: storyFilesHash ?? null })',
+    '...(identity.reusable && execution.inputClosureComplete ? {} : { materialHash: evidence.materialHash ?? null, storyFilesHash: evidence.storyFilesHash ?? null })',
+  ]);
+  requireTokens('Dynamic evidence planner', planner, [['buildIntentFingerprintReport', 2], 'row.description', 'fingerprintByRef.get(intentFingerprintKey(item.id, collected.ref))', 'refreshCommand: `proof-or-stop verification_evidence_refresh_stale --storyId=${storyId}`']);
+  requireTokens('Manual refresh recommendation', planner, ['const manualRefreshUnsafe = checklist.items.some(', 'Manual refresh withheld: a shared metadata-only refresh can demote executable receipts.']);
+  requireTokens('Discovered intent regression binding', read('packages/main/src/tasks/evidence-plan-smoke.ts'), [
+    "await import(new URL('../../tests/intent-fingerprint-reuse.test.mjs', import.meta.url).href);",
+  ]);
+  requireTokens('Intent fingerprint registration', read(processFactRegistryPath), ['packages/main/src/core/verification-intent-fingerprints.ts']);
+  requireTokens('Legacy refresh preview semantics', read('packages/main/src/handlers/evidence-refresh.ts'), [
+    ["kind: 'metadata-drift-only'", 2], ["executableAdmission: 'not-evaluated'", 2], 'metadata drift only; not executable receipt admission',
+  ]);
 }
 
 // Managed inventory transport checks must precede the final failure gate.

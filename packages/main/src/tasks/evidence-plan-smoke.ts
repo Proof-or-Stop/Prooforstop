@@ -128,7 +128,8 @@ function intentRefsOf(report: EvidencePlanReport, bucket: keyof EvidencePlanRepo
   return new Set(report.buckets[bucket].map((e) => e.intentRef));
 }
 
-/** A four-intent checklist: one missing, one rerun, one refresh-only, one fresh. */
+/** Legacy non-executable attestation compatibility: missing/fail/stale/current.
+ * Actual executable receipt admission is exercised by intent-fingerprint-reuse.test.mjs below. */
 function fourIntentChecklist(root: string): ChecklistData {
   const head = currentGitHead(root);
   const material = currentMaterialHash(root, 'HEAD', root);
@@ -137,7 +138,7 @@ function fourIntentChecklist(root: string): ChecklistData {
 
   const freshEvidence: VerificationEvidence = {
     intentRef: 'CHK-001:happy:0',
-    kind: 'logic_test',
+    kind: 'docs_check',
     result: 'pass',
     note: 'fresh evidence — current head + material hash',
     headHash: head,
@@ -145,7 +146,7 @@ function fourIntentChecklist(root: string): ChecklistData {
   };
   const refreshOnlyEvidence: VerificationEvidence = {
     intentRef: 'CHK-001:edge:0',
-    kind: 'logic_test',
+    kind: 'docs_check',
     result: 'pass',
     note: 'pass but stale hash — logic valid, only needs re-stamp',
     headHash: STALE_HEAD,
@@ -153,7 +154,7 @@ function fourIntentChecklist(root: string): ChecklistData {
   };
   const rerunEvidence: VerificationEvidence = {
     intentRef: 'CHK-001:adversarial:0',
-    kind: 'logic_test',
+    kind: 'docs_check',
     result: 'fail',
     command: 'npm test -- adversarial',
     note: 'failing evidence must be re-executed',
@@ -172,9 +173,9 @@ function fourIntentChecklist(root: string): ChecklistData {
         startTime: null,
         endTime: null,
         verificationIntent: {
-          happy: [{ desc: 'fresh intent', type: 'logic', priority: 'must' }],
-          edge: [{ desc: 'refresh-only intent', type: 'logic', priority: 'must' }],
-          adversarial: [{ desc: 'rerun intent', type: 'logic', priority: 'must' }],
+          happy: [{ desc: 'fresh intent', type: 'docs', priority: 'must' }],
+          edge: [{ desc: 'refresh-only intent', type: 'docs', priority: 'must' }],
+          adversarial: [{ desc: 'rerun intent', type: 'docs', priority: 'must' }],
         },
         verificationEvidence: [freshEvidence, refreshOnlyEvidence, rerunEvidence],
       },
@@ -186,7 +187,7 @@ function fourIntentChecklist(root: string): ChecklistData {
         startTime: null,
         endTime: null,
         verificationIntent: {
-          happy: [{ desc: 'missing intent', type: 'logic', priority: 'must' }],
+          happy: [{ desc: 'missing intent', type: 'docs', priority: 'must' }],
           edge: [],
           adversarial: [],
         },
@@ -216,7 +217,7 @@ function allFreshChecklist(root: string): ChecklistData {
   assert.ok(head && material, 'fixture hashes available for all-fresh checklist');
   const mk = (ref: string): VerificationEvidence => ({
     intentRef: ref,
-    kind: 'logic_test',
+    kind: 'docs_check',
     result: 'pass',
     note: 'fresh',
     headHash: head!,
@@ -232,9 +233,9 @@ function allFreshChecklist(root: string): ChecklistData {
         startTime: null,
         endTime: null,
         verificationIntent: {
-          happy: [{ desc: 'h', type: 'logic', priority: 'must' }],
-          edge: [{ desc: 'e', type: 'logic', priority: 'should' }],
-          adversarial: [{ desc: 'a', type: 'logic', priority: 'must' }],
+          happy: [{ desc: 'h', type: 'docs', priority: 'must' }],
+          edge: [{ desc: 'e', type: 'docs', priority: 'should' }],
+          adversarial: [{ desc: 'a', type: 'docs', priority: 'must' }],
         },
         verificationEvidence: [
           mk('CHK-001:happy:0'),
@@ -316,8 +317,8 @@ assert.equal(isCommandAllowed('evidence_plan', 'DONE', DEFAULT_PHASE_TOOLS), tru
     assert.match(text, /mode: read-only \(no commands run, no evidence written\)/);
     assert.match(text, /readinessReport: target=REVIEW/);
     assert.match(text, /summary: missing=1 rerun=1 refresh-only=1 fresh=1/);
-    assert.match(text, /authorityDone: false/);
-    assert.match(text, /productionDone: false/);
+    assert.match(text, /admissibilityStatus: read-only-evidence-plan/);
+    assert.match(text, /evidenceScope: verification-planning/);
 
     // (b) + (d) read-only: no metadata / git mutation, no authority/evidence artifacts.
     assert.deepEqual(snapshotDir(root, storyDir), beforeSnapshot, 'evidence_plan must not mutate story metadata files');
@@ -392,4 +393,27 @@ assert.equal(isCommandAllowed('evidence_plan', 'DONE', DEFAULT_PHASE_TOOLS), tru
   }
 }
 
+// Executable rows remain covered by the original metadata/git/no-authority checks.
+{
+  const { root, store, ctx } = createFixture((r) => allFreshChecklist(r));
+  try {
+    const checklist = store.readChecklist(STORY_ID);
+    checklist.items[0].verificationIntent!.happy[0].type = 'cli';
+    store.writeChecklist(STORY_ID, checklist);
+    const before = snapshotDir(root, store.storyDirPath(STORY_ID));
+    const status = gitStatus(root);
+    const handler = createMainRegistry(ctx).get('evidence_plan')!;
+    const report = handler({ storyId: STORY_ID, json: true }) as EvidencePlanReport;
+    assert.equal(report.fingerprints.intents.find(row => row.intentRef === 'CHK-001:happy:0')!.action, 'invalid', 'unsigned executable evidence does not inherit manual coverage');
+    assert.ok(intentRefsOf(report, 'rerun').has('CHK-001:happy:0'), 'unpinned executable evidence must enter the rerun bucket');
+    assert.equal(intentRefsOf(report, 'fresh').has('CHK-001:happy:0'), false, 'unpinned executable evidence never becomes fresh');
+    assert.equal(report.summary.fresh, 2, 'only the two admitted manual attestations remain fresh');
+    assert.deepEqual(snapshotDir(root, store.storyDirPath(STORY_ID)), before);
+    assert.equal(gitStatus(root), status);
+    assertNoAuthorityOrEvidenceArtifacts(store);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+}
+
+// Execute in this already supervised task: no extra child process or reservation boundary.
+await import(new URL('../../tests/intent-fingerprint-reuse.test.mjs', import.meta.url).href);
 process.stdout.write('evidence_plan smoke passed\n');

@@ -5568,6 +5568,25 @@
       },
       {
         "command": "node",
+        "args": [
+          "packages/main/tests/managed-implementer-dispatch-e2e.test.mjs"
+        ],
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "machine-process",
+            "key": "fanout",
+            "access": "exclusive"
+          }
+        ]
+      },
+      {
+        "command": "node",
         "args": ["scripts/verify-validation-verdict-stickiness.mjs"],
         "timeoutMs": 120000,
         "focus": ["fast"],

@@ -7,7 +7,7 @@
     "type": "git",
     "directory": "packages/main"
   },
-  "version": "0.3.430",
+  "version": "0.3.433",
   "description": "Proof-or-Stop — AI-driven Story workflow CLI",
   "type": "module",
   "main": "dist/index.js",
@@ -156,6 +156,7 @@
     "test:dynamic-validation-operations-mutations": "node ../../scripts/run-dynamic-validation-audit.mjs operations-mutations",
     "test:story-create-direct-lifecycle": "node tests/red/red-story-create-direct-done-bypass.mjs",
     "test:managed-init-reviewer-dispatch": "node tests/managed-init-reviewer-dispatch.test.mjs && node tests/managed-init-reviewer-dispatch-e2e.test.mjs",
+    "test:managed-implementer-dispatch": "node tests/managed-implementer-dispatch-e2e.test.mjs",
     "test:managed-review-late-descriptor-reset": "node tests/managed-review-late-descriptor-reset.test.mjs",
     "test:managed-init-dispatch-required-output": "node tests/managed-init-dispatch-required-output.test.mjs",
     "test:nested-reservation-core": "node ../../scripts/verify-nested-reservation-registered.mjs core",

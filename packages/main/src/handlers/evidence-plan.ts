@@ -1,3 +1,4 @@
+import { buildIntentFingerprintReport, intentFingerprintKey, selectItemIntentEvidence, type IntentFingerprintReport, type IntentFingerprintRow } from '../core/verification-intent-fingerprints.js';
 import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 import type { HandlerContext } from './context.js';
 import {
@@ -46,8 +47,12 @@ interface EvidencePlanEntry {
   result?: 'pass' | 'fail';
   /** The command to re-run (rerun bucket). */
   command?: string;
-  /** Freshness reason from checkEvidenceFreshnessForGit (refresh-only bucket). */
+  /** Admission or freshness reason for the recommended action. */
   driftReason?: string;
+  /** Exact supported command for publishing this refresh-only result. */
+  refreshCommand?: string;
+  /** Why a bulk metadata refresh is unsafe for this mixed Story. */
+  refreshWarning?: string;
 }
 
 export interface EvidencePlanReport {
@@ -57,6 +62,7 @@ export interface EvidencePlanReport {
     writeEvidence: false;
   };
   readinessReport: StoryReadinessReport;
+  fingerprints: IntentFingerprintReport;
   buckets: {
     missing: EvidencePlanEntry[];
     rerun: EvidencePlanEntry[];
@@ -118,31 +124,6 @@ function readChecklist(ctx: HandlerContext, storyId: string): ChecklistData {
   }
 }
 
-/**
- * Build the by-intentRef evidence lookup. The report's
- * artifacts.verificationEvidence flattens every checklist evidence record and
- * carries the headHash/materialHash/storyFilesHash needed to drive
- * checkEvidenceFreshnessForGit. We resolve from the live checklist evidence
- * (full VerificationEvidence) and key by intentRef.
- */
-function evidenceByIntentRef(checklist: ChecklistData): Map<string, VerificationEvidence> {
-  const byRef = new Map<string, VerificationEvidence>();
-  for (const item of checklist.items) {
-    for (const ev of item.verificationEvidence ?? []) {
-      if (typeof ev.intentRef !== 'string') continue;
-      // First passing evidence wins; otherwise keep the first seen so a fail is
-      // still surfaced when no passing record exists.
-      const existing = byRef.get(ev.intentRef);
-      if (!existing) {
-        byRef.set(ev.intentRef, ev);
-      } else if (existing.result !== 'pass' && ev.result === 'pass') {
-        byRef.set(ev.intentRef, ev);
-      }
-    }
-  }
-  return byRef;
-}
-
 function isWaiver(ev: VerificationEvidence): boolean {
   return ev.kind === 'waiver';
 }
@@ -155,19 +136,23 @@ function isWaiver(ev: VerificationEvidence): boolean {
  *                  missing_verification_evidence). Lower-priority intents with no
  *                  passing evidence/waiver are also listed under missing, tagged
  *                  with their priority via `required:false`.
- *  - rerun:        evidence exists but result=fail OR no result field
- *                  (cannot prove pass) → must re-execute the command.
- *  - refresh-only: evidence result=pass BUT checkEvidenceFreshnessForGit reports
- *                  NOT fresh (hash drift; logic still valid) → only a hash
- *                  re-stamp is needed (verification_evidence_refresh_stale, P4).
- *  - fresh:        evidence result=pass AND checkEvidenceFreshnessForGit reports
- *                  fresh → no action.
+ *  - rerun:        failed, invalid or stale non-reusable executable evidence,
+ *                  or a non-executable record that cannot prove pass.
+ *  - refresh-only: authenticated executable reuse awaiting republication through
+ *                  verification_evidence_refresh_stale; no new execution is needed
+ *                  while its complete input binding remains valid. Also preserves
+ *                  the existing hash-drift refresh policy for manual attestations.
+ *  - fresh:        current admitted executable evidence, a current passing manual
+ *                  attestation, or a waiver under its existing coverage policy.
  */
 function classifyIntent(
   collected: { ref: string; itemId: string; lane: VerificationLane; intent: { priority?: VerificationPriority } },
   evidence: VerificationEvidence | undefined,
+  storyId: string,
   gitCwd: string,
   metadataRoot: string,
+  fingerprint: IntentFingerprintRow,
+  manualRefreshUnsafe: boolean,
 ): EvidencePlanEntry {
   const priority: VerificationPriority = collected.intent.priority ?? 'must';
   const required = priority === 'must';
@@ -183,6 +168,18 @@ function classifyIntent(
   // evidence OR waiver). It needs no command and no hash re-stamp.
   if (evidence && isWaiver(evidence)) {
     return { ...base, bucket: 'fresh', hasEvidence: true, result: evidence.result };
+  }
+
+  // Executable rows use the same authenticated receipt verdict as lifecycle gates.
+  // Hash drift alone never establishes that a command needs only a metadata refresh.
+  if (fingerprint.executable && evidence) {
+    return {
+      ...base, hasEvidence: true, result: evidence.result,
+      bucket: fingerprint.action === 'current' ? 'fresh' : fingerprint.action === 'reuse' ? 'refresh-only' : 'rerun',
+      ...(fingerprint.command ? { command: fingerprint.command } : {}),
+      driftReason: fingerprint.reason,
+      ...(fingerprint.action === 'reuse' ? { refreshCommand: `proof-or-stop verification_evidence_refresh_stale --storyId=${storyId}` } : {}),
+    };
   }
 
   // No evidence proving pass → missing.
@@ -218,6 +215,9 @@ function classifyIntent(
     hasEvidence: true,
     result: 'pass',
     driftReason: freshness.reason,
+    ...(manualRefreshUnsafe
+      ? { refreshWarning: 'Manual refresh withheld: a shared metadata-only refresh can demote executable receipts. Record this manual attestation through its evidence producer.' }
+      : { refreshCommand: `proof-or-stop evidence_refresh --storyId=${storyId} --apply` }),
   };
 }
 
@@ -230,15 +230,23 @@ export function renderEvidencePlanReport(report: EvidencePlanReport): string {
       `refresh-only=${report.summary.refreshOnly} fresh=${report.summary.fresh}`,
   ];
 
+  lines.push(`intent fingerprints: ${report.fingerprints.intents.length} intents, ${report.fingerprints.executions.length} execution groups`,
+    `root fingerprint: ${report.fingerprints.rootFingerprint} (diagnostic only)`);
+  for (const row of report.fingerprints.intents) {
+    lines.push(`  ${row.intentRef} [${row.itemId}]: ${row.description}`, `    action=${row.action} closure=${row.inputClosure} reason=${row.reason}`);
+  }
+
   const renderEntry = (entry: EvidencePlanEntry): string => {
-    const tag = `${entry.intentRef} [${entry.priority}${entry.required ? '/required' : ''}]`;
+    const tag = `${entry.intentRef} (${entry.itemId}) [${entry.priority}${entry.required ? '/required' : ''}]`;
     if (entry.bucket === 'rerun') {
       const detail = entry.command ? ` command: ${entry.command}` : ' command: <none recorded>';
       const resultNote = entry.result ? ` result=${entry.result}` : ' result=<none>';
       return `    - ${tag}${resultNote}${detail}`;
     }
     if (entry.bucket === 'refresh-only') {
-      return `    - ${tag} drift: ${entry.driftReason ?? 'evidence hash drift'}`;
+      const next = entry.refreshCommand ? `; next: ${entry.refreshCommand}` : '';
+      const warning = entry.refreshWarning ? `; ${entry.refreshWarning}` : '';
+      return `    - ${tag} drift: ${entry.driftReason ?? 'evidence hash drift'}${next}${warning}`;
     }
     return `    - ${tag}`;
   };
@@ -276,7 +284,6 @@ export function createEvidencePlanHandlers(ctx: HandlerContext): Record<string, 
     });
 
     const checklist = readChecklist(ctx, args.storyId);
-    const byRef = evidenceByIntentRef(checklist);
     const gitCwd = resolveGitCwd({
       store: ctx.store,
       storyId: args.storyId,
@@ -284,6 +291,10 @@ export function createEvidencePlanHandlers(ctx: HandlerContext): Record<string, 
       projectRoot: ctx.root,
     });
 
+    const fingerprints = buildIntentFingerprintReport({ projectRoot: ctx.root, gitCwd, storyId: args.storyId, checklist });
+    const fingerprintByRef = new Map(fingerprints.intents.map(row => [row.intentKey, row]));
+    // Compatibility refresh is Story-wide; do not recommend it when it could demote receipts.
+    const manualRefreshUnsafe = checklist.items.some(item => (item.verificationEvidence ?? []).some(evidence => Boolean(evidence.receipt) || evidence.mechanical === true));
     const buckets: EvidencePlanReport['buckets'] = {
       missing: [],
       rerun: [],
@@ -293,7 +304,7 @@ export function createEvidencePlanHandlers(ctx: HandlerContext): Record<string, 
 
     for (const item of checklist.items) {
       for (const collected of collectVerificationIntents(item)) {
-        const entry = classifyIntent(collected, byRef.get(collected.ref), gitCwd, ctx.root);
+        const entry = classifyIntent(collected, selectItemIntentEvidence(item, collected.ref), args.storyId, gitCwd, ctx.root, fingerprintByRef.get(intentFingerprintKey(item.id, collected.ref))!, manualRefreshUnsafe);
         switch (entry.bucket) {
           case 'missing':
             buckets.missing.push(entry);
@@ -315,6 +326,7 @@ export function createEvidencePlanHandlers(ctx: HandlerContext): Record<string, 
       storyId: args.storyId,
       mode: { runCommands: false, writeEvidence: false },
       readinessReport,
+      fingerprints,
       buckets,
       summary: {
         missing: buckets.missing.length,

@@ -1,5 +1,37 @@
 # Changelog
 
+## Lab integrated-validation-and-managed-implementation - v0.3.433 - 2026-09-20
+
+- Integrate the complete local `0.3.429` through `0.3.432` repair history with Pan Qi's remote `0.3.429` and `0.3.430` managed-worker and managed-implementer history; both pre-merge heads remain ancestors of this release.
+- Enforce provider budgets, shared invocation accounting, 260-second production validation limits, intent-bound evidence reuse, and current prompt-reference baselines with focused RED/GREEN verification.
+- Require canonical implementation-worker authority and add managed checklist implementation dispatch whose signed completion remains bound across retries, transport loss, rollback, and unmanaged completion probes.
+- Preserve fail-closed behavior for invalid evidence groups, stale prompt authority, missing implementation receipts, incomplete managed completion, duplicate execution, unknown usage, and unsafe mixed-Story refresh advice.
+- Reconcile the combined validation registry, static-edge evidence, package metadata, and CLI version at `0.3.433`; detailed component evidence remains in [host-run budgets](docs/host-run-shared-budget.md), [intent fingerprinting](docs/requirements/decisions/verification-execution-receipt-fanout-and-input-scoped-freshness.md), and [managed host usage](docs/host-run-usage.md).
+
+## Lab validation-prompt-baseline-split-20260920 - v0.3.432 - 2026-09-20
+
+- Repair prompt validation that rejected current canonical role bodies because its approval hashes, role matrix, and measurement baseline were stale.
+- Remove nine unused Story-reference allowances; retain four exact current references and require each to occur once during collection and verification. Missing, duplicate, altered, stale, and cross-role authority are rejected.
+- Preserve the full 18-role approval checks, CLI-only Story policy, real prompt mutation controls, and current delivery-transcript read while refusing the retired product-reviewer read.
+- Record target RED and replay the full prompt-baseline suite, actual u18 static verifier, and built CLI version check before integration and on main. See [the baseline](docs/requirements/baselines/proof-or-stop-prompt-baseline.json) for the current role contract.
+- Split this bounded repair from the retained validation audit to fit the existing audit-input limit. The unrelated source-binding failure matches main 0f823c4475 exactly and remains owned by validation-audit-20260918; this is local Lab maintenance, not Story DONE.
+
+Maintenance provenance: codex/lab-validation-prompt-baseline-split-20260920, repair 929f018e604c5c6455bceed6bcd3698a0a985dfa.
+Verification command (replayed before integration and on main): `["node","/Users/jek/Documents/GitHub/Prooforstop/.git/lab-evidence-archives/validation-audit-20260918/remaining-performance-20260918/finish/original-closeout/prompt-baseline-split/verify-final.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab intent-fingerprint-reuse - v0.3.431 - 2026-09-20
+
+- Derive per-execution, per-intent and aggregate fingerprints from each Story's actual verification intents, displaying original descriptions and item-scoped identities without fixed counts; invalid execution groups fail closed.
+- Use authenticated receipt admission for executable planning, distinguish pending reuse publication from current evidence and print its signed refresh command, withhold unsafe bulk manual refresh advice in mixed Stories, and use one item-scoped evidence selector; preserve documentation attestations with informational command text and existing waivers.
+- Preserve immutable signed reuse and strict fallback for incomplete dependencies, and explicitly label legacy refresh previews as metadata-only diagnostics. Historical ordinary-script evidence is not retroactively upgraded.
+- Verify real producer/refresh fan-out, independent assertions, zero planner executions, dynamic membership and tampering through the existing test:all smoke discovery, with explicit 180-second smoke budget, a static import binding, mixed manual/reuse preservation, and invalid-to-rerun bucket assertions. Correct the planner smoke's obsolete local-assurance assertions and verify metadata-only apply plus item ownership before and after refresh. See docs/requirements/decisions/verification-execution-receipt-fanout-and-input-scoped-freshness.md for the exact suite command and static-binding checks.
+- Baseline limitations remain: the process-fact retired-vocabulary fingerprint mismatch and the unchanged legacy refresh smoke's obsolete renderer/head-only assumptions. Focused comparison reproduces the refresh failure with the main handler; these unrelated checks remain unchanged. Focused RED/GREEN, suite and static checks are the repair evidence; repository-wide success is not claimed.
+
+Maintenance provenance: codex/lab-intent-fingerprint-reuse, repair c1254c337654088f234403875b6f38dd861618a5.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/intent-fingerprint-reuse.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab benchmark-real-entry-regression - v0.3.430 - 2026-09-20
 
 - Enforce planned-provider attempt and remaining-time allowances before dispatch, preserving retries and post-transport spawn-error attempts.
@@ -22,6 +54,30 @@ Maintenance provenance: codex/lab-validation-production-budget-260-20260920, rep
 Verification command (replayed before integration and on main): `["node","packages/main/tests/validation-production-budget-260.test.mjs"]`.
 This entry does not assert formal Story DONE or signed product-release credentials.
 
+## Lab managed-implementer-dispatch - v0.3.430 - 2026-09-20
+
+- Add controller-owned managed dispatch for one exact DEV checklist implementer target.
+- Bind successful completion to the managed run, Story, item, consumed invocation, and signed terminal receipt.
+- Refuse empty native wait targets and document the managed fallback for hosts without a child task identity.
+- Roll back checklist completion when bound process-event persistence fails, preserving a safe replacement path.
+- Cover successful delivery, no completion, in-progress-only, wrong-item, and event-write-failure cases.
+
+Maintenance provenance: codex/lab-managed-implementer-dispatch, repair be0abcff6e3af7e6584cec65d72e4a43ec67ddab.
+Verification command (replayed before integration and on main): `["npm","run","test:managed-implementer-dispatch"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab implementation-worker-authority - v0.3.429 - 2026-09-20
+
+- Remove commit-author fallback as normal-channel implementation authority.
+- Require canonical dispatch or successful subagent-result evidence for every non-exempt item.
+- Block DEV to REVIEW before reviewers start when implementation-worker evidence is missing.
+- Give agents exact canonical dispatch guidance and retain commit author only as audit attribution.
+- Add focused RED/GREEN coverage for rejected unregistered workers and admitted registered results.
+
+Maintenance provenance: codex/lab-implementation-worker-authority, repair dcb7f69c9d614014e23a22ff697736cd1963085d.
+Verification command (replayed before integration and on main): `["node","scripts/verify-implementation-worker-authority.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab benchmark-control-red-green - v0.3.428 - 2026-09-20
 
 - Add an isolated benchmark controller experiment that ignores unchanged blocked progress, deduplicates executions, bounds context, and reserves shared and repair budgets before dispatch.
@@ -32,6 +88,16 @@ This entry does not assert formal Story DONE or signed product-release credentia
 Maintenance provenance: codex/lab-benchmark-control-red-green, repair b0168e3bd76ceffb60c307f2ac61e08d053df1df.
 Verification command (replayed before integration and on main): `["node","scripts/lab/benchmark-controls/verify-entry-contract.mjs"]`.
 This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab managed-worker-owner-lease - integrated in v0.3.428 - 2026-09-20
+
+- Keep the durable Story owner lease bound to the submitting session when a detached `host_run_worker` starts and exits; the worker validates ownership without refreshing the lease with its short-lived PID.
+- Retain the managed run's exclusive worker claim and prove that a foreign session cannot gain write authority by reusing a live run ID.
+- Add a public CLI RED/GREEN regression and refresh the affected U-18 static-edge bindings; owner-command, managed-host-run, process-fact and static-edge checks pass.
+- Record the exact committed candidate's independent Grok/xAI Lab audit in the authenticated Lab maintenance record; this entry does not assert formal Story DONE.
+
+Maintenance provenance: codex/lab-managed-worker-owner-lease, repair 0cd268e1dc5e4191f81c17169076641d34857b23.
+Verification command (replayed before integration and on main): `["node","scripts/verify-managed-worker-owner-lease.mjs"]`.
 
 ## Lab validation-build-artifact-binding - v0.3.427 - 2026-09-20
 

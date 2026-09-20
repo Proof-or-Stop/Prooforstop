@@ -102,3 +102,159 @@ admission. Replay does not launch, re-sign, retime or mutate the source executio
 Migration is additive. Legacy combined receipts, `VerificationReceiptBundleV2`, `VerificationReceiptBundleV3`, `VerificationReceiptBundleV4`, and legacy `VerificationAssertionReceiptV1` records remain visible as read-only audit history with explicit legacy diagnostics, while the next tool-owned execution emits a `VerificationReceiptBundleV5` containing `VerificationAssertionReceiptV2`. Those legacy records cannot satisfy lifecycle admission, reuse, or selector-narrowing proof—even when a selector field is present—and there is no in-place promotion.
 
 Rollback disables new reuse/fan-out production and forces strict real execution. Existing v5 records remain readable and verifiable; they are not rewritten to older shapes. Removing the v2 capsule manifest, changing the capsule policy, losing permission enforcement, or presenting a legacy/self-attested manifest immediately denies reuse and returns to strict Story/material freshness.
+
+## Dynamic intent fingerprint diagnostics
+
+`proof-or-stop evidence_plan --storyId=B-xxxx --json` derives its intent list from
+current structured verification intents, including requirements without evidence.
+It displays each real description, stable ID (or the existing lane/index fallback),
+execution-group key, current per-intent fingerprint and an order-stable root fingerprint.
+Nothing is sized to a particular Story or historical receipt count. Explicit IDs
+survive reordering; legacy positional IDs retain their existing positional meaning.
+Identity is scoped to the owning checklist item: `intentKey` encodes `[itemId, intentRef]`.
+The same explicit ID on different items produces separate rows, fingerprints and
+execution-group `intentKeys`; duplicate IDs within one item are rejected instead
+of silently collapsing requirements. The root and planner lookup use that same identity.
+
+The execution fingerprint uses the existing live command/input/environment/toolchain
+identity. A mechanically complete capsule closure excludes unrelated material;
+ordinary commands retain both material and Story-file bindings. Selector and intent
+semantics belong to the leaf, not the shared execution group. Changing an input used
+by two intents schedules one existing execution, with two independently authenticated
+assertions. Adding an unverified intent changes the root and remains visible as missing.
+Timestamps, receipt publication and result status are not fresh execution inputs.
+Execution groups fail closed: only `current`, `reuse` and `manual` actions avoid
+execution; invalid or unknown actions also set `requiresExecution`.
+
+These fingerprints are diagnostic-only: equality never replaces signature/output
+validation, pin binding, lifecycle expiry or current state checks. Executable rows
+use the shared gate receipt evaluator and report current, reuse, rerun or invalid.
+The existing signed refresh writer remains the only execution/reuse producer.
+In `evidence_plan`, an unsigned or stale ordinary pass is never advertised as a hash-only refresh.
+An authenticated `reuse` row appears in `refresh-only`, separately from `current`
+rows in `fresh`. This counts each pending intent republication, including distinct
+assertions sharing one execution. The signed `verification_evidence_refresh_stale`
+writer rechecks eligibility and publishes reuse without re-executing an unchanged
+complete input group; a changed or incomplete group still executes normally.
+Admitted reuse rows carry and render the signed `verification_evidence_refresh_stale`
+command. Manual hash drift carries `evidence_refresh --apply` only when the Story
+contains no receipt or mechanical evidence. In a mixed Story the planner withholds
+that bulk command and renders a `refreshWarning` in JSON and text explaining its
+potential to demote executable receipts. The planner preserves those receipts; it
+does not change the compatibility writer. Manual fingerprints distinguish current
+passing attestations (`manual`), drifted passing attestations (`refresh`), and
+failed or incomplete attestations (`rerun`); `refresh` does not authorize execution reuse.
+The legacy `evidence_refresh` compatibility preview explicitly labels its JSON and
+text as metadata drift only, without evaluating executable admission, and directs
+the operator to `evidence_plan` for execution/reuse requirements. Its existing
+metadata-only apply path is unchanged; it never substitutes for command re-execution.
+Non-executable attestations and existing waivers retain their separate compatibility
+behavior. A waiver is reported as manual policy coverage and never authorizes execution reuse.
+An informational command on an unpinned docs/manual attestation does not make the
+intent executable or create an execution group. Both planner buckets and fingerprints
+select evidence from the owning checklist item, matching the writer's item/ref check;
+a misplaced record on another item remains missing coverage.
+The compatibility refresh preview and post-apply reclassification use that same
+item-scoped selector. A record moved to another item during a pass cannot be reported
+as refreshed for its former owner. Regression coverage executes the real metadata-only
+apply path: it runs zero commands, demotes unexecuted mechanical receipts, and leaves
+all affected executable intents requiring re-execution. It cannot substitute for
+the signed execution/reuse writer.
+
+Legacy receipts without complete input authority are not upgraded by inventing a
+manifest. A genuine eligible execution must establish that authority first. This
+repair does not extend the fixed capsule to arbitrary programs or claim that import
+scanning or an observed read trace proves complete dependencies. For the historical
+B-e6d9 commands, incomplete closure remains an explicit reason for re-execution.
+
+Regression: `node packages/main/tests/intent-fingerprint-reuse.test.mjs`, also called
+by the existing evidence-plan smoke, executes the real producer and refresh handlers.
+It checks dynamic membership/descriptions, unrelated and affected input groups,
+shared-command fan-out, strict ordinary fallback, immutable reuse, tampering and
+read-only reports, zero planner executions, invalid-to-rerun bucket membership
+for both unpinned commands and forged signatures, and individually admitted assertions
+after shared-command fan-out. The smoke imports this regression in its own supervised
+process rather than launching an unmanaged child. Fixture results are not real-Story acceptance receipts.
+The existing root `test:all` script discovers `dist/tasks/*-smoke.js`, including
+`evidence-plan-smoke.js`; this smoke is not skipped in `smoke-manifest.json` and
+imports the new regression. The process-fact contract also pins that exact in-process
+import, so removing the regression from the discovered smoke fails the contract.
+This supervised smoke is its suite registration; an additional standalone npm child
+process is unnecessary. Run its actual suite path with
+`npm run test:all -- --select evidence-plan --jobs 1 --no-retry` (one worker).
+The regression exercises the runner's actual `parseArgs` for `--jobs 1` and
+`--no-retry`, asserting one worker and disabled retries, then uses those parsed
+selection options in real discovery. The combined smoke initially measured 35.9 seconds;
+the expanded item-identity and refresh-command regression passed in 45.081 seconds. Its manifest entry explicitly budgets 180000 ms to provide
+headroom under contention; the discovery regression checks that exact bound.
+The runner's default for other smokes is unchanged. Canonical serial-reference
+membership is unchanged. The smoke's stale `authorityDone`/`productionDone` text
+assertions were also repaired to check the already-published `admissibilityStatus`
+and `evidenceScope` output; their old literals failed against the pre-Lab renderer.
+Negative controls temporarily mapped `invalid` to the fresh bucket in the isolated
+Lab build: the unpinned-command smoke and forged-signature regression rejected
+that mutation at their respective bucket assertions. Restoring the manifest's
+old 60000 ms budget was separately rejected by the discovery budget assertion.
+Original built-handler and manifest bytes were restored before GREEN.
+
+The original Lab branch point was `db43a2611c25bb8153d1a32db67c6d39be1b4e3e`;
+the first comparison there checked only the retired-vocabulary source predicate.
+After syncing main, the integration base is
+`de5342207275af41222e7246ac9283a0e97bd031`. The full command
+`node scripts/verify-process-fact-contract.mjs` was actually rerun on that main
+checkout: exit 1 in 137.522 seconds, with the sole failure expecting the unchanged
+retired-vocabulary guard to contain
+`52a283cfcdc3bfbb233feab6d31614d0eabf8470a41d3af10ad7786246905720`.
+The candidate also reports that sole failure. The full command exits at its
+earlier existing failure barrier, so it does not reach the new diagnostic block.
+The focused regression separately executes that exact source block, checks its
+positive result, and rejects removal of each strict fallback or removal/duplication
+of the discovered regression import; this is separate evidence, not a bypass
+or a passing result for the full verifier.
+The unrelated guard is preserved; full process-fact success is not claimed.
+
+The directly composed consumers were paired at exact checkouts of integration
+base `de5342207275af41222e7246ac9283a0e97bd031` and audited candidate
+`f32a6cf9bca3daced0508dddf6d38fcfba1e60bd`, with source/dist build bindings
+verified before and after. Each command below has the prefix
+`node packages/main/dist/tasks/`:
+
+| Consumer | Base | Candidate |
+| --- | --- | --- |
+| `lifecycle-orchestrate-smoke.js` | PASS, 17.075 s | PASS, 17.278 s |
+| `evidence-refresh-smoke.js` | exit 1, 1.196 s | exit 1, 1.168 s |
+
+After the item-key/group-action repair, the same candidate consumers were rerun:
+`lifecycle-orchestrate-smoke.js` passed in 16.185 seconds;
+`evidence-refresh-smoke.js` retained the same renderer failure in 0.753 seconds.
+The final process-fact check retained only the baseline failure in 118.970 seconds;
+static edges passed with zero needs-review, nested, or unexpanded commands.
+
+Both refresh failures are the same obsolete `/authorityDone: false/` text
+assertion; the extra preview lines introduce no different failure. These paired
+runs were concurrent, so their durations are observations, not a speedup claim.
+
+The unchanged adjacent `evidence-refresh-smoke` also has baseline failures: its
+obsolete `authorityDone` renderer assertion fails, and correcting that assertion
+alone exposes its old assumption that matching HEAD skips a changed material hash.
+An isolated run with the `de534220` main handler and unchanged writer reproduces
+the latter failure. That is a focused baseline comparison, not a complete main
+suite run. The old smoke and production writer remain unchanged; the new regression
+directly verifies metadata-only demotion and item ownership before and after apply.
+
+The mixed-Story recommendation regression first reproduced the unsafe command in
+28.400 seconds against candidate 3776f0bd6d. It combines a real admitted reusable
+execution receipt with a stale manual attestation, asserts that the bulk command
+is withheld in JSON/text, and checks that every receipt remains unchanged. A
+manual-only fixture still gets the compatibility command; failed and missing-result
+manual evidence agree with the rerun bucket. Source contract checks now state their
+actual guarantee: exact token occurrence counts and discovery import presence.
+The focused regression also executes the actual source-contract block against
+removed strict bindings and missing/duplicated import bindings. These are source
+contract controls; separate producer/refresh tests provide behavioural evidence.
+
+The final mixed-Story suite passed in 47.358 seconds, including the source-contract
+controls. The lifecycle consumer passed in 17.254 seconds. Final static edges
+passed with zero needs-review, nested or unexpanded commands. The full process
+contract retained its earlier baseline failure (121.655 seconds); no full-suite
+PASS is claimed.
