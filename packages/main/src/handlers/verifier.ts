@@ -1582,7 +1582,7 @@ function persistStoryValidationEvidence(
   const allPass = Boolean(result.allPass ?? result.allPassed ?? statusPass);
   const failureKind = validationFailureKindFromResult(result, allPass);
   // A refused publication is not a verdict of record. It writes neither
-  // evidence nor terminal and leaves the Story's metadata exactly as it was:
+  // evidence nor terminal and leaves the Story metadata exactly as it was:
   // it publishes no PASS, and the next run is judged against the same
   // history - the standing of running the commands by hand. What CAN be
   // bound is bound before launch, so that an executed verdict is recorded.
@@ -1799,8 +1799,8 @@ function persistStoryValidationEvidence(
     expectedHashes = publicationOutputHashes(transaction, storyRel, prepared.sha256);
     assertCurrentValidationPublicationOwner(ctx.root, storyId);
     ctx.store.writePreparedTestEvidence(storyId, prepared);
-    // The terminal's verdict is the published record's, and a failing run's
-    // kind comes from the executor's command outcomes, never from a kind the
+    // The terminal verdict is that of the published record, and the kind of a
+    // failing run comes from the command outcomes of the executor, never from a kind the
     // result happens to carry: infrastructure only when infrastructure is all
     // that failed, coverage-only under the predicate the reuse evaluator
     // republishes such a record with, a verdict otherwise.
@@ -1814,7 +1814,7 @@ function persistStoryValidationEvidence(
         ...(semanticCommandPass !== undefined ? { semanticCommandPass } : {}),
         // The dynamic-authority callers pass their aggregate verdict in that
         // parameter, which says nothing the command outcomes do not; only a
-        // validate file's printed verdict is an independent semantic one.
+        // verdict a validate file printed is an independent semantic one.
         semanticIsAggregate: result?.dynamicValidation?.authority === 'enforce-authority',
         concurrentPollutionBlocking: Boolean(result?.concurrentWorktreePollution && result.concurrentWorktreePollution.blocking !== false),
       }),
