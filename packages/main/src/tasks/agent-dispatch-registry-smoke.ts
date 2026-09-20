@@ -832,6 +832,28 @@ try {
     if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
     else process.env.PROOF_OR_STOP_AGENT = previousAgent;
   }
+  const beforeRepairWorkerResolve = mutationState();
+  const storyBeforeRepairWorkerResolve = store.readStory(storyId);
+  const previousRepairAgent = process.env.PROOF_OR_STOP_AGENT;
+  store.writeStory(storyId, { ...storyBeforeRepairWorkerResolve, phase: 'DEV' });
+  process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-finding-repair';
+  try {
+    assert.throws(
+      () => findingHandlers.finding_resolve({
+        storyId,
+        findingId: `${storyId}:F-001`,
+        resolution: 'repair worker must return this result to the Story owner',
+      }),
+      /agent_dispatch_mutation_denied/,
+      'finding repair worker must not close its own finding in DEV',
+    );
+    assert.equal(mutationState(), beforeRepairWorkerResolve,
+      'denied finding-repair resolution must leave the finding and evidence state unchanged');
+  } finally {
+    if (previousRepairAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousRepairAgent;
+    store.writeStory(storyId, storyBeforeRepairWorkerResolve);
+  }
   assert.equal(
     captureReviewerReadEvent({ path: 'docs/requirements/decisions/example.md', mode: 'full' }, { agent: 'proof-or-stop-review-lookalike' }),
     null,
