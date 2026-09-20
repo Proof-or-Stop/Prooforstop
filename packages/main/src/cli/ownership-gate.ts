@@ -15,7 +15,7 @@ import { getCommandPolicy, isOwnershipClass, type OwnershipClass } from '../core
 import { PROOF_OR_STOP_DIR } from '../core/proof-or-stop-paths.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import type { ProofOrStopConfig } from '../core/config.js';
-import { managedHostRunStoryIdForOwnership, resolveManagedImplementerCompletionInvocation } from '../core/managed-host-run.js';
+import { isManagedImplementerCompletionPayload, managedHostRunStoryIdForOwnership, resolveManagedImplementerCompletionInvocation } from '../core/managed-host-run.js';
 import { readBrandEnv } from '../core/brand-env.js';
 import { resolveRegisteredAgentActor } from '../core/agent-dispatch-registry.js';
 import { agentRoleIdsEqual } from '../core/agent-role-identity.js';
@@ -436,6 +436,10 @@ function admitsManagedImplementerCompletion(
     || args.success === false
     || typeof args.itemId !== 'string'
     || !args.itemId.trim()) return false;
+  // Keep the lease exception visibly fail-closed at the admission seam. The
+  // resolver repeats this shared predicate so a direct handler call cannot
+  // drift into a managed completion after the gate decision.
+  if (!isManagedImplementerCompletionPayload(args, storyId, args.itemId)) return false;
   const actor = readBrandEnv('AGENT')?.trim();
   if (!actor || !agentRoleIdsEqual(actor, 'proof-or-stop-implementer')) return false;
   return resolveManagedImplementerCompletionInvocation({
