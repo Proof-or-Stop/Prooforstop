@@ -136,10 +136,14 @@ rows in `fresh`. This counts each pending intent republication, including distin
 assertions sharing one execution. The signed `verification_evidence_refresh_stale`
 writer rechecks eligibility and publishes reuse without re-executing an unchanged
 complete input group; a changed or incomplete group still executes normally.
-Each refresh-only row carries and renders its exact `refreshCommand`: signed
-`verification_evidence_refresh_stale` for admitted reuse, and the compatibility
-`evidence_refresh --apply` path for manual hash drift. The latter may demote
-executable receipts elsewhere in a mixed Story; it is not the reuse producer.
+Admitted reuse rows carry and render the signed `verification_evidence_refresh_stale`
+command. Manual hash drift carries `evidence_refresh --apply` only when the Story
+contains no receipt or mechanical evidence. In a mixed Story the planner withholds
+that bulk command and renders a `refreshWarning` in JSON and text explaining its
+potential to demote executable receipts. The planner preserves those receipts; it
+does not change the compatibility writer. Manual fingerprints distinguish current
+passing attestations (`manual`), drifted passing attestations (`refresh`), and
+failed or incomplete attestations (`rerun`); `refresh` does not authorize execution reuse.
 The legacy `evidence_refresh` compatibility preview explicitly labels its JSON and
 text as metadata drift only, without evaluating executable admission, and directs
 the operator to `evidence_plan` for execution/reuse requirements. Its existing
@@ -173,7 +177,10 @@ after shared-command fan-out. The smoke imports this regression in its own super
 process rather than launching an unmanaged child. Fixture results are not real-Story acceptance receipts.
 The existing root `test:all` script discovers `dist/tasks/*-smoke.js`, including
 `evidence-plan-smoke.js`; this smoke is not skipped in `smoke-manifest.json` and
-imports the new regression. Run its actual suite path with
+imports the new regression. The process-fact contract also pins that exact in-process
+import, so removing the regression from the discovered smoke fails the contract.
+This supervised smoke is its suite registration; an additional standalone npm child
+process is unnecessary. Run its actual suite path with
 `npm run test:all -- --select evidence-plan --jobs 1 --no-retry` (one worker).
 The regression exercises the runner's actual `parseArgs` for `--jobs 1` and
 `--no-retry`, asserting one worker and disabled retries, then uses those parsed
@@ -198,7 +205,12 @@ After syncing main, the integration base is
 checkout: exit 1 in 137.522 seconds, with the sole failure expecting the unchanged
 retired-vocabulary guard to contain
 `52a283cfcdc3bfbb233feab6d31614d0eabf8470a41d3af10ad7786246905720`.
-The candidate also reports that sole failure while the new diagnostic checks pass.
+The candidate also reports that sole failure. The full command exits at its
+earlier existing failure barrier, so it does not reach the new diagnostic block.
+The focused regression separately executes that exact source block, checks its
+positive result, and rejects removal of each strict fallback or removal/duplication
+of the discovered regression import; this is separate evidence, not a bypass
+or a passing result for the full verifier.
 The unrelated guard is preserved; full process-fact success is not claimed.
 
 The directly composed consumers were paired at exact checkouts of integration
@@ -229,3 +241,20 @@ An isolated run with the `de534220` main handler and unchanged writer reproduces
 the latter failure. That is a focused baseline comparison, not a complete main
 suite run. The old smoke and production writer remain unchanged; the new regression
 directly verifies metadata-only demotion and item ownership before and after apply.
+
+The mixed-Story recommendation regression first reproduced the unsafe command in
+28.400 seconds against candidate 3776f0bd6d. It combines a real admitted reusable
+execution receipt with a stale manual attestation, asserts that the bulk command
+is withheld in JSON/text, and checks that every receipt remains unchanged. A
+manual-only fixture still gets the compatibility command; failed and missing-result
+manual evidence agree with the rerun bucket. Source contract checks now state their
+actual guarantee: exact token occurrence counts and discovery import presence.
+The focused regression also executes the actual source-contract block against
+removed strict bindings and missing/duplicated import bindings. These are source
+contract controls; separate producer/refresh tests provide behavioural evidence.
+
+The final mixed-Story suite passed in 47.358 seconds, including the source-contract
+controls. The lifecycle consumer passed in 17.254 seconds. Final static edges
+passed with zero needs-review, nested or unexpanded commands. The full process
+contract retained its earlier baseline failure (121.655 seconds); no full-suite
+PASS is claimed.

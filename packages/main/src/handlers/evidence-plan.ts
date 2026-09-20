@@ -51,6 +51,8 @@ interface EvidencePlanEntry {
   driftReason?: string;
   /** Exact supported command for publishing this refresh-only result. */
   refreshCommand?: string;
+  /** Why a bulk metadata refresh is unsafe for this mixed Story. */
+  refreshWarning?: string;
 }
 
 export interface EvidencePlanReport {
@@ -150,6 +152,7 @@ function classifyIntent(
   gitCwd: string,
   metadataRoot: string,
   fingerprint: IntentFingerprintRow,
+  manualRefreshUnsafe: boolean,
 ): EvidencePlanEntry {
   const priority: VerificationPriority = collected.intent.priority ?? 'must';
   const required = priority === 'must';
@@ -212,7 +215,9 @@ function classifyIntent(
     hasEvidence: true,
     result: 'pass',
     driftReason: freshness.reason,
-    refreshCommand: `proof-or-stop evidence_refresh --storyId=${storyId} --apply`,
+    ...(manualRefreshUnsafe
+      ? { refreshWarning: 'Manual refresh withheld: a shared metadata-only refresh can demote executable receipts. Record this manual attestation through its evidence producer.' }
+      : { refreshCommand: `proof-or-stop evidence_refresh --storyId=${storyId} --apply` }),
   };
 }
 
@@ -239,7 +244,9 @@ export function renderEvidencePlanReport(report: EvidencePlanReport): string {
       return `    - ${tag}${resultNote}${detail}`;
     }
     if (entry.bucket === 'refresh-only') {
-      return `    - ${tag} drift: ${entry.driftReason ?? 'evidence hash drift'}; next: ${entry.refreshCommand}`;
+      const next = entry.refreshCommand ? `; next: ${entry.refreshCommand}` : '';
+      const warning = entry.refreshWarning ? `; ${entry.refreshWarning}` : '';
+      return `    - ${tag} drift: ${entry.driftReason ?? 'evidence hash drift'}${next}${warning}`;
     }
     return `    - ${tag}`;
   };
@@ -286,6 +293,8 @@ export function createEvidencePlanHandlers(ctx: HandlerContext): Record<string, 
 
     const fingerprints = buildIntentFingerprintReport({ projectRoot: ctx.root, gitCwd, storyId: args.storyId, checklist });
     const fingerprintByRef = new Map(fingerprints.intents.map(row => [row.intentKey, row]));
+    // Compatibility refresh is Story-wide; do not recommend it when it could demote receipts.
+    const manualRefreshUnsafe = checklist.items.some(item => (item.verificationEvidence ?? []).some(evidence => Boolean(evidence.receipt) || evidence.mechanical === true));
     const buckets: EvidencePlanReport['buckets'] = {
       missing: [],
       rerun: [],
@@ -295,7 +304,7 @@ export function createEvidencePlanHandlers(ctx: HandlerContext): Record<string, 
 
     for (const item of checklist.items) {
       for (const collected of collectVerificationIntents(item)) {
-        const entry = classifyIntent(collected, selectItemIntentEvidence(item, collected.ref), args.storyId, gitCwd, ctx.root, fingerprintByRef.get(intentFingerprintKey(item.id, collected.ref))!);
+        const entry = classifyIntent(collected, selectItemIntentEvidence(item, collected.ref), args.storyId, gitCwd, ctx.root, fingerprintByRef.get(intentFingerprintKey(item.id, collected.ref))!, manualRefreshUnsafe);
         switch (entry.bucket) {
           case 'missing':
             buckets.missing.push(entry);

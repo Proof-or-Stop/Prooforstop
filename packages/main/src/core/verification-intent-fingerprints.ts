@@ -5,7 +5,7 @@ import { evaluateVerificationEvidenceForGate } from './proof-admissibility.js';
 import { isReusableVerificationReceipt, prepareVerificationExecutionIdentity, withVerificationRefreshObservation } from './verification-execution-evidence.js';
 import type { ChecklistData, VerificationEvidence } from './types.js';
 
-export type IntentFingerprintAction = 'missing' | 'current' | 'reuse' | 'rerun' | 'invalid' | 'manual';
+export type IntentFingerprintAction = 'missing' | 'current' | 'reuse' | 'rerun' | 'invalid' | 'manual' | 'refresh';
 export interface IntentFingerprintRow {
   intentKey: string;
   intentRef: string;
@@ -74,6 +74,14 @@ export function buildIntentFingerprintReport(input: {
         };
         if (evidence?.kind === 'waiver') {
           row.reason = 'waiver uses its existing coverage policy; it does not authorize execution reuse';
+        } else if (!executable && evidence) {
+          if (evidence.result !== 'pass') {
+            row.action = 'rerun'; row.reason = `manual attestation result is ${evidence.result ?? 'missing'}`;
+          } else {
+            const freshness = checkEvidenceFreshnessForGit(input.gitCwd, evidence.headHash, evidence.materialHash, input.projectRoot, evidence.storyFilesHash);
+            row.action = freshness.fresh ? 'manual' : 'refresh';
+            row.reason = freshness.fresh ? 'current passing manual attestation under its existing policy' : freshness.reason;
+          }
         } else if (executable && evidence) {
           if (!pin) {
             row.action = 'invalid'; row.reason = 'missing immutable verification command/selector pin';

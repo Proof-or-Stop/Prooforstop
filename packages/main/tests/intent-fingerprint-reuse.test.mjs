@@ -24,6 +24,33 @@ assert.equal(suiteOptions.noRetry, true, 'the documented suite disables retries'
 const selectedSmokes = selectSmokes(discoverSmokes(join(repositoryRoot, 'packages/main/dist/tasks')), JSON.parse(readFileSync(join(repositoryRoot, 'packages/main/smoke-manifest.json'), 'utf8')), suiteOptions);
 assert.deepEqual(selectedSmokes.map(entry => entry.name), ['evidence-plan'], 'the real manifest/discovery must select exactly this non-skipped smoke');
 assert.equal(selectedSmokes[0].timeoutMs, 180000, 'the measured producer regression has an explicit bounded smoke budget');
+// Execute the actual diagnostic source contract even when an unrelated earlier
+// repository-wide failure prevents the full verifier from reaching this block.
+const contractSource = readFileSync(join(repositoryRoot, 'scripts/verify-process-fact-contract.mjs'), 'utf8');
+const contractStart = contractSource.indexOf('// Intent fingerprints are derived diagnostics, not a second gate or caller-owned freshness authority.');
+const contractEnd = contractSource.indexOf('// Managed inventory transport checks must precede the final failure gate.', contractStart);
+assert.ok(contractStart >= 0 && contractEnd > contractStart);
+const evaluateContractBlock = new Function('read', 'assert', 'nodeAssert', 'processFactRegistryPath', contractSource.slice(contractStart, contractEnd));
+const runContractBlock = (overrides = new Map()) => {
+  const failures = [];
+  evaluateContractBlock(file => overrides.get(file) ?? readFileSync(join(repositoryRoot, file), 'utf8'), (ok, message) => { if (!ok) failures.push(message); }, assert, 'packages/main/src/core/process-fact-registry.ts');
+  return failures;
+};
+assert.deepEqual(runContractBlock(), [], 'actual diagnostic source contract accepts the implementation');
+const smokePath = 'packages/main/src/tasks/evidence-plan-smoke.ts';
+const smokeSource = readFileSync(join(repositoryRoot, smokePath), 'utf8');
+const importBinding = "await import(new URL('../../tests/intent-fingerprint-reuse.test.mjs', import.meta.url).href);";
+for (const mutated of [smokeSource.replace(importBinding, ''), smokeSource + '\n' + importBinding]) {
+  assert.ok(runContractBlock(new Map([[smokePath, mutated]])).some(message => message.includes('Discovered intent regression binding')), 'actual source contract rejects missing or duplicated regression binding');
+}
+const fingerprintSourcePath = 'packages/main/src/core/verification-intent-fingerprints.ts';
+const fingerprintSource = readFileSync(join(repositoryRoot, fingerprintSourcePath), 'utf8');
+for (const expression of [
+  '...(identity.reusable ? {} : { materialHash: materialHash ?? null, storyFilesHash: storyFilesHash ?? null })',
+  '...(identity.reusable && execution.inputClosureComplete ? {} : { materialHash: evidence.materialHash ?? null, storyFilesHash: evidence.storyFilesHash ?? null })',
+]) {
+  assert.ok(runContractBlock(new Map([[fingerprintSourcePath, fingerprintSource.replace(expression, '')]])).some(message => message.includes(expression)), 'actual contract rejects removal of strict fallback binding');
+}
 const root = mkdtempSync(join(tmpdir(), 'intent-fingerprint-reuse-'));
 const storyId = 'B-intent-fingerprint';
 const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
@@ -199,7 +226,30 @@ try {
   staleDocs.materialHash = '0'.repeat(64);
   staleDocs.storyFilesHash = '0'.repeat(64);
   store.writeChecklist(storyId, docsProjection);
-  assert.equal(report().buckets.refreshOnly.find(r => r.intentRef === 'INT-DOCS').refreshCommand, `proof-or-stop evidence_refresh --storyId=${storyId} --apply`, 'manual drift retains its explicit compatibility refresh path');
+  write('mixed-story-unrelated.txt', 'Unrelated change makes the complete execution groups reusable.'); commit('mixed manual and reusable evidence');
+  const beforeMixedPlan = JSON.stringify(store.readChecklist(storyId));
+  const mixed = report();
+  assert.equal(row(mixed, 'INT-A').action, 'reuse', 'the manual suggestion is evaluated alongside admitted reusable execution evidence');
+  const manualAdvice = mixed.buckets.refreshOnly.find(r => r.intentRef === 'INT-DOCS');
+  assert.equal(manualAdvice.refreshCommand, undefined, 'mixed manual refresh must not advertise a command that demotes executable receipts');
+  assert.match(manualAdvice.refreshWarning, /demote executable receipts/);
+  assert.match(planner.evidence_plan({ storyId }), /Manual refresh withheld:.*demote executable receipts/);
+  assert.equal(JSON.stringify(store.readChecklist(storyId)), beforeMixedPlan, 'withholding the unsafe recommendation preserves every signed receipt');
+  assert.equal(row(mixed, 'INT-DOCS').action, 'refresh', 'manual drift is distinct from admitted execution reuse');
+  const manualOnly = structuredClone(docsProjection);
+  manualOnly.items[0].verificationIntent.happy = manualOnly.items[0].verificationIntent.happy.filter(i => i.id === 'INT-DOCS');
+  manualOnly.items[0].verificationEvidence = manualOnly.items[0].verificationEvidence.filter(e => e.intentRef === 'INT-DOCS');
+  store.writeChecklist(storyId, manualOnly);
+  const manualPlan = report();
+  assert.equal(manualPlan.buckets.refreshOnly[0].refreshCommand, `proof-or-stop evidence_refresh --storyId=${storyId} --apply`, 'manual-only drift retains its safe compatibility refresh path');
+  assert.equal(manualPlan.buckets.refreshOnly[0].refreshWarning, undefined);
+  for (const result of ['fail', undefined]) {
+    manualOnly.items[0].verificationEvidence[0].result = result;
+    store.writeChecklist(storyId, manualOnly);
+    const failedManual = report();
+    assert.equal(row(failedManual, 'INT-DOCS').action, 'rerun', 'failed or incomplete manual evidence cannot be labelled current manual coverage');
+    assert.ok(failedManual.buckets.rerun.some(r => r.intentRef === 'INT-DOCS'));
+  }
   const misplaced = structuredClone(failedProjection);
   const foreign = misplaced.items[0].verificationEvidence.find(e => e.intentRef === 'INT-B');
   foreign.headHash = git('rev-parse', 'main');
@@ -248,12 +298,13 @@ try {
   assert.ok(movingApply.escalated.some(r => r.intentRef === 'INT-B' && r.outcome === 'rerun_required'));
   assert.ok(report().buckets.missing.some(r => r.intentRef === 'INT-B'));
   store.writeChecklist(storyId, failedProjection);
+  const beforeAdded = report();
   const cl = store.readChecklist(storyId);
   cl.items[0].verificationIntent.happy.push(intent('INT-ADDED', 'A newly requested user outcome'));
   store.writeChecklist(storyId, cl);
   const added = report();
   assert.equal(graph(added).intents.length, 6, 'derive changing intent count dynamically');
-  assert.notEqual(graph(current).rootFingerprint, graph(added).rootFingerprint, 'added unverified intent changes the root');
+  assert.notEqual(graph(beforeAdded).rootFingerprint, graph(added).rootFingerprint, 'added unverified intent changes the root');
   const saved = store.readChecklist(storyId);
   saved.items[0].verificationIntent.happy.reverse(); store.writeChecklist(storyId, saved);
   assert.equal(graph(report()).rootFingerprint, graph(added).rootFingerprint, 'explicit stable IDs make ordering irrelevant');

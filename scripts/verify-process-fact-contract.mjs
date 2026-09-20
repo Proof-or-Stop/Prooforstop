@@ -12003,10 +12003,10 @@ assert(managedCriticArtifact?.producer === 'handlers/managed-review-evidence.man
   const planner = read('packages/main/src/handlers/evidence-plan.ts');
   const fingerprints = read('packages/main/src/core/verification-intent-fingerprints.ts');
   const requireTokens = (label, source, tokens) => {
-    const missing = candidate => tokens.filter(token => !candidate.includes(token));
-    assert(missing(source).length === 0, `${label} missing: ${missing(source).join(', ')}`);
-    for (const token of tokens) {
-      nodeAssert(missing(source.replaceAll(token, '')).includes(token), `${label} negative control must detect removal of ${token}`);
+    for (const requirement of tokens) {
+      const [token, expected] = typeof requirement === 'string' ? [requirement, 1] : requirement;
+      const occurrences = source.split(token).length - 1;
+      assert(occurrences === expected, `${label}: expected ${expected} source occurrence(s) of ${token}, found ${occurrences}`);
     }
   };
   requireTokens('Intent fingerprint diagnostic contract', fingerprints, [
@@ -12020,10 +12020,14 @@ assert(managedCriticArtifact?.producer === 'handlers/managed-review-evidence.man
     '...(identity.reusable ? {} : { materialHash: materialHash ?? null, storyFilesHash: storyFilesHash ?? null })',
     '...(identity.reusable && execution.inputClosureComplete ? {} : { materialHash: evidence.materialHash ?? null, storyFilesHash: evidence.storyFilesHash ?? null })',
   ]);
-  requireTokens('Dynamic evidence planner', planner, ['buildIntentFingerprintReport', 'row.description', 'fingerprintByRef.get(intentFingerprintKey(item.id, collected.ref))', 'refreshCommand: `proof-or-stop verification_evidence_refresh_stale --storyId=${storyId}`']);
+  requireTokens('Dynamic evidence planner', planner, [['buildIntentFingerprintReport', 2], 'row.description', 'fingerprintByRef.get(intentFingerprintKey(item.id, collected.ref))', 'refreshCommand: `proof-or-stop verification_evidence_refresh_stale --storyId=${storyId}`']);
+  requireTokens('Manual refresh recommendation', planner, ['const manualRefreshUnsafe = checklist.items.some(', 'Manual refresh withheld: a shared metadata-only refresh can demote executable receipts.']);
+  requireTokens('Discovered intent regression binding', read('packages/main/src/tasks/evidence-plan-smoke.ts'), [
+    "await import(new URL('../../tests/intent-fingerprint-reuse.test.mjs', import.meta.url).href);",
+  ]);
   requireTokens('Intent fingerprint registration', read(processFactRegistryPath), ['packages/main/src/core/verification-intent-fingerprints.ts']);
   requireTokens('Legacy refresh preview semantics', read('packages/main/src/handlers/evidence-refresh.ts'), [
-    "kind: 'metadata-drift-only'", "executableAdmission: 'not-evaluated'", 'metadata drift only; not executable receipt admission',
+    ["kind: 'metadata-drift-only'", 2], ["executableAdmission: 'not-evaluated'", 2], 'metadata drift only; not executable receipt admission',
   ]);
 }
 
