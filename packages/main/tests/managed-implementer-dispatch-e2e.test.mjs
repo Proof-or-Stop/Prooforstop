@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { spawnSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const repository = fileURLToPath(new URL('../../..', import.meta.url));
@@ -22,12 +22,10 @@ const oldSession = process.env.PROOF_OR_STOP_SESSION_ID;
 const oldHome = process.env.HOME;
 
 function git(...args) {
-  // This is the fixture's only direct child-process call. U18 scans this file
-  // directly from validate.commands; external `git` cannot expand into another
-  // registered validation target, while provider CLI children remain inside the
-  // sealed managed worker exercised by the fixture.
-  const result = spawnSync('git', args, { cwd: root, encoding: 'utf8' });
-  assert.equal(result.status, 0, result.stderr);
+  // U18 classifies this literal external executable as a closed, non-Node edge:
+  // it cannot expand into a registered validation target. The Lab GREEN command
+  // runs U18 after this fixture so that classification is part of acceptance.
+  execFileSync('git', args, { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
 }
 
 try {
