@@ -923,16 +923,16 @@ try {
           const label = `${agentType}/${identifierKind || 'story'}/${phase}`;
           assert.match(prompt, promptPatterns[expectedPromptBuilder], `${label} must render ${expectedPromptBuilder}`);
           assertCanonicalLivenessGuidance(prompt, label);
-          if (expectedPromptBuilder === 'finding-repair') {
+          if (expectedPromptBuilder === 'finding-repair' || expectedPromptBuilder === 'cluster-repair') {
             assert.deepEqual(dispatchResult.nativeLaunchContract, {
               dispatchState: 'prompt-prepared',
               hostTaskRequired: true,
               waitTarget: 'nonempty-task-identity',
               missingWorkerDisposition: 'keep-finding-open',
-            }, 'finding repair dispatch must expose a machine-readable native launch prerequisite');
+            }, `${expectedPromptBuilder} dispatch must expose a machine-readable native launch prerequisite`);
             const jsonRoundTrip = JSON.parse(JSON.stringify(dispatchResult));
             assert.deepEqual(jsonRoundTrip.nativeLaunchContract, dispatchResult.nativeLaunchContract,
-              'finding repair launch contract must survive the CLI object-result JSON serialization boundary');
+              `${expectedPromptBuilder} launch contract must survive the CLI object-result JSON serialization boundary`);
             assert.match(prompt, /Controller launch contract \(the repair worker does not perform this step\)/,
               'FINDING_REPAIR_CONTROLLER_LAUNCH_REQUIRED');
             assert.match(prompt, /dispatch prepares the canonical prompt only; it does not start a host task/i,
@@ -941,15 +941,17 @@ try {
               'finding repair must require a concrete receiver before waiting');
             assert.match(prompt, /Never call.*wait.*empty target list/i,
               'finding repair must fail closed before an empty receiver wait');
+          }
+          if (expectedPromptBuilder === 'finding-repair') {
             assert.match(prompt, /repair worker must not call finding_resolve/i,
               'finding repair state closure must remain controller-owned');
             assert.match(prompt, /Story owner\/controller.*finding_resolve/i,
               'finding repair must hand resolution closure back to the owner');
             assert.doesNotMatch(prompt, /^-\s+proof-or-stop finding_resolve\b/m,
               'finding repair prompt must not restore the removed worker-facing resolution command');
-          } else {
+          } else if (expectedPromptBuilder !== 'cluster-repair') {
             assert.equal(dispatchResult.nativeLaunchContract, undefined,
-              `${label} must not inherit the finding-repair-only native launch contract`);
+              `${label} must not inherit the repair-only native launch contract`);
           }
           if (!entry.commitAllowed) assert.doesNotMatch(prompt, /git commit --author=/, `${label} must not receive commit instructions`);
           if (entry.roleClass === 'verification-intent') assert.doesNotMatch(prompt, /status["': ]+done/i, `${label} must not complete an item`);

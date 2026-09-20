@@ -85,7 +85,7 @@ type NativeLaunchContract = {
   missingWorkerDisposition: 'keep-finding-open';
 };
 type DispatchResult = { prompt: string; nativeLaunchContract?: NativeLaunchContract };
-const FINDING_REPAIR_NATIVE_LAUNCH_CONTRACT: NativeLaunchContract = Object.freeze({
+const REPAIR_NATIVE_LAUNCH_CONTRACT: NativeLaunchContract = Object.freeze({
   dispatchState: 'prompt-prepared',
   hostTaskRequired: true,
   waitTarget: 'nonempty-task-identity',
@@ -816,7 +816,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         // Proof-or-Stop cannot invoke or intercept the host's native task/wait API.
         // This structured result lets host controllers enforce the same boundary
         // without parsing prose; the prompt remains the contract for LLM controllers.
-        nativeLaunchContract: FINDING_REPAIR_NATIVE_LAUNCH_CONTRACT,
+        nativeLaunchContract: REPAIR_NATIVE_LAUNCH_CONTRACT,
       };
   }
 
@@ -1351,7 +1351,12 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         storyId: args.storyId,
         clusterId: args.clusterId!,
       });
-      const prompt = `${renderAgentLivenessGuidance({
+      const prompt = `Controller launch contract (the repair worker does not perform this step):
+- This dispatch prepares the canonical prompt only; it does not start a host task.
+- The controller must launch this exact prompt through a native host task and obtain a nonempty task identity before calling any wait operation.
+- Never call a wait tool with an empty target list. If native launch is unavailable, report \`missing_registered_worker\` and keep the cluster findings open.
+
+${renderAgentLivenessGuidance({
         label: `${canonicalType}/${args.clusterId!}`,
         startSignal: `DISPATCH_START:${canonicalType}/${args.clusterId!}`,
       })}\n\n${clusterPrompt}`;
@@ -1361,7 +1366,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         targetKind: 'cluster',
         clusterId: args.clusterId!,
       });
-      return { prompt };
+      return { prompt, nativeLaunchContract: REPAIR_NATIVE_LAUNCH_CONTRACT };
     },
   };
 }
