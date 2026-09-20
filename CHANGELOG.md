@@ -1,5 +1,16 @@
 # Changelog
 
+## Lab validation-manifest-encoding-20260920 - v0.3.433 - 2026-09-20
+
+- Restore the static evidence manifest's canonical ASCII JSON encoding required by the existing Lab version transaction, preserving every parsed value and evidence obligation.
+- Reproduce the real transaction rejection on main's prior encoding and verify a real patch-version transaction succeeds on a disposable copy after normalization.
+- Keep the encoding repair separate so the remaining validation audit can fit the existing bounded independent-audit input contract.
+- Local Lab maintenance only; original validation closeout evidence remains separately recorded.
+
+Maintenance provenance: codex/lab-validation-manifest-encoding-20260920, repair 2a745af390121080d5a7a7164d25f2e12cd1c6a0.
+Verification command (replayed before integration and on main): `["node","/Users/jek/Documents/GitHub/Prooforstop/.git/lab-evidence-archives/validation-audit-20260918/remaining-performance-20260918/finish/original-closeout/verify-manifest-encoding.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab integrated-validation-and-managed-implementation - v0.3.433 - 2026-09-20
 
 - Integrate the complete local `0.3.429` through `0.3.432` repair history with Pan Qi's remote `0.3.429` and `0.3.430` managed-worker and managed-implementer history; both pre-merge heads remain ancestors of this release.
