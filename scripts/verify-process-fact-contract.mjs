@@ -185,6 +185,13 @@ const validatePrimaryReferenceDocPaths = [
   'docs/requirements/decisions/host-neutral-observability-console.md',
   'docs/requirements/decisions/truth-source.md',
 ];
+const verificationCapabilitySource = readFileSync(join(root, 'packages/main/src/tasks/verification-run-and-guard/cli.ts'), 'utf8');
+for (const marker of ['VERIFICATION_CAPABILITIES', 'Unknown verification capability', 'Unknown verification argument',
+  'new Set<string>()', 'VERIFICATION_PARTIAL_PASS', 'full: false', 'runShardedVerification']) {
+  if (!verificationCapabilitySource.includes(marker)) failures.push(`Verification capability contract missing: ${marker}`);
+}
+if (!readFileSync(join(root, 'packages/main/src/core/process-fact-registry.ts'), 'utf8').includes('runtime:verification_capability_selection')) failures.push('Verification capability selection is not registered');
+
 const verificationReceiptModelPaths = [
   'docs/requirements/decisions/verification-execution-receipt-fanout-and-input-scoped-freshness.md',
   'packages/main/src/core/process-fact-levels.ts',
@@ -192,6 +199,13 @@ const verificationReceiptModelPaths = [
   'packages/main/src/core/types.ts',
   'packages/main/src/tasks/certification-window-smoke.ts',
   'packages/main/src/tasks/verification-run-and-guard-smoke.ts',
+  'packages/main/src/tasks/verification-run-and-guard/support.ts',
+  'packages/main/src/tasks/verification-run-and-guard/foundation.ts',
+  'packages/main/src/tasks/verification-run-and-guard/refresh.ts',
+  'packages/main/src/tasks/verification-run-and-guard/integrity.ts',
+  'packages/main/src/tasks/verification-run-and-guard/causal.ts',
+  'packages/main/src/tasks/verification-run-and-guard/publication.ts',
+  'packages/main/src/tasks/verification-run-and-guard/cli.ts',
 ];
 const bundleV3SubjectPattern = String.raw`(?:VerificationReceiptBundleV3|Bundle\s*V3|V3\s+(?:receipt\s+)?bundle)`;
 const positiveCurrentBundleV3Patterns = [
@@ -5159,7 +5173,7 @@ function assertReviewInventoryRemediationContract() {
   assert(read(processFactRegistryPath).includes('selector-free physical execution keys bind signed causal identity')
     && read(processFactRegistryPath).includes('observation-only identifier'),
     'physical/CAS/import identity, independent assertions and actual signed execution time must remain registered');
-  const refreshSmoke = read('packages/main/src/tasks/verification-run-and-guard-smoke.ts');
+  const refreshSmoke = ['foundation', 'refresh', 'integrity', 'causal', 'publication', 'cli'].map(name => read(`packages/main/src/tasks/verification-run-and-guard/${name}.ts`)).join('\n');
   for (const marker of ['pinned manual verifier re-earns mechanical authority', 'pinned docs verifier re-earns mechanical authority',
     'a failing re-run leaves the row demoted', 'pin-less demotion strips the receipt',
     'shared rows bind the same selector-free execution receipt', 'only different effective timeout values split execution',
@@ -8177,10 +8191,10 @@ function assertCurrentVerificationReceiptModel() {
     'certification-window smoke fixture must describe the current V5 bundle rather than an authoritative V3 receipt',
   );
   assert(
-    read('packages/main/src/tasks/verification-run-and-guard-smoke.ts').includes('authoritative V5 bundle and its V3 execution component'),
+    read('packages/main/src/tasks/verification-run-and-guard/support.ts').includes('authoritative V5 bundle and its V3 execution component'),
     'verification lifecycle smoke must describe the current V5 bundle rather than authoritative V3 validation',
   );
-  const verificationReceiptSmoke = read('packages/main/src/tasks/verification-run-and-guard-smoke.ts');
+  const verificationReceiptSmoke = read('packages/main/src/tasks/verification-run-and-guard/support.ts');
   assert(
     verificationReceiptSmoke.includes('expected VerificationReceiptBundleV5 with VerificationAssertionReceiptV2 and VerificationExecutionReceiptV3'),
     'verification split-receipt helper diagnostic must name Bundle V5, Assertion V2, and Execution V3 exactly',
@@ -11104,7 +11118,7 @@ assertSyntheticAdversarialChecks();
     'resolved.intent.verification', 'checkEvidenceFreshnessForGit(', 'createVerificationEvidenceGateEvaluator(root, storyId)']) {
     assert(maintenance.includes(token), `legacy metadata maintenance must preserve its narrow non-authoritative boundary: ${token}`);
   }
-  const regression = read('packages/main/src/tasks/verification-run-and-guard-smoke.ts');
+  const regression = read('packages/main/src/tasks/verification-run-and-guard/publication.ts');
   for (const token of ['partMLegacyMetadataMaintenance', 'partNLiveProducerOwnership',
     'metadata never grants execution authority', 'dry-run is read-only', 'unexecuted command-backed PASS is explicitly demoted']) {
     assert(regression.includes(token), `receipt maintenance and producer ownership regression missing: ${token}`);

@@ -1749,6 +1749,21 @@ const COMMAND_PROCESS_FACTS: ProcessFactRegistryDeclaration[] = PROCESS_FACT_LEV
 COMMAND_PROCESS_FACTS.push({name:'runtime:validate_argument_compatibility',kind:'runtime-behavior',level:'L4',semantics:['runtime-behavior','verification-policy'],paths:['packages/main/src/cli-engine.ts','packages/main/src/cli/command-catalog.ts','packages/main/src/tasks/validate-execution-lock-smoke.ts'],producer:'validate CLI argument schema',consumerGate:'validate handler admission',rationale:'The non-strict validate CLI schema strips unsupported keys for compatibility; ignored retired race flags grant no file or execution capability. Known selectors retain schema validation: an unsupported dynamicMode bypass value refuses before command execution. This records existing behavior and does not change strict command families.'});
 
 COMMAND_PROCESS_FACTS.push({
+  name: 'runtime:verification_capability_selection', kind: 'runtime-behavior', level: 'L4',
+  semantics: ['runtime-behavior', 'verification-policy'],
+  paths: ['packages/main/src/tasks/verification-run-and-guard-smoke.ts',
+    'packages/main/src/tasks/verification-run-and-guard/cli.ts',
+    'packages/main/src/tasks/verification-run-and-guard/support.ts',
+    'packages/main/src/tasks/verification-run-and-guard/foundation.ts',
+    'packages/main/src/tasks/verification-run-and-guard/refresh.ts',
+    'packages/main/src/tasks/verification-run-and-guard/integrity.ts',
+    'packages/main/src/tasks/verification-run-and-guard/causal.ts',
+    'packages/main/src/tasks/verification-run-and-guard/publication.ts'],
+  producer: 'verification smoke capability CLI', consumerGate: 'explicit verifier invocation only',
+  rationale: 'The existing entrypoint preserves complete execution by default and legacy shard receipts. Explicit capability arguments bind named checks, reject unknown or conflicting arguments before execution, and deduplicate repeated selections. Partial execution emits only scoped results, never the complete-suite success marker. Internal capability registration does not authorize dynamic exclusion or add routine validation commands.',
+});
+
+COMMAND_PROCESS_FACTS.push({
   name: 'runtime:changelog_history_compaction', kind: 'runtime-behavior', level: 'L3',
   semantics: ['artifact', 'gate-evidence', 'verification-policy'],
   paths: ['scripts/identity-maintenance-boundaries.mjs', 'scripts/verify-proof-or-stop-identity-cutover.mjs'],
