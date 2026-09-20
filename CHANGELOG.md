@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab finding-repair-launch-contract - v0.3.435 - 2026-09-20
+
+- Require controllers to launch native repair tasks and obtain a nonempty task identity before waiting; missing workers leave findings open.
+- Keep finding repair workers read-only for blocker state, return committed repair evidence to the Story owner, and allow the owner to resolve verified findings from DEV.
+- Preserve the structured launch contract through real CLI JSON output for both individual and clustered repairs.
+- Keep cluster commit markers inert until owner-gated validation consumes them; read-only finding inspection never writes resolution state.
+- Verified with the registered RED/GREEN smoke, real CLI dispatch and finding resolution, cluster validation entrypoint coverage, command ownership checks, prompt baselines, and U18 static-edge checks. No performance optimization was part of this repair.
+
+Maintenance provenance: codex/lab-finding-repair-launch-contract, repair 7940f7f25f732fc6d959fdfaf8dadfbe56630064.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/agent-dispatch-registry-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab managed-implementer-done-only-guidance - v0.3.434 - 2026-09-20
 
 - Align the managed implementer prompt with its item-bound, done-only lifecycle capability.
