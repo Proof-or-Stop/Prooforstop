@@ -32,7 +32,7 @@ const repoRoot = resolve(packageRoot, '..', '..');
 const commonGitDir = resolve(repoRoot, execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: repoRoot, encoding: 'utf8' }).trim());
 const mainRoot = dirname(commonGitDir);
 const distRoot = join(packageRoot, 'dist');
-const GROUPS = Object.freeze(['scope', 'init', 'runtime', 'runtime-topology', 'release', 'inventory', 'identity-cutover', 'identity-inventory', 'identity-cache', 'identity-sites', 'identity-canonical', 'identity-config-boundary', 'identity-policy', 'identity-policy-boundary', 'identity-snapshot', 'identity-entrypoint', 'reviewer-read', 'f050', 'round23', 'round24', 'memory-identity', 'artifact-append', 'finding-trust']);
+const GROUPS = Object.freeze(['scope', 'init', 'runtime', 'runtime-topology', 'release', 'inventory', 'identity-cutover', 'identity-migration-archive', 'identity-consumer-smoke', 'identity-inventory', 'identity-cache', 'identity-sites', 'identity-canonical', 'identity-config-boundary', 'identity-policy', 'identity-policy-boundary', 'identity-snapshot', 'identity-entrypoint', 'reviewer-read', 'f050', 'round23', 'round24', 'memory-identity', 'artifact-append', 'finding-trust']);
 const groupArgs = process.argv.slice(2);
 if (groupArgs.length > 1 || (groupArgs[0] && !groupArgs[0].startsWith('--group='))) {
   throw new Error(`usage: ${process.argv[1]} [--group=${GROUPS.join('|')}]`);
@@ -97,6 +97,8 @@ const { createPlaybookRuntimeMemoryHandlers } = await import(join(distRoot, 'han
 
 const failures = [];
 async function check(groups, name, fn) {
+  // Archived migration campaigns require explicit opt-in, including for no selector.
+  if (groups.includes('identity-migration-archive') && selectedGroup !== 'identity-migration-archive') return;
   if (selectedGroup !== null && !groups.includes(selectedGroup)) return;
   const startedAt = process.hrtime.bigint();
   let status = 'fail';
@@ -3763,7 +3765,76 @@ await check(['identity-cutover', 'identity-policy', 'identity-policy-boundary', 
   assert.equal(rejection({ ...valid, [unknown]: {} }, [...expected, expected[0]]), `prompt registry contains duplicate role "${expected[0]}"`, 'duplicate expected roles must still reject before unknown policies');
 });
 
-await check(['identity-cutover', 'identity-config-boundary', 'identity-policy-boundary', 'f050', 'round24'], 'CHK-007:adversarial:0 every registered identity boundary rejects through its public operation with zero mutation', () => {
+await check(['identity-cutover', 'identity-consumer-smoke', 'identity-config-boundary', 'identity-policy-boundary', 'f050', 'round24'], 'normal consumer controls and invalid project configuration retain zero-mutation checks', () => {
+  const registeredOperationPaths = ACTIVE_IDENTITY_OPERATION_BOUNDARIES
+    .flatMap((boundary) => boundary.paths.map((registeredPath) => registeredPath.sourcePath));
+  assertActiveIdentityOperationOwnership(ACTIVE_IDENTITY_OPERATION_BOUNDARIES);
+  assert.equal(registeredOperationPaths.includes('proof-or-stop.config.json'), false, 'dynamic config cannot be a required packaged executable');
+  assert.deepEqual(
+    [...IDENTITY_CUTOVER_REQUIRED_PATHS].filter((path) => !registeredOperationPaths.includes(path) && !PROJECT_CONFIG_IDENTITY_CASES.some(row => row.sourcePath === path)),
+    [],
+    'every required identity path must be exercised through a registered public operation',
+  );
+  assert.deepEqual(
+    registeredOperationPaths.filter((path) => !IDENTITY_CUTOVER_REQUIRED_PATHS.includes(path)),
+    [],
+    'the public-operation matrix must not hide unreviewed source paths outside the required inventory',
+  );
+
+  const operationFixture = ensurePublicIdentityOperationFixture();
+  const operationRuntimeRoot = operationFixture.root;
+  const operationCliEnginePath = join(operationRuntimeRoot, 'packages', 'main', 'dist', 'cli-engine.js');
+  const operationCliEngine = readFileSync(operationCliEnginePath, 'utf8');
+  const rawIdentityPreflight = "        assertCanonicalActiveIdentityRuntime({ command: cmd || 'help', projectRoot: root0 });";
+  assert.equal(
+    operationCliEngine.split(rawIdentityPreflight).length - 1,
+    1,
+    'raw active-identity preflight ablation target drifted',
+  );
+  try {
+  writeFileSync(
+    operationCliEnginePath,
+    operationCliEngine.replace(rawIdentityPreflight, '        // F-053 test ablation: prove the real command consumer rejects the injected identity.'),
+  );
+  const externalReadRoot = operationFixture.externalRoot;
+  const operationEntrypoint = operationFixture.entrypoint;
+  assertCanonicalPublicIdentityOperations(operationFixture, 'consumer preflight ablated');
+  const observers = new Map();
+  const observerFor = root => {
+    if (!observers.has(root)) observers.set(root, createPrivateMutationObserver({
+      root, snapshot: () => snapshotPublicOperationState(root, root === operationFixture.journalRoot ? [journalFixtureBase.storyId] : root === operationRuntimeRoot ? ['B-49df'] : []),
+    }));
+    return observers.get(root);
+  };
+  const configPath = join(operationRuntimeRoot, 'proof-or-stop.config.json');
+  const configBytes = readFileSync(configPath);
+  for (const inputCase of PROJECT_CONFIG_IDENTITY_CASES) {
+    const config = JSON.parse(configBytes);
+    const retired = inputCase.canonical.replace('proof-or-stop', ['proof', 'bound'].join(''));
+    if (inputCase.field === 'role-key') {
+      assert.ok(Object.hasOwn(config.promptEnvelope.roles, inputCase.canonical));
+      config.promptEnvelope.roles[retired] = config.promptEnvelope.roles[inputCase.canonical];
+      delete config.promptEnvelope.roles[inputCase.canonical];
+    } else {
+      assert.equal(config.promptEnvelope.version, inputCase.canonical);
+      config.promptEnvelope.version = retired;
+    }
+    try {
+      writeFileSync(configPath, JSON.stringify(config));
+      const observer = observerFor(operationRuntimeRoot); const before = observer.before(configPath);
+      const rejected = runCli(operationRuntimeRoot, 'agent_prompt', { role: 'proof-or-stop-review-quality' }, {}, { entrypoint: operationEntrypoint });
+      assert.notEqual(rejected.status, 0, `${inputCase.siteId}: retired config accepted`);
+      const diagnostic = `${rejected.stdout}${rejected.stderr}`;
+      assert.ok(diagnostic.includes(retired) && diagnostic.includes('proof-or-stop.config.json') && diagnostic.includes('not admitted by prompt-runtime'), diagnostic);
+      observer.after(before, `${inputCase.siteId}: rejection changed state`);
+    } finally { writeFileSync(configPath, configBytes); }
+    process.stdout.write(`PASS project config public mutation ${inputCase.siteId}\n`);
+  }
+  process.stdout.write('IDENTITY_OBSERVER_STATS ' + JSON.stringify([...observers.values()].map(o => o.stats)) + '\n');
+  } finally { writeFileSync(operationCliEnginePath, operationCliEngine); }
+});
+
+await check(['identity-migration-archive'], 'CHK-007:adversarial:0 every registered identity boundary rejects through its public operation with zero mutation', () => {
   const registeredOperationPaths = ACTIVE_IDENTITY_OPERATION_BOUNDARIES
     .flatMap((boundary) => boundary.paths.map((registeredPath) => registeredPath.sourcePath));
   assertActiveIdentityOperationOwnership(ACTIVE_IDENTITY_OPERATION_BOUNDARIES);

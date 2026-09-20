@@ -11,3 +11,28 @@ It is not Story DONE or main integration evidence.
 
 Evidence and current execution state:
 `/Users/jek/Documents/GitHub/Prooforstop/.git/lab-evidence-archives/identity-148-performance-20260920/`.
+
+## Authorized migration retirement — first decomposition increment
+
+The user authorized retiring the 259 historical identity mutations from routine
+validation on 2026-09-20. The campaign remains available only through the explicit
+`identity-migration-archive` group. Unfiltered execution also excludes this archive.
+The baseline source/configuration and HEAD are preserved outside the checkout in
+`.git/lab-evidence-archives/identity-148-performance-20260920/decomposition`.
+
+The old campaign also contained normal consumer controls with the entry preflight
+removed, plus project-configuration rejection checks. Those obligations are NOT
+retired: `identity-consumer-smoke` runs them separately and restores the modified
+CLI entrypoint in a finally block. The observed run passed 15 normal-operation
+controls and 12 configuration negatives in 30167.862042 ms, with zero historical
+mutation-case executions. This is not an equivalent-workload speedup measurement.
+
+The committed RED showed six routine/default selectors entering the campaign.
+The candidate dispatch test shows zero campaign calls for those selectors and one
+for explicit archive selection. It also compares the real dispatcher with static
+child traversal; exact-source contract bindings and unchanged reviewed witnesses
+were refreshed without adding static exceptions. Static traversal reports zero
+needs-review and zero unexpanded commands, with the same 1696 exceptions.
+
+This increment does not yet replace validation command #148, alter the 244-command
+inventory, complete dynamic selection, or certify the complete remaining suite.

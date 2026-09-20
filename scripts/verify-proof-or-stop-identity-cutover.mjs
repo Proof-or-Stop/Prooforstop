@@ -3203,7 +3203,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
-    "sha256": "7dee0a6347c1609c8812bd7c10299cabbdcdf8532db95ff0450deacbedcf1be4"
+    "sha256": "e39265a2fba165adfd5c5210f2d4d8147bfe985fec8f77f63384972897539c13"
   },
   {
     "path": "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs",
@@ -7475,7 +7475,7 @@ const REVIEWED_CONTEXT_READERS = [
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "efa49cd44f00b72cca648cab6f88db08bbed391b77512cfe86e201253bdf9e14"
+    "sha256": "e7d89979222af6e87494c70806b763306070b3168d99faca9134d626da488f37"
   }
 ];
 function verifyReviewedContextReaders(root) {

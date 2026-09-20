@@ -58,7 +58,9 @@ export function identityChildClosure({ ts, file, text, ast, entry, argv, contrac
         errors.push('Canonical check callback or groups are not literal'); continue;
       }
       checks.push({ call, callback });
-      if (group === null || groups.elements.some(g => g.text === group)) selected.add(callback);
+      const archiveOnly = groups.elements.some(g => g.text === 'identity-migration-archive');
+      if ((!archiveOnly || group === 'identity-migration-archive')
+        && (group === null || groups.elements.some(g => g.text === group))) selected.add(callback);
     }
     // Follow references conservatively, including callbacks passed by name.
     // Unselected check callbacks and unreferenced named functions are the ONLY
