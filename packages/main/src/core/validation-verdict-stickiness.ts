@@ -17,6 +17,9 @@
  * producer that forgets the kind fails closed rather than open.
  */
 
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 export interface ValidationVerdictIdentity {
   commandSetHash: string;
   materialHash: string;
@@ -73,11 +76,34 @@ export function describeStickyFailure(identity: ValidationVerdictIdentity, failu
     + 'a PASS with nothing changed is a flipped verdict, not fresh evidence. The failure stands until the material or the build changes.';
 }
 
-/** Read a Story's validation terminals from any store that exposes its process events; a store that cannot be read yields none. */
-export function readValidationTerminals(store: { readProcessEvents(storyId: string): unknown[] }, storyId: string): ValidationTerminalFact[] {
-  try {
-    return (store.readProcessEvents(storyId) as ValidationTerminalFact[]).filter((event) => event && event.type === 'validation_terminal');
-  } catch {
-    return [];
+/** A Story's validation history: its terminals, or the reason it could not be read. */
+export type ValidationHistory = { terminals: ValidationTerminalFact[] } | { unreadable: string };
+
+export const HISTORY_UNREADABLE_REUSE_REASON = 'validation-history-unreadable';
+export const HISTORY_UNREADABLE_ADMISSION_CODE = 'validation_history_unreadable';
+
+/**
+ * Read a Story's validation terminals from its process-events file. A Story
+ * that has no file yet has an empty history; a file that cannot be read, or
+ * that holds a line that is not a JSON object, is UNREADABLE and is reported
+ * as such, never as empty: an empty history would prove that no failure
+ * exists, and an unreadable one proves nothing.
+ */
+export function readValidationHistory(store: { storyDirPath(storyId: string): string }, storyId: string): ValidationHistory {
+  let path: string;
+  try { path = join(store.storyDirPath(storyId), 'process-events.jsonl'); } catch (error) { return { unreadable: `story directory unavailable: ${error instanceof Error ? error.message : String(error)}` }; }
+  if (!existsSync(path)) return { terminals: [] };
+  let content: string;
+  try { content = readFileSync(path, 'utf8'); } catch (error) { return { unreadable: `${path}: ${error instanceof Error ? error.message : String(error)}` }; }
+  const terminals: ValidationTerminalFact[] = [];
+  const lines = content.split('\n');
+  for (let index = 0; index < lines.length; index++) {
+    const line = lines[index].trim();
+    if (!line) continue;
+    let event: unknown;
+    try { event = JSON.parse(line); } catch { return { unreadable: `${path}: line ${index + 1} is not valid JSON` }; }
+    if (!event || typeof event !== 'object' || Array.isArray(event)) return { unreadable: `${path}: line ${index + 1} is not a process event` };
+    if ((event as ValidationTerminalFact).type === 'validation_terminal') terminals.push(event as ValidationTerminalFact);
   }
+  return { terminals };
 }

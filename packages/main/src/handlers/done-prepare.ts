@@ -2095,6 +2095,10 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       const materialHash = currentMaterialHash(gitCwd, 'HEAD', ctx.root);
       const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', ctx.root);
       if (materialHash && storyFilesHash) {
+        // The reused terminal must carry exactly the artifact identity and
+        // protection of the evidence that was reused, read from the store.
+        let reusedEvidence: { buildArtifactsHash?: string; buildArtifactsProtection?: string } | null = null;
+        try { reusedEvidence = ctx.store.readTestEvidence(storyId); } catch { reusedEvidence = null; }
         expectedProcessEventBinding = {
           storyId,
           attemptId: story.currentReviewRound ?? '',
@@ -2108,6 +2112,8 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
           commandExecutions: 0,
           notBefore: routineValidationStartedAt,
           notAfter: routineValidationEndedAt,
+          ...(typeof reusedEvidence?.buildArtifactsHash === 'string' ? { buildArtifactsHash: reusedEvidence.buildArtifactsHash } : {}),
+          ...(typeof reusedEvidence?.buildArtifactsProtection === 'string' ? { buildArtifactsProtection: reusedEvidence.buildArtifactsProtection } : {}),
         };
       }
     }

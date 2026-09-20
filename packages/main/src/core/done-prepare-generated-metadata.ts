@@ -1,4 +1,5 @@
 import { METADATA_BLOB_READ_MAX_BUFFER_BYTES } from './validation-evidence-size-policy.js';
+import { artifactProtectionSatisfied } from './build-artifacts-protection.js';
 export { METADATA_BLOB_READ_MAX_BUFFER_BYTES } from './validation-evidence-size-policy.js';
 import childProcess from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -57,6 +58,9 @@ export interface DonePrepareGeneratedProcessEventBinding {
   commandExecutions: 0;
   notBefore: string;
   notAfter: string;
+  /** The reused evidence's compiled-artifact identity and protection; when known, the appended terminal must carry exactly them. */
+  buildArtifactsHash?: string;
+  buildArtifactsProtection?: string;
 }
 
 export interface DonePrepareGeneratedMetadataEntry {
@@ -172,6 +176,11 @@ export function isTrustedReusedValidationTerminal(
     && isSha256(event.commandSetHash)
     && isSha256(event.materialHash)
     && isSha256(event.storyFilesHash)
+    // The artifact fields are typed and bound, never merely permitted.
+    && isSha256(event.buildArtifactsHash)
+    && typeof event.buildArtifactsProtection === 'string' && artifactProtectionSatisfied(event.buildArtifactsProtection)
+    && (expected.buildArtifactsHash === undefined || event.buildArtifactsHash === expected.buildArtifactsHash)
+    && (expected.buildArtifactsProtection === undefined || event.buildArtifactsProtection === expected.buildArtifactsProtection)
     && Number.isFinite(timestampMs)
     && timestampMs >= Date.parse(expected.notBefore)
     && timestampMs <= Date.parse(expected.notAfter);

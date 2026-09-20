@@ -42,12 +42,15 @@ for (const dir of storyDirs(storyRoot)) {
     if (event.disposition === 'reused') { reused += 1; continue; }
     const identity = identityOf(event);
     if (!identity) { ungroupable += 1; continue; }
-    const group = groups.get(identity) ?? { identity, storyId: event.storyId, executions: 0, pass: 0, fail: 0, infraFail: 0 };
+    // One Story's history is its own: the same identity in two Stories is two
+    // histories, never one retry attributed to whichever Story came first.
+    const key = `${event.storyId}|${identity}`;
+    const group = groups.get(key) ?? { identity, storyId: event.storyId, executions: 0, pass: 0, fail: 0, infraFail: 0 };
     group.executions += 1;
     if (event.result === 'pass') group.pass += 1;
     else if (event.failureKind === 'infra_failure') group.infraFail += 1;
     else group.fail += 1;
-    groups.set(identity, group);
+    groups.set(key, group);
   }
 }
 const rows = [...groups.values()];

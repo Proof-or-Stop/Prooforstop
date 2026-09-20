@@ -16,7 +16,7 @@ import type {
 import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
 import { resolveCommandTimeoutMs } from './validation-executor.js';
 import { validationIdentityDigest } from './validation-command-portable-id.js';
-import { VERDICT_FLIP_REUSE_REASON, stickyFailuresFor, validationVerdictIdentity, type ValidationTerminalFact } from './validation-verdict-stickiness.js';
+import { HISTORY_UNREADABLE_REUSE_REASON, VERDICT_FLIP_REUSE_REASON, stickyFailuresFor, validationVerdictIdentity, type ValidationHistory } from './validation-verdict-stickiness.js';
 
 export { validationIdentityDigest } from './validation-command-portable-id.js';
 
@@ -390,8 +390,8 @@ export function evaluateRoutineValidationReuse(args: {
   currentStoryFilesHash?: string;
   /** core/build-artifacts-identity digest of the dist trees on disk now; the recorded PASS must have executed against the same one. */
   currentBuildArtifactsHash?: string;
-  /** The Story's `validation_terminal` process events; an executed failure on the PASS's exact identity refuses reuse. */
-  validationTerminals?: readonly ValidationTerminalFact[];
+  /** The Story's validation history; an executed failure on the PASS's exact identity refuses reuse, and an unreadable history refuses. */
+  validationHistory?: ValidationHistory;
   clean: boolean;
   headBefore?: string;
   headAfter?: string;
@@ -432,9 +432,12 @@ export function evaluateRoutineValidationReuse(args: {
   // history showed. Only a change to the material or the build releases it.
   // Only a record that claims a passing verdict can be a flipped verdict; a
   // record of a failed execution already refuses on its own terms above.
-  if (args.validationTerminals && evidence.result === 'PASS' && evidence.commandExecution?.status === 'PASS') {
-    const verdictIdentity = validationVerdictIdentity(evidence);
-    if (verdictIdentity && stickyFailuresFor(verdictIdentity, args.validationTerminals).length > 0) reasons.push(VERDICT_FLIP_REUSE_REASON);
+  if (args.validationHistory && evidence.result === 'PASS' && evidence.commandExecution?.status === 'PASS') {
+    if ('unreadable' in args.validationHistory) reasons.push(HISTORY_UNREADABLE_REUSE_REASON);
+    else {
+      const verdictIdentity = validationVerdictIdentity(evidence);
+      if (verdictIdentity && stickyFailuresFor(verdictIdentity, args.validationHistory.terminals).length > 0) reasons.push(VERDICT_FLIP_REUSE_REASON);
+    }
   }
   const lineageResult = classifyTrustedValidationLineage({
     root: args.root,

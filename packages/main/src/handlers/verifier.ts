@@ -8,7 +8,7 @@ import { readFindingValidationConstraints } from '../core/finding-validation.js'
 import { signTestValidationEvidence, verifyTestValidationEvidence } from '../core/validation-artifact-signing.js';
 import { acceptanceCompletionBlocker } from '../core/acceptance-amendment-gates.js';
 import { commandFromString, configuredValidationCommands, filterFocusedConfiguredCommands, sourceInputSnapshot, routineIdentityPolicySnapshot, buildValidateFileCommand } from './validation-identity.js';
-import { readValidationTerminals } from '../core/validation-verdict-stickiness.js';
+import { describeStickyFailure, readValidationHistory, stickyFailuresFor } from '../core/validation-verdict-stickiness.js';
 export { configuredValidationCommands, sourceInputSnapshot } from './validation-identity.js';
 import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 /**
@@ -983,7 +983,7 @@ export function evaluateStoryRoutineReuse(args: {
     currentMaterialHash: materialHash,
     currentStoryFilesHash: storyFilesHash,
     currentBuildArtifactsHash: buildArtifactsHash,
-    validationTerminals: readValidationTerminals(args.ctx.store, args.storyId),
+    validationHistory: readValidationHistory(args.ctx.store, args.storyId),
     clean,
     headBefore,
     headAfter,
@@ -1569,6 +1569,22 @@ function persistStoryValidationEvidence(
       buildArtifactsHash: executionBuildArtifactsHash,
       ...(typeof result.buildArtifactsProtection === 'string' ? { buildArtifactsProtection: result.buildArtifactsProtection } : {}),
     };
+    // Fail is sticky at publication, not only at admission: a PASS earned on
+    // an identity an executed run failed on is a flipped verdict, and this run
+    // reports failure instead of signing it. The refusal is a persistence
+    // failure (infrastructure), so it does not itself become a sticky verdict;
+    // the original failure already is one.
+    if (allPass && identity?.digest && hashes.materialHash && hashes.storyFilesHash && hashes.buildArtifactsHash) {
+      const history = readValidationHistory(ctx.store, storyId);
+      if ('unreadable' in history) {
+        return persistenceFailure(`the Story's validation history could not be read (${history.unreadable}); a PASS cannot be published without knowing whether this identity has failed [validation_history_unreadable]`);
+      }
+      const verdictIdentity = { commandSetHash: identity.digest, materialHash: hashes.materialHash, storyFilesHash: hashes.storyFilesHash, buildArtifactsHash: hashes.buildArtifactsHash };
+      const sticky = stickyFailuresFor(verdictIdentity, history.terminals);
+      if (sticky.length > 0) {
+        return persistenceFailure(`${describeStickyFailure(verdictIdentity, sticky)} [verdict_flip_refused]`);
+      }
+    }
     storyRel = normalizeRelPath(relative(
       realpathSync(gitCwd),
       realpathSync(ctx.store.storyDirPath(storyId)),
@@ -2994,7 +3010,9 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         // buildArtifactsHash in the child's JSON is discarded, and an executor
         // binding failure fails the result with the executor's own diagnostics.
         const withExecutorBinding = <T extends Record<string, unknown>>(value: T): T => {
-          const { buildArtifactsHash: _printedHash, buildArtifacts: _printedObservations, buildArtifactsProtection: _printedProtection, ...rest } = value as Record<string, unknown>;
+          // A validate file cannot classify its own failure either: the kind
+          // travels from the executor, and a printed FAIL is a validation failure.
+          const { buildArtifactsHash: _printedHash, buildArtifacts: _printedObservations, buildArtifactsProtection: _printedProtection, failureKind: _printedKind, ...rest } = value as Record<string, unknown>;
           // The protection label travels with the binding: a validate file
           // cannot declare its own, and evidence without one is never reused.
           const protection = typeof validation.buildArtifactsProtection === 'string' ? { buildArtifactsProtection: validation.buildArtifactsProtection } : {};
@@ -3009,9 +3027,11 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             ? [`validation command exited with code ${commandResult.code ?? 'unknown'} (executor verdict ${validation.allPass === false ? 'FAIL' : 'not PASS'}); a printed PASS is not accepted without successful completion`]
             : [];
           const failures = [...executorBindingDetails, ...executorFailure];
-          if (failures.length === 0) return bound as unknown as T;
+          if (failures.length === 0) {
+            return (bound.allPass === false || bound.status === 'fail' ? { ...bound, failureKind: 'validation_failure' } : bound) as unknown as T;
+          }
           const details = Array.isArray(bound.details) ? bound.details as unknown[] : [];
-          return { ...bound, status: 'fail', allPass: false, details: [...details, ...failures] } as unknown as T;
+          return { ...bound, status: 'fail', allPass: false, failureKind: validation.failureKind ?? 'validation_failure', details: [...details, ...failures] } as unknown as T;
         };
         const attachDynamic = <T extends Record<string, unknown>>(value: T): T => {
           const bound = withExecutorBinding(value);
