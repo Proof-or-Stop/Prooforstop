@@ -1,5 +1,19 @@
 # Changelog
 
+## Lab managed-implementer-item-capability - v0.3.431 - 2026-09-20
+
+Problem: A controller-owned managed implementer runs in a child logical session. Its exact checklist completion was rejected by the Story owner lease, so host_run reported managed_dispatch_output_missing even after implementation succeeded.
+
+Fix: Add a narrow owner-lease admission for checklist_update status=done when the caller is the registered implementer and presents the exact live Story/item managed-dispatch capability. Share the schema-filtered completion payload check between the CLI gate and handler, revalidate before persistence, bind the subagent_result to the run, and consume the one-shot invocation only after the checklist/event write succeeds. The repair does not transfer the owner lease or authorize in-progress, metadata, other-item, phase, takeover, replay, or failed-result mutations.
+
+Verification: npm run test:managed-implementer-dispatch passes with the original owner/child deadlock reproduction plus exact completion, schema-filtered json metadata, takeover metadata refusal, wrong item, spoofed actor outside the provider process group, replay, failed-result retry, and event-write rollback cases. U18_STATIC_PASS reports needsReview=0. npm run test:process-fact-contract -- --quiet passes, including certification recovery and managed delivery contracts. Independent Grok audit passed after the factual CLI schema path was proven directly.
+
+Measured optimization: Not a performance change. The normal managed implementer can now finish its assigned item without human forceTakeover or a second owner session.
+
+Maintenance provenance: codex/lab-managed-implementer-item-capability, repair 0f08411d78df7d798c925cc6a512ea7e8efade3c.
+Verification command (replayed before integration and on main): `["npm","run","test:managed-implementer-dispatch"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab managed-implementer-dispatch - v0.3.430 - 2026-09-20
 
 - Add controller-owned managed dispatch for one exact DEV checklist implementer target.
