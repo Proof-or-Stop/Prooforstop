@@ -3203,7 +3203,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
-    "sha256": "4ef2d18cd8b6cdf6b6259e4343e2b7d9ad330e93a407f6b438a0aab0261204ca"
+    "sha256": "649284d98e0665d366b2ea4c85de8a2b5e05c3b0ec1ee198624aab22bf22e947"
   },
   {
     "path": "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs",
@@ -3570,7 +3570,7 @@ const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [1,"ebdcc59f439a3e890e6a4c6b7a0a6c523cc0cb37a343cea8af0aa5d1cb498748"],
   [2,"d1261e4856fd3441f6ba185e3cc3a0e3222145e69218180ca3567888f848a694"],
   [3,"65b3a71a775eef59f9398fc88bae41728f07d0ff832b3164fc4a6305f2829b78"],
-  [4,"4ef2d18cd8b6cdf6b6259e4343e2b7d9ad330e93a407f6b438a0aab0261204ca"],
+  [4,"649284d98e0665d366b2ea4c85de8a2b5e05c3b0ec1ee198624aab22bf22e947"],
   [14,"6ce71b767c7003c53068880527a14a0986692d4e80283ffbae217fad0af98fa5"],
   [15,"9101f015dcbfe0affcca0cecc2bc15ac9d1e691af1c5febbe249746d16536b60"],
   [16,"c182058690e5e55d41d91f5bc496acbe21b126e29e310525e4f4b1f3895cba21"],
@@ -7475,7 +7475,7 @@ const REVIEWED_CONTEXT_READERS = [
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "7028bfeed58c41704fcae673c4bbfee0fa67bb48850b3cf77c80e429e727f690"
+    "sha256": "fc3385592a95b8501631bee3d2b0a562373a0ab4af0f9738cab7acf892d5d1d0"
   }
 ];
 function verifyReviewedContextReaders(root) {
