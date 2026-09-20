@@ -243,7 +243,7 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
     },
     {
       name: 'takeover-meta-does-not-qualify', expectedStatus: 'done', expectCompleted: true,
-      commands: `"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done","json":true,"takeover":false}' || true\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
+      commands: `if "${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done","json":true,"takeover":false}'; then exit 91; fi\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
     {
       name: 'phase-advance', expectedStatus: 'pending', expectedPhase: 'DEV',
@@ -255,7 +255,7 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
     },
     {
       name: 'failed-success-retry', expectedStatus: 'done', expectCompleted: true,
-      commands: `"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done","success":false}' || true\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
+      commands: `if "${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done","success":false}'; then exit 92; fi\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
     {
       name: 'attestation-completion', expectedStatus: 'done', expectCompleted: true,
@@ -263,11 +263,11 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
     },
     {
       name: 'spoofed-actor-without-capability-retry', expectedStatus: 'done', expectCompleted: true,
-      commands: `"${process.execPath}" "${detachedChecklist}" "__STORY__" || true\n"${process.execPath}" "${mutateChecklist}" "__STORY__" assert-pending\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
+      commands: `if "${process.execPath}" "${detachedChecklist}" "__STORY__"; then exit 93; fi\n"${process.execPath}" "${mutateChecklist}" "__STORY__" assert-pending\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
     {
       name: 'consumed-invocation-refusal', expectedStatus: 'done', expectedOtherStatus: 'in_progress', expectCompleted: true,
-      commands: `"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\n"${process.execPath}" "${mutateChecklist}" "__STORY__" reset\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}' || true\n"${process.execPath}" "${mutateChecklist}" "__STORY__" restore\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
+      commands: `"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\n"${process.execPath}" "${mutateChecklist}" "__STORY__" reset\nif "${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'; then exit 94; fi\n"${process.execPath}" "${mutateChecklist}" "__STORY__" restore\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
     {
       name: 'event-write-retry', expectedStatus: 'done', expectCompleted: true,
