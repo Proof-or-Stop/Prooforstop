@@ -9646,7 +9646,7 @@ function assertPromptMeasurementObservationBoundary() {
   const levelsText = read('packages/main/src/core/process-fact-levels.ts');
   const registryText = read('packages/main/src/registry.ts');
   const handlerText = read('packages/main/src/handlers/prompt-measurement.ts');
-  const verifierText = read('scripts/verify-proof-or-stop-prompt-baseline.mjs');
+  const verifierText = read('scripts/prompt-baseline/cli.mjs') + '\n' + read('scripts/prompt-baseline/collection.mjs');
   const promptRegistryText = read('packages/main/src/core/prompt-registry.ts');
   const promptRoleRegistryText = read('packages/main/src/core/prompt-role-contract-registry.ts');
 

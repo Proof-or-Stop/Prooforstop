@@ -1764,6 +1764,17 @@ COMMAND_PROCESS_FACTS.push({
 });
 
 COMMAND_PROCESS_FACTS.push({
+  name: 'runtime:prompt_baseline_capability_selection', kind: 'runtime-behavior', level: 'L4',
+  semantics: ['runtime-behavior', 'verification-policy'],
+  paths: ['scripts/verify-proof-or-stop-prompt-baseline.mjs',
+    'scripts/prompt-baseline/cli.mjs', 'scripts/prompt-baseline/collection.mjs',
+    'scripts/prompt-baseline/policy-data.mjs', 'scripts/prompt-baseline/policy-probes.mjs',
+    'scripts/prompt-baseline/scanners.mjs', 'scripts/prompt-baseline/verification.mjs'],
+  producer: 'prompt baseline capability CLI', consumerGate: 'explicit verifier invocation only',
+  rationale: 'The original entrypoint runs the complete baseline by default. Seven named capabilities bind existing checks without adding validation commands. Unknown and conflicting selections fail before execution; duplicate selections run once. Partial execution cannot emit the complete baseline success selector or authorize dynamic exclusion. Legacy standalone probes and explicit baseline write mode remain available.',
+});
+
+COMMAND_PROCESS_FACTS.push({
   name: 'runtime:changelog_history_compaction', kind: 'runtime-behavior', level: 'L3',
   semantics: ['artifact', 'gate-evidence', 'verification-policy'],
   paths: ['scripts/identity-maintenance-boundaries.mjs', 'scripts/verify-proof-or-stop-identity-cutover.mjs'],
