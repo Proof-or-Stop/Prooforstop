@@ -99,19 +99,25 @@ yet; the same command without `--legacy` reports it once Stories validate again.
 
 ## Verification
 
-`node scripts/verify-validation-verdict-stickiness.mjs`, registered as the last
-`validate.commands` entry with the 260-second production budget (it runs 95 to 160
-seconds here, most of it in fixture runs of the built CLI). Its six child-process call
-sites - four runs of the read-only report and two of the built CLI, all on fixture
-repositories in its sandbox - are reviewed in the static-edge manifest
-(`EX-VERDICT-STICKINESS-01` to `-06`), whose configuration digest and the dependency
-digests of the entries that read the configuration or the two changed handlers are
-refreshed; `verify-validation-static-edges` reports `U18_STATIC_PASS` with 1698
-exceptions, the 1692 of main and these six. At RED: 7 failing expectations, 9 controls passed. At GREEN:
-152 checks — the pure rule, both core consumers, the DONE-side consumer over a fixture
-Story with signed evidence, corrupt and missing histories, the report, the
-`done_prepare` trust decision, source guards, and end-to-end runs through the built
-CLI on a validate file that reads a switch outside the repository: FAIL then PASS on
+Two registered commands, the last two `validate.commands` entries.
+`node scripts/verify-validation-verdict-stickiness.mjs` (97 checks, about 5 seconds, the
+Lab's RED command) covers the pure rule, both core consumers, the DONE-side consumer
+over a fixture Story with signed evidence, corrupt, missing, denied and malformed
+histories, the failure classifier, the report, the `done_prepare` trust decision, the
+scheduler conflict and the source guards.
+`node scripts/verify-validation-verdict-stickiness-cli.mjs` (65 checks, about 160
+seconds, a 600-second budget) runs the built CLI on disposable fixture projects; it
+reserves `packages/main/dist` shared, so it cannot be scheduled beside a rebuild of the
+tree it executes. Their six child-process call sites - four runs of the read-only
+report and two of the built CLI, all on fixture repositories in a sandbox - are
+reviewed in the static-edge manifest (`EX-VERDICT-STICKINESS-01` to `-06`), whose
+configuration digest and the dependency digests of the entries that read the
+configuration or the two changed handlers are refreshed; `verify-validation-static-edges`
+reports `U18_STATIC_PASS` with 1698 exceptions, the 1692 of main and these six.
+
+At RED: 7 failing expectations, 9 controls passed. At GREEN: 162 checks across the two
+commands. The end-to-end runs use a validate file that reads a switch outside the
+repository: FAIL then PASS on
 the identical identity is refused with `verdict_flip_refused` and publishes no PASS, a
 spoofed `infra_failure` still sticks, PASS then PASS succeeds, the terminal the real
 reuse path appends is the one `done_prepare` trusts, a real coverage-only failure
@@ -128,7 +134,8 @@ an audit's repair reverted, exactly that audit's expectations fail: 10 for the s
 mixed failure recorded as `infra_failure` among them), 6 for the fourth (the recovery
 refused with `verdict_flip_refused` among them), 5 for the fifth, 4 for the sixth (a
 failing run with malformed validator output that left no record among them), 4 for the
-seventh and 2 for the eighth.
+seventh, 2 for the eighth and 8 for the ninth (a printed failure with exit code zero
+and a numeric provider published as `exit=0 evidence=PASS` among them).
 
 On the final Lab tree the checks that share these code paths pass:
 `validation-evidence-reuse-smoke` (its coverage-only recovery included),
@@ -211,6 +218,18 @@ serializes it. Normalization is now total - any exception is the structured fail
 bounds nesting iteratively and proves the whole result serializable before returning
 it. Through the built CLI that payload was already recorded as a failure before this
 repair, so the end-to-end case is a control and the defect was in the function alone.
+
+The ninth audit (of `380bd2e4f3`, rejected) found three. A structured candidate was
+recognized only when its provider was already a non-empty string, so a printed FAILURE
+with exit code zero and a numeric, empty or object-valued provider fell through to the
+exit-code wrapper and was published as a PASS (high): a candidate is now anything that
+names a provider. The dynamic-authority callers pass their aggregate verdict in the
+semantic parameter, which the classifier read as an independent semantic rejection and
+so made an infrastructure-only dynamic run a verdict (medium): the classifier is told
+when that parameter is an aggregate, which is covered at the classifier and by a source
+guard, not by a dynamic-authority fixture. And the regression executed the compiled CLI
+without reserving `packages/main/dist` (medium): the end-to-end runs are now their own
+command with that reservation and a budget that fits them.
 
 ## Limitations
 

@@ -418,6 +418,8 @@ export function classifyValidationTerminalFailure(args: {
   record: Pick<TestEvidenceData, 'result' | 'verificationCoverage' | 'commandExecution'> | null | undefined;
   commandResults: readonly ValidationCommandResult[];
   semanticCommandPass?: boolean;
+  /** True when semanticCommandPass is the caller's aggregate verdict rather than an independent semantic one. */
+  semanticIsAggregate?: boolean;
   concurrentPollutionBlocking?: boolean;
 }): ValidationTerminalFailureKind {
   if (isCoverageOnlyFailure(args.record)) return 'coverage_incomplete';
@@ -426,7 +428,13 @@ export function classifyValidationTerminalFailure(args: {
     result.worktreePollution?.blocking === true
     || (!result.optional && (result.code !== 0 || result.timedOut))
   ));
-  const verdictFailure = args.semanticCommandPass === false
+  // An independent semantic rejection - what a validate file printed - is a
+  // verdict whatever else happened. An AGGREGATE verdict only repeats the
+  // command outcomes, so it cannot turn an infrastructure-only run into one;
+  // with no failed command to explain it, it is a verdict like any failure
+  // nothing explains.
+  const independentSemanticRejection = args.semanticCommandPass === false && args.semanticIsAggregate !== true;
+  const verdictFailure = independentSemanticRejection
     || args.concurrentPollutionBlocking === true
     || requiredFailures.some((result) => result.worktreePollution?.blocking === true || !isInfrastructure(result));
   if (verdictFailure) return 'validation_failure';

@@ -919,7 +919,7 @@ export function normalizeValidatorResult(text: string, output = text): Record<st
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return malformed('the provider result is not an object');
     if (nestedDeeperThan(parsed, VALIDATOR_RESULT_MAX_DEPTH)) return malformed(`the provider result is nested deeper than ${VALIDATOR_RESULT_MAX_DEPTH} levels`);
     const result = parsed as Record<string, any>;
-    if (typeof result.provider !== 'string' || typeof result.status !== 'string') return malformed('provider and status must be strings');
+    if (typeof result.provider !== 'string' || !result.provider.trim() || typeof result.status !== 'string') return malformed('provider must be a non-empty string and status a string');
     for (const flag of ['allPass', 'allPassed']) {
       if (result[flag] !== undefined && typeof result[flag] !== 'boolean') return malformed(`${flag} must be a boolean`);
     }
@@ -1812,6 +1812,10 @@ function persistStoryValidationEvidence(
         record: persistedBound.record,
         commandResults,
         ...(semanticCommandPass !== undefined ? { semanticCommandPass } : {}),
+        // The dynamic-authority callers pass their aggregate verdict in that
+        // parameter, which says nothing the command outcomes do not; only a
+        // validate file's printed verdict is an independent semantic one.
+        semanticIsAggregate: result?.dynamicValidation?.authority === 'enforce-authority',
         concurrentPollutionBlocking: Boolean(result?.concurrentWorktreePollution && result.concurrentWorktreePollution.blocking !== false),
       }),
     };
@@ -3231,8 +3235,12 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         if (args.json) {
           // Try to extract JSON from output (validate.ts should print JSON when --json is passed)
           const stripped = stripAnsi(output);
-          // Look for JSON object in output
-          const jsonMatch = stripped.match(/\{[\s\S]*"provider"\s*:\s*"[^"]+"[\s\S]*\}/);
+          // Look for JSON object in output. A structured candidate is one that
+          // names a provider, whatever value it gives it: a result whose
+          // provider is a number, empty or an object is malformed, not plain
+          // text, and must not fall through to the exit-code wrapper below,
+          // where a printed failure with exit code zero would read as a PASS.
+          const jsonMatch = stripped.match(/\{[\s\S]*"provider"\s*:[\s\S]*\}/);
           if (jsonMatch) {
             // Output that looks like a provider result but does not parse, or
             // whose fields are not of the types this pipeline coerces, is a
