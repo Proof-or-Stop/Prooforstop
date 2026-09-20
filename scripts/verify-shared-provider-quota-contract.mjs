@@ -15,11 +15,12 @@ requireCoverage(paths);
 assert.throws(()=>requireCoverage([...paths,'core/new-provider-launch.ts']),/UNREGISTERED_SHARED_QUOTA_OWNER/);
 function checkCalls(source,names,path){
  const ast=ts.createSourceFile(path,source,ts.ScriptTarget.Latest,true);const found=new Set();
- function walk(n){if(ts.isCallExpression(n)&&ts.isIdentifier(n.expression))found.add(n.expression.text);ts.forEachChild(n,walk);}walk(ast);
+ function walk(n){if(ts.isCallExpression(n)&&ts.isIdentifier(n.expression)){found.add(n.expression.text);if(n.expression.text==='runSupervisedProviderProcess'){const options=n.arguments[2];assert.ok(options&&ts.isObjectLiteralExpression(options),'QUOTA_CONTEXT_MISSING: '+path);const keys=new Set(options.properties.map(p=>p.name?.getText(ast)));for(const key of ['budgetRoot','budgetEnv'])assert.ok(keys.has(key),'QUOTA_CONTEXT_MISSING: '+path+':'+key);}}ts.forEachChild(n,walk);}walk(ast);
  for(const name of names)assert.ok(found.has(name),`QUOTA_OWNER_CALL_MISSING: ${path}:${name}`);
 }
 for(const [path,names] of Object.entries(policy.coverage)){
  const source=readFileSync(new URL('../packages/main/src/'+path,import.meta.url),'utf8');checkCalls(source,names,path);
+ if(names.includes('runSupervisedProviderProcess'))for(const key of ['budgetRoot','budgetEnv'])assert.throws(()=>checkCalls(source.replaceAll(key+':',key+'_removed:'),names,path),/QUOTA_CONTEXT_MISSING/);
  for(const name of names){
   const mutated=source.replaceAll(name+'(',name+'_removed(');
   assert.throws(()=>checkCalls(mutated,names,path),/QUOTA_OWNER_CALL_MISSING/);

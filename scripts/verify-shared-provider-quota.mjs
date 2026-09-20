@@ -13,12 +13,13 @@ const scenario=process.argv[2];
 if(!scenario){
  execFileSync(process.execPath,['--input-type=module','-e',"await import('./scripts/lab-audit.mjs')"],{cwd:snapshot,stdio:'inherit',timeout:30000});
  const failures=[];
- for(const name of ['direct','managed-inherited','managed-task-env-only','planned-after-host','repair-after-host','custom-audit-after-host','separate-plans','mixed-positive']){
+ for(const name of ['direct','managed-inherited','managed-task-env-only','planned-after-host','repair-after-host','custom-audit-after-host','separate-plans','mixed-positive','armed-allowance']){
   try{process.stdout.write(execFileSync(process.execPath,[fileURLToPath(import.meta.url),name],{encoding:'utf8',timeout:30000}));}
   catch(e){process.stdout.write(String(e.stdout??''));failures.push(name);}
  }
  assert.deepEqual(failures,[],'SHARED_ROUTE_QUOTA_RED: every owned launch must debit the same configured job quota');
  execFileSync(process.execPath,['scripts/verify-shared-provider-quota-edges.mjs'],{cwd:snapshot,stdio:'inherit',timeout:30000});
+ execFileSync(process.execPath,['scripts/verify-shared-provider-quota-refusals.mjs'],{cwd:snapshot,stdio:'inherit',timeout:30000});
  execFileSync(process.execPath,['scripts/verify-shared-provider-quota-contract.mjs'],{cwd:snapshot,stdio:'inherit',timeout:30000});
  console.log('SHARED_ROUTE_QUOTA_GREEN');
  process.exit(0);
@@ -36,19 +37,22 @@ async function host(){
     assert.equal(r.spawned,true,'UNEXPECTED_HOST_REFUSAL');return true;
   }catch(e){if(e.message==='host_run_budget_refused: total call reservations exhausted')return false;throw e;}
 }
-async function planned(count=1){
+async function planned(count=1,maxAttempts=1){
   const {executePlannedSteps}=await mod('packages/main/src/core/planned-steps-executor.ts');
   const {buildPlannerDraft,buildJobPlan}=await mod('packages/main/src/core/planner.ts');
   const plan=buildJobPlan(buildPlannerDraft(root,{request:'Check route budget propagation',mode:'local',until:'DONE',allowUnattendedPlanning:true}),'B-lab','lab',{});
   delete plan.worktreePolicy; // Same isolated in-memory Story fixture as the canonical verifier.
-  plan.plannedSteps=Array.from({length:count},(_,i)=>({stepId:`step-${i}`,type:'provider.codex',args:{argv:['exec','bounded-fixture']},timeoutMs:1000,maxAttempts:1}));
+  plan.plannedSteps=Array.from({length:count},(_,i)=>({stepId:`step-${i}`,type:'provider.codex',args:{argv:['exec','bounded-fixture']},timeoutMs:1000,maxAttempts}));
   plan.providerPolicy={primaryProvider:'codex',allowedProviders:['codex'],fallbackProviders:[],productionDoneProviders:[],allowFakeProviderForProductionDone:false,credentialsEnvAllowlist:[],secretRefs:['opaque-test-ref'],providerAvailability:'fail_closed'};
   plan.budgetPolicy={maxProviderCalls:cap,maxWallClockMs:0,maxTokenOrCostBudget:0};
   const r=executePlannedSteps({root,jobPlan:plan,store:{readStory:()=>({storyId:'B-lab',phase:'DEV'}),storyExists:()=>true,listStoryIds:()=>['B-lab'],appendProcessEvent:()=>{}},env,providerExecutor:{available:()=>true,run:req=>{total++;otherCalls++;return{provider:'codex',argvDigest:'fixture',exitCode:0,stdoutDigest:'fixture',stderrDigest:'fixture',stdoutBytes:0,stderrBytes:0,durationMs:0,attempts:1,timedOut:false,spawnError:false};}}});
-  return {status:r.status,stopReason:r.stopReason,meteredCalls:r.budgetUsage.usage.providerCalls};
+  return {status:r.status,stopReason:r.stopReason,meteredCalls:r.budgetUsage.usage.providerCalls,steps:r.steps};
 }
 try{
-  if(scenario==='mixed-positive'){
+  if(scenario==='armed-allowance'){
+    assert.equal(await host(),true);details.plan=await planned(1,5);
+    assert.equal(details.plan.steps[0].summary.maxAttempts,2);assert.equal(details.plan.steps[0].summary.attemptAllowanceArmed,1);
+  }else if(scenario==='mixed-positive'){
     const {runClaudeRepair}=await mod('packages/main/src/core/autopilot-executor.ts');
     const repair=runClaudeRepair(root,{},()=>{total++;otherCalls++;return{exitCode:0,stdout:'fixture',stderr:''};},
       {id:'fixture'}, {executable:'node',args:[],cwd:root,timeoutMS:10}, {exitCode:1,stdout:'',stderr:''},

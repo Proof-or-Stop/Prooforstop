@@ -15,7 +15,7 @@ if (!groupedBudgetSource.includes('accountingCount(outcome.input)') || !groupedB
 
 
 const quotaRuntimeSource = readFileSync(new URL('../packages/main/src/core/runtime-fact-registry.ts', import.meta.url), 'utf8');
-if (!quotaRuntimeSource.includes('SHARED_PROVIDER_QUOTA_RUNTIME_POLICY') || !quotaRuntimeSource.includes('submission-spec-digest')) failures.push('Shared provider quota coverage and managed binding must be registered runtime facts');
+if (!quotaRuntimeSource.includes('SHARED_PROVIDER_QUOTA_RUNTIME_POLICY') || !quotaRuntimeSource.includes('submission-spec-digest') || !quotaRuntimeSource.includes('full-prompt-content-including-reference-mode') || !quotaRuntimeSource.includes('explicit-owner-root-and-budget-environment')) failures.push('Shared provider quota coverage and managed binding must be registered runtime facts');
 
 const requiredFacts = [
   ['entrypoint-authority', 'runtimeEntrypointAuthority'],

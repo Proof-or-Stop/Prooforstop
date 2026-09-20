@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { acquireProviderProcessAdmission, releaseProviderProcessAdmission, type ProviderProcessAdmission } from '../core/provider-process-admission.js';
 
 export interface SupervisedProcessOptions {
-  budgetRoot?: string; budgetEnv?: NodeJS.ProcessEnv;
+  budgetRoot?: string; budgetEnv?: NodeJS.ProcessEnv; budgetPrompt?: string;
   cwd: string; env: NodeJS.ProcessEnv; timeoutMs: number; stdin?: string;
   admission?: ProviderProcessAdmission;
 }

@@ -14,7 +14,14 @@ export type HostRunBudgetReservation = { file: string; id: string; policy: Polic
 const prefix = 'PROOF_OR_STOP_RUN_BUDGET_';
 const accountingCount = (value: unknown): number | null =>
   typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : null;
-function refused(reason: string): never { throw new Error(`host_run_budget_refused: ${reason}`); }
+const refusalErrors = new WeakSet<Error>();
+export function isHostRunBudgetRefusal(error: unknown): error is Error {
+  return error instanceof Error && refusalErrors.has(error);
+}
+function refused(reason: string): never {
+  const error = new Error(`host_run_budget_refused: ${reason}`);
+  refusalErrors.add(error); throw error;
+}
 function integer(raw: string | undefined, field: string, required = false): number | null {
   if (raw === undefined && !required) return null;
   const n = Number(raw);

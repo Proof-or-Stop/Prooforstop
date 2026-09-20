@@ -31,7 +31,7 @@ export function runBudgetedProviderRequest(request: ProviderExecRequest, run: (r
   if (ownedRequests.has(request)) return run(request);
   const childEnv = restoreHostRunBudgetEnvironment(request.env, captureHostRunBudgetEnvironment(request.budgetEnv ?? request.env));
   const reservations = reserveHostRunBudgetAttempts(request.budgetRoot ?? request.cwd,
-    request.budgetEnv ?? request.env, request.stdin ?? JSON.stringify(request.argv), Math.max(1, Math.min(request.maxAttempts, 5)));
+    request.budgetEnv ?? request.env, request.budgetPrompt ?? request.stdin ?? JSON.stringify(request.argv), Math.max(1, Math.min(request.maxAttempts, 5)));
   const admitted = { ...request, maxAttempts: reservations?.length ?? request.maxAttempts };
   // Keep this non-secret task quota in the child projection for nested owned CLI
   // calls. Do not copy credentials or other unredacted parent environment values.
@@ -54,5 +54,5 @@ export function runCoveredProviderTransport<T>(request: ProviderExecRequest, opt
 export function runBudgetedSupervisedProcess<T>(options: SupervisedProcessOptions, argv: string[], run: () => T): T {
   if (coveredTransports.has(options)) return run();
   return runWithProviderCallBudget(options.budgetRoot ?? options.cwd, options.budgetEnv ?? options.env,
-    options.stdin ?? JSON.stringify(argv), run);
+    options.budgetPrompt ?? options.stdin ?? JSON.stringify(argv), run);
 }

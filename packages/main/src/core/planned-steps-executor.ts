@@ -1,3 +1,4 @@
+import { isHostRunBudgetRefusal } from './host-run-budget.js';
 import { runBudgetedProviderRequest } from './provider-call-budget.js';
 import { createHash } from 'node:crypto';
 import type {
@@ -464,6 +465,7 @@ function executeRealProviderStep(
     });
   }
   let result: ProviderExecResult;
+  let attemptAllowanceArmed = 0;
   try {
     // Slot acquisition may have waited. Recheck immediately before transport.
     allowance = ctx.admit?.(step.maxAttempts, step.timeoutMs);
@@ -479,7 +481,11 @@ function executeRealProviderStep(
       timeoutMs: allowance?.timeoutMs ?? step.timeoutMs,
       maxAttempts: allowance?.attempts ?? step.maxAttempts,
       env: redactedProviderEnv(ctx.env, ctx.policy.credentialsEnvAllowlist),
-    }, request => ctx.executor.run(request));
+    }, request => { attemptAllowanceArmed = request.maxAttempts; return ctx.executor.run(request); });
+  } catch (error) {
+    if (!isHostRunBudgetRefusal(error)) throw error;
+    return block(BUDGET_EXCEEDED_STOP_REASON, { provider, sharedCallQuotaRefused: true,
+      note: error.message, attemptAllowanceArmed: 0, validationSatisfied: false });
   } finally {
     releaseProviderProcessAdmission(admission);
   }
@@ -496,6 +502,7 @@ function executeRealProviderStep(
     durationMs: result.durationMs,
     attempts: result.attempts,
     providerAttempts: result.attempts,
+    attemptAllowanceArmed,
     cwd: ctx.root,
     timeoutMs: allowance?.timeoutMs ?? step.timeoutMs,
     maxAttempts: allowance?.attempts ?? step.maxAttempts,

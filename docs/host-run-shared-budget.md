@@ -129,3 +129,13 @@ rejects an unregistered owner or a removed call site. It is a structural
 regression guard, not a claim to prove arbitrary dynamic JavaScript or external
 provider subprocesses. The same verifier runs in the routine benchmark behavior
 suite. Test transport is intercepted; no paid model call is required.
+
+Pre-spawn quota refusal is an expected owner result: review returns blocked,
+repair and dispatch return their existing failed/refused shape, and plans record
+`budget_exceeded`. Enabled usage accounting closes the preflight with unavailable
+usage and `shared_call_quota_refused`; no provider counters are invented. Only
+internally branded refusal errors take this path. Reference-file launchers measure
+the full prompt content for the optional byte ceiling. Plan evidence records both
+its configured `maxAttempts` and the clipped `attemptAllowanceArmed`. Readiness
+and batch probes explicitly carry the owning root and quota environment even
+when the child environment is restricted. Waiting does not reset the quota.

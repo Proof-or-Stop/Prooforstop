@@ -4,6 +4,10 @@ export const SHARED_PROVIDER_QUOTA_RUNTIME_POLICY = {
   scope: 'explicit-task-id-canonical-project',
   retries: 'reserve-before-attempt-release-unused',
   managedBinding: 'submission-spec-digest',
+  refusal: 'branded-pre-spawn-error-to-owner-blocked-result-and-final-accounting',
+  promptBytes: 'full-prompt-content-including-reference-mode',
+  attemptEvidence: 'configured-maximum-and-actual-armed-allowance',
+  supervisorContext: 'explicit-owner-root-and-budget-environment',
   coverage: {
     'core/host-run.ts': ['reserveHostRunBudget'],
     'core/managed-host-run.ts': ['runHostRun', 'restoreHostRunBudgetEnvironment'],

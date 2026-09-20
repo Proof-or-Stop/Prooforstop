@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { readFileSync as readQuotaFactSource } from 'node:fs';
 const quotaFactSource = readQuotaFactSource(new URL('../packages/main/src/core/process-fact-registry.ts', import.meta.url), 'utf8');
-if (!quotaFactSource.includes('core/provider-call-budget.ts') || !quotaFactSource.includes('Managed submissions seal quota settings')) throw new Error('SHARED_QUOTA_PROCESS_FACT_MISSING');
+if (!quotaFactSource.includes('core/provider-call-budget.ts') || !quotaFactSource.includes('Managed submissions seal quota settings') || !quotaFactSource.includes('Branded pre-spawn quota refusals') || !quotaFactSource.includes('actual armed allowance')) throw new Error('SHARED_QUOTA_PROCESS_FACT_MISSING');
 import { prepareVerification, verificationFailureMessage } from './verification-subprocess-budget.mjs';
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';

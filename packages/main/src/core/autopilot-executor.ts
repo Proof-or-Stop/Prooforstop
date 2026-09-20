@@ -1,3 +1,4 @@
+import { isHostRunBudgetRefusal } from './host-run-budget.js';
 import { runWithProviderCallBudget } from './provider-call-budget.js';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -18,6 +19,7 @@ import {
   recordBudgetBlock,
   recordConcurrencyBlock,
   recordDispatchFinal,
+  recordDispatchUnavailableFinal,
   recordDispatchPreflight,
   type DispatchPreflightHandle,
   type DispatchUsageContext,
@@ -422,6 +424,12 @@ export function runClaudeRepair(
       cwd: root,
       timeoutMS: positiveInteger(args.claudeTimeoutMS, DEFAULT_CLAUDE_TIMEOUT_MS),
     }));
+  } catch (error) {
+    if (!isHostRunBudgetRefusal(error)) throw error;
+    if (ledgerOn) recordDispatchUnavailableFinal(root, ctx, handle?.correlation ?? null, handle?.estimateRecordId ?? null,
+      { name: 'anthropic', model: null }, 'shared_call_quota_refused', opts);
+    return blockedRepairAttempt(step, commandLabel,
+      `autopilot repair refused pre-spawn: shared_call_quota_refused (${error.message}); the claude runner was never invoked`);
   } finally {
     // F-016: release the admission slot exactly like host_run — token-verified
     // (F-025; a reclaimed+reacquired slot is never deleted), best-effort (pid-

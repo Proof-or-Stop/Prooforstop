@@ -36,7 +36,7 @@ transport identity prevents charging one nested attempt twice. Managed submissio
 persist quota-only environment values in their immutable spec and idempotency
 identity; workers restore that policy and reject conflicting settings.
 
-The same regression also runs 16 edge groups: all three adapter retry and early
+The same regression also runs 17 edge groups: all three adapter retry and early
 completion paths, invalid counters, frozen exceptions, redacted child environment,
 forged delegation, repair partitions, asynchronous starts, standalone review, and
 managed environment loss/idempotency/conflict. Its structural check uses the
@@ -49,8 +49,9 @@ Additional replay commands:
 
 - `node scripts/ensure-dist.mjs`
 - `node node_modules/typescript/bin/tsc -p packages/main/tsconfig.json --noEmit`
-- `node scripts/verify-shared-provider-quota-process.mjs`: seven real local Node
-  children through three adapter/supervisor chains and the direct supervisor.
+- `node scripts/verify-shared-provider-quota-process.mjs`: ten real local Node/native
+  children through three adapter/supervisor chains, the direct supervisor,
+  readiness with redacted child environment and two batches sharing one quota.
 - `node scripts/verify-benchmark-behavior.mjs`: the quota suite and six existing
   benchmark regressions, including cross-process/restart/worktree accounting.
 - `node scripts/verify-supervised-provider-boundaries.mjs`
@@ -75,6 +76,17 @@ child reproduces `stale_material,producer_owned_required` on the built baseline.
 An initial baseline managed run also observed an earlier snapshot/event recovery
 race. These failures remain unresolved and are not covered by this bounded repair.
 
-The authoritative local RED/GREEN receipts are owned by the Lab driver. Lab
-success is not formal Story DONE, independent release audit, or integration into
-main. Integration and version preparation remain separate operations.
+The first finish candidate was rejected by the independent audit. The repair
+preserves structured owner refusals, final accounting and dispatch transcripts;
+passes explicit context to readiness/batch probes; measures reference-mode prompt
+content; and records the actual armed attempt allowance. A second behavioral RED
+at `a833fc20b8` exposed escaped plan/repair refusals before these corrections.
+The official replay now includes `verify-shared-provider-quota-refusals.mjs`,
+which exercises standalone review, repair and all three public dispatch hosts,
+checks linked final ledger rows, and rejects forged error-text classification.
+Readiness/batch real-process checks include an existing bounded positive control;
+no new pre-change bypass is claimed for that control.
+
+The authoritative local RED/GREEN, independent audit and finish receipts are
+owned by the Lab driver. Lab completion is local maintenance evidence, not formal
+Story DONE or signed product-release evidence.

@@ -1,3 +1,4 @@
+import { isHostRunBudgetRefusal } from './host-run-budget.js';
 import { runWithProviderCallBudgetAsync } from './provider-call-budget.js';
 /**
  * codex-review-leaf — auto-run Codex as an independent, read-only adversarial
@@ -113,6 +114,7 @@ export const CODEX_REVIEW_STDOUT_TRUNCATED = 'codex_review_stdout_truncated' as 
 // A budget/concurrency/slot-registry refusal synthesizes a `blocked` verdict
 // carrying one of these reasons, so cross_host_review reports hostB decision
 // 'blocked' (never a fabricated pass/fail).
+export const CODEX_REVIEW_CALL_QUOTA_REFUSED = 'codex_review_call_quota_refused' as const;
 export const CODEX_REVIEW_BUDGET_BLOCKED = 'codex_review_budget_blocked' as const;
 export const CODEX_REVIEW_CONCURRENCY_CAP_EXCEEDED = 'codex_review_concurrency_cap_exceeded' as const;
 export const CODEX_REVIEW_SLOT_REGISTRY_ERROR = 'codex_review_slot_registry_error' as const;
@@ -734,6 +736,9 @@ export async function runCodexReviewLeaf(
       ...(opts.env ? { env: opts.env } : {}),
     });
     outcome = opts.managedExecution ? await invoke() : await runWithProviderCallBudgetAsync(admissionRoot, admissionEnv, prompt, invoke);
+  } catch (error) {
+    if (!isHostRunBudgetRefusal(error)) throw error;
+    outcome = { stdout: '', exitCode: 3, timedOut: false, blocked: true, refusalReason: 'shared_call_quota_refused' };
   } finally {
     // F-017: release the admission slot exactly like host_run / the autopilot
     // repair — token-verified (F-025; a reclaimed+reacquired slot is never
@@ -753,7 +758,7 @@ export async function runCodexReviewLeaf(
         ledgerHandle?.correlation ?? null,
         ledgerHandle?.estimateRecordId ?? null,
         { name: 'openai', model: 'unknown' },
-        CROSS_HOST_REVIEW_CODEX_NO_USAGE_REASON,
+        outcome.refusalReason === 'shared_call_quota_refused' ? 'shared_call_quota_refused' : CROSS_HOST_REVIEW_CODEX_NO_USAGE_REASON,
         ledgerOpts,
       );
     } catch {
@@ -772,7 +777,9 @@ export async function runCodexReviewLeaf(
   // process's "pass" is not a real reviewer verdict. (Caught by the Codex host-B lane.)
   if (outcome.blocked === true) {
     const refusal = outcome.refusalReason ?? 'blocked';
-    const reasonCode = refusal === 'concurrency_cap_exceeded'
+    const reasonCode = refusal === 'shared_call_quota_refused'
+      ? CODEX_REVIEW_CALL_QUOTA_REFUSED
+      : refusal === 'concurrency_cap_exceeded'
       ? CODEX_REVIEW_CONCURRENCY_CAP_EXCEEDED
       : refusal === 'hard_budget_exceeded'
         ? CODEX_REVIEW_BUDGET_BLOCKED
