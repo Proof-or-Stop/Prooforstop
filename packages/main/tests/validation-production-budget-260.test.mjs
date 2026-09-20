@@ -21,5 +21,10 @@ for (const entry of manifest.entries) {
   if (Object.hasOwn(entry.dependencyDigests ?? {}, 'proof-or-stop.config.json')) {
     assert.equal(entry.dependencyDigests['proof-or-stop.config.json'], hash(configBytes), `configuration source binding must remain current: ${entry.id}`);
   }
+  for (const evidence of entry.requiredEvidence ?? []) {
+    if (evidence?.file !== 'proof-or-stop.config.json') continue;
+    assert.equal(evidence.sourceDigest, hash(configBytes));
+    assert.equal(evidence.excerpt, configBytes.toString('utf8').split('\n').slice(evidence.startLine - 1, evidence.endLine).join('\n'));
+  }
 }
 console.log('PRODUCTION_VALIDATION_260_GREEN: all three complete production commands use 260000 ms; static configuration bindings match');
