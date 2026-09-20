@@ -1,6 +1,7 @@
 import './lab-source-loader.mjs';
 import assert from 'node:assert/strict';
-import { registerHooks } from 'node:module';
+import { registerHooks, syncBuiltinESMExports } from 'node:module';
+import childProcess from 'node:child_process';
 import ts from 'typescript';
 import { readFileSync, mkdtempSync, rmSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -14,6 +15,7 @@ const adapters={
  claude:(await import('../packages/main/src/providers/claude-cli.ts')).runBoundedClaudeProvider,
  gemini:(await import('../packages/main/src/providers/gemini-cli.ts')).runBoundedGeminiProvider,
 };
+const {runSupervisedProviderProcess}=await import('../packages/main/src/providers/supervised-process.ts');
 const root=mkdtempSync(join(tmpdir(),'shared-quota-edges-'));
 const environment=(id,max=2)=>({PROOF_OR_STOP_USAGE_LEDGER:'0',PROOF_OR_STOP_RUN_BUDGET_ID:id,PROOF_OR_STOP_RUN_BUDGET_MAX_CALLS:String(max)});
 const request=(provider,env,attempts=5)=>({provider,cwd:root,env,argv:['fixture'],timeoutMs:10,maxAttempts:attempts});
@@ -22,6 +24,23 @@ const timeout={status:null,stdout:'',stderr:'',timedOut:true,replacementSafe:tru
 const results=[];
 function test(name,run){run();results.push(name);}
 try{
+ test('supervisor payload excludes parent-only quota context',()=>{
+  const saved=childProcess.spawnSync, interrupted=new Error('intercepted local worker');let payload;
+  childProcess.spawnSync=(binary,argv,options)=>{
+   assert.equal(binary,process.execPath);assert.match(argv[0],/supervised-process-worker\.js$/);
+   payload=JSON.parse(options.input);throw interrupted;
+  };syncBuiltinESMExports();
+  try {
+   assert.throws(()=>runSupervisedProviderProcess('fixture',[],{cwd:root,env:{SAFE_CHILD:'allowed'},timeoutMs:10,
+    budgetRoot:root,budgetEnv:{...environment('transport-boundary',1),PARENT_SECRET:'parent-only-secret-sentinel'},
+    budgetPrompt:'parent-only-prompt-sentinel',admission:{admitted:true}}),e=>e===interrupted);
+  } finally {childProcess.spawnSync=saved;syncBuiltinESMExports();}
+  assert.ok(payload,'actual worker payload must be intercepted');
+  assert.deepEqual(payload.options.env,{SAFE_CHILD:'allowed'});
+  for(const key of ['budgetRoot','budgetEnv','budgetPrompt'])assert.ok(!(key in payload.options),'SUPERVISOR_BUDGET_CONTEXT_LEAK: '+key);
+  assert.ok(!JSON.stringify(payload).includes('parent-only-secret-sentinel'),'SUPERVISOR_BUDGET_CONTEXT_LEAK: secret');
+  assert.ok(!JSON.stringify(payload).includes('parent-only-prompt-sentinel'),'SUPERVISOR_BUDGET_CONTEXT_LEAK: prompt');
+ });
  for(const [provider,adapter] of Object.entries(adapters)){
   test(provider+' retry attempts share the job quota',()=>{
    const req=request(provider,environment(provider+'-retry'));let attempts=0;
