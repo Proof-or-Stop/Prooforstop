@@ -3462,7 +3462,38 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         throw new Error('managed implementer completion requires success=true; failed work must not mark the checklist item done');
       }
 
-      store.writeChecklist(args.storyId, cl);
+      // A managed completion spans checklist.json and process-events.jsonl. Write
+      // the bound result first so an event-write failure cannot leave the item
+      // visibly done and then depend on a compensating checklist rewrite. The
+      // enclosing checklist lock prevents another checklist writer from racing
+      // this prepare/commit interval.
+      let managedCompletionAppend: ProcessEventAppendIdentity | undefined;
+      if (managedDispatchRunId && args.status === 'done' && oldStatus !== 'done') {
+        try {
+          managedCompletionAppend = store.appendProcessEvent(args.storyId, {
+            type: 'subagent_result',
+            checklistId: args.itemId,
+            success: true,
+            managedDispatchRunId,
+          });
+        } catch (error) {
+          throw new Error(`managed implementer completion could not record its bound result: ${(error as Error).message}`);
+        }
+      }
+      try {
+        store.writeChecklist(args.storyId, cl);
+      } catch (error) {
+        if (managedCompletionAppend) {
+          try { store.rollbackProcessEventAppend(args.storyId, managedCompletionAppend); }
+          catch (rollbackError) {
+            throw new Error(
+              `managed implementer completion checklist write failed and its prepared result could not be rolled back: `
+              + `${(error as Error).message}; rollback: ${(rollbackError as Error).message}`,
+            );
+          }
+        }
+        throw error;
+      }
       if (args.verificationIntent !== undefined) {
         try {
           store.appendProcessEvent(args.storyId, {type: 'plan_updated', action: 'verification_intent_applied', itemId: args.itemId,
@@ -3474,7 +3505,6 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
 
 
       // B-3511: append process events on status transitions
-      let managedCompletionAppend: ProcessEventAppendIdentity | undefined;
       if (args.status && oldStatus !== args.status) {
         try {
           if (args.status === 'in_progress') {
@@ -3483,22 +3513,15 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
               checklistId: args.itemId,
               ...(args.agent ? { agent: args.agent } : {}),
             });
-          } else if (args.status === 'done') {
+          } else if (args.status === 'done' && !managedDispatchRunId) {
             const appendIdentity = store.appendProcessEvent(args.storyId, {
               type: 'subagent_result',
               checklistId: args.itemId,
               success: args.success !== false,
-              ...(managedDispatchRunId ? { managedDispatchRunId } : {}),
             });
-            if (managedDispatchRunId) managedCompletionAppend = appendIdentity;
+            void appendIdentity;
           }
         } catch (e) {
-          if (managedDispatchRunId && args.status === 'done') {
-            restoreManagedChecklistItemAfterFailure(store, args.storyId, managedCompletionBeforeItem!, {
-              timestamp: now, from: oldStatus, to: args.status,
-            });
-            throw new Error(`managed implementer completion could not record its bound result: ${(e as Error).message}`);
-          }
           console.warn(`[process-events] append failed for ${args.storyId}:`, (e as Error).message);
         }
       }

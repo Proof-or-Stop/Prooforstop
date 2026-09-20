@@ -95,6 +95,10 @@ const store = new StoryStore(${JSON.stringify(root)});
 const checklist = store.readChecklist(process.argv[2]);
 const target = checklist.items.find(item => item.id === ${JSON.stringify(itemId)});
 const other = checklist.items.find(item => item.id === 'CHK-002');
+if (process.argv[3] === 'assert-pending') {
+  if (target.status !== 'pending') throw new Error('failed bound-result append must leave the managed item pending');
+  process.exit(0);
+}
 if (process.argv[3] === 'reset') { target.status = 'pending'; other.status = 'in_progress'; }
 else target.status = 'done';
 store.writeChecklist(process.argv[2], checklist);
@@ -214,7 +218,7 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
     },
     {
       name: 'event-write-retry', expectedStatus: 'done', expectCompleted: true,
-      commands: `rm -f "${root}/.proof-or-stop/story/actives/__STORY__/process-events.jsonl"\nmkdir "${root}/.proof-or-stop/story/actives/__STORY__/process-events.jsonl"\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}' || true\nrm -rf "${root}/.proof-or-stop/story/actives/__STORY__/process-events.jsonl"\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
+      commands: `rm -f "${root}/.proof-or-stop/story/actives/__STORY__/process-events.jsonl"\nmkdir "${root}/.proof-or-stop/story/actives/__STORY__/process-events.jsonl"\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}' || true\n"${process.execPath}" "${mutateChecklist}" "__STORY__" assert-pending\nrm -rf "${root}/.proof-or-stop/story/actives/__STORY__/process-events.jsonl"\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
   ];
   for (const scenario of negativeScenarios) {
