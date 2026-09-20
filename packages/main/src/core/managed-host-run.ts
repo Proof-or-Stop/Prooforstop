@@ -1,3 +1,4 @@
+import { captureHostRunBudgetEnvironment, restoreHostRunBudgetEnvironment } from './host-run-budget.js';
 import { MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import { isManagedInventoryCriticEnvelopeValid, type ManagedInventoryCritic } from './managed-inventory-critic.js';
 import { MANAGED_RUN_DASHBOARD_POLICY } from './runtime-fact-registry.js';
@@ -567,6 +568,8 @@ export interface ManagedReviewScratchCleanupDiagnostic {
 }
 
 interface ManagedHostRunSpec {
+  /** Submission-owned quota context covered by specDigest. */
+  sharedCallQuota?: Record<string, string> | null;
   /** Absent only on historical specs; fresh isolated submits always emit it. */
   executionAdmission?: { version: 1; binding: ManagedLaunchAdmission['binding'] };
   /** Sampled once at submission; sealed by the existing immutable spec binding. */
@@ -2791,6 +2794,7 @@ export async function submitManagedHostRun(
   if (args.host === 'grok' && !requestedReadonlyLane) throw new Error('grok requires configured managedReviewIsolation and isolated managed review');
   const now = deps.now ?? Date.now;
   const burnTokenLimit = managedBurnTokenLimit(args.environment ?? process.env);
+  const sharedCallQuota = captureHostRunBudgetEnvironment(process.env, args.environment ?? {});
   const createdMs = now();
   const createdAt = new Date(createdMs).toISOString();
   const deadlineMs = boundedPositiveMs(args.deadlineMs, MANAGED_HOST_RUN_DEFAULT_DEADLINE_MS, MANAGED_HOST_RUN_MAX_DEADLINE_MS);
@@ -2813,6 +2817,7 @@ export async function submitManagedHostRun(
     ...(selection.model !== null ? { model: selection.model } : {}),
     ...(selection.reasoningEffort !== null ? { reasoningEffort: selection.reasoningEffort } : {}),
     burnTokenLimit,
+    ...(sharedCallQuota ? { sharedCallQuota } : {}),
     root: realpathSync(args.root),
     cwd: realpathSync(args.cwd),
     deadlineMs,
@@ -2893,6 +2898,7 @@ export async function submitManagedHostRun(
   const capability = proposalInvocationKeys?.privateKey ?? randomBytes(32).toString('base64url');
   const spec: ManagedHostRunSpec = {
     ...(admission ? { executionAdmission: { version: 1 as const, binding: admission.binding } } : {}),
+    sharedCallQuota,
     durationEstimate: captureManagedRunDurationEstimate(args, createdAt),
     burnTokenLimit,
     ...(submissionDigest ? { submissionDigest } : {}),
@@ -3262,8 +3268,10 @@ export async function runManagedHostRunWorker(
 
   let result: HostRunResult | null = null;
   try {
+    const quotaEnvironment = restoreHostRunBudgetEnvironment(deps.env ?? process.env, spec.sharedCallQuota);
     const providerEnvironment: NodeJS.ProcessEnv = {
       ...(oneShotEnvironment ?? deps.env ?? process.env),
+      ...(spec.sharedCallQuota ?? {}),
       ...managedReviewTemporaryEnvironment(spec),
       LATTICE_MANAGED_HOST_RUN_ID: spec.runId,
       PROOF_OR_STOP_AGENT: spec.agentType,
@@ -3349,7 +3357,7 @@ export async function runManagedHostRunWorker(
         timeoutMs: Math.min(spec.timeoutMs, remainingMs),
         signal: abort.signal,
         env: providerEnvironment,
-        usageEnv: deps.env ?? process.env,
+        usageEnv: quotaEnvironment,
         ...(spec.profile === 'cross_host_review_codex'
           ? { launchProfile: 'cross_host_review_codex' as const }
           : isIsolatedReviewerProfile(spec.profile)

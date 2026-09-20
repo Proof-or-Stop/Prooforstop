@@ -1,3 +1,5 @@
+import { isHostRunBudgetRefusal } from './host-run-budget.js';
+import { runBudgetedProviderRequest } from './provider-call-budget.js';
 import { createHash } from 'node:crypto';
 import type {
   JobPlan,
@@ -463,13 +465,15 @@ function executeRealProviderStep(
     });
   }
   let result: ProviderExecResult;
+  let attemptAllowanceArmed = 0;
   try {
     // Slot acquisition may have waited. Recheck immediately before transport.
     allowance = ctx.admit?.(step.maxAttempts, step.timeoutMs);
     if (allowance?.report.exceeded) return block(BUDGET_EXCEEDED_STOP_REASON, {
       provider, budgetAdmissionReport: allowance.report, validationSatisfied: false,
     });
-    result = ctx.executor.run({
+    result = runBudgetedProviderRequest({
+      budgetRoot: ctx.root, budgetEnv: ctx.env,
       admission,
       provider,
       argv,
@@ -477,7 +481,11 @@ function executeRealProviderStep(
       timeoutMs: allowance?.timeoutMs ?? step.timeoutMs,
       maxAttempts: allowance?.attempts ?? step.maxAttempts,
       env: redactedProviderEnv(ctx.env, ctx.policy.credentialsEnvAllowlist),
-    });
+    }, request => { attemptAllowanceArmed = request.maxAttempts; return ctx.executor.run(request); });
+  } catch (error) {
+    if (!isHostRunBudgetRefusal(error)) throw error;
+    return block(BUDGET_EXCEEDED_STOP_REASON, { provider, sharedCallQuotaRefused: true,
+      note: error.message, attemptAllowanceArmed: 0, validationSatisfied: false });
   } finally {
     releaseProviderProcessAdmission(admission);
   }
@@ -494,12 +502,14 @@ function executeRealProviderStep(
     durationMs: result.durationMs,
     attempts: result.attempts,
     providerAttempts: result.attempts,
+    attemptAllowanceArmed,
     cwd: ctx.root,
     timeoutMs: allowance?.timeoutMs ?? step.timeoutMs,
     maxAttempts: allowance?.attempts ?? step.maxAttempts,
     // Env redaction summary — credential KEY NAMES / counts only, never values. The
-    // child saw only the runtime keys + these allowlisted credentials; everything
-    // else was stripped by redactedProviderEnv.
+    // child sees runtime keys and these allowlisted credentials. After redaction,
+    // runBudgetedProviderRequest also projects non-secret operator-configured
+    // PROOF_OR_STOP_RUN_BUDGET_* keys so nested owned calls share the ledger.
     envRedacted: true,
     credentialEnvKeysProjected: ctx.policy.credentialsEnvAllowlist.filter(
       name => typeof ctx.env[name] === 'string' && (ctx.env[name] as string).trim() !== '',

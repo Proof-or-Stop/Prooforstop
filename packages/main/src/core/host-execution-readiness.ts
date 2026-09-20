@@ -471,6 +471,8 @@ export function probeHostExecutionReadiness(args: {
   host: CanonicalReviewHost;
   executablePath?: string;
   versionOk: boolean;
+  budgetRoot?: string;
+  budgetEnv?: NodeJS.ProcessEnv;
   cwd?: string;
   env?: NodeJS.ProcessEnv;
   timeoutMs: number;
@@ -489,6 +491,9 @@ export function probeHostExecutionReadiness(args: {
   const started = Date.now();
   try {
     const supervised = runSupervisedProviderProcess(args.executablePath, execution.spawnArgv, {
+      budgetRoot: args.budgetRoot ?? args.cwd ?? process.cwd(),
+      budgetEnv: args.budgetEnv ?? args.env ?? process.env,
+      budgetPrompt: boundedReadinessPrompt(),
       cwd: args.cwd ?? process.cwd(),
       env: args.env ?? process.env,
       timeoutMs: args.timeoutMs,

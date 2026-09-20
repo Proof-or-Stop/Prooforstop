@@ -190,14 +190,16 @@ export async function executeLabAudit({ cwd, base, head, developer, labName, evi
 
 /** Release pre-spawn failures, but never free capacity for an un-reaped child. */
 export async function runCustomAuditAdapter(plan, root, controller, {admissionApi, runner}) {
+  // Resolve .js source imports only after the Lab loader has installed its hook.
+  const { runWithProviderCallBudgetAsync } = await import('../packages/main/src/core/provider-call-budget.ts');
   const admission = admissionApi.acquireProviderProcessAdmission({root, env: plan.env, host: plan.command, storyId: null, agentType: 'lab-independent-auditor'});
   if (!admission.admitted) throw new Error('Lab audit provider capacity unavailable.');
   let spawn, observed = false;
   try {
-    spawn = await runner({...plan, onSpawn: identity => {
+    spawn = await runWithProviderCallBudgetAsync(root, plan.env, plan.stdinText ?? '', () => runner({...plan, onSpawn: identity => {
       observed = true;
       if (!admissionApi.transferProviderProcessAdmissionToProvider(admission, identity)) controller.abort();
-    }});
+    }}));
     return spawn;
   } finally {
     if (!observed || (spawn?.replacementSafe && spawn?.closeObserved && spawn?.processCleanup?.reaped && !spawn?.processCleanup?.residualProcessGroup)) admissionApi.releaseProviderProcessAdmission(admission);

@@ -14,7 +14,14 @@ export type HostRunBudgetReservation = { file: string; id: string; policy: Polic
 const prefix = 'PROOF_OR_STOP_RUN_BUDGET_';
 const accountingCount = (value: unknown): number | null =>
   typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : null;
-function refused(reason: string): never { throw new Error(`host_run_budget_refused: ${reason}`); }
+const refusalErrors = new WeakSet<Error>();
+export function isHostRunBudgetRefusal(error: unknown): error is Error {
+  return error instanceof Error && refusalErrors.has(error);
+}
+function refused(reason: string): never {
+  const error = new Error(`host_run_budget_refused: ${reason}`);
+  refusalErrors.add(error); throw error;
+}
 function integer(raw: string | undefined, field: string, required = false): number | null {
   if (raw === undefined && !required) return null;
   const n = Number(raw);
@@ -52,9 +59,39 @@ function locked<T>(file: string, body: () => T): T {
   return withMkdirLock(file + '.lock', body, { deadlineMs: HOST_RUN_BUDGET_RUNTIME_POLICY.lockTimeoutMs,
     staleMs: 60_000, pollMs: 10, requireHolderToken: true, label: 'host-run-budget' });
 }
+/** Capture only operator-owned quota settings; never persist unrelated secrets. */
+export function captureHostRunBudgetEnvironment(...sources: NodeJS.ProcessEnv[]): Record<string, string> | null {
+  let captured: Record<string, string> | null = null;
+  for (const source of sources) {
+    const keys = Object.keys(source).filter(k => k.startsWith(prefix) && source[k] !== undefined).sort();
+    if (!keys.length) continue;
+    const current = Object.fromEntries(keys.map(k => [k, source[k]!]));
+    if (!current[prefix+'ID'] || !/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.test(current[prefix+'ID'])) refused('invalid or missing ID');
+    integer(current[prefix+'MAX_CALLS'], 'MAX_CALLS', true);
+    integer(current[prefix+'MAX_REPAIR_CALLS'], 'MAX_REPAIR_CALLS');
+    integer(current[prefix+'MAX_PROMPT_BYTES'], 'MAX_PROMPT_BYTES');
+    if (captured && JSON.stringify(captured) !== JSON.stringify(current)) refused('conflicting bound quota environment');
+    captured = current;
+  }
+  return captured;
+}
+
+/** A fresh managed run restores its sealed quota even if the worker lost env. */
+export function restoreHostRunBudgetEnvironment(env: NodeJS.ProcessEnv, binding: Record<string, string> | null | undefined): NodeJS.ProcessEnv {
+  if (!binding) return env; // Historical/unconfigured runs retain opt-in behavior.
+  captureHostRunBudgetEnvironment(env, binding); // Reject a changed worker budget.
+  return { ...env, ...binding };
+}
+
 export function reserveHostRunBudget(root: string, env: NodeJS.ProcessEnv, prompt: string): HostRunBudgetReservation | null {
+  return reserveHostRunBudgetAttempts(root, env, prompt, 1)?.[0] ?? null;
+}
+
+/** Reserve the available retry allowance atomically before the first attempt. */
+export function reserveHostRunBudgetAttempts(root: string, env: NodeJS.ProcessEnv, prompt: string, attempts: number): HostRunBudgetReservation[] | null {
   const id = env[prefix+'ID'];
   if (id === undefined && !Object.keys(env).some(k => k.startsWith(prefix))) return null;
+  if (!Number.isSafeInteger(attempts) || attempts < 1) refused('invalid attempt allowance');
   if (!id || !/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.test(id)) refused('invalid or missing ID');
   const policy: Policy = {
     maxCalls: integer(env[prefix+'MAX_CALLS'], 'MAX_CALLS', true)!,
@@ -72,10 +109,13 @@ export function reserveHostRunBudget(root: string, env: NodeJS.ProcessEnv, promp
     const state = readState(file, policy, true);
     if (state.rows.length >= policy.maxCalls) refused('total call reservations exhausted');
     if (category === 'repair' && policy.maxRepairCalls !== null && state.rows.filter(r=>r.category==='repair').length >= policy.maxRepairCalls) refused('repair call reservations exhausted');
-    const reservation = {file, id:randomUUID(), policy};
-    state.rows.push({id:reservation.id, category, state:'reserved', input:null, cacheRead:null, output:null});
+    const available = Math.min(attempts, policy.maxCalls - state.rows.length,
+      category === 'repair' && policy.maxRepairCalls !== null
+        ? policy.maxRepairCalls - state.rows.filter(r => r.category === 'repair').length : attempts);
+    const reservations = Array.from({ length: available }, () => ({ file, id: randomUUID(), policy }));
+    for (const reservation of reservations) state.rows.push({id:reservation.id, category, state:'reserved', input:null, cacheRead:null, output:null});
     writeState(file,state);
-    return reservation;
+    return reservations;
   });
 }
 export function settleHostRunBudget(reservation: HostRunBudgetReservation | null, outcome: {

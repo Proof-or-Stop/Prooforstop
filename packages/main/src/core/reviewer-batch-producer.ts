@@ -106,9 +106,9 @@ export async function admitExecutionBatch(args: ExecutionBatchRequest) {
       const temporary = join(cache, artifact.probeTemporaryDirectoryName); privateDirectory(temporary, true);
       const state = materializeManagedProviderState(cache, saved.state);
       const env = { ...captured.env, ...managedProviderStateEnvironment(state), TMPDIR: temporary, TMP: temporary, TEMP: temporary };
-      const version = runSupervisedProviderProcess(saved.binary, ['--version'], { cwd: captured.cwd, env, timeoutMs: policy.versionTimeoutMs });
+      const version = runSupervisedProviderProcess(saved.binary, ['--version'], { budgetRoot: args.root, budgetEnv: captured.env, cwd: captured.cwd, env, timeoutMs: policy.versionTimeoutMs });
       if (version.status !== 0 || version.replacementSafe !== true || !version.stdout.trim()) { const failure = classifyHostExecutionFailure({ ...version, signal: version.signal ?? null }); return { host, inputIdentity: context.identity, status: 'BLOCKED' as const, failureKind: failure === 'auth' ? 'auth' as const : failure === 'timeout' ? 'timeout' as const : failure === 'interactive' ? 'interactive' as const : 'executable' as const }; }
-      const result = probeHostExecutionReadiness({ host, executablePath: saved.binary, versionOk: version.status === 0 && version.replacementSafe === true && Boolean(version.stdout.trim()), cwd: captured.cwd, env, timeoutMs: policy.readinessTimeoutMs });
+      const result = probeHostExecutionReadiness({ budgetRoot: args.root, budgetEnv: captured.env, host, executablePath: saved.binary, versionOk: version.status === 0 && version.replacementSafe === true && Boolean(version.stdout.trim()), cwd: captured.cwd, env, timeoutMs: policy.readinessTimeoutMs });
       if (result.reviewReady) persistCapturedManagedProviderSeed(seedDirectory, captureManagedProviderState(host, env), key, { subjectIdentity: args.subjectIdentity, generation: context.generation, host });
       const failureKind: ReviewerBatchProbeObservation['failureKind'] = result.failureKind === 'auth' ? 'auth' : result.failureKind === 'timeout' ? 'timeout' : result.failureKind === 'interactive' ? 'interactive' : 'unknown';
       return { host, inputIdentity: context.identity, status: result.reviewReady ? 'READY' as const : 'BLOCKED' as const, failureKind };

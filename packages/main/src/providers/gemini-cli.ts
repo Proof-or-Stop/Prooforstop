@@ -1,3 +1,4 @@
+import { runBudgetedProviderRequest, runCoveredProviderTransport } from '../core/provider-call-budget.js';
 import { runSupervisedProviderProcess, type SupervisedProcessOptions } from './supervised-process.js';
 
 import { createHash } from 'crypto';
@@ -186,6 +187,12 @@ export function runBoundedGeminiProvider(
   request: ProviderExecRequest,
   runner: ProviderProcessRunner = defaultGeminiProcessRunner,
 ): ProviderExecResult {
+  return runBudgetedProviderRequest(request, admitted => runAdmittedGeminiProvider(admitted, runner));
+}
+function runAdmittedGeminiProvider(
+  request: ProviderExecRequest,
+  runner: ProviderProcessRunner = defaultGeminiProcessRunner,
+): ProviderExecResult {
   const startedAt = Date.now();
   const maxAttempts = Math.max(1, Math.min(request.maxAttempts, 5));
   let attempts = 0;
@@ -200,13 +207,14 @@ export function runBoundedGeminiProvider(
 
   while (attempts < maxAttempts) {
     attempts++;
-    const out = runner(GEMINI_CLI_BINARY, request.argv, {
+    const transportOptions: SupervisedProcessOptions = {
       cwd: request.cwd,
       env: request.env,
       timeoutMs: request.timeoutMs,
       admission: request.admission,
       stdin: request.stdin,
-    });
+    };
+    const out = runCoveredProviderTransport(request, transportOptions, () => runner(GEMINI_CLI_BINARY, request.argv, transportOptions));
     replacementSafe = out.replacementSafe;
     timedOut = out.timedOut ?? (out.signal === 'SIGTERM' || out.signal === 'SIGKILL'
       || (!!out.error && out.error.code === 'ETIMEDOUT'));
