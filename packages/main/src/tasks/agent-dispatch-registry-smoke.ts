@@ -832,27 +832,29 @@ try {
     if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
     else process.env.PROOF_OR_STOP_AGENT = previousAgent;
   }
-  const beforeRepairWorkerResolve = mutationState();
-  const storyBeforeRepairWorkerResolve = store.readStory(storyId);
-  const previousRepairAgent = process.env.PROOF_OR_STOP_AGENT;
-  store.writeStory(storyId, { ...storyBeforeRepairWorkerResolve, phase: 'DEV' });
-  process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-finding-repair';
-  try {
-    assert.throws(
-      () => findingHandlers.finding_resolve({
-        storyId,
-        findingId: `${storyId}:F-001`,
-        resolution: 'repair worker must return this result to the Story owner',
-      }),
-      /agent_dispatch_mutation_denied/,
-      'finding repair worker must not close its own finding in DEV',
-    );
-    assert.equal(mutationState(), beforeRepairWorkerResolve,
-      'denied finding-repair resolution must leave the finding and evidence state unchanged');
-  } finally {
-    if (previousRepairAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
-    else process.env.PROOF_OR_STOP_AGENT = previousRepairAgent;
-    store.writeStory(storyId, storyBeforeRepairWorkerResolve);
+  for (const repairActor of ['proof-or-stop-finding-repair', 'proof-or-stop-implementer']) {
+    const beforeRepairWorkerResolve = mutationState();
+    const storyBeforeRepairWorkerResolve = store.readStory(storyId);
+    const previousRepairAgent = process.env.PROOF_OR_STOP_AGENT;
+    store.writeStory(storyId, { ...storyBeforeRepairWorkerResolve, phase: 'DEV' });
+    process.env.PROOF_OR_STOP_AGENT = repairActor;
+    try {
+      assert.throws(
+        () => findingHandlers.finding_resolve({
+          storyId,
+          findingId: `${storyId}:F-001`,
+          resolution: 'repair worker must return this result to the Story owner',
+        }),
+        /agent_dispatch_mutation_denied/,
+        `${repairActor} must not close its own finding in DEV`,
+      );
+      assert.equal(mutationState(), beforeRepairWorkerResolve,
+        `denied ${repairActor} resolution must leave the finding and evidence state unchanged`);
+    } finally {
+      if (previousRepairAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+      else process.env.PROOF_OR_STOP_AGENT = previousRepairAgent;
+      store.writeStory(storyId, storyBeforeRepairWorkerResolve);
+    }
   }
   assert.equal(
     captureReviewerReadEvent({ path: 'docs/requirements/decisions/example.md', mode: 'full' }, { agent: 'proof-or-stop-review-lookalike' }),
@@ -962,6 +964,12 @@ try {
     'finding repair worker must not receive owner-only blocker-state authority');
   assert.deepEqual(findingRepairEntry.evidenceOwnership, [],
     'finding repair worker must return repair evidence instead of owning finding-resolution evidence');
+  const implementerEntry = AGENT_DISPATCH_REGISTRY.find(entry => entry.canonicalName === 'proof-or-stop-implementer');
+  assert(implementerEntry, 'implementer registry entry must exist');
+  assert.equal(entryPermitsMutation(implementerEntry, 'finding_resolve'), false,
+    'generic implementer finding dispatch must not retain the removed owner-only resolution authority');
+  assert.equal(implementerEntry.evidenceOwnership.includes('finding-resolution'), false,
+    'generic implementer must not claim finding-resolution evidence ownership');
   const findingResolvePolicy = getCommandPolicy('finding_resolve');
   assert.equal(findingResolvePolicy?.ownershipClass, 'storyScopedMutating',
     'finding resolution must remain protected by the Story owner lease');

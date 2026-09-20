@@ -56,10 +56,10 @@ export const AGENT_DISPATCH_REGISTRY: readonly AgentDispatchRegistryEntry[] = [
     identifierKinds: ['itemId', 'findingId', 'clusterId'],
     promptBuilder: 'implementer-dispatch',
     promptBuilderByIdentifier: { itemId: 'implementer-dispatch', findingId: 'finding-repair', clusterId: 'cluster-repair' },
-    permittedMutations: ['checklist_update', 'finding_resolve', 'red_evidence_binding_set', 'red_evidence_quarantine', 'red_evidence_recover'],
+    permittedMutations: ['checklist_update', 'red_evidence_binding_set', 'red_evidence_quarantine', 'red_evidence_recover'],
     commitAllowed: true,
     reviewerLane: null,
-    evidenceOwnership: ['checklist-status', 'finding-resolution', 'cluster-resolution'],
+    evidenceOwnership: ['checklist-status', 'cluster-resolution'],
   },
   {
     canonicalName: 'proof-or-stop-verification-intent',
