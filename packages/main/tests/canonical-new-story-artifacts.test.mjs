@@ -98,12 +98,20 @@ const { createPlaybookRuntimeMemoryHandlers } = await import(join(distRoot, 'han
 const failures = [];
 async function check(groups, name, fn) {
   if (selectedGroup !== null && !groups.includes(selectedGroup)) return;
+  const startedAt = process.hrtime.bigint();
+  let status = 'fail';
   try {
     await fn();
+    status = 'pass';
     process.stdout.write(`PASS ${name}\n`);
   } catch (error) {
     failures.push({ name, error });
     process.stderr.write(`FAIL ${name}: ${error?.message ?? error}\n`);
+  } finally {
+    process.stderr.write('IDENTITY_CHECK_TIMING ' + JSON.stringify({
+      pid: process.pid, group: selectedGroup, name, status,
+      elapsedMs: Number(process.hrtime.bigint() - startedAt) / 1e6,
+    }) + '\n');
   }
 }
 
