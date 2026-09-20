@@ -27,8 +27,9 @@ interface EvidenceRefreshArgs {
 /**
  * A row that ONE refresh pass could re-stamp: result=pass evidence that
  * checkEvidenceFreshnessForGit reports NOT fresh (hash drift only — logic still
- * valid). This is the SAME refresh-only predicate evidence_plan (P3) uses; we
- * call checkEvidenceFreshnessForGit identically rather than inventing a new one.
+ * validity is not established by this preview). This compatibility preview is
+ * not executable receipt admission; evidence_plan reports authoritative per-intent
+ * execution requirements. The apply path never grants or renews executable authority.
  */
 interface RefreshCandidate {
   intentRef: string;
@@ -151,8 +152,8 @@ function evidenceByIntentRef(checklist: ChecklistData): Map<string, Verification
 /**
  * The refresh-only predicate: result=pass evidence (not a waiver) whose git
  * freshness is NOT fresh. Returns the drift reason when refresh-only, otherwise
- * null. This is the SAME classification evidence_plan applies — we call
- * checkEvidenceFreshnessForGit identically, never inventing a new predicate.
+ * null. This metadata compatibility predicate does not prove executable freshness
+ * or cross-commit reuse; evidence_plan uses authenticated receipt admission for those rows.
  */
 function refreshOnlyDrift(
   evidence: VerificationEvidence | undefined,

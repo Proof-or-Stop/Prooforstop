@@ -12039,6 +12039,17 @@ assert(read('packages/main/src/core/managed-review-evidence.ts').includes('isMan
  }
 }
 
+// Intent fingerprints are derived diagnostics, not a second gate or caller-owned freshness authority.
+{
+  const planner = read('packages/main/src/handlers/evidence-plan.ts');
+  const fingerprints = read('packages/main/src/core/verification-intent-fingerprints.ts');
+  for (const token of ['collectVerificationIntents(item)', 'evaluateVerificationEvidenceForGate', "authority: 'diagnostic-only'", 'identity.reusable', 'materialHash', 'storyFilesHash']) {
+    assert(fingerprints.includes(token), `Intent fingerprint diagnostic contract missing ${token}`);
+  }
+  assert(planner.includes('buildIntentFingerprintReport') && planner.includes('row.description'), 'Evidence planner must display actual dynamic intent fingerprints and descriptions');
+  assert(read(processFactRegistryPath).includes('packages/main/src/core/verification-intent-fingerprints.ts'), 'Intent fingerprint diagnostic source must be registered');
+}
+
 if (failures.length) {
   console.error('');
   console.error('Process fact contract failed:');

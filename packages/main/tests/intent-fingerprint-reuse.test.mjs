@@ -37,11 +37,13 @@ try {
   const planner = createEvidencePlanHandlers(ctx);
   const report = () => planner.evidence_plan({ storyId, json: true });
   const pin = (intentRef, command, selector, file) => handlers.verification_evidence_add({ storyId, itemId: 'CHK-001', intentRef, kind: 'integration_test', command, selector, ...(file ? { file } : {}), result: 'pass', note: 'Real tool-executed fixture result.' });
+  const shared = 'packages/main/src/shared.txt';
+  write(shared, 'SHARED\n');
   const commandFor = (name, contents) => {
     const input = `packages/main/src/${name}.txt`, manifest = `packages/main/${name}.verification-dependencies.json`;
     write(input, contents);
-    write(manifest, JSON.stringify({ schemaVersion: 'proof-or-stop.verifier-dependency-manifest.v2', capsuleProfile: 'proof-or-stop.verification-reuse-capsule.v1', files: [input] }));
-    return { input, manifest, command: buildVerificationReuseCapsuleInvocation({ cwd: root, manifestPath: manifest, files: [input] }).command };
+    write(manifest, JSON.stringify({ schemaVersion: 'proof-or-stop.verifier-dependency-manifest.v2', capsuleProfile: 'proof-or-stop.verification-reuse-capsule.v1', files: [input, shared] }));
+    return { input, manifest, command: buildVerificationReuseCapsuleInvocation({ cwd: root, manifestPath: manifest, files: [input, shared] }).command };
   };
   const a = commandFor('a', 'A_OK A_SECOND\n'), b = commandFor('b', 'B_OK\n');
   commit('declared independent inputs');
@@ -84,6 +86,23 @@ try {
   await handlers.verification_evidence_refresh_stale({ storyId });
   assert.equal(executions, 2, 'one changed reusable group plus ordinary fallback, not one launch per intent');
   assert.equal(store.readChecklist(storyId).items[0].verificationEvidence.find(e => e.intentRef === 'INT-B').receipt.executionReceipt.executionReceiptDigest, originalExecution, 'unaffected execution stays immutable');
+  write(shared, 'SHARED changed\n'); commit('change shared dependency');
+  const sharedChange = report();
+  assert.equal(row(sharedChange, 'INT-A').action, 'rerun');
+  assert.equal(row(sharedChange, 'INT-B').action, 'rerun');
+  executions = 0;
+  await handlers.verification_evidence_refresh_stale({ storyId });
+  assert.equal(executions, 3, 'shared dependency reruns both reusable groups and strict ordinary fallback');
+  const manifestBytes = readFileSync(join(root, b.manifest));
+  rmSync(join(root, b.manifest));
+  assert.equal(row(report(), 'INT-B').action, 'rerun', 'missing input closure never reuses a matching prior result');
+  write(b.manifest, manifestBytes);
+  const failedProjection = store.readChecklist(storyId);
+  failedProjection.items[0].verificationEvidence.find(e => e.intentRef === 'INT-B').result = 'fail';
+  store.writeChecklist(storyId, failedProjection);
+  assert.equal(row(report(), 'INT-B').action, 'rerun', 'a matching receipt never overrides a recorded failure');
+  failedProjection.items[0].verificationEvidence.find(e => e.intentRef === 'INT-B').result = 'pass';
+  store.writeChecklist(storyId, failedProjection);
   const current = report();
   const cl = store.readChecklist(storyId);
   cl.items[0].verificationIntent.happy.push(intent('INT-ADDED', 'A newly requested user outcome'));
@@ -101,7 +120,11 @@ try {
   store.writeChecklist(storyId, tampered);
   assert.equal(row(report(), 'INT-B').action, 'invalid', 'unchanged input hash never overrides invalid signatures');
   const text = planner.evidence_plan({ storyId });
+  const duplicate = store.readChecklist(storyId);
+  duplicate.items[0].verificationIntent.happy.push(intent('INT-A', 'Conflicting duplicate requirement'));
+  store.writeChecklist(storyId, duplicate);
+  assert.throws(report, /Duplicate verification intent identity/, 'duplicate identity never hides an intent');
   assert.match(text, /A newly requested user outcome/, 'text report shows user intent wording');
   assert.match(text, /missing_dependency_manifest/, 'ordinary closure limitation is explained');
-  console.log('INTENT_FINGERPRINT_REUSE PASS ' + JSON.stringify({ dynamicIntentCount: 6, unrelatedExecutions: 1, affectedExecutions: 2, ordinaryFallbackExecutionsPerDrift: 1, changedReusableGroupExecutions: 1, unchangedReusableGroupExecutions: 0, wallSeconds: (performance.now() - started) / 1000 }));
+  console.log('INTENT_FINGERPRINT_REUSE PASS ' + JSON.stringify({ dynamicIntentCount: 6, unrelatedExecutions: 1, affectedExecutions: 2, sharedDependencyExecutions: 3, ordinaryFallbackExecutionsPerDrift: 1, changedReusableGroupExecutions: 1, unchangedReusableGroupExecutions: 0, wallSeconds: (performance.now() - started) / 1000 }));
 } finally { rmSync(root, { recursive: true, force: true }); }

@@ -1,3 +1,4 @@
+import { buildIntentFingerprintReport, type IntentFingerprintReport, type IntentFingerprintRow } from '../core/verification-intent-fingerprints.js';
 import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 import type { HandlerContext } from './context.js';
 import {
@@ -57,6 +58,7 @@ export interface EvidencePlanReport {
     writeEvidence: false;
   };
   readinessReport: StoryReadinessReport;
+  fingerprints: IntentFingerprintReport;
   buckets: {
     missing: EvidencePlanEntry[];
     rerun: EvidencePlanEntry[];
@@ -157,9 +159,8 @@ function isWaiver(ev: VerificationEvidence): boolean {
  *                  with their priority via `required:false`.
  *  - rerun:        evidence exists but result=fail OR no result field
  *                  (cannot prove pass) → must re-execute the command.
- *  - refresh-only: evidence result=pass BUT checkEvidenceFreshnessForGit reports
- *                  NOT fresh (hash drift; logic still valid) → only a hash
- *                  re-stamp is needed (verification_evidence_refresh_stale, P4).
+ *  - refresh-only: non-executable attestation result=pass BUT checkEvidenceFreshnessForGit reports
+ *                  NOT fresh (hash drift; logic still valid) → the existing attestation refresh path applies (verification_evidence_refresh_stale, P4).
  *  - fresh:        evidence result=pass AND checkEvidenceFreshnessForGit reports
  *                  fresh → no action.
  */
@@ -168,6 +169,7 @@ function classifyIntent(
   evidence: VerificationEvidence | undefined,
   gitCwd: string,
   metadataRoot: string,
+  fingerprint: IntentFingerprintRow,
 ): EvidencePlanEntry {
   const priority: VerificationPriority = collected.intent.priority ?? 'must';
   const required = priority === 'must';
@@ -178,6 +180,17 @@ function classifyIntent(
     priority,
     required,
   };
+
+  // Executable rows use the same authenticated receipt verdict as lifecycle gates.
+  // Hash drift alone never establishes that a command needs only a metadata refresh.
+  if (fingerprint.executable && evidence) {
+    return {
+      ...base, hasEvidence: true, result: evidence.result,
+      bucket: fingerprint.action === 'current' || fingerprint.action === 'reuse' ? 'fresh' : 'rerun',
+      ...(fingerprint.command ? { command: fingerprint.command } : {}),
+      driftReason: fingerprint.reason,
+    };
+  }
 
   // A waiver counts as covered for the missing predicate (V1: passing
   // evidence OR waiver). It needs no command and no hash re-stamp.
@@ -229,6 +242,12 @@ export function renderEvidencePlanReport(report: EvidencePlanReport): string {
     `summary: missing=${report.summary.missing} rerun=${report.summary.rerun} ` +
       `refresh-only=${report.summary.refreshOnly} fresh=${report.summary.fresh}`,
   ];
+
+  lines.push(`intent fingerprints: ${report.fingerprints.intents.length} intents, ${report.fingerprints.executions.length} execution groups`,
+    `root fingerprint: ${report.fingerprints.rootFingerprint} (diagnostic only)`);
+  for (const row of report.fingerprints.intents) {
+    lines.push(`  ${row.intentRef}: ${row.description}`, `    action=${row.action} closure=${row.inputClosure} reason=${row.reason}`);
+  }
 
   const renderEntry = (entry: EvidencePlanEntry): string => {
     const tag = `${entry.intentRef} [${entry.priority}${entry.required ? '/required' : ''}]`;
@@ -284,6 +303,8 @@ export function createEvidencePlanHandlers(ctx: HandlerContext): Record<string, 
       projectRoot: ctx.root,
     });
 
+    const fingerprints = buildIntentFingerprintReport({ projectRoot: ctx.root, gitCwd, storyId: args.storyId, checklist });
+    const fingerprintByRef = new Map(fingerprints.intents.map(row => [row.intentRef, row]));
     const buckets: EvidencePlanReport['buckets'] = {
       missing: [],
       rerun: [],
@@ -293,7 +314,7 @@ export function createEvidencePlanHandlers(ctx: HandlerContext): Record<string, 
 
     for (const item of checklist.items) {
       for (const collected of collectVerificationIntents(item)) {
-        const entry = classifyIntent(collected, byRef.get(collected.ref), gitCwd, ctx.root);
+        const entry = classifyIntent(collected, byRef.get(collected.ref), gitCwd, ctx.root, fingerprintByRef.get(collected.ref)!);
         switch (entry.bucket) {
           case 'missing':
             buckets.missing.push(entry);
@@ -315,6 +336,7 @@ export function createEvidencePlanHandlers(ctx: HandlerContext): Record<string, 
       storyId: args.storyId,
       mode: { runCommands: false, writeEvidence: false },
       readinessReport,
+      fingerprints,
       buckets,
       summary: {
         missing: buckets.missing.length,

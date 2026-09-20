@@ -102,3 +102,48 @@ admission. Replay does not launch, re-sign, retime or mutate the source executio
 Migration is additive. Legacy combined receipts, `VerificationReceiptBundleV2`, `VerificationReceiptBundleV3`, `VerificationReceiptBundleV4`, and legacy `VerificationAssertionReceiptV1` records remain visible as read-only audit history with explicit legacy diagnostics, while the next tool-owned execution emits a `VerificationReceiptBundleV5` containing `VerificationAssertionReceiptV2`. Those legacy records cannot satisfy lifecycle admission, reuse, or selector-narrowing proof—even when a selector field is present—and there is no in-place promotion.
 
 Rollback disables new reuse/fan-out production and forces strict real execution. Existing v5 records remain readable and verifiable; they are not rewritten to older shapes. Removing the v2 capsule manifest, changing the capsule policy, losing permission enforcement, or presenting a legacy/self-attested manifest immediately denies reuse and returns to strict Story/material freshness.
+
+## Dynamic intent fingerprint diagnostics
+
+`proof-or-stop evidence_plan --storyId=B-xxxx --json` derives its intent list from
+current structured verification intents, including requirements without evidence.
+It displays each real description, stable ID (or the existing lane/index fallback),
+execution-group key, current per-intent fingerprint and an order-stable root fingerprint.
+Nothing is sized to a particular Story or historical receipt count. Explicit IDs
+survive reordering; legacy positional IDs retain their existing positional meaning.
+Duplicate IDs are rejected instead of silently collapsing requirements.
+
+The execution fingerprint uses the existing live command/input/environment/toolchain
+identity. A mechanically complete capsule closure excludes unrelated material;
+ordinary commands retain both material and Story-file bindings. Selector and intent
+semantics belong to the leaf, not the shared execution group. Changing an input used
+by two intents schedules one existing execution, with two independently authenticated
+assertions. Adding an unverified intent changes the root and remains visible as missing.
+Timestamps, receipt publication and result status are not fresh execution inputs.
+
+These fingerprints are diagnostic-only: equality never replaces signature/output
+validation, pin binding, lifecycle expiry or current state checks. Executable rows
+use the shared gate receipt evaluator and report current, reuse, rerun or invalid.
+The existing signed refresh writer remains the only execution/reuse producer.
+An unsigned or stale ordinary pass is never advertised as a hash-only refresh.
+Non-executable attestations retain their separate compatibility behavior.
+
+Legacy receipts without complete input authority are not upgraded by inventing a
+manifest. A genuine eligible execution must establish that authority first. This
+repair does not extend the fixed capsule to arbitrary programs or claim that import
+scanning or an observed read trace proves complete dependencies. For the historical
+B-e6d9 commands, incomplete closure remains an explicit reason for re-execution.
+
+Regression: `node packages/main/tests/intent-fingerprint-reuse.test.mjs`, also called
+by the existing evidence-plan smoke, executes the real producer and refresh handlers.
+It checks dynamic membership/descriptions, unrelated and affected input groups,
+shared-command fan-out, strict ordinary fallback, immutable reuse, tampering and
+read-only reports. Fixture results are not real-Story acceptance receipts.
+
+At maintenance base `db43a2611c25bb8153d1a32db67c6d39be1b4e3e`, the full process-fact
+verifier has a pre-existing failure: it expects the retired-vocabulary guard to
+contain `52a283cfcdc3bfbb233feab6d31614d0eabf8470a41d3af10ad7786246905720`,
+but that unchanged guard does not contain the literal. The candidate run reported
+that same sole failure; the new diagnostic checks passed. This comparison checks
+the exact baseline source predicate, not a claim that the complete baseline suite
+was rerun. The unrelated guard is preserved; full process-fact success is not claimed.
