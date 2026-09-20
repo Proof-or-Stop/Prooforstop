@@ -47,9 +47,9 @@ as a failed independent-worktree assertion. The original 4-second observation,
 worktree cleanup releases both probes and waits for both children even on failure.
 
 The finish audit follow-up reclaims dead legacy preparation/quarantine residue
-using proven local process death. Live/unknown residue remains intact and now
+using a kernel ESRCH observation for a valid local holder PID. Malformed and out-of-range PIDs never count as proof of death. Live/unknown residue remains intact and now
 names the blocking migration path immediately. The runtime contract executes the
-six-case regression. REVIEW-to-TEST additionally proves that missing routine
+ten-case regression. REVIEW-to-TEST additionally proves that missing routine
 PASS refuses without running an internal suite. The requested internal-validation
 positive would contradict the current public transition contract. The retired
 flag remains ignored under the existing non-strict schema; unsupported values for

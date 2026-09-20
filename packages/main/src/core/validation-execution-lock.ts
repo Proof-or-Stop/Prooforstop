@@ -156,6 +156,12 @@ function pidAppearsAlive(pid: number): boolean {
   }
 }
 
+function localHolderIsProvablyDead(holder: MkdirLockHolderInfo | null): boolean {
+  if (!holder || holder.hostname !== hostname() || !Number.isSafeInteger(holder.pid) || holder.pid <= 1) return false;
+  try { process.kill(holder.pid, 0); return false; }
+  catch (error: any) { return error?.code === 'ESRCH'; }
+}
+
 function readValidationLockHeartbeat(lockDir: string): ValidationLockHeartbeatInfo | null {
   try {
     const raw = readFileSync(join(lockDir, VALIDATION_EXECUTION_LOCK_HEARTBEAT_FILE), 'utf8');
@@ -433,7 +439,7 @@ async function prepareWorkspaceValidationCoordination(options: ValidationCapacit
         const holder = readMkdirLockHolder(child);
         // Unpublished or quarantined state is removable only with local owner
         // death, never merely age, a mismatched heartbeat, or an unknown owner.
-        if (holder?.hostname === hostname() && !pidAppearsAlive(holder.pid)
+        if (localHolderIsProvablyDead(holder)
           && classifyValidationCapacityLock({lockDir:child,holder,ageMs:0,staleMs:VALIDATION_EXECUTION_LOCK_STALE_MS,nowMs:Date.now()}) === 'stale') {
           quarantineValidationCapacityCandidate(child, 'stale');
           if (!existsSync(child)) continue;

@@ -1594,7 +1594,7 @@
         "packages/main/src/core/causal-evidence.ts": "57c6c1a65dc6922f1de2219e989e5e91faae30c67fd454a7b54c061d977f1044",
         "packages/main/src/core/cluster-compute.ts": "09b9aa233b6c27e2b24d8eebe6091f55c51aefaa59bb55fb2941e4f61a759d9b",
         "packages/main/src/core/runtime-environment-checks.ts": "e8912fe16f18b82f9d6d01b6aa809de463e9735d8c76a3ae2568eb65c61f145a",
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/core/store.ts": "d3a4793c3f25bec9fb132c84525b18814ddf222228e8daad5d96621d570d9c11",
         "packages/main/src/core/story-recall.ts": "6a0a7123e33f84e6fb52543c4ab855e5b3702612436e8247953c392fb0ed085c",
         "packages/main/src/tasks/agent-liveness-suite-smoke.ts": "cb5c13ed9f3c3667f746dd4fcd2c73410810ffc56f1f9ba308efdbd965f13fd9",
@@ -1654,14 +1654,14 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/route-reader-wiring-controls.mjs": "e3b55ca886a2442ae36a7083bc5252ecdd79df53318be75ada219b8e89203ab0",
         "scripts/run-validation-fixture-suite.mjs": "134a08355b7b24f51f850bc9f3b5ace1f229420704ce92e74042208df0d84ce7",
         "scripts/verification-subprocess-budget.mjs": "c1b62e79bf0a0f4e92e8b43767f06bc27cd29f57b19a350e73aca0a3af9abd43",
         "scripts/verify-acceptance-amendment-delta.mjs": "2a6914587e746d715cb320b1e4e3f2796ea6fb94938742e4264ae3ecec4cfbd8",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-route-reader-regression.mjs": "46e46f4a4132ec0f821cf8d9dede234b933f4164eec7254d79846356acf4ecfb",
@@ -1790,7 +1790,7 @@
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/handlers/done-required-validation.ts": "6a0a38d5ad9ba84446e56128bde8f971686706d350a0666790f01a078d720686",
         "packages/main/src/tasks/agent-liveness-suite-smoke.ts": "cb5c13ed9f3c3667f746dd4fcd2c73410810ffc56f1f9ba308efdbd965f13fd9",
         "packages/main/src/tasks/done-required-head-drift-proof.ts": "5ba8b1901deb9ef7f7437721696459a2a6d13dc6e39608009bc8e79608e0723d",
@@ -4707,7 +4707,7 @@
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/core/story-aware-validation.ts": "bccf6617d6eed7590249953ae25ef7652499a6f5ed683fce402c245c2cb1753c",
         "packages/main/src/handlers/story-aware-validation.ts": "1771262246863664952a254755cda9d4cea733a2f44275933865ac2901065826",
         "packages/main/src/handlers/validation-pass-admissibility.ts": "e36f651792fef520cd5bb42b8cab7dea6e030ba5d3a6e5384ef50552f81e712c",
@@ -4965,10 +4965,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -5023,10 +5023,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -5090,10 +5090,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -5165,10 +5165,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -5231,10 +5231,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -5246,7 +5246,7 @@
       "reason": "Exact scanner main/witness/selector contract: default retains independent identity-sites, memory-identity, runtime, marker, all seven literal negative witnesses and real pack --quiet. boundary-only returns only after identical structural and identity-sites checks. selectGit/git helpers execute only Git queries. Mode-bound child closure prevents same-file group recursion.",
       "key": "scripts/verify-proof-or-stop-identity-cutover.mjs:5761:execFileSync",
       "callDigest": "56fc0c676ec53a153736e20ee084b792838564d2c93641a15d4e51a8bb951a83",
-      "sourceDigest": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+      "sourceDigest": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
       "configIndexes": [
         147
       ],
@@ -5267,7 +5267,7 @@
           "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
           "startLine": 5759,
           "endLine": 5769,
-          "sourceDigest": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+          "sourceDigest": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
           "excerpt": "  for (const candidate of gitCandidates()) {\n    try {\n      const top = execFileSync(candidate, ['-C', cwd, 'rev-parse', '--show-toplevel'], {\n        encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],\n      }).trim();\n      if (top) {\n        gitExecutable = candidate;\n        return candidate;\n      }\n    } catch (error) {\n      failures.push(`${candidate}: ${String(error.stderr || error.message).trim().split('\\n')[0]}`);"
         },
         "2026-09-11 v0.3.312 integration review: the exact child-process call digest 56fc0c676ec53a153736e20ee084b792838564d2c93641a15d4e51a8bb951a83 is unchanged; source and dependency bytes were rebound after merging the two v0.3.311 lines."
@@ -5301,10 +5301,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -5316,7 +5316,7 @@
       "reason": "Exact scanner main/witness/selector contract: default retains independent identity-sites, memory-identity, runtime, marker, all seven literal negative witnesses and real pack --quiet. boundary-only returns only after identical structural and identity-sites checks. selectGit/git helpers execute only Git queries. Mode-bound child closure prevents same-file group recursion.",
       "key": "scripts/verify-proof-or-stop-identity-cutover.mjs:5777:execFileSync",
       "callDigest": "7c5ef236364e52fee2471f23f769efe02289d4cc615f1726097f66113f6a2705",
-      "sourceDigest": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+      "sourceDigest": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
       "configIndexes": [
         147
       ],
@@ -5337,7 +5337,7 @@
           "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
           "startLine": 5775,
           "endLine": 5785,
-          "sourceDigest": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+          "sourceDigest": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
           "excerpt": "function git(args, options = {}) {\n  const cwd = options.cwd || initialCwd;\n  return execFileSync(selectGit(cwd), ['-C', cwd, ...args], {\n    encoding: options.encoding === null ? null : 'utf8',\n    stdio: ['ignore', 'pipe', 'pipe'],\n    maxBuffer: 64 * 1024 * 1024,\n  });\n}\n\nfunction repoRoot() {\n  return git(['rev-parse', '--show-toplevel']).trim();"
         },
         "2026-09-11 v0.3.312 integration review: the exact child-process call digest 7c5ef236364e52fee2471f23f769efe02289d4cc615f1726097f66113f6a2705 is unchanged; source and dependency bytes were rebound after merging the two v0.3.311 lines."
@@ -5371,10 +5371,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -5386,7 +5386,7 @@
       "reason": "Exact scanner main/witness/selector contract: default retains independent identity-sites, memory-identity, runtime, marker, all seven literal negative witnesses and real pack --quiet. boundary-only returns only after identical structural and identity-sites checks. selectGit/git helpers execute only Git queries. Mode-bound child closure prevents same-file group recursion.",
       "key": "scripts/verify-proof-or-stop-identity-cutover.mjs:7568:execFileSync",
       "callDigest": "70bd41adf89932be052b88e66038bc9bdb55edfa868ef0731c079d09d75f9845",
-      "sourceDigest": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+      "sourceDigest": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
       "configIndexes": [
         147
       ],
@@ -5407,7 +5407,7 @@
           "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
           "startLine": 7566,
           "endLine": 7577,
-          "sourceDigest": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+          "sourceDigest": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
           "excerpt": "  // separately registered identity-cutover validation command, not a recursive\n  // scanner invocation or an integrity-hash substitute for behavioral proof.\n  const identitySitesCheck = execFileSync(process.execPath, [resolve(root, 'packages/main/tests/canonical-new-story-artifacts.test.mjs'), '--group=identity-sites'], { cwd: root, encoding: 'utf8', timeout: 60000 });\n  if (!identitySitesCheck.includes('GREEN B-49df: identity-sites group pass.')) throw new Error('independent owned identity totality verification did not produce its required selector');\n  process.stdout.write(identitySitesCheck);\n\n  // Disposable immutable-boundary controls require the same structural scan\n  // and independent source/emitted identity totality, but do not certify the\n  // runtime or package witnesses. Only the default invocation does that.\n  if (flags.includes('--boundary-only')) {\n    console.log('PASS identity-boundary-scan');\n    return;"
         },
         "2026-09-11 v0.3.312 integration review: the exact child-process call digest 70bd41adf89932be052b88e66038bc9bdb55edfa868ef0731c079d09d75f9845 is unchanged; source and dependency bytes were rebound after merging the two v0.3.311 lines."
@@ -5441,10 +5441,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -5456,7 +5456,7 @@
       "reason": "Exact scanner main/witness/selector contract: default retains independent identity-sites, memory-identity, runtime, marker, all seven literal negative witnesses and real pack --quiet. boundary-only returns only after identical structural and identity-sites checks. selectGit/git helpers execute only Git queries. Mode-bound child closure prevents same-file group recursion.",
       "key": "scripts/verify-proof-or-stop-identity-cutover.mjs:7582:execFileSync",
       "callDigest": "fb6eab6a976b572684eb09ae878d6bfd1dd68bc8fd9c1d7b1d8650122cca8366",
-      "sourceDigest": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+      "sourceDigest": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
       "configIndexes": [
         147
       ],
@@ -5471,7 +5471,7 @@
           "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
           "startLine": 7580,
           "endLine": 7589,
-          "sourceDigest": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+          "sourceDigest": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
           "excerpt": "  // Historical memory may be scanner-visible only while production selection,\n  // rendering, cache reads, and writes keep the canonical-only boundary green.\n  const memoryCheck = execFileSync(process.execPath, [resolve(root, 'packages/main/tests/canonical-new-story-artifacts.test.mjs'), '--group=memory-identity'], { cwd: root, encoding: 'utf8', timeout: 60000 });\n  if (!memoryCheck.includes('GREEN B-49df: memory-identity group pass.')) throw new Error('memory runtime quarantine verification did not produce its required selector');\n\n  // The runtime group executes both full registered verifiers before its public\n  // operation and installed-package witnesses. Its parent must cover their\n  // combined budgets; the former 300-second parent truncated that real work.\n  const runtimeCheck = execFileSync(process.execPath, [resolve(root, 'packages/main/tests/canonical-new-story-artifacts.test.mjs'), '--group=runtime'], { cwd: root, encoding: 'utf8', timeout: identityCertificationBudget.runtimeGroupMs });\n  if (!runtimeCheck.includes('GREEN B-49df: runtime group pass.')) throw new Error('runtime deny-only verification did not produce its required selector');"
         },
         "2026-09-11 v0.3.312 integration review: the exact child-process call digest fb6eab6a976b572684eb09ae878d6bfd1dd68bc8fd9c1d7b1d8650122cca8366 is unchanged; source and dependency bytes were rebound after merging the two v0.3.311 lines."
@@ -5505,10 +5505,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -5520,7 +5520,7 @@
       "reason": "Exact scanner main/witness/selector contract: default retains independent identity-sites, memory-identity, runtime, marker, all seven literal negative witnesses and real pack --quiet. boundary-only returns only after identical structural and identity-sites checks. selectGit/git helpers execute only Git queries. Mode-bound child closure prevents same-file group recursion.",
       "key": "scripts/verify-proof-or-stop-identity-cutover.mjs:7588:execFileSync",
       "callDigest": "7a73523fbba3e577140d5ceaa7a49fc486336aef4dcdd18cad5f945b70c02dc0",
-      "sourceDigest": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+      "sourceDigest": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
       "configIndexes": [
         147
       ],
@@ -5535,7 +5535,7 @@
           "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
           "startLine": 7585,
           "endLine": 7599,
-          "sourceDigest": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+          "sourceDigest": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
           "excerpt": "  // The runtime group executes both full registered verifiers before its public\n  // operation and installed-package witnesses. Its parent must cover their\n  // combined budgets; the former 300-second parent truncated that real work.\n  const runtimeCheck = execFileSync(process.execPath, [resolve(root, 'packages/main/tests/canonical-new-story-artifacts.test.mjs'), '--group=runtime'], { cwd: root, encoding: 'utf8', timeout: identityCertificationBudget.runtimeGroupMs });\n  if (!runtimeCheck.includes('GREEN B-49df: runtime group pass.')) throw new Error('runtime deny-only verification did not produce its required selector');\n  for (const line of runtimeCheck.split('\\n')) {\n    if (line.startsWith('CANONICAL_VERIFIER_EXECUTION ')) process.stdout.write(line + '\\n');\n  }\n  const markerCheck = execFileSync(process.execPath, [resolve(root, 'packages/main/tests/managed-marker-migration.test.mjs')], { cwd: root, encoding: 'utf8', timeout: 60000 });\n  if (!markerCheck.includes('managed-marker migration test passed')) throw new Error('managed-marker migration verification did not produce its required selector');\n\n  for (const witness of [...NEGATIVE_SCHEMA_WITNESSES, ...CLOSED_ROLE_RUNTIME_WITNESSES]) {\n    const output = execFileSync(process.execPath, [resolve(root, witness.command)], { cwd: root, encoding: 'utf8', timeout: 60000 });\n    if (!output.includes(witness.selector)) throw new Error(`negative schema runtime witness missing selector: ${witness.path}`);\n  }"
         },
         "2026-09-11 v0.3.312 integration review: the exact child-process call digest 4b4f14c1d215fe9e7d9e79bdf227050be4da9b1c81bbb994c9ca0f71b1c31c03 is unchanged; source and dependency bytes were rebound after merging the two v0.3.311 lines."
@@ -5569,10 +5569,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -5584,7 +5584,7 @@
       "reason": "Exact scanner main/witness/selector contract: default retains independent identity-sites, memory-identity, runtime, marker, all seven literal negative witnesses and real pack --quiet. boundary-only returns only after identical structural and identity-sites checks. selectGit/git helpers execute only Git queries. Mode-bound child closure prevents same-file group recursion.",
       "key": "scripts/verify-proof-or-stop-identity-cutover.mjs:7593:execFileSync",
       "callDigest": "623f9d518e6c2f3dce74808eaeb8a5aaf4c080e529ba9239371d53e14ab0e7fd",
-      "sourceDigest": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+      "sourceDigest": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
       "configIndexes": [
         147
       ],
@@ -5599,7 +5599,7 @@
           "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
           "startLine": 7588,
           "endLine": 7601,
-          "sourceDigest": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+          "sourceDigest": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
           "excerpt": "  const runtimeCheck = execFileSync(process.execPath, [resolve(root, 'packages/main/tests/canonical-new-story-artifacts.test.mjs'), '--group=runtime'], { cwd: root, encoding: 'utf8', timeout: identityCertificationBudget.runtimeGroupMs });\n  if (!runtimeCheck.includes('GREEN B-49df: runtime group pass.')) throw new Error('runtime deny-only verification did not produce its required selector');\n  for (const line of runtimeCheck.split('\\n')) {\n    if (line.startsWith('CANONICAL_VERIFIER_EXECUTION ')) process.stdout.write(line + '\\n');\n  }\n  const markerCheck = execFileSync(process.execPath, [resolve(root, 'packages/main/tests/managed-marker-migration.test.mjs')], { cwd: root, encoding: 'utf8', timeout: 60000 });\n  if (!markerCheck.includes('managed-marker migration test passed')) throw new Error('managed-marker migration verification did not produce its required selector');\n\n  for (const witness of [...NEGATIVE_SCHEMA_WITNESSES, ...CLOSED_ROLE_RUNTIME_WITNESSES]) {\n    const output = execFileSync(process.execPath, [resolve(root, witness.command)], { cwd: root, encoding: 'utf8', timeout: 60000 });\n    if (!output.includes(witness.selector)) throw new Error(`negative schema runtime witness missing selector: ${witness.path}`);\n  }\n\n  console.log('PASS identity-cutover');"
         },
         "2026-09-11 v0.3.312 integration review: the exact child-process call digest 623f9d518e6c2f3dce74808eaeb8a5aaf4c080e529ba9239371d53e14ab0e7fd is unchanged; source and dependency bytes were rebound after merging the two v0.3.311 lines."
@@ -5633,10 +5633,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -5648,7 +5648,7 @@
       "reason": "Exact scanner main/witness/selector contract: default retains independent identity-sites, memory-identity, runtime, marker, all seven literal negative witnesses and real pack --quiet. boundary-only returns only after identical structural and identity-sites checks. selectGit/git helpers execute only Git queries. Mode-bound child closure prevents same-file group recursion.",
       "key": "scripts/verify-proof-or-stop-identity-cutover.mjs:7597:execFileSync",
       "callDigest": "af0a628fc5e13e0501bcade67ffc798df0f730cd57a366a1cb0fb3236290f81b",
-      "sourceDigest": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+      "sourceDigest": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
       "configIndexes": [
         147
       ],
@@ -5663,7 +5663,7 @@
           "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
           "startLine": 7595,
           "endLine": 7605,
-          "sourceDigest": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+          "sourceDigest": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
           "excerpt": "\n  for (const witness of [...NEGATIVE_SCHEMA_WITNESSES, ...CLOSED_ROLE_RUNTIME_WITNESSES]) {\n    const output = execFileSync(process.execPath, [resolve(root, witness.command)], { cwd: root, encoding: 'utf8', timeout: 60000 });\n    if (!output.includes(witness.selector)) throw new Error(`negative schema runtime witness missing selector: ${witness.path}`);\n  }\n\n  console.log('PASS identity-cutover');\n  console.log('PASS identity-cutover policy: every active legacy identity is classified; frozen evidence allowlist is exact and current');\n  console.log('PASS active prose/assets: Proof-or-Stop only');\n  console.log('PASS active experience-ablation schemas: proof-or-stop.* only');\n  console.log('PASS frozen history: unchanged');"
         },
         "2026-09-11 v0.3.312 integration review: the exact child-process call digest af0a628fc5e13e0501bcade67ffc798df0f730cd57a366a1cb0fb3236290f81b is unchanged; source and dependency bytes were rebound after merging the two v0.3.311 lines."
@@ -5697,10 +5697,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -5712,7 +5712,7 @@
       "reason": "Exact scanner main/witness/selector contract: default retains independent identity-sites, memory-identity, runtime, marker, all seven literal negative witnesses and real pack --quiet. boundary-only returns only after identical structural and identity-sites checks. selectGit/git helpers execute only Git queries. Mode-bound child closure prevents same-file group recursion.",
       "key": "scripts/verify-proof-or-stop-identity-cutover.mjs:7612:execFileSync",
       "callDigest": "113c2740926c7411a5e848da0378b7ff544b5e73ee7566b9a3f7d53dceeeecc0",
-      "sourceDigest": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+      "sourceDigest": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
       "configIndexes": [
         147
       ],
@@ -5727,7 +5727,7 @@
           "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
           "startLine": 7610,
           "endLine": 7620,
-          "sourceDigest": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+          "sourceDigest": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
           "excerpt": "  console.log(`PASS unchanged: ${schemas.length} exact persisted-schema rows`);\n  console.log('PASS canonical identities');\n  execFileSync(process.execPath, [resolve(root, 'scripts/verify-proof-or-stop-pack-boundary.mjs'), '--quiet'], {\n    cwd: root,\n    stdio: 'inherit',\n  });\n}\n\n// Shared read-only classification data. Consumers must validate the exact count,\n// context and witness integrity against their own source map before admitting a\n// hit; returning a row is not a path exemption or a runtime reader permission."
         },
         "2026-09-11 v0.3.312 integration review: the exact child-process call digest 113c2740926c7411a5e848da0378b7ff544b5e73ee7566b9a3f7d53dceeeecc0 is unchanged; source and dependency bytes were rebound after merging the two v0.3.311 lines."
@@ -5761,10 +5761,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -5823,10 +5823,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -5889,10 +5889,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -5956,10 +5956,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -6023,10 +6023,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -6090,10 +6090,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -6157,10 +6157,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -6224,10 +6224,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -6291,10 +6291,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -6363,10 +6363,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -6426,10 +6426,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -6489,10 +6489,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -6552,10 +6552,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -6617,10 +6617,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -6680,10 +6680,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -6746,10 +6746,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -6817,10 +6817,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -6889,10 +6889,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -6954,10 +6954,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -7019,10 +7019,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -7085,10 +7085,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -7150,10 +7150,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -7215,10 +7215,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -7281,10 +7281,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f"
@@ -7313,7 +7313,7 @@
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/tasks/full-suite-runner.ts": "08948d56b21b084f592cd396b340203d054e68b20f92735b6ecd554631fa4a64",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "0b17dd36e2ea27c8c3abb73da1d9fd99c6c175eb87d3156adb2b25284999ab6f",
         "packages/main/src/tasks/validation-protocol-smoke.ts": "cee4b76759bac99daa1af3465342617255c905ac4d4f05abe6f8fca05b970ece",
@@ -7353,7 +7353,7 @@
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/tasks/full-suite-runner.ts": "08948d56b21b084f592cd396b340203d054e68b20f92735b6ecd554631fa4a64",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "0b17dd36e2ea27c8c3abb73da1d9fd99c6c175eb87d3156adb2b25284999ab6f",
         "packages/main/src/tasks/validation-protocol-smoke.ts": "cee4b76759bac99daa1af3465342617255c905ac4d4f05abe6f8fca05b970ece",
@@ -7393,7 +7393,7 @@
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/tasks/full-suite-runner.ts": "08948d56b21b084f592cd396b340203d054e68b20f92735b6ecd554631fa4a64",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "0b17dd36e2ea27c8c3abb73da1d9fd99c6c175eb87d3156adb2b25284999ab6f",
         "packages/main/src/tasks/validation-protocol-smoke.ts": "cee4b76759bac99daa1af3465342617255c905ac4d4f05abe6f8fca05b970ece",
@@ -7433,7 +7433,7 @@
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/tasks/full-suite-runner.ts": "08948d56b21b084f592cd396b340203d054e68b20f92735b6ecd554631fa4a64",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "0b17dd36e2ea27c8c3abb73da1d9fd99c6c175eb87d3156adb2b25284999ab6f",
         "packages/main/src/tasks/validation-protocol-smoke.ts": "cee4b76759bac99daa1af3465342617255c905ac4d4f05abe6f8fca05b970ece",
@@ -9754,7 +9754,7 @@
       "dependencyDigests": {
         "packages/main/src/core/advisory.ts": "e1c34391d7fb902304e6409924e537f709e06c707d9a472fab2ec7452d8ba081",
         "packages/main/src/core/cluster-compute.ts": "09b9aa233b6c27e2b24d8eebe6091f55c51aefaa59bb55fb2941e4f61a759d9b",
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/core/story-recall.ts": "6a0a7123e33f84e6fb52543c4ab855e5b3702612436e8247953c392fb0ed085c",
         "packages/main/src/tasks/finding-identity-lineage-smoke.ts": "09a954da77ac46579857ac16fb9fb47a7c131d24cbeb81043bfd4c375ad27417",
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
@@ -9795,7 +9795,7 @@
       "dependencyDigests": {
         "packages/main/src/core/advisory.ts": "e1c34391d7fb902304e6409924e537f709e06c707d9a472fab2ec7452d8ba081",
         "packages/main/src/core/cluster-compute.ts": "09b9aa233b6c27e2b24d8eebe6091f55c51aefaa59bb55fb2941e4f61a759d9b",
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/core/story-recall.ts": "6a0a7123e33f84e6fb52543c4ab855e5b3702612436e8247953c392fb0ed085c",
         "packages/main/src/tasks/finding-identity-lineage-smoke.ts": "09a954da77ac46579857ac16fb9fb47a7c131d24cbeb81043bfd4c375ad27417",
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
@@ -9836,7 +9836,7 @@
       "dependencyDigests": {
         "packages/main/src/core/advisory.ts": "e1c34391d7fb902304e6409924e537f709e06c707d9a472fab2ec7452d8ba081",
         "packages/main/src/core/cluster-compute.ts": "09b9aa233b6c27e2b24d8eebe6091f55c51aefaa59bb55fb2941e4f61a759d9b",
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/core/story-recall.ts": "6a0a7123e33f84e6fb52543c4ab855e5b3702612436e8247953c392fb0ed085c",
         "packages/main/src/tasks/finding-identity-lineage-smoke.ts": "09a954da77ac46579857ac16fb9fb47a7c131d24cbeb81043bfd4c375ad27417",
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
@@ -9877,7 +9877,7 @@
       "dependencyDigests": {
         "packages/main/src/core/advisory.ts": "e1c34391d7fb902304e6409924e537f709e06c707d9a472fab2ec7452d8ba081",
         "packages/main/src/core/cluster-compute.ts": "09b9aa233b6c27e2b24d8eebe6091f55c51aefaa59bb55fb2941e4f61a759d9b",
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/core/story-recall.ts": "6a0a7123e33f84e6fb52543c4ab855e5b3702612436e8247953c392fb0ed085c",
         "packages/main/src/tasks/finding-identity-lineage-smoke.ts": "09a954da77ac46579857ac16fb9fb47a7c131d24cbeb81043bfd4c375ad27417",
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
@@ -9918,7 +9918,7 @@
       "dependencyDigests": {
         "packages/main/src/core/advisory.ts": "e1c34391d7fb902304e6409924e537f709e06c707d9a472fab2ec7452d8ba081",
         "packages/main/src/core/cluster-compute.ts": "09b9aa233b6c27e2b24d8eebe6091f55c51aefaa59bb55fb2941e4f61a759d9b",
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/core/story-recall.ts": "6a0a7123e33f84e6fb52543c4ab855e5b3702612436e8247953c392fb0ed085c",
         "packages/main/src/tasks/finding-identity-lineage-smoke.ts": "09a954da77ac46579857ac16fb9fb47a7c131d24cbeb81043bfd4c375ad27417",
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
@@ -9959,7 +9959,7 @@
       "dependencyDigests": {
         "packages/main/src/core/advisory.ts": "e1c34391d7fb902304e6409924e537f709e06c707d9a472fab2ec7452d8ba081",
         "packages/main/src/core/cluster-compute.ts": "09b9aa233b6c27e2b24d8eebe6091f55c51aefaa59bb55fb2941e4f61a759d9b",
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/core/story-recall.ts": "6a0a7123e33f84e6fb52543c4ab855e5b3702612436e8247953c392fb0ed085c",
         "packages/main/src/tasks/finding-identity-lineage-smoke.ts": "09a954da77ac46579857ac16fb9fb47a7c131d24cbeb81043bfd4c375ad27417",
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
@@ -10000,7 +10000,7 @@
       "dependencyDigests": {
         "packages/main/src/core/advisory.ts": "e1c34391d7fb902304e6409924e537f709e06c707d9a472fab2ec7452d8ba081",
         "packages/main/src/core/cluster-compute.ts": "09b9aa233b6c27e2b24d8eebe6091f55c51aefaa59bb55fb2941e4f61a759d9b",
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/core/story-recall.ts": "6a0a7123e33f84e6fb52543c4ab855e5b3702612436e8247953c392fb0ed085c",
         "packages/main/src/tasks/finding-identity-lineage-smoke.ts": "09a954da77ac46579857ac16fb9fb47a7c131d24cbeb81043bfd4c375ad27417",
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
@@ -10041,7 +10041,7 @@
       "dependencyDigests": {
         "packages/main/src/core/advisory.ts": "e1c34391d7fb902304e6409924e537f709e06c707d9a472fab2ec7452d8ba081",
         "packages/main/src/core/cluster-compute.ts": "09b9aa233b6c27e2b24d8eebe6091f55c51aefaa59bb55fb2941e4f61a759d9b",
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/core/story-recall.ts": "6a0a7123e33f84e6fb52543c4ab855e5b3702612436e8247953c392fb0ed085c",
         "packages/main/src/tasks/finding-identity-lineage-smoke.ts": "09a954da77ac46579857ac16fb9fb47a7c131d24cbeb81043bfd4c375ad27417",
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
@@ -10082,7 +10082,7 @@
       "dependencyDigests": {
         "packages/main/src/core/advisory.ts": "e1c34391d7fb902304e6409924e537f709e06c707d9a472fab2ec7452d8ba081",
         "packages/main/src/core/cluster-compute.ts": "09b9aa233b6c27e2b24d8eebe6091f55c51aefaa59bb55fb2941e4f61a759d9b",
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/core/story-recall.ts": "6a0a7123e33f84e6fb52543c4ab855e5b3702612436e8247953c392fb0ed085c",
         "packages/main/src/tasks/finding-identity-lineage-smoke.ts": "09a954da77ac46579857ac16fb9fb47a7c131d24cbeb81043bfd4c375ad27417",
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
@@ -10123,7 +10123,7 @@
       "dependencyDigests": {
         "packages/main/src/core/advisory.ts": "e1c34391d7fb902304e6409924e537f709e06c707d9a472fab2ec7452d8ba081",
         "packages/main/src/core/cluster-compute.ts": "09b9aa233b6c27e2b24d8eebe6091f55c51aefaa59bb55fb2941e4f61a759d9b",
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/core/story-recall.ts": "6a0a7123e33f84e6fb52543c4ab855e5b3702612436e8247953c392fb0ed085c",
         "packages/main/src/tasks/finding-identity-lineage-smoke.ts": "09a954da77ac46579857ac16fb9fb47a7c131d24cbeb81043bfd4c375ad27417",
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
@@ -10164,7 +10164,7 @@
       "dependencyDigests": {
         "packages/main/src/core/advisory.ts": "e1c34391d7fb902304e6409924e537f709e06c707d9a472fab2ec7452d8ba081",
         "packages/main/src/core/cluster-compute.ts": "09b9aa233b6c27e2b24d8eebe6091f55c51aefaa59bb55fb2941e4f61a759d9b",
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/core/story-recall.ts": "6a0a7123e33f84e6fb52543c4ab855e5b3702612436e8247953c392fb0ed085c",
         "packages/main/src/tasks/finding-identity-lineage-smoke.ts": "09a954da77ac46579857ac16fb9fb47a7c131d24cbeb81043bfd4c375ad27417",
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
@@ -10205,7 +10205,7 @@
       "dependencyDigests": {
         "packages/main/src/core/advisory.ts": "e1c34391d7fb902304e6409924e537f709e06c707d9a472fab2ec7452d8ba081",
         "packages/main/src/core/cluster-compute.ts": "09b9aa233b6c27e2b24d8eebe6091f55c51aefaa59bb55fb2941e4f61a759d9b",
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/core/story-recall.ts": "6a0a7123e33f84e6fb52543c4ab855e5b3702612436e8247953c392fb0ed085c",
         "packages/main/src/tasks/finding-identity-lineage-smoke.ts": "09a954da77ac46579857ac16fb9fb47a7c131d24cbeb81043bfd4c375ad27417",
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
@@ -10246,7 +10246,7 @@
       "dependencyDigests": {
         "packages/main/src/core/advisory.ts": "e1c34391d7fb902304e6409924e537f709e06c707d9a472fab2ec7452d8ba081",
         "packages/main/src/core/cluster-compute.ts": "09b9aa233b6c27e2b24d8eebe6091f55c51aefaa59bb55fb2941e4f61a759d9b",
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/core/story-recall.ts": "6a0a7123e33f84e6fb52543c4ab855e5b3702612436e8247953c392fb0ed085c",
         "packages/main/src/tasks/finding-identity-lineage-smoke.ts": "09a954da77ac46579857ac16fb9fb47a7c131d24cbeb81043bfd4c375ad27417",
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
@@ -10287,7 +10287,7 @@
       "dependencyDigests": {
         "packages/main/src/core/advisory.ts": "e1c34391d7fb902304e6409924e537f709e06c707d9a472fab2ec7452d8ba081",
         "packages/main/src/core/cluster-compute.ts": "09b9aa233b6c27e2b24d8eebe6091f55c51aefaa59bb55fb2941e4f61a759d9b",
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/core/story-recall.ts": "6a0a7123e33f84e6fb52543c4ab855e5b3702612436e8247953c392fb0ed085c",
         "packages/main/src/tasks/finding-identity-lineage-smoke.ts": "09a954da77ac46579857ac16fb9fb47a7c131d24cbeb81043bfd4c375ad27417",
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
@@ -10329,7 +10329,7 @@
       "dependencyDigests": {
         "packages/main/src/core/advisory.ts": "e1c34391d7fb902304e6409924e537f709e06c707d9a472fab2ec7452d8ba081",
         "packages/main/src/core/cluster-compute.ts": "09b9aa233b6c27e2b24d8eebe6091f55c51aefaa59bb55fb2941e4f61a759d9b",
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/core/story-recall.ts": "6a0a7123e33f84e6fb52543c4ab855e5b3702612436e8247953c392fb0ed085c",
         "packages/main/src/tasks/finding-identity-lineage-smoke.ts": "09a954da77ac46579857ac16fb9fb47a7c131d24cbeb81043bfd4c375ad27417",
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
@@ -10388,7 +10388,7 @@
         "packages/main/src/core/causal-evidence.ts": "57c6c1a65dc6922f1de2219e989e5e91faae30c67fd454a7b54c061d977f1044",
         "packages/main/src/core/cluster-compute.ts": "09b9aa233b6c27e2b24d8eebe6091f55c51aefaa59bb55fb2941e4f61a759d9b",
         "packages/main/src/core/runtime-environment-checks.ts": "e8912fe16f18b82f9d6d01b6aa809de463e9735d8c76a3ae2568eb65c61f145a",
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/core/store.ts": "d3a4793c3f25bec9fb132c84525b18814ddf222228e8daad5d96621d570d9c11",
         "packages/main/src/core/story-recall.ts": "6a0a7123e33f84e6fb52543c4ab855e5b3702612436e8247953c392fb0ed085c",
         "packages/main/src/tasks/current-review-fixture.ts": "6500145ff4581959e88da06b3a1c2a4f0e74e4f5b1de833a83672e9ee612a950",
@@ -10420,12 +10420,12 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/route-reader-wiring-controls.mjs": "e3b55ca886a2442ae36a7083bc5252ecdd79df53318be75ada219b8e89203ab0",
         "scripts/verification-subprocess-budget.mjs": "c1b62e79bf0a0f4e92e8b43767f06bc27cd29f57b19a350e73aca0a3af9abd43",
         "scripts/verify-acceptance-amendment-delta.mjs": "2a6914587e746d715cb320b1e4e3f2796ea6fb94938742e4264ae3ecec4cfbd8",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-route-reader-regression.mjs": "46e46f4a4132ec0f821cf8d9dede234b933f4164eec7254d79846356acf4ecfb",
         "scripts/verify-route-reattestation-dependency-direction.mjs": "696012614c4241f7bd20671e992d8b1fd13cf0d185513bd392041407b76581bb",
@@ -10511,7 +10511,7 @@
         "packages/main/package.json": "d9908defa4d47ce47e245d0543f84674e8952561f2d00792221b9275b7ff2939",
         "packages/main/src/core/causal-evidence.ts": "57c6c1a65dc6922f1de2219e989e5e91faae30c67fd454a7b54c061d977f1044",
         "packages/main/src/core/runtime-environment-checks.ts": "e8912fe16f18b82f9d6d01b6aa809de463e9735d8c76a3ae2568eb65c61f145a",
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/core/store.ts": "d3a4793c3f25bec9fb132c84525b18814ddf222228e8daad5d96621d570d9c11",
         "packages/main/src/tasks/current-review-fixture.ts": "6500145ff4581959e88da06b3a1c2a4f0e74e4f5b1de833a83672e9ee612a950",
         "packages/main/src/tasks/dynamic-finding-evidence-closure-smoke.ts": "043da70daa06c3d5a3aac49575ba22f2fc3f6d617683e7414ed545f77373ec58",
@@ -10540,12 +10540,12 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/route-reader-wiring-controls.mjs": "e3b55ca886a2442ae36a7083bc5252ecdd79df53318be75ada219b8e89203ab0",
         "scripts/verification-subprocess-budget.mjs": "c1b62e79bf0a0f4e92e8b43767f06bc27cd29f57b19a350e73aca0a3af9abd43",
         "scripts/verify-acceptance-amendment-delta.mjs": "2a6914587e746d715cb320b1e4e3f2796ea6fb94938742e4264ae3ecec4cfbd8",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-route-reader-regression.mjs": "46e46f4a4132ec0f821cf8d9dede234b933f4164eec7254d79846356acf4ecfb",
         "scripts/verify-route-reattestation-dependency-direction.mjs": "696012614c4241f7bd20671e992d8b1fd13cf0d185513bd392041407b76581bb",
@@ -10600,7 +10600,7 @@
         "packages/main/package.json": "d9908defa4d47ce47e245d0543f84674e8952561f2d00792221b9275b7ff2939",
         "packages/main/src/core/causal-evidence.ts": "57c6c1a65dc6922f1de2219e989e5e91faae30c67fd454a7b54c061d977f1044",
         "packages/main/src/core/runtime-environment-checks.ts": "e8912fe16f18b82f9d6d01b6aa809de463e9735d8c76a3ae2568eb65c61f145a",
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/core/store.ts": "d3a4793c3f25bec9fb132c84525b18814ddf222228e8daad5d96621d570d9c11",
         "packages/main/src/tasks/current-review-fixture.ts": "6500145ff4581959e88da06b3a1c2a4f0e74e4f5b1de833a83672e9ee612a950",
         "packages/main/src/tasks/dynamic-finding-evidence-closure-smoke.ts": "043da70daa06c3d5a3aac49575ba22f2fc3f6d617683e7414ed545f77373ec58",
@@ -10628,12 +10628,12 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/route-reader-wiring-controls.mjs": "e3b55ca886a2442ae36a7083bc5252ecdd79df53318be75ada219b8e89203ab0",
         "scripts/verification-subprocess-budget.mjs": "c1b62e79bf0a0f4e92e8b43767f06bc27cd29f57b19a350e73aca0a3af9abd43",
         "scripts/verify-acceptance-amendment-delta.mjs": "2a6914587e746d715cb320b1e4e3f2796ea6fb94938742e4264ae3ecec4cfbd8",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-route-reader-regression.mjs": "46e46f4a4132ec0f821cf8d9dede234b933f4164eec7254d79846356acf4ecfb",
         "scripts/verify-route-reattestation-dependency-direction.mjs": "696012614c4241f7bd20671e992d8b1fd13cf0d185513bd392041407b76581bb",
@@ -10804,7 +10804,7 @@
         "Bounded static source/dependency review proposal. This record is not a native execution receipt, formal Story PASS, operational qualification, or permission to suppress unrelated scanner errors."
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/core/shared-validation-execution.ts": "134aa9912c2cd3cdddcd8a1714e8bcf7a3b2a09e5fe7535da55f878b72bad57e",
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
         "scripts/verify-runtime-fact-contract.mjs": "22a9e3423006168a014a183b0c05f03f55c49afd5bbf56dc973cff0000ff7eac",
@@ -11035,7 +11035,7 @@
         "All configured npm run targets were expanded from their actual --prefix package.json scripts. Only config index 0 selects any named child module; its complete script is shown above. Exact nonempty child flags are distinct from its empty-argv entries. Other command inventories such as test scripts not selected by validate.commands are not registration."
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/tasks/full-suite-runner.ts": "08948d56b21b084f592cd396b340203d054e68b20f92735b6ecd554631fa4a64",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "0b17dd36e2ea27c8c3abb73da1d9fd99c6c175eb87d3156adb2b25284999ab6f",
         "packages/main/src/tasks/validation-protocol-smoke.ts": "cee4b76759bac99daa1af3465342617255c905ac4d4f05abe6f8fca05b970ece",
@@ -11865,7 +11865,7 @@
           "file": "packages/main/src/core/runtime-fact-registry.ts",
           "startLine": 35,
           "endLine": 41,
-          "sourceDigest": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+          "sourceDigest": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
           "excerpt": "export const MANAGED_CRITIC_FIXTURE_RUNTIME_POLICY = {\n  environmentKey: 'PROOF_OR_STOP_MANAGED_CRITIC_FIXTURE_BUDGET',\n  entry: 'managed-inventory-critic-import', standaloneMs: 120000,\n  outerMs: 135000, cleanupMarginMs: 15000, parallelism: 3,\n} as const;\n// Test-only watchdog transport; never changes provider admission or production budgets.\nexport const REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY = {"
         },
         {
@@ -11888,7 +11888,7 @@
         "packages/main/src/core/owner-session-adapters.ts": "aedfd51e60b99b5a1461fde302b1b492b223dc44bfef34ab87c859a99303eb17",
         "packages/main/src/core/owner-session.ts": "19ef8b5aedcce946ae8c5e2737749d8afe6d288fffa3d5bde96e119db44af735",
         "packages/main/src/core/review-run.ts": "0dbb0eca9363218afc1ae0d7fb82540e804158e3cdccbcbcf4b16861fa2cfa29",
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/core/store.ts": "d3a4793c3f25bec9fb132c84525b18814ddf222228e8daad5d96621d570d9c11",
         "packages/main/src/core/story-owner-lease.ts": "e43c0ca5e6eaaddcf121ae367b44a3004c783e06f915a067262d2be766d13956",
         "packages/main/src/handlers/host-run.ts": "f8a4605d599ddba83e6f770e34f69376b959b6a57b0c5d5a974c13a40f43dd39",
@@ -11959,7 +11959,7 @@
           "file": "packages/main/src/core/runtime-fact-registry.ts",
           "startLine": 35,
           "endLine": 41,
-          "sourceDigest": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+          "sourceDigest": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
           "excerpt": "export const MANAGED_CRITIC_FIXTURE_RUNTIME_POLICY = {\n  environmentKey: 'PROOF_OR_STOP_MANAGED_CRITIC_FIXTURE_BUDGET',\n  entry: 'managed-inventory-critic-import', standaloneMs: 120000,\n  outerMs: 135000, cleanupMarginMs: 15000, parallelism: 3,\n} as const;\n// Test-only watchdog transport; never changes provider admission or production budgets.\nexport const REVIEW_EPOCH_FIXTURE_RUNTIME_POLICY = {"
         },
         {
@@ -11982,7 +11982,7 @@
         "packages/main/src/core/owner-session-adapters.ts": "aedfd51e60b99b5a1461fde302b1b492b223dc44bfef34ab87c859a99303eb17",
         "packages/main/src/core/owner-session.ts": "19ef8b5aedcce946ae8c5e2737749d8afe6d288fffa3d5bde96e119db44af735",
         "packages/main/src/core/review-run.ts": "0dbb0eca9363218afc1ae0d7fb82540e804158e3cdccbcbcf4b16861fa2cfa29",
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/core/store.ts": "d3a4793c3f25bec9fb132c84525b18814ddf222228e8daad5d96621d570d9c11",
         "packages/main/src/core/story-owner-lease.ts": "e43c0ca5e6eaaddcf121ae367b44a3004c783e06f915a067262d2be766d13956",
         "packages/main/src/handlers/host-run.ts": "f8a4605d599ddba83e6f770e34f69376b959b6a57b0c5d5a974c13a40f43dd39",
@@ -12089,8 +12089,8 @@
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
-        "packages/main/src/core/validation-execution-lock.ts": "ea9f75bbd3122bbe833580ead135acf120e3bd78c78ce33a0e7efc52fa0139e0",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
+        "packages/main/src/core/validation-execution-lock.ts": "484d40fa33b7ffe38d502ece0841fe11d9b368e183a9f7ddc12a366d37ea0ab0",
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
@@ -12202,8 +12202,8 @@
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
-        "packages/main/src/core/validation-execution-lock.ts": "ea9f75bbd3122bbe833580ead135acf120e3bd78c78ce33a0e7efc52fa0139e0",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
+        "packages/main/src/core/validation-execution-lock.ts": "484d40fa33b7ffe38d502ece0841fe11d9b368e183a9f7ddc12a366d37ea0ab0",
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
@@ -12315,8 +12315,8 @@
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
-        "packages/main/src/core/validation-execution-lock.ts": "ea9f75bbd3122bbe833580ead135acf120e3bd78c78ce33a0e7efc52fa0139e0",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
+        "packages/main/src/core/validation-execution-lock.ts": "484d40fa33b7ffe38d502ece0841fe11d9b368e183a9f7ddc12a366d37ea0ab0",
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
@@ -12428,8 +12428,8 @@
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
-        "packages/main/src/core/validation-execution-lock.ts": "ea9f75bbd3122bbe833580ead135acf120e3bd78c78ce33a0e7efc52fa0139e0",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
+        "packages/main/src/core/validation-execution-lock.ts": "484d40fa33b7ffe38d502ece0841fe11d9b368e183a9f7ddc12a366d37ea0ab0",
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
@@ -12541,8 +12541,8 @@
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
-        "packages/main/src/core/validation-execution-lock.ts": "ea9f75bbd3122bbe833580ead135acf120e3bd78c78ce33a0e7efc52fa0139e0",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
+        "packages/main/src/core/validation-execution-lock.ts": "484d40fa33b7ffe38d502ece0841fe11d9b368e183a9f7ddc12a366d37ea0ab0",
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
@@ -12654,8 +12654,8 @@
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
-        "packages/main/src/core/validation-execution-lock.ts": "ea9f75bbd3122bbe833580ead135acf120e3bd78c78ce33a0e7efc52fa0139e0",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
+        "packages/main/src/core/validation-execution-lock.ts": "484d40fa33b7ffe38d502ece0841fe11d9b368e183a9f7ddc12a366d37ea0ab0",
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
@@ -12767,8 +12767,8 @@
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
-        "packages/main/src/core/validation-execution-lock.ts": "ea9f75bbd3122bbe833580ead135acf120e3bd78c78ce33a0e7efc52fa0139e0",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
+        "packages/main/src/core/validation-execution-lock.ts": "484d40fa33b7ffe38d502ece0841fe11d9b368e183a9f7ddc12a366d37ea0ab0",
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
@@ -12880,8 +12880,8 @@
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
-        "packages/main/src/core/validation-execution-lock.ts": "ea9f75bbd3122bbe833580ead135acf120e3bd78c78ce33a0e7efc52fa0139e0",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
+        "packages/main/src/core/validation-execution-lock.ts": "484d40fa33b7ffe38d502ece0841fe11d9b368e183a9f7ddc12a366d37ea0ab0",
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
@@ -12993,8 +12993,8 @@
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
-        "packages/main/src/core/validation-execution-lock.ts": "ea9f75bbd3122bbe833580ead135acf120e3bd78c78ce33a0e7efc52fa0139e0",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
+        "packages/main/src/core/validation-execution-lock.ts": "484d40fa33b7ffe38d502ece0841fe11d9b368e183a9f7ddc12a366d37ea0ab0",
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
@@ -13106,8 +13106,8 @@
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
-        "packages/main/src/core/validation-execution-lock.ts": "ea9f75bbd3122bbe833580ead135acf120e3bd78c78ce33a0e7efc52fa0139e0",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
+        "packages/main/src/core/validation-execution-lock.ts": "484d40fa33b7ffe38d502ece0841fe11d9b368e183a9f7ddc12a366d37ea0ab0",
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
@@ -13219,8 +13219,8 @@
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
-        "packages/main/src/core/validation-execution-lock.ts": "ea9f75bbd3122bbe833580ead135acf120e3bd78c78ce33a0e7efc52fa0139e0",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
+        "packages/main/src/core/validation-execution-lock.ts": "484d40fa33b7ffe38d502ece0841fe11d9b368e183a9f7ddc12a366d37ea0ab0",
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
@@ -13332,8 +13332,8 @@
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
-        "packages/main/src/core/validation-execution-lock.ts": "ea9f75bbd3122bbe833580ead135acf120e3bd78c78ce33a0e7efc52fa0139e0",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
+        "packages/main/src/core/validation-execution-lock.ts": "484d40fa33b7ffe38d502ece0841fe11d9b368e183a9f7ddc12a366d37ea0ab0",
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
@@ -13445,8 +13445,8 @@
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
-        "packages/main/src/core/validation-execution-lock.ts": "ea9f75bbd3122bbe833580ead135acf120e3bd78c78ce33a0e7efc52fa0139e0",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
+        "packages/main/src/core/validation-execution-lock.ts": "484d40fa33b7ffe38d502ece0841fe11d9b368e183a9f7ddc12a366d37ea0ab0",
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
@@ -13558,8 +13558,8 @@
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
-        "packages/main/src/core/validation-execution-lock.ts": "ea9f75bbd3122bbe833580ead135acf120e3bd78c78ce33a0e7efc52fa0139e0",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
+        "packages/main/src/core/validation-execution-lock.ts": "484d40fa33b7ffe38d502ece0841fe11d9b368e183a9f7ddc12a366d37ea0ab0",
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
@@ -13671,8 +13671,8 @@
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
-        "packages/main/src/core/validation-execution-lock.ts": "ea9f75bbd3122bbe833580ead135acf120e3bd78c78ce33a0e7efc52fa0139e0",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
+        "packages/main/src/core/validation-execution-lock.ts": "484d40fa33b7ffe38d502ece0841fe11d9b368e183a9f7ddc12a366d37ea0ab0",
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
@@ -13784,8 +13784,8 @@
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
-        "packages/main/src/core/validation-execution-lock.ts": "ea9f75bbd3122bbe833580ead135acf120e3bd78c78ce33a0e7efc52fa0139e0",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
+        "packages/main/src/core/validation-execution-lock.ts": "484d40fa33b7ffe38d502ece0841fe11d9b368e183a9f7ddc12a366d37ea0ab0",
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
@@ -13897,8 +13897,8 @@
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
-        "packages/main/src/core/validation-execution-lock.ts": "ea9f75bbd3122bbe833580ead135acf120e3bd78c78ce33a0e7efc52fa0139e0",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
+        "packages/main/src/core/validation-execution-lock.ts": "484d40fa33b7ffe38d502ece0841fe11d9b368e183a9f7ddc12a366d37ea0ab0",
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
@@ -14010,8 +14010,8 @@
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
-        "packages/main/src/core/validation-execution-lock.ts": "ea9f75bbd3122bbe833580ead135acf120e3bd78c78ce33a0e7efc52fa0139e0",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
+        "packages/main/src/core/validation-execution-lock.ts": "484d40fa33b7ffe38d502ece0841fe11d9b368e183a9f7ddc12a366d37ea0ab0",
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
@@ -14123,8 +14123,8 @@
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
-        "packages/main/src/core/validation-execution-lock.ts": "ea9f75bbd3122bbe833580ead135acf120e3bd78c78ce33a0e7efc52fa0139e0",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
+        "packages/main/src/core/validation-execution-lock.ts": "484d40fa33b7ffe38d502ece0841fe11d9b368e183a9f7ddc12a366d37ea0ab0",
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
@@ -14236,8 +14236,8 @@
         }
       ],
       "dependencyDigests": {
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
-        "packages/main/src/core/validation-execution-lock.ts": "ea9f75bbd3122bbe833580ead135acf120e3bd78c78ce33a0e7efc52fa0139e0",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
+        "packages/main/src/core/validation-execution-lock.ts": "484d40fa33b7ffe38d502ece0841fe11d9b368e183a9f7ddc12a366d37ea0ab0",
         "packages/main/src/core/validation-executor.ts": "017ccaf3dbd8dd8f287c5054b4309f364b8b4b8440c741133868f351f9768b9f",
         "packages/main/src/core/validation-reservation-delegation.ts": "cca6d1f75b749d1c0873bfe2b831771fcb36af077478eee0ed041252a3815dcc",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "6da6f8d882f73fb07efe81d9381233a96da3c5ed977b14ed18dba45569baf871",
@@ -14296,7 +14296,7 @@
         "packages/main/src/cli/runtime-root.ts": "f9f0f13ba95cf58f5c25e8771d9dffc0b996ea0817c9d4f62ed6c8de019dd433",
         "packages/main/src/core/controller-runtime-projection.ts": "04f40c0bc65a8f628622b1b1bb601c577b8ac339a14320c9119a02bb5982be0c",
         "packages/main/src/core/runtime-artifact-registry.ts": "659a4908731996102af829e7f7d7f7773a0d2556240ccae42a1edda07989b907",
-        "packages/main/src/core/runtime-fact-registry.ts": "fbecad029213c37c902ad508b777153733f1e446e25090365cc89a47d4e37edb",
+        "packages/main/src/core/runtime-fact-registry.ts": "332afb2378ae8955bdf428d21a8dbcd5523fc851017d36daeb41118d4facfa45",
         "packages/main/src/handlers/review-run.ts": "d04412e21a4c7399e6f45518aac04e3cb07c6f81f608b8f454a64a1d0e07f770",
         "scripts/ensure-dist.mjs": "2888be4137a602d465257d0f39a964ed280174033656b989755c671e0d9f6131",
         "scripts/full-suite-build-binding.mjs": "947d6ea2e0bc3c45bf220607aef43d514987446f9fa9e0de976f98d6fed899e6",
@@ -14448,10 +14448,10 @@
         "scripts/identity-reviewed-fixture-data.json": "752472be9ba99e5d23d3ed6daff29ec872cb02a193dd2400042451b0eb835ba9",
         "scripts/identity-reviewed-json-contexts.mjs": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd",
         "scripts/identity-reviewed-json-data.json": "91cc5ec240dc1b9f566e52cbe749a224e194261ce7b62787a1db731003f2f2a3",
-        "scripts/identity-reviewed-source-contexts.mjs": "b64085bdfebe2de099d2814f774b07fe1d5c45cc84d71d1edb0eb6cca5c3c20c",
-        "scripts/identity-reviewed-source-data.json": "0ca94e6e17c32f81ca602540e18cab7d55336b09e17a4c9b9202d3717fa33bc7",
+        "scripts/identity-reviewed-source-contexts.mjs": "93252e443de8e113df08b20be7bbdaa4d9db974c2ba5df8293f372db798aa229",
+        "scripts/identity-reviewed-source-data.json": "511443f2bb23db38bb3d98cbf225b1999801ded57f0701139fd0f453b43b65a7",
         "scripts/verify-global-lab-entrypoint.mjs": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
-        "scripts/verify-proof-or-stop-identity-cutover.mjs": "51561ee31847e1303b17c5ef8e8cdec358a4685017b3c32f6439099978b7825d",
+        "scripts/verify-proof-or-stop-identity-cutover.mjs": "85db79d7d09d0baae005e7aaee5fa7aaae51689fa3e0991181da2a61a0beb07f",
         "scripts/verify-proof-or-stop-pack-boundary.mjs": "1b0bebd55c1252a051e8139003f427ed65118a05f2654b236da4728d203173d2",
         "scripts/verify-proof-or-stop-residue.mjs": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970",
         "scripts/verify-state-dir-migration.mjs": "623b67f8aebb46812cbacfe428b412261fcc03d784a518fbc756233aaea3955f",

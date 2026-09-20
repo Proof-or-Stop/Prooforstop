@@ -11,11 +11,11 @@ await once(child, 'spawn');
 const deadPid = child.pid;
 const closed = once(child, 'close');child.kill('SIGKILL');await closed;
 for (const suffix of ['preparing', 'quarantine']) {
-  for (const owner of ['dead', 'live', 'unknown']) {
+  for (const owner of ['dead', 'live', 'unknown', 'invalid', 'out-of-range']) {
     const root=mkdtempSync(join(tmpdir(),'validation-migration-residue-'));
     const legacy=validationCapacityLockPath(root), residue=join(legacy,`retained.${suffix}`);
     mkdirSync(residue,{recursive:true});
-    const holder=owner==='dead'?{pid:deadPid,hostname:hostname()}:owner==='live'?{pid:process.pid,hostname:hostname()}:null;
+    const holder=owner==='unknown'?null:{pid:owner==='dead'?deadPid:owner==='invalid'?0:owner==='out-of-range'?2**40:process.pid,hostname:hostname()};
     if(holder) writeFileSync(join(residue,'holder.json'),JSON.stringify({...holder,lockId:'migration-regression',command:'fixture',acquiredAt:new Date().toISOString(),...(owner==='live'?{processStartTimeMs:0}:{})}));
     // A separate live process avoids claiming the current process with a false start identity.
     let live;
@@ -27,7 +27,7 @@ for (const suffix of ['preparing', 'quarantine']) {
         await assert.doesNotReject(invoke,`DEAD_COORDINATION_RESIDUE_BLOCKS_MIGRATION: ${suffix}`);
         assert.equal(entered,true);assert.equal(existsSync(residue),false);target=realpathSync(legacy);
       } else {
-        await assert.rejects(invoke,error=>{assert.match(String(error),/WORKSPACE_COORDINATION_MIGRATION_BLOCKED/);assert.ok(String(error).includes(legacy));assert.ok(String(error).includes(`retained.${suffix}`));return true;});
+        await assert.rejects(invoke,error=>{assert.match(String(error),/WORKSPACE_COORDINATION_MIGRATION_BLOCKED/);assert.ok(String(error).includes(legacy));assert.ok(String(error).includes(`retained.${suffix}`));return true;},'MALFORMED_COORDINATION_OWNER_MUST_NOT_BE_RECLAIMED: '+owner);
         assert.equal(entered,false);assert.equal(existsSync(residue),true,'unproven ownership must survive');
       }
     } finally {if(live){const done=once(live,'close');live.kill();await done;}rmSync(root,{recursive:true,force:true});if(target)rmSync(target,{recursive:true,force:true});}
