@@ -9,7 +9,7 @@ const repository = fileURLToPath(new URL('../../..', import.meta.url));
 const cli = join(repository, 'packages/main/dist/cli.js');
 const { StoryStore } = await import('../dist/core/store.js');
 const { createHostRunHandlers } = await import('../dist/handlers/host-run.js');
-const { managedHostRunReceipt, runManagedHostRunWorker, verifyManagedDispatchDelivery } = await import('../dist/core/managed-host-run.js');
+const { managedHostRunReceipt, resolveManagedDispatchInvocation, runManagedHostRunWorker, verifyManagedDispatchDelivery } = await import('../dist/core/managed-host-run.js');
 const { restoreManagedChecklistItemAfterFailure } = await import('../dist/handlers/checklist.js');
 
 const root = mkdtempSync(join(tmpdir(), 'managed-implementer-dispatch-e2e-'));
@@ -126,6 +126,15 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
       return { pid: process.pid };
     },
   });
+
+  assert.equal(resolveManagedDispatchInvocation({
+    root, storyId, itemId, agentType: 'proof-or-stop-implementer', optionalWhenAbsent: true,
+    platform: 'win32', environment: {},
+  }), undefined, 'an unmanaged completion probe must remain optional on win32');
+  assert.equal(resolveManagedDispatchInvocation({
+    root, storyId, itemId, agentType: 'proof-or-stop-implementer', optionalWhenAbsent: true,
+    environment: { LATTICE_MANAGED_INIT_INVOCATION: 'stale-or-unrelated' },
+  }), undefined, 'a leftover credential must not block work when no exact managed target is active');
 
   await assert.rejects(
     handlers.host_run({

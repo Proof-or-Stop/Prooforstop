@@ -3898,10 +3898,41 @@ type ManagedDispatchInvocationArgs = {
   environment?: NodeJS.ProcessEnv;
   optionalWhenAbsent?: boolean;
   consume?: boolean;
+  /** Test seam for platform-specific admission; production always uses process.platform. */
+  platform?: NodeJS.Platform;
 };
 export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocationArgs & { optionalWhenAbsent: true }): string | undefined;
 export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocationArgs & { optionalWhenAbsent?: false }): string;
 export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocationArgs): string | undefined {
+  // checklist_update probes this broker for every transition to done so ordinary
+  // (unmanaged) work remains compatible. Establish absence before inspecting a
+  // possibly stale inherited credential or applying a platform-specific managed
+  // transport refusal. An active exact target still fails closed below.
+  if (args.optionalWhenAbsent) {
+    let activeExactTarget = false;
+    let entries: string[] = [];
+    try { entries = readdirSync(managedHostRunsRoot(args.root)); } catch { /* no managed runs */ }
+    for (const runId of entries) {
+      try {
+        const paths = pathsFor(args.root, runId);
+        if (readTerminal(paths)) continue;
+        const spec = readManagedHostRunSpec(paths).value;
+        const snapshot = readManagedHostRunSnapshot(paths);
+        if (spec.profile === 'managed_dispatch'
+          && spec.storyId === args.storyId
+          && spec.agentType === args.agentType
+          && (args.itemId === undefined || spec.managedDispatchTarget?.itemId === args.itemId)
+          && snapshot.state === 'running') {
+          activeExactTarget = true;
+          break;
+        }
+      } catch {
+        // Corrupt or partial runs cannot turn an unmanaged operation into a
+        // managed one or grant authority.
+      }
+    }
+    if (!activeExactTarget) return undefined;
+  }
   let attestation: ManagedInitInvocationAttestation | null;
   try {
     attestation = readManagedInitInvocationFromEnvironment(args.environment ?? process.env);
@@ -3921,7 +3952,8 @@ export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocation
       + 'Use a fresh host_run managedDispatch reviewer. [delivery_not_acknowledged]',
     );
   }
-  if (process.platform === 'win32') {
+  const platform = args.platform ?? process.platform;
+  if (platform === 'win32') {
     throw new Error('managed dispatch: reviewer delivery attestation is unsupported on win32');
   }
   const callerPid = args.callerPid ?? process.pid;
@@ -3947,7 +3979,7 @@ export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocation
       const leader = rows?.find(row => row.pid === identity.pid);
       const caller = rows?.find(row => row.pid === callerPid);
       if (!leader || !caller || leader.start !== identity.startFingerprint) continue;
-      if (process.platform !== 'darwin' && leader.sessionId !== caller.sessionId) continue;
+      if (platform !== 'darwin' && leader.sessionId !== caller.sessionId) continue;
       candidates.push(runId);
     } catch {
       // A corrupt, partial, stale, or foreign run can never grant authority.
@@ -3985,7 +4017,7 @@ export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocation
     const leader = rows?.find(row => row.pid === identity.pid);
     const caller = rows?.find(row => row.pid === callerPid);
     if (!leader || !caller || leader.start !== identity.startFingerprint
-      || (process.platform !== 'darwin' && leader.sessionId !== caller.sessionId)) {
+      || (platform !== 'darwin' && leader.sessionId !== caller.sessionId)) {
       throw new Error('managed dispatch process-group invocation is no longer live or matched');
     }
     if (existsSync(paths.initInvocationConsumption)) {
