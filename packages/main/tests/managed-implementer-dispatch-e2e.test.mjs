@@ -105,8 +105,7 @@ store.writeChecklist(process.argv[2], checklist);
 set -eu
 cat > "${root}/delivered-implementer-prompt.txt"
 grep -q "implementing ${storyId} ${itemId}" "${root}/delivered-implementer-prompt.txt"
-"${process.execPath}" "${cli}" checklist_update '{"storyId":"${storyId}","itemId":"${itemId}","status":"in_progress"}'
-unset LATTICE_MANAGED_INIT_INVOCATION PROOF_OR_STOP_AGENT PROOFBOUND_AGENT || true
+export PROOF_OR_STOP_SESSION_ID=managed-implementer-child
 "${process.execPath}" "${cli}" checklist_update '{"storyId":"${storyId}","itemId":"${itemId}","status":"done"}'
 printf '%s\n' '{"type":"turn.completed","usage":{}}'
 `);
@@ -115,6 +114,12 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
   process.env.PROOF_OR_STOP_PROJECT_ROOT = root;
   process.env.PROOF_OR_STOP_SESSION_ID = 'managed-implementer-owner';
   process.env.HOME = root;
+  execFileSync(process.execPath, [cli, 'checklist_update', JSON.stringify({
+    storyId, itemId, status: 'in_progress',
+  })], { cwd: root, env: process.env, stdio: ['ignore', 'pipe', 'pipe'] });
+  const leasedChecklist = store.readChecklist(storyId);
+  leasedChecklist.items.find(item => item.id === itemId).status = 'pending';
+  store.writeChecklist(storyId, leasedChecklist);
 
   let managedDispatchValidationHook;
   const handlers = createHostRunHandlers({ root, scanRoot: root, store }, {
