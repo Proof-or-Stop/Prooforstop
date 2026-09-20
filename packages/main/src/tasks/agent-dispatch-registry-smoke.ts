@@ -872,7 +872,7 @@ try {
     'story-review': /review_run_start/,
     'coverage-review': /review_run_start/,
     'delivery-review': /delivery_check_set/,
-    'finding-repair': /finding_resolve/,
+    'finding-repair': /Controller launch contract \(the repair worker does not perform this step\)/,
     'cluster-repair': /Resolves: CL-001/,
     'rollout-verify': /review_run_start/,
   };
@@ -908,6 +908,8 @@ try {
               'finding repair state closure must remain controller-owned');
             assert.match(prompt, /Story owner\/controller.*finding_resolve/i,
               'finding repair must hand resolution closure back to the owner');
+            assert.doesNotMatch(prompt, /^-\s+proof-or-stop finding_resolve\b/m,
+              'finding repair prompt must not restore the removed worker-facing resolution command');
           }
           if (!entry.commitAllowed) assert.doesNotMatch(prompt, /git commit --author=/, `${label} must not receive commit instructions`);
           if (entry.roleClass === 'verification-intent') assert.doesNotMatch(prompt, /status["': ]+done/i, `${label} must not complete an item`);
