@@ -3203,7 +3203,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
-    "sha256": "0f2a54c3d08ebd0a16988b54a3bb553403e6c7932502b503a9e6f89830092e79"
+    "sha256": "4ef2d18cd8b6cdf6b6259e4343e2b7d9ad330e93a407f6b438a0aab0261204ca"
   },
   {
     "path": "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs",
@@ -3570,7 +3570,7 @@ const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [1,"ebdcc59f439a3e890e6a4c6b7a0a6c523cc0cb37a343cea8af0aa5d1cb498748"],
   [2,"d1261e4856fd3441f6ba185e3cc3a0e3222145e69218180ca3567888f848a694"],
   [3,"65b3a71a775eef59f9398fc88bae41728f07d0ff832b3164fc4a6305f2829b78"],
-  [4,"0f2a54c3d08ebd0a16988b54a3bb553403e6c7932502b503a9e6f89830092e79"],
+  [4,"4ef2d18cd8b6cdf6b6259e4343e2b7d9ad330e93a407f6b438a0aab0261204ca"],
   [14,"6ce71b767c7003c53068880527a14a0986692d4e80283ffbae217fad0af98fa5"],
   [15,"9101f015dcbfe0affcca0cecc2bc15ac9d1e691af1c5febbe249746d16536b60"],
   [16,"c182058690e5e55d41d91f5bc496acbe21b126e29e310525e4f4b1f3895cba21"],
@@ -7471,11 +7471,11 @@ const REVIEWED_CONTEXT_READERS = [
   },
   {
     "path": "scripts/identity-reviewed-json-contexts.mjs",
-    "sha256": "f4c7b2b048459c2eae1074b31ae64b21806f854c8b634931db21c72511cdf9bd"
+    "sha256": "f8bf66de6a7a241ab2114bf28f010a025897cf095730570cf837a539dfd8430f"
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "0d4625bcef73210fa3bfd8de54a7eab2c65fe007107562086548e6ad0e2a7315"
+    "sha256": "803dc518f4de4a3b814f5063763da00277d9ab3647ac6d70e04c5e8e4c34f878"
   }
 ];
 function verifyReviewedContextReaders(root) {
@@ -7707,14 +7707,14 @@ function verifyCurrentWitnessCoverage(root, files, expect) {
   const criticJsonRows = jsonEntries.slice(776, 802);
   expect(criticJsonRows.length === 26 && criticJsonRows.every(row =>
     row.path === 'scripts/lab/u18-static-edges/exceptions.json' && row.nodeKind === 'value' &&
-    /^\/entries\/(268|269)\/requiredEvidence\/\d+\/excerpt$/.test(row.jsonPointer)),
+    /^\/entries\/(239|240)\/requiredEvidence\/\d+\/excerpt$/.test(row.jsonPointer)),
     'managed critic witness coverage requires all 26 exact copied-source nodes');
   expect(incomingJsonRows.length === 2 && incomingJsonRows.every((row, index) =>
     row.path === 'docs/lab/memory-intake-measurement/u18-static-report.json' && row.jsonPointer === '/rows/187/reason' &&
     row.token === [`${LEGACY_WORD}.js`, `${LEGACY_WORD}-codex`][index]),
     'incoming witness coverage requires the two exact historical report contexts');
   const auditJsonRows = jsonEntries.slice(802);
-  expect(auditJsonRows.length === 2 && auditJsonRows.every(row => row.path === 'scripts/lab/u18-static-edges/exceptions.json' && row.jsonPointer === '/entries/290/requiredEvidence/1/excerpt'), 'audit witness coverage requires both exact copied cleanup nodes');
+  expect(auditJsonRows.length === 2 && auditJsonRows.every(row => row.path === 'scripts/lab/u18-static-edges/exceptions.json' && row.jsonPointer === '/entries/261/requiredEvidence/1/excerpt'), 'audit witness coverage requires both exact copied cleanup nodes');
   const allJsonRows = [...jsonRows, ...incomingJsonRows, ...criticJsonRows, ...auditJsonRows];
   const fixtureRows = JSON.parse(read('scripts/identity-reviewed-fixture-data.json')).entries.slice(268);
   const provenanceRows = CURRENT_LEGACY_CONTEXT_ROWS.filter(row => row.id.startsWith('current-witness-coverage-'));

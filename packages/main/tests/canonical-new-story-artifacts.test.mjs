@@ -1867,7 +1867,7 @@ function assertIdentityCutoverInventoryTotal(sourceMap, { reviewed = identityCut
   const verifierPath = 'scripts/verify-proof-or-stop-identity-cutover.mjs';
   const verifierLines = cache.get(verifierPath, sourceMap.get(verifierPath)).lines.filter(line => new RegExp(`${retiredProtocolStem}[.:\\-][a-z0-9._:-]+`, 'i').test(line));
   assert.equal(verifierLines.length, 115, 'retired protocol identity verifier data row count drift');
-  assert.equal(createHash('sha256').update(verifierLines.join('\n')).digest('hex'), '57f699da0f61ddced09a753b7311c1f9ac1865c738015ed032f8db18624c1d63', 'retired protocol identity verifier data context drift');
+  assert.equal(createHash('sha256').update(verifierLines.join('\n')).digest('hex'), '18181b2a5219393f83aee1e0424f8e4c4259d558c134a06b6400ac41ab14c5f9', 'retired protocol identity verifier data context drift');
   assert.deepEqual(
     retiredHits.filter((hit) => {
       if (allowed.has(`${hit.path}\0${hit.token}`)) return false;
@@ -3174,7 +3174,7 @@ const OWNED_IMPORT_USE_CONTEXTS = [
     "contextSha256": "ccd4fe3e8ae44b0b260c36ee4ed2c71d095e98d904df2d200655aa1360d91fea"
   },
   {"sourcePath": "packages/main/src/cli-init.ts", "occurrences": 521, "contextSha256": "d10e5c27a6c8083295649d2ec4c932763b26c71f3d3595e2254b4338aedd3de6"},
-  {"sourcePath":"scripts/verify-proof-or-stop-identity-cutover.mjs","occurrences":576,"contextSha256":"62de672e2e84bec36c3ab499ef0462563bd0fc35d302c7796ead968c9fbb826c"}
+  {"sourcePath":"scripts/verify-proof-or-stop-identity-cutover.mjs","occurrences":576,"contextSha256":"9faf50d76aeac99b60428270dba913500179d2df8efb766945871f8b1c8c13a1"}
 ];
 
 function assertOwnedImportUseIntegrity(sourceMap, pins = OWNED_IMPORT_USE_CONTEXTS) {
