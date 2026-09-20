@@ -8,6 +8,7 @@ import { readFindingValidationConstraints } from '../core/finding-validation.js'
 import { signTestValidationEvidence, verifyTestValidationEvidence } from '../core/validation-artifact-signing.js';
 import { acceptanceCompletionBlocker } from '../core/acceptance-amendment-gates.js';
 import { commandFromString, configuredValidationCommands, filterFocusedConfiguredCommands, sourceInputSnapshot, routineIdentityPolicySnapshot, buildValidateFileCommand } from './validation-identity.js';
+import { readValidationTerminals } from '../core/validation-verdict-stickiness.js';
 export { configuredValidationCommands, sourceInputSnapshot } from './validation-identity.js';
 import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 /**
@@ -982,6 +983,7 @@ export function evaluateStoryRoutineReuse(args: {
     currentMaterialHash: materialHash,
     currentStoryFilesHash: storyFilesHash,
     currentBuildArtifactsHash: buildArtifactsHash,
+    validationTerminals: readValidationTerminals(args.ctx.store, args.storyId),
     clean,
     headBefore,
     headAfter,
@@ -1397,6 +1399,9 @@ function recordValidationTerminal(
     disposition: result.disposition === 'reused' ? 'reused' : 'executed',
     commandExecutions: Number(result.commandExecutions ?? result.commands?.length ?? 0),
     result: result.allPass === false || result.status === 'fail' ? 'fail' : 'pass',
+    // A verdict about the code or an infrastructure failure: fail-sticky
+    // treats only the former as a verdict, and a missing kind as a verdict.
+    ...(result.failureKind === 'infra_failure' || result.failureKind === 'validation_failure' ? { failureKind: result.failureKind } : {}),
     materialHash: currentMaterialHash(gitCwd, 'HEAD', ctx.root) ?? '',
     storyFilesHash: currentStoryFilesHash(gitCwd, 'HEAD', ctx.root) ?? '',
     // Observable build identity: two executions against different compiled

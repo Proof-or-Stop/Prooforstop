@@ -16,6 +16,7 @@ import type {
 import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
 import { resolveCommandTimeoutMs } from './validation-executor.js';
 import { validationIdentityDigest } from './validation-command-portable-id.js';
+import { VERDICT_FLIP_REUSE_REASON, stickyFailuresFor, validationVerdictIdentity, type ValidationTerminalFact } from './validation-verdict-stickiness.js';
 
 export { validationIdentityDigest } from './validation-command-portable-id.js';
 
@@ -389,6 +390,8 @@ export function evaluateRoutineValidationReuse(args: {
   currentStoryFilesHash?: string;
   /** core/build-artifacts-identity digest of the dist trees on disk now; the recorded PASS must have executed against the same one. */
   currentBuildArtifactsHash?: string;
+  /** The Story's `validation_terminal` process events; an executed failure on the PASS's exact identity refuses reuse. */
+  validationTerminals?: readonly ValidationTerminalFact[];
   clean: boolean;
   headBefore?: string;
   headAfter?: string;
@@ -424,6 +427,13 @@ export function evaluateRoutineValidationReuse(args: {
   // the command boundaries, not what the commands executed; it is observation,
   // never authority, so it is not a PASS this run may inherit.
   if (!artifactProtectionSatisfied(evidence.buildArtifactsProtection)) reasons.push('build-artifacts-protection-unenforced');
+  // Fail is sticky: a PASS on an identity an executed run failed on is a
+  // flipped verdict, and re-running until it passes is exactly the pattern the
+  // history showed. Only a change to the material or the build releases it.
+  if (args.validationTerminals) {
+    const verdictIdentity = validationVerdictIdentity(evidence);
+    if (verdictIdentity && stickyFailuresFor(verdictIdentity, args.validationTerminals).length > 0) reasons.push(VERDICT_FLIP_REUSE_REASON);
+  }
   const lineageResult = classifyTrustedValidationLineage({
     root: args.root,
     gitCwd: args.gitCwd,

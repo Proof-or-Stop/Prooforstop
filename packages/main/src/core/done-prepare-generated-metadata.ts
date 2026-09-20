@@ -121,8 +121,16 @@ const SAFE_GENERATED_METADATA_FILENAMES = new Set([
   'test-evidence.json',
 ]);
 
+// Exactly the keys the verifier writes on a REUSED validation_terminal. The
+// compiled-artifact identity and its protection label are written on every
+// terminal since the artifact binding landed; without them here a done_prepare
+// that reused validation classified its own appended terminal as untrusted.
+// `failureKind` and `reuse` are written only on executed terminals and stay
+// out, so a reused terminal carrying either is still refused.
 const VALIDATION_TERMINAL_KEYS = new Set([
   'attemptId',
+  'buildArtifactsHash',
+  'buildArtifactsProtection',
   'commandExecutions',
   'commandSetHash',
   'disposition',
@@ -140,7 +148,8 @@ function isSha256(value: unknown): boolean {
   return typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
 }
 
-function isTrustedReusedValidationTerminal(
+/** Exported for the fail-sticky regression: the trust decision over one appended reused terminal. */
+export function isTrustedReusedValidationTerminal(
   value: unknown,
   expected: DonePrepareGeneratedProcessEventBinding,
 ): boolean {

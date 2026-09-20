@@ -150,6 +150,26 @@ expectRepaired(verifierSource.includes('validationTerminals: readValidationTermi
 const admissionHandler = readFileSync(join(repoRoot, 'packages/main/src/handlers/validation-pass-admissibility.ts'), 'utf8');
 expectRepaired(admissionHandler.includes('validationTerminals: readValidationTerminals(ctx.store, storyId)'), 'the DONE-side admissibility handler does not hand the Story terminals to the evaluator (source-text guard)');
 
+// ---------------------------------------------------------------------------
+// 6. done_prepare must still trust the terminal the verifier writes for a
+//    reused PASS. The compiled-artifact identity and its protection label are
+//    on every terminal since the artifact binding landed; the trust allowlist
+//    had not followed, so a done_prepare that reused validation refused its
+//    own appended terminal as an untrusted process-events delta.
+// ---------------------------------------------------------------------------
+const metadata = await import('../packages/main/src/core/done-prepare-generated-metadata.ts');
+if (typeof metadata.isTrustedReusedValidationTerminal === 'function') {
+  const expected = { storyId: 'B-stk', attemptId: 'r1', reviewRound: 'r1', commandSetHash: H('1'), materialHash: H('2'), storyFilesHash: H('3'), phase: 'TEST', disposition: 'reused', result: 'pass', commandExecutions: 0, notBefore: '2026-09-20T00:00:00.000Z', notAfter: '2026-09-21T00:00:00.000Z' };
+  // Exactly what recordValidationTerminal writes for a reused PASS today.
+  const reusedTerminal = { type: 'validation_terminal', storyId: 'B-stk', attemptId: 'r1', phase: 'TEST', reviewRound: 'r1', commandSetHash: H('1'), disposition: 'reused', commandExecutions: 0, result: 'pass', materialHash: H('2'), storyFilesHash: H('3'), buildArtifactsHash: H('4'), buildArtifactsProtection: 'enforced:sandbox-exec', timestamp: '2026-09-20T12:00:00.000Z' };
+  expectRepaired(metadata.isTrustedReusedValidationTerminal(reusedTerminal, expected) === true, 'done_prepare refuses the reused validation terminal the verifier itself writes (compiled-artifact identity and protection are not in its trust allowlist)');
+  check(metadata.isTrustedReusedValidationTerminal({ ...reusedTerminal, forged: true }, expected) === false, 'control: a terminal with an unknown key is not trusted');
+  check(metadata.isTrustedReusedValidationTerminal({ ...reusedTerminal, failureKind: 'validation_failure' }, expected) === false, 'control: a reused terminal never carries a failure kind; one that does is not trusted');
+  check(metadata.isTrustedReusedValidationTerminal({ ...reusedTerminal, result: 'fail' }, expected) === false, 'control: the binding fixes the reused result');
+} else {
+  expectRepaired(false, 'done-prepare-generated-metadata does not expose the reused-terminal trust decision');
+}
+
 if (red.length > 0) {
   for (const failure of red) console.error(`  - ${failure}`);
   console.error(`RED: ${MARKER} (${red.length} failing expectation${red.length === 1 ? '' : 's'}, ${checks} controls passed)`);

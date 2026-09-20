@@ -7,6 +7,7 @@ import { classifyMergeLineage } from './validation-lineage.js';
 import { currentBuildArtifactsHash } from './build-artifacts-identity.js';
 import type { TestEvidenceData } from './types.js';
 import { artifactProtectionSatisfied } from './build-artifacts-protection.js';
+import { VERDICT_FLIP_ADMISSION_CODE, describeStickyFailure, stickyFailuresFor, validationVerdictIdentity, type ValidationTerminalFact } from './validation-verdict-stickiness.js';
 
 export type ValidationEvidenceLineage = 'exact-head' | 'trusted-story-metadata-descendant' | 'rejected';
 
@@ -30,6 +31,8 @@ export interface ValidationEvidenceAdmissibilityInput {
   blockingDirtyReason: string;
   gitCwd: string;
   metadataRoot: string;
+  /** The Story's `validation_terminal` process events; an executed failure on the evidence's exact identity makes the PASS a flipped verdict. */
+  validationTerminals?: readonly ValidationTerminalFact[];
 }
 
 function outputPassState(output: string): 'pass' | 'not-all-pass' | 'invalid-json' {
@@ -92,6 +95,11 @@ export function evaluateValidationEvidenceAdmissibility(
     else if (input.recordedCoverageSnapshot !== input.currentCoverageSnapshot) add('coverage_stale', 'validation evidence verificationCoverage does not match current checklist inputs/evidence');
   }
   if (input.blockingDirtyReason) add('blocking_dirty', input.blockingDirtyReason);
+  if (input.validationTerminals) {
+    const identity = validationVerdictIdentity(evidence);
+    const failures = identity ? stickyFailuresFor(identity, input.validationTerminals) : [];
+    if (identity && failures.length > 0) add(VERDICT_FLIP_ADMISSION_CODE, describeStickyFailure(identity, failures));
+  }
   if (!evidence.headHash || !evidence.materialHash || !evidence.storyFilesHash) {
     add('freshness_bindings_missing', 'validation evidence is missing headHash/materialHash/storyFilesHash freshness bindings');
   }
