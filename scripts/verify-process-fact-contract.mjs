@@ -19,6 +19,19 @@ catch (error) { console.error(verificationFailureMessage('process contract prere
 const quiet = process.argv.slice(2).includes('--quiet');
 const closeoutPolicyModule = await import(pathToFileURL(join(root, 'packages/main/dist/core/closeout-trust.js')).href);
 const failures = [];
+const sharedHostBudget = readFileSync(join(root, 'packages/main/src/core/host-run.ts'), 'utf8');
+if (!sharedHostBudget.includes('reserveHostRunBudget(args.root, args.usageEnv ?? args.env, args.promptText)') || !sharedHostBudget.includes('settleHostRunBudget(reservation, { spawned: result.spawned, ...result.usageSummary })')) failures.push('Host runs must bind explicit shared reservations and settle actual execution outcomes');
+if (!sharedHostBudget.includes('host_runner_exception_usage_unavailable')) failures.push('Throwing host transports must preserve unavailable terminal usage');
+if (!sharedHostBudget.includes('exceptionUsage.push(chunk.text)')
+  || !sharedHostBudget.includes('exceptionUsage.truncated')) failures.push('Throwing host transports must preserve bounded reported usage and truncation semantics');
+if (!sharedHostBudget.includes('execution.runnerInvoked ? null :')
+  || !sharedHostBudget.includes('budgetSettlementError: budgetSettlementDiagnostic(settlementError)')
+  || !sharedHostBudget.includes('process.stderr.write(budgetSettlementDiagnostic(settlementError)')) failures.push('Shared budget must release known pre-runner refusals and preserve completed results and diagnostic causes on settlement failure');
+
+if (!readFileSync(join(root, 'packages/main/src/core/process-fact-registry.ts'), 'utf8').includes('runtime:planned_provider_budget_admission')) failures.push('Planned provider budget admission must register its limited process authority');
+const plannedBudgetSource = readFileSync(join(root, 'packages/main/src/core/planned-steps-executor.ts'), 'utf8');
+if (!plannedBudgetSource.includes('budgetMeter.providerAllowance(attempts, timeoutMs)') || !plannedBudgetSource.includes('providerAttempts: result.attempts')) failures.push('Planned provider admission must constrain transport and meter actual retry attempts');
+if (!plannedBudgetSource.includes('}, result.attempts);')) failures.push('Post-transport spawn failures must preserve actual provider attempts');
 const readonlyLaneSources = ['packages/main/src/core/managed-review-lane.ts','packages/main/src/core/managed-review-lane-build.mjs','packages/main/src/core/managed-review-lane-policy.ts'];
 for (const path of readonlyLaneSources) if (!existsSync(join(root,path))) failures.push(`Missing managed readonly source ${path}`);
 const readonlyManagedSource=readFileSync(join(root,'packages/main/src/core/managed-host-run.ts'),'utf8');
@@ -11981,6 +11994,39 @@ assert(managedCriticArtifact?.producer === 'handlers/managed-review-evidence.man
     && checklistWrites[1] < creationCommits[1]
     && checklistWrites[1] < creationCommits[2],
     'story_create must persist checklist.json before each safe creation commit');
+}
+
+// Intent fingerprints are derived diagnostics, not a second gate or caller-owned freshness authority.
+{
+  const planner = read('packages/main/src/handlers/evidence-plan.ts');
+  const fingerprints = read('packages/main/src/core/verification-intent-fingerprints.ts');
+  const requireTokens = (label, source, tokens) => {
+    for (const requirement of tokens) {
+      const [token, expected] = typeof requirement === 'string' ? [requirement, 1] : requirement;
+      const occurrences = source.split(token).length - 1;
+      assert(occurrences === expected, `${label}: expected ${expected} source occurrence(s) of ${token}, found ${occurrences}`);
+    }
+  };
+  requireTokens('Intent fingerprint diagnostic contract', fingerprints, [
+    'collectVerificationIntents(item)',
+    'intentFingerprintKey(item.id, ref)',
+    'group.intentKeys.push(row.intentKey)',
+    "group.requiresExecution ||= row.action !== 'current' && row.action !== 'reuse' && row.action !== 'manual'",
+    'const admission = evaluateVerificationEvidenceForGate({',
+    "authority: 'diagnostic-only', storyId: input.storyId",
+    "isReusableVerificationReceipt(evidence.receipt) && row.action !== 'invalid'",
+    '...(identity.reusable ? {} : { materialHash: materialHash ?? null, storyFilesHash: storyFilesHash ?? null })',
+    '...(identity.reusable && execution.inputClosureComplete ? {} : { materialHash: evidence.materialHash ?? null, storyFilesHash: evidence.storyFilesHash ?? null })',
+  ]);
+  requireTokens('Dynamic evidence planner', planner, [['buildIntentFingerprintReport', 2], 'row.description', 'fingerprintByRef.get(intentFingerprintKey(item.id, collected.ref))', 'refreshCommand: `proof-or-stop verification_evidence_refresh_stale --storyId=${storyId}`']);
+  requireTokens('Manual refresh recommendation', planner, ['const manualRefreshUnsafe = checklist.items.some(', 'Manual refresh withheld: a shared metadata-only refresh can demote executable receipts.']);
+  requireTokens('Discovered intent regression binding', read('packages/main/src/tasks/evidence-plan-smoke.ts'), [
+    "await import(new URL('../../tests/intent-fingerprint-reuse.test.mjs', import.meta.url).href);",
+  ]);
+  requireTokens('Intent fingerprint registration', read(processFactRegistryPath), ['packages/main/src/core/verification-intent-fingerprints.ts']);
+  requireTokens('Legacy refresh preview semantics', read('packages/main/src/handlers/evidence-refresh.ts'), [
+    ["kind: 'metadata-drift-only'", 2], ["executableAdmission: 'not-evaluated'", 2], 'metadata drift only; not executable receipt admission',
+  ]);
 }
 
 // Managed inventory transport checks must precede the final failure gate.

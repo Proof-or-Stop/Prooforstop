@@ -10,7 +10,7 @@ import {
   createBudgetMeter,
   resolveBudgetLimits,
 } from './budget-meter.js';
-import type { BudgetReport } from './budget-meter.js';
+import type { BudgetReport, BudgetMeter } from './budget-meter.js';
 import {
   claudeCliAvailable,
   claudeNoninteractiveAuthAvailable,
@@ -325,6 +325,7 @@ interface ProviderExecContext {
   policy: ProviderPolicy;
   env: NodeJS.ProcessEnv;
   executor: BoundedProviderExecutor;
+  admit?: BudgetMeter['providerAllowance'];
 }
 
 function executionRecord(
@@ -366,8 +367,8 @@ function executeRealProviderStep(
   startedAt: string,
   now: () => Date,
 ): PlannedStepExecution {
-  const block = (reason: string, summary: Record<string, unknown>) =>
-    executionRecord(step, 'blocked', startedAt, now().toISOString(), 1, summary, reason);
+  const block = (reason: string, summary: Record<string, unknown>, providerAttempts = 0) =>
+    executionRecord(step, 'blocked', startedAt, now().toISOString(), 1, { ...summary, providerAttempts }, reason);
 
   // Gate 1 — explicit policy enablement.
   if (!ctx.policy.allowedProviders.includes(provider)) {
@@ -428,6 +429,11 @@ function executeRealProviderStep(
     });
   }
 
+  let allowance = ctx.admit?.(step.maxAttempts, step.timeoutMs);
+  if (allowance?.report.exceeded) return block(BUDGET_EXCEEDED_STOP_REASON, {
+    provider, budgetAdmissionReport: allowance.report, validationSatisfied: false,
+  });
+
   // Shared provider admission is independent of usage accounting and applies to
   // every real bounded provider surface, including planner repair attempts.
   let admission;
@@ -458,13 +464,18 @@ function executeRealProviderStep(
   }
   let result: ProviderExecResult;
   try {
+    // Slot acquisition may have waited. Recheck immediately before transport.
+    allowance = ctx.admit?.(step.maxAttempts, step.timeoutMs);
+    if (allowance?.report.exceeded) return block(BUDGET_EXCEEDED_STOP_REASON, {
+      provider, budgetAdmissionReport: allowance.report, validationSatisfied: false,
+    });
     result = ctx.executor.run({
       admission,
       provider,
       argv,
       cwd: ctx.root,
-      timeoutMs: step.timeoutMs,
-      maxAttempts: step.maxAttempts,
+      timeoutMs: allowance?.timeoutMs ?? step.timeoutMs,
+      maxAttempts: allowance?.attempts ?? step.maxAttempts,
       env: redactedProviderEnv(ctx.env, ctx.policy.credentialsEnvAllowlist),
     });
   } finally {
@@ -482,9 +493,10 @@ function executeRealProviderStep(
     stderrBytes: result.stderrBytes,
     durationMs: result.durationMs,
     attempts: result.attempts,
+    providerAttempts: result.attempts,
     cwd: ctx.root,
-    timeoutMs: step.timeoutMs,
-    maxAttempts: step.maxAttempts,
+    timeoutMs: allowance?.timeoutMs ?? step.timeoutMs,
+    maxAttempts: allowance?.attempts ?? step.maxAttempts,
     // Env redaction summary — credential KEY NAMES / counts only, never values. The
     // child saw only the runtime keys + these allowlisted credentials; everything
     // else was stripped by redactedProviderEnv.
@@ -504,7 +516,7 @@ function executeRealProviderStep(
     return block('provider_unavailable', {
       ...evidence,
       note: 'provider CLI could not be spawned at execution time',
-    });
+    }, result.attempts);
   }
   if (result.timedOut) {
     // A single bounded attempt that times out is a retryable provider_timeout.
@@ -957,6 +969,14 @@ export function executePlannedSteps(options: ExecutePlannedStepsOptions): Planne
   const budgetMeter = createBudgetMeter(budgetLimits, now);
   let budgetReport: BudgetReport = budgetMeter.evaluate();
   let budgetExceeded = false;
+  providerCtx.admit = (attempts, timeoutMs) => {
+    const allowance = budgetMeter.providerAllowance(attempts, timeoutMs);
+    if (allowance.report.exceeded) {
+      budgetReport = allowance.report;
+      budgetExceeded = true;
+    }
+    return allowance;
+  };
 
   // §B5 / §B14 outer repair-retry policy, resolved once and normalized fail-closed.
   // The default planner emits `repairAllowed:false`, so the repair loop is inert on
@@ -970,7 +990,7 @@ export function executePlannedSteps(options: ExecutePlannedStepsOptions): Planne
     steps.push(record);
     options.evidenceRecorder?.(record, steps.length - 1);
     budgetMeter.recordStep(record);
-    budgetReport = budgetMeter.evaluate();
+    if (!budgetExceeded) budgetReport = budgetMeter.evaluate();
   };
 
   for (const step of options.jobPlan.plannedSteps.slice(0, maxSteps)) {
@@ -1060,7 +1080,7 @@ export function executePlannedSteps(options: ExecutePlannedStepsOptions): Planne
     steps.push(result);
     options.evidenceRecorder?.(result, steps.length - 1);
     budgetMeter.recordStep(result);
-    budgetReport = budgetMeter.evaluate();
+    if (!budgetExceeded) budgetReport = budgetMeter.evaluate();
     if (result.status !== 'passed') {
       stopReason = result.reason ?? `${result.status}_step`;
       failedStepId = result.stepId;
