@@ -2409,6 +2409,10 @@ function appendFailedSummary(provider: string | null, reason: string | null): Ho
  * reviewRunId) THROW pre-spawn; cap refusals return a blocked result (a ledger
  * blocked row is written) with a nonzero exit and NO spawn.
  */
+function budgetSettlementDiagnostic(error: unknown): string {
+  return `host_run_budget_settlement_failed: ${error instanceof Error ? error.message : String(error)}`;
+}
+
 export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Promise<HostRunResult> {
   const reservation = reserveHostRunBudget(args.root, args.usageEnv ?? args.env, args.promptText);
   const execution = { runnerInvoked: false };
@@ -2419,11 +2423,16 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
     // uncertain attempt. Never trust provider-authored properties on the error.
     try { settleHostRunBudget(reservation, execution.runnerInvoked ? null : {
       spawned: false, recorded: 'none', input: null, cacheRead: null, output: null,
-    }); } catch { /* Persisted reservation remains charged on settlement failure. */ }
+    }); } catch (settlementError) {
+      // Preserve the original object, including frozen errors and primitive throws.
+      // stderr remains available even when the original error cannot carry metadata.
+      try { process.stderr.write(budgetSettlementDiagnostic(settlementError) + '\n'); }
+      catch { /* A broken diagnostic stream must not displace the provider error. */ }
+    }
     throw error;
   }
   try { settleHostRunBudget(reservation, { spawned: result.spawned, ...result.usageSummary }); }
-  catch { return { ...result, budgetSettlementError: 'host_run_budget_settlement_failed' }; }
+  catch (settlementError) { return { ...result, budgetSettlementError: budgetSettlementDiagnostic(settlementError) }; }
   return result;
 }
 

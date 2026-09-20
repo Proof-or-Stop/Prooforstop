@@ -25,7 +25,8 @@ if (!sharedHostBudget.includes('host_runner_exception_usage_unavailable')) failu
 if (!sharedHostBudget.includes('exceptionUsage.push(chunk.text)')
   || !sharedHostBudget.includes('exceptionUsage.truncated')) failures.push('Throwing host transports must preserve bounded reported usage and truncation semantics');
 if (!sharedHostBudget.includes('execution.runnerInvoked ? null :')
-  || !sharedHostBudget.includes("budgetSettlementError: 'host_run_budget_settlement_failed'")) failures.push('Shared budget must release known pre-runner refusals and preserve completed results on settlement failure');
+  || !sharedHostBudget.includes('budgetSettlementError: budgetSettlementDiagnostic(settlementError)')
+  || !sharedHostBudget.includes('process.stderr.write(budgetSettlementDiagnostic(settlementError)')) failures.push('Shared budget must release known pre-runner refusals and preserve completed results and diagnostic causes on settlement failure');
 
 if (!readFileSync(join(root, 'packages/main/src/core/process-fact-registry.ts'), 'utf8').includes('runtime:planned_provider_budget_admission')) failures.push('Planned provider budget admission must register its limited process authority');
 const plannedBudgetSource = readFileSync(join(root, 'packages/main/src/core/planned-steps-executor.ts'), 'utf8');

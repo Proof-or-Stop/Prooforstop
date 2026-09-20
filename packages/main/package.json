@@ -224,7 +224,17 @@
     "test:nested-reservation-isolated-observation-go-lost": "node ../../scripts/verify-nested-reservation-registered.mjs isolated-observation-go-lost",
     "test:nested-reservation-isolated-observation-proceed-lost": "node ../../scripts/verify-nested-reservation-registered.mjs isolated-observation-proceed-lost",
     "test:nested-reservation-result-refused-registration-lingering-group": "node ../../scripts/verify-nested-reservation-registered.mjs result-refused-registration-lingering-group",
-    "test:nested-reservation-doctor-fence-projection": "node ../../scripts/verify-nested-reservation-registered.mjs doctor-fence-projection"
+    "test:nested-reservation-doctor-fence-projection": "node ../../scripts/verify-nested-reservation-registered.mjs doctor-fence-projection",
+    "test:benchmark-behavior": "node ../../scripts/verify-benchmark-behavior.mjs",
+    "test:benchmark-real-entry": "node ../../scripts/verify-benchmark-real-entry.mjs",
+    "test:benchmark-shared-budget": "node ../../scripts/verify-benchmark-shared-budget.mjs",
+    "test:benchmark-budget-adversarial": "node ../../scripts/verify-benchmark-budget-adversarial.mjs",
+    "test:benchmark-managed-entry": "node ../../scripts/verify-benchmark-managed-entry.mjs",
+    "test:benchmark-exception-usage": "node ../../scripts/verify-benchmark-exception-usage.mjs",
+    "test:benchmark-audit-paths": "node ../../scripts/verify-benchmark-audit-paths.mjs",
+    "test:benchmark-registration": "node ../../scripts/verify-benchmark-registration.mjs",
+    "test:benchmark-contracts": "node ../../scripts/verify-benchmark-contracts.mjs",
+    "test:benchmark-release": "node ../../scripts/verify-benchmark-release.mjs"
   },
   "dependencies": {
     "@proof-or-stop/lab": "0.3.65",

@@ -9,13 +9,9 @@ console.log('BENCHMARK_BUILD_AND_TYPECHECK_GREEN');
 // Keep source evidence and every repaired entry boundary in the official Lab replay.
 const scripts = [
   'scripts/verify-benchmark-registration.mjs',
-  'scripts/verify-benchmark-audit-paths.mjs',
   'scripts/verify-static-ast-reuse.mjs',
-  'scripts/verify-benchmark-real-entry.mjs',
-  'scripts/verify-benchmark-shared-budget.mjs',
-  'scripts/verify-benchmark-budget-adversarial.mjs',
-  'scripts/verify-benchmark-managed-entry.mjs',
-  'scripts/verify-benchmark-exception-usage.mjs',
+  'scripts/verify-benchmark-behavior.mjs',
+  'packages/main/dist/tasks/full-suite-runner-smoke.js',
   'packages/main/dist/tasks/budget-meter-smoke.js',
   'packages/main/dist/tasks/host-run-usage-smoke.js',
   'scripts/verify-benchmark-contracts.mjs',

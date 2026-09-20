@@ -15,6 +15,11 @@ const contracts = [
     header: 'Runtime fact contract failed:',
     failure: `- Command failed: ${process.execPath} ${join(root, 'scripts/verify-validation-snapshot-binding.mjs')}`,
     cause: 'AssertionError [ERR_ASSERTION]: VALIDATION_SNAPSHOT_BINDING_INVALID: live facts, workspace, input bytes and implementation comparison',
+    diagnosticDigest: '619c72d79cce6cd8bafde3e87e96d43c0a3f453e2e00cebac6d50fec0b2d4048',
+    parserDigest: '3ae902c92cc44dace175c0e69e13a4b0899f6983c6121d76b9ab8dd5795e7675',
+    // The snapshot verifier is an AST source comparison, not a live-fact probe:
+    // it reads exactly this one source and imports TypeScript. Bind its full input
+    // closure plus the complete Node assertion diagnostic (paths normalized only).
     bindings: {
       'packages/main/src/core/shared-validation-execution.ts': '134aa9912c2cd3cdddcd8a1714e8bcf7a3b2a09e5fe7535da55f878b72bad57e',
       'scripts/verify-validation-snapshot-binding.mjs': 'd62e918c80438130d2677d30d88cea749c4f61ad62727f37b856c2a52d9f96e8',
@@ -35,6 +40,17 @@ function classification(contract, result) {
   assert.equal(sections.length, 2, 'Require exactly one complete failure list');
   assert.equal(sections[1].trim(), contract.failure, 'New contract failures must block the release');
   if (contract.cause) assert(output.includes(contract.cause), 'Known command must have the same failure cause');
+  if (contract.diagnosticDigest) {
+    const causeAt = output.indexOf(contract.cause);
+    const start = output.lastIndexOf('node:internal/modules/run_main:', causeAt);
+    assert(start >= 0, 'Require the complete failing child diagnostic');
+    const diagnostic = output.slice(start, output.indexOf(contract.header, causeAt)).trim()
+      .replaceAll(root.replace(/\/$/, ''), '<ROOT>').replaceAll(process.execPath, '<NODE>');
+    assert.equal(createHash('sha256').update(diagnostic).digest('hex'), contract.diagnosticDigest,
+      'Baseline diagnostic changed; a shared assertion label is insufficient');
+    assert.equal(createHash('sha256').update(readFileSync(fileURLToPath(import.meta.resolve('typescript')))).digest('hex'),
+      contract.parserDigest, 'Baseline TypeScript parser changed');
+  }
   for (const [file, expected] of Object.entries(contract.bindings)) {
     assert.equal(createHash('sha256').update(readFileSync(join(root, file))).digest('hex'), expected,
       `Known baseline source changed: ${file}`);
@@ -53,6 +69,16 @@ for (const contract of contracts) {
     cwd: root, encoding: 'utf8', timeout: 360_000, maxBuffer: 32 * 1024 * 1024,
   });
   process.stdout.write(result.stdout ?? ''); process.stderr.write(result.stderr ?? '');
-  console.log(`CONTRACT_RESULT ${contract.name} ${classification(contract, result)}`);
+  const verdict = classification(contract, result);
+  if (verdict === 'known_baseline_failure') {
+    const first = Object.keys(contract.bindings)[0];
+    assert.throws(() => classification({ ...contract, bindings: { ...contract.bindings, [first]: '0'.repeat(64) } }, result));
+    if (contract.diagnosticDigest) {
+      assert.throws(() => classification({ ...contract, parserDigest: '0'.repeat(64) }, result));
+      assert.throws(() => classification(contract, { ...result,
+        stderr: result.stderr.replace(contract.cause, contract.cause + '\nChanged underlying diagnostic') }));
+    }
+  }
+  console.log(`CONTRACT_RESULT ${contract.name} ${verdict}`);
 }
-console.log('BENCHMARK_CONTRACTS_CHECKED no new failures; exact source-bound baseline exceptions remain visible');
+console.log('BENCHMARK_CONTRACTS_CHECKED no new reported failures in executed checks; baseline runtime failure stops its remaining checks');

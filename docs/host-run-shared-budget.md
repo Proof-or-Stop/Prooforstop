@@ -54,8 +54,10 @@ Malformed provider counters become null in reservation accounting; recovering ol
 malformed counters never releases a charged call. Refusals before the trusted
 runner boundary release their reservation, while runner exceptions remain charged.
 If settlement fails after a completed run, `HostRunResult.budgetSettlementError`
-reports `host_run_budget_settlement_failed`; stdout, exit status and usage remain
-available. A corrupt reservation structure still blocks subsequent launches.
+reports `host_run_budget_settlement_failed: <cause>`; stdout, exit status and usage
+remain available. On a transport exception, a settlement failure reports the same
+cause to stderr while preserving the exact original exception, including frozen
+objects. A corrupt reservation structure still blocks subsequent launches.
 
 Reproduce with `node scripts/verify-benchmark-shared-budget.mjs` and
 `node scripts/verify-benchmark-budget-adversarial.mjs`. Both use actual host-run
@@ -74,3 +76,18 @@ causes and unchanged source bindings are admitted; extra failures, command error
 signals or changed baseline sources fail the replay. The known failures remain
 printed as failures, not PASS evidence. This replay is not a full repository-health
 verdict or formal Story completion evidence.
+
+Routine behavioral coverage runs through `npm run test:benchmark-behavior`, the
+canonical `npm test` inventory and the registered `proof-or-stop validate` command.
+It runs six private-fixture regressions without building or calling the contract
+verifiers. Individual `test:benchmark-*` aliases remain available. The Lab release
+entry separately owns build/typecheck, registration and full-suite inventory smoke
+checks, static evidence, usage smokes and complete contract invocations.
+
+The existing snapshot-binding baseline is a static AST check: its only read is
+`shared-validation-execution.ts`, parsed by TypeScript. The Lab classifier pins
+that entire source, the verifier, the resolved TypeScript parser bytes and the
+complete normalized assertion diagnostic, including Node stack/version. It does
+not infer unchanged runtime facts from an umbrella assertion message. Any binding
+or diagnostic drift refuses the exception. That baseline failure stops the runtime
+verifier; checks ordered after it remain unexecuted and are not claimed as passed.
