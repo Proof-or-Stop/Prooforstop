@@ -501,6 +501,8 @@ export function buildManagedReviewerPrompt(
     // process-fact contract and the counting gate is unchanged.
     'Emit that final proposal EXACTLY ONCE. Do not re-submit, repeat, or "confirm" it a second time, even with identical content: a second submission is rejected as managed_review_final_result_multiple and discards your entire review.',
     'Use schemaVersion="lattice.managed_review_final_proposal.v1" and the exact bound fields above. For a pass add conclusion="pass", note, and truthful readManifest/readLog. For findings add conclusion="findings", exact findings, and truthful read evidence.',
+    'Before final submission, read at least one relevant in-scope file in full within the permitted review boundary, including for an inventory-completeness critic. Both filesReadFully arrays must contain the same nonempty set of actually fully read paths, and readLog.summary.readCount must equal its unique path count. Do not invent full reads or relabel greps, parsed excerpts or partial reads as full reads. If no permitted relevant file can be read fully, the review remains incomplete; do not manufacture reading evidence or a PASS. This minimum does not establish full-corpus coverage or waive any other required reading.',
+    'For a finding, include a nonblank uncertaintyReason only when evidenceState="suspected"; omit it when evidenceState="verified" or absent. General limitations belong in note and do not change a finding\'s evidence state.',
     '--- BEGIN MANAGED REVIEW FINAL PROPOSAL JSON SCHEMA ---',
     finalProposalSchema,
     '--- END MANAGED REVIEW FINAL PROPOSAL JSON SCHEMA ---',

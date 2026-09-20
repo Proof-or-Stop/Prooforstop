@@ -1,4 +1,4 @@
-import { withInheritedMachineReservation, withMachineReservationController, machineReservationResidualsPresent, inheritedValidationReservationPortAlreadyHeld, currentValidationReservationAbortSignal } from './validation-reservation-delegation.js';
+import { withInheritedMachineReservation, withMachineReservationController, machineReservationResidualsPresent, inheritedValidationReservationPortAlreadyHeld, currentValidationReservationAbortSignal, deadlineTimer } from './validation-reservation-delegation.js';
 import { VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS, MACHINE_FIXED_PORT_RUNTIME_POLICY, VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY, VALIDATION_RESOURCE_KEY_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import { withSharedValidationExecutions, type SharedValidationExecutionContext } from './shared-validation-execution.js';
 import { AsyncLocalStorage } from 'node:async_hooks';
@@ -486,6 +486,12 @@ export interface ValidationCapacityLockOptions {
   progressIntervalMs?: number;
   abortSignal?: AbortSignal;
   deadlineAt?: number;
+  /**
+   * Bounds only the wait for admission. `deadlineAt` still bounds the admitted work and the
+   * reservation it holds, so a caller whose own budget should start at admission can queue
+   * against this bound without the wait consuming that budget.
+   */
+  waitDeadlineAt?: number;
   deadlineError?: () => Error;
   onWaitProgress?: (message: string) => void;
   externalCancellation?: () => string | undefined;
@@ -499,8 +505,34 @@ export interface OfficialValidationExecutionOptions extends ValidationCapacityLo
   ownerLeaseHeartbeat?: OwnerLeaseHeartbeatOptions;
 }
 
+/** The capacity wait's own deadline error, distinguishable from any caller-supplied deadline error by type. */
+export class ValidationCapacityWaitDeadlineError extends Error {
+  constructor() { super('workspace validation capacity wait deadline exceeded'); this.name = 'ValidationCapacityWaitDeadlineError'; capacityWaitDeadlineErrors.add(this); }
+}
+const capacityWaitDeadlineErrors = new WeakSet<object>();
+/**
+ * Identity check for the capacity wait's own deadline error. It reads nothing from the value (no prototype
+ * walk, no property access), so a hostile thrown value can neither spoof it nor replace the original error.
+ */
+export function isValidationCapacityWaitDeadlineError(error: unknown): boolean {
+  return typeof error === 'object' && error !== null && capacityWaitDeadlineErrors.has(error);
+}
+
 function capacityDeadlineError(options: ValidationCapacityLockOptions): Error {
-  return options.deadlineError?.() ?? new Error('workspace validation capacity wait deadline exceeded');
+  // A caller's deadline error describes the caller's own deadline; an expired admission-wait
+  // bound alone is reported as the capacity wait deadline it is.
+  const callerDeadlineReached = typeof options.deadlineAt === 'number' && Number.isFinite(options.deadlineAt) && Date.now() >= options.deadlineAt;
+  const waitOnly = typeof options.waitDeadlineAt === 'number' && !callerDeadlineReached;
+  return (waitOnly ? undefined : options.deadlineError?.()) ?? new ValidationCapacityWaitDeadlineError();
+}
+
+/** The earlier of the caller's overall deadline and its admission-wait deadline. */
+function capacityWaitDeadline(options: ValidationCapacityLockOptions): number | undefined {
+  const bound = Math.min(
+    typeof options.deadlineAt === 'number' && Number.isFinite(options.deadlineAt) ? options.deadlineAt : Infinity,
+    typeof options.waitDeadlineAt === 'number' && Number.isFinite(options.waitDeadlineAt) ? options.waitDeadlineAt : Infinity,
+  );
+  return bound === Infinity ? undefined : bound;
 }
 
 function assertCapacityWaitActive(options: ValidationCapacityLockOptions): void {
@@ -511,16 +543,16 @@ function assertCapacityWaitActive(options: ValidationCapacityLockOptions): void 
       ? options.abortSignal.reason
       : new Error('workspace validation capacity wait aborted');
   }
-  if (typeof options.deadlineAt === 'number' && Number.isFinite(options.deadlineAt) && Date.now() >= options.deadlineAt) {
+  const waitDeadlineAt = capacityWaitDeadline(options);
+  if (waitDeadlineAt !== undefined && Date.now() >= waitDeadlineAt) {
     throw capacityDeadlineError(options);
   }
 }
 
 async function waitForCapacityRetry(options: ValidationCapacityLockOptions, delayMs: number): Promise<void> {
   assertCapacityWaitActive(options);
-  const remainingMs = typeof options.deadlineAt === 'number' && Number.isFinite(options.deadlineAt)
-    ? Math.max(0, options.deadlineAt - Date.now())
-    : delayMs;
+  const waitDeadlineAt = capacityWaitDeadline(options);
+  const remainingMs = waitDeadlineAt !== undefined ? Math.max(0, waitDeadlineAt - Date.now()) : delayMs;
   const waitMs = Math.max(1, Math.min(delayMs, remainingMs));
   await new Promise<void>((resolveWait, rejectWait) => {
     let settled = false;
@@ -837,11 +869,26 @@ export async function withMachineValidationResources<T>(options: ValidationCapac
   const claims = declared ? canonicalizeEntries([{ name: options.command, resources: [
     { class: 'machine-validation', key: MACHINE_FIXED_PORT_RUNTIME_POLICY.barrierKey, access: 'shared' }, ...machineResources,
   ] }], options.workspaceRoot)[0]!.resources : undefined;
-  const inherited = await withInheritedMachineReservation(claims ?? null, options.deadlineAt ?? Date.now() + MACHINE_FIXED_PORT_RUNTIME_POLICY.queueDeadlineMs, options.abortSignal, async () => {
-    for (const claim of (claims ?? []).filter(claim => claim.class === 'fixed-port' && claim.access === 'exclusive')) if(!inheritedValidationReservationPortAlreadyHeld(claim.key)) await probeMachineFixedPort(Number(claim.key));
-    currentValidationReservationAbortSignal()?.throwIfAborted();
-    assertCapacityWaitActive(options); return await fn();
-  });
+  // A separate admission-wait bound applies only to the grant request, never to the granted frame.
+  const grantWait = typeof options.waitDeadlineAt === 'number' && Number.isFinite(options.waitDeadlineAt) ? new AbortController() : undefined;
+  // Segmented, so a wait bound beyond Node's timer ceiling never fires at once.
+  const grantWaitTimer = grantWait ? deadlineTimer(options.waitDeadlineAt!, () => grantWait.abort(new Error('grant wait deadline')), { unref: true }) : undefined;
+  let inherited: Awaited<ReturnType<typeof withInheritedMachineReservation<T>>>;
+  let entered = false;
+  try {
+    inherited = await withInheritedMachineReservation(claims ?? null, options.deadlineAt ?? Date.now() + MACHINE_FIXED_PORT_RUNTIME_POLICY.queueDeadlineMs, options.abortSignal, async () => {
+      entered = true;
+      grantWaitTimer?.cancel();
+      for (const claim of (claims ?? []).filter(claim => claim.class === 'fixed-port' && claim.access === 'exclusive')) if(!inheritedValidationReservationPortAlreadyHeld(claim.key)) await probeMachineFixedPort(Number(claim.key));
+      currentValidationReservationAbortSignal()?.throwIfAborted();
+      assertCapacityWaitActive(options); return await fn();
+    }, grantWait?.signal);
+  } catch (error) {
+    if (!entered && grantWait?.signal.aborted && error === grantWait.signal.reason) throw capacityDeadlineError(options);
+    throw error;
+  } finally {
+    grantWaitTimer?.cancel();
+  }
   if (inherited.inherited) return inherited.value;
   const nested = currentContextOwns(lockKey);
   const held = nested ? activeCapacityDeclarations.get(validationLockOwnerStore.getStore()!.get(lockKey)!) : undefined;
@@ -973,8 +1020,8 @@ async function withValidationCapacityQueue<T>(options: ValidationCapacityLockOpt
             // remaining wait, and an abort kills it. The caller's abort/deadline verdict
             // is re-checked FIRST afterwards, so a conflict detected by a probe that
             // finished past the deadline never replaces that verdict.
-            const remainingMs = typeof options.deadlineAt === 'number' && Number.isFinite(options.deadlineAt)
-              ? options.deadlineAt - Date.now() : Number.POSITIVE_INFINITY;
+            const waitDeadlineAt = capacityWaitDeadline(options);
+            const remainingMs = waitDeadlineAt !== undefined ? waitDeadlineAt - Date.now() : Number.POSITIVE_INFINITY;
             ancestors ??= await machinePortAncestorPids({
               timeoutMs: Math.min(MACHINE_ANCESTOR_PROBE_TIMEOUT_MS, remainingMs),
               signal: options.abortSignal,

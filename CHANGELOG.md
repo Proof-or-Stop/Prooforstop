@@ -1,26 +1,65 @@
 # Changelog
 
-## Lab story-baseline-default-branch - v0.3.420 - 2026-09-20
+## Lab managed reviewer qualification and Story baseline resolution - v0.3.424 - 2026-09-20
 
-- Resolve ordinary incremental-review context from the Story's frozen integration target when callers omit fullStoryBaseHead, so repositories whose default branch is master or another name do not fail on a hard-coded main diff.
-- Preserve exact historical digest replay for callers that explicitly provide fullStoryBaseHead as undefined.
-- Cover current and legacy master resolution, malformed and unavailable target refusals through the ordinary context path, and historical envelope replay without an integrationTarget.
+- Formal Codex and Claude managed reviewers now use qualified model and reasoning defaults, reject unqualified selectors before provider launch, and keep Grok selection provider-owned; see the [managed execution contract](docs/requirements/decisions/managed-cross-provider-cli-execution.md).
+- Ordinary incremental-review callers now resolve the Story's frozen integration commit instead of assuming a local `main` branch, including repositories whose integration branch is `master`.
+- Preserve byte-exact replay for historical envelopes that explicitly omit the base, with permanent coverage for legacy `master`, malformed targets, unavailable baselines, and signed historical replay.
+- Retain the concurrent upstream validation queue, host activity, and review evidence changes merged from `origin/main`; all version and protected static-evidence bindings are synchronized at `0.3.424`.
 
-Verification: the real temporary master-only repository reproducer changed from MASTER_BASELINE_RED to MASTER_BASELINE_GREEN; the focused permanent first-base smoke passes. The broader smoke reached all baseline assertions and later exposed a pre-existing concurrent reviewer write serialization failure reproduced on unmodified 0.3.418 main, outside this Lab's bounded baseline defect.
+## Lab validation-queue-wait-outside-command-timeout - v0.3.423 - 2026-09-18
 
-Maintenance provenance: codex/lab-story-baseline-default-branch, repair 05ca629f0963fb2a8947e2df43354f8bffc514e7.
-Verification command (replayed before integration and on main): `["node","/tmp/pos-reviewer-master-baseline-repro.mjs"]`.
+- Stop counting time spent waiting on the same-user machine validation queue toward a validation command's configured timeout: the wait is bounded by the 300 s queue deadline and the caller's outer deadline, and the command is armed with its whole timeout once admitted.
+- Add `waitDeadlineAt` to the capacity lock options (also honored by delegated grant requests) so the admission wait has its own bound while `deadlineAt` keeps bounding the admitted work; an expired wait bound raises a typed capacity-wait error, and a caller's own deadline error is rethrown unchanged. Handshake, grant and grant-wait timers re-arm in segments, so reservations beyond Node's 2^31-1 ms timer ceiling no longer expire at once.
+- Verification: `node scripts/verify-validation-queue-wait-outside-command-timeout.mjs` fails 4 expectations before the repair (a 2 s command queued 4 s was killed with 0 ms effective budget) and passes 12 checks after it, including delegated commands at the maximum timeout and beyond-ceiling wait bounds; the `queue-wait-cap` mode of the nested result contract now asserts the new contract.
+- Details and measurements: [docs/lab/validation-queue-wait-outside-command-timeout.md](docs/lab/validation-queue-wait-outside-command-timeout.md).
+
+Maintenance provenance: codex/lab-validation-queue-wait-outside-command-timeout, repair 46ea4f5eb7beb05a9a2bdcd52346a844d6547fbe.
+Verification command (replayed before integration and on main): `["node","scripts/verify-validation-queue-wait-outside-command-timeout.mjs"]`.
 This entry does not assert formal Story DONE or signed product-release credentials.
 
-## Lab managed-reviewer-model-qualification - v0.3.419 - 2026-09-19
+## Lab host-activity-log-during-validation - v0.3.422 - 2026-09-18
 
-- Formal managedReview and managedDispatch now resolve omitted Codex or Claude selectors to qualified reviewer defaults before immutable submission.
-- Unqualified model families and sub-high reasoning effort fail before ReviewRun lookup or provider launch, with executable boundary coverage for both hosts.
-- INIT, PLAN scope, and TEST delivery guidance share one dependency-free qualified Codex command renderer, preventing selector drift without importing provider launch dependencies into the state machine.
-- Documentation now states submission-only qualification, sealed import equality, default-alias recovery, historical idempotency migration, and the separate advisory cross_host_review boundary.
+- Stop the Claude host activity hook (`.claude/hooks/log-tools.cjs`) from appending into a worktree while that worktree validates: a line is written only while the hook holds the product's own workspace validation capacity ticket, and is dropped otherwise, fixing the 2026-09-17 quorum smoke run reported FAIL with 73/73 cases passing.
+- Resolve the real destination first and refuse symlinked logs, hard links, FIFOs, destinations outside the ticket's worktree and uncertain Git discovery; directories are created per component from the filesystem root (including Windows drive and UNC roots) without following links. A residual rename race remains an accepted limitation because Node has no openat/mkdirat.
+- Verification: `node scripts/verify-host-activity-log-during-validation.mjs` fails 29 expectations against main's hook and passes 83 checks after the repair, including interop with the real capacity allocator and failure on any hook timeout.
+- Details, measured data and the audit history: [docs/lab/host-activity-log-during-validation.md](docs/lab/host-activity-log-during-validation.md).
 
-Maintenance provenance: codex/lab-managed-reviewer-model-qualification, repair 8a70d096163b78b9a6f37f12e7087a9e188384c2.
-Verification command (replayed before integration and on main): `["node","packages/main/tests/managed-init-reviewer-dispatch-e2e.test.mjs"]`.
+Maintenance provenance: codex/lab-host-activity-log-during-validation, repair 77110791b350a3179b5acac9ed04dfca9acc9113.
+Verification command (replayed before integration and on main): `["node","scripts/verify-host-activity-log-during-validation.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab benchmark-review-digest-refresh - v0.3.421 - 2026-09-18
+
+- Refresh exactly four existing review-run.ts dependency digests after audited upstream 0.3.420 changed that source file.
+- Preserve every exception identity, source binding, command, resource policy, and verification requirement; no new exception is added.
+- Existing static scanner reproduced four NEEDS_REVIEW results before the repair and passed with zero after it. See b0980-parallel-diagnostic-20260918/dependency-drift.json for the diagnosis.
+- This bounded Lab repair restores the benchmark supporting static check; it is not formal Story DONE or benchmark runner delivery.
+
+Maintenance provenance: codex/lab-benchmark-review-digest-refresh, repair 5f91abdf2a50baf43f7e68633af70c995f479931.
+Verification command (replayed before integration and on main): `["node","scripts/verify-validation-static-edges.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab review-evidence-observation - v0.3.420 - 2026-09-18
+
+- Share identical read-only Git probes across one synchronous collection of authenticated reviewer evidence, addressing the repeated reads found while executing B-e6d9 transition-authority acceptance.
+- Retain signature, dispatch, scope and freshness checks. A later collection rereads Git; changed reviewed material is rejected and thrown reads release their observation.
+- Record native multi-lane RED/GREEN with the unchanged test command. Measured hot Git probes decreased from 46 to 13 and the sampled collection wall time from 1.368 seconds to 0.406 seconds; these are individual fixture measurements, not a general throughput guarantee.
+- Keep the original Story acceptance cases and time budgets unchanged. Lab evidence establishes only this bounded reader repair; the Story must independently complete its formal intents and lifecycle.
+
+Maintenance provenance: codex/lab-review-evidence-observation, repair bf075642877763d974b2d3078eff911fbad78c04.
+Verification command (replayed before integration and on main): `["node","scripts/verify-review-evidence-observation.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab benchmark-review-read-evidence-contract - v0.3.419 - 2026-09-18
+
+- Clarify managed reviewer prompts and provider schema descriptions: ordinary reviewers and inventory critics must actually read at least one relevant permitted file in full and report matching nonempty read evidence. Do not fabricate reading records or infer full-corpus coverage from this minimum.
+- Explain that a nonblank uncertaintyReason is required only for suspected Findings and must be omitted for verified Findings or an absent evidenceState.
+- Preserve all existing parser, signature, scope, receipt and independent-review requirements. Focused RED/GREEN coverage checks both prompt delivery and accepted/rejected ordinary, critic and Finding envelopes. The complete static-edge scan passes after refreshing exactly three existing dependency digests; exception commands and permissions are unchanged.
+- This bounded maintenance addresses B-0980 provider-output failures; it does not mark B-0980 DONE or claim the benchmark runner is delivered. Provider results and partial cost observations are retained in [the development evidence directory](/Users/jek/Documents/Proof-or-Stop-Benchmark-Plan/b0980-ri035-review-evidence).
+
+Maintenance provenance: codex/lab-benchmark-review-read-evidence-contract, repair f4759f22c17f210cbdeb6de4ec08de3e36bb85f0.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/managed-review-prompt-cwd-isolation-smoke.js"]`.
 This entry does not assert formal Story DONE or signed product-release credentials.
 
 ## Lab inventory-guard-fixture - v0.3.418 - 2026-09-18

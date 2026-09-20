@@ -593,6 +593,13 @@ recorded, and that the projection still names both refusals. The post-capture
 cleanup diagnostic remains appended after the complete artifact, separated by a
 newline, as the seventh round required.
 
+Superseded on 2026-09-18 by Lab validation-queue-wait-outside-command-timeout:
+on the operator's decision the machine queue wait no longer consumes the
+command's configured timeout. The wait is bounded by the queue deadline and the
+caller's outer deadline, the timer is armed with the whole configured budget
+when the command is admitted, and mode `queue-wait-cap` now asserts that. The
+record below describes this Lab's behavior at the time.
+
 The armed per-command timer is fixed at capture entry, before setup and the
 pre-launch handshakes: the configured timeout capped by the remaining outer
 deadline, whose budget starts before the capacity wait, so a queue wait

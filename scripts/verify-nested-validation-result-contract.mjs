@@ -19,7 +19,8 @@ import {nestedSourceRuntime} from './support/nested-reservation-source-runtime.m
 // the grant ceiling that actually killed it. residual-record-unwritable blocks the residual record's temporary
 // path inside a live owner and asserts that the refused fence operation folds into a typed result instead of
 // escaping as a raw write error. queue-wait-cap holds a conflicting sibling ticket and asserts that a command's
-// wait on the machine queue consumes its configured budget, so wait plus run never exceed it.
+// wait on the machine queue does not consume its configured budget: the timer is armed with the whole budget
+// once the command is admitted (Lab validation-queue-wait-outside-command-timeout).
 const modes=['prepare-refusal','cleanup-primary','cleanup-result','post-capture-cleanup','ordinary-error','armed-timeout','caller-deadline-before-prepare','descriptor-unavailable','refused-registration-cleanup','attempt-refusal','refused-registration-short','completed-group-residual','nested-grant-deadline','residual-record-unwritable','queue-wait-cap','refused-registration-lingering-group'];
 for(const mode of process.argv[2]?[process.argv[2]]:modes){
  assert.ok(modes.includes(mode));const runtime=nestedSourceRuntime(process.cwd()),{base,delegation,lock,executor,env}=runtime;
@@ -123,7 +124,7 @@ for(const mode of process.argv[2]?[process.argv[2]]:modes){
   assert.ok(Math.abs(observed.result.durationMs-observed.result.effectiveTimeoutMs)<=1000,'the reported ceiling must match the observed kill time '+JSON.stringify(observed));
   console.log('NESTED_GRANT_DEADLINE_CEILING_REPORTED '+JSON.stringify(observed.result));
  }else if(${JSON.stringify(mode)}==='queue-wait-cap'){
-  // A command that waits on the machine queue behind a conflicting sibling ticket has its armed timer reduced by the wait, so wait plus run never exceed the configured budget, exactly as before delegation existed; the holder is a sibling, not an ancestor, so the queue's ancestor rule does not apply. The holder keeps the ticket for three seconds so the waiter, which needs most of a second to start, still waits well over a second.
+  // A command that waits on the machine queue behind a conflicting sibling ticket is armed with its whole configured budget once admitted: the wait is bounded by the queue deadline and any caller deadline, not by the command's timeout. The holder is a sibling, not an ancestor, so the queue's ancestor rule does not apply. The holder keeps the ticket for three seconds so the waiter, which needs most of a second to start, still waits well over a second.
   const {spawn}=await import('node:child_process');const {writeFileSync}=await import('node:fs');
   const holder=${JSON.stringify(join(base,'queue-holder.mjs'))},waiter=${JSON.stringify(join(base,'queue-waiter.mjs'))};
   writeFileSync(holder,"const {withMachineValidationResources:machine}=await import("+JSON.stringify(${JSON.stringify(lock)})+");await machine({root:"+JSON.stringify(${JSON.stringify(base)})+",workspaceRoot:"+JSON.stringify(${JSON.stringify(base)})+",command:'queue holder',deadlineAt:Date.now()+8000,resources:[{class:'machine-cpu',key:'heavy',access:'exclusive'}]},async()=>{process.send({held:true});await new Promise(r=>setTimeout(r,3000));});process.exit(0);");
@@ -133,9 +134,10 @@ for(const mode of process.argv[2]?[process.argv[2]]:modes){
   assert.equal(await bClosed,0,'waiter must exit 0: '+output);await aClosed;
   const match=output.match(/QUEUE_WAIT_RESULT (\\{[^\\n]+\\})/);assert.ok(match,'waiter result required: '+output);const observed=JSON.parse(match[1]);
   assert.equal(observed.timedOut,true,'the hanging leaf must be killed by the armed timer: '+JSON.stringify(observed));assert.equal(observed.timeoutMs,4000);
-  assert.ok(observed.effectiveTimeoutMs<=3000,'QUEUE_WAIT_MUST_CONSUME_THE_CONFIGURED_BUDGET '+JSON.stringify(observed));
-  assert.ok(observed.totalMs<=4800,'wait plus run must stay within the configured budget: '+JSON.stringify(observed));
-  console.log('QUEUE_WAIT_CAP_PRESERVED '+JSON.stringify(observed));
+  assert.ok(observed.effectiveTimeoutMs>=3900,'QUEUE_WAIT_MUST_NOT_CONSUME_THE_CONFIGURED_BUDGET '+JSON.stringify(observed));
+  assert.ok(observed.totalMs-observed.durationMs>=1000,'the command must really have waited on the queue: '+JSON.stringify(observed));
+  assert.ok(observed.totalMs<=3000+4000+3000,'wait plus run stay bounded by the holder plus the configured budget: '+JSON.stringify(observed));
+  console.log('QUEUE_WAIT_OUTSIDE_BUDGET '+JSON.stringify(observed));
  }else if(${JSON.stringify(mode)}==='residual-record-unwritable'){
   // The live owner's own executor cannot publish the residual record (a directory blocks the record's temporary path): the fence operation is refused with a typed reason that folds into a bounded infra_failure result, the leaf never launches, and once the path is free again the owner releases its ticket cleanly.
   const {existsSync,readdirSync,mkdirSync,rmSync}=await import('node:fs');const {join}=await import('node:path');const {withMachineValidationResources:machine}=await import(${JSON.stringify(lock)});

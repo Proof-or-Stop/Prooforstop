@@ -1,8 +1,8 @@
 import { validationReservationChildEnvironment, validationReservationChildStdio, registerValidationReservationChild, prepareValidationReservationChild, cancelValidationReservationChild, noteValidationReservationSpawn, unregisteredValidationReservationChildGone, validationReservationOwnedGroupSignalTarget, observeValidationReservationChild, attemptValidationReservationSpawn, currentValidationReservationAbortSignal, currentValidationReservationDeadline, isValidationDelegationError } from './validation-reservation-delegation.js';
 import { isWithinValidationEvidenceWriteBound } from './validation-evidence-size-policy.js';
 import { withValidationPlanStages, withValidationCommandStage } from './validation-execution-lock.js';
-import { VALIDATION_RUNTIME_TRACE_POLICY, VALIDATION_SOURCE_PROVENANCE_SCHEMA, VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY } from './runtime-fact-registry.js';
-import { withMachineValidationResources } from './validation-execution-lock.js';
+import { VALIDATION_RUNTIME_TRACE_POLICY, VALIDATION_SOURCE_PROVENANCE_SCHEMA, VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY, MACHINE_FIXED_PORT_RUNTIME_POLICY } from './runtime-fact-registry.js';
+import { isValidationCapacityWaitDeadlineError, withMachineValidationResources } from './validation-execution-lock.js';
 import { executeSharedValidationCommand, type SharedValidationExecutionContext } from './shared-validation-execution.js';
 import { execFileSync, execSync, spawn } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from 'node:fs';
@@ -1388,7 +1388,12 @@ async function runValidationCommandWithCompleteOutputUnscheduled(
   const started = Date.now();
   const configured = resolveCommandTimeoutMs(command, defaultTimeoutMs);
   const reportedTimeoutMs = Math.min(configured, options.deadlineAt === undefined ? Infinity : Math.max(1, options.deadlineAt - started));
-  const deadlineAt = Math.min(options.deadlineAt ?? Infinity, started + configured);
+  // The machine queue wait is not part of the command's timeout. It is bounded by the queue's own
+  // deadline and the caller's outer deadline; the command's configured timeout starts when the
+  // command is admitted. The admitted work (and any reservation it holds) is bounded by the latest
+  // admission plus that timeout, never beyond the outer deadline.
+  const waitDeadlineAt = Math.min(options.deadlineAt ?? Infinity, started + MACHINE_FIXED_PORT_RUNTIME_POLICY.queueDeadlineMs);
+  const holdDeadlineAt = Math.min(options.deadlineAt ?? Infinity, waitDeadlineAt + configured);
   let enteredCapture = false;
   let completedCapture: CapturedValidationCommandResult | undefined;
   try {
@@ -1396,7 +1401,7 @@ async function runValidationCommandWithCompleteOutputUnscheduled(
     // behind another validation is activity, not silence: report it at the same
     // heartbeat cadence as a running command so the CLI idle watchdog does not
     // kill a healthy queued validation. The wait itself stays bounded by the
-    // queue deadline and this command's deadline, both unchanged.
+    // queue deadline and the caller's outer deadline.
     const waitHeartbeatMs = options.heartbeatMs ?? resolveValidateHeartbeatMs();
     const onWaitProgress = options.progress ? (detail: string) => {
       emitValidationProgress(options.progress, {
@@ -1410,18 +1415,22 @@ async function runValidationCommandWithCompleteOutputUnscheduled(
       });
     } : undefined;
     return await withMachineValidationResources({ root: projectRoot, workspaceRoot: projectRoot, command: command.label,
-    resources: command.resources?.length ? command.resources : undefined, abortSignal: options.abortSignal, deadlineAt,
+    resources: command.resources?.length ? command.resources : undefined, abortSignal: options.abortSignal, deadlineAt: holdDeadlineAt, waitDeadlineAt,
       deadlineError: options.deadlineError,
       ...(onWaitProgress ? { onWaitProgress, progressIntervalMs: waitHeartbeatMs } : {}) }, () => {
         enteredCapture = true;
-        // The capture receives the bounded deadline derived above, whose budget started before the
-        // capacity wait, so a queue wait consumes the configured budget exactly as before delegation
-        // existed and a command never spans more than its configured timeout after that start.
-        return captureValidationCommand(command, projectRoot, defaultTimeoutMs, { ...options, deadlineAt }, reportedTimeoutMs).then(value => { completedCapture = value; return value; });
+        // The capture arms the configured timeout from its own start, capped only by the caller's
+        // outer deadline (and, under delegation, the live grant), so time spent queued never
+        // shortens the command's budget.
+        const admittedAt = Date.now();
+        const admittedTimeoutMs = Math.min(configured, options.deadlineAt === undefined ? Infinity : Math.max(1, options.deadlineAt - admittedAt));
+        return captureValidationCommand(command, projectRoot, defaultTimeoutMs, options, admittedTimeoutMs).then(value => { completedCapture = value; return value; });
       });
   } catch (error) {
     const aborted = options.abortSignal?.aborted && (error === options.abortSignal.reason || boundedValidationErrorMessage(error) === 'workspace validation capacity wait aborted');
-    const expired = !options.deadlineError && boundedValidationErrorMessage(error) === 'workspace validation capacity wait deadline exceeded';
+    // Only the capacity wait's own typed deadline error becomes a result; a caller-supplied deadline
+    // error is rethrown unchanged whatever its message says.
+    const expired = isValidationCapacityWaitDeadlineError(error);
     const delegationRefused = isValidationDelegationError(error);
     if (completedCapture) {
       // The complete authenticated artifact is preserved verbatim with the cleanup diagnostic
@@ -1437,7 +1446,8 @@ async function runValidationCommandWithCompleteOutputUnscheduled(
     // Preserve the command-result API without launching a child merely to abort
     // it. A caller-supplied deadline error remains an exception above.
     const completed = completedValidationCleanupCapture(error);
-    const diagnostic = delegationRefused ? boundedValidationErrorMessage(error) : `${aborted ? 'aborted' : 'deadline exceeded'} before child launch`;
+    const queueWaitExpired = expired && (options.deadlineAt === undefined || Date.now() < options.deadlineAt);
+    const diagnostic = delegationRefused ? boundedValidationErrorMessage(error) : `${aborted ? 'aborted' : queueWaitExpired ? 'machine queue wait deadline exceeded' : 'deadline exceeded'} before child launch`;
     if (completed) {
       // A command that completed before its cleanup was refused keeps its complete
       // authenticated artifact verbatim with the diagnostic appended; only the bounded
@@ -1500,10 +1510,10 @@ async function captureValidationCommand(command: ValidationCommand, projectRoot:
   const started = Date.now();
   const configuredTimeoutMs = resolveCommandTimeoutMs(command, defaultTimeoutMs);
   // The armed timer is fixed here, before setup and the pre-launch handshakes: the configured timeout
-  // capped by the remaining outer deadline, whose budget started before the capacity wait, so a queue
-  // wait consumes budget exactly as before delegation existed, and, under delegation, by the live
-  // grant's deadline at which its revocation kills the command; the reported effective timeout is
-  // that armed ceiling. The bounded deadline below governs only the pre-launch handshakes.
+  // measured from this start (after any capacity wait), capped by the remaining outer deadline and,
+  // under delegation, by the live grant's deadline at which its revocation kills the command; the
+  // reported effective timeout is that armed ceiling. The bounded deadline below governs only the
+  // pre-launch handshakes.
   const grantDeadlineAt = currentValidationReservationDeadline();
   const ceilingAt = Math.min(options.deadlineAt ?? Infinity, grantDeadlineAt ?? Infinity);
   const armedTimeoutMs = ceilingAt === Infinity ? configuredTimeoutMs : Math.max(1, Math.min(configuredTimeoutMs, Math.floor(ceilingAt - started)));
