@@ -31,6 +31,7 @@ import { createScopeCheckHandlers } from '../handlers/scope-check.js';
 import { createDeliveryCheckHandlers } from '../handlers/delivery-check.js';
 import { captureReviewerReadEvent } from '../core/reviewer-read-evidence.js';
 import { DEFAULT_PHASE_TOOLS } from '../core/config.js';
+import { getCommandPolicy } from '../core/command-policy.js';
 import { REVIEW_RUN_LANES, resolveReviewRunLane } from '../core/review-run.js';
 import {
   AGENT_LIVENESS_GUIDANCE_REQUIRED_FRAGMENTS,
@@ -633,7 +634,7 @@ try {
   try {
     assert.throws(() => checklistHandlers.checklist_update({
       storyId, itemId: 'CHK-001',
-      verificationIntent: { happy: [{ desc: 'retired actor must not persist', type: 'logic', priority: 'must' }], edge: [], adversarial: [] },
+      verificationIntent: { happy: [{ desc: 'retired actor must not persist', type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }], edge: [], adversarial: [] },
       agent: 'verification-intent',
     }), /agent_dispatch_actor_unknown/);
     assert.equal(mutationState(), beforeRetiredPlanActor, 'retired bare PLAN actor rejection preserves all fixture state');
@@ -647,7 +648,7 @@ try {
       storyId,
       itemId: 'CHK-001',
       verificationIntent: {
-        happy: [{ desc: 'intent write -> persists', type: 'logic', priority: 'must' }],
+        happy: [{ desc: 'intent write -> persists', type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
         edge: [],
         adversarial: [],
       },
@@ -655,7 +656,7 @@ try {
     });
     const writtenItem = store.readChecklist(storyId).items.find(item => item.id === 'CHK-001');
     assert.deepEqual(writtenItem?.verificationIntent, {
-      happy: [{ desc: 'intent write -> persists', type: 'logic', priority: 'must' }],
+      happy: [{ desc: 'intent write -> persists', type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
       edge: [],
       adversarial: [],
     }, 'canonical PLAN role can write verificationIntent through the real checklist handler');
@@ -894,6 +895,20 @@ try {
           const label = `${agentType}/${identifierKind || 'story'}/${phase}`;
           assert.match(prompt, promptPatterns[expectedPromptBuilder], `${label} must render ${expectedPromptBuilder}`);
           assertCanonicalLivenessGuidance(prompt, label);
+          if (expectedPromptBuilder === 'finding-repair') {
+            assert.match(prompt, /Controller launch contract \(the repair worker does not perform this step\)/,
+              'FINDING_REPAIR_CONTROLLER_LAUNCH_REQUIRED');
+            assert.match(prompt, /dispatch prepares the canonical prompt only; it does not start a host task/i,
+              'finding repair must distinguish prompt preparation from a launched task');
+            assert.match(prompt, /nonempty task identity before (?:calling|using).*wait/i,
+              'finding repair must require a concrete receiver before waiting');
+            assert.match(prompt, /Never call.*wait.*empty target list/i,
+              'finding repair must fail closed before an empty receiver wait');
+            assert.match(prompt, /repair worker must not call finding_resolve/i,
+              'finding repair state closure must remain controller-owned');
+            assert.match(prompt, /Story owner\/controller.*finding_resolve/i,
+              'finding repair must hand resolution closure back to the owner');
+          }
           if (!entry.commitAllowed) assert.doesNotMatch(prompt, /git commit --author=/, `${label} must not receive commit instructions`);
           if (entry.roleClass === 'verification-intent') assert.doesNotMatch(prompt, /status["': ]+done/i, `${label} must not complete an item`);
           if (entry.roleClass.endsWith('reviewer')) assert.doesNotMatch(prompt, /(?:proof-or-stop|lattice) checklist_update/, `${label} must not mutate checklist status`);
@@ -902,6 +917,12 @@ try {
       }
     }
   }
+  const findingRepairEntry = AGENT_DISPATCH_REGISTRY.find(entry => entry.canonicalName === 'proof-or-stop-finding-repair');
+  assert(findingRepairEntry, 'finding repair registry entry must exist');
+  assert.equal(entryPermitsMutation(findingRepairEntry, 'finding_resolve'), false,
+    'finding repair worker must not receive owner-only blocker-state authority');
+  assert.deepEqual(getCommandPolicy('finding_resolve')?.allowedPhases, ['DEV', 'REVIEW'],
+    'FINDING_REPAIR_DEV_RESOLUTION_REQUIRED');
   assertCoverageComplete(AGENT_DISPATCH_REGISTRY, coveredCanonical, coveredAliases, actualPromptCoverage);
 } finally {
   if (previousHostSession === undefined) delete process.env.PROOF_OR_STOP_SESSION_ID;
