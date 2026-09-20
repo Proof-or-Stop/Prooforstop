@@ -407,9 +407,26 @@ async function prepareWorkspaceValidationCoordination(options: ValidationCapacit
   };
   if (validAlias()) return;
   const migrationPath = target + WORKSPACE_VALIDATION_COORDINATION_ARTIFACT.migrationLockSuffix;
+  let lastProgressAt = -Infinity;
+  let waitMessage: string | undefined;
+  const migrationError = (error: unknown): never => {
+    // Caller-supplied errors retain their identity and contents.
+    if (isValidationCapacityWaitDeadlineError(error) && waitMessage) (error as Error).message += `; ${waitMessage}`;
+    throw error;
+  };
+  const assertMigrationActive = () => { try { assertCapacityWaitActive(options); } catch (error) { migrationError(error); } };
+  const waitForMigration = async (holderPath: string) => {
+    waitMessage = `workspace coordination migration waiting for ${legacyPath} to drain; ${buildCapacityWaitMessage(options, holderPath)}`;
+    if (Date.now() - lastProgressAt >= Math.max(10, options.progressIntervalMs ?? VALIDATION_CAPACITY_PROGRESS_INTERVAL_MS)) {
+      lastProgressAt = Date.now();
+      try { options.onWaitProgress?.(waitMessage); } catch { /* Descriptive callbacks never change ownership. */ }
+    }
+    try { await waitForCapacityRetry(options, Math.max(10, options.pollMs ?? VALIDATION_CAPACITY_WAIT_POLL_MS)); }
+    catch (error) { migrationError(error); }
+  };
   let migration: AcquiredMkdirLock | undefined;
   while (!migration) {
-    assertCapacityWaitActive(options);
+    assertMigrationActive();
     if (validAlias()) return;
     try {
       migration = acquireMkdirLock(migrationPath, {
@@ -422,15 +439,17 @@ async function prepareWorkspaceValidationCoordination(options: ValidationCapacit
     } catch (error: any) {
       if (!existsSync(migrationPath) || (!error.message.includes('WORKSPACE_COORDINATION_MIGRATION_BUSY')
         && !error.message.startsWith('workspace coordination migration lock timeout'))) throw error;
-      await waitForCapacityRetry(options, Math.max(10, options.pollMs ?? VALIDATION_CAPACITY_WAIT_POLL_MS));
+      await waitForMigration(migrationPath);
     }
   }
   try {
+  let liveQueuePaths: string[] = [];
   const pruneEmptyQueue = (path: string): string[] => {
     const blocked: string[] = [];
-    // Queue-visible tickets preserve their existing live-owner wait semantics.
-    activeCapacityCandidates(path, '.choosing', options.staleMs ?? VALIDATION_EXECUTION_LOCK_STALE_MS);
-    activeCapacityCandidates(path, '.ticket', options.staleMs ?? VALIDATION_EXECUTION_LOCK_STALE_MS);
+    // A populated legacy queue drains before migration. New callers wait outside
+    // that queue, report its holder, and retain their original deadline/abort.
+    liveQueuePaths.push(...activeCapacityCandidates(path, '.choosing', options.staleMs ?? VALIDATION_EXECUTION_LOCK_STALE_MS).map(row => row.path));
+    liveQueuePaths.push(...activeCapacityCandidates(path, '.ticket', options.staleMs ?? VALIDATION_EXECUTION_LOCK_STALE_MS).map(row => row.path));
     for (const name of readdirSync(path)) {
       const child = join(path, name);
       let stat;
@@ -460,7 +479,7 @@ async function prepareWorkspaceValidationCoordination(options: ValidationCapacit
     return blocked;
   };
   while (true) {
-    assertCapacityWaitActive(options);
+    assertMigrationActive();
     let stat;
     try { stat = lstatSync(legacyPath); }
     catch (error: any) { if (error.code !== 'ENOENT') throw error; }
@@ -470,17 +489,23 @@ async function prepareWorkspaceValidationCoordination(options: ValidationCapacit
     }
     if (stat) {
       if (!stat.isDirectory()) throw new Error('workspace validation coordination legacy path is not a directory');
+      liveQueuePaths = [];
       const blocked = pruneEmptyQueue(legacyPath);
       if (blocked.length) throw new Error(`WORKSPACE_COORDINATION_MIGRATION_BLOCKED: ${legacyPath}; retained entries: ${blocked.join(', ')}. Inspect their owners and repair abandoned residue before retrying; live or unknown ownership is never removed.`);
+      if (liveQueuePaths.length) { await waitForMigration(liveQueuePaths[0]!); continue; }
       try { rmdirSync(legacyPath); }
       catch (error: any) {
         if (!['ENOENT', 'ENOTEMPTY', 'EEXIST'].includes(error.code)) throw error;
-        if (error.code !== 'ENOENT') { await waitForCapacityRetry(options, Math.max(10, options.pollMs ?? VALIDATION_CAPACITY_WAIT_POLL_MS)); continue; }
+        if (error.code !== 'ENOENT') { await waitForMigration(legacyPath); continue; }
       }
     }
-    try { symlinkSync(target, legacyPath, process.platform === 'win32' ? 'junction' : 'dir'); }
-    catch (error: any) { if (error.code !== 'EEXIST') throw error; }
-    // Verify the winner before the caller can publish any ticket.
+    try { symlinkSync(target, legacyPath, process.platform === 'win32' ? 'junction' : 'dir'); return; }
+    catch (error: any) {
+      if (error.code !== 'EEXIST') throw error;
+      // Verify an alias winner before publishing; a legacy writer that won the
+      // mkdir race is inspected on the next iteration without replacing it.
+      if (validAlias()) return;
+    }
   }
   } finally { migration.release(); }
 }

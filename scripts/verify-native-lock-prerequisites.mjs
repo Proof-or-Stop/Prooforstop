@@ -1,6 +1,7 @@
 import {spawn} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
+import {existsSync} from 'node:fs';
 import {createNativeLockTestRuntime} from './native-lock-test-runtime.mjs';
 const root=fileURLToPath(new URL('..',import.meta.url));
 let active;
@@ -54,4 +55,4 @@ for(const [command,args] of steps) {
  assert.equal(result.status,0,command+' native prerequisites verification failed');
 }
 
-} finally {clearTimeout(escalation);clearTimeout(reapDeadline);fixtureRuntime.dispose();}
+} finally {clearTimeout(escalation);clearTimeout(reapDeadline);fixtureRuntime.dispose();assert.equal(existsSync(fixtureRuntime.root),false,'native fixture cleanup must remove its external workspace coordination namespace');}

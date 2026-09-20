@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, realpathSync, lstatSync, symlinkSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, realpathSync, lstatSync, symlinkSync, existsSync } from 'node:fs';
 import { tmpdir, hostname } from 'node:os';
 import { join, relative, resolve } from 'node:path';
 import { spawnSync, spawn, execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { createFixtureMachineEnvironment } from '../dist/tasks/helpers/fixture-machine-environment.js';
-import { withWorkspaceValidationCapacity, validationCapacityLockPath } from '../dist/core/validation-execution-lock.js';
+import { withWorkspaceValidationCapacity, validationCapacityLockPath, isValidationCapacityWaitDeadlineError } from '../dist/core/validation-execution-lock.js';
 import { createQuorumSmokeProtectedMutationGuard } from '../dist/tasks/quorum-submit-smoke-worker.js';
 
 if (!process.argv.includes('--private-machine')) {
@@ -14,7 +14,10 @@ if (!process.argv.includes('--private-machine')) {
   const result = spawnSync(process.execPath, [fileURLToPath(import.meta.url), '--private-machine'], {
     env: fixture.env, stdio: 'inherit', timeout: 30000,
   });
-  if (result.status === 0) fixture.cleanup();
+  if (result.status === 0) {
+    fixture.cleanup();
+    assert.equal(existsSync(fixture.root), false, 'fixture cleanup must remove the external coordination namespace');
+  }
   else console.error('Coordination fixture retained: ' + fixture.root);
   process.exit(result.status ?? 1);
 }
@@ -66,13 +69,44 @@ try {
     await delay(150); assert.equal(entered, false, 'legacy ticket must block the relocated queue');
     rmSync(ticket, { recursive: true }); await waiting;
     assert.equal(entered, true);
+
+    // Unlike the alias case above, an actual old directory must drain before
+    // migration. Waiting is visible and never removes or bypasses its holder.
+    const oldRoot = freshRoot(); const oldPath = validationCapacityLockPath(oldRoot);
+    const oldTicket = join(oldPath, `0000000000000001-${randomUUID()}.ticket`);
+    mkdirSync(oldTicket, { recursive: true });
+    writeFileSync(join(oldTicket, 'holder.json'), JSON.stringify({ lockId: randomUUID(), pid: holder.pid, hostname: hostname(), command: 'legacy migration holder', acquiredAt: new Date().toISOString() }));
+    await assert.rejects(withWorkspaceValidationCapacity({ ...options, root: oldRoot, workspaceRoot: oldRoot,
+      deadlineAt: Date.now() + 1000 }, () => assert.fail('live legacy ticket bypassed')), error => {
+      assert.equal(isValidationCapacityWaitDeadlineError(error), true, 'migration preserves the typed capacity deadline');
+      assert.ok(error.message.includes(oldPath) && error.message.includes('legacy migration holder'), 'migration deadline names the path and holder');
+      return true;
+    });
+    assert.equal(existsSync(oldTicket), true, 'expired waiter never removes the live owner');
+    const progress = []; let migrated = false;
+    const migrating = withWorkspaceValidationCapacity({ ...options, root: oldRoot, workspaceRoot: oldRoot,
+      onWaitProgress: message => { progress.push(message); throw new Error('descriptive callback cannot change ownership'); } }, () => { migrated = true; });
+    await delay(150);
+    try {
+      assert.equal(migrated, false);
+      assert.ok(progress.some(message => message.includes(oldPath) && message.includes('legacy migration holder') && message.includes(String(holder.pid))),
+        'LEGACY_MIGRATION_WAIT_MUST_REPORT_HOLDER_AND_PATH');
+      assert.equal(existsSync(oldTicket), true, 'live legacy ticket must remain intact while migration waits');
+    } finally { rmSync(oldTicket, { recursive: true, force: true }); await migrating; }
+    assert.equal(migrated, true);
+    assert.equal(lstatSync(oldPath).isSymbolicLink(), true);
   } finally { holder.kill('SIGTERM'); await new Promise(resolve => holder.once('close', resolve)); rmSync(ticket, { recursive: true, force: true }); }
   const blocked = freshRoot(); const blockedPath = validationCapacityLockPath(blocked);
   mkdirSync(blockedPath, { recursive: true });
   writeFileSync(join(blockedPath, 'unknown-owner'), 'preserve unknown coordination state');
-  await assert.rejects(withWorkspaceValidationCapacity({ ...options, root: blocked, workspaceRoot: blocked, deadlineAt: Date.now() + 120 }, () => {
+  await assert.rejects(withWorkspaceValidationCapacity({ ...options, root: blocked, workspaceRoot: blocked }, () => {
     assert.fail('a populated legacy directory cannot be bypassed');
-  }), /capacity wait deadline/);
+  }), error => {
+    assert.match(String(error), /WORKSPACE_COORDINATION_MIGRATION_BLOCKED/);
+    assert.ok(String(error).includes(blockedPath));
+    assert.ok(String(error).includes('unknown-owner'));
+    return true;
+  });
   assert.equal(lstatSync(blockedPath).isDirectory(), true);
   assert.equal(readFileSync(join(blockedPath, 'unknown-owner'), 'utf8'), 'preserve unknown coordination state');
   rmSync(join(blockedPath, 'unknown-owner'));
@@ -85,5 +119,5 @@ try {
   mkdirSync(resolve(foreignPath, '..'), { recursive: true });
   symlinkSync(realpathSync(legacy), foreignPath, 'dir');
   await assert.rejects(withWorkspaceValidationCapacity({ ...options, root: foreign, workspaceRoot: foreign }, () => assert.fail('foreign alias admitted')), /unowned queue/);
-  console.log('VALIDATION_COORDINATION_GUARD_GREEN: real heartbeat accepted; material and runtime write-restore rejected; legacy ticket serializes; unknown state preserved; eight concurrent migrations serialize; foreign alias refused');
+  console.log('VALIDATION_COORDINATION_GUARD_GREEN: heartbeat accepted; write-restore rejected; legacy tickets serialize; migration reports holder and typed deadline; unknown state preserved; concurrent migration serializes; foreign alias refused');
 } finally { for (const path of roots) rmSync(path, { recursive: true, force: true }); }

@@ -63,3 +63,16 @@ stage is acquired while that deadline is still future, then waits for real clock
 expiry. Normal, abort and deadline modes retain their original markers and the
 zero-child-start assertion; the deadline must throw the exact supplied error.
 The production executor is unchanged by this fixture correction.
+
+The final independent audit also found a stale guard assertion: an unknown plain
+file was expected to time out even though migration immediately reports its path
+as blocked. That assertion now checks the actual named refusal with a sufficient
+deadline. Live legacy tickets wait for the old queue to drain, reporting its path,
+holder and heartbeat; a native wait deadline retains its type and adds that context.
+Progress callback failures cannot change ownership. Successful alias creation or
+verification returns immediately. All ten residue cases now run in a disposable
+OS-user namespace, matching the existing guard and native capacity isolation;
+cleanup assertions include their external coordination directories after child
+exit. Production queue identities remain persistent and are never recursively
+deleted on release. The pinned finish command additionally executes the complete
+runtime fact verifier, which covers the guard, residue and budget contracts.

@@ -27,6 +27,8 @@ const evaluate = (node, ast) => Function('findingFixtureBudget', `return (${node
 const workerMs = evaluate(defaultBudget, worker);
 const parentMs = evaluate(timeout, parent);
 assert.equal(workerMs, 120000, 'the repair must preserve the original worker execution allowance');
+assert.ok(parentMs >= workerMs + facts.FINDING_EVIDENCE_FIXTURE_RUNTIME_POLICY.lifecycleMarginMs,
+  'DFEC_PARENT_DEADLINE_MUST_INCLUDE_REGISTERED_LIFECYCLE_MARGIN');
 const delegation = facts.VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY;
 const lifecycleMarginMs = 2 * delegation.workerRegistrationMs + 2 * delegation.cleanupMs
   + 2 * delegation.observationRetries * (delegation.kernelObservationMs + delegation.observationBackoffMs);
@@ -56,7 +58,25 @@ for (const [member, budgetMs] of members) {
 }
 
 const acceptance=JSON.parse(readFileSync(resolve(root,'docs/lab/validation-audit-acceptance.json'),'utf8'));
-for (const index of acceptance.targetIndexes) assert.ok(acceptance.thresholdMs <= config.validate.commands[index-1].timeoutMs,'Lab acceptance must fit the production budget');
+const acceptanceTargets = [
+  [16, ['scripts/verify-process-fact-contract.mjs', '--quiet']],
+  [69, ['packages/main/dist/tasks/red-evidence-target-binding-smoke.js', '--canonical-core']],
+  [130, ['packages/main/dist/tasks/red-evidence-envelope-smoke.js', '--canonical-core']],
+];
+assert.deepEqual(acceptance.targetIndexes, acceptanceTargets.map(([index]) => index), 'LAB_ACCEPTANCE_TARGET_SET_MISMATCH');
+const assertAcceptanceTarget = (commands, index, args) => {
+  const row = commands[index - 1];
+  assert.ok(row, `LAB_ACCEPTANCE_TARGET_MISSING: #${index}`);
+  assert.deepEqual([row.command, row.args], ['node', args], `LAB_ACCEPTANCE_TARGET_IDENTITY_MISMATCH: #${index}`);
+  assert.ok(acceptance.thresholdMs <= row.timeoutMs, `LAB_ACCEPTANCE_EXCEEDS_PRODUCTION_BUDGET: #${index}`);
+};
+for (const [index, args] of acceptanceTargets) {
+  assertAcceptanceTarget(config.validate.commands, index, args);
+  const shifted = [...config.validate.commands];
+  shifted.splice(index - 1, 0, {command: 'node', args: ['unrelated-command.mjs'], timeoutMs: 900000});
+  assert.throws(() => assertAcceptanceTarget(shifted, index, args), /LAB_ACCEPTANCE_TARGET_IDENTITY_MISMATCH/);
+  assert.throws(() => assertAcceptanceTarget([], index, args), /LAB_ACCEPTANCE_TARGET_MISSING/);
+}
 
 // This parent runs both real verifiers and the public runtime/package fixtures.
 // Its deadline must cover the existing child allowances plus that other work.
@@ -78,6 +98,8 @@ assert.ok(runtimeParentMs >= requiredRuntimeMs,
   `IDENTITY_RUNTIME_PARENT_DEADLINE_PREEMPTS_FULL_WORKLOAD: parent=${runtimeParentMs}, required=${requiredRuntimeMs}`);
 const identityPolicy = facts.IDENTITY_CERTIFICATION_RUNTIME_POLICY;
 assert.equal(identityPolicy.publicRuntimeAndPackageMarginMs, 300000);
+assert.equal(runtimeParentMs, requiredRuntimeMs + identityPolicy.conservativeHeadroomMs,
+  'identity parent includes only the registered workloads, public fixtures and explicit conservative headroom');
 assert.equal(runtimeParentMs, identityPolicy.runtimeGroupMs);
 const identityRows = config.validate.commands.filter(row => row.args?.includes('--group=identity-cutover'));
 assert.equal(identityRows.length, 1);

@@ -2,10 +2,25 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, existsSync, realpathSync, rmSync } from 'node:fs';
 import { tmpdir, hostname } from 'node:os';
 import { join } from 'node:path';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { once } from 'node:events';
+import { fileURLToPath } from 'node:url';
 import { withWorkspaceValidationCapacity, validationCapacityLockPath } from '../dist/core/validation-execution-lock.js';
+import { createFixtureMachineEnvironment } from '../dist/tasks/helpers/fixture-machine-environment.js';
 
+// The runtime verifier imports this module. Do not exit its process after the
+// child completes: subsequent runtime assertions must still execute.
+if (!process.argv.includes('--private-coordination-residue')) {
+  const fixture = createFixtureMachineEnvironment();
+  const result = spawnSync(process.execPath, [fileURLToPath(import.meta.url), '--private-coordination-residue'], {
+    env: fixture.env, stdio: 'inherit', timeout: 30000,
+  });
+  assert.equal(result.error, undefined, 'residue fixture must execute');
+  assert.equal(result.signal, null, 'residue fixture must close normally');
+  assert.equal(result.status, 0, 'residue fixture must pass before namespace cleanup');
+  fixture.cleanup();
+  assert.equal(existsSync(fixture.root), false, 'all ten residue cases must release their private external namespace');
+} else {
 const child = spawn(process.execPath, ['-e', 'setInterval(()=>{},1000)'], {stdio:'ignore'});
 await once(child, 'spawn');
 const deadPid = child.pid;
@@ -34,3 +49,4 @@ for (const suffix of ['preparing', 'quarantine']) {
   }
 }
 console.log('COORDINATION_RESIDUE_GREEN: dead preparation/quarantine reclaimed; live and unknown owners preserved with named migration diagnostic');
+}
