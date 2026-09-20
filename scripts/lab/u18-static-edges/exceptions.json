@@ -1505,7 +1505,7 @@
       "dependencyDigests": {
         "packages/main/src/tasks/agent-liveness-suite-smoke.ts": "cb5c13ed9f3c3667f746dd4fcd2c73410810ffc56f1f9ba308efdbd965f13fd9",
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
-        "packages/main/src/tasks/flow-stability-smoke.ts": "d47d58b6c4916259db151870373242edf976fa02a2c9c2fc2ea7794ea2785faf",
+        "packages/main/src/tasks/flow-stability-smoke.ts": "48b043c9ae0c3b02451b6cd6edd8f873a4c227d0b9c46a418aac83cb564a3705",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "0b17dd36e2ea27c8c3abb73da1d9fd99c6c175eb87d3156adb2b25284999ab6f",
         "packages/main/src/tasks/native-review-fixture.ts": "f06b88723970958543a418adf4c7ee385de50f08e837a7abc4787484b01ac05f",
         "packages/main/src/tasks/provider-codex-smoke.ts": "84fc1e8d1ec332030af3d80ed0d83afa5007916a045fdc78dfdbb16a1829d613",
@@ -1609,7 +1609,7 @@
         "packages/main/src/tasks/finding-qualification-independence-smoke.ts": "07f0ffa65cf996e3347553deba8664053611b0c3b43ff0e48aee42cc476e937e",
         "packages/main/src/tasks/finding-runtime-pair-smoke.ts": "892333d45824a8eed4cf1b032f1c2b002a50652f7d6b56219d159217113ce293",
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
-        "packages/main/src/tasks/flow-stability-smoke.ts": "d47d58b6c4916259db151870373242edf976fa02a2c9c2fc2ea7794ea2785faf",
+        "packages/main/src/tasks/flow-stability-smoke.ts": "48b043c9ae0c3b02451b6cd6edd8f873a4c227d0b9c46a418aac83cb564a3705",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "0b17dd36e2ea27c8c3abb73da1d9fd99c6c175eb87d3156adb2b25284999ab6f",
         "packages/main/src/tasks/isolated-finding-fixture.ts": "e19f645cb89686c984f2d207cbe6b66c15b7c124dc99461015b0d91c3f3242fa",
         "packages/main/src/tasks/native-review-fixture.ts": "f06b88723970958543a418adf4c7ee385de50f08e837a7abc4787484b01ac05f",
@@ -1796,7 +1796,7 @@
         "packages/main/src/tasks/done-required-head-drift-proof.ts": "5ba8b1901deb9ef7f7437721696459a2a6d13dc6e39608009bc8e79608e0723d",
         "packages/main/src/tasks/done-required-validation-smoke.ts": "09dc7c99e0a2f7559bdb7affc1f45638e8535bd56d5345a469eb634f3c29ac01",
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
-        "packages/main/src/tasks/flow-stability-smoke.ts": "d47d58b6c4916259db151870373242edf976fa02a2c9c2fc2ea7794ea2785faf",
+        "packages/main/src/tasks/flow-stability-smoke.ts": "48b043c9ae0c3b02451b6cd6edd8f873a4c227d0b9c46a418aac83cb564a3705",
         "packages/main/src/tasks/full-suite-runner.ts": "2fc0c90014c31f048bca55e3a626b0ea704b5135f28ac5b3af405c934636d5d6",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "0b17dd36e2ea27c8c3abb73da1d9fd99c6c175eb87d3156adb2b25284999ab6f",
         "packages/main/src/tasks/narrowing-repin-smoke.ts": "25652fdafb05abb43a5e622b259634c2630aaed73d691322096d83560f834378",
@@ -9543,7 +9543,7 @@
       "id": "EX-0047",
       "key": "packages/main/src/tasks/flow-stability-smoke.ts:1043:execFileSync",
       "callDigest": "50feeb31501aa39e221a8dd9ab77d5c4934a78d5beeefbc86ad50b93c7efcd0f",
-      "sourceDigest": "d47d58b6c4916259db151870373242edf976fa02a2c9c2fc2ea7794ea2785faf",
+      "sourceDigest": "48b043c9ae0c3b02451b6cd6edd8f873a4c227d0b9c46a418aac83cb564a3705",
       "configIndexes": [
         168
       ],
@@ -9558,14 +9558,14 @@
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
           "startLine": 1041,
           "endLine": 1051,
-          "sourceDigest": "d47d58b6c4916259db151870373242edf976fa02a2c9c2fc2ea7794ea2785faf",
+          "sourceDigest": "48b043c9ae0c3b02451b6cd6edd8f873a4c227d0b9c46a418aac83cb564a3705",
           "excerpt": "function runBlockedCli(root: string, args: string[]): string {\n  try {\n    execFileSync('node', [localCliPath(), ...args], {\n      cwd: root,\n      encoding: 'utf-8',\n      stdio: ['ignore', 'pipe', 'pipe'],\n    });\n  } catch (error: any) {\n    assert.notEqual(error.status, 0, `${args.join(' ')} should fail`);\n    return `${error.stdout || ''}${error.stderr || ''}`;\n  }"
         }
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/agent-liveness-suite-smoke.ts": "cb5c13ed9f3c3667f746dd4fcd2c73410810ffc56f1f9ba308efdbd965f13fd9",
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
-        "packages/main/src/tasks/flow-stability-smoke.ts": "d47d58b6c4916259db151870373242edf976fa02a2c9c2fc2ea7794ea2785faf",
+        "packages/main/src/tasks/flow-stability-smoke.ts": "48b043c9ae0c3b02451b6cd6edd8f873a4c227d0b9c46a418aac83cb564a3705",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "0b17dd36e2ea27c8c3abb73da1d9fd99c6c175eb87d3156adb2b25284999ab6f",
         "packages/main/src/tasks/native-review-fixture.ts": "f06b88723970958543a418adf4c7ee385de50f08e837a7abc4787484b01ac05f",
         "scripts/extra-modes.mjs": "39a5b63bb88b84f1a24184fff6f9e347a540b00d37e33ffd2811555662b1360d",
@@ -9587,7 +9587,7 @@
       "id": "EX-0046",
       "key": "packages/main/src/tasks/flow-stability-smoke.ts:3017:execFileSync",
       "callDigest": "f038ca2b89b9dd292fa5e8397b717c6afd9b5f66a682a20e46dc48751b54ad68",
-      "sourceDigest": "d47d58b6c4916259db151870373242edf976fa02a2c9c2fc2ea7794ea2785faf",
+      "sourceDigest": "48b043c9ae0c3b02451b6cd6edd8f873a4c227d0b9c46a418aac83cb564a3705",
       "configIndexes": [
         168
       ],
@@ -9602,14 +9602,14 @@
           "file": "packages/main/src/tasks/flow-stability-smoke.ts",
           "startLine": 3015,
           "endLine": 3025,
-          "sourceDigest": "d47d58b6c4916259db151870373242edf976fa02a2c9c2fc2ea7794ea2785faf",
+          "sourceDigest": "48b043c9ae0c3b02451b6cd6edd8f873a4c227d0b9c46a418aac83cb564a3705",
           "excerpt": "    // real CLI hint still follows the active story phase; JSON purity is\n    // covered separately by cli-json-stdout-contract-smoke.\n    const output = execFileSync('node', [localCliPath(), 'validate'], {\n      cwd: root,\n      encoding: 'utf-8',\n      stdio: ['ignore', 'pipe', 'pipe'],\n    });\n    assert.match(output, /phase=REVIEW/);\n    assert.doesNotMatch(output, /phase=DONE/);\n  } finally {\n    rmSync(root, { recursive: true, force: true });"
         }
       ],
       "dependencyDigests": {
         "packages/main/src/tasks/agent-liveness-suite-smoke.ts": "cb5c13ed9f3c3667f746dd4fcd2c73410810ffc56f1f9ba308efdbd965f13fd9",
         "packages/main/src/tasks/fixture-environment.ts": "949baf54bea025ad5a6a4c2e89c5ab0ce335cf0006dfd5b0523d41d28d78d5da",
-        "packages/main/src/tasks/flow-stability-smoke.ts": "d47d58b6c4916259db151870373242edf976fa02a2c9c2fc2ea7794ea2785faf",
+        "packages/main/src/tasks/flow-stability-smoke.ts": "48b043c9ae0c3b02451b6cd6edd8f873a4c227d0b9c46a418aac83cb564a3705",
         "packages/main/src/tasks/helpers/fixture-machine-environment.ts": "0b17dd36e2ea27c8c3abb73da1d9fd99c6c175eb87d3156adb2b25284999ab6f",
         "packages/main/src/tasks/native-review-fixture.ts": "f06b88723970958543a418adf4c7ee385de50f08e837a7abc4787484b01ac05f",
         "scripts/extra-modes.mjs": "39a5b63bb88b84f1a24184fff6f9e347a540b00d37e33ffd2811555662b1360d",
