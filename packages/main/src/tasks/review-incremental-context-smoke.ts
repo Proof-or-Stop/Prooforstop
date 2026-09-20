@@ -944,7 +944,7 @@ function runAsOfRunEligibilityRegression(firstBaseOnly = false): void {
     }, null, 2) + '\n');
     write(root, 'src/feature.ts', 'export const feature = true;\n');
     git(root, ['init']);
-    const integrationBranch = firstBaseOnly ? 'develop' : 'main';
+    const integrationBranch = firstBaseOnly ? 'master' : 'main';
     const movedIntegrationBranch = 'alternate-integration';
     git(root, ['checkout', '-B', integrationBranch]);
     git(root, ['add', '.']);
@@ -992,6 +992,14 @@ function runAsOfRunEligibilityRegression(firstBaseOnly = false): void {
 
     if (firstBaseOnly) {
       const validStory = store.readStory(storyId);
+      const { integrationTarget: _legacyTarget, ...legacyStory } = validStory;
+      store.writeStory(storyId, legacyStory as StoryInfo);
+      const legacyMasterContext = reviewIncrementalContext(store, root, storyId, role);
+      assert.ok(
+        legacyMasterContext.changedFiles.includes('src/feature.ts'),
+        'a legacy Story without integrationTarget resolves the repository master baseline',
+      );
+      store.writeStory(storyId, validStory);
       const invalidTargets: Array<[string, unknown]> = [
         ['null target', null],
         ['invalid parent branch', { ...validStory.integrationTarget, parentBranch: 'story/attacker' }],
@@ -1005,6 +1013,11 @@ function runAsOfRunEligibilityRegression(firstBaseOnly = false): void {
       for (const [label, integrationTarget] of invalidTargets) {
         store.writeStory(storyId, { ...validStory, integrationTarget } as StoryInfo);
         assert.throws(() => resolveFullStoryBaseHead(store, root, storyId), /FULL_STORY_BASE_INVALID/, label);
+        assert.throws(
+          () => reviewIncrementalContext(store, root, storyId, role),
+          /FULL_STORY_BASE_INVALID/,
+          `${label} is also rejected through the ordinary context path`,
+        );
       }
       const absentBase = '0'.repeat(40);
       store.writeStory(storyId, {
@@ -1019,6 +1032,13 @@ function runAsOfRunEligibilityRegression(firstBaseOnly = false): void {
       for (const absentRef of ['main', 'master', integrationBranch]) {
         assert.throws(() => git(root, ['show-ref', '--verify', `refs/heads/${absentRef}`]), Error, `${absentRef} must not exist before review_run_start`);
       }
+      store.writeStory(storyId, legacyStory as StoryInfo);
+      assert.throws(
+        () => reviewIncrementalContext(store, root, storyId, role),
+        { message: `FULL_STORY_BASE_UNAVAILABLE: repository integration baseline could not be resolved for Story ${storyId}` },
+        'a legacy Story with no resolvable repository baseline refuses with a stable diagnostic',
+      );
+      store.writeStory(storyId, validStory);
     }
 
     runCli('dispatch', { storyId, agentType: role }, 'main');
@@ -1038,7 +1058,11 @@ function runAsOfRunEligibilityRegression(firstBaseOnly = false): void {
       // ordinary context call succeeded with no local main, then this temporary
       // compatibility ref is removed.
       git(root, ['branch', 'main', integrationBase]);
+      const currentStory = store.readStory(storyId);
+      const { integrationTarget: _historicalTarget, ...historicalStory } = currentStory;
+      store.writeStory(storyId, historicalStory as StoryInfo);
       const legacy = reviewIncrementalContext(store, root, storyId, role, { ...options, fullStoryBaseHead: undefined });
+      store.writeStory(storyId, currentStory);
       git(root, ['branch', '-D', 'main']);
       // Golden captured by replaying the 9c0a6a1cbb context implementation with the same shared dependencies and one-file fixture.
       assert.equal(legacy.eligibilityDigest, 'ad06de9687d644e7ce6b50c9d2d7aa15428becb0f59e3594da158d7322493935', 'Omitting the new field preserves the legacy eligibility bytes');
@@ -1092,7 +1116,7 @@ function runAsOfRunEligibilityRegression(firstBaseOnly = false): void {
       assert.deepEqual(verifyReviewRunPromptEnvelope(store, runA), { ok: true }, 'Even a later integration branch containing the reviewed commit cannot choose a new historical base');
       git(root, ['branch', '-m', movedIntegrationBranch, 'final-integration']);
       assert.equal(resolveFullStoryBaseHead(store, root, storyId), integrationBase, 'The frozen Story base remains resolvable after the branch is renamed');
-      console.log(`${MARKER} FIRST-REVIEW-BASE GREEN: implicit and signed Story creation bases without local main, tamper/ref/missing-object refusals, live material refusal, merged-head replay`);
+      console.log(`${MARKER} FIRST-REVIEW-BASE GREEN: current and legacy master resolution, explicit historical omission, malformed/unavailable refusals, live material refusal, merged-head replay`);
       return;
     }
     const passA = signedPass(storyId, `${runA.reviewRunId}:PASS`, role, ts(6), round);
