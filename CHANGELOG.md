@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab implementation-worker-authority - v0.3.429 - 2026-09-20
+
+- Remove commit-author fallback as normal-channel implementation authority.
+- Require canonical dispatch or successful subagent-result evidence for every non-exempt item.
+- Block DEV to REVIEW before reviewers start when implementation-worker evidence is missing.
+- Give agents exact canonical dispatch guidance and retain commit author only as audit attribution.
+- Add focused RED/GREEN coverage for rejected unregistered workers and admitted registered results.
+
+Maintenance provenance: codex/lab-implementation-worker-authority, repair dcb7f69c9d614014e23a22ff697736cd1963085d.
+Verification command (replayed before integration and on main): `["node","scripts/verify-implementation-worker-authority.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab benchmark-control-red-green - v0.3.428 - 2026-09-20
 
 - Add an isolated benchmark controller experiment that ignores unchanged blocked progress, deduplicates executions, bounds context, and reserves shared and repair budgets before dispatch.
