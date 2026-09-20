@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab benchmark-real-entry-regression - v0.3.430 - 2026-09-20
+
+- Enforce planned-provider attempt and remaining-time allowances before dispatch, preserving retries and post-transport spawn-error attempts.
+- Add durable opt-in shared host-invocation budgets, repair ceilings and prompt byte limits; normalize malformed counters, release proven pre-runner refusals and preserve completed results with concrete settlement diagnostics.
+- Preserve bounded provider-reported usage before transport exceptions, retain unavailable accounting honestly and keep the original error even when accounting fails.
+- Register six behavioral regressions in npm test and routine validate with explicit resource policy; the pinned Lab replay additionally builds, typechecks, verifies suite registration, static bindings and usage smokes. See docs/host-run-shared-budget.md.
+- Preserve the existing retired-vocabulary and snapshot-binding failures explicitly; source/parser/diagnostic bindings reject changed baseline evidence. Runtime checks after the known snapshot failure remain unexecuted. This is local maintenance evidence, not full repository success or Story DONE.
+
+Maintenance provenance: codex/lab-benchmark-real-entry-regression, repair 0cc9b8819436598a984b436c75623bbdaaad840b.
+Verification command (replayed before integration and on main): `["node","scripts/verify-benchmark-release.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab validation-production-budget-260-20260920 - v0.3.429 - 2026-09-20
 
 - Set the three complete production validation commands for process-fact, RED-evidence target binding and RED-evidence envelopes to the explicitly authorized 260000 ms timeout, replacing 180000 ms.
