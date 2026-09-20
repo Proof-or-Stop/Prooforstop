@@ -3127,7 +3127,7 @@ function assertChannelGateAcceptsStructuredEvidenceWithSharedGitAuthor(): void {
   }
 }
 
-function assertChannelGateAcceptsImplementerAuthorWithoutDispatch(): void {
+function assertChannelGateRejectsImplementerAuthorWithoutDispatch(): void {
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-channel-author-fallback-'));
   try {
     const { store, storyId } = createReviewStore(root);
@@ -3148,9 +3148,10 @@ function assertChannelGateAcceptsImplementerAuthorWithoutDispatch(): void {
     ]);
 
     const result = checkCommitAuthor(storyId, { store, projectRoot: root });
-    assert.equal(result.status, 'pass');
-    assert.equal(result.evidenceSource, 'commit_author');
-    assert.match(result.summary, /commit author as direct-dispatch execution evidence/);
+    assert.equal(result.status, 'fail', 'IMPLEMENTATION_WORKER_AUTHORITY_RED: an implementer author string must not replace canonical dispatch evidence');
+    assert.equal(result.evidenceSource, undefined);
+    assert.match(result.summary, /missing dispatch\/subagent_result evidence/);
+    assert.match(result.details.join('\n'), /canonical proof-or-stop dispatch/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -5483,7 +5484,7 @@ assertChannelGateRejectsProofOrStopSubjectForRealFiles();
 assertChannelGateAcceptsStructuredEvidenceWithSharedGitAuthor();
 assertChannelGateAcceptsSuccessfulSubagentResultEvidence();
 assertChannelGateAcceptsDispatchEvidence();
-assertChannelGateAcceptsImplementerAuthorWithoutDispatch();
+assertChannelGateRejectsImplementerAuthorWithoutDispatch();
 assertDoneChecklistUsesStableOracleRows();
 assertDoneClosureProjectionSeparatesAuthority();
 assertDoneOracleSameSource();
