@@ -3836,6 +3836,9 @@ function consumeManagedInitInvocationAttestation(args: {
       && attestation.expiresAt === spec.deadlineAt
       && verifyCanonical(claims, signature, owner.proposalInvocationPublicKey);
     if (!valid) throw new Error('managed INIT invocation attestation is invalid or mismatched');
+    if (existsSync(paths.initInvocationConsumption)) {
+      throw new Error('managed INIT invocation attestation was already consumed');
+    }
     if (args.consume === false) return attestation.runId;
     const consumedAt = new Date(now).toISOString();
     if (!writeExclusive(paths.initInvocationConsumption, {
@@ -3969,6 +3972,9 @@ export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocation
     if (!leader || !caller || leader.start !== identity.startFingerprint
       || (process.platform !== 'darwin' && leader.sessionId !== caller.sessionId)) {
       throw new Error('managed dispatch process-group invocation is no longer live or matched');
+    }
+    if (existsSync(paths.initInvocationConsumption)) {
+      throw new Error('managed dispatch process-group invocation was already consumed');
     }
     if (args.consume === false) return runId;
     const consumedAt = new Date().toISOString();

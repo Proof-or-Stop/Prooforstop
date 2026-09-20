@@ -362,7 +362,7 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   'packages/main/src/core/evidence-freshness.ts': 'd3120733e853509d3cc1a5643fe1316e1a820f68b20f27affd0254699f99257c',
   'packages/main/src/core/review-inventory-epoch.ts': '2e48dbfd6c2b74c7785ceb336b55700608651f731bb591583afcf7a02ee46308',
   'packages/main/src/core/verification-execution-evidence.ts': '728e76f065e83fe8fdec672986f40ef37e2d8ae8dbc96eda4d01ccd2584cf5cf',
-  'packages/main/src/handlers/checklist.ts': '5513001a12b7e0d27731aec267f727c57e4b70f449d1c1e8dabc95a1a357f4f1',
+  'packages/main/src/handlers/checklist.ts': '76bcf3a2ab2ff6f7910a444fd505e52ff70a13437a9825e0045f73cfd5de360a',
   'packages/main/src/core/maintenance-command-mode.ts': '9c94f1c1a20abf5ed3b93208f5d52e13d63246af12a85612c1e07f99e72258e2',
 });
 

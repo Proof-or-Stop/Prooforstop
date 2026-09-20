@@ -3,13 +3,14 @@ import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync 
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const repository = fileURLToPath(new URL('../../..', import.meta.url));
 const cli = join(repository, 'packages/main/dist/cli.js');
 const { StoryStore } = await import('../dist/core/store.js');
 const { createHostRunHandlers } = await import('../dist/handlers/host-run.js');
 const { runManagedHostRunWorker, verifyManagedDispatchDelivery } = await import('../dist/core/managed-host-run.js');
+const { restoreManagedChecklistItemAfterFailure } = await import('../dist/handlers/checklist.js');
 
 const root = mkdtempSync(join(tmpdir(), 'managed-implementer-dispatch-e2e-'));
 const storyId = 'B-managed-implementer-e2e';
@@ -26,6 +27,18 @@ function git(...args) {
 }
 
 try {
+  let rollbackWritten;
+  restoreManagedChecklistItemAfterFailure({
+    readChecklist: () => ({ items: [
+      { id: itemId, status: 'done' },
+      { id: 'CHK-002', status: 'in_progress', context: 'concurrent update' },
+    ] }),
+    writeChecklist: (_storyId, checklist) => { rollbackWritten = checklist; },
+  }, 'B-rollback-unit', { id: itemId, status: 'pending', context: 'before completion' });
+  assert.equal(rollbackWritten.items.find(item => item.id === itemId).status, 'pending');
+  assert.equal(rollbackWritten.items.find(item => item.id === 'CHK-002').status, 'in_progress',
+    'managed completion rollback must preserve concurrent updates to other checklist items');
+
   mkdirSync(bin, { recursive: true });
   writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: '.', rootDir: 'src', outDir: 'dist', testsDir: 'tests',
@@ -71,6 +84,16 @@ delete env.PROOF_OR_STOP_AGENT;
 delete env.PROOFBOUND_AGENT;
 const result = spawnSync(process.execPath, [${JSON.stringify(cli)}, 'checklist_update', JSON.stringify({ storyId: process.argv[2], itemId: ${JSON.stringify(itemId)}, status: 'done' })], { env, stdio: 'inherit', detached: true });
 process.exit(result.status ?? 1);
+`);
+  const mutateChecklist = join(root, 'mutate-checklist.mjs');
+  writeFileSync(mutateChecklist, `import { StoryStore } from ${JSON.stringify(pathToFileURL(join(repository, 'packages/main/dist/core/store.js')).href)};
+const store = new StoryStore(${JSON.stringify(root)});
+const checklist = store.readChecklist(process.argv[2]);
+const target = checklist.items.find(item => item.id === ${JSON.stringify(itemId)});
+const other = checklist.items.find(item => item.id === 'CHK-002');
+if (process.argv[3] === 'reset') { target.status = 'pending'; other.status = 'in_progress'; }
+else target.status = 'done';
+store.writeChecklist(process.argv[2], checklist);
 `);
   writeFileSync(fakeCodex, `#!/bin/sh
 set -eu
@@ -167,6 +190,10 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
       commands: `"${process.execPath}" "${detachedChecklist}" "__STORY__" || true\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
     {
+      name: 'consumed-invocation-refusal', expectedStatus: 'done', expectedOtherStatus: 'in_progress', expectCompleted: true,
+      commands: `"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\n"${process.execPath}" "${mutateChecklist}" "__STORY__" reset\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}' || true\n"${process.execPath}" "${mutateChecklist}" "__STORY__" restore\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
+    },
+    {
       name: 'event-write-retry', expectedStatus: 'done', expectCompleted: true,
       commands: `rm -f "${root}/.proof-or-stop/story/actives/__STORY__/process-events.jsonl"\nmkdir "${root}/.proof-or-stop/story/actives/__STORY__/process-events.jsonl"\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}' || true\nrm -rf "${root}/.proof-or-stop/story/actives/__STORY__/process-events.jsonl"\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
@@ -204,10 +231,19 @@ ${scenario.commands.replaceAll('__STORY__', negativeStoryId)}
     else assert.notEqual(negative.exitCode, 0, `${scenario.name} must not produce a completed managed terminal`);
     assert.equal(store.readChecklist(negativeStoryId).items.find(item => item.id === itemId)?.status,
       scenario.expectedStatus, `${scenario.name} must preserve the expected target state`);
+    if (scenario.expectedOtherStatus) {
+      assert.equal(store.readChecklist(negativeStoryId).items.find(item => item.id === 'CHK-002')?.status,
+        scenario.expectedOtherStatus, `${scenario.name} must preserve the other item's concurrent update`);
+    }
     assert.equal(store.readProcessEvents(negativeStoryId).some(event =>
       event.type === 'subagent_result' && event.success === true && event.managedDispatchRunId === negative.runId),
     scenario.expectCompleted === true,
     `${scenario.name} completion evidence must match its expected terminal state`);
+    if (scenario.name === 'consumed-invocation-refusal') {
+      assert.equal(store.readProcessEvents(negativeStoryId).filter(event =>
+        event.type === 'subagent_result' && event.success === true && event.managedDispatchRunId === negative.runId).length,
+      1, 'a spent invocation must not append a second bound completion event');
+    }
     const verified = verifyManagedDispatchDelivery({
       root, runId: negative.runId, storyId: negativeStoryId, agentType: 'proof-or-stop-implementer', itemId,
     }).valid;
