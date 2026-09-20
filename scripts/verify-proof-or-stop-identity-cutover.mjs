@@ -5478,7 +5478,7 @@ const CURRENT_COMPATIBLE_SCHEMA_ROWS = [
     "path": "scripts/lab/u18-static-edges/exceptions.json",
     "token": "lattice.native_review_invocation_attestation.v1",
     "count": 4,
-    "contextSha256": "0e62c8752a7f7840794d21f483760e0fb0672081fdeaf7cd3f31e3ad12f49bc7"
+    "contextSha256": "4a9f39f7ae7aab728564fc9617cb3836b5dbddd5b32939c6228505cbad98684a"
   },
   {
     "path": "scripts/verify-crosshost-preflight-handler.mjs",
@@ -7467,7 +7467,7 @@ function verifySchemaInventory(root, schemas) {
 const REVIEWED_CONTEXT_READERS = [
   {
     "path": "scripts/identity-reviewed-source-contexts.mjs",
-    "sha256": "df4ea72509ac41c8703b8e857ff5c28ccbdedab0988b6d68812ec48414b052b3"
+    "sha256": "48dca53430a1f46ea3181db1cb4b26e3eceb5967442fdf47a4986c95f99bb2dc"
   },
   {
     "path": "scripts/identity-reviewed-json-contexts.mjs",
