@@ -2189,7 +2189,8 @@ function assertSealedManagedHostRunArtifacts(paths: ManagedHostRunPaths, termina
     // Delivery receipts describe a historical run. A later delivery review may
     // replace the live Story report; only its evidence consumer compares that
     // live file with this sealed digest. Preserve the existing scope contract.
-    if (spec.agentType !== MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role) {
+    if (spec.agentType !== MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role
+      && spec.agentType !== 'proof-or-stop-implementer') {
       const currentOutputDigest = spec.profile === 'managed_dispatch'
         ? currentManagedDispatchOutputDigest(spec) : null;
       if (currentOutputDigest !== terminal.managedDispatchOutputDigest) mismatches.push('managed-dispatch-output');
@@ -3944,9 +3945,13 @@ export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocation
   }
   if (candidates.length === 0 && activeTargetCount === 0 && args.optionalWhenAbsent) return undefined;
   if (candidates.length !== 1) {
+    const repairHint = args.agentType === 'proof-or-stop-review-story-init'
+      || args.agentType === 'proof-or-stop-product-reviewer'
+      ? ' For init_check_set, retry host_run with managedDispatch=true or use the explicit acknowledged init_check_repair fallback.'
+      : ' Use the exact provider invocation launched by host_run managedDispatch.';
     throw new Error(
       `managed dispatch refused: ${activeTargetCount} active Story/role/target run(s) exist, but this invocation matched ${candidates.length}. `
-      + 'Use the exact provider invocation launched by host_run managedDispatch. [delivery_not_acknowledged]',
+      + `${repairHint} [delivery_not_acknowledged]`,
     );
   }
   const runId = candidates[0]!;

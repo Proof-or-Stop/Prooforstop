@@ -5519,12 +5519,9 @@
         ]
       },
       {
-        "command": "npm",
+        "command": "node",
         "args": [
-          "--prefix",
-          "packages/main",
-          "run",
-          "test:managed-implementer-dispatch"
+          "packages/main/tests/managed-implementer-dispatch-e2e.test.mjs"
         ],
         "timeoutMs": 180000,
         "resources": [

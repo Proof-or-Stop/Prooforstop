@@ -9,7 +9,7 @@ const repository = fileURLToPath(new URL('../../..', import.meta.url));
 const cli = join(repository, 'packages/main/dist/cli.js');
 const { StoryStore } = await import('../dist/core/store.js');
 const { createHostRunHandlers } = await import('../dist/handlers/host-run.js');
-const { runManagedHostRunWorker, verifyManagedDispatchDelivery } = await import('../dist/core/managed-host-run.js');
+const { managedHostRunReceipt, runManagedHostRunWorker, verifyManagedDispatchDelivery } = await import('../dist/core/managed-host-run.js');
 const { restoreManagedChecklistItemAfterFailure } = await import('../dist/handlers/checklist.js');
 
 const root = mkdtempSync(join(tmpdir(), 'managed-implementer-dispatch-e2e-'));
@@ -22,6 +22,10 @@ const oldSession = process.env.PROOF_OR_STOP_SESSION_ID;
 const oldHome = process.env.HOME;
 
 function git(...args) {
+  // This is the fixture's only direct child-process call. U18 scans this file
+  // directly from validate.commands; external `git` cannot expand into another
+  // registered validation target, while provider CLI children remain inside the
+  // sealed managed worker exercised by the fixture.
   const result = spawnSync('git', args, { cwd: root, encoding: 'utf8' });
   assert.equal(result.status, 0, result.stderr);
 }
@@ -147,6 +151,8 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
   const happyItem = happyChecklist.items.find(item => item.id === itemId);
   happyItem.status = 'in_progress';
   store.writeChecklist(storyId, happyChecklist);
+  assert.equal(managedHostRunReceipt(root, result.runId).state, 'completed',
+    'the sealed historical receipt must remain readable after later checklist changes');
   assert.equal(verifyManagedDispatchDelivery({
     root, runId: result.runId, storyId, agentType: 'proof-or-stop-implementer', itemId,
   }).valid, false, 'reverting the completed item must invalidate the sealed implementation receipt');
@@ -156,6 +162,8 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
   const happyEvents = readFileSync(happyEventsPath, 'utf8');
   writeFileSync(happyEventsPath, happyEvents.split('\n').filter(line =>
     !line.includes(`\"managedDispatchRunId\":\"${result.runId}\"`)).join('\n'));
+  assert.equal(managedHostRunReceipt(root, result.runId).state, 'completed',
+    'the sealed historical receipt must remain readable after later process-event changes');
   assert.equal(verifyManagedDispatchDelivery({
     root, runId: result.runId, storyId, agentType: 'proof-or-stop-implementer', itemId,
   }).valid, false, 'deleting the bound completion event must invalidate the sealed implementation receipt');
