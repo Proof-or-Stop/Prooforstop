@@ -1,16 +1,5 @@
 # Changelog
 
-## Lab benchmark-control-red-green - v0.3.427 - 2026-09-19
-
-- Add an isolated benchmark controller experiment that ignores unchanged blocked progress, deduplicates executions, bounds context, and reserves shared and repair budgets before dispatch.
-- Preserve unknown usage and reconcile synthetic receipts without double-counting cached input or reasoning output; these experiments do not activate desktop or production controls.
-- Verify the unchanged RED/GREEN regression with 16 checks, including 1,000 unchanged observations producing zero wakeup intents and ten duplicate requests producing one local subprocess.
-- Record measurement scope and reproducible comparisons in scripts/lab/benchmark-controls/README.md; this release is local Lab maintenance, not benchmark product completion.
-
-Maintenance provenance: codex/lab-benchmark-control-red-green, repair e299825b963659a780a89514bb7e5010eea48bea.
-Verification command (replayed before integration and on main): `["node","scripts/lab/benchmark-controls/verify.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab ws-types - v0.3.426 - 2026-09-19
 
 - Add the missing root `@types/ws` development dependency and lockfile entry so root-only installs can typecheck the WebSocket bridge and proxy sources.
