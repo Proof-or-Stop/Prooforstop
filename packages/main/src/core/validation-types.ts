@@ -76,6 +76,16 @@ export interface ValidationCommand {
 }
 
 export interface ValidationCommandResult {
+  /** The canonical directory the command was actually launched in (pinned before the first launch of its plan or run). */
+  launchCwd?: string;
+  /**
+   * Tool-owned: set only when the executor itself never launched a child for
+   * this command (a refused or drifted launch, a capacity wait that expired
+   * before the spawn). Such a result executed nothing, so it carries no
+   * artifact observations and the plan-level binding does not demand them;
+   * the command's own failure still counts by its required/optional status.
+   */
+  launchOutcome?: 'not-launched';
   /** Diagnostic intra-plan resource-conflict wait; excludes worker slots and cross-process capacity. */
   schedulerWaitMs?: number;
   /** Context-local diagnostics only; never evidence or permission to reuse. */
@@ -90,6 +100,14 @@ export interface ValidationCommandResult {
     cleanAfter: boolean;
   };
   executionReceipt?: {executionKey:string;receiptHash:string;disposition:'executed'|'reused';executedAt:string};
+  /** core/build-artifacts-identity content digest of the compiled artifacts observed by the executor immediately before launch. */
+  buildArtifactsBefore?: string;
+  /** The same content digest observed immediately after the child returned; only a registered packages/main build may change it. */
+  buildArtifactsAfter?: string;
+  /** Whether the executor recognised this command as the registered packages/main build. */
+  buildArtifactsRole?: 'build' | 'test';
+  /** How the artifacts were protected while this command ran: `enforced:<mechanism>`, `unenforced:<reason>`, or the registered build's permitted write. */
+  buildArtifactsProtection?: string;
   label: string;
   command: string;
   args: string[];
@@ -241,6 +259,22 @@ export interface ValidationResult {
    * attributable (which is every row of a jobs=1 / single-command run).
    */
   concurrentWorktreePollution?: ConcurrentWorktreePollution;
+  /**
+   * core/build-artifacts-identity digest of the compiled artifacts as the plan
+   * left them, stamped by the executor at the end of execution. Publication
+   * binds this value and refuses when the dist on disk no longer matches.
+   */
+  buildArtifactsHash?: string;
+  /**
+   * Whether the compiled artifacts were write-protected while the plan's
+   * non-build commands ran (`enforced:<mechanism>` / `unenforced:<reason>`).
+   * Without enforcement the recorded identity is still the bytes observed at
+   * the command boundaries, but it is not proof that the commands executed
+   * them: a command can swap a build in and back inside its own window.
+   */
+  buildArtifactsProtection?: string;
+  /** Executor observations behind buildArtifactsHash: the artifact root it digested and the content digests at plan start and end. */
+  buildArtifacts?: { root?: string; start?: string; end?: string };
   focus?: {
     name: string;
     mode: 'focused';
@@ -359,6 +393,12 @@ export interface DoneRequiredCommandReceipt {
   headHash?: string;
   materialHash?: string;
   storyFilesHash?: string;
+  /** core/build-artifacts-identity digest observed immediately before this command started. */
+  buildArtifactsBefore?: string;
+  /** The same digest observed immediately after this command returned; only a registered build may change it. */
+  buildArtifactsAfter?: string;
+  /** How the artifacts were protected while this command ran: `enforced:<mechanism>`, `unenforced:<reason>`, or the registered build's permitted write. */
+  buildArtifactsProtection?: string;
 }
 
 export interface DoneRequiredEvidenceData {
@@ -372,6 +412,8 @@ export interface DoneRequiredEvidenceData {
   headHash?: string;
   materialHash?: string;
   storyFilesHash?: string;
+  /** Content identity of the compiled artifact trees the commands executed (core/build-artifacts-identity). */
+  buildArtifactsHash?: string;
   policyHash: string;
   commandSetHash: string;
   receipts: DoneRequiredCommandReceipt[];

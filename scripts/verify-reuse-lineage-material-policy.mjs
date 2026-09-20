@@ -44,6 +44,9 @@ import { dirname, join } from 'node:path';
 
 const { classifyMergeLineage } = await import('../packages/main/src/core/validation-lineage.ts');
 const { classifyTrustedValidationLineage, evaluateRoutineValidationReuse, summarizeRoutineCommandExecution, buildRoutineValidationIdentity } = await import('../packages/main/src/core/validation-evidence-reuse.ts');
+// This Lab added a build-artifacts binding to routine reuse: evidence records the
+// compiled artifacts it was earned against, and reuse fails closed without one.
+const { currentBuildArtifactsHash } = await import('../packages/main/src/core/build-artifacts-identity.ts');
 const { currentMaterialHash, currentStoryFilesHash } = await import('../packages/main/src/core/evidence-freshness.ts');
 const { isMaterialExcludedPath } = await import('../packages/main/src/core/material-path-policy.ts');
 const { resetConfigCache } = await import('../packages/main/src/core/config.ts');
@@ -86,6 +89,8 @@ function commitFiles(root, files, message) {
 function passEvidence(root, identity) {
   return {
     command: 'proof-or-stop validate --story=B-lin --json', output: '{}', result: 'PASS', timestamp: new Date().toISOString(),
+    buildArtifactsHash: currentBuildArtifactsHash(root),
+    buildArtifactsProtection: 'enforced:sandbox-exec',
     headHash: git(root, ['rev-parse', 'HEAD']), materialHash: currentMaterialHash(root, 'HEAD', root), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root),
     verificationCoverage: { total: 0, covered: 0, missingRequired: 0, missingOptional: 0, items: [] },
     routineValidationIdentity: identity,
@@ -96,6 +101,7 @@ function passEvidence(root, identity) {
 function routineReuse(root, evidence, identity) {
   const head = git(root, ['rev-parse', 'HEAD']);
   return evaluateRoutineValidationReuse({
+    currentBuildArtifactsHash: currentBuildArtifactsHash(root),
     root, gitCwd: root, evidence, currentIdentity: identity,
     currentCoverage: { total: 0, covered: 0, missingRequired: 0, missingOptional: 0, items: [] },
     currentMaterialHash: currentMaterialHash(root, 'HEAD', root), currentStoryFilesHash: currentStoryFilesHash(root, 'HEAD', root),

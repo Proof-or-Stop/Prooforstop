@@ -1,4 +1,6 @@
 import { createHash } from 'node:crypto';
+import { artifactProtectionSatisfied } from './build-artifacts-protection.js';
+import { canonicalizeExistingPath, launchDirectoryOf } from './build-artifacts-identity.js';
 import { existsSync, readFileSync } from 'node:fs';
 import { delimiter, isAbsolute, join, posix, resolve, win32 } from 'node:path';
 import { classifyMergeLineage } from './validation-lineage.js';
@@ -117,9 +119,7 @@ export function resolveValidationCommandCwd(
   projectRoot: string,
   command: Pick<ValidationCommand, 'cwd'>,
 ): string {
-  return command.cwd
-    ? (isAbsolute(command.cwd) ? command.cwd : resolve(projectRoot, command.cwd))
-    : projectRoot;
+  return launchDirectoryOf(projectRoot, command.cwd);
 }
 
 /**
@@ -143,7 +143,12 @@ export function normalizeRoutineValidationCommand(args: {
   const processEnvironment = args.processEnvironment ?? process.env;
   const platform = args.platform ?? process.platform;
   const command = args.command;
-  const cwd = resolveValidationCommandCwd(args.projectRoot, command);
+  // The identity binds the CANONICAL directory the command runs in — the
+  // same directory the executor pins before its first launch and builds the
+  // child environment (PWD) from — never the declared path. An ignored
+  // symbolic link re-pointed at another directory therefore changes the
+  // identity, and a PASS earned through the old target is not reused.
+  const cwd = canonicalizeExistingPath(resolveValidationCommandCwd(args.projectRoot, command));
   const effectiveEnvironment = effectiveValidationCommandEnvironment(processEnvironment, command.env, cwd, platform);
   // node:child_process uses an implicit command shell on Windows even when
   // ValidationCommand.shell is false. Bind identity to that actual execution
@@ -382,6 +387,8 @@ export function evaluateRoutineValidationReuse(args: {
   currentCoverage: VerificationCoverageReport;
   currentMaterialHash?: string;
   currentStoryFilesHash?: string;
+  /** core/build-artifacts-identity digest of the dist trees on disk now; the recorded PASS must have executed against the same one. */
+  currentBuildArtifactsHash?: string;
   clean: boolean;
   headBefore?: string;
   headAfter?: string;
@@ -410,6 +417,13 @@ export function evaluateRoutineValidationReuse(args: {
   if (!args.clean) reasons.push('worktree-dirty');
   if (!evidence.materialHash || !args.currentMaterialHash || evidence.materialHash !== args.currentMaterialHash) reasons.push('material-hash-changed-or-missing');
   if (!evidence.storyFilesHash || !args.currentStoryFilesHash || evidence.storyFilesHash !== args.currentStoryFilesHash) reasons.push('story-files-hash-changed-or-missing');
+  // The committed-tree digests above cannot see the gitignored dist the commands
+  // actually executed; a PASS earned against another build is not this build's PASS.
+  if (!evidence.buildArtifactsHash || !args.currentBuildArtifactsHash || evidence.buildArtifactsHash !== args.currentBuildArtifactsHash) reasons.push('build-artifacts-hash-changed-or-missing');
+  // A binding recorded without enforced write protection describes the bytes at
+  // the command boundaries, not what the commands executed; it is observation,
+  // never authority, so it is not a PASS this run may inherit.
+  if (!artifactProtectionSatisfied(evidence.buildArtifactsProtection)) reasons.push('build-artifacts-protection-unenforced');
   const lineageResult = classifyTrustedValidationLineage({
     root: args.root,
     gitCwd: args.gitCwd,

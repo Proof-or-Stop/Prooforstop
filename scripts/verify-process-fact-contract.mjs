@@ -2516,12 +2516,10 @@ function assertCloseoutTrustBoundary() {
     // Moved again with the guard by commit 32a083b987 (delivery-review follow-up:
     // one diagnostic string + a BRAND_ENV_PREFIX import in cli-engine.ts). This time
     // both copies were updated in the same commit, as the note above requires.
-  // Merged-source audit: origin/main d354d2b43d measured b4f27e9a, already
-  // stale against the old b9eb52d0 pin. Candidate measures 52a283cf. The new
-  // withValidationSigningRoot arrow preserves the runCli function anchor and
-  // exact initPath producer/import argument. Both coupled pins move together;
-  // this whole-file binding does not assert a separate loader provenance graph.
-    '52a283cfcdc3bfbb233feab6d31614d0eabf8470a41d3af10ad7786246905720',
+    // 2026-09-20 merged owner-lease admission re-approval: the canonical AST
+    // changed without adding a loader call or changing the exact initPath
+    // producer/import argument. Keep this coupled to the guard's source pin.
+    '631ac1fde46c71126614b7ad293fedc43a79b14c166b10d2f8b7e3cd2b69d408',
     // B-6693 (merged in) also moved this canonical AST, only to separate
     // direct-validate watchdog cancellation from DONE-result classification.
     // The benign runCli/initPath/import(`file://${initPath}`) call site is unchanged.
@@ -6548,7 +6546,10 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
   const validationExecutorEnvironmentText = read('packages/main/src/core/validation-executor.ts');
   assert(
     routineReuseText.includes('effectiveValidationCommandEnvironment(processEnvironment, command.env, cwd, platform)')
-      && validationExecutorEnvironmentText.includes('effectiveValidationCommandEnvironment(process.env, command.env, cwd)'),
+      // The spawn builds the child environment from the PINNED canonical launch
+      // directory (the same directory the routine identity normalises against
+      // when the caller pins one), through the same normaliser.
+      && validationExecutorEnvironmentText.includes('effectiveValidationCommandEnvironment(process.env, command.env, options.launchCwd ?? cwd)'),
     'routine identity and validation command spawn must consume the same effective environment normalizer',
   );
   const budgetText = read('packages/main/src/core/done-required-timeout-budget.ts');
@@ -9572,7 +9573,8 @@ function assertStoryAwareDynamicValidationRuntime() {
   assert(handlerText.includes('boundary.readPathSchema !== VALIDATION_RUNTIME_TRACE_POLICY.schemaVersion') && handlerText.includes('sourceAuthorityPath(rel)'), 'closure must require physical trace schema and map contained relative paths');
   const signingText = read('packages/main/src/core/validation-artifact-signing.ts');
   const validationText = read('packages/main/src/core/story-aware-validation.ts');
-  assert(validationText.includes("VALIDATION_RECEIPT_SCHEMA = 'proof-or-stop.validation-command-receipt.v2'"), 'dynamic reuse must reject legacy receipts without executor source observations');
+  assert(validationText.includes("VALIDATION_RECEIPT_SCHEMA = 'proof-or-stop.validation-command-receipt.v3'"), 'dynamic reuse must reject legacy receipts without executor source observations or an executed-build binding');
+  assert(validationText.includes("reasons.push('missing-executed-build-binding')") && validationText.includes('receipt.buildArtifactsDigest !== ctx.buildArtifactsHash'), 'dynamic receipts must bind the compiled artifacts their command executed and reuse must require the current build');
   assert(validationText.includes('certifiedTreesEqual(ctx.gitCwd, sourceHead, actualHead, entry, closure)') && validationText.includes('environmentDigest: declaredEnvironmentDigest(entry, ctx)'), 'cross-commit reuse must bind receipt-relative trees and effective declared environment');
   assert(handlerText.includes('!provenance.cleanBefore || !provenance.cleanAfter') && handlerText.includes('provenance.headBefore !== args.head || provenance.headAfter !== args.head'), 'receipt issuance requires executor-observed unchanged clean source at both boundaries');
   const registeredAdapterDigest = handlerText.match(/const DYN5_ADAPTER_SOURCE_DIGEST = '([a-f0-9]{64})'/)?.[1];

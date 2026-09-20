@@ -1,10 +1,12 @@
 import { validateResourceClaims, type ResourceClaim } from './keyed-scheduler.js';
 import { parseLegacyValidationCommandString } from './validation-command-identity.js';
 import { createHash } from 'node:crypto';
-import { realpathSync } from 'node:fs';
-import { basename, dirname, isAbsolute, join, relative, resolve } from 'node:path';
+import { existsSync, realpathSync } from 'node:fs';
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { loadConfig, type ProofOrStopConfig } from './config.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
+import { BUILD_ARTIFACT_ROOTS, bindLaunchDirectoryIdentity, canonicalizeExistingPath, currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand, launchDirectoryOf, projectHasArtifactContract, refreshLaunchIdentityAfterBuild } from './build-artifacts-identity.js';
+import { REGISTERED_BUILD_PROTECTION_LABEL, artifactProtectionSatisfied, artifactProtectionStale, hasAnyArtifactRoot, resolveArtifactWriteProtection } from './build-artifacts-protection.js';
 import type { StoryStore } from './store.js';
 import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, formatValidationCommand, resolveCommandTimeoutMs, runValidationCommand } from './validation-executor.js';
 import type {
@@ -429,37 +431,18 @@ export function resolveDoneRequiredPolicy(projectRoot: string): DoneRequiredPoli
 }
 
 function commandCwd(projectRoot: string, cwd?: string): string {
-  if (!cwd) return projectRoot;
-  return isAbsolute(cwd) ? cwd : resolve(projectRoot, cwd);
+  return launchDirectoryOf(projectRoot, cwd);
+}
+
+/** Separators rewritten to `/` only where the platform's separator IS `\`; a POSIX backslash is part of a name. */
+function portablePath(path: string): string {
+  return sep === '\\' ? path.replace(/\\/g, '/') : path;
 }
 
 function normalizedCommandCwd(projectRoot: string, cwd?: string): string {
-  return commandCwd(projectRoot, cwd).replace(/\\/g, '/');
+  return portablePath(commandCwd(projectRoot, cwd));
 }
 
-/**
- * Longest-existing-prefix realpath: resolves symlinks on the part of `p` that
- * exists on disk (e.g. macOS /var -> /private/var) and re-appends any trailing
- * segments that do not exist yet. Falls back to the input verbatim when nothing
- * resolves. Used to symlink-normalize BOTH the anchor and an absolute cwd before
- * relativizing, so a symlinked workspace root does not produce a spurious '..'.
- */
-function canonicalizeExisting(p: string): string {
-  let current = p;
-  const tail: string[] = [];
-  // Bounded by path depth; dirname() reaches a fixed point at the filesystem root.
-  for (;;) {
-    try {
-      const real = realpathSync(current);
-      return tail.length ? join(real, ...tail.reverse()) : real;
-    } catch {
-      const parent = dirname(current);
-      if (parent === current) return p;
-      tail.push(basename(current));
-      current = parent;
-    }
-  }
-}
 
 /**
  * Portable LOGICAL cwd for the command-spec digest, anchored at the STORY'S OWN
@@ -490,18 +473,17 @@ function canonicalizeExisting(p: string): string {
  * Forward-slash normalized; '.' when equal to projectRoot.
  */
 function repoRelativeLogicalCwd(projectRoot: string, cwd?: string): string {
-  if (!cwd || !isAbsolute(cwd)) {
-    // Relative/empty: both sides live in projectRoot's OWN path space, so a plain
-    // resolve+relativize is exact and needs no symlink canonicalization.
-    const absolute = resolve(projectRoot, cwd ?? '');
-    const rel = relative(projectRoot, absolute).replace(/\\/g, '/');
-    return rel === '' ? '.' : rel;
-  }
-  // Absolute: the configured/executed path may live in a different symlink space
-  // than projectRoot, so canonicalize BOTH before relativizing against projectRoot.
-  const anchor = canonicalizeExisting(projectRoot);
-  const target = canonicalizeExisting(cwd);
-  const rel = relative(anchor, target).replace(/\\/g, '/');
+  // Relative or empty cwds resolve against projectRoot; absolute ones may live
+  // in a different symlink space. Either way BOTH sides are canonicalised
+  // through the filesystem before relativising: a receipt records the
+  // directory the command actually ran in (the pinned canonical launch
+  // directory), so the expected location must be canonicalised the same way
+  // or an unchanged `alias -> actual` symlink cwd would mismatch its own
+  // receipt forever, while an alias re-pointed since the receipt was written
+  // still mismatches, as it must. The result stays root-relative and portable.
+  const anchor = canonicalizeExistingPath(projectRoot);
+  const target = canonicalizeExistingPath(launchDirectoryOf(projectRoot, cwd));
+  const rel = portablePath(relative(anchor, target));
   return rel === '' ? '.' : rel;
 }
 
@@ -523,7 +505,7 @@ function receiptLogicalCwd(projectRoot: string, receipt: DoneRequiredCommandRece
     return spec.cwd;
   }
   const physical = typeof receipt.cwd === 'string' && receipt.cwd ? receipt.cwd : projectRoot;
-  const rel = relative(projectRoot, physical).replace(/\\/g, '/');
+  const rel = portablePath(relative(projectRoot, physical));
   return rel === '' ? '.' : rel;
 }
 
@@ -553,29 +535,27 @@ function receiptLine(receipt: DoneRequiredCommandReceipt): string {
   return `${receipt.status} ${receipt.label}: ${receipt.command} ${args.join(' ')}`.trim();
 }
 
-function isPackagesMainBuild(receipt: DoneRequiredCommandReceipt, projectRoot: string, command?: DoneRequiredCommand): boolean {
+function isPackagesMainBuild(receipt: DoneRequiredCommandReceipt, projectRoot: string, command?: DoneRequiredCommand, artifactsRoot: string = projectRoot): boolean {
   if (receipt.status !== 'PASS') return false;
+  // Build proof is an EXECUTION: a receipt served from a cache proves nothing
+  // about the artifacts this run's later commands executed.
+  if (receipt.executionReceipt?.disposition === 'reused') return false;
   if (command?.providesBuildProof === PACKAGES_MAIN_BUILD_PROOF || command?.proof === PACKAGES_MAIN_BUILD_PROOF) return true;
   // Compare on the portable LOGICAL cwd (not the absolute physical receipt.cwd)
   // so a build proof written in worktree A is still recognized when evaluated
   // under root B (F-001).
-  const cwd = receiptLogicalCwd(projectRoot, receipt);
-  const rootCwd = repoRelativeLogicalCwd(projectRoot);
-  const packagesMain = repoRelativeLogicalCwd(projectRoot, 'packages/main');
-  const args = Array.isArray(receipt.args) ? receipt.args : [];
-  if (receipt.command === 'npm' && cwd === rootCwd) {
-    const prefixIndex = args.indexOf('--prefix');
-    if (prefixIndex >= 0 && args[prefixIndex + 1] === 'packages/main') {
-      return args[prefixIndex + 2] === 'run' && args[prefixIndex + 3] === 'build';
-    }
-  }
-  if (receipt.command === 'npm' && cwd === packagesMain) {
-    return args[0] === 'run' && args[1] === 'build';
-  }
-  if ((receipt.command === 'tsc' || receipt.command.endsWith('/tsc')) && cwd === packagesMain) {
-    return true;
-  }
-  return false;
+  // One recogniser for launch and receipt: the receipt's logical cwd is
+  // relative to the project root, and the shared matcher judges it against
+  // the artifact root (the git root on a wrapper-root layout).
+  return isRegisteredPackagesMainBuildCommand({
+    command: receipt.command,
+    args: Array.isArray(receipt.args) ? receipt.args : [],
+    cwd: receiptLogicalCwd(projectRoot, receipt),
+    // The DECLARED shell mode: the executor records shell:true as a transport
+    // detail on Windows for every command, which says nothing about whether
+    // the policy asked for a shell command line.
+    shell: command?.shell === true,
+  }, projectRoot, artifactsRoot);
 }
 
 function requiresPackagesMainBuildProof(command?: DoneRequiredCommand): boolean {
@@ -741,6 +721,7 @@ export function validateSelfHostBuildProof(
   evidence: Pick<DoneRequiredEvidenceData, 'receipts'>,
   projectRoot: string,
   commands: DoneRequiredCommand[] = [],
+  artifactsRoot: string = projectRoot,
 ): string[] {
   const reasons: string[] = [];
   const receipts = Array.isArray(evidence.receipts) ? evidence.receipts : [];
@@ -749,7 +730,7 @@ export function validateSelfHostBuildProof(
     const command = commands[i];
     if (!requiresPackagesMainBuildProof(command)) continue;
     const build = receipts.slice(0, i).find((candidate, candidateIndex) => (
-      isPackagesMainBuild(candidate, projectRoot, commands[candidateIndex]) &&
+      isPackagesMainBuild(candidate, projectRoot, commands[candidateIndex], artifactsRoot) &&
       candidate.materialHash &&
       receipt.materialHash &&
       candidate.materialHash === receipt.materialHash
@@ -757,6 +738,112 @@ export function validateSelfHostBuildProof(
     if (!build) {
       reasons.push(`missing-build-proof: ${receipt.label} requires a preceding PASS receipt for npm --prefix packages/main run build, or equivalent packages/main build proof, with the same materialHash`);
     }
+  }
+  return reasons;
+}
+
+/**
+ * Per-receipt build binding. Each receipt records the compiled-artifact
+ * content digest it started against and the one it left behind. The receipts
+ * run sequentially, so the chain must be continuous: every receipt starts on
+ * exactly the bytes the previous one left behind, otherwise something rewrote
+ * the dist between two commands. Only a registered packages/main build receipt
+ * may change the identity; any other command that does so has rewritten the
+ * dist under test. Every non-build receipt must have started against the
+ * identity the evidence finally binds, so a build that lands after a test
+ * invalidates that test instead of relabelling it, and that final identity
+ * must be the output of the last registered build, so a rewrite that lands
+ * after the build cannot be published as the build's own bytes. Legacy
+ * receipts without the observations cannot vouch and are refused.
+ */
+/**
+ * Refusal of a DONE-required run BEFORE any command launches. This evidence is
+ * the authoritative executed-build proof, so on a host whose artifact trees
+ * exist but cannot be write-protected, every non-build receipt would be refused
+ * by validateReceiptBuildBinding after the run anyway. Deciding that here means
+ * an unsupported host learns why in seconds, with the remedy, instead of after
+ * the whole suite, and nothing is executed whose evidence could not count.
+ *
+ * Only the commands that would run under THIS resolution are judged: the
+ * non-build commands before the first registered build. A registered build may
+ * repair the very topology that made the resolution unenforced (a missing
+ * artifact tree that bwrap could not bind), and the writer re-resolves the
+ * protection after it; the commands that follow are decided then, by the
+ * same rule, and refused there if enforcement is still unavailable. A
+ * `not-applicable` host (no artifact trees, nothing to protect) and a policy
+ * made only of registered builds are not refused.
+ */
+export function doneRequiredProtectionRefusal(
+  protectionLabel: string,
+  commands: DoneRequiredCommand[],
+  projectRoot: string,
+  artifactsRoot: string = projectRoot,
+  /** The pinned canonical launch directory of each command, index-aligned with `commands`. */
+  launchCwds?: readonly string[],
+): string | undefined {
+  if (artifactProtectionSatisfied(protectionLabel)) return undefined;
+  const isBuild = (command: DoneRequiredCommand, index: number): boolean => command.providesBuildProof === PACKAGES_MAIN_BUILD_PROOF
+    || command.proof === PACKAGES_MAIN_BUILD_PROOF
+    || isRegisteredPackagesMainBuildCommand(command, projectRoot, artifactsRoot, launchCwds?.[index]);
+  const firstBuild = commands.findIndex(isBuild);
+  const exposed = firstBuild < 0 ? commands : commands.slice(0, firstBuild);
+  const unprotected = exposed.filter((command, index) => !isBuild(command, index));
+  if (unprotected.length === 0) return undefined;
+  const labels = unprotected.map((command) => command.label).join(', ');
+  // Recovery advice depends on whether this project carries the contract at
+  // all. A project with the layout marker or anything at an artifact root
+  // must keep or rebuild its roots and provide a working mechanism; removing
+  // the trees lifts nothing. Only a project with neither may declare the
+  // contract inapplicable, at its configuration root.
+  const applicable = projectHasArtifactContract(artifactsRoot, projectRoot) && (existsSync(join(artifactsRoot, 'packages/main/package.json')) || BUILD_ARTIFACT_ROOTS.some((relative) => existsSync(join(artifactsRoot, relative))));
+  const recovery = applicable
+    ? `This project carries the compiled-artifact contract (its layout marker or an artifact root is present), so keep or rebuild the artifact roots and provide a working write-protection mechanism: on macOS /usr/bin/sandbox-exec must be executable and unreplaceable; on Linux install bubblewrap so that \`bwrap\` is on PATH at a location this user neither owns nor can write, with every configured artifact root present (a registered build creates them). Removing the artifact trees does not lift the contract.`
+    : `If this project genuinely has no compiled-artifact contract (no packages/main/package.json layout marker and nothing at ${BUILD_ARTIFACT_ROOTS.join(' or ')}), declare it: add \`"artifactContract": "none"\` at the top level of ${join(projectRoot, 'proof-or-stop.config.json')} and commit it. Otherwise provide a working write-protection mechanism (macOS: /usr/bin/sandbox-exec executable and unreplaceable; Linux: bubblewrap with \`bwrap\` on PATH at a location this user neither owns nor can write) and keep every configured artifact root present.`;
+  return `build-artifacts-protection-unavailable: ${protectionLabel}; ${unprotected.length} non-build DONE-required command(s) (${labels}) would run without enforced artifact write protection and their receipts would be refused, so nothing was executed. ${recovery}`;
+}
+
+export function validateReceiptBuildBinding(
+  evidence: Pick<DoneRequiredEvidenceData, 'receipts' | 'buildArtifactsHash'>,
+  projectRoot: string,
+  commands: DoneRequiredCommand[] = [],
+  artifactsRoot: string = projectRoot,
+): string[] {
+  const reasons: string[] = [];
+  const receipts = Array.isArray(evidence.receipts) ? evidence.receipts : [];
+  let previous: { label: string; after: string } | undefined;
+  let lastRegisteredBuildOutput: string | undefined;
+  for (let i = 0; i < receipts.length; i++) {
+    const receipt = receipts[i];
+    const before = receipt.buildArtifactsBefore;
+    const after = receipt.buildArtifactsAfter;
+    if (!before || !after) {
+      reasons.push(`missing-receipt-build-binding[${i}]: ${receipt.label} did not record the build identity it executed`);
+      previous = undefined;
+      continue;
+    }
+    if (previous && before !== previous.after) {
+      reasons.push(`build-artifacts-changed-between-receipts[${i}]: ${receipt.label} started on compiled artifacts that differ from what ${previous.label} left behind; the dist was rewritten between two receipts`);
+    }
+    previous = { label: receipt.label, after };
+    if (isPackagesMainBuild(receipt, projectRoot, commands[i], artifactsRoot)) {
+      lastRegisteredBuildOutput = after;
+      continue;
+    }
+    // DONE-required evidence is the authoritative executed-build proof, so a
+    // receipt whose command could have swapped the artifacts inside its own
+    // window — undetectable at the boundaries — cannot carry that claim.
+    if (!artifactProtectionSatisfied(receipt.buildArtifactsProtection)) {
+      reasons.push(`build-artifacts-protection-unenforced[${i}]: ${receipt.label} ran without enforced artifact write protection (${receipt.buildArtifactsProtection ?? 'not recorded'}); this evidence cannot prove which build it executed`);
+    }
+    if (before !== after) {
+      reasons.push(`build-artifacts-changed-during-command[${i}]: ${receipt.label} rewrote the compiled artifacts but is not a registered packages/main build`);
+    }
+    if (evidence.buildArtifactsHash && before !== evidence.buildArtifactsHash) {
+      reasons.push(`receipt-not-bound-to-final-build[${i}]: ${receipt.label} executed a build that was replaced before the evidence was bound; rerun it against the final build`);
+    }
+  }
+  if (evidence.buildArtifactsHash && lastRegisteredBuildOutput && evidence.buildArtifactsHash !== lastRegisteredBuildOutput) {
+    reasons.push('build-artifacts-differ-from-registered-build: the evidence binds compiled artifacts that are not the output of the last registered packages/main build; a later command or an external write replaced the dist');
   }
   return reasons;
 }
@@ -865,6 +952,10 @@ export async function runDoneRequiredValidation(args: {
 }): Promise<DoneRequiredEvidenceData> {
   const runtimeOptions = args.options ?? {};
   throwIfDoneRequiredDeadlineExceeded(runtimeOptions);
+  // The git cwd is canonicalised once for the whole run: every receipt,
+  // observation and denial rule refers to that directory, so an alias above
+  // the checkout that a command re-points cannot move a later receipt.
+  args = { ...args, gitCwd: canonicalizeExistingPath(args.gitCwd) };
   const policy = resolveDoneRequiredPolicy(args.projectRoot);
   const startedMs = Date.now();
   const startedAt = new Date(startedMs).toISOString();
@@ -883,12 +974,55 @@ export async function runDoneRequiredValidation(args: {
   }
 
   if (policy.required && policy.configErrors.length === 0) {
-    for (let i = 0; i < policy.commands.length; i++) {
+    // The contract declaration is read from the configuration root
+    // (projectRoot), which on a wrapper-root layout is not the artifact root.
+    let artifactWriteProtection = resolveArtifactWriteProtection(args.gitCwd, { configRoot: args.projectRoot });
+    // Where each command runs, and therefore what it IS, resolved NOW for the
+    // whole run: an alias re-pointed by an earlier command must neither move a
+    // later one nor turn it into a registered build at launch time.
+    const canonicalLaunchCwds = policy.commands.map((command) => canonicalizeExistingPath(commandCwd(args.projectRoot, command.cwd)));
+    // And what each of those directories IS: every launch re-verifies its
+    // directory against the identity bound here, before the first launch.
+    const launchIdentities = canonicalLaunchCwds.map((cwd) => bindLaunchDirectoryIdentity(cwd));
+    // Unsupported host: decided before the first launch, never after the suite.
+    let protectionRefusal = doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands, args.projectRoot, args.gitCwd, canonicalLaunchCwds);
+    if (protectionRefusal) reasons.push(protectionRefusal);
+    // A registered build may create or replace the trees, and a
+    // `not-applicable` exemption holds only while no tree exists, so the
+    // protection is re-resolved before any later non-build receipt, and the
+    // refusal above is re-decided for the commands that remain.
+    let buildRanSinceResolve = false;
+    for (let i = 0; !protectionRefusal && i < policy.commands.length; i++) {
       const command = policy.commands[i];
       throwIfDoneRequiredDeadlineExceeded(runtimeOptions);
+      const commandIsRegisteredBuild = command.providesBuildProof === PACKAGES_MAIN_BUILD_PROOF
+        || command.proof === PACKAGES_MAIN_BUILD_PROOF
+        || isRegisteredPackagesMainBuildCommand(command, args.projectRoot, args.gitCwd, canonicalLaunchCwds[i]);
+      if (!commandIsRegisteredBuild && artifactProtectionStale(artifactWriteProtection, { buildRanSinceResolve, anyRootExists: hasAnyArtifactRoot(args.gitCwd, args.projectRoot) })) {
+        artifactWriteProtection = resolveArtifactWriteProtection(args.gitCwd, { configRoot: args.projectRoot });
+        buildRanSinceResolve = false;
+        protectionRefusal = doneRequiredProtectionRefusal(artifactWriteProtection.label, policy.commands.slice(i), args.projectRoot, args.gitCwd, canonicalLaunchCwds.slice(i));
+        if (protectionRefusal) {
+          reasons.push(`${protectionRefusal} (protection re-resolved before ${command.label}, after the registered build created or replaced the artifact trees)`);
+          break;
+        }
+      }
       const receiptStartedMs = Date.now();
       const receiptStartedAt = new Date(receiptStartedMs).toISOString();
+      // Per-receipt build identity: the dist this command started against and
+      // the dist it left behind. Only a registered build receipt may change it,
+      // and every test receipt must have started against the final build.
+      // Boundary observations cannot see a swap a command undoes before it
+      // returns, so every non-build receipt executes under a mechanism that
+      // denies it, and its descendants, the right to write these trees.
       const result = await runValidationCommand(command, args.projectRoot, DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, {
+        ...(commandIsRegisteredBuild ? {} : { artifactWriteProtection }),
+        // Observed at the spawn boundary (or inherited from the reuse key for a
+        // cached run); this writer records what the execution carried and never
+        // relabels a result with what it observes afterwards.
+        artifactBinding: { root: args.gitCwd, configRoot: args.projectRoot, protection: commandIsRegisteredBuild ? REGISTERED_BUILD_PROTECTION_LABEL : artifactWriteProtection.label },
+        launchCwd: canonicalLaunchCwds[i],
+        launchIdentity: launchIdentities[i],
         progress: runtimeOptions.progress,
         heartbeatMs: runtimeOptions.heartbeatMs,
         abortSignal: runtimeOptions.abortSignal,
@@ -897,6 +1031,17 @@ export async function runDoneRequiredValidation(args: {
         totalCommands: policy.commands.length,
       });
       throwIfDoneRequiredDeadlineExceeded(runtimeOptions);
+      if (commandIsRegisteredBuild) {
+        buildRanSinceResolve = true;
+        // The build may have recreated the artifact trees: pinned directories
+        // inside them are re-bound to the recreated inode (same canonical path).
+        if (result.code === 0) {
+          for (let j = i + 1; j < canonicalLaunchCwds.length; j++) {
+            const refreshed = refreshLaunchIdentityAfterBuild(canonicalLaunchCwds[j]!, launchIdentities[j], args.gitCwd);
+            if (!refreshed.drift) launchIdentities[j] = refreshed.identity;
+          }
+        }
+      }
       const receiptEndedAt = new Date().toISOString();
       const headHash = currentGitHead(args.gitCwd);
       const materialHash = currentMaterialHash(args.gitCwd, 'HEAD', args.projectRoot);
@@ -907,9 +1052,12 @@ export async function runDoneRequiredValidation(args: {
         label: result.label,
         command: result.command,
         args: result.args,
-        commandSpec: buildDoneRequiredCommandSpecEnvelope(args.projectRoot, command, result),
+        // The receipt describes the directory the command actually ran in: the
+        // canonical launch directory pinned before the first launch, so receipt
+        // validation classifies exactly what the writer classified.
+        commandSpec: buildDoneRequiredCommandSpecEnvelope(args.projectRoot, command, { ...result, cwd: canonicalLaunchCwds[i] }),
         ...(result.shell ? { shell: true } : {}),
-        cwd: result.cwd ?? commandCwd(args.projectRoot, command.cwd),
+        cwd: canonicalLaunchCwds[i],
         status,
         exitCode: result.code,
         durationMs: result.durationMs,
@@ -932,6 +1080,9 @@ export async function runDoneRequiredValidation(args: {
         ...(headHash ? { headHash } : {}),
         ...(materialHash ? { materialHash } : {}),
         ...(storyFilesHash ? { storyFilesHash } : {}),
+        ...(result.buildArtifactsBefore ? { buildArtifactsBefore: result.buildArtifactsBefore } : {}),
+        ...(result.buildArtifactsAfter ? { buildArtifactsAfter: result.buildArtifactsAfter } : {}),
+        ...(result.buildArtifactsProtection ? { buildArtifactsProtection: result.buildArtifactsProtection } : {}),
       };
       receipts.push(receipt);
       if (status === 'FAIL') {
@@ -940,13 +1091,29 @@ export async function runDoneRequiredValidation(args: {
     }
   }
 
+  // End-of-execution build identity: the dist the receipts executed, observed
+  // the moment the last command returned (after the build receipt rewrote it).
+  const executionBuildArtifactsHash = currentBuildArtifactsHash(args.gitCwd, args.projectRoot);
   throwIfDoneRequiredDeadlineExceeded(runtimeOptions);
-  reasons.push(...validateSelfHostBuildProof({ receipts }, args.projectRoot, policy.commands));
+  reasons.push(...validateSelfHostBuildProof({ receipts }, args.projectRoot, policy.commands, args.gitCwd));
+  // Every test receipt must have executed the build this evidence binds, and
+  // nothing but a registered build may have rewritten the dist mid-run.
+  reasons.push(...validateReceiptBuildBinding({ receipts, buildArtifactsHash: executionBuildArtifactsHash }, args.projectRoot, policy.commands, args.gitCwd));
 
   const endedMs = Date.now();
   const finalHeadHash = currentGitHead(args.gitCwd);
   const finalMaterialHash = currentMaterialHash(args.gitCwd, 'HEAD', args.projectRoot);
   const finalStoryFilesHash = currentStoryFilesHash(args.gitCwd, 'HEAD', args.projectRoot);
+  // Publication must still see the executed identity; a dist that moved in
+  // between was never tested by these receipts, so the evidence fails instead
+  // of binding a PASS to an untested build. An unreadable identity fails too.
+  const publicationBuildArtifactsHash = currentBuildArtifactsHash(args.gitCwd, args.projectRoot);
+  if (!executionBuildArtifactsHash || !publicationBuildArtifactsHash) {
+    reasons.push('build-artifacts-identity-unavailable');
+  } else if (executionBuildArtifactsHash !== publicationBuildArtifactsHash) {
+    reasons.push('build-artifacts-changed-before-publication');
+  }
+  const finalBuildArtifactsHash = executionBuildArtifactsHash;
   const status: DoneRequiredEvidenceStatus = policy.required && reasons.length === 0 ? 'PASS' : 'FAIL';
   const evidence: DoneRequiredEvidenceData = {
     schema: DONE_REQUIRED_EVIDENCE_SCHEMA,
@@ -959,6 +1126,7 @@ export async function runDoneRequiredValidation(args: {
     ...(finalHeadHash ? { headHash: finalHeadHash } : {}),
     ...(finalMaterialHash ? { materialHash: finalMaterialHash } : {}),
     ...(finalStoryFilesHash ? { storyFilesHash: finalStoryFilesHash } : {}),
+    ...(finalBuildArtifactsHash ? { buildArtifactsHash: finalBuildArtifactsHash } : {}),
     policyHash: policy.policyHash,
     commandSetHash: policy.commandSetHash,
     receipts,
@@ -1104,7 +1272,13 @@ export function evaluateDoneRequiredEvidence(args: {
   else if (evidence.materialHash !== currentMaterial) reasons.push('stale-material');
   if (!evidence.storyFilesHash || !currentStoryFiles) reasons.push('missing-storyFilesHash');
   else if (evidence.storyFilesHash !== currentStoryFiles) reasons.push('stale-storyFilesHash');
-  reasons.push(...validateSelfHostBuildProof(evidence, args.projectRoot, policy.commands));
+  // validateSelfHostBuildProof below proves a build receipt preceded the tests;
+  // this proves the dist on disk is still the one those receipts executed.
+  const currentBuildArtifacts = currentBuildArtifactsHash(args.gitCwd, args.projectRoot);
+  if (!evidence.buildArtifactsHash || !currentBuildArtifacts) reasons.push('missing-buildArtifactsHash');
+  else if (evidence.buildArtifactsHash !== currentBuildArtifacts) reasons.push('stale-buildArtifacts');
+  reasons.push(...validateSelfHostBuildProof(evidence, args.projectRoot, policy.commands, args.gitCwd));
+  reasons.push(...validateReceiptBuildBinding(evidence, args.projectRoot, policy.commands, args.gitCwd));
   reasons.push(...validateDoneRequiredExecutionIdentityCoverage(evidence, currentExecutionIdentity, policy));
 
   const uniqueReasons = [...new Set(reasons)];

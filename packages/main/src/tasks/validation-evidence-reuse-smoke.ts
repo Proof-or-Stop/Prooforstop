@@ -15,6 +15,7 @@ import {
   summarizeRoutineCommandExecution,
 } from '../core/validation-evidence-reuse.js';
 import { captureEvidenceHashSnapshot, checkEvidenceHashSnapshotReuse } from '../core/evidence-freshness.js';
+import { currentBuildArtifactsHash } from '../core/build-artifacts-identity.js';
 import type { TestEvidenceData, VerificationCoverageReport } from '../core/types.js';
 import type { RoutineValidationIdentity, RoutineValidationSourceKind, ValidationCommand } from '../core/validation-types.js';
 import { StoryStore } from '../core/store.js';
@@ -287,6 +288,9 @@ function assertPostCommandHookMutationFailsTerminalCloseout(): void {
       storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'light' },
+      // An external project with no compiled-artifact trees declares the
+      // contract inapplicable; absence alone would not exempt it.
+      artifactContract: 'none',
       validate: {
         commands: [{
           label: 'terminal hook probe',
@@ -386,6 +390,9 @@ function assertPhaseHookMutationFailsTransitionCloseout(): void {
       storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'light' },
+      // An external project with no compiled-artifact trees declares the
+      // contract inapplicable; absence alone would not exempt it.
+      artifactContract: 'none',
       validate: {
         commands: [{
           label: 'phase hook probe',
@@ -488,6 +495,9 @@ function assertReviewToTestTransitionLeavesExactReuseRed(): void {
       storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'light' },
+      // An external project with no compiled-artifact trees declares the
+      // contract inapplicable; absence alone would not exempt it.
+      artifactContract: 'none',
       validate: {
         commands: [{
           label: 'transition reuse probe',
@@ -561,6 +571,12 @@ function assertReviewToTestTransitionLeavesExactReuseRed(): void {
     assert.match(`${first.stdout}\n${first.stderr}`, /"disposition":"executed"/);
     assert.match(`${first.stdout}\n${first.stderr}`, /"commandExecutions":1/);
     assert.equal(readFileSync(counterPath, 'utf8').trim().split('\n').length, 1);
+    // Lab validation-build-artifact-binding: the executed PASS binds the compiled
+    // artifacts it ran against, and that binding must still match on disk before
+    // the transition may reuse it.
+    const executedEvidence = store.readTestEvidence(storyId);
+    assert.match(executedEvidence?.buildArtifactsHash ?? '', /^[a-f0-9]{64}$/, 'executed PASS must record buildArtifactsHash');
+    assert.equal(executedEvidence?.buildArtifactsHash, currentBuildArtifactsHash(root), 'recorded build binding must match the artifacts on disk before the transition');
 
     const canonicalPaths = [
       `.proof-or-stop/story/actives/${storyId}/index.json`,
@@ -714,6 +730,9 @@ function assertHandlerExecutedThenReused(
       storyDir: '.proof-or-stop/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'light' },
+      // An external project with no compiled-artifact trees declares the
+      // contract inapplicable; absence alone would not exempt it.
+      artifactContract: 'none',
       ...(sourceKind === 'configured' ? { validate: { commands: configuredCommands } } : {}),
     }, null, 2), 'utf8');
     if (sourceKind === 'fallback') {
@@ -1410,6 +1429,8 @@ function main(): void {
       headHash: baseHead,
       materialHash: 'material',
       storyFilesHash: 'story-files',
+      buildArtifactsHash: currentBuildArtifactsHash(root),
+      buildArtifactsProtection: 'enforced:sandbox-exec',
       verificationCoverage: { ...coverage, covered: 0, missingRequired: 1 },
       routineValidationIdentity: configured,
       commandExecution,
@@ -1426,6 +1447,7 @@ function main(): void {
       currentCoverage: coverage,
       currentMaterialHash: 'material',
       currentStoryFilesHash: 'story-files',
+      currentBuildArtifactsHash: currentBuildArtifactsHash(root),
       clean: true,
       headBefore: baseHead,
       headAfter: baseHead,
@@ -1519,6 +1541,7 @@ function main(): void {
         currentCoverage: coverage,
         currentMaterialHash: 'material',
         currentStoryFilesHash: 'story-files',
+        currentBuildArtifactsHash: currentBuildArtifactsHash(root),
         clean: true,
         headBefore: baseHead,
         headAfter: baseHead,
@@ -1571,6 +1594,7 @@ function main(): void {
       currentCoverage: coverage,
       currentMaterialHash: 'material',
       currentStoryFilesHash: 'story-files',
+      currentBuildArtifactsHash: currentBuildArtifactsHash(root),
       clean: true,
       headBefore: metadataHead,
       headAfter: metadataHead,

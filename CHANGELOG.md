@@ -1,26 +1,82 @@
 # Changelog
 
-## Lab managed-worker-owner-lease - v0.3.425 - 2026-09-20
+## Lab benchmark-control-red-green - v0.3.428 - 2026-09-20
 
-Problem: a detached host_run_worker refreshed the Story owner lease with its short-lived PID and heartbeat. After the provider exited, the durable submitter appeared displaced and later owner operations waited for the stale threshold.
+- Add an isolated benchmark controller experiment that ignores unchanged blocked progress, deduplicates executions, bounds context, and reserves shared and repair budgets before dispatch.
+- Preserve unknown usage and reconcile synthetic receipts without double-counting cached input or reasoning output; these experiments do not activate desktop or production controls.
+- Verify the RED/GREEN regression and fail-closed verifier entry with 21 checks, including 1,000 unchanged observations producing zero wakeup intents and fifty duplicate requests producing one local subprocess; a disposable mutation proves lost negative coverage is rejected.
+- Record measurement scope and reproducible comparisons in scripts/lab/benchmark-controls/README.md; this release is local Lab maintenance, not benchmark product completion.
 
-Fix: runtime-continuation CLI admission now validates the existing logical Story owner without acquiring or refreshing the lease. The managed-run handler continues to enforce its exclusive worker claim, and a foreign session cannot gain authority by reusing a live runId.
+Maintenance provenance: codex/lab-benchmark-control-red-green, repair b0168e3bd76ceffb60c307f2ac61e08d053df1df.
+Verification command (replayed before integration and on main): `["node","scripts/lab/benchmark-controls/verify-entry-contract.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
 
-Verification: the public CLI regression reproduces the original lease takeover, proves the repaired worker reaches a successful terminal while preserving the submitter lease, and proves a foreign session reusing the live runId is rejected. Command ownership, managed-host-run smoke, the process-fact contract, and the U-18 static-edge verifier pass.
+## Lab managed-worker-owner-lease - integrated in v0.3.428 - 2026-09-20
 
-Limit: this repair covers detached managed-worker lease admission. Reviewer-run deduplication, reviewer worktree write isolation, and incremental evidence/review invalidation remain separate issues for the next benchmark-driven repair cycle.
+- Keep the durable Story owner lease bound to the submitting session when a detached `host_run_worker` starts and exits; the worker validates ownership without refreshing the lease with its short-lived PID.
+- Retain the managed run's exclusive worker claim and prove that a foreign session cannot gain write authority by reusing a live run ID.
+- Add a public CLI RED/GREEN regression and refresh the affected U-18 static-edge bindings; owner-command, managed-host-run, process-fact and static-edge checks pass.
+- Record the exact committed candidate's independent Grok/xAI Lab audit in the authenticated Lab maintenance record; this entry does not assert formal Story DONE.
 
 Maintenance provenance: codex/lab-managed-worker-owner-lease, repair 0cd268e1dc5e4191f81c17169076641d34857b23.
 Verification command (replayed before integration and on main): `["node","scripts/verify-managed-worker-owner-lease.mjs"]`.
+
+## Lab validation-build-artifact-binding - v0.3.427 - 2026-09-20
+
+# Lab validation-build-artifact-binding — release notes
+
+Opened 2026-09-17 from a RED reproduction: stale compiled artifacts (`packages/main/dist`, `packages/utils/dist`) were admitted as fresh validation evidence, so a validation command could execute old bytes and still sign a PASS for new source. Sixty-two independent Codex audits each found one more way to earn such a PASS; every finding was repaired in the Lab with a regression, and the sixty-third audit passed. The full per-audit record (findings, reproductions, repairs, GREEN/RED history) is in `NOTES.md` next to this file.
+
+## What changed
+
+- Artifact identity. Every validation command observes a content digest of the compiled artifacts immediately before launch and after it returns (path, kind, execute bits, directory search bits framed unambiguously; symbolic links, hard links, non-UTF-8 names and uninspectable roots refused). Receipts, reuse, dynamic aggregates and DONE-required evidence bind to the bytes that executed, the build-binding manifest inside each tree included; only the registered `packages/main` build may change them, it runs first and alone, and it is never served from the shared execution cache nor accepted as build proof when it was.
+- OS-level write protection. Non-build commands run under a mechanism that denies writes to the artifact trees and their ancestors (`sandbox-exec` on macOS, `bwrap` on Linux with the mount chain extended to the filesystem root and a private `/proc`). Protection is self-tested with nonce witnesses and re-resolved after any build. Enforcement is never reported without a witnessed, denied probe.
+- Wrapper trust and confidential environment transfer. Only a native, unreplaceable, identity-bound wrapper is trusted; interpreted wrappers are refused because an interpreter reads launch-chosen startup files before the wrapper's code runs. The wrapper process receives only an allowlisted environment; everything else reaches the command inside the sandbox through a private descriptor, never argv: on macOS (with System Integrity Protection verified enabled) a restricted `/usr/bin/perl` trampoline sets names and values as bytes and execs the explicitly named program, on Linux bwrap reads its `--setenv` triples with `--args FD`, and a launch whose child must inherit further descriptors (the reservation delegation transport, which bwrap cannot carry) is refused rather than run without them. Only an empty name, `=` in a name or a NUL byte refuses a transfer.
+- Launch directory. One canonical launch directory is resolved before the first launch of a plan or run (and, for a directory inside the artifact trees, re-bound after the registered build recreates it), walked in filesystem order exactly as the kernel resolves it (`..` after a symbolic link, platform roots preserved, unresolvable tails kept as written), bound by filesystem identity (dev/ino), and re-verified before the shared cache is consulted and synchronously before the spawn. The executor, shared cache, routine identity, dynamic planner and its receipts, the DONE-required writer and the historical replay all read that one binding.
+- Honest consumers. The verifier freezes each command's launch binding alongside the routine identity, runs its fallback plans where the identity binds them, never degrades a launch-directory drift refusal into a fallback, and signs evidence only when every executed command ran where the identity binds it. A printed PASS is not a PASS unless the executor reports success; a synchronously refused spawn or a refused protection launch is a bounded per-command failure, never an unprotected launch or an exception out of the plan; the historical replay plans and executes its selection in the workspace whose baseline earned the receipts and asserts positive reuse.
+- Integrated reviewer fixes. Formal managed reviewers use qualified provider-specific defaults and reject unqualified selectors before launch; incremental review resolves the Story's frozen integration target instead of assuming a local `main` branch, while historical envelopes with an explicitly omitted base retain byte-exact replay.
+
+## Verification
+
+`scripts/verify-validation-build-artifact-binding.mjs` (589 checks at the final GREEN) plus the production, DONE-required, story-aware, reuse, merge-lineage and parallel-equivalence smokes, all green on the final candidate; the process-fact-contract smoke fails on main itself over a retired-vocabulary pin introduced by another Lab (recorded in `NOTES.md`, not touched here). Sixty-two independent audits (including four finish-gate audits) found and had repaired every earlier way to earn a false PASS; audit #63 passed with no findings on the candidate merged with main at 0.3.426.
+
+Maintenance provenance: codex/lab-validation-build-artifact-binding, repair 52c9981b37270a2e6b0df61934c3b69367da05ed.
+Verification command (replayed before integration and on main): `["node","scripts/verify-validation-build-artifact-binding.mjs"]`.
 This entry does not assert formal Story DONE or signed product-release credentials.
 
-## Lab managed reviewer qualification and Story baseline resolution - v0.3.424 - 2026-09-20
+## Lab ws-types - v0.3.426 - 2026-09-19
 
-- Formal Codex and Claude managed reviewers now use qualified model and reasoning defaults, reject unqualified selectors before provider launch, and keep Grok selection provider-owned; see the [managed execution contract](docs/requirements/decisions/managed-cross-provider-cli-execution.md).
-- Ordinary incremental-review callers now resolve the Story's frozen integration commit instead of assuming a local `main` branch, including repositories whose integration branch is `master`.
-- Preserve byte-exact replay for historical envelopes that explicitly omit the base, with permanent coverage for legacy `master`, malformed targets, unavailable baselines, and signed historical replay.
-- Retain the concurrent upstream validation queue, host activity, and review evidence changes merged from `origin/main`; all version and protected static-evidence bindings are synchronized at `0.3.424`.
+- Add the missing root `@types/ws` development dependency and lockfile entry so root-only installs can typecheck the WebSocket bridge and proxy sources.
+- Add `npm run test:root-ws-types` to verify an isolated root install, all main TypeScript sources, and static/dynamic WebSocket type checks with negative controls.
+- Verify the repair through Lab RED/GREEN and main/utils builds; document the regression as an opt-in installation check that may require npm registry access in the [Lab maintenance guide](docs/lab-maintenance.md#root-install-dependency-regression).
+- Refresh existing static-review dependency bindings for the changed root manifests; the static scanner passes with exception classifications, call bindings and evidence excerpts preserved.
 
+Maintenance provenance: codex/lab-ws-types, repair cf6ce9fa73e8e463728baa59f1efa2fad92d659d.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/root-ws-types.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab benchmark-monitor-change-filter - v0.3.425 - 2026-09-19
+
+- Add a Lab-only semantic-state filter and reproducible comparison harness for redundant benchmark monitor wake decisions; live automation remains unchanged.
+- Replay 110 fresh historical observations with 110 periodic dispatch intents versus one cold-start filtered intent, a 99.09% reduction; exclude one unrecoverable observation and reconcile historical response-token accounting.
+- Preserve wake decisions for phase, revision, approval binding, execution identity, progress, completion and failure changes, with RED/GREEN coverage for unchanged states, invalid input, recovery and returning states.
+- Report local decision overhead and historical usage separately from unknown live token savings. Detailed comparison and limitations: [experiment report](/Users/jek/Documents/Proof-or-Stop-Benchmark-Plan/monitor-change-filter-lab-20260919/report.md).
+
+Maintenance provenance: codex/lab-benchmark-monitor-change-filter, repair 1b93dcfa9d13eaf568f6f448a3acdc07416f549b.
+Verification command (replayed before integration and on main): `["node","scripts/lab/benchmark-monitor-change-filter/verify.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab validation-audit-entrypoints-20260919 - v0.3.424 - 2026-09-19
+
+- Align dispatch help with registry-defined target cardinality so CLI guidance matches the enforced command contract.
+- Keep story discard recovery rooted at the controller checkout when removing an invalid linked worktree.
+- Refresh reviewed source fingerprints in the retired-authority guard while retaining its token and call restrictions.
+- Preserve shared AST parser reuse and recognize multiline CLI preflight calls while retaining ordering checks; rebind exact dependencies without broadening static exceptions.
+- Verify complete static/runtime contracts and three complete entrypoint suites in two rounds; retain RED/GREEN and independent audit records. See [source and dependency review](docs/audits/validation-entrypoint-pin-review-20260919.md). This is local Lab integration, not Story DONE.
+
+Maintenance provenance: codex/lab-validation-audit-entrypoints-20260919, repair d3706199a0693d5d932c7d72c7196ab002559821.
+Verification command (replayed before integration and on main): `["node","/Users/jek/Documents/GitHub/Prooforstop/.git/lab-evidence-archives/validation-audit-20260918/remaining-performance-20260918/finish/verify-entrypoints-and-bindings.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
 ## Lab validation-queue-wait-outside-command-timeout - v0.3.423 - 2026-09-18
 
 - Stop counting time spent waiting on the same-user machine validation queue toward a validation command's configured timeout: the wait is bounded by the 300 s queue deadline and the caller's outer deadline, and the command is armed with its whole timeout once admitted.

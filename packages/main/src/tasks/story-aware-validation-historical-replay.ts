@@ -14,10 +14,12 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { buildDualRevisionImpactGraph, buildDynamicValidationPlan, buildStoryChangeManifest, classifyFullValidationReasons, compileValidationCatalog, createValidationClosureCertificate, createValidationCommandReceipt, discoverValidationInventory, signPayload, stableDigest, verifyPayload, verifyValidationClosureCertificate, verifyValidationSelectionManifest, type StoryChangedFile, type ValidationCatalogEntry, type ValidationCommandReceipt } from '../core/story-aware-validation.js';
+import { buildDualRevisionImpactGraph, buildDynamicValidationPlan, buildStoryChangeManifest, classifyFullValidationReasons, compileValidationCatalog, createValidationClosureCertificate, createValidationCommandReceipt, discoverValidationInventory, signPayload, stableDigest, verifyPayload, verifyValidationClosureCertificate, verifyValidationSelectionManifest, type StoryChangedFile, type ValidationCatalogEntry, type ValidationCommandReceipt, receiptCleanTreeDigest, replayMandatoryExecution, reusedReceiptsStillBound, resultRanInBoundDirectory, frozenLaunchOptionsOf } from '../core/story-aware-validation.js';
+import { VALIDATION_SOURCE_PROVENANCE_SCHEMA } from '../core/runtime-fact-registry.js';
 import { loadConfig } from '../core/config.js';
 import { resolveProjectGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { executeValidationPlan } from '../core/validation-executor.js';
+import { canonicalizeExistingPath, launchDirectoryOf } from '../core/build-artifacts-identity.js';
 
 const root = resolve(process.cwd());
 await withValidationSigningRoot(root, async () => {
@@ -52,40 +54,39 @@ function git(args: string[]): string {
   return execFileSync('git', args, { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 }
 
-function withHistoricalWorktrees<T>(base: string, head: string, fn: (roots: { base: string; head: string; freshHead: string }) => Promise<T>): Promise<T> {
+function withHistoricalWorktrees<T>(base: string, head: string, fn: (roots: { base: string; head: string }) => Promise<T>): Promise<T> {
   const parent = mkdtempSync(join(tmpdir(), 'proof-or-stop-historical-replay-'));
   const baseRoot = join(parent, 'base');
   const headRoot = join(parent, 'head');
-  // A full-plan command may legitimately create ignored runtime state.  Run
-  // the selected plan from a second detached checkout so its observed verdicts
-  // are independent of the full-plan process history rather than merely a
-  // second execution in a warmed worktree.
-  const freshHeadRoot = join(parent, 'fresh-head');
+  // The full plan and the selected plan run in the SAME detached head
+  // checkout: a receipt binds the canonical directory its command ran in, so
+  // a selection that reuses the full plan's receipts can only be planned and
+  // executed where those receipts were earned. (A second, fresh checkout was
+  // once used for the selected plan; it is another directory, and no receipt
+  // from the head checkout is its receipt, so it could only ever replay
+  // full-versus-full.)
   const dependencyRoot = join(root, 'packages/main/node_modules');
   try {
     git(['worktree', 'add', '--detach', baseRoot, base]);
     git(['worktree', 'add', '--detach', headRoot, head]);
-    git(['worktree', 'add', '--detach', freshHeadRoot, head]);
     // Dependencies are intentionally not part of a git worktree. Reuse the
     // already-installed package tree only when it exists; otherwise the real
     // command failure is retained as replay evidence instead of silently
     // falling back to the current checkout.
     if (existsSync(dependencyRoot)) {
-      for (const worktreeRoot of [baseRoot, headRoot, freshHeadRoot]) {
+      for (const worktreeRoot of [baseRoot, headRoot]) {
         mkdirSync(join(worktreeRoot, 'packages/main'), { recursive: true });
         symlinkSync(dependencyRoot, join(worktreeRoot, 'packages/main/node_modules'), 'dir');
       }
     }
-    return fn({ base: baseRoot, head: headRoot, freshHead: freshHeadRoot }).finally(() => {
+    return fn({ base: baseRoot, head: headRoot }).finally(() => {
       try { git(['worktree', 'remove', '--force', baseRoot]); } catch { /* preserve replay result */ }
       try { git(['worktree', 'remove', '--force', headRoot]); } catch { /* preserve replay result */ }
-      try { git(['worktree', 'remove', '--force', freshHeadRoot]); } catch { /* preserve replay result */ }
       rmSync(parent, { recursive: true, force: true });
     });
   } catch (error) {
     try { git(['worktree', 'remove', '--force', baseRoot]); } catch { /* best effort */ }
     try { git(['worktree', 'remove', '--force', headRoot]); } catch { /* best effort */ }
-    try { git(['worktree', 'remove', '--force', freshHeadRoot]); } catch { /* best effort */ }
     rmSync(parent, { recursive: true, force: true });
     return Promise.reject(error);
   }
@@ -338,7 +339,7 @@ function validationCommands(entries: ValidationCatalogEntry[]) {
 
 function receiptForBaseline(args: {
   entry: ValidationCatalogEntry;
-  row: { inputDigest: string; closureCertificateDigest?: string };
+  row: { inputDigest: string; closureCertificateDigest?: string; resolvedCwd?: string };
   result: Awaited<ReturnType<typeof executeValidationPlan>>['commands'][number];
   storyId: string;
   baseHead: string;
@@ -349,6 +350,17 @@ function receiptForBaseline(args: {
   buildProofDigest: string;
 }): ValidationCommandReceipt | undefined {
   if (args.result.code !== 0 || args.result.timedOut || !args.row.closureCertificateDigest) return undefined;
+  // The receipt is signed for the input digest the manifest computed for ONE
+  // bound directory; a result that did not demonstrably run there is not
+  // that command's receipt (the production receipt builder's rule).
+  if (!resultRanInBoundDirectory(args.row, args.result)) return undefined;
+  // The baseline receipt follows the production provenance contract: the
+  // executor observed the tree clean at the command's start and end, on this
+  // head, under the provenance schema the planner requires — otherwise the
+  // planner refuses the receipt and the campaign silently degenerates.
+  const provenance = (args.result as { sourceProvenance?: { schemaVersion: string; cleanBefore: boolean; cleanAfter: boolean; headBefore: string | null; headAfter: string | null } }).sourceProvenance;
+  if (!provenance || provenance.schemaVersion !== VALIDATION_SOURCE_PROVENANCE_SCHEMA || !provenance.cleanBefore || !provenance.cleanAfter
+    || provenance.headBefore !== args.head || provenance.headAfter !== args.head) return undefined;
   const createdAt = new Date().toISOString();
   return createValidationCommandReceipt({
     id: `historical-receipt-${stableDigest({ storyId: args.storyId, commandId: args.entry.id, inputDigest: args.row.inputDigest, head: args.head }).slice(0, 24)}`,
@@ -365,11 +377,16 @@ function receiptForBaseline(args: {
     sourceBaseHead: args.baseHead,
     canonicalBaselineEpochId: args.baselineEpoch,
     producedBy: 'canonical-full-baseline',
-    cleanTreeDigest: stableDigest({ head: args.head, storyId: args.storyId, status: 'clean-at-command-start' }),
+    cleanTreeDigest: receiptCleanTreeDigest(args.head, args.storyId),
     executionEnvironmentDigest: stableDigest({ node: process.version, platform: process.platform, arch: process.arch }),
     result: 'PASS',
     exitCode: 0,
     outputDigest: stableDigest(args.result.output),
+    // The replayed command result carries the artifacts it executed and the
+    // protection it ran under when it came through the executor; a replay that
+    // lacks them produces a receipt verification refuses, which is correct.
+    buildArtifactsDigest: (args.result as { buildArtifactsBefore?: string }).buildArtifactsBefore ?? '',
+    buildArtifactsProtection: (args.result as { buildArtifactsProtection?: string }).buildArtifactsProtection ?? '',
     durationMs: args.result.durationMs,
     createdAt,
     revocationLedgerDigest: stableDigest({}),
@@ -414,14 +431,27 @@ for (const candidate of replayStories) {
       : { mode: 'plan-only', baseHead: candidate.pair.base, head: candidate.pair.head, status: 'not-run' },
   };
   if (execute) {
-    await withHistoricalWorktrees(candidate.pair.base, candidate.pair.head, async ({ head: historicalRoot, freshHead: dynamicRoot }) => {
+    await withHistoricalWorktrees(candidate.pair.base, candidate.pair.head, async ({ head: historicalRoot }) => {
       const commands = validationCommands(catalog);
       // Establish a canonical full result on this exact historical head, then
       // feed signed PASS receipts back into the selector. Without this step a
       // replay is merely full-vs-full because no reusable baseline exists.
-      const full = await executeValidationPlan({ provider: 'historical-replay-full', commands, warnings: [] }, historicalRoot, candidate.pair.head, candidate.storyId);
+      // A receipt binds the canonical directory its command ran in, so the
+      // baseline identities are prepared in the workspace the full plan
+      // executes in — not in the invoking checkout — and BEFORE it runs: the
+      // full plan launches every command where the manifest bound it, and a
+      // receipt is signed only for a result that demonstrably ran there. The
+      // selection that consumes them is planned and executed in that same
+      // workspace. (A second, fresh checkout cannot host the dynamic pass:
+      // it is another directory, and no receipt from here is its receipt.)
+      const baselineManifest = buildDynamicValidationPlan({
+        storyId: candidate.storyId, baseHead: candidate.pair.base, head: candidate.pair.head,
+        inventory, catalog, changes, closures, baselineEpochId: candidate.pair.base, graph,
+        buildProofDigest: 'historical-replay-plan', mode: 'shadow', gitCwd: historicalRoot,
+      });
+      const full = await executeValidationPlan({ provider: 'historical-replay-full', commands, warnings: [] }, historicalRoot, candidate.pair.head, candidate.storyId, { ...frozenLaunchOptionsOf(baselineManifest, catalog) });
       const baselineReceipts = catalog.flatMap((entry, index) => {
-        const row = manifest.rows.find((candidateRow) => candidateRow.commandId === entry.id);
+        const row = baselineManifest.rows.find((candidateRow) => candidateRow.commandId === entry.id);
         const result = full.commands[index];
         const receipt = row && result ? receiptForBaseline({
           entry, row, result, storyId: candidate.storyId, baseHead: candidate.pair.base, head: candidate.pair.head,
@@ -433,12 +463,26 @@ for (const candidate of replayStories) {
       const dynamicManifest = buildDynamicValidationPlan({
         storyId: candidate.storyId, baseHead: candidate.pair.base, head: candidate.pair.head,
         inventory, catalog, changes, closures, receipts: baselineReceipts,
-        baselineEpochId: candidate.pair.base, graph, buildProofDigest: 'historical-replay-plan',
-        mode: 'shadow', gitCwd: dynamicRoot,
+        baselineEpochId: candidate.pair.base, graph, buildProofDigest: 'historical-replay-plan', buildArtifactsHash: full.buildArtifactsHash,
+        mode: 'shadow', gitCwd: historicalRoot,
       });
+      // Positive reuse contract: every baseline receipt names the identity the
+      // selection computes for its command in this workspace (launch
+      // directory included), so a receipt that could be reused IS matched; a
+      // campaign can no longer degenerate silently into full-versus-full.
+      for (const receipt of baselineReceipts) {
+        const row = dynamicManifest.rows.find((candidateRow) => candidateRow.commandId === receipt.commandId);
+        assert.equal(row?.inputDigest, receipt.inputDigest, `${candidate.storyId}: baseline receipt for ${receipt.commandId} does not name the selection's input identity (launch directory disagreement)`);
+        assert.equal(row?.resolvedCwd, canonicalizeExistingPath(launchDirectoryOf(historicalRoot, catalog.find((entry) => entry.id === receipt.commandId)?.cwd)), `${candidate.storyId}: selection row for ${receipt.commandId} is not bound to the baseline's launch directory`);
+      }
       const selectedIds = new Set(dynamicManifest.rows.filter(row => row.disposition === 'execute').map(row => row.commandId));
       const selectedCommands = catalog.filter(entry => selectedIds.has(entry.id)).map(entry => ({ label: entry.label, command: entry.command, args: entry.args, cwd: entry.cwd, env: entry.env, resources: entry.resources }));
-      const dynamic = await executeValidationPlan({ provider: 'historical-replay-dynamic', commands: selectedCommands, warnings: [] }, dynamicRoot, candidate.pair.head, candidate.storyId);
+      const dynamic = await executeValidationPlan({ provider: 'historical-replay-dynamic', commands: selectedCommands, warnings: [] }, historicalRoot, candidate.pair.head, candidate.storyId);
+      // Reused rows vouch only for the artifacts the full plan left; a selected
+      // plan that re-ran a registered build and left other bytes invalidates
+      // them, and the replay refuses to sign equivalence for skipped tests.
+      const reuseBinding = reusedReceiptsStillBound({ reused: dynamicManifest.totals.reused, receiptBuild: full.buildArtifactsHash, executedBuild: dynamic.buildArtifactsHash });
+      assert.equal(reuseBinding, undefined, `${candidate.storyId}: ${reuseBinding}`);
       const fullFailures = full.commands.flatMap((row, index) => row.code === 0 ? [] : [catalog[index]!.id]);
       assert.ok(fullFailures.every(id => selectedIds.has(id)), `${candidate.storyId} omitted a full-plan failure`);
       const fullVerdicts = commandVerdicts(full);
@@ -579,11 +623,11 @@ const focusedSelectionFaults = (() => {
   const probeCatalogDigest = stableDigest(probeCatalog);
   const probeClosures = new Map(probeCatalog.map(entry => [entry.id, createValidationClosureCertificate({ commandId: entry.id, baseHead: fiReferenceBase, inventoryDigest: probeInventory.digest, catalogDigest: probeCatalogDigest, staticPaths: entry.inputRoots, processFacts: entry.triggerExtensions.processFacts, capabilities: entry.triggerExtensions.capabilities })]));
   const probeChanges = buildStoryChangeManifest({ storyId: 'B-fi-focused', gitCwd, baseHead: fiReferenceBase, head: fiReferenceHead, changedFiles: [sourceChange] });
-  const baseContext = { storyId: 'B-fi-focused', baseHead: fiReferenceBase, head: fiReferenceHead, inventory: probeInventory, catalog: probeCatalog, changes: probeChanges, closures: probeClosures, baselineEpochId: 'fi-focused-epoch', buildProofDigest: 'fi-focused-build', mode: 'observe' as const };
+  const baseContext = { storyId: 'B-fi-focused', baseHead: fiReferenceBase, head: fiReferenceHead, inventory: probeInventory, catalog: probeCatalog, changes: probeChanges, closures: probeClosures, baselineEpochId: 'fi-focused-epoch', buildProofDigest: 'fi-focused-build', buildArtifactsHash: 'fixture-build-artifacts', mode: 'observe' as const };
   const noGraphPlan = buildDynamicValidationPlan(baseContext);
   const targetRow = noGraphPlan.rows.find(row => row.commandId === targetEntry.id)!;
   const targetClosure = probeClosures.get(targetEntry.id)!;
-  const makeProbeReceipt = (closure: typeof targetClosure) => createValidationCommandReceipt({
+  const makeProbeReceipt = (closure: typeof targetClosure) => createValidationCommandReceipt({ buildArtifactsDigest: 'fixture-build-artifacts', buildArtifactsProtection: 'enforced:fixture',
     id: 'fi-focused-receipt', commandId: targetEntry.id,
     commandIdentityDigest: stableDigest({ command: targetEntry.command, args: targetEntry.args }),
     inputDigest: targetRow.inputDigest, closureCertificateDigest: closure.signature,
@@ -621,9 +665,9 @@ const focusedSelectionFaults = (() => {
   const graphInventory = graphCatalog ? { ...inventory, commands: inventory.commands.filter(command => graphCatalog.some(entry => entry.id === command.id)), digest: stableDigest(inventory.commands.filter(command => graphCatalog.some(entry => entry.id === command.id))) } : undefined;
   const graphClosures = graphCatalog && graphInventory ? new Map(graphCatalog.map(entry => [entry.id, createValidationClosureCertificate({ commandId: entry.id, baseHead: fiReferenceBase, inventoryDigest: graphInventory.digest, catalogDigest: stableDigest(graphCatalog), staticPaths: entry.inputRoots, processFacts: entry.triggerExtensions.processFacts, capabilities: entry.triggerExtensions.capabilities })])) : undefined;
   const graphChanges = graphSourceChange && graphCatalog && graphInventory && graphClosures ? buildStoryChangeManifest({ storyId: 'B-fi-focused-graph', gitCwd, baseHead: fiReferenceBase, head: fiReferenceHead, changedFiles: [graphSourceChange] }) : undefined;
-  const graphContext = graphCatalog && graphInventory && graphClosures && graphChanges ? { storyId: 'B-fi-focused-graph', baseHead: fiReferenceBase, head: fiReferenceHead, inventory: graphInventory, catalog: graphCatalog, changes: graphChanges, closures: graphClosures, baselineEpochId: 'fi-focused-epoch', buildProofDigest: 'fi-focused-build', mode: 'observe' as const } : undefined;
+  const graphContext = graphCatalog && graphInventory && graphClosures && graphChanges ? { storyId: 'B-fi-focused-graph', baseHead: fiReferenceBase, head: fiReferenceHead, inventory: graphInventory, catalog: graphCatalog, changes: graphChanges, closures: graphClosures, baselineEpochId: 'fi-focused-epoch', buildProofDigest: 'fi-focused-build', buildArtifactsHash: 'fixture-build-artifacts', mode: 'observe' as const } : undefined;
   const graphTargetRow = graphContext && graphTargetMatch?.target ? buildDynamicValidationPlan(graphContext).rows.find(row => row.commandId === graphTargetMatch.target.id) : undefined;
-  const graphReceipt = graphContext && graphTargetMatch?.target && graphTargetRow && graphClosures ? createValidationCommandReceipt({
+  const graphReceipt = graphContext && graphTargetMatch?.target && graphTargetRow && graphClosures ? createValidationCommandReceipt({ buildArtifactsDigest: 'fixture-build-artifacts', buildArtifactsProtection: 'enforced:fixture',
     id: 'fi-focused-graph-receipt', commandId: graphTargetMatch.target.id,
     commandIdentityDigest: stableDigest({ command: graphTargetMatch.target.command, args: graphTargetMatch.target.args }), inputDigest: graphTargetRow.inputDigest,
     closureCertificateDigest: graphClosures.get(graphTargetMatch.target.id)!.signature, catalogDigest: stableDigest(graphCatalog), inventoryDigest: graphInventory!.digest,
@@ -650,7 +694,7 @@ const focusedSelectionFaults = (() => {
     ? buildStoryChangeManifest({ storyId: 'B-fi-focused-head-only', gitCwd, baseHead: fiReferenceBase, head: fiReferenceHead, changedFiles: [headOnlyChangedFile] })
     : undefined;
   const headOnlyContext = headOnlyCatalog && headOnlyInventory && headOnlyClosures && headOnlyChanges
-    ? { storyId: 'B-fi-focused-head-only', baseHead: fiReferenceBase, head: fiReferenceHead, inventory: headOnlyInventory, catalog: headOnlyCatalog, changes: headOnlyChanges, closures: headOnlyClosures, baselineEpochId: 'fi-focused-epoch', buildProofDigest: 'fi-focused-build', mode: 'observe' as const }
+    ? { storyId: 'B-fi-focused-head-only', baseHead: fiReferenceBase, head: fiReferenceHead, inventory: headOnlyInventory, catalog: headOnlyCatalog, changes: headOnlyChanges, closures: headOnlyClosures, baselineEpochId: 'fi-focused-epoch', buildProofDigest: 'fi-focused-build', buildArtifactsHash: 'fixture-build-artifacts', mode: 'observe' as const }
     : undefined;
   const headOnlyPrePlan = headOnlyContext && headOnlyGraph ? buildDynamicValidationPlan({ ...headOnlyContext, graph: headOnlyGraph }) : undefined;
   const headOnlyTargetRow = headOnlyPrePlan && graphTargetMatch?.target ? headOnlyPrePlan.rows.find(row => row.commandId === graphTargetMatch.target.id) : undefined;
@@ -729,18 +773,21 @@ if (paired) {
   })]));
   const currentGraph = buildDualRevisionImpactGraph({ gitCwd, baseHead: currentHead, head: currentHead, catalog });
   const fullCommands = validationCommands(catalog);
-  let pairedManifest = buildDynamicValidationPlan({
-    storyId: 'B-current-paired', baseHead: currentHead, head: currentHead, inventory, catalog,
-    changes: currentChanges, closures: currentClosures, baselineEpochId: currentHead,
-    buildProofDigest: 'paired-performance', graph: currentGraph, mode: 'shadow', gitCwd,
-  });
+  let pairedManifest: ReturnType<typeof buildDynamicValidationPlan> | undefined;
   let selectedIds = new Set<string>();
   let dynamicCommands: ReturnType<typeof validationCommands> = [];
   const runs: Array<Record<string, unknown>> = [];
   await withHistoricalWorktrees(currentHead, currentHead, async ({ head: pairedRoot }) => {
-    const baseline = await executeValidationPlan({ provider: 'historical-paired-canonical-baseline', commands: fullCommands, warnings: [] }, pairedRoot, currentHead, 'B-current-paired');
+    // Baseline identities are prepared in the workspace the baseline runs in
+    // (a receipt binds its launch directory), never in the invoking checkout.
+    const pairedBaseline = buildDynamicValidationPlan({
+      storyId: 'B-current-paired', baseHead: currentHead, head: currentHead, inventory, catalog,
+      changes: currentChanges, closures: currentClosures, baselineEpochId: currentHead,
+      buildProofDigest: 'paired-performance', graph: currentGraph, mode: 'shadow', gitCwd: pairedRoot,
+    });
+    const baseline = await executeValidationPlan({ provider: 'historical-paired-canonical-baseline', commands: fullCommands, warnings: [] }, pairedRoot, currentHead, 'B-current-paired', { ...frozenLaunchOptionsOf(pairedBaseline, catalog) });
     const baselineReceipts = catalog.flatMap((entry, index) => {
-      const row = pairedManifest.rows.find((candidateRow) => candidateRow.commandId === entry.id);
+      const row = pairedBaseline.rows.find((candidateRow) => candidateRow.commandId === entry.id);
       const result = baseline.commands[index];
       const receipt = row && result ? receiptForBaseline({
         entry, row, result, storyId: 'B-current-paired', baseHead: currentHead, head: currentHead,
@@ -749,13 +796,33 @@ if (paired) {
       }) : undefined;
       return receipt ? [receipt] : [];
     });
-    pairedManifest = buildDynamicValidationPlan({
+    const pairedSelection = buildDynamicValidationPlan({
       storyId: 'B-current-paired', baseHead: currentHead, head: currentHead, inventory, catalog,
       changes: currentChanges, closures: currentClosures, receipts: baselineReceipts,
-      baselineEpochId: currentHead, buildProofDigest: 'paired-performance', graph: currentGraph,
+      baselineEpochId: currentHead, buildProofDigest: 'paired-performance', buildArtifactsHash: baseline.buildArtifactsHash, graph: currentGraph,
       mode: 'shadow', gitCwd: pairedRoot,
     });
-    selectedIds = new Set(pairedManifest.rows.filter((row) => row.disposition === 'execute').map((row) => row.commandId));
+    // Positive reuse contract for the paired campaign: nothing changed, so
+    // every receipt names the identity the selection computes in this
+    // workspace, every receipt whose command the planner MAY reuse is reused,
+    // and every command the planner must always execute (always-assurance,
+    // never-reuse closure, forbidden full-only baseline reuse) is executed.
+    // At least one reusable command is required as the positive control.
+    const receiptedEntries = baselineReceipts.map((receipt) => ({ receipt, entry: catalog.find((entry) => entry.id === receipt.commandId)! }));
+    for (const { receipt, entry } of receiptedEntries) {
+      const row = pairedSelection.rows.find((candidateRow) => candidateRow.commandId === receipt.commandId);
+      assert.equal(row?.inputDigest, receipt.inputDigest, `paired: baseline receipt for ${receipt.commandId} does not name the selection's input identity (launch directory disagreement)`);
+      if (pairedSelection.fullEscalated) continue;
+      if (replayMandatoryExecution(entry, receipt)) assert.equal(row?.disposition, 'execute', `paired: ${receipt.commandId} must always execute but was ${row?.disposition}`);
+      else assert.equal(row?.disposition, 'reuse', `paired: ${receipt.commandId} has a valid receipt in this workspace but was ${row?.disposition}; the paired campaign would silently run full-versus-full`);
+    }
+    if (!pairedSelection.fullEscalated) {
+      const reusable = receiptedEntries.filter(({ entry, receipt }) => !replayMandatoryExecution(entry, receipt));
+      assert.ok(reusable.length > 0, 'paired: no reusable command with a baseline receipt; the campaign has no positive reuse control');
+      assert.equal(pairedSelection.totals.reused, reusable.length, `paired: ${reusable.length} reusable receipts but ${pairedSelection.totals.reused} reused rows`);
+    }
+    pairedManifest = pairedSelection;
+    selectedIds = new Set(pairedSelection.rows.filter((row) => row.disposition === 'execute').map((row) => row.commandId));
     dynamicCommands = catalog.filter(entry => selectedIds.has(entry.id)).map(entry => ({ label: entry.label, command: entry.command, args: entry.args, cwd: entry.cwd, env: entry.env, resources: entry.resources }));
     for (let pair = 0; pair < 3; pair++) {
       const order = pair % 2 === 0 ? ['full', 'dynamic'] : ['dynamic', 'full'];
@@ -770,6 +837,13 @@ if (paired) {
         }, pairedRoot, currentHead, 'B-current-paired');
         const wallTimeMs = Date.now() - startedAt;
         const cpu = process.cpuUsage(cpuBefore);
+        if (mode === 'dynamic') {
+          // The reused rows of every dynamic iteration are bound to the
+          // baseline's artifacts; an iteration that left other bytes behind
+          // (a registered build re-ran) is refused rather than reported.
+          const iterationBinding = reusedReceiptsStillBound({ reused: pairedSelection.totals.reused, receiptBuild: baseline.buildArtifactsHash, executedBuild: result.buildArtifactsHash });
+          assert.equal(iterationBinding, undefined, `paired iteration ${pair + 1}: ${iterationBinding}`);
+        }
         runs.push({
           pair: pair + 1,
           mode,
@@ -784,20 +858,22 @@ if (paired) {
       }
     }
   });
+  const finalPairedManifest = pairedManifest;
+  if (!finalPairedManifest) throw new Error('paired campaign: the selection manifest was not prepared in the paired workspace');
   pairedPerformance = signedArtifact({
     schema: 'proof-or-stop.dynamic-validation.paired-performance.v1',
     head: currentHead, inventoryDigest: inventory.digest, catalogDigest,
-    selectionDigest: stableDigest(pairedManifest),
-    dependencyGraphDigest: pairedManifest.dependencyGraphDigest,
-    closureCertificateSetDigest: pairedManifest.closureCertificateSetDigest,
-    canonicalBaselineEpochId: pairedManifest.canonicalBaselineEpochId,
-    toolchainDigest: pairedManifest.toolchainDigest,
-    revocationLedgerDigest: pairedManifest.receiptRevocationLedgerDigest,
+    selectionDigest: stableDigest(finalPairedManifest),
+    dependencyGraphDigest: finalPairedManifest.dependencyGraphDigest,
+    closureCertificateSetDigest: finalPairedManifest.closureCertificateSetDigest,
+    canonicalBaselineEpochId: finalPairedManifest.canonicalBaselineEpochId,
+    toolchainDigest: finalPairedManifest.toolchainDigest,
+    revocationLedgerDigest: finalPairedManifest.receiptRevocationLedgerDigest,
     selectedCommandIds: [...selectedIds],
-    selectedCount: pairedManifest.totals.executed,
-    executedCount: pairedManifest.totals.executed,
-    reusedCount: pairedManifest.totals.reused,
-    unverifiedCount: pairedManifest.totals.unverified,
+    selectedCount: finalPairedManifest.totals.executed,
+    executedCount: finalPairedManifest.totals.executed,
+    reusedCount: finalPairedManifest.totals.reused,
+    unverifiedCount: finalPairedManifest.totals.unverified,
     order: 'full-dynamic / dynamic-full / full-dynamic',
     runs,
     medianWallTimeMs: (() => {
@@ -814,7 +890,7 @@ if (paired) {
     }),
     verdictEquivalent: runs.filter((row) => row.mode === 'full').every((full) => {
       const peer = runs.find((row) => row.pair === full.pair && row.mode === 'dynamic');
-      return Boolean(peer && full.allPass === peer.allPass && peer.commandCount === pairedManifest.totals.executed);
+      return Boolean(peer && full.allPass === peer.allPass && peer.commandCount === finalPairedManifest.totals.executed);
     }),
   });
   mkdirSync(outputRoot, { recursive: true });

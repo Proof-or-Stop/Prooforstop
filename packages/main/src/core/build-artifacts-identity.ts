@@ -1,0 +1,611 @@
+import { createHash, type Hash } from 'node:crypto';
+import { accessSync, constants as fsConstants, existsSync, lstatSync, readFileSync, readdirSync, readlinkSync, realpathSync } from 'node:fs';
+import { basename, dirname, isAbsolute, join, posix, relative, resolve, sep, win32 } from 'node:path';
+
+const X_OK = fsConstants.X_OK;
+import { gitObservationKey, readObservedGitState } from './git-tree-observation.js';
+import { weakestProtectionLabel } from './build-artifacts-protection.js';
+
+/**
+ * Content identity of the compiled artifacts that validation commands execute.
+ *
+ * headHash, materialHash and storyFilesHash are all derived from the COMMITTED
+ * tree. The registered validation commands run `packages/main/dist` and
+ * `packages/utils/dist`, which are gitignored, so none of those digests can see
+ * a rebuilt, partial or stale dist. Two validations could therefore share a
+ * byte-identical evidence binding while executing different compiled code, and a
+ * PASS produced against one dist stayed reusable and admissible after dist
+ * changed. This digest closes that gap: evidence writers record it, and the
+ * reuse, admissibility and DONE-required freshness consumers refuse evidence
+ * whose recorded build no longer matches the artifacts on disk.
+ *
+ * What the identity bounds: the bytes on disk at the observation points (plan
+ * and command boundaries for routine plans, receipt boundaries for DONE-required
+ * runs). What it does not bound: a command that rewrites an artifact tree and
+ * restores it inside its own window, the same limit the executor's
+ * sourceProvenance head/clean observations accept. Closing that window needs
+ * OS-enforced write denial on the trees for every non-build command and its
+ * descendants, which is a platform policy rather than an observation.
+ *
+ * The digest covers the files the distDigest of
+ * scripts/full-suite-build-binding.mjs covers (relative path plus bytes) AND
+ * the binding manifest itself, and frames every field by its byte length under a
+ * versioned domain string, so two different trees cannot share an identity
+ * through NUL bytes inside a file (a single file holding `X\0b.js\0Y` is not
+ * the pair `a.js=X, b.js=Y`). The two digests are therefore not comparable.
+ */
+export const BUILD_ARTIFACT_ROOTS = ['packages/main/dist', 'packages/utils/dist'] as const;
+
+/** Versioned domain of the digest; bump it whenever the framing below changes. */
+const DIGEST_DOMAIN = 'proof-or-stop.build-artifacts-identity.v7';
+
+/**
+ * Unambiguous framing: every field is preceded by its byte length, so the
+ * concatenation of fields parses one way only, whatever bytes a field holds.
+ */
+function frame(hash: Hash, value: string | Buffer): void {
+  const bytes = typeof value === 'string' ? Buffer.from(value, 'utf8') : value;
+  hash.update(String(bytes.length)).update(':').update(bytes).update(';');
+}
+
+/**
+ * The build-binding manifest the build scripts write inside each dist tree
+ * (schema, source digest, dist digest: nothing volatile). It is one more
+ * artifact a command may read or assert, so its presence and bytes are part
+ * of the identity like every other entry: a manifest corrupted or deleted
+ * after a PASS is a different tree, and that PASS is not reused for it.
+ */
+export const BUILD_BINDING_BASENAME = 'full-suite-build-binding.json';
+
+/**
+ * A symbolic link anywhere in an artifact tree makes the digest meaningless:
+ * its target can change without any byte below the root changing, so the
+ * identity is refused rather than silently narrowed to the link's own bytes.
+ */
+class BuildArtifactsIdentityUnavailable extends Error {
+  constructor(readonly path: string, reason = 'symbolic link') {
+    super(`build artifacts identity unavailable: ${reason} at ${path}`);
+  }
+}
+
+/**
+ * Every entry below the root, directories included: a directory's presence is
+ * observable (an entry point may probe for it), so an empty directory added or
+ * removed is a different tree even though no file changed. A directory's
+ * search bits are observable too (a `chdir` or an X_OK probe fails on a 0644
+ * directory with identical contents), so its execute mask is framed exactly
+ * as a file's; a directory this process cannot search is unavailable, never
+ * digested as empty.
+ */
+function entriesBelow(root: string): Array<{ path: string; kind: 'directory' | 'file'; executeMask: number }> {
+  const result: Array<{ path: string; kind: 'directory' | 'file'; executeMask: number }> = [];
+  const visit = (directory: string): void => {
+    // Names are read as BYTES: a name that is not valid UTF-8 (a raw 0x80,
+    // say) decodes to the same string as a distinct name spelled with U+FFFD,
+    // and a string-addressed walker would read one file twice and the other
+    // never. Such a name cannot be addressed unambiguously by this walker,
+    // so the tree is unavailable rather than digested around it.
+    for (const raw of readdirSync(directory, { withFileTypes: true, encoding: 'buffer' })) {
+      const name = raw.name.toString('utf8');
+      if (!Buffer.from(name, 'utf8').equals(raw.name)) throw new BuildArtifactsIdentityUnavailable(join(directory, name), 'entry name is not valid UTF-8');
+      const entry = raw;
+      const path = join(directory, name);
+      if (entry.isSymbolicLink()) throw new BuildArtifactsIdentityUnavailable(path);
+      if (entry.isDirectory()) { result.push({ path, kind: 'directory', executeMask: lstatSync(path).mode & 0o111 }); visit(path); }
+      else if (entry.isFile()) {
+        const stat = lstatSync(path);
+        // A regular file with more than one link has an alias outside this
+        // tree through which its bytes stay writable whatever protection the
+        // tree itself is under; such a tree is not one this process can vouch for.
+        if (stat.nlink > 1) throw new BuildArtifactsIdentityUnavailable(path, 'hard-linked file');
+        // The execute bits are part of what a command finds: an entry point
+        // that lost the owner's bit fails with EACCES with identical bytes, and
+        // 0755 and 0655 are different builds to the owner who runs them, so the
+        // exact mask is framed, not whether any bit is set.
+        result.push({ path, kind: 'file', executeMask: stat.mode & 0o111 });
+      }
+      else throw new BuildArtifactsIdentityUnavailable(path);
+    }
+  };
+  visit(root);
+  return result.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
+}
+
+/**
+ * sha256 over (relative path, bytes) of every regular file below `root`, or
+ * `absent` when the root does not exist. A root that is itself a symbolic link
+ * is not a tree this process can vouch for and throws.
+ */
+function artifactTreeDigest(root: string): string {
+  let stat;
+  try {
+    stat = lstatSync(root);
+  } catch (error) {
+    // Only a confirmed missing root is `absent`. Any other observation failure
+    // (EACCES, EIO, ...) means this process cannot inspect the tree at all;
+    // that is unavailable, never a valid identity.
+    const code = (error as NodeJS.ErrnoException | null)?.code;
+    if (code === 'ENOENT' || code === 'ENOTDIR') return 'absent';
+    throw new BuildArtifactsIdentityUnavailable(root);
+  }
+  if (stat.isSymbolicLink()) throw new BuildArtifactsIdentityUnavailable(root);
+  // A regular file (or anything else) AT the root's path is not "absent": it
+  // exists, can change, and can change what a command finds there. It is not
+  // a tree either, so the identity is unavailable rather than narrowed.
+  if (!stat.isDirectory()) throw new BuildArtifactsIdentityUnavailable(root, 'artifact root is not a directory');
+  const hash = createHash('sha256');
+  frame(hash, `${DIGEST_DOMAIN}/tree`);
+  // The root's own search bits, for the same reason as every directory below it.
+  frame(hash, String(stat.mode & 0o111));
+  const entries = entriesBelow(root);
+  frame(hash, String(entries.length));
+  for (const entry of entries) {
+    frame(hash, relative(root, entry.path));
+    frame(hash, entry.kind);
+    frame(hash, String(entry.executeMask));
+    frame(hash, entry.kind === 'file' ? readFileSync(entry.path) : '');
+  }
+  return hash.digest('hex');
+}
+
+/**
+ * Path semantics for the walker: the host's by default, a seam for tests of
+ * the other family (a Windows drive or UNC root cannot be walked on POSIX).
+ */
+export interface PathWalkSeam {
+  platform?: 'win32' | 'posix';
+  cwd?: string;
+  lstat?: (path: string) => { isSymbolicLink(): boolean; isDirectory(): boolean };
+  readlink?: (path: string) => string;
+  /** Whether this directory may be traversed (search permission). */
+  searchable?: (path: string) => boolean;
+  /** Windows: the current directory of a drive other than the base's (Node keeps it in `process.env['=D:']`). */
+  driveCurrentDirectory?: (drive: string) => string | undefined;
+}
+
+function pathApiFor(seam?: PathWalkSeam): typeof posix | typeof win32 {
+  if (seam?.platform === 'win32') return win32;
+  if (seam?.platform === 'posix') return posix;
+  return sep === '\\' ? win32 : posix;
+}
+
+function splitComponents(api: typeof posix | typeof win32, path: string): string[] {
+  return (api === win32 ? path.split(/[\\/]+/) : path.split('/')).filter(Boolean);
+}
+
+/**
+ * The directory a launch with this declared cwd NAMES, joined to its base the
+ * way a spawn would interpret it: a relative cwd is appended to the base as
+ * written, never normalised, because `..` after a symbolic link steps out of
+ * the link's TARGET at the kernel and a lexical join would step out of the
+ * link's parent instead. Only canonicalizeExistingPath decides where that
+ * name lands.
+ */
+export function launchDirectoryOf(base: string, cwd?: string, seam?: PathWalkSeam): string {
+  const api = pathApiFor(seam);
+  if (!cwd) return base;
+  const appended = (from: string, rest: string): string => {
+    const last = from[from.length - 1];
+    return last === '/' || last === api.sep ? `${from}${rest}` : `${from}${api.sep}${rest}`;
+  };
+  if (api === win32) {
+    // A drive-relative name (`C:checks`) is relative to that drive's current
+    // directory: the base when it is on the same drive; otherwise the current
+    // directory Windows keeps per drive (Node exposes it as `process.env['=D:']`,
+    // exactly what path.resolve consults), and only when none is known the
+    // drive's root. A rooted name without a drive (`\checks`) is rooted at
+    // the base's own root (drive or UNC share). All keep their remaining
+    // components as written, never normalised.
+    const driveRelative = /^([A-Za-z]):(?![\\/])(.*)$/.exec(cwd);
+    if (driveRelative) {
+      const drive = driveRelative[1]!;
+      const baseDrive = /^([A-Za-z]):/.exec(base)?.[1];
+      const rest = driveRelative[2]!;
+      if (baseDrive && baseDrive.toLowerCase() === drive.toLowerCase()) return rest ? appended(base, rest) : base;
+      const anchor = seam?.driveCurrentDirectory?.(drive) ?? process.env[`=${drive.toUpperCase()}:`] ?? `${drive}:\\`;
+      return rest ? appended(anchor, rest) : anchor;
+    }
+    if (/^[\\/](?![\\/])/.test(cwd)) {
+      const root = api.parse(base).root;
+      return `${root}${cwd.slice(1)}`;
+    }
+  }
+  if (api.isAbsolute(cwd)) return cwd;
+  return appended(base, cwd);
+}
+
+/**
+ * The directory the KERNEL reaches for `path`: components are walked in
+ * filesystem order, every symbolic link on the way is followed, and `..`
+ * applies to the directory reached so far — so `/repo/alias/../checks` with
+ * `alias -> /elsewhere/tree` is `/elsewhere/checks`, exactly where a launch
+ * with that cwd runs. (Node's realpath normalises `..` lexically first and
+ * would say `/repo/checks`.) The walk stops where the kernel's would fail:
+ * at a component that does not exist, at one that is not a directory, or at
+ * a directory that cannot be searched, the rest is appended AS WRITTEN —
+ * `..` included — so `existing-file/..` and `missing/..` stay the invalid
+ * names a launch refuses (ENOTDIR, ENOENT) instead of collapsing into their
+ * valid parent, while a tree a build has not created yet still compares in
+ * the same path space as an existing one. The root of the path (`/`, a
+ * Windows drive or a UNC share) is preserved as parsed.
+ */
+export function canonicalizeExistingPath(path: string, seam?: PathWalkSeam): string {
+  const api = pathApiFor(seam);
+  const lstat = seam?.lstat ?? lstatSync;
+  const readlink = seam?.readlink ?? readlinkSync;
+  const searchable = seam?.searchable ?? ((directory: string) => { try { accessSync(directory, X_OK); return true; } catch { return false; } });
+  const absolute = launchDirectoryOf(seam?.cwd ?? process.cwd(), path, seam);
+  const root = api.parse(absolute).root;
+  let current = root;
+  let remaining = splitComponents(api, absolute.slice(root.length));
+  let hops = 0;
+  // Everything from `from` on is unresolved: it is spelled exactly as the
+  // launch would spell it, never normalised.
+  const unresolved = (from: string, rest: string[]): string => (rest.length === 0 ? from : `${from}${from.endsWith(api.sep) ? '' : api.sep}${rest.join(api.sep)}`);
+  while (remaining.length > 0) {
+    const component = remaining.shift()!;
+    if (component === '.') continue;
+    if (component === '..') { current = api.dirname(current); continue; }
+    const next = api.join(current, component);
+    let entry;
+    try { entry = lstat(next); } catch {
+      // Nothing exists from here on: the rest is appended as written.
+      return unresolved(next, remaining);
+    }
+    if (entry.isSymbolicLink()) {
+      if (++hops > 40) return absolute;
+      let target: string;
+      try { target = readlink(next); } catch { return unresolved(next, remaining); }
+      const targetRoot = api.isAbsolute(target) ? api.parse(target).root : '';
+      remaining = [...splitComponents(api, target.slice(targetRoot.length)), ...remaining];
+      if (targetRoot) current = targetRoot;
+      continue;
+    }
+    // A component the kernel could not traverse: not a directory, or a
+    // directory this user may not search. What follows it — `..` included —
+    // is not resolvable and stays spelled as written.
+    if (remaining.length > 0 && (!entry.isDirectory() || !searchable(next))) return unresolved(next, remaining);
+    current = next;
+  }
+  return current;
+}
+
+/** Filesystem identity of a directory, bound with its canonical path. */
+export interface LaunchDirectoryIdentity { readonly dev: number; readonly ino: number }
+
+/**
+ * The filesystem identity of the directory at this canonical path, if it is
+ * a directory that exists now; undefined for a directory a later command may
+ * still create (a missing tail keeps its spelling; see the walker).
+ */
+export function bindLaunchDirectoryIdentity(canonicalPath: string): LaunchDirectoryIdentity | undefined {
+  try {
+    const entry = lstatSync(canonicalPath);
+    return entry.isDirectory() ? { dev: entry.dev, ino: entry.ino } : undefined;
+  } catch { return undefined; }
+}
+
+/**
+ * Whether this canonical path is one of the artifact trees or lies inside
+ * one, judged with the path semantics of the platform the path belongs to
+ * (a seam selects the other family for tests): the tree is an ancestor
+ * exactly when the relative path from it neither climbs out nor leaves the
+ * drive, so `dist-other` next to `dist` is outside and `dist\tasks` inside.
+ */
+export function insideBuildArtifactTrees(canonicalPath: string, artifactsRoot: string, seam?: PathWalkSeam): boolean {
+  const api = pathApiFor(seam);
+  const root = canonicalizeExistingPath(artifactsRoot, seam);
+  return BUILD_ARTIFACT_ROOTS.some((tree) => {
+    const treePath = api.join(root, ...tree.split('/'));
+    const relativePath = api.relative(treePath, canonicalPath);
+    return relativePath === '' || (!api.isAbsolute(relativePath) && relativePath !== '..' && !relativePath.startsWith(`..${api.sep}`));
+  });
+}
+
+/**
+ * After a successful REGISTERED build, the identity of a pinned launch
+ * directory that lies inside the artifact trees is re-bound: the build is
+ * the one command permitted to recreate those trees, and a recreated tree
+ * has a new inode without being another directory. The canonical path must
+ * still resolve to itself (an alias re-pointed elsewhere is still drift);
+ * a directory outside the trees keeps the identity it was pinned with.
+ */
+export function refreshLaunchIdentityAfterBuild(canonicalPath: string, identity: LaunchDirectoryIdentity | undefined, artifactsRoot: string): { identity: LaunchDirectoryIdentity | undefined; drift?: string } {
+  if (!insideBuildArtifactTrees(canonicalPath, artifactsRoot)) return { identity };
+  const now = canonicalizeExistingPath(canonicalPath);
+  if (now !== canonicalPath) return { identity, drift: `the pinned launch directory ${canonicalPath} now resolves to ${now}` };
+  return { identity: bindLaunchDirectoryIdentity(canonicalPath) };
+}
+
+/**
+ * Whether the directory a launch was pinned to is still that directory:
+ * its path must resolve to itself (no component has become a link since it
+ * was pinned) and, when an identity was bound, the directory there must be
+ * the same filesystem object (not a directory renamed or copied into place).
+ * The reason names the drift; undefined means the pin holds.
+ */
+export function launchDirectoryDrift(canonicalPath: string, identity: LaunchDirectoryIdentity | undefined, seam?: PathWalkSeam): string | undefined {
+  const now = canonicalizeExistingPath(canonicalPath, seam);
+  if (now !== canonicalPath) return `the pinned launch directory ${canonicalPath} now resolves to ${now}`;
+  if (!identity) return undefined;
+  let entry;
+  try { entry = lstatSync(canonicalPath); } catch (error) {
+    return `the pinned launch directory ${canonicalPath} no longer exists (${error instanceof Error ? error.message : String(error)})`;
+  }
+  if (!entry.isDirectory()) return `the pinned launch directory ${canonicalPath} is no longer a directory`;
+  if (entry.dev !== identity.dev || entry.ino !== identity.ino) return `the pinned launch directory ${canonicalPath} was replaced by another directory (dev/ino ${identity.dev}/${identity.ino} became ${entry.dev}/${entry.ino})`;
+  return undefined;
+}
+
+/**
+ * Directory the launcher runs a command in, resolved exactly as the executor
+ * resolves it: the project root for an empty cwd, an absolute cwd as written,
+ * a relative cwd against the project root. Nothing is trimmed and no separator
+ * is rewritten: on POSIX a backslash or a trailing space is part of a
+ * directory's name, and a command declared there runs THERE.
+ */
+export function launchedCommandCwd(projectRoot: string, cwd?: string): string {
+  const root = resolve(projectRoot);
+  if (!cwd) return root;
+  return isAbsolute(cwd) ? cwd : resolve(root, cwd);
+}
+
+/** A repo-relative path with the platform's separator rewritten to `/` — only where that separator IS `\`. */
+function portableRelativePath(path: string): string {
+  return sep === '\\' ? path.replace(/\\/g, '/') : path;
+}
+
+/**
+ * Repo-relative logical cwd of a command: `.` for the project root, otherwise a
+ * `/`-separated path. The cwd is first resolved exactly as it is launched
+ * (launchedCommandCwd) and then canonicalised through the filesystem together
+ * with the root, so a symlinked checkout still resolves to the same logical
+ * location while two distinct directories never share one. Shared by the
+ * plan-time build recogniser and the DONE-required receipt recogniser so the
+ * two can never classify one command differently.
+ */
+export function logicalCommandCwd(projectRoot: string, cwd?: string): string {
+  const root = resolve(projectRoot);
+  const rel = portableRelativePath(relative(canonicalizeExistingPath(root), canonicalizeExistingPath(launchedCommandCwd(root, cwd))));
+  return rel === '' ? '.' : rel;
+}
+
+/**
+ * The registered packages/main build shapes a validation plan may contain.
+ * These are the only commands allowed to change the build identity during a
+ * plan and the only ones launched without artifact write protection. Pass the
+ * project root so the cwd is judged logically; without one, a relative cwd is
+ * still normalised but an absolute one can only be compared as written. A
+ * relative cwd is where the launcher resolves it (the project root); its
+ * logical location is judged against the ARTIFACT root, which on a wrapper-root
+ * layout (metadata root with a configured git root beneath it) is that git
+ * root, so `repo/packages/main` under the wrapper is `packages/main` there.
+ */
+export function isRegisteredPackagesMainBuildCommand(command: {
+  command: string;
+  args?: readonly string[];
+  cwd?: string;
+  shell?: boolean;
+  providesBuildProof?: unknown;
+  proof?: unknown;
+}, projectRoot?: string, artifactsRoot: string | undefined = projectRoot, launchCwd?: string): boolean {
+  if (command.providesBuildProof === 'packages-main-build' || command.proof === 'packages-main-build') return true;
+  // Recognition by shape exempts a command from write protection, so only a
+  // COMPLETE, unambiguous build invocation qualifies: never a shell command
+  // line (`npm run build && node swap.js` is one string to the shell), and
+  // never an invocation with anything appended to the build arguments.
+  if (command.shell === true) return false;
+  const args = Array.isArray(command.args) ? command.args : [];
+  // The cwd is judged where the launcher runs it (launchedCommandCwd, resolved
+  // against the PROJECT root) and located logically against the ARTIFACT
+  // root; a declared cwd that names a different directory on this platform
+  // (`packages\main` on POSIX, `packages/main ` anywhere) is that other
+  // directory, never the build's. A caller that has PINNED the canonical
+  // directory the command will run in (`launchCwd`, resolved once before its
+  // plan's first launch) is judged on that directory, so an alias re-pointed
+  // by an earlier command cannot turn a test into a build at launch time.
+  const raw = portableRelativePath(command.cwd ?? '');
+  const cwd = projectRoot
+    ? logicalCommandCwd(artifactsRoot ?? projectRoot, launchCwd ?? launchedCommandCwd(projectRoot, command.cwd))
+    : (isAbsolute(raw) ? raw.replace(/\/+$/, '') : (posix.normalize(raw || '.').replace(/\/+$/, '') || '.'));
+  const atRoot = cwd === '.';
+  const atPackagesMain = cwd === 'packages/main';
+  const exactly = (expected: readonly string[]): boolean => args.length === expected.length && expected.every((value, index) => args[index] === value);
+  if (command.command === 'npm' && atRoot) return exactly(['--prefix', 'packages/main', 'run', 'build']);
+  if (command.command === 'npm' && atPackagesMain) return exactly(['run', 'build']);
+  if ((command.command === 'tsc' || command.command.endsWith('/tsc')) && atPackagesMain) return exactly([]) || exactly(['-b']) || exactly(['--build']);
+  return false;
+}
+
+/** One plan of a sequence: its own plan-level binding, as the executor stamped it. */
+export interface SequencedBuildArtifactsMember {
+  provider?: string;
+  commands?: readonly unknown[];
+  buildArtifactsHash?: string;
+  buildArtifacts?: { root?: string; start?: string; end?: string };
+  /** Protection label the member's non-build commands ran under, as the executor stamped it. */
+  buildArtifactsProtection?: string;
+}
+
+/**
+ * Binding of several plans that ran one after another against the same
+ * artifact trees: a dynamic build wave followed by its selected plans, or the
+ * shards of one command. Each member is bound by its own plan-level rules; the
+ * sequence binds only when every non-empty member is bound, each member
+ * started on exactly the bytes the previous one left behind, every member's
+ * own binding is the identity the sequence ends on (so no member executed
+ * bytes the sequence does not bind) and all members digested the same root.
+ * A member with no commands and no binding (an empty selected plan)
+ * contributes nothing, so the build wave's validated binding stays in force.
+ * Failures are reported, never silently dropped: a sequence that cannot bind
+ * has no identity, and its consumers refuse publication.
+ */
+export function combineSequencedBuildArtifactsBindings(members: readonly SequencedBuildArtifactsMember[]): {
+  buildArtifactsHash?: string;
+  buildArtifacts?: { root?: string; start?: string; end?: string };
+  /** Weakest protection label among the members; absent when no member recorded one. */
+  buildArtifactsProtection?: string;
+  failures: string[];
+} {
+  const failures: string[] = [];
+  const active = members.filter((member) => (member.commands?.length ?? 0) > 0 || member.buildArtifactsHash || member.buildArtifacts?.start || member.buildArtifacts?.end);
+  if (active.length === 0) return { failures };
+  const label = (member: SequencedBuildArtifactsMember, index: number): string => member.provider || `plan ${index}`;
+  for (let i = 0; i < active.length; i++) {
+    const member = active[i];
+    if (!member.buildArtifactsHash || !member.buildArtifacts?.start || !member.buildArtifacts?.end) {
+      failures.push(`${label(member, i)}: carries no build binding of its own [build_artifacts_member_unbound]`);
+      continue;
+    }
+    if (i === 0) continue;
+    const previous = active[i - 1];
+    if (previous.buildArtifacts?.end && member.buildArtifacts.start !== previous.buildArtifacts.end) {
+      failures.push(`${label(member, i)}: started on compiled artifacts that differ from what ${label(previous, i - 1)} left behind [build_artifacts_changed_between_plans]`);
+    }
+    if (previous.buildArtifacts?.root && member.buildArtifacts.root && previous.buildArtifacts.root !== member.buildArtifacts.root) {
+      failures.push(`${label(member, i)}: digested a different artifact root than ${label(previous, i - 1)} [build_artifacts_root_mismatch]`);
+    }
+  }
+  if (failures.length > 0) return { failures };
+  const first = active[0];
+  const last = active[active.length - 1];
+  const final = last.buildArtifactsHash as string;
+  for (let i = 0; i < active.length; i++) {
+    if (active[i].buildArtifactsHash !== final) {
+      failures.push(`${label(active[i], i)}: executed bytes that differ from the artifacts the sequence ended on [build_artifacts_member_not_bound_to_final_build]`);
+    }
+  }
+  if (failures.length > 0) return { failures };
+  // The sequence ran under the weakest protection any member ran under: one
+  // unenforced member makes the whole sequence observation-only.
+  const protection = weakestProtectionLabel(active.map((member) => member.buildArtifactsProtection));
+  return {
+    buildArtifactsHash: final,
+    buildArtifacts: {
+      ...(first.buildArtifacts?.root ? { root: first.buildArtifacts.root } : {}),
+      start: first.buildArtifacts?.start as string,
+      end: last.buildArtifacts?.end as string,
+    },
+    ...(protection ? { buildArtifactsProtection: protection } : {}),
+    failures,
+  };
+}
+
+/**
+ * Binding for a PASS that is republished without executing anything. The
+ * republished record must carry the identity the authenticated prior record
+ * was earned against; it never adopts the dist on disk. Publication may only
+ * proceed while the dist on disk still equals that prior identity.
+ */
+export function resolveReusedBuildArtifactsBinding(args: {
+  prior: string | undefined;
+  current: string | undefined;
+}): { ok: true; buildArtifactsHash: string } | { ok: false; reason: string } {
+  if (!args.prior) return { ok: false, reason: 'prior evidence has no buildArtifactsHash binding [build_artifacts_unbound]' };
+  if (!args.current) return { ok: false, reason: 'current build artifacts identity is unavailable [build_artifacts_unavailable]' };
+  if (args.prior !== args.current) return { ok: false, reason: 'build artifacts changed since the reused PASS was earned [build_artifacts_mismatch]' };
+  return { ok: true, buildArtifactsHash: args.prior };
+}
+
+/**
+ * Digest of every build artifact root under `projectRoot` (the git cwd whose
+ * dist the commands execute, so a Story worktree binds its own build). An
+ * absent root contributes a stable `absent` marker: a fixture or a repository
+ * without a compiled tree still binds deterministically, and a tree that later
+ * appears or disappears changes the digest. Only an unreadable tree yields
+ * `undefined`, which every consumer treats as "cannot vouch" and refuses.
+ * Memoized per synchronous git observation like the committed-tree digests.
+ */
+/**
+ * A project's explicit, tracked declaration that the compiled-artifact
+ * contract does not apply to it: `"artifactContract": "none"` at the top level
+ * of proof-or-stop.config.json under `configRoot`, the root the project's
+ * configuration is loaded from. On a plain layout that is the artifact root;
+ * on a wrapper-root layout it is the wrapper metadata root whose `gitRoot`
+ * subdirectory holds the artifacts, and reading the declaration from the
+ * artifact root there would find no config and ignore a valid declaration.
+ * Read raw, so the declaration is exactly what the committed file says (it is
+ * material, like the rest of that file).
+ */
+export function declaredNoArtifactContract(configRoot: string): boolean {
+  try {
+    const parsed = JSON.parse(readFileSync(join(resolve(configRoot), 'proof-or-stop.config.json'), 'utf8')) as { artifactContract?: unknown };
+    return parsed !== null && typeof parsed === 'object' && parsed.artifactContract === 'none';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Whether this project carries the compiled-artifact contract. It does when it
+ * has the self-host layout (a tracked `packages/main/package.json`), when
+ * ANY entry exists at an artifact root's path (a directory, but also a symbolic
+ * link or a regular file — those are then judged by the identity walker, which
+ * refuses them), or when a root's path cannot be inspected at all. Absence
+ * alone is never an exemption: a command could create, execute and remove a
+ * tree inside its own window. Only a project that DECLARES the contract
+ * inapplicable (declaredNoArtifactContract, read from `configRoot`) and has
+ * nothing at those paths under `artifactsRoot` is outside it. The two roots
+ * are the same directory on a plain layout and differ on a wrapper-root
+ * layout, so every caller states both.
+ */
+export function projectHasArtifactContract(artifactsRoot: string, configRoot: string = artifactsRoot): boolean {
+  const root = resolve(artifactsRoot);
+  if (existsSync(join(root, 'packages/main/package.json'))) return true;
+  for (const relative of BUILD_ARTIFACT_ROOTS) {
+    try {
+      lstatSync(join(root, relative));
+      return true;
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException | null)?.code;
+      if (code !== 'ENOENT' && code !== 'ENOTDIR') return true;
+    }
+  }
+  return !declaredNoArtifactContract(configRoot);
+}
+
+/**
+ * `artifactsRoot` is the git cwd whose trees the commands execute;
+ * `configRoot` is where the project's configuration (and so its
+ * `artifactContract` declaration) lives — the same directory on a plain
+ * layout, the wrapper metadata root on a wrapper-root layout.
+ */
+export function currentBuildArtifactsHash(artifactsRoot: string, configRoot: string = artifactsRoot): string | undefined {
+  const root = resolve(artifactsRoot);
+  const declarationRoot = resolve(configRoot);
+  return readObservedGitState(gitObservationKey(['build-artifacts-hash', root, declarationRoot, BUILD_ARTIFACT_ROOTS]), () => {
+    try {
+      const hash = createHash('sha256');
+      if (!projectHasArtifactContract(root, declarationRoot)) {
+        frame(hash, `${DIGEST_DOMAIN}/no-artifact-contract`);
+        return hash.digest('hex');
+      }
+      frame(hash, `${DIGEST_DOMAIN}/roots`);
+      frame(hash, String(BUILD_ARTIFACT_ROOTS.length));
+      for (const relativeRoot of BUILD_ARTIFACT_ROOTS) {
+        // A symbolic link anywhere between the project root and the tree
+        // (`packages` or `packages/main`) re-targets the whole tree without
+        // touching a byte inside it, and no protection of the resolved tree
+        // covers the link itself; such a layout is not one this process can
+        // vouch for. The project root itself may be reached through links
+        // (a temporary directory often is) and is not judged.
+        let ancestor = root;
+        for (const component of relativeRoot.split('/').slice(0, -1)) {
+          ancestor = join(ancestor, component);
+          let stat;
+          try { stat = lstatSync(ancestor); } catch (error) {
+            const code = (error as NodeJS.ErrnoException | null)?.code;
+            if (code === 'ENOENT' || code === 'ENOTDIR') { stat = undefined; break; }
+            throw new BuildArtifactsIdentityUnavailable(ancestor, 'uninspectable ancestor');
+          }
+          if (stat.isSymbolicLink()) throw new BuildArtifactsIdentityUnavailable(ancestor, 'symbolic link on the path to the artifact tree');
+        }
+        frame(hash, relativeRoot);
+        frame(hash, artifactTreeDigest(join(root, relativeRoot)));
+      }
+      return hash.digest('hex');
+    } catch {
+      return undefined;
+    }
+  });
+}

@@ -365,7 +365,13 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // the one canonical stale-evidence refresh writer. Compatibility symbols and
   // their approved call shapes remain independently checked above. Repinned
   // again when main's proof-or-stop rename merged into that same file.
-  ['packages/main/src/core/closeout-trust.ts', 'fb21d100ac76f9211b3311c04c94e7d8856bc974e29292c8b3485cab485263f5'],
+  // 2026-09-19 re-approval: Main review-retention changes through 9b7342fa929f narrow direct-write retention;
+  // Legacy symbols, occurrence counts and approved call expressions are unchanged.
+  // Canonical digest fb21d100ac76f9211b3311c04c94e7d8856bc974e29292c8b3485cab485263f5
+  // -> 68d86faa065e9137986d20775fa8d72ab8e71af6ddf648c9ab94d48be2db7467.
+  // Complete prior-pin diffs and machine-compared call inventories:
+  // docs/audits/validation-entrypoint-pin-review-20260919.md.
+  ['packages/main/src/core/closeout-trust.ts', '68d86faa065e9137986d20775fa8d72ab8e71af6ddf648c9ab94d48be2db7467'],
   // B-f458: repinned after an internal transcript-path constant rename; the
   // legacy compatibility symbols, approved call shapes, and occurrence counts above are unchanged.
   // Claude source audit: only static import and integrity-error rethrow changed; compatibility producers and loader surface unchanged.
@@ -493,7 +499,9 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // withValidationSigningRoot arrow preserves the runCli function anchor and
   // exact initPath producer/import argument. Both coupled pins move together;
   // this whole-file binding does not assert a separate loader provenance graph.
-  ['packages/main/src/cli-engine.ts', '52a283cfcdc3bfbb233feab6d31614d0eabf8470a41d3af10ad7786246905720'],
+  // 2026-09-20 merge re-approval: the owner-lease admission change adds no
+  // loader call and preserves the exact initPath producer/import argument.
+  ['packages/main/src/cli-engine.ts', '631ac1fde46c71126614b7ad293fedc43a79b14c166b10d2f8b7e3cd2b69d408'],
   ['packages/main/src/verifier/serve.ts', 'c13ec647c3fe547c4430390779b28da2620d5db24d8ba8609ec6142968f89739'],
   ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '1bf3f1ebd8b63e66965966228a147748c48370bb6bbdf688ff1be149aa4aa82f'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],
@@ -547,7 +555,13 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   // which is why its dependency-free half (build-lock-target.mjs) IS statically imported
   // above. The exemption stays exactly as narrow: one file, one exact digest, and any
   // further drift re-triggers the full dynamic-code scan.
-  ['bin/bootstrap-runner.js', 'd0fa3e4ebad2c985e96f1faa64cd3ca7eac35492203f0eacc121e260298e715e'],
+  // 2026-09-19 re-approval: Main 677b259fc8d7 and c25111ba48ba preserve actionable mismatch diagnostics;
+  // No loader/eval/Function/require/vm call was added or changed.
+  // Canonical digest d0fa3e4ebad2c985e96f1faa64cd3ca7eac35492203f0eacc121e260298e715e
+  // -> 19b243083de02b86b17a76c104222709b35cc223b3a5e2ad4d40ff86e99ad0ed.
+  // Complete prior-pin diffs and machine-compared call inventories:
+  // docs/audits/validation-entrypoint-pin-review-20260919.md.
+  ['bin/bootstrap-runner.js', '19b243083de02b86b17a76c104222709b35cc223b3a5e2ad4d40ff86e99ad0ed'],
   // B-3e16 CHK-003: the graph handler invokes five members on the module object returned by
   // its approved runtime import — lib.findRoot, lib.createApp (x2), lib.startServer,
   // lib.openBrowser. Because that module object comes from a non-literal import(), the
@@ -1804,7 +1818,13 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // for this file, including why the new one must be dynamic and why its argument cannot be
   // influenced by argv, env or user input; read that before re-approving here. The
   // MAIN_DIST/UTILS_DIST, BRAND_ENV_DIST and zod sites are unchanged in shape.
-  ['bin/bootstrap-runner.js', 'd0fa3e4ebad2c985e96f1faa64cd3ca7eac35492203f0eacc121e260298e715e'],
+  // 2026-09-19 re-approval: Main 677b259fc8d7 and c25111ba48ba preserve actionable mismatch diagnostics;
+  // No loader/eval/Function/require/vm call was added or changed.
+  // Canonical digest d0fa3e4ebad2c985e96f1faa64cd3ca7eac35492203f0eacc121e260298e715e
+  // -> 19b243083de02b86b17a76c104222709b35cc223b3a5e2ad4d40ff86e99ad0ed.
+  // Complete prior-pin diffs and machine-compared call inventories:
+  // docs/audits/validation-entrypoint-pin-review-20260919.md.
+  ['bin/bootstrap-runner.js', '19b243083de02b86b17a76c104222709b35cc223b3a5e2ad4d40ff86e99ad0ed'],
   // origin/main merge: repinned for the TOOLCHAIN, not the code. origin's lockfile
   // brings typescript 5.9.3 and canonicalAstFingerprint prints via ts.createPrinter,
   // so every AST-keyed digest here shifts. Basis checked BEFORE repinning:

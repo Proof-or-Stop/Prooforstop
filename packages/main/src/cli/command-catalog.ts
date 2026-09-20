@@ -2785,7 +2785,7 @@ Behavior:
 
   // Unified dispatch (B-9d95 CHK-004: story_dispatch / finding_dispatch merged into proof-or-stop dispatch, available in all phases;
   // B-a4e3 CHK-005: the deprecated story_dispatch / finding_dispatch aliases were removed — proof-or-stop dispatch is now the only entry).
-  { name: 'dispatch', description: 'Owner prepares and records a registered subagent dispatch; independent Story prompt readers use agent_prompt --role=ROLE --storyId=ID --readOnly. Scoped or purpose-bound dispatch still requires the owner', schema: {
+  { name: 'dispatch', description: 'Owner prepares and records a registered subagent dispatch; independent Story prompt readers use agent_prompt --role=ROLE --storyId=ID --readOnly. Scoped or purpose-bound dispatch still requires the owner. Registry-defined targets are story-only or exactly-one of the permitted itemId, findingId, or clusterId', schema: {
     storyId: z.string().describe('Story ID'),
     itemId: z.string().optional().describe('Checklist item ID (CHK-xxx). Supply only when the registered agent type requires an item target; story-only roles must omit all identifiers.'),
     findingId: z.string().optional().describe('Finding ID (F-xxx or B-xxx:F-xxx). Supply only for a registered finding-target role; mutually exclusive with itemId/clusterId.'),
