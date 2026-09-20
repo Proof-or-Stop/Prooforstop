@@ -58,7 +58,7 @@ const hook=registerHooks({load(url,context,next){
   const source=String(result.source);
   const original="import { withValidationPlanStages, withValidationCommandStage } from './validation-execution-lock.js';";
   assert(source.includes(original),'Instrumentation must match exactly once');
-  return {...result,source:source.replace(original,"import { withValidationPlanStages, withValidationCommandStage as stageEntry } from './validation-execution-lock.js';\nconst withValidationCommandStage=(...args)=>{globalThis.__labStageEntry();const original=args[1];args[1]=()=>{globalThis.__labAfterAcquisition();return original();};return stageEntry(...args);};")};
+  return {...result,source:source.replace(original,"import { withValidationPlanStages, withValidationCommandStage as stageEntry } from './validation-execution-lock.js';\nconst withValidationCommandStage=(...args)=>{globalThis.__labStageEntry();const original=args[1];args[1]=async()=>{await globalThis.__labAfterAcquisition();return original();};return stageEntry(...args);};")};
  }
  return result;
 }});
@@ -70,7 +70,19 @@ try{
  const command={label:'entry-count',command:process.execPath,args:['-e','console.log("REAL_CHILD_PASS")'],resources:[{class:'fixed-path',key:root,access:'shared'}]};
  if(process.env.LAB_SAFETY_MODE){
   const mode=process.env.LAB_SAFETY_MODE;const ac=new AbortController();const options={abortSignal:ac.signal};const failure=new Error('AFTER_ADMISSION_'+mode);
-  inject=()=>{if(mode==='abort')ac.abort(failure);else {options.deadlineAt=Date.now()-1;options.deadlineError=()=>failure;}};
+  // Callers provide an absolute deadline before dispatch. The executor may
+  // snapshot options when binding its launch directory; later object mutation
+  // is not elapsed time and is not a supported cancellation channel.
+  let expiredAfterAdmission=false;
+  if(mode==='deadline'){options.deadlineAt=Date.now()+5000;options.deadlineError=()=>failure;}
+  inject=async()=>{
+    if(mode==='abort') ac.abort(failure);
+    else {
+      assert(Date.now()<options.deadlineAt,'DEADLINE_FIXTURE_MUST_REACH_ADMISSION_BEFORE_EXPIRY');
+      await new Promise(resolve=>setTimeout(resolve,options.deadlineAt-Date.now()+20));
+      expiredAfterAdmission=Date.now()>=options.deadlineAt;
+    }
+  };
   let caught, result;
   try{result=await withOfficialValidationExecution({root,workspaceRoot:root,command:'entry-count',commandStages:true},()=>runValidationCommand(command,root,5000,options));}catch(e){caught=e;}
   console.log('PRESPAWN_LEDGER='+JSON.stringify({mode,childStarts,error:caught?.message,result}));
@@ -85,6 +97,7 @@ try{
    assert.equal(result.effectiveTimeoutMs,0);
    assert.equal(result.output,'aborted before child launch');
   }else{
+   assert.equal(expiredAfterAdmission,true,'deadline must actually expire after stage acquisition');
    assert.equal(result,undefined);
    assert.equal(caught,failure);
   }

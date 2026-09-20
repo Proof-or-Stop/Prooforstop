@@ -54,3 +54,12 @@ PASS refuses without running an internal suite. The requested internal-validatio
 positive would contradict the current public transition contract. The retired
 flag remains ignored under the existing non-strict schema; unsupported values for
 the known `dynamicMode` selector refuse before any probe executes.
+
+The full 30-group capacity replay also reached the inherited production stage
+regression. Its deadline arm failed identically on main because it mutated the
+original options object after dispatch, whereas launch binding snapshots options.
+The corrected fixture declares its absolute deadline before dispatch, proves the
+stage is acquired while that deadline is still future, then waits for real clock
+expiry. Normal, abort and deadline modes retain their original markers and the
+zero-child-start assertion; the deadline must throw the exact supplied error.
+The production executor is unchanged by this fixture correction.
