@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import ts from 'typescript';
+assert.ok(fs.readFileSync('scripts/verify-process-fact-contract.mjs', 'utf8').split('\n').length <= 40, 'PROCESS_ENTRYPOINT_NOT_THIN: ledger mutations require explicit process capability binding');
 const path = 'packages/main/src/tasks/finding-ledger-runtime-smoke.ts';
 const source = fs.readFileSync(path, 'utf8');
 const ast = ts.createSourceFile(path, source, ts.ScriptTarget.Latest, true);
