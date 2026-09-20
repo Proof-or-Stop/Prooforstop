@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { resetConfigCache } from '../packages/main/dist/core/config.js';
 import { StoryStore } from '../packages/main/dist/core/store.js';
+import { buildNextSteps } from '../packages/main/dist/handlers/transition-effects.js';
 import { checkCommitAuthor } from '../packages/main/dist/handlers/validate-channel.js';
 
 const root = mkdtempSync(join(tmpdir(), 'implementation-worker-authority-'));
@@ -83,6 +84,22 @@ try {
   );
   assert.match(result.summary, /missing dispatch\/subagent_result evidence/);
   assert.match(result.details.join('\n'), /canonical proof-or-stop dispatch/);
+
+  const devGuidance = buildNextSteps(store, root, storyId).DEV;
+  assert.match(devGuidance, /First run proof-or-stop dispatch/);
+  assert.match(devGuidance, /pass the exact returned prompt unchanged/);
+  assert.match(devGuidance, /Do not invent a worker brief/);
+
+  for (const suffix of ['001', '002', '003']) {
+    store.appendProcessEvent(storyId, {
+      type: 'subagent_result',
+      checklistId: `CHK-${suffix}`,
+      success: true,
+    });
+  }
+  const registered = checkCommitAuthor(storyId, { store, projectRoot: root });
+  assert.equal(registered.status, 'pass', JSON.stringify(registered));
+  assert.equal(registered.evidenceSource, 'subagent_result');
   console.log('IMPLEMENTATION_WORKER_AUTHORITY_GREEN');
 } finally {
   rmSync(root, { recursive: true, force: true });

@@ -141,7 +141,7 @@ function resolveBackgroundPolicy(agentType: string | undefined): BackgroundPolic
 
 function appendImplementerCommitSteps(lines: string[], message: string): void {
   lines.push(`- git commit --author="${IMPLEMENTER_COMMIT_AUTHOR}" -m "${message.replace(/"/g, "'")}"`);
-  lines.push('- Do not omit `--author`; normal-channel author fallback only accepts author=proof-or-stop-implementer.');
+  lines.push('- Keep the canonical implementer author for audit attribution. Author text never replaces the required dispatch/subagent_result process evidence.');
 }
 
 /**

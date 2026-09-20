@@ -4,10 +4,9 @@ import { rethrowIntentAmendmentIntegrityError } from '../core/verification-inten
  *
  * Validate whether the normal channel has structured execution evidence:
  * - Fast channel (checklist ≤ 2 and no riskSignals): skip, return skipped
- * - Normal channel: first require each checklist item with non-main-agent Owner to have dispatch or
- *   subagent_result process-event evidence. commit author is only a legacy fallback:
- *   only when process-event is missing and all implementation commits have author ==
- *   "proof-or-stop-implementer" or are metadata-only proof-or-stop commits can it pass.
+ * - Normal channel: require each checklist item with non-main-agent Owner to have dispatch or
+ *   subagent_result process-event evidence. Commit author is attribution for audit diagnostics;
+ *   it never substitutes for canonical process evidence.
  *
  * Output structure:
  *   {
@@ -52,10 +51,9 @@ export interface ChannelCheckResult {
    * - 'subagent_result' — all via Agent() direct dispatch path (subagent_result events)
    * - 'dispatch'        — all via proof-or-stop dispatch (dispatch events)
    * - 'dispatch + subagent_result' — mixed
-   * - 'commit_author' — commit author=proof-or-stop-implementer as a signal of direct Agent execution
    * Set only when status=pass and evidencedItems exists; undefined for pure waiver / no-commit scenarios.
    */
-  evidenceSource?: 'subagent_result' | 'dispatch' | 'dispatch + subagent_result' | 'commit_author';
+  evidenceSource?: 'subagent_result' | 'dispatch' | 'dispatch + subagent_result';
 }
 
 /**
@@ -167,17 +165,16 @@ export function isNormalChannelWithStory(
 }
 
 /**
- * Determine whether a single commit can serve as legacy fallback.
- * - author == "proof-or-stop-implementer" passes
- * - canonical CLI subject prefix and only touches story metadata passes
- * - otherwise cannot serve as fallback; but if dispatch/subagent_result structured evidence is complete, author no longer hard-blocks
+ * Determine whether a commit has expected implementation attribution or is a
+ * CLI-owned metadata commit. This is an audit signal only: normal-channel
+ * authority comes from dispatch/subagent_result process evidence.
  */
 export function isStoryMetadataPath(file: string): boolean {
   return isSharedStoryMetadataPath(file);
 }
 
 const CANONICAL_IMPLEMENTER_AUTHOR = 'proof-or-stop-implementer';
-/** Current author fallback never promotes a retired agent spelling. */
+/** Current attribution check never promotes a retired agent spelling. */
 function isImplementerAuthor(author: string): boolean {
   return author === CANONICAL_IMPLEMENTER_AUTHOR;
 }
@@ -571,24 +568,16 @@ export function checkCommitAuthor(
 
   const itemIds = (checklist?.items ?? []).map(item => item.id).filter(Boolean);
   const allItemsOwnedByMain = itemIds.length > 0 && itemIds.every(id => ownedByMain.has(id));
-  const authorFallbackOk = offenders.length === 0 || allItemsOwnedByMain;
-  const hasImplementerCommit = commits.some(c => isImplementerAuthor(c.author));
+  const authorAttributionOk = offenders.length === 0 || allItemsOwnedByMain;
   const structuredEvidenceOk = evidence.ok;
-  const authorEvidenceCoversMissing = authorFallbackOk
-    && !evidence.ok
-    && hasImplementerCommit
-    && evidence.issues.length > 0
-    && evidence.issues.every(issue => issue.reason === 'missing_evidence');
 
-  if (structuredEvidenceOk || authorEvidenceCoversMissing) {
+  if (structuredEvidenceOk) {
     // F-003 (B-fdcf Round 1): determine the evidenceSource label, for renderChannelResult to embed
     // the "all CHK covered (via <source>)" phrase promised in userSees. Scan events to determine each
     // evidencedItems' evidence source: dispatch only → dispatch; subagent_result only → subagent_result;
     // both seen → dispatch + subagent_result. Not set when purely exempt (evidencedItems empty).
     let evidenceSource: ChannelCheckResult['evidenceSource'] | undefined;
-    if (authorEvidenceCoversMissing) {
-      evidenceSource = 'commit_author';
-    } else if (evidence.evidencedItems.length > 0) {
+    if (evidence.evidencedItems.length > 0) {
       let anyDispatch = false;
       let anySubagent = false;
       const evidencedSet = new Set(evidence.evidencedItems);
@@ -604,9 +593,7 @@ export function checkCommitAuthor(
     }
     const summary = allItemsOwnedByMain && offenders.length > 0
       ? `Normal channel: ${commits.length} commits explicitly exempted by plan.md Owner=main-agent; dispatch/subagent_result evidence coverage complete`
-      : authorEvidenceCoversMissing
-        ? `Normal channel: ${commits.length} commits all produced by proof-or-stop-implementer or metadata-only proof-or-stop CLI; commit author as direct-dispatch execution evidence`
-        : offenders.length > 0
+      : offenders.length > 0
           ? `Normal channel: dispatch/subagent_result structured evidence coverage complete; commit author only as auxiliary signal`
           : `Normal channel: ${commits.length} commits all produced by proof-or-stop-implementer or metadata-only proof-or-stop CLI; dispatch/subagent_result evidence coverage complete`;
     return {
@@ -624,9 +611,6 @@ export function checkCommitAuthor(
         ...(allItemsOwnedByMain && offenders.length > 0
           ? ['plan.md Owner=main-agent author exemption: all checklist items']
           : []),
-        ...(authorEvidenceCoversMissing
-          ? ['commit author=proof-or-stop-implementer fallback: no dispatch/subagent_result process event required for direct Agent execution']
-          : []),
         ...evidence.details,
       ],
       evidenceSource,
@@ -638,12 +622,13 @@ export function checkCommitAuthor(
   const summaryParts: string[] = [];
   if (!evidence.ok) {
     summaryParts.push(`${evidence.issues.length} CHKs missing dispatch/subagent_result evidence`);
+    failDetails.push('canonical proof-or-stop dispatch/subagent_result evidence is required; a commit author string grants no worker or lifecycle authority');
     for (const d of evidence.details) failDetails.push(d);
   }
-  if (!authorFallbackOk) {
-    summaryParts.push(`${offenders.length}/${commits.length} commits cannot be used as author fallback`);
-    failDetails.push('commit author is only a legacy fallback; normal channel primary evidence must be dispatch/subagent_result process-events');
-    failDetails.push('author fallback accepts author="proof-or-stop-implementer" or metadata-only subject="proof-or-stop:*" commits');
+  if (!authorAttributionOk) {
+    summaryParts.push(`${offenders.length}/${commits.length} commits have unexpected implementation attribution`);
+    failDetails.push('normal-channel authority comes only from dispatch/subagent_result process events; commit author is an independent audit signal');
+    failDetails.push('expected attribution is author="proof-or-stop-implementer" or a metadata-only subject="proof-or-stop:*" commit');
     failDetails.push('offenders:');
     for (const c of offenders) {
       failDetails.push(`  ${c.sha.slice(0, 7)} ${c.author} — ${c.subject}`);
@@ -655,7 +640,7 @@ export function checkCommitAuthor(
     status: 'fail',
     summary: `Normal channel gate failure: ${summaryParts.join('; ')}`,
     details: failDetails,
-    offenders: authorFallbackOk ? undefined : offenders,
+    offenders: authorAttributionOk ? undefined : offenders,
   };
 }
 

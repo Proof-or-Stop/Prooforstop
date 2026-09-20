@@ -250,7 +250,8 @@ export function buildNextSteps(
 → After completion, story_advance(${storyId}, REVIEW) to enter code review`;
       }
       return `→ Normal channel (${CHANNEL_LABELS.normal}): must launch the proof-or-stop-implementer subagent to write code; the main agent should not modify business code itself.
-→ Use Agent({ subagent_type: "${canonicalAgentDispatchType('proof-or-stop-implementer')}", prompt: "..." }) to assign tasks
+→ First run proof-or-stop dispatch '{"storyId":"${storyId}","itemId":"<pending CHK-id>","agentType":"proof-or-stop-implementer"}', then pass the exact returned prompt unchanged to one fresh ${canonicalAgentDispatchType('proof-or-stop-implementer')} task and retain its nonempty child id.
+→ Do not invent a worker brief or launch an unregistered generic implementation task; commit author text is audit attribution, not dispatch or lifecycle authority.
 → After the subagent finishes and commits, the main agent accepts and merges, then story_advance(${storyId}, REVIEW)
 → sub agent should not use isolation:"worktree", run directly in the main agent's worktree
 ⚠ During the REVIEW phase, Proof-or-Stop reviewers will check the commit author — in the normal channel, if all code is written by the main agent itself, a critical finding will be raised`;

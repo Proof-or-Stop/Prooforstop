@@ -8,6 +8,7 @@ export type FlowFactPolicyId =
   | 'pass-only-normalization'
   | 'review-round-iso-string'
   | 'express-verification-policy'
+  | 'implementation-worker-authority'
   | 'repository-wide-verification-intent';
 
 export interface FlowFactPolicyDefinition {
@@ -104,6 +105,16 @@ export const FLOW_FACT_POLICIES = [
     consumerGate: 'validate verification coverage and story_review PLAN fast-path advisory gate',
     semantics: ['flow-policy', 'verification-policy', 'gate-evidence'],
     rationale: 'Express channel stories may intentionally skip PLAN verificationIntent and must render that exemption explicitly.',
+  },
+  {
+    name: 'flow-policy:implementation-worker-authority',
+    policyId: 'implementation-worker-authority',
+    level: 'L4',
+    category: 'flow-policy',
+    owner: 'core/flow-fact-policy',
+    consumerGate: 'validate --channel normal-channel gate before DEV to REVIEW',
+    semantics: ['flow-policy', 'gate-evidence'],
+    rationale: 'Normal-channel implementation requires canonical dispatch or successful subagent-result process evidence for every non-exempt checklist item. Git commit author text remains audit attribution and cannot grant worker, lifecycle, reviewer, or control-plane authority.',
   },
   {
     name: 'flow-policy:repository-wide-verification-intent',

@@ -105,7 +105,7 @@ When `proof-or-stop validate` reports red or the implementation doesn't match ex
 
 - **read-before-edit**: before editing any file, you must Read it once (unless it's a Write creating a new file). This is a hard rule; don't patch from memory
 - **only one in_progress item at a time**: mark in_progress before starting an item, mark done after completion and commit, then start the next. Don't open multiple at once
-- **commit as soon as you finish writing**: immediately after each item is done, `git add <files> + git commit --author="proof-or-stop-implementer <proof-or-stop-implementer@noreply.local>" -m "B-xxxx CHK-NNN: <title>"`. Don't omit `--author`; the normal-channel author fallback only accepts `author=proof-or-stop-implementer`. Don't batch multiple items into one commit
+- **commit as soon as you finish writing**: immediately after each item is done, `git add <files> + git commit --author="proof-or-stop-implementer <proof-or-stop-implementer@noreply.local>" -m "B-xxxx CHK-NNN: <title>"`. Keep this author for audit attribution, but remember that author text grants no lifecycle authority and cannot replace the owner's canonical dispatch/subagent result. Don't batch multiple items into one commit
 - **don't guess Proof-or-Stop CLI parameters from memory**: when uncertain, first `proof-or-stop <command> --help`
 - **acceptance judgment belongs to the main agent**: you may run `proof-or-stop validate` to get error information to aid development, but you must not claim "validation passed" or "ready for delivery" in the return summary. Final acceptance is performed independently by the main agent. Even if validate is all green, you only say "validate has no errors", not "verified passing"
 

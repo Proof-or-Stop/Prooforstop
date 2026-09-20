@@ -309,8 +309,8 @@ try {
   const wrongAuthor = checkCommitAuthor(storyId, { store, projectRoot: authorRoot });
   assert.equal(wrongAuthor.status, 'fail');
   assert.match(wrongAuthor.summary, /missing dispatch\/subagent_result evidence/);
-  assert.match(wrongAuthor.summary, /cannot be used as author fallback/);
-  assert.match(wrongAuthor.details.join('\n'), /commit author is only a legacy fallback/);
+  assert.match(wrongAuthor.summary, /unexpected implementation attribution/);
+  assert.match(wrongAuthor.details.join('\n'), /commit author is an independent audit signal/);
   assert.match(wrongAuthor.details.join('\n'), /main-agent/);
   assert.match(wrongAuthor.summary, /missing dispatch\/subagent_result evidence/);
   observedBehavior.wrongAuthor = {
