@@ -9,7 +9,7 @@ const repository = fileURLToPath(new URL('../../..', import.meta.url));
 const cli = join(repository, 'packages/main/dist/cli.js');
 const { StoryStore } = await import('../dist/core/store.js');
 const { createHostRunHandlers } = await import('../dist/handlers/host-run.js');
-const { managedHostRunReceipt, resolveManagedDispatchInvocation, runManagedHostRunWorker, verifyManagedDispatchDelivery } = await import('../dist/core/managed-host-run.js');
+const { isManagedImplementerCompletionPayload, managedHostRunReceipt, resolveManagedDispatchInvocation, runManagedHostRunWorker, verifyManagedDispatchDelivery } = await import('../dist/core/managed-host-run.js');
 const { restoreManagedChecklistItemAfterFailure } = await import('../dist/handlers/checklist.js');
 const { acquireOrRefreshOwnerLease } = await import('../dist/core/story-owner-lease.js');
 
@@ -30,6 +30,13 @@ function git(...args) {
 }
 
 try {
+  assert.equal(isManagedImplementerCompletionPayload({ storyId, itemId, status: 'done' }, storyId, itemId), true,
+    'the exact managed completion payload must qualify');
+  assert.equal(isManagedImplementerCompletionPayload({ storyId, itemId, status: 'done', json: true }, storyId, itemId), false,
+    'CLI output metadata must not widen the managed completion capability');
+  assert.equal(isManagedImplementerCompletionPayload({ storyId, itemId: 'CHK-999', status: 'done' }, storyId, itemId), false,
+    'another item must not qualify for the target-bound capability');
+
   let rollbackWritten;
   restoreManagedChecklistItemAfterFailure({
     readChecklist: () => ({ items: [
