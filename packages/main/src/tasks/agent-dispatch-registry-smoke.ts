@@ -32,6 +32,7 @@ import { createDeliveryCheckHandlers } from '../handlers/delivery-check.js';
 import { captureReviewerReadEvent } from '../core/reviewer-read-evidence.js';
 import { DEFAULT_PHASE_TOOLS } from '../core/config.js';
 import { getCommandPolicy } from '../core/command-policy.js';
+import { getProcessFactRegistryEntry } from '../core/process-fact-registry.js';
 import { REVIEW_RUN_LANES, resolveReviewRunLane } from '../core/review-run.js';
 import {
   AGENT_LIVENESS_GUIDANCE_REQUIRED_FRAGMENTS,
@@ -975,6 +976,8 @@ try {
     'finding resolution must remain protected by the Story owner lease');
   assert.deepEqual(findingResolvePolicy?.allowedPhases, ['DEV', 'REVIEW'],
     'FINDING_REPAIR_DEV_RESOLUTION_REQUIRED');
+  assert.deepEqual(getProcessFactRegistryEntry('finding_resolve')?.allowedPhases, findingResolvePolicy?.allowedPhases,
+    'process-fact registry must derive finding_resolve phases from the live command policy');
   const ownerAgentBeforeResolve = process.env.PROOF_OR_STOP_AGENT;
   delete process.env.PROOF_OR_STOP_AGENT;
   store.writeStory(storyId, { ...store.readStory(storyId), phase: 'DEV' });
