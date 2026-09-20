@@ -921,7 +921,12 @@ try {
   assert(findingRepairEntry, 'finding repair registry entry must exist');
   assert.equal(entryPermitsMutation(findingRepairEntry, 'finding_resolve'), false,
     'finding repair worker must not receive owner-only blocker-state authority');
-  assert.deepEqual(getCommandPolicy('finding_resolve')?.allowedPhases, ['DEV', 'REVIEW'],
+  assert.deepEqual(findingRepairEntry.evidenceOwnership, [],
+    'finding repair worker must return repair evidence instead of owning finding-resolution evidence');
+  const findingResolvePolicy = getCommandPolicy('finding_resolve');
+  assert.equal(findingResolvePolicy?.ownershipClass, 'storyScopedMutating',
+    'finding resolution must remain protected by the Story owner lease');
+  assert.deepEqual(findingResolvePolicy?.allowedPhases, ['DEV', 'REVIEW'],
     'FINDING_REPAIR_DEV_RESOLUTION_REQUIRED');
   assertCoverageComplete(AGENT_DISPATCH_REGISTRY, coveredCanonical, coveredAliases, actualPromptCoverage);
 } finally {
