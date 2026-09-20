@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab validation-audit-20260918 - v0.3.434 - 2026-09-20
+
+- Repair validation audit fixtures and public identity coverage; retain the historical RED/GREEN archive and exact negative controls.
+- Restore the real main-baseline inventory guard permitting unchanged budgets or two explicit composite deadline amendments; keep production and Lab acceptance at the authorized 260 seconds for targets 16, 69 and 130.
+- Integrate external validation coordination and safely recover provably dead legacy preparation/quarantine residue; preserve live, unknown, and invalid owners with actionable migration diagnostics, visible queue waits, and observed private fixture cleanup. Preserve child cleanup margins and original errors on secondary cleanup failure.
+- Verify the complete runtime contract, current source bindings, the complete capacity and registered #148 identity suites, and two complete runs of each of the three 260-second targets through the pinned Lab closeout command. These local maintenance records do not claim Story DONE or a remote release.
+- Details: [capacity repairs](docs/lab/validation-capacity-full-fixture-repair.md) and [budget evidence](docs/lab/validation-original-budget-performance.md). The prompt-baseline portion was integrated separately at 6b59d0dcd5; full evidence remains in the original validation Lab archive.
+
+Maintenance provenance: codex/lab-validation-audit-20260918, repair 429209b55bf5a920f6119c11d25c1240b590a17d.
+Verification command (replayed before integration and on main): `["node","/Users/jek/Documents/GitHub/Prooforstop/.git/lab-evidence-archives/validation-audit-20260918/remaining-performance-20260918/finish/original-closeout/verify-complete-identity-closeout.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab validation-manifest-encoding-20260920 - v0.3.433 - 2026-09-20
 
 - Restore the static evidence manifest's canonical ASCII JSON encoding required by the existing Lab version transaction, preserving every parsed value and evidence obligation.
