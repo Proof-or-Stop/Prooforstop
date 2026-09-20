@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab validation-prompt-baseline-split-20260920 - v0.3.432 - 2026-09-20
+
+- Repair prompt validation that rejected current canonical role bodies because its approval hashes, role matrix, and measurement baseline were stale.
+- Remove nine unused Story-reference allowances; retain four exact current references and require each to occur once during collection and verification. Missing, duplicate, altered, stale, and cross-role authority are rejected.
+- Preserve the full 18-role approval checks, CLI-only Story policy, real prompt mutation controls, and current delivery-transcript read while refusing the retired product-reviewer read.
+- Record target RED and replay the full prompt-baseline suite, actual u18 static verifier, and built CLI version check before integration and on main. See [the baseline](docs/requirements/baselines/proof-or-stop-prompt-baseline.json) for the current role contract.
+- Split this bounded repair from the retained validation audit to fit the existing audit-input limit. The unrelated source-binding failure matches main 0f823c4475 exactly and remains owned by validation-audit-20260918; this is local Lab maintenance, not Story DONE.
+
+Maintenance provenance: codex/lab-validation-prompt-baseline-split-20260920, repair 929f018e604c5c6455bceed6bcd3698a0a985dfa.
+Verification command (replayed before integration and on main): `["node","/Users/jek/Documents/GitHub/Prooforstop/.git/lab-evidence-archives/validation-audit-20260918/remaining-performance-20260918/finish/original-closeout/prompt-baseline-split/verify-final.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab intent-fingerprint-reuse - v0.3.431 - 2026-09-20
 
 - Derive per-execution, per-intent and aggregate fingerprints from each Story's actual verification intents, displaying original descriptions and item-scoped identities without fixed counts; invalid execution groups fail closed.
