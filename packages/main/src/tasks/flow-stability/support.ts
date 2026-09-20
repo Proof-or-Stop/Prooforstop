@@ -1,3 +1,4 @@
+import { writeRegisteredDiscoverySnapshots } from './discovery-fixture.js';
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
 
@@ -129,6 +130,7 @@ export function writeAcceptanceBasisDiscoveryFixture(root: string): void {
     'packages/main/src/handlers/phase-gates.ts',
     'packages/main/src/handlers/verifier.ts',
   ]) write(root, path, 'export {};\n');
+  writeRegisteredDiscoverySnapshots(root);
 }
 
 export function git(root: string, args: string[]): void {

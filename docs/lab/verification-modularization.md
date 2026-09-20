@@ -118,7 +118,7 @@ PASS. Existing full entrypoints stay registered.
   two replacements are recorded in `milestone-assertion-repairs.json`; other
   original blocks and helpers are byte-compared in the Lab proof.
 - Flow stability: original function bodies are compared with only explicit
-  location-dependent path substitutions permitted. Full GREEN is pending.
+  location-dependent path substitutions permitted. The original acceptance-discovery fixture also fails on the current runtime: it hard-coded an obsolete subset of producer/consumer source snapshots. A fixture-only helper now supplies inert snapshots from the explicit current registry without replacing the hand-written producers/consumers; the complete-basis assertion remains unchanged and its focused control passes. Full GREEN is pending.
 
 ## Outstanding integration work
 

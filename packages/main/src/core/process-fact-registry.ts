@@ -1800,6 +1800,7 @@ COMMAND_PROCESS_FACTS.push({
     'packages/main/src/tasks/flow-stability/review-evidence.ts',
     'packages/main/src/tasks/flow-stability/review-routing.ts',
     'packages/main/src/tasks/flow-stability/support.ts',
+    'packages/main/src/tasks/flow-stability/discovery-fixture.ts',
     'packages/main/src/tasks/flow-stability/workspace.ts'],
   producer: 'flow stability capability CLI', consumerGate: 'explicit verifier invocation only',
   rationale: 'Default execution preserves all original flow checks and their ordering, including liveness and historical commit compatibility. Legacy canonical-core and diagnostic modes remain available. Capability selections are deduplicated and invalid arguments reject before checks run. Partial runs emit a scoped marker and do not grant full-suite evidence or dynamic exclusion.',
