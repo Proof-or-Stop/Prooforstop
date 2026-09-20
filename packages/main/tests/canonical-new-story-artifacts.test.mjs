@@ -3222,7 +3222,7 @@ function assertDerivedIdentitySiteTotality(derived, boundaries, classifications,
   assert.deepEqual(missing, [], 'unclassified owned executable identity sites');
 }
 
-await check(['identity-cutover', 'identity-sites', 'identity-config-boundary', 'identity-policy-boundary', 'round24'], 'F-060 all owned source and emitted identity sites have independent totality and public-operation cases', () => {
+await check(["identity-sites", "identity-config-boundary", "identity-policy-boundary", "round24"], 'F-060 all owned source and emitted identity sites have independent totality and public-operation cases', () => {
   const sources = identityCutoverSourceMap();
   assertOwnedIdentitySiteTotality(sources);
   assertOwnedImportUseIntegrity(sources);
@@ -3235,7 +3235,7 @@ await check(['identity-cutover', 'identity-sites', 'identity-config-boundary', '
 
 // These concrete integrated consumers previously left the exact context pins stale.
 // Fresh pins remain closed to additional uses and same-count context movement.
-await check(['identity-cutover', 'identity-sites'], 'F-060 reconciled consumers still reject added and moved identity uses', () => {
+await check(["identity-sites"], 'F-060 reconciled consumers still reject added and moved identity uses', () => {
   const sources = identityCutoverSourceMap();
   assertOwnedIdentitySiteTotality(sources);
   assertOwnedImportUseIntegrity(sources);
@@ -3329,7 +3329,7 @@ await check(['identity-cutover', 'identity-sites'], 'F-060 reconciled consumers 
   }
 });
 
-await check(['identity-cutover', 'identity-sites'], 'F-060 causal index central identity retains exact consumer coverage', () => {
+await check(["identity-sites"], 'F-060 causal index central identity retains exact consumer coverage', () => {
   const sources = identityCutoverSourceMap();
   const causalConsumer = 'packages/main/src/core/store.ts';
   const causalOrigin = 'packages/main/src/core/causal-evidence.ts';
@@ -3358,7 +3358,7 @@ await check(['identity-cutover', 'identity-sites'], 'F-060 causal index central 
   assert.throws(() => assertCausalConsumer(movedUse), /causal index imported consumer/, 'same-count changed consumer must remain refused');
 });
 
-await check(['identity-cutover', 'identity-sites'], 'F-060 memory v2 ownership retains exact consumer and mutation coverage', () => {
+await check(["identity-sites"], 'F-060 memory v2 ownership retains exact consumer and mutation coverage', () => {
   const sources = identityCutoverSourceMap();
   assertOwnedIdentitySiteTotality(sources);
   assertOwnedImportUseIntegrity(sources);
@@ -3385,7 +3385,7 @@ await check(['identity-cutover', 'identity-sites'], 'F-060 memory v2 ownership r
   }
 });
 
-await check(['identity-cutover', 'identity-sites', 'round24'], 'F-060 discovered-site omissions and new typed producers fail independently of registry agreement', async () => {
+await check(["identity-sites", "round24"], 'F-060 discovered-site omissions and new typed producers fail independently of registry agreement', async () => {
   const sources = identityCutoverSourceMap();
   const derived = assertOwnedIdentitySiteTotality(sources);
   for (const usage of [
@@ -3498,7 +3498,7 @@ await check(['identity-cutover', 'identity-sites', 'round24'], 'F-060 discovered
   assert.deepEqual(bytesCharsEstimator('proof-or-stop-observational-baseline', 'label-independent content'), bytesCharsEstimator('arbitrary-ignored-label', 'label-independent content'), 'the classified estimator argument must remain non-authoritative and absent from output');
 });
 
-await check(['identity-cutover', 'identity-sites', 'round24'], 'F-060 exact verifier mutation-data fragment never admits changed data or surrounding active code', () => {
+await check(["identity-sites", "round24"], 'F-060 exact verifier mutation-data fragment never admits changed data or surrounding active code', () => {
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-b49df-fragment-control-'));
   fixtureRoots.push(root);
   mkdirSync(join(root, 'scripts'));
@@ -3528,7 +3528,7 @@ await check(['identity-cutover', 'identity-sites', 'round24'], 'F-060 exact veri
   for (const check of checks) assert.throws(check, /identity|mutation-data/, 'unchanged data fragments do not admit an outside active reader');
 });
 
-await check(['identity-cutover', 'identity-sites', 'round24'], 'F-060 historical counterparts bind actual source while constructed controls claim no historical admission', () => {
+await check(["identity-sites", "round24"], 'F-060 historical counterparts bind actual source while constructed controls claim no historical admission', () => {
   const importedCommit = '69403365ae9a19422564babf93f6c10de869c81d';
   const historicalSources = new Map();
   const assertProvenance = site => {
