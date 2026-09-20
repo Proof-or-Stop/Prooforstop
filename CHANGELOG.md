@@ -1,16 +1,5 @@
 # Changelog
 
-## Lab review-managed-launch-guidance - v0.3.436 - 2026-09-20
-
-- Keep REVIEW lanes outside `managedDispatch` and direct unsupported REVIEW calls to the signed `candidate_spec_route -> review_run_start -> managedReview` evidence flow.
-- Add complete executable Grok and qualified Codex managed-review command choices to `reviewer_batch`, retaining only the ReviewRun id as a prior-step placeholder.
-- Preserve the existing missing-`storyId` repair for allowlisted INIT, PLAN scope, and TEST delivery roles while prioritizing the REVIEW recovery error over irrelevant model qualification.
-- Verify the reported DeepSeek REVIEW-lane call, public `review_run_start.agent` parsing, generated host arguments, INIT managed dispatch, and reviewer-batch integration; independent Grok audit passed after manual finding verification.
-
-Maintenance provenance: codex/lab-review-managed-launch-guidance, repair 1429f98209e3e28c8e5783e93224aba8b652f87f.
-Verification command (replayed before integration and on main): `["node","packages/main/tests/managed-init-reviewer-dispatch.test.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab finding-repair-launch-contract - v0.3.435 - 2026-09-20
 
 - Require controllers to launch native repair tasks and obtain a nonempty task identity before waiting; missing workers leave findings open.
