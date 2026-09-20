@@ -190,10 +190,10 @@ export const AGENT_DISPATCH_REGISTRY: readonly AgentDispatchRegistryEntry[] = [
     identifierKinds: ['findingId'],
     promptBuilder: 'finding-repair',
     promptBuilderByIdentifier: { findingId: 'finding-repair' },
-    permittedMutations: ['finding_resolve'],
+    permittedMutations: [],
     commitAllowed: true,
     reviewerLane: null,
-    evidenceOwnership: ['finding-resolution'],
+    evidenceOwnership: [],
   },
   {
     canonicalName: 'proof-or-stop-cluster-repair',

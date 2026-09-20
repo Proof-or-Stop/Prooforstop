@@ -772,6 +772,11 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       // making it the most reliable absolute path source currently (better than process.cwd()—which depends on the caller shell's current directory).
       lines.push(`Working directory (subagent must cd here): ${root}`);
       lines.push('');
+      lines.push('Controller launch contract (the repair worker does not perform this step):');
+      lines.push('- This dispatch prepares the canonical prompt only; it does not start a host task.');
+      lines.push('- The controller must launch this exact prompt through a native host task and obtain a nonempty task identity before calling any wait operation.');
+      lines.push('- Never call a wait tool with an empty target list. If native launch is unavailable, report `missing_registered_worker` and keep the finding open.');
+      lines.push('');
       appendDispatchLivenessGuidance(lines, `${displayAgent}/${shortFid}`);
 
       if (bgPolicy === 'required') {
@@ -790,7 +795,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push('');
       lines.push('After completion:');
       appendImplementerCommitSteps(lines, `${args.storyId} ${shortFid}: resolve finding`);
-      lines.push(`- proof-or-stop finding_resolve '{"storyId":"${args.storyId}","findingId":"${finding.id}","resolution":"<your fix description>"}'`);
+      lines.push('- Return the commit SHA, focused verification output, and repair summary to the Story owner/controller. The repair worker must not call finding_resolve.');
+      lines.push(`- The Story owner/controller verifies the repair and then runs: proof-or-stop finding_resolve '{"storyId":"${args.storyId}","findingId":"${finding.id}","resolution":"<verified repair description>"}'`);
 
       return { prompt: lines.join('\n') };
   }
