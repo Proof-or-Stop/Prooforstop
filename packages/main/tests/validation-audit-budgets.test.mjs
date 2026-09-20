@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import ts from 'typescript';
+import { runInNewContext } from 'node:vm';
 import * as facts from '../dist/core/runtime-fact-registry.js';
 
 const root = resolve(import.meta.dirname, '../../..');
@@ -18,6 +19,20 @@ const find = (ast, predicate) => {
   return rows[0];
 };
 const coordinationChild = source('packages/main/tests/validation-coordination-guard.test.mjs');
+const coordinationOptions = find(coordinationChild, node => ts.isVariableDeclaration(node) && node.name.getText(coordinationChild) === 'options');
+const deadlineFactories = coordinationChild.statements.filter(node => ts.isFunctionDeclaration(node) && node.name?.text === 'withDeadline');
+assert.ok(deadlineFactories.length <= 1);
+let fixtureNow = 1000;
+const deadlineContext = { root: 'fixture', Date: { now: () => fixtureNow } };
+runInNewContext('const options = ' + coordinationOptions.initializer.getText(coordinationChild) + ';\n'
+  + (deadlineFactories[0]?.getText(coordinationChild) ?? '')
+  + '\nglobalThis.acquireOptions = () => ' + (deadlineFactories.length ? 'withDeadline()' : 'options') + ';', deadlineContext);
+const firstDeadline = deadlineContext.acquireOptions().deadlineAt;
+fixtureNow += 21000;
+assert.ok(deadlineContext.acquireOptions().deadlineAt > fixtureNow,
+  'COORDINATION_REUSED_ABSOLUTE_DEADLINE: a later acquisition inherits an expired setup deadline');
+assert.equal(firstDeadline, 21000);
+assert.equal(deadlineContext.acquireOptions().deadlineAt - fixtureNow, 20000);
 const coordinationParent = source('scripts/verify-runtime-fact-contract.mjs');
 const coordinationChildCall = find(coordinationChild, node => ts.isCallExpression(node) && node.expression.getText(coordinationChild) === 'spawnSync');
 const coordinationParentCall = find(coordinationParent, node => ts.isCallExpression(node)
