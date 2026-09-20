@@ -1,6 +1,6 @@
 # Validation audit Lab checkpoint
 
-## Current finish candidate, 2026-09-19
+## Current finish candidate, 2026-09-20
 
 The user requested the local Lab finish workflow on 2026-09-19. The retained
 repairs are ready for its current-candidate replay and independent vendor audit;
@@ -11,17 +11,28 @@ The entrypoint and static/runtime dependency repairs completed their separate
 Lab finish at local main `c05ef68409ccc49735be98122be76d6628bad270` (0.3.424).
 That exact candidate passed independent vendor audit and the complete pinned
 checks again on main before its worktree was removed. This remaining Lab is
-synchronized to that integration. See [the split repair review](validation-entrypoint-pin-review-20260919.md).
+synchronized to that integration and the later prompt-baseline integration at
+`6b59d0dcd56b902c63322e47b7acd45072b0a3fa` (0.3.432).
+See [the split repair review](validation-entrypoint-pin-review-20260919.md).
 
-Commands #16, #69 and #130 now retain all complete assertions and original
-180-second registered budgets. Two independent positive fixture lanes overlap
+Commands #16, #69 and #130 retain all complete assertions with the user-authorized
+260-second registered budgets (`timeoutMs: 260000`). The structural regression
+in `packages/main/tests/validation-audit-budgets.test.mjs` checks exactly 260000 ms
+for those commands and binds their executable and argv. The matching Lab acceptance
+threshold in `docs/lab/validation-audit-acceptance.json` is also 260000 ms.
+The #1 composite command retains its separate 900-second allowance.
+See [the performance contract](../lab/validation-original-budget-performance.md).
+
+### Historical 180-second performance checkpoints
+
+The following measurements describe the earlier 180-second experiment; they do
+not define the current production or Lab acceptance budgets.
+Two independent positive fixture lanes overlap
 after the unchanged admission refusal barrier; all nine actual child completions
 are required. Complete before/after pairs at repair `8218bf7123` were
 201.664/215.793 -> 162.043/161.495 seconds (#16),
 211.440/216.424 -> 160.571/153.669 seconds (#69), and
-213.933/206.270 -> 167.757/152.917 seconds (#130). The structural budget
-regression now checks those restored budgets while #1 retains 900 seconds.
-See [the performance contract](../lab/validation-original-budget-performance.md).
+213.933/206.270 -> 167.757/152.917 seconds (#130).
 
 The later finish candidate `6d92619bb4` failed its original-budget replay.
 One six-run attempt had three overruns; a diagnostic observer then completed
