@@ -83,8 +83,6 @@ try {
   writeFileSync(detachedChecklist, `const { spawnSync } = require('node:child_process');
 const env = { ...process.env };
 delete env.LATTICE_MANAGED_INIT_INVOCATION;
-delete env.PROOF_OR_STOP_AGENT;
-delete env.PROOFBOUND_AGENT;
 const result = spawnSync(process.execPath, [${JSON.stringify(cli)}, 'checklist_update', JSON.stringify({ storyId: process.argv[2], itemId: ${JSON.stringify(itemId)}, status: 'done' })], { env, stdio: 'inherit', detached: true });
 process.exit(result.status ?? 1);
 `);
@@ -243,7 +241,7 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
       commands: `"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
     {
-      name: 'unmatched-caller-retry', expectedStatus: 'done', expectCompleted: true,
+      name: 'spoofed-actor-without-capability-retry', expectedStatus: 'done', expectCompleted: true,
       commands: `"${process.execPath}" "${detachedChecklist}" "__STORY__" || true\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
     {
