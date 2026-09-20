@@ -6,11 +6,12 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { persistCanonicalFullBaseline, runStoryAwareDynamicValidation } from '../handlers/story-aware-validation.js';
+import { persistCanonicalFullBaseline, runStoryAwareDynamicValidation, storedDynamicReceiptIntegrityReasons } from '../handlers/story-aware-validation.js';
 import { configuredValidationCommands } from '../handlers/verifier.js';
 import { createValidationClosureCertificate, verifyValidationShardReceipt, verifyValidationClosureCertificate } from '../core/story-aware-validation.js';
 import { withValidationSigningRoot } from '../core/validation-signing-context.js';
 import { executeValidationPlan } from '../core/validation-executor.js';
+import { resolveArtifactWriteProtection } from '../core/build-artifacts-protection.js';
 
 const root = mkdtempSync(join(tmpdir(), 'proof-story-aware-production-'));
 const git = (args: string[]) => execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
@@ -150,6 +151,15 @@ try {
     commands: configured,
   });
   assert.equal(run.buildResult.allPass, true);
+  // The run binds the compiled artifacts its build wave produced and every
+  // selected plan and shard executed; the binding is the wave's own output.
+  assert.match(run.buildArtifactsHash ?? '', /^[a-f0-9]{64}$/, 'a dynamic run must bind the compiled artifacts it executed: ' + JSON.stringify(run.buildArtifactsDiagnostics));
+  assert.equal(run.buildArtifactsHash, run.buildResult.buildArtifacts?.end, 'the run binding must be the build wave output');
+  assert.deepEqual(run.buildArtifactsDiagnostics, [], 'a clean dynamic run must produce no build binding diagnostics');
+  if (run.selectedResult.commands.length > 0) {
+    assert.equal(run.selectedResult.buildArtifactsHash, run.buildArtifactsHash, 'the selected plans must have executed the build wave output');
+    assert.equal(run.selectedResult.buildArtifacts?.start, run.buildResult.buildArtifacts?.end, 'the first selected plan must start on the bytes the build wave left');
+  }
   assert.equal(run.authority.authoritative, false, 'no canonical baseline must fail closed');
   const shardRoot = join(root, '.proof-or-stop/runtime/dynamic-validation/B-production/shards');
   assert.equal(existsSync(shardRoot), true, 'production run must persist shard artifacts');
@@ -264,8 +274,23 @@ try {
         command: runtimeNode, args: ['-e', 'process.stdout.write("authority-pass")'], label: 'build',
         assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'static-and-traced',
         fullBaselineReusePolicy: 'not-applicable', declaredEnvironmentKeys: ['PROOF_OR_STOP_RUNTIME_TRACE_FILE'],
+      }, {
+        // A selectable non-build command whose receipt can be reused across runs.
+        command: runtimeNode, args: ['-e', 'process.stdout.write("unit-pass")'], label: 'unit',
+        assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'static-and-traced',
+        fullBaselineReusePolicy: 'not-applicable', declaredEnvironmentKeys: ['PROOF_OR_STOP_RUNTIME_TRACE_FILE'],
       }] },
     }, null, 2) + '\n');
+    // Compiled artifact trees, gitignored so they are invisible to the committed
+    // identity, exactly like the real packages/*/dist.
+    // Runtime artifacts (the canonical baseline, traces, receipts) are ignored
+    // exactly as in the real repository: an untracked .proof-or-stop/ would make
+    // every command's source provenance dirty and no receipt could be issued.
+    writeFileSync(join(authorityRoot, '.gitignore'), 'dist\n.proof-or-stop/\n');
+    mkdirSync(join(authorityRoot, 'packages/main/dist/tasks'), { recursive: true });
+    writeFileSync(join(authorityRoot, 'packages/main/dist/tasks/x.js'), 'process.exit(0); // build A\n');
+    mkdirSync(join(authorityRoot, 'packages/utils/dist'), { recursive: true });
+    writeFileSync(join(authorityRoot, 'packages/utils/dist/index.js'), 'export const utils = 1;\n');
     const authorityGit = (args: string[]) => execFileSync('git', args, { cwd: authorityRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
     authorityGit(['init']);
     authorityGit(['config', 'user.email', 'smoke@example.test']);
@@ -287,9 +312,126 @@ try {
     const baseline = persistCanonicalFullBaseline({ projectRoot: authorityRoot, sourceHead: authorityHead, result: authorityFull, commands: authorityCommands });
     assert.ok(baseline, 'positive authority fixture must persist a canonical baseline');
     const admitted = await runStoryAwareDynamicValidation({ projectRoot: authorityRoot, gitCwd: authorityRoot, storyId: 'B-authority', baseHead: authorityHead, head: authorityHead, changedFiles: [], mode: 'enforce-low-risk', commands: authorityCommands });
+    assert.match(admitted.buildArtifactsHash ?? '', /^[a-f0-9]{64}$/, 'an authoritative dynamic run must carry the binding publication consumes: ' + JSON.stringify(admitted.buildArtifactsDiagnostics));
+    assert.equal(admitted.buildArtifactsHash, admitted.buildResult.buildArtifacts?.end, 'the authoritative run binding must be the build wave output');
     assert.equal(admitted.authority.authoritative, true, JSON.stringify(admitted.authority));
     assert.equal(admitted.dynamicAllPass, true);
     console.log('gate-owned authority PASS');
+    // The receipt, reuse and label assertions below need enforcement to mean
+    // anything; on a host that cannot demonstrate it, the intended fallback
+    // is asserted instead: an unenforced label and no authoritative receipt.
+    const authorityProtection = resolveArtifactWriteProtection(authorityRoot);
+    if (authorityProtection.enforced) {
+    // The run carries the protection its commands executed under, so the
+    // evidence publication derives from it is reusable and admissible.
+    assert.match(admitted.buildArtifactsProtection ?? '', /^enforced:/, 'an authoritative dynamic run must carry a satisfied protection label: ' + JSON.stringify(admitted.buildArtifactsProtection));
+    // Every receipt this run earned binds the compiled artifacts the run
+    // executed, under the protection contract, and carries the v3 schema.
+    const earned = admitted.receipts.filter((receipt) => receipt.producedBy === 'story-execution');
+    assert.ok(earned.length >= 1, 'the authoritative run must persist at least one story-execution receipt: ' + JSON.stringify(admitted.manifest.totals));
+    for (const receipt of earned) {
+      assert.equal(receipt.schema, 'proof-or-stop.validation-command-receipt.v3');
+      assert.equal(receipt.buildArtifactsDigest, admitted.buildArtifactsHash, 'every receipt binds the compiled artifacts the run executed');
+      assert.match(receipt.buildArtifactsProtection, /^enforced:/, 'a receipt is authoritative only under enforced or not-applicable protection');
+    }
+    const dynamicArgs = { projectRoot: authorityRoot, gitCwd: authorityRoot, storyId: 'B-authority', baseHead: authorityHead, head: authorityHead, changedFiles: [], mode: 'enforce-low-risk' as const, commands: authorityCommands };
+    const unchangedRerun = await runStoryAwareDynamicValidation(dynamicArgs);
+    assert.equal(unchangedRerun.dynamicAllPass, true, JSON.stringify(unchangedRerun.buildArtifactsDiagnostics));
+    assert.ok(unchangedRerun.manifest.totals.reused >= 1,
+      'an unchanged rerun must reuse the selectable command through its receipt: ' + JSON.stringify(unchangedRerun.manifest.rows.map((row) => [row.commandId, row.disposition, row.reasons])));
+    // Same source, same build output and exit code, DIFFERENT compiled bytes:
+    // every receipt earned on the old bytes lapses and the command runs again.
+    writeFileSync(join(authorityRoot, 'packages/main/dist/tasks/x.js'), 'process.exit(0); // build B: same output, other bytes\n');
+    const rebuiltBytes = await runStoryAwareDynamicValidation(dynamicArgs);
+    assert.equal(rebuiltBytes.dynamicAllPass, true, JSON.stringify(rebuiltBytes.buildArtifactsDiagnostics));
+    assert.notEqual(rebuiltBytes.buildArtifactsHash, unchangedRerun.buildArtifactsHash, 'different compiled bytes are a different build');
+    assert.equal(rebuiltBytes.manifest.totals.reused, 0,
+      'no receipt earned on the previous compiled bytes may be reused: ' + JSON.stringify(rebuiltBytes.manifest.rows.map((row) => [row.commandId, row.disposition, row.reasons])));
+    assert.ok(rebuiltBytes.receipts.some((receipt) => receipt.producedBy === 'story-execution' && receipt.buildArtifactsDigest === rebuiltBytes.buildArtifactsHash),
+      'the re-executed command must earn a receipt bound to the new bytes');
+    console.log('dynamic receipts lapse with compiled bytes PASS');
+    } else {
+      assert.match(admitted.buildArtifactsProtection ?? '', /^unenforced:/, 'without enforcement the run must carry an unenforced label: ' + JSON.stringify(admitted.buildArtifactsProtection));
+      assert.equal(admitted.receipts.filter((receipt) => receipt.producedBy === 'story-execution' && /^enforced:/.test(receipt.buildArtifactsProtection)).length, 0, 'without enforcement no receipt may claim enforced protection');
+      console.log('skip: receipt and reuse assertions need demonstrated artifact write protection on this host (' + authorityProtection.label + ')');
+    }
+
+    // A REAL registered build as Wave-0 (recognised by shape: `./tsc` run in
+    // packages/main, rewriting dist) followed by a selectable test. The
+    // build earns a receipt bound to its output under the registered-build
+    // label, stored-evidence integrity accepts the run, a superseded-schema
+    // receipt seeded beforehand is dropped rather than blocking, and an
+    // unchanged rerun reuses the test while the build executes again.
+    const registeredRoot = mkdtempSync(join(tmpdir(), 'proof-story-aware-registered-build-'));
+    try {
+      mkdirSync(join(registeredRoot, 'packages/main/src/core'), { recursive: true });
+      writeFileSync(join(registeredRoot, 'packages/main/src/.keep'), '\n');
+      writeFileSync(join(registeredRoot, 'packages/main/src/core/validation-runtime-tracer.cjs'), readFileSync(new URL('../core/validation-runtime-tracer.cjs', import.meta.url), 'utf8'));
+      // A registered build recognised by SHAPE (`*/tsc` in packages/main), not by
+      // a flag: a node script that rewrites dist and reads nothing outside the
+      // repository, so its traced closure is complete. (A real `npm run build`
+      // reads npm's own installation and can never certify a complete closure.)
+      writeFileSync(join(registeredRoot, 'packages/main/tsc'), "#!/usr/bin/env node\nconst fs = require('node:fs'); fs.mkdirSync('dist/tasks', { recursive: true }); fs.writeFileSync('dist/tasks/x.js', 'process.exit(0); // registered build\\n');\n", { mode: 0o755 });
+      writeFileSync(join(registeredRoot, 'proof-or-stop.config.json'), JSON.stringify({
+        validate: { commands: [{
+          command: './tsc', args: [], cwd: 'packages/main', label: 'build', inputRoots: ['packages/main/tsc'],
+          assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'static-and-traced',
+          fullBaselineReusePolicy: 'not-applicable', declaredEnvironmentKeys: ['PROOF_OR_STOP_RUNTIME_TRACE_FILE'],
+        }, {
+          command: runtimeNode, args: ['-e', 'process.stdout.write("unit-pass")'], label: 'unit',
+          assurance: 'story-selectable', riskTier: 'local', closurePolicy: 'static-and-traced',
+          fullBaselineReusePolicy: 'not-applicable', declaredEnvironmentKeys: ['PROOF_OR_STOP_RUNTIME_TRACE_FILE'],
+        }] },
+      }, null, 2) + '\n');
+      writeFileSync(join(registeredRoot, '.gitignore'), 'dist\n.proof-or-stop/\n');
+      mkdirSync(join(registeredRoot, 'packages/utils/dist'), { recursive: true });
+      writeFileSync(join(registeredRoot, 'packages/utils/dist/index.js'), 'export const utils = 1;\n');
+      const registeredGit = (args: string[]) => execFileSync('git', args, { cwd: registeredRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+      registeredGit(['init']);
+      registeredGit(['config', 'user.email', 'smoke@example.test']);
+      registeredGit(['config', 'user.name', 'Proof-or-Stop Smoke']);
+      registeredGit(['add', '.']);
+      registeredGit(['commit', '-m', 'registered build fixture']);
+      const registeredHead = registeredGit(['rev-parse', 'HEAD']);
+      const registeredCommands = configuredValidationCommands(registeredRoot);
+      const registeredFull = await executeValidationPlan({ provider: 'registered-baseline-full', commands: registeredCommands, warnings: [] }, registeredRoot, registeredHead, 'B-registered');
+      assert.equal(registeredFull.allPass, true, JSON.stringify(registeredFull.details));
+      assert.equal(registeredFull.commands.find((row) => row.label === 'build')?.buildArtifactsRole, 'build', 'the ./tsc build must be recognised as the registered build by shape');
+      assert.ok(registeredFull, 'complete baseline must run');
+      assert.ok(persistCanonicalFullBaseline({ projectRoot: registeredRoot, sourceHead: registeredHead, result: registeredFull, commands: registeredCommands }), 'registered fixture must persist a canonical baseline');
+      // A receipt of a superseded schema left behind by an older runner.
+      const legacyDir = join(registeredRoot, '.proof-or-stop/runtime/dynamic-validation/B-registered');
+      mkdirSync(legacyDir, { recursive: true });
+      writeFileSync(join(legacyDir, 'receipts.json'), JSON.stringify([{ schema: 'proof-or-stop.validation-command-receipt.v2', id: 'legacy-v2-receipt', commandId: 'stale', signature: 'ed25519:validation-artifact-v1:00' }], null, 2) + '\n');
+      const registeredArgs = { projectRoot: registeredRoot, gitCwd: registeredRoot, storyId: 'B-registered', baseHead: registeredHead, head: registeredHead, changedFiles: [], mode: 'enforce-low-risk' as const, commands: registeredCommands };
+      const registeredFirst = await runStoryAwareDynamicValidation(registeredArgs);
+      const registeredProtection = resolveArtifactWriteProtection(registeredRoot);
+      if (registeredProtection.enforced) {
+      assert.equal(registeredFirst.dynamicAllPass, true, JSON.stringify(registeredFirst.buildArtifactsDiagnostics));
+      assert.equal(registeredFirst.authority.authoritative, true, JSON.stringify(registeredFirst.authority));
+      assert.ok(registeredFirst.receipts.every((receipt) => receipt.schema === 'proof-or-stop.validation-command-receipt.v3'), 'a superseded-schema receipt must be dropped, not retained: ' + JSON.stringify(registeredFirst.receipts.map((receipt) => [receipt.id, receipt.schema])));
+      assert.ok(registeredFirst.receipts.some((receipt) => receipt.buildArtifactsProtection === 'registered-build:writes-permitted' && receipt.buildArtifactsDigest === registeredFirst.buildArtifactsHash),
+        'the registered build must earn a receipt bound to its output: ' + JSON.stringify(registeredFirst.receipts.map((receipt) => [receipt.commandId, receipt.buildArtifactsProtection])));
+      // The gate consults stored integrity inside the project's signing root, as the DONE gate does.
+      assert.deepEqual(withValidationSigningRoot(registeredRoot, () => storedDynamicReceiptIntegrityReasons(registeredRoot, 'B-registered', registeredHead, registeredFirst.manifest, registeredRoot)), [],
+        'stored dynamic evidence with a real registered build must pass integrity');
+      const registeredSecond = await runStoryAwareDynamicValidation(registeredArgs);
+      assert.equal(registeredSecond.authority.authoritative, true, JSON.stringify(registeredSecond.authority));
+      assert.ok(registeredSecond.manifest.totals.reused >= 1, 'an unchanged rerun must reuse the test through its receipt: ' + JSON.stringify(registeredSecond.manifest.rows.map((row) => [row.commandId, row.disposition, row.reasons])));
+      assert.ok(registeredSecond.manifest.rows.some((row) => row.reasons.includes('wave-0-build') && row.disposition === 'execute'), 'the registered build must execute on every run');
+      // Only the build executed; the run's protection comes from the receipts
+      // the manifest admitted, so the evidence publication derives is admissible.
+      assert.match(registeredSecond.buildArtifactsProtection ?? '', /^enforced:/, 'an all-tests-reused rerun must carry a satisfied protection label: ' + JSON.stringify(registeredSecond.buildArtifactsProtection));
+      assert.deepEqual(withValidationSigningRoot(registeredRoot, () => storedDynamicReceiptIntegrityReasons(registeredRoot, 'B-registered', registeredHead, registeredSecond.manifest, registeredRoot)), [], 'stored integrity must hold after the rerun');
+      console.log('registered build receipts and legacy receipt recovery PASS');
+      } else {
+        assert.ok(registeredFirst.receipts.every((receipt) => receipt.schema === 'proof-or-stop.validation-command-receipt.v3'), 'a superseded-schema receipt must be dropped, not retained');
+        assert.equal(registeredFirst.receipts.filter((receipt) => /^enforced:/.test(receipt.buildArtifactsProtection)).length, 0, 'without enforcement no test receipt may claim enforced protection');
+        console.log('skip: registered-build receipt and reuse assertions need demonstrated artifact write protection on this host (' + registeredProtection.label + ')');
+      }
+    } finally {
+      rmSync(registeredRoot, { recursive: true, force: true });
+    }
   } finally {
     rmSync(authorityRoot, { recursive: true, force: true });
   }

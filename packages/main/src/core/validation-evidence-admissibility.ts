@@ -4,7 +4,9 @@ import {
   currentStoryFilesHash,
 } from './evidence-freshness.js';
 import { classifyMergeLineage } from './validation-lineage.js';
+import { currentBuildArtifactsHash } from './build-artifacts-identity.js';
 import type { TestEvidenceData } from './types.js';
+import { artifactProtectionSatisfied } from './build-artifacts-protection.js';
 
 export type ValidationEvidenceLineage = 'exact-head' | 'trusted-story-metadata-descendant' | 'rejected';
 
@@ -17,6 +19,7 @@ export interface ValidationEvidenceAdmissibility {
   headHash?: string;
   materialHash?: string;
   storyFilesHash?: string;
+  buildArtifactsHash?: string;
 }
 
 export interface ValidationEvidenceAdmissibilityInput {
@@ -99,6 +102,13 @@ export function evaluateValidationEvidenceAdmissibility(
   if (!headHash || !materialHash || !storyFilesHash) add('current_identity_unavailable', 'current head/material/story-files identity is unavailable');
   if (evidence.materialHash && materialHash && evidence.materialHash !== materialHash) add('material_mismatch', 'validation evidence materialHash does not match current materialHash');
   if (evidence.storyFilesHash && storyFilesHash && evidence.storyFilesHash !== storyFilesHash) add('story_files_mismatch', 'validation evidence storyFilesHash does not match current storyFilesHash');
+  // The committed-tree digests above cannot see the gitignored dist the commands
+  // executed. Legacy evidence without the binding is refused rather than trusted.
+  const buildArtifactsHash = currentBuildArtifactsHash(input.gitCwd, input.metadataRoot);
+  if (!evidence.buildArtifactsHash) add('build_artifacts_unbound', 'validation evidence has no buildArtifactsHash binding; run validate again');
+  else if (!buildArtifactsHash) add('build_artifacts_unavailable', 'current build artifacts identity is unavailable');
+  else if (evidence.buildArtifactsHash !== buildArtifactsHash) add('build_artifacts_mismatch', 'validation evidence buildArtifactsHash does not match the compiled artifacts on disk');
+  else if (!artifactProtectionSatisfied(evidence.buildArtifactsProtection)) add('build_artifacts_protection_unenforced', `validation evidence was recorded without enforced artifact write protection (${evidence.buildArtifactsProtection ?? 'not recorded'}); it cannot prove which build it executed`);
 
   let lineage: ValidationEvidenceLineage = 'rejected';
   if (evidence.headHash && headHash) {
@@ -125,5 +135,6 @@ export function evaluateValidationEvidenceAdmissibility(
     ...(headHash ? { headHash } : {}),
     ...(materialHash ? { materialHash } : {}),
     ...(storyFilesHash ? { storyFilesHash } : {}),
+    ...(buildArtifactsHash ? { buildArtifactsHash } : {}),
   };
 }
