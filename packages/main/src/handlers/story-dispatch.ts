@@ -1336,7 +1336,13 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           targetKind: 'finding',
           findingId: args.findingId,
         });
-        return result;
+        // Finding repair is intentionally not envelope-wrapped. Preserve the
+        // structured host launch contract explicitly at the public dispatch()
+        // boundary so callers never need to infer it from prompt prose.
+        return {
+          prompt: result.prompt,
+          nativeLaunchContract: result.nativeLaunchContract,
+        };
       }
       // clusterId branch — reuse cluster.ts's finding_dispatch (outputs string).
       // Wrap as { prompt } to keep the interface consistent.
