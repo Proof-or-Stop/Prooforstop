@@ -30,6 +30,10 @@ const write = (file, content) => { fs.mkdirSync(dirname(join(root, file)), { rec
 try {
   const config = { validate: { commands: [{ command: 'node', args: ['original.js'], timeoutMs: 120000 }, { command: 'node', args: ['default-budget.js'] }] },
     storyScopeBudget: { limits: { responsibilityDomains: 1 } } };
+  config.validate.commands.push(
+    {command:'npm',args:['--prefix','packages/main','run','test:dynamic-finding-evidence-closure'],timeoutMs:180000},
+    {command:'node',args:['packages/main/tests/red/red-w2b-wiring-contract.mjs','--canonical-core'],timeoutMs:180000},
+  );
   write(CONFIG_FILENAMES[0], JSON.stringify(config));
   write('package.json', JSON.stringify({ scripts: { test: 'node original.js' } }));
   write('packages/main/package.json', JSON.stringify({ scripts: { build: 'tsc' } }));
@@ -49,10 +53,17 @@ try {
     console: { log: message => messages.push(String(message)) },
   };
   assert.doesNotThrow(() => runInNewContext(emitted, context, { timeout: 30000 }),
-    'repeatable inventory regression must run on a legitimate feature branch');
+    'UNCHANGED_COMPOSITE_BASELINE_MUST_PASS: legitimate feature branch retains both original composite budgets');
   assert.equal(git(root, ['rev-parse', 'HEAD']), headBefore, 'caller Git history remains unchanged');
   assert.equal(git(root, ['status', '--porcelain']), '', 'caller worktree remains clean');
   assert.equal(fs.readFileSync(join(root, CONFIG_FILENAMES[0]), 'utf8'), bytesBefore);
+  const amended = JSON.parse(bytesBefore);
+  for (const index of [2,3]) amended.validate.commands[index].timeoutMs=900000;
+  write(CONFIG_FILENAMES[0],JSON.stringify(amended));
+  assert.doesNotThrow(()=>runInNewContext(emitted,context,{timeout:30000}), 'both explicitly approved budget increases are permitted');
+  amended.validate.commands[2].timeoutMs=900001;write(CONFIG_FILENAMES[0],JSON.stringify(amended));
+  assert.throws(()=>runInNewContext(emitted,context,{timeout:30000}),/protected original validation commands\/timeouts changed/);
+  write(CONFIG_FILENAMES[0],bytesBefore);
   config.validate.commands[0].timeoutMs += 1;
   write(CONFIG_FILENAMES[0], JSON.stringify(config));
   assert.throws(() => runInNewContext(emitted, context, { timeout: 30000 }),

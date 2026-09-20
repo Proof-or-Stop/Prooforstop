@@ -17,6 +17,18 @@ const find = (ast, predicate) => {
   assert.equal(rows.length, 1, 'deadline witness must resolve one actual call site');
   return rows[0];
 };
+const coordinationChild = source('packages/main/tests/validation-coordination-guard.test.mjs');
+const coordinationParent = source('scripts/verify-runtime-fact-contract.mjs');
+const coordinationChildCall = find(coordinationChild, node => ts.isCallExpression(node) && node.expression.getText(coordinationChild) === 'spawnSync');
+const coordinationParentCall = find(coordinationParent, node => ts.isCallExpression(node)
+  && node.expression.getText(coordinationParent) === 'execFileSync'
+  && node.arguments[1]?.getText(coordinationParent).includes("'packages/main/tests/validation-coordination-guard.test.mjs'"));
+const coordinationTimeout = (call, ast) => Function('coordinationFixtureBudget', 'return ('
+  + call.arguments[2].properties.find(node => node.name?.getText(ast) === 'timeout').initializer.getText(ast) + ');')(facts.WORKSPACE_VALIDATION_COORDINATION_FIXTURE_RUNTIME_POLICY);
+const coordinationChildMs = coordinationTimeout(coordinationChildCall, coordinationChild);
+const coordinationParentMs = coordinationTimeout(coordinationParentCall, coordinationParent);
+assert.ok(coordinationParentMs >= coordinationChildMs + 15000,
+  `COORDINATION_PARENT_DEADLINE_PREEMPTS_CHILD: parent=${coordinationParentMs}, child=${coordinationChildMs}, required margin=15000`);
 const parent = source('packages/main/tests/red/red-dynamic-finding-evidence-closure.mjs');
 const call = find(parent, node => ts.isCallExpression(node) && node.expression.getText(parent) === 'spawnSync');
 const timeout = call.arguments[2].properties.find(node => node.name?.getText(parent) === 'timeout').initializer;
