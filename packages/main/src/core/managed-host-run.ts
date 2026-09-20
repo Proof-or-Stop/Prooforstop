@@ -196,6 +196,7 @@ export interface ManagedHostRunSubmitArgs {
   /** Exact provider reasoning selector; null/absent preserves the provider default. */
   reasoningEffort?: HostRunReasoningEffort | null;
   storyId: string | null;
+  managedDispatchTarget?: { itemId: string } | null;
   phase: string;
   agentType: string;
   reviewRunId?: string | null;
@@ -582,6 +583,7 @@ interface ManagedHostRunSpec {
   /** Optional for historical specs written before exact selector binding. */
   reasoningEffort?: HostRunReasoningEffort | null;
   storyId: string | null;
+  managedDispatchTarget?: { itemId: string } | null;
   phase: string;
   agentType: string;
   reviewRunId: string | null;
@@ -607,6 +609,7 @@ export interface ManagedHostRunBindingProjection {
   model?: string | null;
   reasoningEffort?: HostRunReasoningEffort | null;
   storyId: string | null;
+  managedDispatchTarget?: { itemId: string } | null;
   phase: string;
   agentType: string;
   reviewRunId: string | null;
@@ -1808,10 +1811,37 @@ export function managedDispatchOutputValidation(input: {
   storyId: string | null;
   agentType: string;
   runId: string;
+  managedDispatchTarget?: { itemId: string } | null;
 }): { failureReason: string | null; outputDigest: string | null } {
   if (!input.storyId) return { failureReason: 'managed_dispatch_story_missing', outputDigest: null };
   try {
     const storyStore = new StoryStore(input.root);
+    if (input.agentType === 'proof-or-stop-implementer') {
+      const itemId = input.managedDispatchTarget?.itemId;
+      if (!itemId) return { failureReason: 'managed_dispatch_target_missing', outputDigest: null };
+      const item = storyStore.readChecklist(input.storyId).items.find(candidate => candidate.id === itemId);
+      const completion = storyStore.readProcessEvents(input.storyId).find(event =>
+        event.type === 'subagent_result'
+        && event.checklistId === itemId
+        && event.success === true
+        && event.managedDispatchRunId === input.runId);
+      if (item?.status !== 'done' || !completion) {
+        return { failureReason: 'managed_dispatch_output_missing', outputDigest: null };
+      }
+      if (!managedDispatchInvocationConsumptionIsValid({ ...input, storyId: input.storyId })) {
+        return { failureReason: 'managed_dispatch_invocation_unconsumed', outputDigest: null };
+      }
+      return {
+        failureReason: null,
+        outputDigest: sha256(canonicalJson({
+          runId: input.runId,
+          storyId: input.storyId,
+          itemId,
+          completion,
+          status: item.status,
+        })),
+      };
+    }
     if (input.agentType === MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role) {
       const data = storyStore.readDeliveryCheck(input.storyId);
       if (!data || data.managedDeliveryRunId !== input.runId) {
@@ -1866,6 +1896,20 @@ export function managedDispatchOutputFailureReason(input: {
   runId: string;
 }): string | null {
   return managedDispatchOutputValidation(input).failureReason;
+}
+
+function currentManagedDispatchOutputDigest(spec: ManagedHostRunSpec): string | null {
+  if (!spec.storyId) return null;
+  if (spec.agentType === MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role) {
+    return digestFile(new StoryStore(spec.root).storyFilePath(spec.storyId, MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.artifact));
+  }
+  if (spec.agentType === 'proof-or-stop-review-scope-plan') {
+    return digestFile(new StoryStore(spec.root).storyFilePath(spec.storyId, 'scope-check.json'));
+  }
+  if (spec.agentType === 'proof-or-stop-implementer') {
+    return managedDispatchOutputValidation(spec).outputDigest;
+  }
+  return null;
 }
 
 function readManagedReviewScratchCleanupDiagnostic(
@@ -2030,6 +2074,8 @@ function liveBindingProjection(paths: ManagedHostRunPaths): ManagedHostRunBindin
     ...(Object.prototype.hasOwnProperty.call(spec, 'reasoningEffort')
       ? { reasoningEffort: spec.reasoningEffort ?? null } : {}),
     storyId: spec.storyId,
+    ...(Object.prototype.hasOwnProperty.call(spec, 'managedDispatchTarget')
+      ? { managedDispatchTarget: spec.managedDispatchTarget ?? null } : {}),
     phase: spec.phase,
     agentType: spec.agentType,
     reviewRunId: spec.reviewRunId,
@@ -2121,8 +2167,7 @@ function assertSealedManagedHostRunArtifacts(paths: ManagedHostRunPaths, termina
     // live file with this sealed digest. Preserve the existing scope contract.
     if (spec.agentType !== MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role) {
       const currentOutputDigest = spec.profile === 'managed_dispatch'
-        && spec.agentType === 'proof-or-stop-review-scope-plan' && spec.storyId
-        ? digestFile(new StoryStore(spec.root).storyFilePath(spec.storyId, 'scope-check.json')) : null;
+        ? currentManagedDispatchOutputDigest(spec) : null;
       if (currentOutputDigest !== terminal.managedDispatchOutputDigest) mismatches.push('managed-dispatch-output');
     }
   }
@@ -2673,6 +2718,14 @@ export async function submitManagedHostRun(
   if (!args.root || !args.cwd) throw new Error('managed host run: root and cwd are required');
   if (!args.promptText) throw new Error('managed host run: prompt is empty; refuse pre-spawn');
   if (!args.phase || !args.agentType) throw new Error('managed host run: phase and agentType are required');
+  if (args.managedDispatchTarget) {
+    if (args.profile !== 'managed_dispatch' || args.agentType !== 'proof-or-stop-implementer'
+      || args.phase !== 'DEV' || !args.storyId || !args.managedDispatchTarget.itemId.trim()) {
+      throw new Error('managed host run: managed implementation target requires a DEV proof-or-stop-implementer managed_dispatch');
+    }
+  } else if (args.profile === 'managed_dispatch' && args.agentType === 'proof-or-stop-implementer') {
+    throw new Error('managed host run: proof-or-stop-implementer managed_dispatch requires an itemId target');
+  }
   const selection = normalizeHostRunModelSelection(args);
   const platform = deps.platform ?? process.platform;
   if (args.reviewRunId && args.storyId && !args.reviewRunId.startsWith(`${args.storyId}:`)) {
@@ -2824,6 +2877,8 @@ export async function submitManagedHostRun(
     model: selection.model,
     reasoningEffort: selection.reasoningEffort,
     storyId: args.storyId,
+    ...(Object.prototype.hasOwnProperty.call(args, 'managedDispatchTarget')
+      ? { managedDispatchTarget: args.managedDispatchTarget ?? null } : {}),
     phase: args.phase,
     agentType: args.agentType,
     reviewRunId: args.reviewRunId ?? null,
@@ -3539,9 +3594,7 @@ export async function runManagedHostRunWorker(
         return writeTerminal(paths, 'failed', output.failureReason, result.replacementSafe, result, now());
       }
       deps.afterManagedDispatchOutputValidated?.({ root: spec.root, runId: spec.runId, outputDigest: output.outputDigest });
-      if (output.outputDigest && spec.storyId
-        && digestFile(new StoryStore(spec.root).storyFilePath(spec.storyId,
-          spec.agentType === MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role ? MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.artifact : 'scope-check.json')) !== output.outputDigest) {
+      if (output.outputDigest && currentManagedDispatchOutputDigest(spec) !== output.outputDigest) {
         return writeTerminal(paths, 'failed', 'managed_dispatch_output_changed_before_seal', result.replacementSafe, result, now());
       }
       return writeTerminal(paths, 'completed', 'provider_completed', result.replacementSafe, result, now(), undefined, output.outputDigest);
@@ -3724,6 +3777,7 @@ function consumeManagedInitInvocationAttestation(args: {
   root: string;
   storyId: string;
   agentType: string;
+  itemId?: string;
   attestation: ManagedInitInvocationAttestation;
 }): string {
   const { attestation } = args;
@@ -3745,6 +3799,7 @@ function consumeManagedInitInvocationAttestation(args: {
       && spec.profile === 'managed_dispatch'
       && spec.storyId === args.storyId
       && spec.agentType === args.agentType
+      && (args.itemId === undefined || spec.managedDispatchTarget?.itemId === args.itemId)
       && snapshot.state === 'running'
       && snapshot.providerIdentity !== null
       && typeof owner.proposalInvocationPublicKey === 'string'
@@ -3793,6 +3848,7 @@ export function resolveManagedDispatchInvocation(args: {
   root: string;
   storyId: string;
   agentType: string;
+  itemId?: string;
   callerPid?: number;
   environment?: NodeJS.ProcessEnv;
 }): string {
@@ -3804,6 +3860,7 @@ export function resolveManagedDispatchInvocation(args: {
         root: args.root,
         storyId: args.storyId,
         agentType: args.agentType,
+        ...(args.itemId ? { itemId: args.itemId } : {}),
         attestation,
       });
     }
@@ -3827,7 +3884,8 @@ export function resolveManagedDispatchInvocation(args: {
       const spec = readManagedHostRunSpec(paths).value;
       if (spec.profile !== 'managed_dispatch'
         || spec.storyId !== args.storyId
-        || spec.agentType !== args.agentType) continue;
+        || spec.agentType !== args.agentType
+        || (args.itemId !== undefined && spec.managedDispatchTarget?.itemId !== args.itemId)) continue;
       const snapshot = readManagedHostRunSnapshot(paths);
       if (snapshot.state !== 'running') continue;
       const identity = snapshot.providerIdentity;
@@ -3858,6 +3916,7 @@ export function resolveManagedDispatchInvocation(args: {
     if (spec.profile !== 'managed_dispatch'
       || spec.storyId !== args.storyId
       || spec.agentType !== args.agentType
+      || (args.itemId !== undefined && spec.managedDispatchTarget?.itemId !== args.itemId)
       || snapshot.state !== 'running'
       || !identity?.processGroupIsolated
       || !identity.pgid
@@ -4809,12 +4868,14 @@ export function verifyManagedDispatchDelivery(args: {
   runId: string;
   storyId: string;
   agentType: string;
+  itemId?: string;
 }): { valid: true } | { valid: false; reason: string } {
   try {
     const binding = readManagedHostRunBinding(args.root, args.runId);
     if (binding.profile !== 'managed_dispatch'
       || binding.storyId !== args.storyId
-      || binding.agentType !== args.agentType) {
+      || binding.agentType !== args.agentType
+      || (args.itemId !== undefined && binding.managedDispatchTarget?.itemId !== args.itemId)) {
       return { valid: false, reason: 'managed dispatch Story/role binding mismatch' };
     }
     const receipt = managedHostRunReceipt(args.root, args.runId);
@@ -4832,6 +4893,14 @@ export function verifyManagedDispatchDelivery(args: {
       const currentDigest = digestFile(new StoryStore(args.root).storyFilePath(args.storyId, MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.artifact));
       if (!receipt.managedDispatchOutputDigest || currentDigest !== receipt.managedDispatchOutputDigest) {
         return { valid: false, reason: 'managed dispatch delivery output does not match the completed receipt' };
+      }
+    }
+    if (args.agentType === 'proof-or-stop-implementer') {
+      if (!args.itemId) return { valid: false, reason: 'managed implementation delivery requires itemId' };
+      const spec = readManagedHostRunSpec(pathsFor(args.root, args.runId)).value;
+      const currentDigest = currentManagedDispatchOutputDigest(spec);
+      if (!receipt.managedDispatchOutputDigest || currentDigest !== receipt.managedDispatchOutputDigest) {
+        return { valid: false, reason: 'managed implementation output does not match the completed receipt' };
       }
     }
     return { valid: true };

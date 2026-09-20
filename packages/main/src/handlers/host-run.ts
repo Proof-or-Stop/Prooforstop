@@ -81,6 +81,7 @@ export interface HostRunCommandArgs extends FormatArgs {
   idempotencyKey?: string;
   host?: string;
   storyId?: string;
+  itemId?: string;
   agentType?: string;
   phase?: string;
   prompt?: string;
@@ -402,6 +403,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
       const timeoutMs = optionalPositiveInteger('host_run', 'timeoutMs', args.timeoutMs);
       const deadlineMs = optionalPositiveInteger('host_run', 'deadlineMs', args.deadlineMs);
       const storyId = normalizeString(args.storyId) || null;
+      const itemId = normalizeString(args.itemId) || null;
       const reviewRunId = normalizeString(args.reviewRunId) || null;
       const lane = normalizeString(args.lane) || null;
 
@@ -423,7 +425,8 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
       if (args.managedReview === true && args.managedDispatch === true) {
         throw new Error('host_run: --managedReview and --managedDispatch are mutually exclusive');
       }
-      if (args.managedReview === true || args.managedDispatch === true) {
+      if (args.managedReview === true
+        || (args.managedDispatch === true && agentType !== 'proof-or-stop-implementer')) {
         selection = resolveQualifiedManagedReviewerSelection({ host, ...selection });
       }
       if (args.managedReview === true) {
@@ -468,15 +471,23 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         if (hasPrompt || hasPromptFile) {
           throw new Error('host_run: --managedDispatch derives the exact canonical prompt; do not pass --prompt or --promptFile');
         }
-        const managedDispatchPhase = agentType === MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role ? MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.phase
-          : agentType === 'proof-or-stop-review-scope-plan' ? 'PLAN' : 'INIT';
+        const managedDispatchPhase = agentType === 'proof-or-stop-implementer' ? 'DEV'
+          : agentType === MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role ? MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.phase
+            : agentType === 'proof-or-stop-review-scope-plan' ? 'PLAN' : 'INIT';
         if (!storyId || ![
+          'proof-or-stop-implementer',
           'proof-or-stop-review-story-init',
           'proof-or-stop-product-reviewer',
           'proof-or-stop-review-scope-plan',
           MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role,
         ].includes(agentType)) {
-          throw new Error('host_run: --managedDispatch requires storyId and a supported required reviewer agentType');
+          throw new Error('host_run: --managedDispatch requires storyId and a supported required reviewer or implementer agentType');
+        }
+        if (agentType === 'proof-or-stop-implementer' && !itemId) {
+          throw new Error('host_run: --managedDispatch proof-or-stop-implementer requires exactly one itemId');
+        }
+        if (agentType !== 'proof-or-stop-implementer' && itemId) {
+          throw new Error(`host_run: --managedDispatch ${agentType} is story-scoped; do not pass itemId`);
         }
         if (reviewRunId || lane || normalizeString(args.phase)) {
           throw new Error('host_run: --managedDispatch derives phase and role binding; do not pass reviewRunId, lane, or phase');
@@ -485,7 +496,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         if (story.phase !== managedDispatchPhase) {
           throw new Error(`host_run: --managedDispatch ${agentType} requires Story phase ${managedDispatchPhase}, got ${story.phase}`);
         }
-        promptText = createStoryDispatchHandlers(ctx).dispatch({ storyId, agentType }).prompt;
+        promptText = createStoryDispatchHandlers(ctx).dispatch({ storyId, agentType, ...(itemId ? { itemId } : {}) }).prompt;
         managedDispatch = true;
       } else if (hasPrompt === hasPromptFile) {
         throw new Error('host_run: provide exactly one of --prompt or --promptFile (or use --managedReview with an exact ReviewRun)');
@@ -546,6 +557,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           model: selection.model,
           reasoningEffort: selection.reasoningEffort,
           storyId,
+          ...(itemId ? { managedDispatchTarget: { itemId } } : {}),
           agentType,
           phase,
           promptText,

@@ -8,6 +8,7 @@ import { rethrowIntentAmendmentIntegrityError } from '../core/verification-inten
 import { inspectIntentCheckpointRecovery } from '../core/verification-intent-checkpoint.js';
 import { acceptanceIntentHash, acceptanceScopeHash, createIntentAmendment, createIntentRevision } from '../core/verification-intent-amendment.js';
 import { currentGitHead } from '../core/evidence-freshness.js';
+import { resolveManagedDispatchInvocation } from '../core/managed-host-run.js';
 
 import { accessSync, constants, existsSync, readFileSync, realpathSync, statSync } from 'fs';
 import { dirname, isAbsolute, join, resolve } from 'path';
@@ -3416,6 +3417,18 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         results.push('owner-approved proposal applied; independent authorship is advisory, not host-attested');
       }
 
+      const managedDispatchRunId = args.status === 'done'
+        && oldStatus !== 'done'
+        && dispatchedRole?.canonicalName === 'proof-or-stop-implementer'
+        && typeof process.env.LATTICE_MANAGED_INIT_INVOCATION === 'string'
+        ? resolveManagedDispatchInvocation({
+          root,
+          storyId: args.storyId,
+          agentType: 'proof-or-stop-implementer',
+          itemId: args.itemId,
+        })
+        : undefined;
+
       store.writeChecklist(args.storyId, cl);
       if (args.verificationIntent !== undefined) {
         try {
@@ -3441,6 +3454,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
               type: 'subagent_result',
               checklistId: args.itemId,
               success: args.success !== false,
+              ...(managedDispatchRunId ? { managedDispatchRunId } : {}),
             });
           }
         } catch (e) {

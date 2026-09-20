@@ -263,7 +263,8 @@ reason 请求 full context；feature flag 本身不会授予 incremental eligibi
 也不会改变 pass/finding 的签名与 freshness 门禁。在途 legacy pass 仍只按其
 原始 ReviewRun/round/Envelope 解释，不能因后来切换 flag 被重新绑定。
 
-INIT reviewer 和 PLAN 的必需 scope reviewer 可使用独立的 `managedDispatch` 模式。它不接受调用方 prompt，
+单个 DEV checklist implementer、INIT reviewer、PLAN 的必需 scope reviewer 和 TEST delivery reviewer
+可使用独立的 `managedDispatch` 模式。它不接受调用方 prompt，
 而是调用 canonical `dispatch` 取得完整 envelope，并把 Story、role、prompt
 digest 与 provider process identity 封存在 managed run 中。controller 还会签发
 一个只在 run deadline 前有效、绑定 Story、role、run ID 和随机 nonce 的一次性
@@ -272,6 +273,13 @@ digest 与 provider process identity 封存在 managed run 中。controller 还�
 进程仍属于外层 provider 的 PGID。旧 adapter 的同进程组路径只保留兼容性；
 对应 gate 仍会验证完成态 receipt 和其中精确的 delivery run binding。篡改
 Story/role/run、重放凭证或在 run 终态后调用均 fail closed。
+
+DEV implementer 额外要求精确 `itemId`。该目标写入不可变 run binding；只有同一
+managed run 内对该 item 的 `checklist_update status=done` 才能消费一次性凭证并写入
+带 `managedDispatchRunId` 的成功 `subagent_result`。provider 退出 0、仅把 item 标成
+`in_progress`、完成其他 item，或缺少绑定结果时都不会生成 completed terminal。
+普通 implementer 模式保留调用方明确选择的模型与 reasoning effort；它不冒充 reviewer，
+也不套用独立 reviewer 的模型资格限制。
 
 凭证通过环境变量传递，是为了兼容会把每条工具命令放入新 session/PGID 的
 Codex host；这里的环境变量只是 transport，信任来自 controller 的 Ed25519
@@ -282,7 +290,8 @@ host/container 隔离来阻止无关的同 UID 或 root 进程读取其环境；
 
 provider 进程退出 0 本身不构成完成：worker 只有在配置的 Story store 中读到
 与该 Story、role 和 managed run ID 精确绑定的 `init-check.json` reviewer 记录或
-`scope-check.json` 记录后才写
+`scope-check.json` 记录，或与 Story、item、run 精确绑定的成功 implementer
+`subagent_result` 后才写
 `completed` terminal。记录不存在或不匹配时以
 `managed_dispatch_output_missing` 失败；配置路径中的记录无法读取或解析时以
 `managed_dispatch_output_unreadable` 保留受限错误诊断并继续 fail closed；签名
@@ -298,6 +307,7 @@ Linux Docker/OCI 中的 Codex reviewer 已位于外层容器隔离边界。PoS �
 `--skip-git-repo-check --ephemeral --ignore-rules`；容器检测只决定 sandbox mode。
 
 ```bash
+proof-or-stop host_run '{"host":"codex","model":"<configured-implementation-model>","reasoningEffort":"high","storyId":"B-xxxx","itemId":"CHK-001","agentType":"proof-or-stop-implementer","managedDispatch":true,"detach":true,"json":true}'
 proof-or-stop host_run '{"host":"codex","model":"gpt-5.6-sol","reasoningEffort":"high","storyId":"B-xxxx","agentType":"proof-or-stop-review-story-init","managedDispatch":true,"detach":true,"json":true}'
 proof-or-stop host_run '{"host":"codex","model":"gpt-5.6-sol","reasoningEffort":"high","storyId":"B-xxxx","agentType":"proof-or-stop-product-reviewer","managedDispatch":true,"detach":true,"json":true}'
 proof-or-stop host_run '{"host":"codex","model":"gpt-5.6-sol","reasoningEffort":"high","storyId":"B-xxxx","agentType":"proof-or-stop-review-scope-plan","managedDispatch":true,"detach":true,"json":true}'

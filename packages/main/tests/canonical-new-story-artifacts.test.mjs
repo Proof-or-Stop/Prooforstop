@@ -3133,7 +3133,7 @@ const OWNED_IMPORT_USE_CONTEXTS = [
     "occurrences": 95,
     "contextSha256": "03a898d8331a0fdec5728ab334e998d9e62dfd09162a37e290787328a04459d1"
   },
-  {"sourcePath": "packages/main/src/handlers/checklist.ts", "occurrences": 831, "contextSha256": "4052f4949f849e15ef1c81064355ce8366821cc9f77ff6089eb3969b101e9f4a"},
+  {"sourcePath": "packages/main/src/handlers/checklist.ts", "occurrences": 922, "contextSha256": "41f3b9b2557e7e75912f545235dc72ae6f53474497ae9e3148a2fe6331d9decc"},
   {
     "sourcePath": "packages/main/src/handlers/done-effects.ts",
     "occurrences": 257,

@@ -18,6 +18,7 @@ const bin = join(root, 'bin');
 const oldPath = process.env.PATH;
 const oldProjectRoot = process.env.PROOF_OR_STOP_PROJECT_ROOT;
 const oldSession = process.env.PROOF_OR_STOP_SESSION_ID;
+const oldHome = process.env.HOME;
 
 function git(...args) {
   const result = spawnSync('git', args, { cwd: root, encoding: 'utf8' });
@@ -43,7 +44,20 @@ try {
     type: 'bug', phase: 'DEV', priority: 'high', createdAt: new Date().toISOString(), events: [],
   });
   store.writeChecklist(storyId, {
-    items: [{ id: itemId, title: 'Implement the bounded repair', context: 'Regression fixture.', status: 'pending' }],
+    items: [{
+      id: itemId,
+      title: 'Implement the bounded repair',
+      context: 'Regression fixture.',
+      status: 'pending',
+      verificationIntent: {
+        happy: [{ id: `${itemId}:happy:0`, desc: 'Managed worker records its exact completion.', type: 'logic', priority: 'must' }],
+        edge: [], adversarial: [],
+      },
+      verificationEvidence: [{
+        intentRef: `${itemId}:happy:0`, kind: 'logic_test', result: 'pass',
+        note: 'The fixture command exercises the controller-owned worker and exact completion receipt.',
+      }],
+    }],
   });
   git('add', '.');
   git('commit', '-qm', 'fixture');
@@ -61,6 +75,7 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
   process.env.PATH = `${bin}:${oldPath ?? ''}`;
   process.env.PROOF_OR_STOP_PROJECT_ROOT = root;
   process.env.PROOF_OR_STOP_SESSION_ID = 'managed-implementer-owner';
+  process.env.HOME = root;
 
   const handlers = createHostRunHandlers({ root, scanRoot: root, store }, {
     launchWorker: async request => {
@@ -72,13 +87,15 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
   let result;
   try {
     result = await handlers.host_run({
-      host: 'codex', storyId, itemId, agentType: 'proof-or-stop-implementer',
+      host: 'codex', model: 'deepseek-v4.1-flash', reasoningEffort: 'high',
+      storyId, itemId, agentType: 'proof-or-stop-implementer',
       managedDispatch: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
     });
   } catch (error) {
     assert.fail(`MANAGED_IMPLEMENTER_DISPATCH_REQUIRED: ${error instanceof Error ? error.message : String(error)}`);
   }
   assert.equal(result.exitCode, 0, JSON.stringify(result));
+  assert.equal(result.model, 'deepseek-v4.1-flash');
   assert.equal(store.readChecklist(storyId).items.find(item => item.id === itemId)?.status, 'done');
   assert.match(readFileSync(join(root, 'delivered-implementer-prompt.txt'), 'utf8'),
     /proof-or-stop checklist_update/);
@@ -89,11 +106,15 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
   assert.deepEqual(verifyManagedDispatchDelivery({
     root, runId: result.runId, storyId, agentType: 'proof-or-stop-implementer', itemId,
   }), { valid: true });
+  assert.equal(verifyManagedDispatchDelivery({
+    root, runId: result.runId, storyId, agentType: 'proof-or-stop-implementer', itemId: 'CHK-999',
+  }).valid, false, 'a completed implementation run must not authorize another checklist item');
 
   console.log('MANAGED_IMPLEMENTER_DISPATCH_E2E_GREEN');
 } finally {
   if (oldPath === undefined) delete process.env.PATH; else process.env.PATH = oldPath;
   if (oldProjectRoot === undefined) delete process.env.PROOF_OR_STOP_PROJECT_ROOT; else process.env.PROOF_OR_STOP_PROJECT_ROOT = oldProjectRoot;
   if (oldSession === undefined) delete process.env.PROOF_OR_STOP_SESSION_ID; else process.env.PROOF_OR_STOP_SESSION_ID = oldSession;
+  if (oldHome === undefined) delete process.env.HOME; else process.env.HOME = oldHome;
   rmSync(root, { recursive: true, force: true });
 }

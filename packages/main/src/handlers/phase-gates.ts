@@ -331,7 +331,7 @@ export function runImplementationWorkerAuthorityGate(
     throw new Error(
       `Cannot enter REVIEW: canonical implementation worker evidence is missing or invalid [implementation_worker_authority_invalid]\n` +
       `${renderChannelResult(result)}\n` +
-      `→ Run proof-or-stop dispatch for each non-exempt checklist item, launch the exact returned prompt, and retain the successful subagent_result evidence before retrying REVIEW.`,
+      `→ For each non-exempt checklist item, either launch the exact proof-or-stop dispatch prompt through a native host task with a nonempty task identity, or use host_run with storyId, itemId, agentType=proof-or-stop-implementer, and managedDispatch=true. Retain the successful subagent_result evidence before retrying REVIEW; never wait on an empty target list.`,
     );
   }
 }
