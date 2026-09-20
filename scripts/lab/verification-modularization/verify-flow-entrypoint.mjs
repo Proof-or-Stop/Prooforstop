@@ -21,6 +21,10 @@ let preserved = 0;
 for (const n of original.statements) if (ts.isFunctionDeclaration(n)) {
  let expected = n.body.getText(original).replaceAll('dirname(fileURLToPath(import.meta.url))', 'ORIGINAL_TASKS_DIR').replaceAll("import('../core/dirty-worktree.js')", "import('../../core/dirty-worktree.js')");
  if (n.name.text === 'writeAcceptanceBasisDiscoveryFixture') expected = expected.slice(0, -1) + '  writeRegisteredDiscoverySnapshots(root);\n}';
+ if (n.name.text === 'assertStoryAdvanceReviewEchoOmitsRetiredChannel') {
+  const repair = JSON.parse(fs.readFileSync('scripts/lab/verification-modularization/flow-fixture-repair.json', 'utf8'));
+  assert.equal(expected.split(repair.before).length - 1, 1); expected = expected.replace(repair.before, repair.after);
+ }
  assert.equal(bodies.get(n.name.text), expected, 'changed flow assertion ' + n.name.text); preserved++;
 }
 console.log('FLOW_FUNCTION_BODIES_PRESERVED ' + preserved);

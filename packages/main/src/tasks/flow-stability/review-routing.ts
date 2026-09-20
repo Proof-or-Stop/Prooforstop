@@ -1,3 +1,4 @@
+import { createStoryDispatchHandlers } from '../../handlers/story-dispatch.js';
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
 
@@ -296,6 +297,11 @@ export async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(basisOnly 
     assert.equal(planArtifact?.basis.generatedBy.verifier, 'acceptance-coverage-basis-verifier');
     assert.equal(planArtifact?.basis.generatedBy.command, 'proof-or-stop acceptance_basis_generate');
     if (basisOnly) return;
+    // Supply the current normal-channel prerequisite through its real writer.
+    const implementationDispatch = createStoryDispatchHandlers({ store, root, scanRoot: join(root, 'packages/main') });
+    for (const item of store.readChecklist(storyId).items) {
+      implementationDispatch.dispatch({ storyId, itemId: item.id, agentType: 'proof-or-stop-implementer' });
+    }
     const output = await createStoryAdvanceHandlers({
       store,
       root,
