@@ -1,5 +1,38 @@
 # Changelog
 
+## Lab benchmark-real-entry-regression - v0.3.430 - 2026-09-20
+
+- Enforce planned-provider attempt and remaining-time allowances before dispatch, preserving retries and post-transport spawn-error attempts.
+- Add durable opt-in shared host-invocation budgets, repair ceilings and prompt byte limits; normalize malformed counters, release proven pre-runner refusals and preserve completed results with concrete settlement diagnostics.
+- Preserve bounded provider-reported usage before transport exceptions, retain unavailable accounting honestly and keep the original error even when accounting fails.
+- Register six behavioral regressions in npm test and routine validate with explicit resource policy; the pinned Lab replay additionally builds, typechecks, verifies suite registration, static bindings and usage smokes. See docs/host-run-shared-budget.md.
+- Preserve the existing retired-vocabulary and snapshot-binding failures explicitly; source/parser/diagnostic bindings reject changed baseline evidence. Runtime checks after the known snapshot failure remain unexecuted. This is local maintenance evidence, not full repository success or Story DONE.
+
+Maintenance provenance: codex/lab-benchmark-real-entry-regression, repair 0cc9b8819436598a984b436c75623bbdaaad840b.
+Verification command (replayed before integration and on main): `["node","scripts/verify-benchmark-release.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab validation-production-budget-260-20260920 - v0.3.429 - 2026-09-20
+
+- Set the three complete production validation commands for process-fact, RED-evidence target binding and RED-evidence envelopes to the explicitly authorized 260000 ms timeout, replacing 180000 ms.
+- Preserve existing command arguments, assertion bodies, resources and unrelated budgets. Add a separately registered budget guard with explicit shared resource claims; refresh exact static configuration and package bindings without broadening exceptions.
+- Record a real configuration RED and GREEN through the actual static verifier, requiring U18_STATIC_PASS before PRODUCTION_VALIDATION_260_GREEN, including release-time bindings. See [production budget evidence](docs/lab/validation-production-budget-260.md); this configuration repair makes no speedup or full-suite rerun claim.
+
+Maintenance provenance: codex/lab-validation-production-budget-260-20260920, repair a0b5c2e418ebbeae8122b9e891cb548fe9142e2c.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/validation-production-budget-260.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab benchmark-control-red-green - v0.3.428 - 2026-09-20
+
+- Add an isolated benchmark controller experiment that ignores unchanged blocked progress, deduplicates executions, bounds context, and reserves shared and repair budgets before dispatch.
+- Preserve unknown usage and reconcile synthetic receipts without double-counting cached input or reasoning output; these experiments do not activate desktop or production controls.
+- Verify the RED/GREEN regression and fail-closed verifier entry with 21 checks, including 1,000 unchanged observations producing zero wakeup intents and fifty duplicate requests producing one local subprocess; a disposable mutation proves lost negative coverage is rejected.
+- Record measurement scope and reproducible comparisons in scripts/lab/benchmark-controls/README.md; this release is local Lab maintenance, not benchmark product completion.
+
+Maintenance provenance: codex/lab-benchmark-control-red-green, repair b0168e3bd76ceffb60c307f2ac61e08d053df1df.
+Verification command (replayed before integration and on main): `["node","scripts/lab/benchmark-controls/verify-entry-contract.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab validation-build-artifact-binding - v0.3.427 - 2026-09-20
 
 # Lab validation-build-artifact-binding — release notes

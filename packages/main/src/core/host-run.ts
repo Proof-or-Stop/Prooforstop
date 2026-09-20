@@ -1,3 +1,4 @@
+import { reserveHostRunBudget, settleHostRunBudget } from './host-run-budget.js';
 import { MANAGED_REVIEW_READONLY_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import { isManagedInventoryCritic, managedInventoryCriticJsonSchema, type ManagedInventoryCritic } from './managed-inventory-critic.js';
 import { prepareManagedReadonlyLaunch, type ManagedReadonlyLayout } from './managed-review-readonly.js';
@@ -491,6 +492,8 @@ export interface HostRunUsageSummary {
 }
 
 export interface HostRunResult {
+  /** Settlement failed after execution; the completed result remains available. */
+  budgetSettlementError?: string;
   host: HostRunHost;
   /** Exact selector placed on provider argv, or null when the provider default was used. */
   model?: string | null;
@@ -2406,7 +2409,34 @@ function appendFailedSummary(provider: string | null, reason: string | null): Ho
  * reviewRunId) THROW pre-spawn; cap refusals return a blocked result (a ledger
  * blocked row is written) with a nonzero exit and NO spawn.
  */
+function budgetSettlementDiagnostic(error: unknown): string {
+  return `host_run_budget_settlement_failed: ${error instanceof Error ? error.message : String(error)}`;
+}
+
 export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Promise<HostRunResult> {
+  const reservation = reserveHostRunBudget(args.root, args.usageEnv ?? args.env, args.promptText);
+  const execution = { runnerInvoked: false };
+  let result: HostRunResult;
+  try { result = await runAdmittedHostRun(args, deps, execution); }
+  catch (error) {
+    // Only the trusted runner boundary distinguishes a known refusal from an
+    // uncertain attempt. Never trust provider-authored properties on the error.
+    try { settleHostRunBudget(reservation, execution.runnerInvoked ? null : {
+      spawned: false, recorded: 'none', input: null, cacheRead: null, output: null,
+    }); } catch (settlementError) {
+      // Preserve the original object, including frozen errors and primitive throws.
+      // stderr remains available even when the original error cannot carry metadata.
+      try { process.stderr.write(budgetSettlementDiagnostic(settlementError) + '\n'); }
+      catch { /* A broken diagnostic stream must not displace the provider error. */ }
+    }
+    throw error;
+  }
+  try { settleHostRunBudget(reservation, { spawned: result.spawned, ...result.usageSummary }); }
+  catch (settlementError) { return { ...result, budgetSettlementError: budgetSettlementDiagnostic(settlementError) }; }
+  return result;
+}
+
+async function runAdmittedHostRun(args: HostRunArgs, deps: HostRunDeps, execution: { runnerInvoked: boolean }): Promise<HostRunResult> {
   if (args.host === 'grok' && args.launchProfile !== 'managed_reviewer') throw new Error('grok supports only --managedReview / acceptance_amendment_review');
   if (args.host === 'grok' && !args.managedReadonlyLayout) throw new Error('grok requires a sealed managed readonly layout before provider launch');
   // B-137a:F-110 — `agy` is accepted as a RECOGNISED host id here but is refused
@@ -2436,6 +2466,8 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
   const phase = resolvePhase(args.storyId, args.phase, deps.resolveStory);
   assertReviewRunIdBinding(args.storyId, args.reviewRunId);
   let providerSpawnObserved = false;
+  // Retain only bounded usage candidates for the exceptional transport path.
+  const exceptionUsage = new UsageLineScanner(usageLineRetainerFor(args.host));
   const releaseAdmissionAfterResult = (
     admission: ProviderProcessAdmission,
     spawn: HostRunSpawnResult,
@@ -2479,6 +2511,7 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
     let streamed = false;
     const onChunk = (chunk: HostRunChunk): void => {
       streamed = true;
+      if (chunk.stream === 'stdout') exceptionUsage.push(chunk.text);
       safeDeliver(chunk);
     };
     let spawn: HostRunSpawnResult;
@@ -2486,6 +2519,7 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
       const guardedLaunch = args.managedReadonlyLayout
         ? prepareManagedReadonlyLaunch(args.managedReadonlyLayout, {command: launch.command, argv: launch.argv, cwd: args.cwd})
         : {command: launch.command, argv: launch.argv, cwd: args.cwd};
+      execution.runnerInvoked = true;
       spawn = await runner({
         command: guardedLaunch.command,
         argv: guardedLaunch.argv,
@@ -2778,6 +2812,21 @@ export async function runHostRun(args: HostRunArgs, deps: HostRunDeps = {}): Pro
     spawn = await invokeRunner(materializeHostRunLaunch(args), admission);
   } catch (error) {
     if (!providerSpawnObserved) releaseProviderProcessAdmission(admission);
+    // Preserve reported usage received before failure, using the same bounded
+    // scanner and provider adapters as normal completion. Later truncation still
+    // invalidates a retained candidate; stderr never supplies accounting facts.
+    try {
+      if (execution.runnerInvoked) {
+        exceptionUsage.flush();
+        if (exceptionUsage.retainedText() || exceptionUsage.truncated) {
+          recordFinalForHost(args, ctx, handle, opts, exceptionUsage.retainedText(),
+            exceptionUsage.truncated, '', false);
+        } else {
+          recordDispatchUnavailableFinal(args.root, ctx, handle?.correlation ?? null,
+            handle?.estimateRecordId ?? null, blockedProvider, 'host_runner_exception_usage_unavailable', opts);
+        }
+      }
+    } catch { /* Accounting must never replace the original transport error. */ }
     throw error;
   }
   // F-025: token-verified release — never deletes a reclaimed+reacquired slot.
