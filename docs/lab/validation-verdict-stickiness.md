@@ -71,8 +71,10 @@ yet; the same command without `--legacy` reports it once Stories validate again.
   hashes and write empty strings when a lookup failed. The material and the story
   files are identified before launch and kept with the identity, so a lookup that
   fails only after the commands ran falls back to them and the executed verdict is
-  still recorded. A validate file whose provider result does not parse is a recorded
-  validation failure, not an exception. Admission refuses a stored PASS without its
+  still recorded. A validate file's printed provider result is normalized without ever
+  throwing (`normalizeValidatorResult`): one that does not parse, or whose fields are
+  not of the types the pipeline coerces, is a recorded validation failure, not an
+  exception between the command and its record. Admission refuses a stored PASS without its
   identity (`validation_identity_incomplete`); terminals from before the artifact
   binding stay valid history and are simply never matched.
 - History is `{ terminals }` or `{ unreadable }`. Only a confirmed absence (`ENOENT`)
@@ -98,7 +100,7 @@ yet; the same command without `--legacy` reports it once Stories validate again.
 
 `node scripts/verify-validation-verdict-stickiness.mjs`, registered as the last
 `validate.commands` entry. At RED: 7 failing expectations, 9 controls passed. At GREEN:
-138 checks — the pure rule, both core consumers, the DONE-side consumer over a fixture
+146 checks — the pure rule, both core consumers, the DONE-side consumer over a fixture
 Story with signed evidence, corrupt and missing histories, the report, the
 `done_prepare` trust decision, source guards, and end-to-end runs through the built
 CLI on a validate file that reads a switch outside the repository: FAIL then PASS on
@@ -116,8 +118,9 @@ returning null, and a plain-text run publishes nothing. With the production sour
 an audit's repair reverted, exactly that audit's expectations fail: 10 for the second
 (the laundered PASS among them, `exit=0 evidence=PASS/reused`), 12 for the third (the
 mixed failure recorded as `infra_failure` among them), 6 for the fourth (the recovery
-refused with `verdict_flip_refused` among them), 5 for the fifth and 4 for the sixth
-(a failing run with malformed validator output that left no record among them).
+refused with `verdict_flip_refused` among them), 5 for the fifth, 4 for the sixth (a
+failing run with malformed validator output that left no record among them) and 4 for
+the seventh.
 
 On the final Lab tree the checks that share these code paths pass:
 `validation-evidence-reuse-smoke` (its coverage-only recovery included),
@@ -187,6 +190,12 @@ commands ran refused the publication and dropped the verdict, and a failing vali
 file that printed unparsable provider JSON threw before anything was persisted. The
 run is now bound before launch with a fallback at publication, and malformed output is
 a persisted validation failure.
+
+The seventh audit (of `1e11b0bd45`, rejected) found that output which parses but whose
+status cannot be coerced to a string still threw before the record (high), and that the
+report deduplicated lines before resolving the Story, so identical legacy lines in two
+Story directories collapsed into one (medium). Normalization now validates every field
+the pipeline coerces, and the report keys a copy by Story and line.
 
 ## Limitations
 

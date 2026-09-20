@@ -308,6 +308,20 @@ try {
   const coverageOnlyReport = runReport();
   check(coverageOnlyReport.flippedIdentities === 1 && coverageOnlyReport.failThenReusedPassIdentities === 1 && coverageOnlyReport.reusedPassesAfterFail === 1 && coverageOnlyReport.flips.every((flip) => flip.storyId === storyId),
     `the report counted a coverage-only failure as a verdict (${JSON.stringify(coverageOnlyReport)})`);
+  // Audit 7: a copy is the same line of the SAME Story. An identical line in
+  // another Story's directory - legacy lines carry no storyId - is that
+  // Story's own event; the checkout and worktree copies of one Story are one.
+  const storyLessLine = (extra = {}) => { const { storyId: _none, ...rest } = terminal({ ...real, materialHash: H('7'), ...extra }); return JSON.stringify(rest); };
+  const eventsFile = (...segments) => { const dir = join(root, ...segments); mkdirSync(dir, { recursive: true }); return join(dir, 'process-events.jsonl'); };
+  writeFileSync(eventsFile('.proof-or-stop/story/actives', 'B-dup-a'), `${storyLessLine()}\n`);
+  writeFileSync(eventsFile('.proof-or-stop/story/actives', 'B-dup-b'), `${storyLessLine()}\n`);
+  const twoDirectories = runReport();
+  expectRepaired(twoDirectories.terminals === coverageOnlyReport.terminals + 2 && twoDirectories.identities === coverageOnlyReport.identities + 2,
+    `identical lines in two Story directories were counted as one event (${coverageOnlyReport.terminals} -> ${twoDirectories.terminals} terminals, ${coverageOnlyReport.identities} -> ${twoDirectories.identities} identities)`);
+  writeFileSync(eventsFile('.worktrees/B-dup-a/.proof-or-stop/story/actives', 'B-dup-a'), `${storyLessLine()}\n${storyLessLine({ result: 'pass', failureKind: undefined })}\n`);
+  const withWorktreeCopy = runReport();
+  check(withWorktreeCopy.terminals === twoDirectories.terminals + 1 && withWorktreeCopy.identities === twoDirectories.identities && withWorktreeCopy.flippedIdentities === twoDirectories.flippedIdentities + 1,
+    `control: a Story's worktree copy continues its checkout copy instead of repeating it (${JSON.stringify({ before: twoDirectories.terminals, after: withWorktreeCopy.terminals, flipped: withWorktreeCopy.flippedIdentities })})`);
 } finally {
   rmSync(sandbox, { recursive: true, force: true });
 }
@@ -538,6 +552,32 @@ try {
     check(fresh.materialHash === H('e') && fresh.storyFilesHash === H('f'), 'control: a publication lookup that succeeds is what the record binds');
     check(verifierModule.publicationBindings({}, undefined).materialHash === undefined, 'control: a run that was never bound stays unbound and is refused');
   }
+
+  // Audit 7: a provider result that parses but whose fields are not of the
+  // types the pipeline coerces - String() of {toString: null} throws - is as
+  // unusable as one that does not parse. Normalization never throws.
+  expectRepaired(typeof verifierModule.normalizeValidatorResult === 'function', 'the validator result is not normalized before it is coerced');
+  if (typeof verifierModule.normalizeValidatorResult === 'function') {
+    const normalize = (value) => { try { return verifierModule.normalizeValidatorResult(typeof value === 'string' ? value : JSON.stringify(value)); } catch (error) { return { threw: String(error) }; } };
+    const unusable = [
+      { provider: 'fixture', status: { toString: null }, allPass: false }, { provider: 'fixture', status: 'pass', allPass: 'yes' }, { provider: 'fixture', status: 'pass', allPassed: 1 },
+      { provider: 'fixture', status: 'pass', summary: { toString: null } }, { provider: 'fixture', status: 'pass', details: 'not-a-list' }, { provider: 7, status: 'pass' }, ['fixture'], '{"provider":"fixture","status":fail}',
+    ];
+    expectRepaired(unusable.every((value) => { const result = normalize(value); return !result.threw && result.status === 'fail' && result.allPass === false && result.provider === 'proof-or-stop-verifier-malformed-validator-output'; }),
+      `an unusable provider result was not turned into a validation failure (${JSON.stringify(unusable.map(normalize).map((r) => r.threw ?? r.status))})`);
+    const usable = normalize({ provider: 'fixture', status: 'pass', allPass: true, summary: 'ok', details: ['a', { toString: null }, 3], warnings: [] });
+    check(usable.status === 'pass' && usable.allPass === true && usable.provider === 'fixture' && JSON.stringify(usable.details) === JSON.stringify(['a', '{"toString":null}', '3']), `control: a usable result passes through, with list entries made strings (${JSON.stringify(usable)})`);
+  }
+  const unusableStatus = seed('unusable-status', `const verdict = require('node:fs').readFileSync(process.env.STICKINESS_SWITCH, 'utf8').trim();\nif (verdict === 'pass') { console.log(JSON.stringify({ provider: 'flaky-fixture', status: 'pass', allPass: true, summary: 'pass', details: [], warnings: [] })); process.exit(0); }\nconsole.log(JSON.stringify({ provider: 'flaky-fixture', status: { toString: null }, allPass: false }));\nprocess.exit(1);\n`);
+  writeFileSync(switchPath, 'fail\n');
+  const unusableRun = unusableStatus.runCli();
+  check(unusableRun.status !== 0, `control: a failing run with an unusable status fails (${unusableRun.text.slice(0, 300)})`);
+  expectRepaired(kinds(unusableStatus.history()) === JSON.stringify([['fail', 'executed', 'validation_failure']]) && unusableStatus.evidence()?.result === 'FAIL',
+    `a failing run whose printed status could not be coerced left no record (${kinds(unusableStatus.history())} evidence=${unusableStatus.evidence()?.result}; ${unusableRun.text.slice(0, 300)})`);
+  unusableStatus.admit();
+  writeFileSync(switchPath, 'pass\n');
+  const unusableRetry = unusableStatus.runCli();
+  expectRepaired(unusableRetry.status !== 0 && unusableRetry.text.includes('verdict_flip_refused') && unusableStatus.evidence()?.result !== 'PASS', 'an uncoercible printed status exempted the retry from stickiness');
 
   // Audit 6: a validate file that fails and prints a provider result that does
   // not parse is a recorded validation failure, not an exception that leaves

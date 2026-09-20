@@ -56,11 +56,16 @@ const events = [];
 for (const dir of sources) {
   for (const line of readFileSync(join(dir, 'process-events.jsonl'), 'utf8').split('\n')) {
     const text = line.trim();
-    if (!text || seen.has(text)) continue;
+    if (!text.includes('"validation_terminal"')) continue;
     let event; try { event = JSON.parse(text); } catch { continue; }
     if (!event || event.type !== 'validation_terminal') continue;
-    seen.add(text);
-    events.push({ ...event, storyId: typeof event.storyId === 'string' ? event.storyId : basename(dir) });
+    // A copy is the same line of the same Story. The Story is resolved first:
+    // an identical line in another Story's directory is another Story's event.
+    const storyId = typeof event.storyId === 'string' ? event.storyId : basename(dir);
+    const key = `${storyId}\n${text}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    events.push({ ...event, storyId });
   }
 }
 

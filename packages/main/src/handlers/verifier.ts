@@ -896,6 +896,39 @@ const preLaunchBindings = new WeakMap<RoutineValidationIdentity, { materialHash:
 const isSha256Hex = (value: unknown): value is string => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
 
 /**
+ * Exported for the fail-sticky regression. A validate file's printed provider
+ * result, made safe to carry through the pipeline: every field the pipeline
+ * coerces has the type it is coerced from, or the whole result is replaced by
+ * a structured validation failure. It never throws, so an executed run always
+ * reaches its record.
+ */
+export function normalizeValidatorResult(text: string, output = text): Record<string, any> & { status: string } {
+  const malformed = (reason: string) => ({
+    provider: 'proof-or-stop-verifier-malformed-validator-output',
+    status: 'fail',
+    allPass: false,
+    summary: 'The validate file printed a provider result this verifier cannot use',
+    details: [`malformed validator result: ${reason}`, ...output.split('\n').filter((line) => line.trim()).slice(0, 40)],
+    warnings: [] as string[],
+  });
+  let parsed: unknown;
+  try { parsed = JSON.parse(text); } catch (error) { return malformed(error instanceof Error ? error.message : 'not valid JSON'); }
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return malformed('the provider result is not an object');
+  const result = parsed as Record<string, any>;
+  if (typeof result.provider !== 'string' || typeof result.status !== 'string') return malformed('provider and status must be strings');
+  for (const flag of ['allPass', 'allPassed']) {
+    if (result[flag] !== undefined && typeof result[flag] !== 'boolean') return malformed(`${flag} must be a boolean`);
+  }
+  if (result.summary !== undefined && typeof result.summary !== 'string') return malformed('summary must be a string');
+  for (const list of ['details', 'warnings']) {
+    if (result[list] === undefined) continue;
+    if (!Array.isArray(result[list])) return malformed(`${list} must be an array`);
+    result[list] = (result[list] as unknown[]).map((entry) => (typeof entry === 'string' ? entry : JSON.stringify(entry) ?? 'null'));
+  }
+  return result as Record<string, any> & { status: string };
+}
+
+/**
  * Exported for the fail-sticky regression. What a publication binds: its own
  * lookup, and where that lookup fails only after the commands ran, what the
  * run was bound to before it launched.
@@ -3174,24 +3207,15 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           // Look for JSON object in output
           const jsonMatch = stripped.match(/\{[\s\S]*"provider"\s*:\s*"[^"]+"[\s\S]*\}/);
           if (jsonMatch) {
-            // Output that looks like a provider result but does not parse is a
+            // Output that looks like a provider result but does not parse, or
+            // whose fields are not of the types this pipeline coerces, is a
             // validation failure with the executor's own command outcome, and
-            // is persisted like one. Throwing here would leave an executed
-            // run without a record, whatever its exit code was.
-            let parsed: any;
-            try { parsed = JSON.parse(jsonMatch[0]); } catch (parseError) {
-              parsed = {
-                provider: 'proof-or-stop-verifier-malformed-validator-output',
-                status: 'fail',
-                allPass: false,
-                summary: 'The validate file printed a provider result that is not valid JSON',
-                details: [`malformed validator JSON: ${parseError instanceof Error ? parseError.message : String(parseError)}`, ...stripped.split('\n').filter((line) => line.trim()).slice(0, 40)],
-                warnings: [],
-              };
-            }
-            const semanticCommandPass = String(parsed?.status ?? '').trim().toLowerCase() === 'pass'
-              && parsed?.allPass !== false
-              && parsed?.allPassed !== false;
+            // is persisted like one. Throwing anywhere between the command and
+            // its record would leave an executed run without one.
+            const parsed = normalizeValidatorResult(jsonMatch[0], stripped);
+            const semanticCommandPass = parsed.status.trim().toLowerCase() === 'pass'
+              && parsed.allPass !== false
+              && parsed.allPassed !== false;
             // Coverage decoration must not turn an exit-zero semantic non-PASS into PASS.
             const semanticResult = semanticCommandPass ? parsed : { ...parsed, status: 'fail', allPass: false };
             const focusedParsed = focus ? markFocusedResult(semanticResult, focus) : semanticResult;
