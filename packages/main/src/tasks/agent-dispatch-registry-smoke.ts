@@ -927,6 +927,9 @@ try {
               waitTarget: 'nonempty-task-identity',
               missingWorkerDisposition: 'keep-finding-open',
             }, 'finding repair dispatch must expose a machine-readable native launch prerequisite');
+            const jsonRoundTrip = JSON.parse(JSON.stringify(dispatchResult));
+            assert.deepEqual(jsonRoundTrip.nativeLaunchContract, dispatchResult.nativeLaunchContract,
+              'finding repair launch contract must survive the CLI object-result JSON serialization boundary');
             assert.match(prompt, /Controller launch contract \(the repair worker does not perform this step\)/,
               'FINDING_REPAIR_CONTROLLER_LAUNCH_REQUIRED');
             assert.match(prompt, /dispatch prepares the canonical prompt only; it does not start a host task/i,
@@ -964,6 +967,21 @@ try {
     'finding resolution must remain protected by the Story owner lease');
   assert.deepEqual(findingResolvePolicy?.allowedPhases, ['DEV', 'REVIEW'],
     'FINDING_REPAIR_DEV_RESOLUTION_REQUIRED');
+  const ownerAgentBeforeResolve = process.env.PROOF_OR_STOP_AGENT;
+  delete process.env.PROOF_OR_STOP_AGENT;
+  store.writeStory(storyId, { ...store.readStory(storyId), phase: 'DEV' });
+  try {
+    findingHandlers.finding_resolve({
+      storyId,
+      findingId: `${storyId}:F-001`,
+      resolution: 'Story owner verified the committed repair and focused validation output',
+    });
+    assert.equal(store.readFindings(storyId).findings.find(row => row.id === `${storyId}:F-001`)?.status, 'resolved',
+      'Story owner must be able to close a verified finding through the real handler in DEV');
+  } finally {
+    if (ownerAgentBeforeResolve === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = ownerAgentBeforeResolve;
+  }
   assertCoverageComplete(AGENT_DISPATCH_REGISTRY, coveredCanonical, coveredAliases, actualPromptCoverage);
 } finally {
   if (previousHostSession === undefined) delete process.env.PROOF_OR_STOP_SESSION_ID;
