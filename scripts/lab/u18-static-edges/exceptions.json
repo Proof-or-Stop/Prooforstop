@@ -14253,7 +14253,7 @@
         "packages/main/src/core/verification.ts": "f19c12db7bb2a694d3160cc5ff5d5e384326067b060cb1828835f85b83723e4b",
         "packages/main/src/core/workflow-policy.ts": "9a043d622356deec4b89a50b046572edb3efbc9d9cfa6fa165a80b1fd2024ced",
         "packages/main/src/handlers/acceptance-amendment.ts": "768eb0fb124163d2c3ad5fa99576120036d938e0e050e382b793f590fbf1c199",
-        "packages/main/src/handlers/verifier.ts": "b5bae55049a99264499ccde313ae464f2f0cedb5c9343c1368ec84f44a03419f",
+        "packages/main/src/handlers/verifier.ts": "ba7775633912f35d4c8852e5c0a0ac3af82edd7934ae2d25d9328b27047ae9f4",
         "scripts/ensure-dist.mjs": "2888be4137a602d465257d0f39a964ed280174033656b989755c671e0d9f6131",
         "scripts/full-suite-build-binding.mjs": "947d6ea2e0bc3c45bf220607aef43d514987446f9fa9e0de976f98d6fed899e6",
         "scripts/verification-subprocess-budget.mjs": "c1b62e79bf0a0f4e92e8b43767f06bc27cd29f57b19a350e73aca0a3af9abd43",
@@ -14314,7 +14314,7 @@
         "packages/main/src/core/verification.ts": "f19c12db7bb2a694d3160cc5ff5d5e384326067b060cb1828835f85b83723e4b",
         "packages/main/src/core/workflow-policy.ts": "9a043d622356deec4b89a50b046572edb3efbc9d9cfa6fa165a80b1fd2024ced",
         "packages/main/src/handlers/acceptance-amendment.ts": "768eb0fb124163d2c3ad5fa99576120036d938e0e050e382b793f590fbf1c199",
-        "packages/main/src/handlers/verifier.ts": "b5bae55049a99264499ccde313ae464f2f0cedb5c9343c1368ec84f44a03419f",
+        "packages/main/src/handlers/verifier.ts": "ba7775633912f35d4c8852e5c0a0ac3af82edd7934ae2d25d9328b27047ae9f4",
         "proof-or-stop.config.json": "0bca05e84e5428e518d86b386d64ffb3fcd066fc5ffeae3b28eb16abf130b639",
         "scripts/ensure-dist.mjs": "2888be4137a602d465257d0f39a964ed280174033656b989755c671e0d9f6131",
         "scripts/full-suite-build-binding.mjs": "947d6ea2e0bc3c45bf220607aef43d514987446f9fa9e0de976f98d6fed899e6",
@@ -14973,7 +14973,7 @@
       "id": "EX-VERDICT-STICKINESS-01",
       "key": "scripts/verify-validation-verdict-stickiness.mjs:277:execFileSync",
       "callDigest": "294f9c8ed5b02bc4038431d2386b09b77661aeb2cff6c2b07d27d4ec38be6245",
-      "sourceDigest": "378917e46f21af017cc5e874638b3932a36ff2e15b81378b5e5454a31628386e",
+      "sourceDigest": "1833650ef0cd49e1fa78dcdbbb3181b0dffcf5c7e2850d63011c436d5fdc8a15",
       "configIndexes": [
         244
       ],
@@ -14984,20 +14984,20 @@
           "file": "scripts/verify-validation-verdict-stickiness.mjs",
           "startLine": 276,
           "endLine": 278,
-          "sourceDigest": "378917e46f21af017cc5e874638b3932a36ff2e15b81378b5e5454a31628386e",
+          "sourceDigest": "1833650ef0cd49e1fa78dcdbbb3181b0dffcf5c7e2850d63011c436d5fdc8a15",
           "excerpt": "  // -------------------------------------------------------------------------\n  const report = JSON.parse(execFileSync(process.execPath, [join(repoRoot, 'scripts/report-validation-verdict-flips.mjs'), '--root', root, '--json'], { encoding: 'utf8' }));\n  check(report.terminals === 2 && report.identities === 1, `report must see the two executed terminals as one identity (${JSON.stringify(report)})`);"
         }
       ],
       "dependencyDigests": {
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
-        "scripts/verify-validation-verdict-stickiness.mjs": "378917e46f21af017cc5e874638b3932a36ff2e15b81378b5e5454a31628386e"
+        "scripts/verify-validation-verdict-stickiness.mjs": "1833650ef0cd49e1fa78dcdbbb3181b0dffcf5c7e2850d63011c436d5fdc8a15"
       }
     },
     {
       "id": "EX-VERDICT-STICKINESS-02",
       "key": "scripts/verify-validation-verdict-stickiness.mjs:281:execFileSync",
       "callDigest": "294f9c8ed5b02bc4038431d2386b09b77661aeb2cff6c2b07d27d4ec38be6245",
-      "sourceDigest": "378917e46f21af017cc5e874638b3932a36ff2e15b81378b5e5454a31628386e",
+      "sourceDigest": "1833650ef0cd49e1fa78dcdbbb3181b0dffcf5c7e2850d63011c436d5fdc8a15",
       "configIndexes": [
         244
       ],
@@ -15008,20 +15008,20 @@
           "file": "scripts/verify-validation-verdict-stickiness.mjs",
           "startLine": 280,
           "endLine": 282,
-          "sourceDigest": "378917e46f21af017cc5e874638b3932a36ff2e15b81378b5e5454a31628386e",
+          "sourceDigest": "1833650ef0cd49e1fa78dcdbbb3181b0dffcf5c7e2850d63011c436d5fdc8a15",
           "excerpt": "  store.appendProcessEvent(storyId, { ...terminal({ ...real, storyId, result: 'pass' }), timestamp: undefined });\n  const flipped = JSON.parse(execFileSync(process.execPath, [join(repoRoot, 'scripts/report-validation-verdict-flips.mjs'), '--root', root, '--json'], { encoding: 'utf8' }));\n  check(flipped.flippedIdentities === 1 && flipped.redundantExecutions === 2, `report must count the flip and the re-executions (${JSON.stringify(flipped)})`);"
         }
       ],
       "dependencyDigests": {
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
-        "scripts/verify-validation-verdict-stickiness.mjs": "378917e46f21af017cc5e874638b3932a36ff2e15b81378b5e5454a31628386e"
+        "scripts/verify-validation-verdict-stickiness.mjs": "1833650ef0cd49e1fa78dcdbbb3181b0dffcf5c7e2850d63011c436d5fdc8a15"
       }
     },
     {
       "id": "EX-VERDICT-STICKINESS-03",
       "key": "scripts/verify-validation-verdict-stickiness.mjs:289:execFileSync",
       "callDigest": "294f9c8ed5b02bc4038431d2386b09b77661aeb2cff6c2b07d27d4ec38be6245",
-      "sourceDigest": "378917e46f21af017cc5e874638b3932a36ff2e15b81378b5e5454a31628386e",
+      "sourceDigest": "1833650ef0cd49e1fa78dcdbbb3181b0dffcf5c7e2850d63011c436d5fdc8a15",
       "configIndexes": [
         244
       ],
@@ -15032,20 +15032,20 @@
           "file": "scripts/verify-validation-verdict-stickiness.mjs",
           "startLine": 288,
           "endLine": 290,
-          "sourceDigest": "378917e46f21af017cc5e874638b3932a36ff2e15b81378b5e5454a31628386e",
+          "sourceDigest": "1833650ef0cd49e1fa78dcdbbb3181b0dffcf5c7e2850d63011c436d5fdc8a15",
           "excerpt": "  store.appendProcessEvent(otherStory, { ...terminal({ ...real, storyId: otherStory, result: 'pass' }), timestamp: undefined });\n  const twoStories = JSON.parse(execFileSync(process.execPath, [join(repoRoot, 'scripts/report-validation-verdict-flips.mjs'), '--root', root, '--json'], { encoding: 'utf8' }));\n  expectRepaired(twoStories.identities === 2 && twoStories.flippedIdentities === 1 && twoStories.flips.every((flip) => flip.storyId === storyId),"
         }
       ],
       "dependencyDigests": {
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
-        "scripts/verify-validation-verdict-stickiness.mjs": "378917e46f21af017cc5e874638b3932a36ff2e15b81378b5e5454a31628386e"
+        "scripts/verify-validation-verdict-stickiness.mjs": "1833650ef0cd49e1fa78dcdbbb3181b0dffcf5c7e2850d63011c436d5fdc8a15"
       }
     },
     {
       "id": "EX-VERDICT-STICKINESS-04",
       "key": "scripts/verify-validation-verdict-stickiness.mjs:294:execFileSync",
       "callDigest": "d9756ca903b001d565977526690874ec7fc2794226e4153f74a57400e32c673f",
-      "sourceDigest": "378917e46f21af017cc5e874638b3932a36ff2e15b81378b5e5454a31628386e",
+      "sourceDigest": "1833650ef0cd49e1fa78dcdbbb3181b0dffcf5c7e2850d63011c436d5fdc8a15",
       "configIndexes": [
         244
       ],
@@ -15056,20 +15056,20 @@
           "file": "scripts/verify-validation-verdict-stickiness.mjs",
           "startLine": 293,
           "endLine": 295,
-          "sourceDigest": "378917e46f21af017cc5e874638b3932a36ff2e15b81378b5e5454a31628386e",
+          "sourceDigest": "1833650ef0cd49e1fa78dcdbbb3181b0dffcf5c7e2850d63011c436d5fdc8a15",
           "excerpt": "  // second execution to count, so the report counts it on its own, in log order.\n  const runReport = (...flags) => JSON.parse(execFileSync(process.execPath, [join(repoRoot, 'scripts/report-validation-verdict-flips.mjs'), '--root', root, ...flags, '--json'], { encoding: 'utf8' }));\n  check(twoStories.failThenExecutedPassIdentities === 1 && twoStories.failThenReusedPassIdentities === 0,"
         }
       ],
       "dependencyDigests": {
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
-        "scripts/verify-validation-verdict-stickiness.mjs": "378917e46f21af017cc5e874638b3932a36ff2e15b81378b5e5454a31628386e"
+        "scripts/verify-validation-verdict-stickiness.mjs": "1833650ef0cd49e1fa78dcdbbb3181b0dffcf5c7e2850d63011c436d5fdc8a15"
       }
     },
     {
       "id": "EX-VERDICT-STICKINESS-05",
       "key": "scripts/verify-validation-verdict-stickiness-cli.mjs:88:spawnSync",
-      "callDigest": "de49bed1e7cc6d0e47224b660f013d859dd309e8e58c566d0da3bd00bedb0f92",
-      "sourceDigest": "bd039fe6f9d9b0aa5dd21392e25b23a82840ef6c61428a5cdfe209a55d99f81d",
+      "callDigest": "f1baf38906c3a7c0e98ebf159283922131be1d5ab90d41b7ee98d028d9e7166b",
+      "sourceDigest": "c1b588def352c7eb221d0ba35b9cc2fcdaf8c5e13adb041d675c7e2b2214c1c5",
       "configIndexes": [
         245
       ],
@@ -15080,20 +15080,20 @@
           "file": "scripts/verify-validation-verdict-stickiness-cli.mjs",
           "startLine": 87,
           "endLine": 89,
-          "sourceDigest": "bd039fe6f9d9b0aa5dd21392e25b23a82840ef6c61428a5cdfe209a55d99f81d",
-          "excerpt": "    const runCli = () => {\n      const r = spawnSync(process.execPath, [cli, 'validate', `--story=${storyId}`, '--json'], {\n        cwd: root, encoding: 'utf8', timeout: 300_000,"
+          "sourceDigest": "c1b588def352c7eb221d0ba35b9cc2fcdaf8c5e13adb041d675c7e2b2214c1c5",
+          "excerpt": "    const runCli = (extraEnv = {}) => {\n      const r = spawnSync(process.execPath, [cli, 'validate', `--story=${storyId}`, '--json'], {\n        cwd: root, encoding: 'utf8', timeout: 300_000,"
         }
       ],
       "dependencyDigests": {
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
-        "scripts/verify-validation-verdict-stickiness-cli.mjs": "bd039fe6f9d9b0aa5dd21392e25b23a82840ef6c61428a5cdfe209a55d99f81d"
+        "scripts/verify-validation-verdict-stickiness-cli.mjs": "c1b588def352c7eb221d0ba35b9cc2fcdaf8c5e13adb041d675c7e2b2214c1c5"
       }
     },
     {
       "id": "EX-VERDICT-STICKINESS-06",
-      "key": "scripts/verify-validation-verdict-stickiness-cli.mjs:377:spawnSync",
+      "key": "scripts/verify-validation-verdict-stickiness-cli.mjs:412:spawnSync",
       "callDigest": "27047a96712eeb6ecac7de1ed8cb5fcfa5ca594f9a40dffb4d91fdc58df504ca",
-      "sourceDigest": "bd039fe6f9d9b0aa5dd21392e25b23a82840ef6c61428a5cdfe209a55d99f81d",
+      "sourceDigest": "c1b588def352c7eb221d0ba35b9cc2fcdaf8c5e13adb041d675c7e2b2214c1c5",
       "configIndexes": [
         245
       ],
@@ -15102,15 +15102,15 @@
       "requiredEvidence": [
         {
           "file": "scripts/verify-validation-verdict-stickiness-cli.mjs",
-          "startLine": 376,
-          "endLine": 378,
-          "sourceDigest": "bd039fe6f9d9b0aa5dd21392e25b23a82840ef6c61428a5cdfe209a55d99f81d",
+          "startLine": 411,
+          "endLine": 413,
+          "sourceDigest": "c1b588def352c7eb221d0ba35b9cc2fcdaf8c5e13adb041d675c7e2b2214c1c5",
           "excerpt": "  const dryRun = seed('dry-run', flaky());\n  const runText = () => spawnSync(process.execPath, [cli, 'validate', `--story=${dryRun.storyId}`], { cwd: dryRun.root, encoding: 'utf8', timeout: 300_000,\n    env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: dryRun.root, PROOF_OR_STOP_SESSION_ID: 'verdict-stickiness', PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex', npm_config_yes: 'true', STICKINESS_SWITCH: switchPath } });"
         }
       ],
       "dependencyDigests": {
         "scripts/lab-source-loader.mjs": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496",
-        "scripts/verify-validation-verdict-stickiness-cli.mjs": "bd039fe6f9d9b0aa5dd21392e25b23a82840ef6c61428a5cdfe209a55d99f81d"
+        "scripts/verify-validation-verdict-stickiness-cli.mjs": "c1b588def352c7eb221d0ba35b9cc2fcdaf8c5e13adb041d675c7e2b2214c1c5"
       }
     }
   ]

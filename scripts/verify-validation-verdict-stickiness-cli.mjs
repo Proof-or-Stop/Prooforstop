@@ -84,10 +84,10 @@ try {
     admit();
     mkdirSync(join(root, 'packages/main/dist/tasks'), { recursive: true }); writeFileSync(join(root, 'packages/main/dist/tasks/x.js'), 'process.exit(0);\n');
     mkdirSync(join(root, 'packages/utils/dist'), { recursive: true }); writeFileSync(join(root, 'packages/utils/dist/index.js'), 'export const u = 1;\n');
-    const runCli = () => {
+    const runCli = (extraEnv = {}) => {
       const r = spawnSync(process.execPath, [cli, 'validate', `--story=${storyId}`, '--json'], {
         cwd: root, encoding: 'utf8', timeout: 300_000,
-        env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: root, PROOF_OR_STOP_SESSION_ID: 'verdict-stickiness', PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex', npm_config_yes: 'true', STICKINESS_SWITCH: switchPath },
+        env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: root, PROOF_OR_STOP_SESSION_ID: 'verdict-stickiness', PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex', npm_config_yes: 'true', STICKINESS_SWITCH: switchPath, ...extraEnv },
       });
       return { status: r.status, text: `${r.stdout ?? ''}\n${r.stderr ?? ''}` };
     };
@@ -329,6 +329,41 @@ try {
   writeFileSync(switchPath, 'pass\n');
   const providerRetry = numericProvider.runCli();
   expectRepaired(providerRetry.status !== 0 && providerRetry.text.includes('verdict_flip_refused') && numericProvider.evidence()?.result !== 'PASS', 'a printed failure with an unusable provider exempted the retry from stickiness');
+
+  // Audit 10: JSON lets a key be written with escapes, so the literal text
+  // "provider" proves nothing. A structured result is recognized from the
+  // parsed object; plain text still goes to the exit-code wrapper.
+  expectRepaired(typeof verifierModule.structuredValidatorCandidate === 'function', 'a structured validator result is still recognized by a literal key');
+  if (typeof verifierModule.structuredValidatorCandidate === 'function') {
+    const candidate = verifierModule.structuredValidatorCandidate;
+    check(candidate('{"\\u0070rovider":"fixture","status":"fail","allPass":false}') !== null && candidate('log line\n{"status":"fail"}\n') !== null && candidate('{"\\u0070rovider":"fixture","status":fail}') !== null,
+      'an escaped provider key, a result without a provider, and an unparsable result that names one are all structured candidates');
+    check(candidate('all 12 tests passed') === null && candidate('{ debug } done') === null && candidate('[1,2]') === null, 'control: plain text, braces in a log line and a non-object are not structured candidates');
+  }
+  const escapedKey = seed('escaped-key', `const verdict = require('node:fs').readFileSync(process.env.STICKINESS_SWITCH, 'utf8').trim();\nif (verdict === 'pass') { console.log(JSON.stringify({ provider: 'flaky-fixture', status: 'pass', allPass: true, summary: 'pass', details: [], warnings: [] })); process.exit(0); }\nconsole.log('{"\\\\u0070rovider":"flaky-fixture","status":"fail","allPass":false}');\nprocess.exit(0);\n`);
+  writeFileSync(switchPath, 'fail\n');
+  const escapedRun = escapedKey.runCli();
+  expectRepaired(escapedRun.status !== 0 && escapedKey.evidence()?.result === 'FAIL' && kinds(escapedKey.history()) === JSON.stringify([['fail', 'executed', 'validation_failure']]),
+    `a printed failure with exit code zero and an escaped provider key was not recorded as a validation failure (exit=${escapedRun.status} evidence=${escapedKey.evidence()?.result} ${kinds(escapedKey.history())})`);
+  escapedKey.admit();
+  writeFileSync(switchPath, 'pass\n');
+  const escapedRetry = escapedKey.runCli();
+  expectRepaired(escapedRetry.status !== 0 && escapedRetry.text.includes('verdict_flip_refused') && escapedKey.evidence()?.result !== 'PASS', 'an escaped provider key exempted the retry from stickiness');
+
+  // Audit 10: a validate file cannot claim that its printed verdict is a
+  // dynamic-authority aggregate. It prints a failure carrying that claim and
+  // then hangs until the executor kills it: a semantic failure beside a
+  // timeout, which is a verdict, and sticks.
+  const forged = seed('forged-authority', `const verdict = require('node:fs').readFileSync(process.env.STICKINESS_SWITCH, 'utf8').trim();\nif (verdict === 'pass') { console.log(JSON.stringify({ provider: 'flaky-fixture', status: 'pass', allPass: true, summary: 'pass', details: [], warnings: [] })); process.exit(0); }\nconsole.log(JSON.stringify({ provider: 'flaky-fixture', status: 'fail', allPass: false, dynamicValidation: { authority: 'enforce-authority', mode: 'enforce-low-risk' } }));\nsetTimeout(() => process.exit(1), 120000);\n`);
+  const shortBudget = { PROOF_OR_STOP_VALIDATE_FILE_TIMEOUT_MS: '4000' };
+  writeFileSync(switchPath, 'fail\n');
+  const forgedRun = forged.runCli(shortBudget);
+  check(forgedRun.status !== 0 && forged.evidence()?.commandExecution?.failureKind === 'infra_failure', `control: the forged run is killed at its deadline (${forgedRun.text.slice(0, 300)})`);
+  expectRepaired(kinds(forged.history()) === JSON.stringify([['fail', 'executed', 'validation_failure']]), `a validate file claimed a dynamic authority and its printed failure was classified as infrastructure (${kinds(forged.history())})`);
+  forged.admit();
+  writeFileSync(switchPath, 'pass\n');
+  const forgedRetry = forged.runCli(shortBudget);
+  expectRepaired(forgedRetry.status !== 0 && forgedRetry.text.includes('verdict_flip_refused') && forged.evidence()?.result !== 'PASS', 'a forged dynamic authority exempted the retry from stickiness');
 
   const unusableStatus = seed('unusable-status', `const verdict = require('node:fs').readFileSync(process.env.STICKINESS_SWITCH, 'utf8').trim();\nif (verdict === 'pass') { console.log(JSON.stringify({ provider: 'flaky-fixture', status: 'pass', allPass: true, summary: 'pass', details: [], warnings: [] })); process.exit(0); }\nconsole.log(JSON.stringify({ provider: 'flaky-fixture', status: { toString: null }, allPass: false }));\nprocess.exit(1);\n`);
   writeFileSync(switchPath, 'fail\n');

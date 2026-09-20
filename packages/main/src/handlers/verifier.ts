@@ -886,6 +886,13 @@ export function launchDirectoryMismatch(bindings: readonly FrozenLaunchBinding[]
 }
 
 /**
+ * Results whose semantic-pass argument is the AGGREGATE verdict of a
+ * dynamic-authority run. Only the two callers that build such a result add to
+ * it, by object identity, so nothing a validate file prints can claim it.
+ */
+const aggregateVerdictResults = new WeakSet<object>();
+
+/**
  * The committed material and story files a run executes against, captured
  * BEFORE launch and kept with the identity object the run is bound to. The
  * publication binds its record and its terminal to them when its own lookup
@@ -894,6 +901,31 @@ export function launchDirectoryMismatch(bindings: readonly FrozenLaunchBinding[]
  */
 const preLaunchBindings = new WeakMap<RoutineValidationIdentity, { materialHash: string; storyFilesHash: string }>();
 const isSha256Hex = (value: unknown): value is string => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
+
+/**
+ * Exported for the fail-sticky regression. The span of a validate file's output
+ * that is a structured provider result, or null when the output is plain text
+ * for the exit-code wrapper. It is recognized from the PARSED object and its
+ * decoded property names - JSON lets a key be written with escapes, so the
+ * literal text "provider" proves nothing - and, where the span does not parse,
+ * from its text with those escapes decoded, so that a malformed result is a
+ * recorded failure rather than plain text that passes on exit code zero.
+ */
+export function structuredValidatorCandidate(output: string): [string] | null {
+  const start = output.indexOf('{');
+  const end = output.lastIndexOf('}');
+  if (start < 0 || end <= start) return null;
+  const text = output.slice(start, end + 1);
+  try {
+    const parsed: unknown = JSON.parse(text);
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      && ['provider', 'status', 'allPass', 'allPassed'].some((key) => Object.prototype.hasOwnProperty.call(parsed, key))) return [text];
+    return null;
+  } catch {
+    const decoded = text.replace(/\\u([0-9a-fA-F]{4})/g, (_match, hex: string) => String.fromCharCode(parseInt(hex, 16)));
+    return /"provider"\s*:/.test(decoded) ? [text] : null;
+  }
+}
 
 /**
  * Exported for the fail-sticky regression. A validate file's printed provider
@@ -1577,6 +1609,8 @@ function persistStoryValidationEvidence(
   expectedCommandCount: number,
   semanticCommandPass?: boolean,
   reuseAttribution?: RoutineReuseTerminalAttribution,
+  /** Trusted: true only when a dynamic-authority caller passed its aggregate verdict as semanticCommandPass. */
+  semanticIsAggregate = false,
 ): any | null {
   const statusPass = result.status === 'pass';
   const allPass = Boolean(result.allPass ?? result.allPassed ?? statusPass);
@@ -1815,7 +1849,8 @@ function persistStoryValidationEvidence(
         // The dynamic-authority callers pass their aggregate verdict in that
         // parameter, which says nothing the command outcomes do not; only a
         // verdict a validate file printed is an independent semantic one.
-        semanticIsAggregate: result?.dynamicValidation?.authority === 'enforce-authority',
+        // Which it is comes from the caller, never from the result itself.
+        semanticIsAggregate,
         concurrentPollutionBlocking: Boolean(result?.concurrentWorktreePollution && result.concurrentWorktreePollution.blocking !== false),
       }),
     };
@@ -2119,6 +2154,7 @@ function decorateAndMaybePersistStoryValidation(
       expectedCommandCount,
       semanticCommandPass,
       reuseAttribution,
+      aggregateVerdictResults.has(result),
     );
     if (persistenceFailure) return persistenceFailure;
   }
@@ -2706,6 +2742,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                 verdictEquivalent: undefined,
               },
             };
+            aggregateVerdictResults.add(authoritative);
             const decorated = decorateAndMaybePersistStoryValidation(
               ctx,
               args.story,
@@ -3085,6 +3122,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               verdictEquivalent: undefined,
             },
           };
+          aggregateVerdictResults.add(authoritative);
           const decorated = decorateAndMaybePersistStoryValidation(
             ctx,
             args.story,
@@ -3179,7 +3217,9 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         const withExecutorBinding = <T extends Record<string, unknown>>(value: T): T => {
           // A validate file cannot classify its own failure either: the kind
           // travels from the executor, and a printed FAIL is a validation failure.
-          const { buildArtifactsHash: _printedHash, buildArtifacts: _printedObservations, buildArtifactsProtection: _printedProtection, failureKind: _printedKind, ...rest } = value as Record<string, unknown>;
+          // ... nor a dynamic validation authority: that block is attached by
+          // this verifier alone, below, from its own dynamic plan.
+          const { buildArtifactsHash: _printedHash, buildArtifacts: _printedObservations, buildArtifactsProtection: _printedProtection, failureKind: _printedKind, dynamicValidation: _printedDynamic, ...rest } = value as Record<string, unknown>;
           // The protection label travels with the binding: a validate file
           // cannot declare its own, and evidence without one is never reused.
           const protection = typeof validation.buildArtifactsProtection === 'string' ? { buildArtifactsProtection: validation.buildArtifactsProtection } : {};
@@ -3240,7 +3280,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           // provider is a number, empty or an object is malformed, not plain
           // text, and must not fall through to the exit-code wrapper below,
           // where a printed failure with exit code zero would read as a PASS.
-          const jsonMatch = stripped.match(/\{[\s\S]*"provider"\s*:[\s\S]*\}/);
+          const jsonMatch = structuredValidatorCandidate(stripped);
           if (jsonMatch) {
             // Output that looks like a provider result but does not parse, or
             // whose fields are not of the types this pipeline coerces, is a

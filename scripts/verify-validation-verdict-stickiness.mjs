@@ -370,8 +370,12 @@ check(Boolean(ownCommand) && Boolean(rebuildCommand), 'control: the end-to-end r
 const scheduler = await import('../packages/main/src/core/keyed-scheduler.ts');
 const [ownEntry, rebuildEntry] = scheduler.canonicalizeEntries([{ name: 'regression', resources: ownCommand.resources ?? [] }, { name: 'rebuild', resources: rebuildCommand.resources.filter((claim) => claim.class === 'fixed-path' && claim.key === 'packages/main/dist') }], repoRoot);
 expectRepaired(scheduler.claimsConflict(ownEntry, rebuildEntry) === true, 'the end-to-end regression executes packages/main/dist/cli.js without reserving that tree, so it may run beside a rebuild of it');
-// Audit 9: only a validate file prints an independent semantic verdict.
-expectRepaired(verifierSource.includes("semanticIsAggregate: result?.dynamicValidation?.authority === 'enforce-authority',"), 'the dynamic-authority aggregate verdict is still read as an independent semantic verdict (source-text guard)');
+// Audit 9 and 10: only a validate file prints an independent semantic verdict,
+// and which one the semantic argument is comes from the caller through a
+// registry of result objects, never from a field a validate file can print.
+expectRepaired(verifierSource.includes('aggregateVerdictResults.has(result),') && (verifierSource.match(/aggregateVerdictResults\.add\(authoritative\);/g) ?? []).length === 2
+  && !/semanticIsAggregate:\s*result\??\.dynamicValidation/.test(verifierSource) && verifierSource.includes('dynamicValidation: _printedDynamic, ...rest }'),
+  'the origin of the semantic verdict is read from the result a validate file can shape (source-text guard)');
 // Audit 6: the publication binds through the pre-launch fallback.
 expectRepaired(verifierSource.includes('}, preLaunchBindings.get(identity)),') && verifierSource.includes('preLaunchBindings.set(identity, { materialHash, storyFilesHash });'),
   'the publication does not fall back to what the run was bound to before launch (source-text guard)');
@@ -385,7 +389,7 @@ expectRepaired(/if \(!verdictIdentity\) \{\s+return persistenceFailure\(/.test(v
 // Audit 4: a terminal's command set is the routine identity digest, never a
 // differently built fallback that no later identity could match.
 expectRepaired(!verifierSource.includes('commandSetHash: identity?.digest ??') && (verifierSource.includes('commandSetHash: identity.digest,') || verifierSource.includes('commandSetHash: bindings.commandSetHash,')), 'a terminal can still record a fallback command-set digest (source-text guard)');
-expectRepaired(verifierSource.includes('failureKind: _printedKind, ...rest }') && verifierSource.includes("failureKind: validation.failureKind ?? 'validation_failure'"),
+expectRepaired(/failureKind: _printedKind,[^}]*\.\.\.rest \}/.test(verifierSource) && verifierSource.includes("failureKind: validation.failureKind ?? 'validation_failure'"),
   'the validate-file path still trusts a child-printed failureKind (source-text guard)');
 
 // ---------------------------------------------------------------------------
