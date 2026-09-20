@@ -27,4 +27,11 @@ for (const entry of manifest.entries) {
     assert.equal(evidence.excerpt, configBytes.toString('utf8').split('\n').slice(evidence.startLine - 1, evidence.endLine).join('\n'));
   }
 }
+const scripts = JSON.parse(readFileSync(new URL('package.json', root))).scripts;
+assert.equal(scripts['test:validation-production-budget-260'], 'node packages/main/tests/validation-production-budget-260.test.mjs');
+assert.ok(scripts['test:serial-reference'].includes('npm run test:reviewed-source-bindings'));
+assert.ok(scripts['test:reviewed-source-bindings'].endsWith(' && npm run test:validation-production-budget-260'));
+// Replay the actual consumer, including every package/lockfile/excerpt binding.
+await import(new URL('scripts/verify-validation-static-edges.mjs', root));
+assert.equal(process.exitCode ?? 0, 0, 'the actual static-edge verifier must pass');
 console.log('PRODUCTION_VALIDATION_260_GREEN: all three complete production commands use 260000 ms; static configuration bindings match');

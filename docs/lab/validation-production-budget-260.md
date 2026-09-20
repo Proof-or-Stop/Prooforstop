@@ -21,14 +21,27 @@ configuration and all static references to its current bytes. It does not claim
 a new full validation campaign or a measured speedup.
 
 The static manifest keeps all 311 exceptions, call bindings, rationales and
-invocations. Only its complete command-inventory digest and the 22 existing
-dependency digests for the configuration change. Two existing configuration
+invocations. Its complete command-inventory digest and the 22 existing
+configuration dependency digests were refreshed. Two existing configuration
 source excerpts also bind the new file digest and retain their exact line bounds;
 their original excerpts were checked against the original committed bytes before
 refreshing. A semantic comparison verified
 that the three timeout values are the only configuration edits and those exact
-digests and those two source excerpts are the only manifest edits. No exception
-is added or broadened.
+digests and those two source excerpts are the only configuration-related manifest
+edits. No exception is added or broadened.
+
+The regression is registered as `npm run test:validation-production-budget-260`.
+The existing `test:reviewed-source-bindings` serial-reference member invokes it,
+so the default serial and policy-derived full suite include the guard without
+changing suite membership or introducing an unclassified resource policy. The
+41 existing root-package dependency digests follow these exact script edits.
+
+The pinned Lab command also imports and executes the actual static-edge verifier,
+including all package, lockfile and source-excerpt bindings. Its successful
+output includes `U18_STATIC_PASS` before `PRODUCTION_VALIDATION_260_GREEN`.
+The focused configuration assertions are additional checks; the actual verifier
+remains the acceptance authority for the static manifest. Release-time package
+digest refreshes are therefore checked again on the built candidate and main.
 
 This focused Lab can be integrated separately from the remaining validation
 audit Lab, whose other audit findings retain their own status and evidence.
