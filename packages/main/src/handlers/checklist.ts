@@ -8,7 +8,7 @@ import { rethrowIntentAmendmentIntegrityError } from '../core/verification-inten
 import { inspectIntentCheckpointRecovery } from '../core/verification-intent-checkpoint.js';
 import { acceptanceIntentHash, acceptanceScopeHash, createIntentAmendment, createIntentRevision } from '../core/verification-intent-amendment.js';
 import { currentGitHead } from '../core/evidence-freshness.js';
-import { resolveManagedDispatchInvocation } from '../core/managed-host-run.js';
+import { resolveManagedDispatchInvocation, resolveManagedImplementerCompletionInvocation } from '../core/managed-host-run.js';
 import type { ProcessEventAppendIdentity } from '../core/process-events.js';
 
 import { accessSync, constants, existsSync, readFileSync, realpathSync, statSync } from 'fs';
@@ -3446,11 +3446,11 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       }
 
       const managedDispatchRunId = args.status === 'done' && oldStatus !== 'done'
-        ? resolveManagedDispatchInvocation({
+        ? resolveManagedImplementerCompletionInvocation({
           root,
           storyId: args.storyId,
-          agentType: 'proof-or-stop-implementer',
           itemId: args.itemId,
+          payload: args,
           optionalWhenAbsent: true,
           consume: false,
         })

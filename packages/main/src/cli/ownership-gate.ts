@@ -15,7 +15,7 @@ import { getCommandPolicy, isOwnershipClass, type OwnershipClass } from '../core
 import { PROOF_OR_STOP_DIR } from '../core/proof-or-stop-paths.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import type { ProofOrStopConfig } from '../core/config.js';
-import { managedHostRunStoryIdForOwnership, resolveManagedDispatchInvocation } from '../core/managed-host-run.js';
+import { managedHostRunStoryIdForOwnership, resolveManagedImplementerCompletionInvocation } from '../core/managed-host-run.js';
 import { readBrandEnv } from '../core/brand-env.js';
 import { resolveRegisteredAgentActor } from '../core/agent-dispatch-registry.js';
 import { agentRoleIdsEqual } from '../core/agent-role-identity.js';
@@ -418,8 +418,6 @@ export function resolveTakeoverIntent(args: Record<string, unknown>): TakeoverIn
   return 'none';
 }
 
-const MANAGED_IMPLEMENTER_COMPLETION_KEYS = new Set(['storyId', 'itemId', 'status', 'success']);
-
 /**
  * A managed implementer is not the Story owner. It may, however, redeem the
  * controller's one-shot run capability for the single completion write that
@@ -437,15 +435,14 @@ function admitsManagedImplementerCompletion(
     || args.status !== 'done'
     || args.success === false
     || typeof args.itemId !== 'string'
-    || !args.itemId.trim()
-    || [...Object.keys(args)].some(key => !MANAGED_IMPLEMENTER_COMPLETION_KEYS.has(key))) return false;
+    || !args.itemId.trim()) return false;
   const actor = readBrandEnv('AGENT')?.trim();
   if (!actor || !agentRoleIdsEqual(actor, 'proof-or-stop-implementer')) return false;
-  return resolveManagedDispatchInvocation({
+  return resolveManagedImplementerCompletionInvocation({
     root: projectRoot,
     storyId,
-    agentType: 'proof-or-stop-implementer',
     itemId: args.itemId,
+    payload: args,
     optionalWhenAbsent: true,
     consume: false,
   }) !== undefined;

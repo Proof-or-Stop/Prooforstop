@@ -225,6 +225,10 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
       commands: `"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done","context":"foreign mutation"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
     {
+      name: 'cli-meta-does-not-qualify', expectedStatus: 'done', expectCompleted: true,
+      commands: `"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done","json":true,"takeover":false}' || true\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
+    },
+    {
       name: 'phase-advance', expectedStatus: 'pending', expectedPhase: 'DEV',
       commands: `"${process.execPath}" "${cli}" story_advance '{"storyId":"__STORY__","phase":"REVIEW"}' || true\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
