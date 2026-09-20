@@ -581,6 +581,9 @@ function roleMatrixDefaultsFor(role) {
 }
 
 const DIRECT_STORY_CLASSIFIER_PROBES = [
+  { name: 'retired product transcript has no read authority', role: 'proof-or-stop-product-reviewer',
+    excerpt: '- If available, `docs/story/actives/<storyId>/evidence/live-smoke-transcript.json`',
+    classification: 'unclassified-actionable', grandfathered: false },
   { name: 'delivery transcript is an exact read-only input', role: 'proof-or-stop-review-delivery',
     excerpt: '- If present, `docs/story/actives/<storyId>/evidence/live-smoke-transcript.json`, the canonical executed user-facing transcript',
     classification: 'read-only-reference', grandfathered: true },
