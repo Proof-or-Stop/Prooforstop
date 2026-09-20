@@ -115,6 +115,7 @@ store.writeChecklist(process.argv[2], checklist);
 `);
   writeFileSync(fakeCodex, `#!/bin/sh
 set -eu
+test "\${PROOF_OR_STOP_AGENT:-}" = proof-or-stop-implementer
 cat > "${root}/delivered-implementer-prompt.txt"
 grep -q "implementing ${storyId} ${itemId}" "${root}/delivered-implementer-prompt.txt"
 export PROOF_OR_STOP_SESSION_ID=managed-implementer-child
@@ -293,6 +294,7 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
     });
     writeFileSync(fakeCodex, `#!/bin/sh
 set -eu
+test "\${PROOF_OR_STOP_AGENT:-}" = proof-or-stop-implementer
 cat > "${root}/delivered-${scenario.name}-prompt.txt"
 grep -q "implementing ${negativeStoryId} ${itemId}" "${root}/delivered-${scenario.name}-prompt.txt"
 export PROOF_OR_STOP_SESSION_ID=managed-implementer-child
