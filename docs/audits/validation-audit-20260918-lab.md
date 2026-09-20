@@ -23,6 +23,27 @@ threshold in `docs/lab/validation-audit-acceptance.json` is also 260000 ms.
 The #1 composite command retains its separate 900-second allowance.
 See [the performance contract](../lab/validation-original-budget-performance.md).
 
+The final closeout command now includes the exact registered #148 invocation,
+`node packages/main/tests/canonical-new-story-artifacts.test.mjs --group=identity-cutover`,
+after the existing runtime, capacity, source-binding and six performance checks.
+Its successful transcript must include the full identity-cutover selector,
+identity-sites and runtime group selectors, the exact frozen-boundary scan, and
+the packed clean-install boundary. The identity-cutover group includes all tests
+tagged identity-sites, identity-config-boundary and identity-policy-boundary;
+the latter two selectors otherwise narrow the same public mutation campaign.
+Its full scanner also invokes the runtime group. Nested output is forwarded so
+these witnesses are visible in the candidate verification receipt. A configured
+maximum budget is not a lower bound on elapsed execution time.
+
+The closeout additionally reads the exact prior final-negative-context-2 and
+final-negative-context-3 obligations from immutable main commit `6b59d0dcd5` and
+requires zero actual occurrences in the current init-check-required-agents smoke
+source. Their removal does not grant a replacement exemption. The older RED
+checkpoint below is historical; fresh full identity success is required before
+this candidate can finish. Coordination regression invocations now obtain a new
+20-second deadline each, while the intentional one-second live-holder deadline
+remains unchanged. Actual-source clock advancement and every call site are checked.
+
 ### Historical 180-second performance checkpoints
 
 The following measurements describe the earlier 180-second experiment; they do

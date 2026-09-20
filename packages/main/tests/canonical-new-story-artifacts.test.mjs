@@ -4233,6 +4233,7 @@ await check(['identity-cutover'], 'complete identity certification includes real
   assert.match(result.stdout, /^PASS identity-cutover$/m);
   assert.match(result.stdout, /PASS proof-or-stop packed clean-install boundary/);
   assert.doesNotMatch(result.stdout, /^PASS identity-boundary-scan$/m);
+  process.stdout.write(result.stdout);
 });
 
 function identityVerifierFixtureEntrypoint(root) {

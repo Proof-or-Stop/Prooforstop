@@ -32,14 +32,17 @@ const root = realpathSync(mkdtempSync(join(tmpdir(), 'validation-coordination-gu
 const roots = [root];
 const freshRoot = () => { const value = realpathSync(mkdtempSync(join(tmpdir(), 'validation-coordination-boundary-'))); roots.push(value); return value; };
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
-const options = { root, workspaceRoot: root, command: 'coordination-guard-regression', deadlineAt: Date.now() + 20000 };
+const options = { root, workspaceRoot: root, command: 'coordination-guard-regression' };
+function withDeadline(extra = {}) {
+  return { ...options, deadlineAt: Date.now() + 20000, ...extra };
+}
 try {
   execFileSync('git', ['init', '-q', root]);
   writeFileSync(join(root, '.gitignore'), '.proof-or-stop/\n');
   writeFileSync(join(root, 'subject.txt'), 'unchanged\n');
   execFileSync('git', ['-C', root, 'add', '.']);
   execFileSync('git', ['-C', root, '-c', 'user.name=Lab', '-c', 'user.email=lab@example.test', 'commit', '-qm', 'fixture']);
-  await withWorkspaceValidationCapacity(options, async () => {
+  await withWorkspaceValidationCapacity(withDeadline(), async () => {
     const guard = createQuorumSmokeProtectedMutationGuard([root]);
     await delay(2200); // Observe at least one actual parent capacity heartbeat.
     const witness = await guard.close();
@@ -51,7 +54,7 @@ try {
   console.log('COORDINATION_ALIAS_TARGET ' + JSON.stringify(realpathSync(legacy)));
 
   for (const path of ['subject.txt', '.proof-or-stop/real-write.txt']) {
-    await withWorkspaceValidationCapacity(options, async () => {
+    await withWorkspaceValidationCapacity(withDeadline(), async () => {
       const guard = createQuorumSmokeProtectedMutationGuard([root]);
       const target = join(root, path); const original = path === 'subject.txt' ? readFileSync(target) : undefined;
       writeFileSync(target, 'real forbidden write\n');
@@ -72,7 +75,7 @@ try {
   writeFileSync(join(ticket, 'holder.json'), JSON.stringify({ lockId, pid: holder.pid, hostname: hostname(), command: 'legacy participant', acquiredAt: new Date().toISOString() }));
   try {
     let entered = false;
-    const waiting = withWorkspaceValidationCapacity(options, () => { entered = true; });
+    const waiting = withWorkspaceValidationCapacity(withDeadline(), () => { entered = true; });
     await delay(150); assert.equal(entered, false, 'legacy ticket must block the relocated queue');
     rmSync(ticket, { recursive: true }); await waiting;
     assert.equal(entered, true);
@@ -83,16 +86,16 @@ try {
     const oldTicket = join(oldPath, `0000000000000001-${randomUUID()}.ticket`);
     mkdirSync(oldTicket, { recursive: true });
     writeFileSync(join(oldTicket, 'holder.json'), JSON.stringify({ lockId: randomUUID(), pid: holder.pid, hostname: hostname(), command: 'legacy migration holder', acquiredAt: new Date().toISOString() }));
-    await assert.rejects(withWorkspaceValidationCapacity({ ...options, root: oldRoot, workspaceRoot: oldRoot,
-      deadlineAt: Date.now() + 1000 }, () => assert.fail('live legacy ticket bypassed')), error => {
+    await assert.rejects(withWorkspaceValidationCapacity(withDeadline({ root: oldRoot, workspaceRoot: oldRoot,
+      deadlineAt: Date.now() + 1000 }), () => assert.fail('live legacy ticket bypassed')), error => {
       assert.equal(isValidationCapacityWaitDeadlineError(error), true, 'migration preserves the typed capacity deadline');
       assert.ok(error.message.includes(oldPath) && error.message.includes('legacy migration holder'), 'migration deadline names the path and holder');
       return true;
     });
     assert.equal(existsSync(oldTicket), true, 'expired waiter never removes the live owner');
     const progress = []; let migrated = false;
-    const migrating = withWorkspaceValidationCapacity({ ...options, root: oldRoot, workspaceRoot: oldRoot,
-      onWaitProgress: message => { progress.push(message); throw new Error('descriptive callback cannot change ownership'); } }, () => { migrated = true; });
+    const migrating = withWorkspaceValidationCapacity(withDeadline({ root: oldRoot, workspaceRoot: oldRoot,
+      onWaitProgress: message => { progress.push(message); throw new Error('descriptive callback cannot change ownership'); } }), () => { migrated = true; });
     await delay(150);
     try {
       assert.equal(migrated, false);
@@ -107,7 +110,7 @@ try {
   const blocked = freshRoot(); const blockedPath = validationCapacityLockPath(blocked);
   mkdirSync(blockedPath, { recursive: true });
   writeFileSync(join(blockedPath, 'unknown-owner'), 'preserve unknown coordination state');
-  await assert.rejects(withWorkspaceValidationCapacity({ ...options, root: blocked, workspaceRoot: blocked }, () => {
+  await assert.rejects(withWorkspaceValidationCapacity(withDeadline({ root: blocked, workspaceRoot: blocked }), () => {
     assert.fail('a populated legacy directory cannot be bypassed');
   }), error => {
     assert.match(String(error), /WORKSPACE_COORDINATION_MIGRATION_BLOCKED/);
@@ -119,7 +122,7 @@ try {
   assert.equal(readFileSync(join(blockedPath, 'unknown-owner'), 'utf8'), 'preserve unknown coordination state');
   rmSync(join(blockedPath, 'unknown-owner'));
   let active = 0; let peak = 0;
-  await Promise.all(Array.from({ length: 8 }, () => withWorkspaceValidationCapacity({ ...options, root: blocked, workspaceRoot: blocked }, async () => {
+  await Promise.all(Array.from({ length: 8 }, () => withWorkspaceValidationCapacity(withDeadline({ root: blocked, workspaceRoot: blocked }), async () => {
     peak = Math.max(peak, ++active); await delay(10); active--;
   })));
   assert.equal(peak, 1, 'concurrent migration must retain one exclusive queue');
@@ -127,6 +130,6 @@ try {
   const foreign = freshRoot(); const foreignPath = validationCapacityLockPath(foreign);
   mkdirSync(resolve(foreignPath, '..'), { recursive: true });
   symlinkSync(realpathSync(legacy), foreignPath, 'dir');
-  await assert.rejects(withWorkspaceValidationCapacity({ ...options, root: foreign, workspaceRoot: foreign }, () => assert.fail('foreign alias admitted')), /unowned queue/);
+  await assert.rejects(withWorkspaceValidationCapacity(withDeadline({ root: foreign, workspaceRoot: foreign }), () => assert.fail('foreign alias admitted')), /unowned queue/);
   console.log('VALIDATION_COORDINATION_GUARD_GREEN: heartbeat accepted; write-restore rejected; legacy tickets serialize; migration reports holder and typed deadline; unknown state preserved; concurrent migration serializes; foreign alias refused');
 } finally { for (const path of roots) rmSync(path, { recursive: true, force: true }); }

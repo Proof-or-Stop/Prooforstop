@@ -33,6 +33,17 @@ assert.ok(deadlineContext.acquireOptions().deadlineAt > fixtureNow,
   'COORDINATION_REUSED_ABSOLUTE_DEADLINE: a later acquisition inherits an expired setup deadline');
 assert.equal(firstDeadline, 21000);
 assert.equal(deadlineContext.acquireOptions().deadlineAt - fixtureNow, 20000);
+const coordinationAcquisitions = [];
+const visitCoordination = node => {
+  if (ts.isCallExpression(node) && node.expression.getText(coordinationChild) === 'withWorkspaceValidationCapacity') coordinationAcquisitions.push(node);
+  ts.forEachChild(node, visitCoordination);
+};
+visitCoordination(coordinationChild);
+assert.equal(coordinationAcquisitions.length, 8);
+for (const call of coordinationAcquisitions) assert.ok(ts.isCallExpression(call.arguments[0])
+  && call.arguments[0].expression.getText(coordinationChild) === 'withDeadline', 'every actual acquisition must obtain a fresh deadline');
+assert.equal(runInNewContext('withDeadline({ deadlineAt: Date.now() + 1000 }).deadlineAt', deadlineContext), fixtureNow + 1000,
+  'the deliberate live-holder timeout remains independently short');
 const coordinationParent = source('scripts/verify-runtime-fact-contract.mjs');
 const coordinationChildCall = find(coordinationChild, node => ts.isCallExpression(node) && node.expression.getText(coordinationChild) === 'spawnSync');
 const coordinationParentCall = find(coordinationParent, node => ts.isCallExpression(node)

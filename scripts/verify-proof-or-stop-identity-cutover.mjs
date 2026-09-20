@@ -3203,7 +3203,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
-    "sha256": "88c7a6fb89b985315be5691104011e41bc7b0ce6428c956e01e3bd43c9d3a67b"
+    "sha256": "c01c931e0d1c9960f1692170f441e13c686357eb2d5f2d6d6626610d4816fae7"
   },
   {
     "path": "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs",
@@ -3570,7 +3570,7 @@ const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [1,"ebdcc59f439a3e890e6a4c6b7a0a6c523cc0cb37a343cea8af0aa5d1cb498748"],
   [2,"d1261e4856fd3441f6ba185e3cc3a0e3222145e69218180ca3567888f848a694"],
   [3,"65b3a71a775eef59f9398fc88bae41728f07d0ff832b3164fc4a6305f2829b78"],
-  [4,"88c7a6fb89b985315be5691104011e41bc7b0ce6428c956e01e3bd43c9d3a67b"],
+  [4,"c01c931e0d1c9960f1692170f441e13c686357eb2d5f2d6d6626610d4816fae7"],
   [14,"6ce71b767c7003c53068880527a14a0986692d4e80283ffbae217fad0af98fa5"],
   [15,"9101f015dcbfe0affcca0cecc2bc15ac9d1e691af1c5febbe249746d16536b60"],
   [16,"c182058690e5e55d41d91f5bc496acbe21b126e29e310525e4f4b1f3895cba21"],
@@ -7475,7 +7475,7 @@ const REVIEWED_CONTEXT_READERS = [
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "26d70e5852ad6dc42aa2388008ca01ed63efdfeaac42e16c3a97e184c5139da9"
+    "sha256": "83e32c0c8a543c55a9bd66187fe010c6bf6930beef4272150f134ad05ab45149"
   }
 ];
 function verifyReviewedContextReaders(root) {
@@ -7587,9 +7587,7 @@ function main() {
   // combined budgets; the former 300-second parent truncated that real work.
   const runtimeCheck = execFileSync(process.execPath, [resolve(root, 'packages/main/tests/canonical-new-story-artifacts.test.mjs'), '--group=runtime'], { cwd: root, encoding: 'utf8', timeout: identityCertificationBudget.runtimeGroupMs });
   if (!runtimeCheck.includes('GREEN B-49df: runtime group pass.')) throw new Error('runtime deny-only verification did not produce its required selector');
-  for (const line of runtimeCheck.split('\n')) {
-    if (line.startsWith('CANONICAL_VERIFIER_EXECUTION ')) process.stdout.write(line + '\n');
-  }
+  process.stdout.write(runtimeCheck);
   const markerCheck = execFileSync(process.execPath, [resolve(root, 'packages/main/tests/managed-marker-migration.test.mjs')], { cwd: root, encoding: 'utf8', timeout: 60000 });
   if (!markerCheck.includes('managed-marker migration test passed')) throw new Error('managed-marker migration verification did not produce its required selector');
 
