@@ -56,6 +56,10 @@ const MARKER = 'stale build artifacts admitted as fresh validation evidence';
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const realGit = execFileSync('which', ['git'], { encoding: 'utf8' }).trim();
 const sandbox = mkdtempSync(join(tmpdir(), 'pos-build-binding-'));
+// The private sandbox (mkdtemp: 0700) lives until the script ends and is
+// removed exactly once, on success and failure alike; no section removes it
+// mid-run, so nothing later recreates it with default permissions.
+process.on('exit', () => { try { rmSync(sandbox, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 }); } catch { /* best effort at exit */ } });
 const red = [];
 let checks = 0;
 // Whether THIS host demonstrably denies artifact writes (set once the resolver has run).
@@ -68,7 +72,9 @@ function git(root, args) { return execFileSync(realGit, args, { cwd: root, encod
 /** spawnSync a wrapped launch, delivering its confidential payload (if any) on the descriptor the mechanism named. */
 function spawnWrapped(launch, options = {}) {
   if (!launch.confidential) return spawnSync(launch.command, launch.args, { encoding: 'utf8', env: launch.env, timeout: 20_000, ...options });
-  const file = join(sandbox, `confidential-${process.pid}-${Math.random().toString(16).slice(2)}`); writeFileSync(file, launch.confidential.payload);
+  // Exclusive creation, owner-only: the payload carries the launch environment.
+  const file = join(sandbox, `confidential-${process.pid}-${Math.random().toString(16).slice(2)}`); writeFileSync(file, launch.confidential.payload, { mode: 0o600, flag: 'wx' });
+  if ((lstatSync(file).mode & 0o777) !== 0o600) throw new Error(`confidential payload file is not owner-only (${(lstatSync(file).mode & 0o777).toString(8)})`);
   const fd = openSync(file, 'r');
   const stdio = ['ignore', 'pipe', 'pipe']; while (stdio.length < launch.confidential.fd) stdio.push('ignore'); stdio[launch.confidential.fd] = fd;
   try { return spawnSync(launch.command, launch.args, { encoding: 'utf8', env: launch.env, timeout: 20_000, ...options, stdio }); } finally { closeSync(fd); rmSync(file, { force: true }); }
@@ -1143,7 +1149,7 @@ try {
             `the re-applied environment is in bwrap's argv or missing from the confidential payload (${JSON.stringify(preloadLaunch.args.slice(-6))})`);
           expectRepaired(preloadLaunch.env && !('LD_PRELOAD' in preloadLaunch.env) && Object.keys(preloadLaunch.env).every((key) => binding.isWrapperEnvironmentVariable(key)),
             `the bwrap wrapper process was launched with LD_PRELOAD or another withheld variable in its own environment (${Object.keys(preloadLaunch.env).join(',')})`);
-          const payloadFile = join(delegatingDir, 'confidential-payload'); writeFileSync(payloadFile, preloadLaunch.confidential.payload);
+          const payloadFile = join(delegatingDir, 'confidential-payload'); writeFileSync(payloadFile, preloadLaunch.confidential.payload, { mode: 0o600, flag: 'wx' });
           const payloadFd = openSync(payloadFile, 'r');
           const preloadRun = spawnSync(preloadLaunch.command, preloadLaunch.args, { encoding: 'utf8', env: preloadLaunch.env, timeout: 20_000, stdio: ['ignore', 'pipe', 'pipe', payloadFd] });
           closeSync(payloadFd); rmSync(payloadFile, { force: true });
@@ -1425,7 +1431,7 @@ try {
   const doneRequiredSource = readFileSync(join(repoRoot, 'packages/main/src/core/done-required-validation.ts'), 'utf8');
   expectRepaired((doneRequiredSource.match(/validateReceiptBuildBinding\(/g) ?? []).length >= 3, 'per-receipt build binding is not enforced by both the DONE-required writer and evaluator (source-text guard)');
 } finally {
-  rmTree(sandbox);
+  // The sandbox is removed once, at process exit (see its creation).
 }
 } else {
   // Audit #14 (4): a host without demonstrated enforcement. The PASS and
@@ -1440,7 +1446,7 @@ try {
     expectRepaired(evaluateDoneRequiredEvidence({ projectRoot: f.root, storyId: f.storyId, store: f.store, gitCwd: f.root }).ok === false, 'the refused DONE-required evidence was admitted');
     console.log('skip: DONE-required PASS and prevention cases need demonstrated artifact write protection on this host (refusal asserted instead)');
   } finally {
-    rmTree(sandbox);
+    // The sandbox is removed once, at process exit (see its creation).
   }
 }
 
@@ -2523,7 +2529,7 @@ if (hostEnforced) {
       const transportFd = openSync(transportFile, 'r');
       try {
         const transportLaunch = eqProtection.wrap({ command: process.execPath, args: ['-e', "process.stdout.write(require('node:fs').readFileSync('/dev/fd/4', 'utf8'))"], shell: false, env: { ...process.env, POS_SYNTHETIC_SECRET: secretValue }, confidentialFd: 3, inheritedDescriptors: [4] });
-        const payloadFile2 = join(sandbox, 'transport-payload'); writeFileSync(payloadFile2, transportLaunch.confidential.payload); const payloadFd2 = openSync(payloadFile2, 'r');
+        const payloadFile2 = join(sandbox, 'transport-payload'); writeFileSync(payloadFile2, transportLaunch.confidential.payload, { mode: 0o600, flag: 'wx' }); const payloadFd2 = openSync(payloadFile2, 'r');
         const transportRun = spawnSync(transportLaunch.command, transportLaunch.args, { encoding: 'utf8', env: transportLaunch.env, timeout: 20_000, stdio: ['ignore', 'pipe', 'pipe', payloadFd2, transportFd] });
         closeSync(payloadFd2); rmSync(payloadFile2, { force: true });
         expectRepaired(transportRun.status === 0 && transportRun.stdout === 'delegation-transport', `an inherited descriptor did not reach the command under sandbox-exec (${transportRun.status}, ${transportRun.stdout}, ${(transportRun.stderr || '').slice(0, 80)})`);
@@ -3307,6 +3313,9 @@ if (hostEnforced) {
     expectRepaired(plain.status !== 0, 'a validate file that tried to rewrite dist was reported successful without --json');
   } finally {
     rmTree(handlerSandbox);
+    // Audit #67: the private sandbox was never removed and recreated mid-run,
+    // so it still carries its mkdtemp permissions at its final use.
+    check(existsSync(sandbox) && (lstatSync(sandbox).mode & 0o777) === 0o700, `the private sandbox lost its owner-only permissions (${existsSync(sandbox) ? (lstatSync(sandbox).mode & 0o777).toString(8) : 'absent'})`);
   }
 } else {
   console.log('skip: handler-level validate-file cases need demonstrated artifact write protection on this host');
