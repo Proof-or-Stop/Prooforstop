@@ -7,7 +7,7 @@ import { classifyMergeLineage } from './validation-lineage.js';
 import { currentBuildArtifactsHash } from './build-artifacts-identity.js';
 import type { TestEvidenceData } from './types.js';
 import { artifactProtectionSatisfied } from './build-artifacts-protection.js';
-import { HISTORY_UNREADABLE_ADMISSION_CODE, VERDICT_FLIP_ADMISSION_CODE, describeStickyFailure, stickyFailuresFor, validationVerdictIdentity, type ValidationHistory } from './validation-verdict-stickiness.js';
+import { HISTORY_UNREADABLE_ADMISSION_CODE, IDENTITY_INCOMPLETE_ADMISSION_CODE, VERDICT_FLIP_ADMISSION_CODE, describeStickyFailure, stickyFailuresFor, validationVerdictIdentity, type ValidationHistory } from './validation-verdict-stickiness.js';
 
 export type ValidationEvidenceLineage = 'exact-head' | 'trusted-story-metadata-descendant' | 'rejected';
 
@@ -100,6 +100,9 @@ export function evaluateValidationEvidenceAdmissibility(
       add(HISTORY_UNREADABLE_ADMISSION_CODE, `the Story's validation history could not be read (${input.validationHistory.unreadable}); a PASS cannot be admitted without knowing whether this identity has failed`);
     } else {
       const identity = validationVerdictIdentity(evidence);
+      // A PASS that does not carry its full identity cannot be matched against
+      // the history, so it cannot be shown not to be a flipped verdict.
+      if (!identity) add(IDENTITY_INCOMPLETE_ADMISSION_CODE, 'validation evidence does not carry its full validation identity (command set, committed material, story files, compiled artifacts); run validate again');
       const failures = identity ? stickyFailuresFor(identity, input.validationHistory.terminals) : [];
       if (identity && failures.length > 0) add(VERDICT_FLIP_ADMISSION_CODE, describeStickyFailure(identity, failures));
     }

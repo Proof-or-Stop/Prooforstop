@@ -8,7 +8,7 @@ import './lab-source-loader.mjs';
 import { registerHooks, createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 const ts = createRequire(import.meta.url)('typescript');
@@ -69,7 +69,32 @@ if (stickiness?.stickyFailuresFor) {
     check(String(refusal({ terminals: [terminal()] }, identityA)).includes('[verdict_flip_refused]'), 'publication must refuse a PASS on an identity with an executed failure');
     check(String(refusal({ unreadable: 'line 3 is not valid JSON' }, identityA)).includes('[validation_history_unreadable]'), 'publication must refuse a PASS over an unreadable history');
     check(refusal({ terminals: [terminal({ failureKind: 'coverage_incomplete' }), terminal({ failureKind: 'infra_failure' })] }, identityA) === null, 'control: coverage-only and infrastructure failures do not refuse publication');
-    check(refusal({ terminals: [terminal()] }, null) === null && stickiness.verdictIdentityFromParts({ ...identityA, buildArtifactsHash: 'short' }) === null, 'control: an identity with a missing or malformed part is never matched');
+    // Audit 3: a PASS whose identity cannot be formed is an unknown, not a
+    // pass-through. Legacy TERMINALS stay unmatched; new PASS evidence is not
+    // left unbound. This is the expression both publications evaluate when
+    // identity construction failed and handed them no command-set digest.
+    const unbuilt = stickiness.verdictIdentityFromParts({ commandSetHash: undefined, materialHash: identityA.materialHash, storyFilesHash: identityA.storyFilesHash, buildArtifactsHash: identityA.buildArtifactsHash });
+    check(unbuilt === null && stickiness.verdictIdentityFromParts({ ...identityA, buildArtifactsHash: 'short' }) === null, 'control: an identity with a missing or malformed part is not an identity');
+    expectRepaired(String(refusal({ terminals: [] }, unbuilt)).includes('[validation_identity_unavailable]'), 'a PASS without its full identity was publishable');
+    expectRepaired(String(refusal({ unreadable: 'line 3 is not valid JSON' }, unbuilt)).includes('[validation_identity_unavailable]'), 'a PASS without its full identity was publishable over an unreadable history');
+  }
+  // Audit 3: the terminal's kind comes from the executor's command outcomes.
+  // Infrastructure is an exemption only when infrastructure is all that failed.
+  const reuseModule = await import('../packages/main/src/core/validation-evidence-reuse.ts');
+  expectRepaired(typeof reuseModule.classifyValidationTerminalFailure === 'function', 'there is no terminal failure classifier over command outcomes');
+  if (typeof reuseModule.classifyValidationTerminalFailure === 'function') {
+    const failingRecord = { result: 'FAIL', verificationCoverage: { missingRequired: 0 }, commandExecution: { status: 'FAIL' } };
+    const classify = (commandResults, extra = {}) => reuseModule.classifyValidationTerminalFailure({ record: failingRecord, commandResults, expectedCommandCount: commandResults.length, ...extra });
+    const ok = { code: 0 }, broke = { code: 1 }, timedOut = { code: 124, timedOut: true }, refused = { code: 1, failureKind: 'infra_failure' };
+    expectRepaired(classify([timedOut, broke]) === 'validation_failure', 'a real command failure beside a timeout was classified as infrastructure');
+    expectRepaired(classify([refused, broke]) === 'validation_failure', 'a real command failure beside a refused launch was classified as infrastructure');
+    check(classify([timedOut, ok]) === 'infra_failure' && classify([refused]) === 'infra_failure', 'control: a run where infrastructure is all that failed is an infrastructure failure');
+    check(classify([timedOut, { ...broke, optional: true }]) === 'infra_failure', 'control: an optional command failure is not a verdict');
+    check(classify([timedOut], { semanticCommandPass: false }) === 'validation_failure', 'a failed semantic verdict beside a timeout is a verdict');
+    check(classify([timedOut], { concurrentPollutionBlocking: true }) === 'validation_failure' && classify([{ code: 0, worktreePollution: { blocking: true } }, timedOut]) === 'validation_failure', 'blocking worktree pollution is a verdict');
+    check(classify([ok]) === 'validation_failure', 'control: a failure no command explains fails closed as a verdict');
+    const okExecution = { schema: 'proofOrStop.routine-validation-command-execution', version: 1, status: 'PASS', complete: true, commandCount: 1, requiredFailureCount: 0, optionalFailureCount: 0 };
+    check(reuseModule.classifyValidationTerminalFailure({ record: { result: 'FAIL', verificationCoverage: { missingRequired: 1 }, commandExecution: okExecution }, commandResults: [ok], expectedCommandCount: 1 }) === 'coverage_incomplete', 'control: passing commands with missing required coverage are a coverage-only failure');
   }
 } else {
   expectRepaired(false, 'core/validation-verdict-stickiness does not exist');
@@ -146,6 +171,14 @@ try {
     `a coverage-only FAIL was reusable as a PASS although an executed run failed on its identity (${reuseCoverageOnly({ terminals: [failed] }).refusalReasons.join(',') || 'no refusal'})`);
   expectRepaired(reuseCoverageOnly({ unreadable: 'process-events.jsonl: line 3 is not valid JSON' }).refusalReasons.includes('validation-history-unreadable'),
     'a coverage-only FAIL was reusable as a PASS over an unreadable history');
+  // Audit 3: a stored PASS that does not carry its full identity cannot be
+  // matched against the history, so it is refused rather than waved through.
+  const { routineValidationIdentity: _noIdentity, ...unboundEvidence } = evidence;
+  const unboundAdmit = evaluateValidationEvidenceAdmissibility({
+    evidence: unboundEvidence, expectedCommand: evidence.command, currentCoverageSnapshot: 'coverage', recordedCoverageSnapshot: 'coverage', blockingDirtyReason: '', gitCwd: root, metadataRoot: root,
+    validationHistory: { terminals: [failed] },
+  });
+  expectRepaired(unboundAdmit.reasonCodes.includes('validation_identity_incomplete'), `a PASS without a routine identity was admitted although its identity had failed (${unboundAdmit.reasonCodes.join(',') || 'admitted'})`);
   const failedAdmit = evaluateValidationEvidenceAdmissibility({
     evidence: { ...evidence, result: 'FAIL' }, expectedCommand: evidence.command, currentCoverageSnapshot: 'coverage', recordedCoverageSnapshot: 'coverage', blockingDirtyReason: '', gitCwd: root, metadataRoot: root,
     validationHistory: { terminals: [failed] },
@@ -189,6 +222,22 @@ try {
     check('terminals' in fresh && fresh.terminals.length === 0, 'control: a Story with no process-events file has an empty history, not an unreadable one');
     const throwing = stickiness.readValidationHistory({ storyDirPath: () => { throw new Error('boom'); } }, storyId);
     expectRepaired('unreadable' in throwing, 'a store that cannot locate the Story was read as an empty history');
+    // Audit 3: only a CONFIRMED absence is an empty history. A lookup that is
+    // denied, or that runs through something that is not a directory, proves nothing.
+    const notADirectory = join(sandbox, 'plain-file'); writeFileSync(notADirectory, 'x');
+    expectRepaired('unreadable' in stickiness.readValidationHistory({ storyDirPath: () => join(notADirectory, 'story') }, storyId), 'a lookup through a non-directory was read as an empty history');
+    const locked = join(sandbox, 'locked'); mkdirSync(join(locked, 'story'), { recursive: true }); writeFileSync(join(locked, 'story/process-events.jsonl'), '');
+    chmodSync(locked, 0o000);
+    let denied; try { denied = stickiness.readValidationHistory({ storyDirPath: () => join(locked, 'story') }, storyId); } finally { chmodSync(locked, 0o755); }
+    expectRepaired(process.getuid?.() === 0 || 'unreadable' in denied, 'a denied lookup was read as an empty history');
+    // ... and a line is a process event only if it has a type, a validation
+    // terminal only if its result and disposition are ones this rule knows.
+    const historyOf = (lines) => { const dir = mkdtempSync(join(sandbox, 'history-')); writeFileSync(join(dir, 'process-events.jsonl'), lines.map((l) => JSON.stringify(l)).join('\n') + '\n'); return stickiness.readValidationHistory({ storyDirPath: () => dir }, storyId); };
+    expectRepaired('unreadable' in historyOf([{}]), 'an object that is not a process event was read as history');
+    expectRepaired('unreadable' in historyOf([{ type: '' }]) && 'unreadable' in historyOf([{ type: 7 }]), 'a line without a usable type was read as history');
+    expectRepaired('unreadable' in historyOf([terminal({ result: 'maybe' })]) && 'unreadable' in historyOf([terminal({ disposition: undefined })]), 'a malformed validation terminal was read as history');
+    const legacyHistory = historyOf([{ type: 'dispatch', storyId }, terminal({ buildArtifactsHash: undefined, failureKind: undefined }), terminal({ result: 'pass', disposition: 'reused', failureKind: undefined })]);
+    check('terminals' in legacyHistory && legacyHistory.terminals.length === 2, 'control: other events, legacy terminals and reused terminals are a readable history');
   }
   const eventsPath = join(root, '.proof-or-stop/story/actives', storyId, 'process-events.jsonl');
   const intact = readFileSync(eventsPath, 'utf8');
@@ -259,7 +308,7 @@ const { deriveCertificationDomainInputHashes } = await import('../packages/main/
 const cliSandbox = mkdtempSync(join(tmpdir(), 'pos-verdict-stickiness-cli-'));
 const switchPath = join(cliSandbox, 'switch.txt');
 try {
-  const seed = (name, validateTs, priority = 'should') => {
+  const seed = (name, validateTs, priority = 'should', prepare = () => {}) => {
     const root = join(cliSandbox, name); mkdirSync(root);
     const storyId = 'B-stk-cli';
     const git = (a) => execFileSync('git', a, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
@@ -267,6 +316,7 @@ try {
     writeFileSync(join(root, 'source.ts'), 'export const stickiness = true;\n');
     writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: '.', rootDir: '.', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements', workflow: { profile: 'light' } }, null, 2));
     writeFileSync(join(root, 'validate.ts'), validateTs);
+    prepare(root);
     mkdirSync(join(root, 'node_modules/.bin'), { recursive: true });
     writeFileSync(join(root, 'node_modules/.bin/tsx'), '#!/bin/sh\nexec node "$@"\n', { mode: 0o755 });
     git(['init', '-q', '-b', 'main']); git(['config', 'user.email', 'fixture@example.invalid']); git(['config', 'user.name', 'Verdict Fixture']); git(['config', 'commit.gpgsign', 'false']);
@@ -369,6 +419,39 @@ try {
   uncoveredFailing.runCli();
   check(kinds(uncoveredFailing.history()) === JSON.stringify([['fail', 'executed', 'validation_failure']]), `control: failing commands are a validation failure whatever the coverage (${kinds(uncoveredFailing.history())})`);
 
+  // Audit 3: two configured commands. One times out; whether the other really
+  // fails decides what the run is. The switch lives in a gitignored runtime
+  // directory, so neither the material nor the command set changes between runs.
+  const seedCommands = (name) => {
+    const readSwitch = "require('node:fs').readFileSync(require('node:path').join(__dirname, '.proof-or-stop/runtime/switch.txt'), 'utf8').trim()";
+    const fixture = seed(name, '', 'should', (root) => {
+      rmSync(join(root, 'validate.ts'));
+      writeFileSync(join(root, 'verdict.cjs'), `process.exit(${readSwitch} === 'mixed' ? 1 : 0);\n`);
+      writeFileSync(join(root, 'slow.cjs'), `if (${readSwitch} === 'pass') process.exit(0);\nsetTimeout(() => process.exit(0), 60000);\n`);
+      const config = JSON.parse(readFileSync(join(root, 'proof-or-stop.config.json'), 'utf8'));
+      writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ ...config, validate: { commands: [{ command: 'node', args: ['slow.cjs'], timeoutMs: 3000 }, { command: 'node', args: ['verdict.cjs'], timeoutMs: 30000 }] } }, null, 2));
+    });
+    mkdirSync(join(fixture.root, '.proof-or-stop/runtime'), { recursive: true });
+    const runWith = (value) => { writeFileSync(join(fixture.root, '.proof-or-stop/runtime/switch.txt'), `${value}\n`); return fixture.runCli(); };
+    return { ...fixture, runWith };
+  };
+  const mixed = seedCommands('mixed');
+  const mixedRun = mixed.runWith('mixed');
+  check(mixedRun.status !== 0 && mixed.evidence()?.commandExecution?.requiredFailureCount === 2, `control: a timeout and a real failure are two required failures (${mixedRun.text.slice(0, 300)})`);
+  expectRepaired(kinds(mixed.history()) === JSON.stringify([['fail', 'executed', 'validation_failure']]), `a real command failure beside a timeout was recorded as infrastructure (${kinds(mixed.history())}; evidence ${mixed.evidence()?.failureKind})`);
+  mixed.admit();
+  const mixedRetry = mixed.runWith('pass');
+  expectRepaired(mixedRetry.status !== 0 && mixedRetry.text.includes('verdict_flip_refused') && mixed.evidence()?.result !== 'PASS', 'a timeout beside a real failure exempted the retry from stickiness');
+  // An infrastructure-only timeout is classified alike in the evidence and
+  // in the terminal, and the unchanged inputs may recover.
+  const timeoutOnly = seedCommands('timeout-only');
+  const timeoutRun = timeoutOnly.runWith('timeout');
+  check(timeoutRun.status !== 0 && timeoutOnly.evidence()?.failureKind === 'infra_failure', `control: a timeout alone is an infrastructure failure in the evidence (${timeoutRun.text.slice(0, 300)})`);
+  expectRepaired(kinds(timeoutOnly.history()) === JSON.stringify([['fail', 'executed', 'infra_failure']]), `the terminal and the evidence disagree about an infrastructure-only timeout (${kinds(timeoutOnly.history())})`);
+  timeoutOnly.admit();
+  const timeoutRetry = timeoutOnly.runWith('pass');
+  check(timeoutRetry.status === 0 && timeoutOnly.evidence()?.result === 'PASS', `control: unchanged inputs recover after an infrastructure-only timeout (${timeoutRetry.text.slice(0, 400)})`);
+
   // Audit 2: a flipped verdict laundered through a coverage-only FAIL. The
   // stored record says the commands passed and only coverage was missing; the
   // history says an executed run FAILED on that identity. Coverage is complete
@@ -412,6 +495,11 @@ expectRepaired(admissionHandler.includes('validationHistory: readValidationHisto
 // validate-file path never trusts a child-printed failure kind.
 expectRepaired((verifierSource.match(/passPublicationRefusal\(/g) ?? []).length === 2,
   'the executed and the reused publication do not both read the shared publication refusal (source-text guard)');
+// Audit 3: every executed PASS asks, with whatever identity it has; a missing
+// identity is the refusal's business, never a reason not to ask.
+expectRepaired(/if \(allPass\) \{\s+const flipRefusal = passPublicationRefusal\(/.test(verifierSource) && verifierSource.includes('verdictIdentityFromParts({ commandSetHash: identity?.digest, ...hashes })'),
+  'the executed publication asks the shared refusal only when it already has an identity (source-text guard)');
+expectRepaired(verifierSource.includes('failureKind: classifyValidationTerminalFailure({'), 'the executed terminal kind is not derived from the command outcomes (source-text guard)');
 expectRepaired(verifierSource.includes('failureKind: _printedKind, ...rest }') && verifierSource.includes("failureKind: validation.failureKind ?? 'validation_failure'"),
   'the validate-file path still trusts a child-printed failureKind (source-text guard)');
 

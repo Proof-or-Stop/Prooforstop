@@ -22,7 +22,7 @@
  * closed rather than open.
  */
 
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 export interface ValidationVerdictIdentity {
@@ -48,6 +48,9 @@ export interface ValidationTerminalFact {
 export const VERDICT_FLIP_REUSE_REASON = 'verdict-flip-unattested';
 export const VERDICT_FLIP_ADMISSION_CODE = 'verdict_flip_unattested';
 export const VERDICT_FLIP_PUBLICATION_CODE = 'verdict_flip_refused';
+/** A PASS whose full identity cannot be formed: whether that identity has failed cannot be established. */
+export const IDENTITY_UNAVAILABLE_PUBLICATION_CODE = 'validation_identity_unavailable';
+export const IDENTITY_INCOMPLETE_ADMISSION_CODE = 'validation_identity_incomplete';
 /** Terminal failure kind of a run whose required commands all passed and whose only shortfall was required verification coverage. */
 export const COVERAGE_INCOMPLETE_FAILURE_KIND = 'coverage_incomplete';
 
@@ -98,18 +101,23 @@ export const HISTORY_UNREADABLE_REUSE_REASON = 'validation-history-unreadable';
 export const HISTORY_UNREADABLE_ADMISSION_CODE = 'validation_history_unreadable';
 
 /**
- * Read a Story's validation terminals from its process-events file. A Story
- * that has no file yet has an empty history; a file that cannot be read, or
- * that holds a line that is not a JSON object, is UNREADABLE and is reported
- * as such, never as empty: an empty history would prove that no failure
- * exists, and an unreadable one proves nothing.
+ * Read a Story's validation terminals from its process-events file. Only a
+ * CONFIRMED absence (ENOENT) is an empty history. Any other failure to read -
+ * a parent that cannot be searched, a path component that is not a directory,
+ * an I/O error - is UNREADABLE, and so is a line that is not a process event
+ * (a JSON object with a type) or a validation terminal whose result or
+ * disposition is not one this rule knows: an empty history would prove that no
+ * failure exists, and an unreadable one proves nothing. Terminals recorded
+ * before the compiled-artifact identity existed are valid and simply unmatched.
  */
 export function readValidationHistory(store: { storyDirPath(storyId: string): string }, storyId: string): ValidationHistory {
   let path: string;
   try { path = join(store.storyDirPath(storyId), 'process-events.jsonl'); } catch (error) { return { unreadable: `story directory unavailable: ${error instanceof Error ? error.message : String(error)}` }; }
-  if (!existsSync(path)) return { terminals: [] };
   let content: string;
-  try { content = readFileSync(path, 'utf8'); } catch (error) { return { unreadable: `${path}: ${error instanceof Error ? error.message : String(error)}` }; }
+  try { content = readFileSync(path, 'utf8'); } catch (error) {
+    if ((error as NodeJS.ErrnoException | null)?.code === 'ENOENT') return { terminals: [] };
+    return { unreadable: `${path}: ${error instanceof Error ? error.message : String(error)}` };
+  }
   const terminals: ValidationTerminalFact[] = [];
   const lines = content.split('\n');
   for (let index = 0; index < lines.length; index++) {
@@ -117,8 +125,15 @@ export function readValidationHistory(store: { storyDirPath(storyId: string): st
     if (!line) continue;
     let event: unknown;
     try { event = JSON.parse(line); } catch { return { unreadable: `${path}: line ${index + 1} is not valid JSON` }; }
-    if (!event || typeof event !== 'object' || Array.isArray(event)) return { unreadable: `${path}: line ${index + 1} is not a process event` };
-    if ((event as ValidationTerminalFact).type === 'validation_terminal') terminals.push(event as ValidationTerminalFact);
+    if (!event || typeof event !== 'object' || Array.isArray(event) || typeof (event as { type?: unknown }).type !== 'string' || !(event as { type: string }).type) {
+      return { unreadable: `${path}: line ${index + 1} is not a process event` };
+    }
+    const fact = event as ValidationTerminalFact;
+    if (fact.type !== 'validation_terminal') continue;
+    if ((fact.result !== 'pass' && fact.result !== 'fail') || (fact.disposition !== 'executed' && fact.disposition !== 'reused')) {
+      return { unreadable: `${path}: line ${index + 1} is not a recognized validation terminal` };
+    }
+    terminals.push(fact);
   }
   return { terminals };
 }
@@ -127,9 +142,13 @@ export function readValidationHistory(store: { storyDirPath(storyId: string): st
  * Why a PASS on this identity must not be published, or null when it may be.
  * Both publications read it: the executed one, and the reused one that
  * republishes an older record as a fresh PASS without executing anything.
+ * A PASS whose identity cannot be formed is refused like any other unknown:
+ * legacy TERMINALS are left unmatched, new PASS evidence is not left unbound.
  */
 export function passPublicationRefusal(history: ValidationHistory, identity: ValidationVerdictIdentity | null): string | null {
-  if (!identity) return null;
+  if (!identity) {
+    return `a PASS cannot be published without its full validation identity (command set, committed material, story files, compiled artifacts): whether that identity has failed cannot be established [${IDENTITY_UNAVAILABLE_PUBLICATION_CODE}]`;
+  }
   if ('unreadable' in history) {
     return `the Story's validation history could not be read (${history.unreadable}); a PASS cannot be published without knowing whether this identity has failed [${HISTORY_UNREADABLE_ADMISSION_CODE}]`;
   }

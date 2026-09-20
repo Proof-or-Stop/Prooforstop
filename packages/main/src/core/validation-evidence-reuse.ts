@@ -399,6 +399,37 @@ export function isCoverageOnlyFailure(
     && isReusableCommandPass(evidence!.commandExecution, expectedCommandCount);
 }
 
+export type ValidationTerminalFailureKind = 'validation_failure' | 'infra_failure' | 'coverage_incomplete';
+
+/**
+ * What the terminal of a failing run records, from executor facts only and
+ * with the required-failure and infrastructure notions of
+ * summarizeRoutineCommandExecution. A run is an infrastructure failure only
+ * when infrastructure is ALL that failed: one required command that really
+ * failed, a failed semantic verdict or blocking worktree pollution is a verdict
+ * about the code whatever timed out beside it. A failure nothing explains is a
+ * verdict, so an unclassifiable run fails closed.
+ */
+export function classifyValidationTerminalFailure(args: {
+  record: Pick<TestEvidenceData, 'result' | 'verificationCoverage' | 'commandExecution'> | null | undefined;
+  commandResults: readonly ValidationCommandResult[];
+  expectedCommandCount: number;
+  semanticCommandPass?: boolean;
+  concurrentPollutionBlocking?: boolean;
+}): ValidationTerminalFailureKind {
+  if (isCoverageOnlyFailure(args.record, args.expectedCommandCount)) return 'coverage_incomplete';
+  const isInfrastructure = (result: ValidationCommandResult) => result.failureKind === 'infra_failure' || result.timedOut === true;
+  const requiredFailures = args.commandResults.filter((result) => (
+    result.worktreePollution?.blocking === true
+    || (!result.optional && (result.code !== 0 || result.timedOut))
+  ));
+  const verdictFailure = args.semanticCommandPass === false
+    || args.concurrentPollutionBlocking === true
+    || requiredFailures.some((result) => result.worktreePollution?.blocking === true || !isInfrastructure(result));
+  if (verdictFailure) return 'validation_failure';
+  return requiredFailures.length > 0 ? 'infra_failure' : 'validation_failure';
+}
+
 export function evaluateRoutineValidationReuse(args: {
   root: string;
   gitCwd: string;

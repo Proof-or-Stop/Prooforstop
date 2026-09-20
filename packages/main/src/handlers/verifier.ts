@@ -91,7 +91,7 @@ import {
   routineReuseTerminalAttribution,
   type RoutineReuseTerminalAttribution,
   isCompleteRoutineValidationIdentity,
-  isCoverageOnlyFailure,
+  classifyValidationTerminalFailure,
   isReusableCommandPass,
   summarizeRoutineCommandExecution,
   type RoutineValidationReuseEvaluation,
@@ -1424,9 +1424,12 @@ function recordValidationTerminal(
     disposition: result.disposition === 'reused' ? 'reused' : 'executed',
     commandExecutions: Number(result.commandExecutions ?? result.commands?.length ?? 0),
     result: result.allPass === false || result.status === 'fail' ? 'fail' : 'pass',
-    // A verdict about the code or an infrastructure failure: fail-sticky
-    // treats only the former as a verdict, and a missing kind as a verdict.
-    ...(result.failureKind === 'infra_failure' || result.failureKind === 'validation_failure' || result.failureKind === COVERAGE_INCOMPLETE_FAILURE_KIND ? { failureKind: result.failureKind } : {}),
+    // Only a failing terminal has a kind: a verdict about the code, an
+    // infrastructure failure, or a coverage-only failure. Fail-sticky treats
+    // only the first as a verdict, and a missing kind as a verdict too.
+    ...((result.allPass === false || result.status === 'fail')
+      && (result.failureKind === 'infra_failure' || result.failureKind === 'validation_failure' || result.failureKind === COVERAGE_INCOMPLETE_FAILURE_KIND)
+      ? { failureKind: result.failureKind } : {}),
     materialHash: currentMaterialHash(gitCwd, 'HEAD', ctx.root) ?? '',
     storyFilesHash: currentStoryFilesHash(gitCwd, 'HEAD', ctx.root) ?? '',
     // Observable build identity: two executions against different compiled
@@ -1673,12 +1676,23 @@ function persistStoryValidationEvidence(
     expectedHashes = publicationOutputHashes(transaction, storyRel, prepared.sha256);
     assertCurrentValidationPublicationOwner(ctx.root, storyId);
     ctx.store.writePreparedTestEvidence(storyId, prepared);
-    // Every required command passed and only required coverage is missing:
-    // not a verdict about the code. The kind is derived from the record being
-    // published, with the predicate the reuse evaluator republishes it under.
-    const terminalResult = isCoverageOnlyFailure(persistedBound.record, expectedCommandCount)
-      ? { ...result, failureKind: COVERAGE_INCOMPLETE_FAILURE_KIND }
-      : result;
+    // The terminal's verdict is the published record's, and a failing run's
+    // kind comes from the executor's command outcomes, never from a kind the
+    // result happens to carry: infrastructure only when infrastructure is all
+    // that failed, coverage-only under the predicate the reuse evaluator
+    // republishes such a record with, a verdict otherwise.
+    const { failureKind: _resultKind, ...terminalBase } = result as Record<string, unknown>;
+    const terminalResult = allPass ? { ...terminalBase, allPass } : {
+      ...terminalBase,
+      allPass,
+      failureKind: classifyValidationTerminalFailure({
+        record: persistedBound.record,
+        commandResults,
+        expectedCommandCount,
+        ...(semanticCommandPass !== undefined ? { semanticCommandPass } : {}),
+        concurrentPollutionBlocking: Boolean(result?.concurrentWorktreePollution && result.concurrentWorktreePollution.blocking !== false),
+      }),
+    };
     const terminal = recordValidationTerminal(ctx, storyId, gitCwd, terminalResult, identity, reuseAttribution);
     if (!terminal) throw new Error('VALIDATION_TERMINAL_RECEIPT_MISSING: canonical publication requires a terminal append receipt');
     const terminalHashes = publicationOutputHashes(transaction, storyRel, prepared.sha256, terminal);
