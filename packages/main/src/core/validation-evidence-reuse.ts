@@ -381,22 +381,26 @@ export interface RoutineValidationReuseEvaluation {
 }
 
 /**
- * A FAIL whose only recorded shortfall is required verification coverage: every
- * required command passed. It is the one failing record the evaluator below
- * republishes as a PASS once coverage is complete, and the terminal producer
- * classifies its failure with the same predicate, so the failure that may be
- * republished and the failure that does not stick are one class by construction.
+ * A FAIL whose required commands all passed and whose recorded shortfall is
+ * required verification coverage. This is a classification of the failure, not
+ * reuse eligibility: the evaluator below republishes such a record as a PASS
+ * only when its command execution is also reusable (complete, no optional
+ * failure), while a coverage gap beside a failed OPTIONAL command is still no
+ * verdict about the code - it may not be reused, and a fresh run may pass.
  */
 export function isCoverageOnlyFailure(
   evidence: Pick<TestEvidenceData, 'result' | 'verificationCoverage' | 'commandExecution'> | null | undefined,
-  expectedCommandCount: number,
 ): boolean {
+  const execution = evidence?.commandExecution;
   return Boolean(evidence)
     && evidence!.result === 'FAIL'
     && evidence!.verificationCoverage !== undefined
     && Number.isInteger(evidence!.verificationCoverage.missingRequired)
     && evidence!.verificationCoverage.missingRequired > 0
-    && isReusableCommandPass(evidence!.commandExecution, expectedCommandCount);
+    && execution?.schema === 'proofOrStop.routine-validation-command-execution'
+    && execution.version === 1
+    && execution.status === 'PASS'
+    && execution.requiredFailureCount === 0;
 }
 
 export type ValidationTerminalFailureKind = 'validation_failure' | 'infra_failure' | 'coverage_incomplete';
@@ -413,11 +417,10 @@ export type ValidationTerminalFailureKind = 'validation_failure' | 'infra_failur
 export function classifyValidationTerminalFailure(args: {
   record: Pick<TestEvidenceData, 'result' | 'verificationCoverage' | 'commandExecution'> | null | undefined;
   commandResults: readonly ValidationCommandResult[];
-  expectedCommandCount: number;
   semanticCommandPass?: boolean;
   concurrentPollutionBlocking?: boolean;
 }): ValidationTerminalFailureKind {
-  if (isCoverageOnlyFailure(args.record, args.expectedCommandCount)) return 'coverage_incomplete';
+  if (isCoverageOnlyFailure(args.record)) return 'coverage_incomplete';
   const isInfrastructure = (result: ValidationCommandResult) => result.failureKind === 'infra_failure' || result.timedOut === true;
   const requiredFailures = args.commandResults.filter((result) => (
     result.worktreePollution?.blocking === true

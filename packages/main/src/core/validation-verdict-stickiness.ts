@@ -48,8 +48,8 @@ export interface ValidationTerminalFact {
 export const VERDICT_FLIP_REUSE_REASON = 'verdict-flip-unattested';
 export const VERDICT_FLIP_ADMISSION_CODE = 'verdict_flip_unattested';
 export const VERDICT_FLIP_PUBLICATION_CODE = 'verdict_flip_refused';
-/** A PASS whose full identity cannot be formed: whether that identity has failed cannot be established. */
-export const IDENTITY_UNAVAILABLE_PUBLICATION_CODE = 'validation_identity_unavailable';
+/** A run or a PASS whose full identity cannot be formed: whether that identity has failed cannot be established. */
+export const IDENTITY_UNAVAILABLE_CODE = 'validation_identity_unavailable';
 export const IDENTITY_INCOMPLETE_ADMISSION_CODE = 'validation_identity_incomplete';
 /** Terminal failure kind of a run whose required commands all passed and whose only shortfall was required verification coverage. */
 export const COVERAGE_INCOMPLETE_FAILURE_KIND = 'coverage_incomplete';
@@ -147,7 +147,7 @@ export function readValidationHistory(store: { storyDirPath(storyId: string): st
  */
 export function passPublicationRefusal(history: ValidationHistory, identity: ValidationVerdictIdentity | null): string | null {
   if (!identity) {
-    return `a PASS cannot be published without its full validation identity (command set, committed material, story files, compiled artifacts): whether that identity has failed cannot be established [${IDENTITY_UNAVAILABLE_PUBLICATION_CODE}]`;
+    return `a PASS cannot be published without its full validation identity (command set, committed material, story files, compiled artifacts): whether that identity has failed cannot be established [${IDENTITY_UNAVAILABLE_CODE}]`;
   }
   if ('unreadable' in history) {
     return `the Story's validation history could not be read (${history.unreadable}); a PASS cannot be published without knowing whether this identity has failed [${HISTORY_UNREADABLE_ADMISSION_CODE}]`;

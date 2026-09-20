@@ -84,7 +84,7 @@ if (stickiness?.stickyFailuresFor) {
   expectRepaired(typeof reuseModule.classifyValidationTerminalFailure === 'function', 'there is no terminal failure classifier over command outcomes');
   if (typeof reuseModule.classifyValidationTerminalFailure === 'function') {
     const failingRecord = { result: 'FAIL', verificationCoverage: { missingRequired: 0 }, commandExecution: { status: 'FAIL' } };
-    const classify = (commandResults, extra = {}) => reuseModule.classifyValidationTerminalFailure({ record: failingRecord, commandResults, expectedCommandCount: commandResults.length, ...extra });
+    const classify = (commandResults, extra = {}) => reuseModule.classifyValidationTerminalFailure({ record: failingRecord, commandResults, ...extra });
     const ok = { code: 0 }, broke = { code: 1 }, timedOut = { code: 124, timedOut: true }, refused = { code: 1, failureKind: 'infra_failure' };
     expectRepaired(classify([timedOut, broke]) === 'validation_failure', 'a real command failure beside a timeout was classified as infrastructure');
     expectRepaired(classify([refused, broke]) === 'validation_failure', 'a real command failure beside a refused launch was classified as infrastructure');
@@ -95,6 +95,13 @@ if (stickiness?.stickyFailuresFor) {
     check(classify([ok]) === 'validation_failure', 'control: a failure no command explains fails closed as a verdict');
     const okExecution = { schema: 'proofOrStop.routine-validation-command-execution', version: 1, status: 'PASS', complete: true, commandCount: 1, requiredFailureCount: 0, optionalFailureCount: 0 };
     check(reuseModule.classifyValidationTerminalFailure({ record: { result: 'FAIL', verificationCoverage: { missingRequired: 1 }, commandExecution: okExecution }, commandResults: [ok], expectedCommandCount: 1 }) === 'coverage_incomplete', 'control: passing commands with missing required coverage are a coverage-only failure');
+    // Audit 4: classification is not reuse eligibility. A failed OPTIONAL
+    // command beside the coverage gap makes the record unreusable, not a verdict.
+    const optionalFailed = { ...okExecution, commandCount: 2, optionalFailureCount: 1 };
+    expectRepaired(reuseModule.classifyValidationTerminalFailure({ record: { result: 'FAIL', verificationCoverage: { missingRequired: 1 }, commandExecution: optionalFailed }, commandResults: [ok, { ...broke, optional: true }] }) === 'coverage_incomplete',
+      'a coverage gap beside a failed optional command was classified as a verdict about the code');
+    check(reuseModule.isReusableCommandPass(optionalFailed, 2) === false, 'control: a record with a failed optional command is still not reusable');
+    check(reuseModule.classifyValidationTerminalFailure({ record: { result: 'FAIL', verificationCoverage: { missingRequired: 1 }, commandExecution: { ...okExecution, status: 'FAIL', requiredFailureCount: 1 } }, commandResults: [broke] }) === 'validation_failure', 'control: a required failure beside the coverage gap is a verdict');
   }
 } else {
   expectRepaired(false, 'core/validation-verdict-stickiness does not exist');
@@ -452,6 +459,70 @@ try {
   const timeoutRetry = timeoutOnly.runWith('pass');
   check(timeoutRetry.status === 0 && timeoutOnly.evidence()?.result === 'PASS', `control: unchanged inputs recover after an infrastructure-only timeout (${timeoutRetry.text.slice(0, 400)})`);
 
+  // Audit 4: a coverage gap beside a failed OPTIONAL command. The record is not
+  // reusable, so recovery is a fresh execution - which must not be refused as a
+  // flip, because no required command ever failed. Coverage is completed by a
+  // permanent waiver, which leaves the routine identity unchanged.
+  const optionalGap = seed('optional-gap', '', 'must', (root) => {
+    rmSync(join(root, 'validate.ts'));
+    writeFileSync(join(root, 'required.cjs'), 'process.exit(0);\n');
+    writeFileSync(join(root, 'optional.cjs'), 'process.exit(1);\n');
+    const config = JSON.parse(readFileSync(join(root, 'proof-or-stop.config.json'), 'utf8'));
+    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ ...config, validate: { commands: [{ command: 'node', args: ['required.cjs'] }, { command: 'node', args: ['optional.cjs'], optional: true }] } }, null, 2));
+  });
+  const gapRun = optionalGap.runCli();
+  const gapEvidence = optionalGap.evidence();
+  check(gapRun.status !== 0 && gapEvidence?.result === 'FAIL' && gapEvidence?.commandExecution?.status === 'PASS' && gapEvidence?.commandExecution?.optionalFailureCount === 1 && gapEvidence?.verificationCoverage?.missingRequired === 1,
+    `control: required commands pass, an optional one fails, required coverage is missing (${gapRun.text.slice(0, 300)})`);
+  expectRepaired(kinds(optionalGap.history()) === JSON.stringify([['fail', 'executed', 'coverage_incomplete']]), `a coverage gap beside a failed optional command was recorded as a verdict (${kinds(optionalGap.history())})`);
+  const gapIdentity = gapEvidence?.routineValidationIdentity?.digest;
+  const gapChecklist = optionalGap.store.readChecklist(optionalGap.storyId);
+  gapChecklist.items[0].verificationEvidence = [{ intentRef: 'CHK-001:happy:0', kind: 'waiver', waiverType: 'permanent', result: 'pass', note: 'Fixture waiver: the intent is covered by agreement for this regression, not by a command.' }];
+  optionalGap.store.writeChecklist(optionalGap.storyId, gapChecklist);
+  optionalGap.git(['add', '.proof-or-stop']); optionalGap.git(['commit', '-qm', 'waive the required intent']);
+  optionalGap.admit();
+  const gapRecovery = optionalGap.runCli();
+  check(optionalGap.evidence()?.routineValidationIdentity?.digest === gapIdentity && optionalGap.evidence()?.disposition === 'executed',
+    `control: the recovery is a fresh execution on the unchanged identity (${optionalGap.evidence()?.disposition} ${kinds(optionalGap.history())})`);
+  expectRepaired(gapRecovery.status === 0 && optionalGap.evidence()?.result === 'PASS' && !gapRecovery.text.includes('verdict_flip_refused'),
+    `a coverage gap beside a failed optional command permanently refused the recovery (${gapRecovery.text.slice(0, 400)})`);
+
+  // Audit 4: a run whose routine identity cannot be built is refused BEFORE it
+  // launches. Executing it would record a failure under a digest no later
+  // identity matches, so an unchanged retry would not be recognised as one.
+  // Every Story run builds its identity through this one function before it
+  // executes anything; a transient snapshot error is injected into it.
+  const { buildStoryRoutineIdentity } = await import('../packages/main/src/handlers/verifier.ts');
+  const unbound = seed('unbound', flaky());
+  expectRepaired(typeof buildStoryRoutineIdentity === 'function', 'the routine identity builder cannot be exercised');
+  if (typeof buildStoryRoutineIdentity === 'function') {
+    const transientStore = new Proxy(unbound.store, { get(target, prop) {
+      const value = Reflect.get(target, prop, target);
+      if (typeof value !== 'function') return value;
+      return prop === 'readChecklist' ? () => { throw new Error('transient snapshot error'); } : value.bind(target);
+    } });
+    const build = (store) => buildStoryRoutineIdentity({ ctx: { root: unbound.root, store, scanRoot: unbound.root }, storyId: unbound.storyId, sourceKind: 'no-validator', commands: [] });
+    let refusal = '', unbuilt;
+    try { unbuilt = build(transientStore); } catch (error) { refusal = String(error?.message ?? error); }
+    expectRepaired(unbuilt === undefined && refusal.includes('[validation_identity_unavailable]') && refusal.includes('transient snapshot error'),
+      `an identity that could not be built was handed to the caller as ${JSON.stringify(unbuilt)} instead of refusing the run (${refusal.slice(0, 200) || 'no refusal'})`);
+    check(/^[a-f0-9]{64}$/.test(build(unbound.store)?.identity?.digest ?? ''), 'control: the same inputs build an identity once the snapshot can be read');
+  }
+  writeFileSync(switchPath, 'pass\n');
+  const afterUnbound = unbound.runCli();
+  check(afterUnbound.status === 0 && unbound.evidence()?.result === 'PASS', `control: the unchanged inputs validate once the identity can be built (${afterUnbound.text.slice(0, 300)})`);
+
+  // Audit 4: a plain-text validate-file run is a dry run. It publishes neither
+  // evidence nor terminal, so its PASS is evidence nowhere and nothing flips.
+  const dryRun = seed('dry-run', flaky());
+  const runText = () => spawnSync(process.execPath, [cli, 'validate', `--story=${dryRun.storyId}`], { cwd: dryRun.root, encoding: 'utf8', timeout: 300_000,
+    env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: dryRun.root, PROOF_OR_STOP_SESSION_ID: 'verdict-stickiness', PROOF_OR_STOP_ACTIVITY_SOURCE: 'codex', npm_config_yes: 'true', STICKINESS_SWITCH: switchPath } });
+  writeFileSync(switchPath, 'fail\n'); const textFail = runText();
+  dryRun.admit();
+  writeFileSync(switchPath, 'pass\n'); const textPass = runText();
+  check(textFail.status !== 0 && textPass.status === 0 && dryRun.evidence() === null && kinds(dryRun.history()) === '[]',
+    `control: a plain-text run reports its verdict and publishes nothing, PASS included (fail=${textFail.status} pass=${textPass.status} evidence=${dryRun.evidence()?.result} ${kinds(dryRun.history())} ${`${textPass.stdout}${textPass.stderr}`.slice(0, 300)})`);
+
   // Audit 2: a flipped verdict laundered through a coverage-only FAIL. The
   // stored record says the commands passed and only coverage was missing; the
   // history says an executed run FAILED on that identity. Coverage is complete
@@ -497,9 +568,12 @@ expectRepaired((verifierSource.match(/passPublicationRefusal\(/g) ?? []).length 
   'the executed and the reused publication do not both read the shared publication refusal (source-text guard)');
 // Audit 3: every executed PASS asks, with whatever identity it has; a missing
 // identity is the refusal's business, never a reason not to ask.
-expectRepaired(/if \(allPass\) \{\s+const flipRefusal = passPublicationRefusal\(/.test(verifierSource) && verifierSource.includes('verdictIdentityFromParts({ commandSetHash: identity?.digest, ...hashes })'),
+expectRepaired(/if \(allPass\) \{\s+const flipRefusal = passPublicationRefusal\(/.test(verifierSource) && verifierSource.includes('verdictIdentityFromParts({ commandSetHash: identity.digest, ...hashes })'),
   'the executed publication asks the shared refusal only when it already has an identity (source-text guard)');
 expectRepaired(verifierSource.includes('failureKind: classifyValidationTerminalFailure({'), 'the executed terminal kind is not derived from the command outcomes (source-text guard)');
+// Audit 4: a terminal's command set is the routine identity digest, never a
+// differently built fallback that no later identity could match.
+expectRepaired(verifierSource.includes('commandSetHash: identity.digest,') && !verifierSource.includes('commandSetHash: identity?.digest ??'), 'a terminal can still record a fallback command-set digest (source-text guard)');
 expectRepaired(verifierSource.includes('failureKind: _printedKind, ...rest }') && verifierSource.includes("failureKind: validation.failureKind ?? 'validation_failure'"),
   'the validate-file path still trusts a child-printed failureKind (source-text guard)');
 

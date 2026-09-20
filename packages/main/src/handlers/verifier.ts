@@ -8,7 +8,7 @@ import { readFindingValidationConstraints } from '../core/finding-validation.js'
 import { signTestValidationEvidence, verifyTestValidationEvidence } from '../core/validation-artifact-signing.js';
 import { acceptanceCompletionBlocker } from '../core/acceptance-amendment-gates.js';
 import { commandFromString, configuredValidationCommands, filterFocusedConfiguredCommands, sourceInputSnapshot, routineIdentityPolicySnapshot, buildValidateFileCommand } from './validation-identity.js';
-import { COVERAGE_INCOMPLETE_FAILURE_KIND, passPublicationRefusal, readValidationHistory, verdictIdentityFromParts } from '../core/validation-verdict-stickiness.js';
+import { COVERAGE_INCOMPLETE_FAILURE_KIND, IDENTITY_UNAVAILABLE_CODE, passPublicationRefusal, readValidationHistory, verdictIdentityFromParts } from '../core/validation-verdict-stickiness.js';
 export { configuredValidationCommands, sourceInputSnapshot } from './validation-identity.js';
 import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 /**
@@ -885,7 +885,8 @@ export function launchDirectoryMismatch(bindings: readonly FrozenLaunchBinding[]
   return undefined;
 }
 
-function buildStoryRoutineIdentity(args: {
+/** Exported for the fail-sticky regression: an identity that cannot be built is a refusal, never a null the caller executes past. */
+export function buildStoryRoutineIdentity(args: {
   ctx: HandlerContext;
   storyId: string;
   sourceKind: RoutineValidationSourceKind;
@@ -912,8 +913,10 @@ function buildStoryRoutineIdentity(args: {
       }),
     };
   } catch (error) {
-    args.ctx.log?.(`routine validation reuse identity unavailable; executing: ${error instanceof Error ? error.message : String(error)}`);
-    return null;
+    // A run that cannot be bound to what it validates is refused before it
+    // launches. Executing it would record a failure under a digest no later
+    // identity can match, so an unchanged retry would not be recognised as one.
+    throw new Error(`[${IDENTITY_UNAVAILABLE_CODE}] the routine validation identity of ${args.storyId} could not be built, so this run cannot be bound to what it validates and is refused before launch: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
@@ -1399,7 +1402,7 @@ function recordValidationTerminal(
   storyId: string,
   gitCwd: string,
   result: any,
-  identity?: RoutineValidationIdentity,
+  identity: RoutineValidationIdentity,
   reuseAttribution?: RoutineReuseTerminalAttribution,
 ) {
   let story;
@@ -1410,17 +1413,9 @@ function recordValidationTerminal(
     attemptId: story.currentReviewRound ?? '',
     phase: story.phase,
     reviewRound: story.currentReviewRound ?? '',
-    commandSetHash: identity?.digest ?? createHash('sha256').update(JSON.stringify(
-      Array.isArray(result.commands)
-        ? result.commands.map((command: any) => ({
-          label: command?.label ?? '',
-          command: command?.command ?? '',
-          args: Array.isArray(command?.args) ? command.args : [],
-          shell: command?.shell === true,
-          cwd: command?.cwd ?? '',
-        }))
-        : [],
-    )).digest('hex'),
+    // The command set IS the routine identity digest. There is no fallback
+    // digest: one built differently could never match a later identity.
+    commandSetHash: identity.digest,
     disposition: result.disposition === 'reused' ? 'reused' : 'executed',
     commandExecutions: Number(result.commandExecutions ?? result.commands?.length ?? 0),
     result: result.allPass === false || result.status === 'fail' ? 'fail' : 'pass',
@@ -1492,6 +1487,11 @@ function persistStoryValidationEvidence(
     disposition: 'executed',
     commandExecutions: commandResults.filter(row => row.executionReceipt?.disposition !== 'reused').length,
   });
+  // No record and no terminal without the routine identity: neither a PASS
+  // nor a failure may be bound to a digest a later identity cannot match.
+  if (!identity) {
+    return persistenceFailure(`the routine validation identity is unavailable, so this result cannot be bound to what it validated [${IDENTITY_UNAVAILABLE_CODE}]`);
+  }
   // B-3434: the artifact grows with the NUMBER of configured validate commands (per-command output
   // is already capped upstream by trimOutput), and once it passed the metadata read ceiling nothing
   // could commit test-evidence.json at all.
@@ -1605,7 +1605,7 @@ function persistStoryValidationEvidence(
     if (allPass) {
       const flipRefusal = passPublicationRefusal(
         readValidationHistory(ctx.store, storyId),
-        verdictIdentityFromParts({ commandSetHash: identity?.digest, ...hashes }),
+        verdictIdentityFromParts({ commandSetHash: identity.digest, ...hashes }),
       );
       if (flipRefusal) return persistenceFailure(flipRefusal);
     }
@@ -1688,7 +1688,6 @@ function persistStoryValidationEvidence(
       failureKind: classifyValidationTerminalFailure({
         record: persistedBound.record,
         commandResults,
-        expectedCommandCount,
         ...(semanticCommandPass !== undefined ? { semanticCommandPass } : {}),
         concurrentPollutionBlocking: Boolean(result?.concurrentWorktreePollution && result.concurrentWorktreePollution.blocking !== false),
       }),
@@ -3176,6 +3175,9 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             // `code` already carries the executor's build-binding verdict, so
             // the plain-text rendering fails exactly as --json does; the
             // executor's diagnostics are part of the reported output.
+            // A plain-text validate-file run is a dry run: it publishes neither
+            // evidence nor terminal, so its PASS is evidence nowhere and its
+            // failure has nothing to stick to. Only `--json` runs are recorded.
             reportOutcome(code === 0 && coverage.missingRequired === 0);
             return maybePrefixFocusedText((dynamicValidation?.report ? `${dynamicValidation.report}\n` : '') + output + '\n' + renderVerificationCoverage(coverage, verificationPolicy) + (advisories.length > 0 ? `\n${advisories.join('\n')}` : '') + (executorBindingDetails.length > 0 ? `\n${executorBindingDetails.join('\n')}` : '') + (code !== 0 || coverage.missingRequired > 0 ? `\n(exit code: ${code || 1})` : ''), focus);
           } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);

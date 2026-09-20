@@ -42,10 +42,11 @@ yet; the same command without `--legacy` reports it once Stories validate again.
   whichever came first. Infrastructure failures, reused terminals and terminals
   without the compiled-artifact identity do not stick. Neither does a coverage-only
   failure (`coverage_incomplete`): every required command passed and only required
-  verification coverage was missing, which is the one failure the reuse evaluator
-  republishes as a PASS once coverage is complete. The producer classifies it with
-  the evaluator's own predicate (`isCoverageOnlyFailure`), from the record it is about
-  to publish. A failure that recorded no failure kind is a verdict.
+  verification coverage was missing (`isCoverageOnlyFailure`, read from the record
+  about to be published). Every failure the reuse evaluator can republish as a PASS
+  once coverage is complete is of this kind; one beside a failed OPTIONAL command is
+  too, though its record is not reusable and only a fresh run can recover it. A
+  failure that recorded no failure kind is a verdict.
 - Four consumers apply it: routine reuse (`verdict-flip-unattested`), evidence
   admission and the DONE-side stored-PASS consumer (`verdict_flip_unattested`), and
   publication (`verdict_flip_refused`). Reuse judges every candidate it can republish
@@ -60,10 +61,13 @@ yet; the same command without `--legacy` reports it once Stories validate again.
   command failure, a failed semantic verdict or blocking worktree pollution beside a
   timeout is still a verdict; coverage-only under the evaluator's predicate; a failure
   nothing explains is a verdict. The signed evidence keeps its own aggregate kind.
-- A PASS must carry its full identity. Publication refuses one whose identity cannot
-  be formed (`validation_identity_unavailable`) and admission refuses a stored one
-  (`validation_identity_incomplete`); terminals from before the artifact binding stay
-  valid history and are simply never matched.
+- Every recorded run carries its full identity. A Story run whose routine identity
+  cannot be built is refused before it launches (`validation_identity_unavailable`);
+  it used to execute unbound and record its failure under a fallback digest no later
+  identity could match. That fallback is gone: a terminal's command set is the routine
+  identity digest. Publication refuses a result without the identity, and admission
+  refuses a stored PASS without it (`validation_identity_incomplete`); terminals from
+  before the artifact binding stay valid history and are simply never matched.
 - History is `{ terminals }` or `{ unreadable }`. Only a confirmed absence (`ENOENT`)
   is an empty history. A directory that cannot be located, a denied or non-directory
   lookup, a file that cannot be read, a line that is not a process event (a JSON object
@@ -86,7 +90,7 @@ yet; the same command without `--legacy` reports it once Stories validate again.
 
 `node scripts/verify-validation-verdict-stickiness.mjs`, registered as the last
 `validate.commands` entry. At RED: 7 failing expectations, 9 controls passed. At GREEN:
-108 checks — the pure rule, both core consumers, the DONE-side consumer over a fixture
+121 checks — the pure rule, both core consumers, the DONE-side consumer over a fixture
 Story with signed evidence, corrupt and missing histories, the report, the
 `done_prepare` trust decision, source guards, and end-to-end runs through the built
 CLI on a validate file that reads a switch outside the repository: FAIL then PASS on
@@ -97,10 +101,14 @@ records `coverage_incomplete`, a genuine coverage-only failure still recovers by
 a failed identity laundered through a coverage-only record is refused, a real failure
 beside a timeout in a two-command plan sticks and refuses the retry, and an
 infrastructure-only timeout is classified alike in evidence and terminal and recovers
-on unchanged inputs. With the production source of an audit's repair reverted, exactly
-that audit's expectations fail: 10 for the second (the laundered PASS among them,
-`exit=0 evidence=PASS/reused`) and 12 for the third (the mixed failure recorded as
-`infra_failure` among them).
+on unchanged inputs, a coverage gap beside a failed optional command records
+`coverage_incomplete` and recovers by a fresh run on the unchanged identity once a
+waiver completes coverage, an identity that cannot be built refuses instead of
+returning null, and a plain-text run publishes nothing. With the production source of
+an audit's repair reverted, exactly that audit's expectations fail: 10 for the second
+(the laundered PASS among them, `exit=0 evidence=PASS/reused`), 12 for the third (the
+mixed failure recorded as `infra_failure` among them) and 6 for the fourth (the
+recovery refused with `verdict_flip_refused` among them).
 
 On the final Lab tree the checks that share these code paths pass:
 `validation-evidence-reuse-smoke` (its coverage-only recovery included),
@@ -147,6 +155,17 @@ left an infrastructure-only timeout sticky (medium); and the history reader took
 denied or non-directory lookup for an absent file and accepted any JSON object as an
 event (medium).
 
+The fourth audit (of `52b41f541a`, rejected) found three. A failing run whose identity
+could not be built still executed and recorded a terminal under a fallback digest, so
+the unchanged retry did not match it (high): such a run is now refused before launch
+and the fallback is removed. The coverage-only classification borrowed the reuse
+predicate, which also demands no optional failure, so a coverage gap beside a failed
+optional command stuck forever (medium): classification and reuse eligibility are now
+separate. And a plain-text validate-file run records nothing (medium): that is the
+existing contract of that mode, not a gap in this rule - it publishes no PASS either,
+so there is nothing to flip - and it is now stated at the branch, pinned by a
+regression and listed under the limitations instead of changing what the mode does.
+
 ## Limitations
 
 - Any commit changes the committed material and releases the stickiness. The rule
@@ -160,9 +179,11 @@ event (medium).
 - A command the executor kills at its deadline is infrastructure, so a test that hangs
   forever is retried, not stuck; only a command that ran to a failing exit is a verdict.
 - The rule covers a Story's routine validation evidence (`test-evidence.json`) and the
-  terminals that record its runs. A focused run publishes neither, so it neither sticks
-  nor counts; DONE-required validation receipts and per-intent verification receipts
-  keep their own bindings and are not changed here.
+  terminals that record its runs, which only a `validate --story=<id> --json` run
+  publishes. A focused run and a plain-text validate-file run are dry runs: they
+  publish neither, so they neither stick nor count, exactly like running the command
+  by hand. DONE-required validation receipts and per-intent verification receipts keep
+  their own bindings and are not changed here.
 - The history is the Story's process-events file. Like every other lifecycle fact it is
   protected by the repository's metadata transaction and review, not by this rule: an
   actor who rewrites that file can remove a failure from it.
