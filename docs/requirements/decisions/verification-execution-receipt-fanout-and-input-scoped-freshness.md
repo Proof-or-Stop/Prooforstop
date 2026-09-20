@@ -147,17 +147,26 @@ Regression: `node packages/main/tests/intent-fingerprint-reuse.test.mjs`, also c
 by the existing evidence-plan smoke, executes the real producer and refresh handlers.
 It checks dynamic membership/descriptions, unrelated and affected input groups,
 shared-command fan-out, strict ordinary fallback, immutable reuse, tampering and
-read-only reports, zero planner executions and individually admitted assertions
+read-only reports, zero planner executions, invalid-to-rerun bucket membership
+for both unpinned commands and forged signatures, and individually admitted assertions
 after shared-command fan-out. The smoke imports this regression in its own supervised
 process rather than launching an unmanaged child. Fixture results are not real-Story acceptance receipts.
 The existing root `test:all` script discovers `dist/tasks/*-smoke.js`, including
 `evidence-plan-smoke.js`; this smoke is not skipped in `smoke-manifest.json` and
 imports the new regression. Run its actual suite path with
-`npm run test:all -- --select evidence-plan --jobs 1 --no-retry` (one worker,
-the runner's existing 60-second per-smoke default). Canonical serial-reference
+`npm run test:all -- --select evidence-plan --jobs 1 --no-retry` (one worker).
+The combined smoke measured 35.9 seconds, including a roughly 30-second real
+producer regression. Its manifest entry explicitly budgets 180000 ms to provide
+headroom under contention; the discovery regression checks that exact bound.
+The runner's default for other smokes is unchanged. Canonical serial-reference
 membership is unchanged. The smoke's stale `authorityDone`/`productionDone` text
 assertions were also repaired to check the already-published `admissibilityStatus`
 and `evidenceScope` output; their old literals failed against the pre-Lab renderer.
+Negative controls temporarily mapped `invalid` to the fresh bucket in the isolated
+Lab build: the unpinned-command smoke and forged-signature regression rejected
+that mutation at their respective bucket assertions. Restoring the manifest's
+old 60000 ms budget was separately rejected by the discovery budget assertion.
+Original built-handler and manifest bytes were restored before GREEN.
 
 At maintenance base `db43a2611c25bb8153d1a32db67c6d39be1b4e3e`, the full process-fact
 verifier has a pre-existing failure: it expects the retired-vocabulary guard to

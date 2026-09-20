@@ -405,6 +405,9 @@ assert.equal(isCommandAllowed('evidence_plan', 'DONE', DEFAULT_PHASE_TOOLS), tru
     const handler = createMainRegistry(ctx).get('evidence_plan')!;
     const report = handler({ storyId: STORY_ID, json: true }) as EvidencePlanReport;
     assert.equal(report.fingerprints.intents.find(row => row.intentRef === 'CHK-001:happy:0')!.action, 'invalid', 'unsigned executable evidence does not inherit manual coverage');
+    assert.ok(intentRefsOf(report, 'rerun').has('CHK-001:happy:0'), 'unpinned executable evidence must enter the rerun bucket');
+    assert.equal(intentRefsOf(report, 'fresh').has('CHK-001:happy:0'), false, 'unpinned executable evidence never becomes fresh');
+    assert.equal(report.summary.fresh, 2, 'only the two admitted manual attestations remain fresh');
     assert.deepEqual(snapshotDir(root, store.storyDirPath(STORY_ID)), before);
     assert.equal(gitStatus(root), status);
     assertNoAuthorityOrEvidenceArtifacts(store);

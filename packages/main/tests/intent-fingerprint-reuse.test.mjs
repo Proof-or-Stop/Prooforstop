@@ -20,6 +20,7 @@ const scripts = JSON.parse(readFileSync(join(repositoryRoot, 'package.json'), 'u
 assert.equal(scripts['test:all'], 'node packages/main/dist/tasks/run-all-smokes.js', 'the documented suite uses the real discovery runner');
 const selectedSmokes = selectSmokes(discoverSmokes(join(repositoryRoot, 'packages/main/dist/tasks')), JSON.parse(readFileSync(join(repositoryRoot, 'packages/main/smoke-manifest.json'), 'utf8')), { select: 'evidence-plan' });
 assert.deepEqual(selectedSmokes.map(entry => entry.name), ['evidence-plan'], 'the real manifest/discovery must select exactly this non-skipped smoke');
+assert.equal(selectedSmokes[0].timeoutMs, 180000, 'the measured producer regression has an explicit bounded smoke budget');
 const root = mkdtempSync(join(tmpdir(), 'intent-fingerprint-reuse-'));
 const storyId = 'B-intent-fingerprint';
 const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
@@ -174,7 +175,10 @@ try {
   const tampered = store.readChecklist(storyId);
   tampered.items[0].verificationEvidence.find(e => e.intentRef === 'INT-B').receipt.executionReceipt.authenticity.signature = 'forged';
   store.writeChecklist(storyId, tampered);
-  assert.equal(row(report(), 'INT-B').action, 'invalid', 'unchanged input hash never overrides invalid signatures');
+  const forged = report();
+  assert.equal(row(forged, 'INT-B').action, 'invalid', 'unchanged input hash never overrides invalid signatures');
+  assert.ok(forged.buckets.rerun.some(r => r.intentRef === 'INT-B'), 'forged signatures must enter the rerun bucket');
+  assert.equal(forged.buckets.fresh.some(r => r.intentRef === 'INT-B'), false, 'forged signatures never become fresh');
   const text = planner.evidence_plan({ storyId });
   const duplicate = store.readChecklist(storyId);
   duplicate.items[0].verificationIntent.happy.push(intent('INT-A', 'Conflicting duplicate requirement'));
