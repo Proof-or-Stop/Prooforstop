@@ -187,6 +187,26 @@ try {
   const twoStories = JSON.parse(execFileSync(process.execPath, [join(repoRoot, 'scripts/report-validation-verdict-flips.mjs'), '--root', root, '--json'], { encoding: 'utf8' }));
   expectRepaired(twoStories.identities === 2 && twoStories.flippedIdentities === 1 && twoStories.flips.every((flip) => flip.storyId === storyId),
     `the report merged two Stories' histories on one identity (${JSON.stringify(twoStories)})`);
+  // A failure that an older PASS replaces without executing anything leaves no
+  // second execution to count, so the report counts it on its own, in log order.
+  const runReport = (...flags) => JSON.parse(execFileSync(process.execPath, [join(repoRoot, 'scripts/report-validation-verdict-flips.mjs'), '--root', root, ...flags, '--json'], { encoding: 'utf8' }));
+  check(twoStories.failThenExecutedPassIdentities === 1 && twoStories.failThenReusedPassIdentities === 0,
+    `report must count the executed pass that followed the failure, and no reused one yet (${JSON.stringify(twoStories)})`);
+  store.appendProcessEvent(storyId, { ...terminal({ ...real, storyId, disposition: 'reused', result: 'pass', failureKind: undefined }), timestamp: undefined });
+  store.appendProcessEvent(otherStory, { ...terminal({ ...real, storyId: otherStory, disposition: 'reused', result: 'pass', failureKind: undefined }), timestamp: undefined });
+  const reusedAfterFail = runReport();
+  check(reusedAfterFail.failThenReusedPassIdentities === 1 && reusedAfterFail.reusedPassesAfterFail === 1 && reusedAfterFail.identities === 2 && reusedAfterFail.redundantExecutions === 2,
+    `report must count a reused pass after a failure only in the Story that failed, and never as an execution (${JSON.stringify(reusedAfterFail)})`);
+  // Terminals from before the artifact binding are never folded into the full
+  // identity; --legacy reports them apart, under the identity they do carry.
+  store.appendProcessEvent(storyId, { ...terminal({ ...real, storyId, buildArtifactsHash: undefined }), timestamp: undefined });
+  store.appendProcessEvent(storyId, { ...terminal({ ...real, storyId, buildArtifactsHash: undefined, disposition: 'reused', result: 'pass', failureKind: undefined }), timestamp: undefined });
+  const legacyHidden = runReport();
+  check(legacyHidden.legacy === undefined && legacyHidden.ungroupableLegacyTerminals === 1 && legacyHidden.identities === 2 && legacyHidden.failThenReusedPassIdentities === 1,
+    `legacy terminals must stay out of the full identity (${JSON.stringify(legacyHidden)})`);
+  const legacyShown = runReport('--legacy');
+  check(legacyShown.legacy?.identities === 1 && legacyShown.legacy.failThenReusedPassIdentities === 1 && legacyShown.legacy.identityParts.length === 3 && legacyShown.identities === 2,
+    `--legacy must report legacy terminals in their own block under the three-part identity (${JSON.stringify(legacyShown)})`);
 } finally {
   rmSync(sandbox, { recursive: true, force: true });
 }
