@@ -7,6 +7,7 @@ import type { ChecklistData, VerificationEvidence } from './types.js';
 
 export type IntentFingerprintAction = 'missing' | 'current' | 'reuse' | 'rerun' | 'invalid' | 'manual';
 export interface IntentFingerprintRow {
+  intentKey: string;
   intentRef: string;
   itemId: string;
   lane: string;
@@ -29,7 +30,11 @@ export interface IntentFingerprintReport {
   storyId: string;
   rootFingerprint: string;
   intents: IntentFingerprintRow[];
-  executions: Array<{ executionKey: string; command: string; intentRefs: string[]; requiresExecution: boolean }>;
+  executions: Array<{ executionKey: string; command: string; intentRefs: string[]; intentKeys: string[]; requiresExecution: boolean }>;
+}
+
+export function intentFingerprintKey(itemId: string, intentRef: string): string {
+  return JSON.stringify([itemId, intentRef]);
 }
 
 /** Match the writer's item ownership; a foreign item's record is never borrowed. */
@@ -54,14 +59,15 @@ export function buildIntentFingerprintReport(input: {
     for (const item of input.checklist.items) {
       for (const collected of collectVerificationIntents(item)) {
         const { ref, intent, lane } = collected;
-        if (ids.has(ref)) throw new Error(`Duplicate verification intent identity: ${ref}`);
-        ids.add(ref);
+        const intentKey = intentFingerprintKey(item.id, ref);
+        if (ids.has(intentKey)) throw new Error(`Duplicate verification intent identity: ${item.id}/${ref}`);
+        ids.add(intentKey);
         const evidence = selectItemIntentEvidence(item, ref);
         const pin = intent.verification;
         const command = pin?.command ?? evidence?.command ?? null;
         const executable = isExecutableIntentType(intent.type) || Boolean(pin);
         const row: IntentFingerprintRow = {
-          intentRef: ref, itemId: item.id, lane, description: intent.desc, executable, command,
+          intentKey, intentRef: ref, itemId: item.id, lane, description: intent.desc, executable, command,
           executionKey: null, currentFingerprint: '', executionFingerprint: null, recordedExecutionFingerprint: null,
           inputClosure: executable ? 'unavailable' : 'not-executable', action: evidence ? 'manual' : 'missing',
           reason: evidence ? 'non-executable attestation uses its existing policy' : 'no evidence recorded', changed: null, inputFiles: [],
@@ -114,18 +120,19 @@ export function buildIntentFingerprintReport(input: {
         intents.push(row);
       }
     }
-    intents.sort((a, b) => a.intentRef.localeCompare(b.intentRef));
+    intents.sort((a, b) => a.intentKey < b.intentKey ? -1 : a.intentKey > b.intentKey ? 1 : 0);
     const groups = new Map<string, IntentFingerprintReport['executions'][number]>();
     for (const row of intents) {
       if (!row.executionKey || !row.command) continue;
       let group = groups.get(row.executionKey);
-      if (!group) { group = { executionKey: row.executionKey, command: row.command, intentRefs: [], requiresExecution: false }; groups.set(row.executionKey, group); }
+      if (!group) { group = { executionKey: row.executionKey, command: row.command, intentRefs: [], intentKeys: [], requiresExecution: false }; groups.set(row.executionKey, group); }
       group.intentRefs.push(row.intentRef);
-      group.requiresExecution ||= row.action === 'rerun' || row.action === 'missing';
+      group.intentKeys.push(row.intentKey);
+      group.requiresExecution ||= row.action !== 'current' && row.action !== 'reuse' && row.action !== 'manual';
     }
     return {
       schemaVersion: 'proof-or-stop.intent-fingerprint-report.v1', authority: 'diagnostic-only', storyId: input.storyId,
-      rootFingerprint: digest({ storyId: input.storyId, intents: intents.map(row => ({ intentRef: row.intentRef, fingerprint: row.currentFingerprint })) }),
+      rootFingerprint: digest({ storyId: input.storyId, intents: intents.map(row => ({ intentKey: row.intentKey, fingerprint: row.currentFingerprint })) }),
       intents, executions: [...groups.values()].sort((a, b) => a.executionKey.localeCompare(b.executionKey)),
     };
   });

@@ -111,7 +111,10 @@ It displays each real description, stable ID (or the existing lane/index fallbac
 execution-group key, current per-intent fingerprint and an order-stable root fingerprint.
 Nothing is sized to a particular Story or historical receipt count. Explicit IDs
 survive reordering; legacy positional IDs retain their existing positional meaning.
-Duplicate IDs are rejected instead of silently collapsing requirements.
+Identity is scoped to the owning checklist item: `intentKey` encodes `[itemId, intentRef]`.
+The same explicit ID on different items produces separate rows, fingerprints and
+execution-group `intentKeys`; duplicate IDs within one item are rejected instead
+of silently collapsing requirements. The root and planner lookup use that same identity.
 
 The execution fingerprint uses the existing live command/input/environment/toolchain
 identity. A mechanically complete capsule closure excludes unrelated material;
@@ -120,6 +123,8 @@ semantics belong to the leaf, not the shared execution group. Changing an input 
 by two intents schedules one existing execution, with two independently authenticated
 assertions. Adding an unverified intent changes the root and remains visible as missing.
 Timestamps, receipt publication and result status are not fresh execution inputs.
+Execution groups fail closed: only `current`, `reuse` and `manual` actions avoid
+execution; invalid or unknown actions also set `requiresExecution`.
 
 These fingerprints are diagnostic-only: equality never replaces signature/output
 validation, pin binding, lifecycle expiry or current state checks. Executable rows
@@ -131,6 +136,10 @@ rows in `fresh`. This counts each pending intent republication, including distin
 assertions sharing one execution. The signed `verification_evidence_refresh_stale`
 writer rechecks eligibility and publishes reuse without re-executing an unchanged
 complete input group; a changed or incomplete group still executes normally.
+Each refresh-only row carries and renders its exact `refreshCommand`: signed
+`verification_evidence_refresh_stale` for admitted reuse, and the compatibility
+`evidence_refresh --apply` path for manual hash drift. The latter may demote
+executable receipts elsewhere in a mixed Story; it is not the reuse producer.
 The legacy `evidence_refresh` compatibility preview explicitly labels its JSON and
 text as metadata drift only, without evaluating executable admission, and directs
 the operator to `evidence_plan` for execution/reuse requirements. Its existing
@@ -166,8 +175,10 @@ The existing root `test:all` script discovers `dist/tasks/*-smoke.js`, including
 `evidence-plan-smoke.js`; this smoke is not skipped in `smoke-manifest.json` and
 imports the new regression. Run its actual suite path with
 `npm run test:all -- --select evidence-plan --jobs 1 --no-retry` (one worker).
-The combined smoke measured 35.9 seconds, including a roughly 30-second real
-producer regression. Its manifest entry explicitly budgets 180000 ms to provide
+The regression exercises the runner's actual `parseArgs` for `--jobs 1` and
+`--no-retry`, asserting one worker and disabled retries, then uses those parsed
+selection options in real discovery. The combined smoke initially measured 35.9 seconds;
+the expanded item-identity and refresh-command regression passed in 45.081 seconds. Its manifest entry explicitly budgets 180000 ms to provide
 headroom under contention; the discovery regression checks that exact bound.
 The runner's default for other smokes is unchanged. Canonical serial-reference
 membership is unchanged. The smoke's stale `authorityDone`/`productionDone` text
@@ -179,13 +190,37 @@ that mutation at their respective bucket assertions. Restoring the manifest's
 old 60000 ms budget was separately rejected by the discovery budget assertion.
 Original built-handler and manifest bytes were restored before GREEN.
 
-At maintenance base `db43a2611c25bb8153d1a32db67c6d39be1b4e3e`, the full process-fact
-verifier has a pre-existing failure: it expects the retired-vocabulary guard to
-contain `52a283cfcdc3bfbb233feab6d31614d0eabf8470a41d3af10ad7786246905720`,
-but that unchanged guard does not contain the literal. The candidate run reported
-that same sole failure; the new diagnostic checks passed. This comparison checks
-the exact baseline source predicate, not a claim that the complete baseline suite
-was rerun. The unrelated guard is preserved; full process-fact success is not claimed.
+The original Lab branch point was `db43a2611c25bb8153d1a32db67c6d39be1b4e3e`;
+the first comparison there checked only the retired-vocabulary source predicate.
+After syncing main, the integration base is
+`de5342207275af41222e7246ac9283a0e97bd031`. The full command
+`node scripts/verify-process-fact-contract.mjs` was actually rerun on that main
+checkout: exit 1 in 137.522 seconds, with the sole failure expecting the unchanged
+retired-vocabulary guard to contain
+`52a283cfcdc3bfbb233feab6d31614d0eabf8470a41d3af10ad7786246905720`.
+The candidate also reports that sole failure while the new diagnostic checks pass.
+The unrelated guard is preserved; full process-fact success is not claimed.
+
+The directly composed consumers were paired at exact checkouts of integration
+base `de5342207275af41222e7246ac9283a0e97bd031` and audited candidate
+`f32a6cf9bca3daced0508dddf6d38fcfba1e60bd`, with source/dist build bindings
+verified before and after. Each command below has the prefix
+`node packages/main/dist/tasks/`:
+
+| Consumer | Base | Candidate |
+| --- | --- | --- |
+| `lifecycle-orchestrate-smoke.js` | PASS, 17.075 s | PASS, 17.278 s |
+| `evidence-refresh-smoke.js` | exit 1, 1.196 s | exit 1, 1.168 s |
+
+After the item-key/group-action repair, the same candidate consumers were rerun:
+`lifecycle-orchestrate-smoke.js` passed in 16.185 seconds;
+`evidence-refresh-smoke.js` retained the same renderer failure in 0.753 seconds.
+The final process-fact check retained only the baseline failure in 118.970 seconds;
+static edges passed with zero needs-review, nested, or unexpanded commands.
+
+Both refresh failures are the same obsolete `/authorityDone: false/` text
+assertion; the extra preview lines introduce no different failure. These paired
+runs were concurrent, so their durations are observations, not a speedup claim.
 
 The unchanged adjacent `evidence-refresh-smoke` also has baseline failures: its
 obsolete `authorityDone` renderer assertion fails, and correcting that assertion

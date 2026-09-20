@@ -12011,13 +12011,16 @@ assert(managedCriticArtifact?.producer === 'handlers/managed-review-evidence.man
   };
   requireTokens('Intent fingerprint diagnostic contract', fingerprints, [
     'collectVerificationIntents(item)',
+    'intentFingerprintKey(item.id, ref)',
+    'group.intentKeys.push(row.intentKey)',
+    "group.requiresExecution ||= row.action !== 'current' && row.action !== 'reuse' && row.action !== 'manual'",
     'const admission = evaluateVerificationEvidenceForGate({',
     "authority: 'diagnostic-only', storyId: input.storyId",
     "isReusableVerificationReceipt(evidence.receipt) && row.action !== 'invalid'",
     '...(identity.reusable ? {} : { materialHash: materialHash ?? null, storyFilesHash: storyFilesHash ?? null })',
     '...(identity.reusable && execution.inputClosureComplete ? {} : { materialHash: evidence.materialHash ?? null, storyFilesHash: evidence.storyFilesHash ?? null })',
   ]);
-  requireTokens('Dynamic evidence planner', planner, ['buildIntentFingerprintReport', 'row.description']);
+  requireTokens('Dynamic evidence planner', planner, ['buildIntentFingerprintReport', 'row.description', 'fingerprintByRef.get(intentFingerprintKey(item.id, collected.ref))', 'refreshCommand: `proof-or-stop verification_evidence_refresh_stale --storyId=${storyId}`']);
   requireTokens('Intent fingerprint registration', read(processFactRegistryPath), ['packages/main/src/core/verification-intent-fingerprints.ts']);
   requireTokens('Legacy refresh preview semantics', read('packages/main/src/handlers/evidence-refresh.ts'), [
     "kind: 'metadata-drift-only'", "executableAdmission: 'not-evaluated'", 'metadata drift only; not executable receipt admission',

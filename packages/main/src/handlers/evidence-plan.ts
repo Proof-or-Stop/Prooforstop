@@ -1,4 +1,4 @@
-import { buildIntentFingerprintReport, selectItemIntentEvidence, type IntentFingerprintReport, type IntentFingerprintRow } from '../core/verification-intent-fingerprints.js';
+import { buildIntentFingerprintReport, intentFingerprintKey, selectItemIntentEvidence, type IntentFingerprintReport, type IntentFingerprintRow } from '../core/verification-intent-fingerprints.js';
 import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 import type { HandlerContext } from './context.js';
 import {
@@ -47,8 +47,10 @@ interface EvidencePlanEntry {
   result?: 'pass' | 'fail';
   /** The command to re-run (rerun bucket). */
   command?: string;
-  /** Freshness reason from checkEvidenceFreshnessForGit (refresh-only bucket). */
+  /** Admission or freshness reason for the recommended action. */
   driftReason?: string;
+  /** Exact supported command for publishing this refresh-only result. */
+  refreshCommand?: string;
 }
 
 export interface EvidencePlanReport {
@@ -144,6 +146,7 @@ function isWaiver(ev: VerificationEvidence): boolean {
 function classifyIntent(
   collected: { ref: string; itemId: string; lane: VerificationLane; intent: { priority?: VerificationPriority } },
   evidence: VerificationEvidence | undefined,
+  storyId: string,
   gitCwd: string,
   metadataRoot: string,
   fingerprint: IntentFingerprintRow,
@@ -172,6 +175,7 @@ function classifyIntent(
       bucket: fingerprint.action === 'current' ? 'fresh' : fingerprint.action === 'reuse' ? 'refresh-only' : 'rerun',
       ...(fingerprint.command ? { command: fingerprint.command } : {}),
       driftReason: fingerprint.reason,
+      ...(fingerprint.action === 'reuse' ? { refreshCommand: `proof-or-stop verification_evidence_refresh_stale --storyId=${storyId}` } : {}),
     };
   }
 
@@ -208,6 +212,7 @@ function classifyIntent(
     hasEvidence: true,
     result: 'pass',
     driftReason: freshness.reason,
+    refreshCommand: `proof-or-stop evidence_refresh --storyId=${storyId} --apply`,
   };
 }
 
@@ -223,18 +228,18 @@ export function renderEvidencePlanReport(report: EvidencePlanReport): string {
   lines.push(`intent fingerprints: ${report.fingerprints.intents.length} intents, ${report.fingerprints.executions.length} execution groups`,
     `root fingerprint: ${report.fingerprints.rootFingerprint} (diagnostic only)`);
   for (const row of report.fingerprints.intents) {
-    lines.push(`  ${row.intentRef}: ${row.description}`, `    action=${row.action} closure=${row.inputClosure} reason=${row.reason}`);
+    lines.push(`  ${row.intentRef} [${row.itemId}]: ${row.description}`, `    action=${row.action} closure=${row.inputClosure} reason=${row.reason}`);
   }
 
   const renderEntry = (entry: EvidencePlanEntry): string => {
-    const tag = `${entry.intentRef} [${entry.priority}${entry.required ? '/required' : ''}]`;
+    const tag = `${entry.intentRef} (${entry.itemId}) [${entry.priority}${entry.required ? '/required' : ''}]`;
     if (entry.bucket === 'rerun') {
       const detail = entry.command ? ` command: ${entry.command}` : ' command: <none recorded>';
       const resultNote = entry.result ? ` result=${entry.result}` : ' result=<none>';
       return `    - ${tag}${resultNote}${detail}`;
     }
     if (entry.bucket === 'refresh-only') {
-      return `    - ${tag} drift: ${entry.driftReason ?? 'evidence hash drift'}`;
+      return `    - ${tag} drift: ${entry.driftReason ?? 'evidence hash drift'}; next: ${entry.refreshCommand}`;
     }
     return `    - ${tag}`;
   };
@@ -280,7 +285,7 @@ export function createEvidencePlanHandlers(ctx: HandlerContext): Record<string, 
     });
 
     const fingerprints = buildIntentFingerprintReport({ projectRoot: ctx.root, gitCwd, storyId: args.storyId, checklist });
-    const fingerprintByRef = new Map(fingerprints.intents.map(row => [row.intentRef, row]));
+    const fingerprintByRef = new Map(fingerprints.intents.map(row => [row.intentKey, row]));
     const buckets: EvidencePlanReport['buckets'] = {
       missing: [],
       rerun: [],
@@ -290,7 +295,7 @@ export function createEvidencePlanHandlers(ctx: HandlerContext): Record<string, 
 
     for (const item of checklist.items) {
       for (const collected of collectVerificationIntents(item)) {
-        const entry = classifyIntent(collected, selectItemIntentEvidence(item, collected.ref), gitCwd, ctx.root, fingerprintByRef.get(collected.ref)!);
+        const entry = classifyIntent(collected, selectItemIntentEvidence(item, collected.ref), args.storyId, gitCwd, ctx.root, fingerprintByRef.get(intentFingerprintKey(item.id, collected.ref))!);
         switch (entry.bucket) {
           case 'missing':
             buckets.missing.push(entry);
