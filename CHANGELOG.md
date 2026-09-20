@@ -1,5 +1,15 @@
 # Changelog
 
+## Lab validation-production-budget-260-20260920 - v0.3.429 - 2026-09-20
+
+- Set the three complete production validation commands for process-fact, RED-evidence target binding and RED-evidence envelopes to the explicitly authorized 260000 ms timeout, replacing 180000 ms.
+- Preserve existing command arguments, assertion bodies, resources and unrelated budgets. Add a separately registered budget guard with explicit shared resource claims; refresh exact static configuration and package bindings without broadening exceptions.
+- Record a real configuration RED and GREEN through the actual static verifier, requiring U18_STATIC_PASS before PRODUCTION_VALIDATION_260_GREEN, including release-time bindings. See [production budget evidence](docs/lab/validation-production-budget-260.md); this configuration repair makes no speedup or full-suite rerun claim.
+
+Maintenance provenance: codex/lab-validation-production-budget-260-20260920, repair a0b5c2e418ebbeae8122b9e891cb548fe9142e2c.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/validation-production-budget-260.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab benchmark-control-red-green - v0.3.428 - 2026-09-20
 
 - Add an isolated benchmark controller experiment that ignores unchanged blocked progress, deduplicates executions, bounds context, and reserves shared and repair budgets before dispatch.
