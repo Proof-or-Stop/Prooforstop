@@ -36,7 +36,7 @@ transport identity prevents charging one nested attempt twice. Managed submissio
 persist quota-only environment values in their immutable spec and idempotency
 identity; workers restore that policy and reject conflicting settings.
 
-The same regression also runs 17 edge groups: all three adapter retry and early
+The same regression also runs 18 edge groups: all three adapter retry and early
 completion paths, invalid counters, frozen exceptions, redacted child environment,
 forged delegation, repair partitions, asynchronous starts, standalone review, and
 managed environment loss/idempotency/conflict. Its structural check uses the
@@ -90,3 +90,11 @@ no new pre-change bypass is claimed for that control.
 The authoritative local RED/GREEN, independent audit and finish receipts are
 owned by the Lab driver. Lab completion is local maintenance evidence, not formal
 Story DONE or signed product-release evidence.
+
+The second finish audit confirmed the quota mechanism and rejected a supervisor
+payload boundary leak plus stale redaction commentary. RED at `085282ab03`
+intercepts the actual worker spawn payload and proves parent-only quota context
+was serialized. The repair removes all three budget-only fields before transport,
+retains the filtered child environment, and updates the evidence explanation.
+The same assertion runs in the official RED/GREEN command; no paid process is
+launched by the interception fixture.

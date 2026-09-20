@@ -507,8 +507,9 @@ function executeRealProviderStep(
     timeoutMs: allowance?.timeoutMs ?? step.timeoutMs,
     maxAttempts: allowance?.attempts ?? step.maxAttempts,
     // Env redaction summary — credential KEY NAMES / counts only, never values. The
-    // child saw only the runtime keys + these allowlisted credentials; everything
-    // else was stripped by redactedProviderEnv.
+    // child sees runtime keys and these allowlisted credentials. After redaction,
+    // runBudgetedProviderRequest also projects non-secret operator-configured
+    // PROOF_OR_STOP_RUN_BUDGET_* keys so nested owned calls share the ledger.
     envRedacted: true,
     credentialEnvKeysProjected: ctx.policy.credentialsEnvAllowlist.filter(
       name => typeof ctx.env[name] === 'string' && (ctx.env[name] as string).trim() !== '',

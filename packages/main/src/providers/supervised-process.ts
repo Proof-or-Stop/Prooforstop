@@ -27,12 +27,15 @@ function runAdmittedSupervisedProcess(binary: string, argv: string[], options: S
     error: Object.assign(new Error('previous provider group cleanup unproven'), { code: 'ECLEANUP' }), replacementSafe: false, timedOut: false };
   admission.supervisedLifecycle = { replacementSafe: false };
   const nonce = randomUUID();
+  // Quota context is parent-only. The worker receives only the admitted transport
+  // projection, never the unredacted budget environment or duplicate prompt.
+  const { budgetRoot: _budgetRoot, budgetEnv: _budgetEnv, budgetPrompt: _budgetPrompt, ...transport } = options;
   try {
     const bridge = spawnSync(process.execPath, [fileURLToPath(new URL('./supervised-process-worker.js', import.meta.url))], {
-      cwd: options.cwd, ...{ detached: true }, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe', 'pipe'],
+      cwd: transport.cwd, ...{ detached: true }, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe', 'pipe'],
       // Provider environment and credentials travel on stdin, never argv or a file.
-      input: JSON.stringify({ nonce, binary, argv, options, admission }),
-      timeout: Math.max(1, options.timeoutMs) + SUPERVISED_PROVIDER_RUNTIME_POLICY.parentGraceMs, killSignal: 'SIGKILL', maxBuffer: SUPERVISED_PROVIDER_RUNTIME_POLICY.maxOutputBytes * 3,
+      input: JSON.stringify({ nonce, binary, argv, options: transport, admission }),
+      timeout: Math.max(1, transport.timeoutMs) + SUPERVISED_PROVIDER_RUNTIME_POLICY.parentGraceMs, killSignal: 'SIGKILL', maxBuffer: SUPERVISED_PROVIDER_RUNTIME_POLICY.maxOutputBytes * 3,
     });
     let record: { nonce: string; pid: number; outcome: SupervisedProcessOutcome } | undefined;
     try { record = JSON.parse(String(bridge.output[3] ?? '')); } catch { /* No control proof means retain capacity. */ }

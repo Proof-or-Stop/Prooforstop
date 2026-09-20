@@ -8,6 +8,7 @@ export const SHARED_PROVIDER_QUOTA_RUNTIME_POLICY = {
   promptBytes: 'full-prompt-content-including-reference-mode',
   attemptEvidence: 'configured-maximum-and-actual-armed-allowance',
   supervisorContext: 'explicit-owner-root-and-budget-environment',
+  supervisorPayload: 'parent-only-quota-context-excluded-from-worker-payload',
   coverage: {
     'core/host-run.ts': ['reserveHostRunBudget'],
     'core/managed-host-run.ts': ['runHostRun', 'restoreHostRunBudgetEnvironment'],

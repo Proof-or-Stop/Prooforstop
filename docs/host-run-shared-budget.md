@@ -139,3 +139,9 @@ the full prompt content for the optional byte ceiling. Plan evidence records bot
 its configured `maxAttempts` and the clipped `attemptAllowanceArmed`. Readiness
 and batch probes explicitly carry the owning root and quota environment even
 when the child environment is restricted. Waiting does not reset the quota.
+
+The supervisor makes the quota decision in its parent process. It then removes
+`budgetRoot`, `budgetEnv` and `budgetPrompt` from the worker payload; only the
+admitted transport environment and its normal prompt channel cross that boundary.
+Quota keys intentionally present in the filtered child environment still support
+nested owned CLI calls. Parent credentials are not copied from `budgetEnv`.
