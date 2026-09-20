@@ -141,6 +141,12 @@ An informational command on an unpinned docs/manual attestation does not make th
 intent executable or create an execution group. Both planner buckets and fingerprints
 select evidence from the owning checklist item, matching the writer's item/ref check;
 a misplaced record on another item remains missing coverage.
+The compatibility refresh preview and post-apply reclassification use that same
+item-scoped selector. A record moved to another item during a pass cannot be reported
+as refreshed for its former owner. Regression coverage executes the real metadata-only
+apply path: it runs zero commands, demotes unexecuted mechanical receipts, and leaves
+all affected executable intents requiring re-execution. It cannot substitute for
+the signed execution/reuse writer.
 
 Legacy receipts without complete input authority are not upgraded by inventing a
 manifest. A genuine eligible execution must establish that authority first. This
@@ -180,3 +186,11 @@ but that unchanged guard does not contain the literal. The candidate run reporte
 that same sole failure; the new diagnostic checks passed. This comparison checks
 the exact baseline source predicate, not a claim that the complete baseline suite
 was rerun. The unrelated guard is preserved; full process-fact success is not claimed.
+
+The unchanged adjacent `evidence-refresh-smoke` also has baseline failures: its
+obsolete `authorityDone` renderer assertion fails, and correcting that assertion
+alone exposes its old assumption that matching HEAD skips a changed material hash.
+An isolated run with the `de534220` main handler and unchanged writer reproduces
+the latter failure. That is a focused baseline comparison, not a complete main
+suite run. The old smoke and production writer remain unchanged; the new regression
+directly verifies metadata-only demotion and item ownership before and after apply.

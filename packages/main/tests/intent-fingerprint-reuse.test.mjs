@@ -93,6 +93,20 @@ try {
   assert.equal(preview.previewSemantics.executableAdmission, 'not-evaluated');
   assert.match(previewer.evidence_refresh({ storyId }), /metadata drift only; not executable receipt admission/);
   assert.match(previewer.evidence_refresh({ storyId }), /evidence_plan/);
+  const beforeMetadataApply = store.readChecklist(storyId);
+  const executionsBeforeMetadataApply = executions;
+  const metadataApplied = previewer.evidence_refresh({ storyId, apply: true, json: true });
+  assert.equal(metadataApplied.mode.writeEvidence, true, 'exercise the actual compatibility writer');
+  assert.equal(executions, executionsBeforeMetadataApply, 'metadata-only apply executes zero verification commands');
+  const afterMetadataApply = report();
+  for (const ref of ['INT-ORDINARY', 'INT-A', 'INT-A-SECOND', 'INT-B']) {
+    assert.ok(['invalid', 'rerun'].includes(row(afterMetadataApply, ref).action), 'metadata-only apply never promotes an unexecuted receipt to current or reuse');
+    assert.ok(afterMetadataApply.buckets.rerun.some(r => r.intentRef === ref), 'metadata-only apply cannot launder executable coverage');
+    const demoted = store.readChecklist(storyId).items[0].verificationEvidence.find(e => e.intentRef === ref);
+    assert.equal(demoted.mechanical, false);
+    assert.equal(demoted.receipt, undefined, 'compatibility writer preserves demotion rather than minting receipt authority');
+  }
+  store.writeChecklist(storyId, beforeMetadataApply);
   executions = 0;
   await handlers.verification_evidence_refresh_stale({ storyId });
   assert.equal(executions, 1, 'unrelated drift reruns only the ordinary command');
@@ -160,6 +174,9 @@ try {
   assert.equal(row(docs, 'INT-DOCS').executionKey, null, 'informational text does not create an execution group');
   const misplaced = structuredClone(failedProjection);
   const foreign = misplaced.items[0].verificationEvidence.find(e => e.intentRef === 'INT-B');
+  foreign.headHash = git('rev-parse', 'main');
+  foreign.materialHash = '0'.repeat(64);
+  foreign.storyFilesHash = '0'.repeat(64);
   misplaced.items[0].verificationEvidence = misplaced.items[0].verificationEvidence.filter(e => e.intentRef !== 'INT-B');
   misplaced.items.push({ ...structuredClone(misplaced.items[0]), id: 'CHK-002', verificationIntent: { happy: [], edge: [], adversarial: [] }, verificationEvidence: [foreign] });
   store.writeChecklist(storyId, misplaced);
@@ -167,6 +184,41 @@ try {
   assert.equal(row(missing, 'INT-B').action, 'missing', 'evidence attached to another item cannot cover this intent');
   assert.ok(missing.buckets.missing.some(r => r.intentRef === 'INT-B'), 'planner and fingerprint use the same item-scoped evidence selector');
   assert.equal(missing.buckets.rerun.some(r => r.intentRef === 'INT-B'), false);
+  const misplacedPreview = previewer.evidence_refresh({ storyId, json: true });
+  assert.equal(misplacedPreview.candidates.some(r => r.intentRef === 'INT-B'), false, 'metadata preview cannot borrow stale evidence from another item');
+  const misplacedApply = previewer.evidence_refresh({ storyId, apply: true, json: true });
+  assert.equal(misplacedApply.refreshed.some(r => r.intentRef === 'INT-B'), false, 'metadata apply cannot claim a foreign-item record was refreshed for this intent');
+  assert.ok(report().buckets.missing.some(r => r.intentRef === 'INT-B'));
+  const movingProjection = structuredClone(failedProjection);
+  const pendingB = movingProjection.items[0].verificationEvidence.find(e => e.intentRef === 'INT-B');
+  pendingB.headHash = git('rev-parse', 'main');
+  pendingB.materialHash = '0'.repeat(64);
+  pendingB.storyFilesHash = '0'.repeat(64);
+  movingProjection.items.push({ ...structuredClone(movingProjection.items[0]), id: 'CHK-002', verificationIntent: { happy: [], edge: [], adversarial: [] }, verificationEvidence: [] });
+  store.writeChecklist(storyId, movingProjection);
+  const originalWriteChecklist = store.writeChecklist;
+  let movedDuringWrite = false;
+  let movingApply;
+  try {
+    store.writeChecklist = function(id, next) {
+      if (id === storyId) {
+        const owner = next.items.find(i => i.id === 'CHK-001');
+        const foreignOwner = next.items.find(i => i.id === 'CHK-002');
+        const entry = owner.verificationEvidence.find(e => e.intentRef === 'INT-B');
+        assert.ok(entry, 'exercise evidence moving after candidate collection');
+        owner.verificationEvidence = owner.verificationEvidence.filter(e => e.intentRef !== 'INT-B');
+        foreignOwner.verificationEvidence = [entry];
+        movedDuringWrite = true;
+      }
+      return originalWriteChecklist.call(this, id, next);
+    };
+    movingApply = previewer.evidence_refresh({ storyId, apply: true, json: true });
+  } finally { store.writeChecklist = originalWriteChecklist; }
+  assert.equal(movedDuringWrite, true);
+  assert.ok(movingApply.candidates.some(r => r.intentRef === 'INT-B'), 'the evidence belonged to its item before the pass');
+  assert.equal(movingApply.refreshed.some(r => r.intentRef === 'INT-B'), false, 'post-apply classification never borrows a now-foreign row');
+  assert.ok(movingApply.escalated.some(r => r.intentRef === 'INT-B' && r.outcome === 'rerun_required'));
+  assert.ok(report().buckets.missing.some(r => r.intentRef === 'INT-B'));
   store.writeChecklist(storyId, failedProjection);
   const cl = store.readChecklist(storyId);
   cl.items[0].verificationIntent.happy.push(intent('INT-ADDED', 'A newly requested user outcome'));
