@@ -2385,6 +2385,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                   const executedDynamic = await runStoryAwareDynamicValidation({
                 beforeLaunch: launchGate.beforeLaunch,
                     projectRoot,
+                    gitCwd: handlerGitCwd,
                     storyId: args.story,
                     baseHead,
                     head: currentHead(handlerGitCwd),
@@ -2838,6 +2839,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               const executedDynamic = await runStoryAwareDynamicValidation({
                 beforeLaunch: launchGate.beforeLaunch,
                 projectRoot,
+                gitCwd: handlerGitCwd,
                 storyId: args.story,
                 baseHead,
                 head: currentHead(handlerGitCwd),

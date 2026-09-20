@@ -1374,7 +1374,9 @@ export async function runStoryAwareDynamicValidation(args: RunStoryAwareValidati
   // directories inside them are re-bound to the recreated inode before the
   // verification, every other one is verified as frozen.
   if (wave.allPass) {
-    for (const [commandId, directory] of refreshFrozenLaunchDirectoriesAfterBuild(frozenLaunchDirectories, args.gitCwd ?? args.projectRoot)) frozenLaunchDirectories.set(commandId, directory);
+    // The artifact root is the one the executor resolved for the wave (the
+    // configured git root on a wrapper-root layout), never re-derived here.
+    for (const [commandId, directory] of refreshFrozenLaunchDirectoriesAfterBuild(frozenLaunchDirectories, wave.buildArtifacts?.root ?? args.gitCwd ?? args.projectRoot)) frozenLaunchDirectories.set(commandId, directory);
   }
   const launchDirectoryDriftReasons = frozenLaunchDirectoryDrift(frozenLaunchDirectories);
   if (launchDirectoryDriftReasons.length > 0) {

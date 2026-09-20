@@ -1808,6 +1808,34 @@ if (hostEnforced) {
         `under a wrapper-root layout the build was denied its writes or did not run first (allPass=${wrappedBuild.allPass}; ${wrappedBuild.details.join(' | ')})`);
       expectRepaired(wrappedBuild.buildArtifactsHash === binding.currentBuildArtifactsHash(nested) && wrappedBuild.buildArtifactsHash !== preWrapperBuild, 'the wrapper-root plan must bind the artifacts the nested build produced');
       writeFileSync(join(nestedMainDist, 'x.js'), BUILD_A);
+      // Audit #66: on a wrapper-root layout with gitCwd omitted, the dynamic
+      // run refreshes its frozen directories against the artifact root the
+      // EXECUTOR resolved for the wave (repo/), not the project root: a
+      // directory inside repo/packages/main/dist recreated by Wave-0 is
+      // re-bound; judged against the wrapper root it would be "outside" and
+      // its stale identity would refuse the following command.
+      {
+        const dynamicCoreW = await import('../packages/main/src/core/story-aware-validation.ts');
+        const insideDist = join(realpathSync(nestedMainDist));
+        const frozenW = new Map([['inside', { path: insideDist, identity: binding.bindLaunchDirectoryIdentity(insideDist) }]]);
+        const RECREATE_NESTED = "const fs = require('node:fs'); fs.rmSync('packages/main/dist', { recursive: true, force: true }); fs.mkdirSync('packages/main/dist/tasks', { recursive: true }); fs.writeFileSync('packages/main/dist/tasks/x.js', 'process.exit(0); // recreated under the wrapper\\n');";
+        const waveW = await executeValidationPlan({ provider: 'build-binding-fixture', commands: [
+          { label: 'nested recreate build', command: 'node', args: ['-e', RECREATE_NESTED], cwd: 'repo', providesBuildProof: 'packages-main-build', timeoutMs: 20_000 },
+        ], warnings: [] }, wrapper, undefined, undefined, {});
+        check(waveW.allPass === true && realpathSync(waveW.buildArtifacts.root) === realpathSync(nested) && lstatSync(insideDist).ino !== frozenW.get('inside').identity.ino, `control: the wave recreated the nested dist and reports the git root as its artifact root (${waveW.details.join(' | ').slice(0, 120)})`);
+        const refreshedRight = dynamicCoreW.refreshFrozenLaunchDirectoriesAfterBuild(frozenW, waveW.buildArtifacts.root);
+        const refreshedWrong = dynamicCoreW.refreshFrozenLaunchDirectoriesAfterBuild(frozenW, wrapper);
+        expectRepaired(refreshedRight.get('inside')?.identity?.ino === lstatSync(insideDist).ino && dynamicCoreW.frozenLaunchDirectoryDrift(refreshedRight).length === 0,
+          `a recreated directory inside the configured git root's artifact tree was not re-bound against the executor's artifact root (${JSON.stringify([...refreshedRight])})`);
+        check(dynamicCoreW.frozenLaunchDirectoryDrift(refreshedWrong).length === 1, 'trap: judged against the wrapper root the same directory is outside the trees and keeps its stale identity');
+        const handlerSourceW = readFileSync(join(repoRoot, 'packages/main/src/handlers/story-aware-validation.ts'), 'utf8');
+        const verifierSourceW = readFileSync(join(repoRoot, 'packages/main/src/handlers/verifier.ts'), 'utf8');
+        expectRepaired(handlerSourceW.includes('refreshFrozenLaunchDirectoriesAfterBuild(frozenLaunchDirectories, wave.buildArtifacts?.root ?? args.gitCwd ?? args.projectRoot)')
+          && (verifierSourceW.match(/runStoryAwareDynamicValidation\(\{\n\s*beforeLaunch: launchGate\.beforeLaunch,\n\s*projectRoot,\n\s*gitCwd: handlerGitCwd,/g) ?? []).length === 2,
+          'the dynamic run refreshes against a re-derived root, or the verifier omits its resolved git cwd from the dynamic execution (source-text guard)');
+      }
+      // Restore the artifacts the following cases expect.
+      mkdirSync(nestedMainDist, { recursive: true }); writeFileSync(join(nestedMainDist, 'x.js'), BUILD_A);
       // The DONE-required recogniser judges the same logical location.
       const doneRequiredSource4 = readFileSync(join(repoRoot, 'packages/main/src/core/done-required-validation.ts'), 'utf8');
       expectRepaired(doneRequiredSource4.includes('}, projectRoot, artifactsRoot);') && doneRequiredSource4.includes('validateReceiptBuildBinding({ receipts, buildArtifactsHash: executionBuildArtifactsHash }, args.projectRoot, policy.commands, args.gitCwd)'),
@@ -2621,7 +2649,7 @@ if (hostEnforced) {
       const handlerSource13 = readFileSync(join(repoRoot, 'packages/main/src/handlers/story-aware-validation.ts'), 'utf8');
       expectRepaired(executorSource13.includes('const refreshed = refreshLaunchIdentityAfterBuild(path, launchIdentities.get(index), artifactsRoot);')
         && doneRequiredSource13.includes('const refreshed = refreshLaunchIdentityAfterBuild(canonicalLaunchCwds[j]!, launchIdentities[j], args.gitCwd);')
-        && handlerSource13.includes('refreshFrozenLaunchDirectoriesAfterBuild(frozenLaunchDirectories, args.gitCwd ?? args.projectRoot)'),
+        && handlerSource13.includes('refreshFrozenLaunchDirectoriesAfterBuild(frozenLaunchDirectories, wave.buildArtifacts?.root ?? args.gitCwd ?? args.projectRoot)'),
         'a consumer does not re-bind pinned identities inside the artifact trees after the registered build (source-text guard)');
     }
     // Audit #39 (3): the walker stops where the kernel's resolution would
