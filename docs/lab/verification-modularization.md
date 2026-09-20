@@ -1,8 +1,8 @@
 # Verification modularization: implementation and evidence ledger
 
 This is a local Lab checkpoint, not a completion or main integration claim.
-The authorized scope is all 14 entries below. Three have scoped official GREEN;
-the fourth is a candidate. Remaining entries have not been modularized.
+The authorized scope is all 14 entries below. Four have scoped official GREEN;
+the fifth is a candidate. Remaining entries have not been modularized.
 
 Original public files contain imports, usage comments and one invocation.
 Every extracted file is limited to 2,000 physical lines. No hidden monolith,
@@ -18,9 +18,9 @@ No routine validation command is added by internal module registration.
 | `scripts/verify-proof-or-stop-identity-cutover.mjs` | 7794 | 7794 | pending | pending | Pending; no modularization RED/GREEN claim | No |
 | `packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts` | 6101 | 6101 | pending | pending | Pending; no modularization RED/GREEN claim | No |
 | `packages/main/src/tasks/validation-tier-planner-smoke.ts` | 5792 | 5792 | pending | pending | Pending; no modularization RED/GREEN claim | No |
-| `packages/main/src/tasks/flow-stability-smoke.ts` | 5528 | 7 | 10 | 988 | RED recorded; candidate awaiting full GREEN | No |
+| `packages/main/src/tasks/flow-stability-smoke.ts` | 5528 | 7 | 11 | 989 | RED -> official GREEN at 21be146f9c; full suite 137.62 s | No |
 | `packages/main/tests/canonical-new-story-artifacts.test.mjs` | 5378 | 5378 | pending | pending | Pending; no modularization RED/GREEN claim | No |
-| `packages/main/src/tasks/finding-ledger-runtime-smoke.ts` | 4646 | 4646 | pending | pending | Pending; no modularization RED/GREEN claim | No |
+| `packages/main/src/tasks/finding-ledger-runtime-smoke.ts` | 4646 | 6 | 8 | 1134 | RED recorded; candidate awaiting full GREEN | No |
 | `packages/main/src/tasks/managed-review-evidence-smoke.ts` | 4360 | 4360 | pending | pending | Pending; no modularization RED/GREEN claim | No |
 | `packages/main/src/tasks/host-run-usage-smoke.ts` | 3867 | 3867 | pending | pending | Pending; no modularization RED/GREEN claim | No |
 | `scripts/verify-proof-or-stop-prompt-baseline.mjs` | 3675 | 7 | 6 | 1344 | RED -> official GREEN at 103d6e06fa; full suite 9.60 s | No |
@@ -38,6 +38,7 @@ separate success selectors and cannot claim complete-suite evidence.
 
 | Entry family | Capability IDs | Registration required |
 |---|---|---|
+| finding-ledger-runtime | `proposal-envelope`, `projection-receipt`, `base-authority`, `legacy-authority`, `transactions`, `readonly-mutations`, `runtime-evidence`, `rollback-concurrency`, `historical-migration`, `build-distribution`, `tamper-dependency` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
 | verification-run-and-guard | `foundation`, `fanout`, `integrity`, `story-identity` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
 | prompt-baseline | `registry`, `prompt-policy`, `baseline-drift`, `role-matrix`, `legacy-vocabulary`, `direct-story-policy`, `measurement` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
 | milestone-status | `reporting`, `planning`, `closeout`, `freshness`, `coverage`, `read-only`, `cli-behavior` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
@@ -56,14 +57,28 @@ PASS. Existing full entrypoints stay registered.
 |---|---:|---|
 | `artifacts.ts` | 904 | Declared artifacts, automatic commits and global-link repair |
 | `cli.ts` | 120 | Legacy flags, capability routing and historical commit controls |
+| `discovery-fixture.ts` | 24 | Inert source snapshots for the isolated acceptance-discovery fixture |
 | `done-convergence.ts` | 626 | Single-pass DONE preparation and workspace ownership |
 | `done-reporting.ts` | 407 | DONE report projection and shared oracle |
 | `lifecycle.ts` | 631 | Lifecycle registry, phase tools and hints |
 | `phase-effects.ts` | 274 | Phase gates and transition effects |
-| `review-evidence.ts` | 988 | Signatures, freshness and review-run compatibility |
-| `review-routing.ts` | 890 | Reviewer status, phase guidance and channel checks |
-| `support.ts` | 425 | Shared Story, review and acceptance fixtures |
+| `review-evidence.ts` | 989 | Signatures, freshness and review-run compatibility |
+| `review-routing.ts` | 896 | Reviewer status, phase guidance and channel checks |
+| `support.ts` | 427 | Shared Story, review and acceptance fixtures |
 | `workspace.ts` | 301 | Dirty-worktree classification and gates |
+
+### `packages/main/src/tasks/finding-ledger-runtime`
+
+| Module | Lines | Responsibility |
+|---|---:|---|
+| `authority.ts` | 620 | Read-only, mutation, base and legacy authority checks |
+| `boundaries.ts` | 287 | Concurrency, rollback, refusal, tamper and build locks |
+| `cli.ts` | 79 | Legacy workers, diagnostics and capability orchestration |
+| `distribution.ts` | 295 | Version, installation and RED/GREEN bindings |
+| `projection.ts` | 845 | Projection integrity and historical migration |
+| `runtime-evidence.ts` | 988 | Runtime receipt writers, consumers and recovery |
+| `support.ts` | 452 | Ledger and CLI helpers, signed proposal checks |
+| `transactions.ts` | 1134 | Concurrent appends, durability, recovery and lock fencing |
 
 ### `scripts/prompt-baseline`
 
@@ -118,11 +133,11 @@ PASS. Existing full entrypoints stay registered.
   two replacements are recorded in `milestone-assertion-repairs.json`; other
   original blocks and helpers are byte-compared in the Lab proof.
 - Flow stability: original function bodies are compared with only explicit
-  location-dependent path substitutions permitted. The original acceptance-discovery fixture also fails on the current runtime: it hard-coded an obsolete subset of producer/consumer source snapshots. A fixture-only helper now supplies inert snapshots from the explicit current registry without replacing the hand-written producers/consumers; the complete-basis assertion remains unchanged and its focused control passes. Full GREEN is pending.
+  location-dependent path substitutions permitted. Full GREEN passed in 137.62 seconds. Two fixture prerequisites were repaired: declared source snapshots and the official implementation dispatch records required by the current REVIEW gate. The complete/missing-source negative control remains active.
 
 ## Outstanding integration work
 
-Complete the remaining ten entries; reconcile moved exact-source witnesses,
+Complete the remaining nine entries and the fifth candidate; reconcile moved exact-source witnesses,
 source readers and static dependency edges; verify those contracts; then perform
 the applicable Lab integration checks. Current scoped GREEN does not mean these
 cross-cutting contracts or main integration are complete. No push has occurred.

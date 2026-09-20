@@ -1807,6 +1807,22 @@ COMMAND_PROCESS_FACTS.push({
 });
 
 COMMAND_PROCESS_FACTS.push({
+  name: 'runtime:finding_ledger_validation_capability_selection', kind: 'runtime-behavior', level: 'L4',
+  semantics: ['runtime-behavior', 'verification-policy'],
+  paths: ['packages/main/src/tasks/finding-ledger-runtime-smoke.ts',
+    'packages/main/src/tasks/finding-ledger-runtime/authority.ts',
+    'packages/main/src/tasks/finding-ledger-runtime/boundaries.ts',
+    'packages/main/src/tasks/finding-ledger-runtime/cli.ts',
+    'packages/main/src/tasks/finding-ledger-runtime/distribution.ts',
+    'packages/main/src/tasks/finding-ledger-runtime/projection.ts',
+    'packages/main/src/tasks/finding-ledger-runtime/runtime-evidence.ts',
+    'packages/main/src/tasks/finding-ledger-runtime/support.ts',
+    'packages/main/src/tasks/finding-ledger-runtime/transactions.ts'],
+  producer: 'Finding ledger verification capability CLI', consumerGate: 'explicit verifier invocation only',
+  rationale: 'Eleven capabilities bind the retained transaction, authority, runtime, history and distribution checks. Default execution preserves the complete original suite and aggregate selectors. Legacy diagnostic and worker invocations remain supported. Unknown arguments reject before checks, duplicate selections run once and partial results cannot stand for aggregate evidence or authorize dynamic exclusion.',
+});
+
+COMMAND_PROCESS_FACTS.push({
   name: 'runtime:changelog_history_compaction', kind: 'runtime-behavior', level: 'L3',
   semantics: ['artifact', 'gate-evidence', 'verification-policy'],
   paths: ['scripts/identity-maintenance-boundaries.mjs', 'scripts/verify-proof-or-stop-identity-cutover.mjs'],
