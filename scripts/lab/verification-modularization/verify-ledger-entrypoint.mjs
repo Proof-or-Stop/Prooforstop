@@ -19,7 +19,11 @@ for (const name of fs.readdirSync(dir).filter(name => name.endsWith('.ts'))) {
 }
 let preserved = 0;
 for (const n of original.statements) if (ts.isFunctionDeclaration(n)) {
- const expected = n.name.text === 'runWorkers' ? n.body.getText(original).replace('fileURLToPath(import.meta.url)', "resolve(dirname(fileURLToPath(import.meta.url)), '..', 'finding-ledger-runtime-smoke.js')") : n.body.getText(original);
+ let expected = n.name.text === 'runWorkers' ? n.body.getText(original).replace('fileURLToPath(import.meta.url)', "resolve(dirname(fileURLToPath(import.meta.url)), '..', 'finding-ledger-runtime-smoke.js')") : n.body.getText(original);
+ if (n.name.text === 'runAuthoritativeMutationRegression') {
+  const repair = JSON.parse(fs.readFileSync('scripts/lab/verification-modularization/ledger-assertion-repair.json', 'utf8'));
+  assert.equal(expected.split(repair.before).length - 1, 1); expected = expected.replace(repair.before, repair.after);
+ }
  assert.equal(bodies.get(n.name.text), expected, 'changed ledger verification ' + n.name.text); preserved++;
 }
 let full = original.statements.find(n => ts.isIfStatement(n) && n.getText(original).startsWith("if (process.argv[2]"));

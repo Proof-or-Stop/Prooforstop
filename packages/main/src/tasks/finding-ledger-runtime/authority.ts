@@ -1,3 +1,4 @@
+import { syncClusterResolves } from '../../core/cluster-sync.js';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 
@@ -170,7 +171,14 @@ export async function runAuthoritativeMutationRegression(repositoryRoot: string,
   git(root, ['checkout', '-q', '-b', 'story/mutation-smoke']);
   git(root, ['add', '.']);
   git(root, ['-c', 'user.name=mutation-smoke', '-c', 'user.email=mutation@local', '-c', 'commit.gpgsign=false', 'commit', '-q', '-m', `resolve fixture\n\nResolves: ${cluster.clusterId}`]);
+  const beforeRead = readOnlySecuritySnapshot(root);
   createFindingHandlers(ctx).finding_list({ storyId: META_STORY_ID, full: true });
+  assert.deepEqual(readOnlySecuritySnapshot(root), beforeRead, 'finding_list must not resolve commits as a read side effect');
+  projected = store.readFindings(META_STORY_ID);
+  assert.equal(projected.findings.filter((finding) => gapIds.slice(0, 2).includes(finding.id))
+    .every((finding) => finding.status === 'open'), true);
+  const synchronized = syncClusterResolves(META_STORY_ID, store, root, undefined, authoritativeMutation);
+  assert.equal(synchronized.resolved, 2, 'the explicit synchronization writer resolves both cluster members');
   projected = store.readFindings(META_STORY_ID);
   assert.equal(projected.findings.filter((finding) => gapIds.slice(0, 2).includes(finding.id))
     .every((finding) => finding.status === 'resolved'), true);
