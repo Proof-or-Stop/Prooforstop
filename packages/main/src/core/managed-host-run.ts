@@ -3923,7 +3923,7 @@ export function isManagedImplementerCompletionPayload(
   return payload.storyId === storyId
     && payload.itemId === itemId
     && payload.status === 'done'
-    && (payload.success === undefined || typeof payload.success === 'boolean')
+    && (payload.success === undefined || payload.success === true)
     && Object.keys(payload).every(key => MANAGED_IMPLEMENTER_COMPLETION_PAYLOAD_KEYS.has(key));
 }
 

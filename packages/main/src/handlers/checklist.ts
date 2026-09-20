@@ -3445,7 +3445,21 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         results.push('owner-approved proposal applied; independent authorship is advisory, not host-attested');
       }
 
-      const managedDispatchRunId = args.status === 'done' && oldStatus !== 'done'
+      const isCompletionTransition = args.status === 'done' && oldStatus !== 'done';
+      if (isCompletionTransition && args.success === false) {
+        const failedManagedRunId = resolveManagedDispatchInvocation({
+          root,
+          storyId: args.storyId,
+          agentType: 'proof-or-stop-implementer',
+          itemId: args.itemId,
+          optionalWhenAbsent: true,
+          consume: false,
+        });
+        if (failedManagedRunId) {
+          throw new Error('managed implementer completion requires success=true; failed work must not mark the checklist item done');
+        }
+      }
+      const managedDispatchRunId = isCompletionTransition
         ? resolveManagedImplementerCompletionInvocation({
           root,
           storyId: args.storyId,
@@ -3458,9 +3472,6 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       const managedCompletionBeforeItem = managedDispatchRunId
         ? structuredClone(checklistBeforeUpdate.items.find(candidate => candidate.id === args.itemId)!)
         : undefined;
-      if (managedDispatchRunId && args.success === false) {
-        throw new Error('managed implementer completion requires success=true; failed work must not mark the checklist item done');
-      }
 
       // A managed completion spans checklist.json and process-events.jsonl. Write
       // the bound result first so an event-write failure cannot leave the item

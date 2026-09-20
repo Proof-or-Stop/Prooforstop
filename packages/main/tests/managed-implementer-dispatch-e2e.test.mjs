@@ -34,6 +34,8 @@ try {
     'the exact managed completion payload must qualify');
   assert.equal(isManagedImplementerCompletionPayload({ storyId, itemId, status: 'done', takeover: false }, storyId, itemId), false,
     'owner takeover metadata must not widen the managed completion capability');
+  assert.equal(isManagedImplementerCompletionPayload({ storyId, itemId, status: 'done', success: false }, storyId, itemId), false,
+    'a failed result must not qualify as a managed completion');
   assert.equal(isManagedImplementerCompletionPayload({ storyId, itemId: 'CHK-999', status: 'done' }, storyId, itemId), false,
     'another item must not qualify for the target-bound capability');
 
