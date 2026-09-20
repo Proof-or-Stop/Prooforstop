@@ -1664,11 +1664,12 @@ export async function runCli(opts?: {
       // before the lease gate so a control-arm violation is recorded and
       // refused regardless of lease ownership.
       enforceExperimentArmRetrievalGate(cmd, root);
-      // A detached runtime continuation is authorized by the immutable run
-      // subject and must still refuse a foreign Story owner. It must not renew
-      // the durable owner lease, though: the continuation is a short-lived
-      // child whose pid and heartbeat would otherwise replace the submitting
-      // session and leave an apparently-active lease after terminal exit.
+      // A detached runtime continuation must still match the Story owner's
+      // logical session; knowing a live runId does not bypass that comparison.
+      // The handler then enforces the run's exclusive worker claim. Admission
+      // must not renew the durable owner lease, though: the continuation is a
+      // short-lived child whose pid and heartbeat would otherwise replace the
+      // submitting session and leave an apparently-active lease after exit.
       enforceStoryOwnerLeaseGate(
         cmd,
         parsed,

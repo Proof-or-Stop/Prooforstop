@@ -37,7 +37,7 @@ try {
   mkdirSync(bin, { recursive: true });
   const fakeCodex = join(bin, 'codex');
   writeFileSync(fakeCodex, `#!/bin/sh
-sleep 0.2
+sleep 1
 printf '%s\\n' '{"type":"turn.completed","usage":{}}'
 `);
   chmodSync(fakeCodex, 0o700);
@@ -66,6 +66,24 @@ printf '%s\\n' '{"type":"turn.completed","usage":{}}'
   assert.equal(submitted.status, 0, submitted.stderr);
   const run = JSON.parse(submitted.stdout);
   assert.ok(Number.isSafeInteger(run.run.workerPid), 'detached submission exposes its worker pid');
+
+  const foreign = spawnSync(process.execPath, [
+    cli,
+    '--root', root,
+    'host_run_worker',
+    JSON.stringify({ runId: run.run.runId }),
+  ], {
+    cwd: root,
+    env: { ...env, PROOF_OR_STOP_SESSION_ID: 'managed-worker-owner-lease-foreign' },
+    encoding: 'utf8',
+    timeout: 5_000,
+  });
+  assert.notEqual(foreign.status, 0, 'a foreign session cannot reuse a live worker runId');
+  assert.match(
+    foreign.stderr,
+    /owned by another session|owner lease/i,
+    `foreign live-run reuse is rejected by the Story owner gate: ${foreign.stderr}`,
+  );
 
   const deadline = Date.now() + 5_000;
   let projection = run;
