@@ -5517,6 +5517,28 @@
             "access": "shared"
           }
         ]
+      },
+      {
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "test:managed-implementer-dispatch"
+        ],
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          },
+          {
+            "class": "machine-process",
+            "key": "fanout",
+            "access": "exclusive"
+          }
+        ]
       }
     ],
     "evidenceCommandTimeoutOverrides": [

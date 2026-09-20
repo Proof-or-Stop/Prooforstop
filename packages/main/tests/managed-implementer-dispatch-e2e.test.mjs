@@ -63,6 +63,15 @@ try {
   git('commit', '-qm', 'fixture');
 
   const fakeCodex = join(bin, 'codex');
+  const detachedChecklist = join(root, 'detached-checklist.cjs');
+  writeFileSync(detachedChecklist, `const { spawnSync } = require('node:child_process');
+const env = { ...process.env };
+delete env.LATTICE_MANAGED_INIT_INVOCATION;
+delete env.PROOF_OR_STOP_AGENT;
+delete env.PROOFBOUND_AGENT;
+const result = spawnSync(process.execPath, [${JSON.stringify(cli)}, 'checklist_update', JSON.stringify({ storyId: process.argv[2], itemId: ${JSON.stringify(itemId)}, status: 'done' })], { env, stdio: 'inherit', detached: true });
+process.exit(result.status ?? 1);
+`);
   writeFileSync(fakeCodex, `#!/bin/sh
 set -eu
 cat > "${root}/delivered-implementer-prompt.txt"
@@ -148,6 +157,14 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
     {
       name: 'failed-success-retry', expectedStatus: 'done', expectCompleted: true,
       commands: `"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done","success":false}' || true\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
+    },
+    {
+      name: 'attestation-completion', expectedStatus: 'done', expectCompleted: true,
+      commands: `"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
+    },
+    {
+      name: 'unmatched-caller-retry', expectedStatus: 'done', expectCompleted: true,
+      commands: `"${process.execPath}" "${detachedChecklist}" "__STORY__" || true\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
     {
       name: 'event-write-retry', expectedStatus: 'done', expectCompleted: true,

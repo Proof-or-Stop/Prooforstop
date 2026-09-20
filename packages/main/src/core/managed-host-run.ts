@@ -3912,6 +3912,7 @@ export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocation
   }
   const callerPid = args.callerPid ?? process.pid;
   const candidates: string[] = [];
+  let activeTargetCount = 0;
   let entries: string[] = [];
   try { entries = readdirSync(managedHostRunsRoot(args.root)); } catch { /* no active managed runs */ }
   for (const runId of entries) {
@@ -3925,6 +3926,7 @@ export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocation
         || (args.itemId !== undefined && spec.managedDispatchTarget?.itemId !== args.itemId)) continue;
       const snapshot = readManagedHostRunSnapshot(paths);
       if (snapshot.state !== 'running') continue;
+      activeTargetCount += 1;
       const identity = snapshot.providerIdentity;
       if (!identity?.processGroupIsolated || !identity.pgid || !identity.startFingerprint) continue;
       const rows = processGroupRows(identity.pgid);
@@ -3937,11 +3939,11 @@ export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocation
       // A corrupt, partial, stale, or foreign run can never grant authority.
     }
   }
-  if (candidates.length === 0 && args.optionalWhenAbsent) return undefined;
+  if (candidates.length === 0 && activeTargetCount === 0 && args.optionalWhenAbsent) return undefined;
   if (candidates.length !== 1) {
     throw new Error(
-      `init_check_set refused: required INIT reviewer delivery was not acknowledged by exactly one active managed dispatch (matched ${candidates.length}). `
-      + 'Use host_run with managedDispatch=true, or the explicit acknowledged init_check_repair fallback. [delivery_not_acknowledged]',
+      `managed dispatch refused: ${activeTargetCount} active Story/role/target run(s) exist, but this invocation matched ${candidates.length}. `
+      + 'Use the exact provider invocation launched by host_run managedDispatch. [delivery_not_acknowledged]',
     );
   }
   const runId = candidates[0]!;
