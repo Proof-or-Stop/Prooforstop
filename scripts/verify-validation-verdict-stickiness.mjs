@@ -235,6 +235,13 @@ try {
   const legacyShown = runReport('--legacy');
   check(legacyShown.legacy?.identities === 1 && legacyShown.legacy.failThenReusedPassIdentities === 1 && legacyShown.legacy.identityParts.length === 3 && legacyShown.identities === 2,
     `--legacy must report legacy terminals in their own block under the three-part identity (${JSON.stringify(legacyShown)})`);
+  // A coverage-only failure is not a verdict: the pass that follows it, in the
+  // Story that never failed a command, is neither a flip nor a pass after a failure.
+  store.appendProcessEvent(otherStory, { ...terminal({ ...real, storyId: otherStory, failureKind: 'coverage_incomplete' }), timestamp: undefined });
+  store.appendProcessEvent(otherStory, { ...terminal({ ...real, storyId: otherStory, disposition: 'reused', result: 'pass', failureKind: undefined }), timestamp: undefined });
+  const coverageOnlyReport = runReport();
+  check(coverageOnlyReport.flippedIdentities === 1 && coverageOnlyReport.failThenReusedPassIdentities === 1 && coverageOnlyReport.reusedPassesAfterFail === 1 && coverageOnlyReport.flips.every((flip) => flip.storyId === storyId),
+    `the report counted a coverage-only failure as a verdict (${JSON.stringify(coverageOnlyReport)})`);
 } finally {
   rmSync(sandbox, { recursive: true, force: true });
 }

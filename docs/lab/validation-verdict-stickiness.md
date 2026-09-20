@@ -76,7 +76,7 @@ yet; the same command without `--legacy` reports it once Stories validate again.
 
 `node scripts/verify-validation-verdict-stickiness.mjs`, registered as the last
 `validate.commands` entry. At RED: 7 failing expectations, 9 controls passed. At GREEN:
-81 checks — the pure rule, both core consumers, the DONE-side consumer over a fixture
+82 checks — the pure rule, both core consumers, the DONE-side consumer over a fixture
 Story with signed evidence, corrupt and missing histories, the report, the
 `done_prepare` trust decision, source guards, and end-to-end runs through the built
 CLI on a validate file that reads a switch outside the repository: FAIL then PASS on
@@ -89,12 +89,20 @@ production source of the second audit's repair reverted, exactly its 10 expectat
 fail, the laundered PASS among them (`exit=0 evidence=PASS/reused`).
 
 On the final Lab tree the checks that share these code paths pass:
-`validation-evidence-reuse-smoke`, `validation-reuse-merge-lineage-smoke`,
-`verify-validation-terminal-refusal-reasons` (32 checks) and the process-fact contract.
-`done-prepare-merge-rerun-smoke` stops in the story-owner-lease heartbeat
-(`validation owner lease lost, expired, or transferred`) before it reaches code this
-Lab changes, and `done-prepare-auto-closeout-smoke` fails on untouched main with the
-same `review_loop_record_error` expectation mismatch it shows here.
+`validation-evidence-reuse-smoke` (its coverage-only recovery included),
+`validation-reuse-merge-lineage-smoke`, `verify-validation-terminal-refusal-reasons`,
+`verify-reuse-lineage-material-policy`, `verify-reuse-host-session-environment`,
+`verify-validation-build-artifact-binding`, `verify-dynamic-test-admission`,
+`verify-acceptance-amendment-gates` and the process-fact contract. Of the twenty
+verifier scripts that read the changed sources, nine fail, and each fails on untouched
+main `0839f9ab0c` with the same first assertion: `verify-declared-environment-receipt`,
+`verify-dynamic-fallback-once`, `verify-final-validation-full-plan`,
+`verify-historical-receipt-provenance`, `verify-material-hash-resource-plan`,
+`verify-proof-or-stop-identity-cutover`, `verify-replacement-receipt`,
+`verify-revert-receipt` and `verify-validation-reuse-proof`. So do the four smokes
+`done-prepare-auto-closeout`, `done-prepare-closure-heartbeat`,
+`done-prepare-merge-rerun` and `validate-execution-lock`. None of them is changed,
+repaired or relabelled here.
 
 ## Independent audit
 
