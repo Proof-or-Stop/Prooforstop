@@ -6,10 +6,11 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { resetConfigCache } from '../core/config.js';
-import { syncClusterResolves } from '../core/cluster-sync.js';
 import { StoryStore } from '../core/store.js';
+import { acquireOwnerLease } from '../core/story-owner-lease.js';
 import type { ChecklistData, FindingData, StoryInfo } from '../core/types.js';
 import { createFindingHandlers } from '../handlers/finding.js';
+import { createVerifierHandlers } from '../handlers/verifier.js';
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -37,6 +38,13 @@ function initRoot(): { root: string; store: StoryStore; storyId: string } {
     rootDir: 'src',
     storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
+    validate: { commands: [{
+      label: 'cluster-sync-smoke',
+      command: 'node',
+      args: ['--version'],
+      focus: ['cluster-sync-smoke'],
+      timeoutMs: 15_000,
+    }] },
   }, null, 2));
   write(root, 'README.md', 'cluster sync smoke\n');
   git(root, ['init']);
@@ -56,19 +64,19 @@ function initRoot(): { root: string; store: StoryStore; storyId: string } {
     title: 'Cluster sync entrypoints',
     description: 'Synthetic story for cluster sync entrypoints.',
     type: 'chore',
-    phase: 'REVIEW',
+    phase: 'DEV',
     priority: 'medium',
     createdAt: now,
     startedAt: now,
     endedAt: null,
-    events: [{ phase: 'REVIEW', action: 'advance', timestamp: now }],
+    events: [{ phase: 'DEV', action: 'advance', timestamp: now }],
   };
   const checklist: ChecklistData = {
     items: [{
       id: 'CHK-001',
       title: 'Synthetic item',
       context: 'Synthetic context',
-      status: 'done',
+      status: 'pending',
       startTime: now,
       endTime: now,
     }],
@@ -109,6 +117,7 @@ function initRoot(): { root: string; store: StoryStore; storyId: string } {
       createdAt: now,
     }],
   });
+  acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: root });
   return { root, store, storyId };
 }
 
@@ -128,20 +137,27 @@ async function assertFindingListDoesNotSync(): Promise<void> {
   }
 }
 
-async function assertExplicitSyncConsumesMarkers(): Promise<void> {
+async function assertOwnerValidateSyncsUnlessNoSync(): Promise<void> {
   const synced = initRoot();
   try {
+    const handlers = createVerifierHandlers({
+      store: synced.store,
+      root: synced.root,
+      scanRoot: join(synced.root, 'packages/main'),
+    });
     assert.equal(synced.store.readFindings(synced.storyId).findings[0].status, 'open',
       'a repair-worker commit marker alone must leave cluster findings open');
-    syncClusterResolves(synced.storyId, synced.store, synced.root);
-    assert.equal(synced.store.readFindings(synced.storyId).findings[0].status, 'resolved', 'explicit cluster sync should consume cluster markers');
-    assert.equal(synced.store.readFindings(synced.storyId).findings[1].status, 'resolved', 'explicit cluster sync should consume direct finding markers');
+    await handlers.validate({ story: synced.storyId, focus: 'cluster-sync-smoke', json: true, noSync: true });
+    assert.equal(synced.store.readFindings(synced.storyId).findings[0].status, 'open', 'validate --noSync must not consume cluster markers');
+    await handlers.validate({ story: synced.storyId, focus: 'cluster-sync-smoke', json: true });
+    assert.equal(synced.store.readFindings(synced.storyId).findings[0].status, 'resolved', 'owner-gated validate --story should consume cluster markers');
+    assert.equal(synced.store.readFindings(synced.storyId).findings[1].status, 'resolved', 'owner-gated validate --story should consume direct finding markers');
   } finally {
     rmSync(synced.root, { recursive: true, force: true });
   }
 }
 
 await assertFindingListDoesNotSync();
-await assertExplicitSyncConsumesMarkers();
+await assertOwnerValidateSyncsUnlessNoSync();
 
 console.log('✓ cluster sync entrypoints smoke passed');

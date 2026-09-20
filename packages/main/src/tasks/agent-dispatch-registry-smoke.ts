@@ -22,6 +22,7 @@ import {
   validateAgentDispatchRegistry,
 } from '../core/agent-dispatch-registry.js';
 import { StoryStore } from '../core/store.js';
+import { acquireOwnerLease } from '../core/story-owner-lease.js';
 import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
 import { createChecklistHandlers } from '../handlers/checklist.js';
 import { createFindingHandlers } from '../handlers/finding.js';
@@ -834,10 +835,10 @@ try {
     else process.env.PROOF_OR_STOP_AGENT = previousAgent;
   }
   for (const repairActor of ['proof-or-stop-finding-repair', 'proof-or-stop-implementer']) {
-    const beforeRepairWorkerResolve = mutationState();
     const storyBeforeRepairWorkerResolve = store.readStory(storyId);
     const previousRepairAgent = process.env.PROOF_OR_STOP_AGENT;
     store.writeStory(storyId, { ...storyBeforeRepairWorkerResolve, phase: 'DEV' });
+    const beforeRepairWorkerResolve = mutationState();
     process.env.PROOF_OR_STOP_AGENT = repairActor;
     try {
       assert.throws(
@@ -983,6 +984,7 @@ try {
   const ownerAgentBeforeResolve = process.env.PROOF_OR_STOP_AGENT;
   delete process.env.PROOF_OR_STOP_AGENT;
   store.writeStory(storyId, { ...store.readStory(storyId), phase: 'DEV' });
+  acquireOwnerLease(store.storyDirPath(storyId), { command: 'finding_resolve', cwd: root });
   try {
     assert.equal(store.readReviewRuns(storyId).runs.length, 0,
       'owner DEV resolution fixture must prove the no-review-run repair path');
@@ -1006,10 +1008,17 @@ try {
       waitTarget: 'nonempty-task-identity',
       missingWorkerDisposition: 'keep-finding-open',
     }, 'real dispatch --json output must preserve the native launch contract');
-    findingHandlers.finding_resolve({
-      storyId,
-      findingId: `${storyId}:F-001`,
-      resolution: 'Story owner verified the committed repair and focused validation output',
+    execFileSync(process.execPath, [
+      join(packageRoot, 'cli.js'),
+      'finding_resolve',
+      `--storyId=${storyId}`,
+      `--findingId=${storyId}:F-001`,
+      '--resolution=Story owner verified the committed repair and focused validation output',
+    ], {
+      cwd: root,
+      env: { ...process.env },
+      encoding: 'utf8',
+      maxBuffer: 4 * 1024 * 1024,
     });
     assert.equal(store.readFindings(storyId).findings.find(row => row.id === `${storyId}:F-001`)?.status, 'resolved',
       'Story owner must be able to close a verified finding through the real handler in DEV');
