@@ -3259,7 +3259,7 @@ const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
-    "sha256": "d8de625b654bf66af7d3ee12fe15c707a75c212de83eea22e291351ad6088b8a"
+    "sha256": "402f397963572e44d037d468b38030bbd40f5d0587cfd5484e639b1cbb6442b3"
   },
   {
     "path": "scripts/verify-proof-or-stop-residue.mjs",
