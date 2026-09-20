@@ -35,6 +35,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 const { buildRoutineValidationIdentity, evaluateRoutineValidationReuse, summarizeRoutineCommandExecution } = await import('../packages/main/src/core/validation-evidence-reuse.ts');
+// This Lab added a build-artifacts binding to routine reuse: evidence records the
+// compiled artifacts it was earned against, and reuse fails closed without one.
+const { currentBuildArtifactsHash } = await import('../packages/main/src/core/build-artifacts-identity.ts');
 const { buildDoneRequiredExecutionIdentity } = await import('../packages/main/src/core/done-required-validation.ts');
 const envModule = await import('../packages/main/src/core/validation-command-environment.ts');
 
@@ -71,12 +74,15 @@ try {
   const baseIdentity = routine(sessionOne);
   const evidence = {
     command: 'proof-or-stop validate --story=B-env --json', output: '{}', result: 'PASS', timestamp: new Date().toISOString(),
+    buildArtifactsHash: currentBuildArtifactsHash(root),
+    buildArtifactsProtection: 'enforced:sandbox-exec',
     headHash: head, materialHash: 'material', storyFilesHash: 'story-files', verificationCoverage: coverage,
     routineValidationIdentity: baseIdentity,
     commandExecution: summarizeRoutineCommandExecution([{ label: 'probe', command: process.execPath, args: ['-e', '0'], code: 0, output: '', durationMs: 1 }], 1),
     disposition: 'executed',
   };
   const reuseIn = (env) => evaluateRoutineValidationReuse({
+    currentBuildArtifactsHash: currentBuildArtifactsHash(root),
     root, gitCwd: root, evidence, currentIdentity: routine(env), currentCoverage: coverage,
     currentMaterialHash: 'material', currentStoryFilesHash: 'story-files', clean: true, headBefore: head, headAfter: head,
   });

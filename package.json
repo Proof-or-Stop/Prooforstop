@@ -1,6 +1,6 @@
 {
   "name": "proof-or-stop",
-  "version": "0.3.426",
+  "version": "0.3.429",
   "description": "",
   "main": "index.js",
   "directories": {
@@ -37,6 +37,7 @@
     "test:proof-or-stop-residue": "node scripts/verify-proof-or-stop-residue.mjs",
     "test:proof-or-stop-identity-cutover": "node scripts/verify-proof-or-stop-identity-cutover.mjs",
     "test:reviewed-source-bindings": "node scripts/verify-reviewed-source-bindings.mjs",
+    "test:validation-production-budget-260": "node packages/main/tests/validation-production-budget-260.test.mjs",
     "test:proof-or-stop-pack-boundary": "node scripts/verify-proof-or-stop-pack-boundary.mjs",
     "test:proof-or-stop-prompt-baseline": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
     "test:init-reviewer-story-metadata-contract": "node packages/main/tests/init-reviewer-story-metadata-contract.test.mjs",

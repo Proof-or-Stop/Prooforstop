@@ -78,6 +78,7 @@ import { runLintGateCli, resolveChangedFiles } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
 import { createVerificationEvidenceGateEvaluator } from '../core/proof-admissibility.js';
 import { isCanonicalGitHeadHash, captureEvidenceHashSnapshot, checkEvidenceFreshnessForGit, checkEvidenceHashSnapshotReuse, classifyEvidenceHashSnapshot, currentMaterialHash, currentStoryFilesHash, isMaterialExcludedPath } from '../core/evidence-freshness.js';
+import { bindLaunchDirectoryIdentity, canonicalizeExistingPath, currentBuildArtifactsHash, resolveReusedBuildArtifactsBinding, type LaunchDirectoryIdentity } from '../core/build-artifacts-identity.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { createAuthoritativeFindingMutation } from './finding-ledger.js';
 import { resolveGitCwd, resolveProjectGitRoot, evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
@@ -92,6 +93,7 @@ import {
   isReusableCommandPass,
   summarizeRoutineCommandExecution,
   type RoutineValidationReuseEvaluation,
+  resolveValidationCommandCwd,
 } from '../core/validation-evidence-reuse.js';
 import {
   captureDonePrepareGeneratedMetadataTransaction,
@@ -840,6 +842,47 @@ function routineVerificationSnapshot(ctx: HandlerContext, storyId: string) {
   };
 }
 
+/** A command's launch directory as the routine identity binds it: canonical path and filesystem identity, frozen with the identity. */
+export interface FrozenLaunchBinding { label: string; path: string; identity: LaunchDirectoryIdentity | undefined }
+
+/**
+ * The launch bindings frozen ALONGSIDE the routine identity, from the same
+ * declared commands and the same canonical resolution the identity uses, so
+ * the plan that earns the evidence runs every command where the identity
+ * says it runs, and a published PASS never describes another directory.
+ */
+export function freezeLaunchBindings(projectRoot: string, commands: readonly ValidationCommand[]): FrozenLaunchBinding[] {
+  return commands.map((command) => {
+    const path = canonicalizeExistingPath(resolveValidationCommandCwd(projectRoot, command));
+    return { label: command.label, path, identity: bindLaunchDirectoryIdentity(path) };
+  });
+}
+
+const LAUNCH_DIRECTORY_DRIFT_TAG = '[launch_directory_drift]';
+/** A launch-directory drift refusal is never absorbed into a fallback: the run fails closed. */
+export function isLaunchDirectoryDriftError(error: unknown): boolean {
+  return error instanceof Error && error.message.includes(LAUNCH_DIRECTORY_DRIFT_TAG);
+}
+
+/**
+ * Whether every EXECUTED result ran in the directory the routine identity
+ * binds for its command (a reused result carries its receipt's binding, a
+ * result that never launched executed nothing). The reason names the first
+ * disagreement; undefined means the evidence may be signed for the identity.
+ */
+export function launchDirectoryMismatch(bindings: readonly FrozenLaunchBinding[] | undefined, results: readonly ValidationCommandResult[] | undefined): string | undefined {
+  if (!bindings || !results) return undefined;
+  for (const result of results) {
+    if (result.launchOutcome === 'not-launched' || result.executionReceipt?.disposition === 'reused') continue;
+    const bound = bindings.filter((binding) => binding.label === result.label);
+    if (bound.length === 0) continue;
+    if (!result.launchCwd || !bound.some((binding) => binding.path === result.launchCwd)) {
+      return `${result.label}: executed in ${result.launchCwd ?? 'no verified directory'} but the routine identity binds ${bound.map((binding) => binding.path).join(' or ')}`;
+    }
+  }
+  return undefined;
+}
+
 function buildStoryRoutineIdentity(args: {
   ctx: HandlerContext;
   storyId: string;
@@ -853,6 +896,7 @@ function buildStoryRoutineIdentity(args: {
     const snapshot = routineVerificationSnapshot(args.ctx, args.storyId);
     return {
       snapshot,
+      launchBindings: freezeLaunchBindings(args.ctx.root, args.commands),
       identity: buildRoutineValidationIdentity({
         projectRoot: args.ctx.root,
         sourceKind: args.sourceKind,
@@ -899,12 +943,15 @@ export function evaluateStoryRoutineReuse(args: {
   let headAfter: string | undefined;
   let materialHash: string | undefined;
   let storyFilesHash: string | undefined;
+  let buildArtifactsHash: string | undefined;
   let clean = false;
   try {
     const snapshot = captureEvidenceHashSnapshot({ gitCwd: args.gitCwd, metadataRoot: args.ctx.root });
     headBefore = snapshot.headHash;
     materialHash = snapshot.materialHash;
     storyFilesHash = snapshot.storyFilesHash;
+    // Bound to the Story worktree's own dist: that is what its commands execute.
+    buildArtifactsHash = currentBuildArtifactsHash(args.gitCwd, args.ctx.root);
     // B-83aa CHK-003 (TOLERABLE): a partial snapshot is safe here because
     // evaluateRoutineValidationReuse below refuses reuse whenever a digest is
     // missing (material-hash-changed-or-missing / story-files-hash-changed-or-
@@ -934,6 +981,7 @@ export function evaluateStoryRoutineReuse(args: {
     currentCoverage: args.coverage,
     currentMaterialHash: materialHash,
     currentStoryFilesHash: storyFilesHash,
+    currentBuildArtifactsHash: buildArtifactsHash,
     clean,
     headBefore,
     headAfter,
@@ -1046,6 +1094,26 @@ function reusedStoryValidationResult(args: {
   const headHash = dynamicOrigin ? priorEvidence.headHash : currentHead(args.gitCwd);
   const materialHash = currentMaterialHash(args.gitCwd, 'HEAD', args.ctx.root);
   const storyFilesHash = currentStoryFilesHash(args.gitCwd, 'HEAD', args.ctx.root);
+  // A reused PASS is re-persisted as a fresh record. It keeps the identity the
+  // authenticated prior record was earned against and never adopts the dist on
+  // disk: the command results being republished ran against that prior build.
+  // Publication is refused unless the dist on disk still equals it.
+  const reusedBinding = resolveReusedBuildArtifactsBinding({
+    prior: priorEvidence.buildArtifactsHash,
+    current: currentBuildArtifactsHash(args.gitCwd, args.ctx.root),
+  });
+  if (!reusedBinding.ok) {
+    return externalResult({
+      provider: 'proof-or-stop-verifier-reuse-persistence',
+      status: 'fail',
+      failureKind: 'infra_failure',
+      summary: 'Validation reuse refused because the compiled artifacts no longer match the reused PASS',
+      details: ['canonical-pass-persistence-failed', reusedBinding.reason],
+      warnings: [],
+      commands: [],
+    });
+  }
+  const buildArtifactsHash = reusedBinding.buildArtifactsHash;
   const storyRel = normalizeRelPath(relative(
     realpathSync(args.gitCwd),
     realpathSync(args.ctx.store.storyDirPath(args.storyId)),
@@ -1093,6 +1161,10 @@ function reusedStoryValidationResult(args: {
       ...(headHash ? { headHash } : {}),
       ...(materialHash ? { materialHash } : {}),
       ...(storyFilesHash ? { storyFilesHash } : {}),
+      ...(buildArtifactsHash ? { buildArtifactsHash } : {}),
+      // The republished record keeps the protection the prior record was
+      // earned under; it is part of what made that PASS reusable at all.
+      ...(priorEvidence.buildArtifactsProtection ? { buildArtifactsProtection: priorEvidence.buildArtifactsProtection } : {}),
       verificationCoverage: args.snapshot.coverage,
       commandExecution: priorCommandExecution,
       disposition: 'reused',
@@ -1274,6 +1346,27 @@ function publicationOutputHashes(
   ]);
 }
 
+/**
+ * Build identity of a dynamic authoritative run: the run's own validated
+ * binding of the whole sequence (build wave, then every selected plan and
+ * shard, with continuity between them, one final identity; an empty selected
+ * plan leaves the build wave's binding in force), computed where the plans are
+ * combined. The wave-to-selected boundary is re-checked here so an
+ * authoritative PASS never binds a build its selected commands did not run.
+ */
+function dynamicBuildArtifactsBinding(executedDynamic: {
+  buildArtifactsHash?: string;
+  buildResult: { buildArtifacts?: { start?: string; end?: string } };
+  selectedResult: { buildArtifacts?: { start?: string; end?: string } };
+}): string | undefined {
+  const bound = executedDynamic.buildArtifactsHash;
+  if (!bound) return undefined;
+  const buildEnd = executedDynamic.buildResult.buildArtifacts?.end;
+  const selectedStart = executedDynamic.selectedResult.buildArtifacts?.start;
+  if (buildEnd && selectedStart && buildEnd !== selectedStart) return undefined;
+  return bound;
+}
+
 function recordValidationTerminal(
   ctx: HandlerContext,
   storyId: string,
@@ -1306,6 +1399,14 @@ function recordValidationTerminal(
     result: result.allPass === false || result.status === 'fail' ? 'fail' : 'pass',
     materialHash: currentMaterialHash(gitCwd, 'HEAD', ctx.root) ?? '',
     storyFilesHash: currentStoryFilesHash(gitCwd, 'HEAD', ctx.root) ?? '',
+    // Observable build identity: two executions against different compiled
+    // trees are no longer indistinguishable from a verdict flip on unchanged
+    // material. Executed results carry the end-of-execution identity; reused
+    // results bind the dist on disk now. The B-f824 duplicate-suite grouping
+    // keeps its three-key contract.
+    buildArtifactsHash: (typeof result.buildArtifactsHash === 'string' && result.buildArtifactsHash)
+      || currentBuildArtifactsHash(gitCwd, ctx.root) || '',
+    ...(typeof result.buildArtifactsProtection === 'string' ? { buildArtifactsProtection: result.buildArtifactsProtection } : {}),
     ...(reuseAttribution && result.disposition !== 'reused' ? { reuse: reuseAttribution } : {}),
   });
 }
@@ -1345,13 +1446,13 @@ function persistStoryValidationEvidence(
   const statusPass = result.status === 'pass';
   const allPass = Boolean(result.allPass ?? result.allPassed ?? statusPass);
   const failureKind = validationFailureKindFromResult(result, allPass);
-  const persistenceFailure = (reason: string) => ({
+  const persistenceFailure = (reason: string, extraDetails: string[] = []) => ({
     ...externalResult({
       provider: 'proof-or-stop-verifier-executed-persistence',
       status: 'fail',
       failureKind: 'infra_failure',
       summary: 'Validation result could not persist its canonical evidence transaction',
-      details: ['canonical-validation-persistence-failed', reason],
+      details: ['canonical-validation-persistence-failed', reason, ...extraDetails],
       warnings: [],
       commands: commandResults,
     }),
@@ -1374,6 +1475,8 @@ function persistStoryValidationEvidence(
     headHash?: string;
     materialHash?: string;
     storyFilesHash?: string;
+    buildArtifactsHash?: string;
+    buildArtifactsProtection?: string;
   } = {}): TestEvidenceData => ({
     command,
     output,
@@ -1383,6 +1486,8 @@ function persistStoryValidationEvidence(
     ...(hashes.headHash ? { headHash: hashes.headHash } : {}),
     ...(hashes.materialHash ? { materialHash: hashes.materialHash } : {}),
     ...(hashes.storyFilesHash ? { storyFilesHash: hashes.storyFilesHash } : {}),
+    ...(hashes.buildArtifactsHash ? { buildArtifactsHash: hashes.buildArtifactsHash } : {}),
+    ...(hashes.buildArtifactsProtection ? { buildArtifactsProtection: hashes.buildArtifactsProtection } : {}),
     ...(result.verificationCoverage ? { verificationCoverage: result.verificationCoverage } : {}),
     commandExecution: summarizeRoutineCommandExecution(commandResults, expectedCommandCount, {
       ...(semanticCommandPass !== undefined ? { semanticPass: semanticCommandPass } : {}),
@@ -1409,6 +1514,8 @@ function persistStoryValidationEvidence(
     headHash?: string;
     materialHash?: string;
     storyFilesHash?: string;
+    buildArtifactsHash?: string;
+    buildArtifactsProtection?: string;
   } = {}, authenticate = true) => boundPersistedValidationEvidence({
     result,
     buildRecord: (output) => {
@@ -1423,13 +1530,39 @@ function persistStoryValidationEvidence(
   let gitCwd: string;
   let storyRel: string;
   let transaction: ReturnType<typeof captureDonePrepareGeneratedMetadataTransaction>;
-  let hashes: { headHash?: string; materialHash?: string; storyFilesHash?: string };
+  let hashes: { headHash?: string; materialHash?: string; storyFilesHash?: string; buildArtifactsHash?: string; buildArtifactsProtection?: string };
   try {
     gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+    // The build identity is observed at the end of execution (the funnel stamps
+    // it on the result the moment the commands finished, after any rebuild the
+    // validation itself performed). Publication must still see that identity:
+    // a dist that moved in between was never tested by these receipts.
+    const executionBuildArtifactsHash = typeof result.buildArtifactsHash === 'string' && result.buildArtifactsHash
+      ? result.buildArtifactsHash
+      : undefined;
+    const publicationBuildArtifactsHash = currentBuildArtifactsHash(gitCwd, ctx.root);
+    // A result the executor refused to stamp carries its `✗ build binding:`
+    // diagnostics; they are the reason publication is refused and are kept in
+    // the returned result so the caller sees what was rewritten, not merely
+    // that the identity was unavailable.
+    const executorBindingDiagnostics = Array.isArray(result.details)
+      ? (result.details as unknown[]).filter((line): line is string => typeof line === 'string' && line.startsWith('✗ build binding:'))
+      : [];
+    if (!executionBuildArtifactsHash && executorBindingDiagnostics.length > 0) {
+      return persistenceFailure('the executor rejected the build binding of this run; the evidence cannot bind what it executed [build_artifacts_binding_rejected]', executorBindingDiagnostics);
+    }
+    if (!executionBuildArtifactsHash || !publicationBuildArtifactsHash) {
+      return persistenceFailure('build artifacts identity is unavailable; the evidence cannot bind what it executed [build_artifacts_unavailable]');
+    }
+    if (executionBuildArtifactsHash !== publicationBuildArtifactsHash) {
+      return persistenceFailure('build artifacts changed between execution and publication; rerun validate [build_artifacts_drift_before_publication]');
+    }
     hashes = {
       headHash: currentHead(gitCwd) ?? result.headSha ?? result.headHash,
       materialHash: currentMaterialHash(gitCwd, 'HEAD', ctx.root),
       storyFilesHash: currentStoryFilesHash(gitCwd, 'HEAD', ctx.root),
+      buildArtifactsHash: executionBuildArtifactsHash,
+      ...(typeof result.buildArtifactsProtection === 'string' ? { buildArtifactsProtection: result.buildArtifactsProtection } : {}),
     };
     storyRel = normalizeRelPath(relative(
       realpathSync(gitCwd),
@@ -1762,13 +1895,27 @@ function decorateAndMaybePersistStoryValidation(
   semanticCommandPass?: boolean,
   invocation?: PrecertCheapCheckInvocation,
   reuseAttribution?: RoutineReuseTerminalAttribution,
+  launchBindings?: readonly FrozenLaunchBinding[],
 ): any {
   if (!storyId) return result;
+  // Signed for the identity only if every executed command ran where the
+  // identity binds it: a PASS earned elsewhere is not this identity's PASS.
+  const mismatch = launchDirectoryMismatch(launchBindings, commandResults);
+  if (mismatch) throw new Error(`[launch_directory_mismatch] ${mismatch}; refusing to persist evidence under the routine identity`);
   const decorated = decorateStoryVerification(ctx, storyId, result);
+  // The build identity is observed by the executor at execution boundaries
+  // (core/validation-executor stamps it on the result only when its per-command
+  // binding rules held). Nothing is derived here: a result the executor did not
+  // stamp binds nothing and is refused by the writer as unavailable.
+  const buildArtifactsHash = typeof result.buildArtifactsHash === 'string' && result.buildArtifactsHash
+    ? result.buildArtifactsHash
+    : undefined;
   const executed = {
     ...decorated,
     disposition: 'executed',
     commandExecutions: commandResults?.filter(row => row.executionReceipt?.disposition !== 'reused').length ?? 0,
+    ...(buildArtifactsHash ? { buildArtifactsHash } : {}),
+    ...(typeof result.buildArtifactsProtection === 'string' ? { buildArtifactsProtection: result.buildArtifactsProtection } : {}),
   };
   if (!focus) {
     if (!commandResults || expectedCommandCount === undefined) {
@@ -2041,7 +2188,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           );
         }
         if (configuredCommands.length === 0 && fallbackCommands.length === 0) {
-          const buildNoValidatorResult = () => {
+          const buildNoValidatorResult = async () => {
             if (!args.story) {
               return externalResult({
                 provider: 'proof-or-stop-verifier-no-validation-entry',
@@ -2074,6 +2221,18 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             if (officialHeavyStoryValidate && args.story) {
               claimTestAdmissibleRoutineValidationWindow(ctx, args.story);
             }
+            // Nothing will execute here, but the evidence still has to bind the
+            // compiled artifacts on disk, and only the executor may observe that
+            // identity (a writer that derived it could attribute a build to
+            // commands that never ran it). An empty plan is that same executor
+            // with zero commands: its start and end observations are the same
+            // instant with nothing in between, so the binding it stamps cannot
+            // belong to any command. Without this, a project with no configured
+            // validator could not persist validation evidence at all.
+            const noCommandPlan = await executeValidationPlan(
+              { provider: 'proof-or-stop-verifier-no-validation-entry', commands: [], warnings: [] },
+              projectRoot, currentHead(handlerGitCwd), args.story, { gitCwd: handlerGitCwd },
+            );
             const base = externalResult({
               provider: 'proof-or-stop-verifier-no-validation-entry',
               status: 'warn',
@@ -2089,15 +2248,21 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               ],
               headSha: currentHead(handlerGitCwd),
             });
+            const boundBase = {
+              ...base,
+              ...(noCommandPlan.buildArtifactsHash ? { buildArtifactsHash: noCommandPlan.buildArtifactsHash } : {}),
+              ...(noCommandPlan.buildArtifacts ? { buildArtifacts: noCommandPlan.buildArtifacts } : {}),
+              ...(typeof noCommandPlan.buildArtifactsProtection === 'string' ? { buildArtifactsProtection: noCommandPlan.buildArtifactsProtection } : {}),
+            };
             return {
               ...decorateAndMaybePersistStoryValidation(
-                ctx, args.story, focus, base, built?.identity, [], 0, undefined, args,
+                ctx, args.story, focus, boundBase, built?.identity, [], 0, undefined, args,
                 reuse ? routineReuseTerminalAttribution(reuse) : undefined,
               ),
               ...(reuse && built ? { reuse: { ...reuse, identityDigest: built.identity.digest } } : {}),
             };
           };
-          const decorated = buildNoValidatorResult();
+          const decorated = await buildNoValidatorResult();
           return respond(decorated);
         }
 
@@ -2220,6 +2385,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                   const executedDynamic = await runStoryAwareDynamicValidation({
                 beforeLaunch: launchGate.beforeLaunch,
                     projectRoot,
+                    gitCwd: handlerGitCwd,
                     storyId: args.story,
                     baseHead,
                     head: currentHead(handlerGitCwd),
@@ -2246,12 +2412,14 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                       status: executedDynamic.dynamicAllPass ? 'pass' : 'fail',
                       allPass: executedDynamic.dynamicAllPass,
                       summary: executedDynamic.dynamicAllPass ? 'Dynamic validation passed' : 'Dynamic validation failed',
-                      details: [executedDynamic.runtimeReport],
+                      details: [executedDynamic.runtimeReport, ...executedDynamic.buildArtifactsDiagnostics],
                       warnings: executedDynamic.authority.authoritative ? [] : ['Dynamic authority was not accepted; complete-plan fallback is required.'],
                       timestamp: new Date().toISOString(),
                       headSha: currentHead(handlerGitCwd) || '',
                       commands: [...executedDynamic.buildResult.commands, ...executedDynamic.selectedResult.commands],
                       commandExecutions: executedDynamic.buildResult.commands.length + executedDynamic.selectedResult.commands.length,
+                      ...(dynamicBuildArtifactsBinding(executedDynamic) ? { buildArtifactsHash: dynamicBuildArtifactsBinding(executedDynamic) } : {}),
+                      ...(typeof executedDynamic.buildArtifactsProtection === 'string' ? { buildArtifactsProtection: executedDynamic.buildArtifactsProtection } : {}),
                       disposition: 'executed',
                     },
                     catalog: executedDynamic.catalog,
@@ -2298,6 +2466,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               }
             } catch (error) {
               launchGate.rethrowRefusal();
+              if (isLaunchDirectoryDriftError(error)) throw error;
               ctx.log?.('dynamic validation execution unavailable; retaining complete-plan oracle: ' + (error instanceof Error ? error.message : String(error)));
               dynamicPreview = { mode: dynamicMode, authority: 'full-plan-oracle', ...dynamicValidationDegradation(error) };
             }
@@ -2359,7 +2528,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               authoritative.commandExecutions,
               authoritative.allPass,
               undefined,
-              reuseAttribution,
+              reuseAttribution, built?.launchBindings,
             );
             return respond(decorated);
           }
@@ -2375,6 +2544,10 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             warnings: [],
             ...(focus ? { focus } : {}),
           }, projectRoot, currentHead(handlerGitCwd), args.story, {
+            gitCwd: handlerGitCwd,
+            // Every command runs where the routine identity binds it, with the
+            // identity frozen before any command (or the dynamic run) launched.
+            ...(built ? { launchCwds: built.launchBindings.map((binding) => binding.path), launchIdentities: built.launchBindings.map((binding) => binding.identity) } : {}),
             progress: validationProgressReporter(ctx),
             abortSignal: args.abortSignal,
             deadlineAt: args.deadlineAt,
@@ -2527,7 +2700,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             commands.length,
             undefined,
             args,
-            reuseAttribution,
+            reuseAttribution, built?.launchBindings,
           );
           return reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated;
         };
@@ -2540,7 +2713,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
 
       const identityCommand = buildValidateFileCommand(ctx, { ...args, focus }, validateFile);
       const tsArgs = identityCommand.args.slice(1);
-      const runValidateFile = (beforeLaunch?: () => void) => {
+      const runValidateFile = (beforeLaunch?: () => void, launchBindings?: readonly FrozenLaunchBinding[]) => {
         ctx.log?.(`running: npx tsx ${tsArgs.join(' ')}`);
         return executeValidationPlan({
           provider: 'proof-or-stop-verifier-validate-file',
@@ -2548,6 +2721,8 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           warnings: [],
           ...(focus ? { focus } : {}),
         }, projectRoot, currentHead(handlerGitCwd), args.story, {
+          gitCwd: handlerGitCwd,
+          ...(launchBindings ? { launchCwds: launchBindings.map((binding) => binding.path), launchIdentities: launchBindings.map((binding) => binding.identity) } : {}),
           progress: validationProgressReporter(ctx),
           abortSignal: args.abortSignal,
           deadlineAt: args.deadlineAt,
@@ -2664,6 +2839,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               const executedDynamic = await runStoryAwareDynamicValidation({
                 beforeLaunch: launchGate.beforeLaunch,
                 projectRoot,
+                gitCwd: handlerGitCwd,
                 storyId: args.story,
                 baseHead,
                 head: currentHead(handlerGitCwd),
@@ -2690,12 +2866,14 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                   status: executedDynamic.dynamicAllPass ? 'pass' : 'fail',
                   allPass: executedDynamic.dynamicAllPass,
                   summary: executedDynamic.dynamicAllPass ? 'Dynamic validation passed' : 'Dynamic validation failed',
-                  details: [executedDynamic.runtimeReport],
+                  details: [executedDynamic.runtimeReport, ...executedDynamic.buildArtifactsDiagnostics],
                   warnings: [],
                   timestamp: new Date().toISOString(),
                   headSha: currentHead(handlerGitCwd) || '',
                   commands: [...executedDynamic.buildResult.commands, ...executedDynamic.selectedResult.commands],
                   commandExecutions: executedDynamic.buildResult.commands.length + executedDynamic.selectedResult.commands.length,
+                  ...(dynamicBuildArtifactsBinding(executedDynamic) ? { buildArtifactsHash: dynamicBuildArtifactsBinding(executedDynamic) } : {}),
+                  ...(typeof executedDynamic.buildArtifactsProtection === 'string' ? { buildArtifactsProtection: executedDynamic.buildArtifactsProtection } : {}),
                   disposition: 'executed' as const,
                 } : undefined,
                 catalog: executedDynamic.catalog,
@@ -2704,6 +2882,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             ctx.log?.(dynamicValidation.report || 'dynamic validation prepared for validate-file entrypoint');
           } catch (error) {
             launchGate.rethrowRefusal();
+            if (isLaunchDirectoryDriftError(error)) throw error;
             ctx.log?.('dynamic validation execution unavailable; retaining validate-file oracle: ' + (error instanceof Error ? error.message : String(error)));
             dynamicValidation = { mode: dynamicMode, authority: 'full-plan-oracle', ...dynamicValidationDegradation(error) };
           }
@@ -2728,13 +2907,20 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             authoritative.commandExecutions,
             authoritative.allPass,
             undefined,
-            reuseAttribution,
+            reuseAttribution, built?.launchBindings,
           );
           return respond(decorated);
         }
-        const validation = await runValidateFile(launchGate.beforeLaunch);
+        const validation = await runValidateFile(launchGate.beforeLaunch, built?.launchBindings);
         const commandResult = validation.commands[0];
-        const { code, output } = commandResult;
+        const { code: childCode, output } = commandResult;
+        // The executor's build-binding verdict is part of the validate file's
+        // outcome: an exit-zero validate file whose plan the executor rejected
+        // (it rewrote the artifacts it tested, or their identity was unavailable)
+        // did not validate what it claims, so it is treated as a failed command
+        // on every rendering path below, with the executor's diagnostics kept.
+        const executorBindingDetails = validation.details.filter((line) => line.startsWith('✗ build binding:'));
+        const code = executorBindingDetails.length > 0 && childCode === 0 ? 1 : childCode;
         if (dynamicValidation?.manifest) {
           const manifest = dynamicValidation.manifest as ValidationSelectionManifest;
           const commandId = manifest.rows[0]?.commandId;
@@ -2797,7 +2983,35 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             });
           }
         }
-        const attachDynamic = <T extends Record<string, unknown>>(value: T): T => dynamicValidation ? { ...value, dynamicValidation } : value;
+        // The validate-file result is rebuilt from the child's exit code and
+        // output, so the executor's build binding is carried over explicitly.
+        // A validate file cannot print its own binding into evidence: any
+        // buildArtifactsHash in the child's JSON is discarded, and an executor
+        // binding failure fails the result with the executor's own diagnostics.
+        const withExecutorBinding = <T extends Record<string, unknown>>(value: T): T => {
+          const { buildArtifactsHash: _printedHash, buildArtifacts: _printedObservations, buildArtifactsProtection: _printedProtection, ...rest } = value as Record<string, unknown>;
+          // The protection label travels with the binding: a validate file
+          // cannot declare its own, and evidence without one is never reused.
+          const protection = typeof validation.buildArtifactsProtection === 'string' ? { buildArtifactsProtection: validation.buildArtifactsProtection } : {};
+          const bound: Record<string, unknown> = validation.buildArtifactsHash
+            ? { ...rest, buildArtifactsHash: validation.buildArtifactsHash, ...(validation.buildArtifacts ? { buildArtifacts: validation.buildArtifacts } : {}), ...protection }
+            : { ...rest, ...protection };
+          // A printed PASS is believed only when the executor's own verdict
+          // passed AND the child completed successfully: a validate file can
+          // print PASS JSON and then attempt a denied artifact write, exiting
+          // nonzero with the artifacts unchanged and no binding diagnostic.
+          const executorFailure = validation.allPass === false || (typeof commandResult.code === 'number' && commandResult.code !== 0)
+            ? [`validation command exited with code ${commandResult.code ?? 'unknown'} (executor verdict ${validation.allPass === false ? 'FAIL' : 'not PASS'}); a printed PASS is not accepted without successful completion`]
+            : [];
+          const failures = [...executorBindingDetails, ...executorFailure];
+          if (failures.length === 0) return bound as unknown as T;
+          const details = Array.isArray(bound.details) ? bound.details as unknown[] : [];
+          return { ...bound, status: 'fail', allPass: false, details: [...details, ...failures] } as unknown as T;
+        };
+        const attachDynamic = <T extends Record<string, unknown>>(value: T): T => {
+          const bound = withExecutorBinding(value);
+          return dynamicValidation ? { ...bound, dynamicValidation } : bound;
+        };
         // Task B-6326 + B-4b22: verifier surfaces categorized dirty ownership
         // details AND respects dirty-gate-policy. When every polluted path
         // classifies as a passing category the pollution.blocking flag is
@@ -2821,7 +3035,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             commands: [commandResult],
           }));
           const focusedPolluted = focus ? markFocusedResult(polluted, focus) : polluted;
-          const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, focusedPolluted, built?.identity, [commandResult], 1, undefined, args, reuseAttribution);
+          const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, focusedPolluted, built?.identity, [commandResult], 1, undefined, args, reuseAttribution, built?.launchBindings);
           const surfaced = reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated;
           return respond(surfaced);
         }
@@ -2849,7 +3063,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               1,
               semanticCommandPass,
               args,
-              reuseAttribution,
+              reuseAttribution, built?.launchBindings,
             );
             return respond(reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated);
           }
@@ -2871,7 +3085,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             commands: [commandResult],
             ...(code === 0 ? {} : { failureKind: commandResult.failureKind ?? 'validation_failure' }),
           }), focus ?? '');
-          const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, wrapped, built?.identity, [commandResult], 1, undefined, args, reuseAttribution);
+          const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, wrapped, built?.identity, [commandResult], 1, undefined, args, reuseAttribution, built?.launchBindings);
           return respond(reuse && built ? { ...decorated, reuse: { ...reuse, identityDigest: built.identity.digest } } : decorated);
         }
 
@@ -2893,14 +3107,17 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             );
             const verificationPolicy = resolveStoryVerificationPolicy(ctx, args.story);
             const advisories = collectStoryFilesHashAdvisories(cl, handlerGitCwd, projectRoot);
+            // `code` already carries the executor's build-binding verdict, so
+            // the plain-text rendering fails exactly as --json does; the
+            // executor's diagnostics are part of the reported output.
             reportOutcome(code === 0 && coverage.missingRequired === 0);
-            return maybePrefixFocusedText((dynamicValidation?.report ? `${dynamicValidation.report}\n` : '') + output + '\n' + renderVerificationCoverage(coverage, verificationPolicy) + (advisories.length > 0 ? `\n${advisories.join('\n')}` : '') + (code !== 0 || coverage.missingRequired > 0 ? `\n(exit code: ${code || 1})` : ''), focus);
+            return maybePrefixFocusedText((dynamicValidation?.report ? `${dynamicValidation.report}\n` : '') + output + '\n' + renderVerificationCoverage(coverage, verificationPolicy) + (advisories.length > 0 ? `\n${advisories.join('\n')}` : '') + (executorBindingDetails.length > 0 ? `\n${executorBindingDetails.join('\n')}` : '') + (code !== 0 || coverage.missingRequired > 0 ? `\n(exit code: ${code || 1})` : ''), focus);
           } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
             // If story metadata cannot be read, fall back to raw verifier output.
           }
         }
         reportOutcome(code === 0);
-        return maybePrefixFocusedText((dynamicValidation?.report ? `${dynamicValidation.report}\n` : '') + output + (code !== 0 ? `\n(exit code: ${code})` : ''), focus);
+        return maybePrefixFocusedText((dynamicValidation?.report ? `${dynamicValidation.report}\n` : '') + output + (executorBindingDetails.length > 0 ? `\n${executorBindingDetails.join('\n')}` : '') + (code !== 0 ? `\n(exit code: ${code})` : ''), focus);
       };
       return await runValidateFileAndRender();
       }));

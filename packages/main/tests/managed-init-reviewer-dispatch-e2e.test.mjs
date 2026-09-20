@@ -9,6 +9,10 @@ const repository = fileURLToPath(new URL('../../..', import.meta.url));
 const cli = join(repository, 'packages/main/dist/cli.js');
 const { StoryStore } = await import('../dist/core/store.js');
 const { createHostRunHandlers } = await import('../dist/handlers/host-run.js');
+const {
+  normalizeHostRunModelSelection,
+  resolveQualifiedManagedReviewerSelection,
+} = await import('../dist/core/host-run.js');
 const { runManagedHostRunWorker } = await import('../dist/core/managed-host-run.js');
 const { invalidInitReviewerDeliveries, missingRequiredInitCheckAgents, recomputeInitCheckHash } = await import('../dist/core/init-check-gate.js');
 
@@ -77,6 +81,122 @@ try {
       return { pid: process.pid };
     },
   });
+  const qualificationHandlers = createHostRunHandlers({ root, scanRoot: root, store }, {
+    launchWorker: async () => ({ pid: process.pid }),
+  });
+  await assert.rejects(
+    qualificationHandlers.host_run({
+      host: 'codex', model: 'deepseek-v4.1-flash', reasoningEffort: 'high', storyId,
+      agentType: 'proof-or-stop-review-story-init', managedDispatch: true,
+      detach: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
+    }),
+    /managed reviewer model.*not qualified/i,
+    'a managed INIT reviewer must not use an implementation-only model through the Codex host',
+  );
+  await assert.rejects(
+    qualificationHandlers.host_run({
+      host: 'codex', model: 'deepseek-v4.1-flash', reasoningEffort: 'high', storyId,
+      reviewRunId: '00000000-0000-4000-8000-000000000001',
+      lane: 'proof-or-stop-review-quality', agentType: 'proof-or-stop-review-quality',
+      managedReview: true, detach: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
+    }),
+    /managed reviewer model.*not qualified/i,
+    'public managedReview must reject an unqualified Codex model before ReviewRun lookup',
+  );
+  await assert.rejects(
+    qualificationHandlers.host_run({
+      host: 'claude', model: 'fable', reasoningEffort: 'high', storyId,
+      reviewRunId: '00000000-0000-4000-8000-000000000002',
+      lane: 'proof-or-stop-review-quality', agentType: 'proof-or-stop-review-quality',
+      managedReview: true, detach: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
+    }),
+    /managed reviewer model.*not qualified/i,
+    'public managedReview must reject an unqualified Claude model before ReviewRun lookup',
+  );
+  await assert.rejects(
+    qualificationHandlers.host_run({
+      host: 'claude', model: 'opus', reasoningEffort: 'low', storyId,
+      reviewRunId: '00000000-0000-4000-8000-000000000004',
+      lane: 'proof-or-stop-review-quality', agentType: 'proof-or-stop-review-quality',
+      managedReview: true, detach: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
+    }),
+    /managed reviewer reasoningEffort.*not qualified/i,
+    'public managedReview must reject sub-high Claude reasoning before ReviewRun lookup',
+  );
+  await assert.rejects(
+    qualificationHandlers.host_run({
+      host: 'grok', model: 'caller-owned-grok', reasoningEffort: 'none', storyId,
+      reviewRunId: '00000000-0000-4000-8000-000000000005',
+      lane: 'proof-or-stop-review-quality', agentType: 'proof-or-stop-review-quality',
+      managedReview: true, detach: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
+    }),
+    /Grok managed review uses provider-owned model selection/i,
+    'public Grok managedReview must refuse caller-owned model and effort selectors',
+  );
+  await assert.rejects(
+    qualificationHandlers.host_run({
+      host: 'codex', model: 'gpt-5.6-sol', reasoningEffort: 'high', storyId,
+      reviewRunId: '00000000-0000-4000-8000-000000000003',
+      lane: 'proof-or-stop-review-quality', agentType: 'proof-or-stop-review-quality',
+      managedReview: true, detach: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
+    }),
+    error => {
+      assert.doesNotMatch(error.message, /managed reviewer (?:model|reasoningEffort).*not qualified/i);
+      assert.match(error.message, /REVIEW_EVIDENCE_PHASE_REQUIRED|ReviewRun|review run|review_run/i);
+      return true;
+    },
+    'a qualified public managedReview selection must pass qualification and reach ReviewRun validation',
+  );
+  assert.throws(
+    () => resolveQualifiedManagedReviewerSelection({ host: 'claude', model: 'fable', reasoningEffort: 'high' }),
+    /managed reviewer model.*not qualified/i,
+    'a formal Claude reviewer must reject the unqualified Fable model',
+  );
+  assert.deepEqual(
+    resolveQualifiedManagedReviewerSelection({ host: 'claude', model: null, reasoningEffort: null }),
+    { model: 'opus', reasoningEffort: 'high' },
+    'model-less formal Claude review must resolve Opus/high before immutable submission',
+  );
+  assert.throws(
+    () => resolveQualifiedManagedReviewerSelection({ host: 'codex', model: 'gpt-5.6-sol', reasoningEffort: 'medium' }),
+    /reasoningEffort.*not qualified/i,
+    'formal Codex review must reject sub-high reasoning effort',
+  );
+  assert.throws(
+    () => resolveQualifiedManagedReviewerSelection({ host: 'claude', model: 'opus', reasoningEffort: 'low' }),
+    /reasoningEffort.*not qualified/i,
+    'formal Claude review must reject sub-high reasoning effort',
+  );
+  assert.deepEqual(
+    resolveQualifiedManagedReviewerSelection({ host: 'codex', model: 'gpt-5.6-sol', reasoningEffort: 'ultra' }),
+    { model: 'gpt-5.6-sol', reasoningEffort: 'ultra' },
+    'formal Codex review may explicitly select ultra reasoning effort',
+  );
+  assert.throws(
+    () => resolveQualifiedManagedReviewerSelection({ host: 'claude', model: 'opus', reasoningEffort: 'ultra' }),
+    /reasoningEffort.*not qualified/i,
+    'formal Claude review must reject its unsupported ultra reasoning effort',
+  );
+  assert.deepEqual(
+    resolveQualifiedManagedReviewerSelection({ host: 'codex', model: 'gpt-6-astra', reasoningEffort: 'xhigh' }),
+    { model: 'gpt-6-astra', reasoningEffort: 'xhigh' },
+    'an explicitly available qualified Codex selector must remain unchanged',
+  );
+  assert.deepEqual(
+    normalizeHostRunModelSelection({ host: 'codex' }),
+    { model: null, reasoningEffort: null },
+    'ordinary selector-less managed runs must preserve provider-owned defaults',
+  );
+  assert.deepEqual(
+    resolveQualifiedManagedReviewerSelection({ host: 'grok', model: null, reasoningEffort: null }),
+    { model: null, reasoningEffort: null },
+    'Grok formal review must preserve its separately audited provider-owned selector contract',
+  );
+  assert.throws(
+    () => resolveQualifiedManagedReviewerSelection({ host: 'agy', model: null, reasoningEffort: null }),
+    /managed reviewer host "agy" is not qualified/i,
+    'the exported qualifier must fail closed for internal AGY callers even though the public host parser excludes AGY',
+  );
   const agentTypes = ['proof-or-stop-review-story-init', 'proof-or-stop-product-reviewer'];
   const results = await Promise.all(agentTypes.map(async agentType => {
     const result = await handlers.host_run({
@@ -84,6 +204,8 @@ try {
       managedDispatch: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
     });
     assert.equal(result.exitCode, 0, JSON.stringify(result));
+    assert.equal(result.model, 'gpt-5.6-sol', 'model-less managed dispatch must resolve a qualified reviewer model before spawn');
+    assert.equal(result.reasoningEffort, 'high', 'model-less managed dispatch must resolve qualified reviewer effort before spawn');
     assert.match(readFileSync(join(root, `delivered-${agentType}.txt`), 'utf8'), /do not spawn or delegate another reviewer/i);
     return result;
   }));
@@ -115,6 +237,17 @@ try {
   substituted._hash = recomputeInitCheckHash(storyId, store, root, substituted);
   assert.match(invalidInitReviewerDeliveries(substituted, root, storyId)[0]?.reason ?? '', /not found|ENOENT/i,
     'a re-signed caller-substituted delivery id must still fail receipt validation');
+  const modelSelectionSmoke = spawnSync(process.execPath, [
+    join(repository, 'packages/main/dist/tasks/managed-host-run-smoke.js'),
+    '--model-selection',
+  ], {
+    cwd: repository,
+    encoding: 'utf8',
+    env: { ...process.env, PROOF_OR_STOP_USAGE_LEDGER: '0' },
+  });
+  assert.equal(modelSelectionSmoke.status, 0, `${modelSelectionSmoke.stderr}\n${modelSelectionSmoke.stdout}`);
+  assert.match(modelSelectionSmoke.stdout, /managed-host-run model-selection PASS/,
+    'the recorded GREEN command must cover ordinary null sealing and historical selector idempotency');
   console.log('MANAGED_INIT_REVIEWER_DISPATCH_E2E_GREEN');
 } finally {
   if (oldPath === undefined) delete process.env.PATH; else process.env.PATH = oldPath;

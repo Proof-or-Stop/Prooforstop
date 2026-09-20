@@ -1,4 +1,5 @@
 import {readValidationReuseCost,saveValidationReuseCost} from './validation-reuse-costs.js';
+import { currentBuildArtifactsHash, isRegisteredPackagesMainBuildCommand, launchDirectoryDrift, type LaunchDirectoryIdentity } from './build-artifacts-identity.js';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { executionImplementationIdentity } from './execution-implementation.js';
 import { execFileSync } from 'node:child_process';
@@ -28,9 +29,14 @@ export function withSharedValidationExecutions<T>(context: SharedValidationExecu
 }
 
 /** Diagnostic reasons never expand the existing reuse permission predicate. */
-export function sharedValidationReusePolicy(command: ValidationCommand): { eligible: boolean; reason: string } {
+export function sharedValidationReusePolicy(command: ValidationCommand, roots?: { projectRoot?: string; artifactsRoot?: string; launchCwd?: string }): { eligible: boolean; reason: string } {
   const proof = command as ValidationCommand & { requiresBuildProof?: unknown; providesBuildProof?: unknown; proof?: unknown };
   if (proof.requiresBuildProof || proof.providesBuildProof || proof.proof) return { eligible: false, reason: 'build_proof_required' };
+  // A build recognised by its shape is a registered build too: its execution
+  // is the proof, so it is never served from the cache. Judged with the same
+  // roots and pinned directory the executor classifies with, so an absolute,
+  // aliased or wrapper-root cwd form is recognised exactly as at launch.
+  if (isRegisteredPackagesMainBuildCommand(command, roots?.projectRoot, roots?.artifactsRoot ?? roots?.projectRoot, roots?.launchCwd)) return { eligible: false, reason: 'registered_build' };
   if (command.fullBaselineReusePolicy === 'forbidden') return { eligible: false, reason: 'policy_forbidden' };
   if (command.closurePolicy === 'never-reuse') return { eligible: false, reason: 'policy_never_reuse' };
   if (command.riskTier === 'gate' || command.riskTier === 'validation-infra') return { eligible: false, reason: 'policy_risk_tier' };
@@ -45,21 +51,50 @@ export function sharedValidationReuseAllowed(command: ValidationCommand): boolea
 export async function executeSharedValidationCommand(
   command: ValidationCommand, projectRoot: string, timeoutMs: number,
   capture: () => Promise<{ result: ValidationCommandResult; completeOutput: string }>, explicitContext?: SharedValidationExecutionContext, assertActive: () => void = () => {},
+  artifactBinding?: { root: string; configRoot?: string; protection: string },
+  /**
+   * The CANONICAL directory the command executes in, pinned by the caller
+   * before its plan's first launch. Every identity this function derives —
+   * executable and environment, input snapshots, git probes, the cache key —
+   * is taken in that directory, never through the declared cwd, so a receipt
+   * can never describe inputs from one directory for an execution in another.
+   */
+  launchCwd?: string,
+  /** The caller's own classification of this command as a registered build: enforced BEFORE any context, explicit or ambient, is consulted. */
+  registeredBuild?: boolean,
+  /** The filesystem identity bound to launchCwd when it was pinned: re-verified inside every reuse-key check and again after the awaited lookup, so a directory replaced at the same path during the lookup is never served a cached PASS. */
+  launchIdentity?: LaunchDirectoryIdentity,
 ): Promise<ValidationCommandResult> {
   const run = async () => (await capture()).result;
-  const context = explicitContext ?? contexts.getStore();
+  const launchDrift = (): string | undefined => (launchCwd ? launchDirectoryDrift(launchCwd, launchIdentity) : undefined);
+  const refusedForDrift = (drift: string): ValidationCommandResult => ({
+    label: command.label, command: command.command, args: [...command.args], ...(command.shell ? { shell: true } : {}), ...(command.cwd ? { cwd: command.cwd } : {}),
+    code: 1, output: `[launch_directory_drift] ${command.label} was not served from the shared cache: ${drift}`, launchOutcome: 'not-launched',
+    ...(command.optional ? { optional: true } : {}), timeoutMs, effectiveTimeoutMs: 0, failureKind: 'infra_failure', durationMs: 0,
+    executionDecision: { disposition: 'executed', reason: 'launch_directory_drift' },
+  });
   const executeWithoutReuse = async (reason: string): Promise<ValidationCommandResult> => ({
     ...await run(), executionDecision: { disposition: 'executed', reason },
   });
-  const policy = sharedValidationReusePolicy(command);
+  // A registered build's execution is its proof: it never enters the cache,
+  // whatever context (explicit or ambient) would otherwise serve it.
+  if (registeredBuild) return executeWithoutReuse('registered_build');
+  const policy = sharedValidationReusePolicy(command, { projectRoot, artifactsRoot: artifactBinding?.root, launchCwd });
   if (!policy.eligible) return executeWithoutReuse(policy.reason);
+  const context = explicitContext ?? contexts.getStore();
   if (!context) return executeWithoutReuse('shared_context_unavailable');
+  // The compiled artifacts the command executes and the protection it runs
+  // under are inputs of the reuse key: a receipt earned against other bytes or
+  // without protection is simply not a match, and a cached result inherits
+  // exactly the binding it was executed with.
+  const artifactBindingHash = artifactBinding ? currentBuildArtifactsHash(artifactBinding.root, artifactBinding.configRoot) : undefined;
+  if (artifactBinding && !artifactBindingHash) return executeWithoutReuse('artifact_identity_unavailable');
   assertActive();
   const started = performance.now();
   const economicsKey = context.reuseEconomics === 'measured' ? causalCanonical({
     projectRoot: resolve(projectRoot), command, timeoutMs,
   }) : undefined;
-  const normalized = normalizeRoutineValidationCommand({projectRoot,command:{...command,timeoutMs}});
+  const normalized = normalizeRoutineValidationCommand({projectRoot,command:{...command,...(launchCwd ? {cwd:launchCwd} : {}),timeoutMs}});
   const observedCost = economicsKey ? (uneconomicCommands.get(context)?.get(economicsKey) ?? readValidationReuseCost(projectRoot,economicsKey)) : undefined;
   if (observedCost !== undefined) {
     // This branch runs the real command. It consumes no cached PASS and grants
@@ -116,9 +151,15 @@ export async function executeSharedValidationCommand(
   const inputFilesCanonical = causalCanonical(inputFiles);
   const unchanged = () => {
     try {
-      return causalCanonical(probe()) === initialCanonical && workspaceState() === workspace
+      // The pinned launch directory is a reuse-key input like any other: a
+      // directory replaced at the same path (new inode) is not the directory
+      // the receipt was earned in, whatever Git and the input bytes say.
+      return launchDrift() === undefined && causalCanonical(probe()) === initialCanonical && workspaceState() === workspace
         && causalCanonical(additionalInputs()) === inputFilesCanonical
-        && executionImplementationIdentity().digest === implementationDigest;
+        && executionImplementationIdentity().digest === implementationDigest
+        // The compiled artifacts are a reuse-key input like any other: a tree
+        // that moved since the key was built makes every later step stale.
+        && (!artifactBinding || currentBuildArtifactsHash(artifactBinding.root, artifactBinding.configRoot) === artifactBindingHash);
     } catch { return false; }
   };
   const {label: _label, optional: _optional, focus: _focus, ...execution} = normalized;
@@ -129,7 +170,10 @@ export async function executeSharedValidationCommand(
     inputs:{execution,workspace,inputFiles,implementationDigest,materialHash:initial.gitMaterial?.materialHash,
       policy:{executionReuse:command.executionReuse,closurePolicy:command.closurePolicy ?? null,
         fullBaselineReusePolicy:command.fullBaselineReusePolicy ?? null,riskTier:command.riskTier ?? null,
-        resources:command.resources ?? null}},
+        resources:command.resources ?? null},
+      // Inside `inputs`: the key builder hashes its declared fields only, so
+      // a binding placed beside them would be silently ignored (it was, once).
+      artifactBinding:artifactBinding ? {hash:artifactBindingHash,protection:artifactBinding.protection} : null},
     storyFilesHash:initial.gitMaterial?.storyFilesHash,
     effectiveEnvironment:effectiveCausalEnvironment(command.env,normalized.cwd),
     runtimeVersion:process.version,toolVersion:resolveCausalToolVersion(projectRoot),selectorPolicy:DEFAULT_CAUSAL_SELECTOR_POLICY,
@@ -148,10 +192,21 @@ export async function executeSharedValidationCommand(
       executionWallMs = performance.now() - executionStarted;
       // Receipt identity belongs to complete execution bytes, never the bounded display.
       return {code:fresh.code,output:captured.completeOutput,timedOut:fresh.timedOut,durationMs:fresh.durationMs,timeoutMs:fresh.timeoutMs,
-        partial:Boolean(fresh.worktreePollution?.paths.length) || captured.completeOutput.length > CAUSAL_MAX_OUTPUT_CHARS || !unchanged()};
+        // A run that changed the compiled artifacts is never reusable: a later
+        // consumer would inherit a binding its own trees no longer match.
+        partial:Boolean(fresh.worktreePollution?.paths.length) || captured.completeOutput.length > CAUSAL_MAX_OUTPUT_CHARS || !unchanged()
+          || Boolean(fresh.buildArtifactsBefore && fresh.buildArtifactsAfter && fresh.buildArtifactsBefore !== fresh.buildArtifactsAfter)
+          // A receipt is published under the key's artifact identity and
+          // protection label, so the executed run must have observed exactly
+          // those: both observations present and equal to the key hash, and
+          // the label the capture recorded equal to the one the key names.
+          || Boolean(artifactBinding && (fresh.buildArtifactsBefore !== artifactBindingHash || fresh.buildArtifactsAfter !== artifactBindingHash || fresh.buildArtifactsProtection !== artifactBinding.protection))};
     },
   });
   assertActive();
+  // Immediately after the awaited lookup: a directory replaced while the
+  // lookup was pending is refused, bounded, before any cached PASS is served.
+  { const drift = launchDrift(); if (drift && !fresh) return refusedForDrift(drift); }
   if (!unchanged()) throw new Error('shared validation inputs changed before publication');
   if (economicsKey && fresh?.code === 0 && causal.receipt.reusable) {
     const overhead = performance.now() - started - executionWallMs;
@@ -168,6 +223,10 @@ export async function executeSharedValidationCommand(
   if (fresh) return {...fresh,executionReceipt,executionDecision:{disposition:'executed',reason:causal.receipt.reusable ? 'no_matching_receipt' : fresh.code !== 0 ? 'execution_failed' : 'result_not_reusable'}};
   if (causal.receipt.status !== 'pass' || !causal.receipt.reusable) throw new Error('shared validation refused non-PASS receipt');
   return {label:command.label,command:command.command,args:[...command.args],shell:normalized.shell,
-    cwd:resolve(normalized.cwd),code:causal.receipt.exitCode,output:causal.receipt.outputProbe,
-    optional:command.optional,durationMs:causal.receipt.durationMs ?? 0,timeoutMs:causal.receipt.timeoutMs,executionReceipt,executionDecision:{disposition:'reused',reason:'matching_receipt'}};
+    cwd:resolve(normalized.cwd),launchCwd:normalized.cwd,code:causal.receipt.exitCode,output:causal.receipt.outputProbe,
+    optional:command.optional,durationMs:causal.receipt.durationMs ?? 0,timeoutMs:causal.receipt.timeoutMs,executionReceipt,executionDecision:{disposition:'reused',reason:'matching_receipt'},
+    // Derived from the reuse key, which the executed run matched exactly: the
+    // artifacts it ran against equal the artifacts on disk now, and its
+    // protection label is the one the caller demanded.
+    ...(artifactBinding ? {buildArtifactsBefore:artifactBindingHash,buildArtifactsAfter:artifactBindingHash,buildArtifactsProtection:artifactBinding.protection} : {})};
 }
