@@ -101,6 +101,19 @@ try {
   );
   await assert.rejects(
     qualificationHandlers.host_run({
+      host: 'codex', model: 'gpt-5.6-sol', reasoningEffort: 'high',
+      agentType: 'proof-or-stop-review-story-init', managedDispatch: true,
+      detach: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
+    }),
+    error => {
+      assert.match(error.message, /managedDispatch requires storyId/i);
+      assert.doesNotMatch(error.message, /formal managed-review flow/i);
+      return true;
+    },
+    'an allowlisted managedDispatch reviewer missing storyId must retain the storyId repair',
+  );
+  await assert.rejects(
+    qualificationHandlers.host_run({
       host: 'codex', model: 'deepseek-v4.1-flash', reasoningEffort: 'high', storyId,
       agentType: 'proof-or-stop-review-story-init', managedDispatch: true,
       detach: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,

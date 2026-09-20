@@ -430,12 +430,17 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           'host_run: --itemId is valid only with --managedDispatch and agentType=proof-or-stop-implementer',
         );
       }
-      const managedDispatchQualifiedReviewer = args.managedDispatch === true && [
+      const managedDispatchAgentTypes = [
+        'proof-or-stop-implementer',
         'proof-or-stop-review-story-init',
         'proof-or-stop-product-reviewer',
         'proof-or-stop-review-scope-plan',
         MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role,
-      ].includes(agentType);
+      ];
+      const managedDispatchAgentTypeSupported = managedDispatchAgentTypes.includes(agentType);
+      const managedDispatchQualifiedReviewer = args.managedDispatch === true
+        && agentType !== 'proof-or-stop-implementer'
+        && managedDispatchAgentTypeSupported;
       if (args.managedReview === true || managedDispatchQualifiedReviewer) {
         selection = resolveQualifiedManagedReviewerSelection({ host, ...selection });
       }
@@ -484,13 +489,10 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         const managedDispatchPhase = agentType === 'proof-or-stop-implementer' ? 'DEV'
           : agentType === MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role ? MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.phase
             : agentType === 'proof-or-stop-review-scope-plan' ? 'PLAN' : 'INIT';
-        if (!storyId || ![
-          'proof-or-stop-implementer',
-          'proof-or-stop-review-story-init',
-          'proof-or-stop-product-reviewer',
-          'proof-or-stop-review-scope-plan',
-          MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role,
-        ].includes(agentType)) {
+        if (!storyId) {
+          throw new Error('host_run: --managedDispatch requires storyId');
+        }
+        if (!managedDispatchAgentTypeSupported) {
           if (agentType.startsWith('proof-or-stop-review-')) {
             throw new Error(
               'host_run: REVIEW lanes use the formal managed-review flow: run candidate_spec_route, '
