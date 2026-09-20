@@ -1664,7 +1664,21 @@ export async function runCli(opts?: {
       // before the lease gate so a control-arm violation is recorded and
       // refused regardless of lease ownership.
       enforceExperimentArmRetrievalGate(cmd, root);
-      enforceStoryOwnerLeaseGate(cmd, parsed, store, activeStory, root, externalAdmission.ownershipClasses, config0);
+      // A detached runtime continuation is authorized by the immutable run
+      // subject and must still refuse a foreign Story owner. It must not renew
+      // the durable owner lease, though: the continuation is a short-lived
+      // child whose pid and heartbeat would otherwise replace the submitting
+      // session and leave an apparently-active lease after terminal exit.
+      enforceStoryOwnerLeaseGate(
+        cmd,
+        parsed,
+        store,
+        activeStory,
+        root,
+        externalAdmission.ownershipClasses,
+        config0,
+        { readOnlyAdmission: runtimeContinuation },
+      );
       // B-bbaf CHK-003: convergence breaker gate — runs AFTER the owner-lease gate
       // (which owns the canonical-storyId / path-traversal guard and the ownership
       // check) so the breaker only ever derives a story path and writes state for a
