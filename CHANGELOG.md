@@ -1,16 +1,5 @@
 # Changelog
 
-## Lab consumer-residue-preflight - v0.3.444 - 2026-09-21
-
-- Scope the `proof-or-stop-residue` REVIEW preflight to repositories that explicitly enable `reviewPreflight.proofOrStopResidue`; consumer repositories now report the PoS-only maintenance gate as skipped.
-- Keep the Proof-or-Stop source repository opted in, and fail closed for malformed policy shapes, invalid JSON, a missing maintenance script, timeouts, or non-zero detector results.
-- Extend the wrapper-root preflight smoke to cover consumer skip, explicit opt-in, script pass/fail, malformed objects, and malformed project JSON.
-- Verified the focused RED/GREEN replay, package build, process-fact wiring, and an independent Grok audit; the unrelated managed-review supersession baseline failure remains outside this repair.
-
-Maintenance provenance: codex/lab-consumer-residue-preflight, repair 94c6d0f90a39abc9c5899338c39addafa194893b.
-Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab tracked-controller-projection-remediation - v0.3.443 - 2026-09-21
 
 - Allow a signed, byte-identical controller runtime projection to remain valid after the controller or Story branch adopts the projected assets into Git.
