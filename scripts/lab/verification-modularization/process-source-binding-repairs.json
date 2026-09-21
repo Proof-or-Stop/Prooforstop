@@ -8,5 +8,10 @@
     "function": "assertCloseoutTrustBoundary",
     "before": "const retiredVocabularyGuardText = read('packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts');",
     "after": "const retiredVocabularyGuardText = [\"binding-classification\", \"cli\", \"compatibility-controls\", \"driver\", \"dynamic-bindings\", \"dynamic-scan\", \"execution-controls\", \"file-scan\", \"loader-controls\", \"module-loaders\", \"positive-controls\", \"public-contract\", \"rule-data\", \"type-analysis\"].map(name => read(`packages/main/src/tasks/retired-authority/${name}.ts`)).join('\\n');"
+  },
+  {
+    "function": "assertReviewExecutionAuthorityContract",
+    "before": "const smokeText = read('packages/main/src/tasks/managed-review-evidence-smoke.ts');",
+    "after": "const smokeText = [\"claude-transport\", \"cli\", \"codex-transport\", \"environment\", \"evidence-binding\", \"fixtures\", \"grok-integration\", \"legacy-cli\", \"live-binding\", \"native-attestation\", \"sealed-receipts\", \"suite\", \"supersession\", \"transport-workers\"].map(name => read(`packages/main/src/tasks/managed-review-evidence/${name}.ts`)).join('\\n');"
   }
 ]

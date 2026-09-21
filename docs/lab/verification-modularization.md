@@ -1,7 +1,7 @@
 # Verification modularization: implementation and evidence ledger
 
 This is a local Lab checkpoint, not a completion or main integration claim.
-The authorized scope is all 14 entries below. Ten entries have complete passing executions at their recorded commits (nine official scoped GREEN commands and two complete finding-ledger runs). Quorum has official scoped GREEN at 5a58bdbf5a (seven bounded contracts). Canonical artifacts are split with scoped cache/topology checks passing; identity scanner and managed-review remain unimplemented. The main synchronization invalidates current-head Lab GREEN, not the historical logs.
+The authorized scope is all 14 entries below. Ten entries have complete passing executions at their recorded commits (nine official scoped GREEN commands and two complete finding-ledger runs). Quorum has official scoped GREEN at 5a58bdbf5a (seven bounded contracts). Canonical artifacts have official scoped GREEN at 2904a6b6ee. Managed review is split and compiled, with structural and supersession checks passing; complete execution is pending. Identity scanner remains unimplemented. The main synchronization invalidates current-head Lab GREEN, not the historical logs.
 
 Original public files contain imports, usage comments and one invocation.
 Every extracted file is limited to 2,000 physical lines. No hidden monolith,
@@ -20,7 +20,7 @@ No routine validation command is added by internal module registration.
 | `packages/main/src/tasks/flow-stability-smoke.ts` | 5528 | 7 | 11 | 989 | RED -> official GREEN at 21be146f9c; full suite 137.62 s | No |
 | `packages/main/tests/canonical-new-story-artifacts.test.mjs` | 5378 | 7 | 22 | 815 | RED recorded; 58 functions and 112 statements preserved; scoped checks pass, full certification pending | No |
 | `packages/main/src/tasks/finding-ledger-runtime-smoke.ts` | 4646 | 6 | 9 | 1134 | Full suites passed at 3b51f4f666 / f5fda7d0e6 in 130.60 / 147.00 s; combined run failed in the separate process suite | No |
-| `packages/main/src/tasks/managed-review-evidence-smoke.ts` | 4360 | 4360 | pending | pending | Pending; no modularization RED/GREEN claim | No |
+| `packages/main/src/tasks/managed-review-evidence-smoke.ts` | 4360 | 7 | 14 | 909 | RED recorded; 28 helpers and 419 main statements preserved; supersession scoped GREEN, full pending | No |
 | `packages/main/src/tasks/host-run-usage-smoke.ts` | 3867 | 6 | 15 | 587 | RED -> official GREEN at 9c8e8b848b; full suite 34.00 s, 91 checks | No |
 | `scripts/verify-proof-or-stop-prompt-baseline.mjs` | 3675 | 7 | 6 | 1344 | RED -> official GREEN at 103d6e06fa; full suite 9.60 s | No |
 | `packages/main/tests/milestone-status.test.mjs` | 3447 | 6 | 9 | 670 | RED -> official GREEN at a3777644bb; full suite 39.00 s | No |
@@ -342,3 +342,37 @@ the planned reconciliation after the remaining source movements.
 | `runtime-read.mjs` | 137 | runtime read |
 | `runtime-topology.mjs` | 335 | runtime topology |
 | `scope-init.mjs` | 557 | scope init |
+
+## Managed-review evidence decomposition
+
+The former 2,790-line main function is now five ordered phases: Codex transport,
+Claude transport, evidence binding, native attestation and sealed receipts. Later
+capabilities execute their predecessor phases. One shared typed context exposes
+getters/setters for the original lexical cells; it is not copied between phases,
+so callbacks continue to observe mutations. Original setup, all 419 statements and
+cleanup are mechanically compared with `6f6d88948f`, alongside 28 helper functions.
+The selector rejects a partial-success claim if a legacy diagnostic terminates
+before the requested phase. Supersession duplicate selection passed once in 23.79 s.
+All legacy worker, descriptor and Grok modes retain the original public self path.
+The list has seven capabilities: `codex-transport`, `claude-transport`,
+`evidence-binding`, `native-attestation`, `sealed-receipts`,
+`descriptor-transport`, `supersession`. No new routine command is registered.
+The full wrapper keeps the already configured 900-second budget; this change
+does not increase that policy.
+
+| Module | Lines | Responsibility |
+|---|---:|---|
+| `claude-transport.ts` | 909 | claude transport |
+| `cli.ts` | 22 | cli |
+| `codex-transport.ts` | 784 | codex transport |
+| `environment.ts` | 127 | environment |
+| `evidence-binding.ts` | 654 | evidence binding |
+| `fixtures.ts` | 336 | fixtures |
+| `grok-integration.ts` | 168 | grok integration |
+| `legacy-cli.ts` | 79 | legacy cli |
+| `live-binding.ts` | 407 | live binding |
+| `native-attestation.ts` | 564 | native attestation |
+| `sealed-receipts.ts` | 749 | sealed receipts |
+| `suite.ts` | 95 | suite |
+| `supersession.ts` | 241 | supersession |
+| `transport-workers.ts` | 365 | transport workers |

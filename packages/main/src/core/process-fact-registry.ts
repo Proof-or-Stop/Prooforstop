@@ -1966,6 +1966,28 @@ COMMAND_PROCESS_FACTS.push({
 });
 
 COMMAND_PROCESS_FACTS.push({
+  name: 'runtime:managed_review_capability_selection', kind: 'runtime-behavior', level: 'L4',
+  semantics: ['runtime-behavior', 'verification-policy'],
+  paths: ['packages/main/src/tasks/managed-review-evidence-smoke.ts',
+    'packages/main/src/tasks/managed-review-evidence/claude-transport.ts',
+    'packages/main/src/tasks/managed-review-evidence/cli.ts',
+    'packages/main/src/tasks/managed-review-evidence/codex-transport.ts',
+    'packages/main/src/tasks/managed-review-evidence/environment.ts',
+    'packages/main/src/tasks/managed-review-evidence/evidence-binding.ts',
+    'packages/main/src/tasks/managed-review-evidence/fixtures.ts',
+    'packages/main/src/tasks/managed-review-evidence/grok-integration.ts',
+    'packages/main/src/tasks/managed-review-evidence/legacy-cli.ts',
+    'packages/main/src/tasks/managed-review-evidence/live-binding.ts',
+    'packages/main/src/tasks/managed-review-evidence/native-attestation.ts',
+    'packages/main/src/tasks/managed-review-evidence/sealed-receipts.ts',
+    'packages/main/src/tasks/managed-review-evidence/suite.ts',
+    'packages/main/src/tasks/managed-review-evidence/supersession.ts',
+    'packages/main/src/tasks/managed-review-evidence/transport-workers.ts'],
+  producer: 'verification capability CLI', consumerGate: 'explicit verifier invocation only',
+  rationale: 'Managed review verification preserves its ordered transport and evidence pipeline. Selected later phases include every predecessor, share live typed fixture cells, retain cleanup and worker entrypoints, and cannot issue capability success after a legacy diagnostic early exit. Internal modules do not create routine gates.',
+});
+
+COMMAND_PROCESS_FACTS.push({
   name: 'runtime:process_contract_capability_selection', kind: 'runtime-behavior', level: 'L4',
   semantics: ['runtime-behavior', 'verification-policy'],
   paths: ['scripts/verify-process-fact-contract.mjs',
