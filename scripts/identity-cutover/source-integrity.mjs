@@ -170,11 +170,11 @@ export function verifySchemaInventory(root, schemas) {
 export const REVIEWED_CONTEXT_READERS = [
   {
     "path": "scripts/identity-reviewed-source-contexts.mjs",
-    "sha256": "df1d2090194bccc5f9687f7681e4176baba47f4fbb9afff0806364c7f5885c31"
+    "sha256": "c21ad3a527d89e312892830d93ee2c24b96d9b7ce2ea550a257e987c0ed35c7b"
   },
   {
     "path": "scripts/identity-reviewed-json-contexts.mjs",
-    "sha256": "ccc190f27fbd04e9fdaf976c42a347cd93f49a8d8cd13461dd95e6a36bae711a"
+    "sha256": "96f64a414f8eaefd75514530a56bc9b572ce476aa10813e7038cce57043e12ce"
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",

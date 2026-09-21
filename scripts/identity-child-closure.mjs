@@ -1,3 +1,4 @@
+import {modularIdentityChildClosure} from './identity-modular-child-closure.mjs';
 // Exact, mode-aware traversal seam. This module grants no execution exception.
 import {extraMode} from './extra-modes.mjs';
 import { createHash } from 'node:crypto';
@@ -6,7 +7,8 @@ export const CANONICAL = 'packages/main/tests/canonical-new-story-artifacts.test
 export const NARROWING = 'packages/main/src/tasks/narrowing-repin-smoke.ts';
 export const VERIFIER = 'scripts/verify-proof-or-stop-identity-cutover.mjs';
 const equal = (a,b) => JSON.stringify(a) === JSON.stringify(b);
-export function identityChildClosure({ ts, file, text, ast, entry, argv, contract }) {
+export function identityChildClosure({ ts, file, text, ast, entry, argv, contract, root }) {
+  const modular=modularIdentityChildClosure({ts,file,text,ast,entry,argv,contract,root});if(modular)return modular;
   const extra=extraMode({ts,file,text,ast,entry,argv,contract});if(extra)return extra;
   if (file === NARROWING) {
     const errors=[], edges=[];

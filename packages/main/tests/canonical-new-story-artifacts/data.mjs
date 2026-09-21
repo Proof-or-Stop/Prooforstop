@@ -613,7 +613,7 @@ export const OWNED_IMPORT_USE_CONTEXTS = [
   {"sourcePath":"packages/main/src/core/playbook-runtime-memory-index.ts","occurrences":82,"contextSha256":"6b811926042e86dd8312554d23f977b7aada9b85c05cc3fe4c9cdc5b350f7b0b"},
   {"sourcePath":"packages/main/src/core/playbook-runtime-memory.ts","occurrences":124,"contextSha256":"2bf680df4c10f9661cefd9b9d65d07c163ddbe18b080a4051b7605e1ca564340"},
   {"sourcePath":"packages/main/src/core/playbook-seed.ts","occurrences":377,"contextSha256":"3f79c6ccaf1d5bbca3bbbe8a19b48db43926794b35a6b852e5748c94e04945cf"},
-  {"sourcePath":"packages/main/src/core/process-fact-registry.ts","occurrences":46,"contextSha256":"1a771485886918ad6644e5004d2e01eabea81d347ca0ab2b6013f712e78da7b5"},
+  {"sourcePath":"packages/main/src/core/process-fact-registry.ts","occurrences":47,"contextSha256":"4e9367f4a5decd24ac1b429f90eb516b7703b5ced76a604cdbc2963bbdfa7611"},
   {"sourcePath":"packages/main/src/core/prompt-budget.ts","occurrences":4,"contextSha256":"b1bc3fea6f42db25be7b71baf9b4a8d4a685fa3127c16e1e9179215e0c77ea22"},
   {"sourcePath":"packages/main/src/core/prompt-contracts.ts","occurrences":17,"contextSha256":"528ba74400e06c1dd9654a13ee964fed61bb13ca5137e73fa27d901aa5227f35"},
   {"sourcePath":"packages/main/src/core/prompt-envelope.ts","occurrences":130,"contextSha256":"fd645991675f7f75b089b6387878be8f1876eb16ef317d4244bb0099ca332f68"},
@@ -658,9 +658,9 @@ export const OWNED_IMPORT_USE_CONTEXTS = [
   {"sourcePath":"scripts/identity-cutover/scanner-contexts.mjs","occurrences":4,"contextSha256":"1f1a4893e56ca22fa0567e0f75789c1f5e9932070f267ea413758cbad310b57d"},
   {"sourcePath":"scripts/identity-cutover/schema-data.mjs","occurrences":0,"contextSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
   {"sourcePath":"scripts/identity-cutover/schema-scan.mjs","occurrences":29,"contextSha256":"2aa2277ce4ceba381bd57f3f30469816e214e1590fc88ba6efbe55faf069190c"},
-  {"sourcePath":"scripts/identity-cutover/self-test.mjs","occurrences":750,"contextSha256":"23a72bbcae1b5fc6eb37ca30ddd432c7a8cd787403b9242432faef60ad4367b8"},
+  {"sourcePath":"scripts/identity-cutover/self-test.mjs","occurrences":755,"contextSha256":"b8e10f9470bb974bdd00bdd36bb9dcd489dc53d67d8daba77271d46652605491"},
   {"sourcePath":"scripts/identity-cutover/source-integrity.mjs","occurrences":112,"contextSha256":"b1214fcabfc4d7810659d6fdca43639987bfb1fd5162d69768f6b5725a894321"},
-  {"sourcePath":"scripts/identity-cutover/witness-controls.mjs","occurrences":135,"contextSha256":"55235f8b39f2ccf1b12e171cbd111c4b830214cf2cc636e40d6406cdf685d046"}
+  {"sourcePath":"scripts/identity-cutover/witness-controls.mjs","occurrences":148,"contextSha256":"e5983c22edcc2dd006d77f21ee000a90e59e3b47976b5c0f5f384fff8bfb08d1"}
 ];
 
 export const ACTIVE_STORY_IDENTITY_PATHS = Object.freeze([

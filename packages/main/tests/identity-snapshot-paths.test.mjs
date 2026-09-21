@@ -9,11 +9,11 @@ import ts from 'typescript';
 
 // Exercise the actual snapshot oracle without booting its unrelated long suite.
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
-const source = fs.readFileSync(join(repo, 'packages/main/tests/canonical-new-story-artifacts.test.mjs'), 'utf8');
+const source = ["fixture-support.mjs", "public-fixtures.mjs"].map(name => fs.readFileSync(join(repo, 'packages/main/tests/canonical-new-story-artifacts', name), 'utf8')).join('\n');
 const ast = ts.createSourceFile('oracle.mjs', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
 const selected = ['git', 'snapshotGitMaterial'].map(name => {
   const fn = ast.statements.find(s => ts.isFunctionDeclaration(s) && s.name?.text === name);
-  assert.ok(fn, `Missing actual ${name}`); return fn.getText(ast);
+  assert.ok(fn, `Missing actual ${name}`); return fn.getText(ast).replace(/^export\s+/, '');
 }).join('\n');
 const imports = { execFileSync, join, lstatSync: fs.lstatSync, readFileSync: fs.readFileSync, readlinkSync: fs.readlinkSync, createHash };
 const actual = new Function(...Object.keys(imports), selected + '\nreturn { snapshotGitMaterial, git };')(...Object.values(imports));

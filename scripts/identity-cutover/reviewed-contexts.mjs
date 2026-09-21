@@ -22,7 +22,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/src/core/runtime-environment-checks.ts",
-    "sha256": "02afe26ceb22b9fa4c0597aa326c2f02cbb5a65f6fd1d8f1137ba5b867a0ed1a"
+    "sha256": "028977a2c8451e98ae655a595a9c250b1d0b6a30839552a8adc987d3ad96f936"
   },
   {
     "path": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
@@ -142,7 +142,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "scripts/verify-runtime-fact-contract.mjs",
-    "sha256": "b9f26844c46c956d7b94eaae07625263076b5ecb657ba2c719e23f58a74f6b31"
+    "sha256": "5aca5a5b4ece2a0f14e052bbaea1bee91bb62896ff51e4294832282f490dfcb0"
   },
   {
     "path": "scripts/verify-process-fact-contract.mjs",
@@ -490,7 +490,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/data.mjs",
-    "sha256": "15cbbd4357f1e1a2f6c82f048f9480f28015bff693ba2ca3dce540cb59c769ef"
+    "sha256": "1ef13cedfe2973cf815cfca1005d0320ae75500ff8f13699fcee1152e862e3e6"
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/driver.mjs",
@@ -510,7 +510,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/identity-inventory.mjs",
-    "sha256": "0875a45d951eeba4169a2f3746829c4f2b38158dd21700a284bda194ef847654"
+    "sha256": "716be639ea55760dc3102d157b7e4f764155a676bcf3392026951de4e13b0e6a"
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/identity-ownership.mjs",
@@ -526,7 +526,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/identity-sites.mjs",
-    "sha256": "f2ee261f780e148e201a55c8f66f78ff189b39ff18a8c523cc9e705c73e9be95"
+    "sha256": "010a15eda866aeddc9bd68935ee0d43b1bcdc02f80c7f4904d662795f076a6d2"
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/memory-runtime.mjs",
@@ -1056,7 +1056,7 @@ export const OWNED_IDENTITY_MUTATION_CONTEXT_ROWS = [
   ["proofbound.playbook-trial-run.v1",1,"ac00286dca98e6cce798728a15929ba19100a70f064ce59d918d092c4918623a"],
   ["proofbound.precert-receipt.v1",1,"15f8df1e3db1b5555ebfbeaeb5f701a714ab340d68d0acc1b6079403b92c8341"],
   ["proofbound.precert_receipt.v1",1,"3ee73ae737fb09659c29c37625e4115a60aa2f7a2484a0514c56cab0a18d468e"],
-  ["proofbound.product-capability-release.v1",1,"bcc692efc7be5140570179a24efd02874f2720da513409f1895cfa31e2802b40"],
+  ["proofbound.product-capability-release.v1",12,"ab23c21457dbefd2162a7431a5a0ddaee6e6e30a3212dd71c76f1827bcecf70f"],
   ["proofbound.prompt-envelope-rollout.v1",1,"dc61202e31a5c475cf24cf8dd3218af6fb3215476c71b6468aec40e1e139ef2a"],
   ["proofbound.prompt-measurement-report.v1",2,"3e33a4c99b1c8d7ff502eeb48d13c9cc29a0810f2d681d83b345025716205496"],
   ["proofbound.prompt-role-contract-registry.v1",2,"87e31db7612133dec01a455591b38592bcd8b9cc12b8edb3e9678d6bfcdf4910"],
@@ -1173,7 +1173,7 @@ export const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [1,"ebdcc59f439a3e890e6a4c6b7a0a6c523cc0cb37a343cea8af0aa5d1cb498748"],
   [2,"d1261e4856fd3441f6ba185e3cc3a0e3222145e69218180ca3567888f848a694"],
   [3,"65b3a71a775eef59f9398fc88bae41728f07d0ff832b3164fc4a6305f2829b78"],
-  [4,"0875a45d951eeba4169a2f3746829c4f2b38158dd21700a284bda194ef847654"],
+  [4,"716be639ea55760dc3102d157b7e4f764155a676bcf3392026951de4e13b0e6a"],
   [14,"6ce71b767c7003c53068880527a14a0986692d4e80283ffbae217fad0af98fa5"],
   [15,"9101f015dcbfe0affcca0cecc2bc15ac9d1e691af1c5febbe249746d16536b60"],
   [16,"c182058690e5e55d41d91f5bc496acbe21b126e29e310525e4f4b1f3895cba21"],
@@ -1209,7 +1209,7 @@ export const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [48,"cc44ed2de501ece64b10585468721b50cfc9f628f62e0deb03af8240d4615847"],
   [49,"8c9b8d8a5a9bf9b715ffaaaebb88c42c8bcc38258e2953356e09be5aabc44b3a"],
   [51,"6266521612a843fb549a70c35df31e281f153749c0e7fcba2b2aa4eccce19fa4"],
-  [52,"02afe26ceb22b9fa4c0597aa326c2f02cbb5a65f6fd1d8f1137ba5b867a0ed1a"],
+  [52,"028977a2c8451e98ae655a595a9c250b1d0b6a30839552a8adc987d3ad96f936"],
   [55,"0a0e8086be494cbf378b488a2d891a43db5559f077042ac6da87cfd4a90375d0"],
   [60,"bb56479da5c58cf6baccddf3cbde7255e82c0e0fd805acc6a412ffee6a728758"],
   [62,"9ee8a71dcfaacfc632a7756be28b1ade7039a97650843eb0389591d0747c44ca"],
@@ -1219,7 +1219,7 @@ export const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [73,"42de93915352c14e2962c733365adfd1c840a9b12cce78bf4bcfa201676a6870"],
   [74,"e5259450c31aa3feeaaebcb83fa32adc5f171019564c121d10cb87889c1e584d"],
   [5,"c583bd41ee5789221e5f93f938f4528a9408dc376d72ef838260cc5e3236355b"],
-  [67,"f2ee261f780e148e201a55c8f66f78ff189b39ff18a8c523cc9e705c73e9be95"],
+  [67,"010a15eda866aeddc9bd68935ee0d43b1bcdc02f80c7f4904d662795f076a6d2"],
   [69,"8732ff3479a894924d2d224b5f35dced75a22e7b109bb22b854aec87bc1ab6aa"]
 ].map(([rowIndex, sha256]) => ({ path: BOTH_FAMILY_CONTEXT_ROWS[rowIndex].path, sha256 }));
 

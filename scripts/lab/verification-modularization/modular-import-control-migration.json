@@ -1,0 +1,42 @@
+{
+  "baseline": "53dc0babd9",
+  "changes": [
+    {
+      "before": {
+        "sourcePath": "scripts/identity-cutover/self-test.mjs",
+        "occurrences": 750,
+        "contextSha256": "23a72bbcae1b5fc6eb37ca30ddd432c7a8cd787403b9242432faef60ad4367b8"
+      },
+      "after": {
+        "sourcePath": "scripts/identity-cutover/self-test.mjs",
+        "occurrences": 755,
+        "contextSha256": "b8e10f9470bb974bdd00bdd36bb9dcd489dc53d67d8daba77271d46652605491"
+      }
+    },
+    {
+      "before": {
+        "sourcePath": "scripts/identity-cutover/witness-controls.mjs",
+        "occurrences": 135,
+        "contextSha256": "55235f8b39f2ccf1b12e171cbd111c4b830214cf2cc636e40d6406cdf685d046"
+      },
+      "after": {
+        "sourcePath": "scripts/identity-cutover/witness-controls.mjs",
+        "occurrences": 148,
+        "contextSha256": "e5983c22edcc2dd006d77f21ee000a90e59e3b47976b5c0f5f384fff8bfb08d1"
+      }
+    },
+    {
+      "before": {
+        "sourcePath": "packages/main/src/core/process-fact-registry.ts",
+        "occurrences": 46,
+        "contextSha256": "1a771485886918ad6644e5004d2e01eabea81d347ca0ab2b6013f712e78da7b5"
+      },
+      "after": {
+        "sourcePath": "packages/main/src/core/process-fact-registry.ts",
+        "occurrences": 47,
+        "contextSha256": "4e9367f4a5decd24ac1b429f90eb516b7703b5ced76a604cdbc2963bbdfa7611"
+      },
+      "reason": "One explicit push into the PROCESS_FACT_LEVELS-derived registry; compiled L4 fact and all six source paths verified."
+    }
+  ]
+}

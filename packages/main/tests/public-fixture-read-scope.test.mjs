@@ -10,13 +10,13 @@ import ts from 'typescript';
 import { RUNTIME_ARTIFACT_REGISTRY } from '../dist/core/runtime-artifact-registry.js';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
-const source = fs.readFileSync(path.join(repo, 'packages/main/tests/canonical-new-story-artifacts.test.mjs'), 'utf8');
+const source = ["fixture-support.mjs", "public-fixtures.mjs", "data.mjs"].map(name => fs.readFileSync(path.join(repo, 'packages/main/tests/canonical-new-story-artifacts', name), 'utf8')).join('\n');
 const ast = ts.createSourceFile('actual-test.mjs', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
 const functions = ['git', 'snapshotGitMaterial', 'publicFixtureProjection', 'createPublicOperationClone'];
 const declarations = ast.statements.filter(node =>
   (ts.isFunctionDeclaration(node) && functions.includes(node.name?.text)) ||
   (ts.isVariableStatement(node) && node.declarationList.declarations.some(d => d.name.getText(ast) === 'INERT_PUBLIC_FIXTURE_LOG_SUBTREE')),
-).map(node => node.getText(ast)).join('\n');
+).map(node => node.getText(ast).replace(/^export\s+/, '')).join('\n');
 // publicFixtureProjection is intentionally optional: the pre-repair builder
 // has no such helper and must reach the same behavioral RED assertion.
 for (const name of ['git', 'snapshotGitMaterial', 'createPublicOperationClone']) assert.ok(declarations.includes(`function ${name}(`));

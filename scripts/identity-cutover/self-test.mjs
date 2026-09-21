@@ -15,7 +15,7 @@ import { dirname, join, resolve } from 'node:path';
 import { verifyBothFamilyContexts, verifyReviewedNegativeSourceIntegrity, verifyImportedHistoryContexts, verifyIntegrationRootHistoryContext, verifySchemaInventory, verifyNegativeSchemaWitnesses, verifyScannerRetiredContexts } from "./source-integrity.mjs";
 import { verifyImportedFinishDecisionBoundary, verifyMemoryLedger, verifyMemoryLedgerBytes, verifyExperimentProvenance, verifyConceptProvenance } from "./memory-provenance.mjs";
 import { verifyCurrentWitnessCoverage } from "./witness-controls.mjs";
-import { REVIEWED_NEGATIVE_SOURCE_INTEGRITY, INTEGRATION_ROOT_HISTORY_CONTEXT, OWNED_IDENTITY_MUTATION_CONTEXT_ROWS } from "./reviewed-contexts.mjs";
+import { MODULAR_WITNESS_CLOSURES, REVIEWED_NEGATIVE_SOURCE_INTEGRITY, INTEGRATION_ROOT_HISTORY_CONTEXT, OWNED_IDENTITY_MUTATION_CONTEXT_ROWS } from "./reviewed-contexts.mjs";
 import { IMPORTED_HISTORY_CONTEXT_SOURCES, IMPORTED_HISTORY_CONTEXT_ROWS } from "./history-contexts.mjs";
 import { schemaRows, isFrozenSurface } from "./schema-scan.mjs";
 import { CURRENT_COMPATIBLE_SCHEMA_ROWS, NEGATIVE_SCHEMA_ROWS, NEGATIVE_SCHEMA_WITNESSES } from "./schema-data.mjs";
@@ -41,10 +41,13 @@ export function runSelfTest(root, files) {
   ]);
   for (const pin of REVIEWED_NEGATIVE_SOURCE_INTEGRITY) {
     const original = readFileSync(resolve(root, pin.path), 'utf8');
-    const assertion = customWitnessControls.get(pin.path)
+    const custom = customWitnessControls.get(pin.path);
+    const assertion = (custom && original.includes(custom) ? custom : undefined)
       ?? original.split(/\r?\n/u).find(line => /^\s*(?:assert(?:\.[A-Za-z]+)?|check|rejects)\(/u.test(line) && !/lattice|proofbound/iu.test(line));
-    expect(Boolean(assertion) && original.includes(assertion), `reviewed witness has no separate control: ${pin.path}`);
-    const changed = original.replace(assertion, assertion === 'if (actual !== expected)' ? 'if (false)' : '// removed independent control');
+    const modular = Object.values(MODULAR_WITNESS_CLOSURES).some(paths => paths.includes(pin.path));
+    const control = assertion ?? (modular ? original.split(/\r?\n/u).find(line => /^import |^export /u.test(line)) : undefined);
+    expect(Boolean(control) && original.includes(control), `reviewed witness has no separate control: ${pin.path}`);
+    const changed = original.replace(control, control === 'if (actual !== expected)' ? 'if (false)' : '// removed independent control');
     expect(verifyReviewedNegativeSourceIntegrity(root, path => path === pin.path ? changed : readFileSync(resolve(root, path), 'utf8')).length > 0,
       `negative witness control removal escaped source integrity: ${pin.path}`);
   }

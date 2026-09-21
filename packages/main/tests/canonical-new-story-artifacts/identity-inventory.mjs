@@ -2,6 +2,8 @@ import { reviewedFixtureResidueAllowed } from "../../../../scripts/identity-revi
 import { reviewedSourceResidueAllowed } from "../../../../scripts/identity-reviewed-source-contexts.mjs";
 import { reviewedDataResidueAllowed } from "../../../../scripts/identity-reviewed-json-contexts.mjs";
 import assert from 'node:assert/strict';
+import { SCANNER_SOURCE_PATHS, SCANNER_RETIRED_LINE_CONTEXTS } from '../../../../scripts/identity-cutover/scanner-contexts.mjs';
+import { verifyScannerRetiredContexts } from '../../../../scripts/identity-cutover/source-integrity.mjs';
 
 import { spawnSync } from 'node:child_process';
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
@@ -216,10 +218,10 @@ export function assertIdentityCutoverInventoryTotal(sourceMap, { reviewed = iden
   // The verifier's retired-protocol role/mutation literals occur only in reviewed
   // data rows. Pin those complete lines; an added acceptance branch, duplicate,
   // altered row or relocated literal must fail, even in the verifier itself.
-  const verifierPath = 'scripts/verify-proof-or-stop-identity-cutover.mjs';
-  const verifierLines = cache.get(verifierPath, sourceMap.get(verifierPath)).lines.filter(line => new RegExp(`${retiredProtocolStem}[.:\\-][a-z0-9._:-]+`, 'i').test(line));
-  assert.equal(verifierLines.length, 115, 'retired protocol identity verifier data row count drift');
-  assert.equal(createHash('sha256').update(verifierLines.join('\n')).digest('hex'), '18181b2a5219393f83aee1e0424f8e4c4259d558c134a06b6400ac41ab14c5f9', 'retired protocol identity verifier data context drift');
+  for (const path of SCANNER_SOURCE_PATHS) {
+    assert.ok(sourceMap.has(path), `missing scanner module: ${path}`);
+    assert.deepEqual(verifyScannerRetiredContexts(sourceMap.get(path), path), [], `scanner context drift: ${path}`);
+  }
   assert.deepEqual(
     retiredHits.filter((hit) => {
       if (allowed.has(`${hit.path}\0${hit.token}`)) return false;
@@ -233,12 +235,12 @@ export function assertIdentityCutoverInventoryTotal(sourceMap, { reviewed = iden
       if (rows.some(row => row.path === hit.path
         && (row.token.includes(hit.token) || hit.token === `${row.token}.`)
         && line.includes(row.token))) return false;
-      if (hit.path === verifierPath && verifierLines.includes(line)) return false;
       // The verifier owns exact frozen retired-brand provenance tables. It is part of
       // this inventory specifically so active proofbound protocol literals or
       // acceptance branches cannot hide behind that historical responsibility.
-      if (hit.path === 'scripts/verify-proof-or-stop-identity-cutover.mjs'
-        && !hit.token.toLowerCase().startsWith(retiredProtocolStem)) return false;
+      if (SCANNER_RETIRED_LINE_CONTEXTS.some(([path, digest, , positions]) =>
+        path === hit.path && positions.includes(hit.line)
+        && createHash('sha256').update(line).digest('hex') === digest)) return false;
       return true;
     }),
     [],
@@ -251,8 +253,8 @@ export function assertIdentityCutoverInventoryTotal(sourceMap, { reviewed = iden
   assert.match(sourceMap.get('packages/main/src/core/prompt-registry.ts'), /proof-or-stop\.prompt-registry\.v1/);
   assert.match(sourceMap.get('packages/main/src/core/claim-admissibility/pack-framework.ts'), /proof-or-stop\.claim_admissibility_pack\.v1/);
   assert.match(sourceMap.get('packages/main/src/core/claim-admissibility/pack-framework.ts'), /domain: 'proof-or-stop-code-runtime'/);
-  assert.match(sourceMap.get('scripts/verify-proof-or-stop-identity-cutover.mjs'), /proof-or-stop\.artifact-release\.v1/);
-  assert.match(sourceMap.get('scripts/verify-proof-or-stop-identity-cutover.mjs'), /proof-or-stop\.product-capability-release\.v1/);
+  assert.match(sourceMap.get('scripts/identity-cutover/rules.mjs'), /proof-or-stop\.artifact-release\.v1/);
+  assert.match(sourceMap.get('scripts/identity-cutover/rules.mjs'), /proof-or-stop\.product-capability-release\.v1/);
   assert.match(
     sourceMap.get('packages/main/src/core/process-fact-registry.ts'),
     /Fresh rows carry exact proof-or-stop\.\* Prompt identities; retired-family rows are inert and rejected by active readers/,

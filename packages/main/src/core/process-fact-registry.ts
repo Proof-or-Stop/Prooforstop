@@ -2915,6 +2915,15 @@ export const PROCESS_FACT_MANAGED_SUPERVISION = [
   },
 ] as const satisfies readonly ProcessFactRegistryDeclaration[];
 
+
+COMMAND_PROCESS_FACTS.push({
+  name: 'runtime:modular_static_child_closure', kind: 'runtime-behavior', level: 'L4',
+  producer: 'static verifier module graph', consumerGate: 'mode-bound static child evidence',
+  semantics: ['runtime-behavior', 'verification-policy'],
+  paths: ['scripts/verify-validation-static-edges.mjs', 'scripts/identity-child-closure.mjs', 'scripts/identity-modular-child-closure.mjs', 'scripts/identity-child-contract.json', 'scripts/verification-module-closures.json', 'scripts/lab/verification-modularization/verify-modular-static-closure.mjs'],
+  rationale: 'Explicit module closures retain every extracted source and child-process re-export. Identity selectors bind current source bytes and AST inputs, resolve module function references, and preserve child argv and assertion selectors. Partial capabilities cannot claim full-suite success or authorize dynamic exclusion on their own.',
+});
+
 export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = ([
   {
     name: 'runtime:full_task_scope_authority', kind: 'runtime-behavior', level: 'L4',

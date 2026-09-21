@@ -1,15 +1,20 @@
 # Verification modularization: implementation and evidence ledger
 
-This is a local Lab checkpoint, not a completion or main integration claim.
-The authorized scope is all 14 entries below; all 14 now have modular candidates.
-Eleven entries have complete passing executions at their recorded commits. Quorum,
-canonical artifacts and identity scanner have scoped proofs only; their complete
-cross-file certification is not green. Managed review completed at `4e8e49ffea`
-in 77.45 s. Identity structure/routing and 106 self-context negative controls passed
-at `fcdd5514a5`. The 82 migrated fixture bindings passed at `42893546db`, including
-all 301 records and 1,204 rejection controls. Historical results are not a claim
-that every suite passes on the latest combined HEAD. No changes are integrated
-into main or pushed to GitHub.
+All 14 requested entries have been split into 192 modules; the largest module is
+1,857 physical lines. The original public entries contain 6–8 lines. The complete
+[file-by-file and capability inventory](verification-modularization-inventory.md)
+records the actual files and explicit selectors. Internal module registration does
+not add routine validation gates (250 at this checkpoint).
+
+Historical complete executions and scoped proofs are distinguished below. Current
+cross-cutting checks preserve 699 exact contexts, 212 whole-source witnesses, and
+696 scanner line pins. The seven F-060 boundary checks pass after module relocation;
+static AST cached/reference reports were identical. Two standalone fixture tests
+were repaired to read the actual extracted function declarations and pass their
+original mutation controls. The full canonical group exposed an additional stale
+monolith reader and mixed committed-source/current-build fixture inputs; its final
+committed-candidate rerun and local Lab integration are still required. No remote
+push is authorized by this report.
 
 Original public files contain imports, usage comments and one invocation.
 Every extracted file is limited to 2,000 physical lines. No hidden monolith,
@@ -22,11 +27,11 @@ No routine validation command is added by internal module registration.
 |---|---:|---:|---:|---:|---|---|
 | `scripts/verify-process-fact-contract.mjs` | 12201 | 7 | 16 | 1857 | RED -> official GREEN at 317918539b; full suite 181.37 s | No |
 | `packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs` | 10748 | 7 | 27 | 1024 | RED recorded; 196 function bodies / 18 bindings preserved; 7 scoped contracts pass, heavy campaigns not rerun | No |
-| `scripts/verify-proof-or-stop-identity-cutover.mjs` | 7794 | 8 | 25 | 1112 | RED -> scoped GREEN fcdd5514a5; 158 statements, 696 self-context pins and 106 negative controls; full boundary remains red | No |
+| `scripts/verify-proof-or-stop-identity-cutover.mjs` | 7794 | 8 | 25 | 1433 | RED -> scoped GREEN fcdd5514a5; 158 statements, 696 self-context pins and 106 negative controls; seven F-060 boundary checks pass; final complete certification pending | No |
 | `packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts` | 6101 | 7 | 14 | 1577 | RED -> official GREEN at 51b6485211; full scan 67.33 s; 109 function bodies and driver order preserved | No |
 | `packages/main/src/tasks/validation-tier-planner-smoke.ts` | 5792 | 7 | 9 | 1652 | RED -> official GREEN at d8b0ad6632; full suite 12.97 s, 142 checks | No |
 | `packages/main/src/tasks/flow-stability-smoke.ts` | 5528 | 7 | 11 | 989 | RED -> official GREEN at 21be146f9c; full suite 137.62 s | No |
-| `packages/main/tests/canonical-new-story-artifacts.test.mjs` | 5378 | 7 | 22 | 815 | RED recorded; 58 functions and 112 statements preserved; scoped checks pass, full certification pending | No |
+| `packages/main/tests/canonical-new-story-artifacts.test.mjs` | 5378 | 7 | 22 | 691 | RED recorded; 58 functions and 112 statements preserved; scoped checks pass, full certification pending | No |
 | `packages/main/src/tasks/finding-ledger-runtime-smoke.ts` | 4646 | 6 | 9 | 1134 | Full suites passed at 3b51f4f666 / f5fda7d0e6 in 130.60 / 147.00 s; combined run failed in the separate process suite | No |
 | `packages/main/src/tasks/managed-review-evidence-smoke.ts` | 4360 | 7 | 15 | 926 | RED -> complete GREEN 4e8e49ffea in 77.45 s; 28 helpers and 419 statements retained with documented fixture repairs | No |
 | `packages/main/src/tasks/host-run-usage-smoke.ts` | 3867 | 6 | 15 | 587 | RED -> official GREEN at 9c8e8b848b; full suite 34.00 s, 91 checks | No |
@@ -236,10 +241,11 @@ PASS. Existing full entrypoints stay registered.
 
 ## Outstanding integration work
 
-Complete the remaining nine entries and the fifth candidate; reconcile moved exact-source witnesses,
-source readers and static dependency edges; verify those contracts; then perform
-the applicable Lab integration checks. Current scoped GREEN does not mean these
-cross-cutting contracts or main integration are complete. No push has occurred.
+All fourteen entries are implemented. Freeze the committed candidate, synchronize
+latest local main, repeat the affected source and integration checks, and run Lab
+finish with the independent vendor audit. Preserve historical results as historical;
+a partial capability PASS never authorizes automatic production gate exclusion.
+No push has occurred.
 
 ### Retired vocabulary import baseline
 

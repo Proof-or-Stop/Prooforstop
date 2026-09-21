@@ -15,6 +15,8 @@ import { reviewedFixtureResidueAllowed, validateReviewedFixtureSources } from ".
 import { LEGACY_WORD, TRUTH_SOURCE_ENTRYPOINTS } from "./rules.mjs";
 import { CURRENT_LEGACY_CONTEXT_ROWS, EXACT_ALLOWLIST } from "./base-contexts.mjs";
 import { validateExactRows } from "./repository.mjs";
+import { schemaRows } from './schema-scan.mjs';
+import { verifySchemaInventory } from './source-integrity.mjs';
 import { scanActiveResidue } from "./active-scan.mjs";
 
 export function verifyCurrentWitnessCoverage(root, files, expect) {
@@ -33,9 +35,12 @@ export function verifyCurrentWitnessCoverage(root, files, expect) {
     row.path === 'docs/lab/memory-intake-measurement/u18-static-report.json' && row.jsonPointer === '/rows/187/reason' &&
     row.token === [`${LEGACY_WORD}.js`, `${LEGACY_WORD}-codex`][index]),
     'incoming witness coverage requires the two exact historical report contexts');
-  const auditJsonRows = jsonEntries.slice(802);
+  const auditJsonRows = jsonEntries.slice(802, 804);
   expect(auditJsonRows.length === 2 && auditJsonRows.every(row => row.path === 'scripts/lab/u18-static-edges/exceptions.json' && row.jsonPointer === '/entries/261/requiredEvidence/1/excerpt'), 'audit witness coverage requires both exact copied cleanup nodes');
-  const allJsonRows = [...jsonRows, ...incomingJsonRows, ...criticJsonRows, ...auditJsonRows];
+  const modularRows = jsonEntries.slice(804);
+  expect(modularRows.every(row => row.class === 'verification-migration-evidence'), 'additional JSON witnesses require reviewed migration classification');
+  const modularFileControls = [...new Map(modularRows.filter(row => row.nodeKind === 'value').map(row => [row.path, row])).values()];
+  const allJsonRows = [...jsonRows, ...incomingJsonRows, ...criticJsonRows, ...auditJsonRows, ...modularFileControls];
   const fixtureRows = JSON.parse(read('scripts/identity-reviewed-fixture-data.json')).entries.slice(268);
   const provenanceRows = CURRENT_LEGACY_CONTEXT_ROWS.filter(row => row.id.startsWith('current-witness-coverage-'));
   expect(jsonRows.length === 45 && fixtureRows.length === 33 && provenanceRows.length === 12,
@@ -107,7 +112,9 @@ export function verifyCurrentWitnessCoverage(root, files, expect) {
     for (const file of targets) {
       const dot = file.lastIndexOf('.'), neighbor = file.slice(0, dot) + '-unlisted' + file.slice(dot);
       writeFileSync(resolve(scratch, neighbor), read(file));
-      expect(scanActiveResidue(scratch, [neighbor]).length > 0, 'unlisted neighboring witness escaped actual scanner'); controls++;
+      const residue = scanActiveResidue(scratch, [neighbor]);
+      const schemaErrors = residue.length ? [] : verifySchemaInventory(root, [...schemaRows(root, files), ...schemaRows(scratch, [neighbor])]);
+      expect(residue.length > 0 || schemaErrors.some(error => error.includes(neighbor)), `unlisted neighboring witness escaped actual scanners: ${file}`); controls++;
     }
   } finally { rmSync(scratch, {recursive:true, force:true}); }
   if (!failed) console.log(`PASS current witness consumers: ${allJsonRows.length} JSON, ${fixtureRows.length} fixture, ${provenanceRows.length} provenance rows; ${controls} actual checks`);

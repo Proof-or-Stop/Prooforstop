@@ -17,7 +17,7 @@ try {
   let source=original;
   // Execute current scanner source with unchanged helper imports and manifest
   // location; only the parser observer and reference cache bypass differ.
-  for(const helper of ['static-source-evidence.mjs','identity-child-closure.mjs'])source=replaceRequired(source,"'./"+helper+"'",JSON.stringify(pathToFileURL(path.join(root,'scripts',helper)).href));
+  for(const helper of ['static-source-evidence.mjs','identity-child-closure.mjs','identity-modular-child-closure.mjs'])source=replaceRequired(source,"'./"+helper+"'",JSON.stringify(pathToFileURL(path.join(root,'scripts',helper)).href));
   source=replaceRequired(source,'here=path.dirname(fileURLToPath(import.meta.url))','here='+JSON.stringify(path.join(root,'scripts')));
   if(arm==='reference' && source.includes('function parseStaticSource'))source=replaceRequired(source,'const cached = parsedSourceCache.get(file);','const cached = undefined;');
   const occurrences=source.split('ts.createSourceFile(').length-1;

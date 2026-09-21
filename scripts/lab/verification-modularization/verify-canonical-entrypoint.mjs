@@ -24,6 +24,7 @@ let functionCount = 0;
 for (const node of before.statements) if (ts.isFunctionDeclaration(node)) {
   let expected = node.body.getText(before);
   if (node.name.text === 'check') expected = expected.replace("selectedGroup !== 'identity-migration-archive'", "!selectedGroups?.includes('identity-migration-archive')").replace('selectedGroup !== null && !groups.includes(selectedGroup)', 'selectedGroups !== null && !groups.some(group => selectedGroups.includes(group))');
+  for (const repair of JSON.parse(fs.readFileSync('scripts/lab/verification-modularization/canonical-owned-site-repairs.json','utf8'))) if (repair.kind === 'function' && repair.name === node.name.text && expected === repair.before) expected = repair.after;
   assert.equal(functions.get(node.name.text), expected, 'retained canonical verification function: ' + node.name.text);
   functionCount++;
 }

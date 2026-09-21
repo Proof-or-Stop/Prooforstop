@@ -575,8 +575,8 @@ export const CURRENT_COMPATIBLE_SCHEMA_ROWS = [
   {
     "path": "scripts/lab/u18-static-edges/exceptions.json",
     "token": "lattice.managed_review_final_proposal.v1",
-    "count": 4,
-    "contextSha256": "7b28f1360bc66a6d6653f1715c25fc1fa8cf3c550a3f05ec03d2934821bbe655"
+    "count": 6,
+    "contextSha256": "25ad13004d43a31c3ca16f2e72aab0fda4167168420bbb52dc693bcd25960d61"
   },
   {
     "path": "scripts/lab/u18-static-edges/exceptions.json",
