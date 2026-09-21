@@ -924,3 +924,5 @@ assert(readFileSync('packages/main/src/core/runtime-fact-registry.ts', 'utf8').i
 assert(readFileSync('packages/main/src/core/runtime-fact-registry.ts','utf8').includes('validation-reuse-economics'));
 
 assert(readFileSync('packages/main/src/core/runtime-fact-registry.ts','utf8').includes('validation-git-tree-observation'));
+
+assert.equal((readFileSync('packages/main/src/core/review-incremental-context.ts', 'utf8').match(/maxBuffer: REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES/g) ?? []).length, 2, 'tracked inventory and dirty reads share bounded review transport');

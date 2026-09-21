@@ -748,7 +748,7 @@ export const PROCESS_FACT_RUNTIME_SEMANTICS = {
   'runtime:review_assurance_floor_done_gate': ['runtime-behavior', 'host-verdict', 'host-availability', 'gate-evidence'],
   'runtime:review_run_story_files_hash_gate': ['runtime-behavior', 'freshness-policy', 'workspace-binding', 'review-run', 'gate-evidence'],
   'runtime:review_run_atomic_persistence_gate': ['runtime-behavior', 'atomic-persistence', 'prompt-envelope', 'review-run', 'gate-evidence'],
-  'runtime:review_inventory_temporal_integrity_gate': ['runtime-behavior', 'atomic-persistence', 'signed-artifact', 'schema-contract', 'freshness-policy', 'reviewer-lane', 'finding-state', 'gate-evidence'],
+  'runtime:review_inventory_temporal_integrity_gate': ['runtime-behavior', 'atomic-persistence', 'signed-artifact', 'schema-contract', 'normalization-policy', 'freshness-policy', 'reviewer-lane', 'finding-state', 'gate-evidence'],
   // Native read-side authority preserves the signed reviewPurpose and inventoryBinding;
   // inventory-completeness evidence cannot be rebound to a topology dispatch.
   'runtime:review_execution_authority_gate': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'reviewer-lane', 'execution-evidence', 'gate-evidence'],

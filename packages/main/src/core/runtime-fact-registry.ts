@@ -40,7 +40,8 @@ export const PLANNED_PROVIDER_BUDGET_RUNTIME_POLICY = {
   scope: 'single-planned-execution',
 } as const;
 
-/** Bounded history transport; larger or incomplete Git output remains invalid. */
+/** Bounded review history, tracked inventory, and dirty-state transport; larger
+ * or incomplete Git output remains invalid. */
 export const REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES = 64 * 1024 * 1024;
 
 // DEV acceptance transport uses only proof-or-stop.acceptance_amendment_review_final.v1; old inner schemas cannot be produced or consumed. The outer worker-signed receipt remains a compatibility container, never an alias for the inner schema.

@@ -190,8 +190,11 @@ function setup(author = { name: 'proof-or-stop-implementer', email: 'proof-or-st
       const handler = Reflect.get(target, key, receiver);
       if (typeof handler !== 'function') return handler;
       return (...args: unknown[]) => {
-        try { return Reflect.apply(handler, target, args); }
-        finally { releaseCompletedFixtureOwner(root, getSessionId()); }
+        // Direct synchronous handler probes need the same authoritative cwd as
+        // the real CLI children; production workspace gates remain enabled.
+        const previousCwd = process.cwd();
+        try { process.chdir(root); return Reflect.apply(handler, target, args); }
+        finally { process.chdir(previousCwd); releaseCompletedFixtureOwner(root, getSessionId()); }
       };
     },
   }) };
@@ -1092,8 +1095,8 @@ const retryPassId = reloaded.readReviewPasses(storyId).passes.find(row => row.re
 assert.match(ambiguousRetry, new RegExp(`Review pass ${retryPassId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} already recorded`));
 assert.equal(reloaded.readReviewPasses(storyId).passes.length, passCountBeforeRetry, 'F046: an ambiguous exact retry preserves one RP');
 assert.equal(reloaded.readProcessEvents(storyId).filter(row => row.type === 'review_pass').length, passEventsBeforeRetry, 'F046: an ambiguous exact retry emits no duplicate event');
-assert.throws(
-  () => cli(first.root, 'review_pass_set', {
+await assert.rejects(
+  () => fixtureReviewCli(first, 'review_pass_set', {
     storyId, agent: retryLane, reviewRunId: retryRun.reviewRunId,
     note: 'Conflicting semantic evidence for the same terminal must fail closed.', readManifest, readEvents,
   }, { PROOF_OR_STOP_AGENT: retryLane, PROOF_OR_STOP_SESSION_ID: retryRun.sessionId }),
@@ -1197,8 +1200,8 @@ assert.match(discoveryWave, /Current wave: 2\/2/);
 assert.throws(() => cli(first.root, 'review_run_start', { storyId, agent: criticArgs.agentType, reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId }, { PROOF_OR_STOP_AGENT: criticArgs.agentType, PROOF_OR_STOP_SESSION_ID: 'sess-inventory-critic-terminal' }), /dispatch|inventory/);
 const oldWaveLane = epoch.requiredLanes[1];
 const oldWaveRun = firstWaveRuns.get(oldWaveLane)!;
-assert.throws(
-  () => cli(first.root, 'review_pass_set', {
+await assert.rejects(
+  () => fixtureReviewCli(first, 'review_pass_set', {
     storyId, agent: oldWaveLane, reviewRunId: oldWaveRun.reviewRunId,
     note: 'A late terminal from the prior wave must be rejected.', readManifest, readEvents,
   }, { PROOF_OR_STOP_AGENT: oldWaveLane, PROOF_OR_STOP_SESSION_ID: oldWaveRun.sessionId }),
@@ -1226,6 +1229,7 @@ const { _hash: _exhaustedHash, ...exhaustedBase } = exhaustedEpoch;
 const restoredBudgetUnsigned = { ...exhaustedBase, maxWaves: 2 };
 budgetData.epochs[0] = { ...restoredBudgetUnsigned, _hash: signReviewInventoryEpoch(restoredBudgetUnsigned) };
 reloaded.writeReviewInventoryEpochs(storyId, budgetData);
+let repeatedFindingId = '';
 const secondWaveRuns = new Map<string, { reviewRunId: string; sessionId: string }>();
 for (const lane of epoch.requiredLanes) {
   const sessionId = `sess-inventory-wave2-${lane}`;
@@ -1234,11 +1238,21 @@ for (const lane of epoch.requiredLanes) {
   const reviewRunId = started.match(/Review run (\S+) started/)?.[1];
   assert.ok(reviewRunId, `second-wave review_run_start must return a signed run for ${lane}: ${started}`);
   secondWaveRuns.set(lane, { reviewRunId, sessionId });
-  await fixtureReviewCli(first, 'review_pass_set', {
-    storyId, agent: lane, reviewRunId,
-    note: `Second complete unchanged-material wave found no new family for ${lane}.`,
-    readManifest, readEvents,
-  });
+  if (lane === epoch.requiredLanes[0]) {
+    const repeatedOutput = await fixtureReviewCli(first, 'finding_add', {
+      storyId, agent: lane, reviewRunId, desc: 'Repeated observation of the same frozen-candidate fixture defect.',
+      severity: 'medium', category: 'adversarial', evidenceState: 'verified',
+      files: ['packages/main/src/subject.ts'], readManifest, readEvents,
+    });
+    repeatedFindingId = repeatedOutput.match(/(B-inventory-handler:F-\d+)/)?.[1] ?? '';
+    assert.ok(repeatedFindingId, repeatedOutput);
+  } else {
+    await fixtureReviewCli(first, 'review_pass_set', {
+      storyId, agent: lane, reviewRunId,
+      note: `Second complete unchanged-material wave found no new family for ${lane}.`,
+      readManifest, readEvents,
+    });
+  }
 }
 cli(first.root, 'dispatch', { storyId, agentType: 'proof-or-stop-review-topology-critic', reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId }, {
   PROOF_OR_STOP_AGENT: 'proof-or-stop-review-topology-critic', PROOF_OR_STOP_SESSION_ID: 'sess-inventory-wave2-critic',
@@ -1270,8 +1284,17 @@ await fixtureReviewCli(first, 'review_pass_set', {
 });
 cli(first.root, 'review_inventory_critic_set', {
   storyId, epochId: epoch.epochId, reviewRunId: secondCriticReviewRunId,
-  agent: 'proof-or-stop-review-topology-critic', findingDispositions: [],
+  agent: 'proof-or-stop-review-topology-critic', findingDispositions: [{
+    findingId: repeatedFindingId, disposition: 'duplicate', familyKey: `finding:${realFindingId}`,
+    canonicalFindingId: realFindingId, reason: 'Independent critic confirms the repeated observation has the same fixture root cause.',
+  }],
 }, { PROOF_OR_STOP_AGENT: 'proof-or-stop-review-topology-critic' });
+const repeatedStatus = cli(first.root, 'review_inventory_status', { storyId });
+assert.match(repeatedStatus, /Verified finding families: 1/);
+assert.match(repeatedStatus, /New verified finding families: 0/);
+assert.equal(reloaded.readFindings(storyId).findings.find(row => row.id === realFindingId)?.status, 'open');
+assert.equal(reloaded.readFindings(storyId).findings.find(row => row.id === repeatedFindingId)?.status, 'open');
+console.log('REVIEW_REWORK_NATIVE_DUPLICATE PASS observations=2 families=1 newFamilies=0 originalsOpen=2');
 const beforeZeroNewAdvance = JSON.stringify(reloaded.readReviewInventoryEpochs(storyId));
 assert.throws(
   () => cli(first.root, 'review_inventory_wave_advance', { storyId }),
@@ -1312,16 +1335,16 @@ const finalizedData = reloaded.readReviewInventoryEpochs(storyId);
 const receipt = finalizedData.receipts[0];
 const sealedLane = epoch.requiredLanes[0];
 const sealedRun = secondWaveRuns.get(sealedLane)!;
-assert.throws(
-  () => cli(first.root, 'review_pass_set', {
+await assert.rejects(
+  () => fixtureReviewCli(first, 'review_pass_set', {
     storyId, agent: sealedLane, reviewRunId: sealedRun.reviewRunId,
     note: 'Late pass must not mutate a finalized review inventory.', readManifest, readEvents,
   }, { PROOF_OR_STOP_AGENT: sealedLane, PROOF_OR_STOP_SESSION_ID: sealedRun.sessionId }),
   /REVIEW_INVENTORY_EVIDENCE_SEALED/,
   'review_pass_set cannot append after FINALIZED',
 );
-assert.throws(
-  () => cli(first.root, 'finding_add', {
+await assert.rejects(
+  () => fixtureReviewCli(first, 'finding_add', {
     storyId, agent: sealedLane, reviewRunId: sealedRun.reviewRunId,
     desc: 'Late verified finding must not escape the finalized aggregate.',
     severity: 'medium', category: 'adversarial', evidenceState: 'verified',
@@ -1387,8 +1410,8 @@ assert.match(remediationAdvance, /DEV/);
 assert.equal(reloaded.readStory(storyId).phase, 'DEV', 'real story_advance consumes the receipt before publishing DEV');
 assert.throws(() => consumeReviewInventoryReceipt(reloaded, storyId, reviewRound, epoch.cutoff), /REVIEW_INVENTORY_REMEDIATION_BLOCKED/);
 assert.equal(reloaded.readReviewInventoryEpochs(storyId).receipts[0].receiptId, receipt.receiptId);
-assert.throws(
-  () => cli(first.root, 'finding_add', {
+await assert.rejects(
+  () => fixtureReviewCli(first, 'finding_add', {
     storyId, agent: sealedLane, reviewRunId: sealedRun.reviewRunId,
     desc: 'An old review run cannot append evidence after DEV phase publication.',
     severity: 'medium', category: 'adversarial', evidenceState: 'verified',
@@ -1419,6 +1442,7 @@ if (process.env.LAB_ROSTER_CASE !== 'closed') {
 }
 cli(first.root, 'finding_resolve', { storyId, findingId: realFindingId, resolution: 'Disposable inventory test terminal is closed to exercise post-remediation roster consumer consistency; this is fixture state, not a product repair claim.' });
 assert.equal(reloaded.readFindings(storyId).findings.find(row => row.id === realFindingId)?.status, 'resolved');
+cli(first.root, 'finding_resolve', { storyId, findingId: repeatedFindingId, resolution: 'Close the disposable repeated fixture observation explicitly; critic duplicate accounting did not close it.' });
 const narrowSelection = postRemediationReviewSelection(reloaded, first.root, storyId, activeReviewers);
 assert.equal(narrowSelection.selection, 'dependency-closure', JSON.stringify(narrowSelection));
 assert.deepEqual(narrowSelection.selectedLanes, [
@@ -1526,7 +1550,7 @@ for (const lane of narrowSelection.selectedLanes) {
   const started = cli(first.root, 'review_run_start', { storyId, agent: lane }, laneEnv);
   const reviewRunId = started.match(/Review run (\S+) started/)?.[1];
   assert.ok(reviewRunId, started);
-  cli(first.root, 'review_pass_set', { storyId, agent: lane, reviewRunId,
+  await fixtureReviewCli(first, 'review_pass_set', { storyId, agent: lane, reviewRunId,
     note: 'Disposable roster test exercises current required-lane pass consumption; not real product review.', readManifest, readEvents }, laneEnv);
 }
 assert.throws(() => cli(first.root, 'quorum_submit', { storyId, hostA: 'same-fixture-host', hostB: 'same-fixture-host' }), /must be independent/, 'two current selected passes reach the unchanged host-independence gate');
@@ -1538,7 +1562,7 @@ cli(first.root, 'dispatch', { storyId, agentType: narrowCritic, ...narrowPurpose
 const narrowCriticStart = cli(first.root, 'review_run_start', { storyId, agent: narrowCritic, ...narrowPurpose }, narrowCriticEnv);
 const narrowCriticRunId = narrowCriticStart.match(/Review run (\S+) started/)?.[1];
 assert.ok(narrowCriticRunId, narrowCriticStart);
-cli(first.root, 'review_pass_set', { storyId, agent: narrowCritic, reviewRunId: narrowCriticRunId,
+await fixtureReviewCli(first, 'review_pass_set', { storyId, agent: narrowCritic, reviewRunId: narrowCriticRunId,
  note: 'Disposable critic verifies narrowed inventory terminal coverage, not independent-host product assurance.', readManifest, readEvents }, narrowCriticEnv);
 cli(first.root, 'review_inventory_critic_set', { storyId, epochId: narrowEpoch.epochId, reviewRunId: narrowCriticRunId, agent: narrowCritic, findingDispositions: [] }, narrowCriticEnv);
 assert.match(cli(first.root, 'review_inventory_finalize', { storyId }), /State: FINALIZED/);
