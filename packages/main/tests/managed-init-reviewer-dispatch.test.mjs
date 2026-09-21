@@ -7,6 +7,7 @@ const hostRun = readFileSync(`${root}/packages/main/src/handlers/host-run.ts`, '
 const catalog = readFileSync(`${root}/packages/main/src/cli/command-catalog.ts`, 'utf8');
 const machine = readFileSync(`${root}/packages/main/src/core/machine.ts`, 'utf8');
 const reviewerLaunchGuidance = readFileSync(`${root}/packages/main/src/core/reviewer-launch-guidance.ts`, 'utf8');
+const reviewerBatch = readFileSync(`${root}/packages/main/src/handlers/reviewer-batch.ts`, 'utf8');
 const storyReview = readFileSync(`${root}/packages/main/src/handlers/story-review.ts`, 'utf8');
 const transitionEffects = readFileSync(`${root}/packages/main/src/handlers/transition-effects.ts`, 'utf8');
 const initCheck = readFileSync(`${root}/packages/main/src/handlers/init-check.ts`, 'utf8');
@@ -46,6 +47,12 @@ assert.doesNotMatch(reviewerLaunchGuidance, /from '.\/host-run\.js'/,
   'state-machine guidance must not pull the provider launch graph into machine imports');
 assert.match(reviewerLaunchGuidance, /renderQualifiedManagedCodexDispatchCommand/,
   'managed reviewer guidance must use one shared qualified Codex command renderer');
+assert.match(reviewerLaunchGuidance, /renderFormalManagedReviewLaunch/,
+  'shared reviewer guidance must expose the formal ReviewRun-bound managed-review recovery flow');
+assert.match(reviewerBatch, /renderFormalManagedReviewLaunch/,
+  'reviewer_batch must surface the formal managed-review alternative beside native host launch guidance');
+assert.match(hostRun, /REVIEW lanes use the formal managed-review flow:[^;]*candidate_spec_route[^;]*review_run_start[^;]*managedReview/s,
+  'a refused REVIEW-lane managedDispatch must name the complete formal managed-review recovery flow');
 assert.match(storyReview, /renderQualifiedManagedCodexDispatchCommand\(args\.storyId, 'proof-or-stop-review-scope-plan'\)/,
   'PLAN scope-review recovery must use the shared qualified managed dispatch command');
 assert.match(transitionEffects, /renderQualifiedManagedCodexDispatchCommand\(storyId, 'proof-or-stop-review-delivery'\)/,

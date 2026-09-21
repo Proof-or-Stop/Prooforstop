@@ -29,7 +29,9 @@ for (const name of fs.readdirSync(root).filter(name => name.endsWith('.ts'))) {
 }
 let preserved = 0;
 for (const node of before.statements) if (ts.isFunctionDeclaration(node) && node.body) {
- const expected = node.body.getText(before).replaceAll('fileURLToPath(import.meta.url)', "join(HERE, 'verification-run-and-guard-smoke.js')");
+ const mergedBaseline = node.name.text === 'partIIdentityDrift' ? ts.createSourceFile(path, execFileSync('git', ['show', '0836d73b7c:' + path], {encoding:'utf8'}), ts.ScriptTarget.Latest, true) : before;
+ const mergedNode = mergedBaseline.statements.find(n => ts.isFunctionDeclaration(n) && n.name?.text === node.name.text);
+ const expected = mergedNode.body.getText(mergedBaseline).replaceAll('fileURLToPath(import.meta.url)', "join(HERE, 'verification-run-and-guard-smoke.js')");
  assert.equal(functions.get(node.name.text), expected, `changed verification body: ${node.name.text}`);
  preserved++;
 }

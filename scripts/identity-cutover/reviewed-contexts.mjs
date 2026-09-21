@@ -22,11 +22,11 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/src/core/runtime-environment-checks.ts",
-    "sha256": "4e19d892cd3be190c269aa64b8ec603e6e5ae2e9aaa0512b0604a5d0fb4f8621"
+    "sha256": "18db2c4dbc43dc434ea74f7ed3716f643e5546568afbc60be336e8e792c77aa7"
   },
   {
     "path": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
-    "sha256": "24af594852084dbc894fc0e65537e8da70d878469326ae81cd93d9b9b421294a"
+    "sha256": "c56b0226bd11da1e0c24ecd9707effab6f3e0ee955d3459c41f2bfbbcf927a2e"
   },
   {
     "path": "packages/main/src/tasks/certification-window-smoke.ts",
@@ -746,7 +746,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "scripts/prompt-baseline/policy-data.mjs",
-    "sha256": "f5b5d2d76f03a83d6131411628d06142de7432f94c1ac052c903da437f84b97b"
+    "sha256": "d2b264b29ab9c41af47e2aebf9d73a18341ef6425fcfedf8601987311d5e1dd2"
   },
   {
     "path": "scripts/prompt-baseline/policy-probes.mjs",
@@ -842,7 +842,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/src/tasks/verification-run-and-guard/cli.ts",
-    "sha256": "9a1504a2d2bf520c6a06af6d07872805b9e742e77fcaaded75769b7717e703a6"
+    "sha256": "b1f534230213aea03bc106a20aa3242c906484983f959a9b1d6c908b20f86257"
   },
   {
     "path": "packages/main/src/tasks/verification-run-and-guard/foundation.ts",
@@ -854,7 +854,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/src/tasks/verification-run-and-guard/publication.ts",
-    "sha256": "26f5421af72bac263e134cd0f8a0de11e3034c9f364157daab0929f237886382"
+    "sha256": "eae116595c99c8a8f97bbb63dbbbc3828b9af6c06dd3956bcfd09401694f7ddf"
   },
   {
     "path": "packages/main/src/tasks/verification-run-and-guard/refresh.ts",
@@ -1209,7 +1209,7 @@ export const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [48,"cc44ed2de501ece64b10585468721b50cfc9f628f62e0deb03af8240d4615847"],
   [49,"8c9b8d8a5a9bf9b715ffaaaebb88c42c8bcc38258e2953356e09be5aabc44b3a"],
   [51,"6266521612a843fb549a70c35df31e281f153749c0e7fcba2b2aa4eccce19fa4"],
-  [52,"4e19d892cd3be190c269aa64b8ec603e6e5ae2e9aaa0512b0604a5d0fb4f8621"],
+  [52,"18db2c4dbc43dc434ea74f7ed3716f643e5546568afbc60be336e8e792c77aa7"],
   [55,"0a0e8086be494cbf378b488a2d891a43db5559f077042ac6da87cfd4a90375d0"],
   [60,"bb56479da5c58cf6baccddf3cbde7255e82c0e0fd805acc6a412ffee6a728758"],
   [62,"9ee8a71dcfaacfc632a7756be28b1ade7039a97650843eb0389591d0747c44ca"],

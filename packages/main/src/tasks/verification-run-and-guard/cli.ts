@@ -128,6 +128,7 @@ export async function runVerificationCli(args: string[]): Promise<void> {
       return;
     }
     const legacy = new Map<string, () => Promise<void>>([
+      ['--baa5f-live-identity-drift', partIIdentityDrift],
       ['--baa5f-repair-pair', runBaa5fRepairPair],
       ['--baa5f-story-identity-shard', async () => { await runStoryIdentityShard(); console.log('BAA5F_STORY_IDENTITY_SHARD_RECEIPT={"ok":true}'); }],
       ['--baa5f-verification-foundation-shard', async () => { await runVerificationFoundationShard(); console.log('BAA5F_VERIFICATION_FOUNDATION_SHARD_RECEIPT={"ok":true}'); }],

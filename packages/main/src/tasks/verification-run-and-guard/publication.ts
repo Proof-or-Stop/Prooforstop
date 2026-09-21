@@ -345,6 +345,11 @@ export async function partIIdentityDrift(): Promise<void> {
         await check(`F057 ${drift} gate denies actual live drift`, () => {
           const coverage = gateCoverage(env);
           assert.equal(coverage.entries[0].status, 'stale', 'changed live identity must be stale-needs-execution, not covered/non_mechanical');
+          const diagnostic = coverage.entries[0]?.evidence?.nonMechanicalReason ?? '';
+          assert.match(diagnostic, new RegExp(`${drift}_digest_changed`),
+            `F057 ${drift}: stale diagnostic must identify the execution identity component that changed: ${diagnostic}`);
+          assert.doesNotMatch(diagnostic, /missing_dependency_manifest/,
+            `F057 ${drift}: missing reuse authority must not be reported as the live identity mismatch: ${diagnostic}`);
           if (drift === 'toolchain') assert.equal(coverage.entries[2].status, 'covered', 'unaffected executable remains current');
         });
         await check(`F057 ${drift} refresh selects actual live drift`, () => {

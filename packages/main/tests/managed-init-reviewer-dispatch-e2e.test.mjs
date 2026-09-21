@@ -14,6 +14,7 @@ const {
   resolveQualifiedManagedReviewerSelection,
 } = await import('../dist/core/host-run.js');
 const { runManagedHostRunWorker } = await import('../dist/core/managed-host-run.js');
+const { formalManagedReviewSubmissionArgs, renderFormalManagedReviewLaunch } = await import('../dist/core/reviewer-launch-guidance.js');
 const { invalidInitReviewerDeliveries, missingRequiredInitCheckAgents, recomputeInitCheckHash } = await import('../dist/core/init-check-gate.js');
 
 const root = mkdtempSync(join(tmpdir(), 'managed-init-dispatch-e2e-'));
@@ -67,6 +68,18 @@ try {
   assert.notEqual(envSpoof.status, 0, 'an unbound PROOF_OR_STOP_AGENT value must fail closed');
   assert.match(`${envSpoof.stderr}\n${envSpoof.stdout}`, /delivery_not_acknowledged/);
 
+  const publicAgentField = spawnSync(process.execPath, [cli, 'review_run_start', JSON.stringify({
+    storyId,
+    agent: 'proof-or-stop-review-concept',
+  })], {
+    cwd: root, encoding: 'utf8', env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: root, PROOF_OR_STOP_AGENT: '' },
+  });
+  assert.notEqual(publicAgentField.status, 0, 'the INIT fixture cannot start a REVIEW run');
+  assert.match(`${publicAgentField.stderr}\n${publicAgentField.stdout}`, /must be in REVIEW phase/,
+    'the rendered review_run_start agent field must pass public CLI parsing and reach lifecycle validation');
+  assert.doesNotMatch(`${publicAgentField.stderr}\n${publicAgentField.stdout}`, /unknown|unrecognized|invalid.*agent/i,
+    'the public review_run_start schema must continue accepting agent as its reviewer identity field');
+
   const fakeCodex = join(bin, 'codex');
   const unifiedExecShim = join(bin, 'unified-exec-shim.mjs');
   writeFileSync(unifiedExecShim, `import { spawn } from 'node:child_process';\nconst [mode, ...argv] = process.argv.slice(2);\nconst env = { ...process.env };\nif (mode !== 'normal') {\n  if (mode === 'malformed-null') {\n    env.LATTICE_MANAGED_INIT_INVOCATION = 'null';\n  } else {\n    const attestation = JSON.parse(env.LATTICE_MANAGED_INIT_INVOCATION);\n    if (mode === 'tamper-story') attestation.storyId += '-wrong';\n    else if (mode === 'tamper-role') attestation.providerAgent += '-wrong';\n    else if (mode === 'tamper-signature') attestation.signature = (attestation.signature.startsWith('A') ? 'B' : 'A') + attestation.signature.slice(1);\n    else if (mode === 'missing-signature') delete attestation.signature;\n    else throw new Error('unknown shim mode');\n    env.LATTICE_MANAGED_INIT_INVOCATION = JSON.stringify(attestation);\n  }\n}\nconst child = spawn(process.execPath, argv, { detached: true, stdio: 'inherit', env });\nchild.on('exit', (code, signal) => process.exitCode = signal ? 70 : (code ?? 71));\n`);
@@ -84,6 +97,62 @@ try {
   const qualificationHandlers = createHostRunHandlers({ root, scanRoot: root, store }, {
     launchWorker: async () => ({ pid: process.pid }),
   });
+  const formalSubmissions = formalManagedReviewSubmissionArgs(storyId, 'proof-or-stop-review-concept');
+  assert.deepEqual(formalSubmissions.grok, {
+    host: 'grok', storyId, agentType: 'proof-or-stop-review-concept',
+    reviewRunId: '<reviewRunId returned by review_run_start>', lane: 'proof-or-stop-review-concept',
+    managedReview: true, detach: true, json: true,
+  }, 'Grok recovery must be a schema-valid managedReview payload without caller-owned selectors');
+  assert.deepEqual(formalSubmissions.codex, {
+    host: 'codex', model: 'gpt-5.6-sol', reasoningEffort: 'high', storyId,
+    agentType: 'proof-or-stop-review-concept', reviewRunId: '<reviewRunId returned by review_run_start>',
+    lane: 'proof-or-stop-review-concept', managedReview: true, detach: true, json: true,
+  }, 'Codex recovery must carry the qualified default selectors and exact ReviewRun binding fields');
+  const renderedFormalLaunch = renderFormalManagedReviewLaunch(storyId, 'proof-or-stop-review-concept');
+  assert.match(renderedFormalLaunch, new RegExp(JSON.stringify(formalSubmissions.grok).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  assert.match(renderedFormalLaunch, new RegExp(JSON.stringify(formalSubmissions.codex).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  await assert.rejects(
+    qualificationHandlers.host_run({
+      host: 'codex', model: 'deepseek-v4.1-flash', reasoningEffort: 'high', storyId,
+      agentType: 'proof-or-stop-review-concept', managedDispatch: true,
+      detach: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
+    }),
+    error => {
+      assert.match(error.message, /REVIEW lanes use the formal managed-review flow/i);
+      assert.match(error.message, /candidate_spec_route/);
+      assert.match(error.message, /review_run_start/);
+      assert.match(error.message, /managedReview/);
+      return true;
+    },
+    'a REVIEW-lane managedDispatch refusal must provide the exact safe recovery sequence',
+  );
+  await assert.rejects(
+    qualificationHandlers.host_run({
+      host: 'codex', model: 'deepseek-v4.1-flash', reasoningEffort: 'high',
+      agentType: 'proof-or-stop-review-concept', managedDispatch: true,
+      detach: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
+    }),
+    error => {
+      assert.match(error.message, /REVIEW lanes use the formal managed-review flow/i);
+      assert.match(error.message, /storyId/);
+      assert.doesNotMatch(error.message, /^host_run: --managedDispatch requires storyId$/i);
+      return true;
+    },
+    'an unsupported REVIEW lane must receive the formal recovery before missing-story qualification',
+  );
+  await assert.rejects(
+    qualificationHandlers.host_run({
+      host: 'codex', model: 'gpt-5.6-sol', reasoningEffort: 'high',
+      agentType: 'proof-or-stop-review-story-init', managedDispatch: true,
+      detach: true, deadlineMs: 30_000, timeoutMs: 20_000, json: true,
+    }),
+    error => {
+      assert.match(error.message, /managedDispatch requires storyId/i);
+      assert.doesNotMatch(error.message, /formal managed-review flow/i);
+      return true;
+    },
+    'an allowlisted managedDispatch reviewer missing storyId must retain the storyId repair',
+  );
   await assert.rejects(
     qualificationHandlers.host_run({
       host: 'codex', model: 'deepseek-v4.1-flash', reasoningEffort: 'high', storyId,

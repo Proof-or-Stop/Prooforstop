@@ -3069,9 +3069,9 @@
     {
       "path": "packages/main/tests/managed-init-reviewer-dispatch-e2e.test.mjs",
       "token": "LATTICE_MANAGED_INIT_INVOCATION",
-      "lineNumber": 229,
+      "lineNumber": 298,
       "lineSha256": "67ab2ec2e2b3b09a90db459b4adf1b48f8cc7b3208fb641495accc3a8432a3c0",
-      "sourceSha256": "d87b668f9b69a795af8a249345c577e19c58c75b158b95953739fa40fc21d732",
+      "sourceSha256": "517909cca1d8fe1f462adf29f7cd6ea970057835741afd84cc24aa5e039073e9",
       "tokenOccurrences": 7,
       "classification": "private-transport-or-negative-fixture",
       "reason": "Bounded regression input or observer for private managed transport, legacy carrier normalization, environment cleanup, or intentional rejected identity; not a current public identity declaration.",
@@ -3080,9 +3080,9 @@
     {
       "path": "packages/main/tests/managed-init-reviewer-dispatch-e2e.test.mjs",
       "token": "LATTICE_MANAGED_INIT_INVOCATION",
-      "lineNumber": 73,
+      "lineNumber": 86,
       "lineSha256": "eac63362d170346346d910781e4cdf2b714a53ab8cd3637f357f3ff82ef5173c",
-      "sourceSha256": "d87b668f9b69a795af8a249345c577e19c58c75b158b95953739fa40fc21d732",
+      "sourceSha256": "517909cca1d8fe1f462adf29f7cd6ea970057835741afd84cc24aa5e039073e9",
       "tokenOccurrences": 7,
       "classification": "private-transport-or-negative-fixture",
       "reason": "Bounded regression input or observer for private managed transport, legacy carrier normalization, environment cleanup, or intentional rejected identity; not a current public identity declaration.",
@@ -3201,9 +3201,9 @@
     {
       "path": "packages/main/tests/managed-init-reviewer-dispatch-e2e.test.mjs",
       "token": "env.LATTICE_MANAGED_INIT_INVOCATION",
-      "lineNumber": 72,
+      "lineNumber": 85,
       "lineSha256": "6dadc141464eb0eaa1fea19169514c95462e37d403c83e7b85767d0b4cc44ef4",
-      "sourceSha256": "d87b668f9b69a795af8a249345c577e19c58c75b158b95953739fa40fc21d732",
+      "sourceSha256": "517909cca1d8fe1f462adf29f7cd6ea970057835741afd84cc24aa5e039073e9",
       "tokenOccurrences": 3,
       "classification": "private-transport-or-negative-fixture",
       "reason": "Bounded regression input or observer for private managed transport, legacy carrier normalization, environment cleanup, or intentional rejected identity; not a current public identity declaration.",
@@ -3256,9 +3256,9 @@
     {
       "path": "packages/main/tests/managed-implementer-dispatch-e2e.test.mjs",
       "token": "env.LATTICE_MANAGED_INIT_INVOCATION",
-      "lineNumber": 84,
+      "lineNumber": 102,
       "lineSha256": "81528134fbfad745ba6c5a5d424b7bb01c1010a7bf8e7d96e2d6af14efbbf021",
-      "sourceSha256": "4922ffa64810a897e6c589093ceb8e0b7a664484f79046e281584ceceb3ad4ed",
+      "sourceSha256": "b86eb742ec9e547e712ac8e9ae806ac8377df969e662425c274d762ef447edb5",
       "tokenOccurrences": 1,
       "classification": "private-transport-or-negative-fixture",
       "reason": "The detached/fake worker explicitly deletes inherited legacy carrier values to prove completion without trusting those environment credentials; no active alias is introduced.",
@@ -3267,46 +3267,13 @@
     {
       "path": "packages/main/tests/managed-implementer-dispatch-e2e.test.mjs",
       "token": "LATTICE_MANAGED_INIT_INVOCATION",
-      "lineNumber": 109,
-      "lineSha256": "0165790368bff6cb1db00665de8e839591ea512822d0384959ff28b25e393e03",
-      "sourceSha256": "4922ffa64810a897e6c589093ceb8e0b7a664484f79046e281584ceceb3ad4ed",
-      "tokenOccurrences": 3,
-      "classification": "private-transport-or-negative-fixture",
-      "reason": "The detached/fake worker explicitly deletes inherited legacy carrier values to prove completion without trusting those environment credentials; no active alias is introduced.",
-      "evidence": "unset LATTICE_MANAGED_INIT_INVOCATION PROOF_OR_STOP_AGENT PROOFBOUND_AGENT || true"
-    },
-    {
-      "path": "packages/main/tests/managed-implementer-dispatch-e2e.test.mjs",
-      "token": "LATTICE_MANAGED_INIT_INVOCATION",
-      "lineNumber": 136,
+      "lineNumber": 169,
       "lineSha256": "4a3c5afccfb784be6ba6695acd08323bc7bcf214b1f522d8c82fa93ad8fe132b",
-      "sourceSha256": "4922ffa64810a897e6c589093ceb8e0b7a664484f79046e281584ceceb3ad4ed",
+      "sourceSha256": "b86eb742ec9e547e712ac8e9ae806ac8377df969e662425c274d762ef447edb5",
       "tokenOccurrences": 3,
       "classification": "private-transport-or-negative-fixture",
       "reason": "An intentionally stale private transport credential tests that an unmanaged completion probe stays optional; it does not grant actor authority.",
       "evidence": "environment: { LATTICE_MANAGED_INIT_INVOCATION: 'stale-or-unrelated' },"
-    },
-    {
-      "path": "packages/main/tests/managed-implementer-dispatch-e2e.test.mjs",
-      "token": "env.PROOFBOUND_AGENT",
-      "lineNumber": 86,
-      "lineSha256": "023ebe59169e78d269c886cef4a5d859d8bc8054dd414c32e911224b5c4b5219",
-      "sourceSha256": "4922ffa64810a897e6c589093ceb8e0b7a664484f79046e281584ceceb3ad4ed",
-      "tokenOccurrences": 1,
-      "classification": "private-transport-or-negative-fixture",
-      "reason": "The detached/fake worker explicitly deletes inherited legacy carrier values to prove completion without trusting those environment credentials; no active alias is introduced.",
-      "evidence": "delete env.PROOFBOUND_AGENT;"
-    },
-    {
-      "path": "packages/main/tests/managed-implementer-dispatch-e2e.test.mjs",
-      "token": "PROOFBOUND_AGENT",
-      "lineNumber": 109,
-      "lineSha256": "0165790368bff6cb1db00665de8e839591ea512822d0384959ff28b25e393e03",
-      "sourceSha256": "4922ffa64810a897e6c589093ceb8e0b7a664484f79046e281584ceceb3ad4ed",
-      "tokenOccurrences": 2,
-      "classification": "private-transport-or-negative-fixture",
-      "reason": "The detached/fake worker explicitly deletes inherited legacy carrier values to prove completion without trusting those environment credentials; no active alias is introduced.",
-      "evidence": "unset LATTICE_MANAGED_INIT_INVOCATION PROOF_OR_STOP_AGENT PROOFBOUND_AGENT || true"
     }
   ]
 }

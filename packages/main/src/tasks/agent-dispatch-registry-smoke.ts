@@ -22,6 +22,7 @@ import {
   validateAgentDispatchRegistry,
 } from '../core/agent-dispatch-registry.js';
 import { StoryStore } from '../core/store.js';
+import { acquireOwnerLease } from '../core/story-owner-lease.js';
 import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
 import { createChecklistHandlers } from '../handlers/checklist.js';
 import { createFindingHandlers } from '../handlers/finding.js';
@@ -31,6 +32,8 @@ import { createScopeCheckHandlers } from '../handlers/scope-check.js';
 import { createDeliveryCheckHandlers } from '../handlers/delivery-check.js';
 import { captureReviewerReadEvent } from '../core/reviewer-read-evidence.js';
 import { DEFAULT_PHASE_TOOLS } from '../core/config.js';
+import { getCommandPolicy } from '../core/command-policy.js';
+import { getProcessFactRegistryEntry } from '../core/process-fact-registry.js';
 import { REVIEW_RUN_LANES, resolveReviewRunLane } from '../core/review-run.js';
 import {
   AGENT_LIVENESS_GUIDANCE_REQUIRED_FRAGMENTS,
@@ -633,7 +636,9 @@ try {
   try {
     assert.throws(() => checklistHandlers.checklist_update({
       storyId, itemId: 'CHK-001',
-      verificationIntent: { happy: [{ desc: 'retired actor must not persist', type: 'logic', priority: 'must' }], edge: [], adversarial: [] },
+      // Keep the fixture valid under the current verification-intent schema so
+      // this assertion reaches the retired-actor authority boundary it tests.
+      verificationIntent: { happy: [{ desc: 'retired actor must not persist', type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }], edge: [], adversarial: [] },
       agent: 'verification-intent',
     }), /agent_dispatch_actor_unknown/);
     assert.equal(mutationState(), beforeRetiredPlanActor, 'retired bare PLAN actor rejection preserves all fixture state');
@@ -843,6 +848,30 @@ try {
     if (previousAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
     else process.env.PROOF_OR_STOP_AGENT = previousAgent;
   }
+  for (const repairActor of ['proof-or-stop-finding-repair', 'proof-or-stop-implementer']) {
+    const storyBeforeRepairWorkerResolve = store.readStory(storyId);
+    const previousRepairAgent = process.env.PROOF_OR_STOP_AGENT;
+    store.writeStory(storyId, { ...storyBeforeRepairWorkerResolve, phase: 'DEV' });
+    const beforeRepairWorkerResolve = mutationState();
+    process.env.PROOF_OR_STOP_AGENT = repairActor;
+    try {
+      assert.throws(
+        () => findingHandlers.finding_resolve({
+          storyId,
+          findingId: `${storyId}:F-001`,
+          resolution: 'repair worker must return this result to the Story owner',
+        }),
+        /agent_dispatch_mutation_denied/,
+        `${repairActor} must not close its own finding in DEV`,
+      );
+      assert.equal(mutationState(), beforeRepairWorkerResolve,
+        `denied ${repairActor} resolution must leave the finding and evidence state unchanged`);
+    } finally {
+      if (previousRepairAgent === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+      else process.env.PROOF_OR_STOP_AGENT = previousRepairAgent;
+      store.writeStory(storyId, storyBeforeRepairWorkerResolve);
+    }
+  }
   assert.equal(
     captureReviewerReadEvent({ path: 'docs/requirements/decisions/example.md', mode: 'full' }, { agent: 'proof-or-stop-review-lookalike' }),
     null,
@@ -885,7 +914,7 @@ try {
     'story-review': /review_run_start/,
     'coverage-review': /review_run_start/,
     'delivery-review': /delivery_check_set/,
-    'finding-repair': /finding_resolve/,
+    'finding-repair': /Controller launch contract \(the repair worker does not perform this step\)/,
     'cluster-repair': /Resolves: CL-001/,
     'rollout-verify': /review_run_start/,
   };
@@ -904,10 +933,41 @@ try {
                 ? { clusterId: 'CL-001' }
                 : {};
           const expectedPromptBuilder = resolveAgentDispatchPromptBuilder(entry, identifierKind ?? undefined);
-          const prompt = handlers.dispatch({ storyId, agentType, ...target }).prompt;
+          const dispatchResult = handlers.dispatch({ storyId, agentType, ...target });
+          const prompt = dispatchResult.prompt;
           const label = `${agentType}/${identifierKind || 'story'}/${phase}`;
           assert.match(prompt, promptPatterns[expectedPromptBuilder], `${label} must render ${expectedPromptBuilder}`);
           assertCanonicalLivenessGuidance(prompt, label);
+          if (expectedPromptBuilder === 'finding-repair' || expectedPromptBuilder === 'cluster-repair') {
+            assert.deepEqual(dispatchResult.nativeLaunchContract, {
+              dispatchState: 'prompt-prepared',
+              hostTaskRequired: true,
+              waitTarget: 'nonempty-task-identity',
+              missingWorkerDisposition: 'keep-finding-open',
+            }, `${expectedPromptBuilder} dispatch must expose a machine-readable native launch prerequisite`);
+            const jsonRoundTrip = JSON.parse(JSON.stringify(dispatchResult));
+            assert.deepEqual(jsonRoundTrip.nativeLaunchContract, dispatchResult.nativeLaunchContract,
+              `${expectedPromptBuilder} launch contract must survive the CLI object-result JSON serialization boundary`);
+            assert.match(prompt, /Controller launch contract \(the repair worker does not perform this step\)/,
+              'FINDING_REPAIR_CONTROLLER_LAUNCH_REQUIRED');
+            assert.match(prompt, /dispatch prepares the canonical prompt only; it does not start a host task/i,
+              'finding repair must distinguish prompt preparation from a launched task');
+            assert.match(prompt, /nonempty task identity before (?:calling|using).*wait/i,
+              'finding repair must require a concrete receiver before waiting');
+            assert.match(prompt, /Never call.*wait.*empty target list/i,
+              'finding repair must fail closed before an empty receiver wait');
+          }
+          if (expectedPromptBuilder === 'finding-repair') {
+            assert.match(prompt, /repair worker must not call finding_resolve/i,
+              'finding repair state closure must remain controller-owned');
+            assert.match(prompt, /Story owner\/controller.*finding_resolve/i,
+              'finding repair must hand resolution closure back to the owner');
+            assert.doesNotMatch(prompt, /^-\s+proof-or-stop finding_resolve\b/m,
+              'finding repair prompt must not restore the removed worker-facing resolution command');
+          } else if (expectedPromptBuilder !== 'cluster-repair') {
+            assert.equal(dispatchResult.nativeLaunchContract, undefined,
+              `${label} must not inherit the repair-only native launch contract`);
+          }
           if (!entry.commitAllowed) assert.doesNotMatch(prompt, /git commit --author=/, `${label} must not receive commit instructions`);
           if (entry.roleClass === 'verification-intent') assert.doesNotMatch(prompt, /status["': ]+done/i, `${label} must not complete an item`);
           if (entry.roleClass.endsWith('reviewer')) assert.doesNotMatch(prompt, /(?:proof-or-stop|lattice) checklist_update/, `${label} must not mutate checklist status`);
@@ -915,6 +975,70 @@ try {
         }
       }
     }
+  }
+  const findingRepairEntry = AGENT_DISPATCH_REGISTRY.find(entry => entry.canonicalName === 'proof-or-stop-finding-repair');
+  assert(findingRepairEntry, 'finding repair registry entry must exist');
+  assert.equal(entryPermitsMutation(findingRepairEntry, 'finding_resolve'), false,
+    'finding repair worker must not receive owner-only blocker-state authority');
+  assert.deepEqual(findingRepairEntry.evidenceOwnership, [],
+    'finding repair worker must return repair evidence instead of owning finding-resolution evidence');
+  const implementerEntry = AGENT_DISPATCH_REGISTRY.find(entry => entry.canonicalName === 'proof-or-stop-implementer');
+  assert(implementerEntry, 'implementer registry entry must exist');
+  assert.equal(entryPermitsMutation(implementerEntry, 'finding_resolve'), false,
+    'generic implementer finding dispatch must not retain the removed owner-only resolution authority');
+  assert.equal(implementerEntry.evidenceOwnership.includes('finding-resolution'), false,
+    'generic implementer must not claim finding-resolution evidence ownership');
+  const findingResolvePolicy = getCommandPolicy('finding_resolve');
+  assert.equal(findingResolvePolicy?.ownershipClass, 'storyScopedMutating',
+    'finding resolution must remain protected by the Story owner lease');
+  assert.deepEqual(findingResolvePolicy?.allowedPhases, ['DEV', 'REVIEW'],
+    'FINDING_REPAIR_DEV_RESOLUTION_REQUIRED');
+  assert.deepEqual(getProcessFactRegistryEntry('finding_resolve')?.allowedPhases, findingResolvePolicy?.allowedPhases,
+    'process-fact registry must derive finding_resolve phases from the live command policy');
+  const ownerAgentBeforeResolve = process.env.PROOF_OR_STOP_AGENT;
+  delete process.env.PROOF_OR_STOP_AGENT;
+  store.writeStory(storyId, { ...store.readStory(storyId), phase: 'DEV' });
+  acquireOwnerLease(store.storyDirPath(storyId), { command: 'finding_resolve', cwd: root });
+  try {
+    assert.equal(store.readReviewRuns(storyId).runs.length, 0,
+      'owner DEV resolution fixture must prove the no-review-run repair path');
+    const cliDispatchOutput = execFileSync(process.execPath, [
+      join(packageRoot, 'cli.js'),
+      'dispatch',
+      `--storyId=${storyId}`,
+      '--findingId=F-001',
+      '--agentType=proof-or-stop-finding-repair',
+      '--json',
+    ], {
+      cwd: root,
+      env: { ...process.env },
+      encoding: 'utf8',
+      maxBuffer: 4 * 1024 * 1024,
+    });
+    const cliDispatchResult = JSON.parse(cliDispatchOutput);
+    assert.deepEqual(cliDispatchResult.nativeLaunchContract, {
+      dispatchState: 'prompt-prepared',
+      hostTaskRequired: true,
+      waitTarget: 'nonempty-task-identity',
+      missingWorkerDisposition: 'keep-finding-open',
+    }, 'real dispatch --json output must preserve the native launch contract');
+    execFileSync(process.execPath, [
+      join(packageRoot, 'cli.js'),
+      'finding_resolve',
+      `--storyId=${storyId}`,
+      `--findingId=${storyId}:F-001`,
+      '--resolution=Story owner verified the committed repair and focused validation output',
+    ], {
+      cwd: root,
+      env: { ...process.env },
+      encoding: 'utf8',
+      maxBuffer: 4 * 1024 * 1024,
+    });
+    assert.equal(store.readFindings(storyId).findings.find(row => row.id === `${storyId}:F-001`)?.status, 'resolved',
+      'Story owner must be able to close a verified finding through the real handler in DEV');
+  } finally {
+    if (ownerAgentBeforeResolve === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = ownerAgentBeforeResolve;
   }
   assertCoverageComplete(AGENT_DISPATCH_REGISTRY, coveredCanonical, coveredAliases, actualPromptCoverage);
 } finally {

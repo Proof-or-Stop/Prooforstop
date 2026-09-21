@@ -3462,7 +3462,7 @@ Behavior:
     deadlineMs: z.number().int().positive().optional().describe('Finite absolute managed-run deadline in milliseconds; defaults to timeoutMs or 30 minutes'),
     detach: z.boolean().optional().describe('Return after durable worker claim instead of attaching until terminal'),
     managedReview: z.boolean().optional().describe('Formal cross-provider reviewer mode: derive the exact prompt from reviewRunId/lane, require agentType=lane and qualified Codex/Claude selectors when using those hosts, and accept only a provider-authored proposal plus successful terminal receipt. Do not pass prompt/promptFile.'),
-    managedDispatch: z.boolean().optional().describe('Controller-owned role mode for one DEV checklist implementer, INIT reviewers, the PLAN scope reviewer and the TEST delivery reviewer: derive the canonical dispatch prompt, seal Story/role/target identity, and require the role-specific output before completion. DEV implementers require itemId. Do not pass prompt/promptFile.'),
+    managedDispatch: z.boolean().optional().describe('Controller-owned role mode for one DEV checklist implementer, INIT reviewers, the PLAN scope reviewer and the TEST delivery reviewer: derive the canonical dispatch prompt, seal Story/role/target identity, and require the role-specific output before completion. REVIEW lanes instead require candidate_spec_route, review_run_start and managedReview with the returned reviewRunId. DEV implementers require itemId. Do not pass prompt/promptFile.'),
     json: z.boolean().optional().describe('Output the structured host_run result as JSON (exitCode is a field)'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},

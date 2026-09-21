@@ -66,6 +66,7 @@ import type { StoryStore } from '../core/store.js';
 import { checkEvidenceFreshnessForGit, classifyEvidenceFreshness } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import {
+  renderFormalManagedReviewLaunch,
   renderReviewerDispatchLaunch,
   REVIEWER_CHILD_ID_WAIT_BOUNDARY,
 } from '../core/reviewer-launch-guidance.js';
@@ -190,10 +191,15 @@ function assertBoundary(args: ReviewerBatchArgs): void {
 function laneLaunchInstruction(storyId: string, lane: string, reason: string): string {
   const name = lane.startsWith('proof-or-stop-review-') ? lane.slice('proof-or-stop-review-'.length) : lane;
   const why = reason && reason.trim() ? reason.trim() : 'baseline';
-  return `${renderReviewerDispatchLaunch({
+  const nativeLaunch = renderReviewerDispatchLaunch({
     storyId,
     agentType: `proof-or-stop-review-${name}`,
-  })} ${REVIEWER_CHILD_ID_WAIT_BOUNDARY} Every launched child id must be nonempty; when the plan launches multiple lanes, their child ids must also be distinct. Activation reason: ${why}.`;
+  });
+  // Keep the formal alternative explicit at this producer seam and render it
+  // through the shared helper so error and batch guidance cannot describe
+  // different REVIEW evidence paths.
+  const managedLaunch = renderFormalManagedReviewLaunch(storyId, `proof-or-stop-review-${name}`);
+  return `${nativeLaunch} ${managedLaunch} ${REVIEWER_CHILD_ID_WAIT_BOUNDARY} Every launched child id must be nonempty; when the plan launches multiple lanes, their child ids must also be distinct. Activation reason: ${why}.`;
 }
 
 /**

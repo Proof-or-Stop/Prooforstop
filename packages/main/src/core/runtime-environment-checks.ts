@@ -364,7 +364,7 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   'packages/main/src/core/evidence-freshness.ts': 'd3120733e853509d3cc1a5643fe1316e1a820f68b20f27affd0254699f99257c',
   'packages/main/src/core/review-inventory-epoch.ts': '9f73ec7ba80a1e56142e53f213b3f342a2097b131b67cb330281b699f2043c70',
   'packages/main/src/core/verification-execution-evidence.ts': '728e76f065e83fe8fdec672986f40ef37e2d8ae8dbc96eda4d01ccd2584cf5cf',
-  'packages/main/src/handlers/checklist.ts': 'b8e4428e1866d0e9d7e394d7343e9fe43a1a71b94b46a32da947091dce309450',
+  'packages/main/src/handlers/checklist.ts': '4fa5ed60c7ce717853775ee4f57315f32657440375d3f275c8438ca294f8b607',
   'packages/main/src/core/maintenance-command-mode.ts': '9c94f1c1a20abf5ed3b93208f5d52e13d63246af12a85612c1e07f99e72258e2',
 });
 

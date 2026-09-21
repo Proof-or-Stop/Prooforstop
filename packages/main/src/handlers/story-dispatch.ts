@@ -78,6 +78,19 @@ import {
 // B-45ed CHK-008: agent-type → background injection strategy mapping table
 // Source: CLAUDE.md "background.md tiered injection (subagent)" subsection
 type BackgroundPolicy = 'required' | 'advisory' | 'none';
+type NativeLaunchContract = {
+  dispatchState: 'prompt-prepared';
+  hostTaskRequired: true;
+  waitTarget: 'nonempty-task-identity';
+  missingWorkerDisposition: 'keep-finding-open';
+};
+type DispatchResult = { prompt: string; nativeLaunchContract?: NativeLaunchContract };
+const REPAIR_NATIVE_LAUNCH_CONTRACT: NativeLaunchContract = Object.freeze({
+  dispatchState: 'prompt-prepared',
+  hostTaskRequired: true,
+  waitTarget: 'nonempty-task-identity',
+  missingWorkerDisposition: 'keep-finding-open',
+});
 const AGENT_BG_POLICY: Record<string, BackgroundPolicy> = {
   'proof-or-stop-implementer': 'required',
   'proof-or-stop-review-scope-plan': 'required',
@@ -714,7 +727,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     storyId: string;
     findingId: string;
     agentType?: string;
-  }): { prompt: string } {
+  }): DispatchResult {
       if (!args.storyId) throw new Error('storyId is required');
       if (!args.findingId) throw new Error('findingId is required');
 
@@ -772,6 +785,11 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       // making it the most reliable absolute path source currently (better than process.cwd()—which depends on the caller shell's current directory).
       lines.push(`Working directory (subagent must cd here): ${root}`);
       lines.push('');
+      lines.push('Controller launch contract (the repair worker does not perform this step):');
+      lines.push('- This dispatch prepares the canonical prompt only; it does not start a host task.');
+      lines.push('- The controller must launch this exact prompt through a native host task and obtain a nonempty task identity before calling any wait operation.');
+      lines.push('- Never call a wait tool with an empty target list. If native launch is unavailable, report `missing_registered_worker` and keep the finding open.');
+      lines.push('');
       appendDispatchLivenessGuidance(lines, `${displayAgent}/${shortFid}`);
 
       if (bgPolicy === 'required') {
@@ -790,9 +808,16 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push('');
       lines.push('After completion:');
       appendImplementerCommitSteps(lines, `${args.storyId} ${shortFid}: resolve finding`);
-      lines.push(`- proof-or-stop finding_resolve '{"storyId":"${args.storyId}","findingId":"${finding.id}","resolution":"<your fix description>"}'`);
+      lines.push('- Return the commit SHA, focused verification output, and repair summary to the Story owner/controller. The repair worker must not call finding_resolve.');
+      lines.push(`- The Story owner/controller verifies the repair and then runs: proof-or-stop finding_resolve '{"storyId":"${args.storyId}","findingId":"${finding.id}","resolution":"<verified repair description>"}'`);
 
-      return { prompt: lines.join('\n') };
+      return {
+        prompt: lines.join('\n'),
+        // Proof-or-Stop cannot invoke or intercept the host's native task/wait API.
+        // This structured result lets host controllers enforce the same boundary
+        // without parsing prose; the prompt remains the contract for LLM controllers.
+        nativeLaunchContract: REPAIR_NATIVE_LAUNCH_CONTRACT,
+      };
   }
 
   function buildItemPrompt(args: {
@@ -915,6 +940,11 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push(`- If the host cannot return a native child identity, the controller must launch this exact Story/item through host_run with agentType=proof-or-stop-implementer, managedDispatch=true, storyId=${args.storyId}, and itemId=${args.itemId}; then monitor the returned runId.`);
       lines.push('- A successful managed run is terminal only after the item is done and its subagent_result is receipt-bound to that exact run.');
       lines.push('');
+      lines.push('Managed implementation status contract:');
+      lines.push('- The Story owner/controller owns the start transition. Do not call checklist_update with status=in_progress; begin the assigned implementation directly.');
+      lines.push(`- After the implementation is committed, call only: proof-or-stop checklist_update '{"storyId":"${args.storyId}","itemId":"${args.itemId}","status":"done"}'`);
+      lines.push('- An owner-gate refusal of an accidental in_progress call does not consume the item-bound completion capability. Continue the implementation and use the exact done call after commit.');
+      lines.push('');
       // B-9d95 CHK-001: inject worktree absolute path. Root cause retrospective (B-ed3e F-001): subagent inherits parent process cwd
       // which does not necessarily land in the worktree (especially cross-repo scenarios), causing reviewer/handler to read docs/story/... in the main repo cwd
       // failing to see the worktree copy and producing false reports. ctx.root is already bound to the worktree root at MCP handler initialization,
@@ -985,7 +1015,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
      * and role. Validation completes before any prompt builder is selected.
      *
      * Mutual exclusion validation: exactly one of the three must be provided; more / fewer both throw Error.
-     * Returns: { prompt: string } — byte-identical to the old entry (clusterId branch reuses cluster.ts text).
+     * Returns: { prompt: string, nativeLaunchContract?: object }. Finding repair
+     * exposes the host-owned launch prerequisite as structured data; other prompt
+     * bytes remain unchanged (the clusterId branch reuses cluster.ts text).
      */
     dispatch(args: {
       storyId: string;
@@ -995,7 +1027,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       agentType?: string;
       reviewPurpose?: 'topology' | 'inventory-completeness';
       inventoryEpochId?: string;
-    }): { prompt: string } {
+    }): DispatchResult {
       if (!args.storyId) throw new Error('storyId is required');
       let story;
       try {
@@ -1304,7 +1336,13 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           targetKind: 'finding',
           findingId: args.findingId,
         });
-        return result;
+        // Finding repair is intentionally not envelope-wrapped. Preserve the
+        // structured host launch contract explicitly at the public dispatch()
+        // boundary so callers never need to infer it from prompt prose.
+        return {
+          prompt: result.prompt,
+          nativeLaunchContract: result.nativeLaunchContract,
+        };
       }
       // clusterId branch — reuse cluster.ts's finding_dispatch (outputs string).
       // Wrap as { prompt } to keep the interface consistent.
@@ -1313,7 +1351,12 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         storyId: args.storyId,
         clusterId: args.clusterId!,
       });
-      const prompt = `${renderAgentLivenessGuidance({
+      const prompt = `Controller launch contract (the repair worker does not perform this step):
+- This dispatch prepares the canonical prompt only; it does not start a host task.
+- The controller must launch this exact prompt through a native host task and obtain a nonempty task identity before calling any wait operation.
+- Never call a wait tool with an empty target list. If native launch is unavailable, report \`missing_registered_worker\` and keep the cluster findings open.
+
+${renderAgentLivenessGuidance({
         label: `${canonicalType}/${args.clusterId!}`,
         startSignal: `DISPATCH_START:${canonicalType}/${args.clusterId!}`,
       })}\n\n${clusterPrompt}`;
@@ -1323,7 +1366,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         targetKind: 'cluster',
         clusterId: args.clusterId!,
       });
-      return { prompt };
+      return { prompt, nativeLaunchContract: REPAIR_NATIVE_LAUNCH_CONTRACT };
     },
   };
 }

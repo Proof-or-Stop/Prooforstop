@@ -10,7 +10,7 @@ const manifestFile='scripts/lab/u18-static-edges/exceptions.json';
 const hash=text=>createHash('sha256').update(text).digest('hex');
 const read=(root,file)=>{const bytes=fs.readFileSync(path.join(root,file)),text=bytes.toString('utf8');assert(Buffer.from(text).equals(bytes),'version source must be valid UTF-8');return text;};
 
-const canonicalManifest=value=>JSON.stringify(value,null,2).replace(/[\u007f-\uffff]/g,char=>'\\u'+char.charCodeAt(0).toString(16).padStart(4,'0'))+'\n';
+const canonicalManifest=value=>JSON.stringify(value,null,2)+'\n';
 
 function atomicWrite(file,text) {
  const temporary=file+'.lab-version-'+randomUUID()+'.tmp';
@@ -97,7 +97,8 @@ export function withLabVersionSourceEvidence(root,bump,canonicalFiles) {
    }
   }
   if(!refreshed)return result;
-  // Preserve the existing ASCII JSON encoding, including surrogate pairs in excerpts.
+  // Preserve the repository's canonical UTF-8 JSON encoding without changing
+  // indentation or rewriting non-ASCII evidence excerpts.
   const content=canonicalManifest(manifest);
   atomicWrite(path.join(root,manifestFile),content);
   return {...result,files:[...result.files,manifestFile]};

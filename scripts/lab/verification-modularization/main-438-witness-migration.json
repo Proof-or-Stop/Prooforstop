@@ -1,0 +1,767 @@
+{
+  "main": "0836d73b7c",
+  "baseline": "297e74387a",
+  "deltas": [
+    {
+      "kind": "source",
+      "before": {
+        "path": "packages/main/src/core/config.ts",
+        "token": "lattice",
+        "lineNumber": 293,
+        "sourceSha256": "14e68ea141dc705e3ef79c4a608d14c9dd90b3d710b1974ed8ea62728ae56bbb",
+        "lineSha256": "dbdf6fc50f67d5cc95b5857c457fac79cd4a6d6ffc082f40ae8b0540531a655d",
+        "tokenOccurrences": 1,
+        "classification": "comment_or_diagnostic",
+        "reason": "Comment/rationale or user-visible error text, not consumed signature identity. Canonicalize present-tense branding; retain quoted historical paths in explanatory migration comments with exact classification."
+      },
+      "after": {
+        "path": "packages/main/src/core/config.ts",
+        "token": "lattice",
+        "lineNumber": 293,
+        "sourceSha256": "7db9839ffd3b998966a53ec93fec662fc49c36331a41f36cec33f65c92c47a39",
+        "lineSha256": "dbdf6fc50f67d5cc95b5857c457fac79cd4a6d6ffc082f40ae8b0540531a655d",
+        "tokenOccurrences": 1,
+        "classification": "comment_or_diagnostic",
+        "reason": "Comment/rationale or user-visible error text, not consumed signature identity. Canonicalize present-tense branding; retain quoted historical paths in explanatory migration comments with exact classification."
+      }
+    },
+    {
+      "kind": "source",
+      "before": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "lattice",
+        "lineNumber": 2660,
+        "sourceSha256": "d918de9968fd2bd7dc7940d503f80da64b0c95b4687536cc511843a1f61c1c7f",
+        "lineSha256": "ff1b617899d86bf3b8852203f8b9b61eb770d8fdee31e6e5651b764d4cadbc9c",
+        "tokenOccurrences": 33,
+        "classification": "comment_or_diagnostic",
+        "reason": "Comment/rationale or user-visible error text, not consumed signature identity. Canonicalize present-tense branding; retain quoted historical paths in explanatory migration comments with exact classification."
+      },
+      "after": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "lattice",
+        "lineNumber": 2660,
+        "sourceSha256": "35b125a529ce8a3b764fc45392babbc55fa632a548e2ced1af9d0f727bd26e94",
+        "lineSha256": "ff1b617899d86bf3b8852203f8b9b61eb770d8fdee31e6e5651b764d4cadbc9c",
+        "tokenOccurrences": 33,
+        "classification": "comment_or_diagnostic",
+        "reason": "Comment/rationale or user-visible error text, not consumed signature identity. Canonicalize present-tense branding; retain quoted historical paths in explanatory migration comments with exact classification."
+      }
+    },
+    {
+      "kind": "source",
+      "before": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD",
+        "lineNumber": 2680,
+        "sourceSha256": "d918de9968fd2bd7dc7940d503f80da64b0c95b4687536cc511843a1f61c1c7f",
+        "lineSha256": "81ec21f27e31576cd7bbf0d94ae8f8f6d6aafe75f64038ee68b3e95cb8bcf25e",
+        "tokenOccurrences": 3,
+        "classification": "private_protocol_preserve_or_coordinated_versioned_migration",
+        "reason": "Private host/broker environment protocol, not public artifact identity. Existing Lab sender/receiver coupling; scalar alone grants no signed authority. Preserve paired FD read/write, worker capability FD removal, capability digest/agent check, direct-evidence managed-run veto and sealed admission exact-env equality. Rename requires complete both-end migration including host adapter/fixtures; do not loosen verifier or silently ignore old marker."
+      },
+      "after": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD",
+        "lineNumber": 2680,
+        "sourceSha256": "35b125a529ce8a3b764fc45392babbc55fa632a548e2ced1af9d0f727bd26e94",
+        "lineSha256": "81ec21f27e31576cd7bbf0d94ae8f8f6d6aafe75f64038ee68b3e95cb8bcf25e",
+        "tokenOccurrences": 3,
+        "classification": "private_protocol_preserve_or_coordinated_versioned_migration",
+        "reason": "Private host/broker environment protocol, not public artifact identity. Existing Lab sender/receiver coupling; scalar alone grants no signed authority. Preserve paired FD read/write, worker capability FD removal, capability digest/agent check, direct-evidence managed-run veto and sealed admission exact-env equality. Rename requires complete both-end migration including host adapter/fixtures; do not loosen verifier or silently ignore old marker."
+      }
+    },
+    {
+      "kind": "source",
+      "before": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 3276,
+        "sourceSha256": "d918de9968fd2bd7dc7940d503f80da64b0c95b4687536cc511843a1f61c1c7f",
+        "lineSha256": "f2d71ef7eca5d1fd9b5600dbc4e47c2c46c199bf344a6e71582fb1b46af50412",
+        "tokenOccurrences": 3,
+        "classification": "private_protocol_preserve_or_coordinated_versioned_migration",
+        "reason": "Private host/broker environment protocol, not public artifact identity. Existing Lab sender/receiver coupling; scalar alone grants no signed authority. Preserve paired FD read/write, worker capability FD removal, capability digest/agent check, direct-evidence managed-run veto and sealed admission exact-env equality. Rename requires complete both-end migration including host adapter/fixtures; do not loosen verifier or silently ignore old marker."
+      },
+      "after": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 3276,
+        "sourceSha256": "35b125a529ce8a3b764fc45392babbc55fa632a548e2ced1af9d0f727bd26e94",
+        "lineSha256": "f2d71ef7eca5d1fd9b5600dbc4e47c2c46c199bf344a6e71582fb1b46af50412",
+        "tokenOccurrences": 3,
+        "classification": "private_protocol_preserve_or_coordinated_versioned_migration",
+        "reason": "Private host/broker environment protocol, not public artifact identity. Existing Lab sender/receiver coupling; scalar alone grants no signed authority. Preserve paired FD read/write, worker capability FD removal, capability digest/agent check, direct-evidence managed-run veto and sealed admission exact-env equality. Rename requires complete both-end migration including host adapter/fixtures; do not loosen verifier or silently ignore old marker."
+      }
+    },
+    {
+      "kind": "source",
+      "before": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY",
+        "lineNumber": 3282,
+        "sourceSha256": "d918de9968fd2bd7dc7940d503f80da64b0c95b4687536cc511843a1f61c1c7f",
+        "lineSha256": "db28f0fc808b2b1ae8b64c09f1946d279d5fa99ff1ef599ccb5ee83a08f2855a",
+        "tokenOccurrences": 4,
+        "classification": "private_protocol_preserve_or_coordinated_versioned_migration",
+        "reason": "Private host/broker environment protocol, not public artifact identity. Existing Lab sender/receiver coupling; scalar alone grants no signed authority. Preserve paired FD read/write, worker capability FD removal, capability digest/agent check, direct-evidence managed-run veto and sealed admission exact-env equality. Rename requires complete both-end migration including host adapter/fixtures; do not loosen verifier or silently ignore old marker."
+      },
+      "after": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY",
+        "lineNumber": 3282,
+        "sourceSha256": "35b125a529ce8a3b764fc45392babbc55fa632a548e2ced1af9d0f727bd26e94",
+        "lineSha256": "db28f0fc808b2b1ae8b64c09f1946d279d5fa99ff1ef599ccb5ee83a08f2855a",
+        "tokenOccurrences": 4,
+        "classification": "private_protocol_preserve_or_coordinated_versioned_migration",
+        "reason": "Private host/broker environment protocol, not public artifact identity. Existing Lab sender/receiver coupling; scalar alone grants no signed authority. Preserve paired FD read/write, worker capability FD removal, capability digest/agent check, direct-evidence managed-run veto and sealed admission exact-env equality. Rename requires complete both-end migration including host adapter/fixtures; do not loosen verifier or silently ignore old marker."
+      }
+    },
+    {
+      "kind": "source",
+      "before": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 3597,
+        "sourceSha256": "d918de9968fd2bd7dc7940d503f80da64b0c95b4687536cc511843a1f61c1c7f",
+        "lineSha256": "68edb8152be0c45c065d2e377087f97db6109f1a861c5d5d92397ffa9dee3a0e",
+        "tokenOccurrences": 3,
+        "classification": "private_protocol_preserve_or_coordinated_versioned_migration",
+        "reason": "Private host/broker environment protocol, not public artifact identity. Existing Lab sender/receiver coupling; scalar alone grants no signed authority. Preserve paired FD read/write, worker capability FD removal, capability digest/agent check, direct-evidence managed-run veto and sealed admission exact-env equality. Rename requires complete both-end migration including host adapter/fixtures; do not loosen verifier or silently ignore old marker."
+      },
+      "after": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 3597,
+        "sourceSha256": "35b125a529ce8a3b764fc45392babbc55fa632a548e2ced1af9d0f727bd26e94",
+        "lineSha256": "68edb8152be0c45c065d2e377087f97db6109f1a861c5d5d92397ffa9dee3a0e",
+        "tokenOccurrences": 3,
+        "classification": "private_protocol_preserve_or_coordinated_versioned_migration",
+        "reason": "Private host/broker environment protocol, not public artifact identity. Existing Lab sender/receiver coupling; scalar alone grants no signed authority. Preserve paired FD read/write, worker capability FD removal, capability digest/agent check, direct-evidence managed-run veto and sealed admission exact-env equality. Rename requires complete both-end migration including host adapter/fixtures; do not loosen verifier or silently ignore old marker."
+      }
+    },
+    {
+      "kind": "source",
+      "before": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY",
+        "lineNumber": 3598,
+        "sourceSha256": "d918de9968fd2bd7dc7940d503f80da64b0c95b4687536cc511843a1f61c1c7f",
+        "lineSha256": "c3fa9a5d976694946f255d64b6c146e2a4633f5220cc32eb9cedcde0762abc68",
+        "tokenOccurrences": 4,
+        "classification": "private_protocol_preserve_or_coordinated_versioned_migration",
+        "reason": "Private host/broker environment protocol, not public artifact identity. Existing Lab sender/receiver coupling; scalar alone grants no signed authority. Preserve paired FD read/write, worker capability FD removal, capability digest/agent check, direct-evidence managed-run veto and sealed admission exact-env equality. Rename requires complete both-end migration including host adapter/fixtures; do not loosen verifier or silently ignore old marker."
+      },
+      "after": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY",
+        "lineNumber": 3598,
+        "sourceSha256": "35b125a529ce8a3b764fc45392babbc55fa632a548e2ced1af9d0f727bd26e94",
+        "lineSha256": "c3fa9a5d976694946f255d64b6c146e2a4633f5220cc32eb9cedcde0762abc68",
+        "tokenOccurrences": 4,
+        "classification": "private_protocol_preserve_or_coordinated_versioned_migration",
+        "reason": "Private host/broker environment protocol, not public artifact identity. Existing Lab sender/receiver coupling; scalar alone grants no signed authority. Preserve paired FD read/write, worker capability FD removal, capability digest/agent check, direct-evidence managed-run veto and sealed admission exact-env equality. Rename requires complete both-end migration including host adapter/fixtures; do not loosen verifier or silently ignore old marker."
+      }
+    },
+    {
+      "kind": "source",
+      "before": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "providerEnvironment.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD",
+        "lineNumber": 3302,
+        "sourceSha256": "d918de9968fd2bd7dc7940d503f80da64b0c95b4687536cc511843a1f61c1c7f",
+        "lineSha256": "87fc337af5461cd4be8d5a6d797f088fcd68743ef0778618a526d19c8e9455f3",
+        "tokenOccurrences": 1,
+        "classification": "private_protocol_preserve_or_coordinated_versioned_migration",
+        "reason": "Private host/broker environment protocol, not public artifact identity. Existing Lab sender/receiver coupling; scalar alone grants no signed authority. Preserve paired FD read/write, worker capability FD removal, capability digest/agent check, direct-evidence managed-run veto and sealed admission exact-env equality. Rename requires complete both-end migration including host adapter/fixtures; do not loosen verifier or silently ignore old marker."
+      },
+      "after": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "providerEnvironment.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD",
+        "lineNumber": 3302,
+        "sourceSha256": "35b125a529ce8a3b764fc45392babbc55fa632a548e2ced1af9d0f727bd26e94",
+        "lineSha256": "87fc337af5461cd4be8d5a6d797f088fcd68743ef0778618a526d19c8e9455f3",
+        "tokenOccurrences": 1,
+        "classification": "private_protocol_preserve_or_coordinated_versioned_migration",
+        "reason": "Private host/broker environment protocol, not public artifact identity. Existing Lab sender/receiver coupling; scalar alone grants no signed authority. Preserve paired FD read/write, worker capability FD removal, capability digest/agent check, direct-evidence managed-run veto and sealed admission exact-env equality. Rename requires complete both-end migration including host adapter/fixtures; do not loosen verifier or silently ignore old marker."
+      }
+    },
+    {
+      "kind": "source",
+      "before": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "proofbound.acceptance_amendment_review_receipt.v1",
+        "lineNumber": 3558,
+        "sourceSha256": "d918de9968fd2bd7dc7940d503f80da64b0c95b4687536cc511843a1f61c1c7f",
+        "lineSha256": "707b3fd92acb6990b7f544e4480b9f2089b2f9b5bee80e2d21c56250f382c2ee",
+        "tokenOccurrences": 2,
+        "classification": "signed_compatibility_outer_preserve",
+        "reason": "Outer Ed25519 claims domain already used by archived worker receipt; reader verifies signature/spec/root/run and canonical inner final schema. Preserve exact outer bytes/domain; no current inner legacy acceptance allowed."
+      },
+      "after": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "proofbound.acceptance_amendment_review_receipt.v1",
+        "lineNumber": 3558,
+        "sourceSha256": "35b125a529ce8a3b764fc45392babbc55fa632a548e2ced1af9d0f727bd26e94",
+        "lineSha256": "707b3fd92acb6990b7f544e4480b9f2089b2f9b5bee80e2d21c56250f382c2ee",
+        "tokenOccurrences": 2,
+        "classification": "signed_compatibility_outer_preserve",
+        "reason": "Outer Ed25519 claims domain already used by archived worker receipt; reader verifies signature/spec/root/run and canonical inner final schema. Preserve exact outer bytes/domain; no current inner legacy acceptance allowed."
+      }
+    },
+    {
+      "kind": "source",
+      "before": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "env.LATTICE_MANAGED_REVIEW_INVOCATION_FD",
+        "lineNumber": 4100,
+        "sourceSha256": "d918de9968fd2bd7dc7940d503f80da64b0c95b4687536cc511843a1f61c1c7f",
+        "lineSha256": "fc569ed9468beb208d56e87740ce2dd3c6d341d86372c26ddbab07a46a2c0bb1",
+        "tokenOccurrences": 1,
+        "classification": "private_protocol_preserve_or_coordinated_versioned_migration",
+        "reason": "Private host/broker environment protocol, not public artifact identity. Existing Lab sender/receiver coupling; scalar alone grants no signed authority. Preserve paired FD read/write, worker capability FD removal, capability digest/agent check, direct-evidence managed-run veto and sealed admission exact-env equality. Rename requires complete both-end migration including host adapter/fixtures; do not loosen verifier or silently ignore old marker."
+      },
+      "after": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "env.LATTICE_MANAGED_REVIEW_INVOCATION_FD",
+        "lineNumber": 4155,
+        "sourceSha256": "35b125a529ce8a3b764fc45392babbc55fa632a548e2ced1af9d0f727bd26e94",
+        "lineSha256": "fc569ed9468beb208d56e87740ce2dd3c6d341d86372c26ddbab07a46a2c0bb1",
+        "tokenOccurrences": 1,
+        "classification": "private_protocol_preserve_or_coordinated_versioned_migration",
+        "reason": "Private host/broker environment protocol, not public artifact identity. Existing Lab sender/receiver coupling; scalar alone grants no signed authority. Preserve paired FD read/write, worker capability FD removal, capability digest/agent check, direct-evidence managed-run veto and sealed admission exact-env equality. Rename requires complete both-end migration including host adapter/fixtures; do not loosen verifier or silently ignore old marker."
+      }
+    },
+    {
+      "kind": "source",
+      "before": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "environment.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 4726,
+        "sourceSha256": "d918de9968fd2bd7dc7940d503f80da64b0c95b4687536cc511843a1f61c1c7f",
+        "lineSha256": "42fdba791be5c5ba03f9b757d07d1d6fc8a2ce9b8fd1dd3897e7bbc6c2471bd4",
+        "tokenOccurrences": 1,
+        "classification": "private_protocol_preserve_or_coordinated_versioned_migration",
+        "reason": "Private host/broker environment protocol, not public artifact identity. Existing Lab sender/receiver coupling; scalar alone grants no signed authority. Preserve paired FD read/write, worker capability FD removal, capability digest/agent check, direct-evidence managed-run veto and sealed admission exact-env equality. Rename requires complete both-end migration including host adapter/fixtures; do not loosen verifier or silently ignore old marker."
+      },
+      "after": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "environment.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 4781,
+        "sourceSha256": "35b125a529ce8a3b764fc45392babbc55fa632a548e2ced1af9d0f727bd26e94",
+        "lineSha256": "42fdba791be5c5ba03f9b757d07d1d6fc8a2ce9b8fd1dd3897e7bbc6c2471bd4",
+        "tokenOccurrences": 1,
+        "classification": "private_protocol_preserve_or_coordinated_versioned_migration",
+        "reason": "Private host/broker environment protocol, not public artifact identity. Existing Lab sender/receiver coupling; scalar alone grants no signed authority. Preserve paired FD read/write, worker capability FD removal, capability digest/agent check, direct-evidence managed-run veto and sealed admission exact-env equality. Rename requires complete both-end migration including host adapter/fixtures; do not loosen verifier or silently ignore old marker."
+      }
+    },
+    {
+      "kind": "source",
+      "before": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "environment.LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY",
+        "lineNumber": 4739,
+        "sourceSha256": "d918de9968fd2bd7dc7940d503f80da64b0c95b4687536cc511843a1f61c1c7f",
+        "lineSha256": "3b05ab4571459af5188b072ddc121a6930f013522609091a51e978ccd5669141",
+        "tokenOccurrences": 2,
+        "classification": "private_protocol_preserve_or_coordinated_versioned_migration",
+        "reason": "Private host/broker environment protocol, not public artifact identity. Existing Lab sender/receiver coupling; scalar alone grants no signed authority. Preserve paired FD read/write, worker capability FD removal, capability digest/agent check, direct-evidence managed-run veto and sealed admission exact-env equality. Rename requires complete both-end migration including host adapter/fixtures; do not loosen verifier or silently ignore old marker."
+      },
+      "after": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "environment.LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY",
+        "lineNumber": 4794,
+        "sourceSha256": "35b125a529ce8a3b764fc45392babbc55fa632a548e2ced1af9d0f727bd26e94",
+        "lineSha256": "3b05ab4571459af5188b072ddc121a6930f013522609091a51e978ccd5669141",
+        "tokenOccurrences": 2,
+        "classification": "private_protocol_preserve_or_coordinated_versioned_migration",
+        "reason": "Private host/broker environment protocol, not public artifact identity. Existing Lab sender/receiver coupling; scalar alone grants no signed authority. Preserve paired FD read/write, worker capability FD removal, capability digest/agent check, direct-evidence managed-run veto and sealed admission exact-env equality. Rename requires complete both-end migration including host adapter/fixtures; do not loosen verifier or silently ignore old marker."
+      }
+    },
+    {
+      "kind": "source",
+      "before": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "environment.LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY",
+        "lineNumber": 4741,
+        "sourceSha256": "d918de9968fd2bd7dc7940d503f80da64b0c95b4687536cc511843a1f61c1c7f",
+        "lineSha256": "fbb066e65f4842c33b8bd351344fcbbe7247f4b19c2584570760567c711d1ac4",
+        "tokenOccurrences": 2,
+        "classification": "private_protocol_preserve_or_coordinated_versioned_migration",
+        "reason": "Private host/broker environment protocol, not public artifact identity. Existing Lab sender/receiver coupling; scalar alone grants no signed authority. Preserve paired FD read/write, worker capability FD removal, capability digest/agent check, direct-evidence managed-run veto and sealed admission exact-env equality. Rename requires complete both-end migration including host adapter/fixtures; do not loosen verifier or silently ignore old marker."
+      },
+      "after": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "environment.LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY",
+        "lineNumber": 4796,
+        "sourceSha256": "35b125a529ce8a3b764fc45392babbc55fa632a548e2ced1af9d0f727bd26e94",
+        "lineSha256": "fbb066e65f4842c33b8bd351344fcbbe7247f4b19c2584570760567c711d1ac4",
+        "tokenOccurrences": 2,
+        "classification": "private_protocol_preserve_or_coordinated_versioned_migration",
+        "reason": "Private host/broker environment protocol, not public artifact identity. Existing Lab sender/receiver coupling; scalar alone grants no signed authority. Preserve paired FD read/write, worker capability FD removal, capability digest/agent check, direct-evidence managed-run veto and sealed admission exact-env equality. Rename requires complete both-end migration including host adapter/fixtures; do not loosen verifier or silently ignore old marker."
+      }
+    },
+    {
+      "kind": "source",
+      "before": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "proofbound.acceptance_amendment_review_receipt.v1",
+        "lineNumber": 5391,
+        "sourceSha256": "d918de9968fd2bd7dc7940d503f80da64b0c95b4687536cc511843a1f61c1c7f",
+        "lineSha256": "95bb734a219fdc0a895c73c3f1a8d6a3b7a7a2fab24f81a1097e128ce736c29a",
+        "tokenOccurrences": 2,
+        "classification": "signed_compatibility_outer_preserve",
+        "reason": "Outer Ed25519 claims domain already used by archived worker receipt; reader verifies signature/spec/root/run and canonical inner final schema. Preserve exact outer bytes/domain; no current inner legacy acceptance allowed."
+      },
+      "after": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "proofbound.acceptance_amendment_review_receipt.v1",
+        "lineNumber": 5446,
+        "sourceSha256": "35b125a529ce8a3b764fc45392babbc55fa632a548e2ced1af9d0f727bd26e94",
+        "lineSha256": "95bb734a219fdc0a895c73c3f1a8d6a3b7a7a2fab24f81a1097e128ce736c29a",
+        "tokenOccurrences": 2,
+        "classification": "signed_compatibility_outer_preserve",
+        "reason": "Outer Ed25519 claims domain already used by archived worker receipt; reader verifies signature/spec/root/run and canonical inner final schema. Preserve exact outer bytes/domain; no current inner legacy acceptance allowed."
+      }
+    },
+    {
+      "kind": "source",
+      "before": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "lattice-managed-review-",
+        "lineNumber": 521,
+        "sourceSha256": "d918de9968fd2bd7dc7940d503f80da64b0c95b4687536cc511843a1f61c1c7f",
+        "lineSha256": "7bc6b0178798ebea871a248c70a97000cffa26091ae274650f46b49aa6daf1ec",
+        "tokenOccurrences": 1,
+        "classification": "owned_cleanup_compatibility_preserve",
+        "reason": "Exact owned temp boundary/registration protocol. Scratch schema+owner marker and canonical parent validation control cleanup; historical xhr prefix retained alongside canonical for resume. Do not broad-prefix or delete compatibility during identity refresh."
+      },
+      "after": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "lattice-managed-review-",
+        "lineNumber": 521,
+        "sourceSha256": "35b125a529ce8a3b764fc45392babbc55fa632a548e2ced1af9d0f727bd26e94",
+        "lineSha256": "7bc6b0178798ebea871a248c70a97000cffa26091ae274650f46b49aa6daf1ec",
+        "tokenOccurrences": 1,
+        "classification": "owned_cleanup_compatibility_preserve",
+        "reason": "Exact owned temp boundary/registration protocol. Scratch schema+owner marker and canonical parent validation control cleanup; historical xhr prefix retained alongside canonical for resume. Do not broad-prefix or delete compatibility during identity refresh."
+      }
+    },
+    {
+      "kind": "source",
+      "before": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "env.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD",
+        "lineNumber": 726,
+        "sourceSha256": "d918de9968fd2bd7dc7940d503f80da64b0c95b4687536cc511843a1f61c1c7f",
+        "lineSha256": "87d1e313812d609f0ef9ccd04b79644720df77890e60aab393066b9ee902b4b1",
+        "tokenOccurrences": 1,
+        "classification": "private_protocol_preserve_or_coordinated_versioned_migration",
+        "reason": "Private host/broker environment protocol, not public artifact identity. Existing Lab sender/receiver coupling; scalar alone grants no signed authority. Preserve paired FD read/write, worker capability FD removal, capability digest/agent check, direct-evidence managed-run veto and sealed admission exact-env equality. Rename requires complete both-end migration including host adapter/fixtures; do not loosen verifier or silently ignore old marker."
+      },
+      "after": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "env.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD",
+        "lineNumber": 726,
+        "sourceSha256": "35b125a529ce8a3b764fc45392babbc55fa632a548e2ced1af9d0f727bd26e94",
+        "lineSha256": "87d1e313812d609f0ef9ccd04b79644720df77890e60aab393066b9ee902b4b1",
+        "tokenOccurrences": 1,
+        "classification": "private_protocol_preserve_or_coordinated_versioned_migration",
+        "reason": "Private host/broker environment protocol, not public artifact identity. Existing Lab sender/receiver coupling; scalar alone grants no signed authority. Preserve paired FD read/write, worker capability FD removal, capability digest/agent check, direct-evidence managed-run veto and sealed admission exact-env equality. Rename requires complete both-end migration including host adapter/fixtures; do not loosen verifier or silently ignore old marker."
+      }
+    },
+    {
+      "kind": "source",
+      "before": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "lattice-xhr-review-",
+        "lineNumber": 834,
+        "sourceSha256": "d918de9968fd2bd7dc7940d503f80da64b0c95b4687536cc511843a1f61c1c7f",
+        "lineSha256": "d69cdbe51fe60c5bc57ac894ed9136042b0ccdd3150ea3fc088f30a2801dd6cb",
+        "tokenOccurrences": 1,
+        "classification": "owned_cleanup_compatibility_preserve",
+        "reason": "Exact owned temp boundary/registration protocol. Scratch schema+owner marker and canonical parent validation control cleanup; historical xhr prefix retained alongside canonical for resume. Do not broad-prefix or delete compatibility during identity refresh."
+      },
+      "after": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "lattice-xhr-review-",
+        "lineNumber": 834,
+        "sourceSha256": "35b125a529ce8a3b764fc45392babbc55fa632a548e2ced1af9d0f727bd26e94",
+        "lineSha256": "d69cdbe51fe60c5bc57ac894ed9136042b0ccdd3150ea3fc088f30a2801dd6cb",
+        "tokenOccurrences": 1,
+        "classification": "owned_cleanup_compatibility_preserve",
+        "reason": "Exact owned temp boundary/registration protocol. Scratch schema+owner marker and canonical parent validation control cleanup; historical xhr prefix retained alongside canonical for resume. Do not broad-prefix or delete compatibility during identity refresh."
+      }
+    },
+    {
+      "kind": "source",
+      "before": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "lattice-",
+        "lineNumber": 876,
+        "sourceSha256": "d918de9968fd2bd7dc7940d503f80da64b0c95b4687536cc511843a1f61c1c7f",
+        "lineSha256": "7e6084eff60b7ac81430487d3dd52f510e8e06eac54225e59d51278817b0da4b",
+        "tokenOccurrences": 3,
+        "classification": "comment_or_diagnostic",
+        "reason": "Comment/rationale or user-visible error text, not consumed signature identity. Canonicalize present-tense branding; retain quoted historical paths in explanatory migration comments with exact classification."
+      },
+      "after": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "lattice-",
+        "lineNumber": 876,
+        "sourceSha256": "35b125a529ce8a3b764fc45392babbc55fa632a548e2ced1af9d0f727bd26e94",
+        "lineSha256": "7e6084eff60b7ac81430487d3dd52f510e8e06eac54225e59d51278817b0da4b",
+        "tokenOccurrences": 3,
+        "classification": "comment_or_diagnostic",
+        "reason": "Comment/rationale or user-visible error text, not consumed signature identity. Canonicalize present-tense branding; retain quoted historical paths in explanatory migration comments with exact classification."
+      }
+    },
+    {
+      "kind": "source",
+      "before": {
+        "path": "packages/main/src/cli/command-catalog.ts",
+        "token": "LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 3491,
+        "sourceSha256": "2d2f51e7859d09f70a040e14a385d81256f60614e673eb15eb77e2086af16a90",
+        "lineSha256": "8867c45d4ecfa05dabec649699f4b318081ffd5a681cf306d54d82e2a81812e1",
+        "tokenOccurrences": 1,
+        "classification": "private_protocol_preserve_or_coordinated_versioned_migration",
+        "reason": "Exact private managed worker run-id environment consumer paired with managed-host-run producer; no public authority is granted by this name alone."
+      },
+      "after": {
+        "path": "packages/main/src/cli/command-catalog.ts",
+        "token": "LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 3491,
+        "sourceSha256": "a8aa032c8076142b5a458ad7a8a4c97908c05aa4cf207b331e3f14094e4760ac",
+        "lineSha256": "8867c45d4ecfa05dabec649699f4b318081ffd5a681cf306d54d82e2a81812e1",
+        "tokenOccurrences": 1,
+        "classification": "private_protocol_preserve_or_coordinated_versioned_migration",
+        "reason": "Exact private managed worker run-id environment consumer paired with managed-host-run producer; no public authority is granted by this name alone."
+      }
+    },
+    {
+      "kind": "source",
+      "before": {
+        "path": "packages/main/src/core/runtime-environment-checks.ts",
+        "token": "proofbound.acceptance_amendment.v1",
+        "lineNumber": 428,
+        "sourceSha256": "4e19d892cd3be190c269aa64b8ec603e6e5ae2e9aaa0512b0604a5d0fb4f8621",
+        "lineSha256": "6f4bdab04be485f13ad658bd102b262090d60e8befec9f2035fefc3fdcaf43f4",
+        "tokenOccurrences": 1,
+        "classification": "runtime_retired_source_needle_refusal",
+        "reason": "Exact fourth identitySite argument is a forbidden retired source needle for canonical imported-schema consumer. Its paired canonical identityOrigin and mutation case reject retired source; this does not admit a legacy journal."
+      },
+      "after": {
+        "path": "packages/main/src/core/runtime-environment-checks.ts",
+        "token": "proofbound.acceptance_amendment.v1",
+        "lineNumber": 428,
+        "sourceSha256": "18db2c4dbc43dc434ea74f7ed3716f643e5546568afbc60be336e8e792c77aa7",
+        "lineSha256": "6f4bdab04be485f13ad658bd102b262090d60e8befec9f2035fefc3fdcaf43f4",
+        "tokenOccurrences": 1,
+        "classification": "runtime_retired_source_needle_refusal",
+        "reason": "Exact fourth identitySite argument is a forbidden retired source needle for canonical imported-schema consumer. Its paired canonical identityOrigin and mutation case reject retired source; this does not admit a legacy journal."
+      }
+    },
+    {
+      "kind": "source",
+      "before": {
+        "path": "packages/main/src/core/runtime-environment-checks.ts",
+        "token": "proofbound.acceptance_amendments.v1",
+        "lineNumber": 429,
+        "sourceSha256": "4e19d892cd3be190c269aa64b8ec603e6e5ae2e9aaa0512b0604a5d0fb4f8621",
+        "lineSha256": "74badbe80da3d856b67f686f0699b7def8bc27830375225513bb7c2528662b0e",
+        "tokenOccurrences": 1,
+        "classification": "runtime_retired_source_needle_refusal",
+        "reason": "Exact fourth identitySite argument is a forbidden retired source needle for canonical imported-schema consumer. Its paired canonical identityOrigin and mutation case reject retired source; this does not admit a legacy journal."
+      },
+      "after": {
+        "path": "packages/main/src/core/runtime-environment-checks.ts",
+        "token": "proofbound.acceptance_amendments.v1",
+        "lineNumber": 429,
+        "sourceSha256": "18db2c4dbc43dc434ea74f7ed3716f643e5546568afbc60be336e8e792c77aa7",
+        "lineSha256": "74badbe80da3d856b67f686f0699b7def8bc27830375225513bb7c2528662b0e",
+        "tokenOccurrences": 1,
+        "classification": "runtime_retired_source_needle_refusal",
+        "reason": "Exact fourth identitySite argument is a forbidden retired source needle for canonical imported-schema consumer. Its paired canonical identityOrigin and mutation case reject retired source; this does not admit a legacy journal."
+      }
+    },
+    {
+      "kind": "source",
+      "before": {
+        "path": "packages/main/src/core/runtime-environment-checks.ts",
+        "token": "proofbound.effective_progress.v1",
+        "lineNumber": 430,
+        "sourceSha256": "4e19d892cd3be190c269aa64b8ec603e6e5ae2e9aaa0512b0604a5d0fb4f8621",
+        "lineSha256": "91fd8966439a6e71e2eec7acbeb4819e13b58bd6a7b3a80f707c4ee28a36ce9d",
+        "tokenOccurrences": 1,
+        "classification": "runtime_retired_source_needle_refusal",
+        "reason": "Exact fourth identitySite argument is a forbidden retired source needle for canonical imported-schema consumer. Its paired canonical identityOrigin and mutation case reject retired source; this does not admit a legacy journal."
+      },
+      "after": {
+        "path": "packages/main/src/core/runtime-environment-checks.ts",
+        "token": "proofbound.effective_progress.v1",
+        "lineNumber": 430,
+        "sourceSha256": "18db2c4dbc43dc434ea74f7ed3716f643e5546568afbc60be336e8e792c77aa7",
+        "lineSha256": "91fd8966439a6e71e2eec7acbeb4819e13b58bd6a7b3a80f707c4ee28a36ce9d",
+        "tokenOccurrences": 1,
+        "classification": "runtime_retired_source_needle_refusal",
+        "reason": "Exact fourth identitySite argument is a forbidden retired source needle for canonical imported-schema consumer. Its paired canonical identityOrigin and mutation case reject retired source; this does not admit a legacy journal."
+      }
+    },
+    {
+      "kind": "source",
+      "before": {
+        "path": "packages/main/src/core/runtime-environment-checks.ts",
+        "token": "proofbound.convergence_progress_journal.v1",
+        "lineNumber": 431,
+        "sourceSha256": "4e19d892cd3be190c269aa64b8ec603e6e5ae2e9aaa0512b0604a5d0fb4f8621",
+        "lineSha256": "bb6525b1af843ca41399109addce8d5557a1dd30bcd679dd91204996d089d169",
+        "tokenOccurrences": 1,
+        "classification": "runtime_retired_source_needle_refusal",
+        "reason": "Exact fourth identitySite argument is a forbidden retired source needle for canonical imported-schema consumer. Its paired canonical identityOrigin and mutation case reject retired source; this does not admit a legacy journal."
+      },
+      "after": {
+        "path": "packages/main/src/core/runtime-environment-checks.ts",
+        "token": "proofbound.convergence_progress_journal.v1",
+        "lineNumber": 431,
+        "sourceSha256": "18db2c4dbc43dc434ea74f7ed3716f643e5546568afbc60be336e8e792c77aa7",
+        "lineSha256": "bb6525b1af843ca41399109addce8d5557a1dd30bcd679dd91204996d089d169",
+        "tokenOccurrences": 1,
+        "classification": "runtime_retired_source_needle_refusal",
+        "reason": "Exact fourth identitySite argument is a forbidden retired source needle for canonical imported-schema consumer. Its paired canonical identityOrigin and mutation case reject retired source; this does not admit a legacy journal."
+      }
+    },
+    {
+      "kind": "source",
+      "before": {
+        "path": "packages/main/src/core/runtime-environment-checks.ts",
+        "token": "proofbound.causal-evidence-index.v1",
+        "lineNumber": 432,
+        "sourceSha256": "4e19d892cd3be190c269aa64b8ec603e6e5ae2e9aaa0512b0604a5d0fb4f8621",
+        "lineSha256": "c5af66fa7657b364cda9a352df39a98996a90d2cdb9ebf57cbc15f02bdcb75d7",
+        "tokenOccurrences": 1,
+        "classification": "runtime_retired_source_needle_refusal",
+        "reason": "Exact fourth identitySite argument is a forbidden retired source needle for canonical imported-schema consumer. Its paired canonical identityOrigin and mutation case reject retired source; this does not admit a legacy journal."
+      },
+      "after": {
+        "path": "packages/main/src/core/runtime-environment-checks.ts",
+        "token": "proofbound.causal-evidence-index.v1",
+        "lineNumber": 432,
+        "sourceSha256": "18db2c4dbc43dc434ea74f7ed3716f643e5546568afbc60be336e8e792c77aa7",
+        "lineSha256": "c5af66fa7657b364cda9a352df39a98996a90d2cdb9ebf57cbc15f02bdcb75d7",
+        "tokenOccurrences": 1,
+        "classification": "runtime_retired_source_needle_refusal",
+        "reason": "Exact fourth identitySite argument is a forbidden retired source needle for canonical imported-schema consumer. Its paired canonical identityOrigin and mutation case reject retired source; this does not admit a legacy journal."
+      }
+    },
+    {
+      "kind": "source",
+      "before": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "LATTICE_MANAGED_INIT_INVOCATION",
+        "lineNumber": 3286,
+        "lineSha256": "06c3d208e1d232e33719aaa3e21f42f62fa3fc6c0ffaea559b8ef9848e2c40c6",
+        "sourceSha256": "d918de9968fd2bd7dc7940d503f80da64b0c95b4687536cc511843a1f61c1c7f",
+        "tokenOccurrences": 2,
+        "classification": "private-managed-invocation-transport",
+        "reason": "Authenticated private managed INIT invocation producer/consumer; canonical public role and schema remain separately checked. The exact signed transport key is shared by live process verification and cannot be renamed independently."
+      },
+      "after": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "LATTICE_MANAGED_INIT_INVOCATION",
+        "lineNumber": 3286,
+        "lineSha256": "06c3d208e1d232e33719aaa3e21f42f62fa3fc6c0ffaea559b8ef9848e2c40c6",
+        "sourceSha256": "35b125a529ce8a3b764fc45392babbc55fa632a548e2ced1af9d0f727bd26e94",
+        "tokenOccurrences": 2,
+        "classification": "private-managed-invocation-transport",
+        "reason": "Authenticated private managed INIT invocation producer/consumer; canonical public role and schema remain separately checked. The exact signed transport key is shared by live process verification and cannot be renamed independently."
+      }
+    },
+    {
+      "kind": "source",
+      "before": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "environment.LATTICE_MANAGED_INIT_INVOCATION",
+        "lineNumber": 3787,
+        "lineSha256": "a0e692bd67c330714269a053f93fa44acf6c308bf006506661b6d56b6d0638ba",
+        "sourceSha256": "d918de9968fd2bd7dc7940d503f80da64b0c95b4687536cc511843a1f61c1c7f",
+        "tokenOccurrences": 1,
+        "classification": "private-managed-invocation-transport",
+        "reason": "Authenticated private managed INIT invocation producer/consumer; canonical public role and schema remain separately checked. The exact signed transport key is shared by live process verification and cannot be renamed independently."
+      },
+      "after": {
+        "path": "packages/main/src/core/managed-host-run.ts",
+        "token": "environment.LATTICE_MANAGED_INIT_INVOCATION",
+        "lineNumber": 3787,
+        "lineSha256": "a0e692bd67c330714269a053f93fa44acf6c308bf006506661b6d56b6d0638ba",
+        "sourceSha256": "35b125a529ce8a3b764fc45392babbc55fa632a548e2ced1af9d0f727bd26e94",
+        "tokenOccurrences": 1,
+        "classification": "private-managed-invocation-transport",
+        "reason": "Authenticated private managed INIT invocation producer/consumer; canonical public role and schema remain separately checked. The exact signed transport key is shared by live process verification and cannot be renamed independently."
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/tests/managed-init-reviewer-dispatch-e2e.test.mjs",
+        "token": "LATTICE_MANAGED_INIT_INVOCATION",
+        "lineNumber": 229,
+        "lineSha256": "67ab2ec2e2b3b09a90db459b4adf1b48f8cc7b3208fb641495accc3a8432a3c0",
+        "sourceSha256": "d87b668f9b69a795af8a249345c577e19c58c75b158b95953739fa40fc21d732",
+        "tokenOccurrences": 7,
+        "classification": "private-transport-or-negative-fixture",
+        "reason": "Bounded regression input or observer for private managed transport, legacy carrier normalization, environment cleanup, or intentional rejected identity; not a current public identity declaration.",
+        "evidence": "LATTICE_MANAGED_INIT_INVOCATION: readFileSync(join(root, `attestation-${agentType}.json`), 'utf8'),"
+      },
+      "after": {
+        "path": "packages/main/tests/managed-init-reviewer-dispatch-e2e.test.mjs",
+        "token": "LATTICE_MANAGED_INIT_INVOCATION",
+        "lineNumber": 298,
+        "lineSha256": "67ab2ec2e2b3b09a90db459b4adf1b48f8cc7b3208fb641495accc3a8432a3c0",
+        "sourceSha256": "517909cca1d8fe1f462adf29f7cd6ea970057835741afd84cc24aa5e039073e9",
+        "tokenOccurrences": 7,
+        "classification": "private-transport-or-negative-fixture",
+        "reason": "Bounded regression input or observer for private managed transport, legacy carrier normalization, environment cleanup, or intentional rejected identity; not a current public identity declaration.",
+        "evidence": "LATTICE_MANAGED_INIT_INVOCATION: readFileSync(join(root, `attestation-${agentType}.json`), 'utf8'),"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/tests/managed-init-reviewer-dispatch-e2e.test.mjs",
+        "token": "LATTICE_MANAGED_INIT_INVOCATION",
+        "lineNumber": 73,
+        "lineSha256": "eac63362d170346346d910781e4cdf2b714a53ab8cd3637f357f3ff82ef5173c",
+        "sourceSha256": "d87b668f9b69a795af8a249345c577e19c58c75b158b95953739fa40fc21d732",
+        "tokenOccurrences": 7,
+        "classification": "private-transport-or-negative-fixture",
+        "reason": "Bounded regression input or observer for private managed transport, legacy carrier normalization, environment cleanup, or intentional rejected identity; not a current public identity declaration.",
+        "evidence": "writeFileSync(fakeCodex, `#!/bin/sh\\nset -eu\\ncat > \"${root}/delivered-$PROOF_OR_STOP_AGENT.txt\"\\ncase \"$(cat \"${root}/delivered-$PROOF_OR_STOP_AGENT.txt\")\" in *\"Review the initial background + checklist\"*|*\"Review whether the INIT\"*) ;; *) exit 41;; esac\\nprintf '%s' \"$LATTICE_MANAGED_INIT_INVOCATION\" > \"${root}/attestation-$PROOF_OR_STOP_AGENT.json\"\\n: > \"${root}/ready-$PROOF_OR_STOP_AGENT\"\\ni=0\\nwhile [ ! -f \"${root}/ready-proof-or-stop-review-story-init\" ] || [ ! -f \"${root}/ready-proof-or-stop-product-reviewer\" ]; do\\n  i=$((i+1))\\n  if [ \"$i\" -gt 500 ]; then echo 'barrier timeout: peer reviewer never became ready' >&2; exit 42; fi\\n  sleep 0.02\\ndone\\ncase \"$PROOF_OR_STOP_AGENT\" in\\n  proof-or-stop-review-story-init) peer=proof-or-stop-product-reviewer ;;\\n  *) peer=proof-or-stop-review-story-init ;;\\nesac\\nfor mode in tamper-story tamper-role tamper-signature missing-signature malformed-null; do\\n  if \"${process.execPath}\" \"${unifiedExecShim}\" \"$mode\" \"${cli}\" init_check_set \"{\\\\\"storyId\\\\\":\\\\\"${storyId}\\\\\",\\\\\"issues\\\\\":[],\\\\\"agentId\\\\\":\\\\\"$PROOF_OR_STOP_AGENT\\\\\"}\"; then exit 43; fi\\ndone\\nif LATTICE_MANAGED_INIT_INVOCATION=\"$(cat \"${root}/attestation-$peer.json\")\" \"${process.execPath}\" \"${unifiedExecShim}\" normal \"${cli}\" init_check_set \"{\\\\\"storyId\\\\\":\\\\\"${storyId}\\\\\",\\\\\"issues\\\\\":[],\\\\\"agentId\\\\\":\\\\\"$PROOF_OR_STOP_AGENT\\\\\"}\"; then exit 44; fi\\nif [ \"$PROOF_OR_STOP_AGENT\" = proof-or-stop-review-story-init ]; then\\n  env -u LATTICE_MANAGED_INIT_INVOCATION \"${process.execPath}\" \"${cli}\" init_check_set \"{\\\\\"storyId\\\\\":\\\\\"${storyId}\\\\\",\\\\\"issues\\\\\":[],\\\\\"agentId\\\\\":\\\\\"$PROOF_OR_STOP_AGENT\\\\\"}\"\\nelse\\n  \"${process.execPath}\" \"${unifiedExecShim}\" normal \"${cli}\" init_check_set \"{\\\\\"storyId\\\\\":\\\\\"${storyId}\\\\\",\\\\\"issues\\\\\":[],\\\\\"agentId\\\\\":\\\\\"$PROOF_OR_STOP_AGENT\\\\\"}\"\\n  if \"${process.execPath}\" \"${unifiedExecShim}\" normal \"${cli}\" init_check_set \"{\\\\\"storyId\\\\\":\\\\\"${storyId}\\\\\",\\\\\"issues\\\\\":[],\\\\\"agentId\\\\\":\\\\\"$PROOF_OR_STOP_AGENT\\\\\"}\"; then exit 45; fi\\nfi\\nprintf '%s\\\\n' '{\"type\":\"turn.completed\",\"usage\":{}}'\\n`);"
+      },
+      "after": {
+        "path": "packages/main/tests/managed-init-reviewer-dispatch-e2e.test.mjs",
+        "token": "LATTICE_MANAGED_INIT_INVOCATION",
+        "lineNumber": 86,
+        "lineSha256": "eac63362d170346346d910781e4cdf2b714a53ab8cd3637f357f3ff82ef5173c",
+        "sourceSha256": "517909cca1d8fe1f462adf29f7cd6ea970057835741afd84cc24aa5e039073e9",
+        "tokenOccurrences": 7,
+        "classification": "private-transport-or-negative-fixture",
+        "reason": "Bounded regression input or observer for private managed transport, legacy carrier normalization, environment cleanup, or intentional rejected identity; not a current public identity declaration.",
+        "evidence": "writeFileSync(fakeCodex, `#!/bin/sh\\nset -eu\\ncat > \"${root}/delivered-$PROOF_OR_STOP_AGENT.txt\"\\ncase \"$(cat \"${root}/delivered-$PROOF_OR_STOP_AGENT.txt\")\" in *\"Review the initial background + checklist\"*|*\"Review whether the INIT\"*) ;; *) exit 41;; esac\\nprintf '%s' \"$LATTICE_MANAGED_INIT_INVOCATION\" > \"${root}/attestation-$PROOF_OR_STOP_AGENT.json\"\\n: > \"${root}/ready-$PROOF_OR_STOP_AGENT\"\\ni=0\\nwhile [ ! -f \"${root}/ready-proof-or-stop-review-story-init\" ] || [ ! -f \"${root}/ready-proof-or-stop-product-reviewer\" ]; do\\n  i=$((i+1))\\n  if [ \"$i\" -gt 500 ]; then echo 'barrier timeout: peer reviewer never became ready' >&2; exit 42; fi\\n  sleep 0.02\\ndone\\ncase \"$PROOF_OR_STOP_AGENT\" in\\n  proof-or-stop-review-story-init) peer=proof-or-stop-product-reviewer ;;\\n  *) peer=proof-or-stop-review-story-init ;;\\nesac\\nfor mode in tamper-story tamper-role tamper-signature missing-signature malformed-null; do\\n  if \"${process.execPath}\" \"${unifiedExecShim}\" \"$mode\" \"${cli}\" init_check_set \"{\\\\\"storyId\\\\\":\\\\\"${storyId}\\\\\",\\\\\"issues\\\\\":[],\\\\\"agentId\\\\\":\\\\\"$PROOF_OR_STOP_AGENT\\\\\"}\"; then exit 43; fi\\ndone\\nif LATTICE_MANAGED_INIT_INVOCATION=\"$(cat \"${root}/attestation-$peer.json\")\" \"${process.execPath}\" \"${unifiedExecShim}\" normal \"${cli}\" init_check_set \"{\\\\\"storyId\\\\\":\\\\\"${storyId}\\\\\",\\\\\"issues\\\\\":[],\\\\\"agentId\\\\\":\\\\\"$PROOF_OR_STOP_AGENT\\\\\"}\"; then exit 44; fi\\nif [ \"$PROOF_OR_STOP_AGENT\" = proof-or-stop-review-story-init ]; then\\n  env -u LATTICE_MANAGED_INIT_INVOCATION \"${process.execPath}\" \"${cli}\" init_check_set \"{\\\\\"storyId\\\\\":\\\\\"${storyId}\\\\\",\\\\\"issues\\\\\":[],\\\\\"agentId\\\\\":\\\\\"$PROOF_OR_STOP_AGENT\\\\\"}\"\\nelse\\n  \"${process.execPath}\" \"${unifiedExecShim}\" normal \"${cli}\" init_check_set \"{\\\\\"storyId\\\\\":\\\\\"${storyId}\\\\\",\\\\\"issues\\\\\":[],\\\\\"agentId\\\\\":\\\\\"$PROOF_OR_STOP_AGENT\\\\\"}\"\\n  if \"${process.execPath}\" \"${unifiedExecShim}\" normal \"${cli}\" init_check_set \"{\\\\\"storyId\\\\\":\\\\\"${storyId}\\\\\",\\\\\"issues\\\\\":[],\\\\\"agentId\\\\\":\\\\\"$PROOF_OR_STOP_AGENT\\\\\"}\"; then exit 45; fi\\nfi\\nprintf '%s\\\\n' '{\"type\":\"turn.completed\",\"usage\":{}}'\\n`);"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/tests/managed-init-reviewer-dispatch-e2e.test.mjs",
+        "token": "env.LATTICE_MANAGED_INIT_INVOCATION",
+        "lineNumber": 72,
+        "lineSha256": "6dadc141464eb0eaa1fea19169514c95462e37d403c83e7b85767d0b4cc44ef4",
+        "sourceSha256": "d87b668f9b69a795af8a249345c577e19c58c75b158b95953739fa40fc21d732",
+        "tokenOccurrences": 3,
+        "classification": "private-transport-or-negative-fixture",
+        "reason": "Bounded regression input or observer for private managed transport, legacy carrier normalization, environment cleanup, or intentional rejected identity; not a current public identity declaration.",
+        "evidence": "writeFileSync(unifiedExecShim, `import { spawn } from 'node:child_process';\\nconst [mode, ...argv] = process.argv.slice(2);\\nconst env = { ...process.env };\\nif (mode !== 'normal') {\\n  if (mode === 'malformed-null') {\\n    env.LATTICE_MANAGED_INIT_INVOCATION = 'null';\\n  } else {\\n    const attestation = JSON.parse(env.LATTICE_MANAGED_INIT_INVOCATION);\\n    if (mode === 'tamper-story') attestation.storyId += '-wrong';\\n    else if (mode === 'tamper-role') attestation.providerAgent += '-wrong';\\n    else if (mode === 'tamper-signature') attestation.signature = (attestation.signature.startsWith('A') ? 'B' : 'A') + attestation.signature.slice(1);\\n    else if (mode === 'missing-signature') delete attestation.signature;\\n    else throw new Error('unknown shim mode');\\n    env.LATTICE_MANAGED_INIT_INVOCATION = JSON.stringify(attestation);\\n  }\\n}\\nconst child = spawn(process.execPath, argv, { detached: true, stdio: 'inherit', env });\\nchild.on('exit', (code, signal) => process.exitCode = signal ? 70 : (code ?? 71));\\n`);"
+      },
+      "after": {
+        "path": "packages/main/tests/managed-init-reviewer-dispatch-e2e.test.mjs",
+        "token": "env.LATTICE_MANAGED_INIT_INVOCATION",
+        "lineNumber": 85,
+        "lineSha256": "6dadc141464eb0eaa1fea19169514c95462e37d403c83e7b85767d0b4cc44ef4",
+        "sourceSha256": "517909cca1d8fe1f462adf29f7cd6ea970057835741afd84cc24aa5e039073e9",
+        "tokenOccurrences": 3,
+        "classification": "private-transport-or-negative-fixture",
+        "reason": "Bounded regression input or observer for private managed transport, legacy carrier normalization, environment cleanup, or intentional rejected identity; not a current public identity declaration.",
+        "evidence": "writeFileSync(unifiedExecShim, `import { spawn } from 'node:child_process';\\nconst [mode, ...argv] = process.argv.slice(2);\\nconst env = { ...process.env };\\nif (mode !== 'normal') {\\n  if (mode === 'malformed-null') {\\n    env.LATTICE_MANAGED_INIT_INVOCATION = 'null';\\n  } else {\\n    const attestation = JSON.parse(env.LATTICE_MANAGED_INIT_INVOCATION);\\n    if (mode === 'tamper-story') attestation.storyId += '-wrong';\\n    else if (mode === 'tamper-role') attestation.providerAgent += '-wrong';\\n    else if (mode === 'tamper-signature') attestation.signature = (attestation.signature.startsWith('A') ? 'B' : 'A') + attestation.signature.slice(1);\\n    else if (mode === 'missing-signature') delete attestation.signature;\\n    else throw new Error('unknown shim mode');\\n    env.LATTICE_MANAGED_INIT_INVOCATION = JSON.stringify(attestation);\\n  }\\n}\\nconst child = spawn(process.execPath, argv, { detached: true, stdio: 'inherit', env });\\nchild.on('exit', (code, signal) => process.exitCode = signal ? 70 : (code ?? 71));\\n`);"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/tests/managed-implementer-dispatch-e2e.test.mjs",
+        "token": "env.LATTICE_MANAGED_INIT_INVOCATION",
+        "lineNumber": 84,
+        "lineSha256": "81528134fbfad745ba6c5a5d424b7bb01c1010a7bf8e7d96e2d6af14efbbf021",
+        "sourceSha256": "4922ffa64810a897e6c589093ceb8e0b7a664484f79046e281584ceceb3ad4ed",
+        "tokenOccurrences": 1,
+        "classification": "private-transport-or-negative-fixture",
+        "reason": "The detached/fake worker explicitly deletes inherited legacy carrier values to prove completion without trusting those environment credentials; no active alias is introduced.",
+        "evidence": "delete env.LATTICE_MANAGED_INIT_INVOCATION;"
+      },
+      "after": {
+        "path": "packages/main/tests/managed-implementer-dispatch-e2e.test.mjs",
+        "token": "env.LATTICE_MANAGED_INIT_INVOCATION",
+        "lineNumber": 102,
+        "lineSha256": "81528134fbfad745ba6c5a5d424b7bb01c1010a7bf8e7d96e2d6af14efbbf021",
+        "sourceSha256": "b86eb742ec9e547e712ac8e9ae806ac8377df969e662425c274d762ef447edb5",
+        "tokenOccurrences": 1,
+        "classification": "private-transport-or-negative-fixture",
+        "reason": "The detached/fake worker explicitly deletes inherited legacy carrier values to prove completion without trusting those environment credentials; no active alias is introduced.",
+        "evidence": "delete env.LATTICE_MANAGED_INIT_INVOCATION;"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/tests/managed-implementer-dispatch-e2e.test.mjs",
+        "token": "LATTICE_MANAGED_INIT_INVOCATION",
+        "lineNumber": 136,
+        "lineSha256": "4a3c5afccfb784be6ba6695acd08323bc7bcf214b1f522d8c82fa93ad8fe132b",
+        "sourceSha256": "4922ffa64810a897e6c589093ceb8e0b7a664484f79046e281584ceceb3ad4ed",
+        "tokenOccurrences": 3,
+        "classification": "private-transport-or-negative-fixture",
+        "reason": "An intentionally stale private transport credential tests that an unmanaged completion probe stays optional; it does not grant actor authority.",
+        "evidence": "environment: { LATTICE_MANAGED_INIT_INVOCATION: 'stale-or-unrelated' },"
+      },
+      "after": {
+        "path": "packages/main/tests/managed-implementer-dispatch-e2e.test.mjs",
+        "token": "LATTICE_MANAGED_INIT_INVOCATION",
+        "lineNumber": 169,
+        "lineSha256": "4a3c5afccfb784be6ba6695acd08323bc7bcf214b1f522d8c82fa93ad8fe132b",
+        "sourceSha256": "b86eb742ec9e547e712ac8e9ae806ac8377df969e662425c274d762ef447edb5",
+        "tokenOccurrences": 3,
+        "classification": "private-transport-or-negative-fixture",
+        "reason": "An intentionally stale private transport credential tests that an unmanaged completion probe stays optional; it does not grant actor authority.",
+        "evidence": "environment: { LATTICE_MANAGED_INIT_INVOCATION: 'stale-or-unrelated' },"
+      }
+    }
+  ],
+  "retired": [
+    {
+      "path": "packages/main/tests/managed-implementer-dispatch-e2e.test.mjs",
+      "token": "LATTICE_MANAGED_INIT_INVOCATION",
+      "lineNumber": 109,
+      "lineSha256": "0165790368bff6cb1db00665de8e839591ea512822d0384959ff28b25e393e03",
+      "sourceSha256": "4922ffa64810a897e6c589093ceb8e0b7a664484f79046e281584ceceb3ad4ed",
+      "tokenOccurrences": 3,
+      "classification": "private-transport-or-negative-fixture",
+      "reason": "The detached/fake worker explicitly deletes inherited legacy carrier values to prove completion without trusting those environment credentials; no active alias is introduced.",
+      "evidence": "unset LATTICE_MANAGED_INIT_INVOCATION PROOF_OR_STOP_AGENT PROOFBOUND_AGENT || true",
+      "priorLine": "unset LATTICE_MANAGED_INIT_INVOCATION PROOF_OR_STOP_AGENT PROOFBOUND_AGENT || true"
+    },
+    {
+      "path": "packages/main/tests/managed-implementer-dispatch-e2e.test.mjs",
+      "token": "env.PROOFBOUND_AGENT",
+      "lineNumber": 86,
+      "lineSha256": "023ebe59169e78d269c886cef4a5d859d8bc8054dd414c32e911224b5c4b5219",
+      "sourceSha256": "4922ffa64810a897e6c589093ceb8e0b7a664484f79046e281584ceceb3ad4ed",
+      "tokenOccurrences": 1,
+      "classification": "private-transport-or-negative-fixture",
+      "reason": "The detached/fake worker explicitly deletes inherited legacy carrier values to prove completion without trusting those environment credentials; no active alias is introduced.",
+      "evidence": "delete env.PROOFBOUND_AGENT;",
+      "priorLine": "delete env.PROOFBOUND_AGENT;"
+    },
+    {
+      "path": "packages/main/tests/managed-implementer-dispatch-e2e.test.mjs",
+      "token": "PROOFBOUND_AGENT",
+      "lineNumber": 109,
+      "lineSha256": "0165790368bff6cb1db00665de8e839591ea512822d0384959ff28b25e393e03",
+      "sourceSha256": "4922ffa64810a897e6c589093ceb8e0b7a664484f79046e281584ceceb3ad4ed",
+      "tokenOccurrences": 2,
+      "classification": "private-transport-or-negative-fixture",
+      "reason": "The detached/fake worker explicitly deletes inherited legacy carrier values to prove completion without trusting those environment credentials; no active alias is introduced.",
+      "evidence": "unset LATTICE_MANAGED_INIT_INVOCATION PROOF_OR_STOP_AGENT PROOFBOUND_AGENT || true",
+      "priorLine": "unset LATTICE_MANAGED_INIT_INVOCATION PROOF_OR_STOP_AGENT PROOFBOUND_AGENT || true"
+    }
+  ]
+}

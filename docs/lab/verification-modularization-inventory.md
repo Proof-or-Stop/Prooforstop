@@ -209,9 +209,9 @@ Each original entry remains the public command. Internal modules do not register
 | `scripts/validation-build-binding/shared-cache.mjs` | 261 |
 | `scripts/validation-build-binding/support.mjs` | 106 |
 | `packages/main/src/tasks/verification-run-and-guard/causal.ts` | 140 |
-| `packages/main/src/tasks/verification-run-and-guard/cli.ts` | 160 |
+| `packages/main/src/tasks/verification-run-and-guard/cli.ts` | 161 |
 | `packages/main/src/tasks/verification-run-and-guard/foundation.ts` | 427 |
 | `packages/main/src/tasks/verification-run-and-guard/integrity.ts` | 762 |
-| `packages/main/src/tasks/verification-run-and-guard/publication.ts` | 517 |
+| `packages/main/src/tasks/verification-run-and-guard/publication.ts` | 522 |
 | `packages/main/src/tasks/verification-run-and-guard/refresh.ts` | 776 |
 | `packages/main/src/tasks/verification-run-and-guard/support.ts` | 349 |

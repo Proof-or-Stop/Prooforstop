@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
+import { acquireOwnerLease } from '../core/story-owner-lease.js';
 import type { ChecklistData, FindingData, StoryInfo } from '../core/types.js';
 import { createFindingHandlers } from '../handlers/finding.js';
 import { createVerifierHandlers } from '../handlers/verifier.js';
@@ -37,6 +38,13 @@ function initRoot(): { root: string; store: StoryStore; storyId: string } {
     rootDir: 'src',
     storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
+    validate: { commands: [{
+      label: 'cluster-sync-smoke',
+      command: 'node',
+      args: ['--version'],
+      focus: ['cluster-sync-smoke'],
+      timeoutMs: 15_000,
+    }] },
   }, null, 2));
   write(root, 'README.md', 'cluster sync smoke\n');
   git(root, ['init']);
@@ -56,19 +64,19 @@ function initRoot(): { root: string; store: StoryStore; storyId: string } {
     title: 'Cluster sync entrypoints',
     description: 'Synthetic story for cluster sync entrypoints.',
     type: 'chore',
-    phase: 'REVIEW',
+    phase: 'DEV',
     priority: 'medium',
     createdAt: now,
     startedAt: now,
     endedAt: null,
-    events: [{ phase: 'REVIEW', action: 'advance', timestamp: now }],
+    events: [{ phase: 'DEV', action: 'advance', timestamp: now }],
   };
   const checklist: ChecklistData = {
     items: [{
       id: 'CHK-001',
       title: 'Synthetic item',
       context: 'Synthetic context',
-      status: 'done',
+      status: 'pending',
       startTime: now,
       endTime: now,
     }],
@@ -109,26 +117,27 @@ function initRoot(): { root: string; store: StoryStore; storyId: string } {
       createdAt: now,
     }],
   });
+  acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: root });
   return { root, store, storyId };
 }
 
-async function assertFindingListSyncs(): Promise<void> {
+async function assertFindingListDoesNotSync(): Promise<void> {
   const { root, store, storyId } = initRoot();
   try {
     const handlers = createFindingHandlers({ store, root, scanRoot: join(root, 'packages/main') });
     handlers.finding_list({ storyId, cluster: true });
     const finding = store.readFindings(storyId).findings[0];
-    assert.equal(finding.status, 'resolved');
-    assert.match(finding.resolvedBy ?? '', /^CL-001@/);
+    assert.equal(finding.status, 'open', 'read-only finding_list must not consume a worker commit marker');
+    assert.equal(finding.resolvedBy, undefined);
     const direct = store.readFindings(storyId).findings[1];
-    assert.equal(direct.status, 'resolved');
-    assert.match(direct.resolvedBy ?? '', /^B-cluster:F-002@/);
+    assert.equal(direct.status, 'open', 'read-only finding_list must not consume a direct finding marker');
+    assert.equal(direct.resolvedBy, undefined);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
 }
 
-async function assertValidateSyncsUnlessNoSync(): Promise<void> {
+async function assertOwnerValidateSyncsUnlessNoSync(): Promise<void> {
   const synced = initRoot();
   try {
     const handlers = createVerifierHandlers({
@@ -136,17 +145,19 @@ async function assertValidateSyncsUnlessNoSync(): Promise<void> {
       root: synced.root,
       scanRoot: join(synced.root, 'packages/main'),
     });
-    await handlers.validate({ story: synced.storyId, json: true, noSync: true });
-    assert.equal(synced.store.readFindings(synced.storyId).findings[0].status, 'open', 'noSync should skip commit auto-resolve');
-    await handlers.validate({ story: synced.storyId, json: true });
-    assert.equal(synced.store.readFindings(synced.storyId).findings[0].status, 'resolved', 'validate --story should sync cluster resolves');
-    assert.equal(synced.store.readFindings(synced.storyId).findings[1].status, 'resolved', 'validate --story should sync direct finding resolves');
+    assert.equal(synced.store.readFindings(synced.storyId).findings[0].status, 'open',
+      'a repair-worker commit marker alone must leave cluster findings open');
+    await handlers.validate({ story: synced.storyId, focus: 'cluster-sync-smoke', json: true, noSync: true });
+    assert.equal(synced.store.readFindings(synced.storyId).findings[0].status, 'open', 'validate --noSync must not consume cluster markers');
+    await handlers.validate({ story: synced.storyId, focus: 'cluster-sync-smoke', json: true });
+    assert.equal(synced.store.readFindings(synced.storyId).findings[0].status, 'resolved', 'owner-gated validate --story should consume cluster markers');
+    assert.equal(synced.store.readFindings(synced.storyId).findings[1].status, 'resolved', 'owner-gated validate --story should consume direct finding markers');
   } finally {
     rmSync(synced.root, { recursive: true, force: true });
   }
 }
 
-await assertFindingListSyncs();
-await assertValidateSyncsUnlessNoSync();
+await assertFindingListDoesNotSync();
+await assertOwnerValidateSyncsUnlessNoSync();
 
 console.log('✓ cluster sync entrypoints smoke passed');

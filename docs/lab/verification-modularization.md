@@ -515,3 +515,23 @@ selects that unique function body in `process-fact-contract/complete.mjs`.
 Both targeted checks pass, including the absent-registration negative control.
 The complete runtime chain remains a separate acceptance result; these focused
 passes do not claim full identity certification or main integration.
+
+## Main 0.3.438 integration reconciliation
+
+Main `0836d73b7c` resolved the prior main conflicts. The Lab sync retained its
+version and workflow fixes, moved the added live-identity diagnostic assertions
+into the publication module, retained the new explicit legacy selector, and
+updated both prompt policy hashes from that committed main source. The 47-function
+preservation proof compares the changed identity function to that exact main
+commit while preserving the remaining original functions.
+
+Main removed three retired-token fixture lines from its managed implementer test.
+The exact old rows and removed source lines are recorded in
+`main-438-witness-migration.json`; the proof requires the current fixture to equal
+that committed main source and reconstructs the original inventory for the
+existing relocation proof. The remaining 298 rows pass 1,192 rejection controls.
+Source contexts with unchanged literal lines retain their classifications.
+
+The full runtime verifier passed after the two source-reader fixes at
+`297e74387a`. Fresh whole-candidate certification and delivery status remain
+separate from those pre-merge results.

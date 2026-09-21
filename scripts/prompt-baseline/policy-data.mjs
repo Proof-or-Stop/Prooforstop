@@ -66,7 +66,7 @@ export const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-implementer',
-    templateHash: '0efab3500ef20601caef291ffb558d5bd08576daa91bbbde114e0af7cbb685a5',
+    templateHash: 'ef5f18eb9362102927c4e82d200d398dc451f12b8121cb79a0df28c53fefea6a',
   },
   {
     role: 'proof-or-stop-review-behavior',
@@ -106,7 +106,7 @@ export const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-topology-critic',
-    templateHash: '76cf6abe823dd97a6bdc89e451cefc3dbd13ff205201577ab7fde45e729ad928',
+    templateHash: 'de68c702d2d409d27f7936af7b15f12debe2a59e3ed1bfa78cbfa59b6edf1008',
   },
   {
     role: 'proof-or-stop-product-reviewer',

@@ -138,7 +138,7 @@ try {
  write('bin/proof-or-stop.js',"console.log('Proof-or-Stop '+require('fs').readFileSync('built-version','utf8'));\n");
  write('bug.txt','broken');
  const file='packages/main/package.json',text=readFileSync(join(root,file),'utf8'),digest=createHash('sha256').update(text).digest('hex');
- write('scripts/lab/u18-static-edges/exceptions.json',JSON.stringify({schema:'u18-static-exceptions.v1',entries:[{id:'version-evidence',key:file+':3:fixture',sourceDigest:digest,reason:'Disposable source binding regression',requiredEvidence:[{file,startLine:1,endLine:text.split('\n').length,sourceDigest:digest,excerpt:text}],dependencyDigests:{[file]:digest}}]},null,2)+'\n');
+ write('scripts/lab/u18-static-edges/exceptions.json',JSON.stringify({schema:'u18-static-exceptions.v1',entries:[{id:'version-evidence',key:file+':3:fixture',sourceDigest:digest,reason:'Disposable UTF-8 修复 evidence ✅',requiredEvidence:[{file,startLine:1,endLine:text.split('\n').length,sourceDigest:digest,excerpt:text}],dependencyDigests:{[file]:digest}}]},null,2)+'\n');
  write('check.cjs',`const fs=require('fs'),assert=require('assert/strict'),hash=s=>require('crypto').createHash('sha256').update(s).digest('hex');
 assert.equal(fs.readFileSync('bug.txt','utf8'),'fixed','TARGET fixture regression');
 const entry=JSON.parse(fs.readFileSync('scripts/lab/u18-static-edges/exceptions.json')).entries[0],e=entry.requiredEvidence[0],text=fs.readFileSync(e.file,'utf8');
@@ -151,5 +151,7 @@ assert.equal(entry.sourceDigest,hash(text),'VERSION_ENTRY_DIGEST_STALE');assert.
  const finished=cli(['finish','version-source','--notes',notes,'--confirm','--bump','patch']);
  assert.equal(finished.status,0,'LAB_VERSION_MUST_REFRESH_CURRENT_SOURCE_EVIDENCE '+finished.stdout+finished.stderr);
  assert.equal(JSON.parse(readFileSync(join(root,'package.json'))).version,'1.0.1');
+ assert.match(readFileSync(join(root,'scripts/lab/u18-static-edges/exceptions.json'),'utf8'),/Disposable UTF-8 修复 evidence ✅/,
+  'version refresh preserves canonical UTF-8 manifest encoding');
  console.log('LAB_VERSION_SOURCE_EVIDENCE_PASS: actual finish preserves evidence and upgrades built version');
 } finally {rmSync(dir,{recursive:true,force:true});}
