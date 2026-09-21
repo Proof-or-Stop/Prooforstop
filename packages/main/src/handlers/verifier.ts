@@ -8,6 +8,7 @@ import { readFindingValidationConstraints } from '../core/finding-validation.js'
 import { signTestValidationEvidence, verifyTestValidationEvidence } from '../core/validation-artifact-signing.js';
 import { acceptanceCompletionBlocker } from '../core/acceptance-amendment-gates.js';
 import { commandFromString, configuredValidationCommands, filterFocusedConfiguredCommands, sourceInputSnapshot, routineIdentityPolicySnapshot, buildValidateFileCommand } from './validation-identity.js';
+import { COVERAGE_INCOMPLETE_FAILURE_KIND, IDENTITY_UNAVAILABLE_CODE, passPublicationRefusal, readValidationHistory, verdictIdentityFromParts, type ValidationVerdictIdentity } from '../core/validation-verdict-stickiness.js';
 export { configuredValidationCommands, sourceInputSnapshot } from './validation-identity.js';
 import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 /**
@@ -90,6 +91,7 @@ import {
   routineReuseTerminalAttribution,
   type RoutineReuseTerminalAttribution,
   isCompleteRoutineValidationIdentity,
+  classifyValidationTerminalFailure,
   isReusableCommandPass,
   summarizeRoutineCommandExecution,
   type RoutineValidationReuseEvaluation,
@@ -883,7 +885,46 @@ export function launchDirectoryMismatch(bindings: readonly FrozenLaunchBinding[]
   return undefined;
 }
 
-function buildStoryRoutineIdentity(args: {
+/**
+ * Results whose semantic-pass argument is the AGGREGATE verdict of a
+ * dynamic-authority run. Only the two callers that build such a result add to
+ * it, by object identity, so nothing a validate file prints can claim it.
+ */
+const aggregateVerdictResults = new WeakSet<object>();
+
+
+/**
+ * The committed material and story files a run executes against, captured
+ * BEFORE launch and kept with the identity object the run is bound to. The
+ * publication binds its record and its terminal to them when its own lookup
+ * fails afterwards: a lookup that fails only after the commands ran must not
+ * leave an executed verdict without a record.
+ */
+const preLaunchBindings = new WeakMap<RoutineValidationIdentity, { materialHash: string; storyFilesHash: string }>();
+const isSha256Hex = (value: unknown): value is string => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
+
+/**
+ * Exported for the fail-sticky regression. What a publication binds: its own
+ * lookup, and where that lookup fails only after the commands ran, what the
+ * run was bound to before it launched.
+ */
+export function publicationBindings(
+  lookedUp: { materialHash?: string; storyFilesHash?: string },
+  boundBeforeLaunch?: { materialHash: string; storyFilesHash: string },
+): { materialHash?: string; storyFilesHash?: string } {
+  return {
+    materialHash: lookedUp.materialHash ?? boundBeforeLaunch?.materialHash,
+    storyFilesHash: lookedUp.storyFilesHash ?? boundBeforeLaunch?.storyFilesHash,
+  };
+}
+
+/** Exported for the fail-sticky regression: what a run was bound to before it launched. */
+export function preLaunchBindingsFor(identity: RoutineValidationIdentity): { materialHash: string; storyFilesHash: string } | undefined {
+  return preLaunchBindings.get(identity);
+}
+
+/** Exported for the fail-sticky regression: an identity that cannot be built is a refusal, never a null the caller executes past. */
+export function buildStoryRoutineIdentity(args: {
   ctx: HandlerContext;
   storyId: string;
   sourceKind: RoutineValidationSourceKind;
@@ -894,10 +935,7 @@ function buildStoryRoutineIdentity(args: {
 }) {
   try {
     const snapshot = routineVerificationSnapshot(args.ctx, args.storyId);
-    return {
-      snapshot,
-      launchBindings: freezeLaunchBindings(args.ctx.root, args.commands),
-      identity: buildRoutineValidationIdentity({
+    const identity = bindBeforeLaunch(args.ctx, args.storyId, buildRoutineValidationIdentity({
         projectRoot: args.ctx.root,
         sourceKind: args.sourceKind,
         sourceInputs: sourceInputSnapshot(args.ctx.root, args.sourceKind),
@@ -907,12 +945,33 @@ function buildStoryRoutineIdentity(args: {
         ...(args.focus ? { focus: args.focus } : {}),
         profile: snapshot.workflowPolicy.profile,
         verificationPolicyInputs: snapshot.identityPolicyInputs,
-      }),
-    };
+    }));
+    return { snapshot, launchBindings: freezeLaunchBindings(args.ctx.root, args.commands), identity };
   } catch (error) {
-    args.ctx.log?.(`routine validation reuse identity unavailable; executing: ${error instanceof Error ? error.message : String(error)}`);
-    return null;
+    // A run that cannot be bound to what it validates is refused before it
+    // launches. Executing it would record a failure under a digest no later
+    // identity can match, so an unchanged retry would not be recognised as one.
+    throw new Error(`[${IDENTITY_UNAVAILABLE_CODE}] the routine validation identity of ${args.storyId} could not be built, so this run cannot be bound to what it validates and is refused before launch: ${error instanceof Error ? error.message : String(error)}`);
   }
+}
+
+/**
+ * In a git-backed Story the material and the story files must be identifiable
+ * before anything executes; a run that could not be bound afterwards would
+ * execute for nothing. A store without a repository has no such identity and
+ * keeps its legacy failure-only fallback.
+ */
+function bindBeforeLaunch(ctx: HandlerContext, storyId: string, identity: RoutineValidationIdentity): RoutineValidationIdentity {
+  let gitCwd: string | undefined;
+  try { gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root }); } catch { gitCwd = undefined; }
+  if (!gitCwd || !currentHead(gitCwd)) return identity;
+  const materialHash = currentMaterialHash(gitCwd, 'HEAD', ctx.root);
+  const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', ctx.root);
+  if (!isSha256Hex(materialHash) || !isSha256Hex(storyFilesHash)) {
+    throw new Error('the committed material or the story files could not be identified before launch');
+  }
+  preLaunchBindings.set(identity, { materialHash, storyFilesHash });
+  return identity;
 }
 
 export function evaluateStoryRoutineReuse(args: {
@@ -982,6 +1041,7 @@ export function evaluateStoryRoutineReuse(args: {
     currentMaterialHash: materialHash,
     currentStoryFilesHash: storyFilesHash,
     currentBuildArtifactsHash: buildArtifactsHash,
+    validationHistory: readValidationHistory(args.ctx.store, args.storyId),
     clean,
     headBefore,
     headAfter,
@@ -1114,6 +1174,22 @@ function reusedStoryValidationResult(args: {
     });
   }
   const buildArtifactsHash = reusedBinding.buildArtifactsHash;
+  // Fail is sticky where a reused PASS is published too: this function signs
+  // an older record as a fresh PASS without executing anything, so it reads
+  // the same history the executed publication reads.
+  const reusedIdentity = verdictIdentityFromParts({ commandSetHash: args.identity.digest, materialHash, storyFilesHash, buildArtifactsHash });
+  const flipRefusal = passPublicationRefusal(readValidationHistory(args.ctx.store, args.storyId), reusedIdentity);
+  if (flipRefusal || !reusedIdentity) {
+    return externalResult({
+      provider: 'proof-or-stop-verifier-reuse-persistence',
+      status: 'fail',
+      failureKind: 'infra_failure',
+      summary: 'Validation reuse refused because this identity has an executed failure on record',
+      details: ['canonical-pass-persistence-failed', flipRefusal ?? `[${IDENTITY_UNAVAILABLE_CODE}]`],
+      warnings: [],
+      commands: [],
+    });
+  }
   const storyRel = normalizeRelPath(relative(
     realpathSync(args.gitCwd),
     realpathSync(args.ctx.store.storyDirPath(args.storyId)),
@@ -1204,7 +1280,12 @@ function reusedStoryValidationResult(args: {
     expectedHashes = publicationOutputHashes(transaction, storyRel, prepared.sha256);
     assertCurrentValidationPublicationOwner(args.ctx.root, args.storyId);
     args.ctx.store.writePreparedTestEvidence(args.storyId, prepared);
-    const terminal = recordValidationTerminal(args.ctx, args.storyId, args.gitCwd, reused, args.identity);
+    // The terminal carries the compiled-artifact identity and protection of
+    // the record that was reused, exactly what done_prepare binds it to.
+    const terminal = recordValidationTerminal(args.ctx, args.storyId, {
+      ...reused,
+      ...(priorEvidence.buildArtifactsProtection ? { buildArtifactsProtection: priorEvidence.buildArtifactsProtection } : {}),
+    }, reusedIdentity);
     if (!terminal) throw new Error('VALIDATION_TERMINAL_RECEIPT_MISSING: canonical publication requires a terminal append receipt');
     const terminalHashes = publicationOutputHashes(transaction, storyRel, prepared.sha256, terminal);
     expectedHashes.set(`${storyRel}/process-events.jsonl`, terminalHashes.get(`${storyRel}/process-events.jsonl`)!);
@@ -1367,12 +1448,17 @@ function dynamicBuildArtifactsBinding(executedDynamic: {
   return bound;
 }
 
-function recordValidationTerminal(
+/**
+ * Exported for the fail-sticky regression. The terminal records exactly the
+ * identity its publication validated and bound the evidence to. It looks
+ * nothing up again: a second lookup that failed would write a terminal no
+ * identity can match, and the failure it records would stop counting.
+ */
+export function recordValidationTerminal(
   ctx: HandlerContext,
   storyId: string,
-  gitCwd: string,
   result: any,
-  identity?: RoutineValidationIdentity,
+  bindings: ValidationVerdictIdentity,
   reuseAttribution?: RoutineReuseTerminalAttribution,
 ) {
   let story;
@@ -1383,29 +1469,26 @@ function recordValidationTerminal(
     attemptId: story.currentReviewRound ?? '',
     phase: story.phase,
     reviewRound: story.currentReviewRound ?? '',
-    commandSetHash: identity?.digest ?? createHash('sha256').update(JSON.stringify(
-      Array.isArray(result.commands)
-        ? result.commands.map((command: any) => ({
-          label: command?.label ?? '',
-          command: command?.command ?? '',
-          args: Array.isArray(command?.args) ? command.args : [],
-          shell: command?.shell === true,
-          cwd: command?.cwd ?? '',
-        }))
-        : [],
-    )).digest('hex'),
+    // The command set IS the routine identity digest. There is no fallback
+    // digest: one built differently could never match a later identity.
+    commandSetHash: bindings.commandSetHash,
     disposition: result.disposition === 'reused' ? 'reused' : 'executed',
     commandExecutions: Number(result.commandExecutions ?? result.commands?.length ?? 0),
     result: result.allPass === false || result.status === 'fail' ? 'fail' : 'pass',
-    materialHash: currentMaterialHash(gitCwd, 'HEAD', ctx.root) ?? '',
-    storyFilesHash: currentStoryFilesHash(gitCwd, 'HEAD', ctx.root) ?? '',
+    // Only a failing terminal has a kind: a verdict about the code, an
+    // infrastructure failure, or a coverage-only failure. Fail-sticky treats
+    // only the first as a verdict, and a missing kind as a verdict too.
+    ...((result.allPass === false || result.status === 'fail')
+      && (result.failureKind === 'infra_failure' || result.failureKind === 'validation_failure' || result.failureKind === COVERAGE_INCOMPLETE_FAILURE_KIND)
+      ? { failureKind: result.failureKind } : {}),
+    materialHash: bindings.materialHash,
+    storyFilesHash: bindings.storyFilesHash,
     // Observable build identity: two executions against different compiled
     // trees are no longer indistinguishable from a verdict flip on unchanged
-    // material. Executed results carry the end-of-execution identity; reused
-    // results bind the dist on disk now. The B-f824 duplicate-suite grouping
-    // keeps its three-key contract.
-    buildArtifactsHash: (typeof result.buildArtifactsHash === 'string' && result.buildArtifactsHash)
-      || currentBuildArtifactsHash(gitCwd, ctx.root) || '',
+    // material. Executed results bind the end-of-execution identity, reused
+    // results the identity of the record they republish. The B-f824
+    // duplicate-suite grouping keeps its three-key contract.
+    buildArtifactsHash: bindings.buildArtifactsHash,
     ...(typeof result.buildArtifactsProtection === 'string' ? { buildArtifactsProtection: result.buildArtifactsProtection } : {}),
     ...(reuseAttribution && result.disposition !== 'reused' ? { reuse: reuseAttribution } : {}),
   });
@@ -1442,10 +1525,17 @@ function persistStoryValidationEvidence(
   expectedCommandCount: number,
   semanticCommandPass?: boolean,
   reuseAttribution?: RoutineReuseTerminalAttribution,
+  /** Trusted: true only when a dynamic-authority caller passed its aggregate verdict as semanticCommandPass. */
+  semanticIsAggregate = false,
 ): any | null {
   const statusPass = result.status === 'pass';
   const allPass = Boolean(result.allPass ?? result.allPassed ?? statusPass);
   const failureKind = validationFailureKindFromResult(result, allPass);
+  // A refused publication is not a verdict of record. It writes neither
+  // evidence nor terminal and leaves the Story metadata exactly as it was:
+  // it publishes no PASS, and the next run is judged against the same
+  // history - the standing of running the commands by hand. What CAN be
+  // bound is bound before launch, so that an executed verdict is recorded.
   const persistenceFailure = (reason: string, extraDetails: string[] = []) => ({
     ...externalResult({
       provider: 'proof-or-stop-verifier-executed-persistence',
@@ -1459,6 +1549,11 @@ function persistStoryValidationEvidence(
     disposition: 'executed',
     commandExecutions: commandResults.filter(row => row.executionReceipt?.disposition !== 'reused').length,
   });
+  // No record and no terminal without the routine identity: neither a PASS
+  // nor a failure may be bound to a digest a later identity cannot match.
+  if (!identity) {
+    return persistenceFailure(`the routine validation identity is unavailable, so this result cannot be bound to what it validated [${IDENTITY_UNAVAILABLE_CODE}]`);
+  }
   // B-3434: the artifact grows with the NUMBER of configured validate commands (per-command output
   // is already capped upstream by trimOutput), and once it passed the metadata read ceiling nothing
   // could commit test-evidence.json at all.
@@ -1531,6 +1626,7 @@ function persistStoryValidationEvidence(
   let storyRel: string;
   let transaction: ReturnType<typeof captureDonePrepareGeneratedMetadataTransaction>;
   let hashes: { headHash?: string; materialHash?: string; storyFilesHash?: string; buildArtifactsHash?: string; buildArtifactsProtection?: string };
+  let verdictIdentity: ValidationVerdictIdentity | null;
   try {
     gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
     // The build identity is observed at the end of execution (the funnel stamps
@@ -1557,13 +1653,28 @@ function persistStoryValidationEvidence(
     if (executionBuildArtifactsHash !== publicationBuildArtifactsHash) {
       return persistenceFailure('build artifacts changed between execution and publication; rerun validate [build_artifacts_drift_before_publication]');
     }
+    // A lookup that fails only now, after the commands ran, falls back to
+    // what this run was bound to before it launched: the verdict it executed
+    // is recorded against the material it executed on, never dropped.
     hashes = {
       headHash: currentHead(gitCwd) ?? result.headSha ?? result.headHash,
-      materialHash: currentMaterialHash(gitCwd, 'HEAD', ctx.root),
-      storyFilesHash: currentStoryFilesHash(gitCwd, 'HEAD', ctx.root),
+      ...publicationBindings({
+        materialHash: currentMaterialHash(gitCwd, 'HEAD', ctx.root),
+        storyFilesHash: currentStoryFilesHash(gitCwd, 'HEAD', ctx.root),
+      }, preLaunchBindings.get(identity)),
       buildArtifactsHash: executionBuildArtifactsHash,
       ...(typeof result.buildArtifactsProtection === 'string' ? { buildArtifactsProtection: result.buildArtifactsProtection } : {}),
     };
+    // Fail is sticky at publication, not only at admission: a PASS earned on
+    // an identity an executed run failed on is a flipped verdict, and this run
+    // reports failure instead of signing it. The refusal is a persistence
+    // failure (infrastructure), so it does not itself become a sticky verdict;
+    // the original failure already is one.
+    verdictIdentity = verdictIdentityFromParts({ commandSetHash: identity.digest, ...hashes });
+    if (allPass) {
+      const flipRefusal = passPublicationRefusal(readValidationHistory(ctx.store, storyId), verdictIdentity);
+      if (flipRefusal) return persistenceFailure(flipRefusal);
+    }
     storyRel = normalizeRelPath(relative(
       realpathSync(gitCwd),
       realpathSync(ctx.store.storyDirPath(storyId)),
@@ -1610,6 +1721,13 @@ function persistStoryValidationEvidence(
     return persistenceFailure(reason);
   }
 
+  // A failure is bound as completely as a PASS. A record whose material or
+  // story files could not be identified would leave a terminal no identity
+  // matches, and the failure it records would stop counting on the retry.
+  if (!verdictIdentity) {
+    return persistenceFailure(`the committed material or the story files could not be identified, so this result cannot be bound to what it validated [${IDENTITY_UNAVAILABLE_CODE}]`);
+  }
+  const terminalBindings = verdictIdentity;
   // Reduce the hash-bearing candidate once. The store then captures immutable
   // serialized bytes: publication and commit digests never re-read this object.
   const persistedBound = boundEvidence(hashes);
@@ -1631,7 +1749,28 @@ function persistStoryValidationEvidence(
     expectedHashes = publicationOutputHashes(transaction, storyRel, prepared.sha256);
     assertCurrentValidationPublicationOwner(ctx.root, storyId);
     ctx.store.writePreparedTestEvidence(storyId, prepared);
-    const terminal = recordValidationTerminal(ctx, storyId, gitCwd, result, identity, reuseAttribution);
+    // The terminal verdict is that of the published record, and the kind of a
+    // failing run comes from the command outcomes of the executor, never from a kind the
+    // result happens to carry: infrastructure only when infrastructure is all
+    // that failed, coverage-only under the predicate the reuse evaluator
+    // republishes such a record with, a verdict otherwise.
+    const { failureKind: _resultKind, ...terminalBase } = result as Record<string, unknown>;
+    const terminalResult = allPass ? { ...terminalBase, allPass } : {
+      ...terminalBase,
+      allPass,
+      failureKind: classifyValidationTerminalFailure({
+        record: persistedBound.record,
+        commandResults,
+        ...(semanticCommandPass !== undefined ? { semanticCommandPass } : {}),
+        // The dynamic-authority callers pass their aggregate verdict in that
+        // parameter, which says nothing the command outcomes do not; only a
+        // verdict a validate file printed is an independent semantic one.
+        // Which it is comes from the caller, never from the result itself.
+        semanticIsAggregate,
+        concurrentPollutionBlocking: Boolean(result?.concurrentWorktreePollution && result.concurrentWorktreePollution.blocking !== false),
+      }),
+    };
+    const terminal = recordValidationTerminal(ctx, storyId, terminalResult, terminalBindings, reuseAttribution);
     if (!terminal) throw new Error('VALIDATION_TERMINAL_RECEIPT_MISSING: canonical publication requires a terminal append receipt');
     const terminalHashes = publicationOutputHashes(transaction, storyRel, prepared.sha256, terminal);
     expectedHashes.set(`${storyRel}/process-events.jsonl`, terminalHashes.get(`${storyRel}/process-events.jsonl`)!);
@@ -1931,6 +2070,7 @@ function decorateAndMaybePersistStoryValidation(
       expectedCommandCount,
       semanticCommandPass,
       reuseAttribution,
+      aggregateVerdictResults.has(result),
     );
     if (persistenceFailure) return persistenceFailure;
   }
@@ -2518,6 +2658,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
                 verdictEquivalent: undefined,
               },
             };
+            aggregateVerdictResults.add(authoritative);
             const decorated = decorateAndMaybePersistStoryValidation(
               ctx,
               args.story,
@@ -2897,6 +3038,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
               verdictEquivalent: undefined,
             },
           };
+          aggregateVerdictResults.add(authoritative);
           const decorated = decorateAndMaybePersistStoryValidation(
             ctx,
             args.story,
@@ -3110,6 +3252,9 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             // `code` already carries the executor's build-binding verdict, so
             // the plain-text rendering fails exactly as --json does; the
             // executor's diagnostics are part of the reported output.
+            // A plain-text validate-file run is a dry run: it publishes neither
+            // evidence nor terminal, so its PASS is evidence nowhere and its
+            // failure has nothing to stick to. Only `--json` runs are recorded.
             reportOutcome(code === 0 && coverage.missingRequired === 0);
             return maybePrefixFocusedText((dynamicValidation?.report ? `${dynamicValidation.report}\n` : '') + output + '\n' + renderVerificationCoverage(coverage, verificationPolicy) + (advisories.length > 0 ? `\n${advisories.join('\n')}` : '') + (executorBindingDetails.length > 0 ? `\n${executorBindingDetails.join('\n')}` : '') + (code !== 0 || coverage.missingRequired > 0 ? `\n(exit code: ${code || 1})` : ''), focus);
           } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
