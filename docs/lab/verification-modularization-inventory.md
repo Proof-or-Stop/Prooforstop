@@ -1,12 +1,12 @@
 # Detailed verification module and capability inventory
 
-Each original entry remains the public command. Internal modules do not register new routine gates. `--list-capabilities` describes supported selectors; `--capability=<id>` selects a bounded capability. Default and `--all` retain the complete entry behavior. Legacy selectors remain supported. A partial PASS is not authority to skip other production checks.
+Each original entry remains the public command. Internal modules do not register new routine gates. `--list-capabilities` lists selectors; repeated `--capability=<id>` arguments select bounded capabilities. Default and `--all` retain the complete entry behavior. Legacy selectors remain supported. A partial PASS is not authority to skip other production checks.
 
 | Entry | Entry lines | Modules | Maximum lines | Capability IDs | Registration |
 |---|---:|---:|---:|---|---|
 | `scripts/verify-process-fact-contract.mjs` | 7 | 16 | 1857 | `support`, `proofstory-closeout`, `reopen`, `prompt-contracts`, `review-inventory`, `registry-parser`, `command-contracts`, `review-verification`, `scope-runtime`, `story3` | Existing entry retained; explicit internal capability map |
 | `packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs` | 7 | 27 | 1024 | `selector-contract`, `inventory-bijection`, `partition-contract`, `fixture-template-contract`, `coordinator-fault-contract`, `detached-containment-contract`, `worker-safety-contract`, `exact-head-supervisor-contract`, `resource-parallel-contract`, `performance-preflight-isolation-contract`, `performance-host-accounting-contract`, `performance-idle-wait-contract`, `performance-idle-budget-contract`, `performance-preflight-idle-contract`, `performance-contamination-retry-contract`, `performance-current-jobs1-contract`, `performance-current-jobs2-contract`, `performance-contract` | Existing entry retained; explicit internal capability map |
-| `scripts/verify-proof-or-stop-identity-cutover.mjs` | 8 | 25 | 1433 | `ordering`, `current-guidance`, `history-contexts`, `schema-inventory`, `active-residue` | Existing entry retained; explicit internal capability map |
+| `scripts/verify-proof-or-stop-identity-cutover.mjs` | 9 | 25 | 1433 | `ordering`, `current-guidance`, `history-contexts`, `schema-inventory`, `active-residue` | Existing entry retained; explicit internal capability map |
 | `packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts` | 7 | 14 | 1577 | `vocabulary-controls`, `import-controls`, `dynamic-controls`, `loader-provenance`, `compatibility-controls`, `public-contract` | Existing entry retained; explicit internal capability map |
 | `packages/main/src/tasks/validation-tier-planner-smoke.ts` | 7 | 9 | 1652 | `command-identity`, `historical-pins`, `change-inputs`, `selection-widening`, `cli-integration`, `hash-completeness`, `acceptance-guards` | Existing entry retained; explicit internal capability map |
 | `packages/main/src/tasks/flow-stability-smoke.ts` | 7 | 11 | 989 | `done-convergence`, `lifecycle`, `workspace`, `artifacts`, `review-evidence`, `review-routing`, `done-reporting`, `phase-effects`, `liveness`, `history-compatibility` | Existing entry retained; explicit internal capability map |
@@ -35,7 +35,7 @@ Each original entry remains the public command. Internal modules do not register
 | `scripts/process-fact-contract/reopen.mjs` | 568 |
 | `scripts/process-fact-contract/review-inventory.mjs` | 832 |
 | `scripts/process-fact-contract/review-verification.mjs` | 1005 |
-| `scripts/process-fact-contract/scope-runtime.mjs` | 1209 |
+| `scripts/process-fact-contract/scope-runtime.mjs` | 1223 |
 | `scripts/process-fact-contract/source-analysis.mjs` | 575 |
 | `scripts/process-fact-contract/story3.mjs` | 360 |
 | `scripts/process-fact-contract/support.mjs` | 1224 |
@@ -134,9 +134,9 @@ Each original entry remains the public command. Internal modules do not register
 | `packages/main/tests/canonical-new-story-artifacts/fixture-support.mjs` | 72 |
 | `packages/main/tests/canonical-new-story-artifacts/identity-cutover.mjs` | 481 |
 | `packages/main/tests/canonical-new-story-artifacts/identity-inventory.mjs` | 323 |
-| `packages/main/tests/canonical-new-story-artifacts/identity-ownership.mjs` | 259 |
-| `packages/main/tests/canonical-new-story-artifacts/identity-policy.mjs` | 142 |
-| `packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs` | 281 |
+| `packages/main/tests/canonical-new-story-artifacts/identity-ownership.mjs` | 274 |
+| `packages/main/tests/canonical-new-story-artifacts/identity-policy.mjs` | 143 |
+| `packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs` | 282 |
 | `packages/main/tests/canonical-new-story-artifacts/identity-sites.mjs` | 548 |
 | `packages/main/tests/canonical-new-story-artifacts/memory-runtime.mjs` | 210 |
 | `packages/main/tests/canonical-new-story-artifacts/migration-archive.mjs` | 231 |

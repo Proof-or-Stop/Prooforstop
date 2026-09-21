@@ -1,7 +1,7 @@
 # Verification modularization: implementation and evidence ledger
 
 All 14 requested entries have been split into 192 modules; the largest module is
-1,857 physical lines. The original public entries contain 6–8 lines. The complete
+1,857 physical lines. The original public entries contain 6–9 lines. The complete
 [file-by-file and capability inventory](verification-modularization-inventory.md)
 records the actual files and explicit selectors. Internal module registration does
 not add routine validation gates (250 at this checkpoint).
@@ -11,10 +11,12 @@ cross-cutting checks preserve 699 exact contexts, 212 whole-source witnesses, an
 696 scanner line pins. The seven F-060 boundary checks pass after module relocation;
 static AST cached/reference reports were identical. Two standalone fixture tests
 were repaired to read the actual extracted function declarations and pass their
-original mutation controls. The full canonical group exposed an additional stale
-monolith reader and mixed committed-source/current-build fixture inputs; its final
-committed-candidate rerun and local Lab integration are still required. No remote
-push is authorized by this report.
+original mutation controls. The full canonical group exposed stale monolith readers and one missing public
+export. The actual extracted source readers and `verifyFrozenFiles` public export
+have been repaired; targeted consumer, inventory, changelog and API controls pass.
+The final complete canonical command and authoritative Lab finish record are the
+delivery checks. Historical per-family runs below are not relabeled as current-head
+full reruns. No remote push is authorized by this report.
 
 Original public files contain imports, usage comments and one invocation.
 Every extracted file is limited to 2,000 physical lines. No hidden monolith,
@@ -23,22 +25,22 @@ No routine validation command is added by internal module registration.
 
 ## Entrypoint comparison
 
-| Original entry | Before lines | Current entry lines | Modules | Largest module | Evidence/status | In main |
+| Original entry | Before lines | Current entry lines | Modules | Largest module | Evidence/status | Recorded scope |
 |---|---:|---:|---:|---:|---|---|
-| `scripts/verify-process-fact-contract.mjs` | 12201 | 7 | 16 | 1857 | RED -> official GREEN at 317918539b; full suite 181.37 s | No |
-| `packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs` | 10748 | 7 | 27 | 1024 | RED recorded; 196 function bodies / 18 bindings preserved; 7 scoped contracts pass, heavy campaigns not rerun | No |
-| `scripts/verify-proof-or-stop-identity-cutover.mjs` | 7794 | 8 | 25 | 1433 | RED -> scoped GREEN fcdd5514a5; 158 statements, 696 self-context pins and 106 negative controls; seven F-060 boundary checks pass; final complete certification pending | No |
-| `packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts` | 6101 | 7 | 14 | 1577 | RED -> official GREEN at 51b6485211; full scan 67.33 s; 109 function bodies and driver order preserved | No |
-| `packages/main/src/tasks/validation-tier-planner-smoke.ts` | 5792 | 7 | 9 | 1652 | RED -> official GREEN at d8b0ad6632; full suite 12.97 s, 142 checks | No |
-| `packages/main/src/tasks/flow-stability-smoke.ts` | 5528 | 7 | 11 | 989 | RED -> official GREEN at 21be146f9c; full suite 137.62 s | No |
-| `packages/main/tests/canonical-new-story-artifacts.test.mjs` | 5378 | 7 | 22 | 691 | RED recorded; 58 functions and 112 statements preserved; scoped checks pass, full certification pending | No |
-| `packages/main/src/tasks/finding-ledger-runtime-smoke.ts` | 4646 | 6 | 9 | 1134 | Full suites passed at 3b51f4f666 / f5fda7d0e6 in 130.60 / 147.00 s; combined run failed in the separate process suite | No |
-| `packages/main/src/tasks/managed-review-evidence-smoke.ts` | 4360 | 7 | 15 | 926 | RED -> complete GREEN 4e8e49ffea in 77.45 s; 28 helpers and 419 statements retained with documented fixture repairs | No |
-| `packages/main/src/tasks/host-run-usage-smoke.ts` | 3867 | 6 | 15 | 587 | RED -> official GREEN at 9c8e8b848b; full suite 34.00 s, 91 checks | No |
-| `scripts/verify-proof-or-stop-prompt-baseline.mjs` | 3675 | 7 | 6 | 1344 | RED -> official GREEN at 103d6e06fa; full suite 9.60 s | No |
-| `packages/main/tests/milestone-status.test.mjs` | 3447 | 6 | 9 | 670 | RED -> official GREEN at a3777644bb; full suite 39.00 s | No |
-| `scripts/verify-validation-build-artifact-binding.mjs` | 3329 | 7 | 7 | 1409 | RED -> official GREEN at 4dd8c68c69; full suite 134.18 s, 598 checks | No |
-| `packages/main/src/tasks/verification-run-and-guard-smoke.ts` | 3138 | 7 | 7 | 776 | RED -> official GREEN at 378d1ccb3a; full suite 94.52 s | No |
+| `scripts/verify-process-fact-contract.mjs` | 12201 | 7 | 16 | 1857 | RED -> official GREEN at 317918539b; full suite 181.37 s | Lab evidence |
+| `packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs` | 10748 | 7 | 27 | 1024 | RED recorded; 196 function bodies / 18 bindings preserved; 7 scoped contracts pass, heavy campaigns not rerun | Lab evidence |
+| `scripts/verify-proof-or-stop-identity-cutover.mjs` | 7794 | 9 | 25 | 1433 | RED -> scoped GREEN fcdd5514a5; 158 statements, 696 self-context pins and 106 negative controls; seven F-060 boundary checks pass; final complete certification pending | Lab evidence |
+| `packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts` | 6101 | 7 | 14 | 1577 | RED -> official GREEN at 51b6485211; full scan 67.33 s; 109 function bodies and driver order preserved | Lab evidence |
+| `packages/main/src/tasks/validation-tier-planner-smoke.ts` | 5792 | 7 | 9 | 1652 | RED -> official GREEN at d8b0ad6632; full suite 12.97 s, 142 checks | Lab evidence |
+| `packages/main/src/tasks/flow-stability-smoke.ts` | 5528 | 7 | 11 | 989 | RED -> official GREEN at 21be146f9c; full suite 137.62 s | Lab evidence |
+| `packages/main/tests/canonical-new-story-artifacts.test.mjs` | 5378 | 7 | 22 | 691 | RED recorded; 58 functions and 112 statements preserved; scoped checks pass, full certification pending | Lab evidence |
+| `packages/main/src/tasks/finding-ledger-runtime-smoke.ts` | 4646 | 6 | 9 | 1134 | Full suites passed at 3b51f4f666 / f5fda7d0e6 in 130.60 / 147.00 s; combined run failed in the separate process suite | Lab evidence |
+| `packages/main/src/tasks/managed-review-evidence-smoke.ts` | 4360 | 7 | 15 | 926 | RED -> complete GREEN 4e8e49ffea in 77.45 s; 28 helpers and 419 statements retained with documented fixture repairs | Lab evidence |
+| `packages/main/src/tasks/host-run-usage-smoke.ts` | 3867 | 6 | 15 | 587 | RED -> official GREEN at 9c8e8b848b; full suite 34.00 s, 91 checks | Lab evidence |
+| `scripts/verify-proof-or-stop-prompt-baseline.mjs` | 3675 | 7 | 6 | 1344 | RED -> official GREEN at 103d6e06fa; full suite 9.60 s | Lab evidence |
+| `packages/main/tests/milestone-status.test.mjs` | 3447 | 6 | 9 | 670 | RED -> official GREEN at a3777644bb; full suite 39.00 s | Lab evidence |
+| `scripts/verify-validation-build-artifact-binding.mjs` | 3329 | 7 | 7 | 1409 | RED -> official GREEN at 4dd8c68c69; full suite 134.18 s, 598 checks | Lab evidence |
+| `packages/main/src/tasks/verification-run-and-guard-smoke.ts` | 3138 | 7 | 7 | 776 | RED -> official GREEN at 378d1ccb3a; full suite 94.52 s | Lab evidence |
 
 ## Parameters and registration
 
@@ -477,3 +479,25 @@ The normalized production inventory is now 250 commands after main sync
 `verify-validation-verdict-stickiness.mjs` and
 `verify-validation-verdict-stickiness-cli.mjs`; no commands were removed.
 See `scripts/lab/verification-modularization/planner-main-sync-inventory.json`.
+
+## Integration compatibility evidence
+
+- Complete public export preservation is checked against every original exported
+  function, including `verifyFrozenFiles`; the real changelog consumer and its
+  byte/object/ancestry/refusal cases pass.
+- Public-operation coverage reads the actual frozen runtime scanner closure and
+  compares it with the independently reviewed 26-file scanner inventory. Removing
+  its release-operation owner remains an explicit rejection.
+- Original negative-data mutations now target the extracted negative-context
+  module; absent targets are assertions, never silently skipped mutations.
+- The audit input budget dependency was delivered separately through Lab
+  `audit-snapshot-input-budget`, independent Claude audit and local main 0.3.437.
+  Complete snapshots are bounded at 64 MiB; output remains 8 MiB. The modular
+  candidate audit input was measured at about 35.3 MB and remains complete.
+- Routine command inventory remains 250. The 192 extracted modules add no root
+  validation registrations. The shared static closure analyzer is additional
+  infrastructure, not another gate.
+
+The signed local Lab maintenance record determines whether integration and cleanup
+have completed. This document records implementation and validation scope; it does
+not assert Story DONE or remote publication.

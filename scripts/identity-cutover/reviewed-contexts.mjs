@@ -522,7 +522,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
-    "sha256": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f"
+    "sha256": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/identity-sites.mjs",

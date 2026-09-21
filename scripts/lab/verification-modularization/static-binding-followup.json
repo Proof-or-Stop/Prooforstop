@@ -1,4 +1,1364 @@
 {
   "baseline": "53dc0babd9",
-  "changes": []
+  "changes": [
+    {
+      "id": "EX-0072",
+      "oldKey": "packages/main/src/tasks/agent-liveness-suite-smoke.ts:30:execFileSync",
+      "newKey": "packages/main/src/tasks/agent-liveness-suite-smoke.ts:30:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-0061",
+      "oldKey": "packages/main/src/tasks/native-review-fixture.ts:190:spawn",
+      "newKey": "packages/main/src/tasks/native-review-fixture.ts:190:spawn",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-0009",
+      "oldKey": "scripts/run-validation-fixture-suite.mjs:58:spawnSync",
+      "newKey": "scripts/run-validation-fixture-suite.mjs:58:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-0231",
+      "oldKey": "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts:67:spawn",
+      "newKey": "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts:67:spawn",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-0135",
+      "oldKey": "packages/main/src/tasks/verification-run-and-guard/support.ts:199:spawnSync",
+      "newKey": "packages/main/src/tasks/verification-run-and-guard/support.ts:199:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-0232",
+      "oldKey": "packages/main/src/tasks/verification-run-and-guard/publication.ts:153:spawn",
+      "newKey": "packages/main/src/tasks/verification-run-and-guard/publication.ts:153:spawn",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-0233",
+      "oldKey": "packages/main/src/tasks/verification-run-and-guard/cli.ts:66:spawn",
+      "newKey": "packages/main/src/tasks/verification-run-and-guard/cli.ts:66:spawn",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-0134",
+      "oldKey": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:220:spawn",
+      "newKey": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:220:spawn",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-0174",
+      "oldKey": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:441:spawn",
+      "newKey": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:441:spawn",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-1001",
+      "oldKey": "scripts/helpers/provider-neutral-fixture.mjs:43:spawnSync",
+      "newKey": "scripts/helpers/provider-neutral-fixture.mjs:43:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-1002",
+      "oldKey": "scripts/helpers/provider-neutral-fixture.mjs:51:spawnSync",
+      "newKey": "scripts/helpers/provider-neutral-fixture.mjs:51:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-0173",
+      "oldKey": "packages/main/src/tasks/quorum-submit-smoke-integration-cases.ts:381:spawnSync",
+      "newKey": "packages/main/src/tasks/quorum-submit-smoke-integration-cases.ts:381:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-0225",
+      "oldKey": "packages/main/src/tasks/quorum-submit-smoke-worker.ts:1383:spawn",
+      "newKey": "packages/main/src/tasks/quorum-submit-smoke-worker.ts:1383:spawn",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-1003",
+      "oldKey": "scripts/helpers/provider-neutral-fixture.mjs:76:spawn",
+      "newKey": "scripts/helpers/provider-neutral-fixture.mjs:76:spawn",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-1004",
+      "oldKey": "scripts/helpers/provider-neutral-fixture.mjs:95:spawnSync",
+      "newKey": "scripts/helpers/provider-neutral-fixture.mjs:95:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-0177",
+      "oldKey": "packages/main/tests/red/red-b49d4-registration-derivation.mjs:596:spawnSync",
+      "newKey": "packages/main/tests/red/red-b49d4-registration-derivation.mjs:596:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-0185",
+      "oldKey": "packages/main/tests/red/red-w2d-command-readonly.mjs:145:spawnSync",
+      "newKey": "packages/main/tests/red/red-w2d-command-readonly.mjs:145:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-0178",
+      "oldKey": "packages/main/src/tasks/full-suite-runner.ts:697:spawn",
+      "newKey": "packages/main/src/tasks/full-suite-runner.ts:697:spawn",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-0082",
+      "oldKey": "packages/main/src/tasks/narrowing-repin-smoke.ts:1279:execFileSync",
+      "newKey": "packages/main/src/tasks/narrowing-repin-smoke.ts:1279:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-0083",
+      "oldKey": "packages/main/src/tasks/narrowing-repin-smoke.ts:1299:execFileSync",
+      "newKey": "packages/main/src/tasks/narrowing-repin-smoke.ts:1299:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-1005",
+      "oldKey": "packages/main/src/tasks/narrowing-repin-smoke.ts:2091:spawn",
+      "newKey": "packages/main/src/tasks/narrowing-repin-smoke.ts:2091:spawn",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-1009",
+      "oldKey": "scripts/identity-cutover/repository.mjs:44:execFileSync",
+      "newKey": "scripts/identity-cutover/repository.mjs:44:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-1010",
+      "oldKey": "scripts/identity-cutover/repository.mjs:60:execFileSync",
+      "newKey": "scripts/identity-cutover/repository.mjs:60:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-1011",
+      "oldKey": "scripts/identity-cutover/certification.mjs:108:execFileSync",
+      "newKey": "scripts/identity-cutover/certification.mjs:108:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-1012",
+      "oldKey": "scripts/identity-cutover/certification.mjs:122:execFileSync",
+      "newKey": "scripts/identity-cutover/certification.mjs:122:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-1013",
+      "oldKey": "scripts/identity-cutover/certification.mjs:128:execFileSync",
+      "newKey": "scripts/identity-cutover/certification.mjs:128:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-1014",
+      "oldKey": "scripts/identity-cutover/certification.mjs:131:execFileSync",
+      "newKey": "scripts/identity-cutover/certification.mjs:131:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-1015",
+      "oldKey": "scripts/identity-cutover/certification.mjs:135:execFileSync",
+      "newKey": "scripts/identity-cutover/certification.mjs:135:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-1016",
+      "oldKey": "scripts/identity-cutover/certification.mjs:150:execFileSync",
+      "newKey": "scripts/identity-cutover/certification.mjs:150:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-1017",
+      "oldKey": "packages/main/tests/managed-marker-migration.test.mjs:19:execFileSync",
+      "newKey": "packages/main/tests/managed-marker-migration.test.mjs:19:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-1018",
+      "oldKey": "packages/main/tests/artifact-schema-migration.test.mjs:90:execFileSync",
+      "newKey": "packages/main/tests/artifact-schema-migration.test.mjs:90:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-1019",
+      "oldKey": "packages/main/tests/artifact-schema-migration.test.mjs:96:execFileSync",
+      "newKey": "packages/main/tests/artifact-schema-migration.test.mjs:96:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-1020",
+      "oldKey": "packages/main/tests/brand-role-migration.test.mjs:33:execFileSync",
+      "newKey": "packages/main/tests/brand-role-migration.test.mjs:33:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-1021",
+      "oldKey": "scripts/verify-global-lab-entrypoint.mjs:46:execFileSync",
+      "newKey": "scripts/verify-global-lab-entrypoint.mjs:46:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-1022",
+      "oldKey": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs:343:execFileSync",
+      "newKey": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs:343:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-1023",
+      "oldKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:207:execFileSync",
+      "newKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:207:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-1024",
+      "oldKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:495:execFileSync",
+      "newKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:495:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-1025",
+      "oldKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:657:execFileSync",
+      "newKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:657:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-1026",
+      "oldKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:773:spawnSync",
+      "newKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:773:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-1027",
+      "oldKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:785:spawnSync",
+      "newKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:785:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-1028",
+      "oldKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:817:execFileSync",
+      "newKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:817:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-1029",
+      "oldKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:834:spawnSync",
+      "newKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:834:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-1030",
+      "oldKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:915:execFileSync",
+      "newKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:915:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-1031",
+      "oldKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:989:execFileSync",
+      "newKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:989:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-0084",
+      "oldKey": "packages/main/src/tasks/validation-protocol-smoke.ts:1185:spawnSync",
+      "newKey": "packages/main/src/tasks/validation-protocol-smoke.ts:1185:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-0085",
+      "oldKey": "packages/main/src/tasks/validation-protocol-smoke.ts:1517:spawnSync",
+      "newKey": "packages/main/src/tasks/validation-protocol-smoke.ts:1517:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-0086",
+      "oldKey": "packages/main/src/tasks/validation-protocol-smoke.ts:1521:spawnSync",
+      "newKey": "packages/main/src/tasks/validation-protocol-smoke.ts:1521:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-0087",
+      "oldKey": "packages/main/src/tasks/validation-protocol-smoke.ts:2409:spawnSync",
+      "newKey": "packages/main/src/tasks/validation-protocol-smoke.ts:2409:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-1033",
+      "oldKey": "packages/main/src/tasks/isolated-finding-fixture.ts:157:spawn",
+      "newKey": "packages/main/src/tasks/isolated-finding-fixture.ts:157:spawn",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-1034",
+      "oldKey": "packages/main/tests/red/red-dynamic-finding-evidence-closure.mjs:57:spawnSync",
+      "newKey": "packages/main/tests/red/red-dynamic-finding-evidence-closure.mjs:57:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-1035",
+      "oldKey": "packages/main/tests/red/red-dynamic-finding-final-contracts.mjs:12:spawnSync",
+      "newKey": "packages/main/tests/red/red-dynamic-finding-final-contracts.mjs:12:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-1046",
+      "oldKey": "packages/main/src/tasks/validation-protocol-smoke.ts:2462:execFileSync",
+      "newKey": "packages/main/src/tasks/validation-protocol-smoke.ts:2462:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-STATIC-AST-CONTROLS",
+      "oldKey": "scripts/verify-runtime-fact-contract.mjs:166:execFileSync",
+      "newKey": "scripts/verify-runtime-fact-contract.mjs:166:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-1006",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts/fixture-support.mjs:31:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/fixture-support.mjs:31:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-0213",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts/identity-cutover.mjs:347:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/identity-cutover.mjs:347:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-0214",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts/identity-cutover.mjs:446:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/identity-cutover.mjs:446:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-1007",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts/release.mjs:25:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/release.mjs:25:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-1008",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts/release.mjs:74:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/release.mjs:74:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-0240",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts/memory-runtime.mjs:23:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/memory-runtime.mjs:23:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-0210",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts/runtime-topology.mjs:267:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/runtime-topology.mjs:267:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-0211",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts/runtime-topology.mjs:310:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/runtime-topology.mjs:310:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-0212",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts/runtime-topology.mjs:321:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/runtime-topology.mjs:321:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-0215",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs:209:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs:209:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-0216",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs:220:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs:220:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-0217",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs:233:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs:233:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-0218",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs:245:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs:245:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-0047",
+      "oldKey": "packages/main/src/tasks/flow-stability/lifecycle.ts:308:execFileSync",
+      "newKey": "packages/main/src/tasks/flow-stability/lifecycle.ts:308:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-0046",
+      "oldKey": "packages/main/src/tasks/flow-stability/review-routing.ts:683:execFileSync",
+      "newKey": "packages/main/src/tasks/flow-stability/review-routing.ts:683:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-CHANGELOG-COMPACTION-CONTROLS",
+      "oldKey": "scripts/process-fact-contract/early.mjs:59:execFileSync",
+      "newKey": "scripts/process-fact-contract/early.mjs:59:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        }
+      ]
+    },
+    {
+      "id": "EX-MODULAR-CHILD-1",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts/identity-inventory.mjs:266:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/identity-inventory.mjs:266:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-MODULAR-CHILD-2",
+      "oldKey": "packages/main/src/tasks/validation-runtime-tracer-transparency-smoke.ts:81:spawnSync",
+      "newKey": "packages/main/src/tasks/validation-runtime-tracer-transparency-smoke.ts:81:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-MODULAR-CHILD-3",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts/identity-sites.mjs:502:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/identity-sites.mjs:502:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    },
+    {
+      "id": "EX-MODULAR-CHILD-4",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts/identity-sites.mjs:508:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/identity-sites.mjs:508:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+          "before": "631cf19ec43456ff5ba6ecbdeb7c8b008ba20e3bec867480edd52bb99bda7c8f",
+          "after": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+        },
+        {
+          "path": "scripts/identity-child-contract.json",
+          "before": "16e976ccef1d2a80fb76810ec9fe0029d26d14be3fd8c164b3c9fe8a9860c05e",
+          "after": "228f7eec293867d42eaf8886d2ecda6e36c2139463ffad358f4a99f6fd35b6a6"
+        },
+        {
+          "path": "scripts/identity-cutover/reviewed-contexts.mjs",
+          "before": "7386e0a89608127d86308cf1849fad18f7be22278b92792c2a28c7ab2556542b",
+          "after": "bdb97f83e74ed20a99dc03a1b63e779ba0a92b9ced0085604b14878a0ffcbdf7"
+        }
+      ]
+    }
+  ]
 }
