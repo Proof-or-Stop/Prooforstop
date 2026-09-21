@@ -591,7 +591,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'verification_intent_repair', // B-4e06: audited legacy intent backfill
     'decision_doc_proposal', 'decision_doc_save',
     'light_review',
-    'finding_add',
+    'finding_add', 'finding_resolve',
     'finding_runtime_evidence_run', 'finding_runtime_evidence_verify',
     'validate', 'status', 'serve',
     'review_escalation_policy_set',

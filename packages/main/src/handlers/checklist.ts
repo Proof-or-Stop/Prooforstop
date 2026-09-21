@@ -8,7 +8,7 @@ import { rethrowIntentAmendmentIntegrityError } from '../core/verification-inten
 import { inspectIntentCheckpointRecovery } from '../core/verification-intent-checkpoint.js';
 import { acceptanceIntentHash, acceptanceScopeHash, createIntentAmendment, createIntentRevision } from '../core/verification-intent-amendment.js';
 import { currentGitHead } from '../core/evidence-freshness.js';
-import { resolveManagedDispatchInvocation } from '../core/managed-host-run.js';
+import { resolveManagedDispatchInvocation, resolveManagedImplementerCompletionInvocation } from '../core/managed-host-run.js';
 import type { ProcessEventAppendIdentity } from '../core/process-events.js';
 
 import { accessSync, constants, existsSync, readFileSync, realpathSync, statSync } from 'fs';
@@ -3445,22 +3445,37 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         results.push('owner-approved proposal applied; independent authorship is advisory, not host-attested');
       }
 
-      const managedDispatchRunId = args.status === 'done' && oldStatus !== 'done'
-        ? resolveManagedDispatchInvocation({
+      const isCompletionTransition = args.status === 'done' && oldStatus !== 'done';
+      if (isCompletionTransition && args.success === false) {
+        const failedManagedRunId = resolveManagedDispatchInvocation({
           root,
           storyId: args.storyId,
           agentType: 'proof-or-stop-implementer',
           itemId: args.itemId,
           optionalWhenAbsent: true,
           consume: false,
+        });
+        if (failedManagedRunId) {
+          throw new Error('managed implementer completion requires success=true; failed work must not mark the checklist item done');
+        }
+      }
+      const managedDispatchRunId = isCompletionTransition
+        ? resolveManagedImplementerCompletionInvocation({
+          root,
+          storyId: args.storyId,
+          itemId: args.itemId,
+          payload: args,
+          optionalWhenAbsent: true,
+          consume: false,
         })
         : undefined;
+      // The resolver includes the shared exact-key payload predicate. A normal
+      // owner write with definition, intent, evidence, actor, reason, or other
+      // checklist fields therefore stays an owner write: it cannot append a
+      // run-bound result or consume the managed implementer's invocation.
       const managedCompletionBeforeItem = managedDispatchRunId
         ? structuredClone(checklistBeforeUpdate.items.find(candidate => candidate.id === args.itemId)!)
         : undefined;
-      if (managedDispatchRunId && args.success === false) {
-        throw new Error('managed implementer completion requires success=true; failed work must not mark the checklist item done');
-      }
 
       // A managed completion spans checklist.json and process-events.jsonl. Write
       // the bound result first so an event-write failure cannot leave the item
@@ -3528,11 +3543,12 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
 
       if (managedDispatchRunId) {
         try {
-          const consumedRunId = resolveManagedDispatchInvocation({
+          const consumedRunId = resolveManagedImplementerCompletionInvocation({
             root,
             storyId: args.storyId,
-            agentType: 'proof-or-stop-implementer',
             itemId: args.itemId,
+            payload: args,
+            consume: true,
           });
           if (consumedRunId !== managedDispatchRunId) {
             throw new Error('managed implementation invocation changed between persistence and consumption');

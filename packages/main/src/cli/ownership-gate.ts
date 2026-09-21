@@ -15,7 +15,7 @@ import { getCommandPolicy, isOwnershipClass, type OwnershipClass } from '../core
 import { PROOF_OR_STOP_DIR } from '../core/proof-or-stop-paths.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import type { ProofOrStopConfig } from '../core/config.js';
-import { managedHostRunStoryIdForOwnership } from '../core/managed-host-run.js';
+import { isManagedImplementerCompletionPayload, managedHostRunStoryIdForOwnership, resolveManagedDispatchInvocation, resolveManagedImplementerCompletionInvocation } from '../core/managed-host-run.js';
 import { readBrandEnv } from '../core/brand-env.js';
 import { resolveRegisteredAgentActor } from '../core/agent-dispatch-registry.js';
 import { agentRoleIdsEqual } from '../core/agent-role-identity.js';
@@ -418,6 +418,67 @@ export function resolveTakeoverIntent(args: Record<string, unknown>): TakeoverIn
   return 'none';
 }
 
+/**
+ * A managed implementer is not the Story owner. It may, however, redeem the
+ * controller's one-shot run capability for the single completion write that
+ * the managed-dispatch contract requires. Keep this admission narrower than
+ * checklist_update's schema: no definition, intent, evidence, actor, reason,
+ * takeover, or lifecycle mutation can travel through this seam.
+ */
+function admitsManagedImplementerCompletion(
+  cmd: string,
+  args: Record<string, unknown>,
+  projectRoot: string,
+  storyId: string,
+): boolean {
+  if (cmd !== 'checklist_update'
+    || args.status !== 'done'
+    || args.success === false
+    || typeof args.itemId !== 'string'
+    || !args.itemId.trim()) return false;
+  // Keep the lease exception visibly fail-closed at the admission seam. The
+  // resolver repeats this shared predicate so a direct handler call cannot
+  // drift into a managed completion after the gate decision.
+  if (!isManagedImplementerCompletionPayload(args, storyId, args.itemId)) return false;
+  const actor = readBrandEnv('AGENT')?.trim();
+  if (!actor || !agentRoleIdsEqual(actor, 'proof-or-stop-implementer')) return false;
+  return resolveManagedImplementerCompletionInvocation({
+    root: projectRoot,
+    storyId,
+    itemId: args.itemId,
+    payload: args,
+    optionalWhenAbsent: true,
+    consume: false,
+  }) !== undefined;
+}
+
+function managedImplementerDoneOnlyHint(
+  cmd: string,
+  args: Record<string, unknown>,
+  projectRoot: string,
+  storyId: string,
+): string | null {
+  if (cmd !== 'checklist_update'
+    || args.status !== 'in_progress'
+    || typeof args.itemId !== 'string'
+    || !args.itemId.trim()) return null;
+  const actor = readBrandEnv('AGENT')?.trim();
+  if (!actor || !agentRoleIdsEqual(actor, 'proof-or-stop-implementer')) return null;
+  const runId = resolveManagedDispatchInvocation({
+    root: projectRoot,
+    storyId,
+    agentType: 'proof-or-stop-implementer',
+    itemId: args.itemId,
+    optionalWhenAbsent: true,
+    consume: false,
+  });
+  return runId
+    ? `Managed implementer run ${runId} is item-bound and permits only the exact final checklist_update status=done after commit. `
+      + 'The Story owner/controller owns status=in_progress. This refusal did not consume the completion capability; continue the assigned work and retry the exact done call after commit. '
+      + '[managed_implementer_done_only]'
+    : null;
+}
+
 export function enforceStoryOwnerLeaseGate(
   cmd: string,
   args: Record<string, unknown>,
@@ -467,6 +528,22 @@ export function enforceStoryOwnerLeaseGate(
 
   const storyDir = store.storyDirPath(storyId);
   if (!existsSync(storyDir)) return;
+
+  // The handler revalidates and consumes this exact capability only after it
+  // has atomically prepared the run-bound subagent_result and checklist write.
+  // This repeatable pre-handler probe grants no reusable owner lease and
+  // performs no mutation; the checklist lock serializes persistence, and a
+  // failed consume rolls both prepared writes back before releasing that lock.
+  // The one-shot boundary is persistence plus consumption, not this probe, so
+  // a failed write remains retryable by the same managed run.
+  if (admitsManagedImplementerCompletion(cmd, args, projectRoot, storyId)) return;
+  // Refuse an accidental worker-side in_progress before owner-lease mutation.
+  // This is intentionally capability-specific rather than the generic foreign
+  // owner path: even a provider that inherited the owner's session id must not
+  // turn its one-shot completion authority into general checklist authority.
+  // The probe is read-only, so the exact final done call remains redeemable.
+  const doneOnlyHint = managedImplementerDoneOnlyHint(cmd, args, projectRoot, storyId);
+  if (doneOnlyHint) throw new Error(doneOnlyHint);
 
   if (options?.readOnlyAdmission) {
     const lease = readOwnerLease(storyDir);

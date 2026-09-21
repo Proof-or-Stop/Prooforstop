@@ -202,7 +202,7 @@ function renderDispatchPrompt(
   lines.push('');
   lines.push(`    Resolves: ${cluster.clusterId}`);
   lines.push('');
-  lines.push('(proof-or-stop validate / finding_list auto-resolve the cluster via this marker.)');
+  lines.push('(The repair worker only commits this marker. The Story owner/controller runs proof-or-stop validate, which verifies the commit and synchronizes cluster finding state.)');
   return lines.join('\n');
 }
 

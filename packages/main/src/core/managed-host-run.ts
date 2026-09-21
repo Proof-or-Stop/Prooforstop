@@ -3909,6 +3909,61 @@ type ManagedDispatchInvocationArgs = {
   /** Test seam for platform-specific admission; production always uses process.platform. */
   platform?: NodeJS.Platform;
 };
+
+const MANAGED_IMPLEMENTER_COMPLETION_PAYLOAD_KEYS = new Set([
+  'storyId',
+  'itemId',
+  'status',
+  'success',
+]);
+
+/**
+ * The owner-lease exception for a managed implementer is a capability for one
+ * conclusion, not general checklist_update authority. Keep the accepted wire
+ * payload here beside the signed/process-bound invocation resolver so the CLI
+ * gate and persistence handler cannot drift apart.
+ */
+export function isManagedImplementerCompletionPayload(
+  payload: Record<string, unknown>,
+  storyId: string,
+  itemId: string,
+): boolean {
+  return payload.storyId === storyId
+    && payload.itemId === itemId
+    && payload.status === 'done'
+    && (payload.success === undefined || payload.success === true)
+    && Object.keys(payload).every(key => MANAGED_IMPLEMENTER_COMPLETION_PAYLOAD_KEYS.has(key));
+}
+
+export function resolveManagedImplementerCompletionInvocation(args: {
+  root: string;
+  storyId: string;
+  itemId: string;
+  payload: Record<string, unknown>;
+  callerPid?: number;
+  environment?: NodeJS.ProcessEnv;
+  optionalWhenAbsent?: boolean;
+  consume?: boolean;
+  platform?: NodeJS.Platform;
+}): string | undefined {
+  if (!isManagedImplementerCompletionPayload(args.payload, args.storyId, args.itemId)) {
+    return undefined;
+  }
+  const invocation = {
+    root: args.root,
+    storyId: args.storyId,
+    agentType: 'proof-or-stop-implementer',
+    itemId: args.itemId,
+    ...(args.callerPid === undefined ? {} : { callerPid: args.callerPid }),
+    ...(args.environment === undefined ? {} : { environment: args.environment }),
+    consume: args.consume,
+    ...(args.platform === undefined ? {} : { platform: args.platform }),
+  };
+  return args.optionalWhenAbsent === true
+    ? resolveManagedDispatchInvocation({ ...invocation, optionalWhenAbsent: true })
+    : resolveManagedDispatchInvocation({ ...invocation, optionalWhenAbsent: false });
+}
+
 export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocationArgs & { optionalWhenAbsent: true }): string | undefined;
 export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocationArgs & { optionalWhenAbsent?: false }): string;
 export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocationArgs): string | undefined {

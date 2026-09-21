@@ -1,12 +1,20 @@
 # Changelog
 
+## Lab integrated-validation-review-and-release-reconciliation - v0.3.438 - 2026-09-21
+
+- Integrate the complete local validation, provider-quota, verdict-stickiness, review-rework and audit-snapshot repair line with Pan Qi's managed implementation, finding-repair, review-launch and verifier-identity line; both pre-merge heads remain ancestors of this release.
+- Correct twelve unpublished local commits from the unintended Harmony identity to `Harmonynet <26995688+Harmonynet@users.noreply.github.com>` without changing their trees, messages, dates or merge topology; retain Pan Qi's independent authorship unchanged.
+- Preserve sticky failure verdicts, identity-bound evidence reuse, one shared provider-call quota, bounded review inventory and audit snapshot inputs, cross-wave finding identity, and precise verifier drift diagnostics.
+- Restore executable managed review recovery, item-bound implementer completion, native finding-repair launch contracts, signed receipts, owner-lease enforcement, retry safety, rollback safety and fail-closed completion behavior.
+- Reconcile the combined prompt baselines, process/runtime registries, canonical UTF-8 static evidence and all package/version surfaces at `0.3.438`; detailed evidence remains in the linked Lab records below.
+
 ## Lab audit-snapshot-input-budget - v0.3.437 - 2026-09-21
 
 - Separate complete local audit snapshot input (64 MiB) from the unchanged 8 MiB provider output limit; preserve snapshot references, exact digests and independent-vendor approval.
 - Reject oversized aggregate inputs, oversized individual sources, binary data and invalid UTF-8; retain snapshot tamper refusal and the compact initial prompt.
 - Verify the coupled-budget RED and repaired GREEN, existing audit contract and prompt controls, and static dependency evidence. See `docs/lab-maintenance.md` for the bounded transport contract.
 
-Maintenance provenance: codex/lab-audit-snapshot-input-budget, repair db6c1d374304b609d75501616772438f3c060a00.
+Maintenance provenance: codex/lab-audit-snapshot-input-budget, repair e6936f7e6bbdbd31de79e613fb565c4b912a05a4.
 Verification command (replayed before integration and on main): `["node","scripts/verify-lab-audit-input-budget.mjs"]`.
 This entry does not assert formal Story DONE or signed product-release credentials.
 
@@ -17,7 +25,7 @@ This entry does not assert formal Story DONE or signed product-release credentia
 - Bound dependency analysis by source count, bytes and a cooperative deadline, reuse per-call module resolution, and show bounded CLI path samples with separate observation and problem-family counts.
 - Verify real RED-to-GREEN inventory and duplicate controls, native selector-to-consumer behavior, negative controls and registered contracts; document existing repository-wide failures separately. See [maintenance details and execution evidence](docs/review-rework-maintenance.md). This repair does not claim measured reductions in live Story review rounds.
 
-Maintenance provenance: codex/lab-review-rework, repair 94d1b8f1b4a52ea704cf63e48b82caaf72605ba7.
+Maintenance provenance: codex/lab-review-rework, repair 81bc1610c3bca5f2b89023b0c9e3b43f39009819.
 Verification command (replayed before integration and on main): `["node","scripts/verify-review-rework.mjs"]`.
 This entry does not assert formal Story DONE or signed product-release credentials.
 
@@ -53,6 +61,64 @@ This entry does not assert formal Story DONE or signed product-release credentia
 
 Maintenance provenance: codex/lab-validation-manifest-encoding-20260920, repair 2a745af390121080d5a7a7164d25f2e12cd1c6a0.
 Verification command (replayed before integration and on main): `["node","/Users/jek/Documents/GitHub/Prooforstop/.git/lab-evidence-archives/validation-audit-20260918/remaining-performance-20260918/finish/original-closeout/verify-manifest-encoding.mjs"]`.
+## Lab verifier-identity-drift-diagnostic - v0.3.437 - 2026-09-21
+
+- Report verifier receipt staleness with the exact changed execution component, distinguishing environment, toolchain, and dependency-input drift.
+- Keep strict freshness unchanged: behavior-affecting environment or toolchain changes still require a real rerun, while a missing dependency manifest only limits reuse.
+- Add a focused F057 entry point and regression assertions covering both environment and toolchain drift diagnostics.
+- Verified with the Lab RED/GREEN replay and the package build; the corrected benchmark invocation must preserve `CONTEXT=abs` across evidence and lifecycle checks.
+
+Maintenance provenance: codex/lab-verifier-identity-drift-diagnostic, repair d2ce4a97630b43a3b6badd05212f15a7624b6086.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/verification-run-and-guard-smoke.js","--baa5f-live-identity-drift"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab review-managed-launch-guidance - v0.3.436 - 2026-09-20
+
+- Keep REVIEW lanes outside `managedDispatch` and direct unsupported REVIEW calls to the signed `candidate_spec_route -> review_run_start -> managedReview` evidence flow.
+- Add complete executable Grok and qualified Codex managed-review command choices to `reviewer_batch`, retaining only the ReviewRun id as a prior-step placeholder.
+- Preserve the existing missing-`storyId` repair for allowlisted INIT, PLAN scope, and TEST delivery roles while prioritizing the REVIEW recovery error over irrelevant model qualification.
+- Verify the reported DeepSeek REVIEW-lane call, public `review_run_start.agent` parsing, generated host arguments, INIT managed dispatch, and reviewer-batch integration; independent Grok audit passed after manual finding verification.
+
+Maintenance provenance: codex/lab-review-managed-launch-guidance, repair ab73ae12637e0ae36a3679eee3b78037fe30cc0b.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/managed-init-reviewer-dispatch.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab finding-repair-launch-contract - v0.3.435 - 2026-09-20
+
+- Require controllers to launch native repair tasks and obtain a nonempty task identity before waiting; missing workers leave findings open.
+- Keep finding repair workers read-only for blocker state, return committed repair evidence to the Story owner, and allow the owner to resolve verified findings from DEV.
+- Preserve the structured launch contract through real CLI JSON output for both individual and clustered repairs.
+- Keep cluster commit markers inert until owner-gated validation consumes them; read-only finding inspection never writes resolution state.
+- Verified with the registered RED/GREEN smoke, real CLI dispatch and finding resolution, cluster validation entrypoint coverage, command ownership checks, prompt baselines, and U18 static-edge checks. No performance optimization was part of this repair.
+
+Maintenance provenance: codex/lab-finding-repair-launch-contract, repair 7940f7f25f732fc6d959fdfaf8dadfbe56630064.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/agent-dispatch-registry-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab managed-implementer-done-only-guidance - v0.3.434 - 2026-09-20
+
+- Align the managed implementer prompt with its item-bound, done-only lifecycle capability.
+- Keep accidental `in_progress` refusals non-consuming and return a recovery hint that directs the worker to continue and complete the exact item.
+- Extend the managed dispatch regression to prove refusal, capability retention, exact completion, and run-bound evidence.
+- Refresh the prompt-policy and static-edge baselines for the reviewed contract.
+- Preserve canonical UTF-8 static evidence during Lab patch-version transactions so release preparation remains reachable.
+
+Maintenance provenance: codex/lab-managed-implementer-done-only-guidance, repair a32c130a2e040ed4ace38407ae25120840a235c7.
+Verification command (replayed before integration and on main): `["npm","run","test:managed-implementer-dispatch"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab managed-implementer-item-capability - v0.3.431 - 2026-09-20
+
+Problem: A controller-owned managed implementer runs in a child logical session. Its exact checklist completion was rejected by the Story owner lease, so host_run reported managed_dispatch_output_missing even after implementation succeeded.
+
+Fix: Add a narrow owner-lease admission for checklist_update status=done when the caller is the registered implementer and presents the exact live Story/item managed-dispatch capability. Share the schema-filtered completion payload check between the CLI gate and handler, revalidate before persistence, bind the subagent_result to the run, and consume the one-shot invocation only after the checklist/event write succeeds. The repair does not transfer the owner lease or authorize in-progress, metadata, other-item, phase, takeover, replay, or failed-result mutations.
+
+Verification: npm run test:managed-implementer-dispatch passes with the original owner/child deadlock reproduction plus exact completion, schema-filtered json metadata, takeover metadata refusal, wrong item, spoofed actor outside the provider process group, replay, failed-result retry, and event-write rollback cases. U18_STATIC_PASS reports needsReview=0. npm run test:process-fact-contract -- --quiet passes, including certification recovery and managed delivery contracts. Independent Grok audit passed after the factual CLI schema path was proven directly.
+
+Measured optimization: Not a performance change. The normal managed implementer can now finish its assigned item without human forceTakeover or a second owner session.
+
+Maintenance provenance: codex/lab-managed-implementer-item-capability, repair 40d56bc64a04c7261c57a72120fde065081e816d.
+Verification command (replayed before integration and on main): `["npm","run","test:managed-implementer-dispatch"]`.
 This entry does not assert formal Story DONE or signed product-release credentials.
 
 ## Lab integrated-validation-and-managed-implementation - v0.3.433 - 2026-09-20

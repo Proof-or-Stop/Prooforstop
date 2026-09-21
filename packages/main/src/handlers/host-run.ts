@@ -430,8 +430,18 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           'host_run: --itemId is valid only with --managedDispatch and agentType=proof-or-stop-implementer',
         );
       }
-      if (args.managedReview === true
-        || (args.managedDispatch === true && agentType !== 'proof-or-stop-implementer')) {
+      const managedDispatchAgentTypes = [
+        'proof-or-stop-implementer',
+        'proof-or-stop-review-story-init',
+        'proof-or-stop-product-reviewer',
+        'proof-or-stop-review-scope-plan',
+        MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role,
+      ];
+      const managedDispatchAgentTypeSupported = managedDispatchAgentTypes.includes(agentType);
+      const managedDispatchQualifiedReviewer = args.managedDispatch === true
+        && agentType !== 'proof-or-stop-implementer'
+        && managedDispatchAgentTypeSupported;
+      if (args.managedReview === true || managedDispatchQualifiedReviewer) {
         selection = resolveQualifiedManagedReviewerSelection({ host, ...selection });
       }
       if (args.managedReview === true) {
@@ -479,14 +489,19 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         const managedDispatchPhase = agentType === 'proof-or-stop-implementer' ? 'DEV'
           : agentType === MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role ? MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.phase
             : agentType === 'proof-or-stop-review-scope-plan' ? 'PLAN' : 'INIT';
-        if (!storyId || ![
-          'proof-or-stop-implementer',
-          'proof-or-stop-review-story-init',
-          'proof-or-stop-product-reviewer',
-          'proof-or-stop-review-scope-plan',
-          MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role,
-        ].includes(agentType)) {
-          throw new Error('host_run: --managedDispatch requires storyId and a supported required reviewer or implementer agentType');
+        if (!managedDispatchAgentTypeSupported) {
+          if (agentType.startsWith('proof-or-stop-review-')) {
+            throw new Error(
+              'host_run: REVIEW lanes use the formal managed-review flow: run candidate_spec_route, '
+              + 'run review_run_start for the required lane, then call host_run with managedReview=true and the returned '
+              + 'reviewRunId (plus storyId, lane, and agentType equal to that lane). managedDispatch is reserved for '
+              + 'controller-owned INIT, PLAN scope, DEV implementer, and TEST delivery roles.',
+            );
+          }
+          throw new Error('host_run: --managedDispatch requires storyId and a supported INIT, PLAN scope, DEV implementer, or TEST delivery agentType');
+        }
+        if (!storyId) {
+          throw new Error('host_run: --managedDispatch requires storyId');
         }
         if (agentType === 'proof-or-stop-implementer' && !itemId) {
           throw new Error('host_run: --managedDispatch proof-or-stop-implementer requires exactly one itemId');

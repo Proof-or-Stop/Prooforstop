@@ -9,8 +9,9 @@ const repository = fileURLToPath(new URL('../../..', import.meta.url));
 const cli = join(repository, 'packages/main/dist/cli.js');
 const { StoryStore } = await import('../dist/core/store.js');
 const { createHostRunHandlers } = await import('../dist/handlers/host-run.js');
-const { managedHostRunReceipt, resolveManagedDispatchInvocation, runManagedHostRunWorker, verifyManagedDispatchDelivery } = await import('../dist/core/managed-host-run.js');
+const { isManagedImplementerCompletionPayload, managedHostRunReceipt, resolveManagedDispatchInvocation, runManagedHostRunWorker, verifyManagedDispatchDelivery } = await import('../dist/core/managed-host-run.js');
 const { restoreManagedChecklistItemAfterFailure } = await import('../dist/handlers/checklist.js');
+const { acquireOrRefreshOwnerLease } = await import('../dist/core/story-owner-lease.js');
 
 const root = mkdtempSync(join(tmpdir(), 'managed-implementer-dispatch-e2e-'));
 const storyId = 'B-managed-implementer-e2e';
@@ -29,6 +30,21 @@ function git(...args) {
 }
 
 try {
+  // These assertions pin the same post-command-schema object consumed by both
+  // the owner gate and checklist handler; neither layer receives a wider view.
+  assert.equal(isManagedImplementerCompletionPayload({ storyId, itemId, status: 'done' }, storyId, itemId), true,
+    'the exact managed completion payload must qualify');
+  assert.equal(isManagedImplementerCompletionPayload({ storyId, itemId, status: 'done', takeover: false }, storyId, itemId), false,
+    'owner takeover metadata must not widen the managed completion capability');
+  assert.equal(isManagedImplementerCompletionPayload({ storyId, itemId, status: 'done', context: 'foreign mutation' }, storyId, itemId), false,
+    'checklist definition metadata must remain owner-gated even on a completion-shaped request');
+  assert.equal(isManagedImplementerCompletionPayload({ storyId, itemId, status: 'done', verificationIntent: {} }, storyId, itemId), false,
+    'verification intent metadata must remain owner-gated even on a completion-shaped request');
+  assert.equal(isManagedImplementerCompletionPayload({ storyId, itemId, status: 'done', success: false }, storyId, itemId), false,
+    'a failed result must not qualify as a managed completion');
+  assert.equal(isManagedImplementerCompletionPayload({ storyId, itemId: 'CHK-999', status: 'done' }, storyId, itemId), false,
+    'another item must not qualify for the target-bound capability');
+
   let rollbackWritten;
   restoreManagedChecklistItemAfterFailure({
     readChecklist: () => ({ items: [
@@ -78,12 +94,12 @@ try {
   git('commit', '-qm', 'fixture');
 
   const fakeCodex = join(bin, 'codex');
+  // Every generated provider script below asserts the controller-stamped role
+  // before invoking the CLI, so an outer test-runner identity cannot mask it.
   const detachedChecklist = join(root, 'detached-checklist.cjs');
   writeFileSync(detachedChecklist, `const { spawnSync } = require('node:child_process');
 const env = { ...process.env };
 delete env.LATTICE_MANAGED_INIT_INVOCATION;
-delete env.PROOF_OR_STOP_AGENT;
-delete env.PROOFBOUND_AGENT;
 const result = spawnSync(process.execPath, [${JSON.stringify(cli)}, 'checklist_update', JSON.stringify({ storyId: process.argv[2], itemId: ${JSON.stringify(itemId)}, status: 'done' })], { env, stdio: 'inherit', detached: true });
 process.exit(result.status ?? 1);
 `);
@@ -97,16 +113,30 @@ if (process.argv[3] === 'assert-pending') {
   if (target.status !== 'pending') throw new Error('failed bound-result append must leave the managed item pending');
   process.exit(0);
 }
+if (process.argv[3] === 'assert-pending-unconsumed') {
+  if (target.status !== 'pending') throw new Error('a refused in_progress update must leave the managed item pending');
+  if (store.readProcessEvents(process.argv[2]).some(event => event.type === 'subagent_result' && event.managedDispatchRunId)) {
+    throw new Error('a refused in_progress update must not create bound completion evidence');
+  }
+  process.exit(0);
+}
+if (process.argv[3] === 'assert-in-progress-unconsumed') {
+  if (target.status !== 'in_progress') throw new Error('the owner must be able to mark the managed item in progress');
+  if (store.readProcessEvents(process.argv[2]).some(event => event.type === 'subagent_result' && event.managedDispatchRunId)) {
+    throw new Error('an owner in_progress update must not create managed completion evidence');
+  }
+  process.exit(0);
+}
 if (process.argv[3] === 'reset') { target.status = 'pending'; other.status = 'in_progress'; }
 else target.status = 'done';
 store.writeChecklist(process.argv[2], checklist);
 `);
   writeFileSync(fakeCodex, `#!/bin/sh
 set -eu
+test "\${PROOF_OR_STOP_AGENT:-}" = proof-or-stop-implementer
 cat > "${root}/delivered-implementer-prompt.txt"
 grep -q "implementing ${storyId} ${itemId}" "${root}/delivered-implementer-prompt.txt"
-"${process.execPath}" "${cli}" checklist_update '{"storyId":"${storyId}","itemId":"${itemId}","status":"in_progress"}'
-unset LATTICE_MANAGED_INIT_INVOCATION PROOF_OR_STOP_AGENT PROOFBOUND_AGENT || true
+export PROOF_OR_STOP_SESSION_ID=managed-implementer-child
 "${process.execPath}" "${cli}" checklist_update '{"storyId":"${storyId}","itemId":"${itemId}","status":"done"}'
 printf '%s\n' '{"type":"turn.completed","usage":{}}'
 `);
@@ -115,6 +145,9 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
   process.env.PROOF_OR_STOP_PROJECT_ROOT = root;
   process.env.PROOF_OR_STOP_SESSION_ID = 'managed-implementer-owner';
   process.env.HOME = root;
+  acquireOrRefreshOwnerLease(store.storyDirPath(storyId), {
+    command: 'managed-implementer-fixture-owner', cwd: root,
+  });
 
   let managedDispatchValidationHook;
   const handlers = createHostRunHandlers({ root, scanRoot: root, store }, {
@@ -172,8 +205,11 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
     'live output revalidation and terminal seal must hold the checklist write lock');
   assert.equal(result.model, 'deepseek-v4.1-flash');
   assert.equal(store.readChecklist(storyId).items.find(item => item.id === itemId)?.status, 'done');
-  assert.match(readFileSync(join(root, 'delivered-implementer-prompt.txt'), 'utf8'),
-    /proof-or-stop checklist_update/);
+  const deliveredImplementerPrompt = readFileSync(join(root, 'delivered-implementer-prompt.txt'), 'utf8');
+  assert.match(deliveredImplementerPrompt, /proof-or-stop checklist_update/);
+  assert.match(deliveredImplementerPrompt,
+    /Managed implementation status contract:[\s\S]*Do not call checklist_update with status=in_progress/,
+    'MANAGED_IMPLEMENTER_PROMPT_DONE_ONLY_REQUIRED');
   const completion = store.readProcessEvents(storyId).find(event =>
     event.type === 'subagent_result' && event.checklistId === itemId && event.success === true);
   assert.equal(completion?.managedDispatchRunId, result.runId,
@@ -211,13 +247,34 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
   }).valid, false, 'a completed implementation run must not authorize another checklist item');
 
   const negativeScenarios = [
+    // Retry scenarios exit explicitly if their forbidden first command succeeds.
     {
       name: 'no-completion', expectedStatus: 'pending',
       commands: `printf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
     {
-      name: 'in-progress-only', expectedStatus: 'in_progress',
-      commands: `"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"in_progress"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
+      name: 'in-progress-then-done', expectedStatus: 'done', expectCompleted: true,
+      commands: `refusal_status=0\nrefusal=$("${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"in_progress"}' 2>&1) || refusal_status=$?\ntest "$refusal_status" -ne 0\nprintf '%s' "$refusal" | grep -q managed_implementer_done_only\n"${process.execPath}" "${mutateChecklist}" "__STORY__" assert-pending-unconsumed\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
+    },
+    {
+      name: 'owner-in-progress-then-managed-done', expectedStatus: 'done', expectCompleted: true,
+      commands: `env -u LATTICE_MANAGED_INIT_INVOCATION -u PROOF_OR_STOP_AGENT PROOF_OR_STOP_SESSION_ID=managed-implementer-owner "${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"in_progress"}'\n"${process.execPath}" "${mutateChecklist}" "__STORY__" assert-in-progress-unconsumed\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
+    },
+    {
+      name: 'metadata-mutation', expectedStatus: 'pending',
+      commands: `"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done","context":"foreign mutation"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
+    },
+    {
+      name: 'json-output-metadata', expectedStatus: 'done', expectCompleted: true,
+      commands: `"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done","json":true}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
+    },
+    {
+      name: 'takeover-meta-does-not-qualify', expectedStatus: 'done', expectCompleted: true,
+      commands: `if "${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done","json":true,"takeover":false}'; then exit 91; fi\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
+    },
+    {
+      name: 'phase-advance', expectedStatus: 'pending', expectedPhase: 'DEV',
+      commands: `"${process.execPath}" "${cli}" story_advance '{"storyId":"__STORY__","phase":"REVIEW"}' || true\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
     {
       name: 'wrong-item', expectedStatus: 'pending',
@@ -225,19 +282,19 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
     },
     {
       name: 'failed-success-retry', expectedStatus: 'done', expectCompleted: true,
-      commands: `"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done","success":false}' || true\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
+      commands: `if "${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done","success":false}'; then exit 92; fi\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
     {
       name: 'attestation-completion', expectedStatus: 'done', expectCompleted: true,
       commands: `"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
     {
-      name: 'unmatched-caller-retry', expectedStatus: 'done', expectCompleted: true,
-      commands: `"${process.execPath}" "${detachedChecklist}" "__STORY__" || true\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
+      name: 'spoofed-actor-without-capability-retry', expectedStatus: 'done', expectCompleted: true,
+      commands: `if "${process.execPath}" "${detachedChecklist}" "__STORY__"; then exit 93; fi\n"${process.execPath}" "${mutateChecklist}" "__STORY__" assert-pending\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
     {
       name: 'consumed-invocation-refusal', expectedStatus: 'done', expectedOtherStatus: 'in_progress', expectCompleted: true,
-      commands: `"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\n"${process.execPath}" "${mutateChecklist}" "__STORY__" reset\n"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}' || true\n"${process.execPath}" "${mutateChecklist}" "__STORY__" restore\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
+      commands: `"${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'\n"${process.execPath}" "${mutateChecklist}" "__STORY__" reset\nif "${process.execPath}" "${cli}" checklist_update '{"storyId":"__STORY__","itemId":"${itemId}","status":"done"}'; then exit 94; fi\n"${process.execPath}" "${mutateChecklist}" "__STORY__" restore\nprintf '%s\\n' '{"type":"turn.completed","usage":{}}'`,
     },
     {
       name: 'event-write-retry', expectedStatus: 'done', expectCompleted: true,
@@ -263,11 +320,16 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
     });
     writeFileSync(fakeCodex, `#!/bin/sh
 set -eu
+test "\${PROOF_OR_STOP_AGENT:-}" = proof-or-stop-implementer
 cat > "${root}/delivered-${scenario.name}-prompt.txt"
 grep -q "implementing ${negativeStoryId} ${itemId}" "${root}/delivered-${scenario.name}-prompt.txt"
+export PROOF_OR_STOP_SESSION_ID=managed-implementer-child
 ${scenario.commands.replaceAll('__STORY__', negativeStoryId)}
 `);
     chmodSync(fakeCodex, 0o755);
+    acquireOrRefreshOwnerLease(store.storyDirPath(negativeStoryId), {
+      command: 'managed-implementer-fixture-owner', cwd: root,
+    });
     const negative = await handlers.host_run({
       host: 'codex', model: 'deepseek-v4.1-flash', reasoningEffort: 'high',
       storyId: negativeStoryId, itemId, agentType: 'proof-or-stop-implementer',
@@ -280,6 +342,10 @@ ${scenario.commands.replaceAll('__STORY__', negativeStoryId)}
     if (scenario.expectedOtherStatus) {
       assert.equal(store.readChecklist(negativeStoryId).items.find(item => item.id === 'CHK-002')?.status,
         scenario.expectedOtherStatus, `${scenario.name} must preserve the other item's concurrent update`);
+    }
+    if (scenario.expectedPhase) {
+      assert.equal(store.readStory(negativeStoryId).phase, scenario.expectedPhase,
+        `${scenario.name} must not gain lifecycle authority from the item capability`);
     }
     assert.equal(store.readProcessEvents(negativeStoryId).some(event =>
       event.type === 'subagent_result' && event.success === true && event.managedDispatchRunId === negative.runId),

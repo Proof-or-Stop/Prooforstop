@@ -770,7 +770,15 @@ export function evaluateVerificationEvidenceForGate(input: {
         || (currentReuseAuthority && (!currentIdentity.reusable
           || currentIdentity.dependency.manifestBinding?.manifestDigest !== execution.dependencyManifest?.manifestDigest))
       ) {
-        return denied('verification_receipt_stale', `current verifier input identity does not match (${currentIdentity.reason ?? 'execution_identity_changed'})`);
+        const changedComponents = [
+          currentIdentity.environmentDigest !== execution.environmentDigest ? 'environment_digest_changed' : null,
+          currentIdentity.toolchainDigest !== execution.toolchainDigest ? 'toolchain_digest_changed' : null,
+          currentIdentity.evidenceInputDigest !== execution.evidenceInputDigest ? 'evidence_input_digest_changed' : null,
+        ].filter((value): value is string => value !== null);
+        return denied(
+          'verification_receipt_stale',
+          `current verifier input identity does not match (${changedComponents.join(',') || 'execution_identity_changed'})`,
+        );
       }
   } catch (error) {
     return denied('verification_receipt_stale', error instanceof Error ? error.message : String(error));
