@@ -1864,14 +1864,20 @@ function managedScopeReviewerOutputDigest(scopeCheck: ScopeCheckData): string {
   }));
 }
 
-function legacyManagedScopeReviewerOutputDigest(scopeCheck: ScopeCheckData): string {
-  return sha256(`${JSON.stringify(immutableManagedScopeReviewerPayload(scopeCheck), null, 2)}\n`);
+function legacyManagedScopeReviewerOutputDigests(scopeCheck: ScopeCheckData): string[] {
+  const reviewerPayload = immutableManagedScopeReviewerPayload(scopeCheck);
+  const variants: unknown[] = [reviewerPayload];
+  if (reviewerPayload.summary.orphanSuspect === 0 && reviewerPayload.summary.drift === 0) {
+    const { orphanSuspect: _orphanSuspect, drift: _drift, ...legacySummary } = reviewerPayload.summary;
+    variants.push({ ...reviewerPayload, summary: legacySummary });
+  }
+  return [...new Set(variants.map(value => sha256(`${JSON.stringify(value, null, 2)}\n`)))];
 }
 
 function currentManagedScopeReviewerOutput(input: {
   root: string;
   storyId: string;
-}): { projectedDigest: string; legacyReviewerDigest: string } | null {
+}): { projectedDigest: string; legacyReviewerDigests: string[] } | null {
   const storyStore = new StoryStore(input.root);
   const scopePath = storyStore.storyFilePath(input.storyId, 'scope-check.json');
   if (!existsSync(scopePath)) return null;
@@ -1879,7 +1885,7 @@ function currentManagedScopeReviewerOutput(input: {
   if (!scopeCheck) return null;
   return {
     projectedDigest: managedScopeReviewerOutputDigest(scopeCheck),
-    legacyReviewerDigest: legacyManagedScopeReviewerOutputDigest(scopeCheck),
+    legacyReviewerDigests: legacyManagedScopeReviewerOutputDigests(scopeCheck),
   };
 }
 
@@ -1891,7 +1897,7 @@ function managedScopeReviewerOutputMatches(input: {
   const current = currentManagedScopeReviewerOutput(input);
   return current !== null && [
     current.projectedDigest,
-    current.legacyReviewerDigest,
+    ...current.legacyReviewerDigests,
   ].includes(input.sealedDigest);
 }
 

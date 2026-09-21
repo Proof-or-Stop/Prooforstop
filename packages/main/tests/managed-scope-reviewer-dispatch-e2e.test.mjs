@@ -3,13 +3,14 @@ import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync 
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const repository = fileURLToPath(new URL('../../..', import.meta.url));
 const cli = join(repository, 'packages/main/dist/cli.js');
 const { StoryStore } = await import('../dist/core/store.js');
 const { createHostRunHandlers } = await import('../dist/handlers/host-run.js');
-const { readManagedHostRunProjection, runManagedHostRunWorker, verifyManagedDispatchDelivery } = await import('../dist/core/managed-host-run.js');
+const { managedHostRunDirectory, readManagedHostRunProjection, runManagedHostRunWorker, verifyManagedDispatchDelivery } = await import('../dist/core/managed-host-run.js');
 const { verifyScopeCheckSignature } = await import('../dist/handlers/scope-check.js');
 const { scopeCheckContentHash } = await import('../dist/core/scope-check-integrity.js');
 const { createStoryReviewHandlers } = await import('../dist/handlers/story-review.js');
@@ -92,6 +93,9 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
   assert.match(readFileSync(join(root, 'invalid-scope-save.txt'), 'utf8'),
     /owner dispositions require selected canonical process facts/,
   'a rejected non-empty owner payload must not consume the managed scope invocation before a corrected zero-owner retry');
+  const scopePath = store.storyFilePath(storyId, 'scope-check.json');
+  const legacyScopeBytes = readFileSync(scopePath);
+  const legacyScopeDigest = `sha256:${createHash('sha256').update(legacyScopeBytes).digest('hex')}`;
 
   createScopeQuestionResolveHandlers({ root, scanRoot: root, store }).scope_question_resolve({
     storyId,
@@ -113,6 +117,16 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
   assert.ok(!createStoryReviewHandlers({ root, scanRoot: root, store }).story_review({ storyId }).issues
     .some(issue => issue.type === 'scope_check_delivery_invalid'),
   'story_review must retain the managed delivery after the owner resolves an open question');
+  const terminalPath = join(managedHostRunDirectory(root, result.runId), 'terminal.json');
+  const terminal = JSON.parse(readFileSync(terminalPath, 'utf8'));
+  terminal.managedDispatchOutputDigest = legacyScopeDigest;
+  writeFileSync(terminalPath, `${JSON.stringify(terminal, null, 2)}\n`);
+  assert.notEqual(`sha256:${createHash('sha256').update(readFileSync(scopePath)).digest('hex')}`, legacyScopeDigest,
+    'live annotated scope bytes must differ from the legacy pre-annotation seal');
+  assert.deepEqual(verifyManagedDispatchDelivery({
+    root, runId: result.runId, storyId, agentType: 'proof-or-stop-review-scope-plan',
+  }), { valid: true },
+  'a legacy byte seal must survive only through deterministic pre-annotation reconstruction');
 
   const tamperedQuestion = structuredClone(resolvedScopeCheck);
   tamperedQuestion.openQuestions[0].q = 'Rewritten reviewer question';
