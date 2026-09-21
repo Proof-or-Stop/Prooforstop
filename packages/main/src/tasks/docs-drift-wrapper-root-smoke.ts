@@ -261,6 +261,18 @@ function gateByName(result: ReturnType<typeof runReviewCliGates>, name: string) 
       `PRIMARY: docs-drift gate must PASS on wrapper-root (got status=${docsDrift.status}, details=${JSON.stringify(docsDrift.details)}). ` +
         `A FAIL here means repoRoot was scanned from the non-git metadataRoot (the pre-CHK-001 wiring).`,
     );
+
+    const residue = gateByName(result, 'proof-or-stop-residue');
+    assert.equal(
+      residue.ok,
+      true,
+      'LAB_RED: consumer repositories without the PoS maintenance script must not be blocked',
+    );
+    assert.equal(
+      residue.status,
+      'skipped',
+      'consumer repositories must report the PoS-only residue maintenance gate as skipped',
+    );
     assert.ok(
       docsDrift.status === 'pass' || docsDrift.status === 'skipped',
       `PRIMARY: docs-drift status must be pass/skipped (got '${docsDrift.status}')`,
