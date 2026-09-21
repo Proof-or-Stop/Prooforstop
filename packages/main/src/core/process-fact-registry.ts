@@ -1936,6 +1936,36 @@ COMMAND_PROCESS_FACTS.push({
 });
 
 COMMAND_PROCESS_FACTS.push({
+  name: 'runtime:canonical_artifact_capability_selection', kind: 'runtime-behavior', level: 'L4',
+  semantics: ['runtime-behavior', 'verification-policy'],
+  paths: ['packages/main/tests/canonical-new-story-artifacts.test.mjs',
+    'packages/main/tests/canonical-new-story-artifacts/artifact-inventory.mjs',
+    'packages/main/tests/canonical-new-story-artifacts/catalog.mjs',
+    'packages/main/tests/canonical-new-story-artifacts/cli.mjs',
+    'packages/main/tests/canonical-new-story-artifacts/data.mjs',
+    'packages/main/tests/canonical-new-story-artifacts/driver.mjs',
+    'packages/main/tests/canonical-new-story-artifacts/finding-artifacts.mjs',
+    'packages/main/tests/canonical-new-story-artifacts/fixture-support.mjs',
+    'packages/main/tests/canonical-new-story-artifacts/identity-cutover.mjs',
+    'packages/main/tests/canonical-new-story-artifacts/identity-inventory.mjs',
+    'packages/main/tests/canonical-new-story-artifacts/identity-ownership.mjs',
+    'packages/main/tests/canonical-new-story-artifacts/identity-policy.mjs',
+    'packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs',
+    'packages/main/tests/canonical-new-story-artifacts/identity-sites.mjs',
+    'packages/main/tests/canonical-new-story-artifacts/memory-runtime.mjs',
+    'packages/main/tests/canonical-new-story-artifacts/migration-archive.mjs',
+    'packages/main/tests/canonical-new-story-artifacts/public-fixtures.mjs',
+    'packages/main/tests/canonical-new-story-artifacts/release.mjs',
+    'packages/main/tests/canonical-new-story-artifacts/runner.mjs',
+    'packages/main/tests/canonical-new-story-artifacts/runtime-extensions.mjs',
+    'packages/main/tests/canonical-new-story-artifacts/runtime-read.mjs',
+    'packages/main/tests/canonical-new-story-artifacts/runtime-topology.mjs',
+    'packages/main/tests/canonical-new-story-artifacts/scope-init.mjs'],
+  producer: 'verification capability CLI', consumerGate: 'explicit verifier invocation only',
+  rationale: 'Preserve the original 25 group bindings and ordered check callbacks. Explicit capabilities share one fixture state, run the selected union once, and never activate the archived migration campaign implicitly. Named-group success does not establish full certification or production dynamic exclusion.',
+});
+
+COMMAND_PROCESS_FACTS.push({
   name: 'runtime:process_contract_capability_selection', kind: 'runtime-behavior', level: 'L4',
   semantics: ['runtime-behavior', 'verification-policy'],
   paths: ['scripts/verify-process-fact-contract.mjs',

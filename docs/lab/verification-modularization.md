@@ -1,7 +1,7 @@
 # Verification modularization: implementation and evidence ledger
 
 This is a local Lab checkpoint, not a completion or main integration claim.
-The authorized scope is all 14 entries below. Ten entries have complete passing executions at their recorded commits (nine official scoped GREEN commands and two complete finding-ledger runs). Quorum is now split with seven bounded contracts passing; three entries remain unimplemented. The main synchronization invalidates current-head Lab GREEN, not the historical logs.
+The authorized scope is all 14 entries below. Ten entries have complete passing executions at their recorded commits (nine official scoped GREEN commands and two complete finding-ledger runs). Quorum has official scoped GREEN at 5a58bdbf5a (seven bounded contracts). Canonical artifacts are split with scoped cache/topology checks passing; identity scanner and managed-review remain unimplemented. The main synchronization invalidates current-head Lab GREEN, not the historical logs.
 
 Original public files contain imports, usage comments and one invocation.
 Every extracted file is limited to 2,000 physical lines. No hidden monolith,
@@ -18,7 +18,7 @@ No routine validation command is added by internal module registration.
 | `packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts` | 6101 | 7 | 14 | 1577 | RED -> official GREEN at 51b6485211; full scan 67.33 s; 109 function bodies and driver order preserved | No |
 | `packages/main/src/tasks/validation-tier-planner-smoke.ts` | 5792 | 7 | 9 | 1652 | RED -> official GREEN at d8b0ad6632; full suite 12.97 s, 142 checks | No |
 | `packages/main/src/tasks/flow-stability-smoke.ts` | 5528 | 7 | 11 | 989 | RED -> official GREEN at 21be146f9c; full suite 137.62 s | No |
-| `packages/main/tests/canonical-new-story-artifacts.test.mjs` | 5378 | 5378 | pending | pending | Pending; no modularization RED/GREEN claim | No |
+| `packages/main/tests/canonical-new-story-artifacts.test.mjs` | 5378 | 7 | 22 | 815 | RED recorded; 58 functions and 112 statements preserved; scoped checks pass, full certification pending | No |
 | `packages/main/src/tasks/finding-ledger-runtime-smoke.ts` | 4646 | 6 | 9 | 1134 | Full suites passed at 3b51f4f666 / f5fda7d0e6 in 130.60 / 147.00 s; combined run failed in the separate process suite | No |
 | `packages/main/src/tasks/managed-review-evidence-smoke.ts` | 4360 | 4360 | pending | pending | Pending; no modularization RED/GREEN claim | No |
 | `packages/main/src/tasks/host-run-usage-smoke.ts` | 3867 | 6 | 15 | 587 | RED -> official GREEN at 9c8e8b848b; full suite 34.00 s, 91 checks | No |
@@ -302,3 +302,43 @@ Exact static-edge config pins are retained stale and fail closed pending the alr
 planned closure review; merging records is not renewed audit approval. Both branches'
 new exception records and source-bound evidence are retained. No push or integration
 of this Lab into main has occurred.
+
+## Canonical artifact decomposition
+
+The original 25 `--group=ID` selections are preserved. `--capability=ID` selects
+the same checks and accepts a deduplicated union; `--list-capabilities` reports each
+group's exact module and static check-site bindings. The migration archive remains
+explicit-only. Module data owns six shared fixture slots, replacing six cross-module
+mutable lexical variables. Function/callback comparisons normalize only these six
+references, explicit module-relative import relocation and the documented selector
+union. All 58 function bodies and 112 ordered executable statements are checked.
+Cache and runtime-topology checks passed together, with duplicate cache selection
+executed once; legacy cache selection also passed. This is not complete certification.
+`runtime:canonical_artifact_capability_selection` explicitly registers all module
+paths, adding zero routine commands. Historical/static source pins still require
+the planned reconciliation after the remaining source movements.
+
+| Module | Lines | Responsibility |
+|---|---:|---|
+| `artifact-inventory.mjs` | 276 | artifact inventory |
+| `catalog.mjs` | 384 | catalog |
+| `cli.mjs` | 17 | cli |
+| `data.mjs` | 815 | data |
+| `driver.mjs` | 41 | driver |
+| `finding-artifacts.mjs` | 186 | finding artifacts |
+| `fixture-support.mjs` | 72 | fixture support |
+| `identity-cutover.mjs` | 481 | identity cutover |
+| `identity-inventory.mjs` | 321 | identity inventory |
+| `identity-ownership.mjs` | 259 | identity ownership |
+| `identity-policy.mjs` | 142 | identity policy |
+| `identity-runtime-boundaries.mjs` | 281 | identity runtime boundaries |
+| `identity-sites.mjs` | 514 | identity sites |
+| `memory-runtime.mjs` | 210 | memory runtime |
+| `migration-archive.mjs` | 231 | migration archive |
+| `public-fixtures.mjs` | 429 | public fixtures |
+| `release.mjs` | 354 | release |
+| `runner.mjs` | 40 | runner |
+| `runtime-extensions.mjs` | 127 | runtime extensions |
+| `runtime-read.mjs` | 137 | runtime read |
+| `runtime-topology.mjs` | 335 | runtime topology |
+| `scope-init.mjs` | 557 | scope init |
