@@ -204,6 +204,13 @@ The signed RED record binds that budget; GREEN and integration checks replay it
 unchanged. Existing records retain the 15-minute default. A timeout never counts
 as target RED or passing GREEN.
 
+Audit input uses a separate 64 MiB bound for each Git read and the complete
+serialized commit snapshots. Provider output remains bounded at 8 MiB. Full
+snapshot and diff digests remain mandatory; the initial provider prompt contains
+snapshot references rather than repeating large source files. Oversized, binary,
+invalid UTF-8 or mutated snapshots still refuse audit. This input allowance does
+not imply passing review or permission to omit changed files.
+
 Local HMAC-bound command records and captured output stay in the Git common
 `lab-maintenance/` directory after worktree cleanup. They are tool-owned local
 provenance, not tamper-proof against a user who controls the local key, and not
