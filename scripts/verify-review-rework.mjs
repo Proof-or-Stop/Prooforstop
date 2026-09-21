@@ -8,7 +8,7 @@ const run = (command, args) => {
   if (result.error || result.signal) throw result.error ?? new Error(`child signaled: ${result.signal}`);
   return result.status ?? 1;
 };
-if (run('npm', ['--prefix', 'packages/main', 'run', 'build']) !== 0) process.exit(1);
+if (run(process.execPath, ['scripts/ensure-dist.mjs']) !== 0) process.exit(1);
 const results = [
   run(process.execPath, ['packages/main/dist/tasks/review-incremental-context-smoke.js', '--large-inventory-only']),
   run(process.execPath, ['scripts/run-validation-fixture-suite.mjs', 'packages/main/dist/tasks/review-inventory-epoch-smoke.js']),

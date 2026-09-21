@@ -1010,6 +1010,8 @@ if (!process.argv.includes('--lifecycle-only') && !process.argv.includes('--rost
 
 const criticArgs = { storyId, agentType: 'proof-or-stop-review-topology-critic' };
 const first = setup(undefined, true);
+const lifecycleOriginalCwd = process.cwd();
+process.chdir(first.root);
 seedProofStoryAcceptance(first.store);
 const originalProofStoryContract = structuredClone(first.store.readProofStoryContract(storyId)!);
 const criticDispatch = cli(first.root, 'dispatch', { storyId, agentType: 'proof-or-stop-review-topology-critic' }, {
@@ -1652,6 +1654,7 @@ assert.equal(expandedScopeSelection.selection, 'full-set');
 assert.equal(expandedScopeSelection.reason, 'SCOPE_OR_POLICY_CHANGED');
 assert.deepEqual(expandedScopeSelection.selectedLanes, narrowSelection.activeLanes, 'scope expansion restores every active lane');
 
+process.chdir(lifecycleOriginalCwd);
 if (process.argv.includes('--roster-only')) {
   for (const fixtureRoot of isolatedFixtureRoots) rmSync(fixtureRoot, { recursive: true, force: true });
   console.log('review roster targeted lifecycle: PASS');
