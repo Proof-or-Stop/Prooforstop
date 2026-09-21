@@ -195,6 +195,14 @@ help can lag a handler detail; the state machine and gate output are decisive.
 | TEST | Main agent and CLI | Run routine validation, resolve recorded bugs, refresh stale admissible evidence, and complete the delivery/summary prerequisites. |
 | DONE | CLI | Prepare convergence, validate current evidence and policy, merge to the resolved local integration branch, run post-merge effects, and remove the Story worktree. |
 
+The `proof-or-stop-residue` REVIEW-to-TEST preflight is repository maintenance
+for the Proof-or-Stop source tree, not a requirement imposed on consumer
+repositories. Consumers skip it by default. A repository opts in with
+`reviewPreflight.proofOrStopResidue: "enforce"`; in that mode malformed project
+JSON or `reviewPreflight` policy, a missing
+`scripts/verify-proof-or-stop-residue.mjs`, a timeout, or a nonzero detector
+result blocks the transition. An explicit `"off"` also skips the preflight.
+
 ### Story creation and INIT
 
 `story_create` requires a meaningful background unless `fromDraft` applies. The
