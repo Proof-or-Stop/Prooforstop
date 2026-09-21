@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab validation-verdict-stickiness - v0.3.435 - 2026-09-21
+
+- Fail is sticky: an executed validation failure recorded on an identity (command set, committed material, story files, compiled artifacts) makes any PASS on that identical identity a flipped verdict. Routine reuse (`verdict-flip-unattested`), evidence admission and the DONE-side consumer (`verdict_flip_unattested`) and both publications, executed and reused (`verdict_flip_refused`), refuse it. Changing the material or the build releases it; there is no override.
+- Failing `validation_terminal` events record a `failureKind` derived from the executor's command outcomes: infrastructure only when infrastructure is all that failed, `coverage_incomplete` when the required commands passed and only required coverage was missing, a verdict otherwise. Infrastructure and coverage-only failures, reused terminals and terminals from before the artifact binding do not stick.
+- Every recorded run carries its full identity: a Story run whose routine identity cannot be built is refused before launch (`validation_identity_unavailable`), the material and story files are identified before launch so a later lookup failure cannot drop an executed verdict, a failure is bound as completely as a PASS, and the terminal records the identity its publication validated. Only a confirmed absence is an empty history; anything unreadable or malformed fails closed.
+- `done_prepare` again trusts the reused terminal the verifier appends (its allowlist had not followed the 0.3.427 artifact binding); the fields are typed and bound, and the reuse path now writes them.
+- `scripts/report-validation-verdict-flips.mjs` (read-only) measures re-executions and flips; the recorded history (928 terminals, 97 Stories) shows 26 identities where a failure was followed by an executed pass and 44 by a reused pass. Two registered commands cover the rule: `scripts/verify-validation-verdict-stickiness.mjs` (96 checks) and `scripts/verify-validation-verdict-stickiness-cli.mjs` (end to end through the built CLI on fixture projects). How a validate file's printed output becomes a verdict is unchanged and out of scope. Audit history, comparison against main and limitations: [the Lab record](docs/lab/validation-verdict-stickiness.md).
+
+Maintenance provenance: codex/lab-validation-verdict-stickiness, repair f9753d83694c8fc331d7b48984ee3ba9da7e4737.
+Verification command (replayed before integration and on main): `["node","scripts/verify-validation-verdict-stickiness.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab shared-call-quota-rg - v0.3.434 - 2026-09-20
 
 - Enforce one explicit cumulative provider invocation quota across host runs, managed workers, plans, repairs, standalone reviews, bounded adapters and custom audits.
