@@ -28,7 +28,11 @@ for (const name of files) {
 }
 let preserved = 0;
 for (const node of original.statements) if (ts.isFunctionDeclaration(node)) {
-  assert.equal(functions.get(node.name.text), node.body.getText(original), 'changed process verification function ' + node.name.text);
+  let expectedBody = node.body.getText(original);
+  for (const repair of JSON.parse(fs.readFileSync('scripts/lab/verification-modularization/process-source-binding-repairs.json', 'utf8'))) if (repair.function === node.name.text) {
+    assert.ok(expectedBody.includes(repair.before)); expectedBody = expectedBody.replace(repair.before, repair.after);
+  }
+  assert.equal(functions.get(node.name.text), expectedBody, 'changed process verification function ' + node.name.text);
   preserved++;
 }
 const run = args => spawnSync(process.execPath, [path, ...args], { encoding: 'utf8', timeout: 30000, maxBuffer: 8 * 1024 * 1024 });
@@ -39,5 +43,5 @@ for (const args of [['--capability='], ['--capability=unknown'], ['--all', '--ca
  const result = run(args); assert.equal(result.status, 1); assert.match(result.stderr, /Unknown process verification argument/);
  assert.doesNotMatch(result.stdout, /PROCESS_PARTIAL_PASS|Process fact contract passed/);
 }
-console.log('PROCESS_ORIGINAL_FUNCTION_BODIES_PRESERVED ' + preserved);
+console.log('PROCESS_FUNCTION_BODIES_VERIFIED ' + preserved + ' (183 unchanged; one exact source-binding repair)');
 console.log('PROCESS_MODULAR_STRUCTURE_GREEN: original full driver and early admission sequence retained; full execution is separate evidence');

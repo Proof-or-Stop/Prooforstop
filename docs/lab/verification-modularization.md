@@ -2,7 +2,7 @@
 
 This is a local Lab checkpoint, not a completion or main integration claim.
 The authorized scope is all 14 entries below. Four have scoped official GREEN;
-the fifth is a candidate. Remaining entries have not been modularized.
+two more have candidate splits. Remaining eight entries have not been modularized.
 
 Original public files contain imports, usage comments and one invocation.
 Every extracted file is limited to 2,000 physical lines. No hidden monolith,
@@ -13,20 +13,20 @@ No routine validation command is added by internal module registration.
 
 | Original entry | Before lines | Current entry lines | Modules | Largest module | Evidence/status | In main |
 |---|---:|---:|---:|---:|---|---|
-| `scripts/verify-process-fact-contract.mjs` | 12201 | 12201 | pending | pending | Pending; no modularization RED/GREEN claim | No |
+| `scripts/verify-process-fact-contract.mjs` | 12201 | 7 | 16 | 1857 | RED recorded; full regression found stale source consumers, repair underway | No |
 | `packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs` | 10748 | 10748 | pending | pending | Pending; no modularization RED/GREEN claim | No |
 | `scripts/verify-proof-or-stop-identity-cutover.mjs` | 7794 | 7794 | pending | pending | Pending; no modularization RED/GREEN claim | No |
 | `packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts` | 6101 | 6101 | pending | pending | Pending; no modularization RED/GREEN claim | No |
 | `packages/main/src/tasks/validation-tier-planner-smoke.ts` | 5792 | 5792 | pending | pending | Pending; no modularization RED/GREEN claim | No |
 | `packages/main/src/tasks/flow-stability-smoke.ts` | 5528 | 7 | 11 | 989 | RED -> official GREEN at 21be146f9c; full suite 137.62 s | No |
 | `packages/main/tests/canonical-new-story-artifacts.test.mjs` | 5378 | 5378 | pending | pending | Pending; no modularization RED/GREEN claim | No |
-| `packages/main/src/tasks/finding-ledger-runtime-smoke.ts` | 4646 | 6 | 8 | 1134 | RED recorded; candidate awaiting full GREEN | No |
+| `packages/main/src/tasks/finding-ledger-runtime-smoke.ts` | 4646 | 6 | 9 | 1134 | Full suite passed at 3b51f4f666 in 130.60 s; combined official GREEN blocked by process source readers | No |
 | `packages/main/src/tasks/managed-review-evidence-smoke.ts` | 4360 | 4360 | pending | pending | Pending; no modularization RED/GREEN claim | No |
 | `packages/main/src/tasks/host-run-usage-smoke.ts` | 3867 | 3867 | pending | pending | Pending; no modularization RED/GREEN claim | No |
 | `scripts/verify-proof-or-stop-prompt-baseline.mjs` | 3675 | 7 | 6 | 1344 | RED -> official GREEN at 103d6e06fa; full suite 9.60 s | No |
 | `packages/main/tests/milestone-status.test.mjs` | 3447 | 6 | 9 | 670 | RED -> official GREEN at a3777644bb; full suite 39.00 s | No |
 | `scripts/verify-validation-build-artifact-binding.mjs` | 3329 | 3329 | pending | pending | Pending; no modularization RED/GREEN claim | No |
-| `packages/main/src/tasks/verification-run-and-guard-smoke.ts` | 3138 | 7 | 7 | 770 | RED -> official GREEN at 378d1ccb3a; full suite 94.52 s | No |
+| `packages/main/src/tasks/verification-run-and-guard-smoke.ts` | 3138 | 7 | 7 | 776 | RED -> official GREEN at 378d1ccb3a; full suite 94.52 s | No |
 
 ## Parameters and registration
 
@@ -38,6 +38,7 @@ separate success selectors and cannot claim complete-suite evidence.
 
 | Entry family | Capability IDs | Registration required |
 |---|---|---|
+| process-fact-contract | `support`, `proofstory-closeout`, `reopen`, `prompt-contracts`, `review-inventory`, `registry-parser`, `command-contracts`, `review-verification`, `scope-runtime`, `story3` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
 | finding-ledger-runtime | `proposal-envelope`, `projection-receipt`, `base-authority`, `legacy-authority`, `transactions`, `readonly-mutations`, `runtime-evidence`, `rollback-concurrency`, `historical-migration`, `build-distribution`, `tamper-dependency` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
 | verification-run-and-guard | `foundation`, `fanout`, `integrity`, `story-identity` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
 | prompt-baseline | `registry`, `prompt-policy`, `baseline-drift`, `role-matrix`, `legacy-vocabulary`, `direct-story-policy`, `measurement` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
@@ -50,6 +51,27 @@ mandatory-obligation composition. Do not infer exclusion authority from a partia
 PASS. Existing full entrypoints stay registered.
 
 ## Module inventory
+
+### `scripts/process-fact-contract`
+
+| Module | Lines | Responsibility |
+|---|---:|---|
+| `catalog.mjs` | 92 | Explicit capability-to-check bindings |
+| `cli.mjs` | 33 | Strict argument parsing and lazy orchestration |
+| `command-contracts.mjs` | 1106 | CLI policy inventory |
+| `complete.mjs` | 1857 | Retained full integration driver |
+| `early.mjs` | 64 | Admission refusal before positive work |
+| `prompt-contracts.mjs` | 678 | Prompt and adversarial controls |
+| `proofstory-closeout.mjs` | 1620 | ProofStory and closeout boundaries |
+| `registry-alignment.mjs` | 634 | Registry alignment |
+| `registry-parser.mjs` | 655 | Registry and policy parsing |
+| `reopen.mjs` | 568 | Reopen audit controls |
+| `review-inventory.mjs` | 832 | Review inventory and refresh coverage |
+| `review-verification.mjs` | 1005 | Review and verification receipt contracts |
+| `scope-runtime.mjs` | 1209 | Scope and runtime admission |
+| `source-analysis.mjs` | 575 | TypeScript and source analysis helpers |
+| `story3.mjs` | 360 | Finding runtime evidence contract |
+| `support.mjs` | 1224 | Shared constants and source readers |
 
 ### `packages/main/src/tasks/flow-stability`
 
@@ -71,12 +93,13 @@ PASS. Existing full entrypoints stay registered.
 
 | Module | Lines | Responsibility |
 |---|---:|---|
-| `authority.ts` | 620 | Read-only, mutation, base and legacy authority checks |
-| `boundaries.ts` | 287 | Concurrency, rollback, refusal, tamper and build locks |
+| `authority.ts` | 624 | Read-only, mutation, base and legacy authority checks |
+| `boundaries.ts` | 290 | Concurrency, rollback, refusal, tamper and build locks |
 | `cli.ts` | 79 | Legacy workers, diagnostics and capability orchestration |
 | `distribution.ts` | 295 | Version, installation and RED/GREEN bindings |
+| `process-mutation-proof.ts` | 52 | Exact mutation refusal reasons and positive controls |
 | `projection.ts` | 845 | Projection integrity and historical migration |
-| `runtime-evidence.ts` | 988 | Runtime receipt writers, consumers and recovery |
+| `runtime-evidence.ts` | 990 | Runtime receipt writers, consumers and recovery |
 | `support.ts` | 452 | Ledger and CLI helpers, signed proposal checks |
 | `transactions.ts` | 1134 | Concurrent appends, durability, recovery and lock fencing |
 
@@ -114,7 +137,7 @@ PASS. Existing full entrypoints stay registered.
 | `foundation.ts` | 427 | Pinned execution, refusal and stale evidence basics |
 | `integrity.ts` | 762 | Receipt integrity and executable identity |
 | `publication.ts` | 517 | Producer ownership and publication bindings |
-| `refresh.ts` | 770 | Fan-out, manifests and evidence reuse |
+| `refresh.ts` | 776 | Fan-out, manifests and evidence reuse |
 | `support.ts` | 349 | Fixture creation, evidence helpers and paths |
 
 ## Preservation and discovered assertion defect

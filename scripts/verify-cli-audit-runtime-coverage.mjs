@@ -15,7 +15,9 @@ const groups = [], measurements = {};
 const read = path => fs.readFileSync(join(repo, path), 'utf8');
 const source = path => ts.createSourceFile(path, read(path), ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
 const functionText = (path, name) => {
-  const node = source(path).statements.find(n => ts.isFunctionDeclaration(n) && n.name?.text === name);
+  const ast = source(path);
+  const owner = path === 'scripts/process-fact-contract/complete.mjs' ? ast.statements.find(n => ts.isFunctionDeclaration(n) && n.name?.text === 'runCompleteProcessContract')?.body : ast;
+  const node = owner?.statements.find(n => ts.isFunctionDeclaration(n) && n.name?.text === name);
   assert.ok(node, `production function missing: ${name}`); return node.getText();
 };
 const variableText = (path, name) => {
@@ -101,9 +103,9 @@ try {
     // The process verifier now routes both boundary children through one actual
     // completion callback. Exercise that callback instead of requiring an obsolete
     // inline call spelling; missing wiring or misclassified outcomes still fail.
-    const processSource = read('scripts/verify-process-fact-contract.mjs');
+    const processSource = read('scripts/process-fact-contract/complete.mjs');
     assert.match(processSource, /boundaryProofCompletion\(resolveProof, rejectProof, 'maintenance preview', 'MAINTENANCE_PREVIEW_GREEN'\)/);
-    const completion = vm.runInNewContext(functionText('scripts/verify-process-fact-contract.mjs', 'boundaryProofCompletion') + '; boundaryProofCompletion', {
+    const completion = vm.runInNewContext(functionText('scripts/process-fact-contract/complete.mjs', 'boundaryProofCompletion') + '; boundaryProofCompletion', {
       nodeAssert: assert, verificationFailureMessage: budget.verificationFailureMessage,
     });
     for (const [error, expected] of [[exhausted, /PROOF_UNAVAILABLE/], [Object.assign(new Error('outer timeout'), { code: 'ETIMEDOUT' }), /PROOF_UNAVAILABLE/], [new Error('assertion mismatch'), /PROOF_ASSERTION_FAILED/]]) {

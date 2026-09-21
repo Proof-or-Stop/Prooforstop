@@ -879,7 +879,7 @@ export function assertCurrentVerificationReceiptModel() {
     read('packages/main/src/tasks/verification-run-and-guard/support.ts').includes('authoritative V5 bundle and its V3 execution component'),
     'verification lifecycle smoke must describe the current V5 bundle rather than authoritative V3 validation',
   );
-  const verificationReceiptSmoke = read('packages/main/src/tasks/verification-run-and-guard/support.ts');
+  const verificationReceiptSmoke = ['support', 'refresh'].map(name => read(`packages/main/src/tasks/verification-run-and-guard/${name}.ts`)).join('\n');
   assert(
     verificationReceiptSmoke.includes('expected VerificationReceiptBundleV5 with VerificationAssertionReceiptV2 and VerificationExecutionReceiptV3'),
     'verification split-receipt helper diagnostic must name Bundle V5, Assertion V2, and Execution V3 exactly',

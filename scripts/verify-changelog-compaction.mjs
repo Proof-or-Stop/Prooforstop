@@ -51,12 +51,13 @@ for (const changed of [{ ...row, byteSha256: '0'.repeat(64) }, { ...row, gitBlob
 }
 assert(verifyFrozenFiles(root, new Set([...tracked].filter(path => path !== 'CHANGELOG.md'))).some(error => error.includes('changelog-history') && error.includes('missing tracked path')));
 // Exercise the actual parent block and failure collector without recursively launching this child.
-const contract = readFileSync(join(root, 'scripts/verify-process-fact-contract.mjs'), 'utf8');
+const contract = readFileSync(join(root, 'scripts/process-fact-contract/early.mjs'), 'utf8');
 const blockStart = contract.indexOf('assert(read(processFactRegistryPath).includes("name: \'runtime:changelog_history_compaction\'"),');
-const blockEnd = contract.indexOf('\nfunction parseDonePreflightPredicateInventory', blockStart);
+const blockEnd = contract.lastIndexOf('\n}');
+const collectorSource = readFileSync(join(root, 'scripts/process-fact-contract/support.mjs'), 'utf8');
 assert(blockStart >= 0 && blockEnd > blockStart, 'parent wiring block must be found');
 const collectors = ['fail', 'assert'].map(name => {
-  const match = contract.match(new RegExp(`function ${name}\\([^]*?\\n\\}`));
+  const match = collectorSource.match(new RegExp(`function ${name}\\([^]*?\\n\\}`));
   assert(match, `parent ${name} collector must be found`);
   return match[0];
 }).join('\n');

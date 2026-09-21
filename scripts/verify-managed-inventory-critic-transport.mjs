@@ -57,8 +57,14 @@ console.log('MANAGED_INVENTORY_CRITIC_TRANSPORT_PARSER_GREEN');
 // Execute the actual final guard and failure gate in a disposable subprocess.
 // Removing each required authority token must exit nonzero before success banners.
 const {readFileSync} = await import('node:fs');
-const verifierSource = readFileSync(new URL('./verify-process-fact-contract.mjs', import.meta.url), 'utf8');
-const finalGuard = verifierSource.slice(verifierSource.indexOf('// Managed inventory transport checks must precede the final failure gate.'));
+const verifierSource = readFileSync(new URL('./process-fact-contract/complete.mjs', import.meta.url), 'utf8');
+const { default: ts } = await import('typescript');
+const contractAst = ts.createSourceFile('complete.mjs', verifierSource, ts.ScriptTarget.Latest, true);
+const contractBody = contractAst.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'runCompleteProcessContract')?.body;
+assert(contractBody, 'actual complete contract body must exist');
+const firstGuard = contractBody.statements.find(node => node.getText().startsWith("assert(read('packages/main/src/core/managed-host-run.ts').includes('isManagedInventoryCritic')"));
+assert(firstGuard, 'actual managed transport guard must exist');
+const finalGuard = verifierSource.slice(firstGuard.getStart(), contractBody.end - 1);
 assert(finalGuard.includes('if (failures.length)'), 'Contract test must include the actual final failure gate');
 const handlerPath = 'packages/main/src/handlers/review-inventory.ts';
 const criticParserPaths = ['packages/main/src/core/managed-host-run.ts','packages/main/src/core/managed-review-evidence.ts'];

@@ -1,3 +1,9 @@
+/**
+ * Stale refresh may reuse immutable evidence with zero subprocesses;
+ * otherwise freshness fails closed to at most one real rerun per affected execution key.
+ * Timeout/nonzero failure demotes every dependent row;
+ * selector mismatch demotes only its row. Pin-less rows retain demote-only behavior.
+ */
 // Verification capability implementation; shared state is imported explicitly.
 import { strict as assert } from 'node:assert';
 

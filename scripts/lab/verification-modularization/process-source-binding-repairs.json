@@ -1,0 +1,7 @@
+[
+  {
+    "function": "assertCurrentVerificationReceiptModel",
+    "before": "const verificationReceiptSmoke = read('packages/main/src/tasks/verification-run-and-guard/support.ts');",
+    "after": "const verificationReceiptSmoke = ['support', 'refresh'].map(name => read(`packages/main/src/tasks/verification-run-and-guard/${name}.ts`)).join('\\n');"
+  }
+]

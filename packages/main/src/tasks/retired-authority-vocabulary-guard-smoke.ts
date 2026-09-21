@@ -271,7 +271,7 @@ const explicitLegacyTaskQuarantineFiles = new Set([
   'packages/main/src/tasks/evidence-plan-smoke.ts',
   'packages/main/src/tasks/evidence-refresh-smoke.ts',
   'packages/main/src/tasks/field-regression-cli-smoke.ts',
-  'packages/main/src/tasks/flow-stability-smoke.ts',
+  'packages/main/src/tasks/flow-stability/done-reporting.ts',
   'packages/main/src/tasks/host-overflow-smoke.ts',
   'packages/main/src/tasks/init-preflight-smoke.ts',
   'packages/main/src/tasks/proof-or-stop-baseline-smoke.ts',
