@@ -8,7 +8,8 @@ import { evaluateReviewMintStallAdjudication } from '../core/review-convergence.
 import { nativeReviewFixtureBrokers, runBrokeredNativeReviewCli } from './native-review-fixture.js';
 import { readConvergenceProgress, recordConvergenceProgress, acknowledgeConvergenceProgress } from '../core/convergence-progress-journal.js';
 import assert from 'node:assert/strict';
-import { execFile, execFileSync } from 'node:child_process';
+import childProcess, { execFile, execFileSync } from 'node:child_process';
+import { syncBuiltinESMExports } from 'node:module';
 import { chmodSync, existsSync, mkdtempSync, mkdirSync, readFileSync, renameSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -22,6 +23,7 @@ import {
   IMPLEMENTATION_PROVENANCE_COMMIT_MISSING,
 } from '../core/topology-critic-receipt.js';
 import { resetConfigCache } from '../core/config.js';
+import { isMaterialExcludedPath } from '../core/evidence-freshness.js';
 import { digestCandidateRoutingValue, verifyCandidateSpecSet, type CandidateSpecSetArtifact } from '../core/candidate-spec-routing.js';
 import {
   consumeReviewInventoryReceipt,
@@ -1580,6 +1582,58 @@ assert.equal(postRemediationReviewSelection(reloaded, first.root, storyId, activ
 console.log('NARROW_INVENTORY_LIFECYCLE=2 lane terminals + critic; finalize and core consume succeed; reopened finding refuses consume; metadata-only HEAD stays OPEN');
 // Restore only the disposable inventory baseline for independent dependency-drift probes below.
 reloaded.writeReviewInventoryEpochs(storyId, inventoryBeforeNarrowLifecycle);
+
+// Real porcelain output from excluded runtime index entries must not widen
+// review. Missing worktree files keep the fixture cheap while Git emits each row.
+const runtimePaths = Array.from({ length: 8_000 }, (_, index) =>
+  `.proof-or-stop/runtime/review-buffer/${index}-${'x'.repeat(180)}.txt`);
+assert.equal(isMaterialExcludedPath(runtimePaths[0], first.root), true);
+const realExecFileSync = childProcess.execFileSync;
+const gitIndexInput = (input: string) => realExecFileSync('git', ['update-index', '-z', '--index-info'], {
+  cwd: first.root, input, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024,
+});
+const runtimeBlob = realExecFileSync('git', ['hash-object', '-w', '--stdin'], { cwd: first.root, input: '', encoding: 'utf8' }).trim();
+try {
+  gitIndexInput(runtimePaths.map(path => `100644 ${runtimeBlob}\t${path}\0`).join(''));
+  const porcelain = realExecFileSync('git', ['status', '--porcelain=v1', '-z', '--untracked-files=all', '--ignored=matching'], {
+    cwd: first.root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024,
+  });
+  const bytes = Buffer.byteLength(porcelain);
+  assert(bytes > 1024 * 1024, 'real dirty-state output must exceed the old default buffer');
+  const largeDirty = postRemediationReviewSelection(reloaded, first.root, storyId, activeReviewers);
+  assert.equal(largeDirty.selection, 'dependency-closure', JSON.stringify(largeDirty));
+  assert.deepEqual(largeDirty.selectedLanes, narrowSelection.selectedLanes);
+  // Fault injection lowers only this invocation's bound. Git still executes and
+  // Node raises a real ENOBUFS; no fake porcelain bytes or selector result.
+  let overflows = 0;
+  childProcess.execFileSync = ((file: string, args: string[], options: object) => {
+    if (file !== 'git' || args[0] !== 'status') return realExecFileSync(file, args, options);
+    try { return realExecFileSync(file, args, { ...options, maxBuffer: 1024 }); }
+    catch (error) { if ((error as NodeJS.ErrnoException).code === 'ENOBUFS') overflows++; throw error; }
+  }) as typeof execFileSync;
+  syncBuiltinESMExports();
+  const overflow = postRemediationReviewSelection(reloaded, first.root, storyId, activeReviewers);
+  assert.equal(overflows, 1, 'negative control must reach an actual Node Git-buffer overflow');
+  assert.equal(overflow.selection, 'full-set');
+  assert.deepEqual(overflow.selectedLanes, overflow.activeLanes);
+  assert.equal(overflow.reason, 'DIRTY_STATE_UNREADABLE', 'transport failure must not claim untracked material exists');
+  assert.match(overflow.reasonDetail, /ENOBUFS/);
+  console.log('REVIEW_REWORK_DIRTY_TRANSPORT PASS ' + JSON.stringify({ paths: runtimePaths.length, bytes, selection: largeDirty.selection, overflow: overflow.reason }));
+} finally {
+  childProcess.execFileSync = realExecFileSync;
+  syncBuiltinESMExports();
+  gitIndexInput(runtimePaths.map(path => `0 ${'0'.repeat(40)}\t${path}\0`).join(''));
+}
+
+const longPaths = Array.from({ length: 200 }, (_, index) => `tests/review-${index}.test.ts`);
+const longRoster = { ...roster, selection: { ...roster.selection, changedFiles: longPaths, closureFiles: longPaths } };
+const longRosterText = renderFinalReviewRoster(longRoster, storyId);
+assert.match(longRosterText, /Changed material: 200 file\(s\):/);
+assert.match(longRosterText, /Dependency closure: 200 file\(s\):/);
+assert.ok(!longRosterText.includes(longPaths[10]), 'text projection caps each path sample at ten');
+assert.equal(longRoster.selection.changedFiles.length, 200, 'JSON projection retains complete arrays');
+assert.ok(longRosterText.includes('reviewer_list --storyId=' + storyId + ' --json'));
+console.log('REVIEW_REWORK_BOUNDED_ROSTER PASS files=200 sample=10');
 
 const rosterStatus = renderFinalReviewRoster(roster, storyId);
 assert.match(rosterStatus, /^Final-review lanes: proof-or-stop-review-quality, proof-or-stop-review-test-coverage$/m);
