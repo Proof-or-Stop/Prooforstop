@@ -1,5 +1,16 @@
 # Changelog
 
+## Lab verifier-identity-drift-diagnostic - v0.3.437 - 2026-09-21
+
+- Report verifier receipt staleness with the exact changed execution component, distinguishing environment, toolchain, and dependency-input drift.
+- Keep strict freshness unchanged: behavior-affecting environment or toolchain changes still require a real rerun, while a missing dependency manifest only limits reuse.
+- Add a focused F057 entry point and regression assertions covering both environment and toolchain drift diagnostics.
+- Verified with the Lab RED/GREEN replay and the package build; the corrected benchmark invocation must preserve `CONTEXT=abs` across evidence and lifecycle checks.
+
+Maintenance provenance: codex/lab-verifier-identity-drift-diagnostic, repair d2ce4a97630b43a3b6badd05212f15a7624b6086.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/verification-run-and-guard-smoke.js","--baa5f-live-identity-drift"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab review-managed-launch-guidance - v0.3.436 - 2026-09-20
 
 - Keep REVIEW lanes outside `managedDispatch` and direct unsupported REVIEW calls to the signed `candidate_spec_route -> review_run_start -> managedReview` evidence flow.
