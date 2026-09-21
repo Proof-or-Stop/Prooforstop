@@ -137,6 +137,16 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
     root, runId: result.runId, storyId, agentType: 'proof-or-stop-review-scope-plan',
   }).valid, false,
   'a legacy byte seal must require a fresh managed scope review after owner annotation');
+  const projectedPrefix = 'proof-or-stop.managed-scope-reviewer-output.v1:';
+  assert.ok(projectedTerminal.managedDispatchOutputDigest.startsWith(projectedPrefix));
+  writeFileSync(terminalPath, `${JSON.stringify({
+    ...projectedTerminal,
+    managedDispatchOutputDigest: projectedTerminal.managedDispatchOutputDigest.slice(projectedPrefix.length),
+  }, null, 2)}\n`);
+  assert.equal(verifyManagedDispatchDelivery({
+    root, runId: result.runId, storyId, agentType: 'proof-or-stop-review-scope-plan',
+  }).valid, false,
+  'an unprefixed legacy grammar digest must not claim the projected v1 domain');
   writeFileSync(terminalPath, `${JSON.stringify(projectedTerminal, null, 2)}\n`);
 
   const tamperedQuestion = structuredClone(resolvedScopeCheck);

@@ -1857,11 +1857,13 @@ function immutableManagedScopeReviewerPayload(scopeCheck: ScopeCheckData): Scope
   };
 }
 
+const MANAGED_SCOPE_REVIEWER_OUTPUT_DIGEST_PREFIX = 'proof-or-stop.managed-scope-reviewer-output.v1:';
+
 function managedScopeReviewerOutputDigest(scopeCheck: ScopeCheckData): string {
-  return sha256(canonicalJson({
+  return `${MANAGED_SCOPE_REVIEWER_OUTPUT_DIGEST_PREFIX}${sha256(canonicalJson({
     schemaVersion: 'proof-or-stop.managed-scope-reviewer-output.v1',
     scopeCheck: immutableManagedScopeReviewerPayload(scopeCheck),
-  }));
+  }))}`;
 }
 
 function managedScopeCheckHasOwnerAnnotations(scopeCheck: ScopeCheckData): boolean {
@@ -1891,10 +1893,11 @@ function managedScopeReviewerOutputMatches(input: {
   sealedDigest: string;
 }): boolean {
   const current = currentManagedScopeReviewerOutput(input);
-  return current !== null && [
-    current.projectedDigest,
-    current.exactLegacyDigest,
-  ].includes(input.sealedDigest);
+  if (current === null) return false;
+  if (input.sealedDigest.startsWith(MANAGED_SCOPE_REVIEWER_OUTPUT_DIGEST_PREFIX)) {
+    return input.sealedDigest === current.projectedDigest;
+  }
+  return current.exactLegacyDigest !== null && input.sealedDigest === current.exactLegacyDigest;
 }
 
 export function managedDispatchOutputValidation(input: {
