@@ -11043,7 +11043,11 @@ const inventory = [
       },
       {
         relPath: 'packages/main/src/handlers/review-preflight.ts',
-        patterns: ['runReviewCliGates', 'checkCommitAuthor', 'checkConcept', 'checkLint'],
+        patterns: ['runReviewCliGates', 'checkCommitAuthor', 'checkConcept', 'checkLint', 'reviewPreflight?.proofOrStopResidue'],
+      },
+      {
+        relPath: 'packages/main/src/core/config.ts',
+        patterns: ['ReviewPreflightConfig', "proofOrStopResidue?: 'off' | 'enforce'"],
       },
       {
         relPath: 'packages/main/src/core/machine.ts',

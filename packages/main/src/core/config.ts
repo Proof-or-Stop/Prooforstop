@@ -164,6 +164,11 @@ export interface ManagedReviewIsolationConfig {
   adapter: 'prooforstop-main-v1';
 }
 
+export interface ReviewPreflightConfig {
+  /** PoS repository brand-migration maintenance only; consumer repositories leave this off. */
+  proofOrStopResidue?: 'off' | 'enforce';
+}
+
 export interface ProofOrStopConfig {
   /** Dynamic Finding rollout. observe/warn preserve the legacy gate; enforce enables the signed applicability projection. */
   dynamicFinding?: {
@@ -175,6 +180,8 @@ export interface ProofOrStopConfig {
   };
   /** Explicit managed-review-only readonly build adapter; absent retains legacy behavior. */
   managedReviewIsolation?: ManagedReviewIsolationConfig;
+  /** Explicit repository-specific REVIEW preflight capabilities. */
+  reviewPreflight?: ReviewPreflightConfig;
   /** Explicit semantic budgets and responsibility map; malformed opt-in policy fails closed. */
   storyScopeBudget?: import('./story-scope-budget.js').StoryScopeBudgetPolicy;
   /**

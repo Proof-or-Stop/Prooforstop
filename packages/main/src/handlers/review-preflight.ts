@@ -75,6 +75,7 @@ import {
   runEnglishArtifactGate,
   renderEnglishArtifactViolations,
 } from './english-artifact-gate.js';
+import { loadConfig } from '../core/config.js';
 
 // B-5f42: the english-artifacts gate has no standalone `validate --english-artifacts`
 // CLI option — it runs inline as part of the REVIEW→TEST preflight. Give it an
@@ -83,8 +84,9 @@ import {
 const ENGLISH_ARTIFACTS_GATE_LABEL =
   'english-artifacts (REVIEW→TEST preflight; standalone: npm run test:legacy -- english-only-guards)';
 
-// B-292d: proof-or-stop-residue gate — same shape as english-artifacts. Calls the
-// canonical script delivered by B-40eb (`scripts/verify-proof-or-stop-residue.mjs`).
+// B-292d: proof-or-stop-residue is a PoS-repository maintenance gate, not a
+// capability every project using the CLI must carry. Explicit project config
+// opts in; consumer repositories default to a visible skip.
 // No standalone `validate --proof-or-stop-residue` flag; standalone re-run is the npm
 // script that wraps the same script (kept per user sub-decision a3).
 const PROOF_OR_STOP_RESIDUE_GATE_LABEL =
@@ -94,12 +96,13 @@ const PROOF_OR_STOP_RESIDUE_TIMEOUT_MS = 30_000;
 
 interface ProofOrStopResidueGateResult {
   ok: boolean;
+  status: 'pass' | 'fail' | 'skipped';
   summary: string;
   details: string[];
 }
 
 /**
- * B-292d: Run the canonical proof-or-stop-residue script as a preflight gate.
+ * Run the canonical proof-or-stop-residue script only for opted-in repositories.
  *
  * Treats exit code 0 as PASS; any non-zero (including timeout / spawn failure)
  * as FAIL. The script's stdout hit list is surfaced verbatim in the gate's
@@ -112,10 +115,38 @@ interface ProofOrStopResidueGateResult {
  *     operator can extend the script's allowlist via a follow-up story.
  */
 function runProofOrStopResidueGate(projectRoot: string): ProofOrStopResidueGateResult {
+  let configuredMode: unknown;
+  try {
+    configuredMode = loadConfig(projectRoot).reviewPreflight?.proofOrStopResidue;
+  } catch (error) {
+    return {
+      ok: false,
+      status: 'fail',
+      summary: 'proof-or-stop-residue configuration could not be loaded',
+      details: [error instanceof Error ? error.message : String(error)],
+    };
+  }
+  if (configuredMode === undefined || configuredMode === 'off') {
+    return {
+      ok: true,
+      status: 'skipped',
+      summary: 'PoS repository residue maintenance is not enabled for this project',
+      details: [],
+    };
+  }
+  if (configuredMode !== 'enforce') {
+    return {
+      ok: false,
+      status: 'fail',
+      summary: 'invalid reviewPreflight.proofOrStopResidue mode',
+      details: [`expected "off" or "enforce", received ${JSON.stringify(configuredMode)}`],
+    };
+  }
   const scriptAbs = join(projectRoot, PROOF_OR_STOP_RESIDUE_SCRIPT_REL);
   if (!existsSync(scriptAbs)) {
     return {
       ok: false,
+      status: 'fail',
       summary: `proof-or-stop-residue gate script missing at ${PROOF_OR_STOP_RESIDUE_SCRIPT_REL}`,
       details: [`expected: ${scriptAbs}`],
     };
@@ -127,7 +158,7 @@ function runProofOrStopResidueGate(projectRoot: string): ProofOrStopResidueGateR
       stdio: ['ignore', 'pipe', 'pipe'],
       encoding: 'utf8',
     });
-    return { ok: true, summary: 'No brand residue in tracked source', details: [] };
+    return { ok: true, status: 'pass', summary: 'No brand residue in tracked source', details: [] };
   } catch (err) {
     const error = err as { code?: string; signal?: string; stdout?: string; stderr?: string };
     const stdout = (error.stdout ?? '').toString();
@@ -139,12 +170,14 @@ function runProofOrStopResidueGate(projectRoot: string): ProofOrStopResidueGateR
     if (error.code === 'ETIMEDOUT' || error.signal === 'SIGTERM') {
       return {
         ok: false,
+        status: 'fail',
         summary: `proof-or-stop-residue gate timed out after ${PROOF_OR_STOP_RESIDUE_TIMEOUT_MS}ms`,
         details: stderr ? [stderr.trim()] : [],
       };
     }
     return {
       ok: false,
+      status: 'fail',
       summary: hits.length > 0 ? `brand residue: ${hits.length} hit(s)` : 'proof-or-stop-residue gate failed',
       details: hits.length > 0 ? hits : stderr ? [stderr.trim()] : [],
     };
@@ -585,13 +618,13 @@ export function runReviewCliGates(
   });
 
   // ── proof-or-stop-residue (B-292d) ──
-  // Run the canonical B-40eb script as a structured preflight gate.
-  // Non-zero exit BLOCKs story_advance to TEST; stdout hit list is surfaced.
+  // This PoS-repository maintenance check is opt-in. When enabled, a non-zero
+  // exit blocks story_advance to TEST and the stdout hit list is surfaced.
   const proofOrStopResidue = runProofOrStopResidueGate(deps.projectRoot);
   gates.push({
     name: 'proof-or-stop-residue',
     ok: proofOrStopResidue.ok,
-    status: proofOrStopResidue.ok ? 'pass' : 'fail',
+    status: proofOrStopResidue.status,
     summary: proofOrStopResidue.summary,
     details: proofOrStopResidue.details,
     commandLabel: PROOF_OR_STOP_RESIDUE_GATE_LABEL,
