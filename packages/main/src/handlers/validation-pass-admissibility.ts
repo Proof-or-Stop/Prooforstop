@@ -10,6 +10,7 @@ import { buildVerificationCoverage } from '../core/verification.js';
 import { classifyGitStatusRows, classifierOptionsForCheck, isBlockingDirty, readGitStatusLines } from '../core/dirty-worktree-gate.js';
 import type { StoryStore } from '../core/store.js';
 import { resolve } from 'node:path';
+import { readValidationHistory } from '../core/validation-verdict-stickiness.js';
 
 function canonicalCoverageSnapshotFromReport(coverage: any): string | null {
   if (!Array.isArray(coverage?.entries)) return null;
@@ -155,6 +156,7 @@ export function assessStoredValidationPassAdmissibility(
     blockingDirtyReason: blockingDirtyWorktreeReason(ctx, storyId, gitCwd),
     gitCwd,
     metadataRoot: ctx.root,
+    validationHistory: readValidationHistory(ctx.store, storyId),
   });
   if (!result.ok) return result;
   const output = JSON.parse(evidence.output);
