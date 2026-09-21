@@ -261,6 +261,18 @@ function gateByName(result: ReturnType<typeof runReviewCliGates>, name: string) 
       `PRIMARY: docs-drift gate must PASS on wrapper-root (got status=${docsDrift.status}, details=${JSON.stringify(docsDrift.details)}). ` +
         `A FAIL here means repoRoot was scanned from the non-git metadataRoot (the pre-CHK-001 wiring).`,
     );
+
+    const residue = gateByName(result, 'proof-or-stop-residue');
+    assert.equal(
+      residue.ok,
+      true,
+      'LAB_RED: consumer repositories without the PoS maintenance script must not be blocked',
+    );
+    assert.equal(
+      residue.status,
+      'skipped',
+      'consumer repositories must report the PoS-only residue maintenance gate as skipped',
+    );
     assert.ok(
       docsDrift.status === 'pass' || docsDrift.status === 'skipped',
       `PRIMARY: docs-drift status must be pass/skipped (got '${docsDrift.status}')`,
@@ -271,6 +283,49 @@ function gateByName(result: ReturnType<typeof runReviewCliGates>, name: string) 
       `PRIMARY: ${ONLY_UNDER_GITROOT} must not be reported missing when scanned from the gitRoot ` +
         `(got ${JSON.stringify(result.docsDrift?.missingPaths)})`,
     );
+
+    writeFileSync(
+      join(metadataRoot, 'proof-or-stop.config.json'),
+      JSON.stringify({
+        gitRoot: 'repo',
+        reviewPreflight: { proofOrStopResidue: 'enforce' },
+      }, null, 2),
+      'utf-8',
+    );
+    resetConfigCache();
+    const optedIn = gateByName(
+      runReviewCliGates(STORY_ID, makeDeps(metadataRoot)),
+      'proof-or-stop-residue',
+    );
+    assert.equal(optedIn.ok, false, 'explicit PoS residue maintenance opt-in must fail closed');
+    assert.equal(optedIn.status, 'fail', 'missing opted-in residue script must remain a failure');
+    assert.match(
+      optedIn.summary,
+      /gate script missing/,
+      'explicit opt-in must preserve the missing-script diagnostic',
+    );
+
+    const residueScriptDir = join(metadataRoot, 'scripts');
+    const residueScript = join(residueScriptDir, 'verify-proof-or-stop-residue.mjs');
+    mkdirSync(residueScriptDir, { recursive: true });
+    writeFileSync(residueScript, "console.log('fixture residue pass');\n", 'utf-8');
+    const passingOptIn = gateByName(
+      runReviewCliGates(STORY_ID, makeDeps(metadataRoot)),
+      'proof-or-stop-residue',
+    );
+    assert.equal(passingOptIn.status, 'pass', 'opted-in projects must execute a passing residue gate');
+
+    writeFileSync(
+      residueScript,
+      "console.log('fixture residue detected'); process.exitCode = 1;\n",
+      'utf-8',
+    );
+    const failingOptIn = gateByName(
+      runReviewCliGates(STORY_ID, makeDeps(metadataRoot)),
+      'proof-or-stop-residue',
+    );
+    assert.equal(failingOptIn.status, 'fail', 'opted-in projects must block on detected residue');
+    assert.match(failingOptIn.summary, /brand residue: 1 hit/, 'detector output must remain visible');
 
     void gitRoot;
   } finally {
