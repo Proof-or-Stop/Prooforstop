@@ -1,5 +1,19 @@
 # Changelog
 
+## Lab managed-review-projection-dirty-admission - v0.3.441 - 2026-09-21
+
+# Managed review controller projection dirty admission
+
+- Problem: managed inventory-critic receipt import treated exact controller-projected config and Codex hook files as candidate material drift, even though signed Story-bound projection receipts and byte identity already admitted the same files as framework control artifacts. This deadlocked REVIEW in externally provisioned Story worktrees.
+- Fix: `readMaterialDirtyFiles` accepts an opt-in Story id and excludes only `??` untracked controller projections that pass the existing signed receipt, exact branch, regular-file, untracked, and byte-identity checks. Only managed inventory-critic import enables this option; all other evidence freshness callers retain strict behavior.
+- Regression protection: the benchmark framework hardening smoke covers the exact four-file projection set, wrong Story, unrelated dirt, byte tamper, missing receipt, hook tamper, and forced index tracking of both config and hook projections. The process-fact contract pins the new producer and consumer plus the explicit untracked-only gate.
+- Verification: `npm --prefix packages/main run build` and `npm run test:benchmark-framework-hardening` passed on candidate `8bd8bd8f4445b351dd528967e7a635b6d4f7f60d`. A different-vendor Grok Lab audit passed after one concrete finding was independently checked and converted into defense-in-depth status gating and staged-file tests.
+- Performance: no production timing change was targeted; the added work is bounded to the small dirty path set during managed inventory-critic import.
+
+Maintenance provenance: codex/lab-managed-review-projection-dirty-admission, repair e9f6947ed11550fe22e6b86fe26f2ad49f2e2c10.
+Verification command (replayed before integration and on main): `["npm","run","test:benchmark-framework-hardening"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab managed-scope-owner-annotation-seal - v0.3.440 - 2026-09-21
 
 - Keep managed scope reviewer evidence valid when the Story owner resolves an open question after a current managed reviewer run.
