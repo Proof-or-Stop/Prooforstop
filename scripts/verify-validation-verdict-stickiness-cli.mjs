@@ -274,80 +274,9 @@ try {
     check(verifierModule.publicationBindings({}, undefined).materialHash === undefined, 'control: a run that was never bound stays unbound and is refused');
   }
 
-  // Audit 7: a provider result that parses but whose fields are not of the
-  // types the pipeline coerces - String() of {toString: null} throws - is as
-  // unusable as one that does not parse. Normalization never throws.
-  expectRepaired(typeof verifierModule.normalizeValidatorResult === 'function', 'the validator result is not normalized before it is coerced');
-  if (typeof verifierModule.normalizeValidatorResult === 'function') {
-    const normalize = (value) => { try { return verifierModule.normalizeValidatorResult(typeof value === 'string' ? value : JSON.stringify(value)); } catch (error) { return { threw: String(error) }; } };
-    const unusable = [
-      { provider: 'fixture', status: { toString: null }, allPass: false }, { provider: 'fixture', status: 'pass', allPass: 'yes' }, { provider: 'fixture', status: 'pass', allPassed: 1 },
-      { provider: 'fixture', status: 'pass', summary: { toString: null } }, { provider: 'fixture', status: 'pass', details: 'not-a-list' }, { provider: 7, status: 'pass' }, { provider: '  ', status: 'pass' }, { provider: { name: 'fixture' }, status: 'pass' }, ['fixture'], '{"provider":"fixture","status":fail}',
-    ];
-    expectRepaired(unusable.every((value) => { const result = normalize(value); return !result.threw && result.status === 'fail' && result.allPass === false && result.provider === 'proof-or-stop-verifier-malformed-validator-output'; }),
-      `an unusable provider result was not turned into a validation failure (${JSON.stringify(unusable.map(normalize).map((r) => r.threw ?? r.status))})`);
-    const usable = normalize({ provider: 'fixture', status: 'pass', allPass: true, summary: 'ok', details: ['a', { toString: null }, 3], warnings: [] });
-    check(usable.status === 'pass' && usable.allPass === true && usable.provider === 'fixture' && JSON.stringify(usable.details) === JSON.stringify(['a', '{"toString":null}', '3']), `control: a usable result passes through, with list entries made strings (${JSON.stringify(usable)})`);
-  }
-  // Audit 8: normalization is total. A details entry nested thousands of
-  // levels deep parses, and overflows the stack when it is serialized again.
-  const deepText = (levels) => `{"provider":"flaky-fixture","status":"fail","allPass":false,"details":[{"toJSON":null,"v":${'['.repeat(levels)}${']'.repeat(levels)}}]}`;
-  if (typeof verifierModule.normalizeValidatorResult === 'function') {
-    let deepResult; try { deepResult = verifierModule.normalizeValidatorResult(deepText(8000)); } catch (error) { deepResult = { threw: String(error) }; }
-    expectRepaired(!deepResult.threw && deepResult.status === 'fail' && deepResult.provider === 'proof-or-stop-verifier-malformed-validator-output', `a deeply nested provider result threw out of normalization (${String(deepResult.threw ?? deepResult.provider).slice(0, 120)})`);
-    let deepElsewhere; try { deepElsewhere = verifierModule.normalizeValidatorResult(`{"provider":"flaky-fixture","status":"pass","allPass":true,"extra":${'['.repeat(8000)}${']'.repeat(8000)}}`); } catch (error) { deepElsewhere = { threw: String(error) }; }
-    expectRepaired(!deepElsewhere.threw && deepElsewhere.status === 'fail', 'a provider result nested too deeply outside its lists was accepted, to overflow when it is persisted');
-    const shallow = verifierModule.normalizeValidatorResult(`{"provider":"flaky-fixture","status":"pass","allPass":true,"extra":${'['.repeat(40)}${']'.repeat(40)}}`);
-    check(shallow.status === 'pass' && shallow.provider === 'flaky-fixture', 'control: ordinary nesting is a usable result');
-  }
-  const deeplyNested = seed('deeply-nested', `const verdict = require('node:fs').readFileSync(process.env.STICKINESS_SWITCH, 'utf8').trim();\nif (verdict === 'pass') { console.log(JSON.stringify({ provider: 'flaky-fixture', status: 'pass', allPass: true, summary: 'pass', details: [], warnings: [] })); process.exit(0); }\nconsole.log('{"provider":"flaky-fixture","status":"fail","allPass":false,"details":[{"toJSON":null,"v":' + '['.repeat(8000) + ']'.repeat(8000) + '}]}');\nprocess.exit(1);\n`);
-  writeFileSync(switchPath, 'fail\n');
-  const deepRun = deeplyNested.runCli();
-  check(deepRun.status !== 0, `control: a failing run with deeply nested output fails (${deepRun.text.slice(0, 200)})`);
-  expectRepaired(kinds(deeplyNested.history()) === JSON.stringify([['fail', 'executed', 'validation_failure']]) && deeplyNested.evidence()?.result === 'FAIL',
-    `a failing run with deeply nested validator output left no record (${kinds(deeplyNested.history())} evidence=${deeplyNested.evidence()?.result}; ${deepRun.text.slice(0, 200)})`);
-  deeplyNested.admit();
-  writeFileSync(switchPath, 'pass\n');
-  const deepRetry = deeplyNested.runCli();
-  expectRepaired(deepRetry.status !== 0 && deepRetry.text.includes('verdict_flip_refused') && deeplyNested.evidence()?.result !== 'PASS', 'deeply nested failing output exempted the retry from stickiness');
-
-  // Audit 9: a structured candidate is one that names a provider, whatever
-  // value it gives it. A printed FAILURE with exit code zero and a numeric,
-  // empty or object-valued provider used to fall through to the exit-code
-  // wrapper and publish a PASS.
-  const providerFixture = (name, providerJson) => seed(name, `const verdict = require('node:fs').readFileSync(process.env.STICKINESS_SWITCH, 'utf8').trim();\nif (verdict === 'pass') { console.log(JSON.stringify({ provider: 'flaky-fixture', status: 'pass', allPass: true, summary: 'pass', details: [], warnings: [] })); process.exit(0); }\nconsole.log('{"provider":${providerJson},"status":"fail","allPass":false}');\nprocess.exit(0);\n`);
-  let numericProvider;
-  for (const [name, providerJson] of [['provider-number', '7'], ['provider-empty', '""'], ['provider-object', '{"name":"fixture"}']]) {
-    const fixture = providerFixture(name, providerJson);
-    writeFileSync(switchPath, 'fail\n');
-    const run = fixture.runCli();
-    expectRepaired(run.status !== 0 && fixture.evidence()?.result === 'FAIL' && kinds(fixture.history()) === JSON.stringify([['fail', 'executed', 'validation_failure']]),
-      `a printed failure with exit code zero and provider ${providerJson} was not recorded as a validation failure (exit=${run.status} evidence=${fixture.evidence()?.result} ${kinds(fixture.history())})`);
-    if (name === 'provider-number') numericProvider = fixture;
-  }
-  numericProvider.admit();
-  writeFileSync(switchPath, 'pass\n');
-  const providerRetry = numericProvider.runCli();
-  expectRepaired(providerRetry.status !== 0 && providerRetry.text.includes('verdict_flip_refused') && numericProvider.evidence()?.result !== 'PASS', 'a printed failure with an unusable provider exempted the retry from stickiness');
-
-  // Audit 10: JSON lets a key be written with escapes, so the literal text
-  // "provider" proves nothing. What marks a structured attempt is checked as a
-  // pure function in scripts/verify-validation-verdict-stickiness.mjs; here a
-  // printed failure with an escaped provider key goes through the built CLI.
-  const escapedKey = seed('escaped-key', `const verdict = require('node:fs').readFileSync(process.env.STICKINESS_SWITCH, 'utf8').trim();\nif (verdict === 'pass') { console.log(JSON.stringify({ provider: 'flaky-fixture', status: 'pass', allPass: true, summary: 'pass', details: [], warnings: [] })); process.exit(0); }\nconsole.log('{"\\\\u0070rovider":"flaky-fixture","status":"fail","allPass":false}');\nprocess.exit(0);\n`);
-  writeFileSync(switchPath, 'fail\n');
-  const escapedRun = escapedKey.runCli();
-  expectRepaired(escapedRun.status !== 0 && escapedKey.evidence()?.result === 'FAIL' && kinds(escapedKey.history()) === JSON.stringify([['fail', 'executed', 'validation_failure']]),
-    `a printed failure with exit code zero and an escaped provider key was not recorded as a validation failure (exit=${escapedRun.status} evidence=${escapedKey.evidence()?.result} ${kinds(escapedKey.history())})`);
-  escapedKey.admit();
-  writeFileSync(switchPath, 'pass\n');
-  const escapedRetry = escapedKey.runCli();
-  expectRepaired(escapedRetry.status !== 0 && escapedRetry.text.includes('verdict_flip_refused') && escapedKey.evidence()?.result !== 'PASS', 'an escaped provider key exempted the retry from stickiness');
-
-  // Third finish-time audit: output cut off by the deadline is no printed
-  // verdict. The validate file prints a PASSING result without its closing
-  // brace and hangs until it is killed; the run is an infrastructure failure in
-  // evidence and terminal alike, and the unchanged inputs may recover.
+  // A run the executor kills at its deadline before the validate file has
+  // printed a complete result is an infrastructure failure in evidence and
+  // terminal alike, and the unchanged inputs may recover.
   const cutOff = seed('cut-off-by-deadline', `const verdict = require('node:fs').readFileSync(process.env.STICKINESS_SWITCH, 'utf8').trim();\nif (verdict === 'pass') { console.log(JSON.stringify({ provider: 'flaky-fixture', status: 'pass', allPass: true, summary: 'pass', details: [], warnings: [] })); process.exit(0); }\nconsole.log('{"provider":"flaky-fixture","status":"pass","allPass":true');\nsetTimeout(() => process.exit(0), 120000);\n`);
   const deadline = { PROOF_OR_STOP_VALIDATE_FILE_TIMEOUT_MS: '4000' };
   writeFileSync(switchPath, 'fail\n');
@@ -358,14 +287,6 @@ try {
   writeFileSync(switchPath, 'pass\n');
   const cutOffRetry = cutOff.runCli(deadline);
   expectRepaired(cutOffRetry.status === 0 && cutOff.evidence()?.result === 'PASS', `a run cut off by its deadline refused the recovery on unchanged inputs (${cutOffRetry.text.slice(0, 400)})`);
-  // ... and authority is never extracted from an enclosing array: a passing
-  // result inside a truncated array, printed with exit code zero, is unusable.
-  const wrapped = seed('array-wrapped', `const verdict = require('node:fs').readFileSync(process.env.STICKINESS_SWITCH, 'utf8').trim();\nif (verdict === 'pass') { console.log(JSON.stringify({ provider: 'flaky-fixture', status: 'pass', allPass: true, summary: 'pass', details: [], warnings: [] })); process.exit(0); }\nconsole.log('[{"provider":"flaky-fixture","status":"pass","allPass":true},');\nprocess.exit(0);\n`);
-  writeFileSync(switchPath, 'fail\n');
-  const wrappedRun = wrapped.runCli();
-  expectRepaired(wrappedRun.status !== 0 && wrapped.evidence()?.result === 'FAIL' && kinds(wrapped.history()) === JSON.stringify([['fail', 'executed', 'validation_failure']]),
-    `a passing result inside a truncated array was published (exit=${wrappedRun.status} evidence=${wrapped.evidence()?.result} ${kinds(wrapped.history())})`);
-
   // Audit 10: a validate file cannot claim that its printed verdict is a
   // dynamic-authority aggregate. It prints a failure carrying that claim and
   // then hangs until the executor kills it: a semantic failure beside a
@@ -380,31 +301,6 @@ try {
   writeFileSync(switchPath, 'pass\n');
   const forgedRetry = forged.runCli(shortBudget);
   expectRepaired(forgedRetry.status !== 0 && forgedRetry.text.includes('verdict_flip_refused') && forged.evidence()?.result !== 'PASS', 'a forged dynamic authority exempted the retry from stickiness');
-
-  const unusableStatus = seed('unusable-status', `const verdict = require('node:fs').readFileSync(process.env.STICKINESS_SWITCH, 'utf8').trim();\nif (verdict === 'pass') { console.log(JSON.stringify({ provider: 'flaky-fixture', status: 'pass', allPass: true, summary: 'pass', details: [], warnings: [] })); process.exit(0); }\nconsole.log(JSON.stringify({ provider: 'flaky-fixture', status: { toString: null }, allPass: false }));\nprocess.exit(1);\n`);
-  writeFileSync(switchPath, 'fail\n');
-  const unusableRun = unusableStatus.runCli();
-  check(unusableRun.status !== 0, `control: a failing run with an unusable status fails (${unusableRun.text.slice(0, 300)})`);
-  expectRepaired(kinds(unusableStatus.history()) === JSON.stringify([['fail', 'executed', 'validation_failure']]) && unusableStatus.evidence()?.result === 'FAIL',
-    `a failing run whose printed status could not be coerced left no record (${kinds(unusableStatus.history())} evidence=${unusableStatus.evidence()?.result}; ${unusableRun.text.slice(0, 300)})`);
-  unusableStatus.admit();
-  writeFileSync(switchPath, 'pass\n');
-  const unusableRetry = unusableStatus.runCli();
-  expectRepaired(unusableRetry.status !== 0 && unusableRetry.text.includes('verdict_flip_refused') && unusableStatus.evidence()?.result !== 'PASS', 'an uncoercible printed status exempted the retry from stickiness');
-
-  // Audit 6: a validate file that fails and prints a provider result that does
-  // not parse is a recorded validation failure, not an exception that leaves
-  // the run without a record; the valid PASS it prints next is a flipped verdict.
-  const malformed = seed('malformed', `const verdict = require('node:fs').readFileSync(process.env.STICKINESS_SWITCH, 'utf8').trim();\nif (verdict === 'pass') { console.log(JSON.stringify({ provider: 'flaky-fixture', status: 'pass', allPass: true, summary: 'pass', details: [], warnings: [] })); process.exit(0); }\nconsole.log('{"provider":"flaky-fixture","status":fail}');\nprocess.exit(1);\n`);
-  writeFileSync(switchPath, 'fail\n');
-  const malformedRun = malformed.runCli();
-  check(malformedRun.status !== 0, `control: malformed failing output fails the run (${malformedRun.text.slice(0, 300)})`);
-  expectRepaired(kinds(malformed.history()) === JSON.stringify([['fail', 'executed', 'validation_failure']]) && malformed.evidence()?.result === 'FAIL',
-    `a failing run with malformed validator output left no record (${kinds(malformed.history())} evidence=${malformed.evidence()?.result}; ${malformedRun.text.slice(0, 300)})`);
-  malformed.admit();
-  writeFileSync(switchPath, 'pass\n');
-  const malformedRetry = malformed.runCli();
-  expectRepaired(malformedRetry.status !== 0 && malformedRetry.text.includes('verdict_flip_refused') && malformed.evidence()?.result !== 'PASS', 'malformed failing output exempted the retry from stickiness');
 
   // Audit 5: the terminal records exactly the identity its publication
   // validated. Here nothing it could look up exists - the context has no

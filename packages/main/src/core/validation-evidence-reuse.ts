@@ -420,8 +420,6 @@ export function classifyValidationTerminalFailure(args: {
   semanticCommandPass?: boolean;
   /** True when semanticCommandPass is the caller's aggregate verdict rather than an independent semantic one. */
   semanticIsAggregate?: boolean;
-  /** True when the failing semantic verdict was synthesized from output that could not be used, not printed by the command. */
-  semanticIsSynthesized?: boolean;
   concurrentPollutionBlocking?: boolean;
 }): ValidationTerminalFailureKind {
   if (isCoverageOnlyFailure(args.record)) return 'coverage_incomplete';
@@ -435,10 +433,7 @@ export function classifyValidationTerminalFailure(args: {
   // command outcomes, so it cannot turn an infrastructure-only run into one;
   // with no failed command to explain it, it is a verdict like any failure
   // nothing explains.
-  // A verdict SYNTHESIZED from unusable output is no printed verdict either:
-  // cut off by a deadline it is infrastructure, with nothing else failed it
-  // falls to the closed default below and is a verdict.
-  const independentSemanticRejection = args.semanticCommandPass === false && args.semanticIsAggregate !== true && args.semanticIsSynthesized !== true;
+  const independentSemanticRejection = args.semanticCommandPass === false && args.semanticIsAggregate !== true;
   const verdictFailure = independentSemanticRejection
     || args.concurrentPollutionBlocking === true
     || requiredFailures.some((result) => result.worktreePollution?.blocking === true || !isInfrastructure(result));

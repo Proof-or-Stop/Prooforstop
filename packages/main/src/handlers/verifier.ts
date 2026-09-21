@@ -886,24 +886,12 @@ export function launchDirectoryMismatch(bindings: readonly FrozenLaunchBinding[]
 }
 
 /**
- * Failures this verifier SYNTHESIZED from a validate file output it could not
- * use. No complete negative verdict was printed, so such a failure is not an
- * independent semantic rejection: the executor facts decide what it is - an
- * infrastructure failure when the command was killed at its deadline and the
- * output is merely cut off, a verdict otherwise. Membership is by object
- * identity, so a validate file cannot claim it by printing the same fields.
- */
-const synthesizedValidatorFailures = new WeakSet<object>();
-
-/**
  * Results whose semantic-pass argument is the AGGREGATE verdict of a
  * dynamic-authority run. Only the two callers that build such a result add to
  * it, by object identity, so nothing a validate file prints can claim it.
  */
 const aggregateVerdictResults = new WeakSet<object>();
 
-/** Results handed to persistence whose failing semantic verdict was synthesized from unusable output; trusted the same way. */
-const synthesizedSemanticResults = new WeakSet<object>();
 
 /**
  * The committed material and story files a run executes against, captured
@@ -914,143 +902,6 @@ const synthesizedSemanticResults = new WeakSet<object>();
  */
 const preLaunchBindings = new WeakMap<RoutineValidationIdentity, { materialHash: string; storyFilesHash: string }>();
 const isSha256Hex = (value: unknown): value is string => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
-
-/**
- * Exported for the fail-sticky regression. What a validate file's whole output
- * is: plain text for the exit-code wrapper, one structured provider result, or
- * an attempt at one that cannot be used. The rule is closed, not a list of
- * shapes: the protocol's own key names - provider, allPass, allPassed, written
- * as JSON keys, escapes decoded because JSON lets a key be written with them -
- * mark an attempt wherever they occur in the output. An attempt is a result
- * only when the output holds exactly ONE complete top-level JSON object that
- * carries such a key and no marker outside it. Anything else that names one -
- * truncated, malformed, repeated, or followed by another attempt - is
- * unusable and is a recorded failure, never plain text that passes on exit
- * code zero. Output that names none is plain text: the key "status" alone
- * marks nothing, because ordinary logs print it, and a validate file that does
- * not speak the protocol is judged by its exit code, as it always was.
- */
-export type ValidatorOutputClass = { kind: 'plain' } | { kind: 'result'; text: string } | { kind: 'unusable'; reason: string };
-const STRUCTURED_RESULT_MARKERS = ['provider', 'allPass', 'allPassed'];
-const STRUCTURED_RESULT_MARKER = /"(?:provider|allPass|allPassed)"\s*:/;
-const decodeJsonEscapes = (text: string) => text.replace(/\\u([0-9a-fA-F]{4})/g, (_match, hex: string) => String.fromCharCode(parseInt(hex, 16)));
-
-/**
- * Complete ROOT {...} spans, scanned with JSON string, escape and container
- * awareness. An object inside an array is not a root: authority is never
- * extracted from an enclosing container, complete or truncated. An unclosed
- * container yields nothing, and neither does anything after it.
- */
-function topLevelObjectSpans(output: string): Array<{ start: number; end: number }> {
-  const spans: Array<{ start: number; end: number }> = [];
-  const open: string[] = [];
-  let start = -1, inString = false, escaped = false;
-  for (let index = 0; index < output.length; index++) {
-    const char = output[index];
-    if (inString) {
-      if (escaped) escaped = false;
-      else if (char === '\\') escaped = true;
-      else if (char === '"') inString = false;
-      continue;
-    }
-    if (char === '"' && open.length > 0) inString = true;
-    else if (char === '{' || char === '[') { if (open.length === 0) start = index; open.push(char); }
-    else if ((char === '}' || char === ']') && open.length > 0) {
-      const opener = open.pop();
-      if (open.length === 0 && opener === '{' && char === '}') spans.push({ start, end: index + 1 });
-    }
-  }
-  return spans;
-}
-
-export function classifyValidatorOutput(output: string): ValidatorOutputClass {
-  if (!STRUCTURED_RESULT_MARKER.test(decodeJsonEscapes(output))) return { kind: 'plain' };
-  const results: Array<{ start: number; end: number }> = [];
-  for (const span of topLevelObjectSpans(output)) {
-    let parsed: unknown;
-    try { parsed = JSON.parse(output.slice(span.start, span.end)); } catch { continue; }
-    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)
-      && STRUCTURED_RESULT_MARKERS.some((key) => Object.prototype.hasOwnProperty.call(parsed, key))) results.push(span);
-  }
-  if (results.length !== 1) {
-    return { kind: 'unusable', reason: results.length === 0 ? 'the output names a provider result but holds no complete one' : `the output holds ${results.length} provider results` };
-  }
-  const [result] = results;
-  const outside = output.slice(0, result.start) + '\n' + output.slice(result.end);
-  if (STRUCTURED_RESULT_MARKER.test(decodeJsonEscapes(outside))) return { kind: 'unusable', reason: 'the output names a provider result outside the complete one' };
-  return { kind: 'result', text: output.slice(result.start, result.end) };
-}
-
-/**
- * Exported for the fail-sticky regression. A validate file's printed provider
- * result, made safe to carry through the pipeline: every field the pipeline
- * coerces has the type it is coerced from, or the whole result is replaced by
- * a structured validation failure. It never throws, so an executed run always
- * reaches its record.
- */
-export function malformedValidatorResult(reason: string, output: string): Record<string, any> & { status: string } {
-  const synthesized = {
-    provider: 'proof-or-stop-verifier-malformed-validator-output',
-    status: 'fail',
-    allPass: false,
-    summary: 'The validate file printed a provider result this verifier cannot use',
-    details: [`malformed validator result: ${reason}`, ...String(output).split('\n').filter((line) => line.trim()).slice(0, 40).map((line) => line.slice(0, 2000))],
-    warnings: [] as string[],
-  };
-  synthesizedValidatorFailures.add(synthesized);
-  return synthesized;
-}
-
-/** Exported for the fail-sticky regression: true only for an object malformedValidatorResult itself created. */
-export function isSynthesizedValidatorFailure(value: unknown): boolean {
-  return Boolean(value) && typeof value === 'object' && synthesizedValidatorFailures.has(value as object);
-}
-
-export function normalizeValidatorResult(text: string, output = text): Record<string, any> & { status: string } {
-  const malformed = (reason: string) => malformedValidatorResult(reason, output);
-  // Total by construction: whatever the child printed, and whatever goes wrong
-  // while it is being examined, the answer is a result or the structured
-  // failure - never an exception between the command and its record.
-  try {
-    const parsed: unknown = JSON.parse(text);
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return malformed('the provider result is not an object');
-    if (nestedDeeperThan(parsed, VALIDATOR_RESULT_MAX_DEPTH)) return malformed(`the provider result is nested deeper than ${VALIDATOR_RESULT_MAX_DEPTH} levels`);
-    const result = parsed as Record<string, any>;
-    if (typeof result.provider !== 'string' || !result.provider.trim() || typeof result.status !== 'string') return malformed('provider must be a non-empty string and status a string');
-    for (const flag of ['allPass', 'allPassed']) {
-      if (result[flag] !== undefined && typeof result[flag] !== 'boolean') return malformed(`${flag} must be a boolean`);
-    }
-    if (result.summary !== undefined && typeof result.summary !== 'string') return malformed('summary must be a string');
-    for (const list of ['details', 'warnings']) {
-      if (result[list] === undefined) continue;
-      if (!Array.isArray(result[list])) return malformed(`${list} must be an array`);
-      result[list] = (result[list] as unknown[]).map((entry) => (typeof entry === 'string' ? entry : JSON.stringify(entry) ?? 'null'));
-    }
-    // The whole result is serialized again when it is persisted; one that
-    // cannot be is unusable now rather than an exception then.
-    JSON.stringify(result);
-    return result as Record<string, any> & { status: string };
-  } catch (error) {
-    return malformed(error instanceof Error ? error.message : 'the provider result could not be examined');
-  }
-}
-
-/** Deeper than any real provider result, shallow enough that nothing downstream can exhaust the stack walking it. */
-const VALIDATOR_RESULT_MAX_DEPTH = 64;
-
-/** Iterative, so the measurement cannot itself overflow on the input it is guarding against. */
-function nestedDeeperThan(value: unknown, limit: number): boolean {
-  const pending: Array<{ value: unknown; depth: number }> = [{ value, depth: 1 }];
-  while (pending.length > 0) {
-    const current = pending.pop()!;
-    if (!current.value || typeof current.value !== 'object') continue;
-    if (current.depth > limit) return true;
-    for (const child of Array.isArray(current.value) ? current.value : Object.values(current.value as Record<string, unknown>)) {
-      if (child && typeof child === 'object') pending.push({ value: child, depth: current.depth + 1 });
-    }
-  }
-  return false;
-}
 
 /**
  * Exported for the fail-sticky regression. What a publication binds: its own
@@ -1676,8 +1527,6 @@ function persistStoryValidationEvidence(
   reuseAttribution?: RoutineReuseTerminalAttribution,
   /** Trusted: true only when a dynamic-authority caller passed its aggregate verdict as semanticCommandPass. */
   semanticIsAggregate = false,
-  /** Trusted: true only when the failing semantic verdict was synthesized from output that could not be used. */
-  semanticIsSynthesized = false,
 ): any | null {
   const statusPass = result.status === 'pass';
   const allPass = Boolean(result.allPass ?? result.allPassed ?? statusPass);
@@ -1918,7 +1767,6 @@ function persistStoryValidationEvidence(
         // verdict a validate file printed is an independent semantic one.
         // Which it is comes from the caller, never from the result itself.
         semanticIsAggregate,
-        semanticIsSynthesized,
         concurrentPollutionBlocking: Boolean(result?.concurrentWorktreePollution && result.concurrentWorktreePollution.blocking !== false),
       }),
     };
@@ -2223,7 +2071,6 @@ function decorateAndMaybePersistStoryValidation(
       semanticCommandPass,
       reuseAttribution,
       aggregateVerdictResults.has(result),
-      synthesizedSemanticResults.has(result),
     );
     if (persistenceFailure) return persistenceFailure;
   }
@@ -3284,11 +3131,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         // buildArtifactsHash in the child's JSON is discarded, and an executor
         // binding failure fails the result with the executor's own diagnostics.
         const withExecutorBinding = <T extends Record<string, unknown>>(value: T): T => {
-          // A validate file cannot classify its own failure either: the kind
-          // travels from the executor, and a printed FAIL is a validation failure.
-          // ... nor a dynamic validation authority: that block is attached by
-          // this verifier alone, below, from its own dynamic plan.
-          const { buildArtifactsHash: _printedHash, buildArtifacts: _printedObservations, buildArtifactsProtection: _printedProtection, failureKind: _printedKind, dynamicValidation: _printedDynamic, ...rest } = value as Record<string, unknown>;
+          const { buildArtifactsHash: _printedHash, buildArtifacts: _printedObservations, buildArtifactsProtection: _printedProtection, ...rest } = value as Record<string, unknown>;
           // The protection label travels with the binding: a validate file
           // cannot declare its own, and evidence without one is never reused.
           const protection = typeof validation.buildArtifactsProtection === 'string' ? { buildArtifactsProtection: validation.buildArtifactsProtection } : {};
@@ -3303,11 +3146,9 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             ? [`validation command exited with code ${commandResult.code ?? 'unknown'} (executor verdict ${validation.allPass === false ? 'FAIL' : 'not PASS'}); a printed PASS is not accepted without successful completion`]
             : [];
           const failures = [...executorBindingDetails, ...executorFailure];
-          if (failures.length === 0) {
-            return (bound.allPass === false || bound.status === 'fail' ? { ...bound, failureKind: 'validation_failure' } : bound) as unknown as T;
-          }
+          if (failures.length === 0) return bound as unknown as T;
           const details = Array.isArray(bound.details) ? bound.details as unknown[] : [];
-          return { ...bound, status: 'fail', allPass: false, failureKind: validation.failureKind ?? 'validation_failure', details: [...details, ...failures] } as unknown as T;
+          return { ...bound, status: 'fail', allPass: false, details: [...details, ...failures] } as unknown as T;
         };
         const attachDynamic = <T extends Record<string, unknown>>(value: T): T => {
           const bound = withExecutorBinding(value);
@@ -3344,34 +3185,21 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         if (args.json) {
           // Try to extract JSON from output (validate.ts should print JSON when --json is passed)
           const stripped = stripAnsi(output);
-          // Look for JSON object in output. A structured candidate is one that
-          // names a provider, whatever value it gives it: a result whose
-          // provider is a number, empty or an object is malformed, not plain
-          // text, and must not fall through to the exit-code wrapper below,
-          // where a printed failure with exit code zero would read as a PASS.
-          const validatorOutput = classifyValidatorOutput(stripped);
-          if (validatorOutput.kind !== 'plain') {
-            // Output that looks like a provider result but does not parse, or
-            // whose fields are not of the types this pipeline coerces, is a
-            // validation failure with the executor's own command outcome, and
-            // is persisted like one. Throwing anywhere between the command and
-            // its record would leave an executed run without one.
-            const parsed = validatorOutput.kind === 'result'
-              ? normalizeValidatorResult(validatorOutput.text, stripped)
-              : malformedValidatorResult(validatorOutput.reason, stripped);
-            const semanticCommandPass = parsed.status.trim().toLowerCase() === 'pass'
-              && parsed.allPass !== false
-              && parsed.allPassed !== false;
+          // Look for JSON object in output
+          const jsonMatch = stripped.match(/\{[\s\S]*"provider"\s*:\s*"[^"]+"[\s\S]*\}/);
+          if (jsonMatch) {
+            const parsed = JSON.parse(jsonMatch[0]);
+            const semanticCommandPass = String(parsed?.status ?? '').trim().toLowerCase() === 'pass'
+              && parsed?.allPass !== false
+              && parsed?.allPassed !== false;
             // Coverage decoration must not turn an exit-zero semantic non-PASS into PASS.
             const semanticResult = semanticCommandPass ? parsed : { ...parsed, status: 'fail', allPass: false };
             const focusedParsed = focus ? markFocusedResult(semanticResult, focus) : semanticResult;
-            const toPersist = attachDynamic(focusedParsed);
-            if (isSynthesizedValidatorFailure(parsed)) synthesizedSemanticResults.add(toPersist);
             const decorated = decorateAndMaybePersistStoryValidation(
               ctx,
               args.story,
               focus,
-              toPersist,
+              attachDynamic(focusedParsed),
               built?.identity,
               [commandResult],
               1,

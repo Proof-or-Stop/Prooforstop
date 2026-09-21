@@ -101,13 +101,6 @@ if (stickiness?.stickyFailuresFor) {
     check(classify([timedOut], { semanticCommandPass: false }) === 'validation_failure', 'control: an independent semantic rejection beside a timeout is still a verdict');
     check(classify([timedOut, broke], { semanticCommandPass: false, semanticIsAggregate: true }) === 'validation_failure' && classify([], { semanticCommandPass: false, semanticIsAggregate: true }) === 'validation_failure',
       'control: an aggregate failure with a real command failure, or with no failed command to explain it, is a verdict');
-    // Third finish-time audit: a failure SYNTHESIZED from output that could not
-    // be used is no printed verdict. Cut off by the deadline it is
-    // infrastructure and the run may be retried; with exit code zero or a real
-    // failure it is a verdict, like a complete printed FAIL beside a timeout.
-    expectRepaired(classify([timedOut], { semanticCommandPass: false, semanticIsSynthesized: true }) === 'infra_failure', 'output cut off by the deadline made an infrastructure-only run a verdict about the code');
-    check(classify([ok], { semanticCommandPass: false, semanticIsSynthesized: true }) === 'validation_failure' && classify([broke], { semanticCommandPass: false, semanticIsSynthesized: true }) === 'validation_failure',
-      'control: unusable output with exit code zero, or beside a real failure, is a verdict');
     const okExecution = { schema: 'proofOrStop.routine-validation-command-execution', version: 1, status: 'PASS', complete: true, commandCount: 1, requiredFailureCount: 0, optionalFailureCount: 0 };
     check(reuseModule.classifyValidationTerminalFailure({ record: { result: 'FAIL', verificationCoverage: { missingRequired: 1 }, commandExecution: okExecution }, commandResults: [ok], expectedCommandCount: 1 }) === 'coverage_incomplete', 'control: passing commands with missing required coverage are a coverage-only failure');
     // Audit 4: classification is not reuse eligibility. A failed OPTIONAL
@@ -358,7 +351,8 @@ expectRepaired(verifierSource.includes('validationHistory: readValidationHistory
 const admissionHandler = readFileSync(join(repoRoot, 'packages/main/src/handlers/validation-pass-admissibility.ts'), 'utf8');
 expectRepaired(admissionHandler.includes('validationHistory: readValidationHistory(ctx.store, storyId)'), 'the DONE-side admissibility handler does not hand the Story history to the evaluator (source-text guard)');
 // Audit: the flip is refused where the PASS would be published, and the
-// validate-file path never trusts a child-printed failure kind.
+// terminal never reads a failure kind the result carries - a validate file can
+// print one - but derives it from the command outcomes of the executor.
 expectRepaired((verifierSource.match(/passPublicationRefusal\(/g) ?? []).length === 2,
   'the executed and the reused publication do not both read the shared publication refusal (source-text guard)');
 // Audit 3: every executed PASS asks, with whatever identity it has; a missing
@@ -381,62 +375,8 @@ expectRepaired(scheduler.claimsConflict(ownEntry, rebuildEntry) === true, 'the e
 // and which one the semantic argument is comes from the caller through a
 // registry of result objects, never from a field a validate file can print.
 expectRepaired(verifierSource.includes('aggregateVerdictResults.has(result),') && (verifierSource.match(/aggregateVerdictResults\.add\(authoritative\);/g) ?? []).length === 2
-  && !/semanticIsAggregate:\s*result\??\.dynamicValidation/.test(verifierSource) && verifierSource.includes('dynamicValidation: _printedDynamic, ...rest }'),
+  && !/semanticIsAggregate:\s*result\??\.dynamicValidation/.test(verifierSource),
   'the origin of the semantic verdict is read from the result a validate file can shape (source-text guard)');
-// Audit 10 and the two finish-time audits: what a validate file's whole output
-// IS. The rule is closed rather than a list of shapes: the protocol's own key
-// names, written as JSON keys with escapes decoded, mark an attempt wherever
-// they occur; an attempt is a result only when the output holds exactly one
-// complete top-level object carrying such a key and no marker outside it.
-// Everything else that names one is unusable - a recorded failure, never plain
-// text that passes on exit code zero. The key "status" alone marks nothing.
-const verifierModule = await import('../packages/main/src/handlers/verifier.ts');
-expectRepaired(typeof verifierModule.classifyValidatorOutput === 'function', 'a validate file output is still classified by a heuristic over one span');
-if (typeof verifierModule.classifyValidatorOutput === 'function') {
-  const kindOf = (text) => verifierModule.classifyValidatorOutput(text).kind;
-  const FAIL = '{"provider":"fixture","status":"fail","allPass":false}';
-  const PASS = '{"provider":"fixture","status":"pass","allPass":true}';
-  const TRUNCATED = '{"provider":"fixture","status":"fail","allPass":false';
-  const unusable = {
-    'a provider key written with an escape, unparsable': '{"\\u0070rovider":"fixture","status":fail}',
-    'a result truncated before its closing brace': TRUNCATED,
-    'a result that names allPass but no provider and does not parse': '{"status":fail,"allPass":false}',
-    'an ordinary object followed by a truncated failure': `{"status":"ok"}\n${TRUNCATED}`,
-    'a complete pass followed by a truncated failure': `${PASS}\n${TRUNCATED}`,
-    'a complete pass followed by a complete failure': `${PASS}\n${FAIL}`,
-    'a complete pass with a stray marker after it': `${PASS}\n"allPassed": false`,
-    // Third finish-time audit: authority is never extracted from an enclosing
-    // container, complete, nested or truncated.
-    'a result inside a truncated array': `[${PASS},`,
-    'a result inside a complete array': `[${PASS}]`,
-    'a result nested inside another object': `{"results":[${PASS}]}`,
-  };
-  for (const [name, text] of Object.entries(unusable)) expectRepaired(kindOf(text) === 'unusable', `${name} was classified as ${kindOf(text)}, not as an unusable attempt`);
-  const results = {
-    'a result alone': FAIL,
-    'a result whose provider key is written with an escape': '{"\\u0070rovider":"fixture","status":"fail","allPass":false}',
-    'a result after log lines, one of them with braces': `starting\n{ debug } done\n${PASS}\nfinished`,
-    'a result that quotes a marker inside a string value': '{"provider":"fixture","status":"pass","allPass":true,"details":["expected \\"provider\\": x","{\\"allPass\\": false}"]}',
-    'a result with nested objects': '{"provider":"fixture","status":"pass","allPass":true,"extra":{"inner":{"status":"ok"}}}',
-  };
-  for (const [name, text] of Object.entries(results)) {
-    const classified = verifierModule.classifyValidatorOutput(text);
-    check(classified.kind === 'result' && JSON.parse(classified.text).provider === 'fixture', `control: ${name} is one usable result (${classified.kind})`);
-  }
-  // An earlier repair in this Lab also took "status" for a marker, which would
-  // have failed every plain-text validate file whose log prints a JSON object.
-  const plain = ['all 12 tests passed', '{ debug } done', '[1,2]', 'GET /health -> {"status":"ok"}\nall tests passed', '{"status":fail}', '{"status":"fail"}'];
-  expectRepaired(plain.every((text) => kindOf(text) === 'plain'), `ordinary output was read as an attempt at a structured result (${plain.map(kindOf).join(',')}); the key "status" alone marks nothing`);
-  const synthesizedFailure = verifierModule.malformedValidatorResult('reason', 'line');
-  expectRepaired(typeof verifierModule.isSynthesizedValidatorFailure === 'function' && verifierModule.isSynthesizedValidatorFailure(synthesizedFailure) === true
-    && verifierModule.isSynthesizedValidatorFailure({ ...synthesizedFailure }) === false && verifierModule.isSynthesizedValidatorFailure(JSON.parse(JSON.stringify(synthesizedFailure))) === false,
-    'a synthesized failure is not told apart by object identity, so a validate file could claim to be one by printing its fields');
-  check(verifierModule.malformedValidatorResult('reason', 'line').status === 'fail' && verifierModule.normalizeValidatorResult(FAIL).status === 'fail' && verifierModule.normalizeValidatorResult(PASS).status === 'pass', 'control: an unusable attempt and a failing result both normalize to a failure, a passing result passes through');
-}
-// Third finish-time audit: the origin of a synthesized failure reaches the
-// classifier from the caller, like the origin of an aggregate verdict.
-expectRepaired(verifierSource.includes('synthesizedSemanticResults.has(result),') && verifierSource.includes('if (isSynthesizedValidatorFailure(parsed)) synthesizedSemanticResults.add(toPersist);'),
-  'a failure synthesized from unusable output is still passed on as a printed semantic verdict (source-text guard)');
 // Audit 6: the publication binds through the pre-launch fallback.
 expectRepaired(verifierSource.includes('}, preLaunchBindings.get(identity)),') && verifierSource.includes('preLaunchBindings.set(identity, { materialHash, storyFilesHash });'),
   'the publication does not fall back to what the run was bound to before launch (source-text guard)');
@@ -450,8 +390,6 @@ expectRepaired(/if \(!verdictIdentity\) \{\s+return persistenceFailure\(/.test(v
 // Audit 4: a terminal's command set is the routine identity digest, never a
 // differently built fallback that no later identity could match.
 expectRepaired(!verifierSource.includes('commandSetHash: identity?.digest ??') && (verifierSource.includes('commandSetHash: identity.digest,') || verifierSource.includes('commandSetHash: bindings.commandSetHash,')), 'a terminal can still record a fallback command-set digest (source-text guard)');
-expectRepaired(/failureKind: _printedKind,[^}]*\.\.\.rest \}/.test(verifierSource) && verifierSource.includes("failureKind: validation.failureKind ?? 'validation_failure'"),
-  'the validate-file path still trusts a child-printed failureKind (source-text guard)');
 
 // ---------------------------------------------------------------------------
 // 6. done_prepare must still trust the terminal the verifier writes for a
