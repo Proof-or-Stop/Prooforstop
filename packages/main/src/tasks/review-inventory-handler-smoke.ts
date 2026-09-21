@@ -1335,7 +1335,9 @@ assert.ok(finalizedUnconsumedReviewInventory(reloaded, storyId), 'finalized sign
 assert.throws(() => cli(first.root, 'review_inventory_begin', { storyId }), /REVIEW_INVENTORY_RECEIPT_UNCONSUMED/);
 const finalizedData = reloaded.readReviewInventoryEpochs(storyId);
 const receipt = finalizedData.receipts[0];
-const sealedLane = epoch.requiredLanes[0];
+// The first lane now has a repeated Finding terminal. Use a PASS lane for
+// the existing out-of-band pass-authority mutation control.
+const sealedLane = epoch.requiredLanes[1];
 const sealedRun = secondWaveRuns.get(sealedLane)!;
 await assert.rejects(
   () => fixtureReviewCli(first, 'review_pass_set', {
