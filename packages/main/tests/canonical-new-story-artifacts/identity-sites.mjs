@@ -40,7 +40,7 @@ await check(["identity-sites"], 'F-060 reconciled consumers still reject added a
   assertOwnedImportUseIntegrity(sources);
   for (const [path, original, changed, importedName] of [
     ['packages/main/src/core/store.ts', 'isWithinValidationEvidenceWriteBound(bytes)', 'isWithinValidationEvidenceWriteBound(bytes + 1)', 'isWithinValidationEvidenceWriteBound'],
-    ['scripts/verify-proof-or-stop-identity-cutover.mjs', "mkdtempSync(join(tmpdir(), 'identity-current-witness-'))", "mkdtempSync(join(tmpdir(), 'identity-current-witness-changed-'))", 'readFileSync'],
+    ['scripts/identity-cutover/witness-controls.mjs', "mkdtempSync(join(tmpdir(), 'identity-current-witness-'))", "mkdtempSync(join(tmpdir(), 'identity-current-witness-changed-'))", 'readFileSync'],
   ]) {
     assert.equal(sources.get(path).split(original).length - 1, 1, 'reviewed imported call must be unique');
     const changedSources = new Map(sources);
@@ -300,9 +300,13 @@ await check(["identity-sites", "round24"], 'F-060 discovered-site omissions and 
 await check(["identity-sites", "round24"], 'F-060 exact verifier mutation-data fragment never admits changed data or surrounding active code', () => {
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-b49df-fragment-control-'));
   fixtureRoots.push(root);
-  mkdirSync(join(root, 'scripts'));
-  const path = join(root, 'scripts', 'verify-proof-or-stop-identity-cutover.mjs');
-  const canonical = readFileSync(join(repoRoot, 'scripts', 'verify-proof-or-stop-identity-cutover.mjs'), 'utf8');
+  const verifierPaths = IDENTITY_CUTOVER_REQUIRED_PATHS.filter(path => path === 'scripts/verify-proof-or-stop-identity-cutover.mjs' || path.startsWith('scripts/identity-cutover/'));
+  for (const sourcePath of verifierPaths) {
+    mkdirSync(dirname(join(root, sourcePath)), { recursive: true });
+    writeFileSync(join(root, sourcePath), readFileSync(join(repoRoot, sourcePath), 'utf8'));
+  }
+  const path = join(root, 'scripts/identity-cutover/reviewed-contexts.mjs');
+  const canonical = readFileSync(join(repoRoot, 'scripts/identity-cutover/reviewed-contexts.mjs'), 'utf8');
   const checks = [
     () => assertCanonicalActiveIdentityRuntime({ command: 'artifact_release_list', projectRoot: root, runtimePackageRoot: packageRoot }),
     () => assertCanonicalActiveIdentityBoundary({ boundaryId: 'release-ledgers', projectRoot: root, runtimePackageRoot: packageRoot }),
@@ -325,11 +329,30 @@ await check(["identity-sites", "round24"], 'F-060 exact verifier mutation-data f
   }
   writeFileSync(path, `${canonical}\nif (schema === '${retiredProtocolPrefix}product-capability-release.v1') return schema;`);
   for (const check of checks) assert.throws(check, /identity|mutation-data/, 'unchanged data fragments do not admit an outside active reader');
+  writeFileSync(path, canonical);
+  for (const sourcePath of verifierPaths) {
+    const absolute = join(root, sourcePath), original = readFileSync(absolute, 'utf8');
+    writeFileSync(absolute, `${original}\nexport const injected = '${retiredProtocolPrefix}unexpected.v1';\n`);
+    for (const check of checks) assert.throws(check, /identity|mutation-data/, `${sourcePath}: module injection remains rejected`);
+    rmSync(absolute);
+    for (const check of checks) assert.throws(check, /identity|missing/, `${sourcePath}: missing module remains rejected`);
+    writeFileSync(absolute, original);
+  }
 });
 
 await check(["identity-sites", "round24"], 'F-060 historical counterparts bind actual source while constructed controls claim no historical admission', () => {
   const importedCommit = '69403365ae9a19422564babf93f6c10de869c81d';
   const historicalSources = new Map();
+  // This declaration moved; its historical witness must still name the file at the imported commit.
+  const relocatedPaths = new Set([
+    'scripts/identity-cutover/rules.mjs',
+    'scripts/identity-cutover/release-history.mjs',
+    'scripts/identity-cutover/provenance-data.mjs',
+    'scripts/identity-cutover/self-test.mjs',
+  ]);
+  const isRelocated = site => relocatedPaths.has(site.sourcePath)
+    && site.canonical === 'proof-or-stop.product-capability-release.v1'
+    && (site.identityOrigin?.sourcePath ?? site.sourcePath) === 'scripts/identity-cutover/rules.mjs';
   const assertProvenance = site => {
     assert.ok(['historical-retired', 'unsupported-family-control'].includes(site.mutationKind));
     if (site.mutationKind === 'unsupported-family-control') {
@@ -338,7 +361,10 @@ await check(["identity-sites", "round24"], 'F-060 historical counterparts bind a
     }
     const proof = site.retiredProvenance;
     assert.equal(proof?.commit, importedCommit, 'historical counterpart source commit changed');
-    assert.equal(proof?.sourcePath, site.identityOrigin?.sourcePath ?? site.sourcePath, 'historical counterpart source path changed');
+    const expectedSourcePath = isRelocated(site)
+      ? 'scripts/verify-proof-or-stop-identity-cutover.mjs'
+      : site.identityOrigin?.sourcePath ?? site.sourcePath;
+    assert.equal(proof?.sourcePath, expectedSourcePath, 'historical counterpart source path changed');
     assert.equal(proof?.value, site.retired, 'historical counterpart value changed');
     assert.ok(['producer-or-domain', 'reader-or-type-alternative'].includes(proof.use));
     if (!historicalSources.has(proof.sourcePath)) {
@@ -355,8 +381,16 @@ await check(["identity-sites", "round24"], 'F-060 historical counterparts bind a
   sites.forEach(assertProvenance);
   const historical = sites.find(site => site.mutationKind === 'historical-retired');
   assert.ok(historical, 'historical source checks must not be vacuous');
-  for (const change of [{ commit: '0'.repeat(40) }, { sourcePath: 'package.json' }, { value: 'unlisted-counterpart' }]) {
-    assert.throws(() => assertProvenance({ ...historical, retiredProvenance: { ...historical.retiredProvenance, ...change } }), /historical counterpart/);
+  const relocated = sites.filter(isRelocated);
+  assert.equal(relocated.length, 4, 'declaration and all three consumers retain historical witnesses');
+  for (const witness of [historical, ...relocated]) {
+    for (const change of [{ commit: '0'.repeat(40) }, { sourcePath: 'package.json' }, { value: 'unlisted-counterpart' }]) {
+      assert.throws(() => assertProvenance({ ...witness, retiredProvenance: { ...witness.retiredProvenance, ...change } }), /historical counterpart/);
+    }
+  }
+  for (const witness of relocated) {
+    assert.throws(() => assertProvenance({ ...witness, sourcePath: 'scripts/unregistered.mjs', identityOrigin: undefined }), /historical counterpart/);
+    assert.throws(() => assertProvenance({ ...witness, identityOrigin: { sourcePath: 'scripts/unregistered.mjs' } }), /historical counterpart/);
   }
 });
 

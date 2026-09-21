@@ -260,7 +260,7 @@ export interface ActiveIdentityOperationIdentitySite {
     use: 'producer-or-domain' | 'reader-or-type-alternative';
   };
   sourceOccurrences?: { canonical: number; retired: number };
-  identityOrigin?: { sourcePath: string; exportName: string };
+  identityOrigin?: { sourcePath: string; exportName: string; scope?: 'project' };
   valueBinding?:
     | { kind: 'export-const'; name: string }
     | { kind: 'property'; name: string; functionName: string }
@@ -1138,7 +1138,10 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       runtimeSource('packages/main/src/core/artifact-release.ts'),
       runtimeSource('packages/main/src/core/capability-release.ts'),
       runtimeSource('packages/main/src/handlers/done-effects.ts'),
-      projectSource('scripts/verify-proof-or-stop-identity-cutover.mjs'),
+      projectSource('scripts/identity-cutover/rules.mjs'),
+      projectSource('scripts/identity-cutover/release-history.mjs'),
+      projectSource('scripts/identity-cutover/provenance-data.mjs'),
+      projectSource('scripts/identity-cutover/self-test.mjs'),
     ]),
     identitySites: Object.freeze([
       identitySite('packages/main/src/core/artifact-release.ts', 'proof-or-stop.artifact-release.v1'),
@@ -1151,8 +1154,14 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
         `verify-${retiredIdentityNeedle('-identity-cutover.mjs')}`,
       ),
       historicalIdentitySite("packages/main/src/handlers/done-effects.ts", "proof-or-stop.playbook-promotion-health.v1", "proofbound.playbook-promotion-health.v1", "producer-or-domain", { canonical: 2, retired: 0 }),
-      identitySite('scripts/verify-proof-or-stop-identity-cutover.mjs', 'proof-or-stop.artifact-release.v1'),
-      historicalIdentitySite("scripts/verify-proof-or-stop-identity-cutover.mjs", "proof-or-stop.product-capability-release.v1", "proofbound.product-capability-release.v1", "reader-or-type-alternative", { canonical: 1, retired: 0 }),
+      identitySite('scripts/identity-cutover/rules.mjs', 'proof-or-stop.artifact-release.v1'),
+      { ...identitySite("scripts/identity-cutover/release-history.mjs", "proof-or-stop.artifact-release.v1", "schemaVersion === CANONICAL_ARTIFACT_RELEASE_SCHEMA", "schemaVersion === 'proofbound.artifact-release.v1'", "proofbound.artifact-release.v1", undefined, { canonical: 2, retired: 0 }), identityOrigin: { sourcePath: 'scripts/identity-cutover/rules.mjs', exportName: "CANONICAL_ARTIFACT_RELEASE_SCHEMA", scope: 'project' } },
+      { ...identitySite("scripts/identity-cutover/release-history.mjs", "proof-or-stop.product-capability-release.v1", "schemaVersion === CANONICAL_CAPABILITY_RELEASE_SCHEMA", "schemaVersion === 'proofbound.product-capability-release.v1'", "proofbound.product-capability-release.v1", { commit: '69403365ae9a19422564babf93f6c10de869c81d', sourcePath: 'scripts/verify-proof-or-stop-identity-cutover.mjs', value: "proofbound.product-capability-release.v1", use: 'reader-or-type-alternative' }, { canonical: 2, retired: 0 }), identityOrigin: { sourcePath: 'scripts/identity-cutover/rules.mjs', exportName: "CANONICAL_CAPABILITY_RELEASE_SCHEMA", scope: 'project' } },
+      { ...identitySite("scripts/identity-cutover/provenance-data.mjs", "proof-or-stop.artifact-release.v1", "CANONICAL_ARTIFACT_RELEASE_SCHEMA]", "'proofbound.artifact-release.v1']", "proofbound.artifact-release.v1", undefined, { canonical: 1, retired: 0 }), identityOrigin: { sourcePath: 'scripts/identity-cutover/rules.mjs', exportName: "CANONICAL_ARTIFACT_RELEASE_SCHEMA", scope: 'project' } },
+      { ...identitySite("scripts/identity-cutover/provenance-data.mjs", "proof-or-stop.product-capability-release.v1", "CANONICAL_CAPABILITY_RELEASE_SCHEMA]", "'proofbound.product-capability-release.v1']", "proofbound.product-capability-release.v1", { commit: '69403365ae9a19422564babf93f6c10de869c81d', sourcePath: 'scripts/verify-proof-or-stop-identity-cutover.mjs', value: "proofbound.product-capability-release.v1", use: 'reader-or-type-alternative' }, { canonical: 1, retired: 0 }), identityOrigin: { sourcePath: 'scripts/identity-cutover/rules.mjs', exportName: "CANONICAL_CAPABILITY_RELEASE_SCHEMA", scope: 'project' } },
+      { ...identitySite("scripts/identity-cutover/self-test.mjs", "proof-or-stop.artifact-release.v1", "=== CANONICAL_ARTIFACT_RELEASE_SCHEMA", "=== 'proofbound.artifact-release.v1'", "proofbound.artifact-release.v1", undefined, { canonical: 2, retired: 0 }), identityOrigin: { sourcePath: 'scripts/identity-cutover/rules.mjs', exportName: "CANONICAL_ARTIFACT_RELEASE_SCHEMA", scope: 'project' } },
+      { ...identitySite("scripts/identity-cutover/self-test.mjs", "proof-or-stop.product-capability-release.v1", "=== CANONICAL_CAPABILITY_RELEASE_SCHEMA", "=== 'proofbound.product-capability-release.v1'", "proofbound.product-capability-release.v1", { commit: '69403365ae9a19422564babf93f6c10de869c81d', sourcePath: 'scripts/verify-proof-or-stop-identity-cutover.mjs', value: "proofbound.product-capability-release.v1", use: 'reader-or-type-alternative' }, { canonical: 1, retired: 0 }), identityOrigin: { sourcePath: 'scripts/identity-cutover/rules.mjs', exportName: "CANONICAL_CAPABILITY_RELEASE_SCHEMA", scope: 'project' } },
+      identitySite("scripts/identity-cutover/rules.mjs", "proof-or-stop.product-capability-release.v1", "proof-or-stop.product-capability-release.v1", "proofbound.product-capability-release.v1", "proofbound.product-capability-release.v1", { commit: "69403365ae9a19422564babf93f6c10de869c81d", sourcePath: "scripts/verify-proof-or-stop-identity-cutover.mjs", value: "proofbound.product-capability-release.v1", use: "reader-or-type-alternative" }, { canonical: 1, retired: 0 }),
     ]),
     mutationCases: Object.freeze([
       identityMutationCase('packages/main/src/core/artifact-release.ts', 'proof-or-stop.artifact-release.v1', 'artifact_release_list'),
@@ -1160,8 +1169,14 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       identityMutationCase("packages/main/src/core/capability-release.ts", "proof-or-stop.capability-release-backfill.v1", "capability_release_list"),
       identityMutationCase('packages/main/src/handlers/done-effects.ts', 'proof-or-stop-identity-cutover.mjs', 'artifact_release_list'),
       identityMutationCase("packages/main/src/handlers/done-effects.ts", "proof-or-stop.playbook-promotion-health.v1", "artifact_release_list"),
-      identityMutationCase('scripts/verify-proof-or-stop-identity-cutover.mjs', 'proof-or-stop.artifact-release.v1', 'artifact_release_list'),
-      identityMutationCase("scripts/verify-proof-or-stop-identity-cutover.mjs", "proof-or-stop.product-capability-release.v1", "artifact_release_list"),
+      identityMutationCase('scripts/identity-cutover/rules.mjs', 'proof-or-stop.artifact-release.v1', 'artifact_release_list'),
+      identityMutationCase("scripts/identity-cutover/release-history.mjs", "proof-or-stop.artifact-release.v1", 'artifact_release_list'),
+      identityMutationCase("scripts/identity-cutover/release-history.mjs", "proof-or-stop.product-capability-release.v1", 'artifact_release_list'),
+      identityMutationCase("scripts/identity-cutover/provenance-data.mjs", "proof-or-stop.artifact-release.v1", 'artifact_release_list'),
+      identityMutationCase("scripts/identity-cutover/provenance-data.mjs", "proof-or-stop.product-capability-release.v1", 'artifact_release_list'),
+      identityMutationCase("scripts/identity-cutover/self-test.mjs", "proof-or-stop.artifact-release.v1", 'artifact_release_list'),
+      identityMutationCase("scripts/identity-cutover/self-test.mjs", "proof-or-stop.product-capability-release.v1", 'artifact_release_list'),
+      identityMutationCase("scripts/identity-cutover/rules.mjs", "proof-or-stop.product-capability-release.v1", "artifact_release_list"),
     ]),
   }),
 ] satisfies readonly ActiveIdentityOperationBoundary[]);
@@ -1202,10 +1217,10 @@ function assertNoRetiredPromptConfigIdentity(projectRoot: string, label: string)
 // reader. Its byte/count witness grants no exemption to surrounding code.
 const IDENTITY_MUTATION_DATA_FRAGMENTS = [
   { marker: 'const OWNED_IDENTITY_MUTATION_CONTEXT_ROWS = [', sha256: '0a946f2912e82923fe5c21fcf953334476b7f118bd495741ec65fd7d8dd56668' },
-  { marker: 'const BOTH_FAMILY_CONTEXT_ROWS = [', sha256: 'b7d3c4a55bd9742fe532ff73cb7db1ef86a5ee913e608146f4d0b6b2781adc6a' },
+  { marker: 'const BOTH_FAMILY_CONTEXT_ROWS = [', sha256: '0871916e7ded35a2029c795bb9b6bd800a7847a11e7d2ae7edeedfe4794158ed' },
 ] as const;
 function activeIdentitySourceBytes(sourcePath: string, bytes: string): string {
-  if (sourcePath !== 'scripts/verify-proof-or-stop-identity-cutover.mjs') return bytes;
+  if (sourcePath !== 'scripts/identity-cutover/reviewed-contexts.mjs') return bytes;
   let activeBytes = bytes;
   for (const pin of IDENTITY_MUTATION_DATA_FRAGMENTS) {
     const start = activeBytes.indexOf(pin.marker);
@@ -1222,6 +1237,52 @@ function activeIdentitySourceBytes(sourcePath: string, bytes: string): string {
   return activeBytes;
 }
 
+const IDENTITY_VERIFIER_PROJECT_SOURCE_PATHS = Object.freeze([
+  "scripts/verify-proof-or-stop-identity-cutover.mjs",
+  "scripts/identity-cutover/active-scan.mjs",
+  "scripts/identity-cutover/base-contexts.mjs",
+  "scripts/identity-cutover/bootstrap.mjs",
+  "scripts/identity-cutover/certification.mjs",
+  "scripts/identity-cutover/cli.mjs",
+  "scripts/identity-cutover/deny-contexts.mjs",
+  "scripts/identity-cutover/guidance.mjs",
+  "scripts/identity-cutover/history-contexts.mjs",
+  "scripts/identity-cutover/integration-contexts.mjs",
+  "scripts/identity-cutover/memory-provenance.mjs",
+  "scripts/identity-cutover/negative-contexts.mjs",
+  "scripts/identity-cutover/ordering.mjs",
+  "scripts/identity-cutover/provenance-data.mjs",
+  "scripts/identity-cutover/public-api.mjs",
+  "scripts/identity-cutover/release-history.mjs",
+  "scripts/identity-cutover/repository.mjs",
+  "scripts/identity-cutover/reviewed-contexts.mjs",
+  "scripts/identity-cutover/rules.mjs",
+  "scripts/identity-cutover/runtime-contexts.mjs",
+  "scripts/identity-cutover/scanner-contexts.mjs",
+  "scripts/identity-cutover/schema-data.mjs",
+  "scripts/identity-cutover/schema-scan.mjs",
+  "scripts/identity-cutover/self-test.mjs",
+  "scripts/identity-cutover/source-integrity.mjs",
+  "scripts/identity-cutover/witness-controls.mjs"
+]);
+
+// The former one-file prefix guard covers the complete modular source set.
+// External projects without this repository verifier retain the optional boundary.
+function assertIdentityVerifierProjectSources(projectRoot: string, label: string): void {
+  const entry = resolve(projectRoot, IDENTITY_VERIFIER_PROJECT_SOURCE_PATHS[0]);
+  if (!existsSync(entry) && !IDENTITY_VERIFIER_PROJECT_SOURCE_PATHS.slice(1).some(path => existsSync(resolve(projectRoot, path)))) return;
+  for (const sourcePath of IDENTITY_VERIFIER_PROJECT_SOURCE_PATHS) {
+    const absolute = resolve(projectRoot, sourcePath);
+    if (!existsSync(absolute) || !statSync(absolute).isFile()) {
+      throw new Error(`${label}/${sourcePath}: identity verifier module is missing`);
+    }
+    const bytes = activeIdentitySourceBytes(sourcePath, readFileSync(absolute, 'utf8'));
+    if (bytes.includes(RETIRED_ACTIVE_PROTOCOL_PREFIX)) {
+      throw new Error(`${label}/${sourcePath}: retired active protocol identity is not admitted`);
+    }
+  }
+}
+
 export function assertCanonicalActiveIdentityRuntime(input: {
   command: string;
   projectRoot: string;
@@ -1234,6 +1295,7 @@ export function assertCanonicalActiveIdentityRuntime(input: {
   }
   for (const boundary of ACTIVE_IDENTITY_OPERATION_BOUNDARIES) {
     if (!boundary.commands.includes(input.command)) continue;
+    if (boundary.id === 'release-ledgers') assertIdentityVerifierProjectSources(projectRoot, input.command);
     for (const registeredPath of boundary.paths) {
       const base = registeredPath.scope === 'runtime-package' ? runtimePackageRoot : projectRoot;
       const absolute = resolve(base, registeredPath.path);
@@ -1358,6 +1420,7 @@ export function assertCanonicalActiveIdentityBoundary(input: {
   const runtimePackageRoot = resolve(input.runtimePackageRoot ?? currentCorePackageRoot());
   const projectRoot = resolve(input.projectRoot ?? process.cwd());
   if (boundaryId === 'prompt-runtime') assertNoRetiredPromptConfigIdentity(projectRoot, boundaryId);
+  if (boundaryId === 'release-ledgers') assertIdentityVerifierProjectSources(projectRoot, boundaryId);
   const sourceSnapshots = new Map<string, string>();
   const executableSources = new Map<string, string>();
   for (const site of boundary.identitySites) {
@@ -1380,7 +1443,9 @@ export function assertCanonicalActiveIdentityBoundary(input: {
     if (site.identityOrigin) {
       // Only explicitly bound imported authorities are inspected; this
       // is not recursive dependency discovery or generic legacy admission.
-      const originPath = resolve(runtimePackageRoot, runtimeSource(site.identityOrigin.sourcePath).path);
+      const originPath = site.identityOrigin.scope === 'project'
+        ? resolve(projectRoot, site.identityOrigin.sourcePath)
+        : resolve(runtimePackageRoot, runtimeSource(site.identityOrigin.sourcePath).path);
       if (!existsSync(originPath) || !statSync(originPath).isFile()) {
         throw new Error(`${boundary.id}/${site.siteId}: imported identity origin is missing`);
       }

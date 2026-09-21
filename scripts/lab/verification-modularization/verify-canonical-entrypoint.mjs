@@ -48,7 +48,7 @@ const relocate = node => {
 const expected = before.statements.filter(node => {
   const line = before.getLineAndCharacterOfPosition(node.getStart()).line + 1;
   return !ts.isImportDeclaration(node) && !ts.isVariableStatement(node) && !ts.isFunctionDeclaration(node) && ![37,41].includes(line) && line < 5370;
-}).map(relocate);
+}).map(relocate).map(text => { for (const repair of JSON.parse(fs.readFileSync('scripts/lab/verification-modularization/canonical-owned-site-repairs.json', 'utf8'))) if (text === repair.before) return repair.after; return text; });
 assert.deepEqual(actual, expected, 'all original test statements retain order, callbacks and assertions');
 console.log('CANONICAL_PRESERVATION_GREEN ' + JSON.stringify({functionCount, orderedStatements: actual.length, sharedFixtureSlots: 6}));
 const run = args => spawnSync(process.execPath, [path, ...args], {encoding:'utf8', timeout:260000, maxBuffer:16*1024*1024});

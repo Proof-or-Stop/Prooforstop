@@ -1991,7 +1991,7 @@ COMMAND_PROCESS_FACTS.push({
 COMMAND_PROCESS_FACTS.push({
   name: 'runtime:identity_scanner_capability_selection', kind: 'runtime-behavior', level: 'L4',
   semantics: ['runtime-behavior', 'verification-policy'],
-  paths: ['scripts/verify-proof-or-stop-identity-cutover.mjs',
+  paths: ['packages/main/src/core/runtime-environment-checks.ts', 'scripts/verify-proof-or-stop-identity-cutover.mjs',
     'scripts/identity-cutover/active-scan.mjs',
     'scripts/identity-cutover/base-contexts.mjs',
     'scripts/identity-cutover/bootstrap.mjs',
