@@ -226,6 +226,15 @@ function assertExternalControllerProjection(project: ProjectControllerAssets): v
       true,
       `LAB_RED: committing byte-identical controller assets must not poison a valid Story projection (${controllerOwnedProjection.reason})`,
     );
+    const controllerOwnedReceiptScope = checkScopeContract({
+      storyId, mode: 'enforce', allowedModify: [], allowedCreate: [], allowedTest: [], protectedFiles: [], explicitExcludes: [], acknowledgements: [],
+      pathCanonicalizerVersion: SCOPE_PATH_CANONICALIZER_VERSION, pathCanonicalizationMode: 'enforce', createdAt: '2026-09-21T00:00:00.000Z', updatedAt: '2026-09-21T00:00:00.000Z',
+    }, [projectionReceiptPaths[0]!], { projectRoot: worktreeRoot, gitCwd: worktreeRoot });
+    assert.equal(
+      controllerOwnedReceiptScope.status,
+      'pass',
+      `LAB_RED: controller adoption must not poison its exact signed config receipt (${JSON.stringify(controllerOwnedReceiptScope.rows)})`,
+    );
     git(controllerRoot, ['reset', '--mixed', 'HEAD^']);
 
     git(worktreeRoot, ['add', '-f', ...expectedHookPaths]);

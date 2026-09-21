@@ -238,10 +238,10 @@ export function inspectControllerConfigProjectionReceipt(args: {
     }
     const configRef = pickProjectConfigPath(controllerRoot);
     if (!configRef) return { matched: true, valid: false, reason: 'controller-config-missing', expectedPath, controllerRoot };
-    for (const cwd of [worktreeRoot, controllerRoot]) {
-      if (execFileSync('git', ['ls-files', '--', configRef.filename], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()) {
-        return { matched: true, valid: false, reason: 'tracked-controller-config', expectedPath, controllerRoot };
-      }
+    if (execFileSync('git', ['ls-files', '--', configRef.filename], {
+      cwd: worktreeRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim()) {
+      return { matched: true, valid: false, reason: 'tracked-controller-config', expectedPath, controllerRoot };
     }
     const controllerStat = lstatSync(configRef.path);
     const worktreeConfig = join(worktreeRoot, configRef.filename);
