@@ -174,7 +174,7 @@ export const REVIEWED_CONTEXT_READERS = [
   },
   {
     "path": "scripts/identity-reviewed-json-contexts.mjs",
-    "sha256": "c9a3e604cc854e62e4769a163c62cfef3f4280e1f30ffb80e7a691f6c3d3cde0"
+    "sha256": "013088b1a1b1fc4974e7e3e40244ffa54c684fc4970405f06b447a7848d771da"
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",

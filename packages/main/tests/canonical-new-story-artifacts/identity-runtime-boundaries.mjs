@@ -173,10 +173,11 @@ await check(['identity-cutover', 'identity-inventory'], 'CHK-007:adversarial:2 p
     assert.throws(() => assertIdentityCutoverInventoryTotal(moved), /retired protocol identity/, `moved: ${row.path}:${row.token}`);
   }
   const verifierDataMutation = new Map(sources);
-  const verifierPath = 'scripts/verify-proof-or-stop-identity-cutover.mjs';
+  const verifierPath = 'scripts/identity-cutover/rules.mjs';
   const dataLine = sources.get(verifierPath).split(/\r?\n/).find(line => new RegExp(`${retiredProtocolStem}[.:\\-][a-z0-9._:-]+`, 'i').test(line));
+  assert.ok(dataLine, 'the actual extracted rule module must contain the targeted negative data');
   verifierDataMutation.set(verifierPath, sources.get(verifierPath).replace(dataLine, `${dataLine} // changed data row`));
-  assert.throws(() => assertIdentityCutoverInventoryTotal(verifierDataMutation), /retired protocol identity verifier data context drift/);
+  assert.throws(() => assertIdentityCutoverInventoryTotal(verifierDataMutation), /retired protocol identity (?:verifier data|exact) context drift/);
 });
 
 await check(['runtime'], 'F-004 real foreign reviewerWrite commands refuse before Story evidence', () => {

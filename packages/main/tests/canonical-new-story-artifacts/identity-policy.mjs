@@ -1,3 +1,4 @@
+import { registeredIdentityOperationSourcePaths } from './identity-ownership.mjs';
 
 
 
@@ -72,8 +73,8 @@ await check(['identity-cutover', 'identity-policy', 'identity-policy-boundary', 
 });
 
 await check(['identity-cutover', 'identity-consumer-smoke', 'identity-config-boundary', 'identity-policy-boundary', 'f050', 'round24'], 'normal consumer controls and invalid project configuration retain zero-mutation checks', () => {
-  const registeredOperationPaths = ACTIVE_IDENTITY_OPERATION_BOUNDARIES
-    .flatMap((boundary) => boundary.paths.map((registeredPath) => registeredPath.sourcePath));
+  const registeredOperationPaths = registeredIdentityOperationSourcePaths(ACTIVE_IDENTITY_OPERATION_BOUNDARIES);
+  assert.throws(() => registeredIdentityOperationSourcePaths(ACTIVE_IDENTITY_OPERATION_BOUNDARIES.filter(boundary => boundary.id !== 'release-ledgers')), /real public-operation owner/);
   assertActiveIdentityOperationOwnership(ACTIVE_IDENTITY_OPERATION_BOUNDARIES);
   assert.equal(registeredOperationPaths.includes('proof-or-stop.config.json'), false, 'dynamic config cannot be a required packaged executable');
   assert.deepEqual(

@@ -38,7 +38,7 @@ console.log('IDENTITY_SOURCE_PRESERVATION_GREEN '+JSON.stringify({statements:pre
 const run=args=>spawnSync(process.execPath,[path,...args],{encoding:'utf8',timeout:30000,maxBuffer:4*1024*1024});
 const list=run(['--list-capabilities']);assert.equal(list.status,0,list.stderr);assert.equal(JSON.parse(list.stdout).length,5);
 for(const args of [['--capability='],['--capability=unknown'],['--all','--capability=ordering']]){const result=run(args);assert.equal(result.status,1);assert.match(result.stderr,/Unknown identity verification argument/);assert.doesNotMatch(result.stdout,/IDENTITY_PARTIAL_PASS/);}
-const api=await import('../../verify-proof-or-stop-identity-cutover.mjs');assert.equal(typeof api.identityCutoverReviewedContexts,'function');
+const api=await import('../../verify-proof-or-stop-identity-cutover.mjs');for(const node of before.statements.filter(n=>ts.isFunctionDeclaration(n)&&n.modifiers?.some(m=>m.kind===ts.SyntaxKind.ExportKeyword)))assert.equal(typeof api[node.name.text],'function','retained public export '+node.name.text);
 console.log('IDENTITY_ROUTING_GREEN: explicit partial catalog, rejected unknown selectors, retained import API');
 
 await import('./verify-identity-self-contexts.mjs');

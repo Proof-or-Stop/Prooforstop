@@ -220,7 +220,7 @@ export function assertIdentityCutoverInventoryTotal(sourceMap, { reviewed = iden
   // altered row or relocated literal must fail, even in the verifier itself.
   for (const path of SCANNER_SOURCE_PATHS) {
     assert.ok(sourceMap.has(path), `missing scanner module: ${path}`);
-    assert.deepEqual(verifyScannerRetiredContexts(sourceMap.get(path), path), [], `scanner context drift: ${path}`);
+    assert.deepEqual(verifyScannerRetiredContexts(sourceMap.get(path), path), [], `retired protocol identity verifier data context drift: ${path}`);
   }
   assert.deepEqual(
     retiredHits.filter((hit) => {

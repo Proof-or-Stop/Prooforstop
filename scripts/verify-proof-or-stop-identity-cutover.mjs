@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { runIdentityCliIfMain } from './identity-cutover/cli.mjs';
+export { verifyFrozenFiles } from './identity-cutover/release-history.mjs';
 export { identityCutoverReviewedContexts } from './identity-cutover/public-api.mjs';
 
 // Full certification: no arguments. List: --list-capabilities.

@@ -1,3 +1,4 @@
+import { registeredIdentityOperationSourcePaths } from './identity-ownership.mjs';
 import { selectedGroup } from './data.mjs';
 
 
@@ -23,8 +24,7 @@ import { runCli } from "./fixture-support.mjs";
 
 export async function runCases() {
 await check(['identity-migration-archive'], 'CHK-007:adversarial:0 every registered identity boundary rejects through its public operation with zero mutation', () => {
-  const registeredOperationPaths = ACTIVE_IDENTITY_OPERATION_BOUNDARIES
-    .flatMap((boundary) => boundary.paths.map((registeredPath) => registeredPath.sourcePath));
+  const registeredOperationPaths = registeredIdentityOperationSourcePaths(ACTIVE_IDENTITY_OPERATION_BOUNDARIES);
   assertActiveIdentityOperationOwnership(ACTIVE_IDENTITY_OPERATION_BOUNDARIES);
   assert.equal(registeredOperationPaths.includes('proof-or-stop.config.json'), false, 'dynamic config cannot be a required packaged executable');
   assert.deepEqual(

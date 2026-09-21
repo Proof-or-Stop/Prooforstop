@@ -1,3 +1,4 @@
+import { SCANNER_SOURCE_PATHS } from '../../../../scripts/identity-cutover/scanner-contexts.mjs';
 
 
 
@@ -256,4 +257,18 @@ export function assertDerivedIdentitySiteTotality(derived, boundaries, classific
   }
   for (const classification of classifications) assert.ok(derived.some(row => row.sourcePath === classification.sourcePath && row.canonical === classification.canonical), `stale owned identity classification: ${classification.sourcePath}#${classification.canonical}`);
   assert.deepEqual(missing, [], 'unclassified owned executable identity sites');
+}
+
+export function registeredIdentityOperationSourcePaths(boundaries, source = readFileSync(join(repoRoot, 'packages/main/src/core/runtime-environment-checks.ts'), 'utf8')) {
+  const release = boundaries.find(boundary => boundary.id === 'release-ledgers');
+  assert.ok(release && ['artifact_release_list', 'capability_release_list'].every(command => release.commands.includes(command)), 'scanner source closure requires its real public-operation owner');
+  const ast = ts.createSourceFile('runtime-environment-checks.ts', source, ts.ScriptTarget.Latest, true);
+  const declarations = ast.statements.filter(ts.isVariableStatement).flatMap(node => [...node.declarationList.declarations])
+    .filter(node => node.name.getText(ast) === 'IDENTITY_VERIFIER_PROJECT_SOURCE_PATHS');
+  assert.equal(declarations.length, 1, 'unique runtime scanner source closure');
+  const initializer = declarations[0].initializer;
+  assert.ok(ts.isCallExpression(initializer) && initializer.expression.getText(ast) === 'Object.freeze' && initializer.arguments.length === 1 && ts.isArrayLiteralExpression(initializer.arguments[0]), 'runtime scanner closure must remain literal and frozen');
+  const paths = initializer.arguments[0].elements.map(node => { assert.ok(ts.isStringLiteral(node)); return node.text; });
+  assert.deepEqual(paths, SCANNER_SOURCE_PATHS, 'runtime public-operation scanner closure must equal the independently reviewed module inventory');
+  return [...new Set([...boundaries.flatMap(boundary => boundary.paths.map(path => path.sourcePath)), ...paths])];
 }
