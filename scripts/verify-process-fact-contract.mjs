@@ -10837,7 +10837,7 @@ const inventory = [
       },
       {
         relPath: 'packages/main/src/handlers/host-run.ts',
-        patterns: ['managedDispatch?: boolean', 'createStoryDispatchHandlers(ctx).dispatch', "profile: 'managed_dispatch'", 'proof-or-stop-review-scope-plan', 'managed_review_candidate_spec_missing', 'candidate_spec_route'],
+        patterns: ['managedDispatch?: boolean', 'createStoryDispatchHandlers(ctx).dispatch', "profile: 'managed_dispatch'", 'proof-or-stop-review-scope-plan', 'managed_review_candidate_spec_missing', 'managed_review_candidate_routing_unresolved', 'assertManagedReviewCandidateLaunchReady(candidateArtifact, storyId)', 'candidate_spec_route'],
       },
       {
         relPath: 'packages/main/tests/managed-init-reviewer-dispatch-e2e.test.mjs',
@@ -10849,7 +10849,7 @@ const inventory = [
       },
       {
         relPath: 'packages/main/tests/managed-review-candidate-preflight.test.mjs',
-        patterns: ['read_manifest_candidate_spec_digest_missing', 'managed_review_candidate_spec_missing', 'missing candidate routing must not launch the provider', 'MANAGED_REVIEW_CANDIDATE_PREFLIGHT_GREEN'],
+        patterns: ['read_manifest_candidate_spec_digest_missing', 'managed_review_candidate_spec_missing', 'managed_review_candidate_routing_unresolved', 'Use a standard JSON serializer', 'missing candidate routing must not launch the provider', 'managed review must refuse unresolved candidate routing before provider launch', 'MANAGED_REVIEW_CANDIDATE_PREFLIGHT_GREEN'],
       },
       {
         relPath: 'packages/main/src/core/host-execution-readiness.ts',
