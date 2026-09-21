@@ -1,7 +1,15 @@
 # Verification modularization: implementation and evidence ledger
 
 This is a local Lab checkpoint, not a completion or main integration claim.
-The authorized scope is all 14 entries below. Ten entries have complete passing executions at their recorded commits (nine official scoped GREEN commands and two complete finding-ledger runs). Quorum has official scoped GREEN at 5a58bdbf5a (seven bounded contracts). Canonical artifacts have official scoped GREEN at 2904a6b6ee. Managed review is split and compiled, with structural and supersession checks passing; complete execution is pending. Identity scanner remains unimplemented. The main synchronization invalidates current-head Lab GREEN, not the historical logs.
+The authorized scope is all 14 entries below; all 14 now have modular candidates.
+Eleven entries have complete passing executions at their recorded commits. Quorum,
+canonical artifacts and identity scanner have scoped proofs only; their complete
+cross-file certification is not green. Managed review completed at `4e8e49ffea`
+in 77.45 s. Identity structure/routing and 106 self-context negative controls passed
+at `fcdd5514a5`. The 82 migrated fixture bindings passed at `42893546db`, including
+all 301 records and 1,204 rejection controls. Historical results are not a claim
+that every suite passes on the latest combined HEAD. No changes are integrated
+into main or pushed to GitHub.
 
 Original public files contain imports, usage comments and one invocation.
 Every extracted file is limited to 2,000 physical lines. No hidden monolith,
@@ -14,13 +22,13 @@ No routine validation command is added by internal module registration.
 |---|---:|---:|---:|---:|---|---|
 | `scripts/verify-process-fact-contract.mjs` | 12201 | 7 | 16 | 1857 | RED -> official GREEN at 317918539b; full suite 181.37 s | No |
 | `packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs` | 10748 | 7 | 27 | 1024 | RED recorded; 196 function bodies / 18 bindings preserved; 7 scoped contracts pass, heavy campaigns not rerun | No |
-| `scripts/verify-proof-or-stop-identity-cutover.mjs` | 7794 | 7794 | pending | pending | Pending; no modularization RED/GREEN claim | No |
+| `scripts/verify-proof-or-stop-identity-cutover.mjs` | 7794 | 8 | 25 | 1112 | RED -> scoped GREEN fcdd5514a5; 158 statements, 696 self-context pins and 106 negative controls; full boundary remains red | No |
 | `packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts` | 6101 | 7 | 14 | 1577 | RED -> official GREEN at 51b6485211; full scan 67.33 s; 109 function bodies and driver order preserved | No |
 | `packages/main/src/tasks/validation-tier-planner-smoke.ts` | 5792 | 7 | 9 | 1652 | RED -> official GREEN at d8b0ad6632; full suite 12.97 s, 142 checks | No |
 | `packages/main/src/tasks/flow-stability-smoke.ts` | 5528 | 7 | 11 | 989 | RED -> official GREEN at 21be146f9c; full suite 137.62 s | No |
 | `packages/main/tests/canonical-new-story-artifacts.test.mjs` | 5378 | 7 | 22 | 815 | RED recorded; 58 functions and 112 statements preserved; scoped checks pass, full certification pending | No |
 | `packages/main/src/tasks/finding-ledger-runtime-smoke.ts` | 4646 | 6 | 9 | 1134 | Full suites passed at 3b51f4f666 / f5fda7d0e6 in 130.60 / 147.00 s; combined run failed in the separate process suite | No |
-| `packages/main/src/tasks/managed-review-evidence-smoke.ts` | 4360 | 7 | 14 | 909 | RED recorded; 28 helpers and 419 main statements preserved; supersession scoped GREEN, full pending | No |
+| `packages/main/src/tasks/managed-review-evidence-smoke.ts` | 4360 | 7 | 15 | 926 | RED -> complete GREEN 4e8e49ffea in 77.45 s; 28 helpers and 419 statements retained with documented fixture repairs | No |
 | `packages/main/src/tasks/host-run-usage-smoke.ts` | 3867 | 6 | 15 | 587 | RED -> official GREEN at 9c8e8b848b; full suite 34.00 s, 91 checks | No |
 | `scripts/verify-proof-or-stop-prompt-baseline.mjs` | 3675 | 7 | 6 | 1344 | RED -> official GREEN at 103d6e06fa; full suite 9.60 s | No |
 | `packages/main/tests/milestone-status.test.mjs` | 3447 | 6 | 9 | 670 | RED -> official GREEN at a3777644bb; full suite 39.00 s | No |
@@ -387,7 +395,7 @@ transpiled against the same dist and isolated environment, reproduced the same
 direct submit fixtures omitted it. The fixture-only adapter now derives the seal
 from the exact submitted prompt bytes and preserves all existing tuple fields.
 No production acceptance rule changes. The negative missing/tampered digest
-controls remain required; complete post-repair verification is pending.
+controls remain required; complete post-repair verification passed at `4e8e49ffea`.
 
 After sealing prompts, the complete run advances to Claude and exposes another
 pre-split fixture mismatch: `REQUESTED_CLAUDE_MODEL` selected a model outside the
@@ -407,4 +415,59 @@ controls require omitted selection, a different model and a different effort to
 remain invalid through each F-100 lifecycle state. Production verifier policy is
 unchanged. The exact additions are recorded in
 `scripts/lab/verification-modularization/managed-model-binding-repair.json`.
-Complete post-repair execution remains pending until the recorded command passes.
+Complete post-repair execution passed at `4e8e49ffea` in 77.45 s.
+
+## Identity scanner module inventory and remaining integration
+
+`--list-capabilities` lists `ordering`, `current-guidance`, `history-contexts`,
+`schema-inventory`, and `active-residue`. The original no-argument certification
+and five legacy inspection flags remain available. These selectors are registered
+as one internal process fact with 26 exact source paths; no routine gate is added.
+
+| Module | Lines | Responsibility |
+|---|---:|---|
+| `active-scan.mjs` | 104 | active scan |
+| `base-contexts.mjs` | 172 | base contexts |
+| `bootstrap.mjs` | 9 | bootstrap |
+| `certification.mjs` | 154 | certification |
+| `cli.mjs` | 31 | cli |
+| `deny-contexts.mjs` | 1112 | deny contexts |
+| `guidance.mjs` | 112 | guidance |
+| `history-contexts.mjs` | 546 | history contexts |
+| `integration-contexts.mjs` | 32 | integration contexts |
+| `memory-provenance.mjs` | 209 | memory provenance |
+| `negative-contexts.mjs` | 695 | negative contexts |
+| `ordering.mjs` | 130 | ordering |
+| `provenance-data.mjs` | 649 | provenance data |
+| `public-api.mjs` | 27 | public api |
+| `release-history.mjs` | 362 | release history |
+| `repository.mjs` | 175 | repository |
+| `reviewed-contexts.mjs` | 521 | reviewed contexts |
+| `rules.mjs` | 142 | rules |
+| `runtime-contexts.mjs` | 560 | runtime contexts |
+| `scanner-contexts.mjs` | 734 | scanner contexts |
+| `schema-data.mjs` | 796 | schema data |
+| `schema-scan.mjs` | 91 | schema scan |
+| `self-test.mjs` | 604 | self test |
+| `source-integrity.mjs` | 191 | source integrity |
+| `witness-controls.mjs` | 114 | witness controls |
+
+The scoped proof preserves 158 original top-level statements (the old self-pin
+array is replaced by path-aware pins), the import API and explicit selector
+rejection. All 696 relocated retired-token line pins trace to unchanged original
+lines, allowing only the new export prefix. Every module rejects unregistered
+paths and injected identity text; token-bearing modules also reject removed,
+duplicated and relocated lines. This is scoped GREEN, not complete certification.
+
+The first full boundary check reported 203 diagnostics, including 82 stale
+fixture rows. Those 82 were relocated with an exact before/after ledger; the other
+219 fixture rows and all original classifications/reasons remain unchanged.
+The remaining context inventories, whole-source witnesses, schema rows, current
+legacy source witnesses and child dependency closures still require migration and
+verification. The source guard remains fail-closed while these are outstanding.
+
+The normalized production inventory is now 250 commands after main sync
+`300ed4d08b`, compared with 248 before sync. The only additions are
+`verify-validation-verdict-stickiness.mjs` and
+`verify-validation-verdict-stickiness-cli.mjs`; no commands were removed.
+See `scripts/lab/verification-modularization/planner-main-sync-inventory.json`.

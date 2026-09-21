@@ -297,8 +297,10 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
   // Modularization baseline 9c8e8b848b already has 248 commands. The exact
   // config SHA256 stayed 4431622d24fc637a2bfd543a6cae1c73918dcac0530814fbbf9a46002a1a3d42;
   // additions=0, removals=0 in this refactor. The original 168-entry pin was stale.
-  assert.equal(real.entries.length, 248, 'the normalized inventory cardinality is part of the re-pin evidence; recount and update PIN MAINTENANCE when validate.commands changes');
-  assert.equal(real.commandSetDigest, '0e94901731a361aa3b308d3ecd63938256965632ebd6cf922c7ccea96a5f2fb7', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
+  // Main sync 300ed4d08b adds two verdict-stickiness commands; no removals.
+  // See planner-main-sync-inventory.json for normalized tuples and digests.
+  assert.equal(real.entries.length, 250, 'the normalized inventory cardinality is part of the re-pin evidence; recount and update PIN MAINTENANCE when validate.commands changes');
+  assert.equal(real.commandSetDigest, '4250a69ee84fe4a6d1586d85876a3b20dcf002ab86e5f5a14c78e3b84b98b869', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   assert.equal(explicitDot.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');
