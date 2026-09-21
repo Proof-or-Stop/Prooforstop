@@ -1871,7 +1871,7 @@ function legacyManagedScopeReviewerOutputDigest(scopeCheck: ScopeCheckData): str
 function currentManagedScopeReviewerOutput(input: {
   root: string;
   storyId: string;
-}): { projectedDigest: string; rawDigest: string | null; legacyReviewerDigest: string } | null {
+}): { projectedDigest: string; legacyReviewerDigest: string } | null {
   const storyStore = new StoryStore(input.root);
   const scopePath = storyStore.storyFilePath(input.storyId, 'scope-check.json');
   if (!existsSync(scopePath)) return null;
@@ -1879,7 +1879,6 @@ function currentManagedScopeReviewerOutput(input: {
   if (!scopeCheck) return null;
   return {
     projectedDigest: managedScopeReviewerOutputDigest(scopeCheck),
-    rawDigest: digestFile(scopePath),
     legacyReviewerDigest: legacyManagedScopeReviewerOutputDigest(scopeCheck),
   };
 }
@@ -1892,7 +1891,6 @@ function managedScopeReviewerOutputMatches(input: {
   const current = currentManagedScopeReviewerOutput(input);
   return current !== null && [
     current.projectedDigest,
-    current.rawDigest,
     current.legacyReviewerDigest,
   ].includes(input.sealedDigest);
 }
