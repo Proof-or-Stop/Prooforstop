@@ -1864,20 +1864,16 @@ function managedScopeReviewerOutputDigest(scopeCheck: ScopeCheckData): string {
   }));
 }
 
-function legacyManagedScopeReviewerOutputDigests(scopeCheck: ScopeCheckData): string[] {
-  const reviewerPayload = immutableManagedScopeReviewerPayload(scopeCheck);
-  const variants: unknown[] = [reviewerPayload];
-  if (reviewerPayload.summary.orphanSuspect === 0 && reviewerPayload.summary.drift === 0) {
-    const { orphanSuspect: _orphanSuspect, drift: _drift, ...legacySummary } = reviewerPayload.summary;
-    variants.push({ ...reviewerPayload, summary: legacySummary });
-  }
-  return [...new Set(variants.map(value => sha256(`${JSON.stringify(value, null, 2)}\n`)))];
+function managedScopeCheckHasOwnerAnnotations(scopeCheck: ScopeCheckData): boolean {
+  return (scopeCheck.openQuestions ?? []).some(question => question.resolution !== undefined
+    || question.resolvedAt !== undefined
+    || question.resolutionSourcePointers !== undefined);
 }
 
 function currentManagedScopeReviewerOutput(input: {
   root: string;
   storyId: string;
-}): { projectedDigest: string; legacyReviewerDigests: string[] } | null {
+}): { projectedDigest: string; exactLegacyDigest: string | null } | null {
   const storyStore = new StoryStore(input.root);
   const scopePath = storyStore.storyFilePath(input.storyId, 'scope-check.json');
   if (!existsSync(scopePath)) return null;
@@ -1885,7 +1881,7 @@ function currentManagedScopeReviewerOutput(input: {
   if (!scopeCheck) return null;
   return {
     projectedDigest: managedScopeReviewerOutputDigest(scopeCheck),
-    legacyReviewerDigests: legacyManagedScopeReviewerOutputDigests(scopeCheck),
+    exactLegacyDigest: managedScopeCheckHasOwnerAnnotations(scopeCheck) ? null : digestFile(scopePath),
   };
 }
 
@@ -1897,7 +1893,7 @@ function managedScopeReviewerOutputMatches(input: {
   const current = currentManagedScopeReviewerOutput(input);
   return current !== null && [
     current.projectedDigest,
-    ...current.legacyReviewerDigests,
+    current.exactLegacyDigest,
   ].includes(input.sealedDigest);
 }
 

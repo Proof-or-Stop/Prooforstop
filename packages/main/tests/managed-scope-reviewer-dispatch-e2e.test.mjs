@@ -96,6 +96,16 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
   const scopePath = store.storyFilePath(storyId, 'scope-check.json');
   const legacyScopeBytes = readFileSync(scopePath);
   const legacyScopeDigest = `sha256:${createHash('sha256').update(legacyScopeBytes).digest('hex')}`;
+  const terminalPath = join(managedHostRunDirectory(root, result.runId), 'terminal.json');
+  const projectedTerminal = JSON.parse(readFileSync(terminalPath, 'utf8'));
+  writeFileSync(terminalPath, `${JSON.stringify({
+    ...projectedTerminal,
+    managedDispatchOutputDigest: legacyScopeDigest,
+  }, null, 2)}\n`);
+  assert.deepEqual(verifyManagedDispatchDelivery({
+    root, runId: result.runId, storyId, agentType: 'proof-or-stop-review-scope-plan',
+  }), { valid: true }, 'an unchanged pre-annotation legacy byte seal must remain exact');
+  writeFileSync(terminalPath, `${JSON.stringify(projectedTerminal, null, 2)}\n`);
 
   createScopeQuestionResolveHandlers({ root, scanRoot: root, store }).scope_question_resolve({
     storyId,
@@ -117,16 +127,17 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
   assert.ok(!createStoryReviewHandlers({ root, scanRoot: root, store }).story_review({ storyId }).issues
     .some(issue => issue.type === 'scope_check_delivery_invalid'),
   'story_review must retain the managed delivery after the owner resolves an open question');
-  const terminalPath = join(managedHostRunDirectory(root, result.runId), 'terminal.json');
-  const terminal = JSON.parse(readFileSync(terminalPath, 'utf8'));
-  terminal.managedDispatchOutputDigest = legacyScopeDigest;
-  writeFileSync(terminalPath, `${JSON.stringify(terminal, null, 2)}\n`);
+  writeFileSync(terminalPath, `${JSON.stringify({
+    ...projectedTerminal,
+    managedDispatchOutputDigest: legacyScopeDigest,
+  }, null, 2)}\n`);
   assert.notEqual(`sha256:${createHash('sha256').update(readFileSync(scopePath)).digest('hex')}`, legacyScopeDigest,
     'live annotated scope bytes must differ from the legacy pre-annotation seal');
-  assert.deepEqual(verifyManagedDispatchDelivery({
+  assert.equal(verifyManagedDispatchDelivery({
     root, runId: result.runId, storyId, agentType: 'proof-or-stop-review-scope-plan',
-  }), { valid: true },
-  'a legacy byte seal must survive only through deterministic pre-annotation reconstruction');
+  }).valid, false,
+  'a legacy byte seal must require a fresh managed scope review after owner annotation');
+  writeFileSync(terminalPath, `${JSON.stringify(projectedTerminal, null, 2)}\n`);
 
   const tamperedQuestion = structuredClone(resolvedScopeCheck);
   tamperedQuestion.openQuestions[0].q = 'Rewritten reviewer question';
