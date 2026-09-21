@@ -182,6 +182,7 @@ async function main() {
   const labWorktree = read(root, 'scripts/lab-worktree.mjs');
   const labAudit = read(root, 'scripts/lab-audit.mjs');
   check(labAudit.includes('timeoutMs: labPolicy.auditTimeoutMs') && labAudit.includes('startupTimeoutMs: labPolicy.auditStartupTimeoutMs'), 'Lab audit runner must consume registered bounded timeouts');
+  check(labAudit.includes('const INPUT_LIMIT = labPolicy.auditInputMaxBytes;') && labAudit.includes('const OUTPUT_LIMIT = SUPERVISED_PROVIDER_RUNTIME_POLICY.maxOutputBytes;') && labAudit.includes('captured + bytes > OUTPUT_LIMIT'), 'Lab local snapshot input and provider output must retain separate bounded budgets');
   const labProviders = read(root, 'scripts/lab-audit-providers.mjs');
   check(['auditBuiltinVendors', 'auditCustomProtocol', 'auditRequired', 'auditIndependence'].every(field => labProviders.includes('labPolicy.' + field)), 'Lab provider implementation must consume registered audit policy');
   check(registrySource.includes('auditRequired: true') && registrySource.includes('recordSchema: 3') && labWorktree.includes('ensureAudit'), 'Lab requires opposite-host audit and rejects pre-audit record writers');
