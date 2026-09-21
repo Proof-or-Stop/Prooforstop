@@ -155,7 +155,7 @@ export function verifySchemaInventory(root, schemas) {
   for (const pin of MAINTENANCE_SCHEMA_WITNESSES) if (sha256(readFileSync(resolve(root, pin.path))) !== pin.sha256) errors.push(`archived candidate source witness changed: ${pin.path}`);
   const originalRows = schemas.filter(row => !negativeKeys.has(key(row)) && !mutationKeys.has(key(row)) && !maintainedKeys.has(key(row)));
   const expected = new Map(CURRENT_COMPATIBLE_SCHEMA_ROWS.map(row => [key(row), row]));
-  if (expected.size !== CURRENT_COMPATIBLE_SCHEMA_ROWS.length || expected.size !== 103) errors.push('current compatibility schema inventory duplicated or incomplete');
+  if (expected.size !== CURRENT_COMPATIBLE_SCHEMA_ROWS.length || expected.size !== 110) errors.push('current compatibility schema inventory duplicated or incomplete');
   const actual = new Map();
   for (const row of originalRows) {
     const id = key(row), pin = expected.get(id);
@@ -174,7 +174,7 @@ export const REVIEWED_CONTEXT_READERS = [
   },
   {
     "path": "scripts/identity-reviewed-json-contexts.mjs",
-    "sha256": "f8bf66de6a7a241ab2114bf28f010a025897cf095730570cf837a539dfd8430f"
+    "sha256": "ccc190f27fbd04e9fdaf976c42a347cd93f49a8d8cd13461dd95e6a36bae711a"
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",

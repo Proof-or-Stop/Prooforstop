@@ -14,7 +14,8 @@ assert.deepEqual(migration.sourcePaths,SCANNER_SOURCE_PATHS);
 assert.equal(migration.rows.length,SCANNER_RETIRED_LINE_CONTEXTS.length);
 const repairs=JSON.parse(fs.readFileSync('scripts/lab/verification-modularization/identity-context-repairs.json','utf8'));
 const retiredTokens=text=>[...text.matchAll(TOKEN_PATTERN)].map(match=>match[0]).sort();
-for(const repair of repairs)assert.deepEqual(retiredTokens(repair.after),retiredTokens(repair.before),'exact context migration preserves the scanner data token inventory');
+await import('./verify-schema-migration-data.mjs');
+for(const repair of repairs)if(repair.file!=='scripts/identity-cutover/schema-data.mjs')assert.deepEqual(retiredTokens(repair.after),retiredTokens(repair.before),'exact context migration preserves the scanner data token inventory');
 for(const row of migration.rows){
  const text=fs.readFileSync(row.path,'utf8'),lines=text.split(/\r?\n/u);
  assert.ok(row.originalLines.length>0||Number.isInteger(row.repairIndex));

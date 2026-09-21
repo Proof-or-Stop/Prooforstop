@@ -399,10 +399,16 @@ export const CURRENT_COMPATIBLE_SCHEMA_ROWS = [
     "contextSha256": "8dd690869aece8a8bc09375bdec0cad2ba01ba66e4c6c6556b296952da45f8b4"
   },
   {
-    "path": "packages/main/src/tasks/host-run-usage-smoke.ts",
+    "path": "packages/main/src/tasks/host-run-usage/prompt-supervision.ts",
     "token": "lattice.managed_review_final_proposal.v1",
-    "count": 5,
-    "contextSha256": "1adf15196f1e5f1d2aff166ba57767dd0488360c76b57f5ac0eb5e1e6585f827"
+    "count": 1,
+    "contextSha256": "d1e733e3c34e9f1437fe06b547f6b4ffd875fcc8e6cbccc81b9d8aa51ad69a6f"
+  },
+  {
+    "path": "packages/main/src/tasks/host-run-usage/proposal.ts",
+    "token": "lattice.managed_review_final_proposal.v1",
+    "count": 4,
+    "contextSha256": "14b627daad9b2dabef4724a443220b65c89568c4a1d54fcf54f2764627bc9bea"
   },
   {
     "path": "packages/main/src/tasks/managed-host-run-command-smoke.ts",
@@ -453,19 +459,49 @@ export const CURRENT_COMPATIBLE_SCHEMA_ROWS = [
     "contextSha256": "390cd492d1146f8ac8700d72f91aede4cc5cb080bbca46127bc6d79cf0090f91"
   },
   {
-    "path": "packages/main/src/tasks/managed-review-evidence-smoke.ts",
+    "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
     "token": "lattice.managed_review_final_proposal.v1",
-    "count": 9,
-    "contextSha256": "6121587d22633e56434faec0595325254727ae018b19c5f0fe27139d04ae9f81"
+    "count": 1,
+    "contextSha256": "38452a8eb43d32587924094dfc0b7c232adbb5e59cf3b3a83246e1c13930a465"
   },
   {
-    "path": "packages/main/src/tasks/managed-review-evidence-smoke.ts",
+    "path": "packages/main/src/tasks/managed-review-evidence/codex-transport.ts",
+    "token": "lattice.managed_review_final_proposal.v1",
+    "count": 1,
+    "contextSha256": "38452a8eb43d32587924094dfc0b7c232adbb5e59cf3b3a83246e1c13930a465"
+  },
+  {
+    "path": "packages/main/src/tasks/managed-review-evidence/grok-integration.ts",
+    "token": "lattice.managed_review_final_proposal.v1",
+    "count": 1,
+    "contextSha256": "efd1b0384c373f9cee869cf8f84876c762be2e47c2150cc56e2c90f3bb3ea56d"
+  },
+  {
+    "path": "packages/main/src/tasks/managed-review-evidence/live-binding.ts",
+    "token": "lattice.managed_review_final_proposal.v1",
+    "count": 4,
+    "contextSha256": "4a09c13c0bd0bd2734830153808e51e79ffdc53801bd40f6ae2bfb21ab65f5b0"
+  },
+  {
+    "path": "packages/main/src/tasks/managed-review-evidence/sealed-receipts.ts",
+    "token": "lattice.managed_review_final_proposal.v1",
+    "count": 1,
+    "contextSha256": "b893bcb68cea29bb65da6e4e8f71c307e63e8ed683d4a3eb8c9755908d6f3826"
+  },
+  {
+    "path": "packages/main/src/tasks/managed-review-evidence/supersession.ts",
+    "token": "lattice.managed_review_final_proposal.v1",
+    "count": 1,
+    "contextSha256": "10fbbeb0ee9cc0186a885def45d21c81ba77c56394f5a8c3c5020cea871ab980"
+  },
+  {
+    "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
     "token": "lattice.managed_review_proposal_invocation.v1",
     "count": 1,
     "contextSha256": "704589abbd044609d53cb3d4332c19697413da968447bb75d8ab5ad91c203e08"
   },
   {
-    "path": "packages/main/src/tasks/managed-review-evidence-smoke.ts",
+    "path": "packages/main/src/tasks/managed-review-evidence/codex-transport.ts",
     "token": "lattice.native_review_invocation_attestation.v1",
     "count": 1,
     "contextSha256": "f2c9c55f02e079f05e4cc5f6314b081a13bb0befe6771a93894952906ae5c058"
@@ -501,19 +537,25 @@ export const CURRENT_COMPATIBLE_SCHEMA_ROWS = [
     "contextSha256": "f3f6f6c07ba00ef97e799bcd01969b19ffb5c33619b780f54b33ebcbde0b5f45"
   },
   {
-    "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+    "path": "packages/main/tests/canonical-new-story-artifacts/data.mjs",
     "token": "lattice.execution_boundary.v1",
     "count": 3,
     "contextSha256": "8709631c885895bbc593b81eb434107bb9a560b9094fccc59629756a16bceb86"
   },
   {
-    "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+    "path": "packages/main/tests/canonical-new-story-artifacts/data.mjs",
     "token": "lattice.scope_boundary.v1",
-    "count": 5,
-    "contextSha256": "5899c0ebd7f5fb1e74aa25c7fbe6d135965bfc4075d86717ec6bea9d0c254857"
+    "count": 2,
+    "contextSha256": "8bb6c8cc2975f71c5b354edc4cbb7c22a05e6691c75ead13735f5bfcb6ab3bb3"
   },
   {
-    "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+    "path": "packages/main/tests/canonical-new-story-artifacts/scope-init.mjs",
+    "token": "lattice.scope_boundary.v1",
+    "count": 3,
+    "contextSha256": "e28ddb5db2d8395ba88fb7820395ca0408798eb01cfb20edf33c9cb116476773"
+  },
+  {
+    "path": "packages/main/tests/canonical-new-story-artifacts/data.mjs",
     "token": "lattice.scope_freeze_check.v1",
     "count": 3,
     "contextSha256": "0b67dc53757233222d99e6776073d4bc620eb11c49610e181fa42e2515fe98c5"
@@ -540,7 +582,7 @@ export const CURRENT_COMPATIBLE_SCHEMA_ROWS = [
     "path": "scripts/lab/u18-static-edges/exceptions.json",
     "token": "lattice.native_review_invocation_attestation.v1",
     "count": 4,
-    "contextSha256": "0e62c8752a7f7840794d21f483760e0fb0672081fdeaf7cd3f31e3ad12f49bc7"
+    "contextSha256": "4a9f39f7ae7aab728564fc9617cb3836b5dbddd5b32939c6228505cbad98684a"
   },
   {
     "path": "scripts/verify-crosshost-preflight-handler.mjs",
@@ -573,31 +615,31 @@ export const CURRENT_COMPATIBLE_SCHEMA_ROWS = [
     "contextSha256": "eade6e777c42a9ad0bd55f2ba8ed5e5966b044a0a4bbbd6b330c26335c8304ab"
   },
   {
-    "path": "scripts/verify-process-fact-contract.mjs",
+    "path": "scripts/process-fact-contract/scope-runtime.mjs",
     "token": "lattice.execution_boundary.v1",
     "count": 1,
     "contextSha256": "f647592528cde87a1bc2e3cf8adc1aba908182135973214d53c0430b82624d6c"
   },
   {
-    "path": "scripts/verify-process-fact-contract.mjs",
+    "path": "scripts/process-fact-contract/complete.mjs",
     "token": "lattice.managed_dispatch_invocation_consumption.v2",
     "count": 1,
     "contextSha256": "72624bd1d0c8f64aec2063e649ba0b0172bed72f721bebc479665624a1a06af9"
   },
   {
-    "path": "scripts/verify-process-fact-contract.mjs",
+    "path": "scripts/process-fact-contract/complete.mjs",
     "token": "lattice.managed_dispatch_process_group_consumption.v1",
     "count": 1,
     "contextSha256": "72624bd1d0c8f64aec2063e649ba0b0172bed72f721bebc479665624a1a06af9"
   },
   {
-    "path": "scripts/verify-process-fact-contract.mjs",
+    "path": "scripts/process-fact-contract/complete.mjs",
     "token": "lattice.managed_init_invocation.v1",
     "count": 1,
     "contextSha256": "72624bd1d0c8f64aec2063e649ba0b0172bed72f721bebc479665624a1a06af9"
   },
   {
-    "path": "scripts/verify-process-fact-contract.mjs",
+    "path": "scripts/process-fact-contract/scope-runtime.mjs",
     "token": "lattice.scope_freeze_check.v1",
     "count": 1,
     "contextSha256": "dfd5b3d0216673618896186fec45ef9486ddd624688bec7688f79310a01c94e1"
