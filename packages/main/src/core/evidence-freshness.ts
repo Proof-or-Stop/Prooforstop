@@ -461,13 +461,14 @@ export function readMaterialDirtyFiles(
     const storyId = options.trustedControllerProjectionStoryId;
     for (const line of rows) {
       if (line.length < 4) continue;
+      const statusCode = line.slice(0, 2);
       const pathText = line.slice(3);
       const paths = pathText.includes(' -> ')
         ? pathText.split(' -> ').map(parseGitStatusPath)
         : [parseGitStatusPath(pathText)];
       for (const path of paths) {
         if (!path || isMaterialExcludedPath(path, metadataRoot)) continue;
-        const trustedControllerProjection = storyId !== undefined && (
+        const trustedControllerProjection = statusCode === '??' && storyId !== undefined && (
           isByteIdenticalControllerConfig({ projectRoot: gitCwd, gitCwd, storyId, path })
           || isByteIdenticalControllerRuntimeAsset({ projectRoot: gitCwd, gitCwd, storyId, path })
         );

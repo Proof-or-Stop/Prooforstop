@@ -501,6 +501,20 @@ check('linked worktree inherits global-thin identity from the common repository'
     );
     writeFileSync(join(worktree, projectedAsset), projectedAssetBytes);
 
+    git(worktree, ['add', '-f', 'proof-or-stop.config.json']);
+    assert.ok(
+      readMaterialDirtyFiles(worktree, worktree, { trustedControllerProjectionStoryId: 'B-global-thin' }).files.includes('proof-or-stop.config.json'),
+      'an index-tracked projected config remains material dirt even when its bytes and receipts are valid',
+    );
+    git(worktree, ['reset', '-q', 'HEAD', '--', 'proof-or-stop.config.json']);
+
+    git(worktree, ['add', '-f', projectedAsset]);
+    assert.ok(
+      readMaterialDirtyFiles(worktree, worktree, { trustedControllerProjectionStoryId: 'B-global-thin' }).files.includes(projectedAsset),
+      'an index-tracked projected runtime asset remains material dirt even when its bytes and receipts are valid',
+    );
+    git(worktree, ['reset', '-q', 'HEAD', '--', projectedAsset]);
+
     const worktreeStore = new StoryStore(worktree);
     worktreeStore.writeScopeContract('B-global-thin', {
       ...contract,
