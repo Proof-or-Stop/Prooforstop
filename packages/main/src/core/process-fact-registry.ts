@@ -1635,6 +1635,7 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
       'packages/main/src/core/controller-config-projection.ts',
       'packages/main/src/core/controller-runtime-projection.ts',
       'packages/main/src/core/runtime-artifact-registry.ts',
+      'packages/main/src/core/evidence-freshness.ts',
     ],
     consumerSourceRefs: [
       'packages/main/src/core/auto-commit-metadata.ts',
@@ -1643,6 +1644,7 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
       'packages/main/src/handlers/context.ts',
       'packages/main/src/handlers/checklist.ts',
       'packages/main/src/handlers/review-run.ts',
+      'packages/main/src/handlers/managed-review-evidence.ts',
     ],
   },
   'runtime:repository_default_baseline_gate': {

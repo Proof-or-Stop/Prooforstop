@@ -216,7 +216,9 @@ export function createManagedReviewEvidenceHandlers(
       let inventoryCriticImport = false;
       const assertLiveReviewBinding = (): void => {
         if (inventoryCriticImport) {
-          const dirty = readMaterialDirtyFiles(gitCwd, ctx.root);
+          const dirty = readMaterialDirtyFiles(gitCwd, ctx.root, {
+            trustedControllerProjectionStoryId: managedRun.storyId!,
+          });
           if (dirty.error) throw new Error(`managed_review_evidence_import: material status-unavailable: ${dirty.error}`);
           if (dirty.files.length) throw new Error(`managed_review_evidence_import: material drift: ${dirty.files.join(', ')}`);
         }

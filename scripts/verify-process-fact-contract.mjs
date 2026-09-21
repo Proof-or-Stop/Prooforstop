@@ -7459,7 +7459,7 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   assert(!hasExactNativeDispatchSelection(reviewGateText.replace('expectedDispatchBindingDigest: nativeBinding.dispatchBindingDigest,', '')),
     'native historical dispatch contract must reject removing the exact binding argument');
   const importerText = read('packages/main/src/handlers/managed-review-evidence.ts');
-  for (const token of ['candidate.evidence', 'proposalFindingIndex', 'existing receipt findings do not exactly cover every provider proposal index', 'storyMetadataLockDir', "'finding', 'review-passes'", "'findings.lock'", 'importedAt: sealedProposal?.authoredAt', 'assertCandidateReadBinding', 'assertCurrentCandidateReadBinding']) {
+  for (const token of ['candidate.evidence', 'proposalFindingIndex', 'existing receipt findings do not exactly cover every provider proposal index', 'storyMetadataLockDir', "'finding', 'review-passes'", "'findings.lock'", 'importedAt: sealedProposal?.authoredAt', 'assertCandidateReadBinding', 'assertCurrentCandidateReadBinding', 'trustedControllerProjectionStoryId: managedRun.storyId!']) {
     assert(importerText.includes(token), `packages/main/src/handlers/managed-review-evidence.ts: required exact replay token missing: ${token}`);
   }
   const managedText = read('packages/main/src/core/managed-review-evidence.ts');

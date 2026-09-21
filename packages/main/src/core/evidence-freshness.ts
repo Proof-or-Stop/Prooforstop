@@ -3,7 +3,11 @@ import { execFileSync } from 'child_process';
 import { createHash } from 'crypto';
 import { lstatSync, readFileSync, realpathSync } from 'fs';
 import { isAbsolute, relative, resolve as resolvePath, sep } from 'path';
-import { isMaterialExcludedRuntimeArtifactPath } from './runtime-artifact-registry.js';
+import {
+  isByteIdenticalControllerConfig,
+  isByteIdenticalControllerRuntimeAsset,
+  isMaterialExcludedRuntimeArtifactPath,
+} from './runtime-artifact-registry.js';
 import { loadConfig } from './config.js';
 import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
 import type {
@@ -439,7 +443,11 @@ function parseGitStatusPath(rawPath: string): string {
   return trimmed;
 }
 
-export function readMaterialDirtyFiles(gitCwd: string, metadataRoot: string): { files: string[]; error?: string } {
+export function readMaterialDirtyFiles(
+  gitCwd: string,
+  metadataRoot: string,
+  options: { trustedControllerProjectionStoryId?: string } = {},
+): { files: string[]; error?: string } {
   try {
     // No full-output trim(): it would strip the first porcelain row's leading
     // status space (" M path" -> "M path"), shifting the fixed-width path
@@ -457,7 +465,13 @@ export function readMaterialDirtyFiles(gitCwd: string, metadataRoot: string): { 
         ? pathText.split(' -> ').map(parseGitStatusPath)
         : [parseGitStatusPath(pathText)];
       for (const path of paths) {
-        if (path && !isMaterialExcludedPath(path, metadataRoot)) dirty.add(path);
+        if (!path || isMaterialExcludedPath(path, metadataRoot)) continue;
+        const storyId = options.trustedControllerProjectionStoryId;
+        const trustedControllerProjection = Boolean(storyId) && (
+          isByteIdenticalControllerConfig({ projectRoot: gitCwd, gitCwd, storyId: storyId!, path })
+          || isByteIdenticalControllerRuntimeAsset({ projectRoot: gitCwd, gitCwd, storyId: storyId!, path })
+        );
+        if (!trustedControllerProjection) dirty.add(path);
       }
     }
     return { files: [...dirty].sort() };

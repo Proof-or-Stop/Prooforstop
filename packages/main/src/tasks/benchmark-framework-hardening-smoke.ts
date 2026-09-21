@@ -448,7 +448,7 @@ check('linked worktree inherits global-thin identity from the common repository'
     assert.equal(configReceiptClassification.allowed, true);
     assert.equal(configReceiptClassification.registryId, 'controller-config-projection-receipt');
 
-    const managedCriticDirty = (readMaterialDirtyFiles as (...args: any[]) => { files: string[]; error?: string })(
+    const managedCriticDirty = readMaterialDirtyFiles(
       worktree,
       worktree,
       { trustedControllerProjectionStoryId: 'B-global-thin' },
@@ -463,7 +463,7 @@ check('linked worktree inherits global-thin identity from the common repository'
     const projectedAsset = CONTROLLER_RUNTIME_ASSET_PATHS[0];
     const projectedAssetBytes = readFileSync(join(worktree, projectedAsset));
     writeFileSync(join(worktree, projectedAsset), Buffer.concat([projectedAssetBytes, Buffer.from('tampered projection\n')]));
-    const tamperedManagedCriticDirty = (readMaterialDirtyFiles as (...args: any[]) => { files: string[]; error?: string })(
+    const tamperedManagedCriticDirty = readMaterialDirtyFiles(
       worktree,
       worktree,
       { trustedControllerProjectionStoryId: 'B-global-thin' },
