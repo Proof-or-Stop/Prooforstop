@@ -14,8 +14,10 @@ const {
 const root = mkdtempSync(join(tmpdir(), 'managed-finding-repair-dispatch-'));
 const storyId = 'B-managed-finding-repair';
 const findingId = `${storyId}:F-001`;
+const oldHome = process.env.HOME;
 
 try {
+  process.env.HOME = root;
   writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: '.', rootDir: 'src', outDir: 'dist', testsDir: 'tests',
     fixturesDir: 'tests/fixtures', storyDir: '.proof-or-stop/story/actives',
@@ -39,7 +41,7 @@ try {
   let deliveredPrompt = '';
   const handlers = createHostRunHandlers({ root, scanRoot: root, store }, {
     runner: async plan => {
-      deliveredPrompt = plan.prompt;
+      deliveredPrompt = plan.stdinText;
       return {
         stdout: '{"type":"turn.completed","usage":{}}\n', stderr: '', exitCode: 0,
         timedOut: false, terminalReason: 'completed', replacementSafe: true,
@@ -87,13 +89,33 @@ try {
   await assert.rejects(() => handlers.host_run({
     host: 'codex', storyId, findingId: `${storyId}:F-999`,
     agentType: 'proof-or-stop-finding-repair', managedDispatch: true,
-  }), /not found in story/);
+  }), /does not exist in Story/);
   await assert.rejects(() => handlers.host_run({
     host: 'codex', storyId, findingId,
     agentType: 'proof-or-stop-implementer', managedDispatch: true,
   }), /findingId is valid only/);
 
+  const shortTargetRun = await handlers.host_run({
+    host: 'codex', storyId, findingId: 'F-001',
+    agentType: 'proof-or-stop-finding-repair', managedDispatch: true, json: true,
+  });
+  assert.equal(readManagedHostRunBinding(root, shortTargetRun.runId).managedDispatchTarget?.findingId, findingId,
+    'short finding references must be canonicalized before they are sealed');
+
+  const findings = store.readFindings(storyId);
+  findings.findings[0].status = 'resolved';
+  store.writeFindings(storyId, findings);
+  await assert.rejects(() => handlers.host_run({
+    host: 'codex', storyId, findingId,
+    agentType: 'proof-or-stop-finding-repair', managedDispatch: true,
+  }), /target .* is not open/);
+
   console.log('MANAGED_FINDING_REPAIR_DISPATCH_GREEN');
 } finally {
-  rmSync(root, { recursive: true, force: true });
+  try {
+    if (oldHome === undefined) delete process.env.HOME;
+    else process.env.HOME = oldHome;
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 }
