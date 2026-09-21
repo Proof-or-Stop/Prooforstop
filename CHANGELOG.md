@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab managed-scope-owner-annotation-seal - v0.3.440 - 2026-09-21
+
+- Keep managed scope reviewer evidence valid when the Story owner resolves an open question after a current managed reviewer run.
+- Seal a version-prefixed canonical reviewer projection while storing owner resolution text, timestamps, and citations in a separate overlay.
+- Preserve old byte-sealed receipts only while the scope file remains byte-exact and unannotated; owner resolution under an old receipt requires a fresh managed review.
+- Add RED/GREEN coverage for legal owner annotation, exact legacy handling, digest-grammar separation, Story review continuity, and reviewer-field tamper rejection.
+- Verified with the managed scope E2E, managed delivery regressions, package build, U18 static closure, and an independent Grok audit.
+
+Maintenance provenance: codex/lab-managed-scope-owner-annotation-seal, repair 30049af80c2cf1eba86225a1c1357591886f96f7.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/managed-scope-reviewer-dispatch-e2e.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab worker-authority-integration-target - v0.3.439 - 2026-09-21
 
 - Resolve normal-channel commit attribution from the Story's frozen integration target instead of assuming a `main` branch.
