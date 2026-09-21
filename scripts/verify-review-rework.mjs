@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 // Exact Lab RED/GREEN entry: rebuild before executing production dist consumers.
-import { spawnSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 const cwd = fileURLToPath(new URL('../', import.meta.url));
 const run = (command, args) => {
@@ -9,6 +11,20 @@ const run = (command, args) => {
   return result.status ?? 1;
 };
 if (run(process.execPath, ['scripts/ensure-dist.mjs']) !== 0) process.exit(1);
+// Release preparation rebinds version-dependent static evidence. Check the
+// actual candidate on every replay; the committed archive is historical.
+if (run(process.execPath, ['scripts/verify-validation-static-edges.mjs']) !== 0) process.exit(1);
+const staticInputs = [
+  'scripts/lab/u18-static-edges/exceptions.json',
+  'package.json', 'package-lock.json',
+  'packages/main/package.json', 'packages/main/package-lock.json',
+  'packages/lab/package-lock.json', 'packages/utils/package-lock.json',
+  'packages/main/src/core/proof-or-stop-brand.ts',
+];
+console.log('REVIEW_REWORK_STATIC_BINDING PASS ' + JSON.stringify({
+  head: execFileSync('git', ['rev-parse', 'HEAD'], { cwd, encoding: 'utf8' }).trim(),
+  sha256: Object.fromEntries(staticInputs.map(path => [path, createHash('sha256').update(readFileSync(new URL('../' + path, import.meta.url))).digest('hex')])),
+}));
 const results = [
   run(process.execPath, ['scripts/verify-review-inventory-identity.mjs']),
   run(process.execPath, ['packages/main/dist/tasks/review-incremental-context-smoke.js', '--large-inventory-only']),

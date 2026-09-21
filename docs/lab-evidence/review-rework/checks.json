@@ -52,7 +52,8 @@
     "runtime-comparison.json": "c4784e387594ef15214254457d8ede088a4006af649c626e1ef8b4a6e6b94fd5",
     "runtime-normalized.log": "274a4efa9a61580315791207135bcf16e1d825633718e084206d5f5c5f82e4b3",
     "source-budget-red.log": "e4dd0d207f8fe377edf19e8f57f0c70b472ebba907ee0627f30f154dc59015f9",
-    "static-edges.log": "40ab8d5b0af1bf00e7eee16f226ad9a4aad6b2fe6cbef0860dda376ec4824239"
+    "static-edges.log": "40ab8d5b0af1bf00e7eee16f226ad9a4aad6b2fe6cbef0860dda376ec4824239",
+    "static-release-980e0519.log": "2e26f2bb2dc9d4c2566eb5ce5eb29a9a1fcf9156a06ecf06096b65bd5b833310"
   },
   "sourceBudgetRegression": {
     "red": "source-budget-red.log",
@@ -60,5 +61,22 @@
     "green": "inventory-controls.log",
     "greenExitCode": 0,
     "meaning": "An oversized real-source inventory had no explicit bound before the repair. This proves the new refusal contract, not a previously measured minutes-long stall."
+  },
+  "sourceSnapshotCommit": "4b1a038773d602b2f3b8d03eb2f84bac6712d959",
+  "sourceBindingScope": "Historical sourceSha256 map only; not the current release. Later main synchronization and the version transaction rebind exceptions.json. Individual logs retain their named earlier origins.",
+  "versionRebindingWitness": {
+    "candidate": "980e05192eb2f1058f1513ead86f4a2afaae4327",
+    "manifest": "scripts/lab/u18-static-edges/exceptions.json",
+    "manifestSha256": "2a693821acdd6fa3ace63aa9465306c49bc7b2293431e9b40548c9820b308d6c",
+    "command": "node scripts/verify-validation-static-edges.mjs",
+    "exitCode": 0,
+    "log": "static-release-980e0519.log",
+    "scope": "Executed on the named prepared candidate before reopen. This historical result does not replace the fresh check on subsequent candidates."
+  },
+  "currentReleaseVerification": {
+    "command": "node scripts/verify-review-rework.mjs",
+    "includes": "node scripts/verify-validation-static-edges.mjs",
+    "outputMarker": "REVIEW_REWORK_STATIC_BINDING PASS",
+    "source": "Tool-owned candidate GREEN output records the actual HEAD and manifest/version SHA-256 after static verification succeeds."
   }
 }
