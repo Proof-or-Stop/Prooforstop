@@ -172,7 +172,12 @@ export function inspectExpectedControllerRuntimeProjection(args: {
       return { expected: false, valid: true, reason: 'no-controller-assets', expectedPaths: [], controllerRoot };
     }
     const configRef = pickProjectConfigPath(controllerRoot);
-    const projectedConfigPath = configRef?.filename;
+    const worktreeConfigIsTracked = configRef
+      ? Boolean(execFileSync('git', ['ls-files', '--', configRef.filename], {
+        cwd: worktreeRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
+      }).trim())
+      : false;
+    const projectedConfigPath = configRef && !worktreeConfigIsTracked ? configRef.filename : undefined;
     const expectedPaths = [...(projectedConfigPath ? [projectedConfigPath] : []), ...runtimePaths];
     const branch = execFileSync('git', ['symbolic-ref', '-q', 'HEAD'], {
       cwd: worktreeRoot,
@@ -238,11 +243,6 @@ export function inspectControllerConfigProjectionReceipt(args: {
     }
     const configRef = pickProjectConfigPath(controllerRoot);
     if (!configRef) return { matched: true, valid: false, reason: 'controller-config-missing', expectedPath, controllerRoot };
-    if (execFileSync('git', ['ls-files', '--', configRef.filename], {
-      cwd: worktreeRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
-    }).trim()) {
-      return { matched: true, valid: false, reason: 'tracked-controller-config', expectedPath, controllerRoot };
-    }
     const controllerStat = lstatSync(configRef.path);
     const worktreeConfig = join(worktreeRoot, configRef.filename);
     const worktreeStat = lstatSync(worktreeConfig);
