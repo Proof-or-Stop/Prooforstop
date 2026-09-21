@@ -55,10 +55,33 @@ export function isByteIdenticalControllerConfig(args: {
     if (primaryRoot === worktreeRoot) return false;
     const branch = execFileSync('git', ['symbolic-ref', '-q', 'HEAD'], { cwd: worktreeRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
     if (branch !== `refs/heads/story/${args.storyId}`) return false;
-    for (const cwd of [worktreeRoot, primaryRoot]) {
-      const tracked = execFileSync('git', ['ls-files', '--', args.path], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
-      if (tracked) return false;
-    }
+    // A tracked candidate remains ordinary material and must pass the normal
+    // dirty/scope gates. Controller-side adoption alone must not poison an
+    // otherwise exact, signed Story projection.
+    if (execFileSync('git', ['ls-files', '--', args.path], {
+      cwd: worktreeRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim()) return false;
+    return hasExactControllerConfigProjection({ ...args, worktreeRoot, controllerRoot: primaryRoot });
+  } catch {
+    return false;
+  }
+}
+
+function hasExactControllerConfigProjection(args: {
+  projectRoot: string;
+  gitCwd: string;
+  storyId: string;
+  path: string;
+  worktreeRoot?: string;
+  controllerRoot?: string;
+}): boolean {
+  try {
+    const worktreeRoot = args.worktreeRoot ?? realpathSync(args.gitCwd);
+    if (realpathSync(args.projectRoot) !== worktreeRoot) return false;
+    const primaryRoot = args.controllerRoot ?? realpathSync(resolveCanonicalRuntimeProjectRoot(worktreeRoot));
+    if (primaryRoot === worktreeRoot) return false;
+    const branch = execFileSync('git', ['symbolic-ref', '-q', 'HEAD'], { cwd: worktreeRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    if (branch !== `refs/heads/story/${args.storyId}`) return false;
     const localPath = join(worktreeRoot, args.path);
     const controllerPath = join(primaryRoot, args.path);
     const localStat = lstatSync(localPath);
@@ -92,9 +115,9 @@ export function isByteIdenticalControllerRuntimeAsset(args: {
     if (realpathSync(args.projectRoot) !== worktreeRoot) return false;
     const controllerRoot = realpathSync(resolveCanonicalRuntimeProjectRoot(worktreeRoot));
     if (controllerRoot === worktreeRoot) return false;
-    for (const cwd of [worktreeRoot, controllerRoot]) {
-      if (execFileSync('git', ['ls-files', '--', args.path], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()) return false;
-    }
+    if (execFileSync('git', ['ls-files', '--', args.path], {
+      cwd: worktreeRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim()) return false;
     return inspectControllerRuntimeProjection({
       gitCwd: worktreeRoot,
       storyId: args.storyId,
@@ -149,12 +172,7 @@ export function inspectExpectedControllerRuntimeProjection(args: {
       return { expected: false, valid: true, reason: 'no-controller-assets', expectedPaths: [], controllerRoot };
     }
     const configRef = pickProjectConfigPath(controllerRoot);
-    const controllerConfigIsTracked = configRef
-      ? Boolean(execFileSync('git', ['ls-files', '--', configRef.filename], {
-        cwd: controllerRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
-      }).trim())
-      : false;
-    const projectedConfigPath = configRef && !controllerConfigIsTracked ? configRef.filename : undefined;
+    const projectedConfigPath = configRef?.filename;
     const expectedPaths = [...(projectedConfigPath ? [projectedConfigPath] : []), ...runtimePaths];
     const branch = execFileSync('git', ['symbolic-ref', '-q', 'HEAD'], {
       cwd: worktreeRoot,
@@ -168,20 +186,13 @@ export function inspectExpectedControllerRuntimeProjection(args: {
       && hasRepositoryOwnedControllerAssets({ controllerRoot, worktreeRoot, configPath: configRef.filename })) {
       return { expected: false, valid: true, reason: 'repository-owned-material-assets', expectedPaths: [], controllerRoot };
     }
-    for (const path of runtimePaths) {
-      for (const cwd of [controllerRoot, worktreeRoot]) {
-        if (execFileSync('git', ['ls-files', '--', path], {
-          cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
-        }).trim()) {
-          return { expected: true, valid: false, reason: 'tracked-controller-projection', expectedPaths, controllerRoot };
-        }
-      }
-    }
-    if (projectedConfigPath && !isByteIdenticalControllerConfig({
+    if (projectedConfigPath && !hasExactControllerConfigProjection({
       projectRoot: worktreeRoot,
       gitCwd: worktreeRoot,
       storyId: args.storyId,
       path: projectedConfigPath,
+      worktreeRoot,
+      controllerRoot,
     })) {
       return { expected: true, valid: false, reason: 'config-projection-invalid', expectedPaths, controllerRoot };
     }

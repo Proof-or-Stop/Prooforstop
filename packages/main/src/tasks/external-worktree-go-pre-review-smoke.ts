@@ -231,16 +231,28 @@ function assertExternalControllerProjection(project: ProjectControllerAssets): v
     git(worktreeRoot, ['add', '-f', ...expectedHookPaths]);
     assert.equal(
       inspectExpectedControllerRuntimeProjection({ projectRoot: worktreeRoot, gitCwd: worktreeRoot, storyId }).valid,
-      false,
-      'tracked hook projections remain forbidden even when their bytes and receipts are exact',
+      true,
+      'tracking exact signed hook projections does not invalidate projection identity',
     );
+    const stagedHookStatus = readGitStatusLines(worktreeRoot);
+    assert.equal(stagedHookStatus.ok, true);
+    assert.equal(isBlockingDirty(classifyGitStatusRows(
+      stagedHookStatus.ok ? stagedHookStatus.lines : [],
+      classifierOptionsForCheck(loadConfig(worktreeRoot), storyId, localStore, worktreeRoot),
+    )).blocked, true, 'newly tracked hook projections remain subject to the ordinary dirty gate');
     git(worktreeRoot, ['rm', '--cached', '-q', ...expectedHookPaths]);
     git(worktreeRoot, ['add', '-f', 'proof-or-stop.config.json']);
     assert.equal(
       inspectExpectedControllerRuntimeProjection({ projectRoot: worktreeRoot, gitCwd: worktreeRoot, storyId }).valid,
-      false,
-      'tracked config projection remains forbidden even when its bytes and receipt are exact',
+      true,
+      'tracking the exact signed config projection does not invalidate projection identity',
     );
+    const stagedConfigStatus = readGitStatusLines(worktreeRoot);
+    assert.equal(stagedConfigStatus.ok, true);
+    assert.equal(isBlockingDirty(classifyGitStatusRows(
+      stagedConfigStatus.ok ? stagedConfigStatus.lines : [],
+      classifierOptionsForCheck(loadConfig(worktreeRoot), storyId, localStore, worktreeRoot),
+    )).blocked, true, 'a newly tracked config projection remains subject to the ordinary dirty gate');
     git(worktreeRoot, ['rm', '--cached', '-q', 'proof-or-stop.config.json']);
 
     for (const expectedHookPath of expectedHookPaths) rmSync(join(worktreeRoot, expectedHookPath));
