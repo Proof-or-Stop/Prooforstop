@@ -24,10 +24,10 @@ import { execSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { StoryStore } from '../core/store.js';
-import { DEFAULT_BASE } from './validate-shared.js';
 import { computeChannel } from '../core/workflow-policy.js';
 import { loadConfig } from '../core/config.js';
 import { isStoryMetadataPath as isSharedStoryMetadataPath } from '../core/evidence-freshness.js';
+import { resolveStoryIntegrationTarget } from '../core/story-integration-target.js';
 import type { StoryInfo, ChecklistData, DecisionData, ProcessEvent } from '../core/types.js';
 import type { ScopeShrinkageDecisionData } from '../core/types.js';
 import { withdrawnChecklistItemIdsFrom } from '../core/proofstory.js';
@@ -42,6 +42,7 @@ export interface ChannelOffender {
 export interface ChannelCheckResult {
   provider: 'proof-or-stop-channel';
   status: 'pass' | 'fail' | 'skipped';
+  code?: 'integration_branch_unresolved';
   summary: string;
   details: string[];
   offenders?: ChannelOffender[];
@@ -443,7 +444,6 @@ export function checkCommitAuthor(
     projectRoot,
     gitLogReader = defaultGitLogReader,
     gitChangedFilesReader = defaultGitChangedFilesReader,
-    base = DEFAULT_BASE,
     planReader = defaultPlanReader,
   } = deps;
   // B-2856: git readers run from the resolved gitRoot (wrapper-root) or fall
@@ -501,6 +501,20 @@ export function checkCommitAuthor(
       details: [
         `story=${storyId}`,
         `checklist items=${itemCount} & riskSignals=${riskSignalCount} → channel=express/fast`,
+      ],
+    };
+  }
+
+  const base = deps.base ?? resolveStoryIntegrationTarget(gitCwd, story)?.parentBranch;
+  if (!base) {
+    return {
+      provider: 'proof-or-stop-channel',
+      status: 'fail',
+      code: 'integration_branch_unresolved',
+      summary: 'Story integration branch could not be resolved [integration_branch_unresolved]',
+      details: [
+        `story=${storyId}`,
+        'No frozen integration target or repository baseline branch was available for commit attribution.',
       ],
     };
   }
