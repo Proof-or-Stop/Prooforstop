@@ -61,7 +61,10 @@ import { join } from 'node:path';
 
 import { runReviewCliGates, type PreflightDeps } from '../handlers/review-preflight.js';
 import { runDocsDriftGate } from '../handlers/validate-docs-drift.js';
-import { resetConfigCache } from '../core/config.js';
+import {
+  resetConfigCache,
+  resolveProofOrStopResiduePreflightMode,
+} from '../core/config.js';
 import type { StoryStore } from '../core/store.js';
 
 // Path that exists ONLY under the gitRoot subdir. Must match scanPathDrift's
@@ -86,6 +89,12 @@ const WRAPPER_CLAUDE_MD = [
 ].join('\n');
 
 const REGISTRY = new Set<string>(['validate', 'story_create', 'story_advance']);
+
+assert.equal(
+  resolveProofOrStopResiduePreflightMode(process.cwd()),
+  'enforce',
+  'the Proof-or-Stop source repository must keep its residue maintenance preflight enabled',
+);
 
 function git(cwd: string, args: string[]): void {
   execFileSync('git', args, {
@@ -326,6 +335,36 @@ function gateByName(result: ReturnType<typeof runReviewCliGates>, name: string) 
     );
     assert.equal(failingOptIn.status, 'fail', 'opted-in projects must block on detected residue');
     assert.match(failingOptIn.summary, /brand residue: 1 hit/, 'detector output must remain visible');
+
+    writeFileSync(
+      join(metadataRoot, 'proof-or-stop.config.json'),
+      JSON.stringify({
+        gitRoot: 'repo',
+        reviewPreflight: { proofOrStopResidue: 'off' },
+      }, null, 2),
+      'utf-8',
+    );
+    resetConfigCache();
+    const explicitlyOff = gateByName(
+      runReviewCliGates(STORY_ID, makeDeps(metadataRoot)),
+      'proof-or-stop-residue',
+    );
+    assert.equal(explicitlyOff.status, 'skipped', 'explicit off must skip even with a failing script');
+
+    writeFileSync(
+      join(metadataRoot, 'proof-or-stop.config.json'),
+      JSON.stringify({
+        gitRoot: 'repo',
+        reviewPreflight: { proofOrStopResidue: 'warn' },
+      }, null, 2),
+      'utf-8',
+    );
+    resetConfigCache();
+    const invalidMode = gateByName(
+      runReviewCliGates(STORY_ID, makeDeps(metadataRoot)),
+      'proof-or-stop-residue',
+    );
+    assert.equal(invalidMode.status, 'fail', 'unknown residue policy modes must fail closed');
 
     for (const invalidReviewPreflight of ['enforce', null, []]) {
       writeFileSync(
