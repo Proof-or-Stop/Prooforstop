@@ -582,7 +582,7 @@ export const CURRENT_COMPATIBLE_SCHEMA_ROWS = [
     "path": "scripts/lab/u18-static-edges/exceptions.json",
     "token": "lattice.native_review_invocation_attestation.v1",
     "count": 4,
-    "contextSha256": "4a9f39f7ae7aab728564fc9617cb3836b5dbddd5b32939c6228505cbad98684a"
+    "contextSha256": "0e62c8752a7f7840794d21f483760e0fb0672081fdeaf7cd3f31e3ad12f49bc7"
   },
   {
     "path": "scripts/verify-crosshost-preflight-handler.mjs",
