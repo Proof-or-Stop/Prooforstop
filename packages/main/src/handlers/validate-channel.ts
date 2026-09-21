@@ -24,7 +24,6 @@ import { execSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { StoryStore } from '../core/store.js';
-import { DEFAULT_BASE } from './validate-shared.js';
 import { computeChannel } from '../core/workflow-policy.js';
 import { loadConfig } from '../core/config.js';
 import { isStoryMetadataPath as isSharedStoryMetadataPath } from '../core/evidence-freshness.js';
@@ -506,12 +505,8 @@ export function checkCommitAuthor(
     };
   }
 
-  // Injected readers are a test seam and historically receive `main` unless a
-  // base is supplied. Real git execution must resolve the Story/repository
-  // integration target and must not invent a main branch.
   const base = deps.base
-    ?? resolveStoryIntegrationTarget(gitCwd, story)?.parentBranch
-    ?? (deps.gitLogReader ? DEFAULT_BASE : undefined);
+    ?? resolveStoryIntegrationTarget(gitCwd, story)?.parentBranch;
   if (!base) {
     return {
       provider: 'proof-or-stop-channel',

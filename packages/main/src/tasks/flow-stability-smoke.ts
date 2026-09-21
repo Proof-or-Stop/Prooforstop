@@ -3137,6 +3137,13 @@ function assertImplementationWorkerAuthorityUsesFrozenMasterIntegrationTarget():
   try {
     const { store, storyId } = createReviewStore(root);
     git(root, ['branch', '-M', 'master']);
+    assert.throws(
+      () => execFileSync('git', ['rev-parse', '--verify', 'main'], {
+        cwd: root,
+        stdio: 'pipe',
+      }),
+      'the regression fixture must not retain a main ref',
+    );
     const parentCommitAtCreation = execFileSync('git', ['rev-parse', 'HEAD'], {
       cwd: root,
       encoding: 'utf8',
@@ -3168,6 +3175,18 @@ function assertImplementationWorkerAuthorityUsesFrozenMasterIntegrationTarget():
         success: true,
       });
     }
+
+    let observedBase: string | undefined;
+    const channel = checkCommitAuthor(storyId, {
+      store,
+      projectRoot: root,
+      gitLogReader: ({ base }) => {
+        observedBase = base;
+        return '';
+      },
+    });
+    assert.equal(observedBase, 'master', 'channel attribution must consume the frozen master target');
+    assert.equal(channel.status, 'pass', 'resolved master target must preserve valid worker evidence');
 
     assert.doesNotThrow(
       () => runImplementationWorkerAuthorityGate({ store, root }, storyId),
