@@ -1,16 +1,5 @@
 # Changelog
 
-## Lab managed-finding-repair-dispatch - v0.3.442 - 2026-09-21
-
-- Add a DEV managed-dispatch path for `proof-or-stop-finding-repair` with one canonical open Finding target.
-- Seal Story, role, Finding ID, and provider output into the managed run binding and terminal receipt for controller verification.
-- Reject missing, mixed, unknown, closed, wrong-phase, and cross-Finding repair targets before they can authorize resolution.
-- Cover the repair path with Lab RED/GREEN regression evidence and preserve the existing managed implementer contract.
-
-Maintenance provenance: codex/lab-managed-finding-repair-dispatch, repair 222983ef5016826daebb1207eac1e69254fa45a0.
-Verification command (replayed before integration and on main): `["node","packages/main/tests/managed-finding-repair-dispatch.test.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab managed-review-projection-dirty-admission - v0.3.441 - 2026-09-21
 
 # Managed review controller projection dirty admission
