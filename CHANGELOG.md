@@ -1,5 +1,16 @@
 # Changelog
 
+## Lab managed-review-routing-preflight - v0.3.445 - 2026-09-21
+
+- Refuse formal managed-review provider launches when candidate routing still requires an unresolved full-scan escalation, and return the exact owner recovery command before any provider cost is incurred.
+- Strengthen the final-proposal protocol to require standard JSON serialization and explicitly reject non-JSON backslash-apostrophe escapes while retaining fail-closed terminal validation.
+- Add executable regression coverage for unresolved and resolved candidate routing, plus process-fact registry and U18 static-edge bindings.
+- Verified with Lab RED/GREEN, the managed-review candidate preflight test, package build, U18 static validation, diff checks, and independent Grok review. The unrelated managed-review supersession fixture baseline remains outside this repair.
+
+Maintenance provenance: codex/lab-managed-review-routing-preflight, repair ae4bd8db4205ff8fc0ebaf81b924764a413391ac.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/managed-review-candidate-preflight.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab consumer-residue-preflight - v0.3.444 - 2026-09-21
 
 - Scope the `proof-or-stop-residue` REVIEW preflight to repositories that explicitly enable `reviewPreflight.proofOrStopResidue`; consumer repositories now report the PoS-only maintenance gate as skipped.
