@@ -1,5 +1,15 @@
 # Changelog
 
+## Lab audit-snapshot-input-budget - v0.3.437 - 2026-09-21
+
+- Separate complete local audit snapshot input (64 MiB) from the unchanged 8 MiB provider output limit; preserve snapshot references, exact digests and independent-vendor approval.
+- Reject oversized aggregate inputs, oversized individual sources, binary data and invalid UTF-8; retain snapshot tamper refusal and the compact initial prompt.
+- Verify the coupled-budget RED and repaired GREEN, existing audit contract and prompt controls, and static dependency evidence. See `docs/lab-maintenance.md` for the bounded transport contract.
+
+Maintenance provenance: codex/lab-audit-snapshot-input-budget, repair db6c1d374304b609d75501616772438f3c060a00.
+Verification command (replayed before integration and on main): `["node","scripts/verify-lab-audit-input-budget.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab review-rework - v0.3.436 - 2026-09-21
 
 - Restore incremental review inventory reads for large Git outputs using the registered transport limit; preserve full-roster refusal and precise diagnostics when inventory or dirty-state reads fail.
