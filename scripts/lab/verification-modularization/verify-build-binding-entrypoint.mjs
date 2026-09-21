@@ -36,6 +36,7 @@ for(const [group,statements] of groups)assert.deepEqual(observed.get(group),stat
 const invoke=args=>spawnSync(process.execPath,[path,...args],{encoding:'utf8',timeout:30000,maxBuffer:8*1024*1024});
 const list=invoke(['--list-capabilities']);assert.equal(list.status,0,list.stderr);assert.deepEqual(JSON.parse(list.stdout).map(row=>row.id),['routine','done-required','shared-cache','executor','handler']);
 for(const args of [['--capability='],['--capability=unknown'],['--all','--capability=routine']]){const result=invoke(args);assert.equal(result.status,1);assert.match(result.stderr,/Unknown build binding verification argument/);assert.doesNotMatch(result.stdout,/checks passed|BUILD_BINDING_PARTIAL_PASS/);}
+const partial=invoke(['--capability=routine','--capability=routine']);assert.equal(partial.status,0,partial.stderr);assert.match(partial.stdout,/BUILD_BINDING_PARTIAL_PASS/);assert.doesNotMatch(partial.stdout,/verify-validation-build-artifact-binding: \d+ checks passed/);
 const { createFixtureMachineEnvironment } = await import('../../../packages/main/dist/tasks/helpers/fixture-machine-environment.js');
 const { VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY: policy } = await import('../../../packages/main/dist/core/runtime-fact-registry.js');
 const fixture=createFixtureMachineEnvironment(), env={...fixture.env};delete env[policy.descriptorEnvironment];

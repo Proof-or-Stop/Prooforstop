@@ -1,8 +1,8 @@
 # Verification modularization: implementation and evidence ledger
 
 This is a local Lab checkpoint, not a completion or main integration claim.
-The authorized scope is all 14 entries below. Four have scoped official GREEN;
-two more have candidate splits. Remaining eight entries have not been modularized.
+The authorized scope is all 14 entries below. Five have scoped official GREEN;
+Finding ledger has two complete successful executions. Build binding is a candidate; seven entries remain unimplemented.
 
 Original public files contain imports, usage comments and one invocation.
 Every extracted file is limited to 2,000 physical lines. No hidden monolith,
@@ -13,19 +13,19 @@ No routine validation command is added by internal module registration.
 
 | Original entry | Before lines | Current entry lines | Modules | Largest module | Evidence/status | In main |
 |---|---:|---:|---:|---:|---|---|
-| `scripts/verify-process-fact-contract.mjs` | 12201 | 7 | 16 | 1857 | RED recorded; full regression found stale source consumers, repair underway | No |
+| `scripts/verify-process-fact-contract.mjs` | 12201 | 7 | 16 | 1857 | RED -> official GREEN at 317918539b; full suite 181.37 s | No |
 | `packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs` | 10748 | 10748 | pending | pending | Pending; no modularization RED/GREEN claim | No |
 | `scripts/verify-proof-or-stop-identity-cutover.mjs` | 7794 | 7794 | pending | pending | Pending; no modularization RED/GREEN claim | No |
 | `packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts` | 6101 | 6101 | pending | pending | Pending; no modularization RED/GREEN claim | No |
 | `packages/main/src/tasks/validation-tier-planner-smoke.ts` | 5792 | 5792 | pending | pending | Pending; no modularization RED/GREEN claim | No |
 | `packages/main/src/tasks/flow-stability-smoke.ts` | 5528 | 7 | 11 | 989 | RED -> official GREEN at 21be146f9c; full suite 137.62 s | No |
 | `packages/main/tests/canonical-new-story-artifacts.test.mjs` | 5378 | 5378 | pending | pending | Pending; no modularization RED/GREEN claim | No |
-| `packages/main/src/tasks/finding-ledger-runtime-smoke.ts` | 4646 | 6 | 9 | 1134 | Full suite passed at 3b51f4f666 in 130.60 s; combined official GREEN blocked by process source readers | No |
+| `packages/main/src/tasks/finding-ledger-runtime-smoke.ts` | 4646 | 6 | 9 | 1134 | Full suites passed at 3b51f4f666 / f5fda7d0e6 in 130.60 / 147.00 s; combined run failed in the separate process suite | No |
 | `packages/main/src/tasks/managed-review-evidence-smoke.ts` | 4360 | 4360 | pending | pending | Pending; no modularization RED/GREEN claim | No |
 | `packages/main/src/tasks/host-run-usage-smoke.ts` | 3867 | 3867 | pending | pending | Pending; no modularization RED/GREEN claim | No |
 | `scripts/verify-proof-or-stop-prompt-baseline.mjs` | 3675 | 7 | 6 | 1344 | RED -> official GREEN at 103d6e06fa; full suite 9.60 s | No |
 | `packages/main/tests/milestone-status.test.mjs` | 3447 | 6 | 9 | 670 | RED -> official GREEN at a3777644bb; full suite 39.00 s | No |
-| `scripts/verify-validation-build-artifact-binding.mjs` | 3329 | 3329 | pending | pending | Pending; no modularization RED/GREEN claim | No |
+| `scripts/verify-validation-build-artifact-binding.mjs` | 3329 | 7 | 7 | 1409 | RED recorded; candidate full verification in progress | No |
 | `packages/main/src/tasks/verification-run-and-guard-smoke.ts` | 3138 | 7 | 7 | 776 | RED -> official GREEN at 378d1ccb3a; full suite 94.52 s | No |
 
 ## Parameters and registration
@@ -38,6 +38,7 @@ separate success selectors and cannot claim complete-suite evidence.
 
 | Entry family | Capability IDs | Registration required |
 |---|---|---|
+| validation-build-binding | `routine`, `done-required`, `shared-cache`, `executor`, `handler` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
 | process-fact-contract | `support`, `proofstory-closeout`, `reopen`, `prompt-contracts`, `review-inventory`, `registry-parser`, `command-contracts`, `review-verification`, `scope-runtime`, `story3` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
 | finding-ledger-runtime | `proposal-envelope`, `projection-receipt`, `base-authority`, `legacy-authority`, `transactions`, `readonly-mutations`, `runtime-evidence`, `rollback-concurrency`, `historical-migration`, `build-distribution`, `tamper-dependency` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
 | verification-run-and-guard | `foundation`, `fanout`, `integrity`, `story-identity` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
@@ -127,6 +128,18 @@ PASS. Existing full entrypoints stay registered.
 | `read-only.mjs` | 106 | No-mutation status reads |
 | `reporting.mjs` | 605 | Report shape, rendering and malformed inputs |
 | `support.mjs` | 293 | Shared fixture and report helpers |
+
+### `scripts/validation-build-binding`
+
+| Module | Lines | Responsibility |
+|---|---:|---|
+| `cli.mjs` | 33 | Capability routing and prerequisite deduplication |
+| `done-required.mjs` | 736 | DONE required evidence binding |
+| `executor.mjs` | 1409 | Execution identity, freeze, drift and tampering |
+| `handler.mjs` | 218 | Public verifier handler causal preflight |
+| `routine.mjs` | 619 | Routine reuse and admissibility binding |
+| `shared-cache.mjs` | 261 | Shared cache admission and artifact identity |
+| `support.mjs` | 106 | Shared source loader, fixtures and counters |
 
 ### `packages/main/src/tasks/verification-run-and-guard`
 

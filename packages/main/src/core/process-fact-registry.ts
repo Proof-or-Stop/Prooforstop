@@ -1824,6 +1824,21 @@ COMMAND_PROCESS_FACTS.push({
 });
 
 COMMAND_PROCESS_FACTS.push({
+  name: 'runtime:build_binding_capability_selection', kind: 'runtime-behavior', level: 'L4',
+  semantics: ['runtime-behavior', 'verification-policy'],
+  paths: ['scripts/verify-validation-build-artifact-binding.mjs',
+    'scripts/validation-build-binding/cli.mjs',
+    'scripts/validation-build-binding/done-required.mjs',
+    'scripts/validation-build-binding/executor.mjs',
+    'scripts/validation-build-binding/handler.mjs',
+    'scripts/validation-build-binding/routine.mjs',
+    'scripts/validation-build-binding/shared-cache.mjs',
+    'scripts/validation-build-binding/support.mjs'],
+  producer: 'build binding verification capability CLI', consumerGate: 'explicit verifier invocation only',
+  rationale: 'Five named capabilities retain routine reuse, DONE evidence, shared cache, executor and handler controls. Routine establishes the real host enforcement prerequisite for all other capabilities; selection composes it once. Default and all preserve complete checks and selectors. Invalid arguments fail and partial results cannot claim complete validation or authorize dynamic exclusion. Internal modules add no routine validation commands.',
+});
+
+COMMAND_PROCESS_FACTS.push({
   name: 'runtime:process_contract_capability_selection', kind: 'runtime-behavior', level: 'L4',
   semantics: ['runtime-behavior', 'verification-policy'],
   paths: ['scripts/verify-process-fact-contract.mjs',
