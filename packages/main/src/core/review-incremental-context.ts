@@ -92,6 +92,7 @@ export type PostRemediationSelectionReason =
   | 'SCOPE_OR_POLICY_CHANGED'
   | 'NO_MATERIAL_REMEDIATION'
   | 'DIRTY_MATERIAL'
+  | 'DIRTY_STATE_UNREADABLE'
   | 'UNTRACKED_OR_IGNORED_MATERIAL'
   | 'CHANGED_FILE_OUTSIDE_FROZEN_SCOPE'
   | 'UNSUPPORTED_RENAME_OR_DELETE'
@@ -429,8 +430,9 @@ export function postRemediationReviewSelection(
       return fallback('UNTRACKED_OR_IGNORED_MATERIAL', changedFiles);
     }
     if (materialDirty.length > 0) return fallback('DIRTY_MATERIAL', changedFiles);
-  } catch {
-    return fallback('UNTRACKED_OR_IGNORED_MATERIAL', changedFiles);
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code ?? 'GIT_READ_FAILED';
+    return fallback('DIRTY_STATE_UNREADABLE', changedFiles, [], `Git dirty-state probe failed: ${code}`);
   }
   const policy = classifyImpact({ changedFiles, declaredTestFiles: [], testIntentRefsByFile: {}, changedFileStatus: statuses });
   if (policy.impacts.some(impact => ['public-contract', 'authority-or-permission', 'command-or-gate-policy', 'dependency-or-build', 'unsupported-rename', 'unknown'].includes(impact.category))) {

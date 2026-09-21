@@ -354,6 +354,8 @@ type ActiveIdentityOperationBoundarySeed = Omit<ActiveIdentityOperationBoundary,
   identityFreePaths?: readonly ActiveIdentityFreePath[];
 };
 
+// SHA-256 of emitted dist JavaScript parsed/printed by canonicalIdentityExecutableDigest (comments removed, LF); not raw TypeScript bytes.
+// Enforced by assertCanonicalActiveIdentityBoundary; scripts/verify-review-inventory-identity.mjs checks the inventory pin and a live executable mutation.
 const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string>> = Object.freeze({
   'packages/main/src/core/executable-digest-observation.ts': 'efaa0e0be32dd9e8833d6de120081b32f9c56c27b4d749b7eb2fa309445e0c4d',
   'packages/main/src/core/lifecycle-control/control-status.ts': 'e015e86e23e400c8d7e43bd253938f3ee2105bba9925d42c599747b6b87fcc58',

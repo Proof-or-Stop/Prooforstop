@@ -10,6 +10,7 @@ const run = (command, args) => {
 };
 if (run(process.execPath, ['scripts/ensure-dist.mjs']) !== 0) process.exit(1);
 const results = [
+  run(process.execPath, ['scripts/verify-review-inventory-identity.mjs']),
   run(process.execPath, ['packages/main/dist/tasks/review-incremental-context-smoke.js', '--large-inventory-only']),
   run(process.execPath, ['scripts/run-validation-fixture-suite.mjs', 'packages/main/dist/tasks/review-inventory-epoch-smoke.js']),
 ];
