@@ -3198,6 +3198,31 @@ function assertImplementationWorkerAuthorityUsesFrozenMasterIntegrationTarget():
   }
 }
 
+function assertImplementationWorkerAuthorityReportsUnresolvedIntegrationTarget(): void {
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-channel-unresolved-base-'));
+  try {
+    const { store, storyId } = createReviewStore(root);
+    git(root, ['branch', '-M', `story/${storyId}`]);
+    const story = store.readStory(storyId);
+    story.phase = 'DEV';
+    delete story.integrationTarget;
+    store.writeStory(storyId, story);
+
+    let message = '';
+    try {
+      runImplementationWorkerAuthorityGate({ store, root }, storyId);
+      assert.fail('a Story-only repository without an integration target must fail closed');
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+    assert.match(message, /integration_branch_unresolved/);
+    assert.doesNotMatch(message, /implementation_worker_authority_invalid/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    resetConfigCache();
+  }
+}
+
 function assertChannelGateRejectsImplementerAuthorWithoutDispatch(): void {
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-channel-author-fallback-'));
   try {
@@ -5516,6 +5541,7 @@ if (process.argv.includes('--terminal-finding-forgiveness')) {
 
 if (process.argv.includes('--worker-authority-master')) {
   assertImplementationWorkerAuthorityUsesFrozenMasterIntegrationTarget();
+  assertImplementationWorkerAuthorityReportsUnresolvedIntegrationTarget();
   console.log('WORKER_AUTHORITY_MASTER_PASS');
   process.exit(0);
 }
@@ -5559,6 +5585,8 @@ assertRealCliValidateHintFollowsActiveStoryPhase();
 assertBugUpdateTestHintUsesDonePrecheck();
 assertChannelGateRejectsProofOrStopSubjectForRealFiles();
 assertChannelGateAcceptsStructuredEvidenceWithSharedGitAuthor();
+assertImplementationWorkerAuthorityUsesFrozenMasterIntegrationTarget();
+assertImplementationWorkerAuthorityReportsUnresolvedIntegrationTarget();
 assertChannelGateAcceptsSuccessfulSubagentResultEvidence();
 assertChannelGateAcceptsDispatchEvidence();
 assertChannelGateRejectsImplementerAuthorWithoutDispatch();
