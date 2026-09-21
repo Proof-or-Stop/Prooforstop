@@ -5672,6 +5672,62 @@
             "access": "shared"
           }
         ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "scripts/verify-validation-verdict-stickiness.mjs"
+        ],
+        "timeoutMs": 120000,
+        "focus": [
+          "fast"
+        ],
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-lab-maintenance",
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": "packages/main/src",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "scripts",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "scripts/verify-validation-verdict-stickiness-cli.mjs"
+        ],
+        "timeoutMs": 900000,
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "explicit-lab-maintenance",
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": "packages/main/src",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "scripts",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "shared"
+          }
+        ]
       }
     ],
     "evidenceCommandTimeoutOverrides": [

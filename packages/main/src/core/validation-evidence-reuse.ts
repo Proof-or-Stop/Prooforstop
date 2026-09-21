@@ -16,6 +16,7 @@ import type {
 import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
 import { resolveCommandTimeoutMs } from './validation-executor.js';
 import { validationIdentityDigest } from './validation-command-portable-id.js';
+import { HISTORY_UNREADABLE_REUSE_REASON, VERDICT_FLIP_REUSE_REASON, stickyFailuresFor, validationVerdictIdentity, type ValidationHistory } from './validation-verdict-stickiness.js';
 
 export { validationIdentityDigest } from './validation-command-portable-id.js';
 
@@ -379,6 +380,67 @@ export interface RoutineValidationReuseEvaluation {
   refusalReasons: string[];
 }
 
+/**
+ * A FAIL whose required commands all passed and whose recorded shortfall is
+ * required verification coverage. This is a classification of the failure, not
+ * reuse eligibility: the evaluator below republishes such a record as a PASS
+ * only when its command execution is also reusable (complete, no optional
+ * failure), while a coverage gap beside a failed OPTIONAL command is still no
+ * verdict about the code - it may not be reused, and a fresh run may pass.
+ */
+export function isCoverageOnlyFailure(
+  evidence: Pick<TestEvidenceData, 'result' | 'verificationCoverage' | 'commandExecution'> | null | undefined,
+): boolean {
+  const execution = evidence?.commandExecution;
+  return Boolean(evidence)
+    && evidence!.result === 'FAIL'
+    && evidence!.verificationCoverage !== undefined
+    && Number.isInteger(evidence!.verificationCoverage.missingRequired)
+    && evidence!.verificationCoverage.missingRequired > 0
+    && execution?.schema === 'proofOrStop.routine-validation-command-execution'
+    && execution.version === 1
+    && execution.status === 'PASS'
+    && execution.requiredFailureCount === 0;
+}
+
+export type ValidationTerminalFailureKind = 'validation_failure' | 'infra_failure' | 'coverage_incomplete';
+
+/**
+ * What the terminal of a failing run records, from executor facts only and
+ * with the required-failure and infrastructure notions of
+ * summarizeRoutineCommandExecution. A run is an infrastructure failure only
+ * when infrastructure is ALL that failed: one required command that really
+ * failed, a failed semantic verdict or blocking worktree pollution is a verdict
+ * about the code whatever timed out beside it. A failure nothing explains is a
+ * verdict, so an unclassifiable run fails closed.
+ */
+export function classifyValidationTerminalFailure(args: {
+  record: Pick<TestEvidenceData, 'result' | 'verificationCoverage' | 'commandExecution'> | null | undefined;
+  commandResults: readonly ValidationCommandResult[];
+  semanticCommandPass?: boolean;
+  /** True when semanticCommandPass is the caller's aggregate verdict rather than an independent semantic one. */
+  semanticIsAggregate?: boolean;
+  concurrentPollutionBlocking?: boolean;
+}): ValidationTerminalFailureKind {
+  if (isCoverageOnlyFailure(args.record)) return 'coverage_incomplete';
+  const isInfrastructure = (result: ValidationCommandResult) => result.failureKind === 'infra_failure' || result.timedOut === true;
+  const requiredFailures = args.commandResults.filter((result) => (
+    result.worktreePollution?.blocking === true
+    || (!result.optional && (result.code !== 0 || result.timedOut))
+  ));
+  // An independent semantic rejection - what a validate file printed - is a
+  // verdict whatever else happened. An AGGREGATE verdict only repeats the
+  // command outcomes, so it cannot turn an infrastructure-only run into one;
+  // with no failed command to explain it, it is a verdict like any failure
+  // nothing explains.
+  const independentSemanticRejection = args.semanticCommandPass === false && args.semanticIsAggregate !== true;
+  const verdictFailure = independentSemanticRejection
+    || args.concurrentPollutionBlocking === true
+    || requiredFailures.some((result) => result.worktreePollution?.blocking === true || !isInfrastructure(result));
+  if (verdictFailure) return 'validation_failure';
+  return requiredFailures.length > 0 ? 'infra_failure' : 'validation_failure';
+}
+
 export function evaluateRoutineValidationReuse(args: {
   root: string;
   gitCwd: string;
@@ -389,6 +451,8 @@ export function evaluateRoutineValidationReuse(args: {
   currentStoryFilesHash?: string;
   /** core/build-artifacts-identity digest of the dist trees on disk now; the recorded PASS must have executed against the same one. */
   currentBuildArtifactsHash?: string;
+  /** The Story's validation history; an executed failure on the PASS's exact identity refuses reuse, and an unreadable history refuses. */
+  validationHistory?: ValidationHistory;
   clean: boolean;
   headBefore?: string;
   headAfter?: string;
@@ -424,6 +488,20 @@ export function evaluateRoutineValidationReuse(args: {
   // the command boundaries, not what the commands executed; it is observation,
   // never authority, so it is not a PASS this run may inherit.
   if (!artifactProtectionSatisfied(evidence.buildArtifactsProtection)) reasons.push('build-artifacts-protection-unenforced');
+  // Fail is sticky: a PASS on an identity an executed run failed on is a
+  // flipped verdict, and re-running until it passes is exactly the pattern the
+  // history showed. Only a change to the material or the build releases it.
+  // Every candidate that can become a reused PASS is judged: a record that
+  // claims a passing verdict, and a coverage-only FAIL whose passing commands
+  // are republished as a PASS once coverage is complete. A record of a failed
+  // execution already refuses on its own terms above.
+  if (args.validationHistory && (evidence.result === 'PASS' || priorCoverageOnlyFailure) && evidence.commandExecution?.status === 'PASS') {
+    if ('unreadable' in args.validationHistory) reasons.push(HISTORY_UNREADABLE_REUSE_REASON);
+    else {
+      const verdictIdentity = validationVerdictIdentity(evidence);
+      if (verdictIdentity && stickyFailuresFor(verdictIdentity, args.validationHistory.terminals).length > 0) reasons.push(VERDICT_FLIP_REUSE_REASON);
+    }
+  }
   const lineageResult = classifyTrustedValidationLineage({
     root: args.root,
     gitCwd: args.gitCwd,

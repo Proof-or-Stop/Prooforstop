@@ -1,4 +1,5 @@
 import { METADATA_BLOB_READ_MAX_BUFFER_BYTES } from './validation-evidence-size-policy.js';
+import { artifactProtectionSatisfied } from './build-artifacts-protection.js';
 export { METADATA_BLOB_READ_MAX_BUFFER_BYTES } from './validation-evidence-size-policy.js';
 import childProcess from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -57,6 +58,9 @@ export interface DonePrepareGeneratedProcessEventBinding {
   commandExecutions: 0;
   notBefore: string;
   notAfter: string;
+  /** The reused evidence's compiled-artifact identity and protection; when known, the appended terminal must carry exactly them. */
+  buildArtifactsHash?: string;
+  buildArtifactsProtection?: string;
 }
 
 export interface DonePrepareGeneratedMetadataEntry {
@@ -121,8 +125,16 @@ const SAFE_GENERATED_METADATA_FILENAMES = new Set([
   'test-evidence.json',
 ]);
 
+// Exactly the keys the verifier writes on a REUSED validation_terminal. The
+// compiled-artifact identity and its protection label are written on every
+// terminal since the artifact binding landed; without them here a done_prepare
+// that reused validation classified its own appended terminal as untrusted.
+// `failureKind` and `reuse` are written only on executed terminals and stay
+// out, so a reused terminal carrying either is still refused.
 const VALIDATION_TERMINAL_KEYS = new Set([
   'attemptId',
+  'buildArtifactsHash',
+  'buildArtifactsProtection',
   'commandExecutions',
   'commandSetHash',
   'disposition',
@@ -140,7 +152,8 @@ function isSha256(value: unknown): boolean {
   return typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
 }
 
-function isTrustedReusedValidationTerminal(
+/** Exported for the fail-sticky regression: the trust decision over one appended reused terminal. */
+export function isTrustedReusedValidationTerminal(
   value: unknown,
   expected: DonePrepareGeneratedProcessEventBinding,
 ): boolean {
@@ -163,6 +176,11 @@ function isTrustedReusedValidationTerminal(
     && isSha256(event.commandSetHash)
     && isSha256(event.materialHash)
     && isSha256(event.storyFilesHash)
+    // The artifact fields are typed and bound, never merely permitted.
+    && isSha256(event.buildArtifactsHash)
+    && typeof event.buildArtifactsProtection === 'string' && artifactProtectionSatisfied(event.buildArtifactsProtection)
+    && (expected.buildArtifactsHash === undefined || event.buildArtifactsHash === expected.buildArtifactsHash)
+    && (expected.buildArtifactsProtection === undefined || event.buildArtifactsProtection === expected.buildArtifactsProtection)
     && Number.isFinite(timestampMs)
     && timestampMs >= Date.parse(expected.notBefore)
     && timestampMs <= Date.parse(expected.notAfter);
