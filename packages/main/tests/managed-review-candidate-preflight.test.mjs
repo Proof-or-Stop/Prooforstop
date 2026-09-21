@@ -131,9 +131,10 @@ assert.equal(runManagedReviewCandidatePreflight({
 assert.equal(candidateChecks, 0, 'legacy intake without a sealed proposal retains its compatibility path');
 assert.equal(intakeCalls, 2);
 
-const importer = readFileSync(new URL('../src/handlers/managed-review-evidence.ts', import.meta.url), 'utf8');
-assert.match(importer, /Use a standard JSON serializer/,
+const providerProtocol = readFileSync(new URL('../src/core/managed-review-evidence.ts', import.meta.url), 'utf8');
+assert.match(providerProtocol, /Use a standard JSON serializer/,
   'the provider protocol must explicitly forbid non-JSON escapes such as backslash-apostrophe');
+const importer = readFileSync(new URL('../src/handlers/managed-review-evidence.ts', import.meta.url), 'utf8');
 assert.match(importer, /const intake = runManagedReviewCandidatePreflight\(\{/,
   'production importer must execute the tested preflight seam');
 assert.match(importer, /hasPersistedManagedReceiptEvidence\(ctx\.store, managedRun\.storyId, receiptId\)/,

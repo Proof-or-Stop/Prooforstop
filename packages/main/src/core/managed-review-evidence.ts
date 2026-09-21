@@ -489,6 +489,7 @@ export function buildManagedReviewerPrompt(
     `This provider run is already bound to ${binding}.`,
     'This managed protocol overrides any generic reviewer-role instruction to register a pass or finding directly. Do not call review_run_start, review_pass_set, or finding_add in this run.',
     'Your final assistant result MUST contain exactly one JSON object and no prose, tool call, or markdown fence. Do not call managed_review_proposal_set; tool-shell output is not formal evidence.',
+    'Use a standard JSON serializer for the final object. JSON strings permit only standard JSON escapes: write apostrophes as literal characters, never as backslash-apostrophe (\\\'), and do not hand-escape prose. Before emitting the one final proposal, parse or otherwise validate the exact serialized JSON locally; malformed JSON is rejected fail-closed and cannot become review evidence.',
     // B-137a: state the ONE-SUBMISSION rule the gate actually counts. The line
     // above constrains the CONTENT of the final result; it never said how many
     // times to emit one. A reviewer that submitted its verdict twice satisfied

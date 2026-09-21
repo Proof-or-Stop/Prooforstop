@@ -389,6 +389,27 @@ export function collectManagedReviewCanonicalReportStatuses(
   ];
 }
 
+export function assertManagedReviewCandidateLaunchReady(
+  candidateArtifact: {
+    requiresEscalation?: unknown;
+    fullScan?: unknown;
+    escalationReasons?: unknown;
+  },
+  storyId: string,
+): void {
+  if (candidateArtifact.requiresEscalation !== true || candidateArtifact.fullScan === true) return;
+  const reasons = Array.isArray(candidateArtifact.escalationReasons)
+    ? candidateArtifact.escalationReasons.filter((reason): reason is string => typeof reason === 'string' && reason.length > 0)
+    : [];
+  const renderedReasons = reasons.length > 0 ? reasons.join(', ') : 'unspecified';
+  throw new Error(
+    `host_run: managed_review_candidate_routing_unresolved: ${renderedReasons}; `
+    + 'do not launch a reviewer whose evidence cannot be imported; '
+    + `rerun proof-or-stop candidate_spec_route '{"storyId":"${storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}' `
+    + 'and then start a fresh ReviewRun',
+  );
+}
+
 export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRunHandlersOptions = {}) {
   return {
     async host_run(args: HostRunCommandArgs): Promise<HostRunCommandResult | HostRunDetachResult | string> {
@@ -472,6 +493,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
             + `run candidate_spec_route for Story ${storyId} and then start a fresh ReviewRun`,
           );
         }
+        assertManagedReviewCandidateLaunchReady(candidateArtifact, storyId);
         const fullScanBinding: ManagedReviewFullScanBinding | undefined = candidateArtifact?.fullScan === true
           ? (() => {
             if (typeof candidateArtifact.scanEscalationReason !== 'string' || candidateArtifact.scanEscalationReason.length === 0) {
