@@ -284,9 +284,15 @@ export function renderFinalReviewRoster(roster: FinalReviewRoster, storyId: stri
   const reason = roster.selection.selection === 'dependency-closure'
     ? `dependency-closure (${roster.selection.reason}: ${roster.selection.reasonDetail})`
     : `full-set (${roster.selection.reason}: ${roster.selection.reasonDetail})`;
+  const filesSummary = (files: readonly string[]): string => files.length === 0 ? '(not established)'
+    : `${files.length} file(s): ${files.slice(0, 10).map(path => path.length > 160 ? path.slice(0, 157) + '...' : path).join(', ')}${files.length > 10 ? ', ...' : ''}`;
   return [
     `Final-review lanes: ${lanes.join(', ')}`,
     `Selection: ${reason}`,
+    `Changed material: ${filesSummary(roster.selection.changedFiles)}`,
+    `Dependency closure: ${filesSummary(roster.selection.closureFiles)}`,
+    `Full file lists: proof-or-stop reviewer_list --storyId=${storyId} --json`,
+    `Outside this repair: ${roster.activeReviewers.filter(row => !lanes.includes(row.lane)).map(row => row.lane).join(', ') || '(none)'}`,
     `Next: proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"${lanes[0]}"}'`,
   ].join('\n');
 }

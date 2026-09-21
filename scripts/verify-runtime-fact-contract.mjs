@@ -938,3 +938,14 @@ assert(readFileSync('packages/main/src/core/runtime-fact-registry.ts', 'utf8').i
 assert(readFileSync('packages/main/src/core/runtime-fact-registry.ts','utf8').includes('validation-reuse-economics'));
 
 assert(readFileSync('packages/main/src/core/runtime-fact-registry.ts','utf8').includes('validation-git-tree-observation'));
+
+assert.equal((readFileSync('packages/main/src/core/review-incremental-context.ts', 'utf8').match(/maxBuffer: REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES/g) ?? []).length, 2, 'tracked inventory and dirty reads share bounded review transport');
+
+const reviewClosureRuntime = readFileSync('packages/main/src/core/runtime-fact-registry.ts', 'utf8');
+const reviewClosureSource = readFileSync('packages/main/src/core/review-incremental-context.ts', 'utf8');
+assert(reviewClosureRuntime.includes('review-dependency-closure-budget'));
+for (const key of ['maxSourceFiles', 'maxSourceFileBytes', 'maxTotalSourceBytes', 'maxElapsedMs']) {
+  assert(reviewClosureRuntime.includes(key) && reviewClosureSource.includes('limits.' + key));
+}
+assert(reviewClosureSource.includes('ts.createModuleResolutionCache'));
+assert(reviewClosureSource.includes('compilerOptions, ts.sys, moduleCache'));

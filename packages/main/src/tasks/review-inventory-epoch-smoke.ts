@@ -729,8 +729,8 @@ assert.equal(conflictingDisposition.families.length, 0);
 const lanesCompleteStatus = renderReviewInventoryStatus(initial, { evaluation: rawDiscovery });
 assert.match(lanesCompleteStatus, /Lane proof-or-stop-review-concept: finding/);
 assert.match(lanesCompleteStatus, /Lane proof-or-stop-review-quality: pass/);
-assert.match(lanesCompleteStatus, /Verified findings: 0/);
-assert.match(lanesCompleteStatus, /New verified findings: 0/);
+assert.match(lanesCompleteStatus, /Verified finding families: 0/);
+assert.match(lanesCompleteStatus, /New verified finding families: 0/);
 assert.match(lanesCompleteStatus, /REVIEW_INVENTORY_FINDING_DISPOSITION_INCOMPLETE/);
 assert.match(lanesCompleteStatus, /Next: proof-or-stop dispatch .*proof-or-stop-review-topology-critic/);
 assert.equal((lanesCompleteStatus.match(/^Next:/gm) ?? []).length, 1);
@@ -749,6 +749,55 @@ const saturated = evaluateReviewInventoryWave({
 });
 assert.deepEqual(saturated.missingLanes, []);
 assert.equal(saturated.newFamilies.length, 0, 'second unchanged-material full-lane wave saturates');
+
+// A later wave must be able to cite the original verified family without
+// recategorizing the same observation as a newly verified defect.
+const repeatedFinding: Finding = { ...historical, id: `${storyId}:F-repeat`,
+  reviewRunId: secondRuns[0].reviewRunId, agent: secondRuns[0].lane,
+  createdAt: new Date(Date.parse(secondRuns[0].startedAt) + 1_000).toISOString() };
+repeatedFinding._hash = signFinding(storyId, repeatedFinding.id, repeatedFinding.desc,
+  repeatedFinding.severity, repeatedFinding.createdAt!, reviewRound, repeatedFinding.reviewRunId,
+  repeatedFinding.readManifest, repeatedFinding.readLog);
+const repeatedDisposition: ReviewInventoryFindingDisposition = {
+  findingId: repeatedFinding.id, disposition: 'duplicate', familyKey: historicalDispositions[0].familyKey,
+  canonicalFindingId: historical.id, reason: 'The independent critic links the repeated observation to the sealed prior-wave family.',
+};
+const repeatedInput = { epoch: secondEpoch, runs: [...firstRuns, ...secondRuns],
+  passes: [...firstPasses, ...secondPasses], findings: [historical, repeatedFinding],
+  findingDispositions: [repeatedDisposition] };
+const repeated = evaluateReviewInventoryWave(repeatedInput);
+console.log('REVIEW_REWORK_REPEAT=' + JSON.stringify({ raw: repeated.rawFindingIds.length,
+  invalid: repeated.invalidDispositionIds.length, newFamilies: repeated.newFamilies.length }));
+assert.deepEqual(repeated.invalidDispositionIds, [], 'REVIEW_REWORK_PRIOR_WAVE_DUPLICATE: a sealed prior-wave canonical finding must remain a valid duplicate target');
+assert.deepEqual(repeated.unresolvedFindingIds, []);
+assert.equal(repeated.newFamilies.length, 0);
+assert.equal(buildWave(secondEpoch, repeated, '2026-08-14T00:20:00.000Z').verifiedFindingFamilies.length, 1);
+for (const disposition of [
+  { ...repeatedDisposition, canonicalFindingId: `${storyId}:F-missing` },
+  { ...repeatedDisposition, familyKey: 'unproven-family' },
+]) {
+  assert.deepEqual(evaluateReviewInventoryWave({ ...repeatedInput, findingDispositions: [disposition] }).invalidDispositionIds,
+    [repeatedFinding.id], 'unproven prior-wave duplicates must fail closed');
+}
+const legacyWave = { ...firstWave };
+delete legacyWave.canonicalFindings;
+assert.deepEqual(evaluateReviewInventoryWave({ ...repeatedInput, epoch: epoch({ waves: [legacyWave] }) }).invalidDispositionIds,
+  [repeatedFinding.id], 'legacy family-only waves grant no duplicate authority');
+for (const findings of [[repeatedFinding], [{ ...historical, desc: 'tampered original' }, repeatedFinding]]) {
+  assert.deepEqual(evaluateReviewInventoryWave({ ...repeatedInput, findings }).invalidDispositionIds,
+    [repeatedFinding.id], 'missing or tampered original evidence cannot license a duplicate');
+}
+assert.deepEqual(evaluateReviewInventoryWave({ ...repeatedInput, runs: secondRuns }).invalidDispositionIds,
+  [repeatedFinding.id], 'missing prior ReviewRun cannot license a duplicate');
+const tamperedEpoch = structuredClone(secondEpoch);
+tamperedEpoch.waves[0].canonicalFindings![0].familyKey = 'substituted-family';
+assert.equal(verifyReviewInventoryEpoch(tamperedEpoch), false, 'epoch signature binds canonical identities');
+const repeatedCritic = criticEvidence(secondEpoch, repeated, 42, '2026-08-14T00:14:02.000Z', [repeatedDisposition]);
+assert.equal(validateReviewInventoryCriticReceipt({ ...repeatedInput, evaluation: repeated,
+  receipt: repeatedCritic.receipt, runs: [...repeatedInput.runs, repeatedCritic.run],
+  passes: [...repeatedInput.passes, repeatedCritic.pass] }).ok, true,
+  'the real critic receipt validator accepts proven cross-wave duplicates');
+console.log('REVIEW_REWORK_PRIOR_WAVE_DUPLICATE PASS');
 
 const firstCritic = criticEvidence(initial, discovery, 4, '2026-08-14T00:10:02.000Z', historicalDispositions);
 assert.equal(verifyReviewInventoryCriticReceipt(firstCritic.receipt), true);

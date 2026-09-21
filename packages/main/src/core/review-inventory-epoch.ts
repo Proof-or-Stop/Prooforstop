@@ -6,6 +6,7 @@ import type {
   VerificationEvidence,
   Finding,
   ReviewInventoryEpoch,
+  ReviewInventoryCanonicalFinding,
   ReviewInventoryPurposeBinding,
   ReviewInventoryCriticReceipt,
   ReviewInventoryEpochData,
@@ -390,6 +391,7 @@ export interface ReviewInventoryEvaluation {
   missingLanes: string[];
   duplicateIdentities: string[];
   families: string[];
+  canonicalFindings: ReviewInventoryCanonicalFinding[];
   newFamilies: string[];
   rawFindingIds: string[];
   unresolvedFindingIds: string[];
@@ -494,18 +496,38 @@ export function evaluateReviewInventoryWave(args: {
   dispositions.forEach(row => dispositionCounts.set(row.findingId, (dispositionCounts.get(row.findingId) ?? 0) + 1));
   const rawFindingIds = [...rawFindings.keys()].sort();
   const unresolvedFindingIds = rawFindingIds.filter(id => !byFinding.has(id));
+  // Prior waves retain the critic's exact canonical Finding binding. A
+  // family string alone (including legacy waves) cannot authorize a duplicate.
+  const priorCanonicalFindings = args.epoch.waves.flatMap(wave =>
+    wave.completedAt && wave.criticDigest ? (wave.canonicalFindings ?? []).filter(binding => {
+      const original = args.findings.find(finding => finding.id === binding.findingId);
+      const originalRun = args.runs.find(run => run.reviewRunId === original?.reviewRunId);
+      return wave.verifiedFindingFamilies.includes(binding.familyKey)
+        && original?._hash === binding.findingHash && originalRun
+        && originalRun.storyId === args.epoch.storyId && originalRun.reviewRound === args.epoch.reviewRound
+        && originalRun.materialHash === args.epoch.cutoff.materialHash
+        && (originalRun.storyFilesHash ?? '') === (args.epoch.cutoff.storyFilesHash ?? '')
+        && evidenceForRun(originalRun, args.passes, args.findings, args.promptStore).findings.some(finding => finding.id === binding.findingId);
+    }) : []);
+  const currentCanonical = (id: string | undefined, family: string | undefined): boolean => {
+    const row = id ? byFinding.get(id) : undefined;
+    return Boolean(row && dispositionCounts.get(row.findingId) === 1 && rawFindings.has(row.findingId)
+      && row.reason.trim() && row.disposition === 'verified_family' && row.familyKey?.trim() && row.familyKey === family);
+  };
   const invalidDispositionIds = dispositions.filter(row => {
     if (dispositionCounts.get(row.findingId) !== 1 || !rawFindings.has(row.findingId) || !row.reason.trim()) return true;
     if (!['verified_family', 'duplicate', 'not_verified'].includes(row.disposition)) return true;
     if (row.disposition === 'verified_family') return !row.familyKey?.trim();
     if (row.disposition === 'duplicate') {
-      const canonicalDisposition = row.canonicalFindingId ? byFinding.get(row.canonicalFindingId) : undefined;
-      return !row.familyKey?.trim() || !canonicalDisposition
-        || canonicalDisposition.disposition !== 'verified_family'
-        || canonicalDisposition.familyKey !== row.familyKey;
+      return !row.familyKey?.trim() || (!currentCanonical(row.canonicalFindingId, row.familyKey)
+        && !priorCanonicalFindings.some(binding => binding.findingId === row.canonicalFindingId && binding.familyKey === row.familyKey));
     }
     return row.familyKey !== undefined || row.canonicalFindingId !== undefined;
   }).map(row => row.findingId).filter((id, index, rows) => rows.indexOf(id) === index).sort();
+  const canonicalFindings = dispositions.filter(row => row.disposition === 'verified_family'
+    && rawFindings.has(row.findingId) && !invalidDispositionIds.includes(row.findingId))
+    .map(row => ({ findingId: row.findingId, familyKey: row.familyKey!, findingHash: rawFindings.get(row.findingId)!._hash! }))
+    .sort((a, b) => a.findingId.localeCompare(b.findingId));
   const familyList = [...new Set(dispositions
     .filter(row => row.disposition === 'verified_family' && rawFindings.has(row.findingId) && !invalidDispositionIds.includes(row.findingId))
     .map(row => row.familyKey!))].sort();
@@ -516,6 +538,7 @@ export function evaluateReviewInventoryWave(args: {
     missingLanes: args.epoch.requiredLanes.filter(lane => !lanes.some(row => row.lane === lane)),
     duplicateIdentities,
     families: familyList,
+    canonicalFindings,
     newFamilies,
     rawFindingIds,
     unresolvedFindingIds,
@@ -686,6 +709,8 @@ export function finalizedLiveAggregateError(store: StoryStore, pair: {
   if (!critic.ok) return `live critic binding changed: ${critic.reason}`;
   const rebuilt = buildWave(replayEpoch, evaluation, finalWave.completedAt);
   if (reviewInventoryDigest(rebuilt.lanes) !== reviewInventoryDigest(finalWave.lanes)
+    || (finalWave.canonicalFindings !== undefined
+      && reviewInventoryDigest(rebuilt.canonicalFindings) !== reviewInventoryDigest(finalWave.canonicalFindings))
     || rebuilt.verifiedFindingSetDigest !== finalWave.verifiedFindingSetDigest
     || rebuilt.criticDigest !== finalWave.criticDigest
     || rebuilt.newVerifiedFindingCount !== finalWave.newVerifiedFindingCount
@@ -883,6 +908,7 @@ export function buildWave(epoch: ReviewInventoryEpoch, evaluation: ReviewInvento
     completedAt: now,
     lanes: evaluation.lanes,
     verifiedFindingFamilies: aggregate,
+    canonicalFindings: evaluation.canonicalFindings,
     verifiedFindingSetDigest: reviewInventoryDigest(aggregate),
     newVerifiedFindingCount: evaluation.newFamilies.length,
     criticDigest: evaluation.criticDigest,

@@ -512,14 +512,28 @@ export function assertParentRoadmapTotalityRuntime() {
     registryFactText.includes("'runtime:incremental_review_eligibility_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'normalization-policy', 'freshness-policy', 'review-run', 'review-pass', 'verification-policy', 'gate-evidence']"),
     'process-fact-registry: incremental review eligibility must remain a versioned gate-consumed prompt/review/normalization/freshness contract',
   );
+  const inventoryTemporal = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:review_inventory_temporal_integrity_gate');
+  for (const token of ['critic-verified canonical Finding hashes', 'rechecking original evidence', 'legacy family-only waves']) {
+    assert(inventoryTemporal?.rationale.includes(token), `inventory family boundary missing: ${token}`);
+  }
+  for (const token of ['canonicalFindings', 'findingHash', 'priorCanonicalFindings', 'currentCanonical']) {
+    assert(read('packages/main/src/core/review-inventory-epoch.ts').includes(token), `inventory canonical identity enforcement missing: ${token}`);
+  }
+  for (const token of ['REVIEW_REWORK_PRIOR_WAVE_DUPLICATE', 'unproven prior-wave duplicates must fail closed']) {
+    assert(read('packages/main/src/tasks/review-inventory-epoch-smoke.ts').includes(token), `inventory duplicate regression missing: ${token}`);
+  }
   const postRemediationLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:post_remediation_review_selection_gate');
   assert(postRemediationLevel?.level === 'L4', 'post-remediation review selection must remain L4');
+  assert(postRemediationLevel?.rationale.includes('Registered source-count, byte and cooperative elapsed-time bounds fail closed'));
+  assert(read('packages/main/src/core/review-incremental-context.ts').includes('REVIEW_DEPENDENCY_CLOSURE_LIMITS'));
+  assert(read('packages/main/src/tasks/review-incremental-context-smoke.ts').includes('REVIEW_REWORK_SOURCE_BUDGET PASS'));
+
   for (const token of ['domain-separated signed selection', 'current review round', 'canonical bidirectional transitive dependency closure', 'fail closed to all active lanes', 'Required host and escalation assurance remain independent and unchanged', 'any one current pass never substitute', 'All open findings require the full active set', 'cannot themselves be narrowed', 'semantic roster basis', 'including bare runtime aliases; only proven builtins are exempt']) {
     assert(postRemediationLevel?.rationale.includes(token), `post-remediation selection rationale missing trust boundary: ${token}`);
   }
   assert(postRemediationLevel?.gateConsumer.includes('storyMachine.evaluateReviewVerdict REVIEW to TEST selected-lane gate'), 'post-remediation selection must identify its REVIEW-to-TEST consumer');
   assert(
-    registryFactText.includes("'runtime:post_remediation_review_selection_gate': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'normalization-policy', 'freshness-policy', 'reviewer-lane', 'gate-evidence']"),
+    registryFactText.includes("'runtime:post_remediation_review_selection_gate': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'normalization-policy', 'freshness-policy', 'reviewer-lane', 'verification-policy', 'gate-evidence']"),
     'process-fact-registry: post-remediation selection must remain a signed lane/freshness gate contract',
   );
   const postRemediationSource = read('packages/main/src/core/review-incremental-context.ts');

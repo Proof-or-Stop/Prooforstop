@@ -1,0 +1,54 @@
+
+> proof-or-stop@0.3.434 lab:worktree
+> node scripts/lab-worktree.mjs green review-rework
+
+REVIEW_REWORK_IDENTITY_BINDING PASS {"digest":"9f73ec7ba80a1e56142e53f213b3f342a2097b131b67cb330281b699f2043c70","domain":"SHA256(TypeScript printer of emitted JS; comments removed; LF)","canonicalAccepted":true,"executableMutationRejected":true}
+REVIEW_REWORK_INVENTORY={"paths":46477,"bytes":2556203,"small":{"complete":true,"files":["tests/isolated.test.ts"]},"large":{"complete":true,"files":["tests/isolated.test.ts"]}}
+REVIEW_REWORK_LARGE_INVENTORY PASS
+F063 controls realExecutions=2 completeOutputEqual=true receiptsAuthentic=true cutoffUnchanged=true registration=PASS
+B29BC_RECOVERY F-001 signed PASS requires both read fields: PASS
+B29BC_RECOVERY F-002 current purpose-bound critic findings enter the exact aggregate: PASS
+REVIEW_REWORK_REPEAT={"raw":1,"invalid":0,"newFamilies":0}
+REVIEW_REWORK_PRIOR_WAVE_DUPLICATE PASS
+B29BC_PURPOSE_TAMPER_TERMINAL_DISPOSITION PASS
+Baseline mutation-driven redispatches: >=5 (5)
+New mutation-driven redispatches: 0
+Accepted OPEN commits: 0
+Remediation DEV transitions: 1
+Clean final-review epochs: <=1 (1)
+Required lane count: 3 -> 3 (unchanged)
+Required host count: 2 -> 2 (unchanged)
+Quality regression counter stalePassAcceptances: 0
+Quality regression counter criticalHighEscapes: 0
+Quality regression counter budgetManufacturedPasses: 0
+{
+  "result": "PASS",
+  "replay": {
+    "baselineMutationDrivenRedispatches": 5,
+    "proposedMutationDrivenRedispatches": 0,
+    "discoveryEpochs": 1,
+    "acceptedOpenMaterialCommits": 0,
+    "stalePassAcceptances": 0,
+    "aggregatedRemediationTransitions": 1,
+    "finalReviewEpochsWithoutRegression": 1,
+    "requiredHostCountBefore": 2,
+    "requiredHostCountAfter": 2,
+    "requiredLaneCountBefore": 3,
+    "requiredLaneCountAfter": 3,
+    "criticalHighEscapes": 0,
+    "budgetManufacturedPasses": 0
+  }
+}
+B-aa5f F063 authenticated-inventory-projection PASS
+REVIEW_REWORK_REGRESSIONS PASS
+REVIEW_REWORK_NATIVE_DUPLICATE PASS observations=2 families=1 newFamilies=0 originalsOpen=2
+UNRESOLVED_ROSTER_LEDGER={"findingStatus":"open","selection":"full-set","selected":["proof-or-stop-review-concept","proof-or-stop-review-quality","proof-or-stop-review-test-coverage"]}
+ROSTER_SAFETY_CONTROLS=20 passed
+CLOSED_ROSTER_CONSUMERS={"selected":["quality","test-coverage"],"launched":["quality","test-coverage"],"inventory":["quality","test-coverage"],"quorumMissing":"Command failed: /opt/homebrew/Cellar/node/26.8.1/bin/node /Users/jek/Documents/story-validation-mapping-lab-20260920/repository/.worktrees/Lab-review-rework/bin/proof-or-stop.js --root /var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/review-inventory-handler-JcXY8j quorum_submit {\"storyId\":\"B-inventory-handler\",\"hostA\":\"fixture-a\",\"hostB\":\"fixture-b\"}\n[0.0s] running quorum_submit...\n[0.5s] quorum_submit failed: quorum_submit refuses: no current reviewer pass evidence for the required lanes — run the review lanes (review_run_start + review_pass_set) first; quorum_submit will not fabricate a floor quorum without a real review.\nDetails: missing current pass lane(s): proof-or-stop-review-quality, proof-or-stop-review-test-coverage\nError: quorum_submit refuses: no current reviewer pass evidence for the required lanes — run the review lanes (review_run_start + review_pass_set) first; quorum_submit will not fabricate a floor quorum without a real review.\nDetails: missing current pass lane(s): proof-or-stop-review-quality, proof-or-stop-review-test-coverage\n","seconds":5.546364166999992}
+NARROW_QUORUM_PASS_CONSUMPTION=2 current passes accepted; identical hosts refused
+NARROW_INVENTORY_LIFECYCLE=2 lane terminals + critic; finalize and core consume succeed; reopened finding refuses consume; metadata-only HEAD stays OPEN
+REVIEW_REWORK_DIRTY_TRANSPORT PASS {"paths":8000,"bytes":1841182,"selection":"dependency-closure","overflow":"DIRTY_STATE_UNREADABLE"}
+REVIEW_REWORK_BOUNDED_ROSTER PASS files=200 sample=10
+review roster targeted lifecycle: PASS
+REVIEW_REWORK_NATIVE_ROSTER PASS
+GREEN recorded for current committed HEAD.

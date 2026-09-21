@@ -1,0 +1,11 @@
+REVIEW_REWORK_WORKSPACE_GATE PASS wrong cwd refused; success and throw restore cwd
+REVIEW_REWORK_NATIVE_DUPLICATE PASS observations=2 families=1 newFamilies=0 originalsOpen=2
+UNRESOLVED_ROSTER_LEDGER={"findingStatus":"open","selection":"full-set","selected":["proof-or-stop-review-concept","proof-or-stop-review-quality","proof-or-stop-review-test-coverage"]}
+ROSTER_SAFETY_CONTROLS=20 passed
+CLOSED_ROSTER_CONSUMERS={"selected":["quality","test-coverage"],"launched":["quality","test-coverage"],"inventory":["quality","test-coverage"],"quorumMissing":"Command failed: /opt/homebrew/Cellar/node/26.8.1/bin/node /Users/jek/Documents/story-validation-mapping-lab-20260920/repository/.worktrees/Lab-review-rework/bin/proof-or-stop.js --root /var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/review-inventory-handler-yDL1B8 quorum_submit {\"storyId\":\"B-inventory-handler\",\"hostA\":\"fixture-a\",\"hostB\":\"fixture-b\"}\n[0.0s] running quorum_submit...\n[0.5s] quorum_submit failed: quorum_submit refuses: no current reviewer pass evidence for the required lanes — run the review lanes (review_run_start + review_pass_set) first; quorum_submit will not fabricate a floor quorum without a real review.\nDetails: missing current pass lane(s): proof-or-stop-review-quality, proof-or-stop-review-test-coverage\nError: quorum_submit refuses: no current reviewer pass evidence for the required lanes — run the review lanes (review_run_start + review_pass_set) first; quorum_submit will not fabricate a floor quorum without a real review.\nDetails: missing current pass lane(s): proof-or-stop-review-quality, proof-or-stop-review-test-coverage\n","seconds":7.4414970840000025}
+NARROW_QUORUM_PASS_CONSUMPTION=2 current passes accepted; identical hosts refused
+NARROW_INVENTORY_LIFECYCLE=2 lane terminals + critic; finalize and core consume succeed; reopened finding refuses consume; metadata-only HEAD stays OPEN
+REVIEW_REWORK_INVENTORY_SELECTOR_REFUSAL PASS all active lanes required
+REVIEW_REWORK_DIRTY_TRANSPORT PASS {"paths":8000,"bytes":1841182,"selection":"dependency-closure","overflow":"DIRTY_STATE_UNREADABLE"}
+REVIEW_REWORK_BOUNDED_ROSTER PASS files=200 sample=10
+review roster targeted lifecycle: PASS

@@ -1,0 +1,82 @@
+{
+  "purpose": "Diagnostic execution archive, not Story PASS, product release, or independent audit authority",
+  "baseline": "ed33501e1dfe1fdf6901e57f3238feb4bca037c1",
+  "codeParentBeforeThisEvidenceCommit": "5f2585968881d2985a3e9f4ef6c7b84bf7410150",
+  "sourceSha256": {
+    "packages/main/src/core/process-fact-levels.ts": "06e5d0d73c2e2106497f5909287dc3db22e9ac691bce95fe93df3065af8ccd39",
+    "packages/main/src/core/process-fact-registry.ts": "681705c81db67d758d59d5f140f4e923e62c4c77f227a6bb000827b984f9146f",
+    "packages/main/src/core/review-incremental-context.ts": "c3b951b0c825fffb220c567503831f2700d1b8db2b966d97ffaf8f635a36ed22",
+    "packages/main/src/core/review-inventory-epoch.ts": "13a5c844d528e2e7ae683f27384bf2a2816d9170a3df1e981af1f20ee43f3a41",
+    "packages/main/src/core/runtime-environment-checks.ts": "55e4ffd5e8146ef63c848badefdfe438eda7417cee59f74139db63e3ebc94b04",
+    "packages/main/src/core/runtime-fact-registry.ts": "45ba15ea6288d69e020962aa43936e9076b652cb2cfaf138736ede975b0f98ed",
+    "packages/main/src/core/types.ts": "4cbb90660afa2bae33d9f47adfc9ea516b94c842241f8080b1b399d23f98199c",
+    "packages/main/src/handlers/review-inventory.ts": "013b344a7d876973774c536439d6fdc273342f1b8f7ef68899bf6f11b72d7414",
+    "packages/main/src/handlers/reviewer-list.ts": "935eb4c7e64fad215ccdff86f4efecb5d924adc1715053b739baa66c05456587",
+    "packages/main/src/tasks/review-incremental-context-smoke.ts": "825836e087e033c60183fdd1699450308a95dc3a1778a02663e28e72a23256b9",
+    "packages/main/src/tasks/review-inventory-epoch-smoke.ts": "74486d7a7ac52c0c8696639e10418d8f5711387f531fc062eb2202d3d45cc3eb",
+    "packages/main/src/tasks/review-inventory-handler-smoke.ts": "d4bd3e22ffff603bb11465b3fbf8d9796c3ba7742867ce4c2ef28962ebe75aad",
+    "packages/main/templates/agents/proof-or-stop-review-topology-critic.md": "6c18147c5bfdd423ca301dca586186679283d353daadb5d800e3bb5bccd62563",
+    "scripts/lab/u18-static-edges/exceptions.json": "3cdd73d4a55e2a60fa43f53c2153baa96aad5b75a76da5842c8a03a1769b9c4e",
+    "scripts/verify-process-fact-contract.mjs": "2190889e8846b7151afcd8cec04683ea62ec058d486ff096dfa20a37a7ea30b7",
+    "scripts/verify-review-inventory-identity.mjs": "fceeab3107054e71f14ce9b8d28460c74525d19231bab7bca992d1061bed8fde",
+    "scripts/verify-review-rework.mjs": "858c349038888fbb450048cc7f47da2fd4e15ea010b802f5aaed395c8db8157b",
+    "scripts/verify-runtime-fact-contract.mjs": "843d24d09b71a8cd84422ef1b1af1e6be5444453da9cee2aa419770ac9bb5efe"
+  },
+  "results": [
+    {
+      "command": "node scripts/verify-process-fact-contract.mjs --quiet",
+      "exitCode": 0,
+      "log": "process-fact.log"
+    },
+    {
+      "command": "node scripts/verify-runtime-fact-contract.mjs",
+      "exitCode": 1,
+      "log": "runtime-candidate.log",
+      "baselineLog": "runtime-baseline.log",
+      "comparison": "runtime-comparison.json"
+    },
+    {
+      "command": "node scripts/verify-validation-static-edges.mjs",
+      "exitCode": 0,
+      "log": "static-edges.log"
+    }
+  ],
+  "logSha256": {
+    "identity-controls.log": "360056b89fb04e633e2114fa3105441ef927f199d66fe32e523b2083769a5742",
+    "inventory-controls.log": "8a3d71f1f343641e935c656de1fbe50cf3e89f31fceed6ab5811687d21df5953",
+    "native-controls.log": "a7e31b81ae39bc4085a31d801c28f3898cdd2838e17d074a3e2fc9d251ac4b5f",
+    "prior-green-0227bf95.log": "a8ba3927f2660e621b9ae5170703d6bf3a0f2dc39c0e3d545c72c81685d16047",
+    "process-fact.log": "00e220420f653e15fec0c293e3fd3d6972688d969bef49eb7e69ce5a5cf96a80",
+    "runtime-baseline.log": "b88251b227b7671b0ca648078aa21bcf412e1ebe9c94d7fd22b496fcae558f9e",
+    "runtime-candidate.log": "55d1280f7c7d53b220b58b21b55e66ebc3efc2d4313b45cd65ccb649dfd7276e",
+    "runtime-comparison.json": "c4784e387594ef15214254457d8ede088a4006af649c626e1ef8b4a6e6b94fd5",
+    "runtime-normalized.log": "274a4efa9a61580315791207135bcf16e1d825633718e084206d5f5c5f82e4b3",
+    "source-budget-red.log": "e4dd0d207f8fe377edf19e8f57f0c70b472ebba907ee0627f30f154dc59015f9",
+    "static-edges.log": "40ab8d5b0af1bf00e7eee16f226ad9a4aad6b2fe6cbef0860dda376ec4824239",
+    "static-release-980e0519.log": "2e26f2bb2dc9d4c2566eb5ce5eb29a9a1fcf9156a06ecf06096b65bd5b833310"
+  },
+  "sourceBudgetRegression": {
+    "red": "source-budget-red.log",
+    "redExitCode": 1,
+    "green": "inventory-controls.log",
+    "greenExitCode": 0,
+    "meaning": "An oversized real-source inventory had no explicit bound before the repair. This proves the new refusal contract, not a previously measured minutes-long stall."
+  },
+  "sourceSnapshotCommit": "4b1a038773d602b2f3b8d03eb2f84bac6712d959",
+  "sourceBindingScope": "Historical sourceSha256 map only; not the current release. Later main synchronization and the version transaction rebind exceptions.json. Individual logs retain their named earlier origins.",
+  "versionRebindingWitness": {
+    "candidate": "980e05192eb2f1058f1513ead86f4a2afaae4327",
+    "manifest": "scripts/lab/u18-static-edges/exceptions.json",
+    "manifestSha256": "2a693821acdd6fa3ace63aa9465306c49bc7b2293431e9b40548c9820b308d6c",
+    "command": "node scripts/verify-validation-static-edges.mjs",
+    "exitCode": 0,
+    "log": "static-release-980e0519.log",
+    "scope": "Executed on the named prepared candidate before reopen. This historical result does not replace the fresh check on subsequent candidates."
+  },
+  "currentReleaseVerification": {
+    "command": "node scripts/verify-review-rework.mjs",
+    "includes": "node scripts/verify-validation-static-edges.mjs",
+    "outputMarker": "REVIEW_REWORK_STATIC_BINDING PASS",
+    "source": "Tool-owned candidate GREEN output records the actual HEAD and manifest/version SHA-256 after static verification succeeds."
+  }
+}

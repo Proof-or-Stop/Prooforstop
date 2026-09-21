@@ -59,7 +59,8 @@ import { nativeReviewFixtureBrokers, runBrokeredNativeReviewCli } from './native
  */
 
 import { strict as assert } from 'node:assert';
-import { execFileSync, spawn, spawnSync } from 'node:child_process';
+import childProcess, { execFileSync, spawn, spawnSync } from 'node:child_process';
+import { syncBuiltinESMExports } from 'node:module';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { hostname, tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -67,10 +68,12 @@ import { fileURLToPath } from 'node:url';
 
 import {
   classifyIncrementalBindingReasons,
+  computeCanonicalDependencyClosure,
   fixtureCaseClosure,
   reviewIncrementalContext,
   resolveFullStoryBaseHead,
 } from '../core/review-incremental-context.js';
+import { REVIEW_DEPENDENCY_CLOSURE_LIMITS } from '../core/runtime-fact-registry.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import {
   FULL_TASK_CONTEXT_LIMITS,
@@ -2492,7 +2495,114 @@ function runScheduleMutationTrial(): {
   }
 }
 
+function runLargeTrackedInventoryRegression(): void {
+  const root = mkdtempSync(join(tmpdir(), 'pos-review-large-inventory-'));
+  const gitHere = (args: string[], input?: string) => execFileSync('git', args, {
+    cwd: root, encoding: 'utf8', input, maxBuffer: 64 * 1024 * 1024,
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  try {
+    gitHere(['init', '-q']);
+    const empty = computeCanonicalDependencyClosure(root, ['tests/isolated.test.ts']);
+    assert.equal(empty.complete, false);
+    assert.equal(empty.reason, 'tracked source inventory is empty');
+    mkdirSync(join(root, 'tests'));
+    writeFileSync(join(root, 'tests/isolated.test.ts'), 'export const isolated = true;\n');
+    gitHere(['add', 'tests/isolated.test.ts']);
+    const small = computeCanonicalDependencyClosure(root, ['tests/isolated.test.ts']);
+    assert.equal(small.complete, true, JSON.stringify(small));
+    const blob = gitHere(['hash-object', '-w', '--stdin'], '').trim();
+    // Real Git index output, no child-process mocks. Non-source historical
+    // records need no worktree bytes for this read-only source closure.
+    const records = Array.from({ length: 46_476 }, (_, index) =>
+      `100644 ${blob}\tarchive/${String(index).padStart(6, '0')}/historical-inventory-record-padding.txt\0`).join('');
+    gitHere(['update-index', '-z', '--index-info'], records);
+    const inventory = gitHere(['ls-files', '-z']);
+    const bytes = Buffer.byteLength(inventory);
+    assert(bytes > 2 * 1024 * 1024, 'fixture must exceed the actual default Git output buffer');
+    const large = computeCanonicalDependencyClosure(root, ['tests/isolated.test.ts']);
+    console.log('REVIEW_REWORK_INVENTORY=' + JSON.stringify({ paths: inventory.split('\0').filter(Boolean).length, bytes, small, large }));
+    assert.equal(large.complete, true, 'REVIEW_REWORK_LARGE_INVENTORY: irrelevant inventory size must not destroy a complete dependency proof');
+    assert.deepEqual(large.files, small.files, 'unrelated tracked records must not widen dependency closure');
+    const realExecFileSync = childProcess.execFileSync;
+    let overflows = 0;
+    try {
+      childProcess.execFileSync = ((file: string, args: string[], options: object) => {
+        if (file !== 'git' || args[0] !== 'ls-files') return realExecFileSync(file, args, options);
+        try { return realExecFileSync(file, args, { ...options, maxBuffer: 1024 }); }
+        catch (error) { if ((error as NodeJS.ErrnoException).code === 'ENOBUFS') overflows++; throw error; }
+      }) as typeof execFileSync;
+      syncBuiltinESMExports();
+      const unavailable = computeCanonicalDependencyClosure(root, ['tests/isolated.test.ts']);
+      assert.equal(overflows, 1, 'real Git must overflow the injected inventory transport bound');
+      assert.equal(unavailable.complete, false);
+      assert.match(unavailable.reason ?? '', /tracked source inventory unavailable: ENOBUFS/);
+      assert.deepEqual(unavailable.files, ['tests/isolated.test.ts']);
+    } finally {
+      childProcess.execFileSync = realExecFileSync;
+      syncBuiltinESMExports();
+    }
+    console.log('REVIEW_REWORK_INVENTORY_FAILURES PASS empty + real ENOBUFS fail closed');
+    writeFileSync(join(root, 'tests/isolated.test.ts'), 'import("./" + process.env.MODULE);\n');
+    const opaque = computeCanonicalDependencyClosure(root, ['tests/isolated.test.ts']);
+    assert.equal(opaque.complete, false, 'opaque dependencies must still fail closed at large inventory size');
+    assert.match(opaque.reason ?? '', /opaque dynamic dependency/);
+    console.log('REVIEW_REWORK_LARGE_INVENTORY PASS');
+  } finally { rmSync(root, { recursive: true, force: true }); }
+}
+
+function runLargeSourceInventoryBudgetRegression(): void {
+  const root = mkdtempSync(join(tmpdir(), 'pos-review-source-budget-'));
+  const limits = REVIEW_DEPENDENCY_CLOSURE_LIMITS;
+  const sourceCap = limits.maxSourceFiles;
+  const sourceDir = ['s'.repeat(190), 't'.repeat(190)].join('/');
+  try {
+    execFileSync('git', ['init', '-q'], { cwd: root });
+    mkdirSync(join(root, sourceDir), { recursive: true });
+    for (let index = 0; index <= sourceCap; index++) {
+      writeFileSync(join(root, sourceDir, `source-${index}.ts`), 'export const value = 1;\n');
+    }
+    execFileSync('git', ['add', '.'], { cwd: root });
+    const inventory = execFileSync('git', ['ls-files', '-z'], { cwd: root, maxBuffer: 64 * 1024 * 1024 });
+    assert(inventory.length > 1024 * 1024, 'real source inventory must exceed the former Git buffer');
+    const started = performance.now();
+    const closure = computeCanonicalDependencyClosure(root, [`${sourceDir}/source-0.ts`]);
+    const elapsedMs = performance.now() - started;
+    console.log('REVIEW_REWORK_SOURCE_BUDGET=' + JSON.stringify({ sources: sourceCap + 1, inventoryBytes: inventory.length, elapsedMs, closure }));
+    assert.equal(closure.complete, false, 'REVIEW_REWORK_SOURCE_BUDGET: oversized real source inventories must fail closed before full parsing');
+    assert.match(closure.reason ?? '', /dependency closure exceeded source-file bound/);
+    rmSync(join(root, sourceDir, `source-${sourceCap}.ts`));
+    execFileSync('git', ['rm', '--cached', '--', `${sourceDir}/source-${sourceCap}.ts`], { cwd: root });
+    const atCountBound = computeCanonicalDependencyClosure(root, [`${sourceDir}/source-0.ts`]);
+    assert.equal(atCountBound.complete, true, 'exact source-count bound remains eligible: ' + JSON.stringify(atCountBound));
+    const firstSource = join(root, sourceDir, 'source-0.ts');
+    writeFileSync(firstSource, ' '.repeat(limits.maxSourceFileBytes + 1));
+    assert.match(computeCanonicalDependencyClosure(root, [`${sourceDir}/source-0.ts`]).reason ?? '', /exceeded per-file byte bound/);
+    writeFileSync(firstSource, 'export const value = 1;\n');
+    const largeSources = Math.floor(limits.maxTotalSourceBytes / limits.maxSourceFileBytes) + 1;
+    for (let index = 0; index < largeSources; index++) writeFileSync(join(root, sourceDir, `source-${index}.ts`), ' '.repeat(limits.maxSourceFileBytes));
+    assert.match(computeCanonicalDependencyClosure(root, [`${sourceDir}/source-0.ts`]).reason ?? '', /exceeded total-source byte bound/);
+    for (let index = 0; index < largeSources; index++) writeFileSync(join(root, sourceDir, `source-${index}.ts`), 'export const value = 1;\n');
+    writeFileSync(join(root, 'tsconfig.json'), ' '.repeat(limits.maxSourceFileBytes + 1));
+    assert.match(computeCanonicalDependencyClosure(root, [`${sourceDir}/source-0.ts`]).reason ?? '', /exceeded config byte bound/);
+    rmSync(join(root, 'tsconfig.json'));
+    const originalNow = Object.getOwnPropertyDescriptor(performance, 'now');
+    let clockReads = 0;
+    try {
+      Object.defineProperty(performance, 'now', { configurable: true, value: () => clockReads++ === 0 ? 0 : limits.maxElapsedMs + 1 });
+      assert.match(computeCanonicalDependencyClosure(root, [`${sourceDir}/source-0.ts`]).reason ?? '', /exceeded elapsed-time bound/);
+      assert(clockReads >= 2, 'elapsed bound control reaches the actual monotonic deadline comparison');
+    } finally {
+      if (originalNow) Object.defineProperty(performance, 'now', originalNow);
+      else Reflect.deleteProperty(performance, 'now');
+    }
+    console.log('REVIEW_REWORK_SOURCE_BUDGET PASS count + exact boundary + per-file bytes + total bytes + deadline');
+  } finally { rmSync(root, { recursive: true, force: true }); }
+}
+
 async function run(): Promise<void> {
+  runLargeTrackedInventoryRegression();
+  runLargeSourceInventoryBudgetRegression();
   runPolicyCases();
   runBoundedPathsDegradationCase();
   runFixtureDuplicateIdentityCases();
@@ -2595,6 +2705,9 @@ if (isDirectRun) {
     console.log(`GUARD_SCENARIO_RECEIPT=${JSON.stringify({ mask, iteration, observation: runConcurrentReviewerWriteCase(mask, iteration) })}`);
   } else if (process.argv.includes('--guard-timeout-fixture')) {
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 60_000);
+  } else if (process.argv.includes('--large-inventory-only')) {
+    runLargeTrackedInventoryRegression();
+    runLargeSourceInventoryBudgetRegression();
   } else if (process.argv.includes('--aba-only')) {
     runDeterministicTicketReclaimAbaCase();
   } else if (process.argv.includes('--cutoff-verifier-only')) {

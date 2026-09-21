@@ -1,0 +1,100 @@
+CROSSHOST_JSONL_VERDICT_GREEN 18 negative transport controls; actual leaf exit/timeout/truncation/material guards preserved
+LARGE_REVIEW_HISTORY_GREEN
+MANAGED_SUPERSESSION_PASS
+CERTIFICATION_RECOVERY_LINEAGE_GREEN
+CERTIFICATION_RECOVERY_MUTANT_REJECTED blocked-bridge
+CERTIFICATION_RECOVERY_MUTANT_REJECTED window-prefix
+CERTIFICATION_RECOVERY_MUTANT_REJECTED receipt-prefix
+{"type":"turn.completed","usage":{}}
+usage recorded: unavailable (codex: turn.completed usage did not report both input and output token counts)
+[0.0s] running delivery_check_set...
+[0.5s] delivery_check_set done
+Delivery check saved for B-managed-delivery: 0 docsPromises (0 unverified), 0 realMachineTests (0 waived), selfCheck: noRealMachine
+
+Checklist-derived ledger (no milestone ledger set) - B-managed-delivery
+Phase: TEST
+Progress: 0 done / 0 in progress / 0 not started (0 total)
+
+(no checklist items)
+
+→ Full 7-column table: add --full (or set PROOF_OR_STOP_BRIEF_OUTPUT=0).
+{"type":"turn.completed","usage":{}}
+usage recorded: unavailable (codex: turn.completed usage did not report both input and output token counts)
+{"type":"turn.completed","usage":{}}
+usage recorded: unavailable (codex: turn.completed usage did not report both input and output token counts)
+[0.0s] running delivery_check_set...
+[0.5s] delivery_check_set done
+Delivery check saved for B-managed-delivery: 0 docsPromises (0 unverified), 0 realMachineTests (0 waived), selfCheck: noRealMachine
+
+Checklist-derived ledger (no milestone ledger set) - B-managed-delivery
+Phase: TEST
+Progress: 0 done / 0 in progress / 0 not started (0 total)
+
+(no checklist items)
+
+→ Full 7-column table: add --full (or set PROOF_OR_STOP_BRIEF_OUTPUT=0).
+{"type":"turn.completed","usage":{}}
+usage recorded: unavailable (codex: turn.completed usage did not report both input and output token counts)
+[0.0s] running delivery_check_set...
+[0.5s] delivery_check_set done
+Delivery check saved for B-managed-delivery: 0 docsPromises (0 unverified), 0 realMachineTests (0 waived), selfCheck: noRealMachine
+
+Checklist-derived ledger (no milestone ledger set) - B-managed-delivery
+Phase: TEST
+Progress: 0 done / 0 in progress / 0 not started (0 total)
+
+(no checklist items)
+
+→ Full 7-column table: add --full (or set PROOF_OR_STOP_BRIEF_OUTPUT=0).
+{"type":"turn.completed","usage":{}}
+usage recorded: unavailable (codex: turn.completed usage did not report both input and output token counts)
+MANAGED_DELIVERY_DISPATCH_GREEN
+Process Fact Contract
+Prompt guides; CLI/handler/gate decides
+
+Scope: process facts only — phase/state transitions, pass/no-issue confirmations, findings/categories/roles, and evidence/check artifacts.
+Out of scope: ordinary explanatory prose, narrative rationale, and benign Claude/Codex wording differences that do not alter commands or artifact paths.
+
+METADATA_HEAD_CRITIC_ADMISSION_PASS both waves and exact signed cutoff preserved through finalization
+INVENTORY_CRITIC_METADATA_HEAD_GREEN
+GREEN shared DONE predicates: 23 production-consumer fixture cases
+GREEN shared DONE predicates: lazy first failure and legacy diagnostic precedence
+GREEN shared DONE predicates: new predicate automatically reaches boolean, diagnostic, and emitted oracle row
+GREEN shared DONE predicates: root/story/outer-path/discarded-result adapter mutations rejected
+GREEN historical DONE presentation: original assurance preserved; no new reviewer PASS/audit; TEST future predicates remain strict
+GREEN shared DONE predicates: runtime inverse/skipped/discarded mutations killed; completedSnapshot cannot downgrade live failure
+F027 legacy absent fields: {"rawIntegrity":false,"rawPrior":null,"snapshotIntegrity":false,"snapshotPrior":null}
+F027 current absent fields: {"rawIntegrity":true,"rawPrior":"RP-001","snapshotIntegrity":true,"snapshotPrior":"RP-001"}
+F027 absent projection: {"rawIntegrity":true,"rawPrior":"RP-001","snapshotIntegrity":true,"snapshotPrior":"RP-001"}
+F027 absent reasons: {"rawIntegrity":true,"rawPrior":"RP-001","snapshotIntegrity":true,"snapshotPrior":"RP-001"}
+F027 empty arrays: {"rawIntegrity":true,"rawPrior":"RP-001","snapshotIntegrity":true,"snapshotPrior":"RP-001"}
+F027 populated arrays: {"rawIntegrity":true,"rawPrior":"RP-001","snapshotIntegrity":true,"snapshotPrior":"RP-001"}
+F027 prompt-envelope snapshot preserves absent fields, signatures, trusted prior and mutation isolation
+Shared DONE predicate parity passed
+DONE/preflight predicate inventory parity passed
+
+Process Fact Registry
+- entries: 562 (414 CLI, 70 runtime, 10 reviewer lanes, 63 artifacts)
+- levels: L0=180, L1=47, L2=90, L3=16, L4=229
+- kinds: artifact=29, command=308, execution-status=11, finding=3, flow-policy=9, gate-evidence=81, host-availability-probe=1, host-verdict=2, review-pass=1, review-run=1, reviewer-lane=10, runtime-behavior=70, signed-artifact=34, validation-status=2
+- flow fact policies:
+flow fact policy: express-verification-policy -> express-exempt -> gate validate verification coverage and story_review PLAN fast-path advisory gate
+flow fact policy: finding -> artifact findings.json -> gate storyMachine.canPassReview REVIEW to TEST gate
+flow fact policy: implementation-worker-authority -> gate validate --channel normal-channel gate before DEV to REVIEW
+flow fact policy: pass-only-normalization -> finding_add:pass-only->review_pass_set -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate
+flow fact policy: repository-wide-verification-intent -> artifact review.json -> gate story_review PLAN verification-intent quality gate and REVIEW test-coverage audit
+flow fact policy: review-pass -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate
+flow fact policy: review-pass-supersession -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate
+flow fact policy: review-round-iso-string -> artifact findings.json -> gate review signatures and storyMachine.canPassReview REVIEW to TEST gate
+flow fact policy: review-run-boundary -> artifact review-runs.json -> gate storyMachine.canPassReview REVIEW to TEST gate
+Prompt drift scan: 39 reviewer prompt files checked
+
+Process Fact Inventory
+- entries: 22 (112 files checked)
+CONSUMED_SATURATION_GREEN ordinary-refusal owned-recovery foreign-partial-tampered-refusal
+CERTIFICATION_MUTATOR_PIN_GREEN begin-cancel reject-before-store restored-control
+currentValidationStoryId is deprecated and ignored; validation self-reentry requires the live acquisition context, not a Story ID.
+
+Process fact contract verified
+execution_assertion_reuse_contract=PASS
+Process-fact contract verification passed
