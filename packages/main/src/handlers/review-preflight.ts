@@ -75,7 +75,7 @@ import {
   runEnglishArtifactGate,
   renderEnglishArtifactViolations,
 } from './english-artifact-gate.js';
-import { loadConfig } from '../core/config.js';
+import { resolveProofOrStopResiduePreflightMode } from '../core/config.js';
 
 // B-5f42: the english-artifacts gate has no standalone `validate --english-artifacts`
 // CLI option — it runs inline as part of the REVIEW→TEST preflight. Give it an
@@ -115,9 +115,9 @@ interface ProofOrStopResidueGateResult {
  *     operator can extend the script's allowlist via a follow-up story.
  */
 function runProofOrStopResidueGate(projectRoot: string): ProofOrStopResidueGateResult {
-  let configuredMode: unknown;
+  let configuredMode: 'off' | 'enforce';
   try {
-    configuredMode = loadConfig(projectRoot).reviewPreflight?.proofOrStopResidue;
+    configuredMode = resolveProofOrStopResiduePreflightMode(projectRoot);
   } catch (error) {
     return {
       ok: false,
@@ -126,20 +126,12 @@ function runProofOrStopResidueGate(projectRoot: string): ProofOrStopResidueGateR
       details: [error instanceof Error ? error.message : String(error)],
     };
   }
-  if (configuredMode === undefined || configuredMode === 'off') {
+  if (configuredMode === 'off') {
     return {
       ok: true,
       status: 'skipped',
       summary: 'PoS repository residue maintenance is not enabled for this project',
       details: [],
-    };
-  }
-  if (configuredMode !== 'enforce') {
-    return {
-      ok: false,
-      status: 'fail',
-      summary: 'invalid reviewPreflight.proofOrStopResidue mode',
-      details: [`expected "off" or "enforce", received ${JSON.stringify(configuredMode)}`],
     };
   }
   const scriptAbs = join(projectRoot, PROOF_OR_STOP_RESIDUE_SCRIPT_REL);

@@ -897,6 +897,38 @@ export function pickProjectConfigPath(dir: string): { path: string; filename: st
   return null;
 }
 
+export function resolveProofOrStopResiduePreflightMode(projectRoot: string): 'off' | 'enforce' {
+  const picked = pickProjectConfigPath(projectRoot);
+  if (!picked) return 'off';
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(readFileSync(picked.path, 'utf-8'));
+  } catch (error) {
+    throw new Error(
+      `cannot resolve reviewPreflight.proofOrStopResidue from malformed ${picked.filename}: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    );
+  }
+  if (!isJsonRecord(parsed)) {
+    throw new Error(`${picked.filename} must contain a JSON object`);
+  }
+  if (!Object.prototype.hasOwnProperty.call(parsed, 'reviewPreflight')) return 'off';
+
+  const reviewPreflight = parsed.reviewPreflight;
+  if (!isJsonRecord(reviewPreflight)) {
+    throw new Error('reviewPreflight must be a JSON object');
+  }
+  if (!Object.prototype.hasOwnProperty.call(reviewPreflight, 'proofOrStopResidue')) return 'off';
+
+  const mode = reviewPreflight.proofOrStopResidue;
+  if (mode === 'off' || mode === 'enforce') return mode;
+  throw new Error(
+    `reviewPreflight.proofOrStopResidue must be "off" or "enforce", received ${JSON.stringify(mode)}`,
+  );
+}
+
 function findProjectRootByMarker(startDir: string): string | null {
   let dir = startDir;
   for (let i = 0; i < 10; i++) {
