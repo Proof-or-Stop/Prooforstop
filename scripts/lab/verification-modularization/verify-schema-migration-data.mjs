@@ -25,7 +25,7 @@ const copies=JSON.parse(fs.readFileSync('scripts/lab/verification-modularization
 const copiedIndex=after.findIndex(row=>row.path===copies.before.path&&row.token===copies.before.token);
 assert.deepEqual(after[copiedIndex],copies.before);
 const final=after.map((row,index)=>index===copiedIndex?copies.after:row);
-final[index] = excerpt.before; // Lab finish requires the original canonical ASCII serialization.
+// Main 0836d73b7c uses canonical UTF-8 serialization; the decoded evidence is unchanged.
 assert.deepEqual(CURRENT_COMPATIBLE_SCHEMA_ROWS,final);
 assert.equal(copies.after.count-copies.before.count,copies.copies.length);
 console.log('SCHEMA_MIGRATION_DATA_GREEN: 12 source rows -> 19 module rows; all occurrence totals retained');
@@ -33,7 +33,7 @@ const {execFileSync}=await import('node:child_process');
 const oldArchive=JSON.parse(execFileSync('git',['show',excerpt.base+':'+excerpt.before.path],{encoding:'utf8',maxBuffer:32*1024*1024}));
 const currentArchive=JSON.parse(fs.readFileSync(excerpt.after.path));
 for(const proof of excerpt.excerptProof){assert.equal(currentArchive.entries.find(row=>row.id===proof.id).requiredEvidence[proof.evidenceIndex].excerpt,oldArchive.entries.find(row=>row.id===proof.id).requiredEvidence[proof.evidenceIndex].excerpt,'archived excerpt decoded bytes are unchanged');}
-console.log('SCHEMA_ARCHIVE_SERIALIZATION_GREEN: restored canonical ASCII bytes; identical decoded excerpts and counts');
+console.log('SCHEMA_ARCHIVE_SERIALIZATION_GREEN: canonical UTF-8 bytes; identical decoded excerpts and counts');
 
 const baseCopies=JSON.parse(execFileSync('git',['show',copies.baseline+':'+copies.before.path],{encoding:'utf8',maxBuffer:32*1024*1024}));
 const tokenCount=text=>text.split(copies.before.token).length-1;
