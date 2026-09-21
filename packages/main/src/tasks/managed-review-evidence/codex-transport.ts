@@ -1,3 +1,4 @@
+import { withManagedFixturePrompt } from './prompt-fixture.js';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
@@ -473,7 +474,7 @@ const submitProposalRace = async (
       afterManagedReviewProposalPreRead?: (args: { runId: string; reviewRunId: string }) => void,
     ) => {
       const raceRun = newAttempt('proposal-race');
-      return submitManagedHostRun({
+      return submitManagedHostRun(withManagedFixturePrompt({
       root: context.root,
       cwd: context.root,
       host: 'codex',
@@ -493,7 +494,7 @@ const submitProposalRace = async (
         promptHash: raceRun.promptHash,
         envelopeId: raceRun.envelopeId ?? null,
       },
-    }, {
+    }), {
       launchWorker: async request => {
         void runManagedHostRunWorker(request, {
           runner: runnerFor(raceRun.reviewRunId),
@@ -516,7 +517,7 @@ const delayedClaimWorkerFinished = new Promise<void>(resolve => {
       resolveDelayedClaimWorker = resolve;
     });
 
-const delayedClaimRun = await submitManagedHostRun({
+const delayedClaimRun = await submitManagedHostRun(withManagedFixturePrompt({
       root: context.root,
       cwd: context.root,
       host: 'codex',
@@ -536,7 +537,7 @@ const delayedClaimRun = await submitManagedHostRun({
         promptHash: run.promptHash,
         envelopeId: run.envelopeId ?? null,
       },
-    }, {
+    }), {
       launchWorker: async request => {
         setTimeout(() => {
           void runManagedHostRunWorker(request, {

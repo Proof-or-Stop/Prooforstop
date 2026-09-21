@@ -1,3 +1,4 @@
+import { withManagedFixturePrompt } from './prompt-fixture.js';
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
@@ -485,7 +486,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
       child.unref();
       return { pid: child.pid! };
     };
-    const descriptorRun = await submitManagedHostRun({
+    const descriptorRun = await submitManagedHostRun(withManagedFixturePrompt({
       root: context.root,
       cwd: context.root,
       host: 'codex',
@@ -511,7 +512,7 @@ exec /usr/bin/env -i PATH="$PATH" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 "$LATTI
         promptHash: descriptorReviewRun.promptHash,
         envelopeId: descriptorReviewRun.envelopeId ?? null,
       },
-    }, {
+    }), {
       launchWorker: descriptorLauncher,
       workerCapabilityTransport: 'descriptor',
       claimTimeoutMs: MANAGED_REVIEW_DESCRIPTOR_CLAIM_TIMEOUT_MS,

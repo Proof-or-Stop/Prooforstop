@@ -1979,6 +1979,7 @@ COMMAND_PROCESS_FACTS.push({
     'packages/main/src/tasks/managed-review-evidence/legacy-cli.ts',
     'packages/main/src/tasks/managed-review-evidence/live-binding.ts',
     'packages/main/src/tasks/managed-review-evidence/native-attestation.ts',
+    'packages/main/src/tasks/managed-review-evidence/prompt-fixture.ts',
     'packages/main/src/tasks/managed-review-evidence/sealed-receipts.ts',
     'packages/main/src/tasks/managed-review-evidence/suite.ts',
     'packages/main/src/tasks/managed-review-evidence/supersession.ts',

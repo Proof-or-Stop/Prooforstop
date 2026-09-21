@@ -376,3 +376,15 @@ does not increase that policy.
 | `suite.ts` | 95 | suite |
 | `supersession.ts` | 241 | supersession |
 | `transport-workers.ts` | 365 | transport workers |
+
+### Managed prompt fixture repair
+
+At `b9400f5b7f`, complete verification failed after 43.10 s at the first
+compatibility-proposal import. Unmodified pre-split source from `6f6d88948f`,
+transpiled against the same dist and isolated environment, reproduced the same
+`stale_material,producer_owned_required` failure after 35.08 s. The current
+`isSealedManagedPromptDigestCurrent` explicitly refuses a missing seal. Three
+direct submit fixtures omitted it. The fixture-only adapter now derives the seal
+from the exact submitted prompt bytes and preserves all existing tuple fields.
+No production acceptance rule changes. The negative missing/tampered digest
+controls remain required; complete post-repair verification is pending.
