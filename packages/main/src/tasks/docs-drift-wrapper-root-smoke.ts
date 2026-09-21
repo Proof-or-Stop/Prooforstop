@@ -57,7 +57,8 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { runReviewCliGates, type PreflightDeps } from '../handlers/review-preflight.js';
 import { runDocsDriftGate } from '../handlers/validate-docs-drift.js';
@@ -89,9 +90,10 @@ const WRAPPER_CLAUDE_MD = [
 ].join('\n');
 
 const REGISTRY = new Set<string>(['validate', 'story_create', 'story_advance']);
+const SOURCE_REPOSITORY_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../../../..');
 
 assert.equal(
-  resolveProofOrStopResiduePreflightMode(process.cwd()),
+  resolveProofOrStopResiduePreflightMode(SOURCE_REPOSITORY_ROOT),
   'enforce',
   'the Proof-or-Stop source repository must keep its residue maintenance preflight enabled',
 );
