@@ -30,5 +30,11 @@ for(const row of migration.rows){
  const current=fs.readFileSync(row.after.path,'utf8').split(/\r?\n/)[row.after.lineNumber-1];
  assert.ok(row.originalLineCandidates.some(n=>sha(old[n-1])===row.before.lineSha256&&old[n-1].trim()===current.trim().replaceAll('context.','').replace('root: root,','root,')),'same reviewed negative line after explicit lexical context relocation');
 }
-for(let i=0;i<inventory.entries.length;i++)if(!changed.has(i))assert.deepEqual(inventory.entries[i],originalInventory.entries[i]);
-console.log('MODULAR_FIXTURE_MIGRATION_GREEN: 82 exact relocations; classifications retained; 219 other entries unchanged');
+const mainMigration=JSON.parse(fs.readFileSync('scripts/lab/verification-modularization/main-436-witness-migration.json'));
+for(let i=0;i<inventory.entries.length;i++)if(!changed.has(i)){
+ const before=originalInventory.entries[i];
+ const moved=mainMigration.unchangedLiteralRows.find(row=>JSON.stringify(row.before)===JSON.stringify(before));
+ if(moved){assert.equal(moved.before.lineSha256,moved.after.lineSha256);assert.equal(moved.before.token,moved.after.token);assert.deepEqual(inventory.entries[i],moved.after);}
+ else assert.deepEqual(inventory.entries[i],before);
+}
+console.log('MODULAR_FIXTURE_MIGRATION_GREEN: 82 exact relocations; classifications retained; 219 other entries retain their reviewed literal and classification; exact main merge relocations recorded');

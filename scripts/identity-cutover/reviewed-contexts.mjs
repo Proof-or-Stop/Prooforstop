@@ -22,7 +22,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/src/core/runtime-environment-checks.ts",
-    "sha256": "028977a2c8451e98ae655a595a9c250b1d0b6a30839552a8adc987d3ad96f936"
+    "sha256": "4e19d892cd3be190c269aa64b8ec603e6e5ae2e9aaa0512b0604a5d0fb4f8621"
   },
   {
     "path": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
@@ -62,7 +62,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
-    "sha256": "f0749dc539c87c76b1072c3a869aa229d49e43b7a10e30dc3ba529d29a2b7daa"
+    "sha256": "d4bd3e22ffff603bb11465b3fbf8d9796c3ba7742867ce4c2ef28962ebe75aad"
   },
   {
     "path": "packages/main/src/tasks/thin-init-assets-smoke.ts",
@@ -142,7 +142,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "scripts/verify-runtime-fact-contract.mjs",
-    "sha256": "5aca5a5b4ece2a0f14e052bbaea1bee91bb62896ff51e4294832282f490dfcb0"
+    "sha256": "9ba988ee9e88d518c9d0e969f06d2a6d8d438c2bd3dc623e7b27304ca5812367"
   },
   {
     "path": "scripts/verify-process-fact-contract.mjs",
@@ -198,7 +198,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "scripts/process-fact-contract/scope-runtime.mjs",
-    "sha256": "4e1fdc8f75f24dd4b908b12582254dbe5370a58073d19a2f5573ed300fa357d9"
+    "sha256": "35442f569768d755d9915f95f73a23ca7744f05683711129dfcd3e0e48e53bee"
   },
   {
     "path": "scripts/process-fact-contract/source-analysis.mjs",
@@ -1209,7 +1209,7 @@ export const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [48,"cc44ed2de501ece64b10585468721b50cfc9f628f62e0deb03af8240d4615847"],
   [49,"8c9b8d8a5a9bf9b715ffaaaebb88c42c8bcc38258e2953356e09be5aabc44b3a"],
   [51,"6266521612a843fb549a70c35df31e281f153749c0e7fcba2b2aa4eccce19fa4"],
-  [52,"028977a2c8451e98ae655a595a9c250b1d0b6a30839552a8adc987d3ad96f936"],
+  [52,"4e19d892cd3be190c269aa64b8ec603e6e5ae2e9aaa0512b0604a5d0fb4f8621"],
   [55,"0a0e8086be494cbf378b488a2d891a43db5559f077042ac6da87cfd4a90375d0"],
   [60,"bb56479da5c58cf6baccddf3cbde7255e82c0e0fd805acc6a412ffee6a728758"],
   [62,"9ee8a71dcfaacfc632a7756be28b1ade7039a97650843eb0389591d0747c44ca"],
