@@ -602,7 +602,7 @@ export const ACTIVE_IDENTITY_OPERATION_BOUNDARIES = Object.freeze([
       identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-record.v1", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
       identitySite("packages/main/src/core/verification-execution-evidence.ts", "proof-or-stop.verification-reuse-receipt.v1", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
       identitySite('packages/main/src/handlers/checklist.ts', 'proof-or-stop.plan-acceptance-batch.v1', undefined, undefined, undefined, undefined, { canonical: 2, retired: 0 }),
-      identitySite("packages/main/src/handlers/checklist.ts", "proof-or-stop-implementer", undefined, undefined, undefined, undefined, { canonical: 2, retired: 0 }),
+      identitySite("packages/main/src/handlers/checklist.ts", "proof-or-stop-implementer", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
       identitySite("packages/main/src/handlers/checklist.ts", "proof-or-stop-product-reviewer", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
       identitySite("packages/main/src/handlers/checklist.ts", "proof-or-stop-review-story-init", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 }),
       identitySite("packages/main/src/handlers/checklist.ts", "proof-or-stop.verification-execution-receipt.v3", undefined, undefined, undefined, undefined, { canonical: 4, retired: 0 }),
