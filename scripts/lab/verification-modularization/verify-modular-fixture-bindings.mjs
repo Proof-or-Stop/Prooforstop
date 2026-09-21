@@ -14,3 +14,21 @@ for(const row of inventory.entries){
  }
 }
 console.log('MODULAR_FIXTURE_BINDINGS_GREEN '+JSON.stringify({entries:inventory.entries.length,negativeControls:controls}));
+const {execFileSync}=await import('node:child_process');
+const {createHash}=await import('node:crypto');
+const sha=text=>createHash('sha256').update(text).digest('hex');
+const migration=JSON.parse(fs.readFileSync('scripts/lab/verification-modularization/fixture-binding-migration.json','utf8'));
+const originalInventory=JSON.parse(execFileSync('git',['show','fcdd5514a5:scripts/identity-reviewed-fixture-data.json'],{encoding:'utf8'}));
+assert.equal(migration.rows.length,82);assert.equal(inventory.entries.length,originalInventory.entries.length);
+const changed=new Set();
+for(const row of migration.rows){
+ assert.ok(!changed.has(row.index));changed.add(row.index);
+ assert.deepEqual(originalInventory.entries[row.index],row.before);
+ assert.deepEqual(inventory.entries[row.index],row.after);
+ for(const key of ['token','classification','reason','evidence'])assert.equal(row.after[key],row.before[key]);
+ const old=execFileSync('git',['show',row.baseline+':'+row.before.path],{encoding:'utf8'}).split(/\r?\n/);
+ const current=fs.readFileSync(row.after.path,'utf8').split(/\r?\n/)[row.after.lineNumber-1];
+ assert.ok(row.originalLineCandidates.some(n=>sha(old[n-1])===row.before.lineSha256&&old[n-1].trim()===current.trim().replaceAll('context.','').replace('root: root,','root,')),'same reviewed negative line after explicit lexical context relocation');
+}
+for(let i=0;i<inventory.entries.length;i++)if(!changed.has(i))assert.deepEqual(inventory.entries[i],originalInventory.entries[i]);
+console.log('MODULAR_FIXTURE_MIGRATION_GREEN: 82 exact relocations; classifications retained; 219 other entries unchanged');
