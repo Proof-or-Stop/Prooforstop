@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, realpathSync, lstatSync, symlinkSync, readlinkSync, existsSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, realpathSync, lstatSync, symlinkSync, readlinkSync, existsSync, renameSync, cpSync } from 'node:fs';
 import { tmpdir, hostname } from 'node:os';
 import { join, relative, resolve } from 'node:path';
 import { spawnSync, spawn, execFileSync } from 'node:child_process';
@@ -19,8 +19,8 @@ if (!process.argv.includes('--private-machine')) {
   });
   if (result.stdout) process.stdout.write(result.stdout);
   if (result.status === 0) {
-    const targets = observeFixtureCoordination(fixture, 6);
-    assert.equal(targets.length, 6, 'repeated admissions must reuse one target per canonical project');
+    const targets = observeFixtureCoordination(fixture, 8);
+    assert.equal(targets.length, 8, 'repeated admissions must reuse one target per canonical project');
     assertObservedCoordinationAliases(result.stdout, targets, 3);
     fixture.cleanup();
     assertFixtureCoordinationRemoved(fixture, targets);
@@ -131,7 +131,23 @@ try {
   const foreign = freshRoot(); const foreignPath = validationCapacityLockPath(foreign);
   mkdirSync(resolve(foreignPath, '..'), { recursive: true });
   symlinkSync(realpathSync(legacy), foreignPath, 'dir');
-  await assert.rejects(withWorkspaceValidationCapacity(withDeadline({ root: foreign, workspaceRoot: foreign }), () => assert.fail('foreign alias admitted')), /unowned queue/);
+  // A copied/moved checkout retains its owned queue identity. Sharing that
+  // queue is conservative; replacing it could bypass a concurrently live owner.
+  await withWorkspaceValidationCapacity(withDeadline({root:foreign,workspaceRoot:foreign}),()=>{});
+  assert.equal(realpathSync(foreignPath),realpathSync(legacy));
+  const moved = root + '-renamed';roots.push(moved);renameSync(root,moved);
+  const copied = freshRoot();cpSync(moved,copied,{recursive:true,verbatimSymlinks:true});
+  let entered = 0;
+  await withWorkspaceValidationCapacity(withDeadline({root:moved,workspaceRoot:moved}),async()=>{
+    const waiting=withWorkspaceValidationCapacity(withDeadline({root:copied,workspaceRoot:copied,deadlineAt:Date.now()+500}),()=>{entered++;});
+    await assert.rejects(waiting,isValidationCapacityWaitDeadlineError);
+  });
+  assert.equal(entered,0,'copied checkout must not bypass the live retained queue');
+  for(const project of [moved,copied]) {
+    await withWorkspaceValidationCapacity(withDeadline({root:project,workspaceRoot:project}),()=>{entered++;});
+    assert.equal(realpathSync(validationCapacityLockPath(project)),realpathSync(foreignPath));
+  }
+  assert.equal(entered,2,'renamed and copied checkouts remain usable');
   // All roots and alternate homes are disposable. A fixture home override must
   // never target the real repository's coordination alias.
   const alternateHome = freshRoot();

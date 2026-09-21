@@ -566,3 +566,13 @@ Subsequent audit repairs have targeted evidence; the complete 535ed1190f result
 is not relabeled as a later-head full rerun. Heavy quorum campaigns remain outside
 this delivery's executed scope. Default canonical execution excludes the explicitly
 retired archive. The signed Lab record alone establishes finish/integration.
+
+The second independent audit found checkout relocation compatibility: a path-derived
+new target disagreed with the existing alias after rename/copy. The repair treats
+an already published private owned queue directly inside the same OS-user namespace
+as stable identity. Copies conservatively share its admission queue, including live
+and unknown owners, rather than changing queue identity during concurrent work.
+Foreign-home, dangling and unsafe queue aliases retain refusal. Disposable rename,
+copy and live-owner controls cover this behavior. Audit instructions also explicitly
+require finishing every changed-file review even when an early finding implies fail;
+unread paths must never be claimed and the existing coverage gate stays enforced.

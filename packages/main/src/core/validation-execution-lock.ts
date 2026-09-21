@@ -405,7 +405,16 @@ async function prepareWorkspaceValidationCoordination(options: ValidationCapacit
       if (error.code !== 'ENOENT') throw error;
       throw new Error(`WORKSPACE_COORDINATION_ALIAS_DANGLING: ${legacyPath}. Run proof-or-stop doctor; inspect the alias and restore its original private queue/home before retrying. Expected owned queue: ${target}. A missing target is not proof that another owner's queue may be replaced.`);
     }
-    if (actual !== realpathSync(target)) throw new Error(`workspace validation coordination alias points at an unowned queue: ${legacyPath} -> ${actual}; expected ${target}. Use the original owner home and run proof-or-stop doctor before retrying; the alias is preserved.`);
+    // The published alias is the stable queue identity across checkout moves
+    // and copies. Keep it instead of switching queues under concurrent owners.
+    // Same-owner copies conservatively share admission; foreign namespaces and
+    // unsafe queue permissions never gain this compatibility admission.
+    const key = relative(realpathSync(namespace), actual);
+    const queue = lstatSync(actual);
+    if (!/^[a-f0-9]{64}$/.test(key) || !queue.isDirectory() || queue.isSymbolicLink()
+      || (process.platform !== 'win32' && (queue.uid !== userInfo().uid || (queue.mode & 0o077) !== 0))) {
+      throw new Error(`workspace validation coordination alias points at an unowned queue: ${legacyPath} -> ${actual}; expected a private queue directly inside ${namespace}. Inspect the original owner home with proof-or-stop doctor; the alias is preserved.`);
+    }
   };
   const validAlias = (): boolean => {
     let stat;

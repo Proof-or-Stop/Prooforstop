@@ -39,7 +39,7 @@ const visitCoordination = node => {
   ts.forEachChild(node, visitCoordination);
 };
 visitCoordination(coordinationChild);
-assert.equal(coordinationAcquisitions.length, 8);
+assert.equal(coordinationAcquisitions.length, 12); // Includes foreign-home, dangling, rename and copy controls.
 for (const call of coordinationAcquisitions) assert.ok(ts.isCallExpression(call.arguments[0])
   && call.arguments[0].expression.getText(coordinationChild) === 'withDeadline', 'every actual acquisition must obtain a fresh deadline');
 assert.equal(runInNewContext('withDeadline({ deadlineAt: Date.now() + 1000 }).deadlineAt', deadlineContext), fixtureNow + 1000,
