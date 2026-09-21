@@ -914,6 +914,7 @@ process.stdout.write(JSON.stringify({ registry: RUNTIME_FACT_REGISTRY.length, pr
   execFileSync(process.execPath, [join(root, 'packages/main/tests/validation-tree-delegate-binding.mjs')], {cwd: root, stdio: 'inherit', timeout: 30000});
 
   await import(pathToFileURL(join(root, 'packages/main/tests/validation-coordination-residue.test.mjs')).href);
+  await import(pathToFileURL(join(root, 'packages/main/tests/validation-coordination-cleanup.test.mjs')).href);
 
   if (failures.length > 0) {
     console.error('Runtime fact contract failed:');

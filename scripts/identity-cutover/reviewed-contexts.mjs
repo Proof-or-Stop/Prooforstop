@@ -22,7 +22,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/src/core/runtime-environment-checks.ts",
-    "sha256": "1cff1df232969de396f270c3ae2325d30bdbcdf738708dab0de997cbb76ed82d"
+    "sha256": "e22bc4cbdfef75fb7e477d4e99524bb23ec1ed779c4a0dab54069b549ab5d9d5"
   },
   {
     "path": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
@@ -490,7 +490,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/data.mjs",
-    "sha256": "807b7cffb7849dc3009803820e372c97961f87a0cdf553bfbca07ed579ae3052"
+    "sha256": "1a558e17a2ce42a32d4edf960fc98c44b2602de69a6aec37395918ab81e9afc5"
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/driver.mjs",
@@ -518,7 +518,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/identity-policy.mjs",
-    "sha256": "f9903978d42152c889e77ab2433c2e1a7b86a569e690c88eee86b34613de5244"
+    "sha256": "323875cf923559b5848f2d22973adf18f521d5d79ccef5671835b7162c4e447c"
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
@@ -534,7 +534,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/migration-archive.mjs",
-    "sha256": "fe665473bfd9eda35f39eedfb1a43549bfc723fd30c2478e042c4eb16cce6f33"
+    "sha256": "09ee275e2ec9b14694a216c6d036961bd9d665a9a2b687109fa88b67c920bcae"
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/public-fixtures.mjs",
@@ -1209,7 +1209,7 @@ export const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [48,"cc44ed2de501ece64b10585468721b50cfc9f628f62e0deb03af8240d4615847"],
   [49,"8c9b8d8a5a9bf9b715ffaaaebb88c42c8bcc38258e2953356e09be5aabc44b3a"],
   [51,"6266521612a843fb549a70c35df31e281f153749c0e7fcba2b2aa4eccce19fa4"],
-  [52,"1cff1df232969de396f270c3ae2325d30bdbcdf738708dab0de997cbb76ed82d"],
+  [52,"e22bc4cbdfef75fb7e477d4e99524bb23ec1ed779c4a0dab54069b549ab5d9d5"],
   [55,"0a0e8086be494cbf378b488a2d891a43db5559f077042ac6da87cfd4a90375d0"],
   [60,"bb56479da5c58cf6baccddf3cbde7255e82c0e0fd805acc6a412ffee6a728758"],
   [62,"9ee8a71dcfaacfc632a7756be28b1ade7039a97650843eb0389591d0747c44ca"],
@@ -1220,7 +1220,7 @@ export const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [74,"e5259450c31aa3feeaaebcb83fa32adc5f171019564c121d10cb87889c1e584d"],
   [5,"c583bd41ee5789221e5f93f938f4528a9408dc376d72ef838260cc5e3236355b"],
   [67,"010a15eda866aeddc9bd68935ee0d43b1bcdc02f80c7f4904d662795f076a6d2"],
-  [69,"fe665473bfd9eda35f39eedfb1a43549bfc723fd30c2478e042c4eb16cce6f33"]
+  [69,"09ee275e2ec9b14694a216c6d036961bd9d665a9a2b687109fa88b67c920bcae"]
 ].map(([rowIndex, sha256]) => ({ path: BOTH_FAMILY_CONTEXT_ROWS[rowIndex].path, sha256 }));
 
 export const MODULAR_WITNESS_CLOSURES = {

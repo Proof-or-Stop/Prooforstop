@@ -6,7 +6,7 @@ import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {NATIVE_FIXTURE_CLI_TIMEOUT_MS} from '../packages/main/dist/tasks/native-lock-fixture.js';
 import {createNativeLockTestRuntime} from './native-lock-test-runtime.mjs';
-import {observeFixtureCoordination, assertFixtureCoordinationRemoved, assertObservedCoordinationAliases} from './fixture-coordination-observation.mjs';
+import {observeFixtureCoordination, assertFixtureCoordinationRemoved, assertObservedCoordinationAliases,assertReclaimedFixtureCoordination} from './fixture-coordination-observation.mjs';
 
 const root=mkdtempSync(join(tmpdir(),'native-machine-isolation-control-'));
 const release=join(root,'release');
@@ -55,8 +55,7 @@ try {
  const cliStarted=performance.now();
  const cliOutput=execFileSync(process.execPath,['--input-type=module','-e',cliProgram],{env:cliEnvironment,encoding:'utf8',timeout:NATIVE_FIXTURE_CLI_TIMEOUT_MS+10000,stdio:['ignore','pipe','pipe']});
  assert.match(cliOutput,/Proof-or-Stop \d+\.\d+\.\d+/);
- observedTargets=observeFixtureCoordination(isolated,1);
- assertObservedCoordinationAliases(cliOutput,observedTargets,1);
+ observedTargets=assertReclaimedFixtureCoordination(isolated,cliOutput,1);
  const observed=JSON.parse(readFileSync(observation,'utf8'));
  assert.equal(observed.cli,cliPath);assert.equal(observed.home,join(isolated.root,'home'));
  const parentPid=Number(cliOutput.match(/NATIVE_CLI_PARENT_PID (\d+)/)?.[1]);assert(parentPid>0&&observed.pid>0);assert.notEqual(observed.pid,parentPid,'the observation must come from the actual CLI descendant');

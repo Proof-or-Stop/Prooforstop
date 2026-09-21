@@ -14,7 +14,7 @@ for (const name of files) {
     functions.set(node.name.text, node.body.getText(ast));
     if (node.name.text === 'runCompleteProcessContract') {
       const expected = original.statements.filter(n => original.getLineAndCharacterOfPosition(n.getStart(original)).line + 1 >= 10496);
-      assert.deepEqual(node.body.statements.map(n => n.getText(ast)), expected.map(n => n.getText(original).replace("await import('./prompt-projection-contract.mjs')", "await import('../prompt-projection-contract.mjs')").replace("await import(new URL('../../tests/intent-fingerprint-reuse.test.mjs', import.meta.url).href);", "await import('../../tests/intent-fingerprint-reuse.test.mjs');")), 'original complete driver statements or order changed');
+      assert.deepEqual(node.body.statements.map(n => n.getText(ast)), expected.map(n => n.getText(original).replace("await import('./prompt-projection-contract.mjs')", "await import('../prompt-projection-contract.mjs')").replace("await import(new URL('../../tests/intent-fingerprint-reuse.test.mjs', import.meta.url).href);", "await import('../../tests/intent-fingerprint-reuse.test.mjs');")).map(text => { for (const repair of JSON.parse(fs.readFileSync('scripts/lab/verification-modularization/process-driver-sync-repairs.json','utf8'))) if (text === repair.before) text = repair.after; return text; }), 'original complete driver statements or order changed');
       for (const child of node.body.statements) if (ts.isFunctionDeclaration(child)) functions.set(child.name.text, child.body.getText(ast));
     }
     if (node.name.text === 'runEarlyProcessChecks') {

@@ -13,6 +13,7 @@ import {
   lstatSync,
   mkdirSync,
   readFileSync,
+  readlinkSync,
   readdirSync,
   realpathSync,
   renameSync,
@@ -376,12 +377,56 @@ export function validationCapacityLockPath(workspaceRoot: string, requireGitIden
   return join(sharedRoot, VALIDATION_CAPACITY_LOCK_REL);
 }
 
+// Track only queues this process admitted. Never scan or recursively delete the
+// user's namespace. An absent repository plus atomic emptiness permits cleanup;
+// live/unknown tickets, symlinks and unexpected entries remain untouched.
+const workspaceCoordinationRoots = new Map<string, Set<string>>();
+let workspaceCoordinationCleanupInstalled = false;
+export function cleanupAbandonedWorkspaceValidationCoordination(): void {
+  for (const [queue, roots] of workspaceCoordinationRoots) {
+    const absent = [...roots].every(root => {
+      try { lstatSync(root); return false; }
+      catch (error: any) { return error.code === 'ENOENT'; }
+    });
+    if (!absent) continue;
+    try {
+      const stat = lstatSync(queue);
+      if (!stat.isDirectory() || stat.isSymbolicLink() || (process.platform !== 'win32' && stat.uid !== userInfo().uid)) continue;
+      const workspaces = join(queue, 'workspaces');
+      if (existsSync(workspaces)) {
+        const ws = lstatSync(workspaces);
+        if (!ws.isDirectory() || ws.isSymbolicLink()) continue;
+        for (const name of readdirSync(workspaces)) {
+          if (!/^[a-f0-9]{64}$/.test(name)) continue;
+          const child = join(workspaces, name), item = lstatSync(child);
+          if (item.isDirectory() && !item.isSymbolicLink()) try { rmdirSync(child); } catch { /* populated or raced: retain */ }
+        }
+        try { rmdirSync(workspaces); } catch { /* populated or raced: retain */ }
+      }
+      rmdirSync(queue); // Atomic: any ticket/preparation or unknown file refuses removal.
+      for (const suffix of [WORKSPACE_VALIDATION_COORDINATION_ARTIFACT.migrationLockSuffix + '.fence-authority']) {
+        try { rmdirSync(queue + suffix); } catch { /* never remove a live migration fence */ }
+      }
+      workspaceCoordinationRoots.delete(queue);
+    } catch { /* Cleanup is conservative and never changes a command result. */ }
+  }
+}
+function rememberWorkspaceCoordination(queue: string, root: string): void {
+  const roots = workspaceCoordinationRoots.get(queue) ?? new Set<string>();
+  roots.add(root); workspaceCoordinationRoots.set(queue, roots);
+  if (!workspaceCoordinationCleanupInstalled) {
+    process.once('exit', cleanupAbandonedWorkspaceValidationCoordination);
+    workspaceCoordinationCleanupInstalled = true;
+  }
+}
+
 /** Keep one queue for old and new callers, with all physical writes outside
  * the guarded repository. Never move or replace a populated legacy directory.
  * rmdir is the atomic empty check; if an old writer wins the mkdir race, retry
  * there instead of admitting a second queue. Unknown owners remain blocking.
  */
 async function prepareWorkspaceValidationCoordination(options: ValidationCapacityLockOptions, legacyPath: string): Promise<void> {
+  cleanupAbandonedWorkspaceValidationCoordination();
   const sharedRoot = realpathSync(resolve(legacyPath, '../../..'));
   const namespace = join(realpathSync(userInfo().homedir), PROOF_OR_STOP_DIR, 'locks', WORKSPACE_VALIDATION_COORDINATION_ARTIFACT.directoryName);
   const target = join(namespace, createHash('sha256').update(sharedRoot).digest('hex'));
@@ -397,13 +442,19 @@ async function prepareWorkspaceValidationCoordination(options: ValidationCapacit
       throw new Error('workspace validation coordination requires a private owned directory');
     }
   }
+  rememberWorkspaceCoordination(target, sharedRoot);
   mkdirSync(dirname(legacyPath), { recursive: true });
   const assertOwnedAlias = (): void => {
     let actual: string;
     try { actual = realpathSync(legacyPath); }
     catch (error: any) {
       if (error.code !== 'ENOENT') throw error;
-      throw new Error(`WORKSPACE_COORDINATION_ALIAS_DANGLING: ${legacyPath}. Run proof-or-stop doctor; inspect the alias and restore its original private queue/home before retrying. Expected owned queue: ${target}. A missing target is not proof that another owner's queue may be replaced.`);
+      const prior = resolve(dirname(legacyPath), readlinkSync(legacyPath));
+      // Empty, abandoned owned queues can be reclaimed. Recreate that exact
+      // identity for a moved/copied checkout; never repoint to another queue.
+      if (/^[a-f0-9]{64}$/.test(relative(realpathSync(namespace), prior))) {
+        mkdirSync(prior, {mode:0o700,recursive:true}); actual = realpathSync(prior);
+      } else throw new Error(`WORKSPACE_COORDINATION_ALIAS_DANGLING: ${legacyPath}. Run proof-or-stop doctor; inspect the alias and restore its original private queue/home before retrying. Expected owned queue: ${target}. A missing target is not proof that another owner's queue may be replaced.`);
     }
     // The published alias is the stable queue identity across checkout moves
     // and copies. Keep it instead of switching queues under concurrent owners.
@@ -415,6 +466,7 @@ async function prepareWorkspaceValidationCoordination(options: ValidationCapacit
       || (process.platform !== 'win32' && (queue.uid !== userInfo().uid || (queue.mode & 0o077) !== 0))) {
       throw new Error(`workspace validation coordination alias points at an unowned queue: ${legacyPath} -> ${actual}; expected a private queue directly inside ${namespace}. Inspect the original owner home with proof-or-stop doctor; the alias is preserved.`);
     }
+    rememberWorkspaceCoordination(actual, sharedRoot);
   };
   const validAlias = (): boolean => {
     let stat;
@@ -481,7 +533,10 @@ async function prepareWorkspaceValidationCoordination(options: ValidationCapacit
           quarantineValidationCapacityCandidate(child, 'stale');
           if (!existsSync(child)) continue;
         }
-        blocked.push(child);
+        if (holder && holder.hostname === hostname() && Number.isSafeInteger(holder.pid) && holder.pid > 1
+          && classifyValidationCapacityLock({lockDir:child,holder,ageMs:0,staleMs:VALIDATION_EXECUTION_LOCK_STALE_MS,nowMs:Date.now()}) === 'active') {
+          liveQueuePaths.push(child);
+        } else blocked.push(child);
       } else if (name === 'workspaces' && stat.isDirectory() && !stat.isSymbolicLink()) {
         for (const workspace of readdirSync(child)) {
           const queue = join(child, workspace);

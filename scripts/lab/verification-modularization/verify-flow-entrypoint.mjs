@@ -28,6 +28,8 @@ for (const n of original.statements) if (ts.isFunctionDeclaration(n)) {
  assert.equal(bodies.get(n.name.text), expected, 'changed flow assertion ' + n.name.text); preserved++;
 }
 console.log('FLOW_FUNCTION_BODIES_PRESERVED ' + preserved);
+const mainFlow = ts.createSourceFile(path, execFileSync('git',['show','742155e320:'+path],{encoding:'utf8'}),ts.ScriptTarget.Latest,true);
+for(const name of ['assertImplementationWorkerAuthorityUsesFrozenMasterIntegrationTarget','assertImplementationWorkerAuthorityReportsUnresolvedIntegrationTarget']) assert.equal(bodies.get(name),mainFlow.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name.text===name).body.getText(mainFlow),'merged main assertion '+name);
 const entry = 'packages/main/dist/tasks/flow-stability-smoke.js';
 const run = args => spawnSync(process.execPath, [entry, ...args], { encoding: 'utf8', timeout: 30000, maxBuffer: 16 * 1024 * 1024 });
 const list = run(['--list-capabilities']); assert.equal(list.status, 0, list.stderr);

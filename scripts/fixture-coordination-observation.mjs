@@ -31,3 +31,18 @@ export function assertObservedCoordinationAliases(output, targets, expectedCount
   assert.equal(aliases.length, expectedCount, 'the child must report the actual compatibility aliases');
   for (const target of aliases) assert.ok(targets.includes(target), 'actual compatibility alias must resolve inside the observed private namespace');
 }
+
+// Child-reported realpaths are captured during admission; after normal child
+// exit, deleted fixture repositories must leave no physical queue behind.
+export function assertReclaimedFixtureCoordination(fixture, output, expectedCount) {
+  const namespace = join(realpathSync(fixture.home), '.proof-or-stop', 'locks', 'workspace-validation-coordination');
+  const targets = output.split('\n').filter(line => line.startsWith('COORDINATION_ALIAS_TARGET '))
+    .map(line => JSON.parse(line.slice('COORDINATION_ALIAS_TARGET '.length)));
+  assert.equal(targets.length, expectedCount);
+  for (const target of targets) {
+    assert.match(relative(namespace, target), /^[a-f0-9]{64}$/);
+    assert.equal(existsSync(target), false, 'disposed fixture queue survived child exit');
+  }
+  assert.deepEqual(observeFixtureCoordination(fixture, 0), [], 'unexpected abandoned fixture queue');
+  return targets;
+}

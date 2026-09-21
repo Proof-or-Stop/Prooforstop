@@ -24,3 +24,15 @@ assert.ok(registrations.find(row=>row.name==='CHK-007 canonical controls: every 
 assert.ok(registrations.find(row=>row.name==='normal consumer controls and invalid project configuration retain zero-mutation checks')?.groups.includes('identity-consumer-smoke'));
 console.log('MIGRATION_MATRIX_SELECTION '+JSON.stringify(actual));
 console.log('IDENTITY_RETIREMENT_SELECTION_GREEN: routine zero; explicit archive one; removed guard rejected; normal controls retained');
+
+const routine=registrations.find(row=>row.groups.includes('identity-consumer-smoke'));
+assert.ok(routine.callback.getText(routine.ast).includes('assertRoutineIdentityBoundaryControls('), 'ROUTINE_BOUNDARY_CONTROLS_RETIRED');
+
+const {execFileSync}=await import('node:child_process');
+const original=execFileSync('git',['show','f4b2fde825:packages/main/tests/canonical-new-story-artifacts/migration-archive.mjs'],{encoding:'utf8'});
+const begin=original.indexOf('    assert.ok(\n      Array.isArray(boundary.identitySites)');
+const end=original.indexOf('    // Imported authorities require BOTH',begin);
+const originalControls=original.slice(begin,end).trim();
+const helper=routine.ast.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text==='assertRoutineIdentityBoundaryControls');
+assert.ok(helper);assert.equal(helper.body.getText(routine.ast).slice(1,-1).trim(),originalControls,'routine controls preserve every archived structural assertion and delegate mutation');
+console.log('ROUTINE_BOUNDARY_CONTROLS_PRESERVED_GREEN');

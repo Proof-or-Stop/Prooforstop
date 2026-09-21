@@ -26,6 +26,9 @@ const copiedIndex=after.findIndex(row=>row.path===copies.before.path&&row.token=
 assert.deepEqual(after[copiedIndex],copies.before);
 const final=after.map((row,index)=>index===copiedIndex?copies.after:row);
 // Main 0836d73b7c uses canonical UTF-8 serialization; the decoded evidence is unchanged.
+for (const change of JSON.parse(fs.readFileSync('scripts/lab/verification-modularization/main441-schema-contexts.json')).changes) {
+ const index=final.findIndex(row=>row.path===change.before.path&&row.token===change.before.token);assert.deepEqual(final[index],change.before);assert.equal(change.before.count,change.after.count);assert.equal(change.before.token,change.after.token);final[index]=change.after;
+}
 assert.deepEqual(CURRENT_COMPATIBLE_SCHEMA_ROWS,final);
 assert.equal(copies.after.count-copies.before.count,copies.copies.length);
 console.log('SCHEMA_MIGRATION_DATA_GREEN: 12 source rows -> 19 module rows; all occurrence totals retained');

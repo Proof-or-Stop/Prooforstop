@@ -576,3 +576,37 @@ Foreign-home, dangling and unsafe queue aliases retain refusal. Disposable renam
 copy and live-owner controls cover this behavior. Audit instructions also explicitly
 require finishing every changed-file review even when an early finding implies fail;
 unread paths must never be claimed and the existing coverage gate stays enforced.
+
+## Third-audit repairs: retirement, queue lifetime and live transitions
+
+The audit at candidate `7dd9748652` found three current-Lab issues. Each now has
+an executed focused failing witness followed by a passing repair witness:
+
+| Issue | Before repair (RED) | After repair (GREEN) | Scope |
+|---|---|---|---|
+| Nonhistorical identity checks accidentally archive-only | `ROUTINE_BOUNDARY_CONTROLS_RETIRED` | Routine consumer group executes the unchanged structural assertions and real identity-free delegate executable mutations; the archived block and routine helper are compared byte-for-byte | Historical 259-case campaign remains opt-in |
+| Disposable repository left a private queue | `DISPOSABLE_COORDINATION_QUEUE_LEAK` after child exit | Deleted disposable roots leave no queue or empty migration fence; moved checkout restores the same queue identity; nonempty live/unknown markers survive cleanup | Only queues observed by the process, all registered roots absent, atomic empty removal; no recursive deletion or global home scan |
+| Live preparing/quarantine caused immediate migration failure | `LIVE_PREPARATION_MUST_WAIT_FOR_DEADLINE` | Both suffixes preserve the typed deadline, retain live residue and admit after it drains | Dead residue still reclaims; unknown/malformed ownership still refuses |
+
+Queue cleanup runs on later admissions and normal process exit. Forced termination
+and historical queues never observed by the process remain outside this guarantee;
+these are not claimed as cleaned. The fixture namespace is still owned and cleaned
+by its parent only after the child closes. This does not authorize touching real
+Story data or another process's live or unknown queue.
+
+Main advanced to `742155e320` / 0.3.441 during the repair. Merge `f4b2fde825`
+retains the two new worker-authority assertions, their legacy flag and the new
+managed-review checks inside the existing modules. The evidence-freshness source
+adds two imported helpers and their two uses (190 to 194 import-use observations);
+its emitted executable binding and three unchanged-count process schema contexts
+were reconciled against that committed main change. No assertion was removed to
+accept those new bytes. Updated source/driver preservation checks retain the old
+baseline plus exact enumerated main additions. The module ceiling remains 2,000
+lines; current maximum is 1,861.
+
+Complete runtime verification, restored routine identity-consumer execution,
+coordination guard and cleanup tests passed. Static validation has zero needsReview
+and zero unexpanded commands. Exact raw logs and SHA-256 inventory are archived
+under `three-audit-findings/` in the local Lab evidence archive. Lab finish and
+independent full-diff audit remain separate delivery requirements; this section
+is not an integration or Story DONE claim.

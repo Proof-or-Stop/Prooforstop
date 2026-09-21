@@ -9,7 +9,7 @@ import { createFixtureMachineEnvironment } from '../dist/tasks/helpers/fixture-m
 import { withWorkspaceValidationCapacity, validationCapacityLockPath, isValidationCapacityWaitDeadlineError } from '../dist/core/validation-execution-lock.js';
 import { createQuorumSmokeProtectedMutationGuard } from '../dist/tasks/quorum-submit-smoke-worker.js';
 import { WORKSPACE_VALIDATION_COORDINATION_FIXTURE_RUNTIME_POLICY as coordinationFixtureBudget } from '../dist/core/runtime-fact-registry.js';
-import { observeFixtureCoordination, assertFixtureCoordinationRemoved, assertObservedCoordinationAliases } from '../../../scripts/fixture-coordination-observation.mjs';
+import { observeFixtureCoordination, assertFixtureCoordinationRemoved, assertObservedCoordinationAliases, assertReclaimedFixtureCoordination } from '../../../scripts/fixture-coordination-observation.mjs';
 
 if (!process.argv.includes('--private-machine')) {
   await import('./validation-audit-final-regressions.test.mjs');
@@ -19,9 +19,7 @@ if (!process.argv.includes('--private-machine')) {
   });
   if (result.stdout) process.stdout.write(result.stdout);
   if (result.status === 0) {
-    const targets = observeFixtureCoordination(fixture, 8);
-    assert.equal(targets.length, 8, 'repeated admissions must reuse one target per canonical project');
-    assertObservedCoordinationAliases(result.stdout, targets, 3);
+    const targets = assertReclaimedFixtureCoordination(fixture, result.stdout, 3);
     fixture.cleanup();
     assertFixtureCoordinationRemoved(fixture, targets);
   }

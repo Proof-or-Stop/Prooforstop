@@ -624,19 +624,19 @@ export const CURRENT_COMPATIBLE_SCHEMA_ROWS = [
     "path": "scripts/process-fact-contract/complete.mjs",
     "token": "lattice.managed_dispatch_invocation_consumption.v2",
     "count": 1,
-    "contextSha256": "72624bd1d0c8f64aec2063e649ba0b0172bed72f721bebc479665624a1a06af9"
+    "contextSha256": "5e722b57ee9015bc3ae5f392f097c30ad0f06ebbf1e47354c6c6c008c336b70f"
   },
   {
     "path": "scripts/process-fact-contract/complete.mjs",
     "token": "lattice.managed_dispatch_process_group_consumption.v1",
     "count": 1,
-    "contextSha256": "72624bd1d0c8f64aec2063e649ba0b0172bed72f721bebc479665624a1a06af9"
+    "contextSha256": "5e722b57ee9015bc3ae5f392f097c30ad0f06ebbf1e47354c6c6c008c336b70f"
   },
   {
     "path": "scripts/process-fact-contract/complete.mjs",
     "token": "lattice.managed_init_invocation.v1",
     "count": 1,
-    "contextSha256": "72624bd1d0c8f64aec2063e649ba0b0172bed72f721bebc479665624a1a06af9"
+    "contextSha256": "5e722b57ee9015bc3ae5f392f097c30ad0f06ebbf1e47354c6c6c008c336b70f"
   },
   {
     "path": "scripts/process-fact-contract/scope-runtime.mjs",

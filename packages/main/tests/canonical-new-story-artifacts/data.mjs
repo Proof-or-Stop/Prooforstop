@@ -601,7 +601,7 @@ export const OWNED_IMPORT_USE_CONTEXTS = [
   {"sourcePath":"packages/main/src/core/capability-release.ts","occurrences":77,"contextSha256":"da05592fe9ce8137db1b38e50343b62c3b6ebfc5ebf4bf20ccc56bafcf0e5ca7"},
   {"sourcePath":"packages/main/src/core/certification-window.ts","occurrences":65,"contextSha256":"b9c6c0fe1ae6c6868cd307a530afe9ed9f493901a9d88d330de5f519295590b9"},
   {"sourcePath":"packages/main/src/core/config.ts","occurrences":82,"contextSha256":"e00e3b3edb548526d08264ec8014522c8609df05f55c8f7ac54c9625076c4bf5"},
-  {"sourcePath":"packages/main/src/core/evidence-freshness.ts","occurrences":190,"contextSha256":"a1735afb675fd2bebcc2214f9899f1638a03a50d1ecd8299b2f2cdff8eb1c8bb"},
+  {"sourcePath":"packages/main/src/core/evidence-freshness.ts","occurrences":194,"contextSha256":"e8d58c50c44064dd747d24660756480026166e20f49946d3725df47db6846f7a"},
   {"sourcePath":"packages/main/src/core/experience-layer-types.ts","occurrences":0,"contextSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
   {"sourcePath":"packages/main/src/core/impact-classification-policy.ts","occurrences":2,"contextSha256":"22cd0c48dccc24a06725b104fc987d3fe81f8737bd2a73f6b6831976b0ad82a3"},
   {"sourcePath":"packages/main/src/core/learning-store.ts","occurrences":110,"contextSha256":"cb4347a34f2b75df8af681d08ae104c8270bd258d82d9131d544dbf74f833c92"},

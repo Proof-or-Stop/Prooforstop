@@ -17,9 +17,75 @@ import { assertActiveIdentityOperationOwnership } from ".././support/active-iden
 
 
 import { check } from "./runner.mjs";
-import { ensurePublicIdentityOperationFixture, snapshotPublicOperationState, assertCanonicalPublicIdentityOperations } from "./public-fixtures.mjs";
+import { ensurePublicIdentityOperationFixture, snapshotPublicOperationState, assertCanonicalPublicIdentityOperations, activeIdentityBoundaryOperation } from "./public-fixtures.mjs";
 import { runCli } from "./fixture-support.mjs";
-import { promptRegistry, promptRoleContracts, ACTIVE_IDENTITY_OPERATION_BOUNDARIES, IDENTITY_CUTOVER_REQUIRED_PATHS, PROJECT_CONFIG_IDENTITY_CASES, journalFixtureBase } from "./data.mjs";
+import { promptRegistry, promptRoleContracts, ACTIVE_IDENTITY_OPERATION_BOUNDARIES, IDENTITY_CUTOVER_REQUIRED_PATHS, PROJECT_CONFIG_IDENTITY_CASES, journalFixtureBase, packageRoot, repoRoot } from "./data.mjs";
+
+export function assertRoutineIdentityBoundaryControls(boundary, {operationRuntimeRoot, externalReadRoot, operationEntrypoint, observerFor}) {
+    assert.ok(
+      Array.isArray(boundary.identitySites) && (boundary.identitySites.length > 0 || boundary.pathBindings.every(row => row.classification === 'identity-free')),
+      `${boundary.id}: identity-site registry is required`,
+    );
+    assert.ok(
+      Array.isArray(boundary.pathBindings) && boundary.pathBindings.length > 0,
+      `${boundary.id}: path-to-identity-site bindings are required`,
+    );
+    const ownedPaths = boundary.paths.map((entry) => entry.sourcePath).sort();
+    const boundPaths = boundary.pathBindings.map((entry) => entry.sourcePath).sort();
+    assert.deepEqual(boundPaths, ownedPaths, `${boundary.id}: every registered path must have exactly one named identity-site binding`);
+    assert.equal(new Set(boundPaths).size, boundPaths.length, `${boundary.id}: duplicate path binding`);
+    const siteIds = boundary.identitySites.map((site) => site.siteId);
+    assert.equal(new Set(siteIds).size, siteIds.length, `${boundary.id}: duplicate identity site id`);
+    for (const binding of boundary.pathBindings) {
+      if (binding.classification === 'owned-site') {
+        assert.ok(binding.siteIds.length > 0, `${boundary.id}/${binding.sourcePath}: owned-site path has no sites`);
+        for (const siteId of binding.siteIds) {
+          assert.ok(siteIds.includes(siteId), `${boundary.id}/${binding.sourcePath}: unknown identity site ${siteId}`);
+          assert.equal(
+            boundary.identitySites.find((site) => site.siteId === siteId)?.sourcePath,
+            binding.sourcePath,
+            `${boundary.id}/${binding.sourcePath}: owned identity site points at another path`,
+          );
+        }
+      } else {
+        assert.equal(binding.classification, 'identity-free', `${boundary.id}/${binding.sourcePath}: unknown path classification`);
+        assert.ok(binding.evidence, `${boundary.id}/${binding.sourcePath}: identity-free rationale required`);
+        const path = boundary.paths.find(row => row.sourcePath === binding.sourcePath);
+        const absolute = join(path.scope === 'runtime-package' ? packageRoot : repoRoot, path.path);
+        assert.doesNotMatch(readFileSync(absolute, 'utf8'), /proof-or-stop[.-]/,
+          `${boundary.id}/${binding.sourcePath}: emitted delegate must remain identity-free`);
+      }
+    }
+    assert.deepEqual(
+      [...new Set(boundary.retiredIdentityCases.map((entry) => entry.siteId))].sort(),
+      [...siteIds].sort(),
+      `${boundary.id}: every identity site must have a canonical-to-retired public-operation mutation case`,
+    );
+    assert.ok(
+      Array.isArray(boundary.retiredIdentityCases) && (boundary.retiredIdentityCases.length > 0 || boundary.pathBindings.every(row => row.classification === 'identity-free')),
+      `${boundary.id}: public-operation coverage must declare the boundary's actual canonical and retired identity values`,
+    );
+    const [defaultCommand, payload] = activeIdentityBoundaryOperation(boundary.id, 'B-49df');
+    // Zero-literal delegates still require real public-operation mutation proof.
+    // Valid JavaScript changes the executable binding without adding an identity.
+    for (const binding of boundary.pathBindings.filter(row => row.classification === 'identity-free')) {
+      const path = boundary.paths.find(row => row.sourcePath === binding.sourcePath);
+      const injectedPath = join(path.scope === 'runtime-package' ? join(operationRuntimeRoot, 'packages/main') : operationRuntimeRoot, path.path);
+      const original = readFileSync(injectedPath);
+      const operationRoot = boundary.id === 'process-fact-registry' ? externalReadRoot : operationRuntimeRoot;
+      const observer = observerFor(operationRoot);
+      try {
+        writeFileSync(injectedPath, `${original}\nvoid 1;\n`);
+        const before = observer.before(injectedPath);
+        const result = runCli(operationRoot, defaultCommand, payload, {}, { entrypoint: operationEntrypoint });
+        assert.notEqual(result.status, 0, `${boundary.id}: identity-free executable mutation admitted`);
+        const diagnostic = `${result.stdout}${result.stderr}`;
+        assert.ok(diagnostic.includes(binding.sourcePath) && diagnostic.includes('executable declaration/producer/consumer binding changed'), diagnostic);
+        observer.after(before, `${boundary.id}: rejected delegate changed state`);
+      } finally { writeFileSync(injectedPath, original); }
+      process.stdout.write(`PASS identity-free public executable mutation ${boundary.id}/${binding.sourcePath}\n`);
+    }
+}
 
 export async function runCases() {
 await check(['identity-cutover', 'identity-config-boundary', 'round24'], 'prompt config rejects unsupported user versions without fallback or mutation', () => {
@@ -113,6 +179,9 @@ await check(['identity-cutover', 'identity-consumer-smoke', 'identity-config-bou
     }));
     return observers.get(root);
   };
+  for (const boundary of ACTIVE_IDENTITY_OPERATION_BOUNDARIES) {
+    assertRoutineIdentityBoundaryControls(boundary, {operationRuntimeRoot, externalReadRoot, operationEntrypoint, observerFor});
+  }
   const configPath = join(operationRuntimeRoot, 'proof-or-stop.config.json');
   const configBytes = readFileSync(configPath);
   for (const inputCase of PROJECT_CONFIG_IDENTITY_CASES) {

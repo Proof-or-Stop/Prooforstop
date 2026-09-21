@@ -30,7 +30,7 @@ if(signalContract)console.log('NATIVE_DRIVER_RUNTIME '+fixtureRuntime.root);
 const completeCapacity=process.argv.includes('--complete-capacity');
 function cleanupFixtureRuntime(primaryFailed) {
  try {
-  const targets=observeFixtureCoordination(fixtureRuntime,completeCapacity&&!primaryFailed&&!stopping?1:0);
+  const targets=observeFixtureCoordination(fixtureRuntime,0);
   fixtureRuntime.dispose();
   assertFixtureCoordinationRemoved(fixtureRuntime,targets);
  } catch(error) {
