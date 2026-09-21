@@ -1010,9 +1010,22 @@ if (!process.argv.includes('--lifecycle-only') && !process.argv.includes('--rost
   if (process.argv.includes('--purpose-only')) process.exit(0);
 }
 
+const cwdControl = setup();
+const cwdBeforeControl = process.cwd();
+const rawCwdHandlers = createReviewInventoryHandlers({ root: cwdControl.root, scanRoot: join(cwdControl.root, 'packages/main'), store: cwdControl.store });
+const inventoryBeforeWrongCwd = cwdControl.store.readReviewInventoryEpochs(storyId);
+assert.throws(() => rawCwdHandlers.review_inventory_begin({ storyId }), /must execute proof-or-stop commands inside the worktree/);
+assert.deepEqual(cwdControl.store.readReviewInventoryEpochs(storyId), inventoryBeforeWrongCwd, 'wrong cwd cannot publish an inventory');
+assert.match(cwdControl.handlers.review_inventory_begin({ storyId }), /State: OPEN/);
+assert.equal(process.cwd(), cwdBeforeControl, 'proxy restores cwd after successful handler');
+assert.throws(() => cwdControl.handlers.review_inventory_wave_advance({ storyId }), /REVIEW_INVENTORY_LANES_INCOMPLETE/);
+assert.equal(process.cwd(), cwdBeforeControl, 'proxy restores cwd after throwing handler');
+console.log('REVIEW_REWORK_WORKSPACE_GATE PASS wrong cwd refused; success and throw restore cwd');
+
 const criticArgs = { storyId, agentType: 'proof-or-stop-review-topology-critic' };
 const first = setup(undefined, true);
 const lifecycleOriginalCwd = process.cwd();
+try {
 process.chdir(first.root);
 seedProofStoryAcceptance(first.store);
 const originalProofStoryContract = structuredClone(first.store.readProofStoryContract(storyId)!);
@@ -1606,8 +1619,9 @@ try {
   // Fault injection lowers only this invocation's bound. Git still executes and
   // Node raises a real ENOBUFS; no fake porcelain bytes or selector result.
   let overflows = 0;
+  let overflowCommand = 'status';
   childProcess.execFileSync = ((file: string, args: string[], options: object) => {
-    if (file !== 'git' || args[0] !== 'status') return realExecFileSync(file, args, options);
+    if (file !== 'git' || args[0] !== overflowCommand) return realExecFileSync(file, args, options);
     try { return realExecFileSync(file, args, { ...options, maxBuffer: 1024 }); }
     catch (error) { if ((error as NodeJS.ErrnoException).code === 'ENOBUFS') overflows++; throw error; }
   }) as typeof execFileSync;
@@ -1618,6 +1632,14 @@ try {
   assert.deepEqual(overflow.selectedLanes, overflow.activeLanes);
   assert.equal(overflow.reason, 'DIRTY_STATE_UNREADABLE', 'transport failure must not claim untracked material exists');
   assert.match(overflow.reasonDetail, /ENOBUFS/);
+  overflowCommand = 'ls-files';
+  const inventoryOverflow = postRemediationReviewSelection(reloaded, first.root, storyId, activeReviewers);
+  assert.equal(overflows, 2, 'selector must also reach a real tracked-inventory overflow');
+  assert.equal(inventoryOverflow.selection, 'full-set');
+  assert.equal(inventoryOverflow.reason, 'DEPENDENCY_CLOSURE_INCOMPLETE');
+  assert.match(inventoryOverflow.reasonDetail, /tracked source inventory unavailable: ENOBUFS/);
+  assert.deepEqual(inventoryOverflow.selectedLanes, inventoryOverflow.activeLanes);
+  console.log('REVIEW_REWORK_INVENTORY_SELECTOR_REFUSAL PASS all active lanes required');
   console.log('REVIEW_REWORK_DIRTY_TRANSPORT PASS ' + JSON.stringify({ paths: runtimePaths.length, bytes, selection: largeDirty.selection, overflow: overflow.reason }));
 } finally {
   childProcess.execFileSync = realExecFileSync;
@@ -2210,3 +2232,7 @@ assert.equal(JSON.stringify(unsupported.store.readReviewInventoryEpochs(storyId)
 assert.match(unsupportedBegin, /Next: proof-or-stop review_inventory_status/);
 
 console.log('review inventory real handler smoke: PASS');
+
+} finally {
+  process.chdir(lifecycleOriginalCwd);
+}

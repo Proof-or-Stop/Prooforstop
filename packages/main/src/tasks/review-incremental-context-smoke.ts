@@ -59,7 +59,8 @@ import { nativeReviewFixtureBrokers, runBrokeredNativeReviewCli } from './native
  */
 
 import { strict as assert } from 'node:assert';
-import { execFileSync, spawn, spawnSync } from 'node:child_process';
+import childProcess, { execFileSync, spawn, spawnSync } from 'node:child_process';
+import { syncBuiltinESMExports } from 'node:module';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { hostname, tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -2501,6 +2502,9 @@ function runLargeTrackedInventoryRegression(): void {
   });
   try {
     gitHere(['init', '-q']);
+    const empty = computeCanonicalDependencyClosure(root, ['tests/isolated.test.ts']);
+    assert.equal(empty.complete, false);
+    assert.equal(empty.reason, 'tracked source inventory is empty');
     mkdirSync(join(root, 'tests'));
     writeFileSync(join(root, 'tests/isolated.test.ts'), 'export const isolated = true;\n');
     gitHere(['add', 'tests/isolated.test.ts']);
@@ -2519,6 +2523,25 @@ function runLargeTrackedInventoryRegression(): void {
     console.log('REVIEW_REWORK_INVENTORY=' + JSON.stringify({ paths: inventory.split('\0').filter(Boolean).length, bytes, small, large }));
     assert.equal(large.complete, true, 'REVIEW_REWORK_LARGE_INVENTORY: irrelevant inventory size must not destroy a complete dependency proof');
     assert.deepEqual(large.files, small.files, 'unrelated tracked records must not widen dependency closure');
+    const realExecFileSync = childProcess.execFileSync;
+    let overflows = 0;
+    try {
+      childProcess.execFileSync = ((file: string, args: string[], options: object) => {
+        if (file !== 'git' || args[0] !== 'ls-files') return realExecFileSync(file, args, options);
+        try { return realExecFileSync(file, args, { ...options, maxBuffer: 1024 }); }
+        catch (error) { if ((error as NodeJS.ErrnoException).code === 'ENOBUFS') overflows++; throw error; }
+      }) as typeof execFileSync;
+      syncBuiltinESMExports();
+      const unavailable = computeCanonicalDependencyClosure(root, ['tests/isolated.test.ts']);
+      assert.equal(overflows, 1, 'real Git must overflow the injected inventory transport bound');
+      assert.equal(unavailable.complete, false);
+      assert.match(unavailable.reason ?? '', /tracked source inventory unavailable: ENOBUFS/);
+      assert.deepEqual(unavailable.files, ['tests/isolated.test.ts']);
+    } finally {
+      childProcess.execFileSync = realExecFileSync;
+      syncBuiltinESMExports();
+    }
+    console.log('REVIEW_REWORK_INVENTORY_FAILURES PASS empty + real ENOBUFS fail closed');
     writeFileSync(join(root, 'tests/isolated.test.ts'), 'import("./" + process.env.MODULE);\n');
     const opaque = computeCanonicalDependencyClosure(root, ['tests/isolated.test.ts']);
     assert.equal(opaque.complete, false, 'opaque dependencies must still fail closed at large inventory size');

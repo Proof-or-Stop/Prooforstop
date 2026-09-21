@@ -1,0 +1,56 @@
+{
+  "purpose": "Diagnostic execution archive, not Story PASS, product release, or independent audit authority",
+  "baseline": "ed33501e1dfe1fdf6901e57f3238feb4bca037c1",
+  "codeParentBeforeThisEvidenceCommit": "0227bf95d3cc5bd16858aa983fa112347638ecd8",
+  "sourceSha256": {
+    "packages/main/src/core/process-fact-levels.ts": "f8df7cfa9f815a12ed8c0aeb9aa1530e95dc0bcd8a7ee2aa662904b8f8b6630e",
+    "packages/main/src/core/process-fact-registry.ts": "77b45d171e9171f8eeffd76eaf27e5961c2f5f3ddaee8ac97625dfe59b4d086c",
+    "packages/main/src/core/review-incremental-context.ts": "1e0544111343e8f723764d7a49efe346495909a8b4b8760e83c9756897223aa0",
+    "packages/main/src/core/review-inventory-epoch.ts": "13a5c844d528e2e7ae683f27384bf2a2816d9170a3df1e981af1f20ee43f3a41",
+    "packages/main/src/core/runtime-environment-checks.ts": "55e4ffd5e8146ef63c848badefdfe438eda7417cee59f74139db63e3ebc94b04",
+    "packages/main/src/core/runtime-fact-registry.ts": "2c9e38d910e454c476be9f68801545af5c85d63bcefeadbeda80667796e65c39",
+    "packages/main/src/core/types.ts": "4cbb90660afa2bae33d9f47adfc9ea516b94c842241f8080b1b399d23f98199c",
+    "packages/main/src/handlers/review-inventory.ts": "013b344a7d876973774c536439d6fdc273342f1b8f7ef68899bf6f11b72d7414",
+    "packages/main/src/handlers/reviewer-list.ts": "935eb4c7e64fad215ccdff86f4efecb5d924adc1715053b739baa66c05456587",
+    "packages/main/src/tasks/review-incremental-context-smoke.ts": "fbe6e07eedc0a60d29b1e904475e0001e0881c2716b7f1243a19ebb56fc84099",
+    "packages/main/src/tasks/review-inventory-epoch-smoke.ts": "15c261da8d6e67e0612eea7ef70da012480eb8bb7a59e18fcd82e9f6463ef198",
+    "packages/main/src/tasks/review-inventory-handler-smoke.ts": "7168070e01aca54c8a7ec9c34b8876dec845b34e623589356c03e54b5370d53d",
+    "packages/main/templates/agents/proof-or-stop-review-topology-critic.md": "6c18147c5bfdd423ca301dca586186679283d353daadb5d800e3bb5bccd62563",
+    "scripts/lab/u18-static-edges/exceptions.json": "631dcbaf0ce7f65b9c284612acdbac0afdafa5ed3e49b02ff8f6f0939b5c45d6",
+    "scripts/verify-process-fact-contract.mjs": "8c51269a402528d6b1062d4971b7175c331892b06df6f82de0d4fec41cf859ec",
+    "scripts/verify-review-inventory-identity.mjs": "fceeab3107054e71f14ce9b8d28460c74525d19231bab7bca992d1061bed8fde",
+    "scripts/verify-review-rework.mjs": "858c349038888fbb450048cc7f47da2fd4e15ea010b802f5aaed395c8db8157b",
+    "scripts/verify-runtime-fact-contract.mjs": "d07c16ed336992cd12badb779f6d7e233637a5455d215a24bccc5983b3ea3cb1"
+  },
+  "results": [
+    {
+      "command": "node scripts/verify-process-fact-contract.mjs --quiet",
+      "exitCode": 0,
+      "log": "process-fact.log"
+    },
+    {
+      "command": "node scripts/verify-runtime-fact-contract.mjs",
+      "exitCode": 1,
+      "log": "runtime-candidate.log",
+      "baselineLog": "runtime-baseline.log",
+      "comparison": "runtime-comparison.json"
+    },
+    {
+      "command": "node scripts/verify-validation-static-edges.mjs",
+      "exitCode": 0,
+      "log": "static-edges.log"
+    }
+  ],
+  "logSha256": {
+    "process-fact.log": "b87ad36d76e4ccd222c16cac891f2de1533c1af430b0ad48b693e375ac9538de",
+    "runtime-candidate.log": "31ff00efe9f3295356420af2edd21cc3379a98aca85ab02317e3c9617a4c67e6",
+    "runtime-baseline.log": "b88251b227b7671b0ca648078aa21bcf412e1ebe9c94d7fd22b496fcae558f9e",
+    "runtime-normalized.log": "931e02b04992238765fedba8a9a6049221c538d1fe04558ff3887e63372082fe",
+    "runtime-comparison.json": "7ec8eacdf1b52b5079ab5ba9758a54869b37150f16c1c1223e5ea3cad9e9f55f",
+    "static-edges.log": "40ab8d5b0af1bf00e7eee16f226ad9a4aad6b2fe6cbef0860dda376ec4824239",
+    "native-controls.log": "11d4e4b2f2fb69669e3365a79bcd399684f0c4847a1dd1fbf8fcb6957a61440c",
+    "inventory-controls.log": "bcce524728d237603a0ef5244982defb0c0210643fe57b09eb0fa0a3f7d541b7",
+    "identity-controls.log": "360056b89fb04e633e2114fa3105441ef927f199d66fe32e523b2083769a5742",
+    "prior-green-0227bf95.log": "a8ba3927f2660e621b9ae5170703d6bf3a0f2dc39c0e3d545c72c81685d16047"
+  }
+}

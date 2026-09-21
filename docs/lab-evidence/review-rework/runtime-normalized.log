@@ -1,0 +1,55 @@
+CROSSHOST_SANDBOX_RUNTIME_CONTRACT_GREEN
+MANAGED_DELIVERY_RUNTIME_CONTRACT_GREEN
+PATH_OPERATION_COUNTS {"warm":8,"cold":8}
+{
+  "groups": [
+    {
+      "name": "runtime-path-semantics",
+      "pass": true,
+      "parityCases": 709,
+      "liveMutationAndRegexControls": true
+    },
+    {
+      "name": "runtime-path-operation-budget",
+      "pass": true,
+      "warmReplaceCalls": 8,
+      "coldReplaceCalls": 8
+    },
+    {
+      "name": "quorum-refusal-diagnostic-integrity",
+      "pass": true,
+      "controls": 11
+    }
+  ],
+  "boundary": "Source-level helper and runtime path checks; not Story completion or elapsed Story performance."
+}
+PENDING_RECONCILIATION_GREEN
+MEMORY_QUERY_TIMING {"indexed":false,"elapsedMs":28,"resultDigest":"one:1|two:2","queryElapsedMs":[11,17],"semanticGuard":{"pass":true}}
+MEMORY_QUERY_TIMING {"indexed":true,"elapsedMs":33,"resultDigest":"one:1|two:2","queryElapsedMs":[11,17],"semanticGuard":{"pass":true}}
+MEMORY_QUERY_TIMING_GREEN actual construction included; batch setup separately retained
+TOP5_IDENTITY_PROFILE {"firstReads":1,"secondReads":1,"durationMs":<MEASURED_DURATION>,"freshByteDrift":true}
+TOP5_1_IDENTITY_GREEN
+IDENTITY_CANONICAL_DIGEST_MEMO_GREEN same-size restored-mtime mutation rejected; separate roots and deletion stay fresh
+SNAPSHOT_BINDING_RUNTIME {"node":"v26.8.1","executable":"/opt/homebrew/Cellar/node/26.8.1/bin/node","argv":["<CHECKOUT>/scripts/verify-validation-snapshot-binding.mjs"]}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: VALIDATION_SNAPSHOT_BINDING_INVALID: live facts, workspace, input bytes and implementation comparison
+    at fail (file://<CHECKOUT>/scripts/verify-validation-snapshot-binding.mjs:11:30)
+    at verify (file://<CHECKOUT>/scripts/verify-validation-snapshot-binding.mjs:42:3)
+    at file://<CHECKOUT>/scripts/verify-validation-snapshot-binding.mjs:54:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v26.8.1
+Runtime fact contract failed:
+- Command failed: /opt/homebrew/Cellar/node/26.8.1/bin/node <CHECKOUT>/scripts/verify-validation-snapshot-binding.mjs
