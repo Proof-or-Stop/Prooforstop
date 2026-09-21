@@ -558,6 +558,8 @@ export const LAB_MAINTENANCE_RUNTIME_REQUIREMENTS = {
   auditCustomProtocol: 'lab-json',
   auditIndependence: 'different-vendor',
   auditRequired: true,
+  // Complete local commit snapshots are separate from provider output and prompt budgets.
+  auditInputMaxBytes: 64 * 1024 * 1024,
   auditTimeoutMs: 900000,
   auditStartupTimeoutMs: 90000,
   recordSchema: 3,

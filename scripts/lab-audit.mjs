@@ -8,7 +8,8 @@ import { selectAuditor } from './lab-audit-providers.mjs';
 
 export const LAB_AUDIT_SCHEMA = 'proof-or-stop.lab-cross-host-audit.v1';
 const hash = value => createHash('sha256').update(value).digest('hex');
-const INPUT_LIMIT = SUPERVISED_PROVIDER_RUNTIME_POLICY.maxOutputBytes;
+const INPUT_LIMIT = labPolicy.auditInputMaxBytes;
+const OUTPUT_LIMIT = SUPERVISED_PROVIDER_RUNTIME_POLICY.maxOutputBytes;
 function readGitText(cwd, args, label = args.join(' ')) {
   try {
     const bytes = execFileSync('git', args, { cwd, maxBuffer: INPUT_LIMIT, stdio: ['ignore', 'pipe', 'pipe'] });
@@ -163,7 +164,7 @@ export async function executeLabAudit({ cwd, base, head, developer, labName, evi
   const { runHostRun, defaultHostRunRunner } = await loadHostRunner();
   let stdout = '', stderr = '', overflow = false, captured = 0;
   const controller = new AbortController();
-  const onChunk = chunk => { const bytes = Buffer.byteLength(chunk.text); if (captured + bytes > INPUT_LIMIT) { overflow = true; controller.abort(); return; } captured += bytes; if (chunk.stream === 'stdout') stdout += chunk.text; else stderr += chunk.text; };
+  const onChunk = chunk => { const bytes = Buffer.byteLength(chunk.text); if (captured + bytes > OUTPUT_LIMIT) { overflow = true; controller.abort(); return; } captured += bytes; if (chunk.stream === 'stdout') stdout += chunk.text; else stderr += chunk.text; };
   let result;
   if (selection.auditor.protocol !== labPolicy.auditCustomProtocol) {
     result = await runHostRun({ host: auditorHost, storyId: null, agentType: 'lab-independent-auditor', promptText: prompt,

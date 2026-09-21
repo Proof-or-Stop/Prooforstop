@@ -142,7 +142,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "scripts/verify-runtime-fact-contract.mjs",
-    "sha256": "9ba988ee9e88d518c9d0e969f06d2a6d8d438c2bd3dc623e7b27304ca5812367"
+    "sha256": "081d1fe3ce9eaa9536d4b8614a466a0864d9caf30d0834a20bbde85b8e4b72b9"
   },
   {
     "path": "scripts/verify-process-fact-contract.mjs",
