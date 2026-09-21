@@ -25,6 +25,7 @@ import { lstatSync, readFileSync, realpathSync } from 'node:fs';
 import { dirname, extname, relative, resolve } from 'node:path';
 import ts from 'typescript';
 import { observedGit } from './git-tree-observation.js';
+import { REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES } from './runtime-fact-registry.js';
 import type { StoryStore } from './store.js';
 import type { Finding, ReviewPass, ReviewRun } from './types.js';
 import {
@@ -138,15 +139,18 @@ function canonicalRepoPath(projectRoot: string, path: string): string | null {
   return rel === normalized ? normalized : null;
 }
 
-function trackedFiles(gitCwd: string): string[] {
+function trackedFiles(gitCwd: string): { files: string[]; reason?: string } {
   try {
-    return execFileSync('git', ['ls-files', '-z'], {
+    const files = execFileSync('git', ['ls-files', '-z'], {
       cwd: gitCwd,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'ignore'],
-    }).split('\0').map(path => path.trim()).filter(Boolean).sort();
-  } catch {
-    return [];
+      maxBuffer: REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES,
+    }).split('\0').filter(Boolean).sort();
+    return { files };
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code ?? 'GIT_READ_FAILED';
+    return { files: [], reason: `tracked source inventory unavailable: ${code}` };
   }
 }
 
@@ -177,8 +181,10 @@ export function computeCanonicalDependencyClosure(
   changedFilesInput: readonly string[],
 ): CanonicalDependencyClosure {
   const changedFiles = [...new Set(changedFilesInput)].sort();
-  const tracked = trackedFiles(gitCwd);
-  if (tracked.length === 0) return { complete: false, files: changedFiles, reason: 'tracked source inventory unavailable' };
+  const inventory = trackedFiles(gitCwd);
+  if (inventory.reason) return { complete: false, files: changedFiles, reason: inventory.reason };
+  const tracked = inventory.files;
+  if (tracked.length === 0) return { complete: false, files: changedFiles, reason: 'tracked source inventory is empty' };
   const trackedSet = new Set(tracked);
   const sourceExtensions = new Set(['.ts', '.tsx', '.mts', '.cts', '.js', '.jsx', '.mjs', '.cjs']);
   const sourceFiles = tracked.filter(path => sourceExtensions.has(extname(path)) && !isMaterialExcludedPath(path, gitCwd));
@@ -399,6 +405,7 @@ export function postRemediationReviewSelection(
   }
   try {
     const rawDirty = execFileSync('git', ['status', '--porcelain=v1', '-z', '--untracked-files=all', '--ignored=matching'], {
+      maxBuffer: REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES,
       cwd: gitCwd,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'ignore'],

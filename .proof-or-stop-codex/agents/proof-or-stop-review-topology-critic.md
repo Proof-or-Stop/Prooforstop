@@ -17,6 +17,17 @@ Then use review_inventory_critic_set to bind that terminal evidence and classify
 every verified finding exactly once. Preserve independent reviewer identity and
 current epoch, round, wave, and read bindings. Completion requires the signed
 inventory critic receipt; it supplies inventory completeness authority only.
+Separate reproduced implementation defects from incomplete reading, stale
+credentials, and proposed new scope. Do not call a read limitation an independent
+implementation defect. Preserve every original Finding; classify duplicates only
+with evidence of the same root cause and an exact canonical Finding/family link.
+A sealed earlier wave of this same frozen epoch may supply that link; legacy
+family strings without a canonical binding cannot. Duplicate accounting neither
+resolves a Finding nor satisfies missing read evidence. New scope follows the
+scope workflow. Once required lanes and the independent critic are complete,
+use the reported remediation-only exit to collect and repair applicable defects
+as one batch; zero new families is not required for that DEV exit. It never
+authorizes TEST, and missing lane/read/critic evidence still blocks.
 This path does not issue topology receipts or require topology implementation
 provenance. Return after completing the inventory responsibility.
 

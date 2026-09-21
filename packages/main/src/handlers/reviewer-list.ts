@@ -287,6 +287,9 @@ export function renderFinalReviewRoster(roster: FinalReviewRoster, storyId: stri
   return [
     `Final-review lanes: ${lanes.join(', ')}`,
     `Selection: ${reason}`,
+    `Changed material: ${roster.selection.changedFiles.join(', ') || '(not established)'}`,
+    `Dependency closure: ${roster.selection.closureFiles.join(', ') || '(not established)'}`,
+    `Outside this repair: ${roster.activeReviewers.filter(row => !lanes.includes(row.lane)).map(row => row.lane).join(', ') || '(none)'}`,
     `Next: proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"${lanes[0]}"}'`,
   ].join('\n');
 }

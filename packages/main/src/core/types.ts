@@ -2305,12 +2305,22 @@ export interface ReviewInventoryLaneTerminal {
   coverageDigest: string;
 }
 
+/** Critic-verified canonical identity retained by the signed frozen wave.
+ * Family accounting only: never closes a Finding or grants TEST authority. */
+export interface ReviewInventoryCanonicalFinding {
+  findingId: string;
+  familyKey: string;
+  findingHash: string;
+}
+
 export interface ReviewInventoryWave {
   wave: number;
   startedAt: string;
   completedAt?: string;
   lanes: ReviewInventoryLaneTerminal[];
   verifiedFindingFamilies: string[];
+  /** Absent on legacy waves: no cross-wave duplicate authority. */
+  canonicalFindings?: ReviewInventoryCanonicalFinding[];
   verifiedFindingSetDigest?: string;
   newVerifiedFindingCount?: number;
   criticDigest?: string;
