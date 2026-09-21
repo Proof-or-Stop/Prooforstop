@@ -3274,6 +3274,17 @@
       "classification": "private-transport-or-negative-fixture",
       "reason": "An intentionally stale private transport credential tests that an unmanaged completion probe stays optional; it does not grant actor authority.",
       "evidence": "environment: { LATTICE_MANAGED_INIT_INVOCATION: 'stale-or-unrelated' },"
+    },
+    {
+      "path": "packages/main/tests/managed-implementer-dispatch-e2e.test.mjs",
+      "token": "LATTICE_MANAGED_INIT_INVOCATION",
+      "lineNumber": 261,
+      "lineSha256": "4d7fe9bebe71ce5517c8269219c8d55672627d5f2f14128188bdb4396c8d13f3",
+      "sourceSha256": "b86eb742ec9e547e712ac8e9ae806ac8377df969e662425c274d762ef447edb5",
+      "tokenOccurrences": 3,
+      "classification": "private-transport-or-negative-fixture",
+      "reason": "The committed main owner-control fixture explicitly removes the private invocation and agent environment before an owner-authorized operation; no runtime alias is admitted.",
+      "evidence": "commands: `env -u LATTICE_MANAGED_INIT_INVOCATION -u PROOF_OR_STOP_AGENT PROOF_OR_STOP_SESSION_ID=managed-implementer-owner \"${process.execPath}\" \"${cli}\" checklist_update '{\"storyId\":\"__STORY__\",\"itemId\":\"${itemId}\",\"status\":\"in_progress\"}'\\n\"${process.execPath}\" \"${mutateChecklist}\" \"__STORY__\" assert-in-progress-unconsumed\\n\"${process.execPath}\" \"${cli}\" checklist_update '{\"storyId\":\"__STORY__\",\"itemId\":\"${itemId}\",\"status\":\"done\"}'\\nprintf '%s\\\\n' '{\"type\":\"turn.completed\",\"usage\":{}}'`,"
     }
   ]
 }

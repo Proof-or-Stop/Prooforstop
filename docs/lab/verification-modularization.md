@@ -529,7 +529,7 @@ Main removed three retired-token fixture lines from its managed implementer test
 The exact old rows and removed source lines are recorded in
 `main-438-witness-migration.json`; the proof requires the current fixture to equal
 that committed main source and reconstructs the original inventory for the
-existing relocation proof. The remaining 298 rows pass 1,192 rejection controls.
+existing relocation proof. The remaining original rows are retained. One new exact main owner-control line removes the private invocation environment; its registration is bound to the committed main bytes. The resulting 299 rows pass 1,196 rejection controls.
 Source contexts with unchanged literal lines retain their classifications.
 
 The full runtime verifier passed after the two source-reader fixes at

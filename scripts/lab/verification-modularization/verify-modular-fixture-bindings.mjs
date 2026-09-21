@@ -21,6 +21,8 @@ const migration=JSON.parse(fs.readFileSync('scripts/lab/verification-modularizat
 const originalInventory=JSON.parse(execFileSync('git',['show','fcdd5514a5:scripts/identity-reviewed-fixture-data.json'],{encoding:'utf8'}));
 const currentMerge=JSON.parse(fs.readFileSync('scripts/lab/verification-modularization/main-438-witness-migration.json'));
 const restoredEntries=[...inventory.entries];
+assert.equal(currentMerge.added.length,1);
+for(const row of currentMerge.added){const index=restoredEntries.findIndex(candidate=>JSON.stringify(candidate)===JSON.stringify(row));assert.ok(index>=0);const mainText=execFileSync('git',['show',currentMerge.main+':'+row.path],{encoding:'utf8'});assert.equal(sha(mainText),row.sourceSha256);assert.equal(sha(mainText.split(/\r?\n/)[row.lineNumber-1]),row.lineSha256);assert.ok(row.evidence.includes('env -u '+row.token));restoredEntries.splice(index,1);}
 for(const delta of currentMerge.deltas.filter(row=>row.kind==='fixture')) { const index=restoredEntries.findIndex(row=>JSON.stringify(row)===JSON.stringify(delta.after));assert.ok(index>=0);assert.equal(delta.before.lineSha256,delta.after.lineSha256);restoredEntries[index]=delta.before; }
 for(const row of currentMerge.retired){const {priorLine,...before}=row;assert.equal(sha(priorLine),row.lineSha256);const mainText=execFileSync('git',['show',currentMerge.main+':'+row.path],{encoding:'utf8'});assert.ok(!mainText.split(/\r?\n/).includes(priorLine));assert.equal(fs.readFileSync(row.path,'utf8'),mainText);const originalIndex=originalInventory.entries.findIndex(candidate=>JSON.stringify(candidate)===JSON.stringify(before));assert.ok(originalIndex>=0);restoredEntries.splice(originalIndex,0,before);}
 assert.equal(currentMerge.retired.length,3);

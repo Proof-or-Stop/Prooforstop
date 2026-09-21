@@ -174,11 +174,11 @@ export const REVIEWED_CONTEXT_READERS = [
   },
   {
     "path": "scripts/identity-reviewed-json-contexts.mjs",
-    "sha256": "10d451873830522f79e140d61ad8a0b94ea075b486168b48e271020d606759bc"
+    "sha256": "a961569e42ca0cb2688aa9ab0bd9b5119af7847287d0e13382b3a12254a044e2"
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "daccec46e230c0479cb2966d9802fe381b6f17a7d7773c7ea9680f7111ea41c3"
+    "sha256": "b8258e6c3fa3f03b1406cb3ed2451e7030eec4c2a616ee397a4c19fa4b7aceb7"
   }
 ];
 
