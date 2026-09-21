@@ -30,7 +30,7 @@ export const IMPORTED_DENY_CONTEXT_ROWS = [
   {
     "id": "imported-context-2",
     "class": "compatibility_fixture",
-    "path": "packages/main/src/tasks/flow-stability-smoke.ts",
+    "path": "packages/main/src/tasks/flow-stability/review-routing.ts",
     "token": "assert.doesNotMatch(output, /lattice-review-channel/);",
     "expectedOccurrences": 1,
     "contextSha256": "4c68e008ed8c0027abfdf038b1b303905884edbe893e6225cf1fce837f271c17",

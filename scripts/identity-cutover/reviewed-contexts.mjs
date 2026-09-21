@@ -37,10 +37,6 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
     "sha256": "e11b33faca79f113aa6b1812ca0c0fed288ecec182578fd9d58d356d402671d4"
   },
   {
-    "path": "packages/main/src/tasks/flow-stability-smoke.ts",
-    "sha256": "48b043c9ae0c3b02451b6cd6edd8f873a4c227d0b9c46a418aac83cb564a3705"
-  },
-  {
     "path": "packages/main/src/tasks/global-agents-unit-smoke.ts",
     "sha256": "8aeb3b110704050e50f455033f60d189ffabbde769822d428d63472168c65b47"
   },
@@ -63,10 +59,6 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   {
     "path": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
     "sha256": "397d2499ed65e79ec7102995ada2093fcde6381781a90e4f916b139c5aae275b"
-  },
-  {
-    "path": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
-    "sha256": "0148ddf4e99b3efdb4fa914596c474d22c17ac893bc05a74bab61962ecc81d7c"
   },
   {
     "path": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
@@ -95,10 +87,6 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   {
     "path": "packages/main/tests/brand-role-migration.test.mjs",
     "sha256": "0fd66798b51ff2ba2db25dcab13078b2cfe9d68581ffbbebe3ba85f5c22eaa2c"
-  },
-  {
-    "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
-    "sha256": "e39265a2fba165adfd5c5210f2d4d8147bfe985fec8f77f63384972897539c13"
   },
   {
     "path": "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs",
@@ -149,20 +137,732 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
     "sha256": "75de0e714349006cd3cf40ce2f8b5466347e2e8d9d8444d6a8e9540ca5e4d2ad"
   },
   {
-    "path": "scripts/verify-process-fact-contract.mjs",
-    "sha256": "14ed10e886ff2375ca13ba64a8023f9934d8a8599f7790846c49934956b3c4db"
-  },
-  {
-    "path": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
-    "sha256": "8594c7d7fbd448a33725ecee1a25dec9a9cadc81c3a0dcd5086aa27990c657ce"
-  },
-  {
     "path": "scripts/verify-proof-or-stop-residue.mjs",
     "sha256": "fc740a0c825153e6f535f72f76554331de2f83bd6d779718557fa3e1b7c6f970"
   },
   {
     "path": "scripts/verify-runtime-fact-contract.mjs",
     "sha256": "b9f26844c46c956d7b94eaae07625263076b5ecb657ba2c719e23f58a74f6b31"
+  },
+  {
+    "path": "scripts/verify-process-fact-contract.mjs",
+    "sha256": "4cae0412f265e7e484046955be3724e58ad9db42f7d8144f0d4a400f6aa0a093"
+  },
+  {
+    "path": "scripts/process-fact-contract/catalog.mjs",
+    "sha256": "d543e361b027b0c271f224cbf5c5b392017afbb3c453dc444657741409ea0e3a"
+  },
+  {
+    "path": "scripts/process-fact-contract/cli.mjs",
+    "sha256": "dd8bc0b7d7ad581178753dee78905b89b82d82bed77cf70429484fa53ab79650"
+  },
+  {
+    "path": "scripts/process-fact-contract/command-contracts.mjs",
+    "sha256": "a79c3fde704bdcefff67815565d0486dbc53a55037152276b5150927542aec64"
+  },
+  {
+    "path": "scripts/process-fact-contract/complete.mjs",
+    "sha256": "7246c76f698ce5dcffbd1f72fc73783284cf387b75f8d21b04f6d38ac3c7aa33"
+  },
+  {
+    "path": "scripts/process-fact-contract/early.mjs",
+    "sha256": "4083dfa76b144461ade3746e8b055a1b23a8cd83241d2dc77657e4ed6933156d"
+  },
+  {
+    "path": "scripts/process-fact-contract/prompt-contracts.mjs",
+    "sha256": "a2c58a9f27140afb4d6860f9f0fe59a4b0e2a6d37523d3e46800be791bf97373"
+  },
+  {
+    "path": "scripts/process-fact-contract/proofstory-closeout.mjs",
+    "sha256": "27e11b9921b0b76ebdaac9005b5b5347829ad105f069b0ee0f9e7627e98b5239"
+  },
+  {
+    "path": "scripts/process-fact-contract/registry-alignment.mjs",
+    "sha256": "707f217734ad0f0df5813a0ae75baa40bda1a0983f424df23ac2b8a8367a6d68"
+  },
+  {
+    "path": "scripts/process-fact-contract/registry-parser.mjs",
+    "sha256": "38af42c68c72796d2bac71860b636000975e25dac9ae38b8c45eaab3ef0be847"
+  },
+  {
+    "path": "scripts/process-fact-contract/reopen.mjs",
+    "sha256": "81dd7cf3c21cac445d55d97c9179301756413ff64be4fb5f8c515d096a854837"
+  },
+  {
+    "path": "scripts/process-fact-contract/review-inventory.mjs",
+    "sha256": "816fea9d40b3097a6e4e975aa4b5029065ab4ab9c8bde19bad731c0e5583e807"
+  },
+  {
+    "path": "scripts/process-fact-contract/review-verification.mjs",
+    "sha256": "fae4c5d78a630cf1363e25739be266f5b65e09272cd70b812a07b1b6453225a0"
+  },
+  {
+    "path": "scripts/process-fact-contract/scope-runtime.mjs",
+    "sha256": "4e1fdc8f75f24dd4b908b12582254dbe5370a58073d19a2f5573ed300fa357d9"
+  },
+  {
+    "path": "scripts/process-fact-contract/source-analysis.mjs",
+    "sha256": "e8165cead3176947c0f9ab961e82af8edf81888302a8a0a24a1f1e4e64a2ac26"
+  },
+  {
+    "path": "scripts/process-fact-contract/story3.mjs",
+    "sha256": "dc16ce8507ad30976b55fb54bbe8bc235aaa02a06f66aa78da995d7e17272c4f"
+  },
+  {
+    "path": "scripts/process-fact-contract/support.mjs",
+    "sha256": "51df56b4ee5729467a5399e3b9aacd8bfc70571511241f4b759d2e86e6ecaeea"
+  },
+  {
+    "path": "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs",
+    "sha256": "b0da36165f1c3a5d0f868a455a2c52a8ad0a5613d5b23d9069950d4a8f35b448"
+  },
+  {
+    "path": "packages/main/tests/red/quorum-submit-harness/callback-inventory.mjs",
+    "sha256": "2d0173d44d0768fddf7aa6c94bb857416d5cdf3ebe2834abc1f73a828d311231"
+  },
+  {
+    "path": "packages/main/tests/red/quorum-submit-harness/catalog.mjs",
+    "sha256": "848ca779b21c249657ddbb2a531495046b6dcc26e09200541f29e601ec949d7a"
+  },
+  {
+    "path": "packages/main/tests/red/quorum-submit-harness/cli.mjs",
+    "sha256": "fc60c1a551c78a817d7ca479bd570d56a84f4fcd3a16e3cf5401253a286e2ea5"
+  },
+  {
+    "path": "packages/main/tests/red/quorum-submit-harness/containment.mjs",
+    "sha256": "f40f364c4396201745ae8c17ad1c5c73c953f8df30ff1bd7602f64f324c462d0"
+  },
+  {
+    "path": "packages/main/tests/red/quorum-submit-harness/coordinator-wiring.mjs",
+    "sha256": "fc66e8903b590f5cc52ac7cfb114536ff1af2dea8fa2d479647f0aef059e869f"
+  },
+  {
+    "path": "packages/main/tests/red/quorum-submit-harness/driver.mjs",
+    "sha256": "ca898f84f8c3147f382b878dab1f643403a148839aacf2ea868f9157d7d99ae6"
+  },
+  {
+    "path": "packages/main/tests/red/quorum-submit-harness/environment-closure.mjs",
+    "sha256": "7e972edf1c117d0614b499cb681c93686c2923d6fdabd4b87a39fba73be5a103"
+  },
+  {
+    "path": "packages/main/tests/red/quorum-submit-harness/exact-head-authorization.mjs",
+    "sha256": "f0de4d52eb305b39b81d9d2ea80654f3794c8ed5cc8df2c7af4e6abb93fd55ea"
+  },
+  {
+    "path": "packages/main/tests/red/quorum-submit-harness/exact-head-checkout.mjs",
+    "sha256": "954a02d88a24ce5aae7996a3d233b6ccf19e1848f84c2de2a42234730373956b"
+  },
+  {
+    "path": "packages/main/tests/red/quorum-submit-harness/exact-head-supervisor.mjs",
+    "sha256": "bb8a3179b7cc6884ce67382a0a7c0815710454b0bb4c28ca5266b942e7cd72cb"
+  },
+  {
+    "path": "packages/main/tests/red/quorum-submit-harness/fixture-source-closure.mjs",
+    "sha256": "38072c112e5e03b4eef58b37b70ce7af2c7cf98b3593ba679ef050d31cbc276d"
+  },
+  {
+    "path": "packages/main/tests/red/quorum-submit-harness/fixture-templates.mjs",
+    "sha256": "a494440a3dbec5fcc0ac9e56430a3c164e90a3da73b9906cce27f9edec57445a"
+  },
+  {
+    "path": "packages/main/tests/red/quorum-submit-harness/mutation-controls.mjs",
+    "sha256": "e381a4339d2635e39032489eb04455df42d5855bd63acfb67d4159baa95bc824"
+  },
+  {
+    "path": "packages/main/tests/red/quorum-submit-harness/owned-files.mjs",
+    "sha256": "abe8418534c1b10874d577bf2482bd59220a2fa3a7c2c56d01de8281e011b33a"
+  },
+  {
+    "path": "packages/main/tests/red/quorum-submit-harness/partition.mjs",
+    "sha256": "4747849958da5c477d2abef9b57a713a648c1c531a6a445fd9833e18a07f44c8"
+  },
+  {
+    "path": "packages/main/tests/red/quorum-submit-harness/performance-cases.mjs",
+    "sha256": "2a143c9395095a5f23240b65f6cfa9b20b0c5a7cc090e017323af29aa766f71d"
+  },
+  {
+    "path": "packages/main/tests/red/quorum-submit-harness/performance-context.mjs",
+    "sha256": "5e82591d55c44dd258b2f1cfc7ce8bac7570cbade2051ecec2791dd27a559d93"
+  },
+  {
+    "path": "packages/main/tests/red/quorum-submit-harness/performance-material.mjs",
+    "sha256": "9085b570cf36d7738f6462964820edf2b06b676dd64522beec94f37c26e58249"
+  },
+  {
+    "path": "packages/main/tests/red/quorum-submit-harness/process-supervision.mjs",
+    "sha256": "6413c84296d4642fee4df4e57b3ae77b761b1ea7f1fd49a95c1299d2bb31ee24"
+  },
+  {
+    "path": "packages/main/tests/red/quorum-submit-harness/resource-parallel.mjs",
+    "sha256": "ff0947a42ffab6298a22d8e6e45c59f2e19909f05b75f2ea161b1d89f7c9688b"
+  },
+  {
+    "path": "packages/main/tests/red/quorum-submit-harness/resource-traces.mjs",
+    "sha256": "34724d988cb031fd3719c1dc3e15af9403b9db38be822d927613a23f73aa8292"
+  },
+  {
+    "path": "packages/main/tests/red/quorum-submit-harness/selection-contracts.mjs",
+    "sha256": "6fe983d7a92f0dde1a0d904f89dece2492de23dfae5964ddb2b34516c3862714"
+  },
+  {
+    "path": "packages/main/tests/red/quorum-submit-harness/selection.mjs",
+    "sha256": "22e773ef1d8b218683f2c8b196361bd706acef446b7c65e4f0f3d91887f8eaa7"
+  },
+  {
+    "path": "packages/main/tests/red/quorum-submit-harness/supervisor-controls.mjs",
+    "sha256": "ee29f47ccdf5e933c7a39c04ab41d9306a77bc33c8465b4d7ec973732bda18ff"
+  },
+  {
+    "path": "packages/main/tests/red/quorum-submit-harness/support.mjs",
+    "sha256": "92fb19e38d83d10497256571ce730d88245419aec20a5065251187f88def8762"
+  },
+  {
+    "path": "packages/main/tests/red/quorum-submit-harness/tree-lease.mjs",
+    "sha256": "c2738d8b5d7dea654b9adbe37ce7407f67f03f6b943cde6e9f2b4b5bebf98957"
+  },
+  {
+    "path": "packages/main/tests/red/quorum-submit-harness/worker-coordination.mjs",
+    "sha256": "e39ede5009077779908a20fbea0db75057b831ef6872c986e5f34f7ef9c4f895"
+  },
+  {
+    "path": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "sha256": "f745ed62b04de0a59596f418071e8fc0acd5392e9903820121e4c3609986bee4"
+  },
+  {
+    "path": "packages/main/src/tasks/retired-authority/binding-classification.ts",
+    "sha256": "91c1ac5f4de58ed08e720fb7d0cd24403533511680b47f7db41c1e07f4f8b145"
+  },
+  {
+    "path": "packages/main/src/tasks/retired-authority/cli.ts",
+    "sha256": "eb4414407f36bf43919066e1eb7d0baa8253d3439b4b65bf5e20dc86518ac2ca"
+  },
+  {
+    "path": "packages/main/src/tasks/retired-authority/compatibility-controls.ts",
+    "sha256": "82db53da1f809f38e132112ddbf45655694d0d836312c1b29514503b5f256d44"
+  },
+  {
+    "path": "packages/main/src/tasks/retired-authority/driver.ts",
+    "sha256": "773436acf17b29c3afb3deb3b30cb8f5d30ea63e562dc5a2821f76fbf0394565"
+  },
+  {
+    "path": "packages/main/src/tasks/retired-authority/dynamic-bindings.ts",
+    "sha256": "fab86307a3e436dc5a8ecfe8dd3e5b7e32ef1525796f6eb5332fc7a0e151a78b"
+  },
+  {
+    "path": "packages/main/src/tasks/retired-authority/dynamic-scan.ts",
+    "sha256": "9d5fca657e43fde333ba508c30109b2a4b611cf7b32fbf040ede96e8aa5699c9"
+  },
+  {
+    "path": "packages/main/src/tasks/retired-authority/execution-controls.ts",
+    "sha256": "3b11ec24c4a59cc030d548c76c6724d3cbef1bfbfbfdd8bb7a36767a6fa25f63"
+  },
+  {
+    "path": "packages/main/src/tasks/retired-authority/file-scan.ts",
+    "sha256": "8c3675be9d824bfe4cf7b6b312b3dc98f221fc472d9cd8d35cb52f78f57d764c"
+  },
+  {
+    "path": "packages/main/src/tasks/retired-authority/loader-controls.ts",
+    "sha256": "f35936426105b82e369e39e95b64caaa672dc162023c3611a31bb761b5d6f651"
+  },
+  {
+    "path": "packages/main/src/tasks/retired-authority/module-loaders.ts",
+    "sha256": "b4e04eac69a015b05849ed5510a0d4868499b26e9be23d96961b7452fffa61fc"
+  },
+  {
+    "path": "packages/main/src/tasks/retired-authority/positive-controls.ts",
+    "sha256": "47299763ab4779280dd653655ca3021963a7fe8f2dcabf5bb75096b24aa0f6bb"
+  },
+  {
+    "path": "packages/main/src/tasks/retired-authority/public-contract.ts",
+    "sha256": "fc11bcd12e14eae7e923dfc89df2398b17affb700117c906fc8ec581e8eca470"
+  },
+  {
+    "path": "packages/main/src/tasks/retired-authority/rule-data.ts",
+    "sha256": "9a7bb5d52e6887d4627d007523f8947dd748d53f31f513cbb3fa8ea5d0740c47"
+  },
+  {
+    "path": "packages/main/src/tasks/retired-authority/type-analysis.ts",
+    "sha256": "d55546c20effc5b03f176c850cb22e193599ef734ad5b1edeeea8b9fec7780df"
+  },
+  {
+    "path": "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+    "sha256": "e0dcb78ea103f5e88c4f585e93471956afbfc5aad628cc47827276717f150f07"
+  },
+  {
+    "path": "packages/main/src/tasks/validation-tier-planner/acceptance-guards.ts",
+    "sha256": "25bf31beaf66efd2388277cdfeeb73d19f3371c20978370e18f71d0d7f5d2b4f"
+  },
+  {
+    "path": "packages/main/src/tasks/validation-tier-planner/change-inputs.ts",
+    "sha256": "e7aa8193d0225c0b351cb98f42db802dacb1d2a9c4d2e52b37f587c9170fd95a"
+  },
+  {
+    "path": "packages/main/src/tasks/validation-tier-planner/cli-integration.ts",
+    "sha256": "6cf67157c7bb9f5627699a66a0828301fad969f13b938ebe8b1418b9449e85f2"
+  },
+  {
+    "path": "packages/main/src/tasks/validation-tier-planner/cli.ts",
+    "sha256": "2df2213f4daeeceadd3363c1832d63a72e652dd5e8c74df12f8ef8be21c9b7ef"
+  },
+  {
+    "path": "packages/main/src/tasks/validation-tier-planner/command-identity.ts",
+    "sha256": "7079da7674cbe9900ad00e58b5cbdcdac6e5ed212529c19aa27adf2859b5bf0c"
+  },
+  {
+    "path": "packages/main/src/tasks/validation-tier-planner/hash-completeness.ts",
+    "sha256": "9c2ce9c5178bdf160c73c03dfbf74c899940ba6b5053486e081298de742d6575"
+  },
+  {
+    "path": "packages/main/src/tasks/validation-tier-planner/historical-pins.ts",
+    "sha256": "14e4b87544454b0628c5704d833e68c77bc5057b2bec02743c79be97d25fe953"
+  },
+  {
+    "path": "packages/main/src/tasks/validation-tier-planner/selection-widening.ts",
+    "sha256": "fae381294266e3ba36e9fa0414cd29fa1ee27be7287511c5b673167afa2c3e2a"
+  },
+  {
+    "path": "packages/main/src/tasks/validation-tier-planner/support.ts",
+    "sha256": "03f4a405ca989b86329046da6036969397ec8b371d9071b3cfb40a6f82a872cd"
+  },
+  {
+    "path": "packages/main/src/tasks/flow-stability-smoke.ts",
+    "sha256": "46284bd584b730478bf67f5e500f105f1fe286be62aeb983f2edaa26caefc624"
+  },
+  {
+    "path": "packages/main/src/tasks/flow-stability/artifacts.ts",
+    "sha256": "a05cf8216204c2f09dc8d5c90b9c814120d1b1bd3bc5e6b1825632d364f8c717"
+  },
+  {
+    "path": "packages/main/src/tasks/flow-stability/cli.ts",
+    "sha256": "40eb4b788a2f0cb4dd7451826f3053cc307ace119296c1618b8cd4347fd24612"
+  },
+  {
+    "path": "packages/main/src/tasks/flow-stability/discovery-fixture.ts",
+    "sha256": "eb08600955e4886eba1ab2e2bfd22c78b7d34c83364a13f7b5696b64bff1cf97"
+  },
+  {
+    "path": "packages/main/src/tasks/flow-stability/done-convergence.ts",
+    "sha256": "27e1ec61092594df79453f40643fa8ed8ed4967a9f9c9e606baee9298618c784"
+  },
+  {
+    "path": "packages/main/src/tasks/flow-stability/done-reporting.ts",
+    "sha256": "6fc3e3015d1585b272b01ad0ed35c3039f1df7f379a5ec376c73e64c9c7a26ed"
+  },
+  {
+    "path": "packages/main/src/tasks/flow-stability/lifecycle.ts",
+    "sha256": "731cd06c1f369099742a83565cb3c641b13ed4026ffd5bfc9e6e2dca45a7d23c"
+  },
+  {
+    "path": "packages/main/src/tasks/flow-stability/phase-effects.ts",
+    "sha256": "db3631d746746489533c2407f0b2d21cb03e3f7ed8cee82290f100a1143e24cb"
+  },
+  {
+    "path": "packages/main/src/tasks/flow-stability/review-evidence.ts",
+    "sha256": "bd2a2d8883c82655cff85a3b797df6dbbed9915e5465059e52b0f3252ee4be1e"
+  },
+  {
+    "path": "packages/main/src/tasks/flow-stability/review-routing.ts",
+    "sha256": "6671020b14b37dff6e861db59438d87ccf550a8dcd57ac93d33ee6f1daa0fd2f"
+  },
+  {
+    "path": "packages/main/src/tasks/flow-stability/support.ts",
+    "sha256": "5fadd8ffd3f0b964f0f4ce9d7b07f26e8d6ba7a7fd9eca7d35ce2a884d392e95"
+  },
+  {
+    "path": "packages/main/src/tasks/flow-stability/workspace.ts",
+    "sha256": "4ebf9339bdec52eaaf1e8b1c775d746c7bbb9ec234c635c1f4bbd30d52f0bc84"
+  },
+  {
+    "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+    "sha256": "e964f58c94197066257c16d71d611a75712d530b50cec23350b6539cac2bc0e3"
+  },
+  {
+    "path": "packages/main/tests/canonical-new-story-artifacts/artifact-inventory.mjs",
+    "sha256": "1c234a048e37c6d6a04be9c98816ac8b5b0612d64bb739b3630649c3c8f3f89b"
+  },
+  {
+    "path": "packages/main/tests/canonical-new-story-artifacts/catalog.mjs",
+    "sha256": "a02325c892938a4ae04421c4805d9bece569357e8f695f51c99f6f7b3a8085b9"
+  },
+  {
+    "path": "packages/main/tests/canonical-new-story-artifacts/cli.mjs",
+    "sha256": "70387c9e0cba4f1222c11ad32843b302dc2498d03014ebcfb1835524e2d82deb"
+  },
+  {
+    "path": "packages/main/tests/canonical-new-story-artifacts/data.mjs",
+    "sha256": "15cbbd4357f1e1a2f6c82f048f9480f28015bff693ba2ca3dce540cb59c769ef"
+  },
+  {
+    "path": "packages/main/tests/canonical-new-story-artifacts/driver.mjs",
+    "sha256": "238ee9818e074337bdf6a7dcf2ec9c1e286c3da8ea7809fb259d3b6389e913c0"
+  },
+  {
+    "path": "packages/main/tests/canonical-new-story-artifacts/finding-artifacts.mjs",
+    "sha256": "ba62e5b976a0966c0f54b7de7dd47299174b4ab3b6c229219b50d41c1f7323aa"
+  },
+  {
+    "path": "packages/main/tests/canonical-new-story-artifacts/fixture-support.mjs",
+    "sha256": "d7906a28cf62d087c16d9ee4f43d953fb51393422e65f65967702ce9df859877"
+  },
+  {
+    "path": "packages/main/tests/canonical-new-story-artifacts/identity-cutover.mjs",
+    "sha256": "c583bd41ee5789221e5f93f938f4528a9408dc376d72ef838260cc5e3236355b"
+  },
+  {
+    "path": "packages/main/tests/canonical-new-story-artifacts/identity-inventory.mjs",
+    "sha256": "0875a45d951eeba4169a2f3746829c4f2b38158dd21700a284bda194ef847654"
+  },
+  {
+    "path": "packages/main/tests/canonical-new-story-artifacts/identity-ownership.mjs",
+    "sha256": "14e6d8d1072cd3b0becb047e2d4997093569533b2de6f70aef5563c1cd3e7125"
+  },
+  {
+    "path": "packages/main/tests/canonical-new-story-artifacts/identity-policy.mjs",
+    "sha256": "961e6448fac422624a15b5468647a263ad2627175695256b55aa8748468f7358"
+  },
+  {
+    "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+    "sha256": "95c63e3794286639915ba413276a61df10b4fdd3fb09c1dc2951fe516fa4f9ac"
+  },
+  {
+    "path": "packages/main/tests/canonical-new-story-artifacts/identity-sites.mjs",
+    "sha256": "f2ee261f780e148e201a55c8f66f78ff189b39ff18a8c523cc9e705c73e9be95"
+  },
+  {
+    "path": "packages/main/tests/canonical-new-story-artifacts/memory-runtime.mjs",
+    "sha256": "4dc9b24ef3b263c169bf9b54d9e24a69925147104dc2224f23d0e914b86f7a96"
+  },
+  {
+    "path": "packages/main/tests/canonical-new-story-artifacts/migration-archive.mjs",
+    "sha256": "8732ff3479a894924d2d224b5f35dced75a22e7b109bb22b854aec87bc1ab6aa"
+  },
+  {
+    "path": "packages/main/tests/canonical-new-story-artifacts/public-fixtures.mjs",
+    "sha256": "f5ce04dbadba9d797ba1488796fbacce9b37cbd305fce94d9e3439097582aeb2"
+  },
+  {
+    "path": "packages/main/tests/canonical-new-story-artifacts/release.mjs",
+    "sha256": "c66002c9177bf2a1d3f91cf0c2a7126e57bad1270d0b7d2ff0e2adb765f22f05"
+  },
+  {
+    "path": "packages/main/tests/canonical-new-story-artifacts/runner.mjs",
+    "sha256": "5b094150ea2c457b9664d86887e43d30182384c976ea446df8651c996b931de2"
+  },
+  {
+    "path": "packages/main/tests/canonical-new-story-artifacts/runtime-extensions.mjs",
+    "sha256": "fc507afda2de106bb6a3036962bf7adf29aabf78edc3f456390364f5e88f17d1"
+  },
+  {
+    "path": "packages/main/tests/canonical-new-story-artifacts/runtime-read.mjs",
+    "sha256": "e154a98b7fa6bbd63e7730f1bf3f9921f8c84608591288ba747ab827b8611285"
+  },
+  {
+    "path": "packages/main/tests/canonical-new-story-artifacts/runtime-topology.mjs",
+    "sha256": "4d08bd149558036b3c18de20dbe715ebdb058cbbb1bee36d3b87f1bf342e2647"
+  },
+  {
+    "path": "packages/main/tests/canonical-new-story-artifacts/scope-init.mjs",
+    "sha256": "0233ab0985da1e2b928ee74264167120e368c97c4d340cf31f9b3b74330bb848"
+  },
+  {
+    "path": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+    "sha256": "5a7a6018c06f541c8757c16385537a09985f6461e7b0a00b4d70a94c38a06cf4"
+  },
+  {
+    "path": "packages/main/src/tasks/finding-ledger-runtime/authority.ts",
+    "sha256": "09b7f7d790053c50d6cd8495a10ee0d42bcb1f749c57b4d6af7438f408a15c17"
+  },
+  {
+    "path": "packages/main/src/tasks/finding-ledger-runtime/boundaries.ts",
+    "sha256": "4bf5ff980f301973eac59b0a418288083dfb708cf7f76e9eeeb9fd7164ccd928"
+  },
+  {
+    "path": "packages/main/src/tasks/finding-ledger-runtime/cli.ts",
+    "sha256": "7cbfeb9d92582748267bf5201e9d5df8de3f99caea49451246e97848dcbd7376"
+  },
+  {
+    "path": "packages/main/src/tasks/finding-ledger-runtime/distribution.ts",
+    "sha256": "a38e7b7cf006d4c829cb2b1105ed8995ba3cbce09d358044eb9fda5a751fca56"
+  },
+  {
+    "path": "packages/main/src/tasks/finding-ledger-runtime/process-mutation-proof.ts",
+    "sha256": "7a6e13957754cc1edc350439f8d0868eb5278f4535a4f81e8fd209fcb34de0b0"
+  },
+  {
+    "path": "packages/main/src/tasks/finding-ledger-runtime/projection.ts",
+    "sha256": "2c091ea9281061f2d517e7e49bc6e9d83d33b60f29b31cb19e3d32a093f599b5"
+  },
+  {
+    "path": "packages/main/src/tasks/finding-ledger-runtime/runtime-evidence.ts",
+    "sha256": "78190792b2a9867a41317bb818dfbc88b87503b10982c5e66636a4cafa72ee44"
+  },
+  {
+    "path": "packages/main/src/tasks/finding-ledger-runtime/support.ts",
+    "sha256": "aa986bc3c6dbdfe4c71cfc78d6eaec49d6778a695beae1bfd288efc64637c985"
+  },
+  {
+    "path": "packages/main/src/tasks/finding-ledger-runtime/transactions.ts",
+    "sha256": "384643cac57741394881dab669c9decf11e958a37d5358c1b1ec7fd7ca746111"
+  },
+  {
+    "path": "packages/main/src/tasks/managed-review-evidence-smoke.ts",
+    "sha256": "0061e78e4c40a3edbb0135653bf877e66aab3ecdba771fb5e7784b9fd5e9878d"
+  },
+  {
+    "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+    "sha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f"
+  },
+  {
+    "path": "packages/main/src/tasks/managed-review-evidence/cli.ts",
+    "sha256": "f3070ab1fded0a090528d095edd32cae594c4f53bcb0d88b37226102ad4e3550"
+  },
+  {
+    "path": "packages/main/src/tasks/managed-review-evidence/codex-transport.ts",
+    "sha256": "5201b972a4bc71c6712fa3b17d1b78fae14753eb9014900fb220d06a29f31097"
+  },
+  {
+    "path": "packages/main/src/tasks/managed-review-evidence/environment.ts",
+    "sha256": "e13324de950441f8e7658f809ee7bfc074f49e00cb9f6e9e54f32b7df572d205"
+  },
+  {
+    "path": "packages/main/src/tasks/managed-review-evidence/evidence-binding.ts",
+    "sha256": "3a8080c4c83c1b6d9a4cb7aa4985c4e9df9174195d22d1b19381cbde330f2aff"
+  },
+  {
+    "path": "packages/main/src/tasks/managed-review-evidence/fixtures.ts",
+    "sha256": "4a6b8ef5812dfd7bf80d0ec5c2476db342e00cd0aca246fd58c7eb0e148e926e"
+  },
+  {
+    "path": "packages/main/src/tasks/managed-review-evidence/grok-integration.ts",
+    "sha256": "8b58cde57418ea7383974c39c43c73e3ec6dd34ad967ad629e5ab0d2a0794518"
+  },
+  {
+    "path": "packages/main/src/tasks/managed-review-evidence/legacy-cli.ts",
+    "sha256": "4cb7da4fb380006a86fbb01b41853f38b6059507161243b7e5761d06b1f25fb7"
+  },
+  {
+    "path": "packages/main/src/tasks/managed-review-evidence/live-binding.ts",
+    "sha256": "040f0468d0156052875e58541233d4e8d1b8b019cc61e1142160f16c0538b2dd"
+  },
+  {
+    "path": "packages/main/src/tasks/managed-review-evidence/native-attestation.ts",
+    "sha256": "743994f62d3162173d65fd819750088be9f594f07fd7a63bfe938d98a4a142d9"
+  },
+  {
+    "path": "packages/main/src/tasks/managed-review-evidence/prompt-fixture.ts",
+    "sha256": "73b99b7743364a6f310774f21763d010e20380ff80188eea2f0f1b4d83071a8a"
+  },
+  {
+    "path": "packages/main/src/tasks/managed-review-evidence/sealed-receipts.ts",
+    "sha256": "e4b96e725fb5906fbddadc873719022220b0d241efbd49c312aedc45a4183b24"
+  },
+  {
+    "path": "packages/main/src/tasks/managed-review-evidence/suite.ts",
+    "sha256": "9fb895a0b8efca91595a785d40c50014594d0aad53d4d8bc05e8a4283a9013da"
+  },
+  {
+    "path": "packages/main/src/tasks/managed-review-evidence/supersession.ts",
+    "sha256": "ff2654e5bf0f6a0072f7dac48a889000bc71e412dc62ba795804f5dd69afdf15"
+  },
+  {
+    "path": "packages/main/src/tasks/managed-review-evidence/transport-workers.ts",
+    "sha256": "ecbac7a51fc2aedc4ce6ec98845b7ca8336689b29a7ad786153d4f6ee199202c"
+  },
+  {
+    "path": "packages/main/src/tasks/host-run-usage-smoke.ts",
+    "sha256": "bd4c0381f2c15ec3dc5085e68cfc75f6e4160cf79bb0d24f226f0dc3321ccca9"
+  },
+  {
+    "path": "packages/main/src/tasks/host-run-usage/admission.ts",
+    "sha256": "3e96df901b20790aebdc5b1faab374fa09550e89cd8f8ad6198d41f59672de2a"
+  },
+  {
+    "path": "packages/main/src/tasks/host-run-usage/cli.ts",
+    "sha256": "a93741aacc27b895c35cd903605451301a2faf50ec1838dd2375f4b0f7725097"
+  },
+  {
+    "path": "packages/main/src/tasks/host-run-usage/evidence-mapping.ts",
+    "sha256": "adcffd8d6e27474b40d43b1e2d5ab3ad3d7caa8e55db0b2e3afe9c84094d11bd"
+  },
+  {
+    "path": "packages/main/src/tasks/host-run-usage/integrations.ts",
+    "sha256": "f0d001232225a04526717f8c53193cbdb72b1bf15058e2bc308d8aac1962935e"
+  },
+  {
+    "path": "packages/main/src/tasks/host-run-usage/ledger-concurrency.ts",
+    "sha256": "4de0a6e85cdcddbac8d20f1819e95509a992c665f802c12c34f5f39876753f23"
+  },
+  {
+    "path": "packages/main/src/tasks/host-run-usage/ledger-failures.ts",
+    "sha256": "bdf7bde024315604b501ecc2f9f514b381f8099ef1060574da6d276bd813b148"
+  },
+  {
+    "path": "packages/main/src/tasks/host-run-usage/output-errors.ts",
+    "sha256": "a767810d48b5286842c593d2356f0c6511882d2411c36b462ddc53a2de255c32"
+  },
+  {
+    "path": "packages/main/src/tasks/host-run-usage/process-supervision.ts",
+    "sha256": "78b2cbf5943235f764d9ae782300896ffa49a0dd8db8cf9ceddec305990e47fa"
+  },
+  {
+    "path": "packages/main/src/tasks/host-run-usage/prompt-supervision.ts",
+    "sha256": "4aede3132ca3d1d438a45ae3e389ebfd439e482957f5bbf7d99023c923cdd587"
+  },
+  {
+    "path": "packages/main/src/tasks/host-run-usage/proposal.ts",
+    "sha256": "ece4f239fa02b3229cad6f295572c56f15c20339ddb8e910da046c5df0b45941"
+  },
+  {
+    "path": "packages/main/src/tasks/host-run-usage/story-binding.ts",
+    "sha256": "6bff02ae7c2053a984d6c277f2538c3e2e3aea65f46b3f21990a1fb64e704519"
+  },
+  {
+    "path": "packages/main/src/tasks/host-run-usage/streaming.ts",
+    "sha256": "e3756cdd967f9f37c8fb3a73b03af8f9091d53a92e332bfc6c4a1487a013ad58"
+  },
+  {
+    "path": "packages/main/src/tasks/host-run-usage/summary.ts",
+    "sha256": "96997eb75f95dc2811184d4a30a4c56e26967c167104b4eba2d6633074665beb"
+  },
+  {
+    "path": "packages/main/src/tasks/host-run-usage/support.ts",
+    "sha256": "eceab4894a349c3d444c47e4f648b52e0fa2c92ff95dd3c11bc60b64a4f580f0"
+  },
+  {
+    "path": "packages/main/src/tasks/host-run-usage/usage-parsing.ts",
+    "sha256": "d07e18874ce63ee73d40f48e18b793c50e24a9713b17df9e6581ecbcfda0297c"
+  },
+  {
+    "path": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "sha256": "d3fe4c7fa9be7360969059a70782e28518f21fe11d60953a8d5658466749866d"
+  },
+  {
+    "path": "scripts/prompt-baseline/cli.mjs",
+    "sha256": "b6bf89ef92fa45a25ce133cdc6fabc26a53c0304a31b2fd02009be3ff9ff4980"
+  },
+  {
+    "path": "scripts/prompt-baseline/collection.mjs",
+    "sha256": "d1eb453b668b3c58c725ab0bb848634131df93d73361ba021139f397c8cd1a1d"
+  },
+  {
+    "path": "scripts/prompt-baseline/policy-data.mjs",
+    "sha256": "f5b5d2d76f03a83d6131411628d06142de7432f94c1ac052c903da437f84b97b"
+  },
+  {
+    "path": "scripts/prompt-baseline/policy-probes.mjs",
+    "sha256": "4f3fa2a4ab3141dd6e587dc077e30fdc7f0a8508680491354ae702872f35b719"
+  },
+  {
+    "path": "scripts/prompt-baseline/scanners.mjs",
+    "sha256": "10570c996321b1a96311daf3b6b033f668bf7f58462100f0dccc4eed0b978c6b"
+  },
+  {
+    "path": "scripts/prompt-baseline/verification.mjs",
+    "sha256": "9dfbb755c8b67cf294f39e17903510efb38b7b506e5333692b121a2fc955b0f6"
+  },
+  {
+    "path": "packages/main/tests/milestone-status.test.mjs",
+    "sha256": "407bf57ccd5f70882193454097a8b0983c0d96236077f10aad1d5f43c0fcb039"
+  },
+  {
+    "path": "packages/main/tests/milestone-status/cli-behavior.mjs",
+    "sha256": "5a0d219bf4b4dbfcba8c75e04f2a113d316bbea16a0d6ee7713c34715f423374"
+  },
+  {
+    "path": "packages/main/tests/milestone-status/cli.mjs",
+    "sha256": "94a5aee13fc85e4b6e0a5cd34707ed68abc2639e3fb8cd5b1fbd9a6f6d0a2611"
+  },
+  {
+    "path": "packages/main/tests/milestone-status/closeout.mjs",
+    "sha256": "7d660a78096ba1fb1a803e78be2e483ff84419ca35313b1fb75560f326d4e0f5"
+  },
+  {
+    "path": "packages/main/tests/milestone-status/coverage.mjs",
+    "sha256": "28934a4286fb791c0a5a6b90e3d344385679ca97a02584a126442142e6896a24"
+  },
+  {
+    "path": "packages/main/tests/milestone-status/freshness.mjs",
+    "sha256": "c3640eb1e89fb9c190772b308951afaa73d83b21477059e1923731c7dbc320a3"
+  },
+  {
+    "path": "packages/main/tests/milestone-status/planning.mjs",
+    "sha256": "c0459dfda5c3f74da47641b9bbb0487ec6c3eb69db7a5cf022fe899a23ec8380"
+  },
+  {
+    "path": "packages/main/tests/milestone-status/read-only.mjs",
+    "sha256": "3044c294fc781b8cdeb3bb75b302fa57a04a2696d1688e900e4a01147480fc46"
+  },
+  {
+    "path": "packages/main/tests/milestone-status/reporting.mjs",
+    "sha256": "c17ceb7d832069d7fb07a086364d2e279343033a09bfe568f4ec1bf61621fc67"
+  },
+  {
+    "path": "packages/main/tests/milestone-status/support.mjs",
+    "sha256": "769bcaf9548cc61ab296d0d3d8dc0d2124b31a765aa78cfa73e9accb4d59bd99"
+  },
+  {
+    "path": "scripts/verify-validation-build-artifact-binding.mjs",
+    "sha256": "b57828732bbbcba5888e85cf5447c7fd628ddb00281bec3ca09c0081ce876c69"
+  },
+  {
+    "path": "scripts/validation-build-binding/cli.mjs",
+    "sha256": "05f7fcf2189f833d4213f0e4251bfe9d9133b10e3e1cbb72906dc121560e91ad"
+  },
+  {
+    "path": "scripts/validation-build-binding/done-required.mjs",
+    "sha256": "7b6be49b8e8e92cfb35fce9b9661093efb708cc37ad28f3772d9a69eeb5acfba"
+  },
+  {
+    "path": "scripts/validation-build-binding/executor.mjs",
+    "sha256": "2eefd692965ed9652cfb16201e861b83b7e494204b0b04407003081c97e3af2c"
+  },
+  {
+    "path": "scripts/validation-build-binding/handler.mjs",
+    "sha256": "3a9c7a6103c668e9f06fe65c62552c8ca24d393a7614fc3e6425e10b8434d2cc"
+  },
+  {
+    "path": "scripts/validation-build-binding/routine.mjs",
+    "sha256": "ed29329beac71a968f9da210a0bdea85286a7c2ac52bab70fc5aa529546614c7"
+  },
+  {
+    "path": "scripts/validation-build-binding/shared-cache.mjs",
+    "sha256": "8619e4e9a311943b082c2d2c5eb89cafd9762736f765fc13d71d1fa9a4a4b753"
+  },
+  {
+    "path": "scripts/validation-build-binding/support.mjs",
+    "sha256": "8bc03b1f51c4bb86bd865a6e0dea6e819a8d99c4a25263c0414453a12a8189c7"
+  },
+  {
+    "path": "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+    "sha256": "a123928aa8ea73e9f58ee266e771dc29dfc77b1410c7ff2e9b359ae0f8756fac"
+  },
+  {
+    "path": "packages/main/src/tasks/verification-run-and-guard/causal.ts",
+    "sha256": "4f0ed6fda17abc9062dbbf259d36ccbc5ff157df2cbac73118cc99faa7866316"
+  },
+  {
+    "path": "packages/main/src/tasks/verification-run-and-guard/cli.ts",
+    "sha256": "9a1504a2d2bf520c6a06af6d07872805b9e742e77fcaaded75769b7717e703a6"
+  },
+  {
+    "path": "packages/main/src/tasks/verification-run-and-guard/foundation.ts",
+    "sha256": "3825f4bd40ba7bfdfe5ab9652859cab85fbd9935b10b0b6007c14f59547d12b7"
+  },
+  {
+    "path": "packages/main/src/tasks/verification-run-and-guard/integrity.ts",
+    "sha256": "c78157212d0e64d914f2929ffb86eadd802a63b89c87688caf724a8bc13f9076"
+  },
+  {
+    "path": "packages/main/src/tasks/verification-run-and-guard/publication.ts",
+    "sha256": "26f5421af72bac263e134cd0f8a0de11e3034c9f364157daab0929f237886382"
+  },
+  {
+    "path": "packages/main/src/tasks/verification-run-and-guard/refresh.ts",
+    "sha256": "535d27bea6ef10e1a699297b50fd7a4938b9c70461684bc825da2d2d00d7d15e"
+  },
+  {
+    "path": "packages/main/src/tasks/verification-run-and-guard/support.ts",
+    "sha256": "148aa837b600de613e73a6eff7ef49d8fcc67e99f7562cb0a12265f886356caa"
   }
 ];
 
@@ -387,9 +1087,9 @@ export const BOTH_FAMILY_CONTEXT_ROWS = [
   ["docs/story/drafts/codex-hook-assets-drift-from-generator/checklist.json","; .codex/hooks.json is neither, which is why Proofbound survived. Add JSON host assets under .codex/ and .claude/ to the scan roots with the same deprecate",1,"a4633d374ab9e70e0de04f4e38a81b81bc1228b22b7818763a75a26781f7e7f9","provenance_bytes","Exact historical quotation, import metadata, preserved worktree location, or defect observation; not a current command or schema instruction."],
   ["docs/story/drafts/codex-hook-assets-drift-from-generator/index.json","ed ROOT_MARKERS, deprecated alias fallbacks, Proofbound statusMessage strings). Regenerate them fully on main, and add a smoke that renders the generator o",1,"33dfd134a02450393ce20678f9820d168b5441f7fe7cc14c307be5748b4c3a08","provenance_bytes","Exact historical quotation, import metadata, preserved worktree location, or defect observation; not a current command or schema instruction."],
   ["packages/main/src/tasks/command-catalog-smoke.ts","assert.doesNotMatch(helpOutput, /Proofbound/, 'help must not print the legacy Proofbound product name anywhere');",1,"55649ea8494c215048a19f1dcb3da742591c3d6223836151b8930e9862367ae8","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
-  ["packages/main/tests/canonical-new-story-artifacts.test.mjs","// this inventory specifically so active proofbound protocol literals or",1,"360530bd2123c42ef12c5ce94b715cecb9b3f19152573bc4da4e6b89fe127230","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
-  ["packages/main/tests/canonical-new-story-artifacts.test.mjs",", 'CHK-007:edge:0 frozen proofbound history stays byte-identical and is rejected by active readers', () =>",1,"ac46d7f5af2afc2060115d73d97e493dfb87017ebf218029cc4ff253165ef283","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
-  ["packages/main/tests/canonical-new-story-artifacts.test.mjs",", 'CHK-007:adversarial:0 proofbound injection at every active boundary fails closed with zero mutation', () =>",1,"5faf7bdaaf63f9f8b46c2640d3b6fdf5c97001d7fb7454badd7315aad8b35e34","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/tests/canonical-new-story-artifacts/identity-inventory.mjs","// this inventory specifically so active proofbound protocol literals or",1,"360530bd2123c42ef12c5ce94b715cecb9b3f19152573bc4da4e6b89fe127230","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/tests/canonical-new-story-artifacts/identity-cutover.mjs",", 'CHK-007:edge:0 frozen proofbound history stays byte-identical and is rejected by active readers', () =>",1,"ac46d7f5af2afc2060115d73d97e493dfb87017ebf218029cc4ff253165ef283","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/tests/canonical-new-story-artifacts/identity-cutover.mjs",", 'CHK-007:adversarial:0 proofbound injection at every active boundary fails closed with zero mutation', () =>",1,"5faf7bdaaf63f9f8b46c2640d3b6fdf5c97001d7fb7454badd7315aad8b35e34","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
   ["docs/requirements/decisions/claude-session-b-cdf6-review-convergence-analysis-and-optimization.md","> Proofbound 的生命周期、reviewer 编排、证据写入和验收模型，在哪些位置把一次正常的实现—审查—修复过程放大成了多轮重复工作？",1,"c53fd27427997f24090b13e286bddb940b4878122d6a1befd7a3638b1c950c2d","provenance_bytes","Exact historical quotation, import metadata, preserved worktree location, or defect observation; not a current command or schema instruction."],
   ["docs/requirements/decisions/milestone-ledger-status-review-findings.md","`/Users/jek/Documents/Work/proofbound/.worktrees/B-b550`. The retired",1,"18c7c970ef63b8449d434c81c02ebbf34b5c0a0345bfb868449f146db76bdc86","provenance_bytes","Exact historical quotation, import metadata, preserved worktree location, or defect observation; not a current command or schema instruction."],
   ["docs/requirements/decisions/orchestrate-retirement.md","| B-3523 | `/Users/jek/Documents/Work/proofbound/.worktrees/B-3523` | preserved, not normalized |",1,"0193096213ccb09c302c9a0c5166bc5759b9fe361382e3d669a3bad029a8eb23","provenance_bytes","Exact historical quotation, import metadata, preserved worktree location, or defect observation; not a current command or schema instruction."],
@@ -448,12 +1148,12 @@ export const BOTH_FAMILY_CONTEXT_ROWS = [
   ["packages/main/src/tasks/playbook-runtime-memory-m3-m6-smoke.ts","mergedInto: 'proofbound',",1,"8c1426260aa633e85a020d0856989545c39843c994d5fd42c99997111bb360fa","compatibility_fixture","Exact historical deprecated-tag fixture field used to exercise deprecated-term observations; not proof of rejection or current tag emission."],
   ["packages/main/src/tasks/usage-sweep-smoke.ts","const codexCwd = '/Users/jek/Documents/Work/proofbound/.worktrees/B-70e9';",1,"00bff076769a0dbb7ce3af4e3cdba33e3dd5d468d7a70bb10684e25a23f1f1b3","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
   ["packages/main/src/tasks/usage-sweep-smoke.ts","type: 'assistant', timestamp: '2026-07-10T02:00:00.000Z', cwd: '/Users/jek/Documents/Work/proofbound/.worktrees/B-70e9', requestId: 'req_1', message:",1,"85554fe596f2b668eba4c0ee755a373ba182da673b5852d7972dcce996897da9","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
-  ["packages/main/tests/canonical-new-story-artifacts.test.mjs","/retired|proofbound|unsupported|unexpected|pinned|provenance|allowlist/i,",1,"ac899cff98f276f54bda8c39e62eac61881cf45ac8ea24dd2025ded8015a7ab2","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
-  ["packages/main/tests/canonical-new-story-artifacts.test.mjs","/retired|proofbound|unsupported|unexpected|allowlist|schema/is,",1,"62d0b0b5c4eb59006d2c4a5bb5584f6b8aeb88efa85627c64151a95f11f44e4f","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
-  ["packages/main/tests/canonical-new-story-artifacts.test.mjs","assert.equal(/proofbound/iu.test(readFileSync(join(repoRoot, path), 'utf8')), false, `$",1,"7eef367f9b5eb038c73b01cfb659f24b339e41dde992e3fda28150d7f88a52f8","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
-  ["packages/main/tests/canonical-new-story-artifacts.test.mjs","assert.equal(/proofbound/iu.test(bytes), false, `$",1,"97b2e85d00c912d1dbada8741102737d5c26b412f7f11f5648736e8bc859c03f","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
-  ["packages/main/tests/canonical-new-story-artifacts.test.mjs","assert.ok(identityCase.retired.startsWith('proofbound.') || identityCase.retired.startsWith('proofbound-'), `$",1,"a5d6d90f0f359d936965876c05c9f88954ed38e86b9a089c8ef344b32bc6c9b7","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
-  ["packages/main/tests/canonical-new-story-artifacts.test.mjs","'proofbound-'",1,"a5d6d90f0f359d936965876c05c9f88954ed38e86b9a089c8ef344b32bc6c9b7","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/tests/canonical-new-story-artifacts/identity-cutover.mjs","/retired|proofbound|unsupported|unexpected|pinned|provenance|allowlist/i,",1,"ac899cff98f276f54bda8c39e62eac61881cf45ac8ea24dd2025ded8015a7ab2","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/tests/canonical-new-story-artifacts/identity-cutover.mjs","/retired|proofbound|unsupported|unexpected|allowlist|schema/is,",1,"62d0b0b5c4eb59006d2c4a5bb5584f6b8aeb88efa85627c64151a95f11f44e4f","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/tests/canonical-new-story-artifacts/identity-sites.mjs","assert.equal(/proofbound/iu.test(readFileSync(join(repoRoot, path), 'utf8')), false, `$",1,"7eef367f9b5eb038c73b01cfb659f24b339e41dde992e3fda28150d7f88a52f8","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/tests/canonical-new-story-artifacts/identity-sites.mjs","assert.equal(/proofbound/iu.test(bytes), false, `$",1,"97b2e85d00c912d1dbada8741102737d5c26b412f7f11f5648736e8bc859c03f","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/tests/canonical-new-story-artifacts/migration-archive.mjs","assert.ok(identityCase.retired.startsWith('proofbound.') || identityCase.retired.startsWith('proofbound-'), `$",1,"a5d6d90f0f359d936965876c05c9f88954ed38e86b9a089c8ef344b32bc6c9b7","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
+  ["packages/main/tests/canonical-new-story-artifacts/migration-archive.mjs","'proofbound-'",1,"a5d6d90f0f359d936965876c05c9f88954ed38e86b9a089c8ef344b32bc6c9b7","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
   ["packages/main/tests/prompt-role-migration.test.mjs","proofbound.prompt-registry.v1",1,"94ff59bed270fbcc9eda265e6f179dfdd44e927b3f0972a33923d09866db4500","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
   ["packages/main/tests/red/red-s3-differential-probe.mjs","'volatile machine-absolute path', 'volatile', 'validation lock held at /Users/jek/Documents/Work/proofbound/.proof-or-stop/locks/validate', 'validation lock held at /private/var/folders/zz/T/proof-or-stop-abc/.proof-or-stop/locks/validate'",1,"24ac9f6cf3589bdff771e5edfee56b7af522bb75a04855bfd4ef832686484837","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
   ["packages/main/tests/red/red-s3-digest-collapse.mjs","'validation lock held at /Users/jek/Documents/Work/proofbound/.proof-or-stop/locks/validate',",1,"2f5cc620006a939032a2ee1cb7444b189314d76fa646fae40ae0c93d7d986f6b","compatibility_fixture","Exact retired-input rejection or error/transcript fixture; never a current identity producer or alias authority."],
@@ -473,7 +1173,7 @@ export const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [1,"ebdcc59f439a3e890e6a4c6b7a0a6c523cc0cb37a343cea8af0aa5d1cb498748"],
   [2,"d1261e4856fd3441f6ba185e3cc3a0e3222145e69218180ca3567888f848a694"],
   [3,"65b3a71a775eef59f9398fc88bae41728f07d0ff832b3164fc4a6305f2829b78"],
-  [4,"7dee0a6347c1609c8812bd7c10299cabbdcdf8532db95ff0450deacbedcf1be4"],
+  [4,"0875a45d951eeba4169a2f3746829c4f2b38158dd21700a284bda194ef847654"],
   [14,"6ce71b767c7003c53068880527a14a0986692d4e80283ffbae217fad0af98fa5"],
   [15,"9101f015dcbfe0affcca0cecc2bc15ac9d1e691af1c5febbe249746d16536b60"],
   [16,"c182058690e5e55d41d91f5bc496acbe21b126e29e310525e4f4b1f3895cba21"],
@@ -518,4 +1218,216 @@ export const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [72,"bba76d9fccb473fe801af115aad9eb59c82f382d0934a14f69cfce860d0c376f"],
   [73,"42de93915352c14e2962c733365adfd1c840a9b12cce78bf4bcfa201676a6870"],
   [74,"e5259450c31aa3feeaaebcb83fa32adc5f171019564c121d10cb87889c1e584d"],
+  [5,"c583bd41ee5789221e5f93f938f4528a9408dc376d72ef838260cc5e3236355b"],
+  [67,"f2ee261f780e148e201a55c8f66f78ff189b39ff18a8c523cc9e705c73e9be95"],
+  [69,"8732ff3479a894924d2d224b5f35dced75a22e7b109bb22b854aec87bc1ab6aa"]
 ].map(([rowIndex, sha256]) => ({ path: BOTH_FAMILY_CONTEXT_ROWS[rowIndex].path, sha256 }));
+
+export const MODULAR_WITNESS_CLOSURES = {
+  "scripts/verify-process-fact-contract.mjs": [
+    "scripts/verify-process-fact-contract.mjs",
+    "scripts/process-fact-contract/catalog.mjs",
+    "scripts/process-fact-contract/cli.mjs",
+    "scripts/process-fact-contract/command-contracts.mjs",
+    "scripts/process-fact-contract/complete.mjs",
+    "scripts/process-fact-contract/early.mjs",
+    "scripts/process-fact-contract/prompt-contracts.mjs",
+    "scripts/process-fact-contract/proofstory-closeout.mjs",
+    "scripts/process-fact-contract/registry-alignment.mjs",
+    "scripts/process-fact-contract/registry-parser.mjs",
+    "scripts/process-fact-contract/reopen.mjs",
+    "scripts/process-fact-contract/review-inventory.mjs",
+    "scripts/process-fact-contract/review-verification.mjs",
+    "scripts/process-fact-contract/scope-runtime.mjs",
+    "scripts/process-fact-contract/source-analysis.mjs",
+    "scripts/process-fact-contract/story3.mjs",
+    "scripts/process-fact-contract/support.mjs"
+  ],
+  "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs": [
+    "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs",
+    "packages/main/tests/red/quorum-submit-harness/callback-inventory.mjs",
+    "packages/main/tests/red/quorum-submit-harness/catalog.mjs",
+    "packages/main/tests/red/quorum-submit-harness/cli.mjs",
+    "packages/main/tests/red/quorum-submit-harness/containment.mjs",
+    "packages/main/tests/red/quorum-submit-harness/coordinator-wiring.mjs",
+    "packages/main/tests/red/quorum-submit-harness/driver.mjs",
+    "packages/main/tests/red/quorum-submit-harness/environment-closure.mjs",
+    "packages/main/tests/red/quorum-submit-harness/exact-head-authorization.mjs",
+    "packages/main/tests/red/quorum-submit-harness/exact-head-checkout.mjs",
+    "packages/main/tests/red/quorum-submit-harness/exact-head-supervisor.mjs",
+    "packages/main/tests/red/quorum-submit-harness/fixture-source-closure.mjs",
+    "packages/main/tests/red/quorum-submit-harness/fixture-templates.mjs",
+    "packages/main/tests/red/quorum-submit-harness/mutation-controls.mjs",
+    "packages/main/tests/red/quorum-submit-harness/owned-files.mjs",
+    "packages/main/tests/red/quorum-submit-harness/partition.mjs",
+    "packages/main/tests/red/quorum-submit-harness/performance-cases.mjs",
+    "packages/main/tests/red/quorum-submit-harness/performance-context.mjs",
+    "packages/main/tests/red/quorum-submit-harness/performance-material.mjs",
+    "packages/main/tests/red/quorum-submit-harness/process-supervision.mjs",
+    "packages/main/tests/red/quorum-submit-harness/resource-parallel.mjs",
+    "packages/main/tests/red/quorum-submit-harness/resource-traces.mjs",
+    "packages/main/tests/red/quorum-submit-harness/selection-contracts.mjs",
+    "packages/main/tests/red/quorum-submit-harness/selection.mjs",
+    "packages/main/tests/red/quorum-submit-harness/supervisor-controls.mjs",
+    "packages/main/tests/red/quorum-submit-harness/support.mjs",
+    "packages/main/tests/red/quorum-submit-harness/tree-lease.mjs",
+    "packages/main/tests/red/quorum-submit-harness/worker-coordination.mjs"
+  ],
+  "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": [
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "packages/main/src/tasks/retired-authority/binding-classification.ts",
+    "packages/main/src/tasks/retired-authority/cli.ts",
+    "packages/main/src/tasks/retired-authority/compatibility-controls.ts",
+    "packages/main/src/tasks/retired-authority/driver.ts",
+    "packages/main/src/tasks/retired-authority/dynamic-bindings.ts",
+    "packages/main/src/tasks/retired-authority/dynamic-scan.ts",
+    "packages/main/src/tasks/retired-authority/execution-controls.ts",
+    "packages/main/src/tasks/retired-authority/file-scan.ts",
+    "packages/main/src/tasks/retired-authority/loader-controls.ts",
+    "packages/main/src/tasks/retired-authority/module-loaders.ts",
+    "packages/main/src/tasks/retired-authority/positive-controls.ts",
+    "packages/main/src/tasks/retired-authority/public-contract.ts",
+    "packages/main/src/tasks/retired-authority/rule-data.ts",
+    "packages/main/src/tasks/retired-authority/type-analysis.ts"
+  ],
+  "packages/main/src/tasks/validation-tier-planner-smoke.ts": [
+    "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+    "packages/main/src/tasks/validation-tier-planner/acceptance-guards.ts",
+    "packages/main/src/tasks/validation-tier-planner/change-inputs.ts",
+    "packages/main/src/tasks/validation-tier-planner/cli-integration.ts",
+    "packages/main/src/tasks/validation-tier-planner/cli.ts",
+    "packages/main/src/tasks/validation-tier-planner/command-identity.ts",
+    "packages/main/src/tasks/validation-tier-planner/hash-completeness.ts",
+    "packages/main/src/tasks/validation-tier-planner/historical-pins.ts",
+    "packages/main/src/tasks/validation-tier-planner/selection-widening.ts",
+    "packages/main/src/tasks/validation-tier-planner/support.ts"
+  ],
+  "packages/main/src/tasks/flow-stability-smoke.ts": [
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/flow-stability/artifacts.ts",
+    "packages/main/src/tasks/flow-stability/cli.ts",
+    "packages/main/src/tasks/flow-stability/discovery-fixture.ts",
+    "packages/main/src/tasks/flow-stability/done-convergence.ts",
+    "packages/main/src/tasks/flow-stability/done-reporting.ts",
+    "packages/main/src/tasks/flow-stability/lifecycle.ts",
+    "packages/main/src/tasks/flow-stability/phase-effects.ts",
+    "packages/main/src/tasks/flow-stability/review-evidence.ts",
+    "packages/main/src/tasks/flow-stability/review-routing.ts",
+    "packages/main/src/tasks/flow-stability/support.ts",
+    "packages/main/src/tasks/flow-stability/workspace.ts"
+  ],
+  "packages/main/tests/canonical-new-story-artifacts.test.mjs": [
+    "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+    "packages/main/tests/canonical-new-story-artifacts/artifact-inventory.mjs",
+    "packages/main/tests/canonical-new-story-artifacts/catalog.mjs",
+    "packages/main/tests/canonical-new-story-artifacts/cli.mjs",
+    "packages/main/tests/canonical-new-story-artifacts/data.mjs",
+    "packages/main/tests/canonical-new-story-artifacts/driver.mjs",
+    "packages/main/tests/canonical-new-story-artifacts/finding-artifacts.mjs",
+    "packages/main/tests/canonical-new-story-artifacts/fixture-support.mjs",
+    "packages/main/tests/canonical-new-story-artifacts/identity-cutover.mjs",
+    "packages/main/tests/canonical-new-story-artifacts/identity-inventory.mjs",
+    "packages/main/tests/canonical-new-story-artifacts/identity-ownership.mjs",
+    "packages/main/tests/canonical-new-story-artifacts/identity-policy.mjs",
+    "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+    "packages/main/tests/canonical-new-story-artifacts/identity-sites.mjs",
+    "packages/main/tests/canonical-new-story-artifacts/memory-runtime.mjs",
+    "packages/main/tests/canonical-new-story-artifacts/migration-archive.mjs",
+    "packages/main/tests/canonical-new-story-artifacts/public-fixtures.mjs",
+    "packages/main/tests/canonical-new-story-artifacts/release.mjs",
+    "packages/main/tests/canonical-new-story-artifacts/runner.mjs",
+    "packages/main/tests/canonical-new-story-artifacts/runtime-extensions.mjs",
+    "packages/main/tests/canonical-new-story-artifacts/runtime-read.mjs",
+    "packages/main/tests/canonical-new-story-artifacts/runtime-topology.mjs",
+    "packages/main/tests/canonical-new-story-artifacts/scope-init.mjs"
+  ],
+  "packages/main/src/tasks/finding-ledger-runtime-smoke.ts": [
+    "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+    "packages/main/src/tasks/finding-ledger-runtime/authority.ts",
+    "packages/main/src/tasks/finding-ledger-runtime/boundaries.ts",
+    "packages/main/src/tasks/finding-ledger-runtime/cli.ts",
+    "packages/main/src/tasks/finding-ledger-runtime/distribution.ts",
+    "packages/main/src/tasks/finding-ledger-runtime/process-mutation-proof.ts",
+    "packages/main/src/tasks/finding-ledger-runtime/projection.ts",
+    "packages/main/src/tasks/finding-ledger-runtime/runtime-evidence.ts",
+    "packages/main/src/tasks/finding-ledger-runtime/support.ts",
+    "packages/main/src/tasks/finding-ledger-runtime/transactions.ts"
+  ],
+  "packages/main/src/tasks/managed-review-evidence-smoke.ts": [
+    "packages/main/src/tasks/managed-review-evidence-smoke.ts",
+    "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+    "packages/main/src/tasks/managed-review-evidence/cli.ts",
+    "packages/main/src/tasks/managed-review-evidence/codex-transport.ts",
+    "packages/main/src/tasks/managed-review-evidence/environment.ts",
+    "packages/main/src/tasks/managed-review-evidence/evidence-binding.ts",
+    "packages/main/src/tasks/managed-review-evidence/fixtures.ts",
+    "packages/main/src/tasks/managed-review-evidence/grok-integration.ts",
+    "packages/main/src/tasks/managed-review-evidence/legacy-cli.ts",
+    "packages/main/src/tasks/managed-review-evidence/live-binding.ts",
+    "packages/main/src/tasks/managed-review-evidence/native-attestation.ts",
+    "packages/main/src/tasks/managed-review-evidence/prompt-fixture.ts",
+    "packages/main/src/tasks/managed-review-evidence/sealed-receipts.ts",
+    "packages/main/src/tasks/managed-review-evidence/suite.ts",
+    "packages/main/src/tasks/managed-review-evidence/supersession.ts",
+    "packages/main/src/tasks/managed-review-evidence/transport-workers.ts"
+  ],
+  "packages/main/src/tasks/host-run-usage-smoke.ts": [
+    "packages/main/src/tasks/host-run-usage-smoke.ts",
+    "packages/main/src/tasks/host-run-usage/admission.ts",
+    "packages/main/src/tasks/host-run-usage/cli.ts",
+    "packages/main/src/tasks/host-run-usage/evidence-mapping.ts",
+    "packages/main/src/tasks/host-run-usage/integrations.ts",
+    "packages/main/src/tasks/host-run-usage/ledger-concurrency.ts",
+    "packages/main/src/tasks/host-run-usage/ledger-failures.ts",
+    "packages/main/src/tasks/host-run-usage/output-errors.ts",
+    "packages/main/src/tasks/host-run-usage/process-supervision.ts",
+    "packages/main/src/tasks/host-run-usage/prompt-supervision.ts",
+    "packages/main/src/tasks/host-run-usage/proposal.ts",
+    "packages/main/src/tasks/host-run-usage/story-binding.ts",
+    "packages/main/src/tasks/host-run-usage/streaming.ts",
+    "packages/main/src/tasks/host-run-usage/summary.ts",
+    "packages/main/src/tasks/host-run-usage/support.ts",
+    "packages/main/src/tasks/host-run-usage/usage-parsing.ts"
+  ],
+  "scripts/verify-proof-or-stop-prompt-baseline.mjs": [
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "scripts/prompt-baseline/cli.mjs",
+    "scripts/prompt-baseline/collection.mjs",
+    "scripts/prompt-baseline/policy-data.mjs",
+    "scripts/prompt-baseline/policy-probes.mjs",
+    "scripts/prompt-baseline/scanners.mjs",
+    "scripts/prompt-baseline/verification.mjs"
+  ],
+  "packages/main/tests/milestone-status.test.mjs": [
+    "packages/main/tests/milestone-status.test.mjs",
+    "packages/main/tests/milestone-status/cli-behavior.mjs",
+    "packages/main/tests/milestone-status/cli.mjs",
+    "packages/main/tests/milestone-status/closeout.mjs",
+    "packages/main/tests/milestone-status/coverage.mjs",
+    "packages/main/tests/milestone-status/freshness.mjs",
+    "packages/main/tests/milestone-status/planning.mjs",
+    "packages/main/tests/milestone-status/read-only.mjs",
+    "packages/main/tests/milestone-status/reporting.mjs",
+    "packages/main/tests/milestone-status/support.mjs"
+  ],
+  "scripts/verify-validation-build-artifact-binding.mjs": [
+    "scripts/verify-validation-build-artifact-binding.mjs",
+    "scripts/validation-build-binding/cli.mjs",
+    "scripts/validation-build-binding/done-required.mjs",
+    "scripts/validation-build-binding/executor.mjs",
+    "scripts/validation-build-binding/handler.mjs",
+    "scripts/validation-build-binding/routine.mjs",
+    "scripts/validation-build-binding/shared-cache.mjs",
+    "scripts/validation-build-binding/support.mjs"
+  ],
+  "packages/main/src/tasks/verification-run-and-guard-smoke.ts": [
+    "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+    "packages/main/src/tasks/verification-run-and-guard/causal.ts",
+    "packages/main/src/tasks/verification-run-and-guard/cli.ts",
+    "packages/main/src/tasks/verification-run-and-guard/foundation.ts",
+    "packages/main/src/tasks/verification-run-and-guard/integrity.ts",
+    "packages/main/src/tasks/verification-run-and-guard/publication.ts",
+    "packages/main/src/tasks/verification-run-and-guard/refresh.ts",
+    "packages/main/src/tasks/verification-run-and-guard/support.ts"
+  ]
+};

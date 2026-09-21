@@ -355,7 +355,7 @@ export const FINAL_NEGATIVE_CONTEXT_ROWS = [
   {
     "id": "final-negative-context-31",
     "class": "compatibility_fixture",
-    "path": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "path": "packages/main/src/tasks/retired-authority/module-loaders.ts",
     "token": "// them console.error/comment brand text (Lattice -> Proof-or-Stop, `lattice",
     "expectedOccurrences": 1,
     "contextSha256": "d83667592dbcc44483b6f9eb9bbaf0029bde92499667fb5878b4696d3ad9cb8a",
@@ -367,7 +367,7 @@ export const FINAL_NEGATIVE_CONTEXT_ROWS = [
   {
     "id": "final-negative-context-32",
     "class": "compatibility_fixture",
-    "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+    "path": "packages/main/tests/canonical-new-story-artifacts/memory-runtime.mjs",
     "token": "const retiredBin = 'lattice'; // Explicit negative input; never an executable alias.",
     "expectedOccurrences": 1,
     "contextSha256": "bdc71d9be7127cdf8fc4db23175e2e3a03e88ce9c120322d18c8fad0f7a39b60",
@@ -511,7 +511,7 @@ export const FINAL_NEGATIVE_CONTEXT_ROWS = [
   {
     "id": "final-negative-context-44",
     "class": "compatibility_fixture",
-    "path": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "path": "scripts/prompt-baseline/policy-data.mjs",
     "token": "// These probes intentionally retain deprecated lattice-",
     "expectedOccurrences": 1,
     "contextSha256": "60f965233b86f6c4545acf7c47ee21b49584ebbe15f5db08cd44793d0a543302",

@@ -15,7 +15,7 @@ import { MAINTENANCE_SCHEMA_PROVENANCE_ROWS, MAINTENANCE_SCHEMA_WITNESSES } from
 import { IMPORTED_HISTORY_CONTEXT_SOURCES, IMPORTED_HISTORY_CONTEXT_ROWS } from "./history-contexts.mjs";
 import { git, sha256, countLiteral, occurrenceContextDigest, readTrackedText } from "./repository.mjs";
 import { IMPORTED_RELEASE_SOURCE_COMMIT } from "./provenance-data.mjs";
-import { INTEGRATION_ROOT_HISTORY_CONTEXT, REVIEWED_NEGATIVE_SOURCE_INTEGRITY, BOTH_FAMILY_CONTEXT_ROWS, BOTH_FAMILY_CONTEXT_WITNESSES, OWNED_IDENTITY_MUTATION_CONTEXT_ROWS } from "./reviewed-contexts.mjs";
+import { MODULAR_WITNESS_CLOSURES, INTEGRATION_ROOT_HISTORY_CONTEXT, REVIEWED_NEGATIVE_SOURCE_INTEGRITY, BOTH_FAMILY_CONTEXT_ROWS, BOTH_FAMILY_CONTEXT_WITNESSES, OWNED_IDENTITY_MUTATION_CONTEXT_ROWS } from "./reviewed-contexts.mjs";
 import { IMPORTED_DENY_CONTEXT_ROWS } from "./deny-contexts.mjs";
 import { FINAL_NEGATIVE_CONTEXT_ROWS } from "./negative-contexts.mjs";
 import { RUNTIME_DENY_CONTEXT_ROWS } from "./runtime-contexts.mjs";
@@ -61,6 +61,7 @@ export function verifyReviewedNegativeSourceIntegrity(root, readText = path => r
   const requiredPaths = new Set([...IMPORTED_DENY_CONTEXT_ROWS, ...FINAL_NEGATIVE_CONTEXT_ROWS, ...RUNTIME_DENY_CONTEXT_ROWS]
     .map(row => row.path).filter(path => path.startsWith('packages/main/tests/') || path.startsWith('packages/main/src/tasks/') || path.startsWith('scripts/')));
   requiredPaths.add('packages/main/src/core/runtime-environment-checks.ts');
+  for (const paths of Object.values(MODULAR_WITNESS_CLOSURES)) for (const path of paths) requiredPaths.add(path);
   const seen = new Set();
   for (const pin of REVIEWED_NEGATIVE_SOURCE_INTEGRITY) {
     if (seen.has(pin.path) || !requiredPaths.has(pin.path)) errors.push(`negative source integrity duplicate/unlisted path: ${pin.path}`);
@@ -177,7 +178,7 @@ export const REVIEWED_CONTEXT_READERS = [
   },
   {
     "path": "scripts/identity-reviewed-fixture-contexts.mjs",
-    "sha256": "e7d89979222af6e87494c70806b763306070b3168d99faca9134d626da488f37"
+    "sha256": "10286915904c4fd94280a387cc9026f769cc338ea0044ea534af76b24f7710e1"
   }
 ];
 

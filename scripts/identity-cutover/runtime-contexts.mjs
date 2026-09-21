@@ -18,10 +18,10 @@ export const RUNTIME_DENY_CONTEXT_ROWS = [
   {
     "id": "runtime-deny-context-1",
     "class": "compatibility_fixture",
-    "path": "scripts/verify-process-fact-contract.mjs",
+    "path": "scripts/process-fact-contract/support.mjs",
     "token": "coverageReviewerLaneName, 'lattice-review-test-coverage'",
     "expectedOccurrences": 1,
-    "contextSha256": "0fbefb6f7e5928308d6c13c0f33bd4836a9e884a77bff7f022a995e6c002fcb8",
+    "contextSha256": "220c8038f1d5d8b79ba431b78d900412704d352c23e6fbb43460d27ea03e495f",
     "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
     "disposition": "frozen",
     "verificationCommand": "internal:verify-exact-frozen-occurrence",
@@ -30,7 +30,7 @@ export const RUNTIME_DENY_CONTEXT_ROWS = [
   {
     "id": "runtime-deny-context-2",
     "class": "compatibility_fixture",
-    "path": "scripts/verify-process-fact-contract.mjs",
+    "path": "scripts/process-fact-contract/support.mjs",
     "token": "label: 'CLI invocation', pattern: /\\blattice\\s+lattice-review-test-coverage\\b/i",
     "expectedOccurrences": 1,
     "contextSha256": "ce13a60918700e5bc5d944a4a2df7224d0ef675a97e90a9042a84e6cc486986d",
@@ -42,7 +42,7 @@ export const RUNTIME_DENY_CONTEXT_ROWS = [
   {
     "id": "runtime-deny-context-3",
     "class": "compatibility_fixture",
-    "path": "scripts/verify-process-fact-contract.mjs",
+    "path": "scripts/process-fact-contract/support.mjs",
     "token": "lattice-review-test-coverage`",
     "expectedOccurrences": 2,
     "contextSha256": "5a17e76075eb9ff4862449cd25ef1cb5f2581e49174a1f6cdee624b373c249ab",
@@ -366,7 +366,7 @@ export const RUNTIME_DENY_CONTEXT_ROWS = [
   {
     "id": "runtime-deny-context-30",
     "class": "compatibility_fixture",
-    "path": "scripts/verify-process-fact-contract.mjs",
+    "path": "scripts/process-fact-contract/prompt-contracts.mjs",
     "token": ":\\.koala|\\.lattice-codex|\\.proof-or-stop-codex|\\.claude|docs|packages|bin)\\/",
     "expectedOccurrences": 1,
     "contextSha256": "1d18e61f8fbcd4b9be8bde6ee74459e4e1e0512d06c431da279b2d3320507678",
@@ -522,7 +522,7 @@ export const RUNTIME_DENY_CONTEXT_ROWS = [
   {
     "id": "runtime-deny-context-44",
     "class": "compatibility_fixture",
-    "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+    "path": "packages/main/tests/canonical-new-story-artifacts/memory-runtime.mjs",
     "token": "assert.doesNotMatch(runtime.renderMemoryFreshnessPack(pack), /proofbound|lattice/iu);",
     "expectedOccurrences": 1,
     "contextSha256": "cd0fc6a441587d3002d5bd61e0a60489287287b4885eb62eb19eaf5594d806e4",
@@ -534,7 +534,7 @@ export const RUNTIME_DENY_CONTEXT_ROWS = [
   {
     "id": "runtime-deny-context-45",
     "class": "compatibility_fixture",
-    "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+    "path": "packages/main/tests/canonical-new-story-artifacts/memory-runtime.mjs",
     "token": "assert.doesNotMatch(runtime.renderMemoryFreshnessPack(tampered), /proofbound|lattice/iu,",
     "expectedOccurrences": 1,
     "contextSha256": "04f0081fe515aa521d027718ec61e6c728f0cd232e877432895741ce4b9fc6f7",
@@ -546,7 +546,7 @@ export const RUNTIME_DENY_CONTEXT_ROWS = [
   {
     "id": "runtime-deny-context-46",
     "class": "compatibility_fixture",
-    "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+    "path": "packages/main/tests/canonical-new-story-artifacts/memory-runtime.mjs",
     "token": "lesson: 'A superlattice and proofboundless token is not the product identity.', reusePrompt: 'Read the canonical memory example.'",
     "expectedOccurrences": 1,
     "contextSha256": "e499048e51ff336f14631ce75863536db1c199bd18d55cb4a912acd2f9e09f68",

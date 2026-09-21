@@ -29,6 +29,7 @@ for(const node of before.statements){
  if(ts.isFunctionDeclaration(node)&&node.name.text==='main')expected=expected.replace('function main() {\n  const flags = process.argv.slice(2);','function main(flags = process.argv.slice(2)) {').replaceAll('process.argv.includes(', 'flags.includes(');
  if(expected.startsWith('const scriptDir ='))expected="const scriptDir = resolve(dirname(fileURLToPath(import.meta.url)), '..');";
  for(const repair of JSON.parse(fs.readFileSync('scripts/lab/verification-modularization/identity-self-context-repairs.json','utf8'))){const old=repair.before.replace(/^export /,''),replacement=repair.after.replace(/^export /,'');if(expected.includes(old))expected=expected.replace(old,replacement);}
+ for(const repair of JSON.parse(fs.readFileSync('scripts/lab/verification-modularization/identity-context-repairs.json','utf8'))){const old=repair.before.replace(/^export /,''),replacement=repair.after.replace(/^export /,'');if(expected===old)expected=replacement;}
  const index=candidates.indexOf(expected);
  assert.ok(index>=0,'original identity statement preserved: '+(node.name?.text??expected.slice(0,100)));
  candidates.splice(index,1);preserved++;

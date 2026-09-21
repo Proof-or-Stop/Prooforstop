@@ -12,10 +12,13 @@ const oldLines=original.split(/\r?\n/u),sha=text=>createHash('sha256').update(te
 const migration=JSON.parse(fs.readFileSync('scripts/lab/verification-modularization/identity-self-context-migration.json'));
 assert.deepEqual(migration.sourcePaths,SCANNER_SOURCE_PATHS);
 assert.equal(migration.rows.length,SCANNER_RETIRED_LINE_CONTEXTS.length);
+const repairs=JSON.parse(fs.readFileSync('scripts/lab/verification-modularization/identity-context-repairs.json','utf8'));
+const retiredTokens=text=>[...text.matchAll(TOKEN_PATTERN)].map(match=>match[0]).sort();
+for(const repair of repairs)assert.deepEqual(retiredTokens(repair.after),retiredTokens(repair.before),'exact context migration preserves the scanner data token inventory');
 for(const row of migration.rows){
  const text=fs.readFileSync(row.path,'utf8'),lines=text.split(/\r?\n/u);
- assert.ok(row.originalLines.length>0);
- for(const lineNumber of row.currentLines){const line=lines[lineNumber-1];assert.equal(sha(line),row.lineSha256);assert.ok(row.originalLines.some(n=>oldLines[n-1]===line||'export '+oldLines[n-1]===line),'only unchanged original retired-token lines may move');}
+ assert.ok(row.originalLines.length>0||Number.isInteger(row.repairIndex));
+ for(const lineNumber of row.currentLines){const line=lines[lineNumber-1];assert.equal(sha(line),row.lineSha256);assert.ok(row.originalLines.some(n=>oldLines[n-1]===line||'export '+oldLines[n-1]===line)||(Number.isInteger(row.repairIndex)&&repairs[row.repairIndex].file===row.path&&repairs[row.repairIndex].after.split(/\r?\n/u).includes(line)),'only original lines or recorded token-preserving context migrations may move');}
  assert.deepEqual(SCANNER_RETIRED_LINE_CONTEXTS.find(([path,digest])=>path===row.path&&digest===row.lineSha256),[row.path,row.lineSha256,row.currentLines.length,row.currentLines]);
 }
 let negatives=0;
