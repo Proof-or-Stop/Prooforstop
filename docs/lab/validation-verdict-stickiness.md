@@ -75,7 +75,13 @@ yet; the same command without `--legacy` reports it once Stories validate again.
   throwing (`normalizeValidatorResult`, total by construction): one that does not
   parse, whose fields are not of the types the pipeline coerces, that is nested deeper
   than 64 levels or that cannot be serialized again is a recorded validation failure,
-  not an exception between the command and its record. Admission refuses a stored PASS without its
+  not an exception between the command and its record. Before that, the whole output
+  is classified by a closed rule (`classifyValidatorOutput`): the protocol's own key
+  names - `provider`, `allPass`, `allPassed`, as JSON keys with escapes decoded - mark
+  an attempt wherever they occur; the output is a result only when it holds exactly one
+  complete top-level object carrying such a key and no marker outside it; any other
+  output that names one - truncated, malformed, repeated, followed by another attempt -
+  is a recorded failure; output that names none is plain text for the exit-code wrapper. Admission refuses a stored PASS without its
   identity (`validation_identity_incomplete`); terminals from before the artifact
   binding stay valid history and are simply never matched.
 - History is `{ terminals }` or `{ unreadable }`. Only a confirmed absence (`ENOENT`)
@@ -100,14 +106,16 @@ yet; the same command without `--legacy` reports it once Stories validate again.
 ## Verification
 
 Two registered commands, the last two `validate.commands` entries.
-`node scripts/verify-validation-verdict-stickiness.mjs` (104 checks, about 5 seconds, the
+`node scripts/verify-validation-verdict-stickiness.mjs` (112 checks, about 5 seconds, the
 Lab's RED command) covers the pure rule, both core consumers, the DONE-side consumer
 over a fixture Story with signed evidence, corrupt, missing, denied and malformed
 histories, the failure classifier, what marks an attempt at a structured validator
 result, the report, the `done_prepare` trust decision, the scheduler conflict and the
 source guards.
-`node scripts/verify-validation-verdict-stickiness-cli.mjs` (about 160 seconds, a
-600-second budget) runs the built CLI on disposable fixture projects; it
+`node scripts/verify-validation-verdict-stickiness-cli.mjs` (70 checks; about 160
+seconds on a quiet machine, twelve minutes when every fixture run queued behind other
+sessions for the machine's validation capacity; a 900-second budget) runs the built
+CLI on disposable fixture projects; it
 reserves `packages/main/dist` shared, so it cannot be scheduled beside a rebuild of the
 tree it executes. Their six child-process call sites - four runs of the read-only
 report and two of the built CLI, all on fixture repositories in a sandbox - are
@@ -249,6 +257,12 @@ where the output does not parse or is truncated, in its text with JSON escapes d
 The tenth repair had also taken `status` for a marker, which would have failed every
 plain-text validate file whose log prints a JSON object; that is withdrawn, and both
 directions are checked as a pure function in the first command.
+
+The second audit that `finish` ran (rejected, candidate reopened) found that detection
+still looked at one span: an ordinary object, or a complete passing result, followed by
+a truncated failing one was accepted (high). That was the fourth finding about the shape
+of a validate file's output, so the detection is no longer a list of shapes but the
+closed rule above, over the whole output.
 
 ## Limitations
 

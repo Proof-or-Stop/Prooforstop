@@ -376,28 +376,46 @@ expectRepaired(scheduler.claimsConflict(ownEntry, rebuildEntry) === true, 'the e
 expectRepaired(verifierSource.includes('aggregateVerdictResults.has(result),') && (verifierSource.match(/aggregateVerdictResults\.add\(authoritative\);/g) ?? []).length === 2
   && !/semanticIsAggregate:\s*result\??\.dynamicValidation/.test(verifierSource) && verifierSource.includes('dynamicValidation: _printedDynamic, ...rest }'),
   'the origin of the semantic verdict is read from the result a validate file can shape (source-text guard)');
-// Audit 10 and the finish-time audit: what marks an ATTEMPT at a structured
-// provider result. JSON lets a key be written with escapes, so the literal
-// text "provider" proves nothing; an attempt is marked by the protocol's own
-// key names in the parsed object, or - where the output does not parse or is
-// truncated before its closing brace - in its text with the escapes decoded.
-// An attempt that cannot be used is a recorded failure, never plain text that
-// passes on exit code zero. The key "status" alone marks nothing.
+// Audit 10 and the two finish-time audits: what a validate file's whole output
+// IS. The rule is closed rather than a list of shapes: the protocol's own key
+// names, written as JSON keys with escapes decoded, mark an attempt wherever
+// they occur; an attempt is a result only when the output holds exactly one
+// complete top-level object carrying such a key and no marker outside it.
+// Everything else that names one is unusable - a recorded failure, never plain
+// text that passes on exit code zero. The key "status" alone marks nothing.
 const verifierModule = await import('../packages/main/src/handlers/verifier.ts');
-expectRepaired(typeof verifierModule.structuredValidatorCandidate === 'function' && typeof verifierModule.normalizeValidatorResult === 'function', 'a structured validator result is still recognized by a literal key');
-if (typeof verifierModule.structuredValidatorCandidate === 'function' && typeof verifierModule.normalizeValidatorResult === 'function') {
-  const candidate = verifierModule.structuredValidatorCandidate;
-  const failsWhenNormalized = (text) => { const span = candidate(text); return span !== null && verifierModule.normalizeValidatorResult(span[0], text).status === 'fail'; };
-  expectRepaired(failsWhenNormalized('{"\\u0070rovider":"fixture","status":"fail","allPass":false}') && failsWhenNormalized('{"\\u0070rovider":"fixture","status":fail}'), 'a result whose provider key is written with an escape was read as plain text');
-  expectRepaired(failsWhenNormalized('{"provider":"fixture","status":"fail","allPass":false'), 'a provider result truncated before its closing brace was read as plain text');
-  expectRepaired(failsWhenNormalized('{"status":fail,"allPass":false}') && failsWhenNormalized('log\n{"status":"fail","allPassed":false}'), 'a result that names allPass or allPassed but no provider was read as plain text');
-  const usableSpan = candidate('log line\n{"provider":"fixture","status":"pass","allPass":true}\n');
-  check(usableSpan !== null && verifierModule.normalizeValidatorResult(usableSpan[0]).status === 'pass', 'control: a usable provider result after a log line is recognized and passes through');
-  check(candidate('all 12 tests passed') === null && candidate('{ debug } done') === null && candidate('[1,2]') === null, 'control: plain text, braces in a log line and a non-object are not structured attempts');
+expectRepaired(typeof verifierModule.classifyValidatorOutput === 'function', 'a validate file output is still classified by a heuristic over one span');
+if (typeof verifierModule.classifyValidatorOutput === 'function') {
+  const kindOf = (text) => verifierModule.classifyValidatorOutput(text).kind;
+  const FAIL = '{"provider":"fixture","status":"fail","allPass":false}';
+  const PASS = '{"provider":"fixture","status":"pass","allPass":true}';
+  const TRUNCATED = '{"provider":"fixture","status":"fail","allPass":false';
+  const unusable = {
+    'a provider key written with an escape, unparsable': '{"\\u0070rovider":"fixture","status":fail}',
+    'a result truncated before its closing brace': TRUNCATED,
+    'a result that names allPass but no provider and does not parse': '{"status":fail,"allPass":false}',
+    'an ordinary object followed by a truncated failure': `{"status":"ok"}\n${TRUNCATED}`,
+    'a complete pass followed by a truncated failure': `${PASS}\n${TRUNCATED}`,
+    'a complete pass followed by a complete failure': `${PASS}\n${FAIL}`,
+    'a complete pass with a stray marker after it': `${PASS}\n"allPassed": false`,
+  };
+  for (const [name, text] of Object.entries(unusable)) expectRepaired(kindOf(text) === 'unusable', `${name} was classified as ${kindOf(text)}, not as an unusable attempt`);
+  const results = {
+    'a result alone': FAIL,
+    'a result whose provider key is written with an escape': '{"\\u0070rovider":"fixture","status":"fail","allPass":false}',
+    'a result after log lines, one of them with braces': `starting\n{ debug } done\n${PASS}\nfinished`,
+    'a result that quotes a marker inside a string value': '{"provider":"fixture","status":"pass","allPass":true,"details":["expected \\"provider\\": x","{\\"allPass\\": false}"]}',
+    'a result with nested objects': '{"provider":"fixture","status":"pass","allPass":true,"extra":{"inner":{"status":"ok"}}}',
+  };
+  for (const [name, text] of Object.entries(results)) {
+    const classified = verifierModule.classifyValidatorOutput(text);
+    check(classified.kind === 'result' && JSON.parse(classified.text).provider === 'fixture', `control: ${name} is one usable result (${classified.kind})`);
+  }
   // An earlier repair in this Lab also took "status" for a marker, which would
   // have failed every plain-text validate file whose log prints a JSON object.
-  expectRepaired(candidate('GET /health -> {"status":"ok"}\nall tests passed') === null && candidate('{"status":fail}') === null,
-    'ordinary output that prints a status was read as a failed attempt at a structured result; the key "status" alone marks nothing');
+  const plain = ['all 12 tests passed', '{ debug } done', '[1,2]', 'GET /health -> {"status":"ok"}\nall tests passed', '{"status":fail}', '{"status":"fail"}'];
+  expectRepaired(plain.every((text) => kindOf(text) === 'plain'), `ordinary output was read as an attempt at a structured result (${plain.map(kindOf).join(',')}); the key "status" alone marks nothing`);
+  check(verifierModule.malformedValidatorResult('reason', 'line').status === 'fail' && verifierModule.normalizeValidatorResult(FAIL).status === 'fail' && verifierModule.normalizeValidatorResult(PASS).status === 'pass', 'control: an unusable attempt and a failing result both normalize to a failure, a passing result passes through');
 }
 // Audit 6: the publication binds through the pre-launch fallback.
 expectRepaired(verifierSource.includes('}, preLaunchBindings.get(identity)),') && verifierSource.includes('preLaunchBindings.set(identity, { materialHash, storyFilesHash });'),

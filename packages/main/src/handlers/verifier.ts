@@ -903,33 +903,60 @@ const preLaunchBindings = new WeakMap<RoutineValidationIdentity, { materialHash:
 const isSha256Hex = (value: unknown): value is string => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
 
 /**
- * Exported for the fail-sticky regression. The span of a validate file's output
- * that is an ATTEMPT at a structured provider result, or null when the output
- * is plain text for the exit-code wrapper. An attempt is marked by the
- * protocol's own key names - provider, allPass, allPassed - read from the parsed
- * object, or, where the output does not parse (malformed, or truncated before
- * its closing brace), from its text with JSON escapes decoded, since JSON lets a
- * key be written with escapes. An attempt that cannot be used is a recorded
- * failure, never plain text that passes on exit code zero. The key "status"
- * alone marks nothing: ordinary logs print it, and a validate file that does not
- * speak the protocol is judged by its exit code, as it always was.
+ * Exported for the fail-sticky regression. What a validate file's whole output
+ * is: plain text for the exit-code wrapper, one structured provider result, or
+ * an attempt at one that cannot be used. The rule is closed, not a list of
+ * shapes: the protocol's own key names - provider, allPass, allPassed, written
+ * as JSON keys, escapes decoded because JSON lets a key be written with them -
+ * mark an attempt wherever they occur in the output. An attempt is a result
+ * only when the output holds exactly ONE complete top-level JSON object that
+ * carries such a key and no marker outside it. Anything else that names one -
+ * truncated, malformed, repeated, or followed by another attempt - is
+ * unusable and is a recorded failure, never plain text that passes on exit
+ * code zero. Output that names none is plain text: the key "status" alone
+ * marks nothing, because ordinary logs print it, and a validate file that does
+ * not speak the protocol is judged by its exit code, as it always was.
  */
+export type ValidatorOutputClass = { kind: 'plain' } | { kind: 'result'; text: string } | { kind: 'unusable'; reason: string };
 const STRUCTURED_RESULT_MARKERS = ['provider', 'allPass', 'allPassed'];
-export function structuredValidatorCandidate(output: string): [string] | null {
-  const start = output.indexOf('{');
-  if (start < 0) return null;
-  const end = output.lastIndexOf('}');
-  const closed = end > start ? output.slice(start, end + 1) : null;
-  if (closed !== null) {
-    try {
-      const parsed: unknown = JSON.parse(closed);
-      const isObject = Boolean(parsed) && typeof parsed === 'object' && !Array.isArray(parsed);
-      return isObject && STRUCTURED_RESULT_MARKERS.some((key) => Object.prototype.hasOwnProperty.call(parsed, key)) ? [closed] : null;
-    } catch { /* not valid JSON: judged from its text below */ }
+const STRUCTURED_RESULT_MARKER = /"(?:provider|allPass|allPassed)"\s*:/;
+const decodeJsonEscapes = (text: string) => text.replace(/\\u([0-9a-fA-F]{4})/g, (_match, hex: string) => String.fromCharCode(parseInt(hex, 16)));
+
+/** Complete top-level {...} spans, scanned with JSON string and escape awareness; an unclosed one yields nothing. */
+function topLevelObjectSpans(output: string): Array<{ start: number; end: number }> {
+  const spans: Array<{ start: number; end: number }> = [];
+  let depth = 0, start = -1, inString = false, escaped = false;
+  for (let index = 0; index < output.length; index++) {
+    const char = output[index];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (char === '\\') escaped = true;
+      else if (char === '"') inString = false;
+      continue;
+    }
+    if (char === '"' && depth > 0) inString = true;
+    else if (char === '{') { if (depth === 0) start = index; depth += 1; }
+    else if (char === '}' && depth > 0) { depth -= 1; if (depth === 0) spans.push({ start, end: index + 1 }); }
   }
-  const rest = output.slice(start);
-  const decoded = rest.replace(/\\u([0-9a-fA-F]{4})/g, (_match, hex: string) => String.fromCharCode(parseInt(hex, 16)));
-  return STRUCTURED_RESULT_MARKERS.some((key) => new RegExp(`"${key}"\\s*:`).test(decoded)) ? [rest] : null;
+  return spans;
+}
+
+export function classifyValidatorOutput(output: string): ValidatorOutputClass {
+  if (!STRUCTURED_RESULT_MARKER.test(decodeJsonEscapes(output))) return { kind: 'plain' };
+  const results: Array<{ start: number; end: number }> = [];
+  for (const span of topLevelObjectSpans(output)) {
+    let parsed: unknown;
+    try { parsed = JSON.parse(output.slice(span.start, span.end)); } catch { continue; }
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      && STRUCTURED_RESULT_MARKERS.some((key) => Object.prototype.hasOwnProperty.call(parsed, key))) results.push(span);
+  }
+  if (results.length !== 1) {
+    return { kind: 'unusable', reason: results.length === 0 ? 'the output names a provider result but holds no complete one' : `the output holds ${results.length} provider results` };
+  }
+  const [result] = results;
+  const outside = output.slice(0, result.start) + '\n' + output.slice(result.end);
+  if (STRUCTURED_RESULT_MARKER.test(decodeJsonEscapes(outside))) return { kind: 'unusable', reason: 'the output names a provider result outside the complete one' };
+  return { kind: 'result', text: output.slice(result.start, result.end) };
 }
 
 /**
@@ -939,15 +966,19 @@ export function structuredValidatorCandidate(output: string): [string] | null {
  * a structured validation failure. It never throws, so an executed run always
  * reaches its record.
  */
-export function normalizeValidatorResult(text: string, output = text): Record<string, any> & { status: string } {
-  const malformed = (reason: string) => ({
+export function malformedValidatorResult(reason: string, output: string): Record<string, any> & { status: string } {
+  return {
     provider: 'proof-or-stop-verifier-malformed-validator-output',
     status: 'fail',
     allPass: false,
     summary: 'The validate file printed a provider result this verifier cannot use',
     details: [`malformed validator result: ${reason}`, ...String(output).split('\n').filter((line) => line.trim()).slice(0, 40).map((line) => line.slice(0, 2000))],
     warnings: [] as string[],
-  });
+  };
+}
+
+export function normalizeValidatorResult(text: string, output = text): Record<string, any> & { status: string } {
+  const malformed = (reason: string) => malformedValidatorResult(reason, output);
   // Total by construction: whatever the child printed, and whatever goes wrong
   // while it is being examined, the answer is a result or the structured
   // failure - never an exception between the command and its record.
@@ -3285,14 +3316,16 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           // provider is a number, empty or an object is malformed, not plain
           // text, and must not fall through to the exit-code wrapper below,
           // where a printed failure with exit code zero would read as a PASS.
-          const jsonMatch = structuredValidatorCandidate(stripped);
-          if (jsonMatch) {
+          const validatorOutput = classifyValidatorOutput(stripped);
+          if (validatorOutput.kind !== 'plain') {
             // Output that looks like a provider result but does not parse, or
             // whose fields are not of the types this pipeline coerces, is a
             // validation failure with the executor's own command outcome, and
             // is persisted like one. Throwing anywhere between the command and
             // its record would leave an executed run without one.
-            const parsed = normalizeValidatorResult(jsonMatch[0], stripped);
+            const parsed = validatorOutput.kind === 'result'
+              ? normalizeValidatorResult(validatorOutput.text, stripped)
+              : malformedValidatorResult(validatorOutput.reason, stripped);
             const semanticCommandPass = parsed.status.trim().toLowerCase() === 'pass'
               && parsed.allPass !== false
               && parsed.allPassed !== false;
