@@ -75,6 +75,7 @@ import {
 } from './host-run.js';
 import type {
   FindingEvidenceState,
+  ScopeCheckData,
   ReviewerReadDiagnostic,
   ReviewerReadLogEvidence,
   ReviewerReadManifest,
@@ -1839,6 +1840,66 @@ function managedImplementerOutputDigest(input: {
   }));
 }
 
+function immutableManagedScopeReviewerPayload(scopeCheck: ScopeCheckData): ScopeCheckData {
+  return {
+    ...scopeCheck,
+    ...(scopeCheck.openQuestions === undefined ? {} : {
+      openQuestions: scopeCheck.openQuestions.map(question => {
+        const {
+          resolution: _resolution,
+          resolvedAt: _resolvedAt,
+          resolutionSourcePointers: _resolutionSourcePointers,
+          ...reviewerQuestion
+        } = question;
+        return reviewerQuestion;
+      }),
+    }),
+  };
+}
+
+const MANAGED_SCOPE_REVIEWER_OUTPUT_DIGEST_PREFIX = 'proof-or-stop.managed-scope-reviewer-output.v1:';
+
+function managedScopeReviewerOutputDigest(scopeCheck: ScopeCheckData): string {
+  return `${MANAGED_SCOPE_REVIEWER_OUTPUT_DIGEST_PREFIX}${sha256(canonicalJson({
+    schemaVersion: 'proof-or-stop.managed-scope-reviewer-output.v1',
+    scopeCheck: immutableManagedScopeReviewerPayload(scopeCheck),
+  }))}`;
+}
+
+function managedScopeCheckHasOwnerAnnotations(scopeCheck: ScopeCheckData): boolean {
+  return (scopeCheck.openQuestions ?? []).some(question => question.resolution !== undefined
+    || question.resolvedAt !== undefined
+    || question.resolutionSourcePointers !== undefined);
+}
+
+function currentManagedScopeReviewerOutput(input: {
+  root: string;
+  storyId: string;
+}): { projectedDigest: string; exactLegacyDigest: string | null } | null {
+  const storyStore = new StoryStore(input.root);
+  const scopePath = storyStore.storyFilePath(input.storyId, 'scope-check.json');
+  if (!existsSync(scopePath)) return null;
+  const scopeCheck = storyStore.readScopeCheck(input.storyId);
+  if (!scopeCheck) return null;
+  return {
+    projectedDigest: managedScopeReviewerOutputDigest(scopeCheck),
+    exactLegacyDigest: managedScopeCheckHasOwnerAnnotations(scopeCheck) ? null : digestFile(scopePath),
+  };
+}
+
+function managedScopeReviewerOutputMatches(input: {
+  root: string;
+  storyId: string;
+  sealedDigest: string;
+}): boolean {
+  const current = currentManagedScopeReviewerOutput(input);
+  if (current === null) return false;
+  if (input.sealedDigest.startsWith(MANAGED_SCOPE_REVIEWER_OUTPUT_DIGEST_PREFIX)) {
+    return input.sealedDigest === current.projectedDigest;
+  }
+  return current.exactLegacyDigest !== null && input.sealedDigest === current.exactLegacyDigest;
+}
+
 export function managedDispatchOutputValidation(input: {
   root: string;
   storyId: string | null;
@@ -1891,7 +1952,7 @@ export function managedDispatchOutputValidation(input: {
         return { failureReason: 'managed_dispatch_output_missing', outputDigest: null };
       }
       return managedDispatchInvocationConsumptionIsValid({ ...input, storyId: input.storyId })
-        ? { failureReason: null, outputDigest: sha256(scopeText) }
+        ? { failureReason: null, outputDigest: managedScopeReviewerOutputDigest(scopeCheck) }
         : { failureReason: 'managed_dispatch_invocation_unconsumed', outputDigest: null };
     }
     const configuredInitCheckPath = storyStore.storyFilePath(input.storyId, 'init-check.json');
@@ -1928,7 +1989,7 @@ function currentManagedDispatchOutputDigest(spec: ManagedHostRunSpec): string | 
     return digestFile(new StoryStore(spec.root).storyFilePath(spec.storyId, MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.artifact));
   }
   if (spec.agentType === 'proof-or-stop-review-scope-plan') {
-    return digestFile(new StoryStore(spec.root).storyFilePath(spec.storyId, 'scope-check.json'));
+    return currentManagedScopeReviewerOutput({ root: spec.root, storyId: spec.storyId })?.projectedDigest ?? null;
   }
   if (spec.agentType === 'proof-or-stop-implementer') {
     const itemId = spec.managedDispatchTarget?.itemId;
@@ -2196,7 +2257,14 @@ function assertSealedManagedHostRunArtifacts(paths: ManagedHostRunPaths, termina
       && spec.agentType !== 'proof-or-stop-implementer') {
       const currentOutputDigest = spec.profile === 'managed_dispatch'
         ? currentManagedDispatchOutputDigest(spec) : null;
-      if (currentOutputDigest !== terminal.managedDispatchOutputDigest) mismatches.push('managed-dispatch-output');
+      const outputMatches = spec.agentType === 'proof-or-stop-review-scope-plan' && spec.storyId
+        ? managedScopeReviewerOutputMatches({
+          root: spec.root,
+          storyId: spec.storyId,
+          sealedDigest: terminal.managedDispatchOutputDigest,
+        })
+        : currentOutputDigest === terminal.managedDispatchOutputDigest;
+      if (!outputMatches) mismatches.push('managed-dispatch-output');
     }
   }
   const hasEvidenceBinding = existsSync(paths.evidenceBinding);
@@ -5045,9 +5113,12 @@ export function verifyManagedDispatchDelivery(args: {
       return { valid: false, reason: 'managed dispatch terminal receipt is not a safe completion' };
     }
     if (args.agentType === 'proof-or-stop-review-scope-plan') {
-      const currentDigest = digestFile(new StoryStore(args.root).storyFilePath(args.storyId, 'scope-check.json'));
       if (!receipt.managedDispatchOutputDigest
-        || currentDigest !== receipt.managedDispatchOutputDigest) {
+        || !managedScopeReviewerOutputMatches({
+          root: args.root,
+          storyId: args.storyId,
+          sealedDigest: receipt.managedDispatchOutputDigest,
+        })) {
         return { valid: false, reason: 'managed dispatch scope output does not match the completed receipt' };
       }
     }

@@ -3,16 +3,18 @@ import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync 
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const repository = fileURLToPath(new URL('../../..', import.meta.url));
 const cli = join(repository, 'packages/main/dist/cli.js');
 const { StoryStore } = await import('../dist/core/store.js');
 const { createHostRunHandlers } = await import('../dist/handlers/host-run.js');
-const { readManagedHostRunProjection, runManagedHostRunWorker, verifyManagedDispatchDelivery } = await import('../dist/core/managed-host-run.js');
+const { managedHostRunDirectory, readManagedHostRunProjection, runManagedHostRunWorker, verifyManagedDispatchDelivery } = await import('../dist/core/managed-host-run.js');
 const { verifyScopeCheckSignature } = await import('../dist/handlers/scope-check.js');
 const { scopeCheckContentHash } = await import('../dist/core/scope-check-integrity.js');
 const { createStoryReviewHandlers } = await import('../dist/handlers/story-review.js');
+const { createScopeQuestionResolveHandlers } = await import('../dist/handlers/scope-question-resolve.js');
 
 const root = mkdtempSync(join(tmpdir(), 'managed-scope-dispatch-e2e-'));
 const storyId = 'B-managed-scope-e2e';
@@ -60,7 +62,7 @@ if "${process.execPath}" "${cli}" scope_check_save '{"storyId":"${storyId}","fea
   exit 41
 fi
 grep -q "owner dispositions require selected canonical process facts" "${root}/invalid-scope-save.txt"
-"${process.execPath}" "${cli}" scope_check_save '{"storyId":"${storyId}","features":[{"feature":"Managed PLAN evidence","covered_by":"CHK-001","status":"covered","excluded_by":null}],"summary":{"total":1,"covered":1,"excluded":0,"gaps":0},"readManifest":{"filesReadFully":[],"filesTriagedByName":[],"scanEscalationReason":null},"ownerDispositions":[],"openQuestions":[]}'
+"${process.execPath}" "${cli}" scope_check_save '{"storyId":"${storyId}","features":[{"feature":"Managed PLAN evidence","covered_by":"CHK-001","status":"covered","excluded_by":null}],"summary":{"total":1,"covered":1,"excluded":0,"gaps":0},"readManifest":{"filesReadFully":[],"filesTriagedByName":[],"scanEscalationReason":null},"ownerDispositions":[],"openQuestions":[{"id":"OQ-001","q":"Which acceptance source controls this boundary?","evidence":"The reviewer found two plausible sources.","sourcePointers":["docs/reviewer-source.md"]}]}'
 printf '%s\n' '{"type":"turn.completed","usage":{}}'
 `);
   chmodSync(fakeCodex, 0o755);
@@ -91,6 +93,70 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
   assert.match(readFileSync(join(root, 'invalid-scope-save.txt'), 'utf8'),
     /owner dispositions require selected canonical process facts/,
   'a rejected non-empty owner payload must not consume the managed scope invocation before a corrected zero-owner retry');
+  const scopePath = store.storyFilePath(storyId, 'scope-check.json');
+  const legacyScopeBytes = readFileSync(scopePath);
+  const legacyScopeDigest = `sha256:${createHash('sha256').update(legacyScopeBytes).digest('hex')}`;
+  const terminalPath = join(managedHostRunDirectory(root, result.runId), 'terminal.json');
+  const projectedTerminal = JSON.parse(readFileSync(terminalPath, 'utf8'));
+  writeFileSync(terminalPath, `${JSON.stringify({
+    ...projectedTerminal,
+    managedDispatchOutputDigest: legacyScopeDigest,
+  }, null, 2)}\n`);
+  assert.deepEqual(verifyManagedDispatchDelivery({
+    root, runId: result.runId, storyId, agentType: 'proof-or-stop-review-scope-plan',
+  }), { valid: true }, 'an unchanged pre-annotation legacy byte seal must remain exact');
+  writeFileSync(terminalPath, `${JSON.stringify(projectedTerminal, null, 2)}\n`);
+
+  createScopeQuestionResolveHandlers({ root, scanRoot: root, store }).scope_question_resolve({
+    storyId,
+    oqId: 'OQ-001',
+    resolution: 'The checklist acceptance statement controls this boundary.',
+    sourcePointers: ['docs/owner-resolution.md'],
+  });
+  const resolvedScopeCheck = store.readScopeCheck(storyId);
+  assert.equal(resolvedScopeCheck?.openQuestions?.[0]?.resolution,
+    'The checklist acceptance statement controls this boundary.');
+  assert.deepEqual(resolvedScopeCheck?.openQuestions?.[0]?.sourcePointers,
+    ['docs/reviewer-source.md'], 'owner resolution must preserve reviewer-authored source pointers');
+  assert.deepEqual(resolvedScopeCheck?.openQuestions?.[0]?.resolutionSourcePointers,
+    ['docs/owner-resolution.md'], 'owner citations belong to the resolution overlay');
+  assert.deepEqual(verifyManagedDispatchDelivery({
+    root, runId: result.runId, storyId, agentType: 'proof-or-stop-review-scope-plan',
+  }), { valid: true },
+  'owner resolution annotations must not invalidate the sealed managed reviewer payload');
+  assert.ok(!createStoryReviewHandlers({ root, scanRoot: root, store }).story_review({ storyId }).issues
+    .some(issue => issue.type === 'scope_check_delivery_invalid'),
+  'story_review must retain the managed delivery after the owner resolves an open question');
+  writeFileSync(terminalPath, `${JSON.stringify({
+    ...projectedTerminal,
+    managedDispatchOutputDigest: legacyScopeDigest,
+  }, null, 2)}\n`);
+  assert.notEqual(`sha256:${createHash('sha256').update(readFileSync(scopePath)).digest('hex')}`, legacyScopeDigest,
+    'live annotated scope bytes must differ from the legacy pre-annotation seal');
+  assert.equal(verifyManagedDispatchDelivery({
+    root, runId: result.runId, storyId, agentType: 'proof-or-stop-review-scope-plan',
+  }).valid, false,
+  'a legacy byte seal must require a fresh managed scope review after owner annotation');
+  const projectedPrefix = 'proof-or-stop.managed-scope-reviewer-output.v1:';
+  assert.ok(projectedTerminal.managedDispatchOutputDigest.startsWith(projectedPrefix));
+  writeFileSync(terminalPath, `${JSON.stringify({
+    ...projectedTerminal,
+    managedDispatchOutputDigest: projectedTerminal.managedDispatchOutputDigest.slice(projectedPrefix.length),
+  }, null, 2)}\n`);
+  assert.equal(verifyManagedDispatchDelivery({
+    root, runId: result.runId, storyId, agentType: 'proof-or-stop-review-scope-plan',
+  }).valid, false,
+  'an unprefixed legacy grammar digest must not claim the projected v1 domain');
+  writeFileSync(terminalPath, `${JSON.stringify(projectedTerminal, null, 2)}\n`);
+
+  const tamperedQuestion = structuredClone(resolvedScopeCheck);
+  tamperedQuestion.openQuestions[0].q = 'Rewritten reviewer question';
+  store.writeScopeCheck(storyId, tamperedQuestion);
+  assert.equal(verifyManagedDispatchDelivery({
+    root, runId: result.runId, storyId, agentType: 'proof-or-stop-review-scope-plan',
+  }).valid, false,
+  'changing reviewer-authored question text must still invalidate the managed delivery seal');
+  store.writeScopeCheck(storyId, resolvedScopeCheck);
 
   const replaced = structuredClone(scopeCheck);
   replaced.features = [{ feature: 'Post-terminal replacement', covered_by: null, status: 'gap', excluded_by: null }];

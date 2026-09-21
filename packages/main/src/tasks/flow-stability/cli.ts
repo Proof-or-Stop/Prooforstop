@@ -1,3 +1,4 @@
+import { assertImplementationWorkerAuthorityUsesFrozenMasterIntegrationTarget, assertImplementationWorkerAuthorityReportsUnresolvedIntegrationTarget } from './review-routing.js';
 import { strict as assert } from 'node:assert';
 
 import { COMMIT_SUBJECT_PREFIX, DEPRECATED_COMMIT_SUBJECT_PREFIX, matchesRuntimeCommitSubject } from '../../core/auto-commit-metadata.js';
@@ -78,6 +79,8 @@ export const FLOW_CASES = [
   { id: 'assertRealCliValidateHintFollowsActiveStoryPhase', capability: 'review-routing', run: assertRealCliValidateHintFollowsActiveStoryPhase },
   { id: 'assertBugUpdateTestHintUsesDonePrecheck', capability: 'review-routing', run: assertBugUpdateTestHintUsesDonePrecheck },
   { id: 'assertChannelGateRejectsProofOrStopSubjectForRealFiles', capability: 'review-routing', run: assertChannelGateRejectsProofOrStopSubjectForRealFiles },
+  { id: 'assertImplementationWorkerAuthorityUsesFrozenMasterIntegrationTarget', capability: 'review-routing', run: assertImplementationWorkerAuthorityUsesFrozenMasterIntegrationTarget },
+  { id: 'assertImplementationWorkerAuthorityReportsUnresolvedIntegrationTarget', capability: 'review-routing', run: assertImplementationWorkerAuthorityReportsUnresolvedIntegrationTarget },
   { id: 'assertChannelGateAcceptsStructuredEvidenceWithSharedGitAuthor', capability: 'review-routing', run: assertChannelGateAcceptsStructuredEvidenceWithSharedGitAuthor },
   { id: 'assertChannelGateAcceptsSuccessfulSubagentResultEvidence', capability: 'review-routing', run: assertChannelGateAcceptsSuccessfulSubagentResultEvidence },
   { id: 'assertChannelGateAcceptsDispatchEvidence', capability: 'review-routing', run: assertChannelGateAcceptsDispatchEvidence },
@@ -100,6 +103,11 @@ export async function runFlowStabilityCli(args: string[]): Promise<void> {
   if (args.length === 1 && args[0] === '--terminal-finding-forgiveness') {
     assertResolvedFindingStaleBindingIsForgivenWithoutValidLaneEvidence();
     console.log('TERMINAL_FINDING_FORGIVENESS_PASS'); return;
+  }
+  if (args.length === 1 && args[0] === '--worker-authority-master') {
+    assertImplementationWorkerAuthorityUsesFrozenMasterIntegrationTarget();
+    assertImplementationWorkerAuthorityReportsUnresolvedIntegrationTarget();
+    console.log('WORKER_AUTHORITY_MASTER_PASS'); return;
   }
   const capabilities = [...new Set(FLOW_CASES.map(row => row.capability))];
   if (args.length === 1 && args[0] === '--list-capabilities') {

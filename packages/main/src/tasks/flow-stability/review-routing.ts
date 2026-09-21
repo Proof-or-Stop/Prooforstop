@@ -1,3 +1,4 @@
+import { runImplementationWorkerAuthorityGate } from '../../handlers/phase-gates.js';
 import { createStoryDispatchHandlers } from '../../handlers/story-dispatch.js';
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
@@ -892,5 +893,96 @@ export function assertChannelGateAcceptsDispatchEvidence(): void {
     assert.match(renderedDetails(result), /Covered: CHK-001, CHK-002, CHK-003/);
   } finally {
     rmSync(root, { recursive: true, force: true });
+  }
+}
+
+export function assertImplementationWorkerAuthorityUsesFrozenMasterIntegrationTarget(): void {
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-channel-master-base-'));
+  try {
+    const { store, storyId } = createReviewStore(root);
+    git(root, ['branch', '-M', 'master']);
+    assert.throws(
+      () => execFileSync('git', ['rev-parse', '--verify', 'main'], {
+        cwd: root,
+        stdio: 'pipe',
+      }),
+      'the regression fixture must not retain a main ref',
+    );
+    const parentCommitAtCreation = execFileSync('git', ['rev-parse', 'HEAD'], {
+      cwd: root,
+      encoding: 'utf8',
+    }).trim();
+    const story = store.readStory(storyId);
+    story.phase = 'DEV';
+    story.integrationTarget = {
+      parentBranch: 'master',
+      parentCommitAtCreation,
+      source: 'creation_branch',
+      deliveryMode: 'merge_to_parent',
+    };
+    store.writeStory(storyId, story);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'freeze master integration target']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    write(root, 'packages/main/src/master-only.ts', 'export const masterOnly = true;\n');
+    git(root, ['add', 'packages/main/src/master-only.ts']);
+    git(root, [
+      '-c', 'user.name=main-agent',
+      '-c', 'user.email=main@example.test',
+      'commit',
+      '-m', 'implement through managed workers on a master repository',
+    ]);
+    for (const suffix of ['001', '002', '003']) {
+      store.appendProcessEvent(storyId, {
+        type: 'subagent_result',
+        checklistId: `CHK-${suffix}`,
+        success: true,
+      });
+    }
+
+    let observedBase: string | undefined;
+    const channel = checkCommitAuthor(storyId, {
+      store,
+      projectRoot: root,
+      gitLogReader: ({ base }) => {
+        observedBase = base;
+        return '';
+      },
+    });
+    assert.equal(observedBase, 'master', 'channel attribution must consume the frozen master target');
+    assert.equal(channel.status, 'pass', 'resolved master target must preserve valid worker evidence');
+
+    assert.doesNotThrow(
+      () => runImplementationWorkerAuthorityGate({ store, root }, storyId),
+      'DEV to REVIEW authority must use the Story frozen master integration target without inventing a main ref',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    resetConfigCache();
+  }
+}
+
+export function assertImplementationWorkerAuthorityReportsUnresolvedIntegrationTarget(): void {
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-channel-unresolved-base-'));
+  try {
+    const { store, storyId } = createReviewStore(root);
+    git(root, ['branch', '-M', `story/${storyId}`]);
+    const story = store.readStory(storyId);
+    story.phase = 'DEV';
+    delete story.integrationTarget;
+    store.writeStory(storyId, story);
+
+    let message = '';
+    try {
+      runImplementationWorkerAuthorityGate({ store, root }, storyId);
+      assert.fail('a Story-only repository without an integration target must fail closed');
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+    assert.match(message, /integration_branch_unresolved/);
+    assert.doesNotMatch(message, /implementation_worker_authority_invalid/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    resetConfigCache();
   }
 }

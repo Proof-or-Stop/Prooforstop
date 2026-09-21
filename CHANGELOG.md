@@ -1,5 +1,43 @@
 # Changelog
 
+## Lab managed-review-projection-dirty-admission - v0.3.441 - 2026-09-21
+
+# Managed review controller projection dirty admission
+
+- Problem: managed inventory-critic receipt import treated exact controller-projected config and Codex hook files as candidate material drift, even though signed Story-bound projection receipts and byte identity already admitted the same files as framework control artifacts. This deadlocked REVIEW in externally provisioned Story worktrees.
+- Fix: `readMaterialDirtyFiles` accepts an opt-in Story id and excludes only `??` untracked controller projections that pass the existing signed receipt, exact branch, regular-file, untracked, and byte-identity checks. Only managed inventory-critic import enables this option; all other evidence freshness callers retain strict behavior.
+- Regression protection: the benchmark framework hardening smoke covers the exact four-file projection set, wrong Story, unrelated dirt, byte tamper, missing receipt, hook tamper, and forced index tracking of both config and hook projections. The process-fact contract pins the new producer and consumer plus the explicit untracked-only gate.
+- Verification: `npm --prefix packages/main run build` and `npm run test:benchmark-framework-hardening` passed on candidate `8bd8bd8f4445b351dd528967e7a635b6d4f7f60d`. A different-vendor Grok Lab audit passed after one concrete finding was independently checked and converted into defense-in-depth status gating and staged-file tests.
+- Performance: no production timing change was targeted; the added work is bounded to the small dirty path set during managed inventory-critic import.
+
+Maintenance provenance: codex/lab-managed-review-projection-dirty-admission, repair e9f6947ed11550fe22e6b86fe26f2ad49f2e2c10.
+Verification command (replayed before integration and on main): `["npm","run","test:benchmark-framework-hardening"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab managed-scope-owner-annotation-seal - v0.3.440 - 2026-09-21
+
+- Keep managed scope reviewer evidence valid when the Story owner resolves an open question after a current managed reviewer run.
+- Seal a version-prefixed canonical reviewer projection while storing owner resolution text, timestamps, and citations in a separate overlay.
+- Preserve old byte-sealed receipts only while the scope file remains byte-exact and unannotated; owner resolution under an old receipt requires a fresh managed review.
+- Add RED/GREEN coverage for legal owner annotation, exact legacy handling, digest-grammar separation, Story review continuity, and reviewer-field tamper rejection.
+- Verified with the managed scope E2E, managed delivery regressions, package build, U18 static closure, and an independent Grok audit.
+
+Maintenance provenance: codex/lab-managed-scope-owner-annotation-seal, repair 30049af80c2cf1eba86225a1c1357591886f96f7.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/managed-scope-reviewer-dispatch-e2e.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab worker-authority-integration-target - v0.3.439 - 2026-09-21
+
+- Resolve normal-channel commit attribution from the Story's frozen integration target instead of assuming a `main` branch.
+- Require an explicit or resolved integration branch on every path and report unresolved baselines separately from invalid implementation-worker evidence.
+- Add master-only and unresolved-baseline regressions to both the focused Lab command and the default flow smoke.
+- Refresh the reviewed static-edge source bindings and verify the static exception closure after the test changes.
+- Verified package build, focused Lab RED/GREEN and U18 static edges; broader suites retain unrelated pre-existing fixture failures.
+
+Maintenance provenance: codex/lab-worker-authority-integration-target, repair f5641505a8cfbf35bd0480f531454668544b8cd6.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/flow-stability-smoke.js","--worker-authority-master"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab integrated-validation-review-and-release-reconciliation - v0.3.438 - 2026-09-21
 
 - Integrate the complete local validation, provider-quota, verdict-stickiness, review-rework and audit-snapshot repair line with Pan Qi's managed implementation, finding-repair, review-launch and verifier-identity line; both pre-merge heads remain ancestors of this release.

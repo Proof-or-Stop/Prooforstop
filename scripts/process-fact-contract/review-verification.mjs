@@ -161,7 +161,11 @@ export function assertReviewExecutionAuthorityContract(registry, levelRegistry) 
   assert(!hasExactNativeDispatchSelection(reviewGateText.replace('expectedDispatchBindingDigest: nativeBinding.dispatchBindingDigest,', '')),
     'native historical dispatch contract must reject removing the exact binding argument');
   const importerText = read('packages/main/src/handlers/managed-review-evidence.ts');
-  for (const token of ['candidate.evidence', 'proposalFindingIndex', 'existing receipt findings do not exactly cover every provider proposal index', 'storyMetadataLockDir', "'finding', 'review-passes'", "'findings.lock'", 'importedAt: sealedProposal?.authoredAt', 'assertCandidateReadBinding', 'assertCurrentCandidateReadBinding']) {
+  const evidenceFreshnessText = read('packages/main/src/core/evidence-freshness.ts');
+  assert(evidenceFreshnessText.includes("statusCode === '??'") && evidenceFreshnessText.includes('isByteIdenticalControllerConfig')
+    && evidenceFreshnessText.includes('isByteIdenticalControllerRuntimeAsset'),
+  'managed inventory critic projection admission must retain an explicit untracked-only status gate plus signed byte-identity helpers');
+  for (const token of ['candidate.evidence', 'proposalFindingIndex', 'existing receipt findings do not exactly cover every provider proposal index', 'storyMetadataLockDir', "'finding', 'review-passes'", "'findings.lock'", 'importedAt: sealedProposal?.authoredAt', 'assertCandidateReadBinding', 'assertCurrentCandidateReadBinding', 'trustedControllerProjectionStoryId: managedRun.storyId!']) {
     assert(importerText.includes(token), `packages/main/src/handlers/managed-review-evidence.ts: required exact replay token missing: ${token}`);
   }
   const managedText = read('packages/main/src/core/managed-review-evidence.ts');
@@ -292,7 +296,7 @@ export function assertReviewExecutionAuthorityContract(registry, levelRegistry) 
   for (const token of ['QUALIFIED_MANAGED_REVIEWER_DEFAULTS', 'CLAUDE_SUPPORTED_REASONING_EFFORTS', 'QUALIFIED_MANAGED_REVIEWER_EFFORTS', "model: 'gpt-5.6-sol'", "model: 'opus'", "reasoningEffort: 'high'"]) {
     assert(managedReviewerQualificationText.includes(token), `packages/main/src/core/managed-reviewer-qualification.ts: required reviewer qualification default missing: ${token}`);
   }
-  const smokeText = ["claude-transport", "cli", "codex-transport", "environment", "evidence-binding", "fixtures", "grok-integration", "legacy-cli", "live-binding", "native-attestation", "sealed-receipts", "suite", "supersession", "transport-workers"].map(name => read(`packages/main/src/tasks/managed-review-evidence/${name}.ts`)).join('\n');
+  const smokeText = read('packages/main/src/tasks/managed-review-evidence-smoke.ts');
   for (const token of ['absence of a managed binding is not proof', 'isolated broker-signature fixture succeeds without consulting ambient provider ancestry', 'withoutManagedAmbientAuthority', "'--brokered-native-binding-fixture'", 'raw provider cannot self-mint authority', 'mixed tree is rejected', 'real raw cross-provider CLI review_pass_set must fail', 'real raw cross-provider CLI finding_add must fail', 'idempotent importer replay revalidates the exact persisted provider finding', 'multiple proposal artifacts also fail the persisted REVIEW gate', 'DISPATCH_START reviewer accepted the managed assignment', 'Reviewed the first evidence group; continuing with adversarial paths.', 'the exact provider final-result proposal is importable without a provider tool-shell callback', 'public managed Claude prompt is inside the exact provider cwd', 'public managed Claude launch cannot block on interactive tool approval', 'public managed Claude launch supplies its bounded structured-output schema', 'worker descriptor capability metadata is not inherited as ordinary provider authority', 'public managed Claude final proposal is exactly importable', "name: 'model'", "name: 'reasoningEffort'", "name: 'missing'", "name: 'malformed'", "name: 'multiple'", "name: 'oversize'", 'final result fails closed', 'controller must not be able to add or override proposal verdict fields', 'injected crash before story evidence persistence']) {
     assert(smokeText.includes(token), `packages/main/src/tasks/managed-review-evidence-smoke.ts: required executable boundary assertion missing: ${token}`);
   }

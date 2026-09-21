@@ -1635,6 +1635,7 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
       'packages/main/src/core/controller-config-projection.ts',
       'packages/main/src/core/controller-runtime-projection.ts',
       'packages/main/src/core/runtime-artifact-registry.ts',
+      'packages/main/src/core/evidence-freshness.ts',
     ],
     consumerSourceRefs: [
       'packages/main/src/core/auto-commit-metadata.ts',
@@ -1643,6 +1644,7 @@ const RUNTIME_PROCESS_FACT_SOURCE_REFS: Record<string, {
       'packages/main/src/handlers/context.ts',
       'packages/main/src/handlers/checklist.ts',
       'packages/main/src/handlers/review-run.ts',
+      'packages/main/src/handlers/managed-review-evidence.ts',
     ],
   },
   'runtime:repository_default_baseline_gate': {
@@ -2218,7 +2220,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/scope-check',
     consumerGate: 'story_review scope-check gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.scope_check_save,
-    rationale: 'Scope-check signature is consumed by PLAN review. Managed scope-review delivery includes the exact deliveryRunId in the signature domain; the completed terminal receipt seals the exact scope-check bytes, and story_review compares the current artifact to that receipt. Missing, replaced, or unconsumed output fails rather than becoming provider_completed.',
+    rationale: 'Scope-check signature is consumed by PLAN review. Managed scope-review delivery includes the exact deliveryRunId in the signature domain; the completed terminal receipt seals a version-prefixed canonical immutable reviewer projection. Owner-authored open-question resolution, resolved-at, and resolution-source annotations remain outside that projection, while reviewer question text, evidence, source pointers, features, summary, read manifest, delivery identity, and every other scope-check field remain sealed. Digest grammar is explicit: a version-prefixed receipt can match only the projection grammar, while an unprefixed legacy byte seal is accepted only while the current file bytes remain exact and no owner annotation exists. Resolving an open question under a legacy receipt requires a fresh managed scope review. Missing, replaced, or unconsumed output fails rather than becoming provider_completed.',
   },
   {
     name: 'artifact:candidate-spec-set.json',

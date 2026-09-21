@@ -46,11 +46,11 @@ export function createScopeQuestionResolveHandlers(ctx: HandlerContext): Record<
         ...prior,
         resolution: args.resolution,
         resolvedAt: new Date().toISOString(),
-        // If sourcePointers is provided at resolve time, overwrite/merge — per the rule simply overwrite the original pointers
-        // (the reviewer's original sourcePointers remain traceable in the evidence section)
-        sourcePointers: (args.sourcePointers && args.sourcePointers.length > 0)
+        // Reviewer sourcePointers are part of the immutable managed-reviewer
+        // payload. Owner citations belong to the resolution overlay.
+        resolutionSourcePointers: (args.sourcePointers && args.sourcePointers.length > 0)
           ? args.sourcePointers
-          : prior.sourcePointers,
+          : prior.resolutionSourcePointers,
       };
       data.openQuestions = oqs;
       // No re-signing: resolution is not included in _hash (see decision option A)

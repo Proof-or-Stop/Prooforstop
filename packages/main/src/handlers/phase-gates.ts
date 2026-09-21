@@ -328,6 +328,13 @@ export function runImplementationWorkerAuthorityGate(
     gitCwd,
   });
   if (result.status === 'fail') {
+    if (result.code === 'integration_branch_unresolved') {
+      throw new Error(
+        `Cannot enter REVIEW: Story integration branch could not be resolved [integration_branch_unresolved]\n` +
+        `${renderChannelResult(result)}\n` +
+        `→ Restore or record the Story's integration target, or restore a resolvable repository baseline branch before retrying REVIEW.`,
+      );
+    }
     throw new Error(
       `Cannot enter REVIEW: canonical implementation worker evidence is missing or invalid [implementation_worker_authority_invalid]\n` +
       `${renderChannelResult(result)}\n` +
