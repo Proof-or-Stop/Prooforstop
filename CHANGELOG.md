@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab worker-authority-integration-target - v0.3.439 - 2026-09-21
+
+- Resolve normal-channel commit attribution from the Story's frozen integration target instead of assuming a `main` branch.
+- Require an explicit or resolved integration branch on every path and report unresolved baselines separately from invalid implementation-worker evidence.
+- Add master-only and unresolved-baseline regressions to both the focused Lab command and the default flow smoke.
+- Refresh the reviewed static-edge source bindings and verify the static exception closure after the test changes.
+- Verified package build, focused Lab RED/GREEN and U18 static edges; broader suites retain unrelated pre-existing fixture failures.
+
+Maintenance provenance: codex/lab-worker-authority-integration-target, repair f5641505a8cfbf35bd0480f531454668544b8cd6.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/flow-stability-smoke.js","--worker-authority-master"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab integrated-validation-review-and-release-reconciliation - v0.3.438 - 2026-09-21
 
 - Integrate the complete local validation, provider-quota, verdict-stickiness, review-rework and audit-snapshot repair line with Pan Qi's managed implementation, finding-repair, review-launch and verifier-identity line; both pre-merge heads remain ancestors of this release.
