@@ -60,7 +60,7 @@ export const REQUESTED_CODEX_MODEL = 'gpt-5.6-terra';
 
 export const REQUESTED_CODEX_REASONING = 'high';
 
-export const REQUESTED_CLAUDE_MODEL = 'claude-fable-5';
+export const REQUESTED_CLAUDE_MODEL = 'claude-opus-4-6';
 
 export const REQUESTED_CLAUDE_REASONING = 'xhigh';
 

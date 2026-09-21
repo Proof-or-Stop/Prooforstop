@@ -12,3 +12,12 @@ assert.equal(Object.hasOwn(input.reviewBinding,'managedPromptDigest'),false,'fix
 assert.equal(isSealedManagedPromptDigestCurrent(prepared.reviewBinding.managedPromptDigest,digest,digest),true);
 assert.equal(isSealedManagedPromptDigestCurrent(prepared.reviewBinding.managedPromptDigest,digest,'sha256:'+'0'.repeat(64)),false,'a different executed prompt is rejected');
 console.log('MANAGED_PROMPT_FIXTURE_RED_GREEN: missing seal refused; exact submitted prompt sealed; changed execution refused');
+
+const {execFileSync} = await import('node:child_process');
+const {resolveQualifiedManagedReviewerSelection} = await import('../../../packages/main/dist/core/host-run.js');
+const {REQUESTED_CLAUDE_MODEL} = await import('../../../packages/main/dist/tasks/managed-review-evidence/environment.js');
+const original = execFileSync('git',['show','6f6d88948f:packages/main/src/tasks/managed-review-evidence-smoke.ts'],{encoding:'utf8'});
+const formerModel = original.match(/const REQUESTED_CLAUDE_MODEL = '([^']+)'/)[1];
+assert.throws(()=>resolveQualifiedManagedReviewerSelection({host:'claude',model:formerModel,reasoningEffort:'xhigh'}), /not qualified for host claude/);
+assert.deepEqual(resolveQualifiedManagedReviewerSelection({host:'claude',model:REQUESTED_CLAUDE_MODEL,reasoningEffort:'xhigh'}),{model:REQUESTED_CLAUDE_MODEL,reasoningEffort:'xhigh'});
+console.log('MANAGED_MODEL_FIXTURE_RED_GREEN: original unqualified fixture refused; explicit qualified model accepted');

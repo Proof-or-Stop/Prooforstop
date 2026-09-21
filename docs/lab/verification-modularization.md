@@ -388,3 +388,10 @@ direct submit fixtures omitted it. The fixture-only adapter now derives the seal
 from the exact submitted prompt bytes and preserves all existing tuple fields.
 No production acceptance rule changes. The negative missing/tampered digest
 controls remain required; complete post-repair verification is pending.
+
+After sealing prompts, the complete run advances to Claude and exposes another
+pre-split fixture mismatch: `REQUESTED_CLAUDE_MODEL` selected a model outside the
+current formal reviewer qualification policy. The actual policy rejects the
+original constant from `6f6d88948f`; the fixture now explicitly selects
+`claude-opus-4-6` while preserving exact argv/model/effort assertions. This uses
+a synthetic runner and neither calls a provider nor changes qualification policy.
