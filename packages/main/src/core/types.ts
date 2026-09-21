@@ -3443,6 +3443,8 @@ export interface OpenQuestion {
   sourcePointers: string[];
   resolution?: string;
   resolvedAt?: string;
+  /** Owner-authored sources supporting the resolution; reviewer sourcePointers remain immutable. */
+  resolutionSourcePointers?: string[];
 }
 
 /** Total order: light=0 < balanced=1 < strict=2 */

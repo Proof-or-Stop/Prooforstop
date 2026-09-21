@@ -102,6 +102,10 @@ printf '%s\n' '{"type":"turn.completed","usage":{}}'
   const resolvedScopeCheck = store.readScopeCheck(storyId);
   assert.equal(resolvedScopeCheck?.openQuestions?.[0]?.resolution,
     'The checklist acceptance statement controls this boundary.');
+  assert.deepEqual(resolvedScopeCheck?.openQuestions?.[0]?.sourcePointers,
+    ['docs/reviewer-source.md'], 'owner resolution must preserve reviewer-authored source pointers');
+  assert.deepEqual(resolvedScopeCheck?.openQuestions?.[0]?.resolutionSourcePointers,
+    ['docs/owner-resolution.md'], 'owner citations belong to the resolution overlay');
   assert.deepEqual(verifyManagedDispatchDelivery({
     root, runId: result.runId, storyId, agentType: 'proof-or-stop-review-scope-plan',
   }), { valid: true },
