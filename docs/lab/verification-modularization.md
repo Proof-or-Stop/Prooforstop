@@ -1,8 +1,8 @@
 # Verification modularization: implementation and evidence ledger
 
 This is a local Lab checkpoint, not a completion or main integration claim.
-The authorized scope is all 14 entries below. Five have scoped official GREEN;
-Finding ledger has two complete successful executions. Build binding is a candidate; seven entries remain unimplemented.
+The authorized scope is all 14 entries below. Seven have scoped official GREEN;
+Finding ledger has two complete successful executions. Planner is a candidate; five entries remain unimplemented.
 
 Original public files contain imports, usage comments and one invocation.
 Every extracted file is limited to 2,000 physical lines. No hidden monolith,
@@ -17,15 +17,15 @@ No routine validation command is added by internal module registration.
 | `packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs` | 10748 | 10748 | pending | pending | Pending; no modularization RED/GREEN claim | No |
 | `scripts/verify-proof-or-stop-identity-cutover.mjs` | 7794 | 7794 | pending | pending | Pending; no modularization RED/GREEN claim | No |
 | `packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts` | 6101 | 6101 | pending | pending | Pending; no modularization RED/GREEN claim | No |
-| `packages/main/src/tasks/validation-tier-planner-smoke.ts` | 5792 | 5792 | pending | pending | Pending; no modularization RED/GREEN claim | No |
+| `packages/main/src/tasks/validation-tier-planner-smoke.ts` | 5792 | 7 | 9 | 1652 | RED recorded; stale 168-command pin independently reproduced, 248-command repair under verification | No |
 | `packages/main/src/tasks/flow-stability-smoke.ts` | 5528 | 7 | 11 | 989 | RED -> official GREEN at 21be146f9c; full suite 137.62 s | No |
 | `packages/main/tests/canonical-new-story-artifacts.test.mjs` | 5378 | 5378 | pending | pending | Pending; no modularization RED/GREEN claim | No |
 | `packages/main/src/tasks/finding-ledger-runtime-smoke.ts` | 4646 | 6 | 9 | 1134 | Full suites passed at 3b51f4f666 / f5fda7d0e6 in 130.60 / 147.00 s; combined run failed in the separate process suite | No |
 | `packages/main/src/tasks/managed-review-evidence-smoke.ts` | 4360 | 4360 | pending | pending | Pending; no modularization RED/GREEN claim | No |
-| `packages/main/src/tasks/host-run-usage-smoke.ts` | 3867 | 3867 | pending | pending | Pending; no modularization RED/GREEN claim | No |
+| `packages/main/src/tasks/host-run-usage-smoke.ts` | 3867 | 6 | 15 | 587 | RED -> official GREEN at 9c8e8b848b; full suite 34.00 s, 91 checks | No |
 | `scripts/verify-proof-or-stop-prompt-baseline.mjs` | 3675 | 7 | 6 | 1344 | RED -> official GREEN at 103d6e06fa; full suite 9.60 s | No |
 | `packages/main/tests/milestone-status.test.mjs` | 3447 | 6 | 9 | 670 | RED -> official GREEN at a3777644bb; full suite 39.00 s | No |
-| `scripts/verify-validation-build-artifact-binding.mjs` | 3329 | 7 | 7 | 1409 | RED recorded; candidate full verification in progress | No |
+| `scripts/verify-validation-build-artifact-binding.mjs` | 3329 | 7 | 7 | 1409 | RED -> official GREEN at 4dd8c68c69; full suite 134.18 s, 598 checks | No |
 | `packages/main/src/tasks/verification-run-and-guard-smoke.ts` | 3138 | 7 | 7 | 776 | RED -> official GREEN at 378d1ccb3a; full suite 94.52 s | No |
 
 ## Parameters and registration
@@ -38,6 +38,8 @@ separate success selectors and cannot claim complete-suite evidence.
 
 | Entry family | Capability IDs | Registration required |
 |---|---|---|
+| host-run-usage | `proposal`, `prompt-supervision`, `usage-parsing`, `story-binding`, `streaming`, `ledger-failures`, `output-errors`, `admission`, `integrations`, `ledger-concurrency`, `process-supervision`, `evidence-mapping` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
+| validation-tier-planner | `command-identity`, `historical-pins`, `change-inputs`, `selection-widening`, `cli-integration`, `hash-completeness`, `acceptance-guards` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
 | validation-build-binding | `routine`, `done-required`, `shared-cache`, `executor`, `handler` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
 | process-fact-contract | `support`, `proofstory-closeout`, `reopen`, `prompt-contracts`, `review-inventory`, `registry-parser`, `command-contracts`, `review-verification`, `scope-runtime`, `story3` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
 | finding-ledger-runtime | `proposal-envelope`, `projection-receipt`, `base-authority`, `legacy-authority`, `transactions`, `readonly-mutations`, `runtime-evidence`, `rollback-concurrency`, `historical-migration`, `build-distribution`, `tamper-dependency` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
@@ -74,6 +76,20 @@ PASS. Existing full entrypoints stay registered.
 | `story3.mjs` | 360 | Finding runtime evidence contract |
 | `support.mjs` | 1224 | Shared constants and source readers |
 
+### `packages/main/src/tasks/validation-tier-planner`
+
+| Module | Lines | Responsibility |
+|---|---:|---|
+| `acceptance-guards.ts` | 547 | Actual case coverage, source registration and output bounds |
+| `change-inputs.ts` | 718 | Story changes and input collection |
+| `cli-integration.ts` | 821 | Public planning CLI and repository integration |
+| `cli.ts` | 25 | Capability routing and explicit coverage prerequisites |
+| `command-identity.ts` | 649 | Portable command identities and inventory pin |
+| `hash-completeness.ts` | 255 | Incomplete hash snapshot refusal |
+| `historical-pins.ts` | 336 | Historical evidence resolution |
+| `selection-widening.ts` | 1652 | Tier selection and widening rules |
+| `support.ts` | 942 | Shared fixtures, identities and final summaries |
+
 ### `packages/main/src/tasks/flow-stability`
 
 | Module | Lines | Responsibility |
@@ -103,6 +119,26 @@ PASS. Existing full entrypoints stay registered.
 | `runtime-evidence.ts` | 990 | Runtime receipt writers, consumers and recovery |
 | `support.ts` | 452 | Ledger and CLI helpers, signed proposal checks |
 | `transactions.ts` | 1134 | Concurrent appends, durability, recovery and lock fencing |
+
+### `packages/main/src/tasks/host-run-usage`
+
+| Module | Lines | Responsibility |
+|---|---:|---|
+| `admission.ts` | 373 | Working directory, budget and concurrency admission |
+| `cli.ts` | 119 | Argument routing and retained case order |
+| `evidence-mapping.ts` | 61 | Fixture isolation and pinned child evidence |
+| `integrations.ts` | 587 | Repair, readiness probe and cross-host integration |
+| `ledger-concurrency.ts` | 277 | Concurrent append and lock recovery |
+| `ledger-failures.ts` | 285 | Failed writes and truthful usage classification |
+| `output-errors.ts` | 502 | EPIPE and late stream containment |
+| `process-supervision.ts` | 396 | Startup, timeout, abort and process identity |
+| `prompt-supervision.ts` | 195 | Prompt descriptor and residual process supervision |
+| `proposal.ts` | 272 | Final output and proposal admission |
+| `story-binding.ts` | 155 | Story, review-run and phase binding |
+| `streaming.ts` | 314 | Live output and retention limits |
+| `summary.ts` | 74 | Exact aggregate and compatibility selectors |
+| `support.ts` | 469 | Shared fixture, counters and provider samples |
+| `usage-parsing.ts` | 500 | Provider usage and failure parsing |
 
 ### `scripts/prompt-baseline`
 

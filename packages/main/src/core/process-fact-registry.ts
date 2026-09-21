@@ -1862,6 +1862,23 @@ COMMAND_PROCESS_FACTS.push({
 });
 
 COMMAND_PROCESS_FACTS.push({
+  name: 'runtime:planner_capability_selection', kind: 'runtime-behavior', level: 'L4',
+  semantics: ['runtime-behavior', 'verification-policy'],
+  paths: ['packages/main/src/tasks/validation-tier-planner-smoke.ts',
+    'packages/main/src/tasks/validation-tier-planner/acceptance-guards.ts',
+    'packages/main/src/tasks/validation-tier-planner/change-inputs.ts',
+    'packages/main/src/tasks/validation-tier-planner/cli-integration.ts',
+    'packages/main/src/tasks/validation-tier-planner/cli.ts',
+    'packages/main/src/tasks/validation-tier-planner/command-identity.ts',
+    'packages/main/src/tasks/validation-tier-planner/hash-completeness.ts',
+    'packages/main/src/tasks/validation-tier-planner/historical-pins.ts',
+    'packages/main/src/tasks/validation-tier-planner/selection-widening.ts',
+    'packages/main/src/tasks/validation-tier-planner/support.ts'],
+  producer: 'verification capability CLI', consumerGate: 'explicit verifier invocation only',
+  rationale: 'Seven capabilities preserve the original sections and full completion guards. Acceptance guards explicitly require all six other sections because coverage is evidence of cases that actually ran. Other selections emit partial evidence; invalid and combined all arguments refuse and duplicates run once. Existing full validation registration is unchanged; internal modules add no routine command or dynamic exclusion authority.',
+});
+
+COMMAND_PROCESS_FACTS.push({
   name: 'runtime:process_contract_capability_selection', kind: 'runtime-behavior', level: 'L4',
   semantics: ['runtime-behavior', 'verification-policy'],
   paths: ['scripts/verify-process-fact-contract.mjs',
