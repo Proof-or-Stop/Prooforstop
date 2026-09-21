@@ -1,5 +1,16 @@
 # Changelog
 
+## Lab identity-148-performance-20260920 - v0.3.439 - 2026-09-21
+
+- Split 14 verification entrypoints into 192 cohesive modules, each at most 1,857 lines; retain thin public entries, original exports, default complete execution and explicit capability selectors without adding routine gates.
+- Preserve function and assertion order, identity/schema evidence and exact child-process dependencies; repair relocated readers, public-operation coverage, source witnesses and canonical audit serialization.
+- Verify targeted RED/GREEN regressions, schema and mutation controls, complete identity/runtime/process/package certification, and bounded static dependency scans. See `docs/lab/verification-modularization.md` and `docs/lab/verification-modularization-inventory.md` for detailed evidence scope and all module/parameter mappings.
+- Keep heavy quorum performance campaigns distinct from the seven scoped controls and structural preservation evidence; partial capability results do not certify omitted production checks. Local Lab maintenance does not assert Story DONE or remote publication.
+
+Maintenance provenance: codex/lab-identity-148-performance-20260920, repair 535ed1190f141e0dc1c620cb21a52a32668861eb.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/canonical-new-story-artifacts.test.mjs","--group=identity-sites"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab integrated-validation-review-and-release-reconciliation - v0.3.438 - 2026-09-21
 
 - Integrate the complete local validation, provider-quota, verdict-stickiness, review-rework and audit-snapshot repair line with Pan Qi's managed implementation, finding-repair, review-launch and verifier-identity line; both pre-merge heads remain ancestors of this release.
