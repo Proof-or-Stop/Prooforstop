@@ -101,6 +101,13 @@ if (stickiness?.stickyFailuresFor) {
     check(classify([timedOut], { semanticCommandPass: false }) === 'validation_failure', 'control: an independent semantic rejection beside a timeout is still a verdict');
     check(classify([timedOut, broke], { semanticCommandPass: false, semanticIsAggregate: true }) === 'validation_failure' && classify([], { semanticCommandPass: false, semanticIsAggregate: true }) === 'validation_failure',
       'control: an aggregate failure with a real command failure, or with no failed command to explain it, is a verdict');
+    // Third finish-time audit: a failure SYNTHESIZED from output that could not
+    // be used is no printed verdict. Cut off by the deadline it is
+    // infrastructure and the run may be retried; with exit code zero or a real
+    // failure it is a verdict, like a complete printed FAIL beside a timeout.
+    expectRepaired(classify([timedOut], { semanticCommandPass: false, semanticIsSynthesized: true }) === 'infra_failure', 'output cut off by the deadline made an infrastructure-only run a verdict about the code');
+    check(classify([ok], { semanticCommandPass: false, semanticIsSynthesized: true }) === 'validation_failure' && classify([broke], { semanticCommandPass: false, semanticIsSynthesized: true }) === 'validation_failure',
+      'control: unusable output with exit code zero, or beside a real failure, is a verdict');
     const okExecution = { schema: 'proofOrStop.routine-validation-command-execution', version: 1, status: 'PASS', complete: true, commandCount: 1, requiredFailureCount: 0, optionalFailureCount: 0 };
     check(reuseModule.classifyValidationTerminalFailure({ record: { result: 'FAIL', verificationCoverage: { missingRequired: 1 }, commandExecution: okExecution }, commandResults: [ok], expectedCommandCount: 1 }) === 'coverage_incomplete', 'control: passing commands with missing required coverage are a coverage-only failure');
     // Audit 4: classification is not reuse eligibility. A failed OPTIONAL
@@ -398,6 +405,11 @@ if (typeof verifierModule.classifyValidatorOutput === 'function') {
     'a complete pass followed by a truncated failure': `${PASS}\n${TRUNCATED}`,
     'a complete pass followed by a complete failure': `${PASS}\n${FAIL}`,
     'a complete pass with a stray marker after it': `${PASS}\n"allPassed": false`,
+    // Third finish-time audit: authority is never extracted from an enclosing
+    // container, complete, nested or truncated.
+    'a result inside a truncated array': `[${PASS},`,
+    'a result inside a complete array': `[${PASS}]`,
+    'a result nested inside another object': `{"results":[${PASS}]}`,
   };
   for (const [name, text] of Object.entries(unusable)) expectRepaired(kindOf(text) === 'unusable', `${name} was classified as ${kindOf(text)}, not as an unusable attempt`);
   const results = {
@@ -415,8 +427,16 @@ if (typeof verifierModule.classifyValidatorOutput === 'function') {
   // have failed every plain-text validate file whose log prints a JSON object.
   const plain = ['all 12 tests passed', '{ debug } done', '[1,2]', 'GET /health -> {"status":"ok"}\nall tests passed', '{"status":fail}', '{"status":"fail"}'];
   expectRepaired(plain.every((text) => kindOf(text) === 'plain'), `ordinary output was read as an attempt at a structured result (${plain.map(kindOf).join(',')}); the key "status" alone marks nothing`);
+  const synthesizedFailure = verifierModule.malformedValidatorResult('reason', 'line');
+  expectRepaired(typeof verifierModule.isSynthesizedValidatorFailure === 'function' && verifierModule.isSynthesizedValidatorFailure(synthesizedFailure) === true
+    && verifierModule.isSynthesizedValidatorFailure({ ...synthesizedFailure }) === false && verifierModule.isSynthesizedValidatorFailure(JSON.parse(JSON.stringify(synthesizedFailure))) === false,
+    'a synthesized failure is not told apart by object identity, so a validate file could claim to be one by printing its fields');
   check(verifierModule.malformedValidatorResult('reason', 'line').status === 'fail' && verifierModule.normalizeValidatorResult(FAIL).status === 'fail' && verifierModule.normalizeValidatorResult(PASS).status === 'pass', 'control: an unusable attempt and a failing result both normalize to a failure, a passing result passes through');
 }
+// Third finish-time audit: the origin of a synthesized failure reaches the
+// classifier from the caller, like the origin of an aggregate verdict.
+expectRepaired(verifierSource.includes('synthesizedSemanticResults.has(result),') && verifierSource.includes('if (isSynthesizedValidatorFailure(parsed)) synthesizedSemanticResults.add(toPersist);'),
+  'a failure synthesized from unusable output is still passed on as a printed semantic verdict (source-text guard)');
 // Audit 6: the publication binds through the pre-launch fallback.
 expectRepaired(verifierSource.includes('}, preLaunchBindings.get(identity)),') && verifierSource.includes('preLaunchBindings.set(identity, { materialHash, storyFilesHash });'),
   'the publication does not fall back to what the run was bound to before launch (source-text guard)');

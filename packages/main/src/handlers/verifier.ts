@@ -886,11 +886,24 @@ export function launchDirectoryMismatch(bindings: readonly FrozenLaunchBinding[]
 }
 
 /**
+ * Failures this verifier SYNTHESIZED from a validate file output it could not
+ * use. No complete negative verdict was printed, so such a failure is not an
+ * independent semantic rejection: the executor facts decide what it is - an
+ * infrastructure failure when the command was killed at its deadline and the
+ * output is merely cut off, a verdict otherwise. Membership is by object
+ * identity, so a validate file cannot claim it by printing the same fields.
+ */
+const synthesizedValidatorFailures = new WeakSet<object>();
+
+/**
  * Results whose semantic-pass argument is the AGGREGATE verdict of a
  * dynamic-authority run. Only the two callers that build such a result add to
  * it, by object identity, so nothing a validate file prints can claim it.
  */
 const aggregateVerdictResults = new WeakSet<object>();
+
+/** Results handed to persistence whose failing semantic verdict was synthesized from unusable output; trusted the same way. */
+const synthesizedSemanticResults = new WeakSet<object>();
 
 /**
  * The committed material and story files a run executes against, captured
@@ -922,10 +935,16 @@ const STRUCTURED_RESULT_MARKERS = ['provider', 'allPass', 'allPassed'];
 const STRUCTURED_RESULT_MARKER = /"(?:provider|allPass|allPassed)"\s*:/;
 const decodeJsonEscapes = (text: string) => text.replace(/\\u([0-9a-fA-F]{4})/g, (_match, hex: string) => String.fromCharCode(parseInt(hex, 16)));
 
-/** Complete top-level {...} spans, scanned with JSON string and escape awareness; an unclosed one yields nothing. */
+/**
+ * Complete ROOT {...} spans, scanned with JSON string, escape and container
+ * awareness. An object inside an array is not a root: authority is never
+ * extracted from an enclosing container, complete or truncated. An unclosed
+ * container yields nothing, and neither does anything after it.
+ */
 function topLevelObjectSpans(output: string): Array<{ start: number; end: number }> {
   const spans: Array<{ start: number; end: number }> = [];
-  let depth = 0, start = -1, inString = false, escaped = false;
+  const open: string[] = [];
+  let start = -1, inString = false, escaped = false;
   for (let index = 0; index < output.length; index++) {
     const char = output[index];
     if (inString) {
@@ -934,9 +953,12 @@ function topLevelObjectSpans(output: string): Array<{ start: number; end: number
       else if (char === '"') inString = false;
       continue;
     }
-    if (char === '"' && depth > 0) inString = true;
-    else if (char === '{') { if (depth === 0) start = index; depth += 1; }
-    else if (char === '}' && depth > 0) { depth -= 1; if (depth === 0) spans.push({ start, end: index + 1 }); }
+    if (char === '"' && open.length > 0) inString = true;
+    else if (char === '{' || char === '[') { if (open.length === 0) start = index; open.push(char); }
+    else if ((char === '}' || char === ']') && open.length > 0) {
+      const opener = open.pop();
+      if (open.length === 0 && opener === '{' && char === '}') spans.push({ start, end: index + 1 });
+    }
   }
   return spans;
 }
@@ -967,7 +989,7 @@ export function classifyValidatorOutput(output: string): ValidatorOutputClass {
  * reaches its record.
  */
 export function malformedValidatorResult(reason: string, output: string): Record<string, any> & { status: string } {
-  return {
+  const synthesized = {
     provider: 'proof-or-stop-verifier-malformed-validator-output',
     status: 'fail',
     allPass: false,
@@ -975,6 +997,13 @@ export function malformedValidatorResult(reason: string, output: string): Record
     details: [`malformed validator result: ${reason}`, ...String(output).split('\n').filter((line) => line.trim()).slice(0, 40).map((line) => line.slice(0, 2000))],
     warnings: [] as string[],
   };
+  synthesizedValidatorFailures.add(synthesized);
+  return synthesized;
+}
+
+/** Exported for the fail-sticky regression: true only for an object malformedValidatorResult itself created. */
+export function isSynthesizedValidatorFailure(value: unknown): boolean {
+  return Boolean(value) && typeof value === 'object' && synthesizedValidatorFailures.has(value as object);
 }
 
 export function normalizeValidatorResult(text: string, output = text): Record<string, any> & { status: string } {
@@ -1647,6 +1676,8 @@ function persistStoryValidationEvidence(
   reuseAttribution?: RoutineReuseTerminalAttribution,
   /** Trusted: true only when a dynamic-authority caller passed its aggregate verdict as semanticCommandPass. */
   semanticIsAggregate = false,
+  /** Trusted: true only when the failing semantic verdict was synthesized from output that could not be used. */
+  semanticIsSynthesized = false,
 ): any | null {
   const statusPass = result.status === 'pass';
   const allPass = Boolean(result.allPass ?? result.allPassed ?? statusPass);
@@ -1887,6 +1918,7 @@ function persistStoryValidationEvidence(
         // verdict a validate file printed is an independent semantic one.
         // Which it is comes from the caller, never from the result itself.
         semanticIsAggregate,
+        semanticIsSynthesized,
         concurrentPollutionBlocking: Boolean(result?.concurrentWorktreePollution && result.concurrentWorktreePollution.blocking !== false),
       }),
     };
@@ -2191,6 +2223,7 @@ function decorateAndMaybePersistStoryValidation(
       semanticCommandPass,
       reuseAttribution,
       aggregateVerdictResults.has(result),
+      synthesizedSemanticResults.has(result),
     );
     if (persistenceFailure) return persistenceFailure;
   }
@@ -3332,11 +3365,13 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             // Coverage decoration must not turn an exit-zero semantic non-PASS into PASS.
             const semanticResult = semanticCommandPass ? parsed : { ...parsed, status: 'fail', allPass: false };
             const focusedParsed = focus ? markFocusedResult(semanticResult, focus) : semanticResult;
+            const toPersist = attachDynamic(focusedParsed);
+            if (isSynthesizedValidatorFailure(parsed)) synthesizedSemanticResults.add(toPersist);
             const decorated = decorateAndMaybePersistStoryValidation(
               ctx,
               args.story,
               focus,
-              attachDynamic(focusedParsed),
+              toPersist,
               built?.identity,
               [commandResult],
               1,

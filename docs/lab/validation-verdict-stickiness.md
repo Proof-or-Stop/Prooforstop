@@ -81,7 +81,14 @@ yet; the same command without `--legacy` reports it once Stories validate again.
   an attempt wherever they occur; the output is a result only when it holds exactly one
   complete top-level object carrying such a key and no marker outside it; any other
   output that names one - truncated, malformed, repeated, followed by another attempt -
-  is a recorded failure; output that names none is plain text for the exit-code wrapper. Admission refuses a stored PASS without its
+  is a recorded failure; output that names none is plain text for the exit-code wrapper.
+  Complete root objects are found by a scanner that knows JSON strings, escapes and
+  containers, so authority is never extracted from an enclosing array or object. A
+  failure this verifier synthesizes from unusable output is no printed verdict: cut off
+  by the deadline it is an infrastructure failure and the run may be retried, with exit
+  code zero or beside a real failure it is a verdict; a complete printed FAIL beside a
+  timeout stays a verdict. Which kind of failure it is reaches the classifier from the
+  caller by object identity, never from fields a validate file can print. Admission refuses a stored PASS without its
   identity (`validation_identity_incomplete`); terminals from before the artifact
   binding stay valid history and are simply never matched.
 - History is `{ terminals }` or `{ unreadable }`. Only a confirmed absence (`ENOENT`)
@@ -106,7 +113,7 @@ yet; the same command without `--legacy` reports it once Stories validate again.
 ## Verification
 
 Two registered commands, the last two `validate.commands` entries.
-`node scripts/verify-validation-verdict-stickiness.mjs` (112 checks, about 5 seconds, the
+`node scripts/verify-validation-verdict-stickiness.mjs` (119 checks, about 5 seconds, the
 Lab's RED command) covers the pure rule, both core consumers, the DONE-side consumer
 over a fixture Story with signed evidence, corrupt, missing, denied and malformed
 histories, the failure classifier, what marks an attempt at a structured validator
@@ -263,6 +270,12 @@ still looked at one span: an ordinary object, or a complete passing result, foll
 a truncated failing one was accepted (high). That was the fourth finding about the shape
 of a validate file's output, so the detection is no longer a list of shapes but the
 closed rule above, over the whole output.
+
+The third audit that `finish` ran (rejected, candidate reopened) found two in that
+rule's first version: its scanner ignored arrays, so a passing result inside a
+truncated array was promoted to the root result (high), and a failure synthesized from
+output that a deadline had cut off counted as a printed verdict and refused the
+recovery (medium).
 
 ## Limitations
 

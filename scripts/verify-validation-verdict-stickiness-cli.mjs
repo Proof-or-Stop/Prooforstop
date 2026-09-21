@@ -344,6 +344,28 @@ try {
   const escapedRetry = escapedKey.runCli();
   expectRepaired(escapedRetry.status !== 0 && escapedRetry.text.includes('verdict_flip_refused') && escapedKey.evidence()?.result !== 'PASS', 'an escaped provider key exempted the retry from stickiness');
 
+  // Third finish-time audit: output cut off by the deadline is no printed
+  // verdict. The validate file prints a PASSING result without its closing
+  // brace and hangs until it is killed; the run is an infrastructure failure in
+  // evidence and terminal alike, and the unchanged inputs may recover.
+  const cutOff = seed('cut-off-by-deadline', `const verdict = require('node:fs').readFileSync(process.env.STICKINESS_SWITCH, 'utf8').trim();\nif (verdict === 'pass') { console.log(JSON.stringify({ provider: 'flaky-fixture', status: 'pass', allPass: true, summary: 'pass', details: [], warnings: [] })); process.exit(0); }\nconsole.log('{"provider":"flaky-fixture","status":"pass","allPass":true');\nsetTimeout(() => process.exit(0), 120000);\n`);
+  const deadline = { PROOF_OR_STOP_VALIDATE_FILE_TIMEOUT_MS: '4000' };
+  writeFileSync(switchPath, 'fail\n');
+  const cutOffRun = cutOff.runCli(deadline);
+  check(cutOffRun.status !== 0 && cutOff.evidence()?.commandExecution?.failureKind === 'infra_failure', `control: the run is killed at its deadline (${cutOffRun.text.slice(0, 300)})`);
+  expectRepaired(kinds(cutOff.history()) === JSON.stringify([['fail', 'executed', 'infra_failure']]), `output cut off by the deadline was recorded as a verdict about the code (${kinds(cutOff.history())})`);
+  cutOff.admit();
+  writeFileSync(switchPath, 'pass\n');
+  const cutOffRetry = cutOff.runCli(deadline);
+  expectRepaired(cutOffRetry.status === 0 && cutOff.evidence()?.result === 'PASS', `a run cut off by its deadline refused the recovery on unchanged inputs (${cutOffRetry.text.slice(0, 400)})`);
+  // ... and authority is never extracted from an enclosing array: a passing
+  // result inside a truncated array, printed with exit code zero, is unusable.
+  const wrapped = seed('array-wrapped', `const verdict = require('node:fs').readFileSync(process.env.STICKINESS_SWITCH, 'utf8').trim();\nif (verdict === 'pass') { console.log(JSON.stringify({ provider: 'flaky-fixture', status: 'pass', allPass: true, summary: 'pass', details: [], warnings: [] })); process.exit(0); }\nconsole.log('[{"provider":"flaky-fixture","status":"pass","allPass":true},');\nprocess.exit(0);\n`);
+  writeFileSync(switchPath, 'fail\n');
+  const wrappedRun = wrapped.runCli();
+  expectRepaired(wrappedRun.status !== 0 && wrapped.evidence()?.result === 'FAIL' && kinds(wrapped.history()) === JSON.stringify([['fail', 'executed', 'validation_failure']]),
+    `a passing result inside a truncated array was published (exit=${wrappedRun.status} evidence=${wrapped.evidence()?.result} ${kinds(wrapped.history())})`);
+
   // Audit 10: a validate file cannot claim that its printed verdict is a
   // dynamic-authority aggregate. It prints a failure carrying that claim and
   // then hangs until the executor kills it: a semantic failure beside a
