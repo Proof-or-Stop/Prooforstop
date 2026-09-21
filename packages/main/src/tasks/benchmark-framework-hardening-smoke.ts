@@ -459,6 +459,33 @@ check('linked worktree inherits global-thin identity from the common repository'
       [],
       'MANAGED_REVIEW_CONTROLLER_PROJECTION_DIRTY: exact signed controller projections must not count as candidate material drift',
     );
+    assert.ok(
+      readMaterialDirtyFiles(worktree, worktree, { trustedControllerProjectionStoryId: 'B-wrong-story' }).files.includes('proof-or-stop.config.json'),
+      'a projection receipt cannot authorize another Story',
+    );
+
+    write(worktree, 'unrelated.ts', 'export const unrelated = true;\n');
+    assert.ok(
+      readMaterialDirtyFiles(worktree, worktree, { trustedControllerProjectionStoryId: 'B-global-thin' }).files.includes('unrelated.ts'),
+      'ordinary untracked material remains dirty beside valid controller projections',
+    );
+    rmSync(join(worktree, 'unrelated.ts'));
+
+    const projectedConfigBytes = readFileSync(join(worktree, 'proof-or-stop.config.json'));
+    writeFileSync(join(worktree, 'proof-or-stop.config.json'), Buffer.concat([projectedConfigBytes, Buffer.from('\n')]));
+    assert.ok(
+      readMaterialDirtyFiles(worktree, worktree, { trustedControllerProjectionStoryId: 'B-global-thin' }).files.includes('proof-or-stop.config.json'),
+      'a byte-different projected config remains material dirt',
+    );
+    writeFileSync(join(worktree, 'proof-or-stop.config.json'), projectedConfigBytes);
+
+    const configReceiptBytesForDirty = readFileSync(configReceiptAbsolute);
+    rmSync(configReceiptAbsolute);
+    assert.ok(
+      readMaterialDirtyFiles(worktree, worktree, { trustedControllerProjectionStoryId: 'B-global-thin' }).files.includes('proof-or-stop.config.json'),
+      'a projected config without its Story receipt remains material dirt',
+    );
+    writeFileSync(configReceiptAbsolute, configReceiptBytesForDirty);
 
     const projectedAsset = CONTROLLER_RUNTIME_ASSET_PATHS[0];
     const projectedAssetBytes = readFileSync(join(worktree, projectedAsset));

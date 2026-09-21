@@ -458,6 +458,7 @@ export function readMaterialDirtyFiles(
     });
     const rows = raw.split('\n').map((line) => line.trimEnd()).filter(Boolean);
     const dirty = new Set<string>();
+    const storyId = options.trustedControllerProjectionStoryId;
     for (const line of rows) {
       if (line.length < 4) continue;
       const pathText = line.slice(3);
@@ -466,10 +467,9 @@ export function readMaterialDirtyFiles(
         : [parseGitStatusPath(pathText)];
       for (const path of paths) {
         if (!path || isMaterialExcludedPath(path, metadataRoot)) continue;
-        const storyId = options.trustedControllerProjectionStoryId;
-        const trustedControllerProjection = Boolean(storyId) && (
-          isByteIdenticalControllerConfig({ projectRoot: gitCwd, gitCwd, storyId: storyId!, path })
-          || isByteIdenticalControllerRuntimeAsset({ projectRoot: gitCwd, gitCwd, storyId: storyId!, path })
+        const trustedControllerProjection = storyId !== undefined && (
+          isByteIdenticalControllerConfig({ projectRoot: gitCwd, gitCwd, storyId, path })
+          || isByteIdenticalControllerRuntimeAsset({ projectRoot: gitCwd, gitCwd, storyId, path })
         );
         if (!trustedControllerProjection) dirty.add(path);
       }
