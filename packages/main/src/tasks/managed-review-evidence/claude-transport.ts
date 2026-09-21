@@ -206,6 +206,8 @@ const findingsBeforeLifecycleCase = structuredClone(context.store.readFindings(S
     const f100ManagedBinding = readManagedHostRunBinding(root, findingsRun.run.runId);
     const f100Expected: ManagedReviewExpectedBinding = {
       providerHost: f100ManagedBinding.host,
+      model: f100ManagedBinding.model ?? null,
+      reasoningEffort: f100ManagedBinding.reasoningEffort ?? null,
       headHash: run.headHash,
       materialHash: run.materialHash,
       storyFilesHash: run.storyFilesHash ?? '',
@@ -228,6 +230,18 @@ const findingsBeforeLifecycleCase = structuredClone(context.store.readFindings(S
       });
       assert.equal(verification.valid, true,
         `F-100 ${label}: the managed receipt must stay valid (reason=${verification.reason ?? 'none'})`);
+      for (const rejectedExpected of [
+        { ...f100Expected, model: null, reasoningEffort: null },
+        { ...f100Expected, model: 'different-model' },
+        { ...f100Expected, reasoningEffort: 'low' },
+      ]) {
+        assert.equal(verifyManagedReviewEvidence({
+          root, storyId: STORY_ID, agent: current!.agent ?? LANE,
+          reviewRunId: current!.reviewRunId ?? findingsFinalReviewRunId,
+          lane: LANE, binding: current!.managedEvidenceBinding!,
+          expected: rejectedExpected, evidence: { kind: 'finding', finding: current! },
+        }).valid, false, `F-100 ${label}: omitted or mismatched model selection must fail closed`);
+      }
     };
     verifyF100('as imported (status=open)');
     const f100Findings = createFindingHandlers({ store, root, scanRoot: join(root, 'packages/main') });
@@ -302,6 +316,8 @@ const findingsBeforeLifecycleCase = structuredClone(context.store.readFindings(S
       binding: f100Imported!.managedEvidenceBinding!,
       expected: {
         providerHost: readManagedHostRunBinding(root, findingsRun.run.runId).host,
+        model: f100ManagedBinding.model ?? null,
+        reasoningEffort: f100ManagedBinding.reasoningEffort ?? null,
         headHash: run.headHash,
         materialHash: run.materialHash,
         storyFilesHash: run.storyFilesHash ?? '',
