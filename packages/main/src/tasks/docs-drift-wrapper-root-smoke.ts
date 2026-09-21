@@ -327,6 +327,36 @@ function gateByName(result: ReturnType<typeof runReviewCliGates>, name: string) 
     assert.equal(failingOptIn.status, 'fail', 'opted-in projects must block on detected residue');
     assert.match(failingOptIn.summary, /brand residue: 1 hit/, 'detector output must remain visible');
 
+    for (const invalidReviewPreflight of ['enforce', null, []]) {
+      writeFileSync(
+        join(metadataRoot, 'proof-or-stop.config.json'),
+        JSON.stringify({ gitRoot: 'repo', reviewPreflight: invalidReviewPreflight }, null, 2),
+        'utf-8',
+      );
+      resetConfigCache();
+      const invalidShape = gateByName(
+        runReviewCliGates(STORY_ID, makeDeps(metadataRoot)),
+        'proof-or-stop-residue',
+      );
+      assert.equal(
+        invalidShape.status,
+        'fail',
+        'LAB_RED: malformed reviewPreflight configuration must fail closed',
+      );
+    }
+
+    writeFileSync(join(metadataRoot, 'proof-or-stop.config.json'), '{ invalid json', 'utf-8');
+    resetConfigCache();
+    const invalidJson = gateByName(
+      runReviewCliGates(STORY_ID, makeDeps(metadataRoot)),
+      'proof-or-stop-residue',
+    );
+    assert.equal(
+      invalidJson.status,
+      'fail',
+      'LAB_RED: malformed project JSON must not silently disable an enforced residue gate',
+    );
+
     void gitRoot;
   } finally {
     rmSync(metadataRoot, { recursive: true, force: true });
