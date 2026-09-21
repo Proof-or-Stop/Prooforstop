@@ -1,0 +1,168 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define the canonical Proof-or-Stop domain language",
+      "context": "Create a root CONTEXT.md containing only stable domain concepts and precise distinctions such as Claim, Obligation, Evidence, Receipt, Admissibility, Gate, Story, ReviewRun, Finding, Freshness, Material, and Completion Certificate.",
+      "relatedDocs": [
+        "README.md",
+        "docs/evidence/evidence-platform-architecture.md"
+      ],
+      "userSees": "A concise canonical glossary distinguishes Proof-or-Stop claims, evidence, receipts, admissibility, gates, findings, freshness, and completion without depending on TypeScript file names.",
+      "excludes": [
+        "Implementation algorithms or TypeScript module paths in CONTEXT.md",
+        "Renaming established runtime vocabulary"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "CONTEXT.md"
+        ],
+        "test": [
+          "scripts/verify-proof-or-stop-reimplementation-spec.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "A structural verifier confirms the glossary defines every required canonical term as a definition rather than merely naming headings.",
+            "type": "docs",
+            "priority": "must",
+            "scope": "focused",
+            "expectation": "absolute_pass",
+            "requirementSource": "story",
+            "verification": {
+              "command": "node scripts/verify-proof-or-stop-reimplementation-spec.mjs",
+              "selector": "proof-or-stop-reimplementation-spec: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "The verifier confirms the glossary explicitly distinguishes Evidence Candidate from admissible Evidence and Task Completion from Production Completion.",
+            "type": "docs",
+            "priority": "must",
+            "scope": "focused",
+            "expectation": "absolute_pass",
+            "requirementSource": "story",
+            "verification": {
+              "command": "node scripts/verify-proof-or-stop-reimplementation-spec.mjs",
+              "selector": "proof-or-stop-reimplementation-spec: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "The verifier rejects missing canonical definitions and rejected aliases, preventing a heading-only glossary from satisfying acceptance.",
+            "type": "docs",
+            "priority": "must",
+            "scope": "focused",
+            "expectation": "absolute_pass",
+            "requirementSource": "story",
+            "verification": {
+              "command": "node scripts/verify-proof-or-stop-reimplementation-spec.mjs",
+              "selector": "proof-or-stop-reimplementation-spec: PASS"
+            }
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "verificationIntentAuthorship": {
+        "kind": "owner_direct",
+        "actor": "owner",
+        "intentDigest": "08db9e0f53c8c05b317dde570010c0e2165962bef3c692ed48c05f63d31266dd",
+        "independentlyAttested": false
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "Specify the complete evidence-gated lifecycle for an equivalent framework",
+      "context": "Write a requirements document covering philosophy, formal claim and evidence model, lifecycle state machine, per-phase artifact and field contracts, writers and consumers, freshness and signature domains, review and remediation loops, TEST and DONE closure, security boundaries, extension points, migration guidance, and an implementation-neutral acceptance checklist; register it in NAV.",
+      "relatedDocs": [
+        "docs/requirements/NAV.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/evidence/evidence-platform-architecture.md",
+        "docs/evidence-integrity-program-spec.md",
+        "AGENTS.md"
+      ],
+      "userSees": "A new-framework team can follow one normative specification from domain model through INIT, INIT_CHECK, PLAN, DEV, REVIEW, TEST, and DONE, including every core artifact field, writer, consumer, invalidation rule, and conformance test.",
+      "excludes": [
+        "Requiring the new framework to use TypeScript, JSON files, Git worktrees, or the current command names",
+        "Treating legacy compatibility artifacts as essential semantics",
+        "Claiming Proof-or-Stop proves arbitrary functional correctness"
+      ],
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [
+          "docs/requirements/proof-or-stop-framework-reimplementation-spec.md"
+        ],
+        "test": [
+          "scripts/verify-proof-or-stop-reimplementation-spec.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "The structural verifier confirms the specification covers the complete INIT through DONE state machine and normative entry, exit, rollback, actor, and gate contracts for every phase.",
+            "type": "docs",
+            "priority": "must",
+            "scope": "focused",
+            "expectation": "absolute_pass",
+            "requirementSource": "story",
+            "verification": {
+              "command": "node scripts/verify-proof-or-stop-reimplementation-spec.mjs",
+              "selector": "proof-or-stop-reimplementation-spec: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "The verifier confirms each lifecycle phase has an artifact table covering requiredness, writer authority, fields, consumers, freshness, and invalidation semantics.",
+            "type": "docs",
+            "priority": "must",
+            "scope": "focused",
+            "expectation": "absolute_pass",
+            "requirementSource": "story",
+            "verification": {
+              "command": "node scripts/verify-proof-or-stop-reimplementation-spec.mjs",
+              "selector": "proof-or-stop-reimplementation-spec: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "The verifier confirms fail-closed typed holes, subject and environment binding, independent review, candidate-versus-completion separation, and a substantive reimplementation conformance checklist are present.",
+            "type": "docs",
+            "priority": "must",
+            "scope": "focused",
+            "expectation": "absolute_pass",
+            "requirementSource": "story",
+            "verification": {
+              "command": "node scripts/verify-proof-or-stop-reimplementation-spec.mjs",
+              "selector": "proof-or-stop-reimplementation-spec: PASS"
+            }
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "verificationIntentAuthorship": {
+        "kind": "owner_direct",
+        "actor": "owner",
+        "intentDigest": "5c9e8bb020c6031f4d05124b06ddc37b57746c458069610cee0fc502b73c93e2",
+        "independentlyAttested": false
+      }
+    }
+  ]
+}
