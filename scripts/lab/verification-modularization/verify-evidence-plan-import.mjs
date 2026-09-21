@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { scanConcealedCompatibilityLoads } from '../../../packages/main/dist/tasks/retired-authority/module-loaders.js';
+const file = 'packages/main/src/tasks/evidence-plan-smoke.ts';
+const source = readFileSync(file, 'utf8');
+const literal = "await import('../../tests/intent-fingerprint-reuse.test.mjs');";
+const former = "await import(new URL('../../tests/intent-fingerprint-reuse.test.mjs', import.meta.url).href);";
+assert.equal(source.split(literal).length, 2, 'exactly one retained test invocation');
+assert.deepEqual(scanConcealedCompatibilityLoads(file, source), [], 'fixed literal import is statically resolved');
+const red = scanConcealedCompatibilityLoads(file, source.replace(literal, former));
+assert.equal(red.length, 1);
+assert.equal(red[0].label, 'unapproved non-literal dynamic module load');
+assert.match(red[0].text, /intent-fingerprint-reuse/);
+console.log('EVIDENCE_PLAN_IMPORT_RED_GREEN: former expression rejected; same literal target admitted');

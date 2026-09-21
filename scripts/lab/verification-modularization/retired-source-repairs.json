@@ -1,0 +1,7 @@
+[
+  {
+    "name": "assertContract",
+    "before": "const self = readFileSync(fileURLToPath(import.meta.url), 'utf8');",
+    "after": "const self = readFileSync(fileURLToPath(new URL('./rule-data.js', import.meta.url)), 'utf8');"
+  }
+]

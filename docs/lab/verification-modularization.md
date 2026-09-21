@@ -1,8 +1,8 @@
 # Verification modularization: implementation and evidence ledger
 
 This is a local Lab checkpoint, not a completion or main integration claim.
-The authorized scope is all 14 entries below. Seven have scoped official GREEN;
-Finding ledger has two complete successful executions. Planner is a candidate; five entries remain unimplemented.
+The authorized scope is all 14 entries below. Eight have scoped official GREEN;
+Finding ledger has two complete successful executions. Retired vocabulary is a candidate; four entries remain unimplemented.
 
 Original public files contain imports, usage comments and one invocation.
 Every extracted file is limited to 2,000 physical lines. No hidden monolith,
@@ -16,8 +16,8 @@ No routine validation command is added by internal module registration.
 | `scripts/verify-process-fact-contract.mjs` | 12201 | 7 | 16 | 1857 | RED -> official GREEN at 317918539b; full suite 181.37 s | No |
 | `packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs` | 10748 | 10748 | pending | pending | Pending; no modularization RED/GREEN claim | No |
 | `scripts/verify-proof-or-stop-identity-cutover.mjs` | 7794 | 7794 | pending | pending | Pending; no modularization RED/GREEN claim | No |
-| `packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts` | 6101 | 6101 | pending | pending | Pending; no modularization RED/GREEN claim | No |
-| `packages/main/src/tasks/validation-tier-planner-smoke.ts` | 5792 | 7 | 9 | 1652 | RED recorded; stale 168-command pin independently reproduced, 248-command repair under verification | No |
+| `packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts` | 6101 | 7 | 14 | 1577 | RED recorded; 109 original functions preserved; complete scan under verification | No |
+| `packages/main/src/tasks/validation-tier-planner-smoke.ts` | 5792 | 7 | 9 | 1652 | RED -> official GREEN at d8b0ad6632; full suite 12.97 s, 142 checks | No |
 | `packages/main/src/tasks/flow-stability-smoke.ts` | 5528 | 7 | 11 | 989 | RED -> official GREEN at 21be146f9c; full suite 137.62 s | No |
 | `packages/main/tests/canonical-new-story-artifacts.test.mjs` | 5378 | 5378 | pending | pending | Pending; no modularization RED/GREEN claim | No |
 | `packages/main/src/tasks/finding-ledger-runtime-smoke.ts` | 4646 | 6 | 9 | 1134 | Full suites passed at 3b51f4f666 / f5fda7d0e6 in 130.60 / 147.00 s; combined run failed in the separate process suite | No |
@@ -38,6 +38,7 @@ separate success selectors and cannot claim complete-suite evidence.
 
 | Entry family | Capability IDs | Registration required |
 |---|---|---|
+| retired-authority | `vocabulary-controls`, `import-controls`, `dynamic-controls`, `loader-provenance`, `compatibility-controls`, `public-contract` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
 | host-run-usage | `proposal`, `prompt-supervision`, `usage-parsing`, `story-binding`, `streaming`, `ledger-failures`, `output-errors`, `admission`, `integrations`, `ledger-concurrency`, `process-supervision`, `evidence-mapping` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
 | validation-tier-planner | `command-identity`, `historical-pins`, `change-inputs`, `selection-widening`, `cli-integration`, `hash-completeness`, `acceptance-guards` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
 | validation-build-binding | `routine`, `done-required`, `shared-cache`, `executor`, `handler` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
@@ -75,6 +76,25 @@ PASS. Existing full entrypoints stay registered.
 | `source-analysis.mjs` | 575 | TypeScript and source analysis helpers |
 | `story3.mjs` | 360 | Finding runtime evidence contract |
 | `support.mjs` | 1224 | Shared constants and source readers |
+
+### `packages/main/src/tasks/retired-authority`
+
+| Module | Lines | Responsibility |
+|---|---:|---|
+| `binding-classification.ts` | 427 | Callable and dynamic binding classification |
+| `cli.ts` | 22 | Strict capability routing |
+| `compatibility-controls.ts` | 266 | Compatibility import and escape controls |
+| `driver.ts` | 105 | Full scan order and complete result |
+| `dynamic-bindings.ts` | 1577 | Dynamic execution binding graph |
+| `dynamic-scan.ts` | 458 | Dynamic code and import scanners |
+| `execution-controls.ts` | 657 | Dynamic execution negative controls |
+| `file-scan.ts` | 100 | File traversal and text quarantine predicates |
+| `loader-controls.ts` | 205 | Actual loader provenance mutation controls |
+| `module-loaders.ts` | 1077 | Module resolution and approved loader provenance |
+| `positive-controls.ts` | 205 | Vocabulary and import controls |
+| `public-contract.ts` | 129 | Documentation, command catalog and generated help |
+| `rule-data.ts` | 747 | Exact rules, path inventories and compatibility data |
+| `type-analysis.ts` | 286 | Shared compiler program, caches and instrumentation |
 
 ### `packages/main/src/tasks/validation-tier-planner`
 
@@ -213,3 +233,19 @@ Complete the remaining nine entries and the fifth candidate; reconcile moved exa
 source readers and static dependency edges; verify those contracts; then perform
 the applicable Lab integration checks. Current scoped GREEN does not mean these
 cross-cutting contracts or main integration are complete. No push has occurred.
+
+### Retired vocabulary import baseline
+
+The unmodified scanner from `4a6d510ac0` rejects the existing fixed-target URL
+import at `evidence-plan-smoke.ts:418`. The modular scan reports the same failure.
+The repair uses a literal import of the same test entry, with no rule exemptions.
+`verify-evidence-plan-import.mjs` checks the repaired form and reinjects the old
+expression to prove it is still rejected. The 109 original scanner function bodies
+and complete driver statement order remain mechanically compared with the baseline.
+Main and utils builds pass; the unrelated graph web build lacks its local d3 asset.
+
+The same end-to-end evidence-plan run exposed a stale process-entry source reader
+in `intent-fingerprint-reuse.test.mjs`. It now selects the unique diagnostic block
+from the complete process module AST; missing/duplicate invocation and removed
+fallback fingerprint mutations still run against that actual block. The complete
+process source contract now expects the same literal import.

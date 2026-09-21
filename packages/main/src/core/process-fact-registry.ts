@@ -1879,6 +1879,28 @@ COMMAND_PROCESS_FACTS.push({
 });
 
 COMMAND_PROCESS_FACTS.push({
+  name: 'runtime:retired_vocabulary_capability_selection', kind: 'runtime-behavior', level: 'L4',
+  semantics: ['runtime-behavior', 'verification-policy'],
+  paths: ['packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts',
+    'packages/main/src/tasks/retired-authority/binding-classification.ts',
+    'packages/main/src/tasks/retired-authority/cli.ts',
+    'packages/main/src/tasks/retired-authority/compatibility-controls.ts',
+    'packages/main/src/tasks/retired-authority/driver.ts',
+    'packages/main/src/tasks/retired-authority/dynamic-bindings.ts',
+    'packages/main/src/tasks/retired-authority/dynamic-scan.ts',
+    'packages/main/src/tasks/retired-authority/execution-controls.ts',
+    'packages/main/src/tasks/retired-authority/file-scan.ts',
+    'packages/main/src/tasks/retired-authority/loader-controls.ts',
+    'packages/main/src/tasks/retired-authority/module-loaders.ts',
+    'packages/main/src/tasks/retired-authority/positive-controls.ts',
+    'packages/main/src/tasks/retired-authority/public-contract.ts',
+    'packages/main/src/tasks/retired-authority/rule-data.ts',
+    'packages/main/src/tasks/retired-authority/type-analysis.ts'],
+  producer: 'verification capability CLI', consumerGate: 'explicit verifier invocation only',
+  rationale: 'Six named control capabilities preserve the original vocabulary, import, dynamic execution, loader, compatibility and public surface controls. Default and all retain the complete repository scan and instrumentation assertions. Named controls always report partial evidence even when combined; only full execution owns the full scan selector. No directory-wide quarantine or additional routine command is created.',
+});
+
+COMMAND_PROCESS_FACTS.push({
   name: 'runtime:process_contract_capability_selection', kind: 'runtime-behavior', level: 'L4',
   semantics: ['runtime-behavior', 'verification-policy'],
   paths: ['scripts/verify-process-fact-contract.mjs',

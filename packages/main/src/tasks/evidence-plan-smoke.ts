@@ -415,5 +415,6 @@ assert.equal(isCommandAllowed('evidence_plan', 'DONE', DEFAULT_PHASE_TOOLS), tru
 }
 
 // Execute in this already supervised task: no extra child process or reservation boundary.
-await import(new URL('../../tests/intent-fingerprint-reuse.test.mjs', import.meta.url).href);
+// @ts-expect-error The JavaScript test entry has no declaration file.
+await import('../../tests/intent-fingerprint-reuse.test.mjs');
 process.stdout.write('evidence_plan smoke passed\n');

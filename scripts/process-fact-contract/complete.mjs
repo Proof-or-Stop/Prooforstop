@@ -1690,7 +1690,7 @@ assert(managedCriticArtifact?.producer === 'handlers/managed-review-evidence.man
   requireTokens('Dynamic evidence planner', planner, [['buildIntentFingerprintReport', 2], 'row.description', 'fingerprintByRef.get(intentFingerprintKey(item.id, collected.ref))', 'refreshCommand: `proof-or-stop verification_evidence_refresh_stale --storyId=${storyId}`']);
   requireTokens('Manual refresh recommendation', planner, ['const manualRefreshUnsafe = checklist.items.some(', 'Manual refresh withheld: a shared metadata-only refresh can demote executable receipts.']);
   requireTokens('Discovered intent regression binding', read('packages/main/src/tasks/evidence-plan-smoke.ts'), [
-    "await import(new URL('../../tests/intent-fingerprint-reuse.test.mjs', import.meta.url).href);",
+    "await import('../../tests/intent-fingerprint-reuse.test.mjs');",
   ]);
   requireTokens('Intent fingerprint registration', read(processFactRegistryPath), ['packages/main/src/core/verification-intent-fingerprints.ts']);
   requireTokens('Legacy refresh preview semantics', read('packages/main/src/handlers/evidence-refresh.ts'), [

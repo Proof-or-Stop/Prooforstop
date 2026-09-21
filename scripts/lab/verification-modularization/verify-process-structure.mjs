@@ -14,7 +14,7 @@ for (const name of files) {
     functions.set(node.name.text, node.body.getText(ast));
     if (node.name.text === 'runCompleteProcessContract') {
       const expected = original.statements.filter(n => original.getLineAndCharacterOfPosition(n.getStart(original)).line + 1 >= 10496);
-      assert.deepEqual(node.body.statements.map(n => n.getText(ast)), expected.map(n => n.getText(original).replace("await import('./prompt-projection-contract.mjs')", "await import('../prompt-projection-contract.mjs')")), 'original complete driver statements or order changed');
+      assert.deepEqual(node.body.statements.map(n => n.getText(ast)), expected.map(n => n.getText(original).replace("await import('./prompt-projection-contract.mjs')", "await import('../prompt-projection-contract.mjs')").replace("await import(new URL('../../tests/intent-fingerprint-reuse.test.mjs', import.meta.url).href);", "await import('../../tests/intent-fingerprint-reuse.test.mjs');")), 'original complete driver statements or order changed');
       for (const child of node.body.statements) if (ts.isFunctionDeclaration(child)) functions.set(child.name.text, child.body.getText(ast));
     }
     if (node.name.text === 'runEarlyProcessChecks') {
@@ -43,5 +43,5 @@ for (const args of [['--capability='], ['--capability=unknown'], ['--all', '--ca
  const result = run(args); assert.equal(result.status, 1); assert.match(result.stderr, /Unknown process verification argument/);
  assert.doesNotMatch(result.stdout, /PROCESS_PARTIAL_PASS|Process fact contract passed/);
 }
-console.log('PROCESS_FUNCTION_BODIES_VERIFIED ' + preserved + ' (183 unchanged; one exact source-binding repair)');
+console.log('PROCESS_FUNCTION_BODIES_VERIFIED ' + preserved + ' (exact source-binding repairs enumerated in process-source-binding-repairs.json)');
 console.log('PROCESS_MODULAR_STRUCTURE_GREEN: original full driver and early admission sequence retained; full execution is separate evidence');

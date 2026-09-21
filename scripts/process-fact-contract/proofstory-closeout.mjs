@@ -663,7 +663,7 @@ export function assertCloseoutTrustBoundary() {
   }
   assert(trustText.includes('isExactLegacyLocalOnlyDeliveryClaims'), 'closeout trust validator must consume the narrow compatibility validator');
   assert(deliveryText.includes('createLegacyLocalOnlyDeliveryClaims'), 'delivery-context producer must construct claims only through the narrow compatibility function');
-  const retiredVocabularyGuardText = read('packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts');
+  const retiredVocabularyGuardText = ["binding-classification", "cli", "compatibility-controls", "driver", "dynamic-bindings", "dynamic-scan", "execution-controls", "file-scan", "loader-controls", "module-loaders", "positive-controls", "public-contract", "rule-data", "type-analysis"].map(name => read(`packages/main/src/tasks/retired-authority/${name}.ts`)).join('\n');
   for (const token of [
     'approvedLegacyDeliveryCompatUsages',
     'scanLegacyDeliveryCompatibilityUsage',

@@ -3,5 +3,10 @@
     "function": "assertCurrentVerificationReceiptModel",
     "before": "const verificationReceiptSmoke = read('packages/main/src/tasks/verification-run-and-guard/support.ts');",
     "after": "const verificationReceiptSmoke = ['support', 'refresh'].map(name => read(`packages/main/src/tasks/verification-run-and-guard/${name}.ts`)).join('\\n');"
+  },
+  {
+    "function": "assertCloseoutTrustBoundary",
+    "before": "const retiredVocabularyGuardText = read('packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts');",
+    "after": "const retiredVocabularyGuardText = [\"binding-classification\", \"cli\", \"compatibility-controls\", \"driver\", \"dynamic-bindings\", \"dynamic-scan\", \"execution-controls\", \"file-scan\", \"loader-controls\", \"module-loaders\", \"positive-controls\", \"public-contract\", \"rule-data\", \"type-analysis\"].map(name => read(`packages/main/src/tasks/retired-authority/${name}.ts`)).join('\\n');"
   }
 ]
