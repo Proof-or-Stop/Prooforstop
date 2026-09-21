@@ -14,7 +14,7 @@ for (const name of files) {
     functions.set(node.name.text, node.body.getText(ast));
     if (node.name.text === 'runCompleteProcessContract') {
       const expected = original.statements.filter(n => original.getLineAndCharacterOfPosition(n.getStart(original)).line + 1 >= 10496);
-      assert.deepEqual(node.body.statements.map(n => n.getText(ast)), expected.map(n => n.getText(original)), 'original complete driver statements or order changed');
+      assert.deepEqual(node.body.statements.map(n => n.getText(ast)), expected.map(n => n.getText(original).replace("await import('./prompt-projection-contract.mjs')", "await import('../prompt-projection-contract.mjs')")), 'original complete driver statements or order changed');
       for (const child of node.body.statements) if (ts.isFunctionDeclaration(child)) functions.set(child.name.text, child.body.getText(ast));
     }
     if (node.name.text === 'runEarlyProcessChecks') {
