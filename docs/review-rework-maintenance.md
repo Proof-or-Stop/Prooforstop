@@ -91,8 +91,14 @@ by these existing registrations (zero-based indexes in
 | Runtime facts | `npm run test:runtime-fact-contract` | index 16: `node scripts/verify-runtime-fact-contract.mjs` |
 | Static subprocess edges | separately registered | index 172: `node scripts/verify-validation-static-edges.mjs` |
 
-The maintenance run executes these separately and archives their raw logs under
-`docs/lab-evidence/review-rework/`. The runtime contract's pre-existing snapshot
+The process and runtime contracts execute separately and their historical logs
+are archived under `docs/lab-evidence/review-rework/`. The pinned Lab command also
+executes the static-edge contract on every current checkout, after release-time
+rebinding as well as before it, and emits the current HEAD and manifest/version
+file digests. Its tool-owned candidate GREEN supplies the fresh release evidence.
+The committed archive explicitly binds the earlier `4b1a038773` snapshot and
+does not claim its static-edge PASS covers later manifest bytes.
+The runtime contract's pre-existing snapshot
 binding failure is reported as a failure, never converted to a passing suite.
 The focused changed structural assertion at the end of that verifier executes
 synchronously, before its asynchronous main can report the unrelated failure.

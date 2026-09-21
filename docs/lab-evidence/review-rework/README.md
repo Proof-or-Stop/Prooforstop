@@ -2,10 +2,19 @@
 
 These are actual command outputs, archived for the independent Lab auditor.
 They are diagnostic records; they grant no Story PASS or independent approval.
-`checks.json` binds the tested executable sources and raw logs by SHA-256.
-The code parent predates the added negative controls; the source digests identify
-the tested working-tree bytes that this evidence commit now freezes.
-The later formal Lab GREEN reruns the pinned command on the committed candidate.
+`checks.json` binds a historical snapshot at commit
+`4b1a038773d602b2f3b8d03eb2f84bac6712d959` and its raw logs by SHA-256.
+Those digests do not claim to identify the current release. In particular, later
+main synchronization and the version transaction rebind `exceptions.json` to
+updated package and lockfile bytes. The archived static PASS applies only to its
+historical snapshot. Other logs retain their explicitly named earlier origins.
+
+Every new formal Lab GREEN now executes `verify-validation-static-edges.mjs`
+against the actual checkout, including after the version bump and on main.
+After that command succeeds, `REVIEW_REWORK_STATIC_BINDING PASS` prints the
+current HEAD and SHA-256 of the manifest and all version files. The tool-owned
+candidate GREEN carries this fresh output into the release audit input; a stale
+archive cannot stand in for it. No candidate needs to contain its future SHA.
 
 - `process-fact.log`: full process-fact contract, exit 0.
 - `static-edges.log`: full static-edge contract, exit 0; no exceptions added.
