@@ -77,3 +77,36 @@ inventory boundary consumer and its executable-mutation rejection both pass.
 The external Lab report retains all comparison logs. Unchanged JSON scalar
 spellings in the static-edge manifest preserve the baseline encoding as well as
 its parsed values; no exception or historical evidence was added or removed.
+
+## Registered contract checks and audit evidence
+
+The focused Lab entry is not the whole registered validation suite. Its original
+RED/GREEN command remains pinned. The changed contract assertions are executed
+by these existing registrations (zero-based indexes in
+`proof-or-stop.config.json` `validate.commands`), not merely read by the Lab test:
+
+| Contract | Package script | Registered command |
+| --- | --- | --- |
+| Process facts | `npm run test:process-fact-contract` | index 15: `node scripts/verify-process-fact-contract.mjs --quiet` |
+| Runtime facts | `npm run test:runtime-fact-contract` | index 16: `node scripts/verify-runtime-fact-contract.mjs` |
+| Static subprocess edges | separately registered | index 172: `node scripts/verify-validation-static-edges.mjs` |
+
+The maintenance run executes these separately and archives their raw logs under
+`docs/lab-evidence/review-rework/`. The runtime contract's pre-existing snapshot
+binding failure is reported as a failure, never converted to a passing suite.
+The focused changed structural assertion at the end of that verifier executes
+synchronously, before its asynchronous main can report the unrelated failure.
+
+An active Lab's audit input can have `verification: null`: the existing
+`candidateVerificationContext` in `scripts/lab-audit.mjs` selects only
+`kind === 'candidate-green'` from release preparation, whereas worktree `green`
+records `kind === 'green'`. Local integration/finish has not been requested.
+This repair does not modify that audit machinery, manufacture a candidate-green
+record, or treat archived test output as independent audit approval. The official
+Lab history still retains its RED and GREEN results; the archived logs give the
+auditor the omitted execution context.
+
+Additional failure controls now prove the tracked-inventory empty and real
+ENOBUFS branches, the selector's resulting full-set refusal, a direct handler's
+wrong-worktree refusal without publication, and cwd restoration on success and
+throw. The complete lifecycle fixture restores its original cwd in `finally`.
