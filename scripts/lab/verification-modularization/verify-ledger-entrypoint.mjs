@@ -7,6 +7,8 @@ const source = fs.readFileSync(path, 'utf8');
 const ast = ts.createSourceFile(path, source, ts.ScriptTarget.Latest, true);
 assert.ok(source.split('\n').length <= 40 && ast.statements.every(n => ts.isImportDeclaration(n) || ts.isExpressionStatement(n)), 'LEDGER_ENTRYPOINT_NOT_THIN: isolate ledger, projection, runtime and distribution verification');
 console.log('LEDGER_ENTRYPOINT_STRUCTURE_GREEN');
+await import('./verify-process-structure.mjs');
+await import('./verify-mutation-rejection-integrity.mjs');
 const { execFileSync, spawnSync } = await import('node:child_process');
 const dir = 'packages/main/src/tasks/finding-ledger-runtime';
 const before = execFileSync('git', ['show', '8938f4fdc8:' + path], { encoding: 'utf8' });
@@ -23,6 +25,9 @@ for (const n of original.statements) if (ts.isFunctionDeclaration(n)) {
  let expected = n.name.text === 'runWorkers' ? n.body.getText(original).replace('fileURLToPath(import.meta.url)', "resolve(dirname(fileURLToPath(import.meta.url)), '..', 'finding-ledger-runtime-smoke.js')") : n.body.getText(original);
  if (n.name.text === 'runAuthoritativeMutationRegression') {
   const repair = JSON.parse(fs.readFileSync('scripts/lab/verification-modularization/ledger-assertion-repair.json', 'utf8'));
+  assert.equal(expected.split(repair.before).length - 1, 1); expected = expected.replace(repair.before, repair.after);
+ }
+ for (const repair of JSON.parse(fs.readFileSync('scripts/lab/verification-modularization/ledger-mutation-repairs.json', 'utf8'))) if (repair.name === n.name.text) {
   assert.equal(expected.split(repair.before).length - 1, 1); expected = expected.replace(repair.before, repair.after);
  }
  assert.equal(bodies.get(n.name.text), expected, 'changed ledger verification ' + n.name.text); preserved++;
@@ -71,3 +76,5 @@ assert.match(stdout, /green.story3_matrix: PASS/);
 assert.doesNotMatch(stdout, /FINDING_PARTIAL_PASS/);
 fixture.cleanup();
 console.log('LEDGER_MODULAR_ENTRYPOINT_GREEN');
+
+await import('./verify-process-complete.mjs');

@@ -1815,11 +1815,36 @@ COMMAND_PROCESS_FACTS.push({
     'packages/main/src/tasks/finding-ledger-runtime/cli.ts',
     'packages/main/src/tasks/finding-ledger-runtime/distribution.ts',
     'packages/main/src/tasks/finding-ledger-runtime/projection.ts',
+    'packages/main/src/tasks/finding-ledger-runtime/process-mutation-proof.ts',
     'packages/main/src/tasks/finding-ledger-runtime/runtime-evidence.ts',
     'packages/main/src/tasks/finding-ledger-runtime/support.ts',
     'packages/main/src/tasks/finding-ledger-runtime/transactions.ts'],
   producer: 'Finding ledger verification capability CLI', consumerGate: 'explicit verifier invocation only',
   rationale: 'Eleven capabilities bind the retained transaction, authority, runtime, history and distribution checks. Default execution preserves the complete original suite and aggregate selectors. Legacy diagnostic and worker invocations remain supported. Unknown arguments reject before checks, duplicate selections run once and partial results cannot stand for aggregate evidence or authorize dynamic exclusion.',
+});
+
+COMMAND_PROCESS_FACTS.push({
+  name: 'runtime:process_contract_capability_selection', kind: 'runtime-behavior', level: 'L4',
+  semantics: ['runtime-behavior', 'verification-policy'],
+  paths: ['scripts/verify-process-fact-contract.mjs',
+    'scripts/process-fact-contract/catalog.mjs',
+    'scripts/process-fact-contract/cli.mjs',
+    'scripts/process-fact-contract/command-contracts.mjs',
+    'scripts/process-fact-contract/complete.mjs',
+    'scripts/process-fact-contract/early.mjs',
+    'scripts/process-fact-contract/prompt-contracts.mjs',
+    'scripts/process-fact-contract/proofstory-closeout.mjs',
+    'scripts/process-fact-contract/registry-alignment.mjs',
+    'scripts/process-fact-contract/registry-parser.mjs',
+    'scripts/process-fact-contract/reopen.mjs',
+    'scripts/process-fact-contract/review-inventory.mjs',
+    'scripts/process-fact-contract/review-verification.mjs',
+    'scripts/process-fact-contract/scope-runtime.mjs',
+    'scripts/process-fact-contract/source-analysis.mjs',
+    'scripts/process-fact-contract/story3.mjs',
+    'scripts/process-fact-contract/support.mjs'],
+  producer: 'process contract capability catalog and CLI', consumerGate: 'explicit verifier invocation only',
+  rationale: 'Default and all retain the complete original process contract and early admission checks. Named capabilities run only their declared assertions and always report partial evidence; listing and invalid argument refusal occur before build prerequisites. Story3 reuses the original assertion with the same parsed registry, level and policy inputs. Ledger mutation controls require a positive control and exact capability failure reason; timeout, signal, launch failure and unrelated failure cannot count as detection. Internal modules add no routine validation commands or dynamic exclusion authority.',
 });
 
 COMMAND_PROCESS_FACTS.push({

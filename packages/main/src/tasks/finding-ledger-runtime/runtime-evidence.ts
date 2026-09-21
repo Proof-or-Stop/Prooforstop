@@ -1,3 +1,4 @@
+import { assertStory3VerifierPositiveControl } from './process-mutation-proof.js';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -557,6 +558,7 @@ export async function runRuntimeEvidenceMatrix(scratch: string): Promise<void> {
     assert.equal(canonicalJson(store.readStory(storyId)), lifecycleBefore);
     console.log('registry.persistence_non_authority: PASS lifecycleDelta=0');
 
+    assertStory3VerifierPositiveControl(repositoryRoot);
     const nonAuthorityMutations = [
       'story3-promote-query-l4',
       'story3-promote-runtime-run-l4',

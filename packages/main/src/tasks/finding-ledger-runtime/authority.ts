@@ -1,3 +1,4 @@
+import { runStory3Mutation } from './process-mutation-proof.js';
 import { syncClusterResolves } from '../../core/cluster-sync.js';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
@@ -550,12 +551,7 @@ export function hasProtectedPathSurface(value: unknown, protectedValues: readonl
 }
 
 export function story3VerifierMutationAccepted(repositoryRoot: string, mutation: string): boolean {
-  return spawnSync(process.execPath, [join(repositoryRoot, 'scripts', 'verify-process-fact-contract.mjs'), '--quiet'], {
-    cwd: repositoryRoot,
-    env: { ...process.env, PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION: mutation },
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'pipe'],
-  }).status === 0;
+  return runStory3Mutation(repositoryRoot, mutation);
 }
 
 export async function runStory3DependencyFixture(root: string): Promise<void> {

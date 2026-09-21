@@ -1,3 +1,4 @@
+import { assertStory3VerifierPositiveControl } from './process-mutation-proof.js';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 
@@ -164,6 +165,7 @@ export function runFailClosedBoundaryMatrix(scratch: string): void {
 }
 
 export function runAggregateTamperMatrix(repositoryRoot: string): void {
+  assertStory3VerifierPositiveControl(repositoryRoot);
   const mutations = [
     'story3-promote-query-l4',
     'story3-promote-runtime-run-l4',
@@ -177,6 +179,7 @@ export function runAggregateTamperMatrix(repositoryRoot: string): void {
 }
 
 export function runDependencyScorecardBoundary(repositoryRoot: string): void {
+  assertStory3VerifierPositiveControl(repositoryRoot);
   const query = getProcessFactRegistryEntry('finding_ledger_query');
   assert.ok(query);
   assert.equal(query.level, 'L0');
