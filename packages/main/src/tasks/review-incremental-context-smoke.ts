@@ -73,6 +73,7 @@ import {
   reviewIncrementalContext,
   resolveFullStoryBaseHead,
 } from '../core/review-incremental-context.js';
+import { REVIEW_DEPENDENCY_CLOSURE_LIMITS } from '../core/runtime-fact-registry.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import {
   FULL_TASK_CONTEXT_LIMITS,
@@ -2550,8 +2551,58 @@ function runLargeTrackedInventoryRegression(): void {
   } finally { rmSync(root, { recursive: true, force: true }); }
 }
 
+function runLargeSourceInventoryBudgetRegression(): void {
+  const root = mkdtempSync(join(tmpdir(), 'pos-review-source-budget-'));
+  const limits = REVIEW_DEPENDENCY_CLOSURE_LIMITS;
+  const sourceCap = limits.maxSourceFiles;
+  const sourceDir = ['s'.repeat(190), 't'.repeat(190)].join('/');
+  try {
+    execFileSync('git', ['init', '-q'], { cwd: root });
+    mkdirSync(join(root, sourceDir), { recursive: true });
+    for (let index = 0; index <= sourceCap; index++) {
+      writeFileSync(join(root, sourceDir, `source-${index}.ts`), 'export const value = 1;\n');
+    }
+    execFileSync('git', ['add', '.'], { cwd: root });
+    const inventory = execFileSync('git', ['ls-files', '-z'], { cwd: root, maxBuffer: 64 * 1024 * 1024 });
+    assert(inventory.length > 1024 * 1024, 'real source inventory must exceed the former Git buffer');
+    const started = performance.now();
+    const closure = computeCanonicalDependencyClosure(root, [`${sourceDir}/source-0.ts`]);
+    const elapsedMs = performance.now() - started;
+    console.log('REVIEW_REWORK_SOURCE_BUDGET=' + JSON.stringify({ sources: sourceCap + 1, inventoryBytes: inventory.length, elapsedMs, closure }));
+    assert.equal(closure.complete, false, 'REVIEW_REWORK_SOURCE_BUDGET: oversized real source inventories must fail closed before full parsing');
+    assert.match(closure.reason ?? '', /dependency closure exceeded source-file bound/);
+    rmSync(join(root, sourceDir, `source-${sourceCap}.ts`));
+    execFileSync('git', ['rm', '--cached', '--', `${sourceDir}/source-${sourceCap}.ts`], { cwd: root });
+    const atCountBound = computeCanonicalDependencyClosure(root, [`${sourceDir}/source-0.ts`]);
+    assert.equal(atCountBound.complete, true, 'exact source-count bound remains eligible: ' + JSON.stringify(atCountBound));
+    const firstSource = join(root, sourceDir, 'source-0.ts');
+    writeFileSync(firstSource, ' '.repeat(limits.maxSourceFileBytes + 1));
+    assert.match(computeCanonicalDependencyClosure(root, [`${sourceDir}/source-0.ts`]).reason ?? '', /exceeded per-file byte bound/);
+    writeFileSync(firstSource, 'export const value = 1;\n');
+    const largeSources = Math.floor(limits.maxTotalSourceBytes / limits.maxSourceFileBytes) + 1;
+    for (let index = 0; index < largeSources; index++) writeFileSync(join(root, sourceDir, `source-${index}.ts`), ' '.repeat(limits.maxSourceFileBytes));
+    assert.match(computeCanonicalDependencyClosure(root, [`${sourceDir}/source-0.ts`]).reason ?? '', /exceeded total-source byte bound/);
+    for (let index = 0; index < largeSources; index++) writeFileSync(join(root, sourceDir, `source-${index}.ts`), 'export const value = 1;\n');
+    writeFileSync(join(root, 'tsconfig.json'), ' '.repeat(limits.maxSourceFileBytes + 1));
+    assert.match(computeCanonicalDependencyClosure(root, [`${sourceDir}/source-0.ts`]).reason ?? '', /exceeded config byte bound/);
+    rmSync(join(root, 'tsconfig.json'));
+    const originalNow = Object.getOwnPropertyDescriptor(performance, 'now');
+    let clockReads = 0;
+    try {
+      Object.defineProperty(performance, 'now', { configurable: true, value: () => clockReads++ === 0 ? 0 : limits.maxElapsedMs + 1 });
+      assert.match(computeCanonicalDependencyClosure(root, [`${sourceDir}/source-0.ts`]).reason ?? '', /exceeded elapsed-time bound/);
+      assert(clockReads >= 2, 'elapsed bound control reaches the actual monotonic deadline comparison');
+    } finally {
+      if (originalNow) Object.defineProperty(performance, 'now', originalNow);
+      else Reflect.deleteProperty(performance, 'now');
+    }
+    console.log('REVIEW_REWORK_SOURCE_BUDGET PASS count + exact boundary + per-file bytes + total bytes + deadline');
+  } finally { rmSync(root, { recursive: true, force: true }); }
+}
+
 async function run(): Promise<void> {
   runLargeTrackedInventoryRegression();
+  runLargeSourceInventoryBudgetRegression();
   runPolicyCases();
   runBoundedPathsDegradationCase();
   runFixtureDuplicateIdentityCases();
@@ -2656,6 +2707,7 @@ if (isDirectRun) {
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 60_000);
   } else if (process.argv.includes('--large-inventory-only')) {
     runLargeTrackedInventoryRegression();
+    runLargeSourceInventoryBudgetRegression();
   } else if (process.argv.includes('--aba-only')) {
     runDeterministicTicketReclaimAbaCase();
   } else if (process.argv.includes('--cutoff-verifier-only')) {

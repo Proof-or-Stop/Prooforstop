@@ -1,0 +1,26 @@
+REVIEW_REWORK_INVENTORY={"paths":46477,"bytes":2556203,"small":{"complete":true,"files":["tests/isolated.test.ts"]},"large":{"complete":true,"files":["tests/isolated.test.ts"]}}
+REVIEW_REWORK_INVENTORY_FAILURES PASS empty + real ENOBUFS fail closed
+REVIEW_REWORK_LARGE_INVENTORY PASS
+REVIEW_REWORK_SOURCE_BUDGET={"sources":4097,"inventoryBytes":1625399,"elapsedMs":224.22399999999993,"closure":{"complete":true,"files":["ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss/tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt/source-0.ts"]}}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: REVIEW_REWORK_SOURCE_BUDGET: oversized real source inventories must fail closed before full parsing
+
+true !== false
+
+    at runLargeSourceInventoryBudgetRegression (file:///Users/jek/Documents/story-validation-mapping-lab-20260920/repository/.worktrees/Lab-review-rework/packages/main/dist/tasks/review-incremental-context-smoke.js:2113:16)
+    at file:///Users/jek/Documents/story-validation-mapping-lab-20260920/repository/.worktrees/Lab-review-rework/packages/main/dist/tasks/review-incremental-context-smoke.js:2233:9
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: true,
+  expected: false,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.8.1

@@ -110,3 +110,24 @@ Additional failure controls now prove the tracked-inventory empty and real
 ENOBUFS branches, the selector's resulting full-set refusal, a direct handler's
 wrong-worktree refusal without publication, and cwd restoration on success and
 throw. The complete lifecycle fixture restores its original cwd in `finally`.
+
+## Bounded source analysis
+
+Reading a large Git inventory does not authorize unbounded source parsing.
+`REVIEW_DEPENDENCY_CLOSURE_LIMITS` caps a build at 4,096 source files, 4 MiB per
+source file, and 32 MiB total source bytes, with a cooperative 5-second monotonic
+deadline checked between synchronous operations. This is not a hard preemption
+of an individual filesystem or parser call. Over-budget closure is incomplete
+and the existing consumer requires the full active roster. Source counts and
+sizes are checked before graph parsing; actual read byte lengths are rechecked.
+The compiler-options reader skips source glob enumeration because Git already
+provides the source inventory. Each build owns one TypeScript module-resolution
+cache, which is never retained as evidence or reused across calls.
+
+The real-source regression creates 4,097 actual tracked TypeScript modules and
+a Git inventory exceeding 1 MiB. Before this bound it returned complete; the new
+RED required explicit refusal. GREEN covers excess count, the exact count limit,
+per-file bytes, total bytes, and an injected monotonic deadline. The previous
+46,477-path non-source-padding test remains a separate transport regression.
+Two literal-only assertions were removed; persisted original Finding statuses
+are still verified by the native store/CLI regression.

@@ -797,7 +797,6 @@ assert.equal(validateReviewInventoryCriticReceipt({ ...repeatedInput, evaluation
   receipt: repeatedCritic.receipt, runs: [...repeatedInput.runs, repeatedCritic.run],
   passes: [...repeatedInput.passes, repeatedCritic.pass] }).ok, true,
   'the real critic receipt validator accepts proven cross-wave duplicates');
-assert.equal(historical.status, 'open', 'duplicate accounting does not close the original Finding');
 console.log('REVIEW_REWORK_PRIOR_WAVE_DUPLICATE PASS');
 
 const firstCritic = criticEvidence(initial, discovery, 4, '2026-08-14T00:10:02.000Z', historicalDispositions);
