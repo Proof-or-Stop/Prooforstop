@@ -1,6 +1,6 @@
 # Detailed verification module and capability inventory
 
-Each original entry remains the public command. Internal modules do not register new routine gates. `--list-capabilities` lists selectors; repeated `--capability=<id>` arguments select bounded capabilities. Default and `--all` retain the complete entry behavior. Legacy selectors remain supported. A partial PASS is not authority to skip other production checks.
+Each original entry remains the public command. Internal modules do not register new routine gates. `--list-capabilities` lists selectors; repeated `--capability=<id>` arguments select bounded capabilities for the ordinary verifiers. Their default and `--all` retain complete entry behavior. The quorum harness accepts exactly one capability per invocation and retains its explicit `--case=<id>` interface; it has no implicit full campaign. Legacy selectors remain supported. A partial PASS is not authority to skip other production checks.
 
 | Entry | Entry lines | Modules | Maximum lines | Capability IDs | Registration |
 |---|---:|---:|---:|---|---|

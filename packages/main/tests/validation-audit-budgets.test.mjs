@@ -123,7 +123,7 @@ for (const [index, args] of acceptanceTargets) {
 
 // This parent runs both real verifiers and the public runtime/package fixtures.
 // Its deadline must cover the existing child allowances plus that other work.
-const identity = source('scripts/verify-proof-or-stop-identity-cutover.mjs');
+const identity = source('scripts/identity-cutover/certification.mjs');
 const runtimeCall = find(identity, node => ts.isVariableDeclaration(node)
   && node.name.getText(identity) === 'runtimeCheck').initializer;
 assert.equal(runtimeCall.expression.getText(identity), 'execFileSync');

@@ -501,3 +501,17 @@ See `scripts/lab/verification-modularization/planner-main-sync-inventory.json`.
 The signed local Lab maintenance record determines whether integration and cleanup
 have completed. This document records implementation and validation scope; it does
 not assert Story DONE or remote publication.
+
+## Final integration-chain reader repairs
+
+The full identity-cutover run at `d4aaefd24b` failed in the runtime verifier:
+`validation-audit-budgets.test.mjs` still searched the thin identity entry for
+`runtimeCheck`. Its targeted RED was reproduced separately before pointing its
+unchanged deadline assertions at `identity-cutover/certification.mjs`.
+The next runtime attempt exposed the same issue in
+`validation-audit-final-regressions.test.mjs`: the final registration and failure
+summary now reside inside `runCompleteProcessContract`. Its AST witness now
+selects that unique function body in `process-fact-contract/complete.mjs`.
+Both targeted checks pass, including the absent-registration negative control.
+The complete runtime chain remains a separate acceptance result; these focused
+passes do not claim full identity certification or main integration.
