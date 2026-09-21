@@ -139,7 +139,7 @@ Each original entry remains the public command. Internal modules do not register
 | `packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs` | 282 |
 | `packages/main/tests/canonical-new-story-artifacts/identity-sites.mjs` | 548 |
 | `packages/main/tests/canonical-new-story-artifacts/memory-runtime.mjs` | 210 |
-| `packages/main/tests/canonical-new-story-artifacts/migration-archive.mjs` | 231 |
+| `packages/main/tests/canonical-new-story-artifacts/migration-archive.mjs` | 227 |
 | `packages/main/tests/canonical-new-story-artifacts/public-fixtures.mjs` | 429 |
 | `packages/main/tests/canonical-new-story-artifacts/release.mjs` | 354 |
 | `packages/main/tests/canonical-new-story-artifacts/runner.mjs` | 40 |

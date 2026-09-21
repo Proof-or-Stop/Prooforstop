@@ -534,7 +534,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/migration-archive.mjs",
-    "sha256": "2d27b42cbb8419cc1acf1662dba67645daad7989b8c414a4483b9593796eb258"
+    "sha256": "fe665473bfd9eda35f39eedfb1a43549bfc723fd30c2478e042c4eb16cce6f33"
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/public-fixtures.mjs",
@@ -546,7 +546,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/runner.mjs",
-    "sha256": "5b094150ea2c457b9664d86887e43d30182384c976ea446df8651c996b931de2"
+    "sha256": "3a7270ee39b9dc7658429d9538351c96e9d1cfd4eb5507c9d394c7f7aa5c88bb"
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/runtime-extensions.mjs",
@@ -1220,7 +1220,7 @@ export const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [74,"e5259450c31aa3feeaaebcb83fa32adc5f171019564c121d10cb87889c1e584d"],
   [5,"c583bd41ee5789221e5f93f938f4528a9408dc376d72ef838260cc5e3236355b"],
   [67,"010a15eda866aeddc9bd68935ee0d43b1bcdc02f80c7f4904d662795f076a6d2"],
-  [69,"2d27b42cbb8419cc1acf1662dba67645daad7989b8c414a4483b9593796eb258"]
+  [69,"fe665473bfd9eda35f39eedfb1a43549bfc723fd30c2478e042c4eb16cce6f33"]
 ].map(([rowIndex, sha256]) => ({ path: BOTH_FAMILY_CONTEXT_ROWS[rowIndex].path, sha256 }));
 
 export const MODULAR_WITNESS_CLOSURES = {

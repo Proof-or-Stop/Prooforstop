@@ -29,11 +29,11 @@ No routine validation command is added by internal module registration.
 |---|---:|---:|---:|---:|---|---|
 | `scripts/verify-process-fact-contract.mjs` | 12201 | 7 | 16 | 1857 | RED -> official GREEN at 317918539b; full suite 181.37 s | Lab evidence |
 | `packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs` | 10748 | 7 | 27 | 1024 | RED recorded; 196 function bodies / 18 bindings preserved; 7 scoped contracts pass, heavy campaigns not rerun | Lab evidence |
-| `scripts/verify-proof-or-stop-identity-cutover.mjs` | 7794 | 9 | 25 | 1433 | RED -> scoped GREEN fcdd5514a5; 158 statements, 696 self-context pins and 106 negative controls; seven F-060 boundary checks pass; final complete certification pending | Lab evidence |
+| `scripts/verify-proof-or-stop-identity-cutover.mjs` | 7794 | 9 | 25 | 1433 | RED -> scoped GREEN fcdd5514a5; 158 statements, 696 self-context pins and 106 negative controls; seven F-060 boundary checks pass; complete certification PASS at 535ed1190f | Lab evidence |
 | `packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts` | 6101 | 7 | 14 | 1577 | RED -> official GREEN at 51b6485211; full scan 67.33 s; 109 function bodies and driver order preserved | Lab evidence |
 | `packages/main/src/tasks/validation-tier-planner-smoke.ts` | 5792 | 7 | 9 | 1652 | RED -> official GREEN at d8b0ad6632; full suite 12.97 s, 142 checks | Lab evidence |
 | `packages/main/src/tasks/flow-stability-smoke.ts` | 5528 | 7 | 11 | 989 | RED -> official GREEN at 21be146f9c; full suite 137.62 s | Lab evidence |
-| `packages/main/tests/canonical-new-story-artifacts.test.mjs` | 5378 | 7 | 22 | 691 | RED recorded; 58 functions and 112 statements preserved; scoped checks pass, full certification pending | Lab evidence |
+| `packages/main/tests/canonical-new-story-artifacts.test.mjs` | 5378 | 7 | 22 | 691 | RED recorded; 58 functions and 112 statements preserved; complete identity-cutover 36/36 PASS at 535ed1190f | Lab evidence |
 | `packages/main/src/tasks/finding-ledger-runtime-smoke.ts` | 4646 | 6 | 9 | 1134 | Full suites passed at 3b51f4f666 / f5fda7d0e6 in 130.60 / 147.00 s; combined run failed in the separate process suite | Lab evidence |
 | `packages/main/src/tasks/managed-review-evidence-smoke.ts` | 4360 | 7 | 15 | 926 | RED -> complete GREEN 4e8e49ffea in 77.45 s; 28 helpers and 419 statements retained with documented fixture repairs | Lab evidence |
 | `packages/main/src/tasks/host-run-usage-smoke.ts` | 3867 | 6 | 15 | 587 | RED -> official GREEN at 9c8e8b848b; full suite 34.00 s, 91 checks | Lab evidence |
@@ -535,3 +535,34 @@ Source contexts with unchanged literal lines retain their classifications.
 The full runtime verifier passed after the two source-reader fixes at
 `297e74387a`. Fresh whole-candidate certification and delivery status remain
 separate from those pre-merge results.
+
+## Final complete certification and independent-audit follow-up
+
+The command `node packages/main/tests/canonical-new-story-artifacts.test.mjs
+--group=identity-cutover` exited 0 at `535ed1190f` after building main, Lab and
+utils packages. All 36 parent checks passed; nested process verification took
+174.17 seconds and runtime verification 71.96 seconds. The complete log SHA-256
+is `5d3e0ba89201d373af6013228be6141fa31f8ae14878b2a347c47ccd3f85378e`,
+archived as `final-modularization/modular-535ed-built-complete.log` under the
+Lab evidence archive named above. This is an executed complete result, distinct
+from the shorter official identity-sites receipt and historical per-family runs.
+
+Independent Claude audit of prepared candidate `90a7636547` identified three
+old dispatcher tests that still read the thin entry. They now discover actual
+modules through the driver and execute the real dispatcher declaration. Restoring
+a duplicate F-060 selection or removing the archive opt-in guard is explicitly
+rejected. The static archive-default predicate now produces false rather than
+undefined, preserving the runtime exclusion in static traversal too. Unreachable
+archive narrowing filters and unused runner imports were removed.
+
+Coordination aliases into a different home remain refused and unchanged. A
+dangling alias now reports WORKSPACE_COORDINATION_ALIAS_DANGLING with the alias,
+expected private queue and doctor/recovery guidance, rather than raw ENOENT.
+Fixtures use disposable repository roots only; a private fixture home must never
+be used to initialize the real repository queue. The new tests prove refusal
+without changing either a foreign-home or dangling alias.
+
+Subsequent audit repairs have targeted evidence; the complete 535ed1190f result
+is not relabeled as a later-head full rerun. Heavy quorum campaigns remain outside
+this delivery's executed scope. Default canonical execution excludes the explicitly
+retired archive. The signed Lab record alone establishes finish/integration.

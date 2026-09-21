@@ -12,17 +12,20 @@ const read=text=>{const ast=ts.createSourceFile(file,text,ts.ScriptTarget.Latest
  const call=s.expression.expression;if(!ts.isCallExpression(call)||call.expression.getText(ast)!=='check')return [];
  const [groups,name,fn]=call.arguments;if(!ts.isStringLiteral(name))return [];
  return [{name:name.text,groups:vm.runInNewContext(groups.getText(ast)),body:createHash('sha256').update(fn.getText(ast)).digest('hex')}];});};
-const source=fs.readFileSync(file,'utf8'), cases=read(source);
+const {modularRegistrations, dispatcher, parse, registrations} = await import('./identity-modular-dispatch-fixture.mjs');
+const cases=modularRegistrations();
 const baseline=read(execFileSync('git',['show','7e866ee7f9:'+file],{encoding:'utf8',maxBuffer:4*1024*1024}));
 const expected=baseline.filter(r=>r.name.startsWith('F-060 ')&&r.groups.includes('identity-sites')&&r.groups.includes('identity-cutover'));
 assert.equal(expected.length,7);
-for(const before of expected){const current=cases.filter(r=>r.name===before.name);assert.equal(current.length,1);assert.equal(current[0].body,before.body,'dedup must preserve exact assertion/mutation body');assert.ok(current[0].groups.includes('identity-sites'),'standalone source witness must remain');}
-const dispatch=source.slice(source.indexOf('async function check(groups, name, fn) {'),source.indexOf('\nconst NOW ='));
-const counts=new Map();
-for(const selectedGroup of ['identity-cutover','identity-sites']){
- const ctx=vm.createContext({selectedGroup,failures:[],process:{pid:process.pid,hrtime:process.hrtime,stdout:{write(){}},stderr:{write(){}}}});vm.runInContext(dispatch,ctx);
- for(const row of cases.filter(r=>expected.some(e=>e.name===r.name))) await ctx.check(row.groups,row.name,async()=>{counts.set(row.name,(counts.get(row.name)||0)+1)});
-}
+const module='packages/main/tests/canonical-new-story-artifacts/identity-sites.mjs';
+const preserved=registrations(parse(module,execFileSync('git',['show','535ed1190f:'+module],{encoding:'utf8'})));
+for(const before of expected){const current=cases.filter(r=>r.name===before.name);assert.equal(current.length,1);const old=preserved.find(r=>r.name===before.name);assert.ok(old);assert.equal(current[0].callback.getText(current[0].ast),old.callback.getText(old.ast),'scheduling repair must preserve current assertion/mutation body');assert.ok(current[0].groups.includes('identity-sites'));}
+async function schedule(rows){const counts=new Map();for(const group of ['identity-cutover','identity-sites']){const ctx=dispatcher(group);for(const row of rows.filter(r=>expected.some(e=>e.name===r.name)))await ctx.check(row.groups,row.name,async()=>{counts.set(row.name,(counts.get(row.name)||0)+1)});}return counts;}
+const counts=await schedule(cases);
+const assertOnce=counts=>{assert.equal(counts.size,7);for(const [name,count]of counts)assert.equal(count,1,'IDENTITY_DUPLICATE_SCHEDULE: '+name);};
+const duplicate=cases.map(row=>row.name===expected[0].name?{...row,groups:[...row.groups,'identity-cutover']}:row);
+const awaitedDuplicate=await schedule(duplicate);
+assert.throws(()=>assertOnce(awaitedDuplicate),/IDENTITY_DUPLICATE_SCHEDULE/);
 console.log('IDENTITY_SCHEDULE_COUNTS '+JSON.stringify([...counts]));
 for(const [name,count] of counts)assert.equal(count,1,'IDENTITY_DUPLICATE_SCHEDULE: '+name);
 console.log('IDENTITY_SCHEDULING_GREEN: seven unchanged bodies scheduled once across outer and nested groups; standalone retained');

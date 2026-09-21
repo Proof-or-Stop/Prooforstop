@@ -44,7 +44,7 @@ export function modularIdentityChildClosure({ts,file,text,ast,entry,argv,contrac
           const [labels,,callback] = node.arguments;
           if (!labels || !ts.isArrayLiteralExpression(labels) || !labels.elements.every(ts.isStringLiteralLike) || !(ts.isArrowFunction(callback)||ts.isFunctionExpression(callback))) { errors.push('Nonliteral modular canonical check'); return; }
           const names = labels.elements.map(n=>n.text);
-          const selected = (!names.includes('identity-migration-archive') || groups?.includes('identity-migration-archive')) && (!groups || names.some(n=>groups.includes(n)));
+          const selected = (!names.includes('identity-migration-archive') || groups?.includes('identity-migration-archive') === true) && (!groups || names.some(n=>groups.includes(n)));
           checks.set(nodeKey(callback),selected);
           if (selected) ts.forEachChild(callback,visit);
           return;

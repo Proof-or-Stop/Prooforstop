@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, realpathSync, lstatSync, symlinkSync, existsSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, realpathSync, lstatSync, symlinkSync, readlinkSync, existsSync } from 'node:fs';
 import { tmpdir, hostname } from 'node:os';
 import { join, relative, resolve } from 'node:path';
 import { spawnSync, spawn, execFileSync } from 'node:child_process';
@@ -19,8 +19,8 @@ if (!process.argv.includes('--private-machine')) {
   });
   if (result.stdout) process.stdout.write(result.stdout);
   if (result.status === 0) {
-    const targets = observeFixtureCoordination(fixture, 4);
-    assert.equal(targets.length, 4, 'repeated admissions must reuse one target per canonical project');
+    const targets = observeFixtureCoordination(fixture, 6);
+    assert.equal(targets.length, 6, 'repeated admissions must reuse one target per canonical project');
     assertObservedCoordinationAliases(result.stdout, targets, 3);
     fixture.cleanup();
     assertFixtureCoordinationRemoved(fixture, targets);
@@ -132,5 +132,18 @@ try {
   mkdirSync(resolve(foreignPath, '..'), { recursive: true });
   symlinkSync(realpathSync(legacy), foreignPath, 'dir');
   await assert.rejects(withWorkspaceValidationCapacity(withDeadline({ root: foreign, workspaceRoot: foreign }), () => assert.fail('foreign alias admitted')), /unowned queue/);
+  // All roots and alternate homes are disposable. A fixture home override must
+  // never target the real repository's coordination alias.
+  const alternateHome = freshRoot();
+  const otherQueue = join(alternateHome, 'private-queue');
+  mkdirSync(otherQueue, {mode:0o700});
+  for (const [label, target] of [['other-home', otherQueue], ['dangling', join(alternateHome, 'removed-queue')]]) {
+    const project = freshRoot(), alias = validationCapacityLockPath(project);
+    mkdirSync(resolve(alias, '..'), {recursive:true});symlinkSync(target,alias,'dir');
+    const before=readlinkSync(alias);let entered=false;
+    await assert.rejects(withWorkspaceValidationCapacity(withDeadline({root:project,workspaceRoot:project}),()=>{entered=true;}), label==='dangling'?/WORKSPACE_COORDINATION_ALIAS_DANGLING/:/unowned queue/);
+    assert.equal(entered,false);assert.equal(readlinkSync(alias),before,'refusal must preserve the original alias');
+    assert.equal(lstatSync(alias).isSymbolicLink(),true);
+  }
   console.log('VALIDATION_COORDINATION_GUARD_GREEN: heartbeat accepted; write-restore rejected; legacy tickets serialize; migration reports holder and typed deadline; unknown state preserved; concurrent migration serializes; foreign alias refused');
 } finally { for (const path of roots) rmSync(path, { recursive: true, force: true }); }

@@ -398,11 +398,20 @@ async function prepareWorkspaceValidationCoordination(options: ValidationCapacit
     }
   }
   mkdirSync(dirname(legacyPath), { recursive: true });
+  const assertOwnedAlias = (): void => {
+    let actual: string;
+    try { actual = realpathSync(legacyPath); }
+    catch (error: any) {
+      if (error.code !== 'ENOENT') throw error;
+      throw new Error(`WORKSPACE_COORDINATION_ALIAS_DANGLING: ${legacyPath}. Run proof-or-stop doctor; inspect the alias and restore its original private queue/home before retrying. Expected owned queue: ${target}. A missing target is not proof that another owner's queue may be replaced.`);
+    }
+    if (actual !== realpathSync(target)) throw new Error(`workspace validation coordination alias points at an unowned queue: ${legacyPath} -> ${actual}; expected ${target}. Use the original owner home and run proof-or-stop doctor before retrying; the alias is preserved.`);
+  };
   const validAlias = (): boolean => {
     let stat;
     try { stat = lstatSync(legacyPath); } catch (error: any) { if (error.code !== 'ENOENT') throw error; }
     if (!stat?.isSymbolicLink()) return false;
-    if (realpathSync(legacyPath) !== realpathSync(target)) throw new Error('workspace validation coordination alias points at an unowned queue');
+    assertOwnedAlias();
     return true;
   };
   if (validAlias()) return;
@@ -484,7 +493,7 @@ async function prepareWorkspaceValidationCoordination(options: ValidationCapacit
     try { stat = lstatSync(legacyPath); }
     catch (error: any) { if (error.code !== 'ENOENT') throw error; }
     if (stat?.isSymbolicLink()) {
-      if (realpathSync(legacyPath) !== realpathSync(target)) throw new Error('workspace validation coordination alias points at an unowned queue');
+      assertOwnedAlias();
       return;
     }
     if (stat) {

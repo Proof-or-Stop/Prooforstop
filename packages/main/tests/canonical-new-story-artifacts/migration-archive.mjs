@@ -132,10 +132,6 @@ await check(['identity-migration-archive'], 'CHK-007:adversarial:0 every registe
     for (const identityCase of boundary.retiredIdentityCases.flatMap(site => site.identityOrigin
       ? [site, { ...site, originMutation: true, sourceNeedle: site.canonical, retiredNeedle: site.retired }]
       : [site])) {
-      // The focused selector retains registry validation and all canonical
-      // controls; normal/full groups still execute every mutation unchanged.
-      if (selectedGroup === 'identity-config-boundary' && identityCase.sourcePath !== 'packages/main/src/core/config.ts') continue;
-      if (selectedGroup === 'identity-policy-boundary' && identityCase.sourcePath !== 'packages/main/src/core/prompt-role-contract-registry.ts') continue;
       const caseStartedAt = Date.now();
       assert.ok(siteIds.includes(identityCase.siteId), `${boundary.id}: mutation case has unknown siteId ${identityCase.siteId}`);
       assert.equal(

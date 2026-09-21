@@ -30,7 +30,9 @@ Its successful transcript must include the full identity-cutover selector,
 identity-sites and runtime group selectors, the exact frozen-boundary scan, and
 the packed clean-install boundary. The identity-cutover group includes all tests
 tagged identity-sites, identity-config-boundary and identity-policy-boundary;
-the latter two selectors otherwise narrow the same public mutation campaign.
+the focused selectors retain their current bounded checks. The former 259-case
+public mutation campaign is retired from routine execution and runs only with
+`--group=identity-migration-archive`; it has no config/policy narrowing filters.
 Its full scanner also invokes the runtime group. Nested output is forwarded so
 these witnesses are visible in the candidate verification receipt. A configured
 maximum budget is not a lower bound on elapsed execution time.
