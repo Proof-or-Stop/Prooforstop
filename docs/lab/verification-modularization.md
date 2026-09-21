@@ -395,3 +395,16 @@ current formal reviewer qualification policy. The actual policy rejects the
 original constant from `6f6d88948f`; the fixture now explicitly selects
 `claude-opus-4-6` while preserving exact argv/model/effort assertions. This uses
 a synthetic runner and neither calls a provider nor changes qualification policy.
+
+### Managed lifecycle model-binding fixture repair
+
+The third full attempt failed in 30.05 s at F-100 with
+`stale_material,producer_owned_required`. F-100 and F-120 manually supplied
+expected receipt tuples without model and reasoning effort, although the current
+producer seals both fields and the verifier compares them. Commit `fbba6538fd`
+binds these fixture expectations to the actual managed run. Three negative
+controls require omitted selection, a different model and a different effort to
+remain invalid through each F-100 lifecycle state. Production verifier policy is
+unchanged. The exact additions are recorded in
+`scripts/lab/verification-modularization/managed-model-binding-repair.json`.
+Complete post-repair execution remains pending until the recorded command passes.

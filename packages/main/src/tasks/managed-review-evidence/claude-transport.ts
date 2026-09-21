@@ -233,7 +233,7 @@ const findingsBeforeLifecycleCase = structuredClone(context.store.readFindings(S
       for (const rejectedExpected of [
         { ...f100Expected, model: null, reasoningEffort: null },
         { ...f100Expected, model: 'different-model' },
-        { ...f100Expected, reasoningEffort: 'low' },
+        { ...f100Expected, reasoningEffort: 'low' as const },
       ]) {
         assert.equal(verifyManagedReviewEvidence({
           root, storyId: STORY_ID, agent: current!.agent ?? LANE,
