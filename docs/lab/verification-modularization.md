@@ -1,8 +1,7 @@
 # Verification modularization: implementation and evidence ledger
 
 This is a local Lab checkpoint, not a completion or main integration claim.
-The authorized scope is all 14 entries below. Eight have scoped official GREEN;
-Finding ledger has two complete successful executions. Retired vocabulary is a candidate; four entries remain unimplemented.
+The authorized scope is all 14 entries below. Ten entries have complete passing executions at their recorded commits (nine official scoped GREEN commands and two complete finding-ledger runs). Quorum is now split with seven bounded contracts passing; three entries remain unimplemented. The main synchronization invalidates current-head Lab GREEN, not the historical logs.
 
 Original public files contain imports, usage comments and one invocation.
 Every extracted file is limited to 2,000 physical lines. No hidden monolith,
@@ -14,9 +13,9 @@ No routine validation command is added by internal module registration.
 | Original entry | Before lines | Current entry lines | Modules | Largest module | Evidence/status | In main |
 |---|---:|---:|---:|---:|---|---|
 | `scripts/verify-process-fact-contract.mjs` | 12201 | 7 | 16 | 1857 | RED -> official GREEN at 317918539b; full suite 181.37 s | No |
-| `packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs` | 10748 | 10748 | pending | pending | Pending; no modularization RED/GREEN claim | No |
+| `packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs` | 10748 | 7 | 27 | 1024 | RED recorded; 196 function bodies / 18 bindings preserved; 7 scoped contracts pass, heavy campaigns not rerun | No |
 | `scripts/verify-proof-or-stop-identity-cutover.mjs` | 7794 | 7794 | pending | pending | Pending; no modularization RED/GREEN claim | No |
-| `packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts` | 6101 | 7 | 14 | 1577 | RED recorded; 109 original functions preserved; complete scan under verification | No |
+| `packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts` | 6101 | 7 | 14 | 1577 | RED -> official GREEN at 51b6485211; full scan 67.33 s; 109 function bodies and driver order preserved | No |
 | `packages/main/src/tasks/validation-tier-planner-smoke.ts` | 5792 | 7 | 9 | 1652 | RED -> official GREEN at d8b0ad6632; full suite 12.97 s, 142 checks | No |
 | `packages/main/src/tasks/flow-stability-smoke.ts` | 5528 | 7 | 11 | 989 | RED -> official GREEN at 21be146f9c; full suite 137.62 s | No |
 | `packages/main/tests/canonical-new-story-artifacts.test.mjs` | 5378 | 5378 | pending | pending | Pending; no modularization RED/GREEN claim | No |
@@ -30,7 +29,7 @@ No routine validation command is added by internal module registration.
 
 ## Parameters and registration
 
-All implemented candidates support no arguments / `--all` for the full suite,
+Except for the quorum harness, implemented candidates support no arguments / `--all` for the full suite,
 `--list-capabilities` for a machine-readable binding catalog, and repeated
 `--capability=ID` for deduplicated explicit selection. Unknown, empty and mixed
 full/partial arguments fail before verification cases execute. Partial runs use
@@ -249,3 +248,57 @@ in `intent-fingerprint-reuse.test.mjs`. It now selects the unique diagnostic blo
 from the complete process module AST; missing/duplicate invocation and removed
 fallback fingerprint mutations still run against that actual block. The complete
 process source contract now expects the same literal import.
+
+## Quorum harness decomposition
+
+The original entry retains `--case=ID`; `--capability=ID` is an alias for the same
+18-case catalog, available through `--list-capabilities`. Each invocation selects
+one unique case because cases own different exact-HEAD authorizations and performance
+leases. Repeated identical selections are deduplicated; mixed cases and implicit
+full runs are refused. Existing `GREEN <case>` means exactly that case.
+All 196 original function bodies, all 18 catalog bindings and the isolated driver
+statement order are mechanically compared to `57205854d1`. Seven bounded contracts
+(inventory plus six performance protocol controls) pass. Actual expensive performance
+and isolated supervision campaigns have not been rerun; no complete campaign claim.
+The explicit module paths are registered under `runtime:quorum_harness_capability_selection`;
+this adds no routine command.
+
+| Module | Lines | Responsibility |
+|---|---:|---|
+| `callback-inventory.mjs` | 603 | callback inventory |
+| `catalog.mjs` | 51 | catalog |
+| `cli.mjs` | 20 | cli |
+| `containment.mjs` | 689 | containment |
+| `coordinator-wiring.mjs` | 401 | coordinator wiring |
+| `driver.mjs` | 60 | driver |
+| `environment-closure.mjs` | 425 | environment closure |
+| `exact-head-authorization.mjs` | 334 | exact head authorization |
+| `exact-head-checkout.mjs` | 433 | exact head checkout |
+| `exact-head-supervisor.mjs` | 444 | exact head supervisor |
+| `fixture-source-closure.mjs` | 1024 | fixture source closure |
+| `fixture-templates.mjs` | 629 | fixture templates |
+| `mutation-controls.mjs` | 242 | mutation controls |
+| `owned-files.mjs` | 349 | owned files |
+| `partition.mjs` | 163 | partition |
+| `performance-cases.mjs` | 609 | performance cases |
+| `performance-context.mjs` | 452 | performance context |
+| `performance-material.mjs` | 341 | performance material |
+| `process-supervision.mjs` | 252 | process supervision |
+| `resource-parallel.mjs` | 271 | resource parallel |
+| `resource-traces.mjs` | 421 | resource traces |
+| `selection-contracts.mjs` | 691 | selection contracts |
+| `selection.mjs` | 57 | selection |
+| `supervisor-controls.mjs` | 675 | supervisor controls |
+| `support.mjs` | 416 | support |
+| `tree-lease.mjs` | 517 | tree lease |
+| `worker-coordination.mjs` | 562 | worker coordination |
+
+## Main synchronization on 2026-09-21
+
+Main `300ed4d08b` was merged before the next RED, as required by Lab tooling.
+Its two validation-verdict regressions are retained alongside all Lab registrations:
+248 -> 250 commands. This growth is from main, not from module registration.
+Exact static-edge config pins are retained stale and fail closed pending the already
+planned closure review; merging records is not renewed audit approval. Both branches'
+new exception records and source-bound evidence are retained. No push or integration
+of this Lab into main has occurred.
