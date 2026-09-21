@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import './../../../scripts/identity-cutover/bootstrap.mjs';
+import {verifyReviewedContextReaders,verifyBothFamilyContexts,verifyReviewedNegativeSourceIntegrity} from '../../identity-cutover/source-integrity.mjs';
+import {verifyCurrentLegacyContextManifest} from '../../identity-cutover/guidance.mjs';
+import {EXACT_ALLOWLIST} from '../../identity-cutover/base-contexts.mjs';
+import {validateExactRows,trackedFiles} from '../../identity-cutover/repository.mjs';
+const root=process.cwd();
+const errors=[...verifyReviewedContextReaders(root),...verifyBothFamilyContexts(root),...verifyReviewedNegativeSourceIntegrity(root),...verifyCurrentLegacyContextManifest(root),...validateExactRows(EXACT_ALLOWLIST,new Set(trackedFiles(root)),root)];
+assert.deepEqual(errors,[],'MODULAR_IDENTITY_BINDINGS_STALE: preserve exact contexts and complete witness coverage across extracted modules');
+console.log('MODULAR_IDENTITY_BINDINGS_GREEN '+JSON.stringify({exactContexts:EXACT_ALLOWLIST.length}));
