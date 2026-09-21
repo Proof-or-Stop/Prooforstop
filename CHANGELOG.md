@@ -1,16 +1,5 @@
 # Changelog
 
-## Lab review-rework - v0.3.436 - 2026-09-21
-
-- Restore incremental review inventory reads for large Git outputs using the registered transport limit; preserve full-roster refusal and precise diagnostics when inventory or dirty-state reads fail.
-- Bind cross-wave duplicate Findings to signed canonical observations in the same frozen review epoch, retaining original open Findings and all evidence, quorum and independent-review requirements.
-- Bound dependency analysis by source count, bytes and a cooperative deadline, reuse per-call module resolution, and show bounded CLI path samples with separate observation and problem-family counts.
-- Verify real RED-to-GREEN inventory and duplicate controls, native selector-to-consumer behavior, negative controls and registered contracts; document existing repository-wide failures separately. See [maintenance details and execution evidence](docs/review-rework-maintenance.md). This repair does not claim measured reductions in live Story review rounds.
-
-Maintenance provenance: codex/lab-review-rework, repair f6dd21fee22b9a3d3ccbb8fd3657d51a02f1df06.
-Verification command (replayed before integration and on main): `["node","scripts/verify-review-rework.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab validation-verdict-stickiness - v0.3.435 - 2026-09-21
 
 - Fail is sticky: an executed validation failure recorded on an identity (command set, committed material, story files, compiled artifacts) makes any PASS on that identical identity a flipped verdict. Routine reuse (`verdict-flip-unattested`), evidence admission and the DONE-side consumer (`verdict_flip_unattested`) and both publications, executed and reused (`verdict_flip_refused`), refuse it. Changing the material or the build releases it; there is no override.
