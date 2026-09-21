@@ -214,6 +214,20 @@ function assertExternalControllerProjection(project: ProjectControllerAssets): v
     });
     assert.equal(restoredProjection.valid, true, 'CLI bootstrap restores the exact signed controller runtime projection before review');
 
+    git(controllerRoot, ['add', '-f', 'proof-or-stop.config.json', ...expectedHookPaths]);
+    git(controllerRoot, ['commit', '-qm', 'adopt controller runtime assets']);
+    const controllerOwnedProjection = inspectExpectedControllerRuntimeProjection({
+      projectRoot: worktreeRoot,
+      gitCwd: worktreeRoot,
+      storyId,
+    });
+    assert.equal(
+      controllerOwnedProjection.valid,
+      true,
+      `LAB_RED: committing byte-identical controller assets must not poison a valid Story projection (${controllerOwnedProjection.reason})`,
+    );
+    git(controllerRoot, ['reset', '--mixed', 'HEAD^']);
+
     git(worktreeRoot, ['add', '-f', ...expectedHookPaths]);
     assert.equal(
       inspectExpectedControllerRuntimeProjection({ projectRoot: worktreeRoot, gitCwd: worktreeRoot, storyId }).valid,
