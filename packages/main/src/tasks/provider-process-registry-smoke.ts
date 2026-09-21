@@ -706,6 +706,22 @@ async function main(): Promise<void> {
     'core/codex-review-leaf.ts',
     'core/usage-ledger/writer.ts',
     'tasks/host-run-usage-smoke.ts',
+    'tasks/host-run-usage/admission.ts',
+    'tasks/host-run-usage/cli.ts',
+    'tasks/host-run-usage/evidence-mapping.ts',
+    'tasks/host-run-usage/integrations.ts',
+    'tasks/host-run-usage/ledger-concurrency.ts',
+    'tasks/host-run-usage/ledger-failures.ts',
+    'tasks/host-run-usage/output-errors.ts',
+    'tasks/host-run-usage/process-supervision.ts',
+    'tasks/host-run-usage/prompt-supervision.ts',
+    'tasks/host-run-usage/proposal.ts',
+    'tasks/host-run-usage/story-binding.ts',
+    'tasks/host-run-usage/streaming.ts',
+    'tasks/host-run-usage/summary.ts',
+    'tasks/host-run-usage/support.ts',
+    'tasks/host-run-usage/usage-parsing.ts',
+
   ]) {
     assert.doesNotMatch(
       source(path),

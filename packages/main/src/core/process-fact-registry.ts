@@ -1839,6 +1839,29 @@ COMMAND_PROCESS_FACTS.push({
 });
 
 COMMAND_PROCESS_FACTS.push({
+  name: 'runtime:host_usage_capability_selection', kind: 'runtime-behavior', level: 'L4',
+  semantics: ['runtime-behavior', 'verification-policy'],
+  paths: ['packages/main/src/tasks/host-run-usage-smoke.ts',
+    'packages/main/src/tasks/host-run-usage/admission.ts',
+    'packages/main/src/tasks/host-run-usage/cli.ts',
+    'packages/main/src/tasks/host-run-usage/evidence-mapping.ts',
+    'packages/main/src/tasks/host-run-usage/integrations.ts',
+    'packages/main/src/tasks/host-run-usage/ledger-concurrency.ts',
+    'packages/main/src/tasks/host-run-usage/ledger-failures.ts',
+    'packages/main/src/tasks/host-run-usage/output-errors.ts',
+    'packages/main/src/tasks/host-run-usage/process-supervision.ts',
+    'packages/main/src/tasks/host-run-usage/prompt-supervision.ts',
+    'packages/main/src/tasks/host-run-usage/proposal.ts',
+    'packages/main/src/tasks/host-run-usage/story-binding.ts',
+    'packages/main/src/tasks/host-run-usage/streaming.ts',
+    'packages/main/src/tasks/host-run-usage/summary.ts',
+    'packages/main/src/tasks/host-run-usage/support.ts',
+    'packages/main/src/tasks/host-run-usage/usage-parsing.ts'],
+  producer: 'host usage capability CLI', consumerGate: 'explicit verifier invocation only',
+  rationale: 'Twelve explicit capabilities retain all 91 original execution statements in original order for default and all. Legacy canonical-core remains supported. Named selection is deduplicated and reports partial evidence, never historical aggregate receipt selectors. Full results retain exact check counts and compatibility selectors. Catalog descriptions bind capability names to actual case labels; internal modules add no routine command or dynamic exclusion authority.',
+});
+
+COMMAND_PROCESS_FACTS.push({
   name: 'runtime:process_contract_capability_selection', kind: 'runtime-behavior', level: 'L4',
   semantics: ['runtime-behavior', 'verification-policy'],
   paths: ['scripts/verify-process-fact-contract.mjs',
