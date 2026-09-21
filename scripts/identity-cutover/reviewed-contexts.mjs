@@ -490,7 +490,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/data.mjs",
-    "sha256": "1ef13cedfe2973cf815cfca1005d0320ae75500ff8f13699fcee1152e862e3e6"
+    "sha256": "3001e77338eca2c431826c1c4c35fc9a52641fca41e26f093a0593e705048328"
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/driver.mjs",

@@ -620,7 +620,7 @@ export const OWNED_IMPORT_USE_CONTEXTS = [
   {"sourcePath":"packages/main/src/core/prompt-measurement.ts","occurrences":77,"contextSha256":"a36196e3591cb29c3559138ad39ed2c631871c56c0d97bfc1a49e8b92ffe251a"},
   {"sourcePath":"packages/main/src/core/prompt-registry.ts","occurrences":64,"contextSha256":"c2c708cc827fcd45f8d24a5843a26d59e2d0324fc1b0e776f2e0e1b5a160461b"},
   {"sourcePath":"packages/main/src/core/prompt-role-contract-registry.ts","occurrences":137,"contextSha256":"fd828982bd0633d28b94af5f8ca03b09e6f6035be4e44495b2ded6a229fc15c1"},
-  {"sourcePath":"packages/main/src/core/review-incremental-context.ts","occurrences":332,"contextSha256":"e04750f29c13f37e7f17b60122b66df61bf715f53ef26f92c9b4403aa0ffa62c"},
+  {"sourcePath":"packages/main/src/core/review-incremental-context.ts","occurrences":366,"contextSha256":"103892a7a696b1d7d6217a6840bd20a19ce068aa07c22306dcfad9d7c0a23fdf"},
   {"sourcePath":"packages/main/src/core/review-inventory-epoch.ts","occurrences":63,"contextSha256":"0c751e0c5d92604e461b1fd5d0df82538f3313cc4b3840c818a3a06157972aa7"},
   {"sourcePath":"packages/main/src/core/review-run.ts","occurrences":293,"contextSha256":"e70a77d9c0980112eff92daf83103575c63f132ee8ad289eba724056e1718a18"},
   {"sourcePath":"packages/main/src/core/source-lineage-audit.ts","occurrences":131,"contextSha256":"ee2d591e1f0fad9b2de7d1cde798eb873dd6e1fc743e6190109d8b6255debade"},
