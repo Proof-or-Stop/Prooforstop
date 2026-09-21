@@ -1,16 +1,5 @@
 # Changelog
 
-## Lab tracked-controller-projection-remediation - v0.3.443 - 2026-09-21
-
-- Allow a signed, byte-identical controller runtime projection to remain valid after the controller or Story branch adopts the projected assets into Git.
-- Preserve Story branch binding, regular-file and symlink safety, byte equality, signed common and Story receipts, plus ordinary dirty and scope enforcement for candidate-side changes.
-- Keep controller config projection receipts trusted after controller-side Git adoption so scope enforcement and reviewer admission agree.
-- Verified with the external linked-worktree Go pre-review smoke, tracked-controller bootstrap safety regression, package build, and independent Grok review; the broader process-fact verifier remains blocked by its unrelated managed-review supersession fixture provider failure.
-
-Maintenance provenance: codex/lab-tracked-controller-projection-remediation, repair 922807a0aa3a6c2778657e21089c0a6d5314da38.
-Verification command (replayed before integration and on main): `["node","scripts/verify-external-worktree-go-pre-review.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab managed-finding-repair-dispatch - v0.3.442 - 2026-09-21
 
 - Add a DEV managed-dispatch path for `proof-or-stop-finding-repair` with one canonical open Finding target.
