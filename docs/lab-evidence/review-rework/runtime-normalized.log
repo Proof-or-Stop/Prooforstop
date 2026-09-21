@@ -27,7 +27,7 @@ PENDING_RECONCILIATION_GREEN
 MEMORY_QUERY_TIMING {"indexed":false,"elapsedMs":28,"resultDigest":"one:1|two:2","queryElapsedMs":[11,17],"semanticGuard":{"pass":true}}
 MEMORY_QUERY_TIMING {"indexed":true,"elapsedMs":33,"resultDigest":"one:1|two:2","queryElapsedMs":[11,17],"semanticGuard":{"pass":true}}
 MEMORY_QUERY_TIMING_GREEN actual construction included; batch setup separately retained
-TOP5_IDENTITY_PROFILE {"firstReads":1,"secondReads":1,"durationMs":<MEASURED_DURATION>,"freshByteDrift":true}
+TOP5_IDENTITY_PROFILE {"firstReads":1,"secondReads":1,"durationMs":<MEASURED>,"freshByteDrift":true}
 TOP5_1_IDENTITY_GREEN
 IDENTITY_CANONICAL_DIGEST_MEMO_GREEN same-size restored-mtime mutation rejected; separate roots and deletion stay fresh
 SNAPSHOT_BINDING_RUNTIME {"node":"v26.8.1","executable":"/opt/homebrew/Cellar/node/26.8.1/bin/node","argv":["<CHECKOUT>/scripts/verify-validation-snapshot-binding.mjs"]}

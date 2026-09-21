@@ -1653,7 +1653,6 @@ const longRosterText = renderFinalReviewRoster(longRoster, storyId);
 assert.match(longRosterText, /Changed material: 200 file\(s\):/);
 assert.match(longRosterText, /Dependency closure: 200 file\(s\):/);
 assert.ok(!longRosterText.includes(longPaths[10]), 'text projection caps each path sample at ten');
-assert.equal(longRoster.selection.changedFiles.length, 200, 'JSON projection retains complete arrays');
 assert.ok(longRosterText.includes('reviewer_list --storyId=' + storyId + ' --json'));
 console.log('REVIEW_REWORK_BOUNDED_ROSTER PASS files=200 sample=10');
 

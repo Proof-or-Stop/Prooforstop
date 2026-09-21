@@ -43,6 +43,13 @@ export const PLANNED_PROVIDER_BUDGET_RUNTIME_POLICY = {
 /** Bounded review history, tracked inventory, and dirty-state transport; larger
  * or incomplete Git output remains invalid. */
 export const REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES = 64 * 1024 * 1024;
+/** Synchronous review analysis: over-budget proof is incomplete, never PASS. */
+export const REVIEW_DEPENDENCY_CLOSURE_LIMITS = Object.freeze({
+  maxSourceFiles: 4096,
+  maxSourceFileBytes: 4 * 1024 * 1024,
+  maxTotalSourceBytes: 32 * 1024 * 1024,
+  maxElapsedMs: 5000,
+});
 
 // DEV acceptance transport uses only proof-or-stop.acceptance_amendment_review_final.v1; old inner schemas cannot be produced or consumed. The outer worker-signed receipt remains a compatibility container, never an alias for the inner schema.
 export const REVIEWER_BATCH_PRODUCER_RUNTIME_POLICY = { versionTimeoutMs: 10000, readinessTimeoutMs: 30000, maxRecordBytes: 4194304, ordinaryProfile: 'managed_reviewer', generatedPathPlan: { schema: 'batch-generated-paths.v1', probeCwd: 'canonical-verified-subject-workspace', providerHome: 'controller/provider-seeds/work/generation/host/provider-host', probeTemp: 'controller/provider-seeds/work/generation/host/tmp', lanePaths: 'separately-sealed-readonly-layout-no-base-env-omission' } } as const;
@@ -100,6 +107,7 @@ export const REQUIRED_RUNTIME_FACT_IDS = [
  * alongside (but never inserted into) REQUIRED_RUNTIME_FACT_IDS.
  */
 export const RUNTIME_EVIDENCE_FACT_REGISTRY = [
+  { id: 'review-dependency-closure-budget', owner: 'review-incremental-context', semantics: 'Each closure build bounds source count and bytes before parsing, checks a monotonic cooperative deadline between synchronous operations, and owns one module-resolution cache. Exceeding any registered bound makes the proof incomplete and requires the full active roster; no closure or PASS cache survives the call.' },
   { id: 'story-integration-target', owner: 'story-create + story-integration-target + done-effects + release', semantics: 'Story creation freezes the checked-out non-Story parent branch and its commit. DONE synchronization, conflict checks, recovery and local release approval consume that branch; legacy Stories resolve the repository baseline without inventing main. A Story branch, detached HEAD, or missing target grants no integration authority.' },
   { id: 'global-thin-native-hook-projection', owner: 'runtime-root + controller-runtime-projection + scope-path-classifier', semantics: 'An explicitly registered linked Story worktree may receive only the exact Codex hook manifest and two Proof-or-Stop hook programs from a global-thin primary controller. Both copies and a signed common-dir plus Story receipt must remain byte-identical; symlinks, tracked-path replacement, controller drift and worktree drift fail closed. Controller HEAD and index own the selected regular config and every present native hook; a controller hook absent from disk, HEAD and index remains absent after a legitimate removal. The branch retains a tracked regular config, while candidate hook edits, deletions and renames remain ordinary material under cleanliness and scope gates. Canonical root aliases are accepted; no runtime exemption is granted and untracked controller hooks retain strict projection authority.' },
   { id: 'causal-environment-confidentiality', owner: 'causal-evidence', semantics: 'Causal identity stores plaintext only for a fixed locale and terminal allowlist; every other environment value is represented by a one-way digest. All persisted output projections share one credential-only redaction stream: token, secret, password, credential, authorization, cookie, credential-bearing proxy, database DSN, SSH private-key and cloud credential values are scrubbed, while benign profile, region, session-label and no-proxy values remain selector-visible.' },

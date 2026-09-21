@@ -19,7 +19,11 @@ The later formal Lab GREEN reruns the pinned command on the committed candidate.
   cross-wave duplicates retain both originals; dirty transport and bounded
   rendering controls pass through the real selector/CLI/broker chain.
 - `inventory-controls.log`: empty repository and real ls-files ENOBUFS refuse;
-  46,477-path inventory succeeds under the registered bound.
+  46,477-path inventory succeeds under the registered bound. The real-source
+  inventory covers count, byte and cooperative deadline limits.
+- `source-budget-red.log`: the same oversized real-source inventory reached parsing
+  before the new resource bound; the new refusal assertion failed. This is no
+  claim that the old fixture reproduced a minutes-long stall.
 - `identity-controls.log`: reviewed emitted-JS pin accepts canonical code and
   rejects an executable mutation; comments do not alter its digest domain.
 - `prior-green-0227bf95.log`: previous tool-owned GREEN for the prior committed

@@ -25,7 +25,7 @@ import { lstatSync, readFileSync, realpathSync } from 'node:fs';
 import { dirname, extname, relative, resolve } from 'node:path';
 import ts from 'typescript';
 import { observedGit } from './git-tree-observation.js';
-import { REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES } from './runtime-fact-registry.js';
+import { REVIEW_DEPENDENCY_CLOSURE_LIMITS, REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES } from './runtime-fact-registry.js';
 import type { StoryStore } from './store.js';
 import type { Finding, ReviewPass, ReviewRun } from './types.js';
 import {
@@ -181,7 +181,11 @@ export function computeCanonicalDependencyClosure(
   gitCwd: string,
   changedFilesInput: readonly string[],
 ): CanonicalDependencyClosure {
+  const startedAt = performance.now();
+  const limits = REVIEW_DEPENDENCY_CLOSURE_LIMITS;
   const changedFiles = [...new Set(changedFilesInput)].sort();
+  const exceeded = (bound: string): CanonicalDependencyClosure => ({ complete: false, files: changedFiles, reason: `dependency closure exceeded ${bound} bound` });
+  const deadlineExceeded = () => performance.now() - startedAt > limits.maxElapsedMs;
   const inventory = trackedFiles(gitCwd);
   if (inventory.reason) return { complete: false, files: changedFiles, reason: inventory.reason };
   const tracked = inventory.files;
@@ -189,30 +193,52 @@ export function computeCanonicalDependencyClosure(
   const trackedSet = new Set(tracked);
   const sourceExtensions = new Set(['.ts', '.tsx', '.mts', '.cts', '.js', '.jsx', '.mjs', '.cjs']);
   const sourceFiles = tracked.filter(path => sourceExtensions.has(extname(path)) && !isMaterialExcludedPath(path, gitCwd));
+  if (sourceFiles.length > limits.maxSourceFiles) return exceeded('source-file');
+  if (deadlineExceeded()) return exceeded('elapsed-time');
+  let totalSourceBytes = 0;
+  for (const path of sourceFiles) {
+    try {
+      const size = lstatSync(resolve(gitCwd, path)).size;
+      if (size > limits.maxSourceFileBytes) return exceeded('per-file byte');
+      totalSourceBytes += size;
+      if (totalSourceBytes > limits.maxTotalSourceBytes) return exceeded('total-source byte');
+    } catch { return { complete: false, files: changedFiles, reason: `source inventory unreadable: ${path}` }; }
+    if (deadlineExceeded()) return exceeded('elapsed-time');
+  }
   const sourceSet = new Set(sourceFiles);
   const graph = new Map<string, Set<string>>(sourceFiles.map(path => [path, new Set<string>()]));
   const realProjectRoot = realpathSync(gitCwd);
   const configPath = ts.findConfigFile(gitCwd, ts.sys.fileExists);
   let compilerOptions: ts.CompilerOptions = { moduleResolution: ts.ModuleResolutionKind.Node16 };
   if (configPath) {
+    if (lstatSync(configPath).size > limits.maxSourceFileBytes) return exceeded('config byte');
     const config = ts.readConfigFile(configPath, ts.sys.readFile);
     if (config.error) return { complete: false, files: changedFiles, reason: 'TypeScript config is unreadable' };
-    compilerOptions = ts.parseJsonConfigFileContent(config.config, ts.sys, dirname(configPath)).options;
+    compilerOptions = ts.parseJsonConfigFileContent(config.config, { ...ts.sys, readDirectory: () => [] }, dirname(configPath)).options;
   }
+  const moduleCache = ts.createModuleResolutionCache(gitCwd, path => ts.sys.useCaseSensitiveFileNames ? path : path.toLowerCase(), compilerOptions);
+  let parsedBytes = 0;
   for (const path of sourceFiles) {
+    if (deadlineExceeded()) return exceeded('elapsed-time');
     const absolute = resolve(gitCwd, path);
     try {
       if (lstatSync(absolute).isSymbolicLink() || relative(realProjectRoot, realpathSync(absolute)).startsWith('..')) {
         return { complete: false, files: changedFiles, reason: `source inventory contains symlink escape: ${path}` };
       }
       const text = readFileSync(absolute, 'utf8');
+      const bytes = Buffer.byteLength(text);
+      parsedBytes += bytes;
+      if (bytes > limits.maxSourceFileBytes) return exceeded('per-file byte');
+      if (parsedBytes > limits.maxTotalSourceBytes) return exceeded('total-source byte');
+      if (deadlineExceeded()) return exceeded('elapsed-time');
       const source = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true);
       if (hasOpaqueDynamicLoad(source)) {
         return { complete: false, files: changedFiles, reason: `opaque dynamic dependency: ${path}` };
       }
       const imports = ts.preProcessFile(text, true, true).importedFiles.map(entry => entry.fileName);
       for (const specifier of imports) {
-        const resolved = ts.resolveModuleName(specifier, absolute, compilerOptions, ts.sys).resolvedModule;
+        if (deadlineExceeded()) return exceeded('elapsed-time');
+        const resolved = ts.resolveModuleName(specifier, absolute, compilerOptions, ts.sys, moduleCache).resolvedModule;
         if (!resolved) {
           // A bare specifier may be a runtime/bundler alias into this repo.
           // Only a proven builtin can be ignored without a resolved target.
@@ -233,6 +259,7 @@ export function computeCanonicalDependencyClosure(
       return { complete: false, files: changedFiles, reason: `source inventory unreadable: ${path}` };
     }
   }
+  if (deadlineExceeded()) return exceeded('elapsed-time');
   const sourceChanged = changedFiles.filter(path => sourceExtensions.has(extname(path)));
   if (sourceChanged.some(path => !trackedSet.has(path) || !sourceSet.has(path))) {
     return { complete: false, files: changedFiles, reason: 'changed source is not a canonical tracked inventory member' };
@@ -240,6 +267,7 @@ export function computeCanonicalDependencyClosure(
   const closure = new Set(changedFiles);
   const queue = [...sourceChanged];
   while (queue.length > 0) {
+    if (deadlineExceeded()) return exceeded('elapsed-time');
     const path = queue.shift()!;
     for (const adjacent of graph.get(path) ?? []) {
       if (closure.has(adjacent)) continue;
