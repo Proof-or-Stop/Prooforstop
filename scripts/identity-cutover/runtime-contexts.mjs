@@ -1,0 +1,560 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { EXACT_ALLOWLIST } from "./base-contexts.mjs";
+
+export const RUNTIME_DENY_CONTEXT_ROWS = [
+  {
+    "id": "runtime-deny-context-1",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-process-fact-contract.mjs",
+    "token": "coverageReviewerLaneName, 'lattice-review-test-coverage'",
+    "expectedOccurrences": 1,
+    "contextSha256": "0fbefb6f7e5928308d6c13c0f33bd4836a9e884a77bff7f022a995e6c002fcb8",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-2",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-process-fact-contract.mjs",
+    "token": "label: 'CLI invocation', pattern: /\\blattice\\s+lattice-review-test-coverage\\b/i",
+    "expectedOccurrences": 1,
+    "contextSha256": "ce13a60918700e5bc5d944a4a2df7224d0ef675a97e90a9042a84e6cc486986d",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-3",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-process-fact-contract.mjs",
+    "token": "lattice-review-test-coverage`",
+    "expectedOccurrences": 2,
+    "contextSha256": "5a17e76075eb9ff4862449cd25ef1cb5f2581e49174a1f6cdee624b373c249ab",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-4",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/pre-review-live-proof.ts",
+    "token": "canonicalCaseId: 'A-MUT-20', target: 'bin-alias:canonical-help', mutationKind: 'canonical-help-boundary', operation: 'execute the canonical CLI help path and verify it advertises proof-or-stop without a retired lattice invocation'",
+    "expectedOccurrences": 1,
+    "contextSha256": "d056e4c4a9544286f9f6f6be6b355de16bff869023082ed84fdffa658259cd72",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-5",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/pre-review-live-proof.ts",
+    "token": "canonicalCaseId: 'A-MUT-21', target: 'bin-alias:removed-alias', mutationKind: 'npm-bin-reintroduction', operation: 'mutate package metadata to reintroduce the lattice bin alias and require the canonical-only verifier to reject it'",
+    "expectedOccurrences": 1,
+    "contextSha256": "cbf0381490c0f4fc68e3d6e2a769bb32a956231b7a14ef5dab2503721dfd06aa",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-6",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/handlers/proof-or-stop-cli.ts",
+    "token": "detail: 'packages/main package.json exposes only the canonical proof-or-stop bin; lattice is not an active npm alias',",
+    "expectedOccurrences": 1,
+    "contextSha256": "46bf553556c2e9ea3463aa71f4d97aeb461de1b75b9ab9640fc72ca3872306c3",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-7",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/handlers/story-aware-validation.ts",
+    "token": ") => !key.startsWith('LATTICE_VALIDATION_SHARD_') && !key.startsWith('PROOF_OR_STOP_VALIDATION_SHARD_')));",
+    "expectedOccurrences": 1,
+    "contextSha256": "2f86bff1a452377964ac074a1632c53caed283b46d25b6721b338fee438401db",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-8",
+    "class": "compatibility_fixture",
+    "path": ".gitignore",
+    "token": ".lattice/runtime/host-runs/",
+    "expectedOccurrences": 1,
+    "contextSha256": "dc0be9bb926e3eb82c89890ec781144202304034a80fd29781be4202aa5fd4d3",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-9",
+    "class": "compatibility_fixture",
+    "path": ".gitignore",
+    "token": ".lattice/learning/runtime-memory-pack-cache/",
+    "expectedOccurrences": 1,
+    "contextSha256": "05529537d68c353ce17c7b0448dad4d312280a59d749f8edfd0b0053697bd9e4",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-10",
+    "class": "compatibility_fixture",
+    "path": ".gitignore",
+    "token": ".lattice/runtime/framework-audit/state.json",
+    "expectedOccurrences": 1,
+    "contextSha256": "eaac87f60d39daa7e40739c8a4d1c6fcb0759f17c00dcefe8426f7b2e0e84326",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-11",
+    "class": "compatibility_fixture",
+    "path": ".gitignore",
+    "token": ".lattice/learning/finding-signals.json",
+    "expectedOccurrences": 1,
+    "contextSha256": "1bcdc5e565594f011018751a38183f275289b3fe40d989a57dcab6078d877dbf",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-12",
+    "class": "compatibility_fixture",
+    "path": ".gitignore",
+    "token": ".lattice/learning/playbook-promotion-health.jsonl",
+    "expectedOccurrences": 1,
+    "contextSha256": "1b97779e89c61e201640026e48b64808825372798b025446edc22f3a67503a10",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-13",
+    "class": "compatibility_fixture",
+    "path": ".gitignore",
+    "token": ".lattice/learning/playbooks.json",
+    "expectedOccurrences": 1,
+    "contextSha256": "2e058223a67ac0d8bf03f4ab0108857b42a1562f1b70db51afcb0b931c1989b1",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-14",
+    "class": "compatibility_fixture",
+    "path": ".gitignore",
+    "token": ".lattice/learning/signature-registry.json",
+    "expectedOccurrences": 1,
+    "contextSha256": "0f407b8e60aafede62e1dae7137d36f53bcd74ba5f7cba0bfeb53a009c688e9c",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-15",
+    "class": "compatibility_fixture",
+    "path": ".gitignore",
+    "token": "/lattice.config.json",
+    "expectedOccurrences": 1,
+    "contextSha256": "5ba12db28474d590752e7ca64bdd6d46d4c71bcd914da0d96b57b0360410310f",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-16",
+    "class": "provenance_bytes",
+    "path": "packages/main/src/core/finding-verify.ts",
+    "token": "B-cc10 `.lattice/` -> `.proof-or-stop/` state-dir migration carry the deprecated",
+    "expectedOccurrences": 1,
+    "contextSha256": "c58a715058414df3f10a6b5f6126ee197f70603c3bb065b627cfb47cf17c18e2",
+    "reason": "Exact comment about pre-move Git parentHead historical evidence; no current state-path read alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-17",
+    "class": "provenance_bytes",
+    "path": "packages/main/src/core/finding-verify.ts",
+    "token": "// A receipt's parentHead may predate the `.lattice/` -> `.proof-or-stop/` state-dir",
+    "expectedOccurrences": 1,
+    "contextSha256": "1e322ff69eec5eeebb53f0b6899002f6016b2b6de65858468cf98bb52f88f9ea",
+    "reason": "Exact comment about pre-move Git parentHead historical evidence; no current state-path read alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-18",
+    "class": "provenance_bytes",
+    "path": "packages/main/src/core/finding-verify.ts",
+    "token": "// `.lattice/` -> `.proof-or-stop/` state-dir move CANNOT be rewritten to the",
+    "expectedOccurrences": 1,
+    "contextSha256": "fcb6137196678ee2ee99a0a3c2471a68b47be89f30d981209140db6c8c7c16df",
+    "reason": "Exact comment about pre-move Git parentHead historical evidence; no current state-path read alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-19",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/runtime-artifact-registry.ts",
+    "token": "kind: 'prefix', value: '.lattice/runtime/host-runs/'",
+    "expectedOccurrences": 1,
+    "contextSha256": "4f85959251be35ef46e33a1749a73adc22cd1bf405d5cae2f9a1679c6a8b30ed",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-20",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/runtime-artifact-registry.ts",
+    "token": "kind: 'prefix', value: '.lattice/learning/runtime-memory-pack-cache/'",
+    "expectedOccurrences": 1,
+    "contextSha256": "f12cd7510950a4613fc4e87cd53e010b6857f0184fbf5983ee8810f57015cfcc",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-21",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/runtime-artifact-registry.ts",
+    "token": "'.lattice/runtime/framework-audit/state.json',",
+    "expectedOccurrences": 2,
+    "contextSha256": "40a57a8e38fcbdee187a0a678a294c7f1a55c07a2cc1ce8e26805075e11996cd",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-22",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/runtime-artifact-registry.ts",
+    "token": "'.lattice/learning/finding-signals.json',",
+    "expectedOccurrences": 2,
+    "contextSha256": "29dc58387eda4bab6cd4520a8b78f6fde6449d60a7cd556e96f150b98db3aa99",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-23",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/runtime-artifact-registry.ts",
+    "token": "'.lattice/learning/playbook-promotion-health.jsonl',",
+    "expectedOccurrences": 2,
+    "contextSha256": "429956a8b81e359c5ba2b4dc2b9ade39b3ca08ebbec028ce8f4b46293a1aa705",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-24",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/runtime-artifact-registry.ts",
+    "token": "'.lattice/learning/playbooks.json',",
+    "expectedOccurrences": 2,
+    "contextSha256": "10a9baca5cc2e3a50cdf3fac84da653324d20e2e0e4924f76b0ba10fcad8ac24",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-25",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/runtime-artifact-registry.ts",
+    "token": "'.lattice/learning/signature-registry.json',",
+    "expectedOccurrences": 2,
+    "contextSha256": "00d5838650097c5079fa9ab4e8c3fdf06dbcc4b13e869002950c53a7ad50de94",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-26",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/runtime-artifact-registry.ts",
+    "token": "'.lattice/runtime/host-runs/',",
+    "expectedOccurrences": 1,
+    "contextSha256": "83ef432455336e718b0926a36a5c58a8cbf49e8d7eb2f18a9f86fa116b8178b1",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-27",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/runtime-artifact-registry.ts",
+    "token": "'.lattice/learning/runtime-memory-pack-cache/',",
+    "expectedOccurrences": 1,
+    "contextSha256": "cd8ea37135b64f01284e21d155f607e4ecc71b00a84b3ac2cee0848a8955d671",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-28",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/runtime-artifact-registry.ts",
+    "token": "kind: 'exact', value: 'lattice.config.json'",
+    "expectedOccurrences": 1,
+    "contextSha256": "af5ea3bdd05f7931a193c708b7b55cd33eb4d54395bb520c957acdbe7b670a1c",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-29",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/runtime-artifact-registry.ts",
+    "token": "'/lattice.config.json',",
+    "expectedOccurrences": 1,
+    "contextSha256": "1ce5ed20e01f33b29ed1693ffc98d82ce0ac4fe69d21a926d79c040d589bd931",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-30",
+    "class": "compatibility_fixture",
+    "path": "scripts/verify-process-fact-contract.mjs",
+    "token": ":\\.koala|\\.lattice-codex|\\.proof-or-stop-codex|\\.claude|docs|packages|bin)\\/",
+    "expectedOccurrences": 1,
+    "contextSha256": "1d18e61f8fbcd4b9be8bde6ee74459e4e1e0512d06c431da279b2d3320507678",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-31",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/audit-scan.ts",
+    "token": "const RETIRED_AUDIT_BIN_TOKEN = 'lattice'; // Detection only; not a runnable bin alias.",
+    "expectedOccurrences": 1,
+    "contextSha256": "3182fd46207875760475956cd25ff4e2a0dec0ca93349e4205935ab5efabacff",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-32",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/dev-memory.ts",
+    "token": ":lattice|proofbound)(",
+    "expectedOccurrences": 1,
+    "contextSha256": "c5cd3ed971ce13ec236b07d4960e820f6247c697d1fcbb32b2210fd924da7038",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-33",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/evidence-pin-guard.ts",
+    "token": "|lattice(",
+    "expectedOccurrences": 1,
+    "contextSha256": "ae0e7ddc5ae3d22afd303d94d814e8b24a3be4fd880b869617d5723beb0f7179",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-35",
+    "class": "migration_input",
+    "path": "packages/main/src/core/managed-markers.ts",
+    "token": "export const LEGACY_LATTICE_MANAGED_START = '<!-- lattice:start -->';",
+    "expectedOccurrences": 1,
+    "contextSha256": "16d6d532e780300452bfa34a21e51232e8fb0c10c20ae438e4cab7ee86710eaf",
+    "reason": "Exact explicit one-way managed-marker migration input; ordinary role/config/reader aliases remain forbidden.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-36",
+    "class": "migration_input",
+    "path": "packages/main/src/core/managed-markers.ts",
+    "token": "export const LEGACY_LATTICE_MANAGED_END = '<!-- lattice:end -->';",
+    "expectedOccurrences": 1,
+    "contextSha256": "e0a2c44e7d67563f4cb5c08582b04d4427d6348d295d9ba0d513cf610bd63a5b",
+    "reason": "Exact explicit one-way managed-marker migration input; ordinary role/config/reader aliases remain forbidden.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-37",
+    "class": "migration_input",
+    "path": "packages/main/src/core/managed-markers.ts",
+    "token": "export const LEGACY_LATTICE_PROFILE_START = '<!-- lattice-profile:start -->';",
+    "expectedOccurrences": 1,
+    "contextSha256": "4a5109ed56debe6de63301d56b3afe0b809208af762f9e36ac324a1236a289a0",
+    "reason": "Exact explicit one-way managed-marker migration input; ordinary role/config/reader aliases remain forbidden.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-38",
+    "class": "migration_input",
+    "path": "packages/main/src/core/managed-markers.ts",
+    "token": "export const LEGACY_LATTICE_PROFILE_END = '<!-- lattice-profile:end -->';",
+    "expectedOccurrences": 1,
+    "contextSha256": "0a4d2c8c3ba1da4d7c29b02d790f909b660435b8246a824605bdf368d89f9300",
+    "reason": "Exact explicit one-way managed-marker migration input; ordinary role/config/reader aliases remain forbidden.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-39",
+    "class": "migration_input",
+    "path": "packages/main/src/core/managed-markers.ts",
+    "token": "(proof-or-stop|lattice)$",
+    "expectedOccurrences": 1,
+    "contextSha256": "a413fcbdc358046a83503117f1537a76868f657ccfa47a07183bf33e0a5e1c57",
+    "reason": "Exact explicit one-way managed-marker migration input; ordinary role/config/reader aliases remain forbidden.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-40",
+    "class": "migration_input",
+    "path": "packages/main/src/core/managed-markers.ts",
+    "token": "New writes use the Proof-or-Stop spelling. Existing Lattice blocks remain",
+    "expectedOccurrences": 1,
+    "contextSha256": "36613a860e91fe9e1651ba9b1b2a97e5ee218070252c2581ebfda6091025fac6",
+    "reason": "Exact explicit one-way managed-marker migration input; ordinary role/config/reader aliases remain forbidden.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-41",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/core/story-aware-validation.ts",
+    "token": "'validation', 'scheduler', 'executor', 'catalog', 'selection', 'receipt', 'graph', 'package.json', 'package-lock', 'proof-or-stop.config', 'lattice.config', 'process-fact', 'runtime-fact', 'lifecycle', 'command-policy', 'build', 'lockfile'",
+    "expectedOccurrences": 1,
+    "contextSha256": "c2933b433b9c015b12b3888b985e358186032fa11f2ff3a5d46634cec4f456b6",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-42",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/handlers/certification-window.ts",
+    "token": "\\.json|lattice\\.config\\.json|proof-or-stop\\.config\\.json)$/",
+    "expectedOccurrences": 1,
+    "contextSha256": "c9a6fb9b133804fb071382d190606a1a86d6aaf1ff0922ab4a852a5e83139dd5",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-43",
+    "class": "compatibility_fixture",
+    "path": "packages/main/src/handlers/proof-or-stop-cli.ts",
+    "token": ", 'lattice');",
+    "expectedOccurrences": 1,
+    "contextSha256": "0645d8cfd92964305fc514c16339c51ccd28af7d15b1a8b236f176af749bd15f",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-44",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+    "token": "assert.doesNotMatch(runtime.renderMemoryFreshnessPack(pack), /proofbound|lattice/iu);",
+    "expectedOccurrences": 1,
+    "contextSha256": "cd0fc6a441587d3002d5bd61e0a60489287287b4885eb62eb19eaf5594d806e4",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-45",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+    "token": "assert.doesNotMatch(runtime.renderMemoryFreshnessPack(tampered), /proofbound|lattice/iu,",
+    "expectedOccurrences": 1,
+    "contextSha256": "04f0081fe515aa521d027718ec61e6c728f0cd232e877432895741ce4b9fc6f7",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  },
+  {
+    "id": "runtime-deny-context-46",
+    "class": "compatibility_fixture",
+    "path": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+    "token": "lesson: 'A superlattice and proofboundless token is not the product identity.', reusePrompt: 'Read the canonical memory example.'",
+    "expectedOccurrences": 1,
+    "contextSha256": "e499048e51ff336f14631ce75863536db1c199bd18d55cb4a912acd2f9e09f68",
+    "reason": "Exact retired identity denial, risk escalation, output exclusion, or adversarial fixture context; not active admission or a runtime lookup alias.",
+    "disposition": "frozen",
+    "verificationCommand": "internal:verify-exact-frozen-occurrence",
+    "expectedVerification": "PASS exact deny-only occurrence and bounded context"
+  }
+];
+
+EXACT_ALLOWLIST.push(...RUNTIME_DENY_CONTEXT_ROWS);

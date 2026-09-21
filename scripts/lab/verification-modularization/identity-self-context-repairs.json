@@ -1,0 +1,42 @@
+[
+  {
+    "file": "scripts/identity-cutover/source-integrity.mjs",
+    "before": "import { SCANNER_RETIRED_LINE_CONTEXTS }",
+    "after": "import { SCANNER_RETIRED_LINE_CONTEXTS, SCANNER_SOURCE_PATHS }"
+  },
+  {
+    "file": "scripts/identity-cutover/source-integrity.mjs",
+    "before": "export function verifyScannerRetiredContexts(text) {",
+    "after": "export function verifyScannerRetiredContexts(text, path = SCANNER_SOURCE_PATHS[0]) {\n  if (!SCANNER_SOURCE_PATHS.includes(path)) return [`scanner unregistered source path: ${path}`];"
+  },
+  {
+    "file": "scripts/identity-cutover/source-integrity.mjs",
+    "before": "const expected = new Map(SCANNER_RETIRED_LINE_CONTEXTS.map(([digest, count, positions]) => [digest, { count, positions }]));",
+    "after": "const rows = SCANNER_RETIRED_LINE_CONTEXTS.filter(([sourcePath]) => sourcePath === path);\n  const expected = new Map(rows.map(([, digest, count, positions]) => [digest, { count, positions }]));"
+  },
+  {
+    "file": "scripts/identity-cutover/source-integrity.mjs",
+    "before": "expected.size !== SCANNER_RETIRED_LINE_CONTEXTS.length",
+    "after": "expected.size !== rows.length"
+  },
+  {
+    "file": "scripts/identity-cutover/active-scan.mjs",
+    "before": "if (path === SCRIPT_PATH && SCANNER_RETIRED_LINE_CONTEXTS.some(([digest, , positions]) =>\n        digest === sha256(line)",
+    "after": "if (SCANNER_RETIRED_LINE_CONTEXTS.some(([sourcePath, digest, , positions]) =>\n        sourcePath === path && digest === sha256(line)"
+  },
+  {
+    "file": "scripts/identity-cutover/schema-scan.mjs",
+    "before": "return path === SCRIPT_PATH",
+    "after": "return SCANNER_SOURCE_PATHS.includes(path)"
+  },
+  {
+    "file": "scripts/identity-cutover/certification.mjs",
+    "before": "...verifyScannerRetiredContexts(readTrackedText(root, SCRIPT_PATH)),",
+    "after": "...SCANNER_SOURCE_PATHS.flatMap(path => verifyScannerRetiredContexts(readTrackedText(root, path), path)),"
+  },
+  {
+    "file": "scripts/identity-cutover/self-test.mjs",
+    "before": "    const scannerText = readTrackedText(root, SCRIPT_PATH);\n    expect(verifyScannerRetiredContexts(scannerText).length === 0, 'audited scanner negative contexts drifted');\n    const knownLine = scannerText.split(/\\r?\\n/u).find(line => [...line.matchAll(TOKEN_PATTERN)].length > 0);\n    expect(verifyScannerRetiredContexts(`${scannerText}\\n${knownLine}\\n`).length > 0, 'duplicated scanner metadata context escaped');\n    expect(verifyScannerRetiredContexts(scannerText.replace(knownLine, '')).length > 0, 'removed scanner metadata context escaped');\n    mkdirSync(resolve(activeExperimentRoot, dirname(SCRIPT_PATH)), { recursive: true });\n    const retiredTitle = RETIRED_PRODUCT_NAME[0].toUpperCase() + RETIRED_PRODUCT_NAME.slice(1);\n    const movableLine = scannerText.split(/\\r?\\n/u).find(line => line.trim() === `'${retiredTitle}',`);\n    expect(Boolean(movableLine), 'scanner transplant control must have an actual negative data line');\n    const transplanted = scannerText.replace(`${movableLine}\\n`, '') + `\\nconsole.log(\\n${movableLine}\\n);\\n`;\n    expect(verifyScannerRetiredContexts(transplanted).length > 0, 'unchanged negative line transplanted into active output escaped');\n    writeFileSync(resolve(activeExperimentRoot, SCRIPT_PATH), transplanted);\n    expect(scanActiveResidue(activeExperimentRoot, [SCRIPT_PATH]).some(hit => hit.token === retiredTitle),\n      'scanner active scan admitted a negative literal moved into console output');\n    for (const family of [LEGACY_WORD, RETIRED_PRODUCT_NAME]) {\n      for (const injected of [`${family} current product`, `${family}.injected-live-schema.v1`]) {\n        const mutated = `${scannerText}\\nexport const injectedIdentity = '${injected}';\\n`;\n        expect(verifyScannerRetiredContexts(mutated).length > 0, 'unclassified scanner executable identity escaped integrity');\n        writeFileSync(resolve(activeExperimentRoot, SCRIPT_PATH), mutated);\n        expect(scanActiveResidue(activeExperimentRoot, [SCRIPT_PATH]).some(hit => hit.token.includes(family)),\n          'scanner own-file executable/prose mutation escaped active scan');\n      }\n    }\n    writeFileSync(resolve(activeExperimentRoot, SCRIPT_PATH), `${scannerText}\\nexport const canonicalControl = 'Proof-or-Stop current product';\\n`);\n    expect(scanActiveResidue(activeExperimentRoot, [SCRIPT_PATH]).length === 0, 'canonical scanner own-file control rejected');",
+    "after": "    const scannerPath = 'scripts/identity-cutover/repository.mjs';\n    const scannerText = readTrackedText(root, scannerPath);\n    expect(verifyScannerRetiredContexts(scannerText, scannerPath).length === 0, 'audited scanner negative contexts drifted');\n    const knownLine = scannerText.split(/\\r?\\n/u).find(line => [...line.matchAll(TOKEN_PATTERN)].length > 0);\n    expect(verifyScannerRetiredContexts(`${scannerText}\\n${knownLine}\\n`, scannerPath).length > 0, 'duplicated scanner metadata context escaped');\n    expect(verifyScannerRetiredContexts(scannerText.replace(knownLine, ''), scannerPath).length > 0, 'removed scanner metadata context escaped');\n    mkdirSync(resolve(activeExperimentRoot, dirname(scannerPath)), { recursive: true });\n    const retiredTitle = RETIRED_PRODUCT_NAME[0].toUpperCase() + RETIRED_PRODUCT_NAME.slice(1);\n    const movableLine = scannerText.split(/\\r?\\n/u).find(line => line.trim() === `'${retiredTitle}',`);\n    expect(Boolean(movableLine), 'scanner transplant control must have an actual negative data line');\n    const transplanted = scannerText.replace(`${movableLine}\\n`, '') + `\\nconsole.log(\\n${movableLine}\\n);\\n`;\n    expect(verifyScannerRetiredContexts(transplanted, scannerPath).length > 0, 'unchanged negative line transplanted into active output escaped');\n    writeFileSync(resolve(activeExperimentRoot, scannerPath), transplanted);\n    expect(scanActiveResidue(activeExperimentRoot, [scannerPath]).some(hit => hit.token === retiredTitle),\n      'scanner active scan admitted a negative literal moved into console output');\n    for (const family of [LEGACY_WORD, RETIRED_PRODUCT_NAME]) {\n      for (const injected of [`${family} current product`, `${family}.injected-live-schema.v1`]) {\n        const mutated = `${scannerText}\\nexport const injectedIdentity = '${injected}';\\n`;\n        expect(verifyScannerRetiredContexts(mutated, scannerPath).length > 0, 'unclassified scanner executable identity escaped integrity');\n        writeFileSync(resolve(activeExperimentRoot, scannerPath), mutated);\n        expect(scanActiveResidue(activeExperimentRoot, [scannerPath]).some(hit => hit.token.includes(family)),\n          'scanner own-file executable/prose mutation escaped active scan');\n      }\n    }\n    writeFileSync(resolve(activeExperimentRoot, scannerPath), `${scannerText}\\nexport const canonicalControl = 'Proof-or-Stop current product';\\n`);\n    expect(scanActiveResidue(activeExperimentRoot, [scannerPath]).length === 0, 'canonical scanner own-file control rejected');"
+  }
+]
