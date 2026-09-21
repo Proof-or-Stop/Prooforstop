@@ -93,7 +93,11 @@ import { createStoryAdvanceHandlers } from '../handlers/story-advance.js';
 import { createProofStoryHandlers } from '../handlers/proofstory.js';
 import { signScopeCheck } from '../handlers/scope-check.js';
 import { refreshStaleEvidenceMetadataOnly } from '../handlers/checklist.js';
-import { runReviewToTestPreflightGate, runValidateGate } from '../handlers/phase-gates.js';
+import {
+  runImplementationWorkerAuthorityGate,
+  runReviewToTestPreflightGate,
+  runValidateGate,
+} from '../handlers/phase-gates.js';
 import { runReviewCliGates, renderPreflight } from '../handlers/review-preflight.js';
 import { buildNextSteps, renderRelatedDocsHint } from '../handlers/transition-effects.js';
 import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
@@ -3128,6 +3132,53 @@ function assertChannelGateAcceptsStructuredEvidenceWithSharedGitAuthor(): void {
   }
 }
 
+function assertImplementationWorkerAuthorityUsesFrozenMasterIntegrationTarget(): void {
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-channel-master-base-'));
+  try {
+    const { store, storyId } = createReviewStore(root);
+    git(root, ['branch', '-M', 'master']);
+    const parentCommitAtCreation = execFileSync('git', ['rev-parse', 'HEAD'], {
+      cwd: root,
+      encoding: 'utf8',
+    }).trim();
+    const story = store.readStory(storyId);
+    story.phase = 'DEV';
+    story.integrationTarget = {
+      parentBranch: 'master',
+      parentCommitAtCreation,
+      source: 'creation_branch',
+      deliveryMode: 'merge_to_parent',
+    };
+    store.writeStory(storyId, story);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'freeze master integration target']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    write(root, 'packages/main/src/master-only.ts', 'export const masterOnly = true;\n');
+    git(root, ['add', 'packages/main/src/master-only.ts']);
+    git(root, [
+      '-c', 'user.name=main-agent',
+      '-c', 'user.email=main@example.test',
+      'commit',
+      '-m', 'implement through managed workers on a master repository',
+    ]);
+    for (const suffix of ['001', '002', '003']) {
+      store.appendProcessEvent(storyId, {
+        type: 'subagent_result',
+        checklistId: `CHK-${suffix}`,
+        success: true,
+      });
+    }
+
+    assert.doesNotThrow(
+      () => runImplementationWorkerAuthorityGate({ store, root }, storyId),
+      'DEV to REVIEW authority must use the Story frozen master integration target without inventing a main ref',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    resetConfigCache();
+  }
+}
+
 function assertChannelGateRejectsImplementerAuthorWithoutDispatch(): void {
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-flow-channel-author-fallback-'));
   try {
@@ -5441,6 +5492,12 @@ if (process.argv.includes('--acceptance-basis-fixture')) {
 if (process.argv.includes('--terminal-finding-forgiveness')) {
   assertResolvedFindingStaleBindingIsForgivenWithoutValidLaneEvidence();
   console.log('TERMINAL_FINDING_FORGIVENESS_PASS');
+  process.exit(0);
+}
+
+if (process.argv.includes('--worker-authority-master')) {
+  assertImplementationWorkerAuthorityUsesFrozenMasterIntegrationTarget();
+  console.log('WORKER_AUTHORITY_MASTER_PASS');
   process.exit(0);
 }
 
