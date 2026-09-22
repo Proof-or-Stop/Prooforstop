@@ -373,6 +373,25 @@ assert.equal(isCommandAllowed('reviewer_batch', 'DONE', DEFAULT_PHASE_TOOLS), tr
     assertAgentLaunchInstruction(testcov.launchInstruction, 'test-coverage');
     assert.equal(behavior.launchInstruction, null, 'Current first blocker must not request duplicate observation');
 
+    // Performance regression: the owner must receive one explicit batch barrier,
+    // not a list that can be interpreted as launch-one/wait-one serial work.
+    const executionPlan = (report as ReviewerBatchReport & {
+      executionPlan?: {
+        strategy: string;
+        launchableLanes: string[];
+        launchAllBeforeWait: boolean;
+        waitPolicy: string;
+        maxConcurrency: number;
+      };
+    }).executionPlan;
+    assert.deepEqual(executionPlan, {
+      strategy: 'parallel-barrier',
+      launchableLanes: [quality.lane, testcov.lane],
+      launchAllBeforeWait: true,
+      waitPolicy: 'collective-after-all-acknowledged',
+      maxConcurrency: 2,
+    }, 'all currently launchable reviewer lanes share one explicit parallel barrier');
+
     // (d) gate: missing passes + blocking finding → blockedBy non-empty, not ready.
     assert.equal(report.gate.ready, false, 'gate is not ready while lanes are missing/blocking');
     assert.ok(report.gate.blockedBy.length > 0, 'gate.blockedBy is non-empty');
@@ -400,6 +419,8 @@ assert.equal(isCommandAllowed('reviewer_batch', 'DONE', DEFAULT_PHASE_TOOLS), tr
     assert.match(text, /quality \[scope-changed\]/);
     assert.match(text, /test-coverage \[no-receipt\]/);
     assert.match(text, /behavior \[awaiting-repair\]/);
+    assert.match(text, /parallel-barrier: launch all 2 requested lanes before waiting for any result/);
+    assert.match(text, /wait collectively only after every launched lane has acknowledged its assignment/);
     assert.match(text, /admissibilityStatus: reviewer-launch-preview/);
     assert.match(text, /assuranceLevel: local/);
     assert.match(text, /evidenceScope: review-readiness/);
