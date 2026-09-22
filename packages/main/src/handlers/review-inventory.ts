@@ -22,6 +22,7 @@ import {
   reviewInventoryAcceptanceSubjectDigestForStore,
   reviewInventoryAggregateFamilies,
   reviewInventoryLaneCoverageDigest,
+  reviewInventoryInitialRunSequenceBoundary,
   maxReviewRunSequence,
   signReviewInventoryEpoch,
   signReviewInventoryCriticReceipt,
@@ -439,7 +440,9 @@ export function importManagedInventoryCritic(ctx: HandlerContext, args: { runId:
     const story = ctx.store.readStory(storyId);
     const run = assertCurrentReviewRunForEvidence(ctx.store, story, ctx.root, managed.lane!, managed.reviewRunId!);
     const expected = {
-      providerHost: managed.host, headHash: run.headHash, materialHash: run.materialHash,
+      providerHost: managed.host, model: managed.model ?? null,
+      reasoningEffort: managed.reasoningEffort ?? null,
+      headHash: run.headHash, materialHash: run.materialHash,
       storyFilesHash: run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash ?? '',
       promptHash: run.promptHash, envelopeId: run.envelopeId ?? null,
       managedPromptDigest: managed.reviewBinding?.managedPromptDigest
@@ -630,7 +633,16 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           ...(corpusDigest ? { corpusDigest } : {}),
           requiredLanes,
           ...(rosterBasis ? { rosterBasis } : {}),
-          initialRunSequenceBoundary: maxReviewRunSequence(ctx.store.readReviewRuns(args.storyId).runs),
+          initialRunSequenceBoundary: reviewInventoryInitialRunSequenceBoundary({
+            promptStore: ctx.store,
+            storyId: args.storyId,
+            reviewRound: story.currentReviewRound,
+            cutoff,
+            requiredLanes,
+            runs: ctx.store.readReviewRuns(args.storyId).runs,
+            passes: ctx.store.readReviewPasses(args.storyId).passes,
+            findings: ctx.store.readFindings(args.storyId).findings,
+          }),
           maxWaves: args.maxWaves ?? 3,
           waves: [],
           ...(candidateArtifactInvalid ? {

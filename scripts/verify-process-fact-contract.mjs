@@ -4897,6 +4897,10 @@ function assertReviewInventoryRemediationContract() {
     /captureEvidenceHashSnapshot[\s\S]*materialDirtyFiles\.length\s*>\s*0[\s\S]*REVIEW_INVENTORY_REMEDIATION_BLOCKED/.test(transitionText),
     `${transitionPath}: REVIEW to DEV must reject dirty story material before consuming the finalized inventory receipt`,
   );
+  assert(
+    /captureEvidenceHashSnapshot\(\{[\s\S]*?trustedControllerProjectionStoryId:\s*args\.storyId[\s\S]*?\}\);[\s\S]*?REVIEW_INVENTORY_REMEDIATION_BLOCKED/.test(transitionText),
+    `${transitionPath}: REVIEW remediation snapshot must admit only byte-identical signed controller projections for the current Story`,
+  );
 
   const epochPath = 'packages/main/src/core/review-inventory-epoch.ts';
   const epochText = read(epochPath);
@@ -7463,6 +7467,8 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   assert(evidenceFreshnessText.includes("statusCode === '??'") && evidenceFreshnessText.includes('isByteIdenticalControllerConfig')
     && evidenceFreshnessText.includes('isByteIdenticalControllerRuntimeAsset'),
   'managed inventory critic projection admission must retain an explicit untracked-only status gate plus signed byte-identity helpers');
+  assert(evidenceFreshnessText.includes('trustedControllerProjectionStoryId: args.trustedControllerProjectionStoryId'),
+    'evidence snapshot capture must preserve the caller-owned current-Story controller projection admission');
   for (const token of ['candidate.evidence', 'proposalFindingIndex', 'existing receipt findings do not exactly cover every provider proposal index', 'storyMetadataLockDir', "'finding', 'review-passes'", "'findings.lock'", 'importedAt: sealedProposal?.authoredAt', 'assertCandidateReadBinding', 'assertCurrentCandidateReadBinding', 'trustedControllerProjectionStoryId: managedRun.storyId!']) {
     assert(importerText.includes(token), `packages/main/src/handlers/managed-review-evidence.ts: required exact replay token missing: ${token}`);
   }

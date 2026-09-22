@@ -1440,7 +1440,12 @@ async function runStoryTransitionInner(
           projectRoot: ctx.root,
         });
       }
-      const remediationSnapshot = captureEvidenceHashSnapshot({ gitCwd: transitionGitCwd, metadataRoot: ctx.root, ref: 'HEAD' });
+      const remediationSnapshot = captureEvidenceHashSnapshot({
+        gitCwd: transitionGitCwd,
+        metadataRoot: ctx.root,
+        ref: 'HEAD',
+        trustedControllerProjectionStoryId: args.storyId,
+      });
       if (remediationSnapshot.materialDirtyFiles.length > 0) {
         throw new Error(`REVIEW_INVENTORY_REMEDIATION_BLOCKED: current material worktree is dirty (${remediationSnapshot.materialDirtyFiles.join(', ')})`);
       }
