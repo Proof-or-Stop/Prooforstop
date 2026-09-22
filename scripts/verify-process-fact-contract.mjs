@@ -11936,6 +11936,15 @@ assert(read('scripts/verify-local-main-baseline.mjs').includes('LOCAL_MAIN_BASEL
   for (const token of ['REVIEW_EPOCH_COMMIT_ARTIFACTS','p.slice(prefix.length)','isPromptBodyArtifactPath(p)']) {
     if (!epochReader.includes(token)) failures.push(`PRE_CERT shared canonical reader missing ${token}`);
   }
+  for (const token of ["isAncestor(reviewedHeadHash,parents[0])", "isAncestor(epoch.cutoff.headHash,parents[0])"]) {
+    if (!epochReader.includes(token)) failures.push(`PRE_CERT finalized epoch ancestry boundary missing ${token}`);
+  }
+  const continuitySuite=read('scripts/verify-review-epoch-certification-continuity.mjs');
+  for (const path of ['review-finalize-managed-lineage.test.mjs','verify-review-inventory-identity.mjs']) {
+    if (!continuitySuite.includes(path)) failures.push(`PRE_CERT real regression missing ${path}`);
+  }
+  if (!read(processFactRegistryPath).includes('reviewed HEAD and epoch cutoff are comparable ancestors of the publisher parent')) failures.push('PRE_CERT comparable epoch lineage must be registered');
+  if (!read('packages/main/tests/certification-mutator-identity.mjs').includes("'certification_window_status'")) failures.push('PRE_CERT status reader identity pin regression missing');
   if (cert.includes('prompt-bodies')) failures.push('PRE_CERT must reuse the canonical prompt-body path owner');
   if (!read(processFactRegistryPath).includes('prompt-body paths recognized by the canonical prompt-body store')) failures.push('bounded canonical review epoch continuity must be registered');
   const scripts = JSON.parse(read('package.json')).scripts;
