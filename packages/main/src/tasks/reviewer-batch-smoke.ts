@@ -392,6 +392,22 @@ assert.equal(isCommandAllowed('reviewer_batch', 'DONE', DEFAULT_PHASE_TOOLS), tr
       maxConcurrency: 2,
     }, 'all currently launchable reviewer lanes share one explicit parallel barrier');
 
+    // Agent controllers commonly inspect a bounded JSON preview before deciding
+    // which host actions to issue. Keep the complete scheduling control header
+    // ahead of verbose per-lane prompts so a 4 KiB preview cannot accidentally
+    // turn the required launch-all barrier into launch-one/wait-one execution.
+    const boundedPreview = JSON.stringify(report, null, 1).slice(0, 4_000);
+    const executionPlanOffset = boundedPreview.indexOf('"executionPlan"');
+    const lanesOffset = boundedPreview.indexOf('"lanes"');
+    assert.ok(
+      executionPlanOffset >= 0 && lanesOffset >= 0 && executionPlanOffset < lanesOffset,
+      'the scheduling control header precedes verbose lane records',
+    );
+    assert.match(boundedPreview, /"waitPolicy": "collective-child-ids-after-all-launched"/);
+    for (const lane of executionPlan.launchableLanes) {
+      assert.match(boundedPreview, new RegExp(`"${lane}"`), `bounded preview retains launchable lane ${lane}`);
+    }
+
     // (d) gate: missing passes + blocking finding → blockedBy non-empty, not ready.
     assert.equal(report.gate.ready, false, 'gate is not ready while lanes are missing/blocking');
     assert.ok(report.gate.blockedBy.length > 0, 'gate.blockedBy is non-empty');
