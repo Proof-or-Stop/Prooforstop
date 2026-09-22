@@ -1,5 +1,16 @@
 # Changelog
 
+## Lab benchmark-reviewer-parallel-barrier - v0.3.450 - 2026-09-22
+
+- Make `reviewer_batch` return an explicit parallel barrier so every launchable REVIEW lane starts before the controller waits for results.
+- Keep lane selection, gate readiness, signed evidence, and the read-only authority boundary unchanged while aligning CLI help, lifecycle hints, and agent guidance.
+- Add a focused RED/GREEN regression covering the exact launchable lane set, collective wait policy, and rendered instructions; GREEN completed in 45.9 seconds.
+- Independent Grok audit passed with no findings; the existing reviewed-source binding failure was reproduced unchanged on main and is outside this repair.
+
+Maintenance provenance: codex/lab-benchmark-reviewer-parallel-barrier, repair a9c5ff36991a796582562f336e556dc338074902.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/reviewer-batch-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab inventory-critic-head-parity - v0.3.449 - 2026-09-22
 
 - Preserve required-lane ReviewRuns, Findings, and passes in the inventory critic evidence pack when only Git HEAD changed through Story metadata commits.
