@@ -1,5 +1,16 @@
 # Changelog
 
+## Lab inventory-critic-head-parity - v0.3.449 - 2026-09-22
+
+- Preserve required-lane ReviewRuns, Findings, and passes in the inventory critic evidence pack when only Git HEAD changed through Story metadata commits.
+- Align the critic projection with inventory-wave materialHash and storyFilesHash admission while retaining signed per-run headHash for inspection.
+- Add a focused RED/GREEN regression and process-fact/static-edge contract coverage.
+- Focused projection and static AST parity pass. The broader process-fact verifier still hits the same pre-existing managed supersession fixture failure reproduced unchanged on main.
+
+Maintenance provenance: codex/lab-inventory-critic-head-parity, repair 1b44d8ebe2b931331da857c176ea1fdfbb324232.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/inventory-critic-live-metadata-projection-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab managed-worker-claim-pressure - v0.3.448 - 2026-09-22
 
 Problem: Four concurrent managed reviewers can cold-start slowly enough that the production five-second worker claim window expires. PoS then records `worker_claim_timeout` while the worker PID is still alive, correctly marks the terminal `replacementSafe=false`, and leaves REVIEW without a safe automatic retry path.
