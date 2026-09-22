@@ -651,7 +651,7 @@ A modern host-orchestrated reviewer example is conceptual, not a CLI command:
 
 ```text
 1. proof-or-stop reviewer_batch --storyId=B-xxxx --json
-2. Host launches each requested Agent in the existing Story worktree.
+2. Host launches every requested Agent in the existing Story worktree before waiting for any one lane; after every target acknowledges, wait for the batch collectively.
 3. Reviewer runs proof-or-stop review_run_start for its canonical role.
 4. Reviewer records finding_add or review_pass_set with current signed evidence.
 ```

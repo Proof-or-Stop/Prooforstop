@@ -122,6 +122,18 @@ export interface ReviewerBatchReport {
   storyId: string;
   reviewRound: string | null;
   lanes: ReviewerLanePlan[];
+  /**
+   * One owner-visible concurrency barrier for all lanes that need a fresh run.
+   * Hosts launch every listed lane before waiting for any individual result.
+   * This is still a read-only plan; it grants no launch or review authority.
+   */
+  executionPlan: {
+    strategy: 'parallel-barrier';
+    launchableLanes: string[];
+    launchAllBeforeWait: true;
+    waitPolicy: 'collective-after-all-acknowledged';
+    maxConcurrency: number;
+  };
   gate: {
     /** Readiness-row codes/ids that block REVIEW->TEST/DONE. */
     blockedBy: string[];
@@ -279,6 +291,8 @@ export function renderReviewerBatchReport(report: ReviewerBatchReport): string {
     `reviewRound: ${report.reviewRound ?? '(none)'}`,
     `readinessReport: target=${report.readinessReport.target} rows=${report.readinessReport.readiness.length}`,
     `gate: ${report.gate.ready ? 'READY' : 'BLOCKED'} blockedBy=[${report.gate.blockedBy.join(', ')}]`,
+    `parallel-barrier: launch all ${report.executionPlan.launchableLanes.length} requested lanes before waiting for any result`,
+    `wait collectively only after every launched lane has acknowledged its assignment; maxConcurrency=${report.executionPlan.maxConcurrency}`,
     '',
     `lanes (${report.lanes.length}):`,
   ];
@@ -405,11 +419,21 @@ export function createReviewerBatchHandlers(ctx: HandlerContext): Record<string,
       .filter((rowEntry) => rowEntry.source === 'review' && rowEntry.blocking)
       .map((rowEntry) => rowEntry.code || rowEntry.id);
     const ready = blockedBy.length === 0;
+    const launchableLanes = lanes
+      .filter((lanePlan) => lanePlan.launchInstruction !== null)
+      .map((lanePlan) => lanePlan.lane);
 
     const report: ReviewerBatchReport = {
       storyId,
       reviewRound: readinessReport.artifacts.reviewRound,
       lanes,
+      executionPlan: {
+        strategy: 'parallel-barrier',
+        launchableLanes,
+        launchAllBeforeWait: true,
+        waitPolicy: 'collective-after-all-acknowledged',
+        maxConcurrency: launchableLanes.length,
+      },
       gate: { blockedBy, ready },
       readinessReport,
       mode: { runCommands: false, writeEvidence: false },
