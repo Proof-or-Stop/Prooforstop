@@ -901,6 +901,11 @@ process.stdout.write(JSON.stringify({ registry: RUNTIME_FACT_REGISTRY.length, pr
 
   execFileSync(process.execPath, [join(root, 'packages/main/tests/validation-tree-delegate-binding.mjs')], {cwd: root, stdio: 'inherit', timeout: 30000});
 
+  check(registrySource.includes('workerClaimTimeoutMs: 30_000'),
+    'managed supervisor policy must preserve the concurrent cold-start claim budget');
+  check(read(root, 'packages/main/src/core/managed-host-run.ts').includes('MANAGED_SUPERVISOR_RUNTIME_POLICY.workerClaimTimeoutMs'),
+    'managed host submission must consume the registered worker claim budget');
+
   if (failures.length > 0) {
     console.error('Runtime fact contract failed:');
     for (const failure of failures) console.error(`- ${failure}`);
