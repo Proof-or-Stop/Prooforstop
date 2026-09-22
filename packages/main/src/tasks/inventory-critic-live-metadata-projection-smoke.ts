@@ -36,6 +36,11 @@ const currentRun = {
   headHash: binding.cutoff.headHash, materialHash: binding.cutoff.materialHash,
   storyFilesHash: binding.cutoff.storyFilesHash,
 };
+const metadataOnlyHeadRun = {
+  ...currentRun,
+  reviewRunId: 'B-test:RR-012',
+  headHash: 'd'.repeat(40),
+};
 const staleRun = { ...currentRun, reviewRunId: 'B-test:RR-009' };
 const epoch = { epochId: binding.epochId, storyId: 'B-test', state: 'OPEN', reviewRound: binding.reviewRound,
   cutoff: binding.cutoff, requiredLanes: ['proof-or-stop-review-quality'] };
@@ -43,19 +48,22 @@ const epoch = { epochId: binding.epochId, storyId: 'B-test', state: 'OPEN', revi
 const pack = buildPack!({
   criticRun,
   epoch,
-  reviewRuns: [staleRun, currentRun, criticRun],
+  reviewRuns: [staleRun, currentRun, metadataOnlyHeadRun, criticRun],
   findings: [
     { id: 'B-test:F-001', reviewRunId: staleRun.reviewRunId },
     { id: 'B-test:F-002', reviewRunId: currentRun.reviewRunId },
+    { id: 'B-test:F-003', reviewRunId: metadataOnlyHeadRun.reviewRunId },
   ],
   passes: [
     { id: 'B-test:RP-001', reviewRunId: currentRun.reviewRunId },
+    { id: 'B-test:RP-003', reviewRunId: metadataOnlyHeadRun.reviewRunId },
     { id: 'B-test:RP-002', reviewRunId: criticRun.reviewRunId },
   ],
 });
 
-assert.deepEqual(pack.reviewRuns.map(row => row.reviewRunId), [currentRun.reviewRunId]);
-assert.deepEqual(pack.findings.map(row => row.id), ['B-test:F-002']);
-assert.deepEqual(pack.passes.map(row => row.id), ['B-test:RP-001']);
+assert.deepEqual(pack.reviewRuns.map(row => row.reviewRunId), [currentRun.reviewRunId, metadataOnlyHeadRun.reviewRunId],
+  'critic pack must retain the same metadata-only HEAD drift admitted by inventory wave evaluation');
+assert.deepEqual(pack.findings.map(row => row.id), ['B-test:F-002', 'B-test:F-003']);
+assert.deepEqual(pack.passes.map(row => row.id), ['B-test:RP-001', 'B-test:RP-003']);
 
 console.log('INVENTORY_CRITIC_LIVE_METADATA_PROJECTION PASS');
