@@ -380,7 +380,8 @@ export function buildManagedInventoryCriticEvidencePack(args: {
       && (criticSequence === null || sequence < criticSequence)
       && run.storyId === args.criticRun.storyId
       && run.reviewRound === binding.reviewRound
-      && run.headHash === binding.cutoff.headHash
+      // Match the inventory wave's semantic cutoff. Metadata-only commits may
+      // change HEAD without changing the reviewed material or Story files.
       && run.materialHash === binding.cutoff.materialHash
       && (run.storyFilesHash ?? '') === (binding.cutoff.storyFilesHash ?? '');
   });

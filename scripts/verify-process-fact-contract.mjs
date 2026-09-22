@@ -7543,6 +7543,11 @@ function assertReviewExecutionAuthorityContract(registry, levelRegistry) {
   for (const token of ['buildManagedInventoryCriticEvidencePack', "run.reviewPurpose !== 'inventory-completeness'", 'BEGIN CONTROLLER-FETCHED CURRENT INVENTORY EVIDENCE PACK', 'sealed by the managedPromptDigest', 'do not report that expected lag as missing canonical evidence', 'Do not infer topology, TEST, DONE, or implementation authority from this pack.']) {
     assert(managedText.includes(token), `packages/main/src/core/managed-review-evidence.ts: required inventory critic live metadata projection token missing: ${token}`);
   }
+  assert(managedText.includes('Match the inventory wave\'s semantic cutoff')
+    && managedText.includes('run.materialHash === binding.cutoff.materialHash')
+    && managedText.includes("(run.storyFilesHash ?? '') === (binding.cutoff.storyFilesHash ?? '')")
+    && !managedText.includes('run.headHash === binding.cutoff.headHash'),
+  'inventory critic projection must retain metadata-only HEAD-compatible runs under the inventory semantic cutoff');
   const managedHostRunText = read('packages/main/src/core/managed-host-run.ts');
   for (const token of ['submissionDigest', 'idempotency input conflict', 'idempotent submission pending or interrupted']) {
     assert(managedHostRunText.includes(token), `managed submission must retain durable duplicate-dispatch protection: ${token}`);
