@@ -1,5 +1,16 @@
 # Changelog
 
+## Lab benchmark-reviewer-parallel-barrier - v0.3.450 - 2026-09-22
+
+- Make `reviewer_batch` return an explicit child-id barrier so every launchable REVIEW lane starts before the controller waits once on the complete nonempty ID set.
+- Handle the zero-lane case with an explicit no-wait policy while keeping lane selection, gate readiness, signed evidence, and the read-only authority boundary unchanged.
+- Align JSON lifecycle hints, CLI help, process facts, and agent guidance; refresh the reviewed U18 dependency digest for the expanded regression.
+- Focused RED/GREEN, U18 static-edge verification, command-catalog checks, prompt contracts, and independent Grok audit all pass.
+
+Maintenance provenance: codex/lab-benchmark-reviewer-parallel-barrier, repair 214f20557b5c8f2a94678d5d31c48612c285d1dd.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/reviewer-batch-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab inventory-critic-head-parity - v0.3.449 - 2026-09-22
 
 - Preserve required-lane ReviewRuns, Findings, and passes in the inventory critic evidence pack when only Git HEAD changed through Story metadata commits.
