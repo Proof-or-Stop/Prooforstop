@@ -1,5 +1,19 @@
 # Changelog
 
+## Lab managed-worker-claim-pressure - v0.3.448 - 2026-09-22
+
+Problem: Four concurrent managed reviewers can cold-start slowly enough that the production five-second worker claim window expires. PoS then records `worker_claim_timeout` while the worker PID is still alive, correctly marks the terminal `replacementSafe=false`, and leaves REVIEW without a safe automatic retry path.
+
+Fix: Register a 30-second worker claim budget in `MANAGED_SUPERVISOR_RUNTIME_POLICY` and make managed submission consume that policy. Explicit test timeouts remain unchanged, so the existing never-claims and terminal-fence controls stay strict.
+
+Verification: The focused Lab fixture failed on the old default after a healthy six-second delayed claim and passes on the repair with `MANAGED_WORKER_CLAIM_PRESSURE_GREEN`. Static AST reuse verification passes with refreshed exact source digests. The runtime-fact verifier reaches the new assertions; its remaining failures are reproducible on clean main or caused by the isolated worktree dependency layout. Grok independently audited the exact committed candidate and returned pass with no findings; its conclusion was checked against the source and focused run.
+
+Measured effect: The healthy claim allowance increases from 5 seconds to 30 seconds under cold-start pressure. Normal reviewers that claim earlier return immediately; only genuinely unclaimed workers can extend the submit wait to the existing 30-second status bound.
+
+Maintenance provenance: codex/lab-managed-worker-claim-pressure, repair f0475da17386caaa8bd025b3c66636c47ba00979.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/managed-worker-claim-pressure-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab managed-critic-projection-admission - v0.3.447 - 2026-09-22
 
 - Route managed inventory critic material checks through the current Story's signed controller-projection admission.
