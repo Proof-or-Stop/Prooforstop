@@ -121,9 +121,10 @@ interface ReviewerLanePlan {
 export interface ReviewerBatchReport {
   storyId: string;
   reviewRound: string | null;
-  lanes: ReviewerLanePlan[];
   /**
-   * One owner-visible concurrency barrier for all lanes that need a fresh run.
+   * Front-loaded owner-visible concurrency barrier for all lanes that need a fresh run.
+   * Keep this field before verbose lane records in JSON serialization so bounded
+   * Agent previews retain the complete scheduling decision.
    * Hosts launch every listed lane before waiting for any individual result.
    * This is still a read-only plan; it grants no launch or review authority.
    */
@@ -134,6 +135,7 @@ export interface ReviewerBatchReport {
     waitPolicy: 'collective-child-ids-after-all-launched' | 'no-wait';
     maxConcurrency: number;
   };
+  lanes: ReviewerLanePlan[];
   gate: {
     /** Readiness-row codes/ids that block REVIEW->TEST/DONE. */
     blockedBy: string[];
@@ -440,8 +442,8 @@ export function createReviewerBatchHandlers(ctx: HandlerContext): Record<string,
     const report: ReviewerBatchReport = {
       storyId,
       reviewRound: readinessReport.artifacts.reviewRound,
-      lanes,
       executionPlan: buildReviewerExecutionPlan(lanes),
+      lanes,
       gate: { blockedBy, ready },
       readinessReport,
       mode: { runCommands: false, writeEvidence: false },

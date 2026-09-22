@@ -508,7 +508,9 @@ commands, writes evidence, or advances a phase. In JSON mode, issue every
 `executionPlan.launchableLanes` launchInstruction before any wait, retain one
 nonempty distinct child id per lane, then make one host wait call with the full
 child-id set. When that set is empty, do not call wait. Do not pass its refused
-side-effect flags.
+side-effect flags. The compact `executionPlan` control header is serialized
+before verbose `lanes`; inspect it first and never infer scheduling from a
+truncated lane-detail preview.
 
 `dispatch` validates a registered role and its story/item/finding/cluster target
 cardinality and prepares the role-specific dispatch surface. `agent_prompt`
