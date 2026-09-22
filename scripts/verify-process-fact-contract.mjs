@@ -11936,12 +11936,18 @@ assert(read('scripts/verify-local-main-baseline.mjs').includes('LOCAL_MAIN_BASEL
   for (const token of ['REVIEW_EPOCH_COMMIT_ARTIFACTS','p.slice(prefix.length)','isPromptBodyArtifactPath(p)']) {
     if (!epochReader.includes(token)) failures.push(`PRE_CERT shared canonical reader missing ${token}`);
   }
-  for (const token of ["isAncestor(reviewedHeadHash,parents[0])", "isAncestor(epoch.cutoff.headHash,parents[0])"]) {
+  for (const token of ["isAncestor(reviewedHeadHash,parents[0])", "isAncestor(epoch.cutoff.headHash,parents[0])",
+    "!isAncestor(epoch.cutoff.headHash,reviewedHeadHash)", "!isAncestor(reviewedHeadHash,epoch.cutoff.headHash)",
+    "(!args.reviewedMaterialHash || !args.reviewedStoryFilesHash)"]) {
     if (!epochReader.includes(token)) failures.push(`PRE_CERT finalized epoch ancestry boundary missing ${token}`);
   }
   const continuitySuite=read('scripts/verify-review-epoch-certification-continuity.mjs');
   for (const path of ['review-finalize-managed-lineage.test.mjs','verify-review-inventory-identity.mjs']) {
     if (!continuitySuite.includes(path)) failures.push(`PRE_CERT real regression missing ${path}`);
+  }
+  const lineageRegression=read('packages/main/tests/review-finalize-managed-lineage.test.mjs');
+  for (const token of ['DIRECT_FINALIZE_REQUIRES_MATCHING_BOTH_REVIEWED_HASHES','DIVERGENT_SIGNED_CUTOFF_STILL_REJECTED']) {
+    if (!lineageRegression.includes(token)) failures.push(`PRE_CERT negative lineage regression missing ${token}`);
   }
   if (!read(processFactRegistryPath).includes('reviewed HEAD and epoch cutoff are comparable ancestors of the publisher parent')) failures.push('PRE_CERT comparable epoch lineage must be registered');
   if (!read('packages/main/tests/certification-mutator-identity.mjs').includes("'certification_window_status'")) failures.push('PRE_CERT status reader identity pin regression missing');

@@ -45,9 +45,15 @@ try {
   assert.equal(verifyReviewInventoryReceipt(receipt),true);
   store.writeReviewInventoryEpochs(storyId,{...emptyReviewInventoryEpochData(),epochs:[epoch],receipts:[receipt]});
   git('add','.');git('commit','-qm',`proof-or-stop: record ${storyId} review epoch metadata`);
-  assert.equal(isVerifiedReviewMaintenanceCommit({gitCwd:root,metadataRoot:root,storyId,
-    commit:git('rev-parse','HEAD'),reviewedHeadHash,reviewedMaterialHash:materialHash,
+  const maintenance={gitCwd:root,metadataRoot:root,storyId,commit:git('rev-parse','HEAD'),reviewedHeadHash};
+  assert.equal(isVerifiedReviewMaintenanceCommit({...maintenance,reviewedMaterialHash:materialHash,
     reviewedStoryFilesHash:storyFilesHash}),true,'REVIEW_FINALIZE_EPOCH_LINEAGE_RED');
+  for (const hashes of [
+    {},{reviewedMaterialHash:materialHash},{reviewedStoryFilesHash:storyFilesHash},
+    {reviewedMaterialHash:'f'.repeat(64),reviewedStoryFilesHash:storyFilesHash},
+    {reviewedMaterialHash:materialHash,reviewedStoryFilesHash:'f'.repeat(64)},
+  ]) assert.equal(isVerifiedReviewMaintenanceCommit({...maintenance,...hashes}),false,
+    'DIRECT_FINALIZE_REQUIRES_MATCHING_BOTH_REVIEWED_HASHES');
   const result=verifyManagedReviewLiveBinding({gitCwd:root,metadataRoot:root,storyId,
     expected:{headHash:reviewedHeadHash,materialHash,storyFilesHash}});
   assert.equal(result.valid,true,`REVIEW_FINALIZE_MANAGED_LINEAGE_RED: ${result.reason}`);
@@ -90,6 +96,10 @@ try {
   forgedReceipt._hash=signReviewInventoryReceipt(forgedReceipt);
   store.writeReviewInventoryEpochs(storyId,{...emptyReviewInventoryEpochData(),epochs:[forgedEpoch],receipts:[forgedReceipt]});
   git('add','.');git('commit','-qm',`proof-or-stop: record ${storyId} review epoch metadata`);
+  assert.equal(isVerifiedReviewMaintenanceCommit({gitCwd:root,metadataRoot:root,storyId,
+    commit:git('rev-parse','HEAD'),reviewedHeadHash:reviewedAfterCutoff,
+    reviewedMaterialHash:materialHash,reviewedStoryFilesHash:storyFilesHash}),false,
+    'DIVERGENT_SIGNED_CUTOFF_STILL_REJECTED');
   assert.equal(verifyManagedReviewLiveBinding(openBinding).valid,false,'DIVERGENT_CUTOFF_STILL_REJECTED');
   console.log('REVIEW_FINALIZE_MANAGED_LINEAGE_GREEN');
 } finally {rmSync(root,{recursive:true,force:true});}
