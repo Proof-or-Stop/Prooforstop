@@ -428,6 +428,16 @@ export function assertOpenInventoryFresh(ctx: HandlerContext, storyId: string): 
   });
 }
 
+export function readManagedInventoryCriticMaterialDirtyFiles(
+  gitCwd: string,
+  metadataRoot: string,
+  storyId: string,
+): ReturnType<typeof readMaterialDirtyFiles> {
+  return readMaterialDirtyFiles(gitCwd, metadataRoot, {
+    trustedControllerProjectionStoryId: storyId,
+  });
+}
+
 /** Receipt-only internal ingress. No caller-supplied verdict, actor or dispositions. */
 export function importManagedInventoryCritic(ctx: HandlerContext, args: { runId: string; receiptId: string }): string {
   const managed = readManagedHostRunBinding(ctx.root, args.runId);
@@ -477,7 +487,11 @@ export function importManagedInventoryCritic(ctx: HandlerContext, args: { runId:
       if (matches.length !== 1) throw new Error('managed inventory critic: own finding index not uniquely imported');
       return matches[0].id;
     };
-    const dirty = readMaterialDirtyFiles(run.workspaceBinding?.signedWorkspaceRoot ?? ctx.root, ctx.root);
+    const dirty = readManagedInventoryCriticMaterialDirtyFiles(
+      run.workspaceBinding?.signedWorkspaceRoot ?? ctx.root,
+      ctx.root,
+      storyId,
+    );
     if (dirty.error) throw new Error(`managed inventory critic: material status-unavailable: ${dirty.error}`);
     if (dirty.files.length) throw new Error(`managed inventory critic: material drift: ${dirty.files.join(', ')}`);
     const findingDispositions = block.findingDispositions.map(row => ({findingId: resolve(row.finding),
