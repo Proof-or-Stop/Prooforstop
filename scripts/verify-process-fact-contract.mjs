@@ -4902,12 +4902,12 @@ function assertReviewInventoryRemediationContract() {
     `${transitionPath}: REVIEW remediation snapshot must admit only byte-identical signed controller projections for the current Story`,
   );
 
-  const inventoryHandlerPath = 'packages/main/src/handlers/review-inventory.ts';
-  const inventoryHandlerText = read(inventoryHandlerPath);
+  const criticHandlerPath = 'packages/main/src/handlers/review-inventory.ts';
+  const criticHandlerText = read(criticHandlerPath);
   assert(
-    /export function readManagedInventoryCriticMaterialDirtyFiles\([\s\S]*?readMaterialDirtyFiles\(gitCwd, metadataRoot, \{[\s\S]*?trustedControllerProjectionStoryId:\s*storyId[\s\S]*?\}\)/.test(inventoryHandlerText)
-      && /const dirty = readManagedInventoryCriticMaterialDirtyFiles\([\s\S]*?run\.workspaceBinding\?\.signedWorkspaceRoot \?\? ctx\.root[\s\S]*?ctx\.root[\s\S]*?storyId[\s\S]*?\);/.test(inventoryHandlerText),
-    `${inventoryHandlerPath}: managed inventory critic material admission must use the current Story's signed byte-identical controller projections`,
+    /export function readManagedInventoryCriticMaterialDirtyFiles\([\s\S]*?readMaterialDirtyFiles\(gitCwd, metadataRoot, \{[\s\S]*?trustedControllerProjectionStoryId:\s*storyId[\s\S]*?\}\)/.test(criticHandlerText)
+      && /const dirty = readManagedInventoryCriticMaterialDirtyFiles\([\s\S]*?run\.workspaceBinding\?\.signedWorkspaceRoot \?\? ctx\.root[\s\S]*?ctx\.root[\s\S]*?storyId[\s\S]*?\);/.test(criticHandlerText),
+    `${criticHandlerPath}: managed inventory critic material admission must use the current Story's signed byte-identical controller projections`,
   );
 
   const epochPath = 'packages/main/src/core/review-inventory-epoch.ts';
