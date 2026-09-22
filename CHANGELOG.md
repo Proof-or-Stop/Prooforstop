@@ -1,5 +1,23 @@
 # Changelog
 
+## Lab review-certification-lineage - v0.3.452 - 2026-09-22
+
+## Problem
+In PoS 0.3.451, `certification_window_status` rejected the active `review-inventory-epoch.ts` executable before Story lookup because an earlier source change had left the pinned emitted-JavaScript digest stale. After managed reviewer imports, a direct `review_inventory_finalize` published a signed epoch at a later HEAD than the reviewed HEAD; the maintenance lineage reader rejected that valid ordering and invalidated all three managed passes.
+
+## Repair
+Refresh the pin to the actual clean emitted-JavaScript digest and register a live consumer regression. Accept signed epoch publications when reviewed HEAD and epoch cutoff are comparable ancestors of the publication parent, in either order. Retain exact reviewed material/story-file hash matching, the narrow metadata path and subject restrictions, and the rejection of divergent cutoffs. Register these process facts and focused negative tests.
+
+## Verification
+Lab RED reproduced both failures; GREEN passed at final committed HEAD. Full build, `verify-review-inventory-identity`, `review-finalize-managed-lineage.test.mjs`, `certification-mutator-identity.mjs`, review-history and certification-recovery tests, and U18 static edges passed. Grok independent Lab audit passed after personally checking its earlier false-positive claims against the existing hash guard and the source-history digest change. The broader process-fact and review-epoch continuity scripts stop in the same unrelated managed-review provider fixture failure seen on unchanged main, before reaching this seam.
+
+## Time impact
+The remote trial's 1h13m is its total interrupted wall time, not a measured per-command latency. This repair removes the observed forced re-review after a valid finalize; end-to-end runtime improvement remains to be measured by the next benchmark run.
+
+Maintenance provenance: codex/lab-review-certification-lineage, repair 0ff1f19265fe9f7454297669ee2af3e396b7bf87.
+Verification command (replayed before integration and on main): `["node","scripts/verify-review-certification-regressions.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab reviewer-batch-control-header - v0.3.451 - 2026-09-22
 
 # Reviewer batch control header
