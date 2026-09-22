@@ -504,7 +504,10 @@ eligibility from a role-name prefix.
 `reviewer_batch` is a read-only launch plan. It reports which lanes need work and
 uses the same policy-computed opt-in path as `reviewer_list`. It prints
 host-orchestrator `Agent(...)` instructions; it never launches a reviewer, runs
-commands, writes evidence, or advances a phase. Do not pass its refused
+commands, writes evidence, or advances a phase. In JSON mode, issue every
+`executionPlan.launchableLanes` launchInstruction before any wait, retain one
+nonempty distinct child id per lane, then make one host wait call with the full
+child-id set. When that set is empty, do not call wait. Do not pass its refused
 side-effect flags.
 
 `dispatch` validates a registered role and its story/item/finding/cluster target

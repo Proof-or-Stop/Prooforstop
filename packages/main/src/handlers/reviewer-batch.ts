@@ -131,7 +131,7 @@ export interface ReviewerBatchReport {
     strategy: 'parallel-barrier';
     launchableLanes: string[];
     launchAllBeforeWait: true;
-    waitPolicy: 'collective-after-all-acknowledged';
+    waitPolicy: 'collective-child-ids-after-all-launched' | 'no-wait';
     maxConcurrency: number;
   };
   gate: {
@@ -285,14 +285,17 @@ export function classifyLaneState(
 }
 
 export function renderReviewerBatchReport(report: ReviewerBatchReport): string {
+  const launchable = report.executionPlan.launchableLanes;
   const lines = [
     `Reviewer batch (${report.storyId})`,
     'mode: read-only (no reviewer launched, no review_run_start, no commands run, no evidence written)',
     `reviewRound: ${report.reviewRound ?? '(none)'}`,
     `readinessReport: target=${report.readinessReport.target} rows=${report.readinessReport.readiness.length}`,
     `gate: ${report.gate.ready ? 'READY' : 'BLOCKED'} blockedBy=[${report.gate.blockedBy.join(', ')}]`,
-    `parallel-barrier: launch all ${report.executionPlan.launchableLanes.length} requested lanes before waiting for any result`,
-    `wait collectively only after every launched lane has acknowledged its assignment; maxConcurrency=${report.executionPlan.maxConcurrency}`,
+    `parallel-barrier: launchableLanes=[${launchable.join(', ')}]`,
+    ...(launchable.length > 0
+      ? [`issue every listed lane's launchInstruction before any wait; collect one nonempty distinct child id per lane, then make one host wait call with the complete child-id set; maxConcurrency=${report.executionPlan.maxConcurrency}`]
+      : ['no launchable lanes: do not call a host wait operation']),
     '',
     `lanes (${report.lanes.length}):`,
   ];
@@ -323,6 +326,21 @@ export function renderReviewerBatchReport(report: ReviewerBatchReport): string {
   lines.push('  assuranceLevel: local');
   lines.push('  evidenceScope: review-readiness');
   return lines.join('\n');
+}
+
+export function buildReviewerExecutionPlan(
+  lanes: ReadonlyArray<Pick<ReviewerLanePlan, 'lane' | 'launchInstruction'>>,
+): ReviewerBatchReport['executionPlan'] {
+  const launchableLanes = lanes
+    .filter((lanePlan) => lanePlan.launchInstruction !== null)
+    .map((lanePlan) => lanePlan.lane);
+  return {
+    strategy: 'parallel-barrier',
+    launchableLanes,
+    launchAllBeforeWait: true,
+    waitPolicy: launchableLanes.length > 0 ? 'collective-child-ids-after-all-launched' : 'no-wait',
+    maxConcurrency: launchableLanes.length,
+  };
 }
 
 export function createReviewerBatchHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
@@ -419,21 +437,11 @@ export function createReviewerBatchHandlers(ctx: HandlerContext): Record<string,
       .filter((rowEntry) => rowEntry.source === 'review' && rowEntry.blocking)
       .map((rowEntry) => rowEntry.code || rowEntry.id);
     const ready = blockedBy.length === 0;
-    const launchableLanes = lanes
-      .filter((lanePlan) => lanePlan.launchInstruction !== null)
-      .map((lanePlan) => lanePlan.lane);
-
     const report: ReviewerBatchReport = {
       storyId,
       reviewRound: readinessReport.artifacts.reviewRound,
       lanes,
-      executionPlan: {
-        strategy: 'parallel-barrier',
-        launchableLanes,
-        launchAllBeforeWait: true,
-        waitPolicy: 'collective-after-all-acknowledged',
-        maxConcurrency: launchableLanes.length,
-      },
+      executionPlan: buildReviewerExecutionPlan(lanes),
       gate: { blockedBy, ready },
       readinessReport,
       mode: { runCommands: false, writeEvidence: false },
