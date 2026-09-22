@@ -48,6 +48,7 @@ import { createAcceptanceAmendmentController } from '../core/acceptance-amendmen
 import { createDonePrepareHandlers } from '../handlers/done-prepare.js';
 import { signCanonical } from '../core/authority-signing.js';
 import { runScopeTransitionGate } from '../handlers/phase-gates.js';
+import { readManagedInventoryCriticMaterialDirtyFiles } from '../handlers/review-inventory.js';
 import { shellQuote } from '../core/shell-quote.js';
 import { readMaterialDirtyFiles } from '../core/evidence-freshness.js';
 
@@ -448,10 +449,10 @@ check('linked worktree inherits global-thin identity from the common repository'
     assert.equal(configReceiptClassification.allowed, true);
     assert.equal(configReceiptClassification.registryId, 'controller-config-projection-receipt');
 
-    const managedCriticDirty = readMaterialDirtyFiles(
+    const managedCriticDirty = readManagedInventoryCriticMaterialDirtyFiles(
       worktree,
       worktree,
-      { trustedControllerProjectionStoryId: 'B-global-thin' },
+      'B-global-thin',
     );
     assert.equal(managedCriticDirty.error, undefined);
     assert.deepEqual(
