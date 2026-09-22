@@ -1,5 +1,19 @@
 # Changelog
 
+## Lab reviewer-batch-control-header - v0.3.451 - 2026-09-22
+
+# Reviewer batch control header
+
+- Problem: the remote DeepSWE run reached REVIEW, but a controller truncated the verbose `reviewer_batch --json` report at 4 KiB. Because `lanes` preceded `executionPlan`, it launched one reviewer and waited serially instead of launching the complete batch, consuming about 13 minutes in REVIEW before the run stopped.
+- Fix: serialize the compact `executionPlan` before verbose lane records and document that controllers must inspect the control header before lane details.
+- RED/GREEN: the real reviewer-batch smoke now requires the full child-ID barrier, wait policy, and every launchable lane to appear in the first 4 KiB. The exact command failed before the repair and passed after it while preserving the existing finding-drift and lane-selection cases.
+- Verification: Lab GREEN passed; U18 static-edge verification passed; prompt baseline passed; independent Grok audit passed with no findings. `test:process-fact-contract` still fails identically on both unchanged main and the Lab at the pre-existing managed-review supersession provider fixture, so it is recorded as baseline repository health rather than caused by this patch.
+- Measured optimization: the repair removes the demonstrated launch-one/wait-one interpretation at the JSON control boundary. End-to-end REVIEW savings remain to be measured by the next benchmark rerun.
+
+Maintenance provenance: codex/lab-reviewer-batch-control-header, repair d741f1d627f73f3099e01d28313fc73ab5a82664.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/reviewer-batch-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab benchmark-reviewer-parallel-barrier - v0.3.450 - 2026-09-22
 
 - Make `reviewer_batch` return an explicit child-id barrier so every launchable REVIEW lane starts before the controller waits once on the complete nonempty ID set.
