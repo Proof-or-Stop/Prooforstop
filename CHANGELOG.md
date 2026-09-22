@@ -1,5 +1,16 @@
 # Changelog
 
+## Lab managed-critic-projection-admission - v0.3.447 - 2026-09-22
+
+- Route managed inventory critic material checks through the current Story's signed controller-projection admission.
+- Preserve fail-closed rejection for wrong-Story receipts, byte-different projections, and ordinary untracked material.
+- Add a focused real linked-worktree projection fixture and bind the handler call path in the process-fact verifier.
+- Refresh the reviewed U18 static-edge evidence after the verifier and handler changes.
+
+Maintenance provenance: codex/lab-managed-critic-projection-admission, repair 062cfe20f46a815381b77b3d287594a80dfc2a45.
+Verification command (replayed before integration and on main): `["node","scripts/verify-managed-critic-projection-admission.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab benchmark-review-convergence - v0.3.446 - 2026-09-22
 
 - Authenticate managed inventory critic imports against the sealed model and reasoning-effort binding.
