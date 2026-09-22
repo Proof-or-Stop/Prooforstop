@@ -1,5 +1,16 @@
 # Changelog
 
+## Lab benchmark-review-convergence - v0.3.446 - 2026-09-22
+
+- Authenticate managed inventory critic imports against the sealed model and reasoning-effort binding.
+- Seed a new review inventory from already-terminal required lanes on the exact current round and material cutoff, avoiding forced duplicate reviews.
+- Admit only signed, byte-identical current-Story controller projections during REVIEW remediation cleanliness checks.
+- Add regression coverage and refresh the reviewed U18 static-edge evidence ledger.
+
+Maintenance provenance: codex/lab-benchmark-review-convergence, repair 3270fa6c8438d8da315d354d190e98ca82272322.
+Verification command (replayed before integration and on main): `["node","scripts/verify-managed-inventory-critic-import.mjs","--case=pass"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab managed-review-routing-preflight - v0.3.445 - 2026-09-21
 
 - Refuse formal managed-review provider launches when candidate routing still requires an unresolved full-scan escalation, and return the exact owner recovery command before any provider cost is incurred.
