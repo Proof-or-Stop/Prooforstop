@@ -1,5 +1,14 @@
 # Changelog
 
+## External consumer certification domains - v0.3.453 - 2026-09-24
+
+- Bind unclassified external-project changes, including Go `evaluator/` and `repl/` paths, to every PRE_CERT causal domain so certification can proceed without under-invalidating later changes.
+- Keep PoS source-path, ambiguous-path, and reserved-control-path refusals; determine repository identity from committed Git metadata.
+- Lab RED/GREEN, full build, focused causal-domain regression, and U18 static checks passed. The process-fact suite fails at the same managed-review fixture on unchanged main.
+- Codex reviewed this one-off user-authorized integration; it has no independent-vendor Lab audit record. Benchmark reward and end-to-end time remain unverified pending a remote rerun.
+
+Repair notes: `/tmp/external-certification-domains-notes.md`; repair commit `b1196debb25a5dd903127013cb8cc6b28759a8db`.
+
 ## Lab review-certification-lineage - v0.3.452 - 2026-09-22
 
 ## Problem
