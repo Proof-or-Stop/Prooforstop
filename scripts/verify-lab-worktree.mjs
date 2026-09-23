@@ -44,6 +44,7 @@ function fixture(name) {
 const notes = join(dir, 'notes.md'); writeFileSync(notes, 'Fix the reproduced system regression while preserving the existing behavior contract. Verify the target regression and the synchronized built version.');
 const finish = name => ['finish', name, '--notes', notes, '--confirm'];
 try {
+  await import('./verify-lab-timeout-budget.mjs');
   await import('./verify-lab-audit-contract.mjs');
   await import('./verify-lab-audit-prompt-budget.mjs');
   await import('./verify-lab-fixture-sources.mjs');
