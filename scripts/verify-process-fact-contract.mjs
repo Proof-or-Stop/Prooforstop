@@ -6337,10 +6337,19 @@ function assertCertificationWindowCommandContract(cliToolNameSet, registry, leve
   }
   const certificationArtifact = registry.get('artifact:certification-window.json');
   for (const term of ['artifact-releases.jsonl', 'capability-releases.jsonl', 'review-subject',
-    'Git blobs/tombstones', 'integration/test', 'never gate evidence', 'unknown paths fail closed']) {
+    'Git blobs/tombstones', 'integration/test', 'never gate evidence',
+    'Unknown self-host paths', 'reserved control paths', 'ambiguous classifications fail closed',
+    'Unclassified external consumer material binds every certification domain']) {
     assert(certificationArtifact?.rationale.includes(term),
       `${processFactRegistryPath}: certification release provenance contract missing ${term}`);
   }
+  const domainReader = read('packages/main/src/handlers/certification-window.ts');
+  for (const token of ['isProofOrStopSourceRepository(gitCwd, ref)', 'isExternalUnclassifiedMaterialPath(entry.path)',
+    'for (const causalDomain of CAUSAL_DEPENDENCY_DOMAINS) byDomain.get(causalDomain)!.push(identity)']) {
+    assert(domainReader.includes(token), `external consumer causal domain boundary missing ${token}`);
+  }
+  assert(read('scripts/verify-review-epoch-certification-continuity.mjs').includes('external-certification-domain.test.mjs'),
+    'external consumer certification regression must run in serial certification suite');
   const statusSource = read('packages/main/src/core/certification-window.ts');
   const verifier = read('packages/main/src/handlers/verifier.ts');
   const phaseGate = read('packages/main/src/handlers/phase-gates.ts');

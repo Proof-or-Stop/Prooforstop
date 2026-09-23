@@ -15,6 +15,9 @@ import { existsSync, mkdtempSync, mkdirSync, rmSync, writeFileSync, readFileSync
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+// External Go consumers must construct complete PRE_CERT causal inputs before
+// the larger managed-review fixture starts.
+execFileSync(process.execPath, [fileURLToPath(new URL('../packages/main/tests/external-certification-domain.test.mjs', import.meta.url))], { stdio: 'inherit' });
 import { StoryStore } from "../packages/main/dist/core/store.js";
 import { resetConfigCache } from "../packages/main/dist/core/config.js";
 import { evaluateReviewInventoryWave, finalizedUnconsumedReviewInventory, verifyReviewInventoryEpoch, verifyReviewInventoryReceipt, signReviewInventoryEpoch } from "../packages/main/dist/core/review-inventory-epoch.js";

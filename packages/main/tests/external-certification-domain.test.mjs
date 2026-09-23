@@ -43,6 +43,16 @@ try {
     assert.ok(current[id], `missing ${id}`);
     assert.notEqual(current[id], consumer.base[id], `unknown consumer change must invalidate ${id}`);
   }
+  writeFileSync(join(consumer.root, 'package.json'), '{"name":"proof-or-stop"}\n');
+  assert.deepEqual(deriveCertificationDomainInputHashes(consumer.root, 'HEAD', consumer.root), current,
+    'uncommitted package identity cannot switch the committed causal policy');
+  rmSync(join(consumer.root, 'package.json'));
+  mkdirSync(join(consumer.root, '.lattice'));
+  writeFileSync(join(consumer.root, '.lattice', 'unknown.txt'), 'legacy control material\n');
+  execFileSync('git', ['add', '.'], { cwd: consumer.root, stdio: 'ignore' });
+  execFileSync('git', ['commit', '-qm', 'add unsupported control namespace'], { cwd: consumer.root, stdio: 'ignore' });
+  assert.equal(deriveCertificationDomainInputHashes(consumer.root, 'HEAD', consumer.root), undefined,
+    'reserved legacy control paths remain fail closed even in external consumers');
 } finally { rmSync(consumer.root, { recursive: true, force: true }); }
 
 const selfHost = fixture(true);
