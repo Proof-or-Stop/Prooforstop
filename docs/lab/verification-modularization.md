@@ -628,3 +628,15 @@ The runtime contract, disposable queue cleanup, residue wait and retirement cont
 also pass on the merged source. No historical full certification is relabeled as
 a run on this new candidate. Maximum module length is 1,880 lines. Final independent
 audit, local main integration and Lab cleanup remain delivery steps.
+
+### Copied-checkout admission during queue reclamation
+
+A two-process regression reproduced the reviewer’s empty-queue race: the original
+checkout owner reclaimed its empty private queue after the copied checkout had
+prepared its alias but before its first ticket directory was created. The copied
+checkout failed with ENOENT. Admission now retries only this pre-ticket missing
+queue condition, revalidating the owned alias under the original deadline, with
+at most three preparation attempts. An already-started callback or any unrelated
+error is never retried. The regression exercises actual owner cleanup between the
+two filesystem operations, bounded repeated disappearance, and callback-once
+behavior. The empty-directory cleanup guarantee is retained.

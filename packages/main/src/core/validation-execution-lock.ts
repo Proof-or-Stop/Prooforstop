@@ -1020,6 +1020,12 @@ function capacityTicketAdmitted(tickets: Array<{ path: string }>, ticketPath: st
   return true;
 }
 
+class ValidationCapacityQueueDisappearedError extends Error {
+  constructor(cause: unknown) {
+    super('validation capacity queue disappeared before ticket publication', { cause });
+  }
+}
+
 function createValidationCapacityCandidate(path: string, holder: MkdirLockHolderInfo, declaration: CapacityResourceDeclaration | null): void {
   // A `.choosing` name is queue-visible, so never publish it before its
   // identity is complete. A process killed while preparing leaves only an
@@ -1027,7 +1033,12 @@ function createValidationCapacityCandidate(path: string, holder: MkdirLockHolder
   const preparingPath = `${path}.${process.pid}-${randomUUID()}.preparing`;
   // Only a canonical machine ticket is read by the boot-recovery reader, which requires the
   // private mode; workspace capacity tickets keep the process default.
-  mkdirSync(preparingPath, dirname(path) === canonicalMachineCapacityRoot() ? { mode: MACHINE_FIXED_PORT_RUNTIME_POLICY.directoryMode } : undefined);
+  try {
+    mkdirSync(preparingPath, dirname(path) === canonicalMachineCapacityRoot() ? { mode: MACHINE_FIXED_PORT_RUNTIME_POLICY.directoryMode } : undefined);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') throw new ValidationCapacityQueueDisappearedError(error);
+    throw error;
+  }
   try {
     writeFileSync(join(preparingPath, 'holder.json'), JSON.stringify(holder, null, 2) + '\n', 'utf8');
     if (declaration) writeFileSync(join(preparingPath, 'resources.json'), JSON.stringify(declaration) + '\n', 'utf8');
@@ -1059,9 +1070,20 @@ export async function withWorkspaceValidationCapacity<T>(
   fn: () => Promise<T> | T,
 ): Promise<T> {
   const sharedKey = validationCapacityLockPath(options.workspaceRoot, options.requireGitIdentity === true);
-  await prepareWorkspaceValidationCoordination(options, sharedKey);
-  const lockKey = options.workspaceOnly ? join(sharedKey, 'workspaces', createHash('sha256').update(realpathSync(options.workspaceRoot)).digest('hex')) : sharedKey;
-  return withValidationCapacityQueue(options, fn, lockKey);
+  for (let attempt = 0; ; attempt++) {
+    assertCapacityWaitActive(options);
+    await prepareWorkspaceValidationCoordination(options, sharedKey);
+    const lockKey = options.workspaceOnly ? join(sharedKey, 'workspaces', createHash('sha256').update(realpathSync(options.workspaceRoot)).digest('hex')) : sharedKey;
+    let callbackStarted = false;
+    try {
+      return await withValidationCapacityQueue(options, () => { callbackStarted = true; return fn(); }, lockKey);
+    } catch (error) {
+      // Another process can reclaim an empty shared queue after preparation.
+      // Revalidate its owned alias; never retry a callback or an unknown error.
+      if (callbackStarted || !(error instanceof ValidationCapacityQueueDisappearedError)
+        || attempt + 1 >= VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS.workspacePreparationAttempts) throw error;
+    }
+  }
 }
 
 /** Same-user machine resources are acquired only by actual command executors. */
@@ -1208,7 +1230,11 @@ async function withValidationCapacityQueue<T>(options: ValidationCapacityLockOpt
   const progressIntervalMs = Math.max(pollMs, options.progressIntervalMs ?? VALIDATION_CAPACITY_PROGRESS_INTERVAL_MS);
   let lastProgressAt = Number.NEGATIVE_INFINITY;
   const staleMs = options.staleMs ?? VALIDATION_EXECUTION_LOCK_STALE_MS;
-  mkdirSync(lockKey, { recursive: true });
+  try { mkdirSync(lockKey, { recursive: true }); }
+  catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') throw new ValidationCapacityQueueDisappearedError(error);
+    throw error;
+  }
   const choosingPath = join(lockKey, `${holderInfo.lockId}.choosing`);
   let ticketPath = '';
   let ancestors: Set<number> | undefined;

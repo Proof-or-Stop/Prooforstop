@@ -36,6 +36,13 @@ fs.mkdirSync=function(path,...args){
 };syncBuiltinESMExports();
 await withWorkspaceValidationCapacity({root,workspaceRoot:root,deadlineAt:Date.now()+8000},()=>{calls++;});
 assert(injected,'reclamation interleaving was not exercised');assert.equal(calls,1,'callback runs exactly once');
+let missingAttempts=0;
+fs.mkdirSync=function(path,...args){if(dirname(String(path))===queue&&String(path).endsWith('.preparing')){missingAttempts++;throw Object.assign(new Error('injected repeated disappearance'),{code:'ENOENT'});}return original.call(this,path,...args);};syncBuiltinESMExports();
+await assert.rejects(()=>withWorkspaceValidationCapacity({root,workspaceRoot:root,deadlineAt:Date.now()+5000},()=>{throw Error('must not start');}),/queue disappeared before ticket publication/);
+assert.equal(missingAttempts,3,'recovery is strictly bounded');
+fs.mkdirSync=original;syncBuiltinESMExports();let businessCalls=0;
+await assert.rejects(()=>withWorkspaceValidationCapacity({root,workspaceRoot:root,deadlineAt:Date.now()+5000},()=>{businessCalls++;throw Object.assign(new Error('business ENOENT'),{code:'ENOENT'});}),/business ENOENT/);
+assert.equal(businessCalls,1,'business callbacks must never be replayed');
 console.log('COPIED_QUEUE_RECLAIM_RACE_GREEN');
 `],{env:fixture.env,encoding:'utf8',timeout:15000});
  assert.equal(waiter.status,0,'COPIED_QUEUE_RECLAIM_RACE: '+waiter.stderr);
