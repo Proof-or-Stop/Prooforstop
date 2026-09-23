@@ -198,11 +198,12 @@ Lab scripts reject schema 2 instead of bypassing its operation lock; use the
 updated checkout command for subsequent operations. Status can read either
 schema without upgrading it. This adoption is per Lab, not a migration of every
 existing worktree or running session.
-The default command timeout is 15 minutes per process. Long regression commands
+The default command timeout is 30 minutes (1800 seconds) per process. Long regression commands
 may declare `--timeout-ms MS` between the RED marker and `--` (1–3600000 ms).
 The signed RED record binds that budget; GREEN and integration checks replay it
-unchanged. Existing records retain the 15-minute default. A timeout never counts
-as target RED or passing GREEN.
+unchanged. Existing records with an explicit timeout retain that value, including
+the former 15-minute default; records without a stored timeout use the current
+30-minute default. A timeout never counts as target RED or passing GREEN.
 
 Audit input uses a separate 64 MiB bound for each Git read and the complete
 serialized commit snapshots. Provider output remains bounded at 8 MiB. Full
@@ -356,7 +357,7 @@ Audit inputs must be valid UTF-8 text with exact path names. Immutable commit in
 
 Legacy records without a pinned developer always require an explicit `--developer PROVIDER` naming the implementation provider, even from a recognized terminal. During an actual finish-time provider audit only the per-Lab lock remains held. Finish reacquires the main lock and rechecks the main branch, HEAD and dirty-state boundary before proceeding; concurrent main movement retains the candidate for explicit recovery.
 
-Provider audit has a registered 15-minute total budget and 90-second startup budget; timeout is a failed invocation, never approval. Reviewers receive the full diff and complete snapshots, and inspect changed regions plus necessary surrounding context instead of exhaustively rereading unrelated historical content. Missing dependency context must be stated explicitly; denied reads are not evidence.
+Provider audit has a registered 30-minute (1800-second) total budget and 90-second startup budget; timeout is a failed invocation, never approval. Reviewers receive the full diff and complete snapshots, and inspect changed regions plus necessary surrounding context instead of exhaustively rereading unrelated historical content. Missing dependency context must be stated explicitly; denied reads are not evidence.
 
 The pinned Lab worktree verifier also executes the isolated lock-scope regression. Audit input refuses changed paths that collide as file/directory prefixes before snapshot creation. Binary content and size overflow have separate diagnostics naming the cause; these refusals occur before main integration.
 

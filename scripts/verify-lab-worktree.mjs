@@ -68,7 +68,7 @@ try {
   assert.equal(JSON.parse(cmd(legacy,['status','identity'])).developerHost,undefined,'LAB_INVALID_DEVELOPER_MUST_NOT_PIN');
   cmd(legacy,[...finish('identity'),'--developer','codex']);
   const legacyState=JSON.parse(cmd(legacy,['status','identity']));
-  for (const kind of ['red','green','synchronized-green','candidate-green','post-merge-green']) {
+  for (const kind of ['red','green','synced-green','candidate-green','main-green']) {
     const rows=legacyState.history.filter(row=>row.kind===kind);
     assert(rows.length>0, `Explicit budget coverage is missing ${kind}`);
     assert(rows.every(row=>row.timeoutMs===900000), `Recorded 900-second budget must survive ${kind}`);
