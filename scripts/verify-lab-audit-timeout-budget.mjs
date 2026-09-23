@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import * as audit from './lab-audit.mjs';
 import { LAB_MAINTENANCE_RUNTIME_REQUIREMENTS as policy } from '../packages/main/src/core/runtime-fact-registry.ts';
+assert.equal(audit.auditTimeoutForPaths(1, 40 * 1024 * 1024), 2_400_000, 'LAB_AUDIT_BYTE_DEADLINE: few-path large-byte review needs its own allowance');
 const budget = count => audit.auditTimeoutForPaths?.(count) ?? policy.auditTimeoutMs;
 assert.equal(budget(347), 1_800_000, 'LAB_AUDIT_LARGE_DIFF_DEADLINE: 347-file review needs a bounded 30-minute allowance');
 assert.equal(budget(1), 900_000, 'small audits retain the existing deadline');
