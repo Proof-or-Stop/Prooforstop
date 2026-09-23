@@ -554,13 +554,14 @@ export const LAB_MAINTENANCE_RUNTIME_REQUIREMENTS = {
   mutationLockOrder: 'lab-then-main',
   operationHeartbeatMs: 30000,
   operationStaleMs: 120000,
+  commandTimeoutMs: 1800000,
   auditBuiltinVendors: { codex: 'openai', claude: 'anthropic' },
   auditCustomProtocol: 'lab-json',
   auditIndependence: 'different-vendor',
   auditRequired: true,
   // Complete local commit snapshots are separate from provider output and prompt budgets.
   auditInputMaxBytes: 64 * 1024 * 1024,
-  auditTimeoutMs: 900000,
+  auditTimeoutMs: 1800000,
   // Size-based allowance, not a performance claim; startup and cleanup stay bounded.
   auditPerChangedPathMs: 5000,
   auditPerMiBMs: 60000,

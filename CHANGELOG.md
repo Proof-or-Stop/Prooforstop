@@ -1,5 +1,16 @@
 # Changelog
 
+## Lab timeout-1800 - v0.3.454 - 2026-09-23
+
+- Raise default Lab maintenance command and independent audit total budgets from 900 to 1800 seconds.
+- Preserve explicitly recorded command budgets, the one-hour override ceiling, the 90-second audit startup budget, and timeout rejection semantics.
+- Verify the change with targeted CLI RED/GREEN, pinned-budget integration replay, and static source checks; refresh affected source bindings without changing exception classifications.
+- Broader Lab/runtime checks retain pre-existing oversize-fixture and identity-binding failures reproduced on main; this repair does not claim full-suite success.
+
+Maintenance provenance: codex/lab-timeout-1800, repair 156d2b7b866409098a4fd66017f27efea720b997.
+Verification command (replayed before integration and on main): `["node","scripts/verify-lab-timeout-budget.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## External consumer certification domains - v0.3.453 - 2026-09-24
 
 - Bind unclassified external-project changes, including Go `evaluator/` and `repl/` paths, to every PRE_CERT causal domain so certification can proceed without under-invalidating later changes.

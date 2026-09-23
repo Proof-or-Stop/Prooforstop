@@ -82,5 +82,6 @@ for(const stage of ['before-spawn','after-spawn']) {
 console.log('LAB_AUDIT_ADMISSION PASS pre-spawn release and unknown-child retention');
 
 const {LAB_MAINTENANCE_RUNTIME_REQUIREMENTS: auditPolicy}=await import('../packages/main/src/core/runtime-fact-registry.ts');
-assert.equal(auditPolicy.auditTimeoutMs,900000);
+assert.equal(auditPolicy.auditTimeoutMs,1800000,'LAB_TIMEOUT_1800: independent audit must allow 1800 seconds');
+assert.equal(auditPolicy.commandTimeoutMs,1800000,'LAB_TIMEOUT_1800: default maintenance commands must allow 1800 seconds');
 assert.equal(auditPolicy.auditStartupTimeoutMs,90000);

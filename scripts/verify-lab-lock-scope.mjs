@@ -131,7 +131,7 @@ try {
   const overlapMs = Math.max(0, Math.min(aEnd.at, bEnd.at) - Math.max(aStart.at, bStart.at));
   expect('different Lab commands overlap and both record authentic RED', first.status === 0 && second.status === 0 && overlapMs > 0, { pairMs, overlapMs, completed: Number(first.status === 0) + Number((retry || second).status === 0), retries: Number(Boolean(retry)) });
   const signed = state(repo, 'alpha'); assert.equal(signed.red.command.at(-1), '1800');
-  assert.equal(signed.red.timeoutMs, 900000);
+  assert.equal(signed.red.timeoutMs, 1800000, 'LAB_TIMEOUT_1800: RED must pin the new default');
   expect('same Lab refusal does not replace the pinned command', signed.red.command.at(-1) === '1800');
 
   // GREEN uses the exact recorded command, protected by the same Lab lock.
