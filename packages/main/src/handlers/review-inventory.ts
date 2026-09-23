@@ -22,6 +22,7 @@ import {
   reviewInventoryAcceptanceSubjectDigestForStore,
   reviewInventoryAggregateFamilies,
   reviewInventoryLaneCoverageDigest,
+  reviewInventoryInitialRunSequenceBoundary,
   maxReviewRunSequence,
   signReviewInventoryEpoch,
   signReviewInventoryCriticReceipt,
@@ -427,6 +428,16 @@ export function assertOpenInventoryFresh(ctx: HandlerContext, storyId: string): 
   });
 }
 
+export function readManagedInventoryCriticMaterialDirtyFiles(
+  gitCwd: string,
+  metadataRoot: string,
+  storyId: string,
+): ReturnType<typeof readMaterialDirtyFiles> {
+  return readMaterialDirtyFiles(gitCwd, metadataRoot, {
+    trustedControllerProjectionStoryId: storyId,
+  });
+}
+
 /** Receipt-only internal ingress. No caller-supplied verdict, actor or dispositions. */
 export function importManagedInventoryCritic(ctx: HandlerContext, args: { runId: string; receiptId: string }): string {
   const managed = readManagedHostRunBinding(ctx.root, args.runId);
@@ -439,7 +450,9 @@ export function importManagedInventoryCritic(ctx: HandlerContext, args: { runId:
     const story = ctx.store.readStory(storyId);
     const run = assertCurrentReviewRunForEvidence(ctx.store, story, ctx.root, managed.lane!, managed.reviewRunId!);
     const expected = {
-      providerHost: managed.host, headHash: run.headHash, materialHash: run.materialHash,
+      providerHost: managed.host, model: managed.model ?? null,
+      reasoningEffort: managed.reasoningEffort ?? null,
+      headHash: run.headHash, materialHash: run.materialHash,
       storyFilesHash: run.storyFilesHash ?? run.workspaceBinding?.storyFilesHash ?? '',
       promptHash: run.promptHash, envelopeId: run.envelopeId ?? null,
       managedPromptDigest: managed.reviewBinding?.managedPromptDigest
@@ -474,7 +487,11 @@ export function importManagedInventoryCritic(ctx: HandlerContext, args: { runId:
       if (matches.length !== 1) throw new Error('managed inventory critic: own finding index not uniquely imported');
       return matches[0].id;
     };
-    const dirty = readMaterialDirtyFiles(run.workspaceBinding?.signedWorkspaceRoot ?? ctx.root, ctx.root);
+    const dirty = readManagedInventoryCriticMaterialDirtyFiles(
+      run.workspaceBinding?.signedWorkspaceRoot ?? ctx.root,
+      ctx.root,
+      storyId,
+    );
     if (dirty.error) throw new Error(`managed inventory critic: material status-unavailable: ${dirty.error}`);
     if (dirty.files.length) throw new Error(`managed inventory critic: material drift: ${dirty.files.join(', ')}`);
     const findingDispositions = block.findingDispositions.map(row => ({findingId: resolve(row.finding),
@@ -630,7 +647,16 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           ...(corpusDigest ? { corpusDigest } : {}),
           requiredLanes,
           ...(rosterBasis ? { rosterBasis } : {}),
-          initialRunSequenceBoundary: maxReviewRunSequence(ctx.store.readReviewRuns(args.storyId).runs),
+          initialRunSequenceBoundary: reviewInventoryInitialRunSequenceBoundary({
+            promptStore: ctx.store,
+            storyId: args.storyId,
+            reviewRound: story.currentReviewRound,
+            cutoff,
+            requiredLanes,
+            runs: ctx.store.readReviewRuns(args.storyId).runs,
+            passes: ctx.store.readReviewPasses(args.storyId).passes,
+            findings: ctx.store.readFindings(args.storyId).findings,
+          }),
           maxWaves: args.maxWaves ?? 3,
           waves: [],
           ...(candidateArtifactInvalid ? {

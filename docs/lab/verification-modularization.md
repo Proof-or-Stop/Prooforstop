@@ -610,3 +610,21 @@ and zero unexpanded commands. Exact raw logs and SHA-256 inventory are archived
 under `three-audit-findings/` in the local Lab evidence archive. Lab finish and
 independent full-diff audit remain separate delivery requirements; this section
 is not an integration or Story DONE claim.
+
+### Main 0.3.453 integration verification
+
+The Lab merge includes local main `3b7e33ce5f` (0.3.453). Its new review
+inventory, external-consumer certification, managed review routing, epoch lineage
+and worker claim checks are retained in the existing modules. Exact before/after
+function and driver records preserve the original assertions plus these additions.
+The process preservation test now uses a replacement callback so literal dollar
+characters in source bodies cannot be interpreted as replacement directives.
+
+The old certification source assertion expected a removed `if (!domain)` spelling.
+Its RED is recorded in `sync453-inventory.log`; the updated assertion checks the
+known-domain branch, external-consumer fallback and final refusal branch. The
+focused inventory check and native external-consumer certification test pass.
+The runtime contract, disposable queue cleanup, residue wait and retirement controls
+also pass on the merged source. No historical full certification is relabeled as
+a run on this new candidate. Maximum module length is 1,880 lines. Final independent
+audit, local main integration and Lab cleanup remain delivery steps.

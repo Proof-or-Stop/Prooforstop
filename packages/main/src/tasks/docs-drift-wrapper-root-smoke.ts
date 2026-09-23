@@ -57,11 +57,15 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { runReviewCliGates, type PreflightDeps } from '../handlers/review-preflight.js';
 import { runDocsDriftGate } from '../handlers/validate-docs-drift.js';
-import { resetConfigCache } from '../core/config.js';
+import {
+  resetConfigCache,
+  resolveProofOrStopResiduePreflightMode,
+} from '../core/config.js';
 import type { StoryStore } from '../core/store.js';
 
 // Path that exists ONLY under the gitRoot subdir. Must match scanPathDrift's
@@ -86,6 +90,13 @@ const WRAPPER_CLAUDE_MD = [
 ].join('\n');
 
 const REGISTRY = new Set<string>(['validate', 'story_create', 'story_advance']);
+const SOURCE_REPOSITORY_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../../../..');
+
+assert.equal(
+  resolveProofOrStopResiduePreflightMode(SOURCE_REPOSITORY_ROOT),
+  'enforce',
+  'the Proof-or-Stop source repository must keep its residue maintenance preflight enabled',
+);
 
 function git(cwd: string, args: string[]): void {
   execFileSync('git', args, {
@@ -261,6 +272,18 @@ function gateByName(result: ReturnType<typeof runReviewCliGates>, name: string) 
       `PRIMARY: docs-drift gate must PASS on wrapper-root (got status=${docsDrift.status}, details=${JSON.stringify(docsDrift.details)}). ` +
         `A FAIL here means repoRoot was scanned from the non-git metadataRoot (the pre-CHK-001 wiring).`,
     );
+
+    const residue = gateByName(result, 'proof-or-stop-residue');
+    assert.equal(
+      residue.ok,
+      true,
+      'LAB_RED: consumer repositories without the PoS maintenance script must not be blocked',
+    );
+    assert.equal(
+      residue.status,
+      'skipped',
+      'consumer repositories must report the PoS-only residue maintenance gate as skipped',
+    );
     assert.ok(
       docsDrift.status === 'pass' || docsDrift.status === 'skipped',
       `PRIMARY: docs-drift status must be pass/skipped (got '${docsDrift.status}')`,
@@ -270,6 +293,109 @@ function gateByName(result: ReturnType<typeof runReviewCliGates>, name: string) 
       [],
       `PRIMARY: ${ONLY_UNDER_GITROOT} must not be reported missing when scanned from the gitRoot ` +
         `(got ${JSON.stringify(result.docsDrift?.missingPaths)})`,
+    );
+
+    writeFileSync(
+      join(metadataRoot, 'proof-or-stop.config.json'),
+      JSON.stringify({
+        gitRoot: 'repo',
+        reviewPreflight: { proofOrStopResidue: 'enforce' },
+      }, null, 2),
+      'utf-8',
+    );
+    resetConfigCache();
+    const optedIn = gateByName(
+      runReviewCliGates(STORY_ID, makeDeps(metadataRoot)),
+      'proof-or-stop-residue',
+    );
+    assert.equal(optedIn.ok, false, 'explicit PoS residue maintenance opt-in must fail closed');
+    assert.equal(optedIn.status, 'fail', 'missing opted-in residue script must remain a failure');
+    assert.match(
+      optedIn.summary,
+      /gate script missing/,
+      'explicit opt-in must preserve the missing-script diagnostic',
+    );
+
+    const residueScriptDir = join(metadataRoot, 'scripts');
+    const residueScript = join(residueScriptDir, 'verify-proof-or-stop-residue.mjs');
+    mkdirSync(residueScriptDir, { recursive: true });
+    writeFileSync(residueScript, "console.log('fixture residue pass');\n", 'utf-8');
+    const passingOptIn = gateByName(
+      runReviewCliGates(STORY_ID, makeDeps(metadataRoot)),
+      'proof-or-stop-residue',
+    );
+    assert.equal(passingOptIn.status, 'pass', 'opted-in projects must execute a passing residue gate');
+
+    writeFileSync(
+      residueScript,
+      "console.log('fixture residue detected'); process.exitCode = 1;\n",
+      'utf-8',
+    );
+    const failingOptIn = gateByName(
+      runReviewCliGates(STORY_ID, makeDeps(metadataRoot)),
+      'proof-or-stop-residue',
+    );
+    assert.equal(failingOptIn.status, 'fail', 'opted-in projects must block on detected residue');
+    assert.match(failingOptIn.summary, /brand residue: 1 hit/, 'detector output must remain visible');
+
+    writeFileSync(
+      join(metadataRoot, 'proof-or-stop.config.json'),
+      JSON.stringify({
+        gitRoot: 'repo',
+        reviewPreflight: { proofOrStopResidue: 'off' },
+      }, null, 2),
+      'utf-8',
+    );
+    resetConfigCache();
+    const explicitlyOff = gateByName(
+      runReviewCliGates(STORY_ID, makeDeps(metadataRoot)),
+      'proof-or-stop-residue',
+    );
+    assert.equal(explicitlyOff.status, 'skipped', 'explicit off must skip even with a failing script');
+
+    writeFileSync(
+      join(metadataRoot, 'proof-or-stop.config.json'),
+      JSON.stringify({
+        gitRoot: 'repo',
+        reviewPreflight: { proofOrStopResidue: 'warn' },
+      }, null, 2),
+      'utf-8',
+    );
+    resetConfigCache();
+    const invalidMode = gateByName(
+      runReviewCliGates(STORY_ID, makeDeps(metadataRoot)),
+      'proof-or-stop-residue',
+    );
+    assert.equal(invalidMode.status, 'fail', 'unknown residue policy modes must fail closed');
+
+    for (const invalidReviewPreflight of ['enforce', null, []]) {
+      writeFileSync(
+        join(metadataRoot, 'proof-or-stop.config.json'),
+        JSON.stringify({ gitRoot: 'repo', reviewPreflight: invalidReviewPreflight }, null, 2),
+        'utf-8',
+      );
+      resetConfigCache();
+      const invalidShape = gateByName(
+        runReviewCliGates(STORY_ID, makeDeps(metadataRoot)),
+        'proof-or-stop-residue',
+      );
+      assert.equal(
+        invalidShape.status,
+        'fail',
+        'LAB_RED: malformed reviewPreflight configuration must fail closed',
+      );
+    }
+
+    writeFileSync(join(metadataRoot, 'proof-or-stop.config.json'), '{ invalid json', 'utf-8');
+    resetConfigCache();
+    const invalidJson = gateByName(
+      runReviewCliGates(STORY_ID, makeDeps(metadataRoot)),
+      'proof-or-stop-residue',
+    );
+    assert.equal(
+      invalidJson.status,
+      'fail',
+      'LAB_RED: malformed project JSON must not silently disable an enforced residue gate',
     );
 
     void gitRoot;

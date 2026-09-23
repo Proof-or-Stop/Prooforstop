@@ -631,6 +631,7 @@ export const MANAGED_STATUS_OBSERVATION_POLICY = {
 /** Independent recovery must survive both the submitting CLI and its worker. */
 export const MANAGED_SUPERVISOR_RUNTIME_POLICY = {
   readyTimeoutMs: 5_000,
+  workerClaimTimeoutMs: 30_000,
   pollIntervalMs: 1_000,
   diagnosticGraceMs: 5_000,
   stalledStageMs: 30_000,

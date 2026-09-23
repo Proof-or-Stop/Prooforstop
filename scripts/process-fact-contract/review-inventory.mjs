@@ -206,6 +206,18 @@ export function assertReviewInventoryRemediationContract() {
     /captureEvidenceHashSnapshot[\s\S]*materialDirtyFiles\.length\s*>\s*0[\s\S]*REVIEW_INVENTORY_REMEDIATION_BLOCKED/.test(transitionText),
     `${transitionPath}: REVIEW to DEV must reject dirty story material before consuming the finalized inventory receipt`,
   );
+  assert(
+    /captureEvidenceHashSnapshot\(\{[\s\S]*?trustedControllerProjectionStoryId:\s*args\.storyId[\s\S]*?\}\);[\s\S]*?REVIEW_INVENTORY_REMEDIATION_BLOCKED/.test(transitionText),
+    `${transitionPath}: REVIEW remediation snapshot must admit only byte-identical signed controller projections for the current Story`,
+  );
+
+  const criticHandlerPath = 'packages/main/src/handlers/review-inventory.ts';
+  const criticHandlerText = read(criticHandlerPath);
+  assert(
+    /export function readManagedInventoryCriticMaterialDirtyFiles\([\s\S]*?readMaterialDirtyFiles\(gitCwd, metadataRoot, \{[\s\S]*?trustedControllerProjectionStoryId:\s*storyId[\s\S]*?\}\)/.test(criticHandlerText)
+      && /const dirty = readManagedInventoryCriticMaterialDirtyFiles\([\s\S]*?run\.workspaceBinding\?\.signedWorkspaceRoot \?\? ctx\.root[\s\S]*?ctx\.root[\s\S]*?storyId[\s\S]*?\);/.test(criticHandlerText),
+    `${criticHandlerPath}: managed inventory critic material admission must use the current Story's signed byte-identical controller projections`,
+  );
 
   const epochPath = 'packages/main/src/core/review-inventory-epoch.ts';
   const epochText = read(epochPath);
@@ -310,7 +322,7 @@ export function assertReviewInventoryRemediationContract() {
   const certificationText = read('packages/main/src/handlers/certification-window.ts');
   assert(certificationText.includes('templates\\/agents\\/[^/]+\\.md$')
     && certificationText.includes("matches.length === 1")
-    && certificationText.includes('if (!domain) return undefined'),
+    && /if \(domain\)[\s\S]*else if \(externalConsumer && isExternalUnclassifiedMaterialPath\(entry\.path\)\)[\s\S]*else \{\s*return undefined;/.test(certificationText),
     'certification must classify the narrow canonical agent family while unknown or ambiguous paths refuse');
 
   const inventoryHandlerPath = 'packages/main/src/handlers/review-inventory.ts';

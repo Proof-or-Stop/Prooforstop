@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import { createHash } from 'node:crypto';
 const sha = text => createHash('sha256').update(text).digest('hex');
 const bytes = fs.readFileSync(new URL('./identity-reviewed-source-data.json', import.meta.url), 'utf8');
-const EXPECTED_SHA256 = 'e5e3db2999357a516a06a26c1262635548b97a9855dead604b93abdf4f55543e';
+const EXPECTED_SHA256 = 'f6ac55ab5d374d52ce5856829cf1fdea1f27d66487d47343d6c7c8fb66c6d120';
 if (sha(bytes) !== EXPECTED_SHA256) throw new Error('reviewed source inventory bytes changed');
 const inventory = JSON.parse(bytes);
 if (inventory.schemaVersion !== 'identity-reviewed-source-contexts.v1' || inventory.entries.length !== 59) throw new Error('reviewed source inventory shape changed');

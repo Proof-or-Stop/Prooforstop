@@ -49,7 +49,7 @@ import { readOwnerLease, releaseOwnerLease } from '../core/story-owner-lease.js'
 import { listRuntimeArtifactIgnorePatterns } from '../core/runtime-artifact-registry.js';
 import { adapterSessionEnv, adapterSessionId } from './adapter-session-env.js';
 import type { HandlerContext } from '../handlers/context.js';
-import type { ReviewerBatchReport } from '../handlers/reviewer-batch.js';
+import { buildReviewerExecutionPlan, renderReviewerBatchReport, type ReviewerBatchReport } from '../handlers/reviewer-batch.js';
 import type {
   ChecklistData,
   StoryEvent,
@@ -373,6 +373,41 @@ assert.equal(isCommandAllowed('reviewer_batch', 'DONE', DEFAULT_PHASE_TOOLS), tr
     assertAgentLaunchInstruction(testcov.launchInstruction, 'test-coverage');
     assert.equal(behavior.launchInstruction, null, 'Current first blocker must not request duplicate observation');
 
+    // Performance regression: the owner must receive one explicit batch barrier,
+    // not a list that can be interpreted as launch-one/wait-one serial work.
+    const executionPlan = (report as ReviewerBatchReport & {
+      executionPlan?: {
+        strategy: string;
+        launchableLanes: string[];
+        launchAllBeforeWait: boolean;
+        waitPolicy: string;
+        maxConcurrency: number;
+      };
+    }).executionPlan;
+    assert.deepEqual(executionPlan, {
+      strategy: 'parallel-barrier',
+      launchableLanes: [quality.lane, testcov.lane],
+      launchAllBeforeWait: true,
+      waitPolicy: 'collective-child-ids-after-all-launched',
+      maxConcurrency: 2,
+    }, 'all currently launchable reviewer lanes share one explicit parallel barrier');
+
+    // Agent controllers commonly inspect a bounded JSON preview before deciding
+    // which host actions to issue. Keep the complete scheduling control header
+    // ahead of verbose per-lane prompts so a 4 KiB preview cannot accidentally
+    // turn the required launch-all barrier into launch-one/wait-one execution.
+    const boundedPreview = JSON.stringify(report, null, 1).slice(0, 4_000);
+    const executionPlanOffset = boundedPreview.indexOf('"executionPlan"');
+    const lanesOffset = boundedPreview.indexOf('"lanes"');
+    assert.ok(
+      executionPlanOffset >= 0 && lanesOffset >= 0 && executionPlanOffset < lanesOffset,
+      'the scheduling control header precedes verbose lane records',
+    );
+    assert.match(boundedPreview, /"waitPolicy": "collective-child-ids-after-all-launched"/);
+    for (const lane of executionPlan.launchableLanes) {
+      assert.match(boundedPreview, new RegExp(`"${lane}"`), `bounded preview retains launchable lane ${lane}`);
+    }
+
     // (d) gate: missing passes + blocking finding → blockedBy non-empty, not ready.
     assert.equal(report.gate.ready, false, 'gate is not ready while lanes are missing/blocking');
     assert.ok(report.gate.blockedBy.length > 0, 'gate.blockedBy is non-empty');
@@ -400,6 +435,9 @@ assert.equal(isCommandAllowed('reviewer_batch', 'DONE', DEFAULT_PHASE_TOOLS), tr
     assert.match(text, /quality \[scope-changed\]/);
     assert.match(text, /test-coverage \[no-receipt\]/);
     assert.match(text, /behavior \[awaiting-repair\]/);
+    assert.match(text, /parallel-barrier: launchableLanes=\[proof-or-stop-review-quality, proof-or-stop-review-test-coverage\]/);
+    assert.match(text, /issue every listed lane's launchInstruction before any wait/);
+    assert.match(text, /one host wait call with the complete child-id set/);
     assert.match(text, /admissibilityStatus: reviewer-launch-preview/);
     assert.match(text, /assuranceLevel: local/);
     assert.match(text, /evidenceScope: review-readiness/);
@@ -437,6 +475,7 @@ assert.equal(isCommandAllowed('reviewer_batch', 'DONE', DEFAULT_PHASE_TOOLS), tr
       const invalid = handler({ storyId: STORY_ID, json: true }) as ReviewerBatchReport;
       assert.notEqual(laneByName(invalid, 'behavior').state, 'awaiting-repair');
       assertAgentLaunchInstruction(laneByName(invalid, 'behavior').launchInstruction, 'behavior');
+      assert.ok(invalid.executionPlan.launchableLanes.includes(behavior.lane), 'invalid finding authority restores behavior to the child-id barrier');
       assert.equal(invalid.gate.ready, false);
     }
     store.readFindings = readFindings;
@@ -465,6 +504,7 @@ assert.equal(isCommandAllowed('reviewer_batch', 'DONE', DEFAULT_PHASE_TOOLS), tr
     const repaired = handler({ storyId: STORY_ID, json: true }) as ReviewerBatchReport;
     assert.notEqual(laneByName(repaired, 'behavior').state, 'awaiting-repair');
     assertAgentLaunchInstruction(laneByName(repaired, 'behavior').launchInstruction, 'behavior');
+    assert.ok(repaired.executionPlan.launchableLanes.includes(behavior.lane), 'Story material drift restores behavior to the child-id barrier');
     assert.equal(repaired.gate.ready, false, 'Changing code is not a new review PASS');
     console.log('FIRST_FINDING_STORY_DRIFT_REVIEW_REQUIRED');
     assert.notEqual(currentStoryFilesHash(root), beforeStoryHash, 'Changed Story source must change its actual input hash');
@@ -486,10 +526,34 @@ assert.equal(isCommandAllowed('reviewer_batch', 'DONE', DEFAULT_PHASE_TOOLS), tr
     assert.deepEqual(lane.blockingFindings, [behaviorFindingId], 'The valid finding remains a blocker after unrelated main drift');
     assert.equal(lane.state, 'blocking', 'MAIN_DRIFT_MUST_NOT_SUPPRESS_REVIEW');
     assertAgentLaunchInstruction(lane.launchInstruction, 'behavior');
+    assert.ok(after.executionPlan.launchableLanes.includes(behavior.lane), 'main material drift restores behavior to the child-id barrier');
     assert.deepEqual(after.gate.blockedBy, before.gate.blockedBy, 'Launch guidance must not change gate blockers');
     console.log('FIRST_FINDING_MAIN_DRIFT_REVIEW_REQUIRED');
 
   } finally { resetConfigCache(); rmSync(root, { recursive: true, force: true }); }
+}
+
+{
+  const executionPlan = buildReviewerExecutionPlan([]);
+  assert.deepEqual(executionPlan, {
+    strategy: 'parallel-barrier',
+    launchableLanes: [],
+    launchAllBeforeWait: true,
+    waitPolicy: 'no-wait',
+    maxConcurrency: 0,
+  }, 'an empty launch set must produce an explicit no-wait policy');
+  const rendered = renderReviewerBatchReport({
+    storyId: STORY_ID,
+    reviewRound: null,
+    lanes: [],
+    executionPlan,
+    gate: { blockedBy: [], ready: true },
+    readinessReport: { target: 'TEST', storyId: STORY_ID, phase: 'REVIEW', readiness: [], artifacts: {} } as unknown as ReviewerBatchReport['readinessReport'],
+    mode: { runCommands: false, writeEvidence: false },
+    claims: { authorityDone: false, productionDone: false },
+  });
+  assert.match(rendered, /no launchable lanes: do not call a host wait operation/);
+  assert.doesNotMatch(rendered, /complete child-id set/);
 }
 
 process.stdout.write('reviewer_batch smoke passed\n');

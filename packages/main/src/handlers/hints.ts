@@ -181,7 +181,7 @@ const devStartHint: HintFn = (ctx) => {
 const devFinishHint: HintFn = (ctx) => {
   const storyId = getStoryId(ctx);
   const target = storyId ? ` --storyId=${storyId}` : '';
-  return `→ Story 已推进到 REVIEW（DEV→REVIEW），worktree 保留未合并。下一步：运行 proof-or-stop reviewer_batch${target}，逐条遵循 canonical dispatch + fresh-context launchInstruction，保存非空且并行时互异的 child IDs，并只等待这些 IDs；reviewer 自己执行 review_run_start 后写 review_pass_set 或 finding_add，审阅通过后再 story_advance 到 TEST`;
+  return `→ Story 已推进到 REVIEW（DEV→REVIEW），worktree 保留未合并。下一步：运行 proof-or-stop reviewer_batch${target} --json；仅对 executionPlan.launchableLanes 逐条执行对应 lane 的 canonical fresh-context launchInstruction，先收集全部非空且互异的 child IDs，再对完整 ID 集合调用一次 wait；launchableLanes 为空时不要调用 wait。reviewer 自己执行 review_run_start 后写 review_pass_set 或 finding_add，审阅通过后再 story_advance 到 TEST`;
 };
 
 const storyDiscardHint: HintFn = (ctx) => {

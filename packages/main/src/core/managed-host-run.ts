@@ -109,7 +109,7 @@ export const MANAGED_HOST_RUN_SCHEMA_VERSION = 'lattice.managed_host_run.v1' as 
 export const MANAGED_HOST_RUN_STATUS_WAIT_MAX_MS = 30_000;
 export const MANAGED_HOST_RUN_DEFAULT_DEADLINE_MS = 30 * 60 * 1000;
 export const MANAGED_HOST_RUN_MAX_DEADLINE_MS = 24 * 60 * 60 * 1000;
-const MANAGED_HOST_RUN_CLAIM_TIMEOUT_MS = 5_000;
+const MANAGED_HOST_RUN_CLAIM_TIMEOUT_MS = MANAGED_SUPERVISOR_RUNTIME_POLICY.workerClaimTimeoutMs;
 export const MANAGED_HOST_RUN_TERMINAL_RETENTION_MS = 90 * 24 * 60 * 60 * 1000;
 export const MANAGED_HOST_RUN_OUTPUT_RETENTION_MAX_BYTES = 8 * 1024 * 1024;
 const MANAGED_HOST_RUN_OUTPUT_READ_MAX_FRAMES = 2_048;
@@ -175,6 +175,10 @@ export type ManagedHostRunTerminalState = Extract<
   'completed' | 'failed' | 'cancelled' | 'timed_out'
 >;
 
+export type ManagedDispatchTarget =
+  | { itemId: string; findingId?: never }
+  | { findingId: string; itemId?: never };
+
 interface ManagedHostRunCancellationTerminal {
   state: Extract<ManagedHostRunTerminalState, 'cancelled' | 'timed_out' | 'failed'>;
   reason: string;
@@ -198,7 +202,7 @@ export interface ManagedHostRunSubmitArgs {
   /** Exact provider reasoning selector; null/absent preserves the provider default. */
   reasoningEffort?: HostRunReasoningEffort | null;
   storyId: string | null;
-  managedDispatchTarget?: { itemId: string } | null;
+  managedDispatchTarget?: ManagedDispatchTarget | null;
   phase: string;
   agentType: string;
   reviewRunId?: string | null;
@@ -587,7 +591,7 @@ interface ManagedHostRunSpec {
   /** Optional for historical specs written before exact selector binding. */
   reasoningEffort?: HostRunReasoningEffort | null;
   storyId: string | null;
-  managedDispatchTarget?: { itemId: string } | null;
+  managedDispatchTarget?: ManagedDispatchTarget | null;
   phase: string;
   agentType: string;
   reviewRunId: string | null;
@@ -613,7 +617,7 @@ export interface ManagedHostRunBindingProjection {
   model?: string | null;
   reasoningEffort?: HostRunReasoningEffort | null;
   storyId: string | null;
-  managedDispatchTarget?: { itemId: string } | null;
+  managedDispatchTarget?: ManagedDispatchTarget | null;
   phase: string;
   agentType: string;
   reviewRunId: string | null;
@@ -1905,7 +1909,7 @@ export function managedDispatchOutputValidation(input: {
   storyId: string | null;
   agentType: string;
   runId: string;
-  managedDispatchTarget?: { itemId: string } | null;
+  managedDispatchTarget?: ManagedDispatchTarget | null;
 }): { failureReason: string | null; outputDigest: string | null } {
   if (!input.storyId) return { failureReason: 'managed_dispatch_story_missing', outputDigest: null };
   try {
@@ -1926,6 +1930,17 @@ export function managedDispatchOutputValidation(input: {
         failureReason: null,
         outputDigest,
       };
+    }
+    if (input.agentType === 'proof-or-stop-finding-repair') {
+      const findingId = input.managedDispatchTarget?.findingId;
+      if (!findingId) return { failureReason: 'managed_dispatch_target_missing', outputDigest: null };
+      const finding = storyStore.readFindings(input.storyId).findings.find(candidate => candidate.id === findingId);
+      if (!finding) return { failureReason: 'managed_dispatch_target_invalid', outputDigest: null };
+      if (finding.status !== 'open') return { failureReason: 'managed_dispatch_target_already_closed', outputDigest: null };
+      // A repair worker owns code, commits and focused verification only. The
+      // controller retains finding_resolve, so successful provider output is
+      // sealed by the worker after this exact open target is revalidated.
+      return { failureReason: null, outputDigest: null };
     }
     if (input.agentType === MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role) {
       const data = storyStore.readDeliveryCheck(input.storyId);
@@ -2254,7 +2269,8 @@ function assertSealedManagedHostRunArtifacts(paths: ManagedHostRunPaths, termina
     // replace the live Story report; only its evidence consumer compares that
     // live file with this sealed digest. Preserve the existing scope contract.
     if (spec.agentType !== MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role
-      && spec.agentType !== 'proof-or-stop-implementer') {
+      && spec.agentType !== 'proof-or-stop-implementer'
+      && spec.agentType !== 'proof-or-stop-finding-repair') {
       const currentOutputDigest = spec.profile === 'managed_dispatch'
         ? currentManagedDispatchOutputDigest(spec) : null;
       const outputMatches = spec.agentType === 'proof-or-stop-review-scope-plan' && spec.storyId
@@ -2815,12 +2831,21 @@ export async function submitManagedHostRun(
   if (!args.promptText) throw new Error('managed host run: prompt is empty; refuse pre-spawn');
   if (!args.phase || !args.agentType) throw new Error('managed host run: phase and agentType are required');
   if (args.managedDispatchTarget) {
-    if (args.profile !== 'managed_dispatch' || args.agentType !== 'proof-or-stop-implementer'
-      || args.phase !== 'DEV' || !args.storyId || !args.managedDispatchTarget.itemId.trim()) {
-      throw new Error('managed host run: managed implementation target requires a DEV proof-or-stop-implementer managed_dispatch');
+    const itemTarget = args.agentType === 'proof-or-stop-implementer'
+      && typeof args.managedDispatchTarget.itemId === 'string'
+      && args.managedDispatchTarget.itemId.trim().length > 0
+      && args.managedDispatchTarget.findingId === undefined;
+    const findingTarget = args.agentType === 'proof-or-stop-finding-repair'
+      && typeof args.managedDispatchTarget.findingId === 'string'
+      && args.managedDispatchTarget.findingId.trim().length > 0
+      && args.managedDispatchTarget.itemId === undefined;
+    if (args.profile !== 'managed_dispatch' || args.phase !== 'DEV' || !args.storyId
+      || (!itemTarget && !findingTarget)) {
+      throw new Error('managed host run: managed DEV target requires an exact implementer itemId or finding-repair findingId');
     }
-  } else if (args.profile === 'managed_dispatch' && args.agentType === 'proof-or-stop-implementer') {
-    throw new Error('managed host run: proof-or-stop-implementer managed_dispatch requires an itemId target');
+  } else if (args.profile === 'managed_dispatch'
+    && (args.agentType === 'proof-or-stop-implementer' || args.agentType === 'proof-or-stop-finding-repair')) {
+    throw new Error(`managed host run: ${args.agentType} managed_dispatch requires an exact target`);
   }
   const selection = normalizeHostRunModelSelection(args);
   const platform = deps.platform ?? process.platform;
@@ -3700,7 +3725,13 @@ export async function runManagedHostRunWorker(
         if (output.outputDigest && currentManagedDispatchOutputDigest(spec) !== output.outputDigest) {
           return writeTerminal(paths, 'failed', 'managed_dispatch_output_changed_before_seal', completedResult.replacementSafe, completedResult, now());
         }
-        return writeTerminal(paths, 'completed', 'provider_completed', completedResult.replacementSafe, completedResult, now(), undefined, output.outputDigest);
+        const sealedOutputDigest = spec.agentType === 'proof-or-stop-finding-repair'
+          ? completedResult.stdoutDigest
+          : output.outputDigest;
+        if (spec.agentType === 'proof-or-stop-finding-repair' && !sealedOutputDigest) {
+          return writeTerminal(paths, 'failed', 'managed_dispatch_output_missing', completedResult.replacementSafe, completedResult, now());
+        }
+        return writeTerminal(paths, 'completed', 'provider_completed', completedResult.replacementSafe, completedResult, now(), undefined, sealedOutputDigest);
       };
       if (spec.agentType === 'proof-or-stop-implementer' && spec.storyId) {
         const checklistLock = new StoryStore(spec.root).runtimeLockDirPath(spec.storyId, 'checklist', 'checklist');
@@ -5099,13 +5130,15 @@ export function verifyManagedDispatchDelivery(args: {
   storyId: string;
   agentType: string;
   itemId?: string;
+  findingId?: string;
 }): { valid: true } | { valid: false; reason: string } {
   try {
     const binding = readManagedHostRunBinding(args.root, args.runId);
     if (binding.profile !== 'managed_dispatch'
       || binding.storyId !== args.storyId
       || binding.agentType !== args.agentType
-      || (args.itemId !== undefined && binding.managedDispatchTarget?.itemId !== args.itemId)) {
+      || (args.itemId !== undefined && binding.managedDispatchTarget?.itemId !== args.itemId)
+      || (args.findingId !== undefined && binding.managedDispatchTarget?.findingId !== args.findingId)) {
       return { valid: false, reason: 'managed dispatch Story/role binding mismatch' };
     }
     const receipt = managedHostRunReceipt(args.root, args.runId);
@@ -5135,6 +5168,17 @@ export function verifyManagedDispatchDelivery(args: {
       });
       if (!receipt.managedDispatchOutputDigest || expectedDigest !== receipt.managedDispatchOutputDigest) {
         return { valid: false, reason: 'managed implementation output does not match the completed receipt' };
+      }
+    }
+    if (args.agentType === 'proof-or-stop-finding-repair') {
+      if (!args.findingId) return { valid: false, reason: 'managed finding repair delivery requires findingId' };
+      const finding = new StoryStore(args.root).readFindings(args.storyId).findings
+        .find(candidate => candidate.id === args.findingId);
+      if (!finding || finding.status !== 'open') {
+        return { valid: false, reason: 'managed finding repair target is missing or no longer open' };
+      }
+      if (!receipt.stdoutDigest || receipt.managedDispatchOutputDigest !== receipt.stdoutDigest) {
+        return { valid: false, reason: 'managed finding repair output does not match the completed receipt' };
       }
     }
     return { valid: true };

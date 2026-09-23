@@ -165,6 +165,8 @@ export function assertReviewExecutionAuthorityContract(registry, levelRegistry) 
   assert(evidenceFreshnessText.includes("statusCode === '??'") && evidenceFreshnessText.includes('isByteIdenticalControllerConfig')
     && evidenceFreshnessText.includes('isByteIdenticalControllerRuntimeAsset'),
   'managed inventory critic projection admission must retain an explicit untracked-only status gate plus signed byte-identity helpers');
+  assert(evidenceFreshnessText.includes('trustedControllerProjectionStoryId: args.trustedControllerProjectionStoryId'),
+    'evidence snapshot capture must preserve the caller-owned current-Story controller projection admission');
   for (const token of ['candidate.evidence', 'proposalFindingIndex', 'existing receipt findings do not exactly cover every provider proposal index', 'storyMetadataLockDir', "'finding', 'review-passes'", "'findings.lock'", 'importedAt: sealedProposal?.authoredAt', 'assertCandidateReadBinding', 'assertCurrentCandidateReadBinding', 'trustedControllerProjectionStoryId: managedRun.storyId!']) {
     assert(importerText.includes(token), `packages/main/src/handlers/managed-review-evidence.ts: required exact replay token missing: ${token}`);
   }
@@ -231,6 +233,11 @@ export function assertReviewExecutionAuthorityContract(registry, levelRegistry) 
   for (const token of ['buildManagedInventoryCriticEvidencePack', "run.reviewPurpose !== 'inventory-completeness'", 'BEGIN CONTROLLER-FETCHED CURRENT INVENTORY EVIDENCE PACK', 'sealed by the managedPromptDigest', 'do not report that expected lag as missing canonical evidence', 'Do not infer topology, TEST, DONE, or implementation authority from this pack.']) {
     assert(managedText.includes(token), `packages/main/src/core/managed-review-evidence.ts: required inventory critic live metadata projection token missing: ${token}`);
   }
+  assert(managedText.includes('Match the inventory wave\'s semantic cutoff')
+    && managedText.includes('run.materialHash === binding.cutoff.materialHash')
+    && managedText.includes("(run.storyFilesHash ?? '') === (binding.cutoff.storyFilesHash ?? '')")
+    && !managedText.includes('run.headHash === binding.cutoff.headHash'),
+  'inventory critic projection must retain metadata-only HEAD-compatible runs under the inventory semantic cutoff');
   const managedHostRunText = read('packages/main/src/core/managed-host-run.ts');
   for (const token of ['submissionDigest', 'idempotency input conflict', 'idempotent submission pending or interrupted']) {
     assert(managedHostRunText.includes(token), `managed submission must retain durable duplicate-dispatch protection: ${token}`);

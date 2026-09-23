@@ -353,7 +353,7 @@ const inventory = [
       },
       {
         relPath: 'packages/main/src/handlers/host-run.ts',
-        patterns: ['managedDispatch?: boolean', 'createStoryDispatchHandlers(ctx).dispatch', "profile: 'managed_dispatch'", 'proof-or-stop-review-scope-plan', 'managed_review_candidate_spec_missing', 'candidate_spec_route'],
+        patterns: ['managedDispatch?: boolean', 'createStoryDispatchHandlers(ctx).dispatch', "profile: 'managed_dispatch'", 'proof-or-stop-review-scope-plan', 'managed_review_candidate_spec_missing', 'managed_review_candidate_routing_unresolved', 'assertManagedReviewCandidateLaunchReady(candidateArtifact, storyId)', 'candidate_spec_route'],
       },
       {
         relPath: 'packages/main/tests/managed-init-reviewer-dispatch-e2e.test.mjs',
@@ -365,7 +365,7 @@ const inventory = [
       },
       {
         relPath: 'packages/main/tests/managed-review-candidate-preflight.test.mjs',
-        patterns: ['read_manifest_candidate_spec_digest_missing', 'managed_review_candidate_spec_missing', 'missing candidate routing must not launch the provider', 'MANAGED_REVIEW_CANDIDATE_PREFLIGHT_GREEN'],
+        patterns: ['read_manifest_candidate_spec_digest_missing', 'managed_review_candidate_spec_missing', 'managed_review_candidate_routing_unresolved', 'Use a standard JSON serializer', 'missing candidate routing must not launch the provider', 'managed review must refuse unresolved candidate routing before provider launch', 'MANAGED_REVIEW_CANDIDATE_PREFLIGHT_GREEN'],
       },
       {
         relPath: 'packages/main/src/core/host-execution-readiness.ts',
@@ -559,7 +559,11 @@ const inventory = [
       },
       {
         relPath: 'packages/main/src/handlers/review-preflight.ts',
-        patterns: ['runReviewCliGates', 'checkCommitAuthor', 'checkConcept', 'checkLint'],
+        patterns: ['runReviewCliGates', 'checkCommitAuthor', 'checkConcept', 'checkLint', 'resolveProofOrStopResiduePreflightMode'],
+      },
+      {
+        relPath: 'packages/main/src/core/config.ts',
+        patterns: ['ReviewPreflightConfig', "proofOrStopResidue?: 'off' | 'enforce'", 'resolveProofOrStopResiduePreflightMode'],
       },
       {
         relPath: 'packages/main/src/core/machine.ts',
@@ -1567,6 +1571,21 @@ assert(read('scripts/verify-local-main-baseline.mjs').includes('LOCAL_MAIN_BASEL
   for (const token of ['REVIEW_EPOCH_COMMIT_ARTIFACTS','p.slice(prefix.length)','isPromptBodyArtifactPath(p)']) {
     if (!epochReader.includes(token)) failures.push(`PRE_CERT shared canonical reader missing ${token}`);
   }
+  for (const token of ["isAncestor(reviewedHeadHash,parents[0])", "isAncestor(epoch.cutoff.headHash,parents[0])",
+    "!isAncestor(epoch.cutoff.headHash,reviewedHeadHash)", "!isAncestor(reviewedHeadHash,epoch.cutoff.headHash)",
+    "(!args.reviewedMaterialHash || !args.reviewedStoryFilesHash)"]) {
+    if (!epochReader.includes(token)) failures.push(`PRE_CERT finalized epoch ancestry boundary missing ${token}`);
+  }
+  const continuitySuite=read('scripts/verify-review-epoch-certification-continuity.mjs');
+  for (const path of ['review-finalize-managed-lineage.test.mjs','verify-review-inventory-identity.mjs']) {
+    if (!continuitySuite.includes(path)) failures.push(`PRE_CERT real regression missing ${path}`);
+  }
+  const lineageRegression=read('packages/main/tests/review-finalize-managed-lineage.test.mjs');
+  for (const token of ['DIRECT_FINALIZE_REQUIRES_MATCHING_BOTH_REVIEWED_HASHES','DIVERGENT_SIGNED_CUTOFF_STILL_REJECTED']) {
+    if (!lineageRegression.includes(token)) failures.push(`PRE_CERT negative lineage regression missing ${token}`);
+  }
+  if (!read(processFactRegistryPath).includes('reviewed HEAD and epoch cutoff are comparable ancestors of the publisher parent')) failures.push('PRE_CERT comparable epoch lineage must be registered');
+  if (!read('packages/main/tests/certification-mutator-identity.mjs').includes("'certification_window_status'")) failures.push('PRE_CERT status reader identity pin regression missing');
   if (cert.includes('prompt-bodies')) failures.push('PRE_CERT must reuse the canonical prompt-body path owner');
   if (!read(processFactRegistryPath).includes('prompt-body paths recognized by the canonical prompt-body store')) failures.push('bounded canonical review epoch continuity must be registered');
   const scripts = JSON.parse(read('package.json')).scripts;

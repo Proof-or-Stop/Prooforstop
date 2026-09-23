@@ -6,6 +6,25 @@ const {
   hasPersistedManagedReceiptEvidence,
   runManagedReviewCandidatePreflight,
 } = await import('../dist/handlers/managed-review-evidence.js');
+const { assertManagedReviewCandidateLaunchReady } = await import('../dist/handlers/host-run.js');
+
+assert.throws(() => assertManagedReviewCandidateLaunchReady({
+  requiresEscalation: true,
+  fullScan: false,
+  escalationReasons: ['requirements_corpus_missing'],
+}, 'B-candidate-preflight'), error => {
+  assert.match(error.message, /managed_review_candidate_routing_unresolved/);
+  assert.match(error.message, /requirements_corpus_missing/);
+  assert.match(error.message, /candidate_spec_route/);
+  assert.match(error.message, /fullScanReason/);
+  return true;
+}, 'managed review must refuse unresolved candidate routing before provider launch');
+
+assert.doesNotThrow(() => assertManagedReviewCandidateLaunchReady({
+  requiresEscalation: true,
+  fullScan: true,
+  escalationReasons: ['requirements_corpus_missing'],
+}, 'B-candidate-preflight'));
 
 const missingCandidateDigests = JSON.stringify({
   schemaVersion: 'lattice.managed_review_final_proposal.v1',
@@ -47,6 +66,8 @@ assert.ok(managedSubmit > promptBuild,
   'the source-order assertion must cover the real managed host submission path');
 assert.match(handler.slice(missingRefusal, promptBuild), /candidate_spec_route/,
   'the refusal must give the owner the exact repair command');
+assert.match(handler.slice(artifactRead, promptBuild), /assertManagedReviewCandidateLaunchReady\(candidateArtifact, storyId\)/,
+  'unresolved candidate routing must be rejected before prompt construction and provider submission');
 
 assert.equal(typeof runManagedReviewCandidatePreflight, 'function',
   'managed import must expose its executable candidate-preflight seam');
@@ -110,6 +131,9 @@ assert.equal(runManagedReviewCandidatePreflight({
 assert.equal(candidateChecks, 0, 'legacy intake without a sealed proposal retains its compatibility path');
 assert.equal(intakeCalls, 2);
 
+const providerProtocol = readFileSync(new URL('../src/core/managed-review-evidence.ts', import.meta.url), 'utf8');
+assert.match(providerProtocol, /Use a standard JSON serializer/,
+  'the provider protocol must explicitly forbid non-JSON escapes such as backslash-apostrophe');
 const importer = readFileSync(new URL('../src/handlers/managed-review-evidence.ts', import.meta.url), 'utf8');
 assert.match(importer, /const intake = runManagedReviewCandidatePreflight\(\{/,
   'production importer must execute the tested preflight seam');

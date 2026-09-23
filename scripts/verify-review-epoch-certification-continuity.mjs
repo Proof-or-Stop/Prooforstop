@@ -15,6 +15,9 @@ import { existsSync, mkdtempSync, mkdirSync, rmSync, writeFileSync, readFileSync
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+// External Go consumers must construct complete PRE_CERT causal inputs before
+// the larger managed-review fixture starts.
+execFileSync(process.execPath, [fileURLToPath(new URL('../packages/main/tests/external-certification-domain.test.mjs', import.meta.url))], { stdio: 'inherit' });
 import { StoryStore } from "../packages/main/dist/core/store.js";
 import { resetConfigCache } from "../packages/main/dist/core/config.js";
 import { evaluateReviewInventoryWave, finalizedUnconsumedReviewInventory, verifyReviewInventoryEpoch, verifyReviewInventoryReceipt, signReviewInventoryEpoch } from "../packages/main/dist/core/review-inventory-epoch.js";
@@ -25,6 +28,13 @@ import { adapterSessionEnv, adapterSessionId } from "../packages/main/dist/tasks
 import {isVerifiedReviewMaintenanceCommit} from '../packages/main/dist/core/review-maintenance-lineage.js';
 import {getHealthPath} from '../packages/main/dist/core/health.js';
 import {isMissingReviewSnapshotError} from '../packages/main/dist/core/review-metadata-surface.js';
+for (const [file, marker] of [
+  ['packages/main/tests/review-finalize-managed-lineage.test.mjs', 'REVIEW_FINALIZE_MANAGED_LINEAGE_GREEN'],
+  ['scripts/verify-review-inventory-identity.mjs', 'REVIEW_REWORK_IDENTITY_BINDING PASS'],
+]) {
+  const output=execFileSync(process.execPath,[file],{cwd:process.cwd(),encoding:'utf8',timeout:60_000});
+  assert(output.includes(marker),`${file} must prove REVIEW certification continuity`);
+}
 import {recordConvergenceProgress} from '../packages/main/dist/core/convergence-progress-journal.js';
 assert(isMissingReviewSnapshotError({stderr:"fatal: path 'x' exists on disk, but not in 'head'"}));
 assert(isMissingReviewSnapshotError({stderr:"fatal: path 'x' does not exist in 'head'"}));

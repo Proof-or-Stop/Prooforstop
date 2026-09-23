@@ -21,6 +21,7 @@ import {
   reviewInventoryDigest,
   reviewInventoryPurposeBinding,
   reviewInventoryLaneCoverageDigest,
+  reviewInventoryInitialRunSequenceBoundary,
   reviewInventoryRemediationGate,
   signReviewInventoryCriticReceipt,
   signReviewInventoryEpoch,
@@ -490,6 +491,48 @@ assert.equal((statusText.match(/^Next:/gm) ?? []).length, 1, 'status exposes exa
 
 const firstRuns = requiredLanes.map((lane, index) => run(lane, index + 1));
 const firstPasses = firstRuns.map((row, index) => pass(row, index + 1));
+const seededBoundary = reviewInventoryInitialRunSequenceBoundary({
+  storyId,
+  reviewRound,
+  cutoff,
+  requiredLanes,
+  runs: firstRuns,
+  passes: firstPasses,
+  findings: [],
+});
+assert.equal(seededBoundary, 0, 'inventory begins before already-terminal lanes on the exact current cutoff');
+const seededEpoch = epoch({ initialRunSequenceBoundary: seededBoundary });
+assert.deepEqual(
+  evaluateReviewInventoryWave({ epoch: seededEpoch, runs: firstRuns, passes: firstPasses, findings: [] }).missingLanes,
+  [],
+  'already-terminal current-cutoff lanes seed the first inventory wave instead of requiring duplicate reviews',
+);
+const wrongCutoffRun = run(requiredLanes[0], 99, '2026-08-14T00:20:00.000Z');
+wrongCutoffRun.materialHash = 'd'.repeat(64);
+wrongCutoffRun._hash = signReviewRun(
+  wrongCutoffRun.storyId, wrongCutoffRun.reviewRunId, wrongCutoffRun.agent, wrongCutoffRun.lane,
+  wrongCutoffRun.reviewRound, wrongCutoffRun.startedAt, wrongCutoffRun.headHash, wrongCutoffRun.materialHash,
+  wrongCutoffRun.promptHash, undefined, undefined, wrongCutoffRun.storyFilesHash, wrongCutoffRun.envelopeId,
+);
+const wrongCutoffPass = pass(wrongCutoffRun, 99);
+assert.equal(reviewInventoryInitialRunSequenceBoundary({
+  storyId,
+  reviewRound,
+  cutoff,
+  requiredLanes,
+  runs: [...firstRuns, wrongCutoffRun],
+  passes: [...firstPasses, wrongCutoffPass],
+  findings: [],
+}), 0, 'a terminal lane from another material cutoff cannot move the first-wave boundary');
+assert.equal(reviewInventoryInitialRunSequenceBoundary({
+  storyId,
+  reviewRound,
+  cutoff,
+  requiredLanes,
+  runs: firstRuns,
+  passes: [],
+  findings: [],
+}), 3, 'without existing terminal evidence inventory retains the future-run-only boundary');
 const clean = evaluateReviewInventoryWave({ epoch: initial, runs: firstRuns, passes: firstPasses, findings: [] });
 assert.deepEqual(clean.missingLanes, []);
 assert.equal(clean.newFamilies.length, 0);

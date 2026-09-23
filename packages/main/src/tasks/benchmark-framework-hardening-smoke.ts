@@ -48,8 +48,8 @@ import { createAcceptanceAmendmentController } from '../core/acceptance-amendmen
 import { createDonePrepareHandlers } from '../handlers/done-prepare.js';
 import { signCanonical } from '../core/authority-signing.js';
 import { runScopeTransitionGate } from '../handlers/phase-gates.js';
+import { readManagedInventoryCriticMaterialDirtyFiles } from '../handlers/review-inventory.js';
 import { shellQuote } from '../core/shell-quote.js';
-import { readMaterialDirtyFiles } from '../core/evidence-freshness.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const repositoryRoot = resolve(packageRoot, '../../..');
@@ -448,10 +448,10 @@ check('linked worktree inherits global-thin identity from the common repository'
     assert.equal(configReceiptClassification.allowed, true);
     assert.equal(configReceiptClassification.registryId, 'controller-config-projection-receipt');
 
-    const managedCriticDirty = readMaterialDirtyFiles(
+    const managedCriticDirty = readManagedInventoryCriticMaterialDirtyFiles(
       worktree,
       worktree,
-      { trustedControllerProjectionStoryId: 'B-global-thin' },
+      'B-global-thin',
     );
     assert.equal(managedCriticDirty.error, undefined);
     assert.deepEqual(
@@ -460,13 +460,13 @@ check('linked worktree inherits global-thin identity from the common repository'
       'MANAGED_REVIEW_CONTROLLER_PROJECTION_DIRTY: exact signed controller projections must not count as candidate material drift',
     );
     assert.ok(
-      readMaterialDirtyFiles(worktree, worktree, { trustedControllerProjectionStoryId: 'B-wrong-story' }).files.includes('proof-or-stop.config.json'),
+      readManagedInventoryCriticMaterialDirtyFiles(worktree, worktree, 'B-wrong-story').files.includes('proof-or-stop.config.json'),
       'a projection receipt cannot authorize another Story',
     );
 
     write(worktree, 'unrelated.ts', 'export const unrelated = true;\n');
     assert.ok(
-      readMaterialDirtyFiles(worktree, worktree, { trustedControllerProjectionStoryId: 'B-global-thin' }).files.includes('unrelated.ts'),
+      readManagedInventoryCriticMaterialDirtyFiles(worktree, worktree, 'B-global-thin').files.includes('unrelated.ts'),
       'ordinary untracked material remains dirty beside valid controller projections',
     );
     rmSync(join(worktree, 'unrelated.ts'));
@@ -474,7 +474,7 @@ check('linked worktree inherits global-thin identity from the common repository'
     const projectedConfigBytes = readFileSync(join(worktree, 'proof-or-stop.config.json'));
     writeFileSync(join(worktree, 'proof-or-stop.config.json'), Buffer.concat([projectedConfigBytes, Buffer.from('\n')]));
     assert.ok(
-      readMaterialDirtyFiles(worktree, worktree, { trustedControllerProjectionStoryId: 'B-global-thin' }).files.includes('proof-or-stop.config.json'),
+      readManagedInventoryCriticMaterialDirtyFiles(worktree, worktree, 'B-global-thin').files.includes('proof-or-stop.config.json'),
       'a byte-different projected config remains material dirt',
     );
     writeFileSync(join(worktree, 'proof-or-stop.config.json'), projectedConfigBytes);
@@ -482,7 +482,7 @@ check('linked worktree inherits global-thin identity from the common repository'
     const configReceiptBytesForDirty = readFileSync(configReceiptAbsolute);
     rmSync(configReceiptAbsolute);
     assert.ok(
-      readMaterialDirtyFiles(worktree, worktree, { trustedControllerProjectionStoryId: 'B-global-thin' }).files.includes('proof-or-stop.config.json'),
+      readManagedInventoryCriticMaterialDirtyFiles(worktree, worktree, 'B-global-thin').files.includes('proof-or-stop.config.json'),
       'a projected config without its Story receipt remains material dirt',
     );
     writeFileSync(configReceiptAbsolute, configReceiptBytesForDirty);
@@ -490,10 +490,10 @@ check('linked worktree inherits global-thin identity from the common repository'
     const projectedAsset = CONTROLLER_RUNTIME_ASSET_PATHS[0];
     const projectedAssetBytes = readFileSync(join(worktree, projectedAsset));
     writeFileSync(join(worktree, projectedAsset), Buffer.concat([projectedAssetBytes, Buffer.from('tampered projection\n')]));
-    const tamperedManagedCriticDirty = readMaterialDirtyFiles(
+    const tamperedManagedCriticDirty = readManagedInventoryCriticMaterialDirtyFiles(
       worktree,
       worktree,
-      { trustedControllerProjectionStoryId: 'B-global-thin' },
+      'B-global-thin',
     );
     assert.ok(
       tamperedManagedCriticDirty.files.includes(projectedAsset),
@@ -503,14 +503,14 @@ check('linked worktree inherits global-thin identity from the common repository'
 
     git(worktree, ['add', '-f', 'proof-or-stop.config.json']);
     assert.ok(
-      readMaterialDirtyFiles(worktree, worktree, { trustedControllerProjectionStoryId: 'B-global-thin' }).files.includes('proof-or-stop.config.json'),
+      readManagedInventoryCriticMaterialDirtyFiles(worktree, worktree, 'B-global-thin').files.includes('proof-or-stop.config.json'),
       'an index-tracked projected config remains material dirt even when its bytes and receipts are valid',
     );
     git(worktree, ['reset', '-q', 'HEAD', '--', 'proof-or-stop.config.json']);
 
     git(worktree, ['add', '-f', projectedAsset]);
     assert.ok(
-      readMaterialDirtyFiles(worktree, worktree, { trustedControllerProjectionStoryId: 'B-global-thin' }).files.includes(projectedAsset),
+      readManagedInventoryCriticMaterialDirtyFiles(worktree, worktree, 'B-global-thin').files.includes(projectedAsset),
       'an index-tracked projected runtime asset remains material dirt even when its bytes and receipts are valid',
     );
     git(worktree, ['reset', '-q', 'HEAD', '--', projectedAsset]);

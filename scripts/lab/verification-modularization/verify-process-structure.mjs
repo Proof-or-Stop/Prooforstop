@@ -30,7 +30,7 @@ let preserved = 0;
 for (const node of original.statements) if (ts.isFunctionDeclaration(node)) {
   let expectedBody = node.body.getText(original);
   for (const repair of JSON.parse(fs.readFileSync('scripts/lab/verification-modularization/process-source-binding-repairs.json', 'utf8'))) if (repair.function === node.name.text) {
-    assert.ok(expectedBody.includes(repair.before)); expectedBody = expectedBody.replace(repair.before, repair.after);
+    assert.ok(expectedBody.includes(repair.before)); expectedBody = expectedBody.replace(repair.before, () => repair.after);
   }
   assert.equal(functions.get(node.name.text), expectedBody, 'changed process verification function ' + node.name.text);
   preserved++;

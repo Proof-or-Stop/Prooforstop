@@ -1,5 +1,148 @@
 # Changelog
 
+## External consumer certification domains - v0.3.453 - 2026-09-24
+
+- Bind unclassified external-project changes, including Go `evaluator/` and `repl/` paths, to every PRE_CERT causal domain so certification can proceed without under-invalidating later changes.
+- Keep PoS source-path, ambiguous-path, and reserved-control-path refusals; determine repository identity from committed Git metadata.
+- Lab RED/GREEN, full build, focused causal-domain regression, and U18 static checks passed. The process-fact suite fails at the same managed-review fixture on unchanged main.
+- Codex reviewed this one-off user-authorized integration; it has no independent-vendor Lab audit record. Benchmark reward and end-to-end time remain unverified pending a remote rerun.
+
+Repair notes: `/tmp/external-certification-domains-notes.md`; repair commit `b1196debb25a5dd903127013cb8cc6b28759a8db`.
+
+## Lab review-certification-lineage - v0.3.452 - 2026-09-22
+
+## Problem
+In PoS 0.3.451, `certification_window_status` rejected the active `review-inventory-epoch.ts` executable before Story lookup because an earlier source change had left the pinned emitted-JavaScript digest stale. After managed reviewer imports, a direct `review_inventory_finalize` published a signed epoch at a later HEAD than the reviewed HEAD; the maintenance lineage reader rejected that valid ordering and invalidated all three managed passes.
+
+## Repair
+Refresh the pin to the actual clean emitted-JavaScript digest and register a live consumer regression. Accept signed epoch publications when reviewed HEAD and epoch cutoff are comparable ancestors of the publication parent, in either order. Retain exact reviewed material/story-file hash matching, the narrow metadata path and subject restrictions, and the rejection of divergent cutoffs. Register these process facts and focused negative tests.
+
+## Verification
+Lab RED reproduced both failures; GREEN passed at final committed HEAD. Full build, `verify-review-inventory-identity`, `review-finalize-managed-lineage.test.mjs`, `certification-mutator-identity.mjs`, review-history and certification-recovery tests, and U18 static edges passed. Grok independent Lab audit passed after personally checking its earlier false-positive claims against the existing hash guard and the source-history digest change. The broader process-fact and review-epoch continuity scripts stop in the same unrelated managed-review provider fixture failure seen on unchanged main, before reaching this seam.
+
+## Time impact
+The remote trial's 1h13m is its total interrupted wall time, not a measured per-command latency. This repair removes the observed forced re-review after a valid finalize; end-to-end runtime improvement remains to be measured by the next benchmark run.
+
+Maintenance provenance: codex/lab-review-certification-lineage, repair 0ff1f19265fe9f7454297669ee2af3e396b7bf87.
+Verification command (replayed before integration and on main): `["node","scripts/verify-review-certification-regressions.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab reviewer-batch-control-header - v0.3.451 - 2026-09-22
+
+# Reviewer batch control header
+
+- Problem: the remote DeepSWE run reached REVIEW, but a controller truncated the verbose `reviewer_batch --json` report at 4 KiB. Because `lanes` preceded `executionPlan`, it launched one reviewer and waited serially instead of launching the complete batch, consuming about 13 minutes in REVIEW before the run stopped.
+- Fix: serialize the compact `executionPlan` before verbose lane records and document that controllers must inspect the control header before lane details.
+- RED/GREEN: the real reviewer-batch smoke now requires the full child-ID barrier, wait policy, and every launchable lane to appear in the first 4 KiB. The exact command failed before the repair and passed after it while preserving the existing finding-drift and lane-selection cases.
+- Verification: Lab GREEN passed; U18 static-edge verification passed; prompt baseline passed; independent Grok audit passed with no findings. `test:process-fact-contract` still fails identically on both unchanged main and the Lab at the pre-existing managed-review supersession provider fixture, so it is recorded as baseline repository health rather than caused by this patch.
+- Measured optimization: the repair removes the demonstrated launch-one/wait-one interpretation at the JSON control boundary. End-to-end REVIEW savings remain to be measured by the next benchmark rerun.
+
+Maintenance provenance: codex/lab-reviewer-batch-control-header, repair d741f1d627f73f3099e01d28313fc73ab5a82664.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/reviewer-batch-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab benchmark-reviewer-parallel-barrier - v0.3.450 - 2026-09-22
+
+- Make `reviewer_batch` return an explicit child-id barrier so every launchable REVIEW lane starts before the controller waits once on the complete nonempty ID set.
+- Handle the zero-lane case with an explicit no-wait policy while keeping lane selection, gate readiness, signed evidence, and the read-only authority boundary unchanged.
+- Align JSON lifecycle hints, CLI help, process facts, and agent guidance; refresh the reviewed U18 dependency digest for the expanded regression.
+- Focused RED/GREEN, U18 static-edge verification, command-catalog checks, prompt contracts, and independent Grok audit all pass.
+
+Maintenance provenance: codex/lab-benchmark-reviewer-parallel-barrier, repair 214f20557b5c8f2a94678d5d31c48612c285d1dd.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/reviewer-batch-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab inventory-critic-head-parity - v0.3.449 - 2026-09-22
+
+- Preserve required-lane ReviewRuns, Findings, and passes in the inventory critic evidence pack when only Git HEAD changed through Story metadata commits.
+- Align the critic projection with inventory-wave materialHash and storyFilesHash admission while retaining signed per-run headHash for inspection.
+- Add a focused RED/GREEN regression and process-fact/static-edge contract coverage.
+- Focused projection and static AST parity pass. The broader process-fact verifier still hits the same pre-existing managed supersession fixture failure reproduced unchanged on main.
+
+Maintenance provenance: codex/lab-inventory-critic-head-parity, repair 1b44d8ebe2b931331da857c176ea1fdfbb324232.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/inventory-critic-live-metadata-projection-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab managed-worker-claim-pressure - v0.3.448 - 2026-09-22
+
+Problem: Four concurrent managed reviewers can cold-start slowly enough that the production five-second worker claim window expires. PoS then records `worker_claim_timeout` while the worker PID is still alive, correctly marks the terminal `replacementSafe=false`, and leaves REVIEW without a safe automatic retry path.
+
+Fix: Register a 30-second worker claim budget in `MANAGED_SUPERVISOR_RUNTIME_POLICY` and make managed submission consume that policy. Explicit test timeouts remain unchanged, so the existing never-claims and terminal-fence controls stay strict.
+
+Verification: The focused Lab fixture failed on the old default after a healthy six-second delayed claim and passes on the repair with `MANAGED_WORKER_CLAIM_PRESSURE_GREEN`. Static AST reuse verification passes with refreshed exact source digests. The runtime-fact verifier reaches the new assertions; its remaining failures are reproducible on clean main or caused by the isolated worktree dependency layout. Grok independently audited the exact committed candidate and returned pass with no findings; its conclusion was checked against the source and focused run.
+
+Measured effect: The healthy claim allowance increases from 5 seconds to 30 seconds under cold-start pressure. Normal reviewers that claim earlier return immediately; only genuinely unclaimed workers can extend the submit wait to the existing 30-second status bound.
+
+Maintenance provenance: codex/lab-managed-worker-claim-pressure, repair f0475da17386caaa8bd025b3c66636c47ba00979.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/managed-worker-claim-pressure-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab managed-critic-projection-admission - v0.3.447 - 2026-09-22
+
+- Route managed inventory critic material checks through the current Story's signed controller-projection admission.
+- Preserve fail-closed rejection for wrong-Story receipts, byte-different projections, and ordinary untracked material.
+- Add a focused real linked-worktree projection fixture and bind the handler call path in the process-fact verifier.
+- Refresh the reviewed U18 static-edge evidence after the verifier and handler changes.
+
+Maintenance provenance: codex/lab-managed-critic-projection-admission, repair 062cfe20f46a815381b77b3d287594a80dfc2a45.
+Verification command (replayed before integration and on main): `["node","scripts/verify-managed-critic-projection-admission.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab benchmark-review-convergence - v0.3.446 - 2026-09-22
+
+- Authenticate managed inventory critic imports against the sealed model and reasoning-effort binding.
+- Seed a new review inventory from already-terminal required lanes on the exact current round and material cutoff, avoiding forced duplicate reviews.
+- Admit only signed, byte-identical current-Story controller projections during REVIEW remediation cleanliness checks.
+- Add regression coverage and refresh the reviewed U18 static-edge evidence ledger.
+
+Maintenance provenance: codex/lab-benchmark-review-convergence, repair 3270fa6c8438d8da315d354d190e98ca82272322.
+Verification command (replayed before integration and on main): `["node","scripts/verify-managed-inventory-critic-import.mjs","--case=pass"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab managed-review-routing-preflight - v0.3.445 - 2026-09-21
+
+- Refuse formal managed-review provider launches when candidate routing still requires an unresolved full-scan escalation, and return the exact owner recovery command before any provider cost is incurred.
+- Strengthen the final-proposal protocol to require standard JSON serialization and explicitly reject non-JSON backslash-apostrophe escapes while retaining fail-closed terminal validation.
+- Add executable regression coverage for unresolved and resolved candidate routing, plus process-fact registry and U18 static-edge bindings.
+- Verified with Lab RED/GREEN, the managed-review candidate preflight test, package build, U18 static validation, diff checks, and independent Grok review. The unrelated managed-review supersession fixture baseline remains outside this repair.
+
+Maintenance provenance: codex/lab-managed-review-routing-preflight, repair ae4bd8db4205ff8fc0ebaf81b924764a413391ac.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/managed-review-candidate-preflight.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab consumer-residue-preflight - v0.3.444 - 2026-09-21
+
+- Scope the `proof-or-stop-residue` REVIEW preflight to repositories that explicitly enable `reviewPreflight.proofOrStopResidue`; consumer repositories now report the PoS-only maintenance gate as skipped.
+- Keep the Proof-or-Stop source repository opted in, and fail closed for malformed policy shapes, invalid JSON, a missing maintenance script, timeouts, or non-zero detector results.
+- Extend the wrapper-root preflight smoke to cover consumer skip, explicit opt-in, script pass/fail, malformed objects, and malformed project JSON.
+- Verified the focused RED/GREEN replay, package build, process-fact wiring, and an independent Grok audit; the unrelated managed-review supersession baseline failure remains outside this repair.
+
+Maintenance provenance: codex/lab-consumer-residue-preflight, repair 2252b35771429418f88b8700d005b6994b33fb4a.
+Verification command (replayed before integration and on main): `["node","packages/main/dist/tasks/docs-drift-wrapper-root-smoke.js"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab tracked-controller-projection-remediation - v0.3.443 - 2026-09-21
+
+- Allow a signed, byte-identical controller runtime projection to remain valid after the controller or Story branch adopts the projected assets into Git.
+- Preserve Story branch binding, regular-file and symlink safety, byte equality, signed common and Story receipts, plus ordinary dirty and scope enforcement for candidate-side changes.
+- Keep controller config projection receipts trusted after controller-side Git adoption so scope enforcement and reviewer admission agree.
+- Verified with the external linked-worktree Go pre-review smoke, tracked-controller bootstrap safety regression, package build, and independent Grok review; the broader process-fact verifier remains blocked by its unrelated managed-review supersession fixture provider failure.
+
+Maintenance provenance: codex/lab-tracked-controller-projection-remediation, repair a2ea80bec66fbddd7bbc0d77642f43e49a2139ab.
+Verification command (replayed before integration and on main): `["node","scripts/verify-external-worktree-go-pre-review.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Lab managed-finding-repair-dispatch - v0.3.442 - 2026-09-21
+
+- Add a DEV managed-dispatch path for `proof-or-stop-finding-repair` with one canonical open Finding target.
+- Seal Story, role, Finding ID, and provider output into the managed run binding and terminal receipt for controller verification.
+- Reject missing, mixed, unknown, closed, wrong-phase, and cross-Finding repair targets before they can authorize resolution.
+- Cover the repair path with Lab RED/GREEN regression evidence and preserve the existing managed implementer contract.
+
+Maintenance provenance: codex/lab-managed-finding-repair-dispatch, repair 96504c2388f23a2a1c40cb2f92fa82263ee07e04.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/managed-finding-repair-dispatch.test.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab managed-review-projection-dirty-admission - v0.3.441 - 2026-09-21
 
 # Managed review controller projection dirty admission

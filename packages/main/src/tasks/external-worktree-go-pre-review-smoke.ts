@@ -214,20 +214,83 @@ function assertExternalControllerProjection(project: ProjectControllerAssets): v
     });
     assert.equal(restoredProjection.valid, true, 'CLI bootstrap restores the exact signed controller runtime projection before review');
 
-    git(worktreeRoot, ['add', '-f', ...expectedHookPaths]);
+    git(controllerRoot, ['add', '-f', 'proof-or-stop.config.json', ...expectedHookPaths]);
+    git(controllerRoot, ['commit', '-qm', 'adopt controller runtime assets']);
+    const controllerOwnedProjection = inspectExpectedControllerRuntimeProjection({
+      projectRoot: worktreeRoot,
+      gitCwd: worktreeRoot,
+      storyId,
+    });
+    assert.equal(
+      controllerOwnedProjection.valid,
+      true,
+      `LAB_RED: committing byte-identical controller assets must not poison a valid Story projection (${controllerOwnedProjection.reason})`,
+    );
+    assert.equal(controllerOwnedProjection.expected, true, 'controller adoption alone keeps the signed Story projection gate armed');
+    assert.equal(controllerOwnedProjection.reason, 'valid', 'controller adoption is admitted by signed projection proof, not a material-assets bypass');
+    const controllerOwnedReceiptScope = checkScopeContract({
+      storyId, mode: 'enforce', allowedModify: [], allowedCreate: [], allowedTest: [], protectedFiles: [], explicitExcludes: [], acknowledgements: [],
+      pathCanonicalizerVersion: SCOPE_PATH_CANONICALIZER_VERSION, pathCanonicalizationMode: 'enforce', createdAt: '2026-09-21T00:00:00.000Z', updatedAt: '2026-09-21T00:00:00.000Z',
+    }, [projectionReceiptPaths[0]!], { projectRoot: worktreeRoot, gitCwd: worktreeRoot });
+    assert.equal(
+      controllerOwnedReceiptScope.status,
+      'pass',
+      `LAB_RED: controller adoption must not poison its exact signed config receipt (${JSON.stringify(controllerOwnedReceiptScope.rows)})`,
+    );
+    const adoptedHookPath = expectedHookPaths[1]!;
+    const adoptedHookBytes = readFileSync(join(worktreeRoot, adoptedHookPath));
+    rmSync(join(worktreeRoot, adoptedHookPath));
     assert.equal(
       inspectExpectedControllerRuntimeProjection({ projectRoot: worktreeRoot, gitCwd: worktreeRoot, storyId }).valid,
       false,
-      'tracked hook projections remain forbidden even when their bytes and receipts are exact',
+      'controller adoption still rejects a missing projected Story hook',
     );
+    writeFileSync(join(worktreeRoot, adoptedHookPath), adoptedHookBytes);
+    git(controllerRoot, ['reset', '--mixed', 'HEAD^']);
+
+    git(worktreeRoot, ['add', '-f', ...expectedHookPaths]);
+    assert.equal(
+      inspectExpectedControllerRuntimeProjection({ projectRoot: worktreeRoot, gitCwd: worktreeRoot, storyId }).valid,
+      true,
+      'tracking exact signed hook projections does not invalidate projection identity',
+    );
+    const stagedHookStatus = readGitStatusLines(worktreeRoot);
+    assert.equal(stagedHookStatus.ok, true);
+    assert.equal(isBlockingDirty(classifyGitStatusRows(
+      stagedHookStatus.ok ? stagedHookStatus.lines : [],
+      classifierOptionsForCheck(loadConfig(worktreeRoot), storyId, localStore, worktreeRoot),
+    )).blocked, true, 'newly tracked hook projections remain subject to the ordinary dirty gate');
     git(worktreeRoot, ['rm', '--cached', '-q', ...expectedHookPaths]);
     git(worktreeRoot, ['add', '-f', 'proof-or-stop.config.json']);
     assert.equal(
       inspectExpectedControllerRuntimeProjection({ projectRoot: worktreeRoot, gitCwd: worktreeRoot, storyId }).valid,
-      false,
-      'tracked config projection remains forbidden even when its bytes and receipt are exact',
+      true,
+      'tracking the exact signed config projection does not invalidate projection identity',
     );
+    const stagedConfigStatus = readGitStatusLines(worktreeRoot);
+    assert.equal(stagedConfigStatus.ok, true);
+    assert.equal(isBlockingDirty(classifyGitStatusRows(
+      stagedConfigStatus.ok ? stagedConfigStatus.lines : [],
+      classifierOptionsForCheck(loadConfig(worktreeRoot), storyId, localStore, worktreeRoot),
+    )).blocked, true, 'a newly tracked config projection remains subject to the ordinary dirty gate');
+    const stagedConfigReceiptScope = checkScopeContract({
+      storyId, mode: 'enforce', allowedModify: [], allowedCreate: [], allowedTest: [], protectedFiles: [], explicitExcludes: [], acknowledgements: [],
+      pathCanonicalizerVersion: SCOPE_PATH_CANONICALIZER_VERSION, pathCanonicalizationMode: 'enforce', createdAt: '2026-09-21T00:00:00.000Z', updatedAt: '2026-09-21T00:00:00.000Z',
+    }, [projectionReceiptPaths[0]!], { projectRoot: worktreeRoot, gitCwd: worktreeRoot });
+    assert.equal(stagedConfigReceiptScope.status, 'pass', 'tracking an exact config does not invalidate its signed projection receipt');
     git(worktreeRoot, ['rm', '--cached', '-q', 'proof-or-stop.config.json']);
+
+    writeFileSync(join(worktreeRoot, 'proof-or-stop.config.json'), JSON.stringify({ ...JSON.parse(configBytes), description: 'Story material config' }, null, 2));
+    git(worktreeRoot, ['add', '-f', 'proof-or-stop.config.json']);
+    git(worktreeRoot, ['commit', '-qm', 'adopt Story config only']);
+    const materialConfigProjectedHooks = inspectExpectedControllerRuntimeProjection({ projectRoot: worktreeRoot, gitCwd: worktreeRoot, storyId });
+    assert.deepEqual(
+      [materialConfigProjectedHooks.expected, materialConfigProjectedHooks.valid, materialConfigProjectedHooks.reason],
+      [true, true, 'valid'],
+      'a material Story config can coexist with exact signed untracked hook projections',
+    );
+    git(worktreeRoot, ['reset', '--mixed', 'HEAD^']);
+    writeFileSync(join(worktreeRoot, 'proof-or-stop.config.json'), configBytes);
 
     for (const expectedHookPath of expectedHookPaths) rmSync(join(worktreeRoot, expectedHookPath));
     const reviewStory = localStore.readStory(storyId);

@@ -82,6 +82,7 @@ export interface HostRunCommandArgs extends FormatArgs {
   host?: string;
   storyId?: string;
   itemId?: string;
+  findingId?: string;
   agentType?: string;
   phase?: string;
   prompt?: string;
@@ -388,6 +389,27 @@ export function collectManagedReviewCanonicalReportStatuses(
   ];
 }
 
+export function assertManagedReviewCandidateLaunchReady(
+  candidateArtifact: {
+    requiresEscalation?: unknown;
+    fullScan?: unknown;
+    escalationReasons?: unknown;
+  },
+  storyId: string,
+): void {
+  if (candidateArtifact.requiresEscalation !== true || candidateArtifact.fullScan === true) return;
+  const reasons = Array.isArray(candidateArtifact.escalationReasons)
+    ? candidateArtifact.escalationReasons.filter((reason): reason is string => typeof reason === 'string' && reason.length > 0)
+    : [];
+  const renderedReasons = reasons.length > 0 ? reasons.join(', ') : 'unspecified';
+  throw new Error(
+    `host_run: managed_review_candidate_routing_unresolved: ${renderedReasons}; `
+    + 'do not launch a reviewer whose evidence cannot be imported; '
+    + `rerun proof-or-stop candidate_spec_route '{"storyId":"${storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}' `
+    + 'and then start a fresh ReviewRun',
+  );
+}
+
 export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRunHandlersOptions = {}) {
   return {
     async host_run(args: HostRunCommandArgs): Promise<HostRunCommandResult | HostRunDetachResult | string> {
@@ -404,6 +426,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
       const deadlineMs = optionalPositiveInteger('host_run', 'deadlineMs', args.deadlineMs);
       const storyId = normalizeString(args.storyId) || null;
       const itemId = normalizeString(args.itemId) || null;
+      let findingId = normalizeString(args.findingId) || null;
       const reviewRunId = normalizeString(args.reviewRunId) || null;
       const lane = normalizeString(args.lane) || null;
 
@@ -430,8 +453,14 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           'host_run: --itemId is valid only with --managedDispatch and agentType=proof-or-stop-implementer',
         );
       }
+      if (findingId && !(args.managedDispatch === true && agentType === 'proof-or-stop-finding-repair')) {
+        throw new Error(
+          'host_run: --findingId is valid only with --managedDispatch and agentType=proof-or-stop-finding-repair',
+        );
+      }
       const managedDispatchAgentTypes = [
         'proof-or-stop-implementer',
+        'proof-or-stop-finding-repair',
         'proof-or-stop-review-story-init',
         'proof-or-stop-product-reviewer',
         'proof-or-stop-review-scope-plan',
@@ -440,6 +469,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
       const managedDispatchAgentTypeSupported = managedDispatchAgentTypes.includes(agentType);
       const managedDispatchQualifiedReviewer = args.managedDispatch === true
         && agentType !== 'proof-or-stop-implementer'
+        && agentType !== 'proof-or-stop-finding-repair'
         && managedDispatchAgentTypeSupported;
       if (args.managedReview === true || managedDispatchQualifiedReviewer) {
         selection = resolveQualifiedManagedReviewerSelection({ host, ...selection });
@@ -463,6 +493,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
             + `run candidate_spec_route for Story ${storyId} and then start a fresh ReviewRun`,
           );
         }
+        assertManagedReviewCandidateLaunchReady(candidateArtifact, storyId);
         const fullScanBinding: ManagedReviewFullScanBinding | undefined = candidateArtifact?.fullScan === true
           ? (() => {
             if (typeof candidateArtifact.scanEscalationReason !== 'string' || candidateArtifact.scanEscalationReason.length === 0) {
@@ -486,7 +517,8 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         if (hasPrompt || hasPromptFile) {
           throw new Error('host_run: --managedDispatch derives the exact canonical prompt; do not pass --prompt or --promptFile');
         }
-        const managedDispatchPhase = agentType === 'proof-or-stop-implementer' ? 'DEV'
+        const managedDispatchPhase = agentType === 'proof-or-stop-implementer'
+          || agentType === 'proof-or-stop-finding-repair' ? 'DEV'
           : agentType === MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.role ? MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY.phase
             : agentType === 'proof-or-stop-review-scope-plan' ? 'PLAN' : 'INIT';
         if (!managedDispatchAgentTypeSupported) {
@@ -498,7 +530,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
               + 'controller-owned INIT, PLAN scope, DEV implementer, and TEST delivery roles.',
             );
           }
-          throw new Error('host_run: --managedDispatch requires storyId and a supported INIT, PLAN scope, DEV implementer, or TEST delivery agentType');
+          throw new Error('host_run: --managedDispatch requires storyId and a supported INIT, PLAN scope, DEV implementer/finding repair, or TEST delivery agentType');
         }
         if (!storyId) {
           throw new Error('host_run: --managedDispatch requires storyId');
@@ -506,8 +538,14 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         if (agentType === 'proof-or-stop-implementer' && !itemId) {
           throw new Error('host_run: --managedDispatch proof-or-stop-implementer requires exactly one itemId');
         }
+        if (agentType === 'proof-or-stop-finding-repair' && !findingId) {
+          throw new Error('host_run: --managedDispatch proof-or-stop-finding-repair requires exactly one findingId');
+        }
         if (agentType !== 'proof-or-stop-implementer' && itemId) {
           throw new Error(`host_run: --managedDispatch ${agentType} is story-scoped; do not pass itemId`);
+        }
+        if (agentType !== 'proof-or-stop-finding-repair' && findingId) {
+          throw new Error(`host_run: --managedDispatch ${agentType} does not accept findingId`);
         }
         if (reviewRunId || lane || normalizeString(args.phase)) {
           throw new Error('host_run: --managedDispatch derives phase and role binding; do not pass reviewRunId, lane, or phase');
@@ -516,7 +554,27 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         if (story.phase !== managedDispatchPhase) {
           throw new Error(`host_run: --managedDispatch ${agentType} requires Story phase ${managedDispatchPhase}, got ${story.phase}`);
         }
-        promptText = createStoryDispatchHandlers(ctx).dispatch({ storyId, agentType, ...(itemId ? { itemId } : {}) }).prompt;
+        if (agentType === 'proof-or-stop-finding-repair' && findingId) {
+          const shortFindingId = findingId.startsWith(`${storyId}:`)
+            ? findingId.slice(storyId.length + 1)
+            : findingId;
+          const finding = ctx.store.readFindings(storyId).findings.find(candidate =>
+            candidate.id === findingId || candidate.id === `${storyId}:${shortFindingId}`,
+          );
+          if (!finding) {
+            throw new Error(`host_run: managed finding repair target ${findingId} does not exist in Story ${storyId}`);
+          }
+          if (finding.status !== 'open') {
+            throw new Error(`host_run: managed finding repair target ${finding.id} is not open`);
+          }
+          findingId = finding.id;
+        }
+        promptText = createStoryDispatchHandlers(ctx).dispatch({
+          storyId,
+          agentType,
+          ...(itemId ? { itemId } : {}),
+          ...(findingId ? { findingId } : {}),
+        }).prompt;
         managedDispatch = true;
       } else if (hasPrompt === hasPromptFile) {
         throw new Error('host_run: provide exactly one of --prompt or --promptFile (or use --managedReview with an exact ReviewRun)');
@@ -579,6 +637,8 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           storyId,
           ...(managedDispatch && agentType === 'proof-or-stop-implementer' && itemId
             ? { managedDispatchTarget: { itemId } }
+            : managedDispatch && agentType === 'proof-or-stop-finding-repair' && findingId
+              ? { managedDispatchTarget: { findingId } }
             : {}),
           agentType,
           phase,

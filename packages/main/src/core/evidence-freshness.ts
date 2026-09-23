@@ -354,6 +354,7 @@ export interface EvidenceHashSnapshotCaptureArgs {
   gitCwd: string;
   metadataRoot?: string;
   ref?: string;
+  trustedControllerProjectionStoryId?: string;
 }
 
 /**
@@ -489,7 +490,9 @@ export function captureEvidenceHashSnapshot(args: EvidenceHashSnapshotCaptureArg
     const gitCwd = normalizeSnapshotRoot(args.gitCwd);
     const metadataRoot = normalizeSnapshotRoot(args.metadataRoot ?? args.gitCwd);
     const ref = args.ref ?? 'HEAD';
-    const dirty = readMaterialDirtyFiles(gitCwd, metadataRoot);
+    const dirty = readMaterialDirtyFiles(gitCwd, metadataRoot, {
+      trustedControllerProjectionStoryId: args.trustedControllerProjectionStoryId,
+    });
     const headHash = gitCommitAtRef(gitCwd, ref);
     const observedRef = isCanonicalGitHeadHash(headHash) ? headHash as string : ref;
     const materialHash = currentMaterialHash(gitCwd, observedRef, metadataRoot);

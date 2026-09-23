@@ -195,6 +195,14 @@ help can lag a handler detail; the state machine and gate output are decisive.
 | TEST | Main agent and CLI | Run routine validation, resolve recorded bugs, refresh stale admissible evidence, and complete the delivery/summary prerequisites. |
 | DONE | CLI | Prepare convergence, validate current evidence and policy, merge to the resolved local integration branch, run post-merge effects, and remove the Story worktree. |
 
+The `proof-or-stop-residue` REVIEW-to-TEST preflight is repository maintenance
+for the Proof-or-Stop source tree, not a requirement imposed on consumer
+repositories. Consumers skip it by default. A repository opts in with
+`reviewPreflight.proofOrStopResidue: "enforce"`; in that mode malformed project
+JSON or `reviewPreflight` policy, a missing
+`scripts/verify-proof-or-stop-residue.mjs`, a timeout, or a nonzero detector
+result blocks the transition. An explicit `"off"` also skips the preflight.
+
 ### Story creation and INIT
 
 `story_create` requires a meaningful background unless `fromDraft` applies. The
@@ -496,8 +504,13 @@ eligibility from a role-name prefix.
 `reviewer_batch` is a read-only launch plan. It reports which lanes need work and
 uses the same policy-computed opt-in path as `reviewer_list`. It prints
 host-orchestrator `Agent(...)` instructions; it never launches a reviewer, runs
-commands, writes evidence, or advances a phase. Do not pass its refused
-side-effect flags.
+commands, writes evidence, or advances a phase. In JSON mode, issue every
+`executionPlan.launchableLanes` launchInstruction before any wait, retain one
+nonempty distinct child id per lane, then make one host wait call with the full
+child-id set. When that set is empty, do not call wait. Do not pass its refused
+side-effect flags. The compact `executionPlan` control header is serialized
+before verbose `lanes`; inspect it first and never infer scheduling from a
+truncated lane-detail preview.
 
 `dispatch` validates a registered role and its story/item/finding/cluster target
 cardinality and prepares the role-specific dispatch surface. `agent_prompt`
@@ -643,7 +656,7 @@ A modern host-orchestrated reviewer example is conceptual, not a CLI command:
 
 ```text
 1. proof-or-stop reviewer_batch --storyId=B-xxxx --json
-2. Host launches each requested Agent in the existing Story worktree.
+2. Host launches every requested Agent in the existing Story worktree before waiting for any one lane; after every target acknowledges, wait for the batch collectively.
 3. Reviewer runs proof-or-stop review_run_start for its canonical role.
 4. Reviewer records finding_add or review_pass_set with current signed evidence.
 ```

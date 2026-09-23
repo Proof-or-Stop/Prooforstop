@@ -164,6 +164,11 @@ export interface ManagedReviewIsolationConfig {
   adapter: 'prooforstop-main-v1';
 }
 
+export interface ReviewPreflightConfig {
+  /** PoS repository brand-migration maintenance only; consumer repositories leave this off. */
+  proofOrStopResidue?: 'off' | 'enforce';
+}
+
 export interface ProofOrStopConfig {
   /** Dynamic Finding rollout. observe/warn preserve the legacy gate; enforce enables the signed applicability projection. */
   dynamicFinding?: {
@@ -175,6 +180,8 @@ export interface ProofOrStopConfig {
   };
   /** Explicit managed-review-only readonly build adapter; absent retains legacy behavior. */
   managedReviewIsolation?: ManagedReviewIsolationConfig;
+  /** Explicit repository-specific REVIEW preflight capabilities. */
+  reviewPreflight?: ReviewPreflightConfig;
   /** Explicit semantic budgets and responsibility map; malformed opt-in policy fails closed. */
   storyScopeBudget?: import('./story-scope-budget.js').StoryScopeBudgetPolicy;
   /**
@@ -888,6 +895,38 @@ export function pickProjectConfigPath(dir: string): { path: string; filename: st
     }
   }
   return null;
+}
+
+export function resolveProofOrStopResiduePreflightMode(projectRoot: string): 'off' | 'enforce' {
+  const picked = pickProjectConfigPath(projectRoot);
+  if (!picked) return 'off';
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(readFileSync(picked.path, 'utf-8'));
+  } catch (error) {
+    throw new Error(
+      `cannot resolve reviewPreflight.proofOrStopResidue from malformed ${picked.filename}: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    );
+  }
+  if (!isJsonRecord(parsed)) {
+    throw new Error(`${picked.filename} must contain a JSON object`);
+  }
+  if (!Object.prototype.hasOwnProperty.call(parsed, 'reviewPreflight')) return 'off';
+
+  const reviewPreflight = parsed.reviewPreflight;
+  if (!isJsonRecord(reviewPreflight)) {
+    throw new Error('reviewPreflight must be a JSON object');
+  }
+  if (!Object.prototype.hasOwnProperty.call(reviewPreflight, 'proofOrStopResidue')) return 'off';
+
+  const mode = reviewPreflight.proofOrStopResidue;
+  if (mode === 'off' || mode === 'enforce') return mode;
+  throw new Error(
+    `reviewPreflight.proofOrStopResidue must be "off" or "enforce", received ${JSON.stringify(mode)}`,
+  );
 }
 
 function findProjectRootByMarker(startDir: string): string | null {

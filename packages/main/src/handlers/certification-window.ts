@@ -16,6 +16,7 @@ import { existsSync, realpathSync } from 'node:fs';
 import { join, dirname, basename, relative } from 'node:path';
 import { readDynamicFindingDecision } from '../core/finding-applicability-projection.js';
 import { loadConfig } from '../core/config.js';
+import { PROOF_OR_STOP_ROOT_PACKAGE_NAME } from '../core/proof-or-stop-brand.js';
 import {
   currentGitHead,
   currentMaterialHash,
@@ -224,10 +225,41 @@ function certificationDomainForEntry(entry: StoryChangedFile): CausalDependencyD
   return certificationDomainForPath(entry.path);
 }
 
+/** Keep the source repository's exact path policy while admitting consumers. */
+function isProofOrStopSourceRepository(gitCwd: string, ref: string): boolean {
+  const markers: Array<readonly [string, string]> = [
+    ['package.json', PROOF_OR_STOP_ROOT_PACKAGE_NAME],
+    ['packages/main/package.json', '@proof-or-stop/core'],
+  ];
+  for (const [path, expectedName] of markers) {
+    try {
+      const present = execFileSync('git', ['ls-tree', '-r', '--name-only', ref, '--', path],
+        { cwd: gitCwd, encoding: 'utf8', maxBuffer: 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+      if (present !== path) continue;
+      // Classify the same committed tree whose changed blobs enter the digest;
+      // an uncommitted package.json cannot switch the causal policy.
+      const committedBytes = execFileSync('git', ['show', `${ref}:${path}`],
+        { cwd: gitCwd, encoding: 'utf8', maxBuffer: 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'] });
+      if (JSON.parse(committedBytes)?.name === expectedName) return true;
+    } catch {
+      // Malformed identity or unreadable Git state cannot authorize fallback.
+      return true;
+    }
+  }
+  return false;
+}
+
+function isExternalUnclassifiedMaterialPath(path: string): boolean {
+  return !!path && !path.startsWith('/') && !path.split('/').includes('..')
+    && !/^\.(?:proof-or-stop|lattice|git)(?:\/|$)/.test(path)
+    // Two matching known rules are ambiguous, not an external fallback case.
+    && !CERTIFICATION_DOMAIN_PATH_RULES.some(([, rule]) => rule.test(path));
+}
+
 /**
  * Derive one stable causal input from each declared domain's story-owned
- * files. Unknown or ambiguously classified paths deliberately return
- * undefined so the evaluator falls back to strict whole-tree freshness.
+ * files. External consumer paths outside the PoS-specific rules bind every
+ * domain conservatively; ambiguous and reserved paths remain strict refusals.
  */
 export function deriveCertificationDomainInputHashes(
   gitCwd: string,
@@ -240,10 +272,21 @@ export function deriveCertificationDomainInputHashes(
   const byDomain = new Map<CausalDependencyDomain, string[]>(
     CAUSAL_DEPENDENCY_DOMAINS.map(domain => [domain, []]),
   );
+  const externalConsumer = !isProofOrStopSourceRepository(gitCwd, ref);
   for (const entry of entries) {
     const domain = certificationDomainForEntry(entry);
-    if (!domain) return undefined;
-    byDomain.get(domain)!.push(`${entry.path}\0${entry.blobId || '<deleted>'}`);
+    const identity = `${entry.path}\0${entry.blobId || '<deleted>'}`;
+    if (domain) {
+      byDomain.get(domain)!.push(identity);
+    } else if (externalConsumer && isExternalUnclassifiedMaterialPath(entry.path)) {
+      // Unknown consumer code/config/test files are bound to EVERY domain.
+      // This spends extra reruns rather than guessing a language-specific role
+      // and silently under-invalidating. Reserved control paths and ambiguous
+      // known rules still fail closed above.
+      for (const causalDomain of CAUSAL_DEPENDENCY_DOMAINS) byDomain.get(causalDomain)!.push(identity);
+    } else {
+      return undefined;
+    }
   }
   return Object.fromEntries(CAUSAL_DEPENDENCY_DOMAINS.map(domain => [
     `certification:${domain}`,

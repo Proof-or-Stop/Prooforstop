@@ -22,7 +22,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/src/core/runtime-environment-checks.ts",
-    "sha256": "e22bc4cbdfef75fb7e477d4e99524bb23ec1ed779c4a0dab54069b549ab5d9d5"
+    "sha256": "32c50661e5df14c86ebd3e045016b3faddcf6f7e91c20156cb7c08819100a05f"
   },
   {
     "path": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
@@ -490,7 +490,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/data.mjs",
-    "sha256": "1a558e17a2ce42a32d4edf960fc98c44b2602de69a6aec37395918ab81e9afc5"
+    "sha256": "4dd0430ecdb574343b258f412d7519d74de9fc205d6e291c219921c1b9807430"
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/driver.mjs",
@@ -1209,7 +1209,7 @@ export const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [48,"cc44ed2de501ece64b10585468721b50cfc9f628f62e0deb03af8240d4615847"],
   [49,"8c9b8d8a5a9bf9b715ffaaaebb88c42c8bcc38258e2953356e09be5aabc44b3a"],
   [51,"6266521612a843fb549a70c35df31e281f153749c0e7fcba2b2aa4eccce19fa4"],
-  [52,"e22bc4cbdfef75fb7e477d4e99524bb23ec1ed779c4a0dab54069b549ab5d9d5"],
+  [52,"32c50661e5df14c86ebd3e045016b3faddcf6f7e91c20156cb7c08819100a05f"],
   [55,"0a0e8086be494cbf378b488a2d891a43db5559f077042ac6da87cfd4a90375d0"],
   [60,"bb56479da5c58cf6baccddf3cbde7255e82c0e0fd805acc6a412ffee6a728758"],
   [62,"9ee8a71dcfaacfc632a7756be28b1ade7039a97650843eb0389591d0747c44ca"],

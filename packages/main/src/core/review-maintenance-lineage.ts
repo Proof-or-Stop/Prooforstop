@@ -41,13 +41,21 @@ export function isVerifiedReviewMaintenanceCommit(args: {
         || (args.reviewedMaterialHash !== undefined && epoch.cutoff.materialHash !== args.reviewedMaterialHash)
         || (args.reviewedStoryFilesHash !== undefined && epoch.cutoff.storyFilesHash !== args.reviewedStoryFilesHash)) return false;
       if (epoch.cutoff.headHash !== reviewedHeadHash && (!args.reviewedMaterialHash || !args.reviewedStoryFilesHash)) return false;
-      // Git exit 1 is an ordinary negative ancestry verdict; other failures
-      // remain unexpected reader errors and reach the health reporter.
-      try { git(['merge-base','--is-ancestor',epoch.cutoff.headHash,reviewedHeadHash]); }
-      catch (error) {
-        if (error && typeof error === 'object' && 'status' in error && error.status === 1) return false;
-        throw error;
-      }
+      // An OPEN epoch freezes the cutoff before its reviewers; a direct
+      // finalize freezes it after managed reviewer imports. Both are valid on
+      // one ancestry chain. The outer live-binding reader separately verifies
+      // each intervening importer commit. A sibling cutoff is never admitted.
+      const isAncestor = (older: string, newer: string): boolean => {
+        try { git(['merge-base','--is-ancestor',older,newer]); return true; }
+        catch (error) {
+          if (error && typeof error === 'object' && 'status' in error && error.status === 1) return false;
+          throw error;
+        }
+      };
+      if (!isAncestor(reviewedHeadHash,parents[0])
+        || !isAncestor(epoch.cutoff.headHash,parents[0])
+        || (!isAncestor(epoch.cutoff.headHash,reviewedHeadHash)
+          && !isAncestor(reviewedHeadHash,epoch.cutoff.headHash))) return false;
       if (artifacts.includes('process-metrics.json')) {
         const metrics = readAt(commit,'process-metrics.json');
         if (metrics.storyId !== storyId || typeof metrics.generatedAt !== 'string' || !metrics.sourceSnapshot || !metrics.dimensions) return false;

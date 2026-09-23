@@ -4,7 +4,7 @@ Each original entry remains the public command. Internal modules do not register
 
 | Entry | Entry lines | Modules | Maximum lines | Capability IDs | Registration |
 |---|---:|---:|---:|---|---|
-| `scripts/verify-process-fact-contract.mjs` | 7 | 16 | 1861 | `support`, `proofstory-closeout`, `reopen`, `prompt-contracts`, `review-inventory`, `registry-parser`, `command-contracts`, `review-verification`, `scope-runtime`, `story3` | Existing entry retained; explicit internal capability map |
+| `scripts/verify-process-fact-contract.mjs` | 7 | 16 | 1880 | `support`, `proofstory-closeout`, `reopen`, `prompt-contracts`, `review-inventory`, `registry-parser`, `command-contracts`, `review-verification`, `scope-runtime`, `story3` | Existing entry retained; explicit internal capability map |
 | `packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs` | 7 | 27 | 1024 | `selector-contract`, `inventory-bijection`, `partition-contract`, `fixture-template-contract`, `coordinator-fault-contract`, `detached-containment-contract`, `worker-safety-contract`, `exact-head-supervisor-contract`, `resource-parallel-contract`, `performance-preflight-isolation-contract`, `performance-host-accounting-contract`, `performance-idle-wait-contract`, `performance-idle-budget-contract`, `performance-preflight-idle-contract`, `performance-contamination-retry-contract`, `performance-current-jobs1-contract`, `performance-current-jobs2-contract`, `performance-contract` | Existing entry retained; explicit internal capability map |
 | `scripts/verify-proof-or-stop-identity-cutover.mjs` | 9 | 25 | 1433 | `ordering`, `current-guidance`, `history-contexts`, `schema-inventory`, `active-residue` | Existing entry retained; explicit internal capability map |
 | `packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts` | 7 | 14 | 1577 | `vocabulary-controls`, `import-controls`, `dynamic-controls`, `loader-provenance`, `compatibility-controls`, `public-contract` | Existing entry retained; explicit internal capability map |
@@ -25,16 +25,16 @@ Each original entry remains the public command. Internal modules do not register
 |---|---:|
 | `scripts/process-fact-contract/catalog.mjs` | 92 |
 | `scripts/process-fact-contract/cli.mjs` | 33 |
-| `scripts/process-fact-contract/command-contracts.mjs` | 1106 |
-| `scripts/process-fact-contract/complete.mjs` | 1861 |
+| `scripts/process-fact-contract/command-contracts.mjs` | 1115 |
+| `scripts/process-fact-contract/complete.mjs` | 1880 |
 | `scripts/process-fact-contract/early.mjs` | 64 |
 | `scripts/process-fact-contract/prompt-contracts.mjs` | 678 |
 | `scripts/process-fact-contract/proofstory-closeout.mjs` | 1620 |
 | `scripts/process-fact-contract/registry-alignment.mjs` | 634 |
 | `scripts/process-fact-contract/registry-parser.mjs` | 655 |
 | `scripts/process-fact-contract/reopen.mjs` | 568 |
-| `scripts/process-fact-contract/review-inventory.mjs` | 832 |
-| `scripts/process-fact-contract/review-verification.mjs` | 1009 |
+| `scripts/process-fact-contract/review-inventory.mjs` | 844 |
+| `scripts/process-fact-contract/review-verification.mjs` | 1016 |
 | `scripts/process-fact-contract/scope-runtime.mjs` | 1223 |
 | `scripts/process-fact-contract/source-analysis.mjs` | 575 |
 | `scripts/process-fact-contract/story3.mjs` | 360 |

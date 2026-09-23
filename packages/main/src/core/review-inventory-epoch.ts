@@ -427,6 +427,34 @@ export function captureReviewInventoryBaselineFindingIds(args: {
     .sort();
 }
 
+export function reviewInventoryInitialRunSequenceBoundary(args: {
+  promptStore?: Pick<StoryStore, 'storyDirPath'>;
+  storyId: string;
+  reviewRound: string;
+  cutoff: { materialHash: string; storyFilesHash?: string };
+  requiredLanes: string[];
+  runs: ReviewRun[];
+  passes: ReviewPass[];
+  findings: Finding[];
+}): number {
+  const currentTerminalSequences = args.runs
+    .filter(run => run.storyId === args.storyId
+      && run.reviewRound === args.reviewRound
+      && args.requiredLanes.includes(run.lane)
+      && run.materialHash === args.cutoff.materialHash
+      && (run.storyFilesHash ?? '') === (args.cutoff.storyFilesHash ?? '')
+      && evidenceForRun(run, args.passes, args.findings, args.promptStore).terminal !== null)
+    .map(reviewRunSequence)
+    .filter((sequence): sequence is number => sequence !== null);
+  if (currentTerminalSequences.length === 0) return maxReviewRunSequence(args.runs);
+  // Admit every already-terminal signed lane on this exact round and cutoff.
+  // Starting one sequence before the earliest eligible run is conservative: it
+  // also exposes any same-cutoff finding between eligible lane runs instead of
+  // allowing epoch creation to hide it. Different rounds/cutoffs remain outside
+  // evaluateReviewInventoryWave regardless of sequence.
+  return Math.min(...currentTerminalSequences) - 1;
+}
+
 export function evaluateReviewInventoryWave(args: {
   promptStore?: Pick<StoryStore, 'storyDirPath'>;
   epoch: ReviewInventoryEpoch;

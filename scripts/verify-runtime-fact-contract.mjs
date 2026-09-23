@@ -915,6 +915,10 @@ process.stdout.write(JSON.stringify({ registry: RUNTIME_FACT_REGISTRY.length, pr
 
   await import(pathToFileURL(join(root, 'packages/main/tests/validation-coordination-residue.test.mjs')).href);
   await import(pathToFileURL(join(root, 'packages/main/tests/validation-coordination-cleanup.test.mjs')).href);
+  check(registrySource.includes('workerClaimTimeoutMs: 30_000'),
+    'managed supervisor policy must preserve the concurrent cold-start claim budget');
+  check(read(root, 'packages/main/src/core/managed-host-run.ts').includes('MANAGED_SUPERVISOR_RUNTIME_POLICY.workerClaimTimeoutMs'),
+    'managed host submission must consume the registered worker claim budget');
 
   if (failures.length > 0) {
     console.error('Runtime fact contract failed:');
