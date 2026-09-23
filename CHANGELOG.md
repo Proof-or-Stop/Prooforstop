@@ -1,5 +1,16 @@
 # Changelog
 
+## Lab identity-148-performance-20260920 - v0.3.454 - 2026-09-23
+
+- Split 14 public verification entries into 192 modules below 2,000 lines, with 134 explicit capability selectors and unchanged routine gate registration; preserve public paths and exports. See `docs/lab/verification-modularization-inventory.md` for the full mapping.
+- Retire the 259-case identity migration campaign from routine and default execution while retaining explicit `identity-migration-archive` access, normal consumer controls and configuration rejection checks; preserve single F-060 scheduling and phase timing across modules.
+- Move workspace capacity coordination outside protected repositories into a private owner-home queue; preserve live/unknown ownership and migration deadlines, retain the owned queue across checkout moves/copies, safely reclaim observed empty queues on normal exit, wait for live preparation within the admission deadline, and refuse foreign aliases with named recovery diagnostics.
+- Record complete identity/runtime/process/package certification at 535ed1190f and targeted audit-repair regressions and main 0.3.453 compatibility separately in `docs/lab/verification-modularization.md`. Heavy quorum campaigns were not rerun; scoped results grant no production exclusions or Story DONE authority.
+
+Maintenance provenance: codex/lab-identity-148-performance-20260920, repair ea9a57cd4713448e014952d274c1ceeb162f3147.
+Verification command (replayed before integration and on main): `["node","packages/main/tests/canonical-new-story-artifacts.test.mjs","--group=identity-sites"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## External consumer certification domains - v0.3.453 - 2026-09-24
 
 - Bind unclassified external-project changes, including Go `evaluator/` and `repl/` paths, to every PRE_CERT causal domain so certification can proceed without under-invalidating later changes.
