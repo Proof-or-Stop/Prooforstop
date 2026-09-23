@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import * as audit from './lab-audit.mjs';
+import { LAB_MAINTENANCE_RUNTIME_REQUIREMENTS as policy } from '../packages/main/src/core/runtime-fact-registry.ts';
+const budget = count => audit.auditTimeoutForPaths?.(count) ?? policy.auditTimeoutMs;
+assert.equal(budget(347), 1_800_000, 'LAB_AUDIT_LARGE_DIFF_DEADLINE: 347-file review needs a bounded 30-minute allowance');
+assert.equal(budget(1), 900_000, 'small audits retain the existing deadline');
+assert.equal(budget(180), 900_000);
+assert.equal(budget(181), 1_200_000);
+assert.equal(budget(10000), 3_600_000, 'large inputs cannot obtain an unlimited deadline');
+for (const value of [-1, 0, 1.5, NaN, Infinity, '347']) assert.throws(() => audit.auditTimeoutForPaths(value), /positive safe integer/);
+const source = fs.readFileSync(new URL('./lab-audit.mjs', import.meta.url), 'utf8');
+assert.equal((source.match(/timeoutMs: auditTimeoutMs/g) ?? []).length, 2, 'built-in and custom adapters must consume the same measured budget');
+assert.match(source, /auditTimeoutForPaths\(paths.length\)/);
+assert.match(source, /writeFileSync\(join\(dir, 'budget.json'\)/);
+assert.match(source, /result\.timedOut/);
+assert.match(source, /paths.some\(path => !proposal.readRefs.includes\(path\)\)/, 'coverage remains mandatory');
+console.log('LAB_AUDIT_TIMEOUT_BUDGET_GREEN small/large/cap/invalid inputs, both transports and unchanged coverage');
