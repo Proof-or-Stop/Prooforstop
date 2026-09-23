@@ -181,6 +181,7 @@ async function main() {
   check(labLoader.includes('LAB_MAINTENANCE_RUNTIME_REQUIREMENTS') && labLoader.includes('process.features.typescript') && labLoader.includes('nodeModule.registerHooks'), 'Lab source loader must consume its runtime contract and check native capabilities');
   const labWorktree = read(root, 'scripts/lab-worktree.mjs');
   const labAudit = read(root, 'scripts/lab-audit.mjs');
+  check(labWorktree.includes('function run(cwd, command, timeoutMs = labPolicy.commandTimeoutMs)') && labWorktree.includes('timeout: labPolicy.commandTimeoutMs') && labWorktree.includes('declaredDeveloper, timeoutMs = labPolicy.commandTimeoutMs'), 'Lab command execution, captured commands and RED defaults must consume the registered timeout');
   check(labAudit.includes('timeoutMs: labPolicy.auditTimeoutMs') && labAudit.includes('startupTimeoutMs: labPolicy.auditStartupTimeoutMs'), 'Lab audit runner must consume registered bounded timeouts');
   check(labAudit.includes('const INPUT_LIMIT = labPolicy.auditInputMaxBytes;') && labAudit.includes('const OUTPUT_LIMIT = SUPERVISED_PROVIDER_RUNTIME_POLICY.maxOutputBytes;') && labAudit.includes('captured + bytes > OUTPUT_LIMIT'), 'Lab local snapshot input and provider output must retain separate bounded budgets');
   const labProviders = read(root, 'scripts/lab-audit-providers.mjs');

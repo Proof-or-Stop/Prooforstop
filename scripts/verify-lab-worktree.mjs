@@ -59,7 +59,7 @@ try {
   cmd(legacy,['create','identity','--developer','codex']);
   assert.equal(JSON.parse(cmd(legacy,['status','identity'])).developerHost,'codex');
   const legacyLab=join(legacy,'.worktrees/Lab-identity');
-  cmd(legacy,['red','identity','--expect','TARGET regression','--',process.execPath,'check.cjs']);
+  cmd(legacy,['red','identity','--expect','TARGET regression','--timeout-ms','900000','--',process.execPath,'check.cjs']);
   write(legacyLab,'bug.txt','fixed');commit(legacyLab,'fix: legacy witness');cmd(legacy,['green','identity']);
   alterFixtureRecord(legacy,'identity',s=>{delete s.developerHost;s.schema=2;});
   process.env.LAB_FIXTURE_DEVELOPER='claude';
@@ -67,7 +67,13 @@ try {
   cmd(legacy,[...finish('identity'),'--developer','unknown-fixture-provider'],1,/Unknown Lab developer/);
   assert.equal(JSON.parse(cmd(legacy,['status','identity'])).developerHost,undefined,'LAB_INVALID_DEVELOPER_MUST_NOT_PIN');
   cmd(legacy,[...finish('identity'),'--developer','codex']);
-  const legacyAudit=JSON.parse(cmd(legacy,['status','identity'])).audit;
+  const legacyState=JSON.parse(cmd(legacy,['status','identity']));
+  for (const kind of ['red','green','synchronized-green','candidate-green','post-merge-green']) {
+    const rows=legacyState.history.filter(row=>row.kind===kind);
+    assert(rows.length>0, `Explicit budget coverage is missing ${kind}`);
+    assert(rows.every(row=>row.timeoutMs===900000), `Recorded 900-second budget must survive ${kind}`);
+  }
+  const legacyAudit=legacyState.audit;
   assert.equal(legacyAudit.developerHost,'codex');assert.equal(legacyAudit.auditorVendor,'anthropic');
   delete process.env.LAB_FIXTURE_DEVELOPER;
   const unaudited = fixture('unaudited'); cmd(unaudited, ['create', 'unaudited']);
