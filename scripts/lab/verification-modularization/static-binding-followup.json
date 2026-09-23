@@ -2,38 +2,771 @@
   "baseline": "53dc0babd9",
   "changes": [
     {
-      "id": "EX-0172",
-      "oldKey": "scripts/verify-lab-worktree.mjs:20:spawnSync",
-      "newKey": "scripts/verify-lab-worktree.mjs:22:spawnSync",
+      "id": "EX-0061",
+      "oldKey": "packages/main/src/tasks/native-review-fixture.ts:190:spawn",
+      "newKey": "packages/main/src/tasks/native-review-fixture.ts:190:spawn",
       "currentEvidenceAdded": 0,
       "dependencyChanges": [
         {
-          "path": "scripts/lab-source-loader.mjs",
-          "before": null,
-          "after": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496"
-        },
-        {
-          "path": "scripts/verify-lab-worktree.mjs",
-          "before": "69b31425d761bdf1cb8282fa4767569e36f64991c126e87f7a44263f1268ce4c",
-          "after": "6ca9a3f9a8bb3b22f8b4e39cf4f698e9d9ea45f3a3b79ef40674845038d36f16"
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
         }
       ]
     },
     {
-      "id": "EX-0230",
-      "oldKey": "scripts/verify-lab-worktree.mjs:350:execFileSync",
-      "newKey": "scripts/verify-lab-worktree.mjs:352:execFileSync",
+      "id": "EX-0009",
+      "oldKey": "scripts/run-validation-fixture-suite.mjs:58:spawnSync",
+      "newKey": "scripts/run-validation-fixture-suite.mjs:58:spawnSync",
       "currentEvidenceAdded": 0,
       "dependencyChanges": [
         {
-          "path": "scripts/lab-source-loader.mjs",
-          "before": null,
-          "after": "f44e3c18e03d1c7dc6604903f19a47e7716c2d191220818ec64fe0d820f61496"
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-0178",
+      "oldKey": "packages/main/src/tasks/full-suite-runner.ts:697:spawn",
+      "newKey": "packages/main/src/tasks/full-suite-runner.ts:697:spawn",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-0084",
+      "oldKey": "packages/main/src/tasks/validation-protocol-smoke.ts:1185:spawnSync",
+      "newKey": "packages/main/src/tasks/validation-protocol-smoke.ts:1185:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-0085",
+      "oldKey": "packages/main/src/tasks/validation-protocol-smoke.ts:1517:spawnSync",
+      "newKey": "packages/main/src/tasks/validation-protocol-smoke.ts:1517:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-0086",
+      "oldKey": "packages/main/src/tasks/validation-protocol-smoke.ts:1521:spawnSync",
+      "newKey": "packages/main/src/tasks/validation-protocol-smoke.ts:1521:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-0087",
+      "oldKey": "packages/main/src/tasks/validation-protocol-smoke.ts:2409:spawnSync",
+      "newKey": "packages/main/src/tasks/validation-protocol-smoke.ts:2409:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "MERGE-FINDING-01",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:75:execFileSync",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:75:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "MERGE-FINDING-02",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:80:spawnSync",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:80:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "MERGE-FINDING-04",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:123:spawnSync",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:123:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "MERGE-FINDING-05",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:338:spawnSync",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:338:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "MERGE-FINDING-06",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:385:spawnSync",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:385:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "MERGE-FINDING-07",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:582:spawnSync",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:582:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "MERGE-FINDING-08",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:584:spawnSync",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:584:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "MERGE-FINDING-09",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:613:spawnSync",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:613:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "MERGE-FINDING-10",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:783:spawnSync",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:783:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "MERGE-FINDING-11",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:806:spawn",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:806:spawn",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "MERGE-FINDING-12",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:918:spawnSync",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:918:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "MERGE-FINDING-13",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:1574:spawnSync",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:1574:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "MERGE-FINDING-14",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:1576:spawnSync",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:1576:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "MERGE-FINDING-15",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:1592:spawn",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:1592:spawn",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "MERGE-FINDING-16",
+      "oldKey": "packages/main/tests/red/red-b03b7-identity-lineage.mjs:28:spawnSync",
+      "newKey": "packages/main/tests/red/red-b03b7-identity-lineage.mjs:28:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-1033",
+      "oldKey": "packages/main/src/tasks/isolated-finding-fixture.ts:157:spawn",
+      "newKey": "packages/main/src/tasks/isolated-finding-fixture.ts:157:spawn",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-1034",
+      "oldKey": "packages/main/tests/red/red-dynamic-finding-evidence-closure.mjs:57:spawnSync",
+      "newKey": "packages/main/tests/red/red-dynamic-finding-evidence-closure.mjs:57:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-1035",
+      "oldKey": "packages/main/tests/red/red-dynamic-finding-final-contracts.mjs:12:spawnSync",
+      "newKey": "packages/main/tests/red/red-dynamic-finding-final-contracts.mjs:12:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-1039",
+      "oldKey": "scripts/verify-runtime-fact-contract.mjs:158:execFileSync",
+      "newKey": "scripts/verify-runtime-fact-contract.mjs:158:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/verify-runtime-fact-contract.mjs",
+          "before": "0000d521d15e80e48b032713fb743306a20c37786238df24f826d81c59d6e69b",
+          "after": "48ad514efea490fd7ea19cd9521e18aa00fa88145bf4f2efcf22f46e2a836b1b"
+        }
+      ]
+    },
+    {
+      "id": "EX-1040",
+      "oldKey": "scripts/verify-runtime-fact-contract.mjs:710:execFileSync",
+      "newKey": "scripts/verify-runtime-fact-contract.mjs:710:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
         },
         {
-          "path": "scripts/verify-lab-worktree.mjs",
-          "before": "69b31425d761bdf1cb8282fa4767569e36f64991c126e87f7a44263f1268ce4c",
-          "after": "6ca9a3f9a8bb3b22f8b4e39cf4f698e9d9ea45f3a3b79ef40674845038d36f16"
+          "path": "scripts/verify-runtime-fact-contract.mjs",
+          "before": "0000d521d15e80e48b032713fb743306a20c37786238df24f826d81c59d6e69b",
+          "after": "48ad514efea490fd7ea19cd9521e18aa00fa88145bf4f2efcf22f46e2a836b1b"
+        }
+      ]
+    },
+    {
+      "id": "EX-1041",
+      "oldKey": "scripts/verify-runtime-fact-contract.mjs:909:execFileSync",
+      "newKey": "scripts/verify-runtime-fact-contract.mjs:909:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/verify-runtime-fact-contract.mjs",
+          "before": "0000d521d15e80e48b032713fb743306a20c37786238df24f826d81c59d6e69b",
+          "after": "48ad514efea490fd7ea19cd9521e18aa00fa88145bf4f2efcf22f46e2a836b1b"
+        }
+      ]
+    },
+    {
+      "id": "EX-1042",
+      "oldKey": "scripts/verify-runtime-fact-contract.mjs:914:execFileSync",
+      "newKey": "scripts/verify-runtime-fact-contract.mjs:914:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/verify-runtime-fact-contract.mjs",
+          "before": "0000d521d15e80e48b032713fb743306a20c37786238df24f826d81c59d6e69b",
+          "after": "48ad514efea490fd7ea19cd9521e18aa00fa88145bf4f2efcf22f46e2a836b1b"
+        }
+      ]
+    },
+    {
+      "id": "EX-1046",
+      "oldKey": "packages/main/src/tasks/validation-protocol-smoke.ts:2462:execFileSync",
+      "newKey": "packages/main/src/tasks/validation-protocol-smoke.ts:2462:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-RUNTIME-SNAPSHOT-BINDING",
+      "oldKey": "scripts/verify-runtime-fact-contract.mjs:186:execFileSync",
+      "newKey": "scripts/verify-runtime-fact-contract.mjs:186:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/verify-runtime-fact-contract.mjs",
+          "before": "0000d521d15e80e48b032713fb743306a20c37786238df24f826d81c59d6e69b",
+          "after": "48ad514efea490fd7ea19cd9521e18aa00fa88145bf4f2efcf22f46e2a836b1b"
+        }
+      ]
+    },
+    {
+      "id": "EX-MEMORY-QUERY-TIMING",
+      "oldKey": "scripts/verify-runtime-fact-contract.mjs:161:execFileSync",
+      "newKey": "scripts/verify-runtime-fact-contract.mjs:161:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/verify-runtime-fact-contract.mjs",
+          "before": "0000d521d15e80e48b032713fb743306a20c37786238df24f826d81c59d6e69b",
+          "after": "48ad514efea490fd7ea19cd9521e18aa00fa88145bf4f2efcf22f46e2a836b1b"
+        }
+      ]
+    },
+    {
+      "id": "EX-STATIC-AST-CONTROLS",
+      "oldKey": "scripts/verify-runtime-fact-contract.mjs:166:execFileSync",
+      "newKey": "scripts/verify-runtime-fact-contract.mjs:166:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/verify-runtime-fact-contract.mjs",
+          "before": "0000d521d15e80e48b032713fb743306a20c37786238df24f826d81c59d6e69b",
+          "after": "48ad514efea490fd7ea19cd9521e18aa00fa88145bf4f2efcf22f46e2a836b1b"
+        }
+      ]
+    },
+    {
+      "id": "EX-VALIDATION-PLANNING-OBSERVATION",
+      "oldKey": "scripts/verify-runtime-fact-contract.mjs:912:execFileSync",
+      "newKey": "scripts/verify-runtime-fact-contract.mjs:912:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "scripts/verify-runtime-fact-contract.mjs",
+          "before": "0000d521d15e80e48b032713fb743306a20c37786238df24f826d81c59d6e69b",
+          "after": "48ad514efea490fd7ea19cd9521e18aa00fa88145bf4f2efcf22f46e2a836b1b"
+        }
+      ]
+    },
+    {
+      "id": "EX-MANAGED-CRITIC-SPAWNSYNC",
+      "oldKey": "scripts/verify-managed-inventory-critic-transport.mjs:81:spawnSync",
+      "newKey": "scripts/verify-managed-inventory-critic-transport.mjs:81:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-MANAGED-CRITIC-EXECFILE",
+      "oldKey": "scripts/verify-managed-inventory-critic-transport.mjs:96:execFile",
+      "newKey": "scripts/verify-managed-inventory-critic-transport.mjs:96:execFile",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-01",
+      "oldKey": "scripts/support/nested-reservation-lifecycle.mjs:109:spawnSync",
+      "newKey": "scripts/support/nested-reservation-lifecycle.mjs:109:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-02",
+      "oldKey": "packages/main/src/core/validation-executor.ts:1187:execSync",
+      "newKey": "packages/main/src/core/validation-executor.ts:1187:execSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-03",
+      "oldKey": "packages/main/src/core/validation-executor.ts:1895:spawn",
+      "newKey": "packages/main/src/core/validation-executor.ts:1895:spawn",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-04",
+      "oldKey": "scripts/verify-nested-reservation-faults.mjs:194:spawn",
+      "newKey": "scripts/verify-nested-reservation-faults.mjs:194:spawn",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-05",
+      "oldKey": "scripts/verify-nested-reservation-handshake-deadline.mjs:24:spawn",
+      "newKey": "scripts/verify-nested-reservation-handshake-deadline.mjs:24:spawn",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-06",
+      "oldKey": "scripts/verify-nested-reservation-owner-loss.mjs:17:spawn",
+      "newKey": "scripts/verify-nested-reservation-owner-loss.mjs:17:spawn",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-07-L24",
+      "oldKey": "scripts/verify-nested-reservation-owner-loss.mjs:24:execFileSync",
+      "newKey": "scripts/verify-nested-reservation-owner-loss.mjs:24:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-07-L26",
+      "oldKey": "scripts/verify-nested-reservation-owner-loss.mjs:26:execFileSync",
+      "newKey": "scripts/verify-nested-reservation-owner-loss.mjs:26:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-07-L30",
+      "oldKey": "scripts/verify-nested-reservation-owner-loss.mjs:30:execFileSync",
+      "newKey": "scripts/verify-nested-reservation-owner-loss.mjs:30:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-08",
+      "oldKey": "scripts/verify-nested-reservation-registration-race.mjs:52:spawnSync",
+      "newKey": "scripts/verify-nested-reservation-registration-race.mjs:52:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-09",
+      "oldKey": "scripts/verify-nested-reservation-cleanup-diagnostics.mjs:44:spawnSync",
+      "newKey": "scripts/verify-nested-reservation-cleanup-diagnostics.mjs:44:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-10",
+      "oldKey": "scripts/verify-nested-isolated-cleanup.mjs:22:spawn",
+      "newKey": "scripts/verify-nested-isolated-cleanup.mjs:22:spawn",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-11",
+      "oldKey": "scripts/verify-nested-isolated-worker-exit.mjs:16:spawn",
+      "newKey": "scripts/verify-nested-isolated-worker-exit.mjs:16:spawn",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-12",
+      "oldKey": "scripts/verify-nested-source-loader-semantics.mjs:19:spawnSync",
+      "newKey": "scripts/verify-nested-source-loader-semantics.mjs:19:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-13",
+      "oldKey": "scripts/verify-nested-validation-result-contract.mjs:174:spawnSync",
+      "newKey": "scripts/verify-nested-validation-result-contract.mjs:174:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-14",
+      "oldKey": "scripts/verify-nested-reservation-cancellation.mjs:73:spawnSync",
+      "newKey": "scripts/verify-nested-reservation-cancellation.mjs:73:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-15",
+      "oldKey": "scripts/verify-nested-reservation-boot-recovery.mjs:60:spawnSync",
+      "newKey": "scripts/verify-nested-reservation-boot-recovery.mjs:60:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-16",
+      "oldKey": "scripts/verify-nested-reservation-wrapper-transport.mjs:43:spawnSync",
+      "newKey": "scripts/verify-nested-reservation-wrapper-transport.mjs:43:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-17",
+      "oldKey": "scripts/verify-nested-isolated-observation.mjs:95:spawnSync",
+      "newKey": "scripts/verify-nested-isolated-observation.mjs:95:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-18",
+      "oldKey": "scripts/verify-nested-doctor-fence-projection.mjs:106:spawnSync",
+      "newKey": "scripts/verify-nested-doctor-fence-projection.mjs:106:spawnSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        }
+      ]
+    },
+    {
+      "id": "EX-TRACKED-CONTROLLER-BOOTSTRAP",
+      "oldKey": "scripts/verify-runtime-fact-contract.mjs:156:execFileSync",
+      "newKey": "scripts/verify-runtime-fact-contract.mjs:156:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        },
+        {
+          "path": "scripts/verify-runtime-fact-contract.mjs",
+          "before": "0000d521d15e80e48b032713fb743306a20c37786238df24f826d81c59d6e69b",
+          "after": "48ad514efea490fd7ea19cd9521e18aa00fa88145bf4f2efcf22f46e2a836b1b"
+        }
+      ]
+    },
+    {
+      "id": "EX-BENCHMARK-ROUTINE-BEHAVIOR",
+      "oldKey": "scripts/verify-benchmark-behavior.mjs:14:execFileSync",
+      "newKey": "scripts/verify-benchmark-behavior.mjs:14:execFileSync",
+      "currentEvidenceAdded": 0,
+      "dependencyChanges": [
+        {
+          "path": "packages/main/src/core/runtime-fact-registry.ts",
+          "before": "d0619fac76ef09f55eb269fbce06488efb0ca54d6fe86e4e99f99452daf967dc",
+          "after": "29804cec0cc9bc780123a1068c05dbcdd7d892f076331c0700fe4313b834f8c6"
+        },
+        {
+          "path": "scripts/lab-audit.mjs",
+          "before": "19cc04f57426f33badbdb92224352a7e1acd681ede1bb0479a39067cdb7cdaa0",
+          "after": "916667eaf395fe9dc0b06655b542fdef1ce4e82f29c8438e20b6dc1a8f384127"
         }
       ]
     }

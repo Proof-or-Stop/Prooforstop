@@ -563,6 +563,7 @@ export const LAB_MAINTENANCE_RUNTIME_REQUIREMENTS = {
   auditTimeoutMs: 900000,
   // Size-based allowance, not a performance claim; startup and cleanup stay bounded.
   auditPerChangedPathMs: 5000,
+  auditPerMiBMs: 60000,
   auditBudgetQuantumMs: 300000,
   auditMaxTimeoutMs: 3600000,
   auditStartupTimeoutMs: 90000,

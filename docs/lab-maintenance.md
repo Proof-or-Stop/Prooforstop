@@ -393,16 +393,28 @@ Large audit bodies use complete `diff.patch` and per-file snapshots, with a path
 ### Audit deadline sizing
 
 Independent Lab audits retain a 15-minute minimum. The immutable changed-path
-count supplies a five-second allowance per path, rounded up to five-minute
-increments, with a hard one-hour maximum. For example, 347 paths receive 30
-minutes. This is a configuration allowance, not measured performance improvement.
-The previous 347-path audit hit its 900-second total deadline after 337 Read
+count supplies a five-second allowance per path; complete diff plus snapshot
+bytes supply a one-minute allowance per MiB. The larger allowance is rounded up
+to five-minute increments. Work exceeding the one-hour maximum is refused before
+provider launch with an explicit split-the-repair diagnostic, rather than silently
+clamping an undersized budget. For example, 347 small files receive 30 minutes;
+a single file with 40 MiB of diff plus snapshot content receives 40 minutes.
+These are configuration allowances, not measured speedups or guarantees of approval.
+The earlier 347-path audit hit its 900-second total deadline after 337 Read
 calls and 272 distinct path attempts, without a verdict. A Read attempt alone is
-never complete coverage or approval.
+never complete coverage or approval. The subsequent 30-minute-budget audit returned
+an incomplete fail after 235 seconds; that is a coverage refusal, not a timeout.
 
 Every provider type consumes the same calculated deadline; startup remains 90
 seconds and process-group cleanup remains required. Each audit records its exact
-path count and deadline in `budget.json` and prints them before launch. Timeout
+path count, review bytes and deadline in `budget.json` and prints them before launch. Timeout
 reports the deadline and cleanup state explicitly and never produces an accepted
 verdict. Different-vendor independence, exact candidate/digest bindings, complete
 changed-path references and refusal of unresolved findings are unchanged.
+
+Audit navigation also includes an exact Git diff for each changed path under
+`changes/`, with its byte length and SHA-256 in the file manifest. Complete
+aggregate diff and source snapshots remain available and are checked after the
+provider exits, together with every per-file patch. The read-only Claude adapter
+allows Read, Grep and Glob so auditors can locate changed regions without paging
+the full aggregate diff. Navigation files do not grant coverage or a PASS.

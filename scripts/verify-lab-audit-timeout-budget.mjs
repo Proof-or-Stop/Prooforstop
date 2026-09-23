@@ -8,12 +8,15 @@ assert.equal(budget(347), 1_800_000, 'LAB_AUDIT_LARGE_DIFF_DEADLINE: 347-file re
 assert.equal(budget(1), 900_000, 'small audits retain the existing deadline');
 assert.equal(budget(180), 900_000);
 assert.equal(budget(181), 1_200_000);
-assert.equal(budget(10000), 3_600_000, 'large inputs cannot obtain an unlimited deadline');
+assert.equal(budget(720), 3_600_000);
+assert.throws(() => budget(721), /split the repair/);
+assert.throws(() => audit.auditTimeoutForPaths(1, 61 * 1024 * 1024), /split the repair/);
+for (const bytes of [-1, 1.5, NaN, Infinity, '40']) assert.throws(() => audit.auditTimeoutForPaths(1, bytes), /nonnegative safe integer/);
 for (const value of [-1, 0, 1.5, NaN, Infinity, '347']) assert.throws(() => audit.auditTimeoutForPaths(value), /positive safe integer/);
 const source = fs.readFileSync(new URL('./lab-audit.mjs', import.meta.url), 'utf8');
 assert.equal((source.match(/timeoutMs: auditTimeoutMs, startupTimeoutMs/g) ?? []).length, 2, 'built-in and custom adapters must consume the same measured budget');
-assert.match(source, /auditTimeoutForPaths\(paths.length\)/);
+assert.match(source, /auditTimeoutForPaths\(paths.length, reviewBytes\)/);
 assert.match(source, /writeFileSync\(join\(dir, 'budget.json'\)/);
 assert.match(source, /result\.timedOut/);
 assert.match(source, /paths.some\(path => !proposal.readRefs.includes\(path\)\)/, 'coverage remains mandatory');
-console.log('LAB_AUDIT_TIMEOUT_BUDGET_GREEN small/large/cap/invalid inputs, both transports and unchanged coverage');
+console.log('LAB_AUDIT_TIMEOUT_BUDGET_GREEN small/path-heavy/byte-heavy/split-refusal/invalid inputs, both transports and unchanged coverage');
