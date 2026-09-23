@@ -561,6 +561,10 @@ export const LAB_MAINTENANCE_RUNTIME_REQUIREMENTS = {
   // Complete local commit snapshots are separate from provider output and prompt budgets.
   auditInputMaxBytes: 64 * 1024 * 1024,
   auditTimeoutMs: 900000,
+  // Size-based allowance, not a performance claim; startup and cleanup stay bounded.
+  auditPerChangedPathMs: 5000,
+  auditBudgetQuantumMs: 300000,
+  auditMaxTimeoutMs: 3600000,
   auditStartupTimeoutMs: 90000,
   recordSchema: 3,
   readableRecordSchemas: [1, 2, 3],

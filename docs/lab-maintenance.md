@@ -389,3 +389,20 @@ invented pass. This external-to-Git measurement avoids requiring a candidate com
 to contain its own SHA or its future execution result.
 
 Large audit bodies use complete `diff.patch` and per-file snapshots, with a path/size/digest manifest in the initial prompt. The original full-input digest and complete changed-path read-reference requirement remain unchanged. Both diff and file bytes are checked after the provider exits. `scripts/verify-lab-audit-prompt-budget.mjs` exercises real transport with a disposable synthetic adapter; it is not independent audit evidence.
+
+### Audit deadline sizing
+
+Independent Lab audits retain a 15-minute minimum. The immutable changed-path
+count supplies a five-second allowance per path, rounded up to five-minute
+increments, with a hard one-hour maximum. For example, 347 paths receive 30
+minutes. This is a configuration allowance, not measured performance improvement.
+The previous 347-path audit hit its 900-second total deadline after 337 Read
+calls and 272 distinct path attempts, without a verdict. A Read attempt alone is
+never complete coverage or approval.
+
+Every provider type consumes the same calculated deadline; startup remains 90
+seconds and process-group cleanup remains required. Each audit records its exact
+path count and deadline in `budget.json` and prints them before launch. Timeout
+reports the deadline and cleanup state explicitly and never produces an accepted
+verdict. Different-vendor independence, exact candidate/digest bindings, complete
+changed-path references and refusal of unresolved findings are unchanged.

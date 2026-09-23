@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import './lab-source-loader.mjs';
+import { LAB_MAINTENANCE_RUNTIME_REQUIREMENTS as labPolicy } from '../packages/main/src/core/runtime-fact-registry.ts';
 import { createHmac } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { installLabAuditFixtureProviders } from './lab-audit-fixture-provider.mjs';
@@ -45,6 +47,7 @@ const notes = join(dir, 'notes.md'); writeFileSync(notes, 'Fix the reproduced sy
 const finish = name => ['finish', name, '--notes', notes, '--confirm'];
 try {
   await import('./verify-lab-audit-contract.mjs');
+  await import('./verify-lab-audit-timeout-budget.mjs');
   await import('./verify-lab-audit-prompt-budget.mjs');
   await import('./verify-lab-fixture-sources.mjs');
   await import('./verify-lab-lock-scope.mjs');
@@ -137,7 +140,7 @@ try {
   }
   delete process.env.LAB_FIXTURE_AUDIT;
 
-  for (const [kind, content] of [['binary',Buffer.from([0,1,2])],['oversize','z'.repeat(5*1024*1024)]]) {
+  for (const [kind, content] of [['binary',Buffer.from([0,1,2])],['oversize','z'.repeat(labPolicy.auditInputMaxBytes + 1)]]) {
     const name='bounded-'+kind;
     const bounded=fixture(name);cmd(bounded,['create',name]);
     const boundedLab=join(bounded,'.worktrees/Lab-'+name);

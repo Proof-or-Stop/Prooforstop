@@ -10,7 +10,7 @@ assert.equal(budget(181), 1_200_000);
 assert.equal(budget(10000), 3_600_000, 'large inputs cannot obtain an unlimited deadline');
 for (const value of [-1, 0, 1.5, NaN, Infinity, '347']) assert.throws(() => audit.auditTimeoutForPaths(value), /positive safe integer/);
 const source = fs.readFileSync(new URL('./lab-audit.mjs', import.meta.url), 'utf8');
-assert.equal((source.match(/timeoutMs: auditTimeoutMs/g) ?? []).length, 2, 'built-in and custom adapters must consume the same measured budget');
+assert.equal((source.match(/timeoutMs: auditTimeoutMs, startupTimeoutMs/g) ?? []).length, 2, 'built-in and custom adapters must consume the same measured budget');
 assert.match(source, /auditTimeoutForPaths\(paths.length\)/);
 assert.match(source, /writeFileSync\(join\(dir, 'budget.json'\)/);
 assert.match(source, /result\.timedOut/);
