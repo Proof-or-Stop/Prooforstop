@@ -46,6 +46,7 @@ try {
  const expected={labName:options.labName,head,base,inputDigest:audit.auditInput(dir,base,head).inputDigest,developerVendor:'openai',auditorVendor:'independent'};
  assert.equal(audit.auditIsFresh(result,expected),true);
  const missing=structuredClone(result);missing.batches.pop();assert.equal(audit.auditIsFresh(missing,expected),false);
+ const treeText=readFileSync(join(result.batches[0].evidenceDir,'repository-tree.json'),'utf8');assert.ok(treeText.split('\n').length>25,'Repository index must support bounded line-based navigation');
  const prompt=readFileSync(join(result.batches.at(-1).evidenceDir,'prompt.txt'),'utf8');assert.match(prompt,/cross-module integration review/);
  await assert.rejects(()=>audit.executeLabAudit({...options,selection:{...selection,auditor:{...selection.auditor,argv:[adapter,'omit']}}}),/omitted changed-file/);
  await assert.rejects(()=>audit.executeLabAudit({...options,selection:{...selection,auditor:{...selection.auditor,argv:[adapter,'tamper-context']}}}),/snapshot changed/);

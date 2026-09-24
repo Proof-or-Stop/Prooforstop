@@ -281,9 +281,9 @@ async function executeSingleLabAudit({ cwd, base, head, developer, labName, evid
   const dir = join(evidenceRoot, binding.runId); mkdirSync(dir, { recursive: true, mode: 0o700 });
   for (const file of snapshotFiles) { const path = join(dir, 'snapshot', file.path); mkdirSync(dirname(path), { recursive: true }); writeFileSync(path, file.content); }
   const projection = JSON.parse(input);
-  const treeText=JSON.stringify(tree);writeFileSync(join(dir,'repository-tree.json'),treeText);
+  const treeText=JSON.stringify(tree,null,2);writeFileSync(join(dir,'repository-tree.json'),treeText);
   projection.tree={snapshot:'repository-tree.json',sha256:hash(treeText),description:'Complete exact-commit tree inventory; absence from snapshot/ is NOT evidence of absence from this tree.'};
-  const contextText=JSON.stringify({files:context.files.map(file=>({path:file.path,sha256:hash(file.content)})),omitted:context.omitted});
+  const contextText=JSON.stringify({files:context.files.map(file=>({path:file.path,sha256:hash(file.content)})),omitted:context.omitted},null,2);
   writeFileSync(join(dir,'dependency-context.json'),contextText);
   projection.dependencyContext={snapshot:'dependency-context.json',sha256:hash(contextText),fileCount:context.files.length,omittedCount:context.omitted.length,description:'Bounded static imports and Markdown links only, not complete dynamic closure. Context files are under snapshot/; search the manifest to locate exact paths.'};
   // Keep complete commit bytes in snapshots, without repeating historical logs in
