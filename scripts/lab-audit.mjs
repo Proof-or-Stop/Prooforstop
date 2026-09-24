@@ -212,14 +212,23 @@ export async function executeLabAudit(options) {
   const records=[];
   for (let index=0;index<=plan.length;index++) {
     const integration=index===plan.length;
+    if(integration && records.some(record=>record.decision!=='pass')) {
+      const rejected={...binding,runId,decision:'fail',summary:'All module batches completed; unresolved findings block integration review and finish.',
+        findings:records.flatMap(row=>row.findings),readRefs:records.flatMap(row=>row.readRefs),process:records.at(-1).process,
+        evidenceDir:dir,batches:records,batchPlan:plan,batchPaths:full.paths};
+      writeFileSync(join(dir,'audit.json'),JSON.stringify(rejected,null,2));return rejected;
+    }
     console.log(`LAB_AUDIT_BATCH ${index+1}/${plan.length+1} ${integration?'integration':plan[index].family}`);
     const scope={index,kind:integration?'integration':'module',paths:integration?full.paths:plan[index].paths,
       planDigest:batchPlanDigest,prior:integration?records.map(record=>({runId:record.runId,summary:record.summary,readRefs:record.readRefs})):[]};
     const record=await executeSingleLabAudit({...options,selection,evidenceRoot:dir},scope);
     records.push(record);
     writeFileSync(join(dir,'progress.json'),JSON.stringify(records,null,2));
-    if(record.decision!=='pass') return {...binding,runId,decision:'fail',summary:'A required independent audit batch reported findings.',
-      findings:record.findings,readRefs:records.flatMap(row=>row.readRefs),process:record.process,evidenceDir:dir,batches:records,batchPlan:plan,batchPaths:full.paths};
+  }
+  if(records.at(-1).decision!=='pass') {
+    const rejected={...binding,runId,decision:'fail',summary:'Module batches passed but the integration review reported unresolved findings.',
+      findings:records.at(-1).findings,readRefs:full.paths,process:records.at(-1).process,evidenceDir:dir,batches:records,batchPlan:plan,batchPaths:full.paths};
+    writeFileSync(join(dir,'audit.json'),JSON.stringify(rejected,null,2));return rejected;
   }
   validateAuditBatchRecords(records,plan,full.paths,binding);
   const record={...binding,runId,decision:'pass',summary:'All module batches and the independent cross-module review passed for the exact complete candidate.',

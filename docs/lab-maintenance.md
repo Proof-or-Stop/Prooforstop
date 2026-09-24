@@ -453,3 +453,10 @@ metadata and budget-omitted contexts are explicitly listed; this is not a comple
 dynamic dependency closure. Every supplied byte and the tree inventory are checked
 again after the provider exits. Unavailable context must be reported as a limit,
 not invented as a missing repository file.
+
+A well-formed module verdict containing findings does not stop the remaining module
+batches: the controller collects their findings on the same frozen candidate and
+returns a combined failure. Integration review runs only after every module batch
+passes. This avoids repeated early-file reviews hiding later defects. Transport
+errors, invalid bindings, incomplete coverage, snapshot mutation or unsafe cleanup
+still stop immediately; continued collection never converts failure into approval.
