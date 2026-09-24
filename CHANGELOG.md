@@ -1,5 +1,17 @@
 # Changelog
 
+## Lab identity-148-performance-20260920 - v0.3.455 - 2026-09-24
+
+- Split 14 public verification entries into 192 modules below 2,000 lines, with 134 explicit capability selectors and no root gates added by module extraction itself; preserve public paths and exports. See `docs/lab/verification-modularization-inventory.md` for the full mapping.
+- Retire the 259-case identity migration campaign from routine and default execution while retaining explicit `identity-migration-archive` access, normal consumer controls and configuration rejection checks; preserve single F-060 scheduling and phase timing across modules.
+- Move workspace capacity coordination outside protected repositories into a private owner-home queue; preserve live/unknown ownership and migration deadlines, retain the owned queue across checkout moves/copies, safely reclaim observed empty queues on normal exit, recover bounded pre-ticket reclamation races without replaying callbacks, avoid unused queues for existing aliases, wait for live preparation within the admission deadline, and refuse foreign aliases with named recovery diagnostics.
+- Size independent audit deadlines from committed changed-path count and diff/snapshot bytes (30-minute minimum, one-hour maximum; oversized review workloads require splitting), require exhaustive bounded module audits plus a cross-module independent review on one candidate, retain timeout refusal, and provide hash-checked per-file diffs, the exact Git inventory and bounded unchanged dependency context for read-only navigation. Record complete identity/runtime/process/package certification at 535ed1190f and targeted audit-repair regressions and main 0.3.453 compatibility separately in `docs/lab/verification-modularization.md`. Heavy quorum campaigns were not rerun; scoped results grant no production exclusions or Story DONE authority.
+- Disclose the carried validation-audit amendments: two composite commands (test:dynamic-finding-evidence-closure and red-w2b-wiring-contract --canonical-core) move from 180000 to 900000 ms; four full-only RED regressions are registered at 600000 ms, bringing the main-to-candidate inventory from 246 to 250. See `docs/lab/validation-capacity-full-fixture-repair.md` and `docs/lab/verification-modularization.md`; these budget changes are not speedup claims.
+
+Maintenance provenance: codex/lab-identity-148-performance-20260920, repair 83772cb904f0b81b8c98240e29e30b82d2e3b21e.
+Verification command (replayed before integration and on main): `["node","scripts/verify-lab-audit-batches.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Lab timeout-1800 - v0.3.454 - 2026-09-23
 
 - Raise default Lab maintenance command and independent audit total budgets from 900 to 1800 seconds.
