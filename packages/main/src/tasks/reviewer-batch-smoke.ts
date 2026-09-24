@@ -441,6 +441,8 @@ assert.equal(isCommandAllowed('reviewer_batch', 'DONE', DEFAULT_PHASE_TOOLS), tr
     assert.match(text, /test-coverage \[no-receipt\]/);
     assert.match(text, /behavior \[awaiting-repair\]/);
     assert.match(text, /parallel-barrier: launchableLanes=\[proof-or-stop-review-quality, proof-or-stop-review-test-coverage\]/);
+    assert.match(text, /managedReview: blocked reason=managed_review_candidate_spec_missing/);
+    assert.match(text, /managedReviewNextAction: proof-or-stop candidate_spec_route/);
     assert.match(text, /issue every listed lane's launchInstruction before any wait/);
     assert.match(text, /one host wait call with the complete child-id set/);
     assert.match(text, /admissibilityStatus: reviewer-launch-preview/);
@@ -552,6 +554,7 @@ assert.equal(isCommandAllowed('reviewer_batch', 'DONE', DEFAULT_PHASE_TOOLS), tr
     reviewRound: null,
     lanes: [],
     executionPlan,
+    managedReviewReadiness: { status: 'ready', reason: null, nextAction: null },
     gate: { blockedBy: [], ready: true },
     readinessReport: { target: 'TEST', storyId: STORY_ID, phase: 'REVIEW', readiness: [], artifacts: {} } as unknown as ReviewerBatchReport['readinessReport'],
     mode: { runCommands: false, writeEvidence: false },

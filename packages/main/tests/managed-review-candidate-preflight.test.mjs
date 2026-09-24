@@ -7,6 +7,27 @@ const {
   runManagedReviewCandidatePreflight,
 } = await import('../dist/handlers/managed-review-evidence.js');
 const { assertManagedReviewCandidateLaunchReady } = await import('../dist/handlers/host-run.js');
+const { managedReviewCandidateReadiness } = await import('../dist/handlers/reviewer-batch.js');
+
+const unresolved = managedReviewCandidateReadiness({
+  requiresEscalation: true,
+  fullScan: false,
+  escalationReasons: ['requirements_corpus_missing'],
+}, 'B-candidate-preflight');
+assert.equal(unresolved.status, 'blocked');
+assert.match(unresolved.reason, /requirements_corpus_missing/);
+assert.match(unresolved.nextAction, /fullScanReason/);
+assert.equal(managedReviewCandidateReadiness({
+  requiresEscalation: true,
+  fullScan: true,
+  escalationReasons: ['requirements_corpus_missing'],
+}, 'B-candidate-preflight').reason, 'managed_review_full_scan_reason_missing');
+assert.deepEqual(managedReviewCandidateReadiness({
+  requiresEscalation: true,
+  fullScan: true,
+  scanEscalationReason: 'No requirements corpus exists for this benchmark target.',
+  escalationReasons: ['requirements_corpus_missing'],
+}, 'B-candidate-preflight'), { status: 'ready', reason: null, nextAction: null });
 
 assert.throws(() => assertManagedReviewCandidateLaunchReady({
   requiresEscalation: true,

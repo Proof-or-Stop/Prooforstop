@@ -70,6 +70,7 @@ import {
   renderReviewerDispatchLaunch,
   REVIEWER_CHILD_ID_WAIT_BOUNDARY,
 } from '../core/reviewer-launch-guidance.js';
+import { assertManagedReviewCandidateLaunchReady } from './host-run.js';
 
 interface ReviewerBatchArgs {
   storyId: string;
@@ -134,6 +135,12 @@ export interface ReviewerBatchReport {
     launchAllBeforeWait: true;
     waitPolicy: 'collective-child-ids-after-all-launched' | 'no-wait';
     maxConcurrency: number;
+  };
+  /** Formal managed-review prerequisite only; native reviewer guidance remains available. */
+  managedReviewReadiness: {
+    status: 'ready' | 'blocked';
+    reason: string | null;
+    nextAction: string | null;
   };
   lanes: ReviewerLanePlan[];
   gate: {
@@ -295,6 +302,8 @@ export function renderReviewerBatchReport(report: ReviewerBatchReport): string {
     `readinessReport: target=${report.readinessReport.target} rows=${report.readinessReport.readiness.length}`,
     `gate: ${report.gate.ready ? 'READY' : 'BLOCKED'} blockedBy=[${report.gate.blockedBy.join(', ')}]`,
     `parallel-barrier: launchableLanes=[${launchable.join(', ')}]`,
+    `managedReview: ${report.managedReviewReadiness.status}${report.managedReviewReadiness.reason ? ` reason=${report.managedReviewReadiness.reason}` : ''}`,
+    ...(report.managedReviewReadiness.nextAction ? [`managedReviewNextAction: ${report.managedReviewReadiness.nextAction}`] : []),
     ...(launchable.length > 0
       ? [`issue every listed lane's launchInstruction before any wait; collect one nonempty distinct child id per lane, then make one host wait call with the complete child-id set; maxConcurrency=${report.executionPlan.maxConcurrency}`]
       : ['no launchable lanes: do not call a host wait operation']),
@@ -343,6 +352,40 @@ export function buildReviewerExecutionPlan(
     waitPolicy: launchableLanes.length > 0 ? 'collective-child-ids-after-all-launched' : 'no-wait',
     maxConcurrency: launchableLanes.length,
   };
+}
+
+export function managedReviewCandidateReadiness(
+  candidate: ReturnType<StoryStore['readCandidateSpecSet']>,
+  storyId: string,
+): ReviewerBatchReport['managedReviewReadiness'] {
+  if (!candidate) {
+    return {
+      status: 'blocked',
+      reason: 'managed_review_candidate_spec_missing',
+      nextAction: `proof-or-stop candidate_spec_route '{"storyId":"${storyId}"}'`,
+    };
+  }
+  try {
+    assertManagedReviewCandidateLaunchReady(candidate, storyId);
+  } catch (error) {
+    if (!(error instanceof Error) || !error.message.includes('managed_review_candidate_routing_unresolved')) throw error;
+    const reasons = Array.isArray(candidate.escalationReasons)
+      ? candidate.escalationReasons.filter((reason): reason is string => typeof reason === 'string' && reason.length > 0)
+      : [];
+    return {
+      status: 'blocked',
+      reason: `managed_review_candidate_routing_unresolved: ${reasons.join(', ') || 'unspecified'}`,
+      nextAction: `proof-or-stop candidate_spec_route '{"storyId":"${storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`,
+    };
+  }
+  if (candidate.fullScan === true && !candidate.scanEscalationReason) {
+    return {
+      status: 'blocked',
+      reason: 'managed_review_full_scan_reason_missing',
+      nextAction: `proof-or-stop candidate_spec_route '{"storyId":"${storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`,
+    };
+  }
+  return { status: 'ready', reason: null, nextAction: null };
 }
 
 export function createReviewerBatchHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
@@ -443,6 +486,7 @@ export function createReviewerBatchHandlers(ctx: HandlerContext): Record<string,
       storyId,
       reviewRound: readinessReport.artifacts.reviewRound,
       executionPlan: buildReviewerExecutionPlan(lanes),
+      managedReviewReadiness: managedReviewCandidateReadiness(ctx.store.readCandidateSpecSet(storyId), storyId),
       lanes,
       gate: { blockedBy, ready },
       readinessReport,
