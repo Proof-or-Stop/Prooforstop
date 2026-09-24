@@ -9,9 +9,9 @@ const moduleUrl=new URL('../dist/core/validation-execution-lock.js',import.meta.
 try {
  const result=spawnSync(process.execPath,['--input-type=module','-e',`
 import {withWorkspaceValidationCapacity,validationCapacityLockPath,cleanupAbandonedWorkspaceValidationCoordination} from ${JSON.stringify(moduleUrl)};
-import {rmSync,realpathSync,mkdirSync,writeFileSync,existsSync,renameSync} from 'node:fs';
+import {rmSync,realpathSync,mkdirSync,writeFileSync,existsSync,renameSync,readdirSync} from 'node:fs';
 import assert from 'node:assert/strict';
-import {join} from 'node:path';
+import {join,dirname} from 'node:path';
 const root=${JSON.stringify(root)};
 await withWorkspaceValidationCapacity({root,workspaceRoot:root,deadlineAt:Date.now()+5000},()=>{});
 const target=realpathSync(validationCapacityLockPath(root));
@@ -20,6 +20,7 @@ cleanupAbandonedWorkspaceValidationCoordination();
 assert.equal(existsSync(target),false,'empty old-root queue is reclaimable');
 await withWorkspaceValidationCapacity({root:moved,workspaceRoot:moved,deadlineAt:Date.now()+5000},()=>{});
 assert.equal(realpathSync(validationCapacityLockPath(moved)),target,'move must restore the exact stable owned queue');
+assert.deepEqual(readdirSync(dirname(target)).filter(name=>/^[a-f0-9]{64}$/.test(name)),[target.split('/').at(-1)],'COPIED_QUEUE_UNUSED_DIRECTORY: a moved checkout must not allocate an unused second queue');
 console.log('QUEUE_TARGET '+target);
 rmSync(moved,{recursive:true,force:true});
 for(const suffix of ['live.ticket','unknown.preparing']) {
