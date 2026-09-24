@@ -50,6 +50,7 @@ try {
   await import('./verify-lab-audit-contract.mjs');
   await import('./verify-lab-audit-timeout-budget.mjs');
   await import('./verify-lab-audit-prompt-budget.mjs');
+  await import('./verify-lab-audit-batches.mjs');
   await import('./verify-lab-fixture-sources.mjs');
   await import('./verify-lab-lock-scope.mjs');
   assert.notEqual(process.exitCode,1,'Lab lock-scope assertions must pass');

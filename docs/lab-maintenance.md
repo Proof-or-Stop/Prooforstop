@@ -419,3 +419,27 @@ aggregate diff and source snapshots remain available and are checked after the
 provider exits, together with every per-file patch. The read-only Claude adapter
 allows Read, Grep and Glob so auditors can locate changed regions without paging
 the full aggregate diff. Navigation files do not grant coverage or a PASS.
+
+### Bounded module audit batches
+
+Candidates with more than 24 changed paths use deterministic directory-family
+batches of at most 24 paths and 2 MiB of snapshot content; a single larger file
+gets its own batch and retains the existing input/deadline bounds. Every batch
+receives its assigned exact patches and complete snapshots, with the complete
+candidate snapshot tree available for dependency tracing. Every provider verdict
+binds the same base, candidate, full input digest, configuration and vendors.
+The tool rejects omitted assigned paths, stale bindings, reused invocation IDs,
+findings, failed processes and incomplete cleanup. A partial batch cannot pass
+the full-candidate freshness check.
+
+After all module batches pass, a separate independent integration review receives
+all batch summaries and the complete candidate manifest, diff and snapshots. It
+checks cross-module imports, registrations, retirement boundaries, audit authority
+and runtime interactions. Its readRefs acknowledge paths considered in that
+integration assessment; module readRefs remain declarations of inspected changed
+regions. Neither is an operating-system read receipt. The controller requires
+every changed path in exactly one module batch and all required batches plus the
+integration review to pass before publishing a full-candidate verdict. Any failure
+retains evidence and blocks finish. Batches run sequentially through existing
+provider admission; this does not authorize parallel agents or reuse another
+candidate's approval. Synthetic transport tests never constitute vendor approval.

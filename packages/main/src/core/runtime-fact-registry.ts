@@ -567,6 +567,8 @@ export const LAB_MAINTENANCE_RUNTIME_REQUIREMENTS = {
   auditPerMiBMs: 60000,
   auditBudgetQuantumMs: 300000,
   auditMaxTimeoutMs: 3600000,
+  auditBatchMaxPaths: 24,
+  auditBatchMaxBytes: 2 * 1024 * 1024,
   auditStartupTimeoutMs: 90000,
   recordSchema: 3,
   readableRecordSchemas: [1, 2, 3],
