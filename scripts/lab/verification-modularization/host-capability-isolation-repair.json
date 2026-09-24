@@ -1,0 +1,6 @@
+{
+  "case": 88,
+  "before": "check('isolation: all artifacts live under the temp root (no repo pollution)', () => {\n    assert.ok(root.startsWith(tmpdir()));\n    assert.ok(statSync(root).isDirectory());\n    // Every sub-root created a slot dir only where the concurrency path ran.\n    const entries = readdirSync(root);\n    assert.ok(entries.length > 0);\n  });",
+  "after": "check('isolation: all artifacts live under the temp root (no repo pollution)', () => {\n    assert.ok(root.startsWith(tmpdir()));\n    assert.ok(statSync(root).isDirectory());\n    // This capability owns its fixture even when selected without other cases.\n    const ownedFixture = freshRoot();\n    mkdirSync(ownedFixture);\n    assert.ok(statSync(ownedFixture).isDirectory());\n    assert.ok(ownedFixture.startsWith(root + \"/\"));\n    const entries = readdirSync(root);\n    assert.ok(entries.length > 0);\n  });",
+  "reason": "Standalone evidence-mapping owns a fresh temp fixture; retain the original nonempty-root assertion."
+}

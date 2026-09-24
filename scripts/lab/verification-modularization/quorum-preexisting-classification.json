@@ -1,0 +1,21 @@
+{
+  "baseline": "392526fbf142d44e5ad3e4f604b5036639483abf",
+  "candidate": "a45c5c072001f1422d14d64094d78b0b7a6482d0",
+  "classification": "pre_existing_unchanged_outside_modularization_repair",
+  "rows": [
+    {
+      "name": "correctnessDependencyRoot",
+      "path": "packages/main/tests/red/quorum-submit-harness/exact-head-authorization.mjs",
+      "unchangedBody": true,
+      "sha256": "07460cf99d800a49609d91e95644361fa245820c732f40bcd52056cf2ebe2c67"
+    },
+    {
+      "name": "runSupervisedExactHeadGit",
+      "path": "packages/main/tests/red/quorum-submit-harness/exact-head-checkout.mjs",
+      "unchangedBody": true,
+      "sha256": "2ea154079d61f2c6d79ffacda210d2ac524478bdc00d36048148b62e9b445e74"
+    }
+  ],
+  "oddParentLayoutFailure": "exact-HEAD correctness isolation could not locate node_modules",
+  "currentLabDependencyLookupPass": true
+}

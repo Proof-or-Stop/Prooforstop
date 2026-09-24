@@ -1,0 +1,10 @@
+import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';import ts from 'typescript';
+const source=fs.readFileSync(process.argv[2],'utf8'),ast=ts.createSourceFile('contract.mjs',source,ts.ScriptTarget.Latest,true);const fn=ast.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text==='assertReviewExecutionAuthorityContract');assert(fn);
+const index=fn.body.statements.findIndex(n=>n.getText(ast).startsWith('const smokeText ='));assert(index>=0);
+const text=fn.body.statements.slice(index,index+3).map(n=>n.getText(ast)).join('\n');assert(text.includes('managed Claude model selection preserves the complete canonical argv'));
+let checks=0;
+const check=read=>vm.runInNewContext(text,{read,assert:(ok,message)=>{checks++;assert(ok,message)}});
+check(p=>fs.readFileSync(p,'utf8'));
+const positiveChecks=checks;
+assert.throws(()=>check(()=>fs.readFileSync('packages/main/src/tasks/managed-review-evidence-smoke.ts','utf8')),/required executable boundary assertion missing/);
+console.log('PROCESS_MODULE_READER_PASS '+JSON.stringify({positiveChecks,thinEntrySubstitutionRejected:true}));
