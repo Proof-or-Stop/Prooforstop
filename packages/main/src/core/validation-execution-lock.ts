@@ -434,15 +434,15 @@ async function prepareWorkspaceValidationCoordination(options: ValidationCapacit
   if (!isAbsolute(rel) && rel !== '..' && !rel.startsWith('../') && !rel.startsWith('..\\')) {
     throw new Error('workspace validation coordination must be outside the protected repository');
   }
-  for (const path of [namespace, target]) {
+  const ensurePrivateDirectory = (path: string): void => {
     mkdirSync(path, { recursive: true, mode: 0o700 });
     const stat = lstatSync(path);
     if (!stat.isDirectory() || stat.isSymbolicLink()
       || (process.platform !== 'win32' && (stat.uid !== userInfo().uid || (stat.mode & 0o077) !== 0))) {
       throw new Error('workspace validation coordination requires a private owned directory');
     }
-  }
-  rememberWorkspaceCoordination(target, sharedRoot);
+  };
+  ensurePrivateDirectory(namespace);
   mkdirSync(dirname(legacyPath), { recursive: true });
   const assertOwnedAlias = (): void => {
     let actual: string;
@@ -572,6 +572,10 @@ async function prepareWorkspaceValidationCoordination(options: ValidationCapacit
         if (error.code !== 'ENOENT') { await waitForMigration(legacyPath); continue; }
       }
     }
+    // Existing moved/copied aliases already identify their queue; allocate a new
+    // target only when this caller is about to publish a previously absent alias.
+    ensurePrivateDirectory(target);
+    rememberWorkspaceCoordination(target, sharedRoot);
     try { symlinkSync(target, legacyPath, process.platform === 'win32' ? 'junction' : 'dir'); return; }
     catch (error: any) {
       if (error.code !== 'EEXIST') throw error;

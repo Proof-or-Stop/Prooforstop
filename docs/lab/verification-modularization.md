@@ -640,3 +640,14 @@ at most three preparation attempts. An already-started callback or any unrelated
 error is never retried. The regression exercises actual owner cleanup between the
 two filesystem operations, bounded repeated disappearance, and callback-once
 behavior. The empty-directory cleanup guarantee is retained.
+
+### Existing-alias queue allocation
+
+The subsequent independent audit identified an unused-directory allocation: a
+moved checkout created its new path-derived private queue before accepting its
+existing stable alias. The cleanup regression now enumerates private queue
+identities and fails if a second unused directory is created. The repair validates
+the private namespace first and creates a new queue only when publishing an absent
+alias. Existing owned aliases retain their identity without allocating a second
+queue. The cleanup RED and GREEN, reclamation-race regression, mutation guard and
+residue tests pass with this repair; full independent audit remains pending.
