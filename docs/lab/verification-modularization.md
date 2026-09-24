@@ -1,14 +1,13 @@
 # Verification modularization: implementation and evidence ledger
 
 All 14 requested entries have been split into 192 modules; the largest module is
-1,857 physical lines. The original public entries contain 6–9 lines. The complete
+1,880 physical lines. The original public entries contain 6–9 lines. The complete
 [file-by-file and capability inventory](verification-modularization-inventory.md)
 records the actual files and explicit selectors. Internal module registration does
 not add routine validation gates (250 at this checkpoint).
 
-Historical complete executions and scoped proofs are distinguished below. Current
-cross-cutting checks preserve 699 exact contexts, 212 whole-source witnesses, and
-696 scanner line pins. The seven F-060 boundary checks pass after module relocation;
+Historical complete executions and scoped proofs are distinguished below. Cross-cutting checks and their source-bound evidence are recorded in the sections
+below. The seven F-060 boundary checks pass after module relocation;
 static AST cached/reference reports were identical. Two standalone fixture tests
 were repaired to read the actual extracted function declarations and pass their
 original mutation controls. The full canonical group exposed stale monolith readers and one missing public
@@ -27,7 +26,7 @@ No routine validation command is added by internal module registration.
 
 | Original entry | Before lines | Current entry lines | Modules | Largest module | Evidence/status | Recorded scope |
 |---|---:|---:|---:|---:|---|---|
-| `scripts/verify-process-fact-contract.mjs` | 12201 | 7 | 16 | 1857 | RED -> official GREEN at 317918539b; full suite 181.37 s | Lab evidence |
+| `scripts/verify-process-fact-contract.mjs` | 12201 | 7 | 16 | 1880 | RED -> official GREEN at 317918539b; full suite 181.37 s | Lab evidence |
 | `packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs` | 10748 | 7 | 27 | 1024 | RED recorded; 196 function bodies / 18 bindings preserved; 7 scoped contracts pass, heavy campaigns not rerun | Lab evidence |
 | `scripts/verify-proof-or-stop-identity-cutover.mjs` | 7794 | 9 | 25 | 1433 | RED -> scoped GREEN fcdd5514a5; 158 statements, 696 self-context pins and 106 negative controls; seven F-060 boundary checks pass; complete certification PASS at 535ed1190f | Lab evidence |
 | `packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts` | 6101 | 7 | 14 | 1577 | RED -> official GREEN at 51b6485211; full scan 67.33 s; 109 function bodies and driver order preserved | Lab evidence |
@@ -70,23 +69,27 @@ PASS. Existing full entrypoints stay registered.
 
 ## Module inventory
 
+Line counts in these tables are synchronized with the committed module inventory
+and the unchanged module source files at repair 83772cb904. Historical execution
+results below remain bound to their individually named commits.
+
 ### `scripts/process-fact-contract`
 
 | Module | Lines | Responsibility |
 |---|---:|---|
 | `catalog.mjs` | 92 | Explicit capability-to-check bindings |
 | `cli.mjs` | 33 | Strict argument parsing and lazy orchestration |
-| `command-contracts.mjs` | 1106 | CLI policy inventory |
-| `complete.mjs` | 1857 | Retained full integration driver |
+| `command-contracts.mjs` | 1115 | CLI policy inventory |
+| `complete.mjs` | 1880 | Retained full integration driver |
 | `early.mjs` | 64 | Admission refusal before positive work |
 | `prompt-contracts.mjs` | 678 | Prompt and adversarial controls |
 | `proofstory-closeout.mjs` | 1620 | ProofStory and closeout boundaries |
 | `registry-alignment.mjs` | 634 | Registry alignment |
 | `registry-parser.mjs` | 655 | Registry and policy parsing |
 | `reopen.mjs` | 568 | Reopen audit controls |
-| `review-inventory.mjs` | 832 | Review inventory and refresh coverage |
-| `review-verification.mjs` | 1005 | Review and verification receipt contracts |
-| `scope-runtime.mjs` | 1209 | Scope and runtime admission |
+| `review-inventory.mjs` | 844 | Review inventory and refresh coverage |
+| `review-verification.mjs` | 1016 | Review and verification receipt contracts |
+| `scope-runtime.mjs` | 1223 | Scope and runtime admission |
 | `source-analysis.mjs` | 575 | TypeScript and source analysis helpers |
 | `story3.mjs` | 360 | Finding runtime evidence contract |
 | `support.mjs` | 1224 | Shared constants and source readers |
@@ -118,7 +121,7 @@ PASS. Existing full entrypoints stay registered.
 | `change-inputs.ts` | 718 | Story changes and input collection |
 | `cli-integration.ts` | 821 | Public planning CLI and repository integration |
 | `cli.ts` | 25 | Capability routing and explicit coverage prerequisites |
-| `command-identity.ts` | 649 | Portable command identities and inventory pin |
+| `command-identity.ts` | 651 | Portable command identities and inventory pin |
 | `hash-completeness.ts` | 255 | Incomplete hash snapshot refusal |
 | `historical-pins.ts` | 336 | Historical evidence resolution |
 | `selection-widening.ts` | 1652 | Tier selection and widening rules |
@@ -129,14 +132,14 @@ PASS. Existing full entrypoints stay registered.
 | Module | Lines | Responsibility |
 |---|---:|---|
 | `artifacts.ts` | 904 | Declared artifacts, automatic commits and global-link repair |
-| `cli.ts` | 120 | Legacy flags, capability routing and historical commit controls |
+| `cli.ts` | 128 | Legacy flags, capability routing and historical commit controls |
 | `discovery-fixture.ts` | 24 | Inert source snapshots for the isolated acceptance-discovery fixture |
 | `done-convergence.ts` | 626 | Single-pass DONE preparation and workspace ownership |
 | `done-reporting.ts` | 407 | DONE report projection and shared oracle |
 | `lifecycle.ts` | 631 | Lifecycle registry, phase tools and hints |
 | `phase-effects.ts` | 274 | Phase gates and transition effects |
 | `review-evidence.ts` | 989 | Signatures, freshness and review-run compatibility |
-| `review-routing.ts` | 896 | Reviewer status, phase guidance and channel checks |
+| `review-routing.ts` | 988 | Reviewer status, phase guidance and channel checks |
 | `support.ts` | 427 | Shared Story, review and acceptance fixtures |
 | `workspace.ts` | 301 | Dirty-worktree classification and gates |
 
@@ -216,10 +219,10 @@ PASS. Existing full entrypoints stay registered.
 | Module | Lines | Responsibility |
 |---|---:|---|
 | `causal.ts` | 140 | Causal integration |
-| `cli.ts` | 160 | Argument selection and original shard orchestration |
+| `cli.ts` | 161 | Argument selection and original shard orchestration |
 | `foundation.ts` | 427 | Pinned execution, refusal and stale evidence basics |
 | `integrity.ts` | 762 | Receipt integrity and executable identity |
-| `publication.ts` | 517 | Producer ownership and publication bindings |
+| `publication.ts` | 522 | Producer ownership and publication bindings |
 | `refresh.ts` | 776 | Fan-out, manifests and evidence reuse |
 | `support.ts` | 349 | Fixture creation, evidence helpers and paths |
 
@@ -379,7 +382,7 @@ does not increase that policy.
 | Module | Lines | Responsibility |
 |---|---:|---|
 | `claude-transport.ts` | 909 | claude transport |
-| `cli.ts` | 22 | cli |
+| `cli.ts` | 161 | cli |
 | `codex-transport.ts` | 784 | codex transport |
 | `environment.ts` | 127 | environment |
 | `evidence-binding.ts` | 654 | evidence binding |
@@ -602,7 +605,8 @@ its emitted executable binding and three unchanged-count process schema contexts
 were reconciled against that committed main change. No assertion was removed to
 accept those new bytes. Updated source/driver preservation checks retain the old
 baseline plus exact enumerated main additions. The module ceiling remains 2,000
-lines; current maximum is 1,861.
+lines; the maximum at that third-audit checkpoint was 1,861. The synchronized
+current inventory below supersedes that historical measurement (1,880 lines).
 
 Complete runtime verification, restored routine identity-consumer execution,
 coordination guard and cleanup tests passed. Static validation has zero needsReview

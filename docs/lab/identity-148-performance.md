@@ -37,7 +37,8 @@ needs-review and zero unexpanded commands, with the same 1696 exceptions.
 This increment does not yet replace validation command #148, alter the 248-command Lab
 inventory, complete dynamic selection, or certify the complete remaining suite.
 
-The integration main currently has 244 configured commands. This Lab inherited
+At the original increment recorded in this section, integration main had 244
+configured commands; this is a historical measurement, not the current baseline. This Lab inherited
 four additional validation registrations from the original audit repair before
 this increment, so its actual before/after baseline is 248 -> 248. These are
 configuration counts, not lifecycle gate counts or mutation assertion counts.
@@ -51,3 +52,11 @@ diagnostic, not a completed Story invocation or a proof that every live request
 runs all commands. It blocks claiming a production dynamic-selection improvement
 from group splitting alone. No completeness declarations or unknown-input gates
 were weakened to manufacture a smaller selection.
+
+## Final integration inventory clarification
+
+At main 392526fbf1 (0.3.454), the integration baseline is 246 commands and the
+current Lab candidate has 250. The 244/248 figures and selector observations above
+are retained as historical evidence of the original increment. They must not be
+used as the current command inventory. See the final integration delta in
+[the modularization ledger](verification-modularization.md#final-integration-inventory-delta-against-main-03454).
