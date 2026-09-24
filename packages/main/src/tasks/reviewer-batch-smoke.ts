@@ -339,6 +339,11 @@ assert.equal(isCommandAllowed('reviewer_batch', 'DONE', DEFAULT_PHASE_TOOLS), tr
     assert.equal(report.mode.writeEvidence, false);
     assert.equal(report.claims.authorityDone, false);
     assert.equal(report.claims.productionDone, false);
+    assert.deepEqual((report as unknown as { managedReviewReadiness: unknown }).managedReviewReadiness, {
+      status: 'blocked',
+      reason: 'managed_review_candidate_spec_missing',
+      nextAction: `proof-or-stop candidate_spec_route '{"storyId":"${STORY_ID}"}'`,
+    }, 'formal managed review must expose its missing candidate prerequisite before advertising launch instructions');
 
     // The four active lanes (concept/quality/test-coverage baseline + behavior via riskSignal).
     const laneNames = report.lanes.map((entry) => entry.lane).sort();
