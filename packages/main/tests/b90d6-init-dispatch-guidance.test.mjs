@@ -384,6 +384,12 @@ function assertScopePlanDispatchAndReviewGuidance() {
     assert.match(verificationIntent.prompt, /collaboration tools, if visible, are outside this role/i);
     const result = dispatch.dispatch({ storyId, agentType: 'proof-or-stop-review-scope-plan' });
     assert.match(result.prompt, /Review PLAN scope coverage/);
+    assert.match(result.prompt, /No canonical process-fact owner paths are selected.*do not search the process-fact registry/i,
+      'consumer Story with no ProofStory topology must not send the scope reviewer through PoS-only registry discovery');
+    assert.match(result.prompt, /decisions directory is absent.*review the Story description/i,
+      'absent consumer decisions corpus must be projected before the reviewer starts searching for it');
+    assert.match(result.prompt, /candidate_spec_route is owner-only.*do not call it/i,
+      'reviewer guidance must not invite an owner-gated routing command');
     assert.doesNotMatch(result.prompt, /spawn_agent\(/);
     assert.doesNotMatch(result.prompt, /Agent\(\{ subagent_type:/);
     assert.match(result.prompt, /execute this (?:scope )?review directly in the current reviewer task/i);
