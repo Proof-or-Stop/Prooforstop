@@ -10877,7 +10877,7 @@ const inventory = [
       },
       {
         relPath: 'packages/main/tests/managed-review-candidate-preflight.test.mjs',
-        patterns: ['read_manifest_candidate_spec_digest_missing', 'managed_review_candidate_spec_missing', 'managed_review_candidate_routing_unresolved', 'Use a standard JSON serializer', 'missing candidate routing must not launch the provider', 'managed review must refuse unresolved candidate routing before provider launch', 'MANAGED_REVIEW_CANDIDATE_PREFLIGHT_GREEN'],
+        patterns: ['read_manifest_candidate_spec_digest_missing', 'managed_review_candidate_spec_missing', 'managed_review_candidate_routing_unresolved', 'managed_review_candidate_binding_stale', 'story-only drift must also stop review before provider launch', 'Use a standard JSON serializer', 'missing candidate routing must not launch the provider', 'managed review must refuse unresolved candidate routing before provider launch', 'MANAGED_REVIEW_CANDIDATE_PREFLIGHT_GREEN'],
       },
       {
         relPath: 'packages/main/src/core/host-execution-readiness.ts',

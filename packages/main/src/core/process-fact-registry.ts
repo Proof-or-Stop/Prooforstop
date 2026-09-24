@@ -904,7 +904,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: true,
     signature: `artifactDigest over ${CANDIDATE_SPEC_PROCESS_FACT_SCHEMA_VERSION} canonical fields, signed rollout mode, pre-budget document-frequency and zero-hit query filtering, typed protected direct sources and missing diagnostics, ordinary-only cutoff/truncation classification, non-story-metadata changed paths, and freshness bindings`,
     producerCommand: 'candidate_spec_route',
-    consumerGate: 'scope_check_save, reviewer read-evidence candidate routing gate, and review inventory candidate-universe freshness gate',
+    consumerGate: 'scope_check_save, reviewer_batch and host_run managed-review launch freshness preflight, reviewer read-evidence candidate routing gate, and review inventory candidate-universe freshness gate',
   },
   checklist_update: {
     name: 'checklist.json',

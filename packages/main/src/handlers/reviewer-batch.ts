@@ -356,6 +356,7 @@ export function buildReviewerExecutionPlan(
 export function managedReviewCandidateReadiness(
   candidate: ReturnType<StoryStore['readCandidateSpecSet']>,
   storyId: string,
+  currentBinding?: { materialHash: string | null | undefined; storyFilesHash: string | null | undefined },
 ): ReviewerBatchReport['managedReviewReadiness'] {
   if (!candidate) {
     return {
@@ -365,9 +366,19 @@ export function managedReviewCandidateReadiness(
     };
   }
   try {
-    assertManagedReviewCandidateLaunchReady(candidate, storyId);
+    assertManagedReviewCandidateLaunchReady(candidate, storyId, currentBinding);
   } catch (error) {
-    if (!(error instanceof Error) || !error.message.includes('managed_review_candidate_routing_unresolved')) throw error;
+    if (!(error instanceof Error)) throw error;
+    if (error.message.includes('managed_review_candidate_binding_stale')) {
+      return {
+        status: 'blocked',
+        reason: error.message.slice(error.message.indexOf('managed_review_candidate_binding_stale')).split(';')[0],
+        nextAction: candidate.fullScan === true
+          ? `proof-or-stop candidate_spec_route '{"storyId":"${storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`
+          : `proof-or-stop candidate_spec_route '{"storyId":"${storyId}"}'`,
+      };
+    }
+    if (!error.message.includes('managed_review_candidate_routing_unresolved')) throw error;
     const reasons = Array.isArray(candidate.escalationReasons)
       ? candidate.escalationReasons.filter((reason): reason is string => typeof reason === 'string' && reason.length > 0)
       : [];
@@ -484,7 +495,10 @@ export function createReviewerBatchHandlers(ctx: HandlerContext): Record<string,
     const report: ReviewerBatchReport = {
       storyId,
       reviewRound: readinessReport.artifacts.reviewRound,
-      managedReviewReadiness: managedReviewCandidateReadiness(ctx.store.readCandidateSpecSet(storyId), storyId),
+      managedReviewReadiness: managedReviewCandidateReadiness(ctx.store.readCandidateSpecSet(storyId), storyId, {
+        materialHash: readinessReport.materialHash,
+        storyFilesHash: readinessReport.storyFilesHash,
+      }),
       executionPlan: buildReviewerExecutionPlan(lanes),
       lanes,
       gate: { blockedBy, ready },

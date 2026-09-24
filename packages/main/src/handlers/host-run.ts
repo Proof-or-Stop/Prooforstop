@@ -70,6 +70,7 @@ import {
   type ManagedReviewFullScanBinding,
 } from '../core/managed-review-evidence.js';
 import { assertCurrentReviewRunForEvidence } from '../core/review-run.js';
+import { candidateArtifactStaleBindingFields } from '../core/candidate-spec-routing.js';
 import {
   evaluateAcceptanceRolloutForContext,
   evaluateAcceptanceTopologyForContext,
@@ -394,20 +395,43 @@ export function assertManagedReviewCandidateLaunchReady(
     requiresEscalation?: unknown;
     fullScan?: unknown;
     escalationReasons?: unknown;
+    materialHash?: unknown;
+    storyFilesHash?: unknown;
   },
   storyId: string,
+  currentBinding?: { materialHash: string | null | undefined; storyFilesHash: string | null | undefined },
 ): void {
-  if (candidateArtifact.requiresEscalation !== true || candidateArtifact.fullScan === true) return;
-  const reasons = Array.isArray(candidateArtifact.escalationReasons)
-    ? candidateArtifact.escalationReasons.filter((reason): reason is string => typeof reason === 'string' && reason.length > 0)
-    : [];
-  const renderedReasons = reasons.length > 0 ? reasons.join(', ') : 'unspecified';
-  throw new Error(
-    `host_run: managed_review_candidate_routing_unresolved: ${renderedReasons}; `
-    + 'do not launch a reviewer whose evidence cannot be imported; '
-    + `rerun proof-or-stop candidate_spec_route '{"storyId":"${storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}' `
-    + 'and then start a fresh ReviewRun',
-  );
+  if (candidateArtifact.requiresEscalation === true && candidateArtifact.fullScan !== true) {
+    const reasons = Array.isArray(candidateArtifact.escalationReasons)
+      ? candidateArtifact.escalationReasons.filter((reason): reason is string => typeof reason === 'string' && reason.length > 0)
+      : [];
+    const renderedReasons = reasons.length > 0 ? reasons.join(', ') : 'unspecified';
+    throw new Error(
+      `host_run: managed_review_candidate_routing_unresolved: ${renderedReasons}; `
+      + 'do not launch a reviewer whose evidence cannot be imported; '
+      + `rerun proof-or-stop candidate_spec_route '{"storyId":"${storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}' `
+      + 'and then start a fresh ReviewRun',
+    );
+  }
+  if (currentBinding) {
+    const stale = candidateArtifactStaleBindingFields({
+      artifact: candidateArtifact,
+      currentMaterialHash: currentBinding.materialHash,
+      currentStoryFilesHash: currentBinding.storyFilesHash,
+    });
+    if (!currentBinding.materialHash) stale.push('materialHash');
+    if (!currentBinding.storyFilesHash) stale.push('storyFilesHash');
+    if (stale.length > 0) {
+      const routeCommand = candidateArtifact.fullScan === true
+        ? `proof-or-stop candidate_spec_route '{"storyId":"${storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`
+        : `proof-or-stop candidate_spec_route '{"storyId":"${storyId}"}'`;
+      throw new Error(
+        `host_run: managed_review_candidate_binding_stale: ${stale.join(', ')}; `
+        + 'do not launch a reviewer whose evidence cannot be imported; '
+        + `rerun ${routeCommand} and then start a fresh ReviewRun`,
+      );
+    }
+  }
 }
 
 export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRunHandlersOptions = {}) {
@@ -493,7 +517,10 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
             + `run candidate_spec_route for Story ${storyId} and then start a fresh ReviewRun`,
           );
         }
-        assertManagedReviewCandidateLaunchReady(candidateArtifact, storyId);
+        assertManagedReviewCandidateLaunchReady(candidateArtifact, storyId, {
+          materialHash: reviewRun.materialHash,
+          storyFilesHash,
+        });
         const fullScanBinding: ManagedReviewFullScanBinding | undefined = candidateArtifact?.fullScan === true
           ? (() => {
             if (typeof candidateArtifact.scanEscalationReason !== 'string' || candidateArtifact.scanEscalationReason.length === 0) {

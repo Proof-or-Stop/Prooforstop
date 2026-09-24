@@ -934,6 +934,17 @@ export interface CandidateReadBindingDiagnostic {
   blocking: boolean;
 }
 
+export function candidateArtifactStaleBindingFields(args: {
+  artifact: { materialHash?: unknown; storyFilesHash?: unknown };
+  currentMaterialHash?: string | null;
+  currentStoryFilesHash?: string | null;
+}): Array<'materialHash' | 'storyFilesHash'> {
+  const stale: Array<'materialHash' | 'storyFilesHash'> = [];
+  if (args.currentMaterialHash && args.artifact.materialHash !== args.currentMaterialHash) stale.push('materialHash');
+  if (args.currentStoryFilesHash && args.artifact.storyFilesHash && args.artifact.storyFilesHash !== args.currentStoryFilesHash) stale.push('storyFilesHash');
+  return stale;
+}
+
 export function candidateReadBindingDiagnostics(args: {
   manifest: ReviewerReadManifest;
   artifact: CandidateSpecSetArtifact | null;
@@ -979,8 +990,14 @@ export function candidateReadBindingDiagnostics(args: {
   const missingCandidateReads = args.artifact.candidateSpecSet.filter(path => !fullyRead.has(path));
   if (missingCandidateReads.length > 0) add('missing_candidate_reads', `read manifest is missing candidate full reads: ${missingCandidateReads.join(', ')}`);
   if (args.artifact.fullScan && args.manifest.scanEscalationReason !== args.artifact.scanEscalationReason) add('scan_reason_mismatch', 'read manifest scanEscalationReason does not match full-scan artifact');
-  if (args.currentMaterialHash && args.artifact.materialHash !== args.currentMaterialHash) add('stale_material', 'candidate artifact materialHash is stale');
-  if (args.currentStoryFilesHash && args.artifact.storyFilesHash && args.artifact.storyFilesHash !== args.currentStoryFilesHash) add('stale_story_files', 'candidate artifact storyFilesHash is stale');
+  for (const field of candidateArtifactStaleBindingFields({
+    artifact: args.artifact,
+    currentMaterialHash: args.currentMaterialHash,
+    currentStoryFilesHash: args.currentStoryFilesHash,
+  })) {
+    if (field === 'materialHash') add('stale_material', 'candidate artifact materialHash is stale');
+    else add('stale_story_files', 'candidate artifact storyFilesHash is stale');
+  }
   if (args.currentStoryInputDigest && args.artifact.storyInputDigest !== args.currentStoryInputDigest) add('stale_story_input', 'candidate artifact storyInputDigest is stale');
   return diagnostics;
 }
