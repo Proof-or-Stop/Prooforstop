@@ -390,6 +390,8 @@ function assertScopePlanDispatchAndReviewGuidance() {
       'absent consumer decisions corpus must be projected before the reviewer starts searching for it');
     assert.match(result.prompt, /candidate_spec_route is owner-only.*do not call it/i,
       'reviewer guidance must not invite an owner-gated routing command');
+    assert.match(result.prompt, /"filesReadFully":\[\],"filesTriagedByName":\[\]/,
+      'the example manifest must not invent a decision file in a consumer repository');
     write(root, 'docs/requirements/decisions/fixture.md', '# Existing project decision\n');
     const withDecisions = dispatch.dispatch({ storyId, agentType: 'proof-or-stop-review-scope-plan' });
     assert.doesNotMatch(withDecisions.prompt, /decisions directory is absent/i,

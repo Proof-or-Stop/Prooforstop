@@ -559,6 +559,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     const decisionPath = `${storyDir}/decision.json`;
     const routed = store.readCandidateSpecSet(args.storyId);
     const decisionsDir = join(root, loadConfig(root).requirementsDir ?? 'docs/requirements', 'decisions');
+    const decisionsPresent = existsSync(decisionsDir);
     const ownerBinding = currentPlanOwnerBinding(store, root, args.storyId);
 
     const lines: string[] = [];
@@ -581,7 +582,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     lines.push(`4. ${planPath}`);
     lines.push(`5. ${decisionPath} (if present)`);
     lines.push('- Also read relatedDocs referenced by checklist items and any decisions/docs cited by the story artifacts.');
-    if (!existsSync(decisionsDir)) {
+    if (!decisionsPresent) {
       lines.push('- Controller preflight: decisions directory is absent; review the Story description and named story artifacts for concrete promises. Do not search for a missing decisions corpus.');
     }
     if (routed) {
@@ -609,7 +610,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push('No canonical process-fact owner paths are selected by this Story; do not search the process-fact registry or supply ownerDispositions. Scope review still covers every promise in the Story and available project specifications.');
     }
     lines.push('Finish by calling scope_check_save:');
-    lines.push(`- proof-or-stop scope_check_save '{"storyId":"${args.storyId}","features":[{"feature":"<promise or constraint>","covered_by":"<CHK-xxx or null>","status":"covered|excluded|gap|orphan-suspect|drift","excluded_by":"<reason or null>","source":"<artifact path>"}],"summary":{"total":1,"covered":0,"excluded":0,"gaps":1},"readManifest":{"filesReadFully":${existsSync(decisionsDir) ? '["<bounded decisions candidate>"]' : '[]'},"filesTriagedByName":[],"scanEscalationReason":null,"candidateSpecSetDigest":"${routed?.artifactDigest ?? '<current candidate artifact digest>'}","corpusDigest":"${routed?.corpusDigest ?? '<current corpus digest>'}"},"openQuestions":[]}'`);
+    lines.push(`- proof-or-stop scope_check_save '{"storyId":"${args.storyId}","features":[{"feature":"<promise or constraint>","covered_by":"<CHK-xxx or null>","status":"covered|excluded|gap|orphan-suspect|drift","excluded_by":"<reason or null>","source":"<artifact path>"}],"summary":{"total":1,"covered":0,"excluded":0,"gaps":1},"readManifest":{"filesReadFully":[],"filesTriagedByName":[],"scanEscalationReason":null,"candidateSpecSetDigest":"${routed?.artifactDigest ?? '<current candidate artifact digest>'}","corpusDigest":"${routed?.corpusDigest ?? '<current corpus digest>'}"},"openQuestions":[]}'`);
+    lines.push('- Fill readManifest arrays with exactly the decisions files actually read or filename-triaged; leave them empty only when no such files were inspected.');
     lines.push('- If there are no gaps, still call scope_check_save with the complete feature list and accurate summary counts.');
 
     return { prompt: lines.join('\n') };
