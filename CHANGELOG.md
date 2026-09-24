@@ -1,5 +1,30 @@
 # Changelog
 
+## Managed review stale-route preflight - v0.3.456 - 2026-09-24
+
+- Reject stale candidate material/story-file bindings in `reviewer_batch` and `host_run` before managed reviewers consume provider time; preserve import-time checks.
+- Focus inventory critics on signed lane evidence and disputed coverage while retaining independent classification and truthful read requirements.
+- Record the B-f50c trial's 3-hour timeline, real remediation cycles, late-rejected review batch, and verification limits in [the benchmark audit](docs/audits/bf50c-benchmark-time-attribution.md).
+- Lab RED/GREEN, focused managed-review and inventory-import checks, build, and U18 static edges passed; end-to-end time saving and score require a new trial.
+
+## Consumer scope reviewer preflight - v0.3.455 - 2026-09-24
+
+- Project missing decisions corpus and zero selected process-fact owners into the PLAN scope reviewer prompt, so external-project reviewers skip irrelevant discovery while retaining applicable coverage.
+- Mark candidate routing as Story-owner-only and keep the example read manifest empty until the reviewer records actual reads; scope evidence and gates are unchanged.
+- Lab RED/GREEN, focused dispatch and managed-scope tests, build, and U18 static edges passed. End-to-end time savings and benchmark score remain unmeasured.
+- Attribute the stopped B-0257 trial's elapsed time and token coverage in [the benchmark audit](docs/audits/b0257-benchmark-time-attribution.md). This user-authorized Codex-reviewed integration has no independent-vendor Lab audit record.
+
+Repair commits: `981cb839d5`, `a8e6306cba`, `0633082d84`. This Lab record is not formal Story DONE evidence.
+
+## Managed review batch preflight - v0.3.454 - 2026-09-24
+
+- Show managed-review candidate-routing blockers and the exact next command before REVIEW lane launch guidance; keep native reviewer launches available.
+- Reject unresolved corpus escalation and missing full-scan reasons in the read-only batch preview, matching formal `host_run` preflight.
+- Lab RED/GREEN, main-package build, reviewer-batch smoke, and candidate-preflight tests passed; Codex reviewed and corrected the launch wording.
+- This removes observed failed launch waves; benchmark end-to-end time and final score remain unverified until the next remote trial. This user-authorized integration has no independent-vendor Lab audit record.
+
+Repair commits: `4e792a1d95`, `0414eaee3a`. This Lab record is not formal Story DONE evidence.
+
 ## Lab timeout-1800 - v0.3.454 - 2026-09-23
 
 - Raise default Lab maintenance command and independent audit total budgets from 900 to 1800 seconds.

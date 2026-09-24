@@ -42,6 +42,8 @@ export async function assertManagedImportRejectsLiveMaterialDrift(brokerPublicKe
     write(driftRoot, 'packages/main/src/story-owned.ts', 'export const storyOwned = true;\n');
     git(driftRoot, ['add', 'packages/main/src/story-owned.ts']);
     git(driftRoot, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'story material']);
+    // A fresh ReviewRun follows candidate_spec_route on the new material.
+    refreshCandidateArtifact(driftRoot, store, 'shadow');
     const snapshotHead = currentGitHead(driftRoot)!;
     const snapshotMaterial = currentMaterialHash(driftRoot)!;
     const snapshotStoryFiles = currentStoryFilesHash(driftRoot)!;

@@ -1,0 +1,10 @@
+{
+  "reason": "origin/main 0.3.456 refuses managed review launch when the candidate artifact binding is stale. The live-drift scenario commits new story material and rebinds its ReviewRun, so it must re-route candidates first, as candidate_spec_route precedes a fresh run.",
+  "changes": [
+    {
+      "function": "assertManagedImportRejectsLiveMaterialDrift",
+      "before": "    git(driftRoot, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'story material']);\n    const snapshotHead",
+      "after": "    git(driftRoot, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'story material']);\n    // A fresh ReviewRun follows candidate_spec_route on the new material.\n    refreshCandidateArtifact(driftRoot, store, 'shadow');\n    const snapshotHead"
+    }
+  ]
+}

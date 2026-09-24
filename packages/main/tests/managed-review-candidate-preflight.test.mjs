@@ -7,6 +7,54 @@ const {
   runManagedReviewCandidatePreflight,
 } = await import('../dist/handlers/managed-review-evidence.js');
 const { assertManagedReviewCandidateLaunchReady } = await import('../dist/handlers/host-run.js');
+const { managedReviewCandidateReadiness } = await import('../dist/handlers/reviewer-batch.js');
+
+const unresolved = managedReviewCandidateReadiness({
+  requiresEscalation: true,
+  fullScan: false,
+  escalationReasons: ['requirements_corpus_missing'],
+}, 'B-candidate-preflight');
+assert.equal(unresolved.status, 'blocked');
+assert.match(unresolved.reason, /requirements_corpus_missing/);
+assert.match(unresolved.nextAction, /fullScanReason/);
+assert.equal(managedReviewCandidateReadiness({
+  requiresEscalation: true,
+  fullScan: true,
+  escalationReasons: ['requirements_corpus_missing'],
+}, 'B-candidate-preflight').reason, 'managed_review_full_scan_reason_missing');
+assert.deepEqual(managedReviewCandidateReadiness({
+  requiresEscalation: true,
+  fullScan: true,
+  scanEscalationReason: 'No requirements corpus exists for this benchmark target.',
+  escalationReasons: ['requirements_corpus_missing'],
+}, 'B-candidate-preflight'), { status: 'ready', reason: null, nextAction: null });
+
+const staleCandidate = {
+  requiresEscalation: false,
+  fullScan: false,
+  materialHash: 'a'.repeat(64),
+  storyFilesHash: 'b'.repeat(64),
+};
+const currentBinding = { materialHash: 'c'.repeat(64), storyFilesHash: 'd'.repeat(64) };
+const staleReadiness = managedReviewCandidateReadiness(staleCandidate, 'B-candidate-preflight', currentBinding);
+assert.equal(staleReadiness.status, 'blocked',
+  'a repaired Story must refuse stale candidate routing before spending a reviewer run');
+assert.match(staleReadiness.reason, /managed_review_candidate_binding_stale/);
+assert.match(staleReadiness.nextAction, /candidate_spec_route/);
+assert.throws(() => assertManagedReviewCandidateLaunchReady(staleCandidate, 'B-candidate-preflight', currentBinding),
+  /managed_review_candidate_binding_stale/,
+  'formal host_run must reject the same stale route before provider launch');
+const freshCandidate = { ...staleCandidate, ...currentBinding };
+assert.deepEqual(managedReviewCandidateReadiness(freshCandidate, 'B-candidate-preflight', currentBinding),
+  { status: 'ready', reason: null, nextAction: null },
+  'a current route retains the managed review launch path');
+assert.doesNotThrow(() => assertManagedReviewCandidateLaunchReady(freshCandidate, 'B-candidate-preflight', currentBinding));
+const staleStoryFiles = managedReviewCandidateReadiness({
+  ...freshCandidate,
+  storyFilesHash: staleCandidate.storyFilesHash,
+}, 'B-candidate-preflight', currentBinding);
+assert.equal(staleStoryFiles.status, 'blocked', 'story-only drift must also stop review before provider launch');
+assert.match(staleStoryFiles.reason, /storyFilesHash/);
 
 assert.throws(() => assertManagedReviewCandidateLaunchReady({
   requiresEscalation: true,
@@ -66,8 +114,11 @@ assert.ok(managedSubmit > promptBuild,
   'the source-order assertion must cover the real managed host submission path');
 assert.match(handler.slice(missingRefusal, promptBuild), /candidate_spec_route/,
   'the refusal must give the owner the exact repair command');
-assert.match(handler.slice(artifactRead, promptBuild), /assertManagedReviewCandidateLaunchReady\(candidateArtifact, storyId\)/,
-  'unresolved candidate routing must be rejected before prompt construction and provider submission');
+assert.match(handler.slice(artifactRead, promptBuild), /assertManagedReviewCandidateLaunchReady\(candidateArtifact, storyId, \{\s*materialHash: reviewRun\.materialHash,\s*storyFilesHash,/,
+  'stale candidate routing must be rejected against the current ReviewRun before prompt construction and provider submission');
+const batchHandler = readFileSync(new URL('../src/handlers/reviewer-batch.ts', import.meta.url), 'utf8');
+assert.match(batchHandler, /managedReviewCandidateReadiness\(ctx\.store\.readCandidateSpecSet\(storyId\), storyId, \{\s*materialHash: readinessReport\.materialHash,\s*storyFilesHash: readinessReport\.storyFilesHash,/,
+  'read-only reviewer_batch must project the same current binding before owner launch decisions');
 
 assert.equal(typeof runManagedReviewCandidatePreflight, 'function',
   'managed import must expose its executable candidate-preflight seam');

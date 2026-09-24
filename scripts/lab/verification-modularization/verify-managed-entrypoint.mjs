@@ -20,7 +20,11 @@ const relocationVisit=node=>{if((ts.isCallExpression(node)&&node.expression.kind
 const render=(node,extras=[])=>{let text=node.getText(before),start=node.getStart();for(const edit of [...relocations,...extras].filter(e=>e.start>=start&&e.end<=node.end).sort((a,b)=>b.start-a.start))text=text.slice(0,edit.start-start)+edit.text+text.slice(edit.end-start);return text;};
 const phaseBoundaryRepair=JSON.parse(fs.readFileSync('scripts/lab/verification-modularization/managed-phase-boundary-repair.json','utf8'));
 assert.equal(functions.get(phaseBoundaryRepair.helper.name),phaseBoundaryRepair.helper.body,'shared imported-pass checks retain their exact reviewed body');
-let preserved=0;for(const node of before.statements)if(ts.isFunctionDeclaration(node)&&node.name.text!=='main'){assert.equal(functions.get(node.name.text),render(node.body),'managed helper body retained: '+node.name.text);preserved++;}
+const helperRepairs=JSON.parse(fs.readFileSync('scripts/lab/verification-modularization/managed-helper-sync-repairs.json','utf8'));
+const usedHelperRepairs=new Set();
+const repairedHelper=(name,text)=>{for(const [index,repair] of helperRepairs.changes.entries())if(repair.function===name){assert.equal(text.split(repair.before).length,2,'helper repair must match exactly once: '+name);text=text.replace(repair.before,repair.after);usedHelperRepairs.add(index);}return text;};
+let preserved=0;for(const node of before.statements)if(ts.isFunctionDeclaration(node)&&node.name.text!=='main'){assert.equal(functions.get(node.name.text),repairedHelper(node.name.text,render(node.body)),'managed helper body retained: '+node.name.text);preserved++;}
+assert.equal(usedHelperRepairs.size,helperRepairs.changes.length,'every managed helper repair must apply');
 const main=before.statements.find(node=>ts.isFunctionDeclaration(node)&&node.name.text==='main');
 const trial=main.body.statements.find(ts.isTryStatement);
 const names=['codex-transport','claude-transport','evidence-binding','native-attestation','sealed-receipts'];

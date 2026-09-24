@@ -78,7 +78,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
-    "sha256": "7086f8ed638a6134be65b44d8a499c6d85590514be90dea05b1e8ea0a7df9aed"
+    "sha256": "07722bc047a07b196fea23643fff172046f525fba35f7c40a7b67b6bec1209c3"
   },
   {
     "path": "packages/main/tests/bin-alias-migration.test.mjs",
@@ -162,7 +162,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "scripts/process-fact-contract/complete.mjs",
-    "sha256": "3023b3812fd400f50e6945a1d3ae0d585259ed952a089be21bd37b10bc2425b8"
+    "sha256": "874f6b304ec281c072136f13e213cb23a9b8c01160778dfc29bd1d5155c89436"
   },
   {
     "path": "scripts/process-fact-contract/early.mjs",
@@ -642,7 +642,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/src/tasks/managed-review-evidence/live-binding.ts",
-    "sha256": "040f0468d0156052875e58541233d4e8d1b8b019cc61e1142160f16c0538b2dd"
+    "sha256": "11959f2b212a09f7f76422368e1c1c17439e79e3a4cfd72ed9d4b6776ea2deb9"
   },
   {
     "path": "packages/main/src/tasks/managed-review-evidence/native-attestation.ts",

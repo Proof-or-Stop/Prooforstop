@@ -70,6 +70,7 @@ import {
   renderReviewerDispatchLaunch,
   REVIEWER_CHILD_ID_WAIT_BOUNDARY,
 } from '../core/reviewer-launch-guidance.js';
+import { assertManagedReviewCandidateLaunchReady } from './host-run.js';
 
 interface ReviewerBatchArgs {
   storyId: string;
@@ -128,6 +129,11 @@ export interface ReviewerBatchReport {
    * Hosts launch every listed lane before waiting for any individual result.
    * This is still a read-only plan; it grants no launch or review authority.
    */
+  managedReviewReadiness: {
+    status: 'ready' | 'blocked';
+    reason: string | null;
+    nextAction: string | null;
+  };
   executionPlan: {
     strategy: 'parallel-barrier';
     launchableLanes: string[];
@@ -294,9 +300,11 @@ export function renderReviewerBatchReport(report: ReviewerBatchReport): string {
     `reviewRound: ${report.reviewRound ?? '(none)'}`,
     `readinessReport: target=${report.readinessReport.target} rows=${report.readinessReport.readiness.length}`,
     `gate: ${report.gate.ready ? 'READY' : 'BLOCKED'} blockedBy=[${report.gate.blockedBy.join(', ')}]`,
+    `managedReview: ${report.managedReviewReadiness.status}${report.managedReviewReadiness.reason ? ` reason=${report.managedReviewReadiness.reason}` : ''}`,
+    ...(report.managedReviewReadiness.nextAction ? [`managedReviewNextAction: ${report.managedReviewReadiness.nextAction}`] : []),
     `parallel-barrier: launchableLanes=[${launchable.join(', ')}]`,
     ...(launchable.length > 0
-      ? [`issue every listed lane's launchInstruction before any wait; collect one nonempty distinct child id per lane, then make one host wait call with the complete child-id set; maxConcurrency=${report.executionPlan.maxConcurrency}`]
+      ? [`for native review, or managed review after managedReview is ready: issue every listed lane's launchInstruction before any wait; collect one nonempty distinct child id per lane, then make one host wait call with the complete child-id set; maxConcurrency=${report.executionPlan.maxConcurrency}`]
       : ['no launchable lanes: do not call a host wait operation']),
     '',
     `lanes (${report.lanes.length}):`,
@@ -343,6 +351,51 @@ export function buildReviewerExecutionPlan(
     waitPolicy: launchableLanes.length > 0 ? 'collective-child-ids-after-all-launched' : 'no-wait',
     maxConcurrency: launchableLanes.length,
   };
+}
+
+export function managedReviewCandidateReadiness(
+  candidate: ReturnType<StoryStore['readCandidateSpecSet']>,
+  storyId: string,
+  currentBinding?: { materialHash: string | null | undefined; storyFilesHash: string | null | undefined },
+): ReviewerBatchReport['managedReviewReadiness'] {
+  if (!candidate) {
+    return {
+      status: 'blocked',
+      reason: 'managed_review_candidate_spec_missing',
+      nextAction: `proof-or-stop candidate_spec_route '{"storyId":"${storyId}"}'`,
+    };
+  }
+  try {
+    assertManagedReviewCandidateLaunchReady(candidate, storyId, currentBinding);
+  } catch (error) {
+    if (!(error instanceof Error)) throw error;
+    if (error.message.includes('managed_review_candidate_binding_stale')) {
+      return {
+        status: 'blocked',
+        reason: error.message.slice(error.message.indexOf('managed_review_candidate_binding_stale')).split(';')[0],
+        nextAction: candidate.fullScan === true
+          ? `proof-or-stop candidate_spec_route '{"storyId":"${storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`
+          : `proof-or-stop candidate_spec_route '{"storyId":"${storyId}"}'`,
+      };
+    }
+    if (!error.message.includes('managed_review_candidate_routing_unresolved')) throw error;
+    const reasons = Array.isArray(candidate.escalationReasons)
+      ? candidate.escalationReasons.filter((reason): reason is string => typeof reason === 'string' && reason.length > 0)
+      : [];
+    return {
+      status: 'blocked',
+      reason: `managed_review_candidate_routing_unresolved: ${reasons.join(', ') || 'unspecified'}`,
+      nextAction: `proof-or-stop candidate_spec_route '{"storyId":"${storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`,
+    };
+  }
+  if (candidate.fullScan === true && !candidate.scanEscalationReason) {
+    return {
+      status: 'blocked',
+      reason: 'managed_review_full_scan_reason_missing',
+      nextAction: `proof-or-stop candidate_spec_route '{"storyId":"${storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`,
+    };
+  }
+  return { status: 'ready', reason: null, nextAction: null };
 }
 
 export function createReviewerBatchHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
@@ -442,6 +495,10 @@ export function createReviewerBatchHandlers(ctx: HandlerContext): Record<string,
     const report: ReviewerBatchReport = {
       storyId,
       reviewRound: readinessReport.artifacts.reviewRound,
+      managedReviewReadiness: managedReviewCandidateReadiness(ctx.store.readCandidateSpecSet(storyId), storyId, {
+        materialHash: readinessReport.materialHash,
+        storyFilesHash: readinessReport.storyFilesHash,
+      }),
       executionPlan: buildReviewerExecutionPlan(lanes),
       lanes,
       gate: { blockedBy, ready },

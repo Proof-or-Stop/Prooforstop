@@ -461,6 +461,7 @@ function renderManagedInventoryCriticEvidencePack(root: string, run: ReviewRun):
     'This exact JSON was captured from the canonical Story metadata after the required lanes terminated and is sealed by the managedPromptDigest.',
     'For inventory-completeness duties, this pack is the current epoch/run/terminal source. The detached scratch intentionally reflects committed HEAD and may predate the batched current inventory metadata; do not report that expected lag as missing canonical evidence.',
     'Independently inspect every required-lane terminal, signatureValid flag, readManifest/readLog, and exact Finding family. Do not infer topology, TEST, DONE, or implementation authority from this pack.',
+    'This is a second-order inventory audit, not a repeat of concept, quality, or test-coverage review. Start with this signed pack; inspect source or run focused commands when a specific family, coverage claim, or plausible omission needs independent resolution. Do not reread the whole implementation or rerun the full test suite by default. Preserve the required truthful full read and report an unresolved limitation rather than inventing coverage or PASS.',
     `For your final inventoryCritic block, copy these exact values: ${JSON.stringify({epochId: epoch.epochId, wave: epoch.waves.length + 1})}. They come from this pack's epoch.epochId and epoch.waves.length + 1; do not infer them from Finding IDs or earlier runs.`,
     JSON.stringify(projected),
     '--- END CONTROLLER-FETCHED CURRENT INVENTORY EVIDENCE PACK ---',
