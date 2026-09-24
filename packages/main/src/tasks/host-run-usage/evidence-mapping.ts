@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 
 import { mkdirSync, readdirSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
+import { basename } from 'node:path';
 
 
 
@@ -19,7 +20,7 @@ import { tmpdir } from 'node:os';
 
 
 
-import { check, root, freshRoot, evidenceMappingCheck, canonicalCore } from "./support.js";
+import { check, root, freshRoot, counter, evidenceMappingCheck, canonicalCore } from "./support.js";
 
 export async function case88(): Promise<void> {
 
@@ -30,13 +31,17 @@ export async function case88(): Promise<void> {
   check('isolation: all artifacts live under the temp root (no repo pollution)', () => {
     assert.ok(root.startsWith(tmpdir()));
     assert.ok(statSync(root).isDirectory());
+    // Snapshot before this case writes: earlier selected cases must have left
+    // their fixtures under the temp root; a standalone selection has none.
+    const entries = readdirSync(root);
+    if (counter > 0) assert.ok(entries.length > 0);
+    else assert.deepEqual(entries, []);
     // This capability owns its fixture even when selected without other cases.
     const ownedFixture = freshRoot();
     mkdirSync(ownedFixture);
     assert.ok(statSync(ownedFixture).isDirectory());
     assert.ok(ownedFixture.startsWith(root + "/"));
-    const entries = readdirSync(root);
-    assert.ok(entries.length > 0);
+    assert.deepEqual(readdirSync(root).filter(name => !entries.includes(name)), [basename(ownedFixture)]);
   });
 }
 

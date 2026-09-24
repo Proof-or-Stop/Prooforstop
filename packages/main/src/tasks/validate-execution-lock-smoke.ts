@@ -448,9 +448,8 @@ async function assertWorkspaceWaitAndRun(): Promise<void> {
     assert.equal(await waitForEntered(root,1,NATIVE_ENTRY_WAIT_MS),true,'first actual CLI must enter: '+first.output());
     second=spawnValidate(root,secondStoryId,'second');
     assert.equal(await waitForEntered(root,2,1500),false,'second Story must wait outside its validation callback');
-    assert.match(second.stderr(),/waiting for workspace validation capacity/);
-    assert.match(second.stderr(),/validate for B-capacity-a/);
-    assert.match(second.stderr(),/heartbeat/);
+    assert.equal(await waitForOutput(second,/waiting for workspace validation capacity: holder validate for B-capacity-a.*heartbeat/,NATIVE_ENTRY_WAIT_MS),true,second.output());
+    assert.equal(enteredCount(root),1,'second Story must remain outside its callback until release');
     release(root);
     const outcomes=await Promise.all([waitChild(first,12000),waitChild(second,12000)]);
     for(const result of outcomes){assert.equal(result.timedOut,false);assert.equal(result.code,0,result.output);}

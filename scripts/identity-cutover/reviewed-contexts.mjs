@@ -682,7 +682,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/src/tasks/host-run-usage/evidence-mapping.ts",
-    "sha256": "df0a75c9bcf3b17fdde773ad8dd743dc9a806c92cd6308ee1963a803ab67efd6"
+    "sha256": "9d51435919504df525e44d281e13f72cd76ecb354010acaf6dd50efe5183eca7"
   },
   {
     "path": "packages/main/src/tasks/host-run-usage/integrations.ts",

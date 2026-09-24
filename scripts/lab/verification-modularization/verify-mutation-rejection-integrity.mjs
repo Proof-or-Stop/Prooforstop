@@ -29,6 +29,14 @@ try {
   fs.writeFileSync(entry, 'process.exit(0);\n');
   assert.throws(() => assertStory3VerifierPositiveControl(root), /PROCESS_PARTIAL_PASS/);
   console.log('MUTATION_EVIDENCE_GREEN: unrelated failure, wrong reason, signal and markerless success refused');
+  // Acceptance controls: genuine evidence must still be accepted, so a helper that
+  // throws on every input cannot pass this integrity test.
+  fs.writeFileSync(entry, "console.error('PROCESS_CAPABILITY_FAIL '+JSON.stringify({capability:'story3',failures:['Story 3: protected query surface contains a path-bearing field']}));process.exit(1);\n");
+  assert.equal(runStory3Mutation(root, 'story3-query-path-leak'), false, 'exact registered rejection must count as detected mutation');
+  fs.writeFileSync(entry, "console.log('PROCESS_PARTIAL_PASS '+JSON.stringify({capabilities:['story3']}));process.exit(0);\n");
+  assert.equal(runStory3Mutation(root, 'story3-query-path-leak'), true, 'passing partial run must report the mutation as accepted');
+  assert.doesNotThrow(() => assertStory3VerifierPositiveControl(root));
+  console.log('MUTATION_EVIDENCE_ACCEPTANCE_GREEN: exact rejection and passing partial run are accepted');
 } finally {
   fs.rmSync(root, { recursive: true, force: true });
 }

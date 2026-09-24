@@ -160,6 +160,10 @@ export function auditTimeoutForPaths(pathCount, reviewBytes = 0) {
   return Math.max(labPolicy.auditTimeoutMs, scaled);
 }
 
+/** Same byte measure the integration batch uses: complete diff plus all changed-file contents. */
+export function integrationReviewBytes(full) {
+  return Buffer.byteLength(JSON.parse(full.input).diff) + full.files.reduce((sum, file) => sum + Buffer.byteLength(file.content), 0);
+}
 /** Stable module-family partitions; every changed path belongs to exactly one batch. */
 export function planAuditBatches(files) {
   const seen = new Set(), batches = [];
@@ -202,6 +206,9 @@ export async function executeLabAudit(options) {
   const full=auditInput(cwd,base,head,verification);
   if (full.paths.length <= labPolicy.auditBatchMaxPaths) return executeSingleLabAudit(options);
   const plan=planAuditBatches(full.files), batchPlanDigest=hash(JSON.stringify(plan));
+  // The integration review reads the complete diff plus every changed file. Refuse an
+  // over-limit candidate before any module batch spends provider time.
+  auditTimeoutForPaths(full.paths.length, integrationReviewBytes(full));
   const selection=options.selection ?? selectAuditor(options.developer,options.config ?? {});
   const binding={schemaVersion:LAB_AUDIT_SCHEMA,labName:options.labName,developerHost:options.developer,
     auditorHost:selection.auditor.id,developerVendor:selection.developer.vendor,auditorVendor:selection.auditor.vendor,

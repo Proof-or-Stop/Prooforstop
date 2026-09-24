@@ -739,3 +739,41 @@ classification while updating source digests and unchanged-line locations.
 migration verifier reverses the fixture deltas before replaying the historical
 relocation proof. Whole-source and static-edge checks bind the current bytes;
 registration of a historical note alone does not establish their validity.
+
+### Transient coordination publication and release
+
+The migration scan rechecks a preparation/quarantine path after an unavailable
+holder read. A vanished path is skipped. A still-present holder-less directory
+is observed again after one caller-bounded poll, identified by device, inode and
+birth time; a stable unknown entry remains a blocking diagnostic and is never
+removed. The original deadline still refuses admission. The existing residue
+regression covers vanished paths, mid-delete directories, stable unknown owners
+and deadline exhaustion for both suffixes, in addition to its prior live/dead
+and malformed-owner controls. This is a correction to the existing migration
+behavior, not a new validation gate.
+
+### Second audit round repairs
+
+The second cross-host audit of candidate `64d6642e97` reported nine findings.
+Each has a focused case in `verify-modular-finish-repairs.mjs`:
+
+- Coordination migration re-observes a vanished or holder-less preparation or
+  quarantine entry before diagnosing residue (see above).
+- The workspace-wait smoke polls for the second CLI's wait line with the same
+  entry budget as the other spawned-CLI assertions instead of reading it once.
+- Lab audit checks the integration batch budget before launching any module
+  batch; an over-limit candidate is refused with zero provider spawns.
+- Module-family child-process helpers parse through the scanner's source cache,
+  and the AST reuse witness counts parses requested by imported helpers.
+- The helper follows child-process re-exports (named, star, namespace, default
+  and `export const` aliases). Other forms carrying a binding are reported for
+  review.
+- EX-0172 and EX-0230 again pin `scripts/verify-lab-timeout-budget.mjs`; a probe
+  compares dependency pins with the merge base.
+- Host-usage case 88 checks a snapshot taken before its own fixture, so it can
+  fail. The ledger reason describes the changed assertion.
+- The process structure check matches the complete driver's real completion
+  markers, and the mutation integrity test accepts genuine evidence as well as
+  refusing false evidence.
+- The modular static closure test plans each file under its own family entry.
+  The previous round's foreign-entry fallback had broken this Lab-only test.

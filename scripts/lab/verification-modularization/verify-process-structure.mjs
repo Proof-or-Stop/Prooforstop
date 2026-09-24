@@ -43,9 +43,16 @@ const run = args => spawnSync(process.execPath, [path, ...args], { encoding: 'ut
 const list = run(['--list-capabilities']); assert.equal(list.status, 0, list.stderr);
 const capabilities = JSON.parse(list.stdout);
 assert.ok(capabilities.some(row => row.id === 'story3' && row.obligations.includes('assertStory3ProcessFactContract')));
+// The complete driver's real completion markers (scripts/process-fact-contract/complete.mjs).
+const PROCESS_SUCCESS_MARKERS = /PROCESS_PARTIAL_PASS|Process-fact contract verification passed|Process fact contract verified/;
+const completeSource = fs.readFileSync('scripts/process-fact-contract/complete.mjs', 'utf8');
+for (const marker of ['Process-fact contract verification passed', 'Process fact contract verified']) {
+ assert.ok(completeSource.includes("console.log('" + marker + "')"), 'PROCESS_SUCCESS_MARKER_DRIFT: ' + marker);
+ assert.match(marker, PROCESS_SUCCESS_MARKERS);
+}
 for (const args of [['--capability='], ['--capability=unknown'], ['--all', '--capability=story3'], ['--quiet', '--unknown']]) {
  const result = run(args); assert.equal(result.status, 1); assert.match(result.stderr, /Unknown process verification argument/);
- assert.doesNotMatch(result.stdout, /PROCESS_PARTIAL_PASS|Process fact contract passed/);
+ assert.doesNotMatch(result.stdout, PROCESS_SUCCESS_MARKERS);
 }
 console.log('PROCESS_FUNCTION_BODIES_VERIFIED ' + preserved + ' (exact source-binding repairs enumerated in process-source-binding-repairs.json)');
 console.log('PROCESS_MODULAR_STRUCTURE_GREEN: original full driver and early admission sequence retained; full execution is separate evidence');

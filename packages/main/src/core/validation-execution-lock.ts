@@ -514,6 +514,7 @@ async function prepareWorkspaceValidationCoordination(options: ValidationCapacit
   }
   try {
   let liveQueuePaths: string[] = [];
+  const unclassifiedTransitions = new Map<string, string>();
   const pruneEmptyQueue = (path: string): string[] => {
     const blocked: string[] = [];
     // A populated legacy queue drains before migration. New callers wait outside
@@ -536,7 +537,19 @@ async function prepareWorkspaceValidationCoordination(options: ValidationCapacit
         if (holder && holder.hostname === hostname() && Number.isSafeInteger(holder.pid) && holder.pid > 1
           && classifyValidationCapacityLock({lockDir:child,holder,ageMs:0,staleMs:VALIDATION_EXECUTION_LOCK_STALE_MS,nowMs:Date.now()}) === 'active') {
           liveQueuePaths.push(child);
-        } else blocked.push(child);
+        } else {
+          // Publication/release may remove the entry or its holder after lstat.
+          // Re-observe before diagnosing residue; absence never grants deletion.
+          let current;
+          try { current = lstatSync(child); }
+          catch (error: any) { if (error.code === 'ENOENT') continue; throw error; }
+          const identity = `${current.dev}:${current.ino}:${current.birthtimeMs}`;
+          if (!holder && current.isDirectory() && !current.isSymbolicLink()
+            && unclassifiedTransitions.get(child) !== identity) {
+            unclassifiedTransitions.set(child, identity);
+            liveQueuePaths.push(child);
+          } else blocked.push(child);
+        }
       } else if (name === 'workspaces' && stat.isDirectory() && !stat.isSymbolicLink()) {
         for (const workspace of readdirSync(child)) {
           const queue = join(child, workspace);
