@@ -1,5 +1,12 @@
 # Changelog
 
+## Managed review stale-route preflight - v0.3.456 - 2026-09-24
+
+- Reject stale candidate material/story-file bindings in `reviewer_batch` and `host_run` before managed reviewers consume provider time; preserve import-time checks.
+- Focus inventory critics on signed lane evidence and disputed coverage while retaining independent classification and truthful read requirements.
+- Record the B-f50c trial's 3-hour timeline, real remediation cycles, late-rejected review batch, and verification limits in [the benchmark audit](docs/audits/bf50c-benchmark-time-attribution.md).
+- Lab RED/GREEN, focused managed-review and inventory-import checks, build, and U18 static edges passed; end-to-end time saving and score require a new trial.
+
 ## Consumer scope reviewer preflight - v0.3.455 - 2026-09-24
 
 - Project missing decisions corpus and zero selected process-fact owners into the PLAN scope reviewer prompt, so external-project reviewers skip irrelevant discovery while retaining applicable coverage.
