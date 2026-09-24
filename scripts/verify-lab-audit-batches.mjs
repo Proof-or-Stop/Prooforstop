@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import * as audit from './lab-audit.mjs';
+assert.equal(typeof audit.planAuditBatches,'function','LAB_AUDIT_BATCHING_MISSING: large candidates need exhaustive bounded review batches');
+const files=Array.from({length:55},(_,i)=>({path:`modules/family-${Math.floor(i/15)}/file-${i}.mjs`,content:'export const value=1;'}));
+const plan=audit.planAuditBatches(files);
+assert.ok(plan.length>1);
+assert.deepEqual(plan.flatMap(batch=>batch.paths).sort(),files.map(file=>file.path).sort());
+assert.ok(plan.every(batch=>batch.paths.length<=24));
+assert.deepEqual(plan,audit.planAuditBatches([...files].reverse()));
+assert.throws(()=>audit.planAuditBatches([...files,files[0]]),/duplicate/);
+console.log('LAB_AUDIT_BATCH_PLAN_GREEN exhaustive, bounded, deterministic and duplicate refusal');
