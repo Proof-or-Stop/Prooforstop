@@ -443,3 +443,13 @@ integration review to pass before publishing a full-candidate verdict. Any failu
 retains evidence and blocks finish. Batches run sequentially through existing
 provider admission; this does not authorize parallel agents or reuse another
 candidate's approval. Synthetic transport tests never constitute vendor approval.
+
+Every audit also receives a complete exact-commit tree inventory. Changed-file
+snapshots are not a complete repository listing: reviewers must consult that
+inventory before reporting a missing file. Bounded static reference traversal
+supplies unchanged source imports and documentation targets under the snapshot
+tree (at most 400 additional files and 16 MiB). Non-text, unsupported, private
+metadata and budget-omitted contexts are explicitly listed; this is not a complete
+dynamic dependency closure. Every supplied byte and the tree inventory are checked
+again after the provider exits. Unavailable context must be reported as a limit,
+not invented as a missing repository file.

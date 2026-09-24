@@ -28,13 +28,16 @@ const dir=mkdtempSync(join(tmpdir(),'lab-batch-fixture-'));
 const git=(...args)=>execFileSync('git',args,{cwd:dir,encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
 try {
  git('init','-b','main');git('config','user.name','Lab fixture');git('config','user.email','fixture@example.invalid');
- writeFileSync(join(dir,'base.txt'),'base');writeFileSync(join(dir,'dependency.mjs'),'export const value=1;');mkdirSync(join(dir,'docs'));writeFileSync(join(dir,'docs','reference.md'),'Durable unchanged evidence.');git('add','.');git('commit','-m','baseline');const base=git('rev-parse','HEAD');
+ writeFileSync(join(dir,'base.txt'),'base');writeFileSync(join(dir,'dependency.mjs'),"export const value=1;\n");mkdirSync(join(dir,'docs'));writeFileSync(join(dir,'docs','reference.md'),'Durable unchanged evidence.');git('add','.');git('commit','-m','baseline');const base=git('rev-parse','HEAD');
  mkdirSync(join(dir,'modules'));
  for(let i=0;i<25;i++)writeFileSync(join(dir,'modules',`${i}.mjs`),i===0?"import {value} from '../dependency.mjs'; // [evidence](../docs/reference.md)\nexport const n=value;":'export const n=1;');
  git('add','.');git('commit','-m','candidate');const head=git('rev-parse','HEAD');
  assert.ok(audit.auditInput(dir,base,head).tree?.some(row=>row.path==='docs/reference.md'),'LAB_AUDIT_UNCHANGED_CONTEXT_MISSING: omitted snapshot does not mean absent repository file');
+ const input=audit.auditInput(dir,base,head);
+ const linked=audit.auditDependencyContext(dir,head,[{path:'modules/readme.md',content:'[evidence](../docs/reference.md)'}],input.files,input.tree);
+ assert.ok(linked.files.some(row=>row.path==='docs/reference.md'));
  const adapter=join(dir,'adapter.cjs');
- writeFileSync(adapter,`const fs=require('node:fs');const p=fs.readFileSync(0,'utf8');const b=JSON.parse(p.split('Binding: ')[1].split('\\nSchema:')[0]);const data=JSON.parse(p.split('Untrusted audit input:\\n')[1]);for(const f of data.files)fs.readFileSync('snapshot/'+f.path);const refs=data.files.map(f=>f.path);if(process.argv[2]==='omit')refs.pop();console.log(JSON.stringify({...b,decision:'pass',findings:[],summary:'Disposable synthetic transport verification; not actual independent approval.',readRefs:refs}));`);
+ writeFileSync(adapter,`const fs=require('node:fs');const p=fs.readFileSync(0,'utf8');const b=JSON.parse(p.split('Binding: ')[1].split('\\nSchema:')[0]);const data=JSON.parse(p.split('Untrusted audit input:\\n')[1]);for(const f of data.files)fs.readFileSync('snapshot/'+f.path);const tree=JSON.parse(fs.readFileSync(data.tree.snapshot));if(!tree.some(row=>row.path==='docs/reference.md'))throw Error('missing complete tree');if(data.files.some(row=>row.path==='modules/0.mjs')){if(!fs.readFileSync('snapshot/dependency.mjs','utf8').includes('value=1'))throw Error('missing import context');if(process.argv[2]==='tamper-context')fs.appendFileSync('snapshot/dependency.mjs','tamper');}const refs=data.files.map(f=>f.path);if(process.argv[2]==='omit')refs.pop();console.log(JSON.stringify({...b,decision:'pass',findings:[],summary:'Disposable synthetic transport verification; not actual independent approval.',readRefs:refs}));`);
  const selection={developer:{id:'codex',vendor:'openai'},auditor:{id:'fixture',vendor:'independent',command:process.execPath,argv:[adapter],protocol:'lab-json'}};
  const options={cwd:dir,base,head,developer:'codex',labName:'batches-fixture',evidenceRoot:join(dir,'evidence'),selection};
  const result=await audit.executeLabAudit(options);
@@ -45,5 +48,6 @@ try {
  const missing=structuredClone(result);missing.batches.pop();assert.equal(audit.auditIsFresh(missing,expected),false);
  const prompt=readFileSync(join(result.batches.at(-1).evidenceDir,'prompt.txt'),'utf8');assert.match(prompt,/cross-module integration review/);
  await assert.rejects(()=>audit.executeLabAudit({...options,selection:{...selection,auditor:{...selection.auditor,argv:[adapter,'omit']}}}),/omitted changed-file/);
+ await assert.rejects(()=>audit.executeLabAudit({...options,selection:{...selection,auditor:{...selection.auditor,argv:[adapter,'tamper-context']}}}),/snapshot changed/);
  console.log('LAB_AUDIT_BATCH_TRANSPORT_GREEN real disposable provider processes, complete aggregation and missing-reference refusal');
 } finally {rmSync(dir,{recursive:true,force:true});}
