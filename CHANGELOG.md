@@ -1,5 +1,14 @@
 # Changelog
 
+## Consumer scope reviewer preflight - v0.3.455 - 2026-09-24
+
+- Project missing decisions corpus and zero selected process-fact owners into the PLAN scope reviewer prompt, so external-project reviewers skip irrelevant discovery while retaining applicable coverage.
+- Mark candidate routing as Story-owner-only and keep the example read manifest empty until the reviewer records actual reads; scope evidence and gates are unchanged.
+- Lab RED/GREEN, focused dispatch and managed-scope tests, build, and U18 static edges passed. End-to-end time savings and benchmark score remain unmeasured.
+- Attribute the stopped B-0257 trial's elapsed time and token coverage in [the benchmark audit](docs/audits/b0257-benchmark-time-attribution.md). This user-authorized Codex-reviewed integration has no independent-vendor Lab audit record.
+
+Repair commits: `981cb839d5`, `a8e6306cba`, `0633082d84`. This Lab record is not formal Story DONE evidence.
+
 ## Managed review batch preflight - v0.3.454 - 2026-09-24
 
 - Show managed-review candidate-routing blockers and the exact next command before REVIEW lane launch guidance; keep native reviewer launches available.
