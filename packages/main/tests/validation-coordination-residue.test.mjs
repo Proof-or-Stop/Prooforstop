@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import { syncBuiltinESMExports } from 'node:module';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, existsSync, realpathSync, rmSync } from 'node:fs';
 import { tmpdir, hostname } from 'node:os';
@@ -59,5 +61,34 @@ for (const suffix of ['preparing', 'quarantine']) {
     } finally {if(live){const done=once(live,'close');live.kill();await done;}rmSync(root,{recursive:true,force:true});}
   }
 }
+  const read=fs.readFileSync;let cases=0;
+  for (const suffix of ['preparing','quarantine']) for (const mode of ['vanished','deleting','stable','deadline']) {
+    const project=fs.mkdtempSync(join(tmpdir(),'coordination-transition-'));
+    const residue=join(validationCapacityLockPath(project),'in-flight.'+suffix);
+    fs.mkdirSync(residue,{recursive:true});
+    let injected=false,entered=0,waits=0,timer;
+    fs.readFileSync=function(path,...args){
+      if(!injected&&String(path)===join(residue,'holder.json')) {
+        injected=true;
+        if(mode==='vanished')fs.rmSync(residue,{recursive:true});
+        if(mode==='deleting')timer=setTimeout(()=>fs.rmSync(residue,{recursive:true,force:true}),5);
+      }
+      return read.call(this,path,...args);
+    };syncBuiltinESMExports();
+    const invoke=()=>withWorkspaceValidationCapacity({root:project,workspaceRoot:project,command:'transition-probe',pollMs:mode==='deadline'?2000:20,deadlineAt:Date.now()+1000,onWaitProgress(){waits++;}},()=>{entered++;});
+    try {
+      if(mode==='vanished'||mode==='deleting') {
+        await assert.doesNotReject(invoke,'TRANSIENT_COORDINATION_MISCLASSIFIED '+suffix+' '+mode);
+        assert.equal(entered,1);assert.equal(fs.existsSync(residue),false);
+        if(mode==='deleting')assert(waits>0,'incomplete transition must wait');
+      } else {
+        await assert.rejects(invoke,error=>mode==='deadline'?isValidationCapacityWaitDeadlineError(error):/WORKSPACE_COORDINATION_MIGRATION_BLOCKED/.test(String(error)));
+        assert.equal(entered,0);assert(fs.existsSync(residue),'unknown ownership must remain untouched');
+        assert(waits>0,'unclassified transition must be reobserved before refusal');
+      }
+      assert(injected,'holder-read race window must be exercised');cases++;
+    } finally {clearTimeout(timer);fs.readFileSync=read;syncBuiltinESMExports();fs.rmSync(project,{recursive:true,force:true});}
+  }
+  console.log('COORDINATION_TRANSITION_GREEN '+JSON.stringify({cases}));
 console.log('COORDINATION_RESIDUE_GREEN: dead preparation/quarantine reclaimed; live and unknown owners preserved with named migration diagnostic');
 }

@@ -12,18 +12,26 @@ const runs=[];
 let completed=false;
 function replaceRequired(source,needle,value){assert(source.includes(needle),'STATIC_AST_REFERENCE_PATCH_NOT_APPLIED: '+needle);return source.replace(needle,value);}
 try {
- for(const arm of ['reference','candidate']) {
+ for(const arm of ['reference','candidate','helper-bypass']) {
   const counts=path.join(tmp,arm+'.counts'),report=path.join(tmp,arm+'.report');
   let source=original;
-  // Execute current scanner source with unchanged helper imports and manifest
-  // location; only the parser observer and reference cache bypass differ.
-  for(const helper of ['static-source-evidence.mjs','identity-child-closure.mjs','identity-modular-child-closure.mjs'])source=replaceRequired(source,"'./"+helper+"'",JSON.stringify(pathToFileURL(path.join(root,'scripts',helper)).href));
+  for(const helper of ['static-source-evidence.mjs','identity-child-closure.mjs','identity-modular-child-closure.mjs']) {
+   let target=path.join(root,'scripts',helper);
+   if(arm==='helper-bypass' && helper==='identity-modular-child-closure.mjs') {
+    // Negative control: a helper that parses on its own must be observed.
+    let bypass=fs.readFileSync(target,'utf8');
+    bypass=replaceRequired(bypass,'parse(name,texts[index])','ts.createSourceFile(name,texts[index],ts.ScriptTarget.Latest,true)');
+    bypass=replaceRequired(bypass,'let modules=familyBindingCache.get(key);','let modules=undefined;');
+    target=path.join(tmp,helper);fs.writeFileSync(target,bypass);
+   }
+   source=replaceRequired(source,"'./"+helper+"'",JSON.stringify(pathToFileURL(target).href));
+  }
   source=replaceRequired(source,'here=path.dirname(fileURLToPath(import.meta.url))','here='+JSON.stringify(path.join(root,'scripts')));
   if(arm==='reference' && source.includes('function parseStaticSource'))source=replaceRequired(source,'const cached = parsedSourceCache.get(file);','const cached = undefined;');
-  const occurrences=source.split('ts.createSourceFile(').length-1;
-  assert.equal(occurrences,1,'STATIC_AST_PARSER_OBSERVER_SOURCE_DRIFT');
-  source=source.replace('ts.createSourceFile(','observedCreateSourceFile(');
-  source='let observedCalls=0; const observedInputs=new Set();\nfunction observedCreateSourceFile(...args){observedCalls++;observedInputs.add(crypto.createHash("sha256").update(String(args[0])+"\\0"+String(args[1])+"\\0"+JSON.stringify(args.slice(2))).digest("hex"));return ts.createSourceFile(...args);}\n'+source+'\nfs.writeFileSync('+JSON.stringify(counts)+',JSON.stringify({calls:observedCalls,unique:observedInputs.size,maxRSSKiB:process.resourceUsage().maxRSS}));\n';
+  // TypeScript exports are getters, so the scanner's shared module object is
+  // replaced by a proxy; helpers receive that object and cannot parse unseen.
+  source=replaceRequired(source,"ts=req('typescript')","ts=new Proxy(req('typescript'),{get(target,key){return key==='createSourceFile'?observedCreateSourceFile:Reflect.get(target,key);}})");
+  source='let observedCalls=0; const observedInputs=new Set(); let observedParse;\nfunction observedCreateSourceFile(...args){observedCalls++;observedInputs.add(crypto.createHash("sha256").update(String(args[0])+"\\0"+String(args[1])+"\\0"+JSON.stringify(args.slice(2))).digest("hex"));return (observedParse??=req("typescript").createSourceFile)(...args);}\n'+source+'\nfs.writeFileSync('+JSON.stringify(counts)+',JSON.stringify({calls:observedCalls,unique:observedInputs.size,maxRSSKiB:process.resourceUsage().maxRSS}));\n';
   const script=path.join(tmp,arm+'.mjs');fs.writeFileSync(script,source);
   const started=performance.now();
   const child=spawnSync(process.execPath,[script,root],{cwd:root,encoding:'utf8',timeout:60000,maxBuffer:8*1024*1024,env:{...process.env,U18_STATIC_REPORT_PATH:report}});
@@ -38,6 +46,8 @@ try {
   assert.fail('Complete scanner report differs: '+(row?.key??field??'serialization')+'; retained reports: '+tmp);
  }
  console.log('STATIC_AST_COMPARISON '+JSON.stringify(runs.map(({report,...r})=>r)));
+ assert.equal(runs[2].report,runs[1].report,'Helper-bypass control must change only parser reuse');
+ assert(runs[2].calls>runs[2].unique,'STATIC_AST_HELPER_PARSE_UNOBSERVED: helper-owned parses must be counted');
  assert(runs[0].calls>runs[0].unique,'Witness must contain duplicate parser requests');
  assert.equal(runs[1].calls,runs[1].unique,'STATIC_AST_REPEATED_IDENTICAL_INPUT: parse each exact source once within the command');
  console.log('STATIC_AST_REUSE_GREEN complete report parity and bounded parser calls');

@@ -56,4 +56,16 @@ try {
  await assert.rejects(()=>audit.executeLabAudit({...options,selection:{...selection,auditor:{...selection.auditor,argv:[adapter,'omit']}}}),/omitted changed-file/);
  await assert.rejects(()=>audit.executeLabAudit({...options,selection:{...selection,auditor:{...selection.auditor,argv:[adapter,'tamper-context']}}}),/snapshot changed/);
  console.log('LAB_AUDIT_BATCH_TRANSPORT_GREEN real disposable provider processes, complete aggregation and missing-reference refusal');
+ // An integration workload above the bounded allowance is refused before any provider launch.
+ const {LAB_MAINTENANCE_RUNTIME_REQUIREMENTS:policy}=await import('../packages/main/src/core/runtime-fact-registry.ts');
+ const overPaths=Math.floor(policy.auditMaxTimeoutMs/policy.auditPerChangedPathMs)+1;
+ for(let i=0;i<overPaths;i++)writeFileSync(join(dir,'modules',`over-${i}.mjs`),'export const over=1;');
+ git('add','.');git('commit','-m','over-limit candidate');const overHead=git('rev-parse','HEAD');
+ const spawnLog=join(dir,'spawns.log'),counting=join(dir,'counting-adapter.cjs');
+ writeFileSync(counting,`require('node:fs').appendFileSync(${JSON.stringify(spawnLog)},'spawn\\n');process.exit(1);`);
+ assert.ok(audit.auditInput(dir,base,overHead).paths.length>overPaths,'fixture must exceed the integration path allowance');
+ await assert.rejects(()=>audit.executeLabAudit({...options,head:overHead,labName:'over-limit-fixture',selection:{...selection,auditor:{...selection.auditor,argv:[counting]}}}),/split the repair/);
+ let spawns=0;try{spawns=readFileSync(spawnLog,'utf8').split('\n').filter(Boolean).length;}catch(error){if(error.code!=='ENOENT')throw error;}
+ assert.equal(spawns,0,'LAB_AUDIT_INTEGRATION_BUDGET_LATE: over-limit candidate must be refused before any module batch');
+ console.log('LAB_AUDIT_INTEGRATION_PREFLIGHT_GREEN over-limit candidate refused with zero provider spawns');
 } finally {rmSync(dir,{recursive:true,force:true});}

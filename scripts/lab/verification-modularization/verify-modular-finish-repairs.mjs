@@ -8,6 +8,16 @@ import { join, resolve } from 'node:path';
 const base = 'scripts/lab/verification-modularization';
 const probe = name => `${base}/finish-repair-probes/${name}.mjs`;
 const cases = [
+  ['workspace-cli-startup', [probe('workspace-wait')], 0, /WORKSPACE_WAIT_STARTUP_GREEN/],
+  ['coordination-transitions', ['packages/main/tests/validation-coordination-residue.test.mjs'], 0, /COORDINATION_TRANSITION_GREEN/],
+  ['audit-integration-preflight', ['scripts/verify-lab-audit-batches.mjs'], 0, /LAB_AUDIT_INTEGRATION_PREFLIGHT_GREEN/],
+  ['static-ast-helper-reuse', ['scripts/verify-static-ast-reuse.mjs'], 0, /STATIC_AST_REUSE_GREEN/],
+  ['modular-export-forms', [`${base}/verify-modular-static-closure.mjs`], 0, /MODULAR_STATIC_CLOSURE_GREEN/],
+  ['merge-dependency-pins', [probe('merge-pins')], 0, /MERGE_PINS_PRESERVED/],
+  ['u18-static-pass', ['scripts/verify-validation-static-edges.mjs'], 0, /U18_STATIC_PASS/],
+  ['isolation-oracle', [probe('isolation-oracle')], 0, /ISOLATION_ORACLE_DISCRIMINATES/],
+  ['process-completion-markers', [`${base}/verify-process-structure.mjs`], 0, /PROCESS_MODULAR_STRUCTURE_GREEN/],
+  ['mutation-acceptance-controls', [`${base}/verify-mutation-rejection-integrity.mjs`], 0, /MUTATION_EVIDENCE_ACCEPTANCE_GREEN/],
   ['top-level-preservation', [`${base}/verify-modular-top-level-preservation.mjs`], 0, /MODULAR_TOP_LEVEL_PRESERVATION_GREEN/],
   ['process-prerequisite-diagnostic', [probe('process-prerequisite'), 'scripts/process-fact-contract/cli.mjs'], 0, /PROCESS_PREREQUISITE_DIAGNOSTIC_GREEN/],
   ['host-selected', ['packages/main/dist/tasks/host-run-usage-smoke.js', '--capability=evidence-mapping'], 0, /HOST_USAGE_PARTIAL_PASS/],
