@@ -29,6 +29,22 @@ assert.deepEqual(managedReviewCandidateReadiness({
   escalationReasons: ['requirements_corpus_missing'],
 }, 'B-candidate-preflight'), { status: 'ready', reason: null, nextAction: null });
 
+const staleCandidate = {
+  requiresEscalation: false,
+  fullScan: false,
+  materialHash: 'a'.repeat(64),
+  storyFilesHash: 'b'.repeat(64),
+};
+const currentBinding = { materialHash: 'c'.repeat(64), storyFilesHash: 'd'.repeat(64) };
+const staleReadiness = managedReviewCandidateReadiness(staleCandidate, 'B-candidate-preflight', currentBinding);
+assert.equal(staleReadiness.status, 'blocked',
+  'a repaired Story must refuse stale candidate routing before spending a reviewer run');
+assert.match(staleReadiness.reason, /managed_review_candidate_binding_stale/);
+assert.match(staleReadiness.nextAction, /candidate_spec_route/);
+assert.throws(() => assertManagedReviewCandidateLaunchReady(staleCandidate, 'B-candidate-preflight', currentBinding),
+  /managed_review_candidate_binding_stale/,
+  'formal host_run must reject the same stale route before provider launch');
+
 assert.throws(() => assertManagedReviewCandidateLaunchReady({
   requiresEscalation: true,
   fullScan: false,
