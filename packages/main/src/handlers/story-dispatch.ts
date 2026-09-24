@@ -26,6 +26,7 @@ import { createClusterHandlers } from './cluster.js';
 import type { StoryStore } from '../core/store.js';
 import { reportHealthIssue } from '../core/health.js';
 import { loadConfig } from '../core/config.js';
+import { currentPlanOwnerBinding } from '../core/plan-touchpoint-coverage.js';
 import {
   resolveAgentDispatchType,
   resolveAgentDispatchPromptBuilder,
@@ -557,6 +558,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     const planPath = `${storyDir}/plan.md`;
     const decisionPath = `${storyDir}/decision.json`;
     const routed = store.readCandidateSpecSet(args.storyId);
+    const decisionsDir = join(root, loadConfig(root).requirementsDir ?? 'docs/requirements', 'decisions');
+    const ownerBinding = currentPlanOwnerBinding(store, root, args.storyId);
 
     const lines: string[] = [];
     lines.push(`Review PLAN scope coverage for story ${args.storyId}.`);
@@ -578,6 +581,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     lines.push(`4. ${planPath}`);
     lines.push(`5. ${decisionPath} (if present)`);
     lines.push('- Also read relatedDocs referenced by checklist items and any decisions/docs cited by the story artifacts.');
+    if (!existsSync(decisionsDir)) {
+      lines.push('- Controller preflight: decisions directory is absent; review the Story description and named story artifacts for concrete promises. Do not search for a missing decisions corpus.');
+    }
     if (routed) {
       lines.push(`- Current bounded candidate artifact: digest=${routed.artifactDigest} corpusDigest=${routed.corpusDigest}`);
       lines.push(`- Fully inspect routed candidates as relevant: ${routed.candidateSpecSet.join(', ') || '(none)'}`);
@@ -585,6 +591,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push(`- Routing escalation: requiresEscalation=${routed.requiresEscalation}; reasons=${routed.escalationReasons.join(', ') || 'none'}`);
       appendCandidateEscalationGuidance(lines, args.storyId, routed, true);
     } else {
+      lines.push('- candidate_spec_route is owner-only; do not call it from this reviewer. Ask the Story owner to route candidates when required.');
       lines.push(candidateRoutingMode() === 'enforce'
         ? '- No candidate-spec-set artifact is present. STOP in enforce mode and ask the Story owner to run candidate_spec_route; reviewer lanes must not seize owner authority.'
         : `- No candidate-spec-set artifact is present. ${candidateRoutingMode()} mode records this without hard-blocking review.`);
@@ -596,9 +603,13 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     lines.push('- Record open questions when the artifacts conflict or a promise is visible but cannot be safely classified.');
     lines.push('- Track readManifest with filesReadFully, filesTriagedByName, scanEscalationReason, candidateSpecSetDigest, and corpusDigest. Put full-read files in filesReadFully, filename/title-only triage in filesTriagedByName, and use scanEscalationReason only for a justified tool-driven full decisions-directory scan.');
     lines.push('');
-    lines.push('For canonical process-fact topology refs, independently read every canonical paths entry of the selected process-fact rows in projectProcessFactRegistry. Supply ownerDispositions with exactly one path, disposition (modify, test, or unchanged), and substantive reason (at least 40 characters) per mapped owner. When no canonical process-fact row is selected and the mapped-owner count is zero, omit ownerDispositions or submit an empty array. Both understanding and checklist can omit the same owner: neither list is the completeness oracle. Unchanged means reviewed source sufficiency, not a requirement to edit every consulted file. Run under the registered scope role; the tool binds dispositions to current topology, source bytes, registry, declarations, and repository signing key.');
+    if (ownerBinding) {
+      lines.push(`Selected canonical process-fact owner paths: ${ownerBinding.paths.join(', ')}. Independently read every listed path and supply ownerDispositions with exactly one path, disposition (modify, test, or unchanged), and substantive reason (at least 40 characters) per mapped owner. Both understanding and checklist can omit the same owner: neither list is the completeness oracle. Unchanged means reviewed source sufficiency, not a requirement to edit every consulted file. Run under the registered scope role; the tool binds dispositions to current topology, source bytes, registry, declarations, and repository signing key.`);
+    } else {
+      lines.push('No canonical process-fact owner paths are selected by this Story; do not search the process-fact registry or supply ownerDispositions. Scope review still covers every promise in the Story and available project specifications.');
+    }
     lines.push('Finish by calling scope_check_save:');
-    lines.push(`- proof-or-stop scope_check_save '{"storyId":"${args.storyId}","features":[{"feature":"<promise or constraint>","covered_by":"<CHK-xxx or null>","status":"covered|excluded|gap|orphan-suspect|drift","excluded_by":"<reason or null>","source":"<artifact path>"}],"summary":{"total":1,"covered":0,"excluded":0,"gaps":1},"readManifest":{"filesReadFully":["docs/requirements/decisions/<candidate>.md"],"filesTriagedByName":["docs/requirements/decisions/<triaged>.md"],"scanEscalationReason":null,"candidateSpecSetDigest":"${routed?.artifactDigest ?? '<current candidate artifact digest>'}","corpusDigest":"${routed?.corpusDigest ?? '<current corpus digest>'}"},"openQuestions":[]}'`);
+    lines.push(`- proof-or-stop scope_check_save '{"storyId":"${args.storyId}","features":[{"feature":"<promise or constraint>","covered_by":"<CHK-xxx or null>","status":"covered|excluded|gap|orphan-suspect|drift","excluded_by":"<reason or null>","source":"<artifact path>"}],"summary":{"total":1,"covered":0,"excluded":0,"gaps":1},"readManifest":{"filesReadFully":${existsSync(decisionsDir) ? '["<bounded decisions candidate>"]' : '[]'},"filesTriagedByName":[],"scanEscalationReason":null,"candidateSpecSetDigest":"${routed?.artifactDigest ?? '<current candidate artifact digest>'}","corpusDigest":"${routed?.corpusDigest ?? '<current corpus digest>'}"},"openQuestions":[]}'`);
     lines.push('- If there are no gaps, still call scope_check_save with the complete feature list and accurate summary counts.');
 
     return { prompt: lines.join('\n') };

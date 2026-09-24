@@ -390,6 +390,10 @@ function assertScopePlanDispatchAndReviewGuidance() {
       'absent consumer decisions corpus must be projected before the reviewer starts searching for it');
     assert.match(result.prompt, /candidate_spec_route is owner-only.*do not call it/i,
       'reviewer guidance must not invite an owner-gated routing command');
+    write(root, 'docs/requirements/decisions/fixture.md', '# Existing project decision\n');
+    const withDecisions = dispatch.dispatch({ storyId, agentType: 'proof-or-stop-review-scope-plan' });
+    assert.doesNotMatch(withDecisions.prompt, /decisions directory is absent/i,
+      'a present decisions corpus must retain the normal review path');
     assert.doesNotMatch(result.prompt, /spawn_agent\(/);
     assert.doesNotMatch(result.prompt, /Agent\(\{ subagent_type:/);
     assert.match(result.prompt, /execute this (?:scope )?review directly in the current reviewer task/i);
@@ -501,8 +505,8 @@ function assertReviewerRecoveryGuidance() {
       activeStory: { storyId, phase: 'REVIEW' },
     });
     assert.match(decorated, /proof-or-stop reviewer_batch/);
-    assert.match(decorated, /canonical dispatch \+ fresh-context launchInstruction/);
-    assert.match(decorated, /非空且并行时互异的 child IDs/);
+    assert.match(decorated, /canonical fresh-context launchInstruction/);
+    assert.match(decorated, /非空且互异的 child IDs/);
 
     const story = store.readStory(storyId);
     const worktree = join(root, '.worktrees', storyId);
