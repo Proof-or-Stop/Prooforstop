@@ -1,5 +1,14 @@
 # Changelog
 
+## Managed review batch preflight - v0.3.454 - 2026-09-24
+
+- Show managed-review candidate-routing blockers and the exact next command before REVIEW lane launch guidance; keep native reviewer launches available.
+- Reject unresolved corpus escalation and missing full-scan reasons in the read-only batch preview, matching formal `host_run` preflight.
+- Lab RED/GREEN, main-package build, reviewer-batch smoke, and candidate-preflight tests passed; Codex reviewed and corrected the launch wording.
+- This removes observed failed launch waves; benchmark end-to-end time and final score remain unverified until the next remote trial. This user-authorized integration has no independent-vendor Lab audit record.
+
+Repair commits: `4e792a1d95`, `0414eaee3a`. This Lab record is not formal Story DONE evidence.
+
 ## External consumer certification domains - v0.3.453 - 2026-09-24
 
 - Bind unclassified external-project changes, including Go `evaluator/` and `repl/` paths, to every PRE_CERT causal domain so certification can proceed without under-invalidating later changes.
