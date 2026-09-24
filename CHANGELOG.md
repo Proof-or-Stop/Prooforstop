@@ -1,16 +1,5 @@
 # Changelog
 
-## Lab identity-148-performance-20260920 - v0.3.455 - 2026-09-23
-
-- Split 14 public verification entries into 192 modules below 2,000 lines, with 134 explicit capability selectors and unchanged routine gate registration; preserve public paths and exports. See `docs/lab/verification-modularization-inventory.md` for the full mapping.
-- Retire the 259-case identity migration campaign from routine and default execution while retaining explicit `identity-migration-archive` access, normal consumer controls and configuration rejection checks; preserve single F-060 scheduling and phase timing across modules.
-- Move workspace capacity coordination outside protected repositories into a private owner-home queue; preserve live/unknown ownership and migration deadlines, retain the owned queue across checkout moves/copies, safely reclaim observed empty queues on normal exit, recover bounded pre-ticket reclamation races without replaying callbacks, wait for live preparation within the admission deadline, and refuse foreign aliases with named recovery diagnostics.
-- Size independent audit deadlines from committed changed-path count and diff/snapshot bytes (30-minute minimum, one-hour maximum; oversized review workloads require splitting), retain timeout refusal and complete audit coverage, and provide hash-checked per-file diffs for read-only navigation. Record complete identity/runtime/process/package certification at 535ed1190f and targeted audit-repair regressions and main 0.3.453 compatibility separately in `docs/lab/verification-modularization.md`. Heavy quorum campaigns were not rerun; scoped results grant no production exclusions or Story DONE authority.
-
-Maintenance provenance: codex/lab-identity-148-performance-20260920, repair 6d69b446617025cb2b7b58568f390da66a6c480e.
-Verification command (replayed before integration and on main): `["node","packages/main/tests/validation-coordination-reclaim-race.test.mjs"]`.
-This entry does not assert formal Story DONE or signed product-release credentials.
-
 ## Lab timeout-1800 - v0.3.454 - 2026-09-23
 
 - Raise default Lab maintenance command and independent audit total budgets from 900 to 1800 seconds.
