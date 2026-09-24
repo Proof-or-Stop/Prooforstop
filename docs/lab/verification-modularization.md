@@ -651,3 +651,21 @@ the private namespace first and creates a new queue only when publishing an abse
 alias. Existing owned aliases retain their identity without allocating a second
 queue. The cleanup RED and GREEN, reclamation-race regression, mutation guard and
 residue tests pass with this repair; full independent audit remains pending.
+
+### Final integration inventory delta against main 0.3.454
+
+Module extraction itself adds no root validation registration. The full Lab
+integration also carries earlier validation-audit repairs: compared with main
+392526fbf1, validate.commands grows from 246 to 250. The four added full-only
+commands are red-dynamic-finding-collection-readiness --canonical-core,
+red-dynamic-finding-head-continuity, red-empty-checklist-lifecycle and
+red-lab-nested-fixture-machine-isolation, each with a 600000 ms budget.
+
+The same integration includes the reviewed 180000-to-900000 ms amendments for
+test:dynamic-finding-evidence-closure and red-w2b-wiring-contract --canonical-core.
+These are composite budget corrections, not measured speedups or a claim that
+every validation command uses the same deadline. See
+[the bounded budget amendment](validation-capacity-full-fixture-repair.md) and
+[the original validation repair record](../audits/validation-audit-20260918-lab.md).
+Earlier counts in this document describe their named historical checkpoints;
+the final integration delta above controls the release summary.
