@@ -39,6 +39,20 @@ import { seedReviewStory, bindCurrentReviewEnvelope, waitForExit, eventually, ma
 import { REVIEW_RUN_ID, STORY_ID, LANE, REVIEW_ROUND, SELF, REQUESTED_CODEX_MODEL, REQUESTED_CODEX_REASONING, MANAGED_REVIEW_FIXTURE_DEADLINE_MS, hostOwnedChildEnv, MANAGED_REVIEW_DESCRIPTOR_DEADLINE_MS, MANAGED_REVIEW_NESTED_CLAIM_DELAY_MS, MANAGED_REVIEW_DESCRIPTOR_CLAIM_TIMEOUT_MS } from "./environment.js";
 import { assertDescriptorBackedProviderProposalTransport } from "./transport-workers.js";
 import { assertManagedImportAllowsSameMaterialMetadataAdvance, assertManagedImportRejectsLiveMaterialDrift, assertManagedImportRejectsLateLiveMaterialDrift, assertManagedImportEnforcesCandidateReadBinding } from "./live-binding.js";
+export function assertImportedPass(store: ReturnType<typeof seedReviewStory>['store'], runId: string, receiptId: string): void {
+  const passes = store.readReviewPasses(STORY_ID).passes;
+assert.equal(passes.length, 1);
+
+assert.equal(passes[0]?.agent, LANE);
+
+assert.equal(passes[0]?.writerSessionId, `managed:${runId}`);
+
+assert.deepEqual(passes[0]?.readManifest?.filesReadFully, ['docs/requirements/decisions/managed-review-evidence.md', 'packages/main/src/example.ts']);
+
+assert.equal(passes[0]?.managedEvidenceBinding?.receiptId, receiptId);
+
+}
+
 export interface BaseContext { root: string; evaluatorMutationBoundary: string | undefined; bindingMutationTarget: string | undefined; fullRun: boolean; descriptorOnly: boolean; }
 export async function runPhase(context: BaseContext) {
 
@@ -293,6 +307,12 @@ assert.deepEqual(await Promise.all(importWorkers.map(worker => worker.exit)), [0
       'real importer processes waiting before terminal creation both converge cleanly after the exclusive receipt appears');
 
 const concurrentImportResults = importWorkers.map(worker => readFileSync(worker.resultPath, 'utf8'));
+assertImportedPass(store, submitted.runId, receipt.receiptId);
+
+assert.equal(concurrentImportResults.filter(result => /Managed review evidence imported/.test(result)).length, 1);
+
+assert.equal(concurrentImportResults.filter(result => /already imported/.test(result)).length, 1,
+      'real proposal/terminal/import race converges on one creator and one exact reuse');
 
 const handlers = createManagedReviewEvidenceHandlers({ store, root: context.root, scanRoot: join(context.root, 'packages/main') });
 

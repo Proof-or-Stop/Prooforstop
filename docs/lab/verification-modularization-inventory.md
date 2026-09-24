@@ -12,7 +12,7 @@ Each original entry remains the public command. Internal modules do not register
 | `packages/main/src/tasks/flow-stability-smoke.ts` | 7 | 11 | 989 | `done-convergence`, `lifecycle`, `workspace`, `artifacts`, `review-evidence`, `review-routing`, `done-reporting`, `phase-effects`, `liveness`, `history-compatibility` | Existing entry retained; explicit internal capability map |
 | `packages/main/tests/canonical-new-story-artifacts.test.mjs` | 7 | 22 | 691 | `scope`, `init`, `runtime`, `runtime-topology`, `release`, `inventory`, `identity-cutover`, `identity-migration-archive`, `identity-consumer-smoke`, `identity-inventory`, `identity-cache`, `identity-sites`, `identity-canonical`, `identity-config-boundary`, `identity-policy`, `identity-policy-boundary`, `identity-snapshot`, `identity-entrypoint`, `reviewer-read`, `f050`, `round23`, `round24`, `memory-identity`, `artifact-append`, `finding-trust` | Existing entry retained; explicit internal capability map |
 | `packages/main/src/tasks/finding-ledger-runtime-smoke.ts` | 6 | 9 | 1134 | `proposal-envelope`, `projection-receipt`, `base-authority`, `legacy-authority`, `transactions`, `readonly-mutations`, `runtime-evidence`, `rollback-concurrency`, `historical-migration`, `build-distribution`, `tamper-dependency` | Existing entry retained; explicit internal capability map |
-| `packages/main/src/tasks/managed-review-evidence-smoke.ts` | 7 | 15 | 926 | `codex-transport`, `claude-transport`, `evidence-binding`, `native-attestation`, `sealed-receipts`, `descriptor-transport`, `supersession` | Existing entry retained; explicit internal capability map |
+| `packages/main/src/tasks/managed-review-evidence-smoke.ts` | 7 | 15 | 923 | `codex-transport`, `claude-transport`, `evidence-binding`, `native-attestation`, `sealed-receipts`, `descriptor-transport`, `supersession` | Existing entry retained; explicit internal capability map |
 | `packages/main/src/tasks/host-run-usage-smoke.ts` | 6 | 15 | 587 | `proposal`, `prompt-supervision`, `usage-parsing`, `story-binding`, `streaming`, `ledger-failures`, `output-errors`, `admission`, `integrations`, `ledger-concurrency`, `process-supervision`, `evidence-mapping` | Existing entry retained; explicit internal capability map |
 | `scripts/verify-proof-or-stop-prompt-baseline.mjs` | 7 | 6 | 1344 | `registry`, `prompt-policy`, `baseline-drift`, `role-matrix`, `legacy-vocabulary`, `direct-story-policy`, `measurement` | Existing entry retained; explicit internal capability map |
 | `packages/main/tests/milestone-status.test.mjs` | 6 | 9 | 670 | `reporting`, `planning`, `closeout`, `freshness`, `coverage`, `read-only`, `cli-behavior` | Existing entry retained; explicit internal capability map |
@@ -24,7 +24,7 @@ Each original entry remains the public command. Internal modules do not register
 | Module | Lines |
 |---|---:|
 | `scripts/process-fact-contract/catalog.mjs` | 92 |
-| `scripts/process-fact-contract/cli.mjs` | 33 |
+| `scripts/process-fact-contract/cli.mjs` | 37 |
 | `scripts/process-fact-contract/command-contracts.mjs` | 1115 |
 | `scripts/process-fact-contract/complete.mjs` | 1880 |
 | `scripts/process-fact-contract/early.mjs` | 64 |
@@ -79,13 +79,13 @@ Each original entry remains the public command. Internal modules do not register
 | `scripts/identity-cutover/negative-contexts.mjs` | 695 |
 | `scripts/identity-cutover/ordering.mjs` | 130 |
 | `scripts/identity-cutover/provenance-data.mjs` | 649 |
-| `scripts/identity-cutover/public-api.mjs` | 27 |
+| `scripts/identity-cutover/public-api.mjs` | 32 |
 | `scripts/identity-cutover/release-history.mjs` | 362 |
 | `scripts/identity-cutover/repository.mjs` | 175 |
 | `scripts/identity-cutover/reviewed-contexts.mjs` | 1433 |
 | `scripts/identity-cutover/rules.mjs` | 142 |
 | `scripts/identity-cutover/runtime-contexts.mjs` | 560 |
-| `scripts/identity-cutover/scanner-contexts.mjs` | 734 |
+| `scripts/identity-cutover/scanner-contexts.mjs` | 733 |
 | `scripts/identity-cutover/schema-data.mjs` | 838 |
 | `scripts/identity-cutover/schema-scan.mjs` | 91 |
 | `scripts/identity-cutover/self-test.mjs` | 607 |
@@ -113,7 +113,7 @@ Each original entry remains the public command. Internal modules do not register
 | `packages/main/src/tasks/validation-tier-planner/hash-completeness.ts` | 255 |
 | `packages/main/src/tasks/validation-tier-planner/historical-pins.ts` | 336 |
 | `packages/main/src/tasks/validation-tier-planner/selection-widening.ts` | 1652 |
-| `packages/main/src/tasks/validation-tier-planner/support.ts` | 942 |
+| `packages/main/src/tasks/validation-tier-planner/support.ts` | 944 |
 | `packages/main/src/tasks/flow-stability/artifacts.ts` | 904 |
 | `packages/main/src/tasks/flow-stability/cli.ts` | 128 |
 | `packages/main/src/tasks/flow-stability/discovery-fixture.ts` | 24 |
@@ -136,12 +136,12 @@ Each original entry remains the public command. Internal modules do not register
 | `packages/main/tests/canonical-new-story-artifacts/identity-inventory.mjs` | 323 |
 | `packages/main/tests/canonical-new-story-artifacts/identity-ownership.mjs` | 274 |
 | `packages/main/tests/canonical-new-story-artifacts/identity-policy.mjs` | 212 |
-| `packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs` | 282 |
+| `packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs` | 287 |
 | `packages/main/tests/canonical-new-story-artifacts/identity-sites.mjs` | 548 |
 | `packages/main/tests/canonical-new-story-artifacts/memory-runtime.mjs` | 210 |
-| `packages/main/tests/canonical-new-story-artifacts/migration-archive.mjs` | 168 |
+| `packages/main/tests/canonical-new-story-artifacts/migration-archive.mjs` | 179 |
 | `packages/main/tests/canonical-new-story-artifacts/public-fixtures.mjs` | 429 |
-| `packages/main/tests/canonical-new-story-artifacts/release.mjs` | 354 |
+| `packages/main/tests/canonical-new-story-artifacts/release.mjs` | 357 |
 | `packages/main/tests/canonical-new-story-artifacts/runner.mjs` | 40 |
 | `packages/main/tests/canonical-new-story-artifacts/runtime-extensions.mjs` | 127 |
 | `packages/main/tests/canonical-new-story-artifacts/runtime-read.mjs` | 137 |
@@ -149,18 +149,18 @@ Each original entry remains the public command. Internal modules do not register
 | `packages/main/tests/canonical-new-story-artifacts/scope-init.mjs` | 557 |
 | `packages/main/src/tasks/finding-ledger-runtime/authority.ts` | 624 |
 | `packages/main/src/tasks/finding-ledger-runtime/boundaries.ts` | 290 |
-| `packages/main/src/tasks/finding-ledger-runtime/cli.ts` | 79 |
+| `packages/main/src/tasks/finding-ledger-runtime/cli.ts` | 91 |
 | `packages/main/src/tasks/finding-ledger-runtime/distribution.ts` | 295 |
 | `packages/main/src/tasks/finding-ledger-runtime/process-mutation-proof.ts` | 52 |
 | `packages/main/src/tasks/finding-ledger-runtime/projection.ts` | 845 |
 | `packages/main/src/tasks/finding-ledger-runtime/runtime-evidence.ts` | 990 |
 | `packages/main/src/tasks/finding-ledger-runtime/support.ts` | 452 |
 | `packages/main/src/tasks/finding-ledger-runtime/transactions.ts` | 1134 |
-| `packages/main/src/tasks/managed-review-evidence/claude-transport.ts` | 926 |
+| `packages/main/src/tasks/managed-review-evidence/claude-transport.ts` | 923 |
 | `packages/main/src/tasks/managed-review-evidence/cli.ts` | 22 |
-| `packages/main/src/tasks/managed-review-evidence/codex-transport.ts` | 785 |
+| `packages/main/src/tasks/managed-review-evidence/codex-transport.ts` | 805 |
 | `packages/main/src/tasks/managed-review-evidence/environment.ts` | 127 |
-| `packages/main/src/tasks/managed-review-evidence/evidence-binding.ts` | 654 |
+| `packages/main/src/tasks/managed-review-evidence/evidence-binding.ts` | 644 |
 | `packages/main/src/tasks/managed-review-evidence/fixtures.ts` | 336 |
 | `packages/main/src/tasks/managed-review-evidence/grok-integration.ts` | 168 |
 | `packages/main/src/tasks/managed-review-evidence/legacy-cli.ts` | 79 |
@@ -173,7 +173,7 @@ Each original entry remains the public command. Internal modules do not register
 | `packages/main/src/tasks/managed-review-evidence/transport-workers.ts` | 365 |
 | `packages/main/src/tasks/host-run-usage/admission.ts` | 373 |
 | `packages/main/src/tasks/host-run-usage/cli.ts` | 119 |
-| `packages/main/src/tasks/host-run-usage/evidence-mapping.ts` | 61 |
+| `packages/main/src/tasks/host-run-usage/evidence-mapping.ts` | 65 |
 | `packages/main/src/tasks/host-run-usage/integrations.ts` | 587 |
 | `packages/main/src/tasks/host-run-usage/ledger-concurrency.ts` | 277 |
 | `packages/main/src/tasks/host-run-usage/ledger-failures.ts` | 285 |

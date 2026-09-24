@@ -22,6 +22,10 @@ export async function runProcessContractCli(args) {
     await runCompleteProcessContract();
     return;
   }
+  if (failures.length) {
+    console.error('PROCESS_CAPABILITY_FAIL ' + JSON.stringify({ capability: 'prerequisite', failures: [...failures] }));
+    process.exitCode = 1; return;
+  }
   for (const row of PROCESS_CAPABILITY_CATALOG) if (selected.includes(row.id)) {
     const before = failures.length;
     const implementation = await import(row.module);

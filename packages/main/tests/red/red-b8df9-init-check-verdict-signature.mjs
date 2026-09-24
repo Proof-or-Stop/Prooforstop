@@ -529,7 +529,7 @@ try {
     // public constant in this repository, so whoever can edit the file can also run
     // the product's own signing function over their edit and produce a record that
     // verifies. That is measured here instead of being written down, because a
-    // sentence in a comment cannot go BROKEN when it stops being true — and the
+    // sentence in a comment cannot go BROKEN when it stops being true.
     // The checksum and managed-coverage authorities remain independently live:
     // re-signing restores only the former, never the missing provider receipt.
     {

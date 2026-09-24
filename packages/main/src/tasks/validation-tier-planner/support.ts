@@ -682,7 +682,9 @@ export function gitOutput(args: string[]): string | null {
 }
 
 export function declaredChecklistItems(repoRoot: string): string[] {
-  const source = ["packages/main/src/tasks/validation-tier-planner/command-identity.ts","packages/main/src/tasks/validation-tier-planner/historical-pins.ts","packages/main/src/tasks/validation-tier-planner/change-inputs.ts","packages/main/src/tasks/validation-tier-planner/selection-widening.ts","packages/main/src/tasks/validation-tier-planner/cli-integration.ts","packages/main/src/tasks/validation-tier-planner/hash-completeness.ts","packages/main/src/tasks/validation-tier-planner/acceptance-guards.ts"].map(path => readFileSync(join(repoRoot, path), 'utf-8')).join('\n');
+  const directory = join(repoRoot, 'packages/main/src/tasks/validation-tier-planner');
+  const source = readdirSync(directory).filter(name => name.endsWith('.ts')).sort()
+    .map(name => readFileSync(join(directory, name), 'utf-8')).join('\n');
   const found = new Set<string>();
   for (const line of source.split('\n')) {
     const match = /^beginSection\('(CHK-\d{3})/.exec(line);

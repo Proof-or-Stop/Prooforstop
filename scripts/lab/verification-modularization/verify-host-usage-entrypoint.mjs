@@ -11,7 +11,14 @@ const bodies=new Map(),cases=new Map();
 for(const name of fs.readdirSync('packages/main/src/tasks/host-run-usage').filter(n=>n.endsWith('.ts'))){const source=fs.readFileSync('packages/main/src/tasks/host-run-usage/'+name,'utf8');assert.ok(source.split('\n').length<=2000,'HOST_USAGE_MODULE_EXCEEDS_2000: '+name);const parsed=ts.createSourceFile(name,source,ts.ScriptTarget.Latest,true);for(const n of parsed.statements)if(ts.isFunctionDeclaration(n)&&n.body){bodies.set(n.name.text,n.body.getText(parsed));if(/^case\d+$/.test(n.name.text))cases.set(Number(n.name.text.slice(4)),n.body.statements.map(s=>s.getText(parsed)));}}
 for(const n of original.statements)if(ts.isFunctionDeclaration(n)&&n!==main)assert.equal(bodies.get(n.name.text),n.body.getText(original),'retained helper '+n.name.text);
 assert.equal(cases.size,91);
-for(const [index,node]of main.body.statements.entries())assert.deepEqual(cases.get(index),[node.getText(original).replaceAll("new URL('../","new URL('../../").replace("await import('../handlers/host-run.js')", "await import('../../handlers/host-run.js')")],'retained original case '+index);
+for(const [index,node]of main.body.statements.entries()) {
+ let expected=node.getText(original).replaceAll("new URL('../","new URL('../../").replace("await import('../handlers/host-run.js')", "await import('../../handlers/host-run.js')");
+ if(index===88){
+  const repair=JSON.parse(fs.readFileSync('scripts/lab/verification-modularization/host-capability-isolation-repair.json','utf8'));
+  assert.equal(repair.case,88);assert.equal(expected,repair.before);expected=repair.after;
+ }
+ assert.deepEqual(cases.get(index),[expected],'retained original case '+index);
+}
 const cli=fs.readFileSync('packages/main/src/tasks/host-run-usage/cli.ts','utf8');const order=[...cli.matchAll(/name: 'case(\d+)'/g)].map(m=>Number(m[1]));assert.deepEqual(order,Array.from({length:91},(_,i)=>i));
 console.log('HOST_USAGE_ORIGINAL_CASES_PRESERVED 91');
 const entry='packages/main/dist/tasks/host-run-usage-smoke.js';

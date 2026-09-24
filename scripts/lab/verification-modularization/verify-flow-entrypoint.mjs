@@ -1,3 +1,5 @@
+import { verifyTopLevelPreservation } from './verify-modular-top-level-preservation.mjs';
+verifyTopLevelPreservation('flow');
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import ts from 'typescript';

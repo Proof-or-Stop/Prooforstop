@@ -72,4 +72,4 @@ assert.equal(result.code, 0, 'complete retained verification failed; fixture pre
 assert.match(stdout, /PASS verification-run-and-guard-smoke subprocessExecutionCount=/);
 assert.doesNotMatch(stdout, /VERIFICATION_PARTIAL_PASS/);
 fixture.cleanup();
-console.log('VERIFICATION_MODULAR_ENTRYPOINT_GREEN: structure, 47 preserved bodies, capability CLI and original complete invocation');
+console.log(`VERIFICATION_MODULAR_ENTRYPOINT_GREEN: structure, ${preserved} preserved bodies, capability CLI and original complete invocation`);

@@ -129,7 +129,7 @@ export function runFindingProjectionRegression(root: string): void {
     originalWriteFindings(candidateStoryId, candidate);
   };
   const priorLegacyCrashAgent = process.env.PROOF_OR_STOP_AGENT;
-  process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-implementer';
+  process.env.PROOF_OR_STOP_AGENT = 'main'; // Lifecycle storage fixture uses the current owning actor.
   try {
     assert.throws(() => handlers.finding_resolve({
       storyId: legacyCrashStoryId,
@@ -272,7 +272,7 @@ export function runFindingProjectionRegression(root: string): void {
   assert.equal(store.readFindingLedger<JsonValue>(storyId).records.filter((record) => record.recordType === 'finding').length, 2);
   assert.equal(store.readFindings(storyId).findings.some((finding) => finding.id === 'B-SPARSE:F-005'), true);
   const priorAgent = process.env.PROOF_OR_STOP_AGENT;
-  process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-implementer';
+  process.env.PROOF_OR_STOP_AGENT = 'main'; // Lifecycle storage fixture uses the current owning actor.
   try {
     const resolved = handlers.finding_resolve({
       storyId,
@@ -356,7 +356,7 @@ export function runFindingProjectionRegression(root: string): void {
   }), /Finding B-LIFECYCLE-AUTHORITY:F-001 created/);
   const authorityOpenMirror = structuredClone(store.readFindings(authorityStoryId));
   const priorAuthorityAgent = process.env.PROOF_OR_STOP_AGENT;
-  process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-implementer';
+  process.env.PROOF_OR_STOP_AGENT = 'main'; // Lifecycle storage fixture uses the current owning actor.
   try {
     assert.match(authorityHandlers.finding_resolve({
       storyId: authorityStoryId,

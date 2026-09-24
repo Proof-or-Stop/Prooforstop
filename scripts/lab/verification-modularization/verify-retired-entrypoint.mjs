@@ -1,3 +1,5 @@
+import { verifyTopLevelPreservation } from './verify-modular-top-level-preservation.mjs';
+verifyTopLevelPreservation('retired');
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import ts from 'typescript';
@@ -8,7 +10,7 @@ console.log('RETIRED_ENTRYPOINT_STRUCTURE_GREEN');
 const {execFileSync,spawnSync}=await import('node:child_process');
 const original=ts.createSourceFile(path,execFileSync('git',['show','4a6d510ac0:'+path],{encoding:'utf8'}),ts.ScriptTarget.Latest,true);
 const functions=new Map();
-for(const name of fs.readdirSync('packages/main/src/tasks/retired-authority').filter(n=>n.endsWith('.ts'))){const source=fs.readFileSync('packages/main/src/tasks/retired-authority/'+name,'utf8');assert.ok(source.split('\n').length<=2000,'RETIRED_MODULE_EXCEEDS_2000: '+name);const parsed=ts.createSourceFile(name,source,ts.ScriptTarget.Latest,true);for(const node of parsed.statements)if(ts.isFunctionDeclaration(node)&&node.body)functions.set(node.name.text,node.body.getText(parsed));}
+for(const name of fs.readdirSync('packages/main/src/tasks/retired-authority').filter(n=>n.endsWith('.ts'))){const source=fs.readFileSync('packages/main/src/tasks/retired-authority/'+name,'utf8');assert.ok(source.split('\n').length<=2000,'RETIRED_MODULE_EXCEEDS_2000: '+name);const parsed=ts.createSourceFile(name,source,ts.ScriptTarget.Latest,true);for(const node of parsed.statements)if(ts.isFunctionDeclaration(node)&&node.body){ assert.ok(!functions.has(node.name.text), 'duplicate extracted function: ' + node.name.text); functions.set(node.name.text,node.body.getText(parsed)); }}
 let count=0;for(const node of original.statements)if(ts.isFunctionDeclaration(node)){let expected=node.body.getText(original);for(const repair of JSON.parse(fs.readFileSync('scripts/lab/verification-modularization/retired-source-repairs.json','utf8')))if(repair.name===node.name.text){assert.ok(expected.includes(repair.before));expected=expected.replace(repair.before,repair.after);}assert.equal(functions.get(node.name.text),expected,'retained guard function '+node.name.text);count++;}
 console.log('RETIRED_ORIGINAL_FUNCTIONS_PRESERVED '+count);
 const printer = ts.createPrinter({ removeComments: true });

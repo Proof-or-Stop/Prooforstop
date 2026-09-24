@@ -1,3 +1,5 @@
+import { verifyTopLevelPreservation } from './verify-modular-top-level-preservation.mjs';
+verifyTopLevelPreservation('quorum');
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import ts from 'typescript';
@@ -16,7 +18,7 @@ for (const name of fs.readdirSync(directory).filter(name => name.endsWith('.mjs'
   assert.ok(text.split('\n').length <= 2000, 'QUORUM_MODULE_EXCEEDS_2000: ' + name);
   const parsed = ts.createSourceFile(name, text, ts.ScriptTarget.Latest, true);
   modules.set(name, parsed);
-  for (const node of parsed.statements) if (ts.isFunctionDeclaration(node)) functions.set(node.name.text, node.body.getText(parsed));
+  for (const node of parsed.statements) if (ts.isFunctionDeclaration(node)) { assert.ok(!functions.has(node.name.text), 'duplicate extracted function: ' + node.name.text); functions.set(node.name.text, node.body.getText(parsed)); }
 }
 let count = 0;
 for (const node of before.statements) if (ts.isFunctionDeclaration(node)) {

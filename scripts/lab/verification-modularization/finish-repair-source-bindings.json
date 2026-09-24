@@ -1,0 +1,1286 @@
+{
+  "baseline": "a45c5c072001f1422d14d64094d78b0b7a6482d0",
+  "changes": [
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "LATTICE_",
+        "lineNumber": 250,
+        "lineSha256": "8d93e90c981791d016aaedbc0d48127a4e48f1a673fa7916e95d5b6116b843e9",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 28,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "// B-137a main-merge fix: this used the RETIRED LATTICE_* spellings, but"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "LATTICE_",
+        "lineNumber": 250,
+        "lineSha256": "8d93e90c981791d016aaedbc0d48127a4e48f1a673fa7916e95d5b6116b843e9",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 28,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "// B-137a main-merge fix: this used the RETIRED LATTICE_* spellings, but"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "LATTICE_MANAGED_REVIEW_INVOCATION_FD",
+        "lineNumber": 483,
+        "lineSha256": "1c9decdbf5e861429f07e3751d89c5fc186478dea1f780ef562a369fd5807ec8",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 1,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "exec /usr/bin/env -i PATH=\"$PATH\" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 \"$LATTICE_TEST_NODE\" \"$LATTICE_TEST_CLI\" managed_review_proposal_set '${providerProposal}'"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "LATTICE_MANAGED_REVIEW_INVOCATION_FD",
+        "lineNumber": 483,
+        "lineSha256": "1c9decdbf5e861429f07e3751d89c5fc186478dea1f780ef562a369fd5807ec8",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 1,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "exec /usr/bin/env -i PATH=\"$PATH\" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 \"$LATTICE_TEST_NODE\" \"$LATTICE_TEST_CLI\" managed_review_proposal_set '${providerProposal}'"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "LATTICE_TEST_CLI",
+        "lineNumber": 483,
+        "lineSha256": "1c9decdbf5e861429f07e3751d89c5fc186478dea1f780ef562a369fd5807ec8",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 2,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "exec /usr/bin/env -i PATH=\"$PATH\" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 \"$LATTICE_TEST_NODE\" \"$LATTICE_TEST_CLI\" managed_review_proposal_set '${providerProposal}'"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "LATTICE_TEST_CLI",
+        "lineNumber": 483,
+        "lineSha256": "1c9decdbf5e861429f07e3751d89c5fc186478dea1f780ef562a369fd5807ec8",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 2,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "exec /usr/bin/env -i PATH=\"$PATH\" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 \"$LATTICE_TEST_NODE\" \"$LATTICE_TEST_CLI\" managed_review_proposal_set '${providerProposal}'"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "LATTICE_TEST_NODE",
+        "lineNumber": 483,
+        "lineSha256": "1c9decdbf5e861429f07e3751d89c5fc186478dea1f780ef562a369fd5807ec8",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 2,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "exec /usr/bin/env -i PATH=\"$PATH\" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 \"$LATTICE_TEST_NODE\" \"$LATTICE_TEST_CLI\" managed_review_proposal_set '${providerProposal}'"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "LATTICE_TEST_NODE",
+        "lineNumber": 483,
+        "lineSha256": "1c9decdbf5e861429f07e3751d89c5fc186478dea1f780ef562a369fd5807ec8",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 2,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "exec /usr/bin/env -i PATH=\"$PATH\" LATTICE_MANAGED_REVIEW_INVOCATION_FD=3 \"$LATTICE_TEST_NODE\" \"$LATTICE_TEST_CLI\" managed_review_proposal_set '${providerProposal}'"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD",
+        "lineNumber": 493,
+        "lineSha256": "d9c8bdb725b00eab5548ca7196683beb45951384251d8c76569f45ff94a564fd",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 6,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD: '3',"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD",
+        "lineNumber": 493,
+        "lineSha256": "d9c8bdb725b00eab5548ca7196683beb45951384251d8c76569f45ff94a564fd",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 6,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD: '3',"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "LATTICE_TEST_NODE",
+        "lineNumber": 520,
+        "lineSha256": "bb148e9965411a1cdfc5edda9fa5647dade8e1bfe9ed3c7185ab44b22edaefb1",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 2,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "LATTICE_TEST_NODE: process.execPath,"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "LATTICE_TEST_NODE",
+        "lineNumber": 520,
+        "lineSha256": "bb148e9965411a1cdfc5edda9fa5647dade8e1bfe9ed3c7185ab44b22edaefb1",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 2,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "LATTICE_TEST_NODE: process.execPath,"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "LATTICE_TEST_CLI",
+        "lineNumber": 521,
+        "lineSha256": "f81539d52ff03fa5a3dfd141ffcd700b0e5de2b85426c311ad4731dfd36a4f29",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 2,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "LATTICE_TEST_CLI: CLI,"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "LATTICE_TEST_CLI",
+        "lineNumber": 521,
+        "lineSha256": "f81539d52ff03fa5a3dfd141ffcd700b0e5de2b85426c311ad4731dfd36a4f29",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 2,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "LATTICE_TEST_CLI: CLI,"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 747,
+        "lineSha256": "14dd011478502e632c876581ab493601698ae3223677e2b8336a5d4814f0b475",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 14,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "['missing capability', { LATTICE_MANAGED_HOST_RUN_ID: forgeryRun.run.runId, PROOF_OR_STOP_AGENT: LANE }],"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 747,
+        "lineSha256": "14dd011478502e632c876581ab493601698ae3223677e2b8336a5d4814f0b475",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 14,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "['missing capability', { LATTICE_MANAGED_HOST_RUN_ID: forgeryRun.run.runId, PROOF_OR_STOP_AGENT: LANE }],"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 748,
+        "lineSha256": "f818fd4ff4a4603d4dfb7b569c073aa6db5223c358adc7475965fe3077090b15",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 14,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "['forged capability', { LATTICE_MANAGED_HOST_RUN_ID: forgeryRun.run.runId, PROOF_OR_STOP_AGENT: LANE, LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY: 'forged-same-uid-capability' }],"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 748,
+        "lineSha256": "f818fd4ff4a4603d4dfb7b569c073aa6db5223c358adc7475965fe3077090b15",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 14,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "['forged capability', { LATTICE_MANAGED_HOST_RUN_ID: forgeryRun.run.runId, PROOF_OR_STOP_AGENT: LANE, LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY: 'forged-same-uid-capability' }],"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY",
+        "lineNumber": 748,
+        "lineSha256": "f818fd4ff4a4603d4dfb7b569c073aa6db5223c358adc7475965fe3077090b15",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 2,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "['forged capability', { LATTICE_MANAGED_HOST_RUN_ID: forgeryRun.run.runId, PROOF_OR_STOP_AGENT: LANE, LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY: 'forged-same-uid-capability' }],"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY",
+        "lineNumber": 748,
+        "lineSha256": "f818fd4ff4a4603d4dfb7b569c073aa6db5223c358adc7475965fe3077090b15",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 2,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "['forged capability', { LATTICE_MANAGED_HOST_RUN_ID: forgeryRun.run.runId, PROOF_OR_STOP_AGENT: LANE, LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY: 'forged-same-uid-capability' }],"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/evidence-binding.ts",
+        "token": "LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 434,
+        "lineSha256": "57de8d526bd7c88abc87f072e5b035416847b19ae2785a67088c79f3454cf638",
+        "sourceSha256": "3a8080c4c83c1b6d9a4cb7aa4985c4e9df9174195d22d1b19381cbde330f2aff",
+        "tokenOccurrences": 1,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "LATTICE_MANAGED_HOST_RUN_ID: 'ambient-managed-review-run',"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/evidence-binding.ts",
+        "token": "LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 424,
+        "lineSha256": "57de8d526bd7c88abc87f072e5b035416847b19ae2785a67088c79f3454cf638",
+        "sourceSha256": "8a5c270530b7203f15ee71865d8f188b41b7d84c4b2459575533af3a6a9a7c76",
+        "tokenOccurrences": 1,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "LATTICE_MANAGED_HOST_RUN_ID: 'ambient-managed-review-run',"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/evidence-binding.ts",
+        "token": "LATTICE_MANAGED_REVIEW_INVOCATION_FD",
+        "lineNumber": 435,
+        "lineSha256": "5312469887f18386838a9357a81f2d992b40834c06a46e406b16d6cb8379be08",
+        "sourceSha256": "3a8080c4c83c1b6d9a4cb7aa4985c4e9df9174195d22d1b19381cbde330f2aff",
+        "tokenOccurrences": 1,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "LATTICE_MANAGED_REVIEW_INVOCATION_FD: '99',"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/evidence-binding.ts",
+        "token": "LATTICE_MANAGED_REVIEW_INVOCATION_FD",
+        "lineNumber": 425,
+        "lineSha256": "5312469887f18386838a9357a81f2d992b40834c06a46e406b16d6cb8379be08",
+        "sourceSha256": "8a5c270530b7203f15ee71865d8f188b41b7d84c4b2459575533af3a6a9a7c76",
+        "tokenOccurrences": 1,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "LATTICE_MANAGED_REVIEW_INVOCATION_FD: '99',"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "scripts/process-fact-contract/review-verification.mjs",
+        "token": "LATTICE_NATIVE_REVIEW_ATTESTATION_FD",
+        "lineNumber": 139,
+        "lineSha256": "b675687c994bcc52e9f2c2024ec63100a451143a2f5f1f0217a41561b7225c94",
+        "sourceSha256": "fae4c5d78a630cf1363e25739be266f5b65e09272cd70b812a07b1b6453225a0",
+        "tokenOccurrences": 1,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "for (const token of ['signNativeReviewInvocationAttestation', 'verifyNativeReviewInvocationAttestation', 'consumeNativeReviewInvocationAttestation', \"flag: 'wx'\", 'LATTICE_NATIVE_REVIEW_ATTESTATION_FD', 'stores no broker']) {"
+      },
+      "after": {
+        "path": "scripts/process-fact-contract/review-verification.mjs",
+        "token": "LATTICE_NATIVE_REVIEW_ATTESTATION_FD",
+        "lineNumber": 139,
+        "lineSha256": "b675687c994bcc52e9f2c2024ec63100a451143a2f5f1f0217a41561b7225c94",
+        "sourceSha256": "05c70988cc3ce2a506ea153244fa4a01d9018367f6bb4a55901c8a979528ebcc",
+        "tokenOccurrences": 1,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "for (const token of ['signNativeReviewInvocationAttestation', 'verifyNativeReviewInvocationAttestation', 'consumeNativeReviewInvocationAttestation', \"flag: 'wx'\", 'LATTICE_NATIVE_REVIEW_ATTESTATION_FD', 'stores no broker']) {"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/codex-transport.ts",
+        "token": "plan.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 152,
+        "lineSha256": "3ce834de21932730ccc09ea2943126235831fb76633049877ae7d43e4d488ea8",
+        "sourceSha256": "5201b972a4bc71c6712fa3b17d1b78fae14753eb9014900fb220d06a29f31097",
+        "tokenOccurrences": 1,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "const runId = plan.env.LATTICE_MANAGED_HOST_RUN_ID!;"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/codex-transport.ts",
+        "token": "plan.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 166,
+        "lineSha256": "3ce834de21932730ccc09ea2943126235831fb76633049877ae7d43e4d488ea8",
+        "sourceSha256": "9707487b1e14054e42d727d89795d9f832cd496883c70deca0c7fb8563c10d35",
+        "tokenOccurrences": 1,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "const runId = plan.env.LATTICE_MANAGED_HOST_RUN_ID!;"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/codex-transport.ts",
+        "token": "deliveredEnvironment.LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY",
+        "lineNumber": 212,
+        "lineSha256": "e4ca49f29bf206d39bc014eb3a4c01434ccc0675109e451535b87eef7fe0a17a",
+        "sourceSha256": "5201b972a4bc71c6712fa3b17d1b78fae14753eb9014900fb220d06a29f31097",
+        "tokenOccurrences": 1,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "deliveredEnvironment.LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY ?? '',"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/codex-transport.ts",
+        "token": "deliveredEnvironment.LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY",
+        "lineNumber": 226,
+        "lineSha256": "e4ca49f29bf206d39bc014eb3a4c01434ccc0675109e451535b87eef7fe0a17a",
+        "sourceSha256": "9707487b1e14054e42d727d89795d9f832cd496883c70deca0c7fb8563c10d35",
+        "tokenOccurrences": 1,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "deliveredEnvironment.LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY ?? '',"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "process.env.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD",
+        "lineNumber": 43,
+        "lineSha256": "c67b83b31dc7fe41b62c57eb0ed25fa6ecf1cd0a139e5476ef5c9377c94c62d8",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 4,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "const previousWorkerCapabilityFd = process.env.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD;"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "process.env.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD",
+        "lineNumber": 43,
+        "lineSha256": "c67b83b31dc7fe41b62c57eb0ed25fa6ecf1cd0a139e5476ef5c9377c94c62d8",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 4,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "const previousWorkerCapabilityFd = process.env.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD;"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "process.env.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD",
+        "lineNumber": 45,
+        "lineSha256": "807de65073b595910ebecd8ad7d475d020486712adb85de193a80e43425e52c8",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 4,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "process.env.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD = '3';"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "process.env.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD",
+        "lineNumber": 45,
+        "lineSha256": "807de65073b595910ebecd8ad7d475d020486712adb85de193a80e43425e52c8",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 4,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "process.env.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD = '3';"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "plan.env.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD",
+        "lineNumber": 52,
+        "lineSha256": "27077d2782fb0e4efa352cbce1ff917e6c28785e57b06635871e5114f7373472",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 1,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "assert.equal(plan.env.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD, undefined,"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "plan.env.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD",
+        "lineNumber": 52,
+        "lineSha256": "27077d2782fb0e4efa352cbce1ff917e6c28785e57b06635871e5114f7373472",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 1,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "assert.equal(plan.env.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD, undefined,"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "process.env.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD",
+        "lineNumber": 136,
+        "lineSha256": "bc9574b5788c770f06218fff435c128471961a8d404be3748cadb3f78b7f668b",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 4,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "if (previousWorkerCapabilityFd === undefined) delete process.env.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD;"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "process.env.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD",
+        "lineNumber": 136,
+        "lineSha256": "bc9574b5788c770f06218fff435c128471961a8d404be3748cadb3f78b7f668b",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 4,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "if (previousWorkerCapabilityFd === undefined) delete process.env.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD;"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "process.env.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD",
+        "lineNumber": 137,
+        "lineSha256": "a18d35523592f849e2eb0686366a69029204c6b0f1e8cdf5e28441c5f99128fd",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 4,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "else process.env.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD = previousWorkerCapabilityFd;"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "process.env.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD",
+        "lineNumber": 137,
+        "lineSha256": "a18d35523592f849e2eb0686366a69029204c6b0f1e8cdf5e28441c5f99128fd",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 4,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "else process.env.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD = previousWorkerCapabilityFd;"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "plan.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 369,
+        "lineSha256": "263b7919b9addc51820cffa1fbcc33e06eba163c5c145a5b0df037076e1074e3",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 8,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "const gatePath = join(root, `${plan.env.LATTICE_MANAGED_HOST_RUN_ID}-sanitized-tool.go`);"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "plan.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 369,
+        "lineSha256": "263b7919b9addc51820cffa1fbcc33e06eba163c5c145a5b0df037076e1074e3",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 8,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "const gatePath = join(root, `${plan.env.LATTICE_MANAGED_HOST_RUN_ID}-sanitized-tool.go`);"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "plan.env.LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY",
+        "lineNumber": 385,
+        "lineSha256": "085c39b363c16594214d004072f868134ef2bd2ca989340fc15cebdbb4ed49e4",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 1,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "const privateKey = plan.env.LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY!;"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "plan.env.LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY",
+        "lineNumber": 385,
+        "lineSha256": "085c39b363c16594214d004072f868134ef2bd2ca989340fc15cebdbb4ed49e4",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 1,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "const privateKey = plan.env.LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY!;"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "plan.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 388,
+        "lineSha256": "a84a181f9de2e6636e5569c9db1cf64a57a1128788f62ba624b8569f75ca5539",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 8,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "runId: plan.env.LATTICE_MANAGED_HOST_RUN_ID!,"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "plan.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 388,
+        "lineSha256": "a84a181f9de2e6636e5569c9db1cf64a57a1128788f62ba624b8569f75ca5539",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 8,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "runId: plan.env.LATTICE_MANAGED_HOST_RUN_ID!,"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "process.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 567,
+        "lineSha256": "05bd364ff1bc1bc8c7d307c0388929711a1ff920bab9a7a59a7000c9d9865fc9",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 4,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "const previousManagedRun = process.env.LATTICE_MANAGED_HOST_RUN_ID;"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "process.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 567,
+        "lineSha256": "05bd364ff1bc1bc8c7d307c0388929711a1ff920bab9a7a59a7000c9d9865fc9",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 4,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "const previousManagedRun = process.env.LATTICE_MANAGED_HOST_RUN_ID;"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "process.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 569,
+        "lineSha256": "58019636468315acfa415301305a08cd0b1f399ce290e1cafdb5c706c074b1b4",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 4,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "process.env.LATTICE_MANAGED_HOST_RUN_ID = submitted.runId;"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "process.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 569,
+        "lineSha256": "58019636468315acfa415301305a08cd0b1f399ce290e1cafdb5c706c074b1b4",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 4,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "process.env.LATTICE_MANAGED_HOST_RUN_ID = submitted.runId;"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "process.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 590,
+        "lineSha256": "7b8af36bd4eda5db50cd850675cd1c51e2d00be2265e43a4aa1030d622de0a50",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 4,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "if (previousManagedRun === undefined) delete process.env.LATTICE_MANAGED_HOST_RUN_ID;"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "process.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 590,
+        "lineSha256": "7b8af36bd4eda5db50cd850675cd1c51e2d00be2265e43a4aa1030d622de0a50",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 4,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "if (previousManagedRun === undefined) delete process.env.LATTICE_MANAGED_HOST_RUN_ID;"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "process.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 591,
+        "lineSha256": "5fd88e50ae20861cadf5ecaec0a2ceaf20b48e81c87842a20f3fb7da1de95c96",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 4,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "else process.env.LATTICE_MANAGED_HOST_RUN_ID = previousManagedRun;"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "process.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 591,
+        "lineSha256": "5fd88e50ae20861cadf5ecaec0a2ceaf20b48e81c87842a20f3fb7da1de95c96",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 4,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "else process.env.LATTICE_MANAGED_HOST_RUN_ID = previousManagedRun;"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "plan.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 626,
+        "lineSha256": "e1c9f01c43905ab9f6262a0f94501ef4da8ab06b1e6e624e94f21378f7f59973",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 8,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "writeManagedReviewEvidenceProposal({ root, runId: plan.env.LATTICE_MANAGED_HOST_RUN_ID!, environment: plan.env, proposal });"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "plan.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 626,
+        "lineSha256": "e1c9f01c43905ab9f6262a0f94501ef4da8ab06b1e6e624e94f21378f7f59973",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 8,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "writeManagedReviewEvidenceProposal({ root, runId: plan.env.LATTICE_MANAGED_HOST_RUN_ID!, environment: plan.env, proposal });"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "plan.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 628,
+        "lineSha256": "f1a7fa845d84a2c0a94027971fb1e069f265c924d90ae8526365b0f4ec8ce835",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 8,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "writeManagedReviewEvidenceProposal({ root, runId: plan.env.LATTICE_MANAGED_HOST_RUN_ID!, environment: plan.env, proposal });"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "plan.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 628,
+        "lineSha256": "f1a7fa845d84a2c0a94027971fb1e069f265c924d90ae8526365b0f4ec8ce835",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 8,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "writeManagedReviewEvidenceProposal({ root, runId: plan.env.LATTICE_MANAGED_HOST_RUN_ID!, environment: plan.env, proposal });"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "plan.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 774,
+        "lineSha256": "9e07292562f3c648b60267c34447044b5197196a5cf5b5838849dc0fffc5656c",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 8,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "runId: plan.env.LATTICE_MANAGED_HOST_RUN_ID!,"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "plan.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 774,
+        "lineSha256": "9e07292562f3c648b60267c34447044b5197196a5cf5b5838849dc0fffc5656c",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 8,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "runId: plan.env.LATTICE_MANAGED_HOST_RUN_ID!,"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "plan.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 806,
+        "lineSha256": "9e07292562f3c648b60267c34447044b5197196a5cf5b5838849dc0fffc5656c",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 8,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "runId: plan.env.LATTICE_MANAGED_HOST_RUN_ID!,"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "plan.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 806,
+        "lineSha256": "9e07292562f3c648b60267c34447044b5197196a5cf5b5838849dc0fffc5656c",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 8,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "runId: plan.env.LATTICE_MANAGED_HOST_RUN_ID!,"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "plan.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 844,
+        "lineSha256": "9e07292562f3c648b60267c34447044b5197196a5cf5b5838849dc0fffc5656c",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 8,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "runId: plan.env.LATTICE_MANAGED_HOST_RUN_ID!,"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "plan.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 844,
+        "lineSha256": "9e07292562f3c648b60267c34447044b5197196a5cf5b5838849dc0fffc5656c",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 8,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "runId: plan.env.LATTICE_MANAGED_HOST_RUN_ID!,"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "plan.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 876,
+        "lineSha256": "94f45f1ba140b6f069d14a0db4c84e41c9e87e08ee668158416edec53fe71868",
+        "sourceSha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+        "tokenOccurrences": 8,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "runId: plan.env.LATTICE_MANAGED_HOST_RUN_ID!,"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+        "token": "plan.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 876,
+        "lineSha256": "94f45f1ba140b6f069d14a0db4c84e41c9e87e08ee668158416edec53fe71868",
+        "sourceSha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21",
+        "tokenOccurrences": 8,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "runId: plan.env.LATTICE_MANAGED_HOST_RUN_ID!,"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "scripts/process-fact-contract/command-contracts.mjs",
+        "token": "repoLatticeConfig",
+        "lineNumber": 461,
+        "lineSha256": "e89dcf2a6a826d2835c5df00680c4fe6ddf5d3d2c7f155ee50be37660c6f8387",
+        "sourceSha256": "a79c3fde704bdcefff67815565d0486dbc53a55037152276b5150927542aec64",
+        "tokenOccurrences": 6,
+        "classification": "fixture-author-label-or-diagnostic",
+        "reason": "Exact synthetic Git author/diagnostic expectation/comment in an isolated test; no real product or user-facing output is authorized by this row.",
+        "evidence": "const repoLatticeConfig = JSON.parse(read('proof-or-stop.config.json'));"
+      },
+      "after": {
+        "path": "scripts/process-fact-contract/command-contracts.mjs",
+        "token": "repoLatticeConfig",
+        "lineNumber": 470,
+        "lineSha256": "e89dcf2a6a826d2835c5df00680c4fe6ddf5d3d2c7f155ee50be37660c6f8387",
+        "sourceSha256": "bea4a6a77c6ad328676fd473d332778b58f9edb909edc6b24ee59f3e9f1ef2fa",
+        "tokenOccurrences": 6,
+        "classification": "fixture-author-label-or-diagnostic",
+        "reason": "Exact synthetic Git author/diagnostic expectation/comment in an isolated test; no real product or user-facing output is authorized by this row.",
+        "evidence": "const repoLatticeConfig = JSON.parse(read('proof-or-stop.config.json'));"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "scripts/process-fact-contract/command-contracts.mjs",
+        "token": "repoLatticeConfig.validate",
+        "lineNumber": 463,
+        "lineSha256": "0519f716d148190cfb2b11ace82e02297a2ab7eaff9163edcf6572b9dd5afde0",
+        "sourceSha256": "a79c3fde704bdcefff67815565d0486dbc53a55037152276b5150927542aec64",
+        "tokenOccurrences": 5,
+        "classification": "fixture-author-label-or-diagnostic",
+        "reason": "Exact synthetic Git author/diagnostic expectation/comment in an isolated test; no real product or user-facing output is authorized by this row.",
+        "evidence": "const routineAggregate = (repoLatticeConfig.validate?.commands ?? []).some((entry) => ("
+      },
+      "after": {
+        "path": "scripts/process-fact-contract/command-contracts.mjs",
+        "token": "repoLatticeConfig.validate",
+        "lineNumber": 472,
+        "lineSha256": "0519f716d148190cfb2b11ace82e02297a2ab7eaff9163edcf6572b9dd5afde0",
+        "sourceSha256": "bea4a6a77c6ad328676fd473d332778b58f9edb909edc6b24ee59f3e9f1ef2fa",
+        "tokenOccurrences": 5,
+        "classification": "fixture-author-label-or-diagnostic",
+        "reason": "Exact synthetic Git author/diagnostic expectation/comment in an isolated test; no real product or user-facing output is authorized by this row.",
+        "evidence": "const routineAggregate = (repoLatticeConfig.validate?.commands ?? []).some((entry) => ("
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "scripts/process-fact-contract/command-contracts.mjs",
+        "token": "repoLatticeConfig.validate",
+        "lineNumber": 470,
+        "lineSha256": "ae8237dbd7e68e35d4b626920d706063ca716841e5ce492f81726b41bc6549e8",
+        "sourceSha256": "a79c3fde704bdcefff67815565d0486dbc53a55037152276b5150927542aec64",
+        "tokenOccurrences": 5,
+        "classification": "fixture-author-label-or-diagnostic",
+        "reason": "Exact synthetic Git author/diagnostic expectation/comment in an isolated test; no real product or user-facing output is authorized by this row.",
+        "evidence": "const evidenceAggregateOverrides = (repoLatticeConfig.validate?.evidenceCommandTimeoutOverrides ?? []).filter((entry) => ("
+      },
+      "after": {
+        "path": "scripts/process-fact-contract/command-contracts.mjs",
+        "token": "repoLatticeConfig.validate",
+        "lineNumber": 479,
+        "lineSha256": "ae8237dbd7e68e35d4b626920d706063ca716841e5ce492f81726b41bc6549e8",
+        "sourceSha256": "bea4a6a77c6ad328676fd473d332778b58f9edb909edc6b24ee59f3e9f1ef2fa",
+        "tokenOccurrences": 5,
+        "classification": "fixture-author-label-or-diagnostic",
+        "reason": "Exact synthetic Git author/diagnostic expectation/comment in an isolated test; no real product or user-facing output is authorized by this row.",
+        "evidence": "const evidenceAggregateOverrides = (repoLatticeConfig.validate?.evidenceCommandTimeoutOverrides ?? []).filter((entry) => ("
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "scripts/process-fact-contract/command-contracts.mjs",
+        "token": "repoLatticeConfig.validate",
+        "lineNumber": 478,
+        "lineSha256": "17a459433ba198345c8b821268696356733020a5f5c4a0327ce564aac07c9cbf",
+        "sourceSha256": "a79c3fde704bdcefff67815565d0486dbc53a55037152276b5150927542aec64",
+        "tokenOccurrences": 5,
+        "classification": "fixture-author-label-or-diagnostic",
+        "reason": "Exact synthetic Git author/diagnostic expectation/comment in an isolated test; no real product or user-facing output is authorized by this row.",
+        "evidence": "const routineReviewPassDiscard = (repoLatticeConfig.validate?.commands ?? []).filter((entry) => ("
+      },
+      "after": {
+        "path": "scripts/process-fact-contract/command-contracts.mjs",
+        "token": "repoLatticeConfig.validate",
+        "lineNumber": 487,
+        "lineSha256": "17a459433ba198345c8b821268696356733020a5f5c4a0327ce564aac07c9cbf",
+        "sourceSha256": "bea4a6a77c6ad328676fd473d332778b58f9edb909edc6b24ee59f3e9f1ef2fa",
+        "tokenOccurrences": 5,
+        "classification": "fixture-author-label-or-diagnostic",
+        "reason": "Exact synthetic Git author/diagnostic expectation/comment in an isolated test; no real product or user-facing output is authorized by this row.",
+        "evidence": "const routineReviewPassDiscard = (repoLatticeConfig.validate?.commands ?? []).filter((entry) => ("
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "scripts/process-fact-contract/command-contracts.mjs",
+        "token": "repoLatticeConfig.validate",
+        "lineNumber": 488,
+        "lineSha256": "0c46ff5e6d3996a8a9f76a0614c14f94c87123801ac8ab87a4afeef5042c2ef0",
+        "sourceSha256": "a79c3fde704bdcefff67815565d0486dbc53a55037152276b5150927542aec64",
+        "tokenOccurrences": 5,
+        "classification": "fixture-author-label-or-diagnostic",
+        "reason": "Exact synthetic Git author/diagnostic expectation/comment in an isolated test; no real product or user-facing output is authorized by this row.",
+        "evidence": "const routineProofAdmissibility = (repoLatticeConfig.validate?.commands ?? []).filter((entry) => ("
+      },
+      "after": {
+        "path": "scripts/process-fact-contract/command-contracts.mjs",
+        "token": "repoLatticeConfig.validate",
+        "lineNumber": 497,
+        "lineSha256": "0c46ff5e6d3996a8a9f76a0614c14f94c87123801ac8ab87a4afeef5042c2ef0",
+        "sourceSha256": "bea4a6a77c6ad328676fd473d332778b58f9edb909edc6b24ee59f3e9f1ef2fa",
+        "tokenOccurrences": 5,
+        "classification": "fixture-author-label-or-diagnostic",
+        "reason": "Exact synthetic Git author/diagnostic expectation/comment in an isolated test; no real product or user-facing output is authorized by this row.",
+        "evidence": "const routineProofAdmissibility = (repoLatticeConfig.validate?.commands ?? []).filter((entry) => ("
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "scripts/process-fact-contract/command-contracts.mjs",
+        "token": "repoLatticeConfig.validate",
+        "lineNumber": 497,
+        "lineSha256": "931f3791ffbe5fb584b6cf750bc8ab353a0561563a3a6f623c705e79f79f4ca1",
+        "sourceSha256": "a79c3fde704bdcefff67815565d0486dbc53a55037152276b5150927542aec64",
+        "tokenOccurrences": 5,
+        "classification": "fixture-author-label-or-diagnostic",
+        "reason": "Exact synthetic Git author/diagnostic expectation/comment in an isolated test; no real product or user-facing output is authorized by this row.",
+        "evidence": "const evidenceProofAdmissibilityOverrides = (repoLatticeConfig.validate?.evidenceCommandTimeoutOverrides ?? []).filter((entry) => ("
+      },
+      "after": {
+        "path": "scripts/process-fact-contract/command-contracts.mjs",
+        "token": "repoLatticeConfig.validate",
+        "lineNumber": 506,
+        "lineSha256": "931f3791ffbe5fb584b6cf750bc8ab353a0561563a3a6f623c705e79f79f4ca1",
+        "sourceSha256": "bea4a6a77c6ad328676fd473d332778b58f9edb909edc6b24ee59f3e9f1ef2fa",
+        "tokenOccurrences": 5,
+        "classification": "fixture-author-label-or-diagnostic",
+        "reason": "Exact synthetic Git author/diagnostic expectation/comment in an isolated test; no real product or user-facing output is authorized by this row.",
+        "evidence": "const evidenceProofAdmissibilityOverrides = (repoLatticeConfig.validate?.evidenceCommandTimeoutOverrides ?? []).filter((entry) => ("
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "scripts/process-fact-contract/review-verification.mjs",
+        "token": "providerEnvironment.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD",
+        "lineNumber": 234,
+        "lineSha256": "14c71d5ceea5f8729c7bdeab0f79a74985668c33fdfd9a12b056a3a61b351a28",
+        "sourceSha256": "fae4c5d78a630cf1363e25739be266f5b65e09272cd70b812a07b1b6453225a0",
+        "tokenOccurrences": 1,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "for (const token of ['finalAssistantResult', 'finalAssistantResultCount', 'finalAssistantResultTruncated', 'parseManagedReviewFinalProposal', 'managed_review_final_result_missing', 'assertSealedManagedHostRunArtifacts', 'isRecoverableManagedReviewImportBinding', 'withTerminalAuthorityLock', 'liveOutputDigest', \"mismatches.push('live-output')\", 'providerLaunchState', 'evidenceBindingSeal', 'cleanupManagedCrossHostReviewWorktree', 'cleanupManagedClaudePromptForTerminal', 'managedClaudePromptDirectoryForRun', 'reapManagedHostRunProviderProcess', 'AMBIGUOUS_PROCESS_CLEANUP', \"launchProfile: 'managed_reviewer'\", 'delete providerEnvironment.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD', \"descriptor.once('finish'\", 'worker capability descriptor closed before write completion', 'classifyManagedHostRunCancellation', \"reason === 'absolute_deadline_exceeded'\", \"state: 'timed_out'\"]) {"
+      },
+      "after": {
+        "path": "scripts/process-fact-contract/review-verification.mjs",
+        "token": "providerEnvironment.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD",
+        "lineNumber": 245,
+        "lineSha256": "14c71d5ceea5f8729c7bdeab0f79a74985668c33fdfd9a12b056a3a61b351a28",
+        "sourceSha256": "05c70988cc3ce2a506ea153244fa4a01d9018367f6bb4a55901c8a979528ebcc",
+        "tokenOccurrences": 1,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Existing test payload exercises the private paired worker/native FD channel, test-only subprocess selector, or explicitly rejected inherited environment input; no production environment reader is exempted.",
+        "evidence": "for (const token of ['finalAssistantResult', 'finalAssistantResultCount', 'finalAssistantResultTruncated', 'parseManagedReviewFinalProposal', 'managed_review_final_result_missing', 'assertSealedManagedHostRunArtifacts', 'isRecoverableManagedReviewImportBinding', 'withTerminalAuthorityLock', 'liveOutputDigest', \"mismatches.push('live-output')\", 'providerLaunchState', 'evidenceBindingSeal', 'cleanupManagedCrossHostReviewWorktree', 'cleanupManagedClaudePromptForTerminal', 'managedClaudePromptDirectoryForRun', 'reapManagedHostRunProviderProcess', 'AMBIGUOUS_PROCESS_CLEANUP', \"launchProfile: 'managed_reviewer'\", 'delete providerEnvironment.LATTICE_MANAGED_HOST_WORKER_CAPABILITY_FD', \"descriptor.once('finish'\", 'worker capability descriptor closed before write completion', 'classifyManagedHostRunCancellation', \"reason === 'absolute_deadline_exceeded'\", \"state: 'timed_out'\"]) {"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "scripts/process-fact-contract/review-verification.mjs",
+        "token": "lattice.js",
+        "lineNumber": 325,
+        "lineSha256": "2a7e1eccda93ff980b87fb395076963a760c05058e22d10c3f3cb381a4ffa8f1",
+        "sourceSha256": "fae4c5d78a630cf1363e25739be266f5b65e09272cd70b812a07b1b6453225a0",
+        "tokenOccurrences": 1,
+        "classification": "fixture-identifier-or-negative-context",
+        "reason": "Exact existing test/helper identifier, signed compatibility-carrier assertion, or retired-input rejection context; full source-byte binding retains the surrounding independent assertions.",
+        "evidence": "for (const token of ['brief ordinary discovery hides the internal managed worker', 'node bin/lattice.js help hides the internal worker', 'full ordinary discovery hides the internal managed worker', 'internal continuation remains dispatchable outside public discovery']) {"
+      },
+      "after": {
+        "path": "scripts/process-fact-contract/review-verification.mjs",
+        "token": "lattice.js",
+        "lineNumber": 336,
+        "lineSha256": "2a7e1eccda93ff980b87fb395076963a760c05058e22d10c3f3cb381a4ffa8f1",
+        "sourceSha256": "05c70988cc3ce2a506ea153244fa4a01d9018367f6bb4a55901c8a979528ebcc",
+        "tokenOccurrences": 1,
+        "classification": "fixture-identifier-or-negative-context",
+        "reason": "Exact existing test/helper identifier, signed compatibility-carrier assertion, or retired-input rejection context; full source-byte binding retains the surrounding independent assertions.",
+        "evidence": "for (const token of ['brief ordinary discovery hides the internal managed worker', 'node bin/lattice.js help hides the internal worker', 'full ordinary discovery hides the internal managed worker', 'internal continuation remains dispatchable outside public discovery']) {"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/tests/canonical-new-story-artifacts/release.mjs",
+        "token": ".lattice/",
+        "lineNumber": 69,
+        "lineSha256": "834fc67783bd3de766ce8f9af3ce699c787564c94ba2083067df29ac9adaa459",
+        "sourceSha256": "c66002c9177bf2a1d3f91cf0c2a7126e57bad1270d0b7d2ff0e2adb765f22f05",
+        "tokenOccurrences": 1,
+        "classification": "historical-overlay-deny-only",
+        "reason": "Exact test assertion rejects copying any historical Story/runtime directory into the identity verifier clone. It preserves immutable historical bytes and never admits a retired reader or writer. Full source, exact line and count remain independently checked with mutation refusals.",
+        "evidence": "assert.ok(!path.startsWith('.proof-or-stop/') && !path.startsWith('.lattice/'), 'identity source overlay must not rewrite Story/history');"
+      },
+      "after": {
+        "path": "packages/main/tests/canonical-new-story-artifacts/release.mjs",
+        "token": ".lattice/",
+        "lineNumber": 72,
+        "lineSha256": "834fc67783bd3de766ce8f9af3ce699c787564c94ba2083067df29ac9adaa459",
+        "sourceSha256": "1775bb8364f09d2a732d22f4ad582d7d085ca762accf27a7928e8bffc74003e7",
+        "tokenOccurrences": 1,
+        "classification": "historical-overlay-deny-only",
+        "reason": "Exact test assertion rejects copying any historical Story/runtime directory into the identity verifier clone. It preserves immutable historical bytes and never admits a retired reader or writer. Full source, exact line and count remain independently checked with mutation refusals.",
+        "evidence": "assert.ok(!path.startsWith('.proof-or-stop/') && !path.startsWith('.lattice/'), 'identity source overlay must not rewrite Story/history');"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+        "token": "LATTICE_NATIVE_REVIEW_ATTESTATION_FD",
+        "lineNumber": 319,
+        "lineSha256": "062420d088c8d222f4c37f7e209004fc05b415b766526d49ff319458c4b4a304",
+        "sourceSha256": "d984a5efab9d49aafa14ccf676ca88556e33058244f0eeb692213fd1b6f27ad0",
+        "tokenOccurrences": 2,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Exact test-only broker callback reads its issued descriptor and forwards the paired private FD through stdio after sanitization; the scalar alone grants no authority and no public identity writer is exempted.",
+        "evidence": "    const environment:NodeJS.ProcessEnv={...sanitizedFixtureChildEnvironment(process.env),...actor,PROOF_OR_STOP_PROJECT_ROOT:root,LATTICE_NATIVE_REVIEW_ATTESTATION_FD:'3'};"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+        "token": "LATTICE_NATIVE_REVIEW_ATTESTATION_FD",
+        "lineNumber": 319,
+        "lineSha256": "062420d088c8d222f4c37f7e209004fc05b415b766526d49ff319458c4b4a304",
+        "sourceSha256": "753207e487461d6a592ebdfbfa69ec50a327f9a94d4d03a9d44d5c8995f059ae",
+        "tokenOccurrences": 2,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Exact test-only broker callback reads its issued descriptor and forwards the paired private FD through stdio after sanitization; the scalar alone grants no authority and no public identity writer is exempted.",
+        "evidence": "    const environment:NodeJS.ProcessEnv={...sanitizedFixtureChildEnvironment(process.env),...actor,PROOF_OR_STOP_PROJECT_ROOT:root,LATTICE_NATIVE_REVIEW_ATTESTATION_FD:'3'};"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+        "token": "process.env.LATTICE_NATIVE_REVIEW_ATTESTATION_FD",
+        "lineNumber": 313,
+        "lineSha256": "d42f9f1d27d0f7aedea7a0a0201a6b04018c16e65824a84d45912467a88b3a5e",
+        "sourceSha256": "d984a5efab9d49aafa14ccf676ca88556e33058244f0eeb692213fd1b6f27ad0",
+        "tokenOccurrences": 1,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Exact test-only broker callback reads its issued descriptor and forwards the paired private FD through stdio after sanitization; the scalar alone grants no authority and no public identity writer is exempted.",
+        "evidence": "    const fd=Number(process.env.LATTICE_NATIVE_REVIEW_ATTESTATION_FD);"
+      },
+      "after": {
+        "path": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+        "token": "process.env.LATTICE_NATIVE_REVIEW_ATTESTATION_FD",
+        "lineNumber": 313,
+        "lineSha256": "d42f9f1d27d0f7aedea7a0a0201a6b04018c16e65824a84d45912467a88b3a5e",
+        "sourceSha256": "753207e487461d6a592ebdfbfa69ec50a327f9a94d4d03a9d44d5c8995f059ae",
+        "tokenOccurrences": 1,
+        "classification": "private-channel-or-adversarial-env-fixture",
+        "reason": "Exact test-only broker callback reads its issued descriptor and forwards the paired private FD through stdio after sanitization; the scalar alone grants no authority and no public identity writer is exempted.",
+        "evidence": "    const fd=Number(process.env.LATTICE_NATIVE_REVIEW_ATTESTATION_FD);"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "scripts/process-fact-contract/complete.mjs",
+        "token": "LATTICE_MANAGED_INIT_INVOCATION",
+        "lineNumber": 360,
+        "lineSha256": "a101d47b307cb89e906872c32b13ffbe28cbf59ae74173dbdf212a8cec3277a7",
+        "sourceSha256": "7246c76f698ce5dcffbd1f72fc73783284cf387b75f8d21b04f6d38ac3c7aa33",
+        "tokenOccurrences": 1,
+        "classification": "private-transport-or-negative-fixture",
+        "reason": "Bounded regression input or observer for private managed transport, legacy carrier normalization, environment cleanup, or intentional rejected identity; not a current public identity declaration.",
+        "evidence": "patterns: ['caller-supplied required reviewer role must fail closed', 'Promise.all(agentTypes.map', 'barrier timeout: peer reviewer never became ready', 'tamper-story', 'tamper-role', 'tamper-signature', 'missing-signature', 'malformed-null', 'attestation-$peer.json', 'env -u LATTICE_MANAGED_INIT_INVOCATION', 'a terminal managed dispatch attestation must stay unusable', 'MANAGED_INIT_REVIEWER_DISPATCH_E2E_GREEN'],"
+      },
+      "after": {
+        "path": "scripts/process-fact-contract/complete.mjs",
+        "token": "LATTICE_MANAGED_INIT_INVOCATION",
+        "lineNumber": 360,
+        "lineSha256": "a101d47b307cb89e906872c32b13ffbe28cbf59ae74173dbdf212a8cec3277a7",
+        "sourceSha256": "3023b3812fd400f50e6945a1d3ae0d585259ed952a089be21bd37b10bc2425b8",
+        "tokenOccurrences": 1,
+        "classification": "private-transport-or-negative-fixture",
+        "reason": "Bounded regression input or observer for private managed transport, legacy carrier normalization, environment cleanup, or intentional rejected identity; not a current public identity declaration.",
+        "evidence": "patterns: ['caller-supplied required reviewer role must fail closed', 'Promise.all(agentTypes.map', 'barrier timeout: peer reviewer never became ready', 'tamper-story', 'tamper-role', 'tamper-signature', 'missing-signature', 'malformed-null', 'attestation-$peer.json', 'env -u LATTICE_MANAGED_INIT_INVOCATION', 'a terminal managed dispatch attestation must stay unusable', 'MANAGED_INIT_REVIEWER_DISPATCH_E2E_GREEN'],"
+      }
+    },
+    {
+      "kind": "fixture",
+      "before": {
+        "path": "packages/main/tests/managed-scope-reviewer-dispatch-e2e.test.mjs",
+        "token": "process.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 119,
+        "lineSha256": "8d845eea5c88da5362328d8b817e86ae93615f08ccc07ca4b55c8e94a21dc114",
+        "sourceSha256": "1aebfaf477956694cc3bff07bf55335a154e0a24d7bf758bff4f07959e3ad453",
+        "tokenOccurrences": 1,
+        "classification": "private-transport-or-negative-fixture",
+        "reason": "Bounded regression input or observer for private managed transport, legacy carrier normalization, environment cleanup, or intentional rejected identity; not a current public identity declaration.",
+        "evidence": "const deliveryRunId = process.env.LATTICE_MANAGED_HOST_RUN_ID;"
+      },
+      "after": {
+        "path": "packages/main/tests/managed-scope-reviewer-dispatch-e2e.test.mjs",
+        "token": "process.env.LATTICE_MANAGED_HOST_RUN_ID",
+        "lineNumber": 185,
+        "lineSha256": "8d845eea5c88da5362328d8b817e86ae93615f08ccc07ca4b55c8e94a21dc114",
+        "sourceSha256": "2234319e0b21820ec8c5c9d64c67839e6c8f79bc9e5b6ce15117b97927f52a29",
+        "tokenOccurrences": 1,
+        "classification": "private-transport-or-negative-fixture",
+        "reason": "Bounded regression input or observer for private managed transport, legacy carrier normalization, environment cleanup, or intentional rejected identity; not a current public identity declaration.",
+        "evidence": "const deliveryRunId = process.env.LATTICE_MANAGED_HOST_RUN_ID;"
+      }
+    },
+    {
+      "kind": "source",
+      "before": {
+        "path": "packages/main/src/core/runtime-fact-registry.ts",
+        "token": "LATTICE_AGENT",
+        "lineNumber": 605,
+        "sourceSha256": "ab6b7d1b1992ba2a24f04a799602fcf000f02227b6e0bf2c160062bf75d22f11",
+        "lineSha256": "a64f56d954b7389ac455e4d8ab7b4dc602592e25150e157d27993453674ae32d",
+        "tokenOccurrences": 1,
+        "classification": "private_protocol_preserve_or_coordinated_versioned_migration",
+        "reason": "Private host/broker environment protocol, not public artifact identity. Existing Lab sender/receiver coupling; scalar alone grants no signed authority. Preserve paired FD read/write, worker capability FD removal, capability digest/agent check, direct-evidence managed-run veto and sealed admission exact-env equality. Rename requires complete both-end migration including host adapter/fixtures; do not loosen verifier or silently ignore old marker."
+      },
+      "after": {
+        "path": "packages/main/src/core/runtime-fact-registry.ts",
+        "token": "LATTICE_AGENT",
+        "lineNumber": 616,
+        "sourceSha256": "983b64317294974c6999ff9dc44380a81ec69efe8c736b3d63dc32d2edbc7b9d",
+        "lineSha256": "a64f56d954b7389ac455e4d8ab7b4dc602592e25150e157d27993453674ae32d",
+        "tokenOccurrences": 1,
+        "classification": "private_protocol_preserve_or_coordinated_versioned_migration",
+        "reason": "Private host/broker environment protocol, not public artifact identity. Existing Lab sender/receiver coupling; scalar alone grants no signed authority. Preserve paired FD read/write, worker capability FD removal, capability digest/agent check, direct-evidence managed-run veto and sealed admission exact-env equality. Rename requires complete both-end migration including host adapter/fixtures; do not loosen verifier or silently ignore old marker."
+      }
+    },
+    {
+      "kind": "whole-source",
+      "path": "scripts/verify-runtime-fact-contract.mjs",
+      "before": "081d1fe3ce9eaa9536d4b8614a466a0864d9caf30d0834a20bbde85b8e4b72b9",
+      "after": "4717c27cfbd32b70d5893934ca5867519552f9172062f4c6758c50c29c80ab07"
+    },
+    {
+      "kind": "whole-source",
+      "path": "scripts/process-fact-contract/cli.mjs",
+      "before": "dd8bc0b7d7ad581178753dee78905b89b82d82bed77cf70429484fa53ab79650",
+      "after": "05a8d71ef7097534d9157a671f7064f8ee3e8104468b6aed832276befaf622d0"
+    },
+    {
+      "kind": "whole-source",
+      "path": "scripts/process-fact-contract/command-contracts.mjs",
+      "before": "a79c3fde704bdcefff67815565d0486dbc53a55037152276b5150927542aec64",
+      "after": "bea4a6a77c6ad328676fd473d332778b58f9edb909edc6b24ee59f3e9f1ef2fa"
+    },
+    {
+      "kind": "whole-source",
+      "path": "scripts/process-fact-contract/complete.mjs",
+      "before": "7246c76f698ce5dcffbd1f72fc73783284cf387b75f8d21b04f6d38ac3c7aa33",
+      "after": "3023b3812fd400f50e6945a1d3ae0d585259ed952a089be21bd37b10bc2425b8"
+    },
+    {
+      "kind": "whole-source",
+      "path": "scripts/process-fact-contract/review-inventory.mjs",
+      "before": "816fea9d40b3097a6e4e975aa4b5029065ab4ab9c8bde19bad731c0e5583e807",
+      "after": "30ff7404d46f732ba5e83e58c21dbaa7eba07e2b5dbcfa06b3cdbbb37501d1e0"
+    },
+    {
+      "kind": "whole-source",
+      "path": "scripts/process-fact-contract/review-verification.mjs",
+      "before": "fae4c5d78a630cf1363e25739be266f5b65e09272cd70b812a07b1b6453225a0",
+      "after": "05c70988cc3ce2a506ea153244fa4a01d9018367f6bb4a55901c8a979528ebcc"
+    },
+    {
+      "kind": "whole-source",
+      "path": "packages/main/src/tasks/validation-tier-planner/support.ts",
+      "before": "03f4a405ca989b86329046da6036969397ec8b371d9071b3cfb40a6f82a872cd",
+      "after": "26f38fca470e41e55b4728b2031b365c725efc955a32294c6ddaaef045a9257d"
+    },
+    {
+      "kind": "whole-source",
+      "path": "packages/main/src/tasks/flow-stability/cli.ts",
+      "before": "40eb4b788a2f0cb4dd7451826f3053cc307ace119296c1618b8cd4347fd24612",
+      "after": "355887eba54b129fa71c020faab5678913d4ac0393a5e068264f2d4344b1711f"
+    },
+    {
+      "kind": "whole-source",
+      "path": "packages/main/src/tasks/flow-stability/review-routing.ts",
+      "before": "6671020b14b37dff6e861db59438d87ccf550a8dcd57ac93d33ee6f1daa0fd2f",
+      "after": "a3ad088da17bdf1abdd6ffeafd2186e413726441d66eee934f6ae1045e09390b"
+    },
+    {
+      "kind": "whole-source",
+      "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+      "before": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9",
+      "after": "e01844f2aa0d34f4ed5ded22d8ff334ff9ec10a05179107cddb34759ae6a8d7c"
+    },
+    {
+      "kind": "whole-source",
+      "path": "packages/main/tests/canonical-new-story-artifacts/migration-archive.mjs",
+      "before": "09ee275e2ec9b14694a216c6d036961bd9d665a9a2b687109fa88b67c920bcae",
+      "after": "912b536c8dbd9834c32934782950f4b97a1742a193df75aeb8fb47f0a95093ce"
+    },
+    {
+      "kind": "whole-source",
+      "path": "packages/main/tests/canonical-new-story-artifacts/release.mjs",
+      "before": "c66002c9177bf2a1d3f91cf0c2a7126e57bad1270d0b7d2ff0e2adb765f22f05",
+      "after": "1775bb8364f09d2a732d22f4ad582d7d085ca762accf27a7928e8bffc74003e7"
+    },
+    {
+      "kind": "whole-source",
+      "path": "packages/main/src/tasks/finding-ledger-runtime/cli.ts",
+      "before": "7cbfeb9d92582748267bf5201e9d5df8de3f99caea49451246e97848dcbd7376",
+      "after": "4d0aaf426d46f85b68e8f2a87a4ba339d378ab31ec1c28c91489c9bd68c896c1"
+    },
+    {
+      "kind": "whole-source",
+      "path": "packages/main/src/tasks/finding-ledger-runtime/projection.ts",
+      "before": "2c091ea9281061f2d517e7e49bc6e9d83d33b60f29b31cb19e3d32a093f599b5",
+      "after": "d42744f5b3eb89db28d5a667f4ceb13d825853065ba63174576ae493a88a4526"
+    },
+    {
+      "kind": "whole-source",
+      "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
+      "before": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f",
+      "after": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21"
+    },
+    {
+      "kind": "whole-source",
+      "path": "packages/main/src/tasks/managed-review-evidence/codex-transport.ts",
+      "before": "5201b972a4bc71c6712fa3b17d1b78fae14753eb9014900fb220d06a29f31097",
+      "after": "9707487b1e14054e42d727d89795d9f832cd496883c70deca0c7fb8563c10d35"
+    },
+    {
+      "kind": "whole-source",
+      "path": "packages/main/src/tasks/managed-review-evidence/evidence-binding.ts",
+      "before": "3a8080c4c83c1b6d9a4cb7aa4985c4e9df9174195d22d1b19381cbde330f2aff",
+      "after": "8a5c270530b7203f15ee71865d8f188b41b7d84c4b2459575533af3a6a9a7c76"
+    },
+    {
+      "kind": "whole-source",
+      "path": "packages/main/src/tasks/host-run-usage/evidence-mapping.ts",
+      "before": "adcffd8d6e27474b40d43b1e2d5ab3ad3d7caa8e55db0b2e3afe9c84094d11bd",
+      "after": "df0a75c9bcf3b17fdde773ad8dd743dc9a806c92cd6308ee1963a803ab67efd6"
+    }
+  ]
+}

@@ -35,7 +35,7 @@ import { createHostRunHandlers, type HostRunDetachResult } from "../../handlers/
 import { REQUESTED_CLAUDE_MODEL, REQUESTED_CLAUDE_REASONING, REVIEW_RUN_ID, STORY_ID, LANE, MANAGED_REVIEW_FIXTURE_DEADLINE_MS, withHostOwnedMutationEnv, SELF, CLI, MANAGED_REVIEW_DESCRIPTOR_DEADLINE_MS, MANAGED_REVIEW_DESCRIPTOR_CLAIM_TIMEOUT_MS } from "./environment.js";
 import { eventually, seedReviewStory, managedReadEvidence, waitForExit } from "./fixtures.js";
 import { runManagedProposalCliWithAttestation } from "./transport-workers.js";
-import type { runPhase as previousPhase } from './codex-transport.js';
+import { assertImportedPass, type runPhase as previousPhase } from './codex-transport.js';
 export async function runPhase(context: NonNullable<Awaited<ReturnType<typeof previousPhase>>>) {
 
 let claudePromptFile: string | null = null;
@@ -901,10 +901,7 @@ if (!context.evaluatorMutationBoundary) {
     );
     }
 
-assert.equal(context.concurrentImportResults.filter(result => /Managed review evidence imported/.test(result)).length, 1);
-
-assert.equal(context.concurrentImportResults.filter(result => /already imported/.test(result)).length, 1,
-      'real proposal/terminal/import race converges on one creator and one exact reuse');
+assertImportedPass(context.store, context.submitted.runId, context.receipt.receiptId);
 
 const passes = context.store.readReviewPasses(STORY_ID).passes;
 

@@ -1,3 +1,5 @@
+import { verifyTopLevelPreservation } from './verify-modular-top-level-preservation.mjs';
+verifyTopLevelPreservation('process');
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import ts from 'typescript';
@@ -6,16 +8,18 @@ const path = 'scripts/verify-process-fact-contract.mjs';
 const original = ts.createSourceFile(path, execFileSync('git', ['show', '17ace95ded:' + path], { encoding: 'utf8' }), ts.ScriptTarget.Latest, true);
 const files = fs.readdirSync('scripts/process-fact-contract').filter(name => name.endsWith('.mjs'));
 const functions = new Map();
+const nestedFunctions = new Map();
 for (const name of files) {
   const text = fs.readFileSync('scripts/process-fact-contract/' + name, 'utf8');
   assert.ok(text.split('\n').length <= 2000, 'PROCESS_MODULE_EXCEEDS_2000: ' + name);
   const ast = ts.createSourceFile(name, text, ts.ScriptTarget.Latest, true);
   for (const node of ast.statements) if (ts.isFunctionDeclaration(node)) {
+    assert.ok(!functions.has(node.name.text), 'duplicate process function: ' + node.name.text);
     functions.set(node.name.text, node.body.getText(ast));
     if (node.name.text === 'runCompleteProcessContract') {
       const expected = original.statements.filter(n => original.getLineAndCharacterOfPosition(n.getStart(original)).line + 1 >= 10496);
       assert.deepEqual(node.body.statements.map(n => n.getText(ast)), expected.map(n => n.getText(original).replace("await import('./prompt-projection-contract.mjs')", "await import('../prompt-projection-contract.mjs')").replace("await import(new URL('../../tests/intent-fingerprint-reuse.test.mjs', import.meta.url).href);", "await import('../../tests/intent-fingerprint-reuse.test.mjs');")).map(text => { for (const repair of JSON.parse(fs.readFileSync('scripts/lab/verification-modularization/process-driver-sync-repairs.json','utf8'))) if (text === repair.before) text = repair.after; return text; }), 'original complete driver statements or order changed');
-      for (const child of node.body.statements) if (ts.isFunctionDeclaration(child)) functions.set(child.name.text, child.body.getText(ast));
+      for (const child of node.body.statements) if (ts.isFunctionDeclaration(child)) { assert.ok(!nestedFunctions.has(child.name.text), 'duplicate complete-driver function: ' + child.name.text); nestedFunctions.set(child.name.text, child.body.getText(ast)); }
     }
     if (node.name.text === 'runEarlyProcessChecks') {
       const expected = original.statements.filter(n => {
@@ -32,7 +36,7 @@ for (const node of original.statements) if (ts.isFunctionDeclaration(node)) {
   for (const repair of JSON.parse(fs.readFileSync('scripts/lab/verification-modularization/process-source-binding-repairs.json', 'utf8'))) if (repair.function === node.name.text) {
     assert.ok(expectedBody.includes(repair.before)); expectedBody = expectedBody.replace(repair.before, () => repair.after);
   }
-  assert.equal(functions.get(node.name.text), expectedBody, 'changed process verification function ' + node.name.text);
+  assert.equal((original.getLineAndCharacterOfPosition(node.getStart(original)).line + 1 >= 10496 ? nestedFunctions : functions).get(node.name.text), expectedBody, 'changed process verification function ' + node.name.text);
   preserved++;
 }
 const run = args => spawnSync(process.execPath, [path, ...args], { encoding: 'utf8', timeout: 30000, maxBuffer: 8 * 1024 * 1024 });

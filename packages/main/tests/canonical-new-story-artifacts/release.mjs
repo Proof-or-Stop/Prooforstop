@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 
 import { spawnSync } from 'node:child_process';
-import { cpSync, mkdtempSync, mkdirSync, readFileSync, realpathSync, symlinkSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, realpathSync, symlinkSync, writeFileSync } from 'node:fs';
 
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -60,6 +60,9 @@ export function createIdentityVerifierClone(prefix = 'proof-or-stop-b49df-real-v
   // bytes; immutable Story/history remains the clone's original Git content.
   const overlay = new Set([...identityCutoverSourceMap().keys(),
     'packages/main/tests/canonical-new-story-artifacts.test.mjs',
+    ...readdirSync(join(repoRoot, 'packages/main/tests/canonical-new-story-artifacts'))
+      .filter(name => name.endsWith('.mjs'))
+      .map(name => 'packages/main/tests/canonical-new-story-artifacts/' + name),
     'packages/main/tests/brand-role-migration.test.mjs',
     ...['source', 'json', 'fixture'].flatMap(kind => [
       `scripts/identity-reviewed-${kind}-data.json`, `scripts/identity-reviewed-${kind}-contexts.mjs`,

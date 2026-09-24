@@ -5,13 +5,25 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { appendUnderLock, WorkerSpec, git, runProposalEnvelopeRegression } from './support.js';
-import { runRealBfe8fLifecycleMigrationRegression, runFindingProjectionRegression } from './projection.js';
+import { runRealBfe8fLifecycleMigrationRegression, runFindingProjectionRegression, sparseProjectionRegressionCompleted } from './projection.js';
 import { assertVersionSync, assertRedGreenRelation, assertCleanPackInstall } from './distribution.js';
 import { runProjectionReceiptBindingRegression, runBaseFindingAuthorityRegression, runLegacyIdentityAuthorityRegression, runReadOnlyColdStartRegression, runAuthoritativeMutationRegression } from './authority.js';
 import { runRuntimeEvidenceMatrix } from './runtime-evidence.js';
 import { runRollbackKillSwitchMatrix, runCombinedConcurrencyMatrix, runFailClosedBoundaryMatrix, runBuildLockFifoRegression, runAggregateTamperMatrix, runDependencyScorecardBoundary } from './boundaries.js';
 
 import { runLedgerTransactions } from './transactions.js';
+
+function ensureDistributionProjectionWitness(): void {
+  if (sparseProjectionRegressionCompleted) return;
+  const root = mkdtempSync(join(tmpdir(), 'finding-distribution-projection-'));
+  try {
+    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: '.', rootDir: '.', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements' }));
+    git(root, ['init', '-q', '-b', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['-c', 'user.name=reader-smoke', '-c', 'user.email=reader@local', '-c', 'commit.gpgsign=false', 'commit', '-q', '-m', 'distribution projection fixture']);
+    runFindingProjectionRegression(root);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+}
 
 const CAPABILITIES = [
   { id: 'proposal-envelope', checks: ["runProposalEnvelopeRegression"], run: async (root: string, scratch: string) => { runProposalEnvelopeRegression(scratch); } },
@@ -23,7 +35,7 @@ const CAPABILITIES = [
   { id: 'runtime-evidence', checks: ["runRuntimeEvidenceMatrix"], run: async (root: string, scratch: string) => { await runRuntimeEvidenceMatrix(scratch); } },
   { id: 'rollback-concurrency', checks: ["runRollbackKillSwitchMatrix", "runCombinedConcurrencyMatrix", "runFailClosedBoundaryMatrix"], run: async (root: string, scratch: string) => { runRollbackKillSwitchMatrix(scratch); await runCombinedConcurrencyMatrix(scratch); runFailClosedBoundaryMatrix(scratch); } },
   { id: 'historical-migration', checks: ["runRealBfe8fLifecycleMigrationRegression"], run: async (root: string, scratch: string) => { runRealBfe8fLifecycleMigrationRegression(root, scratch); } },
-  { id: 'build-distribution', checks: ["runBuildLockFifoRegression", "assertRedGreenRelation", "assertVersionSync", "assertCleanPackInstall"], run: async (root: string, scratch: string) => { runBuildLockFifoRegression(root, scratch); assertRedGreenRelation(root); assertVersionSync(root); assertCleanPackInstall(root); } },
+  { id: 'build-distribution', checks: ["runFindingProjectionRegression", "runBuildLockFifoRegression", "assertRedGreenRelation", "assertVersionSync", "assertCleanPackInstall"], run: async (root: string, scratch: string) => { ensureDistributionProjectionWitness(); runBuildLockFifoRegression(root, scratch); assertRedGreenRelation(root); assertVersionSync(root); assertCleanPackInstall(root); } },
   { id: 'tamper-dependency', checks: ["runAggregateTamperMatrix", "runDependencyScorecardBoundary"], run: async (root: string, scratch: string) => { runAggregateTamperMatrix(root); runDependencyScorecardBoundary(root); } },
 ];
 export async function runFindingLedgerCli(args: string[]): Promise<void> {

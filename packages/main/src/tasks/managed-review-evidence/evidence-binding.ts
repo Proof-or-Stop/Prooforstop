@@ -37,16 +37,6 @@ import { runBrokeredNativeBindingFixture } from "./transport-workers.js";
 import type { runPhase as previousPhase } from './claude-transport.js';
 export async function runPhase(context: NonNullable<Awaited<ReturnType<typeof previousPhase>>>) {
 
-assert.equal(context.passes.length, 1);
-
-assert.equal(context.passes[0]?.agent, LANE);
-
-assert.equal(context.passes[0]?.writerSessionId, `managed:${context.submitted.runId}`);
-
-assert.deepEqual(context.passes[0]?.readManifest?.filesReadFully, ['docs/requirements/decisions/managed-review-evidence.md', 'packages/main/src/example.ts']);
-
-assert.equal(context.passes[0]?.managedEvidenceBinding?.receiptId, context.receipt.receiptId);
-
 const managedBinding = readManagedHostRunBinding(context.root, context.submitted.runId);
 
 const expectedBinding: ManagedReviewExpectedBinding = {

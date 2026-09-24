@@ -34,7 +34,7 @@ No routine validation command is added by internal module registration.
 | `packages/main/src/tasks/flow-stability-smoke.ts` | 5528 | 7 | 11 | 989 | RED -> official GREEN at 21be146f9c; full suite 137.62 s | Lab evidence |
 | `packages/main/tests/canonical-new-story-artifacts.test.mjs` | 5378 | 7 | 22 | 691 | RED recorded; 58 functions and 112 statements preserved; complete identity-cutover 36/36 PASS at 535ed1190f | Lab evidence |
 | `packages/main/src/tasks/finding-ledger-runtime-smoke.ts` | 4646 | 6 | 9 | 1134 | Full suites passed at 3b51f4f666 / f5fda7d0e6 in 130.60 / 147.00 s; combined run failed in the separate process suite | Lab evidence |
-| `packages/main/src/tasks/managed-review-evidence-smoke.ts` | 4360 | 7 | 15 | 926 | RED -> complete GREEN 4e8e49ffea in 77.45 s; 28 helpers and 419 statements retained with documented fixture repairs | Lab evidence |
+| `packages/main/src/tasks/managed-review-evidence-smoke.ts` | 4360 | 7 | 15 | 923 | RED -> complete GREEN 4e8e49ffea in 77.45 s; 28 helpers and 419 statements retained with documented fixture repairs | Lab evidence |
 | `packages/main/src/tasks/host-run-usage-smoke.ts` | 3867 | 6 | 15 | 587 | RED -> official GREEN at 9c8e8b848b; full suite 34.00 s, 91 checks | Lab evidence |
 | `scripts/verify-proof-or-stop-prompt-baseline.mjs` | 3675 | 7 | 6 | 1344 | RED -> official GREEN at 103d6e06fa; full suite 9.60 s | Lab evidence |
 | `packages/main/tests/milestone-status.test.mjs` | 3447 | 6 | 9 | 670 | RED -> official GREEN at a3777644bb; full suite 39.00 s | Lab evidence |
@@ -69,162 +69,164 @@ PASS. Existing full entrypoints stay registered.
 
 ## Module inventory
 
-Line counts in these tables are synchronized with the committed module inventory
-and the unchanged module source files at repair 83772cb904. Historical execution
-results below remain bound to their individually named commits.
+The tables below describe module responsibilities. Per-file line counts are
+maintained only in [the detailed inventory](verification-modularization-inventory.md),
+which matches the machine inventory and source. This avoids duplicate size tables
+drifting across repair rounds. Historical execution results below remain bound
+to their individually named commits.
 
 ### `scripts/process-fact-contract`
 
-| Module | Lines | Responsibility |
-|---|---:|---|
-| `catalog.mjs` | 92 | Explicit capability-to-check bindings |
-| `cli.mjs` | 33 | Strict argument parsing and lazy orchestration |
-| `command-contracts.mjs` | 1115 | CLI policy inventory |
-| `complete.mjs` | 1880 | Retained full integration driver |
-| `early.mjs` | 64 | Admission refusal before positive work |
-| `prompt-contracts.mjs` | 678 | Prompt and adversarial controls |
-| `proofstory-closeout.mjs` | 1620 | ProofStory and closeout boundaries |
-| `registry-alignment.mjs` | 634 | Registry alignment |
-| `registry-parser.mjs` | 655 | Registry and policy parsing |
-| `reopen.mjs` | 568 | Reopen audit controls |
-| `review-inventory.mjs` | 844 | Review inventory and refresh coverage |
-| `review-verification.mjs` | 1016 | Review and verification receipt contracts |
-| `scope-runtime.mjs` | 1223 | Scope and runtime admission |
-| `source-analysis.mjs` | 575 | TypeScript and source analysis helpers |
-| `story3.mjs` | 360 | Finding runtime evidence contract |
-| `support.mjs` | 1224 | Shared constants and source readers |
+| Module | Responsibility |
+|---|---|
+| `catalog.mjs` | Explicit capability-to-check bindings |
+| `cli.mjs` | Strict argument parsing and lazy orchestration |
+| `command-contracts.mjs` | CLI policy inventory |
+| `complete.mjs` | Retained full integration driver |
+| `early.mjs` | Admission refusal before positive work |
+| `prompt-contracts.mjs` | Prompt and adversarial controls |
+| `proofstory-closeout.mjs` | ProofStory and closeout boundaries |
+| `registry-alignment.mjs` | Registry alignment |
+| `registry-parser.mjs` | Registry and policy parsing |
+| `reopen.mjs` | Reopen audit controls |
+| `review-inventory.mjs` | Review inventory and refresh coverage |
+| `review-verification.mjs` | Review and verification receipt contracts |
+| `scope-runtime.mjs` | Scope and runtime admission |
+| `source-analysis.mjs` | TypeScript and source analysis helpers |
+| `story3.mjs` | Finding runtime evidence contract |
+| `support.mjs` | Shared constants and source readers |
 
 ### `packages/main/src/tasks/retired-authority`
 
-| Module | Lines | Responsibility |
-|---|---:|---|
-| `binding-classification.ts` | 427 | Callable and dynamic binding classification |
-| `cli.ts` | 22 | Strict capability routing |
-| `compatibility-controls.ts` | 266 | Compatibility import and escape controls |
-| `driver.ts` | 105 | Full scan order and complete result |
-| `dynamic-bindings.ts` | 1577 | Dynamic execution binding graph |
-| `dynamic-scan.ts` | 458 | Dynamic code and import scanners |
-| `execution-controls.ts` | 657 | Dynamic execution negative controls |
-| `file-scan.ts` | 100 | File traversal and text quarantine predicates |
-| `loader-controls.ts` | 205 | Actual loader provenance mutation controls |
-| `module-loaders.ts` | 1077 | Module resolution and approved loader provenance |
-| `positive-controls.ts` | 205 | Vocabulary and import controls |
-| `public-contract.ts` | 129 | Documentation, command catalog and generated help |
-| `rule-data.ts` | 747 | Exact rules, path inventories and compatibility data |
-| `type-analysis.ts` | 286 | Shared compiler program, caches and instrumentation |
+| Module | Responsibility |
+|---|---|
+| `binding-classification.ts` | Callable and dynamic binding classification |
+| `cli.ts` | Strict capability routing |
+| `compatibility-controls.ts` | Compatibility import and escape controls |
+| `driver.ts` | Full scan order and complete result |
+| `dynamic-bindings.ts` | Dynamic execution binding graph |
+| `dynamic-scan.ts` | Dynamic code and import scanners |
+| `execution-controls.ts` | Dynamic execution negative controls |
+| `file-scan.ts` | File traversal and text quarantine predicates |
+| `loader-controls.ts` | Actual loader provenance mutation controls |
+| `module-loaders.ts` | Module resolution and approved loader provenance |
+| `positive-controls.ts` | Vocabulary and import controls |
+| `public-contract.ts` | Documentation, command catalog and generated help |
+| `rule-data.ts` | Exact rules, path inventories and compatibility data |
+| `type-analysis.ts` | Shared compiler program, caches and instrumentation |
 
 ### `packages/main/src/tasks/validation-tier-planner`
 
-| Module | Lines | Responsibility |
-|---|---:|---|
-| `acceptance-guards.ts` | 547 | Actual case coverage, source registration and output bounds |
-| `change-inputs.ts` | 718 | Story changes and input collection |
-| `cli-integration.ts` | 821 | Public planning CLI and repository integration |
-| `cli.ts` | 25 | Capability routing and explicit coverage prerequisites |
-| `command-identity.ts` | 651 | Portable command identities and inventory pin |
-| `hash-completeness.ts` | 255 | Incomplete hash snapshot refusal |
-| `historical-pins.ts` | 336 | Historical evidence resolution |
-| `selection-widening.ts` | 1652 | Tier selection and widening rules |
-| `support.ts` | 942 | Shared fixtures, identities and final summaries |
+| Module | Responsibility |
+|---|---|
+| `acceptance-guards.ts` | Actual case coverage, source registration and output bounds |
+| `change-inputs.ts` | Story changes and input collection |
+| `cli-integration.ts` | Public planning CLI and repository integration |
+| `cli.ts` | Capability routing and explicit coverage prerequisites |
+| `command-identity.ts` | Portable command identities and inventory pin |
+| `hash-completeness.ts` | Incomplete hash snapshot refusal |
+| `historical-pins.ts` | Historical evidence resolution |
+| `selection-widening.ts` | Tier selection and widening rules |
+| `support.ts` | Shared fixtures, identities and final summaries |
 
 ### `packages/main/src/tasks/flow-stability`
 
-| Module | Lines | Responsibility |
-|---|---:|---|
-| `artifacts.ts` | 904 | Declared artifacts, automatic commits and global-link repair |
-| `cli.ts` | 128 | Legacy flags, capability routing and historical commit controls |
-| `discovery-fixture.ts` | 24 | Inert source snapshots for the isolated acceptance-discovery fixture |
-| `done-convergence.ts` | 626 | Single-pass DONE preparation and workspace ownership |
-| `done-reporting.ts` | 407 | DONE report projection and shared oracle |
-| `lifecycle.ts` | 631 | Lifecycle registry, phase tools and hints |
-| `phase-effects.ts` | 274 | Phase gates and transition effects |
-| `review-evidence.ts` | 989 | Signatures, freshness and review-run compatibility |
-| `review-routing.ts` | 988 | Reviewer status, phase guidance and channel checks |
-| `support.ts` | 427 | Shared Story, review and acceptance fixtures |
-| `workspace.ts` | 301 | Dirty-worktree classification and gates |
+| Module | Responsibility |
+|---|---|
+| `artifacts.ts` | Declared artifacts, automatic commits and global-link repair |
+| `cli.ts` | Legacy flags, capability routing and historical commit controls |
+| `discovery-fixture.ts` | Inert source snapshots for the isolated acceptance-discovery fixture |
+| `done-convergence.ts` | Single-pass DONE preparation and workspace ownership |
+| `done-reporting.ts` | DONE report projection and shared oracle |
+| `lifecycle.ts` | Lifecycle registry, phase tools and hints |
+| `phase-effects.ts` | Phase gates and transition effects |
+| `review-evidence.ts` | Signatures, freshness and review-run compatibility |
+| `review-routing.ts` | Reviewer status, phase guidance and channel checks |
+| `support.ts` | Shared Story, review and acceptance fixtures |
+| `workspace.ts` | Dirty-worktree classification and gates |
 
 ### `packages/main/src/tasks/finding-ledger-runtime`
 
-| Module | Lines | Responsibility |
-|---|---:|---|
-| `authority.ts` | 624 | Read-only, mutation, base and legacy authority checks |
-| `boundaries.ts` | 290 | Concurrency, rollback, refusal, tamper and build locks |
-| `cli.ts` | 79 | Legacy workers, diagnostics and capability orchestration |
-| `distribution.ts` | 295 | Version, installation and RED/GREEN bindings |
-| `process-mutation-proof.ts` | 52 | Exact mutation refusal reasons and positive controls |
-| `projection.ts` | 845 | Projection integrity and historical migration |
-| `runtime-evidence.ts` | 990 | Runtime receipt writers, consumers and recovery |
-| `support.ts` | 452 | Ledger and CLI helpers, signed proposal checks |
-| `transactions.ts` | 1134 | Concurrent appends, durability, recovery and lock fencing |
+| Module | Responsibility |
+|---|---|
+| `authority.ts` | Read-only, mutation, base and legacy authority checks |
+| `boundaries.ts` | Concurrency, rollback, refusal, tamper and build locks |
+| `cli.ts` | Legacy workers, diagnostics and capability orchestration |
+| `distribution.ts` | Version, installation and RED/GREEN bindings |
+| `process-mutation-proof.ts` | Exact mutation refusal reasons and positive controls |
+| `projection.ts` | Projection integrity and historical migration |
+| `runtime-evidence.ts` | Runtime receipt writers, consumers and recovery |
+| `support.ts` | Ledger and CLI helpers, signed proposal checks |
+| `transactions.ts` | Concurrent appends, durability, recovery and lock fencing |
 
 ### `packages/main/src/tasks/host-run-usage`
 
-| Module | Lines | Responsibility |
-|---|---:|---|
-| `admission.ts` | 373 | Working directory, budget and concurrency admission |
-| `cli.ts` | 119 | Argument routing and retained case order |
-| `evidence-mapping.ts` | 61 | Fixture isolation and pinned child evidence |
-| `integrations.ts` | 587 | Repair, readiness probe and cross-host integration |
-| `ledger-concurrency.ts` | 277 | Concurrent append and lock recovery |
-| `ledger-failures.ts` | 285 | Failed writes and truthful usage classification |
-| `output-errors.ts` | 502 | EPIPE and late stream containment |
-| `process-supervision.ts` | 396 | Startup, timeout, abort and process identity |
-| `prompt-supervision.ts` | 195 | Prompt descriptor and residual process supervision |
-| `proposal.ts` | 272 | Final output and proposal admission |
-| `story-binding.ts` | 155 | Story, review-run and phase binding |
-| `streaming.ts` | 314 | Live output and retention limits |
-| `summary.ts` | 74 | Exact aggregate and compatibility selectors |
-| `support.ts` | 469 | Shared fixture, counters and provider samples |
-| `usage-parsing.ts` | 500 | Provider usage and failure parsing |
+| Module | Responsibility |
+|---|---|
+| `admission.ts` | Working directory, budget and concurrency admission |
+| `cli.ts` | Argument routing and retained case order |
+| `evidence-mapping.ts` | Fixture isolation and pinned child evidence |
+| `integrations.ts` | Repair, readiness probe and cross-host integration |
+| `ledger-concurrency.ts` | Concurrent append and lock recovery |
+| `ledger-failures.ts` | Failed writes and truthful usage classification |
+| `output-errors.ts` | EPIPE and late stream containment |
+| `process-supervision.ts` | Startup, timeout, abort and process identity |
+| `prompt-supervision.ts` | Prompt descriptor and residual process supervision |
+| `proposal.ts` | Final output and proposal admission |
+| `story-binding.ts` | Story, review-run and phase binding |
+| `streaming.ts` | Live output and retention limits |
+| `summary.ts` | Exact aggregate and compatibility selectors |
+| `support.ts` | Shared fixture, counters and provider samples |
+| `usage-parsing.ts` | Provider usage and failure parsing |
 
 ### `scripts/prompt-baseline`
 
-| Module | Lines | Responsibility |
-|---|---:|---|
-| `cli.mjs` | 235 | Full runner, legacy flags and capability routing |
-| `collection.mjs` | 357 | Prompt collection, snapshots and measurement |
-| `policy-data.mjs` | 1344 | Exact policy and negative-case data |
-| `policy-probes.mjs` | 262 | Policy mutation probes |
-| `scanners.mjs` | 751 | Direct-reference and vocabulary scanners |
-| `verification.mjs` | 804 | Registry, matrix and baseline assertions |
+| Module | Responsibility |
+|---|---|
+| `cli.mjs` | Full runner, legacy flags and capability routing |
+| `collection.mjs` | Prompt collection, snapshots and measurement |
+| `policy-data.mjs` | Exact policy and negative-case data |
+| `policy-probes.mjs` | Policy mutation probes |
+| `scanners.mjs` | Direct-reference and vocabulary scanners |
+| `verification.mjs` | Registry, matrix and baseline assertions |
 
 ### `packages/main/tests/milestone-status`
 
-| Module | Lines | Responsibility |
-|---|---:|---|
-| `cli-behavior.mjs` | 622 | Public CLI formats, refusal and historical snapshot reads |
-| `cli.mjs` | 60 | Case order and capability routing |
-| `closeout.mjs` | 670 | Capture, DONE and worktree closeout |
-| `coverage.mjs` | 558 | Intent, milestone and waiver coverage |
-| `freshness.mjs` | 476 | Evidence freshness and bindings |
-| `planning.mjs` | 168 | Explicit planning write boundaries |
-| `read-only.mjs` | 106 | No-mutation status reads |
-| `reporting.mjs` | 605 | Report shape, rendering and malformed inputs |
-| `support.mjs` | 293 | Shared fixture and report helpers |
+| Module | Responsibility |
+|---|---|
+| `cli-behavior.mjs` | Public CLI formats, refusal and historical snapshot reads |
+| `cli.mjs` | Case order and capability routing |
+| `closeout.mjs` | Capture, DONE and worktree closeout |
+| `coverage.mjs` | Intent, milestone and waiver coverage |
+| `freshness.mjs` | Evidence freshness and bindings |
+| `planning.mjs` | Explicit planning write boundaries |
+| `read-only.mjs` | No-mutation status reads |
+| `reporting.mjs` | Report shape, rendering and malformed inputs |
+| `support.mjs` | Shared fixture and report helpers |
 
 ### `scripts/validation-build-binding`
 
-| Module | Lines | Responsibility |
-|---|---:|---|
-| `cli.mjs` | 33 | Capability routing and prerequisite deduplication |
-| `done-required.mjs` | 736 | DONE required evidence binding |
-| `executor.mjs` | 1409 | Execution identity, freeze, drift and tampering |
-| `handler.mjs` | 218 | Public verifier handler causal preflight |
-| `routine.mjs` | 619 | Routine reuse and admissibility binding |
-| `shared-cache.mjs` | 261 | Shared cache admission and artifact identity |
-| `support.mjs` | 106 | Shared source loader, fixtures and counters |
+| Module | Responsibility |
+|---|---|
+| `cli.mjs` | Capability routing and prerequisite deduplication |
+| `done-required.mjs` | DONE required evidence binding |
+| `executor.mjs` | Execution identity, freeze, drift and tampering |
+| `handler.mjs` | Public verifier handler causal preflight |
+| `routine.mjs` | Routine reuse and admissibility binding |
+| `shared-cache.mjs` | Shared cache admission and artifact identity |
+| `support.mjs` | Shared source loader, fixtures and counters |
 
 ### `packages/main/src/tasks/verification-run-and-guard`
 
-| Module | Lines | Responsibility |
-|---|---:|---|
-| `causal.ts` | 140 | Causal integration |
-| `cli.ts` | 161 | Argument selection and original shard orchestration |
-| `foundation.ts` | 427 | Pinned execution, refusal and stale evidence basics |
-| `integrity.ts` | 762 | Receipt integrity and executable identity |
-| `publication.ts` | 522 | Producer ownership and publication bindings |
-| `refresh.ts` | 776 | Fan-out, manifests and evidence reuse |
-| `support.ts` | 349 | Fixture creation, evidence helpers and paths |
+| Module | Responsibility |
+|---|---|
+| `causal.ts` | Causal integration |
+| `cli.ts` | Argument selection and original shard orchestration |
+| `foundation.ts` | Pinned execution, refusal and stale evidence basics |
+| `integrity.ts` | Receipt integrity and executable identity |
+| `publication.ts` | Producer ownership and publication bindings |
+| `refresh.ts` | Fan-out, manifests and evidence reuse |
+| `support.ts` | Fixture creation, evidence helpers and paths |
 
 ## Preservation and discovered assertion defect
 
@@ -282,35 +284,35 @@ and isolated supervision campaigns have not been rerun; no complete campaign cla
 The explicit module paths are registered under `runtime:quorum_harness_capability_selection`;
 this adds no routine command.
 
-| Module | Lines | Responsibility |
-|---|---:|---|
-| `callback-inventory.mjs` | 603 | callback inventory |
-| `catalog.mjs` | 51 | catalog |
-| `cli.mjs` | 20 | cli |
-| `containment.mjs` | 689 | containment |
-| `coordinator-wiring.mjs` | 401 | coordinator wiring |
-| `driver.mjs` | 60 | driver |
-| `environment-closure.mjs` | 425 | environment closure |
-| `exact-head-authorization.mjs` | 334 | exact head authorization |
-| `exact-head-checkout.mjs` | 433 | exact head checkout |
-| `exact-head-supervisor.mjs` | 444 | exact head supervisor |
-| `fixture-source-closure.mjs` | 1024 | fixture source closure |
-| `fixture-templates.mjs` | 629 | fixture templates |
-| `mutation-controls.mjs` | 242 | mutation controls |
-| `owned-files.mjs` | 349 | owned files |
-| `partition.mjs` | 163 | partition |
-| `performance-cases.mjs` | 609 | performance cases |
-| `performance-context.mjs` | 452 | performance context |
-| `performance-material.mjs` | 341 | performance material |
-| `process-supervision.mjs` | 252 | process supervision |
-| `resource-parallel.mjs` | 271 | resource parallel |
-| `resource-traces.mjs` | 421 | resource traces |
-| `selection-contracts.mjs` | 691 | selection contracts |
-| `selection.mjs` | 57 | selection |
-| `supervisor-controls.mjs` | 675 | supervisor controls |
-| `support.mjs` | 416 | support |
-| `tree-lease.mjs` | 517 | tree lease |
-| `worker-coordination.mjs` | 562 | worker coordination |
+| Module | Responsibility |
+|---|---|
+| `callback-inventory.mjs` | callback inventory |
+| `catalog.mjs` | catalog |
+| `cli.mjs` | cli |
+| `containment.mjs` | containment |
+| `coordinator-wiring.mjs` | coordinator wiring |
+| `driver.mjs` | driver |
+| `environment-closure.mjs` | environment closure |
+| `exact-head-authorization.mjs` | exact head authorization |
+| `exact-head-checkout.mjs` | exact head checkout |
+| `exact-head-supervisor.mjs` | exact head supervisor |
+| `fixture-source-closure.mjs` | fixture source closure |
+| `fixture-templates.mjs` | fixture templates |
+| `mutation-controls.mjs` | mutation controls |
+| `owned-files.mjs` | owned files |
+| `partition.mjs` | partition |
+| `performance-cases.mjs` | performance cases |
+| `performance-context.mjs` | performance context |
+| `performance-material.mjs` | performance material |
+| `process-supervision.mjs` | process supervision |
+| `resource-parallel.mjs` | resource parallel |
+| `resource-traces.mjs` | resource traces |
+| `selection-contracts.mjs` | selection contracts |
+| `selection.mjs` | selection |
+| `supervisor-controls.mjs` | supervisor controls |
+| `support.mjs` | support |
+| `tree-lease.mjs` | tree lease |
+| `worker-coordination.mjs` | worker coordination |
 
 ## Main synchronization on 2026-09-21
 
@@ -337,30 +339,30 @@ executed once; legacy cache selection also passed. This is not complete certific
 paths, adding zero routine commands. Historical/static source pins still require
 the planned reconciliation after the remaining source movements.
 
-| Module | Lines | Responsibility |
-|---|---:|---|
-| `artifact-inventory.mjs` | 276 | artifact inventory |
-| `catalog.mjs` | 384 | catalog |
-| `cli.mjs` | 17 | cli |
-| `data.mjs` | 815 | data |
-| `driver.mjs` | 41 | driver |
-| `finding-artifacts.mjs` | 186 | finding artifacts |
-| `fixture-support.mjs` | 72 | fixture support |
-| `identity-cutover.mjs` | 481 | identity cutover |
-| `identity-inventory.mjs` | 321 | identity inventory |
-| `identity-ownership.mjs` | 259 | identity ownership |
-| `identity-policy.mjs` | 142 | identity policy |
-| `identity-runtime-boundaries.mjs` | 281 | identity runtime boundaries |
-| `identity-sites.mjs` | 514 | identity sites |
-| `memory-runtime.mjs` | 210 | memory runtime |
-| `migration-archive.mjs` | 231 | migration archive |
-| `public-fixtures.mjs` | 429 | public fixtures |
-| `release.mjs` | 354 | release |
-| `runner.mjs` | 40 | runner |
-| `runtime-extensions.mjs` | 127 | runtime extensions |
-| `runtime-read.mjs` | 137 | runtime read |
-| `runtime-topology.mjs` | 335 | runtime topology |
-| `scope-init.mjs` | 557 | scope init |
+| Module | Responsibility |
+|---|---|
+| `artifact-inventory.mjs` | artifact inventory |
+| `catalog.mjs` | catalog |
+| `cli.mjs` | cli |
+| `data.mjs` | data |
+| `driver.mjs` | driver |
+| `finding-artifacts.mjs` | finding artifacts |
+| `fixture-support.mjs` | fixture support |
+| `identity-cutover.mjs` | identity cutover |
+| `identity-inventory.mjs` | identity inventory |
+| `identity-ownership.mjs` | identity ownership |
+| `identity-policy.mjs` | identity policy |
+| `identity-runtime-boundaries.mjs` | identity runtime boundaries |
+| `identity-sites.mjs` | identity sites |
+| `memory-runtime.mjs` | memory runtime |
+| `migration-archive.mjs` | migration archive |
+| `public-fixtures.mjs` | public fixtures |
+| `release.mjs` | release |
+| `runner.mjs` | runner |
+| `runtime-extensions.mjs` | runtime extensions |
+| `runtime-read.mjs` | runtime read |
+| `runtime-topology.mjs` | runtime topology |
+| `scope-init.mjs` | scope init |
 
 ## Managed-review evidence decomposition
 
@@ -379,22 +381,23 @@ The list has seven capabilities: `codex-transport`, `claude-transport`,
 The full wrapper keeps the already configured 900-second budget; this change
 does not increase that policy.
 
-| Module | Lines | Responsibility |
-|---|---:|---|
-| `claude-transport.ts` | 909 | claude transport |
-| `cli.ts` | 161 | cli |
-| `codex-transport.ts` | 784 | codex transport |
-| `environment.ts` | 127 | environment |
-| `evidence-binding.ts` | 654 | evidence binding |
-| `fixtures.ts` | 336 | fixtures |
-| `grok-integration.ts` | 168 | grok integration |
-| `legacy-cli.ts` | 79 | legacy cli |
-| `live-binding.ts` | 407 | live binding |
-| `native-attestation.ts` | 564 | native attestation |
-| `sealed-receipts.ts` | 749 | sealed receipts |
-| `suite.ts` | 95 | suite |
-| `supersession.ts` | 241 | supersession |
-| `transport-workers.ts` | 365 | transport workers |
+| Module | Responsibility |
+|---|---|
+| `claude-transport.ts` | claude transport |
+| `cli.ts` | cli |
+| `codex-transport.ts` | codex transport |
+| `environment.ts` | environment |
+| `evidence-binding.ts` | evidence binding |
+| `fixtures.ts` | fixtures |
+| `grok-integration.ts` | grok integration |
+| `legacy-cli.ts` | legacy cli |
+| `live-binding.ts` | live binding |
+| `native-attestation.ts` | native attestation |
+| `prompt-fixture.ts` | Seal the exact submitted prompt in direct managed transport fixtures |
+| `sealed-receipts.ts` | sealed receipts |
+| `suite.ts` | suite |
+| `supersession.ts` | supersession |
+| `transport-workers.ts` | transport workers |
 
 ### Managed prompt fixture repair
 
@@ -435,33 +438,33 @@ Complete post-repair execution passed at `4e8e49ffea` in 77.45 s.
 and five legacy inspection flags remain available. These selectors are registered
 as one internal process fact with 26 exact source paths; no routine gate is added.
 
-| Module | Lines | Responsibility |
-|---|---:|---|
-| `active-scan.mjs` | 104 | active scan |
-| `base-contexts.mjs` | 172 | base contexts |
-| `bootstrap.mjs` | 9 | bootstrap |
-| `certification.mjs` | 154 | certification |
-| `cli.mjs` | 31 | cli |
-| `deny-contexts.mjs` | 1112 | deny contexts |
-| `guidance.mjs` | 112 | guidance |
-| `history-contexts.mjs` | 546 | history contexts |
-| `integration-contexts.mjs` | 32 | integration contexts |
-| `memory-provenance.mjs` | 209 | memory provenance |
-| `negative-contexts.mjs` | 695 | negative contexts |
-| `ordering.mjs` | 130 | ordering |
-| `provenance-data.mjs` | 649 | provenance data |
-| `public-api.mjs` | 27 | public api |
-| `release-history.mjs` | 362 | release history |
-| `repository.mjs` | 175 | repository |
-| `reviewed-contexts.mjs` | 521 | reviewed contexts |
-| `rules.mjs` | 142 | rules |
-| `runtime-contexts.mjs` | 560 | runtime contexts |
-| `scanner-contexts.mjs` | 734 | scanner contexts |
-| `schema-data.mjs` | 796 | schema data |
-| `schema-scan.mjs` | 91 | schema scan |
-| `self-test.mjs` | 604 | self test |
-| `source-integrity.mjs` | 191 | source integrity |
-| `witness-controls.mjs` | 114 | witness controls |
+| Module | Responsibility |
+|---|---|
+| `active-scan.mjs` | active scan |
+| `base-contexts.mjs` | base contexts |
+| `bootstrap.mjs` | bootstrap |
+| `certification.mjs` | certification |
+| `cli.mjs` | cli |
+| `deny-contexts.mjs` | deny contexts |
+| `guidance.mjs` | guidance |
+| `history-contexts.mjs` | history contexts |
+| `integration-contexts.mjs` | integration contexts |
+| `memory-provenance.mjs` | memory provenance |
+| `negative-contexts.mjs` | negative contexts |
+| `ordering.mjs` | ordering |
+| `provenance-data.mjs` | provenance data |
+| `public-api.mjs` | public api |
+| `release-history.mjs` | release history |
+| `repository.mjs` | repository |
+| `reviewed-contexts.mjs` | reviewed contexts |
+| `rules.mjs` | rules |
+| `runtime-contexts.mjs` | runtime contexts |
+| `scanner-contexts.mjs` | scanner contexts |
+| `schema-data.mjs` | schema data |
+| `schema-scan.mjs` | schema scan |
+| `self-test.mjs` | self test |
+| `source-integrity.mjs` | source integrity |
+| `witness-controls.mjs` | witness controls |
 
 The scoped proof preserves 158 original top-level statements (the old self-pin
 array is replaced by path-aware pins), the import API and explicit selector
@@ -673,3 +676,66 @@ every validation command uses the same deadline. See
 [the original validation repair record](../audits/validation-audit-20260918-lab.md).
 Earlier counts in this document describe their named historical checkpoints;
 the final integration delta above controls the release summary.
+
+## Historical notes versus executable proof
+
+The files `main-436-import-migration.json`, `main-438-owned-contexts.json`,
+`modular-import-control-migration.json`, `static-binding-migration.json`,
+`static-binding-followup.json`, `owned-identity-migration.json`, and
+`owned-source-witness-migration.json` are historical transformation notes. They
+are not mechanically replayed transition chains, do not attest the current
+source digests, and must not substitute for current executable verification.
+Their registration as audit JSON permits bounded inspection; it does not make
+their narrative or stored hashes proof. In particular, the historical
+process-fact-registry sequence ending at 48 contexts does not prove the later
+49-context inventory. The current source and its current checked inventory are
+the authority.
+
+`verify-modular-fixture-bindings.mjs` checks the `kind: fixture` records in
+`main-438-witness-migration.json`. It does not establish the source-kind records
+in that file. Preserve those historical notes without relabeling them as fresh
+verification. Current source bindings are checked by
+`verify-modular-identity-bindings.mjs` and the applicable schema, fixture and
+static-edge verifiers against their actual checkout. Only the recorded execution
+and candidate identify what was verified.
+
+The focused finish repair command is
+`node scripts/lab/verification-modularization/verify-modular-finish-repairs.mjs`.
+It is a Lab regression, not an added routine gate or a full migration campaign.
+Its per-case output and retained child logs distinguish accepted normal inputs
+from rejected injected faults. It does not upgrade historical certification to
+the current candidate.
+
+### Unchanged quorum harness findings outside this repair
+
+The ancestor walk in `correctnessDependencyRoot` and the empty-stderr fallback
+in `runSupervisedExactHeadGit` are byte-identical to local main
+`392526fbf142d44e5ad3e4f604b5036639483abf`. Their scoped comparison is recorded in
+[the baseline classification](../../scripts/lab/verification-modularization/quorum-preexisting-classification.json).
+The odd-parent dependency layout reproduces on the original body; the current
+Lab dependency location succeeds. These pre-existing limitations are preserved,
+not repaired or described as passing negative controls. They are outside the
+user-authorized modularization repair and remain repository maintenance issues
+at the named original functions. The failed audit observation remains archived.
+
+## Bounded finish repair verification
+
+The focused regression covers 16 cases: standalone host and ledger capabilities,
+real and stale persistence observations, normal and duplicate managed imports,
+new planner modules, clone overlays, direct identity API imports, archived source
+provenance, scanner-specific rejection, foreign-entry dependency closure,
+process module coverage, prerequisite diagnostics, top-level declaration/order
+preservation, and exact source bindings. It adds no routine validation command.
+The initial official RED also encountered a stale compiled version in both native
+persistence cases after reopening the prepared release; those two outputs are
+not accepted as native regression reproduction. Their independent pre-repair
+normal/stale-marker experiments remain the reproduction evidence. Rebuild before
+GREEN; every selected case, including the native normal and negative controls,
+must then satisfy its exact exit status and output marker.
+
+The source-binding follow-up retains every reviewed fixture literal and its
+classification while updating source digests and unchanged-line locations.
+`finish-repair-source-bindings.json` records those deltas, and the fixture
+migration verifier reverses the fixture deltas before replaying the historical
+relocation proof. Whole-source and static-edge checks bind the current bytes;
+registration of a historical note alone does not establish their validity.

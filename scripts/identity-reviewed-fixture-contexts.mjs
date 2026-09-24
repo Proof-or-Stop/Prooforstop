@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import { createHash } from 'node:crypto';
 const sha = text => createHash('sha256').update(text).digest('hex');
 const bytes = fs.readFileSync(new URL('./identity-reviewed-fixture-data.json', import.meta.url), 'utf8');
-const EXPECTED_SHA256 = 'db73f432175f8b112cef29fbee606ce71012ff84cd7f8fa36a85b4c211f124c4';
+const EXPECTED_SHA256 = '8b3d10b2fa3e57af5acc98cfb1d72e44c1f1c4e35fcb62e0f39734effc5d4e8c';
 if (sha(bytes) !== EXPECTED_SHA256) throw new Error('reviewed fixture inventory bytes changed');
 const inventory = JSON.parse(bytes);
 if (inventory.schemaVersion !== 'identity-reviewed-fixture-contexts.v1' || inventory.entries.length !== 299) throw new Error('reviewed fixture inventory shape changed');

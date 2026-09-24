@@ -22,12 +22,14 @@ assert.deepEqual({...excerpt.after,contextSha256:excerpt.before.contextSha256},e
 expected[index]=excerpt.after;
 assert.deepEqual(after,expected);
 const copies=JSON.parse(fs.readFileSync('scripts/lab/verification-modularization/schema-audit-copy-migration.json'));
+assert.equal(copies.after.path,copies.before.path,'schema copy path must not change');
+assert.equal(copies.after.token,copies.before.token,'schema copy token must not change');
 const copiedIndex=after.findIndex(row=>row.path===copies.before.path&&row.token===copies.before.token);
 assert.deepEqual(after[copiedIndex],copies.before);
 const final=after.map((row,index)=>index===copiedIndex?copies.after:row);
 // Main 0836d73b7c uses canonical UTF-8 serialization; the decoded evidence is unchanged.
 for (const change of JSON.parse(fs.readFileSync('scripts/lab/verification-modularization/main441-schema-contexts.json')).changes) {
- const index=final.findIndex(row=>row.path===change.before.path&&row.token===change.before.token);assert.deepEqual(final[index],change.before);assert.equal(change.before.count,change.after.count);assert.equal(change.before.token,change.after.token);final[index]=change.after;
+ const index=final.findIndex(row=>row.path===change.before.path&&row.token===change.before.token);assert.deepEqual(final[index],change.before);assert.equal(change.before.count,change.after.count);assert.equal(change.before.token,change.after.token);assert.equal(change.before.path,change.after.path,'main schema path must not change');final[index]=change.after;
 }
 assert.deepEqual(CURRENT_COMPATIBLE_SCHEMA_ROWS,final);
 assert.equal(copies.after.count-copies.before.count,copies.copies.length);

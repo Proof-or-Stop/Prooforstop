@@ -1,3 +1,4 @@
+import { SCANNER_RETIRED_LINE_CONTEXTS } from '../../../../scripts/identity-cutover/scanner-contexts.mjs';
 
 
 
@@ -174,10 +175,14 @@ await check(['identity-cutover', 'identity-inventory'], 'CHK-007:adversarial:2 p
   }
   const verifierDataMutation = new Map(sources);
   const verifierPath = 'scripts/identity-cutover/deny-contexts.mjs';
-  const dataLine = sources.get(verifierPath).split(/\r?\n/).find(line => new RegExp(`${retiredProtocolStem}[.:\\-][a-z0-9._:-]+`, 'i').test(line));
-  assert.ok(dataLine, 'the actual extracted negative-context module must contain the targeted negative data');
+  const dataLines = sources.get(verifierPath).split(/\r?\n/);
+  assert.ok(!reviewed.witnesses.some(row => row.path === verifierPath), 'scanner control must not be intercepted by a full-source witness');
+  const dataLine = SCANNER_RETIRED_LINE_CONTEXTS.filter(([path]) => path === verifierPath)
+    .flatMap(([, , , positions]) => positions.map(lineNumber => dataLines[lineNumber - 1]))
+    .find(line => line && !reviewed.rows.some(row => row.path === verifierPath && line.includes(row.token)));
+  assert.ok(dataLine, 'scanner control needs a pinned line outside the exact-row contexts');
   verifierDataMutation.set(verifierPath, sources.get(verifierPath).replace(dataLine, `${dataLine} // changed data row`));
-  assert.throws(() => assertIdentityCutoverInventoryTotal(verifierDataMutation), /retired protocol identity (?:verifier data|exact) context drift/);
+  assert.throws(() => assertIdentityCutoverInventoryTotal(verifierDataMutation), /retired protocol identity verifier data context drift/);
 });
 
 await check(['runtime'], 'F-004 real foreign reviewerWrite commands refuse before Story evidence', () => {

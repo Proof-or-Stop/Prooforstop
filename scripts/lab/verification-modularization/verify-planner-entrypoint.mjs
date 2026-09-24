@@ -1,3 +1,5 @@
+import { verifyTopLevelPreservation } from './verify-modular-top-level-preservation.mjs';
+verifyTopLevelPreservation('planner');
 import assert from 'node:assert/strict';import fs from 'node:fs';import ts from 'typescript';import {execFileSync,spawnSync} from 'node:child_process';
 const path='packages/main/src/tasks/validation-tier-planner-smoke.ts',text=fs.readFileSync(path,'utf8'),ast=ts.createSourceFile(path,text,ts.ScriptTarget.Latest,true);
 assert.ok(text.split('\n').length<=40&&ast.statements.every(n=>ts.isImportDeclaration(n)||ts.isExpressionStatement(n)),'PLANNER_ENTRYPOINT_NOT_THIN: expose identity, pins, inputs, selection, CLI and acceptance verification');

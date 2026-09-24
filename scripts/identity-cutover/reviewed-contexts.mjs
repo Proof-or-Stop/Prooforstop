@@ -142,7 +142,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "scripts/verify-runtime-fact-contract.mjs",
-    "sha256": "081d1fe3ce9eaa9536d4b8614a466a0864d9caf30d0834a20bbde85b8e4b72b9"
+    "sha256": "4717c27cfbd32b70d5893934ca5867519552f9172062f4c6758c50c29c80ab07"
   },
   {
     "path": "scripts/verify-process-fact-contract.mjs",
@@ -154,15 +154,15 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "scripts/process-fact-contract/cli.mjs",
-    "sha256": "dd8bc0b7d7ad581178753dee78905b89b82d82bed77cf70429484fa53ab79650"
+    "sha256": "05a8d71ef7097534d9157a671f7064f8ee3e8104468b6aed832276befaf622d0"
   },
   {
     "path": "scripts/process-fact-contract/command-contracts.mjs",
-    "sha256": "a79c3fde704bdcefff67815565d0486dbc53a55037152276b5150927542aec64"
+    "sha256": "bea4a6a77c6ad328676fd473d332778b58f9edb909edc6b24ee59f3e9f1ef2fa"
   },
   {
     "path": "scripts/process-fact-contract/complete.mjs",
-    "sha256": "7246c76f698ce5dcffbd1f72fc73783284cf387b75f8d21b04f6d38ac3c7aa33"
+    "sha256": "3023b3812fd400f50e6945a1d3ae0d585259ed952a089be21bd37b10bc2425b8"
   },
   {
     "path": "scripts/process-fact-contract/early.mjs",
@@ -190,11 +190,11 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "scripts/process-fact-contract/review-inventory.mjs",
-    "sha256": "816fea9d40b3097a6e4e975aa4b5029065ab4ab9c8bde19bad731c0e5583e807"
+    "sha256": "30ff7404d46f732ba5e83e58c21dbaa7eba07e2b5dbcfa06b3cdbbb37501d1e0"
   },
   {
     "path": "scripts/process-fact-contract/review-verification.mjs",
-    "sha256": "fae4c5d78a630cf1363e25739be266f5b65e09272cd70b812a07b1b6453225a0"
+    "sha256": "05c70988cc3ce2a506ea153244fa4a01d9018367f6bb4a55901c8a979528ebcc"
   },
   {
     "path": "scripts/process-fact-contract/scope-runtime.mjs",
@@ -422,7 +422,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/src/tasks/validation-tier-planner/support.ts",
-    "sha256": "03f4a405ca989b86329046da6036969397ec8b371d9071b3cfb40a6f82a872cd"
+    "sha256": "26f38fca470e41e55b4728b2031b365c725efc955a32294c6ddaaef045a9257d"
   },
   {
     "path": "packages/main/src/tasks/flow-stability-smoke.ts",
@@ -434,7 +434,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/src/tasks/flow-stability/cli.ts",
-    "sha256": "40eb4b788a2f0cb4dd7451826f3053cc307ace119296c1618b8cd4347fd24612"
+    "sha256": "355887eba54b129fa71c020faab5678913d4ac0393a5e068264f2d4344b1711f"
   },
   {
     "path": "packages/main/src/tasks/flow-stability/discovery-fixture.ts",
@@ -462,7 +462,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/src/tasks/flow-stability/review-routing.ts",
-    "sha256": "6671020b14b37dff6e861db59438d87ccf550a8dcd57ac93d33ee6f1daa0fd2f"
+    "sha256": "a3ad088da17bdf1abdd6ffeafd2186e413726441d66eee934f6ae1045e09390b"
   },
   {
     "path": "packages/main/src/tasks/flow-stability/support.ts",
@@ -522,7 +522,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
-    "sha256": "5d4be9a9314766b8540725b44aa93a77fc0e0cb6a31bd6357d0798ed5c58b3b9"
+    "sha256": "e01844f2aa0d34f4ed5ded22d8ff334ff9ec10a05179107cddb34759ae6a8d7c"
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/identity-sites.mjs",
@@ -534,7 +534,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/migration-archive.mjs",
-    "sha256": "09ee275e2ec9b14694a216c6d036961bd9d665a9a2b687109fa88b67c920bcae"
+    "sha256": "912b536c8dbd9834c32934782950f4b97a1742a193df75aeb8fb47f0a95093ce"
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/public-fixtures.mjs",
@@ -542,7 +542,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/release.mjs",
-    "sha256": "c66002c9177bf2a1d3f91cf0c2a7126e57bad1270d0b7d2ff0e2adb765f22f05"
+    "sha256": "1775bb8364f09d2a732d22f4ad582d7d085ca762accf27a7928e8bffc74003e7"
   },
   {
     "path": "packages/main/tests/canonical-new-story-artifacts/runner.mjs",
@@ -578,7 +578,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/src/tasks/finding-ledger-runtime/cli.ts",
-    "sha256": "7cbfeb9d92582748267bf5201e9d5df8de3f99caea49451246e97848dcbd7376"
+    "sha256": "4d0aaf426d46f85b68e8f2a87a4ba339d378ab31ec1c28c91489c9bd68c896c1"
   },
   {
     "path": "packages/main/src/tasks/finding-ledger-runtime/distribution.ts",
@@ -590,7 +590,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/src/tasks/finding-ledger-runtime/projection.ts",
-    "sha256": "2c091ea9281061f2d517e7e49bc6e9d83d33b60f29b31cb19e3d32a093f599b5"
+    "sha256": "d42744f5b3eb89db28d5a667f4ceb13d825853065ba63174576ae493a88a4526"
   },
   {
     "path": "packages/main/src/tasks/finding-ledger-runtime/runtime-evidence.ts",
@@ -610,7 +610,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts",
-    "sha256": "5299537e7311e44004fec04b1f58ae07e6ff6f6d344529de3accb55204e4421f"
+    "sha256": "54510c570ae14e0e1e0262c3d8e77387e158d163f7e172d40300769c5650ce21"
   },
   {
     "path": "packages/main/src/tasks/managed-review-evidence/cli.ts",
@@ -618,7 +618,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/src/tasks/managed-review-evidence/codex-transport.ts",
-    "sha256": "5201b972a4bc71c6712fa3b17d1b78fae14753eb9014900fb220d06a29f31097"
+    "sha256": "9707487b1e14054e42d727d89795d9f832cd496883c70deca0c7fb8563c10d35"
   },
   {
     "path": "packages/main/src/tasks/managed-review-evidence/environment.ts",
@@ -626,7 +626,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/src/tasks/managed-review-evidence/evidence-binding.ts",
-    "sha256": "3a8080c4c83c1b6d9a4cb7aa4985c4e9df9174195d22d1b19381cbde330f2aff"
+    "sha256": "8a5c270530b7203f15ee71865d8f188b41b7d84c4b2459575533af3a6a9a7c76"
   },
   {
     "path": "packages/main/src/tasks/managed-review-evidence/fixtures.ts",
@@ -682,7 +682,7 @@ export const REVIEWED_NEGATIVE_SOURCE_INTEGRITY = [
   },
   {
     "path": "packages/main/src/tasks/host-run-usage/evidence-mapping.ts",
-    "sha256": "adcffd8d6e27474b40d43b1e2d5ab3ad3d7caa8e55db0b2e3afe9c84094d11bd"
+    "sha256": "df0a75c9bcf3b17fdde773ad8dd743dc9a806c92cd6308ee1963a803ab67efd6"
   },
   {
     "path": "packages/main/src/tasks/host-run-usage/integrations.ts",
@@ -1220,7 +1220,7 @@ export const BOTH_FAMILY_CONTEXT_WITNESSES = [
   [74,"e5259450c31aa3feeaaebcb83fa32adc5f171019564c121d10cb87889c1e584d"],
   [5,"c583bd41ee5789221e5f93f938f4528a9408dc376d72ef838260cc5e3236355b"],
   [67,"010a15eda866aeddc9bd68935ee0d43b1bcdc02f80c7f4904d662795f076a6d2"],
-  [69,"09ee275e2ec9b14694a216c6d036961bd9d665a9a2b687109fa88b67c920bcae"]
+  [69,"912b536c8dbd9834c32934782950f4b97a1742a193df75aeb8fb47f0a95093ce"]
 ].map(([rowIndex, sha256]) => ({ path: BOTH_FAMILY_CONTEXT_ROWS[rowIndex].path, sha256 }));
 
 export const MODULAR_WITNESS_CLOSURES = {

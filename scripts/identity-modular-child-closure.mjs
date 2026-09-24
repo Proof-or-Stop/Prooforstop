@@ -11,6 +11,8 @@ export function modularIdentityChildClosure({ts,file,text,ast,entry,argv,contrac
   const family = Object.entries(registration?.families ?? {}).find(([,files]) => files.includes(file));
   if (!family) return null;
   const [familyEntry, files] = family, errors = [], edges = [];
+  // Foreign entries have a different argv and reachability contract. Scan fully.
+  if (entry !== familyEntry) return null;
   for (const source of files) {
     if (!fs.existsSync(path.resolve(root,source)) || hash(fs.readFileSync(path.resolve(root,source))) !== registration.sourceDigests[source]) errors.push('Modular identity source changed: '+source);
   }

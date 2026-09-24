@@ -482,19 +482,23 @@ StoryStore.prototype.writePreparedTestEvidence=function(id,...args){
   assert.equal(readFileSync(root+'/entered.log','utf8').trim().split('\\n').length,1);
   assert(existsSync(validationExecutionLockPath(root,id)),'publication must hold its Story lock');
   assert.equal(readdirSync(validationCapacityLockPath(root)).filter(name=>name.endsWith('.ticket')).length,1,'publication must hold workspace capacity');
-  writeFileSync(${JSON.stringify(observed)},'actual publication observed');
+  writeFileSync(${JSON.stringify(observed)},JSON.stringify({pid:process.pid,label:process.env.PROOF_OR_STOP_VALIDATE_LOCK_SMOKE_LABEL}));
  }
  return Reflect.apply(original,this,[id,...args]);
 };`);
     // Receipt producers and the consumer must share the same observed runtime.
     process.env.NODE_OPTIONS=[previousNodeOptions??'','--import='+JSON.stringify(hook)].join(' ');
     await setupFixture({root,storyId});
+    rmSync(observed,{force:true});
     release(root);
     const proc=spawnValidate(root,storyId,'persistence-observer');
     const result=await waitChild(proc,12000);
     assert.equal(result.timedOut,false);assert.equal(result.code,0,result.output);
     const parsed=JSON.parse(proc.stdout());assert.equal(parsed.status,'pass');assert.equal(parsed.commandExecutions,1);
     assert(existsSync(observed),'real CLI must call its instrumented publication writer');
+    assert.deepEqual(JSON.parse(readFileSync(observed,'utf8')),
+      {pid:proc.child.pid,label:'persistence-observer'},
+      'publication observation must belong to the measured CLI process');
     assert.equal(existsSync(validationExecutionLockPath(root,storyId)),false);
     assert.equal(capacityTicketPaths(root).length,0);
     assert.equal(new StoryStore(root).readTestEvidence(storyId)?.result,'PASS');

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 
 
 
-import { readdirSync, statSync } from 'node:fs';
+import { mkdirSync, readdirSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 
 
@@ -19,7 +19,7 @@ import { tmpdir } from 'node:os';
 
 
 
-import { check, root, evidenceMappingCheck, canonicalCore } from "./support.js";
+import { check, root, freshRoot, evidenceMappingCheck, canonicalCore } from "./support.js";
 
 export async function case88(): Promise<void> {
 
@@ -30,7 +30,11 @@ export async function case88(): Promise<void> {
   check('isolation: all artifacts live under the temp root (no repo pollution)', () => {
     assert.ok(root.startsWith(tmpdir()));
     assert.ok(statSync(root).isDirectory());
-    // Every sub-root created a slot dir only where the concurrency path ran.
+    // This capability owns its fixture even when selected without other cases.
+    const ownedFixture = freshRoot();
+    mkdirSync(ownedFixture);
+    assert.ok(statSync(ownedFixture).isDirectory());
+    assert.ok(ownedFixture.startsWith(root + "/"));
     const entries = readdirSync(root);
     assert.ok(entries.length > 0);
   });

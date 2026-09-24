@@ -101,7 +101,18 @@ await check(['identity-migration-archive'], 'CHK-007:adversarial:0 every registe
       assert.notEqual(identityCase.retired, identityCase.canonical, `${boundary.id}: retired identity must differ`);
       assert.ok(['historical-retired', 'unsupported-family-control'].includes(identityCase.mutationKind), `${boundary.id}: identity mutation must disclose its provenance kind`);
       if (identityCase.mutationKind === 'historical-retired') {
-        assert.equal(identityCase.retiredProvenance?.sourcePath, identityCase.identityOrigin?.sourcePath ?? identityCase.sourcePath, 'historical counterpart must belong to this exact source or bound imported origin');
+        const relocated = new Set([
+          'scripts/identity-cutover/rules.mjs',
+          'scripts/identity-cutover/release-history.mjs',
+          'scripts/identity-cutover/provenance-data.mjs',
+          'scripts/identity-cutover/self-test.mjs',
+        ]).has(identityCase.sourcePath)
+          && identityCase.canonical === 'proof-or-stop.product-capability-release.v1'
+          && (identityCase.identityOrigin?.sourcePath ?? identityCase.sourcePath) === 'scripts/identity-cutover/rules.mjs';
+        const expectedSourcePath = relocated
+          ? 'scripts/verify-proof-or-stop-identity-cutover.mjs'
+          : identityCase.identityOrigin?.sourcePath ?? identityCase.sourcePath;
+        assert.equal(identityCase.retiredProvenance?.sourcePath, expectedSourcePath, 'historical counterpart must belong to this exact source or bound imported origin');
         assert.equal(identityCase.retiredProvenance?.value, identityCase.retired, 'historical counterpart must match the injected value');
       } else {
         assert.equal(identityCase.retiredProvenance, undefined, 'constructed invalid-family control must not claim historical admission');

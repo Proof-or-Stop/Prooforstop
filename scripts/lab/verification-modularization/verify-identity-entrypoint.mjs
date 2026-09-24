@@ -11,13 +11,15 @@ const original=execFileSync('git',['show','48ade8d295:'+path],{encoding:'utf8'})
 const before=ts.createSourceFile(path,original,ts.ScriptTarget.Latest,true);
 const directory='scripts/identity-cutover';
 const candidates=[];
+let frozenSaltDefinitions=0;
 for(const name of fs.readdirSync(directory).filter(name=>name.endsWith('.mjs'))){
  const source=fs.readFileSync(directory+'/'+name,'utf8');
  assert.ok(source.split('\n').length<=2000,'IDENTITY_MODULE_EXCEEDS_2000: '+name);
  const parsed=ts.createSourceFile(name,source,ts.ScriptTarget.Latest,true);
  assert.equal(parsed.parseDiagnostics.length,0,name);
- for(const node of parsed.statements)if(!ts.isImportDeclaration(node))candidates.push(node.getText(parsed).replace(/^export /,''));
+ for(const node of parsed.statements)if(!ts.isImportDeclaration(node)){const statement=node.getText(parsed).replace(/^export /,'');candidates.push(statement);if(statement.startsWith('const FROZEN_SALTS ='))frozenSaltDefinitions++;}
 }
+assert.equal(frozenSaltDefinitions,1,'signature-salt coverage must have exactly one module authority');
 let preserved=0;
 for(const node of before.statements){
  if(ts.isImportDeclaration(node)||ts.isIfStatement(node))continue;

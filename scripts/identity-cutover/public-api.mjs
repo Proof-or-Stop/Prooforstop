@@ -1,3 +1,5 @@
+import './bootstrap.mjs';
+import { EXPECTED_EXACT_ALLOWLIST_COUNT } from './scanner-contexts.mjs';
 
 
 
@@ -17,6 +19,9 @@ import { CURRENT_COMPATIBLE_SCHEMA_ROWS, NEGATIVE_SCHEMA_ROWS, NEGATIVE_SCHEMA_W
 import { REVIEWED_NEGATIVE_SOURCE_INTEGRITY } from "./reviewed-contexts.mjs";
 
 export function identityCutoverReviewedContexts() {
+  if (EXACT_ALLOWLIST.length !== EXPECTED_EXACT_ALLOWLIST_COUNT) {
+    throw new Error(`Incomplete identity context assembly: ${EXACT_ALLOWLIST.length}, expected ${EXPECTED_EXACT_ALLOWLIST_COUNT}`);
+  }
   return {
     rows: [...EXACT_ALLOWLIST, ...[...CURRENT_COMPATIBLE_SCHEMA_ROWS, ...NEGATIVE_SCHEMA_ROWS].map(row => ({ ...row, expectedOccurrences: row.count }))].map(row => ({ ...row })),
     witnesses: [...REVIEWED_NEGATIVE_SOURCE_INTEGRITY, ...NEGATIVE_SCHEMA_WITNESSES, ...MAINTENANCE_SCHEMA_WITNESSES,

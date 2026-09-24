@@ -1,4 +1,4 @@
 {
   "before": "const source = readFileSync(join(repoRoot, 'packages/main/src/tasks/validation-tier-planner-smoke.ts'), 'utf-8');",
-  "after": "const source = [\"packages/main/src/tasks/validation-tier-planner/command-identity.ts\",\"packages/main/src/tasks/validation-tier-planner/historical-pins.ts\",\"packages/main/src/tasks/validation-tier-planner/change-inputs.ts\",\"packages/main/src/tasks/validation-tier-planner/selection-widening.ts\",\"packages/main/src/tasks/validation-tier-planner/cli-integration.ts\",\"packages/main/src/tasks/validation-tier-planner/hash-completeness.ts\",\"packages/main/src/tasks/validation-tier-planner/acceptance-guards.ts\"].map(path => readFileSync(join(repoRoot, path), 'utf-8')).join('\\n');"
+  "after": "const directory = join(repoRoot, 'packages/main/src/tasks/validation-tier-planner');\n  const source = readdirSync(directory).filter(name => name.endsWith('.ts')).sort()\n    .map(name => readFileSync(join(directory, name), 'utf-8')).join('\\n');"
 }

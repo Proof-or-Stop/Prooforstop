@@ -731,4 +731,3 @@ import { EXACT_ALLOWLIST } from './base-contexts.mjs';
 import { MAINTENANCE_SCHEMA_PROVENANCE_ROWS } from '../identity-maintenance-boundaries.mjs';
 EXACT_ALLOWLIST.push(...MAINTENANCE_SCHEMA_PROVENANCE_ROWS);
 export const EXPECTED_EXACT_ALLOWLIST_COUNT = 699;
-export const FROZEN_SALTS = [];
