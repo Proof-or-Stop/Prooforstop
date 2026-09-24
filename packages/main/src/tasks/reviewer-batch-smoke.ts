@@ -402,11 +402,13 @@ assert.equal(isCommandAllowed('reviewer_batch', 'DONE', DEFAULT_PHASE_TOOLS), tr
     // ahead of verbose per-lane prompts so a 4 KiB preview cannot accidentally
     // turn the required launch-all barrier into launch-one/wait-one execution.
     const boundedPreview = JSON.stringify(report, null, 1).slice(0, 4_000);
+    const managedReadinessOffset = boundedPreview.indexOf('"managedReviewReadiness"');
     const executionPlanOffset = boundedPreview.indexOf('"executionPlan"');
     const lanesOffset = boundedPreview.indexOf('"lanes"');
     assert.ok(
-      executionPlanOffset >= 0 && lanesOffset >= 0 && executionPlanOffset < lanesOffset,
-      'the scheduling control header precedes verbose lane records',
+      managedReadinessOffset >= 0 && managedReadinessOffset < executionPlanOffset
+        && executionPlanOffset < lanesOffset,
+      'managed prerequisites and scheduling control precede verbose lane records',
     );
     assert.match(boundedPreview, /"waitPolicy": "collective-child-ids-after-all-launched"/);
     for (const lane of executionPlan.launchableLanes) {
@@ -443,7 +445,7 @@ assert.equal(isCommandAllowed('reviewer_batch', 'DONE', DEFAULT_PHASE_TOOLS), tr
     assert.match(text, /parallel-barrier: launchableLanes=\[proof-or-stop-review-quality, proof-or-stop-review-test-coverage\]/);
     assert.match(text, /managedReview: blocked reason=managed_review_candidate_spec_missing/);
     assert.match(text, /managedReviewNextAction: proof-or-stop candidate_spec_route/);
-    assert.match(text, /issue every listed lane's launchInstruction before any wait/);
+    assert.match(text, /for native review, or managed review after managedReview is ready: issue every listed lane's launchInstruction before any wait/);
     assert.match(text, /one host wait call with the complete child-id set/);
     assert.match(text, /admissibilityStatus: reviewer-launch-preview/);
     assert.match(text, /assuranceLevel: local/);

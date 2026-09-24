@@ -129,18 +129,17 @@ export interface ReviewerBatchReport {
    * Hosts launch every listed lane before waiting for any individual result.
    * This is still a read-only plan; it grants no launch or review authority.
    */
+  managedReviewReadiness: {
+    status: 'ready' | 'blocked';
+    reason: string | null;
+    nextAction: string | null;
+  };
   executionPlan: {
     strategy: 'parallel-barrier';
     launchableLanes: string[];
     launchAllBeforeWait: true;
     waitPolicy: 'collective-child-ids-after-all-launched' | 'no-wait';
     maxConcurrency: number;
-  };
-  /** Formal managed-review prerequisite only; native reviewer guidance remains available. */
-  managedReviewReadiness: {
-    status: 'ready' | 'blocked';
-    reason: string | null;
-    nextAction: string | null;
   };
   lanes: ReviewerLanePlan[];
   gate: {
@@ -301,11 +300,11 @@ export function renderReviewerBatchReport(report: ReviewerBatchReport): string {
     `reviewRound: ${report.reviewRound ?? '(none)'}`,
     `readinessReport: target=${report.readinessReport.target} rows=${report.readinessReport.readiness.length}`,
     `gate: ${report.gate.ready ? 'READY' : 'BLOCKED'} blockedBy=[${report.gate.blockedBy.join(', ')}]`,
-    `parallel-barrier: launchableLanes=[${launchable.join(', ')}]`,
     `managedReview: ${report.managedReviewReadiness.status}${report.managedReviewReadiness.reason ? ` reason=${report.managedReviewReadiness.reason}` : ''}`,
     ...(report.managedReviewReadiness.nextAction ? [`managedReviewNextAction: ${report.managedReviewReadiness.nextAction}`] : []),
+    `parallel-barrier: launchableLanes=[${launchable.join(', ')}]`,
     ...(launchable.length > 0
-      ? [`issue every listed lane's launchInstruction before any wait; collect one nonempty distinct child id per lane, then make one host wait call with the complete child-id set; maxConcurrency=${report.executionPlan.maxConcurrency}`]
+      ? [`for native review, or managed review after managedReview is ready: issue every listed lane's launchInstruction before any wait; collect one nonempty distinct child id per lane, then make one host wait call with the complete child-id set; maxConcurrency=${report.executionPlan.maxConcurrency}`]
       : ['no launchable lanes: do not call a host wait operation']),
     '',
     `lanes (${report.lanes.length}):`,
@@ -485,8 +484,8 @@ export function createReviewerBatchHandlers(ctx: HandlerContext): Record<string,
     const report: ReviewerBatchReport = {
       storyId,
       reviewRound: readinessReport.artifacts.reviewRound,
-      executionPlan: buildReviewerExecutionPlan(lanes),
       managedReviewReadiness: managedReviewCandidateReadiness(ctx.store.readCandidateSpecSet(storyId), storyId),
+      executionPlan: buildReviewerExecutionPlan(lanes),
       lanes,
       gate: { blockedBy, ready },
       readinessReport,
