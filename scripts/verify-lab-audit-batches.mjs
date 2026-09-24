@@ -28,10 +28,11 @@ const dir=mkdtempSync(join(tmpdir(),'lab-batch-fixture-'));
 const git=(...args)=>execFileSync('git',args,{cwd:dir,encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
 try {
  git('init','-b','main');git('config','user.name','Lab fixture');git('config','user.email','fixture@example.invalid');
- writeFileSync(join(dir,'base.txt'),'base');git('add','.');git('commit','-m','baseline');const base=git('rev-parse','HEAD');
+ writeFileSync(join(dir,'base.txt'),'base');writeFileSync(join(dir,'dependency.mjs'),'export const value=1;');mkdirSync(join(dir,'docs'));writeFileSync(join(dir,'docs','reference.md'),'Durable unchanged evidence.');git('add','.');git('commit','-m','baseline');const base=git('rev-parse','HEAD');
  mkdirSync(join(dir,'modules'));
- for(let i=0;i<25;i++)writeFileSync(join(dir,'modules',`${i}.mjs`),'export const n=1;');
+ for(let i=0;i<25;i++)writeFileSync(join(dir,'modules',`${i}.mjs`),i===0?"import {value} from '../dependency.mjs'; // [evidence](../docs/reference.md)\nexport const n=value;":'export const n=1;');
  git('add','.');git('commit','-m','candidate');const head=git('rev-parse','HEAD');
+ assert.ok(audit.auditInput(dir,base,head).tree?.some(row=>row.path==='docs/reference.md'),'LAB_AUDIT_UNCHANGED_CONTEXT_MISSING: omitted snapshot does not mean absent repository file');
  const adapter=join(dir,'adapter.cjs');
  writeFileSync(adapter,`const fs=require('node:fs');const p=fs.readFileSync(0,'utf8');const b=JSON.parse(p.split('Binding: ')[1].split('\\nSchema:')[0]);const data=JSON.parse(p.split('Untrusted audit input:\\n')[1]);for(const f of data.files)fs.readFileSync('snapshot/'+f.path);const refs=data.files.map(f=>f.path);if(process.argv[2]==='omit')refs.pop();console.log(JSON.stringify({...b,decision:'pass',findings:[],summary:'Disposable synthetic transport verification; not actual independent approval.',readRefs:refs}));`);
  const selection={developer:{id:'codex',vendor:'openai'},auditor:{id:'fixture',vendor:'independent',command:process.execPath,argv:[adapter],protocol:'lab-json'}};
