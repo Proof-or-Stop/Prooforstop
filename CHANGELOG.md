@@ -1,5 +1,10 @@
 # Changelog
 
+## Remote main sync - v0.3.457 - 2026-09-25
+
+- Merge the remote 0.3.454-0.3.456 line (managed review batch, consumer scope and stale-route preflights) with the local Lab timeout-1800 line (merge `771dc8eed3`).
+- Bump once so the merged tree does not share a version number with either published side; U18 static edges and the Lab timeout budget verifier pass on the merged tree.
+
 ## Managed review stale-route preflight - v0.3.456 - 2026-09-24
 
 - Reject stale candidate material/story-file bindings in `reviewer_batch` and `host_run` before managed reviewers consume provider time; preserve import-time checks.
