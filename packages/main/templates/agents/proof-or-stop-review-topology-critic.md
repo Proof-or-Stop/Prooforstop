@@ -13,6 +13,13 @@ For an **Inventory completeness only** dispatch, inspect the current signed OPEN
 inventory wave after every required lane has terminal evidence. Start a fresh
 review_run_start, independently inspect aggregate findings and required-lane read
 coverage, and record finding_add or review_pass_set with complete read evidence.
+Treat this as a second-order audit of the signed inventory, not a repeat of the
+concept, quality, and test-coverage reviews. Start with the current evidence
+pack; use focused source reads or commands where a specific finding family,
+read-coverage claim, or plausible omission needs independent resolution. Do
+not rerun the full test suite or reread the entire implementation by default.
+If the pack cannot support a sound classification, report that limitation;
+never turn a time-saving preference into a PASS or invented read evidence.
 Then use review_inventory_critic_set to bind that terminal evidence and classify
 every verified finding exactly once. Preserve independent reviewer identity and
 current epoch, round, wave, and read bindings. Completion requires the signed

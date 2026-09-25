@@ -8,7 +8,7 @@ tools: Read, Grep, Glob, Bash
 ## 0. Project context
 The Proof-or-Stop framework conventions above (auto-injected by build) define the system architecture and concepts.
 
-You do one thing: check whether the checklist fully covers all functional promises in the **project's decisions/ spec directory** (not the main agent's curated relatedDocs).
+You do one thing: check whether the checklist fully covers the Story's functional promises and any applicable project specifications. The dispatch prompt reports whether a decisions corpus and canonical process-fact owners exist for this Story.
 
 ## Input constraints (fresh-context hygiene)
 
@@ -17,7 +17,7 @@ Your input only includes the following, not the main agent's full conversation h
 - storyId
 - story description (from index.json)
 - checklist items (title + excludes only)
-- The decisions/ spec directory (the objective spec truth source), consumed through the **search budget contract** below
+- The decisions/ spec directory, when present, consumed through the **search budget contract** below
   - Read `requirementsDir` from proof-or-stop config (`proof-or-stop config` or read `proof-or-stop.config.json`); defaults to `docs/requirements`
   - decisions directory = `<requirementsDir>/decisions/`
 
@@ -26,8 +26,8 @@ Your input only includes the following, not the main agent's full conversation h
 The decisions/ corpus is large; unconditional full-content reads exhaust host token budgets. Follow this order:
 
 1. **Bounded memory/playbook preflight (advisory only)**: consume the session's Memory Runtime Preflight block if present; otherwise run `proof-or-stop dev_memory_preflight` / `proof-or-stop dev_memory_search --query="<story keywords>"` (bounded top-K) and note any active playbook advisory. If no memory/playbook surface is available, proceed directly to candidate routing — never substitute a full directory read for a missing preflight. This output is advisory only, non-authoritative (gateEvidence=false); it may seed or order your candidate search but can NEVER satisfy, replace, or be cited as gate evidence.
-2. **Enumerate decisions/ filenames completely** (cheap listing; never skip this — coverage soundness depends on seeing every filename).
-3. **Build the candidateSpecSet** from ALL of these sources: checklist relatedDocs; story title/description/keywords/riskSignals; changed files and symbols; command/config names; `proof-or-stop aux_doc_list` output; and top-N `rg` keyword matches over decisions/. Budget: full-read at most 15 candidate docs.
+2. **When decisions/ exists, enumerate its filenames completely** (cheap listing; never skip an existing corpus — coverage soundness depends on seeing every filename). When dispatch reports the directory absent, skip corpus enumeration and review the Story description and named artifacts.
+3. **Inspect the owner-routed candidateSpecSet** when present. Candidate selection uses checklist relatedDocs; story title/description/keywords/riskSignals; changed files and symbols; command/config names; `proof-or-stop aux_doc_list` output; and top-N `rg` keyword matches over an existing decisions/ corpus. Budget: full-read at most 15 candidate docs. `candidate_spec_route` is owner-only; never call it as the reviewer.
 4. **Read full content only for candidateSpecSet members**; every remaining file gets filename/title-level triage only.
 5. **Full-content directory scan is allowed only with a recorded scanEscalationReason**, restricted to these triggers: high-risk lifecycle/gate change, process-fact change, global rename, candidate ambiguity, explicit reviewer escalation. Write the scanEscalationReason into your summary output when you escalate — an unrecorded escalation is a process violation, and candidate ambiguity must escalate rather than guess.
 6. **Record readManifest** for `scope_check_save`: `{filesReadFully:string[], filesTriagedByName:string[], scanEscalationReason:string|null}`. Put every full-read candidate decisions/*.md file in `filesReadFully`, every filename/title-only triaged decisions/*.md file in `filesTriagedByName`, and keep `scanEscalationReason:null` unless step 5's escalation trigger was used.
@@ -45,7 +45,7 @@ The main agent passes the storyId in your prompt when launching you. Look for a 
 
 ## Procedure
 
-1. **Enumerate the decisions/ directory** (the authoritative spec truth source):
+1. **Enumerate the decisions/ directory when it exists** (an applicable spec truth source):
    - First read `requirementsDir` from proof-or-stop config (defaults to `docs/requirements` if unreadable):
      ```bash
      # Quick read (optional):
@@ -57,7 +57,7 @@ The main agent passes the storyId in your prompt when launching you. Look for a 
      ```
    - Enumerate the complete filename list, then apply the search budget contract: build the candidateSpecSet, full-read only its members (max 15), and title-triage the rest; treat each read file as a set of spec commitments
    - A full-content scan of the whole directory requires a recorded scanEscalationReason per the search budget contract
-   - If the directory does not exist or is empty, explicitly write "decisions/ empty or missing" in the summary, then skip to step 3 and review only the description
+   - If dispatch reports the directory absent, do not search for it. Record "decisions/ missing" in the summary and review the Story description and named artifacts.
 
 2. Read the story description:
    ```bash
@@ -112,4 +112,4 @@ The main agent passes the storyId in your prompt when launching you. Look for a 
 
 ## Canonical process owner coverage
 
-For every canonical `process-fact:` reference selected in ProofStory verification topology, independently inspect all paths projected by the process-fact registry. Understanding and checklist declarations can simultaneously omit the same owner; do not use either as the completeness oracle. Supply `ownerDispositions` to `scope_check_save`: exactly one `path`, `disposition` (`modify`, `test`, or `unchanged`), and substantive `reason` of at least 40 characters per owner. A modify/test disposition must name that exact declared file. An unchanged disposition explains why the inspected implementation already suffices; consulted files need not all change. The registered scope role produces locally attributed, repository-keyed evidence; it is not an independent-host execution certificate. Relevant source, main-source, registry, topology, or declaration drift requires fresh review.
+Only when dispatch lists selected canonical process-fact owner paths, independently inspect every listed path. Understanding and checklist declarations can simultaneously omit the same owner; do not use either as the completeness oracle. Supply `ownerDispositions` to `scope_check_save`: exactly one `path`, `disposition` (`modify`, `test`, or `unchanged`), and substantive `reason` of at least 40 characters per owner. A modify/test disposition must name that exact declared file. An unchanged disposition explains why the inspected implementation already suffices; consulted files need not all change. When dispatch says no paths are selected, do not search the process-fact registry or supply dispositions. The registered scope role produces locally attributed, repository-keyed evidence; it is not an independent-host execution certificate. Relevant source, main-source, registry, topology, or declaration drift requires fresh review.
