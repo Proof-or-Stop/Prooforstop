@@ -1,5 +1,16 @@
 # Changelog
 
+## Lab identity-148-performance-20260920 - v0.3.458 - 2026-09-25
+
+- Close the nine findings from the second modular audit round: coordination migration re-observes transient entries, Lab audit refuses over-limit integration budgets before any batch, module-family helpers reuse the scanner parse cache, child-process re-export forms are followed or reported, and dropped timeout-budget pins are restored.
+- Strengthen test oracles: host-usage case 88, process completion markers, mutation acceptance controls and the workspace-wait startup poll.
+- Adapt to origin 0.3.456: the live-drift managed-review scenario re-routes candidates before its fresh ReviewRun, as the new stale-binding preflight requires.
+- Lab RED (9/26 failing) then GREEN 26/26; tsc, runtime fact contract and U18 static edges pass. No cross-host audit was run for this integration, by user decision; the full validation suite was not rerun.
+
+Maintenance provenance: codex/lab-identity-148-performance-20260920; audit findings in .git/lab-maintenance/identity-148-performance-20260920-audits/5a57d2e1-2c9f-41c4-b37b-aac8230d4c97.
+Verification command (replayed before integration): `["node","scripts/lab/verification-modularization/verify-modular-finish-repairs.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
 ## Remote main sync - v0.3.457 - 2026-09-25
 
 - Merge the remote 0.3.454-0.3.456 line (managed review batch, consumer scope and stale-route preflights) with the local Lab timeout-1800 line (merge `771dc8eed3`).
