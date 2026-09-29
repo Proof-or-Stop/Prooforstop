@@ -2239,8 +2239,11 @@ export function managedClaudePromptDirectoryForRun(cwd: string, runId: string): 
   return join(cwd, PROOF_OR_STOP_DIR, 'runtime', 'host-run-prompts', runId);
 }
 
+/** Code-writing roles whose sessions a later item or finding repair may resume. */
+export const RESUMABLE_CODE_WRITER_ROLES = ['proof-or-stop-implementer', 'proof-or-stop-finding-repair'] as const;
+
 function isImplementerAgentType(agentType: string): boolean {
-  return canonicalAgentRoleId(agentType) === 'proof-or-stop-implementer';
+  return (RESUMABLE_CODE_WRITER_ROLES as readonly string[]).includes(canonicalAgentRoleId(agentType));
 }
 
 export function managedDispatchCodexSandboxMode(
