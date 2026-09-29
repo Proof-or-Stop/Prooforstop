@@ -1742,7 +1742,10 @@ function eraseManagedHostRunOneShotInputs(paths: ManagedHostRunPaths): void {
 function withTerminalAuthorityLock<T>(paths: ManagedHostRunPaths, fn: () => T): T {
   return withMkdirLock(paths.terminalLock, fn, {
     label: `managed terminal ${paths.dir}`,
-    deadlineMs: 5_000,
+    // A live holder (heartbeat, reconcile, status recovery) can keep this lock
+    // for seconds on a loaded host; giving up turned finished provider runs into
+    // worker failures. Crashed holders are still reclaimed by classification.
+    deadlineMs: 30_000,
     staleMs: 2_000,
     pollMs: 10,
     requireHolderToken: true,
