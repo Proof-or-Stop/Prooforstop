@@ -295,12 +295,14 @@ export function resolveManagedReviewerBasePrompt(root: string, run: ReviewRun): 
  */
 export function renderManagedReviewerProviderPrompt(basePrompt: string, canonicalRoot: string): string {
   const primaryWorktree = canonicalRoot.trim();
-  if (!primaryWorktree) return basePrompt;
   return basePrompt
     .split(/\r?\n/)
     .filter(line => {
       const trimmed = line.trim();
-      return !(trimmed.includes(primaryWorktree)
+      // The managed host observes the provider itself; a native liveness start
+      // signal would only compete with the one JSON final result.
+      if (/first output `DISPATCH_START:/.test(trimmed)) return false;
+      return !(primaryWorktree && trimmed.includes(primaryWorktree)
         && /^working directory(?:\s*\(subagent must cd here\))?\s*:/i.test(trimmed));
     })
     .join('\n');
