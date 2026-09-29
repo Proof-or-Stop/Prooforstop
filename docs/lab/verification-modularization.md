@@ -1,0 +1,779 @@
+# Verification modularization: implementation and evidence ledger
+
+All 14 requested entries have been split into 192 modules; the largest module is
+1,880 physical lines. The original public entries contain 6–9 lines. The complete
+[file-by-file and capability inventory](verification-modularization-inventory.md)
+records the actual files and explicit selectors. Internal module registration does
+not add routine validation gates (250 at this checkpoint).
+
+Historical complete executions and scoped proofs are distinguished below. Cross-cutting checks and their source-bound evidence are recorded in the sections
+below. The seven F-060 boundary checks pass after module relocation;
+static AST cached/reference reports were identical. Two standalone fixture tests
+were repaired to read the actual extracted function declarations and pass their
+original mutation controls. The full canonical group exposed stale monolith readers and one missing public
+export. The actual extracted source readers and `verifyFrozenFiles` public export
+have been repaired; targeted consumer, inventory, changelog and API controls pass.
+The final complete canonical command and authoritative Lab finish record are the
+delivery checks. Historical per-family runs below are not relabeled as current-head
+full reruns. No remote push is authorized by this report.
+
+Original public files contain imports, usage comments and one invocation.
+Every extracted file is limited to 2,000 physical lines. No hidden monolith,
+source concatenation or eval is used to execute the extracted verification.
+No routine validation command is added by internal module registration.
+
+## Entrypoint comparison
+
+| Original entry | Before lines | Current entry lines | Modules | Largest module | Evidence/status | Recorded scope |
+|---|---:|---:|---:|---:|---|---|
+| `scripts/verify-process-fact-contract.mjs` | 12201 | 7 | 16 | 1880 | RED -> official GREEN at 317918539b; full suite 181.37 s | Lab evidence |
+| `packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs` | 10748 | 7 | 27 | 1024 | RED recorded; 196 function bodies / 18 bindings preserved; 7 scoped contracts pass, heavy campaigns not rerun | Lab evidence |
+| `scripts/verify-proof-or-stop-identity-cutover.mjs` | 7794 | 9 | 25 | 1433 | RED -> scoped GREEN fcdd5514a5; 158 statements, 696 self-context pins and 106 negative controls; seven F-060 boundary checks pass; complete certification PASS at 535ed1190f | Lab evidence |
+| `packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts` | 6101 | 7 | 14 | 1577 | RED -> official GREEN at 51b6485211; full scan 67.33 s; 109 function bodies and driver order preserved | Lab evidence |
+| `packages/main/src/tasks/validation-tier-planner-smoke.ts` | 5792 | 7 | 9 | 1652 | RED -> official GREEN at d8b0ad6632; full suite 12.97 s, 142 checks | Lab evidence |
+| `packages/main/src/tasks/flow-stability-smoke.ts` | 5528 | 7 | 11 | 989 | RED -> official GREEN at 21be146f9c; full suite 137.62 s | Lab evidence |
+| `packages/main/tests/canonical-new-story-artifacts.test.mjs` | 5378 | 7 | 22 | 691 | RED recorded; 58 functions and 112 statements preserved; complete identity-cutover 36/36 PASS at 535ed1190f | Lab evidence |
+| `packages/main/src/tasks/finding-ledger-runtime-smoke.ts` | 4646 | 6 | 9 | 1134 | Full suites passed at 3b51f4f666 / f5fda7d0e6 in 130.60 / 147.00 s; combined run failed in the separate process suite | Lab evidence |
+| `packages/main/src/tasks/managed-review-evidence-smoke.ts` | 4360 | 7 | 15 | 923 | RED -> complete GREEN 4e8e49ffea in 77.45 s; 28 helpers and 419 statements retained with documented fixture repairs | Lab evidence |
+| `packages/main/src/tasks/host-run-usage-smoke.ts` | 3867 | 6 | 15 | 587 | RED -> official GREEN at 9c8e8b848b; full suite 34.00 s, 91 checks | Lab evidence |
+| `scripts/verify-proof-or-stop-prompt-baseline.mjs` | 3675 | 7 | 6 | 1344 | RED -> official GREEN at 103d6e06fa; full suite 9.60 s | Lab evidence |
+| `packages/main/tests/milestone-status.test.mjs` | 3447 | 6 | 9 | 670 | RED -> official GREEN at a3777644bb; full suite 39.00 s | Lab evidence |
+| `scripts/verify-validation-build-artifact-binding.mjs` | 3329 | 7 | 7 | 1409 | RED -> official GREEN at 4dd8c68c69; full suite 134.18 s, 598 checks | Lab evidence |
+| `packages/main/src/tasks/verification-run-and-guard-smoke.ts` | 3138 | 7 | 7 | 776 | RED -> official GREEN at 378d1ccb3a; full suite 94.52 s | Lab evidence |
+
+## Parameters and registration
+
+Except for the quorum harness, implemented candidates support no arguments / `--all` for the full suite,
+`--list-capabilities` for a machine-readable binding catalog, and repeated
+`--capability=ID` for deduplicated explicit selection. Unknown, empty and mixed
+full/partial arguments fail before verification cases execute. Partial runs use
+separate success selectors and cannot claim complete-suite evidence.
+
+| Entry family | Capability IDs | Registration required |
+|---|---|---|
+| retired-authority | `vocabulary-controls`, `import-controls`, `dynamic-controls`, `loader-provenance`, `compatibility-controls`, `public-contract` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
+| host-run-usage | `proposal`, `prompt-supervision`, `usage-parsing`, `story-binding`, `streaming`, `ledger-failures`, `output-errors`, `admission`, `integrations`, `ledger-concurrency`, `process-supervision`, `evidence-mapping` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
+| validation-tier-planner | `command-identity`, `historical-pins`, `change-inputs`, `selection-widening`, `cli-integration`, `hash-completeness`, `acceptance-guards` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
+| validation-build-binding | `routine`, `done-required`, `shared-cache`, `executor`, `handler` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
+| process-fact-contract | `support`, `proofstory-closeout`, `reopen`, `prompt-contracts`, `review-inventory`, `registry-parser`, `command-contracts`, `review-verification`, `scope-runtime`, `story3` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
+| finding-ledger-runtime | `proposal-envelope`, `projection-receipt`, `base-authority`, `legacy-authority`, `transactions`, `readonly-mutations`, `runtime-evidence`, `rollback-concurrency`, `historical-migration`, `build-distribution`, `tamper-dependency` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
+| verification-run-and-guard | `foundation`, `fanout`, `integrity`, `story-identity` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
+| prompt-baseline | `registry`, `prompt-policy`, `baseline-drift`, `role-matrix`, `legacy-vocabulary`, `direct-story-policy`, `measurement` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
+| milestone-status | `reporting`, `planning`, `closeout`, `freshness`, `coverage`, `read-only`, `cli-behavior` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
+| flow-stability | `done-convergence`, `lifecycle`, `workspace`, `artifacts`, `review-evidence`, `review-routing`, `done-reporting`, `phase-effects`, `liveness`, `history-compatibility` | Internal CLI catalog and explicit process-fact paths; no additional routine validation command |
+
+Production dynamic selection is **not implemented by these parameters**. It still
+requires verified dependency closure, capability-level evidence identity and
+mandatory-obligation composition. Do not infer exclusion authority from a partial
+PASS. Existing full entrypoints stay registered.
+
+## Module inventory
+
+The tables below describe module responsibilities. Per-file line counts are
+maintained only in [the detailed inventory](verification-modularization-inventory.md),
+which matches the machine inventory and source. This avoids duplicate size tables
+drifting across repair rounds. Historical execution results below remain bound
+to their individually named commits.
+
+### `scripts/process-fact-contract`
+
+| Module | Responsibility |
+|---|---|
+| `catalog.mjs` | Explicit capability-to-check bindings |
+| `cli.mjs` | Strict argument parsing and lazy orchestration |
+| `command-contracts.mjs` | CLI policy inventory |
+| `complete.mjs` | Retained full integration driver |
+| `early.mjs` | Admission refusal before positive work |
+| `prompt-contracts.mjs` | Prompt and adversarial controls |
+| `proofstory-closeout.mjs` | ProofStory and closeout boundaries |
+| `registry-alignment.mjs` | Registry alignment |
+| `registry-parser.mjs` | Registry and policy parsing |
+| `reopen.mjs` | Reopen audit controls |
+| `review-inventory.mjs` | Review inventory and refresh coverage |
+| `review-verification.mjs` | Review and verification receipt contracts |
+| `scope-runtime.mjs` | Scope and runtime admission |
+| `source-analysis.mjs` | TypeScript and source analysis helpers |
+| `story3.mjs` | Finding runtime evidence contract |
+| `support.mjs` | Shared constants and source readers |
+
+### `packages/main/src/tasks/retired-authority`
+
+| Module | Responsibility |
+|---|---|
+| `binding-classification.ts` | Callable and dynamic binding classification |
+| `cli.ts` | Strict capability routing |
+| `compatibility-controls.ts` | Compatibility import and escape controls |
+| `driver.ts` | Full scan order and complete result |
+| `dynamic-bindings.ts` | Dynamic execution binding graph |
+| `dynamic-scan.ts` | Dynamic code and import scanners |
+| `execution-controls.ts` | Dynamic execution negative controls |
+| `file-scan.ts` | File traversal and text quarantine predicates |
+| `loader-controls.ts` | Actual loader provenance mutation controls |
+| `module-loaders.ts` | Module resolution and approved loader provenance |
+| `positive-controls.ts` | Vocabulary and import controls |
+| `public-contract.ts` | Documentation, command catalog and generated help |
+| `rule-data.ts` | Exact rules, path inventories and compatibility data |
+| `type-analysis.ts` | Shared compiler program, caches and instrumentation |
+
+### `packages/main/src/tasks/validation-tier-planner`
+
+| Module | Responsibility |
+|---|---|
+| `acceptance-guards.ts` | Actual case coverage, source registration and output bounds |
+| `change-inputs.ts` | Story changes and input collection |
+| `cli-integration.ts` | Public planning CLI and repository integration |
+| `cli.ts` | Capability routing and explicit coverage prerequisites |
+| `command-identity.ts` | Portable command identities and inventory pin |
+| `hash-completeness.ts` | Incomplete hash snapshot refusal |
+| `historical-pins.ts` | Historical evidence resolution |
+| `selection-widening.ts` | Tier selection and widening rules |
+| `support.ts` | Shared fixtures, identities and final summaries |
+
+### `packages/main/src/tasks/flow-stability`
+
+| Module | Responsibility |
+|---|---|
+| `artifacts.ts` | Declared artifacts, automatic commits and global-link repair |
+| `cli.ts` | Legacy flags, capability routing and historical commit controls |
+| `discovery-fixture.ts` | Inert source snapshots for the isolated acceptance-discovery fixture |
+| `done-convergence.ts` | Single-pass DONE preparation and workspace ownership |
+| `done-reporting.ts` | DONE report projection and shared oracle |
+| `lifecycle.ts` | Lifecycle registry, phase tools and hints |
+| `phase-effects.ts` | Phase gates and transition effects |
+| `review-evidence.ts` | Signatures, freshness and review-run compatibility |
+| `review-routing.ts` | Reviewer status, phase guidance and channel checks |
+| `support.ts` | Shared Story, review and acceptance fixtures |
+| `workspace.ts` | Dirty-worktree classification and gates |
+
+### `packages/main/src/tasks/finding-ledger-runtime`
+
+| Module | Responsibility |
+|---|---|
+| `authority.ts` | Read-only, mutation, base and legacy authority checks |
+| `boundaries.ts` | Concurrency, rollback, refusal, tamper and build locks |
+| `cli.ts` | Legacy workers, diagnostics and capability orchestration |
+| `distribution.ts` | Version, installation and RED/GREEN bindings |
+| `process-mutation-proof.ts` | Exact mutation refusal reasons and positive controls |
+| `projection.ts` | Projection integrity and historical migration |
+| `runtime-evidence.ts` | Runtime receipt writers, consumers and recovery |
+| `support.ts` | Ledger and CLI helpers, signed proposal checks |
+| `transactions.ts` | Concurrent appends, durability, recovery and lock fencing |
+
+### `packages/main/src/tasks/host-run-usage`
+
+| Module | Responsibility |
+|---|---|
+| `admission.ts` | Working directory, budget and concurrency admission |
+| `cli.ts` | Argument routing and retained case order |
+| `evidence-mapping.ts` | Fixture isolation and pinned child evidence |
+| `integrations.ts` | Repair, readiness probe and cross-host integration |
+| `ledger-concurrency.ts` | Concurrent append and lock recovery |
+| `ledger-failures.ts` | Failed writes and truthful usage classification |
+| `output-errors.ts` | EPIPE and late stream containment |
+| `process-supervision.ts` | Startup, timeout, abort and process identity |
+| `prompt-supervision.ts` | Prompt descriptor and residual process supervision |
+| `proposal.ts` | Final output and proposal admission |
+| `story-binding.ts` | Story, review-run and phase binding |
+| `streaming.ts` | Live output and retention limits |
+| `summary.ts` | Exact aggregate and compatibility selectors |
+| `support.ts` | Shared fixture, counters and provider samples |
+| `usage-parsing.ts` | Provider usage and failure parsing |
+
+### `scripts/prompt-baseline`
+
+| Module | Responsibility |
+|---|---|
+| `cli.mjs` | Full runner, legacy flags and capability routing |
+| `collection.mjs` | Prompt collection, snapshots and measurement |
+| `policy-data.mjs` | Exact policy and negative-case data |
+| `policy-probes.mjs` | Policy mutation probes |
+| `scanners.mjs` | Direct-reference and vocabulary scanners |
+| `verification.mjs` | Registry, matrix and baseline assertions |
+
+### `packages/main/tests/milestone-status`
+
+| Module | Responsibility |
+|---|---|
+| `cli-behavior.mjs` | Public CLI formats, refusal and historical snapshot reads |
+| `cli.mjs` | Case order and capability routing |
+| `closeout.mjs` | Capture, DONE and worktree closeout |
+| `coverage.mjs` | Intent, milestone and waiver coverage |
+| `freshness.mjs` | Evidence freshness and bindings |
+| `planning.mjs` | Explicit planning write boundaries |
+| `read-only.mjs` | No-mutation status reads |
+| `reporting.mjs` | Report shape, rendering and malformed inputs |
+| `support.mjs` | Shared fixture and report helpers |
+
+### `scripts/validation-build-binding`
+
+| Module | Responsibility |
+|---|---|
+| `cli.mjs` | Capability routing and prerequisite deduplication |
+| `done-required.mjs` | DONE required evidence binding |
+| `executor.mjs` | Execution identity, freeze, drift and tampering |
+| `handler.mjs` | Public verifier handler causal preflight |
+| `routine.mjs` | Routine reuse and admissibility binding |
+| `shared-cache.mjs` | Shared cache admission and artifact identity |
+| `support.mjs` | Shared source loader, fixtures and counters |
+
+### `packages/main/src/tasks/verification-run-and-guard`
+
+| Module | Responsibility |
+|---|---|
+| `causal.ts` | Causal integration |
+| `cli.ts` | Argument selection and original shard orchestration |
+| `foundation.ts` | Pinned execution, refusal and stale evidence basics |
+| `integrity.ts` | Receipt integrity and executable identity |
+| `publication.ts` | Producer ownership and publication bindings |
+| `refresh.ts` | Fan-out, manifests and evidence reuse |
+| `support.ts` | Fixture creation, evidence helpers and paths |
+
+## Preservation and discovered assertion defect
+
+- Execution/guard: 47 original named function bodies retained; the self-spawn path
+  is explicitly relocated to the unchanged public entrypoint. Four original
+  shards pass, retaining the 2-execution / 71-assertion-receipt summary.
+- Prompt baseline: 96 original function bodies retained. Full original baseline,
+  diagnostic probes, invalid argv refusal and scoped selection pass.
+- Milestone status: 31 original isolated blocks retain their execution order.
+  A pre-existing assertion expected empty stdout for unknown flags in JSON mode.
+  The pre-split file and candidate both reproduced the same failure on the same
+  dist. The current CLI (`cli/help-renderer.ts:printValidationFailure`) deliberately
+  emits a JSON refusal. Two assertions now check its exact keys and values,
+  refusal reason, unknown key and absence of Story/report fields. The exact
+  two replacements are recorded in `milestone-assertion-repairs.json`; other
+  original blocks and helpers are byte-compared in the Lab proof.
+- Flow stability: original function bodies are compared with only explicit
+  location-dependent path substitutions permitted. Full GREEN passed in 137.62 seconds. Two fixture prerequisites were repaired: declared source snapshots and the official implementation dispatch records required by the current REVIEW gate. The complete/missing-source negative control remains active.
+
+## Outstanding integration work
+
+All fourteen entries are implemented. Freeze the committed candidate, synchronize
+latest local main, repeat the affected source and integration checks, and run Lab
+finish with the independent vendor audit. Preserve historical results as historical;
+a partial capability PASS never authorizes automatic production gate exclusion.
+No push has occurred.
+
+### Retired vocabulary import baseline
+
+The unmodified scanner from `4a6d510ac0` rejects the existing fixed-target URL
+import at `evidence-plan-smoke.ts:418`. The modular scan reports the same failure.
+The repair uses a literal import of the same test entry, with no rule exemptions.
+`verify-evidence-plan-import.mjs` checks the repaired form and reinjects the old
+expression to prove it is still rejected. The 109 original scanner function bodies
+and complete driver statement order remain mechanically compared with the baseline.
+Main and utils builds pass; the unrelated graph web build lacks its local d3 asset.
+
+The same end-to-end evidence-plan run exposed a stale process-entry source reader
+in `intent-fingerprint-reuse.test.mjs`. It now selects the unique diagnostic block
+from the complete process module AST; missing/duplicate invocation and removed
+fallback fingerprint mutations still run against that actual block. The complete
+process source contract now expects the same literal import.
+
+## Quorum harness decomposition
+
+The original entry retains `--case=ID`; `--capability=ID` is an alias for the same
+18-case catalog, available through `--list-capabilities`. Each invocation selects
+one unique case because cases own different exact-HEAD authorizations and performance
+leases. Repeated identical selections are deduplicated; mixed cases and implicit
+full runs are refused. Existing `GREEN <case>` means exactly that case.
+All 196 original function bodies, all 18 catalog bindings and the isolated driver
+statement order are mechanically compared to `57205854d1`. Seven bounded contracts
+(inventory plus six performance protocol controls) pass. Actual expensive performance
+and isolated supervision campaigns have not been rerun; no complete campaign claim.
+The explicit module paths are registered under `runtime:quorum_harness_capability_selection`;
+this adds no routine command.
+
+| Module | Responsibility |
+|---|---|
+| `callback-inventory.mjs` | callback inventory |
+| `catalog.mjs` | catalog |
+| `cli.mjs` | cli |
+| `containment.mjs` | containment |
+| `coordinator-wiring.mjs` | coordinator wiring |
+| `driver.mjs` | driver |
+| `environment-closure.mjs` | environment closure |
+| `exact-head-authorization.mjs` | exact head authorization |
+| `exact-head-checkout.mjs` | exact head checkout |
+| `exact-head-supervisor.mjs` | exact head supervisor |
+| `fixture-source-closure.mjs` | fixture source closure |
+| `fixture-templates.mjs` | fixture templates |
+| `mutation-controls.mjs` | mutation controls |
+| `owned-files.mjs` | owned files |
+| `partition.mjs` | partition |
+| `performance-cases.mjs` | performance cases |
+| `performance-context.mjs` | performance context |
+| `performance-material.mjs` | performance material |
+| `process-supervision.mjs` | process supervision |
+| `resource-parallel.mjs` | resource parallel |
+| `resource-traces.mjs` | resource traces |
+| `selection-contracts.mjs` | selection contracts |
+| `selection.mjs` | selection |
+| `supervisor-controls.mjs` | supervisor controls |
+| `support.mjs` | support |
+| `tree-lease.mjs` | tree lease |
+| `worker-coordination.mjs` | worker coordination |
+
+## Main synchronization on 2026-09-21
+
+Main `300ed4d08b` was merged before the next RED, as required by Lab tooling.
+Its two validation-verdict regressions are retained alongside all Lab registrations:
+248 -> 250 commands. This growth is from main, not from module registration.
+Exact static-edge config pins are retained stale and fail closed pending the already
+planned closure review; merging records is not renewed audit approval. Both branches'
+new exception records and source-bound evidence are retained. No push or integration
+of this Lab into main has occurred.
+
+## Canonical artifact decomposition
+
+The original 25 `--group=ID` selections are preserved. `--capability=ID` selects
+the same checks and accepts a deduplicated union; `--list-capabilities` reports each
+group's exact module and static check-site bindings. The migration archive remains
+explicit-only. Module data owns six shared fixture slots, replacing six cross-module
+mutable lexical variables. Function/callback comparisons normalize only these six
+references, explicit module-relative import relocation and the documented selector
+union. All 58 function bodies and 112 ordered executable statements are checked.
+Cache and runtime-topology checks passed together, with duplicate cache selection
+executed once; legacy cache selection also passed. This is not complete certification.
+`runtime:canonical_artifact_capability_selection` explicitly registers all module
+paths, adding zero routine commands. Historical/static source pins still require
+the planned reconciliation after the remaining source movements.
+
+| Module | Responsibility |
+|---|---|
+| `artifact-inventory.mjs` | artifact inventory |
+| `catalog.mjs` | catalog |
+| `cli.mjs` | cli |
+| `data.mjs` | data |
+| `driver.mjs` | driver |
+| `finding-artifacts.mjs` | finding artifacts |
+| `fixture-support.mjs` | fixture support |
+| `identity-cutover.mjs` | identity cutover |
+| `identity-inventory.mjs` | identity inventory |
+| `identity-ownership.mjs` | identity ownership |
+| `identity-policy.mjs` | identity policy |
+| `identity-runtime-boundaries.mjs` | identity runtime boundaries |
+| `identity-sites.mjs` | identity sites |
+| `memory-runtime.mjs` | memory runtime |
+| `migration-archive.mjs` | migration archive |
+| `public-fixtures.mjs` | public fixtures |
+| `release.mjs` | release |
+| `runner.mjs` | runner |
+| `runtime-extensions.mjs` | runtime extensions |
+| `runtime-read.mjs` | runtime read |
+| `runtime-topology.mjs` | runtime topology |
+| `scope-init.mjs` | scope init |
+
+## Managed-review evidence decomposition
+
+The former 2,790-line main function is now five ordered phases: Codex transport,
+Claude transport, evidence binding, native attestation and sealed receipts. Later
+capabilities execute their predecessor phases. One shared typed context exposes
+getters/setters for the original lexical cells; it is not copied between phases,
+so callbacks continue to observe mutations. Original setup, all 419 statements and
+cleanup are mechanically compared with `6f6d88948f`, alongside 28 helper functions.
+The selector rejects a partial-success claim if a legacy diagnostic terminates
+before the requested phase. Supersession duplicate selection passed once in 23.79 s.
+All legacy worker, descriptor and Grok modes retain the original public self path.
+The list has seven capabilities: `codex-transport`, `claude-transport`,
+`evidence-binding`, `native-attestation`, `sealed-receipts`,
+`descriptor-transport`, `supersession`. No new routine command is registered.
+The full wrapper keeps the already configured 900-second budget; this change
+does not increase that policy.
+
+| Module | Responsibility |
+|---|---|
+| `claude-transport.ts` | claude transport |
+| `cli.ts` | cli |
+| `codex-transport.ts` | codex transport |
+| `environment.ts` | environment |
+| `evidence-binding.ts` | evidence binding |
+| `fixtures.ts` | fixtures |
+| `grok-integration.ts` | grok integration |
+| `legacy-cli.ts` | legacy cli |
+| `live-binding.ts` | live binding |
+| `native-attestation.ts` | native attestation |
+| `prompt-fixture.ts` | Seal the exact submitted prompt in direct managed transport fixtures |
+| `sealed-receipts.ts` | sealed receipts |
+| `suite.ts` | suite |
+| `supersession.ts` | supersession |
+| `transport-workers.ts` | transport workers |
+
+### Managed prompt fixture repair
+
+At `b9400f5b7f`, complete verification failed after 43.10 s at the first
+compatibility-proposal import. Unmodified pre-split source from `6f6d88948f`,
+transpiled against the same dist and isolated environment, reproduced the same
+`stale_material,producer_owned_required` failure after 35.08 s. The current
+`isSealedManagedPromptDigestCurrent` explicitly refuses a missing seal. Three
+direct submit fixtures omitted it. The fixture-only adapter now derives the seal
+from the exact submitted prompt bytes and preserves all existing tuple fields.
+No production acceptance rule changes. The negative missing/tampered digest
+controls remain required; complete post-repair verification passed at `4e8e49ffea`.
+
+After sealing prompts, the complete run advances to Claude and exposes another
+pre-split fixture mismatch: `REQUESTED_CLAUDE_MODEL` selected a model outside the
+current formal reviewer qualification policy. The actual policy rejects the
+original constant from `6f6d88948f`; the fixture now explicitly selects
+`claude-opus-4-6` while preserving exact argv/model/effort assertions. This uses
+a synthetic runner and neither calls a provider nor changes qualification policy.
+
+### Managed lifecycle model-binding fixture repair
+
+The third full attempt failed in 30.05 s at F-100 with
+`stale_material,producer_owned_required`. F-100 and F-120 manually supplied
+expected receipt tuples without model and reasoning effort, although the current
+producer seals both fields and the verifier compares them. Commit `fbba6538fd`
+binds these fixture expectations to the actual managed run. Three negative
+controls require omitted selection, a different model and a different effort to
+remain invalid through each F-100 lifecycle state. Production verifier policy is
+unchanged. The exact additions are recorded in
+`scripts/lab/verification-modularization/managed-model-binding-repair.json`.
+Complete post-repair execution passed at `4e8e49ffea` in 77.45 s.
+
+## Identity scanner module inventory and remaining integration
+
+`--list-capabilities` lists `ordering`, `current-guidance`, `history-contexts`,
+`schema-inventory`, and `active-residue`. The original no-argument certification
+and five legacy inspection flags remain available. These selectors are registered
+as one internal process fact with 26 exact source paths; no routine gate is added.
+
+| Module | Responsibility |
+|---|---|
+| `active-scan.mjs` | active scan |
+| `base-contexts.mjs` | base contexts |
+| `bootstrap.mjs` | bootstrap |
+| `certification.mjs` | certification |
+| `cli.mjs` | cli |
+| `deny-contexts.mjs` | deny contexts |
+| `guidance.mjs` | guidance |
+| `history-contexts.mjs` | history contexts |
+| `integration-contexts.mjs` | integration contexts |
+| `memory-provenance.mjs` | memory provenance |
+| `negative-contexts.mjs` | negative contexts |
+| `ordering.mjs` | ordering |
+| `provenance-data.mjs` | provenance data |
+| `public-api.mjs` | public api |
+| `release-history.mjs` | release history |
+| `repository.mjs` | repository |
+| `reviewed-contexts.mjs` | reviewed contexts |
+| `rules.mjs` | rules |
+| `runtime-contexts.mjs` | runtime contexts |
+| `scanner-contexts.mjs` | scanner contexts |
+| `schema-data.mjs` | schema data |
+| `schema-scan.mjs` | schema scan |
+| `self-test.mjs` | self test |
+| `source-integrity.mjs` | source integrity |
+| `witness-controls.mjs` | witness controls |
+
+The scoped proof preserves 158 original top-level statements (the old self-pin
+array is replaced by path-aware pins), the import API and explicit selector
+rejection. All 696 relocated retired-token line pins trace to unchanged original
+lines, allowing only the new export prefix. Every module rejects unregistered
+paths and injected identity text; token-bearing modules also reject removed,
+duplicated and relocated lines. This is scoped GREEN, not complete certification.
+
+The first full boundary check reported 203 diagnostics, including 82 stale
+fixture rows. Those 82 were relocated with an exact before/after ledger; the other
+219 fixture rows and all original classifications/reasons remain unchanged.
+The remaining context inventories, whole-source witnesses, schema rows, current
+legacy source witnesses and child dependency closures still require migration and
+verification. The source guard remains fail-closed while these are outstanding.
+
+The normalized production inventory is now 250 commands after main sync
+`300ed4d08b`, compared with 248 before sync. The only additions are
+`verify-validation-verdict-stickiness.mjs` and
+`verify-validation-verdict-stickiness-cli.mjs`; no commands were removed.
+See `scripts/lab/verification-modularization/planner-main-sync-inventory.json`.
+
+## Integration compatibility evidence
+
+- Complete public export preservation is checked against every original exported
+  function, including `verifyFrozenFiles`; the real changelog consumer and its
+  byte/object/ancestry/refusal cases pass.
+- Public-operation coverage reads the actual frozen runtime scanner closure and
+  compares it with the independently reviewed 26-file scanner inventory. Removing
+  its release-operation owner remains an explicit rejection.
+- Original negative-data mutations now target the extracted negative-context
+  module; absent targets are assertions, never silently skipped mutations.
+- The audit input budget dependency was delivered separately through Lab
+  `audit-snapshot-input-budget`, independent Claude audit and local main 0.3.437.
+  Complete snapshots are bounded at 64 MiB; output remains 8 MiB. The modular
+  candidate audit input was measured at about 35.3 MB and remains complete.
+- Routine command inventory remains 250. The 192 extracted modules add no root
+  validation registrations. The shared static closure analyzer is additional
+  infrastructure, not another gate.
+
+The signed local Lab maintenance record determines whether integration and cleanup
+have completed. This document records implementation and validation scope; it does
+not assert Story DONE or remote publication.
+
+## Final integration-chain reader repairs
+
+The full identity-cutover run at `d4aaefd24b` failed in the runtime verifier:
+`validation-audit-budgets.test.mjs` still searched the thin identity entry for
+`runtimeCheck`. Its targeted RED was reproduced separately before pointing its
+unchanged deadline assertions at `identity-cutover/certification.mjs`.
+The next runtime attempt exposed the same issue in
+`validation-audit-final-regressions.test.mjs`: the final registration and failure
+summary now reside inside `runCompleteProcessContract`. Its AST witness now
+selects that unique function body in `process-fact-contract/complete.mjs`.
+Both targeted checks pass, including the absent-registration negative control.
+The complete runtime chain remains a separate acceptance result; these focused
+passes do not claim full identity certification or main integration.
+
+## Main 0.3.438 integration reconciliation
+
+Main `0836d73b7c` resolved the prior main conflicts. The Lab sync retained its
+version and workflow fixes, moved the added live-identity diagnostic assertions
+into the publication module, retained the new explicit legacy selector, and
+updated both prompt policy hashes from that committed main source. The 47-function
+preservation proof compares the changed identity function to that exact main
+commit while preserving the remaining original functions.
+
+Main removed three retired-token fixture lines from its managed implementer test.
+The exact old rows and removed source lines are recorded in
+`main-438-witness-migration.json`; the proof requires the current fixture to equal
+that committed main source and reconstructs the original inventory for the
+existing relocation proof. The remaining original rows are retained. One new exact main owner-control line removes the private invocation environment; its registration is bound to the committed main bytes. The resulting 299 rows pass 1,196 rejection controls.
+Source contexts with unchanged literal lines retain their classifications.
+
+The full runtime verifier passed after the two source-reader fixes at
+`297e74387a`. Fresh whole-candidate certification and delivery status remain
+separate from those pre-merge results.
+
+## Final complete certification and independent-audit follow-up
+
+The command `node packages/main/tests/canonical-new-story-artifacts.test.mjs
+--group=identity-cutover` exited 0 at `535ed1190f` after building main, Lab and
+utils packages. All 36 parent checks passed; nested process verification took
+174.17 seconds and runtime verification 71.96 seconds. The complete log SHA-256
+is `5d3e0ba89201d373af6013228be6141fa31f8ae14878b2a347c47ccd3f85378e`,
+archived as `final-modularization/modular-535ed-built-complete.log` under the
+Lab evidence archive named above. This is an executed complete result, distinct
+from the shorter official identity-sites receipt and historical per-family runs.
+
+Independent Claude audit of prepared candidate `90a7636547` identified three
+old dispatcher tests that still read the thin entry. They now discover actual
+modules through the driver and execute the real dispatcher declaration. Restoring
+a duplicate F-060 selection or removing the archive opt-in guard is explicitly
+rejected. The static archive-default predicate now produces false rather than
+undefined, preserving the runtime exclusion in static traversal too. Unreachable
+archive narrowing filters and unused runner imports were removed.
+
+Coordination aliases into a different home remain refused and unchanged. A
+dangling alias now reports WORKSPACE_COORDINATION_ALIAS_DANGLING with the alias,
+expected private queue and doctor/recovery guidance, rather than raw ENOENT.
+Fixtures use disposable repository roots only; a private fixture home must never
+be used to initialize the real repository queue. The new tests prove refusal
+without changing either a foreign-home or dangling alias.
+
+Subsequent audit repairs have targeted evidence; the complete 535ed1190f result
+is not relabeled as a later-head full rerun. Heavy quorum campaigns remain outside
+this delivery's executed scope. Default canonical execution excludes the explicitly
+retired archive. The signed Lab record alone establishes finish/integration.
+
+The second independent audit found checkout relocation compatibility: a path-derived
+new target disagreed with the existing alias after rename/copy. The repair treats
+an already published private owned queue directly inside the same OS-user namespace
+as stable identity. Copies conservatively share its admission queue, including live
+and unknown owners, rather than changing queue identity during concurrent work.
+Foreign-home, dangling and unsafe queue aliases retain refusal. Disposable rename,
+copy and live-owner controls cover this behavior. Audit instructions also explicitly
+require finishing every changed-file review even when an early finding implies fail;
+unread paths must never be claimed and the existing coverage gate stays enforced.
+
+## Third-audit repairs: retirement, queue lifetime and live transitions
+
+The audit at candidate `7dd9748652` found three current-Lab issues. Each now has
+an executed focused failing witness followed by a passing repair witness:
+
+| Issue | Before repair (RED) | After repair (GREEN) | Scope |
+|---|---|---|---|
+| Nonhistorical identity checks accidentally archive-only | `ROUTINE_BOUNDARY_CONTROLS_RETIRED` | Routine consumer group executes the unchanged structural assertions and real identity-free delegate executable mutations; the archived block and routine helper are compared byte-for-byte | Historical 259-case campaign remains opt-in |
+| Disposable repository left a private queue | `DISPOSABLE_COORDINATION_QUEUE_LEAK` after child exit | Deleted disposable roots leave no queue or empty migration fence; moved checkout restores the same queue identity; nonempty live/unknown markers survive cleanup | Only queues observed by the process, all registered roots absent, atomic empty removal; no recursive deletion or global home scan |
+| Live preparing/quarantine caused immediate migration failure | `LIVE_PREPARATION_MUST_WAIT_FOR_DEADLINE` | Both suffixes preserve the typed deadline, retain live residue and admit after it drains | Dead residue still reclaims; unknown/malformed ownership still refuses |
+
+Queue cleanup runs on later admissions and normal process exit. Forced termination
+and historical queues never observed by the process remain outside this guarantee;
+these are not claimed as cleaned. The fixture namespace is still owned and cleaned
+by its parent only after the child closes. This does not authorize touching real
+Story data or another process's live or unknown queue.
+
+Main advanced to `742155e320` / 0.3.441 during the repair. Merge `f4b2fde825`
+retains the two new worker-authority assertions, their legacy flag and the new
+managed-review checks inside the existing modules. The evidence-freshness source
+adds two imported helpers and their two uses (190 to 194 import-use observations);
+its emitted executable binding and three unchanged-count process schema contexts
+were reconciled against that committed main change. No assertion was removed to
+accept those new bytes. Updated source/driver preservation checks retain the old
+baseline plus exact enumerated main additions. The module ceiling remains 2,000
+lines; the maximum at that third-audit checkpoint was 1,861. The synchronized
+current inventory below supersedes that historical measurement (1,880 lines).
+
+Complete runtime verification, restored routine identity-consumer execution,
+coordination guard and cleanup tests passed. Static validation has zero needsReview
+and zero unexpanded commands. Exact raw logs and SHA-256 inventory are archived
+under `three-audit-findings/` in the local Lab evidence archive. Lab finish and
+independent full-diff audit remain separate delivery requirements; this section
+is not an integration or Story DONE claim.
+
+### Main 0.3.453 integration verification
+
+The Lab merge includes local main `3b7e33ce5f` (0.3.453). Its new review
+inventory, external-consumer certification, managed review routing, epoch lineage
+and worker claim checks are retained in the existing modules. Exact before/after
+function and driver records preserve the original assertions plus these additions.
+The process preservation test now uses a replacement callback so literal dollar
+characters in source bodies cannot be interpreted as replacement directives.
+
+The old certification source assertion expected a removed `if (!domain)` spelling.
+Its RED is recorded in `sync453-inventory.log`; the updated assertion checks the
+known-domain branch, external-consumer fallback and final refusal branch. The
+focused inventory check and native external-consumer certification test pass.
+The runtime contract, disposable queue cleanup, residue wait and retirement controls
+also pass on the merged source. No historical full certification is relabeled as
+a run on this new candidate. Maximum module length is 1,880 lines. Final independent
+audit, local main integration and Lab cleanup remain delivery steps.
+
+### Copied-checkout admission during queue reclamation
+
+A two-process regression reproduced the reviewer’s empty-queue race: the original
+checkout owner reclaimed its empty private queue after the copied checkout had
+prepared its alias but before its first ticket directory was created. The copied
+checkout failed with ENOENT. Admission now retries only this pre-ticket missing
+queue condition, revalidating the owned alias under the original deadline, with
+at most three preparation attempts. An already-started callback or any unrelated
+error is never retried. The regression exercises actual owner cleanup between the
+two filesystem operations, bounded repeated disappearance, and callback-once
+behavior. The empty-directory cleanup guarantee is retained.
+
+### Existing-alias queue allocation
+
+The subsequent independent audit identified an unused-directory allocation: a
+moved checkout created its new path-derived private queue before accepting its
+existing stable alias. The cleanup regression now enumerates private queue
+identities and fails if a second unused directory is created. The repair validates
+the private namespace first and creates a new queue only when publishing an absent
+alias. Existing owned aliases retain their identity without allocating a second
+queue. The cleanup RED and GREEN, reclamation-race regression, mutation guard and
+residue tests pass with this repair; full independent audit remains pending.
+
+### Final integration inventory delta against main 0.3.454
+
+Module extraction itself adds no root validation registration. The full Lab
+integration also carries earlier validation-audit repairs: compared with main
+392526fbf1, validate.commands grows from 246 to 250. The four added full-only
+commands are red-dynamic-finding-collection-readiness --canonical-core,
+red-dynamic-finding-head-continuity, red-empty-checklist-lifecycle and
+red-lab-nested-fixture-machine-isolation, each with a 600000 ms budget.
+
+The same integration includes the reviewed 180000-to-900000 ms amendments for
+test:dynamic-finding-evidence-closure and red-w2b-wiring-contract --canonical-core.
+These are composite budget corrections, not measured speedups or a claim that
+every validation command uses the same deadline. See
+[the bounded budget amendment](validation-capacity-full-fixture-repair.md) and
+[the original validation repair record](../audits/validation-audit-20260918-lab.md).
+Earlier counts in this document describe their named historical checkpoints;
+the final integration delta above controls the release summary.
+
+## Historical notes versus executable proof
+
+The files `main-436-import-migration.json`, `main-438-owned-contexts.json`,
+`modular-import-control-migration.json`, `static-binding-migration.json`,
+`static-binding-followup.json`, `owned-identity-migration.json`, and
+`owned-source-witness-migration.json` are historical transformation notes. They
+are not mechanically replayed transition chains, do not attest the current
+source digests, and must not substitute for current executable verification.
+Their registration as audit JSON permits bounded inspection; it does not make
+their narrative or stored hashes proof. In particular, the historical
+process-fact-registry sequence ending at 48 contexts does not prove the later
+49-context inventory. The current source and its current checked inventory are
+the authority.
+
+`verify-modular-fixture-bindings.mjs` checks the `kind: fixture` records in
+`main-438-witness-migration.json`. It does not establish the source-kind records
+in that file. Preserve those historical notes without relabeling them as fresh
+verification. Current source bindings are checked by
+`verify-modular-identity-bindings.mjs` and the applicable schema, fixture and
+static-edge verifiers against their actual checkout. Only the recorded execution
+and candidate identify what was verified.
+
+The focused finish repair command is
+`node scripts/lab/verification-modularization/verify-modular-finish-repairs.mjs`.
+It is a Lab regression, not an added routine gate or a full migration campaign.
+Its per-case output and retained child logs distinguish accepted normal inputs
+from rejected injected faults. It does not upgrade historical certification to
+the current candidate.
+
+### Unchanged quorum harness findings outside this repair
+
+The ancestor walk in `correctnessDependencyRoot` and the empty-stderr fallback
+in `runSupervisedExactHeadGit` are byte-identical to local main
+`392526fbf142d44e5ad3e4f604b5036639483abf`. Their scoped comparison is recorded in
+[the baseline classification](../../scripts/lab/verification-modularization/quorum-preexisting-classification.json).
+The odd-parent dependency layout reproduces on the original body; the current
+Lab dependency location succeeds. These pre-existing limitations are preserved,
+not repaired or described as passing negative controls. They are outside the
+user-authorized modularization repair and remain repository maintenance issues
+at the named original functions. The failed audit observation remains archived.
+
+## Bounded finish repair verification
+
+The focused regression covers 16 cases: standalone host and ledger capabilities,
+real and stale persistence observations, normal and duplicate managed imports,
+new planner modules, clone overlays, direct identity API imports, archived source
+provenance, scanner-specific rejection, foreign-entry dependency closure,
+process module coverage, prerequisite diagnostics, top-level declaration/order
+preservation, and exact source bindings. It adds no routine validation command.
+The initial official RED also encountered a stale compiled version in both native
+persistence cases after reopening the prepared release; those two outputs are
+not accepted as native regression reproduction. Their independent pre-repair
+normal/stale-marker experiments remain the reproduction evidence. Rebuild before
+GREEN; every selected case, including the native normal and negative controls,
+must then satisfy its exact exit status and output marker.
+
+The source-binding follow-up retains every reviewed fixture literal and its
+classification while updating source digests and unchanged-line locations.
+`finish-repair-source-bindings.json` records those deltas, and the fixture
+migration verifier reverses the fixture deltas before replaying the historical
+relocation proof. Whole-source and static-edge checks bind the current bytes;
+registration of a historical note alone does not establish their validity.
+
+### Transient coordination publication and release
+
+The migration scan rechecks a preparation/quarantine path after an unavailable
+holder read. A vanished path is skipped. A still-present holder-less directory
+is observed again after one caller-bounded poll, identified by device, inode and
+birth time; a stable unknown entry remains a blocking diagnostic and is never
+removed. The original deadline still refuses admission. The existing residue
+regression covers vanished paths, mid-delete directories, stable unknown owners
+and deadline exhaustion for both suffixes, in addition to its prior live/dead
+and malformed-owner controls. This is a correction to the existing migration
+behavior, not a new validation gate.
+
+### Second audit round repairs
+
+The second cross-host audit of candidate `64d6642e97` reported nine findings.
+Each has a focused case in `verify-modular-finish-repairs.mjs`:
+
+- Coordination migration re-observes a vanished or holder-less preparation or
+  quarantine entry before diagnosing residue (see above).
+- The workspace-wait smoke polls for the second CLI's wait line with the same
+  entry budget as the other spawned-CLI assertions instead of reading it once.
+- Lab audit checks the integration batch budget before launching any module
+  batch; an over-limit candidate is refused with zero provider spawns.
+- Module-family child-process helpers parse through the scanner's source cache,
+  and the AST reuse witness counts parses requested by imported helpers.
+- The helper follows child-process re-exports (named, star, namespace, default
+  and `export const` aliases). Other forms carrying a binding are reported for
+  review.
+- EX-0172 and EX-0230 again pin `scripts/verify-lab-timeout-budget.mjs`; a probe
+  compares dependency pins with the merge base.
+- Host-usage case 88 checks a snapshot taken before its own fixture, so it can
+  fail. The ledger reason describes the changed assertion.
+- The process structure check matches the complete driver's real completion
+  markers, and the mutation integrity test accepts genuine evidence as well as
+  refusing false evidence.
+- The modular static closure test plans each file under its own family entry.
+  The previous round's foreign-entry fallback had broken this Lab-only test.

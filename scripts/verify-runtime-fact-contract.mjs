@@ -32,6 +32,9 @@ const requiredEvidenceFacts = [
   'global-thin-native-hook-projection',
   'identity-canonical-digest-memo',
   'validation-machine-reservation-delegation',
+  'finding-evidence-fixture-deadlines',
+  'identity-certification-composite-deadline',
+  'workspace-validation-coordination',
   'command-observation-boundaries',
   'verification-output-integrity',
   'verification-receipt-layering',
@@ -47,6 +50,8 @@ const requiredEvidenceFacts = [
   'verification-reuse-capsule-authority',
   'verification-execution-producer-lock',
   'verification-lifecycle-admissibility',
+  'static-scanner-modular-source-closure',
+  'reviewed-json-byte-cache',
 ];
 
 function fail(message) {
@@ -107,6 +112,13 @@ async function main() {
   }
   try { prepareVerification(root, { shareBuild: true }); }
   catch (error) { throw new Error(verificationFailureMessage('runtime contract prerequisite', error)); }
+  const { WORKSPACE_VALIDATION_COORDINATION_FIXTURE_RUNTIME_POLICY: coordinationFixtureBudget } = await importDist(root, 'packages/main/dist/core/runtime-fact-registry.js');
+  execFileSync(process.execPath, ['packages/main/tests/validation-audit-budgets.test.mjs'], {
+    cwd: root, stdio: 'inherit', timeout: 30000,
+  });
+  execFileSync(process.execPath, ['packages/main/tests/validation-coordination-guard.test.mjs'], {
+    cwd: root, stdio: 'inherit', timeout: coordinationFixtureBudget.controllerMs,
+  });
   const { MANAGED_REVIEW_READONLY_RUNTIME_POLICY: readonlyRuntime } = await importDist(root, 'packages/main/dist/core/runtime-fact-registry.js');
   assert(readonlyRuntime.environmentKeys.includes('CLAUDE_CODE_TMPDIR'), 'Provider Bash temporary files must be mapped to the admitted private lane');
   const { materializeHostRunLaunch: crossHostLaunch } = await importDist(root, 'packages/main/dist/core/host-run.js');
@@ -133,12 +145,12 @@ async function main() {
   const { REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES: historyBytes } = await importDist(root, 'packages/main/dist/core/runtime-fact-registry.js');
   assert.equal(historyBytes, 64 * 1024 * 1024);
   assert.equal((read(root, 'packages/main/src/core/review-maintenance-lineage.ts').match(/maxBuffer: REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES/g) ?? []).length, 2);
-  assert(read(root, 'scripts/verify-process-fact-contract.mjs').includes("['packages/main/tests/review-history-buffer.test.mjs']"));
+  assert(read(root, 'scripts/process-fact-contract/complete.mjs').includes("['packages/main/tests/review-history-buffer.test.mjs']"));
   const { MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY: deliveryRuntime } = await importDist(root, 'packages/main/dist/core/runtime-fact-registry.js');
   assert.deepEqual({role:deliveryRuntime.role, phase:deliveryRuntime.phase, artifact:deliveryRuntime.artifact},
     {role:'proof-or-stop-review-delivery', phase:'TEST', artifact:'delivery-check.json'});
   // The process contract executes the actual provider/CLI regression once.
-  assert(read(root, 'scripts/verify-process-fact-contract.mjs')
+  assert(read(root, 'scripts/process-fact-contract/complete.mjs')
     .includes("['packages/main/tests/managed-delivery-dispatch.test.mjs']"));
   console.log('MANAGED_DELIVERY_RUNTIME_CONTRACT_GREEN');
   const trackedBootstrap = execFileSync(process.execPath, [join(root, 'scripts/verify-tracked-controller-bootstrap.mjs')], { cwd: root, encoding: 'utf8', timeout: 270000 });
@@ -150,7 +162,7 @@ async function main() {
     { cwd: root, stdio: 'inherit', timeout: 60_000 });
   check(registrySource.includes('static-scanner-source-ast-reuse'), 'Static AST runtime fact is registered');
   // Outer 180s exceeds two 60s scanner arms plus setup and failure reporting.
-  for (const [test, marker] of [['verify-static-ast-reuse.mjs', 'STATIC_AST_REUSE_GREEN'], ['verify-static-ast-reuse-boundaries.mjs', 'STATIC_AST_REUSE_BOUNDARIES_GREEN'], ['../packages/main/tests/validation-capacity-resource-keys.test.mjs', 'VALIDATION_CAPACITY_RESOURCE_KEYS_PASS']]) {
+  for (const [test, marker] of [['lab/verification-modularization/verify-modular-static-closure.mjs', 'MODULAR_STATIC_CLOSURE_GREEN'], ['verify-static-ast-reuse.mjs', 'STATIC_AST_REUSE_GREEN'], ['verify-static-ast-reuse-boundaries.mjs', 'STATIC_AST_REUSE_BOUNDARIES_GREEN'], ['../packages/main/tests/validation-capacity-resource-keys.test.mjs', 'VALIDATION_CAPACITY_RESOURCE_KEYS_PASS']]) {
     const output = execFileSync(process.execPath, [join(root, 'scripts', test)], { cwd: root, encoding: 'utf8', timeout: 180_000 });
     check(output.includes(marker), 'Executed runtime control: ' + test);
   }
@@ -181,8 +193,10 @@ async function main() {
   check(labLoader.includes('LAB_MAINTENANCE_RUNTIME_REQUIREMENTS') && labLoader.includes('process.features.typescript') && labLoader.includes('nodeModule.registerHooks'), 'Lab source loader must consume its runtime contract and check native capabilities');
   const labWorktree = read(root, 'scripts/lab-worktree.mjs');
   const labAudit = read(root, 'scripts/lab-audit.mjs');
-  check(labAudit.includes('timeoutMs: labPolicy.auditTimeoutMs') && labAudit.includes('startupTimeoutMs: labPolicy.auditStartupTimeoutMs'), 'Lab audit runner must consume registered bounded timeouts');
+  check(labWorktree.includes('function run(cwd, command, timeoutMs = labPolicy.commandTimeoutMs)') && labWorktree.includes('timeout: labPolicy.commandTimeoutMs') && labWorktree.includes('declaredDeveloper, timeoutMs = labPolicy.commandTimeoutMs'), 'Lab command execution, captured commands and RED defaults must consume the registered timeout');
+  check(labAudit.includes('timeoutMs: auditTimeoutMs') && labAudit.includes('auditTimeoutForPaths(paths.length, reviewBytes)') && ['auditTimeoutMs', 'auditPerChangedPathMs', 'auditPerMiBMs', 'auditBudgetQuantumMs', 'auditMaxTimeoutMs'].every(field => labAudit.includes('labPolicy.' + field)) && labAudit.includes('startupTimeoutMs: labPolicy.auditStartupTimeoutMs'), 'Lab audit runner must consume registered bounded timeouts');
   check(labAudit.includes('const INPUT_LIMIT = labPolicy.auditInputMaxBytes;') && labAudit.includes('const OUTPUT_LIMIT = SUPERVISED_PROVIDER_RUNTIME_POLICY.maxOutputBytes;') && labAudit.includes('captured + bytes > OUTPUT_LIMIT'), 'Lab local snapshot input and provider output must retain separate bounded budgets');
+  check(['auditBatchMaxPaths', 'auditBatchMaxBytes', 'auditContextMaxFiles', 'auditContextMaxBytes'].every(field => labAudit.includes('labPolicy.' + field)) && labAudit.includes('validateAuditBatchRecords(records,plan,full.paths,binding)'), 'Lab batch approval requires registered bounds and exhaustive candidate-bound aggregation');
   const labProviders = read(root, 'scripts/lab-audit-providers.mjs');
   check(['auditBuiltinVendors', 'auditCustomProtocol', 'auditRequired', 'auditIndependence'].every(field => labProviders.includes('labPolicy.' + field)), 'Lab provider implementation must consume registered audit policy');
   check(registrySource.includes('auditRequired: true') && registrySource.includes('recordSchema: 3') && labWorktree.includes('ensureAudit'), 'Lab requires opposite-host audit and rejects pre-audit record writers');
@@ -901,6 +915,9 @@ process.stdout.write(JSON.stringify({ registry: RUNTIME_FACT_REGISTRY.length, pr
 
   execFileSync(process.execPath, [join(root, 'packages/main/tests/validation-tree-delegate-binding.mjs')], {cwd: root, stdio: 'inherit', timeout: 30000});
 
+  await import(pathToFileURL(join(root, 'packages/main/tests/validation-coordination-residue.test.mjs')).href);
+  await import(pathToFileURL(join(root, 'packages/main/tests/validation-coordination-cleanup.test.mjs')).href);
+  await import(pathToFileURL(join(root, 'packages/main/tests/validation-coordination-reclaim-race.test.mjs')).href);
   check(registrySource.includes('workerClaimTimeoutMs: 30_000'),
     'managed supervisor policy must preserve the concurrent cold-start claim budget');
   check(read(root, 'packages/main/src/core/managed-host-run.ts').includes('MANAGED_SUPERVISOR_RUNTIME_POLICY.workerClaimTimeoutMs'),

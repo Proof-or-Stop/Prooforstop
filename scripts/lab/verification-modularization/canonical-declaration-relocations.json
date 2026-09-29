@@ -1,0 +1,42 @@
+[
+  {
+    "name": "IDENTITY_CUTOVER_REQUIRED_PATHS",
+    "baseline": "e07c723f5f",
+    "beforeSha256": "33884a8cf16478bb6a454bce67a4fe53c754edbf4fefb4eae8bb456fee45369d",
+    "afterSha256": "4cdd9f0a502b8bea5a7d00d0c9326c747e3cb0110921a15891b41c6df4a4678c",
+    "file": "packages/main/tests/canonical-new-story-artifacts/data.mjs",
+    "reason": "Expand retained identity entry paths to their registered extracted module closures."
+  },
+  {
+    "name": "OWNED_IMPORTED_IDENTITY_ORIGINS",
+    "baseline": "e07c723f5f",
+    "beforeSha256": "057142620c9c38dff9a55506d31d704cef26d13b43e5705dfdd6115e4f28940f",
+    "afterSha256": "2c39b751ffce611eacd793d5900443a7d383d722b62e74079cd60514dc7b0b93",
+    "file": "packages/main/tests/canonical-new-story-artifacts/data.mjs",
+    "reason": "Bind the relocated imports to their current defining modules; current origin checks remain required."
+  },
+  {
+    "name": "OWNED_NON_PROTOCOL_IDENTITY_CONTEXTS",
+    "baseline": "e07c723f5f",
+    "beforeSha256": "be8cd2c719f64621373220c5003f24a770f15dff5843e127a6cada520e762190",
+    "afterSha256": "b29399ad7f8e2650f15ae4e0b217ff1beeab64a4313a36f780e74dd15a32c40a",
+    "file": "packages/main/tests/canonical-new-story-artifacts/data.mjs",
+    "reason": "Retain exact current non-protocol source contexts after extraction and main synchronization."
+  },
+  {
+    "name": "OWNED_IDENTITY_SITE_CONTEXTS",
+    "baseline": "e07c723f5f",
+    "beforeSha256": "5f9c9a8788bb6bb497ec8a674bc372766db63b901be5533e15b512ff32b092ef",
+    "afterSha256": "76c0c8cbe6d3071cf57eb583a3ab4ed190f478a1cd5252ae24db7dc2ecce9d1f",
+    "file": "packages/main/tests/canonical-new-story-artifacts/data.mjs",
+    "reason": "Record current structured owner sites and current-main additions; source occurrence checks remain required."
+  },
+  {
+    "name": "OWNED_IMPORT_USE_CONTEXTS",
+    "baseline": "e07c723f5f",
+    "beforeSha256": "c2ff0f18596fc477b9c5af7a9a49a0c7c0718795684c0dc94c7e5651ceaddf92",
+    "afterSha256": "4c17fcb97981748f9d82ec7410d2fda0282057769d9065cd2098be8fa1763d4e",
+    "file": "packages/main/tests/canonical-new-story-artifacts/data.mjs",
+    "reason": "Bind reviewed import-use contexts to the current extracted implementation."
+  }
+]

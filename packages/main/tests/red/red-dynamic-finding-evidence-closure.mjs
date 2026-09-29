@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { isDynamicFindingBlocking, dynamicFindingScorecard } from '../../dist/core/finding-applicability.js';
 import { resolveDynamicFindingRollout } from '../../dist/core/finding-applicability-projection.js';
+import { FINDING_EVIDENCE_FIXTURE_RUNTIME_POLICY as findingFixtureBudget } from '../../dist/core/runtime-fact-registry.js';
 
 const root = resolve(import.meta.dirname, '../../../..');
 const now = new Date('2029-01-01T00:00:00Z');
@@ -53,7 +54,7 @@ for (const [id, path, marker, args = []] of [
   ['DFEC-09-reviewed-document-binding', 'scripts/verify-story-aware-validation-plan.mjs', 'story-aware validation plan integrity PASS', ['--tamper-self-test']],
 ]) test(id, () => {
   assert.ok(existsSync(resolve(root, path)), `environment prerequisite missing: ${path}`);
-  const run = spawnSync(process.execPath, [path, ...args], { cwd: root, encoding: 'utf8', timeout: 120000 });
+  const run = spawnSync(process.execPath, [path, ...args], { cwd: root, encoding: 'utf8', timeout: findingFixtureBudget.controllerMs });
   assert.equal(run.signal, null, 'timeout or signal is not target RED');
   assert.equal(run.status, 0, `${path}: ${`${run.stdout}\n${run.stderr}`.slice(-3500)}`);
   assert.match(`${run.stdout}\n${run.stderr}`, new RegExp(marker));

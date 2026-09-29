@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import {withManagedFixturePrompt} from '../../../packages/main/dist/tasks/managed-review-evidence/prompt-fixture.js';
+import {isSealedManagedPromptDigestCurrent} from '../../../packages/main/dist/core/managed-review-evidence.js';
+const input={promptText:'Exact fixture prompt\nwith a trailing newline\n',reviewBinding:{headHash:'head',materialHash:'material',storyFilesHash:'story',promptHash:'review-prompt',envelopeId:'envelope'}};
+const digest='sha256:'+createHash('sha256').update(input.promptText,'utf8').digest('hex');
+assert.equal(isSealedManagedPromptDigestCurrent(undefined,digest,digest),false,'former missing seal remains rejected');
+const prepared=withManagedFixturePrompt(input);
+assert.equal(prepared.promptText,input.promptText);
+assert.deepEqual(prepared.reviewBinding,{...input.reviewBinding,managedPromptDigest:digest});
+assert.equal(Object.hasOwn(input.reviewBinding,'managedPromptDigest'),false,'fixture adapter does not rewrite the original review tuple');
+assert.equal(isSealedManagedPromptDigestCurrent(prepared.reviewBinding.managedPromptDigest,digest,digest),true);
+assert.equal(isSealedManagedPromptDigestCurrent(prepared.reviewBinding.managedPromptDigest,digest,'sha256:'+'0'.repeat(64)),false,'a different executed prompt is rejected');
+console.log('MANAGED_PROMPT_FIXTURE_RED_GREEN: missing seal refused; exact submitted prompt sealed; changed execution refused');
+
+const {execFileSync} = await import('node:child_process');
+const {resolveQualifiedManagedReviewerSelection} = await import('../../../packages/main/dist/core/host-run.js');
+const {REQUESTED_CLAUDE_MODEL} = await import('../../../packages/main/dist/tasks/managed-review-evidence/environment.js');
+const original = execFileSync('git',['show','6f6d88948f:packages/main/src/tasks/managed-review-evidence-smoke.ts'],{encoding:'utf8'});
+const formerModel = original.match(/const REQUESTED_CLAUDE_MODEL = '([^']+)'/)[1];
+assert.throws(()=>resolveQualifiedManagedReviewerSelection({host:'claude',model:formerModel,reasoningEffort:'xhigh'}), /not qualified for host claude/);
+assert.deepEqual(resolveQualifiedManagedReviewerSelection({host:'claude',model:REQUESTED_CLAUDE_MODEL,reasoningEffort:'xhigh'}),{model:REQUESTED_CLAUDE_MODEL,reasoningEffort:'xhigh'});
+console.log('MANAGED_MODEL_FIXTURE_RED_GREEN: original unqualified fixture refused; explicit qualified model accepted');

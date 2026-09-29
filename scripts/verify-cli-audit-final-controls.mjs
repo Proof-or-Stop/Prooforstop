@@ -10,7 +10,7 @@ const root=mkdtempSync(join(tmpdir(),'cli-audit-final-'));const groups=[];const 
 const check=async(id,fn)=>{try{await fn();groups.push({id,pass:true});}catch(e){groups.push({id,pass:false,error:e.message});}};
 try{
   await check('one-hardening-execution-per-contract',()=>{
-    const source=readFileSync(join(repo,'scripts/verify-process-fact-contract.mjs'),'utf8');
+    const source=readFileSync(join(repo,'scripts/process-fact-contract/complete.mjs'),'utf8');
     const count=[...source.matchAll(/execFileSync\(process\.execPath, \[join\(root, 'scripts\/verify-cli-audit-hardening\.mjs'\)\]/g)].length;
     measurements.hardeningContractInvocations=count;assert.equal(count,1,'contract must schedule the same proof exactly once');
   });

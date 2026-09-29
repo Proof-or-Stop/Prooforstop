@@ -1,0 +1,59 @@
+{
+  "main": "0836d73b7c",
+  "deltas": [
+    {
+      "before": {
+        "sourcePath": "packages/main/src/handlers/checklist.ts",
+        "canonical": "proof-or-stop-implementer",
+        "occurrences": 2,
+        "contextSha256": "19fcc470d02faf604a28e83ea8f710eaebb88868642d7cc7706d2b4d1092bfed"
+      },
+      "after": {
+        "sourcePath": "packages/main/src/handlers/checklist.ts",
+        "canonical": "proof-or-stop-implementer",
+        "occurrences": 1,
+        "contextSha256": "3d2ee59099902664546edca59b84172d56f7f37a4ce16b323317e7e7ef79acc1"
+      }
+    },
+    {
+      "before": {
+        "sourcePath": "packages/main/src/core/process-fact-registry.ts",
+        "occurrences": 47,
+        "contextSha256": "4e9367f4a5decd24ac1b429f90eb516b7703b5ced76a604cdbc2963bbdfa7611"
+      },
+      "after": {
+        "sourcePath": "packages/main/src/core/process-fact-registry.ts",
+        "occurrences": 48,
+        "contextSha256": "cd646a3eec684bab1a718868ff99427d77bf91ef498aa8773ae00444ddce5983"
+      }
+    },
+    {
+      "before": {
+        "sourcePath": "packages/main/src/handlers/checklist.ts",
+        "occurrences": 929,
+        "contextSha256": "3202569cee6b15eb64fdb1e2fac98656cc8eeed4cd619c3d0a16ef7c020afccd"
+      },
+      "after": {
+        "sourcePath": "packages/main/src/handlers/checklist.ts",
+        "occurrences": 930,
+        "contextSha256": "f35b34dce42890e3f68a4761a7270d1d8ee46a2785b2a674970661acbdc07184"
+      }
+    },
+    {
+      "before": {
+        "sourcePath": "packages/main/src/handlers/story-dispatch.ts",
+        "occurrences": 342,
+        "contextSha256": "c8a7cd5c5e2137aef624f99cd9605fac7fb407d77eefb0d8c4f78ec58cc08957"
+      },
+      "after": {
+        "sourcePath": "packages/main/src/handlers/story-dispatch.ts",
+        "occurrences": 343,
+        "contextSha256": "0588c71c525a6ce4e486070055e1c83c13a34a64f07849bcd06e7d4211780e1d"
+      }
+    }
+  ],
+  "registry": {
+    "before": "identitySite(\"packages/main/src/handlers/checklist.ts\", \"proof-or-stop-implementer\", undefined, undefined, undefined, undefined, { canonical: 2, retired: 0 })",
+    "after": "identitySite(\"packages/main/src/handlers/checklist.ts\", \"proof-or-stop-implementer\", undefined, undefined, undefined, undefined, { canonical: 1, retired: 0 })"
+  }
+}

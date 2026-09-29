@@ -69,9 +69,20 @@
     "commands": [
       {
         "command": "npm",
-        "args": ["--prefix", "packages/main", "run", "test:dynamic-finding-evidence-closure"],
-        "timeoutMs": 180000,
-        "resources": [{ "class": "git-common-dir", "key": ".", "access": "shared" }]
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "test:dynamic-finding-evidence-closure"
+        ],
+        "timeoutMs": 900000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
       },
       {
         "command": "npm",
@@ -2513,7 +2524,7 @@
           "packages/main/tests/red/red-w2b-wiring-contract.mjs",
           "--canonical-core"
         ],
-        "timeoutMs": 180000,
+        "timeoutMs": 900000,
         "resources": [
           {
             "class": "git-common-dir",
@@ -5590,26 +5601,136 @@
       },
       {
         "command": "node",
-        "args": ["scripts/verify-validation-verdict-stickiness.mjs"],
+        "args": [
+          "packages/main/tests/red/red-dynamic-finding-collection-readiness.mjs",
+          "--canonical-core"
+        ],
+        "timeoutMs": 600000,
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "validation-audit-registration-closure-20260918",
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-dynamic-finding-head-continuity.mjs"
+        ],
+        "timeoutMs": 600000,
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "validation-audit-registration-closure-20260918",
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-empty-checklist-lifecycle.mjs"
+        ],
+        "timeoutMs": 600000,
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "validation-audit-registration-closure-20260918",
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-lab-nested-fixture-machine-isolation.mjs"
+        ],
+        "timeoutMs": 600000,
+        "assurance": "full-only",
+        "riskTier": "validation-infra",
+        "closurePolicy": "whole-repository",
+        "fullBaselineReusePolicy": "forbidden",
+        "policySource": "validation-audit-registration-closure-20260918",
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "scripts/verify-validation-verdict-stickiness.mjs"
+        ],
         "timeoutMs": 120000,
-        "focus": ["fast"],
+        "focus": [
+          "fast"
+        ],
         "assurance": "full-only",
         "riskTier": "validation-infra",
         "closurePolicy": "whole-repository",
         "fullBaselineReusePolicy": "forbidden",
         "policySource": "explicit-lab-maintenance",
-        "resources": [{ "class": "fixed-path", "key": "packages/main/src", "access": "shared" }, { "class": "fixed-path", "key": "scripts", "access": "shared" }]
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": "packages/main/src",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "scripts",
+            "access": "shared"
+          }
+        ]
       },
       {
         "command": "node",
-        "args": ["scripts/verify-validation-verdict-stickiness-cli.mjs"],
+        "args": [
+          "scripts/verify-validation-verdict-stickiness-cli.mjs"
+        ],
         "timeoutMs": 900000,
         "assurance": "full-only",
         "riskTier": "validation-infra",
         "closurePolicy": "whole-repository",
         "fullBaselineReusePolicy": "forbidden",
         "policySource": "explicit-lab-maintenance",
-        "resources": [{ "class": "fixed-path", "key": "packages/main/src", "access": "shared" }, { "class": "fixed-path", "key": "scripts", "access": "shared" }, { "class": "fixed-path", "key": "packages/main/dist", "access": "shared" }]
+        "resources": [
+          {
+            "class": "fixed-path",
+            "key": "packages/main/src",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "scripts",
+            "access": "shared"
+          },
+          {
+            "class": "fixed-path",
+            "key": "packages/main/dist",
+            "access": "shared"
+          }
+        ]
       }
     ],
     "evidenceCommandTimeoutOverrides": [
@@ -10116,20 +10237,20 @@
       "schemaVersion": "story-scope-budget-legacy.v1",
       "activationSourceCommit": "554f298499c2ef8f963842dc60975653740e2aa1",
       "entries": [
-    {
-      "storyId": "B-0208",
-      "createdAt": "2026-09-08T06:08:49.876Z",
-      "capturedPhase": "REVIEW",
-      "subjectDigest": "3d250a79e43db750f5a70e90b5aec853a19cbe4df1b1473bf897879ecf624efe"
-    },
-    {
-      "storyId": "B-03b7",
-      "createdAt": "2026-09-01T08:13:21.933Z",
-      "capturedPhase": "REVIEW",
-      "subjectDigest": "e23f9ed7ba66254d3caab3788746c32ebbe6ea7cddb75086c0786b73c328b252"
-    },
-    {
-      "storyId": "B-137a",
+        {
+          "storyId": "B-0208",
+          "createdAt": "2026-09-08T06:08:49.876Z",
+          "capturedPhase": "REVIEW",
+          "subjectDigest": "3d250a79e43db750f5a70e90b5aec853a19cbe4df1b1473bf897879ecf624efe"
+        },
+        {
+          "storyId": "B-03b7",
+          "createdAt": "2026-09-01T08:13:21.933Z",
+          "capturedPhase": "REVIEW",
+          "subjectDigest": "e23f9ed7ba66254d3caab3788746c32ebbe6ea7cddb75086c0786b73c328b252"
+        },
+        {
+          "storyId": "B-137a",
           "createdAt": "2026-08-13T15:40:42.059Z",
           "capturedPhase": "REVIEW",
           "subjectDigest": "22f24de85cbf98d6faabd23ab6d687af2e69cbf0ab8d49dbb52b73258304418f"

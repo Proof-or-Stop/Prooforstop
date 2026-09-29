@@ -3,9 +3,9 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 import { createHash } from 'node:crypto';
 const inventoryBytes = fs.readFileSync(new URL('./identity-reviewed-json-data.json', import.meta.url));
-if (createHash('sha256').update(inventoryBytes).digest('hex') !== '81160fa2bab94492ae701585fc34a3f4b3c11ea8242164adf86adc009d4d1247') throw new Error('Reviewed JSON context inventory bytes changed');
+if (createHash('sha256').update(inventoryBytes).digest('hex') !== '4140e55f0c9f4962ef33cf6a00d230428eae2adac294b0f06fa8ac542928b3b5') throw new Error('Reviewed JSON context inventory bytes changed');
 const inventory = JSON.parse(inventoryBytes.toString('utf8'));
-if (inventory.schemaVersion !== 'identity-reviewed-json-contexts.v1' || !Array.isArray(inventory.entries) || inventory.entries.length !== 802) throw new Error('Invalid reviewed JSON inventory');
+if (inventory.schemaVersion !== 'identity-reviewed-json-contexts.v1' || !Array.isArray(inventory.entries) || inventory.entries.length !== 2580) throw new Error('Invalid reviewed JSON inventory');
 const seen = new Set();
 for (const row of inventory.entries) {
   const key = JSON.stringify([row.path,row.jsonPointer,row.nodeKind,row.class,row.token]);
@@ -14,11 +14,10 @@ for (const row of inventory.entries) {
 }
 const hash = text => createHash('sha256').update(text).digest('hex');
 let parser;
-let lastLiteralInput;
-let lastLiteralFile;
-let lastLiteralResult;
+const literalCache = new Map();
 function literals(text, file) {
-  if (text === lastLiteralInput && file === lastLiteralFile) return lastLiteralResult;
+  const prior = literalCache.get(file);
+  if (prior?.text === text) return prior.nodes;
   const ts = parser ??= createRequire(path.join(process.cwd(), 'package.json'))('typescript');
   const ast = ts.parseJsonText(file, text);
   if (ast.parseDiagnostics.length) return [];
@@ -37,7 +36,8 @@ function literals(text, file) {
     else if (ts.isStringLiteralLike(node)) add(node,pointer,'value');
   }
   visit(ast.statements[0].expression,'');
-  lastLiteralInput=text;lastLiteralFile=file;lastLiteralResult=nodes;return nodes;
+  if (!literalCache.has(file) && literalCache.size >= 64) literalCache.delete(literalCache.keys().next().value);
+  literalCache.set(file, {text, nodes});return nodes;
 }
 export function reviewedDataResidueAllowed({path: file, token, line, lineNumber, text}) {
   if (typeof text!=='string'||typeof token!=='string'||!Number.isInteger(lineNumber))return false;

@@ -1,0 +1,42 @@
+{
+  "reason": "Validate producer outcomes before publishing a partial capability result; preserve later imported-pass checks through the same helper.",
+  "changes": [
+    {
+      "phase": 0,
+      "before": [
+        "const concurrentImportResults = importWorkers.map(worker => readFileSync(worker.resultPath, 'utf8'));"
+      ],
+      "after": [
+        "const concurrentImportResults = importWorkers.map(worker => readFileSync(worker.resultPath, 'utf8'));",
+        "assertImportedPass(store, submitted.runId, receipt.receiptId);",
+        "assert.equal(concurrentImportResults.filter(result => /Managed review evidence imported/.test(result)).length, 1);",
+        "assert.equal(concurrentImportResults.filter(result => /already imported/.test(result)).length, 1,\n      'real proposal/terminal/import race converges on one creator and one exact reuse');"
+      ]
+    },
+    {
+      "phase": 1,
+      "before": [
+        "assert.equal(context.concurrentImportResults.filter(result => /Managed review evidence imported/.test(result)).length, 1);",
+        "assert.equal(context.concurrentImportResults.filter(result => /already imported/.test(result)).length, 1,\n      'real proposal/terminal/import race converges on one creator and one exact reuse');"
+      ],
+      "after": [
+        "assertImportedPass(context.store, context.submitted.runId, context.receipt.receiptId);"
+      ]
+    },
+    {
+      "phase": 2,
+      "before": [
+        "assert.equal(context.passes.length, 1);",
+        "assert.equal(context.passes[0]?.agent, LANE);",
+        "assert.equal(context.passes[0]?.writerSessionId, `managed:${context.submitted.runId}`);",
+        "assert.deepEqual(context.passes[0]?.readManifest?.filesReadFully, ['docs/requirements/decisions/managed-review-evidence.md', 'packages/main/src/example.ts']);",
+        "assert.equal(context.passes[0]?.managedEvidenceBinding?.receiptId, context.receipt.receiptId);"
+      ],
+      "after": []
+    }
+  ],
+  "helper": {
+    "name": "assertImportedPass",
+    "body": "{\n  const passes = store.readReviewPasses(STORY_ID).passes;\nassert.equal(passes.length, 1);\n\nassert.equal(passes[0]?.agent, LANE);\n\nassert.equal(passes[0]?.writerSessionId, `managed:${runId}`);\n\nassert.deepEqual(passes[0]?.readManifest?.filesReadFully, ['docs/requirements/decisions/managed-review-evidence.md', 'packages/main/src/example.ts']);\n\nassert.equal(passes[0]?.managedEvidenceBinding?.receiptId, receiptId);\n\n}"
+  }
+}

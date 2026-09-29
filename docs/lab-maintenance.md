@@ -198,11 +198,12 @@ Lab scripts reject schema 2 instead of bypassing its operation lock; use the
 updated checkout command for subsequent operations. Status can read either
 schema without upgrading it. This adoption is per Lab, not a migration of every
 existing worktree or running session.
-The default command timeout is 15 minutes per process. Long regression commands
+The default command timeout is 30 minutes (1800 seconds) per process. Long regression commands
 may declare `--timeout-ms MS` between the RED marker and `--` (1–3600000 ms).
 The signed RED record binds that budget; GREEN and integration checks replay it
-unchanged. Existing records retain the 15-minute default. A timeout never counts
-as target RED or passing GREEN.
+unchanged. Existing records with an explicit timeout retain that value, including
+the former 15-minute default; records without a stored timeout use the current
+30-minute default. A timeout never counts as target RED or passing GREEN.
 
 Audit input uses a separate 64 MiB bound for each Git read and the complete
 serialized commit snapshots. Provider output remains bounded at 8 MiB. Full
@@ -356,7 +357,7 @@ Audit inputs must be valid UTF-8 text with exact path names. Immutable commit in
 
 Legacy records without a pinned developer always require an explicit `--developer PROVIDER` naming the implementation provider, even from a recognized terminal. During an actual finish-time provider audit only the per-Lab lock remains held. Finish reacquires the main lock and rechecks the main branch, HEAD and dirty-state boundary before proceeding; concurrent main movement retains the candidate for explicit recovery.
 
-Provider audit has a registered 15-minute total budget and 90-second startup budget; timeout is a failed invocation, never approval. Reviewers receive the full diff and complete snapshots, and inspect changed regions plus necessary surrounding context instead of exhaustively rereading unrelated historical content. Missing dependency context must be stated explicitly; denied reads are not evidence.
+Provider audit has a registered 30-minute (1800-second) total budget and 90-second startup budget; timeout is a failed invocation, never approval. Reviewers receive the full diff and complete snapshots, and inspect changed regions plus necessary surrounding context instead of exhaustively rereading unrelated historical content. Missing dependency context must be stated explicitly; denied reads are not evidence.
 
 The pinned Lab worktree verifier also executes the isolated lock-scope regression. Audit input refuses changed paths that collide as file/directory prefixes before snapshot creation. Binary content and size overflow have separate diagnostics naming the cause; these refusals occur before main integration.
 
@@ -389,3 +390,73 @@ invented pass. This external-to-Git measurement avoids requiring a candidate com
 to contain its own SHA or its future execution result.
 
 Large audit bodies use complete `diff.patch` and per-file snapshots, with a path/size/digest manifest in the initial prompt. The original full-input digest and complete changed-path read-reference requirement remain unchanged. Both diff and file bytes are checked after the provider exits. `scripts/verify-lab-audit-prompt-budget.mjs` exercises real transport with a disposable synthetic adapter; it is not independent audit evidence.
+
+### Audit deadline sizing
+
+Independent Lab audits retain the main branch’s 30-minute minimum. The immutable changed-path
+count supplies a five-second allowance per path; complete diff plus snapshot
+bytes supply a one-minute allowance per MiB. The larger allowance is rounded up
+to five-minute increments. Work exceeding the one-hour maximum is refused before
+provider launch with an explicit split-the-repair diagnostic, rather than silently
+clamping an undersized budget. For example, 347 small files receive 30 minutes;
+a single file with 40 MiB of diff plus snapshot content receives 40 minutes.
+These are configuration allowances, not measured speedups or guarantees of approval.
+The earlier 347-path audit hit its 900-second total deadline after 337 Read
+calls and 272 distinct path attempts, without a verdict. A Read attempt alone is
+never complete coverage or approval. The subsequent 30-minute-budget audit returned
+an incomplete fail after 235 seconds; that is a coverage refusal, not a timeout.
+
+Every provider type consumes the same calculated deadline; startup remains 90
+seconds and process-group cleanup remains required. Each audit records its exact
+path count, review bytes and deadline in `budget.json` and prints them before launch. Timeout
+reports the deadline and cleanup state explicitly and never produces an accepted
+verdict. Different-vendor independence, exact candidate/digest bindings, complete
+changed-path references and refusal of unresolved findings are unchanged.
+
+Audit navigation also includes an exact Git diff for each changed path under
+`changes/`, with its byte length and SHA-256 in the file manifest. Complete
+aggregate diff and source snapshots remain available and are checked after the
+provider exits, together with every per-file patch. The read-only Claude adapter
+allows Read, Grep and Glob so auditors can locate changed regions without paging
+the full aggregate diff. Navigation files do not grant coverage or a PASS.
+
+### Bounded module audit batches
+
+Candidates with more than 24 changed paths use deterministic directory-family
+batches of at most 24 paths and 2 MiB of snapshot content; a single larger file
+gets its own batch and retains the existing input/deadline bounds. Every batch
+receives its assigned exact patches and complete snapshots, with the complete
+candidate snapshot tree available for dependency tracing. Every provider verdict
+binds the same base, candidate, full input digest, configuration and vendors.
+The tool rejects omitted assigned paths, stale bindings, reused invocation IDs,
+findings, failed processes and incomplete cleanup. A partial batch cannot pass
+the full-candidate freshness check.
+
+After all module batches pass, a separate independent integration review receives
+all batch summaries and the complete candidate manifest, diff and snapshots. It
+checks cross-module imports, registrations, retirement boundaries, audit authority
+and runtime interactions. Its readRefs acknowledge paths considered in that
+integration assessment; module readRefs remain declarations of inspected changed
+regions. Neither is an operating-system read receipt. The controller requires
+every changed path in exactly one module batch and all required batches plus the
+integration review to pass before publishing a full-candidate verdict. Any failure
+retains evidence and blocks finish. Batches run sequentially through existing
+provider admission; this does not authorize parallel agents or reuse another
+candidate's approval. Synthetic transport tests never constitute vendor approval.
+
+Every audit also receives a complete exact-commit tree inventory. Changed-file
+snapshots are not a complete repository listing: reviewers must consult that
+inventory before reporting a missing file. Bounded static reference traversal
+supplies unchanged source imports and documentation targets under the snapshot
+tree (at most 400 additional files and 16 MiB). Non-text, unsupported, private
+metadata and budget-omitted contexts are explicitly listed; this is not a complete
+dynamic dependency closure. Every supplied byte and the tree inventory are checked
+again after the provider exits. Unavailable context must be reported as a limit,
+not invented as a missing repository file.
+
+A well-formed module verdict containing findings does not stop the remaining module
+batches: the controller collects their findings on the same frozen candidate and
+returns a combined failure. Integration review runs only after every module batch
+passes. This avoids repeated early-file reviews hiding later defects. Transport
+errors, invalid bindings, incomplete coverage, snapshot mutation or unsafe cleanup
+still stop immediately; continued collection never converts failure into approval.

@@ -73,7 +73,7 @@ function dirtySnapshot(cwd) {
 function assertAncestor(cwd, ancestor, child) {
   try { git(cwd, 'merge-base', '--is-ancestor', ancestor, child); } catch { fail(`${ancestor} is not integrated into ${child}.`); }
 }
-function run(cwd, command, timeoutMs = 900000) {
+function run(cwd, command, timeoutMs = labPolicy.commandTimeoutMs) {
   const start = Date.now();
   const r = spawnSync(command[0], command.slice(1), { cwd, encoding: 'utf8', timeout: timeoutMs, maxBuffer: 32 * 1024 * 1024, shell: false });
   const output = (r.stdout || '') + (r.stderr || '');
@@ -82,7 +82,7 @@ function run(cwd, command, timeoutMs = 900000) {
 }
 function runCaptured(cwd, command) {
   const start = Date.now();
-  const r = spawnSync(command[0], command.slice(1), { cwd, encoding: 'utf8', timeout: 900000, maxBuffer: 32 * 1024 * 1024, shell: false });
+  const r = spawnSync(command[0], command.slice(1), { cwd, encoding: 'utf8', timeout: labPolicy.commandTimeoutMs, maxBuffer: 32 * 1024 * 1024, shell: false });
   return { command, head: sha(cwd), status: r.status, signal: r.signal, error: r.error?.message, elapsedMs: Date.now() - start, output: (r.stdout || '') + (r.stderr || ''), at: new Date().toISOString() };
 }
 function passed(result) { return result.status === 0 && !result.signal && !result.error; }
@@ -184,7 +184,7 @@ async function main() {
   if (!action || action === '--help') { console.log(help); return; }
   if (!['create', 'sync', 'status', 'red', 'carry', 'baseline', 'green', 'audit', 'finish', 'reopen'].includes(action)) fail('Unknown command. Use --help.');
   if (!/^[a-z0-9][a-z0-9-]{0,47}$/.test(name || '')) fail('NAME must be 1-48 lowercase letters, digits or hyphens.');
-  let notesPath, expected, command, storyId, sourcePath, requestedBump, declaredDeveloper, timeoutMs = 900000;
+  let notesPath, expected, command, storyId, sourcePath, requestedBump, declaredDeveloper, timeoutMs = labPolicy.commandTimeoutMs;
   if (action === 'red') {
     if (rest[0] !== '--expect' || !rest[1]?.trim()) fail('red requires --expect TEXT [--timeout-ms MS] -- EXECUTABLE ARG...');
     let separator = 2;

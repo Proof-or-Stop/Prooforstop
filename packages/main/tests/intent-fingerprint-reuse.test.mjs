@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import ts from 'typescript';
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -26,10 +27,14 @@ assert.deepEqual(selectedSmokes.map(entry => entry.name), ['evidence-plan'], 'th
 assert.equal(selectedSmokes[0].timeoutMs, 180000, 'the measured producer regression has an explicit bounded smoke budget');
 // Execute the actual diagnostic source contract even when an unrelated earlier
 // repository-wide failure prevents the full verifier from reaching this block.
-const contractSource = readFileSync(join(repositoryRoot, 'scripts/verify-process-fact-contract.mjs'), 'utf8');
-const contractStart = contractSource.indexOf('// Intent fingerprints are derived diagnostics, not a second gate or caller-owned freshness authority.');
-const contractEnd = contractSource.indexOf('// Managed inventory transport checks must precede the final failure gate.', contractStart);
-assert.ok(contractStart >= 0 && contractEnd > contractStart);
+const contractPath = 'scripts/process-fact-contract/complete.mjs';
+const contractSource = readFileSync(join(repositoryRoot, contractPath), 'utf8');
+const contractAst = ts.createSourceFile(contractPath, contractSource, ts.ScriptTarget.Latest, true);
+const completeDriver = contractAst.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'runCompleteProcessContract');
+const diagnosticBlocks = completeDriver?.body.statements.filter(node => ts.isBlock(node) && node.getText(contractAst).includes("const fingerprints = read('packages/main/src/core/verification-intent-fingerprints.ts')")) ?? [];
+assert.equal(diagnosticBlocks.length, 1, 'one actual diagnostic source contract in the complete driver');
+const contractStart = diagnosticBlocks[0].getStart(contractAst);
+const contractEnd = diagnosticBlocks[0].getEnd();
 const evaluateContractBlock = new Function('read', 'assert', 'nodeAssert', 'processFactRegistryPath', contractSource.slice(contractStart, contractEnd));
 const runContractBlock = (overrides = new Map()) => {
   const failures = [];
@@ -39,7 +44,7 @@ const runContractBlock = (overrides = new Map()) => {
 assert.deepEqual(runContractBlock(), [], 'actual diagnostic source contract accepts the implementation');
 const smokePath = 'packages/main/src/tasks/evidence-plan-smoke.ts';
 const smokeSource = readFileSync(join(repositoryRoot, smokePath), 'utf8');
-const importBinding = "await import(new URL('../../tests/intent-fingerprint-reuse.test.mjs', import.meta.url).href);";
+const importBinding = "await import('../../tests/intent-fingerprint-reuse.test.mjs');";
 for (const mutated of [smokeSource.replace(importBinding, ''), smokeSource + '\n' + importBinding]) {
   assert.ok(runContractBlock(new Map([[smokePath, mutated]])).some(message => message.includes('Discovered intent regression binding')), 'actual source contract rejects missing or duplicated regression binding');
 }

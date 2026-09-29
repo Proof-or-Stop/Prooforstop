@@ -1,5 +1,21 @@
 # Changelog
 
+## Lab identity-148-performance-20260920 - v0.3.458 - 2026-09-25
+
+- Close the nine findings from the second modular audit round: coordination migration re-observes transient entries, Lab audit refuses over-limit integration budgets before any batch, module-family helpers reuse the scanner parse cache, child-process re-export forms are followed or reported, and dropped timeout-budget pins are restored.
+- Strengthen test oracles: host-usage case 88, process completion markers, mutation acceptance controls and the workspace-wait startup poll.
+- Adapt to origin 0.3.456: the live-drift managed-review scenario re-routes candidates before its fresh ReviewRun, as the new stale-binding preflight requires.
+- Lab RED (9/26 failing) then GREEN 26/26; tsc, runtime fact contract and U18 static edges pass. No cross-host audit was run for this integration, by user decision; the full validation suite was not rerun.
+
+Maintenance provenance: codex/lab-identity-148-performance-20260920; audit findings in .git/lab-maintenance/identity-148-performance-20260920-audits/5a57d2e1-2c9f-41c4-b37b-aac8230d4c97.
+Verification command (replayed before integration): `["node","scripts/lab/verification-modularization/verify-modular-finish-repairs.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
+
+## Remote main sync - v0.3.457 - 2026-09-25
+
+- Merge the remote 0.3.454-0.3.456 line (managed review batch, consumer scope and stale-route preflights) with the local Lab timeout-1800 line (merge `771dc8eed3`).
+- Bump once so the merged tree does not share a version number with either published side; U18 static edges and the Lab timeout budget verifier pass on the merged tree.
+
 ## Managed review stale-route preflight - v0.3.456 - 2026-09-24
 
 - Reject stale candidate material/story-file bindings in `reviewer_batch` and `host_run` before managed reviewers consume provider time; preserve import-time checks.
@@ -24,6 +40,17 @@ Repair commits: `981cb839d5`, `a8e6306cba`, `0633082d84`. This Lab record is not
 - This removes observed failed launch waves; benchmark end-to-end time and final score remain unverified until the next remote trial. This user-authorized integration has no independent-vendor Lab audit record.
 
 Repair commits: `4e792a1d95`, `0414eaee3a`. This Lab record is not formal Story DONE evidence.
+
+## Lab timeout-1800 - v0.3.454 - 2026-09-23
+
+- Raise default Lab maintenance command and independent audit total budgets from 900 to 1800 seconds.
+- Preserve explicitly recorded command budgets, the one-hour override ceiling, the 90-second audit startup budget, and timeout rejection semantics.
+- Verify the change with targeted CLI RED/GREEN, pinned-budget integration replay, and static source checks; refresh affected source bindings without changing exception classifications.
+- Broader Lab/runtime checks retain pre-existing oversize-fixture and identity-binding failures reproduced on main; this repair does not claim full-suite success.
+
+Maintenance provenance: codex/lab-timeout-1800, repair 156d2b7b866409098a4fd66017f27efea720b997.
+Verification command (replayed before integration and on main): `["node","scripts/verify-lab-timeout-budget.mjs"]`.
+This entry does not assert formal Story DONE or signed product-release credentials.
 
 ## External consumer certification domains - v0.3.453 - 2026-09-24
 

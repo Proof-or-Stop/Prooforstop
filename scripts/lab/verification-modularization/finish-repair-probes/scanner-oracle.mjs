@@ -1,0 +1,14 @@
+import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';import {resolve} from 'node:path';import {pathToFileURL} from 'node:url';import ts from 'typescript';
+const source=fs.readFileSync(process.argv[2],'utf8'),ast=ts.createSourceFile('boundary.mjs',source,ts.ScriptTarget.Latest,true);let assertion;
+const visit=n=>{if(ts.isExpressionStatement(n)&&n.getText(ast).startsWith('assert.throws(() => assertIdentityCutoverInventoryTotal(verifierDataMutation)'))assertion=n.getText(ast);ts.forEachChild(n,visit)};visit(ast);assert(assertion);
+const invoke=message=>vm.runInNewContext(assertion,{assert,verifierDataMutation:new Map(),assertIdentityCutoverInventoryTotal(){throw new Error(message)}});
+invoke('retired protocol identity verifier data context drift');
+assert.throws(()=>invoke('retired protocol identity exact context drift'),/did not match/,'GENERIC_EXACT_ROW_ERROR_MUST_NOT_SATISFY_SCANNER_PIN_ORACLE');
+const {identityCutoverReviewedContexts}=await import(pathToFileURL(resolve('scripts/verify-proof-or-stop-identity-cutover.mjs')).href);
+const {SCANNER_RETIRED_LINE_CONTEXTS}=await import(pathToFileURL(resolve('scripts/identity-cutover/scanner-contexts.mjs')).href);
+const {verifyScannerRetiredContexts}=await import(pathToFileURL(resolve('scripts/identity-cutover/source-integrity.mjs')).href);
+const path='scripts/identity-cutover/deny-contexts.mjs',text=fs.readFileSync(path,'utf8'),reviewed=identityCutoverReviewedContexts(),lines=text.split(/\r?\n/);
+assert(!reviewed.witnesses.some(row=>row.path===path));
+const line=SCANNER_RETIRED_LINE_CONTEXTS.filter(row=>row[0]===path).flatMap(row=>row[3].map(n=>lines[n-1])).find(line=>line&&!reviewed.rows.some(row=>row.path===path&&line.includes(row.token)));assert(line);
+assert.deepEqual(verifyScannerRetiredContexts(text,path),[]);assert(verifyScannerRetiredContexts(text.replace(line,line+' // changed data row'),path).length>0);
+console.log('SCANNER_PIN_ORACLE_PASS genericErrorRejected=true specificErrorAccepted=true actualPinnedLineMutationRejected=true');

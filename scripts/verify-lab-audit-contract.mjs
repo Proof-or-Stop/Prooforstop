@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import { LAB_AUDIT_SCHEMA, developerHost, parseAuditResult, auditIsFresh } from './lab-audit.mjs';
 assert.match(readFileSync(new URL('./lab-audit.mjs',import.meta.url),'utf8'),/readRefs entry must copy the exact repository-relative path[\s\S]*never prefix it with snapshot\//);
+assert.match(readFileSync(new URL('./lab-audit.mjs',import.meta.url),'utf8'),/Complete coverage is mandatory[\s\S]*Do not list an unread path/);
 assert.throws(()=>developerHost('claude',{CODEX_THREAD_ID:'x'}),/conflicts/);
 assert.throws(()=>developerHost(undefined,{}),/declared/);
 const binding={schemaVersion:LAB_AUDIT_SCHEMA,labName:'fixture',developerHost:'codex',auditorHost:'claude',head:'a',base:'b',inputDigest:'c',configDigest:'e',developerVendor:'openai',auditorVendor:'anthropic',runId:'d'};
@@ -81,5 +82,6 @@ for(const stage of ['before-spawn','after-spawn']) {
 console.log('LAB_AUDIT_ADMISSION PASS pre-spawn release and unknown-child retention');
 
 const {LAB_MAINTENANCE_RUNTIME_REQUIREMENTS: auditPolicy}=await import('../packages/main/src/core/runtime-fact-registry.ts');
-assert.equal(auditPolicy.auditTimeoutMs,900000);
+assert.equal(auditPolicy.auditTimeoutMs,1800000,'LAB_TIMEOUT_1800: independent audit must allow 1800 seconds');
+assert.equal(auditPolicy.commandTimeoutMs,1800000,'LAB_TIMEOUT_1800: default maintenance commands must allow 1800 seconds');
 assert.equal(auditPolicy.auditStartupTimeoutMs,90000);

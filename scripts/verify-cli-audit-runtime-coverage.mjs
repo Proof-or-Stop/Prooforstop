@@ -15,7 +15,9 @@ const groups = [], measurements = {};
 const read = path => fs.readFileSync(join(repo, path), 'utf8');
 const source = path => ts.createSourceFile(path, read(path), ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
 const functionText = (path, name) => {
-  const node = source(path).statements.find(n => ts.isFunctionDeclaration(n) && n.name?.text === name);
+  const ast = source(path);
+  const owner = path === 'scripts/process-fact-contract/complete.mjs' ? ast.statements.find(n => ts.isFunctionDeclaration(n) && n.name?.text === 'runCompleteProcessContract')?.body : ast;
+  const node = owner?.statements.find(n => ts.isFunctionDeclaration(n) && n.name?.text === name);
   assert.ok(node, `production function missing: ${name}`); return node.getText();
 };
 const variableText = (path, name) => {
@@ -90,7 +92,7 @@ try {
     assert.match(wired, /projectRuntimeClosure\(ctx.store, ctx.root/);
     assert.match(wired, /validationLock: runtimeRow.locks.validationLock/);
   });
-  await check('budget-exhaustion-is-unavailable-not-assertion-red', () => {
+  await check('budget-exhaustion-is-unavailable-not-assertion-red', async () => {
     let exhausted; const run = budget.verificationSpawner(1); Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 10);
     try { run(process.execPath, ['-e', 'process.exit(0)']); } catch (error) { exhausted = error; }
     assert.ok(exhausted); assert.equal(typeof budget.verificationFailureMessage, 'function');
@@ -98,7 +100,19 @@ try {
       assert.match(budget.verificationFailureMessage('proof', error), /PROOF_UNAVAILABLE/);
     }
     assert.match(budget.verificationFailureMessage('proof', new Error('assertion mismatch')), /PROOF_ASSERTION_FAILED/);
-    assert.match(read('scripts/verify-process-fact-contract.mjs'), /verificationFailureMessage\('maintenance preview'/);
+    // The process verifier now routes both boundary children through one actual
+    // completion callback. Exercise that callback instead of requiring an obsolete
+    // inline call spelling; missing wiring or misclassified outcomes still fail.
+    const processSource = read('scripts/process-fact-contract/complete.mjs');
+    assert.match(processSource, /boundaryProofCompletion\(resolveProof, rejectProof, 'maintenance preview', 'MAINTENANCE_PREVIEW_GREEN'\)/);
+    const completion = vm.runInNewContext(functionText('scripts/process-fact-contract/complete.mjs', 'boundaryProofCompletion') + '; boundaryProofCompletion', {
+      nodeAssert: assert, verificationFailureMessage: budget.verificationFailureMessage,
+    });
+    for (const [error, expected] of [[exhausted, /PROOF_UNAVAILABLE/], [Object.assign(new Error('outer timeout'), { code: 'ETIMEDOUT' }), /PROOF_UNAVAILABLE/], [new Error('assertion mismatch'), /PROOF_ASSERTION_FAILED/]]) {
+      await assert.rejects(new Promise((resolve, reject) => completion(resolve, reject, 'maintenance preview', 'MAINTENANCE_PREVIEW_GREEN')(error, '', '')), expected);
+    }
+    await assert.rejects(new Promise((resolve, reject) => completion(resolve, reject, 'maintenance preview', 'MAINTENANCE_PREVIEW_GREEN')(null, 'different suite', '')), /requires its exact completion selector/);
+    await new Promise((resolve, reject) => completion(resolve, reject, 'maintenance preview', 'MAINTENANCE_PREVIEW_GREEN')(null, 'MAINTENANCE_PREVIEW_GREEN', ''));
     assert.match(read('scripts/verify-runtime-fact-contract.mjs'), /verificationFailureMessage\('CLI runtime version'/);
   });
   await check('asset-snapshot-permits-activity-keeps-managed-protection', () => {

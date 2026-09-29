@@ -13,18 +13,21 @@ import {
   lstatSync,
   mkdirSync,
   readFileSync,
+  readlinkSync,
   readdirSync,
   realpathSync,
   renameSync,
   rmSync,
+  rmdirSync,
   statSync,
+  symlinkSync,
   utimesSync,
   writeFileSync,
 } from 'node:fs';
 import { hostname, networkInterfaces, userInfo } from 'node:os';
 import { createServer } from 'node:net';
-import { MACHINE_FIXED_PORT_ARTIFACT, VALIDATION_RESERVATION_DELEGATION_ARTIFACT } from './runtime-artifact-registry.js';
-import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
+import { MACHINE_FIXED_PORT_ARTIFACT, VALIDATION_RESERVATION_DELEGATION_ARTIFACT, WORKSPACE_VALIDATION_COORDINATION_ARTIFACT } from './runtime-artifact-registry.js';
+import { basename, dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import {
   acquireMkdirLock,
   type AcquiredMkdirLock,
@@ -152,6 +155,12 @@ function pidAppearsAlive(pid: number): boolean {
   } catch (error: any) {
     return error?.code === 'EPERM';
   }
+}
+
+function localHolderIsProvablyDead(holder: MkdirLockHolderInfo | null): boolean {
+  if (!holder || holder.hostname !== hostname() || !Number.isSafeInteger(holder.pid) || holder.pid <= 1) return false;
+  try { process.kill(holder.pid, 0); return false; }
+  catch (error: any) { return error?.code === 'ESRCH'; }
 }
 
 function readValidationLockHeartbeat(lockDir: string): ValidationLockHeartbeatInfo | null {
@@ -366,6 +375,229 @@ export function validationCapacityLockPath(workspaceRoot: string, requireGitIden
     sharedRoot = canonicalWorkspace;
   }
   return join(sharedRoot, VALIDATION_CAPACITY_LOCK_REL);
+}
+
+// Track only queues this process admitted. Never scan or recursively delete the
+// user's namespace. An absent repository plus atomic emptiness permits cleanup;
+// live/unknown tickets, symlinks and unexpected entries remain untouched.
+const workspaceCoordinationRoots = new Map<string, Set<string>>();
+let workspaceCoordinationCleanupInstalled = false;
+export function cleanupAbandonedWorkspaceValidationCoordination(): void {
+  for (const [queue, roots] of workspaceCoordinationRoots) {
+    const absent = [...roots].every(root => {
+      try { lstatSync(root); return false; }
+      catch (error: any) { return error.code === 'ENOENT'; }
+    });
+    if (!absent) continue;
+    try {
+      const stat = lstatSync(queue);
+      if (!stat.isDirectory() || stat.isSymbolicLink() || (process.platform !== 'win32' && stat.uid !== userInfo().uid)) continue;
+      const workspaces = join(queue, 'workspaces');
+      if (existsSync(workspaces)) {
+        const ws = lstatSync(workspaces);
+        if (!ws.isDirectory() || ws.isSymbolicLink()) continue;
+        for (const name of readdirSync(workspaces)) {
+          if (!/^[a-f0-9]{64}$/.test(name)) continue;
+          const child = join(workspaces, name), item = lstatSync(child);
+          if (item.isDirectory() && !item.isSymbolicLink()) try { rmdirSync(child); } catch { /* populated or raced: retain */ }
+        }
+        try { rmdirSync(workspaces); } catch { /* populated or raced: retain */ }
+      }
+      rmdirSync(queue); // Atomic: any ticket/preparation or unknown file refuses removal.
+      for (const suffix of [WORKSPACE_VALIDATION_COORDINATION_ARTIFACT.migrationLockSuffix + '.fence-authority']) {
+        try { rmdirSync(queue + suffix); } catch { /* never remove a live migration fence */ }
+      }
+      workspaceCoordinationRoots.delete(queue);
+    } catch { /* Cleanup is conservative and never changes a command result. */ }
+  }
+}
+function rememberWorkspaceCoordination(queue: string, root: string): void {
+  const roots = workspaceCoordinationRoots.get(queue) ?? new Set<string>();
+  roots.add(root); workspaceCoordinationRoots.set(queue, roots);
+  if (!workspaceCoordinationCleanupInstalled) {
+    process.once('exit', cleanupAbandonedWorkspaceValidationCoordination);
+    workspaceCoordinationCleanupInstalled = true;
+  }
+}
+
+/** Keep one queue for old and new callers, with all physical writes outside
+ * the guarded repository. Never move or replace a populated legacy directory.
+ * rmdir is the atomic empty check; if an old writer wins the mkdir race, retry
+ * there instead of admitting a second queue. Unknown owners remain blocking.
+ */
+async function prepareWorkspaceValidationCoordination(options: ValidationCapacityLockOptions, legacyPath: string): Promise<void> {
+  cleanupAbandonedWorkspaceValidationCoordination();
+  const sharedRoot = realpathSync(resolve(legacyPath, '../../..'));
+  const namespace = join(realpathSync(userInfo().homedir), PROOF_OR_STOP_DIR, 'locks', WORKSPACE_VALIDATION_COORDINATION_ARTIFACT.directoryName);
+  const target = join(namespace, createHash('sha256').update(sharedRoot).digest('hex'));
+  const rel = relative(sharedRoot, target);
+  if (!isAbsolute(rel) && rel !== '..' && !rel.startsWith('../') && !rel.startsWith('..\\')) {
+    throw new Error('workspace validation coordination must be outside the protected repository');
+  }
+  const ensurePrivateDirectory = (path: string): void => {
+    mkdirSync(path, { recursive: true, mode: 0o700 });
+    const stat = lstatSync(path);
+    if (!stat.isDirectory() || stat.isSymbolicLink()
+      || (process.platform !== 'win32' && (stat.uid !== userInfo().uid || (stat.mode & 0o077) !== 0))) {
+      throw new Error('workspace validation coordination requires a private owned directory');
+    }
+  };
+  ensurePrivateDirectory(namespace);
+  mkdirSync(dirname(legacyPath), { recursive: true });
+  const assertOwnedAlias = (): void => {
+    let actual: string;
+    try { actual = realpathSync(legacyPath); }
+    catch (error: any) {
+      if (error.code !== 'ENOENT') throw error;
+      const prior = resolve(dirname(legacyPath), readlinkSync(legacyPath));
+      // Empty, abandoned owned queues can be reclaimed. Recreate that exact
+      // identity for a moved/copied checkout; never repoint to another queue.
+      if (/^[a-f0-9]{64}$/.test(relative(realpathSync(namespace), prior))) {
+        mkdirSync(prior, {mode:0o700,recursive:true}); actual = realpathSync(prior);
+      } else throw new Error(`WORKSPACE_COORDINATION_ALIAS_DANGLING: ${legacyPath}. Run proof-or-stop doctor; inspect the alias and restore its original private queue/home before retrying. Expected owned queue: ${target}. A missing target is not proof that another owner's queue may be replaced.`);
+    }
+    // The published alias is the stable queue identity across checkout moves
+    // and copies. Keep it instead of switching queues under concurrent owners.
+    // Same-owner copies conservatively share admission; foreign namespaces and
+    // unsafe queue permissions never gain this compatibility admission.
+    const key = relative(realpathSync(namespace), actual);
+    const queue = lstatSync(actual);
+    if (!/^[a-f0-9]{64}$/.test(key) || !queue.isDirectory() || queue.isSymbolicLink()
+      || (process.platform !== 'win32' && (queue.uid !== userInfo().uid || (queue.mode & 0o077) !== 0))) {
+      throw new Error(`workspace validation coordination alias points at an unowned queue: ${legacyPath} -> ${actual}; expected a private queue directly inside ${namespace}. Inspect the original owner home with proof-or-stop doctor; the alias is preserved.`);
+    }
+    rememberWorkspaceCoordination(actual, sharedRoot);
+  };
+  const validAlias = (): boolean => {
+    let stat;
+    try { stat = lstatSync(legacyPath); } catch (error: any) { if (error.code !== 'ENOENT') throw error; }
+    if (!stat?.isSymbolicLink()) return false;
+    assertOwnedAlias();
+    return true;
+  };
+  if (validAlias()) return;
+  const migrationPath = target + WORKSPACE_VALIDATION_COORDINATION_ARTIFACT.migrationLockSuffix;
+  let lastProgressAt = -Infinity;
+  let waitMessage: string | undefined;
+  const migrationError = (error: unknown): never => {
+    // Caller-supplied errors retain their identity and contents.
+    if (isValidationCapacityWaitDeadlineError(error) && waitMessage) (error as Error).message += `; ${waitMessage}`;
+    throw error;
+  };
+  const assertMigrationActive = () => { try { assertCapacityWaitActive(options); } catch (error) { migrationError(error); } };
+  const waitForMigration = async (holderPath: string) => {
+    waitMessage = `workspace coordination migration waiting for ${legacyPath} to drain; ${buildCapacityWaitMessage(options, holderPath)}`;
+    if (Date.now() - lastProgressAt >= Math.max(10, options.progressIntervalMs ?? VALIDATION_CAPACITY_PROGRESS_INTERVAL_MS)) {
+      lastProgressAt = Date.now();
+      try { options.onWaitProgress?.(waitMessage); } catch { /* Descriptive callbacks never change ownership. */ }
+    }
+    try { await waitForCapacityRetry(options, Math.max(10, options.pollMs ?? VALIDATION_CAPACITY_WAIT_POLL_MS)); }
+    catch (error) { migrationError(error); }
+  };
+  let migration: AcquiredMkdirLock | undefined;
+  while (!migration) {
+    assertMigrationActive();
+    if (validAlias()) return;
+    try {
+      migration = acquireMkdirLock(migrationPath, {
+        label: 'workspace coordination migration', deadlineMs: 1, pollMs: 1,
+        failFastIfHeld: true, heldMessage: 'WORKSPACE_COORDINATION_MIGRATION_BUSY',
+        classifyExistingLock: classifyValidationCapacityLock, requireHolderToken: true,
+        holderInfo: { lockId: randomUUID(), pid: process.pid, hostname: hostname(),
+          command: 'workspace coordination migration', acquiredAt: new Date().toISOString(), processStartTimeMs: currentProcessStartTimeMs() },
+      });
+    } catch (error: any) {
+      if (!error.message.includes('WORKSPACE_COORDINATION_MIGRATION_BUSY')
+        && !error.message.startsWith('workspace coordination migration lock timeout')) throw error;
+      await waitForMigration(migrationPath);
+    }
+  }
+  try {
+  let liveQueuePaths: string[] = [];
+  const unclassifiedTransitions = new Map<string, string>();
+  const pruneEmptyQueue = (path: string): string[] => {
+    const blocked: string[] = [];
+    // A populated legacy queue drains before migration. New callers wait outside
+    // that queue, report its holder, and retain their original deadline/abort.
+    liveQueuePaths.push(...activeCapacityCandidates(path, '.choosing', options.staleMs ?? VALIDATION_EXECUTION_LOCK_STALE_MS).map(row => row.path));
+    liveQueuePaths.push(...activeCapacityCandidates(path, '.ticket', options.staleMs ?? VALIDATION_EXECUTION_LOCK_STALE_MS).map(row => row.path));
+    for (const name of readdirSync(path)) {
+      const child = join(path, name);
+      let stat;
+      try { stat = lstatSync(child); } catch (error: any) { if (error.code === 'ENOENT') continue; throw error; }
+      if (/\.(preparing|quarantine)$/.test(name) && stat.isDirectory() && !stat.isSymbolicLink()) {
+        const holder = readMkdirLockHolder(child);
+        // Unpublished or quarantined state is removable only with local owner
+        // death, never merely age, a mismatched heartbeat, or an unknown owner.
+        if (localHolderIsProvablyDead(holder)
+          && classifyValidationCapacityLock({lockDir:child,holder,ageMs:0,staleMs:VALIDATION_EXECUTION_LOCK_STALE_MS,nowMs:Date.now()}) === 'stale') {
+          quarantineValidationCapacityCandidate(child, 'stale');
+          if (!existsSync(child)) continue;
+        }
+        if (holder && holder.hostname === hostname() && Number.isSafeInteger(holder.pid) && holder.pid > 1
+          && classifyValidationCapacityLock({lockDir:child,holder,ageMs:0,staleMs:VALIDATION_EXECUTION_LOCK_STALE_MS,nowMs:Date.now()}) === 'active') {
+          liveQueuePaths.push(child);
+        } else {
+          // Publication/release may remove the entry or its holder after lstat.
+          // Re-observe before diagnosing residue; absence never grants deletion.
+          let current;
+          try { current = lstatSync(child); }
+          catch (error: any) { if (error.code === 'ENOENT') continue; throw error; }
+          const identity = `${current.dev}:${current.ino}:${current.birthtimeMs}`;
+          if (!holder && current.isDirectory() && !current.isSymbolicLink()
+            && unclassifiedTransitions.get(child) !== identity) {
+            unclassifiedTransitions.set(child, identity);
+            liveQueuePaths.push(child);
+          } else blocked.push(child);
+        }
+      } else if (name === 'workspaces' && stat.isDirectory() && !stat.isSymbolicLink()) {
+        for (const workspace of readdirSync(child)) {
+          const queue = join(child, workspace);
+          let queueStat;
+          try { queueStat = lstatSync(queue); } catch (error: any) { if (error.code === 'ENOENT') continue; throw error; }
+          if (!/^[a-f0-9]{64}$/.test(workspace) || !queueStat.isDirectory() || queueStat.isSymbolicLink()) { blocked.push(queue); continue; }
+          blocked.push(...pruneEmptyQueue(queue));
+          try { rmdirSync(queue); } catch (error: any) { if (!['ENOENT', 'ENOTEMPTY', 'EEXIST'].includes(error.code)) throw error; }
+        }
+        try { rmdirSync(child); } catch (error: any) { if (!['ENOENT', 'ENOTEMPTY', 'EEXIST'].includes(error.code)) throw error; }
+      } else if (!/\.(choosing|ticket)$/.test(name) || !stat.isDirectory() || stat.isSymbolicLink()) blocked.push(child);
+    }
+    return blocked;
+  };
+  while (true) {
+    assertMigrationActive();
+    let stat;
+    try { stat = lstatSync(legacyPath); }
+    catch (error: any) { if (error.code !== 'ENOENT') throw error; }
+    if (stat?.isSymbolicLink()) {
+      assertOwnedAlias();
+      return;
+    }
+    if (stat) {
+      if (!stat.isDirectory()) throw new Error('workspace validation coordination legacy path is not a directory');
+      liveQueuePaths = [];
+      const blocked = pruneEmptyQueue(legacyPath);
+      if (blocked.length) throw new Error(`WORKSPACE_COORDINATION_MIGRATION_BLOCKED: ${legacyPath}; retained entries: ${blocked.join(', ')}. Inspect their owners and repair abandoned residue before retrying; live or unknown ownership is never removed.`);
+      if (liveQueuePaths.length) { await waitForMigration(liveQueuePaths[0]!); continue; }
+      try { rmdirSync(legacyPath); }
+      catch (error: any) {
+        if (!['ENOENT', 'ENOTEMPTY', 'EEXIST'].includes(error.code)) throw error;
+        if (error.code !== 'ENOENT') { await waitForMigration(legacyPath); continue; }
+      }
+    }
+    // Existing moved/copied aliases already identify their queue; allocate a new
+    // target only when this caller is about to publish a previously absent alias.
+    ensurePrivateDirectory(target);
+    rememberWorkspaceCoordination(target, sharedRoot);
+    try { symlinkSync(target, legacyPath, process.platform === 'win32' ? 'junction' : 'dir'); return; }
+    catch (error: any) {
+      if (error.code !== 'EEXIST') throw error;
+      // Verify an alias winner before publishing; a legacy writer that won the
+      // mkdir race is inspected on the next iteration without replacing it.
+      if (validAlias()) return;
+    }
+  }
+  } finally { migration.release(); }
 }
 
 /**
@@ -805,6 +1037,12 @@ function capacityTicketAdmitted(tickets: Array<{ path: string }>, ticketPath: st
   return true;
 }
 
+class ValidationCapacityQueueDisappearedError extends Error {
+  constructor(cause: unknown) {
+    super('validation capacity queue disappeared before ticket publication', { cause });
+  }
+}
+
 function createValidationCapacityCandidate(path: string, holder: MkdirLockHolderInfo, declaration: CapacityResourceDeclaration | null): void {
   // A `.choosing` name is queue-visible, so never publish it before its
   // identity is complete. A process killed while preparing leaves only an
@@ -812,7 +1050,12 @@ function createValidationCapacityCandidate(path: string, holder: MkdirLockHolder
   const preparingPath = `${path}.${process.pid}-${randomUUID()}.preparing`;
   // Only a canonical machine ticket is read by the boot-recovery reader, which requires the
   // private mode; workspace capacity tickets keep the process default.
-  mkdirSync(preparingPath, dirname(path) === canonicalMachineCapacityRoot() ? { mode: MACHINE_FIXED_PORT_RUNTIME_POLICY.directoryMode } : undefined);
+  try {
+    mkdirSync(preparingPath, dirname(path) === canonicalMachineCapacityRoot() ? { mode: MACHINE_FIXED_PORT_RUNTIME_POLICY.directoryMode } : undefined);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') throw new ValidationCapacityQueueDisappearedError(error);
+    throw error;
+  }
   try {
     writeFileSync(join(preparingPath, 'holder.json'), JSON.stringify(holder, null, 2) + '\n', 'utf8');
     if (declaration) writeFileSync(join(preparingPath, 'resources.json'), JSON.stringify(declaration) + '\n', 'utf8');
@@ -844,8 +1087,20 @@ export async function withWorkspaceValidationCapacity<T>(
   fn: () => Promise<T> | T,
 ): Promise<T> {
   const sharedKey = validationCapacityLockPath(options.workspaceRoot, options.requireGitIdentity === true);
-  const lockKey = options.workspaceOnly ? join(sharedKey, 'workspaces', createHash('sha256').update(realpathSync(options.workspaceRoot)).digest('hex')) : sharedKey;
-  return withValidationCapacityQueue(options, fn, lockKey);
+  for (let attempt = 0; ; attempt++) {
+    assertCapacityWaitActive(options);
+    await prepareWorkspaceValidationCoordination(options, sharedKey);
+    const lockKey = options.workspaceOnly ? join(sharedKey, 'workspaces', createHash('sha256').update(realpathSync(options.workspaceRoot)).digest('hex')) : sharedKey;
+    let callbackStarted = false;
+    try {
+      return await withValidationCapacityQueue(options, () => { callbackStarted = true; return fn(); }, lockKey);
+    } catch (error) {
+      // Another process can reclaim an empty shared queue after preparation.
+      // Revalidate its owned alias; never retry a callback or an unknown error.
+      if (callbackStarted || !(error instanceof ValidationCapacityQueueDisappearedError)
+        || attempt + 1 >= VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS.workspacePreparationAttempts) throw error;
+    }
+  }
 }
 
 /** Same-user machine resources are acquired only by actual command executors. */
@@ -992,7 +1247,11 @@ async function withValidationCapacityQueue<T>(options: ValidationCapacityLockOpt
   const progressIntervalMs = Math.max(pollMs, options.progressIntervalMs ?? VALIDATION_CAPACITY_PROGRESS_INTERVAL_MS);
   let lastProgressAt = Number.NEGATIVE_INFINITY;
   const staleMs = options.staleMs ?? VALIDATION_EXECUTION_LOCK_STALE_MS;
-  mkdirSync(lockKey, { recursive: true });
+  try { mkdirSync(lockKey, { recursive: true }); }
+  catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') throw new ValidationCapacityQueueDisappearedError(error);
+    throw error;
+  }
   const choosingPath = join(lockKey, `${holderInfo.lockId}.choosing`);
   let ticketPath = '';
   let ancestors: Set<number> | undefined;

@@ -1,0 +1,15 @@
+{
+  "main": "462852b60f",
+  "sourceSha256": "c3b951b0c825fffb220c567503831f2700d1b8db2b966d97ffaf8f635a36ed22",
+  "before": {
+    "sourcePath": "packages/main/src/core/review-incremental-context.ts",
+    "occurrences": 332,
+    "contextSha256": "e04750f29c13f37e7f17b60122b66df61bf715f53ef26f92c9b4403aa0ffa62c"
+  },
+  "after": {
+    "sourcePath": "packages/main/src/core/review-incremental-context.ts",
+    "occurrences": 366,
+    "contextSha256": "103892a7a696b1d7d6217a6840bd20a19ce068aa07c22306dcfad9d7c0a23fdf"
+  },
+  "reason": "Exact main dependency closure budget implementation introduces registered runtime limit imports and their bound uses. No identity value, alias, or acceptance exemption changes."
+}

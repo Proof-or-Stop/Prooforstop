@@ -1,0 +1,40 @@
+[
+  {
+    "name": "story3VerifierMutationAccepted",
+    "before": "  return spawnSync(process.execPath, [join(repositoryRoot, 'scripts', 'verify-process-fact-contract.mjs'), '--quiet'], {\n    cwd: repositoryRoot,\n    env: { ...process.env, PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION: mutation },\n    encoding: 'utf8',\n    stdio: ['ignore', 'pipe', 'pipe'],\n  }).status === 0;",
+    "after": "  return runStory3Mutation(repositoryRoot, mutation);"
+  },
+  {
+    "name": "runAggregateTamperMatrix",
+    "before": "  const mutations = [",
+    "after": "  assertStory3VerifierPositiveControl(repositoryRoot);\n  const mutations = ["
+  },
+  {
+    "name": "runDependencyScorecardBoundary",
+    "before": "  const query = getProcessFactRegistryEntry('finding_ledger_query');",
+    "after": "  assertStory3VerifierPositiveControl(repositoryRoot);\n  const query = getProcessFactRegistryEntry('finding_ledger_query');"
+  },
+  {
+    "name": "runRuntimeEvidenceMatrix",
+    "before": "    const nonAuthorityMutations = [",
+    "after": "    assertStory3VerifierPositiveControl(repositoryRoot);\n    const nonAuthorityMutations = ["
+  },
+  {
+    "name": "runFindingProjectionRegression",
+    "before": "  const priorLegacyCrashAgent = process.env.PROOF_OR_STOP_AGENT;\n  process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-implementer';",
+    "after": "  const priorLegacyCrashAgent = process.env.PROOF_OR_STOP_AGENT;\n  process.env.PROOF_OR_STOP_AGENT = 'main'; // Lifecycle storage fixture uses the current owning actor.",
+    "reason": "Use the current authorized owner in the lifecycle storage fixture; production implementer refusal remains unchanged."
+  },
+  {
+    "name": "runFindingProjectionRegression",
+    "before": "  const priorAgent = process.env.PROOF_OR_STOP_AGENT;\n  process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-implementer';",
+    "after": "  const priorAgent = process.env.PROOF_OR_STOP_AGENT;\n  process.env.PROOF_OR_STOP_AGENT = 'main'; // Lifecycle storage fixture uses the current owning actor.",
+    "reason": "Use the current authorized owner in the lifecycle storage fixture; production implementer refusal remains unchanged."
+  },
+  {
+    "name": "runFindingProjectionRegression",
+    "before": "  const priorAuthorityAgent = process.env.PROOF_OR_STOP_AGENT;\n  process.env.PROOF_OR_STOP_AGENT = 'proof-or-stop-implementer';",
+    "after": "  const priorAuthorityAgent = process.env.PROOF_OR_STOP_AGENT;\n  process.env.PROOF_OR_STOP_AGENT = 'main'; // Lifecycle storage fixture uses the current owning actor.",
+    "reason": "Use the current authorized owner in the lifecycle storage fixture; production implementer refusal remains unchanged."
+  }
+]

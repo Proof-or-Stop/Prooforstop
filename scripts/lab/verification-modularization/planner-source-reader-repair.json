@@ -1,0 +1,4 @@
+{
+  "before": "const source = readFileSync(join(repoRoot, 'packages/main/src/tasks/validation-tier-planner-smoke.ts'), 'utf-8');",
+  "after": "const directory = join(repoRoot, 'packages/main/src/tasks/validation-tier-planner');\n  const source = readdirSync(directory).filter(name => name.endsWith('.ts')).sort()\n    .map(name => readFileSync(join(directory, name), 'utf-8')).join('\\n');"
+}

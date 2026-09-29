@@ -1,0 +1,3225 @@
+{
+  "baseline": "53dc0babd9",
+  "migrations": [
+    {
+      "id": "EX-0172",
+      "oldKey": "scripts/verify-lab-worktree.mjs:20:spawnSync",
+      "newKey": "scripts/verify-lab-worktree.mjs:20:spawnSync",
+      "oldCall": "6d3e55a0697a05dc115d3380e5dd5e87d507346ec1e90392766e9acb340120a3",
+      "newCall": "6d3e55a0697a05dc115d3380e5dd5e87d507346ec1e90392766e9acb340120a3",
+      "oldEvidenceCount": 6,
+      "newEvidenceCount": 7,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0230",
+      "oldKey": "scripts/verify-lab-worktree.mjs:349:execFileSync",
+      "newKey": "scripts/verify-lab-worktree.mjs:349:execFileSync",
+      "oldCall": "b6d120dbfcb8fc90a78cebadf81e7fb3efe9b34edb2319390d16d4ac0562ce4f",
+      "newCall": "b6d120dbfcb8fc90a78cebadf81e7fb3efe9b34edb2319390d16d4ac0562ce4f",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0136",
+      "oldKey": "packages/main/tests/milestone-status.test.mjs:146:execFileSync",
+      "newKey": "packages/main/tests/milestone-status/support.mjs:170:execFileSync",
+      "oldCall": "4f3ebd81c75b825cbb89542113942500bf84d9c1709af9da2ceeb60f14185494",
+      "newCall": "4f3ebd81c75b825cbb89542113942500bf84d9c1709af9da2ceeb60f14185494",
+      "oldEvidenceCount": 5,
+      "newEvidenceCount": 51,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0137",
+      "oldKey": "packages/main/tests/milestone-status.test.mjs:157:execFileSync",
+      "newKey": "packages/main/tests/milestone-status/support.mjs:182:execFileSync",
+      "oldCall": "7307f6a250be173c37f4865fd6f17ac702fcf98a5cbebfe3b675106f3d428cb9",
+      "newCall": "7307f6a250be173c37f4865fd6f17ac702fcf98a5cbebfe3b675106f3d428cb9",
+      "oldEvidenceCount": 5,
+      "newEvidenceCount": 84,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0147",
+      "oldKey": "packages/main/tests/milestone-status.test.mjs:318:execFileSync",
+      "newKey": "packages/main/tests/milestone-status/reporting.mjs:150:execFileSync",
+      "oldCall": "ca93c45689139f8c8fd5818865508b99fe7230421cc16bfb4155e75ebd2d2a44",
+      "newCall": "ca93c45689139f8c8fd5818865508b99fe7230421cc16bfb4155e75ebd2d2a44",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 10,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0156",
+      "oldKey": "packages/main/tests/milestone-status.test.mjs:343:execFileSync",
+      "newKey": "packages/main/tests/milestone-status/reporting.mjs:175:execFileSync",
+      "oldCall": "21003ac7b70a5e45ce7cb64086dd33a480ff61764c0adf398a0ee1435546b230",
+      "newCall": "21003ac7b70a5e45ce7cb64086dd33a480ff61764c0adf398a0ee1435546b230",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 10,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0157",
+      "oldKey": "packages/main/tests/milestone-status.test.mjs:369:execFileSync",
+      "newKey": "packages/main/tests/milestone-status/reporting.mjs:201:execFileSync",
+      "oldCall": "132ccc7fe4c629993011b81845957f5a4c0654c501d51a5bb2d69e49816563c4",
+      "newCall": "132ccc7fe4c629993011b81845957f5a4c0654c501d51a5bb2d69e49816563c4",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 8,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0158",
+      "oldKey": "packages/main/tests/milestone-status.test.mjs:404:execFileSync",
+      "newKey": "packages/main/tests/milestone-status/reporting.mjs:236:execFileSync",
+      "oldCall": "12aff923c6d8c9803e686ff6b63cb24d72b3fdff1f4f7b3cea5da43ee0f968a2",
+      "newCall": "12aff923c6d8c9803e686ff6b63cb24d72b3fdff1f4f7b3cea5da43ee0f968a2",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 10,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0159",
+      "oldKey": "packages/main/tests/milestone-status.test.mjs:444:execFileSync",
+      "newKey": "packages/main/tests/milestone-status/reporting.mjs:276:execFileSync",
+      "oldCall": "9bf5843220d537e6350961b10361065257b5b163c424e749fe6d9a56558a9aff",
+      "newCall": "9bf5843220d537e6350961b10361065257b5b163c424e749fe6d9a56558a9aff",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 10,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0160",
+      "oldKey": "packages/main/tests/milestone-status.test.mjs:472:execFileSync",
+      "newKey": "packages/main/tests/milestone-status/reporting.mjs:304:execFileSync",
+      "oldCall": "2c43f45046286528d8b848bf26c0a76f16c64b34f6f0d9a78b5d3a7c51ccb103",
+      "newCall": "2c43f45046286528d8b848bf26c0a76f16c64b34f6f0d9a78b5d3a7c51ccb103",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 10,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0161",
+      "oldKey": "packages/main/tests/milestone-status.test.mjs:579:spawnSync",
+      "newKey": "packages/main/tests/milestone-status/planning.mjs:61:spawnSync",
+      "oldCall": "9a7433e83073e6b81eb2497425702c9ba2d6858f23b469724d5cd9c21d12beb6",
+      "newCall": "9a7433e83073e6b81eb2497425702c9ba2d6858f23b469724d5cd9c21d12beb6",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 10,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0138",
+      "oldKey": "packages/main/tests/milestone-status.test.mjs:2261:execFileSync",
+      "newKey": "packages/main/tests/milestone-status/closeout.mjs:591:execFileSync",
+      "oldCall": "3a6f9e5378ca1dc598bbe45f0908361711aceea0e660c2d67c8965d9e0ce5c3d",
+      "newCall": "3a6f9e5378ca1dc598bbe45f0908361711aceea0e660c2d67c8965d9e0ce5c3d",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 8,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0175",
+      "oldKey": "packages/main/tests/milestone-status.test.mjs:2969:spawnSync",
+      "newKey": "packages/main/tests/milestone-status/cli-behavior.mjs:134:spawnSync",
+      "oldCall": "8a0b52796bb437d02a7660e34b9ac7ecea82db13cbdf38c018afa1e28c540ac9",
+      "newCall": "8a0b52796bb437d02a7660e34b9ac7ecea82db13cbdf38c018afa1e28c540ac9",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 10,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0139",
+      "oldKey": "packages/main/tests/milestone-status.test.mjs:3043:execFileSync",
+      "newKey": "packages/main/tests/milestone-status/cli-behavior.mjs:208:execFileSync",
+      "oldCall": "3592e0feabcc82c0ce0a1d12efd3c95b0bb9be7e4113511afdc086f33e3cc21c",
+      "newCall": "3592e0feabcc82c0ce0a1d12efd3c95b0bb9be7e4113511afdc086f33e3cc21c",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 10,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0140",
+      "oldKey": "packages/main/tests/milestone-status.test.mjs:3096:execFileSync",
+      "newKey": "packages/main/tests/milestone-status/cli-behavior.mjs:261:execFileSync",
+      "oldCall": "dd335d650e433b9f1956246a9f19c5dd9bce81c5bcb8a890b12d9c89f4d680f4",
+      "newCall": "dd335d650e433b9f1956246a9f19c5dd9bce81c5bcb8a890b12d9c89f4d680f4",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 10,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0141",
+      "oldKey": "packages/main/tests/milestone-status.test.mjs:3071:execFileSync",
+      "newKey": "packages/main/tests/milestone-status/cli-behavior.mjs:236:execFileSync",
+      "oldCall": "5773baa182406f3034cda37ef08d4be2dcd84cb29b26a7957b8e4dd513a8faf1",
+      "newCall": "5773baa182406f3034cda37ef08d4be2dcd84cb29b26a7957b8e4dd513a8faf1",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 8,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0143",
+      "oldKey": "packages/main/tests/milestone-status.test.mjs:3109:execFileSync",
+      "newKey": "packages/main/tests/milestone-status/cli-behavior.mjs:274:execFileSync",
+      "oldCall": "067dd5a514e128b601e192ffcdaea28901390f80cfc1873c463ae32f58b396c4",
+      "newCall": "067dd5a514e128b601e192ffcdaea28901390f80cfc1873c463ae32f58b396c4",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 8,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0144",
+      "oldKey": "packages/main/tests/milestone-status.test.mjs:3122:spawnSync",
+      "newKey": "packages/main/tests/milestone-status/cli-behavior.mjs:287:spawnSync",
+      "oldCall": "17af77a6dc14ab85d0bf821612b166e43339c5236994b771a96bce290c8d7365",
+      "newCall": "17af77a6dc14ab85d0bf821612b166e43339c5236994b771a96bce290c8d7365",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 47,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0145",
+      "oldKey": "packages/main/tests/milestone-status.test.mjs:3136:spawnSync",
+      "newKey": "packages/main/tests/milestone-status/cli-behavior.mjs:307:spawnSync",
+      "oldCall": "4db4f20f86eedcc7ef96cdd7b8ad04f4db7362adf4f43b4e4389e663e1c9400f",
+      "newCall": "4db4f20f86eedcc7ef96cdd7b8ad04f4db7362adf4f43b4e4389e663e1c9400f",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 68,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0146",
+      "oldKey": "packages/main/tests/milestone-status.test.mjs:3173:spawnSync",
+      "newKey": "packages/main/tests/milestone-status/cli-behavior.mjs:350:spawnSync",
+      "oldCall": "4ac209031cd2eb1546dee324ae4ebce09514f81372eff534344b93aca9713a38",
+      "newCall": "4ac209031cd2eb1546dee324ae4ebce09514f81372eff534344b93aca9713a38",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 10,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0148",
+      "oldKey": "packages/main/tests/milestone-status.test.mjs:3186:spawnSync",
+      "newKey": "packages/main/tests/milestone-status/cli-behavior.mjs:363:spawnSync",
+      "oldCall": "9b313ae0adaf5f19ed8768ef02761de3eafc372fa9ad16f3de5a96c04fd65f5e",
+      "newCall": "9b313ae0adaf5f19ed8768ef02761de3eafc372fa9ad16f3de5a96c04fd65f5e",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 10,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0149",
+      "oldKey": "packages/main/tests/milestone-status.test.mjs:3219:spawnSync",
+      "newKey": "packages/main/tests/milestone-status/cli-behavior.mjs:396:spawnSync",
+      "oldCall": "b561b55187d37047fbc6e07a68a31531b5ce98b88d7d122f41a6f0baa2bd34d4",
+      "newCall": "b561b55187d37047fbc6e07a68a31531b5ce98b88d7d122f41a6f0baa2bd34d4",
+      "oldEvidenceCount": 5,
+      "newEvidenceCount": 64,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0150",
+      "oldKey": "packages/main/tests/milestone-status.test.mjs:3369:execFileSync",
+      "newKey": "packages/main/tests/milestone-status/cli-behavior.mjs:546:execFileSync",
+      "oldCall": "9f84354144aeb5337e91cb7798eda9bf0a6d1f3c848abcb7c6ab8b3a653898d8",
+      "newCall": "9f84354144aeb5337e91cb7798eda9bf0a6d1f3c848abcb7c6ab8b3a653898d8",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 10,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0151",
+      "oldKey": "packages/main/tests/milestone-status.test.mjs:3385:execFileSync",
+      "newKey": "packages/main/tests/milestone-status/cli-behavior.mjs:562:execFileSync",
+      "oldCall": "90de2312667ab49ce2148cc4608c8b0feb0bbb0d5ce3026e9be935e055df9221",
+      "newCall": "90de2312667ab49ce2148cc4608c8b0feb0bbb0d5ce3026e9be935e055df9221",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 8,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0152",
+      "oldKey": "packages/main/tests/milestone-status.test.mjs:3401:execFileSync",
+      "newKey": "packages/main/tests/milestone-status/cli-behavior.mjs:578:execFileSync",
+      "oldCall": "7412278769eefbbaaa38707f840e86192320723fa4e987c7c0f87ff2cf00d3ea",
+      "newCall": "7412278769eefbbaaa38707f840e86192320723fa4e987c7c0f87ff2cf00d3ea",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 10,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0153",
+      "oldKey": "packages/main/tests/milestone-status.test.mjs:3411:execFileSync",
+      "newKey": "packages/main/tests/milestone-status/cli-behavior.mjs:588:execFileSync",
+      "oldCall": "10c78ed9bbb410120a4514a9d344b79b8d174b8ff6398031b688fc3b557d7ced",
+      "newCall": "10c78ed9bbb410120a4514a9d344b79b8d174b8ff6398031b688fc3b557d7ced",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 10,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0154",
+      "oldKey": "packages/main/tests/milestone-status.test.mjs:3422:execFileSync",
+      "newKey": "packages/main/tests/milestone-status/cli-behavior.mjs:599:execFileSync",
+      "oldCall": "0efe3ec9d49595cc490ab09574cd5ef60d82366b7fadce5c169f15ce722ee583",
+      "newCall": "0efe3ec9d49595cc490ab09574cd5ef60d82366b7fadce5c169f15ce722ee583",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 10,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0155",
+      "oldKey": "packages/main/tests/milestone-status.test.mjs:3432:execFileSync",
+      "newKey": "packages/main/tests/milestone-status/cli-behavior.mjs:609:execFileSync",
+      "oldCall": "432a970b37c63ed9f932c75f73f3e409cebcd5679411029662b72c02935ab3d8",
+      "newCall": "432a970b37c63ed9f932c75f73f3e409cebcd5679411029662b72c02935ab3d8",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 53,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0027",
+      "oldKey": "packages/main/src/tasks/capability-list-smoke.ts:202:execFileSync",
+      "newKey": "packages/main/src/tasks/capability-list-smoke.ts:202:execFileSync",
+      "oldCall": "d95d1ed7d59d8fbbc4e3c9dac80856d9f6f9ddd0d94680ecc7be6a191c79a6ae",
+      "newCall": "d95d1ed7d59d8fbbc4e3c9dac80856d9f6f9ddd0d94680ecc7be6a191c79a6ae",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0028",
+      "oldKey": "packages/main/src/tasks/capability-list-smoke.ts:210:execFileSync",
+      "newKey": "packages/main/src/tasks/capability-list-smoke.ts:210:execFileSync",
+      "oldCall": "4076198d5123479f50c148dcb93b4891b02e7324dd2b4d92bb102e44fe42cfa5",
+      "newCall": "4076198d5123479f50c148dcb93b4891b02e7324dd2b4d92bb102e44fe42cfa5",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0029",
+      "oldKey": "packages/main/src/tasks/capability-list-smoke.ts:219:execFileSync",
+      "newKey": "packages/main/src/tasks/capability-list-smoke.ts:219:execFileSync",
+      "oldCall": "8251057e6eb36e7b304486a72df7f779dd162ecb9c336b9c3f9649173ee97f3c",
+      "newCall": "8251057e6eb36e7b304486a72df7f779dd162ecb9c336b9c3f9649173ee97f3c",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0034",
+      "oldKey": "packages/main/src/tasks/command-catalog-smoke.ts:59:execFileSync",
+      "newKey": "packages/main/src/tasks/command-catalog-smoke.ts:59:execFileSync",
+      "oldCall": "a54cf8a7594ee10fec801a9d5ac9efdd3477264da5cde81d98578a835a29dc82",
+      "newCall": "a54cf8a7594ee10fec801a9d5ac9efdd3477264da5cde81d98578a835a29dc82",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0036",
+      "oldKey": "packages/main/src/tasks/command-catalog-smoke.ts:72:spawnSync",
+      "newKey": "packages/main/src/tasks/command-catalog-smoke.ts:72:spawnSync",
+      "oldCall": "70699ebaa85dc1ca2420834615b99a2d263a5ae725228f0c804cc62702d06931",
+      "newCall": "70699ebaa85dc1ca2420834615b99a2d263a5ae725228f0c804cc62702d06931",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0131",
+      "oldKey": "packages/main/src/tasks/review-pass-discard-smoke.ts:140:spawn",
+      "newKey": "packages/main/src/tasks/review-pass-discard-smoke.ts:140:spawn",
+      "oldCall": "4ab407246bf964d72fc94fbe5138889956be29e109e44281c72374c8f969de49",
+      "newCall": "4ab407246bf964d72fc94fbe5138889956be29e109e44281c72374c8f969de49",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0132",
+      "oldKey": "packages/main/src/tasks/review-pass-discard-smoke.ts:182:spawn",
+      "newKey": "packages/main/src/tasks/review-pass-discard-smoke.ts:182:spawn",
+      "oldCall": "ca876eb6bf5ebb12a01f33cf646689580a9599bac47593c7880bcf9009a66fc2",
+      "newCall": "ca876eb6bf5ebb12a01f33cf646689580a9599bac47593c7880bcf9009a66fc2",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0072",
+      "oldKey": "packages/main/src/tasks/agent-liveness-suite-smoke.ts:30:execFileSync",
+      "newKey": "packages/main/src/tasks/agent-liveness-suite-smoke.ts:30:execFileSync",
+      "oldCall": "6663751b8ec01560afa71e8ce2e3815a988bd9bf83ebbf207321094f71a148c1",
+      "newCall": "6663751b8ec01560afa71e8ce2e3815a988bd9bf83ebbf207321094f71a148c1",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0061",
+      "oldKey": "packages/main/src/tasks/native-review-fixture.ts:190:spawn",
+      "newKey": "packages/main/src/tasks/native-review-fixture.ts:190:spawn",
+      "oldCall": "bf85801ab1636bf4d708546aaa664ccfc1cf3878343a9f638a869414e3433f15",
+      "newCall": "bf85801ab1636bf4d708546aaa664ccfc1cf3878343a9f638a869414e3433f15",
+      "oldEvidenceCount": 9,
+      "newEvidenceCount": 10,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0009",
+      "oldKey": "scripts/run-validation-fixture-suite.mjs:58:spawnSync",
+      "newKey": "scripts/run-validation-fixture-suite.mjs:58:spawnSync",
+      "oldCall": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
+      "newCall": "fdbac412e293dbf387d673cb19b3f353f9215e01d8587e1ceba55263c535d10c",
+      "oldEvidenceCount": 6,
+      "newEvidenceCount": 7,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0231",
+      "oldKey": "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts:67:spawn",
+      "newKey": "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts:67:spawn",
+      "oldCall": "0f142d691f8d4b6eee8247655e063c758ba7e162157094c5d16a2e815aa5edbf",
+      "newCall": "0f142d691f8d4b6eee8247655e063c758ba7e162157094c5d16a2e815aa5edbf",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0135",
+      "oldKey": "packages/main/src/tasks/verification-run-and-guard-smoke.ts:681:spawnSync",
+      "newKey": "packages/main/src/tasks/verification-run-and-guard/support.ts:199:spawnSync",
+      "oldCall": "a1e0656a45db7b1768308ff7df54453a18d03f0cfa9f0b252e1ff55242507d77",
+      "newCall": "a1e0656a45db7b1768308ff7df54453a18d03f0cfa9f0b252e1ff55242507d77",
+      "oldEvidenceCount": 8,
+      "newEvidenceCount": 13,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0232",
+      "oldKey": "packages/main/src/tasks/verification-run-and-guard-smoke.ts:2635:spawn",
+      "newKey": "packages/main/src/tasks/verification-run-and-guard/publication.ts:153:spawn",
+      "oldCall": "be6961c776a910588f75b982e225f93aab7b4f7622001598cb2c41334c593938",
+      "newCall": "be6961c776a910588f75b982e225f93aab7b4f7622001598cb2c41334c593938",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0233",
+      "oldKey": "packages/main/src/tasks/verification-run-and-guard-smoke.ts:3057:spawn",
+      "newKey": "packages/main/src/tasks/verification-run-and-guard/cli.ts:66:spawn",
+      "oldCall": "158114718e0a217b4534f91931619fbf07b50bf357dcc79c0de82e38270f0525",
+      "newCall": "ece0a6604a791fd3cfd2ca39391ef080d63721a7d24ee8d368b3be3817b3f314",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 4,
+      "contextNormalized": true
+    },
+    {
+      "id": "EX-0050",
+      "oldKey": "packages/main/src/tasks/init-window-data-loss-smoke.ts:138:spawnSync",
+      "newKey": "packages/main/src/tasks/init-window-data-loss-smoke.ts:138:spawnSync",
+      "oldCall": "ee6863cc4c03d012851f871eed1e8245839ffadd8be1dbecdbc8e1820c23ead3",
+      "newCall": "ee6863cc4c03d012851f871eed1e8245839ffadd8be1dbecdbc8e1820c23ead3",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0134",
+      "oldKey": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:220:spawn",
+      "newKey": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:220:spawn",
+      "oldCall": "f193033dbc826b6f6572d1621d833f7620d4fc54ed744c31cb73b175b49b6582",
+      "newCall": "f193033dbc826b6f6572d1621d833f7620d4fc54ed744c31cb73b175b49b6582",
+      "oldEvidenceCount": 6,
+      "newEvidenceCount": 7,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0174",
+      "oldKey": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:441:spawn",
+      "newKey": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:441:spawn",
+      "oldCall": "7791bd896df9617057155da4ebaa24a36a1ac9f2d468cf7a389bc36fe55e5431",
+      "newCall": "7791bd896df9617057155da4ebaa24a36a1ac9f2d468cf7a389bc36fe55e5431",
+      "oldEvidenceCount": 8,
+      "newEvidenceCount": 9,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0060",
+      "oldKey": "packages/main/src/tasks/material-hash-large-tree-smoke.ts:38:execSync",
+      "newKey": "packages/main/src/tasks/material-hash-large-tree-smoke.ts:38:execSync",
+      "oldCall": "489f0376dc5f8056f572438e14818518e49903dc1d9959b2edc21cc0fb0b4df9",
+      "newCall": "489f0376dc5f8056f572438e14818518e49903dc1d9959b2edc21cc0fb0b4df9",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0044",
+      "oldKey": "packages/main/src/tasks/english-early-check-smoke.ts:87:spawnSync",
+      "newKey": "packages/main/src/tasks/english-early-check-smoke.ts:87:spawnSync",
+      "oldCall": "ef4fa9acf1f94d87502a3e6eaa08237276ba18aad4fb0f3a51002c1aeb91f6f7",
+      "newCall": "ef4fa9acf1f94d87502a3e6eaa08237276ba18aad4fb0f3a51002c1aeb91f6f7",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1001",
+      "oldKey": "scripts/helpers/provider-neutral-fixture.mjs:43:spawnSync",
+      "newKey": "scripts/helpers/provider-neutral-fixture.mjs:43:spawnSync",
+      "oldCall": "1f90bda8e0bba15d190e0064e8dfe10753ea1afdf8ecb979699633623d9a24d5",
+      "newCall": "1f90bda8e0bba15d190e0064e8dfe10753ea1afdf8ecb979699633623d9a24d5",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1002",
+      "oldKey": "scripts/helpers/provider-neutral-fixture.mjs:51:spawnSync",
+      "newKey": "scripts/helpers/provider-neutral-fixture.mjs:51:spawnSync",
+      "oldCall": "4aa93dc5a0f461204bc54db79d6bc39e6e55533892a0dade1848cae99950e562",
+      "newCall": "4aa93dc5a0f461204bc54db79d6bc39e6e55533892a0dade1848cae99950e562",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0173",
+      "oldKey": "packages/main/src/tasks/quorum-submit-smoke-integration-cases.ts:381:spawnSync",
+      "newKey": "packages/main/src/tasks/quorum-submit-smoke-integration-cases.ts:381:spawnSync",
+      "oldCall": "128e0459ac125a5aa7f7b00939963ba888605fd10e90324cceb06a6663e1d113",
+      "newCall": "128e0459ac125a5aa7f7b00939963ba888605fd10e90324cceb06a6663e1d113",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0225",
+      "oldKey": "packages/main/src/tasks/quorum-submit-smoke-worker.ts:1383:spawn",
+      "newKey": "packages/main/src/tasks/quorum-submit-smoke-worker.ts:1383:spawn",
+      "oldCall": "de1a03a30c8500fe64782c6ddae13de928ce3489dc018d915fd5b84fc84fe243",
+      "newCall": "de1a03a30c8500fe64782c6ddae13de928ce3489dc018d915fd5b84fc84fe243",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1003",
+      "oldKey": "scripts/helpers/provider-neutral-fixture.mjs:76:spawn",
+      "newKey": "scripts/helpers/provider-neutral-fixture.mjs:76:spawn",
+      "oldCall": "736400cc9108d124d15b89db5e73aa118ce869f1e4fe5bd4b3409d70609445ab",
+      "newCall": "736400cc9108d124d15b89db5e73aa118ce869f1e4fe5bd4b3409d70609445ab",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1004",
+      "oldKey": "scripts/helpers/provider-neutral-fixture.mjs:95:spawnSync",
+      "newKey": "scripts/helpers/provider-neutral-fixture.mjs:95:spawnSync",
+      "oldCall": "c2e6d82feea5dc401305f664e1fcbd80656f365e91ec0bff9dc16425db0c03aa",
+      "newCall": "c2e6d82feea5dc401305f664e1fcbd80656f365e91ec0bff9dc16425db0c03aa",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0200",
+      "oldKey": "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs:1020:spawn",
+      "newKey": "packages/main/tests/red/quorum-submit-harness/process-supervision.mjs:192:spawn",
+      "oldCall": "b959c6e6c89deb2b2a9c59b410f46fddf5bd0e77734b4e864b5863434bc00689",
+      "newCall": "b959c6e6c89deb2b2a9c59b410f46fddf5bd0e77734b4e864b5863434bc00689",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0201",
+      "oldKey": "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs:4655:spawnSync",
+      "newKey": "packages/main/tests/red/quorum-submit-harness/fixture-templates.mjs:146:spawnSync",
+      "oldCall": "522b726d4a6b71cf41e665e0939b347d1cbbcc8e1c039dc0ff7ef0d8ffb475e5",
+      "newCall": "522b726d4a6b71cf41e665e0939b347d1cbbcc8e1c039dc0ff7ef0d8ffb475e5",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0202",
+      "oldKey": "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs:6462:spawn",
+      "newKey": "packages/main/tests/red/quorum-submit-harness/containment.mjs:388:spawn",
+      "oldCall": "1e392026e7de1bdbda4b6d817a57712b4460b95b057d758698589da75a10271e",
+      "newCall": "1e392026e7de1bdbda4b6d817a57712b4460b95b057d758698589da75a10271e",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0203",
+      "oldKey": "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs:7617:execFileSync",
+      "newKey": "packages/main/tests/red/quorum-submit-harness/performance-material.mjs:177:execFileSync",
+      "oldCall": "c8ec2110b6311d027bc092345a6c2ec856ad6529a5bfc14a91684ae1ea70838c",
+      "newCall": "c8ec2110b6311d027bc092345a6c2ec856ad6529a5bfc14a91684ae1ea70838c",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0204",
+      "oldKey": "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs:7699:spawn",
+      "newKey": "packages/main/tests/red/quorum-submit-harness/performance-material.mjs:259:spawn",
+      "oldCall": "aff43761eb18ee4731603b2ae6e01f687a7edf2a07dc6ffcde60a29cf3c1b383",
+      "newCall": "aff43761eb18ee4731603b2ae6e01f687a7edf2a07dc6ffcde60a29cf3c1b383",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0205",
+      "oldKey": "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs:8911:spawn",
+      "newKey": "packages/main/tests/red/quorum-submit-harness/tree-lease.mjs:231:spawn",
+      "oldCall": "8866f4849dc821a7a7e335c1c9415a58a220b0b9b67f455ddaee53869accacb9",
+      "newCall": "8866f4849dc821a7a7e335c1c9415a58a220b0b9b67f455ddaee53869accacb9",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0206",
+      "oldKey": "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs:9093:spawn",
+      "newKey": "packages/main/tests/red/quorum-submit-harness/tree-lease.mjs:413:spawn",
+      "oldCall": "273b7f40d13875145318e9fc3a405b541f0022cc12976a30bcc1a2ec347c4823",
+      "newCall": "273b7f40d13875145318e9fc3a405b541f0022cc12976a30bcc1a2ec347c4823",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0207",
+      "oldKey": "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs:9162:spawn",
+      "newKey": "packages/main/tests/red/quorum-submit-harness/tree-lease.mjs:482:spawn",
+      "oldCall": "53590e89a6d64622abd9c519af8a26dc29e1206f9c828622bae28b84da680b62",
+      "newCall": "53590e89a6d64622abd9c519af8a26dc29e1206f9c828622bae28b84da680b62",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0208",
+      "oldKey": "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs:10561:spawn",
+      "newKey": "packages/main/tests/red/quorum-submit-harness/exact-head-checkout.mjs:287:spawn",
+      "oldCall": "b3670ec3c6d1a6040af2468dc078cbc8c59f3fad480209cfa0ddfa000e38eef4",
+      "newCall": "b3670ec3c6d1a6040af2468dc078cbc8c59f3fad480209cfa0ddfa000e38eef4",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0133",
+      "oldKey": "packages/main/src/tasks/story-files-hash-batch-smoke.ts:138:execFileSync",
+      "newKey": "packages/main/src/tasks/story-files-hash-batch-smoke.ts:138:execFileSync",
+      "oldCall": "28d7e0a4525d30961f2b09f7a4877e82527e55884826365451293283b27a773b",
+      "newCall": "28d7e0a4525d30961f2b09f7a4877e82527e55884826365451293283b27a773b",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0045",
+      "oldKey": "packages/main/src/tasks/experience-pack-arm-switch-smoke.ts:157:spawnSync",
+      "newKey": "packages/main/src/tasks/experience-pack-arm-switch-smoke.ts:157:spawnSync",
+      "oldCall": "e86371ae1b3d932c70f2cb08932be5c1567feb7e54851cec517c300d227e93a4",
+      "newCall": "e86371ae1b3d932c70f2cb08932be5c1567feb7e54851cec517c300d227e93a4",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0073",
+      "oldKey": "packages/main/src/tasks/red-evidence-target-binding-smoke.ts:382:spawnSync",
+      "newKey": "packages/main/src/tasks/red-evidence-target-binding-smoke.ts:382:spawnSync",
+      "oldCall": "a0d1a026cdba15664d3ec89e09ed2a272a96ec0cddc789e0134368d99bc57ad5",
+      "newCall": "a0d1a026cdba15664d3ec89e09ed2a272a96ec0cddc789e0134368d99bc57ad5",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0130",
+      "oldKey": "packages/main/src/tasks/review-budget-stall-adjudication-smoke.ts:474:execFileSync",
+      "newKey": "packages/main/src/tasks/review-budget-stall-adjudication-smoke.ts:474:execFileSync",
+      "oldCall": "37f955be9adbc85937a5991a8fe6653160fd9a5b7529b005801e5fedf1a407e1",
+      "newCall": "37f955be9adbc85937a5991a8fe6653160fd9a5b7529b005801e5fedf1a407e1",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0128",
+      "oldKey": "packages/main/src/tasks/red-evidence-chain-smoke.ts:615:spawnSync",
+      "newKey": "packages/main/src/tasks/red-evidence-chain-smoke.ts:615:spawnSync",
+      "oldCall": "6a92e429d89347160c9cad1a972acc90bb0cd170b063819803f9764f79920d6c",
+      "newCall": "6a92e429d89347160c9cad1a972acc90bb0cd170b063819803f9764f79920d6c",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0074",
+      "oldKey": "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs:540:spawnSync",
+      "newKey": "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs:540:spawnSync",
+      "oldCall": "9259be2da4784ddcb8b5cdb0123fb3ca0c1f779297498d4f008f8377316b3c2c",
+      "newCall": "9259be2da4784ddcb8b5cdb0123fb3ca0c1f779297498d4f008f8377316b3c2c",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0008",
+      "oldKey": "packages/main/tests/red/red-b2aa7-chk011-receipt.mjs:97:spawnSync",
+      "newKey": "packages/main/tests/red/red-b2aa7-chk011-receipt.mjs:97:spawnSync",
+      "oldCall": "5542aa0654c5abf7e05bd9a281f5f907eb6bec9af7bf4cdbab8d8a6340b31732",
+      "newCall": "5542aa0654c5abf7e05bd9a281f5f907eb6bec9af7bf4cdbab8d8a6340b31732",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0177",
+      "oldKey": "packages/main/tests/red/red-b49d4-registration-derivation.mjs:596:spawnSync",
+      "newKey": "packages/main/tests/red/red-b49d4-registration-derivation.mjs:596:spawnSync",
+      "oldCall": "23d0c83e59d79367ab1416af73c0a1aa6ad4bd56e62717df0a7a84ce331adb00",
+      "newCall": "23d0c83e59d79367ab1416af73c0a1aa6ad4bd56e62717df0a7a84ce331adb00",
+      "oldEvidenceCount": 6,
+      "newEvidenceCount": 7,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0075",
+      "oldKey": "packages/main/tests/red/red-b49d4-chk002-receipt.mjs:128:spawnSync",
+      "newKey": "packages/main/tests/red/red-b49d4-chk002-receipt.mjs:128:spawnSync",
+      "oldCall": "898d83d450bd157832d01f382b55a252797f74f54f1abdd2e24646a2cd47cb74",
+      "newCall": "898d83d450bd157832d01f382b55a252797f74f54f1abdd2e24646a2cd47cb74",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0076",
+      "oldKey": "packages/main/tests/red/red-b49d4-chk002-receipt.mjs:132:spawnSync",
+      "newKey": "packages/main/tests/red/red-b49d4-chk002-receipt.mjs:132:spawnSync",
+      "oldCall": "dc7862c2044d80f9469fb6f98172c5578818eb9c06115dc07114b56c90b8cd14",
+      "newCall": "dc7862c2044d80f9469fb6f98172c5578818eb9c06115dc07114b56c90b8cd14",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0163",
+      "oldKey": "packages/main/tests/red/red-1734-lock-liveness.mjs:217:spawn",
+      "newKey": "packages/main/tests/red/red-1734-lock-liveness.mjs:217:spawn",
+      "oldCall": "5a43082262edff1520e421d3529b8265758ffd54468d301eed59270f5710ebca",
+      "newCall": "5a43082262edff1520e421d3529b8265758ffd54468d301eed59270f5710ebca",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0176",
+      "oldKey": "packages/main/tests/red/red-1734-reader-race.mjs:74:spawn",
+      "newKey": "packages/main/tests/red/red-1734-reader-race.mjs:74:spawn",
+      "oldCall": "65157a259d4f26c424d873f45fc8f1ca12734fd32aaacd87105c77bf8cc9ea98",
+      "newCall": "65157a259d4f26c424d873f45fc8f1ca12734fd32aaacd87105c77bf8cc9ea98",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0234",
+      "oldKey": "packages/main/tests/red/red-bcae-bootstrap-reader-lock.mjs:590:spawn",
+      "newKey": "packages/main/tests/red/red-bcae-bootstrap-reader-lock.mjs:590:spawn",
+      "oldCall": "78ab5604ab0ae7f9dee2de69cbb2e1ff6e795e8c07dc0bd9afe85b9b31f065d0",
+      "newCall": "78ab5604ab0ae7f9dee2de69cbb2e1ff6e795e8c07dc0bd9afe85b9b31f065d0",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0235",
+      "oldKey": "packages/main/tests/red/red-bcae-bootstrap-reader-lock.mjs:1263:spawn",
+      "newKey": "packages/main/tests/red/red-bcae-bootstrap-reader-lock.mjs:1263:spawn",
+      "oldCall": "a0725169fed7552e28ec1c0a189780545ee214be1fd5e5642ce09ec02467acc8",
+      "newCall": "a0725169fed7552e28ec1c0a189780545ee214be1fd5e5642ce09ec02467acc8",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0162",
+      "oldKey": "packages/main/tests/red/red-1734-bootstrap-depfree.mjs:153:spawn",
+      "newKey": "packages/main/tests/red/red-1734-bootstrap-depfree.mjs:153:spawn",
+      "oldCall": "5588184e265fbaead2653b5c663768de12d58cbc657c1f7ff1cda5fc427f52ec",
+      "newCall": "5588184e265fbaead2653b5c663768de12d58cbc657c1f7ff1cda5fc427f52ec",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0168",
+      "oldKey": "packages/main/tests/red/red-global-cli-exec-bit.mjs:95:execFileSync",
+      "newKey": "packages/main/tests/red/red-global-cli-exec-bit.mjs:95:execFileSync",
+      "oldCall": "a006be57b826f61bbdf951870820c4b844e110e410d93cc5db6b20d0c909dfcf",
+      "newCall": "a006be57b826f61bbdf951870820c4b844e110e410d93cc5db6b20d0c909dfcf",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0236",
+      "oldKey": "packages/main/tests/red/red-1734-desktop-asset-manifest.mjs:437:spawnSync",
+      "newKey": "packages/main/tests/red/red-1734-desktop-asset-manifest.mjs:437:spawnSync",
+      "oldCall": "514e450b91e983e6a98fccc6b477325150ad5eeb3a7f96176a7d0c9171c232c7",
+      "newCall": "514e450b91e983e6a98fccc6b477325150ad5eeb3a7f96176a7d0c9171c232c7",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0164",
+      "oldKey": "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs:476:execFileSync",
+      "newKey": "packages/main/tests/red/red-b3434-blob-buffer-ceiling.mjs:476:execFileSync",
+      "oldCall": "117c7f5e530477f703018964f0f9805cfaf99f68af93335e630803243fa246ab",
+      "newCall": "117c7f5e530477f703018964f0f9805cfaf99f68af93335e630803243fa246ab",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0077",
+      "oldKey": "packages/main/tests/red/red-w2b-wiring-contract.mjs:106:spawnSync",
+      "newKey": "packages/main/tests/red/red-w2b-wiring-contract.mjs:106:spawnSync",
+      "oldCall": "a0d1a026cdba15664d3ec89e09ed2a272a96ec0cddc789e0134368d99bc57ad5",
+      "newCall": "a0d1a026cdba15664d3ec89e09ed2a272a96ec0cddc789e0134368d99bc57ad5",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0078",
+      "oldKey": "packages/main/tests/red/red-w2b-wiring-contract.mjs:186:spawnSync",
+      "newKey": "packages/main/tests/red/red-w2b-wiring-contract.mjs:186:spawnSync",
+      "oldCall": "98330ad16c8b807eb1f2427cd0e9f2eaaf8e9fda088ed4d59c63ab43e19e16a4",
+      "newCall": "98330ad16c8b807eb1f2427cd0e9f2eaaf8e9fda088ed4d59c63ab43e19e16a4",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0237",
+      "oldKey": "packages/main/tests/red/red-w2b-wiring-contract.mjs:219:spawnSync",
+      "newKey": "packages/main/tests/red/red-w2b-wiring-contract.mjs:219:spawnSync",
+      "oldCall": "a0e606e05daf5602520bf03174e501e2ddeb3e3bcd7431fccfc35e09868e4df1",
+      "newCall": "a0e606e05daf5602520bf03174e501e2ddeb3e3bcd7431fccfc35e09868e4df1",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0169",
+      "oldKey": "packages/main/tests/red/red-w2c-binding-freeze-race.mjs:143:spawn",
+      "newKey": "packages/main/tests/red/red-w2c-binding-freeze-race.mjs:143:spawn",
+      "oldCall": "bea69e41d48d6c9b053cd2945e6f5f7131bb45117a7173077f54f2dd3f7c72ce",
+      "newCall": "bea69e41d48d6c9b053cd2945e6f5f7131bb45117a7173077f54f2dd3f7c72ce",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0170",
+      "oldKey": "packages/main/tests/red/red-w2c-binding-freeze-race.mjs:211:spawn",
+      "newKey": "packages/main/tests/red/red-w2c-binding-freeze-race.mjs:211:spawn",
+      "oldCall": "0f0d478d4fc6bbc943dd75743c76934d25fa1ba9f001e70ba2bdaa5f0cc97145",
+      "newCall": "0f0d478d4fc6bbc943dd75743c76934d25fa1ba9f001e70ba2bdaa5f0cc97145",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0171",
+      "oldKey": "packages/main/tests/red/red-w2c-quarantine-race.mjs:93:spawn",
+      "newKey": "packages/main/tests/red/red-w2c-quarantine-race.mjs:93:spawn",
+      "oldCall": "7c0694b29e6fbf5a58bce42806584d1ea1e9d1c411d2a465a52262afe8d6abe1",
+      "newCall": "7c0694b29e6fbf5a58bce42806584d1ea1e9d1c411d2a465a52262afe8d6abe1",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0079",
+      "oldKey": "packages/main/tests/red/red-w2c-wiring-detectability.mjs:51:spawnSync",
+      "newKey": "packages/main/tests/red/red-w2c-wiring-detectability.mjs:51:spawnSync",
+      "oldCall": "3f244f882b1657ba2d7d3d14255f3f9a3f16db22172593bd95d0a032bc1753c6",
+      "newCall": "3f244f882b1657ba2d7d3d14255f3f9a3f16db22172593bd95d0a032bc1753c6",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0080",
+      "oldKey": "packages/main/tests/red/red-w2c-wiring-detectability.mjs:100:spawnSync",
+      "newKey": "packages/main/tests/red/red-w2c-wiring-detectability.mjs:100:spawnSync",
+      "oldCall": "51443ec30923cd167c96817b94df79b6e2bbe70eef95454019f55db46ff49516",
+      "newCall": "51443ec30923cd167c96817b94df79b6e2bbe70eef95454019f55db46ff49516",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0048",
+      "oldKey": "packages/main/src/tasks/frozen-claim-snapshot-hook-smoke.ts:47:spawnSync",
+      "newKey": "packages/main/src/tasks/frozen-claim-snapshot-hook-smoke.ts:47:spawnSync",
+      "oldCall": "6d680bf65e31273ab71fd97170fc56b51ee6250fea7dfaaa1a2cdea4d5d85d4b",
+      "newCall": "6d680bf65e31273ab71fd97170fc56b51ee6250fea7dfaaa1a2cdea4d5d85d4b",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0181",
+      "oldKey": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts:57:execFileSync",
+      "newKey": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts:57:execFileSync",
+      "oldCall": "5461d0288d839e25022c86df30ff0d0fa5c699993899a05e8003d815bc02fed8",
+      "newCall": "5461d0288d839e25022c86df30ff0d0fa5c699993899a05e8003d815bc02fed8",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0182",
+      "oldKey": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts:107:execFileSync",
+      "newKey": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts:107:execFileSync",
+      "oldCall": "a050f567ab789cdef1fc3c225620903d57e7aa9fc2f28f9a8daedf8f9de6b7e6",
+      "newCall": "a050f567ab789cdef1fc3c225620903d57e7aa9fc2f28f9a8daedf8f9de6b7e6",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-NEW-PRE-CLI",
+      "oldKey": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:699:execFileSync",
+      "newKey": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:699:execFileSync",
+      "oldCall": "08a7377c911338278b9af5d87087ab82c33bd2307030dac1e9f4df39bbe415ca",
+      "newCall": "08a7377c911338278b9af5d87087ab82c33bd2307030dac1e9f4df39bbe415ca",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-NEW-PRE-BUILD",
+      "oldKey": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:1222:execFileSync",
+      "newKey": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:1222:execFileSync",
+      "oldCall": "1a2de51dce9a33da3523310b76021eff5b33d554613ab05448f4dd73438e0f53",
+      "newCall": "1a2de51dce9a33da3523310b76021eff5b33d554613ab05448f4dd73438e0f53",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0066",
+      "oldKey": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts:117:execFileSync",
+      "newKey": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts:117:execFileSync",
+      "oldCall": "195ba6db1f8e51d7cfd772a35722ad0a1f4fbecd6772c9ac1a28ce9e5ff44929",
+      "newCall": "195ba6db1f8e51d7cfd772a35722ad0a1f4fbecd6772c9ac1a28ce9e5ff44929",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0238",
+      "oldKey": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts:1921:execFileSync",
+      "newKey": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts:1921:execFileSync",
+      "oldCall": "34cb3f0b563e80b38d2ea104b16ad48cac61a842697773a70c51df8d028b1722",
+      "newCall": "34cb3f0b563e80b38d2ea104b16ad48cac61a842697773a70c51df8d028b1722",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0081",
+      "oldKey": "packages/main/src/tasks/red-evidence-envelope-smoke.ts:618:spawnSync",
+      "newKey": "packages/main/src/tasks/red-evidence-envelope-smoke.ts:618:spawnSync",
+      "oldCall": "a0d1a026cdba15664d3ec89e09ed2a272a96ec0cddc789e0134368d99bc57ad5",
+      "newCall": "a0d1a026cdba15664d3ec89e09ed2a272a96ec0cddc789e0134368d99bc57ad5",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0185",
+      "oldKey": "packages/main/tests/red/red-w2d-command-readonly.mjs:145:spawnSync",
+      "newKey": "packages/main/tests/red/red-w2d-command-readonly.mjs:145:spawnSync",
+      "oldCall": "bb488b89883939b761b3ffef41fce1cbf8a86741ecada418a6734976a1ee6fd2",
+      "newCall": "bb488b89883939b761b3ffef41fce1cbf8a86741ecada418a6734976a1ee6fd2",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0165",
+      "oldKey": "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs:162:execFileSync",
+      "newKey": "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs:162:execFileSync",
+      "oldCall": "1fcac6b1b48d6d5ab42b7a7f7883542862f33f560e71df9d9741236a92129d26",
+      "newCall": "1fcac6b1b48d6d5ab42b7a7f7883542862f33f560e71df9d9741236a92129d26",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0167",
+      "oldKey": "packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs:42:spawnSync",
+      "newKey": "packages/main/tests/red/red-cc10-chk006-removed-bin-aliases.mjs:42:spawnSync",
+      "oldCall": "679f0423354e5cf8fca856b562505878cca6519302e84333b7ced340daee3dc1",
+      "newCall": "679f0423354e5cf8fca856b562505878cca6519302e84333b7ced340daee3dc1",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0025",
+      "oldKey": "packages/graph/scripts/verify-no-project-writes.mjs:150:execFileSync",
+      "newKey": "packages/graph/scripts/verify-no-project-writes.mjs:150:execFileSync",
+      "oldCall": "78673dbcc0917c6bae4ef1fbe0a01274ec310ab05c3b1eec602846fa2ef4c3d6",
+      "newCall": "78673dbcc0917c6bae4ef1fbe0a01274ec310ab05c3b1eec602846fa2ef4c3d6",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0022",
+      "oldKey": "packages/graph/scripts/graph-process.mjs:5:spawn",
+      "newKey": "packages/graph/scripts/graph-process.mjs:5:spawn",
+      "oldCall": "9a67fe685fc1a7b1e88b1b95edd1c1d9f47e4bd3e9a2f8d53c035d9bff6b8c44",
+      "newCall": "9a67fe685fc1a7b1e88b1b95edd1c1d9f47e4bd3e9a2f8d53c035d9bff6b8c44",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0024",
+      "oldKey": "packages/graph/scripts/verify-missing-assets-fail.mjs:40:spawn",
+      "newKey": "packages/graph/scripts/verify-missing-assets-fail.mjs:40:spawn",
+      "oldCall": "4a2f77cbefee56e5d820342a320ae3e3a3c26007fee03118e8e95d0f1b4465b1",
+      "newCall": "4a2f77cbefee56e5d820342a320ae3e3a3c26007fee03118e8e95d0f1b4465b1",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0197",
+      "oldKey": "packages/graph/scripts/verify-missing-client-no-listener.mjs:21:spawnSync",
+      "newKey": "packages/graph/scripts/verify-missing-client-no-listener.mjs:21:spawnSync",
+      "oldCall": "303f938daf33ea7d50003a591a36c4ab031aae63f25fd8841145e73ce136ec8a",
+      "newCall": "303f938daf33ea7d50003a591a36c4ab031aae63f25fd8841145e73ce136ec8a",
+      "oldEvidenceCount": 5,
+      "newEvidenceCount": 6,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0021",
+      "oldKey": "packages/graph/scripts/verify-engines-floor.mjs:95:execFileSync",
+      "newKey": "packages/graph/scripts/verify-engines-floor.mjs:95:execFileSync",
+      "oldCall": "e484ba6152d7010b86996e3285054dd8d62a65e0db578f926f8320bd76e8b925",
+      "newCall": "e484ba6152d7010b86996e3285054dd8d62a65e0db578f926f8320bd76e8b925",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0020",
+      "oldKey": "packages/graph/scripts/verify-engines-floor.mjs:101:execFileSync",
+      "newKey": "packages/graph/scripts/verify-engines-floor.mjs:101:execFileSync",
+      "oldCall": "f8074a2d936d4fa26541f70621ee1b7a3b5872df4e9fc8a3c283f4879a44471e",
+      "newCall": "f8074a2d936d4fa26541f70621ee1b7a3b5872df4e9fc8a3c283f4879a44471e",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0033",
+      "oldKey": "packages/main/src/tasks/cli-surface-smoke.ts:28:execFileSync",
+      "newKey": "packages/main/src/tasks/cli-surface-smoke.ts:28:execFileSync",
+      "oldCall": "dc158101584a01b416331b499bb05d7663a5c55e3c4e456f0b357a99ededf78f",
+      "newCall": "dc158101584a01b416331b499bb05d7663a5c55e3c4e456f0b357a99ededf78f",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0030",
+      "oldKey": "packages/main/src/tasks/cli-surface-smoke.ts:161:spawnSync",
+      "newKey": "packages/main/src/tasks/cli-surface-smoke.ts:161:spawnSync",
+      "oldCall": "bb3f500d898fe7e792e34da8536ccb0d8e83560c00804195fc7664b8df641d30",
+      "newCall": "bb3f500d898fe7e792e34da8536ccb0d8e83560c00804195fc7664b8df641d30",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0031",
+      "oldKey": "packages/main/src/tasks/cli-surface-smoke.ts:213:spawnSync",
+      "newKey": "packages/main/src/tasks/cli-surface-smoke.ts:213:spawnSync",
+      "oldCall": "e2bb636bd0227105df0e01282a1e3b2809094fc158ab4a1283f9bb8018c0c32b",
+      "newCall": "e2bb636bd0227105df0e01282a1e3b2809094fc158ab4a1283f9bb8018c0c32b",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0032",
+      "oldKey": "packages/main/src/tasks/cli-surface-smoke.ts:265:spawnSync",
+      "newKey": "packages/main/src/tasks/cli-surface-smoke.ts:265:spawnSync",
+      "oldCall": "488121437f2ac747a1a60a94cf6214aa1457dc197d190137aef0f66daef2caed",
+      "newCall": "488121437f2ac747a1a60a94cf6214aa1457dc197d190137aef0f66daef2caed",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0166",
+      "oldKey": "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:65:spawnSync",
+      "newKey": "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:65:spawnSync",
+      "oldCall": "8918b88d657ca880b2a3b3c710f3b47fb748eea41d508077ceae59538c342498",
+      "newCall": "8918b88d657ca880b2a3b3c710f3b47fb748eea41d508077ceae59538c342498",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0178",
+      "oldKey": "packages/main/src/tasks/full-suite-runner.ts:697:spawn",
+      "newKey": "packages/main/src/tasks/full-suite-runner.ts:697:spawn",
+      "oldCall": "4b4294720fe303e021cfe2555db95d73700f3dfb4987989b253562f24109f1d2",
+      "newCall": "4b4294720fe303e021cfe2555db95d73700f3dfb4987989b253562f24109f1d2",
+      "oldEvidenceCount": 7,
+      "newEvidenceCount": 8,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0082",
+      "oldKey": "packages/main/src/tasks/narrowing-repin-smoke.ts:1279:execFileSync",
+      "newKey": "packages/main/src/tasks/narrowing-repin-smoke.ts:1279:execFileSync",
+      "oldCall": "14bb11123393476bc6e5b9dd2e49fbf10d357b296e7e5208c5be6e650d781d0b",
+      "newCall": "14bb11123393476bc6e5b9dd2e49fbf10d357b296e7e5208c5be6e650d781d0b",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0083",
+      "oldKey": "packages/main/src/tasks/narrowing-repin-smoke.ts:1299:execFileSync",
+      "newKey": "packages/main/src/tasks/narrowing-repin-smoke.ts:1299:execFileSync",
+      "oldCall": "b0b3813bda71851adaa8c96d2d67265694299a0e20f3355cd32d1f19acc28c09",
+      "newCall": "b0b3813bda71851adaa8c96d2d67265694299a0e20f3355cd32d1f19acc28c09",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1005",
+      "oldKey": "packages/main/src/tasks/narrowing-repin-smoke.ts:2091:spawn",
+      "newKey": "packages/main/src/tasks/narrowing-repin-smoke.ts:2091:spawn",
+      "oldCall": "0eea0b5fb1787362eb31dc4cc40a131ef9bba90f434c9026d3f9691a835d4b41",
+      "newCall": "0eea0b5fb1787362eb31dc4cc40a131ef9bba90f434c9026d3f9691a835d4b41",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1009",
+      "oldKey": "scripts/verify-proof-or-stop-identity-cutover.mjs:5761:execFileSync",
+      "newKey": "scripts/identity-cutover/repository.mjs:44:execFileSync",
+      "oldCall": "56fc0c676ec53a153736e20ee084b792838564d2c93641a15d4e51a8bb951a83",
+      "newCall": "56fc0c676ec53a153736e20ee084b792838564d2c93641a15d4e51a8bb951a83",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1010",
+      "oldKey": "scripts/verify-proof-or-stop-identity-cutover.mjs:5777:execFileSync",
+      "newKey": "scripts/identity-cutover/repository.mjs:60:execFileSync",
+      "oldCall": "7c5ef236364e52fee2471f23f769efe02289d4cc615f1726097f66113f6a2705",
+      "newCall": "7c5ef236364e52fee2471f23f769efe02289d4cc615f1726097f66113f6a2705",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1011",
+      "oldKey": "scripts/verify-proof-or-stop-identity-cutover.mjs:7568:execFileSync",
+      "newKey": "scripts/identity-cutover/certification.mjs:108:execFileSync",
+      "oldCall": "70bd41adf89932be052b88e66038bc9bdb55edfa868ef0731c079d09d75f9845",
+      "newCall": "70bd41adf89932be052b88e66038bc9bdb55edfa868ef0731c079d09d75f9845",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1012",
+      "oldKey": "scripts/verify-proof-or-stop-identity-cutover.mjs:7582:execFileSync",
+      "newKey": "scripts/identity-cutover/certification.mjs:122:execFileSync",
+      "oldCall": "fb6eab6a976b572684eb09ae878d6bfd1dd68bc8fd9c1d7b1d8650122cca8366",
+      "newCall": "fb6eab6a976b572684eb09ae878d6bfd1dd68bc8fd9c1d7b1d8650122cca8366",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1013",
+      "oldKey": "scripts/verify-proof-or-stop-identity-cutover.mjs:7588:execFileSync",
+      "newKey": "scripts/identity-cutover/certification.mjs:128:execFileSync",
+      "oldCall": "7a73523fbba3e577140d5ceaa7a49fc486336aef4dcdd18cad5f945b70c02dc0",
+      "newCall": "7a73523fbba3e577140d5ceaa7a49fc486336aef4dcdd18cad5f945b70c02dc0",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1014",
+      "oldKey": "scripts/verify-proof-or-stop-identity-cutover.mjs:7591:execFileSync",
+      "newKey": "scripts/identity-cutover/certification.mjs:131:execFileSync",
+      "oldCall": "623f9d518e6c2f3dce74808eaeb8a5aaf4c080e529ba9239371d53e14ab0e7fd",
+      "newCall": "623f9d518e6c2f3dce74808eaeb8a5aaf4c080e529ba9239371d53e14ab0e7fd",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1015",
+      "oldKey": "scripts/verify-proof-or-stop-identity-cutover.mjs:7595:execFileSync",
+      "newKey": "scripts/identity-cutover/certification.mjs:135:execFileSync",
+      "oldCall": "af0a628fc5e13e0501bcade67ffc798df0f730cd57a366a1cb0fb3236290f81b",
+      "newCall": "af0a628fc5e13e0501bcade67ffc798df0f730cd57a366a1cb0fb3236290f81b",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1016",
+      "oldKey": "scripts/verify-proof-or-stop-identity-cutover.mjs:7610:execFileSync",
+      "newKey": "scripts/identity-cutover/certification.mjs:150:execFileSync",
+      "oldCall": "113c2740926c7411a5e848da0378b7ff544b5e73ee7566b9a3f7d53dceeeecc0",
+      "newCall": "113c2740926c7411a5e848da0378b7ff544b5e73ee7566b9a3f7d53dceeeecc0",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1017",
+      "oldKey": "packages/main/tests/managed-marker-migration.test.mjs:19:execFileSync",
+      "newKey": "packages/main/tests/managed-marker-migration.test.mjs:19:execFileSync",
+      "oldCall": "98672481c513b941c2860b075b622a804f45205fc95ff9a90fb32cea6bf7da3a",
+      "newCall": "98672481c513b941c2860b075b622a804f45205fc95ff9a90fb32cea6bf7da3a",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1018",
+      "oldKey": "packages/main/tests/artifact-schema-migration.test.mjs:90:execFileSync",
+      "newKey": "packages/main/tests/artifact-schema-migration.test.mjs:90:execFileSync",
+      "oldCall": "f24085ecafc9c292a57ad0e5b60a827567a10aac55872afb1aedf13c343f82eb",
+      "newCall": "f24085ecafc9c292a57ad0e5b60a827567a10aac55872afb1aedf13c343f82eb",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1019",
+      "oldKey": "packages/main/tests/artifact-schema-migration.test.mjs:96:execFileSync",
+      "newKey": "packages/main/tests/artifact-schema-migration.test.mjs:96:execFileSync",
+      "oldCall": "115f6109b40f09a2781e42b2f5d2276ab1a2eb0e982d262170dc29e46a949ce3",
+      "newCall": "115f6109b40f09a2781e42b2f5d2276ab1a2eb0e982d262170dc29e46a949ce3",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1020",
+      "oldKey": "packages/main/tests/brand-role-migration.test.mjs:33:execFileSync",
+      "newKey": "packages/main/tests/brand-role-migration.test.mjs:33:execFileSync",
+      "oldCall": "fa592939b9e3ded83e08bff95ab272e6f113ad98b61d6cd7ccde456eb6ef07cb",
+      "newCall": "fa592939b9e3ded83e08bff95ab272e6f113ad98b61d6cd7ccde456eb6ef07cb",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1021",
+      "oldKey": "scripts/verify-global-lab-entrypoint.mjs:46:execFileSync",
+      "newKey": "scripts/verify-global-lab-entrypoint.mjs:46:execFileSync",
+      "oldCall": "45b0b43e08d8d995a439a6308c91fe3b7a5b6ca5b9b71dbe12903c5ddc17ff68",
+      "newCall": "45b0b43e08d8d995a439a6308c91fe3b7a5b6ca5b9b71dbe12903c5ddc17ff68",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1022",
+      "oldKey": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs:343:execFileSync",
+      "newKey": "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs:343:execFileSync",
+      "oldCall": "e07363576c627268b1fe4494cdf42b7931615c47cccd6cf8dc9434d167c71b4e",
+      "newCall": "e07363576c627268b1fe4494cdf42b7931615c47cccd6cf8dc9434d167c71b4e",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1023",
+      "oldKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:207:execFileSync",
+      "newKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:207:execFileSync",
+      "oldCall": "f37e1108103e5bc1542e006b04dce9e7f9e4ae87638d20328be1c17cb7ae4288",
+      "newCall": "f37e1108103e5bc1542e006b04dce9e7f9e4ae87638d20328be1c17cb7ae4288",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1024",
+      "oldKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:495:execFileSync",
+      "newKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:495:execFileSync",
+      "oldCall": "d3fbd89c4a2f5b04c41cd396740cdd1185ba385ca9c9a0debd474ac4369f993f",
+      "newCall": "d3fbd89c4a2f5b04c41cd396740cdd1185ba385ca9c9a0debd474ac4369f993f",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1025",
+      "oldKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:657:execFileSync",
+      "newKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:657:execFileSync",
+      "oldCall": "11a8798f7cf2ebb0ef2e922fb11b6ca7b410f78b35ac69f087c8677ba9925771",
+      "newCall": "11a8798f7cf2ebb0ef2e922fb11b6ca7b410f78b35ac69f087c8677ba9925771",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1026",
+      "oldKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:773:spawnSync",
+      "newKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:773:spawnSync",
+      "oldCall": "6278debbd3babd8352cc29dd9460136dbc703e16ada63b8e55145e64701b78a5",
+      "newCall": "6278debbd3babd8352cc29dd9460136dbc703e16ada63b8e55145e64701b78a5",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1027",
+      "oldKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:785:spawnSync",
+      "newKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:785:spawnSync",
+      "oldCall": "f2059c6bfc564790784c0e669216c3650e33facb722c785af1959a284b0bbbcc",
+      "newCall": "f2059c6bfc564790784c0e669216c3650e33facb722c785af1959a284b0bbbcc",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1028",
+      "oldKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:817:execFileSync",
+      "newKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:817:execFileSync",
+      "oldCall": "c03bf0b7c111c6e4b560a4d96c4d19811da14cb35dc491c2ebc701f6463b6c13",
+      "newCall": "c03bf0b7c111c6e4b560a4d96c4d19811da14cb35dc491c2ebc701f6463b6c13",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1029",
+      "oldKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:834:spawnSync",
+      "newKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:834:spawnSync",
+      "oldCall": "6d449a2b06c19ad7ab3d9b979003a5e4dd4fd5fba8dcde1400d1a30be14ea86b",
+      "newCall": "6d449a2b06c19ad7ab3d9b979003a5e4dd4fd5fba8dcde1400d1a30be14ea86b",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1030",
+      "oldKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:915:execFileSync",
+      "newKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:915:execFileSync",
+      "oldCall": "cdcd530c34c92fb609c906a9bfd4a53e1b90e896cd6bda50701b97565dcd9abe",
+      "newCall": "cdcd530c34c92fb609c906a9bfd4a53e1b90e896cd6bda50701b97565dcd9abe",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1031",
+      "oldKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:989:execFileSync",
+      "newKey": "scripts/verify-proof-or-stop-pack-boundary.mjs:989:execFileSync",
+      "oldCall": "e7c6e44e8268a4eba5a840f6d39e57409aefae0a47f7554a19dc5b8e175e80de",
+      "newCall": "e7c6e44e8268a4eba5a840f6d39e57409aefae0a47f7554a19dc5b8e175e80de",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0084",
+      "oldKey": "packages/main/src/tasks/validation-protocol-smoke.ts:1185:spawnSync",
+      "newKey": "packages/main/src/tasks/validation-protocol-smoke.ts:1185:spawnSync",
+      "oldCall": "badaba5e489bab02f6bb9a6157367571ae76876a020d8b6ce7766808983c2c83",
+      "newCall": "badaba5e489bab02f6bb9a6157367571ae76876a020d8b6ce7766808983c2c83",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0085",
+      "oldKey": "packages/main/src/tasks/validation-protocol-smoke.ts:1517:spawnSync",
+      "newKey": "packages/main/src/tasks/validation-protocol-smoke.ts:1517:spawnSync",
+      "oldCall": "704b6330f38c92fd90b557314c5e21a8fe12176762597e62acb7c9ad99fa990f",
+      "newCall": "704b6330f38c92fd90b557314c5e21a8fe12176762597e62acb7c9ad99fa990f",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0086",
+      "oldKey": "packages/main/src/tasks/validation-protocol-smoke.ts:1521:spawnSync",
+      "newKey": "packages/main/src/tasks/validation-protocol-smoke.ts:1521:spawnSync",
+      "oldCall": "23edfe3b938b4aa4fc1b335af675867acdab4de3f42af8e9998e63096748b6b5",
+      "newCall": "23edfe3b938b4aa4fc1b335af675867acdab4de3f42af8e9998e63096748b6b5",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0087",
+      "oldKey": "packages/main/src/tasks/validation-protocol-smoke.ts:2409:spawnSync",
+      "newKey": "packages/main/src/tasks/validation-protocol-smoke.ts:2409:spawnSync",
+      "oldCall": "b52bf30828ac354b374a8a9a5a5d7d8611615afa3f7f9fcbc8bb6ce398ea91e8",
+      "newCall": "b52bf30828ac354b374a8a9a5a5d7d8611615afa3f7f9fcbc8bb6ce398ea91e8",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0037",
+      "oldKey": "packages/main/src/tasks/cross-host-review-smoke.ts:294:spawn",
+      "newKey": "packages/main/src/tasks/cross-host-review-smoke.ts:294:spawn",
+      "oldCall": "b28cc0bfa9bbd1237fb0f396c914f56d325a1aa25add12cebddac93c6658a793",
+      "newCall": "b28cc0bfa9bbd1237fb0f396c914f56d325a1aa25add12cebddac93c6658a793",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0038",
+      "oldKey": "packages/main/src/tasks/cross-host-review-smoke.ts:388:execFileSync",
+      "newKey": "packages/main/src/tasks/cross-host-review-smoke.ts:388:execFileSync",
+      "oldCall": "16350cfb0665c5645a4c9ed28b0f5d55021ee41ae711f7e18b0089f253e2e3b5",
+      "newCall": "16350cfb0665c5645a4c9ed28b0f5d55021ee41ae711f7e18b0089f253e2e3b5",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0039",
+      "oldKey": "packages/main/src/tasks/cross-host-review-smoke.ts:399:execFileSync",
+      "newKey": "packages/main/src/tasks/cross-host-review-smoke.ts:399:execFileSync",
+      "oldCall": "4dbd0954467b8c2ac47565fa4a4dd9244d679934e47427e306ec973d3360d46e",
+      "newCall": "4dbd0954467b8c2ac47565fa4a4dd9244d679934e47427e306ec973d3360d46e",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0040",
+      "oldKey": "packages/main/src/tasks/cross-host-review-smoke.ts:539:execFileSync",
+      "newKey": "packages/main/src/tasks/cross-host-review-smoke.ts:539:execFileSync",
+      "oldCall": "c88c19fb4fc1c66691bde40d0a4231afce9d17f1be22a951e4d2c12990e12b16",
+      "newCall": "c88c19fb4fc1c66691bde40d0a4231afce9d17f1be22a951e4d2c12990e12b16",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0041",
+      "oldKey": "packages/main/src/tasks/cross-host-review-smoke.ts:568:execFileSync",
+      "newKey": "packages/main/src/tasks/cross-host-review-smoke.ts:568:execFileSync",
+      "oldCall": "393613f0ba2685817deaa37a1f7549955241fe6aa1f4068b6e73148793cfcb3e",
+      "newCall": "393613f0ba2685817deaa37a1f7549955241fe6aa1f4068b6e73148793cfcb3e",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0042",
+      "oldKey": "packages/main/src/tasks/cross-host-review-smoke.ts:810:spawn",
+      "newKey": "packages/main/src/tasks/cross-host-review-smoke.ts:810:spawn",
+      "oldCall": "2a15a0386f81da464c7ff8cc874102f207963bcf6581e455f44875a4da0ecb6d",
+      "newCall": "2a15a0386f81da464c7ff8cc874102f207963bcf6581e455f44875a4da0ecb6d",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0088",
+      "oldKey": "packages/main/src/tasks/host-run-usage-smoke.ts:285:execFileSync",
+      "newKey": "packages/main/src/tasks/host-run-usage/support.ts:223:execFileSync",
+      "oldCall": "c28013324e3286dd2ed0b0fd9e06c68b3abda549fcd2af5451496552190aa087",
+      "newCall": "c28013324e3286dd2ed0b0fd9e06c68b3abda549fcd2af5451496552190aa087",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0089",
+      "oldKey": "packages/main/src/tasks/host-run-usage-smoke.ts:936:spawn",
+      "newKey": "packages/main/src/tasks/host-run-usage/prompt-supervision.ts:166:spawn",
+      "oldCall": "4a8794e905521864af2de86e09c8a8267eeefae688ae2e2368055431cd46304c",
+      "newCall": "4a8794e905521864af2de86e09c8a8267eeefae688ae2e2368055431cd46304c",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0090",
+      "oldKey": "packages/main/src/tasks/host-run-usage-smoke.ts:2204:spawn",
+      "newKey": "packages/main/src/tasks/host-run-usage/output-errors.ts:263:spawn",
+      "oldCall": "b6def1d88bf04e95f23e95604aa8f02c7dd4d93ec09e19ba94cb770f62448bf8",
+      "newCall": "b6def1d88bf04e95f23e95604aa8f02c7dd4d93ec09e19ba94cb770f62448bf8",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0092",
+      "oldKey": "packages/main/src/tasks/host-run-usage-smoke.ts:2297:spawn",
+      "newKey": "packages/main/src/tasks/host-run-usage/output-errors.ts:360:spawn",
+      "oldCall": "ed4641a764c4cdf09610512182954edd04dfb6e7c119f28e4724ab25d5af5d79",
+      "newCall": "ed4641a764c4cdf09610512182954edd04dfb6e7c119f28e4724ab25d5af5d79",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0093",
+      "oldKey": "packages/main/src/tasks/host-run-usage-smoke.ts:3280:spawn",
+      "newKey": "packages/main/src/tasks/host-run-usage/ledger-concurrency.ts:71:spawn",
+      "oldCall": "2ca9d34daddc3726b0fb1ac0cc67ad74e3197158a4015da227c49ff3e4b007e8",
+      "newCall": "2ca9d34daddc3726b0fb1ac0cc67ad74e3197158a4015da227c49ff3e4b007e8",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0094",
+      "oldKey": "packages/main/src/tasks/host-run-usage-smoke.ts:3368:spawn",
+      "newKey": "packages/main/src/tasks/host-run-usage/ledger-concurrency.ts:175:spawn",
+      "oldCall": "eb9c7868fff2c07c7240d9077d5a3abb73e22b1a90324198ee74f6c0611f2cdf",
+      "newCall": "eb9c7868fff2c07c7240d9077d5a3abb73e22b1a90324198ee74f6c0611f2cdf",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0051",
+      "oldKey": "packages/main/src/tasks/managed-host-run-command-smoke.ts:633:spawn",
+      "newKey": "packages/main/src/tasks/managed-host-run-command-smoke.ts:633:spawn",
+      "oldCall": "684296cf6aebdca9f7da6e773b97f6c5563363755fec512138d313d42e5f4433",
+      "newCall": "684296cf6aebdca9f7da6e773b97f6c5563363755fec512138d313d42e5f4433",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0052",
+      "oldKey": "packages/main/src/tasks/managed-host-run-command-smoke.ts:656:spawnSync",
+      "newKey": "packages/main/src/tasks/managed-host-run-command-smoke.ts:656:spawnSync",
+      "oldCall": "faf5bae56114ef66eb460ed6054b6f3982989230f190e4ef9ca39aee8a152e6a",
+      "newCall": "faf5bae56114ef66eb460ed6054b6f3982989230f190e4ef9ca39aee8a152e6a",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0053",
+      "oldKey": "packages/main/src/tasks/managed-host-run-command-smoke.ts:733:spawnSync",
+      "newKey": "packages/main/src/tasks/managed-host-run-command-smoke.ts:733:spawnSync",
+      "oldCall": "f2ecd165c8c494992723e5e1d9b2f4ae534f127343fd4bf71dc781f8ec007655",
+      "newCall": "f2ecd165c8c494992723e5e1d9b2f4ae534f127343fd4bf71dc781f8ec007655",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0054",
+      "oldKey": "packages/main/src/tasks/managed-host-run-command-smoke.ts:754:spawnSync",
+      "newKey": "packages/main/src/tasks/managed-host-run-command-smoke.ts:754:spawnSync",
+      "oldCall": "7d2b378de2fb846edc2b381b988010ef344b3d2cd9ec128a37974a70c0a03756",
+      "newCall": "7d2b378de2fb846edc2b381b988010ef344b3d2cd9ec128a37974a70c0a03756",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0055",
+      "oldKey": "packages/main/src/tasks/managed-host-run-e2e-smoke.ts:140:spawn",
+      "newKey": "packages/main/src/tasks/managed-host-run-e2e-smoke.ts:140:spawn",
+      "oldCall": "507baa4ac47cac1f497b26dfd27ee947e2e9cfa1e141ba14e989823443b0e1b7",
+      "newCall": "507baa4ac47cac1f497b26dfd27ee947e2e9cfa1e141ba14e989823443b0e1b7",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0056",
+      "oldKey": "packages/main/src/tasks/managed-host-run-e2e-smoke.ts:170:spawn",
+      "newKey": "packages/main/src/tasks/managed-host-run-e2e-smoke.ts:170:spawn",
+      "oldCall": "503cc2bf255a03ee6d12afa6a7ee0d0864faf4ed39f04f7f64696958e9206e96",
+      "newCall": "503cc2bf255a03ee6d12afa6a7ee0d0864faf4ed39f04f7f64696958e9206e96",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0057",
+      "oldKey": "packages/main/src/tasks/managed-host-run-e2e-smoke.ts:203:spawn",
+      "newKey": "packages/main/src/tasks/managed-host-run-e2e-smoke.ts:203:spawn",
+      "oldCall": "f75c4ea8b9e5f398e34b803b95b8a3e3220a3eadb96d09e43441e7b76e216d2f",
+      "newCall": "f75c4ea8b9e5f398e34b803b95b8a3e3220a3eadb96d09e43441e7b76e216d2f",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0058",
+      "oldKey": "packages/main/src/tasks/managed-host-run-e2e-smoke.ts:222:spawn",
+      "newKey": "packages/main/src/tasks/managed-host-run-e2e-smoke.ts:222:spawn",
+      "oldCall": "5c99208c48829ee62a0a59192f9d9c966d67d532f0db3680e17f911f58fa7e3d",
+      "newCall": "5c99208c48829ee62a0a59192f9d9c966d67d532f0db3680e17f911f58fa7e3d",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0059",
+      "oldKey": "packages/main/src/tasks/managed-host-run-e2e-smoke.ts:241:spawn",
+      "newKey": "packages/main/src/tasks/managed-host-run-e2e-smoke.ts:241:spawn",
+      "oldCall": "e2d50f24178c7ba7d8927dba3b60827988dfa7e26fe1f250534b07ea7395fdbb",
+      "newCall": "e2d50f24178c7ba7d8927dba3b60827988dfa7e26fe1f250534b07ea7395fdbb",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0095",
+      "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:153:execFileSync",
+      "newKey": "packages/main/src/tasks/managed-review-evidence/environment.ts:117:execFileSync",
+      "oldCall": "5617576b499027612ec09aa204076e8e57149595f3b1316ef9e92d0eaebb49c6",
+      "newCall": "5617576b499027612ec09aa204076e8e57149595f3b1316ef9e92d0eaebb49c6",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0096",
+      "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:467:spawnSync",
+      "newKey": "packages/main/src/tasks/managed-review-evidence/transport-workers.ts:41:spawnSync",
+      "oldCall": "bd2482e4e5bae8ba4c6ecf4d17a6fc1cfcd43bdd580cda1d3c8ff98ad10c66ba",
+      "newCall": "bd2482e4e5bae8ba4c6ecf4d17a6fc1cfcd43bdd580cda1d3c8ff98ad10c66ba",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0097",
+      "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:497:spawn",
+      "newKey": "packages/main/src/tasks/managed-review-evidence/transport-workers.ts:71:spawn",
+      "oldCall": "5d655c9ba4149cd4834fb08625a11c9f4a0e63ded2712324ae7d44189f9ef2c7",
+      "newCall": "5d655c9ba4149cd4834fb08625a11c9f4a0e63ded2712324ae7d44189f9ef2c7",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0098",
+      "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:554:spawn",
+      "newKey": "packages/main/src/tasks/managed-review-evidence/transport-workers.ts:128:spawn",
+      "oldCall": "084044ebe5b8707554a3ffa7a5a3da52b1be6775a9a5597d13448631f7c9a3e0",
+      "newCall": "084044ebe5b8707554a3ffa7a5a3da52b1be6775a9a5597d13448631f7c9a3e0",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0099",
+      "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:579:spawn",
+      "newKey": "packages/main/src/tasks/managed-review-evidence/transport-workers.ts:153:spawn",
+      "oldCall": "5716033cf41268ad65c91245f56c8847c1f99d4fea5135e217cd1c4a58bf30f0",
+      "newCall": "5716033cf41268ad65c91245f56c8847c1f99d4fea5135e217cd1c4a58bf30f0",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0100",
+      "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:629:spawn",
+      "newKey": "packages/main/src/tasks/managed-review-evidence/transport-workers.ts:197:spawn",
+      "oldCall": "c18c371a36901f3122ab0dda669376347c6ac33c687664d5329c61619f9c8ae3",
+      "newCall": "c18c371a36901f3122ab0dda669376347c6ac33c687664d5329c61619f9c8ae3",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 18,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0101",
+      "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:1517:spawn",
+      "newKey": "packages/main/src/tasks/managed-review-evidence/codex-transport.ts:157:spawn",
+      "oldCall": "55482059a5f3cc792e8672da20762323e47804ddeb82b05d1813bf639cd963cd",
+      "newCall": "382b47490f513d2033736bac4f3797c86e972b4f9d8656f7bbbd0511adc5da46",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 21,
+      "contextNormalized": true
+    },
+    {
+      "id": "EX-0102",
+      "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:1584:spawn",
+      "newKey": "packages/main/src/tasks/managed-review-evidence/codex-transport.ts:240:spawn",
+      "oldCall": "c94cfc0a9350edd1ec2c83f029bf16b13e8b7cae3ad90f743abe271384a15d4c",
+      "newCall": "50a43342b70fe74738970b36cd86f19d5ae7a50be0052bb76a10d44672aa185d",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 8,
+      "contextNormalized": true
+    },
+    {
+      "id": "EX-0103",
+      "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:2297:spawn",
+      "newKey": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts:370:spawn",
+      "oldCall": "2b37076e05a496a584e48f1683af04e974be698e03f7263c910260811bb194d0",
+      "newCall": "01b62c822b4625a3dd570ccb37f263dd789df9868d868204c49a428e3e717da3",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 24,
+      "contextNormalized": true
+    },
+    {
+      "id": "EX-0104",
+      "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:2420:spawn",
+      "newKey": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts:488:spawn",
+      "oldCall": "23c0e8fb26d9bed4234ea2b925136ec1a2b9fc6084fe062d72ffbfd1a7058b35",
+      "newCall": "23c0e8fb26d9bed4234ea2b925136ec1a2b9fc6084fe062d72ffbfd1a7058b35",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 18,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0105",
+      "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:2650:spawnSync",
+      "newKey": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts:718:spawnSync",
+      "oldCall": "0e5f33cdb491dc314ba34cb57a520ce6a37b10e903e75283e39d80b959c41601",
+      "newCall": "154bf00367d07f33f1c36afd04ece0e11c7c77a2bcaa655d4494b59fe87d22cd",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 19,
+      "contextNormalized": true
+    },
+    {
+      "id": "EX-0106",
+      "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:2660:spawn",
+      "newKey": "packages/main/src/tasks/managed-review-evidence/claude-transport.ts:728:spawn",
+      "oldCall": "552b18cd7b1e12867b0ded88d62f60f5b202ef4f86ff37d3da14ba0236110ecc",
+      "newCall": "f36b77fc4b8e3cf0ce6e67e613dad4efb9bc219e51c801e101cc8abd7356525d",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 22,
+      "contextNormalized": true
+    },
+    {
+      "id": "EX-0107",
+      "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3447:spawnSync",
+      "newKey": "packages/main/src/tasks/managed-review-evidence/native-attestation.ts:210:spawnSync",
+      "oldCall": "5fab1b73673a90f9fc33aed22ea614f08f0d5ae0668d49eec4a6f21ff909550e",
+      "newCall": "544fc15754b53dec008f8b35f1df7e152de95c8318d9c4e98a076b537009d9cb",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 69,
+      "contextNormalized": true
+    },
+    {
+      "id": "EX-0108",
+      "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3604:spawnSync",
+      "newKey": "packages/main/src/tasks/managed-review-evidence/native-attestation.ts:378:spawnSync",
+      "oldCall": "0b9d0ab06deaac81b4721e9ba4bb23b2be1adf6421cf4f70d42d70a8cd84e99d",
+      "newCall": "9aa1cb7bcfee97e94753405fd7e649d53c0eabf3351caf345f99532f6a69ff06",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 58,
+      "contextNormalized": true
+    },
+    {
+      "id": "EX-0109",
+      "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3640:spawnSync",
+      "newKey": "packages/main/src/tasks/managed-review-evidence/native-attestation.ts:419:spawnSync",
+      "oldCall": "11b7625247e6b95145fc121c84b442bed5bbf2a8e1e49349e5be2c73e3ba47e0",
+      "newCall": "25944105b7c2c49939078e0031d17fa4f52acfa0959e7db8cff256cd9cfe9966",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 56,
+      "contextNormalized": true
+    },
+    {
+      "id": "EX-0110",
+      "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3773:spawn",
+      "newKey": "packages/main/src/tasks/managed-review-evidence/sealed-receipts.ts:115:spawn",
+      "oldCall": "57a0b89d1f4ef5bc0bceeb091c449b4caed583b1f4ddd559ac5e1dc00a49843e",
+      "newCall": "5246be50c85226ba845df81fe88a6c6bbc72fa71565ed2f039d5d248df66e610",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 7,
+      "contextNormalized": true
+    },
+    {
+      "id": "EX-0111",
+      "oldKey": "packages/main/src/tasks/managed-review-evidence-smoke.ts:3885:spawn",
+      "newKey": "packages/main/src/tasks/managed-review-evidence/sealed-receipts.ts:267:spawn",
+      "oldCall": "0fa081b5736801d06f87cb74756a96ca5a059da8c0a3991b803ec2312dd48848",
+      "newCall": "0fe25b395ccb1f41b94d4a0b581122056a06e8ad1df1c6cedf09921492e40a2d",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 7,
+      "contextNormalized": true
+    },
+    {
+      "id": "EX-0112",
+      "oldKey": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:114:spawnSync",
+      "newKey": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:114:spawnSync",
+      "oldCall": "b10fd2e677491e5a740105d134cad13c8c87c42cc4a764d69adbea9f2051b264",
+      "newCall": "b10fd2e677491e5a740105d134cad13c8c87c42cc4a764d69adbea9f2051b264",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0113",
+      "oldKey": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:35:spawn",
+      "newKey": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:35:spawn",
+      "oldCall": "5b1489424b4ccd25ec28746d07c274fba112594a466693d9e4eb249e0ac0b291",
+      "newCall": "5b1489424b4ccd25ec28746d07c274fba112594a466693d9e4eb249e0ac0b291",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0114",
+      "oldKey": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:180:spawnSync",
+      "newKey": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:180:spawnSync",
+      "oldCall": "47673eb09e0eb8bf259ba168de1b290787fcff9556af44cda190b16e4dab049b",
+      "newCall": "47673eb09e0eb8bf259ba168de1b290787fcff9556af44cda190b16e4dab049b",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0115",
+      "oldKey": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:299:spawnSync",
+      "newKey": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:299:spawnSync",
+      "oldCall": "11f451fa4dc155368ccfbb4257b8319e5adc2247699268124ff3bfaea0c89292",
+      "newCall": "11f451fa4dc155368ccfbb4257b8319e5adc2247699268124ff3bfaea0c89292",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0116",
+      "oldKey": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:329:spawnSync",
+      "newKey": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:329:spawnSync",
+      "oldCall": "ee4ff7e7d11917967d22fc55a90dbb1a84d9a981ed5742504f170fb5fa276d0f",
+      "newCall": "ee4ff7e7d11917967d22fc55a90dbb1a84d9a981ed5742504f170fb5fa276d0f",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0117",
+      "oldKey": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:364:spawnSync",
+      "newKey": "packages/main/src/tasks/proof-admissibility-registry-smoke.ts:364:spawnSync",
+      "oldCall": "9a997eede81e3d7964a3e27934195faa9222370b4a753a7f849fedd0a2aad3af",
+      "newCall": "9a997eede81e3d7964a3e27934195faa9222370b4a753a7f849fedd0a2aad3af",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0071",
+      "oldKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:92:spawn",
+      "newKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:92:spawn",
+      "oldCall": "bec7a42f5e307d3488fc8fb7aa52a491ed1569d104f28dd8ce05f7118797853f",
+      "newCall": "bec7a42f5e307d3488fc8fb7aa52a491ed1569d104f28dd8ce05f7118797853f",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 6,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0001",
+      "oldKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:300:spawn",
+      "newKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:300:spawn",
+      "oldCall": "ecae8cc4b2ab96bd63e73957ff83e309ded3747b9fc19954507b91e101f8ab3a",
+      "newCall": "ecae8cc4b2ab96bd63e73957ff83e309ded3747b9fc19954507b91e101f8ab3a",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 6,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0002",
+      "oldKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:301:spawn",
+      "newKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:301:spawn",
+      "oldCall": "92245fce778108d4f86b89b27c71bc5b1efdc2ee4b33d640131801280a3b92f8",
+      "newCall": "92245fce778108d4f86b89b27c71bc5b1efdc2ee4b33d640131801280a3b92f8",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 6,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0003",
+      "oldKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:312:spawn",
+      "newKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:312:spawn",
+      "oldCall": "2bf883710da91b9c9530f3e99854ca1927323387701f49b2eea0ae9985246593",
+      "newCall": "2bf883710da91b9c9530f3e99854ca1927323387701f49b2eea0ae9985246593",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 6,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0004",
+      "oldKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:322:spawn",
+      "newKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:322:spawn",
+      "oldCall": "166b35960d6b5b4f669ba1514c785addc73808437e6f08172a6337cdfeb2c50a",
+      "newCall": "166b35960d6b5b4f669ba1514c785addc73808437e6f08172a6337cdfeb2c50a",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 6,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0069",
+      "oldKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:362:spawn",
+      "newKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:362:spawn",
+      "oldCall": "de652d6333cde6470576cb2d7432c624242166d0a2c39f0b568d23a9bfa49c1a",
+      "newCall": "de652d6333cde6470576cb2d7432c624242166d0a2c39f0b568d23a9bfa49c1a",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 6,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0005",
+      "oldKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:434:spawn",
+      "newKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:434:spawn",
+      "oldCall": "2169f182b681d4c566a010e7942377771e4bc5c7a96c7e6a2dfefa18f49e7b22",
+      "newCall": "2169f182b681d4c566a010e7942377771e4bc5c7a96c7e6a2dfefa18f49e7b22",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 6,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0006",
+      "oldKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:435:spawn",
+      "newKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:435:spawn",
+      "oldCall": "b2db655f32915992cc523f39e3c21a376f6bccde499c60a591473029575de409",
+      "newCall": "b2db655f32915992cc523f39e3c21a376f6bccde499c60a591473029575de409",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 6,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0070",
+      "oldKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:465:spawn",
+      "newKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:465:spawn",
+      "oldCall": "eb9c7868fff2c07c7240d9077d5a3abb73e22b1a90324198ee74f6c0611f2cdf",
+      "newCall": "eb9c7868fff2c07c7240d9077d5a3abb73e22b1a90324198ee74f6c0611f2cdf",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 6,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0007",
+      "oldKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:597:spawn",
+      "newKey": "packages/main/src/tasks/provider-process-registry-smoke.ts:597:spawn",
+      "oldCall": "f798d661e8a926b6f85532e87bfbd3b3884c75ae358888040c6dcf629af19585",
+      "newCall": "f798d661e8a926b6f85532e87bfbd3b3884c75ae358888040c6dcf629af19585",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 6,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0118",
+      "oldKey": "packages/main/src/tasks/provider-launch-owner-admission-suite.ts:28:execFileSync",
+      "newKey": "packages/main/src/tasks/provider-launch-owner-admission-suite.ts:28:execFileSync",
+      "oldCall": "5617576b499027612ec09aa204076e8e57149595f3b1316ef9e92d0eaebb49c6",
+      "newCall": "5617576b499027612ec09aa204076e8e57149595f3b1316ef9e92d0eaebb49c6",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0119",
+      "oldKey": "packages/main/src/tasks/provider-launch-owner-admission-suite.ts:52:execFileSync",
+      "newKey": "packages/main/src/tasks/provider-launch-owner-admission-suite.ts:52:execFileSync",
+      "oldCall": "ef28e173873f464ffe11d82c68f75425833673fb21ec3ac6e442da7f5c85f3b1",
+      "newCall": "ef28e173873f464ffe11d82c68f75425833673fb21ec3ac6e442da7f5c85f3b1",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0120",
+      "oldKey": "packages/main/src/tasks/managed-host-run-smoke.ts:247:execFileSync",
+      "newKey": "packages/main/src/tasks/managed-host-run-smoke.ts:247:execFileSync",
+      "oldCall": "abc491fcbdf8b76b405c8e3016285696dabc804b391ce03a966fa4a7c5f3d27e",
+      "newCall": "abc491fcbdf8b76b405c8e3016285696dabc804b391ce03a966fa4a7c5f3d27e",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0121",
+      "oldKey": "packages/main/src/tasks/managed-host-run-smoke.ts:418:spawn",
+      "newKey": "packages/main/src/tasks/managed-host-run-smoke.ts:418:spawn",
+      "oldCall": "7e073b075c1b6e018cc56b64329acb79ad790b943a038383c31f95213d2d6443",
+      "newCall": "7e073b075c1b6e018cc56b64329acb79ad790b943a038383c31f95213d2d6443",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0122",
+      "oldKey": "packages/main/src/tasks/managed-host-run-smoke.ts:1074:spawn",
+      "newKey": "packages/main/src/tasks/managed-host-run-smoke.ts:1074:spawn",
+      "oldCall": "8b341fddd9b804ff6c5c69053f5ed625183cccde45b1019e239f7e4584054acf",
+      "newCall": "8b341fddd9b804ff6c5c69053f5ed625183cccde45b1019e239f7e4584054acf",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0123",
+      "oldKey": "packages/main/src/tasks/managed-host-run-smoke.ts:1364:spawn",
+      "newKey": "packages/main/src/tasks/managed-host-run-smoke.ts:1364:spawn",
+      "oldCall": "20e3d4d642a59c4baf81ad517c94f2c6024082ac84338625852fe63bd39df0a6",
+      "newCall": "20e3d4d642a59c4baf81ad517c94f2c6024082ac84338625852fe63bd39df0a6",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0124",
+      "oldKey": "packages/main/src/tasks/managed-host-run-smoke.ts:1396:spawn",
+      "newKey": "packages/main/src/tasks/managed-host-run-smoke.ts:1396:spawn",
+      "oldCall": "29eee1f977b6e49fa3273657d9bf1c96039da8b85f4cb0782f112492f75f7b8e",
+      "newCall": "29eee1f977b6e49fa3273657d9bf1c96039da8b85f4cb0782f112492f75f7b8e",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0125",
+      "oldKey": "packages/main/src/tasks/managed-host-run-smoke.ts:1397:spawn",
+      "newKey": "packages/main/src/tasks/managed-host-run-smoke.ts:1397:spawn",
+      "oldCall": "6c1fbaf293b159510d197bad4e74c6ee95e9d67092c1cac5815e335b61978714",
+      "newCall": "6c1fbaf293b159510d197bad4e74c6ee95e9d67092c1cac5815e335b61978714",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0126",
+      "oldKey": "packages/main/src/tasks/managed-host-run-smoke.ts:1441:spawn",
+      "newKey": "packages/main/src/tasks/managed-host-run-smoke.ts:1441:spawn",
+      "oldCall": "dd6cac716da627f350b9a1a777205da7cf69f16c92a8fa58f62bacf15e462040",
+      "newCall": "dd6cac716da627f350b9a1a777205da7cf69f16c92a8fa58f62bacf15e462040",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0127",
+      "oldKey": "packages/main/src/tasks/managed-host-run-smoke.ts:1475:spawn",
+      "newKey": "packages/main/src/tasks/managed-host-run-smoke.ts:1475:spawn",
+      "oldCall": "32b6c0d6b4113289d81563f097cadb01ad296b4909b6ee3fe230a5734943caaf",
+      "newCall": "32b6c0d6b4113289d81563f097cadb01ad296b4909b6ee3fe230a5734943caaf",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0043",
+      "oldKey": "packages/main/src/tasks/dispatch-run-smoke.ts:1381:execFileSync",
+      "newKey": "packages/main/src/tasks/dispatch-run-smoke.ts:1381:execFileSync",
+      "oldCall": "c37e02cf31394256090c2ce2bb42e82651475316a017f970fe10f87a0f71e237",
+      "newCall": "c37e02cf31394256090c2ce2bb42e82651475316a017f970fe10f87a0f71e237",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0049",
+      "oldKey": "packages/main/src/tasks/init-check-required-agents-smoke.ts:26:execFileSync",
+      "newKey": "packages/main/src/tasks/init-check-required-agents-smoke.ts:26:execFileSync",
+      "oldCall": "32a80d9de2e3978db16e2c558820a3868754f6367cb05b88e73fac1643253c19",
+      "newCall": "32a80d9de2e3978db16e2c558820a3868754f6367cb05b88e73fac1643253c19",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0067",
+      "oldKey": "packages/main/src/tasks/provider-codex-smoke.ts:398:spawnSync",
+      "newKey": "packages/main/src/tasks/provider-codex-smoke.ts:398:spawnSync",
+      "oldCall": "a0f87fe196a69448722794db9dfc5b07c6d55b0ca56db30e9cad3ee8deb2acd2",
+      "newCall": "a0f87fe196a69448722794db9dfc5b07c6d55b0ca56db30e9cad3ee8deb2acd2",
+      "oldEvidenceCount": 5,
+      "newEvidenceCount": 6,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0068",
+      "oldKey": "packages/main/src/tasks/provider-codex-smoke.ts:402:spawnSync",
+      "newKey": "packages/main/src/tasks/provider-codex-smoke.ts:402:spawnSync",
+      "oldCall": "ae7069568dc5769f17ef6fd1a22fb5a533ac17aee0e75f0ecebc8c109705740a",
+      "newCall": "ae7069568dc5769f17ef6fd1a22fb5a533ac17aee0e75f0ecebc8c109705740a",
+      "oldEvidenceCount": 5,
+      "newEvidenceCount": 6,
+      "contextNormalized": false
+    },
+    {
+      "id": "MERGE-FINDING-01",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:75:execFileSync",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:75:execFileSync",
+      "oldCall": "d7aa6e57921374d5f597133c6bb9787d695089f1cc6be15d3792f863d54e46d8",
+      "newCall": "d7aa6e57921374d5f597133c6bb9787d695089f1cc6be15d3792f863d54e46d8",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "MERGE-FINDING-02",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:80:spawnSync",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:80:spawnSync",
+      "oldCall": "5e4be01e0db62ce3d925e487dfef70052018c67e82e6eccd0ae15f4100f78e53",
+      "newCall": "5e4be01e0db62ce3d925e487dfef70052018c67e82e6eccd0ae15f4100f78e53",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "MERGE-FINDING-04",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:123:spawnSync",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:123:spawnSync",
+      "oldCall": "e58d943bc40308809c2e97d3e82fed1fa761436399e0cb5fee85d1591073d4db",
+      "newCall": "e58d943bc40308809c2e97d3e82fed1fa761436399e0cb5fee85d1591073d4db",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "MERGE-FINDING-05",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:338:spawnSync",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:338:spawnSync",
+      "oldCall": "8c6d4b89d5c57ee35040d5d1b5c4b70d820bd3b360418ba7e877373329c896a7",
+      "newCall": "8c6d4b89d5c57ee35040d5d1b5c4b70d820bd3b360418ba7e877373329c896a7",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "MERGE-FINDING-06",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:385:spawnSync",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:385:spawnSync",
+      "oldCall": "761fe2cbe1365526e6262611ab069be636242a0607ce28ec146ce39a5c2484a6",
+      "newCall": "761fe2cbe1365526e6262611ab069be636242a0607ce28ec146ce39a5c2484a6",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "MERGE-FINDING-07",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:582:spawnSync",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:582:spawnSync",
+      "oldCall": "8b007837a016691a82db8e66049da984262dbf94fe51b4283e84b44d2bfc0de3",
+      "newCall": "8b007837a016691a82db8e66049da984262dbf94fe51b4283e84b44d2bfc0de3",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "MERGE-FINDING-08",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:584:spawnSync",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:584:spawnSync",
+      "oldCall": "5f03f130d4b6ac8523f281380f7fa2c1bb89a80ce3fa4e9d331a1429f1476367",
+      "newCall": "5f03f130d4b6ac8523f281380f7fa2c1bb89a80ce3fa4e9d331a1429f1476367",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "MERGE-FINDING-09",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:613:spawnSync",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:613:spawnSync",
+      "oldCall": "eba14075e94e41f8cf4553f6089338b6c3deb5945d5aacb040a559e1765b10ab",
+      "newCall": "eba14075e94e41f8cf4553f6089338b6c3deb5945d5aacb040a559e1765b10ab",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "MERGE-FINDING-10",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:783:spawnSync",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:783:spawnSync",
+      "oldCall": "b72b1ee7cf932b21f67af24ceac48f8e5d841b6003f2a1c58b0142b91d856b24",
+      "newCall": "b72b1ee7cf932b21f67af24ceac48f8e5d841b6003f2a1c58b0142b91d856b24",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "MERGE-FINDING-11",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:806:spawn",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:806:spawn",
+      "oldCall": "e9a1172f4f586ffd773607923c65087c54756cd79e183a951f5d0c6c6441f70c",
+      "newCall": "e9a1172f4f586ffd773607923c65087c54756cd79e183a951f5d0c6c6441f70c",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "MERGE-FINDING-12",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:918:spawnSync",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:918:spawnSync",
+      "oldCall": "0611a5cf55ce5c76939c0a069d542f1dcc370a9e2a5f9a6f8460ce7712247eb2",
+      "newCall": "0611a5cf55ce5c76939c0a069d542f1dcc370a9e2a5f9a6f8460ce7712247eb2",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "MERGE-FINDING-13",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:1574:spawnSync",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:1574:spawnSync",
+      "oldCall": "c7eb2a3de79811d2aedd2479eef2df79d224be02b61d1d928c6b91bf7bb370d7",
+      "newCall": "c7eb2a3de79811d2aedd2479eef2df79d224be02b61d1d928c6b91bf7bb370d7",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "MERGE-FINDING-14",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:1576:spawnSync",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:1576:spawnSync",
+      "oldCall": "90e4310af34eadf0fd23ad415ec9f5e517bfb384ed648fb624f6fcb2410826d0",
+      "newCall": "90e4310af34eadf0fd23ad415ec9f5e517bfb384ed648fb624f6fcb2410826d0",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "MERGE-FINDING-15",
+      "oldKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:1592:spawn",
+      "newKey": "packages/main/src/tasks/finding-identity-lineage-smoke.ts:1592:spawn",
+      "oldCall": "e74460f5c1e3e99b9af3986f5c2a02ed2f550652c83f2c0e6b54d48b4f507fef",
+      "newCall": "e74460f5c1e3e99b9af3986f5c2a02ed2f550652c83f2c0e6b54d48b4f507fef",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "MERGE-FINDING-16",
+      "oldKey": "packages/main/tests/red/red-b03b7-identity-lineage.mjs:28:spawnSync",
+      "newKey": "packages/main/tests/red/red-b03b7-identity-lineage.mjs:28:spawnSync",
+      "oldCall": "7babaeda083c7107675745f4702615504257a8766b9012c447350e6296d9d371",
+      "newCall": "7babaeda083c7107675745f4702615504257a8766b9012c447350e6296d9d371",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1033",
+      "oldKey": "packages/main/src/tasks/isolated-finding-fixture.ts:157:spawn",
+      "newKey": "packages/main/src/tasks/isolated-finding-fixture.ts:157:spawn",
+      "oldCall": "92cbe22de956a4ae05ca1e644053964d3b0de7c5fd9e7e9706568a9de1a4377c",
+      "newCall": "92cbe22de956a4ae05ca1e644053964d3b0de7c5fd9e7e9706568a9de1a4377c",
+      "oldEvidenceCount": 5,
+      "newEvidenceCount": 6,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1034",
+      "oldKey": "packages/main/tests/red/red-dynamic-finding-evidence-closure.mjs:57:spawnSync",
+      "newKey": "packages/main/tests/red/red-dynamic-finding-evidence-closure.mjs:57:spawnSync",
+      "oldCall": "9d3bd4c74636d9c915c25a873ab763d9430293a4069ebb245a7c33e2fb26a772",
+      "newCall": "9d3bd4c74636d9c915c25a873ab763d9430293a4069ebb245a7c33e2fb26a772",
+      "oldEvidenceCount": 7,
+      "newEvidenceCount": 8,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1035",
+      "oldKey": "packages/main/tests/red/red-dynamic-finding-final-contracts.mjs:12:spawnSync",
+      "newKey": "packages/main/tests/red/red-dynamic-finding-final-contracts.mjs:12:spawnSync",
+      "oldCall": "3fcb195d10d7f6158f9ebb9058dfd982ff090e03d24362a1d13aa45c6dc8a5f1",
+      "newCall": "3fcb195d10d7f6158f9ebb9058dfd982ff090e03d24362a1d13aa45c6dc8a5f1",
+      "oldEvidenceCount": 7,
+      "newEvidenceCount": 8,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1039",
+      "oldKey": "scripts/verify-runtime-fact-contract.mjs:156:execFileSync",
+      "newKey": "scripts/verify-runtime-fact-contract.mjs:156:execFileSync",
+      "oldCall": "3790ef9717124377ebac08f9d0681dc1bc3883714925623b015033d0cd1b8c7a",
+      "newCall": "3790ef9717124377ebac08f9d0681dc1bc3883714925623b015033d0cd1b8c7a",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1040",
+      "oldKey": "scripts/verify-runtime-fact-contract.mjs:707:execFileSync",
+      "newKey": "scripts/verify-runtime-fact-contract.mjs:707:execFileSync",
+      "oldCall": "04a801ec388118eddfd32f18df4a7ee564b6ecae011fd99462fdfdf0f700f3cb",
+      "newCall": "04a801ec388118eddfd32f18df4a7ee564b6ecae011fd99462fdfdf0f700f3cb",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1041",
+      "oldKey": "scripts/verify-runtime-fact-contract.mjs:906:execFileSync",
+      "newKey": "scripts/verify-runtime-fact-contract.mjs:906:execFileSync",
+      "oldCall": "9bf81dfbae8a8b58aa4dc125c38054bb21e983f9e75af0b3952ea261ccfd7db2",
+      "newCall": "9bf81dfbae8a8b58aa4dc125c38054bb21e983f9e75af0b3952ea261ccfd7db2",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1042",
+      "oldKey": "scripts/verify-runtime-fact-contract.mjs:911:execFileSync",
+      "newKey": "scripts/verify-runtime-fact-contract.mjs:911:execFileSync",
+      "oldCall": "aa3c927d2261771cecf090da6ed78873014cd267fc331da1123bda633b21bc60",
+      "newCall": "aa3c927d2261771cecf090da6ed78873014cd267fc331da1123bda633b21bc60",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1043",
+      "oldKey": "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts:534:spawn",
+      "newKey": "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts:534:spawn",
+      "oldCall": "0aeff70fe486451c4f015b21e3c3c6a5b03db9850d08dd75ea8cfffe7aeeb3b4",
+      "newCall": "0aeff70fe486451c4f015b21e3c3c6a5b03db9850d08dd75ea8cfffe7aeeb3b4",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1044",
+      "oldKey": "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts:335:execFileSync",
+      "newKey": "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts:335:execFileSync",
+      "oldCall": "8ef9d98b9483cf67001f01a75cdd8f085a9bd4a193f58d4fdb2365a876fa597e",
+      "newCall": "8ef9d98b9483cf67001f01a75cdd8f085a9bd4a193f58d4fdb2365a876fa597e",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1045",
+      "oldKey": "scripts/verify-external-worktree-go-pre-review.mjs:8:spawnSync",
+      "newKey": "scripts/verify-external-worktree-go-pre-review.mjs:8:spawnSync",
+      "oldCall": "438be771ecdaf2bff3eea236011c25066e9920ab4d0445c4f7cbfc0fd2cf273d",
+      "newCall": "438be771ecdaf2bff3eea236011c25066e9920ab4d0445c4f7cbfc0fd2cf273d",
+      "oldEvidenceCount": 5,
+      "newEvidenceCount": 7,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1046",
+      "oldKey": "packages/main/src/tasks/validation-protocol-smoke.ts:2462:execFileSync",
+      "newKey": "packages/main/src/tasks/validation-protocol-smoke.ts:2462:execFileSync",
+      "oldCall": "4b93a00776a682aac5cde280adeea02a298b598cad1c9c0998b4c11d67bdb19f",
+      "newCall": "4b93a00776a682aac5cde280adeea02a298b598cad1c9c0998b4c11d67bdb19f",
+      "oldEvidenceCount": 5,
+      "newEvidenceCount": 6,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-RUNTIME-SNAPSHOT-BINDING",
+      "oldKey": "scripts/verify-runtime-fact-contract.mjs:184:execFileSync",
+      "newKey": "scripts/verify-runtime-fact-contract.mjs:184:execFileSync",
+      "oldCall": "66efa03c51da9d40d226e8349a70c2c934301212b0d8100da9b409f1f8584caa",
+      "newCall": "66efa03c51da9d40d226e8349a70c2c934301212b0d8100da9b409f1f8584caa",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-MEMORY-QUERY-TIMING",
+      "oldKey": "scripts/verify-runtime-fact-contract.mjs:159:execFileSync",
+      "newKey": "scripts/verify-runtime-fact-contract.mjs:159:execFileSync",
+      "oldCall": "edfdb648df0b4d0d34759480b823240bcdeefcaf904cbe0bfc9300c8243d0996",
+      "newCall": "edfdb648df0b4d0d34759480b823240bcdeefcaf904cbe0bfc9300c8243d0996",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-STATIC-AST-CONTROLS",
+      "oldKey": "scripts/verify-runtime-fact-contract.mjs:164:execFileSync",
+      "newKey": "scripts/verify-runtime-fact-contract.mjs:164:execFileSync",
+      "oldCall": "cf569a32d7a5e26003d1c11898147c74833bb8a66a099fd6be667a4c1ab39c88",
+      "newCall": "cf569a32d7a5e26003d1c11898147c74833bb8a66a099fd6be667a4c1ab39c88",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-VALIDATION-PLANNING-OBSERVATION",
+      "oldKey": "scripts/verify-runtime-fact-contract.mjs:909:execFileSync",
+      "newKey": "scripts/verify-runtime-fact-contract.mjs:909:execFileSync",
+      "oldCall": "1e655862f51aea0cbffc7f6042b00ad450a9b09aee1f3a81d93087b7da2bf596",
+      "newCall": "1e655862f51aea0cbffc7f6042b00ad450a9b09aee1f3a81d93087b7da2bf596",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-MANAGED-CRITIC-SPAWNSYNC",
+      "oldKey": "scripts/verify-managed-inventory-critic-transport.mjs:75:spawnSync",
+      "newKey": "scripts/verify-managed-inventory-critic-transport.mjs:81:spawnSync",
+      "oldCall": "31eb7f51e85c15934054f260e456c9a27a0e9aa841204c9f5e65357af47caac5",
+      "newCall": "31eb7f51e85c15934054f260e456c9a27a0e9aa841204c9f5e65357af47caac5",
+      "oldEvidenceCount": 8,
+      "newEvidenceCount": 25,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-MANAGED-CRITIC-EXECFILE",
+      "oldKey": "scripts/verify-managed-inventory-critic-transport.mjs:90:execFile",
+      "newKey": "scripts/verify-managed-inventory-critic-transport.mjs:96:execFile",
+      "oldCall": "d5a4982cb9c5d88fc27741b2705cec7b77bfa907f11b2c861eda645d49374130",
+      "newCall": "d5a4982cb9c5d88fc27741b2705cec7b77bfa907f11b2c861eda645d49374130",
+      "oldEvidenceCount": 8,
+      "newEvidenceCount": 25,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-01",
+      "oldKey": "scripts/support/nested-reservation-lifecycle.mjs:109:spawnSync",
+      "newKey": "scripts/support/nested-reservation-lifecycle.mjs:109:spawnSync",
+      "oldCall": "f31af6833737dad364c6e538fdcdb745817da42573e6bedab055f45fa6ebb11b",
+      "newCall": "f31af6833737dad364c6e538fdcdb745817da42573e6bedab055f45fa6ebb11b",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-02",
+      "oldKey": "packages/main/src/core/validation-executor.ts:1187:execSync",
+      "newKey": "packages/main/src/core/validation-executor.ts:1187:execSync",
+      "oldCall": "d10c0b5777dd3dcc84f47b2c6a0a523663a99328f0d337260ea780e00a2fa804",
+      "newCall": "d10c0b5777dd3dcc84f47b2c6a0a523663a99328f0d337260ea780e00a2fa804",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-03",
+      "oldKey": "packages/main/src/core/validation-executor.ts:1895:spawn",
+      "newKey": "packages/main/src/core/validation-executor.ts:1895:spawn",
+      "oldCall": "25bd2422af174bac055b2a5b455d3ba8203ac8bf4294868873e5ad1c5def246a",
+      "newCall": "25bd2422af174bac055b2a5b455d3ba8203ac8bf4294868873e5ad1c5def246a",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-04",
+      "oldKey": "scripts/verify-nested-reservation-faults.mjs:194:spawn",
+      "newKey": "scripts/verify-nested-reservation-faults.mjs:194:spawn",
+      "oldCall": "112f0c9c524e6b49b967d207ed61b61dac80e4163b10662f04623c8cf76d3423",
+      "newCall": "112f0c9c524e6b49b967d207ed61b61dac80e4163b10662f04623c8cf76d3423",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-05",
+      "oldKey": "scripts/verify-nested-reservation-handshake-deadline.mjs:24:spawn",
+      "newKey": "scripts/verify-nested-reservation-handshake-deadline.mjs:24:spawn",
+      "oldCall": "aedc043e1aa7c868e90a1250f648101f3842b14d5a527c5fa325494b1afeb8c5",
+      "newCall": "aedc043e1aa7c868e90a1250f648101f3842b14d5a527c5fa325494b1afeb8c5",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-06",
+      "oldKey": "scripts/verify-nested-reservation-owner-loss.mjs:17:spawn",
+      "newKey": "scripts/verify-nested-reservation-owner-loss.mjs:17:spawn",
+      "oldCall": "4ce292921da4db3bf390498eb929f3f0cef8900e93858ffee1018ce8ef8cf447",
+      "newCall": "4ce292921da4db3bf390498eb929f3f0cef8900e93858ffee1018ce8ef8cf447",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-07-L24",
+      "oldKey": "scripts/verify-nested-reservation-owner-loss.mjs:24:execFileSync",
+      "newKey": "scripts/verify-nested-reservation-owner-loss.mjs:24:execFileSync",
+      "oldCall": "ac9014ab6162c4f68747b8a7ffb3bc54c90ed4242cb14fec5e3cedd2d0ae78aa",
+      "newCall": "ac9014ab6162c4f68747b8a7ffb3bc54c90ed4242cb14fec5e3cedd2d0ae78aa",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-07-L26",
+      "oldKey": "scripts/verify-nested-reservation-owner-loss.mjs:26:execFileSync",
+      "newKey": "scripts/verify-nested-reservation-owner-loss.mjs:26:execFileSync",
+      "oldCall": "d03d1e884bfa1cbfdf93641ce134b68243d33d62be5b51e3863e7a45598776a9",
+      "newCall": "d03d1e884bfa1cbfdf93641ce134b68243d33d62be5b51e3863e7a45598776a9",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-07-L30",
+      "oldKey": "scripts/verify-nested-reservation-owner-loss.mjs:30:execFileSync",
+      "newKey": "scripts/verify-nested-reservation-owner-loss.mjs:30:execFileSync",
+      "oldCall": "d03d1e884bfa1cbfdf93641ce134b68243d33d62be5b51e3863e7a45598776a9",
+      "newCall": "d03d1e884bfa1cbfdf93641ce134b68243d33d62be5b51e3863e7a45598776a9",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-08",
+      "oldKey": "scripts/verify-nested-reservation-registration-race.mjs:52:spawnSync",
+      "newKey": "scripts/verify-nested-reservation-registration-race.mjs:52:spawnSync",
+      "oldCall": "9aa8097c144be9387420ac56a1b0199f40797e1fde71b9281fd7b0a9d909652c",
+      "newCall": "9aa8097c144be9387420ac56a1b0199f40797e1fde71b9281fd7b0a9d909652c",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-09",
+      "oldKey": "scripts/verify-nested-reservation-cleanup-diagnostics.mjs:44:spawnSync",
+      "newKey": "scripts/verify-nested-reservation-cleanup-diagnostics.mjs:44:spawnSync",
+      "oldCall": "3c0dd93b89b3b7246e650eb0905a05361748bc64ce5a787b33b880ac362c6a70",
+      "newCall": "3c0dd93b89b3b7246e650eb0905a05361748bc64ce5a787b33b880ac362c6a70",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-10",
+      "oldKey": "scripts/verify-nested-isolated-cleanup.mjs:22:spawn",
+      "newKey": "scripts/verify-nested-isolated-cleanup.mjs:22:spawn",
+      "oldCall": "09068a24b74d28932019827ba68b376bcf6f968657bf2d09a40cac5bff104270",
+      "newCall": "09068a24b74d28932019827ba68b376bcf6f968657bf2d09a40cac5bff104270",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-11",
+      "oldKey": "scripts/verify-nested-isolated-worker-exit.mjs:16:spawn",
+      "newKey": "scripts/verify-nested-isolated-worker-exit.mjs:16:spawn",
+      "oldCall": "09068a24b74d28932019827ba68b376bcf6f968657bf2d09a40cac5bff104270",
+      "newCall": "09068a24b74d28932019827ba68b376bcf6f968657bf2d09a40cac5bff104270",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-12",
+      "oldKey": "scripts/verify-nested-source-loader-semantics.mjs:19:spawnSync",
+      "newKey": "scripts/verify-nested-source-loader-semantics.mjs:19:spawnSync",
+      "oldCall": "586eebc55c17d27660392f8c1e6941873113f3e689c44dba923bae37cc513ed0",
+      "newCall": "586eebc55c17d27660392f8c1e6941873113f3e689c44dba923bae37cc513ed0",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-13",
+      "oldKey": "scripts/verify-nested-validation-result-contract.mjs:174:spawnSync",
+      "newKey": "scripts/verify-nested-validation-result-contract.mjs:174:spawnSync",
+      "oldCall": "92697110e2f1fbc2d71c79025bc2f5d23a6db94fb2e8cbdcb1edd353ffa3d09b",
+      "newCall": "92697110e2f1fbc2d71c79025bc2f5d23a6db94fb2e8cbdcb1edd353ffa3d09b",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-14",
+      "oldKey": "scripts/verify-nested-reservation-cancellation.mjs:73:spawnSync",
+      "newKey": "scripts/verify-nested-reservation-cancellation.mjs:73:spawnSync",
+      "oldCall": "92697110e2f1fbc2d71c79025bc2f5d23a6db94fb2e8cbdcb1edd353ffa3d09b",
+      "newCall": "92697110e2f1fbc2d71c79025bc2f5d23a6db94fb2e8cbdcb1edd353ffa3d09b",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-15",
+      "oldKey": "scripts/verify-nested-reservation-boot-recovery.mjs:60:spawnSync",
+      "newKey": "scripts/verify-nested-reservation-boot-recovery.mjs:60:spawnSync",
+      "oldCall": "3c0dd93b89b3b7246e650eb0905a05361748bc64ce5a787b33b880ac362c6a70",
+      "newCall": "3c0dd93b89b3b7246e650eb0905a05361748bc64ce5a787b33b880ac362c6a70",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-16",
+      "oldKey": "scripts/verify-nested-reservation-wrapper-transport.mjs:43:spawnSync",
+      "newKey": "scripts/verify-nested-reservation-wrapper-transport.mjs:43:spawnSync",
+      "oldCall": "8c3ecbff4da7c872e4ba9153f34cda8a7190af06440e6ce4ef0db2933c21b52e",
+      "newCall": "8c3ecbff4da7c872e4ba9153f34cda8a7190af06440e6ce4ef0db2933c21b52e",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-17",
+      "oldKey": "scripts/verify-nested-isolated-observation.mjs:95:spawnSync",
+      "newKey": "scripts/verify-nested-isolated-observation.mjs:95:spawnSync",
+      "oldCall": "8c3ecbff4da7c872e4ba9153f34cda8a7190af06440e6ce4ef0db2933c21b52e",
+      "newCall": "8c3ecbff4da7c872e4ba9153f34cda8a7190af06440e6ce4ef0db2933c21b52e",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-NESTED-RESERVATION-18",
+      "oldKey": "scripts/verify-nested-doctor-fence-projection.mjs:106:spawnSync",
+      "newKey": "scripts/verify-nested-doctor-fence-projection.mjs:106:spawnSync",
+      "oldCall": "8c3ecbff4da7c872e4ba9153f34cda8a7190af06440e6ce4ef0db2933c21b52e",
+      "newCall": "8c3ecbff4da7c872e4ba9153f34cda8a7190af06440e6ce4ef0db2933c21b52e",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-TRACKED-CONTROLLER-BOOTSTRAP",
+      "oldKey": "scripts/verify-runtime-fact-contract.mjs:154:execFileSync",
+      "newKey": "scripts/verify-runtime-fact-contract.mjs:154:execFileSync",
+      "oldCall": "b81277517cd4130bfff141b9d09eafdbcb75691d395af9f34176334d659fdfda",
+      "newCall": "b81277517cd4130bfff141b9d09eafdbcb75691d395af9f34176334d659fdfda",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-BUILD-BINDING-01",
+      "oldKey": "scripts/verify-validation-build-artifact-binding.mjs:71:execFileSync",
+      "newKey": "scripts/validation-build-binding/support.mjs:68:execFileSync",
+      "oldCall": "9694942edc8fd6e35b1ef9fb573f20bf8910fdff5d99dd91b836d44e4f493438",
+      "newCall": "9694942edc8fd6e35b1ef9fb573f20bf8910fdff5d99dd91b836d44e4f493438",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-BUILD-BINDING-02",
+      "oldKey": "scripts/verify-validation-build-artifact-binding.mjs:74:spawnSync",
+      "newKey": "scripts/validation-build-binding/support.mjs:71:spawnSync",
+      "oldCall": "a53cfcd339bae6a4d5f971f12e5b6c05307c2daadd1a3b5afb94ebbb02a95d66",
+      "newCall": "a53cfcd339bae6a4d5f971f12e5b6c05307c2daadd1a3b5afb94ebbb02a95d66",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-BUILD-BINDING-03",
+      "oldKey": "scripts/verify-validation-build-artifact-binding.mjs:80:spawnSync",
+      "newKey": "scripts/validation-build-binding/support.mjs:77:spawnSync",
+      "oldCall": "3f78dc225798d755cacf0db01ad49978871ecb57b779c3b409dc22224bcd4b1d",
+      "newCall": "3f78dc225798d755cacf0db01ad49978871ecb57b779c3b409dc22224bcd4b1d",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-BUILD-BINDING-04",
+      "oldKey": "scripts/verify-validation-build-artifact-binding.mjs:1154:spawnSync",
+      "newKey": "scripts/validation-build-binding/done-required.mjs:438:spawnSync",
+      "oldCall": "fde4e991492c71c62feab70f8c485ed6c3069747d959f5ae42f637c513ba4f24",
+      "newCall": "fde4e991492c71c62feab70f8c485ed6c3069747d959f5ae42f637c513ba4f24",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-BUILD-BINDING-05",
+      "oldKey": "scripts/verify-validation-build-artifact-binding.mjs:1196:spawnSync",
+      "newKey": "scripts/validation-build-binding/done-required.mjs:480:spawnSync",
+      "oldCall": "d3c18f32e674f29fb15364b1b3db6de1a9cae7bbf39cc6445f74e796761cc9e9",
+      "newCall": "d3c18f32e674f29fb15364b1b3db6de1a9cae7bbf39cc6445f74e796761cc9e9",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-BUILD-BINDING-06",
+      "oldKey": "scripts/verify-validation-build-artifact-binding.mjs:1249:spawnSync",
+      "newKey": "scripts/validation-build-binding/done-required.mjs:533:spawnSync",
+      "oldCall": "4fc8e69a43611a85ada8eb4a2e685a531aef063350549d737af52ee6fba16f8e",
+      "newCall": "4fc8e69a43611a85ada8eb4a2e685a531aef063350549d737af52ee6fba16f8e",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-BUILD-BINDING-07",
+      "oldKey": "scripts/verify-validation-build-artifact-binding.mjs:2415:spawnSync",
+      "newKey": "scripts/validation-build-binding/executor.mjs:712:spawnSync",
+      "oldCall": "d603e4ffa600a383f4fa87228b3d1540bb975bf6e10a52d038711ee45b351dbf",
+      "newCall": "d603e4ffa600a383f4fa87228b3d1540bb975bf6e10a52d038711ee45b351dbf",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-BUILD-BINDING-08",
+      "oldKey": "scripts/verify-validation-build-artifact-binding.mjs:2465:spawnSync",
+      "newKey": "scripts/validation-build-binding/executor.mjs:762:spawnSync",
+      "oldCall": "099becc11f167b6b53232b13d583d728bcfeab243c299090d2d29a230787cd38",
+      "newCall": "099becc11f167b6b53232b13d583d728bcfeab243c299090d2d29a230787cd38",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-BUILD-BINDING-09",
+      "oldKey": "scripts/verify-validation-build-artifact-binding.mjs:2491:spawnSync",
+      "newKey": "scripts/validation-build-binding/executor.mjs:788:spawnSync",
+      "oldCall": "3d1289b99bda406751a33311fd2865cb18f511becb5078e1cae4aa9748211418",
+      "newCall": "3d1289b99bda406751a33311fd2865cb18f511becb5078e1cae4aa9748211418",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-BUILD-BINDING-10",
+      "oldKey": "scripts/verify-validation-build-artifact-binding.mjs:2514:spawnSync",
+      "newKey": "scripts/validation-build-binding/executor.mjs:811:spawnSync",
+      "oldCall": "76b2087d047fdb1c58051b722765597f4eb9a20745277c8a3f53614053fb77be",
+      "newCall": "76b2087d047fdb1c58051b722765597f4eb9a20745277c8a3f53614053fb77be",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-BUILD-BINDING-11",
+      "oldKey": "scripts/verify-validation-build-artifact-binding.mjs:2533:spawnSync",
+      "newKey": "scripts/validation-build-binding/executor.mjs:830:spawnSync",
+      "oldCall": "7bc8b260e71135a1bd5d085a27b4333882bc94c2931ce08b9dc26db08abed8fa",
+      "newCall": "7bc8b260e71135a1bd5d085a27b4333882bc94c2931ce08b9dc26db08abed8fa",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-BUILD-BINDING-12",
+      "oldKey": "scripts/verify-validation-build-artifact-binding.mjs:2679:spawnSync",
+      "newKey": "scripts/validation-build-binding/executor.mjs:976:spawnSync",
+      "oldCall": "10b812b0793d709d6a9d6b34fa919278e4fb18871f1d0fb32a21834463df3564",
+      "newCall": "10b812b0793d709d6a9d6b34fa919278e4fb18871f1d0fb32a21834463df3564",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-BUILD-BINDING-13",
+      "oldKey": "scripts/verify-validation-build-artifact-binding.mjs:2924:spawnSync",
+      "newKey": "scripts/validation-build-binding/executor.mjs:1221:spawnSync",
+      "oldCall": "3997b05a9132762d8e2dcaa2d13f47ede65eb24eca6856f819b6195a43ae34ae",
+      "newCall": "3997b05a9132762d8e2dcaa2d13f47ede65eb24eca6856f819b6195a43ae34ae",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-BUILD-BINDING-14",
+      "oldKey": "scripts/verify-validation-build-artifact-binding.mjs:3154:spawnSync",
+      "newKey": "scripts/validation-build-binding/handler.mjs:49:spawnSync",
+      "oldCall": "4922cc3a9a63615b2dfea2a62da3acad5583b46940603c8fec5a1696e1355233",
+      "newCall": "4922cc3a9a63615b2dfea2a62da3acad5583b46940603c8fec5a1696e1355233",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 3,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-BENCHMARK-ROUTINE-BEHAVIOR",
+      "oldKey": "scripts/verify-benchmark-behavior.mjs:14:execFileSync",
+      "newKey": "scripts/verify-benchmark-behavior.mjs:14:execFileSync",
+      "oldCall": "a32f35f6fdce93294a54730c10ff663753c0251ce8f03afae7a4984fcde15f16",
+      "newCall": "a32f35f6fdce93294a54730c10ff663753c0251ce8f03afae7a4984fcde15f16",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0129",
+      "oldKey": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:5990:execFileSync",
+      "newKey": "packages/main/src/tasks/retired-authority/public-contract.ts:88:execFileSync",
+      "oldCall": "dff7cc80c845c95700fd44bf4297b28923586732601cb5f64e2a13b5c2d82424",
+      "newCall": "dff7cc80c845c95700fd44bf4297b28923586732601cb5f64e2a13b5c2d82424",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1006",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts.test.mjs:135:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/fixture-support.mjs:31:spawnSync",
+      "oldCall": "7fbb709a080d20459325e003473d66562fa0268f79e547d9cbc83d44a2036c07",
+      "newCall": "7fbb709a080d20459325e003473d66562fa0268f79e547d9cbc83d44a2036c07",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 18,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0213",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts.test.mjs:2293:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/identity-cutover.mjs:347:spawnSync",
+      "oldCall": "23a17520352b3795718911973d51941cd40853ef33f75a9adb16df9f1e370062",
+      "newCall": "23a17520352b3795718911973d51941cd40853ef33f75a9adb16df9f1e370062",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0214",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts.test.mjs:2392:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/identity-cutover.mjs:446:spawnSync",
+      "oldCall": "5f158a47f18ef3c840d5f004c2de1205ba2b02c606dc7a3cef485567a1d118bd",
+      "newCall": "5f158a47f18ef3c840d5f004c2de1205ba2b02c606dc7a3cef485567a1d118bd",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1007",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts.test.mjs:4303:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/release.mjs:25:spawnSync",
+      "oldCall": "2d61bc08d07bb4b870471eae2d5f9542fb71c6a54beec96cab1abe2122660507",
+      "newCall": "2d61bc08d07bb4b870471eae2d5f9542fb71c6a54beec96cab1abe2122660507",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 22,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1008",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts.test.mjs:4376:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/release.mjs:74:spawnSync",
+      "oldCall": "7d4910f6fbc0c7b8a4bd985b9a5a7442ff87ee5ec4735df475ba14310860a29e",
+      "newCall": "7d4910f6fbc0c7b8a4bd985b9a5a7442ff87ee5ec4735df475ba14310860a29e",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0240",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts.test.mjs:4903:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/memory-runtime.mjs:23:spawnSync",
+      "oldCall": "144a8bf685d90b3833774981bcaadaa22388a5343c7d06984c5a94ff9acde39e",
+      "newCall": "144a8bf685d90b3833774981bcaadaa22388a5343c7d06984c5a94ff9acde39e",
+      "oldEvidenceCount": 6,
+      "newEvidenceCount": 22,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0210",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts.test.mjs:962:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/runtime-topology.mjs:267:spawnSync",
+      "oldCall": "f6dbf2ec6babe329e0cd77ce56b776e7135bca172af5f5e5d2230e3c0127bc7f",
+      "newCall": "f6dbf2ec6babe329e0cd77ce56b776e7135bca172af5f5e5d2230e3c0127bc7f",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0211",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts.test.mjs:1005:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/runtime-topology.mjs:310:spawnSync",
+      "oldCall": "2112e14c657f1d73f80bdcadca9e4b3ac49b48839df48e80bc50f7909aaa8171",
+      "newCall": "2112e14c657f1d73f80bdcadca9e4b3ac49b48839df48e80bc50f7909aaa8171",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0212",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts.test.mjs:1016:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/runtime-topology.mjs:321:spawnSync",
+      "oldCall": "936ce4f001ffcfaae365e5901e847822704c0bbf42cff33baf5a333c3a585381",
+      "newCall": "936ce4f001ffcfaae365e5901e847822704c0bbf42cff33baf5a333c3a585381",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0215",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts.test.mjs:4227:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs:208:spawnSync",
+      "oldCall": "1d4a1e7117d0762904c6f8afe838dce73ef70b44f42b66c3cb93b5fe398f67bd",
+      "newCall": "1d4a1e7117d0762904c6f8afe838dce73ef70b44f42b66c3cb93b5fe398f67bd",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0216",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts.test.mjs:4238:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs:219:spawnSync",
+      "oldCall": "d9dd96995de4ec47bacce10ca414afc12e96a5a1e9489cb6ccfec6624d37f3bc",
+      "newCall": "d9dd96995de4ec47bacce10ca414afc12e96a5a1e9489cb6ccfec6624d37f3bc",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0217",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts.test.mjs:4251:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs:232:spawnSync",
+      "oldCall": "530dc1929c61fb62d45fc2a45069ec4b257c68b6008b0317bedad5dd5d2aada0",
+      "newCall": "530dc1929c61fb62d45fc2a45069ec4b257c68b6008b0317bedad5dd5d2aada0",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0218",
+      "oldKey": "packages/main/tests/canonical-new-story-artifacts.test.mjs:4263:spawnSync",
+      "newKey": "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs:244:spawnSync",
+      "oldCall": "d3aa16a0963d138ceccc85590c91627b5e7869c9912bc329afe380322f068c22",
+      "newCall": "d3aa16a0963d138ceccc85590c91627b5e7869c9912bc329afe380322f068c22",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0047",
+      "oldKey": "packages/main/src/tasks/flow-stability-smoke.ts:1043:execFileSync",
+      "newKey": "packages/main/src/tasks/flow-stability/lifecycle.ts:308:execFileSync",
+      "oldCall": "50feeb31501aa39e221a8dd9ab77d5c4934a78d5beeefbc86ad50b93c7efcd0f",
+      "newCall": "50feeb31501aa39e221a8dd9ab77d5c4934a78d5beeefbc86ad50b93c7efcd0f",
+      "oldEvidenceCount": 5,
+      "newEvidenceCount": 7,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0046",
+      "oldKey": "packages/main/src/tasks/flow-stability-smoke.ts:3017:execFileSync",
+      "newKey": "packages/main/src/tasks/flow-stability/review-routing.ts:683:execFileSync",
+      "oldCall": "f038ca2b89b9dd292fa5e8397b717c6afd9b5f66a682a20e46dc48751b54ad68",
+      "newCall": "f038ca2b89b9dd292fa5e8397b717c6afd9b5f66a682a20e46dc48751b54ad68",
+      "oldEvidenceCount": 5,
+      "newEvidenceCount": 7,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-BENCHMARK-MANAGED-SUPERSESSION",
+      "oldKey": "scripts/verify-process-fact-contract.mjs:12084:execFile",
+      "newKey": "scripts/process-fact-contract/complete.mjs:1744:execFile",
+      "oldCall": "77ae199a971bee0d1e6a287b8da23f026d728798c7e988f28330012b0d9c44f9",
+      "newCall": "77ae199a971bee0d1e6a287b8da23f026d728798c7e988f28330012b0d9c44f9",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 93,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-ACCEPTANCE-CLOSURE-FIXTURES",
+      "oldKey": "scripts/verify-process-fact-contract.mjs:12103:execFile",
+      "newKey": "scripts/process-fact-contract/complete.mjs:1763:execFile",
+      "oldCall": "53c51321ac7a827acd04fcf0f229333ca80694a269d5e5b55dd8086580e61508",
+      "newCall": "53c51321ac7a827acd04fcf0f229333ca80694a269d5e5b55dd8086580e61508",
+      "oldEvidenceCount": 9,
+      "newEvidenceCount": 102,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-PROCESS-RUNTIME-ADMISSION-ORDER",
+      "oldKey": "scripts/verify-process-fact-contract.mjs:12115:execFileSync",
+      "newKey": "scripts/process-fact-contract/complete.mjs:1779:execFileSync",
+      "oldCall": "aa8b3bcada861d8757d82296b3037badb417bfc1eba7c101b373ba1591110a7b",
+      "newCall": "aa8b3bcada861d8757d82296b3037badb417bfc1eba7c101b373ba1591110a7b",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 103,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-CHANGELOG-COMPACTION-CONTROLS",
+      "oldKey": "scripts/verify-process-fact-contract.mjs:6080:execFileSync",
+      "newKey": "scripts/process-fact-contract/early.mjs:59:execFileSync",
+      "oldCall": "16cc7140119d6fea165d457bcfdd4bc1b75cd176ab3a4b6a0139af76a97e621d",
+      "newCall": "16cc7140119d6fea165d457bcfdd4bc1b75cd176ab3a4b6a0139af76a97e621d",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 6,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-INVENTORY-CRITIC-METADATA-HEAD",
+      "oldKey": "scripts/verify-process-fact-contract.mjs:12068:execFile",
+      "newKey": "scripts/process-fact-contract/complete.mjs:1727:execFile",
+      "oldCall": "789568c50cacbfe24bef0127f440512bf11dc3470f50b67de3e987741e83bdf8",
+      "newCall": "789568c50cacbfe24bef0127f440512bf11dc3470f50b67de3e987741e83bdf8",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 95,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1036",
+      "oldKey": "scripts/verify-process-fact-contract.mjs:11527:execFileSync",
+      "newKey": "scripts/process-fact-contract/complete.mjs:1180:execFileSync",
+      "oldCall": "f0eec71b277ecbbeff696a765d62cc710990d336cb8c4b3c0c1a0f07b862516a",
+      "newCall": "f0eec71b277ecbbeff696a765d62cc710990d336cb8c4b3c0c1a0f07b862516a",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 45,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1037",
+      "oldKey": "scripts/verify-process-fact-contract.mjs:11780:execFileSync",
+      "newKey": "scripts/process-fact-contract/complete.mjs:1451:execFileSync",
+      "oldCall": "c4ef23467613c369aa1b02c5ad9daca6a41632d8617ee8cd3006780fd7dbb63c",
+      "newCall": "c4ef23467613c369aa1b02c5ad9daca6a41632d8617ee8cd3006780fd7dbb63c",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 14,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-1038",
+      "oldKey": "scripts/verify-process-fact-contract.mjs:11781:execFileSync",
+      "newKey": "scripts/process-fact-contract/complete.mjs:1453:execFileSync",
+      "oldCall": "a51372cb920473409be9378f62aa3b4af33e40cec693bf6ebd33322719b8efe4",
+      "newCall": "a51372cb920473409be9378f62aa3b4af33e40cec693bf6ebd33322719b8efe4",
+      "oldEvidenceCount": 2,
+      "newEvidenceCount": 14,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-CLI-REVIEWER-READ-BOUNDARIES",
+      "oldKey": "scripts/verify-process-fact-contract.mjs:11804:execFile",
+      "newKey": "scripts/process-fact-contract/complete.mjs:1471:execFile",
+      "oldCall": "9a66a07120f2f0eb56f72efc9fc83c6f11c3de9f7eb20af9685b0947990f4091",
+      "newCall": "9a66a07120f2f0eb56f72efc9fc83c6f11c3de9f7eb20af9685b0947990f4091",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 18,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-CLI-MAINTENANCE-PREVIEW-BOUNDARIES",
+      "oldKey": "scripts/verify-process-fact-contract.mjs:11809:execFile",
+      "newKey": "scripts/process-fact-contract/complete.mjs:1476:execFile",
+      "oldCall": "231a2ebd71026392ef71833d780709a4a26b1ecf7b92996db233f884ce1ec606",
+      "newCall": "231a2ebd71026392ef71833d780709a4a26b1ecf7b92996db233f884ce1ec606",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 18,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-CLI-COMMAND-OBSERVATION-BOUNDARIES",
+      "oldKey": "scripts/verify-process-fact-contract.mjs:11839:execFileSync",
+      "newKey": "scripts/process-fact-contract/complete.mjs:1508:execFileSync",
+      "oldCall": "630a8a92f959cdd275c5b28e044717349c2449fff1404ad7a9e75acfa53f0f54",
+      "newCall": "630a8a92f959cdd275c5b28e044717349c2449fff1404ad7a9e75acfa53f0f54",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 6,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-CLI-COMMAND-OBSERVATION-CONTROLS",
+      "oldKey": "scripts/verify-process-fact-contract.mjs:11843:execFileSync",
+      "newKey": "scripts/process-fact-contract/complete.mjs:1512:execFileSync",
+      "oldCall": "bb4dbd1da6e28e07644bacebbea9422f5d02f76461a46f97572012a5b8e2e173",
+      "newCall": "bb4dbd1da6e28e07644bacebbea9422f5d02f76461a46f97572012a5b8e2e173",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 6,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-CLI-CLI-LAB-AUDIT-REPAIRS",
+      "oldKey": "scripts/verify-process-fact-contract.mjs:11920:execFileSync",
+      "newKey": "scripts/process-fact-contract/complete.mjs:1584:execFileSync",
+      "oldCall": "a1ebb6b213af605b7358ed9a551916851569235e22365f0a3f58a8f3750b71b9",
+      "newCall": "a1ebb6b213af605b7358ed9a551916851569235e22365f0a3f58a8f3750b71b9",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 14,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-CLI-CLI-AUDIT-HARDENING",
+      "oldKey": "scripts/verify-process-fact-contract.mjs:11927:execFileSync",
+      "newKey": "scripts/process-fact-contract/complete.mjs:1589:execFileSync",
+      "oldCall": "06f09e67c179d15970ae7421f4eeb2d9d824257ecb1ed9498235a61e06df6e28",
+      "newCall": "06f09e67c179d15970ae7421f4eeb2d9d824257ecb1ed9498235a61e06df6e28",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 13,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-CLI-CLI-AUDIT-CLOSURE-CONTROLS",
+      "oldKey": "scripts/verify-process-fact-contract.mjs:11931:execFileSync",
+      "newKey": "scripts/process-fact-contract/complete.mjs:1594:execFileSync",
+      "oldCall": "c24bb3849585ee7d44eca69cb2e7d911bc56fc3c215a59b7166143671d3c390f",
+      "newCall": "c24bb3849585ee7d44eca69cb2e7d911bc56fc3c215a59b7166143671d3c390f",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 13,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-CLI-CLI-AUDIT-BUDGET-CONTROLS",
+      "oldKey": "scripts/verify-process-fact-contract.mjs:11935:execFileSync",
+      "newKey": "scripts/process-fact-contract/complete.mjs:1599:execFileSync",
+      "oldCall": "b26bd473ad71755212ca62dc4f5ecbfa483f84681fb38a43c4c7748e8a3b5ea3",
+      "newCall": "b26bd473ad71755212ca62dc4f5ecbfa483f84681fb38a43c4c7748e8a3b5ea3",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 14,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-AUDIT-MANAGED-INIT-VERDICT",
+      "oldKey": "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs:212:execFileSync",
+      "newKey": "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs:212:execFileSync",
+      "oldCall": "cf780a5cd5062d9a85e25586594afdd4c52b6e65682e991cd29f3ee9000c6af0",
+      "newCall": "cf780a5cd5062d9a85e25586594afdd4c52b6e65682e991cd29f3ee9000c6af0",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 4,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-AUDIT-COLLECTION-READINESS",
+      "oldKey": "packages/main/tests/red/red-dynamic-finding-collection-readiness.mjs:22:spawnSync",
+      "newKey": "packages/main/tests/red/red-dynamic-finding-collection-readiness.mjs:22:spawnSync",
+      "oldCall": "f235f82aae02ee9b1fcbd0c400e11ed18d8241436f77e03f8f5f8ee975cbf483",
+      "newCall": "f235f82aae02ee9b1fcbd0c400e11ed18d8241436f77e03f8f5f8ee975cbf483",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-AUDIT-HEAD-CONTINUITY",
+      "oldKey": "packages/main/tests/red/red-dynamic-finding-head-continuity.mjs:13:spawnSync",
+      "newKey": "packages/main/tests/red/red-dynamic-finding-head-continuity.mjs:13:spawnSync",
+      "oldCall": "3fcb195d10d7f6158f9ebb9058dfd982ff090e03d24362a1d13aa45c6dc8a5f1",
+      "newCall": "3fcb195d10d7f6158f9ebb9058dfd982ff090e03d24362a1d13aa45c6dc8a5f1",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-AUDIT-NESTED-MACHINE-ISOLATION",
+      "oldKey": "packages/main/tests/red/red-lab-nested-fixture-machine-isolation.mjs:31:spawn",
+      "newKey": "packages/main/tests/red/red-lab-nested-fixture-machine-isolation.mjs:31:spawn",
+      "oldCall": "950e3f22b1d4bb55c5f9042b938d21e1823206a0f2d2d44b2ff716c7c3f0ece6",
+      "newCall": "950e3f22b1d4bb55c5f9042b938d21e1823206a0f2d2d44b2ff716c7c3f0ece6",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0140-L3058",
+      "oldKey": "packages/main/tests/milestone-status.test.mjs:3058:execFileSync",
+      "newKey": "packages/main/tests/milestone-status/cli-behavior.mjs:223:execFileSync",
+      "oldCall": "dd335d650e433b9f1956246a9f19c5dd9bce81c5bcb8a890b12d9c89f4d680f4",
+      "newCall": "dd335d650e433b9f1956246a9f19c5dd9bce81c5bcb8a890b12d9c89f4d680f4",
+      "oldEvidenceCount": 5,
+      "newEvidenceCount": 12,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0034-L46",
+      "oldKey": "packages/main/src/tasks/command-catalog-smoke.ts:46:execFileSync",
+      "newKey": "packages/main/src/tasks/command-catalog-smoke.ts:46:execFileSync",
+      "oldCall": "a54cf8a7594ee10fec801a9d5ac9efdd3477264da5cde81d98578a835a29dc82",
+      "newCall": "a54cf8a7594ee10fec801a9d5ac9efdd3477264da5cde81d98578a835a29dc82",
+      "oldEvidenceCount": 4,
+      "newEvidenceCount": 5,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-0090-L2106",
+      "oldKey": "packages/main/src/tasks/host-run-usage-smoke.ts:2106:spawn",
+      "newKey": "packages/main/src/tasks/host-run-usage/output-errors.ts:161:spawn",
+      "oldCall": "b6def1d88bf04e95f23e95604aa8f02c7dd4d93ec09e19ba94cb770f62448bf8",
+      "newCall": "b6def1d88bf04e95f23e95604aa8f02c7dd4d93ec09e19ba94cb770f62448bf8",
+      "oldEvidenceCount": 3,
+      "newEvidenceCount": 6,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-VERDICT-STICKINESS-01",
+      "oldKey": "scripts/verify-validation-verdict-stickiness.mjs:277:execFileSync",
+      "newKey": "scripts/verify-validation-verdict-stickiness.mjs:277:execFileSync",
+      "oldCall": "294f9c8ed5b02bc4038431d2386b09b77661aeb2cff6c2b07d27d4ec38be6245",
+      "newCall": "294f9c8ed5b02bc4038431d2386b09b77661aeb2cff6c2b07d27d4ec38be6245",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-VERDICT-STICKINESS-02",
+      "oldKey": "scripts/verify-validation-verdict-stickiness.mjs:281:execFileSync",
+      "newKey": "scripts/verify-validation-verdict-stickiness.mjs:281:execFileSync",
+      "oldCall": "294f9c8ed5b02bc4038431d2386b09b77661aeb2cff6c2b07d27d4ec38be6245",
+      "newCall": "294f9c8ed5b02bc4038431d2386b09b77661aeb2cff6c2b07d27d4ec38be6245",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-VERDICT-STICKINESS-03",
+      "oldKey": "scripts/verify-validation-verdict-stickiness.mjs:289:execFileSync",
+      "newKey": "scripts/verify-validation-verdict-stickiness.mjs:289:execFileSync",
+      "oldCall": "294f9c8ed5b02bc4038431d2386b09b77661aeb2cff6c2b07d27d4ec38be6245",
+      "newCall": "294f9c8ed5b02bc4038431d2386b09b77661aeb2cff6c2b07d27d4ec38be6245",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-VERDICT-STICKINESS-04",
+      "oldKey": "scripts/verify-validation-verdict-stickiness.mjs:294:execFileSync",
+      "newKey": "scripts/verify-validation-verdict-stickiness.mjs:294:execFileSync",
+      "oldCall": "d9756ca903b001d565977526690874ec7fc2794226e4153f74a57400e32c673f",
+      "newCall": "d9756ca903b001d565977526690874ec7fc2794226e4153f74a57400e32c673f",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-VERDICT-STICKINESS-05",
+      "oldKey": "scripts/verify-validation-verdict-stickiness-cli.mjs:88:spawnSync",
+      "newKey": "scripts/verify-validation-verdict-stickiness-cli.mjs:88:spawnSync",
+      "oldCall": "f1baf38906c3a7c0e98ebf159283922131be1d5ab90d41b7ee98d028d9e7166b",
+      "newCall": "f1baf38906c3a7c0e98ebf159283922131be1d5ab90d41b7ee98d028d9e7166b",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    },
+    {
+      "id": "EX-VERDICT-STICKINESS-06",
+      "oldKey": "scripts/verify-validation-verdict-stickiness-cli.mjs:324:spawnSync",
+      "newKey": "scripts/verify-validation-verdict-stickiness-cli.mjs:324:spawnSync",
+      "oldCall": "27047a96712eeb6ecac7de1ed8cb5fcfa5ca594f9a40dffb4d91fdc58df504ca",
+      "newCall": "27047a96712eeb6ecac7de1ed8cb5fcfa5ca594f9a40dffb4d91fdc58df504ca",
+      "oldEvidenceCount": 1,
+      "newEvidenceCount": 2,
+      "contextNormalized": false
+    }
+  ]
+}

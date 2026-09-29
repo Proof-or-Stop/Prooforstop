@@ -1,16 +1,16 @@
 {
   "schema": "u18-identity-child-closure.v1",
   "pins": {
-    "check": "a65818184bb8126006bdabb3f4c98ec27390a848ba04c354de2bbf0caa2d3a2e",
-    "groups": "d189a18f36f4f49daaeac3bb613bc28a2ca1bedf1f5f9b52481a44a1bdf0a45c",
+    "check": "a4e949b930801af24284ff179ec5a3d3bb00f047dc5792d8a88004a300b6a330",
+    "groups": "214ddab7162e5a149d66baca51c413ee204ce8cd30ae873f32dae509306a52b0",
     "selectedGroup": "46eba01462bd9fba6cff08ae274cb5f31a47a906fdbd5414f32ed225e44448bd",
     "groupArgs": "557eac316d0cbb5153f56e9467dca46561ede99a4925c67c2cf9896be929cc00",
     "runIdentityVerifier": "6d16caecdb08bd40ec3cfc5fe013a92dab6c5cd7406941becc59a45cfdafcd16",
     "createIdentityVerifierClone": "4e0a464942e41cc98125de3be88108fcdb4e3649e2d0401838991895fb009bc3",
     "createIdentityRedVerifierClone": "ff8590080c602bca764d6f447a3ea26672104b70b9c1d2be9ad9099f47d068fa",
-    "main": "b01bba9ce6d68758d0a4f699c5a0555a543f8e7e05a0835c3e2fc5a8c6617752",
+    "main": "cd2ca7a3e24473734eb4ccabd67318a9e50315a56a279f63e9bda0d436de582c",
     "boundaryOnly": "aafd00e7bb95c8b8ea93679d321a74ce496f34f656d0445f76ecddae939701f1",
-    "NEGATIVE_SCHEMA_WITNESSES": "d5a52fa74a229fc488c2b0cd191463ac28c92485f3e88fecd40f58adfe6717fa",
+    "NEGATIVE_SCHEMA_WITNESSES": "914877e1969c285c6a4fbe8573ebb33652b4188b327924862facaf0e5ccb0fbc",
     "CLOSED_ROLE_RUNTIME_WITNESSES": "4c43ce9144744e6e70dab1e673e110ea50751b6fa323001e69b4e7ac9239d016"
   },
   "groups": [
@@ -21,6 +21,8 @@
     "release",
     "inventory",
     "identity-cutover",
+    "identity-migration-archive",
+    "identity-consumer-smoke",
     "identity-inventory",
     "identity-cache",
     "identity-sites",
@@ -149,9 +151,9 @@
     },
     {
       "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
-      "line": 7529,
-      "callDigest": "4b4f14c1d215fe9e7d9e79bdf227050be4da9b1c81bbb994c9ca0f71b1c31c03",
-      "ownerDigest": "ab4449e2e368540f2a4b4f66b084ab10da3261da6d6ae398e445eb6747277617",
+      "line": 7588,
+      "callDigest": "7a73523fbba3e577140d5ceaa7a49fc486336aef4dcdd18cad5f945b70c02dc0",
+      "ownerDigest": "434ff29aa94f284c27ba45edda69df274f5aa2f500a2a45be0915e8651ddac48",
       "targets": [
         {
           "file": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
@@ -161,7 +163,7 @@
         }
       ],
       "selector": "GREEN B-49df: runtime group pass.",
-      "expression": "execFileSync(process.execPath, [resolve(root, 'packages/main/tests/canonical-new-story-artifacts.test.mjs'), '--group=runtime'], { cwd: root, encoding: 'utf8', timeout: 300000 })"
+      "expression": "execFileSync(process.execPath, [resolve(root, 'packages/main/tests/canonical-new-story-artifacts.test.mjs'), '--group=runtime'], { cwd: root, encoding: 'utf8', timeout: identityCertificationBudget.runtimeGroupMs })"
     },
     {
       "file": "scripts/verify-proof-or-stop-identity-cutover.mjs",
@@ -186,7 +188,7 @@
         {
           "file": "packages/main/dist/tasks/codex-registry-mode-smoke.js",
           "argv": [],
-          "selector": "\u2713 codex registry mode smoke passed"
+          "selector": "✓ codex registry mode smoke passed"
         },
         {
           "file": "packages/main/tests/artifact-schema-migration.test.mjs",
@@ -237,6 +239,45 @@
       ],
       "selector": "real inherited pack exit status",
       "expression": "execFileSync(process.execPath, [resolve(root, 'scripts/verify-proof-or-stop-pack-boundary.mjs'), '--quiet'], {\n    cwd: root,\n    stdio: 'inherit',\n  })"
+    },
+    {
+      "file": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+      "callDigest": "18dbb5cc76f69e973734b2416b00092339aadfea7fd84eacbcab7861d35e0106",
+      "ownerDigest": "265637a48bba646e29c0704ff8895be2b0d6edebb49a4b1252261b6fe0fffc5c",
+      "targets": [
+        {
+          "file": "packages/main/dist/tasks/validation-runtime-tracer-transparency-smoke.js",
+          "argv": []
+        }
+      ],
+      "selector": "validation runtime tracer promisify transparency smoke PASS",
+      "kind": "exact-modular-regression-child"
+    },
+    {
+      "file": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+      "callDigest": "a0464bffc3f30a0f7cadd16ff7f65768d59cbd7885f52da3c539fcb67d937c06",
+      "ownerDigest": "6af348a5e0fa661247632351aa491ced58c8eb541341e069841ecf0d7a3d832a",
+      "targets": [
+        {
+          "file": "packages/main/tests/public-fixture-read-scope.test.mjs",
+          "argv": []
+        }
+      ],
+      "selector": "PUBLIC_FIXTURE_HISTORY_READ_BUDGET_GREEN",
+      "kind": "exact-modular-regression-child"
+    },
+    {
+      "file": "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+      "callDigest": "9f0f1c426e2314d84f53c8fa0dd7f1a8c3b88f4a2c46cff9f5c17bd6bc942598",
+      "ownerDigest": "1c1e9eeacba7f3ea26877c220135b80b73ebc24f302282324fe99503aa0f9233",
+      "targets": [
+        {
+          "file": "packages/main/tests/identity-snapshot-paths.test.mjs",
+          "argv": []
+        }
+      ],
+      "selector": "IDENTITY_SNAPSHOT_PATH_GREEN",
+      "kind": "exact-modular-regression-child"
     }
   ],
   "nonNodeCalls": {
@@ -358,5 +399,113 @@
       ]
     }
   },
-  "globalLabDigest": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4"
+  "globalLabDigest": "da5bb5c6c8265e76de0be218329392743331adffbdc72d2d66356ff37c7be1c4",
+  "modular": {
+    "families": {
+      "scripts/verify-proof-or-stop-identity-cutover.mjs": [
+        "scripts/verify-proof-or-stop-identity-cutover.mjs",
+        "scripts/identity-cutover/active-scan.mjs",
+        "scripts/identity-cutover/base-contexts.mjs",
+        "scripts/identity-cutover/bootstrap.mjs",
+        "scripts/identity-cutover/certification.mjs",
+        "scripts/identity-cutover/cli.mjs",
+        "scripts/identity-cutover/deny-contexts.mjs",
+        "scripts/identity-cutover/guidance.mjs",
+        "scripts/identity-cutover/history-contexts.mjs",
+        "scripts/identity-cutover/integration-contexts.mjs",
+        "scripts/identity-cutover/memory-provenance.mjs",
+        "scripts/identity-cutover/negative-contexts.mjs",
+        "scripts/identity-cutover/ordering.mjs",
+        "scripts/identity-cutover/provenance-data.mjs",
+        "scripts/identity-cutover/public-api.mjs",
+        "scripts/identity-cutover/release-history.mjs",
+        "scripts/identity-cutover/repository.mjs",
+        "scripts/identity-cutover/reviewed-contexts.mjs",
+        "scripts/identity-cutover/rules.mjs",
+        "scripts/identity-cutover/runtime-contexts.mjs",
+        "scripts/identity-cutover/scanner-contexts.mjs",
+        "scripts/identity-cutover/schema-data.mjs",
+        "scripts/identity-cutover/schema-scan.mjs",
+        "scripts/identity-cutover/self-test.mjs",
+        "scripts/identity-cutover/source-integrity.mjs",
+        "scripts/identity-cutover/witness-controls.mjs"
+      ],
+      "packages/main/tests/canonical-new-story-artifacts.test.mjs": [
+        "packages/main/tests/canonical-new-story-artifacts.test.mjs",
+        "packages/main/tests/canonical-new-story-artifacts/artifact-inventory.mjs",
+        "packages/main/tests/canonical-new-story-artifacts/catalog.mjs",
+        "packages/main/tests/canonical-new-story-artifacts/cli.mjs",
+        "packages/main/tests/canonical-new-story-artifacts/data.mjs",
+        "packages/main/tests/canonical-new-story-artifacts/driver.mjs",
+        "packages/main/tests/canonical-new-story-artifacts/finding-artifacts.mjs",
+        "packages/main/tests/canonical-new-story-artifacts/fixture-support.mjs",
+        "packages/main/tests/canonical-new-story-artifacts/identity-cutover.mjs",
+        "packages/main/tests/canonical-new-story-artifacts/identity-inventory.mjs",
+        "packages/main/tests/canonical-new-story-artifacts/identity-ownership.mjs",
+        "packages/main/tests/canonical-new-story-artifacts/identity-policy.mjs",
+        "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs",
+        "packages/main/tests/canonical-new-story-artifacts/identity-sites.mjs",
+        "packages/main/tests/canonical-new-story-artifacts/memory-runtime.mjs",
+        "packages/main/tests/canonical-new-story-artifacts/migration-archive.mjs",
+        "packages/main/tests/canonical-new-story-artifacts/public-fixtures.mjs",
+        "packages/main/tests/canonical-new-story-artifacts/release.mjs",
+        "packages/main/tests/canonical-new-story-artifacts/runner.mjs",
+        "packages/main/tests/canonical-new-story-artifacts/runtime-extensions.mjs",
+        "packages/main/tests/canonical-new-story-artifacts/runtime-read.mjs",
+        "packages/main/tests/canonical-new-story-artifacts/runtime-topology.mjs",
+        "packages/main/tests/canonical-new-story-artifacts/scope-init.mjs"
+      ]
+    },
+    "sourceDigests": {
+      "scripts/verify-proof-or-stop-identity-cutover.mjs": "df5222d59b2d14b75345aa3aaf87084f513604e6ba804a625e520bc0a33f04da",
+      "scripts/identity-cutover/active-scan.mjs": "77f9b0b538ca14ab4c3956335a54ca7df76b34c1d6ac69ad3eeebb1736693116",
+      "scripts/identity-cutover/base-contexts.mjs": "dfa9923f7235d909d6a627a9a58ff4913382ef6c30afd154ecbe59be203b1782",
+      "scripts/identity-cutover/bootstrap.mjs": "3b1c5bb88a6810b132fd133ddf90f3d03442be56ea52f2ed261c5ccc53a58a90",
+      "scripts/identity-cutover/certification.mjs": "571275d6a711525cb0f4e2fbc054fd21eee0e4f1d92fcf7126aeb036a9a8ccd6",
+      "scripts/identity-cutover/cli.mjs": "562cba1ca9a48c7c4fcd31a1eacffd4515647bcf411a29312cfcd1c408924ff1",
+      "scripts/identity-cutover/deny-contexts.mjs": "601df2c4af018cd49d598d39272653c2a1aa8d1bddb6cd47fe1732af8df2bae0",
+      "scripts/identity-cutover/guidance.mjs": "59694eecc7b3da709f2550d094cb59515ef49ed0c1a2a6fe30a561216c50147d",
+      "scripts/identity-cutover/history-contexts.mjs": "09a97a5d4631b566e07ac7c6648076fffedbdd31c0b914517318df92620173cf",
+      "scripts/identity-cutover/integration-contexts.mjs": "99e31be239c8c15db72f989c3c59a95c188371ee812a1d4954ab46abc4e00d0a",
+      "scripts/identity-cutover/memory-provenance.mjs": "7edbcd4d4037d113c825de460bdd3d2ed78dc45eff89a3abe9991adf78319b63",
+      "scripts/identity-cutover/negative-contexts.mjs": "cd9f84ccd6dc9b1ac9b5f904aaf3f1f6425d94e5e52f2a3e095334a77f20f855",
+      "scripts/identity-cutover/ordering.mjs": "cf4e09eefa5a6e617575ba9a54befef19b100299a9b9fc2c4a76b4115e039943",
+      "scripts/identity-cutover/provenance-data.mjs": "278c3d0595866e43072481d16434fd934c1e3e8dd9750cf6bfe11f5cd05c5f6e",
+      "scripts/identity-cutover/public-api.mjs": "34583839955767ee38d3552b3643598178f1d9d2523515f9784fa435a11efdd8",
+      "scripts/identity-cutover/release-history.mjs": "ea97defe344cfab66e8f3e012ff5c6f46902aa379d818b77ff20b6080f18d915",
+      "scripts/identity-cutover/repository.mjs": "475eb2cc06dd5d86ec50030866f84040c1611ee1f8ecf6552731ccc9d778d57e",
+      "scripts/identity-cutover/reviewed-contexts.mjs": "2d62d1fb454492844a33c483d913fd308ff6a1d3c4c7e37dc40c410551fb1c27",
+      "scripts/identity-cutover/rules.mjs": "f66db16b5eb0986c64744ee30b78bffdbb0e605e9046d58dcc04e6591df4f064",
+      "scripts/identity-cutover/runtime-contexts.mjs": "f982cdcd214dc0cf44c8f4057fca94c48969807666e3e7eff238cc7efbdd5c51",
+      "scripts/identity-cutover/scanner-contexts.mjs": "7de6fb4842140a862018679d170b1727e74e5a122709a8b69b7b9118f76c2717",
+      "scripts/identity-cutover/schema-data.mjs": "6dc95a78c6a5cb16bdebef8ca68a3b09773877dac8a7bd7cddf3897267d34e81",
+      "scripts/identity-cutover/schema-scan.mjs": "91c83483ffb8b19ddbcaab6016d71056226ef23ac50cbc7ea847df70f8f84022",
+      "scripts/identity-cutover/self-test.mjs": "6eb7ff6f8a36a10bb6ebb773940a3c34f7e0004369eb5fe42bb7c805a576b288",
+      "scripts/identity-cutover/source-integrity.mjs": "b9f23903d8a138bb09fdb771ade5d83c073fbcf72b65efda7523841ed7cd324e",
+      "scripts/identity-cutover/witness-controls.mjs": "2748707f0c610507077860cae53b55e76f167c6c17882cb861f7313d4044951c",
+      "packages/main/tests/canonical-new-story-artifacts.test.mjs": "e964f58c94197066257c16d71d611a75712d530b50cec23350b6539cac2bc0e3",
+      "packages/main/tests/canonical-new-story-artifacts/artifact-inventory.mjs": "1c234a048e37c6d6a04be9c98816ac8b5b0612d64bb739b3630649c3c8f3f89b",
+      "packages/main/tests/canonical-new-story-artifacts/catalog.mjs": "a02325c892938a4ae04421c4805d9bece569357e8f695f51c99f6f7b3a8085b9",
+      "packages/main/tests/canonical-new-story-artifacts/cli.mjs": "70387c9e0cba4f1222c11ad32843b302dc2498d03014ebcfb1835524e2d82deb",
+      "packages/main/tests/canonical-new-story-artifacts/data.mjs": "4dd0430ecdb574343b258f412d7519d74de9fc205d6e291c219921c1b9807430",
+      "packages/main/tests/canonical-new-story-artifacts/driver.mjs": "238ee9818e074337bdf6a7dcf2ec9c1e286c3da8ea7809fb259d3b6389e913c0",
+      "packages/main/tests/canonical-new-story-artifacts/finding-artifacts.mjs": "ba62e5b976a0966c0f54b7de7dd47299174b4ab3b6c229219b50d41c1f7323aa",
+      "packages/main/tests/canonical-new-story-artifacts/fixture-support.mjs": "d7906a28cf62d087c16d9ee4f43d953fb51393422e65f65967702ce9df859877",
+      "packages/main/tests/canonical-new-story-artifacts/identity-cutover.mjs": "c583bd41ee5789221e5f93f938f4528a9408dc376d72ef838260cc5e3236355b",
+      "packages/main/tests/canonical-new-story-artifacts/identity-inventory.mjs": "641c4ddb9a817b47e2cd93693316725d41c1ee7f820fba26f3f1505e090404b3",
+      "packages/main/tests/canonical-new-story-artifacts/identity-ownership.mjs": "22a8265456c3424f56709635195a3f66dc602230612ec2a8165a3d7e12d98f67",
+      "packages/main/tests/canonical-new-story-artifacts/identity-policy.mjs": "323875cf923559b5848f2d22973adf18f521d5d79ccef5671835b7162c4e447c",
+      "packages/main/tests/canonical-new-story-artifacts/identity-runtime-boundaries.mjs": "e01844f2aa0d34f4ed5ded22d8ff334ff9ec10a05179107cddb34759ae6a8d7c",
+      "packages/main/tests/canonical-new-story-artifacts/identity-sites.mjs": "010a15eda866aeddc9bd68935ee0d43b1bcdc02f80c7f4904d662795f076a6d2",
+      "packages/main/tests/canonical-new-story-artifacts/memory-runtime.mjs": "4dc9b24ef3b263c169bf9b54d9e24a69925147104dc2224f23d0e914b86f7a96",
+      "packages/main/tests/canonical-new-story-artifacts/migration-archive.mjs": "912b536c8dbd9834c32934782950f4b97a1742a193df75aeb8fb47f0a95093ce",
+      "packages/main/tests/canonical-new-story-artifacts/public-fixtures.mjs": "f5ce04dbadba9d797ba1488796fbacce9b37cbd305fce94d9e3439097582aeb2",
+      "packages/main/tests/canonical-new-story-artifacts/release.mjs": "1775bb8364f09d2a732d22f4ad582d7d085ca762accf27a7928e8bffc74003e7",
+      "packages/main/tests/canonical-new-story-artifacts/runner.mjs": "3a7270ee39b9dc7658429d9538351c96e9d1cfd4eb5507c9d394c7f7aa5c88bb",
+      "packages/main/tests/canonical-new-story-artifacts/runtime-extensions.mjs": "fc507afda2de106bb6a3036962bf7adf29aabf78edc3f456390364f5e88f17d1",
+      "packages/main/tests/canonical-new-story-artifacts/runtime-read.mjs": "e154a98b7fa6bbd63e7730f1bf3f9921f8c84608591288ba747ab827b8611285",
+      "packages/main/tests/canonical-new-story-artifacts/runtime-topology.mjs": "4d08bd149558036b3c18de20dbe715ebdb058cbbb1bee36d3b87f1bf342e2647",
+      "packages/main/tests/canonical-new-story-artifacts/scope-init.mjs": "0233ab0985da1e2b928ee74264167120e368c97c4d340cf31f9b3b74330bb848"
+    }
+  }
 }

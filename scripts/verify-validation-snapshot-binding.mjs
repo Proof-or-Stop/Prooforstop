@@ -22,7 +22,7 @@ function verify(text) {
     fail(matches.length === 1 && matches[0].initializer, 'one invocation-local const ' + name);
     return matches[0];
   };
-  const compact = node => node.getText(file).replace(/\s+/g, '');
+  const compact = node => ts.createPrinter({ removeComments: true }).printNode(ts.EmitHint.Unspecified, node, file).replace(/\s+/g, '');
   const initial = local('initial');
   const facts = local('initialCanonical');
   const inputs = local('inputFilesCanonical');
@@ -37,8 +37,9 @@ function verify(text) {
   fail(attempt && ts.isTryStatement(attempt), 'freshness comparison retains refusal boundary');
   const result = attempt.tryBlock.statements[0];
   fail(result && ts.isReturnStatement(result) && result.expression, 'freshness return');
-  const expected = 'causalCanonical(probe())===initialCanonical&&workspaceState()===workspace'
-    + '&&causalCanonical(additionalInputs())===inputFilesCanonical&&executionImplementationIdentity().digest===implementationDigest';
+  const expected = 'launchDrift()===undefined&&causalCanonical(probe())===initialCanonical&&workspaceState()===workspace'
+    + '&&causalCanonical(additionalInputs())===inputFilesCanonical&&executionImplementationIdentity().digest===implementationDigest'
+    + '&&(!artifactBinding||currentBuildArtifactsHash(artifactBinding.root,artifactBinding.configRoot)===artifactBindingHash)';
   fail(compact(result.expression) === expected, 'live facts, workspace, input bytes and implementation comparison');
   const counts = { initial: 0, inputFiles: 0 };
   const visit = node => {
@@ -58,10 +59,12 @@ const mutants = [
   ['causalCanonical(probe()) === initialCanonical', 'initialCanonical === initialCanonical'],
   ['causalCanonical(additionalInputs()) === inputFilesCanonical', 'inputFilesCanonical === inputFilesCanonical'],
   ['causalCanonical(probe()) === initialCanonical', 'causalCanonical(probe()) === causalCanonical(initial)'],
+  ['launchDrift() === undefined && ', ''],
+  ['&& (!artifactBinding || currentBuildArtifactsHash(artifactBinding.root, artifactBinding.configRoot) === artifactBindingHash)', ''],
 ];
 for (const [from, to] of mutants) {
   assert.equal(source.split(from).length, 2, 'Mutation must bind exactly once');
   const mutant = source.replace(from, to);
   assert.throws(() => verify(mutant), /VALIDATION_SNAPSHOT_BINDING_INVALID/);
 }
-console.log('VALIDATION_SNAPSHOT_BINDING_GREEN actual-owner five-mutations-refused no-module-hooks');
+console.log('VALIDATION_SNAPSHOT_BINDING_GREEN actual-owner seven-mutations-refused no-module-hooks');

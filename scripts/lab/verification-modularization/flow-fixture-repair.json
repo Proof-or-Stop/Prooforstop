@@ -1,0 +1,4 @@
+{
+  "before": "    const output = await createStoryAdvanceHandlers({\n      store,\n      root,\n      scanRoot: join(root, 'packages/main'),\n    }).story_advance({ storyId, phase: 'REVIEW' });",
+  "after": "    // Supply the current normal-channel prerequisite through its real writer.\n    const implementationDispatch = createStoryDispatchHandlers({ store, root, scanRoot: join(root, 'packages/main') });\n    for (const item of store.readChecklist(storyId).items) {\n      implementationDispatch.dispatch({ storyId, itemId: item.id, agentType: 'proof-or-stop-implementer' });\n    }\n    const output = await createStoryAdvanceHandlers({\n      store,\n      root,\n      scanRoot: join(root, 'packages/main'),\n    }).story_advance({ storyId, phase: 'REVIEW' });"
+}
