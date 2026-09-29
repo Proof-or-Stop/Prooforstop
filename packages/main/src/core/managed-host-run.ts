@@ -2362,7 +2362,20 @@ function captureManagedRunDurationEstimate(args: ManagedHostRunSubmitArgs, creat
   return estimateManagedRunDuration(samples,createdAt);
 }
 
+/**
+ * A live writer holds the sidecar only for the few writes of one transition,
+ * under the terminal authority lock that readers do not take. Wait that out;
+ * a sidecar that outlives the window is a crashed writer and needs recovery.
+ */
+const SNAPSHOT_TRANSITION_READ_WAIT_MS = 750;
+
 function projectionFor(paths: ManagedHostRunPaths): ManagedHostRunProjection {
+  if (existsSync(paths.snapshotEventTransition)) {
+    const deadline = Date.now() + SNAPSHOT_TRANSITION_READ_WAIT_MS;
+    while (existsSync(paths.snapshotEventTransition) && Date.now() < deadline) {
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 20);
+    }
+  }
   if (existsSync(paths.snapshotEventTransition)) {
     throw new Error(`managed host run ${paths.expectedRunId}: snapshot/event recovery pending; supervisor recovery required`);
   }
