@@ -499,6 +499,11 @@ export async function runReviewToTestPreflightGate(
  * - Missing contract emits a visible degradation warning at REVIEW only (silent
  *   at TEST/DONE to avoid noise on repeated transitions).
  */
+/** Whether entering `phase` surfaces the advisory semantic-degradation event. */
+export function emitsSemanticDegradationAt(_phase: StoryPhase): boolean {
+  return true;
+}
+
 export function runScopeTransitionGate(
   ctx: HandlerContext,
   storyId: string,
