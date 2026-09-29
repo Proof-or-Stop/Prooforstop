@@ -1,3 +1,4 @@
+import { planIntentPrecheckWarnings } from '../core/plan-intent-precheck.js';
 import { observedImplementationDigest, withVerificationCommitObservation, withVerificationCompletionObservation, withVerificationLaunchObservation, withVerificationPlanningObservation, withVerificationRefreshObservation } from '../core/verification-execution-evidence.js';
 import { assertGitObservationInactive, observedGit, withGitTreeObservation, withoutGitObservation } from '../core/git-tree-observation.js';
 import { maintenanceCommandWrites } from '../core/maintenance-command-mode.js';
@@ -3631,7 +3632,13 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         }
       }
 
-      return `Checklist ${args.itemId}: ${results.join(', ')}${commitHint}`;
+      const intentHeadsUp = args.verificationIntent !== undefined
+        ? planIntentPrecheckWarnings(store.readChecklist(args.storyId).items.find(i => i.id === args.itemId) ?? item)
+        : [];
+      const intentHeadsUpText = intentHeadsUp.length > 0
+        ? `\n\nHeads-up, story_review will block PLAN on:\n${intentHeadsUp.map(w => `  - ${w}`).join('\n')}`
+        : '';
+      return `Checklist ${args.itemId}: ${results.join(', ')}${commitHint}${intentHeadsUpText}`;
       });
     },
 
