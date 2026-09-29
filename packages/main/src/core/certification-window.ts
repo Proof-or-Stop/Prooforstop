@@ -274,6 +274,8 @@ export interface CertificationWindowAdmitFacts {
    * identity it evaluated.
    */
   inventoryHeadMetadataContinuity?: boolean;
+  /** receipt.headHash..HEAD is a linear run of PoS metadata-only commits. */
+  cheapCheckHeadMetadataContinuity?: boolean;
   materialHash?: string;
   storyFilesHash?: string;
   expectedMainSha?: string | null;
@@ -522,6 +524,11 @@ export function currentPrecertCheapCheckReceipt(args: {
   materialHash?: string;
   storyFilesHash?: string;
   currentIdentity?: RoutineValidationIdentity;
+  /**
+   * Accepts an older receipt head when every commit since it touches only
+   * material-excluded PoS metadata. Code identity stays exact below.
+   */
+  headContinuity?: (receiptHead: string) => boolean;
 }): PrecertCheapCheckReceipt | null {
   if (!args.headHash || !args.materialHash || !args.storyFilesHash
     || !isCompleteRoutineValidationIdentity(args.currentIdentity)) return null;
@@ -530,7 +537,7 @@ export function currentPrecertCheapCheckReceipt(args: {
     if (!verifyPrecertCheapCheckReceipt(receipt)) continue;
     if (receipt.routineValidationIdentity.digest !== args.currentIdentity!.digest
       || receipt.storyId !== args.storyId
-      || receipt.headHash !== args.headHash
+      || (receipt.headHash !== args.headHash && !args.headContinuity?.(receipt.headHash))
       || receipt.materialHash !== args.materialHash
       || receipt.storyFilesHash !== args.storyFilesHash) continue;
     return receipt;
@@ -752,7 +759,7 @@ export function nonInventoryAdmitRefusal(
   if (!cheap
     || !verifyPrecertCheapCheckReceipt(cheap)
     || cheap.storyId !== facts.currentStoryId
-    || cheap.headHash !== facts.headHash
+    || (cheap.headHash !== facts.headHash && !facts.cheapCheckHeadMetadataContinuity)
     || cheap.materialHash !== facts.materialHash
     || cheap.storyFilesHash !== facts.storyFilesHash) {
     return {
