@@ -367,8 +367,8 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   // 3270fa6c84 changed the emitted inventory executable after its previous pin was recorded.
   'packages/main/src/core/review-inventory-epoch.ts': 'a51318317a9620dec23b870eed74a567073a367b3471a62229e8eba95241cd88',
   'packages/main/src/core/verification-execution-evidence.ts': '728e76f065e83fe8fdec672986f40ef37e2d8ae8dbc96eda4d01ccd2584cf5cf',
-  // Lab plan-pin-allowlist (2026-09-29) refuses non-allowlisted pins at write time; repinned.
-  'packages/main/src/handlers/checklist.ts': '71ebca82613e3ca5acd41274e75b6da188794c9da28438529123952c60dcf42b',
+  // Labs plan-pin-allowlist and plan-intent-precheck (2026-09-30) changed checklist_update; repinned.
+  'packages/main/src/handlers/checklist.ts': '56914b86ea3d4823ddb7d29ac6165a012b7aa160ade5878a7ecae05393a4b19a',
   'packages/main/src/core/maintenance-command-mode.ts': '9c94f1c1a20abf5ed3b93208f5d52e13d63246af12a85612c1e07f99e72258e2',
 });
 
