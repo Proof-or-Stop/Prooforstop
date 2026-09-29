@@ -153,6 +153,28 @@ function resolveBackgroundPolicy(agentType: string | undefined): BackgroundPolic
   return AGENT_BG_POLICY[canonical] ?? 'required';
 }
 
+/**
+ * The item's PLAN verification intents, with their pins. Pins are immutable in
+ * DEV and gates replay the exact command, so the worker must create tests with
+ * exactly these names instead of choosing its own.
+ */
+function appendPinnedVerification(lines: string[], intent: Partial<Record<string, Array<{ id?: string; desc?: string; verification?: { command?: string; selector?: string } }>>> | undefined): void {
+  const rows: string[] = [];
+  for (const lane of ['happy', 'edge', 'adversarial']) {
+    for (const entry of intent?.[lane] ?? []) {
+      const pin = entry.verification?.command
+        ? ` — pinned: \`${entry.verification.command}\`${entry.verification.selector ? ` (test name: ${entry.verification.selector})` : ''}`
+        : '';
+      rows.push(`- ${entry.id ?? lane} [${lane}] ${entry.desc ?? ''}${pin}`);
+    }
+  }
+  if (rows.length === 0) return;
+  lines.push('');
+  lines.push('Planned verification intents (pins are immutable in DEV; gates replay each pinned command exactly):');
+  lines.push(...rows);
+  lines.push('- Name your tests with exactly these test names and make each pinned command pass as written; a renamed test leaves the pin selecting nothing and forces a re-dispatch.');
+}
+
 function appendImplementerCommitSteps(lines: string[], message: string): void {
   lines.push(`- git commit --author="${IMPLEMENTER_COMMIT_AUTHOR}" -m "${message.replace(/"/g, "'")}"`);
   lines.push('- Keep the canonical implementer author for audit attribution. Author text never replaces the required dispatch/subagent_result process evidence.');
@@ -1000,6 +1022,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push(`- Test:   ${filesBlock.test}`);
       lines.push('');
       lines.push(`Verify: ${verifyText}`);
+      appendPinnedVerification(lines, item.verificationIntent);
       const routed = store.readCandidateSpecSet(args.storyId);
       if (routed) {
         lines.push('');
