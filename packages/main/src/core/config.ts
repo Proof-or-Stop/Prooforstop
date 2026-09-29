@@ -259,6 +259,8 @@ export interface ProofOrStopConfig {
   };
   /** 项目级验证命令；没有 validate.ts/js 时由 proof-or-stop validate 使用 */
   validate?: {
+    /** Environment the project's tests require; applied to every validation and verification run. */
+    env?: Record<string, string>;
     /** Exact-input result sharing is independent of dynamic test selection. */
     sharedExecution?: boolean;
     /** Opt in to strict whole-PASS reuse while retaining observe-only selection diagnostics. */
