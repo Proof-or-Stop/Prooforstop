@@ -1,4 +1,5 @@
 import { reserveHostRunBudget, settleHostRunBudget } from './host-run-budget.js';
+import { canonicalAgentRoleId } from './agent-role-identity.js';
 import { MANAGED_REVIEW_READONLY_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import { isManagedInventoryCritic, managedInventoryCriticJsonSchema, type ManagedInventoryCritic } from './managed-inventory-critic.js';
 import { prepareManagedReadonlyLaunch, type ManagedReadonlyLayout } from './managed-review-readonly.js';
@@ -444,6 +445,12 @@ export interface HostRunArgs {
    * run's cwd-local one-shot prompt leaf after an abnormal worker exit.
    */
   managedRunId?: string;
+  /**
+   * Codex session of this Story's previous completed implementer, resumed so
+   * the next checklist item continues with the repository context already read
+   * instead of re-exploring it. Managed-dispatch implementers only.
+   */
+  resumeSessionId?: string;
   env: NodeJS.ProcessEnv;
   /** Optional accounting/admission env; provider still receives only `env`. */
   usageEnv?: NodeJS.ProcessEnv;
@@ -2232,6 +2239,10 @@ export function managedClaudePromptDirectoryForRun(cwd: string, runId: string): 
   return join(cwd, PROOF_OR_STOP_DIR, 'runtime', 'host-run-prompts', runId);
 }
 
+function isImplementerAgentType(agentType: string): boolean {
+  return canonicalAgentRoleId(agentType) === 'proof-or-stop-implementer';
+}
+
 export function managedDispatchCodexSandboxMode(
   platform: NodeJS.Platform = process.platform,
   containerBoundaryPresent = existsSync('/.dockerenv') || existsSync('/run/.containerenv'),
@@ -2271,6 +2282,24 @@ export function materializeHostRunLaunch(
           ? MANAGED_REVIEW_READONLY_RUNTIME_POLICY.crossHostProviderSandbox.confined
           : MANAGED_REVIEW_READONLY_RUNTIME_POLICY.crossHostProviderSandbox.unconfined
         : managedDispatchSandbox ?? 'read-only';
+    // An implementer keeps its session (no --ephemeral) so the Story's next
+    // item can resume it; `exec resume` takes the sandbox as config and the
+    // directory from the process cwd (it accepts neither -s nor -C).
+    const implementer = args.launchProfile === 'managed_dispatch' && isImplementerAgentType(args.agentType);
+    const dispatchFlags = CANONICAL_CODEX_NONINTERACTIVE_FLAGS.filter(flag => !(implementer && flag === '--ephemeral'));
+    if (implementer && args.resumeSessionId) {
+      return {
+        command: 'codex',
+        argv: [
+          'exec', 'resume', '--json', ...dispatchFlags,
+          ...(selection.model ? ['--model', selection.model] : []),
+          ...(selection.reasoningEffort ? ['--config', `model_reasoning_effort="${selection.reasoningEffort}"`] : []),
+          '--config', `sandbox_mode="${sandboxMode}"`, args.resumeSessionId, '-',
+        ],
+        stdinText: args.promptText,
+        cleanup: () => {},
+      };
+    }
     return {
       command: 'codex',
       // Formal managed review consumes Codex's observable JSON event stream:
@@ -2279,7 +2308,7 @@ export function materializeHostRunLaunch(
       argv: [
         'exec', '--json',
         ...(args.launchProfile === 'managed_dispatch'
-          ? [...CANONICAL_CODEX_NONINTERACTIVE_FLAGS]
+          ? [...dispatchFlags]
           : []),
         ...(selection.model ? ['--model', selection.model] : []),
         ...(selection.reasoningEffort ? ['--config', `model_reasoning_effort="${selection.reasoningEffort}"`] : []),

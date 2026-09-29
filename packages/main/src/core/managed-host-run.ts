@@ -48,7 +48,8 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
-import { hostname, tmpdir } from 'node:os';
+import { homedir, hostname, tmpdir } from 'node:os';
+import { canonicalAgentRoleId } from './agent-role-identity.js';
 import { fileURLToPath } from 'node:url';
 import {
   generateEd25519KeyPair,
@@ -825,6 +826,60 @@ export function managedHostRunReceiptsRoot(root: string): string {
 function managedHostRunReceiptArchivePath(root: string, runId: string): string {
   assertRunId(runId);
   return join(managedHostRunReceiptsRoot(root), `${runId}.json`);
+}
+
+/**
+ * The Codex session of this Story's newest completed implementer run on the
+ * same worktree and model, when its rollout is still in the Codex home. A
+ * resumed implementer continues with the repository context its predecessor
+ * already read instead of re-exploring it for every checklist item.
+ */
+export function findResumableImplementerSession(args: {
+  root: string; storyId: string; cwd: string; model: string | null; excludeRunId: string; codexHome: string;
+}): string | null {
+  const runsRoot = managedHostRunsRoot(args.root);
+  if (!existsSync(runsRoot)) return null;
+  const candidates: Array<{ terminalAt: string; threadId: string }> = [];
+  for (const runId of readdirSync(runsRoot)) {
+    if (runId === args.excludeRunId) continue;
+    const dir = join(runsRoot, runId);
+    try {
+      const spec = JSON.parse(readFileSync(join(dir, 'spec.json'), 'utf8')) as Record<string, unknown>;
+      if (spec.host !== 'codex' || spec.profile !== 'managed_dispatch' || spec.storyId !== args.storyId
+        || spec.cwd !== args.cwd || (spec.model ?? null) !== args.model
+        || canonicalAgentRoleId(String(spec.agentType)) !== 'proof-or-stop-implementer') continue;
+      const terminal = JSON.parse(readFileSync(join(dir, 'terminal.json'), 'utf8')) as { state?: string; terminalAt?: string };
+      if (terminal.state !== 'completed' || typeof terminal.terminalAt !== 'string') continue;
+      const output = readFileSync(join(dir, 'live-output.jsonl'), 'utf8');
+      const match = /"type\\":\\"thread\.started\\",\\"thread_id\\":\\"([0-9a-fA-F-]{36})\\"/.exec(output)
+        ?? /"type":"thread\.started","thread_id":"([0-9a-fA-F-]{36})"/.exec(output);
+      if (match) candidates.push({ terminalAt: terminal.terminalAt, threadId: match[1]! });
+    } catch {
+      continue;
+    }
+  }
+  candidates.sort((a, b) => b.terminalAt.localeCompare(a.terminalAt));
+  const newest = candidates[0];
+  if (!newest || !codexSessionExists(args.codexHome, newest.threadId)) return null;
+  return newest.threadId;
+}
+
+function codexSessionExists(codexHome: string, threadId: string): boolean {
+  const pending = [join(codexHome, 'sessions')];
+  while (pending.length > 0) {
+    const dir = pending.pop()!;
+    let entries: import('node:fs').Dirent[];
+    try { entries = readdirSync(dir, { withFileTypes: true }); } catch { continue; }
+    for (const entry of entries) {
+      if (entry.isDirectory()) pending.push(join(dir, entry.name));
+      else if (entry.name.endsWith(`${threadId}.jsonl`)) return true;
+    }
+  }
+  return false;
+}
+
+function resumeSessionField(sessionId: string | null): { resumeSessionId?: string } {
+  return sessionId ? { resumeSessionId: sessionId } : {};
 }
 
 export function managedHostRunDirectory(root: string, runId: string): string {
@@ -3453,6 +3508,13 @@ export async function runManagedHostRunWorker(
         phase: spec.phase,
         promptText,
         managedRunId: spec.runId,
+        ...(spec.profile === 'managed_dispatch' && spec.host === 'codex' && spec.storyId
+          && canonicalAgentRoleId(spec.agentType) === 'proof-or-stop-implementer'
+          ? resumeSessionField(findResumableImplementerSession({
+            root: spec.root, storyId: spec.storyId, cwd: spec.cwd, model: spec.model ?? null, excludeRunId: spec.runId,
+            codexHome: providerEnvironment.CODEX_HOME ?? process.env.CODEX_HOME ?? join(homedir(), '.codex'),
+          }))
+          : {}),
         ...(spec.profile === ACCEPTANCE_REVIEW_PROFILE ? { finalResultSchema: ACCEPTANCE_REVIEW_FINAL_SCHEMA } : {}),
         reviewRunId: spec.reviewRunId,
         lane: spec.lane,
