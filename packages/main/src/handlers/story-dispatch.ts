@@ -841,6 +841,11 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push(`Severity: ${fSeverity}  Category: ${fCategory}  Reviewer: ${fReviewer}`);
       lines.push(`Description: ${fDesc}`);
       lines.push('');
+      lines.push('Repair the defect family, not only this counterexample:');
+      lines.push('- Before editing, name the root cause and list every sibling code path with the same root cause (the other arity, operand type, direction, or read/write variant of the same operation).');
+      lines.push('- Add a failing test for each sibling as well as for the reported case, then fix them together and rerun the affected package tests.');
+      lines.push('- A sibling left unfixed is reported as a new finding in the next review round, which costs a full remediation cycle.');
+      lines.push('');
       lines.push('After completion:');
       appendImplementerCommitSteps(lines, `${args.storyId} ${shortFid}: resolve finding`);
       lines.push('- Return the commit SHA, focused verification output, and repair summary to the Story owner/controller. The repair worker must not call finding_resolve.');
