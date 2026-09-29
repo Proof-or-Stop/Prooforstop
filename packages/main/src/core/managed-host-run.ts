@@ -5034,13 +5034,10 @@ function parseManagedReviewFinalProposal(result: HostRunResult): ManagedReviewFi
  */
 export function withSealedFullScanReason<T>(readManifest: T, expectedFullScanReason: string | undefined): T {
   if (expectedFullScanReason === undefined) return readManifest;
-  const rawReason = readManifest && typeof readManifest === 'object' && !Array.isArray(readManifest)
-    ? (readManifest as unknown as Record<string, unknown>).scanEscalationReason
-    : undefined;
-  if (rawReason !== expectedFullScanReason) {
-    throw new Error('managed_review_proposal_set: full-scan readManifest.scanEscalationReason must copy the sealed candidate artifact reason byte-for-byte');
-  }
-  return readManifest;
+  // The reason is controller-owned: a reviewer's paraphrase is replaced, not
+  // allowed to discard a completed review. Malformed manifests fail later.
+  if (!readManifest || typeof readManifest !== 'object' || Array.isArray(readManifest)) return readManifest;
+  return { ...readManifest, scanEscalationReason: expectedFullScanReason };
 }
 export function writeManagedReviewEvidenceProposal(args: {
   root: string;
