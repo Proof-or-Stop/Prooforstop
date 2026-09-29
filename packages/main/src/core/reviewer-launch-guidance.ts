@@ -54,8 +54,9 @@ export function renderFormalManagedReviewLaunch(storyId: string, agentType: stri
   return `If no native broker-backed reviewer is available, use the formal managed-review flow: ` +
     `(1) ${route}; (2) ${start}; (3) choose exactly one configured formal reviewer command and replace only ` +
     `<reviewRunId returned by review_run_start>: Grok ${grokSubmit}; qualified Codex ${codexSubmit}. ` +
-    `Poll the returned runId with ` +
-    `host_run_status, then import its terminal receipt with managed_review_evidence_import.`;
+    `Wait for the returned runId with one blocking call, \`proof-or-stop host_run_status --runId=<runId> --untilTerminal=true\` ` +
+    `(returns only at terminal, up to 10 minutes; give the shell a matching timeout instead of re-polling), ` +
+    `then import its terminal receipt with managed_review_evidence_import.`;
 }
 
 export function renderCodexFreshReviewerHandoff(
@@ -110,7 +111,7 @@ export function renderManagedInitReviewerDispatches(storyId: string, agentIds: s
     return `   ${renderQualifiedManagedCodexDispatchCommand(storyId, agentId)}`;
   });
   return `→ Preferred: have the Story owner submit only the missing reviewers through the controller-owned exact delivery path:\n${dispatches.join('\n')}\n` +
-    `   Retain each returned nonempty runId and poll it with host_run_status. Never use a host wait with an empty receiver set.\n` +
+    `   Retain each returned nonempty runId and wait for it with one blocking \`proof-or-stop host_run_status --runId=<runId> --untilTerminal=true\` call (returns only at terminal, up to 10 minutes) instead of re-polling. Never use a host wait with an empty receiver set.\n` +
     `   host_run seals the canonical prompt and provider process identity; init_check_set accepts only a matching live managed dispatch.\n` +
     `   Every reviewer independently writes its verdict with init_check_set regardless of pass/fail; review_run_start begins only after REVIEW.`;
 }
