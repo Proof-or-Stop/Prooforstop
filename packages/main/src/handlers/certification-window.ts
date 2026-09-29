@@ -520,14 +520,17 @@ function collectAdmitFacts(
     dirtyNonRuntimePaths = ['<dirty-classifier-unreadable>'];
   }
   const inventory = recovery?.pair ?? readInventoryPair(apis, ctx.store, storyId);
+  const inventoryReceiptHead = inventory?.receipt?.cutoff?.headHash ?? inventory?.epoch?.cutoff?.headHash;
+  // A blocked begin (or any PoS bookkeeping) commits only material-excluded
+  // metadata; consume still re-checks material, story-files and scope digests.
   const inventoryHeadMetadataContinuity = hasVerifiedInventoryMetadataHeadContinuity({
     metadataRoot: ctx.root,
     gitCwd,
     storyMetadataPath: ctx.store.storyDirPath(storyId),
     storyId,
-    receiptHead: inventory?.receipt?.cutoff?.headHash ?? inventory?.epoch?.cutoff?.headHash,
+    receiptHead: inventoryReceiptHead,
     currentHead: headHash,
-  });
+  }) || (!!inventoryReceiptHead && isMetadataOnlyHeadLineage(gitCwd, ctx.root, inventoryReceiptHead, headHash));
   let cheapCheckReceipt = null;
   try {
     cheapCheckReceipt = currentPrecertCheapCheckReceipt({
