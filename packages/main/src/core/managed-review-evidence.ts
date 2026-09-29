@@ -129,7 +129,8 @@ function hasOnlyManagedReviewImporterCommits(args: {
         stdio: ['ignore', 'pipe', 'pipe'],
       }).trim();
       if (!matchesRuntimeCommitSubject(subject, expectedSubjectBody)) {
-        return isVerifiedReviewMaintenanceCommit({ ...args, commit });
+        return isVerifiedReviewMaintenanceCommit({ ...args, commit })
+          || isPrecertMetadataCommit(args.gitCwd, args.metadataRoot, args.storyId, canonicalStoryDir, subject, commit);
       }
       const files = execFileSync('git', ['diff-tree', '--no-commit-id', '--name-only', '-r', commit], {
         cwd: args.gitCwd,
@@ -144,6 +145,32 @@ function hasOnlyManagedReviewImporterCommits(args: {
   } catch {
     return false;
   }
+}
+
+/**
+ * PRE_CERT commands that the REVIEW→TEST gate itself requires auto-commit story
+ * metadata; such a commit touching only material-excluded paths of this story
+ * leaves the reviewed material unchanged (checked separately) and must not
+ * invalidate a managed pass.
+ */
+const PRECERT_METADATA_COMMANDS = [
+  'certification_window_begin', 'certification_window_cancel',
+  'review_inventory_begin', 'review_inventory_finalize', 'review_inventory_cancel',
+  'review_inventory_critic_set', 'review_inventory_wave_advance',
+  'validate', 'done_required_validate',
+] as const;
+
+function isPrecertMetadataCommit(
+  gitCwd: string, metadataRoot: string, storyId: string, canonicalStoryDir: string, subject: string, commit: string,
+): boolean {
+  if (!PRECERT_METADATA_COMMANDS.some(command => matchesRuntimeCommitSubject(subject, `record ${storyId} ${command} metadata`))) return false;
+  const parents = execFileSync('git', ['show', '-s', '--format=%P', commit], { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+  if (parents.split(/\s+/).filter(Boolean).length !== 1) return false;
+  const files = execFileSync('git', ['diff-tree', '--no-commit-id', '--name-only', '-r', commit], {
+    cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
+  }).trim().split('\n').filter(Boolean).map(file => file.replace(/\\/g, '/'));
+  return files.length > 0
+    && files.every(file => file.startsWith(`${canonicalStoryDir}/`) && isMaterialExcludedPath(file, metadataRoot));
 }
 
 /**
