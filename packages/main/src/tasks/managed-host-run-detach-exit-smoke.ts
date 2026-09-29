@@ -81,7 +81,9 @@ async function main(): Promise<void> {
     const elapsedMs = Date.now() - startedAt;
     assert.equal(code, 0, `submitter failed: ${stdout}`);
     assert.match(stdout, /^submitted \d+/m, 'submitter reached the post-submit point');
-    assert.ok(existsSync(payloadPath), 'worker received the capability before the submitter exited');
+    const payloadDeadline = Date.now() + 2_000;
+    while (!existsSync(payloadPath) && Date.now() < payloadDeadline) await new Promise(resolve => setTimeout(resolve, 10));
+    assert.ok(existsSync(payloadPath), 'worker received the capability delivered before the submitter exited');
     assert.equal(readFileSync(payloadPath, 'utf8'), 'detach-exit-test-key');
     assert.ok(elapsedMs < WORKER_HOLD_MS - 1_000,
       `detached submitter exit waited for the worker capability pipe (${elapsedMs} ms >= ${WORKER_HOLD_MS - 1_000} ms)`);

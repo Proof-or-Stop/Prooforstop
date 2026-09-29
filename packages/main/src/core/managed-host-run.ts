@@ -2804,6 +2804,10 @@ export const defaultManagedHostRunWorkerLauncher: ManagedHostRunWorkerLauncher =
           });
           descriptor.end(request.proposalInvocationPrivateKey);
         });
+        // child.unref() does not release stdio pipes. Our end of fd 3 stays
+        // open until the worker exits, so unref it (listeners stay attached)
+        // or the detached submitter process lives as long as the provider run.
+        (descriptor as { unref?: () => void }).unref?.();
       } catch (error) {
         await terminateAndReapLaunchedWorker();
         throw new Error(`managed host run: worker capability descriptor failed: ${error instanceof Error ? error.message : String(error)}`);
