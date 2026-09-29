@@ -50,7 +50,7 @@ import {
 import { basename, dirname, join, resolve } from 'node:path';
 import { homedir, hostname, tmpdir } from 'node:os';
 import { agentRoleIdsEqual, canonicalAgentRoleId } from './agent-role-identity.js';
-import { earlierRoundLaneRuns } from './review-round-order.js';
+import { earlierCandidateLaneRuns } from './review-round-order.js';
 import { fileURLToPath } from 'node:url';
 import {
   generateEd25519KeyPair,
@@ -877,12 +877,14 @@ function newestKeptCodexSession(candidates: Array<{ terminalAt: string; threadId
 }
 
 /**
- * The Codex session a managed code-review lane answered in during an earlier
- * REVIEW round: the newest completed managed-reviewer run of the same Story,
- * lane, agent and model whose ReviewRun belongs to a round before the current
- * run's round, when its rollout is still in the Codex home. A lane never
- * receives another lane's session, and the topology/inventory critic, round 1
- * and every non-Codex host start fresh.
+ * The Codex session a managed code-review lane answered in when it reviewed an
+ * earlier candidate: among the lane's ReviewRuns that started before the
+ * current run on a different headHash (same round after a remediation inside
+ * REVIEW, or an earlier round), the newest one whose completed managed-reviewer
+ * run of the same Story, lane, agent and model left a rollout in the Codex
+ * home. A lane never receives another lane's session; the topology/inventory
+ * critic, a lane's first review, a relaunch whose only earlier runs are on the
+ * same HEAD, and every non-Codex host start fresh.
  */
 export function findResumableReviewerSession(args: {
   root: string; storyId: string; lane: string; agentType: string; model: string | null;
@@ -891,11 +893,12 @@ export function findResumableReviewerSession(args: {
   const reviewRuns = new StoryStore(args.root).readReviewRuns(args.storyId).runs;
   const current = reviewRuns.find(run => run.reviewRunId === args.reviewRunId && run.storyId === args.storyId);
   if (!current || !agentRoleIdsEqual(current.lane, args.lane)) return null;
-  const earlier = new Set(earlierRoundLaneRuns(reviewRuns, current).map(run => run.reviewRunId));
+  // Rank by the ReviewRun's start order: the newest earlier candidate wins.
+  const earlier = new Map(earlierCandidateLaneRuns(reviewRuns, current).map((run, index) => [run.reviewRunId, index]));
   if (earlier.size === 0) return null;
   const runsRoot = managedHostRunsRoot(args.root);
   if (!existsSync(runsRoot)) return null;
-  const candidates: Array<{ terminalAt: string; threadId: string }> = [];
+  const candidates: Array<{ order: number; terminalAt: string; threadId: string }> = [];
   for (const runId of readdirSync(runsRoot)) {
     if (runId === args.excludeRunId) continue;
     const dir = join(runsRoot, runId);
@@ -908,18 +911,20 @@ export function findResumableReviewerSession(args: {
       const terminal = JSON.parse(readFileSync(join(dir, 'terminal.json'), 'utf8')) as { state?: string; terminalAt?: string };
       if (terminal.state !== 'completed' || typeof terminal.terminalAt !== 'string') continue;
       const threadId = recordedCodexThreadId(dir);
-      if (threadId) candidates.push({ terminalAt: terminal.terminalAt, threadId });
+      if (threadId) candidates.push({ order: earlier.get(spec.reviewRunId)!, terminalAt: terminal.terminalAt, threadId });
     } catch {
       continue;
     }
   }
-  return newestKeptCodexSession(candidates, args.codexHome);
+  candidates.sort((a, b) => b.order - a.order || b.terminalAt.localeCompare(a.terminalAt));
+  const newest = candidates[0];
+  return newest && codexSessionExists(args.codexHome, newest.threadId) ? newest.threadId : null;
 }
 
 /**
  * The Codex session a managed run resumes, or null for a fresh launch:
  * managed-dispatch code writers continue the Story's previous code-writer
- * session; managed code-review lanes continue their own earlier-round session.
+ * session; managed code-review lanes continue their own earlier-candidate session.
  * Lookup failures never block a launch; they start fresh.
  */
 export function managedResumeSessionForSpec(
