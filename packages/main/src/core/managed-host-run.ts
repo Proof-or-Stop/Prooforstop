@@ -5026,6 +5026,22 @@ function parseManagedReviewFinalProposal(result: HostRunResult): ManagedReviewFi
   };
 }
 
+
+/**
+ * The read manifest a managed proposal is sealed with, given the full-scan
+ * reason the controller sealed into the run spec (absent when no full scan is
+ * required).
+ */
+export function withSealedFullScanReason<T>(readManifest: T, expectedFullScanReason: string | undefined): T {
+  if (expectedFullScanReason === undefined) return readManifest;
+  const rawReason = readManifest && typeof readManifest === 'object' && !Array.isArray(readManifest)
+    ? (readManifest as unknown as Record<string, unknown>).scanEscalationReason
+    : undefined;
+  if (rawReason !== expectedFullScanReason) {
+    throw new Error('managed_review_proposal_set: full-scan readManifest.scanEscalationReason must copy the sealed candidate artifact reason byte-for-byte');
+  }
+  return readManifest;
+}
 export function writeManagedReviewEvidenceProposal(args: {
   root: string;
   runId: string;
@@ -5093,16 +5109,7 @@ export function writeManagedReviewEvidenceProposal(args: {
   if (!isManagedInventoryCriticEnvelopeValid(args.proposal.inventoryCritic, spec.lane, spec.agentType, args.proposal.findings?.length ?? 0)) {
     throw new Error('managed_review_proposal_set: invalid inventory critic transport');
   }
-  const expectedFullScanReason = spec.reviewBinding.fullScanEscalationReason;
-  if (expectedFullScanReason !== undefined) {
-    const rawManifest = args.proposal.readManifest;
-    const rawReason = rawManifest && typeof rawManifest === 'object' && !Array.isArray(rawManifest)
-      ? (rawManifest as unknown as Record<string, unknown>).scanEscalationReason
-      : undefined;
-    if (rawReason !== expectedFullScanReason) {
-      throw new Error('managed_review_proposal_set: full-scan readManifest.scanEscalationReason must copy the sealed candidate artifact reason byte-for-byte');
-    }
-  }
+  const readManifestInput = withSealedFullScanReason(args.proposal.readManifest, spec.reviewBinding.fullScanEscalationReason);
   const conclusion = args.proposal.conclusion;
   const findings = args.proposal.findings ?? [];
   const note = args.proposal.note?.trim() ?? '';
@@ -5132,7 +5139,7 @@ export function writeManagedReviewEvidenceProposal(args: {
       ...(finding.files ? { files: [...new Set(finding.files.map(value => value.trim()).filter(Boolean))].sort() } : {}),
     };
   });
-  if (!hasRequiredManagedReviewReadEvidence(args.proposal.readManifest, args.proposal.readLog)) {
+  if (!hasRequiredManagedReviewReadEvidence(readManifestInput, args.proposal.readLog)) {
     throw new Error(
       'managed_review_proposal_set: non-empty readManifest/readLog plus candidateSpecSetDigest and corpusDigest are required',
     );
@@ -5148,7 +5155,7 @@ export function writeManagedReviewEvidenceProposal(args: {
     conclusion,
     ...(conclusion === 'pass' ? { note } : { findings: normalizedFindings }),
     ...(args.proposal.inventoryCritic !== undefined ? { inventoryCritic: structuredClone(args.proposal.inventoryCritic) } : {}),
-    readManifest: normalizeReviewerReadManifest(args.proposal.readManifest),
+    readManifest: normalizeReviewerReadManifest(readManifestInput),
     readLog: normalizeReviewerReadLogEvidence(args.proposal.readLog),
     ...(args.proposal.readDiagnostics ? { readDiagnostics: normalizeReviewerReadDiagnostics(args.proposal.readDiagnostics) } : {}),
   };
