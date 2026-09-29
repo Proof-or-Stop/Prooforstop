@@ -448,7 +448,9 @@ export interface HostRunArgs {
   /**
    * Codex session of this Story's previous completed implementer, resumed so
    * the next checklist item continues with the repository context already read
-   * instead of re-exploring it. Managed-dispatch implementers only.
+   * instead of re-exploring it (managed-dispatch code writers), or the Codex
+   * session a managed code-review lane answered in during an earlier REVIEW
+   * round, so a re-review continues from what that lane already read.
    */
   resumeSessionId?: string;
   env: NodeJS.ProcessEnv;
@@ -2290,6 +2292,22 @@ export function materializeHostRunLaunch(
     // directory from the process cwd (it accepts neither -s nor -C).
     const implementer = args.launchProfile === 'managed_dispatch' && isImplementerAgentType(args.agentType);
     const dispatchFlags = CANONICAL_CODEX_NONINTERACTIVE_FLAGS.filter(flag => !(implementer && flag === '--ephemeral'));
+    // A managed code-review lane in a later REVIEW round resumes the session
+    // it answered in during the previous round (managed-host-run decides which
+    // lane session, if any). Reviewer sessions were never --ephemeral.
+    if (args.launchProfile === 'managed_reviewer' && args.resumeSessionId) {
+      return {
+        command: 'codex',
+        argv: [
+          'exec', 'resume', '--json',
+          ...(selection.model ? ['--model', selection.model] : []),
+          ...(selection.reasoningEffort ? ['--config', `model_reasoning_effort="${selection.reasoningEffort}"`] : []),
+          '--config', `sandbox_mode="${sandboxMode}"`, args.resumeSessionId, '-',
+        ],
+        stdinText: args.promptText,
+        cleanup: () => {},
+      };
+    }
     if (implementer && args.resumeSessionId) {
       return {
         command: 'codex',

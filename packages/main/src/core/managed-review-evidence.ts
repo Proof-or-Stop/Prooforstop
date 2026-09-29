@@ -36,6 +36,8 @@ import { loadConfig } from './config.js';
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
 import { inventoryPurposeMatchesEpoch, verifyReviewInventoryEpoch, verifyReviewInventoryReceipt } from './review-inventory-epoch.js';
 import { verifyReviewRun } from './review-run.js';
+import { isMaterialExcludedPath } from './material-path-policy.js';
+import { isCodeReviewLaneRun, isEarlierReviewRound, previousRoundLaneRun } from './review-round-order.js';
 
 export interface ManagedReviewEvidenceVerification {
   valid: boolean;
@@ -468,6 +470,80 @@ function renderManagedInventoryCriticEvidencePack(root: string, run: ReviewRun):
   ];
 }
 
+const MANAGED_REREVIEW_DIFF_MAX_CHARS = 60_000;
+const MANAGED_REREVIEW_FINDING_DESC_MAX_CHARS = 300;
+const GIT_OBJECT_NAME = /^[0-9a-f]{7,64}$/i;
+
+function renderManagedRereviewDiff(gitCwd: string, projectRoot: string, fromHead: string, toHead: string): string[] {
+  if (!GIT_OBJECT_NAME.test(fromHead) || !GIT_OBJECT_NAME.test(toHead)) {
+    return ['The repair diff is unavailable: a recorded candidate HEAD is not a Git object name. Run `git diff` between the two candidates yourself.'];
+  }
+  if (fromHead === toHead) return ['The candidate HEAD is unchanged since the previous round; no material path changed.'];
+  const git = (args: string[]): string => execFileSync('git', args, {
+    cwd: gitCwd, encoding: 'utf8', maxBuffer: 256 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'],
+  });
+  let paths: string[];
+  let diff: string;
+  try {
+    paths = git(['diff', '--no-renames', '--name-only', '-z', fromHead, toHead, '--'])
+      .split('\0').filter(Boolean).filter(path => !isMaterialExcludedPath(path, projectRoot)).sort();
+    diff = paths.length === 0 ? '' : git(['diff', '--no-color', '--no-ext-diff', '--no-renames', fromHead, toHead, '--', ...paths]);
+  } catch {
+    return [`The repair diff is unavailable from the canonical repository. Run \`git diff ${fromHead} ${toHead}\` yourself, excluding Proof-or-Stop metadata.`];
+  }
+  if (paths.length === 0) return ['No material path changed since the previous round (only Proof-or-Stop metadata changed).'];
+  const truncated = diff.length > MANAGED_REREVIEW_DIFF_MAX_CHARS;
+  return [
+    `Material paths changed since the previous round (${paths.length}): ${paths.join(', ')}`,
+    '--- BEGIN REPAIR DIFF ---',
+    truncated ? diff.slice(0, MANAGED_REREVIEW_DIFF_MAX_CHARS) : diff.replace(/\n$/, ''),
+    ...(truncated ? [`[diff truncated at ${MANAGED_REREVIEW_DIFF_MAX_CHARS} of ${diff.length} characters; run \`git diff ${fromHead} ${toHead} -- <path>\` for the rest of the listed paths]`] : []),
+    '--- END REPAIR DIFF ---',
+  ];
+}
+
+function oneLine(text: string, max: number): string {
+  const flat = text.replace(/\s+/g, ' ').trim();
+  return flat.length > max ? `${flat.slice(0, max)}...` : flat;
+}
+
+/**
+ * Re-review context for a code-review lane in a later REVIEW round. It reads
+ * only data fixed before the current round began (the lane's previous-round
+ * ReviewRun, the two recorded candidate commits and earlier-round findings), so
+ * the rendered prompt and its digest are identical whenever they are computed
+ * during the round. Round 1, and any lane without an earlier round, gets none.
+ */
+function renderManagedReviewerRereview(root: string, run: ReviewRun): string[] {
+  if (!isCodeReviewLaneRun(run)) return [];
+  const store = new StoryStore(root);
+  const previous = previousRoundLaneRun(store.readReviewRuns(run.storyId).runs, run);
+  if (!previous) return [];
+  const gitCwd = run.workspaceBinding?.signedWorkspaceRoot ?? root;
+  const findings = store.readFindings(run.storyId).findings
+    .filter(finding => typeof finding.reviewRound === 'string' && isEarlierReviewRound(finding.reviewRound, run.reviewRound))
+    .sort((a, b) => a.id.localeCompare(b.id));
+  return [
+    '--- BEGIN MANAGED RE-REVIEW SINCE PREVIOUS ROUND ---',
+    `Re-review: this lane already reviewed this Story in an earlier REVIEW round (round ${previous.reviewRound}, candidate ${previous.headHash}). The candidate changed since then; it is now ${run.headHash}.`,
+    'If this session already holds your earlier review of this Story, build on what you read then instead of re-reading the repository.',
+    'Instructions:',
+    '1. First confirm each listed finding against the new code: state whether it is fixed or still present, with evidence (file and line, or the command you ran).',
+    '2. Then review the code changed since the previous round and the direct callers of changed code.',
+    '3. Apply variant analysis: for each problem, search the changed files and the direct callers of changed code for the same pattern, and report one finding that names every location.',
+    '4. Report every blocking problem in this one pass; do not hold problems back for a later round.',
+    '5. Code outside the diff was reviewed in earlier rounds. Re-read it only where the diff depends on it.',
+    '6. Re-check earlier conclusions against the new code rather than assuming them.',
+    'The managed review evidence protocol above is unchanged: submit exactly one final proposal with truthful read evidence for this run.',
+    `Findings raised in earlier rounds (${findings.length}):`,
+    ...(findings.length === 0 ? ['- none'] : findings.map(finding =>
+      `- ${finding.id} [severity=${finding.severity}, status=${finding.status}${finding.agent ? `, lane=${finding.agent}` : ''}] ${oneLine(finding.desc ?? '', MANAGED_REREVIEW_FINDING_DESC_MAX_CHARS)}`)),
+    `Repair since the previous round: git diff ${previous.headHash}..${run.headHash}, material paths only.`,
+    ...renderManagedRereviewDiff(gitCwd, root, previous.headHash, run.headHash),
+    '--- END MANAGED RE-REVIEW SINCE PREVIOUS ROUND ---',
+  ];
+}
+
 export function buildManagedReviewerPrompt(
   root: string,
   run: ReviewRun,
@@ -486,6 +562,7 @@ export function buildManagedReviewerPrompt(
     reviewRunId: run.reviewRunId,
     agentType: run.lane,
   }));
+  const rereview = renderManagedReviewerRereview(root, run);
   return [
     '--- BEGIN MANAGED REVIEW EVIDENCE PROTOCOL ---',
     `This provider run is already bound to ${binding}.`,
@@ -529,6 +606,7 @@ export function buildManagedReviewerPrompt(
     renderManagedReviewerProviderPrompt(resolveManagedReviewerBasePrompt(root, run), root),
     ...(canonicalReportStatuses ? ['', ...renderManagedReviewerCanonicalReportSnapshot(canonicalReportStatuses)] : []),
     ...(fullScanBinding ? ['', ...renderManagedReviewerFullScanBinding(fullScanBinding)] : []),
+    ...(rereview.length > 0 ? ['', ...rereview] : []),
     ...(run.reviewPurpose === 'inventory-completeness' ? [
       '', 'Managed inventory protocol: do not call review_inventory_critic_set. The authenticated importer writes the critic receipt from your sealed inventoryCritic block after terminal evidence import.',
       'Include inventoryCritic={epochId,wave,findingDispositions} bound exactly to the current evidence pack. Classify every aggregate finding and each new verified finding you report. Each row has finding, disposition, reason, optional familyKey and canonicalFinding. Each reason must contain at least 10 trimmed characters. Use finding={findingId:existingId} for existing findings; use finding={proposalFindingIndex:zeroBasedIndex} for your own final findings. canonicalFinding uses the same reference forms. Never guess allocated Finding IDs. Duplicate rows require familyKey and canonicalFinding; verified_family requires familyKey and omits canonicalFinding (it is its own canonical finding); not_verified permits neither.',
