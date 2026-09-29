@@ -52,7 +52,10 @@ export function isManagedInventoryCritic(value: unknown, lane: string, agent: st
     const identity = JSON.stringify(row.finding);
     if (seen.has(identity)) return false;
     seen.add(identity);
-    if (row.disposition === 'verified_family') return text(row.familyKey) && row.canonicalFinding === undefined;
+    // A verified family is its own canonical finding; a canonicalFinding that
+    // names the row itself is redundant (importers drop it), another is contradictory.
+    if (row.disposition === 'verified_family') return text(row.familyKey)
+      && (row.canonicalFinding === undefined || JSON.stringify(row.canonicalFinding) === identity);
     if (row.disposition === 'duplicate') return text(row.familyKey) && ref(row.canonicalFinding, findingCount);
     return row.disposition === 'not_verified' && row.familyKey === undefined && row.canonicalFinding === undefined;
   });

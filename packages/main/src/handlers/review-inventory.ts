@@ -496,7 +496,7 @@ export function importManagedInventoryCritic(ctx: HandlerContext, args: { runId:
     if (dirty.files.length) throw new Error(`managed inventory critic: material drift: ${dirty.files.join(', ')}`);
     const findingDispositions = block.findingDispositions.map(row => ({findingId: resolve(row.finding),
       disposition: row.disposition, reason: row.reason, ...(row.familyKey ? {familyKey: row.familyKey} : {}),
-      ...(row.canonicalFinding ? {canonicalFindingId: resolve(row.canonicalFinding)} : {})}));
+      ...(row.canonicalFinding && row.disposition !== 'verified_family' ? {canonicalFindingId: resolve(row.canonicalFinding)} : {})}));
     if (new Set(findingDispositions.map(row => row.findingId)).size !== findingDispositions.length) {
       throw new Error('managed inventory critic: duplicate resolved finding identity');
     }
