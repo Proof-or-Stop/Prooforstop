@@ -1206,6 +1206,24 @@ export function hasRequiredManagedReviewReadEvidence(
 }
 
 /**
+ * The one JSON object in `text` when the text outside it is brace-free prose;
+ * undefined when there is none, it does not parse, or more than one object (or
+ * stray braces) makes the verdict ambiguous.
+ */
+function singleEmbeddedJsonObject(text: string): unknown {
+  const start = text.indexOf('{');
+  const end = text.lastIndexOf('}');
+  if (start < 0 || end <= start) return undefined;
+  const outside = text.slice(0, start) + text.slice(end + 1);
+  if (/[{}]/.test(outside)) return undefined;
+  try {
+    return JSON.parse(text.slice(start, end + 1));
+  } catch {
+    return undefined;
+  }
+}
+
+/**
  * Classify one provider-owned final assistant text without treating ordinary
  * Codex progress messages as proposal candidates. A message that explicitly
  * names the managed proposal schema remains fail-closed when malformed; valid
@@ -1218,9 +1236,14 @@ export function classifyManagedReviewFinalEnvelope(text: string): ManagedReviewF
   try {
     parsed = JSON.parse(trimmed);
   } catch {
-    return trimmed.includes(MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION)
-      ? { kind: 'malformed' }
-      : { kind: 'ordinary' };
+    // A liveness line such as `DISPATCH_START:<label>` or a sentence around the
+    // one proposal is not a second verdict: read the single embedded object.
+    parsed = singleEmbeddedJsonObject(trimmed);
+    if (parsed === undefined) {
+      return trimmed.includes(MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION)
+        ? { kind: 'malformed' }
+        : { kind: 'ordinary' };
+    }
   }
   if (!isPlainRecord(parsed)) return { kind: 'ordinary' };
   if (parsed.schemaVersion !== MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION) {
