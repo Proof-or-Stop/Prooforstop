@@ -49,7 +49,8 @@ import {
 } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
 import { homedir, hostname, tmpdir } from 'node:os';
-import { canonicalAgentRoleId } from './agent-role-identity.js';
+import { agentRoleIdsEqual, canonicalAgentRoleId } from './agent-role-identity.js';
+import { earlierRoundLaneRuns } from './review-round-order.js';
 import { fileURLToPath } from 'node:url';
 import {
   generateEd25519KeyPair,
@@ -851,18 +852,98 @@ export function findResumableImplementerSession(args: {
         || !(RESUMABLE_CODE_WRITER_ROLES as readonly string[]).includes(canonicalAgentRoleId(String(spec.agentType)))) continue;
       const terminal = JSON.parse(readFileSync(join(dir, 'terminal.json'), 'utf8')) as { state?: string; terminalAt?: string };
       if (terminal.state !== 'completed' || typeof terminal.terminalAt !== 'string') continue;
-      const output = readFileSync(join(dir, 'live-output.jsonl'), 'utf8');
-      const match = /"type\\":\\"thread\.started\\",\\"thread_id\\":\\"([0-9a-fA-F-]{36})\\"/.exec(output)
-        ?? /"type":"thread\.started","thread_id":"([0-9a-fA-F-]{36})"/.exec(output);
-      if (match) candidates.push({ terminalAt: terminal.terminalAt, threadId: match[1]! });
+      const threadId = recordedCodexThreadId(dir);
+      if (threadId) candidates.push({ terminalAt: terminal.terminalAt, threadId });
     } catch {
       continue;
     }
   }
+  return newestKeptCodexSession(candidates, args.codexHome);
+}
+
+/** Codex thread id announced by a run's first `thread.started` event, if recorded. */
+function recordedCodexThreadId(dir: string): string | null {
+  const output = readFileSync(join(dir, 'live-output.jsonl'), 'utf8');
+  const match = /"type\\":\\"thread\.started\\",\\"thread_id\\":\\"([0-9a-fA-F-]{36})\\"/.exec(output)
+    ?? /"type":"thread\.started","thread_id":"([0-9a-fA-F-]{36})"/.exec(output);
+  return match ? match[1]! : null;
+}
+
+function newestKeptCodexSession(candidates: Array<{ terminalAt: string; threadId: string }>, codexHome: string): string | null {
   candidates.sort((a, b) => b.terminalAt.localeCompare(a.terminalAt));
   const newest = candidates[0];
-  if (!newest || !codexSessionExists(args.codexHome, newest.threadId)) return null;
+  if (!newest || !codexSessionExists(codexHome, newest.threadId)) return null;
   return newest.threadId;
+}
+
+/**
+ * The Codex session a managed code-review lane answered in during an earlier
+ * REVIEW round: the newest completed managed-reviewer run of the same Story,
+ * lane, agent and model whose ReviewRun belongs to a round before the current
+ * run's round, when its rollout is still in the Codex home. A lane never
+ * receives another lane's session, and the topology/inventory critic, round 1
+ * and every non-Codex host start fresh.
+ */
+export function findResumableReviewerSession(args: {
+  root: string; storyId: string; lane: string; agentType: string; model: string | null;
+  reviewRunId: string; excludeRunId: string; codexHome: string;
+}): string | null {
+  const reviewRuns = new StoryStore(args.root).readReviewRuns(args.storyId).runs;
+  const current = reviewRuns.find(run => run.reviewRunId === args.reviewRunId && run.storyId === args.storyId);
+  if (!current || !agentRoleIdsEqual(current.lane, args.lane)) return null;
+  const earlier = new Set(earlierRoundLaneRuns(reviewRuns, current).map(run => run.reviewRunId));
+  if (earlier.size === 0) return null;
+  const runsRoot = managedHostRunsRoot(args.root);
+  if (!existsSync(runsRoot)) return null;
+  const candidates: Array<{ terminalAt: string; threadId: string }> = [];
+  for (const runId of readdirSync(runsRoot)) {
+    if (runId === args.excludeRunId) continue;
+    const dir = join(runsRoot, runId);
+    try {
+      const spec = JSON.parse(readFileSync(join(dir, 'spec.json'), 'utf8')) as Record<string, unknown>;
+      if (spec.host !== 'codex' || spec.profile !== 'managed_reviewer' || spec.storyId !== args.storyId
+        || typeof spec.lane !== 'string' || !agentRoleIdsEqual(spec.lane, args.lane)
+        || String(spec.agentType) !== args.agentType || (spec.model ?? null) !== args.model
+        || typeof spec.reviewRunId !== 'string' || !earlier.has(spec.reviewRunId)) continue;
+      const terminal = JSON.parse(readFileSync(join(dir, 'terminal.json'), 'utf8')) as { state?: string; terminalAt?: string };
+      if (terminal.state !== 'completed' || typeof terminal.terminalAt !== 'string') continue;
+      const threadId = recordedCodexThreadId(dir);
+      if (threadId) candidates.push({ terminalAt: terminal.terminalAt, threadId });
+    } catch {
+      continue;
+    }
+  }
+  return newestKeptCodexSession(candidates, args.codexHome);
+}
+
+/**
+ * The Codex session a managed run resumes, or null for a fresh launch:
+ * managed-dispatch code writers continue the Story's previous code-writer
+ * session; managed code-review lanes continue their own earlier-round session.
+ * Lookup failures never block a launch; they start fresh.
+ */
+export function managedResumeSessionForSpec(
+  spec: Pick<ManagedHostRunSpec, 'runId' | 'host' | 'profile' | 'storyId' | 'agentType' | 'lane' | 'reviewRunId' | 'cwd' | 'root' | 'model'>,
+  codexHome: string,
+): string | null {
+  if (spec.host !== 'codex' || !spec.storyId) return null;
+  try {
+    if (spec.profile === 'managed_dispatch'
+      && (RESUMABLE_CODE_WRITER_ROLES as readonly string[]).includes(canonicalAgentRoleId(spec.agentType))) {
+      return findResumableImplementerSession({
+        root: spec.root, storyId: spec.storyId, cwd: spec.cwd, model: spec.model ?? null, excludeRunId: spec.runId, codexHome,
+      });
+    }
+    if (spec.profile === 'managed_reviewer' && spec.lane && spec.reviewRunId) {
+      return findResumableReviewerSession({
+        root: spec.root, storyId: spec.storyId, lane: spec.lane, agentType: spec.agentType, model: spec.model ?? null,
+        reviewRunId: spec.reviewRunId, excludeRunId: spec.runId, codexHome,
+      });
+    }
+  } catch {
+    return null;
+  }
+  return null;
 }
 
 function codexSessionExists(codexHome: string, threadId: string): boolean {
@@ -3525,13 +3606,9 @@ export async function runManagedHostRunWorker(
         phase: spec.phase,
         promptText,
         managedRunId: spec.runId,
-        ...(spec.profile === 'managed_dispatch' && spec.host === 'codex' && spec.storyId
-          && (RESUMABLE_CODE_WRITER_ROLES as readonly string[]).includes(canonicalAgentRoleId(spec.agentType))
-          ? resumeSessionField(findResumableImplementerSession({
-            root: spec.root, storyId: spec.storyId, cwd: spec.cwd, model: spec.model ?? null, excludeRunId: spec.runId,
-            codexHome: providerEnvironment.CODEX_HOME ?? process.env.CODEX_HOME ?? join(homedir(), '.codex'),
-          }))
-          : {}),
+        ...resumeSessionField(managedResumeSessionForSpec(
+          spec, providerEnvironment.CODEX_HOME ?? process.env.CODEX_HOME ?? join(homedir(), '.codex'),
+        )),
         ...(spec.profile === ACCEPTANCE_REVIEW_PROFILE ? { finalResultSchema: ACCEPTANCE_REVIEW_FINAL_SCHEMA } : {}),
         reviewRunId: spec.reviewRunId,
         lane: spec.lane,
