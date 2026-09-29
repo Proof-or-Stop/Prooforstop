@@ -1,5 +1,5 @@
-import { createHash } from 'node:crypto';
-import { readFileSync, realpathSync } from 'node:fs';
+import { realpathSync } from 'node:fs';
+import { statValidatedFileDigest } from './stat-validated-digest.js';
 
 // Only a synchronous identity calculation owns these bytes. Never retain them
 // across a launch, publication, promise continuation, or separate observation.
@@ -14,7 +14,7 @@ export function readObservedExecutableDigest(file: string): string {
   const canonical = realpathSync(file);
   const known = observation?.get(canonical);
   if (known !== undefined) return known;
-  const digest = createHash('sha256').update(readFileSync(canonical)).digest('hex');
+  const digest = statValidatedFileDigest(canonical);
   observation?.set(canonical, digest);
   return digest;
 }
