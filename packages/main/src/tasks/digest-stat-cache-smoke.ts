@@ -7,7 +7,8 @@
 // digest within a process; any change must still be observed.
 
 import assert from 'node:assert/strict';
-import { appendFileSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { appendFileSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -22,20 +23,33 @@ function timed<T>(fn: () => T): { value: T; ms: number } {
   return { value, ms: Number(process.hrtime.bigint() - started) / 1e6 };
 }
 
-executionImplementationIdentity(); // warm the page cache and JIT so both measured calls are equal work
-const first = timed(() => executionImplementationIdentity());
-const second = timed(() => executionImplementationIdentity());
-assert.equal(second.value.digest, first.value.digest, 'the identity is unchanged');
+function hashTree(dir: string): number {
+  let bytes = 0;
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) bytes += hashTree(path);
+    else if (entry.isFile()) { const data = readFileSync(path); createHash('sha256').update(data).digest(); bytes += data.length; }
+  }
+  return bytes;
+}
+
+// Warm the page cache and JIT, then time the plain cost of hashing the
+// implementation tree once, with no digest reuse, as the yardstick.
+const warm = executionImplementationIdentity();
+hashTree(warm.implementationRoot);
+const plainHash = timed(() => hashTree(warm.implementationRoot));
+const observed = timed(() => executionImplementationIdentity());
+assert.equal(observed.value.digest, warm.digest, 'the identity is unchanged');
 const bigDir = mkdtempSync(join(tmpdir(), 'digest-stat-cache-exe-'));
 const big = join(bigDir, 'runtime-executable');
 writeFileSync(big, Buffer.alloc(64 * 1024 * 1024, 7)); // a container Node binary is ~100 MB
 readObservedExecutableDigest(big);
-const exeFirst = timed(() => readObservedExecutableDigest(big));
-const exeSecond = timed(() => readObservedExecutableDigest(big));
+const exePlain = timed(() => createHash('sha256').update(readFileSync(big)).digest('hex'));
+const exeObserved = timed(() => readObservedExecutableDigest(big));
 rmSync(bigDir, { recursive: true, force: true });
-assert.equal(exeSecond.value, exeFirst.value);
-assert.ok(second.ms <= first.ms * 0.6 && exeSecond.ms <= exeFirst.ms * 0.25,
-  `${MARKER}: identity ${first.ms.toFixed(0)} -> ${second.ms.toFixed(0)} ms, executable ${exeFirst.ms.toFixed(0)} -> ${exeSecond.ms.toFixed(0)} ms`);
+assert.equal(exeObserved.value, exePlain.value);
+assert.ok(observed.ms <= plainHash.ms * 0.6 && exeObserved.ms <= exePlain.ms * 0.25,
+  `${MARKER}: identity ${observed.ms.toFixed(0)} ms vs ${plainHash.ms.toFixed(0)} ms to hash the tree; executable ${exeObserved.ms.toFixed(0)} ms vs ${exePlain.ms.toFixed(0)} ms to hash it`);
 
 const dir = mkdtempSync(join(tmpdir(), 'digest-stat-cache-'));
 try {
@@ -50,4 +64,4 @@ try {
 } finally {
   rmSync(dir, { recursive: true, force: true });
 }
-console.log(`digest-stat-cache-smoke: PASS (identity ${first.ms.toFixed(0)} -> ${second.ms.toFixed(0)} ms, executable ${exeFirst.ms.toFixed(0)} -> ${exeSecond.ms.toFixed(0)} ms)`);
+console.log(`digest-stat-cache-smoke: PASS (identity ${observed.ms.toFixed(0)} ms vs ${plainHash.ms.toFixed(0)} ms plain hash; executable ${exeObserved.ms.toFixed(0)} ms vs ${exePlain.ms.toFixed(0)} ms)`);

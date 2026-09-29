@@ -1,4 +1,5 @@
 import {readObservedExecutableDigest} from './executable-digest-observation.js';
+import {statValidatedFileDigest} from './stat-validated-digest.js';
 import {createHash} from 'node:crypto';
 import {existsSync,readFileSync,readdirSync,realpathSync} from 'node:fs';
 import {dirname,isAbsolute,join,resolve} from 'node:path';
@@ -17,14 +18,15 @@ export function executionImplementationIdentity() {
   const files: Array<{path:string;digest:string}>=[];
   const visited=new Set<string>();
   // Every file is read once per synchronous scan: descriptor parsing and content
-  // digests consume the same bytes. Nothing outlives this call, so the next scan
-  // still observes current bytes, additions, deletions and symlinks itself.
+  // digests consume the same bytes. The directory walk runs every call, so the
+  // next scan still observes additions, deletions and symlinks; unchanged file
+  // contents reuse a stat-validated digest instead of being hashed again.
   const digests=new Map<string,string>();
   const descriptors=new Map<string,PackageDescriptor>();
   const digestOf=(path:string):string=>{
     const known=digests.get(path);
     if(known!==undefined)return known;
-    const digest=sha(readFileSync(path));
+    const digest=statValidatedFileDigest(path);
     digests.set(path,digest);
     return digest;
   };
