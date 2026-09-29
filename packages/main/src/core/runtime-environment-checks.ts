@@ -357,15 +357,18 @@ type ActiveIdentityOperationBoundarySeed = Omit<ActiveIdentityOperationBoundary,
 // SHA-256 of emitted dist JavaScript parsed/printed by canonicalIdentityExecutableDigest (comments removed, LF); not raw TypeScript bytes.
 // Enforced by assertCanonicalActiveIdentityBoundary; scripts/verify-review-inventory-identity.mjs checks the inventory pin and a live executable mutation.
 const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string>> = Object.freeze({
-  'packages/main/src/core/executable-digest-observation.ts': 'efaa0e0be32dd9e8833d6de120081b32f9c56c27b4d749b7eb2fa309445e0c4d',
+  // Lab digest-stat-cache (2026-09-29) caches stat-validated digests; repinned.
+  'packages/main/src/core/executable-digest-observation.ts': '434861970b49d76c2813c7994a141f5550dabf7a85026a6709d6bb37ecc01e96',
   'packages/main/src/core/lifecycle-control/control-status.ts': 'e015e86e23e400c8d7e43bd253938f3ee2105bba9925d42c599747b6b87fcc58',
   'packages/main/src/core/experience-layer-types.ts': '8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881',
   'packages/main/src/core/git-tree-observation.ts': 'e3310d811d2c0e7f78a41e14ee6995593c23cb6a0e5d8c7686be5d5a7cbfe3f9',
-  'packages/main/src/core/evidence-freshness.ts': 'd3120733e853509d3cc1a5643fe1316e1a820f68b20f27affd0254699f99257c',
+  // The 0.3.456 release changed the emitted executable without repinning it; repinned.
+  'packages/main/src/core/evidence-freshness.ts': '901c9c979b04b41d4f12abbd9116c8bfe4eb86825f1386f04660dd6e1b4e5eff',
   // 3270fa6c84 changed the emitted inventory executable after its previous pin was recorded.
   'packages/main/src/core/review-inventory-epoch.ts': 'a51318317a9620dec23b870eed74a567073a367b3471a62229e8eba95241cd88',
   'packages/main/src/core/verification-execution-evidence.ts': '728e76f065e83fe8fdec672986f40ef37e2d8ae8dbc96eda4d01ccd2584cf5cf',
-  'packages/main/src/handlers/checklist.ts': '4fa5ed60c7ce717853775ee4f57315f32657440375d3f275c8438ca294f8b607',
+  // Lab plan-pin-allowlist (2026-09-29) refuses non-allowlisted pins at write time; repinned.
+  'packages/main/src/handlers/checklist.ts': '71ebca82613e3ca5acd41274e75b6da188794c9da28438529123952c60dcf42b',
   'packages/main/src/core/maintenance-command-mode.ts': '9c94f1c1a20abf5ed3b93208f5d52e13d63246af12a85612c1e07f99e72258e2',
 });
 
