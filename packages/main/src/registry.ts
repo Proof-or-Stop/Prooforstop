@@ -86,6 +86,7 @@ import { createPlanSkeletonHandlers } from './handlers/plan-skeleton.js';
 import { createEvidencePlanHandlers } from './handlers/evidence-plan.js';
 import { createInitPreflightHandlers } from './handlers/init-preflight.js';
 import { createReviewerBatchHandlers } from './handlers/reviewer-batch.js';
+import { createReviewRoundPrepareHandlers } from './handlers/review-round-prepare.js';
 import { createEvidenceRefreshHandlers } from './handlers/evidence-refresh.js';
 import { createLiveSmokeTranscriptHandlers } from './handlers/live-smoke-transcript.js';
 import { createDeliveryContextPackHandlers } from './handlers/delivery-context-pack.js';
@@ -328,6 +329,10 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // status. Launches no reviewer, runs no review_run_start, writes no evidence.
   registry.registerBatch(createReviewerBatchHandlers(ctx));
   registry.registerBatch(createReviewerBatchAdmitHandlers(ctx, admitReviewerBatch));
+  // Owner one-command managed REVIEW round preparation. Late-bound lookup so it
+  // calls the final registered reviewer_batch / candidate_spec_route /
+  // dispatch / review_run_start handlers with their own gates intact.
+  registry.registerBatch(createReviewRoundPrepareHandlers(ctx, (name) => registry.get(name)));
   // B-4896 (P4): evidence_refresh — opt-in one-pass refresh-only orchestrator.
   // Dry default previews the refresh-only bucket (read-only). --apply performs
   // AT MOST ONE re-stamp pass via the existing verification_evidence_refresh_stale

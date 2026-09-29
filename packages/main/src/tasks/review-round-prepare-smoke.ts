@@ -18,6 +18,8 @@ import { fileURLToPath } from 'node:url';
 
 import { StoryStore } from '../core/store.js';
 import { digestCandidateRoutingValue } from '../core/candidate-spec-routing.js';
+import { getCommandPolicy } from '../core/command-policy.js';
+import { DEFAULT_PHASE_TOOLS, isCommandAllowed } from '../core/config.js';
 
 const storyId = 'B-rrp1';
 const round = '2026-09-30T00:00:00.000Z';
@@ -78,9 +80,24 @@ function laneRuns(store: StoryStore): Array<{ reviewRunId: string; agent: string
 }
 
 function main(): void {
+  // Same owner gating class as dispatch / candidate_spec_route; REVIEW only.
+  assert.equal(getCommandPolicy('review_round_prepare')?.ownershipClass, 'storyScopedMutating', 'owner-lease gated');
+  assert.equal(isCommandAllowed('review_round_prepare', 'REVIEW', DEFAULT_PHASE_TOOLS), true, 'available in REVIEW');
+  assert.equal(isCommandAllowed('review_round_prepare', 'DEV', DEFAULT_PHASE_TOOLS), false, 'not available in DEV');
   const { root, store } = fixture();
   try {
     assert.equal(store.readCandidateSpecSet(storyId), null, 'fixture starts without a candidate-spec route');
+
+    const batchText = cli(root, 'reviewer_batch', { storyId });
+    assert.match(batchText.stdout, /managedReviewOneCommand: proof-or-stop review_round_prepare --storyId=B-rrp1/, 'reviewer_batch names the one-command path');
+    assert.match(batchText.stdout, /launchInstruction|launch: /, 'the per-lane manual path remains');
+
+    // 0. Read-only reviewer sessions cannot run the owner command.
+    const readonlyRun = spawnSync(process.execPath, [cliPath, '--root', root, 'review_round_prepare', JSON.stringify({ storyId })], {
+      cwd: root, encoding: 'utf8', env: { ...process.env, PROOF_OR_STOP_REVIEWER_READONLY: '1' },
+    });
+    assert.notEqual(readonlyRun.status, 0, 'reviewer read-only mode refuses review_round_prepare');
+    assert.equal(store.readCandidateSpecSet(storyId), null, 'refused call wrote nothing');
 
     // 1. One JSON call: route first, then dispatch + review_run_start per lane.
     const first = cli(root, 'review_round_prepare', { storyId, json: true });
