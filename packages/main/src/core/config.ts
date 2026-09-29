@@ -634,6 +634,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'scope_budget_approve',
     'verification_intent_recover',
     'candidate_spec_route', // B-8038: current-diff rerouting for reviewer lanes
+    'review_round_prepare', // owner one-command managed REVIEW round preparation (route + per-lane dispatch/review_run_start)
     // B-3f3d: deadlock break. A scope-contract change during REVIEW staleness-invalidates the
     // acceptance basis -> topology critic receipt is refused -> review-inventory cannot finalize
     // -> REVIEW->DEV is refused -> the basis can never be regenerated. PLAN is unreachable from

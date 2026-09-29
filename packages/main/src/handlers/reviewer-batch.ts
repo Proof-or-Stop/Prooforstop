@@ -302,6 +302,9 @@ export function renderReviewerBatchReport(report: ReviewerBatchReport): string {
     `gate: ${report.gate.ready ? 'READY' : 'BLOCKED'} blockedBy=[${report.gate.blockedBy.join(', ')}]`,
     `managedReview: ${report.managedReviewReadiness.status}${report.managedReviewReadiness.reason ? ` reason=${report.managedReviewReadiness.reason}` : ''}`,
     ...(report.managedReviewReadiness.nextAction ? [`managedReviewNextAction: ${report.managedReviewReadiness.nextAction}`] : []),
+    ...(launchable.length > 0
+      ? [`managedReviewOneCommand: proof-or-stop review_round_prepare --storyId=${report.storyId} (routes when needed, then dispatch + review_run_start per launchable lane; prints lane=reviewRunId and the controller command)`]
+      : []),
     `parallel-barrier: launchableLanes=[${launchable.join(', ')}]`,
     ...(launchable.length > 0
       ? [`for native review, or managed review after managedReview is ready: issue every listed lane's launchInstruction before any wait; collect one nonempty distinct child id per lane, then make one host wait call with the complete child-id set; maxConcurrency=${report.executionPlan.maxConcurrency}`]
