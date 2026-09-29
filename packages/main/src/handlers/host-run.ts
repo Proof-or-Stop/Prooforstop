@@ -694,7 +694,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         + `deadlineAt=${submitted.deadlineAt} attach=${args.detach === true ? 'detached' : 'foreground'}`,
       );
       if (args.detach === true) {
-        ctx.log?.(`[host_run] wait: proof-or-stop host_run_status --runId=${submitted.runId} --untilTerminal=true`);
+        ctx.log?.(`[host_run] wait: proof-or-stop host_run_status --runId=${submitted.runId} --untilTerminal=true (blocks until terminal, up to 10 min; give it a long shell timeout/tool yield such as 300000 ms)`);
         return { schemaVersion: 'lattice.host_run.v2', detached: true, run: submitted };
       }
 
