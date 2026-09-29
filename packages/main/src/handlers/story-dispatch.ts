@@ -19,6 +19,7 @@
  *   - agentType not passed → defaults to proof-or-stop-implementer semantics (required)
  */
 
+import { omittedPromptNote } from './review-run.js';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import type { HandlerContext } from './context.js';
@@ -1046,7 +1047,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       return { prompt: lines.join('\n') };
   }
 
-  return {
+  const handlers = {
     /**
      * dispatch — B-9d95 CHK-004 unified entry
      * (B-a4e3 CHK-005: the deprecated finding_dispatch / story_dispatch alias methods were removed;
@@ -1068,6 +1069,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       agentType?: string;
       reviewPurpose?: 'topology' | 'inventory-completeness';
       inventoryEpochId?: string;
+      summary?: boolean;
     }): DispatchResult {
       if (!args.storyId) throw new Error('storyId is required');
       let story;
@@ -1410,6 +1412,12 @@ ${renderAgentLivenessGuidance({
       return { prompt, nativeLaunchContract: REPAIR_NATIVE_LAUNCH_CONTRACT };
     },
   };
+  const dispatchFull = handlers.dispatch;
+  handlers.dispatch = (args: Parameters<typeof dispatchFull>[0]): DispatchResult => {
+    const result = dispatchFull(args);
+    return args.summary ? { ...result, prompt: omittedPromptNote(result.prompt) } : result;
+  };
+  return handlers;
 }
 
 /** Extract the paragraph between `## {itemId}:` and the next `^## ` from plan.md */

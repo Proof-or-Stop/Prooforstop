@@ -756,6 +756,7 @@ Behavior:
     reviewerEscalationReason: z.string().trim().min(1).optional().describe('Reviewer-authored reason to mint a new full-context ReviewRun when the bounded incremental basis is incomplete.'),
     reviewPurpose: z.enum(['topology', 'inventory-completeness']).optional().describe('Critic only. Omitted preserves topology admission; inventory requires a current signed OPEN epoch.'),
     inventoryEpochId: z.string().min(1).optional().describe('Exact current epoch for explicit inventory-completeness purpose, never topology authority.'),
+    summary: z.boolean().optional().describe('Print the prompt size and sha256 instead of its body; a managed host_run rebuilds the exact prompt.'),
   }},
   { name: 'review_run_list', description: 'Read compact signed reviewer-run metadata for recovery and inspection; never writes evidence or prompt bytes', schema: {
     storyId: z.string().min(1).describe('Story ID.'),
@@ -2793,6 +2794,7 @@ Behavior:
     agentType: z.enum(AGENT_DISPATCH_ACCEPTED_TYPES as [string, ...string[]]).optional().describe('Registered subagent type or compatibility alias. Omit only for the deliberate proof-or-stop-implementer default; runtime enforces phase and target cardinality from the same registry.'),
     reviewPurpose: z.enum(['topology', 'inventory-completeness']).optional().describe('Critic only. Explicit inventory purpose does not establish topology implementation provenance. No fallback from a topology refusal.'),
     inventoryEpochId: z.string().min(1).optional().describe('Exact current signed OPEN inventory epoch; wave and cutoff are derived by the handler.'),
+    summary: z.boolean().optional().describe('Print the prompt size and sha256 instead of its body; a managed host_run rebuilds the exact prompt from the recorded envelope.'),
   }},
 
   // Background CLI trio (B-45ed CHK-007: background.md set/append/get).
