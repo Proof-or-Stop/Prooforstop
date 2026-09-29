@@ -545,6 +545,15 @@ export function emitSemanticDegradationEvent(
 ): string[] | null {
   const event = buildSemanticDegradationEvent(pack);
   if (!event) return null;
+  // Dedupe across calls: the same language set is one fact per story, so a
+  // later mutating transition does not append another copy.
+  const key = [...event.extensions].sort().join(',');
+  const recorded = typeof store.readProcessEvents === 'function' ? store.readProcessEvents(storyId) : [];
+  if (recorded.some((e) => {
+    const extensions = (e as unknown as { extensions?: unknown }).extensions;
+    return e.type === 'semantic_analysis_unavailable' && Array.isArray(extensions)
+      && [...(extensions as string[])].sort().join(',') === key;
+  })) return null;
   store.appendProcessEvent(storyId, {
     type: 'semantic_analysis_unavailable',
     storyId,
