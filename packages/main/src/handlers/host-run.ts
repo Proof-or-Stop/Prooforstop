@@ -61,6 +61,7 @@ import {
   submitManagedHostRun,
   type ManagedHostRunProjection,
   type ManagedHostRunWorkerLauncher,
+  MANAGED_HOST_RUN_STATUS_TERMINAL_WAIT_MAX_MS,
 } from '../core/managed-host-run.js';
 import {
   buildManagedReviewerPrompt,
@@ -105,6 +106,7 @@ export interface HostRunStatusCommandArgs extends FormatArgs {
   afterGeneration?: number;
   afterSequence?: number;
   waitMs?: number;
+  untilTerminal?: boolean;
 }
 
 export interface HostRunCancelCommandArgs extends FormatArgs {
@@ -692,6 +694,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         + `deadlineAt=${submitted.deadlineAt} attach=${args.detach === true ? 'detached' : 'foreground'}`,
       );
       if (args.detach === true) {
+        ctx.log?.(`[host_run] wait: proof-or-stop host_run_status --runId=${submitted.runId} --untilTerminal=true`);
         return { schemaVersion: 'lattice.host_run.v2', detached: true, run: submitted };
       }
 
@@ -1025,12 +1028,16 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         args.afterGeneration,
       );
       const afterSequence = optionalNonnegativeInteger('host_run_status', 'afterSequence', args.afterSequence);
-      const waitMs = optionalNonnegativeInteger('host_run_status', 'waitMs', args.waitMs, 30_000);
+      const untilTerminal = args.untilTerminal === true || String(args.untilTerminal) === 'true';
+      const waitMs = optionalNonnegativeInteger('host_run_status', 'waitMs', args.waitMs,
+        untilTerminal ? MANAGED_HOST_RUN_STATUS_TERMINAL_WAIT_MAX_MS : 30_000)
+        ?? (untilTerminal ? MANAGED_HOST_RUN_STATUS_TERMINAL_WAIT_MAX_MS : undefined);
       const status = await getManagedHostRunStatus({
         root: ctx.root,
         runId,
         afterGeneration,
         waitMs,
+        untilTerminal,
         maxWaitMs: options.statusWaitCapMs,
       });
       const output = readManagedHostRunOutput({

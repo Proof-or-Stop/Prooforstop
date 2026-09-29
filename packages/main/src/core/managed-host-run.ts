@@ -107,6 +107,11 @@ import type { InitCheckData } from './types.js';
 
 export const MANAGED_HOST_RUN_SCHEMA_VERSION = 'lattice.managed_host_run.v1' as const;
 export const MANAGED_HOST_RUN_STATUS_WAIT_MAX_MS = 30_000;
+/**
+ * Cap for an untilTerminal wait. Provider progress does not end it, so one
+ * owner call can cover a whole worker instead of one call per progress tick.
+ */
+export const MANAGED_HOST_RUN_STATUS_TERMINAL_WAIT_MAX_MS = 600_000;
 export const MANAGED_HOST_RUN_DEFAULT_DEADLINE_MS = 30 * 60 * 1000;
 export const MANAGED_HOST_RUN_MAX_DEADLINE_MS = 24 * 60 * 60 * 1000;
 const MANAGED_HOST_RUN_CLAIM_TIMEOUT_MS = MANAGED_SUPERVISOR_RUNTIME_POLICY.workerClaimTimeoutMs;
@@ -4575,6 +4580,8 @@ export async function getManagedHostRunStatus(args: {
   runId: string;
   afterGeneration?: number;
   waitMs?: number;
+  /** Return only once the run is terminal (or the wait expires); progress does not end the wait. */
+  untilTerminal?: boolean;
   /** Internal handler-smoke seam; production omits this and retains the 30s cap. */
   maxWaitMs?: number;
   /** Internal process-smoke clock seam; production always uses Date.now. */
@@ -4582,9 +4589,10 @@ export async function getManagedHostRunStatus(args: {
 }): Promise<ManagedHostRunStatusResult> {
   const paths = pathsFor(args.root, args.runId);
   if (!existsSync(paths.spec)) throw new Error(`managed host run not found: ${args.runId}`);
+  const cap = args.untilTerminal === true ? MANAGED_HOST_RUN_STATUS_TERMINAL_WAIT_MAX_MS : MANAGED_HOST_RUN_STATUS_WAIT_MAX_MS;
   const waitMs = Math.min(
-    boundedManagedHostRunStatusWaitMs(args.waitMs),
-    boundedManagedHostRunStatusWaitMs(args.maxWaitMs ?? MANAGED_HOST_RUN_STATUS_WAIT_MAX_MS),
+    boundedPositiveMs(args.waitMs, 0, cap),
+    boundedPositiveMs(args.maxWaitMs ?? cap, 0, cap),
   );
   let run = projectionFor(paths);
   const baseline = typeof args.afterGeneration === 'number' ? args.afterGeneration : run.generation;
@@ -4594,8 +4602,10 @@ export async function getManagedHostRunStatus(args: {
     run = projectionFor(paths);
     // A cursor acknowledges terminal delivery as well as provider progress.
     // A new observer still receives an already completed run immediately.
-    const changed = run.generation !== baseline
-      || (args.afterGeneration === undefined && run.terminal !== null);
+    const changed = args.untilTerminal === true
+      ? run.terminal !== null
+      : run.generation !== baseline
+        || (args.afterGeneration === undefined && run.terminal !== null);
     if (changed || now() >= deadline || waitMs === 0) {
       return {
         schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION,
