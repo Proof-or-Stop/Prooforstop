@@ -271,6 +271,32 @@ function assertChecklistMutationCwd(store: HandlerContext['store'], storyId: str
   return story;
 }
 
+/**
+ * Pins freeze at DEV, so a pinned command the evidence runner will refuse must
+ * be refused when it is written, not at DEV's first verification_evidence_add.
+ */
+function assertAllowlistedVerificationPins(
+  command: string,
+  verificationIntent: VerificationIntent | undefined,
+  itemId: string,
+): void {
+  if (!verificationIntent) return;
+  for (const lane of VERIFICATION_LANES) {
+    for (const [index, intent] of (verificationIntent[lane] ?? []).entries()) {
+      const pinned = intent.verification?.command;
+      if (typeof pinned !== 'string') continue;
+      try {
+        parseAllowlistedCommand(pinned);
+      } catch (error) {
+        throw new Error(
+          `${command} refused: ${itemId}:${lane}:${index}: ${error instanceof Error ? error.message : String(error)}\n` +
+          'Pin the executable and its argv (for example `go test -v ./pkg -run ...`); set required environment variables in the process environment of the proof-or-stop call, not as an `env` prefix.',
+        );
+      }
+    }
+  }
+}
+
 function assertVerificationIntentClassification(
   itemId: string,
   verificationIntent: VerificationIntent,
@@ -2765,6 +2791,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           checklistEnglishAuthoringFields({ verificationIntent: input.verificationIntent }, input.itemId),
         );
         assertNoReviewGateVerificationIntent('plan_acceptance_prepare', input.verificationIntent, input.itemId);
+        assertAllowlistedVerificationPins('plan_acceptance_prepare', input.verificationIntent, input.itemId);
         assertVerificationIntentClassification(input.itemId, input.verificationIntent, true, 'plan_acceptance_prepare');
         const proposed = structuredClone(current);
         proposed.files = structuredClone(input.files);
@@ -2830,6 +2857,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           });
           if (expectedProposalDigest !== prepared.proposalDigest) throw new Error(`PLAN_ACCEPTANCE_ITEM_DIGEST_INVALID: ${prepared.itemId}`);
           assertNoReviewGateVerificationIntent('plan_acceptance_apply', prepared.verificationIntent, prepared.itemId);
+          assertAllowlistedVerificationPins('plan_acceptance_apply', prepared.verificationIntent, prepared.itemId);
           assertVerificationIntentClassification(prepared.itemId, prepared.verificationIntent, true, 'plan_acceptance_apply');
           assertEnglishAuthoringText(
             'plan_acceptance_apply',
@@ -2946,6 +2974,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         );
       }
       assertNoReviewGateVerificationIntent('checklist_add', args.verificationIntent, 'checklist item');
+      assertAllowlistedVerificationPins('checklist_add', args.verificationIntent, 'checklist item');
       const story = assertChecklistAddAllowed(store, args);
 
       return withChecklistLock(ctx, args.storyId, () => {
@@ -3164,6 +3193,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       const checklistActor = authority.actor || process.env.USER?.trim() || 'main-agent';
       const dispatchedRole = authority.entry;
       assertNoReviewGateVerificationIntent('checklist_update', args.verificationIntent, args.itemId);
+      assertAllowlistedVerificationPins('checklist_update', args.verificationIntent, args.itemId);
       const incomingHasPlannedDeclarations = verificationIntentHasPlannedPathDeclarations(args.verificationIntent);
       const isDispatchedVerificationIntentWriter = dispatchedRole?.roleClass === 'verification-intent'
         && authority.source === 'dispatched-env';
@@ -4542,6 +4572,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         if (!headHash) throw new Error('AMENDMENT_HEAD_REQUIRED');
         const {intent, amendment} = createIntentAmendment({...args,item,sessionId:getSessionId(),leaseId:lease.leaseId,headHash,gitCwd});
         assertNoReviewGateVerificationIntent('verification_intent_append', intent, args.itemId);
+        assertAllowlistedVerificationPins('verification_intent_append', intent, args.itemId);
         assertEnglishAuthoringText('verification_intent_append', checklistEnglishAuthoringFields({verificationIntent:intent}, args.itemId));
         assertChecklistScopeChangeAllowed(store,args.storyId,{title:item.title,context:JSON.stringify(args.addition),excludes:item.excludes,itemId:item.id});
         item.verificationIntent = intent;
