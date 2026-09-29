@@ -16,6 +16,7 @@ import { existsSync, realpathSync } from 'node:fs';
 import { join, dirname, basename, relative } from 'node:path';
 import { readDynamicFindingDecision } from '../core/finding-applicability-projection.js';
 import { loadConfig } from '../core/config.js';
+import { isMaterialExcludedPath } from '../core/material-path-policy.js';
 import { PROOF_OR_STOP_ROOT_PACKAGE_NAME } from '../core/proof-or-stop-brand.js';
 import {
   currentGitHead,
@@ -422,7 +423,8 @@ function hasVerifiedInventoryMetadataHeadContinuity(args: {
     if (!parents || parents.split(/\s+/).filter(Boolean).length !== 1 || !subject || pathsText === null) return false;
     const reviewEpochBatch = matchesRuntimeCommitSubject(subject, `record ${storyId} review epoch metadata`);
     // The strict classifier owns artifact allowlists and signatures, including
-    // diagnostic-only refused admission publications. Fast receipts remain HEAD-exact.
+    // diagnostic-only refused admission publications. Fast cheap-check receipts
+    // bridge only metadata-only lineage (isMetadataOnlyHeadLineage).
     if (reviewEpochBatch || ['verification_evidence_add', 'certification_window_begin'].some(command =>
       matchesRuntimeCommitSubject(subject, `record ${storyId} ${command} metadata`))) {
       if (!isVerifiedReviewMaintenanceCommit({ gitCwd, metadataRoot: args.metadataRoot, storyId, commit, reviewedHeadHash: receiptHead })) return false;
@@ -434,6 +436,30 @@ function hasVerifiedInventoryMetadataHeadContinuity(args: {
     const paths = pathsText.split('\n').filter(Boolean);
     if (paths.length === 0 || paths.some(path => !path.startsWith(storyPrefix))) return false;
 
+  }
+  return true;
+}
+
+/**
+ * True when fromHead..toHead is a linear run of commits that change only
+ * material-excluded PoS metadata (story dir, evidence outputs, runtime
+ * artifacts). Such bookkeeping commits, e.g. the projection a BLOCKED
+ * certification_window_begin auto-commits, leave the code a fast cheap-check
+ * receipt attests unchanged; callers still require exact material and
+ * story-files hashes.
+ */
+function isMetadataOnlyHeadLineage(gitCwd: string, projectRoot: string, fromHead: string, toHead?: string): boolean {
+  if (!toHead || fromHead === toHead) return false;
+  if (!/^[0-9a-f]{40,64}$/i.test(fromHead) || !/^[0-9a-f]{40,64}$/i.test(toHead)) return false;
+  if (gitText(gitCwd, ['merge-base', '--is-ancestor', fromHead, toHead]) === null) return false;
+  const commitsText = gitText(gitCwd, ['rev-list', '--reverse', `${fromHead}..${toHead}`]);
+  if (!commitsText) return false;
+  for (const commit of commitsText.split(/\s+/).filter(Boolean)) {
+    const parents = gitText(gitCwd, ['show', '-s', '--format=%P', commit]);
+    const pathsText = gitText(gitCwd, ['diff-tree', '--no-commit-id', '--name-only', '-r', commit]);
+    if (!parents || parents.split(/\s+/).filter(Boolean).length !== 1 || pathsText === null) return false;
+    const paths = pathsText.split('\n').filter(Boolean);
+    if (paths.length === 0 || paths.some(path => !isMaterialExcludedPath(path, projectRoot))) return false;
   }
   return true;
 }
@@ -511,6 +537,7 @@ function collectAdmitFacts(
       headHash,
       materialHash,
       storyFilesHash,
+      headContinuity: receiptHead => isMetadataOnlyHeadLineage(gitCwd, ctx.root, receiptHead, headHash),
     });
   } catch {
     // An unreadable/tampered cheap receipt is intentionally indistinguishable
@@ -525,6 +552,7 @@ function collectAdmitFacts(
     currentStoryId: storyId,
     headHash,
     inventoryHeadMetadataContinuity,
+    cheapCheckHeadMetadataContinuity: Boolean(cheapCheckReceipt && cheapCheckReceipt.headHash !== headHash),
     materialHash,
     storyFilesHash,
     expectedMainSha,
