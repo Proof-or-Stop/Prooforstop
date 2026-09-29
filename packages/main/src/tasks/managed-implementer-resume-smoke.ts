@@ -71,6 +71,8 @@ function main(): void {
     assert.equal(resumed.argv.at(-1), '-');
     assert.ok(resumed.argv.includes('sandbox_mode="danger-full-access"'), 'resume carries the sandbox as config');
     assert.ok(!resumed.argv.includes('-C') && !resumed.argv.includes('-s'), 'exec resume takes neither -C nor -s');
+    const repair = materialize({ ...implementerArgs(worktree, { resumeSessionId: kept }), agentType: 'proof-or-stop-finding-repair' }, container);
+    assert.deepEqual(repair.argv.slice(0, 2), ['exec', 'resume'], 'a finding repair resumes the Story code-writer session too');
     const reviewer = materialize({ ...implementerArgs(worktree), agentType: 'proof-or-stop-review-scope-plan' }, container);
     assert.ok(reviewer.argv.includes('--ephemeral'), 'other managed dispatch roles stay ephemeral');
 
@@ -86,6 +88,11 @@ function main(): void {
     writeRun(root, 'run-reviewer', { cwd: worktree, agentType: 'proof-or-stop-review-scope-plan', state: 'completed', terminalAt: '2026-09-29T12:00:00.000Z', threadId: '019a0000-0000-7000-8000-00000000eeee' });
     const lookup = { root, storyId: 'B-1234', cwd: worktree, model: 'deepseek-v4-flash', excludeRunId: 'run-current', codexHome };
     assert.equal(find!(lookup), kept, 'newest completed same-Story implementer session is chosen');
+    const repairThread = '019a0000-0000-7000-8000-00000000ffff';
+    writeFileSync(join(codexHome, 'sessions', '2026', '09', '29', `rollout-2026-09-29T13-00-00-${repairThread}.jsonl`), '{}\n');
+    writeRun(root, 'run-repair', { cwd: worktree, agentType: 'proof-or-stop-finding-repair', state: 'completed', terminalAt: '2026-09-29T13:00:00.000Z', threadId: repairThread });
+    assert.equal(find!(lookup), repairThread, 'a newer finding-repair session is the one to continue');
+    rmSync(managedHostRun.managedHostRunDirectory(root, 'run-repair'), { recursive: true, force: true });
     assert.equal(find!({ ...lookup, model: 'other-model' }), null, 'a different model never resumes');
     assert.equal(find!({ ...lookup, excludeRunId: 'run-kept' }), null, 'a session missing from the codex home is not resumed');
     console.log('managed-implementer-resume-smoke: PASS');

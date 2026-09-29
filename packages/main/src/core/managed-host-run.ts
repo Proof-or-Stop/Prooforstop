@@ -73,6 +73,7 @@ import {
   type HostRunRunner,
   type HostRunProcessIdentity,
   type HostRunProcessCleanup,
+  RESUMABLE_CODE_WRITER_ROLES,
 } from './host-run.js';
 import type {
   FindingEvidenceState,
@@ -842,7 +843,7 @@ export function findResumableImplementerSession(args: {
       const spec = JSON.parse(readFileSync(join(dir, 'spec.json'), 'utf8')) as Record<string, unknown>;
       if (spec.host !== 'codex' || spec.profile !== 'managed_dispatch' || spec.storyId !== args.storyId
         || spec.cwd !== args.cwd || (spec.model ?? null) !== args.model
-        || canonicalAgentRoleId(String(spec.agentType)) !== 'proof-or-stop-implementer') continue;
+        || !(RESUMABLE_CODE_WRITER_ROLES as readonly string[]).includes(canonicalAgentRoleId(String(spec.agentType)))) continue;
       const terminal = JSON.parse(readFileSync(join(dir, 'terminal.json'), 'utf8')) as { state?: string; terminalAt?: string };
       if (terminal.state !== 'completed' || typeof terminal.terminalAt !== 'string') continue;
       const output = readFileSync(join(dir, 'live-output.jsonl'), 'utf8');
@@ -3500,7 +3501,7 @@ export async function runManagedHostRunWorker(
         promptText,
         managedRunId: spec.runId,
         ...(spec.profile === 'managed_dispatch' && spec.host === 'codex' && spec.storyId
-          && canonicalAgentRoleId(spec.agentType) === 'proof-or-stop-implementer'
+          && (RESUMABLE_CODE_WRITER_ROLES as readonly string[]).includes(canonicalAgentRoleId(spec.agentType))
           ? resumeSessionField(findResumableImplementerSession({
             root: spec.root, storyId: spec.storyId, cwd: spec.cwd, model: spec.model ?? null, excludeRunId: spec.runId,
             codexHome: providerEnvironment.CODEX_HOME ?? process.env.CODEX_HOME ?? join(homedir(), '.codex'),
