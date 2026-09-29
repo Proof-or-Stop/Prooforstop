@@ -159,6 +159,7 @@ export function effectiveValidationCommandEnvironment(
     }
   }
   effective[canonicalKey('PWD')] = cwd;
+  for (const [key, value] of Object.entries(projectValidationEnvironment(cwd))) effective[canonicalKey(key)] = value;
   if (overlay) {
     for (const [key, value] of Object.entries(overlay)) effective[canonicalKey(key)] = value;
   }
@@ -180,4 +181,38 @@ export function closedVerificationReuseCapsuleEnvironment(cwd: string): Record<s
     TZ: 'UTC',
   };
 }
-import { dirname } from 'node:path';
+import { existsSync, readFileSync, statSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { CONFIG_FILENAMES } from './brand-paths.js';
+
+const projectEnvironmentCache = new Map<string, { mtimeMs: number; env: Record<string, string> }>();
+
+/**
+ * `validate.env` of the nearest Proof-or-Stop config above `cwd`: the
+ * environment the project's tests require (e.g. CONTEXT=abs). It is project
+ * state, so validation runs and receipt freshness see the same values whatever
+ * the calling shell exported. A malformed or absent config contributes nothing.
+ */
+export function projectValidationEnvironment(cwd: string): Record<string, string> {
+  for (let dir = cwd; ; dir = dirname(dir)) {
+    for (const name of CONFIG_FILENAMES) {
+      const path = join(dir, name);
+      if (!existsSync(path)) continue;
+      try {
+        const mtimeMs = statSync(path).mtimeMs;
+        const cached = projectEnvironmentCache.get(path);
+        if (cached && cached.mtimeMs === mtimeMs) return cached.env;
+        const raw = (JSON.parse(readFileSync(path, 'utf8')) as { validate?: { env?: unknown } }).validate?.env;
+        const env: Record<string, string> = {};
+        if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+          for (const [key, value] of Object.entries(raw)) if (typeof value === 'string') env[key] = value;
+        }
+        projectEnvironmentCache.set(path, { mtimeMs, env });
+        return env;
+      } catch {
+        return {};
+      }
+    }
+    if (dirname(dir) === dir) return {};
+  }
+}
