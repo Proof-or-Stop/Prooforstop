@@ -17,7 +17,9 @@ if (_isDirectRun) {
   // Compile the large module graph once and reuse it from disk on later calls;
   // NODE_DISABLE_COMPILE_CACHE=1 still turns this off.
   try { (module as { enableCompileCache?: () => unknown }).enableCompileCache?.(); } catch { /* optional speed-up */ }
-  void import('./cli-direct.js')
+  void import('./core/lazy-typescript-hook.js')
+    .catch(() => { /* registerHooks unavailable: import typescript eagerly as before */ })
+    .then(() => import('./cli-direct.js'))
     .then(({ runDirectCli }) => runDirectCli())
     .catch(e => { console.error(e); process.exit(1); });
 }
