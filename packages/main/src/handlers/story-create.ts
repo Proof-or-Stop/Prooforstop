@@ -973,6 +973,16 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         lines.push(`    proof-or-stop story_review_dismiss '{"storyId":"${storyId}","category":"<the category hit above>","reason":"explain why this is a false positive"}'`);
         lines.push('  Once all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gate is lifted (partial dismiss does not revert).');
         riskHint = lines.join('\n');
+      } else if ((args.priority === 'high' || args.priority === 'critical')
+        && detectRiskSignals(`${args.title}\n${args.description}`).length === 0) {
+        // The INIT story reviewer raises a high issue for this deterministic
+        // mismatch; saying so now saves a whole INIT review round.
+        riskHint = [
+          '',
+          `⚠ priority=${args.priority} but the title/description contain no risk wording (auth, token, migration, destructive, state machine, guard, gate, reset, production, incident, hotfix, PII, GDPR, breaking change).`,
+          '  The INIT story reviewer reports this as a high issue. Before launching INIT reviewers, lower the priority with',
+          `  story_update --storyId=${storyId} --priority=medium, or state the actual risk in the title or description.`,
+        ].join('\n');
       }
 
       // B-9975 CHK-004: legacy one-step mode deprecation warning for normal-channel stories
