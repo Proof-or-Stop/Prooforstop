@@ -148,16 +148,20 @@ function hasOnlyManagedReviewImporterCommits(args: {
 }
 
 /**
- * PRE_CERT commands that the REVIEW→TEST gate itself requires auto-commit story
- * metadata; such a commit touching only material-excluded paths of this story
- * leaves the reviewed material unchanged (checked separately) and must not
- * invalidate a managed pass.
+ * Commands the REVIEW→TEST→DONE path itself requires (PRE_CERT, TEST closeout,
+ * DONE preparation, the TEST/DONE phase records) auto-commit story metadata;
+ * such a commit touching only material-excluded paths of this story leaves the
+ * reviewed material unchanged (checked separately) and must not invalidate a
+ * managed pass that DONE re-checks.
  */
 const PRECERT_METADATA_COMMANDS = [
   'certification_window_begin', 'certification_window_cancel',
   'review_inventory_begin', 'review_inventory_finalize', 'review_inventory_cancel',
   'review_inventory_critic_set', 'review_inventory_wave_advance',
   'validate', 'done_required_validate',
+  'TEST', 'DONE',
+  'delivery_check_set', 'summary_set', 'delivery_waiver_add', 'evaluate_save', 'live_smoke_transcript',
+  'done_prepare',
 ] as const;
 
 function isPrecertMetadataCommit(

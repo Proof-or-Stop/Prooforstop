@@ -58,4 +58,11 @@ writeFileSync(join(code.root, 'main.go'), 'package main\n// changed\n');
 git(code.root, ['commit', '-qam', `proof-or-stop: record ${storyId} certification_window_begin metadata`]);
 assert.equal(verifyManagedReviewLiveBinding({ gitCwd: code.root, metadataRoot: code.root, storyId, expected: code.expected }).valid, false,
   'a material change is never accepted, whatever its subject');
+
+const testPhase = fixture();
+for (const command of ['TEST', 'delivery_check_set', 'summary_set', 'delivery_waiver_add', 'evaluate_save', 'live_smoke_transcript', 'done_prepare']) {
+  metadataCommit(testPhase.root, testPhase.storyDir, command);
+}
+const afterTest = verifyManagedReviewLiveBinding({ gitCwd: testPhase.root, metadataRoot: testPhase.root, storyId, expected: testPhase.expected });
+assert.equal(afterTest.valid, true, `TEST-phase metadata commits invalidated a managed pass: ${afterTest.reason}`);
 console.log('live-binding-precert-smoke: PASS');
