@@ -148,7 +148,8 @@ function hasOnlyManagedReviewImporterCommits(args: {
 
 /**
  * Commands the REVIEW→TEST→DONE path itself requires (PRE_CERT, TEST closeout,
- * DONE preparation, the TEST/DONE phase records) auto-commit story metadata;
+ * DONE preparation, review-assurance host verdicts, the TEST/DONE phase
+ * records) auto-commit story metadata;
  * such a commit touching only material-excluded paths of this story leaves the
  * reviewed material unchanged (checked separately) and must not invalidate a
  * managed pass that DONE re-checks.
@@ -161,6 +162,9 @@ const PRECERT_METADATA_COMMANDS = [
   'TEST', 'DONE',
   'delivery_check_set', 'summary_set', 'delivery_waiver_add', 'evaluate_save', 'live_smoke_transcript',
   'done_prepare',
+  // The review assurance floor's host-verdict writer (commits only its
+  // host_verdict row in process-events.jsonl) runs after the managed lanes.
+  'autopilot_review_submit',
 ] as const;
 
 function isPrecertMetadataCommit(
