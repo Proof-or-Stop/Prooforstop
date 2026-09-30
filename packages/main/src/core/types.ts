@@ -12,6 +12,7 @@ export type {
   RoutineValidationIdentity,
   RoutineValidationCommandExecution,
 } from './validation-types.js';
+import { CLOSURE_REQUIRED_SEVERITIES } from './finding-closure-severities.js';
 import type { RoutineValidationIdentity, RoutineValidationCommandExecution } from './validation-types.js';
 import type { SignatureTagSource } from './experience-layer-types.js';
 import type { SignedNativeReviewInvocationAttestation } from './native-review-attestation.js';
@@ -4395,13 +4396,16 @@ export interface DevMemoryPreflightAckData {
   downgradeReason?: string;
 }
 
+// Every preset's blockingSeverities IS the finding closure set
+// (core/finding-closure-severities.ts): verified critical/high/medium findings
+// must be closed before TEST and DONE in every profile; low stays advisory.
 export const WORKFLOW_PRESETS: Record<WorkflowProfile, WorkflowPolicy> = {
   light: {
     profile: 'light',
     quickPath: { enabled: true, maxChecklistItems: 5, allowRiskSignals: false },
     plan: { requireUnderstanding: 'never', requireDecision: 'never', requirePlanMd: 'never', requireStoryReview: false },
     subagents: { requireWorkerInNormalChannel: false, allowMainAgentCoding: true },
-    review: { requireReviewer: false, requireReviewerFinding: false, blockingSeverities: ['critical'], requireLightReview: false },
+    review: { requireReviewer: false, requireReviewerFinding: false, blockingSeverities: [...CLOSURE_REQUIRED_SEVERITIES], requireLightReview: false },
     test: { requireValidatePass: true, requireAllBugsFixed: true, requireEvaluatorForBrowser: false },
     done: { requireSummary: 'minimal', requireBranchSynced: true, requireCleanGit: true },
   },
@@ -4410,7 +4414,7 @@ export const WORKFLOW_PRESETS: Record<WorkflowProfile, WorkflowPolicy> = {
     quickPath: { enabled: true, maxChecklistItems: 2, allowRiskSignals: false },
     plan: { requireUnderstanding: 'always', requireDecision: 'high_risk', requirePlanMd: 'normal', requireStoryReview: true },
     subagents: { requireWorkerInNormalChannel: true, allowMainAgentCoding: false },
-    review: { requireReviewer: true, requireReviewerFinding: true, blockingSeverities: ['critical', 'high'], requireLightReview: true },
+    review: { requireReviewer: true, requireReviewerFinding: true, blockingSeverities: [...CLOSURE_REQUIRED_SEVERITIES], requireLightReview: true },
     test: { requireValidatePass: true, requireAllBugsFixed: true, requireEvaluatorForBrowser: true },
     done: { requireSummary: 'full', requireBranchSynced: true, requireCleanGit: true },
   },
@@ -4419,7 +4423,7 @@ export const WORKFLOW_PRESETS: Record<WorkflowProfile, WorkflowPolicy> = {
     quickPath: { enabled: false, maxChecklistItems: 0, allowRiskSignals: false },
     plan: { requireUnderstanding: 'always', requireDecision: 'always', requirePlanMd: 'always', requireStoryReview: true },
     subagents: { requireWorkerInNormalChannel: true, allowMainAgentCoding: false },
-    review: { requireReviewer: true, requireReviewerFinding: true, blockingSeverities: ['critical', 'high', 'medium'], requireLightReview: true },
+    review: { requireReviewer: true, requireReviewerFinding: true, blockingSeverities: [...CLOSURE_REQUIRED_SEVERITIES], requireLightReview: true },
     test: { requireValidatePass: true, requireAllBugsFixed: true, requireEvaluatorForBrowser: true },
     done: { requireSummary: 'full', requireBranchSynced: true, requireCleanGit: true },
   },
