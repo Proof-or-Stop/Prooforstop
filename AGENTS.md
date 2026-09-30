@@ -563,13 +563,15 @@ proof-or-stop reviewer_list --storyId=B-xxxx --json
 
 | Source | Default | Gate effect |
 |---|---|---|
-| REVIEW `finding_add` | `verified` | An open critical/high finding blocks REVIEW to TEST unless the current round policy makes it advisory. |
+| REVIEW `finding_add` | `verified` | An open critical/high/medium finding blocks REVIEW to TEST and DONE in every profile and round until it is closed (`finding_resolve`, `review_remediation_close`, or `finding_dismiss`). |
 | Explicit suspected reviewer finding | `suspected` | Advisory only and requires an `uncertaintyReason`. |
 | `gap_log` | `suspected` | Long-lived framework-audit backlog; it does not block lifecycle gates. |
 | Legacy finding without the field | treated as `verified` | Preserves old blocking behavior. |
 
-The REVIEW blocking predicate requires an open finding, critical/high severity,
-a blocking evidence state, and no current-round advisory downgrade. Suspected
+The REVIEW blocking predicate requires an open finding, critical/high/medium
+severity (the closure set in `core/finding-closure-severities.ts`, the same in
+every profile and round; low is advisory), and a blocking evidence state.
+Findings from earlier rounds count; there is no round decay. Suspected
 and disproven findings do not block. Disproven findings need structured
 counter-evidence.
 

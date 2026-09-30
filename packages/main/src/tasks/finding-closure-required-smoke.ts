@@ -2,19 +2,18 @@
 /**
  * Finding closure required (no round decay).
  *
- * Policy: every VERIFIED open finding whose severity is blocking under the
- * profile must be closed (finding_resolve with repair evidence,
+ * Policy: every VERIFIED open critical/high/medium finding (in every profile,
+ * including the default balanced; low stays advisory) must be closed (finding_resolve with repair evidence,
  * review_remediation_close, or finding_dismiss where allowed) before TEST and
  * before DONE, independent of the review round in which it was raised.
  * Findings from earlier rounds count. Suspected / disproven findings keep
  * their advisory treatment. There is no review-round limit.
  *
- * Defect (strict profile, where medium is a blocking severity): a verified
- * MEDIUM finding raised in round 1 stayed status=open; round 2 was all-pass,
- * round decay made medium advisory, REVIEW->TEST and DONE only read
- * current-round evidence, and the story could merge with no resolution record.
- * (Harness scenario D runs the balanced profile, where medium never blocks;
- * D now uses a HIGH finding to exercise the same closure rule end to end.)
+ * Defects: (1) strict profile: a verified MEDIUM finding raised in round 1
+ * stayed open after an all-pass round 2 (round decay made medium advisory and
+ * TEST/DONE read only current-round evidence); (2) default balanced profile:
+ * medium was never a blocking severity, so a verified medium finding (harness
+ * scenario D's F-001) reached DONE open with no resolution record.
  *
  * Asserted here against the real gates (getGuardFailureReason TEST, the DONE
  * review-verdict predicate):
@@ -80,12 +79,13 @@ function finding(opts: { suffix: string; agent: string; reviewRunId: string; rou
 }
 
 /** Round 1 raises `subject` (medium, open); round 2 is all-pass (low resolved coverage per lane). */
-function twoRoundRepo(subjectState: FindingEvidenceState, uncertaintyReason?: string): { root: string; store: StoryStore; subject: Finding } {
+function twoRoundRepo(subjectState: FindingEvidenceState, uncertaintyReason?: string, profile: 'strict' | 'balanced' = 'strict',
+  severity: Finding['severity'] = 'medium'): { root: string; store: StoryStore; subject: Finding } {
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-fcrq-'));
   write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main', rootDir: 'src', testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures',
     storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements', worktreeDir: '.worktrees',
-    workflow: { profile: 'strict' }, nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
+    workflow: { profile }, nativeReviewInvocation: { brokers: nativeReviewFixtureBrokers() },
   }));
   write(root, 'README.md', 'finding closure required smoke\n');
   git(root, ['init']);
@@ -116,7 +116,7 @@ function twoRoundRepo(subjectState: FindingEvidenceState, uncertaintyReason?: st
 
   const r1 = seedCurrentReviewFixture(root, store, STORY_ID, REVIEWERS);
   const subject = finding({ suffix: '001', agent: 'proof-or-stop-review-test-coverage', reviewRunId: r1.get('proof-or-stop-review-test-coverage')!,
-    round: ROUND_1, severity: 'medium', status: 'open', evidenceState: subjectState, uncertaintyReason });
+    round: ROUND_1, severity, status: 'open', evidenceState: subjectState, uncertaintyReason });
   const r1Coverage = REVIEWERS.filter(lane => lane !== 'proof-or-stop-review-test-coverage').map((lane, index) => finding({
     suffix: `01${index + 1}`, agent: lane, reviewRunId: r1.get(lane)!, round: ROUND_1, severity: 'low', status: 'resolved' }));
 
@@ -152,11 +152,11 @@ function resolveThroughHandler(root: string, store: StoryStore, findingId: strin
   } finally { process.chdir(before); }
 }
 
-function verifiedEarlierRoundFindingMustBeClosed(): void {
-  const { root, store, subject } = twoRoundRepo('verified');
+function verifiedEarlierRoundFindingMustBeClosed(profile: 'strict' | 'balanced' = 'strict'): void {
+  const { root, store, subject } = twoRoundRepo('verified', undefined, profile);
   try {
     const test = getGuardFailureReason(STORY_ID, store, 'TEST', root);
-    assert.ok(test, 'a verified blocking finding from an earlier round must block REVIEW->TEST (no round decay)');
+    assert.ok(test, `a verified ${subject.severity} finding from an earlier round must block REVIEW->TEST under ${profile} (closure required)`);
     assert.match(test, new RegExp(subject.id), 'TEST refusal names the open finding id');
     const resolveCommand = `proof-or-stop finding_resolve --storyId=${STORY_ID} --findingId=${subject.id} --resolution=`;
     assert.ok(test.includes(resolveCommand), `TEST refusal prints the exact resolve command:\n${test}`);
@@ -165,7 +165,7 @@ function verifiedEarlierRoundFindingMustBeClosed(): void {
     assert.ok(done, 'the DONE review-verdict predicate must refuse the open verified finding');
     assert.match(done, new RegExp(subject.id));
     assert.ok(done.includes(resolveCommand), `DONE refusal prints the exact resolve command:\n${done}`);
-    console.log('✓ round-1 verified medium open finding blocks TEST and DONE after an all-pass round 2');
+    console.log(`✓ ${profile}: round-1 verified medium open finding blocks TEST and DONE after an all-pass round 2`);
 
     const resolved = resolveThroughHandler(root, store, subject.id);
     assert.match(resolved, /resolved/);
@@ -184,6 +184,18 @@ function suspectedFindingDoesNotBlock(): void {
   } finally { rmSync(root, { recursive: true, force: true }); }
 }
 
-verifiedEarlierRoundFindingMustBeClosed();
+function lowFindingStaysAdvisory(): void {
+  const { root, store } = twoRoundRepo('verified', undefined, 'balanced', 'low');
+  try {
+    assert.equal(getGuardFailureReason(STORY_ID, store, 'TEST', root), null, 'a verified low finding stays advisory');
+    assert.equal(doneReviewVerdict(root, store), null, 'a verified low finding does not block the DONE review verdict');
+    console.log('✓ balanced: round-1 verified low open finding stays advisory');
+  } finally { rmSync(root, { recursive: true, force: true }); }
+}
+
+verifiedEarlierRoundFindingMustBeClosed('strict');
+// Every profile (incl. the default balanced) requires verified critical/high/medium closure.
+verifiedEarlierRoundFindingMustBeClosed('balanced');
 suspectedFindingDoesNotBlock();
+lowFindingStaysAdvisory();
 console.log('finding-closure-required-smoke: PASS');

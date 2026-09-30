@@ -76,18 +76,25 @@ function findingResolvePublicationRefusal(args: {
   const rows = (args.readAt('findings.json') as { findings?: Finding[] }).findings ?? [];
   const priorRows = (args.readPrior('findings.json') as { findings?: Finding[] } | undefined)?.findings ?? [];
   if (rows.length !== priorRows.length || rows.some((row, index) => row.id !== priorRows[index]!.id)) return 'findings.json adds, removes or reorders findings';
-  const changed = rows.filter((row, index) => digestCanonicalJson(row) !== digestCanonicalJson(priorRows[index]));
+  // The store backfills ledgerCommitReceiptId onto a row whose ledger record a
+  // receipt already carries (e.g. an earlier resolve). That mirror-only change is
+  // admitted only when the named receipt exists and binds the row's recordId.
+  const receiptBinds = (row: Finding) => typeof row.ledgerCommitReceiptId === 'string' && !!row.recordId
+    && ledger.receipts.some(receipt => receipt.receiptId === row.ledgerCommitReceiptId && receipt.recordIds.includes(row.recordId!));
+  const strip = (row: Finding, prior: Finding) => prior.ledgerCommitReceiptId === undefined && receiptBinds(row)
+    ? (({ ledgerCommitReceiptId: _receipt, ...rest }) => rest)(row) : row;
+  const changed = rows.filter((row, index) => digestCanonicalJson(strip(row, priorRows[index]!)) !== digestCanonicalJson(priorRows[index]));
   if (changed.length !== transitions.length || new Set(transitions.map(t => t.findingId)).size !== transitions.length) return 'findings.json changes do not match the lifecycle transitions one to one';
   for (const row of changed) {
     const before = priorRows[rows.indexOf(row)]! as unknown as Record<string, unknown>;
-    const after = row as unknown as Record<string, unknown>;
+    const after = strip(row, before as unknown as Finding) as unknown as Record<string, unknown>;
     const keys = new Set([...Object.keys(before), ...Object.keys(after)]);
     const touched = [...keys].filter(key => digestCanonicalJson(before[key] ?? null) !== digestCanonicalJson(after[key] ?? null));
     const transition = transitions.find(t => t.findingId === row.id);
     if (!transition || before.status !== 'open' || row.status !== 'resolved'
       || touched.some(key => !FINDING_RESOLVE_ROW_FIELDS.has(key)) || (touched.includes('recordId') && before.recordId !== undefined)
-      || row.recordId !== transition.findingRecordId || row.resolvedAt !== transition.at
-      || (row.resolvedReason ?? undefined) !== (transition.reason ?? undefined)) return `findings.json row ${row.id} is not exactly the mirror of its signed resolve transition`;
+      || after.recordId !== transition.findingRecordId || after.resolvedAt !== transition.at
+      || (after.resolvedReason ?? undefined) !== (transition.reason ?? undefined)) return `findings.json row ${row.id} is not exactly the mirror of its signed resolve transition`;
   }
   return null;
 }

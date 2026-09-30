@@ -1,4 +1,5 @@
 import type { StoryStore } from './store.js';
+import { closureBlockingSeverities } from './finding-closure-severities.js';
 import { resolveReviewRoundCount } from './advisory.js';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
@@ -32,7 +33,7 @@ function projectConstraints(store: StoryStore, projectRoot: string, storyId: str
       requiredCommands: [], affectedPaths: [], reassessFindingIds: [], scopeExpansionAuthorized: false, authority: 'disabled' };
   }
   const story = store.readStory(storyId); const findings = store.readFindings(storyId).findings;
-  const severities = resolveWorkflowPolicy(loadConfig(projectRoot), story).review.blockingSeverities;
+  const severities = closureBlockingSeverities(resolveWorkflowPolicy(loadConfig(projectRoot), story));
   const round = resolveReviewRoundCount(store, storyId);
   const rows = findings.map(finding => ({ findingId: finding.id, decision: readDynamicFindingDecision({ store, projectRoot, storyId,
     finding, effectiveBlockingSeverities: severities, round, diagnostic: true }) }));

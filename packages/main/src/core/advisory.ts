@@ -1,11 +1,12 @@
 /**
  * Finding advisory rule (shared function). No round decay.
  *
- * The profile's policy.review.blockingSeverities block in EVERY review round:
+ * The closure severities (critical/high/medium in every profile,
+ * core/finding-closure-severities.ts) block in EVERY review round:
  * a verified open finding of a blocking severity stays blocking until it is
  * closed (finding_resolve with repair evidence, review_remediation_close, or a
  * recorded finding_dismiss), whichever round raised it (core/finding-closure.ts).
- * low is always advisory (no profile's blockingSeverities contains low).
+ * low is always advisory (the closure set never contains low).
  */
 import type { StoryStore } from './store.js';
 import type { Finding, FindingEvidenceState, StoryEvent } from './types.js';
@@ -33,7 +34,7 @@ export function isFindingEvidenceState(value: unknown): value is FindingEvidence
  * Full gate predicate (machine.ts evaluateReviewVerdict / guard-utils.ts), over
  * findings of every review round:
  *   status === 'open'
- *   && severity ∈ profile blockingSeverities
+ *   && severity ∈ closure severities (critical/high/medium)
  *   && isEvidenceStateBlocking(evidenceState)
  *   && !isAdvisorySeverity(severity)
  */
@@ -44,7 +45,7 @@ export function isEvidenceStateBlocking(evidenceState: FindingEvidenceState | st
 
 /**
  * B-3fad CHK-001: The complete decision for "whether this finding blocks REVIEW→TEST".
- * effectiveBlockingSeverities is the profile's set; `_round` is accepted for
+ * effectiveBlockingSeverities is the closure set; `_round` is accepted for
  * existing callers and never changes the outcome (no round decay).
  */
 export function isFindingBlocking(
@@ -60,7 +61,7 @@ export function isFindingBlocking(
 
 /**
  * Whether a severity is advisory (never blocking) in every review round.
- * low only: no profile's policy.review.blockingSeverities contains low, so low is
+ * low only: the closure severities never contain low, so low is
  * grouped as advisory and finding_list never places it under Blocking.
  */
 export function isAdvisorySeverity(severity: FindingSeverity | string): boolean {

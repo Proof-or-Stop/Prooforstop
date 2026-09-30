@@ -13,12 +13,13 @@ import { assessConvergenceProgressGate } from './convergence-progress-gate.js';
  *
  * Reuse discipline: round counting comes from resolveReviewRoundCount
  * (advisory.ts) and the per-round blocking decision reuses isFindingBlocking
- * (advisory.ts) with the profile's blocking severities for every round (no
+ * (advisory.ts) with the closure severities (critical/high/medium) for every round (no
  * round decay; core/finding-closure.ts). This module does NOT reimplement
  * round/blocking logic.
  */
 import { resolveReviewRoundCount } from './advisory.js';
 import { readDynamicFindingDecision } from './finding-applicability-projection.js';
+import { closureBlockingSeverities } from './finding-closure-severities.js';
 import { readBrandEnv } from './brand-env.js';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
@@ -49,7 +50,7 @@ export interface ReviewConvergenceInputs {
    * === roundCount: index i corresponds to ACTUAL review round i+1 (round 1 at
    * index 0 .. round roundCount at index roundCount-1). Rounds with no findings
    * (or no blocking findings) are 0, so a recently-clean tail shows trailing
-   * zeros. Every round uses the profile's blocking severities (no round decay).
+   * zeros. Every round uses the closure severities (critical/high/medium; no round decay).
    */
   perRoundBlockingCounts: number[];
 }
@@ -79,7 +80,7 @@ export interface ReviewConvergenceInputs {
  * Per-round blocking determination:
  *   - For each ACTUAL round r (1-based), count findings assigned to round r
  *     that are blocking via readDynamicFindingDecision with the profile's
- *     policy.review.blockingSeverities. There is no round decay: the same
+ *     closure severities (core/finding-closure-severities.ts). There is no round decay: the same
  *     severities block in every round (core/finding-closure.ts).
  */
 export function collectReviewConvergenceInputs(
@@ -103,7 +104,7 @@ export function collectReviewConvergenceInputs(
     const story = store.readStory(storyId);
     const config = loadConfig(store.projectRoot);
     const policy = resolveWorkflowPolicy(config, story);
-    blockingSeverities = policy.review.blockingSeverities;
+    blockingSeverities = closureBlockingSeverities(policy);
     // Canonical round identities: the timestamps of the REVIEW/advance events
     // that resolveReviewRoundCount counts, in chronological order.
     reviewRoundTimestamps = (story.events ?? [])

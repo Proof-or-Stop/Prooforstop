@@ -839,6 +839,24 @@ export interface ReviewVerdict {
   unclosedFindingIds?: string[];
 }
 
+/**
+ * Closure rule (core/finding-closure.ts): every verified open critical/high/medium
+ * finding must be closed, whichever review round raised it — earlier rounds count
+ * and there is no round decay. B-3fad CHK-001: suspected / disproven do not block.
+ */
+function findingClosureVerdict(context: StoryMachineContext, policy: { review: { blockingSeverities: readonly string[] } }, findings: readonly Finding[]): ReviewVerdict | null {
+  const { effectiveBlockingSeverities, roundCount } = resolveEffectiveBlockingSeverities(context.store, context.storyId, policy);
+  const blocking = unclosedBlockingFindings({ store: context.store, projectRoot: context.projectRoot ?? process.cwd(),
+    storyId: context.storyId, findings, effectiveBlockingSeverities, round: roundCount });
+  if (blocking.length === 0) return null;
+  return {
+    ok: false,
+    code: 'review_finding_blocking',
+    message: `${blocking.length} verified blocking finding(s) not closed (any review round): ${blocking.map(row => `${row.finding.id} [${row.finding.severity}] ${row.finding.desc} (${row.decision.reason})`).join('; ')}`,
+    unclosedFindingIds: blocking.map(row => row.finding.id),
+  };
+}
+
 /** Read-only, phase-agnostic reviewer verdict shared by REVIEW→TEST and TEST→DONE. */
 export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdict {
   try {
@@ -870,7 +888,8 @@ export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdi
     const story = context.store.readStory(context.storyId);
     const policy = resolveWorkflowPolicy(config, story);
 
-    if (!policy.review.requireReviewer) return { ok: true };
+    // Closure applies in every profile, even one that requires no reviewer.
+    if (!policy.review.requireReviewer) return findingClosureVerdict(context, policy, context.store.readFindings(context.storyId).findings ?? []) ?? { ok: true };
     if (!story.currentReviewRound) {
       return {
         ok: false,
@@ -948,22 +967,8 @@ export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdi
       }
     }
 
-    const { effectiveBlockingSeverities, roundCount } = resolveEffectiveBlockingSeverities(context.store, context.storyId, policy);
-
-    // Closure rule (core/finding-closure.ts): every verified open finding whose
-    // severity the profile blocks must be closed, whichever review round raised
-    // it — earlier rounds count and there is no round decay. B-3fad CHK-001:
-    // suspected / disproven findings do not block.
-    const blocking = unclosedBlockingFindings({ store: context.store, projectRoot: context.projectRoot ?? process.cwd(),
-      storyId: context.storyId, findings: findings.findings ?? [], effectiveBlockingSeverities, round: roundCount });
-    if (blocking.length > 0) {
-      return {
-        ok: false,
-        code: 'review_finding_blocking',
-        message: `${blocking.length} verified blocking finding(s) not closed (any review round): ${blocking.map(row => `${row.finding.id} [${row.finding.severity}] ${row.finding.desc} (${row.decision.reason})`).join('; ')}`,
-        unclosedFindingIds: blocking.map(row => row.finding.id),
-      };
-    }
+    const closure = findingClosureVerdict(context, policy, findings.findings ?? []);
+    if (closure) return closure;
     return { ok: true };
   } catch (error) { rethrowIntentAmendmentIntegrityError(error);
     return { ok: false, code: 'review_verdict_error', message: error instanceof Error ? error.message : String(error) };

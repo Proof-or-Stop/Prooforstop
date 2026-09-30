@@ -32,7 +32,7 @@
  *      dispatch -> round 2 all pass -> direct finalize (zero-wave
  *      completeness-only receipt, refused by certification) -> cancel ->
  *      fresh saturated epoch + critic -> certification_window_begin refuses
- *      the still-open verified HIGH F-001 from round 1 (closure required, no
+ *      the still-open verified MEDIUM F-001 from round 1 (closure required, no
  *      round decay); DONE's review verdict and story_advance TEST refuse too ->
  *      the owner runs the hinted finding_resolve with the repair evidence ->
  *      certification_window_begin -> validate -> story_advance TEST must not
@@ -719,13 +719,12 @@ function scenarioB(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
-// HIGH, not medium: this fixture runs the default balanced profile, whose
-// review.blockingSeverities are critical/high. A medium finding is not a
-// blocking severity under balanced in ANY round, so it would legitimately stay
-// open; the closure rule (core/finding-closure.ts) is about blocking severities.
+// MEDIUM (its original severity) under the default balanced profile: the
+// closure rule (core/finding-closure-severities.ts) requires verified
+// critical/high/medium findings to be closed in every profile.
 const D_FINDING = {
   desc: 'Reverse has no focused test for an empty string: Reverse("") must return "" without indexing r[-1].',
-  severity: 'high', category: 'edge', files: ['strs/strs.go', 'strs/strs_test.go'], evidenceState: 'verified',
+  severity: 'medium', category: 'edge', files: ['strs/strs.go', 'strs/strs_test.go'], evidenceState: 'verified',
 };
 
 /** A material commit makes the pinned focused evidence stale; the owner re-earns it. */
@@ -849,7 +848,7 @@ function scenarioD(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
       lines.push(`fresh saturated epoch + critic, then certification_window_begin: exit ${begin.status} ${begin.status ? firstError(begin) : 'ADMITTED'}`);
       recovered = true;
     }
-    // F-001 is verified HIGH from round 1 and still open after the all-pass
+    // F-001 is verified MEDIUM from round 1 and still open after the all-pass
     // round 2: PRE_CERT refuses it (no round decay) and hints finding_resolve.
     assert.notEqual(begin.status, 0, `D: PRE_CERT must refuse while ${findingId} is open:\n${begin.out.slice(-2000)}`);
     assert.match(begin.out, /pre_cert_blocking_findings_open/, begin.out.slice(-2000));

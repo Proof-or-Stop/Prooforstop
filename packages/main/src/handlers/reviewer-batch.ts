@@ -20,7 +20,7 @@ import { rethrowIntentAmendmentIntegrityError } from '../core/verification-inten
  *       · awaiting-repair — a valid blocking observation with exact committed material
  *                          or metadata-only drift; guidance only, never a gate PASS.
  *       · blocking       — a blocking verified finding is open for/affecting the
- *                          lane (profile severities, no round decay).
+ *                          lane (closure severities critical/high/medium, no round decay).
  *   - Host-neutral owner guidance for each lane that needs a (re-)run: obtain the
  *     canonical dispatch prompt, use a fresh-context host launch, and retain the
  *     exact returned child id. This is an instruction the orchestrator executes;
@@ -39,6 +39,7 @@ import { rethrowIntentAmendmentIntegrityError } from '../core/verification-inten
  * reviewer subagents from this plan; a CLI cannot spawn them.
  */
 
+import { closureBlockingSeverities } from '../core/finding-closure-severities.js';
 import type { HandlerContext } from './context.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import { isAutomaticNoCorpusFullScan } from '../core/candidate-spec-routing.js';
@@ -234,7 +235,7 @@ function laneHasCurrentRoundEvidence(records: ReviewerEvidenceRecord[], lane: st
   return records.some((record) => findingAgentMatchesReviewer(record.agent, lane));
 }
 
-/** The blocking verified findings (profile severities, no round decay) attributable to `lane`. */
+/** The blocking verified findings (closure severities critical/high/medium, no round decay) attributable to `lane`. */
 function blockingFindingsForLane(
   blockingFindings: Finding[],
   lane: string,
@@ -448,11 +449,11 @@ export function createReviewerBatchHandlers(ctx: HandlerContext): Record<string,
     const activeReviewers = computeActiveReviewers(story, checklist, decision, touchpoints);
 
     // Current-round, signature-validated reviewer evidence (the SAME records the
-    // V1 review gate rows consume) + blocking findings (profile severities, no round decay).
+    // V1 review gate rows consume) + blocking findings (closure severities critical/high/medium, no round decay).
     const evidenceState = collectReviewerEvidenceState(ctx.store, storyId, ctx.root);
     const policy = resolveWorkflowPolicy(loadConfig(ctx.root), story);
     const roundCount = resolveReviewRoundCount(ctx.store, storyId);
-    const blockingSeverities = policy.review.blockingSeverities;
+    const blockingSeverities = closureBlockingSeverities(policy);
     const blockingFindings = evidenceState.valid
       .map((record) => record.finding)
       .filter((finding): finding is Finding => !!finding)
