@@ -21,7 +21,7 @@ import { canonicalAgentRoleId } from './agent-role-identity.js';
 import { currentFindingLedgerTrustFromWorkspace, validateEnvelope, verifyFindingLedgerReceipt, type LedgerEnvelope } from './finding-ledger.js';
 import type { Finding, FindingLedgerReceipt, FindingLifecycleTransition } from './types.js';
 
-const FINDING_RESOLVE_ARTIFACTS = new Set(['findings.json', 'finding-ledger.json', 'process-metrics.json']);
+const FINDING_RESOLVE_ARTIFACTS = new Set(['findings.json', 'finding-ledger.json', 'process-metrics.json', 'gate-failure-counts.json']);
 const FINDING_RESOLVE_ROW_FIELDS = new Set(['status', 'resolvedAt', 'resolvedReason', 'resolutionType', 'resolveEvidenceStrength', 'recordId']);
 const FINDING_RESOLVE_LEDGER_RECORDS = new Set(['legacy_identity_binding', 'finding_lifecycle_transition']);
 
@@ -38,11 +38,17 @@ function findingResolvePublicationRefusal(args: {
 }): string | null {
   const { artifacts, storyId } = args;
   const foreign = artifacts.find(path => !FINDING_RESOLVE_ARTIFACTS.has(path));
-  if (foreign) return `touches ${foreign}, outside findings.json/finding-ledger.json/process-metrics.json`;
+  if (foreign) return `touches ${foreign}, outside findings.json/finding-ledger.json/process-metrics.json/gate-failure-counts.json`;
   if (!artifacts.includes('findings.json') || !artifacts.includes('finding-ledger.json')) return 'does not publish both findings.json and finding-ledger.json';
   if (artifacts.includes('process-metrics.json')) {
     const metrics = args.readAt('process-metrics.json');
     if (metrics.storyId !== storyId || typeof metrics.generatedAt !== 'string' || !metrics.sourceSnapshot || !metrics.dimensions) return 'process-metrics.json is not a subject-bound projection';
+  }
+  if (artifacts.includes('gate-failure-counts.json')) {
+    // A tracked convergence-breaker counter swept in after a refused TEST probe; no review evidence.
+    const counts = args.readAt('gate-failure-counts.json');
+    if (!counts || typeof counts !== 'object' || Array.isArray(counts)
+      || Object.values(counts).some(row => !row || typeof row !== 'object' || Array.isArray(row))) return 'gate-failure-counts.json is not a gate counter map';
   }
   const ledger = args.readAt('finding-ledger.json') as LedgerEnvelope<unknown>;
   const priorLedger = args.readPrior('finding-ledger.json') as LedgerEnvelope<unknown> | undefined;
@@ -273,13 +279,23 @@ export function isVerifiedReviewMaintenanceCommit(args: {
     if (!writer) return no(`subject "${subject}" is not an authenticated review-maintenance publisher`);
     // Bookkeeping never supplies a validation verdict here. Require parseable,
     // subject-bound projections; owner-lease changes retain only an unchanged owner and a heartbeat/PID update.
-    const incidental = new Set(['process-events.jsonl', 'process-metrics.json', 'test-runs.json', 'owner-lease.json']);
+    // gate-failure-counts.json is the convergence breaker's repeated-gate
+    // counter, bumped by every refused story_advance. It is a registry runtime
+    // artifact, but a task repo that tracks it (runs 11 and 12) has it swept
+    // into the next certification/validation publication; it carries no review
+    // evidence and no validation verdict.
+    const incidental = new Set(['process-events.jsonl', 'process-metrics.json', 'test-runs.json', 'owner-lease.json', 'gate-failure-counts.json']);
     if (artifacts.some(path => incidental.has(path) && closeoutArtifactPolicyFor(path))) return no(`${writer} publication: an incidental artifact is closeout-protected`);
     if (artifacts.includes('owner-lease.json') && (!git(['ls-tree','--name-only',parents[0],'--',prefix + 'owner-lease.json'])
       || !isOwnerLeaseHeartbeatOnly(readAt(parents[0],'owner-lease.json'),readAt(commit,'owner-lease.json')))) return no(`${writer} publication: owner-lease.json changes more than the heartbeat`);
     if (artifacts.includes('process-metrics.json')) {
       const metrics = readAt(commit,'process-metrics.json');
       if (metrics.storyId !== storyId || typeof metrics.generatedAt !== 'string' || !metrics.sourceSnapshot || !metrics.dimensions) return no(`${writer} publication: process-metrics.json is not a subject-bound projection`);
+    }
+    if (artifacts.includes('gate-failure-counts.json')) {
+      const counts = readAt(commit,'gate-failure-counts.json');
+      if (!counts || typeof counts !== 'object' || Array.isArray(counts)
+        || Object.values(counts).some(row => !row || typeof row !== 'object' || Array.isArray(row))) return no(`${writer} publication: gate-failure-counts.json is not a gate counter map`);
     }
     if (artifacts.includes('test-runs.json')) {
       const runs = readAt(commit,'test-runs.json').runs;
@@ -373,7 +389,7 @@ export function isVerifiedReviewMaintenanceCommit(args: {
           {headHash:parents[0],storyId,reviewRound:readAt(reviewedHeadHash,'index.json').currentReviewRound},after).ok) return no(`${writer} publication: index.json change is not the persisted REVIEW->TEST transition`);
         continue;
       }
-      if (writer !== 'validate' || !closeoutPaths.includes(path)) return no(`${writer} publication: changes a non-closeout artifact`);
+      if (writer !== 'validate' || !closeoutPaths.includes(path)) return no(`${writer} publication: changes a non-closeout artifact ${path}`);
       const matching = addedReceipts.filter(receipt => receipt.artifactPath === path);
       const receipt = matching[0];
       if (matching.length !== 1 || receipt.writerCommand !== writer || receipt.headHash !== parents[0]
