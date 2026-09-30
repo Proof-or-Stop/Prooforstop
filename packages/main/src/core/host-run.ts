@@ -103,6 +103,7 @@ import {
   normalizeReviewerReadManifest,
 } from './reviewer-read-evidence.js';
 import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
+import { REVIEWER_AUTHORED_FINDING_CATEGORIES, type ReviewerAuthoredFindingCategory } from './evidence-chain-finding.js';
 import {
   CLAUDE_SUPPORTED_REASONING_EFFORTS,
   QUALIFIED_MANAGED_REVIEWER_DEFAULTS,
@@ -965,7 +966,8 @@ export interface ManagedReviewFinalEnvelopeReadManifest extends Record<string, u
 export interface ManagedReviewFinalEnvelopeFinding extends Record<string, unknown> {
   desc: string;
   severity: 'critical' | 'high' | 'medium' | 'low';
-  category: 'happy' | 'edge' | 'adversarial' | 'missing';
+  /** `evidence_chain` marks a framework action, never imported as a Finding (core/evidence-chain-finding.ts). */
+  category: ReviewerAuthoredFindingCategory;
   files?: string[];
   evidenceState?: 'suspected' | 'verified';
   uncertaintyReason?: string;
@@ -1074,7 +1076,10 @@ export function managedReviewFinalProposalJsonSchema(args: ManagedReviewFinalPro
     properties: {
       desc: nonBlankString,
       severity: { enum: ['critical', 'high', 'medium', 'low'] },
-      category: { enum: ['happy', 'edge', 'adversarial', 'missing'] },
+      category: {
+        enum: [...REVIEWER_AUTHORED_FINDING_CATEGORIES],
+        description: 'evidence_chain = a framework-owned evidence-chain item (stale or missing receipt, intent with no pinned command, existing test bound to no intent). It is reclassified as a framework action and is never a review finding; use the other categories for real product defects.',
+      },
       files: { type: 'array', items: nonBlankString },
       evidenceState: { enum: ['suspected', 'verified'] },
       uncertaintyReason: {
@@ -1167,7 +1172,7 @@ export function isStrictManagedReviewFindingProposal(value: unknown): value is M
   if (Object.keys(value).some(key => !allowed.has(key))) return false;
   if (typeof value.desc !== 'string' || value.desc.trim().length === 0) return false;
   if (typeof value.severity !== 'string' || !['critical', 'high', 'medium', 'low'].includes(value.severity)) return false;
-  if (typeof value.category !== 'string' || !['happy', 'edge', 'adversarial', 'missing'].includes(value.category)) return false;
+  if (typeof value.category !== 'string' || !(REVIEWER_AUTHORED_FINDING_CATEGORIES as readonly string[]).includes(value.category)) return false;
   if (value.files !== undefined
     && (!isStringArray(value.files) || value.files.some(file => file.trim().length === 0))) return false;
   if (value.evidenceState !== undefined

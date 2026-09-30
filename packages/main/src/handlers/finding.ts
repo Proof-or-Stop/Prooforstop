@@ -78,6 +78,8 @@ import {
   normalizeReviewerReadManifest,
 } from '../core/reviewer-read-evidence.js';
 import { wantsFullOutput, truncateOneLine } from '../cli/output-verbosity.js';
+import { isEvidenceChainFindingCategory } from '../core/evidence-chain-finding.js';
+import { evidenceChainNextActionForStory } from './evidence-chain.js';
 
 // B-7c05 CHK-002: brief finding shape. Drops only heavy free-text (the full
 // `desc`, reviewer read evidence) and replaces `desc` with a truncated one-line
@@ -799,6 +801,18 @@ export function createFindingHandlers(ctx: HandlerContext) {
     }): string {
       assertNotManagedProviderDirectEvidence('finding_add');
       assertCwdInWorktree(store, args.storyId);
+      if (isEvidenceChainFindingCategory(args.category)) {
+        // Evidence-chain items are framework actions, never review findings
+        // (core/evidence-chain-finding.ts). Refuse loudly with the framework's
+        // one next action so the reviewer records a pass (or product findings)
+        // instead, and the owner fixes the chain without a review round.
+        throw new Error(
+          'finding_add: category=evidence_chain is framework-owned (stale or missing receipt, intent without a pinned command, '
+          + 'existing test bound to no intent) and is never a review finding [evidence_chain_not_a_finding]. '
+          + `Framework next action: ${evidenceChainNextActionForStory(ctx, args.storyId)}. `
+          + 'Reviewer: record product findings only; with none, call review_pass_set and mention the evidence-chain item in its note.',
+        );
+      }
 
       // Record caller identity (env var PROOF_OR_STOP_AGENT, or the deprecated
       // PROOF_OR_STOP_AGENT, is set by the subagent; brand-env reads both)

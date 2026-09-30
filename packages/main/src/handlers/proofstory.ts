@@ -86,6 +86,7 @@ import {
 } from '../core/acceptance-rollout.js';
 import { readBrandEnv } from '../core/brand-env.js';
 import { resolveAcceptanceVerificationProfile } from '../core/acceptance-discovery-adapters.js';
+import { renderEvidenceChainForStory } from './evidence-chain.js';
 
 type JsonFlag = { json?: boolean };
 type ModeFlag = { mode?: ProofStoryGateMode; dryRun?: boolean };
@@ -723,7 +724,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
           `Mode: ${report.mode}; blocking=${report.blocking}`,
           `Codes: ${report.codes.join(',')}`,
           ...report.remediation.map(item => `Remediation: ${item.replace('<id>', args.storyId)}`),
-        ].join('\n');
+        ].join('\n') + renderEvidenceChainForStory(ctx, args.storyId);
         return enforceOrRender(report, rendered);
       }
       const input = currentPreReviewInputForContext(ctx, args.storyId);
@@ -739,7 +740,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
         `plannedActual=${report.plannedActual} executableEvidence=${report.executableEvidence} mutations=${report.mutations} transcript=${report.transcript} authority=${report.authority} criticReattestation=${report.criticReattestation}`,
         `Codes: ${report.codes.join(',') || 'none'}`,
         ...report.remediation.map(item => `Remediation: ${item}`),
-      ].join('\n') + commitHint;
+      ].join('\n') + renderEvidenceChainForStory(ctx, args.storyId) + commitHint;
     },
 
     pre_review_check_read(args: { storyId: string; json?: boolean }): string {
@@ -754,7 +755,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
         `plannedActual=${report.plannedActual} executableEvidence=${report.executableEvidence} mutations=${report.mutations} transcript=${report.transcript} authority=${report.authority} criticReattestation=${report.criticReattestation}`,
         `Codes: ${report.codes.join(',') || 'none'}`,
         ...report.remediation.map(item => `Remediation: ${item}`),
-      ].join('\n');
+      ].join('\n') + renderEvidenceChainForStory(ctx, args.storyId);
     },
 
     acceptance_rollout_report(args: { storyId: string; json?: boolean }): string {

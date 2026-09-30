@@ -714,6 +714,23 @@ proof-or-stop scope_question_resolve '{
 - **PLAN→DEV gate**：`story_review` 把未 resolved 的 OQ 作为 blocker（`type: scope_open_question_unresolved`），必须全部 resolve 才能进 DEV
 - 老 scope-check.json 无 `openQuestions` 字段时视为空集，不触发 gate
 
+### 证据链检查（框架负责，永远不是 review finding）
+
+Review finding 只能是真实的产品缺陷。证据链问题（receipt 过期、intent 没有 pinned command 或没有 receipt、
+Story diff 里新增/改动的 Go 测试没有被任何 intent 的 pinned `go test -run` 选中）由
+`core/evidence-chain-check.ts`（接线在 `handlers/evidence-chain.ts`）在进 REVIEW 前机械检测，每次只给一个 `Next:`：
+
+- `stale_receipt`（must/should）：阻塞 DEV→REVIEW，Next 固定为 `proof-or-stop verification_evidence_refresh_stale --storyId=<id>`；不要逐条 `verification_evidence_add` 重放。
+- `missing_receipt`：must 阻塞、should 只提示；Next 是 `verification_run`（已 pin）或 `verification_evidence_add`（未 pin，优先绑定该 item 里未被选中的已改测试）。
+- `unbound_test`：只提示；Next 把测试绑定到该测试所在 item 的第一个未 pin intent。全部 intent 已 pin（pin 不可改）时无需动作，除非它是某个 userSees 行为的唯一测试（走 `acceptance_amendment_propose`）。
+- 选择集是算出来的，不猜：无法计算的 pinned command（make、shell、模块外 import path 等）会跳过扫描并写明原因；JS/TS 不扫描。
+- 输出位置：`pre_review_check` / `pre_review_check_read` 文本末尾的 `Evidence-chain check` 段，以及 `story_advance REVIEW` 的 gate。
+
+test-coverage reviewer 只报产品覆盖缺口。reviewer 若仍报证据链项，用 `category: "evidence_chain"`：
+`managed_review_evidence_import` 只导入产品 finding（保留 sealed proposal index），只含证据链项的 proposal 以 pass 导入
+（note 由 verifier 从 sealed proposal 重算），每项记为 `review_evidence_chain_reclassified` process event，并打印
+`Framework next action:`；native `finding_add` 直接拒绝（`evidence_chain_not_a_finding`）。
+
 ### acceptance basis 与 pre_review_check 的顺序约束（B-45a0 F-435/F-438）
 
 **先 `acceptance_basis_generate`，再 `pre_review_check`，顺序不能反。**
@@ -833,7 +850,7 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 |---|---|---|
 | **主 agent** | 需求管理（PLAN + plan.md）+ 分配任务 + 验收（REVIEW/TEST/DONE） | 仅快速通道 |
 | **proof-or-stop-implementer** | 写代码 + 写测试，接受主 agent 按 plan.md 分配的 checklist item | 正常通道必须 |
-| **proof-or-stop-review-\*** | REVIEW 阶段按 opt-in 路由并行审查（baseline concept+quality+test-coverage，按 riskSignals / touchpoints 加挂 behavior/docs），各自提 finding。`test-coverage` 继承旧 TEST_CASE_REVIEW 职责，检查 verificationIntent → verificationEvidence 覆盖；`channel` LLM agent 已退役（S1）由 `validate --channel` CLI 接管；`quality` 假设 lint 已绿只审主观项 | 不写 |
+| **proof-or-stop-review-\*** | REVIEW 阶段按 opt-in 路由并行审查（baseline concept+quality+test-coverage，按 riskSignals / touchpoints 加挂 behavior/docs），各自提 finding。`test-coverage` 继承旧 TEST_CASE_REVIEW 职责，只审产品覆盖缺口（userSees/验收行为没有任何测试、断言没检查该行为、缺边界用例）；receipt/pin/测试绑定等证据链项由框架在 REVIEW 前检查，不是 finding；`channel` LLM agent 已退役（S1）由 `validate --channel` CLI 接管；`quality` 假设 lint 已绿只审主观项 | 不写 |
 | **proof-or-stop-evaluator** | browser 项目产品质量打分（功能完整性 + 可用性） | 不写 |
 | **proof-or-stop-evaluator-cli** | CLI / core 项目产品质量打分（通过 bridge API 驱动状态转换验证） | 不写 |
 
@@ -1046,7 +1063,7 @@ The structured `canPassReviewGuard` gate (`core/machine.ts`, consumed by the REV
 |---|---|
 | **concept** | baseline（永远开） |
 | **quality** | baseline（永远开） |
-| **test-coverage** | baseline（永远开，审 verificationIntent 是否都有有效 evidence / waiver） |
+| **test-coverage** | baseline（永远开，审承诺的行为是否真有测试覆盖；stale/缺失 receipt 与未绑定测试属框架的证据链检查，不报 finding） |
 | **behavior** | riskSignals 含 `state machine` / `guard` / `gate` |
 | **docs** | touchpoints 含 `.md` 文件 |
 

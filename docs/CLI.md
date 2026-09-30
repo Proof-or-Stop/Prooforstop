@@ -532,6 +532,40 @@ Neither command accepts caller-authored verdict, authority, mode, hashes,
 evidence, timestamps, or signatures. Wave 3 does not add per-Story selective
 applicability (Wave 3A) or measured rollout/telemetry (Wave 4).
 
+### Evidence-chain check (framework-owned, never a review finding)
+
+Review findings must be real product defects. Evidence-chain problems are
+detected mechanically before REVIEW by `core/evidence-chain-check.ts`
+(wired in `handlers/evidence-chain.ts`) and each report names exactly one
+`Next:` command. The text output of `pre_review_check` and
+`pre_review_check_read` ends with an `Evidence-chain check` section, and the
+DEV→REVIEW transition runs the same check (after `pre_review_check` and the
+acceptance rollout gate, before the canonical REVIEW evidence gate):
+
+| Item | Blocks DEV→REVIEW | Next |
+|---|---|---|
+| `stale_receipt`: a must/should intent's receipt is stale | yes | `proof-or-stop verification_evidence_refresh_stale --storyId=<id>` (reruns every stale pinned command once) |
+| `missing_receipt`: an executable must/should intent has no admissible receipt | must: yes; should: advisory | `verification_run` for a pinned intent, else `verification_evidence_add` with the command/selector (a changed unbound test of that item when one exists) |
+| `unbound_test`: a Go `func TestX(t *testing.T)` added/changed in the Story diff that no pinned `go test` selects | advisory | bind it to the first unpinned intent of the item whose files contain the test (`verification_evidence_add ... -run ^TestX$`); when every intent is already pinned, no action unless it is the only test of a userSees behavior (`acceptance_amendment_propose`) |
+
+Selection is computed, never guessed: `go test [pkgs] -run/-skip` with
+unanchored RE2-style top-level matching, `./...`, `./dir`, and module import
+paths. A pinned command whose selection is not computable (make, a shell, a
+foreign import path, a file list, a regex JS cannot express) skips the scan and
+prints `unboundTests=skipped: <reason>`. JS/TS test selection is not scanned.
+The check defers to the checklist gate while items are open and fails open on
+its own errors.
+
+A reviewer that still reports an evidence-chain item uses
+`category: "evidence_chain"`. `managed_review_evidence_import` imports only the
+product findings (bound to their sealed proposal indexes); a proposal with only
+evidence-chain items is imported as a pass whose note the verifier recomputes
+from the sealed proposal. Each item is logged as a
+`review_evidence_chain_reclassified` process event and the import prints
+`Framework next action: <command>`. Native `finding_add` refuses the category
+(`evidence_chain_not_a_finding`) with the same next action. An inventory
+critic proposal may not carry such items.
+
 ### Acceptance rollout report and admission check (Wave 4)
 
 `proof-or-stop acceptance_rollout_report --storyId=<id> [--json]` runs the registered

@@ -33,6 +33,7 @@ import {
 } from './proof-admissibility-gates.js';
 import type { Finding, ManagedReviewEvidenceBinding, ReviewPass, ReviewRun } from './types.js';
 import { digestCanonicalJson } from './digest.js';
+import { effectiveManagedReviewConclusion, evidenceChainReclassifiedPassNote, isEvidenceChainFindingCategory } from './evidence-chain-finding.js';
 import { currentGitHead, currentMaterialHash } from './evidence-freshness.js';
 import { loadConfig } from './config.js';
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
@@ -723,6 +724,7 @@ export function buildManagedReviewerPrompt(
     'Use schemaVersion="lattice.managed_review_final_proposal.v1" and the exact bound fields above. For a pass add conclusion="pass", note, and truthful readManifest/readLog. For findings add conclusion="findings", exact findings, and truthful read evidence.',
     'Before final submission, read at least one relevant in-scope file in full within the permitted review boundary, including for an inventory-completeness critic. Both filesReadFully arrays must contain the same nonempty set of actually fully read paths, and readLog.summary.readCount must equal its unique path count. Do not invent full reads or relabel greps, parsed excerpts or partial reads as full reads. If no permitted relevant file can be read fully, the review remains incomplete; do not manufacture reading evidence or a PASS. This minimum does not establish full-corpus coverage or waive any other required reading.',
     'For a finding, include a nonblank uncertaintyReason only when evidenceState="suspected"; omit it when evidenceState="verified" or absent. General limitations belong in note and do not change a finding\'s evidence state.',
+    'Findings are real product defects. A stale or missing receipt, an intent with no pinned command, or an existing test bound to no intent is a framework-owned evidence-chain item, not a finding: mention it in a pass note, or give it category="evidence_chain" only alongside product findings. The importer reclassifies evidence_chain items as logged framework actions; they never count as findings.',
     '--- BEGIN MANAGED REVIEW FINAL PROPOSAL JSON SCHEMA ---',
     finalProposalSchema,
     '--- END MANAGED REVIEW FINAL PROPOSAL JSON SCHEMA ---',
@@ -922,14 +924,21 @@ export function verifyManagedReviewEvidence(args: {
     if (!args.evidence) return true;
     if (!proposal) return false;
     if (args.evidence.kind === 'pass') {
-      if (proposal.conclusion !== 'pass' || args.binding.proposalFindingIndex !== undefined) return false;
+      if (args.binding.proposalFindingIndex !== undefined) return false;
+      // A findings proposal carrying only evidence-chain items (framework
+      // actions, core/evidence-chain-finding.ts) is imported as a pass whose
+      // note is recomputed here from the sealed findings, so it binds exactly.
+      if (effectiveManagedReviewConclusion(proposal) !== 'pass') return false;
+      const expectedNote = proposal.conclusion === 'pass'
+        ? proposal.note
+        : evidenceChainReclassifiedPassNote(proposal.findings ?? []);
       return digestCanonicalJson({
         note: args.evidence.pass.note,
         readManifest: args.evidence.pass.readManifest,
         readLog: args.evidence.pass.readLog,
         readDiagnostics: args.evidence.pass.readDiagnostics,
       }) === digestCanonicalJson({
-        note: proposal.note,
+        note: expectedNote,
         readManifest: proposal.readManifest,
         readLog: proposal.readLog,
         readDiagnostics: proposal.readDiagnostics,
@@ -939,7 +948,8 @@ export function verifyManagedReviewEvidence(args: {
     const index = args.binding.proposalFindingIndex;
     if (!Number.isInteger(index) || index! < 0) return false;
     const candidate = proposal.findings?.[index!];
-    if (!candidate) return false;
+    // Evidence-chain items are framework actions and never admissible as Findings.
+    if (!candidate || isEvidenceChainFindingCategory(candidate.category)) return false;
     // B-137a:F-100 — `status` is LIFECYCLE state, not provider-authored content.
     // A provider always authors a finding as 'open'; the host later moves it to
     // 'resolved'/'dismissed' via finding_resolve, which mutates the stored record

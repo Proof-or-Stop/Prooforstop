@@ -534,7 +534,11 @@ A current reviewer flow is:
    requires another reviewer run and fresh pass.
 
 Coverage review is a reviewer lane, not a standalone verification command. Its
-current canonical role is `proof-or-stop-review-test-coverage`. The main agent,
+current canonical role is `proof-or-stop-review-test-coverage`. It reports product
+coverage gaps only; stale or missing receipts, unpinned intents and tests bound
+to no intent are framework-owned evidence-chain items checked before REVIEW
+(`pre_review_check_read`), reclassified as framework actions if a reviewer
+reports them (`category: "evidence_chain"`). The main agent,
 verification-intent agent, and reviewers are peers with independent authority.
 The human is the final arbiter when a substantive disagreement cannot converge
 after the configured review-loop limit.
@@ -803,6 +807,23 @@ explicit classes. Bare silent catches are forbidden.
 `reportHealthIssue` 在 `core/health.ts`，往 CLI health log append 一条记录，**自身永不抛错**。用户跑 `proof-or-stop doctor` 可以看到所有 PERSIST 失败 + 按分类汇总。
 
 写 silent catch 时问自己一个问题：**如果这里失败了，10 分钟后用户会怎么发现？** 没答案就用 `reportHealthIssue` 留痕。
+
+### 证据链检查（框架负责，永远不是 review finding）
+
+Review finding 只能是真实的产品缺陷。证据链问题（receipt 过期、intent 没有 pinned command 或没有 receipt、
+Story diff 里新增/改动的 Go 测试没有被任何 intent 的 pinned `go test -run` 选中）由
+`core/evidence-chain-check.ts`（接线在 `handlers/evidence-chain.ts`）在进 REVIEW 前机械检测，每次只给一个 `Next:`：
+
+- `stale_receipt`（must/should）：阻塞 DEV→REVIEW，Next 固定为 `proof-or-stop verification_evidence_refresh_stale --storyId=<id>`；不要逐条 `verification_evidence_add` 重放。
+- `missing_receipt`：must 阻塞、should 只提示；Next 是 `verification_run`（已 pin）或 `verification_evidence_add`（未 pin，优先绑定该 item 里未被选中的已改测试）。
+- `unbound_test`：只提示；Next 把测试绑定到该测试所在 item 的第一个未 pin intent。全部 intent 已 pin（pin 不可改）时无需动作，除非它是某个 userSees 行为的唯一测试（走 `acceptance_amendment_propose`）。
+- 选择集是算出来的，不猜：无法计算的 pinned command（make、shell、模块外 import path 等）会跳过扫描并写明原因；JS/TS 不扫描。
+- 输出位置：`pre_review_check` / `pre_review_check_read` 文本末尾的 `Evidence-chain check` 段，以及 `story_advance REVIEW` 的 gate。
+
+test-coverage reviewer 只报产品覆盖缺口。reviewer 若仍报证据链项，用 `category: "evidence_chain"`：
+`managed_review_evidence_import` 只导入产品 finding（保留 sealed proposal index），只含证据链项的 proposal 以 pass 导入
+（note 由 verifier 从 sealed proposal 重算），每项记为 `review_evidence_chain_reclassified` process event，并打印
+`Framework next action:`；native `finding_add` 直接拒绝（`evidence_chain_not_a_finding`）。
 
 ### acceptance basis 与 pre_review_check 的顺序约束（B-45a0 F-435/F-438）
 
