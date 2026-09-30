@@ -1,7 +1,7 @@
 import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { accessSync, constants, existsSync, lstatSync, readFileSync, readdirSync, readlinkSync, realpathSync, statSync } from 'node:fs';
-import { basename, delimiter, dirname, isAbsolute, join, relative, resolve } from 'node:path';
+import { basename, delimiter, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { runtimePackageRoot } from './runtime-layout.js';
 import { loadConfig, PROJECT_CONFIG_FILENAMES } from './config.js';
 import {
@@ -1776,7 +1776,7 @@ export function classifyRuntimeEntrypointAuthority(
   const loadedCoreGitRoot = gitTopLevel(loadedCorePackageRoot, identityProbe);
   const loadedCoreRelation = worktreeRoot ? relative(worktreeRoot, loadedCorePackageRoot) : null;
   const loadedCoreInsideWorktree = loadedCoreRelation !== null
-    && loadedCoreRelation !== '..' && !loadedCoreRelation.startsWith(`..${delimiter}`) && !isAbsolute(loadedCoreRelation);
+    && loadedCoreRelation !== '..' && !loadedCoreRelation.startsWith(`..${sep}`) && !isAbsolute(loadedCoreRelation);
   const runtimeRoot = loadedCoreGitRoot ?? (loadedCoreInsideWorktree ? worktreeRoot : null)
     ?? (invokedEntrypoint ? gitTopLevel(dirname(invokedEntrypoint), identityProbe) : null);
   const requiresAuthoritativeRuntime = input.requiresAuthoritativeRuntime !== false;
