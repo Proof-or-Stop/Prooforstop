@@ -217,10 +217,22 @@ const PRECERT_METADATA_COMMANDS = [
   'TEST', 'DONE',
   'delivery_check_set', 'summary_set', 'delivery_waiver_add', 'evaluate_save', 'live_smoke_transcript',
   'done_prepare',
-  // The review assurance floor's host-verdict writer (commits only its
-  // host_verdict row in process-events.jsonl) runs after the managed lanes.
-  'autopilot_review_submit',
+  // The review assurance floor's host-verdict writers run after the managed
+  // lanes: autopilot_review_submit and quorum_submit/quorum_prune (lifecycle
+  // transaction subject `quorum-submit`). They are further restricted to their
+  // own host_verdict rows (VERDICT_WRITER_SUBJECTS).
+  'autopilot_review_submit', 'quorum-submit',
+  // Review-escalation bookkeeping reachable in TEST/DONE (probe/fallback/policy
+  // append process events and sweep story metadata).
+  'review_host_availability_probe', 'review_escalation_fallback_set', 'review_escalation_policy_set',
 ] as const;
+
+/**
+ * Host-verdict writers commit exactly process-events.jsonl: earlier rows
+ * byte-identical plus appended host_verdict rows; `quorum-submit` is also the
+ * quorum_prune subject, which may only drop duplicate host_verdict rows.
+ */
+const VERDICT_WRITER_SUBJECTS = ['autopilot_review_submit', 'quorum-submit'] as const;
 
 /**
  * Review evidence and inventory artifacts are never swept in under these
@@ -244,9 +256,8 @@ function precertMetadataCommitRefusal(
   gitCwd: string, metadataRoot: string, storyId: string, canonicalStoryDir: string, subject: string, commit: string,
   objectRead?: ObjectAddressedGitReader,
 ): string | null {
-  if (!PRECERT_METADATA_COMMANDS.some(command => matchesRuntimeCommitSubject(subject, `record ${storyId} ${command} metadata`))) {
-    return PRECERT_SUBJECT_UNKNOWN;
-  }
+  const writer = PRECERT_METADATA_COMMANDS.find(command => matchesRuntimeCommitSubject(subject, `record ${storyId} ${command} metadata`));
+  if (!writer) return PRECERT_SUBJECT_UNKNOWN;
   const parents = readLineageGit(gitCwd, ['show', '-s', '--format=%P', commit], objectRead);
   if (parents.split(/\s+/).filter(Boolean).length !== 1) return 'bookkeeping commit is not single-parent';
   const files = readLineageGit(gitCwd, ['diff-tree', '--no-commit-id', '--name-only', '-r', commit], objectRead)
@@ -254,6 +265,25 @@ function precertMetadataCommitRefusal(
   if (!files.length) return 'empty bookkeeping commit';
   const outside = files.find(file => !file.startsWith(`${canonicalStoryDir}/`) || !isMaterialExcludedPath(file, metadataRoot));
   if (outside) return `bookkeeping commit changes ${outside} (reviewed material or outside this Story's metadata)`;
+  if ((VERDICT_WRITER_SUBJECTS as readonly string[]).includes(writer)) {
+    const events = `${canonicalStoryDir}/process-events.jsonl`;
+    const other = files.find(file => file !== events);
+    if (other) return `${writer} commit changes ${other}; a host-verdict writer commits only process-events.jsonl`;
+    const rows = (ref: string): string[] => readLineageGit(gitCwd, ['ls-tree', '--name-only', ref, '--', events], objectRead)
+      ? readLineageGit(gitCwd, ['show', `${ref}:${events}`], objectRead).split('\n').filter(line => line.trim()) : [];
+    const isVerdict = (line: string): boolean => { try { return (JSON.parse(line) as { type?: unknown }).type === 'host_verdict'; } catch { return false; } };
+    const before = rows(parents.trim());
+    const after = rows(commit);
+    const appended = after.length >= before.length && before.every((line, index) => after[index] === line)
+      && after.slice(before.length).every(isVerdict);
+    // quorum_prune: `after` is `before` with only host_verdict rows removed.
+    let cursor = 0;
+    const pruned = writer === 'quorum-submit' && after.length < before.length
+      && before.every(line => (cursor < after.length && after[cursor] === line ? (cursor += 1, true) : isVerdict(line)))
+      && cursor === after.length;
+    if (!appended && !pruned) return `${writer} commit changes process-events.jsonl beyond its own host_verdict rows`;
+    return null;
+  }
   const evidence = files.find(file => PRECERT_METADATA_FORBIDDEN_ARTIFACTS.has(file.slice(canonicalStoryDir.length + 1)));
   if (evidence) return `bookkeeping commit changes review evidence ${evidence} outside its authenticated writer`;
   for (const [name, key] of PRECERT_METADATA_APPEND_ONLY_ARTIFACTS) {
