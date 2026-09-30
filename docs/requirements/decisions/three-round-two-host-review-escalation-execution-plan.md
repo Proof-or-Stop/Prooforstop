@@ -986,7 +986,8 @@ This plan does not:
   policy;
 - silently downgrade full 3x2 to 3x1;
 - report degraded single-host review as independent two-host review;
-- change the current REVIEW blocker decay policy;
+- change the current REVIEW blocker decay policy (superseded 2026-09-30: round
+  decay was removed separately; see `core/finding-closure.ts`);
 - count suspected or disproven findings as escalation triggers;
 - treat local host verdicts as Authority Server receipts;
 - set `authorityDone`, `fullAuthorityDone`, `receiptVerified`, or

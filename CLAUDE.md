@@ -1030,7 +1030,7 @@ The structured `canPassReviewGuard` gate (`core/machine.ts`, consumed by the REV
 - **An invalid (stale / unknown-run / tampered) current-round binding blocks in ALL rounds.** `collectReviewerEvidenceState` validates every reviewer finding / review-pass against its bound `reviewRunId` (signature, lane, current round, fresh head/material hash, scope binding; plus — for an open FINDING only — the lane's current-latest run, since a PASS is accepted on any current-round fresh run). If any current-round reviewer evidence is invalid, the gate fails closed BEFORE the round split — round 1 and round 2+ alike.
 - **Round 1 (`roundCount <= 1`): requires EVERY opt-in reviewer to have a valid current-round verdict, plus quorum.** The opt-in set is the same one `proof-or-stop reviewer_list` reports (baseline concept + quality + test-coverage, plus behavior/docs by riskSignals / `.md` touchpoints). Missing any opt-in reviewer, or failing the quorum check, blocks.
 - **Round 2+ (`roundCount >= 2`): requires only `>= 1` valid current-round receipt** (finding or review-pass). The framework still skips no reviewer; this only relaxes the gate's minimum, not the reviewer roster.
-- **A verified open blocking finding blocks** (after round decay): `status=open` AND severity in the round's effective blocking set (round 1 = profile `blockingSeverities`; round 2 = critical+high; round 3+ = critical) AND `evidenceState` verified-or-missing. `suspected` / `disproven` never block.
+- **Every verified open blocking finding blocks, whichever round raised it (no round decay).** `status=open` AND severity in the profile's `blockingSeverities` (balanced: critical+high; strict: critical+high+medium; the same set in every round) AND `evidenceState` verified-or-missing. Findings from EARLIER rounds count: REVIEW→TEST, DONE's review-verdict predicate, `certification_window_begin` and lifecycle readiness all read every round's findings (`core/finding-closure.ts`). A finding is closed only by `finding_resolve` with repair evidence (incl. `--resolutionType=accepted_risk`, the named accepted-risk record), `review_remediation_close`, or an existing `finding_dismiss` record (REVIEW only, never critical). The refusal prints one `Next:` naming the ids and the exact `proof-or-stop finding_resolve --storyId=<id> --findingId=<id> --resolution="<repair commit + passing focused evidence>"` (from TEST: `story_advance --phase=DEV` first). A `finding_resolve` metadata commit in REVIEW is authenticated review bookkeeping (signed open→resolved transitions + their `findings.json` mirror only), so it does not break the managed-review live-head lineage. `suspected` / `disproven` never block. There is no review-round limit.
 
 **`proof-or-stop review_incremental_context --storyId=B-xxx --role=<reviewer>`** is a strictly read-only advisory: it returns the reviewer's prior verdict, the `headHash` that verdict was bound to, and the MATERIAL files changed since (rename-aware `git diff --name-status -M`, so a renamed file still counts as changed), plus `scopeChanged` / `isFirstPass`. A first-timer (no prior pass) gets `isFirstPass=true` and the full `main...HEAD` material diff. **It writes nothing and changes none of the gate inputs above** (findings / review-passes / review-runs / currentReviewRound); calling it does not alter `canPassReviewGuard` (proven by `test:review-incremental-context-smoke`).
 
@@ -1094,12 +1094,8 @@ proof-or-stop dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # 输出 impl
 
 ```ts
 {
-  findings: Finding[],            // 每条 finding 追加 advisoryLabel: "[R2-ADVISORY]" | "[R3-ADVISORY]" | null
-  reviewRound: string,            // reviewRound: string (ISO 8601 review round id)
-  blockingHeading: string,        // 例 "# Blocking (Round 2)"
-  advisoryHeading: string,        // 例 "# Advisory (not blocking this round)"
-  blocking: string[],             // status=open 且 advisoryLabel=null 的 finding.id 列表
-  advisory: string[],             // advisoryLabel!=null 的 finding.id 列表（含已 resolved/dismissed 的）
+  findings: Finding[],            // 每条 finding 带 evidenceState（缺失按 verified 渲染）
+  attention: { suspected: string[], disproven: string[] }, // 非 blocking 的 open finding
 }
 ```
 
@@ -1110,7 +1106,6 @@ proof-or-stop dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # 输出 impl
   clusters: Array<{
     clusterId, rootCause, findingCount, severity, files, findingIds,
     reviewRound: string,          // reviewRound: string (ISO 8601 review round id)
-    advisoryLabel: string | null, // F-035: 簇内全员同 label 时升级为簇级，否则 null（混合态由成员 label 表达）
   }>,
   ungrouped: Finding[],
   reviewRound: string,            // reviewRound: string (ISO 8601 review round id)
@@ -1119,25 +1114,19 @@ proof-or-stop dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # 输出 impl
 
 **兼容性承诺**：
 - 默认视图的 `findings` 数组始终存在，字段 `id/desc/severity/category/status/agent/createdAt/reviewRound/_hash` 稳定。
-- 新字段（`reviewRound/blockingHeading/advisoryHeading/blocking/advisory/advisoryLabel`）纯附加，调用方若只读 `findings` 无需适配。
-- Cluster 视图的 `clusters[]/ungrouped[]` 字段保留；`reviewRound/advisoryLabel` 为附加元数据。
+- 附加字段（`attention` 等）纯附加，调用方若只读 `findings` 无需适配。没有按轮次的 advisory 标签（轮次递减已移除）。
+- Cluster 视图的 `clusters[]/ungrouped[]` 字段保留；`reviewRound` 为附加元数据。
 - 严格类型检查的调用方应按 `Record<string, unknown>` 处理新字段，或跟进此文档的 schema 定义。
 
-### REVIEW 轮次递减规则（框架自动标签）
+### REVIEW finding 关闭规则（无轮次递减）
 
-每轮 REVIEW 的 blocking 级别按轮次递减，`finding_list` 输出自动分 `# Blocking` / `# Advisory` 两组，每条 advisory finding 标 `[R2-ADVISORY]` / `[R3-ADVISORY]`，`canPassReview` gate 复用同一规则函数 `isAdvisoryThisRound(severity, round)`——主 agent 不再心算。
-
-| 轮次 | blocking | advisory（自动降级） |
-|---|---|---|
-| Round 1 | 按 profile 完整执行（strict: critical+high+medium，balanced: critical+high） | 无 |
-| Round 2 | critical + high | medium → `[R2-ADVISORY]` |
-| Round 3+ | critical | high → `[R3-ADVISORY]`，medium 已是 advisory |
+轮次递减（Round 2 只拦 critical+high、Round 3+ 只拦 critical）**已移除**。每一轮都按 profile 的 `blockingSeverities` 判定（balanced: critical+high；strict: critical+high+medium；low 永远 advisory），共享函数 `isFindingBlocking` / `isDynamicFindingBlocking` 不再随轮次变化，`core/finding-closure.ts` 是唯一来源。
 
 **硬规则**：
-- **critical 任何轮次都必须修**，不允许 dismiss
-- **high 前 2 轮必须修**，第 3 轮可以 dismiss + 理由
-- **medium 第 1 轮必须修**（strict profile），第 2 轮可以 dismiss + 理由
-- **low 第 1 轮必须修**，第 2 轮可以 dismiss + 理由
+- 任何轮次提出的 verified open blocking finding，都必须在 TEST 与 DONE 之前关闭；早先轮次的 finding 同样计数，后续轮次 all-pass 不会让它过期。
+- 关闭方式：`finding_resolve` + 修复证据（`--resolution`；接受风险用 `--resolutionType=accepted_risk`）、`review_remediation_close`，或既有的 `finding_dismiss`（仅 REVIEW，critical 不可 dismiss）。
+- `suspected` / `disproven` 保持 advisory，不阻塞。
+- 不设 review 轮次上限。
 
 ## 合并态组合审查（流程框架并行 story）
 
