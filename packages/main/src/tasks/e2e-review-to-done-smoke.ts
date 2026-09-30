@@ -97,6 +97,7 @@ class Owner {
   readonly worktree: string;
   readonly store: StoryStore;
   private readonly providerBin: string;
+  private get installedCliBin(): string { return `${this.root}-installed-cli`; }
   private readonly scripts: string;
   private readonly env: NodeJS.ProcessEnv;
 
@@ -108,9 +109,15 @@ class Owner {
     this.scripts = join(this.providerBin, 'scripts');
     mkdirSync(this.scripts, { recursive: true });
     writeFakeCodex(this.providerBin, this.scripts);
+    // The benchmark host has the installed `proof-or-stop` on PATH for the whole
+    // run; a shim for this checkout's dist CLI stands in. It must be on PATH from
+    // the first call: PATH is part of the verification environment digest, so
+    // adding it later would make earlier verification receipts stale.
+    mkdirSync(this.installedCliBin, { recursive: true });
+    writeFileSync(join(this.installedCliBin, 'proof-or-stop'), `#!/bin/sh\nexec ${JSON.stringify(process.execPath)} ${JSON.stringify(CLI)} "$@"\n`, { mode: 0o755 });
     this.env = {
       ...sanitizedFixtureChildEnvironment(machineEnv),
-      PATH: `${this.providerBin}:${process.env.PATH ?? '/usr/bin:/bin'}`,
+      PATH: `${this.providerBin}:${this.installedCliBin}:${process.env.PATH ?? '/usr/bin:/bin'}`,
       PROOF_OR_STOP_AGENT: 'main',
       PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'codex',
       PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: `e2e-review-to-done-owner-${scenario}`,
@@ -122,6 +129,7 @@ class Owner {
 
   cleanup(): void {
     rmSync(this.providerBin, { recursive: true, force: true });
+    rmSync(this.installedCliBin, { recursive: true, force: true });
     rmSync(this.root, { recursive: true, force: true });
   }
 
@@ -203,24 +211,19 @@ class Owner {
 
   /**
    * Run a hinted command line literally through /bin/sh, as an owner pasting it
-   * would. Only this call sees a `proof-or-stop` shim (for this checkout's dist
-   * CLI) on PATH; lifecycle calls above keep the plain PATH.
+   * would, with the same env (including the installed-CLI shim on PATH).
    */
   shell(label: string, commandLine: string): CliResult {
-    const shimDir = `${this.providerBin}-installed-cli`;
-    mkdirSync(shimDir, { recursive: true });
-    writeFileSync(join(shimDir, 'proof-or-stop'), `#!/bin/sh\nexec ${JSON.stringify(process.execPath)} ${JSON.stringify(CLI)} "$@"\n`, { mode: 0o755 });
     const before = this.publicationDirt();
     const started = Date.now();
     const run = spawnSync('/bin/sh', ['-c', commandLine], {
-      cwd: this.worktree, encoding: 'utf8', env: { ...this.env, PATH: `${shimDir}:${this.env.PATH ?? ''}` }, maxBuffer: 64 * 1024 * 1024,
+      cwd: this.worktree, encoding: 'utf8', env: this.env, maxBuffer: 64 * 1024 * 1024,
     });
     const ms = Date.now() - started;
     const out = `${run.stdout ?? ''}${run.stderr ?? ''}`;
     const exit = run.status ?? -1;
     const result = exit === 0 ? summarize(label, run.stdout ?? '') : firstError({ status: exit, stdout: run.stdout ?? '', stderr: run.stderr ?? '', out });
     this.steps.push({ scenario: this.scenario, label, ms, exit, result, dirty: this.dirtyNote(label, before) });
-    rmSync(shimDir, { recursive: true, force: true });
     if (process.env.E2E_R2D_VERBOSE) console.log(`--- ${label} exit=${exit} ${ms}ms\n${out.slice(0, 4000)}`);
     return { status: exit, stdout: run.stdout ?? '', stderr: run.stderr ?? '', out };
   }
