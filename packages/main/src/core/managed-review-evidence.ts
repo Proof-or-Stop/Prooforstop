@@ -6,6 +6,7 @@ import { StoryStore } from './store.js';
 /** Shared intake + REVIEW-gate verifier for managed reviewer evidence. */
 
 import { execFileSync } from 'node:child_process';
+import { observedGit } from './git-tree-observation.js';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
@@ -73,6 +74,18 @@ export interface ManagedReviewLiveBindingVerification {
 }
 
 /**
+ * Read-only lineage probe. Inside one synchronous git observation (for example
+ * one collectReviewerEvidenceState over every lane) the identical probe runs
+ * once; outside an observation it always runs git. Verdicts are never cached.
+ */
+function readLineageGit(gitCwd: string, argv: string[]): string {
+  // The observation stores git's raw stdout, shared with every other observed reader.
+  return observedGit(gitCwd, argv, () => execFileSync('git', argv, {
+    cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
+  })).trim();
+}
+
+/**
  * Managed importer commits and authenticated epoch/evidence publications are the
  * bounded permitted HEAD advances between a signed run and consumption. The check is deliberately
  * mechanical: ancestry, exact command-owned subject, and exact story-local
@@ -88,16 +101,10 @@ function hasOnlyManagedReviewImporterCommits(args: {
   liveHeadHash: string;
 }): boolean {
   if (args.reviewedHeadHash === args.liveHeadHash) return true;
+  const git = (argv: string[]): string => readLineageGit(args.gitCwd, argv);
   try {
-    execFileSync('git', ['merge-base', '--is-ancestor', args.reviewedHeadHash, args.liveHeadHash], {
-      cwd: args.gitCwd,
-      stdio: ['ignore', 'ignore', 'ignore'],
-    });
-    const commits = execFileSync('git', ['rev-list', '--reverse', `${args.reviewedHeadHash}..${args.liveHeadHash}`], {
-      cwd: args.gitCwd,
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe'],
-    }).trim().split('\n').filter(Boolean);
+    git(['merge-base', '--is-ancestor', args.reviewedHeadHash, args.liveHeadHash]);
+    const commits = git(['rev-list', '--reverse', `${args.reviewedHeadHash}..${args.liveHeadHash}`]).split('\n').filter(Boolean);
     if (commits.length === 0) return false;
     // B-137a main-merge fix: this recognizer hardcoded the RETIRED commit-subject
     // prefix while the writer (core/auto-commit-metadata.ts) emits the canonical
@@ -123,20 +130,12 @@ function hasOnlyManagedReviewImporterCommits(args: {
       `${canonicalStoryDir}/process-events.jsonl`,
     ]);
     return commits.every(commit => {
-      const subject = execFileSync('git', ['show', '-s', '--format=%s', commit], {
-        cwd: args.gitCwd,
-        encoding: 'utf8',
-        stdio: ['ignore', 'pipe', 'pipe'],
-      }).trim();
+      const subject = git(['show', '-s', '--format=%s', commit]);
       if (!matchesRuntimeCommitSubject(subject, expectedSubjectBody)) {
         return isVerifiedReviewMaintenanceCommit({ ...args, commit })
           || isPrecertMetadataCommit(args.gitCwd, args.metadataRoot, args.storyId, canonicalStoryDir, subject, commit);
       }
-      const files = execFileSync('git', ['diff-tree', '--no-commit-id', '--name-only', '-r', commit], {
-        cwd: args.gitCwd,
-        encoding: 'utf8',
-        stdio: ['ignore', 'pipe', 'pipe'],
-      }).trim().split('\n').filter(Boolean);
+      const files = git(['diff-tree', '--no-commit-id', '--name-only', '-r', commit]).split('\n').filter(Boolean);
       const names = new Set(files.map(file => file.split('/').at(-1)));
       return files.length > 0
         && files.every(file => canonicalImporterArtifacts.has(file.replace(/\\/g, '/')))
@@ -168,11 +167,10 @@ function isPrecertMetadataCommit(
   gitCwd: string, metadataRoot: string, storyId: string, canonicalStoryDir: string, subject: string, commit: string,
 ): boolean {
   if (!PRECERT_METADATA_COMMANDS.some(command => matchesRuntimeCommitSubject(subject, `record ${storyId} ${command} metadata`))) return false;
-  const parents = execFileSync('git', ['show', '-s', '--format=%P', commit], { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+  const parents = readLineageGit(gitCwd, ['show', '-s', '--format=%P', commit]);
   if (parents.split(/\s+/).filter(Boolean).length !== 1) return false;
-  const files = execFileSync('git', ['diff-tree', '--no-commit-id', '--name-only', '-r', commit], {
-    cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
-  }).trim().split('\n').filter(Boolean).map(file => file.replace(/\\/g, '/'));
+  const files = readLineageGit(gitCwd, ['diff-tree', '--no-commit-id', '--name-only', '-r', commit])
+    .split('\n').filter(Boolean).map(file => file.replace(/\\/g, '/'));
   return files.length > 0
     && files.every(file => file.startsWith(`${canonicalStoryDir}/`) && isMaterialExcludedPath(file, metadataRoot));
 }

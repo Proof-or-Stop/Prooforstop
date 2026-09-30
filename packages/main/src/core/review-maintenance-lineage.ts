@@ -2,6 +2,7 @@ import {reportHealthIssue} from './health.js';
 import {isVerifiedEvidenceRefreshCommit, isOwnerLeaseHeartbeatOnly} from './review-evidence-refresh.js';
 /** Narrow writer/consumer compatibility for authenticated review bookkeeping. */
 import { execFileSync } from 'node:child_process';
+import { observedGit } from './git-tree-observation.js';
 import { REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES } from './runtime-fact-registry.js';
 import { relative } from 'node:path';
 import { realpathSync } from 'node:fs';
@@ -20,7 +21,10 @@ export function isVerifiedReviewMaintenanceCommit(args: {
   gitCwd: string; metadataRoot: string; storyId: string; commit: string; reviewedHeadHash: string; reviewedMaterialHash?: string; reviewedStoryFilesHash?: string;
 }): boolean {
   const { gitCwd, metadataRoot, storyId, commit, reviewedHeadHash } = args;
-  const git = (argv: string[]) => execFileSync('git', argv, { cwd: gitCwd, encoding: 'utf8', maxBuffer: REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES, stdio: ['ignore','pipe','pipe'] }).trim();
+  // Read-only probes share the caller's synchronous git observation (one per
+  // reviewer-evidence collection); outside one they always run git.
+  const gitRaw = (argv: string[]) => observedGit(gitCwd, argv, () => execFileSync('git', argv, { cwd: gitCwd, encoding: 'utf8', maxBuffer: REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES, stdio: ['ignore','pipe','pipe'] }));
+  const git = (argv: string[]) => gitRaw(argv).trim();
   try {
     const store = new StoryStore(metadataRoot);
     const prefix = relative(realpathSync(gitCwd), realpathSync(store.storyDirPath(storyId))).replaceAll('\\','/') + '/';
@@ -129,7 +133,7 @@ export function isVerifiedReviewMaintenanceCommit(args: {
     const substantive = artifacts.filter(path => !incidental.has(path) && path !== CLOSEOUT_WRITE_RECEIPTS_PATH);
     if (!substantive.length) return false;
     const priorExists = (path: string) => Boolean(git(['ls-tree','--name-only',parents[0],'--',prefix + path]));
-    const rawAt = (ref: string, path: string) => execFileSync('git',['show',`${ref}:${prefix}${path}`], { cwd: gitCwd, encoding: 'utf8', maxBuffer: REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES, stdio: ['ignore','pipe','pipe'] });
+    const rawAt = (ref: string, path: string) => gitRaw(['show',`${ref}:${prefix}${path}`]);
     const readReceipts = (ref: string): CloseoutWriteReceipt[] => rawAt(ref,CLOSEOUT_WRITE_RECEIPTS_PATH).split('\n').filter(Boolean).map(line => JSON.parse(line));
     const priorReceipts = priorExists(CLOSEOUT_WRITE_RECEIPTS_PATH) ? readReceipts(parents[0]) : [];
     const receipts = artifacts.includes(CLOSEOUT_WRITE_RECEIPTS_PATH) ? readReceipts(commit) : priorReceipts;
