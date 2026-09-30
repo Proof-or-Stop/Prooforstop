@@ -242,10 +242,17 @@ function doneRow(rows: DoneCheckRow[], id: string): DoneCheckRow {
 function baseReceipt(root: string, overrides: Partial<DoneRequiredCommandReceipt>): DoneRequiredCommandReceipt {
   const h = hashes(root);
   const policy = resolveDoneRequiredPolicy(root);
-  const identity = buildDoneRequiredExecutionIdentity({
+  // The v2 environment identity is per command (command-named variables and
+  // PATH resolution of the command's own programs), so bind the receipt to the
+  // policy command it stands for.
+  const commands = buildDoneRequiredExecutionIdentity({
     projectRoot: root,
     policy,
-  }).commands[0];
+  }).commands;
+  const receiptCommand = overrides.command ?? 'node';
+  const receiptArgs = overrides.args ?? ['-e', 'process.exit(0)'];
+  const identity = commands.find(candidate => candidate.command === receiptCommand
+    && JSON.stringify(candidate.args) === JSON.stringify(receiptArgs)) ?? commands[0];
   const receipt: DoneRequiredCommandReceipt = {
     label: 'synthetic',
     command: 'node',
@@ -411,17 +418,26 @@ function assertDoneRequiredBlocked(
           effectiveValidationCommandEnvironment({ ...common, [frozenKey]: 'reviewer-identity' }, undefined, root),
           `retired ambient spelling remains semantic: ${frozenKey}`,
         );
+        // Lab verification-env-digest: "semantic" is now asserted on the spawned
+        // child environment. The receipt identity (v2 projection) binds only
+        // declared, command-named and behavior-family variables, so an unknown
+        // retired spelling is outside it on every platform.
         for (const platform of ['linux', 'win32'] as const) {
+          assert.notDeepEqual(
+            effectiveValidationCommandEnvironment({ ...common, [frozenKey]: 'owner-value' }, undefined, root, platform),
+            effectiveValidationCommandEnvironment({ ...common, [frozenKey]: 'reviewer-value' }, undefined, root, platform),
+            `retired ambient key remains semantic on ${platform}: ${frozenKey}`,
+          );
           const retiredOwner = buildDoneRequiredExecutionIdentity({
             projectRoot: root, policy, processEnvironment: { ...common, [frozenKey]: 'owner-value' }, platform,
           });
           const retiredReviewer = buildDoneRequiredExecutionIdentity({
             projectRoot: root, policy, processEnvironment: { ...common, [frozenKey]: 'reviewer-value' }, platform,
           });
-          assert.notDeepEqual(
+          assert.deepEqual(
             retiredOwner.commands.map(command => command.effectiveEnvironmentDigest),
             retiredReviewer.commands.map(command => command.effectiveEnvironmentDigest),
-            `retired ambient key remains semantic on ${platform}: ${frozenKey}`,
+            `retired ambient key is outside the v2 receipt identity on ${platform}: ${frozenKey}`,
           );
         }
       }
@@ -461,21 +477,10 @@ function assertDoneRequiredBlocked(
 
       const lower = key.toLowerCase();
       if (lower !== key) {
-        const lowerOwner = buildDoneRequiredExecutionIdentity({
-          projectRoot: root,
-          policy,
-          processEnvironment: { ...common, [lower]: 'owner-semantic-value' },
-          platform: 'linux',
-        });
-        const lowerReviewer = buildDoneRequiredExecutionIdentity({
-          projectRoot: root,
-          policy,
-          processEnvironment: { ...common, [lower]: 'reviewer-semantic-value' },
-          platform: 'linux',
-        });
+        // Spawn environment: the POSIX strip is exact-cased, so the twin reaches the child.
         assert.notDeepEqual(
-          lowerOwner.commands.map(command => command.effectiveEnvironmentDigest),
-          lowerReviewer.commands.map(command => command.effectiveEnvironmentDigest),
+          effectiveValidationCommandEnvironment({ ...common, [lower]: 'owner-semantic-value' }, undefined, root, 'linux'),
+          effectiveValidationCommandEnvironment({ ...common, [lower]: 'reviewer-semantic-value' }, undefined, root, 'linux'),
           `POSIX differently-cased noncanonical key remains semantic: ${lower}`,
         );
       }

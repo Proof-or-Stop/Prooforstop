@@ -43,7 +43,7 @@ import {
   type VerifierDependencyAssessment,
 } from './evidence-freshness.js';
 import { closedEnvironmentForVerificationReuseCapsuleInvocation, VERIFICATION_DEPENDENCY_MANIFEST_BINDING_V2 } from './verification-reuse-capsule.js';
-import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
+import { effectiveValidationCommandEnvironment, validationEnvironmentIdentityEntries } from './validation-command-environment.js';
 import { buildValidationExecutableLookup, validationCommandUsesShell } from './validation-evidence-reuse.js';
 import {
   canonicalDigest as signingCanonicalDigest,
@@ -649,14 +649,20 @@ function prepareVerificationExecutionIdentityObserved(
   });
   // Match runSingleAllowlistedCommand's invocation decision, independently of
   // whether dependency metadata grants this execution persistent reuse authority.
-  const environment = closedEnvironmentForVerificationReuseCapsuleInvocation({
+  const capsuleEnvironment = closedEnvironmentForVerificationReuseCapsuleInvocation({
     executable: parsed.executable,
     argv: parsed.args,
     cwd: input.cwd,
-  }) ?? effectiveValidationCommandEnvironment(process.env, undefined, input.cwd);
-  const environmentDigest = computeCanonicalDigest(
-    Object.entries(environment).sort(([left], [right]) => left.localeCompare(right)),
-  );
+  });
+  const environment = capsuleEnvironment ?? effectiveValidationCommandEnvironment(process.env, undefined, input.cwd);
+  // The closed capsule environment is fixed by policy and digested whole. An
+  // ordinary execution binds only the environment IDENTITY projection (declared
+  // env, command-named variables, PATH as toolchain resolution, behavior
+  // families), never shell/terminal bookkeeping; see
+  // VALIDATION_ENVIRONMENT_IDENTITY_SCHEMA.
+  const environmentDigest = computeCanonicalDigest(capsuleEnvironment
+    ? Object.entries(capsuleEnvironment).sort(([left], [right]) => left.localeCompare(right))
+    : validationEnvironmentIdentityEntries(process.env, undefined, input.cwd, [parsed.executable, ...parsed.args]));
   const executableIdentity = executableFileIdentity(parsed.executable, input.cwd, environment);
   const nodeIdentity = executableFileIdentity(process.execPath, input.cwd, environment);
   const usesShell = validationCommandUsesShell({}, process.platform);
