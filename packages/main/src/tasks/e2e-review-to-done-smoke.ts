@@ -23,7 +23,8 @@
  * Scenarios:
  *   A  happy path must reach DONE and merge story/<id> into main (hard PASS).
  *   B  run-10 dead end: the delivery reviewer requires an update to a docs file
- *      outside the scope contract. KNOWN-FAILING expectation: recorded, not fixed.
+ *      outside the scope contract. Fixed by fix 28 (docs admitted by default);
+ *      must now go TEST -> DEV -> REVIEW without PLAN rollback and reach DONE.
  *   C  single host: what the owner must run for the review assurance floor /
  *      review escalation before DONE (observed inside scenario A).
  *
@@ -460,7 +461,7 @@ function closureRow(o: Owner, label: string, rowId: string): Record<string, unkn
 // ---------------------------------------------------------------------------
 // Scenarios
 
-interface Outcome { name: string; status: 'PASS' | 'FAIL' | 'KNOWN-FAILING' | 'OBSERVED'; lines: string[] }
+interface Outcome { name: string; status: 'PASS' | 'FAIL' | 'OBSERVED'; lines: string[] }
 
 function scenarioA(machineEnv: NodeJS.ProcessEnv, steps: Step[]): { a: Outcome; c: Outcome } {
   const aName = 'A happy path REVIEW -> TEST -> DONE';
@@ -527,9 +528,17 @@ function scenarioA(machineEnv: NodeJS.ProcessEnv, steps: Step[]): { a: Outcome; 
 }
 
 function scenarioB(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  // Run 10 dead end, fixed on bench/speed-int by fix 28 (classifyScopePath
+  // admits .md/.mdx/.rst/.adoc docs by default unless protected/excluded).
+  // Expected now: the reviewer-required docs update goes TEST -> DEV -> REVIEW
+  // with no PLAN rollback, and the Story reaches DONE.
   const name = 'B delivery reviewer requires a docs update outside the scope contract (run 10)';
   const o = new Owner('B', 'B-e2e1', machineEnv, steps);
   const lines: string[] = [];
+  const verifiedPromises = [
+    { docPath: 'docs/types/string.md', promise: 'Upper returns the Unicode upper-case form of a string (strings.ToUpper).', status: 'verified', verifiedBy: 'go test -v ./strs -run TestUpper', evidence: '--- PASS: TestUpper' },
+    { docPath: 'docs/types/string.md', promise: 'Reverse returns the string reversed by rune.', status: 'verified', verifiedBy: 'go test -v ./strs -run TestReverse', evidence: '--- PASS: TestReverse' },
+  ];
   try {
     devToReview(o);
     reviewRound(o);
@@ -540,82 +549,65 @@ function scenarioB(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     const delivery = deliveryReview(o, [
       // status=unverified may carry no evidence/verifiedBy (core/delivery-promise-outcome.ts:103-126).
       { docPath: 'docs/types/string.md', promise: 'Upper returns the upper-case form of a string; the doc must state that strings.ToUpper also maps Unicode letters.', status: 'unverified' },
-      { docPath: 'docs/types/string.md', promise: 'Reverse returns the string reversed by rune.', status: 'verified', verifiedBy: 'go test -v ./strs -run TestReverse', evidence: '--- PASS: TestReverse' },
+      verifiedPromises[1]!,
     ]);
-    lines.push(`delivery reviewer terminal: ${delivery.state}${delivery.reason ? ` (${delivery.reason})` : ''}`);
+    assert.equal(delivery.state, 'completed', `delivery reviewer terminal ${delivery.state} (${delivery.reason})\n${delivery.commandLog}`);
     authoredCloseout(o);
-    const row = closureRow(o, 'done_closure', 'delivery-check');
-    lines.push(`done_closure delivery-check: status=${String(row?.status)} "${String(row?.reason ?? '').slice(0, 170)}"`);
-    const done = o.cli('story_advance', { storyId: o.storyId, phase: 'DONE' }, { label: 'story_advance DONE (expect refusal)' });
-    lines.push(`story_advance DONE: exit ${done.status}: ${firstError(done)}`);
+    const refused = o.cli('story_advance', { storyId: o.storyId, phase: 'DONE' }, { label: 'story_advance DONE (unverified promise)' });
+    assert.notEqual(refused.status, 0, 'an unverified docs promise must block DONE');
+    assert.match(refused.out, /\[unverified_promise\]/);
+    lines.push(`story_advance DONE with the unverified docs promise: refused [unverified_promise] (core/machine.ts:1077), as expected`);
     const waiver = o.cli('delivery_waiver_add', { storyId: o.storyId, promiseId: 'docs/types/string.md',
-      waiverReason: 'The docs file is outside this Story scope contract and cannot be edited in TEST.' });
-    lines.push(`delivery_waiver_add: exit ${waiver.status}: ${waiver.status === 0 ? 'accepted' : firstError(waiver)}`);
-    // The recovery the gates point at: rework in DEV, update the doc, return to REVIEW.
-    const toDev = o.cli('story_advance', { storyId: o.storyId, phase: 'DEV' }, { label: 'story_advance DEV (TEST->DEV)' });
-    lines.push(`story_advance DEV: exit ${toDev.status}: ${toDev.status === 0 ? 'ok' : firstError(toDev)}`);
-    let reachedReview = false;
-    if (toDev.status === 0) {
-      write(o.worktree, 'docs/types/string.md', DOC_V1.replace('upper-case form of a string.', 'Unicode upper-case form of a string (strings.ToUpper).'));
-      git(o.worktree, ['add', 'docs/types/string.md']);
-      git(o.worktree, ['-c', 'user.name=proof-or-stop-implementer', 'commit', '-qm', 'docs: Upper maps Unicode letters']);
-      // The docs commit moves material, so the pinned evidence must be re-earned first.
-      for (const [itemId, test] of [['CHK-001', 'TestUpper'], ['CHK-002', 'TestReverse']] as const) {
-        o.mustCli('verification_evidence_add', { storyId: o.storyId, itemId, intentRef: `${itemId}:happy:0`, kind: 'logic_test',
-          command: `go test -v ./strs -run ${test}`, selector: `--- PASS: ${test}`, note: `Re-earned pinned evidence for ${test} after the docs commit.` }, { label: `verification_evidence_add ${itemId} (re-earn)` });
-      }
-      const check = o.cli('scope_contract_check', { storyId: o.storyId, json: true });
-      const checked = parseJson(check.stdout);
-      lines.push(`scope_contract_check after the docs commit: exit ${check.status} status=${String(checked?.status ?? firstError(check))}`);
-      const review = o.cli('story_advance', { storyId: o.storyId, phase: 'REVIEW' }, { label: 'story_advance REVIEW (docs change)' });
-      lines.push(`story_advance REVIEW with the docs change: exit ${review.status}: ${review.status === 0 ? 'ok' : firstError(review)}`);
-      reachedReview = review.status === 0;
-      if (!reachedReview) {
-        const widen = o.cli('scope_contract_set', { storyId: o.storyId, mode: 'enforce', allowedModify: ['strs/strs.go', 'docs/types/string.md'], allowedTest: ['strs/strs_test.go'],
-          scopeChangeReason: 'Delivery reviewer requires the documented Upper behavior to match the implementation.' }, { label: 'scope_contract_set (+docs)' });
-        lines.push(`scope_contract_set adding the docs file in DEV: exit ${widen.status}: ${widen.status === 0 ? 'accepted' : firstError(widen)}`);
-        const ack = o.cli('scope_contract_acknowledge', { storyId: o.storyId, paths: ['docs/types/string.md'],
-          reason: 'Delivery reviewer requires the docs file to describe the delivered behavior.' }, { label: 'scope_contract_acknowledge docs' });
-        lines.push(`scope_contract_acknowledge docs: exit ${ack.status}: ${ack.status === 0 ? 'accepted' : firstError(ack)}`);
-        // The path the refusals name: an additive acceptance amendment with independent approval.
-        const propose = o.cli('acceptance_amendment_propose', { storyId: o.storyId, amendmentId: 'AM-001',
-          delta: { addItems: [], appendIntents: [], scopeDelta: { modify: ['docs/types/string.md'], create: [], test: [] }, topologyDelta: [] } }, { label: 'acceptance_amendment_propose (+docs)' });
-        lines.push(`acceptance_amendment_propose scopeDelta.modify=[docs]: exit ${propose.status}: ${propose.status === 0 ? 'accepted' : firstError(propose)}`);
-        if (propose.status === 0) {
-          o.script('acceptance-amendment', { final: '', template: true } as never);
-          const review = o.cli('acceptance_amendment_review', { storyId: o.storyId, amendmentId: 'AM-001', host: 'codex' }, { label: 'acceptance_amendment_review' });
-          lines.push(`acceptance_amendment_review (independent reviewer, fake provider approves): exit ${review.status}: ${review.status === 0 ? summarize('acceptance_amendment_review', review.stdout) : firstError(review)}`);
-          const approve = o.cli('acceptance_amendment_approve', { storyId: o.storyId, amendmentId: 'AM-001' }, { label: 'acceptance_amendment_approve' });
-          lines.push(`acceptance_amendment_approve: exit ${approve.status}: ${approve.status === 0 ? 'applied' : firstError(approve)}`);
-        }
-        const retry = o.cli('story_advance', { storyId: o.storyId, phase: 'REVIEW' }, { label: 'story_advance REVIEW (retry)' });
-        lines.push(`story_advance REVIEW retry: exit ${retry.status}: ${retry.status === 0 ? 'ok' : firstError(retry)}`);
-        reachedReview = retry.status === 0;
-        if (!reachedReview) {
-          // The remaining route: roll back to PLAN, declare the docs file, and re-enter DEV.
-          const replan = o.cli('story_advance', { storyId: o.storyId, phase: 'PLAN' }, { label: 'story_advance PLAN (REPLAN)' });
-          lines.push(`PLAN rollback probe: story_advance PLAN: exit ${replan.status}: ${replan.status === 0 ? 'ok' : firstError(replan)}`);
-          if (replan.status === 0) {
-            const files = o.cli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', files: { modify: ['strs/strs.go', 'docs/types/string.md'], create: [], test: ['strs/strs_test.go'] } }, { label: 'checklist_update CHK-001 files +docs' });
-            lines.push(`  checklist_update CHK-001 files +docs (PLAN): exit ${files.status}: ${files.status === 0 ? 'ok' : firstError(files)}`);
-            const reinit = o.cli('scope_contract_init_from_plan', { storyId: o.storyId }, { label: 'scope_contract_init_from_plan (PLAN)' });
-            lines.push(`  scope_contract_init_from_plan (PLAN): exit ${reinit.status}: ${reinit.status === 0 ? 'ok' : firstError(reinit)}`);
-            const dev = o.cli('story_advance', { storyId: o.storyId, phase: 'DEV' }, { label: 'story_advance DEV (from PLAN)' });
-            lines.push(`  story_advance DEV from PLAN: exit ${dev.status}: ${dev.status === 0 ? 'ok' : firstError(dev)}`);
-          }
-        }
-      }
+      waiverReason: 'Attempting the hinted waiver path on a managed, terminal-sealed delivery check.' });
+    lines.push(`delivery_waiver_add (hinted by the refusal): exit ${waiver.status}: ${waiver.status === 0 ? 'accepted' : firstError(waiver)} (handlers/delivery-check.ts:69)`);
+
+    // Recovery: rework in DEV, update the doc, re-earn evidence, return to REVIEW.
+    o.mustCli('story_advance', { storyId: o.storyId, phase: 'DEV' }, { label: 'story_advance DEV (TEST->DEV)' });
+    write(o.worktree, 'docs/types/string.md', DOC_V1.replace('upper-case form of a string.', 'Unicode upper-case form of a string (strings.ToUpper).'));
+    git(o.worktree, ['add', 'docs/types/string.md']);
+    git(o.worktree, ['-c', 'user.name=proof-or-stop-implementer', 'commit', '-qm', 'docs: Upper maps Unicode letters']);
+    // The docs commit moves material, so the pinned evidence must be re-earned first.
+    for (const [itemId, test] of [['CHK-001', 'TestUpper'], ['CHK-002', 'TestReverse']] as const) {
+      o.mustCli('verification_evidence_add', { storyId: o.storyId, itemId, intentRef: `${itemId}:happy:0`, kind: 'logic_test',
+        command: `go test -v ./strs -run ${test}`, selector: `--- PASS: ${test}`, note: `Re-earned pinned evidence for ${test} after the docs commit.` }, { label: `verification_evidence_add ${itemId} (re-earn)` });
     }
-    lines.push(`phase now: ${o.phase()}`);
-    if (reachedReview) {
-      console.log(`B fixture retained: ${o.root}`);
-      return { name, status: 'FAIL', lines: [...lines, 'KNOWN-FAILING expectation no longer holds: the docs update re-entered REVIEW without a PLAN rollback. Update this expectation.'] };
+    const check = o.cli('scope_contract_check', { storyId: o.storyId, json: true });
+    lines.push(`scope_contract_check after the docs commit: status=${String(parseJson(check.stdout)?.status ?? firstError(check))}`);
+    const review = o.cli('story_advance', { storyId: o.storyId, phase: 'REVIEW' }, { label: 'story_advance REVIEW (docs change)' });
+    assert.equal(review.status, 0, `B: docs update cannot re-enter REVIEW without a PLAN rollback (run-10 dead end is back):\n${firstError(review)}`);
+    lines.push('story_advance REVIEW with the docs change: ok (no PLAN rollback)');
+
+    // Second review round over the new material, then PRE_CERT and TEST again.
+    reviewRound(o);
+    inventory(o);
+    precertToTest(o);
+    liveSmoke(o);
+    const second = deliveryReview(o, verifiedPromises);
+    assert.equal(second.state, 'completed', `second delivery review terminal ${second.state} (${second.reason})`);
+    authoredCloseout(o);
+    // Single host: after a rework the floor asks for more degraded host rounds; submit until it passes.
+    const floor = closureRow(o, 'done_closure (floor after rework)', 'review-assurance-floor');
+    const floorReason = String(floor?.reason ?? '');
+    lines.push(`review-assurance-floor after the rework: ${floorReason.match(/required assurance: [a-z-]+/)?.[0] ?? '?'}; ${floorReason.match(/failure signals: (.*?) - (?:high-risk|review assurance)/)?.[1] ?? '?'}`);
+    let rounds = 0;
+    for (let round = 1; round <= 3; round += 1) {
+      o.mustCli('autopilot_review_submit', { storyId: o.storyId, runId: `${o.storyId}-degraded-r${round}`, hostId: 'e2e-single-host', provider: 'local',
+        sessionId: `local-reviewer-r${round}`, decision: 'pass', deriveBindings: true,
+        materialDigest: currentMaterialHash(o.worktree, 'HEAD', o.worktree), storyFilesHash: currentStoryFilesHash(o.worktree, 'HEAD', o.worktree) }, { label: `autopilot_review_submit r${round}` });
+      rounds = round;
+      if (closureRow(o, `done_closure (after host verdict r${round})`, 'review-assurance-floor')?.blocking !== true) break;
     }
+    lines.push(`owner had to submit ${rounds} single-host autopilot_review_submit round(s) before DONE (REVIEW_ASSURANCE_FLOOR_FAILURE_REQUIRED_ROUNDS=3, core/review-assurance-floor.ts:33,899-903)`);
+    const done = o.cli('story_advance', { storyId: o.storyId, phase: 'DONE' }, { label: 'story_advance DONE' });
+    assert.equal(done.status, 0, `B: story_advance DONE refused after the docs rework:\n${done.out.slice(-3000)}`);
+    assert.equal(new StoryStore(o.root).readStory(o.storyId).phase, 'DONE');
+    assert.match(readFileSync(join(o.root, 'docs/types/string.md'), 'utf8'), /Unicode upper-case/, 'docs update merged into main');
+    lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}; docs update merged`);
     o.cleanup();
-    return { name, status: 'KNOWN-FAILING', lines: [...lines, 'Expected today: the required docs update cannot re-enter REVIEW without a PLAN rollback (recorded, not fixed).'] };
+    return { name, status: 'PASS', lines };
   } catch (error) {
     console.log(`B fixture retained for diagnosis: ${o.root}`);
-    return { name, status: 'FAIL', lines: [...lines, `harness error before the dead end was observed: ${error instanceof Error ? error.message : String(error)}`] };
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
   }
 }
 
@@ -656,7 +648,7 @@ async function main(): Promise<void> {
     console.log(`e2e-review-to-done-smoke: FAIL (${failed.map(outcome => outcome.name.split(' ')[0]).join(', ')})`);
     process.exit(1);
   }
-  console.log('e2e-review-to-done-smoke: PASS (A reached DONE; B recorded as KNOWN-FAILING; C observed)');
+  console.log('e2e-review-to-done-smoke: PASS (A and B reached DONE; C observed)');
 }
 
 await main();
