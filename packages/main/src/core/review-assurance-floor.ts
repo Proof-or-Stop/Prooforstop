@@ -1,5 +1,6 @@
 import { currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import { PROOF_OR_STOP_CONFIG_FILENAME } from './config.js';
+import { PROOF_OR_STOP_PRIMARY_BIN } from './proof-or-stop-brand.js';
 import {
   buildMaterialClassificationSnapshot,
   classifyMaterialCodePath,
@@ -248,7 +249,8 @@ function donePrepareCommand(storyId?: string): string {
 
 function autopilotReviewSubmitCommand(storyId: string | undefined, materialHash: string | null, storyFilesHash: string | null, round = 1): string {
   const id = storyRef(storyId);
-  return `node bin/proof-or-stop.js autopilot_review_submit --storyId=${id} --runId=${id}-degraded-r${round} --hostId="$(hostname)" --provider=local --sessionId="${'${PROOF_OR_STOP_SESSION_ID:-local-reviewer}'}" --decision=pass --deriveBindings --materialDigest=${materialRef(materialHash)} --storyFilesHash=${storyFilesRef(storyFilesHash)}`;
+  // The installed CLI, not a checkout path: a task repository has no bin/proof-or-stop.js.
+  return `${PROOF_OR_STOP_PRIMARY_BIN} autopilot_review_submit --storyId=${id} --runId=${id}-degraded-r${round} --hostId="$(hostname)" --provider=local --sessionId="${'${PROOF_OR_STOP_SESSION_ID:-local-reviewer}'}" --decision=pass --deriveBindings --materialDigest=${materialRef(materialHash)} --storyFilesHash=${storyFilesRef(storyFilesHash)}`;
 }
 
 function missingSingleHostRoundNumbers(input: BuildReviewAssuranceGuidanceInput): number[] {
@@ -1124,11 +1126,12 @@ export function formatReviewAssuranceFloorFailure(report: ReviewAssuranceFloorRe
   if (report.ok) return '';
   const renderedStoryRef = storyRef(report.storyId);
   const renderedMaterialRef = materialRef(report.materialHash);
-  const renderedHostVerdictSubmitCommand = autopilotReviewSubmitCommand(
-    report.storyId,
-    report.materialHash,
-    report.storyFilesHash ?? null,
-  );
+  const guidance = buildReviewAssuranceFloorGuidance(report);
+  // Name the next unused round (the same one the guidance recipe names), so the
+  // copied command never replays a runId that already carries a verdict.
+  const renderedHostVerdictSubmitCommand = guidance.legalWriterPaths.reviewerHost
+    .find(recipe => recipe.command.includes(' autopilot_review_submit '))?.command
+    ?? autopilotReviewSubmitCommand(report.storyId, report.materialHash, report.storyFilesHash ?? null);
   const signalSummary = report.failureSignals.length > 0
     ? report.failureSignals.map(signal => `${signal.kind}${signal.id ? `:${signal.id}` : ''}`).join(', ')
     : 'none';
@@ -1184,7 +1187,7 @@ export function formatReviewAssuranceFloorFailure(report: ReviewAssuranceFloorRe
   for (const reason of report.reasons) {
     lines.push(`  - ${reason}`);
   }
-  lines.push('', renderReviewAssuranceGuidance(buildReviewAssuranceFloorGuidance(report)));
+  lines.push('', renderReviewAssuranceGuidance(guidance));
   lines.push(
     'Stale material recovery:',
     `  1. Re-run validation: proof-or-stop validate --story=${renderedStoryRef} --json`,

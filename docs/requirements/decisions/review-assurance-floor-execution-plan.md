@@ -87,12 +87,14 @@ capability.
   `proof-or-stop validate --story=<storyId> --json`,
   `proof-or-stop verification_evidence_refresh_stale --storyId=<storyId> --dryRun`
   followed by the same command without `--dryRun` after rerunning listed
-  evidence commands, and `node bin/proof-or-stop.js autopilot_review_submit ... --materialDigest=<current-materialHash>`
-  for fresh local host verdicts.
-- The degraded-single-host writer guidance emits one executable worktree-local
-  `node bin/proof-or-stop.js autopilot_review_submit` command per required round; it
-  does not rely on a global `proof-or-stop` runtime that may resolve an older main
-  build. Each command uses explicit `--deriveBindings`, a real local
+  evidence commands, and `proof-or-stop autopilot_review_submit ... --runId=<storyId>-degraded-r<next unused round> ... --materialDigest=<current-materialHash> --storyFilesHash=<current-storyFilesHash>`
+  for fresh local host verdicts (the same command the reviewer-host recipe names).
+- The degraded-single-host writer guidance emits one executable
+  `proof-or-stop autopilot_review_submit` command per required round, using the
+  installed `proof-or-stop` command like every sibling hint (validate, done_prepare,
+  autopilot_review_status). It must not name a checkout-relative
+  `node bin/proof-or-stop.js` wrapper: a task repository (e.g. a Go project) has no
+  `bin/`, so that hint failed with MODULE_NOT_FOUND there. Each command uses explicit `--deriveBindings`, a real local
   hostname/session identity, and the current material/story-files hashes. The
   handler holds the story validation-execution lock keyed by the same canonical
   metadata/runtime root used by validation writers (including wrapper-root
