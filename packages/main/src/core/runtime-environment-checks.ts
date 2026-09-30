@@ -363,8 +363,10 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   // Lab cli-bundle (2026-09-30): resolveStoryChangedFiles/MergeBase now imported from the story-change-manifest leaf; repinned.
   'packages/main/src/core/evidence-freshness.ts': '3d9fff4e3a9289decd476b501f0f1efdb39e310f39455e8c49a41839529de7f2',
   // 3270fa6c84 changed the emitted inventory executable after its previous pin was recorded.
+  // Lab review-epoch-lineage (2026-09-30): zero-wave completeness-only receipts route to cancel; repinned.
   'packages/main/src/core/review-inventory-epoch.ts': '985c577e2f06178b31512f6e10e05a84869d4f21cf23e793445bebeb35097a66',
-  'packages/main/src/core/verification-execution-evidence.ts': '728e76f065e83fe8fdec672986f40ef37e2d8ae8dbc96eda4d01ccd2584cf5cf',
+  // Lab verification-env-digest (2026-09-30): ordinary receipts bind the v2 environment identity projection; repinned.
+  'packages/main/src/core/verification-execution-evidence.ts': 'e11ebbfebd9a42d51c0f1b55156749111b9ef146da28eab8b5ed5ad62825093e',
   // Labs plan-pin-allowlist and plan-intent-precheck (2026-09-30) changed checklist_update; repinned.
   'packages/main/src/handlers/checklist.ts': '56914b86ea3d4823ddb7d29ac6165a012b7aa160ade5878a7ecae05393a4b19a',
   'packages/main/src/core/maintenance-command-mode.ts': '9c94f1c1a20abf5ed3b93208f5d52e13d63246af12a85612c1e07f99e72258e2',
