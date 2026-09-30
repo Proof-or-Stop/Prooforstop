@@ -148,7 +148,10 @@ function hasOnlyManagedReviewImporterCommits(args: {
         if (isVerifiedReviewMaintenanceCommit({ ...args, commit, objectRead, onRefusal: rule => rules.push(rule) })) continue;
         const precert = precertMetadataCommitRefusal(args.gitCwd, args.metadataRoot, args.storyId, canonicalStoryDir, subject, commit, objectRead);
         if (precert === null) continue;
-        return refuse(commit, subject, [...rules, precert].join('; '));
+        // Report the rule of the publisher that owns this subject.
+        const subjectUnknown = rules.every(rule => rule.startsWith('subject "'));
+        return refuse(commit, subject, (precert === PRECERT_SUBJECT_UNKNOWN ? rules : subjectUnknown ? [precert] : [...rules, precert]).join('; ')
+          || 'no authenticated publisher owns this commit');
       }
       const importer = importerCommitRefusal(git, canonicalStoryDir, canonicalImporterArtifacts, commit);
       if (importer) return refuse(commit, subject, importer);
@@ -221,13 +224,19 @@ const PRECERT_METADATA_COMMANDS = [
 /**
  * Review evidence and inventory artifacts are never swept in under these
  * subjects: their only authenticated writers are the importer and the
- * review-epoch/certification publishers verified above. Dispatches in these
- * phases (e.g. the managed delivery reviewer) append prompt envelopes; earlier
- * envelopes, which reviewed passes bind, must stay byte-identical.
+ * review-epoch/certification publishers verified above. Launch records that
+ * these commits sweep in (dispatch/review_round_prepare prompt envelopes and
+ * review runs, which do not commit themselves) may only be appended; the
+ * earlier rows that reviewed passes bind stay byte-identical.
  */
 const PRECERT_METADATA_FORBIDDEN_ARTIFACTS = new Set([
-  'review-passes.json', 'findings.json', 'review-runs.json', 'review-inventory-epochs.json',
+  'review-passes.json', 'findings.json', 'review-inventory-epochs.json',
 ]);
+
+/** Signed launch records later commits sweep in (review_round_prepare/dispatch do not commit): append-only. */
+const PRECERT_METADATA_APPEND_ONLY_ARTIFACTS = [['prompt-envelopes.json', 'envelopes'], ['review-runs.json', 'runs']] as const;
+
+const PRECERT_SUBJECT_UNKNOWN = 'subject is not a PRE_CERT/TEST/DONE bookkeeping writer';
 
 /** null when the commit is admissible PRE_CERT/TEST/DONE bookkeeping; otherwise the refusing rule. */
 function precertMetadataCommitRefusal(
@@ -235,7 +244,7 @@ function precertMetadataCommitRefusal(
   objectRead?: ObjectAddressedGitReader,
 ): string | null {
   if (!PRECERT_METADATA_COMMANDS.some(command => matchesRuntimeCommitSubject(subject, `record ${storyId} ${command} metadata`))) {
-    return 'subject is not a PRE_CERT/TEST/DONE bookkeeping writer';
+    return PRECERT_SUBJECT_UNKNOWN;
   }
   const parents = readLineageGit(gitCwd, ['show', '-s', '--format=%P', commit], objectRead);
   if (parents.split(/\s+/).filter(Boolean).length !== 1) return 'bookkeeping commit is not single-parent';
@@ -246,18 +255,19 @@ function precertMetadataCommitRefusal(
   if (outside) return `bookkeeping commit changes ${outside} (reviewed material or outside this Story's metadata)`;
   const evidence = files.find(file => PRECERT_METADATA_FORBIDDEN_ARTIFACTS.has(file.slice(canonicalStoryDir.length + 1)));
   if (evidence) return `bookkeeping commit changes review evidence ${evidence} outside its authenticated writer`;
-  const envelopes = `${canonicalStoryDir}/prompt-envelopes.json`;
-  if (files.includes(envelopes)) {
+  for (const [name, key] of PRECERT_METADATA_APPEND_ONLY_ARTIFACTS) {
+    const path = `${canonicalStoryDir}/${name}`;
+    if (!files.includes(path)) continue;
     const read = (ref: string): unknown[] => {
-      if (!readLineageGit(gitCwd, ['ls-tree', '--name-only', ref, '--', envelopes], objectRead)) return [];
-      const parsed = JSON.parse(readLineageGit(gitCwd, ['show', `${ref}:${envelopes}`], objectRead)) as { envelopes?: unknown };
-      if (!Array.isArray(parsed.envelopes)) throw new Error(`${envelopes} at ${ref} has no envelopes array`);
-      return parsed.envelopes;
+      if (!readLineageGit(gitCwd, ['ls-tree', '--name-only', ref, '--', path], objectRead)) return [];
+      const parsed = JSON.parse(readLineageGit(gitCwd, ['show', `${ref}:${path}`], objectRead)) as Record<string, unknown>;
+      if (!Array.isArray(parsed[key])) throw new Error(`${path} at ${ref} has no ${key} array`);
+      return parsed[key] as unknown[];
     };
     const before = read(parents.trim());
     const after = read(commit);
     if (after.length < before.length || digestCanonicalJson(after.slice(0, before.length)) !== digestCanonicalJson(before)) {
-      return 'bookkeeping commit rewrites earlier prompt envelopes';
+      return `bookkeeping commit rewrites earlier ${name} ${key}`;
     }
   }
   return null;

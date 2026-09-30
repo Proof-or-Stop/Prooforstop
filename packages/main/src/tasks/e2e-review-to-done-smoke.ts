@@ -816,6 +816,85 @@ function scenarioD(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
+function scenarioD2(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  // Run 11 continuation: the owner worked around the TEST refusal with a
+  // further review round bound to the live head. The older passes of the same
+  // round stayed in review-passes.json; TEST admitted the newer ones, but DONE
+  // re-validated the superseded passes and sent the owner back to REVIEW.
+  // An unauthenticated empty owner checkpoint commit stands in for the
+  // lineage break the fixed framework no longer produces itself.
+  const name = 'D2 run 11 workaround: rerun round after a lineage break; superseded passes must not block TEST/DONE';
+  const o = new Owner('D2', 'B-e2e4', machineEnv, steps);
+  const lines: string[] = [];
+  try {
+    devToReview(o);
+    reviewRound(o);
+    // Run 11 order: the break lands after the lane imports and before the
+    // inventory critic, so only the lane passes are bound to the older head.
+    // (An empty owner checkpoint commit: no material, scope or metadata change.)
+    git(o.worktree, ['commit', '-q', '--allow-empty', '-m', 'owner: checkpoint review status']);
+    lines.push(`owner hand commit: ${git(o.worktree, ['log', '--format=%h %s', '-1'])}`);
+    inventory(o);
+    o.mustCli('validate', { story: o.storyId, focus: 'fast', json: true }, { label: 'validate --focus=fast' });
+    o.mustCli('certification_window_begin', { storyId: o.storyId });
+    o.mustCli('validate', { story: o.storyId, json: true }, { label: 'validate (routine)' });
+    const refused = o.cli('story_advance', { storyId: o.storyId, phase: 'TEST' }, { label: 'story_advance TEST (lineage break)' });
+    assert.notEqual(refused.status, 0, 'an unauthenticated commit must break the managed live binding');
+    assert.match(refused.out, /managed_review_live_head_lineage_invalid/);
+    const detail = refused.out.match(/\(unauthenticated commit ([0-9a-f]{12}) "([^"]*)": (.*?); (Next: proof-or-stop [^)]*)\)/);
+    assert.ok(detail, `TEST refusal names the unauthenticated commit, rule and one Next:\n${refused.out.slice(-1500)}`);
+    lines.push(`story_advance TEST refused; diagnostic: commit ${detail[1]} "${detail[2]}": ${detail[3].slice(0, 90)}; ${detail[4]}`);
+    assert.equal(detail[4], `Next: proof-or-stop review_round_prepare --storyId=${o.storyId}`);
+    // Workaround as the owner ran it: a fresh round of every lane on the live head.
+    reviewRound(o);
+    const passes = new StoryStore(o.worktree).readReviewPasses(o.storyId).passes;
+    lines.push(`review-passes.json now holds ${passes.length} passes (older same-round passes are superseded, not removed)`);
+    let test = o.cli('story_advance', { storyId: o.storyId, phase: 'TEST' }, { label: 'story_advance TEST (after rerun)' });
+    lines.push(`story_advance TEST after the rerun: exit ${test.status} ${test.status ? firstError(test) : 'ok'}`);
+    for (let attempt = 0; attempt < 4 && test.status !== 0; attempt += 1) {
+      // Follow the printed Next, as the owner does.
+      const next = nextOf(test.out).replace(/^Next: /, '') || nextOf(o.cli('certification_window_status', { storyId: o.storyId }).out).replace(/^Next: /, '');
+      lines.push(`  owner follows: ${next}`);
+      if (/review_inventory_begin|review_inventory_status|review_inventory_finalize/.test(next)) {
+        inventory(o);
+      } else if (/validate --story=\S+ --focus=fast/.test(next)) {
+        o.mustCli('validate', { story: o.storyId, focus: 'fast', json: true }, { label: 'validate --focus=fast' });
+      } else if (/certification_window_begin/.test(next)) {
+        o.mustCli('certification_window_begin', { storyId: o.storyId });
+      } else if (/validate --story=\S+ --json/.test(next)) {
+        o.mustCli('validate', { story: o.storyId, json: true }, { label: 'validate (routine)' });
+      } else {
+        break;
+      }
+      test = o.cli('story_advance', { storyId: o.storyId, phase: 'TEST' }, { label: `story_advance TEST (attempt ${attempt + 3})` });
+    }
+    assert.equal(test.status, 0, `D2: story_advance TEST refused after the workaround round:\n${test.out.slice(-3000)}`);
+    liveSmoke(o);
+    const delivery = deliveryReview(o, [
+      { docPath: 'docs/types/string.md', promise: 'Upper returns the upper-case form of a string.', status: 'verified', verifiedBy: 'go test -v ./strs -run TestUpper', evidence: '--- PASS: TestUpper' },
+      { docPath: 'docs/types/string.md', promise: 'Reverse returns the string reversed by rune.', status: 'verified', verifiedBy: 'go test -v ./strs -run TestReverse', evidence: '--- PASS: TestReverse' },
+    ]);
+    assert.equal(delivery.state, 'completed', `delivery reviewer terminal ${delivery.state} (${delivery.reason})\n${delivery.commandLog}`);
+    authoredCloseout(o);
+    for (let round = 1; round <= 3; round += 1) {
+      if (closureRow(o, `done_closure (floor r${round})`, 'review-assurance-floor')?.blocking !== true) break;
+      o.mustCli('autopilot_review_submit', { storyId: o.storyId, runId: `${o.storyId}-degraded-r${round}`, hostId: 'e2e-single-host', provider: 'local',
+        sessionId: `local-reviewer-r${round}`, decision: 'pass', deriveBindings: true,
+        materialDigest: currentMaterialHash(o.worktree, 'HEAD', o.worktree), storyFilesHash: currentStoryFilesHash(o.worktree, 'HEAD', o.worktree) }, { label: `autopilot_review_submit r${round}` });
+    }
+    const done = o.cli('story_advance', { storyId: o.storyId, phase: 'DONE' }, { label: 'story_advance DONE' });
+    lines.push(`story_advance DONE: exit ${done.status} ${done.status ? firstError(done) : 'ok'}`);
+    assert.equal(done.status, 0, `D2: story_advance DONE refused on superseded passes:\n${done.out.slice(-3000)}`);
+    assert.equal(new StoryStore(o.root).readStory(o.storyId).phase, 'DONE');
+    lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`D2 fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 function printTimeline(steps: Step[], scenario: string): void {
   const rows = steps.filter(s => s.scenario === scenario);
   const total = rows.reduce((sum, s) => sum + s.ms, 0);
@@ -827,7 +906,7 @@ function printTimeline(steps: Step[], scenario: string): void {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^[ABCD]$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCD]|D2)$/.test(arg));
   const machine = createFixtureMachineEnvironment();
   const steps: Step[] = [];
   const outcomes: Outcome[] = [];
@@ -839,10 +918,11 @@ async function main(): Promise<void> {
     }
     if (!only.length || only.includes('B')) outcomes.push(scenarioB(machine.env, steps));
     if (!only.length || only.includes('D')) outcomes.push(scenarioD(machine.env, steps));
+    if (!only.length || only.includes('D2')) outcomes.push(scenarioD2(machine.env, steps));
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D']) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2']) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {
     console.log(`  [${outcome.status}] ${outcome.name}`);
