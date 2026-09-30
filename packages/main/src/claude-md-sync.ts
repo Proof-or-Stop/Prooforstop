@@ -6,6 +6,7 @@
  * triggering the self-executing init script.
  */
 
+import { closureBlockingSeverities } from './core/finding-closure-severities.js';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import type { WorkflowProfile } from './core/types.js';
 import { WORKFLOW_PRESETS } from './core/types.js';
@@ -48,9 +49,9 @@ export function generateProfileSection(profile: WorkflowProfile): string {
 
   // Review requirements
   if (policy.review.requireReviewer) {
-    lines.push(`**REVIEW**: reviewer findings required; blocking severities: [${policy.review.blockingSeverities.join(', ')}].`);
+    lines.push(`**REVIEW**: reviewer findings required; blocking severities: [${closureBlockingSeverities(policy).join(', ')}] (verified findings must be closed before TEST/DONE).`);
   } else {
-    lines.push('**REVIEW**: reviewer optional; the main agent may self-review.');
+    lines.push(`**REVIEW**: reviewer optional; the main agent may self-review. Recorded verified findings of severity [${closureBlockingSeverities(policy).join(', ')}] must still be closed before TEST/DONE.`);
   }
 
   // Test requirements (evaluator)
