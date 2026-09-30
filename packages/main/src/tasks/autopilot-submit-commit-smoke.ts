@@ -16,7 +16,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
+import { mergeRuntimeGitignore } from '../core/managed-assets.js';
 import { currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { StoryStore } from '../core/store.js';
 import type { StoryInfo } from '../core/types.js';
@@ -47,7 +47,8 @@ function main(): void {
   try {
     write(root, 'go.mod', 'module example.com/strs\n\ngo 1.22\n');
     write(root, 'strs/strs.go', 'package strs\n');
-    write(root, '.gitignore', `${PROOF_OR_STOP_STATE_DIR}/autopilot-verdicts/\n`);
+    // Managed runtime .gitignore, as a task repo gets it (activity log, verdict JSON, ...).
+    write(root, '.gitignore', mergeRuntimeGitignore(''));
     write(root, 'proof-or-stop.config.json', `${JSON.stringify({ artifactContract: 'none' }, null, 2)}\n`);
     git(root, ['init', '-q', '-b', 'main']);
     git(root, ['config', 'user.email', 'smoke@example.invalid']);

@@ -18,6 +18,7 @@ import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import { PROOF_OR_STOP_DIR } from '../core/proof-or-stop-paths.js';
 import { withOfficialValidationExecution } from '../core/validation-execution-lock.js';
 import { assessStoredValidationPassAdmissibility } from './phase-gates.js';
+import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -285,15 +286,34 @@ export function createVerdictHandlers(ctx: HandlerContext) {
     };
   };
 
+  /**
+   * The host_verdict row is canonical Story metadata (process-events.jsonl).
+   * Commit exactly that artifact, like the other metadata writers, so the next
+   * hinted step (done_prepare -> validate) does not refuse on publication-set
+   * dirt (VALIDATION_PUBLICATION_NOT_READY). The verdict JSON itself lives in
+   * the ignored autopilot-verdicts runtime dir and is never staged.
+   */
+  const commitSubmittedVerdict = (verdict: HostVerdict): string => {
+    if (!verdict.storyId || !isCanonicalStoryId(verdict.storyId)) return '';
+    try {
+      return autoCommitStoryMetadata(ctx.root, verdict.storyId, 'autopilot_review_submit', { exactStoryArtifactNames: ['process-events.jsonl'] });
+    } catch (error) {
+      throw new Error(`autopilot_review_submit: host verdict ${verdict.verdictId} was recorded, but committing process-events.jsonl failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  };
+  const renderSubmit = (args: SubmitArgs, result: HostVerdict) => {
+    const commitHint = commitSubmittedVerdict(result);
+    return wantsJson(args)
+      ? result
+      : `${render(`Proof-or-Stop autopilot review submit (${result.schemaVersion})`, result as unknown as Record<string, unknown>)}${commitHint}`;
+  };
+
   return {
     autopilot_review_submit(args: SubmitArgs = {}) {
       if (args.deriveBindings) {
-        return submitWithDerivedBindings(ctx, args).then(result => wantsJson(args)
-          ? result
-          : render(`Proof-or-Stop autopilot review submit (${result.schemaVersion})`, result as unknown as Record<string, unknown>));
+        return submitWithDerivedBindings(ctx, args).then(result => renderSubmit(args, result));
       }
-      const result = submitLocal('local', args);
-      return wantsJson(args) ? result : render(`Proof-or-Stop autopilot review submit (${result.schemaVersion})`, result as unknown as Record<string, unknown>);
+      return renderSubmit(args, submitLocal('local', args));
     },
     autopilot_review_status(args: { storyId: string; runId?: string; requiredHosts?: number } & FormatArgs) {
       const result = localReviewStatus(args);
