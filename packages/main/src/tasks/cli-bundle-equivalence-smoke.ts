@@ -7,8 +7,8 @@
  * saw 0 agents and the CLI died at init), cyclic imports read `undefined`
  * instead of throwing, and fail-closed optional loaders quietly return null.
  *
- * Two byte-identical fixture projects (fixed git dates, so identical hashes) are
- * driven through dist/cli.js with PROOF_OR_STOP_BUNDLE=0 (per-file graph) and
+ * A fixture project (fixed git dates, so identical hashes), recreated at the
+ * same path before every run, is driven through dist/cli.js with PROOF_OR_STOP_BUNDLE=0 (per-file graph) and
  * PROOF_OR_STOP_BUNDLE=require (bundle, or fail). Exit code, stdout and stderr of
  * a representative set of read-only commands must match after normalizing the
  * fixture root and the elapsed-time log line.
@@ -122,11 +122,15 @@ const COMMANDS: string[][] = [
 const temp = mkdtempSync(join(tmpdir(), 'proof-or-stop-bundle-eqv-'));
 const failures: string[] = [];
 try {
-  const unbundledRoot = makeFixture(temp, 'project');
-  const bundledRoot = makeFixture(join(temp, 'b'), 'project');
+  // A fresh fixture at the SAME path for every run: digests that fold in the
+  // project root stay comparable, and no run can see state another run wrote.
+  const inFreshFixture = (args: string[], mode: '0' | 'require'): Outcome => {
+    const root = makeFixture(temp, 'project');
+    try { return run(root, args, mode); } finally { rmSync(root, { recursive: true, force: true }); }
+  };
   for (const args of COMMANDS) {
-    const unbundled = run(unbundledRoot, args, '0');
-    const bundled = run(bundledRoot, args, 'require');
+    const unbundled = inFreshFixture(args, '0');
+    const bundled = inFreshFixture(args, 'require');
     const label = args.join(' ');
     if (unbundled.signal) failures.push(`${label}: per-file run killed by ${unbundled.signal}`);
     for (const key of ['status', 'signal', 'stdout', 'stderr'] as const) {
@@ -135,10 +139,10 @@ try {
       }
     }
   }
-  const version = run(bundledRoot, ['--version'], 'require');
+  assert.deepEqual(failures, [], `bundle diverges from the per-file graph:\n${failures.join('\n\n')}`);
+  const version = inFreshFixture(['--version'], 'require');
   assert.match(version.stdout, /^Proof-or-Stop \d+\.\d+\.\d+/, `bundled --version: ${version.stdout}${version.stderr}`);
 } finally {
   rmSync(temp, { recursive: true, force: true });
 }
-assert.deepEqual(failures, [], `bundle diverges from the per-file graph:\n${failures.join('\n\n')}`);
 console.log(`cli-bundle-equivalence-smoke: PASS (${COMMANDS.length} commands identical per-file vs bundle)`);
