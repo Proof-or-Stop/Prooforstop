@@ -70,6 +70,7 @@ export function createWorkflowHandlers(ctx: HandlerContext) {
       lines.push('  validate PASS required');
       lines.push('  all bugs must be fixed');
       lines.push('  high-risk stories still auto-escalate to strict');
+      lines.push('  verified critical/high/medium findings must be closed before TEST and DONE (every profile)');
 
       return lines.join('\n');
     },
@@ -85,7 +86,7 @@ export function createWorkflowHandlers(ctx: HandlerContext) {
       lines.push(`  quickPath: enabled=${policy.quickPath.enabled}, maxChecklistItems=${policy.quickPath.maxChecklistItems}`);
       lines.push(`  plan: understanding=${policy.plan.requireUnderstanding}, decision=${policy.plan.requireDecision}, planMd=${policy.plan.requirePlanMd}, storyReview=${policy.plan.requireStoryReview}`);
       lines.push(`  subagents: requireWorker=${policy.subagents.requireWorkerInNormalChannel}, allowMainCoding=${policy.subagents.allowMainAgentCoding}`);
-      lines.push(`  review: requireReviewer=${policy.review.requireReviewer}, blockingSeverities=[${policy.review.blockingSeverities.join(',')}], closureSeverities=[${closureBlockingSeverities(policy).join(',')}] (verified findings of these severities must be closed before TEST/DONE in every profile)`);
+      lines.push(`  review: requireReviewer=${policy.review.requireReviewer}, blockingSeverities=[${closureBlockingSeverities(policy).join(',')}] (verified findings of these severities must be closed before TEST/DONE in every profile)`);
       lines.push(`  test: validatePass=${policy.test.requireValidatePass}, allBugsFixed=${policy.test.requireAllBugsFixed}, evaluator=${policy.test.requireEvaluatorForBrowser}`);
       lines.push(`  done: summary=${policy.done.requireSummary}, branchSynced=${policy.done.requireBranchSynced}, cleanGit=${policy.done.requireCleanGit}`);
 
