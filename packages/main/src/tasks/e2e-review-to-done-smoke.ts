@@ -34,11 +34,15 @@
  *      fresh saturated epoch + critic -> certification_window_begin ->
  *      validate -> story_advance TEST must not refuse the managed passes with
  *      managed_review_live_head_lineage_invalid; then TEST -> DONE.
+ *   D2 run-11 workaround: an unauthenticated commit breaks the live binding;
+ *      TEST names the commit/rule with one Next (review_round_prepare); the
+ *      owner reruns the round; the superseded older passes of the same round
+ *      block neither TEST nor DONE.
  *
  * Machine registries (provider slots, locks) use a disposable fixture machine
  * so the harness never touches the developer's ~/.proof-or-stop admission state.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -117,15 +121,14 @@ class Owner {
     mkdirSync(this.scripts, { recursive: true });
     writeFakeCodex(this.providerBin, this.scripts);
     // The benchmark host has the installed `proof-or-stop` on PATH for the whole
-    // run; a shim for this checkout's dist CLI stands in. It must be on PATH from
-    // the first call: PATH is part of the verification environment digest, so
-    // adding it later would make earlier verification receipts stale.
-    mkdirSync(this.installedCliBin, { recursive: true });
-    // The shim re-applies the owner env exactly: /bin/sh adds SHLVL, _ and
-    // OLDPWD, and the verification environment digest covers the ambient env,
-    // so a pasted hint would otherwise see every earlier receipt as stale.
-    // (A real owner runs every command through the same shell, so its env is
-    // stable across calls.)
+    // run; a shim for this checkout's dist CLI stands in, on PATH from the first
+    // call as on the host. Since the v2 environment identity (0ea79fb) receipts
+    // bind only declared validate.env, variables named in the command, resolved
+    // toolchain binaries (by realpath) and behavior-affecting families (locale,
+    // TZ, GO*, NODE_*, ...); unrelated PATH entries and shell bookkeeping
+    // (SHLVL, _, OLDPWD) no longer stale receipts. The shim still replays the
+    // owner env exactly so a pasted hint runs with the same env the owner's
+    // direct CLI calls use.
     writeFileSync(join(this.installedCliBin, 'proof-or-stop'), [
       `#!${process.execPath}`,
       `const { spawnSync } = require('child_process'); const env = JSON.parse(require('fs').readFileSync(${JSON.stringify(join(this.installedCliBin, 'env.json'))}, 'utf8'));`,
