@@ -1003,7 +1003,10 @@ export function evaluateStoryRoutineReuse(args: {
   let buildArtifactsHash: string | undefined;
   let clean = false;
   try {
-    const snapshot = captureEvidenceHashSnapshot({ gitCwd: args.gitCwd, metadataRoot: args.ctx.root });
+    // Signed controller projections (global-thin native hooks) are framework-owned,
+    // not material dirt: without this, done_prepare's reuse refused and the fresh
+    // run hit pre_cert_window_already_consumed (e2e harness scenario E).
+    const snapshot = captureEvidenceHashSnapshot({ gitCwd: args.gitCwd, metadataRoot: args.ctx.root, trustedControllerProjectionStoryId: args.storyId });
     headBefore = snapshot.headHash;
     materialHash = snapshot.materialHash;
     storyFilesHash = snapshot.storyFilesHash;
@@ -1022,6 +1025,7 @@ export function evaluateStoryRoutineReuse(args: {
       gitCwd: args.gitCwd,
       metadataRoot: args.ctx.root,
       ref: 'HEAD',
+      trustedControllerProjectionStoryId: args.storyId,
     });
     headAfter = reuseCheck.currentHead;
     clean = reuseCheck.reusable;

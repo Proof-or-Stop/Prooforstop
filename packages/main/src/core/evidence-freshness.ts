@@ -642,7 +642,12 @@ export function checkEvidenceHashSnapshotReuse(
     reasons.push('snapshot headHash does not match current HEAD');
   }
 
-  const currentDirty = readMaterialDirtyFiles(gitCwd, metadataRoot);
+  // The same signed controller-projection admission the capture used (the
+  // args type always carried it; it was dropped here, so a global-thin Story
+  // worktree's projected hooks refused every routine validation reuse).
+  const currentDirty = readMaterialDirtyFiles(gitCwd, metadataRoot, {
+    trustedControllerProjectionStoryId: args.trustedControllerProjectionStoryId,
+  });
   if (currentDirty.error) reasons.push('current material dirty files could not be inspected');
   if (snapshot.materialDirtyFiles.length > 0) reasons.push('snapshot captured material dirty files');
   if (currentDirty.files.length > 0) reasons.push('current material dirty files are present');
