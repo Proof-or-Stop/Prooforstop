@@ -418,7 +418,7 @@ export function printHelp(options: GlobalHelpOptions) {
 
     ── REVIEW ──
    10. ${brand.usageBin} story_advance --storyId=B-xxx --phase=REVIEW    # Enter code review
-   11. Proof-or-Stop reviewer reviews code and raises findings       # critical/high must resolve
+   11. Proof-or-Stop reviewer reviews code and raises findings       # verified critical/high/medium must be closed
 
     ── TEST → DONE ──
    12. ${brand.usageBin} story_advance --storyId=B-xxx --phase=TEST

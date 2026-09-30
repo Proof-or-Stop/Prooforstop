@@ -1166,7 +1166,7 @@ question is answered. The reviewer's job is to find; the main agent's job is to 
 
 Mandatory when the defect is any of:
 
-- critical / high severity
+- verified critical / high / medium severity
 - security, data integrity, or destructive-compatibility impact
 - blocks the current story's acceptance, REVIEW, TEST, or DONE
 - makes already-registered evidence false (a selector that cannot match the real
