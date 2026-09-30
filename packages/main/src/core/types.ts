@@ -3585,6 +3585,7 @@ export type ScopePathSource =
   | 'scope-contract.explicitExcludes'
   | 'lifecycle-registry'
   | 'runtime-artifact-registry'
+  | 'documentation-default'
   | 'changed-files';
 
 export type ScopePathRule =
