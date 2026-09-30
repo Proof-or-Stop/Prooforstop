@@ -1732,22 +1732,38 @@ export function classifyRuntimeEntrypointAuthority(
   };
 
   if (!detectSelfProject(projectRoot)) {
-    return {
+    const decision: RuntimeEntrypointAuthorityDecision = {
       status: 'pass',
       selfHostWorktree: false,
       ...base,
       worktreeRoot: null,
       mainRoot: null,
       gitCommonDir: null,
-      runtimeRoot: gitTopLevel(loadedCorePackageRoot)
-        ?? (invokedEntrypoint ? gitTopLevel(dirname(invokedEntrypoint)) : null),
+      runtimeRoot: null,
       detail: 'External consumer repository: self-host runtime authority is advisory.',
     };
+    // The external-consumer runtimeRoot is advisory report data that no
+    // admission decision reads; resolve it (one or two git subprocesses) only
+    // when a caller actually reads it. Enumerable, so JSON/spread/deepEqual see
+    // the same value an eager probe produced.
+    let runtimeRoot: string | null | undefined;
+    Object.defineProperty(decision, 'runtimeRoot', {
+      enumerable: true,
+      configurable: true,
+      get: () => {
+        if (runtimeRoot === undefined) {
+          runtimeRoot = gitTopLevel(loadedCorePackageRoot)
+            ?? (invokedEntrypoint ? gitTopLevel(dirname(invokedEntrypoint)) : null);
+        }
+        return runtimeRoot;
+      },
+      set: (value: string | null) => { runtimeRoot = value; },
+    });
+    return decision;
   }
 
   const identityProbe = { deadline: performance.now() + 16_000, timedOut: false, env: input.env ?? process.env };
-  const worktreeRoot = gitTopLevel(projectRoot, identityProbe);
-  const gitCommonDir = absoluteGitCommonDir(projectRoot, identityProbe);
+  const { worktreeRoot, gitCommonDir } = gitTopLevelAndCommonDir(projectRoot, identityProbe);
   const mainRoot = worktreeRoot ? findMainWorktreeRoot(worktreeRoot, identityProbe) : null;
   const selfHostWorktree = !!worktreeRoot
     && !!gitCommonDir
@@ -1951,6 +1967,23 @@ function gitTopLevel(cwd: string, budget?: IdentityProbeBudget): string | null {
     ? runAuthoritativeIdentityCommand(['rev-parse', '--path-format=absolute', '--show-toplevel'], cwd, budget)
     : runCommand('git', ['rev-parse', '--path-format=absolute', '--show-toplevel'], cwd);
   return top ? safeRealpath(top) ?? resolve(top) : null;
+}
+
+/**
+ * `--show-toplevel` and `--git-common-dir` in ONE rev-parse. When the combined
+ * call fails (e.g. a bare repository has a common dir but no top level) the two
+ * are probed separately, so each value is exactly what its own probe returns.
+ */
+function gitTopLevelAndCommonDir(cwd: string, budget: IdentityProbeBudget): { worktreeRoot: string | null; gitCommonDir: string | null } {
+  const both = runAuthoritativeIdentityCommand(['rev-parse', '--path-format=absolute', '--show-toplevel', '--git-common-dir'], cwd, budget);
+  const lines = both?.split(/\r?\n/);
+  if (lines && lines.length === 2 && lines[0] && lines[1]) {
+    return {
+      worktreeRoot: safeRealpath(lines[0]) ?? resolve(lines[0]),
+      gitCommonDir: safeRealpath(lines[1]) ?? resolve(lines[1]),
+    };
+  }
+  return { worktreeRoot: gitTopLevel(cwd, budget), gitCommonDir: absoluteGitCommonDir(cwd, budget) };
 }
 
 function absoluteGitCommonDir(cwd: string, budget?: IdentityProbeBudget): string | null {

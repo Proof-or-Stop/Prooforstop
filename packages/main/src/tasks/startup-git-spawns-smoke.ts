@@ -168,7 +168,12 @@ try {
   // Phase gate still sees the active Story (the branch read is the gate's input).
   cases.push({
     where: 'story-worktree', cwd: worktree, args: ['story_create', '--title=x', '--description=y', '--type=feature'],
-    budget: noStartupSpawns,
+    // story_create consumes gitReady, so its one git-repository probe is expected.
+    budget: s => {
+      const startup = s.filter(isStartupSpawn);
+      const gitReadyProbes = startup.filter(x => /at isGitRepository \(/.test(x.stack));
+      return startup.length === gitReadyProbes.length && gitReadyProbes.length <= 1 ? null : `startup spawns beyond the gitReady probe:\n${describe(startup)}`;
+    },
     expect: o => o.status !== 0 && /is not available in DEV phase/.test(o.stderr) ? null : `phase gate did not refuse: ${o.status} ${o.stderr.slice(0, 400)}`,
   });
   const modes: Array<'0' | 'require'> = hasBundle ? ['0', 'require'] : ['0'];
@@ -178,7 +183,7 @@ try {
       const label = `[${mode === '0' ? 'per-file' : 'bundle'}] ${c.where}: ${c.args.join(' ')}`;
       counts.push(`${label} -> ${o.spawns.filter(isStartupSpawn).length} startup / ${o.spawns.length} total spawn(s)`);
       const overBudget = c.budget(o.spawns);
-      check(overBudget === null, `${label}: ${overBudget}\n${describe(o.spawns)}`);
+      check(overBudget === null, `${label}: ${overBudget}`);
       const wrong = c.expect(o);
       check(wrong === null, `${label}: ${wrong}\nstdout: ${o.stdout.slice(0, 400)}\nstderr: ${o.stderr.slice(0, 400)}`);
     }
@@ -267,6 +272,8 @@ try {
   git(selfProject, ['worktree', 'add', '-q', '-b', 'story/B-self', selfWorktree]);
   const foreignRuntime = join(temp, 'foreign-runtime');
   cpSync(join(selfProject, 'packages'), join(foreignRuntime, 'packages'), { recursive: true });
+  cpSync(join(selfProject, 'package.json'), join(foreignRuntime, 'package.json'));
+  git(foreignRuntime, ['init', '-q', '-b', 'main']);
   const probeInputs = [
     { projectRoot: selfProject, loadedCorePackageRoot: join(foreignRuntime, 'packages', 'main') },
     { projectRoot: selfWorktree, loadedCorePackageRoot: join(selfProject, 'packages', 'main') },
@@ -281,7 +288,7 @@ try {
     const write = classifyRuntimeEntrypointAuthority({ ...base, ...input, requiresAuthoritativeRuntime: true });
     if (write.status === 'blocked') blockedWrites += 1;
   }
-  check(blockedWrites >= 2, `authority classifier must still block Story writes from a foreign/main runtime (blocked ${blockedWrites}/4)`);
+  check(blockedWrites >= 3, `authority classifier must still block Story writes from a foreign/main runtime (blocked ${blockedWrites}/4)`);
   counts.push(`branch reader decided ${decided}/${Object.keys(states).length} matrix states without git`);
 } finally {
   rmSync(temp, { recursive: true, force: true });
