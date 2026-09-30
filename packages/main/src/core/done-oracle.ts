@@ -20,6 +20,7 @@ import type { ChecklistData, StoryPhase, TestEvidenceData } from './types.js';
 import type { StoryStore } from './store.js';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
+import { findingClosureAction, storyPhaseOrUndefined } from './finding-closure-hint.js';
 import { evaluateDonePredicates, donePredicateValue, type DonePredicateResult, type evaluateReviewVerdict } from './machine.js';
 import { inspectDevMemoryFinishDecision } from './playbook-runtime-memory.js';
 import { evaluateDeclaredArtifactReferences } from './declared-artifact-gate.js';
@@ -972,7 +973,9 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         : `${reviewVerdict.message ?? 'review verdict rejected'} [${reviewVerdictCode}]`,
       hint: reviewVerdict.ok
         ? 'reviewer evidence is current'
-        : 'Return to DEV/REVIEW and record current reviewer evidence before TEST',
+        : reviewVerdict.code === 'review_finding_blocking' && reviewVerdict.unclosedFindingIds?.length
+          ? findingClosureAction(storyId, reviewVerdict.unclosedFindingIds, storyPhaseOrUndefined(store, storyId))
+          : 'Return to DEV/REVIEW and record current reviewer evidence before TEST',
       source: 'review-runs.json + review-passes.json + findings.json',
     } satisfies Omit<DoneCheckRow, 'blocking'>;
     rows.push(reviewVerdict.ok

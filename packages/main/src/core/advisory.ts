@@ -1,15 +1,11 @@
 /**
- * B-e8c8 CHK-007: Round-based decreasing advisory rule (shared function)
+ * Finding advisory rule (shared function). No round decay.
  *
- * The blocking severity level of REVIEW phase findings decreases with each Round:
- *   - Round 1: critical + high + medium are blocking; low is always advisory (policy's
- *     effectiveBlockingSeverities never includes low; returning false for low in Round 1 would mislead
- *     finding_list into grouping low under Blocking, which is inconsistent with actual gate behavior)
- *   - Round 2: medium is downgraded to advisory; critical + high remain blocking; low remains advisory
- *   - Round 3+: high is downgraded to advisory; critical remains blocking (critical is always blocking)
- *
- * This function is shared by handlers/finding.ts (finding_list label tagging) and core/machine.ts
- * (canPassReview gate's decision on whether to skip blocker computation), to avoid duplicating hardcoded logic in two places.
+ * The profile's policy.review.blockingSeverities block in EVERY review round:
+ * a verified open finding of a blocking severity stays blocking until it is
+ * closed (finding_resolve with repair evidence, review_remediation_close, or a
+ * recorded finding_dismiss), whichever round raised it (core/finding-closure.ts).
+ * low is always advisory (no profile's blockingSeverities contains low).
  */
 import type { StoryStore } from './store.js';
 import type { Finding, FindingEvidenceState, StoryEvent } from './types.js';
@@ -34,11 +30,12 @@ export function isFindingEvidenceState(value: unknown): value is FindingEvidence
  * 'suspected' / 'disproven' never block (suspected is advisory only,
  * disproven has been refuted). Invalid strings are conservatively treated as non-verified (non-blocking, to avoid polluting the gate).
  *
- * Full gate predicate (machine.ts canPassReview / guard-utils.ts):
+ * Full gate predicate (machine.ts evaluateReviewVerdict / guard-utils.ts), over
+ * findings of every review round:
  *   status === 'open'
- *   && severity ∈ {critical,high} (from effectiveBlockingSeverities)
+ *   && severity ∈ profile blockingSeverities
  *   && isEvidenceStateBlocking(evidenceState)
- *   && !isAdvisoryThisRound(severity, round)
+ *   && !isAdvisorySeverity(severity)
  */
 export function isEvidenceStateBlocking(evidenceState: FindingEvidenceState | string | undefined | null): boolean {
   if (evidenceState == null) return true; // legacy finding missing field → treated as verified
@@ -47,52 +44,32 @@ export function isEvidenceStateBlocking(evidenceState: FindingEvidenceState | st
 
 /**
  * B-3fad CHK-001: The complete decision for "whether this finding blocks REVIEW→TEST".
- * effectiveBlockingSeverities is passed in by the caller after resolving round decay.
+ * effectiveBlockingSeverities is the profile's set; `_round` is accepted for
+ * existing callers and never changes the outcome (no round decay).
  */
 export function isFindingBlocking(
   finding: Pick<Finding, 'status' | 'severity' | 'evidenceState'>,
   effectiveBlockingSeverities: readonly string[],
-  round: number,
+  _round: number,
 ): boolean {
   return finding.status === 'open'
     && effectiveBlockingSeverities.includes(finding.severity)
     && isEvidenceStateBlocking(finding.evidenceState)
-    && !isAdvisoryThisRound(finding.severity, round);
+    && !isAdvisorySeverity(finding.severity);
 }
 
 /**
- * Determines whether a finding of a given severity is advisory (not blocking) in the current round.
- * critical always returns false (blocking in any round).
- * low always returns true (policy.blockingSeverities never contains low; low is never blocking).
+ * Whether a severity is advisory (never blocking) in every review round.
+ * low only: no profile's policy.review.blockingSeverities contains low, so low is
+ * grouped as advisory and finding_list never places it under Blocking.
  */
-export function isAdvisoryThisRound(severity: FindingSeverity | string, round: number): boolean {
-  if (severity === 'critical') return false;
-  // low is never blocking: policy.review.blockingSeverities never contains low under any profile,
-  // so low is grouped as advisory in all rounds, preventing finding_list from misplacing low into Blocking.
-  if (severity === 'low') return true;
-  if (round >= 3) {
-    // Round 3+: high and medium are downgraded to advisory
-    return severity === 'high' || severity === 'medium';
-  }
-  if (round >= 2) {
-    // Round 2: medium is downgraded to advisory
-    return severity === 'medium';
-  }
-  // Round 1: critical/high/medium are all blocking (low has already short-circuited above)
-  return false;
-}
-
-/**
- * Gives the advisory label text for Round N (e.g. "R2-ADVISORY"); returns null for Round 1 or critical.
- */
-export function advisoryLabelFor(severity: FindingSeverity | string, round: number): string | null {
-  if (!isAdvisoryThisRound(severity, round)) return null;
-  return `R${round}-ADVISORY`;
+export function isAdvisorySeverity(severity: FindingSeverity | string): boolean {
+  return severity === 'low';
 }
 
 /**
  * Derives the current REVIEW roundCount from story.events.
- * Stays consistent with resolveEffectiveBlockingSeverities in machine.ts:
+ * Stays consistent with resolveEffectiveBlockingSeverities in core/finding-closure.ts:
  *   roundCount = number of entries in events where phase==='REVIEW' && action==='advance',
  *   defaulting to 1 when there is no match (to avoid divide-by-zero / first-round edge cases).
  *

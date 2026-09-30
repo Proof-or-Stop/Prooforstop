@@ -9,7 +9,7 @@ import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
 import { collectReviewerEvidenceState } from './review-run.js';
 import { resolveReviewRoundCount } from './advisory.js';
-import { readDynamicFindingDecision } from './finding-applicability-projection.js';
+import { unclosedBlockingFindings, findingResolveCommand } from './finding-closure.js';
 import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
 import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
@@ -202,8 +202,7 @@ function currentBlockingSeverities(store: StoryStore, storyId: string, projectRo
   const story = store.readStory(storyId);
   const policy = resolveWorkflowPolicy(loadConfig(projectRoot), story);
   const roundCount = resolveReviewRoundCount(store, storyId);
-  if (roundCount >= 3) return { severities: ['critical'], roundCount };
-  if (roundCount >= 2) return { severities: ['critical', 'high'], roundCount };
+  // No round decay: the profile's severities block in every review round.
   return { severities: [...policy.review.blockingSeverities], roundCount };
 }
 
@@ -525,12 +524,15 @@ export function buildReviewGateRows(store: StoryStore, storyId: string, projectR
       }
   }
 
-  const blockingFindings = evidenceState.valid
-    .map((record) => record.finding)
-    .filter((finding): finding is Finding => !!finding)
-    .filter((finding) => readDynamicFindingDecision({ store, projectRoot, storyId, finding,
-      effectiveBlockingSeverities: severities, round: roundCount }).blocking);
+  // Closure rule (core/finding-closure.ts): verified blocking findings of every
+  // review round must be closed. Current-round ones go through remediation;
+  // an earlier-round one left open after its repair is closed by finding_resolve.
+  const currentRoundFindingIds = new Set(evidenceState.valid.map((record) => record.finding?.id).filter(Boolean));
+  const blockingFindings = unclosedBlockingFindings({ store, projectRoot, storyId,
+    findings: store.readFindings(storyId).findings ?? [], effectiveBlockingSeverities: severities, round: roundCount })
+    .map((row) => row.finding);
   if (blockingFindings.length > 0) {
+    const currentRoundBlocking = blockingFindings.some((finding) => currentRoundFindingIds.has(finding.id));
     rows.push(row({
       id: 'review.findings',
       status: 'blocked',
@@ -539,8 +541,10 @@ export function buildReviewGateRows(store: StoryStore, storyId: string, projectR
       owner: 'reviewer',
       category: 'blocking',
       code: 'open_blocking_review_finding',
-      reason: `${blockingFindings.length} blocking finding(s) open (Round ${roundCount}, blocking: ${severities.join('/')})`,
-      nextCommand: reviewRemediationCommand(store, storyId),
+      reason: `${blockingFindings.length} verified blocking finding(s) not closed (blocking: ${severities.join('/')}, any review round): ${blockingFindings.map((finding) => finding.id).join(', ')}`,
+      nextCommand: currentRoundBlocking
+        ? reviewRemediationCommand(store, storyId)
+        : findingResolveCommand(storyId, blockingFindings[0]!.id),
     }));
   } else {
     rows.push(row({
