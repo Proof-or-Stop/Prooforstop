@@ -529,6 +529,28 @@ export function buildQueryGroups(seeds: KeywordSeed[], proposals: HostKeywordPro
   return queryGroupsFromTerms(orderedQueryTerms(seeds, proposals), budget);
 }
 
+/** Escalation reasons that only say the project has no requirements corpus to route against. */
+const NO_CORPUS_ESCALATION_REASONS: ReadonlySet<string> = new Set(['requirements_corpus_missing', 'zero_candidates']);
+
+/** Prefix of the framework-recorded full-scan reason for a project without a requirements corpus. */
+export const AUTOMATIC_NO_CORPUS_FULL_SCAN_REASON_PREFIX = 'automatic: no requirements corpus in project';
+
+/**
+ * True when a route's full scan was the framework's automatic no-corpus choice.
+ * Rerouting such a route re-derives the reason, so no owner fullScanReason is
+ * needed; an owner-reasoned full scan still needs the owner on reroute.
+ */
+export function isAutomaticNoCorpusFullScan(artifact: { fullScan?: unknown; scanEscalationReason?: unknown }): boolean {
+  return artifact.fullScan === true
+    && typeof artifact.scanEscalationReason === 'string'
+    && artifact.scanEscalationReason.startsWith(AUTOMATIC_NO_CORPUS_FULL_SCAN_REASON_PREFIX);
+}
+
+export function noRequirementsCorpusFullScanReason(requirementsDir: string, escalationReasons: readonly string[]): string {
+  return `${AUTOMATIC_NO_CORPUS_FULL_SCAN_REASON_PREFIX} (${requirementsDir} has no documents); `
+    + `framework-selected full scan of the changed code and docs (escalation: ${escalationReasons.join(', ')})`;
+}
+
 export function routeCandidateSpecs(args: {
   projectRoot: string;
   storyId: string;
@@ -755,8 +777,21 @@ export function routeCandidateSpecs(args: {
     ...unmatchedHighConfidenceLegacyTerms.map(term => `unmatched_high_confidence_legacy_term:${term}`),
   ];
   const requiresEscalation = escalationReasons.length > 0;
-  const scanEscalationReason = args.forceFullScanReason?.trim() || null;
-  const fullScan = Boolean(args.forceFullScanReason?.trim());
+  // A project with no requirements corpus at all (directory missing or holding
+  // no documents) has nothing to route against, so the only escalation is the
+  // missing corpus itself; the framework takes the full-scan path (the stricter
+  // one) and records why, instead of refusing until the owner types a reason.
+  // Any other escalation reason (risk signal, protected source, host
+  // disagreement, legacy term, truncation, tie) still needs an explicit owner
+  // fullScanReason, and so does a present corpus whose routing failed.
+  const automaticFullScanReason = !args.forceFullScanReason?.trim()
+    && requiresEscalation
+    && args.corpus.entries.length === 0
+    && escalationReasons.every(reason => NO_CORPUS_ESCALATION_REASONS.has(reason))
+    ? noRequirementsCorpusFullScanReason(args.corpus.requirementsDir, escalationReasons)
+    : null;
+  const scanEscalationReason = args.forceFullScanReason?.trim() || automaticFullScanReason;
+  const fullScan = Boolean(scanEscalationReason);
   // Full scan means every indexed document, including zero-score entries. It is
   // still path/hash metadata only; reviewers read bodies with tools.
   const candidates = fullScan

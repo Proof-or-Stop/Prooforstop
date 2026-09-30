@@ -41,6 +41,7 @@ import { rethrowIntentAmendmentIntegrityError } from '../core/verification-inten
 
 import type { HandlerContext } from './context.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
+import { isAutomaticNoCorpusFullScan } from '../core/candidate-spec-routing.js';
 import {
   buildStoryReadinessReport,
   type StoryReadinessReport,
@@ -376,7 +377,7 @@ export function managedReviewCandidateReadiness(
       return {
         status: 'blocked',
         reason: error.message.slice(error.message.indexOf('managed_review_candidate_binding_stale')).split(';')[0],
-        nextAction: candidate.fullScan === true
+        nextAction: candidate.fullScan === true && !isAutomaticNoCorpusFullScan(candidate)
           ? `proof-or-stop candidate_spec_route '{"storyId":"${storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`
           : `proof-or-stop candidate_spec_route '{"storyId":"${storyId}"}'`,
       };

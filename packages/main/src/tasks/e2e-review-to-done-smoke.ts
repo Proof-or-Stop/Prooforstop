@@ -62,7 +62,6 @@ const CLI = fileURLToPath(new URL('../cli.js', import.meta.url));
 const MODEL = QUALIFIED_MANAGED_REVIEWER_DEFAULTS.codex;
 const FINAL_SCHEMA = 'lattice.managed_review_final_proposal.v1';
 const DELIVERY = 'proof-or-stop-review-delivery';
-const FULL_SCAN_REASON = 'Go task repository has no requirements corpus; review the whole changed Go package and its docs.';
 /** Files whose uncommitted change makes validate / done_prepare refuse (VALIDATION_PUBLICATION_NOT_READY). */
 const PUBLICATION_SET = ['test-evidence.json', 'process-events.jsonl', 'closeout-write-receipts.jsonl'];
 /** Steps that refuse when the publication set is dirty. */
@@ -413,12 +412,11 @@ const PASS_ENVELOPE: LaneEnvelope = lane => ({ conclusion: 'pass', note: `Script
 
 function reviewRound(o: Owner, envelopeFor: LaneEnvelope = PASS_ENVELOPE): void {
   const id = o.storyId;
-  let prepared = o.cli('review_round_prepare', { storyId: id, json: true });
-  if (prepared.status !== 0) {
-    // The CLI asks for a justified broad scan when the task repo has no requirements corpus.
-    assert.match(prepared.out, /fullScanReason/, `review_round_prepare failed:\n${prepared.out.slice(-2000)}`);
-    prepared = o.mustCli('review_round_prepare', { storyId: id, json: true, fullScanReason: FULL_SCAN_REASON }, { label: 'review_round_prepare --fullScanReason' });
-  }
+  // The Go task repo has no requirements corpus: the framework routes with an
+  // automatic full-scan reason, so one call suffices (round-prepare-no-corpus).
+  const prepared = o.mustCli('review_round_prepare', { storyId: id, json: true });
+  assert.match(new StoryStore(o.worktree).readCandidateSpecSet(id)?.scanEscalationReason ?? '', /^automatic: no requirements corpus in project /,
+    'no-corpus route records the automatic full-scan reason');
   const reviewRuns = parseJson(prepared.stdout)!.reviewRuns as Record<string, string>;
   assert.ok(Object.keys(reviewRuns).length >= 1, 'at least one launchable lane');
   // Controller order: launch every lane, then wait for all, then import.
@@ -514,7 +512,7 @@ function authoredCloseout(o: Owner): void {
   o.mustCli('summary_set', { storyId: id, changes: 'strs/strs.go: Upper now upper-cases; new Reverse reverses by rune.', usage: 'strs.Upper("ab") == "AB"; strs.Reverse("héllo") == "olléh"',
     expectedOutcome: 'go test -v ./strs prints --- PASS: TestUpper and --- PASS: TestReverse', actualTranscript: 'go test -v ./strs: --- PASS: TestUpper, --- PASS: TestReverse, ok',
     outcomeDiff: 'no difference', acceptanceVerdict: 'accepted', outcomeKind: 'success', limitations: 'none — fully covered',
-    pitfalls: 'Harness fixture; the only retry was the documented fullScanReason step of review_round_prepare.' });
+    pitfalls: 'Harness fixture; no retries were needed.' });
 }
 
 function closureRow(o: Owner, label: string, rowId: string): Record<string, unknown> | undefined {

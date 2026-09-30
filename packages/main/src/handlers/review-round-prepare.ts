@@ -5,7 +5,9 @@
  *
  *   1. reviewer_batch (the exact execution plan);
  *   2. candidate_spec_route --hosts=false when managed review is blocked by a
- *      missing/stale route (fullScanReason only when routing requires it), then
+ *      missing/stale route (fullScanReason only when routing requires it; a
+ *      project with no requirements corpus is routed with an automatic
+ *      full-scan reason by core routing, so no owner retry), then
  *      the plan is recomputed;
  *   3. per launchable lane: dispatch --agentType=<lane> --summary=true, then
  *      review_run_start --agent=<lane> --lane=<lane> --summary=true.

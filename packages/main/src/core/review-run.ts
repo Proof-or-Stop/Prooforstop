@@ -1748,7 +1748,11 @@ function validateEvidenceRunBinding(
   // match the live scope contract + diff. Checked last so it only applies to the
   // current, otherwise-valid run. scopeContext is null for unprotected/legacy
   // stories → this whole block is skipped (backward compatible).
+  // scopeContext is this collection's live context at projectRoot (same store,
+  // same synchronous collection). A run signed at that same root would rebuild
+  // identical inputs, so only a different signed root recomputes.
   const effectiveScopeContext = run.workspaceBinding
+    && canonicalBindingPath(signedProjectRoot) !== canonicalBindingPath(projectRoot)
     ? currentScopeContextForStory(store, story.storyId, signedProjectRoot)
     : scopeContext;
   if (effectiveScopeContext) {
