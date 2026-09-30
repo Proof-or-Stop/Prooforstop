@@ -114,7 +114,17 @@ class Owner {
     // the first call: PATH is part of the verification environment digest, so
     // adding it later would make earlier verification receipts stale.
     mkdirSync(this.installedCliBin, { recursive: true });
-    writeFileSync(join(this.installedCliBin, 'proof-or-stop'), `#!/bin/sh\nexec ${JSON.stringify(process.execPath)} ${JSON.stringify(CLI)} "$@"\n`, { mode: 0o755 });
+    // The shim re-applies the owner env exactly: /bin/sh adds SHLVL, _ and
+    // OLDPWD, and the verification environment digest covers the ambient env,
+    // so a pasted hint would otherwise see every earlier receipt as stale.
+    // (A real owner runs every command through the same shell, so its env is
+    // stable across calls.)
+    writeFileSync(join(this.installedCliBin, 'proof-or-stop'), [
+      `#!${process.execPath}`,
+      `const { spawnSync } = require('child_process'); const env = JSON.parse(require('fs').readFileSync(${JSON.stringify(join(this.installedCliBin, 'env.json'))}, 'utf8'));`,
+      `const r = spawnSync(process.execPath, [${JSON.stringify(CLI)}, ...process.argv.slice(2)], { stdio: 'inherit', env });`,
+      'process.exit(r.status ?? 1);', '',
+    ].join('\n'), { mode: 0o755 });
     this.env = {
       ...sanitizedFixtureChildEnvironment(machineEnv),
       PATH: `${this.providerBin}:${this.installedCliBin}:${process.env.PATH ?? '/usr/bin:/bin'}`,
@@ -124,6 +134,7 @@ class Owner {
       PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT: 'main',
       PROOF_OR_STOP_USAGE_LEDGER: '0',
     };
+    writeFileSync(join(this.installedCliBin, 'env.json'), JSON.stringify(this.env));
     this.buildFixture();
   }
 
