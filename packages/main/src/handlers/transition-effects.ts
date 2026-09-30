@@ -295,7 +295,7 @@ ${agentLines}
 → reviewer liveness: each reviewer should first output REVIEW_START after starting
 ${renderAgentLivenessGuidance({ label: 'REVIEW reviewers' })}
 → After all return, proof-or-stop finding_list to aggregate
-→ Once critical/high are all resolved: story_advance(${storyId}, TEST)
+→ Once every verified critical/high/medium finding is closed (finding_resolve with repair evidence): story_advance(${storyId}, TEST)
 → Need code changes: review_inventory_begin(${storyId}), finish all required lanes, dispatch topology critic and submit complete findingDispositions, then review_inventory_finalize --storyId=${storyId} --remediation; a complete first wave is sufficient even with new findings, and this receipt cannot enter certification or TEST. Only its signed receipt authorizes story_advance(${storyId}, DEV)
 ⚠ When reviewers call finding_add they must pass the agent parameter (e.g. "agent":"proof-or-stop-review-behavior"), otherwise the finding will be marked as main agent and the TEST gate will refuse to advance`;
       // B-cfdd CHK-003: SOFT, advisory-only convergence-stall signal. Assessed
@@ -308,10 +308,10 @@ ${renderAgentLivenessGuidance({ label: 'REVIEW reviewers' })}
           base += `\n\n${convergence.message}`;
         }
       } catch { /* advisory-only: never block the transition */ }
-      // B-f675 CHK-002: round>=2 informed targeted re-review advisory. The
-      // REVIEW→TEST gate at round 2+ already accepts >=1 valid current-round
-      // receipt, so an operator MAY legally re-run only the reviewers whose scope
-      // changed since their last pass. This block surfaces that set; it is
+      // B-f675 CHK-002: round>=2 scope-change advisory (context only). The
+      // REVIEW→TEST gate requires every required lane of the final review roster
+      // in every round (the round number never narrows it), so this list never
+      // licenses skipping a lane. This block surfaces that set; it is
       // STRICTLY append-only inside try/catch — it never throws, never alters the
       // transition result, and never touches canPassReviewGuard. The framework
       // still skips nobody; this is an operator judgement.
@@ -337,7 +337,7 @@ ${renderAgentLivenessGuidance({ label: 'REVIEW reviewers' })}
             .filter((context) => context.scopeChanged);
           const advisoryLines = [
             '',
-            `→ Round ${roundCount} informed targeted re-review (advisory):`,
+            `→ Round ${roundCount} scope changes since each reviewer's last pass (advisory):`,
           ];
           if (scopeChanged.length === 0) {
             advisoryLines.push('  No active reviewer has a scope change since its last pass (all up to date).');
@@ -350,7 +350,7 @@ ${renderAgentLivenessGuidance({ label: 'REVIEW reviewers' })}
             }
           }
           advisoryLines.push(
-            '→ Round 2+ gate needs >=1 valid current-round receipt; you MAY re-run only the scope-changed reviewers via proof-or-stop review_incremental_context --role=<name>. The framework skips nobody; this is your call.',
+            `→ Context only: the REVIEW→TEST gate still needs a valid current-round verdict from every required lane (proof-or-stop reviewer_batch --storyId=${storyId}); inspect a lane's changes via proof-or-stop review_incremental_context --role=<name>.`,
           );
           base += `\n${advisoryLines.join('\n')}`;
         }

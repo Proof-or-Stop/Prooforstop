@@ -7,7 +7,7 @@
  * (machine.ts canPassReview / getGuardFailureReason, guard-utils.ts) is:
  *
  *   status === 'open'
- *   && severity ∈ profile blockingSeverities (every round; no round decay)
+ *   && severity ∈ closure severities critical/high/medium (every round and profile)
  *   && (evidenceState === 'verified' || evidenceState == null)   // legacy compat
  *   && severity !== 'low'
  *

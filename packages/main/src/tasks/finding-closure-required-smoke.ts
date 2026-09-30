@@ -9,12 +9,11 @@
  * Findings from earlier rounds count. Suspected / disproven findings keep
  * their advisory treatment. There is no review-round limit.
  *
- * Defect (strict profile, where medium is a blocking severity): a verified
- * MEDIUM finding raised in round 1 stayed status=open; round 2 was all-pass,
- * round decay made medium advisory, REVIEW->TEST and DONE only read
- * current-round evidence, and the story could merge with no resolution record.
- * (Harness scenario D runs the balanced profile, where medium never blocks;
- * D now uses a HIGH finding to exercise the same closure rule end to end.)
+ * Defects: (1) strict profile: a verified MEDIUM finding raised in round 1
+ * stayed open after an all-pass round 2 (round decay made medium advisory and
+ * TEST/DONE read only current-round evidence); (2) default balanced profile:
+ * medium was never a blocking severity, so a verified medium finding (harness
+ * scenario D's F-001) reached DONE open with no resolution record.
  *
  * Asserted here against the real gates (getGuardFailureReason TEST, the DONE
  * review-verdict predicate):

@@ -9,7 +9,7 @@ import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
 import { collectReviewerEvidenceState } from './review-run.js';
 import { resolveReviewRoundCount } from './advisory.js';
-import { unclosedBlockingFindings, findingResolveCommand } from './finding-closure.js';
+import { unclosedBlockingFindings, findingResolveCommand, closureBlockingSeverities } from './finding-closure.js';
 import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
 import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
@@ -202,8 +202,8 @@ function currentBlockingSeverities(store: StoryStore, storyId: string, projectRo
   const story = store.readStory(storyId);
   const policy = resolveWorkflowPolicy(loadConfig(projectRoot), story);
   const roundCount = resolveReviewRoundCount(store, storyId);
-  // No round decay: the profile's severities block in every review round.
-  return { severities: [...policy.review.blockingSeverities], roundCount };
+  // No round decay; closure severities (critical/high/medium) in every profile.
+  return { severities: closureBlockingSeverities(policy), roundCount };
 }
 
 function activeReviewersForStory(store: StoryStore, storyId: string, projectRoot: string) {
