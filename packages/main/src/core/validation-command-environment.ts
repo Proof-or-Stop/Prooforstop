@@ -198,11 +198,13 @@ export const VALIDATION_ENVIRONMENT_IDENTITY_SCHEMA = 'proof-or-stop.validation-
  *   (b) every variable the pinned command text NAMES (`$FOO`,
  *       `process.env.FOO`, `os.environ["FOO"]` all contain the word FOO);
  *   (c) PATH as TOOLCHAIN RESOLUTION, not as a string: which file each
- *       executable the command may run (its executable, bare-name arguments,
- *       and the common toolchain entry points below) resolves to, with its size
- *       and mtime. A PATH entry that shadows nothing leaves this unchanged; one
- *       that resolves a different node/go/git changes it. (The command's own
- *       executable is additionally content-hashed in the toolchain digest.);
+ *       program the command may run resolves to -- its bare-name arguments
+ *       (with size and mtime) and the common toolchain entry points below
+ *       (resolved path). A PATH entry that shadows nothing leaves this
+ *       unchanged; one that resolves a different node/go/git changes it. The
+ *       command's own executable is left out here because the caller already
+ *       content-hashes it (verification toolchainDigest / validate
+ *       executableDigest), so its change is reported as toolchain drift;
  *   (d) the variable families toolchains, runtimes and libc actually read
  *       (locale, TZ, HOME/TMPDIR, NODE_*, GO*, PYTHON*, CARGO_*, GIT_*,
  *       LD_/DYLD_ preloads, proxies, CI, color forcing, Proof-or-Stop's own
@@ -239,7 +241,13 @@ const BOOKKEEPING_ENV_EXACT = [
   'NODE_CHANNEL_SERIALIZATION_MODE', 'NODE_UNIQUE_ID',
 ];
 const BOOKKEEPING_ENV_PREFIXES = ['GIT_PS1_', 'VSCODE_GIT_'];
-/** Entry points whose PATH resolution is part of the identity even when the command does not name them. */
+/**
+ * Entry points a command commonly runs indirectly (npm scripts, go test, make):
+ * which FILE each resolves to is part of the identity even when the command does
+ * not name it. Bound by resolved path only, so a PATH entry that shadows one of
+ * them stales receipts, while rewriting an unnamed tool in place does not stale
+ * every receipt of every other command.
+ */
 const TOOLCHAIN_PROBES = [
   'bash', 'bun', 'bundle', 'cargo', 'cc', 'clang', 'cmake', 'deno', 'gcc', 'git', 'go', 'gofmt', 'gradle',
   'java', 'javac', 'make', 'mvn', 'node', 'npm', 'npx', 'pip', 'pip3', 'pnpm', 'pytest', 'python', 'python3',
@@ -277,12 +285,17 @@ function pathDirectoryNames(dir: string, windows: boolean): Set<string> | null {
   }
 }
 
-/** The file one executable name resolves to over PATH (first executable regular file wins); null when absent. */
+/**
+ * The file one executable name resolves to over PATH (first executable regular
+ * file wins); null when absent. `withFileIdentity` adds size and mtime, so an
+ * in-place upgrade of a program the command names is seen too.
+ */
 function resolveToolchainProbe(
   name: string,
   directories: ReadonlyArray<readonly [string, Set<string> | null]>,
   windows: boolean,
   pathExt: string,
+  withFileIdentity: boolean,
 ): string | null {
   const names = windows && !/\.[^\\/]+$/.test(name)
     ? pathExt.split(';').map(ext => ext.trim()).filter(Boolean).map(ext => name + ext)
@@ -296,7 +309,7 @@ function resolveToolchainProbe(
         const real = realpathSync(full);
         const stat = statSync(real);
         if (!stat.isFile()) continue;
-        return `${real}\u0000${stat.size}\u0000${Math.trunc(stat.mtimeMs)}`;
+        return withFileIdentity ? `${real}\u0000${stat.size}\u0000${Math.trunc(stat.mtimeMs)}` : real;
       } catch {
         // Non-executable or vanished candidates are skipped exactly like a PATH search.
       }
@@ -339,16 +352,22 @@ export function validationEnvironmentIdentityEntries(
   }
   if (!rawPath) {
     const pathExt = effective[canonicalKey('PATHEXT')] ?? '.COM;.EXE;.BAT;.CMD';
-    const probes = new Set(TOOLCHAIN_PROBES);
+    // name -> bind file identity (named by the command) or resolved path only (common entry point).
+    const probes = new Map<string, boolean>(TOOLCHAIN_PROBES.map(name => [name, false]));
     // A shell command line is one word with spaces; each bare token may be a program.
-    for (const word of commandWords) for (const token of word.split(/\s+/)) if (/^[A-Za-z0-9._+-]+$/.test(token)) probes.add(token);
+    for (const word of commandWords.slice(1)) {
+      for (const token of word.split(/\s+/)) if (/^[A-Za-z0-9._+-]+$/.test(token)) probes.set(token, true);
+    }
+    // The command's own executable is content-hashed by the caller's toolchain /
+    // executable digest; a change to it is reported there, not as environment drift.
+    probes.delete(commandWords[0] ?? '');
     const directories = (effective[pathKey] ?? '').split(windows ? ';' : delimiter).map(entry => {
       // Relative and empty PATH entries belong to the command's cwd.
       const dir = resolve(cwd, entry || '.');
       return [dir, pathDirectoryNames(dir, windows)] as const;
     });
-    const resolution = [...probes].sort().map(name =>
-      [name, resolveToolchainProbe(name, directories, windows, pathExt)]);
+    const resolution = [...probes.keys()].sort().map(name =>
+      [name, resolveToolchainProbe(name, directories, windows, pathExt, probes.get(name)!)]);
     entries.push(['#path-resolution', JSON.stringify(resolution)]);
   }
   return entries.sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0);

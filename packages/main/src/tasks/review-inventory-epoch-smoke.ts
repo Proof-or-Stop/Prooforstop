@@ -90,7 +90,10 @@ async function authenticatedInventoryRegression(): Promise<void> {
     childCount++;
     return runSingleAllowlistedCommand(command, root, { cwd, timeoutMs });
   } });
-  const code = `const fs=require('fs');fs.appendFileSync(${JSON.stringify(launches)},process.pid+'\\n');process.stdout.write(fs.readFileSync(${JSON.stringify(input)},'utf8'))`;
+  // The command names semanticKey (without printing it): since the v2
+  // environment identity, an ambient variable is an execution input when the
+  // command names it, is declared, or is in a behavior-affecting family.
+  const code = `const fs=require('fs');void process.env.${semanticKey};fs.appendFileSync(${JSON.stringify(launches)},process.pid+'\\n');process.stdout.write(fs.readFileSync(${JSON.stringify(input)},'utf8'))`;
   const command = `node -e ${JSON.stringify(code)}`;
   const record = () => handlers.verification_evidence_add({ storyId: sid, itemId: 'CHK-001', intentRef: 'OBS', kind: 'integration_test', command,
     selector: 'INVENTORY_OK', result: 'pass', note: 'identical observation contract' });

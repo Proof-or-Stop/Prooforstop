@@ -242,10 +242,17 @@ function doneRow(rows: DoneCheckRow[], id: string): DoneCheckRow {
 function baseReceipt(root: string, overrides: Partial<DoneRequiredCommandReceipt>): DoneRequiredCommandReceipt {
   const h = hashes(root);
   const policy = resolveDoneRequiredPolicy(root);
-  const identity = buildDoneRequiredExecutionIdentity({
+  // The v2 environment identity is per command (command-named variables and
+  // PATH resolution of the command's own programs), so bind the receipt to the
+  // policy command it stands for.
+  const commands = buildDoneRequiredExecutionIdentity({
     projectRoot: root,
     policy,
-  }).commands[0];
+  }).commands;
+  const receiptCommand = overrides.command ?? 'node';
+  const receiptArgs = overrides.args ?? ['-e', 'process.exit(0)'];
+  const identity = commands.find(candidate => candidate.command === receiptCommand
+    && JSON.stringify(candidate.args) === JSON.stringify(receiptArgs)) ?? commands[0];
   const receipt: DoneRequiredCommandReceipt = {
     label: 'synthetic',
     command: 'node',
