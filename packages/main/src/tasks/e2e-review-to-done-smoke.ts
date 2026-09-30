@@ -1017,7 +1017,19 @@ function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boolean },
   const statusOf = () => existsSync(o.worktree) ? execFileSync('git', ['status', '--porcelain', '--untracked-files=all'], { cwd: o.worktree, encoding: 'utf8' }) : '';
   let internalCalls = 0;
   let internalMs = 0;
+  // A fake provider picks the first script whose key occurs in its prompt, and a
+  // critic prompt names the lane ReviewRuns: retire each script once its run is terminal.
+  const runsRoot = join(o.root, '.proof-or-stop', 'runtime', 'host-runs');
+  const retireTerminalScripts = (): void => {
+    for (const [runId, key] of scriptKeyByRun) {
+      if (existsSync(join(runsRoot, runId, 'terminal.json'))) { o.unscript(key); scriptKeyByRun.delete(runId); }
+    }
+  };
   for (let iteration = 0; iteration < 160; iteration += 1) {
+    retireTerminalScripts();
+    // A detached managed worker still running may commit its own metadata
+    // meanwhile; the read-only check applies when nothing else is running.
+    const quiet = scriptKeyByRun.size === 0;
     const before = statusOf();
     const asked = o.cli('next', { storyId: id, json: true, ...(mode.run ? { run: true } : {}) }, { label: mode.run ? 'next --run' : 'next' });
     const parsed = asked.status === 0 ? parseJson(asked.stdout) : null;
@@ -1031,7 +1043,7 @@ function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boolean },
         assert.equal(row.exit, 0, `[${o.scenario}] next --run executed a framework step its gate refused: ${row.command}\n${row.tail}`);
       }
       assert.equal(parsed!.stopped ?? null, null, `[${o.scenario}] next --run stopped: ${String(parsed!.stopped)}`);
-    } else {
+    } else if (quiet) {
       assert.equal(statusOf(), before, `[${o.scenario}] next must be read-only; git status changed:\n${before}\n---\n${statusOf()}`);
     }
     if (next.done) break;
@@ -1100,10 +1112,6 @@ function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boolean },
     if (next.cli.command === 'host_run' && launched?.runId) {
       scriptKeyByRun.set(String(launched.runId), next.reason === 'delivery_review_launch' ? DELIVERY : next.reason === 'finding_repair' ? FINDING_REPAIR : String(payload.reviewRunId));
     }
-    if (next.reason === 'managed_run_wait') {
-      const key = scriptKeyByRun.get(String(payload.runId));
-      if (key) o.unscript(key);
-    }
   }
   assert.equal(new StoryStore(o.root).readStory(id).phase, 'DONE', `[${o.scenario}] next never reached DONE; steps: ${reasons.join(' > ')}`);
   lines.push(`next-driven steps (${reasons.length}): ${reasons.join(' > ')}`);
@@ -1158,7 +1166,7 @@ function printTimeline(steps: Step[], scenario: string): void {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|NR)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|NR|N[AD](?:-run)?)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -1178,8 +1186,10 @@ async function main(): Promise<void> {
     if (!only.length || only.includes('D')) outcomes.push(scenarioD(machine.env, steps));
     if (!only.length || only.includes('D2')) outcomes.push(scenarioD2(machine.env, steps));
     if (only.includes('E')) outcomes.push(scenarioA(machine.env, steps, true).a);
-    if (only.includes('N')) outcomes.push(scenarioN(machine.env, steps, 'A', false), scenarioN(machine.env, steps, 'D', false));
-    if (only.includes('NR')) outcomes.push(scenarioN(machine.env, steps, 'A', true), scenarioN(machine.env, steps, 'D', true));
+    for (const [token, flow, run] of [['NA', 'A', false], ['ND', 'D', false], ['NA-run', 'A', true], ['ND-run', 'D', true]] as const) {
+      const group = run ? 'NR' : 'N';
+      if (only.includes(token) || only.includes(group)) outcomes.push(scenarioN(machine.env, steps, flow, run));
+    }
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }

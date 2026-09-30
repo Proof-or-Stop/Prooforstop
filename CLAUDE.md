@@ -32,9 +32,13 @@
 | **INIT_CHECK** | `story_advance INIT_CHECK` 创建 worktree，提示 cd |
 | **PLAN** | understanding → decision → checklist + `verificationIntent` → plan.md（正常通道）→ `story_review` 审查通过后进 DEV（快速通道跳过 PLAN） |
 | **DEV** | 写代码 + 写测试，给 must intent 记录 `verificationEvidence`，checklist 全 done 后进 REVIEW |
-| **REVIEW** | 按 riskSignals / touchpoints 自动挂载 LLM reviewer（baseline concept+quality+test-coverage，其他按信号 opt-in，详见下方「Reviewer opt-in 路由」）+ CLI preflight gate（`validate --channel` / `--concept` / `--lint` / `docs-drift`，触及 Codex adapter 时另加 `codex-adapter`）在 REVIEW→TEST 自动跑；`proof-or-stop-review-channel` 已退役（S1），由 CLI 接管。主 agent 验收：`finding_list` 确认 reviewer finding 注册 → 逐条 resolve → blocking finding 全 resolved 后进 TEST（CLI gate 任一 fail 会直接 block） |
-| **TEST** | `proof-or-stop validate` 验证，全绿 + verification coverage 通过 + bug 全 fixed 后进 DONE |
+| **REVIEW** | 按 riskSignals / touchpoints 自动挂载 LLM reviewer（baseline concept+quality+test-coverage，其他按信号 opt-in，详见下方「Reviewer opt-in 路由」）+ CLI preflight gate（`validate --channel` / `--concept` / `--lint` / `docs-drift`，触及 Codex adapter 时另加 `codex-adapter`）在 REVIEW→TEST 自动跑；`proof-or-stop-review-channel` 已退役（S1），由 CLI 接管。主 agent 验收：`finding_list` 确认 reviewer finding 注册 → 逐条 resolve → blocking finding 全 resolved 后经 inventory + PRE_CERT 进 TEST（CLI gate 任一 fail 会直接 block）；整个 REVIEW→TEST 顺序由 `proof-or-stop next --storyId=<id>` 逐步给出 |
+| **TEST** | routine `proof-or-stop validate` 已在 REVIEW 的 PRE_CERT 之后跑过一次，TEST 只消费该 PASS；完成 live smoke / delivery reviewer / finish decision / summary / review assurance floor、bug 全 fixed 后进 DONE（`proof-or-stop next --storyId=<id>` 逐步给出每一步） |
 | **DONE** | `story_advance DONE` 合并回 main 并清理 worktree。DONE 成功后按 `.proof-or-stop/audit-config.json` 触发 audit 提示（semi-auto 模式在输出末追加 audit 建议；详见「框架自省 audit 配置」段） |
+
+### REVIEW → DONE is framework-driven: `proof-or-stop next --storyId=<id>`
+
+After DEV (every checklist item done and committed), run `proof-or-stop next --storyId=<id>` from the Story worktree and execute the one command it prints, then ask again. It is read-only, decides each step from the real gate predicates (evidence-chain check, REVIEW verdict, reviewer batch plan, inventory status, PRE_CERT admit predicates, certification status, DONE oracle), and labels it `framework` (mechanical; `--run` executes consecutive framework steps through the normal CLI), `agent` (code, a managed reviewer launch, authored text or a host verdict; `<...>` placeholders name the fields to author) or `human`. It covers REVIEW entry, every review round (prepare → launch all prepared lanes → wait → import), the inventory epoch and critic, remediation back to DEV (repair → evidence refresh → `finding_resolve`), PRE_CERT (fast check → `certification_window_begin` → routine `validate`), TEST (live smoke, delivery reviewer, finish decision, summary, review assurance floor) and DONE. Do not reorder these steps or probe `story_advance` ahead of it. Decision table: `docs/CLI.md` ("`next --storyId`").
 
 ### 如何选通道
 

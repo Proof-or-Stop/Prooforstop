@@ -654,40 +654,31 @@ export function computeNextStep(c: NextStepCtx): string {
         const next = c.checklist.pending[0];
         return `DEV phase. Next item: proof-or-stop checklist_update --storyId=${sid} --itemId=${next.id} --status=in_progress (${next.title})`;
       }
-      return `DEV phase, all checklist items done. Next: git commit + proof-or-stop story_advance --storyId=${sid} --phase=REVIEW to enter code review`;
+      return `DEV phase, all checklist items done. Next: git commit, then proof-or-stop next --storyId=${sid} (evidence-chain check, then REVIEW entry)`;
     }
     case 'REVIEW': {
-      const precertNext = c.certificationWindowState
-        ? `proof-or-stop certification_window_status --storyId=${sid}`
-        : c.reviewInventoryState === 'OPEN'
-          ? `proof-or-stop review_inventory_status --storyId=${sid}`
-          : c.reviewInventoryState === 'FINALIZED'
-            ? `proof-or-stop validate --story=${sid} --focus=fast --json, then immediately proof-or-stop certification_window_begin --storyId=${sid}`
-            : `proof-or-stop review_inventory_begin --storyId=${sid}`;
+      // The REVIEW→TEST ceremony (lanes, inventory epoch + critic, remediation,
+      // cheap check, certification, routine validate, TEST) is decided by the
+      // real gate predicates in `next --storyId`; this summary names only it.
+      const driver = `proof-or-stop next --storyId=${sid}`;
       if (c.reviewerStatus) {
         if (c.reviewerStatus.totalBlockers > 0) {
           const blocked = c.reviewerStatus.entries
             .filter(e => e.blockerCount > 0)
             .map(e => `${e.name}(${e.blockerCount})`)
             .join(', ');
-          const inventoryNext = c.reviewInventoryState === 'OPEN'
-            ? `proof-or-stop review_inventory_status --storyId=${sid}`
-            : c.reviewInventoryState === 'FINALIZED'
-              ? `proof-or-stop story_advance --storyId=${sid} --phase=DEV`
-              : `proof-or-stop review_inventory_begin --storyId=${sid}`;
-          return `REVIEW phase, ${c.reviewerStatus.totalBlockers} blocking finding(s): ${blocked}. Next: ${inventoryNext} (finish the frozen required lanes, topology critic findingDispositions, and finalize before DEV)`;
-
+          return `REVIEW phase, ${c.reviewerStatus.totalBlockers} blocking finding(s): ${blocked}. Next: ${driver} (it drives the inventory epoch, critic and remediation before DEV)`;
         }
         if (!c.reviewerStatus.allPassed) {
           const pending = c.reviewerStatus.entries
             .filter(e => e.verdict === 'pending')
             .map(e => e.name)
             .join(', ') || 'reviewer evidence';
-          return `REVIEW phase, Waiting for reviewer evidence: ${pending}. Next: proof-or-stop reviewer_list --storyId=${sid} to see which proof-or-stop-review-* reviewers should run; once all required lanes are terminal, continue with ${precertNext}`;
+          return `REVIEW phase, Waiting for reviewer evidence: ${pending}. Next: ${driver} (it prepares, launches and imports each required story-review lane)`;
         }
-        return `REVIEW phase, All reviewer gates passed. Next: ${precertNext} to prepare current PRE_CERT evidence before TEST`;
+        return `REVIEW phase, All reviewer gates passed. Next: ${driver} (it drives the inventory epoch and PRE_CERT before TEST)`;
       }
-      return `REVIEW phase. Proof-or-Stop reviewers review code and file findings. Finish the signed review inventory before PRE_CERT. Next: ${precertNext}`;
+      return `REVIEW phase. Proof-or-Stop reviewers review code and file findings. Next: ${driver}`;
     }
     case 'TEST_CASE':
       return `TEST_CASE phase (legacy). Recommend proof-or-stop story_advance --phase=TEST to enter verification directly`;

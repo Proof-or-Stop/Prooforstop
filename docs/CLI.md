@@ -867,6 +867,86 @@ proof-or-stop next
 - `proof-or-stop next` outputs only the single most reliable next-step suggestion
 - Neither command advances the phase, writes `.proof-or-stop/state`, or modifies story/fixture/git
 
+### `next --storyId`: the framework drives DEV → DONE
+
+After DEV the owner does not work out the REVIEW → PRE_CERT → TEST → DONE
+ceremony. From the Story worktree:
+
+```bash
+proof-or-stop next --storyId=B-xxxx          # one step, human-readable; last line is `Next: <command>`
+proof-or-stop next --storyId=B-xxxx --json   # the same step as JSON
+proof-or-stop next --storyId=B-xxxx --run    # run consecutive framework steps, stop at the next agent step
+```
+
+It is read-only (no metadata, evidence, audit event or commit is written) and
+returns exactly one step:
+
+| Field | Meaning |
+|---|---|
+| `phase` | the Story phase the step was decided from |
+| `kind` | `framework`: a mechanical step the framework could run itself; `agent`: needs the agent (implement or repair code, launch a managed reviewer, author a summary / decision / resolution, submit a host verdict); `human`: a genuine human decision (stall resume, approval, 3x2 quorum) |
+| `reason` | stable step code, e.g. `review_lane_launch`, `precert_cheap_check` |
+| `command` / `argv` / `cli` | the exact call (ids, run ids, receipt ids and digests filled in) as a shell line, as `['proof-or-stop', <command>, <JSON payload>]`, and as `{command, payload}` |
+| `placeholders` | payload fields the agent must author (their values are `<...>`); nothing else is to be changed |
+| `why` / `source` | why this is the step, and which gate predicate or reader decided it |
+| `wait` / `done` | a blocking wait on a detached managed run / the Story is DONE |
+
+Decision table (first matching row wins):
+
+| State | Step | Kind | Decided by |
+|---|---|---|---|
+| DEV, an item `pending` | `checklist_update --status=in_progress` | framework | checklist.json |
+| DEV, an item `in_progress` | `host_run` managedDispatch `proof-or-stop-implementer` for it (or wait on its run) | agent | checklist.json + host-run projection |
+| DEV, a verified blocking finding open, material unchanged since its review | `host_run` managedDispatch `proof-or-stop-finding-repair` (or wait) | agent | `unclosedBlockingFindings` |
+| DEV, that finding repaired, receipts stale | the evidence-chain gate's own Next (`verification_evidence_refresh_stale`, `verification_run`, ...) | framework | `evaluateEvidenceChainForStory` |
+| DEV, that finding repaired | `finding_resolve` with `resolution` | agent | `unclosedBlockingFindings` |
+| DEV, evidence-chain blocking / advisory unbound Go test with a concrete bind | the evidence-chain Next | framework | `evaluateEvidenceChainForStory` |
+| DEV, files declared but no scope contract | `scope_contract_init_from_plan` | framework | scope gate precondition |
+| DEV, otherwise | `story_advance --phase=REVIEW` if the REVIEW guard passes, else the guard's own `→`/`Next:` command | framework | `getGuardFailureReason(REVIEW)` |
+| REVIEW, a prepared ReviewRun of this round without a host run | `host_run` managedReview for that lane (all prepared lanes are launched before any wait) | agent | review-runs.json + host-run projection |
+| REVIEW, a lane run in flight | `host_run_status --untilTerminal=true` | framework (wait) | host-run projection |
+| REVIEW, a completed lane run not imported | `managed_review_evidence_import {runId, receiptId}` | framework | host-run receipt |
+| REVIEW, the verdict misses lane evidence | `review_round_prepare` | framework | `evaluateReviewVerdict` + `reviewer_batch` launchable lanes |
+| REVIEW, certification window ADMITTED | `validate --story --json` (the routine suite; nothing in between) | framework | `certification_window_status` |
+| REVIEW, window RUNNING and the stored PASS admissible | `story_advance --phase=TEST` (or `finding_resolve` if the verdict still refuses) | framework | `certification_window_status` Next + `evaluateReviewVerdict` |
+| REVIEW, OPEN epoch, critic missing | `dispatch` critic → `review_run_start` critic → `host_run` critic (agent) → wait → import | framework / agent | `review_inventory_status` |
+| REVIEW, OPEN epoch, otherwise | `review_inventory_status`'s own Next (`review_inventory_finalize [--remediation]`, `review_inventory_cancel`) | framework | `review_inventory_status` |
+| REVIEW, FINALIZED remediation receipt | `story_advance --phase=DEV` | framework | `finalizedUnconsumedReviewInventory` + DEV guard |
+| REVIEW, FINALIZED zero-wave completeness-only receipt | `review_inventory_cancel` | framework | PRE_CERT inventory recovery |
+| REVIEW, saturated FINALIZED receipt, no current fast receipt | `validate --story --focus=fast --json` | framework | `currentPrecertCheapCheckReceipt` |
+| REVIEW, saturated + fast receipt, open blocking finding | `finding_resolve` with `resolution` | agent | `unclosedBlockingFindings` |
+| REVIEW, saturated + fast receipt | `certification_window_begin` (a begin already refused on these facts for another blocker: its status Next) | framework | PRE_CERT admit predicates / `certification_window_status` |
+| REVIEW, no epoch for this round | `review_inventory_begin` | framework | `evaluateReviewVerdict` |
+| TEST, DONE's review-verdict row fails | `story_advance --phase=DEV` | agent | DONE oracle |
+| TEST, no (or a failing) live-smoke transcript | `live_smoke_transcript --capture=<validate command> --write` | agent | live-smoke oracle row |
+| TEST, delivery-check missing / stale | `host_run` managedDispatch `proof-or-stop-review-delivery` (or wait); unverified promises: `story_advance --phase=DEV` | agent | DONE oracle delivery-check row |
+| TEST, no dev-memory finish decision | `dev_memory_finish_decision` with `decision`, `reason` | agent | DONE oracle |
+| TEST, summary required and missing | `summary_set` with the authored fields | agent | DONE oracle |
+| TEST, review escalation / assurance floor fails | the guidance's next `autopilot_review_submit` (hostId/sessionId filled); for the high-risk path without rounds left: `review_host_availability_probe` (framework), then `review_escalation_fallback_set` single-host-environment bound to the probe (agent), or `human` when the probe finds ≥2 review-ready hosts | agent / framework / human | review assurance guidance |
+| TEST, evidence-freshness / done-required-validation / branch-synced-main fails | `done_prepare {mergeMain, refreshStale, validate}` | framework | DONE oracle + done_closure recovery set |
+| TEST, every oracle row passes | `story_advance --phase=DONE` | framework | DONE oracle + `getGuardFailureReason(DONE)` |
+| DONE | none (`done: true`) | — | story.phase |
+
+Managed launches reuse the host/model/effort of this Story's last managed run of
+the same profile (reviewer or dispatch), falling back to the qualified managed
+reviewer default; `host_run` still validates the selection.
+
+`--run` executes only `framework` steps, each as a separate real CLI process with
+every gate in place, re-decides after each, and stops at the first agent/human
+step, the first refused step (its output tail is shown) or `--maxSteps`
+(default 20). It is off by default.
+
+Refusals and guidance on this path point back to it with `Next: proof-or-stop
+next --storyId=<id>`: an INVALIDATED certification window (before: the illegal
+`story_advance --phase=REVIEW`), the store-less PRE_CERT inventory blocker in the
+`[pre_cert_window_required]` refusals of `story_advance --phase=TEST`, routine
+`validate` and `done_required_validate` (before: `review_inventory_finalize`,
+which with no OPEN epoch mints the zero-wave receipt certification refuses),
+`session_brief` / `next` without `--storyId` for a DEV-done or REVIEW Story, and
+the DEV / REVIEW / TEST guidance printed by `story_advance`. Refusals that already
+name one concrete command (evidence-chain, finding closure, certification blockers
+with a store) keep it; `next` computes the same command.
+
 `session_brief` is still the opening-briefing entry point for a new agent session; `status` / `next` are the short entry points for humans and agents to quickly restore context while working.
 
 ### 1. Build the full CLI first

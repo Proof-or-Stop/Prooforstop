@@ -1786,7 +1786,7 @@ assert.equal(atMostOnceStore.readTestEvidence(atMostOnceStoryId)?.timestamp, reu
 function assertBoundedPrecertRecovery(text: string, id: string): void {
   assert.match(text, new RegExp(`\\[${PRE_CERT_WINDOW_REQUIRED}\\]`));
   assert.equal(countPrefix(text, 'Next:'), 1, `PRE_CERT refusal must render exactly one recovery\n${text}`);
-  assert.match(text, new RegExp(`^Next: proof-or-stop (?:certification_window_begin --storyId=${id}|review_inventory_finalize --storyId=${id}|story_advance --storyId=${id} --phase=REVIEW)$`, 'm'));
+  assert.match(text, new RegExp(`^Next: proof-or-stop (?:certification_window_begin --storyId=${id}|next --storyId=${id})$`, 'm'));
   assert.doesNotMatch(text, /proof-or-stop story_advance .* --phase=TEST|proof-or-stop validate --story=/);
 }
 
@@ -1894,7 +1894,7 @@ async function caught(fn: () => Promise<unknown> | unknown): Promise<string> {
 
 const prematureDone = await caught(() => chokeDone.done_required_validate({ storyId: chokeStoryId }));
 assert.match(prematureDone, new RegExp(`\\[${PRE_CERT_WINDOW_REQUIRED}\\]`));
-assert.match(prematureDone, new RegExp(`Next: proof-or-stop review_inventory_finalize --storyId=${chokeStoryId}`));
+assert.match(prematureDone, new RegExp(`Next: proof-or-stop next --storyId=${chokeStoryId}$`, 'm'));
 assert.equal(existsSync(join(chokeRoot, heavyMarker)), false, 'done_required_validate must not spawn heavy children without an admitted window');
 for (let i = 0; i < 3; i += 1) {
   const storm = await caught(() => chokeDone.done_required_validate({ storyId: chokeStoryId }));
@@ -1904,7 +1904,7 @@ assert.equal(existsSync(join(chokeRoot, heavyMarker)), false, 'retry storm must 
 
 const prematureFull = await caught(() => chokeValidate.validate({ storyId: chokeStoryId, full: true }));
 assert.match(prematureFull, new RegExp(`\\[${PRE_CERT_WINDOW_REQUIRED}\\]`));
-assert.match(prematureFull, new RegExp(`Next: proof-or-stop review_inventory_finalize --storyId=${chokeStoryId}`));
+assert.match(prematureFull, new RegExp(`Next: proof-or-stop next --storyId=${chokeStoryId}$`, 'm'));
 assert.equal(existsSync(join(chokeRoot, heavyMarker)), false, 'validate --full must not spawn heavy children without an admitted window');
 assert.equal(existsSync(join(chokeRoot, routineMarker)), false, 'validate --full must not spawn configured validation children without an admitted window');
 
@@ -1976,11 +1976,11 @@ const donePrepareFallback = `proof-or-stop done_required_validate --storyId=${ch
 assert.equal(
   safeDoneRequiredRecoveryCommand(
     chokeStoryId,
-    `[pre_cert_window_required]\nNext: proof-or-stop review_inventory_finalize --storyId=${chokeStoryId}`,
+    `[pre_cert_window_required]\nNext: proof-or-stop next --storyId=${chokeStoryId}`,
     donePrepareFallback,
   ),
-  `proof-or-stop review_inventory_finalize --storyId=${chokeStoryId}`,
-  'done_prepare must propagate the authoritative inventory-finalization recovery command',
+  `proof-or-stop next --storyId=${chokeStoryId}`,
+  'done_prepare must propagate the authoritative PRE_CERT recovery command (next names the inventory step)',
 );
 assert.equal(
   safeDoneRequiredRecoveryCommand(
@@ -2165,7 +2165,7 @@ assert.deepEqual(
 );
 const invalidatedStatus = replayWindowHandlers.certification_window_status({ storyId: replayStoryId, refresh: true });
 assertStatusSurface(invalidatedStatus, 'INVALIDATED');
-assert.match(invalidatedStatus, /^Next: proof-or-stop story_advance .* --phase=REVIEW$/m);
+assert.match(invalidatedStatus, /^Next: proof-or-stop next --storyId=\S+$/m, 'INVALIDATED names next, not the illegal REVIEW→REVIEW advance');
 const afterReceipt = receiptForWindow(
   replayStore.readCertificationWindows(replayStoryId),
   replayStore.readCertificationWindows(replayStoryId).windows.at(-1) ?? null,
