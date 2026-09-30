@@ -535,6 +535,17 @@ const NO_CORPUS_ESCALATION_REASONS: ReadonlySet<string> = new Set(['requirements
 /** Prefix of the framework-recorded full-scan reason for a project without a requirements corpus. */
 export const AUTOMATIC_NO_CORPUS_FULL_SCAN_REASON_PREFIX = 'automatic: no requirements corpus in project';
 
+/**
+ * True when a route's full scan was the framework's automatic no-corpus choice.
+ * Rerouting such a route re-derives the reason, so no owner fullScanReason is
+ * needed; an owner-reasoned full scan still needs the owner on reroute.
+ */
+export function isAutomaticNoCorpusFullScan(artifact: { fullScan?: unknown; scanEscalationReason?: unknown }): boolean {
+  return artifact.fullScan === true
+    && typeof artifact.scanEscalationReason === 'string'
+    && artifact.scanEscalationReason.startsWith(AUTOMATIC_NO_CORPUS_FULL_SCAN_REASON_PREFIX);
+}
+
 export function noRequirementsCorpusFullScanReason(requirementsDir: string, escalationReasons: readonly string[]): string {
   return `${AUTOMATIC_NO_CORPUS_FULL_SCAN_REASON_PREFIX} (${requirementsDir} has no documents); `
     + `framework-selected full scan of the changed code and docs (escalation: ${escalationReasons.join(', ')})`;
