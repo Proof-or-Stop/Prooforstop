@@ -97,6 +97,7 @@ class Owner {
   readonly worktree: string;
   readonly store: StoryStore;
   private readonly providerBin: string;
+  private get installedCliBin(): string { return `${this.root}-installed-cli`; }
   private readonly scripts: string;
   private readonly env: NodeJS.ProcessEnv;
 
@@ -108,9 +109,15 @@ class Owner {
     this.scripts = join(this.providerBin, 'scripts');
     mkdirSync(this.scripts, { recursive: true });
     writeFakeCodex(this.providerBin, this.scripts);
+    // The benchmark host has the installed `proof-or-stop` on PATH for the whole
+    // run; a shim for this checkout's dist CLI stands in. It must be on PATH from
+    // the first call: PATH is part of the verification environment digest, so
+    // adding it later would make earlier verification receipts stale.
+    mkdirSync(this.installedCliBin, { recursive: true });
+    writeFileSync(join(this.installedCliBin, 'proof-or-stop'), `#!/bin/sh\nexec ${JSON.stringify(process.execPath)} ${JSON.stringify(CLI)} "$@"\n`, { mode: 0o755 });
     this.env = {
       ...sanitizedFixtureChildEnvironment(machineEnv),
-      PATH: `${this.providerBin}:${process.env.PATH ?? '/usr/bin:/bin'}`,
+      PATH: `${this.providerBin}:${this.installedCliBin}:${process.env.PATH ?? '/usr/bin:/bin'}`,
       PROOF_OR_STOP_AGENT: 'main',
       PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'codex',
       PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: `e2e-review-to-done-owner-${scenario}`,
@@ -122,6 +129,7 @@ class Owner {
 
   cleanup(): void {
     rmSync(this.providerBin, { recursive: true, force: true });
+    rmSync(this.installedCliBin, { recursive: true, force: true });
     rmSync(this.root, { recursive: true, force: true });
   }
 
@@ -203,24 +211,19 @@ class Owner {
 
   /**
    * Run a hinted command line literally through /bin/sh, as an owner pasting it
-   * would. Only this call sees a `proof-or-stop` shim (for this checkout's dist
-   * CLI) on PATH; lifecycle calls above keep the plain PATH.
+   * would, with the same env (including the installed-CLI shim on PATH).
    */
   shell(label: string, commandLine: string): CliResult {
-    const shimDir = `${this.providerBin}-installed-cli`;
-    mkdirSync(shimDir, { recursive: true });
-    writeFileSync(join(shimDir, 'proof-or-stop'), `#!/bin/sh\nexec ${JSON.stringify(process.execPath)} ${JSON.stringify(CLI)} "$@"\n`, { mode: 0o755 });
     const before = this.publicationDirt();
     const started = Date.now();
     const run = spawnSync('/bin/sh', ['-c', commandLine], {
-      cwd: this.worktree, encoding: 'utf8', env: { ...this.env, PATH: `${shimDir}:${this.env.PATH ?? ''}` }, maxBuffer: 64 * 1024 * 1024,
+      cwd: this.worktree, encoding: 'utf8', env: this.env, maxBuffer: 64 * 1024 * 1024,
     });
     const ms = Date.now() - started;
     const out = `${run.stdout ?? ''}${run.stderr ?? ''}`;
     const exit = run.status ?? -1;
     const result = exit === 0 ? summarize(label, run.stdout ?? '') : firstError({ status: exit, stdout: run.stdout ?? '', stderr: run.stderr ?? '', out });
     this.steps.push({ scenario: this.scenario, label, ms, exit, result, dirty: this.dirtyNote(label, before) });
-    rmSync(shimDir, { recursive: true, force: true });
     if (process.env.E2E_R2D_VERBOSE) console.log(`--- ${label} exit=${exit} ${ms}ms\n${out.slice(0, 4000)}`);
     return { status: exit, stdout: run.stdout ?? '', stderr: run.stderr ?? '', out };
   }
@@ -235,8 +238,10 @@ class Owner {
   private publicationDirt(): string[] {
     if (!existsSync(this.worktree)) return [];
     const storyRel = `.proof-or-stop/story/actives/${this.storyId}/`;
-    return git(this.worktree, ['status', '--porcelain']).split('\n')
-      .map(line => line.slice(3))
+    // Untrimmed: git()'s trim() would eat the first row's leading status space
+    // (" M path"), so slice(3) mangled exactly the first dirty path.
+    return execFileSync('git', ['status', '--porcelain'], { cwd: this.worktree, encoding: 'utf8' }).split('\n')
+      .filter(Boolean).map(line => line.slice(3))
       .filter(path => path.startsWith(storyRel) && PUBLICATION_SET.includes(path.slice(storyRel.length)));
   }
 
@@ -527,12 +532,14 @@ function scenarioA(machineEnv: NodeJS.ProcessEnv, steps: Step[]): { a: Outcome; 
     assert.notEqual(floorAfter?.blocking, true, 'one local host verdict satisfies the one-local-round floor');
     const eventsDirty = git(o.worktree, ['status', '--porcelain', '--', `.proof-or-stop/story/actives/${o.storyId}/process-events.jsonl`]) !== '';
     c.lines.push(`autopilot_review_submit leaves process-events.jsonl uncommitted: ${eventsDirty ? 'yes' : 'no'}`);
+    assert.equal(eventsDirty, false, 'C: autopilot_review_submit must commit its host_verdict event (else done_prepare refuses VALIDATION_PUBLICATION_NOT_READY)');
 
     // done_prepare, as the floor guidance says to rerun it after the writer ran.
     const prepare = o.cli('done_prepare', { storyId: o.storyId, json: true });
     const prepared = parseJson(prepare.stdout);
     c.lines.push(`done_prepare after the host verdict: exit ${prepare.status} status=${String(prepared?.status)} blockedAt=${String(prepared?.blockedAt ?? '-')}`);
     if (prepared?.blockedAt) c.lines.push(`  ${String(prepared.reason).slice(0, 230)} (handlers/verifier.ts:2214-2239)`);
+    assert.doesNotMatch(prepare.out, /VALIDATION_PUBLICATION_NOT_READY/, 'C: done_prepare after the host verdict must not refuse on unpublished metadata');
 
     const done = o.cli('story_advance', { storyId: o.storyId, phase: 'DONE' }, { label: 'story_advance DONE' });
     assert.equal(done.status, 0, `A: story_advance DONE refused:\n${done.out.slice(-3000)}`);
