@@ -201,6 +201,30 @@ class Owner {
     return { status: exit, stdout: run.stdout ?? '', stderr: run.stderr ?? '', out };
   }
 
+  /**
+   * Run a hinted command line literally through /bin/sh, as an owner pasting it
+   * would. Only this call sees a `proof-or-stop` shim (for this checkout's dist
+   * CLI) on PATH; lifecycle calls above keep the plain PATH.
+   */
+  shell(label: string, commandLine: string): CliResult {
+    const shimDir = `${this.providerBin}-installed-cli`;
+    mkdirSync(shimDir, { recursive: true });
+    writeFileSync(join(shimDir, 'proof-or-stop'), `#!/bin/sh\nexec ${JSON.stringify(process.execPath)} ${JSON.stringify(CLI)} "$@"\n`, { mode: 0o755 });
+    const before = this.publicationDirt();
+    const started = Date.now();
+    const run = spawnSync('/bin/sh', ['-c', commandLine], {
+      cwd: this.worktree, encoding: 'utf8', env: { ...this.env, PATH: `${shimDir}:${this.env.PATH ?? ''}` }, maxBuffer: 64 * 1024 * 1024,
+    });
+    const ms = Date.now() - started;
+    const out = `${run.stdout ?? ''}${run.stderr ?? ''}`;
+    const exit = run.status ?? -1;
+    const result = exit === 0 ? summarize(label, run.stdout ?? '') : firstError({ status: exit, stdout: run.stdout ?? '', stderr: run.stderr ?? '', out });
+    this.steps.push({ scenario: this.scenario, label, ms, exit, result, dirty: this.dirtyNote(label, before) });
+    rmSync(shimDir, { recursive: true, force: true });
+    if (process.env.E2E_R2D_VERBOSE) console.log(`--- ${label} exit=${exit} ${ms}ms\n${out.slice(0, 4000)}`);
+    return { status: exit, stdout: run.stdout ?? '', stderr: run.stderr ?? '', out };
+  }
+
   mustCli(command: string, payload: Record<string, unknown>, opts: { label?: string } = {}): CliResult {
     const run = this.cli(command, payload, opts);
     assert.equal(run.status, 0, `[${this.scenario}] ${opts.label ?? command} failed:\n${run.out.slice(-3000)}`);
@@ -484,18 +508,20 @@ function scenarioA(machineEnv: NodeJS.ProcessEnv, steps: Step[]): { a: Outcome; 
     const floor = closureRow(o, 'done_closure (before host verdict)', 'review-assurance-floor');
     const escalation = closureRow(o, 'done_closure (escalation row)', 'review-escalation');
     const floorReason = String(floor?.reason ?? '');
-    const hinted = floorReason.match(/(node bin\/proof-or-stop\.js autopilot_review_submit [^#\n]*?--storyFilesHash=\S+)/)?.[1] ?? '';
+    const hinted = floorReason.match(/(proof-or-stop autopilot_review_submit [^#\n]*?--storyFilesHash=\S+)/)?.[1] ?? '';
+    assert.ok(hinted, `C: the floor names no runnable proof-or-stop autopilot_review_submit writer:\n${floorReason.slice(0, 2000)}`);
+    assert.doesNotMatch(floorReason, /bin\/proof-or-stop\.js/, 'C: floor hints must not point at a checkout-relative bin/ wrapper');
     c.lines.push(`done_closure review-assurance-floor: status=${String(floor?.status)} blocking=${String(floor?.blocking)} code=${floorReason.match(/\[(review_assurance_floor_[a-z_]+)\]/)?.[1] ?? 'n/a'}`);
     c.lines.push(`  "${floorReason.match(/local rounds: [0-9/]+ with [0-9]+ PASS host/)?.[0] ?? '?'}" although 3 managed lanes + critic passed: only autopilot_review_submit host verdicts count (core/review-assurance-floor.ts:912-917)`);
     c.lines.push(`done_closure review-escalation: status=${String(escalation?.status)} "${String(escalation?.reason ?? '').slice(0, 80)}"`);
     c.lines.push(`  hinted writer: ${hinted.slice(0, 110)}...`);
-    c.lines.push(`  hinted bin/proof-or-stop.js exists in the task worktree: ${existsSync(join(o.worktree, 'bin/proof-or-stop.js'))} (core/review-assurance-floor.ts:251 renders a PoS-checkout path)`);
+    assert.ok(hinted.includes(`--materialDigest=${currentMaterialHash(o.worktree, 'HEAD', o.worktree)}`), 'C: hint carries the current materialDigest');
+    assert.ok(hinted.includes(`--storyFilesHash=${currentStoryFilesHash(o.worktree, 'HEAD', o.worktree)}`), 'C: hint carries the current storyFilesHash');
     o.mustCli('review_escalation_status', { storyId: o.storyId });
-    // The owner runs the same writer through the installed CLI.
-    const submit = o.mustCli('autopilot_review_submit', { storyId: o.storyId, runId: `${o.storyId}-degraded-r1`, hostId: 'e2e-single-host', provider: 'local',
-      sessionId: 'local-reviewer', decision: 'pass', deriveBindings: true,
-      materialDigest: currentMaterialHash(o.worktree, 'HEAD', o.worktree), storyFilesHash: currentStoryFilesHash(o.worktree, 'HEAD', o.worktree) });
-    c.lines.push(`owner ran: proof-or-stop autopilot_review_submit --provider=local --deriveBindings --decision=pass ... -> exit ${submit.status} (accepted from the owner session: reviewerWrite, core/command-policy.ts:597)`);
+    // The owner pastes the hinted writer as printed; the installed CLI is on PATH.
+    const submit = o.shell('autopilot_review_submit (literal floor hint)', hinted);
+    assert.equal(submit.status, 0, `C: the literal floor hint failed in the task worktree:\n${submit.out.slice(-2000)}`);
+    c.lines.push(`owner pasted the floor hint (proof-or-stop autopilot_review_submit --provider=local --deriveBindings --decision=pass --materialDigest=<current> ...) -> exit ${submit.status} (accepted from the owner session: reviewerWrite, core/command-policy.ts:597)`);
     const floorAfter = closureRow(o, 'done_closure (after host verdict)', 'review-assurance-floor');
     c.lines.push(`done_closure review-assurance-floor after one local host verdict: status=${String(floorAfter?.status)}`);
     assert.notEqual(floorAfter?.blocking, true, 'one local host verdict satisfies the one-local-round floor');

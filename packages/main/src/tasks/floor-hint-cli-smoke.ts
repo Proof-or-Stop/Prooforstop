@@ -8,9 +8,10 @@
  * `node bin/proof-or-stop.js autopilot_review_submit ...`, which fails there
  * with MODULE_NOT_FOUND. This smoke builds such a repo (no bin/), puts a
  * `proof-or-stop` shim for this checkout's dist CLI on PATH, and executes the
- * literal hinted command: it must persist a host verdict bound to the current
- * material and clear the floor. The hint must also carry the exact current
- * digests and name the next unused runId.
+ * literal hinted command: the pasted line must start the CLI and reach the
+ * autopilot_review_submit handler. The hint must also carry the exact current
+ * digests and name the next unused runId. Acceptance of the pasted hint through
+ * DONE is covered by e2e-review-to-done-smoke scenario C.
  */
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -20,7 +21,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
 import { resetConfigCache } from '../core/config.js';
-import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import {
   buildReviewAssuranceFloorGuidance,
   evaluateReviewAssuranceFloor,
@@ -56,7 +57,11 @@ function makeTaskRepo(): string {
   write(root, 'go.mod', 'module example.com/strs\n\ngo 1.22\n');
   write(root, 'strs/strs.go', 'package strs\n');
   write(root, '.gitignore', `${PROOF_OR_STOP_STATE_DIR}/autopilot-verdicts/\n`);
-  write(root, 'proof-or-stop.config.json', `${JSON.stringify({ storyDir: '.proof-or-stop/story/actives' }, null, 2)}\n`);
+  // Same shape as the benchmark adapter's config (validate.commands, artifactContract=none).
+  write(root, 'proof-or-stop.config.json', `${JSON.stringify({
+    artifactContract: 'none',
+    validate: { commands: [{ id: 'task-noop', command: process.execPath, args: ['-e', 'process.exit(0)'], focus: ['fast'] }] },
+  }, null, 2)}\n`);
   git(root, ['init', '-q']);
   git(root, ['config', 'user.email', 'smoke@example.invalid']);
   git(root, ['config', 'user.name', 'Floor Hint Smoke']);
@@ -96,15 +101,11 @@ function main(): void {
     const store = new StoryStore(root);
     store.writeStory(STORY_ID, story());
     store.writeChecklist(STORY_ID, { items: [] });
+    git(root, ['add', '-A']);
+    git(root, ['commit', '-qm', `proof-or-stop: metadata ${STORY_ID}`]);
+    const env = { ...process.env, PATH: `${shimDir}:${process.env.PATH ?? '/usr/bin:/bin'}`, PROOF_OR_STOP_SESSION_ID: 'floor-hint-smoke', PROOF_OR_STOP_NO_HOOKS: '1' };
     const material = currentMaterialHash(root)!;
     const storyFiles = currentStoryFilesHash(root)!;
-    const coverage = { total: 0, required: 0, covered: 0, missingRequired: 0, entries: [] };
-    store.writeTestEvidence(STORY_ID, {
-      command: `proof-or-stop validate --story=${STORY_ID} --json`,
-      output: JSON.stringify({ allPass: true, verificationCoverage: coverage }), result: 'PASS',
-      timestamp: '2026-09-30T10:00:00.000Z', headHash: currentGitHead(root)!, materialHash: material,
-      storyFilesHash: storyFiles, verificationCoverage: coverage,
-    });
 
     const blocked = evaluate(root);
     assert.equal(blocked.required, true, 'material Go change requires the floor');
@@ -127,17 +128,17 @@ function main(): void {
     }
 
     // Execute the literal hint exactly as an owner would paste it.
-    const run = spawnSync('/bin/sh', ['-c', hinted[0]!], {
-      cwd: root, encoding: 'utf8',
-      env: { ...process.env, PATH: `${shimDir}:${process.env.PATH ?? '/usr/bin:/bin'}`, PROOF_OR_STOP_SESSION_ID: 'floor-hint-smoke', PROOF_OR_STOP_NO_HOOKS: '1' },
-    });
-    assert.equal(run.status, 0, `${MARKER}: literal hint failed in a task repo (exit ${run.status}):\n${`${run.stdout}${run.stderr}`.slice(-1500)}`);
-    const verdicts = listVerdicts(root, 'local', STORY_ID);
-    assert.equal(verdicts.length, 1, 'the literal hint persisted one host verdict');
-    assert.equal(verdicts[0]!.materialDigest, material);
-    assert.equal(verdicts[0]!.storyFilesHash, storyFiles);
-    assert.equal(evaluate(root).ok, true, 'the host verdict from the literal hint clears the one-round floor');
-    console.log('floor-hint-cli-smoke: PASS (hint uses installed proof-or-stop with current digests; literal hint ran in a task repo)');
+    const run = spawnSync('/bin/sh', ['-c', hinted[0]!], { cwd: root, encoding: 'utf8', env });
+    // The fixture has no signed validate run, so the handler itself refuses on
+    // evidence; what matters here is that the pasted line reached that handler
+    // (full acceptance through DONE is covered by e2e-review-to-done scenario C).
+    const output = `${run.stdout}${run.stderr}`;
+    assert.doesNotMatch(output, /Cannot find module|MODULE_NOT_FOUND|command not found|No such file/,
+      `${MARKER}: literal hint could not start the CLI in a task repo:\n${output.slice(-1500)}`);
+    assert.match(output, /running autopilot_review_submit/, `${MARKER}: literal hint did not reach the autopilot_review_submit handler:\n${output.slice(-1500)}`);
+    assert.match(output, /requires current admissible PASS validation evidence/, 'handler-level refusal (no validate run in this fixture)');
+    assert.equal(listVerdicts(root, 'local', STORY_ID).length, 0, 'no verdict without admissible validation evidence');
+    console.log('floor-hint-cli-smoke: PASS (hint uses installed proof-or-stop with current digests; literal hint reached the handler in a task repo)');
   } finally {
     rmSync(root, { recursive: true, force: true });
     rmSync(shimDir, { recursive: true, force: true });
