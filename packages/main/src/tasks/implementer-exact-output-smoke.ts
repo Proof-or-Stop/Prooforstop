@@ -26,7 +26,8 @@ const TRANSCRIPT = 'abs: 1:1: range assignment size mismatch: target=3 value=2';
 const ACCEPT = 'range assignment size mismatch: target=<X> value=<Y>';
 
 function section(prompt: string): string | undefined {
-  const start = prompt.indexOf(HEADER);
+  // Match the section's own header line; the role template may mention the header text in prose.
+  const start = prompt.indexOf(`\n${HEADER} (copied verbatim`);
   if (start < 0) return undefined;
   const end = prompt.indexOf('\n\n', start);
   return prompt.slice(start, end < 0 ? undefined : end);
