@@ -49,11 +49,19 @@
  *      the bench adapter does. PoS runtime files must stay out of git status
  *      without any owner-written excludes; must reach DONE (hard PASS).
  *      Also selected by E2E_R2D_BARE_GITIGNORE=1 (runs E instead of A).
+ *   N  A's and D's flows (NA, ND) from REVIEW entry driven ONLY by
+ *      `proof-or-stop next --storyId=<id> --json`: the harness executes the
+ *      returned command (agent kinds through the same fake-provider seams and
+ *      authored values as A/D) and asserts DONE, that next is read-only, and
+ *      that no proposed command is refused by its gate. Prints CLI calls and
+ *      seconds against A/D when they run in the same invocation.
+ *   NR the same flows (NA-run, ND-run) with `next --run`, which executes the
+ *      consecutive framework steps itself through the real CLI.
  *
  * Machine registries (provider slots, locks) use a disposable fixture machine
  * so the harness never touches the developer's ~/.proof-or-stop admission state.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -968,6 +976,177 @@ function scenarioD2(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
+/** DEV work the owner does before REVIEW entry (devToReview without story_advance REVIEW). */
+const DEV_SETUP_CALLS = 6;
+
+function devSetup(o: Owner): void {
+  const id = o.storyId;
+  o.mustCli('dev_memory_preflight_ack', { storyId: id });
+  o.mustCli('scope_contract_init_from_plan', { storyId: id });
+  for (const [itemId, test, proves] of [['CHK-001', 'TestUpper', 'Upper upper-cases its input'], ['CHK-002', 'TestReverse', 'Reverse reverses by rune']] as const) {
+    o.mustCli('verification_evidence_add', { storyId: id, itemId, intentRef: `${itemId}:happy:0`, kind: 'logic_test',
+      command: `go test -v ./strs -run ${test}`, selector: `--- PASS: ${test}`, note: `Pinned focused go test proves ${proves}.` }, { label: `verification_evidence_add ${itemId}` });
+  }
+  o.mustCli('checklist_update', { storyId: id, itemId: 'CHK-001', status: 'done' }, { label: 'checklist_update CHK-001 done' });
+  o.mustCli('checklist_update', { storyId: id, itemId: 'CHK-002', status: 'done' }, { label: 'checklist_update CHK-002 done' });
+}
+
+interface NextStepJson {
+  phase: string; kind: 'agent' | 'framework' | 'human'; reason: string; command: string | null; why: string;
+  cli: { command: string; payload: Record<string, unknown> } | null; placeholders?: string[]; done?: boolean; wait?: boolean;
+}
+
+const VERIFIED_PROMISES = [
+  { docPath: 'docs/types/string.md', promise: 'Upper returns the upper-case form of a string.', status: 'verified', verifiedBy: 'go test -v ./strs -run TestUpper', evidence: '--- PASS: TestUpper' },
+  { docPath: 'docs/types/string.md', promise: 'Reverse returns the string reversed by rune.', status: 'verified', verifiedBy: 'go test -v ./strs -run TestReverse', evidence: '--- PASS: TestReverse' },
+];
+
+/**
+ * Scenario N: from REVIEW entry the owner runs ONLY `proof-or-stop next
+ * --storyId=<id> --json` and executes the returned command. Agent-kind steps go
+ * through the same fake-provider seams as A/D (the scripted reviewer envelope,
+ * critic dispositions, delivery reviewer, finding repair) and the same authored
+ * values (resolution, summary, finish decision). Every proposed command must
+ * succeed: next must never propose a command its gate then refuses.
+ */
+function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boolean }, lines: string[]): void {
+  const id = o.storyId;
+  const scriptKeyByRun = new Map<string, string>();
+  let firstRound: string | undefined;
+  const reasons: string[] = [];
+  const statusOf = () => existsSync(o.worktree) ? execFileSync('git', ['status', '--porcelain', '--untracked-files=all'], { cwd: o.worktree, encoding: 'utf8' }) : '';
+  let internalCalls = 0;
+  let internalMs = 0;
+  for (let iteration = 0; iteration < 160; iteration += 1) {
+    const before = statusOf();
+    const asked = o.cli('next', { storyId: id, json: true, ...(mode.run ? { run: true } : {}) }, { label: mode.run ? 'next --run' : 'next' });
+    const parsed = asked.status === 0 ? parseJson(asked.stdout) : null;
+    const next = (mode.run ? parsed?.next : parsed) as NextStepJson | undefined;
+    assert.ok(next && typeof next.kind === 'string', `[${o.scenario}] next --storyId=${id} --json did not return a step:\n${asked.out.slice(-2000)}`);
+    if (mode.run) {
+      const executed = (parsed!.executed ?? []) as Array<{ command: string; exit: number; ms: number; tail: string }>;
+      for (const row of executed) {
+        internalCalls += 1; internalMs += row.ms;
+        reasons.push(`run:${row.command.split(' ')[1]}`);
+        assert.equal(row.exit, 0, `[${o.scenario}] next --run executed a framework step its gate refused: ${row.command}\n${row.tail}`);
+      }
+      assert.equal(parsed!.stopped ?? null, null, `[${o.scenario}] next --run stopped: ${String(parsed!.stopped)}`);
+    } else {
+      assert.equal(statusOf(), before, `[${o.scenario}] next must be read-only; git status changed:\n${before}\n---\n${statusOf()}`);
+    }
+    if (next.done) break;
+    assert.notEqual(next.kind, 'human', `[${o.scenario}] next asked for a human decision: ${next.reason}: ${next.why}`);
+    assert.ok(next.cli, `[${o.scenario}] next returned no runnable command: ${next.reason}: ${next.why}`);
+    const payload = { ...next.cli.payload };
+    const round = new StoryStore(o.worktree).readStory(id).currentReviewRound;
+    reasons.push(next.reason);
+    // Fake-provider seams and authored values for agent-kind steps.
+    switch (next.reason) {
+      case 'review_lane_launch': {
+        firstRound ??= round;
+        const lane = String(payload.lane);
+        const reviewRunId = String(payload.reviewRunId);
+        const envelope = mode.findingRound1 && round === firstRound && lane === 'proof-or-stop-review-test-coverage'
+          ? { conclusion: 'findings', note: 'Scripted behavior finding: empty-string edge case is untested.', findings: [D_FINDING] }
+          : PASS_ENVELOPE(lane);
+        o.script(reviewRunId, { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId: id, providerAgent: lane, lane, reviewRunId, ...envelope, ...o.readEvidence() }) });
+        break;
+      }
+      case 'inventory_critic_launch': {
+        const epoch = new StoryStore(o.worktree).readReviewInventoryEpochs(id).epochs.at(-1)!;
+        const raw = new StoryStore(o.worktree).readFindings(id).findings.filter(f => f.reviewRound === epoch.reviewRound);
+        const dispositions = raw.map(f => ({ finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'reverse-empty-string',
+          reason: 'The empty-string edge of Reverse is untested; one verified family.' }));
+        const reviewRunId = String(payload.reviewRunId);
+        o.script(reviewRunId, { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId: id, providerAgent: MANAGED_INVENTORY_CRITIC_LANE, lane: MANAGED_INVENTORY_CRITIC_LANE,
+          reviewRunId, conclusion: 'pass', note: dispositions.length ? 'Scripted inventory critic: dispositioned every verified finding of this wave.' : 'Scripted inventory critic: every required lane passed with zero findings; nothing to disposition.',
+          inventoryCritic: { epochId: epoch.epochId, wave: epoch.waves.length + 1, findingDispositions: dispositions }, ...o.readEvidence() }) });
+        break;
+      }
+      case 'delivery_review_launch': {
+        const deliveryPayload = { storyId: id, docsPromises: VERIFIED_PROMISES,
+          realMachineTests: [
+            { featureId: 'CHK-001', transcript: 'go test -v ./strs -run TestUpper -> --- PASS: TestUpper' },
+            { featureId: 'CHK-002', transcript: 'go test -v ./strs -run TestReverse -> --- PASS: TestReverse' },
+          ],
+          closingSelfCheck: { hasRealMachineTest: true, hasEdgeCaseCoverage: true, hasUnresolvedTodos: false, summary: 'Both string helpers are implemented and verified by focused go tests.' },
+          agentId: DELIVERY };
+        o.script(DELIVERY, { commands: [[process.execPath, CLI, 'delivery_check_set', JSON.stringify(deliveryPayload)]], final: 'Delivery review complete; delivery_check_set recorded.' });
+        break;
+      }
+      case 'finding_repair':
+        o.script(FINDING_REPAIR, { commands: [['/bin/sh', '-c', `printf '%s' '${REPAIR_TEST.replace(/'/g, "'\\''")}' >> strs/strs_test.go && git add strs/strs_test.go && git -c user.name=${FINDING_REPAIR} commit -qm 'test: Reverse of the empty string' && git log --format=%h -1`]],
+          final: 'Added TestReverseEmpty covering Reverse(""); committed.' });
+        break;
+      case 'finding_resolve':
+        payload.resolution = `repair ${git(o.worktree, ['log', '--format=%h', '-1', '--grep=Reverse of the empty string'])} adds TestReverseEmpty; go test ./strs -run TestReverseEmpty passes`;
+        break;
+      case 'dev_memory_finish_decision':
+        Object.assign(payload, { decision: 'no-reusable-lesson', reason: 'Harness fixture: trivial string helpers, no reusable lesson.' });
+        break;
+      case 'summary_set':
+        Object.assign(payload, { changes: 'strs/strs.go: Upper now upper-cases; new Reverse reverses by rune.', usage: 'strs.Upper("ab") == "AB"; strs.Reverse("héllo") == "olléh"',
+          expectedOutcome: 'go test -v ./strs prints --- PASS: TestUpper and --- PASS: TestReverse', actualTranscript: 'go test -v ./strs: --- PASS: TestUpper, --- PASS: TestReverse, ok',
+          outcomeDiff: 'no difference', limitations: 'none — fully covered', pitfalls: 'Harness fixture; no retries were needed.' });
+        break;
+      default:
+        break;
+    }
+    const unfilled = Object.entries(payload).filter(([, value]) => typeof value === 'string' && /^<.*>$/.test(value)).map(([key]) => key);
+    assert.deepEqual(unfilled, [], `[${o.scenario}] ${next.reason}: harness has no value for placeholder(s) ${unfilled.join(', ')}`);
+    const ran = o.cli(next.cli.command, payload, { label: `  ${next.kind[0]}:${next.reason}`.slice(0, 44) });
+    assert.equal(ran.status, 0, `[${o.scenario}] next proposed ${next.command} (${next.reason}) and its gate refused it:\n${ran.out.slice(-2500)}`);
+    const launched = parseJson(ran.stdout)?.run as Record<string, unknown> | undefined;
+    if (next.cli.command === 'host_run' && launched?.runId) {
+      scriptKeyByRun.set(String(launched.runId), next.reason === 'delivery_review_launch' ? DELIVERY : next.reason === 'finding_repair' ? FINDING_REPAIR : String(payload.reviewRunId));
+    }
+    if (next.reason === 'managed_run_wait') {
+      const key = scriptKeyByRun.get(String(payload.runId));
+      if (key) o.unscript(key);
+    }
+  }
+  assert.equal(new StoryStore(o.root).readStory(id).phase, 'DONE', `[${o.scenario}] next never reached DONE; steps: ${reasons.join(' > ')}`);
+  lines.push(`next-driven steps (${reasons.length}): ${reasons.join(' > ')}`);
+  if (mode.run) lines.push(`framework steps executed inside next --run: ${internalCalls} (${(internalMs / 1000).toFixed(1)} s, included in the next --run call times)`);
+}
+
+function scenarioN(machineEnv: NodeJS.ProcessEnv, steps: Step[], flow: 'A' | 'D', run: boolean): Outcome {
+  const tag = `N${flow}${run ? '-run' : ''}`;
+  const name = `${tag} ${flow}'s flow from REVIEW entry driven only by proof-or-stop next${run ? ' --run' : ''}`;
+  const o = new Owner(tag, flow === 'A' ? (run ? 'B-e2e7' : 'B-e2e5') : (run ? 'B-e2e8' : 'B-e2e6'), machineEnv, steps, false, flow === 'D' ? { trackedGateFailureCounts: true } : {});
+  const lines: string[] = [];
+  try {
+    devSetup(o);
+    driveWithNext(o, { findingRound1: flow === 'D', run }, lines);
+    assert.match(git(o.root, ['log', '--format=%s', '-3', 'main']), new RegExp(`merge: ${o.storyId} `), 'story branch merged into main');
+    if (flow === 'D') assert.match(readFileSync(join(o.root, 'strs/strs_test.go'), 'utf8'), /TestReverseEmpty/, 'repair merged into main');
+    lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** CLI calls and seconds from REVIEW entry (after the shared DEV setup), per scenario. */
+function fromReviewEntry(steps: Step[], scenario: string): { calls: number; seconds: number; nextCalls: number } | null {
+  const rows = steps.filter(s => s.scenario === scenario).slice(DEV_SETUP_CALLS);
+  if (!rows.length) return null;
+  return { calls: rows.length, seconds: rows.reduce((sum, s) => sum + s.ms, 0) / 1000, nextCalls: rows.filter(s => s.label.startsWith('next')).length };
+}
+
+function printNComparison(steps: Step[]): void {
+  const pairs: Array<[string, string]> = [['A', 'NA'], ['A', 'NA-run'], ['D', 'ND'], ['D', 'ND-run']];
+  const rows = pairs.map(([hand, driven]) => ({ hand, driven, h: fromReviewEntry(steps, hand), d: fromReviewEntry(steps, driven) })).filter(row => row.d);
+  if (!rows.length) return;
+  console.log('\nnext-driven vs hand-coded owner sequence, from REVIEW entry (after the 6 shared DEV setup calls):');
+  for (const { hand, driven, h, d } of rows) {
+    const handText = h ? `${hand}: ${h.calls} calls, ${h.seconds.toFixed(1)} s` : `${hand}: not run in this invocation`;
+    console.log(`  ${driven}: ${d!.calls} calls (${d!.nextCalls} next), ${d!.seconds.toFixed(1)} s   |   ${handText}`);
+  }
+}
+
 function printTimeline(steps: Step[], scenario: string): void {
   const rows = steps.filter(s => s.scenario === scenario);
   const total = rows.reduce((sum, s) => sum + s.ms, 0);
@@ -979,7 +1158,7 @@ function printTimeline(steps: Step[], scenario: string): void {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDE]|D2)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|NR)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -999,10 +1178,13 @@ async function main(): Promise<void> {
     if (!only.length || only.includes('D')) outcomes.push(scenarioD(machine.env, steps));
     if (!only.length || only.includes('D2')) outcomes.push(scenarioD2(machine.env, steps));
     if (only.includes('E')) outcomes.push(scenarioA(machine.env, steps, true).a);
+    if (only.includes('N')) outcomes.push(scenarioN(machine.env, steps, 'A', false), scenarioN(machine.env, steps, 'D', false));
+    if (only.includes('NR')) outcomes.push(scenarioN(machine.env, steps, 'A', true), scenarioN(machine.env, steps, 'D', true));
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'E']) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'E', 'NA', 'ND', 'NA-run', 'ND-run']) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {
     console.log(`  [${outcome.status}] ${outcome.name}`);
