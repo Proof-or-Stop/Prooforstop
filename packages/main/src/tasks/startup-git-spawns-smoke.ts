@@ -24,7 +24,8 @@
  *     over a matrix of repository states, or defers to git (never guesses);
  *   - a read-only admission is never `blocked` by the runtime entrypoint
  *     authority classifier (the premise for skipping it), while a Story write
- *     from a foreign self-project runtime still is.
+ *     from a foreign self-project runtime still is, both in the classifier and
+ *     end to end through the CLI (refused before dispatch, nothing written).
  */
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -263,6 +264,11 @@ try {
   mkdirSync(join(selfProject, 'packages', 'main'), { recursive: true });
   writeJson(join(selfProject, 'package.json'), { name: 'proof-or-stop', version: '1.0.0' });
   writeJson(join(selfProject, 'packages', 'main', 'package.json'), { name: '@proof-or-stop/core', version: '1.0.0' });
+  writeJson(join(selfProject, 'proof-or-stop.config.json'), { storyDir: '.proof-or-stop/story/actives', storyPrefix: 'B' });
+  const selfStory = join(selfProject, '.proof-or-stop', 'story', 'actives', 'B-self');
+  mkdirSync(selfStory, { recursive: true });
+  writeJson(join(selfStory, 'index.json'), story('B-self', 'DEV'));
+  writeJson(join(selfStory, 'checklist.json'), { items: [{ id: 'CHK-001', title: 'Item', status: 'pending', startTime: null, endTime: null }] });
   git(selfProject, ['init', '-q', '-b', 'main']);
   git(selfProject, ['config', 'user.name', 's']);
   git(selfProject, ['config', 'user.email', 's@example.com']);
@@ -289,6 +295,29 @@ try {
     if (write.status === 'blocked') blockedWrites += 1;
   }
   check(blockedWrites >= 3, `authority classifier must still block Story writes from a foreign/main runtime (blocked ${blockedWrites}/4)`);
+  // End to end through the CLI: this checkout's runtime is foreign to the
+  // fixture self-project, so a Story write is refused before dispatch (and
+  // writes nothing) from both its main checkout and its Story worktree, while
+  // a read-only command still runs there with no startup spawn.
+  const write = ['checklist_update', '--storyId=B-self', '--itemId=CHK-001', '--status=done'];
+  for (const [where, cwd, reason] of [
+    ['self-main', selfProject, 'foreign_self_project_runtime_for_story_write'],
+    ['self-worktree', selfWorktree, 'runtime_authority_unresolved_in_worktree'],
+  ] as const) {
+    for (const mode of modes) {
+      const label = `[${mode === '0' ? 'per-file' : 'bundle'}] ${where}`;
+      const refused = run(temp, cwd, write, mode);
+      check(refused.status === 1 && refused.stderr.includes(`Blocked [${reason}] before dispatch.`),
+        `${label}: Story write from a foreign runtime not refused with ${reason}: ${refused.status} ${refused.stderr.slice(0, 400)}`);
+      const checklist = readFileSync(join(cwd, '.proof-or-stop', 'story', 'actives', 'B-self', 'checklist.json'), 'utf8');
+      check(checklist.includes('"pending"'), `${label}: refused Story write changed the checklist`);
+      const readOnly = run(temp, cwd, ['story_list'], mode);
+      check(readOnly.status === 0 && readOnly.stdout.includes('B-self'), `${label}: read-only story_list failed: ${readOnly.stderr.slice(0, 400)}`);
+      const startup = noStartupSpawns(readOnly.spawns);
+      check(startup === null, `${label}: story_list ${startup}`);
+      counts.push(`${label}: foreign-runtime write refused (${reason}); story_list ${readOnly.spawns.filter(isStartupSpawn).length} startup spawn(s)`);
+    }
+  }
   counts.push(`branch reader decided ${decided}/${Object.keys(states).length} matrix states without git`);
 } finally {
   rmSync(temp, { recursive: true, force: true });
