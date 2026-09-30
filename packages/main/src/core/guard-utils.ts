@@ -27,7 +27,7 @@ import { resolveWorkflowPolicy } from './workflow-policy.js';
 import { evaluateReviewVerdict, storyMachine, type StoryMachineContext } from './machine.js';
 import { isTerminalChecklistStatus } from './checklist-status.js';
 
-// No round decay: the profile's blocking severities apply in every review round
+// No round decay: the closure severities (critical/high/medium) apply in every review round
 // (core/finding-closure.ts). Re-exported for existing consumers.
 export { resolveEffectiveBlockingSeverities };
 

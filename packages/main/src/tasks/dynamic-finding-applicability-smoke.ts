@@ -61,7 +61,7 @@ test('strong current negative witness releases transient high floor without a re
 test('not-reproduced witness cannot release medium after route expiry', () => assert.equal(decide({ finding: finding('medium'), assessment: { verdict: 'not_reproduced_under_current_witness', integrity, proofStrength: 'strong', dispositionPlan: null, acceptedRoute: { ...route, receiptState: 'stale' } } }).blocking, true));
 test('fresh signed disproven truth transition releases', () => assert.equal(decide({ assessment: { verdict: 'disproven', integrity, proofStrength: 'strong', dispositionPlan: null, acceptedRoute: null } }).blocking, false));
 test('unknown high verdict fails closed', () => assert.equal(decide({ round: 3, assessment: { verdict: 'unknown', integrity, proofStrength: 'strong', dispositionPlan: null, acceptedRoute: null } }).blocking, true));
-// No round decay: the legacy predicate blocks the profile's severities in every round.
+// No round decay: the legacy predicate blocks the effective (closure) severities in every round.
 test('observe legacy predicate has no round decay', () => assert.equal(decide({ round: 3, mode: 'observe' }).blocking, true));
 test('observe legacy predicate follows profile severities', () => assert.equal(decide({ effectiveBlockingSeverities: ['critical'], mode: 'observe' }).blocking, false));
 test('warn keeps gate result and exposes dynamic result', () => { const result = decide({ effectiveBlockingSeverities: ['critical'], mode: 'warn' }); assert.equal(result.blocking, false); assert.equal(result.dynamicBlocking, true); });

@@ -1,8 +1,9 @@
 /**
  * Finding closure rule (no round decay).
  *
- * Every VERIFIED open finding (legacy findings without evidenceState count as
- * verified) whose severity is in the profile's review.blockingSeverities must
+ * Every VERIFIED open critical, high or medium finding (legacy findings without
+ * evidenceState count as verified), in every profile including the default
+ * balanced (core/finding-closure-severities.ts; low stays advisory), must
  * be closed before REVIEW->TEST and before DONE, whichever review round raised
  * it. Findings from earlier rounds count. A finding is closed only through its
  * recorded lifecycle transition: finding_resolve with repair evidence (including
@@ -16,10 +17,12 @@
 import type { StoryStore } from './store.js';
 import type { Finding } from './types.js';
 import { readDynamicFindingDecision } from './finding-applicability-projection.js';
+import { closureBlockingSeverities } from './finding-closure-severities.js';
+export { CLOSURE_REQUIRED_SEVERITIES, closureBlockingSeverities } from './finding-closure-severities.js';
 
 /**
- * The profile's blocking severities for every review round (round decay was
- * removed). roundCount is still derived from story events (REVIEW/advance), not
+ * The closure severities (critical/high/medium, plus any profile floor) for
+ * every review round (round decay was removed). roundCount is still derived from story events (REVIEW/advance), not
  * from review.json, and is returned for lane-coverage diagnostics only.
  */
 export function resolveEffectiveBlockingSeverities(
@@ -34,7 +37,7 @@ export function resolveEffectiveBlockingSeverities(
       roundCount = story.events.filter(event => event.phase === 'REVIEW' && event.action === 'advance').length || 1;
     }
   } catch { /* fallback to 1 */ }
-  return { effectiveBlockingSeverities: [...policy.review.blockingSeverities], roundCount };
+  return { effectiveBlockingSeverities: closureBlockingSeverities(policy), roundCount };
 }
 
 export interface UnclosedBlockingFinding {

@@ -1,4 +1,5 @@
 import { readRouteSourceRestoration } from './finding-material-reattestation.js';
+import { closureBlockingSeverities } from '../core/finding-closure-severities.js';
 import { randomUUID } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import type { HandlerContext } from './context.js';
@@ -183,7 +184,7 @@ export function createFindingApplicabilityHandlers(ctx: HandlerContext) {
     const findings = ctx.store.readFindings(input.storyId).findings.filter(row => !input.findingIds || input.findingIds.includes(row.id));
     const story = ctx.store.readStory(input.storyId);
     const round = Math.max(1, story.events?.filter(row => row.phase === 'REVIEW' && row.action === 'advance').length ?? 0);
-    const blocking = resolveWorkflowPolicy(loadConfig(ctx.root), story).review.blockingSeverities;
+    const blocking = closureBlockingSeverities(resolveWorkflowPolicy(loadConfig(ctx.root), story));
     const rows: DynamicFindingBatchRow[] = findings.map(finding => {
       const decision = readDynamicFindingProjection(ctx, input.storyId, finding, blocking, round, input.mode);
       const ledger = ctx.store.readFindingLedger<JsonValue>(input.storyId);
