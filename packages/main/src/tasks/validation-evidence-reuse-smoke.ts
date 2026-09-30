@@ -1398,9 +1398,16 @@ function main(): void {
       identity(root, 'configured', [baseCommand], { profile: 'light' }),
       identity(root, 'configured', [baseCommand], { policy: { required: ['different'] } }),
       identity(root, 'configured', [baseCommand], { sourceInputs: { configured: 'changed' } }),
-      identity(root, 'configured', [baseCommand], { env: { PATH: process.env.PATH, VALIDATION_SECRET: 'changed-secret' } }),
+      // Lab verification-env-digest: an ambient variable binds when it is in a
+      // behavior-affecting family (NODE_OPTIONS here), declared, or named by the command.
+      identity(root, 'configured', [baseCommand], { env: { PATH: process.env.PATH, VALIDATION_SECRET: 'smoke-secret-value', NODE_OPTIONS: '--no-deprecation' } }),
     ];
     for (const changed of variations) assert.notEqual(changed.digest, configured.digest, 'each behavior-affecting input must invalidate identity');
+    assert.equal(
+      identity(root, 'configured', [baseCommand], { env: { PATH: process.env.PATH, VALIDATION_SECRET: 'changed-secret', COLUMNS: '200', SHLVL: '4' } }).digest,
+      configured.digest,
+      'an undeclared, unnamed, non-family ambient variable (or terminal bookkeeping) is outside the v2 environment identity',
+    );
     assert.equal(JSON.stringify(configured).includes('smoke-secret-value'), false, 'raw effective environment secret must not be persisted');
 
     const commandExecution = summarizeRoutineCommandExecution([{
