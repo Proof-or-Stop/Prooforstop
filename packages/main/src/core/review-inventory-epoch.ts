@@ -1067,6 +1067,12 @@ export function reviewInventoryFinalizedNextCommand(epoch: ReviewInventoryEpoch,
   if (receipt.authority === 'review-remediation-only') {
     return `proof-or-stop story_advance --storyId=${epoch.storyId} --phase=DEV`;
   }
+  // A zero-wave completeness-only receipt (direct finalize without an OPEN
+  // epoch) binds no lanes and no critic; PRE_CERT never admits it, so fast
+  // PRE_CERT preparation would dead-end. Retire it for a saturated epoch.
+  if (isInventoryCompletenessOnlyReceipt(epoch, receipt)) {
+    return `proof-or-stop review_inventory_cancel --storyId=${epoch.storyId} --reason="completeness-only receipt cannot enter certification"`;
+  }
   // Zero NEW families does not mean no findings: an older multi-wave inventory
   // may still carry unresolved work. Let the existing finding policy decide it.
   return epoch.waves.some(wave => wave.verifiedFindingFamilies.length > 0)

@@ -107,7 +107,8 @@ class Owner {
   private readonly scripts: string;
   private readonly env: NodeJS.ProcessEnv;
 
-  constructor(readonly scenario: string, readonly storyId: string, machineEnv: NodeJS.ProcessEnv, readonly steps: Step[]) {
+  constructor(readonly scenario: string, readonly storyId: string, machineEnv: NodeJS.ProcessEnv, readonly steps: Step[],
+    private readonly fixtureOpts: { trackedGateFailureCounts?: boolean } = {}) {
     this.root = realpathSync(mkdtempSync(join(tmpdir(), `e2e-r2d-${scenario}-`)));
     this.worktree = join(this.root, '.worktrees', storyId);
     this.store = new StoryStore(this.root);
@@ -160,7 +161,9 @@ class Owner {
     write(root, 'strs/strs.go', 'package strs\n\n// Upper returns s unchanged (baseline bug).\nfunc Upper(s string) string { return s }\n');
     write(root, 'strs/strs_test.go', 'package strs\n\nimport "testing"\n\nfunc TestBaseline(t *testing.T) {}\n');
     write(root, 'docs/types/string.md', DOC_V1);
-    write(root, '.gitignore', `.worktrees/\n${mergeRuntimeGitignore('')}`);
+    // Run 11's task repo tracked the convergence-breaker gate counter (commit 6
+    // of that run committed gate-failure-counts.json); D2 reproduces that.
+    write(root, '.gitignore', `.worktrees/\n${mergeRuntimeGitignore('')}${this.fixtureOpts.trackedGateFailureCounts ? '!**/gate-failure-counts.json\n' : ''}`);
     git(root, ['add', '-A']);
     git(root, ['commit', '-qm', 'task baseline']);
     // Same shape as the bench adapter's prepare_workflow.py.
@@ -822,7 +825,7 @@ function scenarioD2(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   // An unauthenticated empty owner checkpoint commit stands in for the
   // lineage break the fixed framework no longer produces itself.
   const name = 'D2 run 11 workaround: rerun round after a lineage break; superseded passes must not block TEST/DONE';
-  const o = new Owner('D2', 'B-e2e4', machineEnv, steps);
+  const o = new Owner('D2', 'B-e2e4', machineEnv, steps, { trackedGateFailureCounts: true });
   const lines: string[] = [];
   try {
     devToReview(o);
