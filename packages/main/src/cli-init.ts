@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { canonicalAgentRoleId } from './core/agent-role-identity.js';
+import { ensureRuntimeInfoExclude } from './core/runtime-info-exclude.js';
 import { extractManagedBlock, hasManagedBlock, inspectManagedBlock, replaceManagedBlock } from './core/managed-markers.js';
 import { mkdirSync, writeFileSync, readFileSync, existsSync, cpSync, readdirSync, lstatSync, unlinkSync, chmodSync, rmSync } from 'fs';
 import { join, dirname } from 'path';
@@ -1171,6 +1172,16 @@ if (upgradeManagedAssets) {
   const result = runManagedAssetCheck(targetDir, { apply: true, profile: selectedProfile, assetMode: selectedAssetMode });
   console.log(renderManagedAssetCheck(result));
   if (!result.ok) process.exit(1);
+}
+
+// The .gitignore merge (step 1.5) may never be committed (a frozen task .gitignore,
+// a team that declines it); Story branches then lack the block. The shared git
+// info/exclude hides the same registry patterns in every linked worktree.
+{
+  // Last, after the project config exists, so the configured worktreeDir is read.
+  const excluded = ensureRuntimeInfoExclude(targetDir);
+  if (excluded.status === 'written') console.log('  ✓ .git/info/exclude (Proof-or-Stop runtime artifacts)');
+  else if (excluded.status === 'unchanged') console.log('  - .git/info/exclude (runtime artifacts already excluded)');
 }
 
 console.log(`

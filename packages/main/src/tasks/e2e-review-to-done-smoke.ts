@@ -38,11 +38,18 @@
  *      TEST names the commit/rule with one Next (review_round_prepare); the
  *      owner reruns the round; the superseded older passes of the same round
  *      block neither TEST nor DONE.
+ *   E  run-11 bare .gitignore: scenario A on a task repo whose tracked
+ *      .gitignore has NO Proof-or-Stop runtime block (and no .worktrees/),
+ *      with `proof-or-stop init --profile codex --asset-mode global-thin`
+ *      run in the main checkout before the Story worktree exists, exactly as
+ *      the bench adapter does. PoS runtime files must stay out of git status
+ *      without any owner-written excludes; must reach DONE (hard PASS).
+ *      Also selected by E2E_R2D_BARE_GITIGNORE=1 (runs E instead of A).
  *
  * Machine registries (provider slots, locks) use a disposable fixture machine
  * so the harness never touches the developer's ~/.proof-or-stop admission state.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -111,7 +118,7 @@ class Owner {
   private readonly scripts: string;
   private readonly env: NodeJS.ProcessEnv;
 
-  constructor(readonly scenario: string, readonly storyId: string, machineEnv: NodeJS.ProcessEnv, readonly steps: Step[],
+  constructor(readonly scenario: string, readonly storyId: string, machineEnv: NodeJS.ProcessEnv, readonly steps: Step[], readonly bareGitignore = false,
     private readonly fixtureOpts: { trackedGateFailureCounts?: boolean } = {}) {
     this.root = realpathSync(mkdtempSync(join(tmpdir(), `e2e-r2d-${scenario}-`)));
     this.worktree = join(this.root, '.worktrees', storyId);
@@ -165,9 +172,10 @@ class Owner {
     write(root, 'strs/strs.go', 'package strs\n\n// Upper returns s unchanged (baseline bug).\nfunc Upper(s string) string { return s }\n');
     write(root, 'strs/strs_test.go', 'package strs\n\nimport "testing"\n\nfunc TestBaseline(t *testing.T) {}\n');
     write(root, 'docs/types/string.md', DOC_V1);
+    // Scenario E: the task's own .gitignore, without PoS's runtime block or .worktrees/.
     // Run 11's task repo tracked the convergence-breaker gate counter (commit 6
     // of that run committed gate-failure-counts.json); D2 reproduces that.
-    write(root, '.gitignore', `.worktrees/\n${mergeRuntimeGitignore('')}${this.fixtureOpts.trackedGateFailureCounts ? '!**/gate-failure-counts.json\n' : ''}`);
+    write(root, '.gitignore', this.bareGitignore ? 'bin/\n' : `.worktrees/\n${mergeRuntimeGitignore('')}${this.fixtureOpts.trackedGateFailureCounts ? '!**/gate-failure-counts.json\n' : ''}`);
     git(root, ['add', '-A']);
     git(root, ['commit', '-qm', 'task baseline']);
     // Same shape as the bench adapter's prepare_workflow.py.
@@ -206,6 +214,15 @@ class Owner {
     ] });
     git(root, ['add', '-A']);
     git(root, ['commit', '-qm', `proof-or-stop: INIT_CHECK metadata ${storyId}`]);
+    if (this.bareGitignore) {
+      // Bench adapter: `proof-or-stop init --profile codex --asset-mode global-thin .`
+      // in the main checkout. Its .gitignore merge stays an uncommitted main-checkout
+      // edit (a frozen control file), so the Story branch never carries the block.
+      const init = spawnSync(process.execPath, [CLI, 'init', '--profile', 'codex', '--asset-mode', 'global-thin', '.'], {
+        cwd: root, encoding: 'utf8', env: this.env,
+      });
+      assert.equal(init.status, 0, `[${this.scenario}] init failed:\n${init.stdout}${init.stderr}`);
+    }
     git(root, ['branch', `story/${storyId}`]);
     git(root, ['worktree', 'add', '-q', worktree, `story/${storyId}`]);
     write(worktree, 'strs/strs.go', IMPL);
@@ -533,9 +550,9 @@ function closureRow(o: Owner, label: string, rowId: string): Record<string, unkn
 
 interface Outcome { name: string; status: 'PASS' | 'FAIL' | 'OBSERVED'; lines: string[] }
 
-function scenarioA(machineEnv: NodeJS.ProcessEnv, steps: Step[]): { a: Outcome; c: Outcome } {
-  const aName = 'A happy path REVIEW -> TEST -> DONE';
-  const o = new Owner('A', 'B-e2e0', machineEnv, steps);
+function scenarioA(machineEnv: NodeJS.ProcessEnv, steps: Step[], bare = false): { a: Outcome; c: Outcome } {
+  const aName = bare ? 'E bare task .gitignore (no runtime block): REVIEW -> TEST -> DONE' : 'A happy path REVIEW -> TEST -> DONE';
+  const o = new Owner(bare ? 'E' : 'A', bare ? 'B-e2e4' : 'B-e2e0', machineEnv, steps, bare);
   const c: Outcome = { name: 'C single host: review assurance floor / escalation before DONE', status: 'OBSERVED', lines: [] };
   try {
     devToReview(o);
@@ -581,6 +598,8 @@ function scenarioA(machineEnv: NodeJS.ProcessEnv, steps: Step[]): { a: Outcome; 
     c.lines.push(`done_prepare after the host verdict: exit ${prepare.status} status=${String(prepared?.status)} blockedAt=${String(prepared?.blockedAt ?? '-')}`);
     if (prepared?.blockedAt) c.lines.push(`  ${String(prepared.reason).slice(0, 230)} (handlers/verifier.ts:2214-2239)`);
     assert.doesNotMatch(prepare.out, /VALIDATION_PUBLICATION_NOT_READY/, 'C: done_prepare after the host verdict must not refuse on unpublished metadata');
+    // E: projected controller hooks and PoS runtime files are framework-owned, never dirt for done_prepare.
+    if (bare) assert.notEqual(prepared?.blockedAt, 'cleanTree', `E: done_prepare refused cleanTree on framework-owned files:\n${prepare.out.slice(-2000)}`);
 
     const done = o.cli('story_advance', { storyId: o.storyId, phase: 'DONE' }, { label: 'story_advance DONE' });
     assert.equal(done.status, 0, `A: story_advance DONE refused:\n${done.out.slice(-3000)}`);
@@ -591,12 +610,14 @@ function scenarioA(machineEnv: NodeJS.ProcessEnv, steps: Step[]): { a: Outcome; 
     assert.equal(git(o.root, ['branch', '--list', `story/${o.storyId}`]), '', 'story branch deleted');
     const a: Outcome = { name: aName, status: 'PASS', lines: [
       `DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`,
+      ...(bare ? [`main checkout status after DONE: ${JSON.stringify(git(o.root, ['status', '--porcelain', '--untracked-files=all']).split('\n').filter(Boolean))}`] : []),
       ...(prepared?.blockedAt ? [`note: done_prepare BLOCKED at ${String(prepared.blockedAt)}, story_advance DONE still passed (see C)`] : []),
+      ...(prepared?.blockedAt ? [`  done_prepare reason: ${String(prepared.reason).slice(0, 200)} files=${JSON.stringify(prepared.files ?? [])}`] : []),
     ] };
     o.cleanup();
     return { a, c };
   } catch (error) {
-    console.log(`A fixture retained for diagnosis: ${o.root}`);
+    console.log(`${o.scenario} fixture retained for diagnosis: ${o.root}`);
     return { a: { name: aName, status: 'FAIL', lines: [error instanceof Error ? error.message : String(error)] }, c };
   }
 }
@@ -829,7 +850,7 @@ function scenarioD2(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   // An unauthenticated empty owner checkpoint commit stands in for the
   // lineage break the fixed framework no longer produces itself.
   const name = 'D2 run 11 workaround: rerun round after a lineage break; superseded passes must not block TEST/DONE';
-  const o = new Owner('D2', 'B-e2e4', machineEnv, steps, { trackedGateFailureCounts: true });
+  const o = new Owner('D2', 'B-e2e4', machineEnv, steps, false, { trackedGateFailureCounts: true });
   const lines: string[] = [];
   try {
     devToReview(o);
@@ -911,7 +932,13 @@ function printTimeline(steps: Step[], scenario: string): void {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCD]|D2)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDE]|D2)$/.test(arg));
+  if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
+    // Scenario A's flow on a bare task .gitignore replaces A.
+    const index = only.indexOf('A');
+    if (index >= 0) only.splice(index, 1);
+    only.push('E');
+  }
   const machine = createFixtureMachineEnvironment();
   const steps: Step[] = [];
   const outcomes: Outcome[] = [];
@@ -924,10 +951,11 @@ async function main(): Promise<void> {
     if (!only.length || only.includes('B')) outcomes.push(scenarioB(machine.env, steps));
     if (!only.length || only.includes('D')) outcomes.push(scenarioD(machine.env, steps));
     if (!only.length || only.includes('D2')) outcomes.push(scenarioD2(machine.env, steps));
+    if (only.includes('E')) outcomes.push(scenarioA(machine.env, steps, true).a);
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2']) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'E']) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {
     console.log(`  [${outcome.status}] ${outcome.name}`);

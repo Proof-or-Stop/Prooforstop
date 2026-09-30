@@ -38,6 +38,7 @@ import {
 } from '../core/reviewer-launch-guidance.js';
 import { assertNoReviewGateVerificationIntent } from '../core/review-gate-verification-intent.js';
 import { captureStoryIntegrationTarget } from '../core/story-integration-target.js';
+import { ensureRuntimeInfoExclude } from '../core/runtime-info-exclude.js';
 
 type StoryCreateScopeBoundaryInput = {
   mode?: ScopeBoundaryMode;
@@ -556,6 +557,12 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
             metadataRoot: ctx.root,
             projectRoot: ctx.root,
           });
+          // Run 11: story_create is the earliest PoS write of a Story, and every
+          // raw clean-status gate belongs to a Story lifecycle. Hide PoS runtime
+          // artifacts through the shared info/exclude (covers every linked Story
+          // worktree) so a project whose tracked .gitignore lacks the runtime
+          // block never sees framework-written files in git status.
+          ensureRuntimeInfoExclude(repoRoot);
           // storyRel must be relative to the RESOLVED repo root so the scoped
           // `git add` works whether or not the metadata root is the git root.
           // Canonicalize both sides (realpath) so a /var → /private/var symlink

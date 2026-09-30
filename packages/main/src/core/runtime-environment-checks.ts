@@ -361,7 +361,8 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   'packages/main/src/core/experience-layer-types.ts': '8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881',
   'packages/main/src/core/git-tree-observation.ts': 'e3310d811d2c0e7f78a41e14ee6995593c23cb6a0e5d8c7686be5d5a7cbfe3f9',
   // Lab cli-bundle (2026-09-30): resolveStoryChangedFiles/MergeBase now imported from the story-change-manifest leaf; repinned.
-  'packages/main/src/core/evidence-freshness.ts': '3d9fff4e3a9289decd476b501f0f1efdb39e310f39455e8c49a41839529de7f2',
+  // Lab runtime-info-exclude (2026-09-30): checkEvidenceHashSnapshotReuse now forwards trustedControllerProjectionStoryId to readMaterialDirtyFiles; repinned.
+  'packages/main/src/core/evidence-freshness.ts': '02974e62c40c8269eb8829b5a823c79ea6d5c0b7b5dcd6b7367372d5e80e9abe',
   // 3270fa6c84 changed the emitted inventory executable after its previous pin was recorded.
   // Lab review-epoch-lineage (2026-09-30): zero-wave completeness-only receipts route to cancel; repinned.
   'packages/main/src/core/review-inventory-epoch.ts': '985c577e2f06178b31512f6e10e05a84869d4f21cf23e793445bebeb35097a66',

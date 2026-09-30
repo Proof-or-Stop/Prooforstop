@@ -580,6 +580,9 @@ export function autoCommitStoryMetadata(
     gitCwd = projectRoot;
   }
 
+  // Set once this call has staged paths in the real index and cleared again
+  // after its commit lands; a failure in between restores exactly those entries.
+  let rollbackOwnStaging: (() => string) | null = null;
   try {
     // 2. branch check — non-story/* branches stay silent
     let branch = '';
@@ -678,6 +681,8 @@ export function autoCommitStoryMetadata(
 
     // 6. stage only paths inside the story dir (or an importer-provided exact
     // artifact allowlist; never `.` / `-A`).
+    const indexBefore = readIndexEntries(gitCwd, commitPaths);
+    rollbackOwnStaging = () => restoreIndexEntries(gitCwd, commitPaths, indexBefore);
     execFileSync('git', ['add', '--', ...commitPaths], {
       cwd: gitCwd,
       encoding: 'utf-8',
@@ -693,7 +698,7 @@ export function autoCommitStoryMetadata(
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
     const stagedPaths = staged.split('\n').filter(Boolean);
-    if (stagedPaths.length === 0) return '';
+    if (stagedPaths.length === 0) { rollbackOwnStaging = null; return ''; }
     if (stagedPaths.some(path => untrackedOnlyPathSet.has(normalizeRelPath(path)))) {
       throw new Error('autoCommitStoryMetadata: refusing staged controller projection artifact whose trackedPolicy is untracked-only');
     }
@@ -710,6 +715,7 @@ export function autoCommitStoryMetadata(
     });
     // The commit just changed: nothing an enclosing observation memoized is current any more.
     forgetGitObservation();
+    rollbackOwnStaging = null;
 
     // 9. capture short sha for audit
     let sha7 = '';
@@ -730,11 +736,54 @@ export function autoCommitStoryMetadata(
     const shaSuffix = sha7 ? ` (${sha7})` : '';
     return `${AUTO_COMMIT_METADATA_PREFIX} ${subject}${shaSuffix}${tailNote}${receiptFailureNote}`;
   } catch (e: any) {
+    // A refused/failed commit must not leave canonical Story metadata staged
+    // (run 11: the next atomic batch then refused on the index, and the owner
+    // had to unstage by hand). The written bytes stay in the worktree.
+    const restoreNote = rollbackOwnStaging ? rollbackOwnStaging() : '';
     reportHealthIssue('mutation:storyMetadataCommit', e instanceof Error ? e : new Error(String(e)), {
       storyId,
       reason,
       projectRoot,
     });
-    return `\n⚠ proof-or-stop metadata auto-commit failed: ${e?.message || e}`;
+    return `\n⚠ proof-or-stop metadata auto-commit failed: ${e?.message || e}${restoreNote}`;
+  }
+}
+
+/** `git ls-files --stage` rows for the pathspecs, keyed by path. */
+function readIndexEntries(gitCwd: string, pathspecs: readonly string[]): Map<string, string> {
+  const entries = new Map<string, string>();
+  const raw = execFileSync('git', ['ls-files', '--stage', '-z', '--', ...pathspecs], {
+    cwd: gitCwd,
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  for (const record of raw.split('\0')) {
+    const tab = record.indexOf('\t');
+    if (tab > 0) entries.set(record.slice(tab + 1), record.slice(0, tab));
+  }
+  return entries;
+}
+
+/**
+ * Put the index entries for the pathspecs back to `before`: drop entries this
+ * call added, restore the ones it replaced. Returns a note for the warning.
+ */
+function restoreIndexEntries(gitCwd: string, pathspecs: readonly string[], before: Map<string, string>): string {
+  try {
+    const current = readIndexEntries(gitCwd, pathspecs);
+    const added = [...current.keys()].filter(path => !before.has(path));
+    const replaced = [...before.entries()].filter(([path, entry]) => current.get(path) !== entry);
+    if (added.length === 0 && replaced.length === 0) return '';
+    const exec = { cwd: gitCwd, encoding: 'utf-8' as const, stdio: ['pipe', 'pipe', 'pipe'] as ['pipe', 'pipe', 'pipe'] };
+    if (added.length > 0) {
+      execFileSync('git', ['update-index', '--force-remove', '-z', '--stdin'], { ...exec, input: added.map(path => `${path}\0`).join('') });
+    }
+    if (replaced.length > 0) {
+      execFileSync('git', ['update-index', '-z', '--index-info'], { ...exec, input: replaced.map(([path, entry]) => `${entry}\t${path}\0`).join('') });
+    }
+    forgetGitObservation();
+    return ` (own staging rolled back: ${added.length + replaced.length} index entr${added.length + replaced.length === 1 ? 'y' : 'ies'} restored)`;
+  } catch (error) {
+    return ` (own staging rollback failed: ${error instanceof Error ? error.message : String(error)})`;
   }
 }
