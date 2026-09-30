@@ -311,8 +311,8 @@ try {
   assert.ok(stale.invalid.length > 0 && stale.invalid.every(issue => issue.code === 'stale_scope_binding'),
     `a changed scope contract invalidates every workspace-bound lane: ${JSON.stringify(stale.invalid.map(i => i.code))}`);
   store.writeScopeContract(storyId, contract!);
-  // Freshness: a changed diff is seen by the next collection.
-  writeFileSync(join(root, 'packages/main/src/core/review-run.ts'), 'export const reviewRun = 2;\n');
+  // Freshness: a changed diff (one more changed file) is seen by the next collection.
+  writeFileSync(join(root, 'packages/main/src/core/review-scope-binding.ts'), 'export const binding = 1;\n');
   const moved = collectReviewerEvidenceState(store, storyId, root);
   assert.ok(moved.invalid.length > 0 && moved.invalid.every(issue => issue.code === 'stale_scope_binding'),
     `a changed diff invalidates every workspace-bound lane: ${JSON.stringify(moved.invalid.map(i => i.code))}`);
