@@ -1189,6 +1189,7 @@ export function safeDoneRequiredRecoveryCommand(storyId: string, text: string, f
 
   const allowed = new Set([
     `proof-or-stop review_inventory_finalize --storyId=${storyId}`,
+    `proof-or-stop next --storyId=${storyId}`,
     `proof-or-stop done_prepare --storyId=${storyId}`,
     `proof-or-stop done_prepare --storyId=${storyId} --mergeMain`,
     `proof-or-stop finding_list --storyId=${storyId}`,

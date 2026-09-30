@@ -501,6 +501,10 @@ Do not insert caller-authored hashes, timestamps, or fake receipts through raw
 checklist evidence. Reload full checklist/story output before evidence-sensitive
 conclusions or mutations.
 
+### REVIEW → DONE is framework-driven: `proof-or-stop next --storyId=<id>`
+
+After DEV (every checklist item done and committed), run `proof-or-stop next --storyId=<id>` from the Story worktree and execute the one command it prints, then ask again. It is read-only, decides each step from the real gate predicates (evidence-chain check, REVIEW verdict, reviewer batch plan, inventory status, PRE_CERT admit predicates, certification status, DONE oracle), and labels it `framework` (mechanical; `--run` executes consecutive framework steps through the normal CLI), `agent` (code, a managed reviewer launch, authored text or a host verdict; `<...>` placeholders name the fields to author) or `human`. It covers REVIEW entry, every review round (prepare → launch all prepared lanes → wait → import), the inventory epoch and critic, remediation back to DEV (repair → evidence refresh → `finding_resolve`), PRE_CERT (fast check → `certification_window_begin` → routine `validate`), TEST (live smoke, delivery reviewer, finish decision, summary, review assurance floor) and DONE. Do not reorder these steps or probe `story_advance` ahead of it. Decision table: `docs/CLI.md` ("`next --storyId`").
+
 ### REVIEW and independent agents
 
 `reviewer_list --json` reports the current Story's opt-in roster. That roster is
@@ -619,7 +623,10 @@ proof-or-stop validate
   -> missing or stale intent coverage: fail with an evidence action
 ```
 
-Use `proof-or-stop validate --story=B-xxxx` in TEST. A passing command alone is
+The routine `proof-or-stop validate --story=B-xxxx --json` runs once, in REVIEW,
+right after PRE_CERT admits the certification window; TEST consumes that signed
+PASS and does not run a second unscoped suite (`proof-or-stop next --storyId=B-xxxx`
+names each of these steps in order). A passing command alone is
 not enough: all required verification intent, bugs, review evidence, ProofStory
 artifacts, acceptance topology, delivery/summary checks, and freshness gates must
 also pass. If DONE-required policy is configured, run
@@ -627,7 +634,8 @@ also pass. If DONE-required policy is configured, run
 the current HEAD, material hash, and Story-files hash. Without that policy, the
 command is advisory and must not be described as full-suite assurance.
 
-Before DONE, run:
+When a DONE oracle row that it recovers fails (evidence freshness, DONE-required
+validation, integration-branch sync), `next` proposes:
 
 ```bash
 proof-or-stop done_prepare --storyId=B-xxxx --mergeMain --refreshStale --validate

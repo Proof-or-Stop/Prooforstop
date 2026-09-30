@@ -619,7 +619,11 @@ export function nextCommandForBlocker(storyId: string, blockerCode?: string | nu
     case PRE_CERT_INVENTORY_NOT_FINALIZED:
     case PRE_CERT_INVENTORY_API_ABSENT:
     case PRE_CERT_INVENTORY_NOT_AUTHORITY:
-      return `proof-or-stop review_inventory_finalize --storyId=${storyId}`;
+      // Store-less default: the recovery depends on the epoch state (begin a
+      // saturated epoch, follow an OPEN one, or cancel a zero-wave receipt);
+      // review_inventory_finalize without an OPEN epoch mints the zero-wave
+      // receipt this gate refuses. `next` reads that state and names the one step.
+      return `proof-or-stop next --storyId=${storyId}`;
     case PRE_CERT_INVENTORY_PROBE_FAILED:
       return `proof-or-stop certification_window_status --storyId=${storyId}`;
     case PRE_CERT_MAIN_NOT_MERGED:
@@ -645,7 +649,9 @@ export function nextCommandForState(
   blockerDetail?: string | null,
 ): string {
   if (state === 'INVALIDATED') {
-    return `proof-or-stop story_advance --storyId=${storyId} --phase=REVIEW`;
+    // REVIEW has no REVIEW edge: the recovery is a fresh saturated epoch (or
+    // REVIEW→DEV remediation when material changed); `next` names the step.
+    return `proof-or-stop next --storyId=${storyId}`;
   }
   if (state === 'ADMITTED') {
     return `proof-or-stop validate --story=${storyId} --json`;

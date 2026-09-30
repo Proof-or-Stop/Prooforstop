@@ -87,6 +87,7 @@ import { createEvidencePlanHandlers } from './handlers/evidence-plan.js';
 import { createInitPreflightHandlers } from './handlers/init-preflight.js';
 import { createReviewerBatchHandlers } from './handlers/reviewer-batch.js';
 import { createReviewRoundPrepareHandlers } from './handlers/review-round-prepare.js';
+import { createNextDriverHandlers } from './handlers/next-driver.js';
 import { createEvidenceRefreshHandlers } from './handlers/evidence-refresh.js';
 import { createLiveSmokeTranscriptHandlers } from './handlers/live-smoke-transcript.js';
 import { createDeliveryContextPackHandlers } from './handlers/delivery-context-pack.js';
@@ -494,6 +495,13 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
 
   // 内部辅助：返回下一个 story id（fixture/测试 runner 用）
   registry.register('_nextStoryId', (prefix?: string) => nextStoryId(ctx.store, prefix));
+
+  // `next --storyId=<id>`: the one-step REVIEW→DONE driver. Without a storyId it
+  // keeps the session_brief projection. Late-bound lookup so it reads the final
+  // registered read-only handlers (reviewer_batch, review_inventory_status,
+  // certification_window_status) with their own logic intact.
+  const sessionNext = registry.get('next') as ((args: { concise?: boolean }) => string) | undefined;
+  registry.override('next', createNextDriverHandlers(ctx, (name) => registry.get(name), sessionNext).next);
 
   // 注入延迟获取器：让 story gate 能拿到完整工具名（避免循环依赖）
   ctx.getAllToolNames = () => new Set(registry.list());

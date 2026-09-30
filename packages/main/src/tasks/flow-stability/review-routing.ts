@@ -457,7 +457,7 @@ export function assertSessionBriefStatusHintsMatchGates(): void {
     }).next({ concise: true });
     assert.doesNotMatch(reviewBrief, /REVIEW blocked by unresolved findings/);
     assert.match(reviewNext, /All reviewer gates passed/);
-    assert.match(reviewNext, /review_inventory_begin/);
+    assert.match(reviewNext, /proof-or-stop next --storyId=/);
     assert.doesNotMatch(reviewNext, /story_advance .*phase=TEST/);
 
     const testStory = store.readStory(storyId);
