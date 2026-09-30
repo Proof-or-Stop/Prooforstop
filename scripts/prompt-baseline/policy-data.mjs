@@ -66,7 +66,7 @@ export const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-implementer',
-    templateHash: 'ef5f18eb9362102927c4e82d200d398dc451f12b8121cb79a0df28c53fefea6a',
+    templateHash: '9a2e7cd5d6f5422525a95d3bbec9785de2a7abe7c5ecc5600bad1aa98d53c6f8',
   },
   {
     role: 'proof-or-stop-review-behavior',
