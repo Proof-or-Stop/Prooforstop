@@ -234,6 +234,15 @@ affected `files`, and structured `verificationIntent`. The main agent owns the
 requirement-facing fields. A verification-intent role may write only its allowed
 intent fields.
 
+Write exact user-visible messages in `userSees` and intent `desc` as quoted or
+backticked literals (or as output lines in a fenced block). `dispatch` copies
+them verbatim, with the pinned output selectors of cli/browser/manual intents,
+into an "Exact required output — must match byte-for-byte" section of the
+implementer prompt and of the finding-repair prompt for items the finding names
+(`CHK-NNN`) or whose files it touches. It copies literals only and never
+rewrites or adds a string; the section is capped at 24 entries / 4000
+characters and states how many were omitted.
+
 Before creating another Story, check existing active and draft Stories. The
 handler normalizes names, performs duplicate/risk checks, and supports a
 deliberate `forceNew` override. Do not reproduce implementation constants for
@@ -872,7 +881,7 @@ question is answered. The reviewer's job is to find; the main agent's job is to 
 
 Mandatory when the defect is any of:
 
-- critical / high severity
+- verified critical / high / medium severity
 - security, data integrity, or destructive-compatibility impact
 - blocks the current story's acceptance, REVIEW, TEST, or DONE
 - makes already-registered evidence false (a selector that cannot match the real

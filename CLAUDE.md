@@ -491,6 +491,7 @@ Proof-or-Stop 支持多 worktree 并行，写权限的跨 session 协调按 roll
 - title 描述「做什么」，不描述「怎么做」
 - context 给执行 agent 提供决策上下文
 - **userSees**：用户完成此 item 后看到的具体文本（必须含精确输出，不能是"功能正常"这类抽象描述）
+  - `dispatch`（itemId 的 implementer prompt，以及 findingId 的 finding-repair prompt：finding desc 点名的 CHK-NNN 或 files 与 finding 重叠的 item）会把精确字符串逐字放进 "Exact required output — must match byte-for-byte" 段：userSees 与 verificationIntent desc 里的 `反引号` / "双引号" 字面量（含空格、`:` 或 `=`）、``` 代码块里的输出行（`$ ` / `> ` 开头的命令行除外），以及 cli/browser/manual intent 的 pinned 输出 selector。只摘字面量，不改写不补造；最多 24 条 / 4000 字符，超出注明省略条数。所以精确报错文本要用引号或反引号写进 userSees / intent desc。
 - **relatedDocs**：关联文档路径数组，触发三次提醒
 
 ### relatedDocs 三次提醒（软提醒，不阻塞）
@@ -1170,7 +1171,7 @@ question is answered. The reviewer's job is to find; the main agent's job is to 
 
 Mandatory when the defect is any of:
 
-- critical / high severity
+- verified critical / high / medium severity
 - security, data integrity, or destructive-compatibility impact
 - blocks the current story's acceptance, REVIEW, TEST, or DONE
 - makes already-registered evidence false (a selector that cannot match the real
