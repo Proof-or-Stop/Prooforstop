@@ -40,6 +40,7 @@ import {
 import { homedir as osHomedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { runtimePackageRoot as installedPackageRoot } from './runtime-layout.js';
 import {
   projectPromptAsset,
 } from './prompt-registry.js';
@@ -62,18 +63,21 @@ export function resolveGlobalAgentsDir(home: string = osHomedir()): string {
 }
 
 /**
- * Resolve the running CLI package's `templates/agents` directory, resolved from
- * this module's own location (`fileURLToPath(import.meta.url)` → packageRoot →
- * `templates/agents`). NEVER a hardcoded dev-checkout path. Robust for
- * `npm i -g` installs and local dev alike.
+ * Resolve the running CLI package's `templates/agents` directory from the
+ * installation layout (`runtime-layout.ts` → packageRoot → `templates/agents`).
+ * NEVER a hardcoded dev-checkout path. Robust for `npm i -g` installs, local dev
+ * and the CLI bundle alike.
  *
- * This module lives at `<packageRoot>/dist/core/global-agents.js` (or
- * `<packageRoot>/src/core/global-agents.ts` pre-build), so packageRoot is two
- * levels up from this file's directory.
+ * An explicit `moduleUrl` keeps the old contract: that module is taken to live
+ * at `<packageRoot>/dist/core/<name>.js` (or `src/core/<name>.ts`), so
+ * packageRoot is two levels up from its directory.
  */
-export function resolveAgentTemplateDir(moduleUrl: string = import.meta.url): string {
-  const here = dirname(fileURLToPath(moduleUrl));
-  const packageRoot = join(here, '..', '..');
+export function resolveAgentTemplateDir(moduleUrl?: string): string {
+  // No explicit module URL: use the installation layout, which also holds
+  // inside the CLI bundle where this module's import.meta.url is the bundle.
+  const packageRoot = moduleUrl === undefined
+    ? installedPackageRoot()
+    : join(dirname(fileURLToPath(moduleUrl)), '..', '..');
   return join(packageRoot, 'templates', 'agents');
 }
 

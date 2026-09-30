@@ -1,10 +1,12 @@
 import { isDeepStrictEqual } from 'node:util';
 import { createHash } from 'node:crypto';
-import { existsSync } from 'node:fs';
-import { createRequire } from 'node:module';
-import { fileURLToPath } from 'node:url';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import { withMkdirLock } from './mkdir-lock.js';
+// Namespace import read only inside loadReviewInventoryAdmitApis (call time,
+// never at module load), so the review-inventory-epoch cycle cannot observe an
+// uninitialized binding. It replaces a createRequire(import.meta.url) sibling
+// lookup that resolved next to the CLI bundle and silently returned null there.
+import * as reviewInventoryEpoch from './review-inventory-epoch.js';
 import {
   causalDependencyDecisionMatchesCurrentIdentity,
   verifyCausalDependencyDecision,
@@ -576,10 +578,8 @@ export function setReviewInventoryAdmitApisForTest(
  */
 export function loadReviewInventoryAdmitApis(): ReviewInventoryAdmitApis | null {
   if (reviewInventoryAdmitApisOverride !== undefined) return reviewInventoryAdmitApisOverride;
-  const modulePath = fileURLToPath(new URL('./review-inventory-epoch.js', import.meta.url));
-  if (!existsSync(modulePath)) return null;
   try {
-    const required = createRequire(import.meta.url)('./review-inventory-epoch.js') as Record<string, unknown>;
+    const required = reviewInventoryEpoch as unknown as Record<string, unknown>;
     const finalized = required.finalizedUnconsumedReviewInventory;
     const consume = required.consumeReviewInventoryCompletenessReceipt;
     const consumeUnlocked = required.consumeReviewInventoryCompletenessReceiptUnlocked;

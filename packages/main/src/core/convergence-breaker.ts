@@ -7,12 +7,17 @@ import { assessConvergenceProgressGate } from './convergence-progress-gate.js';
  * machine REVIEW mint gate. Human acknowledgement lives in story_resume.
  */
 
-import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import type { StoryStore } from './store.js';
 import { isCanonicalStoryId } from './lifecycle-registry.js';
 import { readBrandEnv } from './brand-env.js';
+// Takeover counter + fail-open JSON I/O live in the convergence-state-files
+// leaf so story-owner-lease can bump the counter without importing this module
+// (which reaches the lease back through the progress gate). Re-exported below.
+import { nowIso, num, readJsonFile, writeJsonFile, readTakeoverCount } from './convergence-state-files.js';
+export { readTakeoverCount, bumpTakeoverCount } from './convergence-state-files.js';
 
 // ── Thresholds + env resolver ────────────────────────────────────────────────
 
@@ -171,9 +176,6 @@ export interface BreakerAssessment {
   nextState: BreakerState;
 }
 
-function num(v: unknown): number {
-  return typeof v === 'number' && Number.isFinite(v) ? v : 0;
-}
 
 function normalizeState(prior: Partial<BreakerState> | null | undefined): BreakerState {
   return {
@@ -380,30 +382,9 @@ export function renderBreakerFreeze(storyId: string, reasons: string[]): string 
 // ── Per-story I/O (cheap, fail-open) ─────────────────────────────────────────
 
 const BREAKER_STATE_FILE = 'breaker-state.json';
-const TAKEOVER_COUNT_FILE = 'takeover-count.json';
 const GATE_FAILURE_FILE = 'gate-failure-counts.json';
 
-function readJsonFile<T>(file: string): T | null {
-  try {
-    if (!existsSync(file)) return null;
-    return JSON.parse(readFileSync(file, 'utf8')) as T;
-  } catch {
-    return null;
-  }
-}
 
-/** Atomic-ish write: temp file + rename, best-effort (never throws). */
-function writeJsonFile(file: string, value: unknown): void {
-  try {
-    const dir = file.slice(0, file.lastIndexOf('/'));
-    if (dir && !existsSync(dir)) mkdirSync(dir, { recursive: true });
-    const tmp = `${file}.tmp-${process.pid}`;
-    writeFileSync(tmp, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
-    renameSync(tmp, file);
-  } catch {
-    // best-effort: a failed state write must never break the command path.
-  }
-}
 
 export function readBreakerState(storyDir: string): BreakerState | null {
   const raw = readJsonFile<Partial<BreakerState>>(join(storyDir, BREAKER_STATE_FILE));
@@ -414,16 +395,7 @@ export function writeBreakerState(storyDir: string, state: BreakerState): void {
   writeJsonFile(join(storyDir, BREAKER_STATE_FILE), { ...state, updatedAt: nowIso() });
 }
 
-export function readTakeoverCount(storyDir: string): number {
-  const raw = readJsonFile<{ count?: number }>(join(storyDir, TAKEOVER_COUNT_FILE));
-  return num(raw?.count);
-}
 
-/** Bump the per-story takeover counter. Called from the lease takeover audit write. */
-export function bumpTakeoverCount(storyDir: string): void {
-  const next = readTakeoverCount(storyDir) + 1;
-  writeJsonFile(join(storyDir, TAKEOVER_COUNT_FILE), { count: next, updatedAt: nowIso() });
-}
 
 /** Gate-failure counter map: digest(command+reason) -> occurrence record. */
 export interface GateFailureRecord {
@@ -752,10 +724,6 @@ export function maxGateFailureCount(counts: GateFailureCounts): number {
   return max;
 }
 
-function nowIso(): string {
-  // I/O helpers are not on the pure path; a timestamp here is audit-only.
-  return new Date().toISOString();
-}
 
 // ── Store collector (reads the four signals; fail-open) ──────────────────────
 

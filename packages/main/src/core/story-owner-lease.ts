@@ -38,7 +38,7 @@ import { VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS } from './runtime-fact-regist
 
 import { randomUUID, createHash } from 'node:crypto';
 import { withMkdirLock } from './mkdir-lock.js';
-import { storyRuntimeLockPath } from './validation-execution-lock.js';
+import { storyRuntimeLockPath } from './shared-lock-root.js';
 import { hostname } from 'os';
 import { basename, dirname, join, resolve } from 'path';
 import {
@@ -51,7 +51,7 @@ import {
   writeFileSync,
 } from 'fs';
 import { appendActivityLog } from './activity-log.js';
-import { bumpTakeoverCount } from './convergence-breaker.js';
+import { bumpTakeoverCount } from './convergence-state-files.js';
 import {
   deriveLocalSessionId,
   getSessionId,

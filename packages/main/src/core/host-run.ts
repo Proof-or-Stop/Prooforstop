@@ -60,7 +60,7 @@ import {
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { StringDecoder } from 'node:string_decoder';
-import { fileURLToPath } from 'node:url';
+import { runtimeDistPath } from './runtime-layout.js';
 
 import {
   CANONICAL_CODEX_NONINTERACTIVE_FLAGS,
@@ -1899,7 +1899,7 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
 
     try {
       child = useGroupAnchor ? spawn(process.execPath, [
-        fileURLToPath(new URL('./host-run-group-anchor.js', import.meta.url)), plan.command, ...plan.argv,
+        runtimeDistPath('core', 'host-run-group-anchor.js'), plan.command, ...plan.argv,
       ], { cwd: plan.cwd, env: plan.env, stdio: ['pipe', 'pipe', 'pipe', 'ipc'], detached: true })
         : (runtime.spawnChild ?? spawn)(plan.command, plan.argv, {
         cwd: plan.cwd,

@@ -57,7 +57,7 @@ import { createHash } from 'node:crypto';
 import {
   normalizeRoutineValidationCommand,
 } from './validation-evidence-reuse.js';
-import { resolveCommandTimeoutMs } from './validation-executor.js';
+import { resolveCommandTimeoutMs } from './validation-timeouts.js';
 import type { ValidationCommand } from './validation-types.js';
 
 import {

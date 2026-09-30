@@ -1,4 +1,5 @@
 import type { HandlerContext } from './context.js';
+import { runtimeDistUrl } from '../core/runtime-layout.js';
 
 type FormatArgs = { json?: boolean; format?: 'text' | 'json' };
 
@@ -20,7 +21,7 @@ function wantsJson(args: FormatArgs | undefined): boolean {
 
 async function loadDecisionDocQuorumCore(): Promise<DecisionDocQuorumCore> {
   try {
-    const mod = await dynamicImport(new URL('../core/decision-doc-quorum.js', import.meta.url).href);
+    const mod = await dynamicImport(runtimeDistUrl('core', 'decision-doc-quorum.js').href);
     const core = mod as Partial<DecisionDocQuorumCore>;
     if (typeof core.evaluateDecisionDocQuorum !== 'function') {
       throw new Error('missing evaluateDecisionDocQuorum export');

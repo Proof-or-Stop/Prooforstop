@@ -36,7 +36,7 @@ import {
   isEvidenceHashSnapshotSchema,
   type EvidenceHashSnapshotSchema,
 } from './artifact-schema.js';
-import { resolveStoryChangedFiles, resolveStoryMergeBase } from './story-aware-validation.js';
+import { resolveStoryChangedFiles, resolveStoryMergeBase } from './story-change-manifest.js';
 import { isMaterialExcludedPath, isStoryMetadataPath } from './material-path-policy.js';
 export { isMaterialExcludedPath, isStoryMetadataPath };
 

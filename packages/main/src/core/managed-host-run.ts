@@ -51,7 +51,7 @@ import { basename, dirname, join, resolve } from 'node:path';
 import { homedir, hostname, tmpdir } from 'node:os';
 import { agentRoleIdsEqual, canonicalAgentRoleId } from './agent-role-identity.js';
 import { earlierCandidateLaneRuns } from './review-round-order.js';
-import { fileURLToPath } from 'node:url';
+import { runtimeDistPath } from './runtime-layout.js';
 import {
   generateEd25519KeyPair,
   signCanonical,
@@ -105,7 +105,7 @@ import { managedRunStage, managedSupervisionAction, type ManagedRunStage,
 import { StoryStore } from './store.js';
 import { initCheckSignatureIsValid } from './init-check-gate.js';
 import { verifyScopeCheckContentSignature } from './scope-check-integrity.js';
-import { recomputeDeliveryCheckHash } from './delivery-check-hash.js';
+import { recomputeDeliveryCheckHash } from './delivery-check-signature.js';
 import type { InitCheckData } from './types.js';
 
 export const MANAGED_HOST_RUN_SCHEMA_VERSION = 'lattice.managed_host_run.v1' as const;
@@ -2874,7 +2874,7 @@ export function projectManagedHostRunTerminalResult(
  * worker diagnostics, not the provider live-output protocol.
  */
 async function launchManagedSupervisor(request: ManagedHostRunWorkerRequest, logFd: number): Promise<void> {
-  const entry = fileURLToPath(new URL('../cli/managed-host-run-supervisor.js', import.meta.url));
+  const entry = runtimeDistPath('cli', 'managed-host-run-supervisor.js');
   const supervisor = spawn(process.execPath, [entry, request.root, request.runId], {
     cwd: request.root, detached: true, stdio: ['ignore', logFd, logFd, 'ipc'],
   });
