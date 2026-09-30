@@ -19,6 +19,7 @@
  *   - agentType not passed → defaults to proof-or-stop-implementer semantics (required)
  */
 
+import { appendExactRequiredOutput, itemsForFinding } from '../core/exact-required-output.js';
 import { omittedPromptNote } from './review-run.js';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
@@ -841,6 +842,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
 
       lines.push(`Severity: ${fSeverity}  Category: ${fCategory}  Reviewer: ${fReviewer}`);
       lines.push(`Description: ${fDesc}`);
+      appendExactRequiredOutput(lines, itemsForFinding(store.readChecklist(args.storyId).items, finding));
       lines.push('');
       lines.push('Repair the defect family, not only this counterexample:');
       lines.push('- Before editing, name the root cause and list every sibling code path with the same root cause (the other arity, operand type, direction, or read/write variant of the same operation).');
@@ -1029,6 +1031,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push('');
       lines.push(`Verify: ${verifyText}`);
       appendPinnedVerification(lines, item.verificationIntent);
+      appendExactRequiredOutput(lines, [item]);
       const routed = store.readCandidateSpecSet(args.storyId);
       if (routed) {
         lines.push('');

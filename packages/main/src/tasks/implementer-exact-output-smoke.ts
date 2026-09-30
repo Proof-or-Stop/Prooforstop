@@ -65,6 +65,9 @@ try {
     id: 'CHK-004', title: 'Refactor helper', context: 'internal', status: 'pending', relatedDocs: [],
     userSees: 'No visible change; the existing tests keep passing.',
     verificationIntent: { happy: [{ id: 'CHK-004:happy:0', desc: 'existing tests pass', type: 'logic' }], edge: [], adversarial: [] },
+  }, {
+    id: 'CHK-005', title: 'Many messages', context: 'bulk', status: 'pending', relatedDocs: [],
+    userSees: Array.from({ length: 30 }, (_v, i) => `"bulk error number ${i}"`).join(', '),
   }] } as never);
   store.writeFindings(storyId, { findings: [{
     id: `${storyId}:F-001`, desc: 'evaluator/evaluator.go:88 CHK-003 prints the wrong mismatch message (high)',
@@ -86,6 +89,10 @@ try {
 
   const plain = handlers.dispatch({ storyId, itemId: 'CHK-004', agentType: 'proof-or-stop-implementer' }).prompt;
   assert.equal(section(plain), undefined, 'an item without exact strings must not get an invented section');
+
+  const bulk = section(handlers.dispatch({ storyId, itemId: 'CHK-005', agentType: 'proof-or-stop-implementer' }).prompt) ?? '';
+  assert.ok(bulk.includes('bulk error number 0') && !bulk.includes('bulk error number 29'), 'the section must stay bounded');
+  assert.match(bulk, /6 more exact string\(s\) omitted/, 'a truncated section must say how many strings it omitted');
 
   const repair = handlers.dispatch({ storyId, findingId: 'F-001', agentType: 'proof-or-stop-finding-repair' }).prompt;
   const repairExact = section(repair);
