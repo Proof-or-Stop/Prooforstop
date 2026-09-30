@@ -333,7 +333,8 @@ proof-or-stop review_run_start '{"storyId":"B-xxxx","agent":"proof-or-stop-revie
 
 #    One-command owner path for every launchable lane of the round: runs the
 #    reviewer_batch plan, candidate_spec_route --hosts=false when the route is
-#    missing/stale (add --fullScanReason only when it reports escalation), then
+#    missing/stale (add --fullScanReason only when it reports escalation; a
+#    project with no requirements corpus gets an automatic full scan), then
 #    dispatch + review_run_start per lane; prints lane=reviewRunId (--json too).
 proof-or-stop review_round_prepare --storyId=B-xxxx
 

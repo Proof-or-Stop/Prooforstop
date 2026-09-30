@@ -343,6 +343,17 @@ The router MUST escalate instead of guessing when any condition holds:
 - requesting host/reviewer;
 - expanded scope and stop condition.
 
+Exception, project without a requirements corpus: when the requirements
+directory is missing or holds no documents (e.g. a Go task repository), the
+only escalation reasons can be `requirements_corpus_missing` /
+`zero_candidates`, and there is nothing to route against. The router then
+takes the full-scan path itself and records an automatic
+`scanEscalationReason` starting `automatic: no requirements corpus in project`
+that names those reasons (core/candidate-spec-routing.ts
+`noRequirementsCorpusFullScanReason`). A present corpus whose routing escalates,
+or any other escalation reason, still requires an explicit owner
+`fullScanReason`.
+
 A broad scan is still performed through local tools and read evidence. It is never serialized into a single LLM prompt.
 
 ## 13. Read evidence
@@ -555,6 +566,7 @@ Exit: two consecutive evaluation windows meet all quality and cost thresholds.
 | Sparse matches | retain deterministic seeds, record low coverage, and escalate when the source-class floor is not met |
 | Noisy/excessive matches | deduplicate and rank within configured result budgets; truncation that can change the cutoff escalates |
 | Zero-candidate result | record the empty result and ambiguity reason, then use bounded escalation; never silently inject or fully scan the corpus |
+| No requirements corpus (directory missing or empty) | framework-selected full scan with an automatic, recorded `scanEscalationReason`; no owner retry |
 | Legacy synonym proposed by one host | local hit enters candidates with host provenance |
 | Both hosts miss exact config key | deterministic seed still retrieves document |
 | Codex/Claude disagree at cutoff | ambiguity escalation |
