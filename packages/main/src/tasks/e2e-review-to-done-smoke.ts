@@ -129,6 +129,7 @@ class Owner {
     // (SHLVL, _, OLDPWD) no longer stale receipts. The shim still replays the
     // owner env exactly so a pasted hint runs with the same env the owner's
     // direct CLI calls use.
+    mkdirSync(this.installedCliBin, { recursive: true });
     writeFileSync(join(this.installedCliBin, 'proof-or-stop'), [
       `#!${process.execPath}`,
       `const { spawnSync } = require('child_process'); const env = JSON.parse(require('fs').readFileSync(${JSON.stringify(join(this.installedCliBin, 'env.json'))}, 'utf8'));`,
