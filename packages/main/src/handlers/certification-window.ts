@@ -1,7 +1,7 @@
 import { isVerifiedReviewMaintenanceCommit } from '../core/review-maintenance-lineage.js';
 import { isDeepStrictEqual } from 'node:util';
 import { withValidationMetadataWrite } from '../core/validation-execution-lock.js';
-import { withReviewInventoryMutationLock, verifyReviewInventoryEpoch, verifyReviewInventoryReceipt } from '../core/review-inventory-epoch.js';
+import { withReviewInventoryMutationLock, verifyReviewInventoryEpoch, verifyReviewInventoryReceipt, currentOpenReviewInventory, finalizedUnconsumedReviewInventory, isInventoryCompletenessOnlyReceipt } from '../core/review-inventory-epoch.js';
 import { persistAdmittingCertificationWindow, nonInventoryAdmitRefusal, type CertificationWindow } from '../core/certification-window.js';
 import { isValidationMetadataBusy } from '../core/validation-execution-lock.js';
 import { acceptanceCompletionBlocker } from '../core/acceptance-amendment-gates.js';
@@ -97,8 +97,31 @@ function persistHint(root: string, storyId: string, command: string, state: stri
   }
 }
 
-function render(projection: CertificationWindowStatusProjection, hint = ''): string {
-  const text = renderCertificationWindowStatus(projection);
+/**
+ * PRE_CERT consumes only a critic-certified saturated epoch. When the inventory
+ * blocker fires, name the one command that makes progress toward it instead of
+ * review_inventory_finalize: with no OPEN epoch that mints a zero-wave
+ * completeness-only receipt, which this same gate refuses (run 11 looped on it).
+ */
+export function inventoryRecoveryNextCommand(store: HandlerContext['store'], storyId: string): string {
+  try {
+    if (currentOpenReviewInventory(store, storyId)) return `proof-or-stop review_inventory_status --storyId=${storyId}`;
+    const pending = finalizedUnconsumedReviewInventory(store, storyId);
+    if (pending && isInventoryCompletenessOnlyReceipt(pending.epoch, pending.receipt)) {
+      return `proof-or-stop review_inventory_cancel --storyId=${storyId} --reason="completeness-only receipt cannot enter certification"`;
+    }
+    if (pending) return `proof-or-stop review_inventory_status --storyId=${storyId}`;
+    return `proof-or-stop review_inventory_begin --storyId=${storyId}`;
+  } catch {
+    return `proof-or-stop review_inventory_status --storyId=${storyId}`;
+  }
+}
+
+function render(projection: CertificationWindowStatusProjection, hint = '', store?: HandlerContext['store']): string {
+  const inventoryBlocked = store && projection.window?.state === 'BLOCKED' && projection.blockerCode === PRE_CERT_INVENTORY_NOT_FINALIZED;
+  const text = renderCertificationWindowStatus(inventoryBlocked
+    ? { ...projection, nextCommand: inventoryRecoveryNextCommand(store, projection.storyId) }
+    : projection);
   return hint ? `${text}${hint}` : text;
 }
 
@@ -703,7 +726,7 @@ export function createCertificationWindowHandlers(ctx: HandlerContext) {
           blockerDetail: `[pre_cert_inventory_api_absent] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.`,
         });
         const hint = persistHint(ctx.root, storyId, 'certification_window_begin', window.state);
-        refuseBlocked(render(projectCertificationWindowStatus(storyId, window, null), hint));
+        refuseBlocked(render(projectCertificationWindowStatus(storyId, window, null), hint, ctx.store));
       }
 
       const facts = collectAdmitFacts(ctx, storyId, apis);
@@ -717,7 +740,7 @@ export function createCertificationWindowHandlers(ctx: HandlerContext) {
           inventory: inventoryBinding(facts.inventory),
         });
         const hint = persistHint(ctx.root, storyId, 'certification_window_begin', window.state);
-        refuseBlocked(render(projectCertificationWindowStatus(storyId, window, null), hint));
+        refuseBlocked(render(projectCertificationWindowStatus(storyId, window, null), hint, ctx.store));
       }
 
       const frozen = {
@@ -806,7 +829,7 @@ export function createCertificationWindowHandlers(ctx: HandlerContext) {
             }
           } catch (error) { rethrowIntentAmendmentIntegrityError(error); }
         }
-        return render(projection);
+        return render(projection, '', ctx.store);
       }
       return render({
         ...projection,

@@ -1443,6 +1443,21 @@ export function assertCurrentReviewRunForEvidence(
   return run;
 }
 
+/**
+ * Owner-facing detail for a lineage refusal: the exact first commit no rule
+ * authenticates, the rule, and one next action. Material is unchanged (checked
+ * first), so a fresh managed pass of the lane bound to the live head supersedes
+ * the stale pass; rerunning the round is the single recovery.
+ */
+export function managedLineageRefusalDetail(
+  storyId: string, refusal: { commit: string; subject: string; rule: string } | undefined, withNext = true,
+): string {
+  if (!refusal) return '';
+  const subject = refusal.subject ? ` "${refusal.subject}"` : '';
+  const next = withNext ? `; Next: proof-or-stop review_round_prepare --storyId=${storyId}` : '';
+  return ` (unauthenticated commit ${refusal.commit.slice(0, 12)}${subject}: ${refusal.rule}${next})`;
+}
+
 /** Only observed, fully formed live identity drift is eligible for supersession. */
 export function classifyManagedLiveBindingFailure(
   reason: string, hasNativeBinding: boolean,
@@ -1697,7 +1712,7 @@ function validateEvidenceRunBinding(
         evidenceId: evidence.id,
         agent: evidence.agent,
         reviewRunId: evidence.reviewRunId,
-        message: `${evidence.kind} ${evidence.id} failed shared managed-review live binding: ${live.reason}`,
+        message: `${evidence.kind} ${evidence.id} failed shared managed-review live binding: ${live.reason}${managedLineageRefusalDetail(story.storyId, live.lineageRefusal)}`,
       };
     }
   } else {

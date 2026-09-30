@@ -364,7 +364,8 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   // Lab runtime-info-exclude (2026-09-30): checkEvidenceHashSnapshotReuse now forwards trustedControllerProjectionStoryId to readMaterialDirtyFiles; repinned.
   'packages/main/src/core/evidence-freshness.ts': '02974e62c40c8269eb8829b5a823c79ea6d5c0b7b5dcd6b7367372d5e80e9abe',
   // 3270fa6c84 changed the emitted inventory executable after its previous pin was recorded.
-  'packages/main/src/core/review-inventory-epoch.ts': 'a51318317a9620dec23b870eed74a567073a367b3471a62229e8eba95241cd88',
+  // Lab review-epoch-lineage (2026-09-30): zero-wave completeness-only receipts route to cancel; repinned.
+  'packages/main/src/core/review-inventory-epoch.ts': '985c577e2f06178b31512f6e10e05a84869d4f21cf23e793445bebeb35097a66',
   // Lab verification-env-digest (2026-09-30): ordinary receipts bind the v2 environment identity projection; repinned.
   'packages/main/src/core/verification-execution-evidence.ts': 'e11ebbfebd9a42d51c0f1b55156749111b9ef146da28eab8b5ed5ad62825093e',
   // Labs plan-pin-allowlist and plan-intent-precheck (2026-09-30) changed checklist_update; repinned.

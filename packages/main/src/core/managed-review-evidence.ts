@@ -72,6 +72,14 @@ export interface ManagedReviewExpectedBinding {
 export interface ManagedReviewLiveBindingVerification {
   valid: boolean;
   reason: string;
+  /** For a lineage refusal: the first intervening commit no rule authenticates, and why. */
+  lineageRefusal?: ManagedReviewLineageRefusal;
+}
+
+export interface ManagedReviewLineageRefusal {
+  commit: string;
+  subject: string;
+  rule: string;
 }
 
 /**
@@ -100,14 +108,16 @@ function hasOnlyManagedReviewImporterCommits(args: {
   reviewedMaterialHash: string;
   reviewedStoryFilesHash: string;
   liveHeadHash: string;
-}): boolean {
-  if (args.reviewedHeadHash === args.liveHeadHash) return true;
+}): { ok: true } | { ok: false; refusal: ManagedReviewLineageRefusal } {
+  if (args.reviewedHeadHash === args.liveHeadHash) return { ok: true };
   const objectRead = objectAddressedGitReader(args.gitCwd);
   const git = (argv: string[]): string => readLineageGit(args.gitCwd, argv, objectRead);
+  const refuse = (commit: string, subject: string, rule: string) => ({ ok: false as const, refusal: { commit, subject, rule } });
   try {
-    git(['merge-base', '--is-ancestor', args.reviewedHeadHash, args.liveHeadHash]);
+    try { git(['merge-base', '--is-ancestor', args.reviewedHeadHash, args.liveHeadHash]); }
+    catch { return refuse(args.liveHeadHash, '', `live HEAD does not descend from the reviewed head ${args.reviewedHeadHash}`); }
     const commits = git(['rev-list', '--reverse', `${args.reviewedHeadHash}..${args.liveHeadHash}`]).split('\n').filter(Boolean);
-    if (commits.length === 0) return false;
+    if (commits.length === 0) return refuse(args.liveHeadHash, '', 'no commit range between the reviewed and live heads');
     // B-137a main-merge fix: this recognizer hardcoded the RETIRED commit-subject
     // prefix while the writer (core/auto-commit-metadata.ts) emits the canonical
     // COMMIT_SUBJECT_PREFIX. No importer commit therefore matched, so a legitimate
@@ -125,27 +135,69 @@ function hasOnlyManagedReviewImporterCommits(args: {
       args.gitCwd,
       resolve(args.metadataRoot, configuredStoryDir, args.storyId),
     ).replace(/\\/g, '/').replace(/^\.\//, '');
-    if (!canonicalStoryDir || canonicalStoryDir === '..' || canonicalStoryDir.startsWith('../')) return false;
+    if (!canonicalStoryDir || canonicalStoryDir === '..' || canonicalStoryDir.startsWith('../')) return refuse(args.liveHeadHash, '', 'story directory is outside the Git workspace');
     const canonicalImporterArtifacts = new Set([
       `${canonicalStoryDir}/review-passes.json`,
       `${canonicalStoryDir}/findings.json`,
       `${canonicalStoryDir}/process-events.jsonl`,
     ]);
-    return commits.every(commit => {
+    for (const commit of commits) {
       const subject = git(['show', '-s', '--format=%s', commit]);
       if (!matchesRuntimeCommitSubject(subject, expectedSubjectBody)) {
-        return isVerifiedReviewMaintenanceCommit({ ...args, commit, objectRead })
-          || isPrecertMetadataCommit(args.gitCwd, args.metadataRoot, args.storyId, canonicalStoryDir, subject, commit, objectRead);
+        const rules: string[] = [];
+        if (isVerifiedReviewMaintenanceCommit({ ...args, commit, objectRead, onRefusal: rule => rules.push(rule) })) continue;
+        const precert = precertMetadataCommitRefusal(args.gitCwd, args.metadataRoot, args.storyId, canonicalStoryDir, subject, commit, objectRead);
+        if (precert === null) continue;
+        // Report the rule of the publisher that owns this subject.
+        const subjectUnknown = rules.every(rule => rule.startsWith('subject "'));
+        return refuse(commit, subject, (precert === PRECERT_SUBJECT_UNKNOWN ? rules : subjectUnknown ? [precert] : [...rules, precert]).join('; ')
+          || 'no authenticated publisher owns this commit');
       }
-      const files = git(['diff-tree', '--no-commit-id', '--name-only', '-r', commit]).split('\n').filter(Boolean);
-      const names = new Set(files.map(file => file.split('/').at(-1)));
-      return files.length > 0
-        && files.every(file => canonicalImporterArtifacts.has(file.replace(/\\/g, '/')))
-        && (names.has('review-passes.json') || names.has('findings.json'));
-    });
-  } catch {
-    return false;
+      const importer = importerCommitRefusal(git, canonicalStoryDir, canonicalImporterArtifacts, commit);
+      if (importer) return refuse(commit, subject, importer);
+    }
+    return { ok: true };
+  } catch (error) {
+    return refuse(args.liveHeadHash, '', `lineage unreadable: ${error instanceof Error ? error.message.split('\n')[0] : String(error)}`);
   }
+}
+
+/**
+ * An importer commit publishes exactly one managed receipt's evidence: only
+ * the importer artifacts, earlier review-pass rows unchanged, and every
+ * appended pass carrying the same managed evidence binding.
+ */
+function importerCommitRefusal(
+  git: (argv: string[]) => string, canonicalStoryDir: string, artifacts: ReadonlySet<string>, commit: string,
+): string | null {
+  const files = git(['diff-tree', '--no-commit-id', '--name-only', '-r', commit]).split('\n').filter(Boolean).map(file => file.replace(/\\/g, '/'));
+  const foreign = files.find(file => !artifacts.has(file));
+  if (!files.length || foreign) return foreign ? `importer commit touches ${foreign}` : 'empty importer commit';
+  const names = new Set(files.map(file => file.split('/').at(-1)));
+  if (!names.has('review-passes.json') && !names.has('findings.json')) return 'importer commit publishes no review evidence';
+  if (!names.has('review-passes.json')) return null;
+  const passesPath = `${canonicalStoryDir}/review-passes.json`;
+  const parent = git(['show', '-s', '--format=%P', commit]).split(/\s+/).filter(Boolean);
+  if (parent.length !== 1) return 'importer commit is not single-parent';
+  const read = (ref: string): Array<{ id?: string; managedEvidenceBinding?: { receiptId?: string } }> => {
+    if (!git(['ls-tree', '--name-only', ref, '--', passesPath])) return [];
+    const parsed = JSON.parse(git(['show', `${ref}:${passesPath}`])) as { passes?: unknown };
+    if (!Array.isArray(parsed.passes)) throw new Error(`${passesPath} at ${ref} has no passes array`);
+    return parsed.passes as Array<{ id?: string; managedEvidenceBinding?: { receiptId?: string } }>;
+  };
+  const before = read(parent[0]!);
+  const after = read(commit);
+  if (after.length < before.length || digestCanonicalJson(after.slice(0, before.length)) !== digestCanonicalJson(before)) {
+    return 'importer commit rewrites earlier review-passes.json rows';
+  }
+  const appended = after.slice(before.length);
+  const receipts = new Set(appended.map(row => row.managedEvidenceBinding?.receiptId ?? ''));
+  // Creating an empty passes file carries no evidence; any appended row must
+  // belong to exactly one managed receipt.
+  if (appended.length > 0 && (receipts.size !== 1 || receipts.has(''))) {
+    return `importer commit appends review-passes.json rows (${appended.map(row => row.id ?? '?').join(', ')}) that are not one managed receipt's own evidence`;
+  }
+  return null;
 }
 
 /**
@@ -169,17 +221,56 @@ const PRECERT_METADATA_COMMANDS = [
   'autopilot_review_submit',
 ] as const;
 
-function isPrecertMetadataCommit(
+/**
+ * Review evidence and inventory artifacts are never swept in under these
+ * subjects: their only authenticated writers are the importer and the
+ * review-epoch/certification publishers verified above. Launch records that
+ * these commits sweep in (dispatch/review_round_prepare prompt envelopes and
+ * review runs, which do not commit themselves) may only be appended; the
+ * earlier rows that reviewed passes bind stay byte-identical.
+ */
+const PRECERT_METADATA_FORBIDDEN_ARTIFACTS = new Set([
+  'review-passes.json', 'findings.json', 'review-inventory-epochs.json',
+]);
+
+/** Signed launch records later commits sweep in (review_round_prepare/dispatch do not commit): append-only. */
+const PRECERT_METADATA_APPEND_ONLY_ARTIFACTS = [['prompt-envelopes.json', 'envelopes'], ['review-runs.json', 'runs']] as const;
+
+const PRECERT_SUBJECT_UNKNOWN = 'subject is not a PRE_CERT/TEST/DONE bookkeeping writer';
+
+/** null when the commit is admissible PRE_CERT/TEST/DONE bookkeeping; otherwise the refusing rule. */
+function precertMetadataCommitRefusal(
   gitCwd: string, metadataRoot: string, storyId: string, canonicalStoryDir: string, subject: string, commit: string,
   objectRead?: ObjectAddressedGitReader,
-): boolean {
-  if (!PRECERT_METADATA_COMMANDS.some(command => matchesRuntimeCommitSubject(subject, `record ${storyId} ${command} metadata`))) return false;
+): string | null {
+  if (!PRECERT_METADATA_COMMANDS.some(command => matchesRuntimeCommitSubject(subject, `record ${storyId} ${command} metadata`))) {
+    return PRECERT_SUBJECT_UNKNOWN;
+  }
   const parents = readLineageGit(gitCwd, ['show', '-s', '--format=%P', commit], objectRead);
-  if (parents.split(/\s+/).filter(Boolean).length !== 1) return false;
+  if (parents.split(/\s+/).filter(Boolean).length !== 1) return 'bookkeeping commit is not single-parent';
   const files = readLineageGit(gitCwd, ['diff-tree', '--no-commit-id', '--name-only', '-r', commit], objectRead)
     .split('\n').filter(Boolean).map(file => file.replace(/\\/g, '/'));
-  return files.length > 0
-    && files.every(file => file.startsWith(`${canonicalStoryDir}/`) && isMaterialExcludedPath(file, metadataRoot));
+  if (!files.length) return 'empty bookkeeping commit';
+  const outside = files.find(file => !file.startsWith(`${canonicalStoryDir}/`) || !isMaterialExcludedPath(file, metadataRoot));
+  if (outside) return `bookkeeping commit changes ${outside} (reviewed material or outside this Story's metadata)`;
+  const evidence = files.find(file => PRECERT_METADATA_FORBIDDEN_ARTIFACTS.has(file.slice(canonicalStoryDir.length + 1)));
+  if (evidence) return `bookkeeping commit changes review evidence ${evidence} outside its authenticated writer`;
+  for (const [name, key] of PRECERT_METADATA_APPEND_ONLY_ARTIFACTS) {
+    const path = `${canonicalStoryDir}/${name}`;
+    if (!files.includes(path)) continue;
+    const read = (ref: string): unknown[] => {
+      if (!readLineageGit(gitCwd, ['ls-tree', '--name-only', ref, '--', path], objectRead)) return [];
+      const parsed = JSON.parse(readLineageGit(gitCwd, ['show', `${ref}:${path}`], objectRead)) as Record<string, unknown>;
+      if (!Array.isArray(parsed[key])) throw new Error(`${path} at ${ref} has no ${key} array`);
+      return parsed[key] as unknown[];
+    };
+    const before = read(parents.trim());
+    const after = read(commit);
+    if (after.length < before.length || digestCanonicalJson(after.slice(0, before.length)) !== digestCanonicalJson(before)) {
+      return `bookkeeping commit rewrites earlier ${name} ${key}`;
+    }
+  }
+  return null;
 }
 
 /**
@@ -203,7 +294,7 @@ export function verifyManagedReviewLiveBinding(args: {
       reason: `managed_review_live_material_stale:reviewed=${args.expected.materialHash}:live=${liveMaterialHash ?? 'unavailable'}`,
     };
   }
-  if (!hasOnlyManagedReviewImporterCommits({
+  const lineage = hasOnlyManagedReviewImporterCommits({
     gitCwd: args.gitCwd,
     metadataRoot: args.metadataRoot,
     storyId: args.storyId,
@@ -211,10 +302,14 @@ export function verifyManagedReviewLiveBinding(args: {
     reviewedMaterialHash: args.expected.materialHash,
     reviewedStoryFilesHash: args.expected.storyFilesHash,
     liveHeadHash,
-  })) {
+  });
+  if (!lineage.ok) {
     return {
       valid: false,
+      // The reason stays machine-exact (classifyManagedLiveBindingFailure);
+      // the refusing commit and rule travel separately for the owner.
       reason: `managed_review_live_head_lineage_invalid:reviewed=${args.expected.headHash}:live=${liveHeadHash}`,
+      lineageRefusal: lineage.refusal,
     };
   }
   return { valid: true, reason: 'managed_review_live_binding_current' };

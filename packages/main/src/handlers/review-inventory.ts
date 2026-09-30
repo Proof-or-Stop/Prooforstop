@@ -9,7 +9,7 @@ import type { HandlerContext } from './context.js';
 import { resolveStoryCommandWorkspace } from './context.js';
 import { computeActiveReviewers, computeFinalReviewRoster, finalReviewRosterBasis } from './reviewer-list.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
-import { assertCurrentReviewRunForEvidence, captureReviewRunSnapshot, verifyReviewRun } from '../core/review-run.js';
+import { assertCurrentReviewRunForEvidence, captureReviewRunSnapshot, managedLineageRefusalDetail, verifyReviewRun } from '../core/review-run.js';
 import type { ReviewInventoryCriticReceipt, ReviewInventoryEpoch, ReviewInventoryFindingDisposition, ReviewInventoryReceipt } from '../core/types.js';
 import {
   buildWave,
@@ -460,7 +460,7 @@ export function importManagedInventoryCritic(ctx: HandlerContext, args: { runId:
     };
     const live = verifyManagedReviewLiveBinding({gitCwd: run.workspaceBinding?.signedWorkspaceRoot ?? ctx.root,
       metadataRoot: ctx.root, storyId, expected});
-    if (!live.valid) throw new Error(`managed inventory critic: ${live.reason}`);
+    if (!live.valid) throw new Error(`managed inventory critic: ${live.reason}${managedLineageRefusalDetail(run.storyId, live.lineageRefusal, false)}`);
     const sealed = readManagedReviewEvidenceProposal(ctx.root, args.runId);
     const verified = createManagedReviewEvidenceBinding({root: ctx.root, storyId,
       providerAgent: managed.agentType, lane: managed.lane!, reviewRunId: run.reviewRunId,

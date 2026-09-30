@@ -27,6 +27,17 @@
  *      must now go TEST -> DEV -> REVIEW without PLAN rollback and reach DONE.
  *   C  single host: what the owner must run for the review assurance floor /
  *      review escalation before DONE (observed inside scenario A).
+ *   D  run-11 dead end: REVIEW round 1 finds a verified finding -> critic ->
+ *      finalize --remediation -> DEV repair by a managed finding-repair
+ *      dispatch -> round 2 all pass -> direct finalize (zero-wave
+ *      completeness-only receipt, refused by certification) -> cancel ->
+ *      fresh saturated epoch + critic -> certification_window_begin ->
+ *      validate -> story_advance TEST must not refuse the managed passes with
+ *      managed_review_live_head_lineage_invalid; then TEST -> DONE.
+ *   D2 run-11 workaround: an unauthenticated commit breaks the live binding;
+ *      TEST names the commit/rule with one Next (review_round_prepare); the
+ *      owner reruns the round; the superseded older passes of the same round
+ *      block neither TEST nor DONE.
  *   E  run-11 bare .gitignore: scenario A on a task repo whose tracked
  *      .gitignore has NO Proof-or-Stop runtime block (and no .worktrees/),
  *      with `proof-or-stop init --profile codex --asset-mode global-thin`
@@ -38,7 +49,7 @@
  * Machine registries (provider slots, locks) use a disposable fixture machine
  * so the harness never touches the developer's ~/.proof-or-stop admission state.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|E]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -107,7 +118,8 @@ class Owner {
   private readonly scripts: string;
   private readonly env: NodeJS.ProcessEnv;
 
-  constructor(readonly scenario: string, readonly storyId: string, machineEnv: NodeJS.ProcessEnv, readonly steps: Step[], readonly bareGitignore = false) {
+  constructor(readonly scenario: string, readonly storyId: string, machineEnv: NodeJS.ProcessEnv, readonly steps: Step[], readonly bareGitignore = false,
+    private readonly fixtureOpts: { trackedGateFailureCounts?: boolean } = {}) {
     this.root = realpathSync(mkdtempSync(join(tmpdir(), `e2e-r2d-${scenario}-`)));
     this.worktree = join(this.root, '.worktrees', storyId);
     this.store = new StoryStore(this.root);
@@ -116,15 +128,15 @@ class Owner {
     mkdirSync(this.scripts, { recursive: true });
     writeFakeCodex(this.providerBin, this.scripts);
     // The benchmark host has the installed `proof-or-stop` on PATH for the whole
-    // run; a shim for this checkout's dist CLI stands in. It must be on PATH from
-    // the first call: PATH is part of the verification environment digest, so
-    // adding it later would make earlier verification receipts stale.
+    // run; a shim for this checkout's dist CLI stands in, on PATH from the first
+    // call as on the host. Since the v2 environment identity (0ea79fb) receipts
+    // bind only declared validate.env, variables named in the command, resolved
+    // toolchain binaries (by realpath) and behavior-affecting families (locale,
+    // TZ, GO*, NODE_*, ...); unrelated PATH entries and shell bookkeeping
+    // (SHLVL, _, OLDPWD) no longer stale receipts. The shim still replays the
+    // owner env exactly so a pasted hint runs with the same env the owner's
+    // direct CLI calls use.
     mkdirSync(this.installedCliBin, { recursive: true });
-    // The shim re-applies the owner env exactly: /bin/sh adds SHLVL, _ and
-    // OLDPWD, and the verification environment digest covers the ambient env,
-    // so a pasted hint would otherwise see every earlier receipt as stale.
-    // (A real owner runs every command through the same shell, so its env is
-    // stable across calls.)
     writeFileSync(join(this.installedCliBin, 'proof-or-stop'), [
       `#!${process.execPath}`,
       `const { spawnSync } = require('child_process'); const env = JSON.parse(require('fs').readFileSync(${JSON.stringify(join(this.installedCliBin, 'env.json'))}, 'utf8'));`,
@@ -161,7 +173,9 @@ class Owner {
     write(root, 'strs/strs_test.go', 'package strs\n\nimport "testing"\n\nfunc TestBaseline(t *testing.T) {}\n');
     write(root, 'docs/types/string.md', DOC_V1);
     // Scenario E: the task's own .gitignore, without PoS's runtime block or .worktrees/.
-    write(root, '.gitignore', this.bareGitignore ? 'bin/\n' : `.worktrees/\n${mergeRuntimeGitignore('')}`);
+    // Run 11's task repo tracked the convergence-breaker gate counter (commit 6
+    // of that run committed gate-failure-counts.json); D2 reproduces that.
+    write(root, '.gitignore', this.bareGitignore ? 'bin/\n' : `.worktrees/\n${mergeRuntimeGitignore('')}${this.fixtureOpts.trackedGateFailureCounts ? '!**/gate-failure-counts.json\n' : ''}`);
     git(root, ['add', '-A']);
     git(root, ['commit', '-qm', 'task baseline']);
     // Same shape as the bench adapter's prepare_workflow.py.
@@ -417,7 +431,10 @@ function waitTerminal(o: Owner, label: string, runId: string): { state: string; 
   return { state: String(run.state), reason: String(terminal?.reason ?? ''), receiptId: String((json.receipt as Record<string, unknown> | undefined)?.receiptId ?? '') };
 }
 
-function reviewRound(o: Owner): void {
+type LaneEnvelope = (lane: string) => Record<string, unknown>;
+const PASS_ENVELOPE: LaneEnvelope = lane => ({ conclusion: 'pass', note: `Scripted ${lane} pass: reviewed strs.go Upper/Reverse and their focused tests; no blocking issue.` });
+
+function reviewRound(o: Owner, envelopeFor: LaneEnvelope = PASS_ENVELOPE): void {
   const id = o.storyId;
   // The Go task repo has no requirements corpus: the framework routes with an
   // automatic full-scan reason, so one call suffices (round-prepare-no-corpus).
@@ -428,7 +445,7 @@ function reviewRound(o: Owner): void {
   assert.ok(Object.keys(reviewRuns).length >= 1, 'at least one launchable lane');
   // Controller order: launch every lane, then wait for all, then import.
   const launched = Object.entries(reviewRuns).map(([lane, reviewRunId]) => ({ lane, reviewRunId, receiptId: '',
-    runId: launchManagedReview(o, lane, reviewRunId, { conclusion: 'pass', note: `Scripted ${lane} pass: reviewed strs.go Upper/Reverse and their focused tests; no blocking issue.` }) }));
+    runId: launchManagedReview(o, lane, reviewRunId, envelopeFor(lane)) }));
   for (const run of launched) {
     const terminal = waitTerminal(o, short(run.lane), run.runId);
     assert.equal(terminal.state, 'completed', `${run.lane} managed review terminal ${terminal.state} (${terminal.reason})`);
@@ -440,25 +457,40 @@ function reviewRound(o: Owner): void {
   }
 }
 
-function inventory(o: Owner): void {
+interface InventoryOpts {
+  /** Critic dispositions (default: none, i.e. a zero-finding wave). */
+  dispositions?: Record<string, unknown>[];
+  /** Label suffix for the timeline. */
+  tag?: string;
+}
+
+/** begin -> critic (managed) -> returns the epoch id; finalize is the caller's. */
+function inventoryCritic(o: Owner, opts: InventoryOpts = {}): string {
   const id = o.storyId;
-  const begun = o.mustCli('review_inventory_begin', { storyId: id });
+  const tag = opts.tag ? ` ${opts.tag}` : '';
+  const begun = o.mustCli('review_inventory_begin', { storyId: id }, { label: `review_inventory_begin${tag}` });
   const epochId = begun.stdout.match(/Review inventory epoch: (\S+)/)?.[1];
-  assert.ok(epochId, 'inventory epoch id printed');
-  const status = o.mustCli('review_inventory_status', { storyId: id });
+  assert.ok(epochId, `inventory epoch id printed:\n${begun.out.slice(-1500)}`);
+  const status = o.mustCli('review_inventory_status', { storyId: id }, { label: `review_inventory_status${tag}` });
   assert.match(status.stdout, /REVIEW_INVENTORY_CRITIC_INCOMPLETE/, 'lanes complete, critic pending');
   const critic = MANAGED_INVENTORY_CRITIC_LANE;
-  o.mustCli('dispatch', { storyId: id, agentType: critic, reviewPurpose: 'inventory-completeness', inventoryEpochId: epochId, summary: true }, { label: 'dispatch critic' });
-  o.mustCli('review_run_start', { storyId: id, agent: critic, lane: critic, reviewPurpose: 'inventory-completeness', inventoryEpochId: epochId, summary: true }, { label: 'review_run_start critic' });
+  o.mustCli('dispatch', { storyId: id, agentType: critic, reviewPurpose: 'inventory-completeness', inventoryEpochId: epochId, summary: true }, { label: `dispatch critic${tag}` });
+  o.mustCli('review_run_start', { storyId: id, agent: critic, lane: critic, reviewPurpose: 'inventory-completeness', inventoryEpochId: epochId, summary: true }, { label: `review_run_start critic${tag}` });
   const criticRun = new StoryStore(o.worktree).readReviewRuns(id).runs.at(-1)!.reviewRunId;
+  const dispositions = opts.dispositions ?? [];
   const runId = launchManagedReview(o, critic, criticRun, { conclusion: 'pass',
-    note: 'Scripted inventory critic: every required lane passed with zero findings; nothing to disposition.',
-    inventoryCritic: { epochId, wave: 1, findingDispositions: [] } });
-  const terminal = waitTerminal(o, 'critic', runId);
+    note: dispositions.length ? 'Scripted inventory critic: dispositioned every verified finding of this wave.' : 'Scripted inventory critic: every required lane passed with zero findings; nothing to disposition.',
+    inventoryCritic: { epochId, wave: 1, findingDispositions: dispositions } });
+  const terminal = waitTerminal(o, `critic${tag}`, runId);
   assert.equal(terminal.state, 'completed', `critic terminal ${terminal.state} (${terminal.reason})`);
-  o.mustCli('managed_review_evidence_import', { runId, receiptId: terminal.receiptId }, { label: 'managed_review_evidence_import critic' });
+  o.mustCli('managed_review_evidence_import', { runId, receiptId: terminal.receiptId }, { label: `managed_review_evidence_import critic${tag}` });
   o.unscript(criticRun);
-  const finalized = o.mustCli('review_inventory_finalize', { storyId: id });
+  return epochId!;
+}
+
+function inventory(o: Owner): void {
+  inventoryCritic(o);
+  const finalized = o.mustCli('review_inventory_finalize', { storyId: o.storyId });
   assert.match(finalized.stdout, /State: FINALIZED/);
 }
 
@@ -674,6 +706,221 @@ function scenarioB(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
+const D_FINDING = {
+  desc: 'Reverse has no focused test for an empty string: Reverse("") must return "" without indexing r[-1].',
+  severity: 'medium', category: 'edge', files: ['strs/strs.go', 'strs/strs_test.go'], evidenceState: 'verified',
+};
+
+/** A material commit makes the pinned focused evidence stale; the owner re-earns it. */
+function reEarnEvidence(o: Owner, why: string): void {
+  for (const [itemId, test] of [['CHK-001', 'TestUpper'], ['CHK-002', 'TestReverse']] as const) {
+    o.mustCli('verification_evidence_add', { storyId: o.storyId, itemId, intentRef: `${itemId}:happy:0`, kind: 'logic_test',
+      command: `go test -v ./strs -run ${test}`, selector: `--- PASS: ${test}`, note: `Re-earned pinned evidence for ${test} ${why}.` }, { label: `verification_evidence_add ${itemId} (re-earn)` });
+  }
+}
+
+const FINDING_REPAIR = 'proof-or-stop-finding-repair';
+const REPAIR_TEST = '\nfunc TestReverseEmpty(t *testing.T) {\n\tif Reverse("") != "" {\n\t\tt.Fatal("empty")\n\t}\n}\n';
+
+/** The owner dispatches the implementer (managed, fake codex); it edits the test and commits, as a real implementer does. */
+function devRepairViaManagedDispatch(o: Owner, findingId: string): string {
+  const commands = [
+    ['/bin/sh', '-c', `printf '%s' '${REPAIR_TEST.replace(/'/g, "'\\''")}' >> strs/strs_test.go && git add strs/strs_test.go && git -c user.name=${FINDING_REPAIR} commit -qm 'test: Reverse of the empty string' && git log --format=%h -1`],
+  ];
+  o.script(FINDING_REPAIR, { commands, final: 'Added TestReverseEmpty covering Reverse(""); committed.' });
+  const launched = o.mustCli('host_run', { host: 'codex', model: MODEL.model, reasoningEffort: MODEL.reasoningEffort, storyId: o.storyId,
+    agentType: FINDING_REPAIR, findingId, managedDispatch: true, detach: true, json: true }, { label: 'host_run --managedDispatch finding-repair' });
+  const runId = String((parseJson(launched.stdout)?.run as Record<string, unknown>).runId);
+  const terminal = waitTerminal(o, 'finding-repair', runId);
+  o.unscript(FINDING_REPAIR);
+  assert.equal(terminal.state, 'completed', `finding-repair terminal ${terminal.state} (${terminal.reason})\n${o.providerCommandLog()}`);
+  return `${terminal.state}; story HEAD ${git(o.worktree, ['log', '--format=%h %s', '-1'])}`;
+}
+
+function nextOf(out: string): string {
+  return out.split('\n').find(line => line.startsWith('Next: ')) ?? '(no Next)';
+}
+
+/** Head bound by the current round's managed review passes. */
+function reviewedHead(o: Owner): string {
+  const store = new StoryStore(o.worktree);
+  const round = store.readStory(o.storyId).currentReviewRound;
+  const pass = store.readReviewPasses(o.storyId).passes.filter(row => row.reviewRound === round && row.managedEvidenceBinding
+    && row.agent !== MANAGED_INVENTORY_CRITIC_LANE).at(-1) as unknown as { managedEvidenceBinding?: { headHash?: string } } | undefined;
+  return pass?.managedEvidenceBinding?.headHash ?? 'HEAD';
+}
+
+function scenarioD(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const name = 'D run 11: review finding -> DEV repair -> all-pass round -> PRE_CERT -> TEST -> DONE';
+  const o = new Owner('D', 'B-e2e3', machineEnv, steps);
+  const lines: string[] = [];
+  try {
+    devToReview(o);
+    reviewRound(o, lane => lane === 'proof-or-stop-review-test-coverage'
+      ? { conclusion: 'findings', note: 'Scripted behavior finding: empty-string edge case is untested.', findings: [D_FINDING] }
+      : PASS_ENVELOPE(lane));
+    const findingId = `${o.storyId}:F-001`;
+    inventoryCritic(o, { tag: 'r1', dispositions: [{ finding: { findingId }, disposition: 'verified_family', familyKey: 'reverse-empty-string', reason: 'The empty-string edge of Reverse is untested; one verified family.' }] });
+    const refusedFinalize = o.cli('review_inventory_finalize', { storyId: o.storyId }, { label: 'review_inventory_finalize r1' });
+    assert.match(refusedFinalize.out, /REVIEW_INVENTORY_NEW_FINDINGS_REQUIRE_NEXT_WAVE/);
+    const st = o.mustCli('review_inventory_status', { storyId: o.storyId }, { label: 'review_inventory_status r1 (after critic)' });
+    assert.match(st.stdout, /Next: proof-or-stop review_inventory_finalize --storyId=\S+ --remediation/);
+    const rem = o.mustCli('review_inventory_finalize', { storyId: o.storyId, remediation: true }, { label: 'review_inventory_finalize --remediation r1' });
+    assert.match(rem.stdout, /Next: proof-or-stop story_advance --storyId=\S+ --phase=DEV/);
+    o.mustCli('story_advance', { storyId: o.storyId, phase: 'DEV' }, { label: 'story_advance DEV (REVIEW->DEV)' });
+    const repair = devRepairViaManagedDispatch(o, findingId);
+    lines.push(`DEV repair via managed dispatch: ${repair}`);
+    reEarnEvidence(o, 'after repair');
+    o.mustCli('story_advance', { storyId: o.storyId, phase: 'REVIEW' }, { label: 'story_advance REVIEW (after repair)' });
+    reviewRound(o);
+    // Round 2 is all-pass with no OPEN epoch, so every import committed. The
+    // run-11 owner then finalized directly (commit 5 "review epoch": the
+    // prompt bodies/envelopes/runs of this round + a zero-wave receipt).
+    const direct = o.mustCli('review_inventory_finalize', { storyId: o.storyId }, { label: 'review_inventory_finalize (direct, no OPEN epoch)' });
+    assert.match(direct.stdout, /Authority: inventory-completeness-only/);
+    lines.push(`round 2 all-pass; direct review_inventory_finalize -> zero-wave inventory-completeness-only receipt; ${nextOf(direct.out)}`);
+    o.mustCli('validate', { story: o.storyId, focus: 'fast', json: true }, { label: 'validate --focus=fast' });
+    let begin = o.cli('certification_window_begin', { storyId: o.storyId }, { label: 'certification_window_begin (completeness-only)' });
+    lines.push(`certification_window_begin: exit ${begin.status} ${begin.status ? firstError(begin) : 'ADMITTED'}; ${nextOf(begin.out)}`);
+    let recovered = false;
+    if (begin.status !== 0) {
+      // Run 11 retried once (commit 7), then took the printed recovery: cancel
+      // the completeness-only receipt (commit 8) and open a fresh saturated
+      // zero-new epoch with its critic (commit 9 at finalize).
+      begin = o.cli('certification_window_begin', { storyId: o.storyId }, { label: 'certification_window_begin (retry)' });
+      lines.push(`certification_window_begin retry: exit ${begin.status} ${begin.status ? firstError(begin) : 'ADMITTED'}`);
+    }
+    if (begin.status !== 0) {
+      const status = o.mustCli('review_inventory_status', { storyId: o.storyId }, { label: 'review_inventory_status (recovery)' });
+      assert.match(status.stdout, /Recovery for genuine late evidence: proof-or-stop review_inventory_cancel/, status.out);
+      o.mustCli('review_inventory_cancel', { storyId: o.storyId, reason: 'completeness-only receipt refused by certification; open a saturated epoch' }, { label: 'review_inventory_cancel (completeness-only)' });
+      inventoryCritic(o, { tag: 'r2' });
+      const fin = o.mustCli('review_inventory_finalize', { storyId: o.storyId }, { label: 'review_inventory_finalize r2 (saturated)' });
+      assert.match(fin.stdout, /State: FINALIZED/);
+      o.mustCli('validate', { story: o.storyId, focus: 'fast', json: true }, { label: 'validate --focus=fast' });
+      begin = o.cli('certification_window_begin', { storyId: o.storyId }, { label: 'certification_window_begin (saturated)' });
+      lines.push(`fresh saturated epoch + critic, then certification_window_begin: exit ${begin.status} ${begin.status ? firstError(begin) : 'ADMITTED'}`);
+      recovered = true;
+    }
+    assert.equal(begin.status, 0, `D: certification never admitted:\n${begin.out.slice(-2000)}`);
+    lines.push(`fresh saturated epoch needed: ${recovered ? 'yes' : 'no'}`);
+    o.mustCli('validate', { story: o.storyId, json: true }, { label: 'validate (routine)' });
+    const cws = o.mustCli('certification_window_status', { storyId: o.storyId });
+    lines.push(`certification_window_status: ${nextOf(cws.out)}`);
+    const lineage = git(o.worktree, ['log', '--format=%h %s', `${reviewedHead(o)}..HEAD`]).split('\n').reverse();
+    lines.push(`commits since the reviewed head ${reviewedHead(o).slice(0, 7)}:`, ...lineage.map(row => `  ${row}`));
+    const test = o.cli('story_advance', { storyId: o.storyId, phase: 'TEST' }, { label: 'story_advance TEST' });
+    lines.push(`story_advance TEST: exit ${test.status} ${test.status ? firstError(test) : 'ok'}`);
+    assert.equal(test.status, 0, `D: story_advance TEST refused:\n${test.out.slice(-3000)}`);
+    liveSmoke(o);
+    const delivery = deliveryReview(o, [
+      { docPath: 'docs/types/string.md', promise: 'Upper returns the upper-case form of a string.', status: 'verified', verifiedBy: 'go test -v ./strs -run TestUpper', evidence: '--- PASS: TestUpper' },
+      { docPath: 'docs/types/string.md', promise: 'Reverse returns the string reversed by rune.', status: 'verified', verifiedBy: 'go test -v ./strs -run TestReverse', evidence: '--- PASS: TestReverse' },
+    ]);
+    assert.equal(delivery.state, 'completed', `delivery reviewer terminal ${delivery.state} (${delivery.reason})\n${delivery.commandLog}`);
+    authoredCloseout(o);
+    // Single host: submit the hinted local host verdicts until the floor passes.
+    let rounds = 0;
+    for (let round = 1; round <= 3; round += 1) {
+      if (closureRow(o, `done_closure (floor r${round})`, 'review-assurance-floor')?.blocking !== true) break;
+      o.mustCli('autopilot_review_submit', { storyId: o.storyId, runId: `${o.storyId}-degraded-r${round}`, hostId: 'e2e-single-host', provider: 'local',
+        sessionId: `local-reviewer-r${round}`, decision: 'pass', deriveBindings: true,
+        materialDigest: currentMaterialHash(o.worktree, 'HEAD', o.worktree), storyFilesHash: currentStoryFilesHash(o.worktree, 'HEAD', o.worktree) }, { label: `autopilot_review_submit r${round}` });
+      rounds = round;
+    }
+    lines.push(`single-host autopilot_review_submit rounds before DONE: ${rounds}`);
+    const done = o.cli('story_advance', { storyId: o.storyId, phase: 'DONE' }, { label: 'story_advance DONE' });
+    assert.equal(done.status, 0, `D: story_advance DONE refused:\n${done.out.slice(-3000)}`);
+    assert.equal(new StoryStore(o.root).readStory(o.storyId).phase, 'DONE');
+    assert.match(readFileSync(join(o.root, 'strs/strs_test.go'), 'utf8'), /TestReverseEmpty/, 'repair merged into main');
+    lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`D fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+function scenarioD2(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  // Run 11 continuation: the owner worked around the TEST refusal with a
+  // further review round bound to the live head. The older passes of the same
+  // round stayed in review-passes.json; TEST admitted the newer ones, but DONE
+  // re-validated the superseded passes and sent the owner back to REVIEW.
+  // An unauthenticated empty owner checkpoint commit stands in for the
+  // lineage break the fixed framework no longer produces itself.
+  const name = 'D2 run 11 workaround: rerun round after a lineage break; superseded passes must not block TEST/DONE';
+  const o = new Owner('D2', 'B-e2e4', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  try {
+    devToReview(o);
+    reviewRound(o);
+    // Run 11 order: the break lands after the lane imports and before the
+    // inventory critic, so only the lane passes are bound to the older head.
+    // (An empty owner checkpoint commit: no material, scope or metadata change.)
+    git(o.worktree, ['commit', '-q', '--allow-empty', '-m', 'owner: checkpoint review status']);
+    lines.push(`owner hand commit: ${git(o.worktree, ['log', '--format=%h %s', '-1'])}`);
+    inventory(o);
+    o.mustCli('validate', { story: o.storyId, focus: 'fast', json: true }, { label: 'validate --focus=fast' });
+    o.mustCli('certification_window_begin', { storyId: o.storyId });
+    o.mustCli('validate', { story: o.storyId, json: true }, { label: 'validate (routine)' });
+    const refused = o.cli('story_advance', { storyId: o.storyId, phase: 'TEST' }, { label: 'story_advance TEST (lineage break)' });
+    assert.notEqual(refused.status, 0, 'an unauthenticated commit must break the managed live binding');
+    assert.match(refused.out, /managed_review_live_head_lineage_invalid/);
+    const detail = refused.out.match(/\(unauthenticated commit ([0-9a-f]{12}) "([^"]*)": (.*?); (Next: proof-or-stop [^)]*)\)/);
+    assert.ok(detail, `TEST refusal names the unauthenticated commit, rule and one Next:\n${refused.out.slice(-1500)}`);
+    lines.push(`story_advance TEST refused; diagnostic: commit ${detail[1]} "${detail[2]}": ${detail[3].slice(0, 90)}; ${detail[4]}`);
+    assert.equal(detail[4], `Next: proof-or-stop review_round_prepare --storyId=${o.storyId}`);
+    // Workaround as the owner ran it: a fresh round of every lane on the live head.
+    reviewRound(o);
+    const passes = new StoryStore(o.worktree).readReviewPasses(o.storyId).passes;
+    lines.push(`review-passes.json now holds ${passes.length} passes (older same-round passes are superseded, not removed)`);
+    let test = o.cli('story_advance', { storyId: o.storyId, phase: 'TEST' }, { label: 'story_advance TEST (after rerun)' });
+    lines.push(`story_advance TEST after the rerun: exit ${test.status} ${test.status ? firstError(test) : 'ok'}`);
+    for (let attempt = 0; attempt < 4 && test.status !== 0; attempt += 1) {
+      // Follow the printed Next, as the owner does.
+      const next = nextOf(test.out).replace(/^Next: /, '') || nextOf(o.cli('certification_window_status', { storyId: o.storyId }).out).replace(/^Next: /, '');
+      lines.push(`  owner follows: ${next}`);
+      if (/review_inventory_begin|review_inventory_status|review_inventory_finalize/.test(next)) {
+        inventory(o);
+      } else if (/validate --story=\S+ --focus=fast/.test(next)) {
+        o.mustCli('validate', { story: o.storyId, focus: 'fast', json: true }, { label: 'validate --focus=fast' });
+      } else if (/certification_window_begin/.test(next)) {
+        o.mustCli('certification_window_begin', { storyId: o.storyId });
+      } else if (/validate --story=\S+ --json/.test(next)) {
+        o.mustCli('validate', { story: o.storyId, json: true }, { label: 'validate (routine)' });
+      } else {
+        break;
+      }
+      test = o.cli('story_advance', { storyId: o.storyId, phase: 'TEST' }, { label: `story_advance TEST (attempt ${attempt + 3})` });
+    }
+    assert.equal(test.status, 0, `D2: story_advance TEST refused after the workaround round:\n${test.out.slice(-3000)}`);
+    liveSmoke(o);
+    const delivery = deliveryReview(o, [
+      { docPath: 'docs/types/string.md', promise: 'Upper returns the upper-case form of a string.', status: 'verified', verifiedBy: 'go test -v ./strs -run TestUpper', evidence: '--- PASS: TestUpper' },
+      { docPath: 'docs/types/string.md', promise: 'Reverse returns the string reversed by rune.', status: 'verified', verifiedBy: 'go test -v ./strs -run TestReverse', evidence: '--- PASS: TestReverse' },
+    ]);
+    assert.equal(delivery.state, 'completed', `delivery reviewer terminal ${delivery.state} (${delivery.reason})\n${delivery.commandLog}`);
+    authoredCloseout(o);
+    for (let round = 1; round <= 3; round += 1) {
+      if (closureRow(o, `done_closure (floor r${round})`, 'review-assurance-floor')?.blocking !== true) break;
+      o.mustCli('autopilot_review_submit', { storyId: o.storyId, runId: `${o.storyId}-degraded-r${round}`, hostId: 'e2e-single-host', provider: 'local',
+        sessionId: `local-reviewer-r${round}`, decision: 'pass', deriveBindings: true,
+        materialDigest: currentMaterialHash(o.worktree, 'HEAD', o.worktree), storyFilesHash: currentStoryFilesHash(o.worktree, 'HEAD', o.worktree) }, { label: `autopilot_review_submit r${round}` });
+    }
+    const done = o.cli('story_advance', { storyId: o.storyId, phase: 'DONE' }, { label: 'story_advance DONE' });
+    lines.push(`story_advance DONE: exit ${done.status} ${done.status ? firstError(done) : 'ok'}`);
+    assert.equal(done.status, 0, `D2: story_advance DONE refused on superseded passes:\n${done.out.slice(-3000)}`);
+    assert.equal(new StoryStore(o.root).readStory(o.storyId).phase, 'DONE');
+    lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`D2 fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 function printTimeline(steps: Step[], scenario: string): void {
   const rows = steps.filter(s => s.scenario === scenario);
   const total = rows.reduce((sum, s) => sum + s.ms, 0);
@@ -685,7 +932,7 @@ function printTimeline(steps: Step[], scenario: string): void {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^[ABCE]$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDE]|D2)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -702,11 +949,13 @@ async function main(): Promise<void> {
       outcomes.push(a, c);
     }
     if (!only.length || only.includes('B')) outcomes.push(scenarioB(machine.env, steps));
+    if (!only.length || only.includes('D')) outcomes.push(scenarioD(machine.env, steps));
+    if (!only.length || only.includes('D2')) outcomes.push(scenarioD2(machine.env, steps));
     if (only.includes('E')) outcomes.push(scenarioA(machine.env, steps, true).a);
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'E']) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'E']) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {
     console.log(`  [${outcome.status}] ${outcome.name}`);
@@ -718,7 +967,7 @@ async function main(): Promise<void> {
     console.log(`e2e-review-to-done-smoke: FAIL (${failed.map(outcome => outcome.name.split(' ')[0]).join(', ')})`);
     process.exit(1);
   }
-  console.log('e2e-review-to-done-smoke: PASS (A and B reached DONE; C observed)');
+  console.log(`e2e-review-to-done-smoke: PASS (${outcomes.filter(outcome => outcome.status === 'PASS').map(outcome => outcome.name.split(' ')[0]).join(', ')} reached DONE; C observed)`);
 }
 
 await main();

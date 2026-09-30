@@ -26,7 +26,7 @@ import {
 } from '../core/managed-review-evidence.js';
 import { assertCandidateReadBinding, digestCandidateRoutingValue } from '../core/candidate-spec-routing.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
-import { assertCurrentReviewRunForEvidence, captureReviewRunSnapshot } from '../core/review-run.js';
+import { assertCurrentReviewRunForEvidence, captureReviewRunSnapshot, managedLineageRefusalDetail } from '../core/review-run.js';
 import { currentStoryRoutingInput } from './candidate-spec-routing.js';
 import { loadConfig } from '../core/config.js';
 import type { Finding, ManagedReviewEvidenceBinding, ReviewPass } from '../core/types.js';
@@ -229,7 +229,7 @@ export function createManagedReviewEvidenceHandlers(
           expected,
         });
         if (!live.valid) {
-          throw new Error(`managed_review_evidence_import: ${live.reason}; rerun the managed reviewer`);
+          throw new Error(`managed_review_evidence_import: ${live.reason}${managedLineageRefusalDetail(managedRun.storyId!, live.lineageRefusal, false)}; rerun the managed reviewer`);
         }
       };
       // Fail before any receipt/proposal intake or lock acquisition as well as
