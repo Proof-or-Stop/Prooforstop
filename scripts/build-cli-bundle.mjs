@@ -26,7 +26,7 @@
  *       DIR/package-lock.json installs, or the bundle is refused.
  */
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, realpathSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -95,9 +95,12 @@ function inlinedPackageVersions(inputs, lockPath) {
  */
 export async function bundleDist({ packageRoot, nodeModules, lockPath = null }) {
   const { build } = await import(join(projectRoot, 'node_modules', 'esbuild', 'lib', 'main.js'));
-  const dist = join(packageRoot, 'dist');
+  const entry0 = join(packageRoot, 'dist', 'cli-direct.js');
+  if (!existsSync(entry0)) throw new Error(`build-cli-bundle: ${entry0} is missing; build packages/main first`);
+  // Real path: esbuild reports inputs by real path (e.g. /private/var on macOS tmp),
+  // and the freshness manifest must list them relative to this same dist root.
+  const dist = realpathSync(join(packageRoot, 'dist'));
   const entry = join(dist, 'cli-direct.js');
-  if (!existsSync(entry)) throw new Error(`build-cli-bundle: ${entry} is missing; build packages/main first`);
   const outfile = join(dist, BUNDLE_BASENAME);
   const temporary = `${outfile}.tmp-${process.pid}`;
   const result = await build({
@@ -128,6 +131,10 @@ export async function bundleDist({ packageRoot, nodeModules, lockPath = null }) 
       const stat = statSync(input);
       return [toPosix(relative(dist, input)), stat.size, Math.floor(stat.mtimeMs / 1000)];
     });
+  if (distInputs.length === 0 || !distInputs.some(([path]) => path === 'cli-direct.js')) {
+    rmSync(temporary, { force: true });
+    throw new Error(`build-cli-bundle: no dist inputs recorded under ${dist}; refusing a bundle whose freshness cannot be checked`);
+  }
   renameSync(temporary, outfile);
   const bundleStat = statSync(outfile);
   const manifest = {
