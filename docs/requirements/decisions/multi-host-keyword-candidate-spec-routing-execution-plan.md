@@ -350,8 +350,11 @@ only escalation reasons can be `requirements_corpus_missing` /
 takes the full-scan path itself and records an automatic
 `scanEscalationReason` starting `automatic: no requirements corpus in project`
 that names those reasons (core/candidate-spec-routing.ts
-`noRequirementsCorpusFullScanReason`). A present corpus whose routing escalates,
-or any other escalation reason, still requires an explicit owner
+`noRequirementsCorpusFullScanReason`). When such an automatic route goes stale
+(material moved after a rework), the reroute needs no owner reason either: it
+re-derives the automatic reason (`isAutomaticNoCorpusFullScan`). A present
+corpus whose routing escalates, any other escalation reason, and a stale
+owner-reasoned full-scan route still require an explicit owner
 `fullScanReason`.
 
 A broad scan is still performed through local tools and read evidence. It is never serialized into a single LLM prompt.

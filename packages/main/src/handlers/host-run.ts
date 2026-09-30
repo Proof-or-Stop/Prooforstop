@@ -71,7 +71,7 @@ import {
   type ManagedReviewFullScanBinding,
 } from '../core/managed-review-evidence.js';
 import { assertCurrentReviewRunForEvidence } from '../core/review-run.js';
-import { candidateArtifactStaleBindingFields } from '../core/candidate-spec-routing.js';
+import { candidateArtifactStaleBindingFields, isAutomaticNoCorpusFullScan } from '../core/candidate-spec-routing.js';
 import {
   evaluateAcceptanceRolloutForContext,
   evaluateAcceptanceTopologyForContext,
@@ -424,7 +424,7 @@ export function assertManagedReviewCandidateLaunchReady(
     if (!currentBinding.materialHash) stale.push('materialHash');
     if (!currentBinding.storyFilesHash) stale.push('storyFilesHash');
     if (stale.length > 0) {
-      const routeCommand = candidateArtifact.fullScan === true
+      const routeCommand = candidateArtifact.fullScan === true && !isAutomaticNoCorpusFullScan(candidateArtifact)
         ? `proof-or-stop candidate_spec_route '{"storyId":"${storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`
         : `proof-or-stop candidate_spec_route '{"storyId":"${storyId}"}'`;
       throw new Error(
