@@ -752,7 +752,8 @@ function reviewedHead(o: Owner): string {
 
 function scenarioD(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   const name = 'D run 11: review finding -> DEV repair -> all-pass round -> PRE_CERT -> TEST -> DONE';
-  const o = new Owner('D', 'B-e2e3', machineEnv, steps);
+  // Runs 11 and 12: the task repo tracked the convergence-breaker gate counter.
+  const o = new Owner('D', 'B-e2e3', machineEnv, steps, false, { trackedGateFailureCounts: true });
   const lines: string[] = [];
   try {
     devToReview(o);
@@ -798,6 +799,13 @@ function scenarioD(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
       const fin = o.mustCli('review_inventory_finalize', { storyId: o.storyId }, { label: 'review_inventory_finalize r2 (saturated)' });
       assert.match(fin.stdout, /State: FINALIZED/);
       o.mustCli('validate', { story: o.storyId, focus: 'fast', json: true }, { label: 'validate --focus=fast' });
+      // Run 12: the owner probed TEST before PRE_CERT. The refused
+      // story_advance bumps the (tracked) gate-failure-counts.json, and the
+      // admitting certification_window_begin commit then sweeps it in next to
+      // its certification-window/review-inventory-epochs publication.
+      const premature = o.cli('story_advance', { storyId: o.storyId, phase: 'TEST' }, { label: 'story_advance TEST (premature)' });
+      assert.notEqual(premature.status, 0, 'TEST before certification must be refused');
+      lines.push(`premature story_advance TEST: refused ${firstError(premature).slice(0, 90)}`);
       begin = o.cli('certification_window_begin', { storyId: o.storyId }, { label: 'certification_window_begin (saturated)' });
       lines.push(`fresh saturated epoch + critic, then certification_window_begin: exit ${begin.status} ${begin.status ? firstError(begin) : 'ADMITTED'}`);
       recovered = true;
