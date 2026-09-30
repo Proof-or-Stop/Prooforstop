@@ -588,7 +588,7 @@ export const requiredRuntimeEntries = [
   {
     // B-3fad CHK-003: Finding.evidenceState is a gate-consumed semantic fact —
     // the REVIEW→TEST canPassReview gate blocks only on verified (or legacy
-    // missing-field) open critical/high findings. This required-entry assertion
+    // missing-field) open critical/high/medium findings. This required-entry assertion
     // is the hardcoded fallback proving the evidenceState gate dimension stays
     // registered as an L4 process fact.
     name: 'runtime:finding_evidence_state_review_gate',

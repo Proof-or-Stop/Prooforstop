@@ -112,7 +112,7 @@ export function summarizeReviewerStatus(store: StoryStore, storyId: string, proj
   // The gate (machine.ts canPassReview / guard-utils.ts) uses isFindingBlocking,
   // which carries the evidenceState dimension (suspected/disproven never block).
   // Resolve the closure severities the same way the gate does so a
-  // suspected open critical/high finding is not counted as a blocker here.
+  // suspected open critical/high/medium finding is not counted as a blocker here.
   const config = loadConfig(projectRoot);
   const policy = resolveWorkflowPolicy(config, story);
   const { effectiveBlockingSeverities, roundCount } = resolveEffectiveBlockingSeverities(store, storyId, policy);
