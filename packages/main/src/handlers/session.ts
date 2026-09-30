@@ -654,7 +654,7 @@ export function computeNextStep(c: NextStepCtx): string {
         const next = c.checklist.pending[0];
         return `DEV phase. Next item: proof-or-stop checklist_update --storyId=${sid} --itemId=${next.id} --status=in_progress (${next.title})`;
       }
-      return `DEV phase, all checklist items done. Next: git commit, then proof-or-stop next --storyId=${sid} (evidence-chain check, then REVIEW entry)`;
+      return `DEV phase, all checklist items done. Next: git commit, then proof-or-stop next --storyId=${sid} (it checks the evidence chain, then names proof-or-stop story_advance --storyId=${sid} --phase=REVIEW)`;
     }
     case 'REVIEW': {
       // The REVIEW→TEST ceremony (lanes, inventory epoch + critic, remediation,
