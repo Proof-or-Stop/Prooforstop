@@ -121,6 +121,7 @@ import {
   type LifecycleMetadataTransaction,
 } from '../core/auto-commit-metadata.js';
 import { evaluateAcceptanceRolloutForContext, evaluateAcceptanceTopologyForContext, evaluatePreReviewCheckForContext } from './proofstory.js';
+import { runEvidenceChainGate } from './evidence-chain.js';
 
 export function runPreReviewCheckGate(ctx: HandlerContext, storyId: string): string {
   const report = evaluatePreReviewCheckForContext(ctx, storyId);
@@ -1081,7 +1082,8 @@ async function runStoryTransitionInner(
     }
     let preReviewGateReport = '';
     if (story.phase === 'DEV' && args.phase === 'REVIEW') {
-      preReviewGateReport = runPreReviewCheckGate(ctx, args.storyId) + runAcceptanceRolloutGate(ctx, args.storyId);
+      preReviewGateReport = runPreReviewCheckGate(ctx, args.storyId) + runAcceptanceRolloutGate(ctx, args.storyId)
+        + runEvidenceChainGate(ctx, args.storyId);
     }
 
     // Non-PLAN→DEV transitions retain the historical diagnostic. PLAN→DEV is

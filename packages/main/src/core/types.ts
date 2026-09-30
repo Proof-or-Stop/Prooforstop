@@ -2799,6 +2799,8 @@ export type ProcessEventType =
   | 'codex_adapter_verification'
   | 'reviewer_finding'
   | 'review_pass'
+  /** A reviewer's evidence-chain item reclassified at import as a framework action (never a finding). */
+  | 'review_evidence_chain_reclassified'
   | 'dirty_gate_audit'
   | 'init_check_fallback'
   | 'capsule_updated'

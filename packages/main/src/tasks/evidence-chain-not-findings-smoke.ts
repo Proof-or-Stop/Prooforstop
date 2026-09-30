@@ -18,6 +18,9 @@
  *   S2  a code commit after the receipts stales them. story_advance REVIEW must
  *       refuse with exactly one Next: verification_evidence_refresh_stale, and
  *       after that one command REVIEW is admitted.
+ *   S4  a mixed proposal (one evidence-chain item + one product finding):
+ *       only the product finding is imported, bound to its sealed proposal
+ *       index; re-import is idempotent and the finding is valid gate evidence.
  *   S3  the test-coverage lane still reports an evidence-chain item
  *       (category=evidence_chain). The importer must reclassify it as a logged
  *       framework action (process event), import no finding, admit the lane as
@@ -39,12 +42,13 @@ import { QUALIFIED_MANAGED_REVIEWER_DEFAULTS } from '../core/managed-reviewer-qu
 import { MANAGED_INVENTORY_CRITIC_LANE } from '../core/managed-inventory-critic.js';
 import { sanitizedFixtureChildEnvironment } from './fixture-environment.js';
 import { createFixtureMachineEnvironment } from './helpers/fixture-machine-environment.js';
+import { collectReviewerEvidenceState } from '../core/review-run.js';
 
 const CLI = fileURLToPath(new URL('../cli.js', import.meta.url));
 const MODEL = QUALIFIED_MANAGED_REVIEWER_DEFAULTS.codex;
 const FINAL_SCHEMA = 'lattice.managed_review_final_proposal.v1';
 const TEST_COVERAGE = 'proof-or-stop-review-test-coverage';
-const STORY = 'B-ec01';
+let STORY = 'B-ec01';
 
 const git = (cwd: string, args: string[]): string =>
   execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
@@ -258,7 +262,34 @@ function nextLine(text: string): string | null {
   return text.split('\n').map(line => line.trim()).find(line => line.startsWith('Next: proof-or-stop '))?.slice('Next: '.length) ?? null;
 }
 
+/** S0: Go test selection is computed, never guessed (pure; loaded dynamically so the file runs on a base without the module). */
+async function selectionUnits(): Promise<void> {
+  console.log('S0 Go test selection of pinned commands');
+  let mod: typeof import('../core/evidence-chain-check.js');
+  try { mod = await import('../core/evidence-chain-check.js'); } catch (error) {
+    check(false, `S0 evidence-chain check module loads (${error instanceof Error ? error.message.split('\n')[0] : String(error)})`);
+    return;
+  }
+  const test = (name: string, packageDir = 'strs'): { name: string; file: string; packageDir: string } => ({ name, file: `${packageDir}/x_test.go`, packageDir });
+  const sel = (command: string): ReturnType<typeof mod.parsePinnedTestSelection> => mod.parsePinnedTestSelection(command, 'example.com/strs');
+  const selects = (command: string, t: ReturnType<typeof test>): boolean => mod.pinSelectsGoTest(sel(command), t);
+  check(selects('go test -v ./strs -run TestReverse', test('TestReverseEmpty')), 'S0 -run is unanchored like Go (TestReverse selects TestReverseEmpty)');
+  check(!selects('go test -v ./strs -run ^TestReverse$', test('TestReverseEmpty')), 'S0 an anchored -run does not select a longer name');
+  check(selects('go test ./... -run=TestA/sub', test('TestA', 'a/b')) && !selects('go test ./... -run=TestA/sub', test('TestB', 'a/b')), 'S0 ./... is recursive and -run=Top/sub selects by its top level');
+  check(!selects('go test ./other -run TestA', test('TestA')), 'S0 a pin on another package does not select the test');
+  check(selects('go test example.com/strs/strs -run TestA', test('TestA')), 'S0 a module import path resolves to its directory');
+  check(!selects('go test ./strs -skip TestA', test('TestA')) && selects('go test ./strs -skip TestA/sub', test('TestA')), 'S0 -skip excludes a top-level test; a subtest-only -skip does not');
+  check(!selects('env CONTEXT=abs go test -count=1 ./strs -run TestB', test('TestA')) && selects('env CONTEXT=abs go test -count=1 ./strs -run TestB', test('TestB')), 'S0 env prefixes and valued flags are skipped');
+  check(sel('make test').kind === 'opaque' && sel('go test github.com/other/x').kind === 'opaque' && sel('go vet ./...').kind === 'not_go_test',
+    'S0 make and foreign import paths are opaque (scan skipped), go vet selects no test');
+  const content = ['package strs', 'func TestOne(t *testing.T) {}', '', 'func TestTwo(t *testing.T) {', '\tx()', '}', 'func testhelper(t *testing.T) {}', 'func Testlower(t *testing.T) {}'].join('\n');
+  const changed = mod.changedGoTestFunctions(content, new Set([3, 5]));
+  check(changed.join(',') === 'TestTwo', `S0 a one-line test does not absorb the next blank line; only tests whose lines changed count (got ${changed.join(',') || 'none'})`);
+  check(mod.changedGoTestFunctions(content, 'all').join(',') === 'TestOne,TestTwo', 'S0 lower-case Testxxx and helpers are not Go tests');
+}
+
 async function main(): Promise<void> {
+  await selectionUnits();
   const machine = createFixtureMachineEnvironment();
   const f = new Fixture(machine.env);
   let keep = false;
@@ -356,15 +387,68 @@ async function main(): Promise<void> {
     check(test.status === 0 && f.store().readStory(STORY).phase === 'TEST',
       `S3 the Story reaches TEST on the reclassified pass${test.status === 0 ? '' : `: ${test.out.slice(-800)}`}`);
   };
+  let f2: Fixture | null = null;
+  const mixed = (): void => {
+    console.log('S4 a mixed proposal imports only its product finding');
+    STORY = 'B-ec02';
+    f2 = new Fixture(machine.env);
+    const g = f2;
+    g.must('dev_memory_preflight_ack', { storyId: STORY });
+    g.must('scope_contract_init_from_plan', { storyId: STORY });
+    for (const [itemId, intentRef, test] of [['CHK-001', 'CHK-001:happy:0', 'TestUpper'], ['CHK-002', 'CHK-002:happy:0', 'TestReverse'], ['CHK-002', 'CHK-002:edge:0', 'TestEmptyInput']] as const) {
+      g.must('verification_evidence_add', { storyId: STORY, itemId, intentRef, kind: 'logic_test',
+        command: `go test -v ./strs -run ^${test}$`, selector: `--- PASS: ${test}`, note: `Pinned focused go test ${test} proves ${intentRef}.` });
+    }
+    g.must('checklist_update', { storyId: STORY, itemId: 'CHK-001', status: 'done' });
+    g.must('checklist_update', { storyId: STORY, itemId: 'CHK-002', status: 'done' });
+    g.must('story_advance', { storyId: STORY, phase: 'REVIEW' });
+    const prepared = g.must('review_round_prepare', { storyId: STORY, json: true });
+    const reviewRuns = parseJson(prepared.stdout)!.reviewRuns as Record<string, string>;
+    const productDesc = 'CHK-002 userSees promises rune reversal, but no test reverses a multi-byte string with combining marks';
+    let coverage: { runId: string; receiptId: string } | null = null;
+    // Launch every lane before importing: an import commit moves HEAD.
+    const runs = Object.entries(reviewRuns).map(([lane, reviewRunId]) => ({ lane, reviewRunId,
+      runId: launch(g, lane, reviewRunId, lane === TEST_COVERAGE
+        ? { conclusion: 'findings', findings: [
+          { desc: 'TestEmptyInput receipt was recorded before the last commit (stale receipt)', severity: 'high', category: 'evidence_chain' },
+          { desc: productDesc, severity: 'medium', category: 'edge', files: ['strs/strs_test.go'] },
+        ] }
+        : { conclusion: 'pass', note: `Scripted ${lane} pass: reviewed strs.go and its tests; no blocking issue.` }) }));
+    const receipts = runs.map(run => {
+      const terminal = waitTerminal(g, run.runId);
+      assert.equal(terminal.state, 'completed', `${run.lane} terminal ${terminal.state} (${terminal.reason})`);
+      return { ...run, receiptId: terminal.receiptId };
+    });
+    for (const run of receipts) {
+      g.must('managed_review_evidence_import', { runId: run.runId, receiptId: run.receiptId });
+      if (run.lane === TEST_COVERAGE) coverage = { runId: run.runId, receiptId: run.receiptId };
+      g.unscript(run.reviewRunId);
+    }
+    const findings = g.store().readFindings(STORY).findings;
+    check(findings.length === 1 && findings[0]!.desc === productDesc && findings[0]!.category === 'edge'
+      && findings[0]!.managedEvidenceBinding?.proposalFindingIndex === 1,
+      `S4 only the product finding is imported, bound to sealed proposal index 1 (found ${findings.length})`);
+    const again = g.cli('managed_review_evidence_import', coverage!);
+    check(again.status === 0 && /already imported/.test(again.out), `S4 re-importing the same receipt is idempotent${again.status === 0 ? '' : `: ${again.out.slice(-600)}`}`);
+    const state = collectReviewerEvidenceState(g.store(), STORY, g.worktree);
+    check(state.invalid.length === 0 && state.valid.some(row => row.finding?.desc === productDesc),
+      `S4 the imported finding is valid review evidence (invalid: ${state.invalid.map(row => row.message).join('; ') || 'none'})`);
+    check(g.store().readProcessEvents(STORY).some(row => (row.type as string) === 'review_evidence_chain_reclassified'),
+      'S4 the evidence-chain item is logged as review_evidence_chain_reclassified');
+  };
   try {
     scenarios();
+    if (!keep) mixed();
   } catch (error) {
     keep = true;
     failures.push(`unexpected error: ${error instanceof Error ? error.message : String(error)}`);
     console.log(`  [FAIL] unexpected error: ${error instanceof Error ? error.message.slice(0, 3000) : String(error)}`);
   } finally {
-    if (keep || failures.length) console.log(`fixture retained for diagnosis: ${f.root}`);
-    else f.cleanup();
+    for (const fixture of [f, f2] as Array<Fixture | null>) {
+      if (!fixture) continue;
+      if (keep || failures.length) console.log(`fixture retained for diagnosis: ${fixture.root}`);
+      else fixture.cleanup();
+    }
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
   if (failures.length) {

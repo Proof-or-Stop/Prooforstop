@@ -288,7 +288,8 @@ export interface ManagedHostRunTerminal {
 export interface ManagedReviewEvidenceFindingProposal {
   desc: string;
   severity: 'critical' | 'high' | 'medium' | 'low';
-  category: 'happy' | 'edge' | 'adversarial' | 'missing';
+  /** `evidence_chain` = framework action, reclassified at import (core/evidence-chain-finding.ts). */
+  category: 'happy' | 'edge' | 'adversarial' | 'missing' | 'evidence_chain';
   files?: string[];
   evidenceState?: FindingEvidenceState;
   uncertaintyReason?: string;
