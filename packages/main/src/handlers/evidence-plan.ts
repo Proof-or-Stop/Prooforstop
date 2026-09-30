@@ -265,6 +265,14 @@ export function renderEvidencePlanReport(report: EvidencePlanReport): string {
   bucketSection('refresh-only', report.buckets.refreshOnly);
   bucketSection('fresh', report.buckets.fresh);
 
+  // One next action for every stale pinned intent: the batch refresher reruns
+  // each affected execution key at most once and records every receipt, so
+  // the owner never replays intents one verification_evidence_add at a time.
+  if (report.buckets.rerun.some((entry) => Boolean(entry.command))) {
+    lines.push('', `next: proof-or-stop verification_evidence_refresh_stale --storyId=${report.storyId}`
+      + ' (reruns every stale pinned intent, once per execution key; add --dryRun to preview)');
+  }
+
   lines.push('', 'Local assurance:');
   lines.push('  admissibilityStatus: read-only-evidence-plan');
   lines.push('  assuranceLevel: local');
