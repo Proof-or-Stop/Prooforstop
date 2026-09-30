@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
-import { dirname, join, relative } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join, relative } from 'node:path';
+import { runtimePackageRoot as installedPackageRoot } from './runtime-layout.js';
 import { MANIFEST_FILENAMES, adapterManifestCandidates, stateDirCandidates, ADAPTER_DIR_NAMES } from './brand-paths.js';
 import {
   readPromptRegistry,
@@ -59,7 +59,7 @@ const HOST_ASSET_DIRS: Array<{ host: PromptHost; relDir: string }> = [
 ];
 
 function packageRoot(): string {
-  return join(dirname(fileURLToPath(import.meta.url)), '..', '..');
+  return installedPackageRoot();
 }
 
 function sha256(content: string): string {

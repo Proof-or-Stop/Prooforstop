@@ -14,7 +14,7 @@ import {
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { dirname, join, resolve as resolvePath } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { runtimePackageRoot as installedPackageRoot } from './runtime-layout.js';
 import { PROOF_OR_STOP_BIN_NAMES } from './proof-or-stop-brand.js';
 import {
   ADAPTER_DIR_NAMES,
@@ -215,7 +215,7 @@ const MANIFEST_REL_PATH = `${PROOF_OR_STOP_STATE_DIR}/managed-assets.json`;
 
 
 function packageRoot(): string {
-  return join(dirname(fileURLToPath(import.meta.url)), '..', '..');
+  return installedPackageRoot();
 }
 
 function agentTemplateDir(root = packageRoot()): string | null {

@@ -2,7 +2,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { accessSync, constants, existsSync, lstatSync, readFileSync, readdirSync, readlinkSync, realpathSync, statSync } from 'node:fs';
 import { basename, delimiter, dirname, isAbsolute, join, relative, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { runtimePackageRoot } from './runtime-layout.js';
 import { loadConfig, PROJECT_CONFIG_FILENAMES } from './config.js';
 import {
   RUNTIME_FACT_REGISTRY,
@@ -206,8 +206,6 @@ interface ExternalReference {
   healthSemantics: boolean;
 }
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 const MIN_NODE_MAJOR = 20;
 const CANONICAL_ROOT_PACKAGE_NAME = PROOF_OR_STOP_ROOT_PACKAGE_NAME;
@@ -3387,7 +3385,7 @@ function looksLikeProofOrStopEntrypoint(path: string, projectRoot: string, coreP
 }
 
 function currentCorePackageRoot(): string {
-  return resolve(__dirname, '..', '..');
+  return runtimePackageRoot();
 }
 
 function detectSelfProject(projectRoot: string): boolean {

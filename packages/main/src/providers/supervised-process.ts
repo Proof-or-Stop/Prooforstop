@@ -3,7 +3,7 @@ import { SUPERVISED_PROVIDER_RUNTIME_POLICY } from '../core/runtime-fact-registr
 /** Synchronous API over a process-group owner with an independent control pipe. */
 import { spawnSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import { fileURLToPath } from 'node:url';
+import { runtimeDistPath } from '../core/runtime-layout.js';
 import { acquireProviderProcessAdmission, releaseProviderProcessAdmission, type ProviderProcessAdmission } from '../core/provider-process-admission.js';
 
 export interface SupervisedProcessOptions {
@@ -31,7 +31,7 @@ function runAdmittedSupervisedProcess(binary: string, argv: string[], options: S
   // projection, never the unredacted budget environment or duplicate prompt.
   const { budgetRoot: _budgetRoot, budgetEnv: _budgetEnv, budgetPrompt: _budgetPrompt, ...transport } = options;
   try {
-    const bridge = spawnSync(process.execPath, [fileURLToPath(new URL('./supervised-process-worker.js', import.meta.url))], {
+    const bridge = spawnSync(process.execPath, [runtimeDistPath('providers', 'supervised-process-worker.js')], {
       cwd: transport.cwd, ...{ detached: true }, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe', 'pipe'],
       // Provider environment and credentials travel on stdin, never argv or a file.
       input: JSON.stringify({ nonce, binary, argv, options: transport, admission }),

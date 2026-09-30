@@ -3,7 +3,7 @@ import {statValidatedFileDigest} from './stat-validated-digest.js';
 import {createHash} from 'node:crypto';
 import {existsSync,readFileSync,readdirSync,realpathSync} from 'node:fs';
 import {dirname,isAbsolute,join,resolve} from 'node:path';
-import {fileURLToPath} from 'node:url';
+import {runtimeDistRoot} from './runtime-layout.js';
 import {createRequire} from 'node:module';
 import {EXECUTION_IMPLEMENTATION_PIN_POLICY} from './runtime-fact-registry.js';
 
@@ -11,8 +11,9 @@ const sha=(bytes: string | Buffer) => createHash('sha256').update(bytes).digest(
 interface PackageDescriptor {name?:string;version?:string;dependencies?:Record<string,string>}
 /** Content identity of this loaded implementation, not the target project's version. */
 export function executionImplementationIdentity() {
-  const modulePath=realpathSync(fileURLToPath(import.meta.url));
-  const runtimeRoot=resolve(dirname(modulePath),'..');
+  // The runtime root comes from the installation layout, not this module's own
+  // URL: inside the CLI bundle import.meta.url is the bundle file in dist/.
+  const runtimeRoot=realpathSync(runtimeDistRoot());
   const packageRoot=resolve(runtimeRoot,'..');
   const repositoryRoot=resolve(packageRoot,'../..');
   const files: Array<{path:string;digest:string}>=[];
