@@ -7,6 +7,7 @@ import { StoryStore } from './store.js';
 
 import { execFileSync } from 'node:child_process';
 import { observedGit } from './git-tree-observation.js';
+import { objectAddressedGitReader, type ObjectAddressedGitReader } from './git-object-read-memo.js';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
@@ -78,11 +79,11 @@ export interface ManagedReviewLiveBindingVerification {
  * one collectReviewerEvidenceState over every lane) the identical probe runs
  * once; outside an observation it always runs git. Verdicts are never cached.
  */
-function readLineageGit(gitCwd: string, argv: string[]): string {
+function readLineageGit(gitCwd: string, argv: string[], objectRead?: ObjectAddressedGitReader): string {
   // The observation stores git's raw stdout, shared with every other observed reader.
-  return observedGit(gitCwd, argv, () => execFileSync('git', argv, {
-    cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
-  })).trim();
+  const run = () => execFileSync('git', argv, { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  // Reads addressed only by full object ids may come from the process memo (git-object-read-memo).
+  return (objectRead ? objectRead(argv, run) : observedGit(gitCwd, argv, run)).trim();
 }
 
 /**
@@ -101,7 +102,8 @@ function hasOnlyManagedReviewImporterCommits(args: {
   liveHeadHash: string;
 }): boolean {
   if (args.reviewedHeadHash === args.liveHeadHash) return true;
-  const git = (argv: string[]): string => readLineageGit(args.gitCwd, argv);
+  const objectRead = objectAddressedGitReader(args.gitCwd);
+  const git = (argv: string[]): string => readLineageGit(args.gitCwd, argv, objectRead);
   try {
     git(['merge-base', '--is-ancestor', args.reviewedHeadHash, args.liveHeadHash]);
     const commits = git(['rev-list', '--reverse', `${args.reviewedHeadHash}..${args.liveHeadHash}`]).split('\n').filter(Boolean);
@@ -132,8 +134,8 @@ function hasOnlyManagedReviewImporterCommits(args: {
     return commits.every(commit => {
       const subject = git(['show', '-s', '--format=%s', commit]);
       if (!matchesRuntimeCommitSubject(subject, expectedSubjectBody)) {
-        return isVerifiedReviewMaintenanceCommit({ ...args, commit })
-          || isPrecertMetadataCommit(args.gitCwd, args.metadataRoot, args.storyId, canonicalStoryDir, subject, commit);
+        return isVerifiedReviewMaintenanceCommit({ ...args, commit, objectRead })
+          || isPrecertMetadataCommit(args.gitCwd, args.metadataRoot, args.storyId, canonicalStoryDir, subject, commit, objectRead);
       }
       const files = git(['diff-tree', '--no-commit-id', '--name-only', '-r', commit]).split('\n').filter(Boolean);
       const names = new Set(files.map(file => file.split('/').at(-1)));
@@ -169,11 +171,12 @@ const PRECERT_METADATA_COMMANDS = [
 
 function isPrecertMetadataCommit(
   gitCwd: string, metadataRoot: string, storyId: string, canonicalStoryDir: string, subject: string, commit: string,
+  objectRead?: ObjectAddressedGitReader,
 ): boolean {
   if (!PRECERT_METADATA_COMMANDS.some(command => matchesRuntimeCommitSubject(subject, `record ${storyId} ${command} metadata`))) return false;
-  const parents = readLineageGit(gitCwd, ['show', '-s', '--format=%P', commit]);
+  const parents = readLineageGit(gitCwd, ['show', '-s', '--format=%P', commit], objectRead);
   if (parents.split(/\s+/).filter(Boolean).length !== 1) return false;
-  const files = readLineageGit(gitCwd, ['diff-tree', '--no-commit-id', '--name-only', '-r', commit])
+  const files = readLineageGit(gitCwd, ['diff-tree', '--no-commit-id', '--name-only', '-r', commit], objectRead)
     .split('\n').filter(Boolean).map(file => file.replace(/\\/g, '/'));
   return files.length > 0
     && files.every(file => file.startsWith(`${canonicalStoryDir}/`) && isMaterialExcludedPath(file, metadataRoot));
