@@ -77,11 +77,12 @@ try {
   const repeated = perLane.slice(1).reduce((a, b) => a + b, 0);
   assert.equal(repeated, 0, `lanes 2..${LANES} re-ran ${repeated} identical git commands inside one observation (budget 0)`);
 
-  // Outside an observation nothing is memoized.
+  // Outside an observation the live state is probed afresh (object-id-addressed
+  // lineage bytes may still come from git-object-read-memo; see lineage-object-memo-smoke).
   const outsideBefore = spawned();
   assert.equal(verify().valid, true);
-  const outside = spawned() - outsideBefore;
-  assert.ok(outside >= perLane[0], `a call outside an observation probes git afresh (${outside} < ${perLane[0]})`);
+  const outsideRows = readFileSync(log, 'utf8').split('\n').filter(Boolean).slice(outsideBefore);
+  assert.ok(outsideRows.some(row => row.startsWith('rev-parse')), `a call outside an observation resolves the live HEAD afresh: ${outsideRows.join(' | ')}`);
 
   // Freshness: a commit that is not a permitted advance is seen by the next observation.
   metadataCommit('checklist_update');

@@ -3,6 +3,7 @@ import {isVerifiedEvidenceRefreshCommit, isOwnerLeaseHeartbeatOnly} from './revi
 /** Narrow writer/consumer compatibility for authenticated review bookkeeping. */
 import { execFileSync } from 'node:child_process';
 import { observedGit } from './git-tree-observation.js';
+import type { ObjectAddressedGitReader } from './git-object-read-memo.js';
 import { REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES } from './runtime-fact-registry.js';
 import { relative } from 'node:path';
 import { realpathSync } from 'node:fs';
@@ -19,11 +20,17 @@ import type { ReviewInventoryEpochData } from './types.js';
 
 export function isVerifiedReviewMaintenanceCommit(args: {
   gitCwd: string; metadataRoot: string; storyId: string; commit: string; reviewedHeadHash: string; reviewedMaterialHash?: string; reviewedStoryFilesHash?: string;
+  /** The caller walk's object-addressed reader for gitCwd (git-object-read-memo). */
+  objectRead?: ObjectAddressedGitReader;
 }): boolean {
   const { gitCwd, metadataRoot, storyId, commit, reviewedHeadHash } = args;
   // Read-only probes share the caller's synchronous git observation (one per
   // reviewer-evidence collection); outside one they always run git.
-  const gitRaw = (argv: string[]) => observedGit(gitCwd, argv, () => execFileSync('git', argv, { cwd: gitCwd, encoding: 'utf8', maxBuffer: REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES, stdio: ['ignore','pipe','pipe'] }));
+  // Reads addressed only by full object ids may come from the walk's process memo.
+  const gitRaw = (argv: string[]) => {
+    const run = () => execFileSync('git', argv, { cwd: gitCwd, encoding: 'utf8', maxBuffer: REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES, stdio: ['ignore','pipe','pipe'] });
+    return args.objectRead ? args.objectRead(argv, run) : observedGit(gitCwd, argv, run);
+  };
   const git = (argv: string[]) => gitRaw(argv).trim();
   try {
     const store = new StoryStore(metadataRoot);
