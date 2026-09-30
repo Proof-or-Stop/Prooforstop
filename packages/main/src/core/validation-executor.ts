@@ -47,25 +47,14 @@ import { effectiveValidationCommandEnvironment } from './validation-command-envi
 import { closedEnvironmentForVerificationReuseCapsuleInvocation } from './verification-reuse-capsule.js';
 import { METADATA_BLOB_READ_MAX_BUFFER_BYTES } from './done-prepare-generated-metadata.js';
 import { readBrandEnv } from './brand-env.js';
+// The per-command timeout policy lives in the validation-timeouts leaf so the
+// evidence-reuse and command-identity modules can resolve a command's timeout
+// without importing this executor; re-exported here under the original names.
+import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, MAX_NODE_TIMER_DELAY_MS, resolveCommandTimeoutMs } from './validation-timeouts.js';
+export { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, MAX_NODE_TIMER_DELAY_MS, resolveCommandTimeoutMs } from './validation-timeouts.js';
 
 const MAX_OUTPUT_CHARS = 12000;
 
-/**
- * Default hard per-command ceiling applied when a validate command sets no explicit
- * `timeoutMs`. This is a TOTAL WALL-CLOCK ceiling per command — distinct from the
- * cli-engine global watchdog, which fires only after ~300s of NO OUTPUT (idle). Kept
- * strictly BELOW that global watchdog (300_000ms = 5*60*1000; overridable via the
- * PROOF_OR_STOP_IDLE_TIMEOUT_MS env var) so a hung/slow command is killed and ATTRIBUTED
- * (exit 124) here first, instead of the global watchdog silently force-exiting the whole
- * validate (which never re-stamps test-evidence.materialHash and silently blocks DONE for
- * every story). It is also kept ABOVE the observed full-validation incident envelope
- * (~171s) with margin; a command that genuinely needs longer can raise
- * `proof-or-stop.config.json` validate.commands[].timeoutMs (the build is pinned there to 290s
- * to keep near-watchdog headroom for a cold-cache compile). NOTE: lowering
- * PROOF_OR_STOP_IDLE_TIMEOUT_MS below this default would invert the invariant — an advanced,
- * non-default override the operator owns.
- */
-export const DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS = 270_000;
 
 const RUNTIME_TRACE_DIR = '.proof-or-stop/runtime/validation-traces';
 const RUNTIME_TRACER_RELATIVE_PATH = 'packages/main/src/core/validation-runtime-tracer.cjs';
@@ -153,8 +142,6 @@ function readRuntimeTraceFragments(traceFile: string): {
  */
 export const EVIDENCE_COMMAND_TIMEOUT_CAP_MS = 21_600_000;
 export const DEFAULT_VALIDATE_HEARTBEAT_MS = 30_000;
-/** Node clamps larger setTimeout delays to ~1ms and emits TimeoutOverflowWarning. */
-export const MAX_NODE_TIMER_DELAY_MS = 2_147_483_647;
 
 export interface RunValidationCommandOptions {
   sharedExecution?: SharedValidationExecutionContext;
@@ -289,22 +276,6 @@ export function resolveValidatePlanJobs(env: NodeJS.ProcessEnv = process.env, ov
   return parsePositiveInteger(raw, 'PROOF_OR_STOP_VALIDATE_JOBS');
 }
 
-/**
- * The effective per-command timeout: an explicit positive `timeoutMs`, else `defaultMs`
- * (the module default unless a caller injects one — the seam tests use to exercise the
- * default-arming path with a tiny ceiling). A non-finite / zero / negative `timeoutMs`
- * falls back to the default BY DESIGN: there is intentionally no opt-out of the per-command
- * ceiling, since an unbounded command is exactly the hang this guards against.
- */
-export function resolveCommandTimeoutMs(
-  command: ValidationCommand,
-  defaultMs: number = DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
-): number {
-  const effective = typeof command.timeoutMs === 'number' && Number.isFinite(command.timeoutMs) && command.timeoutMs > 0
-    ? command.timeoutMs
-    : defaultMs;
-  return Math.max(1, Math.min(MAX_NODE_TIMER_DELAY_MS, Math.floor(effective)));
-}
 
 export function resolveValidateHeartbeatMs(env: NodeJS.ProcessEnv = process.env): number {
   const raw = Number(readBrandEnv('VALIDATE_HEARTBEAT_MS', env));

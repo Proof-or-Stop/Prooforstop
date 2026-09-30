@@ -360,7 +360,8 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   'packages/main/src/core/lifecycle-control/control-status.ts': 'e015e86e23e400c8d7e43bd253938f3ee2105bba9925d42c599747b6b87fcc58',
   'packages/main/src/core/experience-layer-types.ts': '8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881',
   'packages/main/src/core/git-tree-observation.ts': 'e3310d811d2c0e7f78a41e14ee6995593c23cb6a0e5d8c7686be5d5a7cbfe3f9',
-  'packages/main/src/core/evidence-freshness.ts': '901c9c979b04b41d4f12abbd9116c8bfe4eb86825f1386f04660dd6e1b4e5eff',
+  // Lab cli-bundle (2026-09-30): resolveStoryChangedFiles/MergeBase now imported from the story-change-manifest leaf; repinned.
+  'packages/main/src/core/evidence-freshness.ts': '3d9fff4e3a9289decd476b501f0f1efdb39e310f39455e8c49a41839529de7f2',
   // 3270fa6c84 changed the emitted inventory executable after its previous pin was recorded.
   'packages/main/src/core/review-inventory-epoch.ts': 'a51318317a9620dec23b870eed74a567073a367b3471a62229e8eba95241cd88',
   'packages/main/src/core/verification-execution-evidence.ts': '728e76f065e83fe8fdec672986f40ef37e2d8ae8dbc96eda4d01ccd2584cf5cf',

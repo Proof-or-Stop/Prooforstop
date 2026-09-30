@@ -35,7 +35,7 @@ import type {
   DirtyWorktreeClassification,
 } from './dirty-worktree.js';
 import { appendProcessEventRecord } from './process-events.js';
-import { storyRuntimeLockPath } from './validation-execution-lock.js';
+import { storyRuntimeLockPath } from './shared-lock-root.js';
 
 export interface DirtyGatePolicyEntry {
   readonly blocking: boolean;

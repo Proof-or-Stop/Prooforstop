@@ -105,7 +105,7 @@ import { managedRunStage, managedSupervisionAction, type ManagedRunStage,
 import { StoryStore } from './store.js';
 import { initCheckSignatureIsValid } from './init-check-gate.js';
 import { verifyScopeCheckContentSignature } from './scope-check-integrity.js';
-import { recomputeDeliveryCheckHash } from './delivery-check-hash.js';
+import { recomputeDeliveryCheckHash } from './delivery-check-signature.js';
 import type { InitCheckData } from './types.js';
 
 export const MANAGED_HOST_RUN_SCHEMA_VERSION = 'lattice.managed_host_run.v1' as const;
