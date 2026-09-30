@@ -13,8 +13,9 @@ import { assessConvergenceProgressGate } from './convergence-progress-gate.js';
  *
  * Reuse discipline: round counting comes from resolveReviewRoundCount
  * (advisory.ts) and the per-round blocking decision reuses isFindingBlocking
- * (advisory.ts) + resolveEffectiveBlockingSeverities (guard-utils.ts). This
- * module does NOT reimplement round/blocking logic.
+ * (advisory.ts) with the profile's blocking severities for every round (no
+ * round decay; core/finding-closure.ts). This module does NOT reimplement
+ * round/blocking logic.
  */
 import { resolveReviewRoundCount } from './advisory.js';
 import { readDynamicFindingDecision } from './finding-applicability-projection.js';
@@ -48,10 +49,7 @@ export interface ReviewConvergenceInputs {
    * === roundCount: index i corresponds to ACTUAL review round i+1 (round 1 at
    * index 0 .. round roundCount at index roundCount-1). Rounds with no findings
    * (or no blocking findings) are 0, so a recently-clean tail shows trailing
-   * zeros. The decay tier applied to each round's blocking decision is keyed to
-   * that round's ACTUAL number, never to the position among rounds-that-have
-   * -findings — so a round-with-no-findings does not shift later rounds onto the
-   * wrong severity tier.
+   * zeros. Every round uses the profile's blocking severities (no round decay).
    */
   perRoundBlockingCounts: number[];
 }
@@ -79,12 +77,10 @@ export interface ReviewConvergenceInputs {
  *     non-false-alarming choice.
  *
  * Per-round blocking determination:
- *   - For each ACTUAL round r (1-based), compute that round's effective blocking
- *     severities via effectiveBlockingForRound(r, round1BlockingSeverities) —
- *     the SAME decay rule as resolveEffectiveBlockingSeverities (Round 1 =
- *     policy.review.blockingSeverities; Round 2 = critical+high; Round 3+ =
- *     critical) — and count findings assigned to round r that are blocking via
- *     isFindingBlocking for that round number.
+ *   - For each ACTUAL round r (1-based), count findings assigned to round r
+ *     that are blocking via readDynamicFindingDecision with the profile's
+ *     policy.review.blockingSeverities. There is no round decay: the same
+ *     severities block in every round (core/finding-closure.ts).
  */
 export function collectReviewConvergenceInputs(
   store: StoryStore,
@@ -99,24 +95,24 @@ export function collectReviewConvergenceInputs(
     findings = [];
   }
 
-  // Round-1 blocking severities come from the resolved workflow policy, exactly
-  // as the guard-utils call sites obtain it (loadConfig -> resolveWorkflowPolicy).
-  let round1BlockingSeverities: readonly string[];
+  // Blocking severities (every round) come from the resolved workflow policy,
+  // exactly as the gate call sites obtain it (loadConfig -> resolveWorkflowPolicy).
+  let blockingSeverities: readonly string[];
   let reviewRoundTimestamps: string[] = [];
   try {
     const story = store.readStory(storyId);
     const config = loadConfig(store.projectRoot);
     const policy = resolveWorkflowPolicy(config, story);
-    round1BlockingSeverities = policy.review.blockingSeverities;
+    blockingSeverities = policy.review.blockingSeverities;
     // Canonical round identities: the timestamps of the REVIEW/advance events
     // that resolveReviewRoundCount counts, in chronological order.
     reviewRoundTimestamps = (story.events ?? [])
       .filter(e => e.phase === 'REVIEW' && e.action === 'advance' && Boolean(e.timestamp))
       .map(e => e.timestamp as string);
   } catch {
-    // Conservative fallback matching the strictest Round-1 set; this only
+    // Conservative fallback matching the strictest profile set; this only
     // affects the count when policy is unreadable (never blocks anything).
-    round1BlockingSeverities = ['critical', 'high', 'medium'];
+    blockingSeverities = ['critical', 'high', 'medium'];
   }
 
   // Assign each finding to an actual round number (1-based) over a dense
@@ -170,33 +166,15 @@ export function collectReviewConvergenceInputs(
   }
 
   const perRoundBlockingCounts = findingsByRound.map((roundFindings, idx) => {
-    // Actual round number is index + 1 — the decay tier is keyed to this, NOT
-    // to a position among rounds-with-findings.
+    // Actual round number is index + 1; it never changes the blocking severities.
     const roundNumber = idx + 1;
-    const effectiveBlockingSeverities = effectiveBlockingForRound(roundNumber, round1BlockingSeverities);
     return roundFindings
       .filter(f => readDynamicFindingDecision({ store, projectRoot: store.projectRoot, storyId, finding: f,
-        effectiveBlockingSeverities, round: roundNumber }).blocking)
+        effectiveBlockingSeverities: blockingSeverities, round: roundNumber }).blocking)
       .length;
   });
 
   return { roundCount, perRoundBlockingCounts };
-}
-
-/**
- * Mirrors the canonical round-decay rule from
- * guard-utils.ts resolveEffectiveBlockingSeverities, but parameterized by an
- * explicit round index so we can evaluate historical rounds (the store helper
- * only resolves the latest round). Kept here, not duplicated logic: it is the
- * same three-branch decay, applied per index instead of per latest-round.
- */
-function effectiveBlockingForRound(
-  roundIndex: number,
-  round1BlockingSeverities: readonly string[],
-): readonly string[] {
-  if (roundIndex >= 3) return ['critical'];
-  if (roundIndex >= 2) return ['critical', 'high'];
-  return round1BlockingSeverities;
 }
 
 export interface ReviewConvergenceAssessment {

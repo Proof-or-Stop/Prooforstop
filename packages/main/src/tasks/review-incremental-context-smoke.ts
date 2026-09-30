@@ -44,7 +44,7 @@ import { nativeReviewFixtureBrokers, runBrokeredNativeReviewCli } from './native
  *         - Missing currentReviewRound: pass-shaped legacy evidence fails closed.
  *         - A current-round INVALID (stale/unknown-run) binding blocks — in ALL
  *           rounds, before the round split.
- *         - A verified open blocking finding (after round decay) blocks.
+ *         - A verified open blocking finding of any round blocks (no round decay).
  *       For every fixture, the gate outcome is asserted IDENTICAL whether or not
  *       reviewIncrementalContext is called in between, AND the gate inputs are
  *       proven byte-identical before/after the helper runs (no store writes, no

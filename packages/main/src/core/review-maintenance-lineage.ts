@@ -18,6 +18,79 @@ import { CLOSEOUT_WRITE_RECEIPTS_PATH, closeoutArtifactPolicyFor, verifyCloseout
 import { evaluatePersistedReviewToTestIndexTransition } from './review-test-index-transition.js';
 import type { ReviewInventoryEpochData, ReviewRun } from './types.js';
 import { canonicalAgentRoleId } from './agent-role-identity.js';
+import { currentFindingLedgerTrustFromWorkspace, validateEnvelope, verifyFindingLedgerReceipt, type LedgerEnvelope } from './finding-ledger.js';
+import type { Finding, FindingLedgerReceipt, FindingLifecycleTransition } from './types.js';
+
+const FINDING_RESOLVE_ARTIFACTS = new Set(['findings.json', 'finding-ledger.json', 'process-metrics.json', 'gate-failure-counts.json']);
+const FINDING_RESOLVE_ROW_FIELDS = new Set(['status', 'resolvedAt', 'resolvedReason', 'resolutionType', 'resolveEvidenceStrength', 'recordId']);
+const FINDING_RESOLVE_LEDGER_RECORDS = new Set(['legacy_identity_binding', 'finding_lifecycle_transition']);
+
+/**
+ * A finding_resolve metadata commit after the reviewed head is review
+ * bookkeeping only when it is exactly: append-only signed ledger records
+ * (identity binding + open->resolved transition), the findings.json mirror of
+ * those transitions and nothing else, and optionally a subject-bound metrics
+ * projection. Returns null when authentic, otherwise the refused rule.
+ */
+function findingResolvePublicationRefusal(args: {
+  artifacts: string[]; storyId: string; metadataRoot: string;
+  readAt: (name: string) => any; readPrior: (name: string) => any;
+}): string | null {
+  const { artifacts, storyId } = args;
+  const foreign = artifacts.find(path => !FINDING_RESOLVE_ARTIFACTS.has(path));
+  if (foreign) return `touches ${foreign}, outside findings.json/finding-ledger.json/process-metrics.json/gate-failure-counts.json`;
+  if (!artifacts.includes('findings.json') || !artifacts.includes('finding-ledger.json')) return 'does not publish both findings.json and finding-ledger.json';
+  if (artifacts.includes('process-metrics.json')) {
+    const metrics = args.readAt('process-metrics.json');
+    if (metrics.storyId !== storyId || typeof metrics.generatedAt !== 'string' || !metrics.sourceSnapshot || !metrics.dimensions) return 'process-metrics.json is not a subject-bound projection';
+  }
+  if (artifacts.includes('gate-failure-counts.json')) {
+    // A tracked convergence-breaker counter swept in after a refused TEST probe; no review evidence.
+    const counts = args.readAt('gate-failure-counts.json');
+    if (!counts || typeof counts !== 'object' || Array.isArray(counts)
+      || Object.values(counts).some(row => !row || typeof row !== 'object' || Array.isArray(row))) return 'gate-failure-counts.json is not a gate counter map';
+  }
+  const ledger = args.readAt('finding-ledger.json') as LedgerEnvelope<unknown>;
+  const priorLedger = args.readPrior('finding-ledger.json') as LedgerEnvelope<unknown> | undefined;
+  try { validateEnvelope(ledger); } catch (error) { return `finding-ledger.json is invalid: ${error instanceof Error ? error.message : String(error)}`; }
+  const priorRecords = priorLedger?.records ?? [];
+  const priorReceipts = priorLedger?.receipts ?? [];
+  if (digestCanonicalJson(ledger.records.slice(0, priorRecords.length)) !== digestCanonicalJson(priorRecords)
+    || digestCanonicalJson(ledger.receipts.slice(0, priorReceipts.length)) !== digestCanonicalJson(priorReceipts)) return 'rewrites earlier finding-ledger records or receipts';
+  const addedRecords = ledger.records.slice(priorRecords.length);
+  const addedReceipts = ledger.receipts.slice(priorReceipts.length) as Array<(typeof ledger.receipts)[number] & { findingLedgerReceipt?: FindingLedgerReceipt }>;
+  if (!addedRecords.length || addedRecords.some(record => !FINDING_RESOLVE_LEDGER_RECORDS.has(record.recordType))) return 'appends ledger records other than identity bindings and lifecycle transitions';
+  const trust = currentFindingLedgerTrustFromWorkspace(args.metadataRoot);
+  if (!trust) return 'finding ledger trust root is unavailable';
+  const signedRecordIds = new Set<string>();
+  for (const carrier of addedReceipts) {
+    const signed = carrier.findingLedgerReceipt;
+    if (!signed || !verifyFindingLedgerReceipt(signed, trust) || signed.storyId !== storyId || signed.receiptId !== carrier.receiptId
+      || digestCanonicalJson(signed.recordIds) !== digestCanonicalJson(carrier.recordIds)) return `ledger receipt ${carrier.receiptId} is not a signed receipt of this Story`;
+    for (const id of carrier.recordIds) signedRecordIds.add(id);
+  }
+  if (addedRecords.some(record => !signedRecordIds.has(record.recordId))) return 'appends a ledger record without its signed receipt';
+  const transitions = addedRecords.filter(record => record.recordType === 'finding_lifecycle_transition')
+    .map(record => record.payload as FindingLifecycleTransition);
+  if (!transitions.length || transitions.some(t => t.fromStatus !== 'open' || t.toStatus !== 'resolved')) return 'lifecycle transitions are not open->resolved';
+  const rows = (args.readAt('findings.json') as { findings?: Finding[] }).findings ?? [];
+  const priorRows = (args.readPrior('findings.json') as { findings?: Finding[] } | undefined)?.findings ?? [];
+  if (rows.length !== priorRows.length || rows.some((row, index) => row.id !== priorRows[index]!.id)) return 'findings.json adds, removes or reorders findings';
+  const changed = rows.filter((row, index) => digestCanonicalJson(row) !== digestCanonicalJson(priorRows[index]));
+  if (changed.length !== transitions.length || new Set(transitions.map(t => t.findingId)).size !== transitions.length) return 'findings.json changes do not match the lifecycle transitions one to one';
+  for (const row of changed) {
+    const before = priorRows[rows.indexOf(row)]! as unknown as Record<string, unknown>;
+    const after = row as unknown as Record<string, unknown>;
+    const keys = new Set([...Object.keys(before), ...Object.keys(after)]);
+    const touched = [...keys].filter(key => digestCanonicalJson(before[key] ?? null) !== digestCanonicalJson(after[key] ?? null));
+    const transition = transitions.find(t => t.findingId === row.id);
+    if (!transition || before.status !== 'open' || row.status !== 'resolved'
+      || touched.some(key => !FINDING_RESOLVE_ROW_FIELDS.has(key)) || (touched.includes('recordId') && before.recordId !== undefined)
+      || row.recordId !== transition.findingRecordId || row.resolvedAt !== transition.at
+      || (row.resolvedReason ?? undefined) !== (transition.reason ?? undefined)) return `findings.json row ${row.id} is not exactly the mirror of its signed resolve transition`;
+  }
+  return null;
+}
 
 export function isVerifiedReviewMaintenanceCommit(args: {
   gitCwd: string; metadataRoot: string; storyId: string; commit: string; reviewedHeadHash: string; reviewedMaterialHash?: string; reviewedStoryFilesHash?: string;
@@ -189,6 +262,15 @@ export function isVerifiedReviewMaintenanceCommit(args: {
     if (matchesRuntimeCommitSubject(subject, `record ${storyId} verification_evidence_add metadata`)) {
       return isVerifiedEvidenceRefreshCommit({...args,isProtectedArtifact:closeoutArtifactPolicyFor})
         || no('verification_evidence_add publication is not an authenticated evidence refresh');
+    }
+    if (matchesRuntimeCommitSubject(subject, `record ${storyId} finding_resolve metadata`)) {
+      // Closure rule (core/finding-closure.ts): the owner closes a verified
+      // blocking finding in REVIEW. The publication touches no material and may
+      // only carry signed open->resolved lifecycle transitions and their mirror.
+      const refusal = findingResolvePublicationRefusal({ artifacts, storyId, metadataRoot,
+        readAt: name => readAt(commit, name),
+        readPrior: name => git(['ls-tree','--name-only',parents[0],'--',prefix + name]) ? readAt(parents[0], name) : undefined });
+      return refusal === null || no(`finding_resolve publication: ${refusal}`);
     }
     // Official certification and validation publications retain code review only.
     // Their specialized gates still decide whether certification/validation passes.

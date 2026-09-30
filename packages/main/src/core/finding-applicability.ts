@@ -118,6 +118,7 @@ export interface MandatoryRepairClassification {
 export interface DynamicFindingInput {
   finding: { status: string; severity: string; evidenceState?: string | null };
   effectiveBlockingSeverities: readonly string[];
+  /** Review round, diagnostic only: blocking never decays by round. */
   round: number;
   assessment?: FindingApplicabilityAssessment | null;
   deferral?: FindingDeferralDisposition | null;
@@ -140,10 +141,9 @@ export interface DynamicFindingDecision {
 function legacyBlocking(input: DynamicFindingInput): boolean {
   const evidenceBlocks = input.finding.evidenceState == null || input.finding.evidenceState === 'verified';
   const severity = input.finding.severity;
-  const roundAdvisory = severity === 'low' || (input.round >= 3 && (severity === 'high' || severity === 'medium'))
-    || (input.round >= 2 && severity === 'medium');
+  // No round decay: input.round never changes the outcome; low is always advisory.
   return input.finding.status === 'open' && evidenceBlocks
-    && input.effectiveBlockingSeverities.includes(severity) && !roundAdvisory;
+    && input.effectiveBlockingSeverities.includes(severity) && severity !== 'low';
 }
 
 const NON_APPLICABLE_RELEASE = new Set<ApplicabilityVerdict>(['pre_existing_unaffected', 'out_of_scope', 'duplicate']);

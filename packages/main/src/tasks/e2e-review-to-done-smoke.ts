@@ -31,9 +31,13 @@
  *      finalize --remediation -> DEV repair by a managed finding-repair
  *      dispatch -> round 2 all pass -> direct finalize (zero-wave
  *      completeness-only receipt, refused by certification) -> cancel ->
- *      fresh saturated epoch + critic -> certification_window_begin ->
- *      validate -> story_advance TEST must not refuse the managed passes with
- *      managed_review_live_head_lineage_invalid; then TEST -> DONE.
+ *      fresh saturated epoch + critic -> certification_window_begin refuses
+ *      the still-open verified HIGH F-001 from round 1 (closure required, no
+ *      round decay); DONE's review verdict and story_advance TEST refuse too ->
+ *      the owner runs the hinted finding_resolve with the repair evidence ->
+ *      certification_window_begin -> validate -> story_advance TEST must not
+ *      refuse the managed passes with managed_review_live_head_lineage_invalid;
+ *      then TEST -> DONE.
  *   D2 run-11 workaround: an unauthenticated commit breaks the live binding;
  *      TEST names the commit/rule with one Next (review_round_prepare); the
  *      owner reruns the round; the superseded older passes of the same round
@@ -66,6 +70,7 @@ import { QUALIFIED_MANAGED_REVIEWER_DEFAULTS } from '../core/managed-reviewer-qu
 import { currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { classifierOptionsForCheck, classifyGitStatusRows, isBlockingDirty, readGitStatusLines } from '../core/dirty-worktree-gate.js';
 import { MANAGED_INVENTORY_CRITIC_LANE } from '../core/managed-inventory-critic.js';
+import { FINDING_RESOLUTION_PLACEHOLDER } from '../core/finding-closure-hint.js';
 import { sanitizedFixtureChildEnvironment } from './fixture-environment.js';
 import { createFixtureMachineEnvironment } from './helpers/fixture-machine-environment.js';
 
@@ -706,9 +711,13 @@ function scenarioB(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
+// HIGH, not medium: this fixture runs the default balanced profile, whose
+// review.blockingSeverities are critical/high. A medium finding is not a
+// blocking severity under balanced in ANY round, so it would legitimately stay
+// open; the closure rule (core/finding-closure.ts) is about blocking severities.
 const D_FINDING = {
   desc: 'Reverse has no focused test for an empty string: Reverse("") must return "" without indexing r[-1].',
-  severity: 'medium', category: 'edge', files: ['strs/strs.go', 'strs/strs_test.go'], evidenceState: 'verified',
+  severity: 'high', category: 'edge', files: ['strs/strs.go', 'strs/strs_test.go'], evidenceState: 'verified',
 };
 
 /** A material commit makes the pinned focused evidence stale; the owner re-earns it. */
@@ -737,6 +746,28 @@ function devRepairViaManagedDispatch(o: Owner, findingId: string): string {
   return `${terminal.state}; story HEAD ${git(o.worktree, ['log', '--format=%h %s', '-1'])}`;
 }
 
+/**
+ * Closure rule (core/finding-closure.ts): a verified blocking finding stays open
+ * across rounds until the owner closes it. Before the resolve, the DONE oracle's
+ * review-verdict row and REVIEW->TEST both refuse, naming the id; the owner then
+ * runs exactly the hinted finding_resolve with the repair evidence.
+ */
+function resolveAsHinted(o: Owner, findingId: string, repairEvidence: string, lines: string[]): void {
+  const verdict = closureRow(o, 'done_closure (before finding_resolve)', 'review-verdict');
+  assert.equal(verdict?.blocking, true, `DONE must refuse the open verified finding ${findingId}:\n${JSON.stringify(verdict)}`);
+  assert.ok(String(verdict?.reason ?? '').includes(findingId), `DONE refusal names ${findingId}: ${JSON.stringify(verdict)}`);
+  const test = o.cli('story_advance', { storyId: o.storyId, phase: 'TEST' }, { label: 'story_advance TEST (finding open)' });
+  assert.notEqual(test.status, 0, 'REVIEW->TEST must refuse while the verified finding is open');
+  const hint = nextOf(test.out);
+  const expected = `Next: proof-or-stop finding_resolve --storyId=${o.storyId} --findingId=${findingId} --resolution="${FINDING_RESOLUTION_PLACEHOLDER}"`;
+  assert.ok(hint.startsWith(expected), `TEST refusal must print the exact resolve command:\n${test.out.slice(-2000)}`);
+  lines.push(`before finding_resolve: DONE review-verdict blocking=${String(verdict?.blocking)}; story_advance TEST refused; ${hint.slice(0, 160)}`);
+  const command = expected.slice('Next: '.length).replace(FINDING_RESOLUTION_PLACEHOLDER, repairEvidence);
+  const resolved = o.shell('finding_resolve (as hinted)', command);
+  assert.equal(resolved.status, 0, `hinted finding_resolve failed:\n${resolved.out.slice(-2000)}`);
+  lines.push(`owner ran the hinted finding_resolve: ${resolved.stdout.split('\n')[0]}`);
+}
+
 function nextOf(out: string): string {
   return out.split('\n').find(line => line.startsWith('Next: ')) ?? '(no Next)';
 }
@@ -751,7 +782,7 @@ function reviewedHead(o: Owner): string {
 }
 
 function scenarioD(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
-  const name = 'D run 11: review finding -> DEV repair -> all-pass round -> PRE_CERT -> TEST -> DONE';
+  const name = 'D run 11: review finding -> DEV repair -> all-pass round -> finding_resolve -> PRE_CERT -> TEST -> DONE';
   // Runs 11 and 12: the task repo tracked the convergence-breaker gate counter.
   const o = new Owner('D', 'B-e2e3', machineEnv, steps, false, { trackedGateFailureCounts: true });
   const lines: string[] = [];
@@ -810,6 +841,14 @@ function scenarioD(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
       lines.push(`fresh saturated epoch + critic, then certification_window_begin: exit ${begin.status} ${begin.status ? firstError(begin) : 'ADMITTED'}`);
       recovered = true;
     }
+    // F-001 is verified HIGH from round 1 and still open after the all-pass
+    // round 2: PRE_CERT refuses it (no round decay) and hints finding_resolve.
+    assert.notEqual(begin.status, 0, `D: PRE_CERT must refuse while ${findingId} is open:\n${begin.out.slice(-2000)}`);
+    assert.match(begin.out, /pre_cert_blocking_findings_open/, begin.out.slice(-2000));
+    assert.ok(nextOf(begin.out).includes(`finding_resolve --storyId=${o.storyId} --findingId=${findingId}`), `PRE_CERT hint: ${nextOf(begin.out)}`);
+    resolveAsHinted(o, findingId, `repair ${git(o.worktree, ['log', '--format=%h', '-1', '--grep=Reverse of the empty string'])} adds TestReverseEmpty; go test ./strs -run TestReverseEmpty passes`, lines);
+    begin = o.cli('certification_window_begin', { storyId: o.storyId }, { label: 'certification_window_begin (after resolve)' });
+    lines.push(`certification_window_begin after finding_resolve: exit ${begin.status} ${begin.status ? firstError(begin) : 'ADMITTED'}`);
     assert.equal(begin.status, 0, `D: certification never admitted:\n${begin.out.slice(-2000)}`);
     lines.push(`fresh saturated epoch needed: ${recovered ? 'yes' : 'no'}`);
     o.mustCli('validate', { story: o.storyId, json: true }, { label: 'validate (routine)' });

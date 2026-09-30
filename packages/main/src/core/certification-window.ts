@@ -1,4 +1,5 @@
 import { isDeepStrictEqual } from 'node:util';
+import { findingResolveCommand } from './finding-closure-hint.js';
 import { createHash } from 'node:crypto';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import { withMkdirLock } from './mkdir-lock.js';
@@ -602,7 +603,16 @@ export function loadReviewInventoryAdmitApis(): ReviewInventoryAdmitApis | null 
   }
 }
 
-export function nextCommandForBlocker(storyId: string, blockerCode?: string | null): string {
+const OPEN_BLOCKING_FINDINGS_DETAIL = 'Open verified blocking findings: ';
+
+/** Finding ids named by a PRE_CERT_BLOCKING_FINDINGS_OPEN blocker detail (authored by admit below). */
+function openBlockingFindingIdsFromDetail(blockerDetail?: string | null): string[] {
+  if (!blockerDetail?.startsWith(OPEN_BLOCKING_FINDINGS_DETAIL)) return [];
+  return blockerDetail.slice(OPEN_BLOCKING_FINDINGS_DETAIL.length).split(/[;\n]/)[0]!.split(',')
+    .map(id => id.trim()).filter(id => id.length > 0 && !id.startsWith('<'));
+}
+
+export function nextCommandForBlocker(storyId: string, blockerCode?: string | null, blockerDetail?: string | null): string {
   switch (blockerCode) {
     case PRE_CERT_CHEAP_CHECK_REQUIRED:
       return `proof-or-stop validate --story=${storyId} --focus=fast --json`;
@@ -614,8 +624,11 @@ export function nextCommandForBlocker(storyId: string, blockerCode?: string | nu
       return `proof-or-stop certification_window_status --storyId=${storyId}`;
     case PRE_CERT_MAIN_NOT_MERGED:
       return `proof-or-stop done_prepare --storyId=${storyId} --mergeMain`;
-    case PRE_CERT_BLOCKING_FINDINGS_OPEN:
-      return `proof-or-stop finding_list --storyId=${storyId}`;
+    case PRE_CERT_BLOCKING_FINDINGS_OPEN: {
+      // Closure rule (core/finding-closure.ts): resolve with repair evidence.
+      const [first] = openBlockingFindingIdsFromDetail(blockerDetail);
+      return first ? findingResolveCommand(storyId, first) : `proof-or-stop finding_list --storyId=${storyId}`;
+    }
     case PRE_CERT_COVERAGE_MISSING:
       return `proof-or-stop story_advance --storyId=${storyId} --phase=DEV`;
     case PRE_CERT_DIRTY_TREE:
@@ -629,6 +642,7 @@ export function nextCommandForState(
   storyId: string,
   state: CertificationWindowState,
   blockerCode?: string | null,
+  blockerDetail?: string | null,
 ): string {
   if (state === 'INVALIDATED') {
     return `proof-or-stop story_advance --storyId=${storyId} --phase=REVIEW`;
@@ -642,7 +656,7 @@ export function nextCommandForState(
   if (state === 'FINALIZED') {
     return `proof-or-stop certification_window_status --storyId=${storyId}`;
   }
-  return nextCommandForBlocker(storyId, blockerCode);
+  return nextCommandForBlocker(storyId, blockerCode, blockerDetail);
 }
 
 export function projectCertificationWindowStatus(
@@ -669,7 +683,7 @@ export function projectCertificationWindowStatus(
     window,
     receipt,
     blockerCode,
-    nextCommand: nextCommandForState(storyId, window.state, blockerCode),
+    nextCommand: nextCommandForState(storyId, window.state, blockerCode, window.blockerDetail),
     ...(advisory ? { advisory } : {}),
   };
 }
@@ -772,7 +786,7 @@ export function nonInventoryAdmitRefusal(
     return {
       admit: false,
       blockerCode: PRE_CERT_BLOCKING_FINDINGS_OPEN,
-      blockerDetail: `Open verified blocking findings: ${facts.openBlockingFindingIds.join(', ')}`,
+      blockerDetail: `${OPEN_BLOCKING_FINDINGS_DETAIL}${facts.openBlockingFindingIds.join(', ')}; closure is required whichever review round raised them: close each with finding_resolve and its repair evidence`,
     };
   }
   if (facts.missingRequiredIntents > 0) {

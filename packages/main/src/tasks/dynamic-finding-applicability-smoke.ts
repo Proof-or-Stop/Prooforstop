@@ -38,7 +38,7 @@ const decide = (overrides: Record<string, unknown> = {}) => {
 }); };
 
 test('strong out-of-scope proof releases unrelated blocker', () => assert.equal(decide({ assessment: { verdict: 'out_of_scope', integrity, proofStrength: 'strong', dispositionPlan: null, acceptedRoute: route } }).blocking, false));
-test('current high regression ignores round decay', () => assert.equal(decide({ round: 3, assessment: { verdict: 'introduced', integrity, proofStrength: 'strong', dispositionPlan: 'repair_current', acceptedRoute: null } }).blocking, true));
+test('current high regression blocks at round 3', () => assert.equal(decide({ round: 3, assessment: { verdict: 'introduced', integrity, proofStrength: 'strong', dispositionPlan: 'repair_current', acceptedRoute: null } }).blocking, true));
 for (const state of REQUIRED_ASSESSMENT_INVALID) {
   test(`high ${state} assessment fails closed`, () => assert.deepEqual(decide({ round: 3, assessment: state === 'missing' ? null : { verdict: 'out_of_scope', integrity: { ...integrity, state }, proofStrength: 'strong', dispositionPlan: null, acceptedRoute: route } }).floors.includes('assessment_integrity'), true));
 }
@@ -61,9 +61,11 @@ test('strong current negative witness releases transient high floor without a re
 test('not-reproduced witness cannot release medium after route expiry', () => assert.equal(decide({ finding: finding('medium'), assessment: { verdict: 'not_reproduced_under_current_witness', integrity, proofStrength: 'strong', dispositionPlan: null, acceptedRoute: { ...route, receiptState: 'stale' } } }).blocking, true));
 test('fresh signed disproven truth transition releases', () => assert.equal(decide({ assessment: { verdict: 'disproven', integrity, proofStrength: 'strong', dispositionPlan: null, acceptedRoute: null } }).blocking, false));
 test('unknown high verdict fails closed', () => assert.equal(decide({ round: 3, assessment: { verdict: 'unknown', integrity, proofStrength: 'strong', dispositionPlan: null, acceptedRoute: null } }).blocking, true));
-test('observe keeps legacy round decay', () => assert.equal(decide({ round: 3, mode: 'observe' }).blocking, false));
-test('warn keeps gate result and exposes dynamic result', () => { const result = decide({ round: 3, mode: 'warn' }); assert.equal(result.blocking, false); assert.equal(result.dynamicBlocking, true); });
-test('kill switch restores legacy predicate', () => assert.equal(decide({ round: 3, killSwitch: true }).blocking, false));
+// No round decay: the legacy predicate blocks the profile's severities in every round.
+test('observe legacy predicate has no round decay', () => assert.equal(decide({ round: 3, mode: 'observe' }).blocking, true));
+test('observe legacy predicate follows profile severities', () => assert.equal(decide({ effectiveBlockingSeverities: ['critical'], mode: 'observe' }).blocking, false));
+test('warn keeps gate result and exposes dynamic result', () => { const result = decide({ effectiveBlockingSeverities: ['critical'], mode: 'warn' }); assert.equal(result.blocking, false); assert.equal(result.dynamicBlocking, true); });
+test('kill switch restores legacy predicate', () => assert.equal(decide({ effectiveBlockingSeverities: ['critical'], killSwitch: true }).blocking, false));
 test('observe mode avoids dynamic ledger and Git freshness reads', () => {
   const scratch = mkdtempSync(resolve(tmpdir(), 'dynamic-finding-observe-'));
   try {
@@ -154,8 +156,10 @@ test('raw handler labels without a current proposal cannot append an assessment'
 
 const root = resolve(import.meta.dirname, '../../../..');
 const source = (path: string) => readFileSync(resolve(root, path), 'utf8');
-test('machine gate consumes shared projection', () => assert.match(source('packages/main/src/core/machine.ts'), /readDynamicFindingDecision/));
-test('guard diagnostic consumes shared projection', () => assert.match(source('packages/main/src/core/guard-utils.ts'), /readDynamicFindingDecision/));
+// Closure rule: machine / guard diagnostic reach the shared projection through core/finding-closure.ts.
+test('closure rule consumes shared projection', () => assert.match(source('packages/main/src/core/finding-closure.ts'), /readDynamicFindingDecision/));
+test('machine gate consumes shared projection', () => assert.match(source('packages/main/src/core/machine.ts'), /unclosedBlockingFindings/));
+test('guard diagnostic consumes shared projection', () => assert.match(source('packages/main/src/core/guard-utils.ts'), /unclosedBlockingFindings/));
 test('reviewer batch consumes shared projection', () => assert.match(source('packages/main/src/handlers/reviewer-batch.ts'), /readDynamicFindingDecision/));
 test('all Dynamic Finding commands are registered', () => {
   const registry = source('packages/main/src/registry.ts'); const catalog = source('packages/main/src/cli/command-catalog.ts');
