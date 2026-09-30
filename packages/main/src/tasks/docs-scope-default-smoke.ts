@@ -24,7 +24,7 @@ for (const path of ['docs/types/string.md', 'README.md', 'docs/guide.rst', 'site
 }
 assert.equal(classifyScopePath(contract, 'docs/protected.md').allowed, false, 'protectedFiles still wins over the docs default');
 assert.equal(classifyScopePath(contract, 'docs/excluded/a.md').allowed, false, 'explicitExcludes still wins over the docs default');
-for (const path of ['parser/parser.go', 'docs/build.sh', 'Makefile', 'config.yaml', 'README.md.go']) {
+for (const path of ['parser/parser.go', 'docs/build.sh', 'Makefile', 'config.yaml', 'README.md.go', 'AGENTS.md', 'CLAUDE.md', '.github/CONTRIBUTING.md', '.proof-or-stop/Proof-or-Stop.md']) {
   assert.equal(classifyScopePath(contract, path).allowed, false, `${path} is not documentation and stays fail-closed`);
 }
 console.log('docs-scope-default-smoke: PASS');
