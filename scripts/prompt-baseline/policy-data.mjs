@@ -102,7 +102,7 @@ export const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-test-coverage',
-    templateHash: 'decf908da84557a066ccb26c28ad41a9d519a2ed010d46b1eb0ac984c40f6727',
+    templateHash: '10468070d72afce92e2f00cbd196ecc30e763ddf172d81b6bb80b7c7896574af',
   },
   {
     role: 'proof-or-stop-review-topology-critic',
@@ -134,7 +134,7 @@ export const APPROVED_ROLE_BODY_ROLLOUT_MANIFEST = Object.freeze([
   ["proof-or-stop-review-concept", "604a884ce42a4e0cf9b4c91d48967e8b6f10196b7b602572e5fee53505361ab7", "54148eb541957fc2a400e0e6255f2e9180ce11c815847c45153c243862fc8728", "ee35202c067f7bbc9907e47ecf3eda2d49d0eb0e04e3c7fb96406bc709cdb7fe", "71fd2177d4afe896b94d428a7721665c06675fd54fb58f363d7987547730ac6b", "fddbc4eef65fcde36d116c2855e5005ed58b605587df7f515afa58ce055b4120"],
   ["proof-or-stop-review-docs", "04fbdc3f19960d9af0f9a3b063b5d0c4bdd93259469d35c3236f0a512886303d", "c40127c2e1647c76576a83fc58f603ec6ead7fa6ee6d4ddd9129849229e59e43", "13aabf3a2f99b639b920a11906ea35c12e12eb2635add93db7c573126ce206b8", "364f11994c5f66461f3ac11ad0ba3aa05b867cb7d80bf75ee903b5e70e80e49d", "c0e4253253ff5fe99161755bccd296871318969604f08ce860f1fb9309cd300d"],
   ["proof-or-stop-review-quality", "138fcfe32ffbc137ddd6ef7bc09024e5fb7fc0e767994ed7fc9548fec795ac39", "f921da5fa466448df54d24257c9c07db1505ca08c4e639beb6f1c73a90ac65ff", "43c2484ef955fae21b1a9f1ca8472e219ca60734c842ada53f9c2f2b7ef5ae30", "9ce8f5281b08e3845f624d44aab6797001cc7d3384f8f621382ac4d056fcfbf3", "6c6f1fd6df0b2118779c8908eb7e51932c685a433c3ce1338b2ae3efda178bc7"],
-  ["proof-or-stop-review-test-coverage", "3c4aba60dd2a1bb4feb6313691b8d48138cbea59d2fca329b3504bfa98c1cb9c", "f919fc963b1e6dbe3f98b468ad1b3aa9bf8d0e189bba9752e904f3527c1cc615", "44e718a0ba19414e94cd8fd71615992947fac23989b9f91e3280c81d79219288", "c2022c6848a51a782adf8fa6417d18174d360f7977cc210c8255dd2b7c3c5416", "9d8f271bd248a823941643efea2fa77ce276c941411875eb9a9776606dae97f6"],
+  ["proof-or-stop-review-test-coverage", "805c2c7ecf8ba9afc18eac94b47a8f3feec48de4ea47256a9affb5675d74e300", "b8924014293e8979a0f0a0959b5a46bb8f6abee6d04c96f832667eba9edc4448", "a972eaac12e7727873df4283ef7f36bbc55b35b8e315530f0b35b043bacb0949", "aaf6335bf6571a54e4dadac74f4226059780f061efa66c8941bb21e1326388d1", "ddd50ba751cd0eeb84132d59d352a78036b018a14049f86dd25b078b4a747b7f"],
 ].map(([role, modularBodySha256, roleSemanticDigest, roleRenderDigest, modularClaudeRenderDigest, modularCodexRenderDigest]) => Object.freeze({
   role, modularBodySha256, roleSemanticDigest, roleRenderDigest, modularClaudeRenderDigest, modularCodexRenderDigest,
 })));

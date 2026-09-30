@@ -357,7 +357,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     requiredCheckIds: reviewFindingTriageRequiredCheckIds,
     status: ACTIVE,
     defaultDispatch: true,
-    responsibility: 'Review verification intent and evidence coverage.',
+    responsibility: 'Review product test coverage of promised behaviors; evidence-chain items (receipts, pins, test binding) are framework actions, not findings.',
     allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set', 'managed_review_proposal_set'],
     requiredOutputIds: ['review-finding-or-pass'],
   },
