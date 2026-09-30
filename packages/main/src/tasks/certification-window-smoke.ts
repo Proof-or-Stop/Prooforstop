@@ -235,7 +235,8 @@ assert.equal(beginFailed, true, 'begin must fail-closed when no finalized invent
 assertStatusSurface(beginOutput, 'BLOCKED');
 assert.match(beginOutput, new RegExp(`\\[${PRE_CERT_INVENTORY_NOT_FINALIZED}\\]`));
 assert.doesNotMatch(beginOutput, new RegExp(`\\[${PRE_CERT_INVENTORY_API_ABSENT}\\]`));
-assert.match(beginOutput, /^Next: proof-or-stop review_inventory_finalize /m);
+// No receipt and no OPEN epoch: finalize would mint a zero-wave receipt this gate refuses (run 11).
+assert.match(beginOutput, /^Next: proof-or-stop review_inventory_begin /m);
 assert.doesNotMatch(beginOutput, /^State: ADMITTED$/m);
 const productionApis = loadReviewInventoryAdmitApis();
 assert.ok(productionApis, 'production loader must return the real inventory admit APIs');
@@ -868,7 +869,7 @@ makeStore(root, 'B-cw11');
 const noInventoryOutput = beginCaught(noInventoryHandlers, 'B-cw11');
 assertStatusSurface(noInventoryOutput, 'BLOCKED');
 assert.match(noInventoryOutput, new RegExp(`\\[${PRE_CERT_INVENTORY_NOT_FINALIZED}\\]`));
-assert.match(noInventoryOutput, /^Next: proof-or-stop review_inventory_finalize /m);
+assert.match(noInventoryOutput, /^Next: proof-or-stop review_inventory_begin /m);
 assert.doesNotMatch(noInventoryOutput, /^State: ADMITTED$/m);
 
 const gitRoot = makeGitRoot();
