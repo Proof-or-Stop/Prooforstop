@@ -191,6 +191,10 @@ try {
   } else {
     const onlyPoS = blockingRows(worktree, storyId);
     check('quorum-gate', onlyPoS.length === 0, `quorum baseline refuses with only PoS-owned files present: ${JSON.stringify(onlyPoS)}`);
+    // The old raw gate refused on these: projected controller hooks + receipts stay visible by design.
+    const projectedVisible = statusPaths(worktree);
+    check('quorum-gate-exercised', projectedVisible.includes('.codex/hooks.json') && projectedVisible.includes(`${storyRel}/evidence/controller-runtime-projection.json`),
+      `expected the verified controller projection to be visible untracked in the Story worktree: ${JSON.stringify(projectedVisible)}`);
     write(worktree, 'strs/new.go', 'package strs\n');
     const product = blockingRows(worktree, storyId);
     check('quorum-gate-product', product.some(row => row === '?? strs/new.go'), `an untracked product file does not block: ${JSON.stringify(product)}`);

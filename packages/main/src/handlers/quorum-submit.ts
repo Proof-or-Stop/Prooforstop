@@ -22,6 +22,13 @@ import { canonicalReviewerLane } from '../core/reviewer-opt-in.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { computeActiveReviewers, computeFinalReviewRoster } from './reviewer-list.js';
 import { readGitBlobAt } from '../core/git-blob-reader.js';
+import {
+  inspectControllerConfigProjectionReceipt,
+  inspectControllerRuntimeProjectionReceipt,
+  isByteIdenticalControllerConfig,
+  isByteIdenticalControllerRuntimeAsset,
+  isMaterialExcludedRuntimeArtifactPath,
+} from '../core/runtime-artifact-registry.js';
 
 const REFUSAL = 'quorum_submit refuses: no current reviewer pass evidence for the required lanes — run the review lanes (review_run_start + review_pass_set) first; quorum_submit will not fabricate a floor quorum without a real review.';
 
@@ -229,14 +236,50 @@ interface QuorumSubmitResult {
   productionDone: false;
 }
 
-function assertCleanQuorumBaseline(gitCwd: string): void {
-  const dirty = execFileSync('git', ['status', '--porcelain=v1', '--untracked-files=all'], {
+/**
+ * `git status` rows that make the atomic verdict batch refuse.
+ *
+ * Every tracked change, staged entry, and untracked product file blocks, as
+ * before. An untracked path the framework itself owns does not: a registered
+ * runtime artifact (runtime-artifact registry, materialHash=exclude) or a
+ * controller projection (native hooks / config / Story receipt) whose signed
+ * byte-identity proof verifies for this Story. Those files are never staged by
+ * the batch (it commits through an isolated index), and without this a project
+ * whose tracked .gitignore lacks the runtime block could never submit (run 11).
+ */
+export function quorumBaselineBlockingRows(gitCwd: string, storyId: string): string[] {
+  const fields = execFileSync('git', ['status', '--porcelain=v1', '-z', '--untracked-files=all'], {
     cwd: gitCwd,
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
-  }).trim();
-  if (dirty) {
-    throw new Error(`quorum_submit refuses: worktree/index must be clean before the atomic verdict batch; pre-existing bytes were left untouched: ${dirty}`);
+  }).split('\0');
+  const blocking: string[] = [];
+  for (let index = 0; index < fields.length; index += 1) {
+    const row = fields[index];
+    if (!row) continue;
+    const code = row.slice(0, 2);
+    const path = row.slice(3);
+    // Rename/copy rows carry the source path as the next NUL field.
+    if (/[RC]/.test(code)) index += 1;
+    if (code === '??' && isFrameworkOwnedUntrackedPath(gitCwd, storyId, path)) continue;
+    blocking.push(`${code} ${path}`);
+  }
+  return blocking;
+}
+
+function isFrameworkOwnedUntrackedPath(gitCwd: string, storyId: string, path: string): boolean {
+  if (isMaterialExcludedRuntimeArtifactPath(path)) return true;
+  const proof = { projectRoot: gitCwd, gitCwd, storyId, path };
+  return isByteIdenticalControllerConfig(proof)
+    || isByteIdenticalControllerRuntimeAsset(proof)
+    || inspectControllerRuntimeProjectionReceipt(proof).valid
+    || inspectControllerConfigProjectionReceipt(proof).valid;
+}
+
+function assertCleanQuorumBaseline(gitCwd: string, storyId: string): void {
+  const dirty = quorumBaselineBlockingRows(gitCwd, storyId);
+  if (dirty.length > 0) {
+    throw new Error(`quorum_submit refuses: worktree/index must be clean before the atomic verdict batch; pre-existing bytes were left untouched: ${dirty.join('\n')}`);
   }
 }
 
@@ -578,7 +621,7 @@ export function createQuorumSubmitHandlers(ctx: HandlerContext, testHooks: Quoru
       assertNoStandingQuorum('HEAD');
 
       testHooks.beforeTransactionCapture?.({ storyId, materialDigest });
-      assertCleanQuorumBaseline(gitCwd);
+      assertCleanQuorumBaseline(gitCwd, storyId);
       const transaction = captureLifecycleMetadataTransaction({
         root: gitCwd,
         gitCwd,

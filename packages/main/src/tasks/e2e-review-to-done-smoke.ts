@@ -566,6 +566,8 @@ function scenarioA(machineEnv: NodeJS.ProcessEnv, steps: Step[], bare = false): 
     c.lines.push(`done_prepare after the host verdict: exit ${prepare.status} status=${String(prepared?.status)} blockedAt=${String(prepared?.blockedAt ?? '-')}`);
     if (prepared?.blockedAt) c.lines.push(`  ${String(prepared.reason).slice(0, 230)} (handlers/verifier.ts:2214-2239)`);
     assert.doesNotMatch(prepare.out, /VALIDATION_PUBLICATION_NOT_READY/, 'C: done_prepare after the host verdict must not refuse on unpublished metadata');
+    // E: projected controller hooks and PoS runtime files are framework-owned, never dirt for done_prepare.
+    if (bare) assert.notEqual(prepared?.blockedAt, 'cleanTree', `E: done_prepare refused cleanTree on framework-owned files:\n${prepare.out.slice(-2000)}`);
 
     const done = o.cli('story_advance', { storyId: o.storyId, phase: 'DONE' }, { label: 'story_advance DONE' });
     assert.equal(done.status, 0, `A: story_advance DONE refused:\n${done.out.slice(-3000)}`);
@@ -578,6 +580,7 @@ function scenarioA(machineEnv: NodeJS.ProcessEnv, steps: Step[], bare = false): 
       `DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`,
       ...(bare ? [`main checkout status after DONE: ${JSON.stringify(git(o.root, ['status', '--porcelain', '--untracked-files=all']).split('\n').filter(Boolean))}`] : []),
       ...(prepared?.blockedAt ? [`note: done_prepare BLOCKED at ${String(prepared.blockedAt)}, story_advance DONE still passed (see C)`] : []),
+      ...(prepared?.blockedAt ? [`  done_prepare reason: ${String(prepared.reason).slice(0, 200)} files=${JSON.stringify(prepared.files ?? [])}`] : []),
     ] };
     o.cleanup();
     return { a, c };
