@@ -232,8 +232,18 @@ export function isVerifiedReviewMaintenanceCommit(args: {
         if (after.receipts.some(receipt => receipt.storyId !== storyId || !(receipt.schemaVersion === PRECERT_RECEIPT_SCHEMA ? verifyPrecertReceipt(receipt) : verifyPrecertCheapCheckReceipt(receipt)))) return no(`${writer} publication: a certification receipt is foreign or unsigned`);
         if (isCertificationRunningOnlyAdvance(before,after,storyId)) continue;
         // Admission and cheap checks append to existing history; they cannot
-        // rewrite an earlier window or replace a prior receipt.
-        if (digestCanonicalJson(after.windows.slice(0,before.windows.length)) !== digestCanonicalJson(before.windows)
+        // rewrite an earlier window or replace a prior receipt. The one
+        // exception: a new begin first retires a drifted earlier live window
+        // by its signed invalidation (a later REVIEW round, e.g. after a
+        // TEST->DEV rework), changing nothing else in that row.
+        const invalidationFields = ['state', 'updatedAt', 'blockerCode', 'blockerDetail', 'invalidation', '_hash'];
+        const without = (row: object) => Object.fromEntries(Object.entries(row).filter(([key]) => !invalidationFields.includes(key)));
+        const earlierWindowKept = (prior: CertificationWindowData['windows'][number], next: CertificationWindowData['windows'][number] | undefined): boolean =>
+          !!next && (digestCanonicalJson(next) === digestCanonicalJson(prior)
+            || (writer === 'certification_window_begin' && next.state === 'INVALIDATED' && !!next.invalidation
+              && (prior.state === 'ADMITTED' || prior.state === 'RUNNING')
+              && digestCanonicalJson(without(next)) === digestCanonicalJson(without(prior))));
+        if (after.windows.length < before.windows.length || before.windows.some((prior, index) => !earlierWindowKept(prior, after.windows[index]))
           || digestCanonicalJson(after.receipts.slice(0,before.receipts.length)) !== digestCanonicalJson(before.receipts)) return no(`${writer} publication: earlier certification windows/receipts are rewritten`);
         if (writer === 'certification_window_begin') {
           if (after.windows.length !== before.windows.length + 1) return no(`${writer} publication: begin must append exactly one window`);
