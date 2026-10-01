@@ -213,6 +213,16 @@ concrete Story/finding/checklist/commit/date identifier. Write these sections in
 English in this repository. Creation conservatively stops in INIT; it does not
 silently skip INIT or create the worktree.
 
+Pass the user's request verbatim as `request` (or `requestFile`); ask the user
+for their exact words rather than paraphrasing. It is stored as the Story's
+`request.md` (bounded to 16 KB with an explicit truncation marker; sha256 bound
+in `request.json`; included in the INIT_CHECK signature). A wrapper can stage it
+before the Story exists with `story_request_set` without `storyId`; the next
+`story_create` consumes it once. Replacing it, or recording it after INIT, goes
+through `story_request_set` with an `amendmentReason`, and only through PLAN.
+`story_create` names every backticked request literal (example, listed variant,
+exact message) that no checklist title or `userSees` states yet.
+
 INIT to INIT_CHECK requires independent records from both
 `proof-or-stop-review-story-init` and `proof-or-stop-product-reviewer`; each reviewer persists
 its result through `init_check_set`. Launch each through `host_run` with
@@ -441,6 +451,14 @@ document requires a change remains a reasoned decision.
 
 An independent scope-plan reviewer must save signed `scope-check.json` evidence
 through `scope_check_save`. The implementation agent must not self-sign it.
+When the Story has a `request.md`, the scope-plan dispatch prompt carries it
+inline: every normative sentence, every "for example" and every enumerated
+variant is its own feature row, covered only when a `userSees` or
+`verificationIntent` states that exact variant or output; unmapped rows are
+gaps, and a mechanical pre-check lists request literals no checklist item
+states. The verification-intent author is pointed at `request.md` and writes one
+exact-output intent per example and listed variant. The INIT product reviewer
+gets only its path; REVIEW lanes never receive it.
 Every `openQuestions` entry in that signed scope check must have a substantive
 written resolution before `story_review` can pass. The current handler-directed
 path is the registered `scope_question_resolve` command; the main agent owns the

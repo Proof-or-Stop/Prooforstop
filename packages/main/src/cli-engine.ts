@@ -416,6 +416,7 @@ export function enforceExperimentArmRetrievalGate(cmd: string, root: string): vo
  * name: 'story_get'
  * name: 'story_list'
  * name: 'story_reconcile'
+ * name: 'story_request_set'
  * name: 'story_resolve'
  * name: 'story_review'
  * name: 'story_review_dismiss'

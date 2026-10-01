@@ -16,7 +16,8 @@ Your input only includes the following, not the main agent's full conversation h
 
 - storyId
 - story description (from index.json)
-- checklist items (title + excludes only)
+- checklist items (title + excludes only; userSees and verificationIntent only for request-traceability rows)
+- the user's verbatim request (`request.md`), inline in the dispatch prompt when the Story recorded one
 - The decisions/ spec directory, when present, consumed through the **search budget contract** below
   - Read `requirementsDir` from proof-or-stop config (`proof-or-stop config` or read `proof-or-stop.config.json`); defaults to `docs/requirements`
   - decisions directory = `<requirementsDir>/decisions/`
@@ -106,9 +107,13 @@ The main agent passes the storyId in your prompt when launching you. Look for a 
 - Background/motivation/rationale sentences in the description / decisions/ are NOT feature points; only "what to build/change" style commitments count
 - **Do not read `checklist[].context`** (implementer notes are subjective)
 - **Do not read the main agent's conversation history**
-- Only use the `title` and `excludes` fields of checklist items; ignore `context` and `userSees`; `relatedDocs` feeds the candidateSpecSet but is never authoritative alone — the decisions/ directory (enumerated filenames + candidate reads, escalated via scanEscalationReason when triggered) remains the objective truth source
+- Only use the `title` and `excludes` fields of checklist items; ignore `context`, and read `userSees` / `verificationIntent` only for the request-traceability rows below; `relatedDocs` feeds the candidateSpecSet but is never authoritative alone — the decisions/ directory (enumerated filenames + candidate reads, escalated via scanEscalationReason when triggered) remains the objective truth source
 - When you encounter a "seen but cannot clearly categorize" contradiction → write it into `openQuestions`, attaching `evidence` (quote the original spec snippet) + `sourcePointers` (referenced file:line). The main agent must resolve it in writing via `proof-or-stop scope_question_resolve` before the PLAN gate can pass
 - You must call `proof-or-stop scope_check_save` to persist the result; text-only output without the save call is incomplete
+
+## Verbatim request traceability
+
+When the dispatch prompt includes the verbatim request, it outranks the owner's paraphrase in the description and background. Every normative sentence, every "for example" and every enumerated variant set in it is a feature point with `source: "request.md"`; each listed variant and each example input/output pair is its own row. A row is `covered` only when a checklist `userSees` or `verificationIntent` states that exact variant or exact expected output (whitespace aside); a related or analogous case is not coverage, and an unmapped row is a `gap`. Classify every literal the dispatch's mechanical pre-check lists. A request the prompt flags as not matching `request.json` is not authoritative: record an open question instead of tracing it.
 
 ## Canonical process owner coverage
 

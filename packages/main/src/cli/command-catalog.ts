@@ -341,6 +341,8 @@ export const MAIN_TOOLS: ToolDef[] = [
     background: z.string().optional().describe('B-45ed CHK-006: four-section background.md content. Must include Trigger Event, Key Insight, Tradeoff, and Conversation Texture sections; each section at least 50 characters, total at least 300, and Trigger Event must include a concrete ID (B-xxxx / F-xxx / CHK-xxx / commit hash / YYYY-MM-DD). Not required in fromDraft mode.'),
     fromDraft: z.string().optional().describe('B-9975: create a story from a reviewed draft by passing draft name. Conservatively stops in INIT, then follows normal INIT_CHECK gates.'),
     reproFirstBypassReason: z.string().min(10).optional().describe('Documented STORY_INTAKE exception for emergency/non-reproducible work; later lifecycle gates still require binding for code-declaring stories.'),
+    request: z.string().optional().describe('The user\'s request VERBATIM (not a paraphrase), recorded as request.md (bounded to 16 KB, sha256-bound, signed by INIT_CHECK). The PLAN scope-plan reviewer traces every example and listed variant in it. Falls back to requestFile, then to a request staged by story_request_set.'),
+    requestFile: z.string().optional().describe('Path (relative to the project root) of a file holding the verbatim request; use it when the text contains quotes or backticks.'),
   }},
   { name: 'story_advance', description: 'Advance a Story to the next phase', longHelp: STORY_ADVANCE_LONG, schema: {
     storyId: z.string().describe('Story ID'), phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','REVIEW','TEST','DONE']).describe('Target phase.'),
@@ -2819,6 +2821,12 @@ Behavior:
   }},
   { name: 'background_get', description: 'Read the full background.md', schema: {
     storyId: z.string().describe('Story ID'),
+  }},
+  { name: 'story_request_set', description: 'Record the verbatim user request (request.md) or stage it for the next story_create', schema: {
+    storyId: z.string().optional().describe('Story ID. Omit to stage the request for the next story_create in this checkout (used by wrappers such as benchmark adapters).'),
+    request: z.string().optional().describe('The user request verbatim.'),
+    requestFile: z.string().optional().describe('Path (relative to the project root) of a file holding the verbatim request.'),
+    amendmentReason: z.string().optional().describe('Required (at least 30 characters) to replace a recorded request or to record one after INIT; kept in request.json.'),
   }},
   { name: 'plan_set', description: 'Write the full plan.md (each checklist item requires a ## CHK-xxx section)', schema: {
     storyId: z.string().describe('Story ID'),

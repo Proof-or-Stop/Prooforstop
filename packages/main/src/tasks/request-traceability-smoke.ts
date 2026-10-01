@@ -102,9 +102,12 @@ try {
   const storyId = String(created.value).match(/B-[a-z0-9]{4}/)?.[0];
   assert.ok(storyId, `story_create did not report a story id: ${created.value}`);
 
+  const dispatch = createStoryDispatchHandlers(ctx as never);
+  // INIT product reviewer: path only (cheap), never the inline text.
+  const product = dispatch.dispatch({ storyId, agentType: 'proof-or-stop-product-reviewer' }).prompt;
+  assert.ok(product.includes('request.md') && !product.includes(VARIANTS), 'INIT product reviewer must get the request path only');
   const story = store.readStory(storyId);
   store.writeStory(storyId, { ...story, phase: 'PLAN' });
-  const dispatch = createStoryDispatchHandlers(ctx as never);
   const scope = dispatch.dispatch({ storyId, agentType: 'proof-or-stop-review-scope-plan' }).prompt;
   assert.ok(scope.includes(VARIANTS), `${MARKER}: the scope-plan prompt lacks the request sentence ${JSON.stringify(VARIANTS)}`);
 
@@ -129,7 +132,7 @@ try {
   const intent = dispatch.dispatch({ storyId, itemId: 'CHK-001', agentType: 'proof-or-stop-verification-intent' }).prompt;
   assert.ok(intent.includes('request.md'), 'verification-intent prompt must point at the verbatim request');
   assert.match(intent, /exact-output intent/, 'verification-intent prompt must ask for exact-output intents per example/variant');
-  store.writeStory(storyId, { ...store.readStory(storyId), phase: 'REVIEW' });
+  store.writeStory(storyId, { ...store.readStory(storyId), phase: 'REVIEW', currentReviewRound: 'R1' } as never);
   const review = dispatch.dispatch({ storyId, agentType: 'proof-or-stop-review-behavior' }).prompt;
   assert.ok(!review.includes(VARIANTS) && !review.includes('request.md'), 'REVIEW lanes must not receive the request text');
   store.writeStory(storyId, { ...store.readStory(storyId), phase: 'PLAN' });
