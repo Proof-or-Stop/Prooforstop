@@ -209,7 +209,7 @@ function importerCommitRefusal(
  * reviewed material unchanged (checked separately) and must not invalidate a
  * managed pass that DONE re-checks.
  */
-const PRECERT_METADATA_COMMANDS = [
+export const PRECERT_METADATA_COMMANDS = [
   'certification_window_begin', 'certification_window_cancel',
   'review_inventory_begin', 'review_inventory_finalize', 'review_inventory_cancel',
   'review_inventory_critic_set', 'review_inventory_wave_advance',
@@ -225,14 +225,23 @@ const PRECERT_METADATA_COMMANDS = [
   // Review-escalation bookkeeping reachable in TEST/DONE (probe/fallback/policy
   // append process events and sweep story metadata).
   'review_host_availability_probe', 'review_escalation_fallback_set', 'review_escalation_policy_set',
+  // TEST delivery-review context (--write persists evidence/delivery-context-pack.json only).
+  'delivery_context_pack',
+  // Codex hosts close validate and story_advance TEST with their own codex_cli
+  // process-event row (cli-engine lifecycle transaction kind codex-command-terminal).
+  'codex-command-terminal',
 ] as const;
 
 /**
- * Host-verdict writers commit exactly process-events.jsonl: earlier rows
- * byte-identical plus appended host_verdict rows; `quorum-submit` is also the
- * quorum_prune subject, which may only drop duplicate host_verdict rows.
+ * Process-event writers commit exactly process-events.jsonl: earlier rows
+ * byte-identical plus appended rows of their own type only; `quorum-submit` is
+ * also the quorum_prune subject, which may only drop duplicate host_verdict rows.
  */
-const VERDICT_WRITER_SUBJECTS = ['autopilot_review_submit', 'quorum-submit'] as const;
+const EVENT_ROW_WRITER_SUBJECTS: Readonly<Record<string, string>> = {
+  autopilot_review_submit: 'host_verdict',
+  'quorum-submit': 'host_verdict',
+  'codex-command-terminal': 'codex_cli',
+};
 
 /**
  * Review evidence and inventory artifacts are never swept in under these
@@ -265,23 +274,24 @@ function precertMetadataCommitRefusal(
   if (!files.length) return 'empty bookkeeping commit';
   const outside = files.find(file => !file.startsWith(`${canonicalStoryDir}/`) || !isMaterialExcludedPath(file, metadataRoot));
   if (outside) return `bookkeeping commit changes ${outside} (reviewed material or outside this Story's metadata)`;
-  if ((VERDICT_WRITER_SUBJECTS as readonly string[]).includes(writer)) {
+  const ownRowType = Object.hasOwn(EVENT_ROW_WRITER_SUBJECTS, writer) ? EVENT_ROW_WRITER_SUBJECTS[writer] : undefined;
+  if (ownRowType) {
     const events = `${canonicalStoryDir}/process-events.jsonl`;
     const other = files.find(file => file !== events);
-    if (other) return `${writer} commit changes ${other}; a host-verdict writer commits only process-events.jsonl`;
+    if (other) return `${writer} commit changes ${other}; a ${ownRowType} writer commits only process-events.jsonl`;
     const rows = (ref: string): string[] => readLineageGit(gitCwd, ['ls-tree', '--name-only', ref, '--', events], objectRead)
       ? readLineageGit(gitCwd, ['show', `${ref}:${events}`], objectRead).split('\n').filter(line => line.trim()) : [];
-    const isVerdict = (line: string): boolean => { try { return (JSON.parse(line) as { type?: unknown }).type === 'host_verdict'; } catch { return false; } };
+    const isOwnRow = (line: string): boolean => { try { return (JSON.parse(line) as { type?: unknown }).type === ownRowType; } catch { return false; } };
     const before = rows(parents.trim());
     const after = rows(commit);
     const appended = after.length >= before.length && before.every((line, index) => after[index] === line)
-      && after.slice(before.length).every(isVerdict);
+      && after.slice(before.length).every(isOwnRow);
     // quorum_prune: `after` is `before` with only host_verdict rows removed.
     let cursor = 0;
     const pruned = writer === 'quorum-submit' && after.length < before.length
-      && before.every(line => (cursor < after.length && after[cursor] === line ? (cursor += 1, true) : isVerdict(line)))
+      && before.every(line => (cursor < after.length && after[cursor] === line ? (cursor += 1, true) : isOwnRow(line)))
       && cursor === after.length;
-    if (!appended && !pruned) return `${writer} commit changes process-events.jsonl beyond its own host_verdict rows`;
+    if (!appended && !pruned) return `${writer} commit changes process-events.jsonl beyond its own ${ownRowType} rows`;
     return null;
   }
   const evidence = files.find(file => PRECERT_METADATA_FORBIDDEN_ARTIFACTS.has(file.slice(canonicalStoryDir.length + 1)));
