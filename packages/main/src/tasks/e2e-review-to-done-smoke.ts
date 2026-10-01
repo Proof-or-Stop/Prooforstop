@@ -122,7 +122,7 @@ const TESTS = [
   'func TestReverse(t *testing.T) {', '\tif Reverse("héllo") != "olléh" {', '\t\tt.Fatal("reverse")', '\t}', '}', '',
 ].join('\n');
 
-class Owner {
+export class Owner {
   readonly root: string;
   readonly worktree: string;
   readonly store: StoryStore;
@@ -280,6 +280,12 @@ class Owner {
     this.steps.push({ scenario: this.scenario, label, ms, exit, result, dirty: this.dirtyNote(label, before) });
     if (process.env.E2E_R2D_VERBOSE) console.log(`--- ${label} exit=${exit} ${ms}ms\n${out.slice(0, 4000)}`);
     return { status: exit, stdout: run.stdout ?? '', stderr: run.stderr ?? '', out };
+  }
+
+  /** A node script from the Story worktree with the owner env (untimed; not an owner step). */
+  node(args: string[]): CliResult {
+    const run = spawnSync(process.execPath, args, { cwd: existsSync(this.worktree) ? this.worktree : this.root, encoding: 'utf8', env: this.env, maxBuffer: 64 * 1024 * 1024 });
+    return { status: run.status ?? -1, stdout: run.stdout ?? '', stderr: run.stderr ?? '', out: `${run.stdout ?? ''}${run.stderr ?? ''}` };
   }
 
   mustCli(command: string, payload: Record<string, unknown>, opts: { label?: string } = {}): CliResult {
@@ -978,7 +984,7 @@ function scenarioD2(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 /** DEV work the owner does before REVIEW entry (devToReview without story_advance REVIEW). */
 const DEV_SETUP_CALLS = 6;
 
-function devSetup(o: Owner): void {
+export function devSetup(o: Owner): void {
   const id = o.storyId;
   o.mustCli('dev_memory_preflight_ack', { storyId: id });
   o.mustCli('scope_contract_init_from_plan', { storyId: id });
@@ -990,7 +996,7 @@ function devSetup(o: Owner): void {
   o.mustCli('checklist_update', { storyId: id, itemId: 'CHK-002', status: 'done' }, { label: 'checklist_update CHK-002 done' });
 }
 
-interface NextStepJson {
+export interface NextStepJson {
   phase: string; kind: 'agent' | 'framework' | 'human'; reason: string; command: string | null; why: string;
   cli: { command: string; payload: Record<string, unknown> } | null; placeholders?: string[]; done?: boolean; wait?: boolean;
 }
@@ -1008,7 +1014,9 @@ const VERIFIED_PROMISES = [
  * values (resolution, summary, finish decision). Every proposed command must
  * succeed: next must never propose a command its gate then refuses.
  */
-function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boolean }, lines: string[]): void {
+export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boolean }, lines: string[],
+  /** Called with each step `next` returned, before the harness executes it; quiet = no detached managed run in flight. */
+  onStep?: (next: NextStepJson, quiet: boolean) => void): void {
   const id = o.storyId;
   const scriptKeyByRun = new Map<string, string>();
   let firstRound: string | undefined;
@@ -1045,6 +1053,7 @@ function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boolean },
     } else if (quiet) {
       assert.equal(statusOf(), before, `[${o.scenario}] next must be read-only; git status changed:\n${before}\n---\n${statusOf()}`);
     }
+    onStep?.(next, quiet);
     if (next.done) break;
     assert.notEqual(next.kind, 'human', `[${o.scenario}] next asked for a human decision: ${next.reason}: ${next.why}`);
     assert.ok(next.cli, `[${o.scenario}] next returned no runnable command: ${next.reason}: ${next.why}`);
@@ -1208,4 +1217,5 @@ async function main(): Promise<void> {
   console.log(`e2e-review-to-done-smoke: PASS (${outcomes.filter(outcome => outcome.status === 'PASS').map(outcome => outcome.name.split(' ')[0]).join(', ')} reached DONE; C observed)`);
 }
 
-await main();
+// Importable by tasks/next-driver-cost-smoke.ts, which reuses the owner fixture and the next-driven flow.
+if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) await main();
