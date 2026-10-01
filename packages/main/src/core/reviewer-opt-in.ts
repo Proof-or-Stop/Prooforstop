@@ -3,7 +3,7 @@
  *
  * Baseline reviewers (always active): concept + quality.
  * Additional reviewers opted in by story signals:
- *   - riskSignals.category ∈ { state machine / guard / gate / state-machine/gate } → +behavior
+ *   - a riskSignals.category token (split on '/') ∈ { state machine / guard / gate } → +behavior
  *   - touchpoints contains `.md` files                                  → +docs
  *   - channel === 'normal'                                             → +channel
  *   - forced list (e.g. --force-reviewer=docs,channel)                 → force-mount
@@ -82,13 +82,22 @@ export function reviewerIdentitiesEqual(left: string | undefined, right: string 
   return agentRoleIdsEqual(leftLane, rightLane);
 }
 
-/** Signal → list of trigger categories for +behavior (supports both English and the currently-used Chinese categories) */
-const BEHAVIOR_TRIGGER_CATEGORIES = [
-  'state machine',
-  'guard',
-  'gate',
-  'state-machine/gate',
-];
+/** riskSignal category tokens that select the behavior reviewer. */
+export const BEHAVIOR_TRIGGER_TOKENS: readonly string[] = ['state machine', 'guard', 'gate'];
+
+/**
+ * Behavior-lane trigger tokens present in the given riskSignal categories, in
+ * BEHAVIOR_TRIGGER_TOKENS order. A category is split on `/`, lowercased, and
+ * `-`/`_` read as spaces, so the story_create detector's `State Machine/Gate`
+ * yields `state machine` and `gate`, and legacy `gate` / `state-machine/gate`
+ * still match. Only whole tokens match: `Validation Framework` or
+ * `Security/Credentials` select nothing.
+ */
+export function behaviorTriggerHits(categories: readonly string[]): string[] {
+  const tokens = new Set(categories.flatMap(category => String(category).split('/')
+    .map(token => token.trim().toLowerCase().replace(/[-_\s]+/g, ' '))));
+  return BEHAVIOR_TRIGGER_TOKENS.filter(token => tokens.has(token));
+}
 
 /**
  * Compute the list of reviewers that should be enabled based on the story's riskSignals / channel / touchpoints.
@@ -107,10 +116,9 @@ export function resolveOptInReviewers(
   map.set('quality', { name: 'quality', reason: 'baseline' });
 
   // riskSignal routing: hitting state machine/guard/gate triggers the behavior reviewer
-  const categories = new Set((story.riskSignals || []).map(r => r.category));
-  const triggeredBehavior = BEHAVIOR_TRIGGER_CATEGORIES.find(t => categories.has(t));
-  if (triggeredBehavior) {
-    map.set('behavior', { name: 'behavior', reason: `riskSignal: ${triggeredBehavior}` });
+  const triggeredBehavior = behaviorTriggerHits((story.riskSignals || []).map(r => r.category));
+  if (triggeredBehavior.length > 0) {
+    map.set('behavior', { name: 'behavior', reason: `riskSignal: ${triggeredBehavior.join(', ')}` });
   }
 
   // touchpoint: changes involving .md files → +docs reviewer
