@@ -70,7 +70,7 @@ The main agent passes the storyId in your prompt when launching you. Look for a 
    ```bash
    proof-or-stop checklist_get '{"storyId":"B-xxx"}'
    ```
-   For each item, only look at `title` and `excludes` fields. **Do not read `context`.**
+   For each item, only look at `title` and `excludes` fields (plus `userSees` / `verificationIntent` for request-traceability rows). **Do not read `context`.**
 
 4. Extract feature points from:
    - (a) Each candidateSpecSet decisions/*.md file (plus any files added under a recorded scanEscalationReason) — each distinct event type, metric name, field name, or behavior is a separate feature point; if filename triage suggests a non-candidate file hides commitments relevant to this story, that is candidate ambiguity — escalate instead of guessing
