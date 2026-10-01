@@ -200,9 +200,9 @@ function appendScopePlanRequestTraceability(lines: string[], store: StoryStore, 
   const request = readStoryRequest(store, storyId);
   if (request.status === 'absent') return;
   const rel = `${store.storyDirRel()}/${storyId}/request.md`;
+  lines.push('');
   if (request.status === 'tampered') {
     lines.push(`Verbatim request: ${rel} — ${request.reason}. Do not treat it as authoritative; record an openQuestion asking the Story owner to restore it with story_request_set and an amendmentReason.`);
-    lines.push('');
     return;
   }
   lines.push(`Verbatim user request (${rel}, sha256=${request.meta.sha256.slice(0, 12)}${request.meta.truncated ? ', truncated at 16 KB' : ''}); it is authoritative over the owner paraphrase in the description/background:`);
@@ -215,7 +215,6 @@ function appendScopePlanRequestTraceability(lines: string[], store: StoryStore, 
   lines.push(unmapped.length > 0
     ? `Mechanical pre-check. ${renderUnmappedLiteralsLine(unmapped)}. Classify each one: gap, excluded (cite the excluding text), or covered (name the CHK and the field that states it).`
     : 'Mechanical pre-check: every backticked request literal appears in some checklist title/userSees/verificationIntent; still trace every normative sentence.');
-  lines.push('');
 }
 
 export function createStoryDispatchHandlers(ctx: HandlerContext) {
@@ -638,8 +637,6 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     lines.push(`4. ${planPath}`);
     lines.push(`5. ${decisionPath} (if present)`);
     lines.push('- Also read relatedDocs referenced by checklist items and any decisions/docs cited by the story artifacts.');
-    lines.push('');
-    appendScopePlanRequestTraceability(lines, store, args.storyId);
     if (!decisionsPresent) {
       lines.push('- Controller preflight: decisions directory is absent; review the Story description and named story artifacts for concrete promises. Do not search for a missing decisions corpus.');
     }
@@ -655,6 +652,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         ? '- No candidate-spec-set artifact is present. STOP in enforce mode and ask the Story owner to run candidate_spec_route; reviewer lanes must not seize owner authority.'
         : `- No candidate-spec-set artifact is present. ${candidateRoutingMode()} mode records this without hard-blocking review.`);
     }
+    appendScopePlanRequestTraceability(lines, store, args.storyId);
     lines.push('');
     lines.push('Review focus:');
     lines.push('- Identify every user-visible promise, scope constraint, exclusion, and acceptance expectation in the story artifacts.');
