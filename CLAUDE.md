@@ -429,7 +429,7 @@ project/
 
 每个 story 一个独立 worktree，互不干扰。这里的并行是 **本地 git worktree + 本地分支**，不是 GitHub/origin 分支；agent 不要创建或 push 远端 feature branch：
 
-1. `story_create` → 停在 **INIT**（在 main 分支上写 story 文件）
+1. `story_create` → 停在 **INIT**（在 main 分支上写 story 文件；用户原话以 `request`/`requestFile` 逐字传入，写成 `request.md`，见下文「verbatim request」）
 2. `story_advance INIT_CHECK` → 自动创建 `.worktrees/B-xxx/`，分支 `story/B-xxx`
 3. **`cd .worktrees/B-xxx`**（必须切，否则 cwd 门禁拒绝）
 4. `story_advance PLAN` → 正式进入开发流程
@@ -687,6 +687,13 @@ see story/B-9975
 
 即「PLAN 完成标志 = `scope-check.json` 存在且所有通道均已清账」。
 
+### verbatim request（request.md）与 PLAN 追溯
+
+- `story_create` 接收 `request`（或 `requestFile`）：用户请求**原文**，不是转述；通用用户场景要向用户索取原话。写入 Story 目录 `request.md`（上限 16 KB，超出带显式截断标记），`request.json` 记 sha256 / 来源 / amendments；`request.md` 进入 INIT_CHECK 签名域（无 request.md 的 Story 哈希不变）。
+- `story_request_set`：无 `storyId` 时暂存到 `.proof-or-stop/runtime/staged-story-request.md`，下一次 `story_create` 消费一次（benchmark adapter 用这条路记录任务原文）；有 `storyId` 时记录/修订，仅限 IDEA/INIT/INIT_CHECK/PLAN，替换已有原文或 INIT 之后首次记录都必须带 `amendmentReason`（≥30 字符）。手改 request.md 会被识别为与 request.json 不符、不作为权威输入。
+- scope-plan reviewer 的 dispatch prompt 内联 request 原文：每个规范性句子、每个「for example」、每个枚举变体集都是独立 feature 行，只有某条 `userSees`/`verificationIntent` 写出该确切变体或确切输出才算 covered，否则是 gap；另附机械预检：request 中反引号字面量没有出现在任何 checklist title/userSees/verificationIntent 里的逐个列出。
+- verification-intent 作者的 prompt 指向 request.md，要求每个例子、每个列出的变体各写一条精确输出 intent。INIT product reviewer 只拿到路径；REVIEW 各 lane 不注入（token 纪律）。
+
 ### Open Questions (OQ) 通道（B-ed3e）
 
 scope-plan reviewer 按搜索预算契约（B-cee5：完整枚举 `<requirementsDir>/decisions/` 文件名 + candidateSpecSet 有界全文阅读，全目录全文扫描仅限记录 scanEscalationReason 的升级路径）审阅 decisions/ 时，若发现 checklist / decisions 间有**非典型矛盾**（无法归入 covered/excluded/gap/orphan-suspect/drift 任一档），写入第 6 通道 `openQuestions: OpenQuestion[]`：
@@ -855,7 +862,7 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 |---|---|---|
 | **主 agent** | 需求管理（PLAN + plan.md）+ 分配任务 + 验收（REVIEW/TEST/DONE） | 仅快速通道 |
 | **proof-or-stop-implementer** | 写代码 + 写测试，接受主 agent 按 plan.md 分配的 checklist item | 正常通道必须 |
-| **proof-or-stop-review-\*** | REVIEW 阶段按 opt-in 路由并行审查（baseline concept+quality+test-coverage，按 riskSignals / touchpoints 加挂 behavior/docs），各自提 finding。`test-coverage` 继承旧 TEST_CASE_REVIEW 职责，只审产品覆盖缺口（userSees/验收行为没有任何测试、断言没检查该行为、缺边界用例）；receipt/pin/测试绑定等证据链项由框架在 REVIEW 前检查，不是 finding；`channel` LLM agent 已退役（S1）由 `validate --channel` CLI 接管；`quality` 假设 lint 已绿只审主观项 | 不写 |
+| **proof-or-stop-review-\*** | REVIEW 阶段按 opt-in 路由并行审查（baseline concept+quality+test-coverage，按 riskSignals / touchpoints 加挂 behavior/docs），各自提 finding。`test-coverage` 继承旧 TEST_CASE_REVIEW 职责，只审产品覆盖缺口（userSees/验收行为没有任何测试、断言没检查该行为、断言值与需求矛盾、缺边界用例）；receipt/pin/测试绑定等证据链项由框架在 REVIEW 前检查，不是 finding；`channel` LLM agent 已退役（S1）由 `validate --channel` CLI 接管；`quality` 假设 lint 已绿只审主观项 | 不写 |
 | **proof-or-stop-evaluator** | browser 项目产品质量打分（功能完整性 + 可用性） | 不写 |
 | **proof-or-stop-evaluator-cli** | CLI / core 项目产品质量打分（通过 bridge API 驱动状态转换验证） | 不写 |
 
@@ -1067,8 +1074,8 @@ The structured `canPassReviewGuard` gate (`core/machine.ts`, consumed by the REV
 |---|---|
 | **concept** | baseline（永远开） |
 | **quality** | baseline（永远开） |
-| **test-coverage** | baseline（永远开，审承诺的行为是否真有测试覆盖；stale/缺失 receipt 与未绑定测试属框架的证据链检查，不报 finding） |
-| **behavior** | riskSignals 含 `state machine` / `guard` / `gate` |
+| **test-coverage** | baseline（永远开，审承诺的行为是否真有测试覆盖，以及断言值是否与需求矛盾；stale/缺失 receipt 与未绑定测试属框架的证据链检查，不报 finding） |
+| **behavior** | 某个 riskSignal category 按 `/` 拆分、忽略大小写后含 `state machine` / `guard` / `gate`（story_create 检测器产出 `State Machine/Gate` 即命中；其他类别不挂载） |
 | **docs** | touchpoints 含 `.md` 文件 |
 
 **查看当前 story 的 reviewer 名单**：

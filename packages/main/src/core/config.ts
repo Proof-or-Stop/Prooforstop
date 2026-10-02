@@ -475,6 +475,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'plan_get',
     'workflow_*',    // 全局：profile 查看/设置/解释，任何阶段都可以
     'background_*',  // B-45ed CHK-007: background 是元数据，任何阶段可读写
+    'story_request_set', // verbatim request: staging has no story; the handler itself admits IDEA/INIT/INIT_CHECK/PLAN writes only
     'dispatch',      // B-9d95 CHK-004: 统一派发入口，全阶段开放（INIT_CHECK 起）
     'reviewer_list', // B-fdcf CHK-001: 全阶段可查询 opt-in reviewer 名单
     'review_incremental_context', // B-f675 CHK-002: read-only incremental review context, any phase

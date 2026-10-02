@@ -1425,6 +1425,21 @@ The Claude Code side still uses the hooks, settings, and skills under `.claude/`
 
 In a full-mode repository, `.proof-or-stop-codex/agents` is fully generated from `.claude/agents` through a controlled transform and protected against later drift by `npm run test:codex-assets`; in a thin-mode repository, `node bin/proof-or-stop-codex.js verify_codex` validates the registry manifest/hash/renderability.
 
+### Verbatim request (`request.md`) and PLAN traceability
+
+`story_create` accepts `request` (or `requestFile`, a path relative to the project root): the user's request verbatim, never a paraphrase. It is written to the Story's `request.md` (bounded to 16 KB; a longer text ends with `[proof-or-stop: request truncated at N of M bytes; ...]`), with `request.json` holding its sha256, source and amendment history. `request.md` is part of the INIT_CHECK signature domain; a Story without it keeps the previous signature.
+
+```bash
+# stage before the Story exists (wrappers, benchmark adapters); the next story_create consumes it once
+proof-or-stop story_request_set --requestFile=/tmp/task.md
+# record or amend for an existing Story (IDEA/INIT/INIT_CHECK/PLAN only)
+proof-or-stop story_request_set '{"storyId":"B-xxxx","requestFile":"/tmp/task.md","amendmentReason":"<what the user changed or clarified, >=30 chars>"}'
+```
+
+Replacing a recorded request, or recording one after INIT, requires `amendmentReason`; it is appended to `request.json`. A `request.md` edited outside the command no longer matches `request.json` and is shown to reviewers as non-authoritative. `story_create` and `story_request_set` print the backticked request literals (examples, listed variants, exact messages) that no checklist title, `userSees` or `verificationIntent` states yet.
+
+In PLAN, the scope-plan dispatch prompt carries the request inline and requires one feature row per normative sentence, "for example" and enumerated variant; a row is covered only by a `userSees` or `verificationIntent` that states that exact variant or output, otherwise it is a gap. The same mechanical literal pre-check is listed there. The verification-intent prompt points at `request.md` and asks for one exact-output intent per example and listed variant. The INIT product reviewer gets the path only; REVIEW lanes never receive the request.
+
 ### PLAN selected process-owner coverage
 
 When ProofStory verification topology selects canonical `process-fact:<factId>` references, `scope_check_save` requires the registered scope reviewer and `ownerDispositions`. Each canonical registry path needs exactly one `{path, disposition, reason}` row: `modify` or `test` must match checklist files, while `unchanged` records substantive reviewed sufficiency (reason at least 40 characters). This does not authorize scope expansion or require edits to all consulted files. Repository-keyed evidence binds the selection, declarations, source bytes and relevant local-main source bytes. `story_review` and the direct PLAN-to-DEV guard revalidate it, independently of cached review counts. Invalid, stale, missing or tampered evidence blocks. Stories without selected canonical topology retain legacy behavior; this bounded check does not infer unselected features from prose or certify independent-host execution.
