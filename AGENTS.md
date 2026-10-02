@@ -529,7 +529,9 @@ After DEV (every checklist item done and committed), run `proof-or-stop next --s
 computed in real time from shared workflow policy plus Story risk signals,
 checklist/decision facts, and documentation touchpoints: concept, quality, and
 test-coverage are baseline lanes; behavior and docs are enabled only when their
-current triggers apply. Do not hard-code one universal roster or infer lane
+current triggers apply (behavior: a risk-signal category whose `/`-separated,
+case-insensitive tokens include `state machine`, `guard` or `gate`, such as the
+`State Machine/Gate` category `story_create` detects). Do not hard-code one universal roster or infer lane
 eligibility from a role-name prefix.
 
 `reviewer_batch` is a read-only launch plan. It reports which lanes need work and
@@ -566,7 +568,7 @@ A current reviewer flow is:
 
 Coverage review is a reviewer lane, not a standalone verification command. Its
 current canonical role is `proof-or-stop-review-test-coverage`. It reports product
-coverage gaps only; stale or missing receipts, unpinned intents and tests bound
+coverage gaps only (including a test whose asserted value contradicts the requirement); stale or missing receipts, unpinned intents and tests bound
 to no intent are framework-owned evidence-chain items checked before REVIEW
 (`pre_review_check_read`), reclassified as framework actions if a reviewer
 reports them (`category: "evidence_chain"`). The main agent,
