@@ -847,6 +847,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push('Repair the defect family, not only this counterexample:');
       lines.push('- Before editing, name the root cause and list every sibling code path with the same root cause (the other arity, operand type, direction, or read/write variant of the same operation).');
       lines.push('- Add a failing test for each sibling as well as for the reported case, then fix them together and rerun the affected package tests.');
+      lines.push('- If the repair changes what a field or encoding means or can represent (for example adds an omitted/unset distinction), list every reader of it, including render, String(), serialize, print, equality and hash, and make each honor the new distinction or state a concrete reason tied to the request. Fix any existing test whose expected value contradicts the requirement.');
       lines.push('- A sibling left unfixed is reported as a new finding in the next review round, which costs a full remediation cycle.');
       lines.push('');
       lines.push('After completion:');

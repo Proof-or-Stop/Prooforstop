@@ -46,6 +46,9 @@ client-controlled or stale metadata cannot satisfy a server-authored proof
 requirement. This is correctness review guidance only; it is not receipt-backed production proof,
 and the reviewer must not describe it as receipt-backed production evidence.
 
+### 5. Test Expectations vs Requirement
+- In changed tests, an asserted value on a promised output surface (userSees / acceptance / request) that contradicts the requirement is a correctness finding, not style (e.g. expecting `[0:101:2]` where omitted slice components must be preserved).
+
 ## Output
 
 ```bash

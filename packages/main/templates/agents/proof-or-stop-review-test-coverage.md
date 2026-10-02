@@ -46,18 +46,22 @@ Raise a finding (category happy/edge/adversarial/missing) for real missing cover
 2. A test that runs but whose assertion does not check the promised behavior:
    challenge it with deletion, the exact failing input, and relevant combination
    mutations. A test that would still pass with the behavior removed is a finding.
-3. A missing edge or adversarial case for the current channel: normal / high-risk /
+3. A test whose expected value contradicts the requirement. Check each asserted value on a
+   promised output surface against `userSees`, acceptance and the request, not against the
+   current implementation: a passing test that locks in a contradicting value (e.g. expecting
+   `(a[0:5:2])` where omitted slice components must be preserved as `(a[:5:2])`) is a finding.
+4. A missing edge or adversarial case for the current channel: normal / high-risk /
    strict need happy, edge and adversarial intents; fast / express need at least an
    explainable happy path (missing edge/adversarial is advisory there).
-4. Once explicit verification is used, a non-withdrawn checklist item with no
+5. Once explicit verification is used, a non-withdrawn checklist item with no
    verificationIntent at all (an authoring gap, not an evidence-chain item).
-5. A repository-wide `must` without `requirementSource=external_verifier` and a
+6. A repository-wide `must` without `requirementSource=external_verifier` and a
    concrete `requirementRef`. For repository health, inspect the actual current and
    referenced baseline outputs: use `priority=should`, `expectation=no_new_regressions`,
    and `baselineRef`; file a finding when the current run introduces a failure absent
    from that baseline. The reference is navigation for this audit, not executable gate
    evidence by itself.
-6. A `waiver` whose note does not explain why this story should not be covered by
+7. A `waiver` whose note does not explain why this story should not be covered by
    automation, or broad evidence ("validate passed") that names no covered behavior.
 
 For validation evidence sizing, exercise StoryStore.writeTestEvidence itself: the writer
