@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process';
+import { observedGit } from './git-tree-observation.js';
 
 export const BOUNDED_GIT_BLOB_MAX_BYTES = 16 * 1024 * 1024;
 
@@ -32,11 +33,12 @@ export function readGitBlobAt(
 ): GitBlobReadResult {
   let record: Buffer;
   try {
-    record = execFileSync('git', [...READ_ONLY_GIT_HARDENING, 'ls-tree', '-z', ref, '--', path], {
+    const argv = [...READ_ONLY_GIT_HARDENING, 'ls-tree', '-z', ref, '--', path];
+    record = Buffer.from(observedGit(gitCwd, argv, () => execFileSync('git', argv, {
       cwd: gitCwd,
       stdio: ['ignore', 'pipe', 'pipe'],
       maxBuffer: 4 * 1024 * 1024,
-    });
+    }).toString('latin1')), 'latin1');
   } catch (error) {
     return { status: 'error', reason: `git tree lookup failed for ${ref}:${path}: ${errorText(error)}` };
   }
@@ -50,11 +52,13 @@ export function readGitBlobAt(
     return { status: 'error', reason: `git tree lookup did not resolve a blob for ${ref}:${path}` };
   }
   try {
-    const content = execFileSync('git', [...READ_ONLY_GIT_HARDENING, 'cat-file', 'blob', objectId], {
+    const argv = [...READ_ONLY_GIT_HARDENING, 'cat-file', 'blob', objectId!];
+    // The byte bound is part of the observed read: a smaller bound never reuses a larger read.
+    const content = Buffer.from(observedGit(gitCwd, [...argv, `\0maxBuffer=${maxBytes}`], () => execFileSync('git', argv, {
       cwd: gitCwd,
       stdio: ['ignore', 'pipe', 'pipe'],
       maxBuffer: maxBytes,
-    });
+    }).toString('latin1')), 'latin1');
     return { status: 'ok', content, mode, objectId };
   } catch (error) {
     return { status: 'error', reason: `git blob read failed for ${ref}:${path}: ${errorText(error)}` };

@@ -936,6 +936,18 @@ every gate in place, re-decides after each, and stops at the first agent/human
 step, the first refused step (its output tail is shown) or `--maxSteps`
 (default 20). It is off by default.
 
+One decision is one synchronous git observation (the same scope a single gate
+evaluation uses): every identical read-only git probe the consulted gates make
+(HEAD, material / story-files trees, merge-bases, branch and common-dir probes,
+object-addressed blob reads) runs once per decision, and a row's own predicates
+are evaluated only when that row is reached (the evidence chain is not built
+while a finding still awaits repair). Nothing survives the call and nothing is
+cached across calls. On the ND fixture this cut the child processes per
+decision from DEV 75 / REVIEW 221 / PRE_CERT 257 / TEST 394 (max) to
+22 / 83 / 124 / 161; `node packages/main/dist/tasks/next-driver-cost-smoke.js`
+holds those budgets and requires every decision to equal the frozen
+pre-optimization driver and the CLI's own `next --json`.
+
 Refusals and guidance on this path point back to it with `Next: proof-or-stop
 next --storyId=<id>`: an INVALIDATED certification window (before: the illegal
 `story_advance --phase=REVIEW`), the store-less PRE_CERT inventory blocker in the

@@ -30,6 +30,7 @@ import {
 } from "./authority-signing.js";
 import type { FindingLedgerOperation, FindingLedgerReceipt } from "./types.js";
 import { PROOF_OR_STOP_DIR } from "./proof-or-stop-paths.js";
+import { observedGit } from "./git-tree-observation.js";
 
 export type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue };
 
@@ -58,11 +59,11 @@ export interface FindingLedgerReceiptTrust extends Omit<FindingLedgerSigner, "pr
 
 function gitCommonDir(workspaceRoot: string): string | undefined {
   try {
-    const raw = execFileSync("git", ["rev-parse", "--git-common-dir"], {
+    const raw = observedGit(workspaceRoot, ["rev-parse", "--git-common-dir"], () => execFileSync("git", ["rev-parse", "--git-common-dir"], {
       cwd: workspaceRoot,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
-    }).trim();
+    })).trim();
     return path.isAbsolute(raw) ? raw : path.resolve(workspaceRoot, raw);
   } catch {
     return undefined;

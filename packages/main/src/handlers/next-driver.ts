@@ -35,6 +35,7 @@ import { loadConfig, resetConfigCache } from '../core/config.js';
 import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { withGitTreeObservation } from '../core/git-tree-observation.js';
 import { evaluateReviewVerdict, getGuardFailureReason } from '../core/machine.js';
 import { isTerminalChecklistStatus } from '../core/checklist-status.js';
 import { unclosedBlockingFindings, resolveEffectiveBlockingSeverities, FINDING_RESOLUTION_PLACEHOLDER } from '../core/finding-closure.js';
@@ -327,7 +328,10 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     // Verified blocking findings must be closed (finding-closure rule) before
     // REVIEW is worth re-entering.
     const findings = openBlockingFindings(storyId);
-    const chain = evaluateEvidenceChainForStory(ctx, storyId);
+    // The evidence chain is read only by the rows below that consult it (a
+    // finding still awaiting repair or its run does not).
+    let chainResult: ReturnType<typeof evaluateEvidenceChainForStory> | undefined;
+    const chainOf = () => (chainResult ??= evaluateEvidenceChainForStory(ctx, storyId));
     if (findings.length > 0) {
       const { finding } = findings[0]!;
       const runs = ctx.store.readReviewRuns(storyId).runs;
@@ -343,6 +347,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
         `Verified ${finding.severity} finding ${finding.id} is open and the reviewed material is unchanged: repair it in code and commit (managed finding-repair shown).`,
         'unclosedBlockingFindings (core/finding-closure.ts)');
       }
+      const chain = chainOf();
       if (chain.blocking && chain.nextAction) {
         return delegated(base, 'framework', 'evidence_chain', chain.nextAction,
           'The repair changed material, so pinned receipts are stale; refresh them before recording the resolution.', 'evaluateEvidenceChainForStory (DEV→REVIEW evidence-chain gate)');
@@ -351,6 +356,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
         `${finding.id} was repaired (material changed since its review) but is still open; closure is required whichever round raised it. Name the repair commit and its passing focused evidence.`,
         'unclosedBlockingFindings (core/finding-closure.ts)', { placeholders: ['resolution'] });
     }
+    const chain = chainOf();
     if (chain.blocking && chain.nextAction) {
       return delegated(base, 'framework', 'evidence_chain', chain.nextAction,
         'The DEV→REVIEW evidence-chain gate would refuse: a must/should receipt is stale or missing.', 'evaluateEvidenceChainForStory (DEV→REVIEW evidence-chain gate)');
@@ -692,7 +698,18 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     return guardStep(base, 'DONE', 'enter_done', 'Every DONE oracle row passes: advance to DONE (the framework merges the Story branch and removes the worktree).', 'buildDoneChecklist + getGuardFailureReason(DONE)');
   }
 
+  /**
+   * One decision is one synchronous git observation: the gates and readers it
+   * consults resolve each identical read-only git probe once (HEAD, material and
+   * story-files trees, merge-bases, branch and common-dir probes), exactly as a
+   * single gate evaluation does. Nothing survives the call; a git mutation by a
+   * consulted reader (metadata auto-commit) clears it.
+   */
   function decide(storyId: string): NextStep {
+    return withGitTreeObservation(() => decideObserved(storyId));
+  }
+
+  function decideObserved(storyId: string): NextStep {
     const story = ctx.store.readStory(storyId);
     const base = { storyId, phase: story.phase };
     switch (story.phase) {

@@ -762,10 +762,11 @@ export function parseNameStatusRecords(raw: string): NameStatusRecord[] {
  * so behavior is byte-identical.
  */
 function readNameStatusRecords(gitCwd: string, fromHead: string, toHead: string): NameStatusRecord[] {
-  const raw = execFileSync('git', ['diff', '--name-status', '-M', '-z', `${fromHead}..${toHead}`], {
+  const argv = ['diff', '--name-status', '-M', '-z', `${fromHead}..${toHead}`];
+  const raw = observedGit(gitCwd, argv, () => execFileSync('git', argv, {
     cwd: gitCwd,
     ...GIT_EXEC_OPTS,
-  });
+  }));
   return parseNameStatusRecords(raw);
 }
 
