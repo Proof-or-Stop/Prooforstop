@@ -54,9 +54,9 @@ The numbering is used only for observable state, not to judge whether something 
 
 | Phase | Meaning | Entry gate | Artifacts |
 |---|---|---|---|
-| INIT | Story created | `story_create` succeeds | story metadata, background |
+| INIT | Story created | `story_create` succeeds | story metadata, background, verbatim `request.md` when supplied (signed by INIT_CHECK) |
 | INIT_CHECK | Worktree bootstrap | init reviewers / draft gate pass (or controlled `init_check_repair` fallback), scope anti-expansion freeze passes, git available | `.worktrees/B-xxx`, `story/B-xxx` |
-| PLAN | Breakdown and acceptance intent | cwd is in the worktree; high-risk stories require understanding + decision/preMortem | understanding, checklist, verificationIntent, decision |
+| PLAN | Breakdown and acceptance intent | cwd is in the worktree; high-risk stories require understanding + decision/preMortem | understanding, checklist, verificationIntent, decision; the scope-plan reviewer traces every example and listed variant of `request.md` to an exact userSees/verificationIntent (unmapped = gap) |
 | DEV | Implement and record evidence | PLAN/review gate allows it | code, checklist status, verificationEvidence |
 | REVIEW | Independent review | DEV checklist complete, changes committed | reviewer findings, coverage reviewer result / review pass |
 | TEST | Automatic validation | REVIEW blockers resolved, preflight gate passes | `proof-or-stop validate` evidence, bug/test runs |
@@ -70,7 +70,7 @@ On the normal path, `INIT → INIT_CHECK` requires the independent INIT reviewer
 `proof-or-stop init_check_repair` provides an **explicit, auditable fallback that does not weaken the signature** (INIT phase, `ownershipClass: storyScopedMutating`, an owner-gated manual override, not a reviewer-lane write):
 
 - **Disabled by default**: missing `acknowledge:true` or a `fallbackReason` shorter than 30 characters is rejected, producing no file and not changing the phase.
-- **Reuses `signInitCheck`**: the same signature domain as an ordinary `init_check_set`, so nothing about the fallback is signed more weakly. Since B-8df9 CHK-002 that domain also covers the reviewer verdict, so it is storyId / background.md / title / description / checklist / reviewRound / `agentResults` + `issues` — modifying any of them after signing still triggers `[init_check_tampered]`. `describeInitCheckSignatureDomain()` renders the live list; do not restate it from memory.
+- **Reuses `signInitCheck`**: the same signature domain as an ordinary `init_check_set`, so nothing about the fallback is signed more weakly. Since B-8df9 CHK-002 that domain also covers the reviewer verdict, so it is storyId / background.md (plus the verbatim request.md when recorded) / title / description / checklist / reviewRound / `agentResults` + `issues` — modifying any of them after signing still triggers `[init_check_tampered]`. `describeInitCheckSignatureDomain()` renders the live list; do not restate it from memory.
 - **Does not relax reviewer coverage**: `initCheckAgentMatches` accepts only the exact bare required identity or exact `<required>@fallback`; it rejects `<required>@operator` and `<required>@fallback-extra`. The fallback record therefore satisfies required coverage while remaining mechanically distinguishable from an independent reviewer. Manually attested high/critical issues that apply to INIT still self-block via `blockingInitCheckIssues`; `kind: post_implementation_evidence_missing` follows the same explicit phase deferral as the independent-review path.
 - **Audit**: writes `init-check.json.fallback` (mode/reason/evidenceRefs/actor/session/attestedAt/headHash/materialHash) + an `init_check_fallback` process event; `story_get` exposes `initCheckAttestation` (`fallback`/`independent`) + the `initCheckFallback` block so the dashboard/report can distinguish them.
 - `init_check_set` mechanically validates `agentId` as a byte-exact registered actor before authority resolution. The separate fallback handler emits the exact `<required>@fallback` identity; callers cannot submit arbitrary suffixes through `init_check_set`.

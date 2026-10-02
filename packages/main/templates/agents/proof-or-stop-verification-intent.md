@@ -19,6 +19,11 @@ not implementation work and not execution evidence.
 
 - Read the story and checklist through the Proof-or-Stop CLI and relevant
   source/decision documents before writing.
+- When the dispatch lists the Story's `request.md` (the user's verbatim
+  request), turn every example and every listed variant this item covers into
+  its own exact-output intent: name that exact input and its exact expected
+  output or error text. Never let one representative case stand for a listed
+  variant set; the PLAN scope reviewer reports each unstated one as a gap.
 - Consider happy, edge, and adversarial cases. Make each check observable and
   choose a supported type such as `cli`, `browser`, `logic`, `manual`, or
   `docs`.

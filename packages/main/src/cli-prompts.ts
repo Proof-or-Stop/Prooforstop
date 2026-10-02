@@ -40,6 +40,11 @@ REQUIRED FIELDS
 OPTIONAL BUT RECOMMENDED
   keywords    — domain tags → triggers duplicate-detection
   checklist   — array of {title, context}
+  request     — the user's request VERBATIM (ask for or copy their exact words;
+                never a paraphrase). Stored as request.md (16 KB cap), signed by
+                INIT_CHECK; the PLAN scope reviewer traces every example and
+                listed variant in it. Use requestFile for text with quotes, or
+                proof-or-stop story_request_set to record/amend it later.
 
 EXAMPLES
 
@@ -59,8 +64,8 @@ EXAMPLES
 STEP-BY-STEP
   1. proof-or-stop session_brief — recover active story and next step
   2. proof-or-stop story_list — check for duplicates
-  3. Discuss with user until requirements crystallize
-  4. proof-or-stop story_create with checklist
+  3. Discuss with user until requirements crystallize; keep their request verbatim
+  4. proof-or-stop story_create with checklist and request
   5. proof-or-stop story_advance phase=INIT_CHECK to create worktree
 `.trim();
 

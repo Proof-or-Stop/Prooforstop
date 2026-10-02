@@ -26,6 +26,7 @@ import { join } from 'path';
 import type { HandlerContext } from './context.js';
 import { createClusterHandlers } from './cluster.js';
 import type { StoryStore } from '../core/store.js';
+import { readStoryRequest, renderUnmappedLiteralsLine, unmappedStoryRequestLiterals } from '../core/story-request.js';
 import { reportHealthIssue } from '../core/health.js';
 import { loadConfig } from '../core/config.js';
 import { currentPlanOwnerBinding } from '../core/plan-touchpoint-coverage.js';
@@ -189,6 +190,33 @@ function appendImplementerCommitSteps(lines: string[], message: string): void {
  * duplicate implementation. `dispatch` dispatches by itemId / findingId / clusterId; the old entries are kept as aliases,
  * with the first line of stdout printing a deprecation warning while return values remain byte-identical.
  */
+/**
+ * Verbatim request traceability (benchmark run 13). The scope-plan reviewer gets
+ * request.md inline plus the mechanical literal pre-check; the verification-intent
+ * author and the INIT product reviewer get only its path; REVIEW lanes get nothing.
+ * A Story without request.md adds no prompt bytes.
+ */
+function appendScopePlanRequestTraceability(lines: string[], store: StoryStore, storyId: string): void {
+  const request = readStoryRequest(store, storyId);
+  if (request.status === 'absent') return;
+  const rel = `${store.storyDirRel()}/${storyId}/request.md`;
+  lines.push('');
+  if (request.status === 'tampered') {
+    lines.push(`Verbatim request: ${rel} — ${request.reason}. Do not treat it as authoritative; record an openQuestion asking the Story owner to restore it with story_request_set and an amendmentReason.`);
+    return;
+  }
+  lines.push(`Verbatim user request (${rel}, sha256=${request.meta.sha256.slice(0, 12)}${request.meta.truncated ? ', truncated at 16 KB' : ''}); it is authoritative over the owner paraphrase in the description/background:`);
+  lines.push('<<<REQUEST');
+  lines.push(request.text.replace(/\n$/, ''));
+  lines.push('REQUEST>>>');
+  lines.push('Request traceability (required): every normative sentence, every "for example" and every enumerated variant in the request is its own feature row with source "request.md". Each listed variant and each example input/output pair is a separate row, covered only when a checklist userSees or verificationIntent states that exact variant or exact output (whitespace aside); a related or analogous case is not coverage. Unmapped = gap. For these rows read userSees and verificationIntent, not only title/excludes.');
+  const items = (() => { try { return store.readChecklist(storyId).items; } catch { return []; } })();
+  const unmapped = unmappedStoryRequestLiterals(request.text, items);
+  lines.push(unmapped.length > 0
+    ? `Mechanical pre-check. ${renderUnmappedLiteralsLine(unmapped)}. Classify each one: gap, excluded (cite the excluding text), or covered (name the CHK and the field that states it).`
+    : 'Mechanical pre-check: every backticked request literal appears in some checklist title/userSees/verificationIntent; still trace every normative sentence.');
+}
+
 export function createStoryDispatchHandlers(ctx: HandlerContext) {
   const { store, root } = ctx;
   const candidateRoutingMode = (): 'shadow' | 'warn' | 'enforce' => loadConfig(root).candidateSpecRouting?.mode ?? 'shadow';
@@ -524,6 +552,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         REVIEWER_NO_DELEGATION_BOUNDARY,
         `Must read: ${bgPath}`,
         `Required reading: ${checklistPath}`,
+        ...(readStoryRequest(store, args.storyId).status === 'ok'
+          ? [`Required reading: ${store.storyDirRel()}/${args.storyId}/request.md (the user's verbatim request; a requested behavior that no checklist item covers is user_outcome_unspecified)`]
+          : []),
         '',
         'Review focus:',
         '- Whether the background clearly explains why the user needs this, not just the engineering mechanics',
@@ -621,6 +652,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         ? '- No candidate-spec-set artifact is present. STOP in enforce mode and ask the Story owner to run candidate_spec_route; reviewer lanes must not seize owner authority.'
         : `- No candidate-spec-set artifact is present. ${candidateRoutingMode()} mode records this without hard-blocking review.`);
     }
+    appendScopePlanRequestTraceability(lines, store, args.storyId);
     lines.push('');
     lines.push('Review focus:');
     lines.push('- Identify every user-visible promise, scope constraint, exclusion, and acceptance expectation in the story artifacts.');
@@ -750,6 +782,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     lines.push('Required reading:');
     lines.push(`1. ${storyDir}/background.md`);
     lines.push(`2. ${storyDir}/plan.md#${args.itemId}`);
+    if (readStoryRequest(store, args.storyId).status === 'ok') {
+      lines.push(`3. ${storyDir}/request.md (the user's verbatim request): for every example and every listed variant this item covers, write one exact-output intent that names that exact input and its exact expected output or error text; never collapse a listed variant set into one representative case.`);
+    }
     for (const doc of item.relatedDocs || []) lines.push(`- ${doc}`);
     lines.push('');
     lines.push(`Current phase: ${story.phase}. Context: ${item.context || '(not declared)'}`);

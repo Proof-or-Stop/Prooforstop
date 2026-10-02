@@ -429,7 +429,7 @@ project/
 
 每个 story 一个独立 worktree，互不干扰。这里的并行是 **本地 git worktree + 本地分支**，不是 GitHub/origin 分支；agent 不要创建或 push 远端 feature branch：
 
-1. `story_create` → 停在 **INIT**（在 main 分支上写 story 文件）
+1. `story_create` → 停在 **INIT**（在 main 分支上写 story 文件；用户原话以 `request`/`requestFile` 逐字传入，写成 `request.md`，见下文「verbatim request」）
 2. `story_advance INIT_CHECK` → 自动创建 `.worktrees/B-xxx/`，分支 `story/B-xxx`
 3. **`cd .worktrees/B-xxx`**（必须切，否则 cwd 门禁拒绝）
 4. `story_advance PLAN` → 正式进入开发流程
@@ -686,6 +686,13 @@ see story/B-9975
 - 有未 resolved OpenQuestion → blocker（见下节）
 
 即「PLAN 完成标志 = `scope-check.json` 存在且所有通道均已清账」。
+
+### verbatim request（request.md）与 PLAN 追溯
+
+- `story_create` 接收 `request`（或 `requestFile`）：用户请求**原文**，不是转述；通用用户场景要向用户索取原话。写入 Story 目录 `request.md`（上限 16 KB，超出带显式截断标记），`request.json` 记 sha256 / 来源 / amendments；`request.md` 进入 INIT_CHECK 签名域（无 request.md 的 Story 哈希不变）。
+- `story_request_set`：无 `storyId` 时暂存到 `.proof-or-stop/runtime/staged-story-request.md`，下一次 `story_create` 消费一次（benchmark adapter 用这条路记录任务原文）；有 `storyId` 时记录/修订，仅限 IDEA/INIT/INIT_CHECK/PLAN，替换已有原文或 INIT 之后首次记录都必须带 `amendmentReason`（≥30 字符）。手改 request.md 会被识别为与 request.json 不符、不作为权威输入。
+- scope-plan reviewer 的 dispatch prompt 内联 request 原文：每个规范性句子、每个「for example」、每个枚举变体集都是独立 feature 行，只有某条 `userSees`/`verificationIntent` 写出该确切变体或确切输出才算 covered，否则是 gap；另附机械预检：request 中反引号字面量没有出现在任何 checklist title/userSees/verificationIntent 里的逐个列出。
+- verification-intent 作者的 prompt 指向 request.md，要求每个例子、每个列出的变体各写一条精确输出 intent。INIT product reviewer 只拿到路径；REVIEW 各 lane 不注入（token 纪律）。
 
 ### Open Questions (OQ) 通道（B-ed3e）
 
