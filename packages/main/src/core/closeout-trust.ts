@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
+import { observedGit } from './git-tree-observation.js';
 import { appendFileSync, existsSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import {
@@ -509,9 +510,13 @@ export function verifyCloseoutWriteReceipt(receipt: CloseoutWriteReceipt, expect
   if (Number.isNaN(Date.parse(receipt.timestamp))) return { ok: false, reason: 'receipt timestamp is invalid' };
   if (expected.projectRoot) {
     try {
-      execFileSync('git', ['merge-base', '--is-ancestor', receipt.headHash, 'HEAD'], {
-        cwd: expected.projectRoot,
-        stdio: ['ignore', 'ignore', 'ignore'],
+      const projectRoot = expected.projectRoot;
+      observedGit(projectRoot, ['merge-base', '--is-ancestor', receipt.headHash, 'HEAD'], () => {
+        execFileSync('git', ['merge-base', '--is-ancestor', receipt.headHash, 'HEAD'], {
+          cwd: projectRoot,
+          stdio: ['ignore', 'ignore', 'ignore'],
+        });
+        return '';
       });
     } catch {
       return { ok: false, reason: 'receipt headHash is not an ancestor of current HEAD' };

@@ -362,7 +362,8 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   'packages/main/src/core/git-tree-observation.ts': 'e3310d811d2c0e7f78a41e14ee6995593c23cb6a0e5d8c7686be5d5a7cbfe3f9',
   // Lab cli-bundle (2026-09-30): resolveStoryChangedFiles/MergeBase now imported from the story-change-manifest leaf; repinned.
   // Lab runtime-info-exclude (2026-09-30): checkEvidenceHashSnapshotReuse now forwards trustedControllerProjectionStoryId to readMaterialDirtyFiles; repinned.
-  'packages/main/src/core/evidence-freshness.ts': '02974e62c40c8269eb8829b5a823c79ea6d5c0b7b5dcd6b7367372d5e80e9abe',
+  // Lab next-driver-cost (2026-10-01): the rename-aware name-status read passes through observedGit; repinned.
+  'packages/main/src/core/evidence-freshness.ts': '0b4671d80799500b0c7aedc8de84e3d692237ab7da521c046e47c012e21877e0',
   // 3270fa6c84 changed the emitted inventory executable after its previous pin was recorded.
   // Lab review-epoch-lineage (2026-09-30): zero-wave completeness-only receipts route to cancel; repinned.
   'packages/main/src/core/review-inventory-epoch.ts': '985c577e2f06178b31512f6e10e05a84869d4f21cf23e793445bebeb35097a66',
