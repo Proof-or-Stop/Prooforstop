@@ -1445,16 +1445,25 @@ export function assertCurrentReviewRunForEvidence(
 
 /**
  * Owner-facing detail for a lineage refusal: the exact first commit no rule
- * authenticates, the rule, and one next action. Material is unchanged (checked
- * first), so a fresh managed pass of the lane bound to the live head supersedes
- * the stale pass; rerunning the round is the single recovery.
+ * authenticates, the rule, and one next action valid in the Story's current
+ * phase. Material is unchanged (checked first), so a fresh managed pass of the
+ * lane bound to the live head supersedes the stale one; lanes rerun only in
+ * REVIEW. From TEST the only way back is TEST->DEV->REVIEW, so the single
+ * next command there is the rollback, with the reason.
  */
+export function managedLineageRecoveryNext(storyId: string, phase: string | undefined): string {
+  if (phase === 'REVIEW') return `Next: proof-or-stop review_round_prepare --storyId=${storyId}`;
+  if (phase === 'DEV') return `Next: proof-or-stop story_advance --storyId=${storyId} --phase=REVIEW; why: review_round_prepare then reruns the lanes on the live head`;
+  if (phase === 'TEST') return `Next: proof-or-stop story_advance --storyId=${storyId} --phase=DEV; why: managed lanes rerun only in REVIEW and TEST returns to REVIEW only through DEV`;
+  return `Next: proof-or-stop next --storyId=${storyId}; why: managed lanes rerun only in REVIEW`;
+}
+
 export function managedLineageRefusalDetail(
-  storyId: string, refusal: { commit: string; subject: string; rule: string } | undefined, withNext = true,
+  storyId: string, refusal: { commit: string; subject: string; rule: string } | undefined, withNext = true, phase: string | undefined = 'REVIEW',
 ): string {
   if (!refusal) return '';
   const subject = refusal.subject ? ` "${refusal.subject}"` : '';
-  const next = withNext ? `; Next: proof-or-stop review_round_prepare --storyId=${storyId}` : '';
+  const next = withNext ? `; ${managedLineageRecoveryNext(storyId, phase)}` : '';
   return ` (unauthenticated commit ${refusal.commit.slice(0, 12)}${subject}: ${refusal.rule}${next})`;
 }
 
@@ -1712,7 +1721,7 @@ function validateEvidenceRunBinding(
         evidenceId: evidence.id,
         agent: evidence.agent,
         reviewRunId: evidence.reviewRunId,
-        message: `${evidence.kind} ${evidence.id} failed shared managed-review live binding: ${live.reason}${managedLineageRefusalDetail(story.storyId, live.lineageRefusal)}`,
+        message: `${evidence.kind} ${evidence.id} failed shared managed-review live binding: ${live.reason}${managedLineageRefusalDetail(story.storyId, live.lineageRefusal, true, story.phase)}`,
       };
     }
   } else {

@@ -42,6 +42,9 @@
  *      TEST names the commit/rule with one Next (review_round_prepare); the
  *      owner reruns the round; the superseded older passes of the same round
  *      block neither TEST nor DONE.
+ *   D3 run 13: the review assurance floor is satisfied with quorum_submit
+ *      (two Codex sessions); its `quorum-submit` commit must keep the managed
+ *      passes live through done_prepare and DONE.
  *   E  run-11 bare .gitignore: scenario A on a task repo whose tracked
  *      .gitignore has NO Proof-or-Stop runtime block (and no .worktrees/),
  *      with `proof-or-stop init --profile codex --asset-mode global-thin`
@@ -1154,6 +1157,56 @@ function printNComparison(steps: Step[]): void {
   }
 }
 
+function scenarioD3(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  // Run 13: the owner satisfied the review assurance floor with quorum_submit
+  // (two distinct Codex sessions) instead of autopilot_review_submit. Its
+  // lifecycle commit `quorum-submit` must keep the managed passes live at
+  // done_prepare / DONE, and any lineage refusal in TEST must print a Next
+  // that is valid in TEST.
+  const name = 'D3 run 13: review assurance floor via quorum_submit, then done_prepare -> DONE';
+  const o = new Owner('D3', 'B-e2e5', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  try {
+    devToReview(o);
+    reviewRound(o);
+    inventory(o);
+    precertToTest(o);
+    liveSmoke(o);
+    const delivery = deliveryReview(o, [
+      { docPath: 'docs/types/string.md', promise: 'Upper returns the upper-case form of a string.', status: 'verified', verifiedBy: 'go test -v ./strs -run TestUpper', evidence: '--- PASS: TestUpper' },
+      { docPath: 'docs/types/string.md', promise: 'Reverse returns the string reversed by rune.', status: 'verified', verifiedBy: 'go test -v ./strs -run TestReverse', evidence: '--- PASS: TestReverse' },
+    ]);
+    assert.equal(delivery.state, 'completed', `delivery reviewer terminal ${delivery.state} (${delivery.reason})\n${delivery.commandLog}`);
+    authoredCloseout(o);
+    const quorum = o.cli('quorum_submit', { storyId: o.storyId, hostA: 'e2e-codex-host-a', hostB: 'e2e-codex-host-b',
+      providerA: 'codex', providerB: 'codex', sessionA: 'codex-session-a', sessionB: 'codex-session-b', json: true }, { label: 'quorum_submit (2 codex sessions)' });
+    assert.equal(quorum.status, 0, `D3: quorum_submit failed:\n${quorum.out.slice(-2000)}`);
+    lines.push(`quorum_submit: ${git(o.worktree, ['log', '--format=%h %s', '-1'])}`);
+    const floor = closureRow(o, 'done_closure (after quorum)', 'review-assurance-floor');
+    lines.push(`review-assurance-floor after quorum_submit: status=${String(floor?.status)} blocking=${String(floor?.blocking)}`);
+    const prepare = o.cli('done_prepare', { storyId: o.storyId, json: true });
+    const prepared = parseJson(prepare.stdout);
+    lines.push(`done_prepare: exit ${prepare.status} status=${String(prepared?.status)} blockedAt=${String(prepared?.blockedAt ?? '-')}`);
+    const prepareText = prepare.out.replace(/\\"/g, '"');
+    const refusal = prepareText.match(/\(unauthenticated commit ([0-9a-f]{12}) "([^"]*)": (.*?); (Next: proof-or-stop [^;)]*)/);
+    if (refusal) {
+      lines.push(`  lineage refusal: commit ${refusal[1]} "${refusal[2]}": ${refusal[3].slice(0, 100)}; ${refusal[4]}`);
+      assert.doesNotMatch(refusal[4], /review_round_prepare/, 'D3: a REVIEW-only Next printed in TEST');
+    }
+    assert.doesNotMatch(prepare.out, /managed_review_live_head_lineage_invalid/, `D3: done_prepare refused the managed passes after quorum_submit: ${String(prepared?.reason ?? '').slice(0, 600)}`);
+    const done = o.cli('story_advance', { storyId: o.storyId, phase: 'DONE' }, { label: 'story_advance DONE' });
+    lines.push(`story_advance DONE: exit ${done.status} ${done.status ? firstError(done) : 'ok'}`);
+    assert.equal(done.status, 0, `D3: story_advance DONE refused:\n${done.out.slice(-3000)}`);
+    assert.equal(new StoryStore(o.root).readStory(o.storyId).phase, 'DONE');
+    lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`D3 fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 function printTimeline(steps: Step[], scenario: string): void {
   const rows = steps.filter(s => s.scenario === scenario);
   const total = rows.reduce((sum, s) => sum + s.ms, 0);
@@ -1165,7 +1218,7 @@ function printTimeline(steps: Step[], scenario: string): void {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|NR|N[AD](?:-run)?)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|N[AD](?:-run)?)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -1184,6 +1237,7 @@ async function main(): Promise<void> {
     if (!only.length || only.includes('B')) outcomes.push(scenarioB(machine.env, steps));
     if (!only.length || only.includes('D')) outcomes.push(scenarioD(machine.env, steps));
     if (!only.length || only.includes('D2')) outcomes.push(scenarioD2(machine.env, steps));
+    if (!only.length || only.includes('D3')) outcomes.push(scenarioD3(machine.env, steps));
     if (only.includes('E')) outcomes.push(scenarioA(machine.env, steps, true).a);
     for (const [token, flow, run] of [['NA', 'A', false], ['ND', 'D', false], ['NA-run', 'A', true], ['ND-run', 'D', true]] as const) {
       const group = run ? 'NR' : 'N';
@@ -1192,7 +1246,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'E', 'NA', 'ND', 'NA-run', 'ND-run']) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run']) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {
