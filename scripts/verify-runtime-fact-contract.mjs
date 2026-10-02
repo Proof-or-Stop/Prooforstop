@@ -144,7 +144,14 @@ async function main() {
   console.log('CROSSHOST_SANDBOX_RUNTIME_CONTRACT_GREEN');
   const { REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES: historyBytes } = await importDist(root, 'packages/main/dist/core/runtime-fact-registry.js');
   assert.equal(historyBytes, 64 * 1024 * 1024);
-  assert.equal((read(root, 'packages/main/src/core/review-maintenance-lineage.ts').match(/maxBuffer: REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES/g) ?? []).length, 2);
+  // 07794a2 folded the two lineage git readers into one helper routed through
+// observedGit; the helper's run() still carries the bounded large buffer, so
+// one occurrence must remain and it must sit on the execFileSync the memo runs.
+{
+  const lineageSource = read(root, 'packages/main/src/core/review-maintenance-lineage.ts');
+  assert.equal((lineageSource.match(/maxBuffer: REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES/g) ?? []).length, 1);
+  assert.match(lineageSource, /execFileSync\('git', argv, \{[^}]*maxBuffer: REVIEW_MAINTENANCE_GIT_MAX_BUFFER_BYTES[^}]*\}\);\s*\n\s*return args\.objectRead \? args\.objectRead\(argv, run\) : observedGit\(gitCwd, argv, run\);/);
+}
   assert(read(root, 'scripts/process-fact-contract/complete.mjs').includes("['packages/main/tests/review-history-buffer.test.mjs']"));
   const { MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY: deliveryRuntime } = await importDist(root, 'packages/main/dist/core/runtime-fact-registry.js');
   assert.deepEqual({role:deliveryRuntime.role, phase:deliveryRuntime.phase, artifact:deliveryRuntime.artifact},
