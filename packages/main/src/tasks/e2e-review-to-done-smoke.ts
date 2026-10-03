@@ -80,7 +80,7 @@
  */
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -97,6 +97,7 @@ import { sanitizedFixtureChildEnvironment } from './fixture-environment.js';
 import { createFixtureMachineEnvironment } from './helpers/fixture-machine-environment.js';
 
 const CLI = fileURLToPath(new URL('../cli.js', import.meta.url));
+const SELF = fileURLToPath(import.meta.url);
 const MODEL = QUALIFIED_MANAGED_REVIEWER_DEFAULTS.codex;
 const FINAL_SCHEMA = 'lattice.managed_review_final_proposal.v1';
 const DELIVERY = 'proof-or-stop-review-delivery';
@@ -356,19 +357,27 @@ export class Owner {
   }
 
   readEvidence(): Record<string, unknown> {
-    const candidate = new StoryStore(this.worktree).readCandidateSpecSet(this.storyId);
-    assert.ok(candidate, 'review_round_prepare persisted the candidate route');
-    const filesReadFully = [...new Set(['strs/strs.go', 'strs/strs_test.go', 'docs/types/string.md', ...candidate.candidateSpecSet])].sort();
-    return {
-      readManifest: { filesReadFully, filesTriagedByName: [], scanEscalationReason: candidate.scanEscalationReason ?? null,
-        candidateSpecSetDigest: candidate.artifactDigest, corpusDigest: candidate.corpusDigest },
-      readLog: { filesReadFully, filesTriagedByName: [], summary: { readCount: filesReadFully.length, tokenCount: null }, digest: 'a'.repeat(64) },
-    };
+    return readEvidenceFor(this.worktree, this.storyId);
   }
+
+  /** Scripts directory of the fake provider (run mode: per-run scripts and the resolver live here). */
+  get scriptsDir(): string { return this.scripts; }
 
   phase(): string {
     return new StoryStore(existsSync(this.worktree) ? this.worktree : this.root).readStory(this.storyId).phase;
   }
+}
+
+/** The reviewer read manifest/log a managed review final proposal carries (bound to the persisted candidate route). */
+function readEvidenceFor(worktree: string, storyId: string): Record<string, unknown> {
+  const candidate = new StoryStore(worktree).readCandidateSpecSet(storyId);
+  assert.ok(candidate, 'review_round_prepare persisted the candidate route');
+  const filesReadFully = [...new Set(['strs/strs.go', 'strs/strs_test.go', 'docs/types/string.md', ...candidate.candidateSpecSet])].sort();
+  return {
+    readManifest: { filesReadFully, filesTriagedByName: [], scanEscalationReason: candidate.scanEscalationReason ?? null,
+      candidateSpecSetDigest: candidate.artifactDigest, corpusDigest: candidate.corpusDigest },
+    readLog: { filesReadFully, filesTriagedByName: [], summary: { readCount: filesReadFully.length, tokenCount: null }, digest: 'a'.repeat(64) },
+  };
 }
 
 function base(path: string): string { return path.split('/').pop() ?? path; }
@@ -414,9 +423,24 @@ let input = ''; process.stdin.on('data', d => { input += d; }); process.stdin.on
   const emit = e => process.stdout.write(JSON.stringify(e) + '\\n');
   emit({ type: 'thread.started', thread_id: 'fake-codex-' + process.pid });
   emit({ type: 'turn.started' });
-  const key = fs.readdirSync(dir).filter(f => f.endsWith('.json')).find(f => input.includes(f.slice(0, -5)));
-  if (!key) { fs.writeFileSync(path.join(dir, 'unmatched-' + process.pid + '.txt'), input); process.exit(3); }
-  const script = JSON.parse(fs.readFileSync(path.join(dir, key), 'utf8'));
+  // Run mode (next --run launches managed runs itself, resolver.json present):
+  // the script for this exact run id (byrun/<runId>.json), written by the
+  // harness resolver from the run's spec and the Story state; a static key only
+  // when that fails (a critic prompt names the lane ReviewRun ids, so a static
+  // lane key would match it). Otherwise the static key whose name occurs in the prompt.
+  const runId = process.env.LATTICE_MANAGED_HOST_RUN_ID || '';
+  const byRun = runId ? path.join(dir, 'byrun', runId + '.json') : '';
+  let file = byRun && fs.existsSync(byRun) ? byRun : '';
+  if (!file && byRun && fs.existsSync(path.join(dir, 'resolver.json'))) {
+    const resolver = JSON.parse(fs.readFileSync(path.join(dir, 'resolver.json'), 'utf8'));
+    const r = spawnSync(resolver.argv[0], [...resolver.argv.slice(1), runId], { encoding: 'utf8', env: process.env });
+    if (r.status === 0 && fs.existsSync(byRun)) file = byRun;
+    else fs.writeFileSync(path.join(dir, 'resolver-failed-' + process.pid + '.txt'), (r.stdout || '') + (r.stderr || ''));
+  }
+  const key = file ? undefined : fs.readdirSync(dir).filter(f => f.endsWith('.json') && f !== 'resolver.json').find(f => input.includes(f.slice(0, -5)));
+  if (key) file = path.join(dir, key);
+  if (!file) { fs.writeFileSync(path.join(dir, 'unmatched-' + process.pid + '.txt'), input); process.exit(3); }
+  const script = JSON.parse(fs.readFileSync(file, 'utf8'));
   const c = process.argv.indexOf('-C'); const cwd = c > 0 ? process.argv[c + 1] : process.cwd();
   for (const argv of script.commands || []) {
     const r = spawnSync(argv[0], argv.slice(1), { cwd, encoding: 'utf8', env: process.env });
@@ -1072,15 +1096,144 @@ export function devSetup(o: Owner): void {
   o.mustCli('checklist_update', { storyId: id, itemId: 'CHK-002', status: 'done' }, { label: 'checklist_update CHK-002 done' });
 }
 
+export interface NextStepCallJson {
+  reason: string; command: string; cli: { command: string; payload: Record<string, unknown> };
+  placeholders?: string[]; placeholderHints?: Record<string, string>;
+}
+
 export interface NextStepJson {
   phase: string; kind: 'agent' | 'framework' | 'human'; reason: string; command: string | null; why: string;
   cli: { command: string; payload: Record<string, unknown> } | null; placeholders?: string[]; done?: boolean; wait?: boolean;
+  /** One-line description of each placeholder's expected content (Q6 (c)). */
+  placeholderHints?: Record<string, string>;
+  /** Several authoring commands the owner runs in one turn (Q6 (b), TEST). */
+  batch?: NextStepCallJson[];
 }
 
 const VERIFIED_PROMISES = [
   { docPath: 'docs/types/string.md', promise: 'Upper returns the upper-case form of a string.', status: 'verified', verifiedBy: 'go test -v ./strs -run TestUpper', evidence: '--- PASS: TestUpper' },
   { docPath: 'docs/types/string.md', promise: 'Reverse returns the string reversed by rune.', status: 'verified', verifiedBy: 'go test -v ./strs -run TestReverse', evidence: '--- PASS: TestReverse' },
 ];
+
+/** Which scripted findings round 1 reports (shared by the inline harness and the run-mode resolver). */
+interface ScriptMode { findingRound1: boolean; twoFindings?: boolean; lowFindings?: boolean }
+
+type ProviderScript = { final: string; commands?: string[][] };
+
+/** A REVIEW lane's scripted final proposal: round 1 test-coverage reports the mode's findings, every other lane passes. */
+function laneScript(worktree: string, storyId: string, lane: string, reviewRunId: string, firstRound: boolean, mode: ScriptMode): ProviderScript {
+  const envelope = mode.findingRound1 && firstRound && lane === 'proof-or-stop-review-test-coverage'
+    ? { conclusion: 'findings', note: 'Scripted behavior finding: empty-string edge case is untested.',
+      findings: mode.lowFindings ? [D_FINDING, NL_LOW_REPAIRED, NL_LOW_COSMETIC] : mode.twoFindings ? [D_FINDING, NF_FINDING] : [D_FINDING] }
+    : PASS_ENVELOPE(lane);
+  return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, ...envelope, ...readEvidenceFor(worktree, storyId) }) };
+}
+
+/** The inventory critic: dispositions every finding of the current epoch's round as one verified family. */
+function criticScript(worktree: string, storyId: string, reviewRunId: string): ProviderScript {
+  const store = new StoryStore(worktree);
+  const epoch = store.readReviewInventoryEpochs(storyId).epochs.at(-1)!;
+  const raw = store.readFindings(storyId).findings.filter(f => f.reviewRound === epoch.reviewRound);
+  const dispositions = raw.map(f => f.desc.startsWith('Upper ')
+    ? { finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'upper-empty-string', reason: 'The empty-string edge of Upper is untested; one verified family.' }
+    : f.desc.startsWith('Comment ')
+      ? { finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'reverse-comment-wording', reason: 'Cosmetic doc-comment wording of Reverse; one verified family.' }
+    : { finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'reverse-empty-string', reason: 'The empty-string edge of Reverse is untested; one verified family.' });
+  return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: MANAGED_INVENTORY_CRITIC_LANE, lane: MANAGED_INVENTORY_CRITIC_LANE,
+    reviewRunId, conclusion: 'pass', note: dispositions.length ? 'Scripted inventory critic: dispositioned every verified finding of this wave.' : 'Scripted inventory critic: every required lane passed with zero findings; nothing to disposition.',
+    inventoryCritic: { epochId: epoch.epochId, wave: epoch.waves.length + 1, findingDispositions: dispositions }, ...readEvidenceFor(worktree, storyId) }) };
+}
+
+function deliveryScript(storyId: string): ProviderScript {
+  const deliveryPayload = { storyId, docsPromises: VERIFIED_PROMISES,
+    realMachineTests: [
+      { featureId: 'CHK-001', transcript: 'go test -v ./strs -run TestUpper -> --- PASS: TestUpper' },
+      { featureId: 'CHK-002', transcript: 'go test -v ./strs -run TestReverse -> --- PASS: TestReverse' },
+    ],
+    closingSelfCheck: { hasRealMachineTest: true, hasEdgeCaseCoverage: true, hasUnresolvedTodos: false, summary: 'Both string helpers are implemented and verified by focused go tests.' },
+    agentId: DELIVERY };
+  return { commands: [[process.execPath, CLI, 'delivery_check_set', JSON.stringify(deliveryPayload)]], final: 'Delivery review complete; delivery_check_set recorded.' };
+}
+
+function repairScript(desc: string): ProviderScript {
+  const repair = repairFor(desc);
+  return { commands: [['/bin/sh', '-c', `printf '%s' '${repair.test.replace(/'/g, "'\\''")}' >> strs/strs_test.go && git add strs/strs_test.go && git -c user.name=${FINDING_REPAIR} commit -qm '${repair.subject}' && git log --format=%h -1`]],
+    final: `Added ${repair.name}; committed.` };
+}
+
+/**
+ * Run mode: `next --run` launches fully bound managed runs itself, so the
+ * harness cannot script the fake provider before the launch. The fake codex
+ * calls this (through resolver.json) with the run id it serves; the script is
+ * derived from the run's immutable spec and the Story state exactly as the
+ * inline harness derives it from the step `next` returned.
+ */
+function provideScript(root: string, storyId: string, scriptsDir: string, modeJson: string, runId: string): void {
+  const mode = JSON.parse(modeJson) as ScriptMode;
+  const spec = JSON.parse(readFileSync(join(root, '.proof-or-stop', 'runtime', 'host-runs', runId, 'spec.json'), 'utf8')) as
+    { agentType: string; reviewRunId?: string | null; managedDispatchTarget?: { findingId?: string } | null };
+  const worktree = join(root, '.worktrees', storyId);
+  const store = new StoryStore(worktree);
+  let script: ProviderScript;
+  if (spec.agentType === DELIVERY) script = deliveryScript(storyId);
+  else if (spec.agentType === FINDING_REPAIR) {
+    const findingId = spec.managedDispatchTarget?.findingId ?? '';
+    script = repairScript(store.readFindings(storyId).findings.find(f => f.id === findingId)?.desc ?? '');
+  } else if (spec.agentType === MANAGED_INVENTORY_CRITIC_LANE) script = criticScript(worktree, storyId, String(spec.reviewRunId));
+  else {
+    const runs = store.readReviewRuns(storyId).runs;
+    const run = runs.find(row => row.reviewRunId === spec.reviewRunId);
+    assert.ok(run, `resolver: ReviewRun ${String(spec.reviewRunId)} of run ${runId} not found`);
+    const firstRound = runs.find(row => row.reviewPurpose !== 'inventory-completeness')?.reviewRound;
+    script = laneScript(worktree, storyId, spec.agentType, run.reviewRunId, run.reviewRound === firstRound, mode);
+  }
+  mkdirSync(join(scriptsDir, 'byrun'), { recursive: true });
+  writeFileSync(join(scriptsDir, 'byrun', `${runId}.json`), JSON.stringify(script));
+}
+
+/** Managed finding-repair runs per finding id, from the immutable run specs (covers runs `next --run` launched). */
+function repairRunsOnDisk(runsRoot: string): Map<string, string[]> {
+  const byFinding = new Map<string, string[]>();
+  if (!existsSync(runsRoot)) return byFinding;
+  for (const runId of readdirSync(runsRoot)) {
+    try {
+      const spec = JSON.parse(readFileSync(join(runsRoot, runId, 'spec.json'), 'utf8')) as { agentType?: string; managedDispatchTarget?: { findingId?: string } | null };
+      const findingId = spec.agentType === FINDING_REPAIR ? spec.managedDispatchTarget?.findingId : undefined;
+      if (findingId) byFinding.set(findingId, [...(byFinding.get(findingId) ?? []), runId]);
+    } catch { /* not a managed run directory */ }
+  }
+  return byFinding;
+}
+
+/** Steps that launch or wait on a managed run (Q6: `next --run` executes these once the selection is bound). */
+const MANAGED_LAUNCH_REASONS = new Set(['review_lane_launch', 'inventory_critic_launch', 'delivery_review_launch', 'finding_repair', 'implement_item', 'scope_plan_review_launch']);
+
+/** The owner's authored values for the TEST/DEV authoring commands next proposes with placeholders. */
+function authorPayload(o: Owner, reason: string, payload: Record<string, unknown>, findingDesc: (findingId: string) => string): void {
+  switch (reason) {
+    case 'finding_resolve': {
+      const repair = repairFor(findingDesc(String(payload.findingId)));
+      payload.resolution = `repair ${git(o.worktree, ['log', '--format=%h', '-1', `--grep=${repair.subject.slice('test: '.length)}`])} adds ${repair.name}; go test ./strs -run ${repair.name} passes`;
+      break;
+    }
+    case 'dev_memory_finish_decision':
+      Object.assign(payload, { decision: 'no-reusable-lesson', reason: 'Harness fixture: trivial string helpers, no reusable lesson.' });
+      break;
+    case 'summary_set':
+      Object.assign(payload, { changes: 'strs/strs.go: Upper now upper-cases; new Reverse reverses by rune.', usage: 'strs.Upper("ab") == "AB"; strs.Reverse("héllo") == "olléh"',
+        expectedOutcome: 'go test -v ./strs prints --- PASS: TestUpper and --- PASS: TestReverse', actualTranscript: 'go test -v ./strs: --- PASS: TestUpper, --- PASS: TestReverse, ok',
+        outcomeDiff: 'no difference', limitations: 'none — fully covered', pitfalls: 'Harness fixture; no retries were needed.' });
+      break;
+    default:
+      break;
+  }
+}
+
+/** Q6 (c): every placeholder of a step (or of a batch command) carries a one-line description of its expected content. */
+function placeholderHintViolations(call: { reason: string; placeholders?: string[]; placeholderHints?: Record<string, string> }): string[] {
+  return (call.placeholders ?? []).filter(path => !(call.placeholderHints?.[path] ?? '').trim())
+    .map(path => `${call.reason}: placeholder ${path} has no one-line description (placeholderHints)`);
+}
 
 /**
  * Scenario N: from REVIEW entry the owner runs ONLY `proof-or-stop next
@@ -1089,6 +1242,13 @@ const VERIFIED_PROMISES = [
  * critic dispositions, delivery reviewer, finding repair) and the same authored
  * values (resolution, summary, finish decision). Every proposed command must
  * succeed: next must never propose a command its gate then refuses.
+ *
+ * Run mode (Q6, run 17): `next --run` also executes waits and every fully bound
+ * managed launch (host/model/effort of the owner's own earlier run, no
+ * placeholders), so after the first managed launch no launch or wait step may
+ * reach the owner; the fake provider then scripts each run from its spec
+ * (provideScript). TEST authoring (finish decision + summary) arrives as ONE
+ * step whose batch lists each exact command (Q6 (b)).
  */
 export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boolean; twoFindings?: boolean;
   /** Run 16: round 1 also reports two LOW findings; the owner repairs the first itself (managed finding-repair) when next says enter_review. */
@@ -1106,17 +1266,26 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   const statusOf = () => existsSync(o.worktree) ? execFileSync('git', ['status', '--porcelain', '--untracked-files=all'], { cwd: o.worktree, encoding: 'utf8' }) : '';
   let internalCalls = 0;
   let internalMs = 0;
+  // Owner turns: one per `next` call plus one per step the owner executes itself.
+  let ownerTurns = 0;
+  // Q6 contract violations (hard-asserted at the end; every one is reported).
+  const q6: string[] = [];
   // finding id -> managed finding-repair runs launched for it (as next proposed them).
   const repairRunsByFinding = new Map<string, string[]>();
   const findingDesc = (findingId: string): string => new StoryStore(o.worktree).readFindings(id).findings.find(f => f.id === findingId)?.desc ?? '';
   // A fake provider picks the first script whose key occurs in its prompt, and a
   // critic prompt names the lane ReviewRuns: retire each script once its run is terminal.
   const runsRoot = join(o.root, '.proof-or-stop', 'runtime', 'host-runs');
+  const managedRunCount = (): number => existsSync(runsRoot) ? readdirSync(runsRoot).filter(runId => existsSync(join(runsRoot, runId, 'spec.json'))).length : 0;
   const retireTerminalScripts = (): void => {
     for (const [runId, key] of scriptKeyByRun) {
       if (existsSync(join(runsRoot, runId, 'terminal.json'))) { o.unscript(key); scriptKeyByRun.delete(runId); }
     }
   };
+  if (mode.run) {
+    writeFileSync(join(o.scriptsDir, 'resolver.json'), JSON.stringify({ argv: [process.execPath, SELF, '--provide-script', o.root, id, o.scriptsDir,
+      JSON.stringify({ findingRound1: mode.findingRound1, twoFindings: mode.twoFindings ?? false, lowFindings: mode.lowFindings ?? false })] }));
+  }
   let liveSmokeProposals = 0;
   for (let iteration = 0; iteration < 160; iteration += 1) {
     retireTerminalScripts();
@@ -1125,6 +1294,7 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
     const quiet = scriptKeyByRun.size === 0;
     const before = statusOf();
     const asked = o.cli('next', { storyId: id, json: true, ...(mode.run ? { run: true } : {}) }, { label: mode.run ? 'next --run' : 'next' });
+    ownerTurns += 1;
     const parsed = asked.status === 0 ? parseJson(asked.stdout) : null;
     const next = (mode.run ? parsed?.next : parsed) as NextStepJson | undefined;
     assert.ok(next && typeof next.kind === 'string', `[${o.scenario}] next --storyId=${id} --json did not return a step:\n${asked.out.slice(-2000)}`);
@@ -1136,8 +1306,18 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
         assert.equal(row.exit, 0, `[${o.scenario}] next --run executed a framework step its gate refused: ${row.command}\n${row.tail}`);
       }
       assert.equal(parsed!.stopped ?? null, null, `[${o.scenario}] next --run stopped: ${String(parsed!.stopped)}`);
+      // Q6 (a): once the owner launched one managed run (its host/model/effort is
+      // bound), every further launch and every wait is run by next --run itself.
+      if (next.wait) q6.push(`next --run returned the wait ${next.reason} to the owner (${next.why.slice(0, 120)})`);
+      if (MANAGED_LAUNCH_REASONS.has(next.reason) && managedRunCount() > 0) {
+        q6.push(`next --run returned the fully bound managed launch ${next.reason} to the owner after a managed run already bound the selection`);
+      }
     } else if (quiet) {
       assert.equal(statusOf(), before, `[${o.scenario}] next must be read-only; git status changed:\n${before}\n---\n${statusOf()}`);
+    }
+    q6.push(...placeholderHintViolations(next), ...(next.batch ?? []).flatMap(call => placeholderHintViolations(call)));
+    if (next.reason === 'dev_memory_finish_decision' || next.reason === 'summary_set') {
+      q6.push(`TEST authoring ${next.reason} surfaced as its own step; the finish decision and the summary must arrive as one step listing each command (Q6 (b))`);
     }
     onStep?.(next, quiet);
     if (next.done) break;
@@ -1152,44 +1332,18 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
         firstRound ??= round;
         const lane = String(payload.lane);
         const reviewRunId = String(payload.reviewRunId);
-        const envelope = mode.findingRound1 && round === firstRound && lane === 'proof-or-stop-review-test-coverage'
-          ? { conclusion: 'findings', note: 'Scripted behavior finding: empty-string edge case is untested.',
-            findings: mode.lowFindings ? [D_FINDING, NL_LOW_REPAIRED, NL_LOW_COSMETIC] : mode.twoFindings ? [D_FINDING, NF_FINDING] : [D_FINDING] }
-          : PASS_ENVELOPE(lane);
-        o.script(reviewRunId, { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId: id, providerAgent: lane, lane, reviewRunId, ...envelope, ...o.readEvidence() }) });
+        o.script(reviewRunId, laneScript(o.worktree, id, lane, reviewRunId, round === firstRound, mode));
         break;
       }
-      case 'inventory_critic_launch': {
-        const epoch = new StoryStore(o.worktree).readReviewInventoryEpochs(id).epochs.at(-1)!;
-        const raw = new StoryStore(o.worktree).readFindings(id).findings.filter(f => f.reviewRound === epoch.reviewRound);
-        const dispositions = raw.map(f => f.desc.startsWith('Upper ')
-          ? { finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'upper-empty-string', reason: 'The empty-string edge of Upper is untested; one verified family.' }
-          : f.desc.startsWith('Comment ')
-            ? { finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'reverse-comment-wording', reason: 'Cosmetic doc-comment wording of Reverse; one verified family.' }
-          : { finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'reverse-empty-string', reason: 'The empty-string edge of Reverse is untested; one verified family.' });
-        const reviewRunId = String(payload.reviewRunId);
-        o.script(reviewRunId, { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId: id, providerAgent: MANAGED_INVENTORY_CRITIC_LANE, lane: MANAGED_INVENTORY_CRITIC_LANE,
-          reviewRunId, conclusion: 'pass', note: dispositions.length ? 'Scripted inventory critic: dispositioned every verified finding of this wave.' : 'Scripted inventory critic: every required lane passed with zero findings; nothing to disposition.',
-          inventoryCritic: { epochId: epoch.epochId, wave: epoch.waves.length + 1, findingDispositions: dispositions }, ...o.readEvidence() }) });
+      case 'inventory_critic_launch':
+        o.script(String(payload.reviewRunId), criticScript(o.worktree, id, String(payload.reviewRunId)));
         break;
-      }
-      case 'delivery_review_launch': {
-        const deliveryPayload = { storyId: id, docsPromises: VERIFIED_PROMISES,
-          realMachineTests: [
-            { featureId: 'CHK-001', transcript: 'go test -v ./strs -run TestUpper -> --- PASS: TestUpper' },
-            { featureId: 'CHK-002', transcript: 'go test -v ./strs -run TestReverse -> --- PASS: TestReverse' },
-          ],
-          closingSelfCheck: { hasRealMachineTest: true, hasEdgeCaseCoverage: true, hasUnresolvedTodos: false, summary: 'Both string helpers are implemented and verified by focused go tests.' },
-          agentId: DELIVERY };
-        o.script(DELIVERY, { commands: [[process.execPath, CLI, 'delivery_check_set', JSON.stringify(deliveryPayload)]], final: 'Delivery review complete; delivery_check_set recorded.' });
+      case 'delivery_review_launch':
+        o.script(DELIVERY, deliveryScript(id));
         break;
-      }
-      case 'finding_repair': {
-        const repair = repairFor(findingDesc(String(payload.findingId)));
-        o.script(FINDING_REPAIR, { commands: [['/bin/sh', '-c', `printf '%s' '${repair.test.replace(/'/g, "'\\''")}' >> strs/strs_test.go && git add strs/strs_test.go && git -c user.name=${FINDING_REPAIR} commit -qm '${repair.subject}' && git log --format=%h -1`]],
-          final: `Added ${repair.name}; committed.` });
+      case 'finding_repair':
+        o.script(FINDING_REPAIR, repairScript(findingDesc(String(payload.findingId))));
         break;
-      }
       case 'enter_review': {
         // Run 16: next proposed enter_review with a verified LOW finding open
         // (advisory); the owner repaired it anyway with a managed finding-repair.
@@ -1203,9 +1357,7 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
           mode.violations?.push(`enter_review with repaired ${repairedLowOpen.id} (${repairedLowOpen.severity}) still open: next must propose its finding_resolve first`);
         }
         if (lowOpen && !repairRunsByFinding.has(lowOpen.id)) {
-          const repair = repairFor(lowOpen.desc);
-          o.script(FINDING_REPAIR, { commands: [['/bin/sh', '-c', `printf '%s' '${repair.test.replace(/'/g, "'\\''")}' >> strs/strs_test.go && git add strs/strs_test.go && git -c user.name=${FINDING_REPAIR} commit -qm '${repair.subject}' && git log --format=%h -1`]],
-            final: `Added ${repair.name}; committed.` });
+          o.script(FINDING_REPAIR, repairScript(lowOpen.desc));
           const launched = o.mustCli('host_run', { host: 'codex', model: MODEL.model, reasoningEffort: MODEL.reasoningEffort, storyId: id,
             agentType: FINDING_REPAIR, findingId: lowOpen.id, managedDispatch: true, detach: true, json: true }, { label: 'host_run finding-repair (owner, low)' });
           const runId = String((parseJson(launched.stdout)?.run as Record<string, unknown>).runId);
@@ -1214,6 +1366,7 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
           assert.equal(terminal.state, 'completed', `[${o.scenario}] owner low finding-repair ${terminal.state} (${terminal.reason})`);
           repairRunsByFinding.set(lowOpen.id, [runId]);
           reasons.push(`owner_repair_low:${lowOpen.id}`);
+          ownerTurns += 2;
           continue;
         }
         break;
@@ -1233,42 +1386,46 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
       case 'finding_resolve': {
         const findingId = String(payload.findingId);
         // Run 14: next must never propose closing a finding no repair bound to it produced.
-        const repaired = (repairRunsByFinding.get(findingId) ?? []).some(runId => {
+        const runIds = [...new Set([...(repairRunsByFinding.get(findingId) ?? []), ...(repairRunsOnDisk(runsRoot).get(findingId) ?? [])])];
+        const repaired = runIds.some(runId => {
           const terminal = join(runsRoot, runId, 'terminal.json');
           return existsSync(terminal) && (JSON.parse(readFileSync(terminal, 'utf8')) as { state?: string }).state === 'completed';
         });
         assert.ok(repaired, `[${o.scenario}] next proposed finding_resolve for ${findingId} although no managed finding-repair run bound to it completed (runs per finding: ${JSON.stringify([...repairRunsByFinding])}); why: ${next.why}`);
-        const repair = repairFor(findingDesc(findingId));
-        payload.resolution = `repair ${git(o.worktree, ['log', '--format=%h', '-1', `--grep=${repair.subject.slice('test: '.length)}`])} adds ${repair.name}; go test ./strs -run ${repair.name} passes`;
+        authorPayload(o, next.reason, payload, findingDesc);
         break;
       }
-      case 'dev_memory_finish_decision':
-        Object.assign(payload, { decision: 'no-reusable-lesson', reason: 'Harness fixture: trivial string helpers, no reusable lesson.' });
-        break;
-      case 'summary_set':
-        Object.assign(payload, { changes: 'strs/strs.go: Upper now upper-cases; new Reverse reverses by rune.', usage: 'strs.Upper("ab") == "AB"; strs.Reverse("héllo") == "olléh"',
-          expectedOutcome: 'go test -v ./strs prints --- PASS: TestUpper and --- PASS: TestReverse', actualTranscript: 'go test -v ./strs: --- PASS: TestUpper, --- PASS: TestReverse, ok',
-          outcomeDiff: 'no difference', limitations: 'none — fully covered', pitfalls: 'Harness fixture; no retries were needed.' });
-        break;
       default:
+        authorPayload(o, next.reason, payload, findingDesc);
         break;
     }
-    const unfilled = Object.entries(payload).filter(([, value]) => typeof value === 'string' && /^<.*>$/.test(value)).map(([key]) => key);
-    assert.deepEqual(unfilled, [], `[${o.scenario}] ${next.reason}: harness has no value for placeholder(s) ${unfilled.join(', ')}`);
-    const ran = o.cli(next.cli.command, payload, { label: `  ${next.kind[0]}:${next.reason}`.slice(0, 44) });
-    assert.equal(ran.status, 0, `[${o.scenario}] next proposed ${next.command} (${next.reason}) and its gate refused it:\n${ran.out.slice(-2500)}`);
-    const launched = parseJson(ran.stdout)?.run as Record<string, unknown> | undefined;
-    if (next.cli.command === 'host_run' && launched?.runId) {
-      scriptKeyByRun.set(String(launched.runId), next.reason === 'delivery_review_launch' ? DELIVERY : next.reason === 'finding_repair' ? FINDING_REPAIR : String(payload.reviewRunId));
-      if (next.reason === 'finding_repair') {
-        const findingId = String(payload.findingId);
-        repairRunsByFinding.set(findingId, [...(repairRunsByFinding.get(findingId) ?? []), String(launched.runId)]);
+    // Q6 (b): a batch is the owner's one turn of authoring commands, run in order.
+    const calls = next.batch?.length
+      ? next.batch.map(call => { const filled = { ...call.cli.payload }; authorPayload(o, call.reason, filled, findingDesc); return { reason: call.reason, command: call.cli.command, payload: filled, line: call.command }; })
+      : [{ reason: next.reason, command: next.cli.command, payload, line: next.command ?? '' }];
+    ownerTurns += 1;
+    for (const call of calls) {
+      const unfilled = Object.entries(call.payload).filter(([, value]) => typeof value === 'string' && /^<.*>$/.test(value)).map(([key]) => key);
+      assert.deepEqual(unfilled, [], `[${o.scenario}] ${call.reason}: harness has no value for placeholder(s) ${unfilled.join(', ')}`);
+      const ran = o.cli(call.command, call.payload, { label: `  ${next.kind[0]}:${call.reason}`.slice(0, 44) });
+      assert.equal(ran.status, 0, `[${o.scenario}] next proposed ${call.line} (${call.reason}) and its gate refused it:\n${ran.out.slice(-2500)}`);
+      const launched = parseJson(ran.stdout)?.run as Record<string, unknown> | undefined;
+      if (call.command === 'host_run' && launched?.runId) {
+        scriptKeyByRun.set(String(launched.runId), call.reason === 'delivery_review_launch' ? DELIVERY : call.reason === 'finding_repair' ? FINDING_REPAIR : String(call.payload.reviewRunId));
+        if (call.reason === 'finding_repair') {
+          const findingId = String(call.payload.findingId);
+          repairRunsByFinding.set(findingId, [...(repairRunsByFinding.get(findingId) ?? []), String(launched.runId)]);
+        }
       }
     }
   }
   assert.equal(new StoryStore(o.root).readStory(id).phase, 'DONE', `[${o.scenario}] next never reached DONE; steps: ${reasons.join(' > ')}`);
   lines.push(`next-driven steps (${reasons.length}): ${reasons.join(' > ')}`);
+  lines.push(`owner turns from REVIEW entry: ${ownerTurns} (${reasons.filter(row => !row.startsWith('run:')).length} owner-executed steps)`);
   if (mode.run) lines.push(`framework steps executed inside next --run: ${internalCalls} (${(internalMs / 1000).toFixed(1)} s, included in the next --run call times)`);
+  const unique = [...new Set(q6)];
+  if (mode.violations) mode.violations.push(...unique);
+  else assert.deepEqual(unique, [], `[${o.scenario}] Q6 next-driver contract violations:\n- ${unique.join('\n- ')}`);
 }
 
 /**
@@ -1497,4 +1654,8 @@ async function main(): Promise<void> {
 }
 
 // Importable by tasks/next-driver-cost-smoke.ts, which reuses the owner fixture and the next-driven flow.
-if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) await main();
+if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  // (internal) run-mode fake-provider resolver: --provide-script <root> <storyId> <scriptsDir> <modeJson> <runId>
+  if (process.argv[2] === '--provide-script') provideScript(process.argv[3]!, process.argv[4]!, process.argv[5]!, process.argv[6]!, process.argv[7]!);
+  else await main();
+}
