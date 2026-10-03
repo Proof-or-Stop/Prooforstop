@@ -39,6 +39,7 @@ import {
 import { assertNoReviewGateVerificationIntent } from '../core/review-gate-verification-intent.js';
 import { captureStoryIntegrationTarget } from '../core/story-integration-target.js';
 import { ensureRuntimeInfoExclude } from '../core/runtime-info-exclude.js';
+import { ensureGitCommitIdentityNotice } from '../core/git-commit-identity.js';
 import {
   consumeStagedStoryRequest,
   readStoryRequest,
@@ -573,6 +574,9 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           // worktree) so a project whose tracked .gitignore lacks the runtime
           // block never sees framework-written files in git status.
           ensureRuntimeInfoExclude(repoRoot);
+          // Run 14: a fresh container has no git identity; PoS's own commits
+          // (INIT_CHECK bootstrap, metadata auto-commits) need one.
+          ensureGitCommitIdentityNotice(repoRoot);
           // storyRel must be relative to the RESOLVED repo root so the scoped
           // `git add` works whether or not the metadata root is the git root.
           // Canonicalize both sides (realpath) so a /var → /private/var symlink

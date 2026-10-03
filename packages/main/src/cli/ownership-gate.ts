@@ -19,6 +19,7 @@ import { isManagedImplementerCompletionPayload, managedHostRunStoryIdForOwnershi
 import { readBrandEnv } from '../core/brand-env.js';
 import { resolveRegisteredAgentActor } from '../core/agent-dispatch-registry.js';
 import { agentRoleIdsEqual } from '../core/agent-role-identity.js';
+import { mergeJsonPayloadAndFlags, splitJsonPayload } from './command-args.js';
 
 export interface ActiveStoryForOwnershipGate {
   storyId: string;
@@ -289,15 +290,16 @@ export function resolveEffectiveOwnershipClass(
 
 function rawRuntimeAdmissionArgs(rawArgs: readonly string[]): Record<string, unknown> | null {
   if (rawArgs.length === 0) return {};
-  if (rawArgs.length === 1 && rawArgs[0].startsWith('{')) {
-    try {
-      const parsed = JSON.parse(rawArgs[0]);
-      return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
-        ? parsed as Record<string, unknown>
-        : null;
-    } catch {
-      return null;
-    }
+  // Same forms as the CLI engine (cli/command-args.ts): a JSON payload may be
+  // followed by flags; the merged view decides admission. Malformed or
+  // conflicting input stays null (fail closed).
+  let json: ReturnType<typeof splitJsonPayload>;
+  try { json = splitJsonPayload(rawArgs); } catch { return null; }
+  if (json) {
+    if (json.rest.length === 0) return json.payload;
+    const flags = rawRuntimeAdmissionArgs(json.rest);
+    if (!flags) return null;
+    try { return mergeJsonPayloadAndFlags(json.payload, flags); } catch { return null; }
   }
 
   const parsed: Record<string, unknown> = {};

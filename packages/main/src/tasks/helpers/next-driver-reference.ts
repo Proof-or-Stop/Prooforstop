@@ -23,7 +23,7 @@ import { loadConfig } from '../../core/config.js';
 import { resolveWorkflowPolicy } from '../../core/workflow-policy.js';
 import { resolveGitCwd } from '../../core/story-signed-workspace-resolution.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../../core/evidence-freshness.js';
-import { evaluateReviewVerdict, getGuardFailureReason } from '../../core/machine.js';
+import { evaluateDevMemoryPreflightGate, evaluateReviewVerdict, getGuardFailureReason } from '../../core/machine.js';
 import { isTerminalChecklistStatus } from '../../core/checklist-status.js';
 import { unclosedBlockingFindings, resolveEffectiveBlockingSeverities, FINDING_RESOLUTION_PLACEHOLDER } from '../../core/finding-closure.js';
 import {
@@ -49,6 +49,7 @@ import { checklistHasFileDeclarations } from '../../handlers/phase-gates.js';
 import { verifyCurrentReviewerDispatchBinding } from '../../core/review-run.js';
 import { managedHostRunsRoot, readManagedHostRunProjection, managedHostRunReceipt } from '../../core/managed-host-run.js';
 import { managedFindingRepairState } from '../../handlers/next-driver.js';
+import { singleHostAssuranceReady } from '../../handlers/quorum-submit.js';
 import { hasPersistedManagedReceiptEvidence } from '../../handlers/managed-review-evidence.js';
 import { MANAGED_INVENTORY_CRITIC_LANE } from '../../core/managed-inventory-critic.js';
 import { QUALIFIED_MANAGED_REVIEWER_DEFAULTS } from '../../core/managed-reviewer-qualification.js';
@@ -601,6 +602,13 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
 
   function guidanceStep(base: { storyId: string; phase: string }, guidance: ReviewAssuranceGuidance, row: string): NextStep | null {
     const { storyId } = base;
+    // Deliberate change (run 14 single-host lab): one framework step on a single host.
+    const single = singleHostAssuranceReady(ctx, storyId);
+    if (single.ok) {
+      return step(base, 'framework', `${row}_single_host_assurance`, { command: 'quorum_submit', payload: { storyId, singleHost: true } },
+        `${row}: ${guidance.reason} On a single host one step records it: probe review hosts once, the single-host-environment fallback when needed and proven, and the missing single-host rounds from the current reviewer passes of every required lane.`,
+        `${row} guidance + singleHostAssuranceNeed (escalation/floor evaluators)`);
+    }
     const submit = guidance.legalWriterPaths.reviewerHost.find(recipe => recipe.command.includes(' autopilot_review_submit '));
     if (submit) {
       const line = submit.command
@@ -710,13 +718,21 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
     const story = ctx.store.readStory(storyId);
     const base = { storyId, phase: story.phase };
     switch (story.phase) {
+      case 'PLAN':
+        // Deliberate change (run 14 single-host lab): PLAN names the DEV-entry steps.
+        if (!evaluateDevMemoryPreflightGate(storyId, ctx.store)) {
+          return step(base, 'agent', 'dev_memory_preflight_ack', { command: 'dev_memory_preflight_ack', payload: { storyId } },
+            'The DEV-entry gate refuses without the dev-memory preflight acknowledgement [missing_dev_memory_preflight_ack]. Run it now and read the lessons it prints before planning the implementation.',
+            'evaluateDevMemoryPreflightGate (DEV-entry gate)');
+        }
+        return guardStep(base, 'DEV', 'enter_dev', 'PLAN is complete: the DEV-entry gate admits the Story.', 'getGuardFailureReason(DEV)');
       case 'DEV': return devNext(base);
       case 'REVIEW': return reviewNext(base);
       case 'TEST': return testNext(base);
       case 'DONE': return step(base, 'human', 'story_done', null, `Story ${storyId} is DONE; nothing is left in its lifecycle.`, 'story.phase', { done: true });
       default:
         return step(base, 'agent', 'phase_outside_driver', { command: 'session_brief', payload: { concise: true } },
-          `next --storyId drives DEV→DONE; ${story.phase} is authored work (INIT/PLAN): follow session_brief.`, 'story.phase');
+          `next --storyId drives PLAN→DONE; ${story.phase} is authored work (INIT): follow session_brief.`, 'story.phase');
     }
   }
 

@@ -7,7 +7,7 @@ import { execFileSync } from 'node:child_process';
 import { StoryStore } from '../dist/core/store.js';
 import { createHostRunHandlers } from '../dist/handlers/host-run.js';
 import { createDeliveryCheckHandlers } from '../dist/handlers/delivery-check.js';
-import { runManagedHostRunWorker, verifyManagedDispatchDelivery, readManagedHostRunProjection, managedHostRunReceipt, managedDispatchOutputValidation } from '../dist/core/managed-host-run.js';
+import { runManagedHostRunWorker, verifyManagedDispatchDelivery, readManagedHostRunProjection, managedHostRunReceipt, managedDispatchOutputValidation, managedHostRunsRoot } from '../dist/core/managed-host-run.js';
 import { evaluateDeliveryCheckFreshness, signDeliveryCheck } from '../dist/core/delivery-check-hash.js';
 import { isValidationTransportEnvKey } from '../dist/core/validation-command-environment.js';
 import { resetSessionIdForTest } from '../dist/core/owner-session.js';
@@ -72,7 +72,10 @@ try {
     '#!/bin/sh', 'set -eu', 'cat >/dev/null',
     'if '+command+quote(JSON.stringify(invalid))+' >'+quote(join(root,'invalid.log'))+' 2>&1; then exit 41; fi',
     command+quote(JSON.stringify(payload)),
-    'if '+command+quote(JSON.stringify(payload))+' >'+quote(join(root,'duplicate.log'))+' 2>&1; then exit 42; fi',
+    // Run 14: the same live run may re-seal its own delivery-check (its
+    // earlier write consumed the invocation and moved HEAD by its own metadata
+    // commit); a different run is still refused (forged case below).
+    'if ! '+command+quote(JSON.stringify(payload))+' >'+quote(join(root,'duplicate.log'))+' 2>&1; then exit 42; fi',
     `printf '%s\\n' '{"type":"turn.completed","usage":{}}'`, '',
   ].join('\n'));
   chmodSync(provider,0o755);process.env.PATH=bin+':'+priorPath;process.env.PROOF_OR_STOP_PROJECT_ROOT=root;
@@ -82,6 +85,8 @@ try {
   assert.equal(delivered.exitCode,0,JSON.stringify({delivered,projection:readManagedHostRunProjection(root,delivered.runId)}));
   const data=store.readDeliveryCheck(storyId);assert.equal(data.managedDeliveryRunId,delivered.runId);assert.equal(data.nativeEvidenceBinding,undefined);
   assert.match(readFileSync(join(root,'invalid.log'),'utf8'),/closingSelfCheck.summary/);
+  assert.match(readFileSync(join(root,'duplicate.log'),'utf8'),/delivery_check_set done/,'the same live run re-seals its delivery-check');
+  assert.match(readFileSync(join(managedHostRunsRoot(root),delivered.runId,'events.jsonl'),'utf8'),/managed_dispatch_invocation_resealed/);
   assert.deepEqual(verifyManagedDispatchDelivery({root,runId:delivered.runId,storyId,agentType:'proof-or-stop-review-delivery'}),{valid:true});
   assert.equal(evaluateDeliveryCheckFreshness(storyId,store,root).ok,true,'Actual CLI delivery must pass the shared DONE consumer');
   const sealedBytes=readFileSync(store.storyFilePath(storyId,'delivery-check.json'));

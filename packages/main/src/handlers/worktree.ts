@@ -23,6 +23,7 @@ import { withReentrantMainWriteLock } from '../core/main-write-lock.js';
 import { refContainsStoryMetadata } from '../core/safe-init-commit.js';
 import { matchesRuntimeCommitSubject } from '../core/auto-commit-metadata.js';
 import { ensureRuntimeInfoExclude } from '../core/runtime-info-exclude.js';
+import { ensureGitCommitIdentityNotice } from '../core/git-commit-identity.js';
 // B-d877 CHK-001: the canonical single door for any lifecycle phase-write.
 // dev_finish / dev_merge delegate their phase advance here so the review round
 // is minted, the phase_transition process-event is appended, and every gate /
@@ -995,6 +996,8 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         }
       } else {
         try {
+          // Run 14: no git identity in a fresh container made this commit fail.
+          ensureGitCommitIdentityNotice(repoRoot);
           createScopedStoryBootstrapCommit({ storyId: args.storyId, branch, storyRel, repoRoot });
         } catch (e: any) {
           story.worktree = undefined;
