@@ -2,8 +2,7 @@ import { isHostRunBudgetRefusal } from './host-run-budget.js';
 import { runWithProviderCallBudget } from './provider-call-budget.js';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
+import { runtimeDistPath } from './runtime-layout.js';
 import type { StoryStore } from './store.js';
 import {
   buildAutopilotRun,
@@ -193,7 +192,7 @@ function excerpt(value: string): string {
 }
 
 function cliPath(): string {
-  return join(dirname(fileURLToPath(import.meta.url)), '..', 'cli.js');
+  return runtimeDistPath('cli.js');
 }
 
 function commandForStep(root: string, step: AutopilotStep, plan: AutopilotRunResult): AutopilotCommandRequest | null {

@@ -3,8 +3,11 @@
  * validation command's semantics. These values routinely change when the same
  * command is reached through a direct CLI, wrapper, or independent reviewer.
  *
- * Keep this list deliberately narrow. All other ambient values (including
- * PATH, NODE_OPTIONS, CI, and locale) remain behavior-affecting inputs.
+ * Keep this list deliberately narrow: it strips values from the SPAWNED child
+ * environment too. What a receipt's environment IDENTITY binds is the narrower
+ * projection {@link validationEnvironmentIdentityEntries} (declared env,
+ * command-named variables, PATH as toolchain resolution, behavior-affecting
+ * families) -- see VALIDATION_ENVIRONMENT_IDENTITY_SCHEMA.
  */
 export const VALIDATION_TRANSPORT_ENV_KEY_LIST = [
   // Host/session/role identity controls Proof-or-Stop ownership and audit
@@ -159,10 +162,215 @@ export function effectiveValidationCommandEnvironment(
     }
   }
   effective[canonicalKey('PWD')] = cwd;
+  for (const [key, value] of Object.entries(projectValidationEnvironment(cwd))) effective[canonicalKey(key)] = value;
   if (overlay) {
     for (const [key, value] of Object.entries(overlay)) effective[canonicalKey(key)] = value;
   }
   return effective;
+}
+
+/**
+ * Domain of the environment IDENTITY (what receipts bind), as opposed to the
+ * environment a child is spawned with. v1 was "every ambient variable minus the
+ * transport strip-list"; v2 is the projection below. The marker is digested
+ * with the entries, so a receipt recorded under v1 can never compare equal to a
+ * v2 identity: it goes stale exactly once and is re-earned by one real run,
+ * instead of being silently accepted.
+ */
+export const VALIDATION_ENVIRONMENT_IDENTITY_SCHEMA = 'proof-or-stop.validation-environment-identity.v2';
+
+/**
+ * Why a projection and not "the whole ambient environment":
+ *
+ * A receipt says "this command, run with these inputs, passed". Its
+ * environment identity must change whenever a variable could change the
+ * command's result, and must NOT change when only the owner's shell or terminal
+ * differs; otherwise the same owner (or an independent reviewer) re-running
+ * from another window, tmux, ssh or a wrapper sees every receipt stale
+ * (COLUMNS, TERM_PROGRAM, TMUX_PANE, SSH_TTY, a wrapper's trace id, one extra
+ * PATH entry...). A denylist of observed names cannot close that set, because
+ * every terminal/wrapper invents new ones. So the identity is an ALLOWLIST of
+ * the inputs that can change behavior:
+ *
+ *   (a) everything the project or command DECLARES: validate.env of the
+ *       nearest config and the command's own env overlay -- the documented way
+ *       to make any other variable part of a receipt;
+ *   (b) every variable the pinned command text NAMES (`$FOO`,
+ *       `process.env.FOO`, `os.environ["FOO"]` all contain the word FOO);
+ *   (c) PATH as TOOLCHAIN RESOLUTION, not as a string: which file each
+ *       program the command may run resolves to -- its bare-name arguments
+ *       (with size and mtime) and the common toolchain entry points below
+ *       (resolved path). A PATH entry that shadows nothing leaves this
+ *       unchanged; one that resolves a different node/go/git changes it. The
+ *       command's own executable is left out here because the caller already
+ *       content-hashes it (verification toolchainDigest / validate
+ *       executableDigest), so its change is reported as toolchain drift;
+ *   (d) the variable families toolchains, runtimes and libc actually read
+ *       (locale, TZ, HOME/TMPDIR, NODE_*, GO*, PYTHON*, CARGO_*, GIT_*,
+ *       LD_/DYLD_ preloads, proxies, CI, color forcing, Proof-or-Stop's own
+ *       PROOF_OR_STOP_* configuration, ...), plus PWD (always the canonical cwd).
+ *
+ * A variable outside (a)-(d) is not something another shell reproduces either,
+ * so binding it only makes receipts unverifiable; a project whose tests really
+ * read such a variable declares it in validate.env (a) and it binds.
+ *
+ * Inside the (d) families an explicit denylist removes shell/terminal/launcher
+ * bookkeeping (CONDA_SHLVL, GIT_ASKPASS injected per editor session,
+ * NODE_CHANNEL_FD, ...); the transport strip-list above is already gone from
+ * the effective environment. Terminal variables (TERM*, COLUMNS, LINES, TMUX*,
+ * SSH_*, ITERM_*, SHLVL, _, OLDPWD) are outside every family by construction.
+ * Neither the denylist nor the families ever override (a) or (b): a command
+ * that names COLUMNS binds COLUMNS.
+ */
+const BEHAVIOR_ENV_EXACT = [
+  'ALL_PROXY', 'CC', 'CFLAGS', 'CI', 'COMSPEC', 'CONTINUOUS_INTEGRATION', 'CPPFLAGS', 'CXX', 'CXXFLAGS',
+  'DEBUG', 'FORCE_COLOR', 'HOME', 'HTTPS_PROXY', 'HTTP_PROXY', 'LANG', 'LANGUAGE', 'LDFLAGS', 'MAKEFLAGS',
+  'NO_COLOR', 'NO_PROXY', 'PATHEXT', 'PKG_CONFIG_PATH', 'REQUESTS_CA_BUNDLE', 'SYSTEMROOT', 'TEMP', 'TMP',
+  'TMPDIR', 'TZ', 'VIRTUAL_ENV', 'WINDIR', 'XDG_CACHE_HOME', 'XDG_CONFIG_DIRS', 'XDG_CONFIG_HOME',
+  'XDG_DATA_DIRS', 'XDG_DATA_HOME', '_JAVA_OPTIONS', 'all_proxy', 'http_proxy', 'https_proxy', 'no_proxy',
+];
+const BEHAVIOR_ENV_PREFIXES = [
+  'BUNDLE_', 'BUN_', 'CARGO_', 'CGO_', 'CONDA_', 'DENO_', 'DOTNET_', 'DYLD_', 'GEM_', 'GIT_', 'GO', 'GRADLE_',
+  'JAVA_', 'JDK_', 'JEST_', 'LC_', 'LD_', 'MAVEN_', 'NODE_', 'NPM_CONFIG_', 'NUGET_', 'PERL', 'PHP', 'PIP_',
+  'PLAYWRIGHT_', 'PNPM_', 'POETRY_', 'PROOF_OR_STOP_', 'PUPPETEER_', 'PYTEST_', 'PYTHON', 'RUBY', 'RUST',
+  'SSL_CERT_', 'TS_NODE_', 'UV_', 'VITEST', 'YARN_', 'npm_config_',
+];
+/** Shell/terminal/launcher bookkeeping inside the allowlisted families: never a command input. */
+const BOOKKEEPING_ENV_EXACT = [
+  'CONDA_PROMPT_MODIFIER', 'CONDA_SHLVL', 'GIT_ASKPASS', 'GIT_PAGER', 'NODE_CHANNEL_FD',
+  'NODE_CHANNEL_SERIALIZATION_MODE', 'NODE_UNIQUE_ID',
+];
+const BOOKKEEPING_ENV_PREFIXES = ['GIT_PS1_', 'VSCODE_GIT_'];
+/**
+ * Entry points a command commonly runs indirectly (npm scripts, go test, make):
+ * which FILE each resolves to is part of the identity even when the command does
+ * not name it. Bound by resolved path only, so a PATH entry that shadows one of
+ * them stales receipts, while rewriting an unnamed tool in place does not stale
+ * every receipt of every other command.
+ */
+const TOOLCHAIN_PROBES = [
+  'bash', 'bun', 'bundle', 'cargo', 'cc', 'clang', 'cmake', 'deno', 'gcc', 'git', 'go', 'gofmt', 'gradle',
+  'java', 'javac', 'make', 'mvn', 'node', 'npm', 'npx', 'pip', 'pip3', 'pnpm', 'pytest', 'python', 'python3',
+  'ruby', 'rustc', 'sh', 'tsc', 'uv', 'yarn',
+];
+
+function matchesEnvFamily(key: string, exact: readonly string[], prefixes: readonly string[], windows: boolean): boolean {
+  if (!windows) return exact.includes(key) || prefixes.some(prefix => key.startsWith(prefix));
+  const upper = key.toUpperCase();
+  return exact.some(name => name.toUpperCase() === upper) || prefixes.some(prefix => upper.startsWith(prefix.toUpperCase()));
+}
+
+export function isBehaviorAffectingEnvKey(key: string, platform: NodeJS.Platform = process.platform): boolean {
+  const windows = platform === 'win32';
+  return !matchesEnvFamily(key, BOOKKEEPING_ENV_EXACT, BOOKKEEPING_ENV_PREFIXES, windows)
+    && matchesEnvFamily(key, BEHAVIOR_ENV_EXACT, BEHAVIOR_ENV_PREFIXES, windows);
+}
+
+// PATH directory listings, revalidated by the directory's own mtime (adding,
+// removing or renaming an entry updates it). One identity costs one stat per
+// PATH directory plus one realpath/stat per probe that is actually present.
+const pathDirectoryEntries = new Map<string, { mtimeMs: number; names: Set<string> }>();
+function pathDirectoryNames(dir: string, windows: boolean): Set<string> | null {
+  try {
+    const mtimeMs = statSync(dir).mtimeMs;
+    let cached = pathDirectoryEntries.get(dir);
+    if (!cached || cached.mtimeMs !== mtimeMs) {
+      const names = readdirSync(dir);
+      cached = { mtimeMs, names: new Set(windows ? names.map(entry => entry.toLowerCase()) : names) };
+      pathDirectoryEntries.set(dir, cached);
+    }
+    return cached.names;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The file one executable name resolves to over PATH (first executable regular
+ * file wins); null when absent. `withFileIdentity` adds size and mtime, so an
+ * in-place upgrade of a program the command names is seen too.
+ */
+function resolveToolchainProbe(
+  name: string,
+  directories: ReadonlyArray<readonly [string, Set<string> | null]>,
+  windows: boolean,
+  pathExt: string,
+  withFileIdentity: boolean,
+): string | null {
+  const names = windows && !/\.[^\\/]+$/.test(name)
+    ? pathExt.split(';').map(ext => ext.trim()).filter(Boolean).map(ext => name + ext)
+    : [name];
+  for (const [dir, entries] of directories) {
+    for (const candidate of names) {
+      if (!entries?.has(windows ? candidate.toLowerCase() : candidate)) continue;
+      try {
+        const full = resolve(dir, candidate);
+        if (!windows) accessSync(full, constants.X_OK);
+        const real = realpathSync(full);
+        const stat = statSync(real);
+        if (!stat.isFile()) continue;
+        return withFileIdentity ? `${real}\u0000${stat.size}\u0000${Math.trunc(stat.mtimeMs)}` : real;
+      } catch {
+        // Non-executable or vanished candidates are skipped exactly like a PATH search.
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * The environment IDENTITY of a validation/verification command: sorted
+ * [key, value] entries under {@link VALIDATION_ENVIRONMENT_IDENTITY_SCHEMA}
+ * (rule above). `commandWords` is the command as written (executable and
+ * arguments). Spawning still uses {@link effectiveValidationCommandEnvironment}
+ * unchanged; only what receipts bind is projected.
+ */
+export function validationEnvironmentIdentityEntries(
+  processEnvironment: NodeJS.ProcessEnv,
+  overlay: Record<string, string> | undefined,
+  cwd: string,
+  commandWords: readonly string[],
+  platform: NodeJS.Platform = process.platform,
+): Array<[string, string]> {
+  const windows = platform === 'win32';
+  const canonicalKey = (key: string): string => windows ? key.toUpperCase() : key;
+  const effective = effectiveValidationCommandEnvironment(processEnvironment, overlay, cwd, platform);
+  const bound = new Set([
+    ...Object.keys(projectValidationEnvironment(cwd)),
+    ...Object.keys(overlay ?? {}),
+  ].map(canonicalKey));
+  for (const word of commandWords) {
+    for (const match of word.matchAll(/[A-Za-z_][A-Za-z0-9_]*/g)) bound.add(canonicalKey(match[0]));
+  }
+  const pathKey = canonicalKey('PATH');
+  const pwdKey = canonicalKey('PWD');
+  const rawPath = bound.has(pathKey);
+  const entries: Array<[string, string]> = [['#schema', VALIDATION_ENVIRONMENT_IDENTITY_SCHEMA]];
+  for (const [key, value] of Object.entries(effective)) {
+    if (key === pathKey && !rawPath) continue;
+    if (bound.has(key) || key === pwdKey || isBehaviorAffectingEnvKey(key, platform)) entries.push([key, value]);
+  }
+  if (!rawPath) {
+    const pathExt = effective[canonicalKey('PATHEXT')] ?? '.COM;.EXE;.BAT;.CMD';
+    // name -> bind file identity (named by the command) or resolved path only (common entry point).
+    const probes = new Map<string, boolean>(TOOLCHAIN_PROBES.map(name => [name, false]));
+    // A shell command line is one word with spaces; each bare token may be a program.
+    for (const word of commandWords.slice(1)) {
+      for (const token of word.split(/\s+/)) if (/^[A-Za-z0-9._+-]+$/.test(token)) probes.set(token, true);
+    }
+    // The command's own executable is content-hashed by the caller's toolchain /
+    // executable digest; a change to it is reported there, not as environment drift.
+    probes.delete(commandWords[0] ?? '');
+    const directories = (effective[pathKey] ?? '').split(windows ? ';' : delimiter).map(entry => {
+      // Relative and empty PATH entries belong to the command's cwd.
+      const dir = resolve(cwd, entry || '.');
+      return [dir, pathDirectoryNames(dir, windows)] as const;
+    });
+    const resolution = [...probes.keys()].sort().map(name =>
+      [name, resolveToolchainProbe(name, directories, windows, pathExt, probes.get(name)!)]);
+    entries.push(['#path-resolution', JSON.stringify(resolution)]);
+  }
+  return entries.sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0);
 }
 
 export const VERIFICATION_REUSE_CAPSULE_ENVIRONMENT_KEYS = ['LANG', 'LC_ALL', 'PATH', 'PWD', 'TZ'] as const;
@@ -180,4 +388,38 @@ export function closedVerificationReuseCapsuleEnvironment(cwd: string): Record<s
     TZ: 'UTC',
   };
 }
-import { dirname } from 'node:path';
+import { accessSync, constants, existsSync, readdirSync, readFileSync, realpathSync, statSync } from 'node:fs';
+import { delimiter, dirname, join, resolve } from 'node:path';
+import { CONFIG_FILENAMES } from './brand-paths.js';
+
+const projectEnvironmentCache = new Map<string, { mtimeMs: number; env: Record<string, string> }>();
+
+/**
+ * `validate.env` of the nearest Proof-or-Stop config above `cwd`: the
+ * environment the project's tests require (e.g. CONTEXT=abs). It is project
+ * state, so validation runs and receipt freshness see the same values whatever
+ * the calling shell exported. A malformed or absent config contributes nothing.
+ */
+export function projectValidationEnvironment(cwd: string): Record<string, string> {
+  for (let dir = cwd; ; dir = dirname(dir)) {
+    for (const name of CONFIG_FILENAMES) {
+      const path = join(dir, name);
+      if (!existsSync(path)) continue;
+      try {
+        const mtimeMs = statSync(path).mtimeMs;
+        const cached = projectEnvironmentCache.get(path);
+        if (cached && cached.mtimeMs === mtimeMs) return cached.env;
+        const raw = (JSON.parse(readFileSync(path, 'utf8')) as { validate?: { env?: unknown } }).validate?.env;
+        const env: Record<string, string> = {};
+        if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+          for (const [key, value] of Object.entries(raw)) if (typeof value === 'string') env[key] = value;
+        }
+        projectEnvironmentCache.set(path, { mtimeMs, env });
+        return env;
+      } catch {
+        return {};
+      }
+    }
+    if (dirname(dir) === dir) return {};
+  }
+}

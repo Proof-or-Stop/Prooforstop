@@ -17,6 +17,7 @@ import { existsSync, realpathSync } from 'fs';
 import { isAbsolute, join, relative } from 'path';
 import { loadConfig, type ProofOrStopConfig } from './config.js';
 import { gitProbe } from './git-probe.js';
+import { observedGit } from './git-tree-observation.js';
 import type { StoryStore } from './store.js';
 import type { StoryInfo, StoryPhase } from './types.js';
 import { getRepoRoot, listGitWorktrees } from './worktree-runtime.js';
@@ -579,9 +580,20 @@ function resolveLinkedStoryWorktree(repoRoot: string, expectedBranch: string, ob
   return probe.topLevel;
 }
 
+/** A failed probe throws without an exit status, so only a successful branch read is shared by an observation. */
+class BranchProbeFailed extends Error {}
+
 function gitRootHasBranch(gitRoot: string, expectedBranch: string): boolean {
-  const branch = gitProbe('git rev-parse --abbrev-ref HEAD', { cwd: gitRoot });
-  return branch.ok && branch.output === expectedBranch;
+  try {
+    return observedGit(gitRoot, ['rev-parse', '--abbrev-ref', 'HEAD'], () => {
+      const branch = gitProbe('git rev-parse --abbrev-ref HEAD', { cwd: gitRoot });
+      if (!branch.ok) throw new BranchProbeFailed(branch.error);
+      return branch.output;
+    }) === expectedBranch;
+  } catch (error) {
+    if (error instanceof BranchProbeFailed) return false;
+    throw error;
+  }
 }
 
 function resolveConfiguredGitRoot(metadataRoot: string, configuredGitRoot: string | undefined): ConfiguredGitRootResolution | null {

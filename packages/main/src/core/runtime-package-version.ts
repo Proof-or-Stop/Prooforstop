@@ -1,11 +1,11 @@
 import { existsSync, readFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { dirname, join, resolve } from 'node:path';
 import { PROOF_OR_STOP_CLI_VERSION } from './proof-or-stop-brand.js';
+import { runtimePackageRoot } from './runtime-layout.js';
 
 /** Check this installation, never the caller's project or its package version. */
 export function assertRuntimePackageVersion(): void {
-  const packagePath = fileURLToPath(new URL('../../package.json', import.meta.url));
+  const packagePath = join(runtimePackageRoot(), 'package.json');
   let installed: unknown;
   try {
     installed = JSON.parse(readFileSync(packagePath, 'utf8')).version;

@@ -1,10 +1,13 @@
 import { isDeepStrictEqual } from 'node:util';
+import { findingResolveCommand } from './finding-closure-hint.js';
 import { createHash } from 'node:crypto';
-import { existsSync } from 'node:fs';
-import { createRequire } from 'node:module';
-import { fileURLToPath } from 'node:url';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import { withMkdirLock } from './mkdir-lock.js';
+// Namespace import read only inside loadReviewInventoryAdmitApis (call time,
+// never at module load), so the review-inventory-epoch cycle cannot observe an
+// uninitialized binding. It replaces a createRequire(import.meta.url) sibling
+// lookup that resolved next to the CLI bundle and silently returned null there.
+import * as reviewInventoryEpoch from './review-inventory-epoch.js';
 import {
   causalDependencyDecisionMatchesCurrentIdentity,
   verifyCausalDependencyDecision,
@@ -274,6 +277,8 @@ export interface CertificationWindowAdmitFacts {
    * identity it evaluated.
    */
   inventoryHeadMetadataContinuity?: boolean;
+  /** receipt.headHash..HEAD is a linear run of PoS metadata-only commits. */
+  cheapCheckHeadMetadataContinuity?: boolean;
   materialHash?: string;
   storyFilesHash?: string;
   expectedMainSha?: string | null;
@@ -522,6 +527,11 @@ export function currentPrecertCheapCheckReceipt(args: {
   materialHash?: string;
   storyFilesHash?: string;
   currentIdentity?: RoutineValidationIdentity;
+  /**
+   * Accepts an older receipt head when every commit since it touches only
+   * material-excluded PoS metadata. Code identity stays exact below.
+   */
+  headContinuity?: (receiptHead: string) => boolean;
 }): PrecertCheapCheckReceipt | null {
   if (!args.headHash || !args.materialHash || !args.storyFilesHash
     || !isCompleteRoutineValidationIdentity(args.currentIdentity)) return null;
@@ -530,7 +540,7 @@ export function currentPrecertCheapCheckReceipt(args: {
     if (!verifyPrecertCheapCheckReceipt(receipt)) continue;
     if (receipt.routineValidationIdentity.digest !== args.currentIdentity!.digest
       || receipt.storyId !== args.storyId
-      || receipt.headHash !== args.headHash
+      || (receipt.headHash !== args.headHash && !args.headContinuity?.(receipt.headHash))
       || receipt.materialHash !== args.materialHash
       || receipt.storyFilesHash !== args.storyFilesHash) continue;
     return receipt;
@@ -569,10 +579,8 @@ export function setReviewInventoryAdmitApisForTest(
  */
 export function loadReviewInventoryAdmitApis(): ReviewInventoryAdmitApis | null {
   if (reviewInventoryAdmitApisOverride !== undefined) return reviewInventoryAdmitApisOverride;
-  const modulePath = fileURLToPath(new URL('./review-inventory-epoch.js', import.meta.url));
-  if (!existsSync(modulePath)) return null;
   try {
-    const required = createRequire(import.meta.url)('./review-inventory-epoch.js') as Record<string, unknown>;
+    const required = reviewInventoryEpoch as unknown as Record<string, unknown>;
     const finalized = required.finalizedUnconsumedReviewInventory;
     const consume = required.consumeReviewInventoryCompletenessReceipt;
     const consumeUnlocked = required.consumeReviewInventoryCompletenessReceiptUnlocked;
@@ -595,20 +603,36 @@ export function loadReviewInventoryAdmitApis(): ReviewInventoryAdmitApis | null 
   }
 }
 
-export function nextCommandForBlocker(storyId: string, blockerCode?: string | null): string {
+const OPEN_BLOCKING_FINDINGS_DETAIL = 'Open verified blocking findings: ';
+
+/** Finding ids named by a PRE_CERT_BLOCKING_FINDINGS_OPEN blocker detail (authored by admit below). */
+function openBlockingFindingIdsFromDetail(blockerDetail?: string | null): string[] {
+  if (!blockerDetail?.startsWith(OPEN_BLOCKING_FINDINGS_DETAIL)) return [];
+  return blockerDetail.slice(OPEN_BLOCKING_FINDINGS_DETAIL.length).split(/[;\n]/)[0]!.split(',')
+    .map(id => id.trim()).filter(id => id.length > 0 && !id.startsWith('<'));
+}
+
+export function nextCommandForBlocker(storyId: string, blockerCode?: string | null, blockerDetail?: string | null): string {
   switch (blockerCode) {
     case PRE_CERT_CHEAP_CHECK_REQUIRED:
       return `proof-or-stop validate --story=${storyId} --focus=fast --json`;
     case PRE_CERT_INVENTORY_NOT_FINALIZED:
     case PRE_CERT_INVENTORY_API_ABSENT:
     case PRE_CERT_INVENTORY_NOT_AUTHORITY:
-      return `proof-or-stop review_inventory_finalize --storyId=${storyId}`;
+      // Store-less default: the recovery depends on the epoch state (begin a
+      // saturated epoch, follow an OPEN one, or cancel a zero-wave receipt);
+      // review_inventory_finalize without an OPEN epoch mints the zero-wave
+      // receipt this gate refuses. `next` reads that state and names the one step.
+      return `proof-or-stop next --storyId=${storyId}`;
     case PRE_CERT_INVENTORY_PROBE_FAILED:
       return `proof-or-stop certification_window_status --storyId=${storyId}`;
     case PRE_CERT_MAIN_NOT_MERGED:
       return `proof-or-stop done_prepare --storyId=${storyId} --mergeMain`;
-    case PRE_CERT_BLOCKING_FINDINGS_OPEN:
-      return `proof-or-stop finding_list --storyId=${storyId}`;
+    case PRE_CERT_BLOCKING_FINDINGS_OPEN: {
+      // Closure rule (core/finding-closure.ts): resolve with repair evidence.
+      const [first] = openBlockingFindingIdsFromDetail(blockerDetail);
+      return first ? findingResolveCommand(storyId, first) : `proof-or-stop finding_list --storyId=${storyId}`;
+    }
     case PRE_CERT_COVERAGE_MISSING:
       return `proof-or-stop story_advance --storyId=${storyId} --phase=DEV`;
     case PRE_CERT_DIRTY_TREE:
@@ -622,9 +646,12 @@ export function nextCommandForState(
   storyId: string,
   state: CertificationWindowState,
   blockerCode?: string | null,
+  blockerDetail?: string | null,
 ): string {
   if (state === 'INVALIDATED') {
-    return `proof-or-stop story_advance --storyId=${storyId} --phase=REVIEW`;
+    // REVIEW has no REVIEW edge: the recovery is a fresh saturated epoch (or
+    // REVIEW→DEV remediation when material changed); `next` names the step.
+    return `proof-or-stop next --storyId=${storyId}`;
   }
   if (state === 'ADMITTED') {
     return `proof-or-stop validate --story=${storyId} --json`;
@@ -635,7 +662,7 @@ export function nextCommandForState(
   if (state === 'FINALIZED') {
     return `proof-or-stop certification_window_status --storyId=${storyId}`;
   }
-  return nextCommandForBlocker(storyId, blockerCode);
+  return nextCommandForBlocker(storyId, blockerCode, blockerDetail);
 }
 
 export function projectCertificationWindowStatus(
@@ -662,7 +689,7 @@ export function projectCertificationWindowStatus(
     window,
     receipt,
     blockerCode,
-    nextCommand: nextCommandForState(storyId, window.state, blockerCode),
+    nextCommand: nextCommandForState(storyId, window.state, blockerCode, window.blockerDetail),
     ...(advisory ? { advisory } : {}),
   };
 }
@@ -752,7 +779,7 @@ export function nonInventoryAdmitRefusal(
   if (!cheap
     || !verifyPrecertCheapCheckReceipt(cheap)
     || cheap.storyId !== facts.currentStoryId
-    || cheap.headHash !== facts.headHash
+    || (cheap.headHash !== facts.headHash && !facts.cheapCheckHeadMetadataContinuity)
     || cheap.materialHash !== facts.materialHash
     || cheap.storyFilesHash !== facts.storyFilesHash) {
     return {
@@ -765,7 +792,7 @@ export function nonInventoryAdmitRefusal(
     return {
       admit: false,
       blockerCode: PRE_CERT_BLOCKING_FINDINGS_OPEN,
-      blockerDetail: `Open verified blocking findings: ${facts.openBlockingFindingIds.join(', ')}`,
+      blockerDetail: `${OPEN_BLOCKING_FINDINGS_DETAIL}${facts.openBlockingFindingIds.join(', ')}; closure is required whichever review round raised them: close each with finding_resolve and its repair evidence`,
     };
   }
   if (facts.missingRequiredIntents > 0) {

@@ -171,7 +171,11 @@ export function computeBackgroundHash(root: string, storyId: string): string {
   const p = store.storyFilePath(storyId, 'background.md');
   if (!existsSync(p)) return 'missing';
   const content = readFileSync(p, 'utf-8');
-  return createHash('sha256').update(content).digest('hex');
+  // The verbatim request (request.md) is part of what INIT reviewers approve. A
+  // Story without one keeps the exact pre-existing background-only hash.
+  const requestPath = store.storyFilePath(storyId, 'request.md');
+  if (!existsSync(requestPath)) return createHash('sha256').update(content).digest('hex');
+  return createHash('sha256').update(content).update('\0request.md\0').update(readFileSync(requestPath, 'utf-8')).digest('hex');
 }
 
 /**
@@ -279,7 +283,7 @@ export function computeInitCheckVerdictHash(source: InitCheckVerdictSource | nul
  */
 export const INIT_CHECK_SIGNATURE_DOMAIN = [
   { key: 'storyId', label: 'storyId' },
-  { key: 'backgroundHash', label: 'background.md' },
+  { key: 'backgroundHash', label: 'background.md (+ request.md when recorded)' },
   { key: 'title', label: 'title' },
   { key: 'description', label: 'description' },
   { key: 'checklistHash', label: 'checklist' },

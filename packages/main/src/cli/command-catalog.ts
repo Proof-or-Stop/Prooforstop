@@ -341,6 +341,8 @@ export const MAIN_TOOLS: ToolDef[] = [
     background: z.string().optional().describe('B-45ed CHK-006: four-section background.md content. Must include Trigger Event, Key Insight, Tradeoff, and Conversation Texture sections; each section at least 50 characters, total at least 300, and Trigger Event must include a concrete ID (B-xxxx / F-xxx / CHK-xxx / commit hash / YYYY-MM-DD). Not required in fromDraft mode.'),
     fromDraft: z.string().optional().describe('B-9975: create a story from a reviewed draft by passing draft name. Conservatively stops in INIT, then follows normal INIT_CHECK gates.'),
     reproFirstBypassReason: z.string().min(10).optional().describe('Documented STORY_INTAKE exception for emergency/non-reproducible work; later lifecycle gates still require binding for code-declaring stories.'),
+    request: z.string().optional().describe('The user\'s request VERBATIM (not a paraphrase), recorded as request.md (bounded to 16 KB, sha256-bound, signed by INIT_CHECK). The PLAN scope-plan reviewer traces every example and listed variant in it. Falls back to requestFile, then to a request staged by story_request_set.'),
+    requestFile: z.string().optional().describe('Path (relative to the project root) of a file holding the verbatim request; use it when the text contains quotes or backticks.'),
   }},
   { name: 'story_advance', description: 'Advance a Story to the next phase', longHelp: STORY_ADVANCE_LONG, schema: {
     storyId: z.string().describe('Story ID'), phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','REVIEW','TEST','DONE']).describe('Target phase.'),
@@ -756,6 +758,7 @@ Behavior:
     reviewerEscalationReason: z.string().trim().min(1).optional().describe('Reviewer-authored reason to mint a new full-context ReviewRun when the bounded incremental basis is incomplete.'),
     reviewPurpose: z.enum(['topology', 'inventory-completeness']).optional().describe('Critic only. Omitted preserves topology admission; inventory requires a current signed OPEN epoch.'),
     inventoryEpochId: z.string().min(1).optional().describe('Exact current epoch for explicit inventory-completeness purpose, never topology authority.'),
+    summary: z.boolean().optional().describe('Print the prompt size and sha256 instead of its body; a managed host_run rebuilds the exact prompt.'),
   }},
   { name: 'review_run_list', description: 'Read compact signed reviewer-run metadata for recovery and inspection; never writes evidence or prompt bytes', schema: {
     storyId: z.string().min(1).describe('Story ID.'),
@@ -1051,8 +1054,12 @@ Behavior:
   { name: 'session_brief', description: 'Cross-session opening brief (active story/phase/checklist/bug/next step)', schema: {
     concise: z.boolean().optional().describe('Concise mode (default: false).'),
   }},
-  { name: 'next', description: 'Output only the most reliable next step (reuses session_brief phase judgment)', schema: {
-    concise: z.boolean().optional().describe('Concise mode (default: true).'),
+  { name: 'next', description: 'The one next lifecycle step. With --storyId: read-only DEV→REVIEW→PRE_CERT→TEST→DONE driver returning exactly one step {phase, kind: framework|agent|human, reason, command, argv, why} decided by the real gate predicates; --run executes consecutive framework steps through the CLI (every gate intact) and prints the following step. Without --storyId: the session_brief next step.', schema: {
+    concise: z.boolean().optional().describe('Concise mode (default: true; no --storyId only).'),
+    storyId: z.string().optional().describe('Story ID: drive this Story from its current state (DEV to DONE).'),
+    json: z.boolean().optional().describe('JSON step object (with --storyId).'),
+    run: z.boolean().optional().describe('Execute consecutive framework-kind steps through the real CLI, stop at the first agent/human step or refusal, and print the following step. Off by default.'),
+    maxSteps: z.number().optional().describe('--run bound on executed framework steps (default 20, max 50).'),
   }},
   { name: 'done_closure', description: 'Project local DONE closure readiness from the DONE oracle without mutating lifecycle or widening local assurance. Alias: proof-or-stop done closure', schema: {
     storyId: z.string().describe('Story ID'),
@@ -1251,6 +1258,11 @@ Behavior:
     write: z.never().optional().describe('Not a flag; init_preflight is read-only. Passing --write is rejected by CLI validation.'),
     apply: z.never().optional().describe('Not a flag; init_preflight never applies anything. Passing --apply is rejected by CLI validation.'),
     execute: z.never().optional().describe('Not a flag; init_preflight is read-only. Passing --execute is rejected by CLI validation.'),
+  }},
+  { name: 'review_round_prepare', description: 'Owner one-command managed REVIEW round preparation: computes the reviewer_batch plan, runs candidate_spec_route --hosts=false when the route is missing or stale, then for every launchable lane runs dispatch --summary=true and review_run_start --summary=true. Prints storyId, round, head, the lane=reviewRunId map and the next managed-review controller command; never prints a prompt body and launches no reviewer host.', schema: {
+    storyId: z.string().describe('Story ID'),
+    fullScanReason: z.string().optional().describe('Justified tool-driven broad-scan reason; passed to candidate_spec_route only when routing requires escalation.'),
+    json: z.boolean().optional().describe('Output a JSON object with the same fields.'),
   }},
   // Lifecycle Readiness P7: reviewer_batch — read-only reviewer-launcher PLAN producer.
   { name: 'reviewer_batch_admit', description: 'Owner-only shared capability admission for an explicit complete reviewer roster in the current signed REVIEW inventory wave. Does not launch a reviewer or issue review evidence.', schema: ReviewerBatchAdmitArgsSchema.shape },
@@ -2266,7 +2278,8 @@ Behavior:
       'doc-promise-undelivered',
       'doc-code-drift',
       'spec-boundary',
-    ]).describe('Category (legacy category is normalized to missing).'),
+      'evidence_chain',
+    ]).describe('Category (legacy category is normalized to missing). evidence_chain (stale/missing receipt, intent without a pinned command, existing test bound to no intent) is framework-owned and is refused with the framework next action; it never becomes a finding.'),
     agent: z.string().optional().describe('Caller identity (optional, defaults from PROOF_OR_STOP_AGENT environment variable).'),
     reviewRunId: z.string().optional().describe('Current proof-or-stop-review-* reviewer run ID (call review_run_start first; main finding may omit this).'),
     idempotencyKey: z.string().min(1).optional().describe('Caller retry key. Reusing it with identical bytes returns the original ledger record/display ID; conflicting bytes fail closed. Omitted calls receive a fresh UUID key.'),
@@ -2793,6 +2806,7 @@ Behavior:
     agentType: z.enum(AGENT_DISPATCH_ACCEPTED_TYPES as [string, ...string[]]).optional().describe('Registered subagent type or compatibility alias. Omit only for the deliberate proof-or-stop-implementer default; runtime enforces phase and target cardinality from the same registry.'),
     reviewPurpose: z.enum(['topology', 'inventory-completeness']).optional().describe('Critic only. Explicit inventory purpose does not establish topology implementation provenance. No fallback from a topology refusal.'),
     inventoryEpochId: z.string().min(1).optional().describe('Exact current signed OPEN inventory epoch; wave and cutoff are derived by the handler.'),
+    summary: z.boolean().optional().describe('Print the prompt size and sha256 instead of its body; a managed host_run rebuilds the exact prompt from the recorded envelope.'),
   }},
 
   // Background CLI trio (B-45ed CHK-007: background.md set/append/get).
@@ -2807,6 +2821,12 @@ Behavior:
   }},
   { name: 'background_get', description: 'Read the full background.md', schema: {
     storyId: z.string().describe('Story ID'),
+  }},
+  { name: 'story_request_set', description: 'Record the verbatim user request (request.md) or stage it for the next story_create', schema: {
+    storyId: z.string().optional().describe('Story ID. Omit to stage the request for the next story_create in this checkout (used by wrappers such as benchmark adapters).'),
+    request: z.string().optional().describe('The user request verbatim.'),
+    requestFile: z.string().optional().describe('Path (relative to the project root) of a file holding the verbatim request.'),
+    amendmentReason: z.string().optional().describe('Required (at least 30 characters) to replace a recorded request or to record one after INIT; kept in request.json.'),
   }},
   { name: 'plan_set', description: 'Write the full plan.md (each checklist item requires a ## CHK-xxx section)', schema: {
     storyId: z.string().describe('Story ID'),
@@ -3467,7 +3487,7 @@ Behavior:
     json: z.boolean().optional().describe('Output the structured host_run result as JSON (exitCode is a field)'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
-  { name: 'host_run_status', description: 'Read or bounded-long-poll one durable managed host run or a set of targets. waitMs is capped at 30000 and silence does not change state. Alias: proof-or-stop host run status', schema: {
+  { name: 'host_run_status', description: 'Read or bounded-long-poll one durable managed host run or a set of targets. waitMs is capped at 30000 (600000 with untilTerminal=true, which returns only at terminal) and silence does not change state. Alias: proof-or-stop host run status', schema: {
     runId: z.string().optional().describe('Managed host run id; exclusive with targets'),
     targets: z.array(z.object({
       runId: z.string(),
@@ -3475,7 +3495,8 @@ Behavior:
     })).min(1).max(32).optional().describe('Wait for any changed run; each cursor acknowledges previously delivered terminal state'),
     afterGeneration: z.number().int().nonnegative().optional().describe('Return when generation differs from this value'),
     afterSequence: z.number().int().nonnegative().optional().describe('Return live-output frames after this sequence'),
-    waitMs: z.number().int().nonnegative().max(30000).optional().describe('Bounded long-poll wait, maximum 30000ms'),
+    waitMs: z.number().int().nonnegative().max(600000).optional().describe('Bounded long-poll wait: maximum 30000ms, or 600000ms (the default) with untilTerminal'),
+    untilTerminal: z.boolean().optional().describe('Block until the run is terminal instead of returning on provider progress; use this to wait for one worker with a single call'),
     json: z.boolean().optional().describe('Output JSON'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},

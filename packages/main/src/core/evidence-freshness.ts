@@ -36,7 +36,7 @@ import {
   isEvidenceHashSnapshotSchema,
   type EvidenceHashSnapshotSchema,
 } from './artifact-schema.js';
-import { resolveStoryChangedFiles, resolveStoryMergeBase } from './story-aware-validation.js';
+import { resolveStoryChangedFiles, resolveStoryMergeBase } from './story-change-manifest.js';
 import { isMaterialExcludedPath, isStoryMetadataPath } from './material-path-policy.js';
 export { isMaterialExcludedPath, isStoryMetadataPath };
 
@@ -642,7 +642,12 @@ export function checkEvidenceHashSnapshotReuse(
     reasons.push('snapshot headHash does not match current HEAD');
   }
 
-  const currentDirty = readMaterialDirtyFiles(gitCwd, metadataRoot);
+  // The same signed controller-projection admission the capture used (the
+  // args type always carried it; it was dropped here, so a global-thin Story
+  // worktree's projected hooks refused every routine validation reuse).
+  const currentDirty = readMaterialDirtyFiles(gitCwd, metadataRoot, {
+    trustedControllerProjectionStoryId: args.trustedControllerProjectionStoryId,
+  });
   if (currentDirty.error) reasons.push('current material dirty files could not be inspected');
   if (snapshot.materialDirtyFiles.length > 0) reasons.push('snapshot captured material dirty files');
   if (currentDirty.files.length > 0) reasons.push('current material dirty files are present');
@@ -757,10 +762,11 @@ export function parseNameStatusRecords(raw: string): NameStatusRecord[] {
  * so behavior is byte-identical.
  */
 function readNameStatusRecords(gitCwd: string, fromHead: string, toHead: string): NameStatusRecord[] {
-  const raw = execFileSync('git', ['diff', '--name-status', '-M', '-z', `${fromHead}..${toHead}`], {
+  const argv = ['diff', '--name-status', '-M', '-z', `${fromHead}..${toHead}`];
+  const raw = observedGit(gitCwd, argv, () => execFileSync('git', argv, {
     cwd: gitCwd,
     ...GIT_EXEC_OPTS,
-  });
+  }));
   return parseNameStatusRecords(raw);
 }
 

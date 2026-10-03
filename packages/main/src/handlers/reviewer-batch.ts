@@ -20,7 +20,7 @@ import { rethrowIntentAmendmentIntegrityError } from '../core/verification-inten
  *       · awaiting-repair — a valid blocking observation with exact committed material
  *                          or metadata-only drift; guidance only, never a gate PASS.
  *       · blocking       — a blocking verified finding is open for/affecting the
- *                          lane (round-decayed via isFindingBlocking).
+ *                          lane (closure severities critical/high/medium, no round decay).
  *   - Host-neutral owner guidance for each lane that needs a (re-)run: obtain the
  *     canonical dispatch prompt, use a fresh-context host launch, and retain the
  *     exact returned child id. This is an instruction the orchestrator executes;
@@ -39,8 +39,10 @@ import { rethrowIntentAmendmentIntegrityError } from '../core/verification-inten
  * reviewer subagents from this plan; a CLI cannot spawn them.
  */
 
+import { closureBlockingSeverities } from '../core/finding-closure-severities.js';
 import type { HandlerContext } from './context.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
+import { isAutomaticNoCorpusFullScan } from '../core/candidate-spec-routing.js';
 import {
   buildStoryReadinessReport,
   type StoryReadinessReport,
@@ -233,7 +235,7 @@ function laneHasCurrentRoundEvidence(records: ReviewerEvidenceRecord[], lane: st
   return records.some((record) => findingAgentMatchesReviewer(record.agent, lane));
 }
 
-/** The blocking verified findings (round-decayed) attributable to `lane`. */
+/** The blocking verified findings (closure severities critical/high/medium, no round decay) attributable to `lane`. */
 function blockingFindingsForLane(
   blockingFindings: Finding[],
   lane: string,
@@ -302,6 +304,9 @@ export function renderReviewerBatchReport(report: ReviewerBatchReport): string {
     `gate: ${report.gate.ready ? 'READY' : 'BLOCKED'} blockedBy=[${report.gate.blockedBy.join(', ')}]`,
     `managedReview: ${report.managedReviewReadiness.status}${report.managedReviewReadiness.reason ? ` reason=${report.managedReviewReadiness.reason}` : ''}`,
     ...(report.managedReviewReadiness.nextAction ? [`managedReviewNextAction: ${report.managedReviewReadiness.nextAction}`] : []),
+    ...(launchable.length > 0
+      ? [`managedReviewOneCommand: proof-or-stop review_round_prepare --storyId=${report.storyId} (routes when needed, then dispatch + review_run_start per launchable lane; prints lane=reviewRunId and the controller command)`]
+      : []),
     `parallel-barrier: launchableLanes=[${launchable.join(', ')}]`,
     ...(launchable.length > 0
       ? [`for native review, or managed review after managedReview is ready: issue every listed lane's launchInstruction before any wait; collect one nonempty distinct child id per lane, then make one host wait call with the complete child-id set; maxConcurrency=${report.executionPlan.maxConcurrency}`]
@@ -373,7 +378,7 @@ export function managedReviewCandidateReadiness(
       return {
         status: 'blocked',
         reason: error.message.slice(error.message.indexOf('managed_review_candidate_binding_stale')).split(';')[0],
-        nextAction: candidate.fullScan === true
+        nextAction: candidate.fullScan === true && !isAutomaticNoCorpusFullScan(candidate)
           ? `proof-or-stop candidate_spec_route '{"storyId":"${storyId}","fullScanReason":"<specific justified tool-driven broad-scan reason>"}'`
           : `proof-or-stop candidate_spec_route '{"storyId":"${storyId}"}'`,
       };
@@ -444,11 +449,11 @@ export function createReviewerBatchHandlers(ctx: HandlerContext): Record<string,
     const activeReviewers = computeActiveReviewers(story, checklist, decision, touchpoints);
 
     // Current-round, signature-validated reviewer evidence (the SAME records the
-    // V1 review gate rows consume) + round-decayed blocking findings.
+    // V1 review gate rows consume) + blocking findings (closure severities critical/high/medium, no round decay).
     const evidenceState = collectReviewerEvidenceState(ctx.store, storyId, ctx.root);
     const policy = resolveWorkflowPolicy(loadConfig(ctx.root), story);
     const roundCount = resolveReviewRoundCount(ctx.store, storyId);
-    const blockingSeverities = policy.review.blockingSeverities;
+    const blockingSeverities = closureBlockingSeverities(policy);
     const blockingFindings = evidenceState.valid
       .map((record) => record.finding)
       .filter((finding): finding is Finding => !!finding)

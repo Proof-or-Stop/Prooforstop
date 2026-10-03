@@ -259,6 +259,8 @@ export interface ProofOrStopConfig {
   };
   /** 项目级验证命令；没有 validate.ts/js 时由 proof-or-stop validate 使用 */
   validate?: {
+    /** Environment the project's tests require; applied to every validation and verification run. */
+    env?: Record<string, string>;
     /** Exact-input result sharing is independent of dynamic test selection. */
     sharedExecution?: boolean;
     /** Opt in to strict whole-PASS reuse while retaining observe-only selection diagnostics. */
@@ -473,6 +475,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'plan_get',
     'workflow_*',    // 全局：profile 查看/设置/解释，任何阶段都可以
     'background_*',  // B-45ed CHK-007: background 是元数据，任何阶段可读写
+    'story_request_set', // verbatim request: staging has no story; the handler itself admits IDEA/INIT/INIT_CHECK/PLAN writes only
     'dispatch',      // B-9d95 CHK-004: 统一派发入口，全阶段开放（INIT_CHECK 起）
     'reviewer_list', // B-fdcf CHK-001: 全阶段可查询 opt-in reviewer 名单
     'review_incremental_context', // B-f675 CHK-002: read-only incremental review context, any phase
@@ -634,6 +637,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'scope_budget_approve',
     'verification_intent_recover',
     'candidate_spec_route', // B-8038: current-diff rerouting for reviewer lanes
+    'review_round_prepare', // owner one-command managed REVIEW round preparation (route + per-lane dispatch/review_run_start)
     // B-3f3d: deadlock break. A scope-contract change during REVIEW staleness-invalidates the
     // acceptance basis -> topology critic receipt is refused -> review-inventory cannot finalize
     // -> REVIEW->DEV is refused -> the basis can never be regenerated. PLAN is unreachable from

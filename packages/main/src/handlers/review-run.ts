@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { execFileSync } from 'child_process';
 import { writeFileSync } from 'node:fs';
 import type { HandlerContext } from './context.js';
@@ -146,6 +147,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
       reviewerEscalationReason?: string;
       reviewPurpose?: 'topology' | 'inventory-completeness';
       inventoryEpochId?: string;
+      summary?: boolean;
     }): string {
       const authority = resolveAgentMutationAuthority({
         command: 'review_run_start',
@@ -475,11 +477,31 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           : '';
         const purposeNote = inventoryBinding ? `\nReview purpose: inventory-completeness\nTrusted inventory subject: ${JSON.stringify(inventoryBinding)}\nInventory-only duties apply; this run supplies no topology certification.` : '';
         const summary = `Review run ${reviewRunId} started for ${lane} (round ${story.currentReviewRound}, head ${headHash.slice(0, 7)}${storyHashNote}${scopeNote}${envelopeNote}${escalationNote})${purposeNote}`;
-        return assembledPrompt
-          ? `${summary}\n\n--- BEGIN EXACT ASSEMBLED REVIEW PROMPT ---\n${assembledPrompt}\n--- END EXACT ASSEMBLED REVIEW PROMPT ---`
-          : `${summary}\n\nThe host first loads a content-addressed thin bootstrap; the bytes below are the single selected role body, not the total model input.\n\n--- BEGIN EXACT SELECTED ROLE BODY ---\n${canonicalRolePrompt}\n--- END EXACT SELECTED ROLE BODY ---`;
+        return renderReviewRunStartOutput(summary, assembledPrompt, canonicalRolePrompt, args.summary === true);
       });
       });
     },
   };
+}
+
+export function renderReviewRunStartOutput(
+  summary: string,
+  assembledPrompt: string | undefined,
+  canonicalRolePrompt: string,
+  omitPrompt: boolean,
+): string {
+  if (omitPrompt) return `${summary}\n\n${omittedPromptNote(assembledPrompt ?? canonicalRolePrompt)}`;
+  return assembledPrompt
+    ? `${summary}\n\n--- BEGIN EXACT ASSEMBLED REVIEW PROMPT ---\n${assembledPrompt}\n--- END EXACT ASSEMBLED REVIEW PROMPT ---`
+    : `${summary}\n\nThe host first loads a content-addressed thin bootstrap; the bytes below are the single selected role body, not the total model input.\n\n--- BEGIN EXACT SELECTED ROLE BODY ---\n${canonicalRolePrompt}\n--- END EXACT SELECTED ROLE BODY ---`;
+}
+
+/**
+ * Owner-facing stand-in for a prompt a managed host_run rebuilds from its
+ * recorded envelope: the owner keeps its size and digest, not ~8K tokens it
+ * would otherwise re-send on every later turn.
+ */
+export function omittedPromptNote(prompt: string): string {
+  return `Prompt omitted by --summary: ${Buffer.byteLength(prompt)} bytes, sha256 ${createHash('sha256').update(prompt).digest('hex')}. `
+    + 'A managed host_run rebuilds the exact prompt; rerun without --summary to print it.';
 }

@@ -331,6 +331,23 @@ function classification(args: {
   };
 }
 
+const DOCUMENTATION_EXTENSIONS = ['.md', '.mdx', '.rst', '.adoc'];
+const AGENT_CONTROL_DOCUMENTS = new Set(['agents.md', 'claude.md']);
+
+/**
+ * Documentation files: prose the delivery reviewer checks against the changed
+ * behavior. Agent control files (AGENTS.md, CLAUDE.md) and anything under a
+ * dot-directory (.proof-or-stop, .codex, .github, ...) are control surface,
+ * not product documentation, and stay under ordinary scope enforcement.
+ */
+function isDocumentationPath(normalizedPath: string): boolean {
+  const segments = normalizedPath.split('/');
+  if (segments.some((segment) => segment.startsWith('.'))) return false;
+  const base = segments[segments.length - 1]!.toLowerCase();
+  if (AGENT_CONTROL_DOCUMENTS.has(base)) return false;
+  return DOCUMENTATION_EXTENSIONS.some((extension) => base.endsWith(extension));
+}
+
 export function classifyScopePath(
   contract: Pick<
     ScopeContractData,
@@ -604,6 +621,18 @@ export function classifyScopePath(
       allowed: true,
       detail: `Matches allowedTest pattern ${allowedTestPattern}.`,
       matchedPattern: allowedTestPattern,
+    });
+  }
+
+  if (isDocumentationPath(normalizedPath)) {
+    return classification({
+      path,
+      category: 'allowed_modify',
+      source: 'documentation-default',
+      rule: 'allowed_modify',
+      allowed: true,
+      detail: 'Documentation file: docs describing the changed behavior are part of delivering it (protectedFiles/explicitExcludes still apply).',
+      hint: 'List the path in protectedFiles or explicitExcludes to keep a document out of this Story.',
     });
   }
 

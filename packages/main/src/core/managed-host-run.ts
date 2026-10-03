@@ -48,8 +48,10 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
-import { hostname, tmpdir } from 'node:os';
-import { fileURLToPath } from 'node:url';
+import { homedir, hostname, tmpdir } from 'node:os';
+import { agentRoleIdsEqual, canonicalAgentRoleId } from './agent-role-identity.js';
+import { earlierCandidateLaneRuns } from './review-round-order.js';
+import { runtimeDistPath } from './runtime-layout.js';
 import {
   generateEd25519KeyPair,
   signCanonical,
@@ -59,6 +61,7 @@ import {
 
 import {
   HOST_RUN_FINAL_ASSISTANT_RESULT_CAP,
+  MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION,
   classifyManagedReviewFinalEnvelope,
   hasRequiredManagedReviewReadEvidence,
   isStrictManagedReviewFindingProposal,
@@ -72,6 +75,7 @@ import {
   type HostRunRunner,
   type HostRunProcessIdentity,
   type HostRunProcessCleanup,
+  RESUMABLE_CODE_WRITER_ROLES,
 } from './host-run.js';
 import type {
   FindingEvidenceState,
@@ -102,11 +106,16 @@ import { managedRunStage, managedSupervisionAction, type ManagedRunStage,
 import { StoryStore } from './store.js';
 import { initCheckSignatureIsValid } from './init-check-gate.js';
 import { verifyScopeCheckContentSignature } from './scope-check-integrity.js';
-import { recomputeDeliveryCheckHash } from './delivery-check-hash.js';
+import { recomputeDeliveryCheckHash } from './delivery-check-signature.js';
 import type { InitCheckData } from './types.js';
 
 export const MANAGED_HOST_RUN_SCHEMA_VERSION = 'lattice.managed_host_run.v1' as const;
 export const MANAGED_HOST_RUN_STATUS_WAIT_MAX_MS = 30_000;
+/**
+ * Cap for an untilTerminal wait. Provider progress does not end it, so one
+ * owner call can cover a whole worker instead of one call per progress tick.
+ */
+export const MANAGED_HOST_RUN_STATUS_TERMINAL_WAIT_MAX_MS = 600_000;
 export const MANAGED_HOST_RUN_DEFAULT_DEADLINE_MS = 30 * 60 * 1000;
 export const MANAGED_HOST_RUN_MAX_DEADLINE_MS = 24 * 60 * 60 * 1000;
 const MANAGED_HOST_RUN_CLAIM_TIMEOUT_MS = MANAGED_SUPERVISOR_RUNTIME_POLICY.workerClaimTimeoutMs;
@@ -279,7 +288,8 @@ export interface ManagedHostRunTerminal {
 export interface ManagedReviewEvidenceFindingProposal {
   desc: string;
   severity: 'critical' | 'high' | 'medium' | 'low';
-  category: 'happy' | 'edge' | 'adversarial' | 'missing';
+  /** `evidence_chain` = framework action, reclassified at import (core/evidence-chain-finding.ts). */
+  category: 'happy' | 'edge' | 'adversarial' | 'missing' | 'evidence_chain';
   files?: string[];
   evidenceState?: FindingEvidenceState;
   uncertaintyReason?: string;
@@ -820,6 +830,145 @@ export function managedHostRunReceiptsRoot(root: string): string {
 function managedHostRunReceiptArchivePath(root: string, runId: string): string {
   assertRunId(runId);
   return join(managedHostRunReceiptsRoot(root), `${runId}.json`);
+}
+
+/**
+ * The Codex session of this Story's newest completed implementer run on the
+ * same worktree and model, when its rollout is still in the Codex home. A
+ * resumed implementer continues with the repository context its predecessor
+ * already read instead of re-exploring it for every checklist item.
+ */
+export function findResumableImplementerSession(args: {
+  root: string; storyId: string; cwd: string; model: string | null; excludeRunId: string; codexHome: string;
+}): string | null {
+  const runsRoot = managedHostRunsRoot(args.root);
+  if (!existsSync(runsRoot)) return null;
+  const candidates: Array<{ terminalAt: string; threadId: string }> = [];
+  for (const runId of readdirSync(runsRoot)) {
+    if (runId === args.excludeRunId) continue;
+    const dir = join(runsRoot, runId);
+    try {
+      const spec = JSON.parse(readFileSync(join(dir, 'spec.json'), 'utf8')) as Record<string, unknown>;
+      if (spec.host !== 'codex' || spec.profile !== 'managed_dispatch' || spec.storyId !== args.storyId
+        || spec.cwd !== args.cwd || (spec.model ?? null) !== args.model
+        || !(RESUMABLE_CODE_WRITER_ROLES as readonly string[]).includes(canonicalAgentRoleId(String(spec.agentType)))) continue;
+      const terminal = JSON.parse(readFileSync(join(dir, 'terminal.json'), 'utf8')) as { state?: string; terminalAt?: string };
+      if (terminal.state !== 'completed' || typeof terminal.terminalAt !== 'string') continue;
+      const threadId = recordedCodexThreadId(dir);
+      if (threadId) candidates.push({ terminalAt: terminal.terminalAt, threadId });
+    } catch {
+      continue;
+    }
+  }
+  return newestKeptCodexSession(candidates, args.codexHome);
+}
+
+/** Codex thread id announced by a run's first `thread.started` event, if recorded. */
+function recordedCodexThreadId(dir: string): string | null {
+  const output = readFileSync(join(dir, 'live-output.jsonl'), 'utf8');
+  const match = /"type\\":\\"thread\.started\\",\\"thread_id\\":\\"([0-9a-fA-F-]{36})\\"/.exec(output)
+    ?? /"type":"thread\.started","thread_id":"([0-9a-fA-F-]{36})"/.exec(output);
+  return match ? match[1]! : null;
+}
+
+function newestKeptCodexSession(candidates: Array<{ terminalAt: string; threadId: string }>, codexHome: string): string | null {
+  candidates.sort((a, b) => b.terminalAt.localeCompare(a.terminalAt));
+  const newest = candidates[0];
+  if (!newest || !codexSessionExists(codexHome, newest.threadId)) return null;
+  return newest.threadId;
+}
+
+/**
+ * The Codex session a managed code-review lane answered in when it reviewed an
+ * earlier candidate: among the lane's ReviewRuns that started before the
+ * current run on a different headHash (same round after a remediation inside
+ * REVIEW, or an earlier round), the newest one whose completed managed-reviewer
+ * run of the same Story, lane, agent and model left a rollout in the Codex
+ * home. A lane never receives another lane's session; the topology/inventory
+ * critic, a lane's first review, a relaunch whose only earlier runs are on the
+ * same HEAD, and every non-Codex host start fresh.
+ */
+export function findResumableReviewerSession(args: {
+  root: string; storyId: string; lane: string; agentType: string; model: string | null;
+  reviewRunId: string; excludeRunId: string; codexHome: string;
+}): string | null {
+  const reviewRuns = new StoryStore(args.root).readReviewRuns(args.storyId).runs;
+  const current = reviewRuns.find(run => run.reviewRunId === args.reviewRunId && run.storyId === args.storyId);
+  if (!current || !agentRoleIdsEqual(current.lane, args.lane)) return null;
+  // Rank by the ReviewRun's start order: the newest earlier candidate wins.
+  const earlier = new Map(earlierCandidateLaneRuns(reviewRuns, current).map((run, index) => [run.reviewRunId, index]));
+  if (earlier.size === 0) return null;
+  const runsRoot = managedHostRunsRoot(args.root);
+  if (!existsSync(runsRoot)) return null;
+  const candidates: Array<{ order: number; terminalAt: string; threadId: string }> = [];
+  for (const runId of readdirSync(runsRoot)) {
+    if (runId === args.excludeRunId) continue;
+    const dir = join(runsRoot, runId);
+    try {
+      const spec = JSON.parse(readFileSync(join(dir, 'spec.json'), 'utf8')) as Record<string, unknown>;
+      if (spec.host !== 'codex' || spec.profile !== 'managed_reviewer' || spec.storyId !== args.storyId
+        || typeof spec.lane !== 'string' || !agentRoleIdsEqual(spec.lane, args.lane)
+        || String(spec.agentType) !== args.agentType || (spec.model ?? null) !== args.model
+        || typeof spec.reviewRunId !== 'string' || !earlier.has(spec.reviewRunId)) continue;
+      const terminal = JSON.parse(readFileSync(join(dir, 'terminal.json'), 'utf8')) as { state?: string; terminalAt?: string };
+      if (terminal.state !== 'completed' || typeof terminal.terminalAt !== 'string') continue;
+      const threadId = recordedCodexThreadId(dir);
+      if (threadId) candidates.push({ order: earlier.get(spec.reviewRunId)!, terminalAt: terminal.terminalAt, threadId });
+    } catch {
+      continue;
+    }
+  }
+  candidates.sort((a, b) => b.order - a.order || b.terminalAt.localeCompare(a.terminalAt));
+  const newest = candidates[0];
+  return newest && codexSessionExists(args.codexHome, newest.threadId) ? newest.threadId : null;
+}
+
+/**
+ * The Codex session a managed run resumes, or null for a fresh launch:
+ * managed-dispatch code writers continue the Story's previous code-writer
+ * session; managed code-review lanes continue their own earlier-candidate session.
+ * Lookup failures never block a launch; they start fresh.
+ */
+export function managedResumeSessionForSpec(
+  spec: Pick<ManagedHostRunSpec, 'runId' | 'host' | 'profile' | 'storyId' | 'agentType' | 'lane' | 'reviewRunId' | 'cwd' | 'root' | 'model'>,
+  codexHome: string,
+): string | null {
+  if (spec.host !== 'codex' || !spec.storyId) return null;
+  try {
+    if (spec.profile === 'managed_dispatch'
+      && (RESUMABLE_CODE_WRITER_ROLES as readonly string[]).includes(canonicalAgentRoleId(spec.agentType))) {
+      return findResumableImplementerSession({
+        root: spec.root, storyId: spec.storyId, cwd: spec.cwd, model: spec.model ?? null, excludeRunId: spec.runId, codexHome,
+      });
+    }
+    if (spec.profile === 'managed_reviewer' && spec.lane && spec.reviewRunId) {
+      return findResumableReviewerSession({
+        root: spec.root, storyId: spec.storyId, lane: spec.lane, agentType: spec.agentType, model: spec.model ?? null,
+        reviewRunId: spec.reviewRunId, excludeRunId: spec.runId, codexHome,
+      });
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
+function codexSessionExists(codexHome: string, threadId: string): boolean {
+  const pending = [join(codexHome, 'sessions')];
+  while (pending.length > 0) {
+    const dir = pending.pop()!;
+    let entries: import('node:fs').Dirent[];
+    try { entries = readdirSync(dir, { withFileTypes: true }); } catch { continue; }
+    for (const entry of entries) {
+      if (entry.isDirectory()) pending.push(join(dir, entry.name));
+      else if (entry.name.endsWith(`${threadId}.jsonl`)) return true;
+    }
+  }
+  return false;
+}
+
+function resumeSessionField(sessionId: string | null): { resumeSessionId?: string } {
+  return sessionId ? { resumeSessionId: sessionId } : {};
 }
 
 export function managedHostRunDirectory(root: string, runId: string): string {
@@ -1681,7 +1830,10 @@ function eraseManagedHostRunOneShotInputs(paths: ManagedHostRunPaths): void {
 function withTerminalAuthorityLock<T>(paths: ManagedHostRunPaths, fn: () => T): T {
   return withMkdirLock(paths.terminalLock, fn, {
     label: `managed terminal ${paths.dir}`,
-    deadlineMs: 5_000,
+    // A live holder (heartbeat, reconcile, status recovery) can keep this lock
+    // for seconds on a loaded host; giving up turned finished provider runs into
+    // worker failures. Crashed holders are still reclaimed by classification.
+    deadlineMs: 30_000,
     staleMs: 2_000,
     pollMs: 10,
     requireHolderToken: true,
@@ -2362,7 +2514,20 @@ function captureManagedRunDurationEstimate(args: ManagedHostRunSubmitArgs, creat
   return estimateManagedRunDuration(samples,createdAt);
 }
 
+/**
+ * A live writer holds the sidecar only for the few writes of one transition,
+ * under the terminal authority lock that readers do not take. Wait that out;
+ * a sidecar that outlives the window is a crashed writer and needs recovery.
+ */
+const SNAPSHOT_TRANSITION_READ_WAIT_MS = 750;
+
 function projectionFor(paths: ManagedHostRunPaths): ManagedHostRunProjection {
+  if (existsSync(paths.snapshotEventTransition)) {
+    const deadline = Date.now() + SNAPSHOT_TRANSITION_READ_WAIT_MS;
+    while (existsSync(paths.snapshotEventTransition) && Date.now() < deadline) {
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 20);
+    }
+  }
   if (existsSync(paths.snapshotEventTransition)) {
     throw new Error(`managed host run ${paths.expectedRunId}: snapshot/event recovery pending; supervisor recovery required`);
   }
@@ -2711,7 +2876,7 @@ export function projectManagedHostRunTerminalResult(
  * worker diagnostics, not the provider live-output protocol.
  */
 async function launchManagedSupervisor(request: ManagedHostRunWorkerRequest, logFd: number): Promise<void> {
-  const entry = fileURLToPath(new URL('../cli/managed-host-run-supervisor.js', import.meta.url));
+  const entry = runtimeDistPath('cli', 'managed-host-run-supervisor.js');
   const supervisor = spawn(process.execPath, [entry, request.root, request.runId], {
     cwd: request.root, detached: true, stdio: ['ignore', logFd, logFd, 'ipc'],
   });
@@ -2804,6 +2969,10 @@ export const defaultManagedHostRunWorkerLauncher: ManagedHostRunWorkerLauncher =
           });
           descriptor.end(request.proposalInvocationPrivateKey);
         });
+        // child.unref() does not release stdio pipes. Our end of fd 3 stays
+        // open until the worker exits, so unref it (listeners stay attached)
+        // or the detached submitter process lives as long as the provider run.
+        (descriptor as { unref?: () => void }).unref?.();
       } catch (error) {
         await terminateAndReapLaunchedWorker();
         throw new Error(`managed host run: worker capability descriptor failed: ${error instanceof Error ? error.message : String(error)}`);
@@ -3408,24 +3577,27 @@ export async function runManagedHostRunWorker(
       updateSnapshotUnlocked(paths, snapshot => ({ ...snapshot, providerLaunchState: 'granted' }));
       return null;
     });
-    let launchRefusal: string | null | void;
-    if (spec.executionAdmission) {
-      if (spec.executionAdmission.version !== 1 || !spec.executionAdmission.binding || !readonlyLane) {
-        throw new Error('managed execution admission spec invalid');
+    // The same admission decision authorizes every provider spawn of this
+    // run, including a bounded final-envelope format repair turn.
+    const authorizeLaunch = async (): Promise<string | null | void> => {
+      if (spec.executionAdmission) {
+        if (spec.executionAdmission.version !== 1 || !spec.executionAdmission.binding || !readonlyLane) {
+          throw new Error('managed execution admission spec invalid');
+        }
+        const currentSpec = readManagedHostRunSpec(paths);
+        if (owner.specDigest !== sha256(currentSpec.text)) throw new Error('managed execution admission spec digest mismatch');
+        if (!oneShotEnvironment) throw new Error('managed admission sealed base environment missing');
+        // Controller verification and the terminal grant form one launch decision.
+        // The callback releases both locks before runHostRun begins.
+        return verifyManagedLaunchAdmission({
+          spec, binding: spec.executionAdmission.binding,
+          effectiveBaseEnvironment: oneShotEnvironment, providerEnvironment, readonlyLane,
+          ...(spec.profile === 'managed_reviewer' && deps.runner ? {injectedCapability:capability} : {}),
+        }, grantLaunch);
       }
-      const currentSpec = readManagedHostRunSpec(paths);
-      if (owner.specDigest !== sha256(currentSpec.text)) throw new Error('managed execution admission spec digest mismatch');
-      if (!oneShotEnvironment) throw new Error('managed admission sealed base environment missing');
-      // Controller verification and the terminal grant form one launch decision.
-      // The callback releases both locks before runHostRun begins.
-      launchRefusal = await verifyManagedLaunchAdmission({
-        spec, binding: spec.executionAdmission.binding,
-        effectiveBaseEnvironment: oneShotEnvironment, providerEnvironment, readonlyLane,
-        ...(spec.profile === 'managed_reviewer' && deps.runner ? {injectedCapability:capability} : {}),
-      }, grantLaunch);
-    } else {
-      launchRefusal = grantLaunch();
-    }
+      return grantLaunch();
+    };
+    const launchRefusal = await authorizeLaunch();
     if (launchRefusal) {
       if (launchRefusal === 'absolute_deadline_exceeded') {
         deadlineTriggered = true;
@@ -3434,7 +3606,8 @@ export async function runManagedHostRunWorker(
       cancelTriggered = readCancelRequest(paths) !== null;
       return writeTerminal(paths, cancelTriggered ? 'cancelled' : 'failed', launchRefusal, true, null, now());
     }
-    result = await runHostRun(
+    const codexHome = providerEnvironment.CODEX_HOME ?? process.env.CODEX_HOME ?? join(homedir(), '.codex');
+    const launchProvider = (launchPrompt: string, resumeSessionId: string | null, launchTimeoutMs: number) => runHostRun(
       {
         host: spec.host,
         model: spec.model ?? null,
@@ -3442,12 +3615,13 @@ export async function runManagedHostRunWorker(
         storyId: spec.storyId,
         agentType: spec.agentType,
         phase: spec.phase,
-        promptText,
+        promptText: launchPrompt,
         managedRunId: spec.runId,
+        ...resumeSessionField(resumeSessionId),
         ...(spec.profile === ACCEPTANCE_REVIEW_PROFILE ? { finalResultSchema: ACCEPTANCE_REVIEW_FINAL_SCHEMA } : {}),
         reviewRunId: spec.reviewRunId,
         lane: spec.lane,
-        timeoutMs: Math.min(spec.timeoutMs, remainingMs),
+        timeoutMs: launchTimeoutMs,
         signal: abort.signal,
         env: providerEnvironment,
         usageEnv: quotaEnvironment,
@@ -3549,98 +3723,109 @@ export async function runManagedHostRunWorker(
         },
       },
     );
-
-    // Authentication failure invalidates the shared seed before any other
-    // result/terminal branch can return. A late old worker cannot revoke a new generation.
-    if (result.failureKind === 'auth' && spec.executionAdmission) {
-      if (!oneShotEnvironment) throw new Error('managed admission sealed base environment missing');
-      const revoked = await revokeExecutionBatchBinding({
-        root: spec.root,
-        binding: spec.executionAdmission.binding.execution,
-        effectiveBaseEnvironment: oneShotEnvironment,
-      });
-      if (!(revoked.state === 'BLOCKED' && revoked.reason === 'provider-auth-revoked')
-        && !(revoked.state === 'UNKNOWN' && revoked.reason === 'revocation-generation-not-current')) {
-        throw new Error(`managed batch auth revocation failed: ${revoked.reason ?? revoked.state}`);
+    result = await launchProvider(promptText, managedResumeSessionForSpec(spec, codexHome), Math.min(spec.timeoutMs, remainingMs));
+    // Every provider exit, including a format-repair turn, passes the same
+    // post-exit authority checks before any final result is parsed or sealed.
+    // Returns the sealed terminal when the exit itself decides the run.
+    const settleProviderExit = async (
+      providerResult: HostRunResult,
+      exitFailureReason?: string,
+    ): Promise<ManagedHostRunTerminal | null> => {
+      // Authentication failure invalidates the shared seed before any other
+      // result/terminal branch can return. A late old worker cannot revoke a new generation.
+      if (providerResult.failureKind === 'auth' && spec.executionAdmission) {
+        if (!oneShotEnvironment) throw new Error('managed admission sealed base environment missing');
+        const revoked = await revokeExecutionBatchBinding({
+          root: spec.root,
+          binding: spec.executionAdmission.binding.execution,
+          effectiveBaseEnvironment: oneShotEnvironment,
+        });
+        if (!(revoked.state === 'BLOCKED' && revoked.reason === 'provider-auth-revoked')
+          && !(revoked.state === 'UNKNOWN' && revoked.reason === 'revocation-generation-not-current')) {
+          throw new Error(`managed batch auth revocation failed: ${revoked.reason ?? revoked.state}`);
+        }
       }
-    }
 
-    if (supervisorFailure) throw supervisorFailure;
+      if (supervisorFailure) throw supervisorFailure;
 
-    // A provider may write only inside its detached scratch, but a formal
-    // receipt is still bound to the exact material captured before launch.
-    // Re-check both the registration/HEAD and the clean material immediately
-    // after provider exit, before accepting a compatibility proposal, parsing
-    // final stdout, or sealing any completed terminal record.
-    if (isIsolatedReviewerProfile(spec.profile) || spec.crossHostReadonlyLane) {
-      try {
-        assertManagedReviewScratchExecution(spec, { verifyBoundMaterial: true });
-      } catch (error) {
+      // A provider may write only inside its detached scratch, but a formal
+      // receipt is still bound to the exact material captured before launch.
+      // Re-check both the registration/HEAD and the clean material immediately
+      // after provider exit, before accepting a compatibility proposal, parsing
+      // final stdout, or sealing any completed terminal record.
+      if (isIsolatedReviewerProfile(spec.profile) || spec.crossHostReadonlyLane) {
+        try {
+          assertManagedReviewScratchExecution(spec, { verifyBoundMaterial: true });
+        } catch (error) {
+          return writeTerminal(
+            paths,
+            'failed',
+            `managed_review_scratch_integrity_invalid:${error instanceof Error ? error.message : String(error)}`,
+            providerResult.replacementSafe,
+            providerResult,
+            now(),
+          );
+        }
+      }
+
+      // The child close fence wins only when the deadline callback arrived AFTER
+      // the provider close. An `aborted` result proves the opposite ordering: the
+      // managed deadline/cancel reached a still-live provider and caused its
+      // close. That must remain a timed_out terminal rather than falling through
+      // to the ordinary nonzero-exit failure path. Injected legacy runners have
+      // no close proof, so their deadline behavior remains fail-closed.
+      const deadlineAbortedLiveProvider = deadlineTriggered && providerResult.terminalReason === 'aborted';
+      if (providerResult.timedOut || deadlineAbortedLiveProvider || (deadlineTriggered && providerResult.closeObserved !== true)) {
+        // runHostRun is capped to the remaining managed deadline. When its total
+        // timer and this worker's deadline timer become runnable together, event
+        // loop ordering must not downgrade an expired managed deadline into a
+        // provider-local timeout.
+        const managedDeadlineReached = deadlineTriggered || now() >= Date.parse(spec.deadlineAt);
         return writeTerminal(
           paths,
-          'failed',
-          `managed_review_scratch_integrity_invalid:${error instanceof Error ? error.message : String(error)}`,
-          result.replacementSafe,
-          result,
+          'timed_out',
+          managedDeadlineReached ? 'absolute_deadline_exceeded' : providerResult.timeoutKind ?? 'provider_total_timeout',
+          providerResult.replacementSafe,
+          providerResult,
           now(),
         );
       }
-    }
-
-    // The child close fence wins only when the deadline callback arrived AFTER
-    // the provider close. An `aborted` result proves the opposite ordering: the
-    // managed deadline/cancel reached a still-live provider and caused its
-    // close. That must remain a timed_out terminal rather than falling through
-    // to the ordinary nonzero-exit failure path. Injected legacy runners have
-    // no close proof, so their deadline behavior remains fail-closed.
-    const deadlineAbortedLiveProvider = deadlineTriggered && result.terminalReason === 'aborted';
-    if (result.timedOut || deadlineAbortedLiveProvider || (deadlineTriggered && result.closeObserved !== true)) {
-      // runHostRun is capped to the remaining managed deadline. When its total
-      // timer and this worker's deadline timer become runnable together, event
-      // loop ordering must not downgrade an expired managed deadline into a
-      // provider-local timeout.
-      const managedDeadlineReached = deadlineTriggered || now() >= Date.parse(spec.deadlineAt);
-      return writeTerminal(
-        paths,
-        'timed_out',
-        managedDeadlineReached ? 'absolute_deadline_exceeded' : result.timeoutKind ?? 'provider_total_timeout',
-        result.replacementSafe,
-        result,
-        now(),
-      );
-    }
-    const postResultCancellation = readCancelRequest(paths);
-    const closeObservedAt = result.closeObservedAt ? Date.parse(result.closeObservedAt) : Number.NaN;
-    const cancelRequestedAt = postResultCancellation ? Date.parse(postResultCancellation.requestedAt) : Number.NaN;
-    // A close fence accepts only the reserved deadline request that was
-    // durably recorded at or after the production runner's authoritative
-    // close boundary. This avoids waiting for the worker poll interval while
-    // preserving a prior deadline/cancel as a timed-out terminal. Legacy or
-    // injected runners without an exact close timestamp remain fail-closed.
-    const closeFencedDeadline = result.closeObserved === true
-      && !deadlineAbortedLiveProvider
-      && postResultCancellation?.reason === 'absolute_deadline_exceeded'
-      && Number.isFinite(closeObservedAt)
-      && Number.isFinite(cancelRequestedAt)
-      && cancelRequestedAt >= closeObservedAt;
-    if (cancelTriggered || (postResultCancellation
-      && !(closeFencedDeadline && postResultCancellation.reason === 'absolute_deadline_exceeded'))) {
-      const terminal = classifyManagedHostRunCancellation(postResultCancellation?.reason ?? 'cancelled');
-      return writeTerminal(paths, terminal.state, terminal.reason, result.replacementSafe, result, now());
-    }
-    if (result.blocked || result.exitCode !== 0) {
-      const classifiedReason = result.failureKind && !['none', 'unknown'].includes(result.failureKind)
-        ? result.failureKind
-        : null;
-      return writeTerminal(
-        paths,
-        'failed',
-        result.refusalReason ?? classifiedReason ?? result.terminalReason ?? `provider_exit_${result.exitCode}`,
-        result.replacementSafe,
-        result,
-        now(),
-      );
-    }
+      const postResultCancellation = readCancelRequest(paths);
+      const closeObservedAt = providerResult.closeObservedAt ? Date.parse(providerResult.closeObservedAt) : Number.NaN;
+      const cancelRequestedAt = postResultCancellation ? Date.parse(postResultCancellation.requestedAt) : Number.NaN;
+      // A close fence accepts only the reserved deadline request that was
+      // durably recorded at or after the production runner's authoritative
+      // close boundary. This avoids waiting for the worker poll interval while
+      // preserving a prior deadline/cancel as a timed-out terminal. Legacy or
+      // injected runners without an exact close timestamp remain fail-closed.
+      const closeFencedDeadline = providerResult.closeObserved === true
+        && !deadlineAbortedLiveProvider
+        && postResultCancellation?.reason === 'absolute_deadline_exceeded'
+        && Number.isFinite(closeObservedAt)
+        && Number.isFinite(cancelRequestedAt)
+        && cancelRequestedAt >= closeObservedAt;
+      if (cancelTriggered || (postResultCancellation
+        && !(closeFencedDeadline && postResultCancellation.reason === 'absolute_deadline_exceeded'))) {
+        const terminal = classifyManagedHostRunCancellation(postResultCancellation?.reason ?? 'cancelled');
+        return writeTerminal(paths, terminal.state, terminal.reason, providerResult.replacementSafe, providerResult, now());
+      }
+      if (providerResult.blocked || providerResult.exitCode !== 0) {
+        const classifiedReason = providerResult.failureKind && !['none', 'unknown'].includes(providerResult.failureKind)
+          ? providerResult.failureKind
+          : null;
+        return writeTerminal(
+          paths,
+          'failed',
+          exitFailureReason ?? providerResult.refusalReason ?? classifiedReason ?? providerResult.terminalReason ?? `provider_exit_${providerResult.exitCode}`,
+          providerResult.replacementSafe,
+          providerResult,
+          now(),
+        );
+      }
+      return null;
+    };
+    const exitTerminal = await settleProviderExit(result);
+    if (exitTerminal) return exitTerminal;
     if (spec.profile === ACCEPTANCE_REVIEW_PROFILE) {
       try {
         assertAcceptanceReviewBinding(spec.acceptanceReviewBinding);
@@ -3680,34 +3865,109 @@ export async function runManagedHostRunWorker(
       // proposal is the compatibility authority; only runs without it use the
       // canonical final-result lane.
       if (!existingProposal) {
-        try {
-          const proposal = parseManagedReviewFinalProposal(result);
-          writeManagedReviewEvidenceProposal({
-            root: spec.root,
-            runId: spec.runId,
-            proposal,
-            environment: {
-              LATTICE_MANAGED_HOST_RUN_ID: spec.runId,
-              LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY: capability,
-              PROOF_OR_STOP_AGENT: spec.agentType,
+        // A final envelope that fails to parse or fails the final-proposal
+        // schema is not a verdict. When the provider session is resumable, the
+        // same session is asked (bounded) to re-emit only that JSON object; the
+        // re-emission passes the identical strict parser, proposal writer and
+        // post-exit checks. Nothing is repaired or guessed by the framework.
+        for (let repairAttempt = 0; ; repairAttempt += 1) {
+          let invalidReason: string;
+          try {
+            const proposal = parseManagedReviewFinalProposal(result);
+            writeManagedReviewEvidenceProposal({
+              root: spec.root,
+              runId: spec.runId,
+              proposal,
+              environment: {
+                LATTICE_MANAGED_HOST_RUN_ID: spec.runId,
+                LATTICE_MANAGED_REVIEW_PROPOSAL_CAPABILITY: capability,
+                PROOF_OR_STOP_AGENT: spec.agentType,
+              },
+            });
+            if (repairAttempt > 0) {
+              appendEvent(paths, {
+                schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
+                type: 'final_result_format_repair_outcome', detail: { attempt: repairAttempt, outcome: 'valid' },
+              });
+            }
+            break;
+          } catch (error) {
+            // A compatibility callback can win after the first read but before
+            // the final-result writer takes the immutable-file fence. Its valid
+            // proposal is the authority; malformed or absent competitors still
+            // leave this final result fail-closed.
+            if (spec.host !== 'grok' && readValidManagedReviewEvidenceProposal(spec.root, spec.runId, spec)) {
+              return writeTerminal(paths, 'completed', 'provider_completed', result.replacementSafe, result, now());
+            }
+            invalidReason = error instanceof Error ? error.message : String(error);
+          }
+          const repairError = managedReviewFinalFormatRepairError(result, invalidReason);
+          if (repairAttempt > 0) {
+            appendEvent(paths, {
+              schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
+              type: 'final_result_format_repair_outcome',
+              detail: { attempt: repairAttempt, outcome: 'invalid', error: repairError ?? invalidReason },
+            });
+          }
+          const failedTerminalReason = `managed_review_final_result_invalid:${invalidReason}`;
+          const resumeSessionId = repairError !== null
+            && repairAttempt < MANAGED_REVIEW_FINAL_FORMAT_REPAIR_MAX_ATTEMPTS
+            && result.replacementSafe
+            && spec.host === 'codex'
+            ? resumableManagedRunCodexSession(paths, codexHome)
+            : null;
+          if (repairError === null || resumeSessionId === null) {
+            return writeTerminal(paths, 'failed', failedTerminalReason, result.replacementSafe, result, now());
+          }
+          const attempt = repairAttempt + 1;
+          const journaled = updateSnapshotAndAppendEvent(paths, current => ({
+            // The previous provider closed and was reaped; the repair turn is a
+            // new provider stage for status and supervision.
+            ...current, generation: current.generation + 1, providerClosedAt: null, supervisionDiagnostic: null,
+          }), {
+            schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
+            type: 'final_result_format_repair',
+            detail: {
+              attempt,
+              maxAttempts: MANAGED_REVIEW_FINAL_FORMAT_REPAIR_MAX_ATTEMPTS,
+              error: repairError,
+              resumeSessionId,
+              rejectedFinalResultDigest: result.finalAssistantResult === null ? null : sha256(result.finalAssistantResult),
+              rejectedStdoutDigest: result.stdoutDigest ?? null,
             },
           });
-        } catch (error) {
-          // A compatibility callback can win after the first read but before
-          // the final-result writer takes the immutable-file fence. Its valid
-          // proposal is the authority; malformed or absent competitors still
-          // leave this final result fail-closed.
-          if (spec.host !== 'grok' && readValidManagedReviewEvidenceProposal(spec.root, spec.runId, spec)) {
-            return writeTerminal(paths, 'completed', 'provider_completed', result.replacementSafe, result, now());
+          if (!journaled) return readTerminal(paths)!;
+          const repairRefusal = await authorizeLaunch();
+          if (repairRefusal) {
+            if (repairRefusal === 'absolute_deadline_exceeded') {
+              deadlineTriggered = true;
+              return writeTerminal(paths, 'timed_out', repairRefusal, result.replacementSafe, result, now());
+            }
+            cancelTriggered = readCancelRequest(paths) !== null;
+            return writeTerminal(paths, cancelTriggered ? 'cancelled' : 'failed',
+              cancelTriggered ? repairRefusal : failedTerminalReason, result.replacementSafe, result, now());
           }
-          return writeTerminal(
-            paths,
-            'failed',
-            `managed_review_final_result_invalid:${error instanceof Error ? error.message : String(error)}`,
-            result.replacementSafe,
-            result,
-            now(),
+          providerClosed = false;
+          // Until the repair provider returns, crash cleanup must reap the
+          // newly published provider identity, not reuse the prior cleanup.
+          result = null;
+          result = await launchProvider(
+            managedReviewFinalFormatRepairPrompt(repairError),
+            resumeSessionId,
+            Math.max(1, Math.min(spec.timeoutMs, Date.parse(spec.deadlineAt) - now())),
           );
+          if (result.blocked || result.exitCode !== 0) {
+            appendEvent(paths, {
+              schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
+              type: 'final_result_format_repair_outcome',
+              detail: { attempt, outcome: 'provider_failed', exitCode: result.exitCode, timedOut: result.timedOut },
+            });
+          }
+          // Timeout, cancellation, scratch-integrity and auth outcomes keep
+          // their authority; an ordinary failed repair turn keeps today's
+          // final-result terminal reason.
+          const repairExitTerminal = await settleProviderExit(result, failedTerminalReason);
+          if (repairExitTerminal) return repairExitTerminal;
         }
       }
       if (!readValidManagedReviewEvidenceProposal(spec.root, spec.runId, spec)) {
@@ -4571,6 +4831,8 @@ export async function getManagedHostRunStatus(args: {
   runId: string;
   afterGeneration?: number;
   waitMs?: number;
+  /** Return only once the run is terminal (or the wait expires); progress does not end the wait. */
+  untilTerminal?: boolean;
   /** Internal handler-smoke seam; production omits this and retains the 30s cap. */
   maxWaitMs?: number;
   /** Internal process-smoke clock seam; production always uses Date.now. */
@@ -4578,9 +4840,10 @@ export async function getManagedHostRunStatus(args: {
 }): Promise<ManagedHostRunStatusResult> {
   const paths = pathsFor(args.root, args.runId);
   if (!existsSync(paths.spec)) throw new Error(`managed host run not found: ${args.runId}`);
+  const cap = args.untilTerminal === true ? MANAGED_HOST_RUN_STATUS_TERMINAL_WAIT_MAX_MS : MANAGED_HOST_RUN_STATUS_WAIT_MAX_MS;
   const waitMs = Math.min(
-    boundedManagedHostRunStatusWaitMs(args.waitMs),
-    boundedManagedHostRunStatusWaitMs(args.maxWaitMs ?? MANAGED_HOST_RUN_STATUS_WAIT_MAX_MS),
+    boundedPositiveMs(args.waitMs, 0, cap),
+    boundedPositiveMs(args.maxWaitMs ?? cap, 0, cap),
   );
   let run = projectionFor(paths);
   const baseline = typeof args.afterGeneration === 'number' ? args.afterGeneration : run.generation;
@@ -4590,8 +4853,10 @@ export async function getManagedHostRunStatus(args: {
     run = projectionFor(paths);
     // A cursor acknowledges terminal delivery as well as provider progress.
     // A new observer still receives an already completed run immediately.
-    const changed = run.generation !== baseline
-      || (args.afterGeneration === undefined && run.terminal !== null);
+    const changed = args.untilTerminal === true
+      ? run.terminal !== null
+      : run.generation !== baseline
+        || (args.afterGeneration === undefined && run.terminal !== null);
     if (changed || now() >= deadline || waitMs === 0) {
       return {
         schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION,
@@ -4824,6 +5089,51 @@ function readValidManagedReviewEvidenceProposal(
   }
 }
 
+/**
+ * Bounded format-repair turns a managed reviewer gets when its single final
+ * envelope fails to parse or fails the final-proposal schema. Each turn resumes
+ * the same provider session and is validated exactly like the first answer.
+ */
+export const MANAGED_REVIEW_FINAL_FORMAT_REPAIR_MAX_ATTEMPTS = 2;
+const MANAGED_REVIEW_FINAL_FORMAT_REPAIR_ERROR_CAP = 600;
+
+/**
+ * The exact validation error to show the provider, or null when the rejection
+ * is not a format/schema failure of one final envelope (missing, multiple or
+ * oversize answers and proposal-binding refusals keep today's terminal).
+ */
+function managedReviewFinalFormatRepairError(result: HostRunResult, invalidReason: string): string | null {
+  if (!invalidReason.startsWith('managed_review_final_result_malformed')) return null;
+  if (result.finalAssistantResultTruncated || result.finalAssistantResultCount !== 1 || result.finalAssistantResult === null) return null;
+  let detail: string;
+  try {
+    JSON.parse(result.finalAssistantResult.trim());
+    detail = `the JSON object does not satisfy the ${MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION} schema`;
+  } catch (error) {
+    detail = `JSON.parse: ${error instanceof Error ? error.message : String(error)}`;
+  }
+  return `${invalidReason}: ${detail}`.slice(0, MANAGED_REVIEW_FINAL_FORMAT_REPAIR_ERROR_CAP);
+}
+
+export function managedReviewFinalFormatRepairPrompt(error: string): string {
+  return [
+    'Proof-or-Stop rejected your final message: it is not a valid managed review final proposal, so nothing was recorded.',
+    `Validation error: ${error}`,
+    `Re-emit only the final JSON object (schemaVersion "${MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION}") with the same verdict and the same content as your previous final message, as valid JSON.`,
+    'Escape every double quote (\\") and backslash (\\\\) inside string values. Output no other text and no Markdown fence. Do not run tools, do not review again, and do not change the conclusion, note, findings, readManifest or readLog.',
+  ].join('\n');
+}
+
+/** The run's own Codex session, when its rollout is still kept in the provider home. */
+function resumableManagedRunCodexSession(paths: ManagedHostRunPaths, codexHome: string): string | null {
+  try {
+    const threadId = recordedCodexThreadId(dirname(paths.output));
+    return threadId && codexSessionExists(codexHome, threadId) ? threadId : null;
+  } catch {
+    return null;
+  }
+}
+
 function parseManagedReviewFinalProposal(result: HostRunResult): ManagedReviewFinalProposalInput {
   if (result.finalAssistantResultTruncated) {
     throw new Error('managed_review_final_result_oversize');
@@ -4856,6 +5166,19 @@ function parseManagedReviewFinalProposal(result: HostRunResult): ManagedReviewFi
   };
 }
 
+
+/**
+ * The read manifest a managed proposal is sealed with, given the full-scan
+ * reason the controller sealed into the run spec (absent when no full scan is
+ * required).
+ */
+export function withSealedFullScanReason<T>(readManifest: T, expectedFullScanReason: string | undefined): T {
+  if (expectedFullScanReason === undefined) return readManifest;
+  // The reason is controller-owned: a reviewer's paraphrase is replaced, not
+  // allowed to discard a completed review. Malformed manifests fail later.
+  if (!readManifest || typeof readManifest !== 'object' || Array.isArray(readManifest)) return readManifest;
+  return { ...readManifest, scanEscalationReason: expectedFullScanReason };
+}
 export function writeManagedReviewEvidenceProposal(args: {
   root: string;
   runId: string;
@@ -4923,16 +5246,7 @@ export function writeManagedReviewEvidenceProposal(args: {
   if (!isManagedInventoryCriticEnvelopeValid(args.proposal.inventoryCritic, spec.lane, spec.agentType, args.proposal.findings?.length ?? 0)) {
     throw new Error('managed_review_proposal_set: invalid inventory critic transport');
   }
-  const expectedFullScanReason = spec.reviewBinding.fullScanEscalationReason;
-  if (expectedFullScanReason !== undefined) {
-    const rawManifest = args.proposal.readManifest;
-    const rawReason = rawManifest && typeof rawManifest === 'object' && !Array.isArray(rawManifest)
-      ? (rawManifest as unknown as Record<string, unknown>).scanEscalationReason
-      : undefined;
-    if (rawReason !== expectedFullScanReason) {
-      throw new Error('managed_review_proposal_set: full-scan readManifest.scanEscalationReason must copy the sealed candidate artifact reason byte-for-byte');
-    }
-  }
+  const readManifestInput = withSealedFullScanReason(args.proposal.readManifest, spec.reviewBinding.fullScanEscalationReason);
   const conclusion = args.proposal.conclusion;
   const findings = args.proposal.findings ?? [];
   const note = args.proposal.note?.trim() ?? '';
@@ -4962,7 +5276,7 @@ export function writeManagedReviewEvidenceProposal(args: {
       ...(finding.files ? { files: [...new Set(finding.files.map(value => value.trim()).filter(Boolean))].sort() } : {}),
     };
   });
-  if (!hasRequiredManagedReviewReadEvidence(args.proposal.readManifest, args.proposal.readLog)) {
+  if (!hasRequiredManagedReviewReadEvidence(readManifestInput, args.proposal.readLog)) {
     throw new Error(
       'managed_review_proposal_set: non-empty readManifest/readLog plus candidateSpecSetDigest and corpusDigest are required',
     );
@@ -4978,7 +5292,7 @@ export function writeManagedReviewEvidenceProposal(args: {
     conclusion,
     ...(conclusion === 'pass' ? { note } : { findings: normalizedFindings }),
     ...(args.proposal.inventoryCritic !== undefined ? { inventoryCritic: structuredClone(args.proposal.inventoryCritic) } : {}),
-    readManifest: normalizeReviewerReadManifest(args.proposal.readManifest),
+    readManifest: normalizeReviewerReadManifest(readManifestInput),
     readLog: normalizeReviewerReadLogEvidence(args.proposal.readLog),
     ...(args.proposal.readDiagnostics ? { readDiagnostics: normalizeReviewerReadDiagnostics(args.proposal.readDiagnostics) } : {}),
   };

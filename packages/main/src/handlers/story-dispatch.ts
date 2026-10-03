@@ -19,11 +19,14 @@
  *   - agentType not passed → defaults to proof-or-stop-implementer semantics (required)
  */
 
+import { appendExactRequiredOutput, itemsForFinding } from '../core/exact-required-output.js';
+import { omittedPromptNote } from './review-run.js';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import type { HandlerContext } from './context.js';
 import { createClusterHandlers } from './cluster.js';
 import type { StoryStore } from '../core/store.js';
+import { readStoryRequest, renderUnmappedLiteralsLine, unmappedStoryRequestLiterals } from '../core/story-request.js';
 import { reportHealthIssue } from '../core/health.js';
 import { loadConfig } from '../core/config.js';
 import { currentPlanOwnerBinding } from '../core/plan-touchpoint-coverage.js';
@@ -153,6 +156,28 @@ function resolveBackgroundPolicy(agentType: string | undefined): BackgroundPolic
   return AGENT_BG_POLICY[canonical] ?? 'required';
 }
 
+/**
+ * The item's PLAN verification intents, with their pins. Pins are immutable in
+ * DEV and gates replay the exact command, so the worker must create tests with
+ * exactly these names instead of choosing its own.
+ */
+function appendPinnedVerification(lines: string[], intent: Partial<Record<string, Array<{ id?: string; desc?: string; verification?: { command?: string; selector?: string } }>>> | undefined): void {
+  const rows: string[] = [];
+  for (const lane of ['happy', 'edge', 'adversarial']) {
+    for (const entry of intent?.[lane] ?? []) {
+      const pin = entry.verification?.command
+        ? ` — pinned: \`${entry.verification.command}\`${entry.verification.selector ? ` (test name: ${entry.verification.selector})` : ''}`
+        : '';
+      rows.push(`- ${entry.id ?? lane} [${lane}] ${entry.desc ?? ''}${pin}`);
+    }
+  }
+  if (rows.length === 0) return;
+  lines.push('');
+  lines.push('Planned verification intents (pins are immutable in DEV; gates replay each pinned command exactly):');
+  lines.push(...rows);
+  lines.push('- Name your tests with exactly these test names and make each pinned command pass as written; a renamed test leaves the pin selecting nothing and forces a re-dispatch.');
+}
+
 function appendImplementerCommitSteps(lines: string[], message: string): void {
   lines.push(`- git commit --author="${IMPLEMENTER_COMMIT_AUTHOR}" -m "${message.replace(/"/g, "'")}"`);
   lines.push('- Keep the canonical implementer author for audit attribution. Author text never replaces the required dispatch/subagent_result process evidence.');
@@ -165,6 +190,33 @@ function appendImplementerCommitSteps(lines: string[], message: string): void {
  * duplicate implementation. `dispatch` dispatches by itemId / findingId / clusterId; the old entries are kept as aliases,
  * with the first line of stdout printing a deprecation warning while return values remain byte-identical.
  */
+/**
+ * Verbatim request traceability (benchmark run 13). The scope-plan reviewer gets
+ * request.md inline plus the mechanical literal pre-check; the verification-intent
+ * author and the INIT product reviewer get only its path; REVIEW lanes get nothing.
+ * A Story without request.md adds no prompt bytes.
+ */
+function appendScopePlanRequestTraceability(lines: string[], store: StoryStore, storyId: string): void {
+  const request = readStoryRequest(store, storyId);
+  if (request.status === 'absent') return;
+  const rel = `${store.storyDirRel()}/${storyId}/request.md`;
+  lines.push('');
+  if (request.status === 'tampered') {
+    lines.push(`Verbatim request: ${rel} — ${request.reason}. Do not treat it as authoritative; record an openQuestion asking the Story owner to restore it with story_request_set and an amendmentReason.`);
+    return;
+  }
+  lines.push(`Verbatim user request (${rel}, sha256=${request.meta.sha256.slice(0, 12)}${request.meta.truncated ? ', truncated at 16 KB' : ''}); it is authoritative over the owner paraphrase in the description/background:`);
+  lines.push('<<<REQUEST');
+  lines.push(request.text.replace(/\n$/, ''));
+  lines.push('REQUEST>>>');
+  lines.push('Request traceability (required): every normative sentence, every "for example" and every enumerated variant in the request is its own feature row with source "request.md". Each listed variant and each example input/output pair is a separate row, covered only when a checklist userSees or verificationIntent states that exact variant or exact output (whitespace aside); a related or analogous case is not coverage. Unmapped = gap. For these rows read userSees and verificationIntent, not only title/excludes.');
+  const items = (() => { try { return store.readChecklist(storyId).items; } catch { return []; } })();
+  const unmapped = unmappedStoryRequestLiterals(request.text, items);
+  lines.push(unmapped.length > 0
+    ? `Mechanical pre-check. ${renderUnmappedLiteralsLine(unmapped)}. Classify each one: gap, excluded (cite the excluding text), or covered (name the CHK and the field that states it).`
+    : 'Mechanical pre-check: every backticked request literal appears in some checklist title/userSees/verificationIntent; still trace every normative sentence.');
+}
+
 export function createStoryDispatchHandlers(ctx: HandlerContext) {
   const { store, root } = ctx;
   const candidateRoutingMode = (): 'shadow' | 'warn' | 'enforce' => loadConfig(root).candidateSpecRouting?.mode ?? 'shadow';
@@ -206,7 +258,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     lines.push('- Native host without that broker integration is advisory-only and cannot write formal finding/pass evidence; use the managed reviewer path below instead.');
     lines.push('- Cross-provider CLI reviewer: do not launch raw `bash + codex/claude/agy`. The controller first starts review_run_start, then submits the exact run through ManagedHostRun:');
     lines.push(`  proof-or-stop host_run '{"host":"codex","storyId":"${storyId}","agentType":"${lane}","reviewRunId":"<reviewRunId>","lane":"${lane}","managedReview":true,"detach":true,"json":true}'`);
-    lines.push('  Poll the returned runId with `proof-or-stop host_run_status \'{"runId":"<runId>","afterGeneration":<generation>,"waitMs":30000,"json":true}\'`. A 30-second return or provider silence is not failure and never authorizes a replacement.');
+    lines.push('  Wait for the returned runId with one blocking call, `proof-or-stop host_run_status --runId=<runId> --untilTerminal=true` (returns only at terminal, up to 10 minutes; run it with a long shell timeout or tool yield, e.g. 300000 ms, rather than re-polling every minute). A wait that expires or provider silence is not failure and never authorizes a replacement.');
     lines.push('  The provider final assistant result must be exactly one bounded `lattice.managed_review_final_proposal.v1` JSON envelope. The managed adapter seals the strictly validated verdict; the controller cannot supply or override it.');
     lines.push('  Only after state=completed and an exact receiptId exists, call `proof-or-stop managed_review_evidence_import \'{"runId":"<runId>","receiptId":"<receiptId>"}\'`.');
     lines.push('- A raw provider CLI result is manual/advisory output only; it cannot satisfy the managed reviewer evidence path.');
@@ -500,6 +552,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         REVIEWER_NO_DELEGATION_BOUNDARY,
         `Must read: ${bgPath}`,
         `Required reading: ${checklistPath}`,
+        ...(readStoryRequest(store, args.storyId).status === 'ok'
+          ? [`Required reading: ${store.storyDirRel()}/${args.storyId}/request.md (the user's verbatim request; a requested behavior that no checklist item covers is user_outcome_unspecified)`]
+          : []),
         '',
         'Review focus:',
         '- Whether the background clearly explains why the user needs this, not just the engineering mechanics',
@@ -597,6 +652,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         ? '- No candidate-spec-set artifact is present. STOP in enforce mode and ask the Story owner to run candidate_spec_route; reviewer lanes must not seize owner authority.'
         : `- No candidate-spec-set artifact is present. ${candidateRoutingMode()} mode records this without hard-blocking review.`);
     }
+    appendScopePlanRequestTraceability(lines, store, args.storyId);
     lines.push('');
     lines.push('Review focus:');
     lines.push('- Identify every user-visible promise, scope constraint, exclusion, and acceptance expectation in the story artifacts.');
@@ -726,6 +782,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     lines.push('Required reading:');
     lines.push(`1. ${storyDir}/background.md`);
     lines.push(`2. ${storyDir}/plan.md#${args.itemId}`);
+    if (readStoryRequest(store, args.storyId).status === 'ok') {
+      lines.push(`3. ${storyDir}/request.md (the user's verbatim request): for every example and every listed variant this item covers, write one exact-output intent that names that exact input and its exact expected output or error text; never collapse a listed variant set into one representative case.`);
+    }
     for (const doc of item.relatedDocs || []) lines.push(`- ${doc}`);
     lines.push('');
     lines.push(`Current phase: ${story.phase}. Context: ${item.context || '(not declared)'}`);
@@ -818,6 +877,13 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
 
       lines.push(`Severity: ${fSeverity}  Category: ${fCategory}  Reviewer: ${fReviewer}`);
       lines.push(`Description: ${fDesc}`);
+      appendExactRequiredOutput(lines, itemsForFinding(store.readChecklist(args.storyId).items, finding));
+      lines.push('');
+      lines.push('Repair the defect family, not only this counterexample:');
+      lines.push('- Before editing, name the root cause and list every sibling code path with the same root cause (the other arity, operand type, direction, or read/write variant of the same operation).');
+      lines.push('- Add a failing test for each sibling as well as for the reported case, then fix them together and rerun the affected package tests.');
+      lines.push('- If the repair changes what a field or encoding means or can represent (for example adds an omitted/unset distinction), list every reader of it, including render, String(), serialize, print, equality and hash, and make each honor the new distinction or state a concrete reason tied to the request. Fix any existing test whose expected value contradicts the requirement.');
+      lines.push('- A sibling left unfixed is reported as a new finding in the next review round, which costs a full remediation cycle.');
       lines.push('');
       lines.push('After completion:');
       appendImplementerCommitSteps(lines, `${args.storyId} ${shortFid}: resolve finding`);
@@ -1000,6 +1066,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push(`- Test:   ${filesBlock.test}`);
       lines.push('');
       lines.push(`Verify: ${verifyText}`);
+      appendPinnedVerification(lines, item.verificationIntent);
+      appendExactRequiredOutput(lines, [item]);
       const routed = store.readCandidateSpecSet(args.storyId);
       if (routed) {
         lines.push('');
@@ -1018,7 +1086,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       return { prompt: lines.join('\n') };
   }
 
-  return {
+  const handlers = {
     /**
      * dispatch — B-9d95 CHK-004 unified entry
      * (B-a4e3 CHK-005: the deprecated finding_dispatch / story_dispatch alias methods were removed;
@@ -1040,6 +1108,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       agentType?: string;
       reviewPurpose?: 'topology' | 'inventory-completeness';
       inventoryEpochId?: string;
+      summary?: boolean;
     }): DispatchResult {
       if (!args.storyId) throw new Error('storyId is required');
       let story;
@@ -1382,6 +1451,12 @@ ${renderAgentLivenessGuidance({
       return { prompt, nativeLaunchContract: REPAIR_NATIVE_LAUNCH_CONTRACT };
     },
   };
+  const dispatchFull = handlers.dispatch;
+  handlers.dispatch = (args: Parameters<typeof dispatchFull>[0]): DispatchResult => {
+    const result = dispatchFull(args);
+    return args.summary ? { ...result, prompt: omittedPromptNote(result.prompt) } : result;
+  };
+  return handlers;
 }
 
 /** Extract the paragraph between `## {itemId}:` and the next `^## ` from plan.md */

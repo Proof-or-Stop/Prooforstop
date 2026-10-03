@@ -32,9 +32,13 @@
 | **INIT_CHECK** | `story_advance INIT_CHECK` 创建 worktree，提示 cd |
 | **PLAN** | understanding → decision → checklist + `verificationIntent` → plan.md（正常通道）→ `story_review` 审查通过后进 DEV（快速通道跳过 PLAN） |
 | **DEV** | 写代码 + 写测试，给 must intent 记录 `verificationEvidence`，checklist 全 done 后进 REVIEW |
-| **REVIEW** | 按 riskSignals / touchpoints 自动挂载 LLM reviewer（baseline concept+quality+test-coverage，其他按信号 opt-in，详见下方「Reviewer opt-in 路由」）+ CLI preflight gate（`validate --channel` / `--concept` / `--lint` / `docs-drift`，触及 Codex adapter 时另加 `codex-adapter`）在 REVIEW→TEST 自动跑；`proof-or-stop-review-channel` 已退役（S1），由 CLI 接管。主 agent 验收：`finding_list` 确认 reviewer finding 注册 → 逐条 resolve → blocking finding 全 resolved 后进 TEST（CLI gate 任一 fail 会直接 block） |
-| **TEST** | `proof-or-stop validate` 验证，全绿 + verification coverage 通过 + bug 全 fixed 后进 DONE |
+| **REVIEW** | 按 riskSignals / touchpoints 自动挂载 LLM reviewer（baseline concept+quality+test-coverage，其他按信号 opt-in，详见下方「Reviewer opt-in 路由」）+ CLI preflight gate（`validate --channel` / `--concept` / `--lint` / `docs-drift`，触及 Codex adapter 时另加 `codex-adapter`）在 REVIEW→TEST 自动跑；`proof-or-stop-review-channel` 已退役（S1），由 CLI 接管。主 agent 验收：`finding_list` 确认 reviewer finding 注册 → 逐条 resolve → blocking finding 全 resolved 后经 inventory + PRE_CERT 进 TEST（CLI gate 任一 fail 会直接 block）；整个 REVIEW→TEST 顺序由 `proof-or-stop next --storyId=<id>` 逐步给出 |
+| **TEST** | routine `proof-or-stop validate` 已在 REVIEW 的 PRE_CERT 之后跑过一次，TEST 只消费该 PASS；完成 live smoke / delivery reviewer / finish decision / summary / review assurance floor、bug 全 fixed 后进 DONE（`proof-or-stop next --storyId=<id>` 逐步给出每一步） |
 | **DONE** | `story_advance DONE` 合并回 main 并清理 worktree。DONE 成功后按 `.proof-or-stop/audit-config.json` 触发 audit 提示（semi-auto 模式在输出末追加 audit 建议；详见「框架自省 audit 配置」段） |
+
+### REVIEW → DONE is framework-driven: `proof-or-stop next --storyId=<id>`
+
+After DEV (every checklist item done and committed), run `proof-or-stop next --storyId=<id>` from the Story worktree and execute the one command it prints, then ask again. It is read-only, decides each step from the real gate predicates (evidence-chain check, REVIEW verdict, reviewer batch plan, inventory status, PRE_CERT admit predicates, certification status, DONE oracle), and labels it `framework` (mechanical; `--run` executes consecutive framework steps through the normal CLI), `agent` (code, a managed reviewer launch, authored text or a host verdict; `<...>` placeholders name the fields to author) or `human`. It covers REVIEW entry, every review round (prepare → launch all prepared lanes → wait → import), the inventory epoch and critic, remediation back to DEV (repair → evidence refresh → `finding_resolve`), PRE_CERT (fast check → `certification_window_begin` → routine `validate`), TEST (live smoke, delivery reviewer, finish decision, summary, review assurance floor) and DONE. Do not reorder these steps or probe `story_advance` ahead of it. Decision table: `docs/CLI.md` ("`next --storyId`").
 
 ### 如何选通道
 
@@ -425,7 +429,7 @@ project/
 
 每个 story 一个独立 worktree，互不干扰。这里的并行是 **本地 git worktree + 本地分支**，不是 GitHub/origin 分支；agent 不要创建或 push 远端 feature branch：
 
-1. `story_create` → 停在 **INIT**（在 main 分支上写 story 文件）
+1. `story_create` → 停在 **INIT**（在 main 分支上写 story 文件；用户原话以 `request`/`requestFile` 逐字传入，写成 `request.md`，见下文「verbatim request」）
 2. `story_advance INIT_CHECK` → 自动创建 `.worktrees/B-xxx/`，分支 `story/B-xxx`
 3. **`cd .worktrees/B-xxx`**（必须切，否则 cwd 门禁拒绝）
 4. `story_advance PLAN` → 正式进入开发流程
@@ -487,6 +491,7 @@ Proof-or-Stop 支持多 worktree 并行，写权限的跨 session 协调按 roll
 - title 描述「做什么」，不描述「怎么做」
 - context 给执行 agent 提供决策上下文
 - **userSees**：用户完成此 item 后看到的具体文本（必须含精确输出，不能是"功能正常"这类抽象描述）
+  - `dispatch`（itemId 的 implementer prompt，以及 findingId 的 finding-repair prompt：finding desc 点名的 CHK-NNN 或 files 与 finding 重叠的 item）会把精确字符串逐字放进 "Exact required output — must match byte-for-byte" 段：userSees 与 verificationIntent desc 里的 `反引号` / "双引号" 字面量（含空格、`:` 或 `=`）、``` 代码块里的输出行（`$ ` / `> ` 开头的命令行除外），以及 cli/browser/manual intent 的 pinned 输出 selector。只摘字面量，不改写不补造；最多 24 条 / 4000 字符，超出注明省略条数。所以精确报错文本要用引号或反引号写进 userSees / intent desc。
 - **relatedDocs**：关联文档路径数组，触发三次提醒
 
 ### relatedDocs 三次提醒（软提醒，不阻塞）
@@ -682,6 +687,13 @@ see story/B-9975
 
 即「PLAN 完成标志 = `scope-check.json` 存在且所有通道均已清账」。
 
+### verbatim request（request.md）与 PLAN 追溯
+
+- `story_create` 接收 `request`（或 `requestFile`）：用户请求**原文**，不是转述；通用用户场景要向用户索取原话。写入 Story 目录 `request.md`（上限 16 KB，超出带显式截断标记），`request.json` 记 sha256 / 来源 / amendments；`request.md` 进入 INIT_CHECK 签名域（无 request.md 的 Story 哈希不变）。
+- `story_request_set`：无 `storyId` 时暂存到 `.proof-or-stop/runtime/staged-story-request.md`，下一次 `story_create` 消费一次（benchmark adapter 用这条路记录任务原文）；有 `storyId` 时记录/修订，仅限 IDEA/INIT/INIT_CHECK/PLAN，替换已有原文或 INIT 之后首次记录都必须带 `amendmentReason`（≥30 字符）。手改 request.md 会被识别为与 request.json 不符、不作为权威输入。
+- scope-plan reviewer 的 dispatch prompt 内联 request 原文：每个规范性句子、每个「for example」、每个枚举变体集都是独立 feature 行，只有某条 `userSees`/`verificationIntent` 写出该确切变体或确切输出才算 covered，否则是 gap；另附机械预检：request 中反引号字面量没有出现在任何 checklist title/userSees/verificationIntent 里的逐个列出。
+- verification-intent 作者的 prompt 指向 request.md，要求每个例子、每个列出的变体各写一条精确输出 intent。INIT product reviewer 只拿到路径；REVIEW 各 lane 不注入（token 纪律）。
+
 ### Open Questions (OQ) 通道（B-ed3e）
 
 scope-plan reviewer 按搜索预算契约（B-cee5：完整枚举 `<requirementsDir>/decisions/` 文件名 + candidateSpecSet 有界全文阅读，全目录全文扫描仅限记录 scanEscalationReason 的升级路径）审阅 decisions/ 时，若发现 checklist / decisions 间有**非典型矛盾**（无法归入 covered/excluded/gap/orphan-suspect/drift 任一档），写入第 6 通道 `openQuestions: OpenQuestion[]`：
@@ -713,6 +725,23 @@ proof-or-stop scope_question_resolve '{
 - resolution **不进 scope-check.json 的 `_hash` 签名域**（reviewer 判定不被 main agent 动作污染）
 - **PLAN→DEV gate**：`story_review` 把未 resolved 的 OQ 作为 blocker（`type: scope_open_question_unresolved`），必须全部 resolve 才能进 DEV
 - 老 scope-check.json 无 `openQuestions` 字段时视为空集，不触发 gate
+
+### 证据链检查（框架负责，永远不是 review finding）
+
+Review finding 只能是真实的产品缺陷。证据链问题（receipt 过期、intent 没有 pinned command 或没有 receipt、
+Story diff 里新增/改动的 Go 测试没有被任何 intent 的 pinned `go test -run` 选中）由
+`core/evidence-chain-check.ts`（接线在 `handlers/evidence-chain.ts`）在进 REVIEW 前机械检测，每次只给一个 `Next:`：
+
+- `stale_receipt`（must/should）：阻塞 DEV→REVIEW，Next 固定为 `proof-or-stop verification_evidence_refresh_stale --storyId=<id>`；不要逐条 `verification_evidence_add` 重放。
+- `missing_receipt`：must 阻塞、should 只提示；Next 是 `verification_run`（已 pin）或 `verification_evidence_add`（未 pin，优先绑定该 item 里未被选中的已改测试）。
+- `unbound_test`：只提示；Next 把测试绑定到该测试所在 item 的第一个未 pin intent。全部 intent 已 pin（pin 不可改）时无需动作，除非它是某个 userSees 行为的唯一测试（走 `acceptance_amendment_propose`）。
+- 选择集是算出来的，不猜：无法计算的 pinned command（make、shell、模块外 import path 等）会跳过扫描并写明原因；JS/TS 不扫描。
+- 输出位置：`pre_review_check` / `pre_review_check_read` 文本末尾的 `Evidence-chain check` 段，以及 `story_advance REVIEW` 的 gate。
+
+test-coverage reviewer 只报产品覆盖缺口。reviewer 若仍报证据链项，用 `category: "evidence_chain"`：
+`managed_review_evidence_import` 只导入产品 finding（保留 sealed proposal index），只含证据链项的 proposal 以 pass 导入
+（note 由 verifier 从 sealed proposal 重算），每项记为 `review_evidence_chain_reclassified` process event，并打印
+`Framework next action:`；native `finding_add` 直接拒绝（`evidence_chain_not_a_finding`）。
 
 ### acceptance basis 与 pre_review_check 的顺序约束（B-45a0 F-435/F-438）
 
@@ -833,7 +862,7 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 |---|---|---|
 | **主 agent** | 需求管理（PLAN + plan.md）+ 分配任务 + 验收（REVIEW/TEST/DONE） | 仅快速通道 |
 | **proof-or-stop-implementer** | 写代码 + 写测试，接受主 agent 按 plan.md 分配的 checklist item | 正常通道必须 |
-| **proof-or-stop-review-\*** | REVIEW 阶段按 opt-in 路由并行审查（baseline concept+quality+test-coverage，按 riskSignals / touchpoints 加挂 behavior/docs），各自提 finding。`test-coverage` 继承旧 TEST_CASE_REVIEW 职责，检查 verificationIntent → verificationEvidence 覆盖；`channel` LLM agent 已退役（S1）由 `validate --channel` CLI 接管；`quality` 假设 lint 已绿只审主观项 | 不写 |
+| **proof-or-stop-review-\*** | REVIEW 阶段按 opt-in 路由并行审查（baseline concept+quality+test-coverage，按 riskSignals / touchpoints 加挂 behavior/docs），各自提 finding。`test-coverage` 继承旧 TEST_CASE_REVIEW 职责，只审产品覆盖缺口（userSees/验收行为没有任何测试、断言没检查该行为、断言值与需求矛盾、缺边界用例）；receipt/pin/测试绑定等证据链项由框架在 REVIEW 前检查，不是 finding；`channel` LLM agent 已退役（S1）由 `validate --channel` CLI 接管；`quality` 假设 lint 已绿只审主观项 | 不写 |
 | **proof-or-stop-evaluator** | browser 项目产品质量打分（功能完整性 + 可用性） | 不写 |
 | **proof-or-stop-evaluator-cli** | CLI / core 项目产品质量打分（通过 bridge API 驱动状态转换验证） | 不写 |
 
@@ -1028,15 +1057,14 @@ executable intent（logic|cli|browser）的 evidence 会真的 **执行** pinned
 The structured `canPassReviewGuard` gate (`core/machine.ts`, consumed by the REVIEW→TEST transition) decides on reviewer evidence + findings, NOT on free text. Its accurate semantics:
 
 - **An invalid (stale / unknown-run / tampered) current-round binding blocks in ALL rounds.** `collectReviewerEvidenceState` validates every reviewer finding / review-pass against its bound `reviewRunId` (signature, lane, current round, fresh head/material hash, scope binding; plus — for an open FINDING only — the lane's current-latest run, since a PASS is accepted on any current-round fresh run). If any current-round reviewer evidence is invalid, the gate fails closed BEFORE the round split — round 1 and round 2+ alike.
-- **Round 1 (`roundCount <= 1`): requires EVERY opt-in reviewer to have a valid current-round verdict, plus quorum.** The opt-in set is the same one `proof-or-stop reviewer_list` reports (baseline concept + quality + test-coverage, plus behavior/docs by riskSignals / `.md` touchpoints). Missing any opt-in reviewer, or failing the quorum check, blocks.
-- **Round 2+ (`roundCount >= 2`): requires only `>= 1` valid current-round receipt** (finding or review-pass). The framework still skips no reviewer; this only relaxes the gate's minimum, not the reviewer roster.
-- **A verified open blocking finding blocks** (after round decay): `status=open` AND severity in the round's effective blocking set (round 1 = profile `blockingSeverities`; round 2 = critical+high; round 3+ = critical) AND `evidenceState` verified-or-missing. `suspected` / `disproven` never block.
+- **Every round: requires a valid current-round verdict from EVERY required lane, plus quorum.** The required set is `computeFinalReviewRoster` (`core/machine.ts` `evaluateReviewVerdict`): the opt-in active reviewers `proof-or-stop reviewer_list` reports (baseline concept + quality + test-coverage, plus behavior/docs by riskSignals / `.md` touchpoints), or — after one consumed remediation inventory — the signed post-remediation selection, which narrows to impacted lanes only on a complete supported impact closure and otherwise keeps every active lane. The round number never narrows the set (the former "round 2+ needs only `>= 1` receipt" shortcut is removed). Missing any required lane, or failing quorum, blocks.
+- **Every verified open critical / high / medium finding blocks, in every profile and whichever round raised it (no round decay).** `status=open` AND severity in the closure set (`core/finding-closure-severities.ts`: critical+high+medium in light, balanced and strict alike — every preset's `blockingSeverities` is derived from it, so `workflow_show` reports exactly this set; low is always advisory; the same set in every round) AND `evidenceState` verified-or-missing. Findings from EARLIER rounds count: REVIEW→TEST, DONE's review-verdict predicate, `certification_window_begin` and lifecycle readiness all read every round's findings (`core/finding-closure.ts`). A finding is closed only by `finding_resolve` with repair evidence (incl. `--resolutionType=accepted_risk`, the named accepted-risk record), `review_remediation_close`, or an existing `finding_dismiss` record (REVIEW only, never critical). The refusal prints one `Next:` naming the ids and the exact `proof-or-stop finding_resolve --storyId=<id> --findingId=<id> --resolution="<repair commit + passing focused evidence>"` (from TEST: `story_advance --phase=DEV` first). A `finding_resolve` metadata commit in REVIEW is authenticated review bookkeeping (signed open→resolved transitions + their `findings.json` mirror only), so it does not break the managed-review live-head lineage. `suspected` / `disproven` never block. There is no review-round limit.
 
 **`proof-or-stop review_incremental_context --storyId=B-xxx --role=<reviewer>`** is a strictly read-only advisory: it returns the reviewer's prior verdict, the `headHash` that verdict was bound to, and the MATERIAL files changed since (rename-aware `git diff --name-status -M`, so a renamed file still counts as changed), plus `scopeChanged` / `isFirstPass`. A first-timer (no prior pass) gets `isFirstPass=true` and the full `main...HEAD` material diff. **It writes nothing and changes none of the gate inputs above** (findings / review-passes / review-runs / currentReviewRound); calling it does not alter `canPassReviewGuard` (proven by `test:review-incremental-context-smoke`).
 
 `isFirstPass=true` is the authoritative "no usable incremental baseline" signal and covers TWO sub-cases: (a) the reviewer never passed before, AND (b) a prior verdict exists but the run it was bound to has an unresolvable `headHash`. In sub-case (b) `priorVerdict` is non-null (informational) while `priorHeadHash` is null and `changedFiles` is the full `main...HEAD` diff — so a JSON consumer must key off `isFirstPass` (not `priorVerdict`) to decide whether an incremental baseline exists. Likewise `scopeChanged` is forced to true whenever `isFirstPass=true`, so it may be true even when `changedFiles` is empty; only when `isFirstPass=false` does `scopeChanged === (changedFiles.length > 0)`.
 
-**Round 2+ informed targeted re-review (operator judgement):** because the round-2+ gate needs only `>= 1` valid current-round receipt, when entering REVIEW for round >= 2 the next-step output appends an advisory listing the active reviewers whose scope changed since their last pass. An operator MAY then re-run only those scope-changed reviewers (`proof-or-stop review_incremental_context --role=<name>` to inspect each), rather than re-running the entire roster. This is your call — the framework skips nobody and the gate is unchanged; it is purely an operator efficiency hint.
+**Round 2+ scope-change advisory (context only):** when entering REVIEW for round >= 2 the next-step output appends the active reviewers whose scope changed since their last pass (`proof-or-stop review_incremental_context --role=<name>` inspects each). It does not relax the gate: every required lane (see `proof-or-stop reviewer_batch`) still needs a valid current-round verdict.
 
 ### Reviewer opt-in 路由（按 riskSignals 挂载）
 
@@ -1046,8 +1074,8 @@ The structured `canPassReviewGuard` gate (`core/machine.ts`, consumed by the REV
 |---|---|
 | **concept** | baseline（永远开） |
 | **quality** | baseline（永远开） |
-| **test-coverage** | baseline（永远开，审 verificationIntent 是否都有有效 evidence / waiver） |
-| **behavior** | riskSignals 含 `state machine` / `guard` / `gate` |
+| **test-coverage** | baseline（永远开，审承诺的行为是否真有测试覆盖，以及断言值是否与需求矛盾；stale/缺失 receipt 与未绑定测试属框架的证据链检查，不报 finding） |
+| **behavior** | 某个 riskSignal category 按 `/` 拆分、忽略大小写后含 `state machine` / `guard` / `gate`（story_create 检测器产出 `State Machine/Gate` 即命中；其他类别不挂载） |
 | **docs** | touchpoints 含 `.md` 文件 |
 
 **查看当前 story 的 reviewer 名单**：
@@ -1094,12 +1122,8 @@ proof-or-stop dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # 输出 impl
 
 ```ts
 {
-  findings: Finding[],            // 每条 finding 追加 advisoryLabel: "[R2-ADVISORY]" | "[R3-ADVISORY]" | null
-  reviewRound: string,            // reviewRound: string (ISO 8601 review round id)
-  blockingHeading: string,        // 例 "# Blocking (Round 2)"
-  advisoryHeading: string,        // 例 "# Advisory (not blocking this round)"
-  blocking: string[],             // status=open 且 advisoryLabel=null 的 finding.id 列表
-  advisory: string[],             // advisoryLabel!=null 的 finding.id 列表（含已 resolved/dismissed 的）
+  findings: Finding[],            // 每条 finding 带 evidenceState（缺失按 verified 渲染）
+  attention: { suspected: string[], disproven: string[] }, // 非 blocking 的 open finding
 }
 ```
 
@@ -1110,7 +1134,6 @@ proof-or-stop dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # 输出 impl
   clusters: Array<{
     clusterId, rootCause, findingCount, severity, files, findingIds,
     reviewRound: string,          // reviewRound: string (ISO 8601 review round id)
-    advisoryLabel: string | null, // F-035: 簇内全员同 label 时升级为簇级，否则 null（混合态由成员 label 表达）
   }>,
   ungrouped: Finding[],
   reviewRound: string,            // reviewRound: string (ISO 8601 review round id)
@@ -1119,25 +1142,20 @@ proof-or-stop dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # 输出 impl
 
 **兼容性承诺**：
 - 默认视图的 `findings` 数组始终存在，字段 `id/desc/severity/category/status/agent/createdAt/reviewRound/_hash` 稳定。
-- 新字段（`reviewRound/blockingHeading/advisoryHeading/blocking/advisory/advisoryLabel`）纯附加，调用方若只读 `findings` 无需适配。
-- Cluster 视图的 `clusters[]/ungrouped[]` 字段保留；`reviewRound/advisoryLabel` 为附加元数据。
+- 附加字段（`attention` 等）纯附加，调用方若只读 `findings` 无需适配。没有按轮次的 advisory 标签（轮次递减已移除）。
+- Cluster 视图的 `clusters[]/ungrouped[]` 字段保留；`reviewRound` 为附加元数据。
 - 严格类型检查的调用方应按 `Record<string, unknown>` 处理新字段，或跟进此文档的 schema 定义。
 
-### REVIEW 轮次递减规则（框架自动标签）
+### REVIEW finding 关闭规则（无轮次递减）
 
-每轮 REVIEW 的 blocking 级别按轮次递减，`finding_list` 输出自动分 `# Blocking` / `# Advisory` 两组，每条 advisory finding 标 `[R2-ADVISORY]` / `[R3-ADVISORY]`，`canPassReview` gate 复用同一规则函数 `isAdvisoryThisRound(severity, round)`——主 agent 不再心算。
-
-| 轮次 | blocking | advisory（自动降级） |
-|---|---|---|
-| Round 1 | 按 profile 完整执行（strict: critical+high+medium，balanced: critical+high） | 无 |
-| Round 2 | critical + high | medium → `[R2-ADVISORY]` |
-| Round 3+ | critical | high → `[R3-ADVISORY]`，medium 已是 advisory |
+轮次递减（Round 2 只拦 critical+high、Round 3+ 只拦 critical）**已移除**。每一轮、每个 profile（light / balanced / strict）都要求 verified 的 critical + high + medium 关闭（`core/finding-closure-severities.ts` 的 closure 集合；三个 preset 的 `blockingSeverities` 都由它派生，`workflow_show` / `workflow_set` / 同步到 CLAUDE.md 的 profile 段落显示的就是这个集合；low 永远 advisory），共享函数 `isFindingBlocking` / `isDynamicFindingBlocking` 不再随轮次变化，`core/finding-closure.ts` 是唯一来源。
 
 **硬规则**：
-- **critical 任何轮次都必须修**，不允许 dismiss
-- **high 前 2 轮必须修**，第 3 轮可以 dismiss + 理由
-- **medium 第 1 轮必须修**（strict profile），第 2 轮可以 dismiss + 理由
-- **low 第 1 轮必须修**，第 2 轮可以 dismiss + 理由
+- 任何轮次提出的 verified open blocking finding，都必须在 TEST 与 DONE 之前关闭；早先轮次的 finding 同样计数，后续轮次 all-pass 不会让它过期。
+- 关闭方式：`finding_resolve` + 修复证据（`--resolution`；接受风险用 `--resolutionType=accepted_risk`）、`review_remediation_close`，或既有的 `finding_dismiss`（仅 REVIEW，critical 不可 dismiss）。
+- `suspected` / `disproven` 保持 advisory，不阻塞。
+- light profile 不要求 reviewer，但已记录的 verified critical/high/medium finding 同样须在 TEST/DONE 前关闭。profile 之间不再有 blocking severity 差异（切换 profile 不改变 finding 关闭规则）；`closureBlockingSeverities` 对手工构造的 policy 仍取并集，只能加、不能减。
+- 不设 review 轮次上限。
 
 ## 合并态组合审查（流程框架并行 story）
 
@@ -1160,7 +1178,7 @@ question is answered. The reviewer's job is to find; the main agent's job is to 
 
 Mandatory when the defect is any of:
 
-- critical / high severity
+- verified critical / high / medium severity
 - security, data integrity, or destructive-compatibility impact
 - blocks the current story's acceptance, REVIEW, TEST, or DONE
 - makes already-registered evidence false (a selector that cannot match the real

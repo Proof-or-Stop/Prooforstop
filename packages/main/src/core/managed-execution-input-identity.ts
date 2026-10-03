@@ -2,6 +2,7 @@ import { MANAGED_EXECUTION_IDENTITY_RUNTIME_POLICY as policy } from './runtime-f
 import {createHash} from 'node:crypto';
 import {constants,openSync,closeSync,fstatSync,readSync,realpathSync,readFileSync} from 'node:fs';
 import {isAbsolute} from 'node:path';
+import {runtimeDistPath} from './runtime-layout.js';
 import {canonicalReviewHostLauncherSpec,type CanonicalReviewHost} from './host-execution-readiness.js';
 import {fingerprintCapturedManagedProviderState,type ManagedProviderStateSnapshot} from './managed-review-provider-state.js';
 import {managedExecutionKeyedDigest,type ManagedExecutionIdentityKey} from './managed-execution-identity-key.js';
@@ -21,7 +22,7 @@ interface RuntimeInputs {key:ManagedExecutionIdentityKey;host:CanonicalReviewHos
 export function identifyManagedExecutionRuntimeInputs(args:RuntimeInputs) {
  if(!args.reviewProfile.trim())throw new Error('review profile identity required');
  const environment=Object.keys(args.environment).sort().map(name=>[name,args.environment[name]===undefined?{absent:true}:{value:args.environment[name]}]);
- const projection={schema:'managed-execution-runtime-inputs.v1',host:args.host,launcher:canonicalReviewHostLauncherSpec(args.host),reviewProfile:args.reviewProfile,reviewArgv:[...args.reviewArgv],cwd:realpathSync(args.cwd),environment,executable:executable(args.executablePath),runtime:{node:process.version,platform:process.platform,arch:process.arch,probeAndRunner:['./host-execution-readiness.js','../providers/supervised-process.js','../providers/supervised-process-worker.js','./runtime-fact-registry.js'].map(path=>[path,createHash('sha256').update(readFileSync(new URL(path,import.meta.url))).digest('hex')])}};
+ const projection={schema:'managed-execution-runtime-inputs.v1',host:args.host,launcher:canonicalReviewHostLauncherSpec(args.host),reviewProfile:args.reviewProfile,reviewArgv:[...args.reviewArgv],cwd:realpathSync(args.cwd),environment,executable:executable(args.executablePath),runtime:{node:process.version,platform:process.platform,arch:process.arch,probeAndRunner:['./host-execution-readiness.js','../providers/supervised-process.js','../providers/supervised-process-worker.js','./runtime-fact-registry.js'].map(path=>[path,createHash('sha256').update(readFileSync(runtimeDistPath('core',path))).digest('hex')])}};
  return Object.freeze({schema:projection.schema,digest:managedExecutionKeyedDigest(args.key,projection.schema,[Buffer.from(JSON.stringify(projection))])});
 }
 

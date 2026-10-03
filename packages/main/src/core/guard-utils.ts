@@ -14,7 +14,7 @@ import { rethrowIntentAmendmentIntegrityError } from './verification-intent-amen
 
 import { verifyFinding } from './finding-verify.js';
 import { isReviewerAgent } from './review-run.js';
-import { readDynamicFindingDecision } from './finding-applicability-projection.js';
+import { resolveEffectiveBlockingSeverities, unclosedBlockingFindings, findingClosureNextAction } from './finding-closure.js';
 import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
 import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
 import { computeActiveReviewers, computeFinalReviewRoster } from '../handlers/reviewer-list.js';
@@ -27,37 +27,9 @@ import { resolveWorkflowPolicy } from './workflow-policy.js';
 import { evaluateReviewVerdict, storyMachine, type StoryMachineContext } from './machine.js';
 import { isTerminalChecklistStatus } from './checklist-status.js';
 
-/**
- * Resolve effective blocking severities with round decay.
- * Round count is derived from story events (how many times the story entered REVIEW phase),
- * not from review.json which also contains PLAN-phase story_review entries.
- */
-export function resolveEffectiveBlockingSeverities(
-  store: StoryStore,
-  storyId: string,
-  policy: { review: { blockingSeverities: readonly string[] | string[] } },
-): { effectiveBlockingSeverities: string[]; roundCount: number } {
-  let roundCount = 1;
-  try {
-    const story = store.readStory(storyId);
-    if (story.events) {
-      const reviewEntries = story.events.filter(
-        (e: any) => e.phase === 'REVIEW' && e.action === 'advance',
-      );
-      roundCount = reviewEntries.length || 1;
-    }
-  } catch { /* fallback to 1 */ }
-
-  let effectiveBlockingSeverities: string[];
-  if (roundCount >= 3) {
-    effectiveBlockingSeverities = ['critical'];
-  } else if (roundCount >= 2) {
-    effectiveBlockingSeverities = ['critical', 'high'];
-  } else {
-    effectiveBlockingSeverities = policy.review.blockingSeverities as string[];
-  }
-  return { effectiveBlockingSeverities, roundCount };
-}
+// No round decay: the closure severities (critical/high/medium) apply in every review round
+// (core/finding-closure.ts). Re-exported for existing consumers.
+export { resolveEffectiveBlockingSeverities };
 
 export function createStoryActor(
   storyId: string,
@@ -234,13 +206,12 @@ export function getGuardFailureReason(
         const { effectiveBlockingSeverities, roundCount } = resolveEffectiveBlockingSeverities(store, storyId, policy);
 
         // B-e8c8 CHK-007: advisory findings do not count as blockers (same source as canPassReview).
-        // B-3fad CHK-001: add evidenceState dimension from the same source — only verified (or legacy missing field) blocks.
-        const blocking = findings.findings.map(finding => ({ finding, decision: readDynamicFindingDecision({
-          store, projectRoot: projectRoot ?? process.cwd(), storyId, finding,
-          effectiveBlockingSeverities, round: roundCount,
-        }) })).filter(row => row.decision.blocking);
+        // B-3fad CHK-001: only verified (or legacy missing field) findings block.
+        // Closure rule: every round's verified blocking finding must be closed (no round decay).
+        const blocking = unclosedBlockingFindings({ store, projectRoot: projectRoot ?? process.cwd(), storyId,
+          findings: findings.findings, effectiveBlockingSeverities, round: roundCount });
         if (blocking.length > 0) {
-          return `Cannot enter TEST: ${blocking.length} blocking finding(s) open (Round ${roundCount}, blocking: ${effectiveBlockingSeverities.join('/')}):\n${blocking.map(row => `  - ${row.finding.id} [${row.finding.severity}] ${row.finding.desc} (${row.decision.reason})`).join('\n')}\n→ Repair the applicable Finding, or record a signed current applicability assessment and any eligible defer-with-proof disposition`;
+          return `Cannot enter TEST: ${blocking.length} verified blocking finding(s) not closed (blocking: ${effectiveBlockingSeverities.join('/')}, any review round):\n${blocking.map(row => `  - ${row.finding.id} [${row.finding.severity}] ${row.finding.desc} (${row.decision.reason})`).join('\n')}\n${findingClosureNextAction(storyId, blocking.map(row => row.finding.id))}`;
         }
       } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
         if (intentIntegrityError instanceof Error && intentIntegrityError.message.startsWith('dynamic finding:')) {

@@ -25,7 +25,7 @@ import { isAbsolute, join, relative } from 'path';
 import { StoryStore } from './core/store.js';
 import { createMainRegistry, type Registry } from './registry.js';
 import type { HandlerContext } from './handlers/context.js';
-import { execFileSync, execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import { loadConfig, isCommandAllowed, getAllowedPatterns, hasProjectConfigFile, isManagedGlobalThinRoot, isRuntimeActivityRoot, pickProjectConfigPath } from './core/config.js';
 import { hasRepositoryOwnedControllerAssets } from './core/controller-runtime-projection.js';
 import { commandRequiresAuthoritativeRuntime, formatCommandLifecycleHint, getCommandPolicy, isMemoryRetrievalCommand } from './core/command-policy.js';
@@ -34,7 +34,7 @@ import { decorateResult, wantsMachineJson, type ActiveStoryInfo } from './handle
 import { reportHealthIssue } from './core/health.js';
 import { detectStaleState } from './core/stale-detector.js';
 import { runHooks, truncateForEnv, buildHookEnv as buildSharedHookEnv, HOOK_TIMEOUT_MS } from './core/hooks.js';
-import { isGitRepository } from './core/git-probe.js';
+import { isGitRepository, readStoryBranchFromGitFiles } from './core/git-probe.js';
 import { getGuardFailureReason } from './core/machine.js';
 import { detectProofOrStopBrand, formatProofOrStopVersionLine } from './core/proof-or-stop-brand.js';
 import { PROOF_OR_STOP_DIR } from './core/proof-or-stop-paths.js';
@@ -416,6 +416,7 @@ export function enforceExperimentArmRetrievalGate(cmd: string, root: string): vo
  * name: 'story_get'
  * name: 'story_list'
  * name: 'story_reconcile'
+ * name: 'story_request_set'
  * name: 'story_resolve'
  * name: 'story_review'
  * name: 'story_review_dismiss'
@@ -475,11 +476,19 @@ interface ActiveStory { storyId: string; phase: string; }
  * Detect active story from the git branch name.
  * Branch format: story/B-xxxx maps to storyId = B-xxxx.
  * Return null for non-story branches (all commands available).
+ *
+ * The branch is what `git rev-parse --abbrev-ref HEAD` prints. It is read from
+ * the repository files when they settle that answer exactly (the common case:
+ * no subprocess on every CLI call), and from git itself, without a shell,
+ * whenever they do not (see readStoryBranchFromGitFiles).
  */
 function detectActiveStory(root: string): ActiveStory | null {
   const gitCwd = root;
   try {
-    const branch = execSync('git rev-parse --abbrev-ref HEAD', { cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+    const fromFiles = readStoryBranchFromGitFiles(gitCwd);
+    const branch = fromFiles !== undefined
+      ? fromFiles ?? ''
+      : execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], { cwd: gitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
     if (!branch.startsWith('story/')) return null;
     const storyId = branch.slice('story/'.length);
     if (!storyId) return null;
@@ -848,15 +857,20 @@ export async function runCli(opts?: {
     rawRuntimeOwnership = getCommandPolicy(admissionCommand)?.ownershipClass ?? externalAdmission.ownershipClasses?.[admissionCommand] ?? null;
     rawAdmissionError = error;
   }
-  const runtimeAuthority = classifyRuntimeEntrypointAuthority({
+  // Every `blocked` outcome of the classifier requires an authoritative-runtime
+  // admission; a read-only admission always passes. Its git identity probes
+  // (up to four subprocesses) are therefore only run when they can refuse.
+  // tasks/startup-git-spawns-smoke.ts pins that premise against the classifier.
+  const requiresAuthoritativeRuntime = commandRequiresAuthoritativeRuntime(admissionCommand, rawRuntimeOwnership);
+  const runtimeAuthority = requiresAuthoritativeRuntime ? classifyRuntimeEntrypointAuthority({
     command: admissionCommand,
     commandArgs: argv.slice(1),
     projectRoot: root0,
     invokedEntrypoint: process.argv[1] ?? null,
     env: process.env,
-    requiresAuthoritativeRuntime: commandRequiresAuthoritativeRuntime(admissionCommand, rawRuntimeOwnership),
-  });
-  if (runtimeAuthority.status === 'blocked') {
+    requiresAuthoritativeRuntime,
+  }) : null;
+  if (runtimeAuthority?.status === 'blocked') {
     process.stderr.write(`${renderRuntimeEntrypointAuthorityFailure(runtimeAuthority)}\n`);
     process.exitCode = 1;
     return;
@@ -899,7 +913,9 @@ export async function runCli(opts?: {
 
   // Detect active story from git branch only after runtime authority passes.
   let activeStory = detectActiveStory(root0);
-  const gitReady = isGitRepository(root0);
+  // Only the story_create and story_advance lifecycle dispatches consume
+  // gitReady; probe it (same point in time, same root) for those alone.
+  const gitReady = cmd === 'story_create' || cmd === 'story_advance' ? isGitRepository(root0) : false;
 
   if (!cmd || cmd === 'help' || cmd === '--help') {
     // B-7c05 CHK-003: help is BRIEF by default; --full (or PROOF_OR_STOP_BRIEF_OUTPUT=0)

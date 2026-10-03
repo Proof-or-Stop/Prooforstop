@@ -41,7 +41,7 @@ import { execFileSync, execSync, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { accessSync, constants, existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
 import { join, dirname, isAbsolute, relative, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { runtimeDistPath } from '../core/runtime-layout.js';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
 import { commitValidationReuseMetadataTransaction, rollbackValidationPublication } from '../core/auto-commit-metadata.js';
@@ -71,8 +71,6 @@ import {
 } from '../core/certification-window.js';
 import { currentCertificationIdentity } from './certification-window.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 import { runChannelGateCli } from './validate-channel.js';
 import { runConceptGateCli } from './validate-concept.js';
 import { runLintGateCli, resolveChangedFiles } from './validate-lint.js';
@@ -1005,7 +1003,10 @@ export function evaluateStoryRoutineReuse(args: {
   let buildArtifactsHash: string | undefined;
   let clean = false;
   try {
-    const snapshot = captureEvidenceHashSnapshot({ gitCwd: args.gitCwd, metadataRoot: args.ctx.root });
+    // Signed controller projections (global-thin native hooks) are framework-owned,
+    // not material dirt: without this, done_prepare's reuse refused and the fresh
+    // run hit pre_cert_window_already_consumed (e2e harness scenario E).
+    const snapshot = captureEvidenceHashSnapshot({ gitCwd: args.gitCwd, metadataRoot: args.ctx.root, trustedControllerProjectionStoryId: args.storyId });
     headBefore = snapshot.headHash;
     materialHash = snapshot.materialHash;
     storyFilesHash = snapshot.storyFilesHash;
@@ -1024,6 +1025,7 @@ export function evaluateStoryRoutineReuse(args: {
       gitCwd: args.gitCwd,
       metadataRoot: args.ctx.root,
       ref: 'HEAD',
+      trustedControllerProjectionStoryId: args.storyId,
     });
     headAfter = reuseCheck.currentHead;
     clean = reuseCheck.reusable;
@@ -3357,7 +3359,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       } else {
         // Use the verifier's built-in serve module
         // Find it relative to the core package
-        const verifierServe = join(__dirname, '..', 'verifier', 'serve.js');
+        const verifierServe = runtimeDistPath('verifier', 'serve.js');
         if (!existsSync(verifierServe)) {
           return `✗ 找不到 serve.ts（项目根目录）或内建 verifier serve 模块\n  当前目录: ${projectRoot}`;
         }

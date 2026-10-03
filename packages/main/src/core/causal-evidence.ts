@@ -13,7 +13,7 @@ import {
   type PublicKeyBase64,
   type SignatureBase64,
 } from './authority-signing.js';
-import { resolveSharedLockRoot } from './validation-execution-lock.js';
+import { resolveSharedLockRoot } from './shared-lock-root.js';
 import { PROOF_OR_STOP_CLI_VERSION } from './proof-or-stop-brand.js';
 
 /**

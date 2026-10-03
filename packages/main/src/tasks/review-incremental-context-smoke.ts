@@ -11,7 +11,7 @@ import { nativeReviewFixtureBrokers, runBrokeredNativeReviewCli } from './native
  * HARD INVARIANT this guard defends: the incremental helper is a pure read-only
  * advisory. It must not write to the store and must not alter any gate input
  * (findings / review-passes / review-runs / currentReviewRound). The framework
- * still skips no reviewer; round-2+ targeted re-review is an operator judgement.
+ * still skips no reviewer; the round-2+ scope-change list is context only (every required lane still gates).
  *
  * Cases:
  *   (a) RETURNING REVIEWER — a reviewer 'quality' with a prior PASS bound to an
@@ -44,7 +44,7 @@ import { nativeReviewFixtureBrokers, runBrokeredNativeReviewCli } from './native
  *         - Missing currentReviewRound: pass-shaped legacy evidence fails closed.
  *         - A current-round INVALID (stale/unknown-run) binding blocks — in ALL
  *           rounds, before the round split.
- *         - A verified open blocking finding (after round decay) blocks.
+ *         - A verified open blocking finding of any round blocks (no round decay).
  *       For every fixture, the gate outcome is asserted IDENTICAL whether or not
  *       reviewIncrementalContext is called in between, AND the gate inputs are
  *       proven byte-identical before/after the helper runs (no store writes, no

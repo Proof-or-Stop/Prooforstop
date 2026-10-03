@@ -499,6 +499,19 @@ export async function runReviewToTestPreflightGate(
  * - Missing contract emits a visible degradation warning at REVIEW only (silent
  *   at TEST/DONE to avoid noise on repeated transitions).
  */
+/**
+ * Whether entering `phase` surfaces the advisory semantic-degradation event.
+ * TEST and DONE capture a clean baseline of the story's canonical metadata
+ * (process-events.jsonl among it) and refuse any pre-existing change, so an
+ * advisory event appended by this gate just before that capture made every
+ * non-TS/JS story unable to reach TEST. The event has already been recorded
+ * at earlier transitions, so these two stay silent, as the missing-contract
+ * warning already does.
+ */
+export function emitsSemanticDegradationAt(phase: StoryPhase): boolean {
+  return phase !== 'TEST' && phase !== 'DONE';
+}
+
 export function runScopeTransitionGate(
   ctx: HandlerContext,
   storyId: string,
@@ -517,7 +530,7 @@ export function runScopeTransitionGate(
     // runScopeGate must NOT bypass diagnostics, so a pure-.go/.rs/.py story still
     // surfaces exactly one deduped semantic_analysis_unavailable event during the
     // mutating transition validation. Best-effort: never blocks the transition.
-    try {
+    if (emitsSemanticDegradationAt(phase)) try {
       // Reuse the contract path's pack; only the no-contract path (no pack) builds one.
       const diffPack = scopeGate.diffPack ?? buildScopeDiffPack(ctx.root, undefined, gitCwd);
       emitSemanticDegradationEvent(ctx.store, storyId, diffPack);

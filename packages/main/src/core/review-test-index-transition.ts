@@ -1,5 +1,6 @@
 import {execFileSync} from 'node:child_process';
 import {canonicalJson} from './digest.js';
+import {observedGit} from './git-tree-observation.js';
 import type {ReviewRun, StoryInfo} from './types.js';
 
 export function evaluatePersistedReviewToTestIndexTransition(
@@ -10,11 +11,12 @@ export function evaluatePersistedReviewToTestIndexTransition(
 ): { ok: boolean; reason?: string } {
   let reviewedStory: StoryInfo;
   try {
-    reviewedStory = JSON.parse(execFileSync('git', ['show', `${run.headHash}:${indexGitPath}`], {
+    const argv = ['show', `${run.headHash}:${indexGitPath}`];
+    reviewedStory = JSON.parse(observedGit(gitCwd, argv, () => execFileSync('git', argv, {
       cwd: gitCwd,
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
-    })) as StoryInfo;
+    }))) as StoryInfo;
   } catch {
     return { ok: false, reason: 'signed REVIEW index snapshot is unreadable' };
   }

@@ -1,4 +1,5 @@
 import { reserveHostRunBudget, settleHostRunBudget } from './host-run-budget.js';
+import { canonicalAgentRoleId } from './agent-role-identity.js';
 import { MANAGED_REVIEW_READONLY_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import { isManagedInventoryCritic, managedInventoryCriticJsonSchema, type ManagedInventoryCritic } from './managed-inventory-critic.js';
 import { prepareManagedReadonlyLaunch, type ManagedReadonlyLayout } from './managed-review-readonly.js';
@@ -59,7 +60,7 @@ import {
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { StringDecoder } from 'node:string_decoder';
-import { fileURLToPath } from 'node:url';
+import { runtimeDistPath } from './runtime-layout.js';
 
 import {
   CANONICAL_CODEX_NONINTERACTIVE_FLAGS,
@@ -102,6 +103,7 @@ import {
   normalizeReviewerReadManifest,
 } from './reviewer-read-evidence.js';
 import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
+import { REVIEWER_AUTHORED_FINDING_CATEGORIES, type ReviewerAuthoredFindingCategory } from './evidence-chain-finding.js';
 import {
   CLAUDE_SUPPORTED_REASONING_EFFORTS,
   QUALIFIED_MANAGED_REVIEWER_DEFAULTS,
@@ -444,6 +446,14 @@ export interface HostRunArgs {
    * run's cwd-local one-shot prompt leaf after an abnormal worker exit.
    */
   managedRunId?: string;
+  /**
+   * Codex session of this Story's previous completed implementer, resumed so
+   * the next checklist item continues with the repository context already read
+   * instead of re-exploring it (managed-dispatch code writers), or the Codex
+   * session a managed code-review lane answered in on an earlier candidate
+   * HEAD, so a re-review continues from what that lane already read.
+   */
+  resumeSessionId?: string;
   env: NodeJS.ProcessEnv;
   /** Optional accounting/admission env; provider still receives only `env`. */
   usageEnv?: NodeJS.ProcessEnv;
@@ -956,7 +966,8 @@ export interface ManagedReviewFinalEnvelopeReadManifest extends Record<string, u
 export interface ManagedReviewFinalEnvelopeFinding extends Record<string, unknown> {
   desc: string;
   severity: 'critical' | 'high' | 'medium' | 'low';
-  category: 'happy' | 'edge' | 'adversarial' | 'missing';
+  /** `evidence_chain` marks a framework action, never imported as a Finding (core/evidence-chain-finding.ts). */
+  category: ReviewerAuthoredFindingCategory;
   files?: string[];
   evidenceState?: 'suspected' | 'verified';
   uncertaintyReason?: string;
@@ -1065,7 +1076,10 @@ export function managedReviewFinalProposalJsonSchema(args: ManagedReviewFinalPro
     properties: {
       desc: nonBlankString,
       severity: { enum: ['critical', 'high', 'medium', 'low'] },
-      category: { enum: ['happy', 'edge', 'adversarial', 'missing'] },
+      category: {
+        enum: [...REVIEWER_AUTHORED_FINDING_CATEGORIES],
+        description: 'evidence_chain = a framework-owned evidence-chain item (stale or missing receipt, intent with no pinned command, existing test bound to no intent). It is reclassified as a framework action and is never a review finding; use the other categories for real product defects.',
+      },
       files: { type: 'array', items: nonBlankString },
       evidenceState: { enum: ['suspected', 'verified'] },
       uncertaintyReason: {
@@ -1158,7 +1172,7 @@ export function isStrictManagedReviewFindingProposal(value: unknown): value is M
   if (Object.keys(value).some(key => !allowed.has(key))) return false;
   if (typeof value.desc !== 'string' || value.desc.trim().length === 0) return false;
   if (typeof value.severity !== 'string' || !['critical', 'high', 'medium', 'low'].includes(value.severity)) return false;
-  if (typeof value.category !== 'string' || !['happy', 'edge', 'adversarial', 'missing'].includes(value.category)) return false;
+  if (typeof value.category !== 'string' || !(REVIEWER_AUTHORED_FINDING_CATEGORIES as readonly string[]).includes(value.category)) return false;
   if (value.files !== undefined
     && (!isStringArray(value.files) || value.files.some(file => file.trim().length === 0))) return false;
   if (value.evidenceState !== undefined
@@ -1197,6 +1211,24 @@ export function hasRequiredManagedReviewReadEvidence(
 }
 
 /**
+ * The one JSON object in `text` when the text outside it is brace-free prose;
+ * undefined when there is none, it does not parse, or more than one object (or
+ * stray braces) makes the verdict ambiguous.
+ */
+function singleEmbeddedJsonObject(text: string): unknown {
+  const start = text.indexOf('{');
+  const end = text.lastIndexOf('}');
+  if (start < 0 || end <= start) return undefined;
+  const outside = text.slice(0, start) + text.slice(end + 1);
+  if (/[{}]/.test(outside)) return undefined;
+  try {
+    return JSON.parse(text.slice(start, end + 1));
+  } catch {
+    return undefined;
+  }
+}
+
+/**
  * Classify one provider-owned final assistant text without treating ordinary
  * Codex progress messages as proposal candidates. A message that explicitly
  * names the managed proposal schema remains fail-closed when malformed; valid
@@ -1209,9 +1241,14 @@ export function classifyManagedReviewFinalEnvelope(text: string): ManagedReviewF
   try {
     parsed = JSON.parse(trimmed);
   } catch {
-    return trimmed.includes(MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION)
-      ? { kind: 'malformed' }
-      : { kind: 'ordinary' };
+    // A liveness line such as `DISPATCH_START:<label>` or a sentence around the
+    // one proposal is not a second verdict: read the single embedded object.
+    parsed = singleEmbeddedJsonObject(trimmed);
+    if (parsed === undefined) {
+      return trimmed.includes(MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION)
+        ? { kind: 'malformed' }
+        : { kind: 'ordinary' };
+    }
   }
   if (!isPlainRecord(parsed)) return { kind: 'ordinary' };
   if (parsed.schemaVersion !== MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION) {
@@ -1867,7 +1904,7 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
 
     try {
       child = useGroupAnchor ? spawn(process.execPath, [
-        fileURLToPath(new URL('./host-run-group-anchor.js', import.meta.url)), plan.command, ...plan.argv,
+        runtimeDistPath('core', 'host-run-group-anchor.js'), plan.command, ...plan.argv,
       ], { cwd: plan.cwd, env: plan.env, stdio: ['pipe', 'pipe', 'pipe', 'ipc'], detached: true })
         : (runtime.spawnChild ?? spawn)(plan.command, plan.argv, {
         cwd: plan.cwd,
@@ -2232,6 +2269,13 @@ export function managedClaudePromptDirectoryForRun(cwd: string, runId: string): 
   return join(cwd, PROOF_OR_STOP_DIR, 'runtime', 'host-run-prompts', runId);
 }
 
+/** Code-writing roles whose sessions a later item or finding repair may resume. */
+export const RESUMABLE_CODE_WRITER_ROLES = ['proof-or-stop-implementer', 'proof-or-stop-finding-repair'] as const;
+
+function isImplementerAgentType(agentType: string): boolean {
+  return (RESUMABLE_CODE_WRITER_ROLES as readonly string[]).includes(canonicalAgentRoleId(agentType));
+}
+
 export function managedDispatchCodexSandboxMode(
   platform: NodeJS.Platform = process.platform,
   containerBoundaryPresent = existsSync('/.dockerenv') || existsSync('/run/.containerenv'),
@@ -2271,6 +2315,40 @@ export function materializeHostRunLaunch(
           ? MANAGED_REVIEW_READONLY_RUNTIME_POLICY.crossHostProviderSandbox.confined
           : MANAGED_REVIEW_READONLY_RUNTIME_POLICY.crossHostProviderSandbox.unconfined
         : managedDispatchSandbox ?? 'read-only';
+    // An implementer keeps its session (no --ephemeral) so the Story's next
+    // item can resume it; `exec resume` takes the sandbox as config and the
+    // directory from the process cwd (it accepts neither -s nor -C).
+    const implementer = args.launchProfile === 'managed_dispatch' && isImplementerAgentType(args.agentType);
+    const dispatchFlags = CANONICAL_CODEX_NONINTERACTIVE_FLAGS.filter(flag => !(implementer && flag === '--ephemeral'));
+    // A managed code-review lane reviewing a later candidate HEAD resumes the
+    // session it answered in on an earlier candidate (managed-host-run decides
+    // which lane session, if any). Reviewer sessions were never --ephemeral.
+    if (args.launchProfile === 'managed_reviewer' && args.resumeSessionId) {
+      return {
+        command: 'codex',
+        argv: [
+          'exec', 'resume', '--json',
+          ...(selection.model ? ['--model', selection.model] : []),
+          ...(selection.reasoningEffort ? ['--config', `model_reasoning_effort="${selection.reasoningEffort}"`] : []),
+          '--config', `sandbox_mode="${sandboxMode}"`, args.resumeSessionId, '-',
+        ],
+        stdinText: args.promptText,
+        cleanup: () => {},
+      };
+    }
+    if (implementer && args.resumeSessionId) {
+      return {
+        command: 'codex',
+        argv: [
+          'exec', 'resume', '--json', ...dispatchFlags,
+          ...(selection.model ? ['--model', selection.model] : []),
+          ...(selection.reasoningEffort ? ['--config', `model_reasoning_effort="${selection.reasoningEffort}"`] : []),
+          '--config', `sandbox_mode="${sandboxMode}"`, args.resumeSessionId, '-',
+        ],
+        stdinText: args.promptText,
+        cleanup: () => {},
+      };
+    }
     return {
       command: 'codex',
       // Formal managed review consumes Codex's observable JSON event stream:
@@ -2279,7 +2357,7 @@ export function materializeHostRunLaunch(
       argv: [
         'exec', '--json',
         ...(args.launchProfile === 'managed_dispatch'
-          ? [...CANONICAL_CODEX_NONINTERACTIVE_FLAGS]
+          ? [...dispatchFlags]
           : []),
         ...(selection.model ? ['--model', selection.model] : []),
         ...(selection.reasoningEffort ? ['--config', `model_reasoning_effort="${selection.reasoningEffort}"`] : []),

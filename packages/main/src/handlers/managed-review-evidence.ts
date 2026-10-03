@@ -26,10 +26,16 @@ import {
 } from '../core/managed-review-evidence.js';
 import { assertCandidateReadBinding, digestCandidateRoutingValue } from '../core/candidate-spec-routing.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
-import { assertCurrentReviewRunForEvidence, captureReviewRunSnapshot } from '../core/review-run.js';
+import { assertCurrentReviewRunForEvidence, captureReviewRunSnapshot, managedLineageRefusalDetail } from '../core/review-run.js';
 import { currentStoryRoutingInput } from './candidate-spec-routing.js';
 import { loadConfig } from '../core/config.js';
 import type { Finding, ManagedReviewEvidenceBinding, ReviewPass } from '../core/types.js';
+import {
+  effectiveManagedReviewConclusion,
+  evidenceChainReclassifiedPassNote,
+  splitEvidenceChainFindings,
+} from '../core/evidence-chain-finding.js';
+import { evidenceChainNextActionForStory } from './evidence-chain.js';
 
 function assertOnlyKeys(command: string, value: Record<string, unknown>, allowed: readonly string[]): void {
   const unexpected = Object.keys(value).filter(key => !allowed.includes(key));
@@ -229,7 +235,7 @@ export function createManagedReviewEvidenceHandlers(
           expected,
         });
         if (!live.valid) {
-          throw new Error(`managed_review_evidence_import: ${live.reason}; rerun the managed reviewer`);
+          throw new Error(`managed_review_evidence_import: ${live.reason}${managedLineageRefusalDetail(managedRun.storyId!, live.lineageRefusal, false)}; rerun the managed reviewer`);
         }
       };
       // Fail before any receipt/proposal intake or lock acquisition as well as
@@ -296,13 +302,23 @@ export function createManagedReviewEvidenceHandlers(
           throw new Error('managed_review_evidence_import: invalid inventory critic purpose or wave');
         }
       }
+      // Evidence-chain items (category=evidence_chain) are framework actions,
+      // never review findings: import only the product findings, keep their
+      // sealed proposal indexes, and import an evidence-chain-only proposal as
+      // a pass with a deterministic note. Every reclassified item is logged as a
+      // process event and printed with the framework's next action below.
+      const split = splitEvidenceChainFindings(proposal.conclusion === 'findings' ? proposal.findings : undefined);
+      if (split.evidenceChain.length > 0 && proposal.inventoryCritic !== undefined) {
+        throw new Error('managed_review_evidence_import: an inventory critic proposal cannot carry evidence_chain items; relaunch the critic');
+      }
+      const conclusion = effectiveManagedReviewConclusion(proposal);
       const lockDir = ctx.store.runtimeLockDirPath(proposal.storyId, 'managed-review-evidence', receiptId.replace(/[^A-Za-z0-9._-]/g, '_'));
       // The receipt lock makes replay of one receipt idempotent. A second,
       // story-level lock is still required because distinct receipts allocate
       // ids and replace the same review-passes/findings artifact. Use the exact
       // canonical lock paths shared by review_pass_set/finding_add so managed
       // and native writers cannot lose one another's updates.
-      const storyMetadataLockDir = proposal.conclusion === 'pass'
+      const storyMetadataLockDir = conclusion === 'pass'
         ? ctx.store.runtimeLockDirPath(proposal.storyId, 'finding', 'review-passes')
         : ctx.store.storyFilePath(proposal.storyId, 'findings.lock');
       const writeImportBinding = (importedIds: string[], importedAt: string): void => {
@@ -337,7 +353,7 @@ export function createManagedReviewEvidenceHandlers(
           if (existingPass && existingFindings.length > 0) {
             throw new Error('managed_review_evidence_import: existing receipt evidence mixes pass and finding conclusions');
           }
-          if (proposal.conclusion === 'pass' ? !existingPass : existingFindings.length !== proposal.findings?.length) {
+          if (conclusion === 'pass' ? !existingPass : existingFindings.length !== split.product.length) {
             throw new Error('managed_review_evidence_import: existing receipt evidence does not exactly cover the provider proposal');
           }
           const existingEvidence = existingPass
@@ -350,7 +366,7 @@ export function createManagedReviewEvidenceHandlers(
             .map(candidate => candidate.binding?.proposalFindingIndex)
             .filter((index): index is number => Number.isInteger(index))
             .sort((a, b) => a - b);
-          if (!existingPass && findingIndexes.some((index, position) => index !== position)) {
+          if (!existingPass && findingIndexes.some((index, position) => index !== split.product[position]?.index)) {
             throw new Error('managed_review_evidence_import: existing receipt findings do not exactly cover every provider proposal index');
           }
           const existingBinding = existingEvidence[0]?.binding;
@@ -396,7 +412,10 @@ export function createManagedReviewEvidenceHandlers(
         const importedAt = intake.binding.importedAt;
         const binding = intake.binding;
         let importedIds: string[];
-        if (proposal.conclusion === 'pass') {
+        if (conclusion === 'pass') {
+          const note = proposal.conclusion === 'pass'
+            ? proposal.note!
+            : evidenceChainReclassifiedPassNote(split.evidenceChain.map(row => row.finding));
           const data = ctx.store.readReviewPasses(proposal.storyId);
           const nextNum = data.passes.reduce((max, pass) => {
             const match = pass.id.match(/:RP-(\d+)$/);
@@ -410,7 +429,7 @@ export function createManagedReviewEvidenceHandlers(
           const pass: ReviewPass = {
             id,
             agent: proposal.lane,
-            note: proposal.note!,
+            note,
             createdAt: importedAt,
             reviewRound: story.currentReviewRound || '',
             reviewRunId: proposal.reviewRunId,
@@ -425,7 +444,7 @@ export function createManagedReviewEvidenceHandlers(
               proposal.storyId,
               id,
               proposal.lane,
-              proposal.note!,
+              note,
               importedAt,
               story.currentReviewRound || '',
               proposal.reviewRunId,
@@ -455,14 +474,14 @@ export function createManagedReviewEvidenceHandlers(
             const match = finding.id.match(/:F-(\d+)$/);
             return match ? Math.max(max, Number(match[1])) : max;
           }, 0);
-          const findings: Finding[] = proposal.findings!.map((candidate, index) => {
-            const id = `${proposal.storyId}:F-${String(start + index + 1).padStart(3, '0')}`;
+          const findings: Finding[] = split.product.map(({ finding: candidate, index }, position) => {
+            const id = `${proposal.storyId}:F-${String(start + position + 1).padStart(3, '0')}`;
             const findingBinding: ManagedReviewEvidenceBinding = { ...binding, proposalFindingIndex: index };
             const finding: Finding = {
               id,
               desc: candidate.desc,
               severity: candidate.severity,
-              category: candidate.category,
+              category: candidate.category as Finding['category'],
               status: 'open',
               evidenceState: candidate.evidenceState ?? 'verified',
               ...(candidate.uncertaintyReason ? { uncertaintyReason: candidate.uncertaintyReason } : {}),
@@ -505,14 +524,14 @@ export function createManagedReviewEvidenceHandlers(
           importedIds = findingIds;
         }
         return { importedIds, binding, created: true };
-      }, { label: `managed review ${proposal.conclusion} metadata` }));
+      }, { label: `managed review ${conclusion} metadata` }));
 
       const { importedIds, created } = importResult;
       // A crash may have persisted the reviewer evidence before recording its
       // process event or committing the Story metadata. On recovery, repair
       // those bookkeeping effects once for this exact sealed receipt. Normal
       // idempotent re-imports observe the existing event and stay write-free.
-      const eventType = proposal.conclusion === 'pass' ? 'review_pass' : 'reviewer_finding';
+      const eventType = conclusion === 'pass' ? 'review_pass' : 'reviewer_finding';
       const alreadyAudited = ctx.store.readProcessEvents(proposal.storyId).some((event) =>
         event.type === eventType
         && event.command === 'managed_review_evidence_import'
@@ -533,10 +552,30 @@ export function createManagedReviewEvidenceHandlers(
           readManifest: proposal.readManifest,
           ...(proposal.readLog ? { readLog: proposal.readLog } : {}),
         });
+        if (split.evidenceChain.length > 0) {
+          ctx.store.appendProcessEvent(proposal.storyId, {
+            type: 'review_evidence_chain_reclassified',
+            storyId: proposal.storyId,
+            command: 'managed_review_evidence_import',
+            role: 'framework',
+            agent: proposal.lane,
+            result: 'reclassified',
+            managedRunId: runId,
+            managedReceiptId: receiptId,
+            importedIds,
+            reason: 'evidence-chain items are framework actions, not review findings',
+            reclassified: split.evidenceChain.map(row => ({
+              proposalFindingIndex: row.index,
+              severity: row.finding.severity,
+              desc: row.finding.desc,
+              ...(row.finding.files ? { files: row.finding.files } : {}),
+            })),
+          });
+        }
       }
       const commitHint = commitReviewResultMetadata({ root: ctx.root, store: ctx.store, storyId: proposal.storyId, reviewRunId: proposal.reviewRunId, reason: 'managed_review_evidence_import', options: {
         exactStoryArtifactNames: [
-          proposal.conclusion === 'pass' ? 'review-passes.json' : 'findings.json',
+          conclusion === 'pass' ? 'review-passes.json' : 'findings.json',
           ...(alreadyAudited ? [] : ['process-events.jsonl']),
         ],
       } });
@@ -557,7 +596,12 @@ export function createManagedReviewEvidenceHandlers(
       const summary = created
         ? `Managed review evidence imported from ${runId}: ${importedIds.join(', ')}`
         : `Managed review evidence already imported from ${runId}: ${importedIds.join(', ')}`;
-      return `${summary}${criticHint ? `\n${criticHint}` : ''}${commitHint}${criticCommitHint}`;
+      const reclassifiedHint = split.evidenceChain.length > 0
+        ? `\nReclassified ${split.evidenceChain.length} evidence-chain item(s) from ${proposal.lane} as framework actions (not findings; logged as review_evidence_chain_reclassified):\n`
+          + split.evidenceChain.map(row => `  - ${row.finding.desc.replace(/\s+/g, ' ').slice(0, 200)}`).join('\n')
+          + `\nFramework next action: ${evidenceChainNextActionForStory(ctx, proposal.storyId)}`
+        : '';
+      return `${summary}${reclassifiedHint}${criticHint ? `\n${criticHint}` : ''}${commitHint}${criticCommitHint}`;
     },
   };
 }

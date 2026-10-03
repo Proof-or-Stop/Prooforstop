@@ -22,6 +22,7 @@ You only do one thing: check whether this change deletes or replaces a concept, 
    ```bash
    grep -rn 'concept-word' . --include='*.ts' --include='*.md' --include='*.json' | grep -v node_modules | grep -v dist | grep -v '.git/' | grep -v '@deprecated'
    ```
+   When the diff changes what an existing field or encoding means or can represent (e.g. adds an omitted/explicit distinction where a default such as 0 was filled in), the old meaning is a replaced concept: grep every reader of that field, including render / String() / serialize / print / equality / hash, and file a finding for each reader that does not honor the new distinction. Never mark a reader "unrelated" or "needs no change" without a concrete reason tied to the request.
 4. grep result > 0 → file a finding:
    ```bash
    proof-or-stop finding_add '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","desc":"concept-cleanup: concept X deletion incomplete: Y file still has N references","severity":"critical","category":"missing","agent":"proof-or-stop-review-concept"}'

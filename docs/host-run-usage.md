@@ -331,6 +331,13 @@ managed run before receipt import.
 # 1. Controller creates the signed ReviewRun.
 proof-or-stop review_run_start '{"storyId":"B-xxxx","agent":"proof-or-stop-review-quality"}'
 
+#    One-command owner path for every launchable lane of the round: runs the
+#    reviewer_batch plan, candidate_spec_route --hosts=false when the route is
+#    missing/stale (add --fullScanReason only when it reports escalation; a
+#    project with no requirements corpus gets an automatic full scan), then
+#    dispatch + review_run_start per lane; prints lane=reviewRunId (--json too).
+proof-or-stop review_round_prepare --storyId=B-xxxx
+
 # 2. Submit the exact provider reviewer; raw `bash + codex exec` is unmanaged.
 proof-or-stop host_run '{"host":"codex","model":"gpt-5.6-terra","reasoningEffort":"high","storyId":"B-xxxx","agentType":"proof-or-stop-review-quality","reviewRunId":"B-xxxx:RR-001","lane":"proof-or-stop-review-quality","managedReview":true,"detach":true,"json":true}'
 

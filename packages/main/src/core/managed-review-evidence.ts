@@ -6,6 +6,8 @@ import { StoryStore } from './store.js';
 /** Shared intake + REVIEW-gate verifier for managed reviewer evidence. */
 
 import { execFileSync } from 'node:child_process';
+import { observedGit } from './git-tree-observation.js';
+import { objectAddressedGitReader, type ObjectAddressedGitReader } from './git-object-read-memo.js';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
@@ -31,11 +33,14 @@ import {
 } from './proof-admissibility-gates.js';
 import type { Finding, ManagedReviewEvidenceBinding, ReviewPass, ReviewRun } from './types.js';
 import { digestCanonicalJson } from './digest.js';
+import { effectiveManagedReviewConclusion, evidenceChainReclassifiedPassNote, isEvidenceChainFindingCategory } from './evidence-chain-finding.js';
 import { currentGitHead, currentMaterialHash } from './evidence-freshness.js';
 import { loadConfig } from './config.js';
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
 import { inventoryPurposeMatchesEpoch, verifyReviewInventoryEpoch, verifyReviewInventoryReceipt } from './review-inventory-epoch.js';
 import { verifyReviewRun } from './review-run.js';
+import { isMaterialExcludedPath } from './material-path-policy.js';
+import { earlierCandidateRuns, isCodeReviewLaneRun, isEarlierReviewRound, previousCandidateLaneRun } from './review-round-order.js';
 
 export interface ManagedReviewEvidenceVerification {
   valid: boolean;
@@ -68,6 +73,26 @@ export interface ManagedReviewExpectedBinding {
 export interface ManagedReviewLiveBindingVerification {
   valid: boolean;
   reason: string;
+  /** For a lineage refusal: the first intervening commit no rule authenticates, and why. */
+  lineageRefusal?: ManagedReviewLineageRefusal;
+}
+
+export interface ManagedReviewLineageRefusal {
+  commit: string;
+  subject: string;
+  rule: string;
+}
+
+/**
+ * Read-only lineage probe. Inside one synchronous git observation (for example
+ * one collectReviewerEvidenceState over every lane) the identical probe runs
+ * once; outside an observation it always runs git. Verdicts are never cached.
+ */
+function readLineageGit(gitCwd: string, argv: string[], objectRead?: ObjectAddressedGitReader): string {
+  // The observation stores git's raw stdout, shared with every other observed reader.
+  const run = () => execFileSync('git', argv, { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  // Reads addressed only by full object ids may come from the process memo (git-object-read-memo).
+  return (objectRead ? objectRead(argv, run) : observedGit(gitCwd, argv, run)).trim();
 }
 
 /**
@@ -84,19 +109,16 @@ function hasOnlyManagedReviewImporterCommits(args: {
   reviewedMaterialHash: string;
   reviewedStoryFilesHash: string;
   liveHeadHash: string;
-}): boolean {
-  if (args.reviewedHeadHash === args.liveHeadHash) return true;
+}): { ok: true } | { ok: false; refusal: ManagedReviewLineageRefusal } {
+  if (args.reviewedHeadHash === args.liveHeadHash) return { ok: true };
+  const objectRead = objectAddressedGitReader(args.gitCwd);
+  const git = (argv: string[]): string => readLineageGit(args.gitCwd, argv, objectRead);
+  const refuse = (commit: string, subject: string, rule: string) => ({ ok: false as const, refusal: { commit, subject, rule } });
   try {
-    execFileSync('git', ['merge-base', '--is-ancestor', args.reviewedHeadHash, args.liveHeadHash], {
-      cwd: args.gitCwd,
-      stdio: ['ignore', 'ignore', 'ignore'],
-    });
-    const commits = execFileSync('git', ['rev-list', '--reverse', `${args.reviewedHeadHash}..${args.liveHeadHash}`], {
-      cwd: args.gitCwd,
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe'],
-    }).trim().split('\n').filter(Boolean);
-    if (commits.length === 0) return false;
+    try { git(['merge-base', '--is-ancestor', args.reviewedHeadHash, args.liveHeadHash]); }
+    catch { return refuse(args.liveHeadHash, '', `live HEAD does not descend from the reviewed head ${args.reviewedHeadHash}`); }
+    const commits = git(['rev-list', '--reverse', `${args.reviewedHeadHash}..${args.liveHeadHash}`]).split('\n').filter(Boolean);
+    if (commits.length === 0) return refuse(args.liveHeadHash, '', 'no commit range between the reviewed and live heads');
     // B-137a main-merge fix: this recognizer hardcoded the RETIRED commit-subject
     // prefix while the writer (core/auto-commit-metadata.ts) emits the canonical
     // COMMIT_SUBJECT_PREFIX. No importer commit therefore matched, so a legitimate
@@ -114,34 +136,182 @@ function hasOnlyManagedReviewImporterCommits(args: {
       args.gitCwd,
       resolve(args.metadataRoot, configuredStoryDir, args.storyId),
     ).replace(/\\/g, '/').replace(/^\.\//, '');
-    if (!canonicalStoryDir || canonicalStoryDir === '..' || canonicalStoryDir.startsWith('../')) return false;
+    if (!canonicalStoryDir || canonicalStoryDir === '..' || canonicalStoryDir.startsWith('../')) return refuse(args.liveHeadHash, '', 'story directory is outside the Git workspace');
     const canonicalImporterArtifacts = new Set([
       `${canonicalStoryDir}/review-passes.json`,
       `${canonicalStoryDir}/findings.json`,
       `${canonicalStoryDir}/process-events.jsonl`,
     ]);
-    return commits.every(commit => {
-      const subject = execFileSync('git', ['show', '-s', '--format=%s', commit], {
-        cwd: args.gitCwd,
-        encoding: 'utf8',
-        stdio: ['ignore', 'pipe', 'pipe'],
-      }).trim();
+    for (const commit of commits) {
+      const subject = git(['show', '-s', '--format=%s', commit]);
       if (!matchesRuntimeCommitSubject(subject, expectedSubjectBody)) {
-        return isVerifiedReviewMaintenanceCommit({ ...args, commit });
+        const rules: string[] = [];
+        if (isVerifiedReviewMaintenanceCommit({ ...args, commit, objectRead, onRefusal: rule => rules.push(rule) })) continue;
+        const precert = precertMetadataCommitRefusal(args.gitCwd, args.metadataRoot, args.storyId, canonicalStoryDir, subject, commit, objectRead);
+        if (precert === null) continue;
+        // Report the rule of the publisher that owns this subject.
+        const subjectUnknown = rules.every(rule => rule.startsWith('subject "'));
+        return refuse(commit, subject, (precert === PRECERT_SUBJECT_UNKNOWN ? rules : subjectUnknown ? [precert] : [...rules, precert]).join('; ')
+          || 'no authenticated publisher owns this commit');
       }
-      const files = execFileSync('git', ['diff-tree', '--no-commit-id', '--name-only', '-r', commit], {
-        cwd: args.gitCwd,
-        encoding: 'utf8',
-        stdio: ['ignore', 'pipe', 'pipe'],
-      }).trim().split('\n').filter(Boolean);
-      const names = new Set(files.map(file => file.split('/').at(-1)));
-      return files.length > 0
-        && files.every(file => canonicalImporterArtifacts.has(file.replace(/\\/g, '/')))
-        && (names.has('review-passes.json') || names.has('findings.json'));
-    });
-  } catch {
-    return false;
+      const importer = importerCommitRefusal(git, canonicalStoryDir, canonicalImporterArtifacts, commit);
+      if (importer) return refuse(commit, subject, importer);
+    }
+    return { ok: true };
+  } catch (error) {
+    return refuse(args.liveHeadHash, '', `lineage unreadable: ${error instanceof Error ? error.message.split('\n')[0] : String(error)}`);
   }
+}
+
+/**
+ * An importer commit publishes exactly one managed receipt's evidence: only
+ * the importer artifacts, earlier review-pass rows unchanged, and every
+ * appended pass carrying the same managed evidence binding.
+ */
+function importerCommitRefusal(
+  git: (argv: string[]) => string, canonicalStoryDir: string, artifacts: ReadonlySet<string>, commit: string,
+): string | null {
+  const files = git(['diff-tree', '--no-commit-id', '--name-only', '-r', commit]).split('\n').filter(Boolean).map(file => file.replace(/\\/g, '/'));
+  const foreign = files.find(file => !artifacts.has(file));
+  if (!files.length || foreign) return foreign ? `importer commit touches ${foreign}` : 'empty importer commit';
+  const names = new Set(files.map(file => file.split('/').at(-1)));
+  if (!names.has('review-passes.json') && !names.has('findings.json')) return 'importer commit publishes no review evidence';
+  if (!names.has('review-passes.json')) return null;
+  const passesPath = `${canonicalStoryDir}/review-passes.json`;
+  const parent = git(['show', '-s', '--format=%P', commit]).split(/\s+/).filter(Boolean);
+  if (parent.length !== 1) return 'importer commit is not single-parent';
+  const read = (ref: string): Array<{ id?: string; managedEvidenceBinding?: { receiptId?: string } }> => {
+    if (!git(['ls-tree', '--name-only', ref, '--', passesPath])) return [];
+    const parsed = JSON.parse(git(['show', `${ref}:${passesPath}`])) as { passes?: unknown };
+    if (!Array.isArray(parsed.passes)) throw new Error(`${passesPath} at ${ref} has no passes array`);
+    return parsed.passes as Array<{ id?: string; managedEvidenceBinding?: { receiptId?: string } }>;
+  };
+  const before = read(parent[0]!);
+  const after = read(commit);
+  if (after.length < before.length || digestCanonicalJson(after.slice(0, before.length)) !== digestCanonicalJson(before)) {
+    return 'importer commit rewrites earlier review-passes.json rows';
+  }
+  const appended = after.slice(before.length);
+  const receipts = new Set(appended.map(row => row.managedEvidenceBinding?.receiptId ?? ''));
+  // Creating an empty passes file carries no evidence; any appended row must
+  // belong to exactly one managed receipt.
+  if (appended.length > 0 && (receipts.size !== 1 || receipts.has(''))) {
+    return `importer commit appends review-passes.json rows (${appended.map(row => row.id ?? '?').join(', ')}) that are not one managed receipt's own evidence`;
+  }
+  return null;
+}
+
+/**
+ * Commands the REVIEW→TEST→DONE path itself requires (PRE_CERT, TEST closeout,
+ * DONE preparation, review-assurance host verdicts, the TEST/DONE phase
+ * records) auto-commit story metadata;
+ * such a commit touching only material-excluded paths of this story leaves the
+ * reviewed material unchanged (checked separately) and must not invalidate a
+ * managed pass that DONE re-checks.
+ */
+export const PRECERT_METADATA_COMMANDS = [
+  'certification_window_begin', 'certification_window_cancel',
+  'review_inventory_begin', 'review_inventory_finalize', 'review_inventory_cancel',
+  'review_inventory_critic_set', 'review_inventory_wave_advance',
+  'validate', 'done_required_validate',
+  'TEST', 'DONE',
+  'delivery_check_set', 'summary_set', 'delivery_waiver_add', 'evaluate_save', 'live_smoke_transcript',
+  'done_prepare',
+  // The review assurance floor's host-verdict writers run after the managed
+  // lanes: autopilot_review_submit and quorum_submit/quorum_prune (lifecycle
+  // transaction subject `quorum-submit`). They are further restricted to their
+  // own host_verdict rows (VERDICT_WRITER_SUBJECTS).
+  'autopilot_review_submit', 'quorum-submit',
+  // Review-escalation bookkeeping reachable in TEST/DONE (probe/fallback/policy
+  // append process events and sweep story metadata).
+  'review_host_availability_probe', 'review_escalation_fallback_set', 'review_escalation_policy_set',
+  // TEST delivery-review context (--write persists evidence/delivery-context-pack.json only).
+  'delivery_context_pack',
+  // Codex hosts close validate and story_advance TEST with their own codex_cli
+  // process-event row (cli-engine lifecycle transaction kind codex-command-terminal).
+  'codex-command-terminal',
+] as const;
+
+/**
+ * Process-event writers commit exactly process-events.jsonl: earlier rows
+ * byte-identical plus appended rows of their own type only; `quorum-submit` is
+ * also the quorum_prune subject, which may only drop duplicate host_verdict rows.
+ */
+const EVENT_ROW_WRITER_SUBJECTS: Readonly<Record<string, string>> = {
+  autopilot_review_submit: 'host_verdict',
+  'quorum-submit': 'host_verdict',
+  'codex-command-terminal': 'codex_cli',
+};
+
+/**
+ * Review evidence and inventory artifacts are never swept in under these
+ * subjects: their only authenticated writers are the importer and the
+ * review-epoch/certification publishers verified above. Launch records that
+ * these commits sweep in (dispatch/review_round_prepare prompt envelopes and
+ * review runs, which do not commit themselves) may only be appended; the
+ * earlier rows that reviewed passes bind stay byte-identical.
+ */
+const PRECERT_METADATA_FORBIDDEN_ARTIFACTS = new Set([
+  'review-passes.json', 'findings.json', 'review-inventory-epochs.json',
+]);
+
+/** Signed launch records later commits sweep in (review_round_prepare/dispatch do not commit): append-only. */
+const PRECERT_METADATA_APPEND_ONLY_ARTIFACTS = [['prompt-envelopes.json', 'envelopes'], ['review-runs.json', 'runs']] as const;
+
+const PRECERT_SUBJECT_UNKNOWN = 'subject is not a PRE_CERT/TEST/DONE bookkeeping writer';
+
+/** null when the commit is admissible PRE_CERT/TEST/DONE bookkeeping; otherwise the refusing rule. */
+function precertMetadataCommitRefusal(
+  gitCwd: string, metadataRoot: string, storyId: string, canonicalStoryDir: string, subject: string, commit: string,
+  objectRead?: ObjectAddressedGitReader,
+): string | null {
+  const writer = PRECERT_METADATA_COMMANDS.find(command => matchesRuntimeCommitSubject(subject, `record ${storyId} ${command} metadata`));
+  if (!writer) return PRECERT_SUBJECT_UNKNOWN;
+  const parents = readLineageGit(gitCwd, ['show', '-s', '--format=%P', commit], objectRead);
+  if (parents.split(/\s+/).filter(Boolean).length !== 1) return 'bookkeeping commit is not single-parent';
+  const files = readLineageGit(gitCwd, ['diff-tree', '--no-commit-id', '--name-only', '-r', commit], objectRead)
+    .split('\n').filter(Boolean).map(file => file.replace(/\\/g, '/'));
+  if (!files.length) return 'empty bookkeeping commit';
+  const outside = files.find(file => !file.startsWith(`${canonicalStoryDir}/`) || !isMaterialExcludedPath(file, metadataRoot));
+  if (outside) return `bookkeeping commit changes ${outside} (reviewed material or outside this Story's metadata)`;
+  const ownRowType = Object.hasOwn(EVENT_ROW_WRITER_SUBJECTS, writer) ? EVENT_ROW_WRITER_SUBJECTS[writer] : undefined;
+  if (ownRowType) {
+    const events = `${canonicalStoryDir}/process-events.jsonl`;
+    const other = files.find(file => file !== events);
+    if (other) return `${writer} commit changes ${other}; a ${ownRowType} writer commits only process-events.jsonl`;
+    const rows = (ref: string): string[] => readLineageGit(gitCwd, ['ls-tree', '--name-only', ref, '--', events], objectRead)
+      ? readLineageGit(gitCwd, ['show', `${ref}:${events}`], objectRead).split('\n').filter(line => line.trim()) : [];
+    const isOwnRow = (line: string): boolean => { try { return (JSON.parse(line) as { type?: unknown }).type === ownRowType; } catch { return false; } };
+    const before = rows(parents.trim());
+    const after = rows(commit);
+    const appended = after.length >= before.length && before.every((line, index) => after[index] === line)
+      && after.slice(before.length).every(isOwnRow);
+    // quorum_prune: `after` is `before` with only host_verdict rows removed.
+    let cursor = 0;
+    const pruned = writer === 'quorum-submit' && after.length < before.length
+      && before.every(line => (cursor < after.length && after[cursor] === line ? (cursor += 1, true) : isOwnRow(line)))
+      && cursor === after.length;
+    if (!appended && !pruned) return `${writer} commit changes process-events.jsonl beyond its own ${ownRowType} rows`;
+    return null;
+  }
+  const evidence = files.find(file => PRECERT_METADATA_FORBIDDEN_ARTIFACTS.has(file.slice(canonicalStoryDir.length + 1)));
+  if (evidence) return `bookkeeping commit changes review evidence ${evidence} outside its authenticated writer`;
+  for (const [name, key] of PRECERT_METADATA_APPEND_ONLY_ARTIFACTS) {
+    const path = `${canonicalStoryDir}/${name}`;
+    if (!files.includes(path)) continue;
+    const read = (ref: string): unknown[] => {
+      if (!readLineageGit(gitCwd, ['ls-tree', '--name-only', ref, '--', path], objectRead)) return [];
+      const parsed = JSON.parse(readLineageGit(gitCwd, ['show', `${ref}:${path}`], objectRead)) as Record<string, unknown>;
+      if (!Array.isArray(parsed[key])) throw new Error(`${path} at ${ref} has no ${key} array`);
+      return parsed[key] as unknown[];
+    };
+    const before = read(parents.trim());
+    const after = read(commit);
+    if (after.length < before.length || digestCanonicalJson(after.slice(0, before.length)) !== digestCanonicalJson(before)) {
+      return `bookkeeping commit rewrites earlier ${name} ${key}`;
+    }
+  }
+  return null;
 }
 
 /**
@@ -165,7 +335,7 @@ export function verifyManagedReviewLiveBinding(args: {
       reason: `managed_review_live_material_stale:reviewed=${args.expected.materialHash}:live=${liveMaterialHash ?? 'unavailable'}`,
     };
   }
-  if (!hasOnlyManagedReviewImporterCommits({
+  const lineage = hasOnlyManagedReviewImporterCommits({
     gitCwd: args.gitCwd,
     metadataRoot: args.metadataRoot,
     storyId: args.storyId,
@@ -173,10 +343,14 @@ export function verifyManagedReviewLiveBinding(args: {
     reviewedMaterialHash: args.expected.materialHash,
     reviewedStoryFilesHash: args.expected.storyFilesHash,
     liveHeadHash,
-  })) {
+  });
+  if (!lineage.ok) {
     return {
       valid: false,
+      // The reason stays machine-exact (classifyManagedLiveBindingFailure);
+      // the refusing commit and rule travel separately for the owner.
       reason: `managed_review_live_head_lineage_invalid:reviewed=${args.expected.headHash}:live=${liveHeadHash}`,
+      lineageRefusal: lineage.refusal,
     };
   }
   return { valid: true, reason: 'managed_review_live_binding_current' };
@@ -293,12 +467,14 @@ export function resolveManagedReviewerBasePrompt(root: string, run: ReviewRun): 
  */
 export function renderManagedReviewerProviderPrompt(basePrompt: string, canonicalRoot: string): string {
   const primaryWorktree = canonicalRoot.trim();
-  if (!primaryWorktree) return basePrompt;
   return basePrompt
     .split(/\r?\n/)
     .filter(line => {
       const trimmed = line.trim();
-      return !(trimmed.includes(primaryWorktree)
+      // The managed host observes the provider itself; a native liveness start
+      // signal would only compete with the one JSON final result.
+      if (/first output `DISPATCH_START:/.test(trimmed)) return false;
+      return !(primaryWorktree && trimmed.includes(primaryWorktree)
         && /^working directory(?:\s*\(subagent must cd here\))?\s*:/i.test(trimmed));
     })
     .join('\n');
@@ -468,6 +644,87 @@ function renderManagedInventoryCriticEvidencePack(root: string, run: ReviewRun):
   ];
 }
 
+const MANAGED_REREVIEW_DIFF_MAX_CHARS = 60_000;
+const MANAGED_REREVIEW_FINDING_DESC_MAX_CHARS = 300;
+const GIT_OBJECT_NAME = /^[0-9a-f]{7,64}$/i;
+
+function renderManagedRereviewDiff(gitCwd: string, projectRoot: string, fromHead: string, toHead: string): string[] {
+  if (!GIT_OBJECT_NAME.test(fromHead) || !GIT_OBJECT_NAME.test(toHead)) {
+    return ['The repair diff is unavailable: a recorded candidate HEAD is not a Git object name. Run `git diff` between the two candidates yourself.'];
+  }
+  if (fromHead === toHead) return ['The candidate HEAD is unchanged since the previous review; no material path changed.'];
+  const git = (args: string[]): string => execFileSync('git', args, {
+    cwd: gitCwd, encoding: 'utf8', maxBuffer: 256 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'],
+  });
+  let paths: string[];
+  let diff: string;
+  try {
+    paths = git(['diff', '--no-renames', '--name-only', '-z', fromHead, toHead, '--'])
+      .split('\0').filter(Boolean).filter(path => !isMaterialExcludedPath(path, projectRoot)).sort();
+    diff = paths.length === 0 ? '' : git(['diff', '--no-color', '--no-ext-diff', '--no-renames', fromHead, toHead, '--', ...paths]);
+  } catch {
+    return [`The repair diff is unavailable from the canonical repository. Run \`git diff ${fromHead} ${toHead}\` yourself, excluding Proof-or-Stop metadata.`];
+  }
+  if (paths.length === 0) return ['No material path changed since the previous review (only Proof-or-Stop metadata changed).'];
+  const truncated = diff.length > MANAGED_REREVIEW_DIFF_MAX_CHARS;
+  return [
+    `Material paths changed since the previous review (${paths.length}): ${paths.join(', ')}`,
+    '--- BEGIN REPAIR DIFF ---',
+    truncated ? diff.slice(0, MANAGED_REREVIEW_DIFF_MAX_CHARS) : diff.replace(/\n$/, ''),
+    ...(truncated ? [`[diff truncated at ${MANAGED_REREVIEW_DIFF_MAX_CHARS} of ${diff.length} characters; run \`git diff ${fromHead} ${toHead} -- <path>\` for the rest of the listed paths]`] : []),
+    '--- END REPAIR DIFF ---',
+  ];
+}
+
+function oneLine(text: string, max: number): string {
+  const flat = text.replace(/\s+/g, ' ').trim();
+  return flat.length > max ? `${flat.slice(0, max)}...` : flat;
+}
+
+/**
+ * Re-review context for a code-review lane reviewing a later candidate. The
+ * lane's previous review is its newest earlier ReviewRun on a different
+ * headHash (a remediation inside REVIEW keeps the reviewRound, so candidates,
+ * not rounds, delimit it). Only data from runs on earlier candidates enters:
+ * the diff between the two recorded HEADs and the findings those runs raised,
+ * so runs on the current HEAD cannot change the prompt or its digest. A lane's
+ * first review, and a relaunch whose only earlier runs share its HEAD, get none.
+ */
+function renderManagedReviewerRereview(root: string, run: ReviewRun): string[] {
+  if (!isCodeReviewLaneRun(run)) return [];
+  const store = new StoryStore(root);
+  const runs = store.readReviewRuns(run.storyId).runs;
+  const previous = previousCandidateLaneRun(runs, run);
+  if (!previous) return [];
+  const gitCwd = run.workspaceBinding?.signedWorkspaceRoot ?? root;
+  const earlierRunIds = new Set(earlierCandidateRuns(runs, run).map(row => row.reviewRunId));
+  const findings = store.readFindings(run.storyId).findings
+    .filter(finding => finding.reviewRunId
+      ? earlierRunIds.has(finding.reviewRunId)
+      // Legacy findings without a run binding: only those of an earlier round.
+      : typeof finding.reviewRound === 'string' && isEarlierReviewRound(finding.reviewRound, run.reviewRound))
+    .sort((a, b) => a.id.localeCompare(b.id));
+  return [
+    '--- BEGIN MANAGED RE-REVIEW SINCE PREVIOUS CANDIDATE ---',
+    `Re-review: this lane already reviewed an earlier candidate of this Story (ReviewRun ${previous.reviewRunId}, candidate ${previous.headHash}). The candidate changed since then; it is now ${run.headHash}.`,
+    'If this session already holds your earlier review of this Story, build on what you read then instead of re-reading the repository.',
+    'Instructions:',
+    '1. First confirm each listed finding against the new code: state whether it is fixed or still present, with evidence (file and line, or the command you ran).',
+    '2. Then review the code changed since the previous review and the direct callers of changed code.',
+    '3. Apply variant analysis: for each problem, search the changed files and the direct callers of changed code for the same pattern, and report one finding that names every location.',
+    '4. Report every blocking problem in this one pass; do not hold problems back for a later review.',
+    '5. Code outside the diff was reviewed on earlier candidates. Re-read it only where the diff depends on it.',
+    '6. Re-check earlier conclusions against the new code rather than assuming them.',
+    'The managed review evidence protocol above is unchanged: submit exactly one final proposal with truthful read evidence for this run.',
+    `Findings raised on earlier candidates (${findings.length}):`,
+    ...(findings.length === 0 ? ['- none'] : findings.map(finding =>
+      `- ${finding.id} [severity=${finding.severity}, status=${finding.status}${finding.agent ? `, lane=${finding.agent}` : ''}] ${oneLine(finding.desc ?? '', MANAGED_REREVIEW_FINDING_DESC_MAX_CHARS)}`)),
+    `Repair since the previous review: git diff ${previous.headHash}..${run.headHash}, material paths only.`,
+    ...renderManagedRereviewDiff(gitCwd, root, previous.headHash, run.headHash),
+    '--- END MANAGED RE-REVIEW SINCE PREVIOUS CANDIDATE ---',
+  ];
+}
+
 export function buildManagedReviewerPrompt(
   root: string,
   run: ReviewRun,
@@ -486,11 +743,12 @@ export function buildManagedReviewerPrompt(
     reviewRunId: run.reviewRunId,
     agentType: run.lane,
   }));
+  const rereview = renderManagedReviewerRereview(root, run);
   return [
     '--- BEGIN MANAGED REVIEW EVIDENCE PROTOCOL ---',
     `This provider run is already bound to ${binding}.`,
     'This managed protocol overrides any generic reviewer-role instruction to register a pass or finding directly. Do not call review_run_start, review_pass_set, or finding_add in this run.',
-    'Your final assistant result MUST contain exactly one JSON object and no prose, tool call, or markdown fence. Do not call managed_review_proposal_set; tool-shell output is not formal evidence.',
+    'Your final assistant result MUST contain exactly one JSON object and no prose, tool call, or markdown fence; do not repeat a DISPATCH_START liveness line in it. Do not call managed_review_proposal_set; tool-shell output is not formal evidence.',
     'Use a standard JSON serializer for the final object. JSON strings permit only standard JSON escapes: write apostrophes as literal characters, never as backslash-apostrophe (\\\'), and do not hand-escape prose. Before emitting the one final proposal, parse or otherwise validate the exact serialized JSON locally; malformed JSON is rejected fail-closed and cannot become review evidence.',
     // B-137a: state the ONE-SUBMISSION rule the gate actually counts. The line
     // above constrains the CONTENT of the final result; it never said how many
@@ -506,6 +764,7 @@ export function buildManagedReviewerPrompt(
     'Use schemaVersion="lattice.managed_review_final_proposal.v1" and the exact bound fields above. For a pass add conclusion="pass", note, and truthful readManifest/readLog. For findings add conclusion="findings", exact findings, and truthful read evidence.',
     'Before final submission, read at least one relevant in-scope file in full within the permitted review boundary, including for an inventory-completeness critic. Both filesReadFully arrays must contain the same nonempty set of actually fully read paths, and readLog.summary.readCount must equal its unique path count. Do not invent full reads or relabel greps, parsed excerpts or partial reads as full reads. If no permitted relevant file can be read fully, the review remains incomplete; do not manufacture reading evidence or a PASS. This minimum does not establish full-corpus coverage or waive any other required reading.',
     'For a finding, include a nonblank uncertaintyReason only when evidenceState="suspected"; omit it when evidenceState="verified" or absent. General limitations belong in note and do not change a finding\'s evidence state.',
+    'Findings are real product defects. A stale or missing receipt, an intent with no pinned command, or an existing test bound to no intent is a framework-owned evidence-chain item, not a finding: mention it in a pass note, or give it category="evidence_chain" only alongside product findings. The importer reclassifies evidence_chain items as logged framework actions; they never count as findings.',
     '--- BEGIN MANAGED REVIEW FINAL PROPOSAL JSON SCHEMA ---',
     finalProposalSchema,
     '--- END MANAGED REVIEW FINAL PROPOSAL JSON SCHEMA ---',
@@ -529,9 +788,10 @@ export function buildManagedReviewerPrompt(
     renderManagedReviewerProviderPrompt(resolveManagedReviewerBasePrompt(root, run), root),
     ...(canonicalReportStatuses ? ['', ...renderManagedReviewerCanonicalReportSnapshot(canonicalReportStatuses)] : []),
     ...(fullScanBinding ? ['', ...renderManagedReviewerFullScanBinding(fullScanBinding)] : []),
+    ...(rereview.length > 0 ? ['', ...rereview] : []),
     ...(run.reviewPurpose === 'inventory-completeness' ? [
       '', 'Managed inventory protocol: do not call review_inventory_critic_set. The authenticated importer writes the critic receipt from your sealed inventoryCritic block after terminal evidence import.',
-      'Include inventoryCritic={epochId,wave,findingDispositions} bound exactly to the current evidence pack. Classify every aggregate finding and each new verified finding you report. Each row has finding, disposition, reason, optional familyKey and canonicalFinding. Each reason must contain at least 10 trimmed characters. Use finding={findingId:existingId} for existing findings; use finding={proposalFindingIndex:zeroBasedIndex} for your own final findings. canonicalFinding uses the same reference forms. Never guess allocated Finding IDs. Duplicate rows require familyKey and canonicalFinding; verified_family requires familyKey; not_verified permits neither.',
+      'Include inventoryCritic={epochId,wave,findingDispositions} bound exactly to the current evidence pack. Classify every aggregate finding and each new verified finding you report. Each row has finding, disposition, reason, optional familyKey and canonicalFinding. Each reason must contain at least 10 trimmed characters. Use finding={findingId:existingId} for existing findings; use finding={proposalFindingIndex:zeroBasedIndex} for your own final findings. canonicalFinding uses the same reference forms. Never guess allocated Finding IDs. Duplicate rows require familyKey and canonicalFinding; verified_family requires familyKey and omits canonicalFinding (it is its own canonical finding); not_verified permits neither.',
       'Do not put findingDispositions at the top level. The block does not certify omitted reads or resolve findings. Preserve incomplete-read findings rather than claiming complete coverage.',
       ...renderManagedInventoryCriticEvidencePack(root, run),
     ] : []),
@@ -704,14 +964,21 @@ export function verifyManagedReviewEvidence(args: {
     if (!args.evidence) return true;
     if (!proposal) return false;
     if (args.evidence.kind === 'pass') {
-      if (proposal.conclusion !== 'pass' || args.binding.proposalFindingIndex !== undefined) return false;
+      if (args.binding.proposalFindingIndex !== undefined) return false;
+      // A findings proposal carrying only evidence-chain items (framework
+      // actions, core/evidence-chain-finding.ts) is imported as a pass whose
+      // note is recomputed here from the sealed findings, so it binds exactly.
+      if (effectiveManagedReviewConclusion(proposal) !== 'pass') return false;
+      const expectedNote = proposal.conclusion === 'pass'
+        ? proposal.note
+        : evidenceChainReclassifiedPassNote(proposal.findings ?? []);
       return digestCanonicalJson({
         note: args.evidence.pass.note,
         readManifest: args.evidence.pass.readManifest,
         readLog: args.evidence.pass.readLog,
         readDiagnostics: args.evidence.pass.readDiagnostics,
       }) === digestCanonicalJson({
-        note: proposal.note,
+        note: expectedNote,
         readManifest: proposal.readManifest,
         readLog: proposal.readLog,
         readDiagnostics: proposal.readDiagnostics,
@@ -721,7 +988,8 @@ export function verifyManagedReviewEvidence(args: {
     const index = args.binding.proposalFindingIndex;
     if (!Number.isInteger(index) || index! < 0) return false;
     const candidate = proposal.findings?.[index!];
-    if (!candidate) return false;
+    // Evidence-chain items are framework actions and never admissible as Findings.
+    if (!candidate || isEvidenceChainFindingCategory(candidate.category)) return false;
     // B-137a:F-100 — `status` is LIFECYCLE state, not provider-authored content.
     // A provider always authors a finding as 'open'; the host later moves it to
     // 'resolved'/'dismissed' via finding_resolve, which mutates the stored record

@@ -4,7 +4,7 @@ import { collectContext, nextStoryId } from './context.js';
 import type { ChecklistData, MilestoneLedgerData, ScopeBoundaryMode, StoryInfo, StoryPhase, StoryType, VerificationIntent } from '../core/types.js';
 import { validateBackground } from '../core/background-validator.js';
 import { writeFileSync, mkdirSync, existsSync, readFileSync, rmSync, realpathSync } from 'fs';
-import { join, relative, isAbsolute } from 'path';
+import { join, relative, isAbsolute, resolve } from 'path';
 import { createHash } from 'crypto';
 import { buildMilestoneLedger } from '../core/proofstory.js';
 import { resolveGitCwd, resolveProjectGitCwd } from '../core/story-signed-workspace-resolution.js';
@@ -38,6 +38,15 @@ import {
 } from '../core/reviewer-launch-guidance.js';
 import { assertNoReviewGateVerificationIntent } from '../core/review-gate-verification-intent.js';
 import { captureStoryIntegrationTarget } from '../core/story-integration-target.js';
+import { ensureRuntimeInfoExclude } from '../core/runtime-info-exclude.js';
+import {
+  consumeStagedStoryRequest,
+  readStoryRequest,
+  renderUnmappedLiteralsLine,
+  stageStoryRequest,
+  unmappedStoryRequestLiterals,
+  writeStoryRequest,
+} from '../core/story-request.js';
 
 type StoryCreateScopeBoundaryInput = {
   mode?: ScopeBoundaryMode;
@@ -510,6 +519,8 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       background?: string; // B-45ed CHK-006: required four-section background.md content
       fromDraft?: string; // B-9975 CHK-003: from-draft mode
       reproFirstBypassReason?: string; // Allows story_create_from_repro/emergency intake to create the envelope before binding exists.
+      request?: string; // Verbatim user request (request.md); falls back to requestFile, then a story_request_set staged request.
+      requestFile?: string;
     }): string {
       for (const [index, item] of (args.checklist ?? []).entries()) {
         assertNoReviewGateVerificationIntent('story_create', item.verificationIntent, `CHK-${String(index + 1).padStart(3, '0')}`);
@@ -556,6 +567,12 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
             metadataRoot: ctx.root,
             projectRoot: ctx.root,
           });
+          // Run 11: story_create is the earliest PoS write of a Story, and every
+          // raw clean-status gate belongs to a Story lifecycle. Hide PoS runtime
+          // artifacts through the shared info/exclude (covers every linked Story
+          // worktree) so a project whose tracked .gitignore lacks the runtime
+          // block never sees framework-written files in git status.
+          ensureRuntimeInfoExclude(repoRoot);
           // storyRel must be relative to the RESOLVED repo root so the scoped
           // `git add` works whether or not the metadata root is the git root.
           // Canonicalize both sides (realpath) so a /var → /private/var symlink
@@ -576,6 +593,30 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         }
       };
       let reproFirstHint = '';
+      // Verbatim request: explicit text, then requestFile, then the staged request.
+      // Read eagerly so a bad requestFile fails before any Story is written.
+      const explicitRequest = typeof args.request === 'string' && args.request.trim().length > 0
+        ? args.request
+        : args.requestFile
+          ? readFileSync(resolve(ctx.root, args.requestFile), 'utf-8')
+          : undefined;
+      const recordInitialRequest = (storyId: string, phase: StoryPhase, items: ChecklistData['items']): string => {
+        const staged = consumeStagedStoryRequest(createLockMainRepoRoot);
+        const text = explicitRequest ?? staged;
+        if (!text) return '';
+        writeStoryRequest(store, {
+          storyId,
+          phase,
+          request: text,
+          source: explicitRequest !== undefined ? (args.request ? 'story_create.request' : 'story_create.requestFile') : 'story_request_set.staged',
+        });
+        const recorded = readStoryRequest(store, storyId);
+        if (recorded.status !== 'ok' || items.length === 0) return '';
+        const unmapped = unmappedStoryRequestLiterals(recorded.text, items);
+        return unmapped.length > 0
+          ? `\n⚠ ${renderUnmappedLiteralsLine(unmapped)}. Each example and each listed variant needs a checklist userSees (or a PLAN verificationIntent) that states it exactly.`
+          : '';
+      };
       // === B-9975 CHK-003: FROM-DRAFT MODE ===
       // When fromDraft is provided, bypass normal creation path entirely.
       if (args.fromDraft) {
@@ -719,6 +760,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
 
         // Write checklist.json (reuse draft's checklist items)
         store.writeChecklist(storyId, draftChecklist);
+        const draftRequestHint = recordInitialRequest(storyId, 'INIT', draftChecklist.items ?? []);
 
         // Delete draft directory
         rmSync(draftsDir, { recursive: true, force: true });
@@ -741,7 +783,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           process.stderr.write(draftStoryDirNote + '\n');
         }
 
-        return `Story ${storyId} created from draft '${draftName}' (INIT)\n→ draft '${draftName}' deleted\n→ run the normal INIT reviewer and scope anti-expansion gates, then story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'`;
+        return `Story ${storyId} created from draft '${draftName}' (INIT)${draftRequestHint}\n→ draft '${draftName}' deleted\n→ run the normal INIT reviewer and scope anti-expansion gates, then story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'`;
       }
 
       // Shift-left English-only policy: refuse CJK in any author-provided field
@@ -973,6 +1015,16 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         lines.push(`    proof-or-stop story_review_dismiss '{"storyId":"${storyId}","category":"<the category hit above>","reason":"explain why this is a false positive"}'`);
         lines.push('  Once all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gate is lifted (partial dismiss does not revert).');
         riskHint = lines.join('\n');
+      } else if ((args.priority === 'high' || args.priority === 'critical')
+        && detectRiskSignals(`${args.title}\n${args.description}`).length === 0) {
+        // The INIT story reviewer raises a high issue for this deterministic
+        // mismatch; saying so now saves a whole INIT review round.
+        riskHint = [
+          '',
+          `⚠ priority=${args.priority} but the title/description contain no risk wording (auth, token, migration, destructive, state machine, guard, gate, reset, production, incident, hotfix, PII, GDPR, breaking change).`,
+          '  The INIT story reviewer reports this as a high issue. Before launching INIT reviewers, lower the priority with',
+          `  story_update --storyId=${storyId} --priority=medium, or state the actual risk in the title or description.`,
+        ].join('\n');
       }
 
       // B-9975 CHK-004: legacy one-step mode deprecation warning for normal-channel stories
@@ -1110,6 +1162,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         // no items yet. Later PLAN writers read it unconditionally, and the
         // creation commit must carry the same empty state that INIT gates saw.
         store.writeChecklist(storyId, preflightChecklist);
+        const phaseRequestHint = recordInitialRequest(storyId, args.phase, preflightChecklist.items);
         const nonGitHint = !isGitRepository(ctx.root)
           ? `\n⚠ Current directory is not a git repo: story is recorded, but branch/worktree phase is not yet available. To continue the normal INIT_CHECK/DEV flow, first git init + initial commit.`
           : '';
@@ -1119,7 +1172,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         // B-6812 CHK-003 (G3): duplicate / concurrency warnings go to stderr;
         // only the create conclusion + non-advisory guidance stays on stdout.
         emitAdvisoryToStderr();
-        return `Story ${storyId} created (${args.phase})${hasChecklist ? ` with ${args.checklist!.length} checklist items` : ''}${nonGitHint}`;
+        return `Story ${storyId} created (${args.phase})${hasChecklist ? ` with ${args.checklist!.length} checklist items` : ''}${phaseRequestHint}${nonGitHint}`;
       }
 
       // Normal mode: with checklist → INIT (subsequent story_advance INIT_CHECK creates worktree → PLAN)
@@ -1161,6 +1214,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       writeBackground();
       writeInitialScopeArtifacts();
       store.writeChecklist(storyId, preflightChecklist);
+      const requestHint = recordInitialRequest(storyId, phase, preflightChecklist.items);
 
       if (hasChecklist) {
         const noContext = args.checklist!.filter((c: any) => !c.context).length;
@@ -1188,7 +1242,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         // B-6812 CHK-003 (G3): duplicate / concurrency warnings go to stderr;
         // the create conclusion + INIT-review guidance stays on stdout.
         emitAdvisoryToStderr();
-        return `Story ${storyId} created (INIT) with ${preflightChecklist.items.length} checklist items${hint}${initReviewHint}${nonGitHint}`;
+        return `Story ${storyId} created (INIT) with ${preflightChecklist.items.length} checklist items${hint}${requestHint}${initReviewHint}${nonGitHint}`;
       }
 
       // B-02a6 CHK-002: an IDEA story still persists index.json + background.md on
@@ -1204,6 +1258,46 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       // pre-B-f60c "winner creates, the rest reuse, all exit 0" contract that
       // story-create-concurrency-smoke asserts.
       }, { label: 'story_create', onContention: 'wait' });
+    },
+
+    /**
+     * Record the user's request verbatim (request.md, bounded to 16 KB with an
+     * explicit truncation marker, sha256-bound in request.json). Without storyId
+     * it stages the request for the next story_create in this checkout, so a
+     * wrapper (e.g. a benchmark adapter) can record the task text before the
+     * owner creates the Story. Replacing a recorded request, or recording one
+     * after INIT, is an amendment that requires amendmentReason.
+     */
+    story_request_set(args: { storyId?: string; request?: string; requestFile?: string; amendmentReason?: string }): string {
+      const text = typeof args.request === 'string' && args.request.length > 0
+        ? args.request
+        : args.requestFile
+          ? readFileSync(resolve(ctx.root, args.requestFile), 'utf-8')
+          : '';
+      if (!args.storyId) {
+        const mainRoot = resolveMainRepoRoot(ctx.root);
+        // Keep the staged runtime file out of git status before any Story exists.
+        ensureRuntimeInfoExclude(mainRoot);
+        const staged = stageStoryRequest(mainRoot, text);
+        return `Request staged for the next story_create (${staged.bytes} bytes${staged.truncated ? ', will be truncated to 16 KB' : ''}): ${staged.path}`;
+      }
+      const story = store.readStory(args.storyId);
+      const { meta, amended } = writeStoryRequest(store, {
+        storyId: args.storyId,
+        phase: story.phase,
+        request: text,
+        source: args.requestFile ? 'story_request_set.requestFile' : 'story_request_set.request',
+        amendmentReason: args.amendmentReason,
+      });
+      const lines = [
+        `Request ${amended ? 'amended' : 'recorded'} for ${args.storyId}: ${store.storyDirRel()}/${args.storyId}/request.md (${meta.bytes} bytes, sha256=${meta.sha256.slice(0, 12)}${meta.truncated ? `, truncated from ${meta.originalBytes} bytes` : ''})`,
+      ];
+      if (story.phase === 'INIT') lines.push('INIT reviewers sign request.md: rerun them if they already recorded init_check_set.');
+      try {
+        const unmapped = unmappedStoryRequestLiterals(readFileSync(store.storyFilePath(args.storyId, 'request.md'), 'utf-8'), store.readChecklist(args.storyId).items);
+        if (unmapped.length > 0) lines.push(`⚠ ${renderUnmappedLiteralsLine(unmapped)}`);
+      } catch { /* checklist not yet written */ }
+      return lines.join('\n');
     },
   };
 }

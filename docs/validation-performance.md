@@ -1247,6 +1247,22 @@ The default 141-command identity diagnostic found repeated executable reads but
 only about 14 ms total on this host; no executable memo was added. These local
 measurements do not establish full Story throughput or default lifecycle gains.
 
+### `next --storyId` decisions (Lab)
+
+A child_process profile of every quiet decision on the ND harness fixture
+(`NEXT_DRIVER_COST_PROFILE=<file> node packages/main/dist/tasks/next-driver-cost-smoke.js`)
+found 5292 spawns in 35 decisions, 93 s of their 100 s, 55% of them repeated
+identical git commands: each gate opened its own observation scope and the
+driver held none, and several read-only probes bypassed `observedGit`
+(story branch check, finding-ledger common dir, rename-aware name-status diff,
+blob ls-tree/cat-file, closeout ancestry, REVIEW index snapshot). The driver now
+decides inside one `withGitTreeObservation` and those probes pass through
+`observedGit` (a failed branch probe and any incomplete command are never
+memoized; a blob read keys on its byte bound). Result: 2468 spawns, 49 repeated.
+What remains is mostly the review verdict's per-pass lineage walk, distinct
+object reads that the TEST/REVIEW rows consult first; deferring other rows
+would save under 10%.
+
 ### Losing ownership while queued
 
 Official validation passes the lease heartbeat's cancellation signal into capacity

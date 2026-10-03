@@ -111,8 +111,8 @@ export function summarizeReviewerStatus(store: StoryStore, storyId: string, proj
   // F-001: align the reviewer-status display path with the REVIEW->TEST gate.
   // The gate (machine.ts canPassReview / guard-utils.ts) uses isFindingBlocking,
   // which carries the evidenceState dimension (suspected/disproven never block).
-  // Resolve effective blocking severities + round the same way the gate does so a
-  // suspected open critical/high finding is not counted as a blocker here.
+  // Resolve the closure severities the same way the gate does so a
+  // suspected open critical/high/medium finding is not counted as a blocker here.
   const config = loadConfig(projectRoot);
   const policy = resolveWorkflowPolicy(config, story);
   const { effectiveBlockingSeverities, roundCount } = resolveEffectiveBlockingSeverities(store, storyId, policy);
@@ -132,7 +132,7 @@ export function summarizeReviewerStatus(store: StoryStore, storyId: string, proj
     const present = matched.length > 0 || matchedPasses.length > 0 || invalid.length > 0;
 
     // Count open blockers using the same predicate as the REVIEW->TEST gate
-    // (status open + blocking severity + verified evidenceState + not advisory this round).
+    // (status open + closure severity critical/high/medium + verified evidenceState; no round decay).
     const openBlockers = matched.filter(f =>
       !!f && readDynamicFindingDecision({ store, projectRoot: projectRoot ?? process.cwd(), storyId, finding: f,
         effectiveBlockingSeverities, round: roundCount }).blocking

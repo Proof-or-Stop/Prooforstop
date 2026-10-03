@@ -441,12 +441,31 @@ function isDonePrepareAllowedInitialMetadataEntry(ctx: HandlerContext, storyId: 
     && paths.every((path) => isSameStoryLifecycleMetadataPath(ctx, storyId, path));
 }
 
+/**
+ * An untracked file the framework itself owns: a registered runtime artifact or
+ * a signed controller projection (runtime_artifact_changes). done_prepare never
+ * stages it, and it cannot collide with the merge unless the integration branch
+ * tracks the same path. Without this a global-thin Story worktree (projected
+ * native hooks) or a task repo whose .gitignore lacks the runtime block could
+ * never pass cleanTree (run 11; e2e harness scenario E).
+ */
+function isDonePrepareAllowedFrameworkRuntimeEntry(gitCwd: string, integrationBranch: string, entry: DirtyWorktreeEntry): boolean {
+  const paths = dirtyEntryPaths(entry);
+  return entry.category === 'runtime_artifact_changes'
+    && entry.statusCode === '??'
+    && paths.length > 0
+    && paths.every((path) => !pathExistsOnIntegrationBranch(gitCwd, integrationBranch, path));
+}
+
 function initialDonePrepareBlockingEntries(
   ctx: HandlerContext,
   storyId: string,
   classification: DirtyWorktreeClassification,
+  gitCwd: string,
+  integrationBranch: string,
 ): DirtyWorktreeEntry[] {
-  return classification.entries.filter((entry) => !isDonePrepareAllowedInitialMetadataEntry(ctx, storyId, entry));
+  return classification.entries.filter((entry) => !isDonePrepareAllowedInitialMetadataEntry(ctx, storyId, entry)
+    && !isDonePrepareAllowedFrameworkRuntimeEntry(gitCwd, integrationBranch, entry));
 }
 
 function dirtyPathDigest(gitCwd: string, path: string): string {
@@ -1170,6 +1189,7 @@ export function safeDoneRequiredRecoveryCommand(storyId: string, text: string, f
 
   const allowed = new Set([
     `proof-or-stop review_inventory_finalize --storyId=${storyId}`,
+    `proof-or-stop next --storyId=${storyId}`,
     `proof-or-stop done_prepare --storyId=${storyId}`,
     `proof-or-stop done_prepare --storyId=${storyId} --mergeMain`,
     `proof-or-stop finding_list --storyId=${storyId}`,
@@ -1906,7 +1926,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
 
   const initialDirty = nonLeaseDirtyRows(ctx, storyId, gitStatusRows(gitCwd));
   const initialDirtyClassification = classifyDirtyRows(ctx, storyId, initialDirty);
-  const initialBlockingEntries = initialDonePrepareBlockingEntries(ctx, storyId, initialDirtyClassification);
+  const initialBlockingEntries = initialDonePrepareBlockingEntries(ctx, storyId, initialDirtyClassification, gitCwd, integrationBranch);
   if (initialBlockingEntries.length > 0) {
     const files = entryFiles(initialBlockingEntries);
     const hasMergeOverwriteHazard = initialBlockingEntries.some(
@@ -2350,7 +2370,8 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       return {
         finalDirtyClassification: classification,
         finalBlockingEntries: classification.entries.filter(
-          (entry) => !unchangedFromInitialAllowedMetadata(ctx, storyId, gitCwd, entry, initialAllowedMetadataSignatures),
+          (entry) => !unchangedFromInitialAllowedMetadata(ctx, storyId, gitCwd, entry, initialAllowedMetadataSignatures)
+            && !isDonePrepareAllowedFrameworkRuntimeEntry(gitCwd, integrationBranch, entry),
         ),
       };
     }, rawArgs));

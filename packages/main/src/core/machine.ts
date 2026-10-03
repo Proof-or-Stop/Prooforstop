@@ -27,7 +27,7 @@ import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
 import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
 import { computeActiveReviewers, computeFinalReviewRoster } from '../handlers/reviewer-list.js';
 import { collectReviewerEvidenceState } from './review-run.js';
-import { readDynamicFindingDecision } from './finding-applicability-projection.js';
+import { resolveEffectiveBlockingSeverities, unclosedBlockingFindings, findingClosureNextAction, storyPhaseOrUndefined } from './finding-closure.js';
 import { evaluateReviewMintStallAdjudication, type StallAdjudication } from './review-convergence.js';
 import { evaluateReviewerQuorum } from './reviewer-quorum.js';
 import type { ReviewerEvidenceEntry } from './reviewer-quorum.js';
@@ -74,44 +74,14 @@ import { inspectDevMemoryFinishDecision } from './playbook-runtime-memory.js';
 import { canonicalAgentRoleId } from './agent-role-identity.js';
 import { renderManagedInitReviewerDispatches } from './reviewer-launch-guidance.js';
 
-/**
- * Resolve effective blocking severities with round decay.
- * Round count is derived from story events (how many times the story entered REVIEW phase),
- * not from review.json which also contains PLAN-phase story_review entries.
- */
-function resolveEffectiveBlockingSeverities(
-  store: StoryStore, storyId: string, policy: { review: { blockingSeverities: readonly string[] | string[] } }
-): { effectiveBlockingSeverities: string[]; roundCount: number } {
-  let roundCount = 1;
-  try {
-    const story = store.readStory(storyId);
-    if (story.events) {
-      const reviewEntries = story.events.filter(
-        (e: any) => e.phase === 'REVIEW' && e.action === 'advance'
-      );
-      roundCount = reviewEntries.length || 1;
-    }
-  } catch { /* fallback to 1 */ }
-
-  let effectiveBlockingSeverities: string[];
-  if (roundCount >= 3) {
-    effectiveBlockingSeverities = ['critical'];
-  } else if (roundCount >= 2) {
-    effectiveBlockingSeverities = ['critical', 'high'];
-  } else {
-    effectiveBlockingSeverities = policy.review.blockingSeverities as string[];
-  }
-  return { effectiveBlockingSeverities, roundCount };
-}
-
 function buildQuorumEvidence(
   evidenceRecords: { agent: string; kind: string; signatureValid?: boolean }[],
 ): ReviewerEvidenceEntry[] {
   return evidenceRecords.map(e => ({
     lane: e.agent,
     agent: e.agent,
-    // Production finding severity/round-decay remains owned by the existing
-    // isFindingBlocking section; quorum only needs lane coverage here.
+    // Production finding blocking remains owned by the finding closure rule
+    // (core/finding-closure.ts); quorum only needs lane coverage here.
     kind: 'pass',
     signatureValid: e.signatureValid,
   }));
@@ -865,6 +835,26 @@ export interface ReviewVerdict {
   ok: boolean;
   code?: 'open_review_loop' | 'review_loop_record_error' | 'review_round_missing' | 'review_evidence_missing' | 'review_evidence_invalid' | 'review_lane_missing' | 'review_quorum' | 'review_finding_blocking' | 'review_verdict_error';
   message?: string;
+  /** review_finding_blocking only: the verified blocking findings that are not closed yet. */
+  unclosedFindingIds?: string[];
+}
+
+/**
+ * Closure rule (core/finding-closure.ts): every verified open critical/high/medium
+ * finding must be closed, whichever review round raised it — earlier rounds count
+ * and there is no round decay. B-3fad CHK-001: suspected / disproven do not block.
+ */
+function findingClosureVerdict(context: StoryMachineContext, policy: { review: { blockingSeverities: readonly string[] } }, findings: readonly Finding[]): ReviewVerdict | null {
+  const { effectiveBlockingSeverities, roundCount } = resolveEffectiveBlockingSeverities(context.store, context.storyId, policy);
+  const blocking = unclosedBlockingFindings({ store: context.store, projectRoot: context.projectRoot ?? process.cwd(),
+    storyId: context.storyId, findings, effectiveBlockingSeverities, round: roundCount });
+  if (blocking.length === 0) return null;
+  return {
+    ok: false,
+    code: 'review_finding_blocking',
+    message: `${blocking.length} verified blocking finding(s) not closed (any review round): ${blocking.map(row => `${row.finding.id} [${row.finding.severity}] ${row.finding.desc} (${row.decision.reason})`).join('; ')}`,
+    unclosedFindingIds: blocking.map(row => row.finding.id),
+  };
 }
 
 /** Read-only, phase-agnostic reviewer verdict shared by REVIEW→TEST and TEST→DONE. */
@@ -898,7 +888,8 @@ export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdi
     const story = context.store.readStory(context.storyId);
     const policy = resolveWorkflowPolicy(config, story);
 
-    if (!policy.review.requireReviewer) return { ok: true };
+    // Closure applies in every profile, even one that requires no reviewer.
+    if (!policy.review.requireReviewer) return findingClosureVerdict(context, policy, context.store.readFindings(context.storyId).findings ?? []) ?? { ok: true };
     if (!story.currentReviewRound) {
       return {
         ok: false,
@@ -976,24 +967,8 @@ export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdi
       }
     }
 
-    const { effectiveBlockingSeverities, roundCount } = resolveEffectiveBlockingSeverities(context.store, context.storyId, policy);
-
-    // Check blocking severities from policy (with round decay).
-    // B-3fad CHK-001: evidenceState dimension — only verified (or legacy missing-field) open findings block;
-    // suspected / disproven do not block REVIEW→TEST.
-    const blocking = evidenceState.valid
-      .map((e) => e.finding)
-      .filter((finding): finding is Finding => !!finding)
-      .map((finding) => ({ finding, decision: readDynamicFindingDecision({ store: context.store,
-        projectRoot: context.projectRoot, storyId: context.storyId, finding, effectiveBlockingSeverities, round: roundCount }) }))
-      .filter((row) => row.decision.blocking);
-    if (blocking.length > 0) {
-      return {
-        ok: false,
-        code: 'review_finding_blocking',
-        message: `${blocking.length} open blocking finding(s): ${blocking.map(row => `${row.finding.id} [${row.finding.severity}] ${row.finding.desc} (${row.decision.reason})`).join('; ')}`,
-      };
-    }
+    const closure = findingClosureVerdict(context, policy, findings.findings ?? []);
+    if (closure) return closure;
     return { ok: true };
   } catch (error) { rethrowIntentAmendmentIntegrityError(error);
     return { ok: false, code: 'review_verdict_error', message: error instanceof Error ? error.message : String(error) };
@@ -1078,7 +1053,9 @@ export function* evaluateDonePredicates(context: StoryMachineContext): Generator
 
   const reviewVerdict = evaluateReviewVerdict(context);
   yield donePredicate('review-verdict', 'review-verdict', reviewVerdict, !reviewVerdict.ok
-    ? reviewVerdict.code === 'review_evidence_invalid'
+    ? reviewVerdict.code === 'review_finding_blocking' && reviewVerdict.unclosedFindingIds?.length
+      ? `Cannot enter DONE: ${reviewVerdict.message}. [review_finding_blocking]\n${findingClosureNextAction(storyId, reviewVerdict.unclosedFindingIds, storyPhaseOrUndefined(store, storyId))}`
+      : reviewVerdict.code === 'review_evidence_invalid'
       ? `Cannot enter DONE: ${reviewVerdict.message}. [stale_closeout_review] → Return to DEV/REVIEW and record current reviewer evidence before TEST`
       : `Cannot enter DONE: ${reviewVerdict.message}. [${reviewVerdict.code}] → Return to DEV/REVIEW and record current reviewer evidence before TEST`
     : null);
@@ -1532,7 +1509,11 @@ export function getGuardFailureReason(
 
   if (targetPhase === 'TEST') {
     const verdict = evaluateReviewVerdict({ storyId, store, projectRoot: projectRoot ?? process.cwd(), ...(gitCwd ? { gitCwd } : {}) });
-    if (!verdict.ok) return `Cannot enter TEST: ${verdict.message} [${verdict.code}]`;
+    if (!verdict.ok) {
+      return verdict.code === 'review_finding_blocking' && verdict.unclosedFindingIds?.length
+        ? `Cannot enter TEST: ${verdict.message} [${verdict.code}]\n${findingClosureNextAction(storyId, verdict.unclosedFindingIds)}`
+        : `Cannot enter TEST: ${verdict.message} [${verdict.code}]`;
+    }
   }
 
 if (targetPhase === 'DONE') {

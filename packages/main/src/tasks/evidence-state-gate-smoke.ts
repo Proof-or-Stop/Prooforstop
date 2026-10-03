@@ -7,9 +7,9 @@
  * (machine.ts canPassReview / getGuardFailureReason, guard-utils.ts) is:
  *
  *   status === 'open'
- *   && severity ∈ {critical, high}
+ *   && severity ∈ closure severities critical/high/medium (every round and profile)
  *   && (evidenceState === 'verified' || evidenceState == null)   // legacy compat
- *   && !isAdvisoryThisRound(severity, round)
+ *   && severity !== 'low'
  *
  * Test matrix (plan.md#CHK-001), each asserted below:
  *   1. legacy critical/high open finding missing evidenceState  -> still blocks

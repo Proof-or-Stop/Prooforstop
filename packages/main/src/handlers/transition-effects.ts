@@ -222,6 +222,11 @@ function renderReviewAssuranceBeforeDoneAdvisory(
  * reviewer list) exactly as the inline IIFEs did. transition-orchestrator.ts
  * indexes the returned record with `nextSteps[newState]`.
  */
+/** DEV guidance ends with the one driver the owner follows once the items are done. */
+function devNextSteps(storyId: string): (channelText: string) => string {
+  return channelText => `${channelText}\n→ After DEV (and after every later rework): Next: proof-or-stop next --storyId=${storyId} names each remaining step, REVIEW entry through DONE`;
+}
+
 export function buildNextSteps(
   store: StoryStore,
   root: string,
@@ -231,7 +236,7 @@ export function buildNextSteps(
     PLAN: `→ Recommend switching to Claude Code plan mode immediately (shift-tab twice to plan mode) — the PLAN stage only breaks down checklist / writes understanding_set / decision_set, and should not modify code. Edit/Write being disabled in plan mode prevents accidental edits.
 → Next step: checklist_get(${storyId}) to view pending items, then story_advance(${storyId}, DEV) to begin development
 ⚠ User value acceptance (mandatory): the outcome field of understanding_set must be written as a concrete user-facing transcript — the exact text the user will see in the terminal/UI after running this story, not an abstract description like "event X is wired up". Judgment method: outcome must read in a way that lets one imagine the moment when the user considers the work done. See the "User value acceptance" section in CLAUDE.md for details.`,
-    DEV: (() => {
+    DEV: devNextSteps(storyId)((() => {
       // B-45ed CHK-004: real-time compute the three-tier channel (express/fast/normal)
       let channel: 'express' | 'fast' | 'normal' = 'normal';
       try {
@@ -255,7 +260,7 @@ export function buildNextSteps(
 → After the subagent finishes and commits, the main agent accepts and merges, then story_advance(${storyId}, REVIEW)
 → sub agent should not use isolation:"worktree", run directly in the main agent's worktree
 ⚠ During the REVIEW phase, Proof-or-Stop reviewers will check the commit author — in the normal channel, if all code is written by the main agent itself, a critical finding will be raised`;
-    })(),
+    })()),
     REVIEW: (() => {
       // B-fdcf CHK-002: Dynamic echo by opt-in list (no longer fixed at 5 after channel LLM reviewer was retired).
       let activeLine = 'Active reviewers: concept, quality, test-coverage (fallback: cannot resolve opt-in list, using baseline)';
@@ -295,7 +300,7 @@ ${agentLines}
 → reviewer liveness: each reviewer should first output REVIEW_START after starting
 ${renderAgentLivenessGuidance({ label: 'REVIEW reviewers' })}
 → After all return, proof-or-stop finding_list to aggregate
-→ Once critical/high are all resolved: story_advance(${storyId}, TEST)
+→ Leaving REVIEW is framework-driven: Next: proof-or-stop next --storyId=${storyId} returns exactly one step at a time (prepare/launch/import lanes, inventory + critic, remediation, cheap check, certification_window_begin, routine validate, TEST); --run executes the framework steps itself. TEST needs every verified critical/high/medium finding closed (finding_resolve with repair evidence)
 → Need code changes: review_inventory_begin(${storyId}), finish all required lanes, dispatch topology critic and submit complete findingDispositions, then review_inventory_finalize --storyId=${storyId} --remediation; a complete first wave is sufficient even with new findings, and this receipt cannot enter certification or TEST. Only its signed receipt authorizes story_advance(${storyId}, DEV)
 ⚠ When reviewers call finding_add they must pass the agent parameter (e.g. "agent":"proof-or-stop-review-behavior"), otherwise the finding will be marked as main agent and the TEST gate will refuse to advance`;
       // B-cfdd CHK-003: SOFT, advisory-only convergence-stall signal. Assessed
@@ -308,10 +313,10 @@ ${renderAgentLivenessGuidance({ label: 'REVIEW reviewers' })}
           base += `\n\n${convergence.message}`;
         }
       } catch { /* advisory-only: never block the transition */ }
-      // B-f675 CHK-002: round>=2 informed targeted re-review advisory. The
-      // REVIEW→TEST gate at round 2+ already accepts >=1 valid current-round
-      // receipt, so an operator MAY legally re-run only the reviewers whose scope
-      // changed since their last pass. This block surfaces that set; it is
+      // B-f675 CHK-002: round>=2 scope-change advisory (context only). The
+      // REVIEW→TEST gate requires every required lane of the final review roster
+      // in every round (the round number never narrows it), so this list never
+      // licenses skipping a lane. This block surfaces that set; it is
       // STRICTLY append-only inside try/catch — it never throws, never alters the
       // transition result, and never touches canPassReviewGuard. The framework
       // still skips nobody; this is an operator judgement.
@@ -337,7 +342,7 @@ ${renderAgentLivenessGuidance({ label: 'REVIEW reviewers' })}
             .filter((context) => context.scopeChanged);
           const advisoryLines = [
             '',
-            `→ Round ${roundCount} informed targeted re-review (advisory):`,
+            `→ Round ${roundCount} scope changes since each reviewer's last pass (advisory):`,
           ];
           if (scopeChanged.length === 0) {
             advisoryLines.push('  No active reviewer has a scope change since its last pass (all up to date).');
@@ -350,7 +355,7 @@ ${renderAgentLivenessGuidance({ label: 'REVIEW reviewers' })}
             }
           }
           advisoryLines.push(
-            '→ Round 2+ gate needs >=1 valid current-round receipt; you MAY re-run only the scope-changed reviewers via proof-or-stop review_incremental_context --role=<name>. The framework skips nobody; this is your call.',
+            `→ Context only: the REVIEW→TEST gate still needs a valid current-round verdict from every required lane (proof-or-stop reviewer_batch --storyId=${storyId}); inspect a lane's changes via proof-or-stop review_incremental_context --role=<name>.`,
           );
           base += `\n${advisoryLines.join('\n')}`;
         }
@@ -409,7 +414,8 @@ ${renderAgentLivenessGuidance({ label: 'REVIEW reviewers' })}
     })(),
     TEST_CASE: `→ Legacy phase. Recommend directly story_advance(${storyId}, TEST) to enter verification`,
     TEST_CASE_REVIEW: `→ Legacy phase. Recommend directly story_advance(${storyId}, TEST) to enter verification`,
-    TEST: `→ The routine suite already executed once in REVIEW after PRE_CERT became ADMITTED. TEST consumes that current signed PASS; do not start a second unscoped proof-or-stop validate --story run here. Continue delivery and DONE prerequisites. If evidence is missing or stale, return to DEV to restore PRE_CERT before another REVIEW routine run.
+    TEST: `→ Next: proof-or-stop next --storyId=${storyId} drives TEST→DONE one step at a time (live smoke, delivery review, finish decision, summary, review assurance floor, DONE).
+→ The routine suite already executed once in REVIEW after PRE_CERT became ADMITTED. TEST consumes that current signed PASS; do not start a second unscoped proof-or-stop validate --story run here. Continue delivery and DONE prerequisites. If evidence is missing or stale, return to DEV to restore PRE_CERT before another REVIEW routine run.
 ⚠ Engineering verification ≠ user acceptance: even if validate is fully pass, run it once on a real machine from the user's perspective (rhythm: treat PLAN outcome as expected → run → treat actual output as actual → diff). Persist that run through proof-or-stop live_smoke_transcript --storyId=${storyId} --capture='<explicit command>' --write so the canonical ${store.storyDirRel()}/${storyId}/evidence/live-smoke-transcript.json artifact records the actual transcript. The "user value acceptance" section in CLAUDE.md has the complete 5-question self-check list.
 ⚠ delivery-check hard gate: before DONE, prefer the controller-owned managed path: ${renderQualifiedManagedCodexDispatchCommand(storyId, 'proof-or-stop-review-delivery')}. Native-host alternative: ${renderReviewerDispatchLaunch({ storyId, agentType: 'proof-or-stop-review-delivery', taskName: 'review_delivery' })} ${REVIEWER_CHILD_ID_WAIT_BOUNDARY} The reviewer reverse-scans git diff to verify doc promises are delivered + real-machine test coverage and writes delivery-check.json. Fallback is compliant only with proof-or-stop-review-delivery provenance / agentId=proof-or-stop-review-delivery; the main agent must not self-sign. Unsigned → story_advance DONE will be blocked by [missing_delivery_check].${renderReviewAssuranceBeforeDoneAdvisory(store, root, storyId)}`,
     DONE: `→ Must execute immediately: tell the user the Story summary paragraph below in your own words (what changed / how to use / real-machine coverage / limitations / pitfalls), then convergence_check to check project convergence state

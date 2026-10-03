@@ -13,8 +13,8 @@ import type {
   ValidationCommand,
   ValidationCommandResult,
 } from './validation-types.js';
-import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
-import { resolveCommandTimeoutMs } from './validation-executor.js';
+import { effectiveValidationCommandEnvironment, validationEnvironmentIdentityEntries } from './validation-command-environment.js';
+import { resolveCommandTimeoutMs } from './validation-timeouts.js';
 import { validationIdentityDigest } from './validation-command-portable-id.js';
 import { HISTORY_UNREADABLE_REUSE_REASON, VERDICT_FLIP_REUSE_REASON, stickyFailuresFor, validationVerdictIdentity, type ValidationHistory } from './validation-verdict-stickiness.js';
 
@@ -174,7 +174,11 @@ export function normalizeRoutineValidationCommand(args: {
     timeoutMs: resolveCommandTimeoutMs(command),
     optional: command.optional === true,
     focus: [...(command.focus ?? [])],
-    effectiveEnvironmentDigest: validationIdentityDigest(effectiveEnvironment),
+    // Receipts bind the environment IDENTITY projection, not every ambient
+    // variable (see VALIDATION_ENVIRONMENT_IDENTITY_SCHEMA); the executable and
+    // shell resolution above still use the full effective environment.
+    effectiveEnvironmentDigest: validationIdentityDigest(validationEnvironmentIdentityEntries(
+      processEnvironment, command.env, cwd, [command.command, ...command.args], platform)),
     executableDigest: executable ? fileDigest(executable) : null,
     shellExecutableDigest: shellExecutable ? fileDigest(shellExecutable) : null,
   };

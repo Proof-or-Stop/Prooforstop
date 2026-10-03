@@ -66,7 +66,7 @@ export const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-implementer',
-    templateHash: 'ef5f18eb9362102927c4e82d200d398dc451f12b8121cb79a0df28c53fefea6a',
+    templateHash: '9a2e7cd5d6f5422525a95d3bbec9785de2a7abe7c5ecc5600bad1aa98d53c6f8',
   },
   {
     role: 'proof-or-stop-review-behavior',
@@ -78,7 +78,7 @@ export const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-concept',
-    templateHash: '839a5200d0f326abcbdc78797249b99a37ecaba723343cca5ad6f91df113e291',
+    templateHash: '1464db23e356cb360d15dbf72116fd66446ca9b4bb4051f753e80726a85a6208',
   },
   {
     role: 'proof-or-stop-review-delivery',
@@ -90,11 +90,11 @@ export const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-quality',
-    templateHash: 'e1785c1f8b342eaadadbf10da383a5d715fa4cafb5ceb1b33ec1a414d26b4942',
+    templateHash: 'f5b18164e6019265deb6fd26f842af6abec3660dfff0f0b93fd8241850fb4709',
   },
   {
     role: 'proof-or-stop-review-scope-plan',
-    templateHash: '7d75ec609b693de35b479abe3bf0ad6ac06ddd13fd124fd5ce21f2074eeb1ae4',
+    templateHash: 'ac807ddb4948b4ca1c4cf9ca11b8e9d0f5ac530a438e8e56e7f34caf27f4dcd7',
   },
   {
     role: 'proof-or-stop-review-story-init',
@@ -102,7 +102,7 @@ export const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-test-coverage',
-    templateHash: 'decf908da84557a066ccb26c28ad41a9d519a2ed010d46b1eb0ac984c40f6727',
+    templateHash: '25d2277818cdb01eff41c81a78704d5e7e5885e24728e8c8d388602c156deedd',
   },
   {
     role: 'proof-or-stop-review-topology-critic',
@@ -125,16 +125,16 @@ export const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   {
     role: 'proof-or-stop-verification-intent',
     // B-5a88/F-445: active PLAN role; writes only verificationIntent.
-    templateHash: 'd3aedf44932bbb2b1965178bc8f1ec307b16dd87e92c8d5941f50e3967d7b329',
+    templateHash: '52997fb5a713b3ada9a756e2c91587c02d1ac3a38c01b95e5df8d77a65fdc5c8',
   },
 ].map(entry => Object.freeze(entry)));
 
 export const APPROVED_ROLE_BODY_ROLLOUT_MANIFEST = Object.freeze([
   ["proof-or-stop-review-behavior", "aefae08ddacd30c52be142ce5e4ebf7f78b7555de68b7b2e60433e9dbb464dd0", "5d6aa06bfbcad5ba32964c1cd8c994fef8bd07c68fd39b0f6877e1eb528d96bd", "b7b49797823499177b6e5b0143e5c3e97a5de7f9229de2b05289338c224ba12d", "55a2f12287d8a90618ef84a31255a8a98e39674ef73c4d178fa64e3009e736b9", "2e41b634607a546066f22951ae6d6a0763ca5516c4ef871499c2fa29526384c4"],
-  ["proof-or-stop-review-concept", "604a884ce42a4e0cf9b4c91d48967e8b6f10196b7b602572e5fee53505361ab7", "54148eb541957fc2a400e0e6255f2e9180ce11c815847c45153c243862fc8728", "ee35202c067f7bbc9907e47ecf3eda2d49d0eb0e04e3c7fb96406bc709cdb7fe", "71fd2177d4afe896b94d428a7721665c06675fd54fb58f363d7987547730ac6b", "fddbc4eef65fcde36d116c2855e5005ed58b605587df7f515afa58ce055b4120"],
+  ["proof-or-stop-review-concept", "76da75dc3cb3109e42d3d1eda57864c647c8e7cedd33727f74387fa67c151a7a", "54148eb541957fc2a400e0e6255f2e9180ce11c815847c45153c243862fc8728", "af55df4f26d8f6dced7455458a7123934f02f34cd384ff788618e21f1dc7188f", "caba7126d0faef165b643de76b5d11be712eb373a419470a4017373b316032d4", "f348660a571968d00f4efa39524fd1b5a7cafe2cf1e08f6a63ceaa0c8f9a4d32"],
   ["proof-or-stop-review-docs", "04fbdc3f19960d9af0f9a3b063b5d0c4bdd93259469d35c3236f0a512886303d", "c40127c2e1647c76576a83fc58f603ec6ead7fa6ee6d4ddd9129849229e59e43", "13aabf3a2f99b639b920a11906ea35c12e12eb2635add93db7c573126ce206b8", "364f11994c5f66461f3ac11ad0ba3aa05b867cb7d80bf75ee903b5e70e80e49d", "c0e4253253ff5fe99161755bccd296871318969604f08ce860f1fb9309cd300d"],
-  ["proof-or-stop-review-quality", "138fcfe32ffbc137ddd6ef7bc09024e5fb7fc0e767994ed7fc9548fec795ac39", "f921da5fa466448df54d24257c9c07db1505ca08c4e639beb6f1c73a90ac65ff", "43c2484ef955fae21b1a9f1ca8472e219ca60734c842ada53f9c2f2b7ef5ae30", "9ce8f5281b08e3845f624d44aab6797001cc7d3384f8f621382ac4d056fcfbf3", "6c6f1fd6df0b2118779c8908eb7e51932c685a433c3ce1338b2ae3efda178bc7"],
-  ["proof-or-stop-review-test-coverage", "3c4aba60dd2a1bb4feb6313691b8d48138cbea59d2fca329b3504bfa98c1cb9c", "f919fc963b1e6dbe3f98b468ad1b3aa9bf8d0e189bba9752e904f3527c1cc615", "44e718a0ba19414e94cd8fd71615992947fac23989b9f91e3280c81d79219288", "c2022c6848a51a782adf8fa6417d18174d360f7977cc210c8255dd2b7c3c5416", "9d8f271bd248a823941643efea2fa77ce276c941411875eb9a9776606dae97f6"],
+  ["proof-or-stop-review-quality", "39511c6496fc15584abb38aeb64c7124616b44d16ca1420667653ba2366bb553", "f921da5fa466448df54d24257c9c07db1505ca08c4e639beb6f1c73a90ac65ff", "64cf67f35e9241c6233aa6a843f6d1bdd393aedd3f8197b764549153c25ca3de", "18037cf8c79aba5a417e3cf09cc1b6ce4e51a6155206f2566e60887101179611", "e382cd9172570d0e50910186c2efeda38424be64cc869ab2043cf67d0662cc68"],
+  ["proof-or-stop-review-test-coverage", "988ae0b327cbe18606d80f86aa5d02718b22618265de2885885c4f02bb5d6709", "b8924014293e8979a0f0a0959b5a46bb8f6abee6d04c96f832667eba9edc4448", "3a09cf414e9692ade1a670abdf1394ee25879cfc95f67d11b539d96f03a980f8", "1e5a98c10c383ffdce0cf6f9a1adb45f1dd469d156b3d6c5edde0cd9c2585afe", "0c11095833b834206975e09f54e651052c2e14e2560e9dea22683d83ee6f6d42"],
 ].map(([role, modularBodySha256, roleSemanticDigest, roleRenderDigest, modularClaudeRenderDigest, modularCodexRenderDigest]) => Object.freeze({
   role, modularBodySha256, roleSemanticDigest, roleRenderDigest, modularClaudeRenderDigest, modularCodexRenderDigest,
 })));

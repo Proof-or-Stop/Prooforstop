@@ -21,6 +21,7 @@
   },
   "scripts": {
     "build": "node ../../scripts/build-main-with-binding.mjs",
+    "build:bundle": "node ../../scripts/build-cli-bundle.mjs",
     "dev": "tsc --watch",
     "start": "node dist/index.js",
     "test:e2e": "node dist/tasks/cli-e2e.js",

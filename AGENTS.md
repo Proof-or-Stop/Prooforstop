@@ -213,6 +213,16 @@ concrete Story/finding/checklist/commit/date identifier. Write these sections in
 English in this repository. Creation conservatively stops in INIT; it does not
 silently skip INIT or create the worktree.
 
+Pass the user's request verbatim as `request` (or `requestFile`); ask the user
+for their exact words rather than paraphrasing. It is stored as the Story's
+`request.md` (bounded to 16 KB with an explicit truncation marker; sha256 bound
+in `request.json`; included in the INIT_CHECK signature). A wrapper can stage it
+before the Story exists with `story_request_set` without `storyId`; the next
+`story_create` consumes it once. Replacing it, or recording it after INIT, goes
+through `story_request_set` with an `amendmentReason`, and only through PLAN.
+`story_create` names every backticked request literal (example, listed variant,
+exact message) that no checklist title or `userSees` states yet.
+
 INIT to INIT_CHECK requires independent records from both
 `proof-or-stop-review-story-init` and `proof-or-stop-product-reviewer`; each reviewer persists
 its result through `init_check_set`. Launch each through `host_run` with
@@ -233,6 +243,15 @@ Current fields include `title`, `context`, `relatedDocs`, `userSees`, `excludes`
 affected `files`, and structured `verificationIntent`. The main agent owns the
 requirement-facing fields. A verification-intent role may write only its allowed
 intent fields.
+
+Write exact user-visible messages in `userSees` and intent `desc` as quoted or
+backticked literals (or as output lines in a fenced block). `dispatch` copies
+them verbatim, with the pinned output selectors of cli/browser/manual intents,
+into an "Exact required output — must match byte-for-byte" section of the
+implementer prompt and of the finding-repair prompt for items the finding names
+(`CHK-NNN`) or whose files it touches. It copies literals only and never
+rewrites or adds a string; the section is capped at 24 entries / 4000
+characters and states how many were omitted.
 
 Before creating another Story, check existing active and draft Stories. The
 handler normalizes names, performs duplicate/risk checks, and supports a
@@ -432,6 +451,14 @@ document requires a change remains a reasoned decision.
 
 An independent scope-plan reviewer must save signed `scope-check.json` evidence
 through `scope_check_save`. The implementation agent must not self-sign it.
+When the Story has a `request.md`, the scope-plan dispatch prompt carries it
+inline: every normative sentence, every "for example" and every enumerated
+variant is its own feature row, covered only when a `userSees` or
+`verificationIntent` states that exact variant or output; unmapped rows are
+gaps, and a mechanical pre-check lists request literals no checklist item
+states. The verification-intent author is pointed at `request.md` and writes one
+exact-output intent per example and listed variant. The INIT product reviewer
+gets only its path; REVIEW lanes never receive it.
 Every `openQuestions` entry in that signed scope check must have a substantive
 written resolution before `story_review` can pass. The current handler-directed
 path is the registered `scope_question_resolve` command; the main agent owns the
@@ -492,13 +519,19 @@ Do not insert caller-authored hashes, timestamps, or fake receipts through raw
 checklist evidence. Reload full checklist/story output before evidence-sensitive
 conclusions or mutations.
 
+### REVIEW → DONE is framework-driven: `proof-or-stop next --storyId=<id>`
+
+After DEV (every checklist item done and committed), run `proof-or-stop next --storyId=<id>` from the Story worktree and execute the one command it prints, then ask again. It is read-only, decides each step from the real gate predicates (evidence-chain check, REVIEW verdict, reviewer batch plan, inventory status, PRE_CERT admit predicates, certification status, DONE oracle), and labels it `framework` (mechanical; `--run` executes consecutive framework steps through the normal CLI), `agent` (code, a managed reviewer launch, authored text or a host verdict; `<...>` placeholders name the fields to author) or `human`. It covers REVIEW entry, every review round (prepare → launch all prepared lanes → wait → import), the inventory epoch and critic, remediation back to DEV (repair → evidence refresh → `finding_resolve`), PRE_CERT (fast check → `certification_window_begin` → routine `validate`), TEST (live smoke, delivery reviewer, finish decision, summary, review assurance floor) and DONE. Do not reorder these steps or probe `story_advance` ahead of it. Decision table: `docs/CLI.md` ("`next --storyId`").
+
 ### REVIEW and independent agents
 
 `reviewer_list --json` reports the current Story's opt-in roster. That roster is
 computed in real time from shared workflow policy plus Story risk signals,
 checklist/decision facts, and documentation touchpoints: concept, quality, and
 test-coverage are baseline lanes; behavior and docs are enabled only when their
-current triggers apply. Do not hard-code one universal roster or infer lane
+current triggers apply (behavior: a risk-signal category whose `/`-separated,
+case-insensitive tokens include `state machine`, `guard` or `gate`, such as the
+`State Machine/Gate` category `story_create` detects). Do not hard-code one universal roster or infer lane
 eligibility from a role-name prefix.
 
 `reviewer_batch` is a read-only launch plan. It reports which lanes need work and
@@ -534,7 +567,11 @@ A current reviewer flow is:
    requires another reviewer run and fresh pass.
 
 Coverage review is a reviewer lane, not a standalone verification command. Its
-current canonical role is `proof-or-stop-review-test-coverage`. The main agent,
+current canonical role is `proof-or-stop-review-test-coverage`. It reports product
+coverage gaps only (including a test whose asserted value contradicts the requirement); stale or missing receipts, unpinned intents and tests bound
+to no intent are framework-owned evidence-chain items checked before REVIEW
+(`pre_review_check_read`), reclassified as framework actions if a reviewer
+reports them (`category: "evidence_chain"`). The main agent,
 verification-intent agent, and reviewers are peers with independent authority.
 The human is the final arbiter when a substantive disagreement cannot converge
 after the configured review-loop limit.
@@ -555,13 +592,15 @@ proof-or-stop reviewer_list --storyId=B-xxxx --json
 
 | Source | Default | Gate effect |
 |---|---|---|
-| REVIEW `finding_add` | `verified` | An open critical/high finding blocks REVIEW to TEST unless the current round policy makes it advisory. |
+| REVIEW `finding_add` | `verified` | An open critical/high/medium finding blocks REVIEW to TEST and DONE in every profile and round until it is closed (`finding_resolve`, `review_remediation_close`, or `finding_dismiss`). |
 | Explicit suspected reviewer finding | `suspected` | Advisory only and requires an `uncertaintyReason`. |
 | `gap_log` | `suspected` | Long-lived framework-audit backlog; it does not block lifecycle gates. |
 | Legacy finding without the field | treated as `verified` | Preserves old blocking behavior. |
 
-The REVIEW blocking predicate requires an open finding, critical/high severity,
-a blocking evidence state, and no current-round advisory downgrade. Suspected
+The REVIEW blocking predicate requires an open finding, critical/high/medium
+severity (the closure set in `core/finding-closure-severities.ts`, the same in
+every profile and round; low is advisory), and a blocking evidence state.
+Findings from earlier rounds count; there is no round decay. Suspected
 and disproven findings do not block. Disproven findings need structured
 counter-evidence.
 
@@ -604,7 +643,10 @@ proof-or-stop validate
   -> missing or stale intent coverage: fail with an evidence action
 ```
 
-Use `proof-or-stop validate --story=B-xxxx` in TEST. A passing command alone is
+The routine `proof-or-stop validate --story=B-xxxx --json` runs once, in REVIEW,
+right after PRE_CERT admits the certification window; TEST consumes that signed
+PASS and does not run a second unscoped suite (`proof-or-stop next --storyId=B-xxxx`
+names each of these steps in order). A passing command alone is
 not enough: all required verification intent, bugs, review evidence, ProofStory
 artifacts, acceptance topology, delivery/summary checks, and freshness gates must
 also pass. If DONE-required policy is configured, run
@@ -612,7 +654,8 @@ also pass. If DONE-required policy is configured, run
 the current HEAD, material hash, and Story-files hash. Without that policy, the
 command is advisory and must not be described as full-suite assurance.
 
-Before DONE, run:
+When a DONE oracle row that it recovers fails (evidence freshness, DONE-required
+validation, integration-branch sync), `next` proposes:
 
 ```bash
 proof-or-stop done_prepare --storyId=B-xxxx --mergeMain --refreshStale --validate
@@ -804,6 +847,23 @@ explicit classes. Bare silent catches are forbidden.
 
 写 silent catch 时问自己一个问题：**如果这里失败了，10 分钟后用户会怎么发现？** 没答案就用 `reportHealthIssue` 留痕。
 
+### 证据链检查（框架负责，永远不是 review finding）
+
+Review finding 只能是真实的产品缺陷。证据链问题（receipt 过期、intent 没有 pinned command 或没有 receipt、
+Story diff 里新增/改动的 Go 测试没有被任何 intent 的 pinned `go test -run` 选中）由
+`core/evidence-chain-check.ts`（接线在 `handlers/evidence-chain.ts`）在进 REVIEW 前机械检测，每次只给一个 `Next:`：
+
+- `stale_receipt`（must/should）：阻塞 DEV→REVIEW，Next 固定为 `proof-or-stop verification_evidence_refresh_stale --storyId=<id>`；不要逐条 `verification_evidence_add` 重放。
+- `missing_receipt`：must 阻塞、should 只提示；Next 是 `verification_run`（已 pin）或 `verification_evidence_add`（未 pin，优先绑定该 item 里未被选中的已改测试）。
+- `unbound_test`：只提示；Next 把测试绑定到该测试所在 item 的第一个未 pin intent。全部 intent 已 pin（pin 不可改）时无需动作，除非它是某个 userSees 行为的唯一测试（走 `acceptance_amendment_propose`）。
+- 选择集是算出来的，不猜：无法计算的 pinned command（make、shell、模块外 import path 等）会跳过扫描并写明原因；JS/TS 不扫描。
+- 输出位置：`pre_review_check` / `pre_review_check_read` 文本末尾的 `Evidence-chain check` 段，以及 `story_advance REVIEW` 的 gate。
+
+test-coverage reviewer 只报产品覆盖缺口。reviewer 若仍报证据链项，用 `category: "evidence_chain"`：
+`managed_review_evidence_import` 只导入产品 finding（保留 sealed proposal index），只含证据链项的 proposal 以 pass 导入
+（note 由 verifier 从 sealed proposal 重算），每项记为 `review_evidence_chain_reclassified` process event，并打印
+`Framework next action:`；native `finding_add` 直接拒绝（`evidence_chain_not_a_finding`）。
+
 ### acceptance basis 与 pre_review_check 的顺序约束（B-45a0 F-435/F-438）
 
 **先 `acceptance_basis_generate`，再 `pre_review_check`，顺序不能反。**
@@ -841,7 +901,7 @@ question is answered. The reviewer's job is to find; the main agent's job is to 
 
 Mandatory when the defect is any of:
 
-- critical / high severity
+- verified critical / high / medium severity
 - security, data integrity, or destructive-compatibility impact
 - blocks the current story's acceptance, REVIEW, TEST, or DONE
 - makes already-registered evidence false (a selector that cannot match the real

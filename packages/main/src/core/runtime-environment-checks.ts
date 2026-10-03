@@ -1,8 +1,8 @@
 import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { accessSync, constants, existsSync, lstatSync, readFileSync, readdirSync, readlinkSync, realpathSync, statSync } from 'node:fs';
-import { basename, delimiter, dirname, isAbsolute, join, relative, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { basename, delimiter, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
+import { runtimePackageRoot } from './runtime-layout.js';
 import { loadConfig, PROJECT_CONFIG_FILENAMES } from './config.js';
 import {
   RUNTIME_FACT_REGISTRY,
@@ -206,8 +206,6 @@ interface ExternalReference {
   healthSemantics: boolean;
 }
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 const MIN_NODE_MAJOR = 20;
 const CANONICAL_ROOT_PACKAGE_NAME = PROOF_OR_STOP_ROOT_PACKAGE_NAME;
@@ -357,15 +355,22 @@ type ActiveIdentityOperationBoundarySeed = Omit<ActiveIdentityOperationBoundary,
 // SHA-256 of emitted dist JavaScript parsed/printed by canonicalIdentityExecutableDigest (comments removed, LF); not raw TypeScript bytes.
 // Enforced by assertCanonicalActiveIdentityBoundary; scripts/verify-review-inventory-identity.mjs checks the inventory pin and a live executable mutation.
 const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string>> = Object.freeze({
-  'packages/main/src/core/executable-digest-observation.ts': 'efaa0e0be32dd9e8833d6de120081b32f9c56c27b4d749b7eb2fa309445e0c4d',
+  // Lab digest-stat-cache (2026-09-29) caches stat-validated digests; repinned.
+  'packages/main/src/core/executable-digest-observation.ts': '434861970b49d76c2813c7994a141f5550dabf7a85026a6709d6bb37ecc01e96',
   'packages/main/src/core/lifecycle-control/control-status.ts': 'e015e86e23e400c8d7e43bd253938f3ee2105bba9925d42c599747b6b87fcc58',
   'packages/main/src/core/experience-layer-types.ts': '8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881',
   'packages/main/src/core/git-tree-observation.ts': 'e3310d811d2c0e7f78a41e14ee6995593c23cb6a0e5d8c7686be5d5a7cbfe3f9',
-  'packages/main/src/core/evidence-freshness.ts': '901c9c979b04b41d4f12abbd9116c8bfe4eb86825f1386f04660dd6e1b4e5eff',
+  // Lab cli-bundle (2026-09-30): resolveStoryChangedFiles/MergeBase now imported from the story-change-manifest leaf; repinned.
+  // Lab runtime-info-exclude (2026-09-30): checkEvidenceHashSnapshotReuse now forwards trustedControllerProjectionStoryId to readMaterialDirtyFiles; repinned.
+  // Lab next-driver-cost (2026-10-01): the rename-aware name-status read passes through observedGit; repinned.
+  'packages/main/src/core/evidence-freshness.ts': '0b4671d80799500b0c7aedc8de84e3d692237ab7da521c046e47c012e21877e0',
   // 3270fa6c84 changed the emitted inventory executable after its previous pin was recorded.
-  'packages/main/src/core/review-inventory-epoch.ts': 'a51318317a9620dec23b870eed74a567073a367b3471a62229e8eba95241cd88',
-  'packages/main/src/core/verification-execution-evidence.ts': '728e76f065e83fe8fdec672986f40ef37e2d8ae8dbc96eda4d01ccd2584cf5cf',
-  'packages/main/src/handlers/checklist.ts': '4fa5ed60c7ce717853775ee4f57315f32657440375d3f275c8438ca294f8b607',
+  // Lab review-epoch-lineage (2026-09-30): zero-wave completeness-only receipts route to cancel; repinned.
+  'packages/main/src/core/review-inventory-epoch.ts': '985c577e2f06178b31512f6e10e05a84869d4f21cf23e793445bebeb35097a66',
+  // Lab verification-env-digest (2026-09-30): ordinary receipts bind the v2 environment identity projection; repinned.
+  'packages/main/src/core/verification-execution-evidence.ts': 'e11ebbfebd9a42d51c0f1b55156749111b9ef146da28eab8b5ed5ad62825093e',
+  // Labs plan-pin-allowlist and plan-intent-precheck (2026-09-30) changed checklist_update; repinned.
+  'packages/main/src/handlers/checklist.ts': '56914b86ea3d4823ddb7d29ac6165a012b7aa160ade5878a7ecae05393a4b19a',
   'packages/main/src/core/maintenance-command-mode.ts': '9c94f1c1a20abf5ed3b93208f5d52e13d63246af12a85612c1e07f99e72258e2',
 });
 
@@ -1731,22 +1736,38 @@ export function classifyRuntimeEntrypointAuthority(
   };
 
   if (!detectSelfProject(projectRoot)) {
-    return {
+    const decision: RuntimeEntrypointAuthorityDecision = {
       status: 'pass',
       selfHostWorktree: false,
       ...base,
       worktreeRoot: null,
       mainRoot: null,
       gitCommonDir: null,
-      runtimeRoot: gitTopLevel(loadedCorePackageRoot)
-        ?? (invokedEntrypoint ? gitTopLevel(dirname(invokedEntrypoint)) : null),
+      runtimeRoot: null,
       detail: 'External consumer repository: self-host runtime authority is advisory.',
     };
+    // The external-consumer runtimeRoot is advisory report data that no
+    // admission decision reads; resolve it (one or two git subprocesses) only
+    // when a caller actually reads it. Enumerable, so JSON/spread/deepEqual see
+    // the same value an eager probe produced.
+    let runtimeRoot: string | null | undefined;
+    Object.defineProperty(decision, 'runtimeRoot', {
+      enumerable: true,
+      configurable: true,
+      get: () => {
+        if (runtimeRoot === undefined) {
+          runtimeRoot = gitTopLevel(loadedCorePackageRoot)
+            ?? (invokedEntrypoint ? gitTopLevel(dirname(invokedEntrypoint)) : null);
+        }
+        return runtimeRoot;
+      },
+      set: (value: string | null) => { runtimeRoot = value; },
+    });
+    return decision;
   }
 
   const identityProbe = { deadline: performance.now() + 16_000, timedOut: false, env: input.env ?? process.env };
-  const worktreeRoot = gitTopLevel(projectRoot, identityProbe);
-  const gitCommonDir = absoluteGitCommonDir(projectRoot, identityProbe);
+  const { worktreeRoot, gitCommonDir } = gitTopLevelAndCommonDir(projectRoot, identityProbe);
   const mainRoot = worktreeRoot ? findMainWorktreeRoot(worktreeRoot, identityProbe) : null;
   const selfHostWorktree = !!worktreeRoot
     && !!gitCommonDir
@@ -1759,7 +1780,7 @@ export function classifyRuntimeEntrypointAuthority(
   const loadedCoreGitRoot = gitTopLevel(loadedCorePackageRoot, identityProbe);
   const loadedCoreRelation = worktreeRoot ? relative(worktreeRoot, loadedCorePackageRoot) : null;
   const loadedCoreInsideWorktree = loadedCoreRelation !== null
-    && loadedCoreRelation !== '..' && !loadedCoreRelation.startsWith(`..${delimiter}`) && !isAbsolute(loadedCoreRelation);
+    && loadedCoreRelation !== '..' && !loadedCoreRelation.startsWith(`..${sep}`) && !isAbsolute(loadedCoreRelation);
   const runtimeRoot = loadedCoreGitRoot ?? (loadedCoreInsideWorktree ? worktreeRoot : null)
     ?? (invokedEntrypoint ? gitTopLevel(dirname(invokedEntrypoint), identityProbe) : null);
   const requiresAuthoritativeRuntime = input.requiresAuthoritativeRuntime !== false;
@@ -1950,6 +1971,23 @@ function gitTopLevel(cwd: string, budget?: IdentityProbeBudget): string | null {
     ? runAuthoritativeIdentityCommand(['rev-parse', '--path-format=absolute', '--show-toplevel'], cwd, budget)
     : runCommand('git', ['rev-parse', '--path-format=absolute', '--show-toplevel'], cwd);
   return top ? safeRealpath(top) ?? resolve(top) : null;
+}
+
+/**
+ * `--show-toplevel` and `--git-common-dir` in ONE rev-parse. When the combined
+ * call fails (e.g. a bare repository has a common dir but no top level) the two
+ * are probed separately, so each value is exactly what its own probe returns.
+ */
+function gitTopLevelAndCommonDir(cwd: string, budget: IdentityProbeBudget): { worktreeRoot: string | null; gitCommonDir: string | null } {
+  const both = runAuthoritativeIdentityCommand(['rev-parse', '--path-format=absolute', '--show-toplevel', '--git-common-dir'], cwd, budget);
+  const lines = both?.split(/\r?\n/);
+  if (lines && lines.length === 2 && lines[0] && lines[1]) {
+    return {
+      worktreeRoot: safeRealpath(lines[0]) ?? resolve(lines[0]),
+      gitCommonDir: safeRealpath(lines[1]) ?? resolve(lines[1]),
+    };
+  }
+  return { worktreeRoot: gitTopLevel(cwd, budget), gitCommonDir: absoluteGitCommonDir(cwd, budget) };
 }
 
 function absoluteGitCommonDir(cwd: string, budget?: IdentityProbeBudget): string | null {
@@ -3385,7 +3423,7 @@ function looksLikeProofOrStopEntrypoint(path: string, projectRoot: string, coreP
 }
 
 function currentCorePackageRoot(): string {
-  return resolve(__dirname, '..', '..');
+  return runtimePackageRoot();
 }
 
 function detectSelfProject(projectRoot: string): boolean {

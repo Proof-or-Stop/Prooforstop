@@ -9,7 +9,7 @@ import { execFileSync, execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { mkdirSync, writeFileSync, realpathSync, readFileSync, readdirSync, lstatSync, readlinkSync } from 'node:fs';
 import { join, resolve, relative } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { runtimeDistPath, runtimePackageRoot } from './runtime-layout.js';
 import { managedReadonlyPolicy, prepareManagedReadonlyLaunch, type ManagedReadonlyLayout } from './managed-review-readonly.js';
 const exec = promisify(execFile);
 export interface ManagedReviewLane {
@@ -46,9 +46,9 @@ export async function createManagedReviewLane(scratch: {parent:string; cwd:strin
     temporary:directories.tmp!,cache:directories.cache!};
   // Validate the actual platform before compiling, and again at provider launch.
   prepareManagedReadonlyLaunch(layout,{command:process.execPath,argv:[],cwd:scratch.cwd});
-  const toolRoot=realpathSync(fileURLToPath(new URL('../../../../',import.meta.url)));
+  const toolRoot=realpathSync(resolve(runtimePackageRoot(),'..','..'));
   const built=await runValidationCommand({label:'managed-review-lane-build',command:process.execPath,
-    args:[fileURLToPath(new URL('./managed-review-lane-build.mjs',import.meta.url)),
+    args:[runtimeDistPath('core','managed-review-lane-build.mjs'),
       '--build-lane',JSON.stringify({source:layout.source,buildSource:layout.buildSource,outputs:layout.outputs[0],
         temporary:layout.temporary,cache:layout.cache,headHash:scratch.headHash,toolRoot,originalWorktree:scratch.root,
         buildTimeoutMs:MANAGED_REVIEW_READONLY_RUNTIME_POLICY.buildTimeoutMs})],

@@ -13,8 +13,8 @@
 
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { dirname, join, relative } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join, relative } from 'node:path';
+import { runtimePackageRoot as installedPackageRoot } from './runtime-layout.js';
 import { ACCEPTANCE_REVIEW_LANE, acceptanceReviewJsonSchema, type AcceptanceReviewBinding } from './acceptance-amendment-review.js';
 import { PROOF_OR_STOP_ADAPTER_DIR } from './brand-paths.js';
 import {
@@ -267,7 +267,7 @@ export function normalizePromptRegistryManifest(value: unknown): PromptRegistryM
 }
 
 function packageRoot(): string {
-  return join(dirname(fileURLToPath(import.meta.url)), '..', '..');
+  return installedPackageRoot();
 }
 
 export function defaultPromptTemplateDir(root = packageRoot()): string {

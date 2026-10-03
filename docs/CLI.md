@@ -532,6 +532,40 @@ Neither command accepts caller-authored verdict, authority, mode, hashes,
 evidence, timestamps, or signatures. Wave 3 does not add per-Story selective
 applicability (Wave 3A) or measured rollout/telemetry (Wave 4).
 
+### Evidence-chain check (framework-owned, never a review finding)
+
+Review findings must be real product defects. Evidence-chain problems are
+detected mechanically before REVIEW by `core/evidence-chain-check.ts`
+(wired in `handlers/evidence-chain.ts`) and each report names exactly one
+`Next:` command. The text output of `pre_review_check` and
+`pre_review_check_read` ends with an `Evidence-chain check` section, and the
+DEV→REVIEW transition runs the same check (after `pre_review_check` and the
+acceptance rollout gate, before the canonical REVIEW evidence gate):
+
+| Item | Blocks DEV→REVIEW | Next |
+|---|---|---|
+| `stale_receipt`: a must/should intent's receipt is stale | yes | `proof-or-stop verification_evidence_refresh_stale --storyId=<id>` (reruns every stale pinned command once) |
+| `missing_receipt`: an executable must/should intent has no admissible receipt | must: yes; should: advisory | `verification_run` for a pinned intent, else `verification_evidence_add` with the command/selector (a changed unbound test of that item when one exists) |
+| `unbound_test`: a Go `func TestX(t *testing.T)` added/changed in the Story diff that no pinned `go test` selects | advisory | bind it to the first unpinned intent of the item whose files contain the test (`verification_evidence_add ... -run ^TestX$`); when every intent is already pinned, no action unless it is the only test of a userSees behavior (`acceptance_amendment_propose`) |
+
+Selection is computed, never guessed: `go test [pkgs] -run/-skip` with
+unanchored RE2-style top-level matching, `./...`, `./dir`, and module import
+paths. A pinned command whose selection is not computable (make, a shell, a
+foreign import path, a file list, a regex JS cannot express) skips the scan and
+prints `unboundTests=skipped: <reason>`. JS/TS test selection is not scanned.
+The check defers to the checklist gate while items are open and fails open on
+its own errors.
+
+A reviewer that still reports an evidence-chain item uses
+`category: "evidence_chain"`. `managed_review_evidence_import` imports only the
+product findings (bound to their sealed proposal indexes); a proposal with only
+evidence-chain items is imported as a pass whose note the verifier recomputes
+from the sealed proposal. Each item is logged as a
+`review_evidence_chain_reclassified` process event and the import prints
+`Framework next action: <command>`. Native `finding_add` refuses the category
+(`evidence_chain_not_a_finding`) with the same next action. An inventory
+critic proposal may not carry such items.
+
 ### Acceptance rollout report and admission check (Wave 4)
 
 `proof-or-stop acceptance_rollout_report --storyId=<id> [--json]` runs the registered
@@ -832,6 +866,98 @@ proof-or-stop next
 - `proof-or-stop status` shows an overview of the current project state, reusing `session_brief`'s source of truth
 - `proof-or-stop next` outputs only the single most reliable next-step suggestion
 - Neither command advances the phase, writes `.proof-or-stop/state`, or modifies story/fixture/git
+
+### `next --storyId`: the framework drives DEV → DONE
+
+After DEV the owner does not work out the REVIEW → PRE_CERT → TEST → DONE
+ceremony. From the Story worktree:
+
+```bash
+proof-or-stop next --storyId=B-xxxx          # one step, human-readable; last line is `Next: <command>`
+proof-or-stop next --storyId=B-xxxx --json   # the same step as JSON
+proof-or-stop next --storyId=B-xxxx --run    # run consecutive framework steps, stop at the next agent step
+```
+
+It is read-only (no metadata, evidence, audit event or commit is written) and
+returns exactly one step:
+
+| Field | Meaning |
+|---|---|
+| `phase` | the Story phase the step was decided from |
+| `kind` | `framework`: a mechanical step the framework could run itself; `agent`: needs the agent (implement or repair code, launch a managed reviewer, author a summary / decision / resolution, submit a host verdict); `human`: a genuine human decision (stall resume, approval, 3x2 quorum) |
+| `reason` | stable step code, e.g. `review_lane_launch`, `precert_cheap_check` |
+| `command` / `argv` / `cli` | the exact call (ids, run ids, receipt ids and digests filled in) as a shell line, as `['proof-or-stop', <command>, <JSON payload>]`, and as `{command, payload}` |
+| `placeholders` | payload fields the agent must author (their values are `<...>`); nothing else is to be changed |
+| `why` / `source` | why this is the step, and which gate predicate or reader decided it |
+| `wait` / `done` | a blocking wait on a detached managed run / the Story is DONE |
+
+Decision table (first matching row wins):
+
+| State | Step | Kind | Decided by |
+|---|---|---|---|
+| DEV, an item `pending` | `checklist_update --status=in_progress` | framework | checklist.json |
+| DEV, an item `in_progress` | `host_run` managedDispatch `proof-or-stop-implementer` for it (or wait on its run) | agent | checklist.json + host-run projection |
+| DEV, a verified blocking finding open, material unchanged since its review | `host_run` managedDispatch `proof-or-stop-finding-repair` (or wait) | agent | `unclosedBlockingFindings` |
+| DEV, that finding repaired, receipts stale | the evidence-chain gate's own Next (`verification_evidence_refresh_stale`, `verification_run`, ...) | framework | `evaluateEvidenceChainForStory` |
+| DEV, that finding repaired | `finding_resolve` with `resolution` | agent | `unclosedBlockingFindings` |
+| DEV, evidence-chain blocking / advisory unbound Go test with a concrete bind | the evidence-chain Next | framework | `evaluateEvidenceChainForStory` |
+| DEV, files declared but no scope contract | `scope_contract_init_from_plan` | framework | scope gate precondition |
+| DEV, otherwise | `story_advance --phase=REVIEW` if the REVIEW guard passes, else the guard's own `→`/`Next:` command | framework | `getGuardFailureReason(REVIEW)` |
+| REVIEW, a prepared ReviewRun of this round without a host run | `host_run` managedReview for that lane (all prepared lanes are launched before any wait) | agent | review-runs.json + host-run projection |
+| REVIEW, a lane run in flight | `host_run_status --untilTerminal=true` | framework (wait) | host-run projection |
+| REVIEW, a completed lane run not imported | `managed_review_evidence_import {runId, receiptId}` | framework | host-run receipt |
+| REVIEW, the verdict misses lane evidence | `review_round_prepare` | framework | `evaluateReviewVerdict` + `reviewer_batch` launchable lanes |
+| REVIEW, certification window ADMITTED | `validate --story --json` (the routine suite; nothing in between) | framework | `certification_window_status` |
+| REVIEW, window RUNNING and the stored PASS admissible | `story_advance --phase=TEST` (or `finding_resolve` if the verdict still refuses) | framework | `certification_window_status` Next + `evaluateReviewVerdict` |
+| REVIEW, OPEN epoch, critic missing | `dispatch` critic → `review_run_start` critic → `host_run` critic (agent) → wait → import | framework / agent | `review_inventory_status` |
+| REVIEW, OPEN epoch, otherwise | `review_inventory_status`'s own Next (`review_inventory_finalize [--remediation]`, `review_inventory_cancel`) | framework | `review_inventory_status` |
+| REVIEW, FINALIZED remediation receipt | `story_advance --phase=DEV` | framework | `finalizedUnconsumedReviewInventory` + DEV guard |
+| REVIEW, FINALIZED zero-wave completeness-only receipt | `review_inventory_cancel` | framework | PRE_CERT inventory recovery |
+| REVIEW, saturated FINALIZED receipt, no current fast receipt | `validate --story --focus=fast --json` | framework | `currentPrecertCheapCheckReceipt` |
+| REVIEW, saturated + fast receipt, open blocking finding | `finding_resolve` with `resolution` | agent | `unclosedBlockingFindings` |
+| REVIEW, saturated + fast receipt | `certification_window_begin` (a begin already refused on these facts for another blocker: its status Next) | framework | PRE_CERT admit predicates / `certification_window_status` |
+| REVIEW, no epoch for this round | `review_inventory_begin` | framework | `evaluateReviewVerdict` |
+| TEST, DONE's review-verdict row fails | `story_advance --phase=DEV` | agent | DONE oracle |
+| TEST, no (or a failing) live-smoke transcript | `live_smoke_transcript --capture=<validate command> --write` | agent | live-smoke oracle row |
+| TEST, delivery-check missing / stale | `host_run` managedDispatch `proof-or-stop-review-delivery` (or wait); unverified promises: `story_advance --phase=DEV` | agent | DONE oracle delivery-check row |
+| TEST, no dev-memory finish decision | `dev_memory_finish_decision` with `decision`, `reason` | agent | DONE oracle |
+| TEST, summary required and missing | `summary_set` with the authored fields | agent | DONE oracle |
+| TEST, review escalation / assurance floor fails | the guidance's next `autopilot_review_submit` (hostId/sessionId filled); for the high-risk path without rounds left: `review_host_availability_probe` (framework), then `review_escalation_fallback_set` single-host-environment bound to the probe (agent), or `human` when the probe finds ≥2 review-ready hosts | agent / framework / human | review assurance guidance |
+| TEST, evidence-freshness / done-required-validation / branch-synced-main fails | `done_prepare {mergeMain, refreshStale, validate}` | framework | DONE oracle + done_closure recovery set |
+| TEST, every oracle row passes | `story_advance --phase=DONE` | framework | DONE oracle + `getGuardFailureReason(DONE)` |
+| DONE | none (`done: true`) | — | story.phase |
+
+Managed launches reuse the host/model/effort of this Story's last managed run of
+the same profile (reviewer or dispatch), falling back to the qualified managed
+reviewer default; `host_run` still validates the selection.
+
+`--run` executes only `framework` steps, each as a separate real CLI process with
+every gate in place, re-decides after each, and stops at the first agent/human
+step, the first refused step (its output tail is shown) or `--maxSteps`
+(default 20). It is off by default.
+
+One decision is one synchronous git observation (the same scope a single gate
+evaluation uses): every identical read-only git probe the consulted gates make
+(HEAD, material / story-files trees, merge-bases, branch and common-dir probes,
+object-addressed blob reads) runs once per decision, and a row's own predicates
+are evaluated only when that row is reached (the evidence chain is not built
+while a finding still awaits repair). Nothing survives the call and nothing is
+cached across calls. On the ND fixture this cut the child processes per
+decision from DEV 75 / REVIEW 221 / PRE_CERT 257 / TEST 394 (max) to
+22 / 83 / 124 / 161; `node packages/main/dist/tasks/next-driver-cost-smoke.js`
+holds those budgets and requires every decision to equal the frozen
+pre-optimization driver and the CLI's own `next --json`.
+
+Refusals and guidance on this path point back to it with `Next: proof-or-stop
+next --storyId=<id>`: an INVALIDATED certification window (before: the illegal
+`story_advance --phase=REVIEW`), the store-less PRE_CERT inventory blocker in the
+`[pre_cert_window_required]` refusals of `story_advance --phase=TEST`, routine
+`validate` and `done_required_validate` (before: `review_inventory_finalize`,
+which with no OPEN epoch mints the zero-wave receipt certification refuses),
+`session_brief` / `next` without `--storyId` for a DEV-done or REVIEW Story, and
+the DEV / REVIEW / TEST guidance printed by `story_advance`. Refusals that already
+name one concrete command (evidence-chain, finding closure, certification blockers
+with a store) keep it; `next` computes the same command.
 
 `session_brief` is still the opening-briefing entry point for a new agent session; `status` / `next` are the short entry points for humans and agents to quickly restore context while working.
 
@@ -1298,6 +1424,21 @@ The Claude Code side still uses the hooks, settings, and skills under `.claude/`
 - [.proof-or-stop-codex/agents/](/Users/jek/Documents/Work/Orchestrate/.proof-or-stop-codex/agents:1) (full mode materialization; can be omitted in thin mode)
 
 In a full-mode repository, `.proof-or-stop-codex/agents` is fully generated from `.claude/agents` through a controlled transform and protected against later drift by `npm run test:codex-assets`; in a thin-mode repository, `node bin/proof-or-stop-codex.js verify_codex` validates the registry manifest/hash/renderability.
+
+### Verbatim request (`request.md`) and PLAN traceability
+
+`story_create` accepts `request` (or `requestFile`, a path relative to the project root): the user's request verbatim, never a paraphrase. It is written to the Story's `request.md` (bounded to 16 KB; a longer text ends with `[proof-or-stop: request truncated at N of M bytes; ...]`), with `request.json` holding its sha256, source and amendment history. `request.md` is part of the INIT_CHECK signature domain; a Story without it keeps the previous signature.
+
+```bash
+# stage before the Story exists (wrappers, benchmark adapters); the next story_create consumes it once
+proof-or-stop story_request_set --requestFile=/tmp/task.md
+# record or amend for an existing Story (IDEA/INIT/INIT_CHECK/PLAN only)
+proof-or-stop story_request_set '{"storyId":"B-xxxx","requestFile":"/tmp/task.md","amendmentReason":"<what the user changed or clarified, >=30 chars>"}'
+```
+
+Replacing a recorded request, or recording one after INIT, requires `amendmentReason`; it is appended to `request.json`. A `request.md` edited outside the command no longer matches `request.json` and is shown to reviewers as non-authoritative. `story_create` and `story_request_set` print the backticked request literals (examples, listed variants, exact messages) that no checklist title, `userSees` or `verificationIntent` states yet.
+
+In PLAN, the scope-plan dispatch prompt carries the request inline and requires one feature row per normative sentence, "for example" and enumerated variant; a row is covered only by a `userSees` or `verificationIntent` that states that exact variant or output, otherwise it is a gap. The same mechanical literal pre-check is listed there. The verification-intent prompt points at `request.md` and asks for one exact-output intent per example and listed variant. The INIT product reviewer gets the path only; REVIEW lanes never receive the request.
 
 ### PLAN selected process-owner coverage
 

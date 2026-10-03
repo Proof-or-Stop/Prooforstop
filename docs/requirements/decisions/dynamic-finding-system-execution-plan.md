@@ -149,7 +149,9 @@ The present type is anchored at
 `resolutionType`, `dismissReasonType`, and evidence-strength fields are expressly
 audit-only and must not be read by a gate. The current shared predicate is
 `packages/main/src/core/advisory.ts:isFindingBlocking`; it evaluates open state,
-effective blocking severity, evidence state, and round decay. The current
+the profile's blocking severity and evidence state (round decay was removed
+2026-09-30: every round uses the profile's severities and verified findings of
+every round must be closed before TEST/DONE, `core/finding-closure.ts`). The current
 `packages/main/src/core/cluster-compute.ts` clusters within one Story using
 matching severity and file overlap. None of these facts represents target-Story
 applicability.
@@ -2053,7 +2055,8 @@ merely because classification failed: every state in
 decay. A fresh, strongly proven non-applicable high/critical verdict releases
 that temporary floor and is evaluated by its own proof contract; a fresh
 applicable verdict converts to mandatory repair. Outside the two pre-round
-floors, current round-decay semantics continue to apply; invalid assessment
+floors, the profile's blocking severities apply in every round (round decay was
+removed 2026-09-30, `core/finding-closure.ts`); invalid assessment
 state does not create an extra downgrade.
 
 Legacy Findings with no assessment remain readable. In enforce mode, a missing
@@ -2619,7 +2622,7 @@ authoritative artifacts and cannot alter lifecycle output.
 - Applicable verified blocker remains blocking.
 - Applicable verified critical/high and applicable known/unknown/missing
   protected-surface evaluation create a mandatory floor before severity/round
-  decay; changing `effectiveBlockingSeverities` or `isAdvisoryThisRound` cannot
+  decay (removed 2026-09-30); changing `effectiveBlockingSeverities` or the advisory severity rule cannot
   clear it.
 - The adversarial matrix crosses verified open `high` and `critical` at round 3
   with exactly `missing`, `re_attestation_required`, `stale`, `unsigned`,
@@ -2651,7 +2654,7 @@ authoritative artifacts and cannot alter lifecycle output.
 - A committed old deferral remains a ledger-derived claimed lineage when there
   is no replacement assessment, when a new assessment omits the old deferral,
   or when scope, story-files, material, runtime, assessment hash, or signature
-  drift makes the assessment missing/stale/tampered. Low, round-decayed medium,
+  drift makes the assessment missing/stale/tampered. Low, profile-non-blocking medium,
   and direct-status-mutation variants all block. Only a fresh strong
   non-applicable/duplicate/disproven superseding proof or complete repair closure
   releases them.

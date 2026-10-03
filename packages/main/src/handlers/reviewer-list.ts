@@ -4,7 +4,7 @@ import { rethrowIntentAmendmentIntegrityError } from '../core/verification-inten
  *
  * Output the opt-in reviewer roster for the current story (computed in real time based on 5 conditions):
  *   - concept  / quality / test-coverage → baseline (always on)
- *   - behavior             → story.riskSignals hits {state machine / guard / gate}
+ *   - behavior             → a story.riskSignals category '/'-token hits {state machine / guard / gate}
  *   - docs                 → understanding.touchpoints contains .md files (fallback scans git diff)
  *   - channel LLM reviewer is retired; normal-channel is taken over by the validate --channel CLI gate
  *
@@ -37,6 +37,7 @@ import { rethrowIntentAmendmentIntegrityError } from '../core/verification-inten
 import type { HandlerContext } from './context.js';
 import type { StoryInfo, ChecklistData, DecisionData, StoryEvent } from '../core/types.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
+import { behaviorTriggerHits } from '../core/reviewer-opt-in.js';
 import { REVIEW_RUN_LANES, isReviewRunLane } from '../core/review-run.js';
 import { isPromptRoleEligibleForReviewEvidence } from '../core/prompt-role-contract-registry.js';
 import {
@@ -66,9 +67,6 @@ export interface FinalReviewRoster {
   requiredReviewers: ActiveReviewer[];
   selection: PostRemediationReviewSelection;
 }
-
-/** Keyword set that triggers the behavior reviewer when matched by riskSignal.category */
-const BEHAVIOR_TRIGGERS = ['state machine', 'guard', 'gate'];
 
 /**
  * Fixed output order (B-fdcf F-002): baseline-first concept → quality → test-coverage → behavior → docs → channel.
@@ -154,13 +152,14 @@ export function computeActiveReviewers(
   map.set('quality', activeReviewer('quality', 'baseline'));
   map.set('test-coverage', activeReviewer('test-coverage', 'baseline'));
 
-  // behavior: riskSignals ∩ {state machine, guard, gate} is non-empty
-  // Flatten all matched categories (matching both gate+guard → "riskSignal: gate, guard")
+  // behavior: a riskSignal category token ∩ {state machine, guard, gate} is non-empty.
+  // Categories are matched per '/'-token, case-insensitively (behaviorTriggerHits):
+  // story_create's detector emits 'State Machine/Gate' → "riskSignal: state machine, gate".
   const dismissed = new Set((story.riskSignalsDismissed || []).map(d => d.category));
   const activeCategories = (story.riskSignals || [])
     .map(r => r.category)
     .filter(c => !dismissed.has(c));
-  const hitTriggers = BEHAVIOR_TRIGGERS.filter(t => activeCategories.includes(t));
+  const hitTriggers = behaviorTriggerHits(activeCategories);
   if (hitTriggers.length > 0) {
     map.set('behavior', activeReviewer('behavior', `riskSignal: ${hitTriggers.join(', ')}`));
   }

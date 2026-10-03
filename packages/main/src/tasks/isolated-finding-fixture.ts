@@ -56,7 +56,7 @@ function observeWithBoundedRetry<T>(observe: () => T): T {
 export async function runIsolatedFindingFixture(entry: string): Promise<boolean> {
   if (process.argv.includes(MARKER)) return false;
   const file = fileURLToPath(entry);
-  if (!['dynamic-finding-runtime-integration-smoke.js', 'finding-material-reattestation-smoke.js', 'evidence-state-gate-smoke.js',
+  if (!['dynamic-finding-runtime-integration-smoke.js', 'finding-material-reattestation-smoke.js', 'evidence-state-gate-smoke.js', 'finding-closure-required-smoke.js',
     'finding-qualification-independence-smoke.js', 'finding-pre-existing-e2e-smoke.js', 'finding-identity-lineage-smoke.js', 'reviewer-batch-smoke.js', 'verify-convergence-certification-consumption.mjs', 'verify-native-critic-dispatch-purpose.mjs', 'verify-review-epoch-certification-continuity.mjs', 'verify-managed-inventory-critic-import.mjs'].some(name => file.endsWith('/' + name))) {
     throw new Error('isolated Finding fixture entry is not allowlisted');
   }
