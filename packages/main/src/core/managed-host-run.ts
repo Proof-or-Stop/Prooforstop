@@ -102,6 +102,7 @@ import { getSessionIdentity } from './owner-session.js';
 import { resolveCanonicalRuntimeProjectRoot, MANAGED_REVIEW_TEMP_ARTIFACT, MANAGED_REVIEW_LANE_ARTIFACT } from './runtime-artifact-registry.js';
 import { currentMaterialHash } from './evidence-freshness.js';
 import { isMaterialExcludedPath } from './material-path-policy.js';
+import { managedRunMaterialCommit } from './managed-run-commit.js';
 import { managedRunStage, managedSupervisionAction, type ManagedRunStage,
   type ManagedSupervisionCode, type ManagedSupervisionDiagnostic } from './managed-run-progress.js';
 import { StoryStore } from './store.js';
@@ -1997,6 +1998,59 @@ function managedImplementerOutputDigest(input: {
   }));
 }
 
+/** Terminal reason of a managed implementer whose item an earlier sealed run already completed. */
+export const MANAGED_DISPATCH_TARGET_ALREADY_DONE = 'managed_dispatch_target_already_done';
+
+export interface SealedManagedImplementerCompletion {
+  runId: string;
+  /** Short material commit the run left inside its window, when one is found. */
+  commit: string | null;
+}
+
+/**
+ * The managed implementer run that already completed this checklist item: the
+ * item is done, a successful `subagent_result` is bound to that run, and the
+ * run's terminal is `completed` with a sealed output digest for the same
+ * Story/item. Owner-written completions (no managedDispatchRunId) never match.
+ */
+export function findSealedManagedImplementerCompletion(input: {
+  root: string;
+  storyId: string;
+  itemId: string;
+  excludeRunId?: string;
+}): SealedManagedImplementerCompletion | null {
+  try {
+    const store = new StoryStore(input.root);
+    const item = store.readChecklist(input.storyId).items.find(candidate => candidate.id === input.itemId);
+    if (item?.status !== 'done') return null;
+    const runIds = store.readProcessEvents(input.storyId)
+      .filter(event => event.type === 'subagent_result' && event.checklistId === input.itemId && event.success === true
+        && typeof event.managedDispatchRunId === 'string' && event.managedDispatchRunId !== input.excludeRunId)
+      .map(event => event.managedDispatchRunId as string);
+    for (const runId of [...new Set(runIds)].reverse()) {
+      try {
+        const paths = pathsFor(input.root, runId);
+        const terminal = readTerminal(paths);
+        const spec = readManagedHostRunSpec(paths).value;
+        if (terminal?.state !== 'completed' || !terminal.managedDispatchOutputDigest
+          || spec.storyId !== input.storyId || spec.agentType !== 'proof-or-stop-implementer'
+          || spec.managedDispatchTarget?.itemId !== input.itemId) continue;
+        return {
+          runId,
+          commit: managedRunMaterialCommit({ root: input.root, gitCwd: spec.cwd, createdAt: spec.createdAt, terminalAt: terminal.terminalAt }),
+        };
+      } catch { /* an unreadable run is not a sealed completion */ }
+    }
+  } catch { /* no Story/checklist: nothing is sealed */ }
+  return null;
+}
+
+/** One next action for a redundant implementer dispatch or run. */
+export function managedImplementerAlreadyDoneAction(storyId: string, itemId: string, prior: SealedManagedImplementerCompletion): string {
+  return `${MANAGED_DISPATCH_TARGET_ALREADY_DONE}: ${itemId} is already done, completed by managed run ${prior.runId}`
+    + `${prior.commit ? ` (commit ${prior.commit})` : ''}; do not relaunch it. Next: proof-or-stop next --storyId=${storyId}`;
+}
+
 function immutableManagedScopeReviewerPayload(scopeCheck: ScopeCheckData): ScopeCheckData {
   return {
     ...scopeCheck,
@@ -2074,7 +2128,11 @@ export function managedDispatchOutputValidation(input: {
         root: input.root, storyId: input.storyId, itemId, runId: input.runId,
       });
       if (!outputDigest) {
-        return { failureReason: 'managed_dispatch_output_missing', outputDigest: null };
+        // A replacement launched after an earlier run already sealed this item
+        // can only re-mark done->done, which binds nothing (old-PoS run 15).
+        // That is no work to do, not missing output.
+        const prior = findSealedManagedImplementerCompletion({ root: input.root, storyId: input.storyId, itemId, excludeRunId: input.runId });
+        return { failureReason: prior ? MANAGED_DISPATCH_TARGET_ALREADY_DONE : 'managed_dispatch_output_missing', outputDigest: null };
       }
       if (!managedDispatchInvocationConsumptionIsValid({ ...input, storyId: input.storyId })) {
         return { failureReason: 'managed_dispatch_invocation_unconsumed', outputDigest: null };
@@ -2837,7 +2895,15 @@ export function projectManagedHostRunTerminalResult(
   state: ManagedHostRunTerminalState,
   result: HostRunResult | null,
 ): HostRunResult | null {
-  if (!result || state === 'completed') return result;
+  if (!result) return result;
+  if (state === 'completed') {
+    // A completed terminal is the provider's own exit 0 accepted by the worker;
+    // a diagnostic kind recorded on the way (legacy runs: a `401` inside a usage
+    // counter, old-PoS run 15) is not its outcome.
+    return result.exitCode === 0 && result.failureKind && result.failureKind !== 'none'
+      ? { ...result, failureKind: 'none' }
+      : result;
+  }
   if (state === 'timed_out') {
     return {
       ...result,
