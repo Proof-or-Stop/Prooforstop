@@ -908,9 +908,9 @@ Decision table (first matching row wins):
 |---|---|---|---|
 | DEV, an item `pending` | `checklist_update --status=in_progress` | framework | checklist.json |
 | DEV, an item `in_progress` | `host_run` managedDispatch `proof-or-stop-implementer` for it (or wait on its run) | agent | checklist.json + host-run projection |
-| DEV, a verified blocking finding open, material unchanged since its review | `host_run` managedDispatch `proof-or-stop-finding-repair` (or wait) | agent | `unclosedBlockingFindings` |
+| DEV, a verified blocking finding open and not repaired (see below) | `host_run` managedDispatch `proof-or-stop-finding-repair` with that `findingId` (or wait on a repair run in flight) | agent | `unclosedBlockingFindings` + `managedFindingRepairState` |
 | DEV, that finding repaired, receipts stale | the evidence-chain gate's own Next (`verification_evidence_refresh_stale`, `verification_run`, ...) | framework | `evaluateEvidenceChainForStory` |
-| DEV, that finding repaired | `finding_resolve` with `resolution` | agent | `unclosedBlockingFindings` |
+| DEV, that finding repaired | `finding_resolve` with `resolution` | agent | `unclosedBlockingFindings` + `managedFindingRepairState` |
 | DEV, evidence-chain blocking / advisory unbound Go test with a concrete bind | the evidence-chain Next | framework | `evaluateEvidenceChainForStory` |
 | DEV, files declared but no scope contract | `scope_contract_init_from_plan` | framework | scope gate precondition |
 | DEV, otherwise | `story_advance --phase=REVIEW` if the REVIEW guard passes, else the guard's own `→`/`Next:` command | framework | `getGuardFailureReason(REVIEW)` |
@@ -919,13 +919,13 @@ Decision table (first matching row wins):
 | REVIEW, a completed lane run not imported | `managed_review_evidence_import {runId, receiptId}` | framework | host-run receipt |
 | REVIEW, the verdict misses lane evidence | `review_round_prepare` | framework | `evaluateReviewVerdict` + `reviewer_batch` launchable lanes |
 | REVIEW, certification window ADMITTED | `validate --story --json` (the routine suite; nothing in between) | framework | `certification_window_status` |
-| REVIEW, window RUNNING and the stored PASS admissible | `story_advance --phase=TEST` (or `finding_resolve` if the verdict still refuses) | framework | `certification_window_status` Next + `evaluateReviewVerdict` |
+| REVIEW, window RUNNING and the stored PASS admissible | `story_advance --phase=TEST`; if the verdict still refuses on open findings: `finding_resolve` for the first repaired one, else `story_advance --phase=DEV` (`finding_unrepaired_dev`) | framework | `certification_window_status` Next + `evaluateReviewVerdict` + `managedFindingRepairState` |
 | REVIEW, OPEN epoch, critic missing | `dispatch` critic → `review_run_start` critic → `host_run` critic (agent) → wait → import | framework / agent | `review_inventory_status` |
 | REVIEW, OPEN epoch, otherwise | `review_inventory_status`'s own Next (`review_inventory_finalize [--remediation]`, `review_inventory_cancel`) | framework | `review_inventory_status` |
 | REVIEW, FINALIZED remediation receipt | `story_advance --phase=DEV` | framework | `finalizedUnconsumedReviewInventory` + DEV guard |
 | REVIEW, FINALIZED zero-wave completeness-only receipt | `review_inventory_cancel` | framework | PRE_CERT inventory recovery |
 | REVIEW, saturated FINALIZED receipt, no current fast receipt | `validate --story --focus=fast --json` | framework | `currentPrecertCheapCheckReceipt` |
-| REVIEW, saturated + fast receipt, open blocking finding | `finding_resolve` with `resolution` | agent | `unclosedBlockingFindings` |
+| REVIEW, saturated + fast receipt, open blocking finding | `finding_resolve` with `resolution` for the first repaired one, else `story_advance --phase=DEV` (`finding_unrepaired_dev`) | agent | `unclosedBlockingFindings` + `managedFindingRepairState` |
 | REVIEW, saturated + fast receipt | `certification_window_begin` (a begin already refused on these facts for another blocker: its status Next) | framework | PRE_CERT admit predicates / `certification_window_status` |
 | REVIEW, no epoch for this round | `review_inventory_begin` | framework | `evaluateReviewVerdict` |
 | TEST, DONE's review-verdict row fails | `story_advance --phase=DEV` | agent | DONE oracle |
@@ -937,6 +937,8 @@ Decision table (first matching row wins):
 | TEST, evidence-freshness / done-required-validation / branch-synced-main fails | `done_prepare {mergeMain, refreshStale, validate}` | framework | DONE oracle + done_closure recovery set |
 | TEST, every oracle row passes | `story_advance --phase=DONE` | framework | DONE oracle + `getGuardFailureReason(DONE)` |
 | DONE | none (`done: true`) | — | story.phase |
+
+"Repaired" is per finding (`managedFindingRepairState`, handlers/next-driver.ts): a managed `proof-or-stop-finding-repair` run whose immutable binding targets exactly that finding id (`managedDispatchTarget.findingId`), created after the finding was raised, completed as a safe delivery (`verifyManagedDispatchDelivery`), with a commit reachable from the Story HEAD, committed while that run ran and touching a non-metadata path. A material change since the finding's review is **not** enough: with several open findings, the repair of one changes the material of all (run 14 proposed `finding_resolve` for an unrepaired F-005 after F-004's repair). A completed bound run without such a commit gets the repair dispatch again, its `why` naming the run. This only chooses the step; `finding_resolve` still checks its own evidence.
 
 Managed launches reuse the host/model/effort of this Story's last managed run of
 the same profile (reviewer or dispatch), falling back to the qualified managed
