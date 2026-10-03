@@ -63,6 +63,7 @@ import {
   HOST_RUN_FINAL_ASSISTANT_RESULT_CAP,
   MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION,
   classifyManagedReviewFinalEnvelope,
+  formatManagedReviewFinalViolations,
   hasRequiredManagedReviewReadEvidence,
   isStrictManagedReviewFindingProposal,
   managedClaudePromptDirectoryForRun,
@@ -3870,6 +3871,7 @@ export async function runManagedHostRunWorker(
         // same session is asked (bounded) to re-emit only that JSON object; the
         // re-emission passes the identical strict parser, proposal writer and
         // post-exit checks. Nothing is repaired or guessed by the framework.
+        let rejectedFinalResult: string | null = null;
         for (let repairAttempt = 0; ; repairAttempt += 1) {
           let invalidReason: string;
           try {
@@ -3902,14 +3904,25 @@ export async function runManagedHostRunWorker(
             invalidReason = error instanceof Error ? error.message : String(error);
           }
           const repairError = managedReviewFinalFormatRepairError(result, invalidReason);
+          // Run 14: the critic re-emitted its rejected output unchanged; the
+          // same bytes (or JSON value) fail the same deterministic check, so a
+          // further attempt only burns a provider turn.
+          const unchanged = repairAttempt > 0 ? unchangedManagedReviewFinalResult(rejectedFinalResult, result.finalAssistantResult) : null;
           if (repairAttempt > 0) {
             appendEvent(paths, {
               schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
               type: 'final_result_format_repair_outcome',
-              detail: { attempt: repairAttempt, outcome: 'invalid', error: repairError ?? invalidReason },
+              detail: unchanged
+                ? { attempt: repairAttempt, outcome: 'unchanged', unchanged, error: repairError ?? invalidReason }
+                : { attempt: repairAttempt, outcome: 'invalid', error: repairError ?? invalidReason },
             });
           }
           const failedTerminalReason = `managed_review_final_result_invalid:${invalidReason}`;
+          if (unchanged) {
+            return writeTerminal(paths, 'failed', `${failedTerminalReason} (format repair re-emitted the rejected output unchanged)`,
+              result.replacementSafe, result, now());
+          }
+          rejectedFinalResult = result.finalAssistantResult;
           const resumeSessionId = repairError !== null
             && repairAttempt < MANAGED_REVIEW_FINAL_FORMAT_REPAIR_MAX_ATTEMPTS
             && result.replacementSafe
@@ -5095,32 +5108,43 @@ function readValidManagedReviewEvidenceProposal(
  * the same provider session and is validated exactly like the first answer.
  */
 export const MANAGED_REVIEW_FINAL_FORMAT_REPAIR_MAX_ATTEMPTS = 2;
-const MANAGED_REVIEW_FINAL_FORMAT_REPAIR_ERROR_CAP = 600;
+const MANAGED_REVIEW_FINAL_FORMAT_REPAIR_ERROR_CAP = 1_000;
 
 /**
  * The exact validation error to show the provider, or null when the rejection
  * is not a format/schema failure of one final envelope (missing, multiple or
- * oversize answers and proposal-binding refusals keep today's terminal).
+ * oversize answers and proposal-binding refusals keep today's terminal). The
+ * classifier already carries the failing path(s), expected and actual values
+ * or the JSON.parse position.
  */
 function managedReviewFinalFormatRepairError(result: HostRunResult, invalidReason: string): string | null {
   if (!invalidReason.startsWith('managed_review_final_result_malformed')) return null;
   if (result.finalAssistantResultTruncated || result.finalAssistantResultCount !== 1 || result.finalAssistantResult === null) return null;
-  let detail: string;
+  return invalidReason.slice(0, MANAGED_REVIEW_FINAL_FORMAT_REPAIR_ERROR_CAP);
+}
+
+/**
+ * How a repair re-emission relates to the output it was asked to fix: the same
+ * bytes, or the same JSON value re-serialized. Either one fails the identical
+ * deterministic validation again, so another attempt cannot help.
+ */
+function unchangedManagedReviewFinalResult(previous: string | null, next: string | null): 'bytes' | 'json' | null {
+  if (previous === null || next === null) return null;
+  if (previous === next) return 'bytes';
   try {
-    JSON.parse(result.finalAssistantResult.trim());
-    detail = `the JSON object does not satisfy the ${MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION} schema`;
-  } catch (error) {
-    detail = `JSON.parse: ${error instanceof Error ? error.message : String(error)}`;
+    return canonicalJson(JSON.parse(previous.trim())) === canonicalJson(JSON.parse(next.trim())) ? 'json' : null;
+  } catch {
+    return null;
   }
-  return `${invalidReason}: ${detail}`.slice(0, MANAGED_REVIEW_FINAL_FORMAT_REPAIR_ERROR_CAP);
 }
 
 export function managedReviewFinalFormatRepairPrompt(error: string): string {
   return [
     'Proof-or-Stop rejected your final message: it is not a valid managed review final proposal, so nothing was recorded.',
     `Validation error: ${error}`,
-    `Re-emit only the final JSON object (schemaVersion "${MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION}") with the same verdict and the same content as your previous final message, as valid JSON.`,
-    'Escape every double quote (\\") and backslash (\\\\) inside string values. Output no other text and no Markdown fence. Do not run tools, do not review again, and do not change the conclusion, note, findings, readManifest or readLog.',
+    'Fix exactly what the validation error names (each "path: expected ..., got ..." item, or the JSON syntax at the given position). A byte-identical re-emission fails again.',
+    `Then re-emit only the final JSON object (schemaVersion "${MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION}") with the same verdict and otherwise the same content as your previous final message, as valid JSON.`,
+    'Escape every double quote (\\") and backslash (\\\\) inside string values. Output no other text and no Markdown fence. Do not run tools, do not review again, and do not change the conclusion; change note, findings, readManifest, readLog or inventoryCritic only where the error names them.',
   ].join('\n');
 }
 
@@ -5146,7 +5170,14 @@ function parseManagedReviewFinalProposal(result: HostRunResult): ManagedReviewFi
   }
   const classification = classifyManagedReviewFinalEnvelope(result.finalAssistantResult);
   if (classification.kind !== 'valid') {
-    throw new Error(`managed_review_final_result_malformed${classification.kind === 'malformed' && classification.reason ? `:${classification.reason}` : ''}`);
+    // Keep the machine prefix (and sub-code) for classification; append the
+    // exact bounded violations so the provider, journal and terminal all
+    // name the failing field instead of the bare schema id.
+    const code = `managed_review_final_result_malformed${classification.kind === 'malformed' && classification.reason ? `:${classification.reason}` : ''}`;
+    const violations = classification.kind === 'malformed' ? classification.violations : [
+      `final message: not a ${MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION} object`,
+    ];
+    throw new Error(violations.length > 0 ? `${code}: ${formatManagedReviewFinalViolations(violations)}` : code);
   }
   const envelope = classification.envelope;
   const conclusion = envelope.conclusion;

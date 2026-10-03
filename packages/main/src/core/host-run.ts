@@ -1,7 +1,7 @@
 import { reserveHostRunBudget, settleHostRunBudget } from './host-run-budget.js';
 import { canonicalAgentRoleId } from './agent-role-identity.js';
 import { MANAGED_REVIEW_READONLY_RUNTIME_POLICY } from './runtime-fact-registry.js';
-import { isManagedInventoryCritic, managedInventoryCriticJsonSchema, type ManagedInventoryCritic } from './managed-inventory-critic.js';
+import { managedInventoryCriticViolations, managedInventoryCriticJsonSchema, type ManagedInventoryCritic } from './managed-inventory-critic.js';
 import { prepareManagedReadonlyLaunch, type ManagedReadonlyLayout } from './managed-review-readonly.js';
 import { ACCEPTANCE_REVIEW_FINAL_SCHEMA, acceptanceReviewJsonSchema } from './acceptance-amendment-review.js';
 /**
@@ -1021,6 +1021,14 @@ export function managedReviewFinalProposalJsonSchema(args: ManagedReviewFinalPro
     ...stringArray,
     description: 'List at least one relevant permitted in-scope file actually fully read. Greps, parsed excerpts and partial reads belong in filesTriagedByName; do not invent full reads. This minimum also applies to inventory-completeness critics.',
   };
+  // Run 14 (topology critic B-1165:RR-005): the reader normalizers require the
+  // two lists to be disjoint, but the provider contract never said so, and a
+  // file first triaged by name and later read in full was listed in both; the
+  // whole critic verdict was rejected. State the invariant the gate enforces.
+  const triagedFiles = {
+    ...stringArray,
+    description: 'Files only triaged by name, grep, excerpt or partial read. Disjoint from filesReadFully: a path you read in full goes only in filesReadFully, never in both lists.',
+  };
   // Match normalizeReviewerReadManifest: existing native and managed evidence
   // accepts either the canonical raw digest or its explicit sha256: form.
   const routingDigest = { type: 'string', pattern: '^(?:sha256:)?[a-f0-9]{64}$' };
@@ -1031,7 +1039,7 @@ export function managedReviewFinalProposalJsonSchema(args: ManagedReviewFinalPro
     required: [...MANAGED_REVIEW_READ_MANIFEST_FIELDS],
     properties: {
       filesReadFully: fullyReadFiles,
-      filesTriagedByName: stringArray,
+      filesTriagedByName: triagedFiles,
       scanEscalationReason: { type: ['string', 'null'] },
       candidateSpecSetDigest: routingDigest,
       corpusDigest: routingDigest,
@@ -1043,7 +1051,7 @@ export function managedReviewFinalProposalJsonSchema(args: ManagedReviewFinalPro
     required: [...MANAGED_REVIEW_READ_LOG_FIELDS],
     properties: {
       filesReadFully: fullyReadFiles,
-      filesTriagedByName: stringArray,
+      filesTriagedByName: triagedFiles,
       summary: {
         type: 'object',
         additionalProperties: false,
@@ -1142,7 +1150,7 @@ export function managedReviewClaudeJsonSchema(args: HostRunArgs): string {
 
 export type ManagedReviewFinalEnvelopeClassification =
   | { kind: 'ordinary' }
-  | { kind: 'malformed'; reason?: string }
+  | { kind: 'malformed'; reason?: string; violations: string[] }
   | { kind: 'valid'; envelope: ManagedReviewFinalEnvelopeRecord };
 
 function isPlainRecord(value: unknown): value is Record<string, unknown> {
@@ -1158,32 +1166,64 @@ function hasOnlyKeys(value: Record<string, unknown>, allowed: readonly string[])
   return Object.keys(value).every(key => allowlist.has(key));
 }
 
-function isStrictManagedReviewReadDiagnostic(value: unknown): boolean {
-  if (!isPlainRecord(value) || !hasOnlyKeys(value, MANAGED_REVIEW_READ_DIAGNOSTIC_FIELDS)) return false;
-  if (typeof value.code !== 'string' || !(MANAGED_REVIEW_READ_DIAGNOSTIC_CODES as readonly string[]).includes(value.code)) return false;
-  if (value.severity !== 'finding' || typeof value.message !== 'string' || value.message.trim().length === 0) return false;
-  return value.path === undefined || (typeof value.path === 'string' && value.path.trim().length > 0);
+/** Bounded JSON rendering of a provider value inside a model-readable violation. */
+function shownValue(value: unknown): string {
+  if (value === undefined) return 'missing';
+  const encoded = JSON.stringify(value) ?? String(value);
+  return encoded.length > 80 ? `${encoded.slice(0, 77)}...` : encoded;
+}
+
+function unexpectedKeysViolation(path: string, value: Record<string, unknown>, allowed: readonly string[]): string[] {
+  const extra = Object.keys(value).filter(key => !allowed.includes(key));
+  return extra.length ? [`${path}: unexpected field(s) ${extra.join(', ')}; allowed ${allowed.join(', ')}`] : [];
+}
+
+function managedReviewReadDiagnosticViolations(value: unknown, path: string): string[] {
+  if (!isPlainRecord(value)) return [`${path}: expected an object {code,severity,message,path?}, got ${shownValue(value)}`];
+  const out = unexpectedKeysViolation(path, value, MANAGED_REVIEW_READ_DIAGNOSTIC_FIELDS);
+  if (typeof value.code !== 'string' || !(MANAGED_REVIEW_READ_DIAGNOSTIC_CODES as readonly string[]).includes(value.code)) {
+    out.push(`${path}.code: expected one of ${MANAGED_REVIEW_READ_DIAGNOSTIC_CODES.join(', ')}, got ${shownValue(value.code)}`);
+  }
+  if (value.severity !== 'finding') out.push(`${path}.severity: expected "finding", got ${shownValue(value.severity)}`);
+  if (typeof value.message !== 'string' || value.message.trim().length === 0) out.push(`${path}.message: expected a non-blank string, got ${shownValue(value.message)}`);
+  if (value.path !== undefined && (typeof value.path !== 'string' || value.path.trim().length === 0)) out.push(`${path}.path: expected a non-blank string or omitted, got ${shownValue(value.path)}`);
+  return out;
+}
+
+const MANAGED_REVIEW_FINDING_FIELDS = ['desc', 'severity', 'category', 'files', 'evidenceState', 'uncertaintyReason'] as const;
+const MANAGED_REVIEW_FINDING_SEVERITIES = ['critical', 'high', 'medium', 'low'] as const;
+
+/** Every way one provider finding misses the strict finding contract (empty when valid). */
+export function managedReviewFindingViolations(value: unknown, path = 'finding'): string[] {
+  if (!isPlainRecord(value)) return [`${path}: expected an object {desc,severity,category,...}, got ${shownValue(value)}`];
+  const out = unexpectedKeysViolation(path, value, MANAGED_REVIEW_FINDING_FIELDS);
+  if (typeof value.desc !== 'string' || value.desc.trim().length === 0) out.push(`${path}.desc: expected a non-blank string, got ${shownValue(value.desc)}`);
+  if (typeof value.severity !== 'string' || !(MANAGED_REVIEW_FINDING_SEVERITIES as readonly string[]).includes(value.severity)) {
+    out.push(`${path}.severity: expected one of ${MANAGED_REVIEW_FINDING_SEVERITIES.join(', ')}, got ${shownValue(value.severity)}`);
+  }
+  if (typeof value.category !== 'string' || !(REVIEWER_AUTHORED_FINDING_CATEGORIES as readonly string[]).includes(value.category)) {
+    out.push(`${path}.category: expected one of ${REVIEWER_AUTHORED_FINDING_CATEGORIES.join(', ')}, got ${shownValue(value.category)}`);
+  }
+  if (value.files !== undefined
+    && (!isStringArray(value.files) || value.files.some(file => file.trim().length === 0))) {
+    out.push(`${path}.files: expected an array of non-blank path strings or omitted, got ${shownValue(value.files)}`);
+  }
+  if (value.evidenceState !== undefined && value.evidenceState !== 'suspected' && value.evidenceState !== 'verified') {
+    out.push(`${path}.evidenceState: expected "suspected", "verified" or omitted, got ${shownValue(value.evidenceState)}`);
+  }
+  if (value.evidenceState === 'suspected') {
+    if (typeof value.uncertaintyReason !== 'string' || value.uncertaintyReason.trim().length === 0) {
+      out.push(`${path}.uncertaintyReason: evidenceState "suspected" requires a non-blank uncertaintyReason, got ${shownValue(value.uncertaintyReason)}`);
+    }
+  } else if (value.uncertaintyReason !== undefined) {
+    out.push(`${path}.uncertaintyReason: allowed only with evidenceState "suspected"; omit it, got ${shownValue(value.uncertaintyReason)}`);
+  }
+  return out;
 }
 
 /** Shared strict validator consumed at adapter, persistence, and import/gate boundaries. */
 export function isStrictManagedReviewFindingProposal(value: unknown): value is ManagedReviewFinalEnvelopeFinding {
-  if (!isPlainRecord(value)) return false;
-  const allowed = new Set(['desc', 'severity', 'category', 'files', 'evidenceState', 'uncertaintyReason']);
-  if (Object.keys(value).some(key => !allowed.has(key))) return false;
-  if (typeof value.desc !== 'string' || value.desc.trim().length === 0) return false;
-  if (typeof value.severity !== 'string' || !['critical', 'high', 'medium', 'low'].includes(value.severity)) return false;
-  if (typeof value.category !== 'string' || !(REVIEWER_AUTHORED_FINDING_CATEGORIES as readonly string[]).includes(value.category)) return false;
-  if (value.files !== undefined
-    && (!isStringArray(value.files) || value.files.some(file => file.trim().length === 0))) return false;
-  if (value.evidenceState !== undefined
-    && value.evidenceState !== 'suspected'
-    && value.evidenceState !== 'verified') return false;
-  if (value.evidenceState === 'suspected') {
-    if (typeof value.uncertaintyReason !== 'string' || value.uncertaintyReason.trim().length === 0) return false;
-  } else if (value.uncertaintyReason !== undefined) {
-    return false;
-  }
-  return true;
+  return managedReviewFindingViolations(value).length === 0;
 }
 
 /**
@@ -1196,18 +1236,38 @@ export function hasRequiredManagedReviewReadEvidence(
   readManifest: unknown,
   readLog: unknown,
 ): boolean {
+  return managedReviewReadEvidenceViolations(readManifest, readLog).length === 0;
+}
+
+/** Why the read evidence is refused, as model-readable lines (empty when accepted). */
+export function managedReviewReadEvidenceViolations(readManifest: unknown, readLog: unknown): string[] {
+  const out: string[] = [];
+  let manifest: ReturnType<typeof normalizeReviewerReadManifest> | null = null;
+  let log: ReturnType<typeof normalizeReviewerReadLogEvidence> | null = null;
   try {
-    const manifest = normalizeReviewerReadManifest(readManifest);
-    const log = normalizeReviewerReadLogEvidence(readLog);
-    return manifest.filesReadFully.length > 0
-      && log.filesReadFully.length > 0
-      && log.summary.readCount > 0
-      && !!manifest.candidateSpecSetDigest
-      && !!manifest.corpusDigest
-      && diagnoseManagedReviewerReadEvidence({ readManifest: manifest, readLog: log }).length === 0;
-  } catch {
-    return false;
+    manifest = normalizeReviewerReadManifest(readManifest);
+  } catch (error) {
+    out.push(error instanceof Error ? error.message : String(error));
   }
+  try {
+    log = normalizeReviewerReadLogEvidence(readLog);
+  } catch (error) {
+    out.push(error instanceof Error ? error.message : String(error));
+  }
+  if (!manifest || !log) return out;
+  if (manifest.filesReadFully.length === 0) out.push('readManifest.filesReadFully: expected at least one fully read path, got []');
+  if (log.filesReadFully.length === 0) out.push('readLog.filesReadFully: expected at least one fully read path, got []');
+  if (log.summary.readCount <= 0) out.push(`readLog.summary.readCount: expected an integer > 0 equal to the unique filesReadFully count, got ${log.summary.readCount}`);
+  if (!manifest.candidateSpecSetDigest) out.push('readManifest.candidateSpecSetDigest: expected the artifactDigest copied from candidate-spec-set.json, got missing');
+  if (!manifest.corpusDigest) out.push('readManifest.corpusDigest: expected the corpusDigest copied from candidate-spec-set.json, got missing');
+  try {
+    for (const diagnostic of diagnoseManagedReviewerReadEvidence({ readManifest: manifest, readLog: log })) {
+      out.push(`${diagnostic.message}${diagnostic.path ? ` (${diagnostic.path})` : ''}`);
+    }
+  } catch (error) {
+    out.push(error instanceof Error ? error.message : String(error));
+  }
+  return out;
 }
 
 /**
@@ -1246,68 +1306,161 @@ export function classifyManagedReviewFinalEnvelope(text: string): ManagedReviewF
     parsed = singleEmbeddedJsonObject(trimmed);
     if (parsed === undefined) {
       return trimmed.includes(MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION)
-        ? { kind: 'malformed' }
+        ? { kind: 'malformed', violations: [managedReviewFinalJsonParseViolation(trimmed)] }
         : { kind: 'ordinary' };
     }
   }
   if (!isPlainRecord(parsed)) return { kind: 'ordinary' };
   if (parsed.schemaVersion !== MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION) {
     return trimmed.includes(MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION)
-      ? { kind: 'malformed' }
+      ? { kind: 'malformed', violations: [`schemaVersion: expected "${MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION}", got ${shownValue(parsed.schemaVersion)}`] }
       : { kind: 'ordinary' };
   }
-
-  const conclusion = parsed.conclusion;
-  const allowed = new Set([
-    'schemaVersion', 'storyId', 'providerAgent', 'lane', 'reviewRunId', 'conclusion',
-    'readManifest', 'readLog', 'readDiagnostics', 'note', 'findings', 'inventoryCritic',
-  ]);
-  const readManifest = parsed.readManifest;
+  const envelope = withoutNullOptionalEnvelopeFields(parsed);
+  const readManifest = envelope.readManifest;
   if (isPlainRecord(readManifest)
     && typeof readManifest.candidateSpecSetDigest !== 'string') {
-    return { kind: 'malformed', reason: 'read_manifest_candidate_spec_digest_missing' };
+    return { kind: 'malformed', reason: 'read_manifest_candidate_spec_digest_missing', violations: managedReviewFinalEnvelopeViolations(envelope) };
   }
   if (isPlainRecord(readManifest)
     && typeof readManifest.corpusDigest !== 'string') {
-    return { kind: 'malformed', reason: 'read_manifest_corpus_digest_missing' };
+    return { kind: 'malformed', reason: 'read_manifest_corpus_digest_missing', violations: managedReviewFinalEnvelopeViolations(envelope) };
   }
-  const validReadManifest = isPlainRecord(readManifest)
-    && hasOnlyKeys(readManifest, MANAGED_REVIEW_READ_MANIFEST_FIELDS)
-    && isStringArray(readManifest.filesReadFully)
-    && isStringArray(readManifest.filesTriagedByName)
-    && (readManifest.scanEscalationReason === null || typeof readManifest.scanEscalationReason === 'string')
-    && typeof readManifest.candidateSpecSetDigest === 'string'
-    && typeof readManifest.corpusDigest === 'string';
-  const readLog = parsed.readLog;
-  const validReadLogShape = isPlainRecord(readLog)
-    && hasOnlyKeys(readLog, MANAGED_REVIEW_READ_LOG_FIELDS)
-    && isPlainRecord(readLog.summary)
-    && hasOnlyKeys(readLog.summary, MANAGED_REVIEW_READ_LOG_SUMMARY_FIELDS);
+  const violations = managedReviewFinalEnvelopeViolations(envelope);
+  if (violations.length > 0) return { kind: 'malformed', violations };
+  return { kind: 'valid', envelope: envelope as ManagedReviewFinalEnvelopeRecord };
+}
+
+/**
+ * Optional envelope fields a provider wrote as JSON null mean "absent". Models
+ * driven by a structured schema often emit null for an optional property;
+ * rejecting a finished review for it (and spending format-repair turns) buys
+ * nothing. Only optional fields are dropped: required fields, and fields where
+ * null is a meaningful value (readManifest.scanEscalationReason,
+ * readLog.summary.tokenCount), are left for the validator. The returned copy
+ * is what the proposal is built from; the provider's raw bytes stay sealed.
+ */
+function withoutNullOptionalEnvelopeFields(parsed: Record<string, unknown>): Record<string, unknown> {
+  const drop = (value: unknown, keys: readonly string[]): unknown => {
+    if (!isPlainRecord(value)) return value;
+    return Object.fromEntries(Object.entries(value).filter(([key, item]) => !(item === null && keys.includes(key))));
+  };
+  const out = drop(parsed, ['note', 'findings', 'readDiagnostics', 'inventoryCritic']) as Record<string, unknown>;
+  if (Array.isArray(out.findings)) out.findings = out.findings.map(finding => drop(finding, ['files', 'evidenceState', 'uncertaintyReason']));
+  if (Array.isArray(out.readDiagnostics)) out.readDiagnostics = out.readDiagnostics.map(diagnostic => drop(diagnostic, ['path']));
+  if (isPlainRecord(out.inventoryCritic) && Array.isArray(out.inventoryCritic.findingDispositions)) {
+    out.inventoryCritic = {
+      ...out.inventoryCritic,
+      findingDispositions: out.inventoryCritic.findingDispositions.map(row => drop(row, ['familyKey', 'canonicalFinding'])),
+    };
+  }
+  return out;
+}
+
+const MANAGED_REVIEW_FINAL_ENVELOPE_FIELDS = [
+  'schemaVersion', 'storyId', 'providerAgent', 'lane', 'reviewRunId', 'conclusion',
+  'readManifest', 'readLog', 'readDiagnostics', 'note', 'findings', 'inventoryCritic',
+] as const;
+
+/**
+ * Every way a parsed final envelope (with the right schemaVersion) misses the
+ * strict final-proposal contract, as `path: expected ..., got ...` lines in
+ * document order. Empty means valid; this list IS the validator, so the
+ * rejection reason shown to the provider cannot drift from the decision.
+ */
+export function managedReviewFinalEnvelopeViolations(parsed: Record<string, unknown>): string[] {
+  const out = unexpectedKeysViolation('(top level)', parsed, MANAGED_REVIEW_FINAL_ENVELOPE_FIELDS);
+  for (const field of ['storyId', 'providerAgent', 'lane', 'reviewRunId'] as const) {
+    if (typeof parsed[field] !== 'string') out.push(`${field}: expected the bound string, got ${shownValue(parsed[field])}`);
+  }
+  const conclusion = parsed.conclusion;
   const validDiagnosticNote = typeof parsed.note === 'string' && parsed.note.trim().length >= 10;
-  const validConclusionPayload = conclusion === 'pass'
-    ? validDiagnosticNote
-      && (parsed.findings === undefined || (Array.isArray(parsed.findings) && parsed.findings.length === 0))
-    : conclusion === 'findings'
-      && Array.isArray(parsed.findings)
-      && parsed.findings.length > 0
-      && parsed.findings.every(isStrictManagedReviewFindingProposal)
-      && (parsed.note === undefined || validDiagnosticNote);
-  if (Object.keys(parsed).some(key => !allowed.has(key))
-    || typeof parsed.storyId !== 'string'
-    || typeof parsed.providerAgent !== 'string'
-    || typeof parsed.lane !== 'string'
-    || typeof parsed.reviewRunId !== 'string'
-    || !validReadManifest
-    || !validReadLogShape
-    || !hasRequiredManagedReviewReadEvidence(readManifest, parsed.readLog)
-    || !validConclusionPayload
-    || (parsed.lane === MANAGED_REVIEW_TOPOLOGY_CRITIC && parsed.inventoryCritic === undefined)
-    || (parsed.inventoryCritic !== undefined && !isManagedInventoryCritic(parsed.inventoryCritic, String(parsed.lane), String(parsed.providerAgent), Array.isArray(parsed.findings) ? parsed.findings.length : 0))
-    || (parsed.readDiagnostics !== undefined
-      && (!Array.isArray(parsed.readDiagnostics) || !parsed.readDiagnostics.every(isStrictManagedReviewReadDiagnostic)))) {
-    return { kind: 'malformed' };
+  if (conclusion === 'pass') {
+    if (!validDiagnosticNote) out.push(`note: conclusion "pass" requires a note of at least 10 trimmed characters, got ${shownValue(parsed.note)}`);
+    if (!(parsed.findings === undefined || (Array.isArray(parsed.findings) && parsed.findings.length === 0))) {
+      out.push(`findings: conclusion "pass" permits only [] or no findings, got ${shownValue(parsed.findings)}`);
+    }
+  } else if (conclusion === 'findings') {
+    if (!Array.isArray(parsed.findings) || parsed.findings.length === 0) {
+      out.push(`findings: conclusion "findings" requires a non-empty array, got ${shownValue(parsed.findings)}`);
+    } else {
+      parsed.findings.forEach((finding, index) => out.push(...managedReviewFindingViolations(finding, `findings[${index}]`)));
+    }
+    if (parsed.note !== undefined && !validDiagnosticNote) out.push(`note: expected at least 10 trimmed characters or omitted, got ${shownValue(parsed.note)}`);
+  } else {
+    out.push(`conclusion: expected "pass" or "findings", got ${shownValue(conclusion)}`);
   }
-  return { kind: 'valid', envelope: parsed as ManagedReviewFinalEnvelopeRecord };
+  const readManifest = parsed.readManifest;
+  if (!isPlainRecord(readManifest)) {
+    out.push(`readManifest: expected an object {${MANAGED_REVIEW_READ_MANIFEST_FIELDS.join(',')}}, got ${shownValue(readManifest)}`);
+  } else {
+    out.push(...unexpectedKeysViolation('readManifest', readManifest, MANAGED_REVIEW_READ_MANIFEST_FIELDS));
+    for (const field of ['filesReadFully', 'filesTriagedByName'] as const) {
+      if (!isStringArray(readManifest[field])) out.push(`readManifest.${field}: expected an array of path strings, got ${shownValue(readManifest[field])}`);
+    }
+    if (!(readManifest.scanEscalationReason === null || typeof readManifest.scanEscalationReason === 'string')) {
+      out.push(`readManifest.scanEscalationReason: expected a string or null, got ${shownValue(readManifest.scanEscalationReason)}`);
+    }
+    for (const field of ['candidateSpecSetDigest', 'corpusDigest'] as const) {
+      if (typeof readManifest[field] !== 'string') out.push(`readManifest.${field}: expected the digest string copied from candidate-spec-set.json, got ${shownValue(readManifest[field])}`);
+    }
+  }
+  const readLog = parsed.readLog;
+  if (!isPlainRecord(readLog)) {
+    out.push(`readLog: expected an object {${MANAGED_REVIEW_READ_LOG_FIELDS.join(',')}}, got ${shownValue(readLog)}`);
+  } else {
+    out.push(...unexpectedKeysViolation('readLog', readLog, MANAGED_REVIEW_READ_LOG_FIELDS));
+    if (!isPlainRecord(readLog.summary)) out.push(`readLog.summary: expected an object {readCount,tokenCount}, got ${shownValue(readLog.summary)}`);
+    else out.push(...unexpectedKeysViolation('readLog.summary', readLog.summary, MANAGED_REVIEW_READ_LOG_SUMMARY_FIELDS));
+  }
+  for (const violation of managedReviewReadEvidenceViolations(readManifest, readLog)) {
+    if (!out.includes(violation)) out.push(violation);
+  }
+  if (parsed.lane === MANAGED_REVIEW_TOPOLOGY_CRITIC && parsed.inventoryCritic === undefined) {
+    out.push('inventoryCritic: the topology-critic lane requires an inventoryCritic block {epochId,wave,findingDispositions}, got missing');
+  }
+  if (parsed.inventoryCritic !== undefined) {
+    out.push(...managedInventoryCriticViolations(parsed.inventoryCritic, String(parsed.lane), String(parsed.providerAgent),
+      Array.isArray(parsed.findings) ? parsed.findings.length : 0));
+  }
+  if (parsed.readDiagnostics !== undefined) {
+    if (!Array.isArray(parsed.readDiagnostics)) out.push(`readDiagnostics: expected an array or omitted, got ${shownValue(parsed.readDiagnostics)}`);
+    else parsed.readDiagnostics.forEach((diagnostic, index) => out.push(...managedReviewReadDiagnosticViolations(diagnostic, `readDiagnostics[${index}]`)));
+  }
+  return out;
+}
+
+/** JSON.parse failure of the final text with its position and a bounded excerpt around it. */
+function managedReviewFinalJsonParseViolation(text: string): string {
+  const start = text.indexOf('{');
+  const end = text.lastIndexOf('}');
+  // Prose around one object is tolerated, so locate the error inside that object.
+  const offset = start > 0 && end > start ? start : 0;
+  const candidate = offset > 0 ? text.slice(start, end + 1) : text;
+  let message: string;
+  try {
+    JSON.parse(candidate);
+    return 'final message: expected exactly one JSON object and no other braces in surrounding text';
+  } catch (error) {
+    message = error instanceof Error ? error.message : String(error);
+  }
+  const match = /at position (\d+)/.exec(message);
+  if (!match) return `JSON.parse: ${message.slice(0, 200)}`;
+  const position = offset + Number(match[1]);
+  const before = text.slice(0, position);
+  const line = before.split('\n').length;
+  const column = position - before.lastIndexOf('\n');
+  const near = JSON.stringify(text.slice(Math.max(0, position - 40), position + 40));
+  const what = message.replace(/\s*(?:in JSON )?at position \d+(?: \(line \d+ column \d+\))?/, '').slice(0, 160);
+  return `JSON.parse: ${what} at position ${position} (line ${line} column ${column}); text around it: ${near}`;
+}
+
+/** Bounded join of the first violations, naming how many more were omitted. */
+export function formatManagedReviewFinalViolations(violations: readonly string[], limit = 4, cap = 900): string {
+  const shown = violations.slice(0, limit).map(line => (line.length > 240 ? `${line.slice(0, 237)}...` : line));
+  const more = violations.length - shown.length;
+  const joined = `${shown.join('; ')}${more > 0 ? `; (+${more} more violation${more === 1 ? '' : 's'})` : ''}`;
+  return joined.length > cap ? `${joined.slice(0, cap - 3)}...` : joined;
 }
 
 export class FinalAssistantResultScanner {
