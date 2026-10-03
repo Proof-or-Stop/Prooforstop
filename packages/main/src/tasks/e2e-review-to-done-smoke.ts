@@ -71,11 +71,21 @@
  *      finding_resolve before REVIEW; the cosmetic one stays open; a
  *      finding_resolve after DONE refuses without dirtying the main checkout;
  *      the live-smoke capture passes only with validate.env (CONTEXT=abs).
+ *   NU run 17 (Q1): D's next-driven flow where round 1 also reports a second
+ *      finding with the same root cause, and the inventory critic marks it a
+ *      `duplicate` of the first. After the first finding's own repair and
+ *      resolve, next must propose closing the duplicate with that repair's
+ *      evidence (finding_duplicate_resolve: finding_resolve with duplicateOf and a
+ *      coverage command the framework runs) instead of a second repair cycle.
+ *      The coverage names the test the canonical repair added (covered).
+ *   NU2 the same, but the duplicate's own case is not covered by that repair:
+ *      the coverage run is refused (never closed on the critic label alone),
+ *      and next then dispatches the duplicate's own managed repair.
  *
  * Machine registries (provider slots, locks) use a disposable fixture machine
  * so the harness never touches the developer's ~/.proof-or-stop admission state.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NL]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NL|NU|NU2]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -809,12 +819,23 @@ const NL_LOW_COSMETIC = {
   severity: 'low', category: 'edge', files: ['strs/strs.go'], evidenceState: 'verified',
 };
 
+/**
+ * Scenarios NU/NU2 (run 17 Q1): a second round-1 finding with the SAME root
+ * cause as D_FINDING; the inventory critic dispositions it `duplicate` of it.
+ */
+const NU_DUP_FINDING = {
+  desc: 'Reverse of an empty string reads r[len(r)-1]: Reverse("") must return "" (same root cause as the untested empty-string edge).',
+  severity: 'medium', category: 'edge', files: ['strs/strs.go', 'strs/strs_test.go'], evidenceState: 'verified',
+};
+const NU_DUP_REPAIR_TEST = '\nfunc TestReverseEmptyDup(t *testing.T) {\n\tif got := Reverse(""); got != "" {\n\t\tt.Fatalf("got %q", got)\n\t}\n}\n';
+
 const FINDING_REPAIR = 'proof-or-stop-finding-repair';
 const REPAIR_TEST = '\nfunc TestReverseEmpty(t *testing.T) {\n\tif Reverse("") != "" {\n\t\tt.Fatal("empty")\n\t}\n}\n';
 const NF_REPAIR_TEST = '\nfunc TestUpperEmpty(t *testing.T) {\n\tif Upper("") != "" {\n\t\tt.Fatal("empty")\n\t}\n}\n';
 
 /** The scripted repair commit for one finding (by its description): test text, commit subject, test name. */
 function repairFor(desc: string): { test: string; subject: string; name: string } {
+  if (desc === NU_DUP_FINDING.desc) return { test: NU_DUP_REPAIR_TEST, subject: 'test: Reverse empty duplicate case', name: 'TestReverseEmptyDup' };
   return desc.startsWith('Upper ')
     ? { test: NF_REPAIR_TEST, subject: 'test: Upper of the empty string', name: 'TestUpperEmpty' }
     : { test: REPAIR_TEST, subject: 'test: Reverse of the empty string', name: 'TestReverseEmpty' };
@@ -1095,6 +1116,8 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   lowFindings?: boolean;
   /** Run 16: the live-smoke capture needs the project validate.env (CONTEXT=abs) to pass. */
   contextSmoke?: boolean;
+  /** Run 17 Q1: round 1 also reports NU_DUP_FINDING, which the critic marks a duplicate of D_FINDING; 'covered' = the canonical repair's test covers it, 'uncovered' = it does not. */
+  duplicate?: 'covered' | 'uncovered';
   /** Soft checks (NL): each violation is recorded and the flow continues, so one run reports every defect. */
   violations?: string[]; }, lines: string[],
   /** Called with each step `next` returned, before the harness executes it; quiet = no detached managed run in flight. */
@@ -1154,7 +1177,7 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
         const reviewRunId = String(payload.reviewRunId);
         const envelope = mode.findingRound1 && round === firstRound && lane === 'proof-or-stop-review-test-coverage'
           ? { conclusion: 'findings', note: 'Scripted behavior finding: empty-string edge case is untested.',
-            findings: mode.lowFindings ? [D_FINDING, NL_LOW_REPAIRED, NL_LOW_COSMETIC] : mode.twoFindings ? [D_FINDING, NF_FINDING] : [D_FINDING] }
+            findings: mode.lowFindings ? [D_FINDING, NL_LOW_REPAIRED, NL_LOW_COSMETIC] : mode.twoFindings ? [D_FINDING, NF_FINDING] : mode.duplicate ? [D_FINDING, NU_DUP_FINDING] : [D_FINDING] }
           : PASS_ENVELOPE(lane);
         o.script(reviewRunId, { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId: id, providerAgent: lane, lane, reviewRunId, ...envelope, ...o.readEvidence() }) });
         break;
@@ -1162,7 +1185,11 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
       case 'inventory_critic_launch': {
         const epoch = new StoryStore(o.worktree).readReviewInventoryEpochs(id).epochs.at(-1)!;
         const raw = new StoryStore(o.worktree).readFindings(id).findings.filter(f => f.reviewRound === epoch.reviewRound);
-        const dispositions = raw.map(f => f.desc.startsWith('Upper ')
+        const canonical = raw.find(f => f.desc === D_FINDING.desc);
+        const dispositions = raw.map(f => f.desc === NU_DUP_FINDING.desc && canonical
+          ? { finding: { findingId: f.id }, disposition: 'duplicate', familyKey: 'reverse-empty-string', canonicalFinding: { findingId: canonical.id },
+            reason: 'Same root cause as the canonical finding: Reverse indexes the last rune of an empty string.' }
+          : f.desc.startsWith('Upper ')
           ? { finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'upper-empty-string', reason: 'The empty-string edge of Upper is untested; one verified family.' }
           : f.desc.startsWith('Comment ')
             ? { finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'reverse-comment-wording', reason: 'Cosmetic doc-comment wording of Reverse; one verified family.' }
@@ -1242,6 +1269,29 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
         payload.resolution = `repair ${git(o.worktree, ['log', '--format=%h', '-1', `--grep=${repair.subject.slice('test: '.length)}`])} adds ${repair.name}; go test ./strs -run ${repair.name} passes`;
         break;
       }
+      case 'finding_duplicate_resolve': {
+        // Run 17 Q1: close the critic-marked duplicate with the canonical repair's
+        // evidence only through a coverage run of the duplicate's own case.
+        const findingId = String(payload.findingId);
+        const canonicalId = String(payload.duplicateOf);
+        assert.ok(!repairRunsByFinding.has(findingId), `[${o.scenario}] next proposed the duplicate resolve for ${findingId} after a repair of its own was launched`);
+        payload.coverage = mode.duplicate === 'uncovered'
+          ? { command: 'go test -v ./strs -run TestReverseEmptyDup', selector: '--- PASS: TestReverseEmptyDup' }
+          : { command: 'go test -v ./strs -run TestReverseEmpty', selector: '--- PASS: TestReverseEmpty' };
+        payload.resolution = `duplicate of ${canonicalId}: its repair adds TestReverseEmpty, which exercises Reverse("") (this finding's case)`;
+        if (mode.duplicate === 'uncovered') {
+          // The duplicate's own case has no passing test: the framework must refuse
+          // (never close on the critic label alone) and name the next step.
+          const refused = o.cli(next.cli.command, payload, { label: '  a:finding_duplicate_resolve (uncovered)' });
+          assert.notEqual(refused.status, 0, `[${o.scenario}] finding_resolve closed duplicate ${findingId} although its coverage command has no passing selector:\n${refused.out.slice(-1500)}`);
+          assert.match(refused.out, /duplicate_coverage_failed/, `[${o.scenario}] refusal names the failed coverage:\n${refused.out.slice(-1500)}`);
+          assert.match(refused.out, /Next: /, `[${o.scenario}] refusal carries one Next line:\n${refused.out.slice(-1500)}`);
+          assert.equal(new StoryStore(o.worktree).readFindings(id).findings.find(f => f.id === findingId)?.status, 'open', `[${o.scenario}] refused duplicate stays open`);
+          reasons.push('duplicate_coverage_refused');
+          continue;
+        }
+        break;
+      }
       case 'dev_memory_finish_decision':
         Object.assign(payload, { decision: 'no-reusable-lesson', reason: 'Harness fixture: trivial string helpers, no reusable lesson.' });
         break;
@@ -1317,6 +1367,54 @@ function scenarioNL(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     return { name, status: 'PASS', lines };
   } catch (error) {
     console.log(`NL fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/**
+ * Run 17 Q1: the inventory critic marks a second round-1 finding a duplicate of
+ * the first (same root cause). NU: after the canonical repair + resolve, next
+ * proposes closing the duplicate with that repair's evidence through a coverage
+ * run of the duplicate's own case (a passing test the canonical repair added),
+ * with no second repair cycle. NU2: the duplicate's case is not covered; the
+ * coverage run is refused and next dispatches the duplicate's own repair.
+ */
+function scenarioNU(machineEnv: NodeJS.ProcessEnv, steps: Step[], covered: boolean): Outcome {
+  const tag = covered ? 'NU' : 'NU2';
+  const name = covered
+    ? 'NU run 17: critic duplicate closed with the canonical repair after a passing coverage run (no second repair)'
+    : 'NU2 run 17: critic duplicate whose own case is not covered still gets its own repair';
+  const o = new Owner(tag, covered ? 'B-e2ec' : 'B-e2ed', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  const reasons: string[] = [];
+  try {
+    devSetup(o);
+    driveWithNext(o, { findingRound1: true, run: false, duplicate: covered ? 'covered' : 'uncovered' }, lines, next => {
+      if (['finding_repair', 'finding_resolve', 'finding_duplicate_resolve'].includes(next.reason)) {
+        reasons.push(`${next.reason}:${String(next.cli?.payload.findingId ?? '').split(':').pop()}`);
+      }
+    });
+    const order = reasons.filter((row, index) => row !== reasons[index - 1]);
+    lines.push(`finding steps: ${order.join(' > ')}`);
+    const expected = covered
+      ? ['finding_repair:F-001', 'finding_resolve:F-001', 'finding_duplicate_resolve:F-002']
+      : ['finding_repair:F-001', 'finding_resolve:F-001', 'finding_duplicate_resolve:F-002', 'finding_repair:F-002', 'finding_resolve:F-002'];
+    assert.deepEqual(order, expected, `${tag}: finding steps ${order.join(' > ')}`);
+    const findings = new StoryStore(o.root).readFindings(o.storyId).findings;
+    const dup = findings.find(f => f.desc === NU_DUP_FINDING.desc);
+    assert.equal(dup?.status, 'resolved', `${tag}: the duplicate finding is closed at DONE`);
+    if (covered) {
+      assert.equal(dup?.resolutionType, 'duplicate', `${tag}: resolved as a duplicate`);
+      assert.match(dup?.resolvedReason ?? '', /TestReverseEmpty/, `${tag}: the resolution records the coverage receipt`);
+      assert.doesNotMatch(readFileSync(join(o.root, 'strs/strs_test.go'), 'utf8'), /TestReverseEmptyDup/, `${tag}: no second repair ran`);
+    } else {
+      assert.match(readFileSync(join(o.root, 'strs/strs_test.go'), 'utf8'), /TestReverseEmptyDup/, `${tag}: the duplicate's own repair merged into main`);
+    }
+    lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
     return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
   }
 }
@@ -1450,7 +1548,7 @@ function printTimeline(steps: Step[], scenario: string): void {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF|NL|N[AD](?:-run)?)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF|NL|NU2?|N[AD](?:-run)?)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -1477,10 +1575,12 @@ async function main(): Promise<void> {
     }
     if (only.includes('NF')) outcomes.push(scenarioNF(machine.env, steps));
     if (only.includes('NL')) outcomes.push(scenarioNL(machine.env, steps));
+    if (only.includes('NU')) outcomes.push(scenarioNU(machine.env, steps, true));
+    if (only.includes('NU2')) outcomes.push(scenarioNU(machine.env, steps, false));
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NL']) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NL', 'NU', 'NU2']) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {
