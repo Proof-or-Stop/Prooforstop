@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import { agentRoleIdsEqual } from './agent-role-identity.js';
 import { getSessionIdentity } from './owner-session.js';
@@ -32,10 +33,26 @@ export function deliveryReviewInvocationId(storyId: string, dispatchBindingDiges
 }
 
 /** Verify the latest native delivery dispatch against the exact current tree. */
+/** Commits in dispatchHead..HEAD are all this Story's delivery_check_set metadata commits (HEAD descends from dispatchHead). */
+function onlyOwnDeliveryCheckCommitsSince(gitCwd: string, dispatchHead: string, storyId: string): boolean {
+  try {
+    const subjects = execFileSync('git', ['log', '--format=%s', '--ancestry-path', `${dispatchHead}..HEAD`], {
+      cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
+    }).split('\n').filter(Boolean);
+    execFileSync('git', ['merge-base', '--is-ancestor', dispatchHead, 'HEAD'], { cwd: gitCwd, stdio: 'ignore' });
+    const own = `proof-or-stop: record ${storyId} delivery_check_set metadata`;
+    return subjects.length > 0 && subjects.every(subject => subject === own);
+  } catch {
+    return false;
+  }
+}
+
 export function verifyCurrentDeliveryReviewDispatch(args: {
   store: StoryStore;
   storyId: string;
   projectRoot: string;
+  /** Managed delivery re-seal: tolerate HEAD drift made only of this Story's delivery_check_set commits. */
+  allowOwnDeliveryCheckCommits?: boolean;
 }): { ok: true; binding: VerifiedDeliveryReviewDispatch } | { ok: false; reason: string } {
   const event = [...args.store.readProcessEvents(args.storyId)].reverse().find(candidate =>
     candidate.type === 'dispatch'
@@ -83,8 +100,19 @@ export function verifyCurrentDeliveryReviewDispatch(args: {
   }
   const rawStoryFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', args.projectRoot);
   const storyFilesHash = rawStoryFilesHash ?? null;
-  if (event.headHash !== headHash || event.materialHash !== materialHash
-    || (typeof event.storyFilesHash === 'string' ? event.storyFilesHash : null) !== storyFilesHash) {
+  const sameMaterial = event.materialHash === materialHash
+    && (typeof event.storyFilesHash === 'string' ? event.storyFilesHash : null) === storyFilesHash;
+  // A managed delivery reviewer may re-seal its delivery-check (run 14: an early
+  // write moved HEAD by its own metadata commit and the real seal was refused as
+  // stale). Only HEAD drift made exclusively of delivery_check_set metadata
+  // commits of this Story, on top of the dispatch head, with unchanged material
+  // and story files, is tolerated; the binding stays the dispatch's own head.
+  const boundHead = event.headHash !== headHash && sameMaterial && args.allowOwnDeliveryCheckCommits === true
+    && typeof event.headHash === 'string'
+    && onlyOwnDeliveryCheckCommitsSince(gitCwd, event.headHash, args.storyId)
+    ? event.headHash
+    : headHash;
+  if (event.headHash !== boundHead || !sameMaterial) {
     return {
       ok: false,
       reason: `delivery-review dispatch is stale for the current head/material/story files `
@@ -97,7 +125,7 @@ export function verifyCurrentDeliveryReviewDispatch(args: {
     lane: DELIVERY_REVIEW_LANE,
     dispatchPromptDigest,
     hostRenderIdentityDigest,
-    headHash,
+    headHash: boundHead,
     materialHash,
     storyFilesHash,
   });

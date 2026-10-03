@@ -642,7 +642,7 @@ export function computeNextStep(c: NextStepCtx): string {
       if (!c.hasDecision) {
         return `PLAN phase has understanding but missing decision. Next: proof-or-stop decision_set to record RALPLAN-DR decision (principles/drivers/options/chosen/rationale/preMortem)`;
       }
-      return `PLAN phase. Next: proof-or-stop story_review --storyId=${sid} to run adversarial review; once issueCount=0, run proof-or-stop story_advance --phase=DEV`;
+      return `PLAN phase. Next: proof-or-stop story_review --storyId=${sid} to run adversarial review; once issueCount=0, run proof-or-stop next --storyId=${sid} (it names the DEV-entry steps in order: dev_memory_preflight_ack, then story_advance --phase=DEV)`;
     }
     case 'DEV': {
       if (!c.checklist) return `DEV phase. First run proof-or-stop checklist_get --storyId=${sid} to see pending items`;

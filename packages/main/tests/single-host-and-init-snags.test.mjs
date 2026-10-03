@@ -32,7 +32,7 @@ const env = { ...process.env, PROOF_OR_STOP_SESSION_ID: 'single-host-and-init-sn
 delete env.PROOF_OR_STOP_AGENT;
 const runCli = (cwd, args, extraEnv = {}) => {
   const r = spawnSync(process.execPath, [cli, ...args], { cwd, env: { ...env, ...extraEnv }, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
-  return { status: r.status ?? -1, out: `${r.stdout ?? ''}${r.stderr ?? ''}` };
+  return { status: r.status ?? -1, stdout: r.stdout ?? '', out: `${r.stdout ?? ''}${r.stderr ?? ''}` };
 };
 const argFailure = (out) => /argument_validation_failed|Argument validation failed|JSON parse failed|Unknown command/.test(out);
 
@@ -53,6 +53,22 @@ try {
   const sf = ts.createSourceFile(sourcePath, readFileSync(sourcePath, 'utf8'), ts.ScriptTarget.Latest, true);
   const { MAIN_TOOLS: TOOLS } = await import(pathToFileURL(join(pkg, 'dist', 'cli', 'command-catalog.js')).href);
   const calls = [];
+  const SCHEMA_STANDIN = Symbol('schema-standin');
+  // Minimal value the catalog field accepts (zod v4): first enum option, a string
+  // of the minimum length, true, 1, [] or {}.
+  const standIn = (schema) => {
+    let type = schema;
+    while (type && ['optional', 'nullable', 'default', 'pipe', 'readonly'].includes(type.def?.type)) type = type.def.innerType ?? type.def.in;
+    switch (type?.def?.type) {
+      case 'enum': return type.options[0];
+      case 'boolean': return true;
+      case 'number': return 1;
+      case 'array': return [];
+      case 'object': return {};
+      case 'literal': return type.def.values[0];
+      default: return 'x'.repeat(Math.max(1, type?.minLength ?? 1));
+    }
+  };
   const visit = (node) => {
     if (ts.isObjectLiteralExpression(node)) {
       const prop = (name) => node.properties.find(p => ts.isPropertyAssignment(p) && p.name.getText(sf) === name);
@@ -68,12 +84,15 @@ try {
           const name = p.name.getText(sf);
           const init = ts.isPropertyAssignment(p) ? p.initializer : null;
           let value;
-          if (init && ts.isStringLiteral(init)) value = init.text;
+          // Literal values as next prints them; computed values and <placeholders>
+          // (authored by the agent before running) get a schema-valid stand-in.
+          if (init && ts.isStringLiteral(init) && !init.text.startsWith('<')) value = init.text;
           else if (init && (init.kind === ts.SyntaxKind.TrueKeyword || init.kind === ts.SyntaxKind.FalseKeyword)) value = init.kind === ts.SyntaxKind.TrueKeyword;
-          else if (init && ts.isArrayLiteralExpression(init)) value = ['x'];
-          else value = name === 'storyId' || name === 'story' ? 'B-0000' : name === 'phase' ? 'REVIEW' : 'x';
+          else value = name === 'storyId' || name === 'story' ? 'B-0000' : name === 'phase' ? 'REVIEW' : SCHEMA_STANDIN;
           keys[name] = value;
         }
+        const tool = TOOLS.find(t => t.name === command.initializer.text);
+        for (const [key, value] of Object.entries(keys)) if (value === SCHEMA_STANDIN) keys[key] = standIn(tool?.schema?.[key]);
         calls.push({ command: command.initializer.text, payload: keys, line: sf.getLineAndCharacterOfPosition(node.getStart()).line + 1 });
       }
     }
@@ -148,7 +167,7 @@ try {
       check('R5 story_advance PLAN (fixture)', plan.status === 0, plan.out.slice(-600));
       const next = runCli(worktree, ['next', '--storyId', storyId, '--json'], idEnv);
       let parsed = null;
-      try { parsed = JSON.parse(next.out.slice(next.out.indexOf('{'))); } catch { /* reported below */ }
+      try { parsed = JSON.parse(next.stdout); } catch { /* reported below */ }
       check('R5 next at PLAN names the dev-memory acknowledgement before DEV', parsed?.cli?.command === 'dev_memory_preflight_ack', next.out.slice(0, 600));
     }
   }
