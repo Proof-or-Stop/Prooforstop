@@ -57,6 +57,7 @@ import {
 import { BRAND_ENV_PREFIX, readBrandEnv } from '../core/brand-env.js';
 import { assertNoReviewGateVerificationIntent } from '../core/review-gate-verification-intent.js';
 import { createVerificationEvidenceGateEvaluator } from '../core/proof-admissibility.js';
+import { pendingPinnedVerificationIntents } from '../core/evidence-chain-check.js';
 import {
   assertVerificationInputUnchanged,
   assertVerificationFreshnessUnchanged,
@@ -1063,6 +1064,19 @@ interface SharedVerificationPublication {
   causalReceipt?: CausalEvidenceReceipt;
 }
 
+/**
+ * A pinned selector absent from a COMPLETED execution's output. The refusal is
+ * per intent (no row is minted for it), but the execution itself is real and
+ * signed: a batch carries it so the other intents pinned to the same execution
+ * key assert their own selectors against the same output instead of relaunching.
+ */
+class VerificationSelectorAbsentRefusal extends Error {
+  constructor(message: string, readonly publication: SharedVerificationPublication) {
+    super(message);
+    this.name = 'VerificationSelectorAbsentRefusal';
+  }
+}
+
 /** Find a newly published execution anywhere in the checklist, then re-assert locally. */
 function concurrentPublishedExecution(
   root: string,
@@ -1655,8 +1669,16 @@ async function enforceAndStampEvidence(
     return { executionReceipt, verificationReceipt };
   });
   if (!verificationReceipt.selectorMatched) {
-    throw new Error(
+    const sourceCausalReceipt = causal?.receipt ?? sharedCausalReceipt;
+    throw new VerificationSelectorAbsentRefusal(
       `verification evidence refused: pinned selector "${pinSelector}" not found in command output for ${input.intentRef} [receipt_selector_absent]`,
+      {
+        policyTimeoutMs: effectiveTimeoutMs,
+        executionReceipt,
+        freshness: deps.sharedFreshness ?? launchFreshness,
+        ...(sourceCausalReceipt ? { causalReceipt: sourceCausalReceipt } : {}),
+        ...(deps.sharedReuseReceipt ? { reuseReceipt: deps.sharedReuseReceipt } : {}),
+      },
     );
   }
   const derivedResult: 'pass' | 'fail' = exitOk && verificationReceipt.selectorMatched ? 'pass' : 'fail';
@@ -2757,6 +2779,206 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       commit: commitWithCacheInvalidation,
       batch,
     });
+    });
+  };
+
+  /**
+   * `verification_run --pending`: one batch over every pending pinned intent
+   * (pendingPinnedVerificationIntents — the pinned rows the DEV→REVIEW evidence
+   * chain blocks on). Each unique selector-free execution key runs ONCE; every
+   * intent pinned to it gets its OWN signed assertion receipt from the same
+   * enforcement boundary as a single verification_run, each judged by its own
+   * pinned selector against the shared complete output. All passing rows are
+   * written in one checklist write and one metadata commit.
+   *
+   * Per-intent refusal is unchanged: a selector absent from the shared output
+   * refuses only that intent; a non-zero exit or timeout refuses every intent
+   * pinned to that execution (it is the same execution) without relaunching.
+   * No row is minted for a refused intent. Any other error (identity drift,
+   * preflight refusal, lock loss) writes nothing. The command exits non-zero
+   * whenever an intent was refused, naming each one.
+   */
+  const verificationRunPending = async (args: {
+    storyId: string;
+    intentRef?: string;
+    itemId?: string;
+    note?: string;
+    cwd?: string;
+    abortSignal?: AbortSignal;
+    deadlineAt?: number;
+    deadlineError?: () => Error;
+  }): Promise<string> => {
+    assertVerificationEvidenceWriteActive('verification_run', args);
+    if (args.intentRef || args.itemId) {
+      throw new Error('verification_run refused: --pending runs every pending pinned intent; omit intentRef/itemId [verification_run_pending_exclusive]');
+    }
+    const gitCwd = resolveStoryGitCwd(args.storyId);
+    const runCwd = args.cwd ? (isAbsolute(args.cwd) ? args.cwd : join(gitCwd, args.cwd)) : gitCwd;
+    const initialCl = store.readChecklist(args.storyId);
+    const targets = pendingPinnedVerificationIntents(initialCl, buildVerificationCoverage(initialCl, undefined, undefined, {
+      receiptAdmissibility: createVerificationEvidenceGateEvaluator(root, args.storyId),
+    }).entries);
+    if (targets.length === 0) return `No pending pinned verification intents for ${args.storyId}`;
+    const inputFor = (item: ChecklistItem, intentRefValue: string): EvidenceWriteInput | undefined => {
+      const resolved = resolveIntentForRef(item, intentRefValue);
+      const pin = resolved?.intent.verification;
+      if (!resolved || !pin) return undefined;
+      return {
+        storyId: args.storyId, intentRef: intentRefValue, kind: intentTypeToEvidenceKind(resolved.intent.type),
+        file: item.verificationEvidence?.find(evidence => evidence.intentRef === intentRefValue)?.file,
+        command: pin.command, selector: pin.selector, result: 'pass',
+      };
+    };
+    const initialPlans = withVerificationPlanningObservation(() => targets.map(target => {
+      const item = initialCl.items.find(row => row.id === target.itemId);
+      const input = item ? inputFor(item, target.intentRef) : undefined;
+      const plan = item && input ? verificationProducerPlan(root, item, input, runCwd) : undefined;
+      if (!plan) throw new Error(`verification_run refused: pinned verifier for ${target.intentRef} did not resolve an execution identity [verification_run_no_identity]`);
+      return plan;
+    }));
+    const commandOrdinals = new Map([...new Set(initialPlans.map(plan => plan.executionKey))].map((key, index) => [key, index + 1]));
+    let executingKey: string | undefined;
+    const runCommand = createPinnedCommandRunner('verification_run', args, () => {
+      const commandIndex = executingKey ? commandOrdinals.get(executingKey) : undefined;
+      if (!commandIndex) throw new Error('verification_run: execution is outside the planned command set');
+      return { commandIndex, totalCommands: commandOrdinals.size };
+    });
+    const initialPublicationDigests = initialPlans.map(plan => publicationDigestsForKey(initialCl, plan));
+    const causalBatch = createCausalEvidenceBatch();
+    return withVerificationExecutionLocks(root, [...commandOrdinals.keys()], async () => {
+      const currentCl = store.readChecklist(args.storyId);
+      const hashes = evidenceHashes(gitCwd, root);
+      const recorded: Array<{ itemId: string; intentRef: string; kind: VerificationEvidence['kind']; file?: string; stamp: EnforceAndStampResult }> = [];
+      const refused: Array<{ intentRef: string; reason: string }> = [];
+      const sharedExecutions = new Map<string, SharedVerificationPublication>();
+      const failedExecutions = new Map<string, string>();
+      for (let i = 0; i < targets.length; i++) {
+        const target = targets[i]!;
+        const item = currentCl.items.find(row => row.id === target.itemId);
+        const input = item ? inputFor(item, target.intentRef) : undefined;
+        if (!item || !input) {
+          throw new Error('verification_run refused: authoritative pin disappeared inside producer lock [verification_run_no_pin]');
+        }
+        const failed = failedExecutions.get(initialPlans[i]!.executionKey);
+        if (failed) {
+          refused.push({ intentRef: target.intentRef, reason: `shared execution already refused (not relaunched): ${failed}` });
+          continue;
+        }
+        // One synchronous launch observation per row, as in verification_evidence_batch_add.
+        const { currentPlan, pending } = withVerificationLaunchObservation(() => {
+          const currentPlan = verificationProducerPlan(root, item, input, runCwd);
+          if (currentPlan?.executionKey !== initialPlans[i]!.executionKey) {
+            throw new Error('receiptIssued=false reason=input_changed_during_execution');
+          }
+          const sharedPublication = sharedExecutions.get(currentPlan.executionKey)
+            ?? concurrentPublishedExecution(root, args.storyId, currentCl, currentPlan, initialPublicationDigests[i]!, hashes);
+          executingKey = currentPlan.executionKey;
+          const pending = enforceWithPublicationRecovery(item, input, {
+            runCommand,
+            preflightFacts: causalPreflightFactsFor(args.storyId, gitCwd),
+            cwd: runCwd,
+            projectRoot: root,
+            metadataRoot: root,
+            receiptStore: store,
+            batch: causalBatch,
+            storyId: args.storyId,
+            ...(sharedPublication ? {
+              sharedExecutionReceipt: sharedPublication.executionReceipt,
+              ...(sharedPublication.policyTimeoutMs !== undefined ? { sharedPolicyTimeoutMs: sharedPublication.policyTimeoutMs } : {}),
+              ...(sharedPublication.causalReceipt ? { sharedCausalReceipt: sharedPublication.causalReceipt } : {}),
+              sharedFreshness: sharedPublication.freshness,
+              ...(sharedPublication.reuseReceipt ? { sharedReuseReceipt: sharedPublication.reuseReceipt } : {}),
+            } : {}),
+          }, { plan: currentPlan });
+          return { currentPlan, pending };
+        });
+        let stamp: EnforceAndStampResult;
+        try {
+          stamp = await pending;
+        } catch (error) {
+          if (error instanceof VerificationSelectorAbsentRefusal) {
+            // The execution completed and is signed; only this intent's selector failed.
+            if (!sharedExecutions.has(currentPlan.executionKey)) sharedExecutions.set(currentPlan.executionKey, error.publication);
+            refused.push({ intentRef: target.intentRef, reason: error.message });
+            continue;
+          }
+          const message = error instanceof Error ? error.message : String(error);
+          if (/\[receipt_exit_nonzero\]|\[receipt_command_timeout\]/.test(message)) {
+            failedExecutions.set(currentPlan.executionKey, message);
+            refused.push({ intentRef: target.intentRef, reason: message });
+            continue;
+          }
+          throw error;
+        }
+        recorded.push({ itemId: item.id, intentRef: target.intentRef, kind: input.kind as VerificationEvidence['kind'],
+          ...(input.file ? { file: input.file } : {}), stamp });
+        const receipt = stamp.evidencePatch.receipt;
+        if (!sharedExecutions.has(currentPlan.executionKey) && receipt && isSplitVerificationReceipt(receipt)
+          && receipt.schemaVersion === 'proof-or-stop.verification-receipt-bundle.v5'
+          && receipt.executionReceipt.schemaVersion === 'proof-or-stop.verification-execution-receipt.v3') {
+          sharedExecutions.set(currentPlan.executionKey, {
+            policyTimeoutMs: currentPlan.effectiveTimeoutMs,
+            executionReceipt: receipt.executionReceipt,
+            freshness: receipt.publicationBinding.freshness,
+            ...(stamp.causalReceipt ? { causalReceipt: stamp.causalReceipt } : {}),
+            ...(receipt.publicationMode === 'reused' && receipt.reuseReceipt ? { reuseReceipt: receipt.reuseReceipt } : {}),
+          });
+        }
+      }
+
+      let commitHint = '';
+      if (recorded.length > 0) {
+        withChecklistLock(ctx, args.storyId, () => {
+          const cl = store.readChecklist(args.storyId);
+          for (const row of recorded) {
+            const item = cl.items.find(candidate => candidate.id === row.itemId);
+            if (!item) throw new Error(`Checklist item ${row.itemId} not found`);
+            if (row.stamp.pin) applyVerificationPin(item, row.stamp.pin, args.storyId); // defensive: pin already existed
+            const patch = row.stamp.evidencePatch;
+            const note = (args.note && args.note.trim().length >= 5)
+              ? args.note.trim()
+              : `verification_run --pending executed the pinned verifier for ${row.intentRef}`;
+            const evidence = makeEvidence({
+              intentRef: row.intentRef,
+              kind: row.kind,
+              ...(row.file ? { file: row.file } : {}),
+              ...(patch.command ? { command: patch.command } : {}),
+              ...(patch.result ? { result: patch.result } : {}),
+              note,
+              ...(patch.mechanical !== undefined ? { mechanical: patch.mechanical } : {}),
+              ...(patch.receipt ? { receipt: patch.receipt } : {}),
+              ...hashes,
+              ...(isSplitVerificationReceipt(patch.receipt) && patch.receipt.schemaVersion === 'proof-or-stop.verification-receipt-bundle.v5' ? patch.receipt.publicationBinding.freshness : {}),
+            });
+            const existing = item.verificationEvidence || [];
+            const idx = existing.findIndex(candidate => candidate.intentRef === row.intentRef);
+            if (idx >= 0) existing[idx] = evidence;
+            else existing.push(evidence);
+            item.verificationEvidence = existing;
+          }
+          assertVerificationEvidenceWriteActive('verification_run', args);
+          commitCanonicalCausalEvidence(
+            args.storyId,
+            gitCwd,
+            hashes,
+            recorded.map(row => row.stamp),
+            () => store.writeChecklist(args.storyId, cl),
+            causalBatch,
+          );
+        });
+        commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_run');
+      }
+      const executions = new Set(recorded.flatMap(row => {
+        const receipt = row.stamp.evidencePatch.receipt;
+        return receipt && isSplitVerificationReceipt(receipt) ? [JSON.stringify(receipt.executionReceipt)] : [];
+      }));
+      const summary = `Verification run (--pending) for ${args.storyId}: ${recorded.length}/${targets.length} pinned intent(s) recorded `
+        + `from ${commandOrdinals.size} unique pinned execution(s) (${executions.size} shared execution receipt(s))`;
+      if (refused.length > 0) {
+        throw new Error(`${summary}${commitHint}; REFUSED ${refused.length} intent(s), no row minted for them:\n`
+          + refused.map(row => `  ${row.intentRef}: ${row.reason}`).join('\n'));
+      }
+      return `${summary}${commitHint}`;
     });
   };
   return {
@@ -4066,15 +4288,22 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
      */
     async verification_run(args: {
       storyId: string;
-      intentRef: string;
+      intentRef?: string;
       itemId?: string;
       note?: string;
       cwd?: string;
+      /** Batch every pending pinned intent (see verificationRunPending). */
+      pending?: boolean;
       // B-137a: injected by cli-engine for the structured watchdog; absent from the public schema.
       abortSignal?: AbortSignal;
       deadlineAt?: number;
       deadlineError?: () => Error;
     }): Promise<string> {
+      if (args.pending === true) return verificationRunPending(args);
+      if (!args.intentRef) {
+        throw new Error('verification_run refused: pass --intentRef for one intent, or --pending for every pending pinned intent [verification_run_target_missing]');
+      }
+      const intentRefArg: string = args.intentRef;
       assertVerificationEvidenceWriteActive('verification_run', args);
       const executePinnedCommand = createPinnedCommandRunner('verification_run', args);
       // Resolve the owning item + its pinned verifier OUTSIDE the checklist lock
@@ -4088,24 +4317,24 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       } else {
         // No itemId: find the item whose verificationIntent owns this ref (a custom
         // intent id can override the CHK-n:lane:i shape, so search rather than parse).
-        preItem = preCl.items.find(i => collectVerificationIntents(i).some(c => c.ref === args.intentRef));
+        preItem = preCl.items.find(i => collectVerificationIntents(i).some(c => c.ref === intentRefArg));
       }
       if (!preItem) {
         throw new Error(
-          `verification_run refused: intentRef ${args.intentRef} does not resolve to a verificationIntent on any checklist item in ${args.storyId} [intent_ref_unresolved]`,
+          `verification_run refused: intentRef ${intentRefArg} does not resolve to a verificationIntent on any checklist item in ${args.storyId} [intent_ref_unresolved]`,
         );
       }
       const itemId = preItem.id;
-      const resolved = resolveIntentForRef(preItem, args.intentRef);
+      const resolved = resolveIntentForRef(preItem, intentRefArg);
       if (!resolved) {
         throw new Error(
-          `verification_run refused: intentRef ${args.intentRef} does not resolve to a verificationIntent on ${itemId} [intent_ref_unresolved]`,
+          `verification_run refused: intentRef ${intentRefArg} does not resolve to a verificationIntent on ${itemId} [intent_ref_unresolved]`,
         );
       }
       const pin = resolved.intent.verification;
       if (!pin) {
         throw new Error(
-          `verification_run refused: intent ${args.intentRef} (type ${resolved.intent.type}) has no pinned ` +
+          `verification_run refused: intent ${intentRefArg} (type ${resolved.intent.type}) has no pinned ` +
           `verification:{command,selector} — there is nothing to execute. Pin it first via verification_evidence_add ` +
           `(command+selector), or record an audited non-mechanical attestation; verification_run only re-runs an ` +
           `already-pinned verifier and never mints an unexecuted covered row. [verification_run_no_pin]`,
@@ -4116,7 +4345,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       const runCwd = args.cwd ? (isAbsolute(args.cwd) ? args.cwd : join(gitCwd, args.cwd)) : gitCwd;
       const kind = intentTypeToEvidenceKind(resolved.intent.type);
       const existingManifestPath = preItem.verificationEvidence
-        ?.find(evidence => evidence.intentRef === args.intentRef)?.file;
+        ?.find(evidence => evidence.intentRef === intentRefArg)?.file;
       const causalBatch = createCausalEvidenceBatch();
 
       // Run the PINNED command through the shared enforcement boundary. We pass the pin's
@@ -4132,7 +4361,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       // still gets the DISTINCT [receipt_command_timeout] diagnosis instead of a
       // misleading selector-absent refusal.
       const initialInput: EvidenceWriteInput = {
-        storyId: args.storyId, intentRef: args.intentRef, kind, file: existingManifestPath,
+        storyId: args.storyId, intentRef: intentRefArg, kind, file: existingManifestPath,
         command: pin.command, selector: pin.selector, result: 'pass',
       };
       const initialPlan = verificationProducerPlan(root, preItem, initialInput, runCwd);
@@ -4142,16 +4371,16 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         const currentCl = store.readChecklist(args.storyId);
         const currentItem = currentCl.items.find(item => item.id === itemId);
         if (!currentItem) throw new Error(`Checklist item ${itemId} not found`);
-        const currentResolved = resolveIntentForRef(currentItem, args.intentRef);
+        const currentResolved = resolveIntentForRef(currentItem, intentRefArg);
         const currentPin = currentResolved?.intent.verification;
         if (!currentResolved || !currentPin) {
           throw new Error('verification_run refused: authoritative pin disappeared inside producer lock [verification_run_no_pin]');
         }
         const currentManifestPath = currentItem.verificationEvidence
-          ?.find(evidence => evidence.intentRef === args.intentRef)?.file;
+          ?.find(evidence => evidence.intentRef === intentRefArg)?.file;
         const currentInput: EvidenceWriteInput = {
           storyId: args.storyId,
-          intentRef: args.intentRef,
+          intentRef: intentRefArg,
           kind: intentTypeToEvidenceKind(currentResolved.intent.type),
           file: currentManifestPath,
           command: currentPin.command,
@@ -4196,9 +4425,9 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         const hashes = evidenceHashes(gitCwd, root);
         const note = (args.note && args.note.trim().length >= 5)
           ? args.note.trim()
-          : `verification_run executed the pinned verifier for ${args.intentRef}`;
+          : `verification_run executed the pinned verifier for ${intentRefArg}`;
         const evidence = makeEvidence({
-          intentRef: args.intentRef,
+          intentRef: intentRefArg,
           kind,
           ...(currentManifestPath ? { file: currentManifestPath } : {}),
           ...(stamp.evidencePatch.command ? { command: stamp.evidencePatch.command } : {}),
@@ -4210,7 +4439,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           ...(isSplitVerificationReceipt(stamp.evidencePatch.receipt) && stamp.evidencePatch.receipt.schemaVersion === 'proof-or-stop.verification-receipt-bundle.v5' ? stamp.evidencePatch.receipt.publicationBinding.freshness : {}),
         });
         const existing = item.verificationEvidence || [];
-        const idx = existing.findIndex(e => e.intentRef === args.intentRef);
+        const idx = existing.findIndex(e => e.intentRef === intentRefArg);
         if (idx >= 0) existing[idx] = evidence;
         else existing.push(evidence);
         item.verificationEvidence = existing;
@@ -4229,7 +4458,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           ? `, receipt exit=${evidence.receipt.exitCode} selectorMatched=${evidence.receipt.selectorMatched}${renderReceiptSelectorNote(evidence.receipt)}`
           : '';
         const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_run');
-        return `Verification run recorded for ${itemId} → ${args.intentRef} (${kind}, ran pinned command${receiptNote})${commitHint}`;
+        return `Verification run recorded for ${itemId} → ${intentRefArg} (${kind}, ran pinned command${receiptNote})${commitHint}`;
         });
       });
     },

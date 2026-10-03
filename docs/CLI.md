@@ -544,8 +544,28 @@ acceptance rollout gate, before the canonical REVIEW evidence gate):
 
 | Item | Blocks DEV→REVIEW | Next |
 |---|---|---|
-| `stale_receipt`: a must/should intent's receipt is stale | yes | `proof-or-stop verification_evidence_refresh_stale --storyId=<id>` (reruns every stale pinned command once) |
-| `missing_receipt`: an executable must/should intent has no admissible receipt | must: yes; should: advisory | `verification_run` for a pinned intent, else `verification_evidence_add` with the command/selector (a changed unbound test of that item when one exists) |
+| `stale_receipt`: a must/should intent's receipt is stale | yes | `proof-or-stop verification_evidence_refresh_stale --storyId=<id>` (reruns every stale pinned command once); when a pinned must intent is also missing, the stale pinned rows join that `verification_run --pending` batch instead |
+| `missing_receipt`: an executable must/should intent has no admissible receipt | must: yes; should: advisory | pinned must intent: one `proof-or-stop verification_run '{"storyId":"<id>","pending":true}'` for all of them (see below); pinned should intent: `verification_run --intentRef`; unpinned: `verification_evidence_add` with the command/selector (a changed unbound test of that item when one exists) |
+
+**`verification_run --pending` (batch).** It covers every pinned must/should
+intent whose receipt is stale and every pinned must intent whose receipt is
+missing or non-mechanical (`pendingPinnedVerificationIntents`, the same
+selection the chain uses). Each unique pinned execution (command, cwd,
+timeout and execution identity, at the current HEAD/material) runs once. Every
+intent pinned to it gets its own signed assertion receipt from the same
+enforcement boundary as single `verification_run`, judged by its own selector
+against the complete shared output. All passing rows are written in one
+checklist write with one metadata commit. Refusals stay per intent. A selector
+absent from the shared output refuses only that intent; its completed execution
+is still shared with the other intents of its key. A non-zero exit or timeout
+refuses every intent of that execution without relaunching it. No row is minted
+for a refused intent, and the command exits non-zero naming each one. Any other
+error (identity drift, preflight refusal) writes nothing. Run 14 needed 49
+`verification_run` steps (one per intent, 10 unique commands, 49 metadata
+commits, 16.8 min). The regression smoke
+`packages/main/dist/tasks/verification-batch-dedupe-smoke.js` has 6 intents
+over 2 commands: 6 steps / 6 launches / 6 commits / 18.2 s before, 1 step /
+2 launches / 1 commit / 7–8 s after.
 | `unbound_test`: a Go `func TestX(t *testing.T)` added/changed in the Story diff that no pinned `go test` selects | advisory | bind it to the first unpinned intent of the item whose files contain the test (`verification_evidence_add ... -run ^TestX$`); when every intent is already pinned, no action unless it is the only test of a userSees behavior (`acceptance_amendment_propose`) |
 
 Selection is computed, never guessed: `go test [pkgs] -run/-skip` with
@@ -909,7 +929,7 @@ Decision table (first matching row wins):
 | DEV, an item `pending` | `checklist_update --status=in_progress` | framework | checklist.json |
 | DEV, an item `in_progress` | `host_run` managedDispatch `proof-or-stop-implementer` for it (or wait on its run) | agent | checklist.json + host-run projection |
 | DEV, a verified blocking finding open and not repaired (see below) | `host_run` managedDispatch `proof-or-stop-finding-repair` with that `findingId` (or wait on a repair run in flight) | agent | `unclosedBlockingFindings` + `managedFindingRepairState` |
-| DEV, that finding repaired, receipts stale | the evidence-chain gate's own Next (`verification_evidence_refresh_stale`, `verification_run`, ...) | framework | `evaluateEvidenceChainForStory` |
+| DEV, that finding repaired, receipts stale | the evidence-chain gate's own Next (`verification_evidence_refresh_stale`, `verification_run --pending`, ...) | framework | `evaluateEvidenceChainForStory` |
 | DEV, that finding repaired | `finding_resolve` with `resolution` | agent | `unclosedBlockingFindings` + `managedFindingRepairState` |
 | DEV, evidence-chain blocking / advisory unbound Go test with a concrete bind | the evidence-chain Next | framework | `evaluateEvidenceChainForStory` |
 | DEV, files declared but no scope contract | `scope_contract_init_from_plan` | framework | scope gate precondition |

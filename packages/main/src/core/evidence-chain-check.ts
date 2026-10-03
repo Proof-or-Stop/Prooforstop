@@ -303,6 +303,34 @@ function evidenceAddCommand(storyId: string, itemId: string, intentRef: string, 
   return cliLine('verification_evidence_add', { storyId, itemId, intentRef, kind, command, selector, note });
 }
 
+/**
+ * The pinned intents one `verification_run --pending` batch covers: every
+ * must/should intent with a pinned verifier whose receipt is stale, and every
+ * must intent with a pinned verifier whose receipt is missing or non-mechanical.
+ * These are exactly the pinned rows the DEV→REVIEW evidence chain blocks on
+ * (should-priority missing rows stay advisory). The batch handler and the
+ * chain's next action read this one selection.
+ */
+export function pendingPinnedVerificationIntents(
+  checklist: ChecklistData,
+  coverage: readonly VerificationCoverageEntry[],
+): Array<{ itemId: string; intentRef: string }> {
+  const items = checklist.items.filter(item => item.status !== 'withdrawn');
+  const pending: Array<{ itemId: string; intentRef: string }> = [];
+  for (const entry of coverage) {
+    if (entry.intentRef.endsWith(':missing-verification-intent')) continue;
+    const priority = entry.priority ?? 'must';
+    const stale = entry.status === 'stale' && (priority === 'must' || priority === 'should');
+    const missing = (entry.status === 'missing' || entry.status === 'non_mechanical') && priority === 'must';
+    if (!stale && !missing) continue;
+    const item = items.find(row => row.id === entry.itemId);
+    const intent = item ? collectVerificationIntents(item).find(row => row.ref === entry.intentRef)?.intent : undefined;
+    if (!intent?.verification?.command) continue;
+    pending.push({ itemId: entry.itemId, intentRef: entry.intentRef });
+  }
+  return pending;
+}
+
 export function evaluateEvidenceChain(input: {
   storyId: string;
   checklist: ChecklistData;
@@ -316,6 +344,13 @@ export function evaluateEvidenceChain(input: {
   const issues: EvidenceChainIssue[] = [];
   const items = checklist.items.filter(item => item.status !== 'withdrawn');
   const refresh = `proof-or-stop verification_evidence_refresh_stale --storyId=${storyId}`;
+  // One batch for every blocking pinned row: each unique pinned execution runs
+  // once and every intent pinned to it gets its own signed receipt, one commit.
+  const pendingBatch = cliLine('verification_run', { storyId, pending: true });
+  const missingPinned = new Set(pendingPinnedVerificationIntents(checklist, input.coverage)
+    .map(row => row.intentRef));
+  const batchMissing = input.coverage.some(entry => missingPinned.has(entry.intentRef)
+    && (entry.status === 'missing' || entry.status === 'non_mechanical'));
 
   // Unbound Go tests first: a missing receipt's next action may name one.
   let unboundTestScan = 'not_applicable';
@@ -350,9 +385,12 @@ export function evaluateEvidenceChain(input: {
     const item = items.find(row => row.id === entry.itemId);
     if (!item) continue;
     if (entry.status === 'stale') {
+      // Stale rows keep refresh_stale (input-scoped reuse, shared-failure demotion)
+      // unless a missing pinned row needs the batch anyway: then the same batch
+      // reruns the stale pinned rows too, so no command runs twice.
       issues.push({ kind: 'stale_receipt', blocking: true, intentRef: entry.intentRef, itemId: entry.itemId, priority,
         detail: `${entry.intentRef} (${priority}) receipt is stale${entry.evidence?.nonMechanicalReason ? `: ${entry.evidence.nonMechanicalReason}` : ''}`,
-        nextAction: refresh });
+        nextAction: batchMissing && missingPinned.has(entry.intentRef) ? pendingBatch : refresh });
       continue;
     }
     if (entry.status !== 'missing' && entry.status !== 'non_mechanical') continue;
@@ -361,7 +399,9 @@ export function evaluateEvidenceChain(input: {
     if (!executable) continue;
     const pin = intent?.verification;
     let nextAction: string;
-    if (pin) {
+    if (pin && priority === 'must') {
+      nextAction = pendingBatch;
+    } else if (pin) {
       nextAction = cliLine('verification_run', { storyId, intentRef: entry.intentRef });
     } else {
       const candidate = unbound.find(row => row.owners.some(owner => owner.id === item.id));
@@ -399,8 +439,9 @@ export function evaluateEvidenceChain(input: {
     ...issues.filter(issue => issue.kind === 'unbound_test'),
   ];
   const ordered = [
-    ...issues.filter(issue => issue.kind === 'stale_receipt'),
-    ...issues.filter(issue => issue.kind === 'missing_receipt' && issue.blocking),
+    ...issues.filter(issue => issue.nextAction === pendingBatch),
+    ...issues.filter(issue => issue.kind === 'stale_receipt' && issue.nextAction !== pendingBatch),
+    ...issues.filter(issue => issue.kind === 'missing_receipt' && issue.blocking && issue.nextAction !== pendingBatch),
     ...advisory.filter(issue => !isTemplate(issue)),
     ...advisory.filter(isTemplate),
   ];
