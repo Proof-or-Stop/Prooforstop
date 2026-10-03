@@ -359,7 +359,8 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   'packages/main/src/core/executable-digest-observation.ts': '434861970b49d76c2813c7994a141f5550dabf7a85026a6709d6bb37ecc01e96',
   'packages/main/src/core/lifecycle-control/control-status.ts': 'e015e86e23e400c8d7e43bd253938f3ee2105bba9925d42c599747b6b87fcc58',
   'packages/main/src/core/experience-layer-types.ts': '8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881',
-  'packages/main/src/core/git-tree-observation.ts': 'e3310d811d2c0e7f78a41e14ee6995593c23cb6a0e5d8c7686be5d5a7cbfe3f9',
+  // Lab gate-command-cost (2026-10-03): ref-state reads delegate to git-ref-witness-memo; repinned.
+  'packages/main/src/core/git-tree-observation.ts': 'c8d9597cac490a7219644a1afb95c2c39d999469111c575c93a136f59891237b',
   // Lab cli-bundle (2026-09-30): resolveStoryChangedFiles/MergeBase now imported from the story-change-manifest leaf; repinned.
   // Lab runtime-info-exclude (2026-09-30): checkEvidenceHashSnapshotReuse now forwards trustedControllerProjectionStoryId to readMaterialDirtyFiles; repinned.
   // Lab next-driver-cost (2026-10-01): the rename-aware name-status read passes through observedGit; repinned.
@@ -368,7 +369,8 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   // Lab review-epoch-lineage (2026-09-30): zero-wave completeness-only receipts route to cancel; repinned.
   'packages/main/src/core/review-inventory-epoch.ts': '985c577e2f06178b31512f6e10e05a84869d4f21cf23e793445bebeb35097a66',
   // Lab verification-env-digest (2026-09-30): ordinary receipts bind the v2 environment identity projection; repinned.
-  'packages/main/src/core/verification-execution-evidence.ts': 'e11ebbfebd9a42d51c0f1b55156749111b9ef146da28eab8b5ed5ad62825093e',
+  // Lab gate-command-cost (2026-10-03): the signer-key common-dir probe goes through observedGit; repinned.
+  'packages/main/src/core/verification-execution-evidence.ts': '915f3b1d386ce37f12caa69e98124886fc466fd4ce1159188fb12e5ad444b5e6',
   // Labs plan-pin-allowlist and plan-intent-precheck (2026-09-30) changed checklist_update; repinned.
   'packages/main/src/handlers/checklist.ts': '0c2f179e26a2b5ed6abb703e39496f3d66ae770943e8385fc191f9ad2ab2aaa7',
   'packages/main/src/core/maintenance-command-mode.ts': '9c94f1c1a20abf5ed3b93208f5d52e13d63246af12a85612c1e07f99e72258e2',

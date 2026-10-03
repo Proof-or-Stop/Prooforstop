@@ -15,6 +15,7 @@ import type { TestEvidenceData } from './types.js';
  * wrong-key, or legacy digest signatures fail closed.
  */
 import { execFileSync } from 'node:child_process';
+import { observedGit } from './git-tree-observation.js';
 import { createPublicKey, randomBytes, randomUUID } from 'node:crypto';
 import { closeSync, existsSync, linkSync, mkdirSync, openSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
@@ -30,11 +31,12 @@ const SIGNATURE_PREFIX = `ed25519:${VALIDATION_ARTIFACT_SIGNING_KEY_ID}:`;
 const KEY_FILENAME = 'proof-story-aware-validation-artifact-v1.key';
 
 function gitCommonDir(gitCwd: string): string {
-  const raw = execFileSync('git', ['rev-parse', '--git-common-dir'], {
+  const argv = ['rev-parse', '--git-common-dir'];
+  const raw = observedGit(gitCwd, argv, () => execFileSync('git', argv, {
     cwd: gitCwd,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
-  }).trim();
+  })).trim();
   if (!raw) throw new Error('validation artifact signer requires a Git common directory');
   return isAbsolute(raw) ? raw : resolve(gitCwd, raw);
 }

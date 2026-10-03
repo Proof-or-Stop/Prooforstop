@@ -26,6 +26,13 @@ export interface RuntimeClosureOptions {
   readonly now?: string;
   /** @deprecated Ignored with a warning; only a live acquisition context authorizes self-reentry. */
   readonly currentValidationStoryId?: string;
+  /**
+   * false: skip the lifecycle readiness rows (blockingItems/advisoryItems from
+   * lifecycle_check, nextSafeAction). For a caller that reads only authority,
+   * authoritativeCwd and locks (story_advance's runtime enforcement preflight),
+   * which used to build and discard a full readiness report on every advance.
+   */
+  readonly includeReadiness?: boolean;
 }
 
 export type RuntimeEnforcementMode = 'unavailable' | 'warn' | 'enforce';
@@ -238,7 +245,7 @@ export function projectRuntimeClosure(
     }
 
     let nextSafeAction = story.stateSource === 'worktree' ? `cd ${story.activeCwd}` : undefined;
-    try {
+    if (options.includeReadiness !== false) try {
       const readiness = buildStoryReadinessReport({
         storyId: story.storyId,
         target: targetForPhase(story.activePhase),

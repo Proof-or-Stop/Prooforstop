@@ -234,13 +234,18 @@ const DEFAULT_DEADLINE_MS = 30000;
 const DEFAULT_STALE_MS = 10000;
 const DEFAULT_POLL_MS = 50;
 
+// This process's own start time never changes; every lock it takes stamps it.
+let ownProcessStartTimeMs: number | undefined;
 export function observedProcessStartTimeMs(pid: number): number | undefined {
+  if (pid === process.pid && ownProcessStartTimeMs !== undefined) return ownProcessStartTimeMs;
   try {
     const value = execFileSync('ps', ['-o', 'lstart=', '-p', String(pid)], {
       encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 1_000,
     }).trim();
     const parsed = Date.parse(value);
-    return Number.isFinite(parsed) ? parsed : undefined;
+    if (!Number.isFinite(parsed)) return undefined;
+    if (pid === process.pid) ownProcessStartTimeMs = parsed;
+    return parsed;
   } catch {
     return undefined;
   }

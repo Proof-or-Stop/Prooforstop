@@ -1,6 +1,6 @@
 /**
  * `proof-or-stop next --storyId=<id> [--json] [--run]` — the framework drives
- * the owner through DEV → REVIEW → PRE_CERT → TEST → DONE one step at a time.
+ * the owner through PLAN → DEV → REVIEW → PRE_CERT → TEST → DONE one step at a time.
  *
  * Read-only by default. From the Story's current state it returns exactly one
  * next step: {phase, kind, reason, command, argv, cli, why, source}.
@@ -25,6 +25,9 @@
  *           certification_window_status (its Next line), getGuardFailureReason(TEST);
  *   TEST    buildDoneChecklist (the DONE oracle rows, auditWriter:null) and the
  *           review-assurance floor / escalation guidance recipes.
+ *   PLAN    evaluateDevMemoryPreflightGate, then getGuardFailureReason(DEV);
+ *   TEST single host: singleHostAssuranceReady (handlers/quorum-submit.ts) over
+ *           the same escalation / floor evaluators → quorum_submit singleHost.
  * Host runs (managed reviewers, delivery, finding repair) are read from the
  * managed host-run runtime projection only.
  */
@@ -38,7 +41,7 @@ import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { withGitTreeObservation } from '../core/git-tree-observation.js';
-import { evaluateReviewVerdict, getGuardFailureReason } from '../core/machine.js';
+import { evaluateDevMemoryPreflightGate, evaluateReviewVerdict, getGuardFailureReason } from '../core/machine.js';
 import { isTerminalChecklistStatus } from '../core/checklist-status.js';
 import { unclosedBlockingFindings, resolveEffectiveBlockingSeverities, FINDING_RESOLUTION_PLACEHOLDER } from '../core/finding-closure.js';
 import {
@@ -71,6 +74,7 @@ import { buildDoneChecklist, type DoneCheckRow } from '../core/done-oracle.js';
 import { evaluateReviewAssuranceFloor, buildReviewAssuranceFloorGuidance, buildReviewEscalationGuidance, type ReviewAssuranceGuidance } from '../core/review-assurance-floor.js';
 import { evaluateReviewEscalation, assessReviewHostAvailabilityForFallbackEligibility } from '../core/review-escalation.js';
 import { evaluateOptionalLiveSmokeTranscript } from '../core/live-smoke-transcript-evidence.js';
+import { singleHostAssuranceReady } from './quorum-submit.js';
 import type { ReviewRun } from '../core/types.js';
 import { OWNER_WAIT_BLOCK_MS, ownerWaitInstruction } from '../core/owner-wait-guidance.js';
 
@@ -367,6 +371,24 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     const hint = nextLine(failure) ?? failure.split('\n').find(row => /proof-or-stop [a-z_]+/.test(row)) ?? '';
     return delegated(base, 'agent', `guard_${target.toLowerCase()}_blocked`, hint || failure,
       `story_advance --phase=${target} would be refused: ${failure.split('\n')[0]}`, `getGuardFailureReason(${target})`);
+  }
+
+  // -- PLAN → DEV -----------------------------------------------------------
+
+  /**
+   * PLAN is authored work; next only names what the DEV-entry gate will
+   * demand. The dev-memory acknowledgement comes first: it is independent of
+   * the plan and was the refusal nobody had surfaced (run 14). Then the DEV
+   * guard's own first failure and its Next line, or story_advance DEV.
+   */
+  function planNext(base: { storyId: string; phase: string }): NextStep {
+    const { storyId } = base;
+    if (!evaluateDevMemoryPreflightGate(storyId, ctx.store)) {
+      return step(base, 'agent', 'dev_memory_preflight_ack', { command: 'dev_memory_preflight_ack', payload: { storyId } },
+        'The DEV-entry gate refuses without the dev-memory preflight acknowledgement [missing_dev_memory_preflight_ack]. Run it now and read the lessons it prints before planning the implementation.',
+        'evaluateDevMemoryPreflightGate (DEV-entry gate)');
+    }
+    return guardStep(base, 'DEV', 'enter_dev', 'PLAN is complete: the DEV-entry gate admits the Story.', 'getGuardFailureReason(DEV)');
   }
 
   // -- DEV -----------------------------------------------------------------
@@ -685,6 +707,16 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
 
   function guidanceStep(base: { storyId: string; phase: string }, guidance: ReviewAssuranceGuidance, row: string): NextStep | null {
     const { storyId } = base;
+    // Run 14: one framework step replaces discover → probe → fallback_set → N x
+    // autopilot_review_submit on a single host. It records exactly what the
+    // escalation / floor evaluators still miss, from current reviewer passes,
+    // and refuses (no write) when two review-ready hosts exist.
+    const single = singleHostAssuranceReady(ctx, storyId);
+    if (single.ok) {
+      return step(base, 'framework', `${row}_single_host_assurance`, { command: 'quorum_submit', payload: { storyId, singleHost: true } },
+        `${row}: ${guidance.reason} On a single host one step records it: probe review hosts once, the single-host-environment fallback when needed and proven, and the missing single-host rounds from the current reviewer passes of every required lane.`,
+        `${row} guidance + singleHostAssuranceNeed (escalation/floor evaluators)`);
+    }
     const submit = guidance.legalWriterPaths.reviewerHost.find(recipe => recipe.command.includes(' autopilot_review_submit '));
     if (submit) {
       const line = submit.command
@@ -805,13 +837,14 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     const story = ctx.store.readStory(storyId);
     const base = { storyId, phase: story.phase };
     switch (story.phase) {
+      case 'PLAN': return planNext(base);
       case 'DEV': return devNext(base);
       case 'REVIEW': return reviewNext(base);
       case 'TEST': return testNext(base);
       case 'DONE': return step(base, 'human', 'story_done', null, `Story ${storyId} is DONE; nothing is left in its lifecycle.`, 'story.phase', { done: true });
       default:
         return step(base, 'agent', 'phase_outside_driver', { command: 'session_brief', payload: { concise: true } },
-          `next --storyId drives DEV→DONE; ${story.phase} is authored work (INIT/PLAN): follow session_brief.`, 'story.phase');
+          `next --storyId drives PLAN→DONE; ${story.phase} is authored work (INIT): follow session_brief.`, 'story.phase');
     }
   }
 

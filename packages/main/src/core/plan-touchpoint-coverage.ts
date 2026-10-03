@@ -11,7 +11,29 @@ export function normalizeTouchpointPath(value: string): string {
   return token.replace(/[),:;]+$/g, '').replace(/^`|`$/g, '').trim();
 }
 
-export function assessPlanTouchpointCoverage(touchpoints: readonly string[], items: readonly Pick<ChecklistItem, 'files'>[]) {
+/**
+ * A PLAN-owned exclusion for a touchpoint: a checklist item `excludes` entry
+ * (editable in PLAN via checklist_update, audited by the scope-plan reviewer)
+ * that names the exact normalized path AND states why. A bare path is not an
+ * exclusion; the reason is what keeps the declaration reviewable.
+ */
+const MIN_EXCLUSION_REASON_CHARS = 12;
+export function touchpointExclusion(touchpoint: string, items: readonly Pick<ChecklistItem, 'excludes'>[]): string | null {
+  const path = normalizeTouchpointPath(touchpoint);
+  if (!path) return null;
+  const escaped = path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const named = new RegExp(`(^|[\\s\`'"(])${escaped}(?=$|[\\s\`'"),:;]|\\.(?:$|\\s))`);
+  for (const item of items) {
+    for (const entry of item.excludes ?? []) {
+      if (typeof entry !== 'string' || !named.test(entry)) continue;
+      const reason = entry.replace(path, '').replace(/[\s`'"(),:;.\-–—]+/g, ' ').trim();
+      if (reason.length >= MIN_EXCLUSION_REASON_CHARS) return entry;
+    }
+  }
+  return null;
+}
+
+export function assessPlanTouchpointCoverage(touchpoints: readonly string[], items: readonly Pick<ChecklistItem, 'files' | 'excludes' | 'id'>[], storyId = '<storyId>') {
   const issues: Array<{ type: 'touchpoint_mapping_missing' | 'touchpoint_uncovered'; severity: 'advisory' | 'blocker'; message: string }> = [];
   if (touchpoints.length > 0) {
     const itemsWithFiles = items.filter(i => !!i.files);
@@ -32,11 +54,16 @@ export function assessPlanTouchpointCoverage(touchpoints: readonly string[], ite
       }
       for (const tp of touchpoints) {
         const normalizedTp = normalizeTouchpointPath(tp);
-        if (!covered.has(normalizedTp)) {
+        if (!covered.has(normalizedTp) && !touchpointExclusion(tp, items)) {
+          const itemId = items[0]?.id ?? 'CHK-001';
           issues.push({
             type: 'touchpoint_uncovered',
             severity: 'blocker',
-            message: `touchpoint_uncovered: ${tp} is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)`,
+            message: `touchpoint_uncovered: ${normalizedTp} is neither in any checklist item's files.modify/create/test nor named with a reason in any item's excludes. `
+              + `Next (PLAN, no INIT reopen): if this story changes it, add it to that item's files via \`proof-or-stop checklist_update --storyId=${storyId} --itemId=<CHK-id> --files=...\`; `
+              + `if it is reference-only, append a PLAN exclusion naming the path and why to that item's existing excludes: `
+              + `\`proof-or-stop checklist_update --storyId=${storyId} --itemId=${itemId} --excludes='[...current excludes, "${normalizedTp}: reference only, <why it does not change>"]'\`. `
+              + `The INIT scope boundary is not an input of this check.`,
           });
         }
       }

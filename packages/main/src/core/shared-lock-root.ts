@@ -8,6 +8,7 @@
  * these under their original names.
  */
 import { execFileSync } from 'node:child_process';
+import { observedGit } from './git-tree-observation.js';
 import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
@@ -69,10 +70,10 @@ export function storyRuntimeLockPath(
 export function resolveGitCommonLockRoot(root: string): string {
   const projectRoot = String(root ?? '').trim();
   if (!projectRoot) throw new Error('git-common-dir lock identity requires a workspace root');
-  const commonDirRaw = execFileSync('git', ['-C', projectRoot, 'rev-parse', '--git-common-dir'], {
+  const commonDirRaw = observedGit(projectRoot, ['rev-parse', '--git-common-dir'], () => execFileSync('git', ['-C', projectRoot, 'rev-parse', '--git-common-dir'], {
     stdio: ['ignore', 'pipe', 'ignore'],
     encoding: 'utf8',
-  }).trim();
+  })).trim();
   if (!commonDirRaw) throw new Error(`git-common-dir lock identity is empty for ${projectRoot}`);
   const commonDirAbs = isAbsolute(commonDirRaw) ? commonDirRaw : resolve(projectRoot, commonDirRaw);
   const commonDir = realpathSync(commonDirAbs);

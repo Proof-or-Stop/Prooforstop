@@ -386,9 +386,12 @@ function runRuntimeEnforcementPreflight(
   const mode = normalizeRuntimeEnforcementMode(loadConfig(ctx.root).lifecycleControl?.runtimeEnforcement);
   if (mode === 'unavailable') return '';
 
+  // Only authority, authoritativeCwd and locks are read below; the readiness
+  // rows are lifecycle_check's and the transition's own gates evaluate them.
   const report = projectRuntimeClosure(ctx.store, ctx.root, {
     storyId: story.storyId,
     activeOnly: false,
+    includeReadiness: false,
   });
   const runtimeRow = report.stories.find((row) => row.storyId === story.storyId);
   if (!runtimeRow) return '';

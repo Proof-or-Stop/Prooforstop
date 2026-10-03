@@ -1,6 +1,7 @@
 import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { isAbsolute, join, relative } from 'node:path';
+import { hostname } from 'node:os';
 import { execFileSync } from 'node:child_process';
 import type { HandlerContext } from './context.js';
 import { resolveStoryCommandWorkspace } from './context.js';
@@ -15,7 +16,10 @@ import type { ImmutableMetadataCommitTestHooks } from '../core/done-prepare-gene
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash, EMPTY_STORY_FILES_HASH } from '../core/evidence-freshness.js';
 import { deriveCanonicalHostKeyId, deriveHostVerdictBindings } from '../core/host-verdict-bindings.js';
 import { normalizeRelPath } from '../core/proof-or-stop-paths.js';
-import { evaluateReviewEscalation } from '../core/review-escalation.js';
+import { assessReviewHostAvailabilityForFallbackEligibility, evaluateReviewEscalation } from '../core/review-escalation.js';
+import { evaluateReviewAssuranceFloor } from '../core/review-assurance-floor.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import { createReviewEscalationHandlers } from './review-escalation.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import { collectReviewerEvidenceState } from '../core/review-run.js';
 import { canonicalReviewerLane } from '../core/reviewer-opt-in.js';
@@ -34,8 +38,10 @@ const REFUSAL = 'quorum_submit refuses: no current reviewer pass evidence for th
 
 type QuorumSubmitArgs = {
   storyId: string;
-  hostA: string;
-  hostB: string;
+  hostA?: string;
+  hostB?: string;
+  /** Run 14: one step for a single-host environment (probe, fallback, missing single-host rounds). */
+  singleHost?: boolean;
   rounds?: number | string;
   validationDigest?: string;
   promptDigestA?: string;
@@ -471,9 +477,425 @@ function validateOwnedVerdictOutput(args: {
   }
 }
 
+export interface SingleHostAssuranceResult {
+  schemaVersion: 'proof-or-stop.quorum_submit_single_host.v1';
+  storyId: string;
+  materialDigest: string;
+  storyFilesHash: string;
+  probeId: string | null;
+  probed: boolean;
+  fallbackId: string | null;
+  roundsRecorded: number;
+  runIds: string[];
+  verdictIds: string[];
+  host: { hostId: string; provider: string; sessionId: string; keyId: string } | null;
+  reviewerPasses: RequiredReviewerPass[];
+  metadataCommitSha: string | null;
+  satisfied: boolean;
+  authorityDone: false;
+  fullAuthorityDone: false;
+  productionDone: false;
+}
+
+/**
+ * What the DONE review-assurance rows still need on a single host, read from
+ * their own evaluators (review escalation + review-assurance floor): missing
+ * 1-host rounds, whether a degraded single-host fallback must be recorded, or
+ * why a single host cannot satisfy them (explicit 3x2-only policy).
+ */
+export function singleHostAssuranceNeed(ctx: HandlerContext, storyId: string): { rounds: number; fallback: boolean; refusal?: string } {
+  const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+  const args = { projectRoot: ctx.root, gitCwd, storyId, store: ctx.store };
+  const escalation = evaluateReviewEscalation(args);
+  const floor = evaluateReviewAssuranceFloor(args);
+  let rounds = 0;
+  let fallback = false;
+  if (escalation.required && !escalation.ok) {
+    if (escalation.trigger.explicitHighRiskPolicy.validPolicy?.degradedFallbackAllowed === false) {
+      return { rounds: 0, fallback: false, refusal: 'the explicit high-risk review policy disallows the degraded single-host fallback; it needs a 3x2 quorum of independent hosts' };
+    }
+    rounds = Math.max(rounds, escalation.degradedFallback.requiredRounds - escalation.degradedFallback.validRounds.length);
+    if (!escalation.degradedFallback.allowed) fallback = true;
+  }
+  if (floor.required && !floor.ok) {
+    if (floor.highRiskSignals.length > 0) {
+      rounds = Math.max(rounds, floor.degradedFallback.requiredRounds - floor.degradedFallback.validRounds.length);
+      if (!floor.degradedFallback.allowed) fallback = true;
+    } else {
+      rounds = Math.max(rounds, floor.localRounds.requiredRounds - floor.localRounds.validRounds.length);
+    }
+  }
+  return { rounds: Math.max(0, rounds), fallback };
+}
+
+function assessSingleHost(ctx: HandlerContext, storyId: string) {
+  const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+  const materialHash = currentMaterialHash(gitCwd, 'HEAD', ctx.root) ?? '';
+  return assessReviewHostAvailabilityForFallbackEligibility(ctx.store.readProcessEvents(storyId), 'single-host-environment',
+    materialHash, currentStoryFilesHash(gitCwd, 'HEAD', ctx.root) ?? null);
+}
+
+/**
+ * next-driver predicate: the single-host step can run now (TEST, something is
+ * missing, every required lane has a current reviewer pass, and no fresh probe
+ * already shows two review-ready hosts). Read-only.
+ */
+export function singleHostAssuranceReady(ctx: HandlerContext, storyId: string): { ok: boolean; reason: string } {
+  try {
+    if (ctx.store.readStory(storyId).phase !== 'TEST') return { ok: false, reason: 'not in TEST' };
+    const need = singleHostAssuranceNeed(ctx, storyId);
+    if (need.refusal) return { ok: false, reason: need.refusal };
+    if (need.rounds === 0 && !need.fallback) return { ok: false, reason: 'nothing missing' };
+    if (need.fallback) {
+      const assessment = assessSingleHost(ctx, storyId);
+      if (assessment.latestFreshProbe && !assessment.ok) return { ok: false, reason: assessment.reasons.join('; ') };
+    }
+    const projectRoot = resolveStoryCommandWorkspace(ctx.store, storyId, ctx.root).signedWorkspaceRoot;
+    assertCurrentReviewerPasses(ctx, storyId, projectRoot, requiredReviewRoster(ctx, storyId, projectRoot));
+    return { ok: true, reason: 'ready' };
+  } catch (error) {
+    return { ok: false, reason: error instanceof Error ? error.message : String(error) };
+  }
+}
+
 export function createQuorumSubmitHandlers(ctx: HandlerContext, testHooks: QuorumSubmitTestHooks = {}) {
+  /**
+   * One atomic host-verdict batch: every planned runId x host, committed as one
+   * `quorum-submit` lifecycle metadata transaction or rolled back entirely.
+   */
+  function emitVerdictBatch(input: {
+    label: string;
+    storyId: string;
+    projectRoot: string;
+    gitCwd: string;
+    materialDigest: string;
+    storyFilesHash: string;
+    validationDigest: string;
+    note: string;
+    runIds: string[];
+    hosts: QuorumHostInput[];
+  }): { emitted: QuorumSubmitResult['verdicts']; runIds: string[]; metadataCommitSha: string; reviewEscalationStatus: ReturnType<typeof evaluateReviewEscalation> } {
+    const { storyId, projectRoot, gitCwd, materialDigest, storyFilesHash, validationDigest, note } = input;
+    const storyRel = quorumStoryRel(gitCwd, ctx, storyId);
+    // Guard: refuse to re-submit a quorum for a runId that already carries a verdict the
+    // floor would still count at evaluation time. Two collision branches:
+    //   (a) SAME materialDigest — an exact-material duplicate would pile redundant verdicts
+    //       onto an already-populated runId. Existing message preserved.
+    //   (b) STALE materialDigest but matching storyFilesHash — a drift-accept collision. The
+    //       review-escalation floor rewrites such stale-material verdicts to the current
+    //       material (eventsWithStoryFilesHashDowngrade, core/review-escalation.ts:948-969)
+    //       whenever storyFilesHash is unchanged, which is the normal effect of `git merge
+    //       main` (materialHash moves, story-owned diff does not). If we accepted the
+    //       re-submit here, the old + new verdicts would share the deterministic runIds and
+    //       host/session/key identities and every round would then collapse as "duplicate
+    //       host/session/key identity" — the B-bf52 poisoning.
+    //
+    // LOCKSTEP: branch (b) mirrors eventsWithStoryFilesHashDowngrade EXACTLY. A committed
+    // event with a blank/absent storyFilesHash is treated as no-signal and never collides on
+    // this branch, matching the floor. If a future floor-hardening story changes the
+    // drift-accept predicate, THIS guard MUST be updated in the same story to keep
+    // producer/consumer parity; otherwise the guard would over-block resubmissions the floor
+    // would no longer drift-accept (or under-block ones it no longer would). review_escalation_status
+    // reveals any such mismatch.
+    //
+    // B-3144 F-035: the floor's top-level EMPTY_STORY_FILES_HASH exclusion (B-f88e,
+    // review-escalation.ts:975 — currentStoryFilesHash===EMPTY_STORY_FILES_HASH disables ALL
+    // downgrades, since two "owns zero files" hashes are not evidence anything is unchanged) was
+    // missing here. Without it, a story with EMPTY_STORY_FILES_HASH would have this guard
+    // over-block: it would see a stale-material event whose storyFilesHash also happens to equal
+    // EMPTY_STORY_FILES_HASH, treat it as a drift-accept collision, and refuse a resubmit the
+    // floor is NOT actually drift-accepting (the floor ignores that event entirely) — falsely
+    // claiming "nothing needs resubmitting" while the floor holds zero valid assurance for that
+    // round. Mirrored the floor's exact top-level exclusion below.
+    //
+    // B-3144 F-029: the same-material branch compares the NORMALIZED material on both sides,
+    // exactly as the consumer does (core/host-independence.ts normalizes event.materialDigest
+    // before comparing it to the current material hash). A raw comparison left a hole between the
+    // two branches: a committed verdict whose materialDigest carries surrounding whitespace still
+    // COUNTS at the floor (the consumer trims it), yet raw equality was false here, and the drift
+    // branch — which already normalized — saw current material and was false too. Both producer
+    // branches missed it, so a re-submit could still poison that run.
+    //
+    // B-3144 F-028: this check is TIME-OF-CHECK only. It reads the log at the HEAD of this
+    // moment, while the transaction that decides what gets appended captures HEAD later, so two
+    // concurrent invocations could both observe "no standing quorum" and the second would append
+    // a second identical quorum onto the same runIds. It is therefore run TWICE: once here (so a
+    // redundant call refuses before doing any work) and once again immediately after the capture,
+    // bound to the SHA the transaction froze. Both runs use the same predicates and the same two
+    // refusal messages.
+    const plannedRunIds = new Set<string>(input.runIds);
+    const normalizedMaterialDigest = normalizeString(materialDigest);
+    const assertNoStandingQuorum = (ref: string): void => {
+      const committedForGuard = committedHostVerdictEvents(gitCwd, storyRel, ref)
+        .filter(event => event.type === 'host_verdict' && plannedRunIds.has(normalizeString(event.runId)));
+      const sameMaterialRunIds = [...new Set(
+        committedForGuard
+          .filter(event => normalizeString(event.materialDigest) === normalizedMaterialDigest)
+          .map(event => normalizeString(event.runId)),
+      )].sort();
+      if (sameMaterialRunIds.length > 0) {
+        throw new Error(`quorum_submit refuses: verdicts already exist for runId(s) ${sameMaterialRunIds.join(', ')} at the current material (${materialDigest}); re-submitting would duplicate the quorum. Re-run only after the material changes (a new commit), or use a fresh review round.`);
+      }
+      // F-035: matches eventsWithStoryFilesHashDowngrade's top-level guard exactly — when the
+      // CURRENT storyFilesHash is the empty-set sentinel, no event can ever drift-accept
+      // (two EMPTY_STORY_FILES_HASH values are not evidence of "unchanged").
+      const driftAcceptEvents = storyFilesHash === EMPTY_STORY_FILES_HASH ? [] : committedForGuard.filter((event) => {
+        const eventMaterial = normalizeString(event.materialDigest);
+        const eventStoryFilesHash = normalizeString(event.storyFilesHash);
+        return eventMaterial !== ''
+          && eventMaterial !== normalizedMaterialDigest
+          && eventStoryFilesHash !== ''
+          && eventStoryFilesHash === storyFilesHash;
+      });
+      if (driftAcceptEvents.length > 0) {
+        const driftRunIds = [...new Set(driftAcceptEvents.map(event => normalizeString(event.runId)))].sort();
+        const standingMaterials = [...new Set(driftAcceptEvents.map(event => normalizeString(event.materialDigest)))].sort();
+        throw new Error(
+          `quorum_submit refuses: the standing quorum on runId(s) ${driftRunIds.join(', ')} at the older material(s) `
+          + `${standingMaterials.join(', ')} still drift-accepts because storyFilesHash is unchanged `
+          + `(${storyFilesHash}); the review-escalation floor rewrites those verdicts to the current material, so `
+          + `nothing needs resubmitting. A re-submit would poison the rounds as duplicate host/session/key identity. `
+          + `Check review_escalation_status to confirm the standing quorum, and note that a fresh quorum becomes `
+          + `possible only when the story-owned files change (storyFilesHash moves), not merely the whole-tree material.`,
+        );
+      }
+    };
+    assertNoStandingQuorum('HEAD');
+
+    testHooks.beforeTransactionCapture?.({ storyId, materialDigest });
+    assertCleanQuorumBaseline(gitCwd, storyId);
+    const transaction = captureLifecycleMetadataTransaction({
+      root: gitCwd,
+      gitCwd,
+      storyId,
+      storyRel,
+      kind: 'quorum-submit',
+    });
+    // F-028: re-check bound to the captured HEAD. Everything this call is about to append is
+    // built on transaction.headHash, so the question "does a standing quorum already exist" must
+    // be answered against THAT commit. A competitor that committed its quorum between the first
+    // check and this capture is now visible, and we refuse instead of appending a second
+    // identical quorum onto the same runIds. Nothing has been written yet, so the refusal needs
+    // no rollback and leaves the same clean state the first check does.
+    assertNoStandingQuorum(transaction.headHash);
+    const emitted: QuorumSubmitResult['verdicts'] = [];
+    const runIds: string[] = [];
+    const ownedEventRecords: OwnedQuorumEventRecord[] = [];
+    const ownedVerdictFiles = new Map<string, { filePath: string; bytes: Buffer }>();
+    try {
+      for (const runId of input.runIds) {
+        runIds.push(runId);
+        for (const host of input.hosts) {
+          const written = submitLocalVerdictWithOutputIdentity(ctx, {
+            storyId,
+            runId,
+            hostId: host.hostId,
+            provider: host.provider,
+            sessionId: host.sessionId,
+            keyId: host.keyId,
+            decision: 'pass',
+            materialDigest,
+            storyFilesHash,
+            validationDigest,
+            promptDigest: host.promptDigest,
+            note,
+          });
+          const { verdict, outputIdentity } = written;
+          emitted.push({
+            verdictId: verdict.verdictId,
+            runId: verdict.runId,
+            hostId: verdict.hostId,
+            provider: verdict.provider,
+            sessionId: verdict.sessionId,
+            keyId: verdict.keyId,
+          });
+          const eventRow = outputIdentity.processEvent.eventBytes;
+          ownedEventRecords.push({
+            start: outputIdentity.processEvent.start,
+            end: outputIdentity.processEvent.end,
+            bytes: eventRow,
+          });
+          ownedVerdictFiles.set(verdict.verdictId, outputIdentity.verdictJson);
+          testHooks.beforeCaptureOwnedVerdict?.({
+            verdictId: verdict.verdictId,
+            emittedCount: emitted.length,
+            projectRoot,
+          });
+          validateOwnedVerdictOutput({
+            eventRow,
+            verdictBytes: outputIdentity.verdictJson.bytes,
+            verdict,
+          });
+          testHooks.afterVerdictWrite?.({
+            verdictId: verdict.verdictId,
+            emittedCount: emitted.length,
+            projectRoot,
+          });
+        }
+      }
+
+      const reviewEscalationStatus = evaluateReviewEscalation({
+        projectRoot,
+        storyId,
+        store: ctx.store,
+        materialHash: materialDigest,
+        storyFilesHash,
+      });
+      assertExactQuorumAppend({
+        projectRoot: gitCwd,
+        capture: transaction,
+        eventRecords: ownedEventRecords,
+      });
+      const hashes = readLifecycleMetadataOutputHashes({ root: gitCwd, capture: transaction });
+      if (!hashes.ok) throw new Error(hashes.reason);
+      const committed = commitLifecycleMetadataTransaction({
+        root: gitCwd,
+        gitCwd,
+        storyId,
+        capture: transaction,
+        verifiedHashes: hashes.hashes,
+        testHooks: testHooks.metadataCommit,
+      });
+      if (!committed.ok) throw new Error(committed.reason || 'immutable quorum metadata commit failed');
+      if (!committed.commitSha) throw new Error('immutable quorum metadata commit produced no commit SHA');
+      return { emitted, runIds, metadataCommitSha: committed.commitSha, reviewEscalationStatus };
+    } catch (error) {
+      const rolledBack = rollbackQuorumOutputs({
+        projectRoot: gitCwd,
+        capture: transaction,
+        storyId,
+        eventRecords: ownedEventRecords,
+        verdictFiles: ownedVerdictFiles,
+      });
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(
+        `${input.label} atomic closeout failed: ${message}`
+        + (rolledBack.ok ? '; all emitted verdicts were rolled back' : `; ${rolledBack.reason}`),
+      );
+    }
+  }
+
+  /**
+   * Run 14 (TEST cost ~5.2 min): on a single host the owner had to discover the
+   * environment, run review_host_availability_probe, record
+   * review_escalation_fallback_set and submit 3 autopilot_review_submit rounds
+   * by hand. This is the same rule in one step. Nothing is weakened:
+   *   - the round count and hosts-per-round are the evaluators' own
+   *     (review escalation 3 x 1 degraded, review-assurance floor 1 or 3 x 1);
+   *   - the degraded single-host-environment fallback is recorded only when a
+   *     rule needs it AND this host's own availability probe (fresh for the
+   *     current material) finds fewer than 2 review-ready hosts; with 2 ready
+   *     hosts it refuses and names the full 3x2 quorum;
+   *   - verdicts exist only when every required lane has a current signed
+   *     reviewer pass (assertCurrentReviewerPasses, as for the 3x2 quorum):
+   *     each round transcribes those real reviews, never a self-attestation;
+   *   - probe, fallback and verdict batch keep their own authenticated
+   *     metadata commits (review-maintenance lineage subjects).
+   */
+  function singleHostSubmit(args: QuorumSubmitArgs): SingleHostAssuranceResult | string {
+    const storyId = normalizeString(args.storyId);
+    if (!storyId || !isCanonicalStoryId(storyId)) throw new Error('quorum_submit --singleHost: a canonical storyId is required');
+    if (normalizeString(args.hostA) || normalizeString(args.hostB)) {
+      throw new Error('quorum_submit --singleHost takes no hostA/hostB: the single host is this machine; use hostA+hostB without singleHost for a 3x2 quorum');
+    }
+    const story = ctx.store.readStory(storyId);
+    if (story.phase !== 'TEST') {
+      throw new Error(`quorum_submit --singleHost records DONE review assurance in TEST; Story ${storyId} is ${story.phase}.`);
+    }
+    const workspace = resolveStoryCommandWorkspace(ctx.store, storyId, ctx.root);
+    const projectRoot = workspace.signedWorkspaceRoot;
+    const gitCwd = ctx.root;
+    const reviewRoster = requiredReviewRoster(ctx, storyId, projectRoot);
+    const reviewerPasses = assertCurrentReviewerPasses(ctx, storyId, projectRoot, reviewRoster);
+    const need = singleHostAssuranceNeed(ctx, storyId);
+    if (need.refusal) throw new Error(`quorum_submit --singleHost refuses: ${need.refusal}`);
+
+    let probeId: string | null = null;
+    let fallbackId: string | null = null;
+    let probed = false;
+    if (need.fallback) {
+      const escalation = createReviewEscalationHandlers(ctx);
+      let assessment = assessSingleHost(ctx, storyId);
+      if (!assessment.latestFreshProbe) {
+        escalation.review_host_availability_probe({ storyId, json: true });
+        probed = true;
+        assessment = assessSingleHost(ctx, storyId);
+      }
+      probeId = assessment.latestFreshProbe?.probeId ?? null;
+      if (!assessment.ok) {
+        throw new Error(`quorum_submit --singleHost refuses: ${assessment.reasons.join('; ')}. This is not a single-host environment, so the rule needs the full 3x2 quorum: proof-or-stop quorum_submit --storyId=${storyId} --hostA=<host> --hostB=<independent host>.`);
+      }
+      const recorded = escalation.review_escalation_fallback_set({ storyId, eligibility: 'single-host-environment',
+        reason: `review_host_availability_probe ${probeId ?? 'latest'} found fewer than 2 review-ready canonical hosts; degraded single-host 3x1 fallback is the only available path`,
+        evidenceRefs: [`process-events.jsonl:review_host_availability_probe:${probeId ?? 'latest'}`], json: true }) as { fallbackId?: string };
+      fallbackId = recorded.fallbackId ?? null;
+    }
+
+    const materialDigest = currentMaterialHash(projectRoot, 'HEAD', workspace.metadataRoot || ctx.root);
+    const storyFilesHash = currentStoryFilesHash(projectRoot, 'HEAD', workspace.metadataRoot || ctx.root);
+    if (!materialDigest || !storyFilesHash) throw new Error('quorum_submit --singleHost: cannot compute the current materialHash/storyFilesHash');
+    const rounds = singleHostAssuranceNeed(ctx, storyId).rounds;
+    let batch: ReturnType<typeof emitVerdictBatch> | null = null;
+    let host: QuorumHostInput | null = null;
+    if (rounds > 0) {
+      const hostId = hostname() || 'single-host';
+      const base = {
+        side: 'A' as const,
+        hostId,
+        provider: 'local',
+        sessionId: derivedSession(storyId, hostId),
+        keyId: deriveCanonicalHostKeyId(storyId, hostId),
+      };
+      const bindings = deriveHostVerdictBindings({ storyId, headHash: currentGitHead(projectRoot), materialDigest, storyFilesHash,
+        testEvidence: safeReadTestEvidence(ctx, storyId), ...base });
+      host = { ...base, promptDigest: bindings.promptDigest };
+      const occupied = new Set(ctx.store.readProcessEvents(storyId)
+        .filter(event => event.type === 'host_verdict').map(event => normalizeString(event.runId)));
+      const runIds: string[] = [];
+      for (let round = 1; runIds.length < rounds; round += 1) {
+        const runId = `${storyId}-sh-r${round}`;
+        if (!occupied.has(runId)) runIds.push(runId);
+      }
+      batch = emitVerdictBatch({ label: 'quorum_submit --singleHost', storyId, projectRoot, gitCwd, materialDigest, storyFilesHash,
+        validationDigest: bindings.validationDigest,
+        note: normalizeString(args.note) || `single-host round transcribed from current signed reviewer passes ${reviewerPasses.map(pass => pass.passId).join(', ')}`,
+        runIds, hosts: [host] });
+    }
+    const after = singleHostAssuranceNeed(ctx, storyId);
+    const result: SingleHostAssuranceResult = {
+      schemaVersion: 'proof-or-stop.quorum_submit_single_host.v1',
+      storyId,
+      materialDigest,
+      storyFilesHash,
+      probeId,
+      probed,
+      fallbackId,
+      roundsRecorded: batch?.runIds.length ?? 0,
+      runIds: batch?.runIds ?? [],
+      verdictIds: batch?.emitted.map(verdict => verdict.verdictId) ?? [],
+      host: host ? { hostId: host.hostId, provider: host.provider, sessionId: host.sessionId, keyId: host.keyId } : null,
+      reviewerPasses,
+      metadataCommitSha: batch?.metadataCommitSha ?? null,
+      satisfied: after.rounds === 0 && !after.fallback && !after.refusal,
+      authorityDone: false,
+      fullAuthorityDone: false,
+      productionDone: false,
+    };
+    if (wantsJson(args)) return result;
+    return [
+      `Single-host review assurance (${result.schemaVersion})`,
+      `storyId: ${storyId}`,
+      `probe: ${probeId ?? 'not needed'}${probed ? ' (run now)' : probeId ? ' (fresh, reused)' : ''}`,
+      `fallback: ${fallbackId ?? 'not needed'}`,
+      `rounds recorded: ${result.roundsRecorded} (${result.runIds.join(', ') || 'none missing'}) from reviewer passes ${reviewerPasses.map(pass => `${pass.lane.replace('proof-or-stop-review-', '')}=${pass.passId}`).join(', ')}`,
+      `review assurance now satisfied: ${result.satisfied}`,
+      'evidenceScope: local-single-host-review-assurance',
+    ].join('\n');
+  }
+
   return {
-    quorum_submit(args: QuorumSubmitArgs): QuorumSubmitResult | string {
+    quorum_submit(args: QuorumSubmitArgs): QuorumSubmitResult | SingleHostAssuranceResult | string {
+      if (args.singleHost === true) return singleHostSubmit(args);
       const storyId = normalizeString(args.storyId);
       if (!storyId) throw new Error('quorum_submit: storyId is required');
       if (!isCanonicalStoryId(storyId)) {
@@ -533,230 +955,34 @@ export function createQuorumSubmitHandlers(ctx: HandlerContext, testHooks: Quoru
         || bindingsA.validationDigest;
       const note = normalizeString(args.note) || 'quorum_submit local voluntary floor quorum after current signed reviewer passes';
 
-      // Guard: refuse to re-submit a quorum for a runId that already carries a verdict the
-      // floor would still count at evaluation time. Two collision branches:
-      //   (a) SAME materialDigest — an exact-material duplicate would pile redundant verdicts
-      //       onto an already-populated runId. Existing message preserved.
-      //   (b) STALE materialDigest but matching storyFilesHash — a drift-accept collision. The
-      //       review-escalation floor rewrites such stale-material verdicts to the current
-      //       material (eventsWithStoryFilesHashDowngrade, core/review-escalation.ts:948-969)
-      //       whenever storyFilesHash is unchanged, which is the normal effect of `git merge
-      //       main` (materialHash moves, story-owned diff does not). If we accepted the
-      //       re-submit here, the old + new verdicts would share the deterministic runIds and
-      //       host/session/key identities and every round would then collapse as "duplicate
-      //       host/session/key identity" — the B-bf52 poisoning.
-      //
-      // LOCKSTEP: branch (b) mirrors eventsWithStoryFilesHashDowngrade EXACTLY. A committed
-      // event with a blank/absent storyFilesHash is treated as no-signal and never collides on
-      // this branch, matching the floor. If a future floor-hardening story changes the
-      // drift-accept predicate, THIS guard MUST be updated in the same story to keep
-      // producer/consumer parity; otherwise the guard would over-block resubmissions the floor
-      // would no longer drift-accept (or under-block ones it no longer would). review_escalation_status
-      // reveals any such mismatch.
-      //
-      // B-3144 F-035: the floor's top-level EMPTY_STORY_FILES_HASH exclusion (B-f88e,
-      // review-escalation.ts:975 — currentStoryFilesHash===EMPTY_STORY_FILES_HASH disables ALL
-      // downgrades, since two "owns zero files" hashes are not evidence anything is unchanged) was
-      // missing here. Without it, a story with EMPTY_STORY_FILES_HASH would have this guard
-      // over-block: it would see a stale-material event whose storyFilesHash also happens to equal
-      // EMPTY_STORY_FILES_HASH, treat it as a drift-accept collision, and refuse a resubmit the
-      // floor is NOT actually drift-accepting (the floor ignores that event entirely) — falsely
-      // claiming "nothing needs resubmitting" while the floor holds zero valid assurance for that
-      // round. Mirrored the floor's exact top-level exclusion below.
-      //
-      // B-3144 F-029: the same-material branch compares the NORMALIZED material on both sides,
-      // exactly as the consumer does (core/host-independence.ts normalizes event.materialDigest
-      // before comparing it to the current material hash). A raw comparison left a hole between the
-      // two branches: a committed verdict whose materialDigest carries surrounding whitespace still
-      // COUNTS at the floor (the consumer trims it), yet raw equality was false here, and the drift
-      // branch — which already normalized — saw current material and was false too. Both producer
-      // branches missed it, so a re-submit could still poison that run.
-      //
-      // B-3144 F-028: this check is TIME-OF-CHECK only. It reads the log at the HEAD of this
-      // moment, while the transaction that decides what gets appended captures HEAD later, so two
-      // concurrent invocations could both observe "no standing quorum" and the second would append
-      // a second identical quorum onto the same runIds. It is therefore run TWICE: once here (so a
-      // redundant call refuses before doing any work) and once again immediately after the capture,
-      // bound to the SHA the transaction froze. Both runs use the same predicates and the same two
-      // refusal messages.
-      const storyRel = quorumStoryRel(gitCwd, ctx, storyId);
-      const plannedRunIds = new Set<string>();
-      for (let round = 1; round <= rounds; round += 1) plannedRunIds.add(`${storyId}-q-r${round}`);
-      const normalizedMaterialDigest = normalizeString(materialDigest);
-      const assertNoStandingQuorum = (ref: string): void => {
-        const committedForGuard = committedHostVerdictEvents(gitCwd, storyRel, ref)
-          .filter(event => event.type === 'host_verdict' && plannedRunIds.has(normalizeString(event.runId)));
-        const sameMaterialRunIds = [...new Set(
-          committedForGuard
-            .filter(event => normalizeString(event.materialDigest) === normalizedMaterialDigest)
-            .map(event => normalizeString(event.runId)),
-        )].sort();
-        if (sameMaterialRunIds.length > 0) {
-          throw new Error(`quorum_submit refuses: verdicts already exist for runId(s) ${sameMaterialRunIds.join(', ')} at the current material (${materialDigest}); re-submitting would duplicate the quorum. Re-run only after the material changes (a new commit), or use a fresh review round.`);
-        }
-        // F-035: matches eventsWithStoryFilesHashDowngrade's top-level guard exactly — when the
-        // CURRENT storyFilesHash is the empty-set sentinel, no event can ever drift-accept
-        // (two EMPTY_STORY_FILES_HASH values are not evidence of "unchanged").
-        const driftAcceptEvents = storyFilesHash === EMPTY_STORY_FILES_HASH ? [] : committedForGuard.filter((event) => {
-          const eventMaterial = normalizeString(event.materialDigest);
-          const eventStoryFilesHash = normalizeString(event.storyFilesHash);
-          return eventMaterial !== ''
-            && eventMaterial !== normalizedMaterialDigest
-            && eventStoryFilesHash !== ''
-            && eventStoryFilesHash === storyFilesHash;
-        });
-        if (driftAcceptEvents.length > 0) {
-          const driftRunIds = [...new Set(driftAcceptEvents.map(event => normalizeString(event.runId)))].sort();
-          const standingMaterials = [...new Set(driftAcceptEvents.map(event => normalizeString(event.materialDigest)))].sort();
-          throw new Error(
-            `quorum_submit refuses: the standing quorum on runId(s) ${driftRunIds.join(', ')} at the older material(s) `
-            + `${standingMaterials.join(', ')} still drift-accepts because storyFilesHash is unchanged `
-            + `(${storyFilesHash}); the review-escalation floor rewrites those verdicts to the current material, so `
-            + `nothing needs resubmitting. A re-submit would poison the rounds as duplicate host/session/key identity. `
-            + `Check review_escalation_status to confirm the standing quorum, and note that a fresh quorum becomes `
-            + `possible only when the story-owned files change (storyFilesHash moves), not merely the whole-tree material.`,
-          );
-        }
-      };
-      assertNoStandingQuorum('HEAD');
-
-      testHooks.beforeTransactionCapture?.({ storyId, materialDigest });
-      assertCleanQuorumBaseline(gitCwd, storyId);
-      const transaction = captureLifecycleMetadataTransaction({
-        root: gitCwd,
-        gitCwd,
+      const batch = emitVerdictBatch({ label: 'quorum_submit', storyId, projectRoot, gitCwd, materialDigest, storyFilesHash, validationDigest, note,
+        runIds: Array.from({ length: rounds }, (_unused, index) => `${storyId}-q-r${index + 1}`), hosts: [hostA, hostB] });
+      const result: QuorumSubmitResult = {
+        schemaVersion: 'proof-or-stop.quorum_submit.v1',
         storyId,
-        storyRel,
-        kind: 'quorum-submit',
-      });
-      // F-028: re-check bound to the captured HEAD. Everything this call is about to append is
-      // built on transaction.headHash, so the question "does a standing quorum already exist" must
-      // be answered against THAT commit. A competitor that committed its quorum between the first
-      // check and this capture is now visible, and we refuse instead of appending a second
-      // identical quorum onto the same runIds. Nothing has been written yet, so the refusal needs
-      // no rollback and leaves the same clean state the first check does.
-      assertNoStandingQuorum(transaction.headHash);
-      const emitted = [];
-      const runIds: string[] = [];
-      const ownedEventRecords: OwnedQuorumEventRecord[] = [];
-      const ownedVerdictFiles = new Map<string, { filePath: string; bytes: Buffer }>();
-      try {
-        for (let round = 1; round <= rounds; round += 1) {
-          const runId = `${storyId}-q-r${round}`;
-          runIds.push(runId);
-          for (const host of [hostA, hostB]) {
-            const written = submitLocalVerdictWithOutputIdentity(ctx, {
-              storyId,
-              runId,
-              hostId: host.hostId,
-              provider: host.provider,
-              sessionId: host.sessionId,
-              keyId: host.keyId,
-              decision: 'pass',
-              materialDigest,
-              storyFilesHash,
-              validationDigest,
-              promptDigest: host.promptDigest,
-              note,
-            });
-            const { verdict, outputIdentity } = written;
-            emitted.push({
-              verdictId: verdict.verdictId,
-              runId: verdict.runId,
-              hostId: verdict.hostId,
-              provider: verdict.provider,
-              sessionId: verdict.sessionId,
-              keyId: verdict.keyId,
-            });
-            const eventRow = outputIdentity.processEvent.eventBytes;
-            ownedEventRecords.push({
-              start: outputIdentity.processEvent.start,
-              end: outputIdentity.processEvent.end,
-              bytes: eventRow,
-            });
-            ownedVerdictFiles.set(verdict.verdictId, outputIdentity.verdictJson);
-            testHooks.beforeCaptureOwnedVerdict?.({
-              verdictId: verdict.verdictId,
-              emittedCount: emitted.length,
-              projectRoot,
-            });
-            validateOwnedVerdictOutput({
-              eventRow,
-              verdictBytes: outputIdentity.verdictJson.bytes,
-              verdict,
-            });
-            testHooks.afterVerdictWrite?.({
-              verdictId: verdict.verdictId,
-              emittedCount: emitted.length,
-              projectRoot,
-            });
-          }
-        }
-
-        const reviewEscalationStatus = evaluateReviewEscalation({
-          projectRoot,
-          storyId,
-          store: ctx.store,
-          materialHash: materialDigest,
-          storyFilesHash,
-        });
-        assertExactQuorumAppend({
-          projectRoot: gitCwd,
-          capture: transaction,
-          eventRecords: ownedEventRecords,
-        });
-        const hashes = readLifecycleMetadataOutputHashes({ root: gitCwd, capture: transaction });
-        if (!hashes.ok) throw new Error(hashes.reason);
-        const committed = commitLifecycleMetadataTransaction({
-          root: gitCwd,
-          gitCwd,
-          storyId,
-          capture: transaction,
-          verifiedHashes: hashes.hashes,
-          testHooks: testHooks.metadataCommit,
-        });
-        if (!committed.ok) throw new Error(committed.reason || 'immutable quorum metadata commit failed');
-        if (!committed.commitSha) throw new Error('immutable quorum metadata commit produced no commit SHA');
-        const result: QuorumSubmitResult = {
-          schemaVersion: 'proof-or-stop.quorum_submit.v1',
-          storyId,
-          rounds,
-          emittedCount: emitted.length,
-          verdictIds: emitted.map(verdict => verdict.verdictId),
-          runIds,
-          materialDigest,
-          storyFilesHash,
-          validationDigest,
-          metadataCommitSha: committed.commitSha,
-          promptDigests: {
-            hostA: hostA.promptDigest,
-            hostB: hostB.promptDigest,
-          },
-          hosts: { hostA, hostB },
-          requiredReviewerLanes: reviewerPasses.map(pass => pass.lane),
-          reviewSelection: { activeLanes: reviewRoster.selection.activeLanes, requiredLanes: reviewerPasses.map(pass => pass.lane), reason: reviewRoster.selection.reason, digest: reviewRoster.selection._hash },
-          reviewerPasses,
-          verdicts: emitted,
-          reviewEscalationStatus,
-          authorityDone: false,
-          fullAuthorityDone: false,
-          productionDone: false,
-        };
-        return wantsJson(args) ? result : formatResult(result);
-      } catch (error) {
-        const rolledBack = rollbackQuorumOutputs({
-          projectRoot: gitCwd,
-          capture: transaction,
-          storyId,
-          eventRecords: ownedEventRecords,
-          verdictFiles: ownedVerdictFiles,
-        });
-        const message = error instanceof Error ? error.message : String(error);
-        throw new Error(
-          `quorum_submit atomic closeout failed: ${message}`
-          + (rolledBack.ok ? '; all emitted verdicts were rolled back' : `; ${rolledBack.reason}`),
-        );
-      }
+        rounds,
+        emittedCount: batch.emitted.length,
+        verdictIds: batch.emitted.map(verdict => verdict.verdictId),
+        runIds: batch.runIds,
+        materialDigest,
+        storyFilesHash,
+        validationDigest,
+        metadataCommitSha: batch.metadataCommitSha,
+        promptDigests: {
+          hostA: hostA.promptDigest,
+          hostB: hostB.promptDigest,
+        },
+        hosts: { hostA, hostB },
+        requiredReviewerLanes: reviewerPasses.map(pass => pass.lane),
+        reviewSelection: { activeLanes: reviewRoster.selection.activeLanes, requiredLanes: reviewerPasses.map(pass => pass.lane), reason: reviewRoster.selection.reason, digest: reviewRoster.selection._hash },
+        reviewerPasses,
+        verdicts: batch.emitted,
+        reviewEscalationStatus: batch.reviewEscalationStatus,
+        authorityDone: false,
+        fullAuthorityDone: false,
+        productionDone: false,
+      };
+      return wantsJson(args) ? result : formatResult(result);
     },
   };
 }

@@ -4254,6 +4254,25 @@ function readManagedInitInvocationFromEnvironment(
   return record as unknown as ManagedInitInvocationAttestation;
 }
 
+function sameRunConsumption(path: string, matches: (record: Record<string, unknown>) => boolean): boolean {
+  try {
+    const record = JSON.parse(readFileSync(path, 'utf8')) as unknown;
+    return Boolean(record) && typeof record === 'object' && !Array.isArray(record) && matches(record as Record<string, unknown>);
+  } catch {
+    return false;
+  }
+}
+
+function appendResealEvent(paths: ReturnType<typeof pathsFor>, runId: string, storyId: string, providerAgent: string): void {
+  appendFileSync(paths.events, `${canonicalJson({
+    schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION,
+    runId,
+    at: new Date().toISOString(),
+    type: 'managed_dispatch_invocation_resealed',
+    detail: { storyId, providerAgent },
+  })}\n`, { encoding: 'utf8', mode: 0o600 });
+}
+
 function consumeManagedInitInvocationAttestation(args: {
   root: string;
   storyId: string;
@@ -4261,6 +4280,7 @@ function consumeManagedInitInvocationAttestation(args: {
   itemId?: string;
   attestation: ManagedInitInvocationAttestation;
   consume?: boolean;
+  reseal?: boolean;
 }): string {
   const { attestation } = args;
   assertRunId(attestation.runId);
@@ -4294,6 +4314,15 @@ function consumeManagedInitInvocationAttestation(args: {
       && verifyCanonical(claims, signature, owner.proposalInvocationPublicKey);
     if (!valid) throw new Error('managed INIT invocation attestation is invalid or mismatched');
     if (existsSync(paths.initInvocationConsumption)) {
+      // Re-seal: the SAME live run re-presenting the SAME signed invocation
+      // (nonce) may rewrite its own output before its terminal is sealed. Any
+      // other run, nonce or role stays refused as a replay.
+      if (args.reseal && args.consume !== false && sameRunConsumption(paths.initInvocationConsumption,
+        record => record.runId === attestation.runId && record.invocationNonce === attestation.invocationNonce
+          && record.providerAgent === attestation.providerAgent)) {
+        appendResealEvent(paths, attestation.runId, attestation.storyId, attestation.providerAgent);
+        return attestation.runId;
+      }
       throw new Error('managed INIT invocation attestation was already consumed');
     }
     if (args.consume === false) return attestation.runId;
@@ -4344,6 +4373,11 @@ type ManagedDispatchInvocationArgs = {
   environment?: NodeJS.ProcessEnv;
   optionalWhenAbsent?: boolean;
   consume?: boolean;
+  /**
+   * The same live run may re-present its already-consumed invocation to
+   * re-seal its own output (delivery_check_set). Never a new authority.
+   */
+  reseal?: boolean;
   /** Test seam for platform-specific admission; production always uses process.platform. */
   platform?: NodeJS.Platform;
 };
@@ -4445,6 +4479,7 @@ export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocation
         ...(args.itemId ? { itemId: args.itemId } : {}),
         attestation,
         consume: args.consume !== false,
+        ...(args.reseal ? { reseal: true } : {}),
       });
     }
   } catch (error) {
@@ -4522,6 +4557,13 @@ export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocation
       throw new Error('managed dispatch process-group invocation is no longer live or matched');
     }
     if (existsSync(paths.initInvocationConsumption)) {
+      if (args.reseal && args.consume !== false && sameRunConsumption(paths.initInvocationConsumption,
+        record => record.runId === runId && record.providerAgent === args.agentType
+          && (record.providerIdentity as { pgid?: unknown } | undefined)?.pgid === identity.pgid
+          && (record.providerIdentity as { startFingerprint?: unknown } | undefined)?.startFingerprint === identity.startFingerprint)) {
+        appendResealEvent(paths, runId, args.storyId, args.agentType);
+        return runId;
+      }
       throw new Error('managed dispatch process-group invocation was already consumed');
     }
     if (args.consume === false) return runId;

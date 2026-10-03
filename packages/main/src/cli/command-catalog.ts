@@ -2726,7 +2726,8 @@ Behavior:
     realMachineTests: z.array(z.object({
       featureId: z.string().describe('Feature ID, for example CHK-xxx.'),
       transcript: z.string().describe('Real-machine test transcript or summary.'),
-      waiverReason: z.string().optional().describe('Waiver reason (at least 30 characters when non-empty; included in signature).'),
+      // null is absent (run 14: a delivery reviewer sent waiverReason:null, was refused, then probed with a junk write).
+      waiverReason: z.string().nullish().describe('Waiver reason (at least 30 characters when non-empty; included in signature). null is treated as absent.'),
     })).describe('Real-machine test record.'),
     closingSelfCheck: z.object({
       hasRealMachineTest: z.boolean().describe('Whether real-machine tests exist.'),
@@ -3426,10 +3427,11 @@ Behavior:
     json: z.boolean().optional().describe('Output JSON'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
-  { name: 'quorum_submit', description: 'Submit a local voluntary 3x2 host-verdict quorum only after current reviewer pass evidence exists for every required review lane', schema: {
+  { name: 'quorum_submit', description: 'Submit a local voluntary 3x2 host-verdict quorum only after current reviewer pass evidence exists for every required review lane; with singleHost:true, one step for a single-host environment: probe review hosts once, record the single-host-environment fallback when the rule needs it and the probe proves it, and record only the missing single-host rounds the review escalation / assurance floor require, transcribed from those current reviewer passes', schema: {
     storyId: z.string().describe('Canonical Story id'),
-    hostA: z.string().describe('First independent host id'),
-    hostB: z.string().describe('Second independent host id'),
+    hostA: z.string().optional().describe('First independent host id (required unless singleHost)'),
+    hostB: z.string().optional().describe('Second independent host id (required unless singleHost)'),
+    singleHost: z.boolean().optional().describe('Single-host environment: probe + fallback (when needed and proven) + the missing single-host rounds, in one step (TEST only)'),
     rounds: z.number().int().positive().optional().describe('Number of quorum rounds to emit; default 3'),
     validationDigest: z.string().optional().describe('Optional validation digest; otherwise derived from current validation state'),
     promptDigestA: z.string().optional().describe('Optional prompt digest for hostA; otherwise derived'),

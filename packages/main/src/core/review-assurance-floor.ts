@@ -213,7 +213,7 @@ interface BuildReviewAssuranceGuidanceInput {
 }
 
 const REVIEW_ASSURANCE_CANNOT_AUTO_SIGN_WARNING =
-  'done_prepare, story_advance, and the story owner/main session will not auto-write reviewer evidence, host verdicts, delivery checks, or degraded fallback evidence; those records must come from their legal reviewer/host or explicit human-approved writer path and bind to the current material.';
+  'done_prepare, story_advance, and the story owner/main session will not auto-write reviewer evidence, host verdicts, delivery checks, or degraded fallback evidence; those records must come from their legal reviewer/host or explicit human-approved writer path and bind to the current material. The one framework writer is quorum_submit singleHost: it records only the required single-host rounds, transcribed from current signed reviewer passes of every required lane, and a single-host-environment fallback only when its own host probe finds fewer than 2 review-ready hosts.';
 
 function storyRef(storyId?: string): string {
   return storyId && storyId.trim() ? storyId.trim() : '{storyId}';
@@ -271,6 +271,11 @@ function missingSingleHostRoundNumbers(input: BuildReviewAssuranceGuidanceInput)
   return available;
 }
 
+/** Run 14: the one step that replaces probe → fallback_set → N x autopilot_review_submit on a single host. */
+function singleHostQuorumCommand(storyId?: string): string {
+  return `proof-or-stop quorum_submit '{"storyId":"${storyRef(storyId)}","singleHost":true}'`;
+}
+
 function quorumSubmitCommand(storyId?: string): string {
   return `proof-or-stop quorum_submit '{"storyId":"${storyRef(storyId)}","hostA":"{independent-host-a}","hostB":"{independent-host-b}"}'`;
 }
@@ -321,6 +326,15 @@ export function buildReviewAssuranceGuidance(input: BuildReviewAssuranceGuidance
 
   const reviewerHost: ReviewAssuranceCommandRecipe[] = [];
   const singleHostRoundNumbers = missingSingleHostRoundNumbers(input);
+  if (singleHostRoundNumbers.length > 0 && input.fallback.status !== 'not-eligible') {
+    reviewerHost.push({
+      owner: 'reviewer-host',
+      command: singleHostQuorumCommand(input.storyId),
+      purpose: `One framework step on a single host: probe review hosts once, record the single-host-environment fallback when the rule needs it and the probe proves it, then record the ${singleHostRoundNumbers.length} missing single-host PASS round(s) from the current reviewer passes of every required lane. Refuses (no write) when two review-ready hosts exist or a required lane lacks a current pass.`,
+      writesEvidence: true,
+      safeForStoryOwner: true,
+    });
+  }
   for (const round of singleHostRoundNumbers) {
     reviewerHost.push({
       owner: 'reviewer-host',

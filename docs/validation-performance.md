@@ -1232,7 +1232,10 @@ retains its original value. A synchronous observation shares only successful
 sorted inherited environment (including `GIT_*`, `PATH`, and `HOME`). The fixed 1 GiB reader limit is unchanged; other
 formats/limits and symbolic refs use their existing independent reads. Nested
 synchronous helpers share the observation; the outer `finally` clears it.
-No observation survives an await or a later launch/publication check.
+No observation survives an await or a later launch/publication check. Across
+observations a ref-state read (including an object-addressed `ls-tree`) is
+answered again only while the repository's ref state is unchanged; see
+"Gate commands: ref-state reads across observations" below.
 
 This also prevents mixed-HEAD hash tuples when HEAD advances between the two
 projections. The next observation detects the newer HEAD; receipt admission,
@@ -1262,6 +1265,68 @@ memoized; a blob read keys on its byte bound). Result: 2468 spawns, 49 repeated.
 What remains is mostly the review verdict's per-pass lineage walk, distinct
 object reads that the TEST/REVIEW rows consult first; deferring other rows
 would save under 10%.
+
+### Gate commands: ref-state reads across observations (Lab gate-command-cost)
+
+Run 14 (emulated x86 container, about 0.1-0.2 s per child process) spent 513 s
+in five `story_advance` calls, 146 s in two `validate` calls around a 0.8 s
+`go test`, 160 s in `review_round_prepare`, about 150 s in managed review
+evidence imports and 150 s in `live_smoke_transcript`. A spawn profile of e2e
+harness scenarios A and D showed why: one gate command evaluates the same
+gates several times (runtime preflight, transition guard, CLI preflight, actor
+guard, next steps), each in its own observation, and 58-90% of its child
+processes were identical repeats, mostly ref-state reads (HEAD, the repository
+baseline, `worktree list`, `refs/replace/`, intent checkpoints, git dirs).
+
+- `observedGit` and `readObservedGitTree` now answer a read-only ref-state probe
+  once per unchanged repository ref state, inside or outside an observation
+  (`core/git-ref-witness-memo.ts`). The witness is read from the filesystem
+  with no child process: every HEAD-like file, loose ref and packed-refs of the
+  checkout and common dir, the linked-worktree registry (and whether each
+  checkout exists), the `.git` file, grafts, shallow, repository/worktree
+  config and the global/system config files. A file or directory is identified
+  by inode, size, mtime/ctime in nanoseconds and, on change or on a
+  whole-second-timestamp filesystem, its content digest/listing. The witness is
+  taken before and after the producing git run and the answer is kept only if
+  both agree. Objects are immutable, so an equal witness means git would print
+  the same bytes.
+- Only exact read shapes qualify (rev-parse, symbolic-ref read, for-each-ref,
+  show-ref, merge-base without `--fork-point`, rev-list, ls-tree, cat-file,
+  `worktree list`, describe without `--dirty`, explicit-format log, `show -s`
+  with an explicit format or `show <rev>:<path>`, `diff-tree`/`diff` path lists
+  between two revisions with no rename detection). Never: index or working-tree
+  reads, patch text, line counts, rename/copy detection, textconv/filters and
+  mailmap (they consult the checkout's `.gitattributes`/`.mailmap`), reflog
+  syntax, abbreviated object names, clock-relative arguments, `-C`/`--git-dir`,
+  any non-inert `GIT_*` variable, reftable. A refusal is remembered only for a
+  probe that names no object id. `withoutGitObservation` rereads always run
+  git. Config reached through `include.path` and a system config at a
+  non-standard prefix are not witnessed (the same limit as an observation).
+- `story_advance`'s runtime enforcement preflight no longer builds a lifecycle
+  readiness report it discarded (it reads only authority, authoritative cwd and
+  locks; `projectRuntimeClosure({ includeReadiness: false })`).
+- The verification signer, validation artifact signer, learning store, shared
+  lock root, global-thin root and integration target common-dir/ref probes go
+  through `observedGit`; a lock taken by this process stamps its own start time
+  once (`observedProcessStartTimeMs`).
+
+Child processes per call on scenario A, before -> after: `story_advance` REVIEW
+258 -> 61, TEST 575 -> 201, DONE 1003 -> 257; `review_round_prepare` 571 -> 126;
+`managed_review_evidence_import` 157-364 -> 67-104; `validate` fast 199 -> 56,
+routine 310 -> 107; `certification_window_begin` 166 -> 65;
+`live_smoke_transcript` 325 -> 163; `done_prepare` 634 -> 299. Time inside the
+CLI: scenario A 107 s -> 70 s, scenario D 190 s -> 124 s (dev Mac under load).
+`node packages/main/dist/tasks/gate-command-cost-smoke.js` budgets these
+commands; `git-ref-witness-memo-smoke.js` pins the freshness cases (commit,
+branch moved away and back, detached linked worktree, replace ref, config edit,
+ref created after a remembered refusal) and the excluded shapes. No gate is
+skipped and no verdict is cached.
+
+The second `validate` (routine, after `certification_window_begin`) still
+executes the configured command: the certification window binds a fresh run,
+and per-command execution reuse stays opt-in (`executionReuse: "exact-inputs"`
+with declared `executionInputs`). Its cost was framework overhead, not the
+command (`go test` 0.07-0.6 s of a 3-5 s call).
 
 ### Losing ownership while queued
 
