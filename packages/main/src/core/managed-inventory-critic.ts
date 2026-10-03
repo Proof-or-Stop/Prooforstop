@@ -41,24 +41,66 @@ function ref(v: unknown, count: number): v is ManagedInventoryFindingRef {
   return keys(v, ['proposalFindingIndex']) && Number.isSafeInteger(v.proposalFindingIndex)
     && (v.proposalFindingIndex as number) >= 0 && (v.proposalFindingIndex as number) < count;
 }
-export function isManagedInventoryCritic(value: unknown, lane: string, agent: string, findingCount: number): value is ManagedInventoryCritic {
-  if (lane !== MANAGED_INVENTORY_CRITIC_LANE || agent !== MANAGED_INVENTORY_CRITIC_LANE || !record(value)
-    || !keys(value, ['epochId', 'wave', 'findingDispositions']) || !text(value.epochId)
-    || !Number.isSafeInteger(value.wave) || (value.wave as number) < 1 || !Array.isArray(value.findingDispositions)) return false;
+/** Bounded JSON rendering of a provider value for a model-readable violation. */
+function shown(v: unknown): string {
+  if (v === undefined) return 'missing';
+  const encoded = JSON.stringify(v) ?? String(v);
+  return encoded.length > 80 ? `${encoded.slice(0, 77)}...` : encoded;
+}
+const refExpected = (count: number) => count > 0
+  ? `{findingId:<existing id>} or {proposalFindingIndex:0..${count - 1}}`
+  : '{findingId:<existing id>} (no own findings, so no proposalFindingIndex)';
+/**
+ * Every way `value` misses the managed critic contract, as `path: expected
+ * ..., got ...` lines (empty when valid). The single source for both the
+ * predicate below and the provider-facing rejection reason.
+ */
+export function managedInventoryCriticViolations(value: unknown, lane: string, agent: string, findingCount: number, path = 'inventoryCritic'): string[] {
+  if (lane !== MANAGED_INVENTORY_CRITIC_LANE || agent !== MANAGED_INVENTORY_CRITIC_LANE) {
+    return [`${path}: only the ${MANAGED_INVENTORY_CRITIC_LANE} lane may carry an inventoryCritic block`];
+  }
+  if (!record(value)) return [`${path}: expected an object {epochId,wave,findingDispositions}, got ${shown(value)}`];
+  const out: string[] = [];
+  const extra = Object.keys(value).filter(k => !['epochId', 'wave', 'findingDispositions'].includes(k));
+  if (extra.length) out.push(`${path}: unexpected field(s) ${extra.join(', ')}; allowed epochId, wave, findingDispositions`);
+  if (!text(value.epochId)) out.push(`${path}.epochId: expected a non-blank string, got ${shown(value.epochId)}`);
+  if (!Number.isSafeInteger(value.wave) || (value.wave as number) < 1) out.push(`${path}.wave: expected an integer >= 1, got ${shown(value.wave)}`);
+  if (!Array.isArray(value.findingDispositions)) {
+    out.push(`${path}.findingDispositions: expected an array, got ${shown(value.findingDispositions)}`);
+    return out;
+  }
   const seen = new Set<string>();
-  return value.findingDispositions.every(row => {
-    if (!record(row) || !keys(row, ['finding', 'disposition', 'familyKey', 'canonicalFinding', 'reason'])
-      || !ref(row.finding, findingCount) || !validInventoryCriticReason(row.reason)) return false;
+  value.findingDispositions.forEach((row, i) => {
+    const at = `${path}.findingDispositions[${i}]`;
+    if (!record(row)) { out.push(`${at}: expected an object, got ${shown(row)}`); return; }
+    const rowExtra = Object.keys(row).filter(k => !['finding', 'disposition', 'familyKey', 'canonicalFinding', 'reason'].includes(k));
+    if (rowExtra.length) out.push(`${at}: unexpected field(s) ${rowExtra.join(', ')}; allowed finding, disposition, familyKey, canonicalFinding, reason`);
+    if (!ref(row.finding, findingCount)) out.push(`${at}.finding: expected ${refExpected(findingCount)}, got ${shown(row.finding)}`);
+    if (!validInventoryCriticReason(row.reason)) out.push(`${at}.reason: expected a string of at least ${INVENTORY_CRITIC_REASON_MIN_LENGTH} trimmed characters, got ${shown(row.reason)}`);
     const identity = JSON.stringify(row.finding);
-    if (seen.has(identity)) return false;
+    if (seen.has(identity)) out.push(`${at}.finding: ${shown(row.finding)} is classified more than once; one row per finding`);
     seen.add(identity);
     // A verified family is its own canonical finding; a canonicalFinding that
     // names the row itself is redundant (importers drop it), another is contradictory.
-    if (row.disposition === 'verified_family') return text(row.familyKey)
-      && (row.canonicalFinding === undefined || JSON.stringify(row.canonicalFinding) === identity);
-    if (row.disposition === 'duplicate') return text(row.familyKey) && ref(row.canonicalFinding, findingCount);
-    return row.disposition === 'not_verified' && row.familyKey === undefined && row.canonicalFinding === undefined;
+    if (row.disposition === 'verified_family') {
+      if (!text(row.familyKey)) out.push(`${at}.familyKey: verified_family requires a non-blank familyKey, got ${shown(row.familyKey)}`);
+      if (row.canonicalFinding !== undefined && JSON.stringify(row.canonicalFinding) !== identity) {
+        out.push(`${at}.canonicalFinding: verified_family omits canonicalFinding (it is its own canonical finding), got ${shown(row.canonicalFinding)}`);
+      }
+    } else if (row.disposition === 'duplicate') {
+      if (!text(row.familyKey)) out.push(`${at}.familyKey: duplicate requires a non-blank familyKey, got ${shown(row.familyKey)}`);
+      if (!ref(row.canonicalFinding, findingCount)) out.push(`${at}.canonicalFinding: duplicate requires ${refExpected(findingCount)}, got ${shown(row.canonicalFinding)}`);
+    } else if (row.disposition === 'not_verified') {
+      if (row.familyKey !== undefined) out.push(`${at}.familyKey: not_verified permits no familyKey, got ${shown(row.familyKey)}`);
+      if (row.canonicalFinding !== undefined) out.push(`${at}.canonicalFinding: not_verified permits no canonicalFinding, got ${shown(row.canonicalFinding)}`);
+    } else {
+      out.push(`${at}.disposition: expected one of verified_family, duplicate, not_verified, got ${shown(row.disposition)}`);
+    }
   });
+  return out;
+}
+export function isManagedInventoryCritic(value: unknown, lane: string, agent: string, findingCount: number): value is ManagedInventoryCritic {
+  return managedInventoryCriticViolations(value, lane, agent, findingCount).length === 0;
 }
 
 /** Exact lane contract shared by terminal and legacy managed-review ingress. */

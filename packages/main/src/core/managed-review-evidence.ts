@@ -768,7 +768,7 @@ export function buildManagedReviewerPrompt(
     '--- BEGIN MANAGED REVIEW FINAL PROPOSAL JSON SCHEMA ---',
     finalProposalSchema,
     '--- END MANAGED REVIEW FINAL PROPOSAL JSON SCHEMA ---',
-    'The JSON Schema above is the shared provider shape contract enforced by the terminal validator. Include every required field even when its value is [] or null, and do not add fields excluded by additionalProperties=false. Use repository-relative paths only. readManifest.filesReadFully MUST equal readLog.filesReadFully, and readManifest.filesTriagedByName MUST equal readLog.filesTriagedByName. readLog.digest MUST be a lowercase 64-hex digest value; readLog.summary.tokenCount is required and may be null.',
+    'The JSON Schema above is the shared provider shape contract enforced by the terminal validator. Include every required field even when its value is [] or null, and do not add fields excluded by additionalProperties=false. Use repository-relative paths only. readManifest.filesReadFully MUST equal readLog.filesReadFully, and readManifest.filesTriagedByName MUST equal readLog.filesTriagedByName. filesReadFully and filesTriagedByName are disjoint: a path you read in full (even one you first triaged by name) goes only in filesReadFully, never in both lists. readLog.digest MUST be a lowercase 64-hex digest value; readLog.summary.tokenCount is required and may be null.',
     // B-137a: bind the two routing digests the gate compares byte-for-byte, the
     // same way the full-scan binding above already pins scanEscalationReason.
     // candidateReadBindingErrors requires readManifest.candidateSpecSetDigest
