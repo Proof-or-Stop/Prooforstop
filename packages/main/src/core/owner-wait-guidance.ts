@@ -55,6 +55,6 @@ export function ownerWaitInstructionFor(command: string, args: Record<string, un
     return hostRunStatusBlocksUntilTerminal(args) && !snapshot ? ownerWaitInstruction() : null;
   }
   if (command === 'host_run') return flag(args.detach) ? null : ownerWaitInstruction('stays attached until the worker is terminal');
-  if (command === 'next') return flag(args.run) ? ownerWaitInstruction('runs framework steps and may block several minutes') : null;
+  if (command === 'next') return flag(args.run) ? ownerWaitInstruction(`runs framework steps, launches fully bound managed runs and blocks up to ${OWNER_WAIT_BLOCK_MS / 1000} s on their waits`) : null;
   return null;
 }

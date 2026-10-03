@@ -1057,12 +1057,13 @@ Behavior:
   { name: 'session_brief', description: 'Cross-session opening brief (active story/phase/checklist/bug/next step)', schema: {
     concise: z.boolean().optional().describe('Concise mode (default: false).'),
   }},
-  { name: 'next', description: 'The one next lifecycle step. With --storyId: read-only DEV→REVIEW→PRE_CERT→TEST→DONE driver returning exactly one step {phase, kind: framework|agent|human, reason, command, argv, why} decided by the real gate predicates; --run executes consecutive framework steps through the CLI (every gate intact) and prints the following step. Without --storyId: the session_brief next step.', schema: {
+  { name: 'next', description: 'The one next lifecycle step. With --storyId: read-only DEV→REVIEW→PRE_CERT→TEST→DONE driver returning exactly one step {phase, kind: framework|agent|human, reason, command, argv, why} decided by the real gate predicates; --run executes consecutive framework steps through the CLI (every gate intact), including fully bound managed launches and waits (one 285 s wait budget per call), and prints the following step. Without --storyId: the session_brief next step.', schema: {
     concise: z.boolean().optional().describe('Concise mode (default: true; no --storyId only).'),
     storyId: z.string().optional().describe('Story ID: drive this Story from its current state (DEV to DONE).'),
     json: z.boolean().optional().describe('JSON step object (with --storyId).'),
-    run: z.boolean().optional().describe('Execute consecutive framework-kind steps through the real CLI, stop at the first agent/human step or refusal, and print the following step. Off by default.'),
-    maxSteps: z.number().optional().describe('--run bound on executed framework steps (default 20, max 50).'),
+    run: z.boolean().optional().describe('Execute consecutive framework-kind steps through the real CLI (gate steps, managed launches fully bound to this Story\'s own host/model/effort, and waits on managed runs), stop at the first agent/human step or refusal, and print the following step. Off by default.'),
+    maxSteps: z.number().optional().describe('--run bound on executed framework steps (default 40, max 100).'),
+    waitBudgetMs: z.number().optional().describe('--run: total ms all waits of this call may block (default and max 285000); then it pauses on the wait step and you rerun the same command.'),
   }},
   { name: 'done_closure', description: 'Project local DONE closure readiness from the DONE oracle without mutating lifecycle or widening local assurance. Alias: proof-or-stop done closure', schema: {
     storyId: z.string().describe('Story ID'),
