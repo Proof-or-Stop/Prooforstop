@@ -70,7 +70,9 @@ let input = ''; process.stdin.on('data', d => { input += d; }); process.stdin.on
     fs.writeFileSync(path.join(dir, 'rollout-2026-09-30T06-58-17-${THREAD}.jsonl'), '{}\\n');
   }
   emit({ type: 'turn.started' });
-  const text = fs.readFileSync(path.join(state, resumed && mode === 'repair' ? 'valid.txt' : 'malformed.txt'), 'utf8');
+  let text = fs.readFileSync(path.join(state, resumed && mode === 'repair' ? 'valid.txt' : 'malformed.txt'), 'utf8');
+  // A failing repair that still changes its output (an unchanged one stops early).
+  if (resumed && mode === 'fail') text = text.replace('Re-review of story', 'Re-review (attempt ' + fs.readFileSync(path.join(state, 'invocations.jsonl'), 'utf8').trim().split('\\n').length + ') of story');
   emit({ type: 'item.completed', item: { id: 'item_1', type: 'agent_message', text } });
   emit({ type: 'turn.completed', usage: { input_tokens: 10, cached_input_tokens: 0, output_tokens: 10 } });
 });
@@ -175,7 +177,8 @@ async function main(): Promise<void> {
     assert.ok(a.terminal.evidenceProposalDigest, 'the terminal binds the proposal digest');
     assert.equal(a.terminal.replacementSafe, true);
 
-    // (B) The repair re-emission is malformed too: bounded attempts, then today's terminal failure.
+    // (B) Each repair re-emission is malformed too (and differs from the last):
+    // bounded attempts, then today's terminal failure.
     const b = await runCase(base, 'repair-fails', 'fail');
     assert.equal(b.terminal.state, 'failed');
     assert.match(b.terminal.reason, /^managed_review_final_result_invalid:managed_review_final_result_malformed/);
