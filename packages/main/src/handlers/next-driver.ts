@@ -25,7 +25,8 @@
  *           certification_window_status (its Next line), getGuardFailureReason(TEST);
  *   TEST    buildDoneChecklist (the DONE oracle rows, auditWriter:null) and the
  *           review-assurance floor / escalation guidance recipes.
- *   PLAN    evaluateDevMemoryPreflightGate, then getGuardFailureReason(DEV);
+ *   PLAN    evaluateDevMemoryPreflightGate, missingPlanScopeCheckFailure (the
+ *           scope-plan reviewer launch / wait), then getGuardFailureReason(DEV);
  *   TEST single host: singleHostAssuranceReady (handlers/quorum-submit.ts) over
  *           the same escalation / floor evaluators → quorum_submit singleHost.
  * Host runs (managed reviewers, delivery, finding repair) are read from the
@@ -42,6 +43,7 @@ import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { withGitTreeObservation } from '../core/git-tree-observation.js';
 import { evaluateDevMemoryPreflightGate, evaluateReviewVerdict, getGuardFailureReason } from '../core/machine.js';
+import { missingPlanScopeCheckFailure, SCOPE_PLAN_REVIEWER } from '../core/plan-scope-check-requirement.js';
 import { isTerminalChecklistStatus } from '../core/checklist-status.js';
 import { unclosedBlockingFindings, resolveEffectiveBlockingSeverities, FINDING_RESOLUTION_PLACEHOLDER } from '../core/finding-closure.js';
 import {
@@ -432,6 +434,22 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       return step(base, 'agent', 'dev_memory_preflight_ack', { command: 'dev_memory_preflight_ack', payload: { storyId } },
         'The DEV-entry gate refuses without the dev-memory preflight acknowledgement [missing_dev_memory_preflight_ack]. Run it now and read the lessons it prints before planning the implementation.',
         'evaluateDevMemoryPreflightGate (DEV-entry gate)');
+    }
+    // Run 16: the scope-plan reviewer verdict the DEV-entry gate requires
+    // (missingPlanScopeCheckFailure, the gate's own predicate). Launched with the
+    // owner's own managed selection, or waited on while its run is in flight.
+    const story = ctx.store.readStory(storyId);
+    const scopeFailure = missingPlanScopeCheckFailure(ctx.store, story, policyOf(storyId));
+    if (scopeFailure) {
+      const hostRuns = listStoryHostRuns(ctx, storyId);
+      const running = hostRuns.filter(run => run.agentType === SCOPE_PLAN_REVIEWER && !run.terminal).at(-1);
+      if (running) return waitStep(base, running, 'Scope-plan reviewer run');
+      const last = hostRuns.filter(run => run.agentType === SCOPE_PLAN_REVIEWER).at(-1);
+      const previous = last && last.state !== 'completed' ? ` The previous scope-plan run ${last.runId} ended ${last.state}.` : '';
+      return step(base, 'agent', 'scope_plan_review_launch', { command: 'host_run', payload: { ...managedSelection(hostRuns, 'managed_dispatch'), storyId,
+        agentType: SCOPE_PLAN_REVIEWER, managedDispatch: true, detach: true, json: true } },
+      `${scopeFailure.split('\n')[0]} Launch the scope-plan reviewer (managed shown); it saves scope-check.json, then rerun story_review.${previous}`,
+      'missingPlanScopeCheckFailure (DEV-entry gate)');
     }
     return guardStep(base, 'DEV', 'enter_dev', 'PLAN is complete: the DEV-entry gate admits the Story.', 'getGuardFailureReason(DEV)');
   }

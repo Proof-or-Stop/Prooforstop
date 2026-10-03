@@ -633,7 +633,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     lines.push('');
     lines.push('Must read story artifacts:');
     lines.push(`1. ${bgPath}`);
-    lines.push(`2. ${understandingPath}`);
+    // The verdict is required without an understanding snapshot (run 16), so it is read only when present.
+    lines.push(`2. ${understandingPath} (if present)`);
     lines.push(`3. ${checklistPath}`);
     lines.push(`4. ${planPath}`);
     lines.push(`5. ${decisionPath} (if present)`);

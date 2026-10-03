@@ -30,7 +30,7 @@ import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import { canStartDevGuard, canSkipPlanGuard, canReenterDevGuard, getGuardFailureReason } from '../core/machine.js';
 import type { StoryMachineContext } from '../core/machine.js';
-import type { ChecklistData, ReviewData, ScopeContractData, StoryInfo } from '../core/types.js';
+import type { ChecklistData, ReviewData, ScopeCheckData, ScopeContractData, StoryInfo } from '../core/types.js';
 import type { ParallelGateMode } from '../core/parallel-decomposition.js';
 import { PROOF_OR_STOP_STATE_DIR } from '../core/brand-paths.js';
 
@@ -202,6 +202,14 @@ function buildRepo(opts: {
   store.writeChecklist(SELF_ID, opts.selfChecklist ?? doneChecklist);
   store.writeScopeContract(SELF_ID, contract(SELF_ID, opts.selfModify, opts.selfCreate));
   if (opts.review) store.writeReview(SELF_ID, opts.review);
+  // Run 16 (lab scope-check-required): balanced/strict PLAN→DEV also requires the
+  // scope-plan reviewer verdict, checked before the parallel block. This file tests
+  // the parallel block, so every fixture carries a scope-check.json (presence is
+  // what the DEV guard reads; its signature is story_review's check).
+  store.writeScopeCheck(SELF_ID, {
+    storyId: SELF_ID, checkedAt: NOW, reviewRound: '', agentId: 'proof-or-stop-review-scope-plan',
+    issues: [], features: [], summary: { total: 0, covered: 0, excluded: 0, gaps: 0 },
+  } as unknown as ScopeCheckData);
 
   store.writeStory(PEER_ID, story(PEER_ID, 'DEV', opts.peerParallelSafe));
   if (!opts.omitPeerContract) store.writeScopeContract(PEER_ID, contract(PEER_ID, opts.peerModify, opts.peerCreate));

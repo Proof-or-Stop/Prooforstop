@@ -73,6 +73,7 @@ import { reviewInventoryRemediationGate } from './review-inventory-epoch.js';
 import { inspectDevMemoryFinishDecision } from './playbook-runtime-memory.js';
 import { canonicalAgentRoleId } from './agent-role-identity.js';
 import { renderManagedInitReviewerDispatches } from './reviewer-launch-guidance.js';
+import { missingPlanScopeCheckFailure } from './plan-scope-check-requirement.js';
 
 function buildQuorumEvidence(
   evidenceRecords: { agent: string; kind: string; signatureValid?: boolean }[],
@@ -711,6 +712,10 @@ export function canStartDevGuard(context: StoryMachineContext): boolean {
     if (!evaluateDevMemoryPreflightGate(context.storyId, context.store)) return false;
     if (evaluateStoryEvidenceBindingGate(context.projectRoot, context.store, context.storyId).blocking) return false;
     if (proofStoryDevGateFailure(context.store, context.projectRoot, context.storyId)) return false;
+    // Run 16: the scope-plan reviewer verdict is required whenever the policy or
+    // the Story says so (core/plan-scope-check-requirement.ts), independent of a
+    // clean story_review record or of an understanding snapshot.
+    if (missingPlanScopeCheckFailure(context.store, story, policy)) return false;
     // F-001: ONLY the review-record checks are gated on requireStoryReview. The parallel
     // sub-check below must run on EVERY door into DEV (it used to be skipped when review was
     // not required, which made the hard block bypassable). The early `return true` is gone.
@@ -1419,6 +1424,9 @@ export function getGuardFailureReason(
       const config2 = loadConfig(projectRoot);
       const story2 = store.readStory(storyId);
       const policy2 = resolveWorkflowPolicy(config2, story2);
+      // Run 16: same predicate as canStartDevGuard; its last line is the one Next: action.
+      const scopeCheckFailure = missingPlanScopeCheckFailure(store, story2, policy2);
+      if (scopeCheckFailure) return scopeCheckFailure;
       if (!policy2.plan.requireStoryReview) {
         // policy says no review needed — pass through
       } else {
@@ -1444,7 +1452,9 @@ export function getGuardFailureReason(
           reasons.push('story_review check not passed (no review record)');
         }
         if (reasons.length > 0) {
-          return `Cannot enter DEV:\n${reasons.map(r => `  - ${r}`).join('\n')}`;
+          // One next action: story_review reruns every PLAN check and records the round
+          // this gate reads (it prints the remaining blockers with their own fixes).
+          return `Cannot enter DEV:\n${reasons.map(r => `  - ${r}`).join('\n')}\nNext: proof-or-stop story_review --storyId=${storyId}`;
         }
       }
     } catch {

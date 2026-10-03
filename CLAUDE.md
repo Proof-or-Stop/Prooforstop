@@ -30,7 +30,7 @@
 |---|---|
 | **INIT** | `story_create` 创建 story |
 | **INIT_CHECK** | `story_advance INIT_CHECK` 创建 worktree，提示 cd |
-| **PLAN** | understanding → decision → checklist + `verificationIntent` → plan.md（正常通道）→ `story_review` 审查通过后进 DEV（快速通道跳过 PLAN） |
+| **PLAN** | understanding → decision → checklist + `verificationIntent` → plan.md（正常通道）→ scope-plan reviewer（`scope-check.json`，balanced/strict 必需）→ `story_review` 审查通过后进 DEV（快速通道跳过 PLAN） |
 | **DEV** | 写代码 + 写测试，给 must intent 记录 `verificationEvidence`，checklist 全 done 后进 REVIEW |
 | **REVIEW** | 按 riskSignals / touchpoints 自动挂载 LLM reviewer（baseline concept+quality+test-coverage，其他按信号 opt-in，详见下方「Reviewer opt-in 路由」）+ CLI preflight gate（`validate --channel` / `--concept` / `--lint` / `docs-drift`，触及 Codex adapter 时另加 `codex-adapter`）在 REVIEW→TEST 自动跑；`proof-or-stop-review-channel` 已退役（S1），由 CLI 接管。主 agent 验收：`finding_list` 确认 reviewer finding 注册 → 逐条 resolve → blocking finding 全 resolved 后经 inventory + PRE_CERT 进 TEST（CLI gate 任一 fail 会直接 block）；整个 REVIEW→TEST 顺序由 `proof-or-stop next --storyId=<id>` 逐步给出 |
 | **TEST** | routine `proof-or-stop validate` 已在 REVIEW 的 PRE_CERT 之后跑过一次，TEST 只消费该 PASS；完成 live smoke / delivery reviewer / finish decision / summary / review assurance floor、bug 全 fixed 后进 DONE（`proof-or-stop next --storyId=<id>` 逐步给出每一步） |
@@ -43,7 +43,7 @@ After DEV (every checklist item done and committed), run `proof-or-stop next --s
 ### 如何选通道
 
 - **小改动**（bug fix、文案修改、配置调整）：创建 story 时只写 1-2 条 checklist，worktree 创建后直接 `story_advance DEV`，主 agent 自己做
-- **正常改动**（新功能、重构、多文件改动）：走完整 PLAN（understanding_set + decision_set + checklist + plan.md + story_review），拆给 subagent
+- **正常改动**（新功能、重构、多文件改动）：走完整 PLAN（understanding_set + decision_set + checklist + plan.md + scope-plan reviewer + story_review），拆给 subagent
 
 ## Proof-or-Stop CLI 速查
 
@@ -678,10 +678,12 @@ see story/B-9975
 
 ### scope-plan reviewer PLAN→DEV 硬门槛
 
-正常通道 PLAN 阶段必须跑 `proof-or-stop-review-scope-plan` 产出 `scope-check.json`。`story_review` 规则（[story-review.ts:274-279](packages/main/src/handlers/story-review.ts#L274-L279)）：
+正常通道 PLAN 阶段必须跑 `proof-or-stop-review-scope-plan` 产出 `scope-check.json`。是否必需由 `core/plan-scope-check-requirement.ts` 一处判定（`story_review`、DEV 入口 gate、`next` 共用）：
 
-- `understanding` 存在 + checklist 非空 + `scope-check.json` 缺失 → `missing_scope_check` **blocker**，直接卡 PLAN→DEV
-  - 注意：没有 `understanding` 时这条不触发（`missing_understanding` 只是 advisory），scope-plan reviewer 就不是必需的。run 16 正因为 owner 没调 `understanding_set`，PLAN 只跑了 `story_review` 就进了 DEV，没有 scope-plan reviewer。该条件自初始导出起就存在，不是 plan-exclusion lab 引入的；是否收紧（例如 checklist 非空就要求 scope-check）会影响检测，需要先做检测 A/B。
+- checklist 非空，且满足任一：存在 `understanding`；policy `plan.requireUnderstanding: 'always'`（balanced、strict）；`'high_risk'` 且 Story 高风险；存在 `request.md` 且 policy 不是 `'never'`。此时 `scope-check.json` 缺失 → `story_review` 报 `missing_scope_check` **blocker**；DEV 入口 gate 本身也拒绝（`[missing_scope_check]`，最后一行唯一 `Next:` 是 managed scope-plan reviewer 的 `host_run`），即使最近一次 `story_review` 记录是干净的
+  - 不再依赖 `understanding_set`（run 16：owner 没调这个 advisory，PLAN 只跑了 `story_review` 就进了 DEV，没有 scope-plan reviewer；修复 lab `scope-check-required`）。`next` 在 PLAN 里（dev-memory ack 之后）给出这个 reviewer 启动作为唯一的 agent 步骤（沿用 owner 自己的 host/model），run 进行中时给 `host_run_status --untilTerminal`。light（`'never'`）和 express 通道不变
+  - reviewer 的 dispatch prompt 只在 `understanding.json` 存在时读它
+  - DEV 入口 gate 因 `story_review` 无记录或有 blocker 拒绝时，最后一行是 `Next: proof-or-stop story_review --storyId=<id>`
 - 有可执行 must/should intent 没有 `verification:{command,selector}` → `missing_verification_pin` **blocker**（见「证据链检查」一节）
 - 已有 scope-check.json 但签名失效 / review round 过期 → 要求重跑
 - 有未消解 gap / excluded 无证据 / orphan-suspect → blocker
