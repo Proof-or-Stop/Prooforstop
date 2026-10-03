@@ -66,11 +66,16 @@
  *      managed finding-repair dispatch for the second one and propose
  *      finding_resolve for a finding only after a managed finding-repair run
  *      bound to that finding id completed (hard assert at every step).
+ *   NL run 16: D's next-driven flow plus two LOW round-1 findings; the owner
+ *      repairs one anyway (managed finding-repair): next must propose its
+ *      finding_resolve before REVIEW; the cosmetic one stays open; a
+ *      finding_resolve after DONE refuses without dirtying the main checkout;
+ *      the live-smoke capture passes only with validate.env (CONTEXT=abs).
  *
  * Machine registries (provider slots, locks) use a disposable fixture machine
  * so the harness never touches the developer's ~/.proof-or-stop admission state.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NL]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -792,6 +797,18 @@ const NF_FINDING = {
   severity: 'medium', category: 'edge', files: ['strs/strs.go', 'strs/strs_test.go'], evidenceState: 'verified',
 };
 
+/**
+ * Scenario NL (run 16): two LOW round-1 findings beside the medium D_FINDING.
+ * The first is a real gap the owner repairs anyway through a managed
+ * finding-repair (repairFor: Upper -> TestUpperEmpty); the second is cosmetic
+ * and stays open (advisory) through DONE.
+ */
+const NL_LOW_REPAIRED = { ...NF_FINDING, severity: 'low' };
+const NL_LOW_COSMETIC = {
+  desc: 'Comment wording: the strs.go doc comment of Reverse could say "rune by rune" (cosmetic, no behavior change).',
+  severity: 'low', category: 'edge', files: ['strs/strs.go'], evidenceState: 'verified',
+};
+
 const FINDING_REPAIR = 'proof-or-stop-finding-repair';
 const REPAIR_TEST = '\nfunc TestReverseEmpty(t *testing.T) {\n\tif Reverse("") != "" {\n\t\tt.Fatal("empty")\n\t}\n}\n';
 const NF_REPAIR_TEST = '\nfunc TestUpperEmpty(t *testing.T) {\n\tif Upper("") != "" {\n\t\tt.Fatal("empty")\n\t}\n}\n';
@@ -1073,7 +1090,13 @@ const VERIFIED_PROMISES = [
  * values (resolution, summary, finish decision). Every proposed command must
  * succeed: next must never propose a command its gate then refuses.
  */
-export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boolean; twoFindings?: boolean }, lines: string[],
+export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boolean; twoFindings?: boolean;
+  /** Run 16: round 1 also reports two LOW findings; the owner repairs the first itself (managed finding-repair) when next says enter_review. */
+  lowFindings?: boolean;
+  /** Run 16: the live-smoke capture needs the project validate.env (CONTEXT=abs) to pass. */
+  contextSmoke?: boolean;
+  /** Soft checks (NL): each violation is recorded and the flow continues, so one run reports every defect. */
+  violations?: string[]; }, lines: string[],
   /** Called with each step `next` returned, before the harness executes it; quiet = no detached managed run in flight. */
   onStep?: (next: NextStepJson, quiet: boolean) => void): void {
   const id = o.storyId;
@@ -1094,6 +1117,7 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
       if (existsSync(join(runsRoot, runId, 'terminal.json'))) { o.unscript(key); scriptKeyByRun.delete(runId); }
     }
   };
+  let liveSmokeProposals = 0;
   for (let iteration = 0; iteration < 160; iteration += 1) {
     retireTerminalScripts();
     // A detached managed worker still running may commit its own metadata
@@ -1129,7 +1153,8 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
         const lane = String(payload.lane);
         const reviewRunId = String(payload.reviewRunId);
         const envelope = mode.findingRound1 && round === firstRound && lane === 'proof-or-stop-review-test-coverage'
-          ? { conclusion: 'findings', note: 'Scripted behavior finding: empty-string edge case is untested.', findings: mode.twoFindings ? [D_FINDING, NF_FINDING] : [D_FINDING] }
+          ? { conclusion: 'findings', note: 'Scripted behavior finding: empty-string edge case is untested.',
+            findings: mode.lowFindings ? [D_FINDING, NL_LOW_REPAIRED, NL_LOW_COSMETIC] : mode.twoFindings ? [D_FINDING, NF_FINDING] : [D_FINDING] }
           : PASS_ENVELOPE(lane);
         o.script(reviewRunId, { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId: id, providerAgent: lane, lane, reviewRunId, ...envelope, ...o.readEvidence() }) });
         break;
@@ -1139,6 +1164,8 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
         const raw = new StoryStore(o.worktree).readFindings(id).findings.filter(f => f.reviewRound === epoch.reviewRound);
         const dispositions = raw.map(f => f.desc.startsWith('Upper ')
           ? { finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'upper-empty-string', reason: 'The empty-string edge of Upper is untested; one verified family.' }
+          : f.desc.startsWith('Comment ')
+            ? { finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'reverse-comment-wording', reason: 'Cosmetic doc-comment wording of Reverse; one verified family.' }
           : { finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'reverse-empty-string', reason: 'The empty-string edge of Reverse is untested; one verified family.' });
         const reviewRunId = String(payload.reviewRunId);
         o.script(reviewRunId, { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId: id, providerAgent: MANAGED_INVENTORY_CRITIC_LANE, lane: MANAGED_INVENTORY_CRITIC_LANE,
@@ -1163,6 +1190,46 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
           final: `Added ${repair.name}; committed.` });
         break;
       }
+      case 'enter_review': {
+        // Run 16: next proposed enter_review with a verified LOW finding open
+        // (advisory); the owner repaired it anyway with a managed finding-repair.
+        const lowOpen = mode.lowFindings && next.phase === 'DEV'
+          ? new StoryStore(o.worktree).readFindings(id).findings.find(f => f.status === 'open' && f.severity === 'low' && f.desc.startsWith('Upper '))
+          : undefined;
+        const repairedLowOpen = mode.lowFindings && next.phase === 'DEV'
+          ? new StoryStore(o.worktree).readFindings(id).findings.find(f => f.status === 'open' && repairRunsByFinding.has(f.id))
+          : undefined;
+        if (repairedLowOpen && !mode.violations?.some(v => v.startsWith(`enter_review with repaired ${repairedLowOpen.id}`))) {
+          mode.violations?.push(`enter_review with repaired ${repairedLowOpen.id} (${repairedLowOpen.severity}) still open: next must propose its finding_resolve first`);
+        }
+        if (lowOpen && !repairRunsByFinding.has(lowOpen.id)) {
+          const repair = repairFor(lowOpen.desc);
+          o.script(FINDING_REPAIR, { commands: [['/bin/sh', '-c', `printf '%s' '${repair.test.replace(/'/g, "'\\''")}' >> strs/strs_test.go && git add strs/strs_test.go && git -c user.name=${FINDING_REPAIR} commit -qm '${repair.subject}' && git log --format=%h -1`]],
+            final: `Added ${repair.name}; committed.` });
+          const launched = o.mustCli('host_run', { host: 'codex', model: MODEL.model, reasoningEffort: MODEL.reasoningEffort, storyId: id,
+            agentType: FINDING_REPAIR, findingId: lowOpen.id, managedDispatch: true, detach: true, json: true }, { label: 'host_run finding-repair (owner, low)' });
+          const runId = String((parseJson(launched.stdout)?.run as Record<string, unknown>).runId);
+          const terminal = waitTerminal(o, 'finding-repair (low)', runId);
+          o.unscript(FINDING_REPAIR);
+          assert.equal(terminal.state, 'completed', `[${o.scenario}] owner low finding-repair ${terminal.state} (${terminal.reason})`);
+          repairRunsByFinding.set(lowOpen.id, [runId]);
+          reasons.push(`owner_repair_low:${lowOpen.id}`);
+          continue;
+        }
+        break;
+      }
+      case 'live_smoke':
+        liveSmokeProposals += 1;
+        if (mode.contextSmoke) {
+          // Passes only with the project validate.env applied (CONTEXT=abs, run 16 §2e).
+          payload.capture = 'test "$CONTEXT" = abs && go test -v ./strs';
+          if (liveSmokeProposals > 1) {
+            mode.violations?.push(`live_smoke proposed again: the capture without an exported CONTEXT did not pass (validate.env not applied); why: ${next.why.slice(0, 160)}`);
+            // The owner's run-16 workaround: export it.
+            payload.capture = 'export CONTEXT=abs; test "$CONTEXT" = abs && go test -v ./strs';
+          }
+        }
+        break;
       case 'finding_resolve': {
         const findingId = String(payload.findingId);
         // Run 14: next must never propose closing a finding no repair bound to it produced.
@@ -1202,6 +1269,56 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   assert.equal(new StoryStore(o.root).readStory(id).phase, 'DONE', `[${o.scenario}] next never reached DONE; steps: ${reasons.join(' > ')}`);
   lines.push(`next-driven steps (${reasons.length}): ${reasons.join(' > ')}`);
   if (mode.run) lines.push(`framework steps executed inside next --run: ${internalCalls} (${(internalMs / 1000).toFixed(1)} s, included in the next --run call times)`);
+}
+
+/**
+ * Run 16 (§2c, §2e): round 1 reports a medium finding plus two LOW findings.
+ * next repairs and resolves the medium one; at enter_review the owner repairs
+ * the first LOW finding anyway (managed finding-repair bound to it). next must
+ * then propose finding_resolve for it (same per-finding rule as medium) before
+ * REVIEW, so DONE does not leave a repaired finding open. The cosmetic LOW
+ * finding stays open (advisory) through DONE; finding_resolve after DONE must
+ * refuse with a clear next action instead of leaving uncommitted metadata in the
+ * integration checkout. The live-smoke capture needs validate.env (CONTEXT=abs).
+ */
+function scenarioNL(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const name = 'NL run 16: repaired LOW finding resolved before DONE; post-DONE resolve refused clean; live smoke uses validate.env';
+  const o = new Owner('NL', 'B-e2eb', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  const reasons: string[] = [];
+  const violations: string[] = [];
+  try {
+    devSetup(o);
+    driveWithNext(o, { findingRound1: true, run: false, lowFindings: true, contextSmoke: true, violations }, lines, next => {
+      if (next.reason === 'finding_repair' || next.reason === 'finding_resolve' || next.reason === 'enter_review') {
+        reasons.push(`${next.reason}${next.cli?.payload.findingId ? `:${String(next.cli.payload.findingId)}` : ''}`);
+      }
+    });
+    const order = reasons.filter((row, index) => row !== reasons[index - 1]);
+    lines.push(`finding steps: ${order.join(' > ')}`);
+    const findings = new StoryStore(o.root).readFindings(o.storyId).findings;
+    const byDesc = (prefix: string) => findings.find(f => f.desc.startsWith(prefix));
+    const repairedLow = byDesc('Upper ');
+    const cosmetic = byDesc('Comment ');
+    assert.ok(repairedLow && cosmetic, `NL: both low findings recorded: ${JSON.stringify(findings.map(f => [f.id, f.severity, f.status]))}`);
+    if (repairedLow.status !== 'resolved') violations.push(`DONE left the repaired LOW finding ${repairedLow.id} ${repairedLow.status} (steps: ${order.join(' > ')})`);
+    assert.equal(cosmetic.status, 'open', 'NL: the unrepaired cosmetic LOW finding stays open (advisory)');
+    assert.match(readFileSync(join(o.root, 'strs/strs_test.go'), 'utf8'), /TestUpperEmpty/, 'low repair merged into main');
+    // Post-DONE resolve from the integration checkout (run 16: owner in /app).
+    const before = git(o.root, ['status', '--porcelain', '--untracked-files=all']);
+    const late = o.cli('finding_resolve', { storyId: o.storyId, findingId: cosmetic.id, resolution: 'post-DONE: comment wording changed in a follow-up commit' }, { label: 'finding_resolve after DONE' });
+    const after = git(o.root, ['status', '--porcelain', '--untracked-files=all']);
+    lines.push(`finding_resolve after DONE: exit ${late.status}: ${late.out.split('\n').filter(Boolean).slice(0, 2).join(' | ').slice(0, 220)}`);
+    if (after !== before) violations.push(`finding_resolve after DONE left uncommitted metadata in the integration checkout: ${after.replace(/\n/g, '; ')}`);
+    if (late.status === 0) violations.push('finding_resolve after DONE was accepted (must refuse: the DONE record is merged)');
+    else if (!/DONE/.test(late.out) || !/Next:/.test(late.out)) violations.push(`finding_resolve after DONE refusal must name DONE and one Next action: ${late.out.slice(-400)}`);
+    assert.deepEqual(violations, [], `NL violations:\n- ${violations.join('\n- ')}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`NL fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
 }
 
 function scenarioN(machineEnv: NodeJS.ProcessEnv, steps: Step[], flow: 'A' | 'D', run: boolean): Outcome {
@@ -1333,7 +1450,7 @@ function printTimeline(steps: Step[], scenario: string): void {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF|N[AD](?:-run)?)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF|NL|N[AD](?:-run)?)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -1359,10 +1476,11 @@ async function main(): Promise<void> {
       if (only.includes(token) || only.includes(group)) outcomes.push(scenarioN(machine.env, steps, flow, run));
     }
     if (only.includes('NF')) outcomes.push(scenarioNF(machine.env, steps));
+    if (only.includes('NL')) outcomes.push(scenarioNL(machine.env, steps));
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF']) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NL']) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {
