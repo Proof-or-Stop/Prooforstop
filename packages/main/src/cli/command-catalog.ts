@@ -3542,9 +3542,10 @@ Behavior:
     readLog: z.unknown().describe('Required mechanical reviewer read-log evidence. Runtime validates its canonical shape and coherence with readManifest.'),
     readDiagnostics: z.unknown().optional().describe('Mechanical read-manifest diagnostics'),
   }},
-  { name: 'managed_review_evidence_import', description: 'Import provider-authored evidence only from an exact successful managed terminal receipt. Verdict/note/finding overrides are intentionally unsupported.', schema: {
-    runId: z.string().describe('Managed run id'),
-    receiptId: z.string().describe('Exact receipt id returned by host_run_status after terminal'),
+  { name: 'managed_review_evidence_import', description: 'Import provider-authored evidence only from an exact successful managed terminal receipt. Verdict/note/finding overrides are intentionally unsupported. imports=[{runId,receiptId},...] imports several completed runs of one Story in one process (each its own transaction, in order; stops at the first refusal).', schema: {
+    runId: z.string().optional().describe('Managed run id (with receiptId; or use imports)'),
+    receiptId: z.string().optional().describe('Exact receipt id returned by host_run_status after terminal'),
+    imports: z.array(z.object({ runId: z.string(), receiptId: z.string() })).optional().describe('1-32 {runId, receiptId} of completed managed runs of one Story, imported in order in one process'),
   }},
   { name: 'candidate_spec_route', description: 'Build deterministic Story keywords, optionally collect sanitized bounded Codex and Claude semantic proposals through host_run, search the local requirements corpus, rank at most eight ordinary candidates, and persist a versioned candidate-spec-set artifact without embedding document bodies in a prompt.', schema: {
     storyId: z.string().describe('Canonical Story id'),

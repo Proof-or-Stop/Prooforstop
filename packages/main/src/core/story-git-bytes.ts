@@ -6,6 +6,17 @@ import { realpathSync, existsSync, readFileSync, statSync, lstatSync, readdirSyn
 import { join, dirname, basename, isAbsolute, resolve, sep, delimiter } from 'node:path';
 
 const MAX_BYTES = 64 * 1024 * 1024;
+/**
+ * Interactive/identity variables that cannot change what `git ls-tree` or a
+ * two-commit `git diff --name-status` prints (the same set git-ref-witness-memo
+ * and git-object-read-memo treat as inert). Agent hosts set GIT_EDITOR on every
+ * process, which disabled this memo for every gate: story_advance REVIEW reran
+ * the same Story diff once per pinned receipt (run 17).
+ */
+const INERT_GIT_ENV = new Set([
+  'GIT_EDITOR', 'GIT_SEQUENCE_EDITOR', 'GIT_PAGER', 'GIT_TERMINAL_PROMPT', 'GIT_ASKPASS',
+  'GIT_AUTHOR_NAME', 'GIT_AUTHOR_EMAIL', 'GIT_AUTHOR_DATE', 'GIT_COMMITTER_NAME', 'GIT_COMMITTER_EMAIL', 'GIT_COMMITTER_DATE',
+]);
 const MAX_ENTRIES = 128;
 interface MemoEntry { raw: string; bytes: number; }
 const treeMemo = new Map<string, MemoEntry>();
@@ -115,7 +126,7 @@ function executableIdentity(cwd: string): string {
   throw new Error('Git executable cannot be identified');
 }
 function authorityContext(cwd: string): AuthorityContext | undefined {
-  if (Object.keys(process.env).some(key => key.startsWith('GIT_') && key !== 'GIT_PAGER' && process.env[key] !== undefined)) return undefined;
+  if (Object.keys(process.env).some(key => key.startsWith('GIT_') && !INERT_GIT_ENV.has(key) && process.env[key] !== undefined)) return undefined;
   // Discovery commands return newline-delimited paths. Do not mistake an
   // embedded newline in a routing input for two independent authority files.
   if ([cwd, process.env.PATH, process.env.HOME, process.env.XDG_CONFIG_HOME].some(value => value && /[\r\n\0]/.test(value))) return undefined;

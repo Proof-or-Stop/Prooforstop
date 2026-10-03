@@ -279,6 +279,13 @@ export interface CertificationWindowAdmitFacts {
   inventoryHeadMetadataContinuity?: boolean;
   /** receipt.headHash..HEAD is a linear run of PoS metadata-only commits. */
   cheapCheckHeadMetadataContinuity?: boolean;
+  /**
+   * The separate cheap run is redundant: the fast plan IS the routine plan
+   * (precertCheapCheckSubsumedByRoutine) and the admitted window's routine run
+   * executes that whole plan fresh (no dynamic narrowing, no PASS reuse). The
+   * handler derives it from current project inputs only.
+   */
+  cheapCheckSubsumedByRoutine?: boolean;
   materialHash?: string;
   storyFilesHash?: string;
   expectedMainSha?: string | null;
@@ -776,12 +783,12 @@ export function nonInventoryAdmitRefusal(
     };
   }
   const cheap = facts.cheapCheckReceipt;
-  if (!cheap
+  if (!facts.cheapCheckSubsumedByRoutine && (!cheap
     || !verifyPrecertCheapCheckReceipt(cheap)
     || cheap.storyId !== facts.currentStoryId
     || (cheap.headHash !== facts.headHash && !facts.cheapCheckHeadMetadataContinuity)
     || cheap.materialHash !== facts.materialHash
-    || cheap.storyFilesHash !== facts.storyFilesHash) {
+    || cheap.storyFilesHash !== facts.storyFilesHash)) {
     return {
       admit: false,
       blockerCode: PRE_CERT_CHEAP_CHECK_REQUIRED,
@@ -1041,6 +1048,33 @@ export function persistAdmittedCertificationWindow(args: {
     args.store.writeCertificationWindows(args.storyId, data);
     return { window, receipt };
   });
+}
+
+/**
+ * Run 17: `validate --focus=fast` and the routine `validate` ran the same single
+ * configured command back to back (2 x 14.3 s). The cheap check exists to fail
+ * fast BEFORE a window is admitted; when the fast plan is exactly the routine
+ * plan, the routine run the admitted window requires anyway executes the very
+ * same commands fresh, so a separate cheap run proves nothing more.
+ *
+ * True only when both identities come from configured validate.commands (a
+ * validate.ts entrypoint receives --focus as an argument, so its plans differ),
+ * neither is a full run, the source inputs, workflow profile, verification
+ * policy and runtime match, and the normalized command lists (executable, args,
+ * cwd, shell, timeout, optionality, focus tags, effective environment and
+ * executable digests) are identical. Any difference keeps the cheap check.
+ */
+export function precertCheapCheckSubsumedByRoutine(fast: RoutineValidationIdentity, routine: RoutineValidationIdentity): boolean {
+  if (!isCompleteRoutineValidationIdentity(fast) || !isCompleteRoutineValidationIdentity(routine)) return false;
+  if (fast.source.kind !== 'configured' || routine.source.kind !== 'configured') return false;
+  if (fast.invocation.focus !== 'fast' || routine.invocation.focus !== null) return false;
+  if (fast.invocation.full !== null || routine.invocation.full !== null) return false;
+  if (fast.commands.length === 0) return false;
+  return isDeepStrictEqual(fast.source, routine.source)
+    && fast.invocation.profile === routine.invocation.profile
+    && fast.verificationPolicyDigest === routine.verificationPolicyDigest
+    && isDeepStrictEqual(fast.runtime, routine.runtime)
+    && isDeepStrictEqual(fast.commands, routine.commands);
 }
 
 /**

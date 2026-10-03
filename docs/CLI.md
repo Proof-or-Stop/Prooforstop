@@ -583,6 +583,25 @@ commits, 16.8 min). The regression smoke
 over 2 commands: 6 steps / 6 launches / 6 commits / 18.2 s before, 1 step /
 2 launches / 1 commit / 7–8 s after.
 
+Each receipt binds the exact pinned command it executed: every consumer
+(gate admissibility, `pre_review_check`, the inventory observation, narrowing,
+intent fingerprints, publication recovery) requires
+`executionReceipt.command === pin.command` and derives the execution identity
+from the pinned command. Distinct pinned commands are therefore never merged
+into one `go test -run '^(A|B)$'` run: that run is a different command, a
+different execution identity, and a different process (the tests of the
+package share one binary, its globals and its order), so its output is not a
+receipt for any single pin (run 17 Q2, lab verify-batch-and-gate-dupes). What
+the batch saves is the work around each launch: the validation reservation
+controller observes its own process identity and the machine boot session
+once per process (it ran 5 `ps` and 1 `sysctl` per execution), and the
+Story-diff memo is no longer disabled by `GIT_EDITOR` (3–4 `git diff` per
+execution). Per pinned execution the batch now starts ~6 child processes
+besides the pinned command (HEAD and status before and after it, the child's
+identity, the process table), 16.7 → 8.0 amortized at 22 pins
+(`packages/main/dist/tasks/verify-batch-and-gate-dupes-smoke.js`).
+`verification_evidence_refresh_stale` shares the same executor and savings.
+
 **PLAN pins.** `story_review` blocks (`missing_verification_pin`, one row per
 item, naming the refs) every executable (`logic`/`cli`/`browser`) must/should
 intent without `verification:{command,selector}`; manual/docs and nice intents
@@ -992,7 +1011,7 @@ Decision table (first matching row wins):
 | DEV, otherwise | `story_advance --phase=REVIEW` if the REVIEW guard passes, else the guard's own `→`/`Next:` command; advisory evidence-chain items (a changed test no pin selects, a missing should receipt) ride on its `why`, never as a step of their own | framework | `getGuardFailureReason(REVIEW)` |
 | REVIEW, a prepared ReviewRun of this round without a host run | `host_run` managedReview for that lane (all prepared lanes are launched before any wait) | framework (`launch`, bound, not a replacement) / agent | review-runs.json + host-run projection |
 | REVIEW, a lane run in flight | `host_run_status --untilTerminal=true` (compact text, never `--json`) | framework (wait) | host-run projection |
-| REVIEW, a completed lane run not imported | `managed_review_evidence_import {runId, receiptId}` | framework | host-run receipt |
+| REVIEW, completed lane runs not imported (every lane terminal) | `managed_review_evidence_import {runId, receiptId}` for one run, `{imports: [{runId, receiptId}, ...]}` for several: one process, one import transaction and metadata commit per run, in order, stopping at the first refusal (run 17: one process per lane, 4.7–8.5 s each) | framework | host-run receipt |
 | REVIEW, the verdict misses lane evidence | `review_round_prepare` | framework | `evaluateReviewVerdict` + `reviewer_batch` launchable lanes |
 | REVIEW, certification window ADMITTED | `validate --story --json` (the routine suite; nothing in between) | framework | `certification_window_status` |
 | REVIEW, window RUNNING and the stored PASS admissible | `story_advance --phase=TEST`; if the verdict still refuses on open findings: `finding_resolve` for the first repaired one, else `story_advance --phase=DEV` (`finding_unrepaired_dev`) | framework | `certification_window_status` Next + `evaluateReviewVerdict` + `managedFindingRepairState` |
@@ -1000,9 +1019,9 @@ Decision table (first matching row wins):
 | REVIEW, OPEN epoch, otherwise | `review_inventory_status`'s own Next (`review_inventory_finalize [--remediation]`, `review_inventory_cancel`) | framework | `review_inventory_status` |
 | REVIEW, FINALIZED remediation receipt | `story_advance --phase=DEV` | framework | `finalizedUnconsumedReviewInventory` + DEV guard |
 | REVIEW, FINALIZED zero-wave completeness-only receipt | `review_inventory_cancel` | framework | PRE_CERT inventory recovery |
-| REVIEW, saturated FINALIZED receipt, no current fast receipt | `validate --story --focus=fast --json` | framework | `currentPrecertCheapCheckReceipt` |
-| REVIEW, saturated + fast receipt, open blocking finding | `finding_resolve` with `resolution` for the first repaired one, else `story_advance --phase=DEV` (`finding_unrepaired_dev`) | agent | `unclosedBlockingFindings` + `managedFindingRepairState` |
-| REVIEW, saturated + fast receipt | `certification_window_begin` (a begin already refused on these facts for another blocker: its status Next) | framework | PRE_CERT admit predicates / `certification_window_status` |
+| REVIEW, saturated FINALIZED receipt, no current fast receipt, cheap check not waived | `validate --story --focus=fast --json` | framework | `currentPrecertCheapCheckReceipt` + `precertCheapCheckWaived` |
+| REVIEW, saturated + fast receipt (or the cheap check waived), open blocking finding | `finding_resolve` with `resolution` for the first repaired one, else `story_advance --phase=DEV` (`finding_unrepaired_dev`) | agent | `unclosedBlockingFindings` + `managedFindingRepairState` |
+| REVIEW, saturated + fast receipt (or the cheap check waived) | `certification_window_begin` (a begin already refused on these facts for another blocker: its status Next) | framework | PRE_CERT admit predicates / `certification_window_status` |
 | REVIEW, no epoch for this round | `review_inventory_begin` | framework | `evaluateReviewVerdict` |
 | TEST, DONE's review-verdict row fails | `story_advance --phase=DEV` | agent | DONE oracle |
 | TEST, no (or a failing) live-smoke transcript | `live_smoke_transcript --capture=<validate command> --write` (the capture runs with the project `validate.env`, e.g. `CONTEXT=abs`, like validate) | agent | live-smoke oracle row |
@@ -1017,6 +1036,28 @@ Decision table (first matching row wins):
 "Repaired" is per finding (`managedFindingRepairState`, handlers/next-driver.ts): a managed `proof-or-stop-finding-repair` run whose immutable binding targets exactly that finding id (`managedDispatchTarget.findingId`), created after the finding was raised, completed as a safe delivery (`verifyManagedDispatchDelivery`), with a commit reachable from the Story HEAD, committed while that run ran and touching a non-metadata path. A material change since the finding's review is **not** enough: with several open findings, the repair of one changes the material of all (run 14 proposed `finding_resolve` for an unrepaired F-005 after F-004's repair). A completed bound run without such a commit gets the repair dispatch again, its `why` naming the run. This only chooses the step; `finding_resolve` still checks its own evidence. A finding the REVIEW inventory critic dispositioned `duplicate` of a canonical finding (same root cause) gets no repair cycle of its own while the canonical one is open (run 17 Q1): once the canonical finding is repaired and resolved, `next` proposes `finding_duplicate_resolve`, i.e. `finding_resolve` with `duplicateOf` (the canonical id) and `coverage: {command, selector}` the agent authors for the duplicate's OWN case (a test the canonical repair added for it, or its repro as a test). The framework runs that allowlisted command (executable + argv, project `validate.env`) in the Story worktree and closes the finding (`resolutionType: duplicate`, the receipt appended to the resolution) only on exit 0 with the selector in the output; a generic selector (`ok`, `PASS`) is refused. The critic label alone never closes it: a failed run is recorded in `duplicate-finding-coverage.json`, `finding_resolve` refuses `[duplicate_coverage_failed]` with `Next: proof-or-stop next`, and `next` then dispatches the duplicate's own managed finding-repair (its `why` names the failed run). A duplicate that already has a repair run bound to it follows the ordinary repair rule. The same per-finding rule closes a repaired advisory (low or suspected) finding before REVIEW (run 16: a repaired low regression reached DONE open). After DONE, `finding_resolve` and `finding_dismiss` refuse (`<cmd> refused: Story <id> is DONE ...` and one `Next:`): a DONE Story's findings are part of its merged record, and a write from the integration checkout would stay uncommitted.
 
 `review_round_prepare` routes the candidate specs itself. In a project without a requirements corpus (a Go task repo) it records the automatic full-scan reason; `understanding.touchpoints` count as protected sources only through the leading path token of a part that resolves to a real file, so free-text touchpoints ("ast/ast.go IndexExpression and String") never surface as `missing_protected_source` and never demand a `fullScanReason`. A stale full-scan route whose escalation was only the missing corpus (plus such pre-fix free-text reasons) reroutes with the plain command whoever wrote its reason (`isNoCorpusOnlyFullScan`, run 17); an owner reason is asked for only when the fresh route still escalates.
+
+PRE_CERT cheap check (run 17 Q5: `validate --focus=fast` and the routine
+`validate` ran the same single configured command, 2 x 14.3 s). The rule
+(`core/certification-window.ts` admission, `PRE_CERT_CHEAP_CHECK_REQUIRED`):
+`certification_window_begin` admits only with a current signed complete PASS
+from `validate --story --focus=fast --json` bound to the current head (or a
+metadata-only lineage from it), material and story-files hashes; the admitted
+window then permits exactly one routine `validate --story --json`, whose fresh
+PASS the REVIEW→TEST gate consumes. The cheap check exists to fail fast before
+a window is admitted. It is waived (`precertCheapCheckWaived`,
+handlers/validation-identity.ts) only when the separate run proves nothing the
+window's routine run does not: no validate.ts entrypoint (it receives `--focus`
+as an argument), the fast plan is the routine plan
+(`precertCheapCheckSubsumedByRoutine`: both from configured `validate.commands`,
+neither full, identical source inputs, profile, verification policy, runtime and
+normalized commands — executable, args, cwd, shell, timeout, optionality, focus
+tags, effective environment and executable digests), no story-aware dynamic
+validation mode in the environment or project config, and no
+`validate.reuseFreshRoutinePass`. The routine run then still executes fresh
+inside the window (the fresh-run requirement is unchanged), and while the waiver
+holds it refuses an explicit `dynamicMode` or `reuseFreshRoutinePass`. Any other
+plan keeps the cheap check, and `next` keeps proposing it.
 
 Single host (run 14: the owner discovered the environment, probed, recorded the
 fallback and pasted 3 `autopilot_review_submit` rounds by hand, ~5.2 min):

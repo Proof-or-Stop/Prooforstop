@@ -30,12 +30,22 @@ export interface VerificationReceiptGateDecision {
   detail: string;
 }
 
-export type VerificationReceiptGateEvaluator = (input: {
+export type VerificationReceiptGateEvaluator = ((input: {
   intentRef: string;
   selector: string;
   command: string;
   evidence: VerificationEvidence;
-}) => VerificationReceiptGateDecision;
+}) => VerificationReceiptGateDecision) & {
+  /**
+   * One synchronous observation for every receipt of one coverage evaluation:
+   * the evaluator's owner supplies it (proof-admissibility) so the receipts
+   * share one implementation-identity digest and one Git state observation
+   * instead of re-deriving both per receipt (run 17: 3 scans per receipt in
+   * story_advance REVIEW). It never caches a verdict; every receipt is still
+   * authenticated and classified on its own.
+   */
+  observe?: <T>(read: () => T) => T;
+};
 
 export function intentRef(itemId: string, lane: VerificationLane, index: number, intent?: VerificationIntentItem): string {
   return intent?.id || `${itemId}:${lane}:${index}`;
@@ -238,6 +248,20 @@ export function buildVerificationCoverage(
   currentHead?: string,
   isEvidenceFresh?: (headHash: string, evidence?: VerificationEvidence) => boolean,
   options: { deferredGateEvidence?: DeferredGateEvidenceMode; evidenceQualityProfile?: EvidenceQualityProfile; actorTrust?: ActorTrustOptions; factProvenance?: FactProvenanceOptions; receiptAdmissibility?: VerificationReceiptGateEvaluator } = {},
+): VerificationCoverageReport {
+  // The coverage evaluation is synchronous and read-only: its receipts share
+  // the observation the gate evaluator owns (see VerificationReceiptGateEvaluator.observe).
+  const observe = options.receiptAdmissibility?.observe;
+  return observe
+    ? observe(() => buildVerificationCoverageObserved(cl, currentHead, isEvidenceFresh, options))
+    : buildVerificationCoverageObserved(cl, currentHead, isEvidenceFresh, options);
+}
+
+function buildVerificationCoverageObserved(
+  cl: ChecklistData,
+  currentHead: string | undefined,
+  isEvidenceFresh: ((headHash: string, evidence?: VerificationEvidence) => boolean) | undefined,
+  options: { deferredGateEvidence?: DeferredGateEvidenceMode; evidenceQualityProfile?: EvidenceQualityProfile; actorTrust?: ActorTrustOptions; factProvenance?: FactProvenanceOptions; receiptAdmissibility?: VerificationReceiptGateEvaluator },
 ): VerificationCoverageReport {
   const qualityProfile = options.evidenceQualityProfile ?? 'light';
   const entries: VerificationCoverageEntry[] = [];
