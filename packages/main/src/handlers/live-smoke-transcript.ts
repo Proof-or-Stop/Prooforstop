@@ -15,6 +15,7 @@ import type { ChecklistData } from '../core/types.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { liveSmokeCaptureBudget } from '../core/done-required-timeout-budget.js';
 import { reclaimStaleValidationExecutionLock } from '../core/validation-execution-lock.js';
+import { projectValidationEnvironment } from '../core/validation-command-environment.js';
 import { evaluateLiveSmokeTranscriptValue } from '../core/live-smoke-transcript-evidence.js';
 
 /**
@@ -528,9 +529,12 @@ export function createLiveSmokeTranscriptHandlers(ctx: HandlerContext): Record<s
     const command = captureCommand(args);
     if (command !== null) {
       const budget = liveSmokeCaptureBudget(ctx.root, command);
+      // Run 16: the project test environment (validate.env, e.g. CONTEXT=abs)
+      // applies here exactly as it does to validate and verification runs.
+      const projectEnv = projectValidationEnvironment(gitCwd);
       const captureEnv = budget.nestedMaxTimeoutMs === undefined
-        ? { ...process.env, PROOF_OR_STOP_ACTIVE_STORY_ID: args.storyId }
-        : { ...process.env, PROOF_OR_STOP_ACTIVE_STORY_ID: args.storyId, PROOF_OR_STOP_MAX_TIMEOUT_MS: String(budget.nestedMaxTimeoutMs) };
+        ? { ...process.env, ...projectEnv, PROOF_OR_STOP_ACTIVE_STORY_ID: args.storyId }
+        : { ...process.env, ...projectEnv, PROOF_OR_STOP_ACTIVE_STORY_ID: args.storyId, PROOF_OR_STOP_MAX_TIMEOUT_MS: String(budget.nestedMaxTimeoutMs) };
       return runCapture(command, gitCwd, budget.timeoutMs, ctx.log, captureEnv).then(({ actual, timedOut }) => {
         if (timedOut) reclaimStaleValidationExecutionLock(ctx.root, args.storyId);
         return finish(actual);

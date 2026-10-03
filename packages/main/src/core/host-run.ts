@@ -105,6 +105,7 @@ import {
 } from './reviewer-read-evidence.js';
 import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 import { REVIEWER_AUTHORED_FINDING_CATEGORIES, type ReviewerAuthoredFindingCategory } from './evidence-chain-finding.js';
+import { REVIEW_SEVERITY_RUBRIC } from './finding-closure-severities.js';
 import {
   CLAUDE_SUPPORTED_REASONING_EFFORTS,
   QUALIFIED_MANAGED_REVIEWER_DEFAULTS,
@@ -1084,7 +1085,7 @@ export function managedReviewFinalProposalJsonSchema(args: ManagedReviewFinalPro
     required: ['desc', 'severity', 'category'],
     properties: {
       desc: nonBlankString,
-      severity: { enum: ['critical', 'high', 'medium', 'low'] },
+      severity: { enum: ['critical', 'high', 'medium', 'low'], description: REVIEW_SEVERITY_RUBRIC },
       category: {
         enum: [...REVIEWER_AUTHORED_FINDING_CATEGORIES],
         description: 'evidence_chain = a framework-owned evidence-chain item (stale or missing receipt, intent with no pinned command, existing test bound to no intent). It is reclassified as a framework action and is never a review finding; use the other categories for real product defects.',

@@ -438,6 +438,23 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
 
   // -- DEV -----------------------------------------------------------------
 
+  /**
+   * The first open finding outside the closure set (low, or suspected) whose
+   * own managed finding-repair completed with a material commit
+   * (managedFindingRepairState). Free when the Story has no repair run.
+   */
+  function repairedAdvisoryFinding(storyId: string, hostRuns: HostRunView[]) {
+    if (!hostRuns.some(run => run.agentType === FINDING_REPAIR_AGENT)) return null;
+    const blocking = new Set(openBlockingFindings(storyId).map(row => row.finding.id));
+    const gitCwd = gitCwdOf(storyId);
+    for (const finding of ctx.store.readFindings(storyId).findings ?? []) {
+      if (finding.status !== 'open' || blocking.has(finding.id) || finding.evidenceState === 'disproven') continue;
+      const repair = managedFindingRepairState({ root: ctx.root, gitCwd, storyId, finding, runs: hostRuns });
+      if (repair.repaired) return { finding, repair };
+    }
+    return null;
+  }
+
   function devNext(base: { storyId: string; phase: string }): NextStep {
     const { storyId } = base;
     const checklist = ctx.store.readChecklist(storyId);
@@ -490,6 +507,17 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     const chain = chainOf();
     if (chain.blocking && chain.nextAction) {
       return evidenceChainStep(base, chain, 'The DEV→REVIEW evidence-chain gate would refuse: a must/should receipt is stale or missing.');
+    }
+    // Run 16: an advisory (low / suspected) finding stays open unless the owner
+    // repairs it; once a managed finding-repair bound to it completed, close it
+    // here with the same per-finding rule as a blocking one, so DONE never
+    // leaves a repaired finding open. Unrepaired advisory findings stay advisory.
+    const repairedAdvisory = repairedAdvisoryFinding(storyId, hostRuns);
+    if (repairedAdvisory) {
+      const { finding, repair } = repairedAdvisory;
+      return step(base, 'agent', 'finding_resolve', { command: 'finding_resolve', payload: { storyId, findingId: finding.id, resolution: FINDING_RESOLUTION_PLACEHOLDER } },
+        `Advisory ${finding.severity} finding ${finding.id} was repaired by managed finding-repair run ${repair.runId} (commit ${repair.commit.slice(0, 12)}) but is still open; resolve it before REVIEW so DONE does not leave it open. Name the repair commit and its passing focused evidence.`,
+        'managedFindingRepairState (advisory finding with a completed bound repair)', { placeholders: ['resolution'] });
     }
     // Advisory items (a changed test no pin selects, a missing should receipt)
     // never become a step of their own: binding a test is the agent's judgment

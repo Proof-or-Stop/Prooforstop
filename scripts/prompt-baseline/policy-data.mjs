@@ -70,7 +70,7 @@ export const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-behavior',
-    templateHash: 'aeec7d9356cf60b9099fb029e353f3f1ad05dd0bfd8d4cc3eed60beabf8efb38',
+    templateHash: '424d649435a127339fa1639485f050163433ce6777796cc51ae7bbf85a3604af',
   },
   {
     role: 'proof-or-stop-review-channel',
@@ -78,7 +78,7 @@ export const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-concept',
-    templateHash: '1464db23e356cb360d15dbf72116fd66446ca9b4bb4051f753e80726a85a6208',
+    templateHash: '13d5bfa7587e0964789435f9a5ed8a235d00361bd864131a16829ddc07b6fcde',
   },
   {
     role: 'proof-or-stop-review-delivery',
@@ -86,11 +86,11 @@ export const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-docs',
-    templateHash: '9877c8a47c8db9b23f769c922678fb3150b927930abbe5fef30abf26914fd09d',
+    templateHash: 'b34df214c26071957f1e908579f44947a66b4fc708e6c25dc09b1099756e4c7b',
   },
   {
     role: 'proof-or-stop-review-quality',
-    templateHash: 'f5b18164e6019265deb6fd26f842af6abec3660dfff0f0b93fd8241850fb4709',
+    templateHash: 'df2bdea52e10140eb5633af257ebe2f424e99c6139c4a5a2f1dc58dc4ac0348c',
   },
   {
     role: 'proof-or-stop-review-scope-plan',
@@ -102,11 +102,11 @@ export const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-test-coverage',
-    templateHash: '25d2277818cdb01eff41c81a78704d5e7e5885e24728e8c8d388602c156deedd',
+    templateHash: '8ef311e242efe475ae2af2f5b292771c98fe50fb523e1edbf0047185f11528d6',
   },
   {
     role: 'proof-or-stop-review-topology-critic',
-    templateHash: 'de68c702d2d409d27f7936af7b15f12debe2a59e3ed1bfa78cbfa59b6edf1008',
+    templateHash: 'ae2fa37d5bfa8c692c037af18abcfe644e586ac797d94d482d9908bbe5b32a37',
   },
   {
     role: 'proof-or-stop-product-reviewer',
@@ -130,11 +130,11 @@ export const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
 ].map(entry => Object.freeze(entry)));
 
 export const APPROVED_ROLE_BODY_ROLLOUT_MANIFEST = Object.freeze([
-  ["proof-or-stop-review-behavior", "aefae08ddacd30c52be142ce5e4ebf7f78b7555de68b7b2e60433e9dbb464dd0", "5d6aa06bfbcad5ba32964c1cd8c994fef8bd07c68fd39b0f6877e1eb528d96bd", "b7b49797823499177b6e5b0143e5c3e97a5de7f9229de2b05289338c224ba12d", "55a2f12287d8a90618ef84a31255a8a98e39674ef73c4d178fa64e3009e736b9", "2e41b634607a546066f22951ae6d6a0763ca5516c4ef871499c2fa29526384c4"],
-  ["proof-or-stop-review-concept", "76da75dc3cb3109e42d3d1eda57864c647c8e7cedd33727f74387fa67c151a7a", "54148eb541957fc2a400e0e6255f2e9180ce11c815847c45153c243862fc8728", "af55df4f26d8f6dced7455458a7123934f02f34cd384ff788618e21f1dc7188f", "caba7126d0faef165b643de76b5d11be712eb373a419470a4017373b316032d4", "f348660a571968d00f4efa39524fd1b5a7cafe2cf1e08f6a63ceaa0c8f9a4d32"],
-  ["proof-or-stop-review-docs", "04fbdc3f19960d9af0f9a3b063b5d0c4bdd93259469d35c3236f0a512886303d", "c40127c2e1647c76576a83fc58f603ec6ead7fa6ee6d4ddd9129849229e59e43", "13aabf3a2f99b639b920a11906ea35c12e12eb2635add93db7c573126ce206b8", "364f11994c5f66461f3ac11ad0ba3aa05b867cb7d80bf75ee903b5e70e80e49d", "c0e4253253ff5fe99161755bccd296871318969604f08ce860f1fb9309cd300d"],
-  ["proof-or-stop-review-quality", "39511c6496fc15584abb38aeb64c7124616b44d16ca1420667653ba2366bb553", "f921da5fa466448df54d24257c9c07db1505ca08c4e639beb6f1c73a90ac65ff", "64cf67f35e9241c6233aa6a843f6d1bdd393aedd3f8197b764549153c25ca3de", "18037cf8c79aba5a417e3cf09cc1b6ce4e51a6155206f2566e60887101179611", "e382cd9172570d0e50910186c2efeda38424be64cc869ab2043cf67d0662cc68"],
-  ["proof-or-stop-review-test-coverage", "988ae0b327cbe18606d80f86aa5d02718b22618265de2885885c4f02bb5d6709", "b8924014293e8979a0f0a0959b5a46bb8f6abee6d04c96f832667eba9edc4448", "3a09cf414e9692ade1a670abdf1394ee25879cfc95f67d11b539d96f03a980f8", "1e5a98c10c383ffdce0cf6f9a1adb45f1dd469d156b3d6c5edde0cd9c2585afe", "0c11095833b834206975e09f54e651052c2e14e2560e9dea22683d83ee6f6d42"],
+  ["proof-or-stop-review-behavior", "edec74eb36a776d611741b73e8a89a0ea5a7eecb672667ccef97506c3fe06b77", "5d6aa06bfbcad5ba32964c1cd8c994fef8bd07c68fd39b0f6877e1eb528d96bd", "c41809a05d672059febeb38c05bea0db95cf7cb6c28951109d1592b6b23113c7", "6f4adfc3ac1cdc026e59e2df10930f37d5dc2a9af171ebdf45a732a21c16b503", "86421834c60a9193f29b9f928c73988c46f33649614436b38626ac803ec3df16"],
+  ["proof-or-stop-review-concept", "6a36c8f59b2e94c8cee72d5f82682b6bf6bd5036fc3e0db5e7c38ee7a2b18842", "54148eb541957fc2a400e0e6255f2e9180ce11c815847c45153c243862fc8728", "5a2fd3722066e97f642a79cd140b12d1a908ba045c7b169cbccec2e6d7bda593", "9af4419ab83d69ae39efabafa31ffd5b4bb2903fc645ec66cd66a87601bfa4b5", "f78d87f051ad3d6388203a107a0ece2ff6ffca94bb507d6f7a4d71834a6bf2ea"],
+  ["proof-or-stop-review-docs", "477c8c042957191721e747d43e749a3b7cddf2f9425ee7e807f802c0c346cf58", "c40127c2e1647c76576a83fc58f603ec6ead7fa6ee6d4ddd9129849229e59e43", "7ae1fa200bb8307c9045e338addcd5e53c6032b62fbc59bf24063133116e6224", "4d5342c89a745bf0c526cb87cb713872ab72a3a65495d38d138e1309b24ca53c", "c51ee28d584c454c855430a3f27867bab2b4db696a0316296835dc639565170d"],
+  ["proof-or-stop-review-quality", "89440a29a22f4f1f8b0c3956e1beb4295218d34f2032132adfa3641b16c406d6", "f921da5fa466448df54d24257c9c07db1505ca08c4e639beb6f1c73a90ac65ff", "0dd7447b577b06ea79c4f039c9a88bf04912b4991fcbbe740733cd681016337b", "5d9ff4d4e0455aec2f39934255791b37977d25bab3952c1eeb58c39817eb904f", "1ad89d29d8994a3c9ba5ce97935b08119e40aa925de5a3bad4133316c83928a3"],
+  ["proof-or-stop-review-test-coverage", "59e070f18e3007de341afafc5504357d88edbf39aff84f2c4427f97f72ccf360", "b8924014293e8979a0f0a0959b5a46bb8f6abee6d04c96f832667eba9edc4448", "200a0f4834f416548f9804f31b5c02ebe5d220ebd53b6ed01381c18bf91c0b8f", "d3aaa7f35def37db1a4c841ca76a9b59a257ce9887ed4d0aee20822717472758", "7493609402aad09f735defa839a1267d00b273501b8bc73d89209268fabd33d9"],
 ].map(([role, modularBodySha256, roleSemanticDigest, roleRenderDigest, modularClaudeRenderDigest, modularCodexRenderDigest]) => Object.freeze({
   role, modularBodySha256, roleSemanticDigest, roleRenderDigest, modularClaudeRenderDigest, modularCodexRenderDigest,
 })));

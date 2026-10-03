@@ -359,6 +359,21 @@ function normalizeFindingCategory(category: string): Finding['category'] {
  * - Explicit 'disproven' → must include disprovenEvidence.summary (≥10 characters); error if missing (disproven must carry counter-evidence).
  * - Invalid string → error (don't rely on Zod alone; runtime validates to the same standard, see CLAUDE.md "Handler Coding Conventions").
  */
+/**
+ * Run 16: after DONE the owner resolved a low finding from the integration
+ * checkout; the write landed in findings.json / finding-ledger.json /
+ * process-metrics.json on main with no commit (autoCommitStoryMetadata commits
+ * only on story/* branches). A DONE Story's findings are part of its merged DONE
+ * record, so a finding status write is refused with one next action instead.
+ */
+function refuseFindingWriteAfterDone(store: Pick<HandlerContext['store'], 'readStory'>, storyId: string, command: 'finding_resolve' | 'finding_dismiss'): void {
+  let phase: string | undefined;
+  try { phase = store.readStory(storyId).phase; } catch { return; }
+  if (phase !== 'DONE') return;
+  throw new Error(`${command} refused: Story ${storyId} is DONE. Its findings are part of the merged DONE record; writing them now would leave findings.json, finding-ledger.json and process-metrics.json uncommitted in the integration checkout.\n`
+    + `Next: none for ${storyId} — an open low finding stays advisory in the DONE record (next resolves a repaired finding before DONE); if the defect still needs work, start a follow-up Story with proof-or-stop story_create.`);
+}
+
 function resolveEvidenceState(args: {
   evidenceState?: string;
   uncertaintyReason?: string;
@@ -1170,6 +1185,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
     },
 
     finding_resolve(args: { storyId: string; findingId: string; resolution?: string; resolutionType?: string; resolveEvidenceStrength?: string }): string {
+      refuseFindingWriteAfterDone(store, args.storyId, 'finding_resolve');
       assertCwdInWorktree(store, args.storyId);
       resolveAgentMutationAuthority({ command: 'finding_resolve' });
       // B-4f46 CHK-002: validate the optional audit-only enums up front (omitted => unchanged legacy behavior).
@@ -1233,6 +1249,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
     },
 
     finding_dismiss(args: { storyId: string; findingId: string; reason: string; dismissReasonType?: string; dismissEvidenceStrength?: string }): string {
+      refuseFindingWriteAfterDone(store, args.storyId, 'finding_dismiss');
       assertCwdInWorktree(store, args.storyId);
       if (!args.reason || args.reason.trim().length < 10) {
         throw new Error('finding_dismiss: reason must be >= 10 characters, explaining why it will not be fixed');
