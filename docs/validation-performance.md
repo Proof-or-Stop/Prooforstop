@@ -85,6 +85,11 @@ signed cheap-check receipt for the resulting HEAD. Run
 Admission reconstructs the same current command identity as execution. Changed
 environment, executable, timeout, policy or entrypoint invalidates the cheap
 receipt even when HEAD is unchanged; unavailable identity fails closed.
+The cheap check is waived when the fast plan is exactly the routine plan
+(configured `validate.commands` only, identical normalized commands, no
+dynamic validation mode, no `reuseFreshRoutinePass`): the window's routine run
+then executes the same commands fresh, and refuses explicit dynamic or reuse
+arguments while the waiver holds (see docs/CLI.md, PRE_CERT cheap check).
 The admitted window permits one routine `proof-or-stop validate --story=B-example --json`
 execution. This includes dynamic execution and explicit full validation, even
 when full is combined with focus. An exact reusable current PASS starts no child
