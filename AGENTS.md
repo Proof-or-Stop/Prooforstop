@@ -477,7 +477,22 @@ Run `story_review` after understanding, decision, checklist, ProofStory, signed
 scope-check resolution, scope-contract preparation, and memory-preflight
 requirements are ready. PLAN passes when
 `blockerCount` is zero. Advisory issues are intentionally possible, so total
-issue count is not a zero-only acceptance criterion. A quick-channel Story may
+issue count is not a zero-only acceptance criterion.
+
+Every exclusion a PLAN gate asks for is recorded in PLAN, never by reopening
+INIT (the INIT scope boundary stays INIT-only and is not an input of these
+checks). A `touchpoint_uncovered` path is satisfied by an item's
+`files.modify/create/test`, or, for reference-only material, by an item
+`excludes` entry that names the exact path and gives a reason (a bare path
+does not count): `proof-or-stop checklist_update --storyId=B-xxxx
+--itemId=CHK-001 --excludes='[...current, "docs/x.md: reference only, not
+changed"]'`. A `scope_gap` is the signed scope-plan reviewer verdict and
+story_review never re-judges it: cover the point in a checklist item, or append
+an `excludes` entry naming it with the reason (reference-only material or an
+acknowledged "do not ..." constraint), then rerun the scope-plan reviewer with
+the managed `host_run` command the hint prints. When the checklist changed after
+the verdict (`scope-check.json` `checklistDigest`, guidance only), the hint names
+only the rerun. A quick-channel Story may
 make adversarial review optional only when the CLI says it is eligible; normal
 scope, intent, ownership, memory, and policy gates still apply.
 

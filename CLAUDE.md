@@ -687,6 +687,10 @@ see story/B-9975
 
 即「PLAN 完成标志 = `scope-check.json` 存在且所有通道均已清账」。
 
+**PLAN 内的排除声明（run 15 修复）**：PLAN 门槛要求的每一项排除都在 PLAN 内完成，绝不需要回 INIT 改 scope boundary（`scope_boundary_set` 仍然只限 INIT，也不是这些检查的输入）。
+- `touchpoint_uncovered`：touchpoint 要么在某个 item 的 `files.modify/create/test` 里，要么被某个 item 的 `excludes` 条目**写出确切路径并给出理由**（如 `"docs/x.md: reference only, not changed"`）；只写路径不算。动作：`proof-or-stop checklist_update --storyId=<id> --itemId=<CHK> --excludes='[...现有 excludes, "<path>: <理由>"]'`。
+- `scope_gap`：是 scope-plan reviewer 签名的裁决，`story_review` 不会自己重判。修法：在 checklist item 里覆盖它，或对仅供参考的材料 / 已确认的约束（「do not …」句）在某 item 的 `excludes` 追加写明该点和理由的条目；然后重跑 scope-plan reviewer（提示里给出 managed `host_run` 命令）。`scope_check_save` 记录 reviewer 当时可见 checklist 的 `checklistDigest`（仅用于提示措辞，不在签名域内）；checklist 在裁决后已改动时，提示只给一个动作：重跑 reviewer。
+
 ### verbatim request（request.md）与 PLAN 追溯
 
 - `story_create` 接收 `request`（或 `requestFile`）：用户请求**原文**，不是转述；通用用户场景要向用户索取原话。写入 Story 目录 `request.md`（上限 16 KB，超出带显式截断标记），`request.json` 记 sha256 / 来源 / amendments；`request.md` 进入 INIT_CHECK 签名域（无 request.md 的 Story 哈希不变）。
