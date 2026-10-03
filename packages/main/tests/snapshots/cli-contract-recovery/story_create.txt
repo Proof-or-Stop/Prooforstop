@@ -252,7 +252,7 @@ STEP-BY-STEP
 
   Examples:
     Minimal classified verificationIntent JSON:
-    {"title":"Example Story","description":"Example Story description","checklist":[{"title":"Focused acceptance","verificationIntent":{"happy":[{"id":"CHK-001:happy:0","desc":"Focused acceptance behavior passes","type":"logic","priority":"must","scope":"focused","expectation":"absolute_pass","requirementSource":"story"}],"edge":[],"adversarial":[]}}]}
+    {"title":"Example Story","description":"Example Story description","checklist":[{"title":"Focused acceptance","verificationIntent":{"happy":[{"id":"CHK-001:happy:0","desc":"Focused acceptance behavior passes","type":"logic","priority":"must","scope":"focused","expectation":"absolute_pass","requirementSource":"story","verification":{"command":"go test -v ./pkg -run ^TestFocusedBehavior$","selector":"--- PASS: TestFocusedBehavior"}}],"edge":[],"adversarial":[]}}]}
 
   Usage: proof-or-stop story_create [--name=value] [--title=value] [--description=value] [--type=value] [--priority=value] [--source=value] [--depends=value] [--keywords=value] [--checklist=value] [--milestones=value] [--scopeBoundary=value] [--executionBoundary=value] [--prefix=value] [--phase=value] [--forceNew] [--background=value] [--fromDraft=value] [--reproFirstBypassReason=value]
   (* = required)

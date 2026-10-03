@@ -12,12 +12,22 @@
  *   missing_receipt  an executable must/should intent has no admissible
  *                    receipt (no pin, never run, or a non-mechanical row).
  *                    Blocking for `must` (the REVIEW evidence gate refuses it
- *                    anyway), advisory for `should`. Next action: run the pin
- *                    (`verification_run`) or record one (`verification_evidence_add`).
+ *                    anyway), advisory for `should`. Next action: run the pins
+ *                    (`verification_run --pending`); for intents without a pin,
+ *                    ONE `verification_evidence_batch_add` template whose
+ *                    command/selector/note the agent authors.
  *   unbound_test     a Go test function added or changed in the Story diff that
  *                    no intent's pinned `go test` command selects. Advisory.
- *                    Next action: bind it to an unpinned intent of the item
- *                    whose files contain the test.
+ *                    Next action: a bind template whose intent is the agent's
+ *                    choice, only if the test proves that intent.
+ *
+ * Which test proves which intent is a JUDGMENT, never mechanics (run 16: the
+ * first changed test of the item's files was proposed, as a framework step,
+ * for an intent it does not exercise, with a fabricated "X proves: <desc>"
+ * note; `next --run` would have pinned it immutably). So the check never
+ * chooses: an unpinned intent gets ranked CANDIDATE tests with why (literals of
+ * the intent found in the test body, then shared name tokens) and every next
+ * action that binds a test leaves the command/intent and the note to the agent.
  *
  * The unbound-test scan is language-aware only where selection is mechanical:
  * Go (`func TestX(t *testing.T)` + `go test [pkgs] -run/-skip`). Any pinned
@@ -34,7 +44,24 @@ import { tokenizeCommandString } from './validation-executor.js';
 
 export type EvidenceChainIssueKind = 'stale_receipt' | 'missing_receipt' | 'unbound_test';
 
-export interface GoTestRef { name: string; file: string; packageDir: string }
+export interface GoTestRef {
+  name: string;
+  file: string;
+  packageDir: string;
+  /** Source of the test function at HEAD (bounded), when the scan read it; used only to rank candidates. */
+  body?: string;
+}
+
+/** A changed test that MAY prove an unpinned intent; the agent decides. */
+export interface EvidenceChainCandidate {
+  test: GoTestRef;
+  /** Exact `go test` command that selects only this test. */
+  command: string;
+  selector: string;
+  /** Why it is listed: intent literals found in its body, shared name tokens, or neither. */
+  why: string;
+  score: number;
+}
 
 export interface EvidenceChainIssue {
   kind: EvidenceChainIssueKind;
@@ -45,6 +72,8 @@ export interface EvidenceChainIssue {
   itemId?: string;
   priority?: string;
   test?: GoTestRef;
+  /** missing_receipt without a pin: changed tests of the item that may prove it, best first. */
+  candidates?: EvidenceChainCandidate[];
 }
 
 export interface EvidenceChainReport {
@@ -184,11 +213,11 @@ export function pinSelectsGoTest(selection: PinSelection, test: GoTestRef): bool
 }
 
 const GO_TEST_FUNC = /^func\s+(Test[^\s(]*)\s*\(\s*\w+\s+\*testing\.T\s*\)/;
+const TEST_BODY_MAX_CHARS = 16_000;
 
-/** Go test functions of one file whose line span intersects the changed new-side lines (1-based). */
-export function changedGoTestFunctions(content: string, changedLines: ReadonlySet<number> | 'all'): string[] {
-  const lines = content.split('\n');
-  const names: string[] = [];
+/** Go test functions of one file with their 0-based line spans. */
+function goTestFunctionSpans(lines: readonly string[]): Array<{ name: string; start: number; end: number }> {
+  const spans: Array<{ name: string; start: number; end: number }> = [];
   for (let i = 0; i < lines.length; i++) {
     const match = lines[i]!.match(GO_TEST_FUNC);
     if (!match) continue;
@@ -209,12 +238,25 @@ export function changedGoTestFunctions(content: string, changedLines: ReadonlySe
       }
       if (opened && depth <= 0) break;
     }
-    if (changedLines === 'all') { names.push(name); continue; }
-    for (let line = i + 1; line <= end + 1; line++) {
-      if (changedLines.has(line)) { names.push(name); break; }
-    }
+    spans.push({ name, start: i, end });
   }
-  return names;
+  return spans;
+}
+
+function changedSpans(content: string, changedLines: ReadonlySet<number> | 'all'): Array<{ name: string; body: string }> {
+  const lines = content.split('\n');
+  return goTestFunctionSpans(lines)
+    .filter(span => {
+      if (changedLines === 'all') return true;
+      for (let line = span.start + 1; line <= span.end + 1; line++) if (changedLines.has(line)) return true;
+      return false;
+    })
+    .map(span => ({ name: span.name, body: lines.slice(span.start, span.end + 1).join('\n').slice(0, TEST_BODY_MAX_CHARS) }));
+}
+
+/** Go test functions of one file whose line span intersects the changed new-side lines (1-based). */
+export function changedGoTestFunctions(content: string, changedLines: ReadonlySet<number> | 'all'): string[] {
+  return changedSpans(content, changedLines).map(span => span.name);
 }
 
 /** New-side changed lines per file from `git diff -U0` output. */
@@ -253,9 +295,9 @@ export function collectChangedGoTests(gitCwd: string, base: string, changedPaths
     let content: string;
     try { content = git(gitCwd, ['show', `HEAD:${file}`]); } catch { continue; }
     const added = changedPaths.find(row => row.path === file)?.status === 'added';
-    const names = changedGoTestFunctions(content, added ? 'all' : (diff.get(file) ?? new Set()));
+    const spans = changedSpans(content, added ? 'all' : (diff.get(file) ?? new Set()));
     const packageDir = posix.dirname(file) === '.' ? '' : posix.dirname(file);
-    for (const name of names) tests.push({ name, file, packageDir });
+    for (const { name, body } of spans) tests.push({ name, file, packageDir, body });
   }
   return tests;
 }
@@ -299,8 +341,77 @@ function cliLine(command: string, payload: Record<string, unknown>): string {
   return `proof-or-stop ${command} '${JSON.stringify(payload).replace(/'/g, `'\\''`)}'`;
 }
 
-function evidenceAddCommand(storyId: string, itemId: string, intentRef: string, kind: string, command: string, selector: string, note: string): string {
-  return cliLine('verification_evidence_add', { storyId, itemId, intentRef, kind, command, selector, note });
+const MAX_CANDIDATES = 4;
+
+/** A test reference without its body (reports stay bounded). */
+function testRef(test: GoTestRef): GoTestRef {
+  return { name: test.name, file: test.file, packageDir: test.packageDir };
+}
+
+/**
+ * Code-like literals of an intent description: backticked text, bracket
+ * expressions (with their prefix, e.g. `myArray[99 : 101 : 2]`, and each
+ * bracket group), parenthesized groups and double-quoted strings.
+ */
+export function intentLiterals(desc: string): string[] {
+  const out = new Set<string>();
+  const add = (raw: string): void => {
+    const text = raw.trim().replace(/[.,;]+$/, '');
+    if (normalizeCode(text).length >= 3) out.add(text);
+  };
+  for (const match of desc.matchAll(/`([^`\n]+)`/g)) add(match[1]!);
+  for (const match of desc.matchAll(/[^\s`]*\[[^\]\n]*\][^\s`,;]*/g)) {
+    add(match[0]);
+    for (const group of match[0].matchAll(/\[[^\]]*\]/g)) add(group[0]);
+  }
+  for (const match of desc.matchAll(/\([^()\n]*\)/g)) add(match[0]);
+  for (const match of desc.matchAll(/"[^"\n]*"/g)) add(match[0]);
+  return [...out];
+}
+
+/** Whitespace- and escape-insensitive form (a Go string literal escapes the quotes of `"12345"[::2]`). */
+function normalizeCode(text: string): string {
+  return text.replace(/[\s\\]+/g, '');
+}
+
+function words(text: string): string[] {
+  return text.replace(/([a-z0-9])([A-Z])/g, '$1 $2').toLowerCase().split(/[^a-z]+/).filter(word => word.length >= 3);
+}
+
+function sameWord(a: string, b: string): boolean {
+  return a.length >= 4 && b.length >= 4 ? a.slice(0, 4) === b.slice(0, 4) : a === b;
+}
+
+/**
+ * Rank changed tests as CANDIDATES for one unpinned intent. Ranking is a hint
+ * for the agent, never a decision: literals of the intent found in the test
+ * body weigh most, then words the test name shares with the description. Every
+ * candidate says why it is listed, including "no literal" for a weak one.
+ */
+export function rankCandidateTests(desc: string, tests: readonly GoTestRef[], itemId: string): EvidenceChainCandidate[] {
+  const literals = intentLiterals(desc);
+  const descWords = [...new Set(words(desc))];
+  return tests.map((test, index) => {
+    const body = normalizeCode(test.body ?? '');
+    const found = test.body === undefined ? [] : literals.filter(literal => body.includes(normalizeCode(literal)));
+    const shared = [...new Set(words(test.name.replace(/^Test/, '')))].filter(word => descWords.some(other => sameWord(word, other)));
+    const literalScore = found.reduce((sum, literal) => sum + normalizeCode(literal).length, 0);
+    const reasons = [
+      test.body === undefined ? 'body not read' : found.length
+        ? `body contains ${found.slice(0, 3).join(', ')}`
+        : 'no literal of the intent appears in its body',
+      shared.length ? `name shares: ${shared.join(', ')}` : 'name shares no word with the intent',
+      `changed in ${test.file}, a file ${itemId} lists`,
+    ];
+    return { test: testRef(test), command: goTestCommand(test), selector: `--- PASS: ${test.name}`, why: reasons.join('; '), score: literalScore * 10 + shared.length, index };
+  })
+    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .slice(0, MAX_CANDIDATES)
+    .map(({ index: _index, ...candidate }) => candidate);
+}
+
+function renderCandidates(candidates: readonly EvidenceChainCandidate[]): string {
+  return candidates.map((candidate, index) => `${index + 1}) ${candidate.test.name} \`${candidate.command}\` (${candidate.why})`).join('; ');
 }
 
 /**
@@ -378,6 +489,7 @@ export function evaluateEvidenceChain(input: {
     }
   }
 
+  const unpinnedMissing: Array<{ issue: EvidenceChainIssue; item: ChecklistItem; type: VerificationIntentType; top: EvidenceChainCandidate | undefined }> = [];
   for (const entry of input.coverage) {
     if (entry.intentRef.endsWith(':missing-verification-intent')) continue; // authoring gap, not evidence chain
     const priority = entry.priority ?? 'must';
@@ -398,37 +510,53 @@ export function evaluateEvidenceChain(input: {
     const executable = intent ? (isExecutableIntentType(intent.type) || !!intent.verification?.command) : isExecutableIntentType(entry.type);
     if (!executable) continue;
     const pin = intent?.verification;
-    let nextAction: string;
-    if (pin && priority === 'must') {
-      nextAction = pendingBatch;
-    } else if (pin) {
-      nextAction = cliLine('verification_run', { storyId, intentRef: entry.intentRef });
-    } else {
-      const candidate = unbound.find(row => row.owners.some(owner => owner.id === item.id));
-      nextAction = candidate
-        ? evidenceAddCommand(storyId, item.id, entry.intentRef, evidenceKindFor(entry.type), goTestCommand(candidate.test),
-          `--- PASS: ${candidate.test.name}`, `${candidate.test.name} proves: ${entry.desc}`.slice(0, 200))
-        : evidenceAddCommand(storyId, item.id, entry.intentRef, evidenceKindFor(entry.type), '<executable and argv of the test that proves it>',
-          '<text its passing output prints>', `<which behavior of ${entry.intentRef} the test proves>`);
+    if (pin) {
+      issues.push({ kind: 'missing_receipt', blocking: priority === 'must', intentRef: entry.intentRef, itemId: entry.itemId, priority,
+        detail: `${entry.intentRef} (${priority}) has no admissible receipt for its pinned command \`${pin.command}\`${entry.evidence?.nonMechanicalReason ? `: ${entry.evidence.nonMechanicalReason}` : ''}`,
+        nextAction: priority === 'must' ? pendingBatch : cliLine('verification_run', { storyId, intentRef: entry.intentRef }) });
+      continue;
     }
-    issues.push({ kind: 'missing_receipt', blocking: priority === 'must', intentRef: entry.intentRef, itemId: entry.itemId, priority,
-      detail: `${entry.intentRef} (${priority}) has no admissible receipt${pin ? ` for its pinned command \`${pin.command}\`` : ' and no pinned command'}${entry.evidence?.nonMechanicalReason ? `: ${entry.evidence.nonMechanicalReason}` : ''}`,
-      nextAction });
+    // No pin: which test proves it is the agent's judgment. List candidates
+    // (changed tests of this item no pin selects), never pick one.
+    const candidates = rankCandidateTests(entry.desc, unbound.filter(row => row.owners.some(owner => owner.id === item.id)).map(row => row.test), item.id);
+    const issue: EvidenceChainIssue = { kind: 'missing_receipt', blocking: priority === 'must', intentRef: entry.intentRef, itemId: entry.itemId, priority,
+      detail: `${entry.intentRef} (${priority}) has no admissible receipt and no pinned command${entry.evidence?.nonMechanicalReason ? `: ${entry.evidence.nonMechanicalReason}` : ''}; `
+        + (candidates.length
+          ? `candidate tests (choose the one that exercises "${entry.desc}", or name another; never bind a test that does not): ${renderCandidates(candidates)}`
+          : `no candidate: no changed test of ${item.id} is unbound; name the test that exercises "${entry.desc}"`),
+      nextAction: '', candidates };
+    issues.push(issue);
+    unpinnedMissing.push({ issue, item, type: entry.type, top: candidates[0] });
+  }
+  // Every missing unpinned intent shares ONE batch the agent completes: one
+  // call, one checklist write (each command still runs and pins its intent).
+  if (unpinnedMissing.length) {
+    const batch = cliLine('verification_evidence_batch_add', { storyId, evidences: unpinnedMissing.map(({ issue, item, type, top }) => ({
+      itemId: item.id, intentRef: issue.intentRef, kind: evidenceKindFor(type),
+      command: `<executable and argv of the test that proves ${issue.intentRef}${top ? `; top candidate: ${top.command}` : ''}>`,
+      selector: `<text its passing output prints${top ? `, e.g. ${top.selector}` : ''}>`,
+      note: `<what that test asserts that proves ${issue.intentRef}>`,
+    })) });
+    for (const { issue } of unpinnedMissing) issue.nextAction = batch;
   }
 
   for (const { test, owners } of unbound) {
-    // Suggest the first item whose files contain the test and that still has an unpinned intent.
-    const withTarget = owners.map(owner => ({ owner, target: unpinnedExecutableIntents(owner)[0] })).find(row => row.target);
-    const item = withTarget?.owner ?? owners[0] ?? null;
-    const target = withTarget?.target;
-    const nextAction = item && target
-      ? evidenceAddCommand(storyId, item.id, target.ref, evidenceKindFor(target.intent.type), goTestCommand(test), `--- PASS: ${test.name}`,
-        `${test.name} proves: ${target.intent.desc}`.slice(0, 200))
+    // The first item whose files contain the test and that still has an
+    // unpinned intent; WHICH of its intents the test proves (if any) is the
+    // agent's choice, so the intent and the note stay placeholders.
+    const withTargets = owners.map(owner => ({ owner, targets: unpinnedExecutableIntents(owner) })).find(row => row.targets.length > 0);
+    const item = withTargets?.owner ?? owners[0] ?? null;
+    const targets = withTargets?.targets ?? [];
+    const nextAction = item && targets.length
+      ? cliLine('verification_evidence_add', { storyId, itemId: item.id,
+        intentRef: `<the unpinned intent of ${item.id} that ${test.name} proves, only if it does: ${targets.map(row => row.ref).join(' | ')}>`,
+        kind: evidenceKindFor(targets[0]!.intent.type), command: goTestCommand(test), selector: `--- PASS: ${test.name}`,
+        note: `<what ${test.name} asserts that proves that intent>` })
       : item
         ? `No action if ${test.name} is an extra regression test. Every intent of ${owners.map(owner => owner.id).join(', ')} is already pinned and pins are immutable; if ${test.name} is the only test of a userSees behavior, record that behavior with proof-or-stop acceptance_amendment_propose --storyId=${storyId}.`
         : `No action if ${test.name} is an extra regression test; no checklist item lists ${test.file}. If it is the only test of a userSees behavior, record that behavior with proof-or-stop acceptance_amendment_propose --storyId=${storyId}.`;
-    issues.push({ kind: 'unbound_test', blocking: false, test, ...(item ? { itemId: item.id } : {}), ...(target ? { intentRef: target.ref } : {}),
-      detail: `${test.name} (${test.file}) changed in this Story and is selected by no intent's pinned command${target ? `; bind it to ${target.ref} of ${item!.id}` : ''}`,
+    issues.push({ kind: 'unbound_test', blocking: false, test: testRef(test), ...(item ? { itemId: item.id } : {}),
+      detail: `${test.name} (${test.file}) changed in this Story and is selected by no intent's pinned command${targets.length ? `; if it proves one of ${item!.id}'s unpinned intents (${targets.map(row => row.ref).join(', ')}), bind it to that one` : ''}`,
       nextAction });
   }
 

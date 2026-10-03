@@ -284,6 +284,19 @@ function boundedValidationFailureText(lines: string[], nextCommand: string): str
   return `${header}${included.map(value => `${value}\n`).join('')}${omission}${footer}`;
 }
 
+/**
+ * An argument or JSON payload that could not be parsed: the specific error is
+ * the LAST line (the line `tail -1` keeps), with the --help hint on it; no
+ * argument help is printed (run 16: the help footer "Owner lease meta options"
+ * was all `tail -2` showed and was misread as lease contention).
+ */
+export function printArgumentParseFailure(tool: ToolDef, message: string, options: { invocation?: string } = {}) {
+  const brand = detectProofOrStopBrand();
+  const nextCommand = `${brand.usageBin} ${options.invocation ?? tool.name} --help`;
+  const [first = '', ...rest] = message.split('\n').filter(line => line.trim());
+  process.stderr.write(`${[...rest, `${first} (arguments: ${nextCommand})`].join('\n')}\n`);
+}
+
 export function printValidationFailure(
   tool: ToolDef,
   issues: ZodIssue[],

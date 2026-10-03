@@ -20,12 +20,35 @@ export function splitJsonPayload(rawArgs: readonly string[]): { payload: Record<
   try {
     parsed = JSON.parse(first);
   } catch (e) {
-    throw new Error(`JSON parse failed: ${(e as Error).message}\nInput: ${first}`);
+    throw new Error(jsonPayloadParseFailure(first, (e as Error).message));
   }
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-    throw new Error(`JSON payload must be an object\nInput: ${first}`);
+    throw new Error(`JSON payload must be an object (got ${Array.isArray(parsed) ? 'an array' : parsed === null ? 'null' : typeof parsed}): ${excerpt(first, 0).replace(/\s+/g, ' ')}`);
   }
   return { payload: parsed as Record<string, unknown>, rest: rawArgs.slice(1) };
+}
+
+const EXCERPT_RADIUS = 40;
+
+function excerpt(input: string, position: number): string {
+  const start = Math.max(0, position - EXCERPT_RADIUS);
+  const end = Math.min(input.length, position + EXCERPT_RADIUS);
+  return `${start > 0 ? '…' : ''}${input.slice(start, end)}${end < input.length ? '…' : ''}`;
+}
+
+/**
+ * ONE line: the parser error, the payload text around the failing position and
+ * the usual cause. Run 16: the full input echo plus ~50 lines of argument help
+ * after it left `tail` showing only the help footer, which the owner misread as
+ * lease contention (15 failed calls).
+ */
+export function jsonPayloadParseFailure(input: string, parserMessage: string): string {
+  const position = Number(parserMessage.match(/position (\d+)/)?.[1] ?? input.length);
+  // A value's closing quote right before the failing position: an unescaped " ended the string early.
+  const quoteHint = position > 0 && position < input.length && input[position - 1] === '"'
+    ? '; a " inside a JSON string value must be written \\" (or avoid the quote)'
+    : '';
+  return `JSON parse failed: ${parserMessage.replace(/\s+/g, ' ')} near: ${excerpt(input, position).replace(/\s+/g, ' ')}${quoteHint}`;
 }
 
 export function mergeJsonPayloadAndFlags(payload: Record<string, unknown>, flags: Record<string, unknown>): Record<string, unknown> {

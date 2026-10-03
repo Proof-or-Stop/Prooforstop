@@ -545,7 +545,23 @@ acceptance rollout gate, before the canonical REVIEW evidence gate):
 | Item | Blocks DEV→REVIEW | Next |
 |---|---|---|
 | `stale_receipt`: a must/should intent's receipt is stale | yes | `proof-or-stop verification_evidence_refresh_stale --storyId=<id>` (reruns every stale pinned command once); when a pinned must intent is also missing, the stale pinned rows join that `verification_run --pending` batch instead |
-| `missing_receipt`: an executable must/should intent has no admissible receipt | must: yes; should: advisory | pinned must intent: one `proof-or-stop verification_run '{"storyId":"<id>","pending":true}'` for all of them (see below); pinned should intent: `verification_run --intentRef`; unpinned: `verification_evidence_add` with the command/selector (a changed unbound test of that item when one exists) |
+| `missing_receipt`: an executable must/should intent has no admissible receipt | must: yes; should: advisory | pinned must intent: one `proof-or-stop verification_run '{"storyId":"<id>","pending":true}'` for all of them (see below); pinned should intent: `verification_run --intentRef`; unpinned (PLAN normally pins them, see "PLAN pins" below): ONE `verification_evidence_batch_add` template for every unpinned missing intent whose `command`, `selector` and `note` are `<...>` placeholders the agent authors, plus ranked candidate tests per intent |
+| `unbound_test`: a Go `func TestX(t *testing.T)` added/changed in the Story diff that no pinned `go test` selects | advisory | a `verification_evidence_add` template with this test's command and the item's unpinned intents listed in a placeholder `intentRef`: bind it only to the intent it proves; when every intent is already pinned, no action unless it is the only test of a userSees behavior (`acceptance_amendment_propose`) |
+
+**Which test proves which intent is a judgment, never mechanics** (run 16). The
+check never chooses a test for an unpinned intent. Before, it proposed the first
+changed Go test of any file of the item, wrote the note "X proves: <desc>" itself
+and `next` labelled it `framework`, so `next --run` would have pinned
+`TestParsingIndexRangeExpressions` (two-part ranges only) for
+`myArray[99 : 101 : 2]`, immutably, with a passing receipt. Now each unpinned
+missing intent lists up to 4 candidates (changed tests of the item no pin
+selects) with their exact `go test -v ./pkg -run ^TestX$` command and why:
+code-like literals of the intent description (bracket and paren expressions,
+quoted and backticked strings, compared without whitespace and escapes) found in
+the test body rank first, then words the test name shares with the description;
+a candidate without a literal says so. The gate refusal and `pre_review_check`
+print them in the item's detail. No report text ever states that a test proves
+an intent.
 
 **`verification_run --pending` (batch).** It covers every pinned must/should
 intent whose receipt is stale and every pinned must intent whose receipt is
@@ -566,7 +582,17 @@ commits, 16.8 min). The regression smoke
 `packages/main/dist/tasks/verification-batch-dedupe-smoke.js` has 6 intents
 over 2 commands: 6 steps / 6 launches / 6 commits / 18.2 s before, 1 step /
 2 launches / 1 commit / 7–8 s after.
-| `unbound_test`: a Go `func TestX(t *testing.T)` added/changed in the Story diff that no pinned `go test` selects | advisory | bind it to the first unpinned intent of the item whose files contain the test (`verification_evidence_add ... -run ^TestX$`); when every intent is already pinned, no action unless it is the only test of a userSees behavior (`acceptance_amendment_propose`) |
+
+**PLAN pins.** `story_review` blocks (`missing_verification_pin`, one row per
+item, naming the refs) every executable (`logic`/`cli`/`browser`) must/should
+intent without `verification:{command,selector}`; manual/docs and nice intents
+are exempt. The owner pins them with `checklist_update` in PLAN (the test may
+not exist yet; the implementer prompt lists the pins and requires exactly these
+test names). Pins freeze at DEV, so `verification_run --pending` then records
+every receipt in one call. Paths that skip `story_review` (express channel,
+light profile) can still reach DEV unpinned; there the batch template above
+applies. Run 16 had no pins: 32 receipts were hand-authored with single
+`verification_evidence_add` calls (5.3 min, 15 shell-quoting failures).
 
 Selection is computed, never guessed: `go test [pkgs] -run/-skip` with
 unanchored RE2-style top-level matching, `./...`, `./dir`, and module import
@@ -913,7 +939,7 @@ returns exactly one step:
 | `kind` | `framework`: a mechanical step the framework could run itself; `agent`: needs the agent (implement or repair code, launch a managed reviewer, author a summary / decision / resolution, submit a host verdict); `human`: a genuine human decision (stall resume, approval, 3x2 quorum) |
 | `reason` | stable step code, e.g. `review_lane_launch`, `precert_cheap_check` |
 | `command` / `argv` / `cli` | the exact call (ids, run ids, receipt ids and digests filled in) as a shell line, as `['proof-or-stop', <command>, <JSON payload>]`, and as `{command, payload}` |
-| `placeholders` | payload fields the agent must author (their values are `<...>`); nothing else is to be changed |
+| `placeholders` | payload paths the agent must author (their values are `<...>`), nested ones as `evidences[0].command`; nothing else is to be changed. A step with placeholders is always `agent`, never `framework`, so `--run` never executes a `<...>` value |
 | `why` / `source` | why this is the step, and which gate predicate or reader decided it |
 | `wait` / `done` | a blocking wait on a detached managed run / the Story is DONE |
 
@@ -937,11 +963,11 @@ Decision table (first matching row wins):
 | DEV, an item `pending` | `checklist_update --status=in_progress` | framework | checklist.json |
 | DEV, an item `in_progress` | `host_run` managedDispatch `proof-or-stop-implementer` for it (or wait on its run) | agent | checklist.json + host-run projection |
 | DEV, a verified blocking finding open and not repaired (see below) | `host_run` managedDispatch `proof-or-stop-finding-repair` with that `findingId` (or wait on a repair run in flight) | agent | `unclosedBlockingFindings` + `managedFindingRepairState` |
-| DEV, that finding repaired, receipts stale | the evidence-chain gate's own Next (`verification_evidence_refresh_stale`, `verification_run --pending`, ...) | framework | `evaluateEvidenceChainForStory` |
+| DEV, that finding repaired, receipts stale | the evidence-chain gate's own Next (`verification_evidence_refresh_stale`, `verification_run --pending`, ...) | framework (agent when it has placeholders) | `evaluateEvidenceChainForStory` |
 | DEV, that finding repaired | `finding_resolve` with `resolution` | agent | `unclosedBlockingFindings` + `managedFindingRepairState` |
-| DEV, evidence-chain blocking / advisory unbound Go test with a concrete bind | the evidence-chain Next | framework | `evaluateEvidenceChainForStory` |
+| DEV, evidence-chain blocking | the evidence-chain Next: `verification_evidence_refresh_stale` / `verification_run --pending` (framework), or for unpinned intents the `verification_evidence_batch_add` template with the ranked candidates in `why` (agent) | framework / agent | `evaluateEvidenceChainForStory` |
 | DEV, files declared but no scope contract | `scope_contract_init_from_plan` | framework | scope gate precondition |
-| DEV, otherwise | `story_advance --phase=REVIEW` if the REVIEW guard passes, else the guard's own `→`/`Next:` command | framework | `getGuardFailureReason(REVIEW)` |
+| DEV, otherwise | `story_advance --phase=REVIEW` if the REVIEW guard passes, else the guard's own `→`/`Next:` command; advisory evidence-chain items (a changed test no pin selects, a missing should receipt) ride on its `why`, never as a step of their own | framework | `getGuardFailureReason(REVIEW)` |
 | REVIEW, a prepared ReviewRun of this round without a host run | `host_run` managedReview for that lane (all prepared lanes are launched before any wait) | agent | review-runs.json + host-run projection |
 | REVIEW, a lane run in flight | `host_run_status --untilTerminal=true` (compact text, never `--json`) | framework (wait) | host-run projection |
 | REVIEW, a completed lane run not imported | `managed_review_evidence_import {runId, receiptId}` | framework | host-run receipt |
@@ -990,6 +1016,16 @@ refused. Before, the trailing `--json` made the CLI drop the JSON payload
 `packages/main/tests/single-host-and-init-snags.test.mjs` scans every step call in
 `handlers/next-driver.ts` and requires each to be a catalog command whose payload
 keys are catalog fields and that parses with `--json` appended.
+
+A payload or argument that does not parse prints ONE line, last, and no argument
+help: `JSON parse failed: <parser message> near: <text around the position>[; a "
+inside a JSON string value must be written \" (or avoid the quote)] (arguments:
+proof-or-stop <command> --help)` (`printArgumentParseFailure`,
+cli/help-renderer.ts). Before, the error came first and ~50 lines of help ended
+with "Owner lease meta options: --takeover", so `| tail -2` in run 16 showed only
+that footer and the owner retried 15 receipts as "lease contention". Schema
+validation failures keep their bounded `Argument validation failed:` block
+ending in `Next: proof-or-stop <command> --help`.
 
 Managed launches reuse the host/model/effort of this Story's last managed run of
 the same profile (reviewer or dispatch), falling back to the qualified managed

@@ -73,6 +73,7 @@ import {
   printHelp,
   printToolHelp,
   printValidationFailure,
+  printArgumentParseFailure,
 } from './cli/help-renderer.js';
 import { normalizeNestedSpaceAlias, STRIPPABLE_BIN_TOKENS } from './cli/alias-normalizer.js';
 import { CONTROLLER_PROJECTION_ARTIFACTS } from './core/managed-artifact-descriptors.js';
@@ -609,8 +610,7 @@ function preflightStrictCommandArgsBeforeStoryReads(cmd: string | undefined, arg
   try {
     parsed = parseCommandArgs(argv.slice(1), tool);
   } catch (e) {
-    console.error((e as Error).message);
-    printToolHelp(tool, { stream: process.stderr, includeFooter: false, ownerLeaseHelpBlock, invocation });
+    printArgumentParseFailure(tool, (e as Error).message, { invocation });
     process.exit(1);
   }
   const v = validationSchemaForCommand(cmd, tool).safeParse(parsed);
@@ -1003,8 +1003,7 @@ export async function runCli(opts?: {
   try {
     parsed = parseCommandArgs(argv.slice(1), tool);
   } catch (e) {
-    console.error((e as Error).message);
-    printToolHelp(tool, { stream: process.stderr, includeFooter: false, ownerLeaseHelpBlock, invocation: helpInvocation });
+    printArgumentParseFailure(tool, (e as Error).message, { invocation: helpInvocation });
     process.exit(1);
   }
 
