@@ -32,6 +32,14 @@
  * PLAN blockers fixed by decision_set / plan_set are ONE step with each exact
  * command (planAuthoringStep); every placeholder carries a one-line
  * description (placeholderHints, built by the shared step()).
+ *
+ * Deliberate change (dup-routing-coverage, run 17 Q1): a critic `duplicate`
+ * finding waits while its canonical finding is open (nextBlockingFinding);
+ * once the canonical one is repaired and resolved and the duplicate has no
+ * repair of its own and no failed coverage run, the step is
+ * finding_duplicate_resolve (duplicateFindingResolveStep, shared with the live
+ * driver) instead of a second finding_repair; a failed coverage run sends it
+ * to its own repair, whose why names that run.
  */
 import { existsSync, readdirSync } from 'node:fs';
 import { hostname } from 'node:os';
@@ -67,7 +75,8 @@ import { checklistHasFileDeclarations } from '../../handlers/phase-gates.js';
 import { verifyCurrentReviewerDispatchBinding } from '../../core/review-run.js';
 import { managedHostRunsRoot, readManagedHostRunProjection, managedHostRunReceipt } from '../../core/managed-host-run.js';
 import { managedFindingRepairState, hintedStep, evidenceChainStep, evidenceChainAdvisory, step as sharedStep, managedLaunchStep, boundManagedSelection,
-  hasRunForTarget, testAuthoringStep, planAuthoringStep, type NextStep } from '../../handlers/next-driver.js';
+  hasRunForTarget, testAuthoringStep, planAuthoringStep, nextBlockingFinding, duplicateFindingResolveStep, type NextStep } from '../../handlers/next-driver.js';
+import { duplicateCoverageReceipts, duplicateResolveCandidate } from '../../core/duplicate-finding-coverage.js';
 import { singleHostAssuranceReady } from '../../handlers/quorum-submit.js';
 import { hasPersistedManagedReceiptEvidence } from '../../handlers/managed-review-evidence.js';
 import { MANAGED_INVENTORY_CRITIC_LANE } from '../../core/managed-inventory-critic.js';
@@ -283,15 +292,18 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
     const findings = openBlockingFindings(storyId);
     const chain = evaluateEvidenceChainForStory(ctx, storyId);
     if (findings.length > 0) {
-      const { finding } = findings[0]!;
+      const { finding } = nextBlockingFinding(ctx.store, storyId, findings);
       const repair = managedFindingRepairState({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, finding, runs: hostRuns });
       if (!repair.repaired) {
         const repairRun = hostRuns.filter(run => run.agentType === FINDING_REPAIR_AGENT && !run.terminal).at(-1);
         if (repairRun) return waitStep(base, repairRun, 'Finding repair run');
+        const duplicate = repair.bound ? null : duplicateResolveCandidate(ctx.store, storyId, finding, ctx.store.readFindings(storyId).findings ?? []);
+        if (duplicate) return duplicateFindingResolveStep(base, finding, duplicate.canonical, duplicate.familyKey);
+        const failedCoverage = duplicateCoverageReceipts(ctx.store, storyId, finding.id).filter(row => !row.passed).at(-1);
         const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
         return managedLaunchStep(base, 'finding_repair', { ...selection, storyId, findingId: finding.id,
           agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true }, bound && !hasRunForTarget(ctx.root, hostRuns, FINDING_REPAIR_AGENT, { findingId: finding.id }),
-        `Verified ${finding.severity} finding ${finding.id} is open and not yet repaired (${repair.detail}): repair it in code and commit (managed finding-repair shown).`,
+        `Verified ${finding.severity} finding ${finding.id} is open and not yet repaired (${repair.detail}${failedCoverage ? `; its duplicate coverage run \`${failedCoverage.command}\` did not pass, so ${failedCoverage.canonicalFindingId}'s repair is not shown to fix it` : ''}): repair it in code and commit (managed finding-repair shown).`,
         'unclosedBlockingFindings (core/finding-closure.ts) + managedFindingRepairState');
       }
       if (chain.blocking && chain.nextAction) {

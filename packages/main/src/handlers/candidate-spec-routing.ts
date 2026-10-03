@@ -17,6 +17,7 @@ import {
   digestCandidateRoutingValue,
   evaluateCandidateRoutingPromotion,
   routeCandidateSpecs,
+  touchpointProtectedPaths,
   type CandidateHostExecutor,
   type CandidateSpecSetArtifact,
   type HostKeywordProposal,
@@ -284,7 +285,9 @@ export function currentStoryRoutingInput(ctx: HandlerContext, storyId: string): 
   // branch commit manufacture a selected candidate, so a routing-neutral reroute
   // could never remain neutral. Explicit understanding touchpoints retain the
   // protected exact-path contract; changed paths continue to seed ranking below.
-  const exactPaths = [...new Set(understanding?.touchpoints ?? [])];
+  // Run 17: touchpoints are free text; only the leading path token of one that
+  // resolves to a real file is protected (prose stays a ranking seed only).
+  const exactPaths = touchpointProtectedPaths(ctx.root, understanding?.touchpoints ?? []);
   let reviewerEvidencePaths: string[] = [];
   try {
     const evidence = collectReviewerEvidenceState(ctx.store, storyId, ctx.root);

@@ -298,7 +298,11 @@ diagnostics. The design source for ownership and write leases remains
 Record a pre-context snapshot with `understanding_set` before freezing the plan.
 It must describe the task, observable outcome, facts, constraints, unresolved
 unknowns, and the files expected to change. `touchpoints` are material Story
-files, not every read-only truth source consulted during planning.
+files, not every read-only truth source consulted during planning. They may be
+free text ("ast/ast.go IndexExpression and String", a comma list): candidate
+routing protects only the leading path token of a part that resolves to a real
+file (run 17); prose is a ranking seed and never a missing protected source, so
+a project without a requirements corpus routes with the automatic full scan.
 
 For a nontrivial decision, use `decision_set` with 3-5 principles, 1-5 drivers,
 fair alternatives, a chosen option, rationale, and required pre-mortem entries.
@@ -480,7 +484,13 @@ inline: every normative sentence, every "for example" and every enumerated
 variant is its own feature row, covered only when a `userSees` or
 `verificationIntent` states that exact variant or output; unmapped rows are
 gaps, and a mechanical pre-check lists request literals no checklist item
-states. The verification-intent author is pointed at `request.md` and writes one
+states. The prompt also lists what is already covered and never a gap (run
+17): delivery-workflow sentences the Proof-or-Stop workflow guarantees (working
+on a branch from main, committing everything, merging back; `covered_by:
+"proof-or-stop-workflow"`) and restriction-only constraints the Story already
+acknowledges in its INIT `scopeBoundary.excluded` / `understanding.constraints`
+(`covered_by: "init-scope"`); every behavior, output, error, example and
+compatibility promise stays strict. The verification-intent author is pointed at `request.md` and writes one
 exact-output intent per example and listed variant. The INIT product reviewer
 gets only its path; REVIEW lanes never receive it.
 Every `openQuestions` entry in that signed scope check must have a substantive
@@ -504,8 +514,9 @@ requirements are ready. PLAN passes when
 issue count is not a zero-only acceptance criterion.
 
 Every exclusion a PLAN gate asks for is recorded in PLAN, never by reopening
-INIT (the INIT scope boundary stays INIT-only and is not an input of these
-checks). A `touchpoint_uncovered` path is satisfied by an item's
+INIT (the INIT scope boundary stays INIT-only and is not an input of the gate
+checks; the scope-plan reviewer prompt only lists its exclusions as
+already-acknowledged constraints). A `touchpoint_uncovered` path is satisfied by an item's
 `files.modify/create/test`, or, for reference-only material, by an item
 `excludes` entry that names the exact path and gives a reason (a bare path
 does not count): `proof-or-stop checklist_update --storyId=B-xxxx
@@ -642,7 +653,12 @@ every profile and round; low is advisory), and a blocking evidence state.
 Reviewers rate severity with the one shared rubric (`REVIEW_SEVERITY_RUBRIC`,
 core/finding-closure-severities.ts): a confirmed regression of existing behavior (a base-to-head behavior change the request did not ask for, documented or not) or a wrong result on a documented or tested path is at least medium; low is only for cosmetic or non-behavioral issues. A low finding the owner
 repaired through a managed finding-repair bound to it is resolved before REVIEW
-(`next` proposes `finding_resolve`); after DONE, `finding_resolve` and
+(`next` proposes `finding_resolve`). A critic `duplicate` of a repaired and
+resolved canonical finding gets no repair of its own when a coverage run of its
+own case passes: `next` proposes `finding_resolve` with `duplicateOf` and
+`coverage {command, selector}`, the framework runs the command and closes it
+only on exit 0 plus the selector; otherwise it refuses and `next` dispatches the
+duplicate's own repair (run 17). After DONE, `finding_resolve` and
 `finding_dismiss` refuse with one `Next:`.
 Findings from earlier rounds count; there is no round decay. Suspected
 and disproven findings do not block. Disproven findings need structured

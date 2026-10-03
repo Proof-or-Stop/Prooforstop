@@ -80,6 +80,9 @@ import {
 import { wantsFullOutput, truncateOneLine } from '../cli/output-verbosity.js';
 import { isEvidenceChainFindingCategory } from '../core/evidence-chain-finding.js';
 import { evidenceChainNextActionForStory } from './evidence-chain.js';
+import { criticDuplicateOf, duplicateCoverageSelectorProblem, runDuplicateCoverage } from '../core/duplicate-finding-coverage.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import { currentGitHead } from '../core/evidence-freshness.js';
 
 // B-7c05 CHK-002: brief finding shape. Drops only heavy free-text (the full
 // `desc`, reviewer read evidence) and replaces `desc` with a truncated one-line
@@ -779,7 +782,65 @@ function recordReviewPass(
   }));
 }
 
+/**
+ * Run 17 (Q1): finding_resolve --duplicateOf. Closes a finding the REVIEW
+ * inventory critic dispositioned `duplicate` of a canonical finding, with that
+ * finding's repair, only when a coverage run of THIS finding's own case passes
+ * (the test the canonical repair added for it, or its repro). The critic label
+ * alone never closes it: the command (allowlisted executable + argv) runs in
+ * the Story worktree, must exit 0 and print the selector. Every run is recorded
+ * in duplicate-finding-coverage.json; a failed run refuses, and `next` then
+ * dispatches the finding's own managed repair. Returns the evidence sentence
+ * appended to the resolution.
+ */
+function closeDuplicateWithCoverageFor(ctx: HandlerContext, args: { storyId: string; findingId: string; duplicateOf?: string; coverage?: { command?: string; selector?: string } }): string {
+  const { store } = ctx;
+  const refuse = (detail: string, code: string): never => {
+    throw new Error(`finding_resolve refused: ${detail} [${code}]\nNext: proof-or-stop next --storyId=${args.storyId}`);
+  };
+  const placeholder = (value: unknown) => typeof value !== 'string' || !value.trim() || /^<.*>$/.test(value.trim());
+  const command = args.coverage?.command;
+  const selector = args.coverage?.selector;
+  if (placeholder(args.duplicateOf) || placeholder(command) || placeholder(selector)) {
+    refuse('closing a duplicate needs duplicateOf (the canonical finding id) and coverage {command, selector} that runs this finding\'s own case', 'duplicate_coverage_missing');
+  }
+  const findings = store.readFindings(args.storyId).findings;
+  const finding = findings.find(row => row.id === args.findingId);
+  if (!finding) throw new Error(`Finding ${args.findingId} not found`);
+  if (finding.status !== 'open') refuse(`${args.findingId} is ${finding.status}, not open`, 'duplicate_not_open');
+  const duplicate = criticDuplicateOf(store, args.storyId, args.findingId);
+  if (!duplicate || duplicate.canonicalFindingId !== args.duplicateOf) {
+    refuse(`the REVIEW inventory critic did not disposition ${args.findingId} as a duplicate of ${args.duplicateOf}`
+      + (duplicate ? ` (its canonical finding is ${duplicate.canonicalFindingId})` : ''), 'duplicate_not_critic_verified');
+  }
+  const canonical = findings.find(row => row.id === args.duplicateOf);
+  if (!canonical || canonical.status !== 'resolved') {
+    refuse(`canonical finding ${args.duplicateOf} is ${canonical?.status ?? 'missing'}; repair and resolve it first`, 'duplicate_canonical_not_resolved');
+  }
+  const selectorProblem = duplicateCoverageSelectorProblem(selector!);
+  if (selectorProblem) refuse(selectorProblem, 'duplicate_coverage_selector_generic');
+  const cwd = resolveGitCwd({ store, storyId: args.storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+  let receipt;
+  try {
+    receipt = runDuplicateCoverage({ projectRoot: ctx.root, cwd, command: command!.trim(), selector: selector!, headHash: currentGitHead(cwd) ?? null,
+      findingId: args.findingId, canonicalFindingId: args.duplicateOf! });
+  } catch (error) {
+    return refuse(`coverage command cannot run: ${error instanceof Error ? error.message : String(error)}`, 'duplicate_coverage_command_invalid');
+  }
+  const data = store.readDuplicateFindingCoverage(args.storyId);
+  data.receipts.push(receipt);
+  store.writeDuplicateFindingCoverage(args.storyId, data);
+  if (!receipt.passed) {
+    const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'finding_resolve');
+    const why = receipt.timedOut ? 'timed out' : receipt.exitCode !== 0 ? `exited ${receipt.exitCode}` : `did not print selector ${JSON.stringify(receipt.selector)}`;
+    refuse(`coverage of ${args.findingId}'s own case ${why} (\`${receipt.command}\`), so ${args.duplicateOf}'s repair is not shown to fix it; `
+      + `the run is recorded and ${args.findingId} now gets its own managed repair.${commitHint}\n${receipt.outputTail}`, 'duplicate_coverage_failed');
+  }
+  return `[duplicate of ${args.duplicateOf} (critic familyKey ${duplicate!.familyKey ?? 'n/a'}); covered by \`${receipt.command}\` printing ${JSON.stringify(receipt.selector)}, exit 0 at ${receipt.headHash?.slice(0, 12) ?? 'unknown HEAD'}]`;
+}
+
 export function createFindingHandlers(ctx: HandlerContext) {
+  const closeDuplicateWithCoverage = (args: Parameters<typeof closeDuplicateWithCoverageFor>[1]): string => closeDuplicateWithCoverageFor(ctx, args);
   const { store } = ctx;
   const authoritativeMutation = createAuthoritativeFindingMutation(ctx);
   const assertNotManagedProviderDirectEvidence = (command: 'finding_add' | 'review_pass_set'): void => {
@@ -1184,13 +1245,20 @@ export function createFindingHandlers(ctx: HandlerContext) {
       };
     },
 
-    finding_resolve(args: { storyId: string; findingId: string; resolution?: string; resolutionType?: string; resolveEvidenceStrength?: string }): string {
+    finding_resolve(args: { storyId: string; findingId: string; resolution?: string; resolutionType?: string; resolveEvidenceStrength?: string;
+      /** Run 17 (Q1): close a critic-marked duplicate with its canonical finding's repair, proven by `coverage`. */
+      duplicateOf?: string; coverage?: { command?: string; selector?: string } }): string {
       refuseFindingWriteAfterDone(store, args.storyId, 'finding_resolve');
       assertCwdInWorktree(store, args.storyId);
       resolveAgentMutationAuthority({ command: 'finding_resolve' });
       // B-4f46 CHK-002: validate the optional audit-only enums up front (omitted => unchanged legacy behavior).
-      const resolutionType: ResolutionType | undefined = validateOptionalEnum('finding_resolve', 'resolutionType', args.resolutionType, RESOLUTION_TYPES);
+      let resolutionType: ResolutionType | undefined = validateOptionalEnum('finding_resolve', 'resolutionType', args.resolutionType, RESOLUTION_TYPES);
       const resolveEvidenceStrength: EvidenceStrength | undefined = validateOptionalEnum('finding_resolve', 'resolveEvidenceStrength', args.resolveEvidenceStrength, EVIDENCE_STRENGTHS);
+      let duplicateEvidence = '';
+      if (args.duplicateOf !== undefined || args.coverage !== undefined) {
+        duplicateEvidence = closeDuplicateWithCoverage(args);
+        resolutionType = 'duplicate';
+      }
       // B-META mutations use the unified main lock; normal Story mutations use
       // the same per-story findings lock as finding_add.
       let resolvedFindingDesc = '';
@@ -1199,7 +1267,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
         const f = data.findings.find(f => f.id === args.findingId);
         if (!f) throw new Error(`Finding ${args.findingId} not found`);
         resolvedFindingDesc = f.desc ?? '';
-        const resolution = args.resolution?.trim();
+        const resolution = [args.resolution?.trim(), duplicateEvidence].filter(Boolean).join(' ') || undefined;
         const transition = appendFindingLifecycleTransition(ctx, args.storyId, f, fence, {
           toStatus: 'resolved',
           reason: resolution,

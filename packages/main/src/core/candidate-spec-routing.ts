@@ -546,6 +546,59 @@ export function isAutomaticNoCorpusFullScan(artifact: { fullScan?: unknown; scan
     && artifact.scanEscalationReason.startsWith(AUTOMATIC_NO_CORPUS_FULL_SCAN_REASON_PREFIX);
 }
 
+/**
+ * True when a stale full-scan route can be rerouted with the plain
+ * candidate_spec_route command, because its escalation was only the missing
+ * corpus (plus run 17's free-text touchpoints recorded as missing protected
+ * sources), whoever wrote its reason. Run 17: round 1 needed an owner reason
+ * only because prose touchpoints were treated as exact paths; the round-2
+ * reroute then asked the owner again. The plain reroute re-derives the reason;
+ * if the fresh route still escalates (a missing related doc, a risk signal),
+ * review_round_prepare asks the owner for a reason then.
+ */
+export function isNoCorpusOnlyFullScan(artifact: { fullScan?: unknown; scanEscalationReason?: unknown; corpusStatus?: unknown; escalationReasons?: unknown }): boolean {
+  if (isAutomaticNoCorpusFullScan(artifact)) return true;
+  if (artifact.fullScan !== true || artifact.corpusStatus !== 'missing' || !Array.isArray(artifact.escalationReasons)) return false;
+  const reasons = artifact.escalationReasons.filter((reason): reason is string => typeof reason === 'string');
+  return reasons.includes('requirements_corpus_missing')
+    && reasons.every(reason => NO_CORPUS_ESCALATION_REASONS.has(reason) || reason.startsWith('missing_protected_source:missing:'));
+}
+
+/**
+ * The exact-path protected sources named by understanding.touchpoints (run 17).
+ * Touchpoints are free text: "ast/ast.go IndexExpression and String", a comma
+ * list of paths, "`a.go:42`". Each comma-separated part contributes its leading
+ * path token, without quotes, a `#anchor` or a `:line` suffix, and only when it
+ * resolves to a regular file inside the project. Prose and paths that do not
+ * exist are never protected (they stay ranking seeds), so they can no longer
+ * surface as missing_protected_source and defeat the automatic no-corpus full
+ * scan.
+ */
+export function touchpointProtectedPaths(projectRoot: string, touchpoints: readonly string[]): string[] {
+  let rootReal: string;
+  try { rootReal = realpathSync(projectRoot); } catch { return []; }
+  const out: string[] = [];
+  for (const touchpoint of touchpoints) {
+    if (typeof touchpoint !== 'string') continue;
+    for (const part of touchpoint.split(',')) {
+      const token = (part.trim().split(/\s+/)[0] ?? '').replace(/^[`'"(\[]+/, '').replace(/[`'")\].,;]+$/, '');
+      const raw = token.split('#')[0]!.replace(/:\d+(?::\d+)?$/, '').replace(/\\/g, '/');
+      if (!raw || isAbsolute(raw)) continue;
+      const path = posix.normalize(raw).replace(/^\.\//, '');
+      if (!path || path === '.' || path === '..' || path.startsWith('../')) continue;
+      try {
+        const real = realpathSync(resolve(projectRoot, path));
+        if (real !== rootReal && !real.startsWith(`${rootReal}/`)) continue;
+        if (!lstatSync(real).isFile()) continue;
+      } catch {
+        continue;
+      }
+      if (!out.includes(path)) out.push(path);
+    }
+  }
+  return out;
+}
+
 export function noRequirementsCorpusFullScanReason(requirementsDir: string, escalationReasons: readonly string[]): string {
   return `${AUTOMATIC_NO_CORPUS_FULL_SCAN_REASON_PREFIX} (${requirementsDir} has no documents); `
     + `framework-selected full scan of the changed code and docs (escalation: ${escalationReasons.join(', ')})`;

@@ -27,6 +27,7 @@ import type { HandlerContext } from './context.js';
 import { createClusterHandlers } from './cluster.js';
 import type { StoryStore } from '../core/store.js';
 import { readStoryRequest, renderUnmappedLiteralsLine, unmappedStoryRequestLiterals } from '../core/story-request.js';
+import { scopeBoundaryHashIsFresh } from '../core/scope-anti-expansion.js';
 import { reportHealthIssue } from '../core/health.js';
 import { findSealedManagedImplementerCompletion, managedImplementerAlreadyDoneAction } from '../core/managed-host-run.js';
 import { loadConfig } from '../core/config.js';
@@ -216,6 +217,41 @@ function appendScopePlanRequestTraceability(lines: string[], store: StoryStore, 
   lines.push(unmapped.length > 0
     ? `Mechanical pre-check. ${renderUnmappedLiteralsLine(unmapped)}. Classify each one: gap, excluded (cite the excluding text), or covered (name the CHK and the field that states it).`
     : 'Mechanical pre-check: every backticked request literal appears in some checklist title/userSees/verificationIntent; still trace every normative sentence.');
+}
+
+/**
+ * Run 17 (Q4): obligations the scope-plan reviewer must not raise as gaps. The
+ * reviewer flagged benchmark workflow sentences ("work in a new branch from
+ * main", "commit everything when done") that the Proof-or-Stop workflow itself
+ * satisfies, and a "do not ..." constraint already in the INIT scope ("The INIT
+ * scope boundary is not an input of this verdict"), which forced a second
+ * reviewer run with no checklist change. Product requirements stay strict: only
+ * delivery-workflow sentences and restriction-only constraints are listed.
+ */
+export const POS_WORKFLOW_OBLIGATIONS = [
+  'working in a new or separate branch from main (every Story runs on its own story/<id> branch and worktree created from main)',
+  'committing the changes, "commit everything when done" (workers commit their work, Story metadata is auto-committed, DONE refuses an uncommitted tree)',
+  'merging the work back into main (DONE merges the Story branch)',
+] as const;
+
+const RESTRICTION_ONLY = /^(?:do not|don't|never|must not|should not|no\s|avoid|without)\b/i;
+
+function appendScopePlanCoveredObligations(lines: string[], store: StoryStore, storyId: string): void {
+  const clip = (text: string) => JSON.stringify(text.length > 200 ? `${text.slice(0, 197)}...` : text);
+  const boundary = (() => { try { return store.readScopeBoundary(storyId); } catch { return null; } })();
+  const understanding = (() => { try { return store.readUnderstanding(storyId); } catch { return null; } })();
+  const constraints = [...new Set([
+    ...(scopeBoundaryHashIsFresh(boundary) ? boundary!.excluded : []),
+    // Only restriction-only constraints; a "keep X" / "must return Y" constraint is a product requirement and stays strict.
+    ...(understanding?.constraints ?? []).filter(entry => RESTRICTION_ONLY.test(String(entry).trim())),
+  ].map(entry => String(entry).trim()).filter(Boolean))].slice(0, 12);
+  lines.push('');
+  lines.push('Already covered (never a gap; record a matching row as status "covered"):');
+  lines.push(`- Delivery-workflow sentences the Proof-or-Stop workflow guarantees (covered_by "proof-or-stop-workflow"): ${POS_WORKFLOW_OBLIGATIONS.join('; ')}.`);
+  if (constraints.length > 0) {
+    lines.push(`- Restriction-only constraints the Story already acknowledges in its INIT scope boundary / understanding (covered_by "init-scope"): ${constraints.map(clip).join('; ')}. A "do not ..." sentence that restates one is covered.`);
+  }
+  lines.push('Everything else stays strict: a required behavior, output, error, example or compatibility promise is covered only by a checklist userSees/verificationIntent that states it, even when it resembles a listed entry.');
 }
 
 export function createStoryDispatchHandlers(ctx: HandlerContext) {
@@ -655,6 +691,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         : `- No candidate-spec-set artifact is present. ${candidateRoutingMode()} mode records this without hard-blocking review.`);
     }
     appendScopePlanRequestTraceability(lines, store, args.storyId);
+    appendScopePlanCoveredObligations(lines, store, args.storyId);
     lines.push('');
     lines.push('Review focus:');
     lines.push('- Identify every user-visible promise, scope constraint, exclusion, and acceptance expectation in the story artifacts.');
