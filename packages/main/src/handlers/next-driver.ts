@@ -116,13 +116,37 @@ export interface NextStep {
   why: string;
   /** Which gate predicate / reader decided (delegation audit). */
   source: string;
+  /** One-line description of each placeholder's expected content (path -> text), so no --help read is needed. */
+  placeholderHints?: Record<string, string>;
   /** True for a blocking wait on a detached managed run. */
   wait?: boolean;
+  /**
+   * True for a managed launch whose command needs no agent judgment: the
+   * host/model/effort are the owner's own earlier selection for this Story,
+   * the payload has no placeholder, and no earlier run of the same target
+   * exists (a relaunch after a failure stays the agent's call). `--run`
+   * executes it (kind 'framework').
+   */
+  launch?: boolean;
+  /** Authoring commands the agent runs together in one turn (the first is also command/argv/cli). */
+  batch?: NextStepCall[];
+  /** Optional commands that may precede the batch (e.g. dev_memory_capture before decision=captured). */
+  optional?: NextStepCall[];
   /** True once the Story is DONE. */
   done?: boolean;
 }
 
-interface NextArgs { storyId?: string; json?: boolean; run?: boolean; maxSteps?: number; concise?: boolean }
+/** One exact command of a batch step. */
+export interface NextStepCall {
+  reason: string;
+  command: string;
+  argv: string[];
+  cli: { command: string; payload: Record<string, unknown> };
+  placeholders?: string[];
+  placeholderHints?: Record<string, string>;
+}
+
+interface NextArgs { storyId?: string; json?: boolean; run?: boolean; maxSteps?: number; waitBudgetMs?: number; concise?: boolean }
 
 // ---------------------------------------------------------------------------
 // Command rendering / parsing
@@ -131,14 +155,72 @@ function shellQuote(value: string): string {
   return `'${value.replace(/'/g, `'\\''`)}'`;
 }
 
-function step(
+/**
+ * One-line descriptions of authoring placeholders, keyed `<command>.<payload path>`
+ * (Q6, run 17: the owner read 17 --help pages, 3.36M tokens replayed). A
+ * placeholder without an entry is described by its own '<...>' text.
+ */
+const PLACEHOLDER_HINTS: Record<string, string> = {
+  'finding_resolve.resolution': 'the repair commit (short sha) and the focused test that now passes, e.g. "commit abc1234 adds TestX; go test ./pkg -run TestX passes"',
+  'finding_resolve.coverage.command': "an allowlisted command (executable + argv, no shell) that runs THIS finding's own case, e.g. go test -v ./pkg -run TestX",
+  'finding_resolve.coverage.selector': 'the exact line its passing output prints for that case, e.g. --- PASS: TestX (not a generic ok/PASS)',
+  'dev_memory_finish_decision.decision': 'captured (after dev_memory_capture), no-reusable-lesson, or defer-with-reason',
+  'dev_memory_finish_decision.reason': 'one sentence (>=5 chars): the lesson captured, or why there is no reusable lesson',
+  'summary_set.changes': 'what changed, per file, from the user perspective (>=10 chars)',
+  'summary_set.usage': 'how to use it: a command or call example (>=10 chars)',
+  'summary_set.expectedOutcome': 'the user-visible result or transcript you expected (>=10 chars)',
+  'summary_set.actualTranscript': 'the user-visible output actually observed, e.g. the live-smoke transcript summary (>=10 chars)',
+  'summary_set.outcomeDiff': 'expected vs actual difference; write "no difference" when none (>=5 chars)',
+  'summary_set.limitations': 'known limitations or deviations, or "none — fully covered"',
+  'summary_set.pitfalls': 'where it got stuck, retries, what the next person should know (>=10 chars)',
+  'live_smoke_transcript.capture': 'a real-machine shell command, run in the Story worktree, that shows the user-visible behavior',
+  'dev_memory_capture.category': 'one of failure-mode, pattern, anti-pattern, workflow, tool-quirk, guard-bypass, debugging, communication, other',
+  'dev_memory_capture.summary': 'one-sentence lesson summary (>=10 chars)',
+  'dev_memory_capture.trigger': 'the situation that triggers the lesson (>=5 chars)',
+  'dev_memory_capture.lesson': 'the reusable lesson itself (>=10 chars)',
+  'dev_memory_capture.reusePrompt': 'how a later session should find it, e.g. a search query (>=5 chars)',
+  'decision_set.principles': 'JSON array of 3-5 design principles',
+  'decision_set.drivers': 'JSON array of the top 3 constraints',
+  'decision_set.options': 'JSON array of >=2 {name, pros[], cons[]} options',
+  'decision_set.chosen': 'the chosen option name (one of options[].name)',
+  'decision_set.rationale': 'why that option (>=10 chars)',
+  'decision_set.preMortem': 'JSON array of >=3 {scenario, trigger, consequence, mitigation} failure scenarios',
+  'plan_set.content': 'the full plan.md: one "## CHK-xxx" section per checklist item with steps, files and verification',
+};
+
+function valueAtPath(value: unknown, path: string): unknown {
+  let current: unknown = value;
+  for (const part of path.split(/\.|\[(\d+)\]/).filter(segment => segment !== undefined && segment !== '')) {
+    if (current === null || typeof current !== 'object') return undefined;
+    current = (current as Record<string, unknown>)[part];
+  }
+  return current;
+}
+
+/**
+ * One-line description per placeholder path of a command payload: the curated
+ * text for `<command>.<top-level field>`, else the placeholder's own '<...>'
+ * text (gate templates write their expectation there).
+ */
+export function placeholderHintsFor(command: string, payload: Record<string, unknown>, placeholders: readonly string[]): Record<string, string> {
+  const hints: Record<string, string> = {};
+  for (const path of placeholders) {
+    const curated = PLACEHOLDER_HINTS[`${command}.${path}`] ?? PLACEHOLDER_HINTS[`${command}.${path.split(/[.[]/)[0]}`];
+    const raw = valueAtPath(payload, path);
+    const inner = typeof raw === 'string' ? (raw.match(/<([^>]+)>/)?.[1] ?? raw.match(/\{([a-z][^}]*)\}/)?.[1]) : undefined;
+    hints[path] = curated ?? inner ?? 'author this value';
+  }
+  return hints;
+}
+
+export function step(
   base: { storyId: string; phase: string },
   kind: NextStepKind,
   reason: string,
   call: { command: string; payload: Record<string, unknown> } | null,
   why: string,
   source: string,
-  extra: Partial<Pick<NextStep, 'wait' | 'done' | 'placeholders'>> = {},
+  extra: Partial<Pick<NextStep, 'wait' | 'done' | 'placeholders' | 'launch' | 'batch' | 'optional'>> = {},
 ): NextStep {
   const payload = call ? JSON.stringify(call.payload) : '';
   return {
@@ -151,11 +233,52 @@ function step(
     argv: call ? ['proof-or-stop', call.command, payload] : null,
     cli: call,
     ...(extra.placeholders?.length ? { placeholders: extra.placeholders } : {}),
+    ...(call && extra.placeholders?.length ? { placeholderHints: placeholderHintsFor(call.command, call.payload, extra.placeholders) } : {}),
     why,
     source,
     ...(extra.wait ? { wait: true } : {}),
+    ...(extra.launch ? { launch: true } : {}),
+    ...(extra.batch?.length ? { batch: extra.batch } : {}),
+    ...(extra.optional?.length ? { optional: extra.optional } : {}),
     ...(extra.done ? { done: true } : {}),
   };
+}
+
+/** One exact command of a batch step, placeholders detected from the payload. */
+export function nextStepCall(reason: string, call: { command: string; payload: Record<string, unknown> }): NextStepCall {
+  const payload = JSON.stringify(call.payload);
+  const placeholders = placeholderPaths(call.payload);
+  return {
+    reason,
+    command: `proof-or-stop ${call.command} ${shellQuote(payload)}`,
+    argv: ['proof-or-stop', call.command, payload],
+    cli: call,
+    ...(placeholders.length ? { placeholders, placeholderHints: placeholderHintsFor(call.command, call.payload, placeholders) } : {}),
+  };
+}
+
+/**
+ * Several authoring commands as ONE agent step (Q6 (b), run 17: TEST surfaced
+ * the finish decision and the summary one `next --run` at a time). The first
+ * call is also the step's command/argv/cli; `batch` lists every call in order.
+ */
+export function batchStep(base: { storyId: string; phase: string }, reason: string, calls: NextStepCall[], why: string, source: string,
+  optional: NextStepCall[] = []): NextStep {
+  const first = calls[0]!;
+  return step(base, 'agent', reason, first.cli, why, source, { placeholders: first.placeholders, batch: calls, optional });
+}
+
+/**
+ * A managed host_run launch. Fully bound (the owner's own earlier
+ * host/model/effort, no placeholder, first run of its target) it is a
+ * framework step `--run` executes; otherwise the agent's.
+ */
+export function managedLaunchStep(base: { storyId: string; phase: string }, reason: string, payload: Record<string, unknown>,
+  auto: boolean, why: string, source: string): NextStep {
+  const bound = auto && placeholderPaths(payload).length === 0;
+  return step(base, bound ? 'framework' : 'agent', reason, { command: 'host_run', payload },
+    bound ? `${why} Fully bound (this Story's own host/model/effort, first run of this target): \`next --run\` launches it.` : why,
+    source, bound ? { launch: true } : {});
 }
 
 /** POSIX-ish word splitting: single quotes, double quotes (backslash escapes), bare words. */
@@ -276,7 +399,7 @@ function message(error: unknown): string {
 // ---------------------------------------------------------------------------
 // Managed host runs of this Story (runtime projection only)
 
-interface HostRunView {
+export interface HostRunView {
   runId: string;
   host: string;
   model: string | null;
@@ -357,6 +480,89 @@ export function managedFindingRepairState(args: {
     : `the last managed finding-repair run ${last.runId} for ${finding.id} is ${last.state}` };
 }
 
+/** The TEST authoring commands for the failing DONE oracle rows, in the order DONE checks them. */
+export function testAuthoringCalls(storyId: string, failing: (id: string) => DoneCheckRow | undefined): NextStepCall[] {
+  const calls: NextStepCall[] = [];
+  if (failing('dev-memory-finish-decision')) {
+    calls.push(nextStepCall('dev_memory_finish_decision', { command: 'dev_memory_finish_decision', payload: { storyId, decision: '<captured|no-reusable-lesson|defer-with-reason>',
+      reason: '<one sentence: what was learned, or why there is no reusable lesson>' } }));
+  }
+  if (failing('story-summary')) {
+    calls.push(nextStepCall('summary_set', { command: 'summary_set', payload: { storyId, changes: '<what changed, >=10 chars>', usage: '<how to use, >=10 chars>',
+      expectedOutcome: '<what the user expects to see>', actualTranscript: '<what was observed when run>', outcomeDiff: '<expected vs actual>',
+      acceptanceVerdict: 'accepted', outcomeKind: 'success', limitations: '<known limitations or "none — fully covered">', pitfalls: '<pitfall notes, >=10 chars>' } }));
+  }
+  return calls;
+}
+
+export function testAuthoringWhy(storyId: string, calls: readonly NextStepCall[]): string {
+  const rows = calls.map(call => call.reason === 'summary_set'
+    ? 'the profile requires a full story summary [missing story summary]'
+    : 'DONE refuses without a dev-memory finish decision [missing_dev_memory_finish_decision]');
+  return `${rows.join('; ')}. ${calls.length > 1 ? `Author every <...> field and run all ${calls.length} commands in this one turn, ` : 'Author every <...> field and run it, '}`
+    + `then \`proof-or-stop next --storyId=${storyId} --run\` (decision=captured: run the optional dev_memory_capture first).`;
+}
+
+/** The TEST authoring step for the failing DONE oracle rows (finish decision, summary), or null. */
+export function testAuthoringStep(base: { storyId: string; phase: string }, failing: (id: string) => DoneCheckRow | undefined): NextStep | null {
+  const { storyId } = base;
+  const authoring = testAuthoringCalls(storyId, failing);
+  if (authoring.length === 1) {
+    const only = authoring[0]!;
+    return step(base, 'agent', only.reason, only.cli, testAuthoringWhy(storyId, authoring), `buildDoneChecklist ${only.reason === 'summary_set' ? 'story-summary' : 'dev-memory-finish-decision'}`,
+      { placeholders: only.placeholders, optional: only.reason === 'dev_memory_finish_decision' ? [devMemoryCaptureCall(storyId)] : [] });
+  }
+  if (authoring.length > 1) {
+    return batchStep(base, 'test_authoring', authoring, testAuthoringWhy(storyId, authoring),
+      'buildDoneChecklist dev-memory-finish-decision + story-summary', [devMemoryCaptureCall(storyId)]);
+  }
+  return null;
+}
+
+export function devMemoryCaptureCall(storyId: string): NextStepCall {
+  return nextStepCall('dev_memory_capture', { command: 'dev_memory_capture', payload: { category: '<lesson category>', summary: '<one-sentence summary>',
+    trigger: '<trigger scenario>', lesson: '<reusable lesson>', reusePrompt: '<how to find it later>', sourceStoryId: storyId } });
+}
+
+/**
+ * Q6 (c), run 17: the owner learned decision_set / plan_set from --help.
+ * When the latest story_review round still has blockers and some of them
+ * are fixed by those PLAN writers, one agent
+ * step lists each exact command (placeholders described), then story_review.
+ * Every other blocker keeps story_review's own message (most carry their command).
+ */
+export function planAuthoringStep(store: Pick<HandlerContext['store'], 'readReview' | 'readChecklist'>, base: { storyId: string; phase: string }): NextStep | null {
+  const { storyId } = base;
+  let issues: Array<{ type?: string; severity?: string; message?: string }> = [];
+  try {
+    const last = store.readReview(storyId).reviews.at(-1) as { blockerCount?: number; issueCount?: number; issues?: typeof issues } | undefined;
+    if (!last || (last.blockerCount ?? last.issueCount ?? 0) === 0) return null;
+    issues = last.issues ?? [];
+  } catch { return null; }
+  const types = new Set(issues.filter(issue => issue.severity === 'blocker').map(issue => issue.type ?? ''));
+  const calls: NextStepCall[] = [];
+  if (['missing_decision', 'missing_alternatives', 'insufficient_premortem'].some(type => types.has(type))) {
+    const scenario = { scenario: '<failure scenario>', trigger: '<what triggers it>', consequence: '<what breaks>', mitigation: '<how the plan prevents it>' };
+    calls.push(nextStepCall('decision_set', { command: 'decision_set', payload: { storyId, principles: ['<design principle>', '<design principle>', '<design principle>'],
+      drivers: ['<key constraint>', '<key constraint>', '<key constraint>'],
+      options: [{ name: '<option A>', pros: ['<pro>'], cons: ['<con>'] }, { name: '<option B>', pros: ['<pro>'], cons: ['<con>'] }],
+      chosen: '<option A>', rationale: '<why this option, >=10 chars>', preMortem: [scenario, scenario, scenario] } }));
+  }
+  if (types.has('missing_plan_md')) {
+    const ids = store.readChecklist(storyId).items.map(item => item.id);
+    calls.push(nextStepCall('plan_set', { command: 'plan_set', payload: { storyId,
+      content: `<full plan.md with one section per item: ${ids.map(id => `## ${id}`).join(', ')}; each with steps, files and verification>` } }));
+  }
+  if (!calls.length) return null;
+  calls.push(nextStepCall('story_review', { command: 'story_review', payload: { storyId } }));
+  const others = issues.filter(issue => issue.severity === 'blocker'
+    && !['missing_decision', 'missing_alternatives', 'insufficient_premortem', 'missing_plan_md'].includes(issue.type ?? ''));
+  const rest = others.length ? ` Other blockers (fix each as story_review says): ${others.slice(0, 4).map(issue => `[${issue.type}] ${(issue.message ?? '').slice(0, 240)}`).join(' ')}${others.length > 4 ? ` +${others.length - 4} more` : ''}` : '';
+  return batchStep(base, 'plan_authoring', calls,
+    `The latest story_review round has blockers the PLAN writers fix: author every <...> field and run these ${calls.length} commands in one turn (story_review last), then \`proof-or-stop next --storyId=${storyId} --run\`.${rest}`,
+    'story_review latest round (review.json) + getGuardFailureReason(DEV)');
+}
+
 /**
  * Run 17 (Q1): the step for an open verified finding the REVIEW inventory
  * critic dispositioned `duplicate` of a canonical finding that is already
@@ -367,12 +573,16 @@ export function managedFindingRepairState(args: {
  * recorded and the finding then gets its own managed repair.
  */
 export function duplicateFindingResolveStep(base: { storyId: string; phase: string }, finding: { id: string; severity: string }, canonical: { id: string }, familyKey: string | null): NextStep {
-  return step(base, 'agent', 'finding_duplicate_resolve', { command: 'finding_resolve', payload: { storyId: base.storyId, findingId: finding.id, duplicateOf: canonical.id,
+  const next = step(base, 'agent', 'finding_duplicate_resolve', { command: 'finding_resolve', payload: { storyId: base.storyId, findingId: finding.id, duplicateOf: canonical.id,
     coverage: { command: DUPLICATE_COVERAGE_COMMAND_PLACEHOLDER, selector: DUPLICATE_COVERAGE_SELECTOR_PLACEHOLDER }, resolution: DUPLICATE_RESOLUTION_PLACEHOLDER } },
   `Verified ${finding.severity} finding ${finding.id} is a critic duplicate of ${canonical.id}${familyKey ? ` (family ${familyKey})` : ''}, which was repaired and resolved. `
     + `Close ${finding.id} with that repair only if its own case is fixed: coverage.command runs ${finding.id}'s own case (a test ${canonical.id}'s repair added for it, or its repro as a test) and coverage.selector is the line its passing output prints. `
     + `The framework runs it; exit 0 with the selector closes ${finding.id}, anything else is refused and ${finding.id} gets its own managed repair.`,
   'unclosedBlockingFindings + criticDuplicateOf (review-inventory critic receipts) + duplicateResolveCandidate', { placeholders: ['coverage.command', 'coverage.selector', 'resolution'] });
+  // The generic finding_resolve.resolution hint names a repair commit; this resolution cites the canonical one.
+  return next.placeholderHints
+    ? { ...next, placeholderHints: { ...next.placeholderHints, resolution: `why ${canonical.id}'s repair fixes ${finding.id}'s case (its commit and the test the coverage runs)` } }
+    : next;
 }
 
 /**
@@ -406,13 +616,30 @@ function waitStep(base: { storyId: string; phase: string }, run: HostRunView, wh
  * Story and profile (e.g. a benchmark's pinned model), else the qualified
  * managed-reviewer default. host_run still validates the selection itself.
  */
-function managedSelection(hostRuns: HostRunView[], profile: 'managed_reviewer' | 'managed_dispatch'): Record<string, string> {
+/**
+ * The selection plus whether it is bound: taken from the owner's own earlier
+ * managed run of this Story with host, model and effort all set. A default
+ * (no earlier run) is a proposal the agent confirms on its first launch.
+ */
+export function boundManagedSelection(hostRuns: HostRunView[], profile: 'managed_reviewer' | 'managed_dispatch'): { selection: Record<string, string>; bound: boolean } {
   const prior = hostRuns.filter(run => run.profile === profile && run.host).at(-1) ?? hostRuns.filter(run => run.host).at(-1);
   if (prior) {
-    return { host: prior.host, ...(prior.model ? { model: prior.model } : {}), ...(prior.reasoningEffort ? { reasoningEffort: prior.reasoningEffort } : {}) };
+    return { selection: { host: prior.host, ...(prior.model ? { model: prior.model } : {}), ...(prior.reasoningEffort ? { reasoningEffort: prior.reasoningEffort } : {}) },
+      bound: Boolean(prior.host && prior.model && prior.reasoningEffort) };
   }
   const selection = QUALIFIED_MANAGED_REVIEWER_DEFAULTS.codex;
-  return { host: 'codex', model: selection.model, reasoningEffort: selection.reasoningEffort };
+  return { selection: { host: 'codex', model: selection.model, reasoningEffort: selection.reasoningEffort }, bound: false };
+}
+
+/** Whether any managed run of this Story already targeted the same dispatch target (item / finding). */
+export function hasRunForTarget(root: string, hostRuns: HostRunView[], agentType: string, target: { itemId?: string; findingId?: string }): boolean {
+  return hostRuns.some(run => {
+    if (run.agentType !== agentType) return false;
+    try {
+      const bound = readManagedHostRunBinding(root, run.runId).managedDispatchTarget;
+      return target.itemId ? bound?.itemId === target.itemId : bound?.findingId === target.findingId;
+    } catch { return true; }
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -478,11 +705,14 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       if (running) return waitStep(base, running, 'Scope-plan reviewer run');
       const last = hostRuns.filter(run => run.agentType === SCOPE_PLAN_REVIEWER).at(-1);
       const previous = last && last.state !== 'completed' ? ` The previous scope-plan run ${last.runId} ended ${last.state}.` : '';
-      return step(base, 'agent', 'scope_plan_review_launch', { command: 'host_run', payload: { ...managedSelection(hostRuns, 'managed_dispatch'), storyId,
-        agentType: SCOPE_PLAN_REVIEWER, managedDispatch: true, detach: true, json: true } },
+      const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
+      return managedLaunchStep(base, 'scope_plan_review_launch', { ...selection, storyId,
+        agentType: SCOPE_PLAN_REVIEWER, managedDispatch: true, detach: true, json: true }, bound && !last,
       `${scopeFailure.split('\n')[0]} Launch the scope-plan reviewer (managed shown); it saves scope-check.json, then rerun story_review.${previous}`,
       'missingPlanScopeCheckFailure (DEV-entry gate)');
     }
+    const authoring = planAuthoringStep(ctx.store, base);
+    if (authoring) return authoring;
     return guardStep(base, 'DEV', 'enter_dev', 'PLAN is complete: the DEV-entry gate admits the Story.', 'getGuardFailureReason(DEV)');
   }
 
@@ -519,8 +749,9 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       }
       const running = inFlight(IMPLEMENTER_AGENT);
       if (running) return waitStep(base, running, 'Implementer run');
-      return step(base, 'agent', 'implement_item', { command: 'host_run', payload: { ...managedSelection(hostRuns, 'managed_dispatch'), storyId, itemId: item.id,
-        agentType: IMPLEMENTER_AGENT, managedDispatch: true, detach: true, json: true } },
+      const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
+      return managedLaunchStep(base, 'implement_item', { ...selection, storyId, itemId: item.id,
+        agentType: IMPLEMENTER_AGENT, managedDispatch: true, detach: true, json: true }, bound && !hasRunForTarget(ctx.root, hostRuns, IMPLEMENTER_AGENT, { itemId: item.id }),
       `${item.id} (${item.title}) is ${item.status}: implement and commit it (managed implementer shown; a native fresh-context implementer with the dispatch prompt is equivalent), then mark it done.`,
       'checklist.json');
     }
@@ -546,8 +777,9 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
         const duplicate = repair.bound ? null : duplicateResolveCandidate(ctx.store, storyId, finding, ctx.store.readFindings(storyId).findings ?? []);
         if (duplicate) return duplicateFindingResolveStep(base, finding, duplicate.canonical, duplicate.familyKey);
         const failedCoverage = duplicateCoverageReceipts(ctx.store, storyId, finding.id).filter(row => !row.passed).at(-1);
-        return step(base, 'agent', 'finding_repair', { command: 'host_run', payload: { ...managedSelection(hostRuns, 'managed_dispatch'), storyId, findingId: finding.id,
-          agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true } },
+        const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
+        return managedLaunchStep(base, 'finding_repair', { ...selection, storyId, findingId: finding.id,
+          agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true }, bound && !hasRunForTarget(ctx.root, hostRuns, FINDING_REPAIR_AGENT, { findingId: finding.id }),
         `Verified ${finding.severity} finding ${finding.id} is open and not yet repaired (${repair.detail}${failedCoverage ? `; its duplicate coverage run \`${failedCoverage.command}\` did not pass, so ${failedCoverage.canonicalFindingId}'s repair is not shown to fix it` : ''}): repair it in code and commit (managed finding-repair shown).`,
         'unclosedBlockingFindings (core/finding-closure.ts) + managedFindingRepairState');
       }
@@ -591,9 +823,20 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     return hostRuns.filter(run => run.reviewRunId === reviewRunId).at(-1);
   }
 
+  /**
+   * A managed reviewer/critic launch for one prepared ReviewRun. Fully bound
+   * unless an earlier ReviewRun of the same lane and round has a run that did
+   * not complete (a replacement after a failure is the agent's call).
+   */
   function reviewLaunchStep(base: { storyId: string; phase: string }, lane: string, reviewRunId: string, critic: boolean): NextStep {
-    return step(base, 'agent', critic ? 'inventory_critic_launch' : 'review_lane_launch', { command: 'host_run', payload: { ...managedSelection(listStoryHostRuns(ctx, base.storyId), 'managed_reviewer'),
-      storyId: base.storyId, agentType: lane, reviewRunId, lane, managedReview: true, detach: true, json: true } },
+    const hostRuns = listStoryHostRuns(ctx, base.storyId);
+    const { selection, bound } = boundManagedSelection(hostRuns, 'managed_reviewer');
+    const runs = ctx.store.readReviewRuns(base.storyId).runs;
+    const round = runs.find(run => run.reviewRunId === reviewRunId)?.reviewRound;
+    const replacement = runs.some(run => run.lane === lane && run.reviewRound === round && run.reviewRunId !== reviewRunId
+      && (hostRunFor(hostRuns, run.reviewRunId)?.state ?? 'completed') !== 'completed');
+    return managedLaunchStep(base, critic ? 'inventory_critic_launch' : 'review_lane_launch', { ...selection,
+      storyId: base.storyId, agentType: lane, reviewRunId, lane, managedReview: true, detach: true, json: true }, bound && !replacement,
     critic
       ? `Launch the managed inventory-completeness critic for ReviewRun ${reviewRunId} (it dispositions every verified finding of this wave).`
       : `Launch the managed ${lane.replace('proof-or-stop-review-', '')} reviewer for ReviewRun ${reviewRunId}; launch every prepared lane before waiting.`,
@@ -910,22 +1153,17 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       }
       const last = hostRuns.filter(run => run.agentType === DELIVERY_REVIEWER).at(-1);
       const previous = last && last.state !== 'completed' ? ` The previous delivery run ${last.runId} ended ${last.state}.` : '';
-      return step(base, 'agent', 'delivery_review_launch', { command: 'host_run', payload: { ...managedSelection(hostRuns, 'managed_dispatch'), storyId, agentType: DELIVERY_REVIEWER,
-        managedDispatch: true, detach: true, json: true } },
+      const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
+      const testEntry = (ctx.store.readStory(storyId).events ?? []).filter(event => event.phase === 'TEST').at(-1)?.timestamp ?? '';
+      const earlier = hostRuns.some(run => run.agentType === DELIVERY_REVIEWER && run.createdAt >= testEntry);
+      return managedLaunchStep(base, 'delivery_review_launch', { ...selection, storyId, agentType: DELIVERY_REVIEWER,
+        managedDispatch: true, detach: true, json: true }, bound && !earlier,
       `DONE needs a signed, current delivery-check: ${delivery.detail ?? delivery.label}. Launch the delivery reviewer (managed shown).${previous}`, 'buildDoneChecklist delivery-check');
     }
-    if (failing('dev-memory-finish-decision')) {
-      return step(base, 'agent', 'dev_memory_finish_decision', { command: 'dev_memory_finish_decision', payload: { storyId, decision: '<captured|no-reusable-lesson|defer-with-reason>',
-        reason: '<one sentence: what was learned, or why there is no reusable lesson>' } },
-      'DONE refuses without a dev-memory finish decision [missing_dev_memory_finish_decision].', 'buildDoneChecklist dev-memory-finish-decision', { placeholders: ['decision', 'reason'] });
-    }
-    if (failing('story-summary')) {
-      return step(base, 'agent', 'summary_set', { command: 'summary_set', payload: { storyId, changes: '<what changed, >=10 chars>', usage: '<how to use, >=10 chars>',
-        expectedOutcome: '<what the user expects to see>', actualTranscript: '<what was observed when run>', outcomeDiff: '<expected vs actual>',
-        acceptanceVerdict: 'accepted', outcomeKind: 'success', limitations: '<known limitations or "none — fully covered">', pitfalls: '<pitfall notes, >=10 chars>' } },
-      'The profile requires a full story summary before DONE.', 'buildDoneChecklist story-summary',
-      { placeholders: ['changes', 'usage', 'expectedOutcome', 'actualTranscript', 'outcomeDiff', 'limitations', 'pitfalls'] });
-    }
+    // Q6 (b), run 17: every TEST authoring row the DONE oracle still misses is
+    // ONE agent step listing each exact command, so the agent writes them in one turn.
+    const authoring = testAuthoringStep(base, failing);
+    if (authoring) return authoring;
     for (const id of ['review-escalation', 'review-assurance-floor'] as const) {
       if (!failing(id)) continue;
       const args = { projectRoot: ctx.root, gitCwd, storyId, store: ctx.store };
@@ -979,18 +1217,121 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
 // ---------------------------------------------------------------------------
 // Rendering and --run
 
+function renderPlaceholderHints(hints: Record<string, string> | undefined, indent: string): string[] {
+  return Object.entries(hints ?? {}).map(([path, hint]) => `${indent}${path}: ${hint}`);
+}
+
 export function renderNextStep(next: NextStep): string {
+  const batch = next.batch ?? [];
   return [
     ...(next.wait ? [ownerWaitInstruction()] : []),
     `Next for ${next.storyId} (${next.phase}): ${next.kind} — ${next.reason}`,
     `Why: ${next.why}`,
-    ...(next.placeholders?.length ? [`Author before running: ${next.placeholders.join(', ')}`] : []),
-    next.command ? `Next: ${next.command}` : `Next: ${next.done ? 'none (DONE)' : 'none runnable (see Why)'}`,
+    ...(batch.length
+      ? [
+        ...(next.optional ?? []).flatMap(call => [`Optional first: ${call.command}`, ...renderPlaceholderHints(call.placeholderHints, '    ')]),
+        `Run all ${batch.length} in one turn (author each <...> value):`,
+        ...batch.flatMap((call, index) => [`  ${index + 1}. ${call.command}`, ...renderPlaceholderHints(call.placeholderHints, '     ')]),
+      ]
+      : [
+        ...(next.placeholders?.length ? ['Author before running (one line each):', ...renderPlaceholderHints(next.placeholderHints, '  ')] : []),
+        ...(next.optional ?? []).flatMap(call => [`Optional first: ${call.command}`, ...renderPlaceholderHints(call.placeholderHints, '    ')]),
+        next.command ? `Next: ${next.command}` : `Next: ${next.done ? 'none (DONE)' : 'none runnable (see Why)'}`,
+      ]),
     ...(next.kind === 'framework' && next.command ? ['(framework step: `proof-or-stop next --storyId=' + next.storyId + ' --run` runs it and prints the following step)'] : []),
   ].join('\n');
 }
 
-interface RunRecord { command: string; exit: number; ms: number; tail: string }
+export interface RunRecord { command: string; reason: string; exit: number; ms: number; tail: string }
+
+export interface RunNextStepsResult {
+  executed: RunRecord[];
+  /** A refusal or a guard that ended the loop early; null when it ended at an agent/human step or a pause. */
+  stopped: string | null;
+  /** The wait budget of this call is used while a managed run is still running: run the same command again. */
+  paused: string | null;
+  next: NextStep;
+  /** One short line per executed step (what the text output prints). */
+  lines: string[];
+}
+
+/** The detail an executed step's line carries: a launch's runId, or a wait's first status line. */
+function executedDetail(step: NextStep, out: string): string {
+  if (step.launch) {
+    const runId = out.match(/"runId"\s*:\s*"([^"]+)"/)?.[1];
+    return runId ? ` runId=${runId}` : '';
+  }
+  if (step.wait) {
+    const first = out.split('\n').map(line => line.trim()).find(line => line && !line.startsWith('Wait:') && !/^\[\d+(\.\d+)?s\]/.test(line));
+    return first ? ` ${first.slice(0, 100)}` : '';
+  }
+  return '';
+}
+
+/**
+ * The `next --run` loop, separated from process spawning so its budget and
+ * stop rules are testable. Executes consecutive framework steps — gate steps,
+ * fully bound managed launches (`launch`) and waits (`wait`) — and stops at
+ * the first agent/human step, a refused step, a launch of a target already
+ * launched in this call, or maxSteps. All waits of one call share ONE budget
+ * (default 285 s, so the call returns inside one 300 s owner yield): each wait
+ * gets the remaining budget as waitMs; when it is used, the loop pauses on the
+ * wait step and the agent runs the same `next --run` again.
+ */
+export function runNextSteps(args: {
+  storyId: string;
+  decide: () => NextStep;
+  execute: (call: { command: string; payload: Record<string, unknown> }, step: NextStep) => { exit: number; out: string };
+  now?: () => number;
+  waitBudgetMs?: number;
+  maxSteps?: number;
+  storyGone?: () => boolean;
+  log?: (line: string) => void;
+}): RunNextStepsResult {
+  const now = args.now ?? Date.now;
+  const budget = Math.max(1_000, Math.min(OWNER_WAIT_BLOCK_MS, Math.floor(args.waitBudgetMs ?? OWNER_WAIT_BLOCK_MS)));
+  const maxSteps = Math.max(1, Math.min(100, Math.floor(args.maxSteps ?? 40)));
+  const deadline = now() + budget;
+  const executed: RunRecord[] = [];
+  const lines: string[] = [];
+  const launched = new Set<string>();
+  let stopped: string | null = null;
+  let paused: string | null = null;
+  let next = args.decide();
+  while (next.kind === 'framework' && next.cli && executed.length < maxSteps) {
+    let payload = next.cli.payload;
+    if (next.wait) {
+      const remaining = deadline - now();
+      if (remaining < 5_000) {
+        paused = `wait budget of ${budget / 1000} s used; the managed run keeps going: run \`proof-or-stop next --storyId=${args.storyId} --run\` again`;
+        break;
+      }
+      payload = { ...payload, waitMs: remaining };
+    }
+    if (next.launch) {
+      const key = JSON.stringify(next.cli.payload);
+      if (launched.has(key)) { stopped = `${next.reason} decided again for the same target after this call launched it; inspect that run (proof-or-stop host_run_status) before relaunching`; break; }
+      launched.add(key);
+    }
+    const started = now();
+    const run = args.execute({ command: next.cli.command, payload }, next);
+    const ms = now() - started;
+    executed.push({ command: next.command!, reason: next.reason, exit: run.exit, ms, tail: run.out.trim().split('\n').slice(-6).join('\n') });
+    const line = `ran: ${next.reason} (${next.cli.command}) -> exit ${run.exit}, ${(ms / 1000).toFixed(1)} s${executedDetail(next, run.out)}`;
+    lines.push(line);
+    args.log?.(line);
+    if (run.exit !== 0) { stopped = `step refused (exit ${run.exit})`; lines.push(executed.at(-1)!.tail); next = args.decide(); break; }
+    if (args.storyGone?.()) {
+      // story_advance DONE merged the Story and removed this worktree.
+      next = step({ storyId: args.storyId, phase: 'DONE' }, 'human', 'story_done', null,
+        `Story ${args.storyId} is DONE: merged into the integration branch and its worktree was removed.`, 'story_advance DONE effects', { done: true });
+      break;
+    }
+    next = args.decide();
+  }
+  if (!stopped && !paused && next.kind === 'framework' && executed.length >= maxSteps) stopped = `maxSteps=${maxSteps} reached`;
+  return { executed, stopped, paused, next, lines };
+}
 
 export function createNextDriverHandlers(ctx: HandlerContext, lookup: HandlerLookup, fallbackNext?: (args: { concise?: boolean }) => string) {
   const driver = createNextDriver(ctx, lookup);
@@ -1006,43 +1347,40 @@ export function createNextDriverHandlers(ctx: HandlerContext, lookup: HandlerLoo
         const next = driver.decide(storyId);
         return args.json ? next as unknown as Record<string, unknown> : renderNextStep(next);
       }
-      // --run: execute consecutive framework steps through the real CLI (every
-      // gate of each command runs in its own process), stop at the first
-      // agent/human step, a refused step, or maxSteps.
-      const maxSteps = Math.max(1, Math.min(50, Math.floor(args.maxSteps ?? 20)));
+      // --run: execute consecutive framework steps (gate steps, fully bound
+      // managed launches, waits under one budget) through the real CLI, every
+      // gate of each command in its own process (runNextSteps).
       const cliEntry = process.argv[1];
-      const executed: RunRecord[] = [];
-      let next = driver.decide(storyId);
-      let stopped: string | null = null;
-      while (next.kind === 'framework' && next.cli && executed.length < maxSteps) {
-        if (!cliEntry) { stopped = 'cli entry unavailable'; break; }
-        const started = Date.now();
-        const run = spawnSync(process.execPath, [cliEntry, next.cli.command, JSON.stringify(next.cli.payload)], {
-          cwd: process.cwd(), env: process.env, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024,
-        });
-        const out = `${run.stdout ?? ''}${run.stderr ?? ''}`;
-        executed.push({ command: next.command!, exit: run.status ?? -1, ms: Date.now() - started, tail: out.trim().split('\n').slice(-6).join('\n') });
-        // Stream progress (and keep the CLI idle watchdog fed) instead of
-        // leaving the owner to inspect a silent process with ps.
-        ctx.log?.(`ran: ${next.reason} -> exit ${run.status ?? -1} (${Date.now() - started} ms)`);
-        resetConfigCache();
-        if (run.status !== 0) { stopped = `step refused (exit ${run.status ?? -1})`; next = driver.decide(storyId); break; }
-        if (!existsSync(ctx.store.storyDirPath(storyId))) {
-          // story_advance DONE merged the Story and removed this worktree.
-          next = step({ storyId, phase: 'DONE' }, 'human', 'story_done', null,
-            `Story ${storyId} is DONE: merged into the integration branch and its worktree was removed.`, 'story_advance DONE effects', { done: true });
-          break;
-        }
-        next = driver.decide(storyId);
+      if (!cliEntry) {
+        const next = driver.decide(storyId);
+        return args.json ? { schemaVersion: NEXT_STEP_SCHEMA, storyId, executed: [], stopped: 'cli entry unavailable', paused: null, next } : `stopped: cli entry unavailable\n${renderNextStep(next)}`;
       }
-      if (!stopped && next.kind === 'framework' && executed.length >= maxSteps) stopped = `maxSteps=${maxSteps} reached`;
-      if (args.json) return { schemaVersion: NEXT_STEP_SCHEMA, storyId, executed, stopped, next };
+      const result = runNextSteps({
+        storyId,
+        decide: () => driver.decide(storyId),
+        execute: call => {
+          const run = spawnSync(process.execPath, [cliEntry, call.command, JSON.stringify(call.payload)], {
+            cwd: process.cwd(), env: process.env, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024,
+          });
+          resetConfigCache();
+          return { exit: run.status ?? -1, out: `${run.stdout ?? ''}${run.stderr ?? ''}` };
+        },
+        waitBudgetMs: args.waitBudgetMs,
+        maxSteps: args.maxSteps,
+        storyGone: () => !existsSync(ctx.store.storyDirPath(storyId)),
+        // Stream one short line per step (and keep the CLI idle watchdog fed).
+        log: ctx.log,
+      });
+      if (args.json) return { schemaVersion: NEXT_STEP_SCHEMA, storyId, executed: result.executed, stopped: result.stopped, paused: result.paused, next: result.next };
       return [
-        ...executed.map(row => `ran: ${row.command} -> exit ${row.exit} (${row.ms} ms)${row.exit ? `\n${row.tail}` : ''}`),
-        ...(stopped ? [`stopped: ${stopped}`] : []),
-        renderNextStep(next),
+        // The streamed lines already reached stderr; repeat them only without a log sink.
+        ...(ctx.log ? (result.executed.length ? [`ran ${result.executed.length} step(s), ${(result.executed.reduce((sum, row) => sum + row.ms, 0) / 1000).toFixed(1)} s`] : [])
+          : result.lines),
+        ...(result.stopped ? [`stopped: ${result.stopped}`] : []),
+        ...(result.stopped && ctx.log && result.executed.at(-1)?.exit ? [result.executed.at(-1)!.tail] : []),
+        ...(result.paused ? [`paused: ${result.paused}`] : []),
+        renderNextStep(result.next),
       ].join('\n');
     },
   };
 }
-

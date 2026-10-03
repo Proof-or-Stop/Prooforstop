@@ -51,6 +51,66 @@ function finalProposal(): string {
   });
 }
 
+/**
+ * Run 17 (Q6 (a)/(c)): 27 owner poll-only turns (3.4M tokens) and a launch turn
+ * per managed run. `next --run` now executes waits and fully bound managed
+ * launches itself, under ONE wait budget per call (285 s, so the call ends
+ * inside one 300 s owner yield), never relaunches the same target within a
+ * call, and prints one short line per executed step. Placeholder steps carry a
+ * one-line description per placeholder.
+ */
+function nextRunDrivesWaits(waitTemplate: nextDriver.NextStep): void {
+  const runner = (nextDriver as Record<string, unknown>).runNextSteps as ((args: {
+    storyId: string; decide: () => nextDriver.NextStep;
+    execute: (call: { command: string; payload: Record<string, unknown> }, step: nextDriver.NextStep) => { exit: number; out: string };
+    now?: () => number; waitBudgetMs?: number; maxSteps?: number;
+  }) => { executed: Array<{ command: string; reason: string; exit: number; ms: number }>; stopped: string | null; paused: string | null; next: nextDriver.NextStep; lines: string[] }) | undefined;
+  assert.equal(typeof runner, 'function', 'next-driver exports runNextSteps (the --run loop)');
+  type Loose = nextDriver.NextStep & Record<string, unknown>;
+  const launch = { ...waitTemplate, kind: 'framework', reason: 'review_lane_launch', wait: undefined, launch: true,
+    command: 'proof-or-stop host_run \'{...}\'', cli: { command: 'host_run', payload: { host: 'codex', model: 'm', reasoningEffort: 'low', storyId: 'B-wait', agentType: 'proof-or-stop-review-quality', reviewRunId: 'B-wait:RR-001', lane: 'proof-or-stop-review-quality', managedReview: true, detach: true, json: true } } } as Loose;
+  // A run that never finishes: the loop launches it once, waits under one budget, then pauses.
+  let clock = 0;
+  let launched = false;
+  const waits: number[] = [];
+  const result = runner!({
+    storyId: 'B-wait',
+    decide: () => (launched ? waitTemplate : launch),
+    execute: (call, step) => {
+      if ((step as Loose).launch) { launched = true; clock += 2_000; return { exit: 0, out: '{"run":{"runId":"r-1","state":"running"}}' }; }
+      const waitMs = Number(call.payload.waitMs);
+      waits.push(waitMs);
+      clock += waitMs + 1_000;
+      return { exit: 0, out: 'RUNNING: run r-1 state=running' };
+    },
+    now: () => clock,
+    waitBudgetMs: 285_000,
+  });
+  assert.equal(result.executed[0]?.reason, 'review_lane_launch', '--run executes a fully bound managed launch');
+  assert.ok(waits.length >= 1, '--run executes the wait step itself');
+  assert.ok(waits[0]! <= 285_000 - 2_000 && waits[0]! > 0, `the first wait gets the remaining budget (${waits[0]})`);
+  assert.ok(waits.reduce((sum, ms) => sum + ms, 0) <= 285_000, `total blocking stays inside one 285 s budget: ${waits.join('+')}`);
+  assert.equal(result.stopped, null, 'an exhausted wait budget is a pause, not a refusal');
+  assert.ok(result.paused && /next --storyId=B-wait --run/.test(result.paused), `the pause names the same command to run again: ${result.paused}`);
+  assert.equal(result.next.wait, true, 'the paused step is the wait');
+  assert.ok(result.lines.every(line => Buffer.byteLength(line) <= 200), `one short line per executed step:\n${result.lines.join('\n')}`);
+  // The same launch decided twice in one call is not relaunched.
+  let launches = 0;
+  const twice = runner!({ storyId: 'B-wait', decide: () => launch,
+    execute: () => { launches += 1; return { exit: 0, out: '{"run":{"runId":"r-2","state":"failed"}}' }; }, now: () => 0 });
+  assert.equal(launches, 1, 'one call never launches the same target twice');
+  assert.ok(twice.stopped && /again/.test(twice.stopped), `a repeated launch stops the loop with a reason: ${twice.stopped}`);
+  // An agent step (placeholders) is never executed.
+  const agent = { ...launch, kind: 'agent', launch: undefined, reason: 'finding_resolve', placeholders: ['resolution'],
+    placeholderHints: { resolution: 'the repair commit and its passing focused test' } } as Loose;
+  let ran = 0;
+  const stop = runner!({ storyId: 'B-wait', decide: () => agent, execute: () => { ran += 1; return { exit: 0, out: '' }; }, now: () => 0 });
+  assert.equal(ran, 0, 'an agent step is never executed by --run');
+  assert.equal(stop.next.reason, 'finding_resolve');
+  const rendered = nextDriver.renderNextStep(agent);
+  assert.match(rendered, /resolution: the repair commit and its passing focused test/, `a placeholder step prints one description line per placeholder:\n${rendered}`);
+}
+
 async function main(): Promise<void> {
   const root = mkdtempSync(join(tmpdir(), 'owner-wait-output-smoke-'));
   try {
@@ -131,6 +191,8 @@ async function main(): Promise<void> {
     });
     assert.equal(snapshot.status, 0, snapshot.stderr);
     assert.doesNotMatch(snapshot.stderr, /^Wait:/m, 'a waitMs=0 snapshot is not a wait');
+
+    nextRunDrivesWaits(step);
 
     console.log(`owner-wait-output-smoke: PASS (json=${Buffer.byteLength(full)} bytes -> text=${textBytes} bytes)`);
   } finally {

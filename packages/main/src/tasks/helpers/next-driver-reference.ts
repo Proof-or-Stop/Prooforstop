@@ -23,6 +23,16 @@
  * (evidenceChainStep); the advisory unbound-test bind is no longer a step of
  * its own but a sentence on the step that follows (evidenceChainAdvisory).
  *
+ * Deliberate change (next-run-drives-waits, run 17 Q6): a managed launch whose
+ * host/model/effort is the owner's own earlier selection, with no placeholder
+ * and no earlier (failed) run of the same target, is a framework step with
+ * launch:true that `next --run` executes (managedLaunchStep,
+ * boundManagedSelection, hasRunForTarget; shared with the live driver); the
+ * TEST finish decision and summary are ONE step (testAuthoringStep, batch);
+ * PLAN blockers fixed by decision_set / plan_set are ONE step with each exact
+ * command (planAuthoringStep); every placeholder carries a one-line
+ * description (placeholderHints, built by the shared step()).
+ *
  * Deliberate change (dup-routing-coverage, run 17 Q1): a critic `duplicate`
  * finding waits while its canonical finding is open (nextBlockingFinding);
  * once the canonical one is repaired and resolved and the duplicate has no
@@ -64,12 +74,12 @@ import { evaluateEvidenceChainForStory } from '../../handlers/evidence-chain.js'
 import { checklistHasFileDeclarations } from '../../handlers/phase-gates.js';
 import { verifyCurrentReviewerDispatchBinding } from '../../core/review-run.js';
 import { managedHostRunsRoot, readManagedHostRunProjection, managedHostRunReceipt } from '../../core/managed-host-run.js';
-import { managedFindingRepairState, hintedStep, evidenceChainStep, evidenceChainAdvisory, nextBlockingFinding, duplicateFindingResolveStep } from '../../handlers/next-driver.js';
+import { managedFindingRepairState, hintedStep, evidenceChainStep, evidenceChainAdvisory, step as sharedStep, managedLaunchStep, boundManagedSelection,
+  hasRunForTarget, testAuthoringStep, planAuthoringStep, nextBlockingFinding, duplicateFindingResolveStep, type NextStep } from '../../handlers/next-driver.js';
 import { duplicateCoverageReceipts, duplicateResolveCandidate } from '../../core/duplicate-finding-coverage.js';
 import { singleHostAssuranceReady } from '../../handlers/quorum-submit.js';
 import { hasPersistedManagedReceiptEvidence } from '../../handlers/managed-review-evidence.js';
 import { MANAGED_INVENTORY_CRITIC_LANE } from '../../core/managed-inventory-critic.js';
-import { QUALIFIED_MANAGED_REVIEWER_DEFAULTS } from '../../core/managed-reviewer-qualification.js';
 import { buildDoneChecklist, type DoneCheckRow } from '../../core/done-oracle.js';
 import { evaluateReviewAssuranceFloor, buildReviewAssuranceFloorGuidance, buildReviewEscalationGuidance, type ReviewAssuranceGuidance } from '../../core/review-assurance-floor.js';
 import { evaluateReviewEscalation, assessReviewHostAvailabilityForFallbackEligibility } from '../../core/review-escalation.js';
@@ -88,30 +98,6 @@ const IMPLEMENTER_AGENT = 'proof-or-stop-implementer';
 
 type NextStepKind = 'agent' | 'framework' | 'human';
 
-interface NextStep {
-  schemaVersion: typeof NEXT_STEP_SCHEMA;
-  storyId: string;
-  phase: string;
-  kind: NextStepKind;
-  /** Stable machine code for the step, e.g. review_lane_launch. */
-  reason: string;
-  /** One pasteable POSIX shell line, or null when nothing is left to run. */
-  command: string | null;
-  /** Exact argv of the same call: ['proof-or-stop', <command>, <JSON payload>]. */
-  argv: string[] | null;
-  /** The same call as {command, payload}. */
-  cli: { command: string; payload: Record<string, unknown> } | null;
-  /** Payload fields the agent must author before running (values are '<...>' placeholders). */
-  placeholders?: string[];
-  /** Why this is the next step, in one or two sentences. */
-  why: string;
-  /** Which gate predicate / reader decided (delegation audit). */
-  source: string;
-  /** True for a blocking wait on a detached managed run. */
-  wait?: boolean;
-  /** True once the Story is DONE. */
-  done?: boolean;
-}
 
 
 // ---------------------------------------------------------------------------
@@ -130,22 +116,7 @@ function step(
   source: string,
   extra: Partial<Pick<NextStep, 'wait' | 'done' | 'placeholders'>> = {},
 ): NextStep {
-  const payload = call ? JSON.stringify(call.payload) : '';
-  return {
-    schemaVersion: NEXT_STEP_SCHEMA,
-    storyId: base.storyId,
-    phase: base.phase,
-    kind,
-    reason,
-    command: call ? `proof-or-stop ${call.command} ${shellQuote(payload)}` : null,
-    argv: call ? ['proof-or-stop', call.command, payload] : null,
-    cli: call,
-    ...(extra.placeholders?.length ? { placeholders: extra.placeholders } : {}),
-    why,
-    source,
-    ...(extra.wait ? { wait: true } : {}),
-    ...(extra.done ? { done: true } : {}),
-  };
+  return sharedStep(base, kind, reason, call, why, source, extra);
 }
 
 /** POSIX-ish word splitting: single quotes, double quotes (backslash escapes), bare words. */
@@ -255,19 +226,6 @@ function waitStep(base: { storyId: string; phase: string }, run: HostRunView, wh
     'managed host-run projection', { wait: true });
 }
 
-/**
- * Host/model/effort for a managed launch: the owner's own last choice for this
- * Story and profile (e.g. a benchmark's pinned model), else the qualified
- * managed-reviewer default. host_run still validates the selection itself.
- */
-function managedSelection(hostRuns: HostRunView[], profile: 'managed_reviewer' | 'managed_dispatch'): Record<string, string> {
-  const prior = hostRuns.filter(run => run.profile === profile && run.host).at(-1) ?? hostRuns.filter(run => run.host).at(-1);
-  if (prior) {
-    return { host: prior.host, ...(prior.model ? { model: prior.model } : {}), ...(prior.reasoningEffort ? { reasoningEffort: prior.reasoningEffort } : {}) };
-  }
-  const selection = QUALIFIED_MANAGED_REVIEWER_DEFAULTS.codex;
-  return { host: 'codex', model: selection.model, reasoningEffort: selection.reasoningEffort };
-}
 
 // ---------------------------------------------------------------------------
 // Decision
@@ -322,8 +280,9 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
       }
       const running = inFlight(IMPLEMENTER_AGENT);
       if (running) return waitStep(base, running, 'Implementer run');
-      return step(base, 'agent', 'implement_item', { command: 'host_run', payload: { ...managedSelection(hostRuns, 'managed_dispatch'), storyId, itemId: item.id,
-        agentType: IMPLEMENTER_AGENT, managedDispatch: true, detach: true, json: true } },
+      const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
+      return managedLaunchStep(base, 'implement_item', { ...selection, storyId, itemId: item.id,
+        agentType: IMPLEMENTER_AGENT, managedDispatch: true, detach: true, json: true }, bound && !hasRunForTarget(ctx.root, hostRuns, IMPLEMENTER_AGENT, { itemId: item.id }),
       `${item.id} (${item.title}) is ${item.status}: implement and commit it (managed implementer shown; a native fresh-context implementer with the dispatch prompt is equivalent), then mark it done.`,
       'checklist.json');
     }
@@ -341,8 +300,9 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
         const duplicate = repair.bound ? null : duplicateResolveCandidate(ctx.store, storyId, finding, ctx.store.readFindings(storyId).findings ?? []);
         if (duplicate) return duplicateFindingResolveStep(base, finding, duplicate.canonical, duplicate.familyKey);
         const failedCoverage = duplicateCoverageReceipts(ctx.store, storyId, finding.id).filter(row => !row.passed).at(-1);
-        return step(base, 'agent', 'finding_repair', { command: 'host_run', payload: { ...managedSelection(hostRuns, 'managed_dispatch'), storyId, findingId: finding.id,
-          agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true } },
+        const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
+        return managedLaunchStep(base, 'finding_repair', { ...selection, storyId, findingId: finding.id,
+          agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true }, bound && !hasRunForTarget(ctx.root, hostRuns, FINDING_REPAIR_AGENT, { findingId: finding.id }),
         `Verified ${finding.severity} finding ${finding.id} is open and not yet repaired (${repair.detail}${failedCoverage ? `; its duplicate coverage run \`${failedCoverage.command}\` did not pass, so ${failedCoverage.canonicalFindingId}'s repair is not shown to fix it` : ''}): repair it in code and commit (managed finding-repair shown).`,
         'unclosedBlockingFindings (core/finding-closure.ts) + managedFindingRepairState');
       }
@@ -383,8 +343,14 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
   }
 
   function reviewLaunchStep(base: { storyId: string; phase: string }, lane: string, reviewRunId: string, critic: boolean): NextStep {
-    return step(base, 'agent', critic ? 'inventory_critic_launch' : 'review_lane_launch', { command: 'host_run', payload: { ...managedSelection(listStoryHostRuns(ctx, base.storyId), 'managed_reviewer'),
-      storyId: base.storyId, agentType: lane, reviewRunId, lane, managedReview: true, detach: true, json: true } },
+    const hostRuns = listStoryHostRuns(ctx, base.storyId);
+    const { selection, bound } = boundManagedSelection(hostRuns, 'managed_reviewer');
+    const runs = ctx.store.readReviewRuns(base.storyId).runs;
+    const round = runs.find(run => run.reviewRunId === reviewRunId)?.reviewRound;
+    const replacement = runs.some(run => run.lane === lane && run.reviewRound === round && run.reviewRunId !== reviewRunId
+      && (hostRunFor(hostRuns, run.reviewRunId)?.state ?? 'completed') !== 'completed');
+    return managedLaunchStep(base, critic ? 'inventory_critic_launch' : 'review_lane_launch', { ...selection,
+      storyId: base.storyId, agentType: lane, reviewRunId, lane, managedReview: true, detach: true, json: true }, bound && !replacement,
     critic
       ? `Launch the managed inventory-completeness critic for ReviewRun ${reviewRunId} (it dispositions every verified finding of this wave).`
       : `Launch the managed ${lane.replace('proof-or-stop-review-', '')} reviewer for ReviewRun ${reviewRunId}; launch every prepared lane before waiting.`,
@@ -698,22 +664,15 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
       }
       const last = hostRuns.filter(run => run.agentType === DELIVERY_REVIEWER).at(-1);
       const previous = last && last.state !== 'completed' ? ` The previous delivery run ${last.runId} ended ${last.state}.` : '';
-      return step(base, 'agent', 'delivery_review_launch', { command: 'host_run', payload: { ...managedSelection(hostRuns, 'managed_dispatch'), storyId, agentType: DELIVERY_REVIEWER,
-        managedDispatch: true, detach: true, json: true } },
+      const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
+      const testEntry = (ctx.store.readStory(storyId).events ?? []).filter(event => event.phase === 'TEST').at(-1)?.timestamp ?? '';
+      const earlier = hostRuns.some(run => run.agentType === DELIVERY_REVIEWER && run.createdAt >= testEntry);
+      return managedLaunchStep(base, 'delivery_review_launch', { ...selection, storyId, agentType: DELIVERY_REVIEWER,
+        managedDispatch: true, detach: true, json: true }, bound && !earlier,
       `DONE needs a signed, current delivery-check: ${delivery.detail ?? delivery.label}. Launch the delivery reviewer (managed shown).${previous}`, 'buildDoneChecklist delivery-check');
     }
-    if (failing('dev-memory-finish-decision')) {
-      return step(base, 'agent', 'dev_memory_finish_decision', { command: 'dev_memory_finish_decision', payload: { storyId, decision: '<captured|no-reusable-lesson|defer-with-reason>',
-        reason: '<one sentence: what was learned, or why there is no reusable lesson>' } },
-      'DONE refuses without a dev-memory finish decision [missing_dev_memory_finish_decision].', 'buildDoneChecklist dev-memory-finish-decision', { placeholders: ['decision', 'reason'] });
-    }
-    if (failing('story-summary')) {
-      return step(base, 'agent', 'summary_set', { command: 'summary_set', payload: { storyId, changes: '<what changed, >=10 chars>', usage: '<how to use, >=10 chars>',
-        expectedOutcome: '<what the user expects to see>', actualTranscript: '<what was observed when run>', outcomeDiff: '<expected vs actual>',
-        acceptanceVerdict: 'accepted', outcomeKind: 'success', limitations: '<known limitations or "none — fully covered">', pitfalls: '<pitfall notes, >=10 chars>' } },
-      'The profile requires a full story summary before DONE.', 'buildDoneChecklist story-summary',
-      { placeholders: ['changes', 'usage', 'expectedOutcome', 'actualTranscript', 'outcomeDiff', 'limitations', 'pitfalls'] });
-    }
+    const authoring = testAuthoringStep(base, failing);
+    if (authoring) return authoring;
     for (const id of ['review-escalation', 'review-assurance-floor'] as const) {
       if (!failing(id)) continue;
       const args = { projectRoot: ctx.root, gitCwd, storyId, store: ctx.store };
@@ -756,11 +715,16 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
             if (running) return waitStep(base, running, 'Scope-plan reviewer run');
             const last = hostRuns.filter(run => run.agentType === SCOPE_PLAN_REVIEWER).at(-1);
             const previous = last && last.state !== 'completed' ? ` The previous scope-plan run ${last.runId} ended ${last.state}.` : '';
-            return step(base, 'agent', 'scope_plan_review_launch', { command: 'host_run', payload: { ...managedSelection(hostRuns, 'managed_dispatch'), storyId,
-              agentType: SCOPE_PLAN_REVIEWER, managedDispatch: true, detach: true, json: true } },
+            const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
+            return managedLaunchStep(base, 'scope_plan_review_launch', { ...selection, storyId,
+              agentType: SCOPE_PLAN_REVIEWER, managedDispatch: true, detach: true, json: true }, bound && !last,
             `${scopeFailure.split('\n')[0]} Launch the scope-plan reviewer (managed shown); it saves scope-check.json, then rerun story_review.${previous}`,
             'missingPlanScopeCheckFailure (DEV-entry gate)');
           }
+        }
+        {
+          const authoring = planAuthoringStep(ctx.store, base);
+          if (authoring) return authoring;
         }
         return guardStep(base, 'DEV', 'enter_dev', 'PLAN is complete: the DEV-entry gate admits the Story.', 'getGuardFailureReason(DEV)');
       case 'DEV': return devNext(base);
