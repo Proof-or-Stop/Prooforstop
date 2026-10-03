@@ -1316,18 +1316,45 @@ export function classifyManagedReviewFinalEnvelope(text: string): ManagedReviewF
       ? { kind: 'malformed', violations: [`schemaVersion: expected "${MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION}", got ${shownValue(parsed.schemaVersion)}`] }
       : { kind: 'ordinary' };
   }
-  const readManifest = parsed.readManifest;
+  const envelope = withoutNullOptionalEnvelopeFields(parsed);
+  const readManifest = envelope.readManifest;
   if (isPlainRecord(readManifest)
     && typeof readManifest.candidateSpecSetDigest !== 'string') {
-    return { kind: 'malformed', reason: 'read_manifest_candidate_spec_digest_missing', violations: managedReviewFinalEnvelopeViolations(parsed) };
+    return { kind: 'malformed', reason: 'read_manifest_candidate_spec_digest_missing', violations: managedReviewFinalEnvelopeViolations(envelope) };
   }
   if (isPlainRecord(readManifest)
     && typeof readManifest.corpusDigest !== 'string') {
-    return { kind: 'malformed', reason: 'read_manifest_corpus_digest_missing', violations: managedReviewFinalEnvelopeViolations(parsed) };
+    return { kind: 'malformed', reason: 'read_manifest_corpus_digest_missing', violations: managedReviewFinalEnvelopeViolations(envelope) };
   }
-  const violations = managedReviewFinalEnvelopeViolations(parsed);
+  const violations = managedReviewFinalEnvelopeViolations(envelope);
   if (violations.length > 0) return { kind: 'malformed', violations };
-  return { kind: 'valid', envelope: parsed as ManagedReviewFinalEnvelopeRecord };
+  return { kind: 'valid', envelope: envelope as ManagedReviewFinalEnvelopeRecord };
+}
+
+/**
+ * Optional envelope fields a provider wrote as JSON null mean "absent". Models
+ * driven by a structured schema often emit null for an optional property;
+ * rejecting a finished review for it (and spending format-repair turns) buys
+ * nothing. Only optional fields are dropped: required fields, and fields where
+ * null is a meaningful value (readManifest.scanEscalationReason,
+ * readLog.summary.tokenCount), are left for the validator. The returned copy
+ * is what the proposal is built from; the provider's raw bytes stay sealed.
+ */
+function withoutNullOptionalEnvelopeFields(parsed: Record<string, unknown>): Record<string, unknown> {
+  const drop = (value: unknown, keys: readonly string[]): unknown => {
+    if (!isPlainRecord(value)) return value;
+    return Object.fromEntries(Object.entries(value).filter(([key, item]) => !(item === null && keys.includes(key))));
+  };
+  const out = drop(parsed, ['note', 'findings', 'readDiagnostics', 'inventoryCritic']) as Record<string, unknown>;
+  if (Array.isArray(out.findings)) out.findings = out.findings.map(finding => drop(finding, ['files', 'evidenceState', 'uncertaintyReason']));
+  if (Array.isArray(out.readDiagnostics)) out.readDiagnostics = out.readDiagnostics.map(diagnostic => drop(diagnostic, ['path']));
+  if (isPlainRecord(out.inventoryCritic) && Array.isArray(out.inventoryCritic.findingDispositions)) {
+    out.inventoryCritic = {
+      ...out.inventoryCritic,
+      findingDispositions: out.inventoryCritic.findingDispositions.map(row => drop(row, ['familyKey', 'canonicalFinding'])),
+    };
+  }
+  return out;
 }
 
 const MANAGED_REVIEW_FINAL_ENVELOPE_FIELDS = [

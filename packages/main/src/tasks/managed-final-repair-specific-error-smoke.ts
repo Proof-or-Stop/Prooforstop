@@ -156,6 +156,30 @@ function unitCases(): void {
     assert.match(String(schema.properties[key].properties.filesTriagedByName.description ?? ''), /disjoint/i, `${key}.filesTriagedByName schema states disjointness`);
   }
 
+  // Optional fields written as null mean absent (no repair turn spent on them);
+  // required fields and meaningful nulls stay strict.
+  const nulls = JSON.parse(correctedEnvelope()) as Envelope;
+  nulls.findings = null;
+  nulls.readDiagnostics = null;
+  nulls.inventoryCritic.findingDispositions[0].canonicalFinding = null;
+  const nullable = classifyManagedReviewFinalEnvelope(JSON.stringify(nulls));
+  assert.equal(nullable.kind, 'valid', `null optional fields are accepted: ${JSON.stringify(nullable).slice(0, 300)}`);
+  const accepted = (nullable as { envelope: Envelope }).envelope;
+  assert.equal('findings' in accepted || 'readDiagnostics' in accepted, false, 'nulls are dropped from the accepted envelope');
+  assert.equal('canonicalFinding' in accepted.inventoryCritic.findingDispositions[0], false);
+  const nullFinding = JSON.parse(correctedEnvelope()) as Envelope;
+  nullFinding.conclusion = 'findings';
+  delete nullFinding.note;
+  nullFinding.findings = [{ desc: 'real defect', severity: 'high', category: 'happy', files: null, evidenceState: null, uncertaintyReason: null }];
+  nullFinding.inventoryCritic.findingDispositions.push({ finding: { proposalFindingIndex: 0 }, disposition: 'not_verified', familyKey: null, canonicalFinding: null, reason: 'new finding not yet verified here' });
+  assert.equal(classifyManagedReviewFinalEnvelope(JSON.stringify(nullFinding)).kind, 'valid', 'null optional finding/disposition fields are accepted');
+  const nullRequired = JSON.parse(correctedEnvelope()) as Envelope;
+  nullRequired.storyId = null;
+  nullRequired.inventoryCritic = null;
+  const strict = malformedViolations(JSON.stringify(nullRequired));
+  assert.ok(strict.includes('storyId: expected the bound string, got null'), JSON.stringify(strict));
+  assert.ok(strict.some(line => line.startsWith('inventoryCritic: the topology-critic lane requires')), JSON.stringify(strict));
+
   // JSON parse error: position, line/column and a bounded excerpt.
   const broken = '{"schemaVersion":"lattice.managed_review_final_proposal.v1","note":"he said "hi" today"}';
   const parse = malformedViolations(broken);
