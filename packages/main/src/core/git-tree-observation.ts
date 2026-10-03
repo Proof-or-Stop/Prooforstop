@@ -1,5 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { resolve } from 'node:path';
+import { witnessedGitRead, withFreshGitReads } from './git-ref-witness-memo.js';
 
 // A synchronous observation owns these bytes and probe results. No entry
 // survives the outer callback, a thrown error, or an await. This is not an
@@ -53,15 +54,19 @@ function gitRefused(error: unknown): boolean {
  * caller's budget or buffer, so those options are not part of the key. Outside an
  * observation every call runs git, and mutating commands must never pass here. */
 export function observedGit(gitCwd: string, argv: readonly string[], run: () => string): string {
-  if (!observation) return run();
   const key = 'git\0' + gitObservationKey([resolve(gitCwd), argv]);
+  // A ref-state read is answered once per unchanged repository ref state
+  // (git-ref-witness-memo.ts), inside or outside an observation; working-tree
+  // and index reads always run git (once per observation inside one).
+  const read = () => witnessedGitRead(gitCwd, argv, key, run, gitRefused);
+  if (!observation) return read();
   if (observation.has(key)) {
     const known = observation.get(key);
     if (known instanceof ObservedGitFailure) throw known.error;
     return known as string;
   }
   try {
-    const value = run();
+    const value = read();
     observation.set(key, value);
     return value;
   } catch (error) {
@@ -74,7 +79,7 @@ export function observedGit(gitCwd: string, argv: readonly string[], run: () => 
 export function withoutGitObservation<T>(launch: () => T): T {
   const previous = observation;
   observation = undefined;
-  try { return launch(); } finally { observation = previous; }
+  try { return withFreshGitReads(launch); } finally { observation = previous; }
 }
 
 /** A git mutation issued by this process ends what the current observation knows:
@@ -97,15 +102,21 @@ export function assertGitObservationInactive(label: string): true {
  */
 export function readObservedGitTree(gitCwd: string, ref: string): string {
   const argv = ['ls-tree', '-r', '-z', ref];
-  const key = observation && /^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(ref)
+  const objectAddressed = /^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(ref);
+  const key = observation && objectAddressed
     ? gitObservationKey([resolve(gitCwd), argv])
     : undefined;
   if (key !== undefined && observation!.has(key)) return observation!.get(key) as string;
-  const raw = execFileSync('git', argv, {
+  const read = (): string => execFileSync('git', argv, {
     cwd: gitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
     // Preserve both existing readers' limit. Do not widen a bounded caller.
     maxBuffer: 1024 * 1024 * 1024,
   });
+  // A full object id names immutable bytes while the replace-ref namespace is
+  // unchanged (git-ref-witness-memo.ts), across observations too.
+  const raw = objectAddressed
+    ? witnessedGitRead(gitCwd, argv, 'tree\0' + gitObservationKey([resolve(gitCwd), argv]), read, gitRefused)
+    : read();
   if (key !== undefined) observation!.set(key, raw);
   return raw;
 }

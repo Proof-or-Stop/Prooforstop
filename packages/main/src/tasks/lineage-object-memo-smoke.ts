@@ -11,8 +11,9 @@
  *
  * Budget: a second collection in the same process re-runs no git read that is
  * addressed only by full object ids. Live probes (HEAD, material, ancestry
- * sources) still run in every collection; a replace ref disables the memo; a
- * commit that is not a permitted advance still invalidates the binding.
+ * sources) run again whenever the repository's ref state changed
+ * (git-ref-witness-memo); a replace ref disables the memo; a commit that is
+ * not a permitted advance still invalidates the binding.
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -88,7 +89,14 @@ try {
   const repeated = second.argv.filter(objectAddressed);
   console.log(`object-addressed git reads: first collection ${firstObjectReads}, second collection ${repeated.length}; second collection total ${second.argv.length}`);
   assert.equal(repeated.length, 0, `a second collection re-ran ${repeated.length} object-addressed git reads (budget 0): ${repeated.slice(0, 3).map(a => a.join(' ')).join(' | ')}`);
-  assert.ok(second.argv.some(argv => argv[0] === 'rev-parse'), 'every collection still resolves the live HEAD');
+  // Live probes are answered once per unchanged repository ref state
+  // (git-ref-witness-memo): an unchanged repository is not re-probed, and a
+  // moved HEAD is resolved afresh by the next collection.
+  assert.equal(second.argv.length, 0, `an unchanged repository is re-probed: ${second.argv.map(a => a.join(' ')).join(' | ')}`);
+  metadataCommit('done_prepare');
+  const moved = collection();
+  assert.deepEqual(moved.valid, Array(LANES).fill(true), 'a permitted metadata advance keeps every lane valid');
+  assert.ok(moved.argv.some(argv => argv[0] === 'rev-parse'), 'a collection after HEAD moved resolves the live HEAD afresh');
 
   // A replace ref can redirect an object id: the memo must step aside.
   const head = git(root, ['rev-parse', 'HEAD']);

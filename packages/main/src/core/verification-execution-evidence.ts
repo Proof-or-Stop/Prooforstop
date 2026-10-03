@@ -1,5 +1,5 @@
 import { withExecutableDigestObservation, readObservedExecutableDigest } from './executable-digest-observation.js';
-import { gitObservationKey, readObservedGitState, withGitTreeObservation } from './git-tree-observation.js';
+import { gitObservationKey, observedGit, readObservedGitState, withGitTreeObservation } from './git-tree-observation.js';
 import { VERIFICATION_RECEIPT_BUNDLE_V5 } from './artifact-schema.js';
 export { VERIFICATION_RECEIPT_BUNDLE_V5 } from './artifact-schema.js';
 import { executionImplementationIdentity } from './execution-implementation.js';
@@ -413,7 +413,8 @@ function gitCommonDir(gitCwd: string): string {
   // Receipt validation inside one synchronous refresh scope locates the signer
   // key directory once; outside an observation every call asks Git.
   return readObservedGitState(gitObservationKey(['common-dir', resolve(gitCwd)]), () => {
-    const raw = execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: gitCwd, encoding: 'utf8' }).trim();
+    const argv = ['rev-parse', '--git-common-dir'];
+    const raw = observedGit(gitCwd, argv, () => execFileSync('git', argv, { cwd: gitCwd, encoding: 'utf8' })).trim();
     return realpathSync(isAbsolute(raw) ? raw : resolve(gitCwd, raw));
   });
 }
