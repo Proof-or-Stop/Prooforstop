@@ -803,14 +803,22 @@ async function releaseValidationCapacityTicket(ticketPath: string, holder: Mkdir
 // Boot identity is kernel-observed, never inferred from wall clock or owner death.
 // This witness shares the existing private-owned ticket filesystem trust; it is
 // not cryptographic authentication against an attacker rewriting that directory.
+// The boot session of the machine this process runs on cannot change while the
+// process lives, so one successful observation serves every later capacity
+// candidate of this process (it was one sysctl per validation command). A failed
+// or malformed observation is not remembered and is retried.
+let observedBootIdentity: string | undefined;
 function machineBootIdentity(): string | undefined {
   if (process.platform !== 'darwin') return undefined;
+  if (observedBootIdentity) return observedBootIdentity;
   try {
     const value = execFileSync('/usr/sbin/sysctl', ['-n', 'kern.bootsessionuuid'], {
       encoding: 'utf8', timeout: VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY.kernelObservationMs,
       maxBuffer: VALIDATION_RESERVATION_DELEGATION_RUNTIME_POLICY.maxMessageBytes,
     }).trim().toLowerCase();
-    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value) ? value : undefined;
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value)) return undefined;
+    observedBootIdentity = value;
+    return value;
   } catch { return undefined; }
 }
 export function canonicalMachineCapacityRoot(): string {

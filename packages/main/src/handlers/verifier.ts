@@ -7,7 +7,7 @@ import { assessStoredValidationPassAdmissibility } from './validation-pass-admis
 import { readFindingValidationConstraints } from '../core/finding-validation.js';
 import { signTestValidationEvidence, verifyTestValidationEvidence } from '../core/validation-artifact-signing.js';
 import { acceptanceCompletionBlocker } from '../core/acceptance-amendment-gates.js';
-import { commandFromString, configuredValidationCommands, filterFocusedConfiguredCommands, sourceInputSnapshot, routineIdentityPolicySnapshot, buildValidateFileCommand } from './validation-identity.js';
+import { commandFromString, configuredValidationCommands, filterFocusedConfiguredCommands, sourceInputSnapshot, routineIdentityPolicySnapshot, buildValidateFileCommand, precertCheapCheckWaived } from './validation-identity.js';
 import { COVERAGE_INCOMPLETE_FAILURE_KIND, IDENTITY_UNAVAILABLE_CODE, passPublicationRefusal, readValidationHistory, verdictIdentityFromParts, type ValidationVerdictIdentity } from '../core/validation-verdict-stickiness.js';
 export { configuredValidationCommands, sourceInputSnapshot } from './validation-identity.js';
 import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
@@ -2313,6 +2313,12 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
 
       if (args.story && isOfficialHeavyValidateInvocation(args)) {
         assertTestAdmissibleRoutineValidationWindow(ctx, args.story);
+        // Run 17 (Q5): PRE_CERT waived the separate fast run because this
+        // routine run executes the identical plan fresh; it may not narrow
+        // (dynamic validation) or reuse an earlier PASS instead.
+        if (((args.dynamicMode && args.dynamicMode !== 'off') || args.reuseFreshRoutinePass === true) && precertCheapCheckWaived(ctx, args.story)) {
+          throw new Error(`[${PRE_CERT_CHEAP_CHECK_REQUIRED}] the certification window waived the separate validate --focus=fast run because the routine validate executes the identical command plan fresh; run proof-or-stop validate --story=${args.story} --json without dynamicMode/reuseFreshRoutinePass`);
+        }
       }
       const officialHeavyStoryValidate = Boolean(args.story && isOfficialHeavyValidateInvocation(args));
 

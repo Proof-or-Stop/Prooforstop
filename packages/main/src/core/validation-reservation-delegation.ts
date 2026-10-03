@@ -53,7 +53,19 @@ function table(): Map<number, ProcessIdentity & { ppid: number }> {
   for (const row of rows.trim().split('\n')) { const [pid, ppid, pgid] = row.trim().split(/\s+/).map(Number); if (pid > 1 && Number.isSafeInteger(ppid) && pgid > 1) result.set(pid, { pid, ppid, pgid, start: 0 }); }
   return result;
 }
+// This process's own identity cannot change while it runs: the kernel keeps its
+// PID and start time for its whole lifetime, and Node never changes its own
+// process group. The controller observed it once per operation (five ps runs per
+// validation child); one successful observation now serves the process. Every
+// other PID (children, parents, owners) is still observed on every call.
+let ownIdentity: ProcessIdentity | undefined;
 function identity(pid: number): ProcessIdentity {
+  if (pid === process.pid && ownIdentity) return ownIdentity;
+  const observed = observeIdentity(pid);
+  if (pid === process.pid) ownIdentity = observed;
+  return observed;
+}
+function observeIdentity(pid: number): ProcessIdentity {
   if(!Number.isSafeInteger(pid)||pid<=1)throw failure('process identity unavailable');
   let raw: string;
   try { raw=execFileSync('ps',['-p',String(pid),'-o','pid=,pgid=,lstart='],{encoding:'utf8',timeout:policy.kernelObservationMs,maxBuffer:8*1024*1024}); }

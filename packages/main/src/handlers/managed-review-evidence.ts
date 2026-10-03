@@ -169,8 +169,46 @@ export function createManagedReviewEvidenceHandlers(
       };
     },
 
-    managed_review_evidence_import(args: { runId?: string; receiptId?: string }) {
-      assertOnlyKeys('managed_review_evidence_import', args as Record<string, unknown>, ['runId', 'receiptId']);
+    /**
+     * One exact managed terminal receipt (runId + receiptId), or `imports`: the
+     * completed lanes of one review round in ONE process (run 17: one process
+     * per lane, 4.7-8.5 s each). Each entry is the same complete import
+     * transaction as a single call (live binding, receipt intake, locks, its
+     * own metadata commit), in the given order; the first refused entry stops
+     * the batch and names it, entries before it stay imported (an import is
+     * idempotent, so rerunning the batch re-imports nothing twice).
+     */
+    managed_review_evidence_import(args: { runId?: string; receiptId?: string; imports?: Array<{ runId?: string; receiptId?: string }> }) {
+      assertOnlyKeys('managed_review_evidence_import', args as Record<string, unknown>, ['runId', 'receiptId', 'imports']);
+      if (args.imports === undefined) return importManagedReviewEvidence(args);
+      if (args.runId !== undefined || args.receiptId !== undefined) {
+        throw new Error('managed_review_evidence_import: pass either runId+receiptId or imports, not both');
+      }
+      if (!Array.isArray(args.imports) || args.imports.length < 1 || args.imports.length > 32) {
+        throw new Error('managed_review_evidence_import: imports must contain 1 to 32 {runId, receiptId} entries');
+      }
+      const entries = args.imports.map((entry, index) => {
+        if (!entry || typeof entry !== 'object' || Array.isArray(entry)) throw new Error(`managed_review_evidence_import: imports[${index}] must be {runId, receiptId}`);
+        assertOnlyKeys(`managed_review_evidence_import imports[${index}]`, entry as Record<string, unknown>, ['runId', 'receiptId']);
+        return entry;
+      });
+      if (new Set(entries.map(entry => entry.runId?.trim())).size !== entries.length) {
+        throw new Error('managed_review_evidence_import: imports name the same runId twice');
+      }
+      const done: string[] = [];
+      for (const [index, entry] of entries.entries()) {
+        try {
+          done.push(importManagedReviewEvidence(entry));
+        } catch (error) {
+          throw new Error(`${done.length ? `${done.join('\n')}\n` : ''}managed_review_evidence_import: imports[${index}] (runId ${String(entry.runId)}) refused`
+            + `${done.length ? `; the ${done.length} import(s) before it are recorded` : ''}: ${error instanceof Error ? error.message : String(error)}`);
+        }
+      }
+      return done.join('\n');
+    },
+  };
+
+  function importManagedReviewEvidence(args: { runId?: string; receiptId?: string }): string {
       const runId = args.runId?.trim() || '';
       const receiptId = args.receiptId?.trim() || '';
       if (!runId || !receiptId) throw new Error('managed_review_evidence_import: runId and receiptId are required; verdict overrides are not accepted');
@@ -602,6 +640,5 @@ export function createManagedReviewEvidenceHandlers(
           + `\nFramework next action: ${evidenceChainNextActionForStory(ctx, proposal.storyId)}`
         : '';
       return `${summary}${reclassifiedHint}${criticHint ? `\n${criticHint}` : ''}${commitHint}${criticCommitHint}`;
-    },
-  };
+  }
 }

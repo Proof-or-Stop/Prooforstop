@@ -61,7 +61,7 @@ import {
   PRE_CERT_BLOCKING_FINDINGS_OPEN,
 } from '../../core/certification-window.js';
 import { currentCertificationIdentity } from '../../handlers/certification-window.js';
-import { currentPrecertFastIdentity } from '../../handlers/validation-identity.js';
+import { currentPrecertFastIdentity, precertCheapCheckWaived } from '../../handlers/validation-identity.js';
 import { evaluateEvidenceChainForStory } from '../../handlers/evidence-chain.js';
 import { checklistHasFileDeclarations } from '../../handlers/phase-gates.js';
 import { verifyCurrentReviewerDispatchBinding } from '../../core/review-run.js';
@@ -350,6 +350,14 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
       `Managed review run ${run.runId} completed; import its sealed terminal receipt as review evidence.`, 'managed host-run receipt');
   }
 
+  /** Run 17: every completed lane of the round in ONE import process (one transaction per lane, in order). */
+  function laneImportStep(base: { storyId: string; phase: string }, importable: Array<{ run: HostRunView; receiptId: string }>): NextStep {
+    if (importable.length === 1) return importStep(base, importable[0]!.run, importable[0]!.receiptId);
+    return step(base, 'framework', 'review_evidence_import', { command: 'managed_review_evidence_import', payload: { imports: importable.map(row => ({ runId: row.run.runId, receiptId: row.receiptId })) } },
+      `Managed review runs ${importable.map(row => row.run.runId).join(', ')} completed; import their sealed terminal receipts as review evidence (one process, one transaction each).`, 'managed host-run receipt');
+  }
+
+
   /**
    * Prepared lanes of the current round, from review-runs.json and the host-run
    * projection only (cheap): launch every prepared lane, then wait, then import.
@@ -378,7 +386,7 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
     }
     if (toLaunch.length) return reviewLaunchStep(base, toLaunch[0]!.lane, toLaunch[0]!.run.reviewRunId, false);
     if (waiting.length) return waitStep(base, waiting[0]!, 'Managed reviewer run');
-    if (importable.length) return importStep(base, importable[0]!.run, importable[0]!.receiptId);
+    if (importable.length) return laneImportStep(base, importable);
     return null;
   }
 
@@ -537,7 +545,8 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
         cheap = currentPrecertCheapCheckReceipt({ currentIdentity: currentPrecertFastIdentity(ctx, storyId), data: ctx.store.readCertificationWindows(storyId),
           storyId, headHash, materialHash, storyFilesHash });
       } catch { cheap = null; }
-      if (!cheap) {
+      // Run 17: no separate fast run when the routine run the window requires executes the same plan fresh.
+      if (!cheap && !precertCheapCheckWaived(ctx, storyId)) {
         return step(base, 'framework', 'precert_cheap_check', { command: 'validate', payload: { story: storyId, focus: 'fast', json: true } },
           `Saturated epoch ${pending.epoch.epochId} is finalized; certification needs a current signed fast PASS first [${PRE_CERT_CHEAP_CHECK_REQUIRED}].`, 'currentPrecertCheapCheckReceipt');
       }
@@ -548,7 +557,8 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
           `Certification refuses open verified blocking finding(s) ${ids.join(', ')} [${PRE_CERT_BLOCKING_FINDINGS_OPEN}].`,
           'unclosedBlockingFindings (PRE_CERT admit)');
       }
-      const blocked = latestBlockedAfterCheap(storyId, cheap.createdAt);
+      // A waived cheap check: the facts date from the finalized inventory receipt instead.
+      const blocked = latestBlockedAfterCheap(storyId, cheap?.createdAt ?? pending.receipt.issuedAt ?? '');
       if (blocked) return blocked;
       return step(base, 'framework', 'certification_begin', { command: 'certification_window_begin', payload: { storyId } },
         'Saturated inventory and a current fast PASS: admit the certification window now, then run the routine suite.', 'PRE_CERT admit predicates');

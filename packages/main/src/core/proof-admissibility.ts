@@ -5,6 +5,7 @@ import {
   prepareVerificationExecutionIdentity,
   validateVerificationReceipt,
   verificationReceiptHasCurrentReuseAuthority,
+  withVerificationRefreshObservation,
 } from './verification-execution-evidence.js';
 import {
   checkStrictVerificationEvidenceFreshnessForGit,
@@ -819,9 +820,19 @@ export function evaluateVerificationEvidenceForGate(input: {
   return { allowed: true, state: 'current', code: 'verification_receipt_valid', detail: 'validated execution, assertion, and full-output artifact' };
 }
 
+/**
+ * The gate evaluator of one coverage evaluation. `observe` is the synchronous
+ * read scope buildVerificationCoverage runs the whole evaluation in: every
+ * receipt then shares one implementation-identity digest and one Git state
+ * observation (withVerificationRefreshObservation, the scope refresh_stale
+ * already plans its rows in). Each receipt is still authenticated, its
+ * execution identity rebuilt and its freshness checked; only the identical
+ * current-state reads are taken once per evaluation instead of once per receipt.
+ */
 export function createVerificationEvidenceGateEvaluator(projectRoot: string, storyId: string) {
-  return (input: { intentRef: string; selector: string; command?: string; evidence: VerificationEvidence }): VerificationGateAdmissibilityResult =>
+  const evaluate = (input: { intentRef: string; selector: string; command?: string; evidence: VerificationEvidence }): VerificationGateAdmissibilityResult =>
     evaluateVerificationEvidenceForGate({ projectRoot, storyId, ...input });
+  return Object.assign(evaluate, { observe: withVerificationRefreshObservation });
 }
 
 const registryByKind = new Map<string, ProofSurfaceDefinition>();
