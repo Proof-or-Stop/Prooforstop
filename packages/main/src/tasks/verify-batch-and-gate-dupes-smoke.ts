@@ -39,10 +39,11 @@ import { join } from 'node:path';
 import { StoryStore } from '../core/store.js';
 import { resetConfigCache } from '../core/config.js';
 import type { ChecklistData } from '../core/types.js';
+import type { ValidationCommand } from '../core/validation-types.js';
 
 const N = Math.max(4, Number(process.argv[2] ?? 22));
-/** Child processes per pinned execution besides the pinned command (before: ~13 on a dev Mac). */
-const PER_EXECUTION_BUDGET = 8;
+/** Child processes per pinned execution besides the pinned command, amortized over the batch (before: 16.7 at N=22; after: 8.0, of which ~6 per row: HEAD + status before/after the command, child identity, process table). */
+const PER_EXECUTION_BUDGET = 9;
 /** Implementation-identity scans per gate command (before: one or more per receipt, 2N+ at N=22). */
 const IMPLEMENTATION_SCAN_BUDGET = 6;
 /** Child processes per gate command at N pinned receipts (before, N=22: REVIEW 133, TEST 360, DONE 520). */
@@ -56,22 +57,24 @@ const LOG = process.env.VBG_SMOKE_LOG;
 if (LOG && path.basename(process.argv[1] || '') === 'cli.js') {
   const started = Date.now();
   const commands = [];
-  let implementationScans = 0;
   for (const name of ['spawnSync', 'execFileSync', 'execSync', 'spawn', 'execFile', 'exec', 'fork']) {
     const original = cp[name];
     cp[name] = function (file, args) { commands.push([String(file), ...(Array.isArray(args) ? args.map(String) : [])]); return original.apply(this, arguments); };
   }
-  const readdir = fs.readdirSync;
-  fs.readdirSync = function (dir) {
-    // executionImplementationIdentity walks the runtime dist root once per scan.
-    if (typeof dir === 'string' && /[\\/]packages[\\/]main[\\/]dist$/.test(dir)) implementationScans += 1;
-    return readdir.apply(this, arguments);
-  };
+  // executionImplementationIdentity resolves the runtime dist root twice per
+  // scan (root, then the walk's own realpath); nothing else realpaths it.
+  let distRealpaths = 0;
+  const realpath = fs.realpathSync;
+  fs.realpathSync = Object.assign(function (target) {
+    if (typeof target === 'string' && /[\\/]packages[\\/]main[\\/]dist$/.test(target)) distRealpaths += 1;
+    return realpath.apply(this, arguments);
+  }, { native: realpath.native });
+  Object.defineProperty(globalThis, '__vbgScans', { get: () => Math.ceil(distRealpaths / 2) });
   require('node:module').syncBuiltinESMExports();
   let payload = {};
   try { payload = JSON.parse(process.argv[3] || '{}'); } catch {}
   process.on('exit', code => {
-    try { fs.appendFileSync(LOG, JSON.stringify({ command: process.argv[2], payload, code, ms: Date.now() - started, implementationScans, commands }) + '\n'); } catch {}
+    try { fs.appendFileSync(LOG, JSON.stringify({ command: process.argv[2], payload, code, ms: Date.now() - started, implementationScans: globalThis.__vbgScans, commands }) + '\n'); } catch {}
   });
 }
 `;
@@ -104,13 +107,24 @@ async function cheapCheckRule(): Promise<string[]> {
   const module = await import(new URL('../core/certification-window.js', import.meta.url).href) as Record<string, unknown>;
   const subsumed = module.precertCheapCheckSubsumedByRoutine as undefined | ((fast: unknown, routine: unknown) => boolean);
   if (typeof subsumed !== 'function') return ['core/certification-window precertCheapCheckSubsumedByRoutine is missing (no rule decides when the routine run covers the cheap check)'];
-  const command = (over: Record<string, unknown> = {}) => ({ label: 'go-strs', command: 'go', args: ['test', '-v', './strs'], timeoutMs: 270000, ...over });
-  const identity = (commands: unknown[], sourceKind = 'configured') => ({ sourceKind, commands, digest: 'x' });
-  if (!subsumed(identity([command({ focus: ['fast'] })]), identity([command({ focus: ['fast'] })]))) failures.push('identical single-command plans must waive the separate cheap run');
-  if (subsumed(identity([command({ focus: ['fast'] })]), identity([command({ focus: ['fast'] }), command({ label: 'vet', args: ['vet', './...'] })]))) failures.push('a routine plan with an extra command must keep the cheap check');
-  if (subsumed(identity([command({ focus: ['fast'] })]), identity([command({ timeoutMs: 1000 })]))) failures.push('a different timeout must keep the cheap check');
-  if (subsumed(identity([command({ focus: ['fast'], env: { A: '1' } })]), identity([command()]))) failures.push('a different environment must keep the cheap check');
-  if (subsumed(identity([command()], 'validate-file'), identity([command()], 'validate-file'))) failures.push('a validate.ts entrypoint (focus is an argument) must keep the cheap check');
+  const { buildRoutineValidationIdentity } = await import('../core/validation-evidence-reuse.js');
+  const root = mkdtempSync(join(tmpdir(), 'vbg-cheap-'));
+  try {
+    const go = (over: Partial<ValidationCommand> = {}): ValidationCommand => ({ label: 'go-strs', command: 'go', args: ['test', '-v', './strs'], timeoutMs: 270000, focus: ['fast'], ...over });
+    const identity = (commands: ValidationCommand[], opts: { focus?: string; sourceKind?: 'configured' | 'validate-file'; full?: boolean } = {}) => buildRoutineValidationIdentity({
+      projectRoot: root, sourceKind: opts.sourceKind ?? 'configured', sourceInputs: { config: 'same' }, commands,
+      ...(opts.focus ? { focus: opts.focus } : {}), ...(opts.full ? { full: true } : {}), profile: 'balanced', verificationPolicyInputs: { policy: 'same' },
+    });
+    const fast = identity([go()], { focus: 'fast' });
+    if (!subsumed(fast, identity([go()]))) failures.push('identical single-command plans must waive the separate cheap run');
+    if (subsumed(fast, identity([go(), go({ label: 'vet', args: ['vet', './...'], focus: [] })]))) failures.push('a routine plan with an extra command must keep the cheap check');
+    if (subsumed(fast, identity([go({ timeoutMs: 1000 })]))) failures.push('a different timeout must keep the cheap check');
+    if (subsumed(fast, identity([go({ env: { CONTEXT: 'abs' } })]))) failures.push('a different environment must keep the cheap check');
+    if (subsumed(fast, identity([go()], { full: true }))) failures.push('a full routine run is not the routine plan');
+    if (subsumed(identity([go()], { focus: 'fast', sourceKind: 'validate-file' }), identity([go()], { sourceKind: 'validate-file' }))) failures.push('a validate.ts entrypoint (focus is an argument) must keep the cheap check');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
   return failures;
 }
 
@@ -159,6 +173,7 @@ async function main(): Promise<void> {
     driveWithNext(o, { findingRound1: false, run: false }, lines, next => { reasons.push(`${next.phase}:${next.reason}`); });
 
     const rows = readFileSync(log, 'utf8').split('\n').filter(Boolean).map(line => JSON.parse(line) as Row);
+    if (process.env.VBG_SMOKE_LOG_COPY) writeFileSync(process.env.VBG_SMOKE_LOG_COPY, readFileSync(log));
     console.log(`N=${N} pinned intents; ${rows.length} CLI processes; ${((Date.now() - started) / 1000).toFixed(0)} s`);
     console.log(`${'command'.padEnd(36)} ${'ms'.padStart(6)} ${'spawns'.padStart(6)} ${'pinned'.padStart(6)} ${'other/exec'.padStart(10)} ${'implScans'.padStart(9)}`);
     for (const row of rows) {

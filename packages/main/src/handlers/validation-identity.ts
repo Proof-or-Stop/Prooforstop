@@ -14,6 +14,8 @@ import { isMaterialExcludedPath } from '../core/evidence-freshness.js';
 import { findValidateFile, validateFileDefaultTimeoutMs } from '../core/validation-file-entry.js';
 import { buildRoutineValidationIdentity } from '../core/validation-evidence-reuse.js';
 import { requireRepositoryBaselineRef } from '../core/git-baseline.js';
+import { precertCheapCheckSubsumedByRoutine } from '../core/certification-window.js';
+import type { RoutineValidationIdentity } from '../core/validation-types.js';
 
 export { commandFromString, filterFocusedConfiguredCommands } from '../core/validation-command-config.js';
 
@@ -137,4 +139,44 @@ export function currentPrecertFastIdentity(ctx: HandlerContext, storyId: string)
     profile: policy.workflowPolicy.profile,
     verificationPolicyInputs: policy.identityPolicyInputs,
   });
+}
+
+/** The routine (no focus, not full) configured-plan identity, as validate --story=<id> --json builds it. */
+export function currentRoutineValidationIdentity(ctx: HandlerContext, storyId: string): RoutineValidationIdentity | null {
+  if (findValidateFile(ctx.root)) return null;
+  const commands = configuredValidationCommands(ctx.root);
+  if (commands.length === 0) return null;
+  const policy = routineIdentityPolicySnapshot(ctx, storyId);
+  return buildRoutineValidationIdentity({
+    projectRoot: ctx.root, sourceKind: 'configured', commands,
+    sourceInputs: sourceInputSnapshot(ctx.root, 'configured'),
+    profile: policy.workflowPolicy.profile,
+    verificationPolicyInputs: policy.identityPolicyInputs,
+  });
+}
+
+/** Mirrors core/story-aware-validation DYNAMIC_MODES: an unknown value resolves to 'off'. */
+const NARROWING_DYNAMIC_MODES = new Set(['observe', 'shadow', 'enforce-low-risk']);
+
+/**
+ * Run 17 (Q5): PRE_CERT needs no separate `validate --focus=fast` run when the
+ * fast plan IS the routine plan (core/certification-window
+ * precertCheapCheckSubsumedByRoutine) AND the routine run the admitted window
+ * requires executes that whole plan fresh: no story-aware dynamic validation
+ * mode from the environment or project config, and no opt-in reuse of an
+ * earlier routine PASS. The routine run itself refuses explicit dynamic or reuse
+ * arguments while this holds (handlers/verifier). Unprovable inputs keep the
+ * cheap check.
+ */
+export function precertCheapCheckWaived(ctx: HandlerContext, storyId: string): boolean {
+  try {
+    const config = loadConfig(ctx.root);
+    const mode = process.env.PROOF_OR_STOP_DYNAMIC_VALIDATION_MODE || config.validation?.dynamic?.mode || config.validate?.dynamic?.mode || 'off';
+    if (NARROWING_DYNAMIC_MODES.has(String(mode))) return false;
+    if (config.validate?.reuseFreshRoutinePass === true) return false;
+    const routine = currentRoutineValidationIdentity(ctx, storyId);
+    return routine !== null && precertCheapCheckSubsumedByRoutine(currentPrecertFastIdentity(ctx, storyId), routine);
+  } catch {
+    return false;
+  }
 }

@@ -117,6 +117,18 @@ export function storyIdFromArgs(
       if (subjects.size !== 1) throw new Error('host_run_status: aggregate targets must share one immutable Story ownership subject');
       return [...subjects][0];
     }
+    if (context.command === 'managed_review_evidence_import' && args.imports !== undefined) {
+      if (!Array.isArray(args.imports) || args.imports.length < 1 || args.imports.length > 32) {
+        throw new Error('managed_review_evidence_import: imports must contain 1 to 32 runs');
+      }
+      const subjects = new Set(args.imports.map(entry => {
+        const runId = safeAutopilotRunId(entry?.runId);
+        if (!runId) throw new Error('managed_review_evidence_import: invalid imports runId');
+        return managedHostRunStoryIdForOwnership(context.projectRoot!, runId);
+      }));
+      if (subjects.size !== 1) throw new Error('managed_review_evidence_import: imports must share one immutable Story ownership subject');
+      return [...subjects][0];
+    }
     const runId = safeAutopilotRunId(args.runId);
     if (!runId) return null;
     return managedHostRunStoryIdForOwnership(context.projectRoot, runId);

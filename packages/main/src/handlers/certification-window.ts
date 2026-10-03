@@ -6,7 +6,7 @@ import { persistAdmittingCertificationWindow, nonInventoryAdmitRefusal, type Cer
 import { isValidationMetadataBusy } from '../core/validation-execution-lock.js';
 import { acceptanceCompletionBlocker } from '../core/acceptance-amendment-gates.js';
 import { assessStoredValidationPassAdmissibility } from './validation-pass-admissibility.js';
-import { currentPrecertFastIdentity } from './validation-identity.js';
+import { currentPrecertFastIdentity, precertCheapCheckWaived } from './validation-identity.js';
 import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 import type { HandlerContext } from './context.js';
 import { execFileSync } from 'node:child_process';
@@ -579,6 +579,7 @@ function collectAdmitFacts(
     headHash,
     inventoryHeadMetadataContinuity,
     cheapCheckHeadMetadataContinuity: Boolean(cheapCheckReceipt && cheapCheckReceipt.headHash !== headHash),
+    cheapCheckSubsumedByRoutine: !cheapCheckReceipt && precertCheapCheckWaived(ctx, storyId),
     materialHash,
     storyFilesHash,
     expectedMainSha,

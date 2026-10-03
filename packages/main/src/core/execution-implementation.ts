@@ -1,13 +1,37 @@
 import {readObservedExecutableDigest} from './executable-digest-observation.js';
 import {statValidatedFileDigest} from './stat-validated-digest.js';
 import {createHash} from 'node:crypto';
-import {existsSync,readFileSync,readdirSync,realpathSync} from 'node:fs';
+import {existsSync,readFileSync,readdirSync,realpathSync,statSync,type Dirent} from 'node:fs';
 import {dirname,isAbsolute,join,resolve} from 'node:path';
 import {runtimeDistRoot} from './runtime-layout.js';
 import {createRequire} from 'node:module';
 import {EXECUTION_IMPLEMENTATION_PIN_POLICY} from './runtime-fact-registry.js';
 
 const sha=(bytes: string | Buffer) => createHash('sha256').update(bytes).digest('hex');
+
+/**
+ * Directory listings of earlier scans, reused only while the directory's full
+ * stat identity (inode, size, mtime, ctime, mode in nanoseconds) is unchanged on
+ * a nanosecond-timestamp filesystem: adding, removing or renaming an entry gives
+ * the directory a new mtime/ctime. A whole-second timestamp never reuses (the
+ * rule git-ref-witness-memo applies to ref directories). Every scan still stats
+ * every directory and every file, so content changes are seen exactly as before;
+ * only the identical readdir is skipped. Verification runs scan this identity
+ * four times per pinned execution (run 17: 22 executions per batch).
+ */
+type ListedEntry = {name:string;directory:boolean;file:boolean;symlink:boolean};
+const listings=new Map<string,{identity:string;entries:ListedEntry[]}>();
+function listDirectory(directory:string):ListedEntry[]{
+  const stat=statSync(directory,{bigint:true});
+  const identity=`${stat.dev}:${stat.ino}:${stat.size}:${stat.mtimeNs}:${stat.ctimeNs}:${stat.mode}`;
+  const fineGrained=stat.mtimeNs%1_000_000_000n!==0n&&stat.ctimeNs%1_000_000_000n!==0n;
+  const known=listings.get(directory);
+  if(fineGrained&&known&&known.identity===identity)return known.entries;
+  const entries=readdirSync(directory,{withFileTypes:true}).map((item:Dirent)=>({name:item.name,directory:item.isDirectory(),file:item.isFile(),symlink:item.isSymbolicLink()}))
+    .sort((a,b)=>a.name<b.name?-1:a.name>b.name?1:0);
+  if(fineGrained)listings.set(directory,{identity,entries});else listings.delete(directory);
+  return entries;
+}
 interface PackageDescriptor {name?:string;version?:string;dependencies?:Record<string,string>}
 /** Content identity of this loaded implementation, not the target project's version. */
 export function executionImplementationIdentity() {
@@ -44,12 +68,12 @@ export function executionImplementationIdentity() {
     if(!existsSync(directory))return;
     const actual=realpathSync(directory);
     if(visited.has(actual))return;visited.add(actual);
-    for(const item of readdirSync(actual,{withFileTypes:true}).sort((a,b)=>a.name<b.name?-1:a.name>b.name?1:0)){
+    for(const item of listDirectory(actual)){
       if(item.name==='node_modules'||item.name==='.git')continue;
       const path=join(actual,item.name),key=label+'/'+item.name;
-      if(item.isDirectory())scan(path,key,includeAll);
-      else if(item.isFile() && (includeAll || /\.(?:js|cjs|mjs|ts|json|node)$/.test(item.name)) && !/\.d\.ts$/.test(item.name)) files.push({path:key,digest:digestOf(path)});
-      else if(item.isSymbolicLink())throw new Error('IMPLEMENTATION_IDENTITY_SYMLINK: '+key);
+      if(item.directory)scan(path,key,includeAll);
+      else if(item.file && (includeAll || /\.(?:js|cjs|mjs|ts|json|node)$/.test(item.name)) && !/\.d\.ts$/.test(item.name)) files.push({path:key,digest:digestOf(path)});
+      else if(item.symlink)throw new Error('IMPLEMENTATION_IDENTITY_SYMLINK: '+key);
     }
   };
   scan(runtimeRoot,'core');
