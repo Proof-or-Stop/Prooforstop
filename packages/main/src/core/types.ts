@@ -2893,6 +2893,8 @@ export interface ScopeCheckData {
    */
   openQuestions?: OpenQuestion[];
   reviewRound?: string;
+  /** Reviewer-visible checklist digest at save time (guidance only; outside the signature domain). */
+  checklistDigest?: string;
   _hash: string;
 }
 
