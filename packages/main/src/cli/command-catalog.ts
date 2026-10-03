@@ -592,9 +592,10 @@ Behavior:
       commandTimeoutReason: z.string().min(30, 'commandTimeoutReason must be ≥ 30 characters').optional().describe('B-cdf6: attributable justification REQUIRED whenever commandTimeoutMs is supplied. Recorded on the tool-owned receipt (gate-visible).'),
     })).describe('Evidence array; reads and writes the checklist once in the same call.'),
   }},
-  { name: 'verification_run', description: 'B-1507: execute an intent\'s PINNED verifier and atomically record the tool-executed receipt (the caller never authors the command)', schema: {
+  { name: 'verification_run', description: 'B-1507: execute an intent\'s PINNED verifier and atomically record the tool-executed receipt (the caller never authors the command). --pending batches every pending pinned intent: each unique pinned execution runs once, every intent gets its own signed receipt judged by its own selector, one metadata commit', schema: {
     storyId: z.string().describe('Story ID'),
-    intentRef: z.string().describe('For example CHK-001:happy:0 or a custom intent ID. Resolved to its owning item\'s pinned verification:{command,selector}; the pinned command is what runs.'),
+    pending: z.boolean().optional().describe('Batch mode instead of intentRef: every pinned must/should intent whose receipt is stale and every pinned must intent whose receipt is missing or non-mechanical (the pinned rows the DEV→REVIEW evidence chain blocks on). Each unique pinned execution (command, cwd, timeout, execution identity) runs ONCE at the current HEAD/material; every intent pinned to it gets its own signed receipt checked against its own selector; one metadata commit. A refused intent (selector absent, non-zero exit, timeout) gets no row and the command exits non-zero naming it.'),
+    intentRef: z.string().optional().describe('Required unless --pending. For example CHK-001:happy:0 or a custom intent ID. Resolved to its owning item\'s pinned verification:{command,selector}; the pinned command is what runs.'),
     itemId: z.string().optional().describe('Checklist item ID owning the intent; optional — inferred from the intentRef when omitted.'),
     note: z.string().optional().describe('Why this run covers the intent; a descriptive default is recorded when omitted or shorter than 5 characters.'),
     cwd: z.string().optional().describe('Working directory for the pinned command; defaults to the resolved story git root (relative paths resolve against it).'),

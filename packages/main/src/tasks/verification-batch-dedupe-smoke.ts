@@ -50,11 +50,13 @@ function intent(id: string, desc: string, pin: Pin) {
 }
 
 /** N=6 intents over K=2 unique pinned commands; CHK-002:edge:0 shares CHK-001's command. */
-function pinnedIntents(badSelector: boolean) {
+/** badRef: the one intent whose selector is absent from its shared output (first or last of its execution key). */
+function pinnedIntents(badRef: string | null) {
+  const sel = (ref: string, selector: string) => ref === badRef ? '--- PASS: TestUpperNotInOutput' : selector;
   return {
     'CHK-001': {
       happy: [
-        intent('CHK-001:happy:0', 'TestUpper passes', { command: UPPER, selector: '--- PASS: TestUpper' }),
+        intent('CHK-001:happy:0', 'TestUpper passes', { command: UPPER, selector: sel('CHK-001:happy:0', '--- PASS: TestUpper') }),
         intent('CHK-001:happy:1', 'TestUpper runs', { command: UPPER, selector: '=== RUN   TestUpper' }),
       ],
       edge: [intent('CHK-001:edge:0', 'the strs package passes under the Upper selection', { command: UPPER, selector: 'ok  \texample.com/strs' })],
@@ -66,7 +68,7 @@ function pinnedIntents(badSelector: boolean) {
         intent('CHK-002:happy:1', 'TestReverse runs', { command: REVERSE, selector: '=== RUN   TestReverse' }),
       ],
       edge: [intent('CHK-002:edge:0', 'Upper still passes next to Reverse',
-        { command: UPPER, selector: badSelector ? '--- PASS: TestUpperNotInOutput' : '--- PASS: TestUpper' })],
+        { command: UPPER, selector: sel('CHK-002:edge:0', '--- PASS: TestUpper') })],
       adversarial: [],
     },
   } as const;
@@ -77,7 +79,7 @@ const K = 2;
 
 interface Measure { steps: string[]; refusedStep?: string; executions: number; launches: number; commits: number; ms: number }
 
-async function scenario(name: string, badSelector: boolean): Promise<Measure> {
+async function scenario(name: string, badRef: string | null): Promise<Measure> {
   const { Owner } = await import('./e2e-review-to-done-smoke.js');
   const { createFixtureMachineEnvironment } = await import('./helpers/fixture-machine-environment.js');
   const machine = createFixtureMachineEnvironment();
@@ -89,7 +91,7 @@ async function scenario(name: string, badSelector: boolean): Promise<Measure> {
     // Author the pinned intents on the Story branch (as PLAN leaves them).
     const store = new StoryStore(o.worktree);
     const cl = store.readChecklist(id) as ChecklistData;
-    const intents = pinnedIntents(badSelector);
+    const intents = pinnedIntents(badRef);
     for (const item of cl.items) item.verificationIntent = JSON.parse(JSON.stringify(intents[item.id as keyof typeof intents]));
     store.writeChecklist(id, cl);
     resetConfigCache();
@@ -113,8 +115,8 @@ async function scenario(name: string, badSelector: boolean): Promise<Measure> {
       const ran = o.cli(next.cli.command, next.cli.payload, { label: `evidence_chain ${next.cli.command}` });
       if (ran.status !== 0) {
         refusedStep = next.command!;
-        assert.ok(badSelector, `[${name}] evidence step refused unexpectedly:\n${ran.out.slice(-3000)}`);
-        assert.match(ran.out, /CHK-002:edge:0/, `[${name}] the refusal must name the mismatching intent:\n${ran.out.slice(-3000)}`);
+        assert.ok(badRef, `[${name}] evidence step refused unexpectedly:\n${ran.out.slice(-3000)}`);
+        assert.ok(ran.out.includes(badRef), `[${name}] the refusal must name the mismatching intent:\n${ran.out.slice(-3000)}`);
         assert.match(ran.out, /receipt_selector_absent/, `[${name}] the refusal must be the selector diagnosis:\n${ran.out.slice(-3000)}`);
       }
     }
@@ -128,11 +130,11 @@ async function scenario(name: string, badSelector: boolean): Promise<Measure> {
     const { status, executionReceipts, rows } = JSON.parse(probed.stdout.trim().split('\n').at(-1)!) as
       { status: Record<string, string>; executionReceipts: number; rows: Record<string, boolean> };
     const expectedCovered = Object.values(intents).flatMap(lanes => [...lanes.happy, ...lanes.edge]).map(row => row.id)
-      .filter(ref => !(badSelector && ref === 'CHK-002:edge:0'));
+      .filter(ref => ref !== badRef);
     for (const ref of expectedCovered) assert.equal(status[ref], 'covered', `[${name}] ${ref} must be covered by its own fresh receipt; got ${status[ref]}`);
-    if (badSelector) {
-      assert.notEqual(status['CHK-002:edge:0'], 'covered', `[${name}] a selector absent from the shared output must not be covered`);
-      assert.equal(rows['CHK-002:edge:0'], undefined, `[${name}] no row may be minted for the refused intent`);
+    if (badRef) {
+      assert.notEqual(status[badRef], 'covered', `[${name}] a selector absent from the shared output must not be covered`);
+      assert.equal(rows[badRef], undefined, `[${name}] no row may be minted for the refused intent`);
     }
     // One signed causal receipt per real launch (each carries a fresh observation id).
     const receiptDir = join(new StoryStore(o.worktree).storyDirPath(id), CAUSAL_RECEIPT_DIRECTORY);
@@ -173,15 +175,21 @@ function probeIn(root: string, storyId: string): void {
 
 if (process.argv[2] === '--probe') { probe(process.argv[3]!); process.exit(0); }
 
-const good = await scenario('VBD', false);
+const good = await scenario('VBD', null);
 console.log(`all-pass: N=${N} intents over K=${K} commands -> ${good.steps.length} evidence step(s), ${good.launches} launch(es) / ${good.executions} distinct execution receipt(s), ${good.commits} metadata commit(s), ${good.ms} ms`);
 for (const step of good.steps) console.log(`  step: ${step}`);
-const bad = await scenario('VBDX', true);
-console.log(`selector-mismatch: ${bad.steps.length} evidence step(s), ${bad.launches} launch(es) / ${bad.executions} distinct execution receipt(s), ${bad.commits} metadata commit(s), ${bad.ms} ms; refused: ${bad.refusedStep ?? 'none'}`);
+const bad = await scenario('VBDX', 'CHK-002:edge:0');
+// The refused intent is the FIRST of its execution key: its completed execution
+// must still be shared with the intents after it, not relaunched.
+const badHead = await scenario('VBDH', 'CHK-001:happy:0');
+console.log(`selector-mismatch (first of its key): ${badHead.steps.length} evidence step(s), ${badHead.launches} launch(es) / ${badHead.executions} distinct execution receipt(s), ${badHead.commits} metadata commit(s), ${badHead.ms} ms; refused: ${badHead.refusedStep ?? 'none'}`);
+console.log(`selector-mismatch (last of its key): ${bad.steps.length} evidence step(s), ${bad.launches} launch(es) / ${bad.executions} distinct execution receipt(s), ${bad.commits} metadata commit(s), ${bad.ms} ms; refused: ${bad.refusedStep ?? 'none'}`);
 assert.equal(good.steps.length, 1, `all N pinned intents must be one batch step (got ${good.steps.length})`);
 assert.equal(good.launches, K, `K unique pinned commands must launch K times (got ${good.launches})`);
 assert.equal(good.executions, K, `N receipts must share K execution receipts (got ${good.executions})`);
 assert.equal(good.commits, 1, `one metadata commit per batch (got ${good.commits})`);
 assert.equal(bad.launches, K, `the mismatching selector must not cause an extra launch (got ${bad.launches})`);
 assert.ok(bad.refusedStep, 'the mismatching intent must refuse the batch step');
+assert.equal(badHead.launches, K, `a refused first intent must still share its execution (got ${badHead.launches} launches)`);
+assert.ok(badHead.refusedStep, 'the mismatching first intent must refuse the batch step');
 console.log('verification-batch-dedupe-smoke: PASS');
