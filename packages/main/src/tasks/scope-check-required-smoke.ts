@@ -108,7 +108,7 @@ function setup(profile: 'balanced' | 'light', withRequest: boolean) {
   };
   const registry = createMainRegistry(ctx);
   const next = () => createNextDriver(ctx, (name: string) => registry.get(name)).decide(storyId) as unknown as {
-    kind: string; reason: string; command: string | null; argv?: unknown; cli?: string | null; why: string;
+    kind: string; reason: string; command: string | null; argv?: unknown; cli?: { command: string; payload: Record<string, unknown> } | null; why: string;
   };
   const guard = () => getGuardFailureReason(storyId, store, 'DEV', root, root);
   /** A clean story_review record as run 16 had (13 advisories, 0 blockers): what admitted DEV. */
@@ -148,8 +148,8 @@ function balanced(withRequest: boolean): void {
 
     if (!withRequest) return;
     const step = t.next();
-    const argv = JSON.stringify(step.argv ?? step.cli ?? '');
-    check(step.kind === 'agent' && step.command === 'host_run' && argv.includes(SCOPE_REVIEWER) && /managedDispatch/.test(argv),
+    check(step.kind === 'agent' && step.reason === 'scope_plan_review_launch' && step.cli?.command === 'host_run'
+      && step.cli.payload.agentType === SCOPE_REVIEWER && step.cli.payload.managedDispatch === true,
       'next in PLAN returns one agent step: host_run managedDispatch of the scope-plan reviewer', JSON.stringify(step));
 
     t.signScope();

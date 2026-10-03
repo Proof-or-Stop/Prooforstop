@@ -335,9 +335,18 @@ requires exactly these names). `story_review` blocks an unpinned one
 intent, which test proves it (run 16: 32 hand-authored receipts, two wrong
 framework-proposed binds).
 
-The scope-plan reviewer (`missing_scope_check`) is required only when an
-`understanding` snapshot exists and the checklist is non-empty; skipping
-`understanding_set` (an advisory) therefore also skips the reviewer (run 16).
+The scope-plan reviewer verdict (`scope-check.json`) is required on PLAN→DEV
+whenever the checklist is non-empty and any of: an `understanding` snapshot
+exists; the policy declares `plan.requireUnderstanding: 'always'` (balanced,
+strict); it declares `'high_risk'` and the Story is high risk; or a `request.md`
+exists under a policy other than `'never'` (core/plan-scope-check-requirement.ts).
+It no longer depends on `understanding_set` (run 16: the owner skipped the
+advisory understanding, so the reviewer never ran). `story_review` reports
+`missing_scope_check`, the DEV-entry gate itself refuses with
+`[missing_scope_check]` and one `Next:` (the managed scope-plan reviewer
+`host_run`) even after a clean `story_review`, and `next` in PLAN returns that
+launch as its one agent step (or waits on the run in flight). light and the
+express channel are unchanged.
 
 - title 描述「做什么」，不描述「怎么做」
 - context 给执行 agent 提供决策上下文
@@ -463,7 +472,9 @@ The CLI surfaces related-document reminders during lifecycle work; whether the
 document requires a change remains a reasoned decision.
 
 An independent scope-plan reviewer must save signed `scope-check.json` evidence
-through `scope_check_save`. The implementation agent must not self-sign it.
+through `scope_check_save` (required as described in the checklist section
+above; the PLAN→DEV gate refuses `[missing_scope_check]` without it). The
+implementation agent must not self-sign it.
 When the Story has a `request.md`, the scope-plan dispatch prompt carries it
 inline: every normative sentence, every "for example" and every enumerated
 variant is its own feature row, covered only when a `userSees` or

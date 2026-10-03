@@ -959,7 +959,8 @@ Decision table (first matching row wins):
 | State | Step | Kind | Decided by |
 |---|---|---|---|
 | PLAN, no dev-memory preflight acknowledgement | `dev_memory_preflight_ack` (read the lessons it prints) | agent | `evaluateDevMemoryPreflightGate` (the DEV-entry gate's `[missing_dev_memory_preflight_ack]`) |
-| PLAN, otherwise | `story_advance --phase=DEV` if the DEV guard passes, else the guard's own `→`/`Next:` command | framework / agent | `getGuardFailureReason(DEV)` |
+| PLAN, the scope-plan reviewer verdict is required and missing (balanced/strict, or understanding / request.md present; run 16) | `host_run` managedDispatch `proof-or-stop-review-scope-plan` (the owner's own host/model, else the qualified default), or `host_run_status --untilTerminal=true` while its run is in flight | agent / framework (wait) | `missingPlanScopeCheckFailure` (the DEV-entry gate's `[missing_scope_check]`) |
+| PLAN, otherwise | `story_advance --phase=DEV` if the DEV guard passes, else the guard's own `→`/`Next:` command (`story_review` when it has no clean round) | framework / agent | `getGuardFailureReason(DEV)` |
 | DEV, an item `pending` | `checklist_update --status=in_progress` | framework | checklist.json |
 | DEV, an item `in_progress` | `host_run` managedDispatch `proof-or-stop-implementer` for it (or wait on its run) | agent | checklist.json + host-run projection |
 | DEV, a verified blocking finding open and not repaired (see below) | `host_run` managedDispatch `proof-or-stop-finding-repair` with that `findingId` (or wait on a repair run in flight) | agent | `unclosedBlockingFindings` + `managedFindingRepairState` |
