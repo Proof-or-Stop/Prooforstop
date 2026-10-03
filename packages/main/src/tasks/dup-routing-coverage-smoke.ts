@@ -96,7 +96,7 @@ function fixture(phase: 'REVIEW' | 'PLAN', storyId: string) {
   store.writeChecklist(storyId, checklist);
   store.writeUnderstanding(storyId, {
     task: 'Upper-case strings', outcome: 'strs.Upper("ab") == "AB"', facts: ['strs.Upper returns its input'],
-    constraints: ['Do not change the exported signature of strs.Upper'], unknowns: [], touchpoints: TOUCHPOINTS, timestamp: now,
+    constraints: ['Do not change the exported signature of strs.Upper', 'Keep the existing error format for an empty input'], unknowns: [], touchpoints: TOUCHPOINTS, timestamp: now,
   });
   git(['add', '-A']);
   git(['commit', '-qm', 'proof-or-stop: story metadata']);
@@ -190,13 +190,15 @@ function q4(): void {
     const registry = createMainRegistry(ctx);
     const result = registry.get('dispatch')!({ storyId: t.storyId, agentType: 'proof-or-stop-review-scope-plan' }) as { prompt: string };
     const prompt = String(result.prompt);
-    const block = prompt.slice(prompt.indexOf('Already covered'));
+    const block = prompt.slice(prompt.lastIndexOf('Already covered ('));
     check(prompt.includes('Already covered'), 'the prompt has an "Already covered" block', prompt.slice(-2500));
-    check(/new branch/i.test(block) && /commit/i.test(block) && /proof-or-stop-workflow/.test(block),
+    check(/branch[^.;]*from main/i.test(block) && /commit/i.test(block) && /proof-or-stop-workflow/.test(block),
       'workflow obligations Proof-or-Stop guarantees (branch from main, commit everything) are listed as covered by proof-or-stop-workflow', block.slice(0, 1500));
     check(block.includes('public syntax changes outside index brackets'), 'the INIT scopeBoundary exclusion is listed as acknowledged coverage', block.slice(0, 1500));
     check(block.includes('Do not change the exported signature of strs.Upper'), 'understanding.constraints are listed as acknowledged coverage', block.slice(0, 1500));
     check(/strict/i.test(block), 'every other request row stays strict (product requirements)', block.slice(0, 1500));
+    check(!block.includes('Keep the existing error format for an empty input'),
+      'a constraint that requires a behavior ("keep X") is not listed as covered: product requirements stay strict', block.slice(0, 1500));
   } finally {
     rmSync(t.root, { recursive: true, force: true });
   }

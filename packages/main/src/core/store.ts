@@ -19,6 +19,7 @@ import type {
   DeclaredArtifactsData, ScopeContractData, GuardSessionData, ReviewLoopRecord,
   ScopeBoundaryData, ExecutionBoundaryData, ScopeFreezeCheckData, DoneRequiredEvidenceData,
   DevMemoryPreflightAckData,
+  DuplicateFindingCoverageData,
   ScopeExtensionProposalData, ScopeExtensionDecisionData, ScopeDiscardDigestData,
   DecisionDocProposalFile, OriginalIntentSnapshotData, MilestoneLedgerData,
   ProofStoryContractData, IntentCollisionData, ScopeShrinkageDecisionData,
@@ -1669,6 +1670,22 @@ export class StoryStore {
 
   writeDevMemoryPreflightAck(storyId: string, data: DevMemoryPreflightAckData): void {
     this.writeJson(storyId, 'dev-memory-preflight-ack.json', data);
+  }
+
+  // Run 17 (Q1): coverage runs that close a critic-duplicate finding with its
+  // canonical finding's repair (core/duplicate-finding-coverage.ts).
+  readDuplicateFindingCoverage(storyId: string): DuplicateFindingCoverageData {
+    try {
+      const data = this.readJson<DuplicateFindingCoverageData>(storyId, 'duplicate-finding-coverage.json');
+      return { schemaVersion: 'proof-or-stop.duplicate_finding_coverage.v1', receipts: Array.isArray(data.receipts) ? data.receipts : [] };
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return { schemaVersion: 'proof-or-stop.duplicate_finding_coverage.v1', receipts: [] };
+      throw e;
+    }
+  }
+
+  writeDuplicateFindingCoverage(storyId: string, data: DuplicateFindingCoverageData): void {
+    this.writeJson(storyId, 'duplicate-finding-coverage.json', data);
   }
 
   readScopeFreezeCheck(storyId: string): ScopeFreezeCheckData | null {

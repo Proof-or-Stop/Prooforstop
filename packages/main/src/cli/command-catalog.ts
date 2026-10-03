@@ -2445,6 +2445,11 @@ Behavior:
       .describe('Audit-only: how this finding was resolved. Never read by any gate.'),
     resolveEvidenceStrength: z.enum(['strong', 'medium', 'weak']).optional()
       .describe('Audit-only: confidence strength of the resolve evidence. Never read by any gate.'),
+    duplicateOf: z.string().optional()
+      .describe('Run 17: close a finding the REVIEW inventory critic marked a duplicate of this canonical finding id (resolved), with its repair. Requires coverage.'),
+    coverage: z.object({ command: z.string().describe('Allowlisted command (executable + argv) that runs THIS finding\'s own case, e.g. go test -v ./pkg -run TestX'),
+      selector: z.string().describe('Output text that proves the case passed, e.g. --- PASS: TestX') }).optional()
+      .describe('With duplicateOf: the framework runs the command in the Story worktree; exit 0 + selector closes the duplicate, otherwise it is refused and next dispatches its own repair.'),
   }},
   { name: 'finding_dismiss', description: 'Confirm a finding will not be fixed (reason required)', schema: {
     storyId: z.string().describe('Story ID'),

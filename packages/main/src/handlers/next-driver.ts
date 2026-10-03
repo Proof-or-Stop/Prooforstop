@@ -46,6 +46,7 @@ import { evaluateDevMemoryPreflightGate, evaluateReviewVerdict, getGuardFailureR
 import { missingPlanScopeCheckFailure, SCOPE_PLAN_REVIEWER } from '../core/plan-scope-check-requirement.js';
 import { isTerminalChecklistStatus } from '../core/checklist-status.js';
 import { unclosedBlockingFindings, resolveEffectiveBlockingSeverities, FINDING_RESOLUTION_PLACEHOLDER } from '../core/finding-closure.js';
+import { duplicateCoverageReceipts, duplicateOfOpenCanonical, duplicateResolveCandidate } from '../core/duplicate-finding-coverage.js';
 import {
   currentOpenReviewInventory,
   finalizedUnconsumedReviewInventory,
@@ -90,6 +91,9 @@ export const NEXT_STEP_SCHEMA = 'proof-or-stop.next_step.v1';
 export const DELIVERY_REVIEWER = 'proof-or-stop-review-delivery';
 export const FINDING_REPAIR_AGENT = 'proof-or-stop-finding-repair';
 export const IMPLEMENTER_AGENT = 'proof-or-stop-implementer';
+export const DUPLICATE_COVERAGE_COMMAND_PLACEHOLDER = "<command that runs this finding's own case>";
+export const DUPLICATE_COVERAGE_SELECTOR_PLACEHOLDER = '<output line its passing run prints>';
+export const DUPLICATE_RESOLUTION_PLACEHOLDER = '<why the canonical repair fixes this case>';
 
 export type NextStepKind = 'agent' | 'framework' | 'human';
 
@@ -306,7 +310,7 @@ export interface FindingRepairRunView { runId: string; agentType: string; termin
 
 export type FindingRepairState =
   | { repaired: true; runId: string; commit: string }
-  | { repaired: false; detail: string };
+  | { repaired: false; detail: string; /** a managed finding-repair run is bound to this finding (any state) */ bound: boolean };
 
 /**
  * Whether ONE verified finding is repaired and ready for finding_resolve, from
@@ -328,7 +332,7 @@ export function managedFindingRepairState(args: {
     .filter(run => {
       try { return readManagedHostRunBinding(root, run.runId).managedDispatchTarget?.findingId === finding.id; } catch { return false; }
     });
-  if (bound.length === 0) return { repaired: false, detail: `no managed finding-repair run is bound to ${finding.id}` };
+  if (bound.length === 0) return { repaired: false, bound: false, detail: `no managed finding-repair run is bound to ${finding.id}` };
   const completed = bound.filter(run => run.terminal && run.state === 'completed').reverse();
   for (const run of completed) {
     if (!verifyManagedDispatchDelivery({ root, runId: run.runId, storyId, agentType: FINDING_REPAIR_AGENT, findingId: finding.id }).valid) continue;
@@ -348,9 +352,37 @@ export function managedFindingRepairState(args: {
     }
   }
   const last = bound.at(-1)!;
-  return { repaired: false, detail: completed.length
+  return { repaired: false, bound: true, detail: completed.length
     ? `managed finding-repair run ${completed[0]!.runId} for ${finding.id} completed without a material commit on the Story branch`
     : `the last managed finding-repair run ${last.runId} for ${finding.id} is ${last.state}` };
+}
+
+/**
+ * Run 17 (Q1): the step for an open verified finding the REVIEW inventory
+ * critic dispositioned `duplicate` of a canonical finding that is already
+ * repaired and resolved, and that has no repair of its own and no failed
+ * coverage run (duplicateResolveCandidate). Instead of a second repair cycle,
+ * finding_resolve closes it with the canonical repair, but only through a
+ * coverage run of its own case that the framework executes; a failing run is
+ * recorded and the finding then gets its own managed repair.
+ */
+export function duplicateFindingResolveStep(base: { storyId: string; phase: string }, finding: { id: string; severity: string }, canonical: { id: string }, familyKey: string | null): NextStep {
+  return step(base, 'agent', 'finding_duplicate_resolve', { command: 'finding_resolve', payload: { storyId: base.storyId, findingId: finding.id, duplicateOf: canonical.id,
+    coverage: { command: DUPLICATE_COVERAGE_COMMAND_PLACEHOLDER, selector: DUPLICATE_COVERAGE_SELECTOR_PLACEHOLDER }, resolution: DUPLICATE_RESOLUTION_PLACEHOLDER } },
+  `Verified ${finding.severity} finding ${finding.id} is a critic duplicate of ${canonical.id}${familyKey ? ` (family ${familyKey})` : ''}, which was repaired and resolved. `
+    + `Close ${finding.id} with that repair only if its own case is fixed: coverage.command runs ${finding.id}'s own case (a test ${canonical.id}'s repair added for it, or its repro as a test) and coverage.selector is the line its passing output prints. `
+    + `The framework runs it; exit 0 with the selector closes ${finding.id}, anything else is refused and ${finding.id} gets its own managed repair.`,
+  'unclosedBlockingFindings + criticDuplicateOf (review-inventory critic receipts) + duplicateResolveCandidate', { placeholders: ['coverage.command', 'coverage.selector', 'resolution'] });
+}
+
+/**
+ * The open blocking finding DEV works on next: the first one, except that a
+ * critic duplicate waits while its canonical finding is still open (the
+ * canonical repair may fix both; run 17 Q1).
+ */
+export function nextBlockingFinding<T extends { finding: { id: string } }>(store: HandlerContext['store'], storyId: string, findings: readonly T[]): T {
+  const all = store.readFindings(storyId).findings ?? [];
+  return findings.find(row => !duplicateOfOpenCanonical(store, storyId, row.finding.id, all)) ?? findings[0]!;
 }
 
 /**
@@ -501,7 +533,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     let chainResult: ReturnType<typeof evaluateEvidenceChainForStory> | undefined;
     const chainOf = () => (chainResult ??= evaluateEvidenceChainForStory(ctx, storyId));
     if (findings.length > 0) {
-      const { finding } = findings[0]!;
+      const { finding } = nextBlockingFinding(ctx.store, storyId, findings);
       // Per finding: only a completed managed repair bound to THIS finding id
       // (with its commit) makes it resolvable; a material change made by the
       // repair of another open finding does not (run 14).
@@ -509,9 +541,14 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       if (!repair.repaired) {
         const repairRun = hostRuns.filter(run => run.agentType === FINDING_REPAIR_AGENT && !run.terminal).at(-1);
         if (repairRun) return waitStep(base, repairRun, 'Finding repair run');
+        // Run 17 (Q1): a critic duplicate of a repaired+resolved finding is
+        // closed with that repair through a coverage run, not repaired again.
+        const duplicate = repair.bound ? null : duplicateResolveCandidate(ctx.store, storyId, finding, ctx.store.readFindings(storyId).findings ?? []);
+        if (duplicate) return duplicateFindingResolveStep(base, finding, duplicate.canonical, duplicate.familyKey);
+        const failedCoverage = duplicateCoverageReceipts(ctx.store, storyId, finding.id).filter(row => !row.passed).at(-1);
         return step(base, 'agent', 'finding_repair', { command: 'host_run', payload: { ...managedSelection(hostRuns, 'managed_dispatch'), storyId, findingId: finding.id,
           agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true } },
-        `Verified ${finding.severity} finding ${finding.id} is open and not yet repaired (${repair.detail}): repair it in code and commit (managed finding-repair shown).`,
+        `Verified ${finding.severity} finding ${finding.id} is open and not yet repaired (${repair.detail}${failedCoverage ? `; its duplicate coverage run \`${failedCoverage.command}\` did not pass, so ${failedCoverage.canonicalFindingId}'s repair is not shown to fix it` : ''}): repair it in code and commit (managed finding-repair shown).`,
         'unclosedBlockingFindings (core/finding-closure.ts) + managedFindingRepairState');
       }
       const chain = chainOf();

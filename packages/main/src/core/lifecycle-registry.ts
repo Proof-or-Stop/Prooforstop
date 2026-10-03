@@ -695,6 +695,10 @@ export const PROOF_OR_STOP_LIFECYCLE_ARTIFACT_FILENAMES: ReadonlySet<string> = n
   // dev_memory_preflight_ack. Consumed by the DEV-entry gate
   // (evaluateDevMemoryPreflightGate in core/machine.ts).
   'dev-memory-preflight-ack.json',
+  // Run 17 (Q1): coverage runs that close a critic-duplicate finding with its
+  // canonical repair, written by StoryStore (writeDuplicateFindingCoverage)
+  // from finding_resolve --duplicateOf. Read by next (core/duplicate-finding-coverage.ts).
+  'duplicate-finding-coverage.json',
   // B-1e1f: signed PRE_CERT CertificationWindow written by StoryStore
   // (readCertificationWindows/writeCertificationWindows). Independently gated
   // by refuseHeavyCertificationUnlessAdmitted; not closeout evidence.
@@ -716,6 +720,9 @@ export const REVIEW_RETENTION_PROTOCOL_METADATA_PATHS: ReadonlySet<string> = new
   'prompt-envelopes.json',
   'review-passes.json',
   'findings.json',
+  // Run 17 (Q1): written together with findings.json by finding_resolve
+  // --duplicateOf (the duplicate's coverage receipt); no gate authority.
+  'duplicate-finding-coverage.json',
   // Signed, append-only carrier written atomically with findings.json's
   // compatibility projection. It has no lifecycle/gate authority of its own,
   // but a reviewer may append more than one finding in the same round.

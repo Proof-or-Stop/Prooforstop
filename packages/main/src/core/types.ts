@@ -2443,6 +2443,31 @@ export interface ReviewInventoryCriticReceipt {
   _hash: string;
 }
 
+/** Run 17 (Q1): coverage runs that close a critic-duplicate finding with its canonical repair (core/duplicate-finding-coverage.ts). */
+export const DUPLICATE_FINDING_COVERAGE_FILE = 'duplicate-finding-coverage.json';
+export const DUPLICATE_FINDING_COVERAGE_SCHEMA = 'proof-or-stop.duplicate_finding_coverage.v1';
+
+export interface DuplicateCoverageReceipt {
+  findingId: string;
+  canonicalFindingId: string;
+  command: string;
+  selector: string;
+  exitCode: number | null;
+  timedOut: boolean;
+  selectorMatched: boolean;
+  passed: boolean;
+  headHash: string | null;
+  durationMs: number;
+  outputDigest: string;
+  outputTail: string;
+  executedAt: string;
+}
+
+export interface DuplicateFindingCoverageData {
+  schemaVersion: typeof DUPLICATE_FINDING_COVERAGE_SCHEMA;
+  receipts: DuplicateCoverageReceipt[];
+}
+
 export interface ReviewInventoryFindingDisposition {
   findingId: string;
   disposition: 'verified_family' | 'duplicate' | 'not_verified';
