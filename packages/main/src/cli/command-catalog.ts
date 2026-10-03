@@ -273,6 +273,8 @@ const MINIMAL_CLASSIFIED_VERIFICATION_INTENT = {
     scope: 'focused' as const,
     expectation: 'absolute_pass' as const,
     requirementSource: 'story' as const,
+    // PLAN pins every executable must/should intent (story_review missing_verification_pin).
+    verification: { command: 'go test -v ./pkg -run ^TestFocusedBehavior$', selector: '--- PASS: TestFocusedBehavior' },
   }],
   edge: [],
   adversarial: [],

@@ -41,13 +41,21 @@ not implementation work and not execution evidence.
   `requirementSource=external_verifier`
   for an absolute repository-wide `must` only when the task, user, or official
   verifier explicitly requires it, and set `requirementRef` to that source.
+- Pin every executable (`logic`, `cli`, `browser`) `must`/`should` intent:
+  add `"verification":{"command":"<executable and argv>","selector":"<text its
+  passing output prints>"}`, for example `go test -v ./parser -run
+  ^TestParsingSteppedSlice$` with `--- PASS: TestParsingSteppedSlice`. Name the
+  test that will prove exactly this intent; it may not exist yet (the
+  implementer is told to use these names). `story_review` blocks an unpinned
+  one (`missing_verification_pin`); pins freeze at DEV and let one
+  `verification_run --pending` record every receipt.
 - Do not encode REVIEW lifecycle results from `review_pass_set` or `finding_add`
   as `verificationIntent`. Reviewers produce those facts only after DEV enters
   REVIEW, so requiring them as pre-REVIEW evidence creates a phase cycle.
 - Write only the `verificationIntent` field through `checklist_update`:
 
   ```bash
-  proof-or-stop checklist_update '{"storyId":"<storyId>","itemId":"<itemId>","verificationIntent":{"happy":[{"desc":"...","type":"cli","priority":"must","scope":"focused","expectation":"absolute_pass","requirementSource":"story"}],"edge":[{"desc":"...","type":"logic","priority":"must","scope":"focused","expectation":"absolute_pass","requirementSource":"story"}],"adversarial":[{"desc":"...","type":"manual","priority":"must","scope":"focused","expectation":"absolute_pass","requirementSource":"story"}]}}'
+  proof-or-stop checklist_update '{"storyId":"<storyId>","itemId":"<itemId>","verificationIntent":{"happy":[{"desc":"...","type":"cli","priority":"must","scope":"focused","expectation":"absolute_pass","requirementSource":"story","verification":{"command":"...","selector":"..."}}],"edge":[{"desc":"...","type":"logic","priority":"must","scope":"focused","expectation":"absolute_pass","requirementSource":"story","verification":{"command":"...","selector":"..."}}],"adversarial":[{"desc":"...","type":"manual","priority":"must","scope":"focused","expectation":"absolute_pass","requirementSource":"story"}]}}'
   ```
 
 - Do not change checklist status, title, context, files, or any other

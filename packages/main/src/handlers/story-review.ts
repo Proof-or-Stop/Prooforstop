@@ -45,6 +45,7 @@ import { tryBuildMaterialClassificationSnapshotForDiagnostics, type MaterialClas
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { truncateOneLine } from '../cli/output-verbosity.js';
 import { reviewGateVerificationIntentIssue } from '../core/review-gate-verification-intent.js';
+import { missingVerificationPinIssues } from '../core/plan-verification-pins.js';
 import {
   renderClaudeFreshReviewerHandoff,
   renderCodexFreshReviewerHandoff,
@@ -478,6 +479,10 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           }
         }
       }
+      // Every authored executable must/should intent carries its pinned verifier
+      // from PLAN (core/plan-verification-pins.ts), on every channel that runs
+      // story_review: DEV then records all receipts with one verification_run --pending.
+      issues.push(...missingVerificationPinIssues(args.storyId, cl));
       if (requireFullVerificationIntent) {
         for (const item of cl.items) {
           const intents = item.verificationIntent;

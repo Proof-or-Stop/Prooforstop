@@ -13,8 +13,10 @@
  *
  *   S1  F-006 shape: the Story adds TestEmptyInput, which no intent's pinned
  *       `go test -run` selects. Before REVIEW, pre_review_check must name it
- *       with one next action (bind it to the unpinned CHK-002 edge intent),
- *       and that exact command must bind it.
+ *       and list it as a candidate of the unpinned CHK-002 edge intent in one
+ *       verification_evidence_batch_add TEMPLATE (run 16: the choice of test is
+ *       the agent's; no pre-chosen bind, no "proves" note); `next` makes no bind
+ *       step of it; the agent's completed batch binds it.
  *   S2  a code commit after the receipts stales them. story_advance REVIEW must
  *       refuse with exactly one Next: verification_evidence_refresh_stale, and
  *       after that one command REVIEW is admitted.
@@ -308,14 +310,24 @@ async function main(): Promise<void> {
     const named = check(/TestEmptyInput \(strs\/strs_test\.go\)[^\n]*selected by no intent's pinned command/.test(pre.out),
       'S1 pre_review_check names unbound test TestEmptyInput before REVIEW');
     const bind = nextLine(pre.out);
-    check(named && !!bind && bind.includes('verification_evidence_add') && bind.includes('"intentRef":"CHK-002:edge:0"') && bind.includes('^TestEmptyInput$'),
-      'S1 its one next action binds TestEmptyInput to the unpinned intent CHK-002:edge:0');
-    if (bind && bind.includes('verification_evidence_add')) {
-      const bound = f.shell(bind);
-      check(bound.status === 0, `S1 the printed bind command succeeds${bound.status === 0 ? '' : `: ${bound.out.slice(-600)}`}`);
-      const after = f.cli('pre_review_check', { storyId: STORY });
-      check(!/TestEmptyInput/.test(after.out) && /unboundTests=checked/.test(after.out), 'S1 after binding, the check reports no unbound test');
-    }
+    // Run 16: which test proves which intent is the agent's judgment. The one
+    // next action is a batch TEMPLATE for the unpinned intent with the test as a
+    // ranked candidate, never a pre-chosen bind with a "proves" note.
+    check(named && !!bind && bind.includes('verification_evidence_batch_add') && bind.includes('"intentRef":"CHK-002:edge:0"')
+      && bind.includes('"command":"<') && bind.includes('^TestEmptyInput$') && !/ proves: /.test(pre.out),
+      'S1 its one next action is a batch template for the unpinned CHK-002:edge:0 naming TestEmptyInput as a candidate, not a chosen bind');
+    check(/candidate tests[^\n]*TestEmptyInput/.test(pre.out), 'S1 the report lists TestEmptyInput as a candidate with why');
+    const decided = f.cli('next', { storyId: STORY, json: true });
+    const step = parseJson(decided.stdout) ?? {};
+    check(step.reason !== 'evidence_chain_bind' && !String((step.cli as Record<string, unknown> | undefined)?.command ?? '').startsWith('verification_evidence')
+      && /TestEmptyInput/.test(String(step.why)),
+      `S1 next proposes no bind step of its own; the advisory rides on its why (got ${String(step.kind)}/${String(step.reason)})`);
+    // The agent judges TestEmptyInput proves CHK-002:edge:0 and completes the template.
+    const bound = f.cli('verification_evidence_batch_add', { storyId: STORY, evidences: [{ itemId: 'CHK-002', intentRef: 'CHK-002:edge:0', kind: 'logic_test',
+      command: 'go test -v ./strs -run ^TestEmptyInput$', selector: '--- PASS: TestEmptyInput', note: 'TestEmptyInput asserts Reverse("") and Upper("") return the empty string.' }] });
+    check(bound.status === 0, `S1 the completed batch binds it${bound.status === 0 ? '' : `: ${bound.out.slice(-600)}`}`);
+    const after = f.cli('pre_review_check', { storyId: STORY });
+    check(!/TestEmptyInput \(strs/.test(after.out) && /unboundTests=checked/.test(after.out), 'S1 after binding, the check reports no unbound test');
 
     console.log('S2 stale receipts: one Next, verification_evidence_refresh_stale');
     write(f.worktree, 'strs/strs.go', `${IMPL}// Documented: Reverse keeps combining marks attached to runes only.\n`);

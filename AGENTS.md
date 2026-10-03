@@ -326,6 +326,19 @@ suite that is already red uses an explicit `no_new_regressions` expectation as
 a `should` repository-health input for reviewer comparison. Only a user, task, or official-verifier
 requirement may make repository-wide absolute success a `must`.
 
+Pin every executable (`logic`/`cli`/`browser`) `must`/`should` intent in PLAN:
+`"verification":{"command":"go test -v ./pkg -run ^TestName$","selector":"--- PASS: TestName"}`
+(executable and argv, no shell; the test may not exist yet, the implementer prompt
+requires exactly these names). `story_review` blocks an unpinned one
+(`missing_verification_pin`). With pins, DEV records every receipt with one
+`verification_run --pending`; without them the owner must judge, intent by
+intent, which test proves it (run 16: 32 hand-authored receipts, two wrong
+framework-proposed binds).
+
+The scope-plan reviewer (`missing_scope_check`) is required only when an
+`understanding` snapshot exists and the checklist is non-empty; skipping
+`understanding_set` (an advisory) therefore also skips the reviewer (run 16).
+
 - title 描述「做什么」，不描述「怎么做」
 - context 给执行 agent 提供决策上下文
 - **主 agent 只写 title + context + relatedDocs，不写旧 testIntent；当前验收意图是 `verificationIntent`**
@@ -874,8 +887,10 @@ Story diff 里新增/改动的 Go 测试没有被任何 intent 的 pinned `go te
 `core/evidence-chain-check.ts`（接线在 `handlers/evidence-chain.ts`）在进 REVIEW 前机械检测，每次只给一个 `Next:`：
 
 - `stale_receipt`（must/should）：阻塞 DEV→REVIEW，Next 固定为 `proof-or-stop verification_evidence_refresh_stale --storyId=<id>`；不要逐条 `verification_evidence_add` 重放。
-- `missing_receipt`：must 阻塞、should 只提示；Next 是 `verification_run`（已 pin）或 `verification_evidence_add`（未 pin，优先绑定该 item 里未被选中的已改测试）。
-- `unbound_test`：只提示；Next 把测试绑定到该测试所在 item 的第一个未 pin intent。全部 intent 已 pin（pin 不可改）时无需动作，除非它是某个 userSees 行为的唯一测试（走 `acceptance_amendment_propose`）。
+- `missing_receipt`：must 阻塞、should 只提示；Next 是 `verification_run --pending`（已 pin 的 must，一次跑完）/ `verification_run --intentRef`（已 pin 的 should），未 pin 时是**一条** `verification_evidence_batch_add` 模板，覆盖所有未 pin 的缺 receipt intent，`command`/`selector`/`note` 都是 `<...>` 占位符，由 agent 填写；每个 intent 附带排序后的候选测试（测试体里出现 intent 描述中的代码字面量者优先，其次是测试名与描述共享的词）及理由。
+- `unbound_test`：只提示；Next 是带该测试命令的 `verification_evidence_add` 模板，`intentRef` 是列出该 item 未 pin intent 的占位符：只在它确实证明某个 intent 时绑定那一个。全部 intent 已 pin（pin 不可改）时无需动作，除非它是某个 userSees 行为的唯一测试（走 `acceptance_amendment_propose`）。`next` 不再把它作为单独一步，只写进下一步的 `why`。
+- **测试与 intent 是否匹配是判断，不是机械操作**（run 16）：框架从不替 agent 选测试，从不生成「X proves: <desc>」备注；带占位符的命令在 `next` 里一定是 `agent` 步骤，`next --run` 不会执行它。此前框架把 item 文件里第一个改动的测试当作 `framework` 步骤提出，`next --run` 会把不相干的测试（只测两段式 range 的 `TestParsingIndexRangeExpressions`）永久 pin 给 `myArray[99 : 101 : 2]`。
+- **PLAN 就要 pin**：`story_review` 对每个没有 `verification:{command,selector}` 的可执行（logic/cli/browser）must/should intent 报 `missing_verification_pin` blocker（manual/docs、nice 豁免）；PLAN 里用 `checklist_update` 写 pin（测试可以还不存在，implementer prompt 会要求用这些测试名）。有了 pin，DEV 一条 `verification_run --pending` 记完全部 receipt。跳过 story_review 的路径（express 通道、light profile）仍可能无 pin 进 DEV，此时走上面的 batch 模板。
 - 选择集是算出来的，不猜：无法计算的 pinned command（make、shell、模块外 import path 等）会跳过扫描并写明原因；JS/TS 不扫描。
 - 输出位置：`pre_review_check` / `pre_review_check_read` 文本末尾的 `Evidence-chain check` 段，以及 `story_advance REVIEW` 的 gate。
 

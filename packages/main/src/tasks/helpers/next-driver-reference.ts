@@ -15,6 +15,13 @@
  * live driver), not through a global material change since its review; the
  * REVIEW-phase finding_resolve proposals (REVIEW→TEST refusal, PRE_CERT admit)
  * resolve only such a repaired finding and otherwise return to DEV.
+ *
+ * Deliberate change (evidence-binding-quality, run 16): which test proves which
+ * intent is the agent's judgment. A gate command with placeholders (nested
+ * ones included) is an agent step (hintedStep, shared with the live driver);
+ * the evidence-chain step's why carries the ranked candidate tests
+ * (evidenceChainStep); the advisory unbound-test bind is no longer a step of
+ * its own but a sentence on the step that follows (evidenceChainAdvisory).
  */
 import { existsSync, readdirSync } from 'node:fs';
 import { hostname } from 'node:os';
@@ -48,7 +55,7 @@ import { evaluateEvidenceChainForStory } from '../../handlers/evidence-chain.js'
 import { checklistHasFileDeclarations } from '../../handlers/phase-gates.js';
 import { verifyCurrentReviewerDispatchBinding } from '../../core/review-run.js';
 import { managedHostRunsRoot, readManagedHostRunProjection, managedHostRunReceipt } from '../../core/managed-host-run.js';
-import { managedFindingRepairState } from '../../handlers/next-driver.js';
+import { managedFindingRepairState, hintedStep, evidenceChainStep, evidenceChainAdvisory } from '../../handlers/next-driver.js';
 import { singleHostAssuranceReady } from '../../handlers/quorum-submit.js';
 import { hasPersistedManagedReceiptEvidence } from '../../handlers/managed-review-evidence.js';
 import { MANAGED_INVENTORY_CRITIC_LANE } from '../../core/managed-inventory-critic.js';
@@ -277,12 +284,7 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
   }
 
   /** A gate's own printed next command, as a step of the given kind. */
-  function delegated(base: { storyId: string; phase: string }, kind: NextStepKind, reason: string, hint: string, why: string, source: string): NextStep {
-    const call = parseHintedCommand(hint);
-    const placeholders = call ? Object.entries(call.payload).filter(([, value]) => typeof value === 'string' && /<[^>]+>|\{[a-z][^}]*\}/.test(value)).map(([key]) => key) : [];
-    const humanNeeded = /story_resume|scope_budget_approve|acceptance_amendment_(approve|review)/.test(hint);
-    return step(base, humanNeeded ? 'human' : kind, reason, call, call ? why : `${why} Gate guidance: ${hint}`, source, { placeholders });
-  }
+  const delegated = hintedStep;
 
   function guardStep(base: { storyId: string; phase: string }, target: string, reason: string, why: string, source: string): NextStep {
     const failure = getGuardFailureReason(base.storyId, ctx.store, target, ctx.root, gitCwdOf(base.storyId));
@@ -332,16 +334,14 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
         'unclosedBlockingFindings (core/finding-closure.ts) + managedFindingRepairState');
       }
       if (chain.blocking && chain.nextAction) {
-        return delegated(base, 'framework', 'evidence_chain', chain.nextAction,
-          'The repair changed material, so pinned receipts are stale; refresh them before recording the resolution.', 'evaluateEvidenceChainForStory (DEV→REVIEW evidence-chain gate)');
+        return evidenceChainStep(base, chain, 'The repair changed material, so pinned receipts are stale; refresh them before recording the resolution.');
       }
       return step(base, 'agent', 'finding_resolve', { command: 'finding_resolve', payload: { storyId, findingId: finding.id, resolution: FINDING_RESOLUTION_PLACEHOLDER } },
         `${finding.id} was repaired by managed finding-repair run ${repair.runId} (commit ${repair.commit.slice(0, 12)}) but is still open; closure is required whichever round raised it. Name the repair commit and its passing focused evidence.`,
         'unclosedBlockingFindings (core/finding-closure.ts) + managedFindingRepairState', { placeholders: ['resolution'] });
     }
     if (chain.blocking && chain.nextAction) {
-      return delegated(base, 'framework', 'evidence_chain', chain.nextAction,
-        'The DEV→REVIEW evidence-chain gate would refuse: a must/should receipt is stale or missing.', 'evaluateEvidenceChainForStory (DEV→REVIEW evidence-chain gate)');
+      return evidenceChainStep(base, chain, 'The DEV→REVIEW evidence-chain gate would refuse: a must/should receipt is stale or missing.');
     }
     // Mirrors the live driver (run 16): resolve an advisory finding whose bound repair completed.
     if (hostRuns.some(run => run.agentType === FINDING_REPAIR_AGENT)) {
@@ -355,16 +355,12 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
           'managedFindingRepairState (advisory finding with a completed bound repair)', { placeholders: ['resolution'] });
       }
     }
-    const bind = chain.issues.find(issue => issue.kind === 'unbound_test' && issue.intentRef && issue.nextAction.startsWith('proof-or-stop verification_evidence_add'));
-    if (bind) {
-      return delegated(base, 'framework', 'evidence_chain_bind', bind.nextAction,
-        `Advisory: ${bind.detail}. Binding it now keeps it out of review findings.`, 'evaluateEvidenceChainForStory (advisory unbound_test)');
-    }
+    const advisory = evidenceChainAdvisory(chain);
     if (!ctx.store.readScopeContract(storyId) && checklistHasFileDeclarations(checklist)) {
       return step(base, 'framework', 'scope_contract_init', { command: 'scope_contract_init_from_plan', payload: { storyId } },
-        'Checklist items declare files but no scope contract exists; REVIEW refuses [missing_scope_contract].', 'runScopeTransitionGate precondition');
+        `Checklist items declare files but no scope contract exists; REVIEW refuses [missing_scope_contract].${advisory}`, 'runScopeTransitionGate precondition');
     }
-    return guardStep(base, 'REVIEW', 'enter_review', 'DEV is complete: every item done and the evidence chain is clean.', 'getGuardFailureReason(REVIEW)');
+    return guardStep(base, 'REVIEW', 'enter_review', advisory ? `DEV is complete: every item done and no evidence-chain item blocks.${advisory}` : 'DEV is complete: every item done and the evidence chain is clean.', 'getGuardFailureReason(REVIEW)');
   }
 
   // -- REVIEW ----------------------------------------------------------------

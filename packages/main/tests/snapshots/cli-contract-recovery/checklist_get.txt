@@ -112,7 +112,7 @@
 
   Examples:
     Compute one proposal digest:
-    {"storyId":"B-1234","proposalFor":"CHK-001","proposalIntent":{"happy":[{"id":"CHK-001:happy:0","desc":"Focused acceptance behavior passes","type":"logic","priority":"must","scope":"focused","expectation":"absolute_pass","requirementSource":"story"}],"edge":[],"adversarial":[]}}
+    {"storyId":"B-1234","proposalFor":"CHK-001","proposalIntent":{"happy":[{"id":"CHK-001:happy:0","desc":"Focused acceptance behavior passes","type":"logic","priority":"must","scope":"focused","expectation":"absolute_pass","requirementSource":"story","verification":{"command":"go test -v ./pkg -run ^TestFocusedBehavior$","selector":"--- PASS: TestFocusedBehavior"}}],"edge":[],"adversarial":[]}}
 
   Usage: proof-or-stop checklist_get --storyId=value [--proposalFor=value] [--proposalIntent=value] [--slim] [--fields=value]
   (* = required)

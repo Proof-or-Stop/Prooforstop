@@ -197,7 +197,7 @@ STEP-BY-STEP
 
   Examples:
     Set one classified verificationIntent in PLAN:
-    {"storyId":"B-1234","itemId":"CHK-001","verificationIntent":{"happy":[{"id":"CHK-001:happy:0","desc":"Focused acceptance behavior passes","type":"logic","priority":"must","scope":"focused","expectation":"absolute_pass","requirementSource":"story"}],"edge":[],"adversarial":[]}}
+    {"storyId":"B-1234","itemId":"CHK-001","verificationIntent":{"happy":[{"id":"CHK-001:happy:0","desc":"Focused acceptance behavior passes","type":"logic","priority":"must","scope":"focused","expectation":"absolute_pass","requirementSource":"story","verification":{"command":"go test -v ./pkg -run ^TestFocusedBehavior$","selector":"--- PASS: TestFocusedBehavior"}}],"edge":[],"adversarial":[]}}
 
   Usage: proof-or-stop checklist_update --storyId=value --itemId=value [--status=value] [--title=value] [--context=value] [--relatedDocs=value] [--userSees=value] [--excludes=value] [--files=value] [--verificationIntent=value] [--intentProposalApproval=value] [--verificationEvidence=value] [--reason=value] [--agent=value] [--actor=value] [--success]
   (* = required)

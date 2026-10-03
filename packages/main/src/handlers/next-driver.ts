@@ -63,6 +63,7 @@ import {
 import { currentCertificationIdentity } from './certification-window.js';
 import { currentPrecertFastIdentity } from './validation-identity.js';
 import { evaluateEvidenceChainForStory } from './evidence-chain.js';
+import type { EvidenceChainReport } from '../core/evidence-chain-check.js';
 import { checklistHasFileDeclarations } from './phase-gates.js';
 import { verifyCurrentReviewerDispatchBinding } from '../core/review-run.js';
 import { managedHostRunsRoot, readManagedHostRunProjection, readManagedHostRunBinding, managedHostRunReceipt, verifyManagedDispatchDelivery } from '../core/managed-host-run.js';
@@ -206,6 +207,55 @@ export function parseHintedCommand(line: string): { command: string; payload: Re
     payload[flag[1]!] = value === undefined || value === 'true' ? true : value === 'false' ? false : value;
   }
   return { command, payload };
+}
+
+/**
+ * Payload paths whose string value is an authoring placeholder ('<...>' or
+ * '{name}'), nested objects and arrays included (e.g. evidences[0].command).
+ */
+export function placeholderPaths(value: unknown, path = ''): string[] {
+  if (typeof value === 'string') return /<[^>]+>|\{[a-z][^}]*\}/.test(value) && path ? [path] : [];
+  if (Array.isArray(value)) return value.flatMap((entry, index) => placeholderPaths(entry, `${path}[${index}]`));
+  if (value && typeof value === 'object') {
+    return Object.entries(value as Record<string, unknown>).flatMap(([key, entry]) => placeholderPaths(entry, path ? `${path}.${key}` : key));
+  }
+  return [];
+}
+
+/**
+ * A gate's own printed next command as a step. A command with placeholders is
+ * never a framework step, whatever the caller asked for: the agent authors the
+ * values, and `next --run` must never execute '<...>' literally (run 16: an
+ * evidence bind with a test chosen by the framework). Human-only commands are
+ * human steps.
+ */
+export function hintedStep(base: { storyId: string; phase: string }, kind: NextStepKind, reason: string, hint: string, why: string, source: string): NextStep {
+  const call = parseHintedCommand(hint);
+  const placeholders = call ? placeholderPaths(call.payload) : [];
+  const humanNeeded = /story_resume|scope_budget_approve|acceptance_amendment_(approve|review)/.test(hint);
+  return step(base, humanNeeded ? 'human' : placeholders.length ? 'agent' : kind, reason, call, call ? why : `${why} Gate guidance: ${hint}`, source, { placeholders });
+}
+
+const EVIDENCE_CHAIN_SOURCE = 'evaluateEvidenceChainForStory (DEV→REVIEW evidence-chain gate)';
+
+/**
+ * The DEV evidence-chain step: the chain's one next action. For intents
+ * without a pin it is the agent's batch (which test proves which intent is a
+ * judgment), and why carries each intent's ranked candidate tests.
+ */
+export function evidenceChainStep(base: { storyId: string; phase: string }, chain: EvidenceChainReport, why: string): NextStep {
+  const choosing = chain.issues.filter(issue => issue.nextAction === chain.nextAction && issue.candidates);
+  const guidance = choosing.length
+    ? ` Which test proves which intent is your judgment: for each intent pick the test that exercises it (or name another), then author command, selector and note; never bind a test that does not exercise the intent. ${choosing.map(issue => issue.detail).join(' ')}`
+    : '';
+  return hintedStep(base, 'framework', 'evidence_chain', chain.nextAction ?? '', `${why}${guidance}`.slice(0, 6000), EVIDENCE_CHAIN_SOURCE);
+}
+
+/** Non-blocking evidence-chain items, as one sentence appended to the step that follows DEV work. */
+export function evidenceChainAdvisory(chain: EvidenceChainReport): string {
+  const advisory = chain.issues.filter(issue => !issue.blocking && issue.nextAction.includes('proof-or-stop verification_evidence_'));
+  if (!advisory.length) return '';
+  return ` Advisory (evidence chain, not blocking): ${advisory.slice(0, 5).map(issue => issue.detail).join('; ')}${advisory.length > 5 ? `; +${advisory.length - 5} more` : ''}. If a changed test proves an unpinned intent, bind it with the template pre_review_check prints; otherwise no action.`;
 }
 
 function nextLine(text: string): string | null {
@@ -355,13 +405,8 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       findings: ctx.store.readFindings(storyId).findings ?? [], effectiveBlockingSeverities, round: roundCount });
   }
 
-  /** A gate's own printed next command, as a step of the given kind. */
-  function delegated(base: { storyId: string; phase: string }, kind: NextStepKind, reason: string, hint: string, why: string, source: string): NextStep {
-    const call = parseHintedCommand(hint);
-    const placeholders = call ? Object.entries(call.payload).filter(([, value]) => typeof value === 'string' && /<[^>]+>|\{[a-z][^}]*\}/.test(value)).map(([key]) => key) : [];
-    const humanNeeded = /story_resume|scope_budget_approve|acceptance_amendment_(approve|review)/.test(hint);
-    return step(base, humanNeeded ? 'human' : kind, reason, call, call ? why : `${why} Gate guidance: ${hint}`, source, { placeholders });
-  }
+  /** A gate's own printed next command, as a step of the given kind (hintedStep). */
+  const delegated = hintedStep;
 
   function guardStep(base: { storyId: string; phase: string }, target: string, reason: string, why: string, source: string): NextStep {
     const failure = getGuardFailureReason(base.storyId, ctx.store, target, ctx.root, gitCwdOf(base.storyId));
@@ -453,8 +498,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       }
       const chain = chainOf();
       if (chain.blocking && chain.nextAction) {
-        return delegated(base, 'framework', 'evidence_chain', chain.nextAction,
-          'The repair changed material, so pinned receipts are stale; refresh them before recording the resolution.', 'evaluateEvidenceChainForStory (DEV→REVIEW evidence-chain gate)');
+        return evidenceChainStep(base, chain, 'The repair changed material, so pinned receipts are stale; refresh them before recording the resolution.');
       }
       return step(base, 'agent', 'finding_resolve', { command: 'finding_resolve', payload: { storyId, findingId: finding.id, resolution: FINDING_RESOLUTION_PLACEHOLDER } },
         `${finding.id} was repaired by managed finding-repair run ${repair.runId} (commit ${repair.commit.slice(0, 12)}) but is still open; closure is required whichever round raised it. Name the repair commit and its passing focused evidence.`,
@@ -462,30 +506,28 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     }
     const chain = chainOf();
     if (chain.blocking && chain.nextAction) {
-      return delegated(base, 'framework', 'evidence_chain', chain.nextAction,
-        'The DEV→REVIEW evidence-chain gate would refuse: a must/should receipt is stale or missing.', 'evaluateEvidenceChainForStory (DEV→REVIEW evidence-chain gate)');
+      return evidenceChainStep(base, chain, 'The DEV→REVIEW evidence-chain gate would refuse: a must/should receipt is stale or missing.');
     }
     // Run 16: an advisory (low / suspected) finding stays open unless the owner
     // repairs it; once a managed finding-repair bound to it completed, close it
     // here with the same per-finding rule as a blocking one, so DONE never
     // leaves a repaired finding open. Unrepaired advisory findings stay advisory.
-    const advisory = repairedAdvisoryFinding(storyId, hostRuns);
-    if (advisory) {
-      const { finding, repair } = advisory;
+    const repairedAdvisory = repairedAdvisoryFinding(storyId, hostRuns);
+    if (repairedAdvisory) {
+      const { finding, repair } = repairedAdvisory;
       return step(base, 'agent', 'finding_resolve', { command: 'finding_resolve', payload: { storyId, findingId: finding.id, resolution: FINDING_RESOLUTION_PLACEHOLDER } },
         `Advisory ${finding.severity} finding ${finding.id} was repaired by managed finding-repair run ${repair.runId} (commit ${repair.commit.slice(0, 12)}) but is still open; resolve it before REVIEW so DONE does not leave it open. Name the repair commit and its passing focused evidence.`,
         'managedFindingRepairState (advisory finding with a completed bound repair)', { placeholders: ['resolution'] });
     }
-    const bind = chain.issues.find(issue => issue.kind === 'unbound_test' && issue.intentRef && issue.nextAction.startsWith('proof-or-stop verification_evidence_add'));
-    if (bind) {
-      return delegated(base, 'framework', 'evidence_chain_bind', bind.nextAction,
-        `Advisory: ${bind.detail}. Binding it now keeps it out of review findings.`, 'evaluateEvidenceChainForStory (advisory unbound_test)');
-    }
+    // Advisory items (a changed test no pin selects, a missing should receipt)
+    // never become a step of their own: binding a test is the agent's judgment
+    // and an extra regression test needs no action (run 16).
+    const advisory = evidenceChainAdvisory(chain);
     if (!ctx.store.readScopeContract(storyId) && checklistHasFileDeclarations(checklist)) {
       return step(base, 'framework', 'scope_contract_init', { command: 'scope_contract_init_from_plan', payload: { storyId } },
-        'Checklist items declare files but no scope contract exists; REVIEW refuses [missing_scope_contract].', 'runScopeTransitionGate precondition');
+        `Checklist items declare files but no scope contract exists; REVIEW refuses [missing_scope_contract].${advisory}`, 'runScopeTransitionGate precondition');
     }
-    return guardStep(base, 'REVIEW', 'enter_review', 'DEV is complete: every item done and the evidence chain is clean.', 'getGuardFailureReason(REVIEW)');
+    return guardStep(base, 'REVIEW', 'enter_review', advisory ? `DEV is complete: every item done and no evidence-chain item blocks.${advisory}` : 'DEV is complete: every item done and the evidence chain is clean.', 'getGuardFailureReason(REVIEW)');
   }
 
   // -- REVIEW ----------------------------------------------------------------
