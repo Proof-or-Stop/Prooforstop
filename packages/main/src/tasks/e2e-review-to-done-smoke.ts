@@ -60,11 +60,17 @@
  *      seconds against A/D when they run in the same invocation.
  *   NR the same flows (NA-run, ND-run) with `next --run`, which executes the
  *      consecutive framework steps itself through the real CLI.
+ *   NF run 14: D's next-driven flow with TWO verified medium findings in round
+ *      1 (Reverse("") and Upper("") untested). After the managed repair of the
+ *      first one, the material changes for both; next must still return the
+ *      managed finding-repair dispatch for the second one and propose
+ *      finding_resolve for a finding only after a managed finding-repair run
+ *      bound to that finding id completed (hard assert at every step).
  *
  * Machine registries (provider slots, locks) use a disposable fixture machine
  * so the harness never touches the developer's ~/.proof-or-stop admission state.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -744,8 +750,22 @@ function reEarnEvidence(o: Owner, why: string): void {
   }
 }
 
+/** Scenario NF's second round-1 finding (a different defect than D_FINDING). */
+const NF_FINDING = {
+  desc: 'Upper has no focused test for an empty string: Upper("") must return "".',
+  severity: 'medium', category: 'edge', files: ['strs/strs.go', 'strs/strs_test.go'], evidenceState: 'verified',
+};
+
 const FINDING_REPAIR = 'proof-or-stop-finding-repair';
 const REPAIR_TEST = '\nfunc TestReverseEmpty(t *testing.T) {\n\tif Reverse("") != "" {\n\t\tt.Fatal("empty")\n\t}\n}\n';
+const NF_REPAIR_TEST = '\nfunc TestUpperEmpty(t *testing.T) {\n\tif Upper("") != "" {\n\t\tt.Fatal("empty")\n\t}\n}\n';
+
+/** The scripted repair commit for one finding (by its description): test text, commit subject, test name. */
+function repairFor(desc: string): { test: string; subject: string; name: string } {
+  return desc.startsWith('Upper ')
+    ? { test: NF_REPAIR_TEST, subject: 'test: Upper of the empty string', name: 'TestUpperEmpty' }
+    : { test: REPAIR_TEST, subject: 'test: Reverse of the empty string', name: 'TestReverseEmpty' };
+}
 
 /** The owner dispatches the implementer (managed, fake codex); it edits the test and commits, as a real implementer does. */
 function devRepairViaManagedDispatch(o: Owner, findingId: string): string {
@@ -1017,7 +1037,7 @@ const VERIFIED_PROMISES = [
  * values (resolution, summary, finish decision). Every proposed command must
  * succeed: next must never propose a command its gate then refuses.
  */
-export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boolean }, lines: string[],
+export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boolean; twoFindings?: boolean }, lines: string[],
   /** Called with each step `next` returned, before the harness executes it; quiet = no detached managed run in flight. */
   onStep?: (next: NextStepJson, quiet: boolean) => void): void {
   const id = o.storyId;
@@ -1027,6 +1047,9 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   const statusOf = () => existsSync(o.worktree) ? execFileSync('git', ['status', '--porcelain', '--untracked-files=all'], { cwd: o.worktree, encoding: 'utf8' }) : '';
   let internalCalls = 0;
   let internalMs = 0;
+  // finding id -> managed finding-repair runs launched for it (as next proposed them).
+  const repairRunsByFinding = new Map<string, string[]>();
+  const findingDesc = (findingId: string): string => new StoryStore(o.worktree).readFindings(id).findings.find(f => f.id === findingId)?.desc ?? '';
   // A fake provider picks the first script whose key occurs in its prompt, and a
   // critic prompt names the lane ReviewRuns: retire each script once its run is terminal.
   const runsRoot = join(o.root, '.proof-or-stop', 'runtime', 'host-runs');
@@ -1070,7 +1093,7 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
         const lane = String(payload.lane);
         const reviewRunId = String(payload.reviewRunId);
         const envelope = mode.findingRound1 && round === firstRound && lane === 'proof-or-stop-review-test-coverage'
-          ? { conclusion: 'findings', note: 'Scripted behavior finding: empty-string edge case is untested.', findings: [D_FINDING] }
+          ? { conclusion: 'findings', note: 'Scripted behavior finding: empty-string edge case is untested.', findings: mode.twoFindings ? [D_FINDING, NF_FINDING] : [D_FINDING] }
           : PASS_ENVELOPE(lane);
         o.script(reviewRunId, { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId: id, providerAgent: lane, lane, reviewRunId, ...envelope, ...o.readEvidence() }) });
         break;
@@ -1078,8 +1101,9 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
       case 'inventory_critic_launch': {
         const epoch = new StoryStore(o.worktree).readReviewInventoryEpochs(id).epochs.at(-1)!;
         const raw = new StoryStore(o.worktree).readFindings(id).findings.filter(f => f.reviewRound === epoch.reviewRound);
-        const dispositions = raw.map(f => ({ finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'reverse-empty-string',
-          reason: 'The empty-string edge of Reverse is untested; one verified family.' }));
+        const dispositions = raw.map(f => f.desc.startsWith('Upper ')
+          ? { finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'upper-empty-string', reason: 'The empty-string edge of Upper is untested; one verified family.' }
+          : { finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'reverse-empty-string', reason: 'The empty-string edge of Reverse is untested; one verified family.' });
         const reviewRunId = String(payload.reviewRunId);
         o.script(reviewRunId, { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId: id, providerAgent: MANAGED_INVENTORY_CRITIC_LANE, lane: MANAGED_INVENTORY_CRITIC_LANE,
           reviewRunId, conclusion: 'pass', note: dispositions.length ? 'Scripted inventory critic: dispositioned every verified finding of this wave.' : 'Scripted inventory critic: every required lane passed with zero findings; nothing to disposition.',
@@ -1097,13 +1121,24 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
         o.script(DELIVERY, { commands: [[process.execPath, CLI, 'delivery_check_set', JSON.stringify(deliveryPayload)]], final: 'Delivery review complete; delivery_check_set recorded.' });
         break;
       }
-      case 'finding_repair':
-        o.script(FINDING_REPAIR, { commands: [['/bin/sh', '-c', `printf '%s' '${REPAIR_TEST.replace(/'/g, "'\\''")}' >> strs/strs_test.go && git add strs/strs_test.go && git -c user.name=${FINDING_REPAIR} commit -qm 'test: Reverse of the empty string' && git log --format=%h -1`]],
-          final: 'Added TestReverseEmpty covering Reverse(""); committed.' });
+      case 'finding_repair': {
+        const repair = repairFor(findingDesc(String(payload.findingId)));
+        o.script(FINDING_REPAIR, { commands: [['/bin/sh', '-c', `printf '%s' '${repair.test.replace(/'/g, "'\\''")}' >> strs/strs_test.go && git add strs/strs_test.go && git -c user.name=${FINDING_REPAIR} commit -qm '${repair.subject}' && git log --format=%h -1`]],
+          final: `Added ${repair.name}; committed.` });
         break;
-      case 'finding_resolve':
-        payload.resolution = `repair ${git(o.worktree, ['log', '--format=%h', '-1', '--grep=Reverse of the empty string'])} adds TestReverseEmpty; go test ./strs -run TestReverseEmpty passes`;
+      }
+      case 'finding_resolve': {
+        const findingId = String(payload.findingId);
+        // Run 14: next must never propose closing a finding no repair bound to it produced.
+        const repaired = (repairRunsByFinding.get(findingId) ?? []).some(runId => {
+          const terminal = join(runsRoot, runId, 'terminal.json');
+          return existsSync(terminal) && (JSON.parse(readFileSync(terminal, 'utf8')) as { state?: string }).state === 'completed';
+        });
+        assert.ok(repaired, `[${o.scenario}] next proposed finding_resolve for ${findingId} although no managed finding-repair run bound to it completed (runs per finding: ${JSON.stringify([...repairRunsByFinding])}); why: ${next.why}`);
+        const repair = repairFor(findingDesc(findingId));
+        payload.resolution = `repair ${git(o.worktree, ['log', '--format=%h', '-1', `--grep=${repair.subject.slice('test: '.length)}`])} adds ${repair.name}; go test ./strs -run ${repair.name} passes`;
         break;
+      }
       case 'dev_memory_finish_decision':
         Object.assign(payload, { decision: 'no-reusable-lesson', reason: 'Harness fixture: trivial string helpers, no reusable lesson.' });
         break;
@@ -1122,6 +1157,10 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
     const launched = parseJson(ran.stdout)?.run as Record<string, unknown> | undefined;
     if (next.cli.command === 'host_run' && launched?.runId) {
       scriptKeyByRun.set(String(launched.runId), next.reason === 'delivery_review_launch' ? DELIVERY : next.reason === 'finding_repair' ? FINDING_REPAIR : String(payload.reviewRunId));
+      if (next.reason === 'finding_repair') {
+        const findingId = String(payload.findingId);
+        repairRunsByFinding.set(findingId, [...(repairRunsByFinding.get(findingId) ?? []), String(launched.runId)]);
+      }
     }
   }
   assert.equal(new StoryStore(o.root).readStory(id).phase, 'DONE', `[${o.scenario}] next never reached DONE; steps: ${reasons.join(' > ')}`);
@@ -1144,6 +1183,37 @@ function scenarioN(machineEnv: NodeJS.ProcessEnv, steps: Step[], flow: 'A' | 'D'
     return { name, status: 'PASS', lines };
   } catch (error) {
     console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/**
+ * Run 14: two verified findings in round 1. next drives the whole flow; the
+ * finding_resolve assertion in driveWithNext fails the first time next proposes
+ * closing a finding whose own managed repair has not completed.
+ */
+function scenarioNF(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const name = 'NF run 14: two round-1 findings; next repairs each by its own managed finding-repair before resolving it';
+  const o = new Owner('NF', 'B-e2ea', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  const reasons: string[] = [];
+  try {
+    devSetup(o);
+    driveWithNext(o, { findingRound1: true, run: false, twoFindings: true }, lines, next => {
+      if (next.reason === 'finding_repair' || next.reason === 'finding_resolve') reasons.push(`${next.reason}:${String(next.cli?.payload.findingId ?? '').split(':').pop()}`);
+    });
+    const order = reasons.filter((row, index) => row !== reasons[index - 1]);
+    lines.push(`finding steps: ${order.join(' > ')}`);
+    assert.deepEqual(order, ['finding_repair:F-001', 'finding_resolve:F-001', 'finding_repair:F-002', 'finding_resolve:F-002'],
+      `NF: each finding is repaired by its own run, then resolved: ${order.join(' > ')}`);
+    const tests = readFileSync(join(o.root, 'strs/strs_test.go'), 'utf8');
+    assert.match(tests, /TestReverseEmpty/, 'F-001 repair merged into main');
+    assert.match(tests, /TestUpperEmpty/, 'F-002 repair merged into main');
+    lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`NF fixture retained for diagnosis: ${o.root}`);
     return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
   }
 }
@@ -1227,7 +1297,7 @@ function printTimeline(steps: Step[], scenario: string): void {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|N[AD](?:-run)?)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF|N[AD](?:-run)?)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -1252,10 +1322,11 @@ async function main(): Promise<void> {
       const group = run ? 'NR' : 'N';
       if (only.includes(token) || only.includes(group)) outcomes.push(scenarioN(machine.env, steps, flow, run));
     }
+    if (only.includes('NF')) outcomes.push(scenarioNF(machine.env, steps));
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run']) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF']) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {
