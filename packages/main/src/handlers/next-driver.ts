@@ -14,6 +14,8 @@
  * predicate or reader and, where the gate prints its own next command,
  * delegates to that text:
  *   DEV     checklist status, unclosedBlockingFindings (core/finding-closure),
+ *           managedFindingRepairState (a finding is repaired only by a completed
+ *           managed finding-repair run bound to its id, with a material commit),
  *           evaluateEvidenceChainForStory (the DEV→REVIEW evidence-chain gate),
  *           getGuardFailureReason(REVIEW) (the xstate guard);
  *   REVIEW  reviewer_batch (lane classification the REVIEW gate rows use),
@@ -26,7 +28,7 @@
  * Host runs (managed reviewers, delivery, finding repair) are read from the
  * managed host-run runtime projection only.
  */
-import { spawnSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, readdirSync } from 'node:fs';
 import { hostname } from 'node:os';
 import type { HandlerContext } from './context.js';
@@ -60,7 +62,8 @@ import { currentPrecertFastIdentity } from './validation-identity.js';
 import { evaluateEvidenceChainForStory } from './evidence-chain.js';
 import { checklistHasFileDeclarations } from './phase-gates.js';
 import { verifyCurrentReviewerDispatchBinding } from '../core/review-run.js';
-import { managedHostRunsRoot, readManagedHostRunProjection, managedHostRunReceipt } from '../core/managed-host-run.js';
+import { managedHostRunsRoot, readManagedHostRunProjection, readManagedHostRunBinding, managedHostRunReceipt, verifyManagedDispatchDelivery } from '../core/managed-host-run.js';
+import { isMaterialExcludedPath } from '../core/material-path-policy.js';
 import { hasPersistedManagedReceiptEvidence } from './managed-review-evidence.js';
 import { MANAGED_INVENTORY_CRITIC_LANE } from '../core/managed-inventory-critic.js';
 import { QUALIFIED_MANAGED_REVIEWER_DEFAULTS } from '../core/managed-reviewer-qualification.js';
@@ -241,6 +244,58 @@ function listStoryHostRuns(ctx: HandlerContext, storyId: string): HostRunView[] 
   return rows.sort((a, b) => a.createdAt.localeCompare(b.createdAt) || a.runId.localeCompare(b.runId));
 }
 
+/** One managed finding-repair run, as the next-driver host-run views list it. */
+export interface FindingRepairRunView { runId: string; agentType: string; terminal: boolean; state: string; createdAt: string }
+
+export type FindingRepairState =
+  | { repaired: true; runId: string; commit: string }
+  | { repaired: false; detail: string };
+
+/**
+ * Whether ONE verified finding is repaired and ready for finding_resolve, from
+ * the records its repair path writes, never from a global material change (run
+ * 14: with several open findings, the repair of one changes the material of
+ * all). Repaired means: a managed finding-repair run whose immutable binding
+ * targets exactly this finding id (managedDispatchTarget.findingId), created
+ * after the finding was raised, completed as a safe delivery
+ * (verifyManagedDispatchDelivery), and committed material on the Story branch
+ * while it ran (a commit reachable from HEAD, committed inside the run's
+ * window, touching a non-metadata path). This only chooses the next step;
+ * finding_resolve still checks its own evidence.
+ */
+export function managedFindingRepairState(args: {
+  root: string; gitCwd: string; storyId: string; finding: { id: string; createdAt?: string }; runs: readonly FindingRepairRunView[];
+}): FindingRepairState {
+  const { root, gitCwd, storyId, finding } = args;
+  const bound = args.runs.filter(run => run.agentType === FINDING_REPAIR_AGENT && (!finding.createdAt || run.createdAt >= finding.createdAt))
+    .filter(run => {
+      try { return readManagedHostRunBinding(root, run.runId).managedDispatchTarget?.findingId === finding.id; } catch { return false; }
+    });
+  if (bound.length === 0) return { repaired: false, detail: `no managed finding-repair run is bound to ${finding.id}` };
+  const completed = bound.filter(run => run.terminal && run.state === 'completed').reverse();
+  for (const run of completed) {
+    if (!verifyManagedDispatchDelivery({ root, runId: run.runId, storyId, agentType: FINDING_REPAIR_AGENT, findingId: finding.id }).valid) continue;
+    let terminalAt: string | undefined;
+    try { terminalAt = readManagedHostRunProjection(root, run.runId).terminal?.terminalAt; } catch { terminalAt = undefined; }
+    const since = Math.floor(Date.parse(run.createdAt) / 1000);
+    const until = Math.ceil(Date.parse(terminalAt ?? '') / 1000);
+    if (!Number.isFinite(since) || !Number.isFinite(until)) continue;
+    let log = '';
+    try {
+      log = execFileSync('git', ['log', `--max-age=${since}`, `--min-age=${until}`, '--format=%x00%H', '--name-only', 'HEAD'],
+        { cwd: gitCwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'] });
+    } catch { continue; }
+    for (const block of log.split('\0').filter(Boolean)) {
+      const [commit, ...paths] = block.split('\n').map(row => row.trim()).filter(Boolean);
+      if (commit && paths.some(path => !isMaterialExcludedPath(path, root))) return { repaired: true, runId: run.runId, commit };
+    }
+  }
+  const last = bound.at(-1)!;
+  return { repaired: false, detail: completed.length
+    ? `managed finding-repair run ${completed[0]!.runId} for ${finding.id} completed without a material commit on the Story branch`
+    : `the last managed finding-repair run ${last.runId} for ${finding.id} is ${last.state}` };
+}
+
 function waitStep(base: { storyId: string; phase: string }, run: HostRunView, what: string): NextStep {
   return step(base, 'framework', 'managed_run_wait', { command: 'host_run_status', payload: { runId: run.runId, untilTerminal: true, json: true } },
     `${what} ${run.runId} is ${run.state}; block until it is terminal (returns at terminal, up to 10 minutes per call).`,
@@ -334,18 +389,17 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     const chainOf = () => (chainResult ??= evaluateEvidenceChainForStory(ctx, storyId));
     if (findings.length > 0) {
       const { finding } = findings[0]!;
-      const runs = ctx.store.readReviewRuns(storyId).runs;
-      const reviewed = runs.find(run => run.reviewRunId === finding.reviewRunId);
-      const liveMaterial = currentMaterialHash(gitCwdOf(storyId), 'HEAD', ctx.root);
-      const repairRun = hostRuns.filter(run => run.agentType === FINDING_REPAIR_AGENT).at(-1);
-      const repaired = (reviewed && liveMaterial && reviewed.materialHash !== liveMaterial)
-        || (repairRun?.terminal && repairRun.state === 'completed');
-      if (!repaired) {
-        if (repairRun && !repairRun.terminal) return waitStep(base, repairRun, 'Finding repair run');
+      // Per finding: only a completed managed repair bound to THIS finding id
+      // (with its commit) makes it resolvable; a material change made by the
+      // repair of another open finding does not (run 14).
+      const repair = managedFindingRepairState({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, finding, runs: hostRuns });
+      if (!repair.repaired) {
+        const repairRun = hostRuns.filter(run => run.agentType === FINDING_REPAIR_AGENT && !run.terminal).at(-1);
+        if (repairRun) return waitStep(base, repairRun, 'Finding repair run');
         return step(base, 'agent', 'finding_repair', { command: 'host_run', payload: { ...managedSelection(hostRuns, 'managed_dispatch'), storyId, findingId: finding.id,
           agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true } },
-        `Verified ${finding.severity} finding ${finding.id} is open and the reviewed material is unchanged: repair it in code and commit (managed finding-repair shown).`,
-        'unclosedBlockingFindings (core/finding-closure.ts)');
+        `Verified ${finding.severity} finding ${finding.id} is open and not yet repaired (${repair.detail}): repair it in code and commit (managed finding-repair shown).`,
+        'unclosedBlockingFindings (core/finding-closure.ts) + managedFindingRepairState');
       }
       const chain = chainOf();
       if (chain.blocking && chain.nextAction) {
@@ -353,8 +407,8 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
           'The repair changed material, so pinned receipts are stale; refresh them before recording the resolution.', 'evaluateEvidenceChainForStory (DEV→REVIEW evidence-chain gate)');
       }
       return step(base, 'agent', 'finding_resolve', { command: 'finding_resolve', payload: { storyId, findingId: finding.id, resolution: FINDING_RESOLUTION_PLACEHOLDER } },
-        `${finding.id} was repaired (material changed since its review) but is still open; closure is required whichever round raised it. Name the repair commit and its passing focused evidence.`,
-        'unclosedBlockingFindings (core/finding-closure.ts)', { placeholders: ['resolution'] });
+        `${finding.id} was repaired by managed finding-repair run ${repair.runId} (commit ${repair.commit.slice(0, 12)}) but is still open; closure is required whichever round raised it. Name the repair commit and its passing focused evidence.`,
+        'unclosedBlockingFindings (core/finding-closure.ts) + managedFindingRepairState', { placeholders: ['resolution'] });
     }
     const chain = chainOf();
     if (chain.blocking && chain.nextAction) {
@@ -470,6 +524,34 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     `Critic run ${hostRun.runId} ended ${hostRun.state}; start a fresh critic ReviewRun and relaunch it.`, 'managed host-run projection');
   }
 
+  /**
+   * A REVIEW-phase refusal naming open verified blocking findings: resolve the
+   * first one a managed finding-repair bound to it repaired; when none is,
+   * return to DEV, where next dispatches the repair of each (run 14: never
+   * propose closing an unrepaired finding).
+   */
+  function reviewFindingClosureStep(base: { storyId: string; phase: string }, ids: readonly string[], why: string, source: string): NextStep {
+    const { storyId } = base;
+    const findings = ctx.store.readFindings(storyId).findings ?? [];
+    const hostRuns = listStoryHostRuns(ctx, storyId);
+    const gitCwd = gitCwdOf(storyId);
+    const details: string[] = [];
+    for (const id of ids) {
+      const finding = findings.find(row => row.id === id);
+      if (!finding) continue;
+      const repair = managedFindingRepairState({ root: ctx.root, gitCwd, storyId, finding, runs: hostRuns });
+      if (repair.repaired) {
+        return step(base, 'agent', 'finding_resolve', { command: 'finding_resolve', payload: { storyId, findingId: id, resolution: FINDING_RESOLUTION_PLACEHOLDER } },
+          `${why} ${id} was repaired by managed finding-repair run ${repair.runId} (commit ${repair.commit.slice(0, 12)}); record that commit and its passing focused evidence.`,
+          `${source} + managedFindingRepairState`, { placeholders: ['resolution'] });
+      }
+      details.push(repair.detail);
+    }
+    return guardStep(base, 'DEV', 'finding_unrepaired_dev',
+      `${why} None is repaired yet (${details.join('; ') || 'no readable finding'}): return to DEV, where next dispatches the managed repair of each.`,
+      `${source} + managedFindingRepairState + getGuardFailureReason(DEV)`);
+  }
+
   function reviewNext(base: { storyId: string; phase: string }): NextStep {
     const { storyId } = base;
     const story = ctx.store.readStory(storyId);
@@ -497,9 +579,8 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       const hint = nextLine(status) ?? '';
       if (/story_advance .*--phase=TEST/.test(hint)) {
         if (!verdict.ok) {
-          const ids = verdict.unclosedFindingIds ?? [];
-          return step(base, 'agent', 'finding_resolve', { command: 'finding_resolve', payload: { storyId, findingId: ids[0] ?? '<findingId>', resolution: FINDING_RESOLUTION_PLACEHOLDER } },
-            `REVIEW→TEST refuses [${verdict.code}]: ${verdict.message ?? ''}`, 'evaluateReviewVerdict (the REVIEW→TEST guard)', { placeholders: ['resolution'] });
+          return reviewFindingClosureStep(base, verdict.unclosedFindingIds ?? [],
+            `REVIEW→TEST refuses [${verdict.code}]: ${verdict.message ?? ''}`, 'evaluateReviewVerdict (the REVIEW→TEST guard)');
         }
         // evaluateReviewVerdict above IS the REVIEW→TEST xstate guard (canPassReviewGuard).
         return step(base, 'framework', 'enter_test', { command: 'story_advance', payload: { storyId, phase: 'TEST' } },
@@ -560,9 +641,9 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       const blocking = openBlockingFindings(storyId);
       if (blocking.length > 0) {
         const ids = blocking.map(row => row.finding.id);
-        return step(base, 'agent', 'finding_resolve', { command: 'finding_resolve', payload: { storyId, findingId: ids[0], resolution: FINDING_RESOLUTION_PLACEHOLDER } },
-          `Certification refuses open verified blocking finding(s) ${ids.join(', ')} [${PRE_CERT_BLOCKING_FINDINGS_OPEN}]; record the repair commit and passing focused evidence.`,
-          'unclosedBlockingFindings (PRE_CERT admit)', { placeholders: ['resolution'] });
+        return reviewFindingClosureStep(base, ids,
+          `Certification refuses open verified blocking finding(s) ${ids.join(', ')} [${PRE_CERT_BLOCKING_FINDINGS_OPEN}].`,
+          'unclosedBlockingFindings (PRE_CERT admit)');
       }
       const blocked = latestBlockedAfterCheap(storyId, cheap.createdAt);
       if (blocked) return blocked;
