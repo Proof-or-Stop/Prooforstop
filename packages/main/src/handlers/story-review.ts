@@ -28,6 +28,7 @@ import { resolveAuditConfig } from '../core/audit-config.js';
 import { safeReadScopeContract } from '../core/proof-or-stop-parallel-wave.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
 import { verifyScopeCheckSignature } from './scope-check.js';
+import { scopeReviewChecklistDigest } from '../core/scope-check-integrity.js';
 import { verifyManagedDispatchDelivery } from '../core/managed-host-run.js';
 import { existsSync } from 'fs';
 import { join } from 'path';
@@ -580,11 +581,12 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
 
       // 2.52. B-45ed CHK-002: touchpoints → checklist.files coverage check
       // If understanding.touchpoints is non-empty:
-      //   - If at least one checklist item has files field filled → hard validation mode, each uncovered touchpoint counts as one blocker
+      //   - If at least one checklist item has files field filled → hard validation mode, each touchpoint that is
+      //     neither in some item's files nor named with a reason in some item's PLAN-owned excludes is one blocker
       //   - If all items lack files field (legacy story) → fallback advisory `touchpoint_mapping_missing`
       // Coverage check: extract path prefix then compare, allowing human annotations like "src/foo.ts (reason)".
       if (understanding?.touchpoints?.length) {
-        issues.push(...assessPlanTouchpointCoverage(understanding.touchpoints, cl.items));
+        issues.push(...assessPlanTouchpointCoverage(understanding.touchpoints, cl.items, args.storyId));
       }
 
       // 2.55. plan.md check (respect policy.plan.requirePlanMd)
@@ -649,12 +651,30 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
             });
           }
           // Report gaps as blocker
+          // A gap is the signed scope-plan reviewer verdict; story_review never
+          // re-judges it. Every repair is PLAN-local: cover the point in a checklist
+          // item, or record a PLAN exclusion / constraint acknowledgement in an
+          // item's excludes (checklist_update), then rerun the reviewer. The INIT
+          // scope boundary is not an input of this verdict, so reopening INIT never
+          // clears it (run 15). When the checklist changed after the verdict, the
+          // only remaining action is the reviewer rerun.
           const gaps = (scopeData.features || []).filter(f => f.status === 'gap');
+          const rerunScopeReviewer = renderQualifiedManagedCodexDispatchCommand(args.storyId, 'proof-or-stop-review-scope-plan');
+          const checklistChangedSinceVerdict = !!scopeData.checklistDigest
+            && scopeData.checklistDigest !== scopeReviewChecklistDigest(cl);
           for (const gap of gaps) {
+            const source = gap.source ? ` (source: ${gap.source})` : '';
             issues.push({
               type: 'scope_gap',
               severity: 'blocker',
-              message: `scope gap: description mentions "${gap.feature}" but there is no corresponding checklist item and it is not excluded`,
+              message: checklistChangedSinceVerdict
+                ? `scope gap${source}: the scope-plan reviewer verdict of ${scopeData.checkedAt} lists "${gap.feature}" as neither covered nor excluded, and the checklist changed since that verdict. `
+                  + `Next (PLAN, no INIT reopen): rerun the scope-plan reviewer so it judges the current checklist: \`${rerunScopeReviewer}\`. `
+                  + `The INIT scope boundary is not an input of this verdict.`
+                : `scope gap${source}: the scope-plan reviewer found "${gap.feature}" neither covered by a checklist item (title/userSees/verificationIntent) nor excluded by an item's excludes. `
+                  + `Next (PLAN, no INIT reopen): cover it in a checklist item, or, for reference-only material or an acknowledged constraint, append an excludes entry that names it and says why `
+                  + `(\`proof-or-stop checklist_update --storyId=${args.storyId} --itemId=<CHK-id> --excludes='[...current excludes, "${gap.feature}: <why>"]'\`); `
+                  + `then rerun the scope-plan reviewer: \`${rerunScopeReviewer}\`. The INIT scope boundary is not an input of this verdict.`,
             });
           }
           // Report excluded as info (not counted as issue)
