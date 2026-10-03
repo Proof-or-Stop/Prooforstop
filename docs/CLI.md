@@ -1049,12 +1049,16 @@ ending in `Next: proof-or-stop <command> --help`.
 
 Managed launches reuse the host/model/effort of this Story's last managed run of
 the same profile (reviewer or dispatch), falling back to the qualified managed
-reviewer default; `host_run` still validates the selection.
+reviewer default; `host_run` still validates the selection. Only a reused
+selection with all three set makes a launch `launch: true` (framework); the
+default-only first launch stays `agent`.
 
-`--run` executes only `framework` steps, each as a separate real CLI process with
-every gate in place, re-decides after each, and stops at the first agent/human
-step, the first refused step (its output tail is shown) or `--maxSteps`
-(default 20). It is off by default.
+`--run` executes only `framework` steps (gate steps, `launch` steps and waits),
+each as a separate real CLI process with every gate in place, re-decides after
+each, and stops at the first agent/human step, the first refused step (its
+output tail is shown), a second launch of a target launched in the same call,
+or `--maxSteps` (default 40, max 100); it pauses when the call's 285 s wait
+budget is used. It is off by default.
 
 One decision is one synchronous git observation (the same scope a single gate
 evaluation uses): every identical read-only git probe the consulted gates make
