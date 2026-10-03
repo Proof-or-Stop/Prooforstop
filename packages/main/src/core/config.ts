@@ -1,6 +1,7 @@
 
 import { readFileSync, existsSync } from 'fs';
 import { execFileSync } from 'node:child_process';
+import { observedGit } from './git-tree-observation.js';
 import { dirname, isAbsolute, join, resolve } from 'path';
 import type { WorkflowProfile } from './types.js';
 import { resolveAuditConfig as _resolveAuditConfig, type AuditConfig } from './audit-config.js';
@@ -852,9 +853,10 @@ function isJsonRecord(value: unknown): value is Record<string, unknown> {
 export function isManagedGlobalThinRoot(dir: string): boolean {
   const roots = [resolve(dir)];
   try {
-    const raw = execFileSync('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], {
+    const argv = ['rev-parse', '--path-format=absolute', '--git-common-dir'];
+    const raw = observedGit(dir, argv, () => execFileSync('git', argv, {
       cwd: dir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
-    }).trim();
+    })).trim();
     const common = resolve(dir, raw);
     const primary = dirname(common);
     if (common && isAbsolute(common) && !roots.includes(primary)) roots.push(primary);

@@ -16,6 +16,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, s
 import { dirname, join, resolve } from 'node:path';
 
 import { digestCanonicalJson } from './digest.js';
+import { observedGit } from './git-tree-observation.js';
 // B-cc10 F-073 follow-up: import the state dir from the LEAF (./brand-paths.js), not from
 // ./proof-or-stop-paths.js. This module is held to a deliberate isolation bar — it may import only
 // leaf siblings, asserted by experience-layer-finding-signals-smoke.ts — and proof-or-stop-paths.ts
@@ -128,14 +129,17 @@ export const PROPOSALS_DIRNAME = 'proposals';
  * storyId here, and threading one would be circular). The parameter is named
  * `searchOrigin` (not a bare `root`/`projectRoot`/`metadataRoot`) so the
  * gitroot-cwd-contract reads it as a resolved search origin, not a laundered
- * metadataRoot. Leaf-isolation is preserved: node builtins only.
+ * metadataRoot. Leaf-isolation is preserved: node builtins plus the leaf git
+ * read memo (git-tree-observation.ts).
  */
 function gitProbe(searchOrigin: string, args: string[]): string {
-  return execFileSync('git', args, {
+  // Read-only ref/layout probes: answered once per unchanged repository ref
+  // state (git-tree-observation.ts -> git-ref-witness-memo.ts, node builtins only).
+  return observedGit(searchOrigin, args, () => execFileSync('git', args, {
     cwd: searchOrigin,
     encoding: 'utf-8',
     stdio: ['pipe', 'pipe', 'pipe'],
-  });
+  }));
 }
 
 // Successful discovery is reusable only within one synchronous read operation.

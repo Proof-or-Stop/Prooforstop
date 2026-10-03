@@ -10,9 +10,9 @@
  * story_advance TEST spent ~7.7 s of 16.8 s on such repeats.
  *
  * Budget: inside one observation, lanes 2..N re-run no git command; outside
- * an observation every call still probes git, and a commit that is not a
- * permitted maintenance advance still invalidates the binding in the next
- * observation.
+ * an observation a moved HEAD is probed afresh (unchanged ref state is answered
+ * by git-ref-witness-memo), and a commit that is not a permitted maintenance
+ * advance still invalidates the binding in the next observation.
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -77,12 +77,15 @@ try {
   const repeated = perLane.slice(1).reduce((a, b) => a + b, 0);
   assert.equal(repeated, 0, `lanes 2..${LANES} re-ran ${repeated} identical git commands inside one observation (budget 0)`);
 
-  // Outside an observation the live state is probed afresh (object-id-addressed
-  // lineage bytes may still come from git-object-read-memo; see lineage-object-memo-smoke).
+  // Outside an observation a moved HEAD is probed afresh: ref-state reads are
+  // answered once per unchanged repository ref state (git-ref-witness-memo), and
+  // object-id-addressed lineage bytes may still come from git-object-read-memo
+  // (see lineage-object-memo-smoke). A permitted metadata advance stays valid.
+  metadataCommit('validate');
   const outsideBefore = spawned();
   assert.equal(verify().valid, true);
   const outsideRows = readFileSync(log, 'utf8').split('\n').filter(Boolean).slice(outsideBefore);
-  assert.ok(outsideRows.some(row => row.startsWith('rev-parse')), `a call outside an observation resolves the live HEAD afresh: ${outsideRows.join(' | ')}`);
+  assert.ok(outsideRows.some(row => row.startsWith('rev-parse')), `a call outside an observation resolves the moved HEAD afresh: ${outsideRows.join(' | ')}`);
 
   // Freshness: a commit that is not a permitted advance is seen by the next observation.
   metadataCommit('checklist_update');

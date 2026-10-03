@@ -1,6 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import type { StoryInfo } from './types.js';
 import { resolveRepositoryBaseline } from './git-baseline.js';
+import { observedGit } from './git-tree-observation.js';
 
 export interface StoryIntegrationTarget {
   parentBranch: string;
@@ -9,12 +10,13 @@ export interface StoryIntegrationTarget {
   deliveryMode: 'merge_to_parent';
 }
 
+/** Read-only ref probes only (rev-parse, symbolic-ref): see git-tree-observation. */
 function git(cwd: string, args: string[]): string {
-  return execFileSync('git', args, {
+  return observedGit(cwd, args, () => execFileSync('git', args, {
     cwd,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'ignore'],
-  }).trim();
+  })).trim();
 }
 
 export function localIntegrationBranchNameForRef(ref: string): string | undefined {
