@@ -1389,7 +1389,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       }
 
       if (args.itemId) {
-        if (canonicalType === 'proof-or-stop-implementer') {
+        const implementer = canonicalType === 'proof-or-stop-implementer';
+        if (implementer) {
           // Old-PoS run 15: a second implementer for an item an earlier managed
           // run already sealed can only re-mark it done (done->done binds
           // nothing) and then fails. Refuse before any prompt or provider.
@@ -1401,7 +1402,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           itemId: args.itemId,
           agentType: canonicalType,
         });
-        const wrapped = canonicalType === 'proof-or-stop-implementer'
+        const wrapped = implementer
           ? assembleComplexStoryDispatch(story, canonicalType, result.prompt)
           : { prompt: result.prompt };
         appendDispatchEvent({
