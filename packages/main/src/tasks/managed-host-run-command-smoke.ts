@@ -207,7 +207,8 @@ async function main(): Promise<void> {
     /host_run_status: --waitMs must be a finite nonnegative integer <= 30000/,
     'the direct handler mirrors the public schema maximum instead of silently clamping an invalid call',
   );
-  const text = await secondCaller.host_run_status({ runId: detached.run.runId }) as string;
+  // waitMs=0: a snapshot. Bare text status now waits until terminal (owner-wait-guidance).
+  const text = await secondCaller.host_run_status({ runId: detached.run.runId, waitMs: 0 }) as string;
   assert.match(text, /workerHeartbeatAt=/);
   assert.match(text, /providerProgressMode=/);
   assert.match(text, /lastProviderProgressAt=/);

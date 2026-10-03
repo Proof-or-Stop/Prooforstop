@@ -72,6 +72,7 @@ import { evaluateReviewAssuranceFloor, buildReviewAssuranceFloorGuidance, buildR
 import { evaluateReviewEscalation, assessReviewHostAvailabilityForFallbackEligibility } from '../core/review-escalation.js';
 import { evaluateOptionalLiveSmokeTranscript } from '../core/live-smoke-transcript-evidence.js';
 import type { ReviewRun } from '../core/types.js';
+import { OWNER_WAIT_BLOCK_MS, ownerWaitInstruction } from '../core/owner-wait-guidance.js';
 
 type HandlerLookup = (name: string) => ((...args: any[]) => any) | undefined;
 
@@ -296,10 +297,20 @@ export function managedFindingRepairState(args: {
     : `the last managed finding-repair run ${last.runId} for ${finding.id} is ${last.state}` };
 }
 
-function waitStep(base: { storyId: string; phase: string }, run: HostRunView, what: string): NextStep {
-  return step(base, 'framework', 'managed_run_wait', { command: 'host_run_status', payload: { runId: run.runId, untilTerminal: true, json: true } },
-    `${what} ${run.runId} is ${run.state}; block until it is terminal (returns at terminal, up to 10 minutes per call).`,
+/**
+ * One blocking wait on a detached managed run. The command is the compact text
+ * status (binding, state, exit, verdict, receipt, next action; never the full
+ * --json record) and the step carries the long-yield wait instruction, which
+ * renderNextStep prints first (core/owner-wait-guidance.ts).
+ */
+export function managedRunWaitStep(base: { storyId: string; phase: string }, runId: string, state: string, what: string): NextStep {
+  return step(base, 'framework', 'managed_run_wait', { command: 'host_run_status', payload: { runId, untilTerminal: true } },
+    `${what} ${runId} is ${state}; block until it is terminal (returns at terminal, up to ${OWNER_WAIT_BLOCK_MS / 1000} s per call).`,
     'managed host-run projection', { wait: true });
+}
+
+function waitStep(base: { storyId: string; phase: string }, run: HostRunView, what: string): NextStep {
+  return managedRunWaitStep(base, run.runId, run.state, what);
 }
 
 /**
@@ -812,6 +823,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
 
 export function renderNextStep(next: NextStep): string {
   return [
+    ...(next.wait ? [ownerWaitInstruction()] : []),
     `Next for ${next.storyId} (${next.phase}): ${next.kind} — ${next.reason}`,
     `Why: ${next.why}`,
     ...(next.placeholders?.length ? [`Author before running: ${next.placeholders.join(', ')}`] : []),
@@ -852,6 +864,9 @@ export function createNextDriverHandlers(ctx: HandlerContext, lookup: HandlerLoo
         });
         const out = `${run.stdout ?? ''}${run.stderr ?? ''}`;
         executed.push({ command: next.command!, exit: run.status ?? -1, ms: Date.now() - started, tail: out.trim().split('\n').slice(-6).join('\n') });
+        // Stream progress (and keep the CLI idle watchdog fed) instead of
+        // leaving the owner to inspect a silent process with ps.
+        ctx.log?.(`ran: ${next.reason} -> exit ${run.status ?? -1} (${Date.now() - started} ms)`);
         resetConfigCache();
         if (run.status !== 0) { stopped = `step refused (exit ${run.status ?? -1})`; next = driver.decide(storyId); break; }
         if (!existsSync(ctx.store.storyDirPath(storyId))) {

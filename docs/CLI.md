@@ -891,6 +891,17 @@ returns exactly one step:
 | `why` / `source` | why this is the step, and which gate predicate or reader decided it |
 | `wait` / `done` | a blocking wait on a detached managed run / the Story is DONE |
 
+A wait step (`wait: true`, reason `managed_run_wait`) renders with the owner
+wait instruction as its first line:
+`Wait: this call blocks up to 285 s; give it a tool yield/shell timeout of 300000 ms (Codex: yield_time_ms=300000; if it is still running, write_stdin yield_time_ms=300000 on the same session). Do not poll more often; ...`.
+Its command is the compact text `host_run_status --untilTerminal=true`, which
+blocks server-side up to 285 s (inside one 300000 ms yield and under the CLI's
+5-minute idle watchdog). Every blocking command prints the same instruction as
+its first stderr line before any work: until-terminal `host_run_status` (the text
+default), foreground `host_run`, and `next --run`, which also streams one
+`ran: <reason> -> exit <n> (<ms> ms)` line per executed step. The text, owner
+and constants live in `core/owner-wait-guidance.ts`.
+
 Decision table (first matching row wins):
 
 | State | Step | Kind | Decided by |
@@ -904,7 +915,7 @@ Decision table (first matching row wins):
 | DEV, files declared but no scope contract | `scope_contract_init_from_plan` | framework | scope gate precondition |
 | DEV, otherwise | `story_advance --phase=REVIEW` if the REVIEW guard passes, else the guard's own `→`/`Next:` command | framework | `getGuardFailureReason(REVIEW)` |
 | REVIEW, a prepared ReviewRun of this round without a host run | `host_run` managedReview for that lane (all prepared lanes are launched before any wait) | agent | review-runs.json + host-run projection |
-| REVIEW, a lane run in flight | `host_run_status --untilTerminal=true` | framework (wait) | host-run projection |
+| REVIEW, a lane run in flight | `host_run_status --untilTerminal=true` (compact text, never `--json`) | framework (wait) | host-run projection |
 | REVIEW, a completed lane run not imported | `managed_review_evidence_import {runId, receiptId}` | framework | host-run receipt |
 | REVIEW, the verdict misses lane evidence | `review_round_prepare` | framework | `evaluateReviewVerdict` + `reviewer_batch` launchable lanes |
 | REVIEW, certification window ADMITTED | `validate --story --json` (the routine suite; nothing in between) | framework | `certification_window_status` |
