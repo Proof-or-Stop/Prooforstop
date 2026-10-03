@@ -927,7 +927,7 @@ PRE_CERT → TEST → DONE ceremony. From the Story worktree:
 ```bash
 proof-or-stop next --storyId=B-xxxx          # one step, human-readable; last line is `Next: <command>`
 proof-or-stop next --storyId=B-xxxx --json   # the same step as JSON
-proof-or-stop next --storyId=B-xxxx --run    # run consecutive framework steps, stop at the next agent step
+proof-or-stop next --storyId=B-xxxx --run    # run framework steps, bound launches and waits (one 285 s wait budget), stop at the next agent step
 ```
 
 It is read-only (no metadata, evidence, audit event or commit is written) and
@@ -936,10 +936,13 @@ returns exactly one step:
 | Field | Meaning |
 |---|---|
 | `phase` | the Story phase the step was decided from |
-| `kind` | `framework`: a mechanical step the framework could run itself; `agent`: needs the agent (implement or repair code, launch a managed reviewer, author a summary / decision / resolution, submit a host verdict); `human`: a genuine human decision (stall resume, approval, 3x2 quorum) |
+| `kind` | `framework`: a mechanical step the framework runs itself under `--run` (gate steps, waits, and fully bound managed launches); `agent`: needs the agent (a launch whose selection is not yet bound or that replaces a failed run, a `<...>` value to author: summary / decision / resolution / live-smoke command, a host verdict); `human`: a genuine human decision (stall resume, approval, 3x2 quorum) |
 | `reason` | stable step code, e.g. `review_lane_launch`, `precert_cheap_check` |
 | `command` / `argv` / `cli` | the exact call (ids, run ids, receipt ids and digests filled in) as a shell line, as `['proof-or-stop', <command>, <JSON payload>]`, and as `{command, payload}` |
 | `placeholders` | payload paths the agent must author (their values are `<...>`), nested ones as `evidences[0].command`; nothing else is to be changed. A step with placeholders is always `agent`, never `framework`, so `--run` never executes a `<...>` value |
+| `placeholderHints` | one line per placeholder describing its expected content (curated for `finding_resolve`, `summary_set`, `dev_memory_finish_decision`, `dev_memory_capture`, `live_smoke_transcript`, `decision_set`, `plan_set`; otherwise the `<...>` text itself), printed under `Author before running`, so no `--help` read is needed |
+| `launch` | a managed `host_run` that needs no judgment: host/model/effort are this Story's own earlier selection (all three set), the payload has no placeholder, and no earlier run of the same target exists (lane/critic: no earlier non-completed run of the lane in the round; implementer: of the item; finding repair: of the finding; delivery: since TEST entry; scope-plan: none). Kind `framework`; `--run` launches it |
+| `batch` / `optional` | several authoring commands for ONE agent turn, each with its exact command and placeholder hints (`test_authoring`: `dev_memory_finish_decision` + `summary_set`; `plan_authoring`: `decision_set` / `plan_set` + `story_review`); `optional` lists a command that may come first (`dev_memory_capture` before `decision=captured`) |
 | `why` / `source` | why this is the step, and which gate predicate or reader decided it |
 | `wait` / `done` | a blocking wait on a detached managed run / the Story is DONE |
 
@@ -951,32 +954,48 @@ blocks server-side up to 285 s (inside one 300000 ms yield and under the CLI's
 5-minute idle watchdog). Every blocking command prints the same instruction as
 its first stderr line before any work: until-terminal `host_run_status` (the text
 default), foreground `host_run`, and `next --run`, which also streams one
-`ran: <reason> -> exit <n> (<ms> ms)` line per executed step. The text, owner
+short `ran: <reason> (<command>) -> exit <n>, <s> s[ runId=<id> | <status line>]`
+line per executed step (stderr; the final text adds only a count). The text, owner
 and constants live in `core/owner-wait-guidance.ts`.
+
+`next --run` (run 17 Q6: 27 poll-only owner turns, a launch turn per managed run,
+TEST authoring one step at a time) executes every `framework` step in order: gate
+steps, `launch` steps (fully bound managed launches; all prepared lanes are
+launched before the first wait) and `wait` steps. All waits of one call share ONE
+budget (`--waitBudgetMs`, default and max 285000): each wait runs
+`host_run_status --untilTerminal=true` with the remaining budget as `waitMs`, so
+the call ends inside one 300000 ms owner yield. When the budget is used while the
+run is still going, it prints `paused: wait budget of 285 s used; ... run
+\`proof-or-stop next --storyId=<id> --run\` again` and the wait step. It stops at
+the first `agent`/`human` step, a refused step (`stopped: step refused`), a launch
+of a target it already launched in this call, or `--maxSteps` (default 40, max
+100). The loop is `runNextSteps` in handlers/next-driver.ts; JSON output is
+`{executed, stopped, paused, next}`.
 
 Decision table (first matching row wins):
 
 | State | Step | Kind | Decided by |
 |---|---|---|---|
 | PLAN, no dev-memory preflight acknowledgement | `dev_memory_preflight_ack` (read the lessons it prints) | agent | `evaluateDevMemoryPreflightGate` (the DEV-entry gate's `[missing_dev_memory_preflight_ack]`) |
-| PLAN, the scope-plan reviewer verdict is required and missing (balanced/strict, or understanding / request.md present; run 16) | `host_run` managedDispatch `proof-or-stop-review-scope-plan` (the owner's own host/model, else the qualified default), or `host_run_status --untilTerminal=true` while its run is in flight | agent / framework (wait) | `missingPlanScopeCheckFailure` (the DEV-entry gate's `[missing_scope_check]`) |
+| PLAN, the scope-plan reviewer verdict is required and missing (balanced/strict, or understanding / request.md present; run 16) | `host_run` managedDispatch `proof-or-stop-review-scope-plan` (the owner's own host/model, else the qualified default), or `host_run_status --untilTerminal=true` while its run is in flight | framework (`launch`, when bound and no earlier scope-plan run) / agent / framework (wait) | `missingPlanScopeCheckFailure` (the DEV-entry gate's `[missing_scope_check]`) |
+| PLAN, the latest story_review round has blockers fixed by `decision_set` / `plan_set` (`missing_decision`, `missing_alternatives`, `insufficient_premortem`, `missing_plan_md`) | `plan_authoring`: one batch with each exact template (`decision_set` with 3 principles/drivers, 2 options, 3 preMortem; `plan_set` naming each `## CHK-xxx`), then `story_review`; other blockers are quoted in `why` | agent | review.json latest round + `getGuardFailureReason(DEV)` |
 | PLAN, otherwise | `story_advance --phase=DEV` if the DEV guard passes, else the guard's own `→`/`Next:` command (`story_review` when it has no clean round) | framework / agent | `getGuardFailureReason(DEV)` |
 | DEV, an item `pending` | `checklist_update --status=in_progress` | framework | checklist.json |
-| DEV, an item `in_progress` | `host_run` managedDispatch `proof-or-stop-implementer` for it (or wait on its run) | agent | checklist.json + host-run projection |
-| DEV, a verified blocking finding open and not repaired (see below) | `host_run` managedDispatch `proof-or-stop-finding-repair` with that `findingId` (or wait on a repair run in flight) | agent | `unclosedBlockingFindings` + `managedFindingRepairState` |
+| DEV, an item `in_progress` | `host_run` managedDispatch `proof-or-stop-implementer` for it (or wait on its run) | framework (`launch`, bound, first run of the item) / agent | checklist.json + host-run projection |
+| DEV, a verified blocking finding open and not repaired (see below) | `host_run` managedDispatch `proof-or-stop-finding-repair` with that `findingId` (or wait on a repair run in flight) | framework (`launch`, bound, first run for the finding) / agent | `unclosedBlockingFindings` + `managedFindingRepairState` |
 | DEV, that finding repaired, receipts stale | the evidence-chain gate's own Next (`verification_evidence_refresh_stale`, `verification_run --pending`, ...) | framework (agent when it has placeholders) | `evaluateEvidenceChainForStory` |
 | DEV, that finding repaired | `finding_resolve` with `resolution` | agent | `unclosedBlockingFindings` + `managedFindingRepairState` |
 | DEV, evidence-chain blocking | the evidence-chain Next: `verification_evidence_refresh_stale` / `verification_run --pending` (framework), or for unpinned intents the `verification_evidence_batch_add` template with the ranked candidates in `why` (agent) | framework / agent | `evaluateEvidenceChainForStory` |
 | DEV, an open low (or suspected) finding whose own managed finding-repair completed (run 16) | `finding_resolve` with `resolution` (low stays advisory: an unrepaired one is never dispatched and never blocks) | agent | `managedFindingRepairState` |
 | DEV, files declared but no scope contract | `scope_contract_init_from_plan` | framework | scope gate precondition |
 | DEV, otherwise | `story_advance --phase=REVIEW` if the REVIEW guard passes, else the guard's own `→`/`Next:` command; advisory evidence-chain items (a changed test no pin selects, a missing should receipt) ride on its `why`, never as a step of their own | framework | `getGuardFailureReason(REVIEW)` |
-| REVIEW, a prepared ReviewRun of this round without a host run | `host_run` managedReview for that lane (all prepared lanes are launched before any wait) | agent | review-runs.json + host-run projection |
+| REVIEW, a prepared ReviewRun of this round without a host run | `host_run` managedReview for that lane (all prepared lanes are launched before any wait) | framework (`launch`, bound, not a replacement) / agent | review-runs.json + host-run projection |
 | REVIEW, a lane run in flight | `host_run_status --untilTerminal=true` (compact text, never `--json`) | framework (wait) | host-run projection |
 | REVIEW, a completed lane run not imported | `managed_review_evidence_import {runId, receiptId}` | framework | host-run receipt |
 | REVIEW, the verdict misses lane evidence | `review_round_prepare` | framework | `evaluateReviewVerdict` + `reviewer_batch` launchable lanes |
 | REVIEW, certification window ADMITTED | `validate --story --json` (the routine suite; nothing in between) | framework | `certification_window_status` |
 | REVIEW, window RUNNING and the stored PASS admissible | `story_advance --phase=TEST`; if the verdict still refuses on open findings: `finding_resolve` for the first repaired one, else `story_advance --phase=DEV` (`finding_unrepaired_dev`) | framework | `certification_window_status` Next + `evaluateReviewVerdict` + `managedFindingRepairState` |
-| REVIEW, OPEN epoch, critic missing | `dispatch` critic → `review_run_start` critic → `host_run` critic (agent) → wait → import | framework / agent | `review_inventory_status` |
+| REVIEW, OPEN epoch, critic missing | `dispatch` critic → `review_run_start` critic → `host_run` critic (`launch` when bound; agent after a failed critic run in the round) → wait → import | framework / agent | `review_inventory_status` |
 | REVIEW, OPEN epoch, otherwise | `review_inventory_status`'s own Next (`review_inventory_finalize [--remediation]`, `review_inventory_cancel`) | framework | `review_inventory_status` |
 | REVIEW, FINALIZED remediation receipt | `story_advance --phase=DEV` | framework | `finalizedUnconsumedReviewInventory` + DEV guard |
 | REVIEW, FINALIZED zero-wave completeness-only receipt | `review_inventory_cancel` | framework | PRE_CERT inventory recovery |
@@ -986,9 +1005,8 @@ Decision table (first matching row wins):
 | REVIEW, no epoch for this round | `review_inventory_begin` | framework | `evaluateReviewVerdict` |
 | TEST, DONE's review-verdict row fails | `story_advance --phase=DEV` | agent | DONE oracle |
 | TEST, no (or a failing) live-smoke transcript | `live_smoke_transcript --capture=<validate command> --write` (the capture runs with the project `validate.env`, e.g. `CONTEXT=abs`, like validate) | agent | live-smoke oracle row |
-| TEST, delivery-check missing / stale | `host_run` managedDispatch `proof-or-stop-review-delivery` (or wait); unverified promises: `story_advance --phase=DEV` | agent | DONE oracle delivery-check row |
-| TEST, no dev-memory finish decision | `dev_memory_finish_decision` with `decision`, `reason` | agent | DONE oracle |
-| TEST, summary required and missing | `summary_set` with the authored fields | agent | DONE oracle |
+| TEST, delivery-check missing / stale | `host_run` managedDispatch `proof-or-stop-review-delivery` (or wait); unverified promises: `story_advance --phase=DEV` | framework (`launch`, bound, first delivery run since TEST entry) / agent | DONE oracle delivery-check row |
+| TEST, no dev-memory finish decision and/or summary required and missing | `test_authoring`: ONE step whose `batch` holds `dev_memory_finish_decision` (`decision`, `reason`) and `summary_set` (authored fields), each with placeholder hints, run in one turn; `optional`: `dev_memory_capture` for `decision=captured`. With only one row missing, that command alone (`dev_memory_finish_decision` / `summary_set`) | agent | DONE oracle |
 | TEST, review escalation / assurance floor fails, every required lane has a current reviewer pass, and no fresh probe shows ≥2 review-ready hosts | `quorum_submit {storyId, singleHost: true}`: one step that probes the review hosts (once, reusing a fresh probe), records the `single-host-environment` fallback only when a rule needs it and the probe proves it, and records only the missing single-host rounds (see below) | framework | `singleHostAssuranceReady` over the escalation / floor evaluators |
 | TEST, review escalation / assurance floor still fails | the guidance's next `autopilot_review_submit` (hostId/sessionId filled); for the high-risk path without rounds left: `review_host_availability_probe` (framework), then `review_escalation_fallback_set` single-host-environment bound to the probe (agent), or `human` when the probe finds ≥2 review-ready hosts (3x2 quorum) | agent / framework / human | review assurance guidance |
 | TEST, evidence-freshness / done-required-validation / branch-synced-main fails | `done_prepare {mergeMain, refreshStale, validate}` | framework | DONE oracle + done_closure recovery set |

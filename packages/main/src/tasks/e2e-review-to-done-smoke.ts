@@ -423,19 +423,22 @@ let input = ''; process.stdin.on('data', d => { input += d; }); process.stdin.on
   const emit = e => process.stdout.write(JSON.stringify(e) + '\\n');
   emit({ type: 'thread.started', thread_id: 'fake-codex-' + process.pid });
   emit({ type: 'turn.started' });
-  // Run mode (next --run launches managed runs itself): a script for this exact
-  // run id (byrun/<runId>.json), else a static key, else the harness resolver
-  // writes byrun/<runId>.json from the run's spec and the Story state.
+  // Run mode (next --run launches managed runs itself, resolver.json present):
+  // the script for this exact run id (byrun/<runId>.json), written by the
+  // harness resolver from the run's spec and the Story state; a static key only
+  // when that fails (a critic prompt names the lane ReviewRun ids, so a static
+  // lane key would match it). Otherwise the static key whose name occurs in the prompt.
   const runId = process.env.LATTICE_MANAGED_HOST_RUN_ID || '';
   const byRun = runId ? path.join(dir, 'byrun', runId + '.json') : '';
-  const key = fs.readdirSync(dir).filter(f => f.endsWith('.json') && f !== 'resolver.json').find(f => input.includes(f.slice(0, -5)));
-  let file = byRun && fs.existsSync(byRun) ? byRun : key ? path.join(dir, key) : '';
+  let file = byRun && fs.existsSync(byRun) ? byRun : '';
   if (!file && byRun && fs.existsSync(path.join(dir, 'resolver.json'))) {
     const resolver = JSON.parse(fs.readFileSync(path.join(dir, 'resolver.json'), 'utf8'));
     const r = spawnSync(resolver.argv[0], [...resolver.argv.slice(1), runId], { encoding: 'utf8', env: process.env });
     if (r.status === 0 && fs.existsSync(byRun)) file = byRun;
     else fs.writeFileSync(path.join(dir, 'resolver-failed-' + process.pid + '.txt'), (r.stdout || '') + (r.stderr || ''));
   }
+  const key = file ? undefined : fs.readdirSync(dir).filter(f => f.endsWith('.json') && f !== 'resolver.json').find(f => input.includes(f.slice(0, -5)));
+  if (key) file = path.join(dir, key);
   if (!file) { fs.writeFileSync(path.join(dir, 'unmatched-' + process.pid + '.txt'), input); process.exit(3); }
   const script = JSON.parse(fs.readFileSync(file, 'utf8'));
   const c = process.argv.indexOf('-C'); const cwd = c > 0 ? process.argv[c + 1] : process.cwd();
