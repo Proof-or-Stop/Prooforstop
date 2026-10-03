@@ -24,6 +24,7 @@ import { resolveManagedDispatchInvocation } from '../core/managed-host-run.js';
 import {
   SCOPE_CHECK_SALT,
   scopeCheckContentHash,
+  scopeReviewChecklistDigest,
   verifyScopeCheckContentSignature,
   type ScopeCheckSignatureMaterial,
 } from '../core/scope-check-integrity.js';
@@ -231,6 +232,10 @@ export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (.
         readManifest,
         ...(managedDeliveryRunId ? { deliveryRunId: managedDeliveryRunId } : {}),
       });
+      // Guidance-only binding (see scopeReviewChecklistDigest); an unreadable
+      // checklist simply omits it and story_review falls back to the generic hint.
+      let checklistDigest: string | undefined;
+      try { checklistDigest = scopeReviewChecklistDigest(store.readChecklist(args.storyId)); } catch { checklistDigest = undefined; }
       const data: ScopeCheckData = {
         storyId: args.storyId,
         ...(managedDeliveryRunId ? { deliveryRunId: managedDeliveryRunId } : {}),
@@ -240,6 +245,7 @@ export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (.
         readManifest,
         summary,
         reviewRound,
+        ...(checklistDigest ? { checklistDigest } : {}),
         _hash,
       };
       // B-ed3e CHK-003: openQuestions passed through as-is (not in signature domain), field omitted when absent.

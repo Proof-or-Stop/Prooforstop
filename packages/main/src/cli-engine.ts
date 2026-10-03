@@ -68,6 +68,7 @@ import {
   resolveRootForCommand,
 } from './cli/runtime-root.js';
 import { parseFlags } from './cli/flag-parser.js';
+import { parseCommandArgv } from './cli/command-args.js';
 import {
   printHelp,
   printToolHelp,
@@ -591,17 +592,8 @@ function validationSchemaForCommand(cmd: string, tool: ToolDef): z.ZodObject<Rec
 }
 
 function parseCommandArgs(rawArgs: string[], tool: ToolDef): Record<string, unknown> {
-  if (rawArgs.length === 0) {
-    return {};
-  }
-  if (rawArgs.length === 1 && rawArgs[0].startsWith('{')) {
-    try {
-      return JSON.parse(rawArgs[0]) as Record<string, unknown>;
-    } catch (e) {
-      throw new Error(`JSON parse failed: ${(e as Error).message}\nInput: ${rawArgs[0]}`);
-    }
-  }
-  return parseFlags(rawArgs, tool.schema);
+  // JSON payload, flags, or a JSON payload followed by flags (merged strictly).
+  return parseCommandArgv(rawArgs, tool.schema);
 }
 
 function requestsJsonErrorOutput(parsed: Record<string, unknown>): boolean {

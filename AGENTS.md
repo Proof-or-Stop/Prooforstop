@@ -477,7 +477,22 @@ Run `story_review` after understanding, decision, checklist, ProofStory, signed
 scope-check resolution, scope-contract preparation, and memory-preflight
 requirements are ready. PLAN passes when
 `blockerCount` is zero. Advisory issues are intentionally possible, so total
-issue count is not a zero-only acceptance criterion. A quick-channel Story may
+issue count is not a zero-only acceptance criterion.
+
+Every exclusion a PLAN gate asks for is recorded in PLAN, never by reopening
+INIT (the INIT scope boundary stays INIT-only and is not an input of these
+checks). A `touchpoint_uncovered` path is satisfied by an item's
+`files.modify/create/test`, or, for reference-only material, by an item
+`excludes` entry that names the exact path and gives a reason (a bare path
+does not count): `proof-or-stop checklist_update --storyId=B-xxxx
+--itemId=CHK-001 --excludes='[...current, "docs/x.md: reference only, not
+changed"]'`. A `scope_gap` is the signed scope-plan reviewer verdict and
+story_review never re-judges it: cover the point in a checklist item, or append
+an `excludes` entry naming it with the reason (reference-only material or an
+acknowledged "do not ..." constraint), then rerun the scope-plan reviewer with
+the managed `host_run` command the hint prints. When the checklist changed after
+the verdict (`scope-check.json` `checklistDigest`, guidance only), the hint names
+only the rerun. A quick-channel Story may
 make adversarial review optional only when the CLI says it is eligible; normal
 scope, intent, ownership, memory, and policy gates still apply.
 
@@ -521,7 +536,7 @@ conclusions or mutations.
 
 ### REVIEW → DONE is framework-driven: `proof-or-stop next --storyId=<id>`
 
-After DEV (every checklist item done and committed), run `proof-or-stop next --storyId=<id>` from the Story worktree and execute the one command it prints, then ask again. It is read-only, decides each step from the real gate predicates (evidence-chain check, REVIEW verdict, reviewer batch plan, inventory status, PRE_CERT admit predicates, certification status, DONE oracle), and labels it `framework` (mechanical; `--run` executes consecutive framework steps through the normal CLI), `agent` (code, a managed reviewer launch, authored text or a host verdict; `<...>` placeholders name the fields to author) or `human`. It covers REVIEW entry, every review round (prepare → launch all prepared lanes → wait → import), the inventory epoch and critic, remediation back to DEV (repair → evidence refresh → `finding_resolve`), PRE_CERT (fast check → `certification_window_begin` → routine `validate`), TEST (live smoke, delivery reviewer, finish decision, summary, review assurance floor) and DONE. Do not reorder these steps or probe `story_advance` ahead of it. Decision table: `docs/CLI.md` ("`next --storyId`").
+After DEV (every checklist item done and committed), run `proof-or-stop next --storyId=<id>` from the Story worktree and execute the one command it prints, then ask again. It is read-only, decides each step from the real gate predicates (evidence-chain check, REVIEW verdict, reviewer batch plan, inventory status, PRE_CERT admit predicates, certification status, DONE oracle), and labels it `framework` (mechanical; `--run` executes consecutive framework steps through the normal CLI), `agent` (code, a managed reviewer launch, authored text or a host verdict; `<...>` placeholders name the fields to author) or `human`. It covers REVIEW entry, every review round (prepare → launch all prepared lanes → wait → import), the inventory epoch and critic, remediation back to DEV (repair → evidence refresh → `finding_resolve`), PRE_CERT (fast check → `certification_window_begin` → routine `validate`), TEST (live smoke, delivery reviewer, finish decision, summary, review assurance floor; on a single host that is one framework step, `quorum_submit` with `singleHost:true`) and DONE. In PLAN it names the DEV entry too: the dev-memory acknowledgement, then `story_advance --phase=DEV` or the DEV guard's own Next. Its commands accept trailing flags such as `--json`. Do not reorder these steps or probe `story_advance` ahead of it. Decision table: `docs/CLI.md` ("`next --storyId`").
 
 ### REVIEW and independent agents
 

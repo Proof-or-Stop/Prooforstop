@@ -539,7 +539,18 @@ function liveSmoke(o: Owner): void {
   assert.match(run.stdout, /\[PASS\] done\.live-smoke-transcript/, `live smoke did not pass:\n${run.out.slice(0, 1500)}`);
 }
 
-function deliveryReview(o: Owner, docsPromises: Record<string, unknown>[]): { state: string; reason: string; commandLog: string } {
+function deliveryReview(o: Owner, docsPromises: Record<string, unknown>[], opts: { probeFirst?: boolean } = {}): { state: string; reason: string; commandLog: string } {
+  // Run 14: the delivery reviewer first sent waiverReason:null (refused), then
+  // "probed" with a junk minimal payload that consumed its one-shot invocation
+  // and moved HEAD by a metadata commit, so the real seal was refused. With
+  // probeFirst the scripted reviewer repeats that sequence; the real write
+  // must re-seal (same live run) and become the delivery-check.
+  const probe = {
+    storyId: o.storyId,
+    docsPromises: [{ docPath: 'a#b', promise: 'p', verifiedBy: 'diff', evidence: 'e', waiverReason: null }],
+    realMachineTests: [{ featureId: 'CHK-001', transcript: 't', waiverReason: null }],
+    closingSelfCheck: { hasRealMachineTest: true, hasEdgeCaseCoverage: true, hasUnresolvedTodos: false, summary: 'minimal smoke test of payload shape' },
+  };
   const payload = {
     storyId: o.storyId, docsPromises,
     realMachineTests: [
@@ -549,12 +560,21 @@ function deliveryReview(o: Owner, docsPromises: Record<string, unknown>[]): { st
     closingSelfCheck: { hasRealMachineTest: true, hasEdgeCaseCoverage: true, hasUnresolvedTodos: false, summary: 'Both string helpers are implemented and verified by focused go tests.' },
     agentId: DELIVERY,
   };
-  o.script(DELIVERY, { commands: [[process.execPath, CLI, 'delivery_check_set', JSON.stringify(payload)]], final: 'Delivery review complete; delivery_check_set recorded.' });
+  o.script(DELIVERY, { commands: [
+    ...(opts.probeFirst ? [[process.execPath, CLI, 'delivery_check_set', JSON.stringify(probe)]] : []),
+    [process.execPath, CLI, 'delivery_check_set', JSON.stringify(payload)],
+  ], final: 'Delivery review complete; delivery_check_set recorded.' });
   const launched = o.mustCli('host_run', { host: 'codex', model: MODEL.model, reasoningEffort: MODEL.reasoningEffort, storyId: o.storyId,
     agentType: DELIVERY, managedDispatch: true, detach: true, json: true }, { label: 'host_run --managedDispatch delivery' });
   const runId = String((parseJson(launched.stdout)?.run as Record<string, unknown>).runId);
   const terminal = waitTerminal(o, 'delivery', runId);
   o.unscript(DELIVERY);
+  if (opts.probeFirst) {
+    const statuses = o.providerCommandLog().trim().split('\n').filter(Boolean).map(line => (JSON.parse(line) as { status: number | null }).status).slice(-2);
+    assert.deepEqual(statuses, [0, 0], `delivery probe-then-seal: both delivery_check_set calls of the same run must succeed (re-seal):\n${o.providerCommandLog().slice(-3000)}`);
+    const sealed = new StoryStore(o.worktree).readDeliveryCheck(o.storyId);
+    assert.equal(sealed?.docsPromises.length, docsPromises.length, 'the real (second) delivery_check_set re-sealed the delivery-check');
+  }
   return { state: terminal.state, reason: terminal.reason, commandLog: o.providerCommandLog() };
 }
 
@@ -581,7 +601,7 @@ interface Outcome { name: string; status: 'PASS' | 'FAIL' | 'OBSERVED'; lines: s
 function scenarioA(machineEnv: NodeJS.ProcessEnv, steps: Step[], bare = false): { a: Outcome; c: Outcome } {
   const aName = bare ? 'E bare task .gitignore (no runtime block): REVIEW -> TEST -> DONE' : 'A happy path REVIEW -> TEST -> DONE';
   const o = new Owner(bare ? 'E' : 'A', bare ? 'B-e2e4' : 'B-e2e0', machineEnv, steps, bare);
-  const c: Outcome = { name: 'C single host: review assurance floor / escalation before DONE', status: 'OBSERVED', lines: [] };
+  const c: Outcome = { name: 'C single host: one framework step (next -> quorum_submit singleHost) satisfies the review assurance floor before DONE', status: 'OBSERVED', lines: [] };
   try {
     devToReview(o);
     reviewRound(o);
@@ -591,8 +611,9 @@ function scenarioA(machineEnv: NodeJS.ProcessEnv, steps: Step[], bare = false): 
     const delivery = deliveryReview(o, [
       { docPath: 'docs/types/string.md', promise: 'Upper returns the upper-case form of a string.', status: 'verified', verifiedBy: 'go test -v ./strs -run TestUpper', evidence: '--- PASS: TestUpper' },
       { docPath: 'docs/types/string.md', promise: 'Reverse returns the string reversed by rune.', status: 'verified', verifiedBy: 'go test -v ./strs -run TestReverse', evidence: '--- PASS: TestReverse' },
-    ]);
+    ], { probeFirst: !bare });
     assert.equal(delivery.state, 'completed', `delivery reviewer terminal ${delivery.state} (${delivery.reason})\n${delivery.commandLog}`);
+    if (!bare) c.lines.push('delivery reviewer probe-then-seal (run 14): junk probe write, then the real write re-sealed by the same live run -> completed');
     authoredCloseout(o);
 
     // --- Scenario C: what a single-host owner must still produce before DONE.
@@ -609,16 +630,31 @@ function scenarioA(machineEnv: NodeJS.ProcessEnv, steps: Step[], bare = false): 
     assert.ok(hinted.includes(`--materialDigest=${currentMaterialHash(o.worktree, 'HEAD', o.worktree)}`), 'C: hint carries the current materialDigest');
     assert.ok(hinted.includes(`--storyFilesHash=${currentStoryFilesHash(o.worktree, 'HEAD', o.worktree)}`), 'C: hint carries the current storyFilesHash');
     o.mustCli('review_escalation_status', { storyId: o.storyId });
-    // The owner pastes the hinted writer as printed; the installed CLI is on PATH.
-    const submit = o.shell('autopilot_review_submit (literal floor hint)', hinted);
-    assert.equal(submit.status, 0, `C: the literal floor hint failed in the task worktree:\n${submit.out.slice(-2000)}`);
-    c.lines.push(`owner pasted the floor hint (proof-or-stop autopilot_review_submit --provider=local --deriveBindings --decision=pass --materialDigest=<current> ...) -> exit ${submit.status} (accepted from the owner session: reviewerWrite, core/command-policy.ts:597)`);
+    // Run 14: no discovery dance. The guidance leads with the one-step single-host
+    // writer and next names it as a framework step, filled in.
+    assert.match(floorReason, /proof-or-stop quorum_submit '\{"storyId":"[^"]+","singleHost":true\}'/, 'C: the floor guidance names the one-step single-host writer');
+    const asked = o.cli('next', { storyId: o.storyId, json: true }, { label: 'next (single host)' });
+    const named = parseJson(asked.stdout) as { kind?: string; reason?: string; cli?: { command: string; payload: Record<string, unknown> } } | null;
+    assert.equal(named?.kind, 'framework', `C: next names the single-host step as a framework step:\n${asked.out.slice(-1500)}`);
+    assert.equal(named?.cli?.command, 'quorum_submit', `C: next names quorum_submit singleHost: ${String(named?.reason)}`);
+    assert.equal(named?.cli?.payload.singleHost, true, 'C: next fills singleHost:true');
+    const submit = o.cli('quorum_submit', { ...named!.cli!.payload, json: true }, { label: 'quorum_submit singleHost (next)' });
+    assert.equal(submit.status, 0, `C: quorum_submit singleHost failed:\n${submit.out.slice(-2000)}`);
+    const single = parseJson(submit.stdout) as { roundsRecorded?: number; satisfied?: boolean; probeId?: string | null; fallbackId?: string | null } | null;
+    c.lines.push(`next -> framework quorum_submit {singleHost:true}: rounds=${String(single?.roundsRecorded)} probe=${String(single?.probeId)} fallback=${String(single?.fallbackId)} satisfied=${String(single?.satisfied)}`);
+    assert.equal(single?.satisfied, true, 'C: one step satisfies the single-host review assurance');
+    assert.equal(single?.roundsRecorded, 1, 'C: the one-local-round floor records exactly one round (the rule is not weakened or inflated)');
+    assert.equal(single?.fallbackId ?? null, null, 'C: no degraded fallback is recorded when no rule needs it');
     const floorAfter = closureRow(o, 'done_closure (after host verdict)', 'review-assurance-floor');
-    c.lines.push(`done_closure review-assurance-floor after one local host verdict: status=${String(floorAfter?.status)}`);
+    c.lines.push(`done_closure review-assurance-floor after the single-host step: status=${String(floorAfter?.status)}`);
     assert.notEqual(floorAfter?.blocking, true, 'one local host verdict satisfies the one-local-round floor');
+    const again = o.cli('quorum_submit', { storyId: o.storyId, singleHost: true, json: true }, { label: 'quorum_submit singleHost (again)' });
+    assert.equal(again.status, 0, `C: a repeated single-host step is a no-op:\n${again.out.slice(-1500)}`);
+    assert.equal((parseJson(again.stdout) as { roundsRecorded?: number } | null)?.roundsRecorded, 0, 'C: nothing missing -> nothing recorded');
+    if (!bare) c.status = 'PASS';
     const eventsDirty = git(o.worktree, ['status', '--porcelain', '--', `.proof-or-stop/story/actives/${o.storyId}/process-events.jsonl`]) !== '';
-    c.lines.push(`autopilot_review_submit leaves process-events.jsonl uncommitted: ${eventsDirty ? 'yes' : 'no'}`);
-    assert.equal(eventsDirty, false, 'C: autopilot_review_submit must commit its host_verdict event (else done_prepare refuses VALIDATION_PUBLICATION_NOT_READY)');
+    c.lines.push(`single-host step leaves process-events.jsonl uncommitted: ${eventsDirty ? 'yes' : 'no'}`);
+    assert.equal(eventsDirty, false, 'C: the single-host step must commit its host_verdict events (else done_prepare refuses VALIDATION_PUBLICATION_NOT_READY)');
 
     // done_prepare, as the floor guidance says to rerun it after the writer ran.
     const prepare = o.cli('done_prepare', { storyId: o.storyId, json: true });
@@ -1339,7 +1375,7 @@ async function main(): Promise<void> {
     console.log(`e2e-review-to-done-smoke: FAIL (${failed.map(outcome => outcome.name.split(' ')[0]).join(', ')})`);
     process.exit(1);
   }
-  console.log(`e2e-review-to-done-smoke: PASS (${outcomes.filter(outcome => outcome.status === 'PASS').map(outcome => outcome.name.split(' ')[0]).join(', ')} reached DONE; C observed)`);
+  console.log(`e2e-review-to-done-smoke: PASS (${outcomes.filter(outcome => outcome.status === 'PASS').map(outcome => outcome.name.split(' ')[0]).join(', ')} reached DONE)`);
 }
 
 // Importable by tasks/next-driver-cost-smoke.ts, which reuses the owner fixture and the next-driven flow.

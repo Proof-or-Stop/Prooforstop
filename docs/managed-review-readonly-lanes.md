@@ -154,6 +154,16 @@ from the readonly managed REVIEW lanes described above.
 The reviewer calls `delivery_check_set` through its live one-shot controller
 invocation. The handler validates role, phase, payload and current dispatch
 bindings before consumption, then binds the managed run ID into the artifact.
+The same live run may call it again before its terminal (re-seal): the
+invocation it already consumed is accepted only for the same run, nonce or
+process group and role (event `managed_dispatch_invocation_resealed`), and the
+dispatch binding tolerates HEAD drift made only of this Story's own
+`delivery_check_set` metadata commits with unchanged material and story files.
+The last write is what the terminal seals. Run 14: the reviewer's payload with
+`waiverReason: null` was refused, its junk "probe" write consumed the invocation
+and moved HEAD, and the real seal failed (4.1 min, 1.8M tokens). Null optional
+fields are now absent (`realMachineTests[].waiverReason`, and the docsPromise
+optional fields as before).
 The worker rejects missing, invalid or unconsumed output and seals its exact
 bytes only on safe completion. DONE checks that completed receipt and output
 digest as well as normal delivery freshness and promise checks. Neither a raw

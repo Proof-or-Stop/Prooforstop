@@ -1223,7 +1223,7 @@ export function formatReviewEscalationFailure(report: ReviewEscalationReport): s
   for (const advisory of report.advisories || []) {
     lines.push(`  - advisory: ${advisory}`);
   }
-  lines.push('→ Run review_escalation_status for diagnostics. Submit fresh host verdicts with autopilot_review_submit, or record an explicit degraded fallback with review_escalation_fallback_set.');
+  lines.push('→ Single host (one step, run 14): proof-or-stop quorum_submit --storyId=<storyId> --singleHost probes the review hosts once, records the single-host-environment fallback when the probe proves it, and records the missing single-host rounds from the current reviewer passes. Two independent hosts: quorum_submit --hostA --hostB. Diagnostics: review_escalation_status.');
   return lines.join('\n');
 }
 

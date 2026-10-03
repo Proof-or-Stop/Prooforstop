@@ -834,6 +834,12 @@ Boundaries:
   `storyId` / `runId`.
 - `quorum_submit` bulk-records local 3x2 quorum evidence only after current
   reviewer pass evidence exists for every required review lane.
+- `quorum_submit '{"storyId":"B-xxxx","singleHost":true}'` (TEST) is the one
+  single-host step `next` names: one host-availability probe, the
+  `single-host-environment` degraded fallback only when a rule needs it and the
+  probe proves fewer than 2 review-ready hosts, and only the missing single-host
+  rounds, transcribed from the same current reviewer passes. It refuses (no
+  write) with two review-ready hosts; the 3x2 quorum is then the path.
 
 ### Source-Aligned Redevelopment Workflow
 
@@ -887,10 +893,10 @@ proof-or-stop next
 - `proof-or-stop next` outputs only the single most reliable next-step suggestion
 - Neither command advances the phase, writes `.proof-or-stop/state`, or modifies story/fixture/git
 
-### `next --storyId`: the framework drives DEV → DONE
+### `next --storyId`: the framework drives PLAN → DONE
 
-After DEV the owner does not work out the REVIEW → PRE_CERT → TEST → DONE
-ceremony. From the Story worktree:
+From PLAN on the owner does not work out the DEV entry or the REVIEW →
+PRE_CERT → TEST → DONE ceremony. From the Story worktree:
 
 ```bash
 proof-or-stop next --storyId=B-xxxx          # one step, human-readable; last line is `Next: <command>`
@@ -926,6 +932,8 @@ Decision table (first matching row wins):
 
 | State | Step | Kind | Decided by |
 |---|---|---|---|
+| PLAN, no dev-memory preflight acknowledgement | `dev_memory_preflight_ack` (read the lessons it prints) | agent | `evaluateDevMemoryPreflightGate` (the DEV-entry gate's `[missing_dev_memory_preflight_ack]`) |
+| PLAN, otherwise | `story_advance --phase=DEV` if the DEV guard passes, else the guard's own `→`/`Next:` command | framework / agent | `getGuardFailureReason(DEV)` |
 | DEV, an item `pending` | `checklist_update --status=in_progress` | framework | checklist.json |
 | DEV, an item `in_progress` | `host_run` managedDispatch `proof-or-stop-implementer` for it (or wait on its run) | agent | checklist.json + host-run projection |
 | DEV, a verified blocking finding open and not repaired (see below) | `host_run` managedDispatch `proof-or-stop-finding-repair` with that `findingId` (or wait on a repair run in flight) | agent | `unclosedBlockingFindings` + `managedFindingRepairState` |
@@ -953,12 +961,35 @@ Decision table (first matching row wins):
 | TEST, delivery-check missing / stale | `host_run` managedDispatch `proof-or-stop-review-delivery` (or wait); unverified promises: `story_advance --phase=DEV` | agent | DONE oracle delivery-check row |
 | TEST, no dev-memory finish decision | `dev_memory_finish_decision` with `decision`, `reason` | agent | DONE oracle |
 | TEST, summary required and missing | `summary_set` with the authored fields | agent | DONE oracle |
-| TEST, review escalation / assurance floor fails | the guidance's next `autopilot_review_submit` (hostId/sessionId filled); for the high-risk path without rounds left: `review_host_availability_probe` (framework), then `review_escalation_fallback_set` single-host-environment bound to the probe (agent), or `human` when the probe finds ≥2 review-ready hosts | agent / framework / human | review assurance guidance |
+| TEST, review escalation / assurance floor fails, every required lane has a current reviewer pass, and no fresh probe shows ≥2 review-ready hosts | `quorum_submit {storyId, singleHost: true}`: one step that probes the review hosts (once, reusing a fresh probe), records the `single-host-environment` fallback only when a rule needs it and the probe proves it, and records only the missing single-host rounds (see below) | framework | `singleHostAssuranceReady` over the escalation / floor evaluators |
+| TEST, review escalation / assurance floor still fails | the guidance's next `autopilot_review_submit` (hostId/sessionId filled); for the high-risk path without rounds left: `review_host_availability_probe` (framework), then `review_escalation_fallback_set` single-host-environment bound to the probe (agent), or `human` when the probe finds ≥2 review-ready hosts (3x2 quorum) | agent / framework / human | review assurance guidance |
 | TEST, evidence-freshness / done-required-validation / branch-synced-main fails | `done_prepare {mergeMain, refreshStale, validate}` | framework | DONE oracle + done_closure recovery set |
 | TEST, every oracle row passes | `story_advance --phase=DONE` | framework | DONE oracle + `getGuardFailureReason(DONE)` |
 | DONE | none (`done: true`) | — | story.phase |
 
 "Repaired" is per finding (`managedFindingRepairState`, handlers/next-driver.ts): a managed `proof-or-stop-finding-repair` run whose immutable binding targets exactly that finding id (`managedDispatchTarget.findingId`), created after the finding was raised, completed as a safe delivery (`verifyManagedDispatchDelivery`), with a commit reachable from the Story HEAD, committed while that run ran and touching a non-metadata path. A material change since the finding's review is **not** enough: with several open findings, the repair of one changes the material of all (run 14 proposed `finding_resolve` for an unrepaired F-005 after F-004's repair). A completed bound run without such a commit gets the repair dispatch again, its `why` naming the run. This only chooses the step; `finding_resolve` still checks its own evidence.
+
+Single host (run 14: the owner discovered the environment, probed, recorded the
+fallback and pasted 3 `autopilot_review_submit` rounds by hand, ~5.2 min):
+`quorum_submit --singleHost` keeps the assurance rule exactly. The round count and
+hosts per round are the evaluators' own (review escalation: 3 rounds x 1 PASS host
+with a degraded fallback; assurance floor: 1, or 3 after failure signals, x 1).
+It writes nothing unless every required lane has a current signed reviewer pass
+(the same `assertCurrentReviewerPasses` rule as the 3x2 quorum): each round
+transcribes those reviews (`note` names the passes), never a self-attestation.
+It refuses with the 3x2 quorum command when its probe finds two review-ready hosts
+or an explicit high-risk policy disallows the degraded fallback. Probe, fallback
+and the verdict batch keep their own authenticated metadata commits; it runs in
+TEST only and is a no-op when nothing is missing.
+
+Every command `next` prints is `proof-or-stop <command> '<JSON payload>'`. The CLI
+also accepts that form followed by flags (`... '<json>' --json`): the flags merge
+into the payload, and a flag restating a payload key with a different value is
+refused. Before, the trailing `--json` made the CLI drop the JSON payload
+(`argument_validation_failed: storyId undefined`, run 14).
+`packages/main/tests/single-host-and-init-snags.test.mjs` scans every step call in
+`handlers/next-driver.ts` and requires each to be a catalog command whose payload
+keys are catalog fields and that parses with `--json` appended.
 
 Managed launches reuse the host/model/effort of this Story's last managed run of
 the same profile (reviewer or dispatch), falling back to the qualified managed
@@ -1174,6 +1205,8 @@ The Dashboard and `session_brief` display lifecycle progress and terminal outcom
 npm --prefix packages/main run build
 npm run test:legacy -- outcome-semantics
 ```
+
+Proof-or-Stop commits its own metadata (the INIT_CHECK bootstrap commit, metadata auto-commits). When git cannot resolve a commit identity for the repository (a fresh container: `Author identity unknown`, run 14), `story_create` and the INIT_CHECK bootstrap set a repository-local identity `Proof-or-Stop <proof-or-stop@localhost>` once and print one line naming it and how to change it (`git config user.name '<name>' && git config user.email '<email>'`). An identity that already resolves (local, global, system or `GIT_*` environment) is never touched (`core/git-commit-identity.ts`).
 
 A story worktree created via `proof-or-stop story_advance ... INIT_CHECK` does not need a manual copy of `.proof-or-stop-codex`. `git worktree` expands the files already tracked on the current branch, so as long as `.proof-or-stop-codex`, `.claude`, `AGENTS.md`, and `CLAUDE.md` are committed to the repository, the new `.worktrees/B-xxx/` will naturally carry these entry points. There are only two common reasons they go missing: the files were never tracked by git in the first place, or the worktree was branched off an old branch/old commit that did not yet contain these assets.
 

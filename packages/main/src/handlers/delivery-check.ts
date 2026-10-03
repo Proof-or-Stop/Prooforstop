@@ -148,7 +148,12 @@ export function createDeliveryCheckHandlers(
 
       // 2) runtime validation
       const docsPromisesInput = Array.isArray(args.docsPromises) ? args.docsPromises.map(p => ({ ...p })) : [];
-      const realMachineTests = Array.isArray(args.realMachineTests) ? args.realMachineTests : [];
+      // null optional fields are absent (never signed as null).
+      const realMachineTests = (Array.isArray(args.realMachineTests) ? args.realMachineTests : []).map((test) => {
+        if ((test as { waiverReason?: unknown }).waiverReason !== null) return test;
+        const { waiverReason: _absent, ...rest } = test as RealMachineTest & { waiverReason?: unknown };
+        return rest as RealMachineTest;
+      });
       const closingSelfCheck = args.closingSelfCheck;
 
       if (!closingSelfCheck || typeof closingSelfCheck.summary !== 'string' || closingSelfCheck.summary.trim().length < 10) {
@@ -224,10 +229,13 @@ export function createDeliveryCheckHandlers(
           || store.readStory(args.storyId).phase !== 'TEST') {
           throw new Error('managed delivery requires the independent delivery role in TEST');
         }
-        const dispatch = verifyCurrentDeliveryReviewDispatch({ store, storyId: args.storyId, projectRoot: root });
+        // The live managed delivery run may re-seal (a later call overwrites its
+        // own earlier delivery-check); its invocation and dispatch stay bound to
+        // the same run, and only safe terminal sealing makes the output evidence.
+        const dispatch = verifyCurrentDeliveryReviewDispatch({ store, storyId: args.storyId, projectRoot: root, allowOwnDeliveryCheckCommits: true });
         if (!dispatch.ok) throw new Error(`managed delivery dispatch invalid: ${dispatch.reason}`);
         managedDeliveryRunId = resolveManagedDispatchInvocation({ root, storyId: args.storyId,
-          agentType: 'proof-or-stop-review-delivery' });
+          agentType: 'proof-or-stop-review-delivery', reseal: true });
       }
       const nativeAuthorization = managedDeliveryRunId ? undefined
         : (options.authorizeNativeInvocation ?? authorizeNativeDeliveryReview)({
