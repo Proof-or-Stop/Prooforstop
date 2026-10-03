@@ -17,6 +17,7 @@ import { join, relative } from 'node:path';
 import { runtimePackageRoot as installedPackageRoot } from './runtime-layout.js';
 import { ACCEPTANCE_REVIEW_LANE, acceptanceReviewJsonSchema, type AcceptanceReviewBinding } from './acceptance-amendment-review.js';
 import { PROOF_OR_STOP_ADAPTER_DIR } from './brand-paths.js';
+import { REVIEW_SEVERITY_RUBRIC } from './finding-closure-severities.js';
 import {
   canonicalAgentRoleId,
   canonicalizeAgentRoleText,
@@ -65,6 +66,7 @@ Apply this contract while reviewing. It governs reviewer behavior; it does not r
 - Start the current lane with \`proof-or-stop review_run_start\`. Carry its current \`reviewRunId\` on every \`finding_add\` or \`review_pass_set\` submission.
 - A role-body or policy change makes an already assembled in-flight reviewer envelope stale. Stop, start a fresh current-material run with \`review_run_start\`, and redispatch the reviewer; never submit evidence from the older envelope.
 - Keep four input axes separate: observation and \`evidenceState\` preserve what was seen and whether it is suspected, verified, or disproven; severity says how harmful it is; applicability reports whether it belongs to this Story; disposition records the authorized next action after applicability. Gate impact is a fifth, derived result: the current gate uses only facts recognized by current policy, and the future official Dynamic Finding gate derives it from fresh signed applicability and disposition facts. Severity does not determine scope by itself.
+- ${REVIEW_SEVERITY_RUBRIC}
 - Every final \`applicable\` assessment binds exactly one \`dispositionPlan\`: \`repair_current\` or \`defer_with_proof\`.
 - \`repair_current\` forbids \`acceptedRoute\`; \`defer_with_proof\` requires the exact accepted \`finding_route\` tuple.
 - Final non-applicable verdicts bind no \`dispositionPlan\` and require the exact \`acceptedRoute\`; \`unknown\` binds neither.

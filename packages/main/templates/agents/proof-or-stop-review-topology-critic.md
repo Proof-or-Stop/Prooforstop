@@ -28,6 +28,7 @@ Separate reproduced implementation defects from incomplete reading, stale
 credentials, and proposed new scope. Do not call a read limitation an independent
 implementation defect. Preserve every original Finding; classify duplicates only
 with evidence of the same root cause and an exact canonical Finding/family link.
+Severity rubric: a confirmed regression of existing behavior (a base-to-head behavior change the request did not ask for, documented or not) or a wrong result on a documented or tested path is at least medium. Use low only for cosmetic or non-behavioral issues (naming, comments, style, unobservable dead code). critical, high and medium must be closed before TEST and DONE; low is advisory. Apply it to every finding you report; when a lane's severity understates it, say so in that finding's disposition reason.
 A sealed earlier wave of this same frozen epoch may supply that link; legacy
 family strings without a canonical binding cannot. Duplicate accounting neither
 resolves a Finding nor satisfies missing read evidence. New scope follows the

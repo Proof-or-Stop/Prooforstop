@@ -344,6 +344,18 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
     if (chain.blocking && chain.nextAction) {
       return evidenceChainStep(base, chain, 'The DEV→REVIEW evidence-chain gate would refuse: a must/should receipt is stale or missing.');
     }
+    // Mirrors the live driver (run 16): resolve an advisory finding whose bound repair completed.
+    if (hostRuns.some(run => run.agentType === FINDING_REPAIR_AGENT)) {
+      const blocking = new Set(openBlockingFindings(storyId).map(row => row.finding.id));
+      for (const finding of ctx.store.readFindings(storyId).findings ?? []) {
+        if (finding.status !== 'open' || blocking.has(finding.id) || finding.evidenceState === 'disproven') continue;
+        const repair = managedFindingRepairState({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, finding, runs: hostRuns });
+        if (!repair.repaired) continue;
+        return step(base, 'agent', 'finding_resolve', { command: 'finding_resolve', payload: { storyId, findingId: finding.id, resolution: FINDING_RESOLUTION_PLACEHOLDER } },
+          `Advisory ${finding.severity} finding ${finding.id} was repaired by managed finding-repair run ${repair.runId} (commit ${repair.commit.slice(0, 12)}) but is still open; resolve it before REVIEW so DONE does not leave it open. Name the repair commit and its passing focused evidence.`,
+          'managedFindingRepairState (advisory finding with a completed bound repair)', { placeholders: ['resolution'] });
+      }
+    }
     const advisory = evidenceChainAdvisory(chain);
     if (!ctx.store.readScopeContract(storyId) && checklistHasFileDeclarations(checklist)) {
       return step(base, 'framework', 'scope_contract_init', { command: 'scope_contract_init_from_plan', payload: { storyId } },

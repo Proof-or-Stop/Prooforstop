@@ -15,3 +15,12 @@ export const CLOSURE_REQUIRED_SEVERITIES: readonly ['critical', 'high', 'medium'
 export function closureBlockingSeverities(policy: { review: { blockingSeverities: readonly string[] } }): string[] {
   return [...new Set([...CLOSURE_REQUIRED_SEVERITIES, ...policy.review.blockingSeverities])].filter(severity => severity !== 'low');
 }
+
+/**
+ * The one shared reviewer severity rubric (run 16: a reproduced base->head
+ * regression of hash range assignment was rated low, low is advisory, and the
+ * Story reached DONE with it open). Carried verbatim by the REVIEW finding
+ * triage contract (every active REVIEW lane), the topology/inventory critic
+ * template, and the managed final-proposal schema's severity description.
+ */
+export const REVIEW_SEVERITY_RUBRIC = 'Severity rubric: a confirmed regression of existing behavior (a base-to-head behavior change the request did not ask for, documented or not) or a wrong result on a documented or tested path is at least medium. Use low only for cosmetic or non-behavioral issues (naming, comments, style, unobservable dead code). critical, high and medium must be closed before TEST and DONE; low is advisory.';

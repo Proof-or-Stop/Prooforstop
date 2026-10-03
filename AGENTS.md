@@ -639,6 +639,11 @@ proof-or-stop reviewer_list --storyId=B-xxxx --json
 The REVIEW blocking predicate requires an open finding, critical/high/medium
 severity (the closure set in `core/finding-closure-severities.ts`, the same in
 every profile and round; low is advisory), and a blocking evidence state.
+Reviewers rate severity with the one shared rubric (`REVIEW_SEVERITY_RUBRIC`,
+core/finding-closure-severities.ts): a confirmed regression of existing behavior (a base-to-head behavior change the request did not ask for, documented or not) or a wrong result on a documented or tested path is at least medium; low is only for cosmetic or non-behavioral issues. A low finding the owner
+repaired through a managed finding-repair bound to it is resolved before REVIEW
+(`next` proposes `finding_resolve`); after DONE, `finding_resolve` and
+`finding_dismiss` refuse with one `Next:`.
 Findings from earlier rounds count; there is no round decay. Suspected
 and disproven findings do not block. Disproven findings need structured
 counter-evidence.
