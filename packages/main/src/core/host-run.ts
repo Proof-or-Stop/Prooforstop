@@ -67,6 +67,7 @@ import {
   canonicalReviewHostLauncherSpec,
   classifyHostExecutionDiagnosticText,
   classifyHostExecutionFailure,
+  providerDiagnosticLineText,
   materializeLauncherArgv,
   type CanonicalReviewHost,
   type HostExecutionFailureKind,
@@ -2151,14 +2152,45 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
       if (startupTimer) cancel(startupTimer);
       startupTimer = null;
     };
+    const observeDiagnostic = (text: string): void => {
+      const observed = text ? classifyHostExecutionDiagnosticText(text) : null;
+      if (observed) failureKind = preferredHostFailure(failureKind, observed);
+    };
+    // Stdout of a JSON-mode provider carries items, tool output and usage
+    // counters (old-PoS run 15: `"cached_input_tokens":7401088` read as a 401).
+    // Classify it per complete line through providerDiagnosticLineText: plain
+    // text lines and provider error events only. A JSON line still being
+    // received waits for its newline (or close); an over-long one is skipped.
+    let stdoutPartial = '';
+    let stdoutSkippingLine = false;
+    const observeStdoutLine = (line: string): void => observeDiagnostic(providerDiagnosticLineText(line));
     const observeFailureText = (stream: HostRunChunk['stream'], text: string): void => {
       if (!text) return;
-      const combined = `${classificationTail[stream]}${text}`;
-      const observed = classifyHostExecutionDiagnosticText(combined);
-      classificationTail[stream] = combined.slice(-HOST_RUN_FAILURE_CLASSIFICATION_WINDOW);
-      if (observed) {
-        failureKind = preferredHostFailure(failureKind, observed);
+      if (stream === 'stderr') {
+        const combined = `${classificationTail.stderr}${text}`;
+        classificationTail.stderr = combined.slice(-HOST_RUN_FAILURE_CLASSIFICATION_WINDOW);
+        observeDiagnostic(combined);
+        return;
       }
+      const lines = `${stdoutPartial}${text}`.split('\n');
+      stdoutPartial = lines.pop() ?? '';
+      for (const line of lines) {
+        if (stdoutSkippingLine) { stdoutSkippingLine = false; continue; }
+        observeStdoutLine(line);
+      }
+      if (stdoutSkippingLine) { stdoutPartial = ''; return; }
+      if (stdoutPartial.trimStart().startsWith('{')) {
+        if (stdoutPartial.length > HOST_RUN_RETAINED_LINE_CAP) { stdoutPartial = ''; stdoutSkippingLine = true; }
+        return;
+      }
+      // A plain-text fragment: classify the bounded tail now so a diagnostic
+      // split across chunks of one stream is still recognized.
+      stdoutPartial = stdoutPartial.slice(-HOST_RUN_FAILURE_CLASSIFICATION_WINDOW);
+      observeDiagnostic(stdoutPartial);
+    };
+    const flushStdoutDiagnostics = (): void => {
+      if (!stdoutSkippingLine && stdoutPartial) observeStdoutLine(stdoutPartial);
+      stdoutPartial = '';
     };
     const failPromptDelivery = (
       channel: 'stdin' | 'review invocation descriptor',
@@ -2330,6 +2362,7 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
       try { plan.onClose?.(closeObservedAt); }
       catch (error) { passthroughError ??= `provider close observer: ${error instanceof Error ? error.message : String(error)}`; }
       runtime.onChildCloseObserved?.();
+      flushStdoutDiagnostics();
       if (!timedOut && terminalReason !== 'aborted' && terminalReason !== 'child_error' && terminalReason !== 'spawn_error') {
         failureKind = preferredHostFailure(failureKind, classifyHostExecutionFailure({
           error: undefined,
@@ -2339,6 +2372,9 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
           status: code,
         }));
         terminalReason = typeof code === 'number' && code === 0 ? 'completed' : 'exit_nonzero';
+        // The provider's own exit 0 decides a completed run: any diagnostic
+        // text seen on the way was not its terminal failure (old-PoS run 15).
+        if (terminalReason === 'completed' && !asyncSpawnError) failureKind = 'none';
       }
       const exitCode = timedOut
         ? 124

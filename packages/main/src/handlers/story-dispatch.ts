@@ -28,6 +28,7 @@ import { createClusterHandlers } from './cluster.js';
 import type { StoryStore } from '../core/store.js';
 import { readStoryRequest, renderUnmappedLiteralsLine, unmappedStoryRequestLiterals } from '../core/story-request.js';
 import { reportHealthIssue } from '../core/health.js';
+import { findSealedManagedImplementerCompletion, managedImplementerAlreadyDoneAction } from '../core/managed-host-run.js';
 import { loadConfig } from '../core/config.js';
 import { currentPlanOwnerBinding } from '../core/plan-touchpoint-coverage.js';
 import {
@@ -1388,6 +1389,13 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       }
 
       if (args.itemId) {
+        if (canonicalType === 'proof-or-stop-implementer') {
+          // Old-PoS run 15: a second implementer for an item an earlier managed
+          // run already sealed can only re-mark it done (done->done binds
+          // nothing) and then fails. Refuse before any prompt or provider.
+          const prior = findSealedManagedImplementerCompletion({ root, storyId: args.storyId, itemId: args.itemId });
+          if (prior) throw new Error(`dispatch refused: ${managedImplementerAlreadyDoneAction(args.storyId, args.itemId, prior)}`);
+        }
         const result = buildItemPrompt({
           storyId: args.storyId,
           itemId: args.itemId,

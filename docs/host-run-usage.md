@@ -59,14 +59,40 @@ Its first line (stderr) is the wait instruction: it blocks up to 285 s per call
 yield/shell timeout of 300000 ms (Codex: `write_stdin yield_time_ms=300000`) and
 re-run it only if it returns non-terminal. Text output without `waitMs` or
 `afterGeneration` defaults to this until-terminal wait; `waitMs=0` is a snapshot.
-The text result is a compact summary of at most ~300 tokens: the run line
-(state, stage, generation, terminal reason, exit), the binding (Story, phase,
-agentType, host, model, effort, profile, lane, reviewRunId, itemId/findingId),
-progress fields while running, the verdict and finding count by severity from
-the sealed evidence proposal or the provider final result, the implementer
-commit, receiptId, replacementSafe, any supervision diagnostic, the next action
-and the full-record directory. A non-terminal summary repeats the wait
-instruction first. The full record (projection, receipt and retained live
+The text result is a compact summary of at most ~300 tokens. A terminal summary
+starts with a plain verdict line, `OK: ...` or `FAILED: ...`. After that come the
+run line (state, stage, generation, terminal reason, exit, and failureKind only
+when the run did not complete), the binding (Story, phase, agentType, host,
+model, effort, profile, lane, reviewRunId, itemId/findingId), progress fields
+while running, and the output. For a reviewer the output is the verdict and
+finding count by severity from the sealed evidence proposal or the provider
+final result. For a code writer (implementer, finding repair) it is the sealed
+item or finding and the material commit the run left in its window (`output:
+sealed item CHK-005 commit 39c8303`); these roles never send a provider final
+result. The summary ends with receiptId, replacementSafe, any supervision
+diagnostic, the next action and the full-record directory. A completed run never
+shows a failureKind (old-PoS run 15: a stale `failureKind=auth` next to a
+completed implementer made the owner relaunch it). A run that ended with
+`managed_dispatch_target_already_done` reads `OK: nothing to do` and names the
+earlier run, and its next action is `proof-or-stop next`. A non-terminal summary
+repeats the wait instruction first.
+
+**Provider failure classification.** `failureKind` (`auth`, `interactive`, ...)
+is a diagnosis for a run that failed. It is never the verdict. Stdout of a
+JSON-mode provider (Codex `exec --json`, Claude `stream-json`) carries items,
+tool output and usage counters, so the runner classifies stdout one complete
+line at a time. Plain-text lines and provider error events are classified: a
+Codex `error` or `turn.failed` event, a Claude `is_error` result, or a top-level
+`error` on a non-item event. Every other JSON line (`item.*`, `turn.completed`
+usage) is ignored. Stderr is classified as before. Patterns are word-bounded:
+`401` counts only after `http`/`status`/`code`, or as `401 Unauthorized`.
+`authentication` counts only as `authentication failed/required/error`, and
+`interactive` only as `interactive terminal/session/input required`. A bare
+`401` used to match the counter `"cached_input_tokens":7401088`, and a bare
+`interactive` matched "non-interactive". A provider exit 0 that the worker
+accepts as completed always has `failureKind=none`. The completed terminal
+projection normalizes legacy sealed results the same way. This also keeps a
+false `auth` from revoking a managed execution-batch admission. The full record (projection, receipt and retained live
 output, often 25k-75k tokens for a real reviewer) is returned only with
 `--json=true` or `--full=true`; write it to a file rather than printing it into
 an agent's context.
@@ -301,6 +327,16 @@ DEV implementer 额外要求精确 `itemId`。该目标写入不可变 run bindi
 managed run 内对该 item 的 `checklist_update status=done` 才能消费一次性凭证并写入
 带 `managedDispatchRunId` 的成功 `subagent_result`。provider 退出 0、仅把 item 标成
 `in_progress`、完成其他 item，或缺少绑定结果时都不会生成 completed terminal。
+对已由 managed run 封存完成的 item 不会再派发 implementer（old-PoS run 15）。若 item 已为
+done，且存在绑定到另一个 run 的成功 `subagent_result`，并且该 run 的 terminal 为 `completed`
+且封存了输出摘要，那么 `dispatch` 和 `host_run --managedDispatch` 在生成 prompt、启动 provider
+之前就拒绝，错误信息只给出一个下一步：
+`managed_dispatch_target_already_done: CHK-005 is already done, completed by managed run <runId> (commit <sha>); do not relaunch it. Next: proof-or-stop next --storyId=<storyId>`。
+done→done 的 `checklist_update` 不是完成迁移，不会绑定新的结果，所以重复派发只会失败。
+由 owner 直接写入（没有 `managedDispatchRunId`）的 done 不受这条拒绝影响。若重复的 run 仍然启动了
+（例如与第一个 run 竞争），worker 会以 `managed_dispatch_target_already_done` 结束，而不是
+`managed_dispatch_output_missing`。这个结果不是失败：状态摘要显示 `OK: nothing to do`，
+并给出先前的 run 与 commit，下一步是 `proof-or-stop next`，不会进入“relaunch 一次、再失败就停止”的路径。
 普通 implementer 模式保留调用方明确选择的模型与 reasoning effort；它不冒充 reviewer，
 也不套用独立 reviewer 的模型资格限制。
 
@@ -316,7 +352,8 @@ provider 进程退出 0 本身不构成完成：worker 只有在配置的 Story 
 `scope-check.json` 记录，或与 Story、item、run 精确绑定的成功 implementer
 `subagent_result` 后才写
 `completed` terminal。记录不存在或不匹配时以
-`managed_dispatch_output_missing` 失败；配置路径中的记录无法读取或解析时以
+`managed_dispatch_output_missing` 失败（例外：implementer 的 item 已由另一个已封存的
+managed run 完成时，以非致命的 `managed_dispatch_target_already_done` 结束，见下文）；配置路径中的记录无法读取或解析时以
 `managed_dispatch_output_unreadable` 保留受限错误诊断并继续 fail closed；签名
 或当前 Story 内容绑定失效时以 `managed_dispatch_output_invalid` 失败。
 PLAN scope reviewer 的 completed terminal/receipt 还封存当时精确的

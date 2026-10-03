@@ -331,15 +331,65 @@ function boundedOutputForClassification(value: unknown): string {
   return value.trim().replace(/\s+/g, ' ').slice(0, 240);
 }
 
+// Word-bounded provider diagnostics (old-PoS run 15). A bare `401` matched the
+// digits of `"cached_input_tokens":7401088`, a bare `authentication` / `interactive`
+// matched ordinary prose and tool output ("non-interactive", "add authentication").
+// Only phrases a provider prints about its own session count.
+const AUTH_DIAGNOSTIC = new RegExp([
+  String.raw`\b(?:refresh_)?token_invalidated\b`, String.raw`\binvalidated token\b`,
+  String.raw`\bunauthori[sz]ed\b`, String.raw`\bauthentication (?:failed|failure|required|error)\b`,
+  String.raw`\bauth required\b`, String.raw`\bnot logged in\b`, String.raw`\blogin required\b`,
+  String.raw`\bplease (?:log ?in|run /login)\b`, String.raw`\binvalid api key\b`,
+  String.raw`\b(?:http|status|status code|code)[ :=]{0,3}401\b`,
+].join('|'));
+const INTERACTIVE_DIAGNOSTIC = new RegExp([
+  String.raw`\binteractive (?:terminal|tty|session|input|mode) (?:is )?required\b`,
+  String.raw`\brequires? (?:a |an )?(?:tty|interactive terminal)\b`, String.raw`\bterminal required\b`,
+  String.raw`\bcannot prompt\b`, String.raw`\bconfirmation required\b`, String.raw`\bpress enter\b`,
+  String.raw`\bchoose an option\b`,
+].join('|'));
+
 export function classifyHostExecutionDiagnosticText(text: string): 'auth' | 'interactive' | null {
   const normalized = text.toLowerCase();
-  if (/token_invalidated|refresh_token_invalidated|invalidated token|unauthori[sz]ed|authentication|auth required|not logged in|login required|please login|invalid api key|401/.test(normalized)) {
-    return 'auth';
-  }
-  if (/interactive|requires? (?:a )?tty|terminal required|cannot prompt|confirmation required|press enter|choose an option/.test(normalized)) {
-    return 'interactive';
-  }
+  if (AUTH_DIAGNOSTIC.test(normalized)) return 'auth';
+  if (INTERACTIVE_DIAGNOSTIC.test(normalized)) return 'interactive';
   return null;
+}
+
+/**
+ * The diagnostic text of one provider stdout line. JSON-mode providers (Codex
+ * `exec --json`, Claude `stream-json`) put every item, tool output and usage
+ * counter on stdout as JSON events; only an error event speaks for the provider
+ * session itself: Codex `error` / `turn.failed`, a Claude `is_error` result, or
+ * a top-level `error` on a non-item event. Every other JSON line yields ''.
+ * A line that does not start with `{` is plain provider text and is returned as is.
+ */
+export function providerDiagnosticLineText(line: string): string {
+  const trimmed = line.trim();
+  if (!trimmed.startsWith('{')) return line;
+  let value: unknown;
+  try { value = JSON.parse(trimmed); } catch { return ''; }
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return '';
+  const event = value as Record<string, unknown>;
+  const type = typeof event.type === 'string' ? event.type : '';
+  const isError = type === 'error' || type === 'turn.failed' || event.is_error === true
+    || (event.error !== undefined && event.error !== null && !type.startsWith('item.'));
+  if (!isError) return '';
+  const parts: string[] = [];
+  const add = (field: unknown): void => {
+    if (typeof field === 'string') parts.push(field);
+    else if (field && typeof field === 'object') {
+      const nested = field as Record<string, unknown>;
+      for (const key of ['message', 'error', 'code', 'type']) if (typeof nested[key] === 'string') parts.push(nested[key] as string);
+    }
+  };
+  add(event.message); add(event.error); add(event.result);
+  return parts.join(' ');
+}
+
+/** Stdout reduced to provider diagnostics: plain text lines plus provider error events. */
+export function providerDiagnosticStdoutText(stdout: string): string {
+  return stdout.split('\n').map(providerDiagnosticLineText).filter(line => line.trim().length > 0).join('\n');
 }
 
 function outputByteCount(result: Pick<SpawnSyncReturns<string>, 'stderr' | 'stdout'>): number {
@@ -358,7 +408,7 @@ export function classifyHostExecutionFailure(
   result: Pick<SpawnSyncReturns<string>, 'error' | 'signal' | 'stderr' | 'stdout' | 'status'>,
   fallback: HostExecutionFailureKind = 'unknown',
 ): HostExecutionFailureKind {
-  const text = `${boundedOutputForClassification(result.stderr)} ${boundedOutputForClassification(result.stdout)}`.trim().toLowerCase();
+  const text = `${boundedOutputForClassification(result.stderr)} ${boundedOutputForClassification(providerDiagnosticStdoutText(result.stdout || ''))}`.trim().toLowerCase();
   if (result.error && /timed?out|etimedout/i.test(result.error.message)) return 'timeout';
   if (result.signal === 'SIGTERM' || result.signal === 'SIGKILL') return 'timeout';
   const diagnostic = classifyHostExecutionDiagnosticText(text);
