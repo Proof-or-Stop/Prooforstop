@@ -3488,7 +3488,7 @@ Behavior:
     json: z.boolean().optional().describe('Output the structured host_run result as JSON (exitCode is a field)'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
-  { name: 'host_run_status', description: 'Read or bounded-long-poll one durable managed host run or a set of targets. waitMs is capped at 30000 (600000 with untilTerminal=true, which returns only at terminal) and silence does not change state. Alias: proof-or-stop host run status', schema: {
+  { name: 'host_run_status', description: 'Read or bounded-long-poll one durable managed host run or a set of targets. Text output is a compact summary (binding, state, exit, verdict/finding count, receiptId, next action, full-record path) and, without waitMs/afterGeneration, waits until terminal for up to 285000ms per call, printing the long-yield wait instruction first; --json/--full return the full record. waitMs is capped at 30000 (600000 with untilTerminal=true, which returns only at terminal) and silence does not change state. Alias: proof-or-stop host run status', schema: {
     runId: z.string().optional().describe('Managed host run id; exclusive with targets'),
     targets: z.array(z.object({
       runId: z.string(),
@@ -3496,8 +3496,9 @@ Behavior:
     })).min(1).max(32).optional().describe('Wait for any changed run; each cursor acknowledges previously delivered terminal state'),
     afterGeneration: z.number().int().nonnegative().optional().describe('Return when generation differs from this value'),
     afterSequence: z.number().int().nonnegative().optional().describe('Return live-output frames after this sequence'),
-    waitMs: z.number().int().nonnegative().max(600000).optional().describe('Bounded long-poll wait: maximum 30000ms, or 600000ms (the default) with untilTerminal'),
-    untilTerminal: z.boolean().optional().describe('Block until the run is terminal instead of returning on provider progress; use this to wait for one worker with a single call'),
+    waitMs: z.number().int().nonnegative().max(600000).optional().describe('Bounded long-poll wait: maximum 30000ms, or 600000ms with untilTerminal (default 285000ms, inside one 300000ms tool yield)'),
+    untilTerminal: z.boolean().optional().describe('Block until the run is terminal instead of returning on provider progress; use this to wait for one worker with a single call (the text-output default)'),
+    full: z.boolean().optional().describe('Return the full structured record (projection, receipt, live output) instead of the compact text summary; same as --json'),
     json: z.boolean().optional().describe('Output JSON'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},

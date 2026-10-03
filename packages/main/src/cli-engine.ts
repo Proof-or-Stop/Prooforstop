@@ -1,3 +1,4 @@
+import { ownerWaitInstructionFor } from './core/owner-wait-guidance.js';
 import { withValidationSigningRoot } from './core/validation-signing-context.js';
 import {enforceExecutionImplementationPin,executionImplementationIdentity} from './core/execution-implementation.js';
 import { assertRuntimePackageVersion } from './core/runtime-package-version.js';
@@ -1035,6 +1036,12 @@ export async function runCli(opts?: {
     process.exit(1);
   }
   parsed = v.data as Record<string, unknown>;
+
+  // Run 14: a blocking wait tells the caller its tool yield as the FIRST output
+  // line, right after argument validation and before any gate or work, so one
+  // owner turn covers the whole wait instead of many short polls.
+  const ownerWaitLine = ownerWaitInstructionFor(cmd, parsed);
+  if (ownerWaitLine) process.stderr.write(`${ownerWaitLine}\n`);
 
   // B-7c05 CHK-004: resolve output verbosity ONCE at the CLI seam for the
   // brief-by-default commands and pass it explicitly to the handler. Machine

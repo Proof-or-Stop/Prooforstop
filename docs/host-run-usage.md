@@ -48,6 +48,29 @@ proof-or-stop host_run_status '{"runId":"<runId>","afterGeneration":4,"afterSequ
 proof-or-stop host_run_cancel '{"runId":"<runId>","reason":"operator cancelled"}'
 ```
 
+An owner waiting for one worker uses the text form instead:
+
+```bash
+proof-or-stop host_run_status --runId=<runId> --untilTerminal=true
+```
+
+Its first line (stderr) is the wait instruction: it blocks up to 285 s per call
+(`OWNER_WAIT_BLOCK_MS`, core/owner-wait-guidance.ts), so give it one tool
+yield/shell timeout of 300000 ms (Codex: `write_stdin yield_time_ms=300000`) and
+re-run it only if it returns non-terminal. Text output without `waitMs` or
+`afterGeneration` defaults to this until-terminal wait; `waitMs=0` is a snapshot.
+The text result is a compact summary of at most ~300 tokens: the run line
+(state, stage, generation, terminal reason, exit), the binding (Story, phase,
+agentType, host, model, effort, profile, lane, reviewRunId, itemId/findingId),
+progress fields while running, the verdict and finding count by severity from
+the sealed evidence proposal or the provider final result, the implementer
+commit, receiptId, replacementSafe, any supervision diagnostic, the next action
+and the full-record directory. A non-terminal summary repeats the wait
+instruction first. The full record (projection, receipt and retained live
+output, often 25k-75k tokens for a real reviewer) is returned only with
+`--json=true` or `--full=true`; write it to a file rather than printing it into
+an agent's context.
+
 To observe several runs in one call, supply `targets` instead of `runId`:
 
 ```bash
