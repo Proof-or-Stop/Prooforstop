@@ -1,5 +1,6 @@
 import { MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY } from '../core/runtime-fact-registry.js';
-import { renderManagedRunDurationEstimate } from '../core/managed-run-duration-estimate.js';
+import { hostRunStatusBlocksUntilTerminal, OWNER_WAIT_BLOCK_MS, OWNER_WAIT_YIELD_MS } from '../core/owner-wait-guidance.js';
+import { renderHostRunStatusSummary } from './host-run-status-summary.js';
 /**
  * B-70e9 CHK-001 / CHK-002 / CHK-007: the `host_run` CLI command.
  *
@@ -107,6 +108,8 @@ export interface HostRunStatusCommandArgs extends FormatArgs {
   afterSequence?: number;
   waitMs?: number;
   untilTerminal?: boolean;
+  /** Full structured record (projection, receipt, live output), like --json. */
+  full?: boolean;
 }
 
 export interface HostRunCancelCommandArgs extends FormatArgs {
@@ -694,7 +697,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         + `deadlineAt=${submitted.deadlineAt} attach=${args.detach === true ? 'detached' : 'foreground'}`,
       );
       if (args.detach === true) {
-        ctx.log?.(`[host_run] wait: proof-or-stop host_run_status --runId=${submitted.runId} --untilTerminal=true (blocks until terminal, up to 10 min; give it a long shell timeout/tool yield such as 300000 ms)`);
+        ctx.log?.(`[host_run] wait: proof-or-stop host_run_status --runId=${submitted.runId} --untilTerminal=true (blocks up to ${OWNER_WAIT_BLOCK_MS / 1000} s per call and returns at terminal; give it a tool yield/shell timeout of ${OWNER_WAIT_YIELD_MS} ms, e.g. Codex write_stdin yield_time_ms=${OWNER_WAIT_YIELD_MS}; do not poll more often)`);
         return { schemaVersion: 'lattice.host_run.v2', detached: true, run: submitted };
       }
 
@@ -1028,10 +1031,13 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         args.afterGeneration,
       );
       const afterSequence = optionalNonnegativeInteger('host_run_status', 'afterSequence', args.afterSequence);
-      const untilTerminal = args.untilTerminal === true || String(args.untilTerminal) === 'true';
+      const full = wantsJson(args) || args.full === true || String(args.full) === 'true';
+      // Text status defaults to one until-terminal wait (core/owner-wait-guidance.ts);
+      // machine JSON keeps the explicit 30 s progress poll unless untilTerminal is passed.
+      const untilTerminal = hostRunStatusBlocksUntilTerminal(args as unknown as Record<string, unknown>);
       const waitMs = optionalNonnegativeInteger('host_run_status', 'waitMs', args.waitMs,
         untilTerminal ? MANAGED_HOST_RUN_STATUS_TERMINAL_WAIT_MAX_MS : 30_000)
-        ?? (untilTerminal ? MANAGED_HOST_RUN_STATUS_TERMINAL_WAIT_MAX_MS : undefined);
+        ?? (untilTerminal ? OWNER_WAIT_BLOCK_MS : undefined);
       const status = await getManagedHostRunStatus({
         root: ctx.root,
         runId,
@@ -1040,17 +1046,15 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         untilTerminal,
         maxWaitMs: options.statusWaitCapMs,
       });
-      const output = readManagedHostRunOutput({
-        root: ctx.root,
-        runId,
-        afterSequence: afterSequence ?? 0,
-      });
-      if (wantsJson(args)) return { ...status, output };
-      const terminal = status.run.terminal
-        ? ` terminal=${status.run.terminal.state}:${status.run.terminal.reason}`
-        : '';
-      const receipt = status.receipt ? ` receiptId=${status.receipt.receiptId}` : '';
-      return `${status.run.runId} state=${status.run.state} stage=${status.run.stage.number}/${status.run.stage.total}:${status.run.stage.name} generation=${status.run.generation} deadlineAt=${status.run.deadlineAt} ${renderManagedRunDurationEstimate(status.run.durationEstimate)} workerHeartbeatAt=${status.run.workerHeartbeatAt ?? 'none'} providerProgressMode=${status.run.providerProgressMode} lastProviderProgressAt=${status.run.lastProviderProgressAt ?? 'none'} replacementSafe=${status.run.replacementSafe}${status.run.supervisionDiagnostic ? ` diagnostic=${status.run.supervisionDiagnostic.code}: ${status.run.supervisionDiagnostic.action}` : ''}${terminal}${receipt}`;
+      if (full) {
+        const output = readManagedHostRunOutput({
+          root: ctx.root,
+          runId,
+          afterSequence: afterSequence ?? 0,
+        });
+        return { ...status, output };
+      }
+      return renderHostRunStatusSummary(ctx.root, status);
     },
 
     async host_run_cancel(args: HostRunCancelCommandArgs) {

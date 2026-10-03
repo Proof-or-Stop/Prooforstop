@@ -220,9 +220,12 @@ function listStoryHostRuns(ctx: HandlerContext, storyId: string): HostRunView[] 
   return rows.sort((a, b) => a.createdAt.localeCompare(b.createdAt) || a.runId.localeCompare(b.runId));
 }
 
+// Deliberate behavior change (Lab owner-poll-tokens, run 14): the wait step
+// prints the compact text status, not the full --json record, and blocks up
+// to 285 s per call (core/owner-wait-guidance.ts OWNER_WAIT_BLOCK_MS).
 function waitStep(base: { storyId: string; phase: string }, run: HostRunView, what: string): NextStep {
-  return step(base, 'framework', 'managed_run_wait', { command: 'host_run_status', payload: { runId: run.runId, untilTerminal: true, json: true } },
-    `${what} ${run.runId} is ${run.state}; block until it is terminal (returns at terminal, up to 10 minutes per call).`,
+  return step(base, 'framework', 'managed_run_wait', { command: 'host_run_status', payload: { runId: run.runId, untilTerminal: true } },
+    `${what} ${run.runId} is ${run.state}; block until it is terminal (returns at terminal, up to 285 s per call).`,
     'managed host-run projection', { wait: true });
 }
 
