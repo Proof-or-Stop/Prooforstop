@@ -352,10 +352,21 @@ takes the full-scan path itself and records an automatic
 that names those reasons (core/candidate-spec-routing.ts
 `noRequirementsCorpusFullScanReason`). When such an automatic route goes stale
 (material moved after a rework), the reroute needs no owner reason either: it
-re-derives the automatic reason (`isAutomaticNoCorpusFullScan`). A present
-corpus whose routing escalates, any other escalation reason, and a stale
-owner-reasoned full-scan route still require an explicit owner
-`fullScanReason`.
+re-derives the automatic reason (`isNoCorpusOnlyFullScan`). That holds
+whoever wrote the stale route's reason: a full-scan route whose escalation
+reasons are only `requirements_corpus_missing` / `zero_candidates` (plus
+`missing_protected_source:missing:*` recorded before run 17's touchpoint fix)
+reroutes with the plain command, and review_round_prepare asks the owner only
+if the fresh route still escalates. A present corpus whose routing escalates,
+any other escalation reason, and a stale owner-reasoned full-scan route with a
+real escalation reason still require an explicit owner `fullScanReason`.
+
+`understanding.touchpoints` are free text ("ast/ast.go IndexExpression and
+String", a comma list of paths). Only the leading path token of each
+comma-separated part that resolves to a regular file in the project is an
+exact-path protected source (`touchpointProtectedPaths`); prose and paths that
+do not exist stay ranking seeds and are never `missing_protected_source`, so a
+Go repository with no corpus never needs an owner `fullScanReason` (run 17).
 
 A broad scan is still performed through local tools and read evidence. It is never serialized into a single LLM prompt.
 

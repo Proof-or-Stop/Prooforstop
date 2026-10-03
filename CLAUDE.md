@@ -515,7 +515,7 @@ English-artifact gates scan all recursively scanned string leaves of story metad
 | `facts` | 已知事实 |
 | `constraints` | 必须遵守的规则 |
 | `unknowns` | 还没想清楚的问题（非空时建议先调研再拆 checklist） |
-| `touchpoints` | 可能受影响的代码文件 |
+| `touchpoints` | 可能受影响的代码文件（可写自由文本，如 "ast/ast.go IndexExpression and String" 或逗号列表；candidate routing 只把能解析成真实文件的开头路径 token 当 protected source，其余只做排序种子，run 17） |
 
 ### decision_set（结构化决策）
 
@@ -691,7 +691,7 @@ see story/B-9975
 
 即「PLAN 完成标志 = `scope-check.json` 存在且所有通道均已清账」。
 
-**PLAN 内的排除声明（run 15 修复）**：PLAN 门槛要求的每一项排除都在 PLAN 内完成，绝不需要回 INIT 改 scope boundary（`scope_boundary_set` 仍然只限 INIT，也不是这些检查的输入）。
+**PLAN 内的排除声明（run 15 修复）**：PLAN 门槛要求的每一项排除都在 PLAN 内完成，绝不需要回 INIT 改 scope boundary（`scope_boundary_set` 仍然只限 INIT，也不是这些门槛检查的输入；scope-plan reviewer 的 prompt 只把它的 excluded 列为「已确认约束」，见下文 run 17）。
 - `touchpoint_uncovered`：touchpoint 要么在某个 item 的 `files.modify/create/test` 里，要么被某个 item 的 `excludes` 条目**写出确切路径并给出理由**（如 `"docs/x.md: reference only, not changed"`）；只写路径不算。动作：`proof-or-stop checklist_update --storyId=<id> --itemId=<CHK> --excludes='[...现有 excludes, "<path>: <理由>"]'`。
 - `scope_gap`：是 scope-plan reviewer 签名的裁决，`story_review` 不会自己重判。修法：在 checklist item 里覆盖它，或对仅供参考的材料 / 已确认的约束（「do not …」句）在某 item 的 `excludes` 追加写明该点和理由的条目；然后重跑 scope-plan reviewer（提示里给出 managed `host_run` 命令）。`scope_check_save` 记录 reviewer 当时可见 checklist 的 `checklistDigest`（仅用于提示措辞，不在签名域内）；checklist 在裁决后已改动时，提示只给一个动作：重跑 reviewer。
 
@@ -700,6 +700,7 @@ see story/B-9975
 - `story_create` 接收 `request`（或 `requestFile`）：用户请求**原文**，不是转述；通用用户场景要向用户索取原话。写入 Story 目录 `request.md`（上限 16 KB，超出带显式截断标记），`request.json` 记 sha256 / 来源 / amendments；`request.md` 进入 INIT_CHECK 签名域（无 request.md 的 Story 哈希不变）。
 - `story_request_set`：无 `storyId` 时暂存到 `.proof-or-stop/runtime/staged-story-request.md`，下一次 `story_create` 消费一次（benchmark adapter 用这条路记录任务原文）；有 `storyId` 时记录/修订，仅限 IDEA/INIT/INIT_CHECK/PLAN，替换已有原文或 INIT 之后首次记录都必须带 `amendmentReason`（≥30 字符）。手改 request.md 会被识别为与 request.json 不符、不作为权威输入。
 - scope-plan reviewer 的 dispatch prompt 内联 request 原文：每个规范性句子、每个「for example」、每个枚举变体集都是独立 feature 行，只有某条 `userSees`/`verificationIntent` 写出该确切变体或确切输出才算 covered，否则是 gap；另附机械预检：request 中反引号字面量没有出现在任何 checklist title/userSees/verificationIntent 里的逐个列出。
+- 同一 prompt 列出「Already covered」（run 17，永不算 gap）：PoS 工作流本身保证的交付流程句（在从 main 拉出的新分支上工作、commit everything、合回 main；`covered_by: "proof-or-stop-workflow"`），以及 INIT `scopeBoundary.excluded` / `understanding.constraints` 里已确认的限制性约束（「do not …」句；`covered_by: "init-scope"`）。其余产品要求（行为、输出、错误、例子、兼容性承诺）保持严格。run 17 中 reviewer 因这两类句子报 3 个 `scope_gap`，迫使第二次 reviewer 运行（≈2 min）。
 - verification-intent 作者的 prompt 指向 request.md，要求每个例子、每个列出的变体各写一条精确输出 intent。INIT product reviewer 只拿到路径；REVIEW 各 lane 不注入（token 纪律）。
 
 ### Open Questions (OQ) 通道（B-ed3e）
@@ -1165,6 +1166,7 @@ proof-or-stop dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # 输出 impl
 - 任何轮次提出的 verified open blocking finding，都必须在 TEST 与 DONE 之前关闭；早先轮次的 finding 同样计数，后续轮次 all-pass 不会让它过期。
 - 关闭方式：`finding_resolve` + 修复证据（`--resolution`；接受风险用 `--resolutionType=accepted_risk`）、`review_remediation_close`，或既有的 `finding_dismiss`（仅 REVIEW，critical 不可 dismiss）。
 - `suspected` / `disproven` 保持 advisory，不阻塞。
+- critic `duplicate`（run 17 Q1）：REVIEW inventory critic 把 finding B 标成 canonical A 的 `duplicate`（同一根因）时，A 未关闭前 B 不单独派修复；A 修复并 resolve 后，`next` 给出 `finding_duplicate_resolve`：`finding_resolve` 带 `duplicateOf: A` 和 agent 填写的 `coverage: {command, selector}`（跑 B **自己**的 case：A 的修复为它加的测试，或 B 的复现测试）。框架在 Story worktree 用 project `validate.env` 执行这条 allowlisted 命令，exit 0 且输出含 selector 才关闭 B（`resolutionType: duplicate`，receipt 附在 resolution 里）；`ok`/`PASS` 之类泛化 selector 被拒。绝不只凭 critic 标签关闭：失败的运行记入 `duplicate-finding-coverage.json`，`finding_resolve` 拒绝 `[duplicate_coverage_failed]` 并给 `Next: proof-or-stop next`，随后 `next` 给 B 派它自己的 managed finding-repair（why 写明失败的 coverage）。已经绑定了自身修复 run 的 duplicate 走普通修复规则。
 - 严重度标尺（run 16，`REVIEW_SEVERITY_RUBRIC`，`core/finding-closure-severities.ts`，原文同时写入各 REVIEW lane 的 triage contract、topology/inventory critic 模板和 managed final-proposal schema 的 severity 描述）：已确认的既有行为回归（请求未要求的 base→head 行为变化，无论是否有文档）或文档/测试路径上的错误结果至少为 medium；low 只用于外观/无行为影响的问题。
 - low 仍是 advisory，但 owner 修复了的 low（绑定该 finding 的 managed finding-repair 已完成，`managedFindingRepairState`）会在 DEV 由 `next` 提议 `finding_resolve`，再进入 REVIEW，DONE 不会留下已修复却未关闭的 finding。DONE 之后 `finding_resolve` / `finding_dismiss` 拒绝执行并给出一个 `Next:`（否则元数据会以未提交状态留在主 checkout）。
 - light profile 不要求 reviewer，但已记录的 verified critical/high/medium finding 同样须在 TEST/DONE 前关闭。profile 之间不再有 blocking severity 差异（切换 profile 不改变 finding 关闭规则）；`closureBlockingSeverities` 对手工构造的 policy 仍取并集，只能加、不能减。
