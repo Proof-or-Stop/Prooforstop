@@ -114,3 +114,28 @@ export function isManagedInventoryCriticEnvelopeValid(
     ? isManagedInventoryCritic(value, lane, agent, findingCount)
     : value === undefined;
 }
+
+/** A Finding as the restatement matcher sees it (id, claim text, cited files). */
+export interface CriticRestatementFinding { id: string; desc: string; files?: readonly string[] }
+export interface CriticResolvedDisposition {
+  findingId: string;
+  disposition: 'verified_family' | 'duplicate' | 'not_verified';
+  familyKey?: string;
+  canonicalFindingId?: string;
+  reason: string;
+}
+export interface CriticRestatement { ownFindingId: string; restatedFindingId: string; similarity: number; basis: 'text' | 'critic-link' }
+/** RED stub (lab critic-import-loop): not implemented yet. */
+export function reconcileRestatedCriticFindings(args: {
+  ownFindings: readonly CriticRestatementFinding[];
+  otherFindings: readonly CriticRestatementFinding[];
+  dispositions: readonly CriticResolvedDisposition[];
+}): { dispositions: CriticResolvedDisposition[]; restated: CriticRestatement[] } {
+  return { dispositions: [...args.dispositions], restated: [] };
+}
+/** The managed inventory protocol the critic prompt carries (moved verbatim from core/managed-review-evidence.ts). */
+export const MANAGED_INVENTORY_CRITIC_PROTOCOL: readonly string[] = [
+  'Managed inventory protocol: do not call review_inventory_critic_set. The authenticated importer writes the critic receipt from your sealed inventoryCritic block after terminal evidence import.',
+  'Include inventoryCritic={epochId,wave,findingDispositions} bound exactly to the current evidence pack. Classify every aggregate finding and each new verified finding you report. Each row has finding, disposition, reason, optional familyKey and canonicalFinding. Each reason must contain at least 10 trimmed characters. Use finding={findingId:existingId} for existing findings; use finding={proposalFindingIndex:zeroBasedIndex} for your own final findings. canonicalFinding uses the same reference forms. Never guess allocated Finding IDs. Duplicate rows require familyKey and canonicalFinding; verified_family requires familyKey and omits canonicalFinding (it is its own canonical finding); not_verified permits neither.',
+  'Do not put findingDispositions at the top level. The block does not certify omitted reads or resolve findings. Preserve incomplete-read findings rather than claiming complete coverage.',
+];

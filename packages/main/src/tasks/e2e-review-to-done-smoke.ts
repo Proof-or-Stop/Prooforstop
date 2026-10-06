@@ -82,6 +82,14 @@
  *      the coverage run is refused (never closed on the critic label alone),
  *      and next then dispatches the duplicate's own managed repair.
  *
+ *   NC/NC2/NC3 detection A/B control D9-r1 / D2-r3: the round-1 inventory critic
+ *      re-raises the lane finding as its own (verbatim copies with rows only
+ *      for the lane findings / a reworded copy with a row only for itself): the
+ *      import completes the other copy as a duplicate and the Story reaches
+ *      DONE. NC3: the critic leaves a genuinely new finding without a row: the
+ *      import refuses once, next never re-proposes it but runs a fresh critic
+ *      whose prompt names the error; the new finding is repaired.
+ *
  * Machine registries (provider slots, locks) use a disposable fixture machine
  * so the harness never touches the developer's ~/.proof-or-stop admission state.
  *
@@ -92,7 +100,7 @@
  *      V4 remediation.grouping=single, V5 implementation.grouping=files on an
  *      unimplemented fixture). `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NL|NU|NU2|AB|ND-V1..NF-V5]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NL|NU|NU2|NC|NC2|NC3|AB|ND-V1..NF-V5]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -1162,7 +1170,13 @@ const VERIFIED_PROMISES = [
 ];
 
 /** Which scripted findings round 1 reports (shared by the inline harness and the run-mode resolver). */
-interface ScriptMode { findingRound1: boolean; twoFindings?: boolean; lowFindings?: boolean; duplicate?: 'covered' | 'uncovered' }
+interface ScriptMode { findingRound1: boolean; twoFindings?: boolean; lowFindings?: boolean; duplicate?: 'covered' | 'uncovered';
+  /** Detection A/B control D9-r1 / D2-r3 / refused critic: how the FIRST round-1 critic restates or omits findings (scenarios NC, NC2, NC3). */
+  criticRestate?: CriticRestateMode }
+type CriticRestateMode = 'copies' | 'reworded' | 'new-undisposed';
+
+/** D2-r3 shape: the critic's own reworded restatement of D_FINDING (same files, same claim). */
+const NC_REWORDED_DESC = 'Base-to-head gap: Reverse has no focused empty-string test; Reverse("") must return "" and never index r[-1] on an empty string.';
 
 type ProviderScript = { final: string; commands?: string[][] };
 
@@ -1176,10 +1190,14 @@ function laneScript(worktree: string, storyId: string, lane: string, reviewRunId
 }
 
 /** The inventory critic: dispositions every finding of the current epoch's round as one verified family (the NU duplicate as `duplicate`). */
-function criticScript(worktree: string, storyId: string, reviewRunId: string): ProviderScript {
+function criticScript(worktree: string, storyId: string, reviewRunId: string, restate?: CriticRestateMode): ProviderScript {
   const store = new StoryStore(worktree);
   const epoch = store.readReviewInventoryEpochs(storyId).epochs.at(-1)!;
   const raw = store.readFindings(storyId).findings.filter(f => f.reviewRound === epoch.reviewRound);
+  const runs = store.readReviewRuns(storyId).runs;
+  const firstRound = runs.find(row => row.reviewPurpose !== 'inventory-completeness')?.reviewRound;
+  const firstCritic = runs.find(row => row.reviewPurpose === 'inventory-completeness')?.reviewRunId === reviewRunId;
+  if (restate && firstCritic && epoch.reviewRound === firstRound) return restatingCriticScript(worktree, storyId, reviewRunId, epoch, raw, restate);
   // Run 17 Q1: the NU duplicate is dispositioned `duplicate` of D_FINDING (same root cause).
   const canonical = raw.find(f => f.desc === D_FINDING.desc);
   const dispositions = raw.map(f => f.desc === NU_DUP_FINDING.desc && canonical
@@ -1193,6 +1211,26 @@ function criticScript(worktree: string, storyId: string, reviewRunId: string): P
   return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: MANAGED_INVENTORY_CRITIC_LANE, lane: MANAGED_INVENTORY_CRITIC_LANE,
     reviewRunId, conclusion: 'pass', note: dispositions.length ? 'Scripted inventory critic: dispositioned every verified finding of this wave.' : 'Scripted inventory critic: every required lane passed with zero findings; nothing to disposition.',
     inventoryCritic: { epochId: epoch.epochId, wave: epoch.waves.length + 1, findingDispositions: dispositions }, ...readEvidenceFor(worktree, storyId) }) };
+}
+
+/**
+ * Detection A/B control (efc375c): the first round-1 critic re-raises findings.
+ * copies (D9-r1): its findings are verbatim copies of the lane findings, only the lane findings get rows.
+ * reworded (D2-r3): its finding rewords D_FINDING, only its own copy gets a row (familyKey = the lane id).
+ * new-undisposed: a genuinely new finding (NF_FINDING) with no row -> the import must refuse it once.
+ */
+function restatingCriticScript(worktree: string, storyId: string, reviewRunId: string, epoch: { epochId: string; waves: unknown[] },
+  raw: ReadonlyArray<{ id: string; desc: string; severity?: string; category?: string; files?: string[] }>, restate: CriticRestateMode): ProviderScript {
+  const laneRows = raw.map(f => ({ finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'reverse-empty-string', reason: 'The empty-string edge of Reverse is untested; one verified family.' }));
+  const lane = raw.find(f => f.desc === D_FINDING.desc)!;
+  const findings = restate === 'copies' ? raw.map(f => ({ desc: f.desc, severity: f.severity, category: f.category, files: f.files, evidenceState: 'verified' }))
+    : restate === 'reworded' ? [{ ...D_FINDING, desc: NC_REWORDED_DESC }] : [NF_FINDING];
+  const findingDispositions = restate === 'reworded'
+    ? [{ finding: { proposalFindingIndex: 0 }, disposition: 'verified_family', familyKey: lane.id, reason: `Independently confirmed ${lane.id}: Reverse("") has no focused test and indexes r[-1].` }]
+    : laneRows;
+  return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: MANAGED_INVENTORY_CRITIC_LANE, lane: MANAGED_INVENTORY_CRITIC_LANE,
+    reviewRunId, conclusion: 'findings', note: `Scripted restating inventory critic (${restate}).`, findings,
+    inventoryCritic: { epochId: epoch.epochId, wave: epoch.waves.length + 1, findingDispositions }, ...readEvidenceFor(worktree, storyId) }) };
 }
 
 function deliveryScript(storyId: string): ProviderScript {
@@ -1331,7 +1369,11 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   /** Run 17 Q1: round 1 also reports NU_DUP_FINDING, which the critic marks a duplicate of D_FINDING; 'covered' = the canonical repair's test covers it, 'uncovered' = it does not. */
   duplicate?: 'covered' | 'uncovered';
   /** Soft checks (NL): each violation is recorded and the flow continues, so one run reports every defect. */
-  violations?: string[]; }, lines: string[],
+  violations?: string[];
+  /** Scenarios NC/NC2/NC3: the first round-1 critic restates (or leaves a new finding without a row). */
+  criticRestate?: CriticRestateMode;
+  /** NC3: critic imports refused with DISPOSITION_INCOMPLETE (at most one is tolerated; next must then change course). */
+  refusedCriticImports?: string[]; }, lines: string[],
   /** Called with each step `next` returned, before the harness executes it; quiet = no detached managed run in flight. */
   onStep?: (next: NextStepJson, quiet: boolean) => void): void {
   const id = o.storyId;
@@ -1401,6 +1443,10 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
     const payload = { ...next.cli.payload };
     const round = new StoryStore(o.worktree).readStory(id).currentReviewRound;
     reasons.push(next.reason);
+    // A critic import its gate refused must never be proposed again unchanged (A/B control D2-r3/D9-r1 looped forever).
+    if (next.reason === 'review_evidence_import' && mode.refusedCriticImports?.includes(JSON.stringify(payload))) {
+      assert.fail(`[${o.scenario}] next re-proposed the refused critic import ${JSON.stringify(payload)}; why: ${next.why}`);
+    }
     // Fake-provider seams and authored values for agent-kind steps.
     switch (next.reason) {
       case 'review_lane_launch': {
@@ -1411,7 +1457,7 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
         break;
       }
       case 'inventory_critic_launch':
-        o.script(String(payload.reviewRunId), criticScript(o.worktree, id, String(payload.reviewRunId)));
+        o.script(String(payload.reviewRunId), criticScript(o.worktree, id, String(payload.reviewRunId), mode.criticRestate));
         break;
       case 'delivery_review_launch':
         o.script(DELIVERY, deliveryScript(id));
@@ -1511,6 +1557,13 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
       const unfilled = Object.entries(call.payload).filter(([, value]) => typeof value === 'string' && /^<.*>$/.test(value)).map(([key]) => key);
       assert.deepEqual(unfilled, [], `[${o.scenario}] ${call.reason}: harness has no value for placeholder(s) ${unfilled.join(', ')}`);
       const ran = o.cli(call.command, call.payload, { label: `  ${next.kind[0]}:${call.reason}`.slice(0, 44) });
+      if (ran.status !== 0 && mode.criticRestate === 'new-undisposed' && call.reason === 'review_evidence_import'
+        && /REVIEW_INVENTORY_FINDING_DISPOSITION_INCOMPLETE/.test(ran.out) && (mode.refusedCriticImports?.length ?? 0) === 0) {
+        // NC3: the critic left its own new finding without a row; this one refusal is the scripted fault.
+        mode.refusedCriticImports?.push(JSON.stringify(call.payload));
+        reasons.push('critic_import_refused');
+        continue;
+      }
       assert.equal(ran.status, 0, `[${o.scenario}] next proposed ${call.line} (${call.reason}) and its gate refused it:\n${ran.out.slice(-2500)}`);
       const launched = parseJson(ran.stdout)?.run as Record<string, unknown> | undefined;
       if (call.command === 'host_run' && launched?.runId) {
@@ -1621,6 +1674,57 @@ function scenarioNU(machineEnv: NodeJS.ProcessEnv, steps: Step[], covered: boole
       assert.doesNotMatch(readFileSync(join(o.root, 'strs/strs_test.go'), 'utf8'), /TestReverseEmptyDup/, `${tag}: no second repair ran`);
     } else {
       assert.match(readFileSync(join(o.root, 'strs/strs_test.go'), 'utf8'), /TestReverseEmptyDup/, `${tag}: the duplicate's own repair merged into main`);
+    }
+    lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/**
+ * Detection A/B control D9-r1 (NC), D2-r3 (NC2): the round-1 inventory critic
+ * re-raises the lane finding as its own finding and gives only one of the two
+ * copies a row. The import must complete the other copy as a duplicate (same
+ * file + same claim) instead of refusing the critic; the copy is then closed by
+ * the duplicate-coverage path with the canonical repair, and the Story reaches DONE.
+ * NC3: the critic reports a genuinely NEW finding without a row. The import
+ * refuses it once (never reconciled away); next must not propose that import
+ * again but run a fresh critic whose prompt names the refusal; that critic
+ * dispositions the new finding, which is then repaired like any other.
+ */
+function scenarioNC(machineEnv: NodeJS.ProcessEnv, steps: Step[], restate: CriticRestateMode): Outcome {
+  const tag = restate === 'copies' ? 'NC' : restate === 'reworded' ? 'NC2' : 'NC3';
+  const name = `${tag} A/B control: critic ${restate === 'new-undisposed' ? 'leaves a new finding without a row; next runs a fresh critic, never the refused import' : `restates the lane finding (${restate}); import completes it as a duplicate`}`;
+  const o = new Owner(tag, restate === 'copies' ? 'B-e2f1' : restate === 'reworded' ? 'B-e2f2' : 'B-e2f3', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  const refused: string[] = [];
+  try {
+    devSetup(o);
+    driveWithNext(o, { findingRound1: true, run: false, criticRestate: restate, refusedCriticImports: refused }, lines);
+    const store = new StoryStore(o.root);
+    const findings = store.readFindings(o.storyId).findings;
+    const receipts = store.readReviewInventoryEpochs(o.storyId).criticReceipts;
+    const firstReceiptRows = receipts[0]?.findingDispositions ?? [];
+    if (restate === 'new-undisposed') {
+      assert.equal(refused.length, 1, `${tag}: the critic with an unclassified new finding is refused exactly once`);
+      const upper = findings.find(f => f.desc === NF_FINDING.desc);
+      assert.equal(upper?.status, 'resolved', `${tag}: the critic's new finding is kept and closed by its own repair`);
+      const criticRuns = readdirSync(join(o.root, '.proof-or-stop', 'runtime', 'host-runs')).filter(runId => {
+        try { return (JSON.parse(readFileSync(join(o.root, '.proof-or-stop', 'runtime', 'host-runs', runId, 'spec.json'), 'utf8')) as { agentType?: string }).agentType === MANAGED_INVENTORY_CRITIC_LANE; } catch { return false; }
+      });
+      const prompts = criticRuns.map(runId => join(o.scriptsDir, 'prompts', `${runId}.txt`)).filter(existsSync).map(path => readFileSync(path, 'utf8'));
+      assert.ok(prompts.some(text => /REVIEW_INVENTORY_FINDING_DISPOSITION_INCOMPLETE/.test(text) && text.includes(upper!.id)),
+        `${tag}: the fresh critic's prompt names the refused import's exact error and finding id`);
+    } else {
+      assert.deepEqual(refused, [], `${tag}: no critic import refused`);
+      const copy = findings.find(f => f.agent === MANAGED_INVENTORY_CRITIC_LANE);
+      assert.ok(copy, `${tag}: the critic's restated finding is recorded, not dropped`);
+      const row = firstReceiptRows.find(r => r.findingId === copy!.id);
+      assert.equal(row?.disposition, 'duplicate', `${tag}: the restated copy is a duplicate of the lane finding: ${JSON.stringify(firstReceiptRows)}`);
+      assert.equal(copy!.status, 'resolved', `${tag}: the copy is closed at DONE`);
     }
     lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
     o.cleanup();
@@ -1876,7 +1980,7 @@ function printTimeline(steps: Step[], scenario: string): void {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF|NL|NU2?|N[AD](?:-run)?|N[DF]-V[1-5]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF|NL|NU2?|NC[23]?|N[AD](?:-run)?|N[DF]-V[1-5]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -1905,6 +2009,9 @@ async function main(): Promise<void> {
     if (only.includes('NL')) outcomes.push(scenarioNL(machine.env, steps));
     if (only.includes('NU')) outcomes.push(scenarioNU(machine.env, steps, true));
     if (only.includes('NU2')) outcomes.push(scenarioNU(machine.env, steps, false));
+    for (const [token, restate] of [['NC', 'copies'], ['NC2', 'reworded'], ['NC3', 'new-undisposed']] as const) {
+      if (only.includes(token)) outcomes.push(scenarioNC(machine.env, steps, restate));
+    }
     // Detection A/B arms: explicit tokens (ND-V1 .. NF-V5) or AB = ND-V1, ND-V2, ND-V3, NF-V4, ND-V5.
     const abTokens = only.includes('AB') ? ['ND-V1', 'ND-V2', 'ND-V3', 'NF-V4', 'ND-V5'] : [];
     for (const token of [...new Set([...abTokens, ...only.filter(arg => /^N[DF]-V[1-5]$/.test(arg))])]) {
@@ -1913,7 +2020,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NL', 'NU', 'NU2', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

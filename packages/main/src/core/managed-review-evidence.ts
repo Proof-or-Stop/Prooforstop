@@ -1,4 +1,4 @@
-import { isManagedInventoryCriticEnvelopeValid } from './managed-inventory-critic.js';
+import { isManagedInventoryCriticEnvelopeValid, MANAGED_INVENTORY_CRITIC_PROTOCOL } from './managed-inventory-critic.js';
 import { resolveAbVariants } from './ab-variants.js';
 import { isMissingReviewSnapshotError } from './review-metadata-surface.js';
 import { reportHealthIssue } from './health.js';
@@ -861,9 +861,7 @@ export function buildManagedReviewerPrompt(
     ...(fullScanBinding ? ['', ...renderManagedReviewerFullScanBinding(fullScanBinding)] : []),
     ...(rereview.length > 0 ? ['', ...rereview] : []),
     ...(run.reviewPurpose === 'inventory-completeness' ? [
-      '', 'Managed inventory protocol: do not call review_inventory_critic_set. The authenticated importer writes the critic receipt from your sealed inventoryCritic block after terminal evidence import.',
-      'Include inventoryCritic={epochId,wave,findingDispositions} bound exactly to the current evidence pack. Classify every aggregate finding and each new verified finding you report. Each row has finding, disposition, reason, optional familyKey and canonicalFinding. Each reason must contain at least 10 trimmed characters. Use finding={findingId:existingId} for existing findings; use finding={proposalFindingIndex:zeroBasedIndex} for your own final findings. canonicalFinding uses the same reference forms. Never guess allocated Finding IDs. Duplicate rows require familyKey and canonicalFinding; verified_family requires familyKey and omits canonicalFinding (it is its own canonical finding); not_verified permits neither.',
-      'Do not put findingDispositions at the top level. The block does not certify omitted reads or resolve findings. Preserve incomplete-read findings rather than claiming complete coverage.',
+      '', ...MANAGED_INVENTORY_CRITIC_PROTOCOL,
       ...renderManagedInventoryCriticEvidencePack(root, run),
     ] : []),
   ].join('\n');
