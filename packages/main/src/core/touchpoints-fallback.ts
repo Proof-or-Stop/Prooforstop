@@ -10,7 +10,8 @@
  * All callers needing "fallback when touchpoints is empty" (transition-effects / machine guards /
  * reviewer_list) should obtain it uniformly from here.
  */
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
+import { observedGit } from './git-tree-observation.js';
 import { loadConfig } from './config.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 
@@ -33,12 +34,14 @@ export function detectMdTouchpointsFromGit(root: string): string[] | undefined {
     gitCwd = root;
   }
   try {
-    const out = execSync('git diff main...HEAD --name-only', {
+    // Read-only: identical probes inside one synchronous git observation run once.
+    const argv = ['diff', 'main...HEAD', '--name-only'];
+    const out = observedGit(gitCwd, argv, () => execFileSync('git', argv, {
       cwd: gitCwd,
       encoding: 'utf8',
       timeout: 5000,
       stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
+    })).trim();
     if (!out) return undefined;
     const mdFiles = out.split('\n').filter(f => f.endsWith('.md'));
     return mdFiles.length > 0 ? mdFiles : undefined;
