@@ -29,6 +29,7 @@ import {
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import type { ChecklistData, ChecklistItem, ChecklistStatus, FrozenClaimSnapshot, StoryInfo, VerificationEvidence, VerificationEvidenceReceipt, VerificationExecutionReceiptV3, VerificationIntent, VerificationIntentItem, VerificationIntentPin, VerificationIntentType, VerificationLane, VerificationPinNarrowingRecord, VerificationReuseReceiptV1 } from '../core/types.js';
 import { claimDigest } from '../core/frozen-claim-drift.js';
+import { verificationIntentClassificationFailure } from '../core/verification-intent-classification.js';
 import { buildVerificationCoverage, collectRecordedPinnedReceipts, collectVerificationIntents, computeRecordedReceiptSetDigest, detectEvidenceRowContradiction, evaluateSelectorNarrowing, intentRef, isExecutableIntentType, makeEvidence, NARROWING_COMPLETE_OUTPUT_NOTE, renderVerificationPinNarrowCommand, VERIFICATION_LANES, VERIFICATION_PIN_NARROWING_PRECONDITION } from '../core/verification.js';
 import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, EVIDENCE_COMMAND_TIMEOUT_CAP_MS, formatValidationProgressEvent, parseAllowlistedCommand, runSingleAllowlistedCommand, type SingleCommandExecutionResult } from '../core/validation-executor.js';
 import { configuredValidationCommands } from './verifier.js';
@@ -305,26 +306,9 @@ function assertVerificationIntentClassification(
   ownerProposal = false,
   command: 'checklist_update' | 'plan_acceptance_prepare' | 'plan_acceptance_apply' = 'checklist_update',
 ): void {
-  for (const lane of VERIFICATION_LANES) {
-    for (const [index, intent] of (verificationIntent[lane] ?? []).entries()) {
-      if (!intent.scope || !intent.expectation || !intent.requirementSource) {
-        const classified = {
-          ...intent,
-          scope: intent.scope ?? 'focused',
-          expectation: intent.expectation ?? 'absolute_pass',
-          requirementSource: intent.requirementSource ?? 'story',
-        };
-        throw new Error(
-          `${command} refused: ${ownerProposal ? 'owner proposals' : 'verification-intent roles'} must classify ${itemId}:${lane}:${index} before PLAN acceptance is frozen [verification_intent_metadata_required]\n` +
-          `Allowed values: scope=focused|repository; expectation=absolute_pass|no_new_regressions; requirementSource=story|external_verifier|repository_health\n` +
-          `Copyable classified row: ${JSON.stringify(classified)}\n` +
-          (ownerProposal
-            ? `Next: rerun plan_acceptance_prepare with the complete classified verificationIntent, then plan_acceptance_apply its unchanged result.`
-            : `Next: rerun checklist_update with the complete classified verificationIntent.`),
-        );
-      }
-    }
-  }
+  // One rule from story_create to PLAN acceptance (core/verification-intent-classification.ts).
+  const failure = verificationIntentClassificationFailure(itemId, verificationIntent, command, { ownerProposal });
+  if (failure) throw new Error(failure);
 }
 
 function checklistActorFrom(args: { agent?: string; actor?: string }): string {

@@ -246,7 +246,7 @@ function p4(): void {
     ((itemId: string, intent: Record<string, unknown>, command: string) => string | null) | undefined;
   if (check(typeof describe === 'function', 'verificationIntentClassificationFailure is the shared rule (checklist_update, plan acceptance, story_create)')) {
     attempt('classification rule', () => {
-      const message = describe!('CHK-001', { verificationIntent: { happy: [{ desc: 'x -> y', type: 'logic', scope: 'focused', expectation: 'absolute_pass' }] } } as never, 'checklist_update') ?? '';
+      const message = describe!('CHK-001', { happy: [{ desc: 'x -> y', type: 'logic', scope: 'focused', expectation: 'absolute_pass' }] } as never, 'checklist_update') ?? '';
       check(/\[verification_intent_metadata_required\]/.test(message) && /missing requirementSource/.test(message) && !/missing scope/.test(message),
         'the refusal names exactly the missing field (requirementSource)', message);
       check(/^checklist_update REFUSED/.test(message) && /nothing was written/i.test(message), 'the refusal says loudly that nothing was written', message);

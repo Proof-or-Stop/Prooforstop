@@ -25,8 +25,10 @@
  *           certification_window_status (its Next line), getGuardFailureReason(TEST);
  *   TEST    buildDoneChecklist (the DONE oracle rows, auditWriter:null) and the
  *           review-assurance floor / escalation guidance recipes.
- *   PLAN    evaluateDevMemoryPreflightGate, missingPlanScopeCheckFailure (the
- *           scope-plan reviewer launch / wait), then getGuardFailureReason(DEV);
+ *   PLAN    evaluateDevMemoryPreflightGate, missingPlanScopeCheckFailure /
+ *           scopePlanRerunReason (the scope-plan reviewer launch / relaunch /
+ *           wait, after planPreScopeBlockers are authored), then
+ *           getGuardFailureReason(DEV);
  *   TEST single host: singleHostAssuranceReady (handlers/quorum-submit.ts) over
  *           the same escalation / floor evaluators → quorum_submit singleHost.
  * Host runs (managed reviewers, delivery, finding repair) are read from the
@@ -43,7 +45,10 @@ import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { withGitTreeObservation } from '../core/git-tree-observation.js';
 import { evaluateDevMemoryPreflightGate, evaluateReviewVerdict, getGuardFailureReason } from '../core/machine.js';
-import { missingPlanScopeCheckFailure, SCOPE_PLAN_REVIEWER } from '../core/plan-scope-check-requirement.js';
+import { missingPlanScopeCheckFailure, SCOPE_PLAN_REVIEWER, scopePlanLaunchIsFramework, scopePlanRerunReason } from '../core/plan-scope-check-requirement.js';
+import { hasPreScopeBlockers, planPreScopeBlockers, type PreScopeBlockers } from '../core/plan-pre-scope-blockers.js';
+import { STORY_FOCUSED_CLASSIFICATION } from '../core/verification-intent-classification.js';
+import { VERIFICATION_LANES } from '../core/verification.js';
 import { isTerminalChecklistStatus } from '../core/checklist-status.js';
 import { unclosedBlockingFindings, resolveEffectiveBlockingSeverities, FINDING_RESOLUTION_PLACEHOLDER } from '../core/finding-closure.js';
 import { criticDuplicateOf, duplicateCoverageReceipts, duplicateOfOpenCanonical, duplicateResolveCandidate } from '../core/duplicate-finding-coverage.js';
@@ -275,10 +280,10 @@ export function batchStep(base: { storyId: string; phase: string }, reason: stri
  * framework step `--run` executes; otherwise the agent's.
  */
 export function managedLaunchStep(base: { storyId: string; phase: string }, reason: string, payload: Record<string, unknown>,
-  auto: boolean, why: string, source: string): NextStep {
+  auto: boolean, why: string, source: string, boundNote = 'first run of this target'): NextStep {
   const bound = auto && placeholderPaths(payload).length === 0;
   return step(base, bound ? 'framework' : 'agent', reason, { command: 'host_run', payload },
-    bound ? `${why} Fully bound (this Story's own host/model/effort, first run of this target): \`next --run\` launches it.` : why,
+    bound ? `${why} Fully bound (this Story's own host/model/effort, ${boundNote}): \`next --run\` launches it.` : why,
     source, bound ? { launch: true } : {});
 }
 
@@ -641,6 +646,75 @@ export function planAuthoringStep(store: Pick<HandlerContext['store'], 'readRevi
     'story_review latest round (review.json) + getGuardFailureReason(DEV)');
 }
 
+/** The classified, pinned placeholder row a pre-scope checklist_update adds. */
+function placeholderIntentRow(desc: string): Record<string, unknown> {
+  return { desc, type: 'logic', priority: 'must', ...STORY_FOCUSED_CLASSIFICATION,
+    verification: { command: '<pinned test command, e.g. go test -v ./pkg -run ^TestName$>', selector: '<line its passing run prints, e.g. --- PASS: TestName>' } };
+}
+
+/**
+ * Run 19 (P1): the deterministic PLAN blockers (core/plan-pre-scope-blockers.ts)
+ * as ONE agent step, before the scope-plan reviewer is launched. One exact
+ * checklist_update per item, its verificationIntent the full replacement value:
+ * the item's current rows, each unpinned executable row with a pin placeholder,
+ * each missing lane with a classified pinned placeholder row, and, while request
+ * literals are unstated, one placeholder row per item for the literals it
+ * delivers. A missing userSees is a userSees placeholder (editable in PLAN).
+ * No story_review in the batch: the next round is spent after the reviewer.
+ */
+export function preScopeAuthoringStep(base: { storyId: string; phase: string }, blockers: PreScopeBlockers,
+  items: readonly ChecklistItem[]): NextStep | null {
+  if (!hasPreScopeBlockers(blockers)) return null;
+  const { storyId } = base;
+  const byId = new Map(blockers.items.map(row => [row.itemId, row]));
+  const literals = blockers.unmappedLiterals;
+  const calls: NextStepCall[] = [];
+  const reasons: string[] = [];
+  for (const item of items) {
+    if (item.status === 'withdrawn') continue;
+    const need = byId.get(item.id);
+    if (!need && !literals.length) continue;
+    const payload: Record<string, unknown> = { storyId, itemId: item.id };
+    if (need?.missingUserSees) payload.userSees = `<exact text the user sees once ${item.id} is done (quote outputs exactly)>`;
+    const touchesIntent = Boolean(need?.missingLanes.length || need?.unpinned.length || literals.length);
+    if (touchesIntent) {
+      const intent: Record<string, Array<Record<string, unknown>>> = {};
+      for (const lane of VERIFICATION_LANES) {
+        intent[lane] = (item.verificationIntent?.[lane] ?? []).map((row, index) => {
+          const copy = { ...(row as unknown as Record<string, unknown>) };
+          if (need?.unpinned.some(entry => entry.lane === lane && entry.index === index)) {
+            copy.verification = { command: `<pinned test command for ${item.id}:${lane}:${index}, e.g. go test -v ./pkg -run ^TestName$>`,
+              selector: '<line its passing run prints, e.g. --- PASS: TestName>' };
+          }
+          return copy;
+        });
+        if (need?.missingLanes.includes(lane)) intent[lane]!.push(placeholderIntentRow(`<${item.id} ${lane}: action or condition -> exact expected result>`));
+      }
+      if (literals.length) {
+        intent.edge!.push(placeholderIntentRow(`<input -> exact output naming each unstated request literal ${item.id} delivers, quoted exactly; drop this row if ${item.id} delivers none>`));
+      }
+      payload.verificationIntent = intent;
+    }
+    calls.push(nextStepCall('checklist_update', { command: 'checklist_update', payload }));
+    const parts = [
+      need?.missingLanes.length ? `missing ${need.missingLanes.join('/')} intent` : '',
+      need?.unpinned.length ? `unpinned ${need.unpinned.map(entry => entry.ref).join(', ')}` : '',
+      need?.missingUserSees ? 'missing userSees' : '',
+    ].filter(Boolean);
+    if (parts.length) reasons.push(`${item.id}: ${parts.join('; ')}`);
+  }
+  if (!calls.length) return null;
+  const literalText = literals.length
+    ? ` Request literals no checklist item states yet (story_create pre-check): ${literals.slice(0, 40).map(literal => `\`${literal}\``).join(', ')}${literals.length > 40 ? ` (+${literals.length - 40} more)` : ''}. `
+      + 'State each one exactly in an intent row or the userSees of the item that delivers it, or, for reference-only material, add an excludes entry "<literal>: <why>" to that item\'s checklist_update.'
+    : '';
+  return batchStep(base, 'plan_authoring', calls,
+    `PLAN authoring before the scope-plan reviewer: these are deterministic blockers story_review reports anyway${reasons.length ? ` (${reasons.join(' | ')})` : ''}.${literalText} `
+      + `Author every <...> field (keep the existing rows; type may be logic/cli/browser/manual/docs) and run these ${calls.length} checklist_update commands in one turn, `
+      + `then \`proof-or-stop next --storyId=${storyId} --run\`: it launches the scope-plan reviewer once, on the final checklist.`,
+    'planPreScopeBlockers (story_review missing_verification_intent / missing_verification_pin / missing_user_sees + story_create request-literal pre-check)');
+}
+
 /**
  * Run 17 (Q1): the step for an open verified finding the REVIEW inventory
  * critic dispositioned `duplicate` of a canonical finding that is already
@@ -762,8 +836,11 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
   /**
    * PLAN is authored work; next only names what the DEV-entry gate will
    * demand. The dev-memory acknowledgement comes first: it is independent of
-   * the plan and was the refusal nobody had surfaced (run 14). Then the DEV
-   * guard's own first failure and its Next line, or story_advance DEV.
+   * the plan and was the refusal nobody had surfaced (run 14). Then, while the
+   * scope-plan verdict is missing or must be rerun: the deterministic PLAN
+   * authoring batch first (run 19 P1), then the reviewer launch / relaunch
+   * (P2). Then the DEV guard's own first failure and its Next line, or
+   * story_advance DEV.
    */
   function planNext(base: { storyId: string; phase: string }): NextStep {
     const { storyId } = base;
@@ -775,19 +852,30 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     // Run 16: the scope-plan reviewer verdict the DEV-entry gate requires
     // (missingPlanScopeCheckFailure, the gate's own predicate). Launched with the
     // owner's own managed selection, or waited on while its run is in flight.
+    // Run 19 (P1): only after the deterministic PLAN blockers are authored, so the
+    // reviewer judges the final checklist once. (P2): a verdict that must be rerun
+    // (scopePlanRerunReason) is relaunched here too, not sent to story_review.
     const story = ctx.store.readStory(storyId);
-    const scopeFailure = missingPlanScopeCheckFailure(ctx.store, story, policyOf(storyId));
-    if (scopeFailure) {
+    const policy = policyOf(storyId);
+    const scopeFailure = missingPlanScopeCheckFailure(ctx.store, story, policy);
+    const rerun = scopeFailure ? null : scopePlanRerunReason(ctx.store, story);
+    if (scopeFailure || rerun) {
       const hostRuns = listStoryHostRuns(ctx, storyId);
       const running = hostRuns.filter(run => run.agentType === SCOPE_PLAN_REVIEWER && !run.terminal).at(-1);
       if (running) return waitStep(base, running, 'Scope-plan reviewer run');
+      const authoring = preScopeAuthoringStep(base, planPreScopeBlockers(ctx.store, story, policy), ctx.store.readChecklist(storyId).items);
+      if (authoring) return authoring;
       const last = hostRuns.filter(run => run.agentType === SCOPE_PLAN_REVIEWER).at(-1);
       const previous = last && last.state !== 'completed' ? ` The previous scope-plan run ${last.runId} ended ${last.state}.` : '';
       const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
+      const auto = scopePlanLaunchIsFramework({ bound, rerun: Boolean(rerun), last, verdict: ctx.store.readScopeCheck(storyId) });
       return managedLaunchStep(base, 'scope_plan_review_launch', { ...selection, storyId,
-        agentType: SCOPE_PLAN_REVIEWER, managedDispatch: true, detach: true, json: true }, bound && !last,
-      `${scopeFailure.split('\n')[0]} Launch the scope-plan reviewer (managed shown); it saves scope-check.json, then rerun story_review.${previous}`,
-      'missingPlanScopeCheckFailure (DEV-entry gate)');
+        agentType: SCOPE_PLAN_REVIEWER, managedDispatch: true, detach: true, json: true }, auto,
+      scopeFailure
+        ? `${scopeFailure.split('\n')[0]} Launch the scope-plan reviewer (managed shown); it saves scope-check.json, then rerun story_review.${previous}`
+        : `The scope-plan verdict must be rerun: ${rerun}. Relaunch the scope-plan reviewer so it judges the current checklist (managed shown); it saves a new scope-check.json, then rerun story_review.${previous}`,
+      scopeFailure ? 'missingPlanScopeCheckFailure (DEV-entry gate)' : 'scopePlanRerunReason (story_review scope_gap / scope_check_stale)',
+      scopeFailure ? 'first run of this target' : 'relaunch after the completed run that delivered the stale verdict');
     }
     const authoring = planAuthoringStep(ctx.store, base);
     if (authoring) return authoring;

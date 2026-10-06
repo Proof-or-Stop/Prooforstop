@@ -32,6 +32,7 @@ import { loadConfig, PROOF_OR_STOP_CONFIG_FILENAME } from '../core/config.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import { verificationIntentHasPlannedPathDeclarations } from '../core/acceptance-topology.js';
+import { verificationIntentClassificationFailure } from '../core/verification-intent-classification.js';
 import { renderAgentLivenessGuidance } from '../core/agent-liveness-policy.js';
 import {
   renderManagedInitReviewerDispatches,
@@ -43,7 +44,7 @@ import { ensureGitCommitIdentityNotice } from '../core/git-commit-identity.js';
 import {
   consumeStagedStoryRequest,
   readStoryRequest,
-  renderUnmappedLiteralsLine,
+  renderUnmappedLiteralsRemedy,
   stageStoryRequest,
   unmappedStoryRequestLiterals,
   writeStoryRequest,
@@ -531,6 +532,13 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           'story_create refused: plannedPathDeclarations may only be authored by the dispatched verification-intent role through checklist_update during PLAN [planned_path_writer_not_authorized]',
         );
       }
+      // Run 19 (P4): one intent-metadata rule from intake to PLAN acceptance. An
+      // unclassified intake intent is refused here, before anything is written,
+      // instead of teaching the owner a shape PLAN intent writes refuse later.
+      for (const [index, item] of (args.checklist ?? []).entries()) {
+        const failure = verificationIntentClassificationFailure(`CHK-${String(index + 1).padStart(3, '0')}`, item.verificationIntent, 'story_create');
+        if (failure) throw new Error(failure);
+      }
       // B-6812 CHK-001 / B-f60c CHK-003: serialize the whole story_create body
       // (fromDraft branch + normal branch) so the idempotency scan →
       // nextStoryId → writeStory → writeChecklist sequence is atomic against
@@ -617,9 +625,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         const recorded = readStoryRequest(store, storyId);
         if (recorded.status !== 'ok' || items.length === 0) return '';
         const unmapped = unmappedStoryRequestLiterals(recorded.text, items);
-        return unmapped.length > 0
-          ? `\n⚠ ${renderUnmappedLiteralsLine(unmapped)}. Each example and each listed variant needs a checklist userSees (or a PLAN verificationIntent) that states it exactly.`
-          : '';
+        return unmapped.length > 0 ? `\n${renderUnmappedLiteralsRemedy(storyId, unmapped, items)}` : '';
       };
       // === B-9975 CHK-003: FROM-DRAFT MODE ===
       // When fromDraft is provided, bypass normal creation path entirely.
@@ -1298,8 +1304,9 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       ];
       if (story.phase === 'INIT') lines.push('INIT reviewers sign request.md: rerun them if they already recorded init_check_set.');
       try {
-        const unmapped = unmappedStoryRequestLiterals(readFileSync(store.storyFilePath(args.storyId, 'request.md'), 'utf-8'), store.readChecklist(args.storyId).items);
-        if (unmapped.length > 0) lines.push(`⚠ ${renderUnmappedLiteralsLine(unmapped)}`);
+        const items = store.readChecklist(args.storyId).items;
+        const unmapped = unmappedStoryRequestLiterals(readFileSync(store.storyFilePath(args.storyId, 'request.md'), 'utf-8'), items);
+        if (unmapped.length > 0) lines.push(renderUnmappedLiteralsRemedy(args.storyId, unmapped, items));
       } catch { /* checklist not yet written */ }
       return lines.join('\n');
     },

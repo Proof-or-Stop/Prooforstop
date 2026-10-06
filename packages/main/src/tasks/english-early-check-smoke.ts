@@ -204,7 +204,7 @@ function assertRefused(res: { status: number; output: string }, expected: string
         context: 'English context long enough for the smoke.',
         excludes: ['English excluded direction'],
         verificationIntent: {
-          happy: [{ desc: `Nested intent ${CJK_FIX}`, type: 'manual', priority: 'must' }],
+          happy: [{ desc: `Nested intent ${CJK_FIX}`, type: 'manual', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
           edge: [],
           adversarial: [],
         },

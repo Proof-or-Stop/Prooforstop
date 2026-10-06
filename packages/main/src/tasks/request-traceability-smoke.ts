@@ -92,9 +92,9 @@ try {
       title: 'Parser accepts stepped ranges',
       userSees: 'Parsing `value[start::step]` and `value[::step]` succeeds; `str(parse("myArray[::2]"))` prints `(myArray[::2])`.',
       verificationIntent: {
-        happy: [{ desc: 'value[start:end:step] parses', type: 'logic', priority: 'must' }],
-        edge: [{ desc: 'value[start::step] parses', type: 'logic', priority: 'must' }],
-        adversarial: [{ desc: 'invalid step is rejected', type: 'logic', priority: 'must' }],
+        happy: [{ desc: 'value[start:end:step] parses', type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
+        edge: [{ desc: 'value[start::step] parses', type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
+        adversarial: [{ desc: 'invalid step is rejected', type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
       },
     }],
     forceNew: true,
