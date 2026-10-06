@@ -102,6 +102,12 @@ for (const [name, fixture, refusedIds, pairs] of [
   const sameText = { id: 'B-ba92:F-004', desc: D9_r1.findings[0]!.desc, files: ['docs/other.md'] };
   assert.deepEqual(reconcileRestatedCriticFindings({ ownFindings: [sameText], otherFindings: other, dispositions: laneRows }).restated, [],
     'the same words about a different file are not provably the same finding');
+  // Alike prose about different code (e2e NC3 caught this): Upper vs Reverse, same files, Jaccard 0.67.
+  const reverse = { id: 'B-x:F-001', desc: 'Reverse has no focused test for an empty string: Reverse("") must return "" without indexing r[-1].', files: ['strs/strs.go', 'strs/strs_test.go'] };
+  const upper = { id: 'B-x:F-002', desc: 'Upper has no focused test for an empty string: Upper("") must return "".', files: ['strs/strs.go', 'strs/strs_test.go'] };
+  assert.deepEqual(reconcileRestatedCriticFindings({ ownFindings: [upper], otherFindings: [reverse],
+    dispositions: [{ findingId: reverse.id, disposition: 'verified_family', familyKey: 'reverse-empty', reason: 'Reverse empty edge untested.' }] }).restated, [],
+  'a same-shaped claim about a different function is a new finding');
   // Two lane findings equally similar and no critic link: ambiguous, not reconciled.
   const twin = { ...D9_r1.findings[0]!, id: 'B-ba92:F-009' };
   assert.deepEqual(reconcileRestatedCriticFindings({ ownFindings: [{ ...D9_r1.findings[3]!, id: 'B-ba92:F-010' }], otherFindings: [...other, twin],

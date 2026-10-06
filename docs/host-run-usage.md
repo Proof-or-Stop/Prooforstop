@@ -124,6 +124,19 @@ Status queries only observe that state; they never reconcile an overdue run,
 refresh an owner lease, or authorize a replacement. Cancellation remains an
 explicit control operation.
 
+A detached launch starts the recovery supervisor first and spawns the provider
+worker only after the supervisor reports ready
+(`MANAGED_SUPERVISOR_RUNTIME_POLICY.readyTimeoutMs`, 30 s: before ready it loads
+the CLI module graph, with the on-disk compile cache, and may wait on the run's
+terminal authority lock, whose deadline is 30 s; the earlier 5 s timed out under
+host load). If it never becomes ready the run fails
+`worker_launch_failed:managed supervisor readiness timeout` (or `... exited
+before readiness`). No worker was spawned, so when the supervisor child was
+reaped this failure is `replacementSafe=true` (any other launcher error stays
+`false`), and `next` relaunches the lane itself as a bound framework step, at
+most `MANAGED_SUPERVISOR_NOT_READY_AUTO_RELAUNCHES` (3) times per lane and
+round; after that, or for any other failure, the replacement is the agent's call.
+
 An ordinary host run executes in the **resolved project root** (the `--root`
 target — the same root the usage-ledger rows are attributed to), independent of
 the caller's current working directory, so where the host actually runs can

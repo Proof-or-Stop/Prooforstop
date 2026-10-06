@@ -2841,6 +2841,8 @@ export type ProcessEventType =
   | 'review_pass'
   /** A reviewer's evidence-chain item reclassified at import as a framework action (never a finding). */
   | 'review_evidence_chain_reclassified'
+  /** A managed inventory critic's sealed block was refused at import (next then runs a fresh critic naming this reason). */
+  | 'inventory_critic_import_refused'
   | 'dirty_gate_audit'
   | 'init_check_fallback'
   | 'capsule_updated'

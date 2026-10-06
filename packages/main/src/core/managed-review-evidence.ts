@@ -533,7 +533,7 @@ function reviewRunSequence(reviewRunId: string): number | null {
 }
 
 export function buildManagedInventoryCriticEvidencePack(args: {
-  criticRun: Pick<ReviewRun, 'reviewRunId' | 'storyId' | 'reviewRound' | 'headHash' | 'materialHash' | 'storyFilesHash' | 'reviewPurpose' | 'inventoryBinding'>;
+  criticRun: Pick<ReviewRun, 'reviewRunId' | 'storyId' | 'reviewRound' | 'headHash' | 'materialHash' | 'storyFilesHash' | 'reviewPurpose' | 'inventoryBinding'> & { lane?: string };
   epoch: { epochId: string; storyId: string; state: string; reviewRound: string; cutoff: { headHash: string; materialHash: string; storyFilesHash?: string }; requiredLanes: string[] };
   reviewRuns: ReviewRun[];
   findings: Finding[];
@@ -552,7 +552,11 @@ export function buildManagedInventoryCriticEvidencePack(args: {
   const criticSequence = reviewRunSequence(args.criticRun.reviewRunId);
   const reviewRuns = args.reviewRuns.filter(run => {
     const sequence = reviewRunSequence(run.reviewRunId);
-    return requiredLanes.has(run.lane)
+    // An earlier critic of this same wave whose import was refused is part of
+    // the aggregate the next critic must classify (its findings are kept).
+    const earlierCritic = run.reviewPurpose === 'inventory-completeness' && run.lane === args.criticRun.lane
+      && run.inventoryBinding?.epochId === binding.epochId && run.inventoryBinding?.wave === binding.wave;
+    return (requiredLanes.has(run.lane) || earlierCritic)
       && sequence !== null && sequence > binding.runSequenceBoundary
       && (criticSequence === null || sequence < criticSequence)
       && run.storyId === args.criticRun.storyId
@@ -607,6 +611,17 @@ export function managedInventorySubjectState(store: StoryStore, run: ReviewRun, 
   }
 }
 
+/**
+ * A/B control D2-r3/D9-r1: an earlier critic of this wave whose sealed block
+ * the importer refused. The fresh critic sees the exact refusal so it can
+ * classify every finding it names (`next` runs it instead of the same import).
+ */
+function renderRefusedEarlierCriticImports(store: StoryStore, run: ReviewRun, packRunIds: readonly string[]): string[] {
+  const refusals = store.readProcessEvents(run.storyId).filter(event => event.type === 'inventory_critic_import_refused'
+    && typeof event.reviewRunId === 'string' && packRunIds.includes(event.reviewRunId));
+  return refusals.map(event => `An earlier critic of this wave (ReviewRun ${String(event.reviewRunId)}) was refused at import: ${String(event.reason ?? '').slice(0, 600)}. Its findings are in this pack and need rows by findingId; give every finding named there exactly one row.`);
+}
+
 function renderManagedInventoryCriticEvidencePack(root: string, run: ReviewRun): string[] {
   if (run.reviewPurpose !== 'inventory-completeness') return [];
   const store = new StoryStore(root);
@@ -640,6 +655,7 @@ function renderManagedInventoryCriticEvidencePack(root: string, run: ReviewRun):
     'Independently inspect every required-lane terminal, signatureValid flag, readManifest/readLog, and exact Finding family. Do not infer topology, TEST, DONE, or implementation authority from this pack.',
     'This is a second-order inventory audit, not a repeat of concept, quality, or test-coverage review. Start with this signed pack; inspect source or run focused commands when a specific family, coverage claim, or plausible omission needs independent resolution. Do not reread the whole implementation or rerun the full test suite by default. Preserve the required truthful full read and report an unresolved limitation rather than inventing coverage or PASS.',
     `For your final inventoryCritic block, copy these exact values: ${JSON.stringify({epochId: epoch.epochId, wave: epoch.waves.length + 1})}. They come from this pack's epoch.epochId and epoch.waves.length + 1; do not infer them from Finding IDs or earlier runs.`,
+    ...renderRefusedEarlierCriticImports(store, run, pack.reviewRuns.map(row => row.reviewRunId)),
     JSON.stringify(projected),
     '--- END CONTROLLER-FETCHED CURRENT INVENTORY EVIDENCE PACK ---',
   ];

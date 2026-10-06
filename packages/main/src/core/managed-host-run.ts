@@ -2963,6 +2963,28 @@ export function projectManagedHostRunTerminalResult(
  * prompt text, or a durable plaintext artifact. stdout/stderr are append-only
  * worker diagnostics, not the provider live-output protocol.
  */
+/** Terminal reason prefix of a launch that failed before its recovery supervisor became ready. */
+export const MANAGED_SUPERVISOR_NOT_READY_REASON = 'worker_launch_failed:managed supervisor';
+
+/**
+ * The recovery supervisor never became ready, so no provider worker was ever
+ * spawned (launch order supervisor-ready-before-worker) and the supervisor
+ * child was reaped: nothing of this run can still act. Unlike a launcher error
+ * after the worker spawn, this failure is provably replacement-safe.
+ */
+export class ManagedSupervisorNotReadyError extends Error {
+  constructor(message: string, readonly reap: { directKillSent: boolean; reaped: boolean }) { super(message); }
+}
+
+/** How many supervisor-not-ready failures of one lane and round `next` relaunches itself before the replacement becomes the agent's call. */
+export const MANAGED_SUPERVISOR_NOT_READY_AUTO_RELAUNCHES = 3;
+
+/** A failed managed run that `next` may relaunch itself (bounded): a supervisor that never became ready. */
+export function isAutoReplaceableManagedLaunchFailure(run: { state: string; replacementSafe?: boolean | null; terminalReason?: string | null }): boolean {
+  return run.state === 'failed' && run.replacementSafe === true
+    && (run.terminalReason ?? '').startsWith(MANAGED_SUPERVISOR_NOT_READY_REASON);
+}
+
 async function launchManagedSupervisor(request: ManagedHostRunWorkerRequest, logFd: number): Promise<void> {
   const entry = runtimeDistPath('cli', 'managed-host-run-supervisor.js');
   const supervisor = spawn(process.execPath, [entry, request.root, request.runId], {
@@ -2985,8 +3007,8 @@ async function launchManagedSupervisor(request: ManagedHostRunWorkerRequest, log
     supervisor.disconnect();
     supervisor.unref();
   } catch (error) {
-    await reapUnidentifiedManagedHostRunWorker(supervisor);
-    throw error;
+    const reap = await reapUnidentifiedManagedHostRunWorker(supervisor);
+    throw new ManagedSupervisorNotReadyError(error instanceof Error ? error.message : String(error), reap);
   }
 }
 
@@ -3382,8 +3404,13 @@ export async function submitManagedHostRun(
     unlinkIfPresent(paths.environment);
     // A launcher may throw after the OS process exists but before it can return
     // the worker pid. Without a returned identity the submitter cannot prove
-    // reap or replacement safety, so publish the ambiguity honestly.
-    writeTerminal(paths, 'failed', `worker_launch_failed:${error instanceof Error ? error.message : String(error)}`, false, null, now());
+    // reap or replacement safety, so publish the ambiguity honestly. The one
+    // provable exception: the recovery supervisor never became ready (so the
+    // worker was never spawned) and was reaped -- that launch is replacement-safe.
+    const notReady = error instanceof ManagedSupervisorNotReadyError && error.reap.reaped
+      && !existsSync(paths.claim) && readManagedHostRunSnapshot(paths).workerPid === null;
+    writeTerminal(paths, 'failed', `worker_launch_failed:${error instanceof Error ? error.message : String(error)}`, notReady, null, now(),
+      notReady ? { termSent: false, killSent: (error as ManagedSupervisorNotReadyError).reap.directKillSent, reaped: true, residualProcessGroup: false } : undefined);
     return projectionFor(paths);
   }
 

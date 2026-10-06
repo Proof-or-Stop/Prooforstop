@@ -3,7 +3,7 @@ import { cleanRoundCriticSkip } from '../core/review-inventory-critic-skip.js';
 import { commitReviewEpochMetadata } from '../core/review-metadata-batch.js';
 import { readManagedHostRunBinding, readManagedReviewEvidenceProposal } from '../core/managed-host-run.js';
 import { createManagedReviewEvidenceBinding, managedReviewerPromptDigest, verifyManagedReviewLiveBinding } from '../core/managed-review-evidence.js';
-import { isManagedInventoryCritic, validInventoryCriticReason, type ManagedInventoryFindingRef } from '../core/managed-inventory-critic.js';
+import { isManagedInventoryCritic, reconcileRestatedCriticFindings, validInventoryCriticReason, type ManagedInventoryFindingRef } from '../core/managed-inventory-critic.js';
 import { recordConvergenceProgressUnlocked } from '../core/convergence-progress-journal.js';
 import { collectOrphanPromptBodies } from '../core/prompt-body-gc.js';
 import type { HandlerContext } from './context.js';
@@ -505,13 +505,25 @@ export function importManagedInventoryCritic(ctx: HandlerContext, args: { runId:
     );
     if (dirty.error) throw new Error(`managed inventory critic: material status-unavailable: ${dirty.error}`);
     if (dirty.files.length) throw new Error(`managed inventory critic: material drift: ${dirty.files.join(', ')}`);
-    const findingDispositions = block.findingDispositions.map(row => ({findingId: resolve(row.finding),
+    const criticRows = block.findingDispositions.map(row => ({findingId: resolve(row.finding),
       disposition: row.disposition, reason: row.reason, ...(row.familyKey ? {familyKey: row.familyKey} : {}),
       ...(row.canonicalFinding && row.disposition !== 'verified_family' ? {canonicalFindingId: resolve(row.canonicalFinding)} : {})}));
-    if (new Set(findingDispositions.map(row => row.findingId)).size !== findingDispositions.length) {
+    if (new Set(criticRows.map(row => row.findingId)).size !== criticRows.length) {
       throw new Error('managed inventory critic: duplicate resolved finding identity');
     }
-    return persistCriticReceipt(ctx, {storyId, epochId: block.epochId, reviewRunId: run.reviewRunId, findingDispositions});
+    // A/B control D2-r3/D9-r1: a critic finding that provably restates an
+    // earlier finding of this wave completes the missing row as a duplicate of
+    // it (core/managed-inventory-critic.ts); anything else stays as authored.
+    const allFindings = ctx.store.readFindings(storyId).findings;
+    const ownIds = new Set(ownFindings.map(f => f.id));
+    const rawIds = evaluateCurrentWave(ctx, epoch, []).rawFindingIds;
+    const otherFindings = rawIds.filter(id => !ownIds.has(id))
+      .map(id => allFindings.find(f => f.id === id)).filter((f): f is NonNullable<typeof f> => Boolean(f));
+    const { dispositions: findingDispositions, restated } = reconcileRestatedCriticFindings({
+      ownFindings: ownFindings.filter(f => rawIds.includes(f.id)), otherFindings, dispositions: criticRows });
+    const written = persistCriticReceipt(ctx, {storyId, epochId: block.epochId, reviewRunId: run.reviewRunId, findingDispositions});
+    return restated.length === 0 ? written : `${written}\nCritic restated earlier finding(s), recorded as duplicates: ${
+      restated.map(row => `${row.ownFindingId} -> ${row.restatedFindingId} (${row.basis}, similarity ${row.similarity.toFixed(2)})`).join(', ')}`;
   });
 }
 

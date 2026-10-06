@@ -641,7 +641,10 @@ export const MANAGED_STATUS_OBSERVATION_POLICY = {
 
 /** Independent recovery must survive both the submitting CLI and its worker. */
 export const MANAGED_SUPERVISOR_RUNTIME_POLICY = {
-  readyTimeoutMs: 5_000,
+  // Before it reports ready the supervisor loads the CLI module graph and takes
+  // the run's terminal authority lock (deadline 30 s). 5 s timed out under host
+  // load (2-CPU container, 4 lanes launched back to back): detection A/B pilot.
+  readyTimeoutMs: 30_000,
   workerClaimTimeoutMs: 30_000,
   pollIntervalMs: 1_000,
   diagnosticGraceMs: 5_000,
