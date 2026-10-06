@@ -89,6 +89,10 @@
  *      DONE. NC3: the critic misfiles a genuinely new finding's row: the
  *      import refuses once, next never re-proposes it but runs a fresh critic
  *      whose prompt names the error; the new finding is repaired.
+ *   NC4 run 19 (B-8166): round 1's only finding is SUSPECTED (low); the critic
+ *      gives it a verified_family row. The import drops and logs that row
+ *      (no refusal, no loop, no owner-written receipt); the round finalizes,
+ *      the finding stays suspected and advisory, DONE.
  *
  * Machine registries (provider slots, locks) use a disposable fixture machine
  * so the harness never touches the developer's ~/.proof-or-stop admission state.
@@ -100,7 +104,7 @@
  *      V4 remediation.grouping=single, V5 implementation.grouping=files on an
  *      unimplemented fixture). `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NL|NU|NU2|NC|NC2|NC3|AB|ND-V1..NF-V5]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NL|NU|NU2|NC|NC2|NC3|NC4|AB|ND-V1..NF-V5]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -1172,8 +1176,16 @@ const VERIFIED_PROMISES = [
 /** Which scripted findings round 1 reports (shared by the inline harness and the run-mode resolver). */
 interface ScriptMode { findingRound1: boolean; twoFindings?: boolean; lowFindings?: boolean; duplicate?: 'covered' | 'uncovered';
   /** Detection A/B control D9-r1 / D2-r3 / refused critic: how the FIRST round-1 critic restates or omits findings (scenarios NC, NC2, NC3). */
-  criticRestate?: CriticRestateMode }
+  criticRestate?: CriticRestateMode;
+  /** Run 19 (NC4): round 1's only finding is a SUSPECTED low one; the (ordinary) critic gives it a verified_family row. */
+  suspectedOnly?: boolean }
 type CriticRestateMode = 'copies' | 'reworded' | 'new-misfiled';
+
+/** Run 19 shape (B-8166 F-001): a suspected low lane finding, the round's only one. */
+const NC4_SUSPECTED = {
+  desc: 'Upper of a string with a non-letter rune may change it: the intended behavior for digits is not specified (suspected).',
+  severity: 'low', category: 'edge', files: ['strs/strs.go'], evidenceState: 'suspected', uncertaintyReason: 'The request does not specify the intended wording for non-letter runes.',
+};
 
 /** D2-r3 shape: the critic's own reworded restatement of D_FINDING (same files, same claim). */
 const NC_REWORDED_DESC = 'Base-to-head gap: Reverse has no focused empty-string test; Reverse("") must return "" and never index r[-1] on an empty string.';
@@ -1184,7 +1196,7 @@ type ProviderScript = { final: string; commands?: string[][] };
 function laneScript(worktree: string, storyId: string, lane: string, reviewRunId: string, firstRound: boolean, mode: ScriptMode): ProviderScript {
   const envelope = mode.findingRound1 && firstRound && lane === 'proof-or-stop-review-test-coverage'
     ? { conclusion: 'findings', note: 'Scripted behavior finding: empty-string edge case is untested.',
-      findings: mode.lowFindings ? [D_FINDING, NL_LOW_REPAIRED, NL_LOW_COSMETIC] : mode.twoFindings ? [D_FINDING, NF_FINDING] : mode.duplicate ? [D_FINDING, NU_DUP_FINDING] : [D_FINDING] }
+      findings: mode.suspectedOnly ? [NC4_SUSPECTED] : mode.lowFindings ? [D_FINDING, NL_LOW_REPAIRED, NL_LOW_COSMETIC] : mode.twoFindings ? [D_FINDING, NF_FINDING] : mode.duplicate ? [D_FINDING, NU_DUP_FINDING] : [D_FINDING] }
     : PASS_ENVELOPE(lane);
   return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, ...envelope, ...readEvidenceFor(worktree, storyId) }) };
 }
@@ -1378,6 +1390,8 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   violations?: string[];
   /** Scenarios NC/NC2/NC3: the first round-1 critic restates (or leaves a new finding without a row). */
   criticRestate?: CriticRestateMode;
+  /** Run 19 (NC4): round 1's only finding is suspected. */
+  suspectedOnly?: boolean;
   /** NC3: critic imports refused with DISPOSITION_INCOMPLETE/INVALID (at most one is tolerated; next must then change course). */
   refusedCriticImports?: string[]; }, lines: string[],
   /** Called with each step `next` returned, before the harness executes it; quiet = no detached managed run in flight. */
@@ -1741,6 +1755,42 @@ function scenarioNC(machineEnv: NodeJS.ProcessEnv, steps: Step[], restate: Criti
   }
 }
 
+/** Run 19 (B-8166): a critic row for the round's only (suspected) finding is dropped and logged, never a refused import. */
+function scenarioNC4(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const name = 'NC4 run 19: critic row for a suspected finding is dropped and logged, the round finalizes, DONE';
+  const o = new Owner('NC4', 'B-e2f4', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  const refused: string[] = [];
+  try {
+    devSetup(o);
+    let ownerReceipt: { status: number; out: string } | undefined;
+    driveWithNext(o, { findingRound1: true, run: false, suspectedOnly: true, refusedCriticImports: refused }, lines, next => {
+      if (ownerReceipt || next.reason !== 'inventory_status_next') return;
+      // Run 19: the owner wrote the managed critic's receipt itself (empty list, critic identity). F5: refused.
+      const store = new StoryStore(o.worktree);
+      const epoch = store.readReviewInventoryEpochs(o.storyId).epochs.at(-1)!;
+      const critic = store.readReviewRuns(o.storyId).runs.filter(run => run.reviewPurpose === 'inventory-completeness').at(-1)!;
+      const ran = o.cli('review_inventory_critic_set', { storyId: o.storyId, epochId: epoch.epochId, reviewRunId: critic.reviewRunId,
+        agent: MANAGED_INVENTORY_CRITIC_LANE, findingDispositions: [] }, { label: 'owner review_inventory_critic_set (refused)' });
+      ownerReceipt = { status: ran.status ?? 1, out: ran.out };
+    });
+    assert.deepEqual(refused, [], 'NC4: no critic import refused');
+    assert.ok(ownerReceipt && ownerReceipt.status !== 0 && /REVIEW_INVENTORY_CRITIC_MANAGED_RECEIPT_ONLY/.test(ownerReceipt.out),
+      `NC4: an owner-written receipt for the managed critic run is refused: ${ownerReceipt?.out.slice(-600)}`);
+    const store = new StoryStore(o.root);
+    const suspected = store.readFindings(o.storyId).findings.find(f => f.desc === NC4_SUSPECTED.desc);
+    assert.equal(suspected?.evidenceState, 'suspected', 'NC4: the finding stays suspected (no promotion by the critic)');
+    const dropped = store.readProcessEvents(o.storyId).filter(e => e.type === 'inventory_critic_disposition_dropped');
+    assert.ok(dropped.some(e => (e.droppedFindingIds as string[] | undefined)?.includes(suspected!.id)), `NC4: the dropped row is logged: ${JSON.stringify(dropped)}`);
+    lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`NC4 fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 function scenarioN(machineEnv: NodeJS.ProcessEnv, steps: Step[], flow: 'A' | 'D', run: boolean): Outcome {
   const tag = `N${flow}${run ? '-run' : ''}`;
   const name = `${tag} ${flow}'s flow from REVIEW entry driven only by proof-or-stop next${run ? ' --run' : ''}`;
@@ -1986,7 +2036,7 @@ function printTimeline(steps: Step[], scenario: string): void {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF|NL|NU2?|NC[23]?|N[AD](?:-run)?|N[DF]-V[1-5]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF|NL|NU2?|NC[234]?|N[AD](?:-run)?|N[DF]-V[1-5]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -2018,6 +2068,7 @@ async function main(): Promise<void> {
     for (const [token, restate] of [['NC', 'copies'], ['NC2', 'reworded'], ['NC3', 'new-misfiled']] as const) {
       if (only.includes(token)) outcomes.push(scenarioNC(machine.env, steps, restate));
     }
+    if (only.includes('NC4')) outcomes.push(scenarioNC4(machine.env, steps));
     // Detection A/B arms: explicit tokens (ND-V1 .. NF-V5) or AB = ND-V1, ND-V2, ND-V3, NF-V4, ND-V5.
     const abTokens = only.includes('AB') ? ['ND-V1', 'ND-V2', 'ND-V3', 'NF-V4', 'ND-V5'] : [];
     for (const token of [...new Set([...abTokens, ...only.filter(arg => /^N[DF]-V[1-5]$/.test(arg))])]) {
@@ -2026,7 +2077,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {
