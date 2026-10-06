@@ -1,4 +1,8 @@
 import { MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY } from '../core/runtime-fact-registry.js';
+import { abVariantEvidence, resolveAbVariants, type AbVariantEvidence } from '../core/ab-variants.js';
+import { loadConfig } from '../core/config.js';
+import { isTerminalChecklistStatus } from '../core/checklist-status.js';
+import { renderGroupedFindingRepairSection, renderGroupedItemSection, sharedFileItemGroup, shortFindingId } from '../core/ab-dispatch-grouping.js';
 import { hostRunStatusBlocksUntilTerminal, OWNER_WAIT_BLOCK_MS, OWNER_WAIT_YIELD_MS } from '../core/owner-wait-guidance.js';
 import { renderHostRunStatusSummary } from './host-run-status-summary.js';
 /**
@@ -86,6 +90,10 @@ export interface HostRunCommandArgs extends FormatArgs {
   storyId?: string;
   itemId?: string;
   findingId?: string;
+  /** EXPERIMENTAL A/B remediation.grouping=single: all findings of one grouped repair (findingId first). */
+  groupFindingIds?: string[];
+  /** EXPERIMENTAL A/B implementation.grouping=files: all items of one grouped implementer run (itemId first). */
+  groupItemIds?: string[];
   agentType?: string;
   phase?: string;
   prompt?: string;
@@ -476,6 +484,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         fullScanEscalationReason?: string;
       } | null = null;
       let managedDispatch = false;
+      let groupedTarget: { groupFindingIds?: string[]; groupItemIds?: string[]; abVariant: AbVariantEvidence } | null = null;
       if (args.managedReview === true && args.managedDispatch === true) {
         throw new Error('host_run: --managedReview and --managedDispatch are mutually exclusive');
       }
@@ -609,6 +618,12 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           ...(itemId ? { itemId } : {}),
           ...(findingId ? { findingId } : {}),
         }).prompt;
+        // EXPERIMENTAL A/B grouped dispatch (core/ab-dispatch-grouping.ts); accepted only under its switch.
+        const grouped = resolveGroupedManagedDispatch(ctx, { storyId, agentType, itemId, findingId, groupFindingIds: args.groupFindingIds, groupItemIds: args.groupItemIds });
+        if (grouped) {
+          promptText += `\n${grouped.section.join('\n')}`;
+          groupedTarget = grouped.target;
+        }
         managedDispatch = true;
       } else if (hasPrompt === hasPromptFile) {
         throw new Error('host_run: provide exactly one of --prompt or --promptFile (or use --managedReview with an exact ReviewRun)');
@@ -670,9 +685,9 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           reasoningEffort: selection.reasoningEffort,
           storyId,
           ...(managedDispatch && agentType === 'proof-or-stop-implementer' && itemId
-            ? { managedDispatchTarget: { itemId } }
+            ? { managedDispatchTarget: groupedTarget ? { itemId, groupItemIds: groupedTarget.groupItemIds!, abVariant: groupedTarget.abVariant } : { itemId } }
             : managedDispatch && agentType === 'proof-or-stop-finding-repair' && findingId
-              ? { managedDispatchTarget: { findingId } }
+              ? { managedDispatchTarget: groupedTarget ? { findingId, groupFindingIds: groupedTarget.groupFindingIds!, abVariant: groupedTarget.abVariant } : { findingId } }
             : {}),
           agentType,
           phase,
@@ -1078,4 +1093,48 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
       return '';
     },
   };
+}
+
+/**
+ * EXPERIMENTAL A/B grouped managed dispatch. Absent group arguments: null (the
+ * production single-target launch). Present: refused unless the matching switch
+ * is set (remediation.grouping=single / implementation.grouping=files), the
+ * group starts with the bound target, and every member is a current open target.
+ */
+export function resolveGroupedManagedDispatch(ctx: HandlerContext, args: {
+  storyId: string; agentType: string; itemId: string | null; findingId: string | null; groupFindingIds?: unknown; groupItemIds?: unknown;
+}): { section: string[]; target: { groupFindingIds?: string[]; groupItemIds?: string[]; abVariant: AbVariantEvidence } } | null {
+  const list = (value: unknown, name: string): string[] | null => {
+    if (value === undefined || value === null) return null;
+    const raw = typeof value === 'string' ? value.split(',') : value;
+    if (!Array.isArray(raw) || raw.some(entry => typeof entry !== 'string')) throw new Error(`host_run: --${name} must be a list of ids`);
+    return [...new Set(raw.map(entry => (entry as string).trim()).filter(Boolean))];
+  };
+  const findingGroup = list(args.groupFindingIds, 'groupFindingIds');
+  const itemGroup = list(args.groupItemIds, 'groupItemIds');
+  if (!findingGroup && !itemGroup) return null;
+  let variants;
+  try { variants = resolveAbVariants(loadConfig(ctx.root)); } catch (error) { throw new Error(`host_run: grouped dispatch refused: ${error instanceof Error ? error.message : String(error)}`); }
+  const evidence = abVariantEvidence(variants);
+  if (findingGroup) {
+    if (itemGroup || args.agentType !== 'proof-or-stop-finding-repair' || !args.findingId) throw new Error('host_run: --groupFindingIds is valid only for a managed proof-or-stop-finding-repair with findingId');
+    if (variants.remediationGrouping !== 'single' || !evidence) throw new Error('host_run: --groupFindingIds requires the experimental A/B switch remediation.grouping="single" in proof-or-stop.config.json');
+    const findings = ctx.store.readFindings(args.storyId).findings;
+    const resolved = findingGroup.map(id => findings.find(row => row.id === id || row.id === `${args.storyId}:${shortFindingId(args.storyId, id)}`));
+    if (resolved.some(row => !row || row.status !== 'open')) throw new Error('host_run: every --groupFindingIds member must be an open finding of this Story');
+    const ids = [...new Set(resolved.map(row => row!.id))];
+    if (ids[0] !== args.findingId || ids.length < 2) throw new Error('host_run: --groupFindingIds must list findingId first and at least one other finding');
+    return { section: renderGroupedFindingRepairSection(args.storyId, args.findingId, ids.map(id => findings.find(row => row.id === id)!)),
+      target: { groupFindingIds: ids, abVariant: evidence } };
+  }
+  if (args.agentType !== 'proof-or-stop-implementer' || !args.itemId) throw new Error('host_run: --groupItemIds is valid only for a managed proof-or-stop-implementer with itemId');
+  if (variants.implementationGrouping !== 'files' || !evidence) throw new Error('host_run: --groupItemIds requires the experimental A/B switch implementation.grouping="files" in proof-or-stop.config.json');
+  const items = ctx.store.readChecklist(args.storyId).items;
+  const primary = items.find(item => item.id === args.itemId);
+  if (!primary || itemGroup![0] !== args.itemId || itemGroup!.length < 2) throw new Error('host_run: --groupItemIds must list itemId first and at least one other item');
+  const group = sharedFileItemGroup(primary, items.filter(item => !isTerminalChecklistStatus(item.status)));
+  const allowed = new Set(group.map(item => item.id));
+  if (itemGroup!.some(id => !allowed.has(id))) throw new Error('host_run: every --groupItemIds member must be an open item sharing a declared file with itemId');
+  return { section: renderGroupedItemSection(args.storyId, args.itemId, itemGroup!.map(id => items.find(item => item.id === id)!)),
+    target: { groupItemIds: itemGroup!, abVariant: evidence } };
 }

@@ -1127,6 +1127,38 @@ the DEV / REVIEW / TEST guidance printed by `story_advance`. Refusals that alrea
 name one concrete command (evidence-chain, finding closure, certification blockers
 with a store) keep it; `next` computes the same command.
 
+### Experimental detection A/B variant switches (default off; A/B measurement only)
+
+Five project-config switches exist ONLY to measure, in a detection A/B, whether a
+structural review/dispatch change loses findings (bench-staging run-17 cost
+analysis §3). They are **not** production settings. Every one defaults OFF: with
+no key in `proof-or-stop.config.json` the resolved value is the production value
+and the CLI behaves byte-for-byte as before. A malformed value never selects an
+arm: gates and `next` fail closed to production behavior, and an explicit grouped
+`host_run` is refused with `invalid_ab_variant_config` (`core/ab-variants.ts`).
+Every switch that changes what a gate accepts is honoured only while it is set in
+the config that gate reads, and the arm is recorded in the evidence:
+
+| Switch (config key) | Values (default first) | What changes when set | Evidence of the arm |
+| --- | --- | --- | --- |
+| `review.criticOnCleanRound` | `run` \| `skip` | `review_inventory_finalize` may finalize an inventory epoch's FIRST wave without the completeness (topology) critic when every required lane is terminal `pass` with zero findings (no verified/suspected/disproven finding terminal, no baseline findings, no missing or duplicate lane). `review_inventory_status` then prints `Completeness critic: skipped (...)` and its Next is plain finalize, so `next` never launches the critic for a clean round. A round with any finding still runs the critic. The PRE_CERT / remediation consume replay (`finalizedLiveAggregateError`) accepts the missing critic receipt only while the switch is still `skip` and the live wave is still clean (`core/review-inventory-critic-skip.ts`). | signed `criticSkip {reason, abVariant, laneTerminalDigest}` on the finalized wave (covered by the epoch `_hash`) |
+| `review.round2Scope` | `full` \| `repaired-files` | A code-review lane reviewing a later candidate (the managed re-review block) is told to review ONLY the files changed by the repair commits (previous candidate HEAD..current HEAD, material paths) plus their direct callers. "Direct callers" is a cheap approximation (`repairedFilesReviewScope`, core/managed-review-evidence.ts): the definitions named in the repair diff's hunk headers (git's funcname context, e.g. `func Reverse`) and definitions added on `+` lines, each searched whole-word with `git grep -l -w` at the current HEAD (max 12 symbols, 30 files, metadata excluded). The ReviewRun, prompt envelope and scope binding stay full; no read-coverage gate changes. | the A/B lines inside the sealed managed prompt (`managedPromptDigest`) |
+| `review.round2Lanes` | `resume` \| `fresh` | Later-candidate reviewer lanes never `codex exec resume` the earlier lane thread (`managedResumeSessionForSpec`); the sealed re-review prompt says it is a fresh session and focuses it on the prior findings and the repair diff (which the block already carries). | the A/B line inside the sealed managed prompt |
+| `remediation.grouping` | `per-finding` \| `single` | In DEV, `next` dispatches ONE managed finding-repair for every open blocking finding that no repair is bound to yet (critic duplicates excluded): `host_run ... --findingId=<first> --groupFindingIds=[...]`, accepted only under the switch. The prompt requires, per finding, its own regression test and one commit whose message names the finding id (`<story> F-00N: resolve finding`). A member counts as repaired (`managedFindingRepairState`) only by such a commit inside the run's window; otherwise `next` dispatches its own repair. Each finding is still closed by its own `finding_resolve` with its own evidence. | `managedDispatchTarget {findingId, groupFindingIds, abVariant}` in the immutable run spec |
+| `implementation.grouping` | `per-item` \| `files` | In DEV, open checklist items that share a declared file with the first open item are implemented by ONE managed implementer run: `host_run ... --itemId=<first> --groupItemIds=[...]`, accepted only under the switch. The worker marks only its bound item done (one-shot managed capability). Each other member is then proposed as `grouped_item_done` (`checklist_update ... done`, an owner step that verifies the item's own intent) only after a material commit inside the run's window touched one of that item's declared files. | `managedDispatchTarget {itemId, groupItemIds, abVariant}` in the immutable run spec |
+
+Set an arm in the project config, e.g. `{"review": {"criticOnCleanRound": "skip"}}`
+or `{"remediation": {"grouping": "single"}}`. The bench adapter writes it from the
+host environment: `POS_AB_FLAGS='{"review.criticOnCleanRound":"skip"}'` (dotted or
+nested JSON; unknown flags/values refused; empty = production) is merged into the
+prepared `proof-or-stop.config.json` by `adapter/pos_adapters/prepare_workflow.py`
+and recorded as `abFlags` in the preparation provenance. The local harness runs
+each arm end to end: `node packages/main/dist/tasks/e2e-review-to-done-smoke.js AB`
+(ND-V1, ND-V2, ND-V3, NF-V4, ND-V5; any `ND-Vn` / `NF-Vn` token works). Unit
+contract: `npm run test:ab-variant-switches`. The frozen reference driver
+(`tasks/helpers/next-driver-reference.ts`) mirrors production only; with every
+switch off `next` equals it (next-driver-cost smoke).
+
 `session_brief` is still the opening-briefing entry point for a new agent session; `status` / `next` are the short entry points for humans and agents to quickly restore context while working.
 
 ### 1. Build the full CLI first

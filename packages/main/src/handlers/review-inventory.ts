@@ -1,4 +1,5 @@
 import { readMaterialDirtyFiles } from '../core/evidence-freshness.js';
+import { cleanRoundCriticSkip } from '../core/review-inventory-critic-skip.js';
 import { commitReviewEpochMetadata } from '../core/review-metadata-batch.js';
 import { readManagedHostRunBinding, readManagedReviewEvidenceProposal } from '../core/managed-host-run.js';
 import { createManagedReviewEvidenceBinding, managedReviewerPromptDigest, verifyManagedReviewLiveBinding } from '../core/managed-review-evidence.js';
@@ -254,6 +255,8 @@ export function refreshReviewInventoryContextLocked(ctx: HandlerContext, storyId
 export interface ReviewInventoryStatusProjection {
   evaluation?: ReturnType<typeof evaluateReviewInventoryWave>;
   criticComplete?: boolean;
+  /** EXPERIMENTAL A/B review.criticOnCleanRound=skip: complete because the clean round skips the critic. */
+  criticSkipped?: boolean;
   criticReviewRunId?: string;
   receipt?: ReviewInventoryReceipt;
 }
@@ -318,7 +321,7 @@ export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, project
     `Verified finding families: ${live ? reviewInventoryAggregateFamilies(epoch, live).length : (last?.verifiedFindingFamilies.length ?? 0)}`,
     `New verified finding families: ${live?.newFamilies.length ?? last?.newVerifiedFindingCount ?? 0}`,
     ...(live ? [`Current-wave verified observations: ${live.rawFindingIds.length}`] : []),
-    `Completeness critic: ${projection.criticComplete ? 'complete' : 'pending'}`,
+    `Completeness critic: ${projection.criticSkipped || last?.criticSkip ? 'skipped (A/B review.criticOnCleanRound=skip, clean round)' : projection.criticComplete ? 'complete' : 'pending'}`,
     `Blockers: ${blockers.join(', ') || 'none'}`,
     ...(epoch.invalidation ? [`Changed lineage: ${epoch.invalidation.oldMaterialHash} -> ${epoch.invalidation.currentMaterialHash}`] : []),
     ...(epoch.invalidation?.oldScopeDigest ? [`Changed scope: ${epoch.invalidation.oldScopeDigest} -> ${epoch.invalidation.currentScopeDigest}`] : []),
@@ -355,10 +358,17 @@ function criticReceiptForCurrentWave(ctx: HandlerContext, epoch: ReviewInventory
   return data.criticReceipts.find(row => row.epochId === epoch.epochId && row.wave === epoch.waves.length + 1);
 }
 
+/** EXPERIMENTAL A/B review.criticOnCleanRound=skip: an OPEN clean first wave with no critic receipt. */
+function currentCriticSkipped(ctx: HandlerContext, epoch: ReviewInventoryEpoch): boolean {
+  if (epoch.state !== 'OPEN' || criticReceiptForCurrentWave(ctx, epoch)) return false;
+  return Boolean(cleanRoundCriticSkip(ctx.root, epoch, evaluateCurrentWave(ctx, epoch)));
+}
+
 function currentCriticComplete(ctx: HandlerContext, epoch: ReviewInventoryEpoch): boolean {
   if (epoch.state !== 'OPEN') return epoch.state === 'FINALIZED';
   const evaluation = evaluateCurrentWave(ctx, epoch);
   if (evaluation.missingLanes.length > 0 || evaluation.duplicateIdentities.length > 0) return false;
+  if (currentCriticSkipped(ctx, epoch)) return true;
   return validateReviewInventoryCriticReceipt({ promptStore: ctx.store,
     receipt: criticReceiptForCurrentWave(ctx, epoch),
     epoch,
@@ -397,6 +407,7 @@ function renderProjectedStatus(ctx: HandlerContext, epoch: ReviewInventoryEpoch)
   return renderReviewInventoryStatus(epoch, {
     evaluation,
     criticComplete: currentCriticComplete(ctx, epoch),
+    criticSkipped: currentCriticSkipped(ctx, epoch),
     criticReviewRunId: evaluation ? currentCriticReviewRunId(ctx, epoch, evaluation) : undefined,
     receipt: epoch.state === 'FINALIZED'
       ? ctx.store.readReviewInventoryEpochs(epoch.storyId).receipts.find(row => row.receiptId === epoch.receiptId)
@@ -790,12 +801,17 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           passes: ctx.store.readReviewPasses(args.storyId).passes,
           findings: ctx.store.readFindings(args.storyId).findings,
         });
-        if (!critic.ok) throw new Error(`REVIEW_INVENTORY_CRITIC_INCOMPLETE: ${critic.reason}; run the independent topology critic for wave ${epoch.waves.length + 1}`);
+        // EXPERIMENTAL A/B review.criticOnCleanRound=skip: a clean first wave may
+        // finalize without the critic; the signed wave records why and under which flag.
+        const criticSkip = !critic.ok && args.remediation !== true && !criticReceiptForCurrentWave(ctx, epoch)
+          ? cleanRoundCriticSkip(ctx.root, epoch, evaluation) : undefined;
+        if (!critic.ok && !criticSkip) throw new Error(`REVIEW_INVENTORY_CRITIC_INCOMPLETE: ${critic.reason}; run the independent topology critic for wave ${epoch.waves.length + 1}`);
         // Test-only barrier holds the real shared inventory critical section
         // after every finalize admission check and before receipt publication.
         holdFinalizeForDeterministicStress();
         const now = new Date().toISOString();
-        const wave = buildWave(epoch, evaluation, now, maxReviewRunSequence(ctx.store.readReviewRuns(args.storyId).runs));
+        const builtWave = buildWave(epoch, evaluation, now, maxReviewRunSequence(ctx.store.readReviewRuns(args.storyId).runs));
+        const wave = criticSkip ? { ...builtWave, criticSkip } : builtWave;
         const data = ctx.store.readReviewInventoryEpochs(args.storyId);
         if (!wave.saturated && args.remediation !== true) {
           throw new Error(
@@ -834,7 +850,7 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         data.epochs = data.epochs.map(row => row.epochId === epoch!.epochId ? finalized : row);
         data.receipts.push(receipt);
         ctx.store.writeReviewInventoryEpochs(args.storyId, data);
-        return `${renderReviewInventoryStatus(finalized, { criticComplete: true, receipt })}\nReceipt: ${receiptId}\nAuthority: ${receipt.authority}; authorizes TEST: ${receipt.authorizesTest}${captureConvergenceProgress(ctx, args.storyId, finalized.epochId)}${commitReviewEpochMetadata(ctx.store, ctx.root, args.storyId, args.remediation ? 'review_inventory_finalize --remediation' : 'review_inventory_finalize')}`;
+        return `${renderReviewInventoryStatus(finalized, { criticComplete: true, criticSkipped: Boolean(criticSkip), receipt })}${criticSkip ? `\nCritic skipped: ${criticSkip.reason} (${JSON.stringify(criticSkip.abVariant.flags)})` : ''}\nReceipt: ${receiptId}\nAuthority: ${receipt.authority}; authorizes TEST: ${receipt.authorizesTest}${captureConvergenceProgress(ctx, args.storyId, finalized.epochId)}${commitReviewEpochMetadata(ctx.store, ctx.root, args.storyId, args.remediation ? 'review_inventory_finalize --remediation' : 'review_inventory_finalize')}`;
       });
     },
 

@@ -2328,6 +2328,20 @@ export interface ReviewInventoryWave {
   saturated?: boolean;
   /** Highest numeric ReviewRun id already existing when this checkpoint sealed the wave. */
   nextRunSequenceBoundary?: number;
+  /**
+   * EXPERIMENTAL A/B (review.criticOnCleanRound=skip): this wave was finalized
+   * without the completeness critic because every required lane passed with
+   * zero findings. Covered by the epoch _hash; accepted by finalize and the
+   * PRE_CERT/remediation consume replay only while the switch is still set.
+   */
+  criticSkip?: ReviewInventoryCriticSkip;
+}
+
+export interface ReviewInventoryCriticSkip {
+  reason: string;
+  abVariant: import('./ab-variants.js').AbVariantEvidence;
+  /** reviewInventoryDigest of the clean lane terminals the skip relied on. */
+  laneTerminalDigest: string;
 }
 
 /** Signed frozen-candidate inventory fact. It never certifies remediated material. */

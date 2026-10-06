@@ -1,4 +1,6 @@
 import { captureHostRunBudgetEnvironment, restoreHostRunBudgetEnvironment } from './host-run-budget.js';
+import { resolveAbVariants } from './ab-variants.js';
+import { loadConfig } from './config.js';
 import { MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import { isManagedInventoryCriticEnvelopeValid, type ManagedInventoryCritic } from './managed-inventory-critic.js';
 import { MANAGED_RUN_DASHBOARD_POLICY } from './runtime-fact-registry.js';
@@ -187,8 +189,19 @@ export type ManagedHostRunTerminalState = Extract<
 >;
 
 export type ManagedDispatchTarget =
-  | { itemId: string; findingId?: never }
-  | { findingId: string; itemId?: never };
+  | { itemId: string; findingId?: never;
+    /** EXPERIMENTAL A/B implementation.grouping=files (core/ab-dispatch-grouping.ts): every item this run implements, bound item first. */
+    groupItemIds?: string[]; abVariant?: import('./ab-variants.js').AbVariantEvidence }
+  | { findingId: string; itemId?: never;
+    /** EXPERIMENTAL A/B remediation.grouping=single: every finding this run repairs, bound finding first. */
+    groupFindingIds?: string[]; abVariant?: import('./ab-variants.js').AbVariantEvidence };
+
+function validManagedDispatchGroup(primary: string, group: unknown, abVariant: unknown): boolean {
+  if (group === undefined) return abVariant === undefined;
+  return Array.isArray(group) && group.length >= 2 && group[0] === primary
+    && group.every(id => typeof id === 'string' && id.trim().length > 0) && new Set(group).size === group.length
+    && Boolean(abVariant) && typeof abVariant === 'object';
+}
 
 interface ManagedHostRunCancellationTerminal {
   state: Extract<ManagedHostRunTerminalState, 'cancelled' | 'timed_out' | 'failed'>;
@@ -925,6 +938,11 @@ export function findResumableReviewerSession(args: {
   return newest && codexSessionExists(args.codexHome, newest.threadId) ? newest.threadId : null;
 }
 
+/** EXPERIMENTAL A/B review.round2Lanes=fresh; malformed config keeps production (resume). */
+export function reviewerRound2LanesFresh(root: string): boolean {
+  try { return resolveAbVariants(loadConfig(root)).round2Lanes === 'fresh'; } catch { return false; }
+}
+
 /**
  * The Codex session a managed run resumes, or null for a fresh launch:
  * managed-dispatch code writers continue the Story's previous code-writer
@@ -944,6 +962,9 @@ export function managedResumeSessionForSpec(
       });
     }
     if (spec.profile === 'managed_reviewer' && spec.lane && spec.reviewRunId) {
+      // EXPERIMENTAL A/B review.round2Lanes=fresh: later-candidate lanes start a
+      // fresh thread; the sealed prompt (managed-review-evidence.ts) says so.
+      if (reviewerRound2LanesFresh(spec.root)) return null;
       return findResumableReviewerSession({
         root: spec.root, storyId: spec.storyId, lane: spec.lane, agentType: spec.agentType, model: spec.model ?? null,
         reviewRunId: spec.reviewRunId, excludeRunId: spec.runId, codexHome,
@@ -3075,8 +3096,12 @@ export async function submitManagedHostRun(
       && typeof args.managedDispatchTarget.findingId === 'string'
       && args.managedDispatchTarget.findingId.trim().length > 0
       && args.managedDispatchTarget.itemId === undefined;
+    const target = args.managedDispatchTarget as { itemId?: string; findingId?: string; groupItemIds?: unknown; groupFindingIds?: unknown; abVariant?: unknown };
+    const groupValid = itemTarget
+      ? target.groupFindingIds === undefined && validManagedDispatchGroup(target.itemId!, target.groupItemIds, target.abVariant)
+      : target.groupItemIds === undefined && validManagedDispatchGroup(target.findingId ?? '', target.groupFindingIds, target.abVariant);
     if (args.profile !== 'managed_dispatch' || args.phase !== 'DEV' || !args.storyId
-      || (!itemTarget && !findingTarget)) {
+      || (!itemTarget && !findingTarget) || !groupValid) {
       throw new Error('managed host run: managed DEV target requires an exact implementer itemId or finding-repair findingId');
     }
   } else if (args.profile === 'managed_dispatch'
@@ -5584,6 +5609,12 @@ export function verifyManagedDispatchDelivery(args: {
   agentType: string;
   itemId?: string;
   findingId?: string;
+  /**
+   * EXPERIMENTAL A/B remediation.grouping=single: verify the grouped run bound
+   * to `findingId` for this other member of its groupFindingIds; the open
+   * check then applies to the member (the bound finding may be resolved already).
+   */
+  groupMemberFindingId?: string;
 }): { valid: true } | { valid: false; reason: string } {
   try {
     const binding = readManagedHostRunBinding(args.root, args.runId);
@@ -5591,7 +5622,9 @@ export function verifyManagedDispatchDelivery(args: {
       || binding.storyId !== args.storyId
       || binding.agentType !== args.agentType
       || (args.itemId !== undefined && binding.managedDispatchTarget?.itemId !== args.itemId)
-      || (args.findingId !== undefined && binding.managedDispatchTarget?.findingId !== args.findingId)) {
+      || (args.findingId !== undefined && binding.managedDispatchTarget?.findingId !== args.findingId)
+      || (args.groupMemberFindingId !== undefined
+        && !(binding.managedDispatchTarget as { groupFindingIds?: string[] } | null | undefined)?.groupFindingIds?.includes(args.groupMemberFindingId))) {
       return { valid: false, reason: 'managed dispatch Story/role binding mismatch' };
     }
     const receipt = managedHostRunReceipt(args.root, args.runId);
@@ -5626,7 +5659,7 @@ export function verifyManagedDispatchDelivery(args: {
     if (args.agentType === 'proof-or-stop-finding-repair') {
       if (!args.findingId) return { valid: false, reason: 'managed finding repair delivery requires findingId' };
       const finding = new StoryStore(args.root).readFindings(args.storyId).findings
-        .find(candidate => candidate.id === args.findingId);
+        .find(candidate => candidate.id === (args.groupMemberFindingId ?? args.findingId));
       if (!finding || finding.status !== 'open') {
         return { valid: false, reason: 'managed finding repair target is missing or no longer open' };
       }

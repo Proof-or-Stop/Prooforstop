@@ -46,7 +46,7 @@ import { evaluateDevMemoryPreflightGate, evaluateReviewVerdict, getGuardFailureR
 import { missingPlanScopeCheckFailure, SCOPE_PLAN_REVIEWER } from '../core/plan-scope-check-requirement.js';
 import { isTerminalChecklistStatus } from '../core/checklist-status.js';
 import { unclosedBlockingFindings, resolveEffectiveBlockingSeverities, FINDING_RESOLUTION_PLACEHOLDER } from '../core/finding-closure.js';
-import { duplicateCoverageReceipts, duplicateOfOpenCanonical, duplicateResolveCandidate } from '../core/duplicate-finding-coverage.js';
+import { criticDuplicateOf, duplicateCoverageReceipts, duplicateOfOpenCanonical, duplicateResolveCandidate } from '../core/duplicate-finding-coverage.js';
 import {
   currentOpenReviewInventory,
   finalizedUnconsumedReviewInventory,
@@ -79,7 +79,8 @@ import { evaluateReviewAssuranceFloor, buildReviewAssuranceFloorGuidance, buildR
 import { evaluateReviewEscalation, assessReviewHostAvailabilityForFallbackEligibility } from '../core/review-escalation.js';
 import { evaluateOptionalLiveSmokeTranscript } from '../core/live-smoke-transcript-evidence.js';
 import { singleHostAssuranceReady } from './quorum-submit.js';
-import type { ReviewRun } from '../core/types.js';
+import type { ChecklistItem, ReviewRun } from '../core/types.js';
+import { commitMessageNamesFinding, implementationGroupingFiles, itemDeclaredFiles, remediationGroupingSingle, sharedFileItemGroup } from '../core/ab-dispatch-grouping.js';
 import { OWNER_WAIT_BLOCK_MS, ownerWaitInstruction } from '../core/owner-wait-guidance.js';
 
 type HandlerLookup = (name: string) => ((...args: any[]) => any) | undefined;
@@ -451,13 +452,30 @@ export function managedFindingRepairState(args: {
   root: string; gitCwd: string; storyId: string; finding: { id: string; createdAt?: string }; runs: readonly FindingRepairRunView[];
 }): FindingRepairState {
   const { root, gitCwd, storyId, finding } = args;
+  // EXPERIMENTAL A/B remediation.grouping=single: a grouped run also binds the
+  // other members of its groupFindingIds (core/ab-dispatch-grouping.ts).
+  const grouping = args.runs.some(run => run.agentType === FINDING_REPAIR_AGENT) && remediationGroupingSingle(root);
+  const groupOf = new Map<string, { primary: string; members: string[] }>();
   const bound = args.runs.filter(run => run.agentType === FINDING_REPAIR_AGENT && (!finding.createdAt || run.createdAt >= finding.createdAt))
     .filter(run => {
-      try { return readManagedHostRunBinding(root, run.runId).managedDispatchTarget?.findingId === finding.id; } catch { return false; }
+      try {
+        const target = readManagedHostRunBinding(root, run.runId).managedDispatchTarget as { findingId?: string; groupFindingIds?: string[] } | null | undefined;
+        if (grouping && target?.findingId && Array.isArray(target.groupFindingIds) && target.groupFindingIds.includes(finding.id)) {
+          groupOf.set(run.runId, { primary: target.findingId, members: target.groupFindingIds });
+          return true;
+        }
+        return target?.findingId === finding.id;
+      } catch { return false; }
     });
   if (bound.length === 0) return { repaired: false, bound: false, detail: `no managed finding-repair run is bound to ${finding.id}` };
   const completed = bound.filter(run => run.terminal && run.state === 'completed').reverse();
   for (const run of completed) {
+    const group = groupOf.get(run.runId);
+    if (group) {
+      const grouped = groupedRepairCommit(root, gitCwd, storyId, finding.id, group.primary, run);
+      if (grouped) return { repaired: true, runId: run.runId, commit: grouped };
+      continue;
+    }
     if (!verifyManagedDispatchDelivery({ root, runId: run.runId, storyId, agentType: FINDING_REPAIR_AGENT, findingId: finding.id }).valid) continue;
     let terminalAt: string | undefined;
     try { terminalAt = readManagedHostRunProjection(root, run.runId).terminal?.terminalAt; } catch { terminalAt = undefined; }
@@ -478,6 +496,66 @@ export function managedFindingRepairState(args: {
   return { repaired: false, bound: true, detail: completed.length
     ? `managed finding-repair run ${completed[0]!.runId} for ${finding.id} completed without a material commit on the Story branch`
     : `the last managed finding-repair run ${last.runId} for ${finding.id} is ${last.state}` };
+}
+
+/**
+ * EXPERIMENTAL A/B remediation.grouping=single: the commit by which a grouped
+ * finding-repair run demonstrably repaired `findingId` — a material commit made
+ * inside the run's window whose message names the finding id — or null.
+ */
+function groupedRepairCommit(root: string, gitCwd: string, storyId: string, findingId: string, primaryId: string,
+  run: FindingRepairRunView): string | null {
+  if (!verifyManagedDispatchDelivery({ root, runId: run.runId, storyId, agentType: FINDING_REPAIR_AGENT, findingId: primaryId,
+    ...(primaryId === findingId ? {} : { groupMemberFindingId: findingId }) }).valid) return null;
+  for (const commit of managedRunWindowCommits(root, gitCwd, run)) {
+    if (commit.material && commitMessageNamesFinding(commit.message, storyId, findingId)) return commit.commit;
+  }
+  return null;
+}
+
+/** Commits on HEAD made inside a managed run's [created, terminal] window, with their message and material flag. */
+function managedRunWindowCommits(root: string, gitCwd: string, run: { runId: string; createdAt: string }): Array<{ commit: string; message: string; paths: string[]; material: boolean }> {
+  let terminalAt: string | undefined;
+  try { terminalAt = readManagedHostRunProjection(root, run.runId).terminal?.terminalAt; } catch { terminalAt = undefined; }
+  const since = Math.floor(Date.parse(run.createdAt) / 1000);
+  const until = Math.ceil(Date.parse(terminalAt ?? '') / 1000);
+  if (!Number.isFinite(since) || !Number.isFinite(until)) return [];
+  let log = '';
+  try {
+    log = execFileSync('git', ['log', `--max-age=${since}`, `--min-age=${until}`, '--format=%x00%H%x1f%B%x1e', '--name-only', 'HEAD'],
+      { cwd: gitCwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'] });
+  } catch { return []; }
+  return log.split('\0').filter(Boolean).map(block => {
+    const [head = '', rest = ''] = block.split('\x1e');
+    const [commit = '', message = ''] = head.split('\x1f');
+    const paths = rest.split('\n').map(row => row.trim()).filter(Boolean);
+    return { commit: commit.trim(), message, paths, material: paths.some(path => !isMaterialExcludedPath(path, root)) };
+  }).filter(row => row.commit);
+}
+
+/**
+ * EXPERIMENTAL A/B implementation.grouping=files: a completed grouped
+ * implementer run that lists `item` in its groupItemIds (not as its bound
+ * item) and committed, inside its window, material touching one of the item's
+ * declared files. The owner then verifies and marks the item done itself.
+ */
+export function groupedImplementationRun(args: { root: string; gitCwd: string; storyId: string; item: ChecklistItem; runs: readonly FindingRepairRunView[] }):
+  { runId: string; commit: string } | null {
+  const declared = new Set(itemDeclaredFiles(args.item));
+  if (declared.size === 0) return null;
+  for (const run of [...args.runs].filter(row => row.agentType === IMPLEMENTER_AGENT && row.terminal && row.state === 'completed').reverse()) {
+    let target: { itemId?: string; groupItemIds?: string[] } | null | undefined;
+    try { target = readManagedHostRunBinding(args.root, run.runId).managedDispatchTarget as typeof target; } catch { continue; }
+    if (!target?.itemId || target.itemId === args.item.id || !Array.isArray(target.groupItemIds) || !target.groupItemIds.includes(args.item.id)) continue;
+    if (!verifyManagedDispatchDelivery({ root: args.root, runId: run.runId, storyId: args.storyId, agentType: IMPLEMENTER_AGENT, itemId: target.itemId }).valid) continue;
+    const commit = managedRunWindowCommits(args.root, args.gitCwd, run).find(row => row.material && row.paths.some(path => declared.has(path)));
+    if (commit) return { runId: run.runId, commit: commit.commit };
+  }
+  return null;
+}
+
+function isBoundRepairState(state: FindingRepairState): boolean {
+  return state.repaired || state.bound;
 }
 
 /** The TEST authoring commands for the failing DONE oracle rows, in the order DONE checks them. */
@@ -735,6 +813,19 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     return null;
   }
 
+  /**
+   * EXPERIMENTAL A/B remediation.grouping=single: the primary finding plus every
+   * other open blocking finding with no bound repair run that is not a critic
+   * duplicate (duplicates keep their coverage path).
+   */
+  function groupedRepairFindingIds(storyId: string, primaryId: string, findings: ReadonlyArray<{ id: string; createdAt?: string }>, hostRuns: HostRunView[]): string[] {
+    const gitCwd = gitCwdOf(storyId);
+    const others = findings.filter(row => row.id !== primaryId
+      && !criticDuplicateOf(ctx.store, storyId, row.id)
+      && !isBoundRepairState(managedFindingRepairState({ root: ctx.root, gitCwd, storyId, finding: row, runs: hostRuns })));
+    return [primaryId, ...others.map(row => row.id)];
+  }
+
   function devNext(base: { storyId: string; phase: string }): NextStep {
     const { storyId } = base;
     const checklist = ctx.store.readChecklist(storyId);
@@ -743,13 +834,31 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     const inFlight = (agentType: string) => hostRuns.filter(run => run.agentType === agentType && !run.terminal).at(-1);
     if (open.length > 0) {
       const item = open[0]!;
-      if (item.status === 'pending') {
-        return step(base, 'framework', 'checklist_item_start', { command: 'checklist_update', payload: { storyId, itemId: item.id, status: 'in_progress' } },
-          `${item.id} is pending; mark it in_progress before dispatching its implementer.`, 'checklist.json');
+      // EXPERIMENTAL A/B implementation.grouping=files (core/ab-dispatch-grouping.ts).
+      const groupByFiles = open.length > 1 || hostRuns.some(run => run.agentType === IMPLEMENTER_AGENT) ? implementationGroupingFiles(ctx.root) : false;
+      if (groupByFiles && item.status !== 'pending') {
+        const grouped = groupedImplementationRun({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, item, runs: hostRuns });
+        if (grouped) {
+          return step(base, 'agent', 'grouped_item_done', { command: 'checklist_update', payload: { storyId, itemId: item.id, status: 'done' } },
+            `${item.id} (${item.title}) was implemented by grouped implementer run ${grouped.runId} (commit ${grouped.commit.slice(0, 12)} touches its declared files; A/B implementation.grouping=files). Verify its own intent (run its pinned focused evidence) and mark it done separately.`,
+            'checklist.json + groupedImplementationRun (A/B implementation.grouping=files)');
+        }
+      }
+      const group = groupByFiles ? sharedFileItemGroup(item, open) : [item];
+      const pendingItem = group.find(member => member.status === 'pending');
+      if (pendingItem) {
+        return step(base, 'framework', 'checklist_item_start', { command: 'checklist_update', payload: { storyId, itemId: pendingItem.id, status: 'in_progress' } },
+          `${pendingItem.id} is pending; mark it in_progress before dispatching its implementer.`, 'checklist.json');
       }
       const running = inFlight(IMPLEMENTER_AGENT);
       if (running) return waitStep(base, running, 'Implementer run');
       const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
+      if (group.length > 1) {
+        return managedLaunchStep(base, 'implement_item', { ...selection, storyId, itemId: item.id, groupItemIds: group.map(member => member.id),
+          agentType: IMPLEMENTER_AGENT, managedDispatch: true, detach: true, json: true }, bound && !hasRunForTarget(ctx.root, hostRuns, IMPLEMENTER_AGENT, { itemId: item.id }),
+        `${group.map(member => member.id).join(', ')} share declared files: implement and commit them in ONE managed implementer run bound to ${item.id} (A/B implementation.grouping=files); it marks ${item.id} done, each other item is verified and marked done separately afterwards.`,
+        'checklist.json + sharedFileItemGroup (A/B implementation.grouping=files)');
+      }
       return managedLaunchStep(base, 'implement_item', { ...selection, storyId, itemId: item.id,
         agentType: IMPLEMENTER_AGENT, managedDispatch: true, detach: true, json: true }, bound && !hasRunForTarget(ctx.root, hostRuns, IMPLEMENTER_AGENT, { itemId: item.id }),
       `${item.id} (${item.title}) is ${item.status}: implement and commit it (managed implementer shown; a native fresh-context implementer with the dispatch prompt is equivalent), then mark it done.`,
@@ -778,6 +887,15 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
         if (duplicate) return duplicateFindingResolveStep(base, finding, duplicate.canonical, duplicate.familyKey);
         const failedCoverage = duplicateCoverageReceipts(ctx.store, storyId, finding.id).filter(row => !row.passed).at(-1);
         const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
+        // EXPERIMENTAL A/B remediation.grouping=single: one run for every open blocking finding no repair is bound to yet.
+        const group = !repair.bound && findings.length > 1 && remediationGroupingSingle(ctx.root)
+          ? groupedRepairFindingIds(storyId, finding.id, findings.map(row => row.finding), hostRuns) : [];
+        if (group.length > 1) {
+          return managedLaunchStep(base, 'finding_repair', { ...selection, storyId, findingId: finding.id, groupFindingIds: group,
+            agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true }, bound && !hasRunForTarget(ctx.root, hostRuns, FINDING_REPAIR_AGENT, { findingId: finding.id }),
+          `Verified blocking findings ${group.join(', ')} are open and not yet repaired: repair them in ONE managed finding-repair run (A/B remediation.grouping=single), one regression test and one commit naming its id per finding; each is then resolved separately.`,
+          'unclosedBlockingFindings (core/finding-closure.ts) + managedFindingRepairState + A/B remediation.grouping=single');
+        }
         return managedLaunchStep(base, 'finding_repair', { ...selection, storyId, findingId: finding.id,
           agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true }, bound && !hasRunForTarget(ctx.root, hostRuns, FINDING_REPAIR_AGENT, { findingId: finding.id }),
         `Verified ${finding.severity} finding ${finding.id} is open and not yet repaired (${repair.detail}${failedCoverage ? `; its duplicate coverage run \`${failedCoverage.command}\` did not pass, so ${failedCoverage.canonicalFindingId}'s repair is not shown to fix it` : ''}): repair it in code and commit (managed finding-repair shown).`,

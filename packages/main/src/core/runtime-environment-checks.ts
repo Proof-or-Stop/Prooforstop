@@ -367,7 +367,8 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   'packages/main/src/core/evidence-freshness.ts': '0b4671d80799500b0c7aedc8de84e3d692237ab7da521c046e47c012e21877e0',
   // 3270fa6c84 changed the emitted inventory executable after its previous pin was recorded.
   // Lab review-epoch-lineage (2026-09-30): zero-wave completeness-only receipts route to cancel; repinned.
-  'packages/main/src/core/review-inventory-epoch.ts': '985c577e2f06178b31512f6e10e05a84869d4f21cf23e793445bebeb35097a66',
+  // Lab ab-variant-switches (2026-10-06): consume replay accepts an A/B criticSkip wave only while review.criticOnCleanRound=skip; repinned.
+  'packages/main/src/core/review-inventory-epoch.ts': '56d4b6d0a458d3c003d5bd7b8e19852c97e3ec2cef515557f17e1aa3ed4bee9f',
   // Lab verification-env-digest (2026-09-30): ordinary receipts bind the v2 environment identity projection; repinned.
   // Lab gate-command-cost (2026-10-03): the signer-key common-dir probe goes through observedGit; repinned.
   'packages/main/src/core/verification-execution-evidence.ts': '915f3b1d386ce37f12caa69e98124886fc466fd4ce1159188fb12e5ad444b5e6',
