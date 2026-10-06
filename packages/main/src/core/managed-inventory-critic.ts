@@ -26,7 +26,7 @@ export const managedInventoryCriticJsonSchema = {
   properties: {
     epochId: {type: 'string'}, wave: {type: 'integer'},
     findingDispositions: {type: 'array',
-      description: 'Exactly one row for every aggregate finding in the evidence pack (finding={findingId}) and one for every entry of your own findings array (finding={proposalFindingIndex}). A missing row refuses the whole critic import (REVIEW_INVENTORY_FINDING_DISPOSITION_INCOMPLETE).',
+      description: 'Exactly one row for every verified aggregate finding of the wave (finding={findingId}; the evidence pack lists the ids) and one for every entry of your own findings array (finding={proposalFindingIndex}); no row for a suspected or disproven finding. A missing or extra row refuses the critic.',
       items: {
       type: 'object', additionalProperties: false, required: ['finding', 'disposition', 'reason'],
       properties: {finding: referenceSchema, disposition: {type: 'string', enum: ['verified_family', 'duplicate', 'not_verified']},
@@ -241,7 +241,58 @@ export function reconcileRestatedCriticFindings(args: {
  */
 export const MANAGED_INVENTORY_CRITIC_PROTOCOL: readonly string[] = [
   'Managed inventory protocol: do not call review_inventory_critic_set. The authenticated importer writes the critic receipt from your sealed inventoryCritic block after terminal evidence import.',
-  'Include inventoryCritic={epochId,wave,findingDispositions} bound exactly to the current evidence pack. findingDispositions needs exactly one row for every aggregate finding in the evidence pack (finding={findingId:existingId}) AND one row for every entry of your own findings array (finding={proposalFindingIndex:zeroBasedIndex}); a missing row refuses the whole critic import with REVIEW_INVENTORY_FINDING_DISPOSITION_INCOMPLETE. Each row has finding, disposition, reason, optional familyKey and canonicalFinding. Each reason must contain at least 10 trimmed characters. canonicalFinding uses the same reference forms. Never guess allocated Finding IDs. Duplicate rows require familyKey and canonicalFinding; verified_family requires familyKey and omits canonicalFinding (it is its own canonical finding); not_verified permits neither.',
+  'Include inventoryCritic={epochId,wave,findingDispositions} bound exactly to the current evidence pack. findingDispositions needs exactly one row for every verified aggregate finding of this wave (finding={findingId:existingId}; the evidence pack lists the exact ids) AND one row for every entry of your own findings array (finding={proposalFindingIndex:zeroBasedIndex}); a missing row refuses the whole critic import with REVIEW_INVENTORY_FINDING_DISPOSITION_INCOMPLETE. A suspected or disproven finding takes NO row (a row for it is REVIEW_INVENTORY_FINDING_DISPOSITION_INVALID); if you verified one, report it as your own finding. Each row has finding, disposition, reason, optional familyKey and canonicalFinding. Each reason must contain at least 10 trimmed characters. canonicalFinding uses the same reference forms. Never guess allocated Finding IDs. Duplicate rows require familyKey and canonicalFinding; verified_family requires familyKey and omits canonicalFinding (it is its own canonical finding); not_verified permits neither.',
   'Your own findings array is only for a defect that no aggregate finding already reports. Never copy, restate or re-raise an aggregate finding as your own finding: classify it by its findingId instead (confirming it is verified_family; a severity note goes in its reason). If you found nothing new, use conclusion="pass" with an empty findings array; your rows still classify every aggregate finding.',
   'Do not put findingDispositions at the top level. The block does not certify omitted reads or resolve findings. Preserve incomplete-read findings rather than claiming complete coverage.',
 ];
+
+/** Existing-finding rows a managed critic's block must carry, sealed at launch (reviewBinding.inventoryCriticCoverage). */
+export interface ManagedInventoryCriticCoverage {
+  requiredFindingIds: string[];
+  noRowFindingIds: string[];
+  /** Claim text and files of the required findings, so a provable restatement counts as covered (reconcileRestatedCriticFindings). */
+  requiredFindingClaims?: CriticRestatementFinding[];
+}
+
+export function isManagedInventoryCriticCoverage(value: unknown): value is ManagedInventoryCriticCoverage {
+  const ids = (v: unknown) => Array.isArray(v) && v.every(id => typeof id === 'string' && id.trim().length > 0);
+  const claims = (v: unknown) => v === undefined || (Array.isArray(v) && v.every(row => record(row) && text(row.id) && typeof row.desc === 'string'
+    && (row.files === undefined || ids(row.files))));
+  return record(value) && keys(value, ['requiredFindingIds', 'noRowFindingIds', 'requiredFindingClaims'])
+    && ids(value.requiredFindingIds) && ids(value.noRowFindingIds) && claims(value.requiredFindingClaims);
+}
+
+/**
+ * Coverage violations of a shape-valid critic block against the sealed
+ * coverage, as `path: expected ..., got ...` lines (empty when complete). The
+ * worker turns them into a same-session format repair before sealing, so the
+ * importer never sees a block it would refuse for coverage (run 19 B-8166: a
+ * row for suspected F-001). A missing row that the importer completes itself
+ * (a provable restatement, A/B control D2-r3/D9-r1) is not a violation.
+ */
+export function managedInventoryCriticCoverageViolations(block: ManagedInventoryCritic,
+  ownFindings: ReadonlyArray<{ desc: string; files?: readonly string[] }>,
+  coverage: ManagedInventoryCriticCoverage, path = 'inventoryCritic.findingDispositions'): string[] {
+  const out: string[] = [];
+  const ownId = (index: number) => `#own-${index}`;
+  const refId = (ref: ManagedInventoryFindingRef) => 'findingId' in ref ? ref.findingId : ownId(ref.proposalFindingIndex);
+  block.findingDispositions.forEach((row, i) => {
+    if (!('findingId' in row.finding)) return;
+    const id = row.finding.findingId;
+    if (!coverage.requiredFindingIds.includes(id)) {
+      out.push(`${path}[${i}].finding: expected one of ${JSON.stringify(coverage.requiredFindingIds)} (this wave's verified aggregate), got ${JSON.stringify(id)}${
+        coverage.noRowFindingIds.includes(id) ? ', which is suspected/disproven and takes no row (remove the row; report it as your own finding if you verified it)' : ''}`);
+    }
+  });
+  const rows: CriticResolvedDisposition[] = block.findingDispositions.map(row => ({ findingId: refId(row.finding), disposition: row.disposition,
+    reason: row.reason, ...(row.familyKey ? { familyKey: row.familyKey } : {}),
+    ...(row.canonicalFinding && row.disposition !== 'verified_family' ? { canonicalFindingId: refId(row.canonicalFinding) } : {}) }));
+  const own = ownFindings.map((finding, index) => ({ id: ownId(index), desc: finding.desc, files: finding.files }));
+  const completed = new Set(reconcileRestatedCriticFindings({ ownFindings: own, otherFindings: coverage.requiredFindingClaims ?? [],
+    dispositions: rows }).dispositions.map(row => row.findingId));
+  const missing = coverage.requiredFindingIds.filter(id => !completed.has(id));
+  if (missing.length) out.push(`${path}: expected a row for every verified aggregate finding, missing ${JSON.stringify(missing)}`);
+  const missingOwn = own.map((row, index) => completed.has(row.id) ? -1 : index).filter(index => index >= 0);
+  if (missingOwn.length) out.push(`${path}: expected a row for every own finding, missing proposalFindingIndex ${JSON.stringify(missingOwn)} (a restated aggregate finding is a duplicate of it)`);
+  return out;
+}

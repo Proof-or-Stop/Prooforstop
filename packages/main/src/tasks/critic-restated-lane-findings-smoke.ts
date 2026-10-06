@@ -25,7 +25,7 @@
  * by e2e-review-to-done-smoke NC3.
  */
 import assert from 'node:assert/strict';
-import { managedInventoryCriticJsonSchema, MANAGED_INVENTORY_CRITIC_PROTOCOL,
+import { managedInventoryCriticCoverageViolations, managedInventoryCriticJsonSchema, MANAGED_INVENTORY_CRITIC_PROTOCOL,
   reconcileRestatedCriticFindings, type CriticResolvedDisposition } from '../core/managed-inventory-critic.js';
 import { managedReviewFinalProposalJsonSchema } from '../core/host-run.js';
 
@@ -87,6 +87,11 @@ for (const [name, fixture, refusedIds, pairs] of [
     const laneRow = out.dispositions.find(r => r.findingId === laneId)!;
     assert.equal(row.familyKey, laneRow.familyKey, `${name}: ${ownId} joins ${laneId}'s family`);
   }
+  // The worker's pre-seal coverage check agrees: a provable restatement needs no repair turn.
+  const ownByIndex = [...own].sort((a, b) => (a.proposalFindingIndex ?? 0) - (b.proposalFindingIndex ?? 0));
+  assert.deepEqual(managedInventoryCriticCoverageViolations(fixture.inventoryCritic as any, ownByIndex,
+    { requiredFindingIds: other.map(f => f.id), noRowFindingIds: [], requiredFindingClaims: other.map(f => ({ id: f.id, desc: f.desc, files: f.files })) }), [],
+  `${name}: the worker accepts the restating block (the importer completes it)`);
   // The critic's own reasoning is kept for the lane finding it was written for.
   for (const row of rows) assert.ok(out.dispositions.some(r => r.findingId === row.findingId), `${name}: critic row ${row.findingId} kept`);
 }
@@ -116,12 +121,13 @@ for (const [name, fixture, refusedIds, pairs] of [
 
 // (a) The provider contract names what the importer requires.
 const protocol = MANAGED_INVENTORY_CRITIC_PROTOCOL.join('\n');
-assert.match(protocol, /exactly one row for every aggregate finding/i, 'protocol: one row per aggregate finding');
+assert.match(protocol, /exactly one row for every verified aggregate finding/i, 'protocol: one row per verified aggregate finding');
+assert.match(protocol, /suspected or disproven finding takes NO row/, 'protocol: no row for a suspected finding (run 19)');
 assert.match(protocol, /every entry of your own findings array/i, 'protocol: one row per own finding');
 assert.match(protocol, /never copy, restate or re-raise an aggregate finding/i, 'protocol: own findings are only new defects');
 assert.match(protocol, /REVIEW_INVENTORY_FINDING_DISPOSITION_INCOMPLETE/, 'protocol: names the refusal a missing row causes');
 const dispositionsSchema = (managedInventoryCriticJsonSchema.properties.findingDispositions as { description?: string }).description ?? '';
-assert.match(dispositionsSchema, /every aggregate finding/i, 'schema: findingDispositions states the coverage rule');
+assert.match(dispositionsSchema, /every verified aggregate finding/i, 'schema: findingDispositions states the coverage rule');
 const criticSchema = managedReviewFinalProposalJsonSchema({ storyId: 'B-ba92', agentType: CRITIC, lane: CRITIC, reviewRunId: 'B-ba92:RR-005' }) as
   { properties: { findings: { description?: string } } };
 assert.match(criticSchema.properties.findings.description ?? '', /no aggregate finding .*already reports/i, 'schema: critic findings are only new defects');

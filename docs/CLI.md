@@ -632,14 +632,24 @@ from the sealed proposal. Each item is logged as a
 critic proposal may not carry such items.
 
 A managed inventory critic's `inventoryCritic.findingDispositions` needs exactly
-one row for every aggregate finding of the wave (by `findingId`) and one for
-every entry of its own `findings` (by `proposalFindingIndex`); the protocol
-prompt (`MANAGED_INVENTORY_CRITIC_PROTOCOL`) and the schema descriptions say so,
-and say that its own findings are only for defects no aggregate finding already
-reports. A missing row refuses the critic receipt with
+one row for every VERIFIED aggregate finding of the wave (by `findingId`), no
+row for a suspected or disproven finding, and one row for every entry of its
+own `findings` (by `proposalFindingIndex`); the protocol prompt
+(`MANAGED_INVENTORY_CRITIC_PROTOCOL`), the schema descriptions and the evidence
+pack (the exact id lists) say so, and say that its own findings are only for
+defects no aggregate finding already reports. The same id lists are sealed in
+the run's `reviewBinding.inventoryCriticCoverage` (computed with the importer's
+wave evaluation at `host_run`); before sealing, the worker checks the block
+against them (`managedInventoryCriticCoverageViolations`) and a missing or
+extra row is a same-session format repair naming the exact ids
+(`managed_review_final_result_malformed:inventory_critic_coverage`), not a
+sealed block the importer refuses and not a fresh critic (run 19, B-8166: a
+`verified_family` row for suspected F-001 was refused
+`REVIEW_INVENTORY_FINDING_DISPOSITION_INVALID` and the owner relaunched the
+whole critic). At import, a missing row still refuses the critic receipt with
 `REVIEW_INVENTORY_FINDING_DISPOSITION_INCOMPLETE: <ids>` (the terminal evidence
 stays imported). One exception is completed by the importer instead of
-refused: a critic finding that provably restates an earlier finding of the
+refused (and is therefore not a worker repair either): a critic finding that provably restates an earlier finding of the
 wave (at least one shared cited file and the same claim: token Jaccard
 similarity >= 0.6 with a 0.15 margin over the runner-up and no disjoint code
 symbols, i.e. when both name functions/identifiers they share one; or >= 0.25

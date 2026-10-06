@@ -38,7 +38,8 @@ import { effectiveManagedReviewConclusion, evidenceChainReclassifiedPassNote, is
 import { currentGitHead, currentMaterialHash } from './evidence-freshness.js';
 import { loadConfig } from './config.js';
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
-import { inventoryPurposeMatchesEpoch, verifyReviewInventoryEpoch, verifyReviewInventoryReceipt } from './review-inventory-epoch.js';
+import { evaluateReviewInventoryWave, inventoryPurposeMatchesEpoch, verifyReviewInventoryEpoch, verifyReviewInventoryReceipt } from './review-inventory-epoch.js';
+import type { ManagedInventoryCriticCoverage } from './managed-inventory-critic.js';
 import { verifyReviewRun } from './review-run.js';
 import { isMaterialExcludedPath } from './material-path-policy.js';
 import { earlierCandidateRuns, isCodeReviewLaneRun, isEarlierReviewRound, previousCandidateLaneRun } from './review-round-order.js';
@@ -616,10 +617,43 @@ export function managedInventorySubjectState(store: StoryStore, run: ReviewRun, 
  * the importer refused. The fresh critic sees the exact refusal so it can
  * classify every finding it names (`next` runs it instead of the same import).
  */
+function renderInventoryCriticCoverage(coverage: ManagedInventoryCriticCoverage | undefined): string[] {
+  if (!coverage) return [];
+  return [`findingDispositions rows for existing findings: exactly one for each of ${JSON.stringify(coverage.requiredFindingIds)} (this wave's verified aggregate), none for any other id.`
+    + (coverage.noRowFindingIds.length ? ` These findings take NO row (suspected or disproven, advisory): ${JSON.stringify(coverage.noRowFindingIds)}; if you verified one of them, report it as your own finding (with its own proposalFindingIndex row).` : '')
+    + ' Plus one row for every entry of your own findings array.'];
+}
+
 function renderRefusedEarlierCriticImports(store: StoryStore, run: ReviewRun, packRunIds: readonly string[]): string[] {
   const refusals = store.readProcessEvents(run.storyId).filter(event => event.type === 'inventory_critic_import_refused'
     && typeof event.reviewRunId === 'string' && packRunIds.includes(event.reviewRunId));
   return refusals.map(event => `An earlier critic of this wave (ReviewRun ${String(event.reviewRunId)}) was refused at import: ${String(event.reason ?? '').slice(0, 600)}. Its findings are in this pack and need rows by findingId; give every finding named there exactly one row.`);
+}
+
+/**
+ * Which existing findings an inventory critic's block must (and must not)
+ * carry a row for, computed with the importer's own wave evaluation before
+ * launch: the verified aggregate of the wave takes exactly one row each; a
+ * suspected/disproven finding in the pack takes none (run 19, B-8166: the
+ * critic gave suspected low F-001 a verified_family row and the import
+ * refused REVIEW_INVENTORY_FINDING_DISPOSITION_INVALID). Sealed into the run's
+ * reviewBinding so the worker can ask the same session to repair the block.
+ */
+export function managedInventoryCriticCoverage(root: string, run: ReviewRun): ManagedInventoryCriticCoverage | undefined {
+  if (run.reviewPurpose !== 'inventory-completeness') return undefined;
+  const store = new StoryStore(root);
+  const epoch = store.readReviewInventoryEpochs(run.storyId).epochs.find(row => row.epochId === run.inventoryBinding?.epochId);
+  if (!epoch || epoch.state !== 'OPEN') return undefined;
+  const findings = store.readFindings(run.storyId).findings;
+  const evaluation = evaluateReviewInventoryWave({ promptStore: store, epoch, runs: store.readReviewRuns(run.storyId).runs,
+    passes: store.readReviewPasses(run.storyId).passes, findings });
+  const required = [...evaluation.rawFindingIds].sort();
+  const pack = buildManagedInventoryCriticEvidencePack({ criticRun: run, epoch, reviewRuns: store.readReviewRuns(run.storyId).runs,
+    findings, passes: store.readReviewPasses(run.storyId).passes });
+  const noRow = pack.findings.map(row => row.id).filter(id => !required.includes(id)).sort();
+  const claims = required.map(id => findings.find(row => row.id === id)).filter((row): row is NonNullable<typeof row> => Boolean(row))
+    .map(row => ({ id: row.id, desc: row.desc, ...(row.files ? { files: row.files } : {}) }));
+  return { requiredFindingIds: required, noRowFindingIds: [...new Set(noRow)], requiredFindingClaims: claims };
 }
 
 function renderManagedInventoryCriticEvidencePack(root: string, run: ReviewRun): string[] {
@@ -656,6 +690,7 @@ function renderManagedInventoryCriticEvidencePack(root: string, run: ReviewRun):
     'This is a second-order inventory audit, not a repeat of concept, quality, or test-coverage review. Start with this signed pack; inspect source or run focused commands when a specific family, coverage claim, or plausible omission needs independent resolution. Do not reread the whole implementation or rerun the full test suite by default. Preserve the required truthful full read and report an unresolved limitation rather than inventing coverage or PASS.',
     `For your final inventoryCritic block, copy these exact values: ${JSON.stringify({epochId: epoch.epochId, wave: epoch.waves.length + 1})}. They come from this pack's epoch.epochId and epoch.waves.length + 1; do not infer them from Finding IDs or earlier runs.`,
     ...renderRefusedEarlierCriticImports(store, run, pack.reviewRuns.map(row => row.reviewRunId)),
+    ...renderInventoryCriticCoverage(managedInventoryCriticCoverage(root, run)),
     JSON.stringify(projected),
     '--- END CONTROLLER-FETCHED CURRENT INVENTORY EVIDENCE PACK ---',
   ];

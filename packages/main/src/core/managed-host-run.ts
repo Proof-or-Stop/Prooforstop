@@ -2,7 +2,7 @@ import { captureHostRunBudgetEnvironment, restoreHostRunBudgetEnvironment } from
 import { resolveAbVariants } from './ab-variants.js';
 import { loadConfig } from './config.js';
 import { MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY } from './runtime-fact-registry.js';
-import { isManagedInventoryCriticEnvelopeValid, type ManagedInventoryCritic } from './managed-inventory-critic.js';
+import { isManagedInventoryCriticCoverage, isManagedInventoryCriticEnvelopeValid, managedInventoryCriticCoverageViolations, type ManagedInventoryCritic, type ManagedInventoryCriticCoverage } from './managed-inventory-critic.js';
 import { MANAGED_RUN_DASHBOARD_POLICY } from './runtime-fact-registry.js';
 import { normalizeExecutionBatchEnvironment, revokeExecutionBatchBinding } from './reviewer-batch-producer.js';
 import { consumeManagedLaunchAdmission, verifyManagedLaunchAdmission, type ManagedLaunchAdmission } from './managed-launch-admission.js';
@@ -263,6 +263,8 @@ export interface ManagedHostRunReviewBinding {
   managedPromptDigest?: string;
   /** Exact full-scan reason copied into the managed provider prompt, when required. */
   fullScanEscalationReason?: string;
+  /** Inventory critic only: existing findings its block must (not) carry a row for (worker format-repairs a mismatch). */
+  inventoryCriticCoverage?: ManagedInventoryCriticCoverage;
 }
 
 export interface ManagedHostRunWorkerRequest {
@@ -3994,6 +3996,15 @@ export async function runManagedHostRunWorker(
           let invalidReason: string;
           try {
             const proposal = parseManagedReviewFinalProposal(result);
+            // Run 19 (B-8166) / A/B control D2-r3, D9-r1: a shape-valid critic
+            // block the importer would refuse for coverage is repaired by the same
+            // session with the exact rows to add or remove, never sealed as is.
+            const coverage = spec.reviewBinding?.inventoryCriticCoverage;
+            if (proposal.inventoryCritic && isManagedInventoryCriticCoverage(coverage)) {
+              const violations = managedInventoryCriticCoverageViolations(proposal.inventoryCritic as ManagedInventoryCritic,
+                proposal.findings ?? [], coverage);
+              if (violations.length) throw new Error(`managed_review_final_result_malformed:inventory_critic_coverage: ${formatManagedReviewFinalViolations(violations)}`);
+            }
             writeManagedReviewEvidenceProposal({
               root: spec.root,
               runId: spec.runId,
