@@ -33,6 +33,12 @@
  * command (planAuthoringStep); every placeholder carries a one-line
  * description (placeholderHints, built by the shared step()).
  *
+ * Not mirrored (ab-variant-switches, 2026-10-06): the EXPERIMENTAL detection
+ * A/B switches (core/ab-variants.ts; review.criticOnCleanRound,
+ * remediation.grouping, implementation.grouping change `next`). This copy is
+ * the production arm only; with every switch off (the default) the live
+ * driver must equal it, which next-driver-cost-smoke checks.
+ *
  * Deliberate change (dup-routing-coverage, run 17 Q1): a critic `duplicate`
  * finding waits while its canonical finding is open (nextBlockingFinding);
  * once the canonical one is repaired and resolved and the duplicate has no

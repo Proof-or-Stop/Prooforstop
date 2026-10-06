@@ -18,6 +18,7 @@ import type {
   ReviewRun,
 } from './types.js';
 import { verifyReviewRun } from './review-run.js';
+import { criticSkipReplayError } from './review-inventory-critic-skip.js';
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
 import { canonicalAgentRoleId } from './agent-role-identity.js';
 import { withMkdirLock } from './mkdir-lock.js';
@@ -724,17 +725,25 @@ export function finalizedLiveAggregateError(store: StoryStore, pair: {
     || evaluation.baselineMismatchIds.length > 0) {
     return 'live terminal lanes or finding dispositions differ from the finalized wave';
   }
-  const critic = validateReviewInventoryCriticReceipt({ promptStore: store,
-    receipt: data.criticReceipts.find(row =>
-      row.epochId === epoch.epochId && row.wave === epoch.waves.length,
-    ),
-    epoch: replayEpoch,
-    evaluation,
-    runs: store.readReviewRuns(epoch.storyId).runs,
-    passes: store.readReviewPasses(epoch.storyId).passes,
-    findings: store.readFindings(epoch.storyId).findings,
-  });
-  if (!critic.ok) return `live critic binding changed: ${critic.reason}`;
+  const criticReceipt = data.criticReceipts.find(row =>
+    row.epochId === epoch.epochId && row.wave === epoch.waves.length,
+  );
+  if (!criticReceipt && finalWave.criticSkip) {
+    // EXPERIMENTAL A/B review.criticOnCleanRound=skip (core/review-inventory-critic-skip.ts):
+    // accepted only while the switch is set and the live wave is still clean.
+    const skipError = criticSkipReplayError(store.projectRoot, replayEpoch, finalWave.criticSkip, evaluation);
+    if (skipError) return `live critic binding changed: ${skipError}`;
+  } else {
+    const critic = validateReviewInventoryCriticReceipt({ promptStore: store,
+      receipt: criticReceipt,
+      epoch: replayEpoch,
+      evaluation,
+      runs: store.readReviewRuns(epoch.storyId).runs,
+      passes: store.readReviewPasses(epoch.storyId).passes,
+      findings: store.readFindings(epoch.storyId).findings,
+    });
+    if (!critic.ok) return `live critic binding changed: ${critic.reason}`;
+  }
   const rebuilt = buildWave(replayEpoch, evaluation, finalWave.completedAt);
   if (reviewInventoryDigest(rebuilt.lanes) !== reviewInventoryDigest(finalWave.lanes)
     || (finalWave.canonicalFindings !== undefined

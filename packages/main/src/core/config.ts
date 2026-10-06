@@ -339,6 +339,17 @@ export interface ProofOrStopConfig {
   reviewPassProvenance?: {
     mode?: 'warn' | 'enforce';
   };
+  /**
+   * EXPERIMENTAL detection A/B switches (core/ab-variants.ts). All default off;
+   * absent keys keep production behavior byte-identical. Not for production use.
+   */
+  review?: {
+    criticOnCleanRound?: 'run' | 'skip';
+    round2Scope?: 'full' | 'repaired-files';
+    round2Lanes?: 'resume' | 'fresh';
+  };
+  remediation?: { grouping?: 'per-finding' | 'single' };
+  implementation?: { grouping?: 'per-item' | 'files' };
   /** Runtime memory health diagnostics; advisory only, never gate evidence. */
   runtimeMemory?: {
     requiredClasses?: string[];

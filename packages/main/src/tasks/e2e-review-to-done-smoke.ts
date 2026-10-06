@@ -85,7 +85,14 @@
  * Machine registries (provider slots, locks) use a disposable fixture machine
  * so the harness never touches the developer's ~/.proof-or-stop admission state.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NL|NU|NU2]...
+ *   AB EXPERIMENTAL detection A/B arms (core/ab-variants.ts, all default off):
+ *      ND-V1..ND-V5 / NF-V1..NF-V5 run the ND / NF next-driven flow with one
+ *      switch set in the prepared config (V1 review.criticOnCleanRound=skip,
+ *      V2 review.round2Scope=repaired-files, V3 review.round2Lanes=fresh,
+ *      V4 remediation.grouping=single, V5 implementation.grouping=files on an
+ *      unimplemented fixture). `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5.
+ *
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NL|NU|NU2|AB|ND-V1..NF-V5]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -157,7 +164,11 @@ export class Owner {
   private readonly env: NodeJS.ProcessEnv;
 
   constructor(readonly scenario: string, readonly storyId: string, machineEnv: NodeJS.ProcessEnv, readonly steps: Step[], readonly bareGitignore = false,
-    private readonly fixtureOpts: { trackedGateFailureCounts?: boolean } = {}) {
+    private readonly fixtureOpts: { trackedGateFailureCounts?: boolean;
+      /** EXPERIMENTAL A/B switches merged into the prepared proof-or-stop.config.json (scenario AB). */
+      config?: Record<string, unknown>;
+      /** The Story branch has no implementation commit yet: DEV implementer runs write it (scenario AB V5). */
+      unimplemented?: boolean } = {}) {
     this.root = realpathSync(mkdtempSync(join(tmpdir(), `e2e-r2d-${scenario}-`)));
     this.worktree = join(this.root, '.worktrees', storyId);
     this.store = new StoryStore(this.root);
@@ -223,6 +234,7 @@ export class Owner {
         commands: [{ id: 'benchmark-go-strs', command: 'go', args: ['test', '-v', './strs'], env: { CONTEXT: 'abs' }, focus: ['fast'], timeoutMs: 270000 }],
         env: { CONTEXT: 'abs' },
       },
+      ...(this.fixtureOpts.config ?? {}),
     }, null, 2)}\n`);
     git(root, ['add', 'proof-or-stop.config.json']);
     git(root, ['commit', '-qm', 'benchmark: configure PoS Go validation before Story']);
@@ -263,6 +275,7 @@ export class Owner {
     }
     git(root, ['branch', `story/${storyId}`]);
     git(root, ['worktree', 'add', '-q', worktree, `story/${storyId}`]);
+    if (this.fixtureOpts.unimplemented) return;
     write(worktree, 'strs/strs.go', IMPL);
     write(worktree, 'strs/strs_test.go', TESTS);
     git(worktree, ['add', '-A']);
@@ -432,6 +445,11 @@ const dir = ${JSON.stringify(scripts)};
 let input = ''; process.stdin.on('data', d => { input += d; }); process.stdin.on('end', () => {
   const emit = e => process.stdout.write(JSON.stringify(e) + '\\n');
   emit({ type: 'thread.started', thread_id: 'fake-codex-' + process.pid });
+  // Every provider prompt, by managed run id (A/B scenarios assert what the sealed prompt said).
+  if (process.env.LATTICE_MANAGED_HOST_RUN_ID) {
+    fs.mkdirSync(path.join(dir, 'prompts'), { recursive: true });
+    fs.writeFileSync(path.join(dir, 'prompts', process.env.LATTICE_MANAGED_HOST_RUN_ID + '.txt'), input);
+  }
   emit({ type: 'turn.started' });
   // Run mode (next --run launches managed runs itself, resolver.json present):
   // the script for this exact run id (byrun/<runId>.json), written by the
@@ -1105,16 +1123,23 @@ function scenarioD2(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 /** DEV work the owner does before REVIEW entry (devToReview without story_advance REVIEW). */
 const DEV_SETUP_CALLS = 6;
 
-export function devSetup(o: Owner): void {
+export function devSetup(o: Owner, implemented = true): void {
   const id = o.storyId;
   o.mustCli('dev_memory_preflight_ack', { storyId: id });
   o.mustCli('scope_contract_init_from_plan', { storyId: id });
-  for (const [itemId, test, proves] of [['CHK-001', 'TestUpper', 'Upper upper-cases its input'], ['CHK-002', 'TestReverse', 'Reverse reverses by rune']] as const) {
-    o.mustCli('verification_evidence_add', { storyId: id, itemId, intentRef: `${itemId}:happy:0`, kind: 'logic_test',
-      command: `go test -v ./strs -run ${test}`, selector: `--- PASS: ${test}`, note: `Pinned focused go test proves ${proves}.` }, { label: `verification_evidence_add ${itemId}` });
-  }
+  // Unimplemented fixture (A/B V5): the implementer run writes the code; evidence follows it (addItemEvidence).
+  if (!implemented) return;
+  addItemEvidence(o);
   o.mustCli('checklist_update', { storyId: id, itemId: 'CHK-001', status: 'done' }, { label: 'checklist_update CHK-001 done' });
   o.mustCli('checklist_update', { storyId: id, itemId: 'CHK-002', status: 'done' }, { label: 'checklist_update CHK-002 done' });
+}
+
+/** The pinned focused evidence of both items (the framework runs each command). */
+function addItemEvidence(o: Owner): void {
+  for (const [itemId, test, proves] of [['CHK-001', 'TestUpper', 'Upper upper-cases its input'], ['CHK-002', 'TestReverse', 'Reverse reverses by rune']] as const) {
+    o.mustCli('verification_evidence_add', { storyId: o.storyId, itemId, intentRef: `${itemId}:happy:0`, kind: 'logic_test',
+      command: `go test -v ./strs -run ${test}`, selector: `--- PASS: ${test}`, note: `Pinned focused go test proves ${proves}.` }, { label: `verification_evidence_add ${itemId}` });
+  }
 }
 
 export interface NextStepCallJson {
@@ -1187,6 +1212,27 @@ function repairScript(desc: string): ProviderScript {
     final: `Added ${repair.name}; committed.` };
 }
 
+/** A/B remediation.grouping=single: one run, one regression test and one commit naming its id per finding. */
+function groupedRepairScript(storyId: string, findings: ReadonlyArray<{ id: string; desc: string }>): ProviderScript {
+  return { commands: findings.map(finding => {
+    const repair = repairFor(finding.desc);
+    const short = finding.id.startsWith(`${storyId}:`) ? finding.id.slice(storyId.length + 1) : finding.id;
+    return ['/bin/sh', '-c', `printf '%s' '${repair.test.replace(/'/g, "'\\''")}' >> strs/strs_test.go && git add strs/strs_test.go && git -c user.name=${FINDING_REPAIR} commit -qm '${storyId} ${short}: resolve finding (${repair.subject})' && git log --format=%h -1`];
+  }), final: `Added ${findings.map(finding => repairFor(finding.desc).name).join(', ')}; one commit per finding.` };
+}
+
+const IMPLEMENTER = 'proof-or-stop-implementer';
+
+/** A/B implementation.grouping=files: the implementer writes both helpers and marks only its bound item done. */
+function implementerScript(storyId: string, itemId: string): ProviderScript {
+  const writeFiles = `const fs=require('fs');fs.writeFileSync('strs/strs.go',${JSON.stringify(IMPL)});fs.writeFileSync('strs/strs_test.go',${JSON.stringify(TESTS)});`;
+  return { commands: [
+    [process.execPath, '-e', writeFiles],
+    ['/bin/sh', '-c', `git add strs && git -c user.name=${IMPLEMENTER} commit -qm '${storyId} CHK-001 CHK-002: implement Upper and Reverse' && git log --format=%h -1`],
+    [process.execPath, CLI, 'checklist_update', JSON.stringify({ storyId, itemId, status: 'done' })],
+  ], final: `Implemented Upper and Reverse; ${itemId} marked done.` };
+}
+
 /**
  * Run mode: `next --run` launches fully bound managed runs itself, so the
  * harness cannot script the fake provider before the launch. The fake codex
@@ -1223,9 +1269,10 @@ function repairRunsOnDisk(runsRoot: string): Map<string, string[]> {
   if (!existsSync(runsRoot)) return byFinding;
   for (const runId of readdirSync(runsRoot)) {
     try {
-      const spec = JSON.parse(readFileSync(join(runsRoot, runId, 'spec.json'), 'utf8')) as { agentType?: string; managedDispatchTarget?: { findingId?: string } | null };
+      const spec = JSON.parse(readFileSync(join(runsRoot, runId, 'spec.json'), 'utf8')) as { agentType?: string; managedDispatchTarget?: { findingId?: string; groupFindingIds?: string[] } | null };
       const findingId = spec.agentType === FINDING_REPAIR ? spec.managedDispatchTarget?.findingId : undefined;
-      if (findingId) byFinding.set(findingId, [...(byFinding.get(findingId) ?? []), runId]);
+      // A/B remediation.grouping=single: a grouped run is bound to every member.
+      for (const id of findingId ? spec.managedDispatchTarget?.groupFindingIds ?? [findingId] : []) byFinding.set(id, [...(byFinding.get(id) ?? []), runId]);
     } catch { /* not a managed run directory */ }
   }
   return byFinding;
@@ -1370,7 +1417,12 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
         o.script(DELIVERY, deliveryScript(id));
         break;
       case 'finding_repair':
-        o.script(FINDING_REPAIR, repairScript(findingDesc(String(payload.findingId))));
+        o.script(FINDING_REPAIR, Array.isArray(payload.groupFindingIds)
+          ? groupedRepairScript(id, (payload.groupFindingIds as string[]).map(findingId => ({ id: findingId, desc: findingDesc(findingId) })))
+          : repairScript(findingDesc(String(payload.findingId))));
+        break;
+      case 'implement_item':
+        o.script(IMPLEMENTER, implementerScript(id, String(payload.itemId)));
         break;
       case 'enter_review': {
         // Run 16: next proposed enter_review with a verified LOW finding open
@@ -1462,10 +1514,12 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
       assert.equal(ran.status, 0, `[${o.scenario}] next proposed ${call.line} (${call.reason}) and its gate refused it:\n${ran.out.slice(-2500)}`);
       const launched = parseJson(ran.stdout)?.run as Record<string, unknown> | undefined;
       if (call.command === 'host_run' && launched?.runId) {
-        scriptKeyByRun.set(String(launched.runId), call.reason === 'delivery_review_launch' ? DELIVERY : call.reason === 'finding_repair' ? FINDING_REPAIR : String(call.payload.reviewRunId));
+        scriptKeyByRun.set(String(launched.runId), call.reason === 'delivery_review_launch' ? DELIVERY : call.reason === 'finding_repair' ? FINDING_REPAIR
+          : call.reason === 'implement_item' ? IMPLEMENTER : String(call.payload.reviewRunId));
         if (call.reason === 'finding_repair') {
-          const findingId = String(call.payload.findingId);
-          repairRunsByFinding.set(findingId, [...(repairRunsByFinding.get(findingId) ?? []), String(launched.runId)]);
+          for (const findingId of Array.isArray(call.payload.groupFindingIds) ? call.payload.groupFindingIds as string[] : [String(call.payload.findingId)]) {
+            repairRunsByFinding.set(findingId, [...(repairRunsByFinding.get(findingId) ?? []), String(launched.runId)]);
+          }
         }
       }
     }
@@ -1627,6 +1681,122 @@ function scenarioNF(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
+/** The EXPERIMENTAL detection A/B switch each AB scenario turns on (core/ab-variants.ts); all default off. */
+export const AB_SCENARIO_VARIANTS = {
+  V1: { review: { criticOnCleanRound: 'skip' } },
+  V2: { review: { round2Scope: 'repaired-files' } },
+  V3: { review: { round2Lanes: 'fresh' } },
+  V4: { remediation: { grouping: 'single' } },
+  V5: { implementation: { grouping: 'files' } },
+} as const;
+
+/** Every managed provider prompt of an agent type, oldest first. */
+function managedPrompts(o: Owner, agentType?: string): Array<{ runId: string; agentType: string; prompt: string; target: Record<string, unknown> | null }> {
+  const runsRoot = join(o.root, '.proof-or-stop', 'runtime', 'host-runs');
+  if (!existsSync(runsRoot)) return [];
+  return readdirSync(runsRoot).flatMap(runId => {
+    try {
+      const spec = JSON.parse(readFileSync(join(runsRoot, runId, 'spec.json'), 'utf8')) as { agentType: string; createdAt?: string; managedDispatchTarget?: Record<string, unknown> | null };
+      if (agentType && spec.agentType !== agentType) return [];
+      const promptFile = join(o.scriptsDir, 'prompts', `${runId}.txt`);
+      return [{ runId, agentType: spec.agentType, createdAt: spec.createdAt ?? '', prompt: existsSync(promptFile) ? readFileSync(promptFile, 'utf8') : '', target: spec.managedDispatchTarget ?? null }];
+    } catch { return []; }
+  }).sort((a, b) => a.createdAt.localeCompare(b.createdAt) || a.runId.localeCompare(b.runId));
+}
+
+/**
+ * Detection A/B arms (bench-staging/oldpos/run17-cost-analysis.md §3): the ND
+ * (one round-1 finding) or NF (two) next-driven flow with ONE experimental
+ * switch on, set in the prepared config exactly as the bench adapter's
+ * POS_AB_FLAGS hook writes it. Each must reach DONE through `next` alone
+ * (every proposed command accepted by its gate) and show the variant's effect:
+ *   V1 the clean later round finalizes without an inventory critic (signed criticSkip);
+ *   V2 later-round lane prompts restrict review to the repaired files + direct callers;
+ *   V3 later-round lane prompts say fresh session (no resume of round-1 threads);
+ *   V4 one grouped finding-repair run, then each finding resolved on its own;
+ *   V5 (unimplemented fixture) one implementer run for both items sharing files,
+ *      the second item marked done separately (grouped_item_done).
+ */
+function scenarioAB(machineEnv: NodeJS.ProcessEnv, steps: Step[], flow: 'D' | 'F', variant: keyof typeof AB_SCENARIO_VARIANTS): Outcome {
+  const tag = `N${flow}-${variant}`;
+  const name = `${tag} A/B ${JSON.stringify(AB_SCENARIO_VARIANTS[variant])} on the N${flow} flow reaches DONE`;
+  const ids: Record<string, string> = { 'D-V1': 'B-ab11', 'D-V2': 'B-ab12', 'D-V3': 'B-ab13', 'D-V4': 'B-ab14', 'D-V5': 'B-ab15',
+    'F-V1': 'B-ab21', 'F-V2': 'B-ab22', 'F-V3': 'B-ab23', 'F-V4': 'B-ab24', 'F-V5': 'B-ab25' };
+  const o = new Owner(tag, ids[`${flow}-${variant}`]!, machineEnv, steps, false,
+    { trackedGateFailureCounts: true, config: AB_SCENARIO_VARIANTS[variant] as unknown as Record<string, unknown>, unimplemented: variant === 'V5' });
+  const lines: string[] = [];
+  const reasons: string[] = [];
+  try {
+    devSetup(o, variant !== 'V5');
+    driveWithNext(o, { findingRound1: true, run: false, twoFindings: flow === 'F' }, lines, next => {
+      reasons.push(next.reason);
+      // V5: the owner verifies the grouped run's items by their own pinned focused evidence before marking the next one done.
+      if (next.reason === 'grouped_item_done') addItemEvidence(o);
+    });
+    const tests = readFileSync(join(o.root, 'strs/strs_test.go'), 'utf8');
+    assert.match(tests, /TestReverseEmpty/, 'F-001 repair merged into main');
+    if (flow === 'F') assert.match(tests, /TestUpperEmpty/, 'F-002 repair merged into main');
+    const count = (reason: string) => reasons.filter(row => row === reason).length;
+    const epochs = new StoryStore(o.root).readReviewInventoryEpochs(o.storyId).epochs;
+    const lanePrompts = managedPrompts(o).filter(row => row.agentType.startsWith('proof-or-stop-review-') && row.agentType !== DELIVERY && row.agentType !== MANAGED_INVENTORY_CRITIC_LANE);
+    const rereview = lanePrompts.filter(row => row.prompt.includes('MANAGED RE-REVIEW SINCE PREVIOUS CANDIDATE'));
+    switch (variant) {
+      case 'V1': {
+        const skipped = epochs.filter(epoch => epoch.waves.some(wave => wave.criticSkip));
+        assert.ok(skipped.length >= 1, `${tag}: a clean round finalized with a signed criticSkip`);
+        assert.equal(skipped[0]!.waves.at(-1)!.criticSkip!.abVariant.flags['review.criticOnCleanRound'], 'skip', `${tag}: criticSkip records the A/B flag`);
+        assert.ok(epochs.filter(epoch => epoch.state === 'FINALIZED' && epoch.waves.some(wave => !wave.criticSkip && wave.newVerifiedFindingCount)).length >= 1, `${tag}: the round with findings still ran the critic`);
+        lines.push(`critic launches: ${count('inventory_critic_launch')}; epochs finalized with criticSkip: ${skipped.length}`);
+        break;
+      }
+      case 'V2':
+        assert.ok(rereview.length >= 1, `${tag}: later-round lanes got a re-review prompt`);
+        for (const row of rereview) {
+          assert.match(row.prompt, /review\.round2Scope=repaired-files/, `${tag}: ${row.runId} prompt states the repaired-files scope`);
+          assert.match(row.prompt, /Files changed by the repair \(\d+\): [^\n]*strs\/strs_test\.go/, `${tag}: ${row.runId} prompt lists the repaired file`);
+        }
+        lines.push(`later-round lane prompts with repaired-files scope: ${rereview.length}; e.g. ${(rereview[0]!.prompt.match(/Direct callers[^\n]*/) ?? [''])[0].slice(0, 160)}`);
+        break;
+      case 'V3':
+        assert.ok(rereview.length >= 1, `${tag}: later-round lanes got a re-review prompt`);
+        for (const row of rereview) {
+          assert.match(row.prompt, /review\.round2Lanes=fresh/, `${tag}: ${row.runId} prompt states a fresh session`);
+          assert.doesNotMatch(row.prompt, /If this session already holds your earlier review/, `${tag}: ${row.runId} prompt has no resume wording`);
+        }
+        lines.push(`later-round lane prompts in fresh mode: ${rereview.length}`);
+        break;
+      case 'V4': {
+        const repairs = managedPrompts(o, FINDING_REPAIR);
+        if (flow === 'F') {
+          assert.equal(repairs.length, 1, `${tag}: one grouped finding-repair run for both findings (got ${repairs.length})`);
+          assert.equal((repairs[0]!.target?.groupFindingIds as string[] | undefined)?.length, 2, `${tag}: the run binds both findings`);
+          assert.equal((repairs[0]!.target?.abVariant as { flags?: Record<string, string> } | undefined)?.flags?.['remediation.grouping'], 'single', `${tag}: the run records the A/B flag`);
+          assert.equal(count('finding_resolve'), 2, `${tag}: each finding resolved separately`);
+        } else {
+          assert.equal(repairs.length, 1, `${tag}: a single finding keeps the ordinary single-target repair`);
+          assert.equal(repairs[0]!.target?.groupFindingIds, undefined, `${tag}: no group for one finding`);
+        }
+        lines.push(`finding-repair runs: ${repairs.length}; finding_resolve steps: ${count('finding_resolve')}`);
+        break;
+      }
+      case 'V5': {
+        const implementers = managedPrompts(o, IMPLEMENTER);
+        assert.equal(implementers.length, 1, `${tag}: one implementer run for both items sharing files (got ${implementers.length})`);
+        assert.deepEqual(implementers[0]!.target?.groupItemIds, ['CHK-001', 'CHK-002'], `${tag}: the run binds both items`);
+        assert.equal(count('grouped_item_done'), 1, `${tag}: CHK-002 marked done separately after verification`);
+        lines.push(`implementer runs: ${implementers.length}; grouped_item_done steps: ${count('grouped_item_done')}`);
+        break;
+      }
+    }
+    lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 /** CLI calls and seconds from REVIEW entry (after the shared DEV setup), per scenario. */
 function fromReviewEntry(steps: Step[], scenario: string): { calls: number; seconds: number; nextCalls: number } | null {
   const rows = steps.filter(s => s.scenario === scenario).slice(DEV_SETUP_CALLS);
@@ -1706,7 +1876,7 @@ function printTimeline(steps: Step[], scenario: string): void {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF|NL|NU2?|N[AD](?:-run)?)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF|NL|NU2?|N[AD](?:-run)?|N[DF]-V[1-5]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -1735,10 +1905,15 @@ async function main(): Promise<void> {
     if (only.includes('NL')) outcomes.push(scenarioNL(machine.env, steps));
     if (only.includes('NU')) outcomes.push(scenarioNU(machine.env, steps, true));
     if (only.includes('NU2')) outcomes.push(scenarioNU(machine.env, steps, false));
+    // Detection A/B arms: explicit tokens (ND-V1 .. NF-V5) or AB = ND-V1, ND-V2, ND-V3, NF-V4, ND-V5.
+    const abTokens = only.includes('AB') ? ['ND-V1', 'ND-V2', 'ND-V3', 'NF-V4', 'ND-V5'] : [];
+    for (const token of [...new Set([...abTokens, ...only.filter(arg => /^N[DF]-V[1-5]$/.test(arg))])]) {
+      outcomes.push(scenarioAB(machine.env, steps, token[1] as 'D' | 'F', token.slice(3) as keyof typeof AB_SCENARIO_VARIANTS));
+    }
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NL', 'NU', 'NU2']) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NL', 'NU', 'NU2', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

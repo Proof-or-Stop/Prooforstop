@@ -1,4 +1,5 @@
 import { isManagedInventoryCriticEnvelopeValid } from './managed-inventory-critic.js';
+import { resolveAbVariants } from './ab-variants.js';
 import { isMissingReviewSnapshotError } from './review-metadata-surface.js';
 import { reportHealthIssue } from './health.js';
 import { isVerifiedReviewMaintenanceCommit } from './review-maintenance-lineage.js';
@@ -676,6 +677,63 @@ function renderManagedRereviewDiff(gitCwd: string, projectRoot: string, fromHead
   ];
 }
 
+/** EXPERIMENTAL A/B switches read for a managed re-review prompt; malformed config fails closed to production. */
+function rereviewAbVariants(root: string): { round2Scope: 'full' | 'repaired-files'; round2Lanes: 'resume' | 'fresh' } {
+  try {
+    const variants = resolveAbVariants(loadConfig(root));
+    return { round2Scope: variants.round2Scope, round2Lanes: variants.round2Lanes };
+  } catch {
+    return { round2Scope: 'full', round2Lanes: 'resume' };
+  }
+}
+
+const REPAIRED_SCOPE_MAX_SYMBOLS = 12;
+const REPAIRED_SCOPE_MAX_CALLERS = 30;
+const DEFINITION_HEADER = /\b(?:func|function|def|fn|class|interface|type)\s+(?:\([^)]*\)\s*)?([A-Za-z_][A-Za-z0-9_]*)/g;
+
+/**
+ * EXPERIMENTAL A/B review.round2Scope=repaired-files: the files a later-round
+ * lane reviews. `changed` = material paths changed by the repair commits
+ * (previous candidate HEAD..current HEAD). `callers` = the cheap direct-caller
+ * approximation: the enclosing definitions named in the repair diff's hunk
+ * headers (git's funcname context, e.g. `func Reverse`) plus definitions added
+ * on `+` lines, each searched as a whole word with `git grep -l -w` at the
+ * current HEAD (capped at 12 symbols / 30 files, metadata excluded).
+ */
+export function repairedFilesReviewScope(gitCwd: string, projectRoot: string, fromHead: string, toHead: string): { changed: string[]; callers: string[]; symbols: string[] } | null {
+  if (!GIT_OBJECT_NAME.test(fromHead) || !GIT_OBJECT_NAME.test(toHead) || fromHead === toHead) return null;
+  const git = (args: string[]): string => execFileSync('git', args, {
+    cwd: gitCwd, encoding: 'utf8', maxBuffer: 256 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'],
+  });
+  try {
+    const changed = git(['diff', '--no-renames', '--name-only', '-z', fromHead, toHead, '--'])
+      .split('\0').filter(Boolean).filter(path => !isMaterialExcludedPath(path, projectRoot)).sort();
+    if (changed.length === 0) return { changed, callers: [], symbols: [] };
+    const diff = git(['diff', '--no-color', '--no-ext-diff', '--no-renames', '-U0', fromHead, toHead, '--', ...changed]);
+    const symbols: string[] = [];
+    for (const line of diff.split('\n')) {
+      const text = line.startsWith('@@') ? line.replace(/^@@[^@]*@@/, '') : line.startsWith('+') && !line.startsWith('+++') ? line.slice(1) : '';
+      for (const match of text.matchAll(DEFINITION_HEADER)) {
+        const name = match[1]!;
+        if (name.length > 2 && !symbols.includes(name)) symbols.push(name);
+      }
+    }
+    const searched = symbols.slice(0, REPAIRED_SCOPE_MAX_SYMBOLS);
+    let callers: string[] = [];
+    if (searched.length > 0) {
+      let out = '';
+      try {
+        out = git(['grep', '-l', '-w', '-z', ...searched.flatMap(name => ['-e', name]), toHead, '--']);
+      } catch { out = ''; /* git grep exits 1 when nothing matches */ }
+      callers = [...new Set(out.split('\0').filter(Boolean).map(row => row.startsWith(`${toHead}:`) ? row.slice(toHead.length + 1) : row))]
+        .filter(path => !changed.includes(path) && !isMaterialExcludedPath(path, projectRoot)).sort().slice(0, REPAIRED_SCOPE_MAX_CALLERS);
+    }
+    return { changed, callers, symbols: searched };
+  } catch {
+    return null;
+  }
+}
+
 function oneLine(text: string, max: number): string {
   const flat = text.replace(/\s+/g, ' ').trim();
   return flat.length > max ? `${flat.slice(0, max)}...` : flat;
@@ -704,10 +762,23 @@ function renderManagedReviewerRereview(root: string, run: ReviewRun): string[] {
       // Legacy findings without a run binding: only those of an earlier round.
       : typeof finding.reviewRound === 'string' && isEarlierReviewRound(finding.reviewRound, run.reviewRound))
     .sort((a, b) => a.id.localeCompare(b.id));
+  const variants = rereviewAbVariants(root);
+  const scope = variants.round2Scope === 'repaired-files' ? repairedFilesReviewScope(gitCwd, root, previous.headHash, run.headHash) : null;
+  const abLines = [
+    ...(variants.round2Lanes === 'fresh' ? [
+      'A/B variant review.round2Lanes=fresh (experimental): this is a FRESH session; your earlier review thread is not resumed. Do not re-review the whole Story: focus on the findings raised on earlier candidates and on the repair diff below, reading other code only where the diff depends on it.',
+    ] : []),
+    ...(variants.round2Scope === 'repaired-files' ? (scope ? [
+      'A/B variant review.round2Scope=repaired-files (experimental): this round reviews ONLY the files changed by the repair commits and their direct callers, not the full Story diff. Do not raise findings in other files; the rest of the Story diff was reviewed on earlier candidates.',
+      `Files changed by the repair (${scope.changed.length}): ${scope.changed.join(', ') || 'none'}`,
+      `Direct callers of changed definitions${scope.symbols.length ? ` (${scope.symbols.join(', ')})` : ''} (${scope.callers.length}): ${scope.callers.join(', ') || 'none found'}`,
+    ] : ['A/B variant review.round2Scope=repaired-files (experimental): the repaired-file scope could not be computed; review the full Story diff.']) : []),
+  ];
   return [
     '--- BEGIN MANAGED RE-REVIEW SINCE PREVIOUS CANDIDATE ---',
     `Re-review: this lane already reviewed an earlier candidate of this Story (ReviewRun ${previous.reviewRunId}, candidate ${previous.headHash}). The candidate changed since then; it is now ${run.headHash}.`,
-    'If this session already holds your earlier review of this Story, build on what you read then instead of re-reading the repository.',
+    ...(variants.round2Lanes === 'fresh' ? [] : ['If this session already holds your earlier review of this Story, build on what you read then instead of re-reading the repository.']),
+    ...abLines,
     'Instructions:',
     '1. First confirm each listed finding against the new code: state whether it is fixed or still present, with evidence (file and line, or the command you ran).',
     '2. Then review the code changed since the previous review and the direct callers of changed code.',
