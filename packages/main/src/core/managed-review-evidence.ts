@@ -620,7 +620,7 @@ export function managedInventorySubjectState(store: StoryStore, run: ReviewRun, 
 function renderInventoryCriticCoverage(coverage: ManagedInventoryCriticCoverage | undefined): string[] {
   if (!coverage) return [];
   return [`findingDispositions rows for existing findings: exactly one for each of ${JSON.stringify(coverage.requiredFindingIds)} (this wave's verified aggregate), none for any other id.`
-    + (coverage.noRowFindingIds.length ? ` These findings take NO row (suspected or disproven, advisory): ${JSON.stringify(coverage.noRowFindingIds)}; if you verified one of them, report it as your own finding (with its own proposalFindingIndex row).` : '')
+    + (coverage.noRowFindingIds.length ? ` These findings take NO row (suspected or disproven, advisory; a row for them is ignored): ${JSON.stringify(coverage.noRowFindingIds)}.` : '')
     + ' Plus one row for every entry of your own findings array.'];
 }
 

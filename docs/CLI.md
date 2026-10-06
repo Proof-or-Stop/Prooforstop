@@ -640,13 +640,24 @@ pack (the exact id lists) say so, and say that its own findings are only for
 defects no aggregate finding already reports. The same id lists are sealed in
 the run's `reviewBinding.inventoryCriticCoverage` (computed with the importer's
 wave evaluation at `host_run`); before sealing, the worker checks the block
-against them (`managedInventoryCriticCoverageViolations`) and a missing or
-extra row is a same-session format repair naming the exact ids
+against them (`managedInventoryCriticCoverageViolations`) and a missing row is
+a same-session format repair naming the exact ids
 (`managed_review_final_result_malformed:inventory_critic_coverage`), not a
-sealed block the importer refuses and not a fresh critic (run 19, B-8166: a
-`verified_family` row for suspected F-001 was refused
-`REVIEW_INVENTORY_FINDING_DISPOSITION_INVALID` and the owner relaunched the
-whole critic). At import, a missing row still refuses the critic receipt with
+sealed block the importer refuses and not a fresh critic. A row for an id
+outside the verified set (run 19, B-8166: a `verified_family` row for suspected
+F-001, refused `REVIEW_INVENTORY_FINDING_DISPOSITION_INVALID`, after which the
+owner relaunched the critic and finally wrote an empty receipt itself) carries
+no authority: the importer drops it and logs process event
+`inventory_critic_disposition_dropped` instead of refusing the critic; rows for
+in-set findings are never dropped, and completeness is computed over the
+in-set findings only. A critic cannot promote a suspected finding to verified
+this way (that would change detection; left to the A/B). The receipt of a
+managed critic run is written only by `managed_review_evidence_import` from its
+sealed block: `review_inventory_critic_set` for a ReviewRun with managed
+terminal evidence refuses `REVIEW_INVENTORY_CRITIC_MANAGED_RECEIPT_ONLY`
+(`Next: proof-or-stop next --storyId=<id>`), and `review_inventory_status`
+proposes `next` instead of a critic_set for such a run.
+At import, a missing row still refuses the critic receipt with
 `REVIEW_INVENTORY_FINDING_DISPOSITION_INCOMPLETE: <ids>` (the terminal evidence
 stays imported). One exception is completed by the importer instead of
 refused (and is therefore not a worker repair either): a critic finding that provably restates an earlier finding of the

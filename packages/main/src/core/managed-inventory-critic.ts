@@ -241,7 +241,7 @@ export function reconcileRestatedCriticFindings(args: {
  */
 export const MANAGED_INVENTORY_CRITIC_PROTOCOL: readonly string[] = [
   'Managed inventory protocol: do not call review_inventory_critic_set. The authenticated importer writes the critic receipt from your sealed inventoryCritic block after terminal evidence import.',
-  'Include inventoryCritic={epochId,wave,findingDispositions} bound exactly to the current evidence pack. findingDispositions needs exactly one row for every verified aggregate finding of this wave (finding={findingId:existingId}; the evidence pack lists the exact ids) AND one row for every entry of your own findings array (finding={proposalFindingIndex:zeroBasedIndex}); a missing row refuses the whole critic import with REVIEW_INVENTORY_FINDING_DISPOSITION_INCOMPLETE. A suspected or disproven finding takes NO row (a row for it is REVIEW_INVENTORY_FINDING_DISPOSITION_INVALID); if you verified one, report it as your own finding. Each row has finding, disposition, reason, optional familyKey and canonicalFinding. Each reason must contain at least 10 trimmed characters. canonicalFinding uses the same reference forms. Never guess allocated Finding IDs. Duplicate rows require familyKey and canonicalFinding; verified_family requires familyKey and omits canonicalFinding (it is its own canonical finding); not_verified permits neither.',
+  'Include inventoryCritic={epochId,wave,findingDispositions} bound exactly to the current evidence pack. findingDispositions needs exactly one row for every verified aggregate finding of this wave (finding={findingId:existingId}; the evidence pack lists the exact ids) AND one row for every entry of your own findings array (finding={proposalFindingIndex:zeroBasedIndex}); a missing row refuses the whole critic import with REVIEW_INVENTORY_FINDING_DISPOSITION_INCOMPLETE. A suspected or disproven finding takes NO row (a row for it is ignored: it cannot verify, close or dispose that finding). Each row has finding, disposition, reason, optional familyKey and canonicalFinding. Each reason must contain at least 10 trimmed characters. canonicalFinding uses the same reference forms. Never guess allocated Finding IDs. Duplicate rows require familyKey and canonicalFinding; verified_family requires familyKey and omits canonicalFinding (it is its own canonical finding); not_verified permits neither.',
   'Your own findings array is only for a defect that no aggregate finding already reports. Never copy, restate or re-raise an aggregate finding as your own finding: classify it by its findingId instead (confirming it is verified_family; a severity note goes in its reason). If you found nothing new, use conclusion="pass" with an empty findings array; your rows still classify every aggregate finding.',
   'Do not put findingDispositions at the top level. The block does not certify omitted reads or resolve findings. Preserve incomplete-read findings rather than claiming complete coverage.',
 ];
@@ -266,9 +266,10 @@ export function isManagedInventoryCriticCoverage(value: unknown): value is Manag
  * Coverage violations of a shape-valid critic block against the sealed
  * coverage, as `path: expected ..., got ...` lines (empty when complete). The
  * worker turns them into a same-session format repair before sealing, so the
- * importer never sees a block it would refuse for coverage (run 19 B-8166: a
- * row for suspected F-001). A missing row that the importer completes itself
- * (a provable restatement, A/B control D2-r3/D9-r1) is not a violation.
+ * importer never sees a block it would refuse for a missing row. A missing row
+ * the importer completes itself (a provable restatement, A/B control
+ * D2-r3/D9-r1) is not a violation, nor is an extra row for an id outside the
+ * verified set (run 19 B-8166, suspected F-001), which the importer drops.
  */
 export function managedInventoryCriticCoverageViolations(block: ManagedInventoryCritic,
   ownFindings: ReadonlyArray<{ desc: string; files?: readonly string[] }>,
@@ -276,14 +277,9 @@ export function managedInventoryCriticCoverageViolations(block: ManagedInventory
   const out: string[] = [];
   const ownId = (index: number) => `#own-${index}`;
   const refId = (ref: ManagedInventoryFindingRef) => 'findingId' in ref ? ref.findingId : ownId(ref.proposalFindingIndex);
-  block.findingDispositions.forEach((row, i) => {
-    if (!('findingId' in row.finding)) return;
-    const id = row.finding.findingId;
-    if (!coverage.requiredFindingIds.includes(id)) {
-      out.push(`${path}[${i}].finding: expected one of ${JSON.stringify(coverage.requiredFindingIds)} (this wave's verified aggregate), got ${JSON.stringify(id)}${
-        coverage.noRowFindingIds.includes(id) ? ', which is suspected/disproven and takes no row (remove the row; report it as your own finding if you verified it)' : ''}`);
-    }
-  });
+  // A row for an id outside the verified set (run 19: suspected F-001) is not
+  // a violation here: it carries no authority and the importer drops and logs
+  // it (partitionCriticRowsByWave), so no repair turn is spent on it.
   const rows: CriticResolvedDisposition[] = block.findingDispositions.map(row => ({ findingId: refId(row.finding), disposition: row.disposition,
     reason: row.reason, ...(row.familyKey ? { familyKey: row.familyKey } : {}),
     ...(row.canonicalFinding && row.disposition !== 'verified_family' ? { canonicalFindingId: refId(row.canonicalFinding) } : {}) }));
@@ -295,4 +291,14 @@ export function managedInventoryCriticCoverageViolations(block: ManagedInventory
   const missingOwn = own.map((row, index) => completed.has(row.id) ? -1 : index).filter(index => index >= 0);
   if (missingOwn.length) out.push(`${path}: expected a row for every own finding, missing proposalFindingIndex ${JSON.stringify(missingOwn)} (a restated aggregate finding is a duplicate of it)`);
   return out;
+}
+
+/**
+ * Run 19 (B-8166): split resolved critic rows into those for the wave's
+ * verified set (kept, never dropped) and those for any other finding (a
+ * suspected/disproven one: no inventory authority, dropped and logged by the
+ * importer instead of refusing the whole critic).
+ */
+export function partitionCriticRowsByWave<T extends { findingId: string }>(rows: readonly T[], waveFindingIds: readonly string[]): { kept: T[]; dropped: T[] } {
+  return { kept: rows.filter(row => waveFindingIds.includes(row.findingId)), dropped: rows.filter(row => !waveFindingIds.includes(row.findingId)) };
 }

@@ -3,7 +3,7 @@ import { cleanRoundCriticSkip } from '../core/review-inventory-critic-skip.js';
 import { commitReviewEpochMetadata } from '../core/review-metadata-batch.js';
 import { readManagedHostRunBinding, readManagedReviewEvidenceProposal } from '../core/managed-host-run.js';
 import { createManagedReviewEvidenceBinding, managedReviewerPromptDigest, verifyManagedReviewLiveBinding } from '../core/managed-review-evidence.js';
-import { isManagedInventoryCritic, reconcileRestatedCriticFindings, validInventoryCriticReason, type ManagedInventoryFindingRef } from '../core/managed-inventory-critic.js';
+import { isManagedInventoryCritic, partitionCriticRowsByWave, reconcileRestatedCriticFindings, validInventoryCriticReason, type ManagedInventoryFindingRef } from '../core/managed-inventory-critic.js';
 import { recordConvergenceProgressUnlocked } from '../core/convergence-progress-journal.js';
 import { collectOrphanPromptBodies } from '../core/prompt-body-gc.js';
 import type { HandlerContext } from './context.js';
@@ -258,6 +258,8 @@ export interface ReviewInventoryStatusProjection {
   /** EXPERIMENTAL A/B review.criticOnCleanRound=skip: complete because the clean round skips the critic. */
   criticSkipped?: boolean;
   criticReviewRunId?: string;
+  /** The critic run's terminal evidence is managed: its receipt comes only from the managed import (run 19). */
+  criticManaged?: boolean;
   receipt?: ReviewInventoryReceipt;
 }
 
@@ -297,7 +299,9 @@ export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, project
         familyKey: `finding:${findingId}`,
         reason: 'Conservative executable default: retain this verified finding as its own family',
       }));
-      next = projection.criticReviewRunId
+      next = projection.criticReviewRunId && projection.criticManaged
+        ? `proof-or-stop next --storyId=${epoch.storyId}`
+        : projection.criticReviewRunId
         ? `proof-or-stop review_inventory_critic_set '${JSON.stringify({ storyId: epoch.storyId, epochId: epoch.epochId, reviewRunId: projection.criticReviewRunId, agent: 'proof-or-stop-review-topology-critic', findingDispositions: conservativeDispositions })}'`
         : `proof-or-stop dispatch '${JSON.stringify({ storyId: epoch.storyId, agentType: 'proof-or-stop-review-topology-critic', reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId })}'`;
     } else if (live?.newFamilies.length) {
@@ -402,6 +406,12 @@ function currentCriticReviewRunId(ctx: HandlerContext, epoch: ReviewInventoryEpo
   return terminal.some(row => Boolean(row.readManifest)) ? latest.reviewRunId : undefined;
 }
 
+function criticRunIsManaged(ctx: HandlerContext, storyId: string, reviewRunId: string | undefined): boolean {
+  if (!reviewRunId) return false;
+  return ctx.store.readReviewPasses(storyId).passes.some(row => row.reviewRunId === reviewRunId && row.managedEvidenceBinding)
+    || ctx.store.readFindings(storyId).findings.some(row => row.reviewRunId === reviewRunId && row.managedEvidenceBinding);
+}
+
 function renderProjectedStatus(ctx: HandlerContext, epoch: ReviewInventoryEpoch): string {
   const evaluation = epoch.state === 'OPEN' ? evaluateCurrentWave(ctx, epoch) : undefined;
   return renderReviewInventoryStatus(epoch, {
@@ -409,6 +419,7 @@ function renderProjectedStatus(ctx: HandlerContext, epoch: ReviewInventoryEpoch)
     criticComplete: currentCriticComplete(ctx, epoch),
     criticSkipped: currentCriticSkipped(ctx, epoch),
     criticReviewRunId: evaluation ? currentCriticReviewRunId(ctx, epoch, evaluation) : undefined,
+    criticManaged: evaluation ? criticRunIsManaged(ctx, epoch.storyId, currentCriticReviewRunId(ctx, epoch, evaluation)) : undefined,
     receipt: epoch.state === 'FINALIZED'
       ? ctx.store.readReviewInventoryEpochs(epoch.storyId).receipts.find(row => row.receiptId === epoch.receiptId)
       : undefined,
@@ -519,11 +530,28 @@ export function importManagedInventoryCritic(ctx: HandlerContext, args: { runId:
     const rawIds = evaluateCurrentWave(ctx, epoch, []).rawFindingIds;
     const otherFindings = rawIds.filter(id => !ownIds.has(id))
       .map(id => allFindings.find(f => f.id === id)).filter((f): f is NonNullable<typeof f> => Boolean(f));
-    const { dispositions: findingDispositions, restated } = reconcileRestatedCriticFindings({
+    const { dispositions: reconciled, restated } = reconcileRestatedCriticFindings({
       ownFindings: ownFindings.filter(f => rawIds.includes(f.id)), otherFindings, dispositions: criticRows });
+    // Run 19 (B-8166): a row for an existing finding outside the wave's
+    // verified set (a suspected/disproven finding) carries no inventory
+    // authority; drop and log it instead of refusing the whole critic. Rows
+    // for in-set findings are never dropped, and completeness is computed over
+    // the in-set findings only, so nothing can hide behind a dropped row.
+    // (A critic that verified a suspected finding cannot promote it here: that
+    // changes detection and is an A/B question, not a contract fix.)
+    const { kept: findingDispositions, dropped } = partitionCriticRowsByWave(reconciled, rawIds);
+    if (dropped.length > 0) {
+      ctx.store.appendProcessEvent(storyId, { type: 'inventory_critic_disposition_dropped', storyId, command: 'managed_review_evidence_import',
+        role: 'framework', agent: managed.lane, result: 'dropped', managedRunId: args.runId, managedReceiptId: args.receiptId,
+        reviewRunId: run.reviewRunId, droppedFindingIds: dropped.map(row => row.findingId),
+        reason: 'disposition rows for findings outside the wave\'s verified set (suspected/disproven) carry no inventory authority' });
+    }
     const written = persistCriticReceipt(ctx, {storyId, epochId: block.epochId, reviewRunId: run.reviewRunId, findingDispositions});
-    return restated.length === 0 ? written : `${written}\nCritic restated earlier finding(s), recorded as duplicates: ${
-      restated.map(row => `${row.ownFindingId} -> ${row.restatedFindingId} (${row.basis}, similarity ${row.similarity.toFixed(2)})`).join(', ')}`;
+    return [written,
+      ...(restated.length ? [`Critic restated earlier finding(s), recorded as duplicates: ${
+        restated.map(row => `${row.ownFindingId} -> ${row.restatedFindingId} (${row.basis}, similarity ${row.similarity.toFixed(2)})`).join(', ')}`] : []),
+      ...(dropped.length ? [`Dropped critic row(s) for finding(s) outside the wave's verified set (suspected/disproven; logged inventory_critic_disposition_dropped): ${dropped.map(row => row.findingId).join(', ')}`] : []),
+    ].join('\n');
   });
 }
 
@@ -744,6 +772,17 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         throw new Error('review_inventory_critic_set: only proof-or-stop-review-topology-critic may write critic authority');
       }
       return inventoryLock(ctx, args.storyId, () => {
+        // Run 19 (B-8166): the owner wrote the receipt of a MANAGED critic run
+        // itself (review_inventory_critic_set under the critic identity),
+        // bypassing the critic's sealed block. A managed critic's receipt comes
+        // only from managed_review_evidence_import of that sealed block.
+        const managedTerminal = [
+          ...ctx.store.readReviewPasses(args.storyId).passes.filter(row => row.reviewRunId === args.reviewRunId && row.managedEvidenceBinding),
+          ...ctx.store.readFindings(args.storyId).findings.filter(row => row.reviewRunId === args.reviewRunId && row.managedEvidenceBinding),
+        ];
+        if (managedTerminal.length > 0) {
+          throw new Error(`REVIEW_INVENTORY_CRITIC_MANAGED_RECEIPT_ONLY: ${args.reviewRunId} is a managed critic run; its receipt is written only by managed_review_evidence_import from its sealed inventoryCritic block, never by review_inventory_critic_set. Next: proof-or-stop next --storyId=${args.storyId}`);
+        }
         return persistCriticReceipt(ctx, args);
       });
     },
