@@ -111,7 +111,7 @@ function projectStoryReviewBrief(result: {
       }));
     })(),
     ...(info ? { info: info.map((entry) => ({ ...entry, message: truncateOneLine(entry.message, 160) })) } : {}),
-    _hint: `${_hint} — brief view: issue messages truncated and the PLAN review prompt omitted; use --full (or PROOF_OR_STOP_BRIEF_OUTPUT=0) for the complete output (explicit --json keeps the full machine shape).`,
+    _hint: `${_hint} — brief view: issue diagnoses truncated (Next remedies kept whole) and the PLAN review prompt omitted; use --full (or PROOF_OR_STOP_BRIEF_OUTPUT=0) for the complete output (explicit --json keeps the full machine shape).`,
     _reviewPrompt: typeof _reviewPrompt === 'string'
       ? `Brief view: full PLAN review prompt (${_reviewPrompt.length} chars) omitted. Run story_review with --full for the complete prompt.`
       : _reviewPrompt,
