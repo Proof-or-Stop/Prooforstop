@@ -250,6 +250,16 @@ absent or allowed to throw a raw `TypeError` at the inventory gate.
 the inventory lock, so a supported REVIEW re-route is serialized against epoch
 reads rather than racing them.
 
+**Lab reroute-mid-inventory (2026-10-07):** a REVIEW re-route is supported only
+when it can change something. `candidate_spec_route` refuses
+`[candidate_route_current_in_review]` (nothing written, one `Next: proof-or-stop
+next`) while the stored route is launch-ready (`candidateRouteLaunchReady`) and
+the current round already has a ReviewRun: at the material the lanes already
+reviewed, a reroute gave them nothing new but invalidated the OPEN epoch and the managed passes and ended, after
+all lanes reran, in a verdict with no runnable next step. A stale or missing
+route is still re-routed (by `review_round_prepare`), and then this
+invalidation applies as described above.
+
 `review_run_start` holds the inventory lock from its run-start snapshot and
 cutoff/subject precheck through monotonic RR allocation, Prompt Envelope write,
 and durable ReviewRun publication, nesting the metadata transaction in one

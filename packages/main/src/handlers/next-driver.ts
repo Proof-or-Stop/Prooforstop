@@ -51,7 +51,7 @@ import { STORY_FOCUSED_CLASSIFICATION } from '../core/verification-intent-classi
 import { VERIFICATION_LANES } from '../core/verification.js';
 import { isTerminalChecklistStatus } from '../core/checklist-status.js';
 import { unclosedBlockingFindings, resolveEffectiveBlockingSeverities, FINDING_RESOLUTION_PLACEHOLDER } from '../core/finding-closure.js';
-import { criticDuplicateOf, duplicateCoverageReceipts, duplicateOfOpenCanonical, duplicateResolveCandidate } from '../core/duplicate-finding-coverage.js';
+import { findingDuplicateOf, duplicateCoverageReceipts, duplicateOfOpenCanonical, duplicateResolveCandidate } from '../core/duplicate-finding-coverage.js';
 import {
   currentOpenReviewInventory,
   finalizedUnconsumedReviewInventory,
@@ -73,7 +73,7 @@ import { currentPrecertFastIdentity, precertCheapCheckWaived } from './validatio
 import { evaluateEvidenceChainForStory } from './evidence-chain.js';
 import type { EvidenceChainReport } from '../core/evidence-chain-check.js';
 import { checklistHasFileDeclarations } from './phase-gates.js';
-import { verifyCurrentReviewerDispatchBinding } from '../core/review-run.js';
+import { collectReviewerEvidenceState, verifyCurrentReviewerDispatchBinding } from '../core/review-run.js';
 import { managedHostRunsRoot, readManagedHostRunProjection, readManagedHostRunBinding, managedHostRunReceipt, verifyManagedDispatchDelivery, isAutoReplaceableManagedLaunchFailure, MANAGED_AUTO_RELAUNCHES_PER_TARGET } from '../core/managed-host-run.js';
 import { isMaterialExcludedPath } from '../core/material-path-policy.js';
 import { hasPersistedManagedReceiptEvidence, refusedManagedReviewImport } from './managed-review-evidence.js';
@@ -577,7 +577,8 @@ function isBoundRepairState(state: FindingRepairState): boolean {
  * the `per-finding` rollback returns []): the group one finding-repair run
  * covers when `primary` has no bound repair yet — the primary finding plus
  * every other open blocking finding with no bound repair run that is not a
- * critic duplicate (duplicates keep their coverage path). Fewer than two
+ * duplicate (findingDuplicateOf: critic `duplicate` or superseded-run
+ * restatement; duplicates keep their coverage path). Fewer than two
  * members: [] (the single-target repair). Only open BLOCKING findings are
  * grouped; an advisory (low / suspected) finding the owner chooses to repair
  * keeps its own bound run. A member the grouped run leaves without a commit
@@ -588,7 +589,7 @@ export function groupedFindingRepairIds(args: { root: string; store: HandlerCont
   primary: { id: string }; primaryBound: boolean; findings: ReadonlyArray<{ id: string; createdAt?: string }>; runs: readonly FindingRepairRunView[] }): string[] {
   if (args.primaryBound || args.findings.length < 2 || !remediationGroupingSingle(args.root)) return [];
   const others = args.findings.filter(row => row.id !== args.primary.id
-    && !criticDuplicateOf(args.store, args.storyId, row.id)
+    && !findingDuplicateOf(args.store, args.storyId, row.id)
     && !isBoundRepairState(managedFindingRepairState({ root: args.root, gitCwd: args.gitCwd, storyId: args.storyId, finding: row, runs: args.runs })));
   return others.length ? [args.primary.id, ...others.map(row => row.id)] : [];
 }
@@ -766,10 +767,10 @@ export function preScopeAuthoringStep(base: { storyId: string; phase: string }, 
 export function duplicateFindingResolveStep(base: { storyId: string; phase: string }, finding: { id: string; severity: string }, canonical: { id: string }, familyKey: string | null): NextStep {
   const next = step(base, 'agent', 'finding_duplicate_resolve', { command: 'finding_resolve', payload: { storyId: base.storyId, findingId: finding.id, duplicateOf: canonical.id,
     coverage: { command: DUPLICATE_COVERAGE_COMMAND_PLACEHOLDER, selector: DUPLICATE_COVERAGE_SELECTOR_PLACEHOLDER }, resolution: DUPLICATE_RESOLUTION_PLACEHOLDER } },
-  `Verified ${finding.severity} finding ${finding.id} is a critic duplicate of ${canonical.id}${familyKey ? ` (family ${familyKey})` : ''}, which was repaired and resolved. `
+  `Verified ${finding.severity} finding ${finding.id} is a duplicate (critic, or a lane rerun's restatement) of ${canonical.id}${familyKey ? ` (family ${familyKey})` : ''}, which was repaired and resolved. `
     + `Close ${finding.id} with that repair only if its own case is fixed: coverage.command runs ${finding.id}'s own case (a test ${canonical.id}'s repair added for it, or its repro as a test) and coverage.selector is the line its passing output prints. `
     + `The framework runs it; exit 0 with the selector closes ${finding.id}, anything else is refused and ${finding.id} gets its own managed repair.`,
-  'unclosedBlockingFindings + criticDuplicateOf (review-inventory critic receipts) + duplicateResolveCandidate', { placeholders: ['coverage.command', 'coverage.selector', 'resolution'] });
+  'unclosedBlockingFindings + findingDuplicateOf (critic receipts or superseded-run restatement) + duplicateResolveCandidate', { placeholders: ['coverage.command', 'coverage.selector', 'resolution'] });
   // The generic finding_resolve.resolution hint names a repair commit; this resolution cites the canonical one.
   return next.placeholderHints
     ? { ...next, placeholderHints: { ...next.placeholderHints, resolution: `why ${canonical.id}'s repair fixes ${finding.id}'s case (its commit and the test the coverage runs)` } }
@@ -879,6 +880,19 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
 
   /** A gate's own printed next command, as a step of the given kind (hintedStep). */
   const delegated = hintedStep;
+
+  /**
+   * When every invalid reviewer evidence item is an OPEN finding bound to a
+   * superseded run of its lane (stale_run), their ids; otherwise null.
+   */
+  function supersededOpenFindingIds(storyId: string): string[] | null {
+    const state = collectReviewerEvidenceState(ctx.store, storyId, ctx.root);
+    if (state.invalid.length === 0) return null;
+    const findings = ctx.store.readFindings(storyId).findings ?? [];
+    const carried = state.invalid.every(issue => issue.kind === 'finding' && issue.code === 'stale_run'
+      && findings.find(row => row.id === issue.evidenceId)?.status === 'open');
+    return carried ? [...new Set(state.invalid.map(issue => issue.evidenceId))] : null;
+  }
 
   function guardStep(base: { storyId: string; phase: string }, target: string, reason: string, why: string, source: string): NextStep {
     const failure = getGuardFailureReason(base.storyId, ctx.store, target, ctx.root, gitCwdOf(base.storyId));
@@ -1182,6 +1196,24 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
         reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } },
       `The critic dispatch for epoch ${epoch.epochId} is bound; start its ReviewRun.`, 'review_inventory_status (REVIEW_INVENTORY_CRITIC_INCOMPLETE)');
     }
+    // Lab reroute-mid-inventory: lanes of this round that reran after the
+    // critic started (the round's evidence was invalidated and
+    // review_round_prepare relaunched them) make that critic stale: its import
+    // would be refused, so a fresh critic of the wave reviews the new lanes.
+    const roundRuns = ctx.store.readReviewRuns(storyId).runs.filter(run => run.reviewRound === round);
+    const criticIndex = roundRuns.findIndex(run => run.reviewRunId === criticRun.reviewRunId);
+    const laneAfterCritic = roundRuns.slice(criticIndex + 1).find(run => run.reviewPurpose !== 'inventory-completeness');
+    if (laneAfterCritic) {
+      const why = `Lane run ${laneAfterCritic.reviewRunId} (${laneAfterCritic.lane.replace('proof-or-stop-review-', '')}) started after critic ReviewRun ${criticRun.reviewRunId}; that critic did not see the rerun lanes and its import would be refused. Start a fresh critic of wave ${binding.wave}.`;
+      const dispatchedFresh = verifyCurrentReviewerDispatchBinding({ store: ctx.store, storyId, lane: critic, reviewRound: round,
+        projectRoot: ctx.root, reviewPurpose: 'inventory-completeness', inventoryBinding: binding });
+      if (!dispatchedFresh.ok) {
+        return step(base, 'framework', 'inventory_critic_dispatch', { command: 'dispatch', payload: { storyId, agentType: critic,
+          reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } }, why, 'review-runs order (lane rerun after critic)');
+      }
+      return step(base, 'framework', 'inventory_critic_run_start', { command: 'review_run_start', payload: { storyId, agent: critic, lane: critic,
+        reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } }, why, 'review-runs order (lane rerun after critic)');
+    }
     const hostRun = hostRunFor(listStoryHostRuns(ctx, storyId), criticRun.reviewRunId);
     if (!hostRun) return reviewLaunchStep(base, critic, criticRun.reviewRunId, true);
     if (!hostRun.terminal) return waitStep(base, hostRun, 'Inventory critic run');
@@ -1252,14 +1284,32 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     // 1. Lanes of the current round: prepared runs first, then the gate's own verdict.
     const laneStep = pendingLaneStep(base, round);
     if (laneStep) return laneStep;
-    const verdict = evaluateReviewVerdict({ storyId, store: ctx.store, projectRoot: ctx.root, gitCwd });
+    let verdict = evaluateReviewVerdict({ storyId, store: ctx.store, projectRoot: ctx.root, gitCwd });
     if (!verdict.ok && LANE_VERDICT_CODES.has(verdict.code ?? '')) {
       const prepare = lanePrepareStep(base);
       if (prepare) return prepare;
     }
+    // Lab reroute-mid-inventory: the round was invalidated after a lane
+    // reported a finding (owner reroute, broken live binding), every lane
+    // reran, and the open finding of the superseded run is now stale_run. It
+    // is carried forward, never dropped: it blocks like any open finding and
+    // closes by repair, or by the duplicate-coverage run when the rerun
+    // re-reported it (supersededRestatementOf). Before, next returned no
+    // runnable step here.
+    if (!verdict.ok && verdict.code === 'review_evidence_invalid') {
+      const carried = supersededOpenFindingIds(storyId);
+      if (carried) verdict = { ok: false, code: 'review_finding_blocking', unclosedFindingIds: carried,
+        message: `open finding(s) ${carried.join(', ')} of a superseded lane run carried forward (stale_run): ${verdict.message ?? ''}` };
+    }
     if (!verdict.ok && verdict.code !== 'review_finding_blocking') {
-      return step(base, verdict.code === 'open_review_loop' ? 'human' : 'agent', `review_verdict_${verdict.code ?? 'error'}`, null,
-        `REVIEW→TEST verdict refuses [${verdict.code}] with no launchable lane: ${verdict.message ?? ''}`, 'evaluateReviewVerdict');
+      // Never a step without a command: delegate the refusal's own command when it names one.
+      const hinted = verdict.code !== 'open_review_loop' ? (verdict.message ?? '').match(/proof-or-stop [a-z_]+[^\n;)]*/)?.[0] : undefined;
+      if (hinted) {
+        return delegated(base, 'agent', `review_verdict_${verdict.code ?? 'error'}`, hinted,
+          `REVIEW→TEST verdict refuses [${verdict.code}] with no launchable lane: ${verdict.message ?? ''}`, 'evaluateReviewVerdict');
+      }
+      return step(base, 'human', `review_verdict_${verdict.code ?? 'error'}`, null,
+        `REVIEW→TEST verdict refuses [${verdict.code}] with no launchable lane and no framework recovery: ${verdict.message ?? ''}`, 'evaluateReviewVerdict');
     }
 
     // 2. A current certification window (PRE_CERT already admitted).

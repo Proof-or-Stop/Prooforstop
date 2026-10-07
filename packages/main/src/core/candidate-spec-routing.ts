@@ -1033,6 +1033,26 @@ export function candidateArtifactStaleBindingFields(args: {
   return stale;
 }
 
+/**
+ * Whether a stored route is launch-ready for managed review at the current
+ * material: the same three conditions as managedReviewCandidateReadiness
+ * (handlers/reviewer-batch.ts) / assertManagedReviewCandidateLaunchReady
+ * (handlers/host-run.ts): no unresolved escalation, binding not stale, a full
+ * scan carries its reason. Used by candidate_spec_route to refuse a reroute
+ * that has no purpose (lab reroute-mid-inventory).
+ */
+export function candidateRouteLaunchReady(
+  artifact: { requiresEscalation?: unknown; fullScan?: unknown; scanEscalationReason?: unknown; materialHash?: unknown; storyFilesHash?: unknown } | null | undefined,
+  current: { materialHash: string | null | undefined; storyFilesHash: string | null | undefined },
+): boolean {
+  if (!artifact) return false;
+  if (artifact.requiresEscalation === true && artifact.fullScan !== true) return false;
+  if (!current.materialHash || !current.storyFilesHash) return false;
+  if (candidateArtifactStaleBindingFields({ artifact, currentMaterialHash: current.materialHash, currentStoryFilesHash: current.storyFilesHash }).length) return false;
+  if (artifact.fullScan === true && !artifact.scanEscalationReason) return false;
+  return true;
+}
+
 export function candidateReadBindingDiagnostics(args: {
   manifest: ReviewerReadManifest;
   artifact: CandidateSpecSetArtifact | null;

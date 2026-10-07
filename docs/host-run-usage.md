@@ -551,8 +551,8 @@ The run spec seals `managedDispatchTarget {findingId, groupFindingIds}`. The pro
 asks, per finding, for its own regression test and one commit whose message
 names the finding id. A finding counts as repaired only by such a commit inside
 the run's window; `next` then proposes its own `finding_resolve`, and a finding
-the run left without one gets its own single-target repair. Critic duplicates
-and advisory (low / suspected) findings are not grouped.
+the run left without one gets its own single-target repair. Duplicates (critic
+`duplicate` or superseded-run restatement) and advisory (low / suspected) findings are not grouped.
 `remediation.grouping=per-finding` in `proof-or-stop.config.json` is the
 rollback: one repair run per finding, and `host_run` refuses `groupFindingIds`.
 
