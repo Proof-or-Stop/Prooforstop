@@ -116,10 +116,30 @@ arguments cannot be combined with single-run cursors or output-frame selection.
 `waitMs` is capped at 30 seconds. A bounded return means “wake the caller and
 inspect the current snapshot”, not “the provider failed”. Completion is known
 only from `state=completed|failed|cancelled|timed_out` plus the terminal
-receipt. Provider-output silence and a stale output timestamp are diagnostics,
-never terminal predicates and never automatic-restart authorization. The
+receipt. A status observer never treats provider-output silence or a stale
+output timestamp as terminal or as restart authorization; only the worker's own
+stall rule below does, and it publishes an ordinary terminal receipt. The
 absolute deadline is enforced by the worker and autonomous supervisor, which
 publish terminal truth and record whether process cleanup made replacement safe.
+
+**Provider stall.** A managed provider that writes no stdout for the stall
+window (`MANAGED_PROVIDER_STALL_RUNTIME_POLICY`, default 300 s, counted from
+spawn and reset by every stdout chunk; stderr does not count) has its process
+group terminated (TERM, then KILL) and the run fails
+`provider_stalled:no provider stdout for <N> s after <last event> (stall window
+<W> s)`, never success and never a deadline timeout (old-PoS run 20: Codex printed
+`thread.started` and then nothing for 30 min, and the run burned its whole
+deadline). The window is sealed into the spec at submit from
+`PROOF_OR_STOP_MANAGED_PROVIDER_STALL_MS` (milliseconds; `0` turns detection
+off). 300 s is about 3x the largest gap measured on 388 managed Codex runs
+(21,545 stdout gaps, reasoning turns and tool commands included: p50 1.2 s,
+p99 22.7 s, p99.9 43.2 s, max 92.5 s); raise it for projects whose tool commands
+run silent for minutes. The stalled run is `replacementSafe=true` only when the
+group was reaped and the provider left no work product: its cwd HEAD, porcelain
+status and tracked diff (outside `.proof-or-stop/runtime`) equal the
+fingerprint taken before launch, and for a managed dispatch no role output was
+delivered. Otherwise the reason adds `work product present, not auto-replaced`
+and the run is `replacementSafe=false`.
 Status queries only observe that state; they never reconcile an overdue run,
 refresh an owner lease, or authorize a replacement. Cancellation remains an
 explicit control operation.
@@ -133,9 +153,16 @@ host load). If it never becomes ready the run fails
 `worker_launch_failed:managed supervisor readiness timeout` (or `... exited
 before readiness`). No worker was spawned, so when the supervisor child was
 reaped this failure is `replacementSafe=true` (any other launcher error stays
-`false`), and `next` relaunches the lane itself as a bound framework step, at
-most `MANAGED_SUPERVISOR_NOT_READY_AUTO_RELAUNCHES` (3) times per lane and
-round; after that, or for any other failure, the replacement is the agent's call.
+`false`).
+
+Supervisor-not-ready and a clean provider stall are the two auto-replaceable
+failures (`isAutoReplaceableManagedLaunchFailure`). `next` relaunches their
+target itself as a bound framework step (`targetRelaunchIsFramework`): a review
+lane of a round, a checklist item's implementer, a finding repair, or the
+scope-plan reviewer, at most `MANAGED_AUTO_RELAUNCHES_PER_TARGET` (3) such
+failures per target. After that, or after any other failure (including a
+deadline timeout or a stall that left work product), the replacement is the
+agent's call.
 
 An ordinary host run executes in the **resolved project root** (the `--root`
 target — the same root the usage-ledger rows are attributed to), independent of

@@ -272,6 +272,12 @@ export interface HostRunSpawnPlan {
   timeoutMs?: number;
   /** Optional silence budget. Cleared by the first stdout OR stderr byte. */
   startupTimeoutMs?: number;
+  /**
+   * Optional stall budget: armed at spawn and re-armed by every stdout chunk
+   * (stderr does not count). Expiry terminates the provider group with
+   * timeoutKind `provider_stall_timeout` (managed runs: provider_stalled).
+   */
+  stallTimeoutMs?: number;
   /** Optional caller cancellation; termination still waits for child close/reap. */
   signal?: AbortSignal;
   /** The absolute prompt-file path for claude (informational; runner reads argv). */
@@ -337,8 +343,8 @@ export interface HostRunSpawnResult {
    * fail-closed.
    */
   closeObservedAt?: string | null;
-  timeoutKind?: 'startup_no_output_timeout' | 'total_timeout' | null;
-  terminalReason?: 'completed' | 'exit_nonzero' | 'spawn_error' | 'child_error' | 'aborted' | 'startup_no_output_timeout' | 'total_timeout';
+  timeoutKind?: 'startup_no_output_timeout' | 'provider_stall_timeout' | 'total_timeout' | null;
+  terminalReason?: 'completed' | 'exit_nonzero' | 'spawn_error' | 'child_error' | 'aborted' | 'startup_no_output_timeout' | 'provider_stall_timeout' | 'total_timeout';
   firstOutputMs?: number | null;
   durationMs?: number;
   failureKind?: HostExecutionFailureKind;
@@ -436,6 +442,8 @@ export interface HostRunArgs {
   timeoutMs?: number;
   /** Optional first-output deadline, independent of timeoutMs total runtime. */
   startupTimeoutMs?: number;
+  /** Optional stdout stall budget (HostRunSpawnPlan.stallTimeoutMs). */
+  stallTimeoutMs?: number;
   /** Optional caller cancellation. */
   signal?: AbortSignal;
   /** Exact protected launcher profile owned by cross_host_review or the managed-review worker. */
@@ -528,7 +536,7 @@ export interface HostRunResult {
   closeObserved?: boolean;
   /** See HostRunSpawnResult.closeObservedAt; null without a production close timestamp. */
   closeObservedAt?: string | null;
-  timeoutKind: 'startup_no_output_timeout' | 'total_timeout' | null;
+  timeoutKind: 'startup_no_output_timeout' | 'provider_stall_timeout' | 'total_timeout' | null;
   terminalReason: HostRunSpawnResult['terminalReason'] | null;
   firstOutputMs: number | null;
   durationMs: number | null;
@@ -1879,10 +1887,11 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
     let closeObserved = false;
     let closeObservedAt: string | null = null;
     let timedOut = false;
-    let timeoutKind: 'startup_no_output_timeout' | 'total_timeout' | null = null;
+    let timeoutKind: 'startup_no_output_timeout' | 'provider_stall_timeout' | 'total_timeout' | null = null;
     let terminalReason: HostRunSpawnResult['terminalReason'] = 'completed';
     let firstOutputMs: number | null = null;
     let startupTimer: NodeJS.Timeout | null = null;
+    let stallTimer: NodeJS.Timeout | null = null;
     let totalTimer: NodeJS.Timeout | null = null;
     let killTimer: NodeJS.Timeout | null = null;
     let abortListener: (() => void) | null = null;
@@ -1980,9 +1989,11 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
 
     const clearTimersAndListener = (): void => {
       if (startupTimer) cancel(startupTimer);
+      if (stallTimer) cancel(stallTimer);
       if (totalTimer) cancel(totalTimer);
       if (killTimer) cancel(killTimer);
       startupTimer = null;
+      stallTimer = null;
       totalTimer = null;
       killTimer = null;
       if (abortListener && plan.signal) plan.signal.removeEventListener('abort', abortListener);
@@ -1994,8 +2005,10 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
       // queued deadline/abort callback must not rewrite a successful/failed
       // child close into a contradictory timeout result during that cleanup.
       if (startupTimer) cancel(startupTimer);
+      if (stallTimer) cancel(stallTimer);
       if (totalTimer) cancel(totalTimer);
       startupTimer = null;
+      stallTimer = null;
       totalTimer = null;
       if (abortListener && plan.signal) plan.signal.removeEventListener('abort', abortListener);
       abortListener = null;
@@ -2110,7 +2123,7 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
       // 26; retain the channel until the actual process and pipe close fence.
       if (child?.connected) child.send({ schema: 'host-group-anchor.v1', event: 'terminate' }, () => {});
     };
-    const terminate = (reason: 'startup_no_output_timeout' | 'total_timeout' | 'aborted'): void => {
+    const terminate = (reason: 'startup_no_output_timeout' | 'provider_stall_timeout' | 'total_timeout' | 'aborted'): void => {
       if (settled || closeObserved || timeoutKind !== null || terminalReason === 'aborted') return;
       if (reason === 'aborted') {
         terminalReason = 'aborted';
@@ -2281,6 +2294,13 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
     if (plan.startupTimeoutMs && plan.startupTimeoutMs > 0) {
       startupTimer = schedule(() => terminate('startup_no_output_timeout'), plan.startupTimeoutMs);
     }
+    // Stall budget: silence counted from spawn and from every stdout chunk.
+    const armStallTimer = (): void => {
+      if (!plan.stallTimeoutMs || plan.stallTimeoutMs <= 0 || settled || closeObserved || timeoutKind !== null) return;
+      if (stallTimer) cancel(stallTimer);
+      stallTimer = schedule(() => terminate('provider_stall_timeout'), plan.stallTimeoutMs);
+    };
+    armStallTimer();
     if (plan.timeoutMs && plan.timeoutMs > 0) {
       totalTimer = schedule(() => terminate('total_timeout'), plan.timeoutMs);
     }
@@ -2289,7 +2309,10 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
     else plan.signal?.addEventListener('abort', abortListener, { once: true });
 
     handleStdoutText = (text: string): void => {
-      if (text.length > 0) markFirstOutput();
+      if (text.length > 0) {
+        markFirstOutput();
+        if (stallTimer) armStallTimer();
+      }
       deliver({ stream: 'stdout', text });
       observeFailureText('stdout', text);
       scanner.push(text);
@@ -2798,6 +2821,7 @@ async function runAdmittedHostRun(args: HostRunArgs, deps: HostRunDeps, executio
         cwd: args.cwd,
         timeoutMs: args.timeoutMs,
         startupTimeoutMs: args.startupTimeoutMs,
+        stallTimeoutMs: args.stallTimeoutMs,
         signal: args.signal,
         promptFile: launch.promptFile,
         host: args.host,
