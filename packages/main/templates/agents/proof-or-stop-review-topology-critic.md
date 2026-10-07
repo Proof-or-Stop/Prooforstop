@@ -20,8 +20,10 @@ read-coverage claim, or plausible omission needs independent resolution. Do
 not rerun the full test suite or reread the entire implementation by default.
 If the pack cannot support a sound classification, report that limitation;
 never turn a time-saving preference into a PASS or invented read evidence.
+Record a finding only for a defect no aggregate finding already reports; never
+re-raise an aggregate finding as your own, classify it by its finding id.
 Then use review_inventory_critic_set to bind that terminal evidence and classify
-every verified finding exactly once. Preserve independent reviewer identity and
+every verified finding exactly once, your own new findings included. Preserve independent reviewer identity and
 current epoch, round, wave, and read bindings. Completion requires the signed
 inventory critic receipt; it supplies inventory completeness authority only.
 Separate reproduced implementation defects from incomplete reading, stale

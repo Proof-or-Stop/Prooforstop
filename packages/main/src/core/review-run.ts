@@ -1626,7 +1626,15 @@ function validateEvidenceRunBinding(
   // in collectReviewerEvidenceState already drops a stale_run finding once it is
   // resolved/dismissed (terminal), so resolved findings stay superseded as before.
   const currentRun = currentRunForLane(store, runs, evidence.agent, story.currentReviewRound);
-  if (currentRun && currentRun.reviewRunId !== run.reviewRunId && evidence.kind !== 'pass') {
+  // Lab critic-import-loop: a fresh inventory critic of the SAME epoch wave
+  // (run by `next` after the earlier critic's import was refused) does not
+  // supersede the earlier critic's findings: the wave aggregate keeps them
+  // (evaluateReviewInventoryWave) and the fresh critic must classify them.
+  const sameWaveCritic = Boolean(currentRun && run.reviewPurpose === 'inventory-completeness'
+    && currentRun.reviewPurpose === 'inventory-completeness'
+    && run.inventoryBinding?.epochId !== undefined && run.inventoryBinding.epochId === currentRun.inventoryBinding?.epochId
+    && run.inventoryBinding.wave === currentRun.inventoryBinding?.wave);
+  if (currentRun && currentRun.reviewRunId !== run.reviewRunId && evidence.kind !== 'pass' && !sameWaveCritic) {
     return {
       code: 'stale_run',
       kind: evidence.kind,

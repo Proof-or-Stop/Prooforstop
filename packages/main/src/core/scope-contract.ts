@@ -16,6 +16,7 @@ import type {
   ScopeGateStatus,
 } from './types.js';
 import { execFileSync } from 'node:child_process';
+import { observedGit } from './git-tree-observation.js';
 import { loadConfig } from './config.js';
 import {
   canonicalizeScopePath,
@@ -213,6 +214,8 @@ export type GitChangedFilesReader = (projectRoot: string) => string[];
  * Falls back to empty array on git errors (e.g. no commits yet).
  */
 export function readChangedFiles(projectRoot: string): string[] {
+  // Read-only probes: identical ones inside one synchronous git observation
+  // (e.g. one `next` decision) run once (next-driver-cost repeated-command budget).
   const files = new Set<string>();
   const baseline = resolveRepositoryBaseline(projectRoot);
   const addNameStatus = (output: string): void => {
@@ -233,34 +236,34 @@ export function readChangedFiles(projectRoot: string): string[] {
   };
   try {
     // Tracked changed files vs merge-base with main
-    const tracked = baseline ? execFileSync(
+    const tracked = baseline ? observedGit(projectRoot, ['diff', '--name-status', '--find-renames', `${baseline.ref}...HEAD`], () => execFileSync(
       'git', ['diff', '--name-status', '--find-renames', `${baseline.ref}...HEAD`],
       { cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] },
-    ).trim() : '';
+    )).trim() : '';
     if (tracked) addNameStatus(tracked);
   } catch { /* not a git repo or no main branch */ }
   try {
     // Unstaged changes on top of HEAD
-    const unstaged = execFileSync(
+    const unstaged = observedGit(projectRoot, ['diff', '--name-status', '--find-renames'], () => execFileSync(
       'git', ['diff', '--name-status', '--find-renames'],
       { cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] },
-    ).trim();
+    )).trim();
     if (unstaged) addNameStatus(unstaged);
   } catch { /* ignore */ }
   try {
     // Staged changes not yet committed
-    const staged = execFileSync(
+    const staged = observedGit(projectRoot, ['diff', '--name-status', '--find-renames', '--cached'], () => execFileSync(
       'git', ['diff', '--name-status', '--find-renames', '--cached'],
       { cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] },
-    ).trim();
+    )).trim();
     if (staged) addNameStatus(staged);
   } catch { /* ignore */ }
   try {
     // Untracked files
-    const untracked = execFileSync(
+    const untracked = observedGit(projectRoot, ['ls-files', '--others', '--exclude-standard'], () => execFileSync(
       'git', ['ls-files', '--others', '--exclude-standard'],
       { cwd: projectRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] },
-    ).trim();
+    )).trim();
     if (untracked) {
       for (const f of untracked.split('\n')) {
         const t = f.trim();

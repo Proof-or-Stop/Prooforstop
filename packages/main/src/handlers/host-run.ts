@@ -70,12 +70,14 @@ import {
 } from '../core/managed-host-run.js';
 import {
   buildManagedReviewerPrompt,
+  managedInventoryCriticCoverage,
   managedReviewerPromptDigest,
   type ManagedReviewCanonicalReportCommand,
   type ManagedReviewCanonicalReportStatus,
   type ManagedReviewFullScanBinding,
 } from '../core/managed-review-evidence.js';
 import { assertCurrentReviewRunForEvidence } from '../core/review-run.js';
+import type { ManagedInventoryCriticCoverage } from '../core/managed-inventory-critic.js';
 import { candidateArtifactStaleBindingFields, isNoCorpusOnlyFullScan } from '../core/candidate-spec-routing.js';
 import {
   evaluateAcceptanceRolloutForContext,
@@ -482,6 +484,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         envelopeId: string | null;
         managedPromptDigest: string;
         fullScanEscalationReason?: string;
+        inventoryCriticCoverage?: ManagedInventoryCriticCoverage;
       } | null = null;
       let managedDispatch = false;
       let groupedTarget: { groupFindingIds?: string[]; groupItemIds?: string[]; abVariant: AbVariantEvidence } | null = null;
@@ -555,6 +558,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           envelopeId: reviewRun.envelopeId ?? null,
           managedPromptDigest: managedReviewerPromptDigest(promptRoot, reviewRun, canonicalReportStatuses, fullScanBinding),
           ...(fullScanBinding ? { fullScanEscalationReason: fullScanBinding.scanEscalationReason } : {}),
+          ...(() => { const coverage = managedInventoryCriticCoverage(promptRoot, reviewRun); return coverage ? { inventoryCriticCoverage: coverage } : {}; })(),
         };
       } else if (args.managedDispatch === true) {
         if (hasPrompt || hasPromptFile) {

@@ -23,12 +23,25 @@ function gitEnvironmentMayRouteRepository(env: NodeJS.ProcessEnv = process.env):
   return Object.keys(env).some(key => key.startsWith('GIT_') && !NON_ROUTING_GIT_ENV.has(key) && env[key]);
 }
 
+// Command-scoped config injected through the environment (agent hosts set
+// e.g. GIT_CONFIG_COUNT=2 credential.interactive=false on every process). It
+// can change discovery (core.worktree), so it is not "non-routing"; but its
+// exact values are part of the cached root probe's identity below, so a cached
+// answer is reused only under the identical injected config. Blanket-disabling
+// the cache for it re-ran `git rev-parse --show-toplevel` 11-22 times per
+// `next` decision (next-driver-cost repeated-command budget, lab critic-import-loop).
+const IDENTITY_KEYED_GIT_ENV = /^GIT_CONFIG_(?:COUNT|PARAMETERS|KEY_\d+|VALUE_\d+)$/;
+
 /** Recheck filesystem bindings without a subprocess. Unbounded config includes
  * and explicit Git environment routing use the uncached authoritative probe. */
 function rootProbeIdentity(cwd: string): string | undefined {
   try {
-    if (gitEnvironmentMayRouteRepository()) return undefined;
-    const parts: string[] = [realpathSync(cwd)];
+    const env = process.env;
+    const keyed = Object.keys(env).filter(key => IDENTITY_KEYED_GIT_ENV.test(key)).sort();
+    const routing: NodeJS.ProcessEnv = { ...env };
+    for (const key of keyed) delete routing[key];
+    if (gitEnvironmentMayRouteRepository(routing)) return undefined;
+    const parts: string[] = [realpathSync(cwd), JSON.stringify(keyed.map(key => [key, env[key] ?? '']))];
     const config = (path: string): boolean => {
       if (!existsSync(path)) { parts.push(path, '<absent>'); return true; }
       if (statSync(path).size > 1024 * 1024) return false;

@@ -1116,7 +1116,9 @@ export function managedReviewFinalProposalJsonSchema(args: ManagedReviewFinalPro
       // below enforces the trimmed 10-character diagnostic-note minimum before
       // any proposal can reach persistence.
       note: nonBlankString,
-      findings: { type: 'array', items: finding },
+      findings: args.lane === MANAGED_REVIEW_TOPOLOGY_CRITIC
+        ? { type: 'array', items: finding, description: 'Inventory critic: only defects that no aggregate finding in the evidence pack already reports. Never copy or restate an aggregate finding here; classify it in inventoryCritic.findingDispositions by its findingId. Every entry here also needs its own findingDispositions row (proposalFindingIndex).' }
+        : { type: 'array', items: finding },
       ...(args.lane === MANAGED_REVIEW_TOPOLOGY_CRITIC ? { inventoryCritic: managedInventoryCriticJsonSchema } : {}),
       readManifest,
       readLog,
