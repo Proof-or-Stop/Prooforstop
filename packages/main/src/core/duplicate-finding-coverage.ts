@@ -18,6 +18,10 @@
  *     selector in the output (the receipt rules of verification_run).
  *   - every run is recorded in duplicate-finding-coverage.json; a failed run
  *     sends B back to its own managed repair.
+ *
+ * Lab reroute-mid-inventory: the same closure applies when B is an open finding
+ * of a superseded lane run that the lane's rerun re-reported as A
+ * (supersededRestatementOf); findingDuplicateOf is the one source for both.
  */
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -26,6 +30,8 @@ import type { DuplicateCoverageReceipt, Finding } from './types.js';
 import { loadConfig } from './config.js';
 import { parseAllowlistedCommand, resolveEvidenceCommandTimeoutMs } from './validation-executor.js';
 import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
+import { findingClaimRestates } from './managed-inventory-critic.js';
+import { agentRoleIdsEqual } from './agent-role-identity.js';
 
 export { DUPLICATE_FINDING_COVERAGE_FILE, DUPLICATE_FINDING_COVERAGE_SCHEMA } from './types.js';
 export type { DuplicateCoverageReceipt, DuplicateFindingCoverageData } from './types.js';
@@ -44,6 +50,49 @@ export function criticDuplicateOf(store: StoryStore, storyId: string, findingId:
   return { canonicalFindingId: latest.canonicalFindingId, familyKey: latest.familyKey ?? null, reason: latest.reason };
 }
 
+/**
+ * Lab reroute-mid-inventory: an open lane finding whose ReviewRun was
+ * superseded by a later run of the same lane in the same round (the round was
+ * invalidated and the lanes reran) and whose claim a finding of that later run
+ * restates (findingClaimRestates). The later copy is the live canonical
+ * finding: it is repaired, and this one closes only by the duplicate-coverage
+ * run of its own case. A superseded finding nobody restated has no canonical
+ * and is repaired on its own; neither is ever dropped.
+ */
+export function supersededRestatementOf(store: StoryStore, storyId: string, findingId: string):
+  { canonicalFindingId: string; familyKey: null; reason: string } | null {
+  const findings = store.readFindings(storyId).findings ?? [];
+  const finding = findings.find(row => row.id === findingId);
+  if (!finding?.reviewRunId || !finding.agent) return null;
+  const runs = store.readReviewRuns(storyId).runs;
+  const index = runs.findIndex(run => run.reviewRunId === finding.reviewRunId);
+  const run = runs[index];
+  if (!run || run.reviewPurpose === 'inventory-completeness') return null;
+  const later = new Set(runs.slice(index + 1)
+    .filter(row => row.reviewRound === run.reviewRound && row.reviewPurpose !== 'inventory-completeness' && agentRoleIdsEqual(row.lane, run.lane))
+    .map(row => row.reviewRunId));
+  if (later.size === 0) return null;
+  const best = findings
+    .filter(row => row.id !== finding.id && row.status !== 'dismissed' && row.reviewRunId && later.has(row.reviewRunId)
+      && row.agent && agentRoleIdsEqual(row.agent, finding.agent!))
+    .map(row => ({ row, similarity: findingClaimRestates(finding, row) }))
+    .filter((entry): entry is { row: Finding; similarity: number } => entry.similarity !== null)
+    .sort((a, b) => b.similarity - a.similarity || (a.row.createdAt ?? '').localeCompare(b.row.createdAt ?? ''))[0];
+  if (!best) return null;
+  return { canonicalFindingId: best.row.id, familyKey: null,
+    reason: `Framework: ${finding.id}'s ReviewRun ${finding.reviewRunId} was superseded by a rerun of its lane, which re-reported it as ${best.row.id} (claim similarity ${best.similarity.toFixed(2)}).` };
+}
+
+/**
+ * The canonical finding this one duplicates: the inventory critic's latest
+ * `duplicate` disposition, else a lane rerun's restatement of a superseded
+ * finding (supersededRestatementOf).
+ */
+export function findingDuplicateOf(store: StoryStore, storyId: string, findingId: string):
+  { canonicalFindingId: string; familyKey: string | null; reason: string } | null {
+  return criticDuplicateOf(store, storyId, findingId) ?? supersededRestatementOf(store, storyId, findingId);
+}
+
 export function duplicateCoverageReceipts(store: StoryStore, storyId: string, findingId: string): DuplicateCoverageReceipt[] {
   return store.readDuplicateFindingCoverage(storyId).receipts.filter(row => row.findingId === findingId);
 }
@@ -55,7 +104,7 @@ export function duplicateCoverageReceipts(store: StoryStore, storyId: string, fi
 export function duplicateResolveCandidate(store: StoryStore, storyId: string, finding: Pick<Finding, 'id' | 'status'>, findings: readonly Finding[]):
   { canonical: Finding; familyKey: string | null } | null {
   if (finding.status !== 'open') return null;
-  const duplicate = criticDuplicateOf(store, storyId, finding.id);
+  const duplicate = findingDuplicateOf(store, storyId, finding.id);
   if (!duplicate) return null;
   const canonical = findings.find(row => row.id === duplicate.canonicalFindingId);
   if (!canonical || canonical.status !== 'resolved') return null;
@@ -63,9 +112,9 @@ export function duplicateResolveCandidate(store: StoryStore, storyId: string, fi
   return { canonical, familyKey: duplicate.familyKey };
 }
 
-/** True when an open finding is a critic duplicate whose canonical finding is still open (repair the canonical first). */
+/** True when an open finding is a duplicate (critic or superseded restatement) whose canonical finding is still open (repair the canonical first). */
 export function duplicateOfOpenCanonical(store: StoryStore, storyId: string, findingId: string, findings: readonly Finding[]): boolean {
-  const duplicate = criticDuplicateOf(store, storyId, findingId);
+  const duplicate = findingDuplicateOf(store, storyId, findingId);
   if (!duplicate) return false;
   if (duplicateCoverageReceipts(store, storyId, findingId).some(row => !row.passed)) return false;
   return findings.find(row => row.id === duplicate.canonicalFindingId)?.status === 'open';

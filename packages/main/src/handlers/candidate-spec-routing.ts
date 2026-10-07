@@ -11,6 +11,7 @@ import {
 } from '../core/config.js';
 import {
   buildCorpusIndex,
+  candidateRouteLaunchReady,
   CORPUS_INDEX_SCHEMA,
   buildKeywordSeeds,
   collectHostKeywordProposals,
@@ -37,7 +38,7 @@ import { collectReviewerEvidenceState } from '../core/review-run.js';
 import type { ReviewerEvidenceState } from '../core/review-run.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { isStoryMetadataPath } from '../core/evidence-freshness.js';
-import { withReviewInventoryMutationLock } from '../core/review-inventory-epoch.js';
+import { currentOpenReviewInventory, withReviewInventoryMutationLock } from '../core/review-inventory-epoch.js';
 import { refreshReviewInventoryContextLocked } from './review-inventory.js';
 
 const MAX_PROPOSAL_OUTPUT_BYTES = 64 * 1024;
@@ -330,6 +331,33 @@ export function currentStoryRoutingInput(ctx: HandlerContext, storyId: string): 
   };
 }
 
+/**
+ * Lab reroute-mid-inventory: an owner `candidate_spec_route` in REVIEW after the
+ * current round's lanes ran against a route that is still launch-ready has no
+ * purpose (the material the lanes reviewed is unchanged) and invalidates the
+ * round: the reroute commit breaks the managed passes' live binding, the open
+ * inventory epoch is invalidated (OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION),
+ * every lane reruns, and an open finding of a superseded lane run blocks the
+ * verdict as stale_run. A stale or missing route (readiness blocked) is still
+ * rerouted, by review_round_prepare itself; a dry run (persist=false) is never
+ * refused.
+ */
+function refuseRerouteOfCurrentReviewRoute(ctx: HandlerContext, storyId: string, story: { phase: string; currentReviewRound?: string | null },
+  snapshot: { materialHash: string | null | undefined; storyFilesHash?: string | null | undefined }): void {
+  if (story.phase !== 'REVIEW' || !story.currentReviewRound) return;
+  const roundRuns = ctx.store.readReviewRuns(storyId).runs.filter(run => run.reviewRound === story.currentReviewRound);
+  if (roundRuns.length === 0) return;
+  if (!candidateRouteLaunchReady(ctx.store.readCandidateSpecSet(storyId),
+    { materialHash: snapshot.materialHash, storyFilesHash: snapshot.storyFilesHash ?? null })) return;
+  const openEpoch = currentOpenReviewInventory(ctx.store, storyId);
+  throw new Error(`candidate_spec_route refused [candidate_route_current_in_review]: the candidate route is current and review round `
+    + `${story.currentReviewRound} already ran ${roundRuns.length} ReviewRun(s) against it`
+    + `${openEpoch && openEpoch.reviewRound === story.currentReviewRound ? ` (inventory epoch ${openEpoch.epochId} is OPEN)` : ''}. `
+    + 'The material the lanes reviewed is unchanged, so a reroute gives them nothing new, but it invalidates the round (the inventory epoch, '
+    + 'the managed passes\' live binding; every lane reruns). review_round_prepare reroutes by itself when the route goes stale; nothing was written.\n'
+    + `Next: proof-or-stop next --storyId=${storyId}`);
+}
+
 export function createCandidateSpecRoutingHandlers(
   ctx: HandlerContext,
   options: { executeHost?: CandidateHostExecutor; resolveReadiness?: CandidateReadinessResolver } = {},
@@ -345,6 +373,7 @@ export function createCandidateSpecRoutingHandlers(
         storyId: args.storyId,
         storyPhase: story.phase,
       });
+      if (args.persist !== false) refuseRerouteOfCurrentReviewRoute(ctx, args.storyId, story, snapshot);
       const readiness = args.hosts === false
         ? []
         : (options.resolveReadiness ?? (() => probeReviewHostAvailability({
@@ -412,8 +441,10 @@ export function createCandidateSpecRoutingHandlers(
       if (args.persist !== false) {
         withReviewInventoryMutationLock(ctx.store, args.storyId, () => {
           ctx.store.writeCandidateSpecSet(args.storyId, artifact);
-          // A reroute is allowed to complete, but it atomically invalidates the
-          // old epoch before any consumer can mix old/new candidate universes.
+          // A reroute that got here (a stale/missing route, or no ReviewRun of
+          // the round yet; a current route mid-round is refused above) completes,
+          // but it atomically invalidates the old epoch before any consumer can
+          // mix old/new candidate universes.
           refreshReviewInventoryContextLocked(ctx, args.storyId);
           autoCommitStoryMetadata(ctx.root, args.storyId, 'candidate_spec_route');
         });

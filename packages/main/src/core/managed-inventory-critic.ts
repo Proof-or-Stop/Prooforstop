@@ -165,6 +165,23 @@ function symbolsDisjoint(a: Set<string>, b: Set<string>): boolean {
 }
 
 /**
+ * Lab reroute-mid-inventory: whether finding `a` makes the same claim as
+ * finding `b` by the restatement rule above (a shared cited file, or neither
+ * cites one, and token similarity >= CRITIC_RESTATEMENT_TEXT_SIMILARITY about
+ * the same code). Returns the similarity, or null when it is not a restatement.
+ */
+export function findingClaimRestates(a: CriticRestatementFinding, b: CriticRestatementFinding): number | null {
+  const filesA = new Set((a.files ?? []).map(normalizedPath));
+  const filesB = (b.files ?? []).map(normalizedPath);
+  const sharedFile = filesA.size === 0 && filesB.length === 0 ? true : filesB.some(path => filesA.has(path));
+  if (!sharedFile) return null;
+  if (a.desc.trim().replace(/\s+/g, ' ') === b.desc.trim().replace(/\s+/g, ' ')) return 1;
+  if (symbolsDisjoint(claimSymbols(a.desc), claimSymbols(b.desc))) return null;
+  const similarity = jaccard(claimTokens(a.desc), claimTokens(b.desc));
+  return similarity >= CRITIC_RESTATEMENT_TEXT_SIMILARITY ? similarity : null;
+}
+
+/**
  * Detection A/B control D2-r3 / D9-r1: the inventory critic re-raised the
  * lanes' findings as its own new findings, then dispositioned only one copy of
  * each (the lane finding or its own restatement), and the import refused the

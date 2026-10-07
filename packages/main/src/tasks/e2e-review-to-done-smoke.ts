@@ -98,6 +98,11 @@
  *   NC6 the critic copies a wrong wave number: its import is refused once before
  *      anything persists (recorded), next never proposes it again but runs a
  *      fresh critic whose prompt names the refusal, DONE.
+ *   NC7 the owner reroutes (candidate_spec_route) after the lanes were imported
+ *      and the critic completed: refused with one Next, nothing written, DONE.
+ *   NC8 the same round is invalidated by an unauthenticated owner commit: all
+ *      lanes rerun, the superseded open finding is carried forward (never a
+ *      dead end), its re-reported copy is repaired, it closes by coverage, DONE.
  *
  * Machine registries (provider slots, locks) use a disposable fixture machine
  * so the harness never touches the developer's ~/.proof-or-stop admission state.
@@ -111,7 +116,7 @@
  *      implementation.grouping=files on an unimplemented fixture).
  *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|AB|ND-V1..NF-V5]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|AB|ND-V1..NF-V5]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -1438,7 +1443,9 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   /** NC5 (A/B V3 R2A-r2): the first critic mistypes readManifest.candidateSpecSetDigest. */
   criticMistypedDigest?: boolean;
   /** NC6: the first critic copies a wrong inventory wave number (refused at import before anything persists); the runIds whose import was refused. */
-  refusedBeforePersist?: string[]; }, lines: string[],
+  refusedBeforePersist?: string[];
+  /** NC7: an owner action taken instead of the step next returned; true = the step is not executed and next is asked again. */
+  interject?: (next: NextStepJson) => boolean; }, lines: string[],
   /** Called with each step `next` returned, before the harness executes it; quiet = no detached managed run in flight. */
   onStep?: (next: NextStepJson, quiet: boolean) => void): void {
   const id = o.storyId;
@@ -1503,6 +1510,7 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
     }
     onStep?.(next, quiet);
     if (next.done) break;
+    if (mode.interject?.(next)) { ownerTurns += 1; reasons.push('owner_interjection'); continue; }
     assert.notEqual(next.kind, 'human', `[${o.scenario}] next asked for a human decision: ${next.reason}: ${next.why}`);
     assert.ok(next.cli, `[${o.scenario}] next returned no runnable command: ${next.reason}: ${next.why}`);
     const payload = { ...next.cli.payload };
@@ -1909,6 +1917,74 @@ function scenarioNC5(machineEnv: NodeJS.ProcessEnv, steps: Step[], refusal: bool
   }
 }
 
+/**
+ * NC7: the owner runs `candidate_spec_route` by hand after the round-1 lanes
+ * were imported and the inventory critic completed, just before the critic's
+ * import (found while building NC6). On base the reroute went through and
+ * invalidated the round: the critic import was refused for a stale cutoff,
+ * review_round_prepare relaunched every lane, and the verdict dead-ended
+ * review_evidence_invalid (F-001 still bound to the superseded lane run) with
+ * no runnable Next. Now the reroute of a current route is refused with one
+ * Next, nothing is written, and the round continues to DONE.
+ * NC8: the same round is invalidated another way (an unauthenticated owner
+ * commit breaks the managed live binding, as in D2), so every lane reruns and
+ * the test-coverage lane re-reports the defect as F-002 while F-001 stays
+ * open on the superseded run. next never dead-ends: F-001 is carried forward
+ * (it keeps blocking), F-002 is repaired, and F-001 closes only through the
+ * duplicate-coverage run of its own case; DONE.
+ */
+function scenarioNC7(machineEnv: NodeJS.ProcessEnv, steps: Step[], variant: 'reroute' | 'lineage'): Outcome {
+  const tag = variant === 'reroute' ? 'NC7' : 'NC8';
+  const name = variant === 'reroute'
+    ? 'NC7 owner reroute mid-inventory (lanes imported, critic completed): refused with one Next, nothing written, DONE'
+    : 'NC8 round invalidated mid-inventory (live binding broken): lanes rerun, superseded open finding carried forward and closed by coverage, DONE';
+  const o = new Owner(tag, variant === 'reroute' ? 'B-e2f7' : 'B-e2f8', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  const runsRoot = join(o.root, '.proof-or-stop', 'runtime', 'host-runs');
+  let interjected = false;
+  try {
+    devSetup(o);
+    driveWithNext(o, { findingRound1: true, run: false, interject: next => {
+      if (interjected || next.reason !== 'review_evidence_import' || typeof next.cli?.payload.runId !== 'string') return false;
+      const spec = JSON.parse(readFileSync(join(runsRoot, next.cli.payload.runId, 'spec.json'), 'utf8')) as { agentType?: string };
+      if (spec.agentType !== MANAGED_INVENTORY_CRITIC_LANE) return false;
+      interjected = true;
+      if (variant === 'lineage') {
+        git(o.worktree, ['commit', '-q', '--allow-empty', '-m', 'owner: checkpoint review status']);
+        lines.push('owner checkpoint commit mid-inventory (breaks the managed live binding)');
+        return true;
+      }
+      const story = (): string => readFileSync(join(new StoryStore(o.worktree).storyDirPath(o.storyId), 'candidate-spec-set.json'), 'utf8');
+      const before = { head: git(o.worktree, ['rev-parse', 'HEAD']), route: story() };
+      const ran = o.cli('candidate_spec_route', { storyId: o.storyId, hosts: false }, { label: 'owner candidate_spec_route (mid-inventory)' });
+      assert.notEqual(ran.status, 0, `${tag}: a reroute of the current route mid-inventory must be refused:\n${ran.out.slice(-1500)}`);
+      assert.match(ran.out, /candidate_route_current_in_review/, `${tag}: refusal code:\n${ran.out.slice(-1500)}`);
+      const nextLines = ran.out.split('\n').filter(line => line.includes('Next: '));
+      assert.equal(new Set(nextLines.map(line => line.slice(line.indexOf('Next: ')))).size, 1, `${tag}: exactly one Next:\n${ran.out.slice(-1500)}`);
+      assert.match(nextLines[0]!, new RegExp(`Next: proof-or-stop next --storyId=${o.storyId}`), `${tag}: Next names next`);
+      assert.equal(git(o.worktree, ['rev-parse', 'HEAD']), before.head, `${tag}: a refused reroute commits nothing`);
+      assert.equal(story(), before.route, `${tag}: a refused reroute leaves the route unchanged`);
+      lines.push(`owner reroute mid-inventory refused: ${nextLines[0]!.trim()}`);
+      return true;
+    } }, lines);
+    assert.ok(interjected, `${tag}: the harness interjected before the critic import`);
+    const findings = new StoryStore(o.root).readFindings(o.storyId).findings;
+    if (variant === 'lineage') {
+      const reported = findings.filter(f => f.desc === findings[0]?.desc);
+      assert.ok(reported.length >= 2, `${tag}: the rerun lane re-reported the defect: ${JSON.stringify(findings.map(f => [f.id, f.status, f.reviewRunId]))}`);
+      assert.ok(reported.every(f => f.status === 'resolved'), `${tag}: both copies closed, none dropped: ${JSON.stringify(reported.map(f => [f.id, f.status, f.resolutionType]))}`);
+      assert.ok(reported.some(f => f.resolutionType === 'duplicate'), `${tag}: the superseded copy closed as a duplicate with coverage`);
+      lines.push(`findings: ${reported.map(f => `${f.id} ${f.status}`).join(', ')}`);
+    }
+    lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 function scenarioN(machineEnv: NodeJS.ProcessEnv, steps: Step[], flow: 'A' | 'D', run: boolean): Outcome {
   const tag = `N${flow}${run ? '-run' : ''}`;
   const name = `${tag} ${flow}'s flow from REVIEW entry driven only by proof-or-stop next${run ? ' --run' : ''}`;
@@ -2156,7 +2232,7 @@ function printTimeline(steps: Step[], scenario: string): void {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF|NL|NU2?|NC[2-6]?|N[AD](?:-run)?|N[DF]-V[1-5]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF|NL|NU2?|NC[2-8]?|N[AD](?:-run)?|N[DF]-V[1-5]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -2191,6 +2267,8 @@ async function main(): Promise<void> {
     if (only.includes('NC4')) outcomes.push(scenarioNC4(machine.env, steps));
     if (only.includes('NC5')) outcomes.push(scenarioNC5(machine.env, steps, false));
     if (only.includes('NC6')) outcomes.push(scenarioNC5(machine.env, steps, true));
+    if (only.includes('NC7')) outcomes.push(scenarioNC7(machine.env, steps, 'reroute'));
+    if (only.includes('NC8')) outcomes.push(scenarioNC7(machine.env, steps, 'lineage'));
     // Detection A/B arms: explicit tokens (ND-V1 .. NF-V5) or AB = ND-V1, ND-V2, ND-V3, NF-V4, ND-V5.
     const abTokens = only.includes('AB') ? ['ND-V1', 'ND-V2', 'ND-V3', 'NF-V4', 'ND-V5'] : [];
     for (const token of [...new Set([...abTokens, ...only.filter(arg => /^N[DF]-V[1-5]$/.test(arg))])]) {
@@ -2199,7 +2277,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {
