@@ -344,6 +344,19 @@ export class Owner {
     return run;
   }
 
+  /** A managed implementer or finding-repair run of this Story that is not terminal yet. */
+  private managedWriterInFlight(): boolean {
+    const runsRoot = join(this.root, '.proof-or-stop', 'runtime', 'host-runs');
+    if (!existsSync(runsRoot)) return false;
+    return readdirSync(runsRoot).some(runId => {
+      try {
+        const spec = JSON.parse(readFileSync(join(runsRoot, runId, 'spec.json'), 'utf8')) as { agentType?: string; storyId?: string };
+        return spec.storyId === this.storyId && (spec.agentType === 'proof-or-stop-implementer' || spec.agentType === 'proof-or-stop-finding-repair')
+          && !existsSync(join(runsRoot, runId, 'terminal.json'));
+      } catch { return false; }
+    });
+  }
+
   /** Publication-set files of this Story that are dirty now (they make validate/done_prepare refuse). */
   private publicationDirt(): string[] {
     if (!existsSync(this.worktree)) return [];
@@ -369,6 +382,10 @@ export class Owner {
     const classification = classifyGitStatusRows(status.ok ? status.lines : [],
       classifierOptionsForCheck(loadConfig(this.worktree), this.storyId, new StoryStore(this.worktree), this.worktree));
     const blocking = isBlockingDirty(classification);
+    // A detached managed implementer/finding-repair writes this worktree until
+    // it commits; a call made meanwhile (ND-V5: `next` right after the grouped
+    // implementer launch) sees its work in progress, not dirt the call left.
+    if (blocking.blocked && this.managedWriterInFlight()) return `writer in flight: ${blocking.blockingPaths.join(',')}`;
     assert.equal(blocking.blocked, false, `[${this.scenario}] ${label} left blocking dirt: ${blocking.blockingPaths.join(', ')}`);
     const pub = this.publicationDirt();
     const notes: string[] = [];
