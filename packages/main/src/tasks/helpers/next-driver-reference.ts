@@ -108,7 +108,7 @@ import { currentCertificationIdentity } from '../../handlers/certification-windo
 import { currentPrecertFastIdentity, precertCheapCheckWaived } from '../../handlers/validation-identity.js';
 import { evaluateEvidenceChainForStory } from '../../handlers/evidence-chain.js';
 import { checklistHasFileDeclarations } from '../../handlers/phase-gates.js';
-import { verifyCurrentReviewerDispatchBinding } from '../../core/review-run.js';
+import { collectReviewerEvidenceState, verifyCurrentReviewerDispatchBinding } from '../../core/review-run.js';
 import { managedHostRunsRoot, readManagedHostRunProjection, managedHostRunReceipt, isAutoReplaceableManagedLaunchFailure } from '../../core/managed-host-run.js';
 import { managedFindingRepairState, hintedStep, evidenceChainStep, evidenceChainAdvisory, step as sharedStep, managedLaunchStep, boundManagedSelection,
   runsForTarget, targetRelaunchIsFramework, testAuthoringStep, planAuthoringStep, preScopeAuthoringStep, nextBlockingFinding, duplicateFindingResolveStep, type NextStep } from '../../handlers/next-driver.js';
@@ -479,6 +479,18 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
         reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } },
       `The critic dispatch for epoch ${epoch.epochId} is bound; start its ReviewRun.`, 'review_inventory_status (REVIEW_INVENTORY_CRITIC_INCOMPLETE)');
     }
+    // Mirrors next-driver.ts (lab reroute-mid-inventory): lanes rerun after the critic started make it stale; run a fresh critic.
+    const roundRuns = ctx.store.readReviewRuns(storyId).runs.filter(run => run.reviewRound === round);
+    if (roundRuns.slice(roundRuns.findIndex(run => run.reviewRunId === criticRun.reviewRunId) + 1).some(run => run.reviewPurpose !== 'inventory-completeness')) {
+      const why = `Lanes reran after critic ReviewRun ${criticRun.reviewRunId}; start a fresh critic of wave ${binding.wave}.`;
+      const fresh = verifyCurrentReviewerDispatchBinding({ store: ctx.store, storyId, lane: critic, reviewRound: round,
+        projectRoot: ctx.root, reviewPurpose: 'inventory-completeness', inventoryBinding: binding });
+      return fresh.ok
+        ? step(base, 'framework', 'inventory_critic_run_start', { command: 'review_run_start', payload: { storyId, agent: critic, lane: critic,
+          reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } }, why, 'review-runs order (lane rerun after critic)')
+        : step(base, 'framework', 'inventory_critic_dispatch', { command: 'dispatch', payload: { storyId, agentType: critic,
+          reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } }, why, 'review-runs order (lane rerun after critic)');
+    }
     const hostRun = hostRunFor(listStoryHostRuns(ctx, storyId), criticRun.reviewRunId);
     if (!hostRun) return reviewLaunchStep(base, critic, criticRun.reviewRunId, true);
     if (!hostRun.terminal) return waitStep(base, hostRun, 'Inventory critic run');
@@ -549,10 +561,19 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
     // 1. Lanes of the current round: prepared runs first, then the gate's own verdict.
     const laneStep = pendingLaneStep(base, round);
     if (laneStep) return laneStep;
-    const verdict = evaluateReviewVerdict({ storyId, store: ctx.store, projectRoot: ctx.root, gitCwd });
+    let verdict = evaluateReviewVerdict({ storyId, store: ctx.store, projectRoot: ctx.root, gitCwd });
     if (!verdict.ok && LANE_VERDICT_CODES.has(verdict.code ?? '')) {
       const prepare = lanePrepareStep(base);
       if (prepare) return prepare;
+    }
+    // Mirrors next-driver.ts (lab reroute-mid-inventory): open findings of a superseded lane run are carried forward as blocking.
+    if (!verdict.ok && verdict.code === 'review_evidence_invalid') {
+      const state = collectReviewerEvidenceState(ctx.store, storyId, ctx.root);
+      const findings = ctx.store.readFindings(storyId).findings ?? [];
+      if (state.invalid.length > 0 && state.invalid.every(issue => issue.kind === 'finding' && issue.code === 'stale_run'
+        && findings.find(row => row.id === issue.evidenceId)?.status === 'open')) {
+        verdict = { ok: false, code: 'review_finding_blocking', unclosedFindingIds: [...new Set(state.invalid.map(issue => issue.evidenceId))], message: verdict.message };
+      }
     }
     if (!verdict.ok && verdict.code !== 'review_finding_blocking') {
       return step(base, verdict.code === 'open_review_loop' ? 'human' : 'agent', `review_verdict_${verdict.code ?? 'error'}`, null,
