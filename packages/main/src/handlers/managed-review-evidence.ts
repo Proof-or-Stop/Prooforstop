@@ -91,6 +91,24 @@ export function hasPersistedManagedReceiptEvidence(
     || store.readFindings(storyId).findings.some(finding => finding.managedEvidenceBinding?.receiptId === receiptId);
 }
 
+/**
+ * The recorded refusal reason when this exact critic receipt's terminal
+ * evidence was imported but its inventoryCritic block was refused
+ * (process event inventory_critic_import_refused); null otherwise. A refusal
+ * without persisted evidence (crash before import) is not final: import again.
+ */
+export function refusedInventoryCriticImport(
+  store: Pick<HandlerContext['store'], 'readReviewPasses' | 'readFindings' | 'readProcessEvents'>,
+  storyId: string,
+  runId: string,
+  receiptId: string,
+): string | null {
+  if (!hasPersistedManagedReceiptEvidence(store, storyId, receiptId)) return null;
+  const event = store.readProcessEvents(storyId).filter(row => row.type === 'inventory_critic_import_refused'
+    && row.managedRunId === runId && row.managedReceiptId === receiptId).at(-1);
+  return event ? String(event.reason ?? 'refused') : null;
+}
+
 export function createManagedReviewEvidenceHandlers(
   ctx: HandlerContext,
   options: {
@@ -625,7 +643,17 @@ export function createManagedReviewEvidenceHandlers(
       if (proposal.inventoryCritic !== undefined) {
         try { criticHint = importManagedInventoryCritic(ctx, {runId, receiptId}); }
         catch (error) {
-          throw new Error(`managed_review_evidence_import: terminal evidence imported; completeness critic incomplete: ${error instanceof Error ? error.message : String(error)}${commitHint}`);
+          const reason = error instanceof Error ? error.message : String(error);
+          // A deterministic refusal: record it once so `next` runs a fresh critic
+          // whose prompt names it, instead of proposing this import again (A/B control D2-r3/D9-r1).
+          const recorded = ctx.store.readProcessEvents(proposal.storyId).some(event => event.type === 'inventory_critic_import_refused'
+            && event.managedRunId === runId && event.managedReceiptId === receiptId);
+          if (!recorded) {
+            ctx.store.appendProcessEvent(proposal.storyId, { type: 'inventory_critic_import_refused', storyId: proposal.storyId,
+              command: 'managed_review_evidence_import', role: 'framework', agent: proposal.lane, result: 'refused',
+              managedRunId: runId, managedReceiptId: receiptId, reviewRunId: proposal.reviewRunId, reason });
+          }
+          throw new Error(`managed_review_evidence_import: terminal evidence imported; completeness critic incomplete: ${reason}${commitHint}`);
         }
         criticCommitHint = commitReviewResultMetadata({root: ctx.root, store: ctx.store, storyId: proposal.storyId,
           reviewRunId: proposal.reviewRunId, reason: 'managed_review_evidence_import',

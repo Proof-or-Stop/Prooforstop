@@ -631,6 +631,53 @@ from the sealed proposal. Each item is logged as a
 (`evidence_chain_not_a_finding`) with the same next action. An inventory
 critic proposal may not carry such items.
 
+A managed inventory critic's `inventoryCritic.findingDispositions` needs exactly
+one row for every VERIFIED aggregate finding of the wave (by `findingId`), no
+row for a suspected or disproven finding, and one row for every entry of its
+own `findings` (by `proposalFindingIndex`); the protocol prompt
+(`MANAGED_INVENTORY_CRITIC_PROTOCOL`), the schema descriptions and the evidence
+pack (the exact id lists) say so, and say that its own findings are only for
+defects no aggregate finding already reports. The same id lists are sealed in
+the run's `reviewBinding.inventoryCriticCoverage` (computed with the importer's
+wave evaluation at `host_run`); before sealing, the worker checks the block
+against them (`managedInventoryCriticCoverageViolations`) and a missing row is
+a same-session format repair naming the exact ids
+(`managed_review_final_result_malformed:inventory_critic_coverage`), not a
+sealed block the importer refuses and not a fresh critic. A row for an id
+outside the verified set (run 19, B-8166: a `verified_family` row for suspected
+F-001, refused `REVIEW_INVENTORY_FINDING_DISPOSITION_INVALID`, after which the
+owner relaunched the critic and finally wrote an empty receipt itself) carries
+no authority: the importer drops it and logs process event
+`inventory_critic_disposition_dropped` instead of refusing the critic; rows for
+in-set findings are never dropped, and completeness is computed over the
+in-set findings only. A critic cannot promote a suspected finding to verified
+this way (that would change detection; left to the A/B). The receipt of a
+managed critic run is written only by `managed_review_evidence_import` from its
+sealed block: `review_inventory_critic_set` for a ReviewRun with managed
+terminal evidence refuses `REVIEW_INVENTORY_CRITIC_MANAGED_RECEIPT_ONLY`
+(`Next: proof-or-stop next --storyId=<id>`), and `review_inventory_status`
+proposes `next` instead of a critic_set for such a run.
+At import, a missing row still refuses the critic receipt with
+`REVIEW_INVENTORY_FINDING_DISPOSITION_INCOMPLETE: <ids>` (the terminal evidence
+stays imported). One exception is completed by the importer instead of
+refused (and is therefore not a worker repair either): a critic finding that provably restates an earlier finding of the
+wave (at least one shared cited file and the same claim: token Jaccard
+similarity >= 0.6 with a 0.15 margin over the runner-up and no disjoint code
+symbols, i.e. when both name functions/identifiers they share one; or >= 0.25
+when the critic's own row names that finding's id), where only one of the two copies has
+a row. The other copy is recorded as a `duplicate` of the canonical finding
+(the critic's row for the lane finding is kept; when the critic wrote its row
+on its own restatement, that row moves to the lane finding and the restatement
+becomes the duplicate). The restated copy stays a verified finding and closes
+through the duplicate-coverage path; a new, ambiguous or unrelated critic
+finding is never reconciled away (`reconcileRestatedCriticFindings`,
+core/managed-inventory-critic.ts; detection A/B control D2-r3, D9-r1). A refused
+critic import is recorded as process event `inventory_critic_import_refused`,
+and `next` then runs a fresh critic of the same wave instead of the same import.
+That fresh critic does not make the earlier critic's findings stale (the
+`stale_run` rule exempts inventory-completeness critic runs of the same epoch
+wave, core/review-run.ts); the fresh critic classifies them by `findingId`.
+
 ### Acceptance rollout report and admission check (Wave 4)
 
 `proof-or-stop acceptance_rollout_report --storyId=<id> [--json]` runs the registered
@@ -1011,13 +1058,14 @@ Decision table (first matching row wins):
 | DEV, an open low (or suspected) finding whose own managed finding-repair completed (run 16) | `finding_resolve` with `resolution` (low stays advisory: an unrepaired one is never dispatched and never blocks) | agent | `managedFindingRepairState` |
 | DEV, files declared but no scope contract | `scope_contract_init_from_plan` | framework | scope gate precondition |
 | DEV, otherwise | `story_advance --phase=REVIEW` if the REVIEW guard passes, else the guard's own `→`/`Next:` command; advisory evidence-chain items (a changed test no pin selects, a missing should receipt) ride on its `why`, never as a step of their own | framework | `getGuardFailureReason(REVIEW)` |
-| REVIEW, a prepared ReviewRun of this round without a host run | `host_run` managedReview for that lane (all prepared lanes are launched before any wait) | framework (`launch`, bound, not a replacement) / agent | review-runs.json + host-run projection |
+| REVIEW, a prepared ReviewRun of this round without a host run | `host_run` managedReview for that lane (all prepared lanes are launched before any wait) | framework (`launch`, bound, not a replacement; a replacement only for earlier runs that failed `worker_launch_failed:managed supervisor …` replacement-safe, at most `MANAGED_SUPERVISOR_NOT_READY_AUTO_RELAUNCHES` = 3 of them) / agent | review-runs.json + host-run projection |
 | REVIEW, a lane run in flight | `host_run_status --untilTerminal=true` (compact text, never `--json`) | framework (wait) | host-run projection |
 | REVIEW, completed lane runs not imported (every lane terminal) | `managed_review_evidence_import {runId, receiptId}` for one run, `{imports: [{runId, receiptId}, ...]}` for several: one process, one import transaction and metadata commit per run, in order, stopping at the first refusal (run 17: one process per lane, 4.7–8.5 s each) | framework | host-run receipt |
 | REVIEW, the verdict misses lane evidence | `review_round_prepare` | framework | `evaluateReviewVerdict` + `reviewer_batch` launchable lanes |
 | REVIEW, certification window ADMITTED | `validate --story --json` (the routine suite; nothing in between) | framework | `certification_window_status` |
 | REVIEW, window RUNNING and the stored PASS admissible | `story_advance --phase=TEST`; if the verdict still refuses on open findings: `finding_resolve` for the first repaired one, else `story_advance --phase=DEV` (`finding_unrepaired_dev`) | framework | `certification_window_status` Next + `evaluateReviewVerdict` + `managedFindingRepairState` |
 | REVIEW, OPEN epoch, critic missing | `dispatch` critic → `review_run_start` critic → `host_run` critic (`launch` when bound; agent after a failed critic run in the round) → wait → import | framework / agent | `review_inventory_status` |
+| REVIEW, OPEN epoch, the latest critic run's import was refused (its terminal evidence is imported, its `inventoryCritic` block was not; process event `inventory_critic_import_refused` for that exact run/receipt) | a fresh critic of the same wave: `dispatch` critic (when the dispatch binding is gone) or `review_run_start` critic, `why` naming the refusal; never the same import again. The fresh critic's evidence pack also carries the refused critic's findings and the exact refusal text | framework | `refusedInventoryCriticImport` (handlers/managed-review-evidence.ts) |
 | REVIEW, OPEN epoch, otherwise | `review_inventory_status`'s own Next (`review_inventory_finalize [--remediation]`, `review_inventory_cancel`) | framework | `review_inventory_status` |
 | REVIEW, FINALIZED remediation receipt | `story_advance --phase=DEV` | framework | `finalizedUnconsumedReviewInventory` + DEV guard |
 | REVIEW, FINALIZED zero-wave completeness-only receipt | `review_inventory_cancel` | framework | PRE_CERT inventory recovery |

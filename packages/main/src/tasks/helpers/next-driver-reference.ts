@@ -9,6 +9,18 @@
  * A deliberate behavior change to `next` must update this copy in the same
  * commit and say why.
  *
+ * Deliberate change (supervisor-readiness, detection A/B pilot): a review
+ * lane whose earlier run(s) of the round failed only because the managed
+ * recovery supervisor never became ready (replacement-safe, nothing ran) is
+ * relaunched by the framework (bound launch) up to
+ * MANAGED_SUPERVISOR_NOT_READY_AUTO_RELAUNCHES times; other failures stay the agent's call.
+ *
+ * Deliberate change (critic-import-loop, detection A/B control D2-r3/D9-r1):
+ * a completed inventory critic whose import was refused (terminal evidence
+ * persisted + process event inventory_critic_import_refused for that exact
+ * run/receipt) is no longer proposed for import again forever; criticNext
+ * returns a fresh critic dispatch / review_run_start naming the refusal.
+ *
  * Deliberate change (next-finding-repaired, run 14): a DEV finding counts as
  * repaired only through a completed managed finding-repair run bound to that
  * finding id with a material commit (managedFindingRepairState, shared with the
@@ -88,12 +100,12 @@ import { currentPrecertFastIdentity, precertCheapCheckWaived } from '../../handl
 import { evaluateEvidenceChainForStory } from '../../handlers/evidence-chain.js';
 import { checklistHasFileDeclarations } from '../../handlers/phase-gates.js';
 import { verifyCurrentReviewerDispatchBinding } from '../../core/review-run.js';
-import { managedHostRunsRoot, readManagedHostRunProjection, managedHostRunReceipt } from '../../core/managed-host-run.js';
+import { managedHostRunsRoot, readManagedHostRunProjection, managedHostRunReceipt, isAutoReplaceableManagedLaunchFailure, MANAGED_SUPERVISOR_NOT_READY_AUTO_RELAUNCHES } from '../../core/managed-host-run.js';
 import { managedFindingRepairState, hintedStep, evidenceChainStep, evidenceChainAdvisory, step as sharedStep, managedLaunchStep, boundManagedSelection,
   hasRunForTarget, testAuthoringStep, planAuthoringStep, preScopeAuthoringStep, nextBlockingFinding, duplicateFindingResolveStep, type NextStep } from '../../handlers/next-driver.js';
 import { duplicateCoverageReceipts, duplicateResolveCandidate } from '../../core/duplicate-finding-coverage.js';
 import { singleHostAssuranceReady } from '../../handlers/quorum-submit.js';
-import { hasPersistedManagedReceiptEvidence } from '../../handlers/managed-review-evidence.js';
+import { hasPersistedManagedReceiptEvidence, refusedInventoryCriticImport } from '../../handlers/managed-review-evidence.js';
 import { MANAGED_INVENTORY_CRITIC_LANE } from '../../core/managed-inventory-critic.js';
 import { buildDoneChecklist, type DoneCheckRow } from '../../core/done-oracle.js';
 import { evaluateReviewAssuranceFloor, buildReviewAssuranceFloorGuidance, buildReviewEscalationGuidance, type ReviewAssuranceGuidance } from '../../core/review-assurance-floor.js';
@@ -214,6 +226,8 @@ interface HostRunView {
   state: string;
   terminal: boolean;
   createdAt: string;
+  /** Failed before its recovery supervisor became ready: provably nothing ran (isAutoReplaceableManagedLaunchFailure). */
+  autoReplaceable: boolean;
 }
 
 function listStoryHostRuns(ctx: HandlerContext, storyId: string): HostRunView[] {
@@ -226,7 +240,8 @@ function listStoryHostRuns(ctx: HandlerContext, storyId: string): HostRunView[] 
       if (run.storyId !== storyId) continue;
       rows.push({ runId, host: run.host, model: run.model ?? null, reasoningEffort: run.reasoningEffort ?? null, profile: run.profile,
         agentType: run.agentType, reviewRunId: run.reviewRunId, state: run.state,
-        terminal: run.terminal !== null, createdAt: run.createdAt });
+        terminal: run.terminal !== null, createdAt: run.createdAt,
+        autoReplaceable: isAutoReplaceableManagedLaunchFailure({ state: run.state, replacementSafe: run.replacementSafe, terminalReason: run.terminal?.reason ?? null }) });
     } catch { /* not a readable managed run */ }
   }
   return rows.sort((a, b) => a.createdAt.localeCompare(b.createdAt) || a.runId.localeCompare(b.runId));
@@ -362,8 +377,14 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
     const { selection, bound } = boundManagedSelection(hostRuns, 'managed_reviewer');
     const runs = ctx.store.readReviewRuns(base.storyId).runs;
     const round = runs.find(run => run.reviewRunId === reviewRunId)?.reviewRound;
-    const replacement = runs.some(run => run.lane === lane && run.reviewRound === round && run.reviewRunId !== reviewRunId
-      && (hostRunFor(hostRuns, run.reviewRunId)?.state ?? 'completed') !== 'completed');
+    const failedEarlier = runs.filter(run => run.lane === lane && run.reviewRound === round && run.reviewRunId !== reviewRunId
+      && (hostRunFor(hostRuns, run.reviewRunId)?.state ?? 'completed') !== 'completed').map(run => hostRunFor(hostRuns, run.reviewRunId));
+    // A launch whose recovery supervisor never became ready (host load) ran
+    // nothing: the framework relaunches it itself, up to
+    // MANAGED_SUPERVISOR_NOT_READY_AUTO_RELAUNCHES times; any other earlier
+    // failure keeps the replacement the agent's call.
+    const replacement = failedEarlier.length > 0 && !(failedEarlier.length <= MANAGED_SUPERVISOR_NOT_READY_AUTO_RELAUNCHES
+      && failedEarlier.every(run => run?.autoReplaceable === true));
     return managedLaunchStep(base, critic ? 'inventory_critic_launch' : 'review_lane_launch', { ...selection,
       storyId: base.storyId, agentType: lane, reviewRunId, lane, managedReview: true, detach: true, json: true }, bound && !replacement,
     critic
@@ -450,12 +471,26 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
     if (!hostRun) return reviewLaunchStep(base, critic, criticRun.reviewRunId, true);
     if (!hostRun.terminal) return waitStep(base, hostRun, 'Inventory critic run');
     if (hostRun.state === 'completed') {
+      let receiptId: string;
       try {
-        const receiptId = managedHostRunReceipt(ctx.root, hostRun.runId).receiptId;
-        return importStep(base, hostRun, receiptId);
+        receiptId = managedHostRunReceipt(ctx.root, hostRun.runId).receiptId;
       } catch (error) {
         return step(base, 'agent', 'inventory_critic_receipt_unavailable', null, `Critic run ${hostRun.runId} has no readable receipt: ${message(error)}`, 'managed host-run receipt');
       }
+      // A/B control D2-r3/D9-r1: the import of this critic was refused (its
+      // findings are kept); proposing it again would loop forever. Run a fresh
+      // critic of the same wave instead; its prompt names this refusal.
+      const refused = refusedInventoryCriticImport(ctx.store, storyId, hostRun.runId, receiptId);
+      if (!refused) return importStep(base, hostRun, receiptId);
+      const dispatched = verifyCurrentReviewerDispatchBinding({ store: ctx.store, storyId, lane: critic, reviewRound: round,
+        projectRoot: ctx.root, reviewPurpose: 'inventory-completeness', inventoryBinding: binding });
+      const why = `The import of critic run ${hostRun.runId} (ReviewRun ${criticRun.reviewRunId}) was refused: ${refused.slice(0, 400)}. Its findings are kept; run a fresh critic of wave ${binding.wave} whose prompt names this refusal (never the same import again).`;
+      if (!dispatched.ok) {
+        return step(base, 'framework', 'inventory_critic_dispatch', { command: 'dispatch', payload: { storyId, agentType: critic,
+          reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } }, why, 'process-events inventory_critic_import_refused');
+      }
+      return step(base, 'framework', 'inventory_critic_run_start', { command: 'review_run_start', payload: { storyId, agent: critic, lane: critic,
+        reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } }, why, 'process-events inventory_critic_import_refused');
     }
     return step(base, 'framework', 'inventory_critic_run_start', { command: 'review_run_start', payload: { storyId, agent: critic, lane: critic,
       reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } },

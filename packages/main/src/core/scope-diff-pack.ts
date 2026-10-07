@@ -12,6 +12,7 @@
  */
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
+import { observedGit } from './git-tree-observation.js';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import ts from 'typescript';
@@ -524,12 +525,13 @@ function readUnifiedDiff(gitCwd: string): string {
     ['diff', '--find-renames', '--find-copies', '--unified=20', '--cached'],
   ]) {
     try {
-      const output = execFileSync('git', args, {
+      // Identical read-only diffs inside one synchronous git observation run once.
+      const output = observedGit(gitCwd, args, () => execFileSync('git', args, {
         cwd: gitCwd,
         encoding: 'utf8',
         stdio: ['pipe', 'pipe', 'pipe'],
         maxBuffer: GIT_TREE_OUTPUT_MAX_BUFFER,
-      }).trim();
+      })).trim();
       if (output) parts.push(output);
     } catch { /* ignore non-git contexts */ }
   }
