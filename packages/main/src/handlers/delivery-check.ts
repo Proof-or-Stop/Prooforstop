@@ -235,7 +235,7 @@ export function createDeliveryCheckHandlers(
         const dispatch = verifyCurrentDeliveryReviewDispatch({ store, storyId: args.storyId, projectRoot: root, allowOwnDeliveryCheckCommits: true });
         if (!dispatch.ok) throw new Error(`managed delivery dispatch invalid: ${dispatch.reason}`);
         managedDeliveryRunId = resolveManagedDispatchInvocation({ root, storyId: args.storyId,
-          agentType: 'proof-or-stop-review-delivery', reseal: true });
+          agentType: 'proof-or-stop-review-delivery', reseal: true, command: 'delivery_check_set' });
       }
       const nativeAuthorization = managedDeliveryRunId ? undefined
         : (options.authorizeNativeInvocation ?? authorizeNativeDeliveryReview)({

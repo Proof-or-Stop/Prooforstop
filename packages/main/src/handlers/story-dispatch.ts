@@ -659,6 +659,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     lines.push('');
     lines.push('Reviewer execution contract:');
     lines.push('- You are the proof-or-stop-review-scope-plan reviewer. Review in a fresh context and do not carry over the main agent\'s or Story owner\'s conclusions. Finish by calling scope_check_save.');
+    lines.push('- Call scope_check_save only with your complete final payload (never a placeholder or probe save); a later call of the same run replaces the earlier one. Run it from your normal shell environment; never unset or override LATTICE_MANAGED_INIT_INVOCATION or PROOF_OR_STOP_AGENT.');
     lines.push(`- ${REVIEWER_NO_DELEGATION_BOUNDARY}`);
     lines.push(`Working directory (subagent must cd here): ${root}`);
     lines.push('');

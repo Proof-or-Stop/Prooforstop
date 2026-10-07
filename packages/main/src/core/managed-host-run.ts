@@ -79,6 +79,7 @@ import {
   type HostRunProcessIdentity,
   type HostRunProcessCleanup,
   RESUMABLE_CODE_WRITER_ROLES,
+  managedDispatchSaveCommand,
 } from './host-run.js';
 import type {
   FindingEvidenceState,
@@ -4208,6 +4209,65 @@ export async function runManagedHostRunWorker(
       }
     }
     if (spec.profile === 'managed_dispatch') {
+      // Old-PoS run 20: the scope reviewer's save did not bind to its run, so
+      // the run ended managed_dispatch_output_missing and a full cold re-review
+      // followed. A save reviewer whose output is missing is instead asked, in
+      // its own resumed session, to re-run the save with the exact refusal.
+      const save = spec.host === 'codex' && spec.storyId ? managedDispatchSaveCommand(spec.agentType) : null;
+      let launchStartedIso = new Date(0).toISOString();
+      for (let attempt = 1; save; attempt += 1) {
+        const failureReason = managedDispatchOutputValidation(spec).failureReason;
+        if (failureReason !== 'managed_dispatch_output_missing') break;
+        const refusal = latestManagedDispatchSaveRefusal(paths, launchStartedIso);
+        const resumeSessionId = attempt <= MANAGED_DISPATCH_SAVE_REPAIR_MAX_ATTEMPTS && result.replacementSafe
+          ? resumableManagedRunCodexSession(paths, codexHome)
+          : null;
+        if (resumeSessionId === null) {
+          appendEvent(paths, {
+            schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
+            type: 'managed_dispatch_save_repair_unavailable',
+            detail: { attempt, refusal, reason: attempt > MANAGED_DISPATCH_SAVE_REPAIR_MAX_ATTEMPTS ? 'attempts_exhausted'
+              : !result.replacementSafe ? 'provider_not_replacement_safe' : 'session_not_resumable' },
+          });
+          break;
+        }
+        const prompt = managedDispatchSaveRepairPrompt({
+          command: save.command, artifact: save.artifact, runId: spec.runId, failureReason,
+          bindingState: managedDispatchSaveBindingState(spec, save.artifact), refusal,
+        });
+        const journaled = updateSnapshotAndAppendEvent(paths, current => ({
+          ...current, generation: current.generation + 1, providerClosedAt: null, supervisionDiagnostic: null,
+        }), {
+          schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
+          type: 'managed_dispatch_save_repair',
+          detail: { attempt, maxAttempts: MANAGED_DISPATCH_SAVE_REPAIR_MAX_ATTEMPTS, command: save.command, failureReason, refusal, resumeSessionId },
+        });
+        if (!journaled) return readTerminal(paths)!;
+        const repairRefusal = await authorizeLaunch();
+        if (repairRefusal) {
+          if (repairRefusal === 'absolute_deadline_exceeded') {
+            deadlineTriggered = true;
+            return writeTerminal(paths, 'timed_out', repairRefusal, result.replacementSafe, result, now());
+          }
+          cancelTriggered = readCancelRequest(paths) !== null;
+          return writeTerminal(paths, cancelTriggered ? 'cancelled' : 'failed',
+            cancelTriggered ? repairRefusal : failureReason, result.replacementSafe, result, now());
+        }
+        providerClosed = false;
+        launchStartedIso = new Date(now()).toISOString();
+        result = null;
+        result = await launchProvider(prompt, resumeSessionId,
+          Math.max(1, Math.min(spec.timeoutMs, Date.parse(spec.deadlineAt) - now())));
+        const outcome = managedDispatchOutputValidation(spec).failureReason;
+        appendEvent(paths, {
+          schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
+          type: 'managed_dispatch_save_repair_outcome',
+          detail: { attempt, outcome: outcome === null ? 'bound' : outcome, exitCode: result.exitCode,
+            refusal: latestManagedDispatchSaveRefusal(paths, launchStartedIso) },
+        });
+        const repairExitTerminal = await settleProviderExit(result, failureReason);
+        if (repairExitTerminal) return repairExitTerminal;
+      }
       const completedResult = result;
       const validateAndSeal = () => {
         const output = managedDispatchOutputValidation(spec);
@@ -4532,6 +4592,12 @@ type ManagedDispatchInvocationArgs = {
    * re-seal its own output (delivery_check_set). Never a new authority.
    */
   reseal?: boolean;
+  /**
+   * The save command asking (e.g. scope_check_save). When set, a refusal is
+   * journaled on the live run it names (managed_dispatch_save_refused) so the
+   * worker's same-session save repair can quote the exact error.
+   */
+  command?: string;
   /** Test seam for platform-specific admission; production always uses process.platform. */
   platform?: NodeJS.Platform;
 };
@@ -4593,6 +4659,62 @@ export function resolveManagedImplementerCompletionInvocation(args: {
 export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocationArgs & { optionalWhenAbsent: true }): string | undefined;
 export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocationArgs & { optionalWhenAbsent?: false }): string;
 export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocationArgs): string | undefined {
+  try {
+    return resolveManagedDispatchInvocationUnjournaled(args);
+  } catch (error) {
+    if (args.command) journalManagedDispatchSaveRefusal(args, error);
+    throw error;
+  }
+}
+
+/**
+ * The live, non-terminal managed run a refused save belongs to: the run its
+ * signed invocation names, else the single active run of this Story/role
+ * (/target). Best effort; a refusal is never turned into an authority.
+ */
+function journalManagedDispatchSaveRefusal(args: ManagedDispatchInvocationArgs, error: unknown): void {
+  try {
+    let runId: string | null = null;
+    try { runId = readManagedInitInvocationFromEnvironment(args.environment ?? process.env)?.runId ?? null; } catch { runId = null; }
+    if (!runId) {
+      const active: string[] = [];
+      let entries: string[] = [];
+      try { entries = readdirSync(managedHostRunsRoot(args.root)); } catch { entries = []; }
+      for (const candidate of entries) {
+        try {
+          const paths = pathsFor(args.root, candidate);
+          if (readTerminal(paths)) continue;
+          const spec = readManagedHostRunSpec(paths).value;
+          if (spec.profile === 'managed_dispatch' && spec.storyId === args.storyId && spec.agentType === args.agentType
+            && (args.itemId === undefined || spec.managedDispatchTarget?.itemId === args.itemId)
+            && readManagedHostRunSnapshot(paths).state === 'running') active.push(candidate);
+        } catch { /* corrupt or partial runs are skipped */ }
+      }
+      runId = active.length === 1 ? active[0]! : null;
+    }
+    if (!runId) return;
+    assertRunId(runId);
+    const paths = pathsFor(args.root, runId);
+    const spec = readManagedHostRunSpec(paths).value;
+    if (spec.storyId !== args.storyId || spec.agentType !== args.agentType) return;
+    appendEvent(paths, {
+      schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION,
+      runId,
+      at: new Date().toISOString(),
+      type: MANAGED_DISPATCH_SAVE_REFUSED_EVENT,
+      detail: {
+        command: args.command!,
+        storyId: args.storyId,
+        providerAgent: args.agentType,
+        error: (error instanceof Error ? error.message : String(error)).slice(0, MANAGED_DISPATCH_SAVE_REPAIR_ERROR_CAP),
+      },
+    });
+  } catch {
+    // Journaling is diagnostic; the caller still receives the refusal.
+  }
+}
+
+function resolveManagedDispatchInvocationUnjournaled(args: ManagedDispatchInvocationArgs): string | undefined {
   // checklist_update probes this broker for every transition to done so ordinary
   // (unmanaged) work remains compatible. Establish absence before inspecting a
   // possibly stale inherited credential or applying a platform-specific managed
@@ -4637,9 +4759,12 @@ export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocation
       });
     }
   } catch (error) {
+    // Shown to the managed provider itself: say what the save needs, never
+    // suggest a fresh run or an environment change (old-PoS run 20 read this
+    // as "work around it" and saved with `env -u`, which bound nothing).
     throw new Error(
       `managed dispatch refused: invocation was not accepted (${error instanceof Error ? error.message : String(error)}). `
-      + 'Use a fresh host_run managedDispatch reviewer. [delivery_not_acknowledged]',
+      + 'Keep LATTICE_MANAGED_INIT_INVOCATION exactly as this run received it; do not unset, override or re-create it. [delivery_not_acknowledged]',
     );
   }
   const platform = args.platform ?? process.platform;
@@ -4681,9 +4806,14 @@ export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocation
       || args.agentType === 'proof-or-stop-product-reviewer'
       ? ' For init_check_set, retry host_run with managedDispatch=true or use the explicit acknowledged init_check_repair fallback.'
       : ' Use the exact provider invocation launched by host_run managedDispatch.';
+    // The managed provider stripped (or never received) its signed invocation
+    // and its shell is not in the run's process group: name that exact cause.
+    const missingInvocationHint = activeTargetCount > 0
+      ? ' This command carries no LATTICE_MANAGED_INIT_INVOCATION: run it in the managed run\'s own shell environment without unsetting or overriding that variable (`env -u`/`env -i` strip it); a repeated save of the same live run re-binds.'
+      : '';
     throw new Error(
       `managed dispatch refused: ${activeTargetCount} active Story/role/target run(s) exist, but this invocation matched ${candidates.length}. `
-      + `${repairHint} [delivery_not_acknowledged]`,
+      + `${repairHint}${missingInvocationHint} [delivery_not_acknowledged]`,
     );
   }
   const runId = candidates[0]!;
@@ -5370,6 +5500,56 @@ function readValidManagedReviewEvidenceProposal(
  * the same provider session and is validated exactly like the first answer.
  */
 export const MANAGED_REVIEW_FINAL_FORMAT_REPAIR_MAX_ATTEMPTS = 2;
+
+/** Journal event a refused managed save leaves on its live run (exact error quoted by the save repair). */
+export const MANAGED_DISPATCH_SAVE_REFUSED_EVENT = 'managed_dispatch_save_refused';
+/** Same-session turns asking a managed save reviewer to re-run its unbound save. */
+export const MANAGED_DISPATCH_SAVE_REPAIR_MAX_ATTEMPTS = 2;
+const MANAGED_DISPATCH_SAVE_REPAIR_ERROR_CAP = 1_000;
+
+/** The newest save refusal journaled on this run at or after `sinceIso`, or null. */
+function latestManagedDispatchSaveRefusal(paths: ManagedHostRunPaths, sinceIso: string): string | null {
+  let text = '';
+  try { text = readFileSync(paths.events, 'utf8'); } catch { return null; }
+  let latest: string | null = null;
+  for (const line of text.split('\n')) {
+    if (!line.includes(MANAGED_DISPATCH_SAVE_REFUSED_EVENT)) continue;
+    try {
+      const event = JSON.parse(line) as ManagedHostRunEvent;
+      if (event.type !== MANAGED_DISPATCH_SAVE_REFUSED_EVENT || event.at < sinceIso) continue;
+      const error = event.detail?.error;
+      if (typeof error === 'string' && error) latest = error;
+    } catch { /* partial line */ }
+  }
+  return latest;
+}
+
+/** What the run's save artifact currently binds to, in one provider-readable sentence. */
+function managedDispatchSaveBindingState(spec: ManagedHostRunSpec, artifact: string): string {
+  try {
+    const path = new StoryStore(spec.root).storyFilePath(spec.storyId!, artifact);
+    if (!existsSync(path)) return `${artifact} does not exist`;
+    const data = JSON.parse(readFileSync(path, 'utf8')) as { deliveryRunId?: unknown; managedDeliveryRunId?: unknown };
+    const bound = data.deliveryRunId ?? data.managedDeliveryRunId ?? null;
+    return `${artifact} is bound to ${bound === null ? 'no managed run' : `run ${String(bound)}`}, not this run ${spec.runId}`;
+  } catch (error) {
+    return `${artifact} is unreadable (${error instanceof Error ? error.message : String(error)})`;
+  }
+}
+
+export function managedDispatchSaveRepairPrompt(args: {
+  command: string; artifact: string; runId: string; failureReason: string; bindingState: string; refusal: string | null;
+}): string {
+  return [
+    `Proof-or-Stop did not record your ${args.command} result for this managed run (${args.failureReason}): ${args.bindingState}.`,
+    args.refusal
+      ? `Your last ${args.command} call was refused with: ${args.refusal}`
+      : `No ${args.command} call of this run was accepted for this run.`,
+    `Run ${args.command} once more now with your complete final payload from your review above, from your normal shell environment.`
+      + ' Do not unset, override or re-create LATTICE_MANAGED_INIT_INVOCATION or PROOF_OR_STOP_AGENT (no `env -u`, `env -i` or cleared-environment sub-shell): that variable is what binds the save to this run, and a repeated save of this live run replaces your earlier one.',
+    'Fix only what the refusal names; do not review again and do not change your conclusions. Then reply with one short line.',
+  ].join('\n');
+}
 const MANAGED_REVIEW_FINAL_FORMAT_REPAIR_ERROR_CAP = 1_000;
 
 /**

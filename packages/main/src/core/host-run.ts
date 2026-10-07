@@ -2491,6 +2491,23 @@ function isImplementerAgentType(agentType: string): boolean {
   return (RESUMABLE_CODE_WRITER_ROLES as readonly string[]).includes(canonicalAgentRoleId(agentType));
 }
 
+/**
+ * Managed-dispatch reviewers whose only output is one save command that binds
+ * to the live run (a later save of the same run re-binds). Old-PoS run 20: a
+ * scope reviewer whose save did not bind ended managed_dispatch_output_missing
+ * and was relaunched from scratch. These roles keep their Codex session (no
+ * --ephemeral) so the worker can ask the same session, once more, to re-run
+ * the save with the exact refusal.
+ */
+export const MANAGED_DISPATCH_SAVE_COMMANDS: Readonly<Record<string, { command: string; artifact: string }>> = {
+  'proof-or-stop-review-scope-plan': { command: 'scope_check_save', artifact: 'scope-check.json' },
+  'proof-or-stop-review-delivery': { command: 'delivery_check_set', artifact: 'delivery-check.json' },
+};
+
+export function managedDispatchSaveCommand(agentType: string): { command: string; artifact: string } | null {
+  return MANAGED_DISPATCH_SAVE_COMMANDS[canonicalAgentRoleId(agentType)] ?? null;
+}
+
 export function managedDispatchCodexSandboxMode(
   platform: NodeJS.Platform = process.platform,
   containerBoundaryPresent = existsSync('/.dockerenv') || existsSync('/run/.containerenv'),
@@ -2534,7 +2551,12 @@ export function materializeHostRunLaunch(
     // item can resume it; `exec resume` takes the sandbox as config and the
     // directory from the process cwd (it accepts neither -s nor -C).
     const implementer = args.launchProfile === 'managed_dispatch' && isImplementerAgentType(args.agentType);
-    const dispatchFlags = CANONICAL_CODEX_NONINTERACTIVE_FLAGS.filter(flag => !(implementer && flag === '--ephemeral'));
+    // A managed save reviewer keeps its session too: an unbound save is
+    // repaired by resuming it (managed-host-run save repair), never by a
+    // cold full re-review.
+    const keepsSession = implementer
+      || (args.launchProfile === 'managed_dispatch' && managedDispatchSaveCommand(args.agentType) !== null);
+    const dispatchFlags = CANONICAL_CODEX_NONINTERACTIVE_FLAGS.filter(flag => !(keepsSession && flag === '--ephemeral'));
     // A managed code-review lane reviewing a later candidate HEAD resumes the
     // session it answered in on an earlier candidate (managed-host-run decides
     // which lane session, if any). Reviewer sessions were never --ephemeral.
@@ -2551,7 +2573,7 @@ export function materializeHostRunLaunch(
         cleanup: () => {},
       };
     }
-    if (implementer && args.resumeSessionId) {
+    if (keepsSession && args.resumeSessionId) {
       return {
         command: 'codex',
         argv: [
@@ -2658,6 +2680,17 @@ export function materializeHostRunLaunch(
       ...(selection.model ? ['--model', selection.model] : []),
       ...(selection.reasoningEffort ? ['--config', `model_reasoning_effort="${selection.reasoningEffort}"`] : []),
     );
+    // Uncontained managed dispatch (Darwin, Linux without an outer container)
+    // keeps the ordinary Codex sandbox; a managed save reviewer still keeps its
+    // session and its save repair resumes it (same contract as the contained path).
+    if (args.launchProfile === 'managed_dispatch' && managedDispatchSaveCommand(args.agentType) !== null) {
+      const ephemeral = argv.indexOf('--ephemeral');
+      if (ephemeral >= 0) argv.splice(ephemeral, 1);
+      if (args.resumeSessionId) {
+        argv.splice(1, 0, 'resume');
+        argv.splice(argv.length - 1, 0, args.resumeSessionId);
+      }
+    }
   }
   return {
     command: full[0],

@@ -363,6 +363,19 @@ digest 与 provider process identity 封存在 managed run 中。controller 还�
 对应 gate 仍会验证完成态 receipt 和其中精确的 delivery run binding。篡改
 Story/role/run、重放凭证或在 run 终态后调用均 fail closed。
 
+同一个仍在运行的 managed run 可以重复保存自己的输出（re-seal）：`scope_check_save`
+与 `delivery_check_set` 再次出示同一个已消费的凭证（同 run、同 nonce、同 role）时
+会重新绑定到该 run，后一次保存覆盖前一次；其他 run、nonce 或 role 仍按重放拒绝。
+old-PoS run 20（scope reviewer run 265cbed2）中，reviewer 的第一次 probe 保存消费了凭证，
+真实保存因此被拒为 "already consumed"，reviewer 随后用
+`env -u LATTICE_MANAGED_INIT_INVOCATION` 保存，写出了未绑定（`deliveryRunId: null`）的
+scope-check，run 以 `managed_dispatch_output_missing` 结束并被冷启动重跑。现在：
+scope reviewer 的保存若不带凭证、而该 Story/role 有在运行的 managed run，只能经该 run
+的 process group 绑定，否则被拒绝（错误指名缺失的 `LATTICE_MANAGED_INIT_INVOCATION`，
+并要求在 run 自己的 shell 环境里不 unset/override 它重试），绝不会写出未绑定的输出。
+拒绝的错误文本不再建议"换一个新的 host_run"，也不会建议修改环境。每次被拒的保存都以
+`managed_dispatch_save_refused`（含精确错误）记入该 run 的 `events.jsonl`。
+
 DEV implementer 额外要求精确 `itemId`。该目标写入不可变 run binding；只有同一
 managed run 内对该 item 的 `checklist_update status=done` 才能消费一次性凭证并写入
 带 `managedDispatchRunId` 的成功 `subagent_result`。provider 退出 0、仅把 item 标成
@@ -396,6 +409,17 @@ provider 进程退出 0 本身不构成完成：worker 只有在配置的 Story 
 managed run 完成时，以非致命的 `managed_dispatch_target_already_done` 结束，见下文）；配置路径中的记录无法读取或解析时以
 `managed_dispatch_output_unreadable` 保留受限错误诊断并继续 fail closed；签名
 或当前 Story 内容绑定失效时以 `managed_dispatch_output_invalid` 失败。
+对 PLAN scope reviewer 与 TEST delivery reviewer（输出只是一条绑定到 run 的保存命令），
+`managed_dispatch_output_missing` 之前先做同 session 修复：worker 以 `codex exec resume`
+恢复该 run 自己的 Codex session（这两个 role 因此不带 `--ephemeral`），提示中给出
+保存产物当前绑定到哪里、以及本次 launch 以来最后一次 `managed_dispatch_save_refused`
+的精确错误，要求只用原有的最终 payload 重跑保存、不重新 review。最多
+`MANAGED_DISPATCH_SAVE_REPAIR_MAX_ATTEMPTS`（2）次；每次记入
+`managed_dispatch_save_repair` / `managed_dispatch_save_repair_outcome` 事件。session
+不可恢复（非 Codex、provider 不可安全替换、rollout 不存在）或次数用尽时记入
+`managed_dispatch_save_repair_unavailable` 并按原样以 `managed_dispatch_output_missing` 结束。
+失败 terminal 的投影把 provider exit 0 改写为 `exitCode: 1` / `terminalReason: child_error`；
+run 20 记录的 "exit 1" 就是这个投影，provider 本身正常退出。
 PLAN scope reviewer 的 completed terminal/receipt 还封存当时精确的
 `scope-check.json` 摘要；完成后替换内容，即使保留 delivery run ID 并重算公开
 内容哈希，也会在 receipt 校验与 `story_review` 中失败。
@@ -405,6 +429,9 @@ Linux Docker/OCI 中的 Codex reviewer 已位于外层容器隔离边界。PoS �
 不可用的嵌套 bwrap；未容器化 Linux 与 Darwin 不采用该旁路，仍使用 Codex
 正常 sandbox。两条路径都保留既有 canonical Codex 非交互参数
 `--skip-git-repo-check --ephemeral --ignore-rules`；容器检测只决定 sandbox mode。
+例外：保留 session 的 role 去掉 `--ephemeral`——implementer / finding-repair
+（容器路径，供下一个 item 恢复），以及 scope / delivery reviewer（两条路径，供上面的
+同 session 保存修复用 `codex exec resume` 恢复）。
 
 ```bash
 proof-or-stop host_run '{"host":"codex","model":"<configured-implementation-model>","reasoningEffort":"high","storyId":"B-xxxx","itemId":"CHK-001","agentType":"proof-or-stop-implementer","managedDispatch":true,"detach":true,"json":true}'

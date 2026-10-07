@@ -73,8 +73,14 @@ function main(): void {
     assert.ok(!resumed.argv.includes('-C') && !resumed.argv.includes('-s'), 'exec resume takes neither -C nor -s');
     const repair = materialize({ ...implementerArgs(worktree, { resumeSessionId: kept }), agentType: 'proof-or-stop-finding-repair' }, container);
     assert.deepEqual(repair.argv.slice(0, 2), ['exec', 'resume'], 'a finding repair resumes the Story code-writer session too');
-    const reviewer = materialize({ ...implementerArgs(worktree), agentType: 'proof-or-stop-review-scope-plan' }, container);
+    const reviewer = materialize({ ...implementerArgs(worktree), agentType: 'proof-or-stop-review-story-init' }, container);
     assert.ok(reviewer.argv.includes('--ephemeral'), 'other managed dispatch roles stay ephemeral');
+    // Old-PoS run 20: a managed save reviewer keeps its session so an unbound
+    // save is repaired by resuming it (managed-scope-save-binding-smoke).
+    const scope = materialize({ ...implementerArgs(worktree), agentType: 'proof-or-stop-review-scope-plan' }, container);
+    assert.ok(!scope.argv.includes('--ephemeral'), `the managed scope reviewer keeps its session (${scope.argv.join(' ')})`);
+    const scopeResumed = materialize({ ...implementerArgs(worktree, { resumeSessionId: kept }), agentType: 'proof-or-stop-review-scope-plan' }, container);
+    assert.deepEqual(scopeResumed.argv.slice(0, 2), ['exec', 'resume'], 'the scope reviewer save repair resumes its session');
 
     // Lookup: newest completed implementer run of the same Story/worktree/model whose session exists.
     const find = (managedHostRun as Record<string, unknown>).findResumableImplementerSession as
