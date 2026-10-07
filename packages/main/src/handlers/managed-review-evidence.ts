@@ -9,6 +9,7 @@ import { assertCwdInWorktree } from './context.js';
 import { commitReviewResultMetadata } from '../core/review-metadata-batch.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
 import {
+  managedHostRunReceipt,
   readManagedHostRunBinding,
   readManagedReviewEvidenceProposal,
   readManagedReviewProposalInvocationFromFd,
@@ -105,6 +106,46 @@ export function refusedInventoryCriticImport(
 ): string | null {
   if (!hasPersistedManagedReceiptEvidence(store, storyId, receiptId)) return null;
   const event = store.readProcessEvents(storyId).filter(row => row.type === 'inventory_critic_import_refused'
+    && row.managedRunId === runId && row.managedReceiptId === receiptId).at(-1);
+  return event ? String(event.reason ?? 'refused') : null;
+}
+
+/**
+ * Import refusals that are final for one sealed receipt: the same import can
+ * never succeed again, only a fresh run of the lane or critic can (A/B V3
+ * R2A-r2: a candidate-route refusal BEFORE any evidence was persisted left
+ * `next` proposing the same import forever). Transient refusals (staged
+ * metadata, unreadable status, locks) are not listed: those are retried.
+ */
+const DETERMINISTIC_IMPORT_REFUSALS: readonly RegExp[] = [
+  /candidate routing evidence rejected/,
+  /shared Proof Admissibility accepted no provider proposal/,
+  /invalid inventory critic purpose or wave/,
+  /inventory critic proposal cannot carry evidence_chain items/,
+  /; rerun the managed reviewer/,
+];
+
+export function isDeterministicManagedImportRefusal(reason: string): boolean {
+  return DETERMINISTIC_IMPORT_REFUSALS.some(pattern => pattern.test(reason));
+}
+
+/**
+ * The recorded reason when the import of this exact receipt was refused for
+ * good, or null: (a) its terminal evidence was imported but its inventoryCritic
+ * block was refused (inventory_critic_import_refused), or (b) it was refused
+ * before any evidence was persisted for a reason no retry can change
+ * (managed_review_import_refused). `next` never proposes such an import again.
+ */
+export function refusedManagedReviewImport(
+  store: Pick<HandlerContext['store'], 'readReviewPasses' | 'readFindings' | 'readProcessEvents'>,
+  storyId: string,
+  runId: string,
+  receiptId: string,
+): string | null {
+  const critic = refusedInventoryCriticImport(store, storyId, runId, receiptId);
+  if (critic) return critic;
+  if (hasPersistedManagedReceiptEvidence(store, storyId, receiptId)) return null;
+  const event = store.readProcessEvents(storyId).filter(row => row.type === 'managed_review_import_refused'
     && row.managedRunId === runId && row.managedReceiptId === receiptId).at(-1);
   return event ? String(event.reason ?? 'refused') : null;
 }
@@ -226,7 +267,44 @@ export function createManagedReviewEvidenceHandlers(
     },
   };
 
+  /**
+   * One receipt's import. A deterministic refusal of a receipt with no
+   * persisted evidence is recorded once (process event
+   * managed_review_import_refused) so `next` relaunches the lane or critic
+   * instead of proposing this import again.
+   */
   function importManagedReviewEvidence(args: { runId?: string; receiptId?: string }): string {
+    try {
+      return importManagedReviewEvidenceOnce(args);
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      recordDeterministicImportRefusal(args, reason);
+      throw error;
+    }
+  }
+
+  function recordDeterministicImportRefusal(args: { runId?: string; receiptId?: string }, reason: string): void {
+    const runId = args.runId?.trim() || '';
+    const receiptId = args.receiptId?.trim() || '';
+    if (!runId || !receiptId || !isDeterministicManagedImportRefusal(reason)) return;
+    try {
+      const managedRun = readManagedHostRunBinding(ctx.root, runId);
+      const storyId = managedRun.storyId;
+      if (!storyId || managedRun.profile !== 'managed_reviewer') return;
+      if (managedHostRunReceipt(ctx.root, runId).receiptId !== receiptId) return;
+      if (hasPersistedManagedReceiptEvidence(ctx.store, storyId, receiptId)) return;
+      const recorded = ctx.store.readProcessEvents(storyId).some(event => event.type === 'managed_review_import_refused'
+        && event.managedRunId === runId && event.managedReceiptId === receiptId);
+      if (recorded) return;
+      ctx.store.appendProcessEvent(storyId, { type: 'managed_review_import_refused', storyId,
+        command: 'managed_review_evidence_import', role: 'framework', agent: managedRun.lane ?? managedRun.agentType, result: 'refused',
+        managedRunId: runId, managedReceiptId: receiptId, reviewRunId: managedRun.reviewRunId ?? null, reason: reason.slice(0, 2000) });
+    } catch {
+      // Recording is best effort: the refusal itself is still reported.
+    }
+  }
+
+  function importManagedReviewEvidenceOnce(args: { runId?: string; receiptId?: string }): string {
       const runId = args.runId?.trim() || '';
       const receiptId = args.receiptId?.trim() || '';
       if (!runId || !receiptId) throw new Error('managed_review_evidence_import: runId and receiptId are required; verdict overrides are not accepted');

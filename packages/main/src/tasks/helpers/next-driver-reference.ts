@@ -114,7 +114,7 @@ import { managedFindingRepairState, hintedStep, evidenceChainStep, evidenceChain
   runsForTarget, targetRelaunchIsFramework, testAuthoringStep, planAuthoringStep, preScopeAuthoringStep, nextBlockingFinding, duplicateFindingResolveStep, type NextStep } from '../../handlers/next-driver.js';
 import { duplicateCoverageReceipts, duplicateResolveCandidate } from '../../core/duplicate-finding-coverage.js';
 import { singleHostAssuranceReady } from '../../handlers/quorum-submit.js';
-import { hasPersistedManagedReceiptEvidence, refusedInventoryCriticImport } from '../../handlers/managed-review-evidence.js';
+import { hasPersistedManagedReceiptEvidence, refusedManagedReviewImport } from '../../handlers/managed-review-evidence.js';
 import { MANAGED_INVENTORY_CRITIC_LANE } from '../../core/managed-inventory-critic.js';
 import { buildDoneChecklist, type DoneCheckRow } from '../../core/done-oracle.js';
 import { evaluateReviewAssuranceFloor, buildReviewAssuranceFloorGuidance, buildReviewEscalationGuidance, type ReviewAssuranceGuidance } from '../../core/review-assurance-floor.js';
@@ -438,7 +438,11 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
       if (hostRun.state !== 'completed') continue; // replacement: reviewer_batch → review_round_prepare
       let receiptId = '';
       try { receiptId = managedHostRunReceipt(ctx.root, hostRun.runId).receiptId; } catch { continue; }
-      if (!hasPersistedManagedReceiptEvidence(ctx.store, storyId, receiptId)) importable.push({ run: hostRun, receiptId });
+      // A/B V3 R2A-r2: a receipt whose import was refused for good is never
+      // proposed again; the lane then has no evidence and review_round_prepare
+      // starts a fresh run of it.
+      if (!hasPersistedManagedReceiptEvidence(ctx.store, storyId, receiptId)
+        && !refusedManagedReviewImport(ctx.store, storyId, hostRun.runId, receiptId)) importable.push({ run: hostRun, receiptId });
     }
     if (toLaunch.length) return reviewLaunchStep(base, toLaunch[0]!.lane, toLaunch[0]!.run.reviewRunId, false);
     if (waiting.length) return waitStep(base, waiting[0]!, 'Managed reviewer run');
@@ -488,17 +492,19 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
       // A/B control D2-r3/D9-r1: the import of this critic was refused (its
       // findings are kept); proposing it again would loop forever. Run a fresh
       // critic of the same wave instead; its prompt names this refusal.
-      const refused = refusedInventoryCriticImport(ctx.store, storyId, hostRun.runId, receiptId);
+      // A/B V3 R2A-r2: the same for a refusal before any evidence persisted
+      // (refusedManagedReviewImport covers both kinds).
+      const refused = refusedManagedReviewImport(ctx.store, storyId, hostRun.runId, receiptId);
       if (!refused) return importStep(base, hostRun, receiptId);
       const dispatched = verifyCurrentReviewerDispatchBinding({ store: ctx.store, storyId, lane: critic, reviewRound: round,
         projectRoot: ctx.root, reviewPurpose: 'inventory-completeness', inventoryBinding: binding });
-      const why = `The import of critic run ${hostRun.runId} (ReviewRun ${criticRun.reviewRunId}) was refused: ${refused.slice(0, 400)}. Its findings are kept; run a fresh critic of wave ${binding.wave} whose prompt names this refusal (never the same import again).`;
+      const why = `The import of critic run ${hostRun.runId} (ReviewRun ${criticRun.reviewRunId}) was refused: ${refused.slice(0, 400)}. Any findings it imported are kept; run a fresh critic of wave ${binding.wave} whose prompt names this refusal (never the same import again).`;
       if (!dispatched.ok) {
         return step(base, 'framework', 'inventory_critic_dispatch', { command: 'dispatch', payload: { storyId, agentType: critic,
-          reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } }, why, 'process-events inventory_critic_import_refused');
+          reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } }, why, 'process-events inventory_critic_import_refused | managed_review_import_refused');
       }
       return step(base, 'framework', 'inventory_critic_run_start', { command: 'review_run_start', payload: { storyId, agent: critic, lane: critic,
-        reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } }, why, 'process-events inventory_critic_import_refused');
+        reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } }, why, 'process-events inventory_critic_import_refused | managed_review_import_refused');
     }
     return step(base, 'framework', 'inventory_critic_run_start', { command: 'review_run_start', payload: { storyId, agent: critic, lane: critic,
       reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } },

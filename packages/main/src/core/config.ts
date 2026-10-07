@@ -340,13 +340,16 @@ export interface ProofOrStopConfig {
     mode?: 'warn' | 'enforce';
   };
   /**
-   * EXPERIMENTAL detection A/B switches (core/ab-variants.ts). All default off;
-   * absent keys keep production behavior byte-identical. Not for production use.
+   * Detection A/B switches (core/ab-variants.ts). Absent keys = production.
+   * criticOnCleanRound, round2Scope and the two grouping switches are
+   * EXPERIMENTAL (default off, not for production use). round2Lanes is adopted:
+   * default 'fresh' (later-round review lanes start a new thread); 'resume' is
+   * the rollback to resumed lane threads.
    */
   review?: {
     criticOnCleanRound?: 'run' | 'skip';
     round2Scope?: 'full' | 'repaired-files';
-    round2Lanes?: 'resume' | 'fresh';
+    round2Lanes?: 'fresh' | 'resume';
   };
   remediation?: { grouping?: 'per-finding' | 'single' };
   implementation?: { grouping?: 'per-item' | 'files' };

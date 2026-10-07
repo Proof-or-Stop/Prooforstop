@@ -2843,6 +2843,8 @@ export type ProcessEventType =
   | 'review_evidence_chain_reclassified'
   /** A managed inventory critic's sealed block was refused at import (next then runs a fresh critic naming this reason). */
   | 'inventory_critic_import_refused'
+  /** A managed review receipt's import was refused before any evidence persisted, for a reason no retry changes (next relaunches the lane/critic). */
+  | 'managed_review_import_refused'
   /** Critic rows for findings outside the wave's verified set, dropped (not refused) at managed import. */
   | 'inventory_critic_disposition_dropped'
   | 'dirty_gate_audit'

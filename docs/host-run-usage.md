@@ -516,6 +516,31 @@ lane/ReviewRun/provenance. Both import time and the REVIEW gate revalidate the
 same shared Proof Admissibility contract. Raw CLI stdout,
 usage rows and time-window correlations cannot satisfy this evidence class.
 
+The candidate route a managed reviewer is launched against
+(`candidate-spec-set.json` `artifactDigest` and `corpusDigest`) is sealed in its
+run spec as `reviewBinding.candidateRouting`. Those digests are controller-owned:
+the worker writes the proposal's `readManifest.candidateSpecSetDigest` /
+`corpusDigest` from the sealed values, not from the provider's copy, and journals
+a difference as run event `read_manifest_routing_sealed` (provider and sealed
+values), as it already does for the full-scan reason. A/B V3 R2A-r2 (de80753)
+lost a round to a critic that read the right digest and wrote a mistyped one.
+The import still compares the sealed launch digest with the current artifact, so
+a route that changed after launch refuses
+(`candidate routing evidence rejected: candidateSpecSetDigest does not match
+current artifact`). Such a refusal, and any other import refusal of a receipt
+that no retry can change, is recorded once as process event
+`managed_review_import_refused`; `next` never proposes that import again and
+relaunches the lane or critic instead (docs/CLI.md, `next` decision table).
+
+Later-candidate (round 2+) code-review lanes start a fresh Codex thread by
+default (`review.round2Lanes=fresh`, adopted from the detection A/B V3 arm: the
+post-repair seed was found 4/4 against 3/4 with resumed lanes, and round-2 lane
+input tokens fell 56% because a resumed lane re-sends its 400–500 KB earlier
+context on every request). The re-review prompt says it is a fresh session and
+focuses it on the earlier findings and the repair diff. `review.round2Lanes=resume`
+in `proof-or-stop.config.json` is the rollback: the lane resumes its newest
+earlier-candidate thread (`codex exec resume`) and is told to build on it.
+
 For a managed Claude reviewer, the worker materializes the authoritative prompt
 as a mode-`0600` one-shot file below the provider's exact working directory at
 `.proof-or-stop/runtime/host-run-prompts/`; Claude's workspace sandbox can therefore

@@ -1,15 +1,20 @@
 /**
- * Detection A/B variant switches (EXPERIMENTAL, A/B measurement only).
+ * Detection A/B variant switches.
  *
- * Every switch defaults OFF: with no key in proof-or-stop.config.json the
- * resolved value is the production value and no code path changes. A switch
+ * With no key in proof-or-stop.config.json every switch resolves to the
+ * production value (the first value listed in AB_VARIANT_FLAGS). Experimental
+ * switches default OFF, so no code path changes. One switch was adopted:
+ * review.round2Lanes defaults to 'fresh' since the detection A/B V3 arm
+ * (bench-staging/oldpos/ab/results-r2.md: post-repair seeds 4/4 vs 3/4 for
+ * resumed lanes, R2 lane input tokens -56%); 'resume' is kept as the rollback
+ * to the earlier behavior and is recorded as a non-default switch. A switch
  * that changes what a gate accepts must (a) be honoured only while the switch
  * is set in the config the gate reads, and (b) record `abVariantEvidence()` in
  * the evidence it writes, so a run's arm is auditable after the fact.
  *
  *   review.criticOnCleanRound  'run' (default) | 'skip'
  *   review.round2Scope         'full' (default) | 'repaired-files'
- *   review.round2Lanes         'resume' (default) | 'fresh'
+ *   review.round2Lanes         'fresh' (default, adopted) | 'resume' (rollback)
  *   remediation.grouping       'per-finding' (default) | 'single'
  *   implementation.grouping    'per-item' (default) | 'files'
  *
@@ -22,7 +27,7 @@ export const AB_VARIANT_EVIDENCE_SCHEMA = 'proof-or-stop.ab-variants.v1' as cons
 export const AB_VARIANT_FLAGS = {
   'review.criticOnCleanRound': ['run', 'skip'],
   'review.round2Scope': ['full', 'repaired-files'],
-  'review.round2Lanes': ['resume', 'fresh'],
+  'review.round2Lanes': ['fresh', 'resume'],
   'remediation.grouping': ['per-finding', 'single'],
   'implementation.grouping': ['per-item', 'files'],
 } as const;
@@ -46,7 +51,7 @@ export interface AbVariants {
 
 export interface AbVariantEvidence {
   schema: typeof AB_VARIANT_EVIDENCE_SCHEMA;
-  /** Only the switches that are ON (non-default), dotted name -> value. */
+  /** Only the switches that are not at their production value, dotted name -> value. */
   flags: Partial<Record<AbVariantFlag, string>>;
 }
 
@@ -76,12 +81,12 @@ export function resolveAbVariants(config: unknown): AbVariants {
   };
 }
 
-/** Evidence record of the ON switches, or undefined when every switch is off. */
+/** Evidence record of the non-default switches, or undefined when every switch has its production value. */
 export function abVariantEvidence(variants: AbVariants): AbVariantEvidence | undefined {
   const flags: Partial<Record<AbVariantFlag, string>> = {};
   if (variants.criticOnCleanRound !== 'run') flags['review.criticOnCleanRound'] = variants.criticOnCleanRound;
   if (variants.round2Scope !== 'full') flags['review.round2Scope'] = variants.round2Scope;
-  if (variants.round2Lanes !== 'resume') flags['review.round2Lanes'] = variants.round2Lanes;
+  if (variants.round2Lanes !== 'fresh') flags['review.round2Lanes'] = variants.round2Lanes;
   if (variants.remediationGrouping !== 'per-finding') flags['remediation.grouping'] = variants.remediationGrouping;
   if (variants.implementationGrouping !== 'per-item') flags['implementation.grouping'] = variants.implementationGrouping;
   return Object.keys(flags).length ? { schema: AB_VARIANT_EVIDENCE_SCHEMA, flags } : undefined;
