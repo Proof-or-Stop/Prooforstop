@@ -38,6 +38,8 @@ import type { ChecklistData, ChecklistItem, StoryInfo } from '../core/types.js';
 import { writeStoryRequest } from '../core/story-request.js';
 import { createMainRegistry } from '../registry.js';
 import { createNextDriver, type NextStep } from '../handlers/next-driver.js';
+import { createReferenceNextDriver } from './helpers/next-driver-reference.js';
+import { isDeepStrictEqual } from 'node:util';
 import { createScopeCheckHandlers } from '../handlers/scope-check.js';
 import { createStoryReviewHandlers } from '../handlers/story-review.js';
 import { createStoryCreateHandlers } from '../handlers/story-create.js';
@@ -143,7 +145,12 @@ function setup() {
   } as never);
   const ctx = { store, root, scanRoot: root };
   const registry = createMainRegistry(ctx);
-  const next = () => createNextDriver(ctx, (name: string) => registry.get(name)).decide(storyId) as NextStep;
+  const next = () => {
+    const live = createNextDriver(ctx, (name: string) => registry.get(name)).decide(storyId) as NextStep;
+    const reference = createReferenceNextDriver(ctx as never, (name: string) => registry.get(name)).decide(storyId);
+    check(isDeepStrictEqual(live, reference), `golden: the frozen reference driver returns the same PLAN step (${live.reason})`, JSON.stringify({ live, reference }));
+    return live;
+  };
   const signScope = (gap: boolean) => createScopeCheckHandlers(ctx).scope_check_save({
     storyId,
     features: [
