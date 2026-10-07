@@ -3,11 +3,14 @@
  *
  * With no key in proof-or-stop.config.json every switch resolves to the
  * production value (the first value listed in AB_VARIANT_FLAGS). Experimental
- * switches default OFF, so no code path changes. One switch was adopted:
+ * switches default OFF, so no code path changes. Two switches were adopted:
  * review.round2Lanes defaults to 'fresh' since the detection A/B V3 arm
  * (bench-staging/oldpos/ab/results-r2.md: post-repair seeds 4/4 vs 3/4 for
- * resumed lanes, R2 lane input tokens -56%); 'resume' is kept as the rollback
- * to the earlier behavior and is recorded as a non-default switch. A switch
+ * resumed lanes, R2 lane input tokens -56%); remediation.grouping defaults to
+ * 'single' since the V4 arm (same file: remediation wall -48%, tokens -70%,
+ * every finding fixed on the final tree with its own commit and resolve,
+ * round-2 detection 3/4 vs 3/4). 'resume' / 'per-finding' are kept as the
+ * rollbacks to the earlier behavior and are recorded as non-default switches. A switch
  * that changes what a gate accepts must (a) be honoured only while the switch
  * is set in the config the gate reads, and (b) record `abVariantEvidence()` in
  * the evidence it writes, so a run's arm is auditable after the fact.
@@ -15,11 +18,11 @@
  *   review.criticOnCleanRound  'run' (default) | 'skip'
  *   review.round2Scope         'full' (default) | 'repaired-files'
  *   review.round2Lanes         'fresh' (default, adopted) | 'resume' (rollback)
- *   remediation.grouping       'per-finding' (default) | 'single'
+ *   remediation.grouping       'single' (default, adopted) | 'per-finding' (rollback)
  *   implementation.grouping    'per-item' (default) | 'files'
  *
  * A malformed value fails closed where it is consumed (never silently treated
- * as either arm). See docs/CLI.md "Experimental A/B variant switches".
+ * as either arm). See docs/CLI.md "Detection A/B variant switches".
  */
 
 export const AB_VARIANT_EVIDENCE_SCHEMA = 'proof-or-stop.ab-variants.v1' as const;
@@ -28,7 +31,7 @@ export const AB_VARIANT_FLAGS = {
   'review.criticOnCleanRound': ['run', 'skip'],
   'review.round2Scope': ['full', 'repaired-files'],
   'review.round2Lanes': ['fresh', 'resume'],
-  'remediation.grouping': ['per-finding', 'single'],
+  'remediation.grouping': ['single', 'per-finding'],
   'implementation.grouping': ['per-item', 'files'],
 } as const;
 
@@ -87,7 +90,7 @@ export function abVariantEvidence(variants: AbVariants): AbVariantEvidence | und
   if (variants.criticOnCleanRound !== 'run') flags['review.criticOnCleanRound'] = variants.criticOnCleanRound;
   if (variants.round2Scope !== 'full') flags['review.round2Scope'] = variants.round2Scope;
   if (variants.round2Lanes !== 'fresh') flags['review.round2Lanes'] = variants.round2Lanes;
-  if (variants.remediationGrouping !== 'per-finding') flags['remediation.grouping'] = variants.remediationGrouping;
+  if (variants.remediationGrouping !== 'single') flags['remediation.grouping'] = variants.remediationGrouping;
   if (variants.implementationGrouping !== 'per-item') flags['implementation.grouping'] = variants.implementationGrouping;
   return Object.keys(flags).length ? { schema: AB_VARIANT_EVIDENCE_SCHEMA, flags } : undefined;
 }

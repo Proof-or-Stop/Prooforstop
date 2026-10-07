@@ -92,7 +92,7 @@ export interface HostRunCommandArgs extends FormatArgs {
   storyId?: string;
   itemId?: string;
   findingId?: string;
-  /** EXPERIMENTAL A/B remediation.grouping=single: all findings of one grouped repair (findingId first). */
+  /** remediation.grouping=single (adopted default; `per-finding` = rollback): all findings of one grouped repair (findingId first). */
   groupFindingIds?: string[];
   /** EXPERIMENTAL A/B implementation.grouping=files: all items of one grouped implementer run (itemId first). */
   groupItemIds?: string[];
@@ -488,7 +488,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         candidateRouting?: { candidateSpecSetDigest: string; corpusDigest: string };
       } | null = null;
       let managedDispatch = false;
-      let groupedTarget: { groupFindingIds?: string[]; groupItemIds?: string[]; abVariant: AbVariantEvidence } | null = null;
+      let groupedTarget: { groupFindingIds?: string[]; groupItemIds?: string[]; abVariant?: AbVariantEvidence } | null = null;
       if (args.managedReview === true && args.managedDispatch === true) {
         throw new Error('host_run: --managedReview and --managedDispatch are mutually exclusive');
       }
@@ -625,7 +625,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           ...(itemId ? { itemId } : {}),
           ...(findingId ? { findingId } : {}),
         }).prompt;
-        // EXPERIMENTAL A/B grouped dispatch (core/ab-dispatch-grouping.ts); accepted only under its switch.
+        // Grouped dispatch (core/ab-dispatch-grouping.ts): finding groups unless the per-finding rollback is set; item groups only under their experimental switch.
         const grouped = resolveGroupedManagedDispatch(ctx, { storyId, agentType, itemId, findingId, groupFindingIds: args.groupFindingIds, groupItemIds: args.groupItemIds });
         if (grouped) {
           promptText += `\n${grouped.section.join('\n')}`;
@@ -694,7 +694,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           ...(managedDispatch && agentType === 'proof-or-stop-implementer' && itemId
             ? { managedDispatchTarget: groupedTarget ? { itemId, groupItemIds: groupedTarget.groupItemIds!, abVariant: groupedTarget.abVariant } : { itemId } }
             : managedDispatch && agentType === 'proof-or-stop-finding-repair' && findingId
-              ? { managedDispatchTarget: groupedTarget ? { findingId, groupFindingIds: groupedTarget.groupFindingIds!, abVariant: groupedTarget.abVariant } : { findingId } }
+              ? { managedDispatchTarget: groupedTarget ? { findingId, groupFindingIds: groupedTarget.groupFindingIds!, ...(groupedTarget.abVariant ? { abVariant: groupedTarget.abVariant } : {}) } : { findingId } }
             : {}),
           agentType,
           phase,
@@ -1103,14 +1103,17 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
 }
 
 /**
- * EXPERIMENTAL A/B grouped managed dispatch. Absent group arguments: null (the
- * production single-target launch). Present: refused unless the matching switch
- * is set (remediation.grouping=single / implementation.grouping=files), the
- * group starts with the bound target, and every member is a current open target.
+ * Grouped managed dispatch. Absent group arguments: null (the single-target
+ * launch). Present: refused unless the matching switch resolves to the grouped
+ * arm (remediation.grouping=single, the adopted default unless the config sets
+ * the `per-finding` rollback; implementation.grouping=files, EXPERIMENTAL and
+ * set explicitly), the group starts with the bound target, and every member is
+ * a current open target. The target records the A/B evidence only when some
+ * switch is off its production value (always for the experimental item group).
  */
 export function resolveGroupedManagedDispatch(ctx: HandlerContext, args: {
   storyId: string; agentType: string; itemId: string | null; findingId: string | null; groupFindingIds?: unknown; groupItemIds?: unknown;
-}): { section: string[]; target: { groupFindingIds?: string[]; groupItemIds?: string[]; abVariant: AbVariantEvidence } } | null {
+}): { section: string[]; target: { groupFindingIds?: string[]; groupItemIds?: string[]; abVariant?: AbVariantEvidence } } | null {
   const list = (value: unknown, name: string): string[] | null => {
     if (value === undefined || value === null) return null;
     const raw = typeof value === 'string' ? value.split(',') : value;
@@ -1125,14 +1128,14 @@ export function resolveGroupedManagedDispatch(ctx: HandlerContext, args: {
   const evidence = abVariantEvidence(variants);
   if (findingGroup) {
     if (itemGroup || args.agentType !== 'proof-or-stop-finding-repair' || !args.findingId) throw new Error('host_run: --groupFindingIds is valid only for a managed proof-or-stop-finding-repair with findingId');
-    if (variants.remediationGrouping !== 'single' || !evidence) throw new Error('host_run: --groupFindingIds requires the experimental A/B switch remediation.grouping="single" in proof-or-stop.config.json');
+    if (variants.remediationGrouping !== 'single') throw new Error('host_run: --groupFindingIds is refused under the rollback remediation.grouping="per-finding" in proof-or-stop.config.json; launch one repair per finding');
     const findings = ctx.store.readFindings(args.storyId).findings;
     const resolved = findingGroup.map(id => findings.find(row => row.id === id || row.id === `${args.storyId}:${shortFindingId(args.storyId, id)}`));
     if (resolved.some(row => !row || row.status !== 'open')) throw new Error('host_run: every --groupFindingIds member must be an open finding of this Story');
     const ids = [...new Set(resolved.map(row => row!.id))];
     if (ids[0] !== args.findingId || ids.length < 2) throw new Error('host_run: --groupFindingIds must list findingId first and at least one other finding');
     return { section: renderGroupedFindingRepairSection(args.storyId, args.findingId, ids.map(id => findings.find(row => row.id === id)!)),
-      target: { groupFindingIds: ids, abVariant: evidence } };
+      target: { groupFindingIds: ids, ...(evidence ? { abVariant: evidence } : {}) } };
   }
   if (args.agentType !== 'proof-or-stop-implementer' || !args.itemId) throw new Error('host_run: --groupItemIds is valid only for a managed proof-or-stop-implementer with itemId');
   if (variants.implementationGrouping !== 'files' || !evidence) throw new Error('host_run: --groupItemIds requires the experimental A/B switch implementation.grouping="files" in proof-or-stop.config.json');

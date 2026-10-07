@@ -63,10 +63,21 @@
  * relaunch a framework step; any other earlier run stays the agent's call.
  *
  * Not mirrored (ab-variant-switches, 2026-10-06): the EXPERIMENTAL detection
- * A/B switches (core/ab-variants.ts; review.criticOnCleanRound,
- * remediation.grouping, implementation.grouping change `next`). This copy is
- * the production arm only; with every switch off (the default) the live
- * driver must equal it, which next-driver-cost-smoke checks.
+ * A/B switches (core/ab-variants.ts; review.criticOnCleanRound and
+ * implementation.grouping change `next`). This copy is the production arm
+ * only; with every switch at its default the live driver must equal it, which
+ * next-driver-cost-smoke checks.
+ *
+ * Deliberate change (adopt-grouped-remediation, detection A/B V4,
+ * bench-staging/oldpos/ab/results-r2.md: remediation wall -48%, tokens -70%,
+ * every finding fixed with its own commit and resolve, round-2 detection
+ * unchanged): remediation.grouping=single is now the production default, so
+ * this copy mirrors it. A DEV finding with no bound repair, while other open
+ * blocking findings also have none, is repaired by ONE grouped finding_repair
+ * (groupedFindingRepairIds / groupedFindingRepairStep, shared with the live
+ * driver; the `per-finding` rollback returns no group). Each member still
+ * needs a commit in the run's window naming its id (managedFindingRepairState)
+ * before finding_resolve; a member without one gets its own single repair.
  *
  * Deliberate change (dup-routing-coverage, run 17 Q1): a critic `duplicate`
  * finding waits while its canonical finding is open (nextBlockingFinding);
@@ -111,7 +122,8 @@ import { checklistHasFileDeclarations } from '../../handlers/phase-gates.js';
 import { collectReviewerEvidenceState, verifyCurrentReviewerDispatchBinding } from '../../core/review-run.js';
 import { managedHostRunsRoot, readManagedHostRunProjection, managedHostRunReceipt, isAutoReplaceableManagedLaunchFailure } from '../../core/managed-host-run.js';
 import { managedFindingRepairState, hintedStep, evidenceChainStep, evidenceChainAdvisory, step as sharedStep, managedLaunchStep, boundManagedSelection,
-  runsForTarget, targetRelaunchIsFramework, testAuthoringStep, planAuthoringStep, preScopeAuthoringStep, nextBlockingFinding, duplicateFindingResolveStep, type NextStep } from '../../handlers/next-driver.js';
+  runsForTarget, targetRelaunchIsFramework, testAuthoringStep, planAuthoringStep, preScopeAuthoringStep, nextBlockingFinding, duplicateFindingResolveStep,
+  groupedFindingRepairIds, groupedFindingRepairStep, type NextStep } from '../../handlers/next-driver.js';
 import { duplicateCoverageReceipts, duplicateResolveCandidate } from '../../core/duplicate-finding-coverage.js';
 import { singleHostAssuranceReady } from '../../handlers/quorum-submit.js';
 import { hasPersistedManagedReceiptEvidence, refusedManagedReviewImport } from '../../handlers/managed-review-evidence.js';
@@ -340,6 +352,10 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
         if (duplicate) return duplicateFindingResolveStep(base, finding, duplicate.canonical, duplicate.familyKey);
         const failedCoverage = duplicateCoverageReceipts(ctx.store, storyId, finding.id).filter(row => !row.passed).at(-1);
         const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
+        // adopt-grouped-remediation: one grouped run for every open blocking finding no repair is bound to yet.
+        const group = groupedFindingRepairIds({ root: ctx.root, store: ctx.store, gitCwd: gitCwdOf(storyId), storyId, primary: finding,
+          primaryBound: repair.bound, findings: findings.map(row => row.finding), runs: hostRuns });
+        if (group.length > 1) return groupedFindingRepairStep(ctx.root, base, group, selection, bound, hostRuns);
         return managedLaunchStep(base, 'finding_repair', { ...selection, storyId, findingId: finding.id,
           agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true }, bound && targetRelaunchIsFramework(runsForTarget(ctx.root, hostRuns, FINDING_REPAIR_AGENT, { findingId: finding.id })),
         `Verified ${finding.severity} finding ${finding.id} is open and not yet repaired (${repair.detail}${failedCoverage ? `; its duplicate coverage run \`${failedCoverage.command}\` did not pass, so ${failedCoverage.canonicalFindingId}'s repair is not shown to fix it` : ''}): repair it in code and commit (managed finding-repair shown).`,
