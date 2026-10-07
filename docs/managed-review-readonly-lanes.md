@@ -164,6 +164,12 @@ The last write is what the terminal seals. Run 14: the reviewer's payload with
 and moved HEAD, and the real seal failed (4.1 min, 1.8M tokens). Null optional
 fields are now absent (`realMachineTests[].waiverReason`, and the docsPromise
 optional fields as before).
+A refused `delivery_check_set` is journaled on the run (`managed_dispatch_save_refused`).
+The delivery reviewer keeps its Codex session (no `--ephemeral`); a run whose
+delivery-check is still not bound to it at provider exit is resumed in that
+session, at most twice, with the exact refusal and a request to re-run the save
+only, before it can end `managed_dispatch_output_missing` (old-PoS run 20, same
+mechanism as the PLAN scope reviewer; host-run-usage.md).
 The worker rejects missing, invalid or unconsumed output and seals its exact
 bytes only on safe completion. DONE checks that completed receipt and output
 digest as well as normal delivery freshness and promise checks. Neither a raw
