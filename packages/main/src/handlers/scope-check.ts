@@ -223,9 +223,19 @@ export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (.
       // Validate the complete reviewer payload before consuming its one-shot
       // managed invocation. A provider may correct a rejected tool call within
       // the same run; only a payload that is ready to persist earns delivery.
+      // Old-PoS run 20: (1) a second save of the same live run was refused as
+      // "already consumed", and (2) the reviewer then saved under
+      // `env -u LATTICE_MANAGED_INIT_INVOCATION`, which wrote an unbound
+      // scope-check over its bound one, so the run ended output_missing.
+      // A save of the live run re-binds (reseal), and a scope reviewer save
+      // without the invocation while its managed run is live must bind through
+      // the run's process group or be refused; it never writes unbound output.
       const managedDeliveryRunId = managedInvocation
-        ? resolveManagedDispatchInvocation({ root, storyId: args.storyId, agentType: managedActor! })
-        : undefined;
+        ? resolveManagedDispatchInvocation({ root, storyId: args.storyId, agentType: managedActor!, reseal: true, command: 'scope_check_save' })
+        : managedActor === 'proof-or-stop-review-scope-plan'
+          ? resolveManagedDispatchInvocation({ root, storyId: args.storyId, agentType: managedActor, reseal: true,
+            command: 'scope_check_save', optionalWhenAbsent: true })
+          : undefined;
       const _hash = signScopeCheck(args.storyId, timestamp, args.summary.gaps, args.summary.covered, reviewRound, {
         features: args.features,
         summary,
