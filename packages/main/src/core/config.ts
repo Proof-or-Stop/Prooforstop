@@ -341,17 +341,20 @@ export interface ProofOrStopConfig {
   };
   /**
    * Detection A/B switches (core/ab-variants.ts). Absent keys = production.
-   * criticOnCleanRound, round2Scope and the two grouping switches are
-   * EXPERIMENTAL (default off, not for production use). round2Lanes is adopted:
-   * default 'fresh' (later-round review lanes start a new thread); 'resume' is
-   * the rollback to resumed lane threads.
+   * criticOnCleanRound, round2Scope and implementation.grouping are
+   * EXPERIMENTAL (default off, not for production use). Two are adopted:
+   * round2Lanes defaults to 'fresh' (later-round review lanes start a new
+   * thread; 'resume' is the rollback to resumed lane threads), and
+   * remediation.grouping defaults to 'single' (one grouped finding-repair run
+   * per round, each finding still committed and resolved on its own;
+   * 'per-finding' is the rollback to one repair run per finding).
    */
   review?: {
     criticOnCleanRound?: 'run' | 'skip';
     round2Scope?: 'full' | 'repaired-files';
     round2Lanes?: 'fresh' | 'resume';
   };
-  remediation?: { grouping?: 'per-finding' | 'single' };
+  remediation?: { grouping?: 'single' | 'per-finding' };
   implementation?: { grouping?: 'per-item' | 'files' };
   /** Runtime memory health diagnostics; advisory only, never gate evidence. */
   runtimeMemory?: {

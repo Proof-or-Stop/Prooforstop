@@ -1,10 +1,13 @@
 /**
- * EXPERIMENTAL A/B variants V4/V5 — grouped DEV dispatches (core/ab-variants.ts).
+ * Grouped DEV dispatches (core/ab-variants.ts): V4 adopted, V5 EXPERIMENTAL.
  *
- * V4 `remediation.grouping: "single"`: one managed finding-repair run covers
+ * V4 `remediation.grouping: "single"` (production default since the detection
+ *   A/B V4 arm, bench-staging/oldpos/ab/results-r2.md; "per-finding" is the
+ *   rollback): one managed finding-repair run covers
  *   every open blocking finding that no repair is bound to yet. The run binds
  *   its primary finding (managedDispatchTarget.findingId) plus
- *   `groupFindingIds` and the A/B evidence. A finding counts as repaired by
+ *   `groupFindingIds` (and the A/B evidence when another switch is not at its
+ *   production value). A finding counts as repaired by
  *   that run only when a material commit made inside the run's window names
  *   the finding id in its message (one commit per finding is required by the
  *   prompt) — otherwise next dispatches that finding's own repair. Each finding
@@ -16,8 +19,10 @@
  *   member is marked done by the owner afterwards, and only after a material
  *   commit inside the run's window touched one of that item's declared files.
  *
- * Both are honoured only while the switch is set in the project config
- * (malformed config fails closed to production behavior).
+ * V4 is honoured unless the config sets the rollback; a malformed config
+ * falls back to the per-finding path, because host_run refuses a grouped
+ * launch it cannot resolve the switch for. V5 is honoured only while its
+ * switch is set (malformed config fails closed to production behavior).
  */
 import { resolveAbVariants } from './ab-variants.js';
 import { loadConfig } from './config.js';
@@ -27,6 +32,7 @@ function variantsOrNull(root: string) {
   try { return resolveAbVariants(loadConfig(root)); } catch { return null; }
 }
 
+/** Adopted default: true unless the config sets the `per-finding` rollback (or is malformed). */
 export function remediationGroupingSingle(root: string): boolean {
   return variantsOrNull(root)?.remediationGrouping === 'single';
 }
@@ -61,7 +67,7 @@ export function renderGroupedFindingRepairSection(storyId: string, primaryId: st
   const others = findings.filter(finding => finding.id !== primaryId);
   return [
     '',
-    '--- BEGIN GROUPED FINDING REPAIR (A/B remediation.grouping=single, experimental) ---',
+    '--- BEGIN GROUPED FINDING REPAIR (remediation.grouping=single) ---',
     `This one run repairs ALL ${findings.length} open blocking findings below, not only ${shortFindingId(storyId, primaryId)}.`,
     'For EACH finding: add its own failing regression test (or tests) first, then fix it, then make ONE commit for that finding whose message starts with',
     `"${storyId} <F-id>: resolve finding" (for example "${storyId} ${shortFindingId(storyId, primaryId)}: resolve finding"). A finding with no commit naming its id`,

@@ -464,8 +464,10 @@ export function managedFindingRepairState(args: {
   root: string; gitCwd: string; storyId: string; finding: { id: string; createdAt?: string }; runs: readonly FindingRepairRunView[];
 }): FindingRepairState {
   const { root, gitCwd, storyId, finding } = args;
-  // EXPERIMENTAL A/B remediation.grouping=single: a grouped run also binds the
-  // other members of its groupFindingIds (core/ab-dispatch-grouping.ts).
+  // remediation.grouping=single (adopted default; off under the per-finding
+  // rollback): a grouped run also binds the other members of its
+  // groupFindingIds (core/ab-dispatch-grouping.ts). Every member, the bound one
+  // included, counts as repaired only by a commit in the run's window naming it.
   const grouping = args.runs.some(run => run.agentType === FINDING_REPAIR_AGENT) && remediationGroupingSingle(root);
   const groupOf = new Map<string, { primary: string; members: string[] }>();
   const bound = args.runs.filter(run => run.agentType === FINDING_REPAIR_AGENT && (!finding.createdAt || run.createdAt >= finding.createdAt))
@@ -511,7 +513,7 @@ export function managedFindingRepairState(args: {
 }
 
 /**
- * EXPERIMENTAL A/B remediation.grouping=single: the commit by which a grouped
+ * remediation.grouping=single (adopted default): the commit by which a grouped
  * finding-repair run demonstrably repaired `findingId` — a material commit made
  * inside the run's window whose message names the finding id — or null.
  */
@@ -568,6 +570,36 @@ export function groupedImplementationRun(args: { root: string; gitCwd: string; s
 
 function isBoundRepairState(state: FindingRepairState): boolean {
   return state.repaired || state.bound;
+}
+
+/**
+ * remediation.grouping=single (adopted default since the detection A/B V4 arm;
+ * the `per-finding` rollback returns []): the group one finding-repair run
+ * covers when `primary` has no bound repair yet — the primary finding plus
+ * every other open blocking finding with no bound repair run that is not a
+ * critic duplicate (duplicates keep their coverage path). Fewer than two
+ * members: [] (the single-target repair). Only open BLOCKING findings are
+ * grouped; an advisory (low / suspected) finding the owner chooses to repair
+ * keeps its own bound run. A member the grouped run leaves without a commit
+ * naming it is bound but not repaired, so it gets its own single repair.
+ * Shared by the live and the reference driver.
+ */
+export function groupedFindingRepairIds(args: { root: string; store: HandlerContext['store']; gitCwd: string; storyId: string;
+  primary: { id: string }; primaryBound: boolean; findings: ReadonlyArray<{ id: string; createdAt?: string }>; runs: readonly FindingRepairRunView[] }): string[] {
+  if (args.primaryBound || args.findings.length < 2 || !remediationGroupingSingle(args.root)) return [];
+  const others = args.findings.filter(row => row.id !== args.primary.id
+    && !criticDuplicateOf(args.store, args.storyId, row.id)
+    && !isBoundRepairState(managedFindingRepairState({ root: args.root, gitCwd: args.gitCwd, storyId: args.storyId, finding: row, runs: args.runs })));
+  return others.length ? [args.primary.id, ...others.map(row => row.id)] : [];
+}
+
+/** The grouped finding-repair launch (remediation.grouping=single), shared by the live and the reference driver. */
+export function groupedFindingRepairStep(root: string, base: { storyId: string; phase: string }, group: readonly string[],
+  selection: Record<string, string>, bound: boolean, hostRuns: HostRunView[]): NextStep {
+  return managedLaunchStep(base, 'finding_repair', { ...selection, storyId: base.storyId, findingId: group[0], groupFindingIds: [...group],
+    agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true }, bound && targetRelaunchIsFramework(runsForTarget(root, hostRuns, FINDING_REPAIR_AGENT, { findingId: group[0] })),
+  `Verified blocking findings ${group.join(', ')} are open and not yet repaired: repair them in ONE managed finding-repair run (remediation.grouping=single), one regression test and one commit naming its id per finding; each is then resolved separately, and a finding with no commit naming it gets its own repair.`,
+  'unclosedBlockingFindings (core/finding-closure.ts) + managedFindingRepairState + groupedFindingRepairIds (remediation.grouping=single)');
 }
 
 /** The TEST authoring commands for the failing DONE oracle rows, in the order DONE checks them. */
@@ -936,19 +968,6 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     return null;
   }
 
-  /**
-   * EXPERIMENTAL A/B remediation.grouping=single: the primary finding plus every
-   * other open blocking finding with no bound repair run that is not a critic
-   * duplicate (duplicates keep their coverage path).
-   */
-  function groupedRepairFindingIds(storyId: string, primaryId: string, findings: ReadonlyArray<{ id: string; createdAt?: string }>, hostRuns: HostRunView[]): string[] {
-    const gitCwd = gitCwdOf(storyId);
-    const others = findings.filter(row => row.id !== primaryId
-      && !criticDuplicateOf(ctx.store, storyId, row.id)
-      && !isBoundRepairState(managedFindingRepairState({ root: ctx.root, gitCwd, storyId, finding: row, runs: hostRuns })));
-    return [primaryId, ...others.map(row => row.id)];
-  }
-
   function devNext(base: { storyId: string; phase: string }): NextStep {
     const { storyId } = base;
     const checklist = ctx.store.readChecklist(storyId);
@@ -1010,15 +1029,10 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
         if (duplicate) return duplicateFindingResolveStep(base, finding, duplicate.canonical, duplicate.familyKey);
         const failedCoverage = duplicateCoverageReceipts(ctx.store, storyId, finding.id).filter(row => !row.passed).at(-1);
         const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
-        // EXPERIMENTAL A/B remediation.grouping=single: one run for every open blocking finding no repair is bound to yet.
-        const group = !repair.bound && findings.length > 1 && remediationGroupingSingle(ctx.root)
-          ? groupedRepairFindingIds(storyId, finding.id, findings.map(row => row.finding), hostRuns) : [];
-        if (group.length > 1) {
-          return managedLaunchStep(base, 'finding_repair', { ...selection, storyId, findingId: finding.id, groupFindingIds: group,
-            agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true }, bound && targetRelaunchIsFramework(runsForTarget(ctx.root, hostRuns, FINDING_REPAIR_AGENT, { findingId: finding.id })),
-          `Verified blocking findings ${group.join(', ')} are open and not yet repaired: repair them in ONE managed finding-repair run (A/B remediation.grouping=single), one regression test and one commit naming its id per finding; each is then resolved separately.`,
-          'unclosedBlockingFindings (core/finding-closure.ts) + managedFindingRepairState + A/B remediation.grouping=single');
-        }
+        // remediation.grouping=single (adopted default): one run for every open blocking finding no repair is bound to yet.
+        const group = groupedFindingRepairIds({ root: ctx.root, store: ctx.store, gitCwd: gitCwdOf(storyId), storyId, primary: finding,
+          primaryBound: repair.bound, findings: findings.map(row => row.finding), runs: hostRuns });
+        if (group.length > 1) return groupedFindingRepairStep(ctx.root, base, group, selection, bound, hostRuns);
         return managedLaunchStep(base, 'finding_repair', { ...selection, storyId, findingId: finding.id,
           agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true }, bound && targetRelaunchIsFramework(runsForTarget(ctx.root, hostRuns, FINDING_REPAIR_AGENT, { findingId: finding.id })),
         `Verified ${finding.severity} finding ${finding.id} is open and not yet repaired (${repair.detail}${failedCoverage ? `; its duplicate coverage run \`${failedCoverage.command}\` did not pass, so ${failedCoverage.canonicalFindingId}'s repair is not shown to fix it` : ''}): repair it in code and commit (managed finding-repair shown).`,

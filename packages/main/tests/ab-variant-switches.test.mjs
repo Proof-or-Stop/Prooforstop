@@ -1,7 +1,9 @@
 /**
  * Detection A/B switches (core/ab-variants.ts). Flag absent = production:
  * experimental switches default OFF (the old behavior); review.round2Lanes was
- * adopted and defaults to `fresh`, `resume` is its rollback.
+ * adopted and defaults to `fresh`, `resume` is its rollback;
+ * remediation.grouping was adopted and defaults to `single`, `per-finding` is
+ * its rollback.
  * For each experimental switch: flag absent = the old (production) behavior;
  * flag set = the variant. The end-to-end arms (each reaching DONE through `next`) live in
  * tasks/e2e-review-to-done-smoke.ts (AB / ND-V1..NF-V5).
@@ -9,7 +11,7 @@
  *   V1 review.criticOnCleanRound=skip   cleanRoundCriticSkip / criticSkipReplayError
  *   V2 review.round2Scope=repaired-files repairedFilesReviewScope (changed files + direct callers)
  *   V3 review.round2Lanes (default fresh) reviewerRound2LanesFresh (no reviewer thread resume; resume = rollback)
- *   V4 remediation.grouping=single       host_run grouped finding repair accepted only under the flag
+ *   V4 remediation.grouping (default single) host_run grouped finding repair accepted unless the per-finding rollback is set
  *   V5 implementation.grouping=files     host_run grouped implementer accepted only under the flag
  */
 import assert from 'node:assert/strict';
@@ -38,11 +40,12 @@ const epoch = { epochId: 'E1', storyId: 'B-1', requiredLanes: ['a', 'b'], waves:
 await check('config: absent switches resolve to production values; malformed fails closed; evidence lists only ON switches', async () => {
   const { resolveAbVariants, abVariantEvidence } = await load('core/ab-variants.js');
   const off = resolveAbVariants({});
-  assert.deepEqual(off, { criticOnCleanRound: 'run', round2Scope: 'full', round2Lanes: 'fresh', remediationGrouping: 'per-finding', implementationGrouping: 'per-item' });
+  assert.deepEqual(off, { criticOnCleanRound: 'run', round2Scope: 'full', round2Lanes: 'fresh', remediationGrouping: 'single', implementationGrouping: 'per-item' });
   assert.equal(abVariantEvidence(off), undefined);
   assert.throws(() => resolveAbVariants({ review: { criticOnCleanRound: 'always' } }), /invalid_ab_variant_config: review\.criticOnCleanRound/);
-  const on = resolveAbVariants({ review: { criticOnCleanRound: 'skip' }, remediation: { grouping: 'single' } });
-  assert.deepEqual(abVariantEvidence(on), { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.criticOnCleanRound': 'skip', 'remediation.grouping': 'single' } });
+  const on = resolveAbVariants({ review: { criticOnCleanRound: 'skip' }, remediation: { grouping: 'per-finding' } });
+  assert.deepEqual(abVariantEvidence(on), { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.criticOnCleanRound': 'skip', 'remediation.grouping': 'per-finding' } });
+  assert.equal(abVariantEvidence(resolveAbVariants({ remediation: { grouping: 'single' } })), undefined, 'grouped remediation is production: not recorded');
   assert.equal(abVariantEvidence(resolveAbVariants({ review: { round2Lanes: 'fresh' } })), undefined, 'fresh lanes are production: not recorded');
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ review: { round2Lanes: 'resume' } })), { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.round2Lanes': 'resume' } }, 'the rollback is recorded');
 });
@@ -97,17 +100,25 @@ const findings = [
   { id: 'B-1:F-002', status: 'open', severity: 'medium', category: 'test', desc: 'Upper("") untested' },
 ];
 
-await check('V4 remediation.grouping: off = host_run refuses a grouped repair; single = one run binds every finding + the A/B evidence; commits must name each finding', async () => {
+await check('V4 remediation.grouping (adopted): absent/single = one run binds every finding (no A/B evidence); per-finding rollback = host_run refuses a group; commits must name each finding', async () => {
   const { resolveGroupedManagedDispatch } = await load('handlers/host-run.js');
-  const { commitMessageNamesFinding } = await load('core/ab-dispatch-grouping.js');
+  const { commitMessageNamesFinding, remediationGroupingSingle } = await load('core/ab-dispatch-grouping.js');
+  assert.equal(remediationGroupingSingle(OFF()), true, 'production default: grouped remediation');
+  assert.equal(remediationGroupingSingle(projectWith({ remediation: { grouping: 'single' } })), true);
+  assert.equal(remediationGroupingSingle(projectWith({ remediation: { grouping: 'per-finding' } })), false, 'rollback: one repair per finding');
+  assert.equal(remediationGroupingSingle(projectWith({ remediation: { grouping: 'bogus' } })), false, 'malformed: next proposes no group host_run would refuse');
   const args = { storyId: 'B-1', agentType: 'proof-or-stop-finding-repair', itemId: null, findingId: 'B-1:F-001', groupFindingIds: ['B-1:F-001', 'F-002'] };
-  assert.equal(resolveGroupedManagedDispatch({ root: OFF(), store: findingStore(findings) }, { ...args, groupFindingIds: undefined }), null, 'no group: production single target');
-  assert.throws(() => resolveGroupedManagedDispatch({ root: OFF(), store: findingStore(findings) }, args), /requires the experimental A\/B switch remediation\.grouping="single"/);
-  const on = projectWith({ remediation: { grouping: 'single' } });
-  const grouped = resolveGroupedManagedDispatch({ root: on, store: findingStore(findings) }, args);
-  assert.deepEqual(grouped.target, { groupFindingIds: ['B-1:F-001', 'B-1:F-002'], abVariant: { schema: 'proof-or-stop.ab-variants.v1', flags: { 'remediation.grouping': 'single' } } });
+  assert.equal(resolveGroupedManagedDispatch({ root: OFF(), store: findingStore(findings) }, { ...args, groupFindingIds: undefined }), null, 'no group: single target');
+  const grouped = resolveGroupedManagedDispatch({ root: OFF(), store: findingStore(findings) }, args);
+  assert.deepEqual(grouped.target, { groupFindingIds: ['B-1:F-001', 'B-1:F-002'] }, 'production group carries no A/B evidence');
   assert.match(grouped.section.join('\n'), /F-002 \[severity=medium/);
-  assert.throws(() => resolveGroupedManagedDispatch({ root: on, store: findingStore([findings[0], { ...findings[1], status: 'resolved' }]) }, args), /open finding/);
+  assert.doesNotMatch(grouped.section.join('\n'), /experimental/);
+  const withOther = resolveGroupedManagedDispatch({ root: projectWith({ review: { round2Lanes: 'resume' } }), store: findingStore(findings) }, args);
+  assert.deepEqual(withOther.target.abVariant, { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.round2Lanes': 'resume' } }, 'another non-default switch is still recorded on the run');
+  const rollback = projectWith({ remediation: { grouping: 'per-finding' } });
+  assert.throws(() => resolveGroupedManagedDispatch({ root: rollback, store: findingStore(findings) }, args), /refused under the rollback remediation\.grouping="per-finding"/);
+  assert.throws(() => resolveGroupedManagedDispatch({ root: projectWith({ remediation: { grouping: 'bogus' } }), store: findingStore(findings) }, args), /invalid_ab_variant_config: remediation\.grouping/);
+  assert.throws(() => resolveGroupedManagedDispatch({ root: OFF(), store: findingStore([findings[0], { ...findings[1], status: 'resolved' }]) }, args), /open finding/);
   assert.ok(commitMessageNamesFinding('B-1 F-002: resolve finding', 'B-1', 'B-1:F-002'));
   assert.ok(!commitMessageNamesFinding('B-1 F-0020: resolve finding', 'B-1', 'B-1:F-002'));
   assert.ok(!commitMessageNamesFinding('B-1 F-001: resolve finding', 'B-1', 'B-1:F-002'));

@@ -3,10 +3,11 @@
  * Cost + golden smoke for `proof-or-stop next --storyId=<id>` (handlers/next-driver.ts).
  *
  * The owner agent calls `next` after every step, so its own cost is on the
- * critical path. This smoke drives scenario ND of e2e-review-to-done-smoke
- * (D's flow from REVIEW entry driven only by `next`: round 1 finding ->
- * inventory critic -> remediation DEV -> finding repair -> round 2 -> PRE_CERT ->
- * TEST rows -> DONE), and at every quiet state (no detached managed run in
+ * critical path. This smoke drives scenario NF of e2e-review-to-done-smoke
+ * (D's flow from REVIEW entry driven only by `next`, with two round-1 findings:
+ * inventory critic -> remediation DEV -> ONE grouped finding repair -> resolve
+ * each finding -> round 2 -> PRE_CERT -> TEST rows -> DONE), and at every quiet
+ * state (no detached managed run in
  * flight) runs one decision in two fresh probe processes on the same fixture:
  *   - `reference`: the frozen pre-optimization driver (helpers/next-driver-reference.ts);
  *   - `new`: the live createNextDriver.
@@ -121,10 +122,16 @@ async function main(): Promise<void> {
   const started = Date.now();
   const o = new Owner('NDC', 'B-e2e9', machine.env, [], false, { trackedGateFailureCounts: true });
   let passed = false;
+  let groupedRepairSeen = false;
   try {
     devSetup(o);
     const lines: string[] = [];
-    driveWithNext(o, { findingRound1: true, run: false }, lines, (next, quiet) => {
+    // Deliberate golden change (adopt-grouped-remediation): the fixture has TWO
+    // round-1 findings (was one, scenario ND) so the golden covers the grouped
+    // finding repair that remediation.grouping=single made the production
+    // default, and the per-finding resolve of each member after it.
+    driveWithNext(o, { findingRound1: true, run: false, twoFindings: true }, lines, (next, quiet) => {
+      if (next.cli?.command === 'host_run' && next.reason === 'finding_repair' && Array.isArray(next.cli.payload.groupFindingIds)) groupedRepairSeen = true;
       if (next.done || !quiet) return;
       const run = (mode: string): ProbeResult => {
         const ran = o.node([SELF, '--probe', mode, o.storyId]);
@@ -163,7 +170,8 @@ async function main(): Promise<void> {
     const sum = (pick: (r: StateRecord) => number) => rows.reduce((total, r) => total + pick(r), 0);
     console.log(`  ${group.padEnd(8)} states=${rows.length} max ${Math.max(...rows.map(r => r.refSpawns))} -> ${Math.max(...rows.map(r => r.newSpawns))} (budget ${SPAWN_BUDGET[group]}), total ${sum(r => r.refSpawns)} -> ${sum(r => r.newSpawns)}, ms ${sum(r => r.refMs)} -> ${sum(r => r.newMs)}`);
   }
-  console.log(`golden: ${records.length} quiet states, live == reference == CLI next --json at every one`);
+  if (!groupedRepairSeen) failures.push('DEV: no grouped finding_repair proposed (fixture no longer covers remediation.grouping=single)');
+  console.log(`golden: ${records.length} quiet states, live == reference == CLI next --json at every one; grouped finding repair covered: ${groupedRepairSeen}`);
   console.log(`next-driver-cost: ${((Date.now() - started) / 1000).toFixed(0)} s wall`);
   if (failures.length) {
     console.log(`next-driver-cost: spawn budget exceeded\n  ${failures.join('\n  ')}`);

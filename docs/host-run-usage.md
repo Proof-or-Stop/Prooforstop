@@ -541,6 +541,21 @@ focuses it on the earlier findings and the repair diff. `review.round2Lanes=resu
 in `proof-or-stop.config.json` is the rollback: the lane resumes its newest
 earlier-candidate thread (`codex exec resume`) and is told to build on it.
 
+Finding repair is grouped by default (`remediation.grouping=single`, adopted from
+the detection A/B V4 arm: remediation wall time −48% and tokens −70% per replay,
+every finding still fixed on the final tree with its own commit, round-2
+detection unchanged). In DEV, `next` proposes ONE managed finding-repair for all
+open blocking findings of the round that have no bound repair yet:
+`host_run '{"storyId":"B-xxxx","findingId":"B-xxxx:F-001","groupFindingIds":["B-xxxx:F-001","B-xxxx:F-002"],"agentType":"proof-or-stop-finding-repair","managedDispatch":true,"detach":true,"json":true}'`.
+The run spec seals `managedDispatchTarget {findingId, groupFindingIds}`. The prompt
+asks, per finding, for its own regression test and one commit whose message
+names the finding id. A finding counts as repaired only by such a commit inside
+the run's window; `next` then proposes its own `finding_resolve`, and a finding
+the run left without one gets its own single-target repair. Critic duplicates
+and advisory (low / suspected) findings are not grouped.
+`remediation.grouping=per-finding` in `proof-or-stop.config.json` is the
+rollback: one repair run per finding, and `host_run` refuses `groupFindingIds`.
+
 For a managed Claude reviewer, the worker materializes the authoritative prompt
 as a mode-`0600` one-shot file below the provider's exact working directory at
 `.proof-or-stop/runtime/host-run-prompts/`; Claude's workspace sandbox can therefore

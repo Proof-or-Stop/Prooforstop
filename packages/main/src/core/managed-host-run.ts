@@ -194,14 +194,21 @@ export type ManagedDispatchTarget =
     /** EXPERIMENTAL A/B implementation.grouping=files (core/ab-dispatch-grouping.ts): every item this run implements, bound item first. */
     groupItemIds?: string[]; abVariant?: import('./ab-variants.js').AbVariantEvidence }
   | { findingId: string; itemId?: never;
-    /** EXPERIMENTAL A/B remediation.grouping=single: every finding this run repairs, bound finding first. */
+    /** remediation.grouping=single (adopted default): every finding this run repairs, bound finding first; abVariant only when a switch is off production. */
     groupFindingIds?: string[]; abVariant?: import('./ab-variants.js').AbVariantEvidence };
 
-function validManagedDispatchGroup(primary: string, group: unknown, abVariant: unknown): boolean {
+/**
+ * A grouped target: at least two distinct ids, the bound one first. The A/B
+ * evidence is required for the experimental item group; a finding group is the
+ * production default (remediation.grouping=single), so its evidence is present
+ * only when some switch is off its production value.
+ */
+function validManagedDispatchGroup(primary: string, group: unknown, abVariant: unknown, variantRequired: boolean): boolean {
   if (group === undefined) return abVariant === undefined;
+  const variantOk = abVariant === undefined ? !variantRequired : Boolean(abVariant) && typeof abVariant === 'object';
   return Array.isArray(group) && group.length >= 2 && group[0] === primary
     && group.every(id => typeof id === 'string' && id.trim().length > 0) && new Set(group).size === group.length
-    && Boolean(abVariant) && typeof abVariant === 'object';
+    && variantOk;
 }
 
 interface ManagedHostRunCancellationTerminal {
@@ -3188,8 +3195,8 @@ export async function submitManagedHostRun(
       && args.managedDispatchTarget.itemId === undefined;
     const target = args.managedDispatchTarget as { itemId?: string; findingId?: string; groupItemIds?: unknown; groupFindingIds?: unknown; abVariant?: unknown };
     const groupValid = itemTarget
-      ? target.groupFindingIds === undefined && validManagedDispatchGroup(target.itemId!, target.groupItemIds, target.abVariant)
-      : target.groupItemIds === undefined && validManagedDispatchGroup(target.findingId ?? '', target.groupFindingIds, target.abVariant);
+      ? target.groupFindingIds === undefined && validManagedDispatchGroup(target.itemId!, target.groupItemIds, target.abVariant, true)
+      : target.groupItemIds === undefined && validManagedDispatchGroup(target.findingId ?? '', target.groupFindingIds, target.abVariant, false);
     if (args.profile !== 'managed_dispatch' || args.phase !== 'DEV' || !args.storyId
       || (!itemTarget && !findingTarget) || !groupValid) {
       throw new Error('managed host run: managed DEV target requires an exact implementer itemId or finding-repair findingId');
@@ -5977,7 +5984,7 @@ export function verifyManagedDispatchDelivery(args: {
   itemId?: string;
   findingId?: string;
   /**
-   * EXPERIMENTAL A/B remediation.grouping=single: verify the grouped run bound
+   * remediation.grouping=single (adopted default): verify the grouped run bound
    * to `findingId` for this other member of its groupFindingIds; the open
    * check then applies to the member (the bound finding may be resolved already).
    */

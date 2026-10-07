@@ -3485,7 +3485,7 @@ Behavior:
     storyId: z.string().optional().describe('Canonical Story id; when set the story index resolves the phase (omit for an adhoc run)'),
     itemId: z.string().optional().describe('Exact checklist item target for proof-or-stop-implementer managedDispatch; omit for story-scoped reviewer dispatches.'),
     findingId: z.string().optional().describe('Exact open Finding target for proof-or-stop-finding-repair managedDispatch.'),
-    groupFindingIds: z.array(z.string()).optional().describe('EXPERIMENTAL A/B (remediation.grouping="single" only): every open finding one grouped finding-repair run covers, findingId first.'),
+    groupFindingIds: z.array(z.string()).optional().describe('Grouped finding repair (remediation.grouping="single", the default; refused under the "per-finding" rollback): every open blocking finding one finding-repair run covers, findingId first. next proposes it.'),
     groupItemIds: z.array(z.string()).optional().describe('EXPERIMENTAL A/B (implementation.grouping="files" only): every open item sharing declared files that one implementer run covers, itemId first.'),
     phase: z.string().optional().describe('Explicit attribution phase; when omitted and storyId is set, resolves from the story index'),
     prompt: z.string().optional().describe('Inline prompt text (mutually exclusive with --promptFile)'),

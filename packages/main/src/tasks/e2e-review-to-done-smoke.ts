@@ -61,11 +61,15 @@
  *   NR the same flows (NA-run, ND-run) with `next --run`, which executes the
  *      consecutive framework steps itself through the real CLI.
  *   NF run 14: D's next-driven flow with TWO verified medium findings in round
- *      1 (Reverse("") and Upper("") untested). After the managed repair of the
- *      first one, the material changes for both; next must still return the
- *      managed finding-repair dispatch for the second one and propose
- *      finding_resolve for a finding only after a managed finding-repair run
- *      bound to that finding id completed (hard assert at every step).
+ *      1 (Reverse("") and Upper("") untested). Since the A/B V4 adoption
+ *      (remediation.grouping=single is the default) next dispatches ONE grouped
+ *      managed finding-repair bound to both; it makes one commit naming each
+ *      finding id, and next proposes finding_resolve for each finding
+ *      separately, only after a managed finding-repair run bound to that
+ *      finding id completed with a commit naming it (hard assert at every step).
+ *   NF2 the same, but the grouped run commits only F-001's repair: F-001 is
+ *      resolved, and F-002 (bound to the group, no commit naming it) falls
+ *      back to its own single managed finding-repair before it is resolved.
  *   NL run 16: D's next-driven flow plus two LOW round-1 findings; the owner
  *      repairs one anyway (managed finding-repair): next must propose its
  *      finding_resolve before REVIEW; the cosmetic one stays open; a
@@ -107,11 +111,13 @@
  *      switch set in the prepared config (V1 review.criticOnCleanRound=skip,
  *      V2 review.round2Scope=repaired-files, V3 review.round2Lanes=resume (the
  *      rollback: fresh later-round lanes are the production default since the
- *      A/B V3 adoption), V4 remediation.grouping=single, V5
+ *      A/B V3 adoption), V4 remediation.grouping=per-finding (the rollback:
+ *      grouped remediation is the production default since the A/B V4
+ *      adoption; NF covers the grouped path), V5
  *      implementation.grouping=files on an unimplemented fixture).
  *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|AB|ND-V1..NF-V5]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|AB|ND-V1..NF-V5]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -1309,8 +1315,13 @@ function repairScript(desc: string): ProviderScript {
     final: `Added ${repair.name}; committed.` };
 }
 
-/** A/B remediation.grouping=single: one run, one regression test and one commit naming its id per finding. */
-function groupedRepairScript(storyId: string, findings: ReadonlyArray<{ id: string; desc: string }>): ProviderScript {
+/**
+ * remediation.grouping=single (the default): one run, one regression test and
+ * one commit naming its id per finding. `firstOnly` (NF2): the run repairs and
+ * commits only the bound finding and leaves the others untouched.
+ */
+function groupedRepairScript(storyId: string, findings: ReadonlyArray<{ id: string; desc: string }>, firstOnly = false): ProviderScript {
+  if (firstOnly) findings = findings.slice(0, 1);
   return { commands: findings.map(finding => {
     const repair = repairFor(finding.desc);
     const short = finding.id.startsWith(`${storyId}:`) ? finding.id.slice(storyId.length + 1) : finding.id;
@@ -1340,14 +1351,16 @@ function implementerScript(storyId: string, itemId: string): ProviderScript {
 function provideScript(root: string, storyId: string, scriptsDir: string, modeJson: string, runId: string): void {
   const mode = JSON.parse(modeJson) as ScriptMode;
   const spec = JSON.parse(readFileSync(join(root, '.proof-or-stop', 'runtime', 'host-runs', runId, 'spec.json'), 'utf8')) as
-    { agentType: string; reviewRunId?: string | null; managedDispatchTarget?: { findingId?: string } | null };
+    { agentType: string; reviewRunId?: string | null; managedDispatchTarget?: { findingId?: string; groupFindingIds?: string[] } | null };
   const worktree = join(root, '.worktrees', storyId);
   const store = new StoryStore(worktree);
   let script: ProviderScript;
   if (spec.agentType === DELIVERY) script = deliveryScript(storyId);
   else if (spec.agentType === FINDING_REPAIR) {
     const findingId = spec.managedDispatchTarget?.findingId ?? '';
-    script = repairScript(store.readFindings(storyId).findings.find(f => f.id === findingId)?.desc ?? '');
+    const descOf = (id: string) => store.readFindings(storyId).findings.find(f => f.id === id)?.desc ?? '';
+    const group = spec.managedDispatchTarget?.groupFindingIds;
+    script = Array.isArray(group) ? groupedRepairScript(storyId, group.map(id => ({ id, desc: descOf(id) }))) : repairScript(descOf(findingId));
   } else if (spec.agentType === MANAGED_INVENTORY_CRITIC_LANE) script = criticScript(worktree, storyId, String(spec.reviewRunId));
   else {
     const runs = store.readReviewRuns(storyId).runs;
@@ -1368,7 +1381,7 @@ function repairRunsOnDisk(runsRoot: string): Map<string, string[]> {
     try {
       const spec = JSON.parse(readFileSync(join(runsRoot, runId, 'spec.json'), 'utf8')) as { agentType?: string; managedDispatchTarget?: { findingId?: string; groupFindingIds?: string[] } | null };
       const findingId = spec.agentType === FINDING_REPAIR ? spec.managedDispatchTarget?.findingId : undefined;
-      // A/B remediation.grouping=single: a grouped run is bound to every member.
+      // remediation.grouping=single (the default): a grouped run is bound to every member.
       for (const id of findingId ? spec.managedDispatchTarget?.groupFindingIds ?? [findingId] : []) byFinding.set(id, [...(byFinding.get(id) ?? []), runId]);
     } catch { /* not a managed run directory */ }
   }
@@ -1438,7 +1451,9 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   /** NC5 (A/B V3 R2A-r2): the first critic mistypes readManifest.candidateSpecSetDigest. */
   criticMistypedDigest?: boolean;
   /** NC6: the first critic copies a wrong inventory wave number (refused at import before anything persists); the runIds whose import was refused. */
-  refusedBeforePersist?: string[]; }, lines: string[],
+  refusedBeforePersist?: string[];
+  /** NF2: a grouped finding-repair run commits only its bound finding's repair. */
+  groupedFirstOnly?: boolean; }, lines: string[],
   /** Called with each step `next` returned, before the harness executes it; quiet = no detached managed run in flight. */
   onStep?: (next: NextStepJson, quiet: boolean) => void): void {
   const id = o.storyId;
@@ -1538,7 +1553,7 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
         break;
       case 'finding_repair':
         o.script(FINDING_REPAIR, Array.isArray(payload.groupFindingIds)
-          ? groupedRepairScript(id, (payload.groupFindingIds as string[]).map(findingId => ({ id: findingId, desc: findingDesc(findingId) })))
+          ? groupedRepairScript(id, (payload.groupFindingIds as string[]).map(findingId => ({ id: findingId, desc: findingDesc(findingId) })), mode.groupedFirstOnly)
           : repairScript(findingDesc(String(payload.findingId))));
         break;
       case 'implement_item':
@@ -1931,22 +1946,46 @@ function scenarioN(machineEnv: NodeJS.ProcessEnv, steps: Step[], flow: 'A' | 'D'
 /**
  * Run 14: two verified findings in round 1. next drives the whole flow; the
  * finding_resolve assertion in driveWithNext fails the first time next proposes
- * closing a finding whose own managed repair has not completed.
+ * closing a finding whose own managed repair has not completed. Since the A/B
+ * V4 adoption the repair is ONE grouped run (remediation.grouping=single, the
+ * default) with one commit naming each finding; each finding is still resolved
+ * on its own. NF2 (`firstOnly`): the grouped run commits only F-001's repair,
+ * so F-002 falls back to its own single repair.
  */
-function scenarioNF(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
-  const name = 'NF run 14: two round-1 findings; next repairs each by its own managed finding-repair before resolving it';
-  const o = new Owner('NF', 'B-e2ea', machineEnv, steps, false, { trackedGateFailureCounts: true });
+function scenarioNF(machineEnv: NodeJS.ProcessEnv, steps: Step[], firstOnly = false): Outcome {
+  const tag = firstOnly ? 'NF2' : 'NF';
+  const name = firstOnly
+    ? 'NF2: the default grouped finding-repair commits only F-001; F-002 falls back to its own repair before it is resolved'
+    : 'NF run 14: two round-1 findings; next repairs both in ONE grouped managed finding-repair (default), then resolves each separately';
+  const o = new Owner(tag, firstOnly ? 'B-e2ef' : 'B-e2ea', machineEnv, steps, false, { trackedGateFailureCounts: true });
   const lines: string[] = [];
   const reasons: string[] = [];
   try {
     devSetup(o);
-    driveWithNext(o, { findingRound1: true, run: false, twoFindings: true }, lines, next => {
-      if (next.reason === 'finding_repair' || next.reason === 'finding_resolve') reasons.push(`${next.reason}:${String(next.cli?.payload.findingId ?? '').split(':').pop()}`);
+    driveWithNext(o, { findingRound1: true, run: false, twoFindings: true, groupedFirstOnly: firstOnly }, lines, next => {
+      if (next.reason === 'finding_repair' || next.reason === 'finding_resolve') {
+        const group = next.cli?.payload.groupFindingIds;
+        const ids = Array.isArray(group) ? (group as string[]).map(row => row.split(':').pop()).join('+') : String(next.cli?.payload.findingId ?? '').split(':').pop();
+        reasons.push(`${next.reason}:${ids}`);
+      }
     });
     const order = reasons.filter((row, index) => row !== reasons[index - 1]);
     lines.push(`finding steps: ${order.join(' > ')}`);
-    assert.deepEqual(order, ['finding_repair:F-001', 'finding_resolve:F-001', 'finding_repair:F-002', 'finding_resolve:F-002'],
-      `NF: each finding is repaired by its own run, then resolved: ${order.join(' > ')}`);
+    const repairs = managedPrompts(o, FINDING_REPAIR);
+    if (firstOnly) {
+      assert.deepEqual(order, ['finding_repair:F-001+F-002', 'finding_resolve:F-001', 'finding_repair:F-002', 'finding_resolve:F-002'],
+        `NF2: the grouped run repaired only F-001, so F-002 gets its own repair before its resolve: ${order.join(' > ')}`);
+      assert.equal(repairs.length, 2, `NF2: one grouped run + one single fallback run (got ${repairs.length})`);
+      assert.equal(repairs[1]!.target?.groupFindingIds, undefined, 'NF2: the fallback is a single-target repair');
+      assert.match(String(repairs[1]!.target?.findingId), /F-002$/, 'NF2: the fallback is bound to F-002');
+    } else {
+      assert.deepEqual(order, ['finding_repair:F-001+F-002', 'finding_resolve:F-001', 'finding_resolve:F-002'],
+        `NF: one grouped repair, then each finding resolved separately: ${order.join(' > ')}`);
+      assert.equal(repairs.length, 1, `NF: one grouped finding-repair run (got ${repairs.length})`);
+    }
+    assert.equal((repairs[0]!.target?.groupFindingIds as string[] | undefined)?.length, 2, `${tag}: the grouped run binds both findings`);
+    assert.equal(repairs[0]!.target?.abVariant, undefined, `${tag}: the production group records no A/B evidence`);
+    assert.doesNotMatch(repairs[0]!.prompt, /experimental/i, `${tag}: the grouped repair prompt is not labelled experimental`);
     const tests = readFileSync(join(o.root, 'strs/strs_test.go'), 'utf8');
     assert.match(tests, /TestReverseEmpty/, 'F-001 repair merged into main');
     assert.match(tests, /TestUpperEmpty/, 'F-002 repair merged into main');
@@ -1954,17 +1993,17 @@ function scenarioNF(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     o.cleanup();
     return { name, status: 'PASS', lines };
   } catch (error) {
-    console.log(`NF fixture retained for diagnosis: ${o.root}`);
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
     return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
   }
 }
 
-/** The detection A/B switch each AB scenario sets (core/ab-variants.ts): V1/V2/V4/V5 experimental (default off); V3 = round2Lanes rollback `resume`. */
+/** The detection A/B switch each AB scenario sets (core/ab-variants.ts): V1/V2/V5 experimental (default off); V3 = round2Lanes rollback `resume`; V4 = remediation.grouping rollback `per-finding`. */
 export const AB_SCENARIO_VARIANTS = {
   V1: { review: { criticOnCleanRound: 'skip' } },
   V2: { review: { round2Scope: 'repaired-files' } },
   V3: { review: { round2Lanes: 'resume' } },
-  V4: { remediation: { grouping: 'single' } },
+  V4: { remediation: { grouping: 'per-finding' } },
   V5: { implementation: { grouping: 'files' } },
 } as const;
 
@@ -1992,7 +2031,9 @@ function managedPrompts(o: Owner, agentType?: string): Array<{ runId: string; ag
  *   V2 later-round lane prompts restrict review to the repaired files + direct callers;
  *   V3 the rollback review.round2Lanes=resume (fresh lanes are the default since
  *      the A/B V3 adoption): later-round lane prompts keep the resume wording;
- *   V4 one grouped finding-repair run, then each finding resolved on its own;
+ *   V4 the rollback remediation.grouping=per-finding (grouped remediation is the
+ *      default since the A/B V4 adoption, covered by NF/NF2): each finding
+ *      gets its own single-target repair run, then is resolved;
  *   V5 (unimplemented fixture) one implementer run for both items sharing files,
  *      the second item marked done separately (grouped_item_done).
  */
@@ -2048,9 +2089,9 @@ function scenarioAB(machineEnv: NodeJS.ProcessEnv, steps: Step[], flow: 'D' | 'F
       case 'V4': {
         const repairs = managedPrompts(o, FINDING_REPAIR);
         if (flow === 'F') {
-          assert.equal(repairs.length, 1, `${tag}: one grouped finding-repair run for both findings (got ${repairs.length})`);
-          assert.equal((repairs[0]!.target?.groupFindingIds as string[] | undefined)?.length, 2, `${tag}: the run binds both findings`);
-          assert.equal((repairs[0]!.target?.abVariant as { flags?: Record<string, string> } | undefined)?.flags?.['remediation.grouping'], 'single', `${tag}: the run records the A/B flag`);
+          assert.equal(repairs.length, 2, `${tag}: rollback = one finding-repair run per finding (got ${repairs.length})`);
+          for (const repair of repairs) assert.equal(repair.target?.groupFindingIds, undefined, `${tag}: ${repair.runId} is a single-target repair`);
+          assert.deepEqual(repairs.map(repair => String(repair.target?.findingId).split(':').pop()), ['F-001', 'F-002'], `${tag}: each finding has its own repair`);
           assert.equal(count('finding_resolve'), 2, `${tag}: each finding resolved separately`);
         } else {
           assert.equal(repairs.length, 1, `${tag}: a single finding keeps the ordinary single-target repair`);
@@ -2156,7 +2197,7 @@ function printTimeline(steps: Step[], scenario: string): void {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF|NL|NU2?|NC[2-6]?|N[AD](?:-run)?|N[DF]-V[1-5]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-6]?|N[AD](?:-run)?|N[DF]-V[1-5]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -2182,6 +2223,7 @@ async function main(): Promise<void> {
       if (only.includes(token) || only.includes(group)) outcomes.push(scenarioN(machine.env, steps, flow, run));
     }
     if (only.includes('NF')) outcomes.push(scenarioNF(machine.env, steps));
+    if (only.includes('NF2')) outcomes.push(scenarioNF(machine.env, steps, true));
     if (only.includes('NL')) outcomes.push(scenarioNL(machine.env, steps));
     if (only.includes('NU')) outcomes.push(scenarioNU(machine.env, steps, true));
     if (only.includes('NU2')) outcomes.push(scenarioNU(machine.env, steps, false));
@@ -2199,7 +2241,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {
