@@ -95,9 +95,12 @@ async function main(): Promise<void> {
 
   // 1. thread.started, then silence (run 20). Deadline 20 s; the stall must end it after ~1.5 s.
   const silent = fakeCodex(join(root, 'p-silent'), `echo '${THREAD}'\nsleep 60`);
+  // cwd = run root, a Git work tree: the run's own runtime journal is not work product.
+  gitRepo(join(root, 'silent'));
   const stalled = await run('silent', silent, 20_000);
   assert.ok(String(stalled.status.terminal.reason).startsWith('provider_stalled:'),
     `run-20 shape ends provider_stalled, got ${stalled.status.state}/${stalled.status.terminal.reason} after ${stalled.elapsedMs} ms`);
+  console.log(`stalled: ${stalled.status.terminal.reason} (${stalled.elapsedMs} ms)`);
   assert.equal(stalled.status.state, 'failed', 'a stall is never success and never a deadline timeout');
   assert.match(stalled.status.terminal.reason, /no provider stdout for \d+(\.\d+)? s/, 'the reason names the silence length');
   assert.ok(stalled.elapsedMs < 10_000, `detected early (${stalled.elapsedMs} ms of a 20 s deadline)`);
@@ -123,6 +126,7 @@ async function main(): Promise<void> {
   const committing = fakeCodex(join(root, 'p-commit'), `echo '${THREAD}'\necho x > f.txt\ngit add f.txt\ngit -c user.email=t@t -c user.name=t commit -q -m work\necho '{"type":"item.completed","item":{"type":"agent_message","text":"committed"}}'\nsleep 60`);
   const dirty = await run('commit', committing, 20_000, work);
   assert.ok(String(dirty.status.terminal.reason).startsWith('provider_stalled:'), `stall after a commit is still a stall (${dirty.status.terminal.reason})`);
+  console.log(`committed then stalled: ${dirty.status.terminal.reason}`);
   assert.equal(dirty.status.replacementSafe, false, 'a stalled provider that committed work is replacement-unsafe');
   assert.equal(core.isAutoReplaceableManagedLaunchFailure({ state: 'failed', replacementSafe: false, terminalReason: dirty.status.terminal.reason }), false);
 

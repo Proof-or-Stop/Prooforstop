@@ -74,7 +74,7 @@ import { evaluateEvidenceChainForStory } from './evidence-chain.js';
 import type { EvidenceChainReport } from '../core/evidence-chain-check.js';
 import { checklistHasFileDeclarations } from './phase-gates.js';
 import { verifyCurrentReviewerDispatchBinding } from '../core/review-run.js';
-import { managedHostRunsRoot, readManagedHostRunProjection, readManagedHostRunBinding, managedHostRunReceipt, verifyManagedDispatchDelivery, isAutoReplaceableManagedLaunchFailure, MANAGED_SUPERVISOR_NOT_READY_AUTO_RELAUNCHES } from '../core/managed-host-run.js';
+import { managedHostRunsRoot, readManagedHostRunProjection, readManagedHostRunBinding, managedHostRunReceipt, verifyManagedDispatchDelivery, isAutoReplaceableManagedLaunchFailure, MANAGED_AUTO_RELAUNCHES_PER_TARGET } from '../core/managed-host-run.js';
 import { isMaterialExcludedPath } from '../core/material-path-policy.js';
 import { hasPersistedManagedReceiptEvidence, refusedInventoryCriticImport } from './managed-review-evidence.js';
 import { MANAGED_INVENTORY_CRITIC_LANE } from '../core/managed-inventory-critic.js';
@@ -416,7 +416,11 @@ export interface HostRunView {
   state: string;
   terminal: boolean;
   createdAt: string;
-  /** Failed before its recovery supervisor became ready: provably nothing ran (isAutoReplaceableManagedLaunchFailure). */
+  /**
+   * Failed before its recovery supervisor became ready, or its provider stalled
+   * without leaving work product: replacing it is mechanical
+   * (isAutoReplaceableManagedLaunchFailure).
+   */
   autoReplaceable: boolean;
 }
 
@@ -786,15 +790,35 @@ export function boundManagedSelection(hostRuns: HostRunView[], profile: 'managed
   return { selection: { host: 'codex', model: selection.model, reasoningEffort: selection.reasoningEffort }, bound: false };
 }
 
-/** Whether any managed run of this Story already targeted the same dispatch target (item / finding). */
-export function hasRunForTarget(root: string, hostRuns: HostRunView[], agentType: string, target: { itemId?: string; findingId?: string }): boolean {
-  return hostRuns.some(run => {
-    if (run.agentType !== agentType) return false;
+/**
+ * The managed runs of this Story that already targeted the same dispatch
+ * target (item / finding). An unreadable binding counts as such a run and is
+ * never auto-replaceable.
+ */
+export function runsForTarget(root: string, hostRuns: HostRunView[], agentType: string, target: { itemId?: string; findingId?: string }): HostRunView[] {
+  return hostRuns.flatMap(run => {
+    if (run.agentType !== agentType) return [];
     try {
       const bound = readManagedHostRunBinding(root, run.runId).managedDispatchTarget;
-      return target.itemId ? bound?.itemId === target.itemId : bound?.findingId === target.findingId;
-    } catch { return true; }
+      return (target.itemId ? bound?.itemId === target.itemId : bound?.findingId === target.findingId) ? [run] : [];
+    } catch { return [{ ...run, autoReplaceable: false }]; }
   });
+}
+
+/** Whether any managed run of this Story already targeted the same dispatch target (item / finding). */
+export function hasRunForTarget(root: string, hostRuns: HostRunView[], agentType: string, target: { itemId?: string; findingId?: string }): boolean {
+  return runsForTarget(root, hostRuns, agentType, target).length > 0;
+}
+
+/**
+ * One relaunch rule for a managed target: its first launch, or a relaunch
+ * after earlier runs that ALL failed auto-replaceably (supervisor never ready,
+ * provider stalled with no work product), at most
+ * MANAGED_AUTO_RELAUNCHES_PER_TARGET of them, is a framework step. Any other
+ * earlier run keeps the launch the agent's call (no relaunch loop).
+ */
+export function targetRelaunchIsFramework(earlier: ReadonlyArray<Pick<HostRunView, 'autoReplaceable'>>): boolean {
+  return earlier.length <= MANAGED_AUTO_RELAUNCHES_PER_TARGET && earlier.every(run => run.autoReplaceable === true);
 }
 
 // ---------------------------------------------------------------------------
@@ -871,7 +895,15 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       const last = hostRuns.filter(run => run.agentType === SCOPE_PLAN_REVIEWER).at(-1);
       const previous = last && last.state !== 'completed' ? ` The previous scope-plan run ${last.runId} ended ${last.state}.` : '';
       const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
-      const auto = scopePlanLaunchIsFramework({ bound, rerun: Boolean(rerun), last, verdict: ctx.store.readScopeCheck(storyId) });
+      // A stalled / never-ready scope-plan run is relaunched like any other
+      // auto-replaceable target (the trailing streak of such failures, bounded).
+      const scopeRuns = hostRuns.filter(run => run.agentType === SCOPE_PLAN_REVIEWER);
+      let streakStart = scopeRuns.length;
+      while (streakStart > 0 && scopeRuns[streakStart - 1]!.autoReplaceable) streakStart -= 1;
+      const autoStreak = scopeRuns.slice(streakStart);
+      const auto = autoStreak.length > 0
+        ? bound && targetRelaunchIsFramework(autoStreak)
+        : scopePlanLaunchIsFramework({ bound, rerun: Boolean(rerun), last, verdict: ctx.store.readScopeCheck(storyId) });
       return managedLaunchStep(base, 'scope_plan_review_launch', { ...selection, storyId,
         agentType: SCOPE_PLAN_REVIEWER, managedDispatch: true, detach: true, json: true }, auto,
       scopeFailure
@@ -946,12 +978,12 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
       if (group.length > 1) {
         return managedLaunchStep(base, 'implement_item', { ...selection, storyId, itemId: item.id, groupItemIds: group.map(member => member.id),
-          agentType: IMPLEMENTER_AGENT, managedDispatch: true, detach: true, json: true }, bound && !hasRunForTarget(ctx.root, hostRuns, IMPLEMENTER_AGENT, { itemId: item.id }),
+          agentType: IMPLEMENTER_AGENT, managedDispatch: true, detach: true, json: true }, bound && targetRelaunchIsFramework(runsForTarget(ctx.root, hostRuns, IMPLEMENTER_AGENT, { itemId: item.id })),
         `${group.map(member => member.id).join(', ')} share declared files: implement and commit them in ONE managed implementer run bound to ${item.id} (A/B implementation.grouping=files); it marks ${item.id} done, each other item is verified and marked done separately afterwards.`,
         'checklist.json + sharedFileItemGroup (A/B implementation.grouping=files)');
       }
       return managedLaunchStep(base, 'implement_item', { ...selection, storyId, itemId: item.id,
-        agentType: IMPLEMENTER_AGENT, managedDispatch: true, detach: true, json: true }, bound && !hasRunForTarget(ctx.root, hostRuns, IMPLEMENTER_AGENT, { itemId: item.id }),
+        agentType: IMPLEMENTER_AGENT, managedDispatch: true, detach: true, json: true }, bound && targetRelaunchIsFramework(runsForTarget(ctx.root, hostRuns, IMPLEMENTER_AGENT, { itemId: item.id })),
       `${item.id} (${item.title}) is ${item.status}: implement and commit it (managed implementer shown; a native fresh-context implementer with the dispatch prompt is equivalent), then mark it done.`,
       'checklist.json');
     }
@@ -983,12 +1015,12 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
           ? groupedRepairFindingIds(storyId, finding.id, findings.map(row => row.finding), hostRuns) : [];
         if (group.length > 1) {
           return managedLaunchStep(base, 'finding_repair', { ...selection, storyId, findingId: finding.id, groupFindingIds: group,
-            agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true }, bound && !hasRunForTarget(ctx.root, hostRuns, FINDING_REPAIR_AGENT, { findingId: finding.id }),
+            agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true }, bound && targetRelaunchIsFramework(runsForTarget(ctx.root, hostRuns, FINDING_REPAIR_AGENT, { findingId: finding.id })),
           `Verified blocking findings ${group.join(', ')} are open and not yet repaired: repair them in ONE managed finding-repair run (A/B remediation.grouping=single), one regression test and one commit naming its id per finding; each is then resolved separately.`,
           'unclosedBlockingFindings (core/finding-closure.ts) + managedFindingRepairState + A/B remediation.grouping=single');
         }
         return managedLaunchStep(base, 'finding_repair', { ...selection, storyId, findingId: finding.id,
-          agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true }, bound && !hasRunForTarget(ctx.root, hostRuns, FINDING_REPAIR_AGENT, { findingId: finding.id }),
+          agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true }, bound && targetRelaunchIsFramework(runsForTarget(ctx.root, hostRuns, FINDING_REPAIR_AGENT, { findingId: finding.id })),
         `Verified ${finding.severity} finding ${finding.id} is open and not yet repaired (${repair.detail}${failedCoverage ? `; its duplicate coverage run \`${failedCoverage.command}\` did not pass, so ${failedCoverage.canonicalFindingId}'s repair is not shown to fix it` : ''}): repair it in code and commit (managed finding-repair shown).`,
         'unclosedBlockingFindings (core/finding-closure.ts) + managedFindingRepairState');
       }
@@ -1045,11 +1077,11 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     const failedEarlier = runs.filter(run => run.lane === lane && run.reviewRound === round && run.reviewRunId !== reviewRunId
       && (hostRunFor(hostRuns, run.reviewRunId)?.state ?? 'completed') !== 'completed').map(run => hostRunFor(hostRuns, run.reviewRunId));
     // A launch whose recovery supervisor never became ready (host load) ran
-    // nothing: the framework relaunches it itself, up to
-    // MANAGED_SUPERVISOR_NOT_READY_AUTO_RELAUNCHES times; any other earlier
-    // failure keeps the replacement the agent's call.
-    const replacement = failedEarlier.length > 0 && !(failedEarlier.length <= MANAGED_SUPERVISOR_NOT_READY_AUTO_RELAUNCHES
-      && failedEarlier.every(run => run?.autoReplaceable === true));
+    // nothing, and a provider that stalled left nothing: the framework
+    // relaunches it itself, up to MANAGED_AUTO_RELAUNCHES_PER_TARGET times
+    // (targetRelaunchIsFramework); any other earlier failure keeps the
+    // replacement the agent's call.
+    const replacement = !targetRelaunchIsFramework(failedEarlier.map(run => ({ autoReplaceable: run?.autoReplaceable === true })));
     return managedLaunchStep(base, critic ? 'inventory_critic_launch' : 'review_lane_launch', { ...selection,
       storyId: base.storyId, agentType: lane, reviewRunId, lane, managedReview: true, detach: true, json: true }, bound && !replacement,
     critic

@@ -10,7 +10,7 @@ import { resolveManagedReviewIsolation } from './managed-review-lane-policy.js';
 import { createManagedReviewLane, managedReviewLaneEnvironment, verifyManagedReviewLane, type ManagedReviewLane } from './managed-review-lane.js';
 import { estimateManagedRunDuration, MANAGED_DURATION_ESTIMATE_POLICY, type ManagedRunDurationEstimate, type ManagedRunDurationSample } from './managed-run-duration-estimate.js';
 import { assessManagedBurn, managedBurnTokenLimit } from './managed-burn-guard.js';
-import { MANAGED_BURN_RUNTIME_POLICY, MANAGED_SUPERVISOR_RUNTIME_POLICY, MANAGED_REVIEW_TEMP_RUNTIME_POLICY } from './runtime-fact-registry.js';
+import { MANAGED_BURN_RUNTIME_POLICY, MANAGED_PROVIDER_STALL_RUNTIME_POLICY, MANAGED_SUPERVISOR_RUNTIME_POLICY, MANAGED_REVIEW_TEMP_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import type { LiveProviderUsage } from './usage-ledger/dispatch-usage.js';
 import { ACCEPTANCE_REVIEW_FINAL_SCHEMA, ACCEPTANCE_REVIEW_PROFILE, ACCEPTANCE_REVIEW_LANE, assertAcceptanceReviewBinding, parseAcceptanceReviewFinal, type AcceptanceReviewBinding, type AcceptanceReviewFinal } from './acceptance-amendment-review.js';
 /**
@@ -608,6 +608,8 @@ interface ManagedHostRunSpec {
   durationEstimate?: ManagedRunDurationEstimate;
   /** Immutable supervisor cost limit; absent only for older managed specs. */
   burnTokenLimit?: number;
+  /** Provider stdout stall window in ms (0 = off); absent on older specs (policy default). */
+  providerStallMs?: number;
   /** Digest of normalized submit inputs, sealed by the owner's specDigest. */
   submissionDigest?: string;
   schemaVersion: typeof MANAGED_HOST_RUN_SCHEMA_VERSION;
@@ -2978,13 +2980,58 @@ export class ManagedSupervisorNotReadyError extends Error {
   constructor(message: string, readonly reap: { directKillSent: boolean; reaped: boolean }) { super(message); }
 }
 
-/** How many supervisor-not-ready failures of one lane and round `next` relaunches itself before the replacement becomes the agent's call. */
-export const MANAGED_SUPERVISOR_NOT_READY_AUTO_RELAUNCHES = 3;
+/**
+ * How many auto-replaceable failures of one target (lane and round, checklist
+ * item, finding, scope-plan verdict) `next` relaunches itself before the
+ * replacement becomes the agent's call.
+ */
+export const MANAGED_AUTO_RELAUNCHES_PER_TARGET = 3;
 
-/** A failed managed run that `next` may relaunch itself (bounded): a supervisor that never became ready. */
+/** Terminal reason prefix of a provider killed for stdout silence (MANAGED_PROVIDER_STALL_RUNTIME_POLICY). */
+export const MANAGED_PROVIDER_STALLED_REASON = `${MANAGED_PROVIDER_STALL_RUNTIME_POLICY.terminalReasonPrefix}:`;
+
+/**
+ * A failed managed run that `next` may relaunch itself (bounded): a supervisor
+ * that never became ready, or a provider stalled without leaving any work
+ * product (replacementSafe is true only then). A deadline timeout or any other
+ * failure stays the agent's call.
+ */
 export function isAutoReplaceableManagedLaunchFailure(run: { state: string; replacementSafe?: boolean | null; terminalReason?: string | null }): boolean {
+  const reason = run.terminalReason ?? '';
   return run.state === 'failed' && run.replacementSafe === true
-    && (run.terminalReason ?? '').startsWith(MANAGED_SUPERVISOR_NOT_READY_REASON);
+    && (reason.startsWith(MANAGED_SUPERVISOR_NOT_READY_REASON) || reason.startsWith(MANAGED_PROVIDER_STALLED_REASON));
+}
+
+/** Stall window in ms sealed at managed submit (MANAGED_PROVIDER_STALL_RUNTIME_POLICY); 0 disables stall detection. */
+export function managedProviderStallWindowMs(env: NodeJS.ProcessEnv): number {
+  const raw = env[MANAGED_PROVIDER_STALL_RUNTIME_POLICY.environment];
+  if (raw === undefined || raw === '') return MANAGED_PROVIDER_STALL_RUNTIME_POLICY.defaultWindowMs;
+  if (!/^(0|[1-9][0-9]*)$/.test(raw) || !Number.isSafeInteger(Number(raw))) {
+    throw new Error(`${MANAGED_PROVIDER_STALL_RUNTIME_POLICY.environment} must be a non-negative integer of milliseconds (0 disables stall detection)`);
+  }
+  return Number(raw);
+}
+
+/**
+ * Work-product fingerprint of a provider cwd: HEAD, porcelain status and the
+ * tracked diff against HEAD, outside the PoS runtime directory. Null when it cannot be observed (not a Git work
+ * tree, git failure): an unobservable cwd never proves "no work product".
+ */
+function providerCwdWorkFingerprint(cwd: string): string | null {
+  try {
+    const git = (args: string[]) => execFileSync('git', args, {
+      cwd, encoding: 'buffer', stdio: ['ignore', 'pipe', 'ignore'], timeout: 15_000, maxBuffer: 256 * 1024 * 1024,
+    });
+    const hash = createHash('sha256');
+    // The PoS runtime (this run's own journal, other runs) is not provider work.
+    const paths = ['--', '.', `:(exclude,glob)**/${PROOF_OR_STOP_DIR}/runtime/**`];
+    for (const part of [git(['rev-parse', 'HEAD']), git(['status', '--porcelain=v1', '-z', '--untracked-files=all', ...paths]), git(['diff', 'HEAD', '--binary', ...paths])]) {
+      hash.update(part).update('\0');
+    }
+    return `sha256:${hash.digest('hex')}`;
+  } catch {
+    return null;
+  }
 }
 
 async function launchManagedSupervisor(request: ManagedHostRunWorkerRequest, logFd: number): Promise<void> {
@@ -3172,6 +3219,7 @@ export async function submitManagedHostRun(
   if (args.host === 'grok' && !requestedReadonlyLane) throw new Error('grok requires configured managedReviewIsolation and isolated managed review');
   const now = deps.now ?? Date.now;
   const burnTokenLimit = managedBurnTokenLimit(args.environment ?? process.env);
+  const providerStallMs = managedProviderStallWindowMs(args.environment ?? process.env);
   const sharedCallQuota = captureHostRunBudgetEnvironment(process.env, args.environment ?? {});
   const createdMs = now();
   const createdAt = new Date(createdMs).toISOString();
@@ -3195,6 +3243,7 @@ export async function submitManagedHostRun(
     ...(selection.model !== null ? { model: selection.model } : {}),
     ...(selection.reasoningEffort !== null ? { reasoningEffort: selection.reasoningEffort } : {}),
     burnTokenLimit,
+    providerStallMs,
     ...(sharedCallQuota ? { sharedCallQuota } : {}),
     root: realpathSync(args.root),
     cwd: realpathSync(args.cwd),
@@ -3279,6 +3328,7 @@ export async function submitManagedHostRun(
     sharedCallQuota,
     durationEstimate: captureManagedRunDurationEstimate(args, createdAt),
     burnTokenLimit,
+    providerStallMs,
     ...(submissionDigest ? { submissionDigest } : {}),
     schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION,
     runId,
@@ -3727,6 +3777,36 @@ export async function runManagedHostRunWorker(
       cancelTriggered = readCancelRequest(paths) !== null;
       return writeTerminal(paths, cancelTriggered ? 'cancelled' : 'failed', launchRefusal, true, null, now());
     }
+    // Provider stall detection (MANAGED_PROVIDER_STALL_RUNTIME_POLICY): the
+    // window is sealed in the spec; the cwd work fingerprint taken before the
+    // first launch decides whether a stalled run left any work product.
+    const providerStallMs = spec.providerStallMs ?? MANAGED_PROVIDER_STALL_RUNTIME_POLICY.defaultWindowMs;
+    const launchWorkFingerprint = providerStallMs > 0 ? providerCwdWorkFingerprint(spec.cwd) : null;
+    let lastProviderStdoutAt: number | null = null;
+    let lastProviderStdoutEvent: string | null = null;
+    let providerSpawnedAtMs: number | null = null;
+    const noteProviderStdout = (text: string): void => {
+      lastProviderStdoutAt = now();
+      const lines = text.split('\n').map(line => line.trim()).filter(Boolean);
+      for (let index = lines.length - 1; index >= 0; index -= 1) {
+        try {
+          const type = (JSON.parse(lines[index]!) as { type?: unknown }).type;
+          if (typeof type === 'string' && /^[a-z_.]{1,64}$/.test(type)) { lastProviderStdoutEvent = type; break; }
+        } catch { /* partial or non-JSON line */ }
+      }
+    };
+    const providerStalledTerminal = (providerResult: HostRunResult): ManagedHostRunTerminal => {
+      const since = lastProviderStdoutAt ?? providerSpawnedAtMs ?? now();
+      const silenceS = (Math.max(0, now() - since) / 1000).toFixed(1);
+      const after = lastProviderStdoutEvent ? `after ${lastProviderStdoutEvent}` : lastProviderStdoutAt ? 'after its last stdout' : 'since spawn';
+      let workProduct = launchWorkFingerprint === null || providerCwdWorkFingerprint(spec.cwd) !== launchWorkFingerprint;
+      if (!workProduct && spec.profile === 'managed_dispatch') {
+        try { workProduct = managedDispatchOutputValidation(spec).failureReason === null; } catch { workProduct = true; }
+      }
+      return writeTerminal(paths, 'failed',
+        `${MANAGED_PROVIDER_STALLED_REASON}no provider stdout for ${silenceS} s ${after} (stall window ${Number((providerStallMs / 1000).toFixed(1))} s${workProduct ? '; work product present, not auto-replaced' : ''})`,
+        providerResult.replacementSafe && !workProduct, providerResult, now());
+    };
     const codexHome = providerEnvironment.CODEX_HOME ?? process.env.CODEX_HOME ?? join(homedir(), '.codex');
     const launchProvider = (launchPrompt: string, resumeSessionId: string | null, launchTimeoutMs: number) => runHostRun(
       {
@@ -3743,6 +3823,7 @@ export async function runManagedHostRunWorker(
         reviewRunId: spec.reviewRunId,
         lane: spec.lane,
         timeoutMs: launchTimeoutMs,
+        ...(providerStallMs > 0 ? { stallTimeoutMs: providerStallMs } : {}),
         signal: abort.signal,
         env: providerEnvironment,
         usageEnv: quotaEnvironment,
@@ -3774,6 +3855,9 @@ export async function runManagedHostRunWorker(
             at:closedAt, type:'provider_closed', detail:{stage:'finalizing_result'}});
         },
         onProcessSpawn: identity => {
+          providerSpawnedAtMs = now();
+          lastProviderStdoutAt = null;
+          lastProviderStdoutEvent = null;
           const published = updateSnapshotAndAppendEvent(
             paths,
             current => ({
@@ -3814,6 +3898,7 @@ export async function runManagedHostRunWorker(
           }
           : {}),
         passthrough: chunk => {
+          if (chunk.stream === 'stdout' && chunk.text.length > 0) noteProviderStdout(chunk.text);
           withTerminalAuthorityLock(paths, () => {
             if (readTerminal(paths)) return;
             outputSequence += 1;
@@ -3896,6 +3981,12 @@ export async function runManagedHostRunWorker(
       // to the ordinary nonzero-exit failure path. Injected legacy runners have
       // no close proof, so their deadline behavior remains fail-closed.
       const deadlineAbortedLiveProvider = deadlineTriggered && providerResult.terminalReason === 'aborted';
+      // A stall kill is a failure (never success, never a deadline timeout)
+      // unless the managed deadline or a cancellation reached the run first.
+      if (providerResult.timeoutKind === 'provider_stall_timeout' && !deadlineTriggered && !cancelTriggered
+        && !readCancelRequest(paths) && now() < Date.parse(spec.deadlineAt)) {
+        return providerStalledTerminal(providerResult);
+      }
       if (providerResult.timedOut || deadlineAbortedLiveProvider || (deadlineTriggered && providerResult.closeObserved !== true)) {
         // runHostRun is capped to the remaining managed deadline. When its total
         // timer and this worker's deadline timer become runnable together, event

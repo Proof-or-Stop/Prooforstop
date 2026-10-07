@@ -13,7 +13,7 @@
  * lane whose earlier run(s) of the round failed only because the managed
  * recovery supervisor never became ready (replacement-safe, nothing ran) is
  * relaunched by the framework (bound launch) up to
- * MANAGED_SUPERVISOR_NOT_READY_AUTO_RELAUNCHES times; other failures stay the agent's call.
+ * MANAGED_SUPERVISOR_NOT_READY_AUTO_RELAUNCHES (now MANAGED_AUTO_RELAUNCHES_PER_TARGET) times; other failures stay the agent's call.
  *
  * Deliberate change (critic-import-loop, detection A/B control D2-r3/D9-r1):
  * a completed inventory critic whose import was refused (terminal evidence
@@ -52,6 +52,15 @@
  * verdict is relaunched (scopePlanLaunchIsFramework decides framework vs agent)
  * instead of falling to the DEV guard's story_review. The golden fixture starts
  * in DEV, so its 27 quiet states are unchanged.
+ *
+ * Deliberate change (provider-stall-detect, old-PoS run 20): a managed provider
+ * with no stdout for the stall window fails `provider_stalled:...`; when it
+ * left no work product it is auto-replaceable like a supervisor-not-ready
+ * launch. One relaunch rule (targetRelaunchIsFramework, shared with the live
+ * driver) now covers review lanes, implementer items, finding repairs and the
+ * scope-plan reviewer: earlier runs of the target that ALL failed
+ * auto-replaceably, at most MANAGED_AUTO_RELAUNCHES_PER_TARGET = 3, keep the
+ * relaunch a framework step; any other earlier run stays the agent's call.
  *
  * Not mirrored (ab-variant-switches, 2026-10-06): the EXPERIMENTAL detection
  * A/B switches (core/ab-variants.ts; review.criticOnCleanRound,
@@ -100,9 +109,9 @@ import { currentPrecertFastIdentity, precertCheapCheckWaived } from '../../handl
 import { evaluateEvidenceChainForStory } from '../../handlers/evidence-chain.js';
 import { checklistHasFileDeclarations } from '../../handlers/phase-gates.js';
 import { verifyCurrentReviewerDispatchBinding } from '../../core/review-run.js';
-import { managedHostRunsRoot, readManagedHostRunProjection, managedHostRunReceipt, isAutoReplaceableManagedLaunchFailure, MANAGED_SUPERVISOR_NOT_READY_AUTO_RELAUNCHES } from '../../core/managed-host-run.js';
+import { managedHostRunsRoot, readManagedHostRunProjection, managedHostRunReceipt, isAutoReplaceableManagedLaunchFailure } from '../../core/managed-host-run.js';
 import { managedFindingRepairState, hintedStep, evidenceChainStep, evidenceChainAdvisory, step as sharedStep, managedLaunchStep, boundManagedSelection,
-  hasRunForTarget, testAuthoringStep, planAuthoringStep, preScopeAuthoringStep, nextBlockingFinding, duplicateFindingResolveStep, type NextStep } from '../../handlers/next-driver.js';
+  runsForTarget, targetRelaunchIsFramework, testAuthoringStep, planAuthoringStep, preScopeAuthoringStep, nextBlockingFinding, duplicateFindingResolveStep, type NextStep } from '../../handlers/next-driver.js';
 import { duplicateCoverageReceipts, duplicateResolveCandidate } from '../../core/duplicate-finding-coverage.js';
 import { singleHostAssuranceReady } from '../../handlers/quorum-submit.js';
 import { hasPersistedManagedReceiptEvidence, refusedInventoryCriticImport } from '../../handlers/managed-review-evidence.js';
@@ -312,7 +321,7 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
       if (running) return waitStep(base, running, 'Implementer run');
       const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
       return managedLaunchStep(base, 'implement_item', { ...selection, storyId, itemId: item.id,
-        agentType: IMPLEMENTER_AGENT, managedDispatch: true, detach: true, json: true }, bound && !hasRunForTarget(ctx.root, hostRuns, IMPLEMENTER_AGENT, { itemId: item.id }),
+        agentType: IMPLEMENTER_AGENT, managedDispatch: true, detach: true, json: true }, bound && targetRelaunchIsFramework(runsForTarget(ctx.root, hostRuns, IMPLEMENTER_AGENT, { itemId: item.id })),
       `${item.id} (${item.title}) is ${item.status}: implement and commit it (managed implementer shown; a native fresh-context implementer with the dispatch prompt is equivalent), then mark it done.`,
       'checklist.json');
     }
@@ -332,7 +341,7 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
         const failedCoverage = duplicateCoverageReceipts(ctx.store, storyId, finding.id).filter(row => !row.passed).at(-1);
         const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
         return managedLaunchStep(base, 'finding_repair', { ...selection, storyId, findingId: finding.id,
-          agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true }, bound && !hasRunForTarget(ctx.root, hostRuns, FINDING_REPAIR_AGENT, { findingId: finding.id }),
+          agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true }, bound && targetRelaunchIsFramework(runsForTarget(ctx.root, hostRuns, FINDING_REPAIR_AGENT, { findingId: finding.id })),
         `Verified ${finding.severity} finding ${finding.id} is open and not yet repaired (${repair.detail}${failedCoverage ? `; its duplicate coverage run \`${failedCoverage.command}\` did not pass, so ${failedCoverage.canonicalFindingId}'s repair is not shown to fix it` : ''}): repair it in code and commit (managed finding-repair shown).`,
         'unclosedBlockingFindings (core/finding-closure.ts) + managedFindingRepairState');
       }
@@ -381,10 +390,9 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
       && (hostRunFor(hostRuns, run.reviewRunId)?.state ?? 'completed') !== 'completed').map(run => hostRunFor(hostRuns, run.reviewRunId));
     // A launch whose recovery supervisor never became ready (host load) ran
     // nothing: the framework relaunches it itself, up to
-    // MANAGED_SUPERVISOR_NOT_READY_AUTO_RELAUNCHES times; any other earlier
+    // MANAGED_AUTO_RELAUNCHES_PER_TARGET times (targetRelaunchIsFramework; a stalled provider with no work product too); any other earlier
     // failure keeps the replacement the agent's call.
-    const replacement = failedEarlier.length > 0 && !(failedEarlier.length <= MANAGED_SUPERVISOR_NOT_READY_AUTO_RELAUNCHES
-      && failedEarlier.every(run => run?.autoReplaceable === true));
+    const replacement = !targetRelaunchIsFramework(failedEarlier.map(run => ({ autoReplaceable: run?.autoReplaceable === true })));
     return managedLaunchStep(base, critic ? 'inventory_critic_launch' : 'review_lane_launch', { ...selection,
       storyId: base.storyId, agentType: lane, reviewRunId, lane, managedReview: true, detach: true, json: true }, bound && !replacement,
     critic
@@ -783,7 +791,13 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
             const last = hostRuns.filter(run => run.agentType === SCOPE_PLAN_REVIEWER).at(-1);
             const previous = last && last.state !== 'completed' ? ` The previous scope-plan run ${last.runId} ended ${last.state}.` : '';
             const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
-            const auto = scopePlanLaunchIsFramework({ bound, rerun: Boolean(rerun), last, verdict: ctx.store.readScopeCheck(storyId) });
+            const scopeRuns = hostRuns.filter(run => run.agentType === SCOPE_PLAN_REVIEWER);
+            let streakStart = scopeRuns.length;
+            while (streakStart > 0 && scopeRuns[streakStart - 1]!.autoReplaceable) streakStart -= 1;
+            const autoStreak = scopeRuns.slice(streakStart);
+            const auto = autoStreak.length > 0
+              ? bound && targetRelaunchIsFramework(autoStreak)
+              : scopePlanLaunchIsFramework({ bound, rerun: Boolean(rerun), last, verdict: ctx.store.readScopeCheck(storyId) });
             return managedLaunchStep(base, 'scope_plan_review_launch', { ...selection, storyId,
               agentType: SCOPE_PLAN_REVIEWER, managedDispatch: true, detach: true, json: true }, auto,
             scopeFailure

@@ -630,6 +630,28 @@ export const MANAGED_BURN_RUNTIME_POLICY = {
   closeAuthority: 'provider-child-close-before-cleanup',
 } as const;
 
+/**
+ * Provider stall detection, sealed at managed submit (old-PoS run 20: a Codex
+ * provider printed `thread.started` and then nothing for 30 min; the run
+ * burned its whole deadline). A managed provider with no stdout chunk for the
+ * window (counted from spawn, reset by every stdout chunk; stderr does not
+ * count) has its process group terminated and the run fails
+ * `provider_stalled:...`, never success.
+ *
+ * Window, measured on 388 managed codex runs of 18 bench runs (21,545 stdout
+ * inter-event gaps incl. reasoning turns and tool commands): p50 1.2 s, p99
+ * 22.7 s, p99.9 43.2 s, max 92.5 s; spawn -> first stdout max 15.7 s. 300 s is
+ * ~3x the maximum. Override with the environment variable (milliseconds,
+ * 0 turns detection off), e.g. when a project's tools run silent for longer.
+ */
+export const MANAGED_PROVIDER_STALL_RUNTIME_POLICY = {
+  environment: 'PROOF_OR_STOP_MANAGED_PROVIDER_STALL_MS',
+  defaultWindowMs: 300_000,
+  terminalReasonPrefix: 'provider_stalled',
+  progressAuthority: 'provider-stdout-chunk',
+  replacementSafety: 'reaped-group-and-cwd-head-and-worktree-unchanged',
+} as const;
+
 /** Single and aggregate observers share delivery acknowledgement semantics. */
 export const MANAGED_STATUS_OBSERVATION_POLICY = {
   observation: 'read-only',
