@@ -221,7 +221,14 @@ before the Story exists with `story_request_set` without `storyId`; the next
 `story_create` consumes it once. Replacing it, or recording it after INIT, goes
 through `story_request_set` with an `amendmentReason`, and only through PLAN.
 `story_create` names every backticked request literal (example, listed variant,
-exact message) that no checklist title or `userSees` states yet.
+exact message) that no checklist title, `userSees` or `verificationIntent`
+states yet, with one exact `checklist_update` per item to record them in
+`userSees`: `userSees` is editable in INIT and PLAN (frozen from DEV), so the
+literals go on the same Story; never recreate it. Intake intents follow the
+PLAN intent-metadata rule: every `verificationIntent` row carries `scope`,
+`expectation` and `requirementSource`, else `story_create REFUSED, nothing was
+written ... [verification_intent_metadata_required]` names each row and its
+missing field (the same refusal `checklist_update` and `plan_acceptance_*` print).
 
 INIT to INIT_CHECK requires independent records from both
 `proof-or-stop-review-story-init` and `proof-or-stop-product-reviewer`; each reviewer persists
@@ -348,9 +355,15 @@ It no longer depends on `understanding_set` (run 16: the owner skipped the
 advisory understanding, so the reviewer never ran). `story_review` reports
 `missing_scope_check`, the DEV-entry gate itself refuses with
 `[missing_scope_check]` and one `Next:` (the managed scope-plan reviewer
-`host_run`) even after a clean `story_review`, and `next` in PLAN returns that
-launch as its one agent step (or waits on the run in flight). light and the
-express channel are unchanged.
+`host_run`) even after a clean `story_review`. `next` in PLAN first returns the
+deterministic PLAN blockers as one `plan_authoring` batch (run 19: one exact
+`checklist_update` per item for missing intent lanes, unpinned intents, a
+missing `userSees`, and request literals no item states or excludes), and only
+when those are clear launches the reviewer, so it runs once on the final
+checklist (or waits on the run in flight). A verdict that must be rerun (gaps
+open and the checklist changed since it, or a stale review round) is relaunched
+by `next` too, as a framework step when the selection is bound and the last
+run delivered that verdict. light and the express channel are unchanged.
 
 - title 描述「做什么」，不描述「怎么做」
 - context 给执行 agent 提供决策上下文
@@ -527,7 +540,8 @@ an `excludes` entry naming it with the reason (reference-only material or an
 acknowledged "do not ..." constraint), then rerun the scope-plan reviewer with
 the managed `host_run` command the hint prints. When the checklist changed after
 the verdict (`scope-check.json` `checklistDigest`, guidance only), the hint names
-only the rerun. A quick-channel Story may
+only the rerun, and `next` returns that relaunch itself. The brief
+`story_review` view never truncates an issue's `Next` remedy. A quick-channel Story may
 make adversarial review optional only when the CLI says it is eligible; normal
 scope, intent, ownership, memory, and policy gates still apply.
 
@@ -571,7 +585,7 @@ conclusions or mutations.
 
 ### REVIEW → DONE is framework-driven: `proof-or-stop next --storyId=<id>`
 
-After DEV (every checklist item done and committed), run `proof-or-stop next --storyId=<id>` from the Story worktree and execute the one command it prints, then ask again. It is read-only, decides each step from the real gate predicates (evidence-chain check, REVIEW verdict, reviewer batch plan, inventory status, PRE_CERT admit predicates, certification status, DONE oracle), and labels it `framework` (mechanical, including a managed launch fully bound to this Story's own earlier host/model/effort and the wait on it; `proof-or-stop next --storyId=<id> --run` executes them through the normal CLI, all waits of one call within one 285 s budget, and prints `paused:` to rerun it), `agent` (code, a first or replacement managed launch, authored text or a host verdict; `<...>` placeholders name the fields to author, each with a one-line description, and a `batch` step lists several authoring commands to run in one turn, e.g. TEST's finish decision + summary) or `human`. Prefer `next --run`; no command `next` prints needs `--help`. It covers REVIEW entry, every review round (prepare → launch all prepared lanes → wait → import), the inventory epoch and critic, remediation back to DEV (repair → evidence refresh → `finding_resolve`), PRE_CERT (fast check → `certification_window_begin` → routine `validate`), TEST (live smoke, delivery reviewer, finish decision + summary as one step, review assurance floor; on a single host that is one framework step, `quorum_submit` with `singleHost:true`) and DONE. In PLAN it names the DEV entry too: the dev-memory acknowledgement, then `story_advance --phase=DEV` or the DEV guard's own Next. Its commands accept trailing flags such as `--json`. Do not reorder these steps or probe `story_advance` ahead of it. Decision table: `docs/CLI.md` ("`next --storyId`").
+After DEV (every checklist item done and committed), run `proof-or-stop next --storyId=<id>` from the Story worktree and execute the one command it prints, then ask again. It is read-only, decides each step from the real gate predicates (evidence-chain check, REVIEW verdict, reviewer batch plan, inventory status, PRE_CERT admit predicates, certification status, DONE oracle), and labels it `framework` (mechanical, including a managed launch fully bound to this Story's own earlier host/model/effort and the wait on it; `proof-or-stop next --storyId=<id> --run` executes them through the normal CLI, all waits of one call within one 285 s budget, and prints `paused:` to rerun it), `agent` (code, a first or replacement managed launch, authored text or a host verdict; `<...>` placeholders name the fields to author, each with a one-line description, and a `batch` step lists several authoring commands to run in one turn, e.g. TEST's finish decision + summary) or `human`. Prefer `next --run`; no command `next` prints needs `--help`. It covers REVIEW entry, every review round (prepare → launch all prepared lanes → wait → import), the inventory epoch and critic, remediation back to DEV (repair → evidence refresh → `finding_resolve`), PRE_CERT (fast check → `certification_window_begin` → routine `validate`), TEST (live smoke, delivery reviewer, finish decision + summary as one step, review assurance floor; on a single host that is one framework step, `quorum_submit` with `singleHost:true`) and DONE. In PLAN it names the DEV entry too: the dev-memory acknowledgement, the deterministic PLAN authoring batch, the scope-plan reviewer launch (or relaunch of a stale verdict), then `story_advance --phase=DEV` or the DEV guard's own Next. Its commands accept trailing flags such as `--json`. Do not reorder these steps or probe `story_advance` ahead of it. Decision table: `docs/CLI.md` ("`next --storyId`").
 
 ### REVIEW and independent agents
 

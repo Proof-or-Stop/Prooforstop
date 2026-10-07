@@ -537,7 +537,7 @@ Behavior:
     agent: z.string().optional().describe('Actor identity; INIT reviewers cannot remove requirements.'),
     actor: z.string().optional().describe('Actor alias; cannot hide a dispatched INIT reviewer.'),
   }},
-  { name: 'checklist_update', description: 'Update a checklist item (status/relatedDocs; title/context/userSees frozen)', longHelp: CHECKLIST_UPDATE_LONG, examples: [{
+  { name: 'checklist_update', description: 'Update a checklist item (status/relatedDocs/userSees/verificationIntent; title/context frozen from INIT_CHECK, userSees and verificationIntent editable in INIT and PLAN, frozen from DEV)', longHelp: CHECKLIST_UPDATE_LONG, examples: [{
     title: 'Set one classified verificationIntent in PLAN',
     body: { storyId: 'B-1234', itemId: 'CHK-001', verificationIntent: MINIMAL_CLASSIFIED_VERIFICATION_INTENT },
   }], schema: {
@@ -546,7 +546,7 @@ Behavior:
     title: z.string().optional().describe('New title; frozen starting in PLAN.'),
     context: z.string().optional().describe('New context; frozen starting in PLAN.'),
     relatedDocs: z.array(z.string()).optional().describe('Related documentation paths used for the three reminders.'),
-    userSees: z.string().optional().describe('Specific terminal/UI text the user sees after completing this item; writable before PLAN and frozen from DEV.'),
+    userSees: z.string().optional().describe('Specific terminal/UI text the user sees after completing this item; editable in INIT and PLAN, frozen from DEV.'),
     excludes: z.array(z.string()).optional().describe('Explicitly declared out-of-scope functionality; INIT reviewer lanes may not modify directly.'),
     files: z.object({
       modify: z.array(z.string()),

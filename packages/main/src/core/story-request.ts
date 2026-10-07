@@ -201,16 +201,44 @@ export function literalStated(literal: string, squashedHaystack: string): boolea
  */
 export function unmappedStoryRequestLiterals(
   requestText: string,
-  items: ReadonlyArray<{ title?: string; userSees?: string; verificationIntent?: unknown }>,
+  items: ReadonlyArray<{ title?: string; userSees?: string; verificationIntent?: unknown; excludes?: readonly string[] }>,
+  options: { countExcludes?: boolean } = {},
 ): string[] {
+  // countExcludes (next's PLAN pre-scope check): a PLAN excludes entry that names
+  // the literal is the reviewer's "excluded (cite the excluding text)" input, so
+  // the owner has handled it. The scope-plan prompt pre-check keeps the default.
   const haystack = squash(items.map(item => [
     item.title ?? '',
     item.userSees ?? '',
     item.verificationIntent === undefined ? '' : JSON.stringify(item.verificationIntent),
+    options.countExcludes ? (item.excludes ?? []).join('\n') : '',
   ].join('\n')).join('\n'));
   // JSON.stringify escapes quotes and backslashes; compare against both forms.
   const unescaped = haystack.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
   return storyRequestLiterals(requestText).filter(literal => !literalStated(literal, haystack) && !literalStated(literal, unescaped));
+}
+
+/**
+ * Run 19 (§5): the actionable intake form of the literal warning. userSees is
+ * editable in INIT and PLAN (frozen from DEV; handlers/checklist.ts), so the
+ * owner records each literal on the item that delivers it with one exact
+ * checklist_update per item, now or in PLAN. No new Story is needed. Whatever
+ * is still unstated at PLAN, `next` returns as its pre-scope authoring step.
+ */
+export function renderUnmappedLiteralsRemedy(
+  storyId: string,
+  unmapped: readonly string[],
+  items: ReadonlyArray<{ id: string; userSees?: string }>,
+  limit = 12,
+): string {
+  const shown = items.slice(0, limit).map(item => `    proof-or-stop checklist_update '${JSON.stringify({ storyId, itemId: item.id,
+    userSees: `<the userSees of ${item.id}${item.userSees?.trim() ? ' as it is now' : ''}, plus each literal above that ${item.id} delivers, quoted exactly>` }).replace(/'/g, "'\\''")}'`);
+  const more = items.length > limit ? `\n    (+${items.length - limit} more items: same command with their itemId)` : '';
+  return `⚠ ${renderUnmappedLiteralsLine(unmapped)}.\n`
+    + '  Each example and each listed variant needs a checklist userSees or PLAN verificationIntent that states it exactly, or a PLAN excludes entry that names it with a reason. '
+    + 'userSees is editable in INIT and PLAN (frozen from DEV), so record them on this Story now, item by item (skip items that deliver none):\n'
+    + `${shown.join('\n')}${more}\n`
+    + `  In PLAN, \`proof-or-stop next --storyId=${storyId}\` lists any literal still unstated before it launches the scope-plan reviewer.`;
 }
 
 /** One bounded line for prompts and story_create output. */

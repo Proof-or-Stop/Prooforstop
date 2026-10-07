@@ -45,6 +45,14 @@
  * command (planAuthoringStep); every placeholder carries a one-line
  * description (placeholderHints, built by the shared step()).
  *
+ * Deliberate change (plan-author-before-scope, run 19 P1/P2): while the
+ * scope-plan verdict is missing or must be rerun (scopePlanRerunReason), PLAN
+ * first returns the deterministic authoring batch (preScopeAuthoringStep over
+ * planPreScopeBlockers, shared) and only then the reviewer launch; a stale
+ * verdict is relaunched (scopePlanLaunchIsFramework decides framework vs agent)
+ * instead of falling to the DEV guard's story_review. The golden fixture starts
+ * in DEV, so its 27 quiet states are unchanged.
+ *
  * Not mirrored (ab-variant-switches, 2026-10-06): the EXPERIMENTAL detection
  * A/B switches (core/ab-variants.ts; review.criticOnCleanRound,
  * remediation.grouping, implementation.grouping change `next`). This copy is
@@ -67,7 +75,8 @@ import { resolveWorkflowPolicy } from '../../core/workflow-policy.js';
 import { resolveGitCwd } from '../../core/story-signed-workspace-resolution.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../../core/evidence-freshness.js';
 import { evaluateDevMemoryPreflightGate, evaluateReviewVerdict, getGuardFailureReason } from '../../core/machine.js';
-import { missingPlanScopeCheckFailure, SCOPE_PLAN_REVIEWER } from '../../core/plan-scope-check-requirement.js';
+import { missingPlanScopeCheckFailure, SCOPE_PLAN_REVIEWER, scopePlanLaunchIsFramework, scopePlanRerunReason } from '../../core/plan-scope-check-requirement.js';
+import { planPreScopeBlockers } from '../../core/plan-pre-scope-blockers.js';
 import { isTerminalChecklistStatus } from '../../core/checklist-status.js';
 import { unclosedBlockingFindings, resolveEffectiveBlockingSeverities, FINDING_RESOLUTION_PLACEHOLDER } from '../../core/finding-closure.js';
 import {
@@ -93,7 +102,7 @@ import { checklistHasFileDeclarations } from '../../handlers/phase-gates.js';
 import { verifyCurrentReviewerDispatchBinding } from '../../core/review-run.js';
 import { managedHostRunsRoot, readManagedHostRunProjection, managedHostRunReceipt, isAutoReplaceableManagedLaunchFailure, MANAGED_SUPERVISOR_NOT_READY_AUTO_RELAUNCHES } from '../../core/managed-host-run.js';
 import { managedFindingRepairState, hintedStep, evidenceChainStep, evidenceChainAdvisory, step as sharedStep, managedLaunchStep, boundManagedSelection,
-  hasRunForTarget, testAuthoringStep, planAuthoringStep, nextBlockingFinding, duplicateFindingResolveStep, type NextStep } from '../../handlers/next-driver.js';
+  hasRunForTarget, testAuthoringStep, planAuthoringStep, preScopeAuthoringStep, nextBlockingFinding, duplicateFindingResolveStep, type NextStep } from '../../handlers/next-driver.js';
 import { duplicateCoverageReceipts, duplicateResolveCandidate } from '../../core/duplicate-finding-coverage.js';
 import { singleHostAssuranceReady } from '../../handlers/quorum-submit.js';
 import { hasPersistedManagedReceiptEvidence, refusedInventoryCriticImport } from '../../handlers/managed-review-evidence.js';
@@ -759,18 +768,29 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
         {
           // Deliberate change (run 16 scope-check-required lab): the scope-plan reviewer
           // verdict the DEV-entry gate requires is launched (or waited on) before DEV.
-          const scopeFailure = missingPlanScopeCheckFailure(ctx.store, story, policyOf(storyId));
-          if (scopeFailure) {
+          // Deliberate change (run 19 plan-author-before-scope lab): the deterministic PLAN
+          // blockers come first as one authoring batch (preScopeAuthoringStep, shared), and a
+          // verdict that must be rerun (scopePlanRerunReason) is relaunched here as well.
+          const policy = policyOf(storyId);
+          const scopeFailure = missingPlanScopeCheckFailure(ctx.store, story, policy);
+          const rerun = scopeFailure ? null : scopePlanRerunReason(ctx.store, story);
+          if (scopeFailure || rerun) {
             const hostRuns = listStoryHostRuns(ctx, storyId);
             const running = hostRuns.filter(run => run.agentType === SCOPE_PLAN_REVIEWER && !run.terminal).at(-1);
             if (running) return waitStep(base, running, 'Scope-plan reviewer run');
+            const authoring = preScopeAuthoringStep(base, planPreScopeBlockers(ctx.store, story, policy), ctx.store.readChecklist(storyId).items);
+            if (authoring) return authoring;
             const last = hostRuns.filter(run => run.agentType === SCOPE_PLAN_REVIEWER).at(-1);
             const previous = last && last.state !== 'completed' ? ` The previous scope-plan run ${last.runId} ended ${last.state}.` : '';
             const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
+            const auto = scopePlanLaunchIsFramework({ bound, rerun: Boolean(rerun), last, verdict: ctx.store.readScopeCheck(storyId) });
             return managedLaunchStep(base, 'scope_plan_review_launch', { ...selection, storyId,
-              agentType: SCOPE_PLAN_REVIEWER, managedDispatch: true, detach: true, json: true }, bound && !last,
-            `${scopeFailure.split('\n')[0]} Launch the scope-plan reviewer (managed shown); it saves scope-check.json, then rerun story_review.${previous}`,
-            'missingPlanScopeCheckFailure (DEV-entry gate)');
+              agentType: SCOPE_PLAN_REVIEWER, managedDispatch: true, detach: true, json: true }, auto,
+            scopeFailure
+              ? `${scopeFailure.split('\n')[0]} Launch the scope-plan reviewer (managed shown); it saves scope-check.json, then rerun story_review.${previous}`
+              : `The scope-plan verdict must be rerun: ${rerun}. Relaunch the scope-plan reviewer so it judges the current checklist (managed shown); it saves a new scope-check.json, then rerun story_review.${previous}`,
+            scopeFailure ? 'missingPlanScopeCheckFailure (DEV-entry gate)' : 'scopePlanRerunReason (story_review scope_gap / scope_check_stale)',
+            scopeFailure ? 'first run of this target' : 'relaunch after the completed run that delivered the stale verdict');
           }
         }
         {

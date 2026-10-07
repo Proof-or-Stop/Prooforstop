@@ -1,5 +1,5 @@
 
-  proof-or-stop checklist_update — Update a checklist item (status/relatedDocs; title/context/userSees frozen)
+  proof-or-stop checklist_update — Update a checklist item (status/relatedDocs/userSees/verificationIntent; title/context frozen from INIT_CHECK, userSees and verificationIntent editable in INIT and PLAN, frozen from DEV)
 
   Proof-or-Stop <VERSION>
 
@@ -64,7 +64,7 @@ STEP-BY-STEP
     --context                  string           New context; frozen starting in PLAN.
     --relatedDocs              array            Related documentation paths used for the three reminders. (JSON)
       relatedDocs[]: string
-    --userSees                 string           Specific terminal/UI text the user sees after completing this item; writable before PLAN and frozen from DEV.
+    --userSees                 string           Specific terminal/UI text the user sees after completing this item; editable in INIT and PLAN, frozen from DEV.
     --excludes                 array            Explicitly declared out-of-scope functionality; INIT reviewer lanes may not modify directly. (JSON)
       excludes[]: string
     --files                    object           B-45ed: affected file set declared in PLAN. (JSON)

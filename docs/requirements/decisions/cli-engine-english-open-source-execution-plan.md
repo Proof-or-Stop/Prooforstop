@@ -591,13 +591,13 @@ M154	430	command-description	从 story 中移除一个 checklist item（必须�
 M155	431	schema	要移除的项 ID	ID of the item to remove.	review-draft
 M156	432	schema	裁决: accept=确认删除合理 / reject=不该删但要移除 / partial=部分合理	Disposition: accept=deletion is valid, reject=should not be deleted but remove it, partial=partially valid.	review-draft
 M157	433	schema	删除理由（≥10 字符）	Deletion justification (at least 10 characters).	review-draft
-M158	435	command-description	更新 checklist 项 (status/relatedDocs；title/context 从 PLAN 冻结，userSees 从 DEV 冻结)	Update a checklist item (status/relatedDocs; title/context/userSees frozen)	review-draft
+M158	435	command-description	更新 checklist 项 (status/relatedDocs；title/context 从 PLAN 冻结，userSees 从 DEV 冻结)	Update a checklist item (status/relatedDocs/userSees/verificationIntent; title/context frozen from INIT_CHECK, userSees and verificationIntent editable in INIT and PLAN, frozen from DEV)	review-draft
 M159	436	schema	项 ID	Item ID.	review-draft
 M160	437	schema	新状态	New status.	review-draft
 M161	438	schema	新标题（PLAN 起冻结）	New title; frozen starting in PLAN.	review-draft
 M162	439	schema	新 context（PLAN 起冻结）	New context; frozen starting in PLAN.	review-draft
 M163	440	schema	关联文档路径（用于三次提醒）	Related documentation paths used for the three reminders.	review-draft
-M164	441	schema	用户完成此 item 后在终端/UI 看到的具体文本（PLAN 之前可写，DEV 起冻结）	Specific terminal/UI text the user sees after completing this item; writable before PLAN and frozen from DEV.	review-draft
+M164	441	schema	用户完成此 item 后在终端/UI 看到的具体文本（PLAN 之前可写，DEV 起冻结）	Specific terminal/UI text the user sees after completing this item; editable in INIT and PLAN, frozen from DEV.	review-draft
 M165	442	schema	显式声明不做的功能点；INIT reviewer lane 不可直接修改	Explicitly declared out-of-scope functionality; INIT reviewer lanes may not modify directly.	review-draft
 M166	447	schema	B-45ed: 受影响的文件集合（PLAN 阶段声明）	B-45ed: affected file set declared in PLAN.	review-draft
 M167	448	schema	happy/edge/adversarial 验证意图（DEV 起冻结）	Happy-path, edge-case, and adversarial verification intent; frozen from DEV.	review-draft

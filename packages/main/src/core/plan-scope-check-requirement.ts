@@ -24,7 +24,8 @@
  */
 import { existsSync } from 'node:fs';
 import type { StoryStore } from './store.js';
-import type { StoryInfo, WorkflowPolicy } from './types.js';
+import type { ChecklistData, ScopeCheckData, StoryInfo, WorkflowPolicy } from './types.js';
+import { scopeReviewChecklistDigest } from './scope-check-integrity.js';
 import { STORY_REQUEST_FILE } from './story-request.js';
 import { renderQualifiedManagedCodexDispatchCommand } from './reviewer-launch-guidance.js';
 
@@ -70,4 +71,62 @@ export function missingPlanScopeCheckFailure(
     + 'The reviewer traces every sentence and example of the request and Story artifacts to checklist intents and finishes with scope_check_save; '
     + 'the owner must not self-sign it.\n'
     + `Next: ${renderQualifiedManagedCodexDispatchCommand(story.storyId, SCOPE_PLAN_REVIEWER)}`;
+}
+
+/**
+ * Whether the checklist the scope-plan reviewer judged differs from the current
+ * one (scope-check.json checklistDigest). A verdict without the digest (older
+ * records) is never treated as changed.
+ */
+export function scopeVerdictChecklistChanged(scope: Pick<ScopeCheckData, 'checklistDigest'>, checklist: Pick<ChecklistData, 'items'>): boolean {
+  return !!scope.checklistDigest && scope.checklistDigest !== scopeReviewChecklistDigest(checklist);
+}
+
+/**
+ * Run 19 (P2): why the existing scope-plan verdict must be rerun, or null.
+ * Exactly the story_review blockers whose only remedy is a reviewer rerun:
+ *   - gaps open and the checklist changed since the verdict (scope_gap,
+ *     "rerun the scope-plan reviewer so it judges the current checklist");
+ *   - the verdict's reviewRound is not the current review round (scope_check_stale).
+ * A verdict with gaps on an unchanged checklist is not stale: the owner covers
+ * or excludes the gaps first, and the checklist change then makes it stale.
+ */
+export function scopePlanRerunReason(
+  store: Pick<StoryStore, 'readChecklist' | 'readScopeCheck'>,
+  story: Pick<StoryInfo, 'storyId' | 'currentReviewRound'>,
+): string | null {
+  const scope = store.readScopeCheck(story.storyId);
+  if (!scope) return null;
+  const gaps = (scope.features ?? []).filter(feature => feature.status === 'gap').length;
+  if (gaps > 0 && scopeVerdictChecklistChanged(scope, store.readChecklist(story.storyId))) {
+    return `the verdict of ${scope.checkedAt} lists ${gaps} gap(s) and the checklist changed since that verdict`;
+  }
+  if (story.currentReviewRound && scope.reviewRound !== story.currentReviewRound) {
+    return `the verdict's reviewRound (${scope.reviewRound || 'none'}) is not the current review round (${story.currentReviewRound})`;
+  }
+  return null;
+}
+
+/**
+ * Whether `next --run` may launch the scope-plan reviewer itself (a framework
+ * step), by the rule every managed launch follows: the selection is bound
+ * (this Story's own host/model/effort) and no earlier run of the target
+ * exists. Run 19 (P2) adds one case: a stale verdict whose last run completed
+ * and delivered that verdict (deliveryRunId, or the verdict saved after the run
+ * started), so the relaunch is mechanical. A last run that failed, or that
+ * completed without delivering the current verdict, stays the agent's call (no
+ * relaunch loop).
+ */
+export function scopePlanLaunchIsFramework(args: {
+  bound: boolean;
+  rerun: boolean;
+  last?: { runId: string; state: string; createdAt: string };
+  verdict?: Pick<ScopeCheckData, 'checkedAt' | 'deliveryRunId'> | null;
+}): boolean {
+  if (!args.bound) return false;
+  if (!args.last) return true;
+  if (!args.rerun || !args.verdict || args.last.state !== 'completed') return false;
+  return args.verdict.deliveryRunId
+    ? args.verdict.deliveryRunId === args.last.runId
+    : Date.parse(args.last.createdAt) <= Date.parse(args.verdict.checkedAt);
 }

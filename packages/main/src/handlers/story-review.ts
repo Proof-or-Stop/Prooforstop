@@ -28,7 +28,6 @@ import { resolveAuditConfig } from '../core/audit-config.js';
 import { safeReadScopeContract } from '../core/proof-or-stop-parallel-wave.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
 import { verifyScopeCheckSignature } from './scope-check.js';
-import { scopeReviewChecklistDigest } from '../core/scope-check-integrity.js';
 import { verifyManagedDispatchDelivery } from '../core/managed-host-run.js';
 import { existsSync } from 'fs';
 import { join } from 'path';
@@ -46,7 +45,8 @@ import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { truncateOneLine } from '../cli/output-verbosity.js';
 import { reviewGateVerificationIntentIssue } from '../core/review-gate-verification-intent.js';
 import { missingVerificationPinIssues } from '../core/plan-verification-pins.js';
-import { planScopeCheckRequirement } from '../core/plan-scope-check-requirement.js';
+import { planScopeCheckRequirement, scopeVerdictChecklistChanged } from '../core/plan-scope-check-requirement.js';
+import { requiresFullVerificationIntent } from '../core/plan-pre-scope-blockers.js';
 import {
   renderClaudeFreshReviewerHandoff,
   renderCodexFreshReviewerHandoff,
@@ -69,6 +69,25 @@ export { reviewGateVerificationIntentIssue } from '../core/review-gate-verificat
 // verify-parallel-execution-policy.mjs read `issues[].type` from bare output);
 // only free-text messages are truncated and the multi-megabyte `_reviewPrompt`
 // is replaced by an explicit stub naming --full.
+/** Where an issue's remedy starts: "Next:" or "Next (PLAN, no INIT reopen):". */
+const REMEDY_MARKER = /\bNext\b(?: \([^)]{0,60}\))?:/;
+
+/**
+ * One brief issue line: the diagnosis truncated to the budget, the remedy
+ * (from REMEDY_MARKER to the end) kept whole on one line. A remedy already
+ * printed by an earlier issue is replaced by a pointer to it.
+ */
+export function briefIssueMessage(message: string, budget: number, seen: Set<string>): string {
+  const at = message.search(REMEDY_MARKER);
+  if (at < 0) return truncateOneLine(message, budget);
+  const head = message.slice(0, at).trim();
+  const remedy = message.slice(at).replace(/\s+/g, ' ').trim();
+  const diagnosis = head ? `${truncateOneLine(head, budget)} ` : '';
+  if (seen.has(remedy)) return `${diagnosis}Next: same as above.`;
+  seen.add(remedy);
+  return `${diagnosis}${remedy}`;
+}
+
 function projectStoryReviewBrief(result: {
   issues: Array<{ severity: 'blocker' | 'advisory'; message: string; [key: string]: unknown }>;
   info?: Array<{ type: string; message: string }>;
@@ -81,13 +100,18 @@ function projectStoryReviewBrief(result: {
     ...rest,
     _brief: true,
     // Blockers keep a longer budget: their messages embed the exact recovery
-    // commands an agent needs to act.
-    issues: issues.map((issue) => ({
-      ...issue,
-      message: truncateOneLine(issue.message, issue.severity === 'blocker' ? 300 : 160),
-    })),
+    // commands an agent needs to act. Run 19 (P3): the `Next` remedy itself is
+    // never truncated (the cut "…Next (PLAN, no INI…" cost three re-reads);
+    // only the diagnosis before it is, and an identical remedy is printed once.
+    issues: (() => {
+      const seen = new Set<string>();
+      return issues.map((issue) => ({
+        ...issue,
+        message: briefIssueMessage(issue.message, issue.severity === 'blocker' ? 300 : 160, seen),
+      }));
+    })(),
     ...(info ? { info: info.map((entry) => ({ ...entry, message: truncateOneLine(entry.message, 160) })) } : {}),
-    _hint: `${_hint} — brief view: issue messages truncated and the PLAN review prompt omitted; use --full (or PROOF_OR_STOP_BRIEF_OUTPUT=0) for the complete output (explicit --json keeps the full machine shape).`,
+    _hint: `${_hint} — brief view: issue diagnoses truncated (Next remedies kept whole) and the PLAN review prompt omitted; use --full (or PROOF_OR_STOP_BRIEF_OUTPUT=0) for the complete output (explicit --json keeps the full machine shape).`,
     _reviewPrompt: typeof _reviewPrompt === 'string'
       ? `Brief view: full PLAN review prompt (${_reviewPrompt.length} chars) omitted. Run story_review with --full for the complete prompt.`
       : _reviewPrompt,
@@ -425,7 +449,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
       // 2.47. Verification intent discipline: fold old testIntent rigor into PLAN without reviving TEST_CASE phases.
       // Normal/high-risk stories must define happy/edge/adversarial intent per checklist item.
       // Express/fast paths can skip explicit PLAN intent; their validation remains evidence/finding based.
-      const requireFullVerificationIntent = isHighRisk || channel === 'normal' || policy.profile === 'strict';
+      const requireFullVerificationIntent = requiresFullVerificationIntent({ isHighRisk, channel, profile: policy.profile });
       // Authored acceptance is reviewed even on a fast/express path. Those paths may
       // omit intent, but they may not freeze a self-added repository health check as
       // an absolute must. This is a quality rule over existing intent, independent
@@ -670,8 +694,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           // only remaining action is the reviewer rerun.
           const gaps = (scopeData.features || []).filter(f => f.status === 'gap');
           const rerunScopeReviewer = renderQualifiedManagedCodexDispatchCommand(args.storyId, 'proof-or-stop-review-scope-plan');
-          const checklistChangedSinceVerdict = !!scopeData.checklistDigest
-            && scopeData.checklistDigest !== scopeReviewChecklistDigest(cl);
+          const checklistChangedSinceVerdict = scopeVerdictChecklistChanged(scopeData, cl);
           for (const gap of gaps) {
             const source = gap.source ? ` (source: ${gap.source})` : '';
             issues.push({

@@ -11,18 +11,23 @@
  * DEV unpinned; there the evidence chain emits one agent-authored
  * verification_evidence_batch_add.
  */
-import type { ChecklistData, ChecklistItem } from './types.js';
+import type { ChecklistData, ChecklistItem, VerificationIntentItem, VerificationLane } from './types.js';
 import { collectVerificationIntents, isExecutableIntentType } from './verification.js';
 
 export const MISSING_VERIFICATION_PIN = 'missing_verification_pin';
 
+/** An executable must/should intent without verification:{command,selector}. */
+export function intentNeedsVerificationPin(intent: VerificationIntentItem): boolean {
+  return isExecutableIntentType(intent.type)
+    && ((intent.priority ?? 'must') === 'must' || intent.priority === 'should')
+    && (!intent.verification?.command?.trim() || !intent.verification?.selector?.trim());
+}
+
 /** Executable must/should intents of one item without verification:{command,selector}. */
-export function unpinnedPlanIntents(item: ChecklistItem): Array<{ ref: string; priority: string; type: string }> {
+export function unpinnedPlanIntents(item: ChecklistItem): Array<{ ref: string; lane: VerificationLane; index: number; priority: string; type: string }> {
   return collectVerificationIntents(item)
-    .filter(entry => isExecutableIntentType(entry.intent.type))
-    .filter(entry => (entry.intent.priority ?? 'must') === 'must' || entry.intent.priority === 'should')
-    .filter(entry => !entry.intent.verification?.command?.trim() || !entry.intent.verification?.selector?.trim())
-    .map(entry => ({ ref: entry.ref, priority: entry.intent.priority ?? 'must', type: entry.intent.type }));
+    .filter(entry => intentNeedsVerificationPin(entry.intent))
+    .map(entry => ({ ref: entry.ref, lane: entry.lane, index: entry.index, priority: entry.intent.priority ?? 'must', type: entry.intent.type }));
 }
 
 /** One story_review blocker per item with unpinned executable must/should intents. */
