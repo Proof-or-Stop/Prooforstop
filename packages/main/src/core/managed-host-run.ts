@@ -266,6 +266,18 @@ export interface ManagedHostRunReviewBinding {
   fullScanEscalationReason?: string;
   /** Inventory critic only: existing findings its block must (not) carry a row for (worker format-repairs a mismatch). */
   inventoryCriticCoverage?: ManagedInventoryCriticCoverage;
+  /**
+   * The candidate route (candidate-spec-set.json artifactDigest + corpusDigest)
+   * this run was launched against. Controller-owned: the worker seals the
+   * proposal's readManifest with these values instead of the provider's copy
+   * (A/B V3 R2A-r2: a critic mistyped the digest and its import looped).
+   */
+  candidateRouting?: ManagedReviewCandidateRoutingBinding;
+}
+
+export interface ManagedReviewCandidateRoutingBinding {
+  candidateSpecSetDigest: string;
+  corpusDigest: string;
 }
 
 export interface ManagedHostRunWorkerRequest {
@@ -943,9 +955,14 @@ export function findResumableReviewerSession(args: {
   return newest && codexSessionExists(args.codexHome, newest.threadId) ? newest.threadId : null;
 }
 
-/** EXPERIMENTAL A/B review.round2Lanes=fresh; malformed config keeps production (resume). */
+/**
+ * review.round2Lanes: later-candidate review lanes start a fresh Codex thread
+ * (default, adopted from the detection A/B V3 arm); `resume` is the rollback
+ * that continues each lane's earlier-candidate thread. A malformed config keeps
+ * production (fresh).
+ */
 export function reviewerRound2LanesFresh(root: string): boolean {
-  try { return resolveAbVariants(loadConfig(root)).round2Lanes === 'fresh'; } catch { return false; }
+  try { return resolveAbVariants(loadConfig(root)).round2Lanes === 'fresh'; } catch { return true; }
 }
 
 /**
@@ -967,8 +984,9 @@ export function managedResumeSessionForSpec(
       });
     }
     if (spec.profile === 'managed_reviewer' && spec.lane && spec.reviewRunId) {
-      // EXPERIMENTAL A/B review.round2Lanes=fresh: later-candidate lanes start a
-      // fresh thread; the sealed prompt (managed-review-evidence.ts) says so.
+      // review.round2Lanes=fresh (default): later-candidate lanes start a fresh
+      // thread; the sealed prompt (managed-review-evidence.ts) says so and
+      // focuses it on the earlier findings + repair diff. `resume` = rollback.
       if (reviewerRound2LanesFresh(spec.root)) return null;
       return findResumableReviewerSession({
         root: spec.root, storyId: spec.storyId, lane: spec.lane, agentType: spec.agentType, model: spec.model ?? null,
@@ -5652,6 +5670,25 @@ export function withSealedFullScanReason<T>(readManifest: T, expectedFullScanRea
   if (!readManifest || typeof readManifest !== 'object' || Array.isArray(readManifest)) return readManifest;
   return { ...readManifest, scanEscalationReason: expectedFullScanReason };
 }
+/**
+ * The candidate-route digests are controller-owned, like the full-scan reason:
+ * the values sealed at launch replace the provider's transcription (a mistyped
+ * 64-hex value proves nothing about what was read, and A/B V3 R2A-r2 lost a
+ * whole critic round to one). Whether the reviewer read the candidate files is
+ * still checked from filesReadFully, and a route that changed after launch
+ * still refuses at import (sealed launch digest != current artifact).
+ */
+export function withSealedCandidateRouting<T>(readManifest: T, routing: ManagedReviewCandidateRoutingBinding | undefined): T {
+  if (!routing) return readManifest;
+  if (!readManifest || typeof readManifest !== 'object' || Array.isArray(readManifest)) return readManifest;
+  return { ...readManifest, candidateSpecSetDigest: routing.candidateSpecSetDigest, corpusDigest: routing.corpusDigest };
+}
+
+function providerRoutingDigests(readManifest: unknown): { candidateSpecSetDigest: unknown; corpusDigest: unknown } {
+  const value = readManifest && typeof readManifest === 'object' && !Array.isArray(readManifest) ? readManifest as Record<string, unknown> : {};
+  return { candidateSpecSetDigest: value.candidateSpecSetDigest ?? null, corpusDigest: value.corpusDigest ?? null };
+}
+
 export function writeManagedReviewEvidenceProposal(args: {
   root: string;
   runId: string;
@@ -5719,7 +5756,14 @@ export function writeManagedReviewEvidenceProposal(args: {
   if (!isManagedInventoryCriticEnvelopeValid(args.proposal.inventoryCritic, spec.lane, spec.agentType, args.proposal.findings?.length ?? 0)) {
     throw new Error('managed_review_proposal_set: invalid inventory critic transport');
   }
-  const readManifestInput = withSealedFullScanReason(args.proposal.readManifest, spec.reviewBinding.fullScanEscalationReason);
+  const sealedRouting = spec.reviewBinding.candidateRouting;
+  const providerRouting = providerRoutingDigests(args.proposal.readManifest);
+  const routingReplaced = sealedRouting !== undefined
+    && (providerRouting.candidateSpecSetDigest !== sealedRouting.candidateSpecSetDigest || providerRouting.corpusDigest !== sealedRouting.corpusDigest);
+  const readManifestInput = withSealedCandidateRouting(
+    withSealedFullScanReason(args.proposal.readManifest, spec.reviewBinding.fullScanEscalationReason),
+    sealedRouting,
+  );
   const conclusion = args.proposal.conclusion;
   const findings = args.proposal.findings ?? [];
   const note = args.proposal.note?.trim() ?? '';
@@ -5783,6 +5827,20 @@ export function writeManagedReviewEvidenceProposal(args: {
       type: 'review_evidence_proposed',
       detail: { conclusion, proposalDigest: digestFile(paths.evidenceProposal) },
     })}\n`, { encoding: 'utf8', mode: 0o600 });
+    if (routingReplaced) {
+      appendFileSync(paths.events, `${canonicalJson({
+        schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION,
+        runId: args.runId,
+        at: proposal.authoredAt,
+        type: 'read_manifest_routing_sealed',
+        detail: {
+          providerCandidateSpecSetDigest: providerRouting.candidateSpecSetDigest,
+          providerCorpusDigest: providerRouting.corpusDigest,
+          sealedCandidateSpecSetDigest: sealedRouting!.candidateSpecSetDigest,
+          sealedCorpusDigest: sealedRouting!.corpusDigest,
+        },
+      })}\n`, { encoding: 'utf8', mode: 0o600 });
+    }
   });
   return proposal;
 }

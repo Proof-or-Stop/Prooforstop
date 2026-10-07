@@ -485,6 +485,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         managedPromptDigest: string;
         fullScanEscalationReason?: string;
         inventoryCriticCoverage?: ManagedInventoryCriticCoverage;
+        candidateRouting?: { candidateSpecSetDigest: string; corpusDigest: string };
       } | null = null;
       let managedDispatch = false;
       let groupedTarget: { groupFindingIds?: string[]; groupItemIds?: string[]; abVariant: AbVariantEvidence } | null = null;
@@ -559,6 +560,8 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           managedPromptDigest: managedReviewerPromptDigest(promptRoot, reviewRun, canonicalReportStatuses, fullScanBinding),
           ...(fullScanBinding ? { fullScanEscalationReason: fullScanBinding.scanEscalationReason } : {}),
           ...(() => { const coverage = managedInventoryCriticCoverage(promptRoot, reviewRun); return coverage ? { inventoryCriticCoverage: coverage } : {}; })(),
+          // The route this run reviews against; the worker seals the proposal with it (A/B V3 R2A-r2).
+          candidateRouting: { candidateSpecSetDigest: candidateArtifact.artifactDigest, corpusDigest: candidateArtifact.corpusDigest },
         };
       } else if (args.managedDispatch === true) {
         if (hasPrompt || hasPromptFile) {

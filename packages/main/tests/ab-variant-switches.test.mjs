@@ -1,12 +1,14 @@
 /**
- * EXPERIMENTAL detection A/B switches (core/ab-variants.ts), all default OFF.
- * For each switch: flag absent = the old (production) behavior; flag set = the
- * variant. The end-to-end arms (each reaching DONE through `next`) live in
+ * Detection A/B switches (core/ab-variants.ts). Flag absent = production:
+ * experimental switches default OFF (the old behavior); review.round2Lanes was
+ * adopted and defaults to `fresh`, `resume` is its rollback.
+ * For each experimental switch: flag absent = the old (production) behavior;
+ * flag set = the variant. The end-to-end arms (each reaching DONE through `next`) live in
  * tasks/e2e-review-to-done-smoke.ts (AB / ND-V1..NF-V5).
  *
  *   V1 review.criticOnCleanRound=skip   cleanRoundCriticSkip / criticSkipReplayError
  *   V2 review.round2Scope=repaired-files repairedFilesReviewScope (changed files + direct callers)
- *   V3 review.round2Lanes=fresh          reviewerRound2LanesFresh (no reviewer thread resume)
+ *   V3 review.round2Lanes (default fresh) reviewerRound2LanesFresh (no reviewer thread resume; resume = rollback)
  *   V4 remediation.grouping=single       host_run grouped finding repair accepted only under the flag
  *   V5 implementation.grouping=files     host_run grouped implementer accepted only under the flag
  */
@@ -36,11 +38,13 @@ const epoch = { epochId: 'E1', storyId: 'B-1', requiredLanes: ['a', 'b'], waves:
 await check('config: absent switches resolve to production values; malformed fails closed; evidence lists only ON switches', async () => {
   const { resolveAbVariants, abVariantEvidence } = await load('core/ab-variants.js');
   const off = resolveAbVariants({});
-  assert.deepEqual(off, { criticOnCleanRound: 'run', round2Scope: 'full', round2Lanes: 'resume', remediationGrouping: 'per-finding', implementationGrouping: 'per-item' });
+  assert.deepEqual(off, { criticOnCleanRound: 'run', round2Scope: 'full', round2Lanes: 'fresh', remediationGrouping: 'per-finding', implementationGrouping: 'per-item' });
   assert.equal(abVariantEvidence(off), undefined);
   assert.throws(() => resolveAbVariants({ review: { criticOnCleanRound: 'always' } }), /invalid_ab_variant_config: review\.criticOnCleanRound/);
   const on = resolveAbVariants({ review: { criticOnCleanRound: 'skip' }, remediation: { grouping: 'single' } });
   assert.deepEqual(abVariantEvidence(on), { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.criticOnCleanRound': 'skip', 'remediation.grouping': 'single' } });
+  assert.equal(abVariantEvidence(resolveAbVariants({ review: { round2Lanes: 'fresh' } })), undefined, 'fresh lanes are production: not recorded');
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ review: { round2Lanes: 'resume' } })), { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.round2Lanes': 'resume' } }, 'the rollback is recorded');
 });
 
 await check('V1 review.criticOnCleanRound: off = critic required on a clean round; skip = signed skip only for a clean first wave, replay refuses once the flag is removed', async () => {
@@ -79,11 +83,12 @@ await check('V2 review.round2Scope=repaired-files: scope = files changed by the 
   assert.equal(repairedFilesReviewScope(repo, repo, from, from), null, 'unchanged candidate: no scope');
 });
 
-await check('V3 review.round2Lanes: off/malformed = resume reviewer threads; fresh = never resume', async () => {
+await check('V3 review.round2Lanes (adopted): absent/malformed/fresh = never resume reviewer threads; resume = rollback', async () => {
   const { reviewerRound2LanesFresh } = await load('core/managed-host-run.js');
-  assert.equal(reviewerRound2LanesFresh(OFF()), false);
-  assert.equal(reviewerRound2LanesFresh(projectWith({ review: { round2Lanes: 'bogus' } })), false);
+  assert.equal(reviewerRound2LanesFresh(OFF()), true, 'production default: fresh later-round lanes');
+  assert.equal(reviewerRound2LanesFresh(projectWith({ review: { round2Lanes: 'bogus' } })), true, 'malformed keeps production');
   assert.equal(reviewerRound2LanesFresh(projectWith({ review: { round2Lanes: 'fresh' } })), true);
+  assert.equal(reviewerRound2LanesFresh(projectWith({ review: { round2Lanes: 'resume' } })), false, 'rollback resumes');
 });
 
 const findingStore = (findings, items = []) => ({ readFindings: () => ({ findings }), readChecklist: () => ({ items }) });

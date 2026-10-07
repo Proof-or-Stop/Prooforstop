@@ -625,9 +625,19 @@ function renderInventoryCriticCoverage(coverage: ManagedInventoryCriticCoverage 
 }
 
 function renderRefusedEarlierCriticImports(store: StoryStore, run: ReviewRun, packRunIds: readonly string[]): string[] {
-  const refusals = store.readProcessEvents(run.storyId).filter(event => event.type === 'inventory_critic_import_refused'
+  const events = store.readProcessEvents(run.storyId);
+  const blockRefusals = events.filter(event => event.type === 'inventory_critic_import_refused'
     && typeof event.reviewRunId === 'string' && packRunIds.includes(event.reviewRunId));
-  return refusals.map(event => `An earlier critic of this wave (ReviewRun ${String(event.reviewRunId)}) was refused at import: ${String(event.reason ?? '').slice(0, 600)}. Its findings are in this pack and need rows by findingId; give every finding named there exactly one row.`);
+  // A/B V3 R2A-r2: an earlier critic of this epoch refused before anything was
+  // recorded (e.g. its read manifest did not bind the current candidate route).
+  const epochCriticRunIds = new Set(store.readReviewRuns(run.storyId).runs.filter(row => row.reviewPurpose === 'inventory-completeness'
+    && row.reviewRunId !== run.reviewRunId && row.inventoryBinding?.epochId === run.inventoryBinding?.epochId).map(row => row.reviewRunId));
+  const receiptRefusals = events.filter(event => event.type === 'managed_review_import_refused'
+    && typeof event.reviewRunId === 'string' && epochCriticRunIds.has(event.reviewRunId));
+  return [
+    ...blockRefusals.map(event => `An earlier critic of this wave (ReviewRun ${String(event.reviewRunId)}) was refused at import: ${String(event.reason ?? '').slice(0, 600)}. Its findings are in this pack and need rows by findingId; give every finding named there exactly one row.`),
+    ...receiptRefusals.map(event => `An earlier critic of this epoch (ReviewRun ${String(event.reviewRunId)}) was refused at import before anything was recorded: ${String(event.reason ?? '').slice(0, 600)}. Nothing of it was imported; complete this review yourself.`),
+  ];
 }
 
 /**
@@ -728,13 +738,13 @@ function renderManagedRereviewDiff(gitCwd: string, projectRoot: string, fromHead
   ];
 }
 
-/** EXPERIMENTAL A/B switches read for a managed re-review prompt; malformed config fails closed to production. */
+/** Switches read for a managed re-review prompt; malformed config fails closed to production (full scope, fresh lanes). */
 function rereviewAbVariants(root: string): { round2Scope: 'full' | 'repaired-files'; round2Lanes: 'resume' | 'fresh' } {
   try {
     const variants = resolveAbVariants(loadConfig(root));
     return { round2Scope: variants.round2Scope, round2Lanes: variants.round2Lanes };
   } catch {
-    return { round2Scope: 'full', round2Lanes: 'resume' };
+    return { round2Scope: 'full', round2Lanes: 'fresh' };
   }
 }
 
@@ -817,7 +827,7 @@ function renderManagedReviewerRereview(root: string, run: ReviewRun): string[] {
   const scope = variants.round2Scope === 'repaired-files' ? repairedFilesReviewScope(gitCwd, root, previous.headHash, run.headHash) : null;
   const abLines = [
     ...(variants.round2Lanes === 'fresh' ? [
-      'A/B variant review.round2Lanes=fresh (experimental): this is a FRESH session; your earlier review thread is not resumed. Do not re-review the whole Story: focus on the findings raised on earlier candidates and on the repair diff below, reading other code only where the diff depends on it.',
+      'This is a FRESH session: your earlier review thread is not resumed. Do not re-review the whole Story: focus on the findings raised on earlier candidates and on the repair diff below, reading other code only where the diff depends on it.',
     ] : []),
     ...(variants.round2Scope === 'repaired-files' ? (scope ? [
       'A/B variant review.round2Scope=repaired-files (experimental): this round reviews ONLY the files changed by the repair commits and their direct callers, not the full Story diff. Do not raise findings in other files; the rest of the Story diff was reviewed on earlier candidates.',
@@ -899,8 +909,11 @@ export function buildManagedReviewerPrompt(
     // come from, so it emitted plausible invented digests and a substantive
     // sealed verdict was rejected as "does not match current artifact" after
     // the review had already run. Stating the source is the prompt half of the
-    // two-layer process-fact contract; the gate is unchanged and still decides.
-    'readManifest.candidateSpecSetDigest MUST be copied verbatim from the "artifactDigest" field of this story\'s candidate-spec-set.json, and readManifest.corpusDigest MUST be copied verbatim from that same file\'s "corpusDigest" field. Read that file and copy both values exactly; do not compute, guess, or reuse digests from an earlier run. A mismatch is rejected after your review completes.',
+    // two-layer process-fact contract. Since A/B V3 R2A-r2 (a critic read the
+    // right value and still mistyped it) the worker also seals the proposal
+    // with the launch-bound values (withSealedCandidateRouting); the gate
+    // compares them with the current artifact and still decides.
+    'readManifest.candidateSpecSetDigest MUST be copied verbatim from the "artifactDigest" field of this story\'s candidate-spec-set.json, and readManifest.corpusDigest MUST be copied verbatim from that same file\'s "corpusDigest" field. Read that file and copy both values exactly; do not compute, guess, or reuse digests from an earlier run. The managed worker seals the proposal with the values bound at launch, and an import is refused when the route changed since then.',
     'readLog.summary.readCount MUST equal the number of unique paths in readLog.filesReadFully (not the number of read operations you performed).',
     'The managed host adapter reads only this bounded final assistant result after provider exit, seals the exact verdict, and then permits receipt import. The controller cannot substitute or override it.',
     'Execution boundary: remain in the host-configured isolated scratch cwd for this managed provider run. The signed ReviewRun may record a canonical primary worktree only for audit binding; do not cd to, run commands from, or write to that canonical path.',

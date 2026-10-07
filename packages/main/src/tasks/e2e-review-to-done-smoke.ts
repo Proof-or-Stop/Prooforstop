@@ -93,18 +93,25 @@
  *      gives it a verified_family row. The import drops and logs that row
  *      (no refusal, no loop, no owner-written receipt); the round finalizes,
  *      the finding stays suspected and advisory, DONE.
+ *   NC5 A/B V3 R2A-r2: the critic mistypes readManifest.candidateSpecSetDigest;
+ *      the worker seals the launch-bound route, no refusal, DONE.
+ *   NC6 the critic copies a wrong wave number: its import is refused once before
+ *      anything persists (recorded), next never proposes it again but runs a
+ *      fresh critic whose prompt names the refusal, DONE.
  *
  * Machine registries (provider slots, locks) use a disposable fixture machine
  * so the harness never touches the developer's ~/.proof-or-stop admission state.
  *
- *   AB EXPERIMENTAL detection A/B arms (core/ab-variants.ts, all default off):
+ *   AB detection A/B arms (core/ab-variants.ts; experimental switches default off):
  *      ND-V1..ND-V5 / NF-V1..NF-V5 run the ND / NF next-driven flow with one
  *      switch set in the prepared config (V1 review.criticOnCleanRound=skip,
- *      V2 review.round2Scope=repaired-files, V3 review.round2Lanes=fresh,
- *      V4 remediation.grouping=single, V5 implementation.grouping=files on an
- *      unimplemented fixture). `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5.
+ *      V2 review.round2Scope=repaired-files, V3 review.round2Lanes=resume (the
+ *      rollback: fresh later-round lanes are the production default since the
+ *      A/B V3 adoption), V4 remediation.grouping=single, V5
+ *      implementation.grouping=files on an unimplemented fixture).
+ *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NL|NU|NU2|NC|NC2|NC3|NC4|AB|ND-V1..NF-V5]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|AB|ND-V1..NF-V5]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -177,7 +184,7 @@ export class Owner {
 
   constructor(readonly scenario: string, readonly storyId: string, machineEnv: NodeJS.ProcessEnv, readonly steps: Step[], readonly bareGitignore = false,
     private readonly fixtureOpts: { trackedGateFailureCounts?: boolean;
-      /** EXPERIMENTAL A/B switches merged into the prepared proof-or-stop.config.json (scenario AB). */
+      /** Detection A/B switches merged into the prepared proof-or-stop.config.json (scenario AB). */
       config?: Record<string, unknown>;
       /** The Story branch has no implementation commit yet: DEV implementer runs write it (scenario AB V5). */
       unimplemented?: boolean } = {}) {
@@ -1219,6 +1226,23 @@ function laneScript(worktree: string, storyId: string, lane: string, reviewRunId
 }
 
 /** The inventory critic: dispositions every finding of the current epoch's round as one verified family (the NU duplicate as `duplicate`). */
+/** A/B V3 R2A-r2: the 64-hex value the round-2 critic wrote instead of the artifactDigest it had just read. */
+const NC5_MISTYPED_DIGEST = '8577ba20d1ad8034c589b5029a816ba50a510dbd56fd83f7d4d40589f582f78a';
+
+/** NC5: the first critic's read manifest carries a mistyped candidateSpecSetDigest (everything else exact). */
+function mistypedDigestCriticScript(script: ProviderScript): ProviderScript {
+  const value = JSON.parse(script.final) as { readManifest: Record<string, unknown> };
+  value.readManifest.candidateSpecSetDigest = NC5_MISTYPED_DIGEST;
+  return { ...script, final: JSON.stringify(value) };
+}
+
+/** NC6: the first critic copies a wrong wave number into its block (a transcription error the importer refuses before persisting). */
+function wrongWaveCriticScript(script: ProviderScript): ProviderScript {
+  const value = JSON.parse(script.final) as { inventoryCritic: { wave: number } };
+  value.inventoryCritic.wave += 1;
+  return { ...script, final: JSON.stringify(value) };
+}
+
 function criticScript(worktree: string, storyId: string, reviewRunId: string, restate?: CriticRestateMode): ProviderScript {
   const store = new StoryStore(worktree);
   const epoch = store.readReviewInventoryEpochs(storyId).epochs.at(-1)!;
@@ -1410,7 +1434,11 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   /** Run 19 (NC4): round 1's only finding is suspected. */
   suspectedOnly?: boolean;
   /** NC3: critic imports refused with DISPOSITION_INCOMPLETE/INVALID (at most one is tolerated; next must then change course). */
-  refusedCriticImports?: string[]; }, lines: string[],
+  refusedCriticImports?: string[];
+  /** NC5 (A/B V3 R2A-r2): the first critic mistypes readManifest.candidateSpecSetDigest. */
+  criticMistypedDigest?: boolean;
+  /** NC6: the first critic copies a wrong inventory wave number (refused at import before anything persists); the runIds whose import was refused. */
+  refusedBeforePersist?: string[]; }, lines: string[],
   /** Called with each step `next` returned, before the harness executes it; quiet = no detached managed run in flight. */
   onStep?: (next: NextStepJson, quiet: boolean) => void): void {
   const id = o.storyId;
@@ -1484,6 +1512,11 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
     if (next.reason === 'review_evidence_import' && mode.refusedCriticImports?.includes(JSON.stringify(payload))) {
       assert.fail(`[${o.scenario}] next re-proposed the refused critic import ${JSON.stringify(payload)}; why: ${next.why}`);
     }
+    // NC6: an import refused for good (receipt-level) is never proposed again, alone or in a batch.
+    const proposedRunIds = next.reason === 'review_evidence_import'
+      ? (Array.isArray(payload.imports) ? (payload.imports as Array<{ runId: string }>).map(row => row.runId) : [String(payload.runId)]) : [];
+    const repeated = proposedRunIds.filter(runId => mode.refusedBeforePersist?.includes(runId));
+    if (repeated.length) assert.fail(`[${o.scenario}] next re-proposed the refused import of ${repeated.join(', ')}; why: ${next.why}`);
     // Fake-provider seams and authored values for agent-kind steps.
     switch (next.reason) {
       case 'review_lane_launch': {
@@ -1493,9 +1526,13 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
         o.script(reviewRunId, laneScript(o.worktree, id, lane, reviewRunId, round === firstRound, mode));
         break;
       }
-      case 'inventory_critic_launch':
-        o.script(String(payload.reviewRunId), criticScript(o.worktree, id, String(payload.reviewRunId), mode.criticRestate));
+      case 'inventory_critic_launch': {
+        const script = criticScript(o.worktree, id, String(payload.reviewRunId), mode.criticRestate);
+        const firstCritic = new StoryStore(o.worktree).readReviewRuns(id).runs.find(row => row.reviewPurpose === 'inventory-completeness')?.reviewRunId === String(payload.reviewRunId);
+        o.script(String(payload.reviewRunId), mode.criticMistypedDigest && firstCritic ? mistypedDigestCriticScript(script)
+          : mode.refusedBeforePersist && firstCritic ? wrongWaveCriticScript(script) : script);
         break;
+      }
       case 'delivery_review_launch':
         o.script(DELIVERY, deliveryScript(id));
         break;
@@ -1593,7 +1630,19 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
     for (const call of calls) {
       const unfilled = Object.entries(call.payload).filter(([, value]) => typeof value === 'string' && /^<.*>$/.test(value)).map(([key]) => key);
       assert.deepEqual(unfilled, [], `[${o.scenario}] ${call.reason}: harness has no value for placeholder(s) ${unfilled.join(', ')}`);
+      // NC6: the first critic's import is refused before anything persists (wrong wave copied into its block).
+      const criticImportRunId = call.reason === 'review_evidence_import' && typeof call.payload.runId === 'string'
+        && (JSON.parse(readFileSync(join(runsRoot, call.payload.runId, 'spec.json'), 'utf8')) as { agentType?: string }).agentType === MANAGED_INVENTORY_CRITIC_LANE
+        ? call.payload.runId : null;
+      const refuseOnce = mode.refusedBeforePersist && mode.refusedBeforePersist.length === 0 && criticImportRunId !== null;
       const ran = o.cli(call.command, call.payload, { label: `  ${next.kind[0]}:${call.reason}`.slice(0, 44) });
+      if (refuseOnce) {
+        assert.notEqual(ran.status, 0, `[${o.scenario}] the critic import with a wrong wave must be refused`);
+        assert.match(ran.out, /invalid inventory critic purpose or wave/, `[${o.scenario}] refusal: ${ran.out.slice(-800)}`);
+        mode.refusedBeforePersist!.push(criticImportRunId!);
+        reasons.push('critic_import_refused_before_persist');
+        continue;
+      }
       if (ran.status !== 0 && mode.criticRestate === 'new-misfiled' && call.reason === 'review_evidence_import'
         && /REVIEW_INVENTORY_FINDING_DISPOSITION_(?:INCOMPLETE|INVALID)/.test(ran.out) && (mode.refusedCriticImports?.length ?? 0) === 0) {
         // NC3: the critic misfiled its own new finding; this one refusal is the scripted fault.
@@ -1808,6 +1857,58 @@ function scenarioNC4(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
+/**
+ * NC5, A/B V3 R2A-r2 (de80753): the critic read candidate-spec-set.json and
+ * still wrote a mistyped candidateSpecSetDigest; the import was refused before
+ * anything was recorded and next proposed it forever. The worker now seals the
+ * launch-bound route into the proposal: no refusal, the round finalizes, DONE.
+ * NC6: the same refusal KIND as de80753 (refused before any evidence persists,
+ * which the 9471bb7 rule did not cover), produced by another transcription
+ * error the worker cannot seal away: the critic copies a wrong wave number into
+ * its block. The import is refused once and recorded
+ * (managed_review_import_refused); next never proposes it again but runs a
+ * fresh critic whose prompt names the refusal, and the Story reaches DONE.
+ */
+function scenarioNC5(machineEnv: NodeJS.ProcessEnv, steps: Step[], refusal: boolean): Outcome {
+  const tag = refusal ? 'NC6' : 'NC5';
+  const name = refusal
+    ? 'NC6 critic import refused before anything persists (wrong wave): recorded once, next relaunches the critic, DONE'
+    : 'NC5 A/B V3 R2A-r2: critic mistypes candidateSpecSetDigest; worker seals the launch-bound route, no refusal, DONE';
+  const o = new Owner(tag, refusal ? 'B-e2f6' : 'B-e2f5', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  const refused: string[] = [];
+  const refusedRuns: string[] = [];
+  try {
+    devSetup(o);
+    driveWithNext(o, { findingRound1: true, run: false, refusedCriticImports: refused,
+      ...(refusal ? { refusedBeforePersist: refusedRuns } : { criticMistypedDigest: true }) }, lines);
+    const store = new StoryStore(o.root);
+    const events = store.readProcessEvents(o.storyId).filter(e => e.type === 'managed_review_import_refused');
+    const runsRoot = join(o.root, '.proof-or-stop', 'runtime', 'host-runs');
+    const criticRuns = readdirSync(runsRoot).filter(runId => {
+      try { return (JSON.parse(readFileSync(join(runsRoot, runId, 'spec.json'), 'utf8')) as { agentType?: string }).agentType === MANAGED_INVENTORY_CRITIC_LANE; } catch { return false; }
+    });
+    if (refusal) {
+      assert.equal(refusedRuns.length, 1, `${tag}: exactly one critic import was refused`);
+      assert.equal(events.filter(e => e.managedRunId === refusedRuns[0]).length, 1, `${tag}: the refusal is recorded once: ${JSON.stringify(events)}`);
+      const prompts = criticRuns.map(runId => join(o.scriptsDir, 'prompts', `${runId}.txt`)).filter(existsSync).map(path => readFileSync(path, 'utf8'));
+      assert.ok(prompts.some(text => /refused at import before anything was recorded: /.test(text)),
+        `${tag}: the fresh critic's prompt names the refusal`);
+    } else {
+      assert.deepEqual(events, [], `${tag}: no import refused`);
+      const sealed = criticRuns.map(runId => readFileSync(join(runsRoot, runId, 'events.jsonl'), 'utf8')).join('\n');
+      assert.match(sealed, /read_manifest_routing_sealed/, `${tag}: the worker journaled the sealed route`);
+      assert.match(sealed, new RegExp(NC5_MISTYPED_DIGEST), `${tag}: the journal keeps the provider's mistyped value`);
+    }
+    lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 function scenarioN(machineEnv: NodeJS.ProcessEnv, steps: Step[], flow: 'A' | 'D', run: boolean): Outcome {
   const tag = `N${flow}${run ? '-run' : ''}`;
   const name = `${tag} ${flow}'s flow from REVIEW entry driven only by proof-or-stop next${run ? ' --run' : ''}`;
@@ -1858,11 +1959,11 @@ function scenarioNF(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
-/** The EXPERIMENTAL detection A/B switch each AB scenario turns on (core/ab-variants.ts); all default off. */
+/** The detection A/B switch each AB scenario sets (core/ab-variants.ts): V1/V2/V4/V5 experimental (default off); V3 = round2Lanes rollback `resume`. */
 export const AB_SCENARIO_VARIANTS = {
   V1: { review: { criticOnCleanRound: 'skip' } },
   V2: { review: { round2Scope: 'repaired-files' } },
-  V3: { review: { round2Lanes: 'fresh' } },
+  V3: { review: { round2Lanes: 'resume' } },
   V4: { remediation: { grouping: 'single' } },
   V5: { implementation: { grouping: 'files' } },
 } as const;
@@ -1889,7 +1990,8 @@ function managedPrompts(o: Owner, agentType?: string): Array<{ runId: string; ag
  * (every proposed command accepted by its gate) and show the variant's effect:
  *   V1 the clean later round finalizes without an inventory critic (signed criticSkip);
  *   V2 later-round lane prompts restrict review to the repaired files + direct callers;
- *   V3 later-round lane prompts say fresh session (no resume of round-1 threads);
+ *   V3 the rollback review.round2Lanes=resume (fresh lanes are the default since
+ *      the A/B V3 adoption): later-round lane prompts keep the resume wording;
  *   V4 one grouped finding-repair run, then each finding resolved on its own;
  *   V5 (unimplemented fixture) one implementer run for both items sharing files,
  *      the second item marked done separately (grouped_item_done).
@@ -1929,6 +2031,7 @@ function scenarioAB(machineEnv: NodeJS.ProcessEnv, steps: Step[], flow: 'D' | 'F
       case 'V2':
         assert.ok(rereview.length >= 1, `${tag}: later-round lanes got a re-review prompt`);
         for (const row of rereview) {
+          assert.match(row.prompt, /This is a FRESH session/, `${tag}: ${row.runId} default later-round lane is a fresh session`);
           assert.match(row.prompt, /review\.round2Scope=repaired-files/, `${tag}: ${row.runId} prompt states the repaired-files scope`);
           assert.match(row.prompt, /Files changed by the repair \(\d+\): [^\n]*strs\/strs_test\.go/, `${tag}: ${row.runId} prompt lists the repaired file`);
         }
@@ -1937,10 +2040,10 @@ function scenarioAB(machineEnv: NodeJS.ProcessEnv, steps: Step[], flow: 'D' | 'F
       case 'V3':
         assert.ok(rereview.length >= 1, `${tag}: later-round lanes got a re-review prompt`);
         for (const row of rereview) {
-          assert.match(row.prompt, /review\.round2Lanes=fresh/, `${tag}: ${row.runId} prompt states a fresh session`);
-          assert.doesNotMatch(row.prompt, /If this session already holds your earlier review/, `${tag}: ${row.runId} prompt has no resume wording`);
+          assert.match(row.prompt, /If this session already holds your earlier review/, `${tag}: ${row.runId} rollback prompt keeps the resume wording`);
+          assert.doesNotMatch(row.prompt, /This is a FRESH session/, `${tag}: ${row.runId} rollback prompt has no fresh-session line`);
         }
-        lines.push(`later-round lane prompts in fresh mode: ${rereview.length}`);
+        lines.push(`later-round lane prompts in resume (rollback) mode: ${rereview.length}`);
         break;
       case 'V4': {
         const repairs = managedPrompts(o, FINDING_REPAIR);
@@ -2053,7 +2156,7 @@ function printTimeline(steps: Step[], scenario: string): void {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF|NL|NU2?|NC[234]?|N[AD](?:-run)?|N[DF]-V[1-5]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF|NL|NU2?|NC[2-6]?|N[AD](?:-run)?|N[DF]-V[1-5]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -2086,6 +2189,8 @@ async function main(): Promise<void> {
       if (only.includes(token)) outcomes.push(scenarioNC(machine.env, steps, restate));
     }
     if (only.includes('NC4')) outcomes.push(scenarioNC4(machine.env, steps));
+    if (only.includes('NC5')) outcomes.push(scenarioNC5(machine.env, steps, false));
+    if (only.includes('NC6')) outcomes.push(scenarioNC5(machine.env, steps, true));
     // Detection A/B arms: explicit tokens (ND-V1 .. NF-V5) or AB = ND-V1, ND-V2, ND-V3, NF-V4, ND-V5.
     const abTokens = only.includes('AB') ? ['ND-V1', 'ND-V2', 'ND-V3', 'NF-V4', 'ND-V5'] : [];
     for (const token of [...new Set([...abTokens, ...only.filter(arg => /^N[DF]-V[1-5]$/.test(arg))])]) {
@@ -2094,7 +2199,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

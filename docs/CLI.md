@@ -674,6 +674,28 @@ finding is never reconciled away (`reconcileRestatedCriticFindings`,
 core/managed-inventory-critic.ts; detection A/B control D2-r3, D9-r1). A refused
 critic import is recorded as process event `inventory_critic_import_refused`,
 and `next` then runs a fresh critic of the same wave instead of the same import.
+The same holds when the import of any managed review receipt (lane or critic) is
+refused BEFORE any evidence was persisted for a reason no retry can change
+(`isDeterministicManagedImportRefusal`: candidate routing rejected, no admissible
+provider proposal, invalid critic purpose/wave, an evidence_chain item in a critic
+proposal, or a live-binding refusal that says to rerun the reviewer): the refusal
+is recorded once as process event `managed_review_import_refused` for that exact
+run/receipt, `next` never proposes that import again (alone or in a batch), and
+relaunches instead: a fresh critic of the same wave (its prompt names the
+refusal), or for a lane, `review_round_prepare` starts a fresh run of it
+(`refusedManagedReviewImport`, handlers/managed-review-evidence.ts). Transient
+refusals (staged metadata, unreadable status) are retried. A/B V3 R2A-r2
+(de80753) looped on such a refusal: the round-2 critic read
+`candidate-spec-set.json` (artifactDigest `ba5faa35…`) and wrote a different
+64-hex value (`8577ba20…`) into `readManifest.candidateSpecSetDigest`; the route
+had not changed. The candidate route a managed reviewer is launched against is
+now sealed in its run spec (`reviewBinding.candidateRouting`:
+`candidateSpecSetDigest` + `corpusDigest`), and the worker seals the proposal
+with those controller-owned values instead of the provider's transcription
+(`withSealedCandidateRouting`, journaled as run event
+`read_manifest_routing_sealed` with both values), as it already does for the
+full-scan reason. A route that really changed after launch still refuses at
+import (sealed launch digest != current artifact) and takes the relaunch path above.
 That fresh critic does not make the earlier critic's findings stale (the
 `stale_run` rule exempts inventory-completeness critic runs of the same epoch
 wave, core/review-run.ts); the fresh critic classifies them by `findingId`.
@@ -1060,12 +1082,12 @@ Decision table (first matching row wins):
 | DEV, otherwise | `story_advance --phase=REVIEW` if the REVIEW guard passes, else the guard's own `→`/`Next:` command; advisory evidence-chain items (a changed test no pin selects, a missing should receipt) ride on its `why`, never as a step of their own | framework | `getGuardFailureReason(REVIEW)` |
 | REVIEW, a prepared ReviewRun of this round without a host run | `host_run` managedReview for that lane (all prepared lanes are launched before any wait) | framework (`launch`, bound, not a replacement; a replacement only for earlier runs that failed auto-replaceably — `worker_launch_failed:managed supervisor …` or `provider_stalled:…` with `replacementSafe=true` — at most `MANAGED_AUTO_RELAUNCHES_PER_TARGET` = 3 of them) / agent | review-runs.json + host-run projection |
 | REVIEW, a lane run in flight | `host_run_status --untilTerminal=true` (compact text, never `--json`) | framework (wait) | host-run projection |
-| REVIEW, completed lane runs not imported (every lane terminal) | `managed_review_evidence_import {runId, receiptId}` for one run, `{imports: [{runId, receiptId}, ...]}` for several: one process, one import transaction and metadata commit per run, in order, stopping at the first refusal (run 17: one process per lane, 4.7–8.5 s each) | framework | host-run receipt |
+| REVIEW, completed lane runs not imported (every lane terminal) | `managed_review_evidence_import {runId, receiptId}` for one run, `{imports: [{runId, receiptId}, ...]}` for several: one process, one import transaction and metadata commit per run, in order, stopping at the first refusal (run 17: one process per lane, 4.7–8.5 s each). A receipt whose import was refused for good (`managed_review_import_refused`) is left out; its lane then has no evidence and the `review_round_prepare` row below starts a fresh run of it | framework | host-run receipt + `refusedManagedReviewImport` |
 | REVIEW, the verdict misses lane evidence | `review_round_prepare` | framework | `evaluateReviewVerdict` + `reviewer_batch` launchable lanes |
 | REVIEW, certification window ADMITTED | `validate --story --json` (the routine suite; nothing in between) | framework | `certification_window_status` |
 | REVIEW, window RUNNING and the stored PASS admissible | `story_advance --phase=TEST`; if the verdict still refuses on open findings: `finding_resolve` for the first repaired one, else `story_advance --phase=DEV` (`finding_unrepaired_dev`) | framework | `certification_window_status` Next + `evaluateReviewVerdict` + `managedFindingRepairState` |
 | REVIEW, OPEN epoch, critic missing | `dispatch` critic → `review_run_start` critic → `host_run` critic (`launch` when bound; agent after a failed critic run in the round) → wait → import | framework / agent | `review_inventory_status` |
-| REVIEW, OPEN epoch, the latest critic run's import was refused (its terminal evidence is imported, its `inventoryCritic` block was not; process event `inventory_critic_import_refused` for that exact run/receipt) | a fresh critic of the same wave: `dispatch` critic (when the dispatch binding is gone) or `review_run_start` critic, `why` naming the refusal; never the same import again. The fresh critic's evidence pack also carries the refused critic's findings and the exact refusal text | framework | `refusedInventoryCriticImport` (handlers/managed-review-evidence.ts) |
+| REVIEW, OPEN epoch, the latest critic run's import was refused for good (its terminal evidence is imported but its `inventoryCritic` block was not, process event `inventory_critic_import_refused`; or it was refused before anything was persisted for a deterministic reason, process event `managed_review_import_refused`; both for that exact run/receipt) | a fresh critic of the same wave: `dispatch` critic (when the dispatch binding is gone) or `review_run_start` critic, `why` naming the refusal; never the same import again. The fresh critic's prompt carries the exact refusal text (and, for a block refusal, the evidence pack carries the refused critic's findings) | framework | `refusedManagedReviewImport` (handlers/managed-review-evidence.ts) |
 | REVIEW, OPEN epoch, otherwise | `review_inventory_status`'s own Next (`review_inventory_finalize [--remediation]`, `review_inventory_cancel`) | framework | `review_inventory_status` |
 | REVIEW, FINALIZED remediation receipt | `story_advance --phase=DEV` | framework | `finalizedUnconsumedReviewInventory` + DEV guard |
 | REVIEW, FINALIZED zero-wave completeness-only receipt | `review_inventory_cancel` | framework | PRE_CERT inventory recovery |
@@ -1177,37 +1199,51 @@ the DEV / REVIEW / TEST guidance printed by `story_advance`. Refusals that alrea
 name one concrete command (evidence-chain, finding closure, certification blockers
 with a store) keep it; `next` computes the same command.
 
-### Experimental detection A/B variant switches (default off; A/B measurement only)
+### Detection A/B variant switches (four experimental, default off; `review.round2Lanes` adopted)
 
-Five project-config switches exist ONLY to measure, in a detection A/B, whether a
+Five project-config switches were added to measure, in a detection A/B, whether a
 structural review/dispatch change loses findings (bench-staging run-17 cost
-analysis §3). They are **not** production settings. Every one defaults OFF: with
-no key in `proof-or-stop.config.json` the resolved value is the production value
-and the CLI behaves byte-for-byte as before. A malformed value never selects an
-arm: gates and `next` fail closed to production behavior, and an explicit grouped
-`host_run` is refused with `invalid_ab_variant_config` (`core/ab-variants.ts`).
-Every switch that changes what a gate accepts is honoured only while it is set in
-the config that gate reads, and the arm is recorded in the evidence:
+analysis §3). With no key in `proof-or-stop.config.json` every switch resolves to
+its production value (the first value listed below).
 
-| Switch (config key) | Values (default first) | What changes when set | Evidence of the arm |
+- `review.round2Lanes` is **adopted** and is a production setting: later-round
+  review lanes start fresh by default. The detection A/B V3 arm
+  (bench-staging/oldpos/ab/results-r2.md, n = 4 per arm) found the post-repair
+  seed 4/4 with fresh lanes against 3/4 with resumed lanes (the hard D4 seed 2/2
+  vs 1/2) and cut round-2 lane input tokens by 56% (15.7M to 6.9M per round:
+  resumed lanes start at 405–515 KB of context, fresh ones at ~105 KB); wall time
+  did not change. `resume` restores the earlier behavior (rollback) and is
+  recorded like any non-default switch.
+- The other four are **experimental** (A/B measurement only, not production
+  settings) and default OFF, so the CLI behaves byte-for-byte as before.
+
+A malformed value never selects an arm: gates and `next` fail closed to production
+behavior, and an explicit grouped `host_run` is refused with
+`invalid_ab_variant_config` (`core/ab-variants.ts`). Every switch that changes
+what a gate accepts is honoured only while it is set in the config that gate
+reads, and the arm is recorded in the evidence:
+
+| Switch (config key) | Values (default first) | What changes when set (non-default) | Evidence of the arm |
 | --- | --- | --- | --- |
 | `review.criticOnCleanRound` | `run` \| `skip` | `review_inventory_finalize` may finalize an inventory epoch's FIRST wave without the completeness (topology) critic when every required lane is terminal `pass` with zero findings (no verified/suspected/disproven finding terminal, no baseline findings, no missing or duplicate lane). `review_inventory_status` then prints `Completeness critic: skipped (...)` and its Next is plain finalize, so `next` never launches the critic for a clean round. A round with any finding still runs the critic. The PRE_CERT / remediation consume replay (`finalizedLiveAggregateError`) accepts the missing critic receipt only while the switch is still `skip` and the live wave is still clean (`core/review-inventory-critic-skip.ts`). | signed `criticSkip {reason, abVariant, laneTerminalDigest}` on the finalized wave (covered by the epoch `_hash`) |
 | `review.round2Scope` | `full` \| `repaired-files` | A code-review lane reviewing a later candidate (the managed re-review block) is told to review ONLY the files changed by the repair commits (previous candidate HEAD..current HEAD, material paths) plus their direct callers. "Direct callers" is a cheap approximation (`repairedFilesReviewScope`, core/managed-review-evidence.ts): the definitions named in the repair diff's hunk headers (git's funcname context, e.g. `func Reverse`) and definitions added on `+` lines, each searched whole-word with `git grep -l -w` at the current HEAD (max 12 symbols, 30 files, metadata excluded). The ReviewRun, prompt envelope and scope binding stay full; no read-coverage gate changes. | the A/B lines inside the sealed managed prompt (`managedPromptDigest`) |
-| `review.round2Lanes` | `resume` \| `fresh` | Later-candidate reviewer lanes never `codex exec resume` the earlier lane thread (`managedResumeSessionForSpec`); the sealed re-review prompt says it is a fresh session and focuses it on the prior findings and the repair diff (which the block already carries). | the A/B line inside the sealed managed prompt |
+| `review.round2Lanes` (adopted) | `fresh` \| `resume` | Default `fresh`: later-candidate reviewer lanes never `codex exec resume` the earlier lane thread (`managedResumeSessionForSpec`); the sealed re-review prompt says "This is a FRESH session" and focuses it on the prior findings and the repair diff (which the block already carries). `resume` (rollback): each lane resumes its newest earlier-candidate Codex thread and the prompt tells it to build on what it read then. | the fresh-session line (or, for `resume`, the resume line) inside the sealed managed prompt; `resume` is listed in `abVariantEvidence` |
 | `remediation.grouping` | `per-finding` \| `single` | In DEV, `next` dispatches ONE managed finding-repair for every open blocking finding that no repair is bound to yet (critic duplicates excluded): `host_run ... --findingId=<first> --groupFindingIds=[...]`, accepted only under the switch. The prompt requires, per finding, its own regression test and one commit whose message names the finding id (`<story> F-00N: resolve finding`). A member counts as repaired (`managedFindingRepairState`) only by such a commit inside the run's window; otherwise `next` dispatches its own repair. Each finding is still closed by its own `finding_resolve` with its own evidence. | `managedDispatchTarget {findingId, groupFindingIds, abVariant}` in the immutable run spec |
 | `implementation.grouping` | `per-item` \| `files` | In DEV, open checklist items that share a declared file with the first open item are implemented by ONE managed implementer run: `host_run ... --itemId=<first> --groupItemIds=[...]`, accepted only under the switch. The worker marks only its bound item done (one-shot managed capability). Each other member is then proposed as `grouped_item_done` (`checklist_update ... done`, an owner step that verifies the item's own intent) only after a material commit inside the run's window touched one of that item's declared files. | `managedDispatchTarget {itemId, groupItemIds, abVariant}` in the immutable run spec |
 
 Set an arm in the project config, e.g. `{"review": {"criticOnCleanRound": "skip"}}`
-or `{"remediation": {"grouping": "single"}}`. The bench adapter writes it from the
+or `{"remediation": {"grouping": "single"}}`; roll back fresh later-round lanes with
+`{"review": {"round2Lanes": "resume"}}`. The bench adapter writes it from the
 host environment: `POS_AB_FLAGS='{"review.criticOnCleanRound":"skip"}'` (dotted or
 nested JSON; unknown flags/values refused; empty = production) is merged into the
 prepared `proof-or-stop.config.json` by `adapter/pos_adapters/prepare_workflow.py`
 and recorded as `abFlags` in the preparation provenance. The local harness runs
 each arm end to end: `node packages/main/dist/tasks/e2e-review-to-done-smoke.js AB`
-(ND-V1, ND-V2, ND-V3, NF-V4, ND-V5; any `ND-Vn` / `NF-Vn` token works). Unit
+(ND-V1, ND-V2, ND-V3, NF-V4, ND-V5; any `ND-Vn` / `NF-Vn` token works; V3 now
+runs the `resume` rollback, and V2 also checks that default later-round lanes are fresh). Unit
 contract: `npm run test:ab-variant-switches`. The frozen reference driver
 (`tasks/helpers/next-driver-reference.ts`) mirrors production only; with every
-switch off `next` equals it (next-driver-cost smoke).
+switch at its production value `next` equals it (next-driver-cost smoke).
 
 `session_brief` is still the opening-briefing entry point for a new agent session; `status` / `next` are the short entry points for humans and agents to quickly restore context while working.
 
