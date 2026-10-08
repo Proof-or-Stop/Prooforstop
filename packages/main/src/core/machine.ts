@@ -70,6 +70,7 @@ import {
 } from './red-evidence-artifact-validation.js';
 import { renderAgentLivenessGuidance } from './agent-liveness-policy.js';
 import { reviewInventoryRemediationGate } from './review-inventory-epoch.js';
+import { evaluateReviewStopLossReopen } from './review-stop-loss.js';
 import { inspectDevMemoryFinishDecision } from './playbook-runtime-memory.js';
 import { canonicalAgentRoleId } from './agent-role-identity.js';
 import { renderManagedInitReviewerDispatches } from './reviewer-launch-guidance.js';
@@ -822,7 +823,9 @@ export function canReenterDevGuard(context: StoryMachineContext): boolean {
       const inventory = reviewInventoryRemediationGate(
         context.store, context.storyId, inventoryStory.currentReviewRound,
       );
-      if (!inventory.ok) return false;
+      // Old-PoS run 25 F4: the stale-wave stop-loss admits REVIEW→DEV without the receipt (core/review-stop-loss.ts).
+      if (!inventory.ok && !evaluateReviewStopLossReopen({ store: context.store, storyId: context.storyId, metadataRoot: context.projectRoot,
+        gitCwd: context.gitCwd ?? resolveGitCwd({ store: context.store, storyId: context.storyId, metadataRoot: context.projectRoot, projectRoot: context.projectRoot }) }).eligible) return false;
     }
   } catch {
     if (inventoryStory?.phase === 'REVIEW') return false;
@@ -1377,8 +1380,13 @@ export function getGuardFailureReason(
       try {
         const inventory = reviewInventoryRemediationGate(store, storyId, story.currentReviewRound);
         if (!inventory.ok) {
-          return `Cannot enter remediation DEV: ${inventory.reason}. ` +
-            `Next: ${inventory.nextCommand ?? `proof-or-stop review_inventory_status --storyId=${storyId}`}`;
+          const root = projectRoot ?? process.cwd();
+          const stopLoss = evaluateReviewStopLossReopen({ store, storyId, metadataRoot: root,
+            gitCwd: gitCwd ?? resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root }) });
+          if (!stopLoss.eligible) {
+            return `Cannot enter remediation DEV: ${inventory.reason}. ` +
+              `Next: ${inventory.nextCommand ?? `proof-or-stop review_inventory_status --storyId=${storyId}`}`;
+          }
         }
       } catch (error) {
         return `Cannot enter remediation DEV: inventory evidence is unreadable or invalid (${error instanceof Error ? error.message : String(error)}). ` +

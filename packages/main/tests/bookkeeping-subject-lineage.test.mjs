@@ -42,6 +42,7 @@ function fixture() {
   writeFileSync(join(storyDir, 'story.json'), '{}\n');
   writeFileSync(join(storyDir, 'process-events.jsonl'), `${JSON.stringify({type: 'phase_transition', to: 'TEST'})}\n${JSON.stringify({type: 'host_verdict', runId: 'r0'})}\n`);
   writeFileSync(join(storyDir, 'review-passes.json'), '{"passes":[]}\n');
+  writeFileSync(join(storyDir, 'review-runs.json'), '{"runs":[{"reviewRunId":"RR-001"}]}\n');
   writeFileSync(join(storyDir, 'checklist.json'), `${JSON.stringify({items: [{id: 'CHK-001', title: 'x', status: 'done', verificationIntent: {happy: [{id: 'CHK-001:happy:0', desc: 'x'}]}, verificationEvidence: []}]})}\n`);
   git('add', '-A'); git('commit', '-qm', 'reviewed candidate');
   const expected = {headHash: currentGitHead(root), materialHash: currentMaterialHash(root, 'HEAD', root), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)};
@@ -105,6 +106,10 @@ try {
     ['refresh_stale touching only process events', 'verification_evidence_refresh_stale', f => appendFileSync(join(f.storyDir, 'process-events.jsonl'), event('x')), /verification_evidence_refresh_stale publication is not an exact evidence restamp/],
     ['refresh_stale touching review-passes', 'verification_evidence_refresh_stale', f => writeFileSync(join(f.storyDir, 'review-passes.json'), '{"passes":[{"id":"forged"}]}\n'), /verification_evidence_refresh_stale publication is not an exact evidence restamp/],
     ['refresh_stale changing an intent', 'verification_evidence_refresh_stale', f => writeFileSync(join(f.storyDir, 'checklist.json'), `${JSON.stringify({items: [{id: 'CHK-001', title: 'x', status: 'done', verificationIntent: {happy: [{id: 'CHK-001:happy:0', desc: 'changed'}]}, verificationEvidence: []}]})}\n`), /verification_evidence_refresh_stale publication is not an exact evidence restamp/],
+    ['refresh_stale rewriting a swept launch record', 'verification_evidence_refresh_stale', f => {
+      writeFileSync(join(f.storyDir, 'checklist.json'), `${JSON.stringify({items: [{id: 'CHK-001', title: 'x', status: 'done', verificationIntent: {happy: [{id: 'CHK-001:happy:0', desc: 'x'}]}, verificationEvidence: [{intentRef: 'CHK-001:happy:0', kind: 'logic_test', result: 'pass'}]}]})}\n`);
+      writeFileSync(join(f.storyDir, 'review-runs.json'), '{"runs":[{"reviewRunId":"forged"}]}\n');
+    }, /verification_evidence_refresh_stale publication is not an exact evidence restamp/],
     ['refresh_stale changing material', 'verification_evidence_refresh_stale', f => writeFileSync(join(f.root, 'main.go'), 'package main\n// changed\n'), /./],
   ];
   for (const [label, subject, mutate, rule] of negatives) {

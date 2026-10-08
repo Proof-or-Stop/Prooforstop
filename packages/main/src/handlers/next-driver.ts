@@ -94,11 +94,16 @@ import { ownerWaitBlockMs, ownerWaitInstruction } from '../core/owner-wait-guida
 import { parseIntentConflicts, type IntentConflict } from '../core/request-authority.js';
 import { readStoryRequest } from '../core/story-request.js';
 import { acceptanceIntentHash } from '../core/verification-intent-amendment.js';
+import { maxLaneRunsOnMaterial, STALE_WAVE_STOP_LOSS } from '../core/review-stop-loss.js';
 
 type HandlerLookup = (name: string) => ((...args: any[]) => any) | undefined;
 
 /** evaluateReviewVerdict codes that mean a required lane still lacks valid current-round evidence. */
 const LANE_VERDICT_CODES = new Set(['review_evidence_missing', 'review_lane_missing', 'review_evidence_invalid', 'review_quorum']);
+/** Superseded-binding codes of an OPEN finding that next carries forward as blocking (never dropped, never a dead end). */
+const CARRIED_FINDING_CODES = new Set(['stale_run', 'superseded_inventory_wave']);
+/** cancelReason prefix of a stop-loss inventory cancel (counted per round). */
+const STOP_LOSS_CANCEL_REASON = 'stop-loss: stale review evidence';
 
 export const NEXT_STEP_SCHEMA = 'proof-or-stop.next_step.v1';
 export const DELIVERY_REVIEWER = 'proof-or-stop-review-delivery';
@@ -1224,15 +1229,40 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
 
   /**
    * When every invalid reviewer evidence item is an OPEN finding bound to a
-   * superseded run of its lane (stale_run), their ids; otherwise null.
+   * superseded run of its lane (stale_run) or to a signed earlier/cancelled
+   * inventory wave (superseded_inventory_wave, old-PoS run 25 F4: the wave-1
+   * critic's B-2b04:F-002), their ids; otherwise null. Such a finding is
+   * carried forward, never dropped: it blocks like any open finding and closes
+   * by repair or by the duplicate-coverage run of its restatement.
    */
   function supersededOpenFindingIds(storyId: string): string[] | null {
     const state = collectReviewerEvidenceState(ctx.store, storyId, ctx.root);
     if (state.invalid.length === 0) return null;
     const findings = ctx.store.readFindings(storyId).findings ?? [];
-    const carried = state.invalid.every(issue => issue.kind === 'finding' && issue.code === 'stale_run'
+    const carried = state.invalid.every(issue => issue.kind === 'finding' && CARRIED_FINDING_CODES.has(issue.code)
       && findings.find(row => row.id === issue.evidenceId)?.status === 'open');
     return carried ? [...new Set(state.invalid.map(issue => issue.evidenceId))] : null;
+  }
+
+  /**
+   * Old-PoS run 25 (F4, item 198): every invalid item is a PASS of an inventory
+   * critic whose epoch wave was retired (earlier wave or signed cancellation).
+   * Nothing is wrong with the code review: a fresh inventory epoch's critic
+   * supersedes it, so next proceeds to the inventory step instead of a dead end.
+   */
+  function supersededCriticPassesOnly(storyId: string): boolean {
+    const state = collectReviewerEvidenceState(ctx.store, storyId, ctx.root);
+    return state.invalid.length > 0 && state.invalid.every(issue => issue.kind === 'pass' && issue.code === 'superseded_inventory_wave');
+  }
+
+  /**
+   * Old-PoS run 25 (F4) stop-loss: the most lane runs any lane already has in
+   * this round on the live material. Two waves of one epoch are legitimate; a
+   * third observation of unchanged material with an open verified finding is a
+   * stale-wave loop (run 25 relaunched the lanes five times on 8d9641c9).
+   */
+  function maxLaneRunsOnLiveMaterial(storyId: string, round: string): number {
+    return maxLaneRunsOnMaterial(ctx.store, storyId, round, currentMaterialHash(gitCwdOf(storyId), 'HEAD', ctx.root));
   }
 
   function guardStep(base: { storyId: string; phase: string }, target: string, reason: string, why: string, source: string): NextStep {
@@ -1744,6 +1774,37 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       `${source} + managedFindingRepairState + getGuardFailureReason(DEV)`);
   }
 
+  /**
+   * Old-PoS run 25 (F4) stop-loss. The REVIEW verdict refuses, no lane is
+   * launchable and the refusal names no command. Before, next returned
+   * `human — none runnable` (52 min / 54M of livelock). Now one runnable
+   * framework action, in order: (1) open verified blocking findings -> repair
+   * them (REVIEW -> DEV through the remediation receipt; the repaired Story
+   * re-enters REVIEW in a fresh round); (2) a live inventory epoch of this
+   * round -> cancel it so a fresh epoch and critic re-observe the live
+   * material (at most STALE_WAVE_STOP_LOSS - 1 such cancels per round);
+   * (3) otherwise leave REVIEW for DEV, which starts a fresh round on return.
+   * No verified finding is dropped by any of them.
+   */
+  function reviewStopLossStep(base: { storyId: string; phase: string }, round: string, code: string, detail: string): NextStep {
+    const { storyId } = base;
+    const why = `REVIEW→TEST verdict refuses [${code}] with no launchable lane: ${detail}`;
+    const blocking = openBlockingFindings(storyId);
+    if (blocking.length > 0) {
+      return reviewFindingClosureStep(base, blocking.map(row => row.finding.id), `${why} Stop-loss: repair the open verified finding(s).`, 'evaluateReviewVerdict + stop-loss (open findings)');
+    }
+    const data = ctx.store.readReviewInventoryEpochs(storyId);
+    const stopLossCancels = data.epochs.filter(epoch => epoch.reviewRound === round && epoch.state === 'CANCELLED'
+      && (epoch.cancelReason ?? '').startsWith(STOP_LOSS_CANCEL_REASON)).length;
+    const live = currentOpenReviewInventory(ctx.store, storyId) ?? finalizedUnconsumedReviewInventory(ctx.store, storyId)?.epoch;
+    if (live && live.reviewRound === round && stopLossCancels < STALE_WAVE_STOP_LOSS - 1) {
+      return step(base, 'framework', 'review_stop_loss_inventory_cancel', { command: 'review_inventory_cancel', payload: { storyId, reason: `${STOP_LOSS_CANCEL_REASON}: ${code}` } },
+        `${why} Stop-loss: cancel epoch ${live.epochId}; a fresh epoch and critic then re-observe the live material.`, 'evaluateReviewVerdict + stop-loss (live epoch)');
+    }
+    return guardStep(base, 'DEV', 'review_stop_loss_dev',
+      `${why} Stop-loss: leave REVIEW for DEV; the next REVIEW entry starts a fresh round with fresh lanes.`, 'evaluateReviewVerdict + stop-loss + getGuardFailureReason(DEV)');
+  }
+
   function reviewNext(base: { storyId: string; phase: string }): NextStep {
     const { storyId } = base;
     const story = ctx.store.readStory(storyId);
@@ -1755,10 +1816,6 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     const laneStep = pendingLaneStep(base, round);
     if (laneStep) return laneStep;
     let verdict = evaluateReviewVerdict({ storyId, store: ctx.store, projectRoot: ctx.root, gitCwd });
-    if (!verdict.ok && LANE_VERDICT_CODES.has(verdict.code ?? '')) {
-      const prepare = lanePrepareStep(base);
-      if (prepare) return prepare;
-    }
     // Lab reroute-mid-inventory: the round was invalidated after a lane
     // reported a finding (owner reroute, broken live binding), every lane
     // reran, and the open finding of the superseded run is now stale_run. It
@@ -1766,25 +1823,43 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     // closes by repair, or by the duplicate-coverage run when the rerun
     // re-reported it (supersededRestatementOf). Before, next returned no
     // runnable step here.
+    // Old-PoS run 25 (F4): checked BEFORE the lane relaunch. A carried open
+    // finding is not missing lane evidence: relaunching the lanes of a
+    // finalized round re-reported the same defect (RR-021..023 -> F-006..F-008)
+    // and changed the live aggregate on every finalize. It now goes to repair.
+    let criticRefresh = false;
     if (!verdict.ok && verdict.code === 'review_evidence_invalid') {
       const carried = supersededOpenFindingIds(storyId);
       if (carried) verdict = { ok: false, code: 'review_finding_blocking', unclosedFindingIds: carried,
-        message: `open finding(s) ${carried.join(', ')} of a superseded lane run carried forward (stale_run): ${verdict.message ?? ''}` };
+        message: `open finding(s) ${carried.join(', ')} of a superseded review run carried forward: ${verdict.message ?? ''}` };
+      else criticRefresh = supersededCriticPassesOnly(storyId);
     }
-    if (!verdict.ok && verdict.code !== 'review_finding_blocking') {
+    if (!verdict.ok && LANE_VERDICT_CODES.has(verdict.code ?? '') && !criticRefresh) {
+      // Stop-loss: the lanes already observed this material STALE_WAVE_STOP_LOSS
+      // times this round and a verified blocking finding is open: repair it
+      // (REVIEW -> DEV, a fresh round follows) instead of another lane wave.
+      const blocking = openBlockingFindings(storyId);
+      if (blocking.length > 0 && maxLaneRunsOnLiveMaterial(storyId, round) >= STALE_WAVE_STOP_LOSS) {
+        return reviewFindingClosureStep(base, blocking.map(row => row.finding.id),
+          `Stop-loss: the lanes of round ${round} already ran ${STALE_WAVE_STOP_LOSS}+ times on this material and verified blocking finding(s) stay open; repair them instead of another lane wave (${verdict.code}).`,
+          'evaluateReviewVerdict + stale-wave stop-loss');
+      }
+      const prepare = lanePrepareStep(base);
+      if (prepare) return prepare;
+    }
+    if (!verdict.ok && verdict.code !== 'review_finding_blocking' && !criticRefresh) {
       // Never a step without a command: delegate the refusal's own command when it names one.
       const hinted = verdict.code !== 'open_review_loop' ? (verdict.message ?? '').match(/proof-or-stop [a-z_]+[^\n;)]*/)?.[0] : undefined;
       if (hinted) {
         return delegated(base, 'agent', `review_verdict_${verdict.code ?? 'error'}`, hinted,
           `REVIEW→TEST verdict refuses [${verdict.code}] with no launchable lane: ${verdict.message ?? ''}`, 'evaluateReviewVerdict');
       }
-      return step(base, 'human', `review_verdict_${verdict.code ?? 'error'}`, null,
-        `REVIEW→TEST verdict refuses [${verdict.code}] with no launchable lane and no framework recovery: ${verdict.message ?? ''}`, 'evaluateReviewVerdict');
+      return reviewStopLossStep(base, round, verdict.code ?? 'error', verdict.message ?? '');
     }
 
     // 2. A current certification window (PRE_CERT already admitted).
     const inspected = inspectCertificationWindowLineage({ store: ctx.store, storyId, current: currentCertificationIdentity(ctx, storyId) });
-    if (!inspected.drift.drifted && windowAuthorizesHeavyCertification(inspected.window, inspected.receipt)) {
+    if (!criticRefresh && !inspected.drift.drifted && windowAuthorizesHeavyCertification(inspected.window, inspected.receipt)) {
       const status = String(handler('certification_window_status')({ storyId }));
       const hint = nextLine(status) ?? '';
       if (/story_advance .*--phase=TEST/.test(hint)) {

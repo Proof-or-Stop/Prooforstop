@@ -169,6 +169,7 @@ import { evaluateReviewAssuranceFloor, buildReviewAssuranceFloorGuidance, buildR
 import { evaluateReviewEscalation, assessReviewHostAvailabilityForFallbackEligibility } from '../../core/review-escalation.js';
 import { evaluateOptionalLiveSmokeTranscript } from '../../core/live-smoke-transcript-evidence.js';
 import type { ReviewRun } from '../../core/types.js';
+import { maxLaneRunsOnMaterial, STALE_WAVE_STOP_LOSS } from '../../core/review-stop-loss.js';
 
 type HandlerLookup = (name: string) => ((...args: any[]) => any) | undefined;
 
@@ -632,27 +633,40 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
     const laneStep = pendingLaneStep(base, round);
     if (laneStep) return laneStep;
     let verdict = evaluateReviewVerdict({ storyId, store: ctx.store, projectRoot: ctx.root, gitCwd });
-    if (!verdict.ok && LANE_VERDICT_CODES.has(verdict.code ?? '')) {
-      const prepare = lanePrepareStep(base);
-      if (prepare) return prepare;
-    }
-    // Mirrors next-driver.ts (lab reroute-mid-inventory): open findings of a superseded lane run are carried forward as blocking.
+    // Mirrors next-driver.ts (lab reroute-mid-inventory; old-PoS run 25 F4): open findings of a superseded
+    // review run (stale_run / superseded_inventory_wave) are carried forward as blocking BEFORE any lane
+    // relaunch; superseded critic passes alone send next to the inventory step (a fresh critic).
+    let criticRefresh = false;
     if (!verdict.ok && verdict.code === 'review_evidence_invalid') {
       const state = collectReviewerEvidenceState(ctx.store, storyId, ctx.root);
       const findings = ctx.store.readFindings(storyId).findings ?? [];
-      if (state.invalid.length > 0 && state.invalid.every(issue => issue.kind === 'finding' && issue.code === 'stale_run'
+      if (state.invalid.length > 0 && state.invalid.every(issue => issue.kind === 'finding' && (issue.code === 'stale_run' || issue.code === 'superseded_inventory_wave')
         && findings.find(row => row.id === issue.evidenceId)?.status === 'open')) {
         verdict = { ok: false, code: 'review_finding_blocking', unclosedFindingIds: [...new Set(state.invalid.map(issue => issue.evidenceId))], message: verdict.message };
+      } else {
+        criticRefresh = state.invalid.length > 0 && state.invalid.every(issue => issue.kind === 'pass' && issue.code === 'superseded_inventory_wave');
       }
     }
-    if (!verdict.ok && verdict.code !== 'review_finding_blocking') {
+    if (!verdict.ok && LANE_VERDICT_CODES.has(verdict.code ?? '') && !criticRefresh) {
+      // Mirrors next-driver.ts stale-wave stop-loss.
+      const blocking = openBlockingFindings(storyId);
+      if (blocking.length > 0 && maxLaneRunsOnMaterial(ctx.store, storyId, round, currentMaterialHash(gitCwd, 'HEAD', ctx.root)) >= STALE_WAVE_STOP_LOSS) {
+        return reviewFindingClosureStep(base, blocking.map(row => row.finding.id), `Stop-loss (${verdict.code}).`, 'evaluateReviewVerdict + stale-wave stop-loss');
+      }
+      const prepare = lanePrepareStep(base);
+      if (prepare) return prepare;
+    }
+    if (!verdict.ok && verdict.code !== 'review_finding_blocking' && !criticRefresh) {
+      // Mirrors next-driver.ts reviewStopLossStep (never `human — none runnable`): open findings -> repair; else DEV.
+      const blocking = openBlockingFindings(storyId);
+      if (blocking.length > 0) return reviewFindingClosureStep(base, blocking.map(row => row.finding.id), `Stop-loss (${verdict.code}).`, 'evaluateReviewVerdict + stop-loss (open findings)');
       return step(base, verdict.code === 'open_review_loop' ? 'human' : 'agent', `review_verdict_${verdict.code ?? 'error'}`, null,
         `REVIEW→TEST verdict refuses [${verdict.code}] with no launchable lane: ${verdict.message ?? ''}`, 'evaluateReviewVerdict');
     }
 
     // 2. A current certification window (PRE_CERT already admitted).
     const inspected = inspectCertificationWindowLineage({ store: ctx.store, storyId, current: currentCertificationIdentity(ctx, storyId) });
-    if (!inspected.drift.drifted && windowAuthorizesHeavyCertification(inspected.window, inspected.receipt)) {
+    if (!criticRefresh && !inspected.drift.drifted && windowAuthorizesHeavyCertification(inspected.window, inspected.receipt)) {
       const status = String(handler('certification_window_status')({ storyId }));
       const hint = nextLine(status) ?? '';
       if (/story_advance .*--phase=TEST/.test(hint)) {

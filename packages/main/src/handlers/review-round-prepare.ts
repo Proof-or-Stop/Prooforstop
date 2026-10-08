@@ -31,7 +31,8 @@ import type { HandlerContext } from './context.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import type { ReviewerBatchReport } from './reviewer-batch.js';
-import { currentOpenReviewInventory, reviewInventoryPurposeBinding } from '../core/review-inventory-epoch.js';
+import { currentOpenReviewInventory, evaluateReviewInventoryWave, reviewInventoryPurposeBinding } from '../core/review-inventory-epoch.js';
+import { currentMaterialHash } from '../core/evidence-freshness.js';
 import { MANAGED_INVENTORY_CRITIC_LANE } from '../core/managed-inventory-critic.js';
 import { verifyCurrentReviewerDispatchBinding } from '../core/review-run.js';
 
@@ -144,7 +145,8 @@ export function createReviewRoundPrepareHandlers(ctx: HandlerContext, lookup: Ha
     let report = await plan();
     let routed = false;
     let usedReason = false;
-    if (report.executionPlan.launchableLanes.length > 0) {
+    const waveLanes = openEpochWaveLanes(storyId);
+    if (report.executionPlan.launchableLanes.length > 0 || waveLanes.length > 0) {
       // At most two routes: an ordinary reroute, then one escalated reroute
       // when the fresh route itself proves escalation is required.
       while (report.managedReviewReadiness.status === 'blocked') {
@@ -163,7 +165,7 @@ export function createReviewRoundPrepareHandlers(ctx: HandlerContext, lookup: Ha
       }
     }
 
-    const lanes = [...report.executionPlan.launchableLanes];
+    const lanes = [...new Set([...report.executionPlan.launchableLanes, ...waveLanes])];
     for (const lane of lanes) {
       await step(`dispatch(${lane})`, () => handler('dispatch')({ storyId, agentType: lane, summary: true }));
       const output = String(await step(`review_run_start(${lane})`,
@@ -194,6 +196,27 @@ export function createReviewRoundPrepareHandlers(ctx: HandlerContext, lookup: Ha
       controllerCommand: renderReviewRoundControllerCommand(storyId, worktree, started),
     };
     return args.json ? result : renderReviewRoundPrepareReport(result);
+  }
+
+  /**
+   * Old-PoS run 25 (F4, item 206): after review_inventory_wave_advance the OPEN
+   * epoch's next wave needs a fresh terminal of every required lane, but the
+   * reviewer plan still counted the earlier wave's passes as current, so this
+   * command prepared nothing and the owner launched the wave by hand. The
+   * required lanes the live wave misses (no run of the lane since the wave
+   * began) are prepared too, only while the epoch's cutoff is the live material.
+   */
+  function openEpochWaveLanes(storyId: string): string[] {
+    const epoch = currentOpenReviewInventory(ctx.store, storyId);
+    const round = ctx.store.readStory(storyId).currentReviewRound;
+    if (!epoch || epoch.reviewRound !== round || epoch.waves.length === 0) return [];
+    const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+    if (!gitCwd || currentMaterialHash(gitCwd, 'HEAD', ctx.root) !== epoch.cutoff.materialHash) return [];
+    const runs = ctx.store.readReviewRuns(storyId).runs;
+    const evaluation = evaluateReviewInventoryWave({ promptStore: ctx.store, epoch, runs,
+      passes: ctx.store.readReviewPasses(storyId).passes, findings: ctx.store.readFindings(storyId).findings });
+    const waveStart = epoch.waves.at(-1)?.completedAt ?? epoch.begunAt;
+    return evaluation.missingLanes.filter(lane => !runs.some(run => run.reviewRound === round && run.lane === lane && run.startedAt > waveStart));
   }
 
   async function prepareCritic(storyId: string, json: boolean,

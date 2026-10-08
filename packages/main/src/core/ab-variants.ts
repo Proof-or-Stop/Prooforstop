@@ -19,6 +19,9 @@
  *   review.round2Scope         'full' (default) | 'repaired-files'
  *   review.round2Lanes         'fresh' (default, adopted) | 'resume' (rollback)
  *   remediation.grouping       'single' (default, adopted) | 'per-finding' (rollback)
+ *   remediation.thread         'fresh' (default, adopted) | 'resume' (rollback)  finding-repair runs start a new Codex
+ *                              thread with the framework repair pack (old-PoS run 25: fresh repair 0.86M input vs
+ *                              resumed 2.8-3.9M); `resume` restores the resumed Story code-writer thread for repairs
  *   implementation.grouping    'per-item' (default) | 'files'
  *   implementation.thread      'resume' (default) | 'fresh'  (core/implementer-item-pack.ts)
  *
@@ -33,6 +36,7 @@ export const AB_VARIANT_FLAGS = {
   'review.round2Scope': ['full', 'repaired-files'],
   'review.round2Lanes': ['fresh', 'resume'],
   'remediation.grouping': ['single', 'per-finding'],
+  'remediation.thread': ['fresh', 'resume'],
   'implementation.grouping': ['per-item', 'files'],
   'implementation.thread': ['resume', 'fresh'],
 } as const;
@@ -42,7 +46,7 @@ export type AbVariantValue<F extends AbVariantFlag> = (typeof AB_VARIANT_FLAGS)[
 
 export interface AbVariantConfigSlice {
   review?: { criticOnCleanRound?: string; round2Scope?: string; round2Lanes?: string };
-  remediation?: { grouping?: string };
+  remediation?: { grouping?: string; thread?: string };
   implementation?: { grouping?: string; thread?: string };
 }
 
@@ -51,6 +55,7 @@ export interface AbVariants {
   round2Scope: AbVariantValue<'review.round2Scope'>;
   round2Lanes: AbVariantValue<'review.round2Lanes'>;
   remediationGrouping: AbVariantValue<'remediation.grouping'>;
+  remediationThread: AbVariantValue<'remediation.thread'>;
   implementationGrouping: AbVariantValue<'implementation.grouping'>;
   implementationThread: AbVariantValue<'implementation.thread'>;
 }
@@ -83,6 +88,7 @@ export function resolveAbVariants(config: unknown): AbVariants {
     round2Scope: pick('review.round2Scope', review.round2Scope),
     round2Lanes: pick('review.round2Lanes', review.round2Lanes),
     remediationGrouping: pick('remediation.grouping', section(config, 'remediation').grouping),
+    remediationThread: pick('remediation.thread', section(config, 'remediation').thread),
     implementationGrouping: pick('implementation.grouping', section(config, 'implementation').grouping),
     implementationThread: pick('implementation.thread', section(config, 'implementation').thread),
   };
@@ -95,6 +101,7 @@ export function abVariantEvidence(variants: AbVariants): AbVariantEvidence | und
   if (variants.round2Scope !== 'full') flags['review.round2Scope'] = variants.round2Scope;
   if (variants.round2Lanes !== 'fresh') flags['review.round2Lanes'] = variants.round2Lanes;
   if (variants.remediationGrouping !== 'single') flags['remediation.grouping'] = variants.remediationGrouping;
+  if (variants.remediationThread !== 'fresh') flags['remediation.thread'] = variants.remediationThread;
   if (variants.implementationGrouping !== 'per-item') flags['implementation.grouping'] = variants.implementationGrouping;
   if (variants.implementationThread !== 'resume') flags['implementation.thread'] = variants.implementationThread;
   return Object.keys(flags).length ? { schema: AB_VARIANT_EVIDENCE_SCHEMA, flags } : undefined;

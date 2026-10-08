@@ -1,5 +1,5 @@
 import {reportHealthIssue} from './health.js';
-import {isVerifiedEvidenceRefreshCommit, isOwnerLeaseHeartbeatOnly} from './review-evidence-refresh.js';
+import {isVerifiedEvidenceRefreshCommit, isOwnerLeaseHeartbeatOnly, isRefreshRetainableArtifactPath} from './review-evidence-refresh.js';
 /** Narrow writer/consumer compatibility for authenticated review bookkeeping. */
 import { execFileSync } from 'node:child_process';
 import { observedGit } from './git-tree-observation.js';
@@ -98,6 +98,24 @@ function findingResolvePublicationRefusal(args: {
   }
   return null;
 }
+
+/**
+ * Subjects whose metadata-only publication is authenticated by its CONTENT and
+ * is therefore lineage-neutral for managed reviewer evidence (the reviewed
+ * code and the reviewers' story inputs are unchanged): review epoch
+ * finalize/cancel, the exact verification-evidence refresh (evidence_add) and
+ * the framework's stale-evidence restamp (refresh_stale, old-PoS run 25 F3),
+ * the signed finding_resolve, and the certification/validation/TEST
+ * publications. The importer and PRE_CERT/TEST/DONE bookkeeping
+ * (managed-review-evidence.ts) are the other lineage-neutral writers; every
+ * other story-metadata writer reachable in REVIEW changes what the reviewers
+ * bound and is refused (tests/bookkeeping-subject-lineage.test.mjs fails on a
+ * new unclassified writer).
+ */
+export const REVIEW_MAINTENANCE_PUBLISHERS = [
+  'review epoch', 'verification_evidence_add', 'verification_evidence_refresh_stale', 'finding_resolve',
+  'certification_window_begin', 'validate', 'test-transition',
+] as const;
 
 export function isVerifiedReviewMaintenanceCommit(args: {
   gitCwd: string; metadataRoot: string; storyId: string; commit: string; reviewedHeadHash: string; reviewedMaterialHash?: string; reviewedStoryFilesHash?: string;
@@ -269,6 +287,54 @@ export function isVerifiedReviewMaintenanceCommit(args: {
     if (matchesRuntimeCommitSubject(subject, `record ${storyId} verification_evidence_add metadata`)) {
       return isVerifiedEvidenceRefreshCommit({...args,isProtectedArtifact:closeoutArtifactPolicyFor})
         || no('verification_evidence_add publication is not an authenticated evidence refresh');
+    }
+    if (matchesRuntimeCommitSubject(subject, `record ${storyId} verification_evidence_refresh_stale metadata`)) {
+      // Old-PoS run 25 (F3, B-2b04 1faa99b): the restamp re-executes each stale
+      // pinned verifier and rewrites only its evidence rows' freshness binding
+      // and receipt. It is lineage-neutral exactly when it is an exact restamp:
+      // checklist.json (+ its verified closeout receipt, causal receipts,
+      // process events) only; intents and item fields byte-identical to the
+      // reviewed snapshot; every row's (intentRef, kind, result) unchanged; every
+      // replaced row with mechanical execution authority. Anything else stays a
+      // change of what the reviewers bound.
+      const exact = 'verification_evidence_refresh_stale publication is not an exact evidence restamp';
+      if (!artifacts.includes('checklist.json')) return no(`${exact}: it does not publish checklist.json`);
+      // Launch records an earlier review_round_prepare / dispatch left uncommitted
+      // are swept into this commit: append-only, earlier rows byte-identical.
+      const sweptLaunchRecords: Record<string, string> = { 'review-runs.json': 'runs', 'prompt-envelopes.json': 'envelopes' };
+      const allowed = (path: string) => path === 'checklist.json' || path === CLOSEOUT_WRITE_RECEIPTS_PATH || path === 'process-events.jsonl'
+        || path === 'owner-lease.json' || isRefreshRetainableArtifactPath(path) || Object.hasOwn(sweptLaunchRecords, path) || isPromptBodyArtifactPath(path);
+      const foreign = artifacts.find(path => !allowed(path));
+      if (foreign) return no(`${exact}: it touches ${foreign}`);
+      const priorExists = (path: string) => Boolean(git(['ls-tree','--name-only',parents[0],'--',prefix + path]));
+      for (const path of artifacts) {
+        if (isPromptBodyArtifactPath(path) && priorExists(path)) return no(`${exact}: it rewrites the existing prompt body ${path}`);
+        const key = sweptLaunchRecords[path];
+        if (!key) continue;
+        const next = readAt(commit,path)[key];
+        const prior = priorExists(path) ? readAt(parents[0],path)[key] : [];
+        if (!Array.isArray(next) || !Array.isArray(prior) || next.length < prior.length
+          || digestCanonicalJson(next.slice(0,prior.length)) !== digestCanonicalJson(prior)) return no(`${exact}: it rewrites earlier ${path} ${key}`);
+      }
+      const callerVerifiedArtifacts = artifacts.filter(path => path === CLOSEOUT_WRITE_RECEIPTS_PATH || Object.hasOwn(sweptLaunchRecords, path) || isPromptBodyArtifactPath(path));
+      const rawAt = (ref: string, path: string) => gitRaw(['show',`${ref}:${prefix}${path}`]);
+      const readReceipts = (ref: string): CloseoutWriteReceipt[] => rawAt(ref,CLOSEOUT_WRITE_RECEIPTS_PATH).split('\n').filter(Boolean).map(line => JSON.parse(line));
+      const priorReceipts = priorExists(CLOSEOUT_WRITE_RECEIPTS_PATH) ? readReceipts(parents[0]) : [];
+      const receipts = artifacts.includes(CLOSEOUT_WRITE_RECEIPTS_PATH) ? readReceipts(commit) : priorReceipts;
+      if (digestCanonicalJson(receipts.slice(0,priorReceipts.length)) !== digestCanonicalJson(priorReceipts)) return no(`${exact}: closeout write receipts are rewritten`);
+      const added = receipts.slice(priorReceipts.length);
+      const closeoutPaths = artifacts.filter(path => closeoutArtifactPolicyFor(path)?.artifactClass === 'closeout-evidence');
+      if (added.length !== closeoutPaths.length) return no(`${exact}: closeout receipts do not match closeout artifacts`);
+      for (const path of closeoutPaths) {
+        const matching = added.filter(receipt => receipt.artifactPath === path);
+        const receipt = matching[0];
+        if (matching.length !== 1 || receipt.writerCommand !== 'verification_evidence_refresh_stale' || receipt.headHash !== parents[0]
+          || !verifyCloseoutWriteReceipt(receipt,{storyId,artifactPath:path,artifactBytes:rawAt(commit,path),projectRoot:gitCwd,metadataRoot}).ok) return no(`${exact}: closeout receipt of ${path} does not verify`);
+        const prior = priorReceipts.filter(row => row.artifactPath === path).at(-1);
+        if (receipt.sequence !== (prior?.sequence ?? 0) + 1 || receipt.previousIntegrityHash !== (prior?.integrityHash ?? null)) return no(`${exact}: closeout receipt sequence of ${path} is broken`);
+      }
+      return isVerifiedEvidenceRefreshCommit({...args,isProtectedArtifact:closeoutArtifactPolicyFor,closeoutReceiptsVerified:true,callerVerifiedArtifacts})
+        || no(`${exact}: checklist intents, evidence rows or results differ from the reviewed snapshot, or a replaced row lacks mechanical execution authority`);
     }
     if (matchesRuntimeCommitSubject(subject, `record ${storyId} finding_resolve metadata`)) {
       // Closure rule (core/finding-closure.ts): the owner closes a verified

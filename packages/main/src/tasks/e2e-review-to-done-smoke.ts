@@ -118,7 +118,9 @@
  *      NW4 (F4) a wave-1 critic finding re-reported by every wave-2 lane is
  *      repaired in DEV after finalize, no lane relaunch, no human step; NW5
  *      (F4 stop-loss) a cancelled finalized epoch's critic pass is superseded
- *      by a fresh epoch, never a dead end. `NW` = all three.
+ *      by a fresh epoch, never a dead end; NW6 (F4 stop-loss) lane waves keep
+ *      going stale on unchanged material with a verified finding open: after
+ *      3 waves next repairs it instead of a 4th wave. `NW` = all four.
  *
  *   NI run 23 (request-outranks-intent D1): the implementer's final result
  *      declares an `[intent-conflict]` (the request implies one value, the
@@ -161,7 +163,7 @@
  *      implementer and finding-repair run seals the arm and carries the item pack).
  *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5 ND-V6.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NI|NIN|NQ|NP|AB|ND-V1..NF-V6]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIN|NQ|NP|AB|ND-V1..NF-V6]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -2205,13 +2207,16 @@ function scenarioNC7(machineEnv: NodeJS.ProcessEnv, steps: Step[], variant: 'rer
  *   (RP-011 "has an invalid current inventory subject" = `human — none
  *   runnable`): next opens a fresh epoch, its critic supersedes the old pass, DONE.
  */
-function scenarioNW(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NW3' | 'NW4' | 'NW5'): Outcome {
-  const name = tag === 'NW3'
+function scenarioNW(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NW3' | 'NW4' | 'NW5' | 'NW6'): Outcome {
+  const name = tag === 'NW6'
+    ? 'NW6 run 25 F4 stop-loss: lanes keep going stale on unchanged material with a verified finding open; after 3 lane waves next repairs it instead of a 4th wave, DONE'
+    : tag === 'NW3'
     ? 'NW3 run 25 F3: framework evidence restamp (verification_evidence_refresh_stale) after the lanes passed keeps every managed pass live; no lane rerun, DONE'
     : tag === 'NW4'
       ? 'NW4 run 25 F4: wave-1 critic finding re-reported by every wave-2 lane; after finalize next repairs it in DEV (no lane relaunch, no human), copies closed, DONE'
       : 'NW5 run 25 F4: owner cancels the finalized epoch; the cancelled critic pass is superseded by a fresh epoch, never a dead end, DONE';
-  const o = new Owner(tag, tag === 'NW3' ? 'B-e2a3' : tag === 'NW4' ? 'B-e2a4' : 'B-e2a5', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const o = new Owner(tag, tag === 'NW3' ? 'B-e2a3' : tag === 'NW4' ? 'B-e2a4' : tag === 'NW5' ? 'B-e2a5' : 'B-e2a6', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  let staleWaves = 0;
   const lines: string[] = [];
   const kinds: string[] = [];
   let edited = false;
@@ -2220,7 +2225,7 @@ function scenarioNW(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NW3' | '
   let waveAdvanced = false;
   try {
     devSetup(o);
-    driveWithNext(o, { findingRound1: false, run: false, ...(tag === 'NW4' ? { criticNewFinding: true, restateAfterCritic: true } : {}), interject: next => {
+    driveWithNext(o, { findingRound1: tag === 'NW6', run: false, ...(tag === 'NW4' ? { criticNewFinding: true, restateAfterCritic: true } : {}), interject: next => {
       kinds.push(`${next.kind}:${next.reason}`);
       if (tag === 'NW3' && !edited && next.phase === 'REVIEW' && next.reason === 'review_round_prepare') {
         // e8d6360: a test-only edit committed in REVIEW before the round's lanes run.
@@ -2256,6 +2261,15 @@ function scenarioNW(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NW3' | '
         lines.push('owner finalize refused (new finding requires next wave) -> owner wave_advance');
         return true;
       }
+      if (tag === 'NW6' && staleWaves < 3 && next.phase === 'REVIEW' && /^inventory_/.test(next.reason)
+        && new StoryStore(o.worktree).readFindings(o.storyId).findings.every(f => f.status === 'open')) {
+        // Run 25 waves 2-6: every lane wave of the round went stale on unchanged material (here an
+        // unauthenticated checkpoint commit breaks the managed live binding) while F-001 stays open.
+        git(o.worktree, ['commit', '-q', '--allow-empty', '-m', `owner: checkpoint review status ${staleWaves + 1}`]);
+        staleWaves += 1;
+        lines.push(`owner checkpoint commit ${staleWaves} after the lanes (breaks the managed live binding)`);
+        return true;
+      }
       if (tag === 'NW5' && !cancelled && next.reason === 'certification_begin') {
         o.mustCli('review_inventory_cancel', { storyId: o.storyId, reason: 'late evidence invalidated finalized receipt' }, { label: 'owner review_inventory_cancel (run 25 item 186)' });
         cancelled = true;
@@ -2286,6 +2300,16 @@ function scenarioNW(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NW3' | '
       assert.ok(copies.every(f => f.status === 'resolved'), `NW4: every copy closed, none dropped: ${JSON.stringify(copies.map(f => [f.id, f.status, f.resolutionType]))}`);
       const repairs = repairRunsOnDisk(join(o.root, '.proof-or-stop', 'runtime', 'host-runs'));
       lines.push(`findings: ${copies.map(f => `${f.id.split(':').pop()} ${f.status}${f.resolutionType ? `/${f.resolutionType}` : ''}`).join(', ')}; repair runs per finding: ${JSON.stringify([...repairs].map(([id, ids]) => [id.split(':').pop(), ids.length]))}`);
+    }
+    if (tag === 'NW6') {
+      const perLane = new Map<string, number>();
+      for (const run of roundOneLanes) perLane.set(run.lane, (perLane.get(run.lane) ?? 0) + 1);
+      assert.ok(staleWaves >= 2, `NW6: at least two stale lane waves happened (${staleWaves})`);
+      assert.ok(Math.max(...perLane.values()) <= 3, `NW6: no 4th lane wave on unchanged material (${JSON.stringify([...perLane])})`);
+      assert.ok(findings.filter(f => f.reviewRound === firstRound).every(f => f.status === 'resolved'), `NW6: every round-1 finding closed, none dropped: ${JSON.stringify(findings.map(f => [f.id, f.status]))}`);
+      const stopLoss = store.readProcessEvents(o.storyId).filter(e => e.type === 'phase_transition' && (e as { transitionType?: string }).transitionType === 'review_stop_loss');
+      assert.equal(stopLoss.length, 1, `NW6: REVIEW->DEV took the recorded stale-wave stop-loss once: ${JSON.stringify(stopLoss)}`);
+      lines.push(`round-1 lane runs per lane: ${JSON.stringify([...perLane].map(([lane, n]) => [lane.replace('proof-or-stop-review-', ''), n]))}; stop-loss: ${String((stopLoss[0] as { reason?: string }).reason).slice(0, 160)}`);
     }
     if (tag === 'NW5') {
       assert.ok(cancelled, 'NW5: the owner cancelled the finalized epoch');
@@ -2929,7 +2953,7 @@ function scenarioNIN(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NW[3-5]?|NI|NIN|NQ|NP|N[AD](?:-run)?|N[DF]-V[1-6]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NW[3-6]?|NI|NIN|NQ|NP|N[AD](?:-run)?|N[DF]-V[1-6]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -2968,7 +2992,7 @@ async function main(): Promise<void> {
     if (only.includes('NC7')) outcomes.push(scenarioNC7(machine.env, steps, 'reroute'));
     if (only.includes('NC8')) outcomes.push(scenarioNC7(machine.env, steps, 'lineage'));
     if (only.includes('NC9')) outcomes.push(scenarioNC9(machine.env, steps));
-    for (const token of ['NW3', 'NW4', 'NW5'] as const) if (only.includes(token) || only.includes('NW')) outcomes.push(scenarioNW(machine.env, steps, token));
+    for (const token of ['NW3', 'NW4', 'NW5', 'NW6'] as const) if (only.includes(token) || only.includes('NW')) outcomes.push(scenarioNW(machine.env, steps, token));
     if (only.includes('NI')) outcomes.push(scenarioNI(machine.env, steps));
     if (only.includes('NQ')) outcomes.push(scenarioNQ(machine.env, steps));
     if (only.includes('NIN')) outcomes.push(scenarioNIN(machine.env, steps));
@@ -2981,7 +3005,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NI', 'NIN', 'NQ', 'NP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIN', 'NQ', 'NP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

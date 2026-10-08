@@ -26,6 +26,15 @@
  * and the worker reads only that (managedResumeSessionForSpec), so the prompt
  * pack and the fresh launch always go together. A malformed config keeps
  * production (resume, no pack).
+ *
+ * Finding repairs (adopted `remediation.thread: "fresh"`, the default since
+ * old-PoS run 25: a fresh repair with this pack took 0.86M input / 2.4 min
+ * against 2.8-3.9M for a repair resumed on the Story code-writer thread at
+ * 10-16M context) get the same repair pack and a fresh thread without the
+ * experimental switch; host_run appends the pack and the worker decides from
+ * the same config (remediationThreadFresh in managed-host-run.ts), like
+ * review.round2Lanes. `remediation.thread: "resume"` is the rollback. Implementer
+ * items keep implementation.thread (default resume).
  */
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, statSync } from 'node:fs';
@@ -61,6 +70,7 @@ export const ITEM_PACK_MAX_BYTES = ITEM_PACK_LIMITS.requestBytes + ITEM_PACK_LIM
 export function implementationThreadFresh(root: string): boolean {
   try { return resolveAbVariants(loadConfig(root)).implementationThread === 'fresh'; } catch { return false; }
 }
+
 
 
 function git(cwd: string, args: string[]): string {
@@ -166,6 +176,8 @@ export interface ImplementerItemPack {
  */
 export function buildImplementerItemPack(store: StoryStore, root: string, args: {
   storyId: string; itemId?: string | null; findingIds?: readonly string[];
+  /** Which switch made this run fresh (header label); default = the experimental implementation.thread arm. */
+  arm?: string;
 }): ImplementerItemPack {
   const items = (() => { try { return store.readChecklist(args.storyId).items; } catch { return [] as ChecklistItem[]; } })();
   const allFindings = args.findingIds?.length ? (() => { try { return store.readFindings(args.storyId).findings; } catch { return [] as Finding[]; } })() : [];
@@ -231,7 +243,7 @@ export function buildImplementerItemPack(store: StoryStore, root: string, args: 
   const body = out.join('\n\n');
   const header = [
     '',
-    `--- BEGIN ITEM PACK (A/B implementation.thread=fresh, experimental; ${subject}) ---`,
+    `--- BEGIN ITEM PACK (${args.arm ?? 'A/B implementation.thread=fresh, experimental'}; ${subject}) ---`,
     'This is a FRESH session: no earlier implementer or repair conversation is loaded. The framework built the pack below from the',
     'Story state at launch; start from it and read further only what it does not cover (sections are truncated where marked). The',
     'item, its intents, pinned selectors and test commands are the ones stated above; the completion steps and return contract above are unchanged.',

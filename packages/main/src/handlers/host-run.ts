@@ -638,7 +638,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         const freshThread = resolveFreshImplementerThread(ctx, { storyId, agentType, itemId, findingId, groupFindingIds: groupedTarget?.groupFindingIds });
         if (freshThread) {
           promptText += `\n${freshThread.section.join('\n')}`;
-          freshThreadVariant = freshThread.abVariant;
+          freshThreadVariant = freshThread.abVariant ?? null;
         }
         managedDispatch = true;
       } else if (hasPrompt === hasPromptFile) {
@@ -1112,25 +1112,34 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
 }
 
 /**
- * EXPERIMENTAL A/B `implementation.thread: "fresh"` (core/implementer-item-pack.ts).
- * Null (production, byte-identical prompt and target) unless the config sets
- * the switch well-formed and the run is a managed implementer or finding
- * repair. Otherwise the item pack to append and the A/B evidence to seal on
- * the managed dispatch target, which is what makes the worker start a fresh
- * Codex thread (managedResumeSessionForSpec).
+ * Fresh code-writer threads (core/implementer-item-pack.ts). EXPERIMENTAL A/B
+ * `implementation.thread: "fresh"`: every implementer item and finding repair
+ * gets the item pack and the A/B evidence sealed on the managed dispatch
+ * target, which is what makes the worker start a fresh Codex thread
+ * (managedResumeSessionForSpec). Adopted `remediation.thread: "fresh"` (the
+ * default; old-PoS run 25): a finding repair gets the repair pack with no A/B
+ * evidence (production) and the worker starts it fresh from the same config;
+ * `remediation.thread: "resume"` is the rollback. Null (no pack, target
+ * unchanged) for an implementer item without the experimental switch, a repair
+ * under the rollback, a malformed config, or any other role.
  */
 export function resolveFreshImplementerThread(ctx: Pick<HandlerContext, 'root' | 'store'>, args: {
   storyId: string; agentType: string; itemId: string | null; findingId: string | null; groupFindingIds?: readonly string[];
-}): { section: string[]; abVariant: AbVariantEvidence; bytes: number } | null {
+}): { section: string[]; abVariant?: AbVariantEvidence; bytes: number } | null {
   if (args.agentType !== 'proof-or-stop-implementer' && args.agentType !== 'proof-or-stop-finding-repair') return null;
   let variants;
   try { variants = resolveAbVariants(loadConfig(ctx.root)); } catch { return null; }
   const evidence = abVariantEvidence(variants);
-  if (variants.implementationThread !== 'fresh' || !evidence) return null;
-  const pack = args.agentType === 'proof-or-stop-implementer'
-    ? buildImplementerItemPack(ctx.store, ctx.root, { storyId: args.storyId, itemId: args.itemId })
-    : buildImplementerItemPack(ctx.store, ctx.root, { storyId: args.storyId, findingIds: args.groupFindingIds?.length ? args.groupFindingIds : args.findingId ? [args.findingId] : [] });
-  return { section: pack.lines, abVariant: evidence, bytes: pack.bytes };
+  const findingIds = args.groupFindingIds?.length ? args.groupFindingIds : args.findingId ? [args.findingId] : [];
+  if (variants.implementationThread === 'fresh' && evidence) {
+    const pack = args.agentType === 'proof-or-stop-implementer'
+      ? buildImplementerItemPack(ctx.store, ctx.root, { storyId: args.storyId, itemId: args.itemId })
+      : buildImplementerItemPack(ctx.store, ctx.root, { storyId: args.storyId, findingIds });
+    return { section: pack.lines, abVariant: evidence, bytes: pack.bytes };
+  }
+  if (args.agentType !== 'proof-or-stop-finding-repair' || variants.remediationThread !== 'fresh') return null;
+  const pack = buildImplementerItemPack(ctx.store, ctx.root, { storyId: args.storyId, findingIds, arm: 'remediation.thread=fresh, default' });
+  return { section: pack.lines, bytes: pack.bytes };
 }
 
 /**
