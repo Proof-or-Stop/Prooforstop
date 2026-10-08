@@ -33,6 +33,7 @@ import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/pla
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import { verificationIntentHasPlannedPathDeclarations } from '../core/acceptance-topology.js';
 import { verificationIntentClassificationFailure } from '../core/verification-intent-classification.js';
+import { intentDerivationFailure } from '../core/intent-derivation.js';
 import { renderAgentLivenessGuidance } from '../core/agent-liveness-policy.js';
 import {
   renderManagedInitReviewerDispatches,
@@ -42,7 +43,9 @@ import { captureStoryIntegrationTarget } from '../core/story-integration-target.
 import { ensureRuntimeInfoExclude } from '../core/runtime-info-exclude.js';
 import { ensureGitCommitIdentityNotice } from '../core/git-commit-identity.js';
 import {
+  boundStoryRequest,
   consumeStagedStoryRequest,
+  peekStagedStoryRequest,
   readStoryRequest,
   renderUnmappedLiteralsRemedy,
   stageStoryRequest,
@@ -538,6 +541,22 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       for (const [index, item] of (args.checklist ?? []).entries()) {
         const failure = verificationIntentClassificationFailure(`CHK-${String(index + 1).padStart(3, '0')}`, item.verificationIntent, 'story_create');
         if (failure) throw new Error(failure);
+      }
+      // D4 (old-PoS run 23: the wrong value was pinned here, at INIT): an example
+      // whose expected value the request does not quote carries a derivation that
+      // cites a request sentence. Checked against the request this call records
+      // (explicit, requestFile, or the staged one, not consumed yet).
+      if (args.checklist?.some(item => item.verificationIntent)) {
+        const raw = typeof args.request === 'string' && args.request.trim().length > 0
+          ? args.request
+          : args.requestFile
+            ? (() => { try { return readFileSync(resolve(ctx.root, args.requestFile!), 'utf-8'); } catch { return null; } })()
+            : peekStagedStoryRequest(resolveMainRepoRoot(ctx.root));
+        const requestText = raw && raw.trim().length > 0 ? boundStoryRequest(raw).text : null;
+        for (const [index, item] of (args.checklist ?? []).entries()) {
+          const failure = intentDerivationFailure('story_create', `CHK-${String(index + 1).padStart(3, '0')}`, item.verificationIntent, requestText);
+          if (failure) throw new Error(failure);
+        }
       }
       // B-6812 CHK-001 / B-f60c CHK-003: serialize the whole story_create body
       // (fromDraft branch + normal branch) so the idempotency scan →

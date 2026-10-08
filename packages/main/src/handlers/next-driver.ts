@@ -48,6 +48,7 @@ import { withGitTreeObservation } from '../core/git-tree-observation.js';
 import { evaluateDevMemoryPreflightGate, evaluateReviewVerdict, getGuardFailureReason } from '../core/machine.js';
 import { missingPlanScopeCheckFailure, SCOPE_PLAN_REVIEWER, scopePlanLaunchIsFramework, scopePlanRerunReason } from '../core/plan-scope-check-requirement.js';
 import { hasPreScopeBlockers, planPreScopeBlockers, type PreScopeBlockers } from '../core/plan-pre-scope-blockers.js';
+import { checklistDerivationGaps, derivationPlaceholder, MISSING_INTENT_DERIVATION } from '../core/intent-derivation.js';
 import { STORY_FOCUSED_CLASSIFICATION } from '../core/verification-intent-classification.js';
 import { VERIFICATION_LANES } from '../core/verification.js';
 import { isTerminalChecklistStatus } from '../core/checklist-status.js';
@@ -89,6 +90,7 @@ import type { ChecklistItem, ReviewRun } from '../core/types.js';
 import { commitMessageNamesFinding, implementationGroupingFiles, itemDeclaredFiles, remediationGroupingSingle, sharedFileItemGroup } from '../core/ab-dispatch-grouping.js';
 import { OWNER_WAIT_BLOCK_MS, ownerWaitInstruction } from '../core/owner-wait-guidance.js';
 import { parseIntentConflicts, type IntentConflict } from '../core/request-authority.js';
+import { readStoryRequest } from '../core/story-request.js';
 import { acceptanceIntentHash } from '../core/verification-intent-amendment.js';
 
 type HandlerLookup = (name: string) => ((...args: any[]) => any) | undefined;
@@ -838,7 +840,7 @@ export function devMemoryCaptureCall(storyId: string): NextStepCall {
  * step lists each exact command (placeholders described), then story_review.
  * Every other blocker keeps story_review's own message (most carry their command).
  */
-export function planAuthoringStep(store: Pick<HandlerContext['store'], 'readReview' | 'readChecklist'>, base: { storyId: string; phase: string }): NextStep | null {
+export function planAuthoringStep(store: Pick<HandlerContext['store'], 'readReview' | 'readChecklist' | 'storyFilePath'>, base: { storyId: string; phase: string }): NextStep | null {
   const { storyId } = base;
   let issues: Array<{ type?: string; severity?: string; message?: string }> = [];
   try {
@@ -860,10 +862,27 @@ export function planAuthoringStep(store: Pick<HandlerContext['store'], 'readRevi
     calls.push(nextStepCall('plan_set', { command: 'plan_set', payload: { storyId,
       content: `<full plan.md with one section per item: ${ids.map(id => `## ${id}`).join(', ')}; each with steps, files and verification>` } }));
   }
+  // D4 (old-PoS run 23): rows without a valid derivation, one exact checklist_update per item.
+  if (types.has(MISSING_INTENT_DERIVATION)) {
+    const request = readStoryRequest(store as never, storyId);
+    if (request.status === 'ok') {
+      for (const gap of checklistDerivationGaps(store.readChecklist(storyId).items, request.text)) {
+        const item = store.readChecklist(storyId).items.find(row => row.id === gap.itemId)!;
+        const intent: Record<string, Array<Record<string, unknown>>> = {};
+        for (const lane of VERIFICATION_LANES) {
+          intent[lane] = (item.verificationIntent?.[lane] ?? []).map((row, index) => {
+            const underived = gap.rows.find(entry => entry.lane === lane && entry.index === index);
+            return underived ? { ...(row as unknown as Record<string, unknown>), derivation: derivationPlaceholder(underived) } : { ...(row as unknown as Record<string, unknown>) };
+          });
+        }
+        calls.push(nextStepCall('checklist_update', { command: 'checklist_update', payload: { storyId, itemId: gap.itemId, verificationIntent: intent } }));
+      }
+    }
+  }
   if (!calls.length) return null;
   calls.push(nextStepCall('story_review', { command: 'story_review', payload: { storyId } }));
   const others = issues.filter(issue => issue.severity === 'blocker'
-    && !['missing_decision', 'missing_alternatives', 'insufficient_premortem', 'missing_plan_md'].includes(issue.type ?? ''));
+    && !['missing_decision', 'missing_alternatives', 'insufficient_premortem', 'missing_plan_md', MISSING_INTENT_DERIVATION].includes(issue.type ?? ''));
   const rest = others.length ? ` Other blockers (fix each as story_review says): ${others.slice(0, 4).map(issue => `[${issue.type}] ${(issue.message ?? '').slice(0, 240)}`).join(' ')}${others.length > 4 ? ` +${others.length - 4} more` : ''}` : '';
   return batchStep(base, 'plan_authoring', calls,
     `The latest story_review round has blockers the PLAN writers fix: author every <...> field and run these ${calls.length} commands in one turn (story_review last), then \`proof-or-stop next --storyId=${storyId} --run\`.${rest}`,
@@ -900,7 +919,7 @@ export function preScopeAuthoringStep(base: { storyId: string; phase: string }, 
     if (!need && !literals.length) continue;
     const payload: Record<string, unknown> = { storyId, itemId: item.id };
     if (need?.missingUserSees) payload.userSees = `<exact text the user sees once ${item.id} is done (quote outputs exactly)>`;
-    const touchesIntent = Boolean(need?.missingLanes.length || need?.unpinned.length || literals.length);
+    const touchesIntent = Boolean(need?.missingLanes.length || need?.unpinned.length || need?.missingDerivations.length || literals.length);
     if (touchesIntent) {
       const intent: Record<string, Array<Record<string, unknown>>> = {};
       for (const lane of VERIFICATION_LANES) {
@@ -910,6 +929,8 @@ export function preScopeAuthoringStep(base: { storyId: string; phase: string }, 
             copy.verification = { command: `<pinned test command for ${item.id}:${lane}:${index}, e.g. go test -v ./pkg -run ^TestName$>`,
               selector: '<line its passing run prints, e.g. --- PASS: TestName>' };
           }
+          const underived = need?.missingDerivations.find(entry => entry.lane === lane && entry.index === index);
+          if (underived) copy.derivation = derivationPlaceholder(underived);
           return copy;
         });
         if (need?.missingLanes.includes(lane)) intent[lane]!.push(placeholderIntentRow(`<${item.id} ${lane}: action or condition -> exact expected result>`));
@@ -924,6 +945,7 @@ export function preScopeAuthoringStep(base: { storyId: string; phase: string }, 
       need?.missingLanes.length ? `missing ${need.missingLanes.join('/')} intent` : '',
       need?.unpinned.length ? `unpinned ${need.unpinned.map(entry => entry.ref).join(', ')}` : '',
       need?.missingUserSees ? 'missing userSees' : '',
+      need?.missingDerivations.length ? `missing derivation: ${need.missingDerivations.map(entry => entry.problem).join('; ')}` : '',
     ].filter(Boolean);
     if (parts.length) reasons.push(`${item.id}: ${parts.join('; ')}`);
   }
@@ -934,9 +956,12 @@ export function preScopeAuthoringStep(base: { storyId: string; phase: string }, 
     : '';
   return batchStep(base, 'plan_authoring', calls,
     `PLAN authoring before the scope-plan reviewer: these are deterministic blockers story_review reports anyway${reasons.length ? ` (${reasons.join(' | ')})` : ''}.${literalText} `
+      + (blockers.items.some(row => row.missingDerivations.length)
+        ? 'A derivation is required on an example whose expected value request.md does not quote: requestQuote is the verbatim request sentence the value follows from, computation the steps from it to the pinned value; if they reach another value, fix the pinned value. '
+        : '')
       + `Author every <...> field (keep the existing rows; type may be logic/cli/browser/manual/docs) and run these ${calls.length} checklist_update commands in one turn, `
       + `then \`proof-or-stop next --storyId=${storyId} --run\`: it launches the scope-plan reviewer once, on the final checklist.`,
-    'planPreScopeBlockers (story_review missing_verification_intent / missing_verification_pin / missing_user_sees + story_create request-literal pre-check)');
+    'planPreScopeBlockers (story_review missing_verification_intent / missing_verification_pin / missing_user_sees / missing_intent_derivation + story_create request-literal pre-check)');
 }
 
 /**

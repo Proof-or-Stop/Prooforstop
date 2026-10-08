@@ -2541,8 +2541,8 @@ function scenarioNP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   const row = (desc: string, test: string, extra: Record<string, unknown> = {}) => ({ desc, type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass',
     requirementSource: 'story', verification: { command: `go test -v ./strs -run ^${test}$`, selector: `--- PASS: ${test}` }, ...extra });
   const intents = (pin: Record<string, unknown>) => ({
-    'CHK-001': { happy: [row('strs.Upper(s): Upper("ab") -> "AB"', 'TestUpper'), pin], edge: [row('Upper("") -> ""', 'TestUpperEmpty')], adversarial: [row('Upper("1!") -> "1!"', 'TestUpperSymbols')] },
-    'CHK-002': { happy: [row('strs.Reverse(s): Reverse("héllo") -> "olléh"', 'TestReverse')], edge: [row('Reverse("") -> ""', 'TestReverseEmpty')], adversarial: [row('Reverse("a") -> "a"', 'TestReverseOne')] },
+    'CHK-001': { happy: [row('strs.Upper(s): Upper("ab") -> "AB"', 'TestUpper'), pin], edge: [row('Upper("") -> ""', 'TestUpperEmpty')], adversarial: [row('Upper leaves digits and symbols unchanged', 'TestUpperSymbols')] },
+    'CHK-002': { happy: [row('strs.Reverse(s): Reverse("héllo") -> "olléh"', 'TestReverse')], edge: [row('Reverse("") -> ""', 'TestReverseEmpty')], adversarial: [row('Reverse of a one-rune string is that string', 'TestReverseOne')] },
   });
   try {
     // INIT_CHECK -> PLAN: the owner's INIT intent pins a wrong value, stored before the derivation rule (no derivation).
@@ -2599,7 +2599,10 @@ function scenarioNP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     assert.match(review.out, /checklist_update[^\n]*verificationIntent/, '[NP] the pin-audit gap names the intent fix (checklist_update verificationIntent)');
     const dev = o.cli('story_advance', { storyId: o.storyId, phase: 'DEV' }, { label: 'story_advance DEV (refused)' });
     assert.notEqual(dev.status, 0, '[NP] the wrong pin must not reach DEV');
+    assert.match(dev.out, /story_review round has 1 unresolved blocker/, '[NP] the only DEV blocker is the pin-audit gap');
     assert.equal(o.phase(), 'PLAN', '[NP] still PLAN');
+    const held = ask('next (PLAN, pin-audit gap open)');
+    assert.notEqual(held.reason, 'enter_dev', `[NP] next must not propose DEV while the pin-audit gap is open: ${held.why}`);
 
     const fixed = row('Upper("xy") -> "XY"', 'TestUpperXY', { derivation: { requestQuote: NP_QUOTE, computation: 'the upper-case form of "xy" is "XY"' } });
     o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', verificationIntent: intents(fixed)['CHK-001'] }, { label: 'checklist_update CHK-001 (pin fixed)' });

@@ -19,6 +19,9 @@
  *   - missing userSees (shorter than 10 characters, story_review's
  *     `missing_user_sees` threshold): the reviewer traces request literals to
  *     userSees, and userSees is editable in PLAN.
+ *   - examples whose expected value request.md does not quote and that carry
+ *     no valid derivation (D4, old-PoS run 23; story_review
+ *     `missing_intent_derivation`, core/intent-derivation.ts).
  * Story-wide: request literals (the story_create pre-check,
  * unmappedStoryRequestLiterals) that no title / userSees / verificationIntent
  * states and no PLAN excludes entry names.
@@ -30,6 +33,7 @@ import { computeChannel } from './workflow-policy.js';
 import { unpinnedPlanIntents } from './plan-verification-pins.js';
 import { isHighRiskStory } from './plan-scope-check-requirement.js';
 import { readStoryRequest, unmappedStoryRequestLiterals } from './story-request.js';
+import { describeDerivationProblem, intentDerivationRows } from './intent-derivation.js';
 
 /** story_review's rule: normal channel, high risk or strict profile need happy/edge/adversarial on every item. */
 export function requiresFullVerificationIntent(args: { isHighRisk: boolean; channel: string; profile: string }): boolean {
@@ -47,6 +51,8 @@ export interface PreScopeItemBlockers {
   /** Executable must/should intents without a pin (lane/index locate the row). */
   unpinned: Array<{ ref: string; lane: VerificationLane; index: number }>;
   missingUserSees: boolean;
+  /** D4: example rows without a valid derivation (lane/index locate the row). */
+  missingDerivations: Array<{ ref: string; lane: VerificationLane; index: number; unquoted: string[]; problem: string }>;
 }
 
 export interface PreScopeBlockers {
@@ -66,13 +72,17 @@ export function planPreScopeBlockers(
     channel: computeChannel(story, checklist, store.readDecision(story.storyId) ?? undefined),
     profile: policy.profile,
   });
+  const request = readStoryRequest(store as StoryStore, story.storyId);
   const rows = items.map(item => ({
     itemId: item.id,
     missingLanes: requireFull ? VERIFICATION_LANES.filter(lane => (item.verificationIntent?.[lane] ?? []).length === 0) : [],
     unpinned: unpinnedPlanIntents(item).map(row => ({ ref: row.ref, lane: row.lane, index: row.index })),
     missingUserSees: userSeesMissing(item),
-  })).filter(row => row.missingLanes.length || row.unpinned.length || row.missingUserSees);
-  const request = readStoryRequest(store as StoryStore, story.storyId);
+    missingDerivations: request.status === 'ok'
+      ? intentDerivationRows(item.id, item.verificationIntent, request.text).filter(row => row.problem !== null)
+        .map(row => ({ ref: row.ref, lane: row.lane, index: row.index, unquoted: row.unquoted, problem: describeDerivationProblem(row) }))
+      : [],
+  })).filter(row => row.missingLanes.length || row.unpinned.length || row.missingUserSees || row.missingDerivations.length);
   const unmappedLiterals = request.status === 'ok' ? unmappedStoryRequestLiterals(request.text, items, { countExcludes: true }) : [];
   return { items: rows, unmappedLiterals };
 }

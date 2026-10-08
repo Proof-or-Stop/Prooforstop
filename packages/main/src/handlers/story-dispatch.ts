@@ -27,6 +27,7 @@ import type { HandlerContext } from './context.js';
 import { createClusterHandlers } from './cluster.js';
 import type { StoryStore } from '../core/store.js';
 import { readStoryRequest, renderUnmappedLiteralsLine, unmappedStoryRequestLiterals } from '../core/story-request.js';
+import { renderPinAudit } from '../core/intent-derivation.js';
 import { INTENT_CONFLICT_RETURN_CONTRACT, REPAIR_INPUT_VARIANT_RULE, renderReviewRequestAuthority } from '../core/request-authority.js';
 import { scopeBoundaryHashIsFresh } from '../core/scope-anti-expansion.js';
 import { reportHealthIssue } from '../core/health.js';
@@ -195,7 +196,9 @@ function appendImplementerCommitSteps(lines: string[], message: string): void {
  */
 /**
  * Verbatim request traceability (benchmark run 13). The scope-plan reviewer gets
- * request.md inline plus the mechanical literal pre-check; the verification-intent
+ * request.md inline plus the mechanical literal pre-check, the pin audit of
+ * every intent value the request does not quote (with its derivation) and the
+ * same-semantics rule (old-PoS run 23, core/intent-derivation.ts); the verification-intent
  * author, the INIT product reviewer, the implementer and the finding-repair
  * worker get its path; every REVIEW lane and the inventory critic get it inline
  * with the request-outranks-intent rubric (old-PoS run 23, which reversed the
@@ -222,6 +225,8 @@ function appendScopePlanRequestTraceability(lines: string[], store: StoryStore, 
   lines.push(unmapped.length > 0
     ? `Mechanical pre-check. ${renderUnmappedLiteralsLine(unmapped)}. Classify each one: gap, excluded (cite the excluding text), or covered (name the CHK and the field that states it).`
     : 'Mechanical pre-check: every backticked request literal appears in some checklist title/userSees/verificationIntent; still trace every normative sentence.');
+  // D4 pin audit + D5 same-semantics rule (old-PoS run 23, core/intent-derivation.ts).
+  lines.push(...renderPinAudit(items, request.text));
 }
 
 /**
@@ -830,7 +835,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     lines.push(`1. ${storyDir}/background.md`);
     lines.push(`2. ${storyDir}/plan.md#${args.itemId}`);
     if (readStoryRequest(store, args.storyId).status === 'ok') {
-      lines.push(`3. ${storyDir}/request.md (the user's verbatim request): for every example and every listed variant this item covers, write one exact-output intent that names that exact input and its exact expected output or error text; never collapse a listed variant set into one representative case.`);
+      lines.push(`3. ${storyDir}/request.md (the user's verbatim request): for every example and every listed variant this item covers, write one exact-output intent that names that exact input and its exact expected output or error text; never collapse a listed variant set into one representative case. An expected value the request does not quote verbatim needs "derivation":{"requestQuote":"<the request sentence it follows from, verbatim>","computation":"<the steps from it to that value>"} on its row (checklist_update refuses it otherwise).`);
     }
     for (const doc of item.relatedDocs || []) lines.push(`- ${doc}`);
     lines.push('');
