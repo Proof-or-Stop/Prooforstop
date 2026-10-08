@@ -98,6 +98,16 @@
  * finding_duplicate_resolve (duplicateFindingResolveStep, shared with the live
  * driver) instead of a second finding_repair; a failed coverage run sends it
  * to its own repair, whose why names that run.
+ *
+ * Deliberate change (request-outranks-intent, old-PoS run 23 D1): with no
+ * implementer / finding-repair in flight, an `[intent-conflict]` a terminal
+ * writer run declared (or an implementer's prose-only deliberate deviation)
+ * whose item intent is unchanged since the run was dispatched blocks DEV first:
+ * `intent_conflict` = story_advance PLAN (openIntentConflicts /
+ * intentConflictStep, shared with the live driver); it precedes every finding
+ * repair / finding_resolve / finding_resolve_batch step, and the REVIEW-phase
+ * finding closure returns to DEV (intent_conflict_dev) instead of resolving.
+ * The golden fixture declares no conflict, so its quiet states are unchanged.
  */
 import { existsSync, readdirSync } from 'node:fs';
 import { hostname } from 'node:os';
@@ -135,7 +145,7 @@ import { collectReviewerEvidenceState, verifyCurrentReviewerDispatchBinding } fr
 import { managedHostRunsRoot, readManagedHostRunProjection, managedHostRunReceipt, isAutoReplaceableManagedLaunchFailure } from '../../core/managed-host-run.js';
 import { managedFindingRepairState, hintedStep, evidenceChainStep, evidenceChainAdvisory, step as sharedStep, managedLaunchStep, boundManagedSelection,
   runsForTarget, targetRelaunchIsFramework, testAuthoringStep, planAuthoringStep, preScopeAuthoringStep, nextBlockingFinding, duplicateFindingResolveStep,
-  groupedFindingRepairIds, groupedFindingRepairStep, repairedFindingsForResolve, findingResolveBatchStep, type NextStep } from '../../handlers/next-driver.js';
+  groupedFindingRepairIds, groupedFindingRepairStep, repairedFindingsForResolve, findingResolveBatchStep, openIntentConflicts, intentConflictStep, type NextStep } from '../../handlers/next-driver.js';
 import { duplicateCoverageReceipts, duplicateResolveCandidate } from '../../core/duplicate-finding-coverage.js';
 import { singleHostAssuranceReady } from '../../handlers/quorum-submit.js';
 import { hasPersistedManagedReceiptEvidence, refusedManagedReviewImport } from '../../handlers/managed-review-evidence.js';
@@ -335,6 +345,10 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
     const open = checklist.items.filter(item => !isTerminalChecklistStatus(item.status));
     const hostRuns = listStoryHostRuns(ctx, storyId);
     const inFlight = (agentType: string) => hostRuns.filter(run => run.agentType === agentType && !run.terminal).at(-1);
+    if (!inFlight(IMPLEMENTER_AGENT) && !inFlight(FINDING_REPAIR_AGENT)) {
+      const conflicts = openIntentConflicts({ root: ctx.root, gitCwd: gitCwdOf(storyId), store: ctx.store, storyId, runs: hostRuns });
+      if (conflicts.length > 0) return intentConflictStep(base, conflicts);
+    }
     if (open.length > 0) {
       const item = open[0]!;
       if (item.status === 'pending') {
@@ -568,6 +582,15 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
     const findings = ctx.store.readFindings(storyId).findings ?? [];
     const hostRuns = listStoryHostRuns(ctx, storyId);
     const gitCwd = gitCwdOf(storyId);
+    // D1 (run 23): a finding whose repair declared an open [intent-conflict] is
+    // never resolved (alone or in a batch) before the intent is amended: DEV
+    // blocks on the conflict first.
+    const conflicts = openIntentConflicts({ root: ctx.root, gitCwd, store: ctx.store, storyId, runs: hostRuns });
+    if (conflicts.length > 0) {
+      return guardStep(base, 'DEV', 'intent_conflict_dev',
+        `${why} A managed writer run declared an open intent conflict (${conflicts.map(row => `${row.itemId} by ${row.runId}`).join('; ')}): return to DEV, where next routes the intent amendment before any finding is resolved.`,
+        `${source} + openIntentConflicts + getGuardFailureReason(DEV)`);
+    }
     const details: string[] = [];
     for (const id of ids) {
       const finding = findings.find(row => row.id === id);

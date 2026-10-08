@@ -8,9 +8,12 @@
  * edit is detected, and every replacement after the first record is an
  * explicit, reasoned amendment kept in request.json.
  *
- * Consumers (token discipline): the PLAN scope-plan reviewer prompt (inline,
- * with the mechanical literal pre-check), the PLAN verification-intent author
- * (path only), the INIT product reviewer (path only). REVIEW lanes never get it.
+ * Consumers: the PLAN scope-plan reviewer prompt (inline, with the mechanical
+ * literal pre-check), every REVIEW lane and the inventory critic (inline, with
+ * the request-outranks-intent rubric; core/request-authority.ts, old-PoS run 23
+ * reversed the earlier "REVIEW lanes never get it"), the PLAN
+ * verification-intent author, the INIT product reviewer, the DEV implementer
+ * and the finding-repair worker (path only).
  */
 
 import { createHash } from 'node:crypto';

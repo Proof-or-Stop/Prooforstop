@@ -27,6 +27,7 @@ import type { HandlerContext } from './context.js';
 import { createClusterHandlers } from './cluster.js';
 import type { StoryStore } from '../core/store.js';
 import { readStoryRequest, renderUnmappedLiteralsLine, unmappedStoryRequestLiterals } from '../core/story-request.js';
+import { INTENT_CONFLICT_RETURN_CONTRACT, REPAIR_INPUT_VARIANT_RULE, renderReviewRequestAuthority } from '../core/request-authority.js';
 import { scopeBoundaryHashIsFresh } from '../core/scope-anti-expansion.js';
 import { reportHealthIssue } from '../core/health.js';
 import { findSealedManagedImplementerCompletion, managedImplementerAlreadyDoneAction } from '../core/managed-host-run.js';
@@ -195,7 +196,11 @@ function appendImplementerCommitSteps(lines: string[], message: string): void {
 /**
  * Verbatim request traceability (benchmark run 13). The scope-plan reviewer gets
  * request.md inline plus the mechanical literal pre-check; the verification-intent
- * author and the INIT product reviewer get only its path; REVIEW lanes get nothing.
+ * author, the INIT product reviewer, the implementer and the finding-repair
+ * worker get its path; every REVIEW lane and the inventory critic get it inline
+ * with the request-outranks-intent rubric (old-PoS run 23, which reversed the
+ * earlier "REVIEW lanes get nothing": the lanes deferred to a wrong owner intent
+ * because they saw only the owner paraphrase; core/request-authority.ts).
  * A Story without request.md adds no prompt bytes.
  */
 function appendScopePlanRequestTraceability(lines: string[], store: StoryStore, storyId: string): void {
@@ -768,6 +773,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push(`- Bind no-blocker readManifest to candidateSpecSetDigest=${routed.artifactDigest} and corpusDigest=${routed.corpusDigest}.`);
       appendCandidateEscalationGuidance(lines, args.storyId, routed, false);
     }
+    const requestAuthority = renderReviewRequestAuthority(store, args.storyId);
+    if (requestAuthority.length > 0) lines.push('', ...requestAuthority);
     lines.push('');
     lines.push(`Current phase: ${story.phase}. Review lane: ${lane}.`);
     appendReviewerExecutionModes(lines, args.storyId, lane);
@@ -914,6 +921,10 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         lines.push('');
       }
       // bgPolicy === 'none' → do not inject the background line at all
+      if (readStoryRequest(store, args.storyId).status === 'ok') {
+        lines.push(`Required reading: ${store.storyDirRel()}/${args.storyId}/request.md (the user's verbatim request; it outranks the checklist intents)`);
+        lines.push('');
+      }
 
       lines.push(`Severity: ${fSeverity}  Category: ${fCategory}  Reviewer: ${fReviewer}`);
       lines.push(`Description: ${fDesc}`);
@@ -924,11 +935,18 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push('- Add a failing test for each sibling as well as for the reported case, then fix them together and rerun the affected package tests.');
       lines.push('- If the repair changes what a field or encoding means or can represent (for example adds an omitted/unset distinction), list every reader of it, including render, String(), serialize, print, equality and hash, and make each honor the new distinction or state a concrete reason tied to the request. Fix any existing test whose expected value contradicts the requirement.');
       lines.push('- A sibling left unfixed is reported as a new finding in the next review round, which costs a full remediation cycle.');
+      lines.push(REPAIR_INPUT_VARIANT_RULE);
+      const storyBase = (() => { try { return resolveFullStoryBaseHead(store, root, args.storyId); } catch { return undefined; } })();
+      lines.push(storyBase
+        ? `- Story base for that check: ${storyBase} (for example \`git worktree add --detach <tmp> ${storyBase.slice(0, 12)}\`, run the variants there, then remove it).`
+        : '- Story base for that check: `git merge-base HEAD main` (run the variants in a detached temporary worktree, then remove it).');
       lines.push('');
       lines.push('After completion:');
       appendImplementerCommitSteps(lines, `${args.storyId} ${shortFid}: resolve finding`);
       lines.push('- Return the commit SHA, focused verification output, and repair summary to the Story owner/controller. The repair worker must not call finding_resolve.');
       lines.push(`- The Story owner/controller verifies the repair and then runs: proof-or-stop finding_resolve '{"storyId":"${args.storyId}","findingId":"${finding.id}","resolution":"<verified repair description>"}'`);
+      lines.push('');
+      lines.push(INTENT_CONFLICT_RETURN_CONTRACT);
 
       return {
         prompt: lines.join('\n'),
@@ -1091,6 +1109,10 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           idx++;
         }
       }
+      if (readStoryRequest(store, args.storyId).status === 'ok') {
+        lines.push(`${idx}. ${store.storyDirRel()}/${args.storyId}/request.md (the user's verbatim request; it outranks the checklist intents)`);
+        idx++;
+      }
       // B-45ed CHK-008: advisory agent appends an "optional reference" line after the required reading section; none agent does not output the background line at all
       if (bgPolicy === 'advisory') {
         const prefix = bgExists ? '' : '⚠ missing — ';
@@ -1119,6 +1141,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push('After completion:');
       appendImplementerCommitSteps(lines, `${args.storyId} ${args.itemId}: ${item.title}`);
       lines.push(`- proof-or-stop checklist_update '{"storyId":"${args.storyId}","itemId":"${args.itemId}","status":"done"}'`);
+      lines.push('');
+      lines.push(INTENT_CONFLICT_RETURN_CONTRACT);
 
       // Use story.phase to eliminate unused variable warning (also convenient for reading context when extending CHK-008)
       void story;
@@ -1236,6 +1260,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
               'Inspect every required-lane signed terminal/read record and every verified Finding on this exact cutoff. Report missed paths through finding_add or review_pass_set with complete read evidence.',
               `Then call proof-or-stop review_inventory_critic_set with storyId=${args.storyId}, epochId=${inventoryBinding.epochId}, the exact new reviewRunId and one independently justified findingDisposition per aggregate Finding. Empty dispositions are valid only for an empty set.`,
               'Do not call topology_critic_receipt_set or claim topology, TEST, DONE, dependency approval, or independent-host assurance from this inventory purpose.',
+              ...renderReviewRequestAuthority(store, args.storyId, { critic: true }),
             ].join('\n');
             const wrapped = assembleComplexStoryDispatch(currentStory, canonicalType, dispatchPrompt, 'inventory-completeness');
             const reviewerResponsibility: ReviewerDispatchResponsibility = {
