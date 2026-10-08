@@ -202,7 +202,7 @@ async function main(): Promise<void> {
       'the sealed review source remains distinct from the provider execution cwd');
     assert.equal(persistedSpec.managedReviewScratch?.headHash, headHash, 'sealed scratch registration binds the submitted HEAD');
     assert.equal(completed.plan?.cwd, binding.cwd, 'provider plan executes only in the sealed detached scratch cwd');
-    assert.deepEqual(completed.plan?.argv, ['exec', '--json', '-s', 'danger-full-access', '-C', binding.cwd, '-'],
+    assert.deepEqual(completed.plan?.argv, ['exec', '--json', '--config', 'skills.include_instructions=false', '--config', 'features.multi_agent=false', '--config', 'features.multi_agent_v2=false' /* N7 */, '-s', 'danger-full-access', '-C', binding.cwd, '-'],
       'Codex managed-review launch delegates isolation to the outer signed read-only lane while retaining the scratch cwd');
     assert.equal(existsSync(dirname(binding.cwd)), false,
       'a proven safe terminal removes only its managed-review scratch parent');
