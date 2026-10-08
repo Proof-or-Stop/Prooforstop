@@ -150,6 +150,12 @@ async function launch(f: Fixture): Promise<{ runId: string; done: Promise<void> 
   return { runId: result.run.runId, done };
 }
 
+function nextStep(f: Fixture): { reason: string; why: string; cli?: { payload: Record<string, unknown> } } {
+  const run = spawnSync(process.execPath, [CLI, 'next', JSON.stringify({ storyId: f.storyId, json: true })], { cwd: f.root, encoding: 'utf8', env: process.env });
+  const text = run.stdout ?? '';
+  try { return JSON.parse(text.slice(text.indexOf('{'))) as never; } catch { throw new Error(`${MARKER}: next --json failed (exit ${run.status}): ${text.slice(-600)}${(run.stderr ?? '').slice(-600)}`); }
+}
+
 function enterDev(f: Fixture): void {
   const story = f.store.readStory(f.storyId);
   f.store.writeStory(f.storyId, { ...story, phase: 'DEV', events: [...(story.events ?? []), { phase: 'DEV', action: 'advance', timestamp: new Date().toISOString() }] } as never);
@@ -178,6 +184,9 @@ async function scenario(gap: boolean): Promise<void> {
       `${MARKER} A: DEV entry defers the missing verdict while its run is live`);
     enterDev(f);
     assert.match(reviewEntry(f) ?? '', /\[scope_check_pending\]/, `${MARKER} A: REVIEW entry waits for the pending verdict`);
+    const devStep = nextStep(f);
+    assert.ok(devStep.reason !== 'managed_run_wait' && devStep.reason !== 'scope_verdict_replan',
+      `${MARKER} A: next in DEV works on the items while the scope run is live (got ${devStep.reason}: ${devStep.why})`);
     // B/C: the run saves its verdict in DEV.
     writeFileSync(join(f.scripts, 'release'), '');
     await run.done;
@@ -190,6 +199,9 @@ async function scenario(gap: boolean): Promise<void> {
     const guard = canMintReviewRoundGuard({ storyId: f.storyId, store: f.store, projectRoot: f.root });
     if (gap) {
       assert.match(failure ?? '', /\[scope_gap\][\s\S]*story_advance[\s\S]*PLAN/, `${MARKER} B: a gap found after DEV started blocks REVIEW and names PLAN: ${failure}`);
+      const replan = nextStep(f);
+      assert.equal(replan.reason, 'scope_verdict_replan', `${MARKER} B: next returns the Story to PLAN before more DEV work (got ${replan.reason}: ${replan.why})`);
+      assert.equal(replan.cli?.payload.phase, 'PLAN', `${MARKER} B: the replan step is story_advance PLAN`);
       assert.equal(guard, false, `${MARKER} B: the xstate DEV→REVIEW guard refuses too`);
     } else {
       assert.equal(failure, null, `${MARKER} C: a covered deferred verdict admits REVIEW entry (scope part): ${failure}`);
