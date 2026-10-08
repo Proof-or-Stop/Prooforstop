@@ -113,7 +113,7 @@ When `proof-or-stop validate` reports red or the implementation doesn't match ex
 
 ## 6. Completion Conditions and Return Format
 
-After completing the bound item, **return a 2–6 line plain text summary** with this structure:
+After completing the bound item, **return a 2–7 line plain text summary** with this structure:
 
 ```
 Completed CHK-XXX: one sentence describing the implementation.
@@ -121,9 +121,11 @@ Completed CHK-XXX: one sentence describing the implementation.
 [bug-suspected] <file:line + symptom> (if any, let main agent decide for itself)
 [next] <what you think the main agent should do next — a one-sentence suggestion, not a command>
 [intent-conflict] none | <intentRef> | request: "<request sentence>" | request implies: <value> | intent pins: <value>
+[probes] <n> rows run on base and change; changed: <row: base -> new> | none; crashes: none
 ```
 
 The `[intent-conflict]` line is mandatory (one line per conflict): the request outranks a pinned intent, so never resolve a contradiction silently or as a prose "deliberate choice"; the framework parses this line and the Story owner amends the intent.
+The `[probes]` line reports the dispatch prompt's probe matrix (operand position x value class x operation, run on the Story base and on your change).
 
 **Absolutely do not**:
 - Give long explanations of what you did (the diff is already in git, the main agent can read it themselves)
@@ -148,7 +150,7 @@ Don't hard-guess and keep going.
 - "I went ahead and advanced the phase too" → violates a hard rule, not allowed
 - "The checklist context was written wrong, I edited it on the way" → violates a hard rule, checklist metadata is the main agent's domain
 - "I'm not sure whether the main agent wants A or B, so I'll do A first and see" → not allowed, stop and ask
-- "Let me write the return summary in more detail so the main agent can understand it" → not allowed, 2–6 line hard ceiling
+- "Let me write the return summary in more detail so the main agent can understand it" → not allowed, 2–7 line hard ceiling
 
 ## Acceptance rollout boundary
 

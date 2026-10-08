@@ -43,6 +43,22 @@ export const INTENT_CONFLICT_RETURN_CONTRACT = [
 export const REPAIR_INPUT_VARIANT_RULE = '- Input variants (keep base behavior): when the fix changes how an input is handled (null, 0, negative, empty, omitted vs explicit, default), list the finding\'s input and its literal variants (for example explicit `null` vs an omitted operand, 0, a negative value, empty). Run each variant on the Story base and on your fix, keep the base behavior for every variant the request did not change, and add a test for each kept variant. Test what the source wrote (the syntax node), not only the evaluated value: an explicit `null` and an omitted operand can evaluate alike. A reviewer\'s "Fix:" text is a non-binding suggestion; follow it only when it passes this check.';
 
 /**
+ * Old-PoS runs 24-29 (run28-29-analysis.md §5.1 A): the implementer self-check.
+ * Three of four distinct code defects of runs 28/29 were a value class at a new
+ * operand position crashing or confused on one operation (explicit null vs
+ * omitted, `[::]`, a read-side error panicking on assignment), and 29/F-004 an
+ * aliased right-hand side; only the finding-repair prompt carried the variant
+ * rule, so each surfaced in REVIEW and cost a finding round.
+ */
+export const PROBE_REPORT_TAG = '[probes]';
+export const IMPLEMENTER_PROBE_MATRIX = [
+  'Probe matrix before handoff (operand position x value class x operation):',
+  '- Positions: each operand the item reads or adds (e.g. start/end/step, or its parameters). Classes: omitted, explicit null, 0, negative, out of range, non-numeric/wrong type, empty receiver, multibyte text, target aliased by the value (a[x] = a). Operations: read, write/assign, stringify, error path, neighbouring receiver types (array/string/hash).',
+  '- Keep the rows that apply to this item. Run each as a probe (one-line program or test) on the Story base and on your change. Keep the base result where the request did not change it; no row may crash, panic or reach an unchecked type assertion. Omitted and explicit null are different rows: branch on the source syntax, not the evaluated value. Add a test for each row your change decides.',
+  `- Report in your final result: \`${PROBE_REPORT_TAG} <n> rows run on base and change; changed: <row: base -> new> | none; crashes: none\`.`,
+].join('\n');
+
+/**
  * D2: the verbatim request (already bounded to 16 KB by story_create /
  * story_request_set) plus the rubric, for a REVIEW lane or the inventory critic
  * dispatch prompt. A Story without request.md adds no prompt bytes.
