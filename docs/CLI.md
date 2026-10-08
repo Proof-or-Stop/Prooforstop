@@ -1145,6 +1145,7 @@ Decision table (first matching row wins):
 | DEV, every item done, a deferred scope-plan run still live and no verdict (v4.1 N8) | `host_run_status --untilTerminal=true` on it | framework (wait) | host-run projection + DEV→REVIEW `[scope_check_pending]` |
 | DEV, files declared but no scope contract | `scope_contract_init_from_plan` | framework | scope gate precondition |
 | DEV, otherwise | `story_advance --phase=REVIEW` if the REVIEW guard passes, else the guard's own `→`/`Next:` command; advisory evidence-chain items (a changed test no pin selects, a missing should receipt) ride on its `why`, never as a step of their own | framework | `getGuardFailureReason(REVIEW)` |
+| REVIEW, material committed since the round began (committed material hash differs from the `materialHash` on the round's REVIEW-entry `phase_transition`) and no open blocking finding (old-PoS run 25 F2: an owner test-only commit after a clean round) | `review_reopen`: `story_advance --phase=DEV`, before any lane is relaunched into the stale round. The transition consumes no inventory receipt, cancels the round's OPEN or unconsumed FINALIZED epoch, and records `transitionType: review_reopen` with the reason on its `phase_transition`; DEV then refreshes the stale evidence (evidence-chain row) and `enter_review` starts a fresh round. Before, `next` returned `human — review_verdict_review_evidence_invalid` and `story_advance DEV` refused without a FINALIZED unconsumed receipt | framework | `evaluateReviewMaterialReopen` (core/review-material-reopen.ts) + `getGuardFailureReason(DEV)` |
 | REVIEW, a prepared ReviewRun of this round without a host run | `host_run` managedReview for that lane (all prepared lanes are launched before any wait); when two or more prepared lanes are fully bound, ONE `review_lane_launch` step whose `parallel` lists each lane's `host_run`, spawned concurrently by `--run` (v4.1 N2: serial launches were 4 x 8.7 s per round) | framework (`launch`, bound, not a replacement; a replacement only for earlier runs that failed auto-replaceably — `worker_launch_failed:managed supervisor …`, `provider_stalled:…`, `provider_transport_error:…` or `managed_review_final_result_…` with `replacementSafe=true` — at most `MANAGED_AUTO_RELAUNCHES_PER_TARGET` = 3 of them) / agent | review-runs.json + host-run projection |
 | REVIEW, a lane run in flight | `host_run_status --untilTerminal=true` (compact text, never `--json`) | framework (wait) | host-run projection |
 | REVIEW, completed lane runs not imported (every lane terminal) | `managed_review_evidence_import {runId, receiptId}` for one run, `{imports: [{runId, receiptId}, ...]}` for several: one process, one import transaction and metadata commit per run, in order, stopping at the first refusal (run 17: one process per lane, 4.7–8.5 s each). A receipt whose import was refused for good (`managed_review_import_refused`) is left out; its lane then has no evidence and the `review_round_prepare` row below starts a fresh run of it | framework | host-run receipt + `refusedManagedReviewImport` |
@@ -1268,6 +1269,34 @@ which with no OPEN epoch mints the zero-wave receipt certification refuses),
 the DEV / REVIEW / TEST guidance printed by `story_advance`. Refusals that already
 name one concrete command (evidence-chain, finding closure, certification blockers
 with a store) keep it; `next` computes the same command.
+
+REVIEW-time edits are routed, not refused (old-PoS run 25 F2). A git commit
+cannot be refused reliably (it is plain git) and may be a genuine fix, so when
+the committed material changes during REVIEW and no blocking finding is open,
+the REVIEW→DEV door admits the review reopen without a remediation receipt
+(`canReenterDevGuard` / `getGuardFailureReason(DEV)` via
+`evaluateReviewMaterialReopen`), `next` emits it as the one framework step
+`review_reopen`, and the owner's own `story_advance --phase=TEST` refusal names
+it as its one `Next: proof-or-stop story_advance '{"storyId":"<id>","phase":"DEV"}'`.
+Nothing reaches TEST unreviewed: the new material gets a fresh round. With an
+open blocking finding the remediation path above applies unchanged; with
+uncommitted material the transition refuses until it is committed.
+
+The English-only artifact gate (`english-artifacts`, run by the REVIEW→TEST and
+TEST→DONE preflight on the normal channel) scans this branch's commit messages
+and the Story's authored metadata, never captured program output (old-PoS run
+25 F1: `go test -v` of the task's own Unicode tests printed CJK subtest names
+into checklist verification `outputTail`; run 20: the summary's observed
+`actualTranscript`). `CAPTURED_OUTPUT_FIELD_KEYS`
+(handlers/english-artifact-gate.ts: `outputTail`, `output`, `stdout`, `stderr`,
+`stdoutTail`, `stderrTail`, `observedOutput`, `actualTranscript`) are skipped by
+the JSON-aware scan and by checklist authoring checks. Every remaining violation
+line ends with its fix: the framework command that rewrites the authored text
+(`checklist_update`, `summary_set`, `background_set`, `decision_set`,
+`understanding_set`, `story_update`, or rewording the branch commit), the
+`U+XXXX` code points to quote a required literal by, and "Never edit source or
+tests to satisfy this gate". The preflight refusal's own hint is English and
+points to `next`.
 
 ### Detection A/B variant switches (four experimental, default off; `review.round2Lanes` and `remediation.grouping` adopted)
 

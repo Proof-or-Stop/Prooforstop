@@ -137,6 +137,14 @@
  *      reviewer records a `pin-audit` gap, and the Story cannot enter DEV
  *      (story_review names the pinned row to fix); after the owner fixes the
  *      value next relaunches the reviewer on the corrected checklist.
+ *   NX old-PoS runs 20/25 F1: the task's Unicode test prints a CJK subtest name
+ *      under go test -v; the captured output (checklist outputTail) and the
+ *      observed DONE transcript carry it. The English-only gate must not refuse
+ *      on captured program output; the tests reach main unchanged; DONE.
+ *   NM old-PoS run 25 F2: the owner commits a test-only change during REVIEW
+ *      after a clean round. next returns ONE framework step, the review reopen
+ *      (story_advance DEV, reason recorded as transitionType review_reopen);
+ *      DEV refreshes the stale evidence, a fresh round reviews it; DONE.
  *
  * Machine registries (provider slots, locks) use a disposable fixture machine
  * so the harness never touches the developer's ~/.proof-or-stop admission state.
@@ -154,7 +162,7 @@
  *      implementer and finding-repair run seals the arm and carries the item pack).
  *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5 ND-V6.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NI|NIN|NQ|NP|AB|ND-V1..NF-V6]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NI|NIN|NQ|NP|NX|NM|AB|ND-V1..NF-V6]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -218,6 +226,19 @@ const TESTS = [
   'func TestReverse(t *testing.T) {', '\tif Reverse("héllo") != "olléh" {', '\t\tt.Fatal("reverse")', '\t}', '}', '',
 ].join('\n');
 
+/** CJK built from code points (no literal CJK in this file): U+65E5 U+672C U+8A9E and its rune reversal. */
+const CJK_WORD = String.fromCodePoint(0x65e5, 0x672c, 0x8a9e);
+const CJK_WORD_REVERSED = String.fromCodePoint(0x8a9e, 0x672c, 0x65e5);
+/** Old-PoS run 25: the task's own Unicode tests print CJK subtest names under go test -v. */
+const UNICODE_TESTS = TESTS.replace('\tif Reverse("h\u00e9llo") != "oll\u00e9h" {',
+  `\tt.Run("${CJK_WORD}", func(t *testing.T) {\n\t\tif Reverse("${CJK_WORD}") != "${CJK_WORD_REVERSED}" {\n\t\t\tt.Fatal("reverse runes")\n\t\t}\n\t})\n\tif Reverse("h\u00e9llo") != "oll\u00e9h" {`);
+
+/** NX: extra items (each pinned to TestReverse) so the Story takes the normal channel. */
+const UNICODE_EXTRA_ITEMS: ReadonlyArray<readonly [string, string]> = [
+  ['CHK-003', 'Reverse keeps two-byte runes intact'], ['CHK-004', 'Reverse keeps three-byte runes intact'],
+  ['CHK-005', 'Reverse keeps a one-rune string unchanged'], ['CHK-006', 'Reverse of a palindrome is the same string'],
+];
+
 export class Owner {
   readonly root: string;
   get worktree(): string { return join(this.root, '.worktrees', this.storyId); }
@@ -236,7 +257,9 @@ export class Owner {
       /** The verbatim request recorded at INIT (request.md + request.json), as story_create stores it (scenarios NI, NQ). */
       request?: string;
       /** NIN: no Story yet; the owner creates it with story_create from the main checkout (INIT driven by next). */
-      fromScratch?: boolean } = {}) {
+      fromScratch?: boolean;
+      /** NX (old-PoS runs 20/25): TestReverse has a CJK subtest, so `go test -v` output (captured evidence) and the observed transcript carry CJK. */
+      unicodeOutput?: boolean } = {}) {
     this.root = realpathSync(mkdtempSync(join(tmpdir(), `e2e-r2d-${scenario}-`)));
     this.store = new StoryStore(this.root);
     this.providerBin = `${this.root}-provider`;
@@ -329,6 +352,12 @@ export class Owner {
       { id: 'CHK-002', title: 'Reverse returns the rune-reversed string', context: 'strs.Reverse does not exist; docs/types/string.md promises rune reversal.',
         userSees: 'go test -v ./strs -run TestReverse prints --- PASS: TestReverse', status: 'in_progress', startTime: now, endTime: null,
         files, verificationIntent: intent('CHK-002:happy:0', 'TestReverse passes') },
+      // NX: run 25 had 9 items. More than five puts the Story on the normal channel,
+      // where the REVIEW→TEST preflight runs the English-only artifact gate (the
+      // express channel skips it).
+      ...(this.fixtureOpts.unicodeOutput ? UNICODE_EXTRA_ITEMS.map(([id, title]) => ({ id, title, context: 'strs.Reverse must reverse by rune, not by byte.',
+        userSees: 'go test -v ./strs -run TestReverse prints --- PASS: TestReverse', status: 'in_progress' as const, startTime: now, endTime: null,
+        files, verificationIntent: intent(`${id}:happy:0`, 'TestReverse passes') })) : []),
     ] });
     if (this.fixtureOpts.request) writeStoryRequest(this.store, { storyId, phase: 'INIT', request: this.fixtureOpts.request, source: 'harness' });
     git(root, ['add', '-A']);
@@ -346,7 +375,7 @@ export class Owner {
     git(root, ['worktree', 'add', '-q', worktree, `story/${storyId}`]);
     if (this.fixtureOpts.unimplemented) return;
     write(worktree, 'strs/strs.go', IMPL);
-    write(worktree, 'strs/strs_test.go', TESTS);
+    write(worktree, 'strs/strs_test.go', this.fixtureOpts.unicodeOutput ? UNICODE_TESTS : TESTS);
     git(worktree, ['add', '-A']);
     git(worktree, ['-c', 'user.name=proof-or-stop-implementer', 'commit', '-qm', 'implement Upper and Reverse']);
   }
@@ -471,6 +500,9 @@ export class Owner {
 
   /** Scripts directory of the fake provider (run mode: per-run scripts and the resolver live here). */
   get scriptsDir(): string { return this.scripts; }
+
+  /** NX: the fixture's go test -v output carries CJK subtest names. */
+  get unicodeOutput(): boolean { return this.fixtureOpts.unicodeOutput === true; }
 
   phase(): string {
     return new StoryStore(existsSync(this.worktree) ? this.worktree : this.root).readStory(this.storyId).phase;
@@ -1218,11 +1250,16 @@ export function devSetup(o: Owner, implemented = true): void {
   addItemEvidence(o);
   o.mustCli('checklist_update', { storyId: id, itemId: 'CHK-001', status: 'done' }, { label: 'checklist_update CHK-001 done' });
   o.mustCli('checklist_update', { storyId: id, itemId: 'CHK-002', status: 'done' }, { label: 'checklist_update CHK-002 done' });
+  if (o.unicodeOutput) {
+    for (const [itemId] of UNICODE_EXTRA_ITEMS) o.mustCli('checklist_update', { storyId: id, itemId, status: 'done' }, { label: `checklist_update ${itemId} done` });
+  }
 }
 
 /** The pinned focused evidence of both items (the framework runs each command). */
 function addItemEvidence(o: Owner): void {
-  for (const [itemId, test, proves] of [['CHK-001', 'TestUpper', 'Upper upper-cases its input'], ['CHK-002', 'TestReverse', 'Reverse reverses by rune']] as const) {
+  const items: ReadonlyArray<readonly [string, string, string]> = [['CHK-001', 'TestUpper', 'Upper upper-cases its input'], ['CHK-002', 'TestReverse', 'Reverse reverses by rune'],
+    ...(o.unicodeOutput ? UNICODE_EXTRA_ITEMS.map(([itemId]) => [itemId, 'TestReverse', 'Reverse reverses by rune'] as const) : [])];
+  for (const [itemId, test, proves] of items) {
     o.mustCli('verification_evidence_add', { storyId: o.storyId, itemId, intentRef: `${itemId}:happy:0`, kind: 'logic_test',
       command: `go test -v ./strs -run ${test}`, selector: `--- PASS: ${test}`, note: `Pinned focused go test proves ${proves}.` }, { label: `verification_evidence_add ${itemId}` });
   }
@@ -1463,7 +1500,9 @@ function authorPayload(o: Owner, reason: string, payload: Record<string, unknown
       break;
     case 'summary_set':
       Object.assign(payload, { changes: 'strs/strs.go: Upper now upper-cases; new Reverse reverses by rune.', usage: 'strs.Upper("ab") == "AB"; strs.Reverse("héllo") == "olléh"',
-        expectedOutcome: 'go test -v ./strs prints --- PASS: TestUpper and --- PASS: TestReverse', actualTranscript: 'go test -v ./strs: --- PASS: TestUpper, --- PASS: TestReverse, ok',
+        expectedOutcome: 'go test -v ./strs prints --- PASS: TestUpper and --- PASS: TestReverse',
+        // NX (run 20): the observed transcript quotes the program output verbatim, CJK subtest name included.
+        actualTranscript: o.unicodeOutput ? `go test -v ./strs: --- PASS: TestUpper, --- PASS: TestReverse/${CJK_WORD}, --- PASS: TestReverse, ok` : 'go test -v ./strs: --- PASS: TestUpper, --- PASS: TestReverse, ok',
         outcomeDiff: 'no difference', limitations: 'none — fully covered', pitfalls: 'Harness fixture; no retries were needed.' });
       break;
     default:
@@ -2752,8 +2791,92 @@ function scenarioNIN(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
+/**
+ * NX, old-PoS runs 20 and 25 (F1): the task's own Unicode test prints a CJK
+ * subtest name under `go test -v`. The framework captures that output into
+ * checklist.json verification evidence (`outputTail`), and the DONE summary's
+ * observed transcript quotes it. Captured program output is not owner prose:
+ * the English-only gate must not refuse REVIEW→TEST or DONE on it, and the
+ * owner never has to edit the tests (run 25 edited fixtures and livelocked).
+ */
+function scenarioNX(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const name = 'NX old-PoS runs 20/25 F1: CJK in captured go test -v output (checklist outputTail) and the observed DONE transcript never trips the English-only gate; DONE';
+  const o = new Owner('NX', 'B-e2d1', machineEnv, steps, false, { unicodeOutput: true });
+  const lines: string[] = [];
+  try {
+    devSetup(o);
+    const storyDir = new StoryStore(o.worktree).storyDirPath(o.storyId);
+    const checklist = JSON.parse(readFileSync(join(storyDir, 'checklist.json'), 'utf8')) as { items: Array<{ verificationEvidence?: unknown[] }> };
+    assert.ok(JSON.stringify(checklist).includes(CJK_WORD), 'NX precondition: the captured go test -v output in checklist.json carries the CJK subtest name');
+    driveWithNext(o, { findingRound1: false, run: false }, lines);
+    assert.ok(readFileSync(join(o.root, 'strs/strs_test.go'), 'utf8').includes(CJK_WORD), 'NX: the Unicode test reached main unchanged (no fixture edit to satisfy the gate)');
+    const summary = readFileSync(join(new StoryStore(o.root).storyDirPath(o.storyId), 'summary.json'), 'utf8');
+    assert.ok(summary.includes(CJK_WORD), 'NX: the observed transcript kept the verbatim CJK output');
+    lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`NX fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/**
+ * NM, old-PoS run 25 (F2): after a clean round (lanes pass, critic, finalize,
+ * certification) the owner commits a test-only change while still in REVIEW.
+ * Material changed since the round's head and no finding is open, so the round
+ * can never certify that material. Before: `next` said `human — none runnable`
+ * and story_advance DEV refused without a FINALIZED inventory receipt. Now next
+ * returns ONE framework step, the review reopen (story_advance DEV): the reason
+ * is recorded on the phase_transition, the round is invalidated, DEV refreshes
+ * the stale evidence and a fresh round reviews the new material, then DONE.
+ */
+function scenarioNM(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const name = 'NM old-PoS run 25 F2: material committed during REVIEW without a finding -> one framework review_reopen step, fresh round, DONE';
+  const o = new Owner('NM', 'B-e2d2', machineEnv, steps);
+  const lines: string[] = [];
+  let edited = false;
+  let afterEdit: NextStepJson | undefined;
+  try {
+    devSetup(o);
+    driveWithNext(o, { findingRound1: false, run: false, interject: next => {
+      if (edited || next.reason !== 'enter_test') return false;
+      edited = true;
+      write(o.worktree, 'strs/strs_test.go', `${readFileSync(join(o.worktree, 'strs/strs_test.go'), 'utf8')}\nfunc TestUpperEmpty(t *testing.T) {\n\tif Upper("") != "" {\n\t\tt.Fatal("empty")\n\t}\n}\n`);
+      git(o.worktree, ['add', 'strs/strs_test.go']);
+      git(o.worktree, ['commit', '-qm', 'owner: add an empty-string Upper test during REVIEW']);
+      lines.push(`owner test-only commit in REVIEW after a clean round: ${git(o.worktree, ['log', '--format=%h %s', '-1'])}`);
+      // The owner's own story_advance TEST is routed with exactly one Next (the reopen), never a dead end.
+      const refused = o.cli('story_advance', { storyId: o.storyId, phase: 'TEST' }, { label: 'owner story_advance TEST (REVIEW-time edit)' });
+      assert.notEqual(refused.status, 0, `NM: TEST must refuse a round whose material changed:\n${refused.out.slice(-1500)}`);
+      const nextLines = [...new Set(refused.out.split('\n').filter(line => line.includes('Next: ')).map(line => line.slice(line.indexOf('Next: '))))];
+      assert.deepEqual(nextLines, [`Next: proof-or-stop story_advance '{"storyId":"${o.storyId}","phase":"DEV"}'`], `NM: one Next naming the review reopen:\n${refused.out.slice(-1500)}`);
+      lines.push(`owner story_advance TEST refused with: ${nextLines[0]}`);
+      return true;
+    } }, lines, next => { if (edited && !afterEdit) afterEdit = next; });
+    assert.ok(edited, 'NM: the harness committed the REVIEW-time change');
+    assert.equal(afterEdit?.reason, 'review_reopen', `NM: next's first step after the material change is the review reopen (got ${afterEdit?.kind} ${afterEdit?.reason}: ${afterEdit?.why})`);
+    assert.equal(afterEdit?.kind, 'framework', 'NM: the reopen is a framework step');
+    assert.deepEqual(afterEdit?.cli, { command: 'story_advance', payload: { storyId: o.storyId, phase: 'DEV' } }, 'NM: the reopen is story_advance DEV');
+    const events = new StoryStore(o.root).readProcessEvents(o.storyId) as unknown as Array<Record<string, unknown>>;
+    const reopen = events.find(row => row.type === 'phase_transition' && row.fromPhase === 'REVIEW' && row.toPhase === 'DEV');
+    assert.equal(reopen?.transitionType, 'review_reopen', `NM: the REVIEW→DEV transition is recorded as a review reopen: ${JSON.stringify(reopen)}`);
+    assert.match(String(reopen?.reason ?? ''), /material changed since review round .* no open finding/, `NM: the reopen reason is recorded: ${String(reopen?.reason)}`);
+    const rounds = new Set(events.filter(row => row.type === 'phase_transition' && row.toPhase === 'REVIEW').map(row => String(row.reviewRound)));
+    assert.equal(rounds.size, 2, `NM: REVIEW re-entered with a fresh round (${[...rounds].join(', ')})`);
+    assert.match(readFileSync(join(o.root, 'strs/strs_test.go'), 'utf8'), /TestUpperEmpty/, 'NM: the REVIEW-time change was reviewed and merged');
+    lines.push(`reopen recorded: ${String(reopen?.reason).slice(0, 140)}`);
+    lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`NM fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NI|NIN|NQ|NP|N[AD](?:-run)?|N[DF]-V[1-6]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NI|NIN|NQ|NP|NX|NM|N[AD](?:-run)?|N[DF]-V[1-6]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -2796,6 +2919,8 @@ async function main(): Promise<void> {
     if (only.includes('NQ')) outcomes.push(scenarioNQ(machine.env, steps));
     if (only.includes('NIN')) outcomes.push(scenarioNIN(machine.env, steps));
     if (only.includes('NP')) outcomes.push(scenarioNP(machine.env, steps));
+    if (only.includes('NX')) outcomes.push(scenarioNX(machine.env, steps));
+    if (only.includes('NM')) outcomes.push(scenarioNM(machine.env, steps));
     // Detection A/B arms: explicit tokens (ND-V1 .. NF-V6) or AB = ND-V1, ND-V2, ND-V3, NF-V4, ND-V5, ND-V6.
     const abTokens = only.includes('AB') ? ['ND-V1', 'ND-V2', 'ND-V3', 'NF-V4', 'ND-V5', 'ND-V6'] : [];
     for (const token of [...new Set([...abTokens, ...only.filter(arg => /^N[DF]-V[1-6]$/.test(arg))])]) {
@@ -2804,7 +2929,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NI', 'NIN', 'NQ', 'NP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NI', 'NIN', 'NQ', 'NP', 'NX', 'NM', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {
