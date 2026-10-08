@@ -140,10 +140,12 @@
  *      A/B V3 adoption), V4 remediation.grouping=per-finding (the rollback:
  *      grouped remediation is the production default since the A/B V4
  *      adoption; NF covers the grouped path), V5
- *      implementation.grouping=files on an unimplemented fixture).
- *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5.
+ *      implementation.grouping=files on an unimplemented fixture, V6
+ *      implementation.thread=fresh on an unimplemented fixture: every
+ *      implementer and finding-repair run seals the arm and carries the item pack).
+ *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5 ND-V6.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NI|NIN|NQ|AB|ND-V1..NF-V5]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NI|NIN|NQ|AB|ND-V1..NF-V6]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -2186,13 +2188,14 @@ function scenarioNF(machineEnv: NodeJS.ProcessEnv, steps: Step[], firstOnly = fa
   }
 }
 
-/** The detection A/B switch each AB scenario sets (core/ab-variants.ts): V1/V2/V5 experimental (default off); V3 = round2Lanes rollback `resume`; V4 = remediation.grouping rollback `per-finding`. */
+/** The detection A/B switch each AB scenario sets (core/ab-variants.ts): V1/V2/V5/V6 experimental (default off); V3 = round2Lanes rollback `resume`; V4 = remediation.grouping rollback `per-finding`. */
 export const AB_SCENARIO_VARIANTS = {
   V1: { review: { criticOnCleanRound: 'skip' } },
   V2: { review: { round2Scope: 'repaired-files' } },
   V3: { review: { round2Lanes: 'resume' } },
   V4: { remediation: { grouping: 'per-finding' } },
   V5: { implementation: { grouping: 'files' } },
+  V6: { implementation: { thread: 'fresh' } },
 } as const;
 
 /** Every managed provider prompt of an agent type, oldest first. */
@@ -2223,20 +2226,32 @@ function managedPrompts(o: Owner, agentType?: string): Array<{ runId: string; ag
  *      default since the A/B V4 adoption, covered by NF/NF2): each finding
  *      gets its own single-target repair run, then is resolved;
  *   V5 (unimplemented fixture) one implementer run for both items sharing files,
- *      the second item marked done separately (grouped_item_done).
+ *      the second item marked done separately (grouped_item_done);
+ *   V6 (unimplemented fixture) implementation.thread=fresh: every implementer
+ *      and finding-repair run seals `implementation.thread=fresh` on its target
+ *      (so the worker never resumes a code-writer thread) and its prompt carries
+ *      the bounded item pack (request, Story history, diff, declared files).
  */
 function scenarioAB(machineEnv: NodeJS.ProcessEnv, steps: Step[], flow: 'D' | 'F', variant: keyof typeof AB_SCENARIO_VARIANTS): Outcome {
   const tag = `N${flow}-${variant}`;
   const name = `${tag} A/B ${JSON.stringify(AB_SCENARIO_VARIANTS[variant])} on the N${flow} flow reaches DONE`;
-  const ids: Record<string, string> = { 'D-V1': 'B-ab11', 'D-V2': 'B-ab12', 'D-V3': 'B-ab13', 'D-V4': 'B-ab14', 'D-V5': 'B-ab15',
-    'F-V1': 'B-ab21', 'F-V2': 'B-ab22', 'F-V3': 'B-ab23', 'F-V4': 'B-ab24', 'F-V5': 'B-ab25' };
+  const ids: Record<string, string> = { 'D-V1': 'B-ab11', 'D-V2': 'B-ab12', 'D-V3': 'B-ab13', 'D-V4': 'B-ab14', 'D-V5': 'B-ab15', 'D-V6': 'B-ab16',
+    'F-V1': 'B-ab21', 'F-V2': 'B-ab22', 'F-V3': 'B-ab23', 'F-V4': 'B-ab24', 'F-V5': 'B-ab25', 'F-V6': 'B-ab26' };
   const o = new Owner(tag, ids[`${flow}-${variant}`]!, machineEnv, steps, false,
-    { trackedGateFailureCounts: true, config: AB_SCENARIO_VARIANTS[variant] as unknown as Record<string, unknown>, unimplemented: variant === 'V5' });
+    { trackedGateFailureCounts: true, config: AB_SCENARIO_VARIANTS[variant] as unknown as Record<string, unknown>, unimplemented: variant === 'V5' || variant === 'V6', ...(variant === 'V6' ? { request: NIQ_REQUEST } : {}) });
   const lines: string[] = [];
   const reasons: string[] = [];
   try {
-    devSetup(o, variant !== 'V5');
-    driveWithNext(o, { findingRound1: true, run: false, twoFindings: flow === 'F' }, lines, next => {
+    devSetup(o, variant !== 'V5' && variant !== 'V6');
+    // V6: per-item implementer runs on the unimplemented fixture; the owner records the pinned focused evidence once the code exists.
+    let evidenceAdded = false;
+    const interject = variant === 'V6' ? (next: NextStepJson) => {
+      if (next.reason !== 'evidence_chain' || evidenceAdded) return false;
+      addItemEvidence(o);
+      evidenceAdded = true;
+      return true;
+    } : undefined;
+    driveWithNext(o, { findingRound1: true, run: false, twoFindings: flow === 'F', ...(interject ? { interject } : {}) }, lines, next => {
       reasons.push(next.reason);
       // V5: the owner verifies the grouped run's items by their own pinned focused evidence before marking the next one done.
       if (next.reason === 'grouped_item_done') addItemEvidence(o);
@@ -2294,6 +2309,24 @@ function scenarioAB(machineEnv: NodeJS.ProcessEnv, steps: Step[], flow: 'D' | 'F
         assert.deepEqual(implementers[0]!.target?.groupItemIds, ['CHK-001', 'CHK-002'], `${tag}: the run binds both items`);
         assert.equal(count('grouped_item_done'), 1, `${tag}: CHK-002 marked done separately after verification`);
         lines.push(`implementer runs: ${implementers.length}; grouped_item_done steps: ${count('grouped_item_done')}`);
+        break;
+      }
+      case 'V6': {
+        const writers = [...managedPrompts(o, IMPLEMENTER), ...managedPrompts(o, FINDING_REPAIR)];
+        assert.ok(managedPrompts(o, IMPLEMENTER).length >= 1 && managedPrompts(o, FINDING_REPAIR).length >= 1, `${tag}: implementer and finding-repair runs launched`);
+        const sizes: number[] = [];
+        for (const row of writers) {
+          assert.equal((row.target?.abVariant as { flags?: Record<string, string> } | undefined)?.flags?.['implementation.thread'], 'fresh', `${tag}: ${row.runId} seals implementation.thread=fresh (fresh Codex thread)`);
+          const pack = row.prompt.slice(row.prompt.indexOf('--- BEGIN ITEM PACK'));
+          assert.match(pack, /^--- BEGIN ITEM PACK[^\n]*\n[\s\S]*This is a FRESH session[\s\S]*--- END ITEM PACK ---/, `${tag}: ${row.runId} prompt carries the item pack`);
+          assert.match(pack, /## request\.md/, `${tag}: ${row.runId} pack carries request.md`);
+          assert.match(pack, /## Declared\/cited files at HEAD/, `${tag}: ${row.runId} pack carries the declared files`);
+          sizes.push(Buffer.byteLength(pack, 'utf8'));
+        }
+        const repair = managedPrompts(o, FINDING_REPAIR).at(-1)!.prompt;
+        assert.match(repair, /## Findings this repair is bound to/, `${tag}: repair pack carries the finding and its evidence`);
+        assert.match(repair, /## Story diff so far: hunks/, `${tag}: repair pack carries the repair diff context`);
+        lines.push(`code-writer runs with a fresh thread + item pack: ${writers.length}; pack bytes: ${sizes.join(', ')}`);
         break;
       }
     }
@@ -2598,7 +2631,7 @@ function scenarioNIN(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NI|NIN|NQ|N[AD](?:-run)?|N[DF]-V[1-5]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NI|NIN|NQ|N[AD](?:-run)?|N[DF]-V[1-6]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -2640,9 +2673,9 @@ async function main(): Promise<void> {
     if (only.includes('NI')) outcomes.push(scenarioNI(machine.env, steps));
     if (only.includes('NQ')) outcomes.push(scenarioNQ(machine.env, steps));
     if (only.includes('NIN')) outcomes.push(scenarioNIN(machine.env, steps));
-    // Detection A/B arms: explicit tokens (ND-V1 .. NF-V5) or AB = ND-V1, ND-V2, ND-V3, NF-V4, ND-V5.
-    const abTokens = only.includes('AB') ? ['ND-V1', 'ND-V2', 'ND-V3', 'NF-V4', 'ND-V5'] : [];
-    for (const token of [...new Set([...abTokens, ...only.filter(arg => /^N[DF]-V[1-5]$/.test(arg))])]) {
+    // Detection A/B arms: explicit tokens (ND-V1 .. NF-V6) or AB = ND-V1, ND-V2, ND-V3, NF-V4, ND-V5, ND-V6.
+    const abTokens = only.includes('AB') ? ['ND-V1', 'ND-V2', 'ND-V3', 'NF-V4', 'ND-V5', 'ND-V6'] : [];
+    for (const token of [...new Set([...abTokens, ...only.filter(arg => /^N[DF]-V[1-6]$/.test(arg))])]) {
       outcomes.push(scenarioAB(machine.env, steps, token[1] as 'D' | 'F', token.slice(3) as keyof typeof AB_SCENARIO_VARIANTS));
     }
   } finally {

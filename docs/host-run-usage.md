@@ -628,6 +628,19 @@ only when none passes). A single repaired finding keeps the plain
 `remediation.grouping=per-finding` in `proof-or-stop.config.json` is the
 rollback: one repair run per finding, and `host_run` refuses `groupFindingIds`.
 
+Implementer and finding-repair runs resume the Story's newest code-writer Codex
+thread by default (`implementation.thread=resume`). The EXPERIMENTAL A/B arm
+`implementation.thread=fresh` (v41 cost plan A1: the resumed context grows to
+143–180k tokens) starts a new Codex thread for every implementer item and every
+finding repair. `host_run` then seals
+`managedDispatchTarget.abVariant.flags["implementation.thread"]="fresh"` and
+appends a bounded ITEM PACK to the prompt (request.md, other items and Story
+commits, findings with their evidence, Story diff stat plus the hunks of the
+declared or cited files, and those files at HEAD; at most 38,912 bytes,
+`core/implementer-item-pack.ts`). The worker reads only the sealed arm, so the
+pack and the fresh launch always go together. Unset or malformed = resume, and
+the prompt and target are byte-identical to before.
+
 For a managed Claude reviewer, the worker materializes the authoritative prompt
 as a mode-`0600` one-shot file below the provider's exact working directory at
 `.proof-or-stop/runtime/host-run-prompts/`; Claude's workspace sandbox can therefore

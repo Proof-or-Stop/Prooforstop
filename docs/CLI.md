@@ -1243,11 +1243,11 @@ the DEV / REVIEW / TEST guidance printed by `story_advance`. Refusals that alrea
 name one concrete command (evidence-chain, finding closure, certification blockers
 with a store) keep it; `next` computes the same command.
 
-### Detection A/B variant switches (three experimental, default off; `review.round2Lanes` and `remediation.grouping` adopted)
+### Detection A/B variant switches (four experimental, default off; `review.round2Lanes` and `remediation.grouping` adopted)
 
-Five project-config switches were added to measure, in a detection A/B, whether a
+Six project-config switches were added to measure, in a detection A/B, whether a
 structural review/dispatch change loses findings (bench-staging run-17 cost
-analysis §3). With no key in `proof-or-stop.config.json` every switch resolves to
+analysis §3; `implementation.thread` from the v41 cost plan item A1). With no key in `proof-or-stop.config.json` every switch resolves to
 its production value (the first value listed below).
 
 - `review.round2Lanes` is **adopted** and is a production setting: later-round
@@ -1269,7 +1269,7 @@ its production value (the first value listed below).
   were closed by coverage runs, and round-2 detection did not change (3/4 vs
   3/4). `per-finding` restores one repair run per finding (rollback) and is
   recorded like any non-default switch.
-- The other three are **experimental** (A/B measurement only, not production
+- The other four are **experimental** (A/B measurement only, not production
   settings) and default OFF, so the CLI behaves byte-for-byte as before.
 
 A malformed value never selects an experimental arm: gates and `next` fail
@@ -1286,10 +1286,11 @@ reads, and the arm is recorded in the evidence:
 | `review.round2Scope` | `full` \| `repaired-files` | A code-review lane reviewing a later candidate (the managed re-review block) is told to review ONLY the files changed by the repair commits (previous candidate HEAD..current HEAD, material paths) plus their direct callers. "Direct callers" is a cheap approximation (`repairedFilesReviewScope`, core/managed-review-evidence.ts): the definitions named in the repair diff's hunk headers (git's funcname context, e.g. `func Reverse`) and definitions added on `+` lines, each searched whole-word with `git grep -l -w` at the current HEAD (max 12 symbols, 30 files, metadata excluded). The ReviewRun, prompt envelope and scope binding stay full; no read-coverage gate changes. | the A/B lines inside the sealed managed prompt (`managedPromptDigest`) |
 | `review.round2Lanes` (adopted) | `fresh` \| `resume` | Default `fresh`: later-candidate reviewer lanes never `codex exec resume` the earlier lane thread (`managedResumeSessionForSpec`); the sealed re-review prompt says "This is a FRESH session" and focuses it on the prior findings and the repair diff (which the block already carries). `resume` (rollback): each lane resumes its newest earlier-candidate Codex thread and the prompt tells it to build on what it read then. | the fresh-session line (or, for `resume`, the resume line) inside the sealed managed prompt; `resume` is listed in `abVariantEvidence` |
 | `remediation.grouping` (adopted) | `single` \| `per-finding` | Default `single`: in DEV, `next` dispatches ONE managed finding-repair for every open blocking finding that no repair is bound to yet (duplicates excluded: critic `duplicate` or superseded-run restatement, `findingDuplicateOf`; advisory low / suspected findings are never grouped): `host_run ... --findingId=<first> --groupFindingIds=[...]`. The prompt requires, per finding, its own regression test and one commit whose message names the finding id (`<story> F-00N: resolve finding`). A member, the bound one included, counts as repaired (`managedFindingRepairState`) only by such a commit inside the run's window; a member the run left without one gets its own single repair. The repaired members are then closed by ONE `finding_resolve` with `resolutions` (old-PoS run 24), each entry with its own evidence and its own commit re-checked. `per-finding` (rollback): one single-target repair run per finding, and `host_run --groupFindingIds` is refused. | `managedDispatchTarget {findingId, groupFindingIds}` in the immutable run spec (plus `abVariant` when any switch is off its production value); `per-finding` is listed in `abVariantEvidence` |
+| `implementation.thread` | `resume` \| `fresh` | Default `resume`: every managed implementer item and finding repair of a Story resumes the Story's newest code-writer Codex thread (`findResumableImplementerSession`), whose context grows from ~17k to 143–180k tokens over a run. `fresh`: `host_run --managedDispatch` for `proof-or-stop-implementer` / `proof-or-stop-finding-repair` seals the arm on the target, and the worker then never resumes (`managedResumeSessionForSpec` returns null). The prompt gets a framework-built ITEM PACK appended (`core/implementer-item-pack.ts`): request.md (≤4 KB), the other items and Story commits one line each (≤2 KB), for a repair each bound finding with severity/evidence state/files and the pinned commands of the items it touches (≤4 KB), the Story diff stat (≤2 KB) and the hunks of the declared (item) or cited (finding `file:line`, `files`) paths (≤12 KB), and those files at HEAD, whole when ≤6 KB, else a definition outline plus ±20 lines around each cited line (≤12 KB). Pack bound `ITEM_PACK_MAX_BYTES` = 38,912 B; measured 1.6–3.9 KB on the harness fixture and 29 KB (item) / 23 KB (repair) against a 195-file, 19k-line Story diff. The item, intents, pins and the completion/return contract (`[intent-conflict]` etc.) stay as in the base prompt. Malformed = production (resume, no pack). | `managedDispatchTarget.abVariant.flags["implementation.thread"] = "fresh"` in the immutable run spec; the ITEM PACK block in the sealed prompt |
 | `implementation.grouping` | `per-item` \| `files` | In DEV, open checklist items that share a declared file with the first open item are implemented by ONE managed implementer run: `host_run ... --itemId=<first> --groupItemIds=[...]`, accepted only under the switch. The worker marks only its bound item done (one-shot managed capability). Each other member is then proposed as `grouped_item_done` (`checklist_update ... done`, an owner step that verifies the item's own intent) only after a material commit inside the run's window touched one of that item's declared files. | `managedDispatchTarget {itemId, groupItemIds, abVariant}` in the immutable run spec |
 
 Set an arm in the project config, e.g. `{"review": {"criticOnCleanRound": "skip"}}`
-or `{"implementation": {"grouping": "files"}}`; roll back fresh later-round lanes with
+or `{"implementation": {"grouping": "files"}}` or `{"implementation": {"thread": "fresh"}}`; roll back fresh later-round lanes with
 `{"review": {"round2Lanes": "resume"}}` and grouped remediation with
 `{"remediation": {"grouping": "per-finding"}}`. The bench adapter writes it from the
 host environment: `POS_AB_FLAGS='{"review.criticOnCleanRound":"skip"}'` (dotted or
@@ -1297,7 +1298,7 @@ nested JSON; unknown flags/values refused; empty = production) is merged into th
 prepared `proof-or-stop.config.json` by `adapter/pos_adapters/prepare_workflow.py`
 and recorded as `abFlags` in the preparation provenance. The local harness runs
 each arm end to end: `node packages/main/dist/tasks/e2e-review-to-done-smoke.js AB`
-(ND-V1, ND-V2, ND-V3, NF-V4, ND-V5; any `ND-Vn` / `NF-Vn` token works; V3 now
+(ND-V1, ND-V2, ND-V3, NF-V4, ND-V5, ND-V6; any `ND-Vn` / `NF-Vn` token works; V6 checks that every implementer and repair run seals `implementation.thread=fresh` and carries the item pack; V3 now
 runs the `resume` rollback, V4 now runs the `per-finding` rollback, and V2 also
 checks that default later-round lanes are fresh). The grouped remediation default
 is covered by `NF` (one grouped run, then one batched resolve, each finding citing its own commit) and `NF2`

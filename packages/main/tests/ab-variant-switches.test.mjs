@@ -13,10 +13,11 @@
  *   V3 review.round2Lanes (default fresh) reviewerRound2LanesFresh (no reviewer thread resume; resume = rollback)
  *   V4 remediation.grouping (default single) host_run grouped finding repair accepted unless the per-finding rollback is set
  *   V5 implementation.grouping=files     host_run grouped implementer accepted only under the flag
+ *   V6 implementation.thread=fresh       host_run seals the arm + appends the item pack; the worker never resumes a code-writer thread
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -40,7 +41,7 @@ const epoch = { epochId: 'E1', storyId: 'B-1', requiredLanes: ['a', 'b'], waves:
 await check('config: absent switches resolve to production values; malformed fails closed; evidence lists only ON switches', async () => {
   const { resolveAbVariants, abVariantEvidence } = await load('core/ab-variants.js');
   const off = resolveAbVariants({});
-  assert.deepEqual(off, { criticOnCleanRound: 'run', round2Scope: 'full', round2Lanes: 'fresh', remediationGrouping: 'single', implementationGrouping: 'per-item' });
+  assert.deepEqual(off, { criticOnCleanRound: 'run', round2Scope: 'full', round2Lanes: 'fresh', remediationGrouping: 'single', implementationGrouping: 'per-item', implementationThread: 'resume' });
   assert.equal(abVariantEvidence(off), undefined);
   assert.throws(() => resolveAbVariants({ review: { criticOnCleanRound: 'always' } }), /invalid_ab_variant_config: review\.criticOnCleanRound/);
   const on = resolveAbVariants({ review: { criticOnCleanRound: 'skip' }, remediation: { grouping: 'per-finding' } });
@@ -141,6 +142,83 @@ await check('V5 implementation.grouping: off = host_run refuses a grouped implem
   assert.deepEqual(grouped.target.groupItemIds, ['CHK-001', 'CHK-002']);
   assert.match(grouped.section.join('\n'), /ONLY for CHK-001/);
   assert.throws(() => resolveGroupedManagedDispatch({ root: on, store: findingStore([], items) }, { ...args, groupItemIds: ['CHK-001', 'CHK-003'] }), /sharing a declared file/);
+});
+
+await check('V6 implementation.thread: off = resume the Story code-writer thread, no pack, target unchanged; fresh = sealed arm, item/repair pack, never resume', async () => {
+  const { resolveAbVariants, abVariantEvidence } = await load('core/ab-variants.js');
+  const { resolveFreshImplementerThread } = await load('handlers/host-run.js');
+  const { managedResumeSessionForSpec } = await load('core/managed-host-run.js');
+  const { ITEM_PACK_MAX_BYTES } = await load('core/implementer-item-pack.js');
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ implementation: { thread: 'fresh' } })), { schema: 'proof-or-stop.ab-variants.v1', flags: { 'implementation.thread': 'fresh' } });
+  assert.equal(abVariantEvidence(resolveAbVariants({ implementation: { thread: 'resume' } })), undefined, 'resume is production: not recorded');
+  assert.throws(() => resolveAbVariants({ implementation: { thread: 'new' } }), /invalid_ab_variant_config: implementation\.thread/);
+
+  // A git repo with a Story base, one committed item, and a store stand-in.
+  const repo = mkdtempSync(join(tmpdir(), 'ab-v6-'));
+  dirs.push(repo);
+  const git = (...args) => execFileSync('git', args, { cwd: repo, encoding: 'utf8' }).trim();
+  git('init', '-q', '-b', 'main');
+  mkdirSync(join(repo, 'strs'));
+  writeFileSync(join(repo, 'strs/strs.go'), 'package strs\n\nfunc Upper(s string) string {\n\treturn s\n}\n');
+  writeFileSync(join(repo, 'strs/strs_test.go'), 'package strs\n');
+  git('add', '-A'); git('-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-qm', 'base');
+  git('checkout', '-q', '-b', 'story/B-1');
+  writeFileSync(join(repo, 'strs/strs.go'), 'package strs\n\nimport "strings"\n\nfunc Upper(s string) string {\n\treturn strings.ToUpper(s)\n}\n');
+  git('add', '-A'); git('-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-qm', 'B-1 CHK-001: Upper');
+  const storyDir = join(repo, 'docs/story/B-1');
+  mkdirSync(storyDir, { recursive: true });
+  const files = { modify: ['strs/strs.go'], create: [], test: ['strs/strs_test.go'] };
+  const items = [
+    { id: 'CHK-001', title: 'Upper', status: 'done', files },
+    { id: 'CHK-002', title: 'Reverse', status: 'in_progress', files, verificationIntent: { happy: [{ id: 'CHK-002:happy:0', desc: 'reverse', verification: { command: 'go test ./strs -run TestReverse', selector: 'TestReverse' } }] } },
+  ];
+  const v6Findings = [{ id: 'B-1:F-001', status: 'open', severity: 'medium', category: 'edge', desc: 'strs/strs.go:6 Upper("") is untested for CHK-002', files: ['strs/strs.go'] }];
+  const store = {
+    readStory: () => { throw new Error('no story metadata in this fixture'); },
+    readChecklist: () => ({ items }),
+    readFindings: () => ({ findings: v6Findings }),
+    storyDirRel: () => 'docs/story',
+    storyFilePath: (id, file) => join(storyDir, file),
+  };
+  // loadConfig caches per root: the off/malformed arms use their own project roots.
+  const itemArgs = { storyId: 'B-1', agentType: 'proof-or-stop-implementer', itemId: 'CHK-002', findingId: null };
+  assert.equal(resolveFreshImplementerThread({ root: OFF(), store }, itemArgs), null, 'switch off: no pack, no evidence (production byte-identical)');
+  assert.equal(resolveFreshImplementerThread({ root: projectWith({ implementation: { thread: 'resume' } }), store }, itemArgs), null, 'explicit resume: production');
+  assert.equal(resolveFreshImplementerThread({ root: projectWith({ implementation: { thread: 'bogus' } }), store }, itemArgs), null, 'malformed: production');
+  writeFileSync(join(repo, 'proof-or-stop.config.json'), JSON.stringify({ implementation: { thread: 'fresh' } }));
+  const on = { root: repo, store };
+  const fresh = resolveFreshImplementerThread(on, itemArgs);
+  assert.deepEqual(fresh.abVariant.flags, { 'implementation.thread': 'fresh' });
+  const pack = fresh.section.join('\n');
+  assert.match(pack, /BEGIN ITEM PACK/);
+  assert.match(pack, /This is a FRESH session/);
+  assert.match(pack, /- CHK-001 \[done\] Upper/, 'prior item one-liner');
+  assert.match(pack, /commit [0-9a-f]+ B-1 CHK-001: Upper/, 'Story commits so far');
+  assert.match(pack, /strs\/strs\.go \| /, 'diff stat');
+  assert.match(pack, /\+\treturn strings\.ToUpper\(s\)/, 'hunks of the declared file');
+  assert.match(pack, /### strs\/strs\.go \(whole file/, 'declared file content');
+  assert.ok(fresh.bytes <= ITEM_PACK_MAX_BYTES, `pack bounded (${fresh.bytes} <= ${ITEM_PACK_MAX_BYTES})`);
+  const repair = resolveFreshImplementerThread(on, { storyId: 'B-1', agentType: 'proof-or-stop-finding-repair', itemId: null, findingId: 'B-1:F-001' });
+  const repairPack = repair.section.join('\n');
+  assert.match(repairPack, /F-001 \[severity=medium, category=edge, evidence=verified/);
+  assert.match(repairPack, /go test \.\/strs -run TestReverse/, 'pinned command of the item the finding touches');
+  assert.match(repairPack, /\+\treturn strings\.ToUpper\(s\)/, 'repair diff context');
+  assert.equal(resolveFreshImplementerThread(on, { ...itemArgs, agentType: 'proof-or-stop-review-scope-plan', itemId: null }), null, 'only code writers');
+
+  // The worker's resume decision: an earlier completed implementer run with a kept rollout.
+  const thread = '11111111-2222-3333-4444-555555555555';
+  const codexHome = join(repo, '.codex-home');
+  mkdirSync(join(codexHome, 'sessions', '2026'), { recursive: true });
+  writeFileSync(join(codexHome, 'sessions', '2026', `rollout-x-${thread}.jsonl`), '{}\n');
+  const earlier = join(repo, '.proof-or-stop', 'runtime', 'host-runs', 'run-earlier');
+  mkdirSync(earlier, { recursive: true });
+  writeFileSync(join(earlier, 'spec.json'), JSON.stringify({ host: 'codex', profile: 'managed_dispatch', storyId: 'B-1', cwd: repo, model: 'm', agentType: 'proof-or-stop-implementer' }));
+  writeFileSync(join(earlier, 'terminal.json'), JSON.stringify({ state: 'completed', terminalAt: '2026-10-08T00:00:00.000Z' }));
+  writeFileSync(join(earlier, 'live-output.jsonl'), JSON.stringify({ type: 'thread.started', thread_id: thread }) + '\n');
+  const spec = { runId: 'run-now', host: 'codex', profile: 'managed_dispatch', storyId: 'B-1', agentType: 'proof-or-stop-implementer', cwd: repo, root: repo, model: 'm' };
+  assert.equal(managedResumeSessionForSpec({ ...spec, managedDispatchTarget: { itemId: 'CHK-002' } }, codexHome), thread, 'switch off: resume the Story thread');
+  assert.equal(managedResumeSessionForSpec({ ...spec, managedDispatchTarget: { itemId: 'CHK-002', abVariant: fresh.abVariant } }, codexHome), null, 'fresh: new thread');
+  assert.equal(managedResumeSessionForSpec({ ...spec, agentType: 'proof-or-stop-finding-repair', managedDispatchTarget: { findingId: 'B-1:F-001', abVariant: repair.abVariant } }, codexHome), null, 'fresh repair: new thread');
 });
 
 for (const dir of dirs) rmSync(dir, { recursive: true, force: true });
