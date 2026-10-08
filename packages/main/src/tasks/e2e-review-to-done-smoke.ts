@@ -1501,6 +1501,8 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   const statusOf = () => existsSync(o.worktree) ? execFileSync('git', ['status', '--porcelain', '--untracked-files=all'], { cwd: o.worktree, encoding: 'utf8' }) : '';
   let internalCalls = 0;
   let internalMs = 0;
+  /** Wall ms per framework step reason inside next --run (a concurrent `parallel` step counted once). */
+  const stepMs = new Map<string, { n: number; ms: number }>();
   // Owner turns: one per `next` call plus one per step the owner executes itself.
   let ownerTurns = 0;
   // Q6 contract violations (hard-asserted at the end; every one is reported).
@@ -1534,7 +1536,14 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
     const next = (mode.run ? parsed?.next : parsed) as NextStepJson | undefined;
     assert.ok(next && typeof next.kind === 'string', `[${o.scenario}] next --storyId=${id} --json did not return a step:\n${asked.out.slice(-2000)}`);
     if (mode.run) {
-      const executed = (parsed!.executed ?? []) as Array<{ command: string; exit: number; ms: number; tail: string }>;
+      const executed = (parsed!.executed ?? []) as Array<{ command: string; reason?: string; exit: number; ms: number; tail: string }>;
+      executed.forEach((row, index) => {
+        const previous = executed[index - 1];
+        if (previous && previous.reason === row.reason && previous.ms === row.ms) return; // same concurrent step
+        const entry = stepMs.get(row.reason ?? '?') ?? { n: 0, ms: 0 };
+        entry.n += 1; entry.ms += row.ms;
+        stepMs.set(row.reason ?? '?', entry);
+      });
       for (const row of executed) {
         internalCalls += 1; internalMs += row.ms;
         reasons.push(`run:${row.command.split(' ')[1]}`);
@@ -1738,6 +1747,7 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   lines.push(`next-driven steps (${reasons.length}): ${reasons.join(' > ')}`);
   lines.push(`owner turns from REVIEW entry: ${ownerTurns} (${reasons.filter(row => !row.startsWith('run:')).length} owner-executed steps)`);
   if (mode.run) lines.push(`framework steps executed inside next --run: ${internalCalls} (${(internalMs / 1000).toFixed(1)} s, included in the next --run call times)`);
+  if (mode.run) lines.push(`framework step wall by reason: ${[...stepMs].map(([reason, row]) => `${reason} ${row.n}x ${(row.ms / 1000).toFixed(1)} s`).join(', ')}`);
   const unique = [...new Set(q6)];
   if (mode.violations) mode.violations.push(...unique);
   else assert.deepEqual(unique, [], `[${o.scenario}] Q6 next-driver contract violations:\n- ${unique.join('\n- ')}`);
