@@ -592,7 +592,18 @@ export function managedInventorySubjectState(store: StoryStore, run: ReviewRun, 
     if (!binding || !Number.isSafeInteger(binding.wave) || binding.wave < 1) return 'invalid';
     const data = store.readReviewInventoryEpochs(run.storyId);
     const epoch = data.epochs.find(e => e.epochId === binding.epochId);
-    if (!epoch || epoch.storyId !== run.storyId || !verifyReviewInventoryEpoch(epoch) || !['OPEN','FINALIZED'].includes(epoch.state)) return 'invalid';
+    if (!epoch || epoch.storyId !== run.storyId || !verifyReviewInventoryEpoch(epoch)) return 'invalid';
+    // Old-PoS run 25 (F4, B-2b04 RP-011): a signed, authenticated cancellation
+    // retires the epoch; its critic evidence is historical, exactly like an
+    // earlier wave's. 'superseded' keeps it out of the valid set and lets a
+    // newer valid critic record of a fresh epoch replace it; 'invalid' made it
+    // a permanent `human — none runnable` blocker no framework step could clear.
+    if (epoch.state === 'CANCELLED') {
+      if (!epoch.cancelledAt || !epoch.cancelReason?.trim() || epoch.updatedAt !== epoch.cancelledAt) return 'invalid';
+      if (binding.wave > epoch.waves.length + 1 || !inventoryPurposeMatchesEpoch(binding, {...epoch,waves:epoch.waves.slice(0,binding.wave-1)})) return 'invalid';
+      return 'superseded';
+    }
+    if (!['OPEN','FINALIZED'].includes(epoch.state)) return 'invalid';
     if (epoch.state === 'FINALIZED') {
       const receipt = data.receipts.find(r => r.receiptId === epoch.receiptId);
       if (!receipt || !verifyReviewInventoryReceipt(receipt) || receipt.invalidatedAt

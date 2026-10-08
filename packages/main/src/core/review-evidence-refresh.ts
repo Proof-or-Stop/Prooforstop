@@ -54,13 +54,28 @@ export function reviewRefreshReadCacheStats(token:ReviewRefreshReadCache):{proof
 type RefreshCommitArgs = {
  gitCwd:string; metadataRoot:string; storyId:string; commit:string; reviewedHeadHash:string;
  isProtectedArtifact:(path:string)=>unknown; cache?:ReviewRefreshReadCache;
+ /**
+  * Old-PoS run 25 (F3): the caller (review-maintenance-lineage) already verified
+  * this commit's closeout write receipts. Only then may a
+  * `verification_evidence_refresh_stale` restamp, which publishes checklist.json
+  * with its closeout receipt, be proved by the same exact-restamp rule as an
+  * evidence_add refresh. Without it that subject is never authenticated here.
+  */
+ closeoutReceiptsVerified?:boolean;
+ /**
+  * Story-relative paths of this refresh_stale commit the caller already
+  * authenticated besides checklist.json: its closeout receipt log and the
+  * append-only launch records the commit swept in (review_round_prepare /
+  * dispatch do not commit themselves). Ignored unless closeoutReceiptsVerified.
+  */
+ callerVerifiedArtifacts?:readonly string[];
 };
 export function isVerifiedEvidenceRefreshCommit(args:RefreshCommitArgs):boolean {
   const candidate=args.cache?refreshCaches.get(args.cache):undefined;
   const state=candidate && /^[a-f0-9]{40,64}$/.test(args.commit) && /^[a-f0-9]{40,64}$/.test(args.reviewedHeadHash)
     && (!candidate.policy || candidate.policy===args.isProtectedArtifact)?candidate:undefined;
   if(state) state.policy=args.isProtectedArtifact;
-  const key=JSON.stringify([args.gitCwd,args.metadataRoot,args.storyId,args.commit,args.reviewedHeadHash]);
+  const key=JSON.stringify([args.gitCwd,args.metadataRoot,args.storyId,args.commit,args.reviewedHeadHash,args.closeoutReceiptsVerified===true,args.callerVerifiedArtifacts??[]]);
   if(state?.proofs.has(key)) return state.proofs.get(key)!;
   if(state) state.proofEvaluations++;
   const verdict=computeVerifiedEvidenceRefreshCommit(args);
@@ -105,11 +120,17 @@ function computeVerifiedEvidenceRefreshCommit(args:RefreshCommitArgs):boolean {
       }
       return committedReceiptPaths;
     };
-    if (matchesRuntimeCommitSubject(subject, `record ${storyId} verification_evidence_add metadata`)) {
+    // Old-PoS run 25 (F3): the framework's own stale-evidence restamp is the same
+    // exact-restamp publication as an evidence_add refresh, plus the closeout
+    // receipt of checklist.json the caller verified (closeoutReceiptsVerified).
+    const refreshStale = args.closeoutReceiptsVerified === true
+      && matchesRuntimeCommitSubject(subject, `record ${storyId} verification_evidence_refresh_stale metadata`);
+    if (refreshStale || matchesRuntimeCommitSubject(subject, `record ${storyId} verification_evidence_add metadata`)) {
       if (artifacts.some(path => ['process-events.jsonl','owner-lease.json'].includes(path) && args.isProtectedArtifact(path))) return false;
       if (artifacts.includes('owner-lease.json') && (!git(['ls-tree','--name-only',parents[0],'--',prefix + 'owner-lease.json'])
       || !isOwnerLeaseHeartbeatOnly(readAt(parents[0],'owner-lease.json'),readAt(commit,'owner-lease.json')))) return false;
-      if (!artifacts.includes('checklist.json') || artifacts.some(p => p !== 'process-events.jsonl' && p !== 'owner-lease.json' && !isRefreshRetainableArtifactPath(p))) return false;
+      if (!artifacts.includes('checklist.json') || artifacts.some(p => p !== 'process-events.jsonl' && p !== 'owner-lease.json'
+        && !(refreshStale && (args.callerVerifiedArtifacts ?? []).includes(p)) && !isRefreshRetainableArtifactPath(p))) return false;
       if(artifacts.some(path=>path===CAUSAL_RECEIPT_INDEX_FILE || path.startsWith(CAUSAL_RECEIPT_DIRECTORY+'/') || path.startsWith(CAUSAL_OUTPUT_DIRECTORY+'/'))) loadReceiptSnapshots();
       for (const path of artifacts.filter(p => p.startsWith(CAUSAL_RECEIPT_DIRECTORY + '/'))) {
         const causal = readAt(commit,path);

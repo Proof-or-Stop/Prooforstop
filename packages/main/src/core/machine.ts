@@ -71,6 +71,7 @@ import {
 import { renderAgentLivenessGuidance } from './agent-liveness-policy.js';
 import { reviewInventoryRemediationGate } from './review-inventory-epoch.js';
 import { evaluateReviewMaterialReopen } from './review-material-reopen.js';
+import { evaluateReviewStopLossReopen } from './review-stop-loss.js';
 import { inspectDevMemoryFinishDecision } from './playbook-runtime-memory.js';
 import { canonicalAgentRoleId } from './agent-role-identity.js';
 import { renderManagedInitReviewerDispatches } from './reviewer-launch-guidance.js';
@@ -832,7 +833,11 @@ export function canReenterDevGuard(context: StoryMachineContext): boolean {
       const inventory = reviewInventoryRemediationGate(
         context.store, context.storyId, inventoryStory.currentReviewRound,
       );
-      if (!inventory.ok && !reviewMaterialReopenEligible(context.store, context.storyId, context.projectRoot, context.gitCwd)) return false;
+      // Old-PoS run 25: the material reopen (F2) and the stale-wave stop-loss (F4,
+      // core/review-stop-loss.ts) admit REVIEW→DEV without the receipt.
+      if (!inventory.ok && !reviewMaterialReopenEligible(context.store, context.storyId, context.projectRoot, context.gitCwd)
+        && !evaluateReviewStopLossReopen({ store: context.store, storyId: context.storyId, metadataRoot: context.projectRoot,
+          gitCwd: context.gitCwd ?? resolveGitCwd({ store: context.store, storyId: context.storyId, metadataRoot: context.projectRoot, projectRoot: context.projectRoot }) }).eligible) return false;
     }
   } catch {
     if (inventoryStory?.phase === 'REVIEW') return false;
@@ -1390,8 +1395,10 @@ export function getGuardFailureReason(
           const root = projectRoot ?? process.cwd();
           const reopen = evaluateReviewMaterialReopen({ store, storyId, metadataRoot: root,
             gitCwd: gitCwd ?? resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root }) });
-          if (!reopen.eligible) {
-            return `Cannot enter remediation DEV: ${inventory.reason} (no review reopen either: ${reopen.reason}). ` +
+          const stopLoss = reopen.eligible ? null : evaluateReviewStopLossReopen({ store, storyId, metadataRoot: root,
+            gitCwd: gitCwd ?? resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root }) });
+          if (!reopen.eligible && !stopLoss?.eligible) {
+            return `Cannot enter remediation DEV: ${inventory.reason} (no review reopen either: ${reopen.reason}; no stop-loss: ${stopLoss?.reason ?? 'n/a'}). ` +
               `Next: ${inventory.nextCommand ?? `proof-or-stop review_inventory_status --storyId=${storyId}`}`;
           }
         }

@@ -62,6 +62,7 @@ import { currentMilestoneStatusEvidenceBinding } from '../core/milestone-status.
 import { consumeReviewInventoryReceipt } from '../core/review-inventory-epoch.js';
 import { cancelReviewInventoryForReopen } from '../core/review-inventory-cancel.js';
 import { evaluateReviewMaterialReopen, REVIEW_REOPEN_TRANSITION_TYPE, type ReviewMaterialReopenDecision } from '../core/review-material-reopen.js';
+import { evaluateReviewStopLossReopen, REVIEW_STOP_LOSS_TRANSITION_TYPE, type ReviewStopLossDecision } from '../core/review-stop-loss.js';
 import { assertReviewInventoryContextFreshLocked } from './review-inventory.js';
 import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
 import { checkMainDivergence } from '../core/done-oracle.js';
@@ -1443,6 +1444,9 @@ async function runStoryTransitionInner(
     // consumed; the round's open/unconsumed inventory epoch is cancelled; the
     // reason is recorded on the phase_transition).
     let reviewReopen: ReviewMaterialReopenDecision | undefined;
+    // Old-PoS run 25 F4: the stale-wave stop-loss (core/review-stop-loss.ts) takes
+    // REVIEW→DEV the same way while a verified finding is open (it goes to repair).
+    let reviewStopLoss: ReviewStopLossDecision | undefined;
     if (oldPhase === 'REVIEW' && args.phase === 'DEV') {
       if (!transitionGitCwd) {
         transitionGitCwd = resolveGitCwd({
@@ -1454,6 +1458,10 @@ async function runStoryTransitionInner(
       }
       const decision = evaluateReviewMaterialReopen({ store, storyId: args.storyId, gitCwd: transitionGitCwd, metadataRoot: ctx.root });
       if (decision.eligible) reviewReopen = decision;
+      else {
+        const stopLoss = evaluateReviewStopLossReopen({ store, storyId: args.storyId, gitCwd: transitionGitCwd, metadataRoot: ctx.root });
+        if (stopLoss.eligible) reviewStopLoss = stopLoss;
+      }
       const remediationSnapshot = captureEvidenceHashSnapshot({
         gitCwd: transitionGitCwd,
         metadataRoot: ctx.root,
@@ -1594,6 +1602,12 @@ async function runStoryTransitionInner(
           `Review reopen: ${reviewReopen.reason}\n`
           + (cancelledEpoch ? `Cancelled the abandoned round's inventory epoch ${cancelledEpoch}\n` : ''),
         );
+      } else if (reviewStopLoss) {
+        const cancelledEpoch = cancelReviewInventoryForReopen(store, args.storyId, story.currentReviewRound ?? '', `${REVIEW_STOP_LOSS_TRANSITION_TYPE}: ${reviewStopLoss.reason}`);
+        process.stderr.write(
+          `Review stop-loss: ${reviewStopLoss.reason}\n`
+          + (cancelledEpoch ? `Cancelled the abandoned round's inventory epoch ${cancelledEpoch}\n` : ''),
+        );
       } else if (oldPhase === 'REVIEW' && args.phase === 'DEV') {
         // Consume authority before publishing phase=DEV. A consume failure cannot
         // leave unauthorized DEV; a later write failure requires a new epoch.
@@ -1663,6 +1677,8 @@ async function runStoryTransitionInner(
         ? { transitionType: 'reopen', reason: args.reason?.trim(), reopenAuditId: reopenAudit?.auditId }
         : reviewReopen
           ? { transitionType: REVIEW_REOPEN_TRANSITION_TYPE, reason: reviewReopen.reason }
+          : reviewStopLoss
+            ? { transitionType: REVIEW_STOP_LOSS_TRANSITION_TYPE, reason: reviewStopLoss.reason }
           : {}),
     }));
     // B-70a6 F-004: the reopen is now durably audited, so retire its recovery

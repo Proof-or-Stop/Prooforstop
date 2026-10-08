@@ -58,6 +58,12 @@ export function criticDuplicateOf(store: StoryStore, storyId: string, findingId:
  * finding: it is repaired, and this one closes only by the duplicate-coverage
  * run of its own case. A superseded finding nobody restated has no canonical
  * and is repaired on its own; neither is ever dropped.
+ *
+ * Old-PoS run 25 (F4): the restatement may come from ANY later run of the same
+ * round, not only the same lane: the wave-1 inventory critic's F-002 (its run
+ * superseded by the wave-2 critic) was restated by every wave-2 lane
+ * (F-003..F-005). The superseded copy is carried forward onto the live
+ * canonical restatement instead of getting a repair of its own.
  */
 export function supersededRestatementOf(store: StoryStore, storyId: string, findingId: string):
   { canonicalFindingId: string; familyKey: null; reason: string } | null {
@@ -67,20 +73,22 @@ export function supersededRestatementOf(store: StoryStore, storyId: string, find
   const runs = store.readReviewRuns(storyId).runs;
   const index = runs.findIndex(run => run.reviewRunId === finding.reviewRunId);
   const run = runs[index];
-  if (!run || run.reviewPurpose === 'inventory-completeness') return null;
-  const later = new Set(runs.slice(index + 1)
-    .filter(row => row.reviewRound === run.reviewRound && row.reviewPurpose !== 'inventory-completeness' && agentRoleIdsEqual(row.lane, run.lane))
-    .map(row => row.reviewRunId));
-  if (later.size === 0) return null;
+  if (!run) return null;
+  const laterRuns = runs.slice(index + 1).filter(row => row.reviewRound === run.reviewRound);
+  // Superseded: a later run of its own lane (same purpose) exists in this round.
+  const superseded = laterRuns.some(row => agentRoleIdsEqual(row.lane, run.lane)
+    && (row.reviewPurpose === 'inventory-completeness') === (run.reviewPurpose === 'inventory-completeness'));
+  if (!superseded) return null;
+  const later = new Set(laterRuns.map(row => row.reviewRunId));
   const best = findings
-    .filter(row => row.id !== finding.id && row.status !== 'dismissed' && row.reviewRunId && later.has(row.reviewRunId)
-      && row.agent && agentRoleIdsEqual(row.agent, finding.agent!))
-    .map(row => ({ row, similarity: findingClaimRestates(finding, row) }))
-    .filter((entry): entry is { row: Finding; similarity: number } => entry.similarity !== null)
-    .sort((a, b) => b.similarity - a.similarity || (a.row.createdAt ?? '').localeCompare(b.row.createdAt ?? ''))[0];
+    .filter(row => row.id !== finding.id && row.status !== 'dismissed' && row.reviewRunId && later.has(row.reviewRunId))
+    .map(row => ({ row, similarity: findingClaimRestates(finding, row), duplicate: criticDuplicateOf(store, storyId, row.id) !== null }))
+    .filter((entry): entry is { row: Finding; similarity: number; duplicate: boolean } => entry.similarity !== null)
+    // The live canonical copy first: a restatement the critic itself marked a duplicate is never preferred.
+    .sort((a, b) => Number(a.duplicate) - Number(b.duplicate) || b.similarity - a.similarity || (a.row.createdAt ?? '').localeCompare(b.row.createdAt ?? ''))[0];
   if (!best) return null;
   return { canonicalFindingId: best.row.id, familyKey: null,
-    reason: `Framework: ${finding.id}'s ReviewRun ${finding.reviewRunId} was superseded by a rerun of its lane, which re-reported it as ${best.row.id} (claim similarity ${best.similarity.toFixed(2)}).` };
+    reason: `Framework: ${finding.id}'s ReviewRun ${finding.reviewRunId} was superseded by a later run of its lane, and a later review run of the round re-reported it as ${best.row.id} (claim similarity ${best.similarity.toFixed(2)}).` };
 }
 
 /**

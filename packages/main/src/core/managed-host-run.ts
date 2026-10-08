@@ -974,10 +974,16 @@ export function reviewerRound2LanesFresh(root: string): boolean {
   try { return resolveAbVariants(loadConfig(root)).round2Lanes === 'fresh'; } catch { return true; }
 }
 
+/** remediation.thread: finding repairs start a fresh Codex thread (default, adopted); `resume` is the rollback. Malformed = production (fresh). */
+export function remediationThreadFresh(root: string): boolean {
+  try { return resolveAbVariants(loadConfig(root)).remediationThread === 'fresh'; } catch { return true; }
+}
+
 /**
  * The Codex session a managed run resumes, or null for a fresh launch:
  * managed-dispatch code writers continue the Story's previous code-writer
- * session (unless their target seals implementation.thread=fresh); managed code-review lanes continue their own earlier-candidate session.
+ * session (unless their target seals implementation.thread=fresh, or the run is a finding repair under
+ * remediation.thread=fresh, the default); managed code-review lanes continue their own earlier-candidate session.
  * Lookup failures never block a launch; they start fresh.
  */
 export function managedResumeSessionForSpec(
@@ -991,6 +997,9 @@ export function managedResumeSessionForSpec(
       // EXPERIMENTAL A/B implementation.thread=fresh, sealed on the target at
       // submit together with the item pack in the prompt: start a new thread.
       if (dispatchTargetThreadFresh(spec.managedDispatchTarget)) return null;
+      // remediation.thread (adopted default fresh; core/implementer-item-pack.ts):
+      // a finding repair starts a new thread with the repair pack host_run appended.
+      if (canonicalAgentRoleId(spec.agentType) === 'proof-or-stop-finding-repair' && remediationThreadFresh(spec.root)) return null;
       return findResumableImplementerSession({
         root: spec.root, storyId: spec.storyId, cwd: spec.cwd, model: spec.model ?? null, excludeRunId: spec.runId, codexHome,
       });

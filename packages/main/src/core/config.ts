@@ -343,19 +343,21 @@ export interface ProofOrStopConfig {
    * Detection A/B switches (core/ab-variants.ts). Absent keys = production.
    * criticOnCleanRound, round2Scope, implementation.grouping and
    * implementation.thread ('resume' default; 'fresh' = new Codex thread + item
-   * pack per implementer item / finding repair) are EXPERIMENTAL (default off, not for production use). Two are adopted:
+   * pack per implementer item / finding repair) are EXPERIMENTAL (default off, not for production use). Three are adopted:
    * round2Lanes defaults to 'fresh' (later-round review lanes start a new
-   * thread; 'resume' is the rollback to resumed lane threads), and
+   * thread; 'resume' is the rollback to resumed lane threads),
    * remediation.grouping defaults to 'single' (one grouped finding-repair run
    * per round, each finding still committed and resolved on its own;
-   * 'per-finding' is the rollback to one repair run per finding).
+   * 'per-finding' is the rollback to one repair run per finding), and
+   * remediation.thread defaults to 'fresh' (finding repairs start a new Codex
+   * thread with the repair pack, old-PoS run 25; 'resume' is the rollback).
    */
   review?: {
     criticOnCleanRound?: 'run' | 'skip';
     round2Scope?: 'full' | 'repaired-files';
     round2Lanes?: 'fresh' | 'resume';
   };
-  remediation?: { grouping?: 'single' | 'per-finding' };
+  remediation?: { grouping?: 'single' | 'per-finding'; thread?: 'fresh' | 'resume' };
   implementation?: { grouping?: 'per-item' | 'files'; thread?: 'resume' | 'fresh' };
   /** Runtime memory health diagnostics; advisory only, never gate evidence. */
   runtimeMemory?: {
