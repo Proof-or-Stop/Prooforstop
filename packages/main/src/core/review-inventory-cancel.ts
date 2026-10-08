@@ -1,8 +1,10 @@
 /**
- * Review inventory epoch cancellation, shared by `review_inventory_cancel`
- * and the REVIEW→DEV material reopen (old-PoS run 25 F2,
- * core/review-material-reopen.ts). Kept out of core/review-inventory-epoch.ts,
- * whose emitted bytes are an active identity boundary.
+ * Review inventory epoch cancellation for the REVIEW→DEV material reopen
+ * (old-PoS run 25 F2, core/review-material-reopen.ts). Same record shape as
+ * `review_inventory_cancel` (handlers/review-inventory.ts) writes. Kept out of
+ * core/review-inventory-epoch.ts, whose emitted bytes are an active identity
+ * boundary, and not imported by that handler, which sits in the review import
+ * cycle (import-cycles-smoke).
  */
 import type { StoryStore } from './store.js';
 import type { ReviewInventoryEpoch, ReviewInventoryEpochData, ReviewInventoryReceipt } from './types.js';
@@ -43,7 +45,7 @@ export function cancelReviewInventoryEpochData(
     ? data.receipts.map(row => {
       if (row.receiptId !== epoch.receiptId) return row;
       if (!verifyReviewInventoryReceipt(row) || row.consumedAt || row.invalidatedAt) {
-        throw new Error(`review_inventory_cancel: receipt ${row.receiptId} is invalid or already consumed`);
+        throw new Error(`review reopen: receipt ${row.receiptId} is invalid or already consumed`);
       }
       const { _hash, ...unsigned } = row;
       const invalidated: Omit<ReviewInventoryReceipt, '_hash'> = { ...unsigned, invalidatedAt: now, invalidationReason: reason };
