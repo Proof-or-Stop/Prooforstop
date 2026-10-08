@@ -23,6 +23,14 @@
  *      reports the blocker (not the scope_check_pending advisory) and `next`
  *      waits on the run instead of proposing DEV. A pin-audit gap therefore
  *      lands before any item is implemented against the pin.
+ *   G. per-item hold (old-PoS run 27 §2 row 4): only the items that carry
+ *      pin-audit rows or are covered by a same-semantics sentence (cite its
+ *      request section) are held. DEV entry is admitted beside the live run;
+ *      next implements the free items, waits on the run before a held item,
+ *      the implementer dispatch of a held item is refused
+ *      [scope_verdict_held_item], and a gap verdict sends the Story back to
+ *      PLAN before the held item. The rerun prompt in PLAN carries the previous
+ *      verdict's gaps and the checklist diff since it.
  *
  * Usage: node packages/main/dist/tasks/scope-plan-deferral-smoke.js
  */
@@ -282,6 +290,82 @@ async function heldScenario(kind: 'pin' | 'same-semantics'): Promise<void> {
   }
 }
 
+/** G: per-item hold; free items enter DEV implementation beside the live scope run. */
+async function perItemScenario(): Promise<void> {
+  const f = fixture('per-item');
+  try {
+    const request = [
+      'Extend slices with a step.', '',
+      '1. Parser support', '- Accept `start:end:step` inside index brackets.', '',
+      '2. Range assignment', '- Support assigning to array ranges with three-part slices.', '- Use the same index-selection semantics as read slicing.', '',
+      '3. Reads', '- Positive step iterates forward.', '- Negative step iterates backward.', '',
+    ].join('\n');
+    writeStoryRequest(f.store, { storyId: f.storyId, phase: 'PLAN', request, source: 'fixture',
+      amendmentReason: 'fixture: the per-item hold scenario records a sectioned verbatim request' });
+    const intent = (desc: string, requestQuote: string, computation = `follows from the cited sentence: ${desc}`) => ({
+      happy: [{ desc, type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story', derivation: { requestQuote, computation } }],
+      edge: [], adversarial: [] });
+    const item = (id: string, title: string, verificationIntent: unknown) => ({ id, title, context: 'Fixture.', status: 'todo', verificationIntent });
+    f.store.writeChecklist(f.storyId, { items: [
+      item('CHK-001', 'Parse stepped slices', intent('value[1:5:2] parses as a stepped range', 'Accept `start:end:step` inside index brackets.')),
+      item('CHK-002', 'Array range assignment', intent('a[0:4:2] assignment writes indexes 0 and 2', 'Support assigning to array ranges with three-part slices.')),
+      item('CHK-003', 'Backward reads', intent('[1,2,3][::-1] -> [3,2,1]', 'Negative step iterates backward.', 'reading backward from index 2 gives [3,2,1]')),
+      item('CHK-004', 'Forward reads', intent('a positive step reads forward', 'Positive step iterates forward.')),
+    ] } as never);
+    const gapFeature = 'asymmetric-example: Use the same index-selection semantics as read slicing.';
+    writeFileSync(join(f.scripts, 'fresh.json'), JSON.stringify({ commands: [saveCommand(f, payload(f.storyId, [
+      { feature: 'value[start:end:step] slices', status: 'covered', covered_by: 'CHK-001' },
+      { feature: gapFeature, status: 'gap', covered_by: null }]), 'save.log')] }));
+    const run = await launch(f);
+    const ack = spawnSync(process.execPath, [CLI, 'dev_memory_preflight_ack', JSON.stringify({ storyId: f.storyId })], { cwd: f.root, encoding: 'utf8', env: process.env });
+    assert.equal(ack.status, 0, `${MARKER} G: dev_memory_preflight_ack: ${ack.stdout}${ack.stderr}`);
+    const story = f.store.readStory(f.storyId);
+    const policy = resolveWorkflowPolicy(loadConfig(f.root), story);
+    const deferral = scopeVerdictDeferral(f.store, f.root, f.storyId) as { kind: string; heldItemIds?: string[] };
+    assert.equal(deferral.kind, 'deferred', `${MARKER} G: free items exist, so the verdict is deferred per item (got ${deferral.kind})`);
+    assert.deepEqual(deferral.heldItemIds, ['CHK-002', 'CHK-003'], `${MARKER} G: exactly the same-semantics section item and the pin-audit item are held`);
+    assert.equal(missingPlanScopeCheckFailure(f.store, story, policy, () => scopeVerdictDeferral(f.store, f.root, f.storyId)), null,
+      `${MARKER} G: DEV entry is admitted beside the live run`);
+    const review = spawnSync(process.execPath, [CLI, 'story_review', JSON.stringify({ storyId: f.storyId })], { cwd: f.root, encoding: 'utf8', env: process.env });
+    const reviewOut = `${review.stdout}${review.stderr}`;
+    assert.match(reviewOut, /scope_check_pending[^\n]*CHK-002, CHK-003/, `${MARKER} G: story_review defers the verdict and names the held items: ${reviewOut.slice(-1500)}`);
+    enterDev(f);
+    const first = nextStep(f);
+    assert.equal(first.cli?.payload.itemId, 'CHK-001', `${MARKER} G: next implements the first free item (got ${first.reason}: ${JSON.stringify(first.cli?.payload)})`);
+    const checklist = f.store.readChecklist(f.storyId);
+    f.store.writeChecklist(f.storyId, { ...checklist, items: checklist.items.map(row => ['CHK-001', 'CHK-004'].includes(row.id) ? { ...row, status: 'done' } : row) } as never);
+    const held = nextStep(f);
+    assert.equal(held.reason, 'managed_run_wait', `${MARKER} G: only held items remain, so next waits on the scope run (got ${held.reason}: ${held.why})`);
+    assert.match(held.why, /CHK-002/, `${MARKER} G: the wait names the held item: ${held.why}`);
+    const dispatch = spawnSync(process.execPath, [CLI, 'dispatch', JSON.stringify({ storyId: f.storyId, agentType: 'proof-or-stop-implementer', itemId: 'CHK-002' })], { cwd: f.root, encoding: 'utf8', env: process.env });
+    assert.notEqual(dispatch.status, 0, `${MARKER} G: the implementer dispatch of a held item is refused`);
+    assert.match(`${dispatch.stdout}${dispatch.stderr}`, /\[scope_verdict_held_item\]/, `${MARKER} G: refusal code: ${dispatch.stdout}${dispatch.stderr}`);
+    writeFileSync(join(f.scripts, 'release'), '');
+    await run.done;
+    assert.ok(f.store.readScopeCheck(f.storyId), `${MARKER} G: the deferred run saved its verdict in DEV: ${log(f, 'save.log')}`);
+    const replan = nextStep(f);
+    assert.equal(replan.reason, 'scope_verdict_replan', `${MARKER} G: the gap sends the Story back to PLAN before the held item (got ${replan.reason}: ${replan.why})`);
+    // Rerun prompt (row 4b): back in PLAN the owner adds the asymmetric row to CHK-002.
+    const devStory = f.store.readStory(f.storyId);
+    f.store.writeStory(f.storyId, { ...devStory, phase: 'PLAN', events: [...(devStory.events ?? []), { phase: 'PLAN', action: 'advance', timestamp: new Date().toISOString() }] } as never);
+    const planChecklist = f.store.readChecklist(f.storyId);
+    const addedRow = 'a=[1,2,3]; a[::-1]=[30,20,10] assigns backward so a is [10,20,30]';
+    f.store.writeChecklist(f.storyId, { ...planChecklist, items: planChecklist.items.map(row => row.id === 'CHK-002'
+      ? { ...row, verificationIntent: { ...row.verificationIntent!, happy: [...(row.verificationIntent?.happy ?? []), { desc: addedRow, type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story',
+        derivation: { requestQuote: 'Use the same index-selection semantics as read slicing.', computation: 'read slicing a[::-1] selects indexes 2,1,0, so 30,20,10 land there: [10,20,30]' } }] } }
+      : row) } as never);
+    const rerun = spawnSync(process.execPath, [CLI, 'dispatch', JSON.stringify({ storyId: f.storyId, agentType: ROLE })], { cwd: f.root, encoding: 'utf8', env: process.env });
+    const prompt = `${rerun.stdout}${rerun.stderr}`;
+    assert.equal(rerun.status, 0, `${MARKER} G: the scope-plan rerun dispatch renders: ${prompt.slice(-800)}`);
+    assert.match(prompt, /Previous scope-plan verdict/, `${MARKER} G: the rerun prompt carries the previous verdict: ${prompt.slice(-2500)}`);
+    assert.ok(prompt.includes(gapFeature), `${MARKER} G: the previous verdict's gap is listed`);
+    assert.match(prompt, /CHK-002[^\n]*\n[^\n]*\+ happy: a=\[1,2,3\]; a\[::-1\]=\[30,20,10\]/, `${MARKER} G: the checklist diff names the added CHK-002 row: ${prompt.slice(-2500)}`);
+    console.log(`per-item ok: CHK-002/CHK-003 held beside run ${run.runId}; CHK-001 implemented; held dispatch refused; gap → PLAN; rerun prompt carries the verdict + diff`);
+  } finally {
+    rmSync(f.root, { recursive: true, force: true });
+  }
+}
+
 const saved = { PATH: process.env.PATH, PROOF_OR_STOP_PROJECT_ROOT: process.env.PROOF_OR_STOP_PROJECT_ROOT, CODEX_HOME: process.env.CODEX_HOME };
 try {
   for (const key of ['LATTICE_MANAGED_INIT_INVOCATION', 'LATTICE_MANAGED_HOST_RUN_ID', 'PROOF_OR_STOP_AGENT']) delete process.env[key];
@@ -293,6 +377,8 @@ try {
   await heldScenario('pin');
   process.env.PATH = saved.PATH;
   await heldScenario('same-semantics');
+  process.env.PATH = saved.PATH;
+  await perItemScenario();
   process.env.PATH = saved.PATH;
   console.log('SCOPE_PLAN_DEFERRAL_GREEN');
 } finally {
