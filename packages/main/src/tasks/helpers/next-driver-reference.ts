@@ -108,6 +108,19 @@
  * repair / finding_resolve / finding_resolve_batch step, and the REVIEW-phase
  * finding closure returns to DEV (intent_conflict_dev) instead of resolving.
  * The golden fixture declares no conflict, so its quiet states are unchanged.
+ *
+ * Deliberate change (orchestration-overlap, v4.1 cost plan N1/N2/N8):
+ *   N2 fully bound prepared lanes launch in ONE step whose `parallel` lists each
+ *      host_run (next --run spawns them concurrently); the critic's
+ *      begin → dispatch → review_run_start chain is ONE review_round_prepare
+ *      {inventoryCritic:true} step (reasons inventory_begin /
+ *      inventory_critic_prepare);
+ *   N1 while the delivery reviewer runs, the TEST authoring step and the
+ *      review-assurance step are proposed instead of waiting (they write only
+ *      Story metadata); done_prepare and DONE still wait;
+ *   N8 DEV waits for a live deferred scope-plan run before enter_review, and a
+ *      deferred verdict with a gap returns to PLAN (scope_verdict_replan). The
+ *      golden fixture starts in DEV with no scope run, so N8 changes no state.
  */
 import { existsSync, readdirSync } from 'node:fs';
 import { hostname } from 'node:os';
@@ -145,7 +158,8 @@ import { collectReviewerEvidenceState, verifyCurrentReviewerDispatchBinding } fr
 import { managedHostRunsRoot, readManagedHostRunProjection, managedHostRunReceipt, isAutoReplaceableManagedLaunchFailure } from '../../core/managed-host-run.js';
 import { managedFindingRepairState, hintedStep, evidenceChainStep, evidenceChainAdvisory, step as sharedStep, managedLaunchStep, boundManagedSelection,
   runsForTarget, targetRelaunchIsFramework, testAuthoringStep, planAuthoringStep, preScopeAuthoringStep, nextBlockingFinding, duplicateFindingResolveStep,
-  groupedFindingRepairIds, groupedFindingRepairStep, repairedFindingsForResolve, findingResolveBatchStep, openIntentConflicts, intentConflictStep, type NextStep } from '../../handlers/next-driver.js';
+  groupedFindingRepairIds, groupedFindingRepairStep, repairedFindingsForResolve, findingResolveBatchStep, openIntentConflicts, intentConflictStep, nextStepCall, type NextStep } from '../../handlers/next-driver.js';
+import { scopeVerdictReviewEntryFailure } from '../../core/scope-plan-deferral.js';
 import { duplicateCoverageReceipts, duplicateResolveCandidate } from '../../core/duplicate-finding-coverage.js';
 import { singleHostAssuranceReady } from '../../handlers/quorum-submit.js';
 import { hasPersistedManagedReceiptEvidence, refusedManagedReviewImport } from '../../handlers/managed-review-evidence.js';
@@ -184,7 +198,7 @@ function step(
   call: { command: string; payload: Record<string, unknown> } | null,
   why: string,
   source: string,
-  extra: Partial<Pick<NextStep, 'wait' | 'done' | 'placeholders'>> = {},
+  extra: Partial<Pick<NextStep, 'wait' | 'done' | 'placeholders' | 'launch' | 'parallel'>> = {},
 ): NextStep {
   return sharedStep(base, kind, reason, call, why, source, extra);
 }
@@ -348,6 +362,12 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
     if (!inFlight(IMPLEMENTER_AGENT) && !inFlight(FINDING_REPAIR_AGENT)) {
       const conflicts = openIntentConflicts({ root: ctx.root, gitCwd: gitCwdOf(storyId), store: ctx.store, storyId, runs: hostRuns });
       if (conflicts.length > 0) return intentConflictStep(base, conflicts);
+      // Mirrors next-driver.ts (orchestration-overlap N8): a deferred scope verdict with a gap returns to PLAN.
+      const scopeVerdict = scopeVerdictReviewEntryFailure(ctx.store, ctx.root, ctx.store.readStory(storyId), policyOf(storyId));
+      if (scopeVerdict && !/\[scope_check_pending\]/.test(scopeVerdict)) {
+        return guardStep(base, 'PLAN', 'scope_verdict_replan', `${scopeVerdict.split('\n')[0]} Return to PLAN to cover or exclude it and rerun the scope-plan reviewer.`,
+          'scopeVerdictReviewEntryFailure (DEV→REVIEW gate, N8 deferred scope verdict)');
+      }
     }
     if (open.length > 0) {
       const item = open[0]!;
@@ -416,6 +436,8 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
       }
     }
     const advisory = evidenceChainAdvisory(chain);
+    const scopeRunning = inFlight(SCOPE_PLAN_REVIEWER);
+    if (scopeRunning && !ctx.store.readScopeCheck(storyId)) return waitStep(base, scopeRunning, 'Scope-plan reviewer run (deferred verdict, gates REVIEW)');
     if (!ctx.store.readScopeContract(storyId) && checklistHasFileDeclarations(checklist)) {
       return step(base, 'framework', 'scope_contract_init', { command: 'scope_contract_init_from_plan', payload: { storyId } },
         `Checklist items declare files but no scope contract exists; REVIEW refuses [missing_scope_contract].${advisory}`, 'runScopeTransitionGate precondition');
@@ -492,7 +514,17 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
       if (!hasPersistedManagedReceiptEvidence(ctx.store, storyId, receiptId)
         && !refusedManagedReviewImport(ctx.store, storyId, hostRun.runId, receiptId)) importable.push({ run: hostRun, receiptId });
     }
-    if (toLaunch.length) return reviewLaunchStep(base, toLaunch[0]!.lane, toLaunch[0]!.run.reviewRunId, false);
+    if (toLaunch.length) {
+      // Mirrors next-driver.ts (orchestration-overlap N2): fully bound prepared lanes launch concurrently in one step.
+      const launches = toLaunch.map(row => reviewLaunchStep(base, row.lane, row.run.reviewRunId, false));
+      const bound = launches.filter(launch => launch.kind === 'framework' && launch.launch && launch.cli);
+      if (bound.length > 1 && bound[0] === launches[0]) {
+        return step(base, 'framework', 'review_lane_launch', bound[0]!.cli,
+          `Launch the ${bound.length} prepared managed reviewer lanes concurrently (${bound.map(launch => String(launch.cli!.payload.lane).replace('proof-or-stop-review-', '')).join(', ')}), each in its own host_run process, before waiting. Fully bound (this Story's own host/model/effort, first run of each target): \`next --run\` launches them together.`,
+          'review-runs.json + managed host-run projection', { launch: true, parallel: bound.map(launch => nextStepCall(launch.reason, launch.cli!)) });
+      }
+      return launches[0]!;
+    }
     if (waiting.length) return waitStep(base, waiting[0]!, 'Managed reviewer run');
     if (importable.length) return laneImportStep(base, importable);
     return null;
@@ -508,7 +540,12 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
       'reviewer_batch executionPlan.launchableLanes');
   }
 
-  /** The inventory critic of an OPEN epoch: dispatch → review_run_start → launch → wait → import. */
+  /** Mirrors next-driver.ts (orchestration-overlap N2): begin → critic dispatch → review_run_start as ONE review_round_prepare step. */
+  function criticPrepareStep(base: { storyId: string; phase: string }, why: string, source: string, reason = 'inventory_critic_prepare'): NextStep {
+    return step(base, 'framework', reason, { command: 'review_round_prepare', payload: { storyId: base.storyId, inventoryCritic: true, json: true } }, why, source);
+  }
+
+  /** The inventory critic of an OPEN epoch: prepare (dispatch + review_run_start) → launch → wait → import. */
   function criticNext(base: { storyId: string; phase: string }, epoch: NonNullable<ReturnType<typeof currentOpenReviewInventory>>, round: string): NextStep {
     const { storyId } = base;
     const critic = MANAGED_INVENTORY_CRITIC_LANE;
@@ -516,28 +553,15 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
     const criticRun = ctx.store.readReviewRuns(storyId).runs.filter(run => run.reviewRound === round && run.reviewPurpose === 'inventory-completeness'
       && run.inventoryBinding?.epochId === epoch.epochId && run.inventoryBinding?.wave === binding.wave).at(-1);
     if (!criticRun) {
-      const dispatched = verifyCurrentReviewerDispatchBinding({ store: ctx.store, storyId, lane: critic, reviewRound: round,
-        projectRoot: ctx.root, reviewPurpose: 'inventory-completeness', inventoryBinding: binding });
-      if (!dispatched.ok) {
-        return step(base, 'framework', 'inventory_critic_dispatch', { command: 'dispatch', payload: { storyId, agentType: critic,
-          reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } },
-        `Every required lane of epoch ${epoch.epochId} is terminal; bind the inventory-completeness critic dispatch for wave ${binding.wave}.`, 'review_inventory_status (REVIEW_INVENTORY_CRITIC_INCOMPLETE)');
-      }
-      return step(base, 'framework', 'inventory_critic_run_start', { command: 'review_run_start', payload: { storyId, agent: critic, lane: critic,
-        reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } },
-      `The critic dispatch for epoch ${epoch.epochId} is bound; start its ReviewRun.`, 'review_inventory_status (REVIEW_INVENTORY_CRITIC_INCOMPLETE)');
+      return criticPrepareStep(base, `Every required lane of epoch ${epoch.epochId} is terminal; bind the inventory-completeness critic dispatch for wave ${binding.wave} (unless already bound) and start its ReviewRun.`,
+        'review_inventory_status (REVIEW_INVENTORY_CRITIC_INCOMPLETE)');
     }
     // Mirrors next-driver.ts (lab reroute-mid-inventory): lanes rerun after the critic started make it stale; run a fresh critic.
     const roundRuns = ctx.store.readReviewRuns(storyId).runs.filter(run => run.reviewRound === round);
-    if (roundRuns.slice(roundRuns.findIndex(run => run.reviewRunId === criticRun.reviewRunId) + 1).some(run => run.reviewPurpose !== 'inventory-completeness')) {
-      const why = `Lanes reran after critic ReviewRun ${criticRun.reviewRunId}; start a fresh critic of wave ${binding.wave}.`;
-      const fresh = verifyCurrentReviewerDispatchBinding({ store: ctx.store, storyId, lane: critic, reviewRound: round,
-        projectRoot: ctx.root, reviewPurpose: 'inventory-completeness', inventoryBinding: binding });
-      return fresh.ok
-        ? step(base, 'framework', 'inventory_critic_run_start', { command: 'review_run_start', payload: { storyId, agent: critic, lane: critic,
-          reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } }, why, 'review-runs order (lane rerun after critic)')
-        : step(base, 'framework', 'inventory_critic_dispatch', { command: 'dispatch', payload: { storyId, agentType: critic,
-          reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } }, why, 'review-runs order (lane rerun after critic)');
+    const laneAfterCritic = roundRuns.slice(roundRuns.findIndex(run => run.reviewRunId === criticRun.reviewRunId) + 1).find(run => run.reviewPurpose !== 'inventory-completeness');
+    if (laneAfterCritic) {
+      return criticPrepareStep(base, `Lane run ${laneAfterCritic.reviewRunId} (${laneAfterCritic.lane.replace('proof-or-stop-review-', '')}) started after critic ReviewRun ${criticRun.reviewRunId}; that critic did not see the rerun lanes and its import would be refused. Start a fresh critic of wave ${binding.wave}.`,
+        'review-runs order (lane rerun after critic)');
     }
     const hostRun = hostRunFor(listStoryHostRuns(ctx, storyId), criticRun.reviewRunId);
     if (!hostRun) return reviewLaunchStep(base, critic, criticRun.reviewRunId, true);
@@ -549,26 +573,12 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
       } catch (error) {
         return step(base, 'agent', 'inventory_critic_receipt_unavailable', null, `Critic run ${hostRun.runId} has no readable receipt: ${message(error)}`, 'managed host-run receipt');
       }
-      // A/B control D2-r3/D9-r1: the import of this critic was refused (its
-      // findings are kept); proposing it again would loop forever. Run a fresh
-      // critic of the same wave instead; its prompt names this refusal.
-      // A/B V3 R2A-r2: the same for a refusal before any evidence persisted
-      // (refusedManagedReviewImport covers both kinds).
       const refused = refusedManagedReviewImport(ctx.store, storyId, hostRun.runId, receiptId);
       if (!refused) return importStep(base, hostRun, receiptId);
-      const dispatched = verifyCurrentReviewerDispatchBinding({ store: ctx.store, storyId, lane: critic, reviewRound: round,
-        projectRoot: ctx.root, reviewPurpose: 'inventory-completeness', inventoryBinding: binding });
-      const why = `The import of critic run ${hostRun.runId} (ReviewRun ${criticRun.reviewRunId}) was refused: ${refused.slice(0, 400)}. Any findings it imported are kept; run a fresh critic of wave ${binding.wave} whose prompt names this refusal (never the same import again).`;
-      if (!dispatched.ok) {
-        return step(base, 'framework', 'inventory_critic_dispatch', { command: 'dispatch', payload: { storyId, agentType: critic,
-          reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } }, why, 'process-events inventory_critic_import_refused | managed_review_import_refused');
-      }
-      return step(base, 'framework', 'inventory_critic_run_start', { command: 'review_run_start', payload: { storyId, agent: critic, lane: critic,
-        reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } }, why, 'process-events inventory_critic_import_refused | managed_review_import_refused');
+      return criticPrepareStep(base, `The import of critic run ${hostRun.runId} (ReviewRun ${criticRun.reviewRunId}) was refused: ${refused.slice(0, 400)}. Any findings it imported are kept; run a fresh critic of wave ${binding.wave} whose prompt names this refusal (never the same import again).`,
+        'process-events inventory_critic_import_refused | managed_review_import_refused');
     }
-    return step(base, 'framework', 'inventory_critic_run_start', { command: 'review_run_start', payload: { storyId, agent: critic, lane: critic,
-      reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } },
-    `Critic run ${hostRun.runId} ended ${hostRun.state}; start a fresh critic ReviewRun and relaunch it.`, 'managed host-run projection');
+    return criticPrepareStep(base, `Critic run ${hostRun.runId} ended ${hostRun.state}; start a fresh critic ReviewRun and relaunch it.`, 'managed host-run projection');
   }
 
   /**
@@ -721,11 +731,11 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
         'Saturated inventory and a current fast PASS: admit the certification window now, then run the routine suite.', 'PRE_CERT admit predicates');
     }
     // No epoch for this round yet (or it was consumed/cancelled/invalidated).
-    return step(base, 'framework', 'inventory_begin', { command: 'review_inventory_begin', payload: { storyId } },
+    return criticPrepareStep(base,
       verdict.ok
-        ? `Every required lane of round ${round} has current evidence; open the inventory epoch that certification requires.`
-        : `Round ${round} raised verified blocking finding(s); open the inventory epoch that authorizes remediation.`,
-      `evaluateReviewVerdict + ${PRE_CERT_INVENTORY_NOT_FINALIZED} precondition`);
+        ? `Every required lane of round ${round} has current evidence; open the inventory epoch that certification requires (and prepare its critic when the epoch asks for one).`
+        : `Round ${round} raised verified blocking finding(s); open the inventory epoch that authorizes remediation (and prepare its critic when the epoch asks for one).`,
+      `evaluateReviewVerdict + ${PRE_CERT_INVENTORY_NOT_FINALIZED} precondition`, 'inventory_begin');
 
     /** A begin that already ran on these facts and was refused for a blocker next does not model. */
     function latestBlockedAfterCheap(id: string, cheapIssuedAt: string): NextStep | null {
@@ -810,8 +820,16 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
         'evaluateOptionalLiveSmokeTranscript (DONE oracle live-smoke row)', capture.startsWith('<') ? { placeholders: ['capture'] } : {});
     }
     const delivery = failing('delivery-check');
+    // Mirrors next-driver.ts (orchestration-overlap N1): metadata-only TEST rows run while the delivery reviewer works.
+    const deliveryRunning = delivery ? hostRuns.filter(run => run.agentType === DELIVERY_REVIEWER && !run.terminal).at(-1) : undefined;
+    if (deliveryRunning) {
+      const overlap = testAuthoringStep(base, failing) ?? assuranceStep();
+      if (overlap) {
+        return { ...overlap, why: `${overlap.why} (Delivery reviewer run ${deliveryRunning.runId} keeps running meanwhile; this step writes only Story metadata, never reviewed material.)` };
+      }
+    }
     if (delivery) {
-      const running = hostRuns.filter(run => run.agentType === DELIVERY_REVIEWER && !run.terminal).at(-1);
+      const running = deliveryRunning;
       if (running) return waitStep(base, running, 'Delivery reviewer run');
       if (/docsPromise entries are unverified/.test(delivery.detail ?? '')) {
         return step(base, 'agent', 'delivery_unverified_promise', { command: 'story_advance', payload: { storyId, phase: 'DEV' } },
@@ -828,15 +846,8 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
     }
     const authoring = testAuthoringStep(base, failing);
     if (authoring) return authoring;
-    for (const id of ['review-escalation', 'review-assurance-floor'] as const) {
-      if (!failing(id)) continue;
-      const args = { projectRoot: ctx.root, gitCwd, storyId, store: ctx.store };
-      const guidance = id === 'review-assurance-floor'
-        ? buildReviewAssuranceFloorGuidance(evaluateReviewAssuranceFloor(args))
-        : buildReviewEscalationGuidance(evaluateReviewEscalation(args), storyId);
-      const next = guidanceStep(base, guidance, id);
-      if (next) return next;
-    }
+    const assurance = assuranceStep();
+    if (assurance) return assurance;
     const recoverable = rows.find(row => row.status === 'fail' && row.blocking && ['evidence-freshness', 'done-required-validation', 'branch-synced-main'].includes(row.id));
     if (recoverable) {
       return step(base, 'framework', 'done_prepare', { command: 'done_prepare', payload: { storyId, mergeMain: true, refreshStale: true, validate: true, json: true } },
@@ -847,6 +858,19 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
       return delegated(base, 'agent', `done_row_${other.id}`, other.hint ?? '', `DONE oracle row ${other.id} fails: ${other.detail ?? other.label}.`, `buildDoneChecklist ${other.id}`);
     }
     return guardStep(base, 'DONE', 'enter_done', 'Every DONE oracle row passes: advance to DONE (the framework merges the Story branch and removes the worktree).', 'buildDoneChecklist + getGuardFailureReason(DONE)');
+
+    function assuranceStep(): NextStep | null {
+      for (const id of ['review-escalation', 'review-assurance-floor'] as const) {
+        if (!failing(id)) continue;
+        const args = { projectRoot: ctx.root, gitCwd, storyId, store: ctx.store };
+        const guidance = id === 'review-assurance-floor'
+          ? buildReviewAssuranceFloorGuidance(evaluateReviewAssuranceFloor(args))
+          : buildReviewEscalationGuidance(evaluateReviewEscalation(args), storyId);
+        const next = guidanceStep(base, guidance, id);
+        if (next) return next;
+      }
+      return null;
+    }
   }
 
   function decide(storyId: string): NextStep {
