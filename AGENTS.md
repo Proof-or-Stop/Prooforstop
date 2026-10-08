@@ -229,6 +229,9 @@ PLAN intent-metadata rule: every `verificationIntent` row carries `scope`,
 `expectation` and `requirementSource`, else `story_create REFUSED, nothing was
 written ... [verification_intent_metadata_required]` names each row and its
 missing field (the same refusal `checklist_update` and `plan_acceptance_*` print).
+Intake intents also follow the derivation rule (below): an example whose
+expected value the request does not quote carries a `derivation`, else
+`[intent_derivation_required]` (old-PoS run 23 pinned its wrong value here).
 
 INIT to INIT_CHECK requires independent records from both
 `proof-or-stop-review-story-init` and `proof-or-stop-product-reviewer`; each reviewer persists
@@ -358,7 +361,8 @@ advisory understanding, so the reviewer never ran). `story_review` reports
 `host_run`) even after a clean `story_review`. `next` in PLAN first returns the
 deterministic PLAN blockers as one `plan_authoring` batch (run 19: one exact
 `checklist_update` per item for missing intent lanes, unpinned intents, a
-missing `userSees`, and request literals no item states or excludes), and only
+missing `userSees`, examples without a valid `derivation`, and request literals
+no item states or excludes), and only
 when those are clear launches the reviewer, so it runs once on the final
 checklist (or waits on the run in flight). A verdict that must be rerun (gaps
 open and the checklist changed since it, or a stale review round) is relaunched
@@ -507,6 +511,32 @@ compatibility promise stays strict. The verification-intent author is pointed at
 exact-output intent per example and listed variant. The INIT product reviewer
 gets only its path.
 
+Pinned values the request does not quote carry a derivation (old-PoS run 23 at
+its source, core/intent-derivation.ts). When the Story has a `request.md`, an
+intent row whose `desc` is an input -> output example (separator `->`, `→`,
+`=>`, `==`, else returns/yields/gives/prints/...) with a concrete expected
+value (backticked literals, else quoted strings, `[...]`/`{...}` groups,
+numbers) that is not quoted verbatim from `request.md` (case-sensitive,
+whitespace aside) must carry `"derivation":{"requestQuote":"<verbatim
+request.md sentence>","computation":"<steps to the pinned value>"}`:
+`requestQuote` occurs in `request.md` (case, whitespace and backticks aside,
+`...` may elide, at least 12 characters) and `computation` states the pinned
+value. `story_create`, `checklist_add`, `checklist_update` and
+`plan_acceptance_prepare/apply` refuse a missing or invalid one
+(`[intent_derivation_required]`, nothing written); a quoted example needs none.
+A row stored without one (request recorded or amended later) is a
+`missing_intent_derivation` blocker, and `next`'s `plan_authoring` batch gives
+the exact `checklist_update` with a derivation placeholder. Whether the
+derivation is right is the scope-plan reviewer's pin audit: its prompt lists
+every such row (ref, desc, requestQuote, computation) and requires it to
+recompute each value from the request; a mismatch is a blocking `pin-audit
+<ref>` gap. Its same-semantics rule: when a request sentence makes one behaviour
+follow another ("same ... semantics as X"), at least one intent must use an
+input on which the plausible readings differ (an asymmetric example), else an
+`asymmetric-example` gap. The `story_review` message of both gaps names the
+intent fix (`checklist_update` with the corrected row and its derivation), then
+the reviewer rerun. Prompt cost: about 1.1 KB plus about 270 B per listed row.
+
 The request outranks intents (old-PoS run 23, core/request-authority.ts).
 Intents, `userSees`, context and pinned tests are owner-authored and can be
 wrong. Every REVIEW lane and the inventory critic get `request.md` inline with
@@ -552,7 +582,8 @@ does not count): `proof-or-stop checklist_update --storyId=B-xxxx
 changed"]'`. A `scope_gap` is the signed scope-plan reviewer verdict and
 story_review never re-judges it: cover the point in a checklist item, or append
 an `excludes` entry naming it with the reason (reference-only material or an
-acknowledged "do not ..." constraint), then rerun the scope-plan reviewer with
+acknowledged "do not ..." constraint; a `pin-audit` / `asymmetric-example` gap
+is fixed in the intent row itself), then rerun the scope-plan reviewer with
 the managed `host_run` command the hint prints. When the checklist changed after
 the verdict (`scope-check.json` `checklistDigest`, guidance only), the hint names
 only the rerun, and `next` returns that relaunch itself. The brief
