@@ -1,5 +1,5 @@
 import { captureHostRunBudgetEnvironment, restoreHostRunBudgetEnvironment } from './host-run-budget.js';
-import { resolveAbVariants } from './ab-variants.js';
+import { dispatchTargetThreadFresh, resolveAbVariants, type AbVariantEvidence } from './ab-variants.js';
 import { loadConfig } from './config.js';
 import { MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY } from './runtime-fact-registry.js';
 import { isManagedInventoryCriticCoverage, isManagedInventoryCriticEnvelopeValid, managedInventoryCriticCoverageViolations, type ManagedInventoryCritic, type ManagedInventoryCriticCoverage } from './managed-inventory-critic.js';
@@ -205,7 +205,8 @@ export type ManagedDispatchTarget =
  * only when some switch is off its production value.
  */
 function validManagedDispatchGroup(primary: string, group: unknown, abVariant: unknown, variantRequired: boolean): boolean {
-  if (group === undefined) return abVariant === undefined;
+  // A single target carries A/B evidence only for implementation.thread=fresh (core/implementer-item-pack.ts).
+  if (group === undefined) return abVariant === undefined || dispatchTargetThreadFresh({ abVariant: abVariant as AbVariantEvidence });
   const variantOk = abVariant === undefined ? !variantRequired : Boolean(abVariant) && typeof abVariant === 'object';
   return Array.isArray(group) && group.length >= 2 && group[0] === primary
     && group.every(id => typeof id === 'string' && id.trim().length > 0) && new Set(group).size === group.length
@@ -976,17 +977,20 @@ export function reviewerRound2LanesFresh(root: string): boolean {
 /**
  * The Codex session a managed run resumes, or null for a fresh launch:
  * managed-dispatch code writers continue the Story's previous code-writer
- * session; managed code-review lanes continue their own earlier-candidate session.
+ * session (unless their target seals implementation.thread=fresh); managed code-review lanes continue their own earlier-candidate session.
  * Lookup failures never block a launch; they start fresh.
  */
 export function managedResumeSessionForSpec(
-  spec: Pick<ManagedHostRunSpec, 'runId' | 'host' | 'profile' | 'storyId' | 'agentType' | 'lane' | 'reviewRunId' | 'cwd' | 'root' | 'model'>,
+  spec: Pick<ManagedHostRunSpec, 'runId' | 'host' | 'profile' | 'storyId' | 'agentType' | 'lane' | 'reviewRunId' | 'cwd' | 'root' | 'model' | 'managedDispatchTarget'>,
   codexHome: string,
 ): string | null {
   if (spec.host !== 'codex' || !spec.storyId) return null;
   try {
     if (spec.profile === 'managed_dispatch'
       && (RESUMABLE_CODE_WRITER_ROLES as readonly string[]).includes(canonicalAgentRoleId(spec.agentType))) {
+      // EXPERIMENTAL A/B implementation.thread=fresh, sealed on the target at
+      // submit together with the item pack in the prompt: start a new thread.
+      if (dispatchTargetThreadFresh(spec.managedDispatchTarget)) return null;
       return findResumableImplementerSession({
         root: spec.root, storyId: spec.storyId, cwd: spec.cwd, model: spec.model ?? null, excludeRunId: spec.runId, codexHome,
       });
