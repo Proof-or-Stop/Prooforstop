@@ -299,20 +299,23 @@ try {
   {
     const scopeCheckPolicy = getCommandPolicy('scope_check_save');
     assert.ok(scopeCheckPolicy, 'scope_check_save must have a CommandPolicy entry');
-    // scope_check_save allowedPhases: PLAN — exactly PLAN, nothing else.
+    // scope_check_save allowedPhases: PLAN, plus DEV only for the deferred
+    // verdict of the live managed scope-plan run launched in PLAN (v4.1 N8,
+    // core/scope-plan-deferral.ts; the handler refuses every other DEV save,
+    // scope-plan-deferral-smoke D). It is still the PLAN reviewer's pass, never
+    // a later-phase owner acknowledgement.
     assert.deepEqual(
       scopeCheckPolicy!.allowedPhases,
-      ['PLAN'],
-      'scope_check_save allowedPhases must be exactly [\'PLAN\'] — it is signed PLAN scope review evidence, not a later-phase write (B-4622 CHK-002)',
+      ['PLAN', 'DEV'],
+      'scope_check_save allowedPhases must be exactly [\'PLAN\', \'DEV\'] — signed PLAN scope review evidence; DEV only for the deferred PLAN-launched managed run (B-4622 CHK-002, v4.1 N8)',
     );
-    // Adversarial: widening scope_check_save to DEV or REVIEW fails this test.
+    // Adversarial: widening scope_check_save to REVIEW (or 'all') fails this test.
     const scopeCheckPhases = scopeCheckPolicy!.allowedPhases;
     // Array.isArray here also excludes the 'all' wildcard window.
     assert.ok(
       Array.isArray(scopeCheckPhases) &&
-        !scopeCheckPhases.includes('DEV') &&
         !scopeCheckPhases.includes('REVIEW'),
-      'scope_check_save must NOT be broadened to DEV/REVIEW (or \'all\') — later-phase scope changes use scope_contract_acknowledge, which is not a replacement for a PLAN scope reviewer pass (B-4622 CHK-002)',
+      'scope_check_save must NOT be broadened to REVIEW (or \'all\') — later-phase scope changes use scope_contract_acknowledge, which is not a replacement for a PLAN scope reviewer pass (B-4622 CHK-002)',
     );
 
     const scopeAckPolicy = getCommandPolicy('scope_contract_acknowledge');
@@ -670,7 +673,7 @@ try {
     process.exit(1);
   }
 
-  console.log('✓ scope_check_save allowedPhases: PLAN');
+  console.log('✓ scope_check_save allowedPhases: PLAN, DEV (deferred PLAN-launched managed run only)');
   console.log('✓ scope_contract_acknowledge allowedPhases: DEV, REVIEW');
   console.log('✓ PROOF_OR_STOP_REVIEWER_READONLY=1 enables read-only reviewer mode');
   console.log('✓ enforceReviewerReadOnlyCommandGate: allows readOnly, blocks reviewerWrite/storyScopedMutating/unclassified');

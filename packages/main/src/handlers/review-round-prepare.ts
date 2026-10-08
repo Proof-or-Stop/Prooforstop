@@ -15,6 +15,14 @@
  * Every inner handler keeps its own validation (phase, clean tree, dispatch
  * binding, inventory locks, signatures). The outer command is owner-lease and
  * REVIEW-phase gated as storyScopedMutating (a superset of the inner gates).
+ * With inventoryCritic=true (v4.1 cost plan N2) it prepares the round's
+ * inventory-completeness critic in ONE step instead of three processes:
+ * review_inventory_begin when the current round has no OPEN epoch, then — only
+ * when review_inventory_status reports REVIEW_INVENTORY_CRITIC_INCOMPLETE — the
+ * critic dispatch (skipped when its binding is already current) and its
+ * review_run_start. Same handlers, same order, same gates as `next` proposes
+ * them one by one.
+ *
  * It launches no reviewer host, writes no review verdict, and never prints a
  * prompt body. On failure it names the failed step and lists lanes already
  * started so no partial state is hidden.
@@ -23,12 +31,16 @@ import type { HandlerContext } from './context.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import type { ReviewerBatchReport } from './reviewer-batch.js';
+import { currentOpenReviewInventory, reviewInventoryPurposeBinding } from '../core/review-inventory-epoch.js';
+import { MANAGED_INVENTORY_CRITIC_LANE } from '../core/managed-inventory-critic.js';
+import { verifyCurrentReviewerDispatchBinding } from '../core/review-run.js';
 
 type HandlerLookup = (name: string) => ((...args: any[]) => any) | undefined;
 
 export interface ReviewRoundPrepareArgs {
   storyId: string;
   fullScanReason?: string;
+  inventoryCritic?: boolean;
   json?: boolean;
 }
 
@@ -41,6 +53,8 @@ export interface ReviewRoundPrepareReport {
   launchableLanes: string[];
   reviewRuns: Record<string, string>;
   controllerCommand: string | null;
+  /** inventoryCritic mode: the epoch begun (null when one was already open), and the critic ReviewRun started (null when none was due). */
+  inventory?: { epochId: string | null; begun: boolean; criticDispatched: boolean; criticReviewRunId: string | null; status: string };
 }
 
 export const REVIEW_BATCH_CONTROLLER = 'python3 /tmp/pos-review-batch-controller.py';
@@ -125,6 +139,8 @@ export function createReviewRoundPrepareHandlers(ctx: HandlerContext, lookup: Ha
       );
     };
 
+    if (args.inventoryCritic === true) return prepareCritic(storyId, args.json === true, step);
+
     let report = await plan();
     let routed = false;
     let usedReason = false;
@@ -178,6 +194,54 @@ export function createReviewRoundPrepareHandlers(ctx: HandlerContext, lookup: Ha
       controllerCommand: renderReviewRoundControllerCommand(storyId, worktree, started),
     };
     return args.json ? result : renderReviewRoundPrepareReport(result);
+  }
+
+  async function prepareCritic(storyId: string, json: boolean,
+    step: <T>(name: string, fn: () => T | Promise<T>) => Promise<T>): Promise<ReviewRoundPrepareReport | string> {
+    const story = ctx.store.readStory(storyId);
+    const round = story.currentReviewRound ?? null;
+    if (!round) throw new Error('review_round_prepare --inventoryCritic: REVIEW has no current round');
+    let epoch = currentOpenReviewInventory(ctx.store, storyId);
+    if (epoch && epoch.reviewRound !== round) {
+      throw new Error(`review_round_prepare --inventoryCritic: OPEN epoch ${epoch.epochId} belongs to round ${epoch.reviewRound}, not ${round}; cancel it first (review_inventory_cancel)`);
+    }
+    let begun = false;
+    if (!epoch) {
+      await step('review_inventory_begin', () => handler('review_inventory_begin')({ storyId }));
+      begun = true;
+      epoch = currentOpenReviewInventory(ctx.store, storyId);
+    }
+    const status = epoch ? String(await step('review_inventory_status', () => handler('review_inventory_status')({ storyId }))) : '';
+    let criticDispatched = false;
+    let criticReviewRunId: string | null = null;
+    if (epoch && /REVIEW_INVENTORY_CRITIC_INCOMPLETE/.test(status)) {
+      const critic = MANAGED_INVENTORY_CRITIC_LANE;
+      const binding = reviewInventoryPurposeBinding(epoch);
+      const dispatched = verifyCurrentReviewerDispatchBinding({ store: ctx.store, storyId, lane: critic, reviewRound: round,
+        projectRoot: ctx.root, reviewPurpose: 'inventory-completeness', inventoryBinding: binding });
+      if (!dispatched.ok) {
+        await step(`dispatch(${critic})`, () => handler('dispatch')({ storyId, agentType: critic,
+          reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch!.epochId, summary: true }));
+        criticDispatched = true;
+      }
+      const output = String(await step(`review_run_start(${critic})`, () => handler('review_run_start')({ storyId, agent: critic, lane: critic,
+        reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch!.epochId, summary: true })));
+      criticReviewRunId = output.match(/^Review run (\S+) started for /m)?.[1] ?? null;
+    }
+    const worktree = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+    const result: ReviewRoundPrepareReport = {
+      storyId, round, head: null, worktree, routed: false, launchableLanes: [],
+      reviewRuns: criticReviewRunId ? { [MANAGED_INVENTORY_CRITIC_LANE]: criticReviewRunId } : {},
+      controllerCommand: null,
+      inventory: { epochId: epoch?.epochId ?? null, begun, criticDispatched, criticReviewRunId, status: status.split('\n').find(row => row.startsWith('Blockers:')) ?? '' },
+    };
+    if (json) return result;
+    return [
+      `Inventory critic prepared (${storyId})`,
+      `round: ${round}`,
+      `epoch: ${result.inventory!.epochId ?? '(none)'}${begun ? ' (begun now)' : ''}`,
+      `critic: ${criticReviewRunId ?? 'not due'}${criticDispatched ? ' (dispatched now)' : ''}`,
+    ].join('\n');
   }
 
   return { review_round_prepare: reviewRoundPrepare };

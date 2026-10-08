@@ -355,7 +355,14 @@ It no longer depends on `understanding_set` (run 16: the owner skipped the
 advisory understanding, so the reviewer never ran). `story_review` reports
 `missing_scope_check`, the DEV-entry gate itself refuses with
 `[missing_scope_check]` and one `Next:` (the managed scope-plan reviewer
-`host_run`) even after a clean `story_review`. `next` in PLAN first returns the
+`host_run`) even after a clean `story_review`. Exception (v4.1 N8,
+core/scope-plan-deferral.ts): while a managed scope-plan run launched in PLAN
+is still live and no verdict exists, story_review reports the advisory
+`scope_check_pending` and the DEV-entry gate admits DEV, so the first
+implementer runs beside the reviewer; that run saves its verdict in DEV, and
+DEV→REVIEW then requires it (present, signed, delivered, no gap:
+`[scope_check_pending]` / `[scope_gap]`); a gap found after DEV started sends
+the Story back to PLAN. `next` in PLAN first returns the
 deterministic PLAN blockers as one `plan_authoring` batch (run 19: one exact
 `checklist_update` per item for missing intent lanes, unpinned intents, a
 missing `userSees`, and request literals no item states or excludes), and only
@@ -490,7 +497,8 @@ document requires a change remains a reasoned decision.
 
 An independent scope-plan reviewer must save signed `scope-check.json` evidence
 through `scope_check_save` (required as described in the checklist section
-above; the PLAN→DEV gate refuses `[missing_scope_check]` without it). The
+above; the PLAN→DEV gate refuses `[missing_scope_check]` without it, unless
+its managed run is still live, in which case DEV→REVIEW requires it). The
 implementation agent must not self-sign it.
 When the Story has a `request.md`, the scope-plan dispatch prompt carries it
 inline: every normative sentence, every "for example" and every enumerated
