@@ -21,6 +21,11 @@ import { loadConfig } from '../core/config.js';
 import { CONFIG_FILENAMES, stateDirCandidates } from '../core/brand-paths.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
 import { resolveManagedDispatchInvocation } from '../core/managed-host-run.js';
+import { pendingScopePlanRun } from '../core/scope-plan-deferral.js';
+import { execFileSync } from 'node:child_process';
+import { StoryStore } from '../core/store.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import { currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import {
   SCOPE_CHECK_SALT,
   scopeCheckContentHash,
@@ -153,6 +158,14 @@ export function verifyScopeCheckSignature(storyId: string, data: ScopeCheckData)
   return data._hash === legacyScopeCheckHash(storyId, data.checkedAt, data.summary.gaps, data.summary.covered, data.reviewRound || '');
 }
 
+/** Material and story-files hashes at the last commit made before `at` (the deferred scope run's launch). */
+function launchMaterialSnapshot(root: string, storyId: string, at: string): { materialHash: string | undefined; storyFilesHash: string | undefined } {
+  const gitCwd = resolveGitCwd({ store: new StoryStore(root), storyId, metadataRoot: root, projectRoot: root });
+  const commit = execFileSync('git', ['rev-list', '-1', `--before=${at}`, 'HEAD'], { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+  if (!commit) throw new Error(`scope_check_save refused: no commit precedes the deferred scope-plan run launch (${at})`);
+  return { materialHash: currentMaterialHash(gitCwd, commit, root), storyFilesHash: currentStoryFilesHash(gitCwd, commit, root) };
+}
+
 export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   const { store, root } = ctx;
   return {
@@ -190,17 +203,29 @@ export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (.
       const ownerCoverage = signPlanOwnerCoverage(store, root, args.storyId, args.ownerDispositions, authority.source === 'dispatched-env' ? authority.entry?.canonicalName : undefined);
       // Verify story exists and read currentReviewRound
       let reviewRound = '';
+      let storyPhase = '';
       try {
         const story = store.readStory(args.storyId);
         reviewRound = story.currentReviewRound || '';
+        storyPhase = story.phase;
       } catch {
         throw new Error(`Story ${args.storyId} not found`);
+      }
+      // N8 (core/scope-plan-deferral.ts): in DEV only the deferred verdict of the
+      // live managed scope-plan run launched in PLAN may be saved. It reviewed the
+      // PLAN-time material, so its candidate read binding is checked against the
+      // commit that was HEAD when it launched, not the implementer's later commits.
+      const deferredRun = storyPhase === 'DEV' ? pendingScopePlanRun(root, args.storyId) : null;
+      if (storyPhase === 'DEV' && (!managedInvocation || !deferredRun)) {
+        throw new Error('scope_check_save refused: in DEV only the managed scope-plan run launched in PLAN may save its deferred verdict (no such live run, or no managed invocation). Rerun the scope-plan reviewer from PLAN.');
       }
       const timestamp = new Date().toISOString();
       const readManifest = normalizeReviewerReadManifest(args.readManifest, 'scope_check_save.readManifest');
       const routingMode = loadConfig(root).candidateSpecRouting?.mode ?? 'shadow';
       if (routingMode === 'enforce' || readManifest.candidateSpecSetDigest) {
-        const snapshot = captureReviewRunSnapshot(root, { storyId: args.storyId, storyPhase: 'PLAN' });
+        const snapshot = deferredRun
+          ? launchMaterialSnapshot(root, args.storyId, deferredRun.createdAt)
+          : captureReviewRunSnapshot(root, { storyId: args.storyId, storyPhase: 'PLAN' });
         assertCandidateReadBinding({
           manifest: readManifest,
           artifact: store.readCandidateSpecSet(args.storyId),
@@ -236,6 +261,9 @@ export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (.
           ? resolveManagedDispatchInvocation({ root, storyId: args.storyId, agentType: managedActor, reseal: true,
             command: 'scope_check_save', optionalWhenAbsent: true })
           : undefined;
+      if (deferredRun && managedDeliveryRunId !== deferredRun.runId) {
+        throw new Error(`scope_check_save refused: the DEV-phase save must come from the deferred scope-plan run ${deferredRun.runId}, not ${managedDeliveryRunId ?? 'an unbound writer'}`);
+      }
       const _hash = signScopeCheck(args.storyId, timestamp, args.summary.gaps, args.summary.covered, reviewRound, {
         features: args.features,
         summary,

@@ -29,6 +29,7 @@ import { safeReadScopeContract } from '../core/proof-or-stop-parallel-wave.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
 import { verifyScopeCheckSignature } from './scope-check.js';
 import { verifyManagedDispatchDelivery } from '../core/managed-host-run.js';
+import { pendingScopePlanRun } from '../core/scope-plan-deferral.js';
 import { existsSync } from 'fs';
 import { join } from 'path';
 import { createHash } from 'crypto';
@@ -668,7 +669,16 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
       // so no reviewer, although balanced declares 'always').
       const scopeData = store.readScopeCheck(args.storyId);
       const scopeRequirement = planScopeCheckRequirement(store, story, policy);
-      if (!scopeData && scopeRequirement) {
+      // N8 (core/scope-plan-deferral.ts): while a managed scope-plan run launched in
+      // PLAN is live, the missing verdict is deferred to the DEV→REVIEW gate.
+      const pendingScopeRun = !scopeData && scopeRequirement ? pendingScopePlanRun(ctx.root, args.storyId) : null;
+      if (pendingScopeRun) {
+        issues.push({
+          type: 'scope_check_pending',
+          severity: 'advisory',
+          message: `scope_check_pending: managed scope-plan run ${pendingScopeRun.runId} (launched in PLAN) is ${pendingScopeRun.state}; its verdict is required because ${scopeRequirement}. DEV may start meanwhile; REVIEW entry requires the verdict, verified and without gaps (a gap sends the Story back to PLAN).`,
+        });
+      } else if (!scopeData && scopeRequirement) {
         issues.push({
           type: 'missing_scope_check',
           severity: 'blocker',

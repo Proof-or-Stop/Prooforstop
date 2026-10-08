@@ -57,7 +57,14 @@ proof-or-stop host_run_status --runId=<runId> --untilTerminal=true
 Its first line (stderr) is the wait instruction: it blocks up to 285 s per call
 (`OWNER_WAIT_BLOCK_MS`, core/owner-wait-guidance.ts), so give it one tool
 yield/shell timeout of 300000 ms (Codex: `write_stdin yield_time_ms=300000`) and
-re-run it only if it returns non-terminal. Text output without `waitMs` or
+re-run it only if it returns non-terminal. On Codex the first `exec_command`
+always returns after 30 s while the call still runs, whatever its
+`yield_time_ms` (Codex 0.154; v4.1 cost plan N5: 34 of 34 long owner calls in
+old-PoS runs 22-24): the one `write_stdin` poll with the long yield is expected,
+not a sign of a short yield. A host that raises Codex's
+`background_terminal_max_timeout` may raise the block with
+`PROOF_OR_STOP_OWNER_WAIT_BLOCK_MS` (30000-585000 ms; the instruction then names
+a yield of block + 15 s), so one exec+poll pair covers more of the wait. Text output without `waitMs` or
 `afterGeneration` defaults to this until-terminal wait; `waitMs=0` is a snapshot.
 The text result is a compact summary of at most ~300 tokens. A terminal summary
 starts with a plain verdict line, `OK: ...` or `FAILED: ...`. After that come the
@@ -398,6 +405,14 @@ Story/role/run、重放凭证或在 run 终态后调用均 fail closed。
 同一个仍在运行的 managed run 可以重复保存自己的输出（re-seal）：`scope_check_save`
 与 `delivery_check_set` 再次出示同一个已消费的凭证（同 run、同 nonce、同 role）时
 会重新绑定到该 run，后一次保存覆盖前一次；其他 run、nonce 或 role 仍按重放拒绝。
+
+v4.1 N8（`core/scope-plan-deferral.ts`）：PLAN 里启动的 managed scope-plan run 仍在跑、
+裁决尚缺时，Story 可以进入 DEV；这个 run 在 DEV 里用自己的 managed invocation 保存裁决
+（DEV 里只接受它；其 candidate 读绑定按 run 启动前最后一个 commit 的 material /
+story-files hash 校验，不受 implementer 之后的提交影响）。DEV→REVIEW 要求该裁决存在、
+签名与 delivery 有效且无 gap。
+v4.1 N1：TEST 中 delivery reviewer 运行期间，`next` 先给出只写 Story 元数据的步骤
+（finish decision / summary、review assurance），`done_prepare` 与 DONE 仍等待它。
 old-PoS run 20（scope reviewer run 265cbed2）中，reviewer 的第一次 probe 保存消费了凭证，
 真实保存因此被拒为 "already consumed"，reviewer 随后用
 `env -u LATTICE_MANAGED_INIT_INVOCATION` 保存，写出了未绑定（`deliveryRunId: null`）的
@@ -516,7 +531,16 @@ proof-or-stop review_run_start '{"storyId":"B-xxxx","agent":"proof-or-stop-revie
 #    missing/stale (add --fullScanReason only when it reports escalation; a
 #    project with no requirements corpus gets an automatic full scan), then
 #    dispatch + review_run_start per lane; prints lane=reviewRunId (--json too).
+#    With inventoryCritic=true it prepares the round's inventory critic instead,
+#    in one process: review_inventory_begin when no OPEN epoch of the round
+#    exists, then (when review_inventory_status reports
+#    REVIEW_INVENTORY_CRITIC_INCOMPLETE) the critic dispatch unless already bound
+#    and its review_run_start (v4.1 N2).
 proof-or-stop review_round_prepare --storyId=B-xxxx
+
+#    `next --run` launches every fully bound prepared lane concurrently (one
+#    host_run process each, the same command as alone; v4.1 N2), as the
+#    pos-review-batch-controller does.
 
 # 2. Submit the exact provider reviewer; raw `bash + codex exec` is unmanaged.
 proof-or-stop host_run '{"host":"codex","model":"gpt-5.6-terra","reasoningEffort":"high","storyId":"B-xxxx","agentType":"proof-or-stop-review-quality","reviewRunId":"B-xxxx:RR-001","lane":"proof-or-stop-review-quality","managedReview":true,"detach":true,"json":true}'

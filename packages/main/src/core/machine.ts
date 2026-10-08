@@ -74,6 +74,7 @@ import { inspectDevMemoryFinishDecision } from './playbook-runtime-memory.js';
 import { canonicalAgentRoleId } from './agent-role-identity.js';
 import { renderManagedInitReviewerDispatches } from './reviewer-launch-guidance.js';
 import { missingPlanScopeCheckFailure } from './plan-scope-check-requirement.js';
+import { pendingScopePlanRun, scopeVerdictReviewEntryFailure } from './scope-plan-deferral.js';
 
 function buildQuorumEvidence(
   evidenceRecords: { agent: string; kind: string; signatureValid?: boolean }[],
@@ -504,8 +505,15 @@ export function reviewRoundMintStallAdjudication(context: StoryMachineContext): 
  * getGuardFailureReason's REVIEW branch so the boolean and the rendered reason
  * cannot drift.
  */
+/** N8: scopeVerdictReviewEntryFailure with this Story's policy; fail-closed on read errors is left to the other REVIEW checks. */
+function scopeVerdictReviewEntryFailureFor(store: StoryStore, projectRoot: string, storyId: string): string | null {
+  const story = store.readStory(storyId);
+  return scopeVerdictReviewEntryFailure(store, projectRoot, story, resolveWorkflowPolicy(loadConfig(projectRoot), story));
+}
+
 export function canMintReviewRoundGuard(context: StoryMachineContext): boolean {
   if (!checklistAllDoneGuard(context)) return false;
+  if (scopeVerdictReviewEntryFailureFor(context.store, context.projectRoot, context.storyId)) return false;
   return !reviewRoundMintStallAdjudication(context).blocked;
 }
 
@@ -715,7 +723,7 @@ export function canStartDevGuard(context: StoryMachineContext): boolean {
     // Run 16: the scope-plan reviewer verdict is required whenever the policy or
     // the Story says so (core/plan-scope-check-requirement.ts), independent of a
     // clean story_review record or of an understanding snapshot.
-    if (missingPlanScopeCheckFailure(context.store, story, policy)) return false;
+    if (missingPlanScopeCheckFailure(context.store, story, policy, () => pendingScopePlanRun(context.projectRoot, context.storyId) !== null)) return false;
     // F-001: ONLY the review-record checks are gated on requireStoryReview. The parallel
     // sub-check below must run on EVERY door into DEV (it used to be skipped when review was
     // not required, which made the hard block bypassable). The early `return true` is gone.
@@ -1425,7 +1433,7 @@ export function getGuardFailureReason(
       const story2 = store.readStory(storyId);
       const policy2 = resolveWorkflowPolicy(config2, story2);
       // Run 16: same predicate as canStartDevGuard; its last line is the one Next: action.
-      const scopeCheckFailure = missingPlanScopeCheckFailure(store, story2, policy2);
+      const scopeCheckFailure = missingPlanScopeCheckFailure(store, story2, policy2, () => pendingScopePlanRun(projectRoot ?? process.cwd(), storyId) !== null);
       if (scopeCheckFailure) return scopeCheckFailure;
       if (!policy2.plan.requireStoryReview) {
         // policy says no review needed — pass through
@@ -1490,6 +1498,9 @@ export function getGuardFailureReason(
     if (pending.length > 0) {
       return `Cannot enter REVIEW: ${pending.length} checklist item(s) not done: ${pending.map(i => i.id).join(', ')}`;
     }
+    // N8: a scope-plan verdict deferred past PLAN→DEV gates REVIEW entry.
+    const scopeVerdict = scopeVerdictReviewEntryFailureFor(store, projectRoot, storyId);
+    if (scopeVerdict) return scopeVerdict;
     const reviewStory = store.readStory(storyId);
     const reviewPolicy = resolveWorkflowPolicy(loadConfig(projectRoot), reviewStory);
     const missingEvidence = getBlockingVerificationEvidenceIssues(

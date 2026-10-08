@@ -49,6 +49,7 @@ import { evaluateDevMemoryPreflightGate, evaluateReviewVerdict, getGuardFailureR
 import { missingPlanScopeCheckFailure, SCOPE_PLAN_REVIEWER, scopePlanLaunchIsFramework, scopePlanRerunReason } from '../core/plan-scope-check-requirement.js';
 import { hasPreScopeBlockers, planPreScopeBlockers, type PreScopeBlockers } from '../core/plan-pre-scope-blockers.js';
 import { checklistDerivationGaps, derivationPlaceholder, MISSING_INTENT_DERIVATION } from '../core/intent-derivation.js';
+import { pendingScopePlanRun, scopeVerdictReviewEntryFailure } from '../core/scope-plan-deferral.js';
 import { STORY_FOCUSED_CLASSIFICATION } from '../core/verification-intent-classification.js';
 import { VERIFICATION_LANES } from '../core/verification.js';
 import { isTerminalChecklistStatus } from '../core/checklist-status.js';
@@ -89,7 +90,7 @@ import { evaluateOptionalLiveSmokeTranscript } from '../core/live-smoke-transcri
 import { singleHostAssuranceReady } from './quorum-submit.js';
 import type { ChecklistItem, ReviewRun } from '../core/types.js';
 import { commitMessageNamesFinding, implementationGroupingFiles, itemDeclaredFiles, remediationGroupingSingle, sharedFileItemGroup } from '../core/ab-dispatch-grouping.js';
-import { OWNER_WAIT_BLOCK_MS, ownerWaitInstruction } from '../core/owner-wait-guidance.js';
+import { ownerWaitBlockMs, ownerWaitInstruction } from '../core/owner-wait-guidance.js';
 import { parseIntentConflicts, type IntentConflict } from '../core/request-authority.js';
 import { readStoryRequest } from '../core/story-request.js';
 import { acceptanceIntentHash } from '../core/verification-intent-amendment.js';
@@ -142,6 +143,13 @@ export interface NextStep {
   launch?: boolean;
   /** Authoring commands the agent runs together in one turn (the first is also command/argv/cli). */
   batch?: NextStepCall[];
+  /**
+   * N2 (v4.1 cost plan): independent launches run CONCURRENTLY, each in its own
+   * process with exactly the command it would have alone (the first is also
+   * command/argv/cli). `--run` spawns them together; an agent runs them all
+   * before the next `next`.
+   */
+  parallel?: NextStepCall[];
   /** Optional commands that may precede the batch (e.g. dev_memory_capture before decision=captured). */
   optional?: NextStepCall[];
   /** True once the Story is DONE. */
@@ -234,7 +242,7 @@ export function step(
   call: { command: string; payload: Record<string, unknown> } | null,
   why: string,
   source: string,
-  extra: Partial<Pick<NextStep, 'wait' | 'done' | 'placeholders' | 'launch' | 'batch' | 'optional'>> = {},
+  extra: Partial<Pick<NextStep, 'wait' | 'done' | 'placeholders' | 'launch' | 'batch' | 'optional' | 'parallel'>> = {},
 ): NextStep {
   const payload = call ? JSON.stringify(call.payload) : '';
   return {
@@ -253,6 +261,7 @@ export function step(
     ...(extra.wait ? { wait: true } : {}),
     ...(extra.launch ? { launch: true } : {}),
     ...(extra.batch?.length ? { batch: extra.batch } : {}),
+    ...(extra.parallel && extra.parallel.length > 1 ? { parallel: extra.parallel } : {}),
     ...(extra.optional?.length ? { optional: extra.optional } : {}),
     ...(extra.done ? { done: true } : {}),
   };
@@ -1127,7 +1136,7 @@ export function nextBlockingFinding<T extends { finding: { id: string } }>(store
  */
 export function managedRunWaitStep(base: { storyId: string; phase: string }, runId: string, state: string, what: string): NextStep {
   return step(base, 'framework', 'managed_run_wait', { command: 'host_run_status', payload: { runId, untilTerminal: true } },
-    `${what} ${runId} is ${state}; block until it is terminal (returns at terminal, up to ${OWNER_WAIT_BLOCK_MS / 1000} s per call).`,
+    `${what} ${runId} is ${state}; block until it is terminal (returns at terminal, up to ${ownerWaitBlockMs() / 1000} s per call).`,
     'managed host-run projection', { wait: true });
 }
 
@@ -1267,7 +1276,13 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     const policy = policyOf(storyId);
     const scopeFailure = missingPlanScopeCheckFailure(ctx.store, story, policy);
     const rerun = scopeFailure ? null : scopePlanRerunReason(ctx.store, story);
-    if (scopeFailure || rerun) {
+    // N8 (v4.1 cost plan, core/scope-plan-deferral.ts): a MISSING verdict whose
+    // managed scope-plan run (launched in PLAN) is live no longer holds DEV: the
+    // DEV-entry gate defers it to DEV→REVIEW, so PLAN finishes and the first
+    // implementer starts beside the reviewer. A verdict that must be RERUN still
+    // waits here (its gaps block story_review until the rerun judges them).
+    const deferred = scopeFailure && !rerun ? pendingScopePlanRun(ctx.root, storyId) : null;
+    if ((scopeFailure || rerun) && !deferred) {
       const hostRuns = listStoryHostRuns(ctx, storyId);
       const running = hostRuns.filter(run => run.agentType === SCOPE_PLAN_REVIEWER && !run.terminal).at(-1);
       if (running) return waitStep(base, running, 'Scope-plan reviewer run');
@@ -1295,7 +1310,9 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     }
     const authoring = planAuthoringStep(ctx.store, base);
     if (authoring) return authoring;
-    return guardStep(base, 'DEV', 'enter_dev', 'PLAN is complete: the DEV-entry gate admits the Story.', 'getGuardFailureReason(DEV)');
+    return guardStep(base, 'DEV', 'enter_dev', deferred
+      ? `PLAN is complete except the scope-plan verdict, whose managed run ${deferred.runId} is still ${deferred.state}: the DEV-entry gate defers it to DEV→REVIEW, so DEV starts beside the reviewer (a gap it finds sends the Story back to PLAN before REVIEW).`
+      : 'PLAN is complete: the DEV-entry gate admits the Story.', 'getGuardFailureReason(DEV)');
   }
 
   // -- INIT → INIT_CHECK → PLAN (N4) ----------------------------------------
@@ -1410,6 +1427,13 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     if (!inFlight(IMPLEMENTER_AGENT) && !inFlight(FINDING_REPAIR_AGENT)) {
       const conflicts = openIntentConflicts({ root: ctx.root, gitCwd: gitCwdOf(storyId), store: ctx.store, storyId, runs: hostRuns });
       if (conflicts.length > 0) return intentConflictStep(base, conflicts);
+      // N8: a deferred scope-plan verdict that arrived with a gap (or never
+      // arrived) is PLAN work: go back before implementing more.
+      const scopeVerdict = scopeVerdictReviewEntryFailure(ctx.store, ctx.root, ctx.store.readStory(storyId), policyOf(storyId));
+      if (scopeVerdict && !/\[scope_check_pending\]/.test(scopeVerdict)) {
+        return guardStep(base, 'PLAN', 'scope_verdict_replan', `${scopeVerdict.split('\n')[0]} Return to PLAN to cover or exclude it and rerun the scope-plan reviewer.`,
+          'scopeVerdictReviewEntryFailure (DEV→REVIEW gate, N8 deferred scope verdict)');
+      }
     }
     if (open.length > 0) {
       const item = open[0]!;
@@ -1507,6 +1531,9 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     // never become a step of their own: binding a test is the agent's judgment
     // and an extra regression test needs no action (run 16).
     const advisory = evidenceChainAdvisory(chain);
+    // N8: REVIEW entry needs the deferred scope-plan verdict; wait for its live run.
+    const scopeRunning = inFlight(SCOPE_PLAN_REVIEWER);
+    if (scopeRunning && !ctx.store.readScopeCheck(storyId)) return waitStep(base, scopeRunning, 'Scope-plan reviewer run (deferred verdict, gates REVIEW)');
     if (!ctx.store.readScopeContract(storyId) && checklistHasFileDeclarations(checklist)) {
       return step(base, 'framework', 'scope_contract_init', { command: 'scope_contract_init_from_plan', payload: { storyId } },
         `Checklist items declare files but no scope contract exists; REVIEW refuses [missing_scope_contract].${advisory}`, 'runScopeTransitionGate precondition');
@@ -1589,7 +1616,20 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       if (!hasPersistedManagedReceiptEvidence(ctx.store, storyId, receiptId)
         && !refusedManagedReviewImport(ctx.store, storyId, hostRun.runId, receiptId)) importable.push({ run: hostRun, receiptId });
     }
-    if (toLaunch.length) return reviewLaunchStep(base, toLaunch[0]!.lane, toLaunch[0]!.run.reviewRunId, false);
+    if (toLaunch.length) {
+      const launches = toLaunch.map(row => reviewLaunchStep(base, row.lane, row.run.reviewRunId, false));
+      // N2: every prepared lane whose launch is fully bound starts in ONE step,
+      // concurrently (each its own host_run process, the same command as alone).
+      // A replacement or unbound launch stays a single step of its own.
+      const bound = launches.filter(launch => launch.kind === 'framework' && launch.launch && launch.cli);
+      if (bound.length > 1 && bound[0] === launches[0]) {
+        const first = bound[0]!;
+        return step(base, 'framework', 'review_lane_launch', first.cli,
+          `Launch the ${bound.length} prepared managed reviewer lanes concurrently (${bound.map(launch => String(launch.cli!.payload.lane).replace('proof-or-stop-review-', '')).join(', ')}), each in its own host_run process, before waiting. Fully bound (this Story's own host/model/effort, first run of each target): \`next --run\` launches them together.`,
+          'review-runs.json + managed host-run projection', { launch: true, parallel: bound.map(launch => nextStepCall(launch.reason, launch.cli!)) });
+      }
+      return launches[0]!;
+    }
     if (waiting.length) return waitStep(base, waiting[0]!, 'Managed reviewer run');
     if (importable.length) return laneImportStep(base, importable);
     return null;
@@ -1605,7 +1645,18 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       'reviewer_batch executionPlan.launchableLanes');
   }
 
-  /** The inventory critic of an OPEN epoch: dispatch → review_run_start → launch → wait → import. */
+  /**
+   * N2 (v4.1 cost plan): the critic's begin → dispatch → review_run_start chain
+   * as ONE framework step (review_round_prepare inventoryCritic=true runs the
+   * same handlers in-process, each with its own gate; the dispatch is skipped
+   * when its binding is already current, exactly as these steps were decided
+   * one by one before).
+   */
+  function criticPrepareStep(base: { storyId: string; phase: string }, why: string, source: string, reason = 'inventory_critic_prepare'): NextStep {
+    return step(base, 'framework', reason, { command: 'review_round_prepare', payload: { storyId: base.storyId, inventoryCritic: true, json: true } }, why, source);
+  }
+
+  /** The inventory critic of an OPEN epoch: prepare (dispatch + review_run_start) → launch → wait → import. */
   function criticNext(base: { storyId: string; phase: string }, epoch: NonNullable<ReturnType<typeof currentOpenReviewInventory>>, round: string): NextStep {
     const { storyId } = base;
     const critic = MANAGED_INVENTORY_CRITIC_LANE;
@@ -1613,16 +1664,8 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     const criticRun = ctx.store.readReviewRuns(storyId).runs.filter(run => run.reviewRound === round && run.reviewPurpose === 'inventory-completeness'
       && run.inventoryBinding?.epochId === epoch.epochId && run.inventoryBinding?.wave === binding.wave).at(-1);
     if (!criticRun) {
-      const dispatched = verifyCurrentReviewerDispatchBinding({ store: ctx.store, storyId, lane: critic, reviewRound: round,
-        projectRoot: ctx.root, reviewPurpose: 'inventory-completeness', inventoryBinding: binding });
-      if (!dispatched.ok) {
-        return step(base, 'framework', 'inventory_critic_dispatch', { command: 'dispatch', payload: { storyId, agentType: critic,
-          reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } },
-        `Every required lane of epoch ${epoch.epochId} is terminal; bind the inventory-completeness critic dispatch for wave ${binding.wave}.`, 'review_inventory_status (REVIEW_INVENTORY_CRITIC_INCOMPLETE)');
-      }
-      return step(base, 'framework', 'inventory_critic_run_start', { command: 'review_run_start', payload: { storyId, agent: critic, lane: critic,
-        reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } },
-      `The critic dispatch for epoch ${epoch.epochId} is bound; start its ReviewRun.`, 'review_inventory_status (REVIEW_INVENTORY_CRITIC_INCOMPLETE)');
+      return criticPrepareStep(base, `Every required lane of epoch ${epoch.epochId} is terminal; bind the inventory-completeness critic dispatch for wave ${binding.wave} (unless already bound) and start its ReviewRun.`,
+        'review_inventory_status (REVIEW_INVENTORY_CRITIC_INCOMPLETE)');
     }
     // Lab reroute-mid-inventory: lanes of this round that reran after the
     // critic started (the round's evidence was invalidated and
@@ -1633,14 +1676,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     const laneAfterCritic = roundRuns.slice(criticIndex + 1).find(run => run.reviewPurpose !== 'inventory-completeness');
     if (laneAfterCritic) {
       const why = `Lane run ${laneAfterCritic.reviewRunId} (${laneAfterCritic.lane.replace('proof-or-stop-review-', '')}) started after critic ReviewRun ${criticRun.reviewRunId}; that critic did not see the rerun lanes and its import would be refused. Start a fresh critic of wave ${binding.wave}.`;
-      const dispatchedFresh = verifyCurrentReviewerDispatchBinding({ store: ctx.store, storyId, lane: critic, reviewRound: round,
-        projectRoot: ctx.root, reviewPurpose: 'inventory-completeness', inventoryBinding: binding });
-      if (!dispatchedFresh.ok) {
-        return step(base, 'framework', 'inventory_critic_dispatch', { command: 'dispatch', payload: { storyId, agentType: critic,
-          reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } }, why, 'review-runs order (lane rerun after critic)');
-      }
-      return step(base, 'framework', 'inventory_critic_run_start', { command: 'review_run_start', payload: { storyId, agent: critic, lane: critic,
-        reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } }, why, 'review-runs order (lane rerun after critic)');
+      return criticPrepareStep(base, why, 'review-runs order (lane rerun after critic)');
     }
     const hostRun = hostRunFor(listStoryHostRuns(ctx, storyId), criticRun.reviewRunId);
     if (!hostRun) return reviewLaunchStep(base, critic, criticRun.reviewRunId, true);
@@ -1659,19 +1695,10 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       // (refusedManagedReviewImport covers both kinds).
       const refused = refusedManagedReviewImport(ctx.store, storyId, hostRun.runId, receiptId);
       if (!refused) return importStep(base, hostRun, receiptId);
-      const dispatched = verifyCurrentReviewerDispatchBinding({ store: ctx.store, storyId, lane: critic, reviewRound: round,
-        projectRoot: ctx.root, reviewPurpose: 'inventory-completeness', inventoryBinding: binding });
       const why = `The import of critic run ${hostRun.runId} (ReviewRun ${criticRun.reviewRunId}) was refused: ${refused.slice(0, 400)}. Any findings it imported are kept; run a fresh critic of wave ${binding.wave} whose prompt names this refusal (never the same import again).`;
-      if (!dispatched.ok) {
-        return step(base, 'framework', 'inventory_critic_dispatch', { command: 'dispatch', payload: { storyId, agentType: critic,
-          reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } }, why, 'process-events inventory_critic_import_refused | managed_review_import_refused');
-      }
-      return step(base, 'framework', 'inventory_critic_run_start', { command: 'review_run_start', payload: { storyId, agent: critic, lane: critic,
-        reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } }, why, 'process-events inventory_critic_import_refused | managed_review_import_refused');
+      return criticPrepareStep(base, why, 'process-events inventory_critic_import_refused | managed_review_import_refused');
     }
-    return step(base, 'framework', 'inventory_critic_run_start', { command: 'review_run_start', payload: { storyId, agent: critic, lane: critic,
-      reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId, summary: true } },
-    `Critic run ${hostRun.runId} ended ${hostRun.state}; start a fresh critic ReviewRun and relaunch it.`, 'managed host-run projection');
+    return criticPrepareStep(base, `Critic run ${hostRun.runId} ended ${hostRun.state}; start a fresh critic ReviewRun and relaunch it.`, 'managed host-run projection');
   }
 
   /**
@@ -1833,11 +1860,11 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
         'Saturated inventory and a current fast PASS: admit the certification window now, then run the routine suite.', 'PRE_CERT admit predicates');
     }
     // No epoch for this round yet (or it was consumed/cancelled/invalidated).
-    return step(base, 'framework', 'inventory_begin', { command: 'review_inventory_begin', payload: { storyId } },
+    return criticPrepareStep(base,
       verdict.ok
-        ? `Every required lane of round ${round} has current evidence; open the inventory epoch that certification requires.`
-        : `Round ${round} raised verified blocking finding(s); open the inventory epoch that authorizes remediation.`,
-      `evaluateReviewVerdict + ${PRE_CERT_INVENTORY_NOT_FINALIZED} precondition`);
+        ? `Every required lane of round ${round} has current evidence; open the inventory epoch that certification requires (and prepare its critic when the epoch asks for one).`
+        : `Round ${round} raised verified blocking finding(s); open the inventory epoch that authorizes remediation (and prepare its critic when the epoch asks for one).`,
+      `evaluateReviewVerdict + ${PRE_CERT_INVENTORY_NOT_FINALIZED} precondition`, 'inventory_begin');
 
     /** A begin that already ran on these facts and was refused for a blocker next does not model. */
     function latestBlockedAfterCheap(id: string, cheapIssuedAt: string): NextStep | null {
@@ -1925,8 +1952,23 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
         'evaluateOptionalLiveSmokeTranscript (DONE oracle live-smoke row)', capture.startsWith('<') ? { placeholders: ['capture'] } : {});
     }
     const delivery = failing('delivery-check');
+    // N1 (v4.1 cost plan): the delivery reviewer is launched as soon as its own
+    // inputs exist (TEST entry + the live-smoke transcript it reads) and does not
+    // block the TEST rows that cannot change what it reviews: the authoring of
+    // the finish decision / summary and the review-assurance bookkeeping write
+    // only material-excluded Story metadata, so the material (and story files)
+    // its delivery-check binds stays the final one. Everything that may move the
+    // material (done_prepare: main merge / refresh) and DONE itself still wait
+    // for it, and DONE's delivery-check row re-checks that binding.
+    const deliveryRunning = delivery ? hostRuns.filter(run => run.agentType === DELIVERY_REVIEWER && !run.terminal).at(-1) : undefined;
+    if (deliveryRunning) {
+      const overlap = testAuthoringStep(base, failing) ?? assuranceStep();
+      if (overlap) {
+        return { ...overlap, why: `${overlap.why} (Delivery reviewer run ${deliveryRunning.runId} keeps running meanwhile; this step writes only Story metadata, never reviewed material.)` };
+      }
+    }
     if (delivery) {
-      const running = hostRuns.filter(run => run.agentType === DELIVERY_REVIEWER && !run.terminal).at(-1);
+      const running = deliveryRunning;
       if (running) return waitStep(base, running, 'Delivery reviewer run');
       if (/docsPromise entries are unverified/.test(delivery.detail ?? '')) {
         return step(base, 'agent', 'delivery_unverified_promise', { command: 'story_advance', payload: { storyId, phase: 'DEV' } },
@@ -1945,15 +1987,8 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     // ONE agent step listing each exact command, so the agent writes them in one turn.
     const authoring = testAuthoringStep(base, failing);
     if (authoring) return authoring;
-    for (const id of ['review-escalation', 'review-assurance-floor'] as const) {
-      if (!failing(id)) continue;
-      const args = { projectRoot: ctx.root, gitCwd, storyId, store: ctx.store };
-      const guidance = id === 'review-assurance-floor'
-        ? buildReviewAssuranceFloorGuidance(evaluateReviewAssuranceFloor(args))
-        : buildReviewEscalationGuidance(evaluateReviewEscalation(args), storyId);
-      const next = guidanceStep(base, guidance, id);
-      if (next) return next;
-    }
+    const assurance = assuranceStep();
+    if (assurance) return assurance;
     const recoverable = rows.find(row => row.status === 'fail' && row.blocking && ['evidence-freshness', 'done-required-validation', 'branch-synced-main'].includes(row.id));
     if (recoverable) {
       return step(base, 'framework', 'done_prepare', { command: 'done_prepare', payload: { storyId, mergeMain: true, refreshStale: true, validate: true, json: true } },
@@ -1964,6 +1999,20 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       return delegated(base, 'agent', `done_row_${other.id}`, other.hint ?? '', `DONE oracle row ${other.id} fails: ${other.detail ?? other.label}.`, `buildDoneChecklist ${other.id}`);
     }
     return guardStep(base, 'DONE', 'enter_done', 'Every DONE oracle row passes: advance to DONE (the framework merges the Story branch and removes the worktree).', 'buildDoneChecklist + getGuardFailureReason(DONE)');
+
+    /** The review-escalation / assurance-floor bookkeeping step the DONE oracle still misses, or null. */
+    function assuranceStep(): NextStep | null {
+      for (const id of ['review-escalation', 'review-assurance-floor'] as const) {
+        if (!failing(id)) continue;
+        const args = { projectRoot: ctx.root, gitCwd, storyId, store: ctx.store };
+        const guidance = id === 'review-assurance-floor'
+          ? buildReviewAssuranceFloorGuidance(evaluateReviewAssuranceFloor(args))
+          : buildReviewEscalationGuidance(evaluateReviewEscalation(args), storyId);
+        const next = guidanceStep(base, guidance, id);
+        if (next) return next;
+      }
+      return null;
+    }
   }
 
   /**
@@ -2016,6 +2065,11 @@ export function renderNextStep(next: NextStep): string {
         `Run all ${batch.length} in one turn (author each <...> value):`,
         ...batch.flatMap((call, index) => [`  ${index + 1}. ${call.command}`, ...renderPlaceholderHints(call.placeholderHints, '     ')]),
       ]
+      : next.parallel?.length
+      ? [
+        `Run all ${next.parallel.length} concurrently (each in its own process, e.g. one exec per command, then wait for all):`,
+        ...next.parallel.map((call, index) => `  ${index + 1}. ${call.command}`),
+      ]
       : [
         ...(next.placeholders?.length ? ['Author before running (one line each):', ...renderPlaceholderHints(next.placeholderHints, '  ')] : []),
         ...(next.optional ?? []).flatMap(call => [`Optional first: ${call.command}`, ...renderPlaceholderHints(call.placeholderHints, '    ')]),
@@ -2059,8 +2113,10 @@ function executedDetail(step: NextStep, out: string): string {
  * stop rules are testable. Executes consecutive framework steps — gate steps,
  * fully bound managed launches (`launch`) and waits (`wait`) — and stops at
  * the first agent/human step, a refused step, a launch of a target already
- * launched in this call, or maxSteps. All waits of one call share ONE budget
- * (default 285 s, so the call returns inside one 300 s owner yield): each wait
+ * launched in this call, or maxSteps. A step with `parallel` calls runs them
+ * concurrently (executeParallel; N2). All waits of one call share ONE budget
+ * (default 285 s, so the call returns inside one 300 s owner yield;
+ * PROOF_OR_STOP_OWNER_WAIT_BLOCK_MS raises it, see owner-wait-guidance): each wait
  * gets the remaining budget as waitMs; when it is used, the loop pauses on the
  * wait step and the agent runs the same `next --run` again.
  */
@@ -2068,6 +2124,8 @@ export function runNextSteps(args: {
   storyId: string;
   decide: () => NextStep;
   execute: (call: { command: string; payload: Record<string, unknown> }, step: NextStep) => { exit: number; out: string };
+  /** N2: run a step's `parallel` calls concurrently (default: one after another through execute). */
+  executeParallel?: (calls: Array<{ command: string; payload: Record<string, unknown> }>, step: NextStep) => Array<{ exit: number; out: string }>;
   now?: () => number;
   waitBudgetMs?: number;
   maxSteps?: number;
@@ -2077,7 +2135,8 @@ export function runNextSteps(args: {
   log?: (line: string) => void;
 }): RunNextStepsResult {
   const now = args.now ?? Date.now;
-  const budget = Math.max(1_000, Math.min(OWNER_WAIT_BLOCK_MS, Math.floor(args.waitBudgetMs ?? OWNER_WAIT_BLOCK_MS)));
+  const blockMs = ownerWaitBlockMs();
+  const budget = Math.max(1_000, Math.min(blockMs, Math.floor(args.waitBudgetMs ?? blockMs)));
   const maxSteps = Math.max(1, Math.min(100, Math.floor(args.maxSteps ?? 40)));
   const deadline = now() + budget;
   const executed: RunRecord[] = [];
@@ -2096,19 +2155,27 @@ export function runNextSteps(args: {
       }
       payload = { ...payload, waitMs: remaining };
     }
+    const calls = next.parallel?.length ? next.parallel.map(call => call.cli) : [{ command: next.cli.command, payload }];
     if (next.launch) {
-      const key = JSON.stringify(next.cli.payload);
-      if (launched.has(key)) { stopped = `${next.reason} decided again for the same target after this call launched it; inspect that run (proof-or-stop host_run_status) before relaunching`; break; }
-      launched.add(key);
+      const keys = calls.map(call => JSON.stringify(call.payload));
+      if (keys.some(key => launched.has(key))) { stopped = `${next.reason} decided again for the same target after this call launched it; inspect that run (proof-or-stop host_run_status) before relaunching`; break; }
+      for (const key of keys) launched.add(key);
     }
     const started = now();
-    const run = args.execute({ command: next.cli.command, payload }, next);
+    const runs = calls.length > 1
+      ? (args.executeParallel ? args.executeParallel(calls, next) : calls.map(call => args.execute(call, next)))
+      : [args.execute(calls[0]!, next)];
     const ms = now() - started;
-    executed.push({ command: next.command!, reason: next.reason, exit: run.exit, ms, tail: run.out.trim().split('\n').slice(-6).join('\n') });
-    const line = `ran: ${next.reason} (${next.cli.command}) -> exit ${run.exit}, ${(ms / 1000).toFixed(1)} s${executedDetail(next, run.out)}`;
-    lines.push(line);
-    args.log?.(line);
-    if (run.exit !== 0) { stopped = `step refused (exit ${run.exit})`; lines.push(executed.at(-1)!.tail); next = args.decide(); break; }
+    const commands = next.parallel?.length ? next.parallel.map(call => call.command) : [next.command!];
+    let refused: { exit: number } | null = null;
+    runs.forEach((run, index) => {
+      executed.push({ command: commands[index]!, reason: next.reason, exit: run.exit, ms, tail: run.out.trim().split('\n').slice(-6).join('\n') });
+      const line = `ran: ${next.reason} (${calls[index]!.command})${runs.length > 1 ? ` [${index + 1}/${runs.length} concurrent]` : ''} -> exit ${run.exit}, ${(ms / 1000).toFixed(1)} s${executedDetail(next, run.out)}`;
+      lines.push(line);
+      args.log?.(line);
+      if (run.exit !== 0 && !refused) refused = run;
+    });
+    if (refused) { stopped = `step refused (exit ${(refused as { exit: number }).exit})`; lines.push(executed.filter(row => row.exit !== 0)[0]!.tail); next = args.decide(); break; }
     if (args.storyGone?.()) {
       // story_advance DONE merged the Story and removed this worktree.
       next = step({ storyId: args.storyId, phase: 'DONE' }, 'human', 'story_done', null,
@@ -2121,6 +2188,35 @@ export function runNextSteps(args: {
   }
   if (!stopped && !paused && next.kind === 'framework' && executed.length >= maxSteps) stopped = `maxSteps=${maxSteps} reached`;
   return { executed, stopped, paused, next, lines };
+}
+
+/**
+ * N2: spawn every call as its own CLI process at once and wait for all, from
+ * synchronous code (the --run loop is synchronous): a tiny node child does the
+ * fan-out and returns each exit code and combined output as JSON.
+ */
+const CONCURRENT_RUNNER = [
+  "const { spawn } = require('node:child_process');",
+  "const input = JSON.parse(require('node:fs').readFileSync(0, 'utf8'));",
+  'Promise.all(input.calls.map(call => new Promise(done => {',
+  "  const child = spawn(process.execPath, [input.entry, call.command, JSON.stringify(call.payload)], { cwd: input.cwd, env: process.env, stdio: ['ignore', 'pipe', 'pipe'] });",
+  "  let out = ''; child.stdout.on('data', chunk => { out += chunk; }); child.stderr.on('data', chunk => { out += chunk; });",
+  "  child.on('error', error => done({ exit: -1, out: out + String(error) }));",
+  "  child.on('close', code => done({ exit: code ?? -1, out }));",
+  '}))).then(results => process.stdout.write(JSON.stringify(results)));',
+].join('\n');
+
+export function runCliCallsConcurrently(cliEntry: string, calls: Array<{ command: string; payload: Record<string, unknown> }>): Array<{ exit: number; out: string }> {
+  const run = spawnSync(process.execPath, ['-e', CONCURRENT_RUNNER], {
+    cwd: process.cwd(), env: process.env, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 * Math.max(1, calls.length),
+    input: JSON.stringify({ entry: cliEntry, cwd: process.cwd(), calls }),
+  });
+  try {
+    const parsed = JSON.parse(run.stdout ?? '') as Array<{ exit: number; out: string }>;
+    if (Array.isArray(parsed) && parsed.length === calls.length) return parsed;
+  } catch { /* fall through */ }
+  const detail = `concurrent runner failed (exit ${run.status ?? -1}): ${(run.stderr ?? '').slice(-400)}`;
+  return calls.map(() => ({ exit: run.status || -1, out: detail }));
 }
 
 /** Whether any Story of this project is not DONE (an unreadable one counts as unfinished). */
@@ -2211,6 +2307,11 @@ export function createNextDriverHandlers(ctx: HandlerContext, lookup: HandlerLoo
           });
           resetConfigCache();
           return { exit: run.status ?? -1, out: `${run.stdout ?? ''}${run.stderr ?? ''}` };
+        },
+        executeParallel: calls => {
+          const results = runCliCallsConcurrently(cliEntry, calls);
+          resetConfigCache();
+          return results;
         },
         waitBudgetMs: args.waitBudgetMs,
         maxSteps: args.maxSteps,

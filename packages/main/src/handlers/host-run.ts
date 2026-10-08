@@ -4,7 +4,7 @@ import { loadConfig } from '../core/config.js';
 import { isTerminalChecklistStatus } from '../core/checklist-status.js';
 import { buildImplementerItemPack } from '../core/implementer-item-pack.js';
 import { renderGroupedFindingRepairSection, renderGroupedItemSection, sharedFileItemGroup, shortFindingId } from '../core/ab-dispatch-grouping.js';
-import { hostRunStatusBlocksUntilTerminal, OWNER_WAIT_BLOCK_MS, OWNER_WAIT_YIELD_MS } from '../core/owner-wait-guidance.js';
+import { hostRunStatusBlocksUntilTerminal, ownerWaitBlockMs, ownerWaitYieldMs } from '../core/owner-wait-guidance.js';
 import { renderHostRunStatusSummary } from './host-run-status-summary.js';
 /**
  * B-70e9 CHK-001 / CHK-002 / CHK-007: the `host_run` CLI command.
@@ -730,7 +730,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         + `deadlineAt=${submitted.deadlineAt} attach=${args.detach === true ? 'detached' : 'foreground'}`,
       );
       if (args.detach === true) {
-        ctx.log?.(`[host_run] wait: proof-or-stop host_run_status --runId=${submitted.runId} --untilTerminal=true (blocks up to ${OWNER_WAIT_BLOCK_MS / 1000} s per call and returns at terminal; give it a tool yield/shell timeout of ${OWNER_WAIT_YIELD_MS} ms, e.g. Codex write_stdin yield_time_ms=${OWNER_WAIT_YIELD_MS}; do not poll more often)`);
+        ctx.log?.(`[host_run] wait: proof-or-stop host_run_status --runId=${submitted.runId} --untilTerminal=true (blocks up to ${ownerWaitBlockMs() / 1000} s per call and returns at terminal; give it a tool yield/shell timeout of ${ownerWaitYieldMs()} ms, e.g. Codex write_stdin yield_time_ms=${ownerWaitYieldMs()}; do not poll more often)`);
         return { schemaVersion: 'lattice.host_run.v2', detached: true, run: submitted };
       }
 
@@ -1070,7 +1070,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
       const untilTerminal = hostRunStatusBlocksUntilTerminal(args as unknown as Record<string, unknown>);
       const waitMs = optionalNonnegativeInteger('host_run_status', 'waitMs', args.waitMs,
         untilTerminal ? MANAGED_HOST_RUN_STATUS_TERMINAL_WAIT_MAX_MS : 30_000)
-        ?? (untilTerminal ? OWNER_WAIT_BLOCK_MS : undefined);
+        ?? (untilTerminal ? ownerWaitBlockMs() : undefined);
       const status = await getManagedHostRunStatus({
         root: ctx.root,
         runId,
