@@ -20,6 +20,7 @@
  *   review.round2Lanes         'fresh' (default, adopted) | 'resume' (rollback)
  *   remediation.grouping       'single' (default, adopted) | 'per-finding' (rollback)
  *   implementation.grouping    'per-item' (default) | 'files'
+ *   implementation.thread      'resume' (default) | 'fresh'  (core/implementer-item-pack.ts)
  *
  * A malformed value fails closed where it is consumed (never silently treated
  * as either arm). See docs/CLI.md "Detection A/B variant switches".
@@ -33,6 +34,7 @@ export const AB_VARIANT_FLAGS = {
   'review.round2Lanes': ['fresh', 'resume'],
   'remediation.grouping': ['single', 'per-finding'],
   'implementation.grouping': ['per-item', 'files'],
+  'implementation.thread': ['resume', 'fresh'],
 } as const;
 
 export type AbVariantFlag = keyof typeof AB_VARIANT_FLAGS;
@@ -41,7 +43,7 @@ export type AbVariantValue<F extends AbVariantFlag> = (typeof AB_VARIANT_FLAGS)[
 export interface AbVariantConfigSlice {
   review?: { criticOnCleanRound?: string; round2Scope?: string; round2Lanes?: string };
   remediation?: { grouping?: string };
-  implementation?: { grouping?: string };
+  implementation?: { grouping?: string; thread?: string };
 }
 
 export interface AbVariants {
@@ -50,6 +52,7 @@ export interface AbVariants {
   round2Lanes: AbVariantValue<'review.round2Lanes'>;
   remediationGrouping: AbVariantValue<'remediation.grouping'>;
   implementationGrouping: AbVariantValue<'implementation.grouping'>;
+  implementationThread: AbVariantValue<'implementation.thread'>;
 }
 
 export interface AbVariantEvidence {
@@ -81,6 +84,7 @@ export function resolveAbVariants(config: unknown): AbVariants {
     round2Lanes: pick('review.round2Lanes', review.round2Lanes),
     remediationGrouping: pick('remediation.grouping', section(config, 'remediation').grouping),
     implementationGrouping: pick('implementation.grouping', section(config, 'implementation').grouping),
+    implementationThread: pick('implementation.thread', section(config, 'implementation').thread),
   };
 }
 
@@ -92,5 +96,15 @@ export function abVariantEvidence(variants: AbVariants): AbVariantEvidence | und
   if (variants.round2Lanes !== 'fresh') flags['review.round2Lanes'] = variants.round2Lanes;
   if (variants.remediationGrouping !== 'single') flags['remediation.grouping'] = variants.remediationGrouping;
   if (variants.implementationGrouping !== 'per-item') flags['implementation.grouping'] = variants.implementationGrouping;
+  if (variants.implementationThread !== 'resume') flags['implementation.thread'] = variants.implementationThread;
   return Object.keys(flags).length ? { schema: AB_VARIANT_EVIDENCE_SCHEMA, flags } : undefined;
+}
+
+/**
+ * Sealed arm of a managed code-writer run (EXPERIMENTAL implementation.thread):
+ * the A/B evidence on its managed dispatch target records `fresh`, so the
+ * worker starts a new Codex thread (core/implementer-item-pack.ts).
+ */
+export function dispatchTargetThreadFresh(target: { abVariant?: AbVariantEvidence } | null | undefined): boolean {
+  return target?.abVariant?.flags?.['implementation.thread'] === 'fresh';
 }
