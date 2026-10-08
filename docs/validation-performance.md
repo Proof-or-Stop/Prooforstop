@@ -1303,10 +1303,24 @@ baseline, `worktree list`, `refs/replace/`, intent checkpoints, git dirs).
   reads, patch text, line counts, rename/copy detection, textconv/filters and
   mailmap (they consult the checkout's `.gitattributes`/`.mailmap`), reflog
   syntax, abbreviated object names, clock-relative arguments, `-C`/`--git-dir`,
-  any non-inert `GIT_*` variable, reftable. A refusal is remembered only for a
+  any non-inert `GIT_*` variable (inert: editor, pager, prompting, identity,
+  and `GIT_CONFIG_COUNT`/`KEY_<n>`/`VALUE_<n>` whose keys are all `credential.*`
+  or `user.name`/`user.email`, core/git-inert-environment.ts, lab
+  `owner-init-and-worker-prompt` N9: agent hosts inject credential prompting
+  off into every shell, which had turned every memo off, scenario A
+  `story_advance` TEST 532 → 202 and DONE 1016 → 256 child processes),
+  reftable. A refusal is remembered only for a
   probe that names no object id. `withoutGitObservation` rereads always run
   git. Config reached through `include.path` and a system config at a
   non-standard prefix are not witnessed (the same limit as an observation).
+- N9 (lab `owner-init-and-worker-prompt`): `story-git-bytes` keeps up to 64
+  `check-attr` verdicts per checkout instead of one slot (one gate command
+  alternates 4 inputs: TEST 13 → 5, DONE 20 → 3 runs), and `buildScopeDiffPack`
+  reuses its changed files and parsed hunks while `worktreeChangeWitness` (ref
+  state, index file, one `git status --porcelain -z --untracked-files=all`, the
+  bytes of every listed path, before and after the build) is unchanged (TEST
+  built it 4x, DONE 5x at 8 git runs each). Bench-like env, scenario A + NA-run:
+  TEST 224 → 200, DONE 282 → 246 child processes per call.
 - `story_advance`'s runtime enforcement preflight no longer builds a lifecycle
   readiness report it discarded (it reads only authority, authoritative cwd and
   locks; `projectRuntimeClosure({ includeReadiness: false })`).

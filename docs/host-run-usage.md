@@ -472,6 +472,20 @@ Linux Docker/OCI 中的 Codex reviewer 已位于外层容器隔离边界。PoS �
 （容器路径，供下一个 item 恢复），以及 scope / delivery reviewer（两条路径，供上面的
 同 session 保存修复用 `codex exec resume` 恢复）。
 
+所有 managed Codex worker（managedDispatch 的 implementer / finding-repair / scope /
+INIT / delivery reviewer，以及 managedReview 的 lane 与 inventory critic；新启动与
+`exec resume` 都算）额外带 `--config skills.include_instructions=false`、
+`--config features.multi_agent=false`、`--config features.multi_agent_v2=false`；
+若 provider home 的 `config.toml` 指向的 `model_catalog_json` 里有模型声明
+`multi_agent_version`（它会无视 feature 开关强制注入 multi-agent 块），再带
+`--config model_catalog_json="<派生副本>"`：派生副本只把 `multi_agent_version` 置为
+null，写在系统临时目录 `proof-or-stop-codex-worker-catalog/<内容哈希>.json`，源 catalog
+不改（lab `owner-init-and-worker-prompt`，N7，`core/managed-worker-codex-config.ts`）。
+这去掉了没有任何 managed role 使用的 skills 列表与 multi-agent 开发者文本和
+`collaboration` 工具：在 Codex 0.154 + bench catalog 上实测每个请求从 36,647 B 降到
+25,993 B（−10.7 KB，约 −2.7k token；保留 exec_command、write_stdin、apply_patch、
+view_image、web_search、request_user_input）。普通 host_run 与 cross-host review 不变。
+
 ```bash
 proof-or-stop host_run '{"host":"codex","model":"<configured-implementation-model>","reasoningEffort":"high","storyId":"B-xxxx","itemId":"CHK-001","agentType":"proof-or-stop-implementer","managedDispatch":true,"detach":true,"json":true}'
 proof-or-stop host_run '{"host":"codex","model":"gpt-5.6-sol","reasoningEffort":"high","storyId":"B-xxxx","agentType":"proof-or-stop-review-story-init","managedDispatch":true,"detach":true,"json":true}'
