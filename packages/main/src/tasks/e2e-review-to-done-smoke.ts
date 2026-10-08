@@ -2645,7 +2645,8 @@ function fillStoryCreateTemplate(template: Record<string, unknown>): Record<stri
   const item = filled.checklist[0];
   Object.assign(item, { title: 'Upper returns the upper-case form', context: 'strs/strs.go Upper returns s unchanged; it must call strings.ToUpper.',
     userSees: 'go test -v ./strs -run TestUpper prints --- PASS: TestUpper', files: { modify: ['strs/strs.go'], test: ['strs/strs_test.go'] } });
-  Object.assign(item.verificationIntent.happy[0], { desc: 'Upper("ab") -> "AB"', verification: { command: 'go test -v ./strs -run ^TestUpper$', selector: '--- PASS: TestUpper' } });
+  Object.assign(item.verificationIntent.happy[0], { desc: 'Upper("ab") -> "AB"', verification: { command: 'go test -v ./strs -run ^TestUpper$', selector: '--- PASS: TestUpper' },
+    derivation: { requestQuote: 'strs.Upper returns the upper-case form of its input', computation: 'the upper-case form of "ab" is "AB"' } });
   Object.assign(filled.scopeBoundary, { mode: 'correctness_fix', allowed: ['strs: Upper returns the upper-case form'], excluded: ['other string helpers'],
     confirmation: 'derived from the fixture request' });
   filled.executionBoundary.allowedCommands = (filled.executionBoundary.allowedCommands as string[]).filter(entry => !entry.startsWith('<'));
@@ -2679,6 +2680,8 @@ function scenarioNIN(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     for (const key of ['scopeBoundary', 'executionBoundary', 'checklist', 'background']) {
       assert.ok(template!.cli!.payload[key] !== undefined, `[NIN] the story_create template carries ${key}`);
     }
+    const templateRow = ((template!.cli!.payload.checklist as Array<Record<string, any>>)[0]!.verificationIntent.happy as Array<Record<string, any>>)[0]!;
+    assert.match(String(templateRow.derivation?.requestQuote ?? ''), /^<.*>$/, '[NIN] the template intent row carries the derivation placeholder (D4, run 23 pinned at story_create)');
     const missingHints = placeholderHintViolations(template!);
     assert.deepEqual(missingHints, [], `[NIN] every template placeholder has a one-line hint`);
     assert.ok(Object.values(template!.placeholderHints ?? {}).every(hint => hint !== 'author this value'), `[NIN] no generic hint: ${JSON.stringify(template!.placeholderHints)}`);

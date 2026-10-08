@@ -1042,7 +1042,10 @@ export function storyCreateTemplateStep(root: string): NextStep {
       files: { modify: ['<path/to/file>'], test: ['<path/to/test file>'] },
       verificationIntent: {
         happy: [{ desc: '<input -> exact expected output>', type: 'logic', priority: 'must', ...STORY_FOCUSED_CLASSIFICATION,
-          verification: { command: '<pinned focused test command>', selector: '<line its passing run prints>' } }],
+          verification: { command: '<pinned focused test command>', selector: '<line its passing run prints>' },
+          // D4 (old-PoS run 23 pinned a wrong value right here): how the expected output follows from the request.
+          derivation: { requestQuote: '<the request sentence the expected output follows from, verbatim>',
+            computation: '<the steps from that sentence to the expected output, ending at that output>' } }],
         edge: [],
         adversarial: [],
       },
@@ -1055,6 +1058,7 @@ export function storyCreateTemplateStep(root: string): NextStep {
   return withInitHints(step({ storyId: '', phase: 'INIT' }, 'agent', 'story_create_authoring', { command: 'story_create', payload },
     'No Story exists yet. Author this ONE story_create (a staged request is recorded as request.md by itself; do not pass `request`): '
       + 'one checklist item per deliverable (copy the item object), each executable intent pinned, the scope and execution boundary inline. '
+      + 'Each intent whose expected output request.md does not quote verbatim keeps its derivation (the request sentence + the computation that reaches that output; story_create refuses it without one, [intent_derivation_required]); drop the derivation on a quoted one. '
       + 'Then run the `proof-or-stop next --storyId=<id> --run` line it prints: that records the scope freeze check, launches both managed INIT reviewers, waits for them and advances to PLAN.',
     'story_create schema (command-catalog) + INIT_CHECK gate (scope boundary, execution boundary)', { placeholders: placeholderPaths(payload) }));
 }
