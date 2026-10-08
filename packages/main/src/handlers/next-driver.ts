@@ -394,6 +394,43 @@ export function hintedStep(base: { storyId: string; phase: string }, kind: NextS
   return step(base, humanNeeded ? 'human' : placeholders.length ? 'agent' : kind, reason, call, call ? why : `${why} Gate guidance: ${hint}`, source, { placeholders });
 }
 
+/**
+ * Commands a REVIEW refusal may name that next itself runs as framework steps
+ * (each has its own gate; none takes an authored value). Old-PoS run 29 R2:
+ * a refusal hint is never handed to the owner when next can run it.
+ */
+const NEXT_RUNNABLE_REVIEW_HINT_COMMANDS = new Set([
+  'review_round_prepare', 'review_inventory_begin', 'review_inventory_cancel', 'review_inventory_finalize',
+  'managed_review_evidence_import', 'certification_window_begin', 'validate',
+]);
+
+export type ReviewRefusalRoute = { kind: 'framework_recovery' } | { kind: 'framework' | 'agent'; hint: string };
+
+/**
+ * Old-PoS run 29 R2 (run28-29-analysis.md §3.4): how next answers a REVIEW→TEST
+ * refusal that no lane launch fixes. The refusal text of
+ * review_evidence_invalid embedded `Next: proof-or-stop review_round_prepare`,
+ * and next handed that to the owner although it had just found no launchable
+ * lane (a no-op the owner then ran twice, 20 turns / ~3.5M). Now:
+ *   - no hint, open_review_loop, or a review_round_prepare hint with no
+ *     launchable lane -> `framework_recovery` (reviewStopLossStep: repair the
+ *     open verified findings, else cancel the live epoch, else DEV);
+ *   - a hint next can run itself (NEXT_RUNNABLE_REVIEW_HINT_COMMANDS, no
+ *     placeholder) -> a framework step `next --run` executes;
+ *   - otherwise (the agent authors values) -> an agent step.
+ */
+export function reviewRefusalRoute(args: { code: string; message: string; launchableLanes: number | (() => number) }): ReviewRefusalRoute {
+  if (args.code === 'open_review_loop') return { kind: 'framework_recovery' };
+  const hint = args.message.match(/proof-or-stop [a-z_]+[^\n;)]*/)?.[0]?.trim();
+  if (!hint) return { kind: 'framework_recovery' };
+  const call = parseHintedCommand(hint);
+  if (!call) return { kind: 'agent', hint };
+  if (call.command === 'review_round_prepare'
+    && (typeof args.launchableLanes === 'function' ? args.launchableLanes() : args.launchableLanes) === 0) return { kind: 'framework_recovery' };
+  if (NEXT_RUNNABLE_REVIEW_HINT_COMMANDS.has(call.command) && placeholderPaths(call.payload).length === 0) return { kind: 'framework', hint };
+  return { kind: 'agent', hint };
+}
+
 const EVIDENCE_CHAIN_SOURCE = 'evaluateEvidenceChainForStory (DEV→REVIEW evidence-chain gate)';
 
 /**
@@ -1858,6 +1895,8 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     // finalized round re-reported the same defect (RR-021..023 -> F-006..F-008)
     // and changed the live aggregate on every finalize. It now goes to repair.
     let criticRefresh = false;
+    // reviewer_batch already found no launchable lane for this verdict (run 29: never re-asked).
+    let launchableChecked = false;
     if (!verdict.ok && verdict.code === 'review_evidence_invalid') {
       const carried = supersededOpenFindingIds(storyId);
       if (carried) verdict = { ok: false, code: 'review_finding_blocking', unclosedFindingIds: carried,
@@ -1876,13 +1915,16 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       }
       const prepare = lanePrepareStep(base);
       if (prepare) return prepare;
+      launchableChecked = true;
     }
     if (!verdict.ok && verdict.code !== 'review_finding_blocking' && !criticRefresh) {
-      // Never a step without a command: delegate the refusal's own command when it names one.
-      const hinted = verdict.code !== 'open_review_loop' ? (verdict.message ?? '').match(/proof-or-stop [a-z_]+[^\n;)]*/)?.[0] : undefined;
-      if (hinted) {
-        return delegated(base, 'agent', `review_verdict_${verdict.code ?? 'error'}`, hinted,
-          `REVIEW→TEST verdict refuses [${verdict.code}] with no launchable lane: ${verdict.message ?? ''}`, 'evaluateReviewVerdict');
+      // Never a step without a command, and never the owner's step when next can
+      // run it (old-PoS run 29 R2): reviewRefusalRoute.
+      const route = reviewRefusalRoute({ code: verdict.code ?? 'error', message: verdict.message ?? '',
+        launchableLanes: () => launchableChecked ? 0 : (lanePrepareStep(base) ? 1 : 0) });
+      if (route.kind !== 'framework_recovery') {
+        return delegated(base, route.kind, `review_verdict_${verdict.code ?? 'error'}`, route.hint,
+          `REVIEW→TEST verdict refuses [${verdict.code}] with no launchable lane: ${verdict.message ?? ''}`, 'evaluateReviewVerdict + reviewRefusalRoute');
       }
       return reviewStopLossStep(base, round, verdict.code ?? 'error', verdict.message ?? '');
     }
