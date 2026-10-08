@@ -3296,7 +3296,7 @@ function scenarioNDL(machineEnv: NodeJS.ProcessEnv, steps: Step[], fault: Delive
  * live. NDG: every managed run records per-command wall time (Codex
  * item.started -> item.completed) and host load samples in its run directory
  * (diagnostics.jsonl), host_run_status --full summarizes them, and
- * review.laneLaunchStaggerMs (default 0 = parallel) spaces the lane launches.
+ * review.laneLaunchStaggerMs (default 8000 since runs 28/29; 0 = parallel) spaces the lane launches.
  */
 function scenarioNDG(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   const tag = 'NDG';

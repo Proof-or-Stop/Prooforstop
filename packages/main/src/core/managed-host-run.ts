@@ -84,7 +84,7 @@ import {
 import { providerDiagnosticLineText } from './host-execution-readiness.js';
 import { createManagedRunDiagnostics } from './managed-run-diagnostics.js';
 import { MANAGED_SCOPE_CHECKED_WRITERS, MANAGED_WRITER_SCOPE_REPAIR_MAX_ATTEMPTS, managedWriterScopeBaseHead, managedWriterScopeRepairPrompt,
-  managedWriterScopeViolations, readWriterScopeContract } from './managed-writer-scope.js';
+  managedWriterScopeViolations } from './managed-writer-scope.js';
 import type {
   FindingEvidenceState,
   ScopeCheckData,
@@ -116,7 +116,7 @@ import { StoryStore } from './store.js';
 import { initCheckSignatureIsValid } from './init-check-gate.js';
 import { verifyScopeCheckContentSignature } from './scope-check-integrity.js';
 import { recomputeDeliveryCheckHash } from './delivery-check-signature.js';
-import type { InitCheckData } from './types.js';
+import type { InitCheckData, ScopeContractData } from './types.js';
 
 export const MANAGED_HOST_RUN_SCHEMA_VERSION = 'lattice.managed_host_run.v1' as const;
 export const MANAGED_HOST_RUN_STATUS_WAIT_MAX_MS = 30_000;
@@ -4416,7 +4416,7 @@ export async function runManagedHostRunWorker(
       // owner on it. A violation that survives the turn stays for that gate.
       for (let attempt = 1; writerScopeBase && spec.storyId && spec.host === 'codex'; attempt += 1) {
         const contract = readWriterScopeContract(spec.root, spec.cwd, spec.storyId);
-        const violations = managedWriterScopeViolations({ root: spec.root, cwd: spec.cwd, storyId: spec.storyId, baseHead: writerScopeBase, contract });
+        const violations = managedWriterScopeViolations({ cwd: spec.cwd, baseHead: writerScopeBase, contract });
         if (attempt > 1) {
           appendEvent(paths, {
             schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
@@ -4518,6 +4518,17 @@ export async function runManagedHostRunWorker(
     clearInterval(cancelPoll);
     clearTimeout(deadlineTimer);
   }
+}
+
+/** The Story's scope contract from the writer's worktree, else the project root (old-PoS run 29 REM2 scope repair turn). */
+function readWriterScopeContract(root: string, cwd: string, storyId: string): ScopeContractData | null {
+  for (const base of cwd === root ? [root] : [cwd, root]) {
+    try {
+      const contract = new StoryStore(base).readScopeContract(storyId);
+      if (contract) return contract;
+    } catch { /* unreadable here: try the project root */ }
+  }
+  return null;
 }
 
 function ensureCancelRequest(

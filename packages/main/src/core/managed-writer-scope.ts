@@ -19,7 +19,6 @@
  */
 import { execFileSync } from 'node:child_process';
 import { checkScopeContract } from './scope-contract.js';
-import { StoryStore } from './store.js';
 import type { ScopeContractData } from './types.js';
 
 /** Managed writer agents whose commits the worker scope-checks before sealing. */
@@ -62,25 +61,15 @@ function changedSince(cwd: string, baseHead: string): string[] {
   return [...new Set([...committed, ...pending].map(path => path.trim()).filter(Boolean))];
 }
 
-/** Read the Story's scope contract from the writer's worktree, else the project root. */
-export function readWriterScopeContract(root: string, cwd: string, storyId: string): ScopeContractData | null {
-  for (const base of cwd === root ? [root] : [cwd, root]) {
-    try {
-      const contract = new StoryStore(base).readScopeContract(storyId);
-      if (contract) return contract;
-    } catch { /* try the next root */ }
-  }
-  return null;
-}
-
 /**
  * Blocking scope violations among the paths a managed writer run changed since
  * `baseHead` (the same classifier and enforcement as the REVIEW scope gate).
- * Empty when no contract binds paths or the paths cannot be read.
+ * Empty when no contract binds paths or the paths cannot be read. The caller
+ * reads the contract (this module stays outside the store import cycle).
  */
-export function managedWriterScopeViolations(args: { root: string; cwd: string; storyId: string; baseHead: string; contract?: ScopeContractData | null }):
+export function managedWriterScopeViolations(args: { cwd: string; baseHead: string; contract: ScopeContractData | null }):
   ManagedWriterScopeViolation[] {
-  const contract = args.contract === undefined ? readWriterScopeContract(args.root, args.cwd, args.storyId) : args.contract;
+  const contract = args.contract;
   if (!contract) return [];
   let changed: string[];
   try { changed = changedSince(args.cwd, args.baseHead); } catch { return []; }
