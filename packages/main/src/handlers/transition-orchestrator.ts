@@ -60,6 +60,8 @@ import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-r
 import { captureEvidenceHashSnapshot, currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { currentMilestoneStatusEvidenceBinding } from '../core/milestone-status.js';
 import { consumeReviewInventoryReceipt } from '../core/review-inventory-epoch.js';
+import { cancelReviewInventoryForReopen } from '../core/review-inventory-cancel.js';
+import { evaluateReviewMaterialReopen, REVIEW_REOPEN_TRANSITION_TYPE, type ReviewMaterialReopenDecision } from '../core/review-material-reopen.js';
 import { assertReviewInventoryContextFreshLocked } from './review-inventory.js';
 import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
 import { checkMainDivergence } from '../core/done-oracle.js';
@@ -1436,6 +1438,11 @@ async function runStoryTransitionInner(
       story.pendingReopenAudit = reopenAudit;
     }
     let remediationCutoff: { materialHash: string; storyFilesHash?: string } | undefined;
+    // Old-PoS run 25 F2: material changed since the round began and no finding
+    // is open -> the framework-owned review reopen (no remediation receipt is
+    // consumed; the round's open/unconsumed inventory epoch is cancelled; the
+    // reason is recorded on the phase_transition).
+    let reviewReopen: ReviewMaterialReopenDecision | undefined;
     if (oldPhase === 'REVIEW' && args.phase === 'DEV') {
       if (!transitionGitCwd) {
         transitionGitCwd = resolveGitCwd({
@@ -1445,6 +1452,8 @@ async function runStoryTransitionInner(
           projectRoot: ctx.root,
         });
       }
+      const decision = evaluateReviewMaterialReopen({ store, storyId: args.storyId, gitCwd: transitionGitCwd, metadataRoot: ctx.root });
+      if (decision.eligible) reviewReopen = decision;
       const remediationSnapshot = captureEvidenceHashSnapshot({
         gitCwd: transitionGitCwd,
         metadataRoot: ctx.root,
@@ -1579,7 +1588,13 @@ async function runStoryTransitionInner(
         }
         if (reopenMutated) store.writeChecklist(args.storyId, reopenChecklist);
       }
-      if (oldPhase === 'REVIEW' && args.phase === 'DEV') {
+      if (reviewReopen) {
+        const cancelledEpoch = cancelReviewInventoryForReopen(store, args.storyId, reviewReopen.reviewRound ?? '', `${REVIEW_REOPEN_TRANSITION_TYPE}: ${reviewReopen.reason}`);
+        process.stderr.write(
+          `Review reopen: ${reviewReopen.reason}\n`
+          + (cancelledEpoch ? `Cancelled the abandoned round's inventory epoch ${cancelledEpoch}\n` : ''),
+        );
+      } else if (oldPhase === 'REVIEW' && args.phase === 'DEV') {
         // Consume authority before publishing phase=DEV. A consume failure cannot
         // leave unauthorized DEV; a later write failure requires a new epoch.
         const consumedReceiptId = consumeReviewInventoryReceipt(
@@ -1646,7 +1661,9 @@ async function runStoryTransitionInner(
       // B-70a6 F-004 adds reopenAuditId, the recovery idempotency key.
       ...(eventType === 'REOPEN'
         ? { transitionType: 'reopen', reason: args.reason?.trim(), reopenAuditId: reopenAudit?.auditId }
-        : {}),
+        : reviewReopen
+          ? { transitionType: REVIEW_REOPEN_TRANSITION_TYPE, reason: reviewReopen.reason }
+          : {}),
     }));
     // B-70a6 F-004: the reopen is now durably audited, so retire its recovery
     // record. Deliberately the SAME entry point EVERY recovery path uses after a

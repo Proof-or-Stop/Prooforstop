@@ -38,6 +38,7 @@ import {
   reviewInventoryPurposeBinding,
   inventoryPurposeMatchesEpoch,
 } from '../core/review-inventory-epoch.js';
+import { cancelReviewInventoryEpochData } from '../core/review-inventory-cancel.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
 import { canonicalAgentRoleId } from '../core/agent-role-identity.js';
 import { verifyFinding, verifyReviewPass } from '../core/finding-verify.js';
@@ -966,32 +967,9 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           || finalizedReceipt.consumedAt || finalizedReceipt.invalidatedAt)) {
           throw new Error(`review_inventory_cancel: FINALIZED epoch ${epoch.epochId} has no valid unconsumed receipt to invalidate`);
         }
-        const now = new Date().toISOString();
-        const cancelled = signEpoch({
-          ...epoch,
-          state: 'CANCELLED',
-          updatedAt: now,
-          cancelledAt: now,
-          cancelReason: args.reason.trim(),
-          terminalRunSequenceBoundary: maxReviewRunSequence(ctx.store.readReviewRuns(args.storyId).runs),
-        });
-        data.epochs = data.epochs.map(row => row.epochId === epoch.epochId ? cancelled : row);
-        if (epoch.state === 'FINALIZED' && epoch.receiptId) {
-          data.receipts = data.receipts.map(row => {
-            if (row.receiptId !== epoch.receiptId) return row;
-            if (!verifyReviewInventoryReceipt(row) || row.consumedAt || row.invalidatedAt) {
-              throw new Error(`review_inventory_cancel: receipt ${row.receiptId} is invalid or already consumed`);
-            }
-            const { _hash, ...unsigned } = row;
-            const invalidated: Omit<ReviewInventoryReceipt, '_hash'> = {
-              ...unsigned,
-              invalidatedAt: now,
-              invalidationReason: args.reason.trim(),
-            };
-            return { ...invalidated, _hash: signReviewInventoryReceipt(invalidated) };
-          });
-        }
-        ctx.store.writeReviewInventoryEpochs(args.storyId, data);
+        const { data: next, cancelled } = cancelReviewInventoryEpochData(data, epoch, args.reason.trim(), new Date().toISOString(),
+          maxReviewRunSequence(ctx.store.readReviewRuns(args.storyId).runs));
+        ctx.store.writeReviewInventoryEpochs(args.storyId, next);
         return renderReviewInventoryStatus(cancelled) + commitReviewEpochMetadata(ctx.store, ctx.root, args.storyId, 'review_inventory_cancel');
       });
     },

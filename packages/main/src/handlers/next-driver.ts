@@ -34,6 +34,7 @@
  * Host runs (managed reviewers, delivery, finding repair) are read from the
  * managed host-run runtime projection only.
  */
+import { evaluateReviewMaterialReopen } from '../core/review-material-reopen.js';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { closeSync, existsSync, openSync, readSync, readdirSync, realpathSync, statSync } from 'node:fs';
 import { hostname } from 'node:os';
@@ -1750,6 +1751,17 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     const round = story.currentReviewRound;
     if (!round) return guardStep(base, 'TEST', 'review_round_missing', 'REVIEW has no current round.', 'story.currentReviewRound');
     const gitCwd = gitCwdOf(storyId);
+
+    // 0. Old-PoS run 25 F2: material committed during REVIEW with no open
+    // finding. The round can never certify it (its passes, critic and receipt
+    // are bound to the old material): reopen REVIEW→DEV as one framework step
+    // instead of rerunning lanes into a stale round (run 25 ended at `human —
+    // none runnable`). DEV refreshes the evidence; REVIEW re-enters fresh.
+    const reopen = evaluateReviewMaterialReopen({ store: ctx.store, storyId, gitCwd, metadataRoot: ctx.root });
+    if (reopen.eligible) {
+      return guardStep(base, 'DEV', 'review_reopen', `Review reopen: ${reopen.reason}.`,
+        'evaluateReviewMaterialReopen (core/review-material-reopen.ts) + getGuardFailureReason(DEV)');
+    }
 
     // 1. Lanes of the current round: prepared runs first, then the gate's own verdict.
     const laneStep = pendingLaneStep(base, round);

@@ -2846,6 +2846,12 @@ function scenarioNM(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
       git(o.worktree, ['add', 'strs/strs_test.go']);
       git(o.worktree, ['commit', '-qm', 'owner: add an empty-string Upper test during REVIEW']);
       lines.push(`owner test-only commit in REVIEW after a clean round: ${git(o.worktree, ['log', '--format=%h %s', '-1'])}`);
+      // The owner's own story_advance TEST is routed with exactly one Next (the reopen), never a dead end.
+      const refused = o.cli('story_advance', { storyId: o.storyId, phase: 'TEST' }, { label: 'owner story_advance TEST (REVIEW-time edit)' });
+      assert.notEqual(refused.status, 0, `NM: TEST must refuse a round whose material changed:\n${refused.out.slice(-1500)}`);
+      const nextLines = [...new Set(refused.out.split('\n').filter(line => line.includes('Next: ')).map(line => line.slice(line.indexOf('Next: '))))];
+      assert.deepEqual(nextLines, [`Next: proof-or-stop story_advance '{"storyId":"${o.storyId}","phase":"DEV"}'`], `NM: one Next naming the review reopen:\n${refused.out.slice(-1500)}`);
+      lines.push(`owner story_advance TEST refused with: ${nextLines[0]}`);
       return true;
     } }, lines, next => { if (edited && !afterEdit) afterEdit = next; });
     assert.ok(edited, 'NM: the harness committed the REVIEW-time change');
