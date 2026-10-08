@@ -2155,7 +2155,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       case 'DEV': return devNext(base);
       case 'REVIEW': return reviewNext(base);
       case 'TEST': return testNext(base);
-      case 'DONE': return step(base, 'human', 'story_done', null, `Story ${storyId} is DONE; nothing is left in its lifecycle.`, 'story.phase', { done: true });
+      case 'DONE': return step(base, 'human', 'story_done', null, `Story ${storyId} is DONE; nothing is left in its lifecycle. ${DONE_TERMINAL_STATEMENT}`, 'story.phase', { done: true });
       default:
         return step(base, 'agent', 'phase_outside_driver', { command: 'session_brief', payload: { concise: true } },
           `next --storyId drives INIT→DONE; ${story.phase} is outside it: follow session_brief.`, 'story.phase');
@@ -2171,6 +2171,14 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
 function renderPlaceholderHints(hints: Record<string, string> | undefined, indent: string): string[] {
   return Object.entries(hints ?? {}).map(([path, hint]) => `${indent}${path}: ${hint}`);
 }
+
+/**
+ * Old-PoS run 27 (row 7): after DONE the owner kept re-verifying (git log, go
+ * test twice, merge-base: ~1 min, 0.9M tokens) because `Next: none (DONE)`
+ * read as an absence, not an instruction. DONE is terminal: the merge, the
+ * tests and every gate already ran inside story_advance DONE.
+ */
+export const DONE_TERMINAL_STATEMENT = 'DONE — stop; no further commands (the Story is merged and every gate already passed; do not re-run tests, git log/diff/merge-base or any other check).';
 
 export function renderNextStep(next: NextStep): string {
   const batch = next.batch ?? [];
@@ -2192,7 +2200,7 @@ export function renderNextStep(next: NextStep): string {
       : [
         ...(next.placeholders?.length ? ['Author before running (one line each):', ...renderPlaceholderHints(next.placeholderHints, '  ')] : []),
         ...(next.optional ?? []).flatMap(call => [`Optional first: ${call.command}`, ...renderPlaceholderHints(call.placeholderHints, '    ')]),
-        next.command ? `Next: ${next.command}` : `Next: ${next.done ? 'none (DONE)' : 'none runnable (see Why)'}`,
+        next.command ? `Next: ${next.command}` : `Next: ${next.done ? DONE_TERMINAL_STATEMENT : 'none runnable (see Why)'}`,
       ]),
     ...(next.kind === 'framework' && next.command ? ['(framework step: `proof-or-stop next --storyId=' + next.storyId + ' --run` runs it and prints the following step)'] : []),
   ].join('\n');
@@ -2298,7 +2306,7 @@ export function runNextSteps(args: {
     if (args.storyGone?.()) {
       // story_advance DONE merged the Story and removed this worktree.
       next = step({ storyId: args.storyId, phase: 'DONE' }, 'human', 'story_done', null,
-        `Story ${args.storyId} is DONE: merged into the integration branch and its worktree was removed.`, 'story_advance DONE effects', { done: true });
+        `Story ${args.storyId} is DONE: merged into the integration branch and its worktree was removed. ${DONE_TERMINAL_STATEMENT}`, 'story_advance DONE effects', { done: true });
       break;
     }
     const moved = args.relocated?.() ?? null;
