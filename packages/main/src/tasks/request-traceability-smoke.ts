@@ -29,6 +29,7 @@ import { createStoryCreateHandlers } from '../handlers/story-create.js';
 import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
 import { computeBackgroundHash } from '../core/init-check-gate.js';
 import { StoryStore } from '../core/store.js';
+import { parseIntentConflicts } from '../core/request-authority.js';
 
 const MARKER = 'scope-plan reviewer prompt omits the verbatim request';
 const VARIANTS = 'Accept omitted components for stepped slices: `value[:end:step]`, `value[start::step]`, and `value[::step]`.';
@@ -68,6 +69,22 @@ function capture<T>(fn: () => T): { value: T; stderr: string } {
   } finally {
     process.stderr.write = original as typeof process.stderr.write;
   }
+}
+
+// D1 parser: declared conflicts, none, and a prose-only "deliberate choice" (run 23's handoff).
+{
+  const declared = parseIntentConflicts('Done.\n[intent-conflict] CHK-004:happy:3 | request: "Use the same index-selection semantics as read slicing" | request implies: [4,5,6,7,8,9] | intent pins: [9,8,7,6,5,4]', 'CHK-004');
+  assert.equal(declared.section, 'declared');
+  assert.deepEqual([declared.conflicts[0]!.itemId, declared.conflicts[0]!.requestImplies, declared.conflicts[0]!.intentPins], ['CHK-004', '[4,5,6,7,8,9]', '[9,8,7,6,5,4]']);
+  assert.match(declared.conflicts[0]!.requestSentence ?? '', /same index-selection semantics/);
+  assert.deepEqual(parseIntentConflicts('Completed CHK-001.\n[intent-conflict] none', 'CHK-001'), { section: 'none', conflicts: [] });
+  assert.deepEqual(parseIntentConflicts('Completed CHK-001.', 'CHK-001'), { section: 'absent', conflicts: [] });
+  const prose = parseIntentConflicts('Completed CHK-004. Note on a deliberate choice: per the checklist intent, negative-step assignment writes values in ascending index order.\n[bug-suspected] none\n[intent-conflict] none', 'CHK-004');
+  assert.equal(prose.conflicts.length, 1, 'a prose-only deliberate deviation is not silently accepted');
+  assert.equal(prose.conflicts[0]!.undeclared, true);
+  assert.equal(prose.conflicts[0]!.itemId, 'CHK-004');
+  assert.equal(parseIntentConflicts('Completed CHK-002. Reusing the existing helper was a deliberate choice to keep the diff small.\n[intent-conflict] none', 'CHK-002').conflicts.length, 0,
+    'an ordinary design remark is not an intent conflict');
 }
 
 const root = mkdtempSync(join(tmpdir(), 'request-traceability-'));

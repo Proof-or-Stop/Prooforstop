@@ -69,7 +69,10 @@ finding count by severity from the sealed evidence proposal or the provider
 final result. For a code writer (implementer, finding repair) it is the sealed
 item or finding and the material commit the run left in its window (`output:
 sealed item CHK-005 commit 39c8303`); these roles never send a provider final
-result. The summary ends with receiptId, replacementSafe, any supervision
+result (review JSON). Their last assistant message is read by `next` only for
+the mandatory `[intent-conflict]` section (old-PoS run 23; docs/CLI.md "The
+request outranks intents"): a declared conflict blocks the item until the owner
+amends the intent in PLAN. The summary ends with receiptId, replacementSafe, any supervision
 diagnostic, the next action and the full-record directory. A completed run never
 shows a failureKind (old-PoS run 15: a stale `failureKind=auth` next to a
 completed implementer made the owner relaunch it). A run that ended with
@@ -390,6 +393,13 @@ done→done 的 `checklist_update` 不是完成迁移，不会绑定新的结果
 （例如与第一个 run 竞争），worker 会以 `managed_dispatch_target_already_done` 结束，而不是
 `managed_dispatch_output_missing`。这个结果不是失败：状态摘要显示 `OK: nothing to do`，
 并给出先前的 run 与 commit，下一步是 `proof-or-stop next`，不会进入“relaunch 一次、再失败就停止”的路径。
+implementer 与 finding-repair 的 prompt 指向 `request.md`，并要求最终消息以 `[intent-conflict]` 段结尾
+（`none`，或每个冲突一行 `<intentRef> | request: "<原句>" | request implies: <值> | intent pins: <值>`）。
+`next` 从 run 的 `live-output.jsonl` 读最后一条 assistant 消息解析该段（implementer 只在散文里写、且提到
+intent/checklist/pin/request 的「deliberate choice」也算冲突）：未修订的冲突在 DEV 返回 `intent_conflict`（`story_advance --phase=PLAN`），
+在 PLAN 返回 `intent_conflict_amend`（`checklist_update` 新 intent + reason + `status: pending`）。
+finding-repair 的 prompt 还要求在 Story base（打印确切 SHA）与修复后运行该 finding 的输入及其字面变体，
+request 没改的变体保持 base 行为（old-PoS run 24）。
 普通 implementer 模式保留调用方明确选择的模型与 reasoning effort；它不冒充 reviewer，
 也不套用独立 reviewer 的模型资格限制。
 

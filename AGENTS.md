@@ -505,7 +505,22 @@ acknowledges in its INIT `scopeBoundary.excluded` / `understanding.constraints`
 (`covered_by: "init-scope"`); every behavior, output, error, example and
 compatibility promise stays strict. The verification-intent author is pointed at `request.md` and writes one
 exact-output intent per example and listed variant. The INIT product reviewer
-gets only its path; REVIEW lanes never receive it.
+gets only its path.
+
+The request outranks intents (old-PoS run 23, core/request-authority.ts).
+Intents, `userSees`, context and pinned tests are owner-authored and can be
+wrong. Every REVIEW lane and the inventory critic get `request.md` inline with
+the shared rubric: re-derive expected values for behaviors the request
+specifies; a pinned intent or test that contradicts the request is a finding
+(at least medium), never "the checklist is the requirement source"; the critic
+may not file such a contradiction as a note or "limitation". The implementer and
+the finding-repair worker end their result with a mandatory `[intent-conflict]`
+section (`none`, or `<intentRef> | request: "<sentence>" | request implies:
+<value> | intent pins: <value>`); a prose "deliberate choice" is not accepted.
+`next` blocks on a declared conflict: `story_advance --phase=PLAN` (intents are
+frozen in DEV), then `checklist_update` with the revised `verificationIntent`, a
+`reason` and `status: pending`. A finding repair that changes how an input is
+handled keeps base behavior for the input variants the request did not change.
 Every `openQuestions` entry in that signed scope check must have a substantive
 written resolution before `story_review` can pass. The current handler-directed
 path is the registered `scope_question_resolve` command; the main agent owns the

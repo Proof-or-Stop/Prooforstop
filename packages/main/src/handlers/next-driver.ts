@@ -35,8 +35,9 @@
  * managed host-run runtime projection only.
  */
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, readdirSync } from 'node:fs';
+import { closeSync, existsSync, openSync, readSync, readdirSync, statSync } from 'node:fs';
 import { hostname } from 'node:os';
+import { join, relative } from 'node:path';
 import type { HandlerContext } from './context.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import { loadConfig, resetConfigCache } from '../core/config.js';
@@ -87,6 +88,8 @@ import { singleHostAssuranceReady } from './quorum-submit.js';
 import type { ChecklistItem, ReviewRun } from '../core/types.js';
 import { commitMessageNamesFinding, implementationGroupingFiles, itemDeclaredFiles, remediationGroupingSingle, sharedFileItemGroup } from '../core/ab-dispatch-grouping.js';
 import { OWNER_WAIT_BLOCK_MS, ownerWaitInstruction } from '../core/owner-wait-guidance.js';
+import { parseIntentConflicts, type IntentConflict } from '../core/request-authority.js';
+import { acceptanceIntentHash } from '../core/verification-intent-amendment.js';
 
 type HandlerLookup = (name: string) => ((...args: any[]) => any) | undefined;
 
@@ -192,6 +195,8 @@ const PLACEHOLDER_HINTS: Record<string, string> = {
   'decision_set.rationale': 'why that option (>=10 chars)',
   'decision_set.preMortem': 'JSON array of >=3 {scenario, trigger, consequence, mitigation} failure scenarios',
   'plan_set.content': 'the full plan.md: one "## CHK-xxx" section per checklist item with steps, files and verification',
+  'checklist_update.verificationIntent': 'the item\'s complete revised verificationIntent JSON (happy/edge/adversarial rows, pins kept): the conflicting row states the value the request implies, or, if the intent is right, the derivation from the request sentence',
+  'checklist_update.reason': 'why the intent changes (>=30 chars): the request sentence and the value it implies',
 };
 
 function valueAtPath(value: unknown, path: string): unknown {
@@ -517,6 +522,142 @@ export function managedFindingRepairState(args: {
  * finding-repair run demonstrably repaired `findingId` — a material commit made
  * inside the run's window whose message names the finding id — or null.
  */
+// ---------------------------------------------------------------------------
+// Intent conflicts (old-PoS run 23, request-outranks-intent D1)
+
+/** Bytes read from the end of a managed run's retained output to find its final message. */
+const FINAL_MESSAGE_TAIL_BYTES = 256 * 1024;
+
+/**
+ * The last assistant message of a managed run, from its retained provider
+ * output (live-output.jsonl): codex `item.completed` agent_message, claude
+ * `result`. Implementer / finding-repair results are prose, so the managed
+ * final-result scanner (built for review JSON envelopes) does not keep them.
+ * Null when the output is unavailable.
+ */
+export function managedRunFinalMessage(root: string, runId: string): string | null {
+  const path = join(managedHostRunsRoot(root), runId, 'live-output.jsonl');
+  let raw: string;
+  try {
+    const size = statSync(path).size;
+    const start = Math.max(0, size - FINAL_MESSAGE_TAIL_BYTES);
+    const buffer = Buffer.alloc(size - start);
+    const fd = openSync(path, 'r');
+    try { readSync(fd, buffer, 0, buffer.length, start); } finally { closeSync(fd); }
+    raw = buffer.toString('utf8');
+    if (start > 0) raw = raw.slice(raw.indexOf('\n') + 1);
+  } catch {
+    return null;
+  }
+  let stdout = '';
+  for (const line of raw.split('\n')) {
+    if (!line.trim()) continue;
+    try {
+      const frame = JSON.parse(line) as { stream?: string; text?: string };
+      if (frame.stream === 'stdout' && typeof frame.text === 'string') stdout += frame.text;
+    } catch { /* a partial frame at the tail boundary */ }
+  }
+  let last: string | null = null;
+  for (const line of stdout.split('\n')) {
+    if (!line.startsWith('{')) continue;
+    try {
+      const event = JSON.parse(line) as { type?: string; item?: { type?: string; text?: unknown }; result?: unknown };
+      if (event.type === 'item.completed' && event.item?.type === 'agent_message' && typeof event.item.text === 'string') last = event.item.text;
+      else if (event.type === 'result' && typeof event.result === 'string') last = event.result;
+    } catch { /* not a provider event */ }
+  }
+  return last;
+}
+
+/** One declared (or prose-only) intent conflict of a terminal implementer / finding-repair run that is not amended yet. */
+export interface OpenIntentConflict { runId: string; agentType: string; createdAt: string; itemId: string; conflict: IntentConflict }
+
+/**
+ * acceptanceIntentHash of an item's verificationIntent in the newest commit of
+ * checklist.json made before `before` (the intent the run was dispatched
+ * against; intents are frozen in DEV). Undefined when no such commit exists.
+ */
+function committedIntentHashBefore(root: string, gitCwd: string, checklistPath: string, itemId: string, before: string): string | null | undefined {
+  try {
+    const rel = relative(root, checklistPath);
+    const sha = execFileSync('git', ['log', '-1', '--format=%H', `--before=${before}`, '--', rel], { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    if (!sha) return undefined;
+    const text = execFileSync('git', ['show', `${sha}:${rel}`], { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 64 * 1024 * 1024 });
+    const item = (JSON.parse(text) as { items?: ChecklistItem[] }).items?.find(row => row.id === itemId);
+    return item?.verificationIntent ? acceptanceIntentHash(item.verificationIntent) : null;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Every `[intent-conflict]` a terminal managed implementer or finding-repair
+ * run declared (or a deliberate deviation it stated only in prose) whose item
+ * intent was not amended since that run was dispatched. Amended = the item's
+ * current verificationIntent differs from the committed one the run was
+ * dispatched against (the audited PLAN revision); without such a commit, a
+ * later implementer run of the same item counts. A conflict naming no checklist
+ * item cannot be routed and is skipped.
+ */
+export function openIntentConflicts(args: { root: string; gitCwd: string; store: HandlerContext['store']; storyId: string;
+  runs: readonly Pick<HostRunView, 'runId' | 'agentType' | 'terminal' | 'createdAt'>[] }): OpenIntentConflict[] {
+  const writers = args.runs.filter(run => run.terminal && (run.agentType === IMPLEMENTER_AGENT || run.agentType === FINDING_REPAIR_AGENT));
+  if (writers.length === 0) return [];
+  const boundItem = (runId: string): string | null => {
+    try { return readManagedHostRunBinding(args.root, runId).managedDispatchTarget?.itemId ?? null; } catch { return null; }
+  };
+  const reports = writers.map(run => ({ run, bound: run.agentType === IMPLEMENTER_AGENT ? boundItem(run.runId) : null }))
+    .map(row => ({ ...row, report: parseIntentConflicts(managedRunFinalMessage(args.root, row.run.runId), row.bound) }))
+    .filter(row => row.report.conflicts.length > 0);
+  if (reports.length === 0) return [];
+  const items = args.store.readChecklist(args.storyId).items;
+  const checklistPath = args.store.storyFilePath(args.storyId, 'checklist.json');
+  const open: OpenIntentConflict[] = [];
+  for (const { run, report } of reports) {
+    for (const conflict of report.conflicts) {
+      const item = items.find(row => row.id === conflict.itemId);
+      if (!item) continue;
+      const current = item.verificationIntent ? acceptanceIntentHash(item.verificationIntent) : null;
+      const atDispatch = committedIntentHashBefore(args.root, args.gitCwd, checklistPath, item.id, run.createdAt);
+      const amended = atDispatch !== undefined
+        ? atDispatch !== current
+        : writers.some(other => other.agentType === IMPLEMENTER_AGENT && other.createdAt > run.createdAt && boundItem(other.runId) === item.id);
+      if (!amended) open.push({ runId: run.runId, agentType: run.agentType, createdAt: run.createdAt, itemId: item.id, conflict });
+    }
+  }
+  return open;
+}
+
+function describeIntentConflict(row: OpenIntentConflict): string {
+  const { conflict } = row;
+  const who = `${row.agentType === IMPLEMENTER_AGENT ? 'implementer' : 'finding-repair'} run ${row.runId}`;
+  if (conflict.undeclared) {
+    return `${who} stated a deliberate deviation for ${row.itemId} only in prose, without an [intent-conflict] entry: "${conflict.raw}"`;
+  }
+  return `${who}: ${conflict.intentRef}: the request${conflict.requestSentence ? ` ("${conflict.requestSentence}")` : ''} implies ${conflict.requestImplies ?? '(not stated)'}, the intent pins ${conflict.intentPins ?? '(not stated)'}`;
+}
+
+/**
+ * D1: a declared intent conflict blocks the item before anything else. Intents
+ * are frozen in DEV (checklist_update refuses verificationIntent there), so the
+ * owner returns to PLAN (one command); in PLAN, `next` proposes the audited
+ * revision of the first conflicting item.
+ */
+export function intentConflictStep(base: { storyId: string; phase: string }, conflicts: readonly OpenIntentConflict[]): NextStep {
+  const listed = conflicts.map(describeIntentConflict).join('; ');
+  if (base.phase === 'PLAN') {
+    const itemId = conflicts[0]!.itemId;
+    return step(base, 'agent', 'intent_conflict_amend', { command: 'checklist_update',
+      payload: { storyId: base.storyId, itemId, verificationIntent: '<complete revised verificationIntent JSON>', reason: '<why: the request sentence and the value it implies>', status: 'pending' } },
+    `Open intent conflict (${listed}). The request outranks the intent: revise ${itemId}'s verificationIntent so the conflicting row states the value the request implies (if the intent is right, make the row state its derivation from the request sentence), with a reason; status pending makes DEV implement the item again. Then continue PLAN with next.`,
+    'openIntentConflicts (implementer/finding-repair [intent-conflict] section) + checklist_update PLAN intent revision',
+    { placeholders: ['verificationIntent', 'reason'] });
+  }
+  return step(base, 'agent', 'intent_conflict', { command: 'story_advance', payload: { storyId: base.storyId, phase: 'PLAN' } },
+    `Intent conflict declared (${listed}). The request outranks the intent, and the item does not count done until the owner amends the intent. Intents are frozen in DEV: return to PLAN, where next proposes the audited revision (checklist_update verificationIntent + reason, item back to pending).`,
+    'openIntentConflicts (implementer/finding-repair [intent-conflict] section)');
+}
+
 function groupedRepairCommit(root: string, gitCwd: string, storyId: string, findingId: string, primaryId: string,
   run: FindingRepairRunView): string | null {
   if (!verifyManagedDispatchDelivery({ root, runId: run.runId, storyId, agentType: FINDING_REPAIR_AGENT, findingId: primaryId,
@@ -917,6 +1058,9 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
    */
   function planNext(base: { storyId: string; phase: string }): NextStep {
     const { storyId } = base;
+    // D1 (run 23): an implementer-declared intent conflict is amended first.
+    const conflicts = openIntentConflicts({ root: ctx.root, gitCwd: gitCwdOf(storyId), store: ctx.store, storyId, runs: listStoryHostRuns(ctx, storyId) });
+    if (conflicts.length > 0) return intentConflictStep(base, conflicts);
     if (!evaluateDevMemoryPreflightGate(storyId, ctx.store)) {
       return step(base, 'agent', 'dev_memory_preflight_ack', { command: 'dev_memory_preflight_ack', payload: { storyId } },
         'The DEV-entry gate refuses without the dev-memory preflight acknowledgement [missing_dev_memory_preflight_ack]. Run it now and read the lessons it prints before planning the implementation.',
@@ -988,6 +1132,12 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     const open = checklist.items.filter(item => !isTerminalChecklistStatus(item.status));
     const hostRuns = listStoryHostRuns(ctx, storyId);
     const inFlight = (agentType: string) => hostRuns.filter(run => run.agentType === agentType && !run.terminal).at(-1);
+    // D1 (run 23): a declared [intent-conflict] blocks before the next item,
+    // repair or REVIEW (unless a writer run is still in flight: wait first).
+    if (!inFlight(IMPLEMENTER_AGENT) && !inFlight(FINDING_REPAIR_AGENT)) {
+      const conflicts = openIntentConflicts({ root: ctx.root, gitCwd: gitCwdOf(storyId), store: ctx.store, storyId, runs: hostRuns });
+      if (conflicts.length > 0) return intentConflictStep(base, conflicts);
+    }
     if (open.length > 0) {
       const item = open[0]!;
       // EXPERIMENTAL A/B implementation.grouping=files (core/ab-dispatch-grouping.ts).
