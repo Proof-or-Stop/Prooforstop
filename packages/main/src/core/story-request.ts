@@ -70,7 +70,7 @@ export function boundStoryRequest(raw: string): { text: string; originalBytes: n
   return { text: `${head}${marker(keep)}`, originalBytes, truncated: true };
 }
 
-export function readStoryRequest(store: StoryStore, storyId: string): StoryRequestRead {
+export function readStoryRequest(store: Pick<StoryStore, 'storyFilePath'>, storyId: string): StoryRequestRead {
   const path = store.storyFilePath(storyId, STORY_REQUEST_FILE);
   const metaPath = store.storyFilePath(storyId, STORY_REQUEST_META_FILE);
   if (!existsSync(path) && !existsSync(metaPath)) return { status: 'absent' };

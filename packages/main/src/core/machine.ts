@@ -74,7 +74,7 @@ import { inspectDevMemoryFinishDecision } from './playbook-runtime-memory.js';
 import { canonicalAgentRoleId } from './agent-role-identity.js';
 import { renderManagedInitReviewerDispatches } from './reviewer-launch-guidance.js';
 import { missingPlanScopeCheckFailure } from './plan-scope-check-requirement.js';
-import { pendingScopePlanRun, scopeVerdictReviewEntryFailure } from './scope-plan-deferral.js';
+import { scopeVerdictDeferral, scopeVerdictReviewEntryFailure } from './scope-plan-deferral.js';
 
 function buildQuorumEvidence(
   evidenceRecords: { agent: string; kind: string; signatureValid?: boolean }[],
@@ -723,7 +723,7 @@ export function canStartDevGuard(context: StoryMachineContext): boolean {
     // Run 16: the scope-plan reviewer verdict is required whenever the policy or
     // the Story says so (core/plan-scope-check-requirement.ts), independent of a
     // clean story_review record or of an understanding snapshot.
-    if (missingPlanScopeCheckFailure(context.store, story, policy, () => pendingScopePlanRun(context.projectRoot, context.storyId) !== null)) return false;
+    if (missingPlanScopeCheckFailure(context.store, story, policy, () => scopeVerdictDeferral(context.store, context.projectRoot, context.storyId))) return false;
     // F-001: ONLY the review-record checks are gated on requireStoryReview. The parallel
     // sub-check below must run on EVERY door into DEV (it used to be skipped when review was
     // not required, which made the hard block bypassable). The early `return true` is gone.
@@ -1433,7 +1433,7 @@ export function getGuardFailureReason(
       const story2 = store.readStory(storyId);
       const policy2 = resolveWorkflowPolicy(config2, story2);
       // Run 16: same predicate as canStartDevGuard; its last line is the one Next: action.
-      const scopeCheckFailure = missingPlanScopeCheckFailure(store, story2, policy2, () => pendingScopePlanRun(projectRoot ?? process.cwd(), storyId) !== null);
+      const scopeCheckFailure = missingPlanScopeCheckFailure(store, story2, policy2, () => scopeVerdictDeferral(store, projectRoot ?? process.cwd(), storyId));
       if (scopeCheckFailure) return scopeCheckFailure;
       if (!policy2.plan.requireStoryReview) {
         // policy says no review needed — pass through

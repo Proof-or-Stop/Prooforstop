@@ -15,6 +15,14 @@
  *   C. a covered verdict saved in DEV admits REVIEW entry (scope part);
  *   D. in DEV, a save without a live PLAN-launched scope run is refused;
  *   E. old path: a verdict saved BEFORE DEV entry is not re-judged at REVIEW.
+ *   F. no deferral when the reviewer has something to audit (N8 x pin audit,
+ *      old-PoS run 23): with an intent pinning a value the request does not
+ *      quote (a pin-audit row), or a request same-semantics sentence, a live
+ *      PLAN-launched run does NOT admit DEV entry: the DEV-entry predicate
+ *      refuses [missing_scope_check] naming the run to wait on, story_review
+ *      reports the blocker (not the scope_check_pending advisory) and `next`
+ *      waits on the run instead of proposing DEV. A pin-audit gap therefore
+ *      lands before any item is implemented against the pin.
  *
  * Usage: node packages/main/dist/tasks/scope-plan-deferral-smoke.js
  */
@@ -29,11 +37,11 @@ import { StoryStore } from '../core/store.js';
 import { createHostRunHandlers } from '../handlers/host-run.js';
 import { readManagedHostRunProjection, runManagedHostRunWorker } from '../core/managed-host-run.js';
 import { missingPlanScopeCheckFailure } from '../core/plan-scope-check-requirement.js';
-import { pendingScopePlanRun, scopeVerdictReviewEntryFailure } from '../core/scope-plan-deferral.js';
+import { pendingScopePlanRun, scopeVerdictDeferral, scopeVerdictReviewEntryFailure } from '../core/scope-plan-deferral.js';
 import { canMintReviewRoundGuard } from '../core/machine.js';
 import { loadConfig, resetConfigCache } from '../core/config.js';
 import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
-import { STORY_REQUEST_FILE } from '../core/story-request.js';
+import { writeStoryRequest } from '../core/story-request.js';
 
 const MARKER = 'scope-plan deferral (v4.1 N8)';
 const CLI = fileURLToPath(new URL('../cli.js', import.meta.url));
@@ -108,7 +116,8 @@ function fixture(tag: string): Fixture {
     createdAt: t0, events: [{ phase: 'PLAN', action: 'advance', timestamp: t0 }],
   } as never);
   store.writeChecklist(storyId, { items: [{ id: 'CHK-001', title: 'Stepped slices', context: 'Fixture.', status: 'todo' }] } as never);
-  writeFileSync(store.storyFilePath(storyId, STORY_REQUEST_FILE), 'Support value[start:end:step] slices.\n');
+  // A signed request with nothing to pin-audit (A-E defer); F re-records it.
+  writeStoryRequest(store, { storyId, phase: 'INIT', request: 'Support value[start:end:step] slices.\n', source: 'fixture' });
   git('add', '.');
   git('commit', '-qm', 'fixture');
   const bin = join(root, 'bin');
@@ -180,7 +189,8 @@ async function scenario(gap: boolean): Promise<void> {
     const story = f.store.readStory(f.storyId);
     const policy = resolveWorkflowPolicy(loadConfig(f.root), story);
     assert.ok(missingPlanScopeCheckFailure(f.store, story, policy), `${MARKER} A: without the pending probe the verdict is still required at DEV entry`);
-    assert.equal(missingPlanScopeCheckFailure(f.store, story, policy, () => pendingScopePlanRun(f.root, f.storyId) !== null), null,
+    assert.equal(scopeVerdictDeferral(f.store, f.root, f.storyId).kind, 'deferred', `${MARKER} A: nothing to audit, so the shared predicate defers`);
+    assert.equal(missingPlanScopeCheckFailure(f.store, story, policy, () => scopeVerdictDeferral(f.store, f.root, f.storyId)), null,
       `${MARKER} A: DEV entry defers the missing verdict while its run is live`);
     enterDev(f);
     assert.match(reviewEntry(f) ?? '', /\[scope_check_pending\]/, `${MARKER} A: REVIEW entry waits for the pending verdict`);
@@ -229,6 +239,49 @@ function oldPath(): void {
   }
 }
 
+/** F: a live run whose prompt has something to audit holds DEV entry until its verdict. */
+async function heldScenario(kind: 'pin' | 'same-semantics'): Promise<void> {
+  const f = fixture(kind === 'pin' ? 'held-pin' : 'held-same');
+  try {
+    const request = kind === 'pin'
+      ? 'Support value[start:end:step] assignment.\n'
+      : 'Support value[start:end:step] assignment.\nUse the same index-selection semantics as read slicing.\n';
+    writeStoryRequest(f.store, { storyId: f.storyId, phase: 'PLAN', request, source: 'fixture',
+      amendmentReason: 'fixture: the held-deferral scenario records a signed verbatim request' });
+    if (kind === 'pin') {
+      const checklist = f.store.readChecklist(f.storyId);
+      f.store.writeChecklist(f.storyId, { ...checklist, items: checklist.items.map(item => ({ ...item, verificationIntent: {
+        happy: [{ desc: 'a[::-1]=[9,8,7,6,5,4] -> [9,8,7,6,5,4]', type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }],
+        edge: [], adversarial: [] } })) } as never);
+    }
+    writeFileSync(join(f.scripts, 'fresh.json'), JSON.stringify({ commands: [saveCommand(f, payload(f.storyId, [{ feature: 'value[start:end:step] assignment', status: 'covered', covered_by: 'CHK-001' }]), 'save.log')] }));
+    const run = await launch(f);
+    assert.equal(pendingScopePlanRun(f.root, f.storyId)?.runId, run.runId, `${MARKER} F(${kind}): the PLAN-launched scope run is live`);
+    const ack = spawnSync(process.execPath, [CLI, 'dev_memory_preflight_ack', JSON.stringify({ storyId: f.storyId })], { cwd: f.root, encoding: 'utf8', env: process.env });
+    assert.equal(ack.status, 0, `${MARKER} F(${kind}): dev_memory_preflight_ack: ${ack.stdout}${ack.stderr}`);
+    const story = f.store.readStory(f.storyId);
+    const policy = resolveWorkflowPolicy(loadConfig(f.root), story);
+    const deferral = scopeVerdictDeferral(f.store, f.root, f.storyId);
+    assert.equal(deferral.kind, 'held', `${MARKER} F(${kind}): the shared predicate holds the verdict (got ${deferral.kind})`);
+    const refusal = missingPlanScopeCheckFailure(f.store, story, policy, () => scopeVerdictDeferral(f.store, f.root, f.storyId)) ?? '';
+    assert.match(refusal, /\[missing_scope_check\]/, `${MARKER} F(${kind}): DEV entry requires the saved verdict: ${refusal}`);
+    assert.match(refusal, kind === 'pin' ? /pin audit/ : /same-semantics/, `${MARKER} F(${kind}): the refusal says why it is not deferred: ${refusal}`);
+    assert.match(refusal, new RegExp(`Next: proof-or-stop host_run_status --runId=${run.runId}`), `${MARKER} F(${kind}): its one next action waits on the live run: ${refusal}`);
+    const review = spawnSync(process.execPath, [CLI, 'story_review', JSON.stringify({ storyId: f.storyId })], { cwd: f.root, encoding: 'utf8', env: process.env });
+    const reviewOut = `${review.stdout}${review.stderr}`;
+    assert.match(reviewOut, /missing_scope_check/, `${MARKER} F(${kind}): story_review blocks on the missing verdict: ${reviewOut.slice(-1500)}`);
+    assert.doesNotMatch(reviewOut, /scope_check_pending/, `${MARKER} F(${kind}): story_review does not defer it: ${reviewOut.slice(-1500)}`);
+    const step = nextStep(f);
+    assert.equal(step.reason, 'managed_run_wait', `${MARKER} F(${kind}): next waits on the scope-plan run instead of proposing DEV (got ${step.reason}: ${step.why})`);
+    writeFileSync(join(f.scripts, 'release'), '');
+    await run.done;
+    assert.ok(f.store.readScopeCheck(f.storyId), `${MARKER} F(${kind}): the released run saves its verdict in PLAN: ${log(f, 'save.log')}`);
+    console.log(`held (${kind}) ok: live run ${run.runId} not deferred; DEV entry, story_review and next wait for its verdict`);
+  } finally {
+    rmSync(f.root, { recursive: true, force: true });
+  }
+}
+
 const saved = { PATH: process.env.PATH, PROOF_OR_STOP_PROJECT_ROOT: process.env.PROOF_OR_STOP_PROJECT_ROOT, CODEX_HOME: process.env.CODEX_HOME };
 try {
   for (const key of ['LATTICE_MANAGED_INIT_INVOCATION', 'LATTICE_MANAGED_HOST_RUN_ID', 'PROOF_OR_STOP_AGENT']) delete process.env[key];
@@ -237,6 +290,10 @@ try {
   await scenario(false);
   process.env.PATH = saved.PATH;
   oldPath();
+  await heldScenario('pin');
+  process.env.PATH = saved.PATH;
+  await heldScenario('same-semantics');
+  process.env.PATH = saved.PATH;
   console.log('SCOPE_PLAN_DEFERRAL_GREEN');
 } finally {
   for (const [key, value] of Object.entries(saved)) {

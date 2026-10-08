@@ -8,10 +8,19 @@
  * gap with checklist_update, rerun the reviewer) is PLAN work. Now:
  *
  *   - PLAN→DEV admits a MISSING verdict while a managed scope-plan run launched
- *     in PLAN is still live (`pendingScopePlanRun`); story_review reports it as
- *     the advisory `scope_check_pending` instead of the `missing_scope_check`
- *     blocker. Every other DEV-entry check is unchanged, and a verdict that
- *     exists keeps today's rules (gaps / stale verdicts still block DEV entry).
+ *     in PLAN is still live (`pendingScopePlanRun`) AND the reviewer has nothing
+ *     to pin-audit; story_review reports it as the advisory `scope_check_pending`
+ *     instead of the `missing_scope_check` blocker. Every other DEV-entry check
+ *     is unchanged, and a verdict that exists keeps today's rules (gaps / stale
+ *     verdicts still block DEV entry).
+ *   - No deferral with something to audit (`scopeVerdictDeferralHold`): when the
+ *     scope-plan prompt lists pin-audit rows (an intent pins an expected value the
+ *     request does not quote) or the request has a same-semantics sentence, a
+ *     `pin-audit` / `asymmetric-example` gap changes what DEV implements; arriving
+ *     mid-DEV it would come after items were built against a wrong pin (old-PoS
+ *     run 23). Then DEV entry keeps the old rule: it waits for the saved verdict.
+ *   - `scopeVerdictDeferral` is the one predicate the DEV-entry guard
+ *     (missingPlanScopeCheckFailure), story_review and `next` share.
  *   - That live run saves its verdict in DEV (scope_check_save accepts DEV only
  *     for the managed invocation of a run launched in PLAN).
  *   - DEV→REVIEW (`scopeVerdictReviewEntryFailure`) requires what story_review
@@ -29,8 +38,10 @@ import { existsSync, readdirSync } from 'node:fs';
 import type { StoryStore } from './store.js';
 import type { StoryInfo, WorkflowPolicy } from './types.js';
 import { managedHostRunsRoot, readManagedHostRunProjection, verifyManagedDispatchDelivery } from './managed-host-run.js';
-import { planScopeCheckRequirement, SCOPE_PLAN_REVIEWER } from './plan-scope-check-requirement.js';
+import { planScopeCheckRequirement, SCOPE_PLAN_REVIEWER, type ScopeVerdictDeferral } from './plan-scope-check-requirement.js';
 import { verifyScopeCheckContentSignature } from './scope-check-integrity.js';
+import { readStoryRequest } from './story-request.js';
+import { pinAuditRows, sameSemanticsSentences } from './intent-derivation.js';
 
 export interface PendingScopePlanRun { runId: string; createdAt: string; state: string }
 
@@ -47,6 +58,52 @@ export function pendingScopePlanRun(root: string, storyId: string): PendingScope
     } catch { /* not a readable managed run */ }
   }
   return latest;
+}
+
+/**
+ * The one N8 deferral predicate (DEV-entry guard, story_review, `next`): a
+ * missing verdict whose live PLAN-launched run exists is deferred only when the
+ * reviewer has nothing to pin-audit.
+ */
+export function scopeVerdictDeferral(
+  store: Pick<StoryStore, 'readChecklist' | 'storyFilePath'>,
+  root: string,
+  storyId: string,
+): ScopeVerdictDeferral {
+  const run = pendingScopePlanRun(root, storyId);
+  if (!run) return { kind: 'none' };
+  const hold = scopeVerdictDeferralHold(store, storyId);
+  return hold ? { kind: 'held', run, reason: hold } : { kind: 'deferred', run };
+}
+
+const clipSentence = (text: string): string => (text.length > 120 ? `${text.slice(0, 119)}…` : text);
+
+/**
+ * Why the scope-plan verdict must NOT be deferred past DEV entry, or null when
+ * the reviewer has nothing to audit. The scope-plan prompt (story-dispatch.ts
+ * appendScopePlanRequestTraceability) carries the pin audit of every intent row
+ * pinning a value the request does not quote, and the same-semantics rule; a
+ * `pin-audit` / `asymmetric-example` gap from either changes the expected value
+ * DEV implements (old-PoS run 23), so it must land before DEV. Computed from the
+ * current checklist and request, the same inputs the prompt is rendered from.
+ * No readable request (absent / tampered): the prompt carries no pin audit.
+ */
+export function scopeVerdictDeferralHold(store: Pick<StoryStore, 'readChecklist' | 'storyFilePath'>, storyId: string): string | null {
+  const request = readStoryRequest(store, storyId);
+  if (request.status !== 'ok') return null;
+  let items: Parameters<typeof pinAuditRows>[0];
+  try { items = store.readChecklist(storyId).items; } catch { return null; }
+  const rows = pinAuditRows(items, request.text);
+  if (rows.length) {
+    return `its pin audit recomputes ${rows.length} intent value(s) the request does not quote (${rows.slice(0, 3).map(row => row.ref).join(', ')}${rows.length > 3 ? ` +${rows.length - 3} more` : ''}), `
+      + 'and a pin-audit gap found after DEV started would come after items were implemented against the pin (old-PoS run 23)';
+  }
+  const sentences = sameSemanticsSentences(request.text);
+  if (sentences.length) {
+    return `the request has a same-semantics sentence ("${clipSentence(sentences[0]!)}") the reviewer checks for an asymmetric example, `
+      + 'and an asymmetric-example gap found after DEV started would come after items were implemented against the pins (old-PoS run 23)';
+  }
+  return null;
 }
 
 /** When the Story last entered DEV from PLAN (the first DEV event after the last PLAN event), or null. */

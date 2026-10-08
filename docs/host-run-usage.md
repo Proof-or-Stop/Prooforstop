@@ -407,7 +407,9 @@ Story/role/run、重放凭证或在 run 终态后调用均 fail closed。
 会重新绑定到该 run，后一次保存覆盖前一次；其他 run、nonce 或 role 仍按重放拒绝。
 
 v4.1 N8（`core/scope-plan-deferral.ts`）：PLAN 里启动的 managed scope-plan run 仍在跑、
-裁决尚缺时，Story 可以进入 DEV；这个 run 在 DEV 里用自己的 managed invocation 保存裁决
+裁决尚缺、且没有 pin audit 要做时（没有 intent 钉住 request.md 未原文引用的期望值，
+request 也没有 same-semantics 句），Story 可以进入 DEV；有 pin audit 时 DEV 入口
+仍要求已保存的裁决（`scopeVerdictDeferral` = held）；这个 run 在 DEV 里用自己的 managed invocation 保存裁决
 （DEV 里只接受它；其 candidate 读绑定按 run 启动前最后一个 commit 的 material /
 story-files hash 校验，不受 implementer 之后的提交影响）。DEV→REVIEW 要求该裁决存在、
 签名与 delivery 有效且无 gap。

@@ -31,6 +31,20 @@ import { renderQualifiedManagedCodexDispatchCommand } from './reviewer-launch-gu
 
 export const SCOPE_PLAN_REVIEWER = 'proof-or-stop-review-scope-plan';
 
+/**
+ * N8 deferral decision for a missing scope-plan verdict (computed by
+ * core/scope-plan-deferral.ts `scopeVerdictDeferral`):
+ *   - none: no live managed scope-plan run launched in PLAN;
+ *   - deferred: such a run is live and the reviewer has nothing to pin-audit, so
+ *     DEV may start beside it (the verdict gates DEV→REVIEW);
+ *   - held: such a run is live but its prompt carries pin-audit rows or a
+ *     same-semantics sentence; DEV entry waits for its verdict (`reason`).
+ */
+export type ScopeVerdictDeferral =
+  | { kind: 'none' }
+  | { kind: 'deferred'; run: { runId: string; state: string } }
+  | { kind: 'held'; run: { runId: string; state: string }; reason: string };
+
 type RequirementStore = Pick<StoryStore, 'readChecklist' | 'readUnderstanding' | 'readScopeCheck' | 'storyFilePath'>;
 
 /** story_review's high-risk test: high/critical priority or an undismissed risk signal. */
@@ -65,14 +79,23 @@ export function missingPlanScopeCheckFailure(
   story: Pick<StoryInfo, 'storyId' | 'priority' | 'riskSignals' | 'riskSignalsDismissed'>,
   policy: Pick<WorkflowPolicy, 'profile' | 'plan'>,
   /**
-   * N8 (core/scope-plan-deferral.ts): whether a managed scope-plan run launched
-   * in PLAN is still live. Then the missing verdict is deferred to DEV→REVIEW.
+   * N8 (core/scope-plan-deferral.ts `scopeVerdictDeferral`, the one predicate
+   * DEV entry, story_review and `next` share): a live managed scope-plan run
+   * launched in PLAN defers the missing verdict to DEV→REVIEW, unless the
+   * reviewer has a pin audit / same-semantics check to do (held: DEV entry
+   * waits for that run's verdict).
    */
-  scopeRunPending: () => boolean = () => false,
+  scopeDeferral: () => ScopeVerdictDeferral = () => ({ kind: 'none' }),
 ): string | null {
   const reason = planScopeCheckRequirement(store, story, policy);
   if (!reason || store.readScopeCheck(story.storyId)) return null;
-  if (scopeRunPending()) return null;
+  const deferral = scopeDeferral();
+  if (deferral.kind === 'deferred') return null;
+  if (deferral.kind === 'held') {
+    return `Cannot enter DEV: the PLAN scope-plan reviewer verdict (scope-check.json) is missing [missing_scope_check]; it is required because ${reason}. `
+      + `Managed scope-plan run ${deferral.run.runId} (launched in PLAN) is ${deferral.run.state}, but its verdict is not deferred to DEV→REVIEW: ${deferral.reason}. DEV entry waits for that verdict.\n`
+      + `Next: proof-or-stop host_run_status --runId=${deferral.run.runId} --untilTerminal=true`;
+  }
   return `Cannot enter DEV: the PLAN scope-plan reviewer verdict (scope-check.json) is missing [missing_scope_check]; it is required because ${reason}. `
     + 'The reviewer traces every sentence and example of the request and Story artifacts to checklist intents and finishes with scope_check_save; '
     + 'the owner must not self-sign it.\n'
