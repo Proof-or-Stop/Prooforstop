@@ -563,6 +563,24 @@ section (`none`, or `<intentRef> | request: "<sentence>" | request implies:
 frozen in DEV), then `checklist_update` with the revised `verificationIntent`, a
 `reason` and `status: pending`. A finding repair that changes how an input is
 handled keeps base behavior for the input variants the request did not change.
+The DEV implementer prompt carries the same check before REVIEW as a probe
+matrix (old-PoS runs 24-29): operand positions x value classes (omitted,
+explicit null, 0, negative, out of range, wrong type, empty receiver, multibyte,
+aliased value) x operations (read, write, stringify, error path, neighbouring
+receiver types), run on the Story base and on the change, reported as a
+`[probes]` line in the implementer's final result.
+
+PLAN coverage matrix (old-PoS runs 24-29, core/plan-coverage-matrix.ts). With a
+recorded `request.md`, `story_review` (PLAN) reports a `missing_coverage_row`
+blocker, and `next`'s pre-scope `plan_authoring` adds a placeholder intent, for
+each row the request patterns demand that no intent states: the write mirror of
+every read-side value class when a request sentence makes writes follow reads;
+each omission pattern of an n-part syntax whose omitted forms the request
+lists; each enumerated member (operand position, receiver, form) x the value
+class its sentence states, plus explicit null for an omittable non-numeric
+operand. Each gap names the triggering request sentences; an `excludes` entry
+naming the row's key excludes it. The scope-plan prompt carries the judgment
+form of the same three checks.
 Every `openQuestions` entry in that signed scope check must have a substantive
 written resolution before `story_review` can pass. The current handler-directed
 path is the registered `scope_question_resolve` command; the main agent owns the
