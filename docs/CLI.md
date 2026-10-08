@@ -1027,7 +1027,9 @@ With no unfinished Story, `next` (no `--storyId`) returns the agent step
 every authored value as a `<...>` placeholder with a one-line hint (name, title,
 description, type, priority, keywords, the four-section background with its
 length rule, one checklist item with `files` and one classified, pinned happy
-intent row to copy per deliverable, and `scopeBoundary` / `executionBoundary`
+intent row with a `derivation` placeholder to copy per deliverable (kept on an
+expected output `request.md` does not quote, dropped on a quoted one; see the
+derivation rule below), and `scopeBoundary` / `executionBoundary`
 inline, the execution boundary prefilled with the project's validate commands,
 `git` and `proof-or-stop`). A staged request is recorded by `story_create` itself.
 With unfinished Stories it keeps the session projection. `story_create` then ends
