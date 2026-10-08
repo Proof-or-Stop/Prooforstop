@@ -1878,8 +1878,10 @@ function executedDetail(step: NextStep, out: string): string {
  * stop rules are testable. Executes consecutive framework steps — gate steps,
  * fully bound managed launches (`launch`) and waits (`wait`) — and stops at
  * the first agent/human step, a refused step, a launch of a target already
- * launched in this call, or maxSteps. All waits of one call share ONE budget
- * (default 285 s, so the call returns inside one 300 s owner yield): each wait
+ * launched in this call, or maxSteps. A step with `parallel` calls runs them
+ * concurrently (executeParallel; N2). All waits of one call share ONE budget
+ * (default 285 s, so the call returns inside one 300 s owner yield;
+ * PROOF_OR_STOP_OWNER_WAIT_BLOCK_MS raises it, see owner-wait-guidance): each wait
  * gets the remaining budget as waitMs; when it is used, the loop pauses on the
  * wait step and the agent runs the same `next --run` again.
  */
