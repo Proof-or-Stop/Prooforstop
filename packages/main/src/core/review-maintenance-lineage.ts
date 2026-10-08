@@ -100,6 +100,38 @@ function findingResolvePublicationRefusal(args: {
 }
 
 /**
+ * Old-PoS run 29 (run28-29-analysis.md §3.4): the review epoch publisher
+ * re-writes findings.json through the store, and the store back-fills
+ * ledgerCommitReceiptId onto an earlier row whose ledger record a receipt
+ * already carries. These are the only fields such a publication may add to an
+ * EARLIER row; it is lineage-neutral exactly when the prior row lacked the
+ * field, the named receipt is already in the parent's finding-ledger.json and
+ * binds the row's own recordId, and every other field is byte-identical
+ * (tests/bookkeeping-subject-lineage.test.mjs classifies it). Before, the
+ * prefix check called it "rewrites earlier findings" and the first
+ * critic-originated finding of a later round failed the live-head lineage
+ * check (a second lane wave + critic, ~12 min / 9M in run 29).
+ */
+export const REVIEW_EPOCH_FINDING_BACKFILL_FIELDS = ['ledgerCommitReceiptId'] as const;
+
+function epochFindingRowsPreserved(next: unknown[], prior: unknown[], parentLedgerReceipts: ReadonlyArray<{ receiptId?: unknown; recordIds?: unknown }>): boolean {
+  if (next.length < prior.length) return false;
+  return prior.every((before, index) => {
+    const after = next[index];
+    if (digestCanonicalJson(after) === digestCanonicalJson(before)) return true;
+    if (!after || typeof after !== 'object' || !before || typeof before !== 'object') return false;
+    const row = after as Record<string, unknown>;
+    const old = before as Record<string, unknown>;
+    if (old.ledgerCommitReceiptId !== undefined || typeof row.ledgerCommitReceiptId !== 'string' || typeof row.recordId !== 'string' || !row.recordId) return false;
+    const bound = parentLedgerReceipts.some(receipt => receipt.receiptId === row.ledgerCommitReceiptId
+      && Array.isArray(receipt.recordIds) && receipt.recordIds.includes(row.recordId));
+    if (!bound) return false;
+    const { ledgerCommitReceiptId: _backfill, ...rest } = row;
+    return digestCanonicalJson(rest) === digestCanonicalJson(old);
+  });
+}
+
+/**
  * Subjects whose metadata-only publication is authenticated by its CONTENT and
  * is therefore lineage-neutral for managed reviewer evidence (the reviewed
  * code and the reviewers' story inputs are unchanged): review epoch
@@ -246,14 +278,19 @@ export function isVerifiedReviewMaintenanceCommit(args: {
         const next = readAt(commit,path);
         const prior = git(['ls-tree','--name-only',parents[0],'--',prefix + path]) ? readAt(parents[0],path) : {[key]:[]};
         if (path === 'convergence-progress.json' && key === 'humanDecisions') { next[key] ??= []; prior[key] ??= []; }
-        if (!Array.isArray(next[key]) || !Array.isArray(prior[key])
-          || digestCanonicalJson(next[key].slice(0,prior[key].length)) !== digestCanonicalJson(prior[key])) return no(`review epoch commit rewrites earlier ${path} ${key}`);
+        if (!Array.isArray(next[key]) || !Array.isArray(prior[key])) return no(`review epoch commit rewrites earlier ${path} ${key}`);
+        if (path === 'findings.json') {
+          // Run 29: the store's ledgerCommitReceiptId back-fill on earlier rows (REVIEW_EPOCH_FINDING_BACKFILL_FIELDS).
+          const parentLedger = git(['ls-tree','--name-only',parents[0],'--',prefix + 'finding-ledger.json']) ? readAt(parents[0],'finding-ledger.json') : null;
+          const receipts = Array.isArray(parentLedger?.receipts) ? parentLedger.receipts : [];
+          if (!epochFindingRowsPreserved(next[key], prior[key], receipts)) return no(`review epoch commit rewrites earlier ${path} ${key}`);
+        } else if (digestCanonicalJson(next[key].slice(0,prior[key].length)) !== digestCanonicalJson(prior[key])) return no(`review epoch commit rewrites earlier ${path} ${key}`);
         // Appended review evidence must be exactly this epoch's own deferred
         // results (the rows commitReviewResultMetadata deferred to this
         // publisher): a required lane of the epoch's round and cutoff, or its
         // bound inventory-completeness critic. Anything else is someone
         // else's evidence riding on the batch subject.
-        if (path === 'review-passes.json' || path === 'findings.json') {
+        if ((path === 'review-passes.json' || path === 'findings.json') && next[key].length > prior[key].length) {
           const runs = (readAt(commit,'review-runs.json') as { runs?: ReviewRun[] }).runs ?? [];
           const required = new Set(epoch.requiredLanes.map(lane => canonicalAgentRoleId(lane)));
           for (const row of next[key].slice(prior[key].length) as Array<{ id?: string; reviewRunId?: string; reviewRound?: string; agent?: string }>) {
