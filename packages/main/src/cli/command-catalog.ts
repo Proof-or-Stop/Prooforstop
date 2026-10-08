@@ -2439,7 +2439,9 @@ Behavior:
   }},
   { name: 'finding_resolve', description: 'Mark finding as resolved', schema: {
     storyId: z.string().describe('Story ID'),
-    findingId: z.string().describe('Finding ID, for example B-xxx:F-001.'),
+    findingId: z.string().optional().describe('Finding ID, for example B-xxx:F-001. Required unless resolutions is given.'),
+    resolutions: z.array(z.object({ findingId: z.string().describe('Finding ID'), resolution: z.string().describe('Its repair commit and the focused test that now passes.') })).optional()
+      .describe('Old-PoS run 24: close several repaired findings in ONE call (next proposes it after a grouped repair). Each finding must be open and repaired by its own managed finding-repair (for a grouped run, a commit naming its id); its commit is appended to its resolution. A finding failing that check is left open and reported.'),
     resolution: z.string().optional().describe('Optional: record specific fix or verification evidence explanation.'),
     // B-4f46 CHK-002 (Experience Layer Phase 1b): audit-only outcome enums. Additive/optional; never read by any gate, excluded from the finding signature.
     resolutionType: z.enum(['fixed', 'duplicate', 'superseded', 'accepted_risk', 'partially_mitigated']).optional()
