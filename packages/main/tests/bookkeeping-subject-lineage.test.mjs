@@ -26,7 +26,8 @@ import {fileURLToPath} from 'node:url';
 import {currentGitHead, currentMaterialHash, currentStoryFilesHash} from '../dist/core/evidence-freshness.js';
 import {PRECERT_METADATA_COMMANDS, verifyManagedReviewLiveBinding} from '../dist/core/managed-review-evidence.js';
 import {managedLineageRecoveryNext} from '../dist/core/review-run.js';
-import {REVIEW_MAINTENANCE_PUBLISHERS} from '../dist/core/review-maintenance-lineage.js';
+import * as reviewMaintenanceLineage from '../dist/core/review-maintenance-lineage.js';
+const {REVIEW_MAINTENANCE_PUBLISHERS} = reviewMaintenanceLineage;
 import {DELIVERY_REVIEW_NEUTRAL_PUBLISHERS, deliveryDispatchDriftRefusal} from '../dist/core/delivery-review-authority.js';
 import {StoryStore} from '../dist/core/store.js';
 
@@ -143,6 +144,13 @@ try {
   for (const subject of ['verification_evidence_add', 'verification_evidence_refresh_stale', 'finding_resolve', 'review epoch', 'certification_window_begin', 'validate', 'test-transition']) {
     assert.ok(reviewMaintenance.has(subject), `${subject} is a content-authenticated review-maintenance publisher`);
   }
+  // Old-PoS run 29 (§3.4): the review epoch publisher re-writes findings.json
+  // through the store, which back-fills ledgerCommitReceiptId on earlier rows.
+  // That field (and only it) is a classified lineage-neutral row change of the
+  // epoch publication, admitted when the named receipt already binds the row's
+  // recordId (tests/review-finalize-managed-lineage.test.mjs exercises it).
+  assert.deepEqual(reviewMaintenanceLineage.REVIEW_EPOCH_FINDING_BACKFILL_FIELDS, ['ledgerCommitReceiptId'],
+    'RUN29_EPOCH_RECEIPT_BACKFILL_CLASSIFIED_RED: the review epoch publisher classifies its finding-row back-fill');
   const refusedInTest = {
     // These change the acceptance basis / reviewed story files the managed pass bound;
     // the refusal Next sends a TEST Story back through DEV to REVIEW.

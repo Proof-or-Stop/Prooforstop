@@ -101,5 +101,45 @@ try {
     reviewedMaterialHash:materialHash,reviewedStoryFilesHash:storyFilesHash}),false,
     'DIVERGENT_SIGNED_CUTOFF_STILL_REJECTED');
   assert.equal(verifyManagedReviewLiveBinding(openBinding).valid,false,'DIVERGENT_CUTOFF_STILL_REJECTED');
+
+  // Old-PoS run 29 (run28-29-analysis.md §3.4): the finalize commit of epoch
+  // RI-002 re-wrote findings.json through the store, which back-fills
+  // ledgerCommitReceiptId onto earlier rows whose ledger record a receipt
+  // already carries. The prefix check called that "rewrites earlier findings"
+  // and the critic's finding F-004 (imported before it) failed the live-head
+  // lineage check: a second lane wave + critic followed (~12 min / 9M). The
+  // back-fill is lineage-neutral exactly when the named receipt already exists
+  // (in the parent's finding-ledger.json) and binds the row's own recordId.
+  git('reset','--hard',reviewedHeadHash);
+  const finding={id:`${storyId}:F-001`,recordId:'FLR-001',status:'resolved',severity:'medium',desc:'earlier resolved finding',reviewRound:at};
+  writeFileSync(store.storyFilePath(storyId,'findings.json'),`${JSON.stringify({findings:[finding]},null,2)}\n`);
+  writeFileSync(store.storyFilePath(storyId,'finding-ledger.json'),`${JSON.stringify({records:[{recordId:'FLR-001',recordType:'finding'}],receipts:[{receiptId:'FLRC-001',recordIds:['FLR-001']}]},null,2)}\n`);
+  git('add','.');git('commit','-qm','fixture earlier finding + ledger');
+  const backfillReviewed=git('rev-parse','HEAD');
+  const backfillCutoff={headHash:backfillReviewed,materialHash,storyFilesHash:currentStoryFilesHash(root,'HEAD',root)};
+  const backfillEpoch={...epoch,cutoff:backfillCutoff};delete backfillEpoch._hash;backfillEpoch._hash=signReviewInventoryEpoch(backfillEpoch);
+  const backfillReceipt={...receipt,cutoff:backfillCutoff};delete backfillReceipt._hash;backfillReceipt._hash=signReviewInventoryReceipt(backfillReceipt);
+  const publish=(row,label)=>{
+    git('reset','--hard',backfillReviewed);
+    store.writeReviewInventoryEpochs(storyId,{...emptyReviewInventoryEpochData(),epochs:[backfillEpoch],receipts:[backfillReceipt]});
+    writeFileSync(store.storyFilePath(storyId,'findings.json'),`${JSON.stringify({findings:[row]},null,2)}\n`);
+    git('add','.');git('commit','-qm',`proof-or-stop: record ${storyId} review epoch metadata`);
+    const refusals=[];
+    const ok=isVerifiedReviewMaintenanceCommit({gitCwd:root,metadataRoot:root,storyId,commit:git('rev-parse','HEAD'),reviewedHeadHash:backfillReviewed,
+      reviewedMaterialHash:backfillCutoff.materialHash,reviewedStoryFilesHash:backfillCutoff.storyFilesHash,onRefusal:rule=>refusals.push(rule)});
+    return {ok,rule:refusals.join('; '),label};
+  };
+  const neutral=publish({...finding,ledgerCommitReceiptId:'FLRC-001'},'back-fill of the receipt that binds the row');
+  assert.equal(neutral.ok,true,`RUN29_EPOCH_RECEIPT_BACKFILL_LINEAGE_RED: ${neutral.rule}`);
+  for (const [row,label] of [
+    [{...finding,ledgerCommitReceiptId:'FLRC-404'},'back-fill naming a receipt that does not exist'],
+    [{...finding,recordId:'FLR-002',ledgerCommitReceiptId:'FLRC-001'},'back-fill with a changed recordId'],
+    [{...finding,status:'open',ledgerCommitReceiptId:'FLRC-001'},'back-fill that also reopens the row'],
+    [{...finding,desc:'rewritten',ledgerCommitReceiptId:'FLRC-001'},'back-fill that also rewrites the claim'],
+  ]) {
+    const refused=publish(row,label);
+    assert.equal(refused.ok,false,`${label}: still refused`);
+    assert.match(refused.rule,/rewrites earlier findings\.json findings/,`${label}: names the rule`);
+  }
   console.log('REVIEW_FINALIZE_MANAGED_LINEAGE_GREEN');
 } finally {rmSync(root,{recursive:true,force:true});}

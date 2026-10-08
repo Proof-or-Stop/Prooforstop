@@ -158,6 +158,13 @@
  *   NDG old-PoS run 27 (§2.2): managed runs record per-command wall time and
  *      host load samples (diagnostics.jsonl), host_run_status --full summarizes
  *      them, and review.laneLaunchStaggerMs spaces the lane launches.
+ *   NRS old-PoS run 29 REM2: the finding-repair prompt states the allowed
+ *      files; a repair commit outside them is scope-checked when the provider
+ *      ends and fixed in the same (resumed) worker session; DONE without an
+ *      owner scope stop.
+ *   NIS old-PoS run 28 INIT: story_create lowers priority=high without risk
+ *      wording to medium; a blocking INIT verdict whose judged inputs the owner
+ *      changed (userSees) is relaunched by next --run as a framework step.
  *   NM old-PoS run 25 F2: the owner commits a test-only change during REVIEW
  *      after a clean round. next returns ONE framework step, the review reopen
  *      (story_advance DEV, reason recorded as transitionType review_reopen);
@@ -184,7 +191,7 @@
  *      and still review the whole Story).
  *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5 ND-V6 ND-V8 ND-V9.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIN|NQ|NP|NX|NM|NDL|NDS|NDG|AB|ND-V1..NF-V9]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIN|NIS|NQ|NP|NX|NM|NDL|NDS|NDG|NRS|AB|ND-V1..NF-V9]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -283,7 +290,9 @@ export class Owner {
       /** NIN: no Story yet; the owner creates it with story_create from the main checkout (INIT driven by next). */
       fromScratch?: boolean;
       /** NX (old-PoS runs 20/25): TestReverse has a CJK subtest, so `go test -v` output (captured evidence) and the observed transcript carry CJK. */
-      unicodeOutput?: boolean } = {}) {
+      unicodeOutput?: boolean;
+      /** NRS (old-PoS run 29): CODEX_HOME is a fixture directory, so a scripted run can be resumed (exec resume) by the managed worker. */
+      codexHome?: boolean } = {}) {
     this.root = realpathSync(mkdtempSync(join(tmpdir(), `e2e-r2d-${scenario}-`)));
     this.store = new StoryStore(this.root);
     this.providerBin = `${this.root}-provider`;
@@ -314,6 +323,7 @@ export class Owner {
       PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: `e2e-review-to-done-owner-${scenario}`,
       PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT: 'main',
       PROOF_OR_STOP_USAGE_LEDGER: '0',
+      ...(this.fixtureOpts.codexHome ? { CODEX_HOME: join(this.providerBin, 'codex-home') } : {}),
     };
     writeFileSync(join(this.installedCliBin, 'env.json'), JSON.stringify(this.env));
     this.buildFixture();
@@ -349,6 +359,10 @@ export class Owner {
         env: { CONTEXT: 'abs' },
       },
       ...(this.fixtureOpts.config ?? {}),
+      // Old-PoS runs 28/29: the production default staggers lane launches by 8 s
+      // (2-CPU container throttling). The fixture has no CPU quota, so it launches
+      // them at once unless a scenario sets the knob (NDG).
+      review: { laneLaunchStaggerMs: 0, ...((this.fixtureOpts.config?.review as Record<string, unknown> | undefined) ?? {}) },
     }, null, 2)}\n`);
     git(root, ['add', 'proof-or-stop.config.json']);
     git(root, ['commit', '-qm', 'benchmark: configure PoS Go validation before Story']);
@@ -586,11 +600,24 @@ const fs = require('fs'); const path = require('path'); const { spawnSync } = re
 const dir = ${JSON.stringify(scripts)};
 let input = ''; process.stdin.on('data', d => { input += d; }); process.stdin.on('end', () => {
   const emit = e => process.stdout.write(JSON.stringify(e) + '\\n');
-  emit({ type: 'thread.started', thread_id: 'fake-codex-' + process.pid });
+  // Old-PoS run 29 (NRS): a run with a byrun/<runId>.resume.json script is resumable
+  // (Codex exec resume <thread>): it gets a UUID thread and a session file in CODEX_HOME.
+  const resume = process.argv[2] === 'exec' && process.argv[3] === 'resume';
+  const announceThread = () => {
+    const runIdForThread = process.env.LATTICE_MANAGED_HOST_RUN_ID || '';
+    const resumable = !!runIdForThread && fs.existsSync(path.join(dir, 'byrun', runIdForThread + '.resume.json')) && !!process.env.CODEX_HOME;
+    const thread = resumable ? '019a0000-0000-7000-8000-' + require('crypto').createHash('sha256').update(runIdForThread).digest('hex').slice(0, 12) : 'fake-codex-' + process.pid;
+    if (resumable) {
+      const sessions = path.join(process.env.CODEX_HOME, 'sessions', '2026', '10', '09');
+      fs.mkdirSync(sessions, { recursive: true });
+      fs.writeFileSync(path.join(sessions, 'rollout-2026-10-09T00-00-00-' + thread + '.jsonl'), '{}\\n');
+    }
+    emit({ type: 'thread.started', thread_id: thread });
+  };
   // Every provider prompt, by managed run id (A/B scenarios assert what the sealed prompt said).
   if (process.env.LATTICE_MANAGED_HOST_RUN_ID) {
     fs.mkdirSync(path.join(dir, 'prompts'), { recursive: true });
-    fs.writeFileSync(path.join(dir, 'prompts', process.env.LATTICE_MANAGED_HOST_RUN_ID + '.txt'), input);
+    fs.writeFileSync(path.join(dir, 'prompts', process.env.LATTICE_MANAGED_HOST_RUN_ID + (resume ? '.resume.txt' : '.txt')), input);
   }
   emit({ type: 'turn.started' });
   // Run mode (next --run launches managed runs itself, resolver.json present):
@@ -599,7 +626,7 @@ let input = ''; process.stdin.on('data', d => { input += d; }); process.stdin.on
   // when that fails (a critic prompt names the lane ReviewRun ids, so a static
   // lane key would match it). Otherwise the static key whose name occurs in the prompt.
   const runId = process.env.LATTICE_MANAGED_HOST_RUN_ID || '';
-  const byRun = runId ? path.join(dir, 'byrun', runId + '.json') : '';
+  const byRun = runId ? path.join(dir, 'byrun', runId + (resume ? '.resume.json' : '.json')) : '';
   let file = byRun && fs.existsSync(byRun) ? byRun : '';
   if (!file && byRun && fs.existsSync(path.join(dir, 'resolver.json'))) {
     const resolver = JSON.parse(fs.readFileSync(path.join(dir, 'resolver.json'), 'utf8'));
@@ -610,6 +637,7 @@ let input = ''; process.stdin.on('data', d => { input += d; }); process.stdin.on
   const key = file ? undefined : fs.readdirSync(dir).filter(f => f.endsWith('.json') && f !== 'resolver.json').find(f => input.includes(f.slice(0, -5)));
   if (key) file = path.join(dir, key);
   if (!file) { fs.writeFileSync(path.join(dir, 'unmatched-' + process.pid + '.txt'), input); process.exit(3); }
+  announceThread();
   const script = JSON.parse(fs.readFileSync(file, 'utf8'));
   const c = process.argv.indexOf('-C'); const cwd = c > 0 ? process.argv[c + 1] : process.cwd();
   (script.commands || []).forEach((argv, index) => {
@@ -1016,6 +1044,10 @@ const NU_DUP_FINDING = {
 const NU_DUP_REPAIR_TEST = '\nfunc TestReverseEmptyDup(t *testing.T) {\n\tif got := Reverse(""); got != "" {\n\t\tt.Fatalf("got %q", got)\n\t}\n}\n';
 
 const FINDING_REPAIR = 'proof-or-stop-finding-repair';
+/** NRS (old-PoS run 29 REM2): the new test file a repair worker creates outside its declared files. */
+const NRS_OUT_OF_SCOPE_TEST = 'strs/reverse_empty_regression_test.go';
+/** NIS (old-PoS run 28 INIT): the story-init reviewer's blocking issue on a judged field (userSees), not on title/context. */
+const NIS_BLOCKING_ISSUE = 'CHK-001 userSees names only the test selector; it must state the observable result (Upper("ab") returns "AB").';
 const REPAIR_TEST = '\nfunc TestReverseEmpty(t *testing.T) {\n\tif Reverse("") != "" {\n\t\tt.Fatal("empty")\n\t}\n}\n';
 const NF_REPAIR_TEST = '\nfunc TestUpperEmpty(t *testing.T) {\n\tif Upper("") != "" {\n\t\tt.Fatal("empty")\n\t}\n}\n';
 
@@ -1323,7 +1355,11 @@ interface ScriptMode { findingRound1: boolean; twoFindings?: boolean; lowFinding
   /** Old-PoS run 25 (NW4): every round-1 lane run started after a critic run (wave 2) re-reports D_FINDING. */
   restateAfterCritic?: boolean;
   /** Old-PoS run 27 (NDL/NDS): the FIRST delivery reviewer run saves only after the owner's TEST overlap commits (summary_set, quorum-submit); 'stale' also commits a delivery-input change first. */
-  delivery?: DeliveryFault }
+  delivery?: DeliveryFault;
+  /** Old-PoS run 29 (NRS): the first finding-repair run writes its regression test into a NEW file outside the declared files; its resumed turn moves it. */
+  repairOutOfScope?: boolean;
+  /** Old-PoS run 28 (NIS): the first story-init INIT reviewer run records a blocking issue about CHK-001's userSees. */
+  initBlocking?: boolean }
 /** Old-PoS run 27 delivery overlap faults (scenarioNDL). */
 type DeliveryFault = 'overlap' | 'stale';
 type CriticRestateMode = 'copies' | 'reworded' | 'new-misfiled';
@@ -1522,9 +1558,14 @@ function provideScript(root: string, storyId: string, scriptsDir: string, modeJs
   let script: ProviderScript;
   if (INIT_REVIEWERS.includes(spec.agentType)) {
     // NIN: an INIT reviewer records a clean verdict with init_check_set (the managed worker's env binds it).
+    // NIS (old-PoS run 28): the FIRST story-init run blocks on CHK-001's userSees (a judged field outside title/context).
+    const runsRoot = join(root, '.proof-or-stop', 'runtime', 'host-runs');
+    const storyInitRuns = readdirSync(runsRoot).filter(id => { try { return (JSON.parse(readFileSync(join(runsRoot, id, 'spec.json'), 'utf8')) as { agentType?: string }).agentType === 'proof-or-stop-review-story-init'; } catch { return false; } });
+    const issues = mode.initBlocking && spec.agentType === 'proof-or-stop-review-story-init' && storyInitRuns.length <= 1
+      ? [{ severity: 'high', kind: 'initial_checklist_invalid', requirementRef: 'checklist:CHK-001', desc: NIS_BLOCKING_ISSUE }] : [];
     mkdirSync(join(scriptsDir, 'byrun'), { recursive: true });
     writeFileSync(join(scriptsDir, 'byrun', `${runId}.json`), JSON.stringify({ final: 'INIT review complete; init_check_set recorded.',
-      commands: [[process.execPath, CLI, 'init_check_set', JSON.stringify({ storyId, issues: [] })]] }));
+      commands: [[process.execPath, CLI, 'init_check_set', JSON.stringify({ storyId, issues })]] }));
     return;
   }
   const store = new StoryStore(worktree);
@@ -1539,6 +1580,18 @@ function provideScript(root: string, storyId: string, scriptsDir: string, modeJs
     const descOf = (id: string) => store.readFindings(storyId).findings.find(f => f.id === id)?.desc ?? '';
     const group = spec.managedDispatchTarget?.groupFindingIds;
     script = Array.isArray(group) ? groupedRepairScript(storyId, group.map(id => ({ id, desc: descOf(id) }))) : repairScript(descOf(findingId));
+    if (mode.repairOutOfScope) {
+      // NRS (old-PoS run 29 REM2): the worker puts its regression test in a NEW file
+      // outside the declared files (allowedCreate is empty); its resumed turn
+      // (the framework's scope repair) moves it into the declared test file.
+      const repair = repairFor(descOf(findingId));
+      script = { commands: [['/bin/sh', '-c', `printf 'package strs\\n\\nimport "testing"\\n%s' '${repair.test.replace(/'/g, "'\\''")}' > ${NRS_OUT_OF_SCOPE_TEST} && git add ${NRS_OUT_OF_SCOPE_TEST} && git -c user.name=${FINDING_REPAIR} commit -qm '${repair.subject}' && git log --format=%h -1`]],
+        final: `Added ${repair.name} in ${NRS_OUT_OF_SCOPE_TEST}; committed.` };
+      mkdirSync(join(scriptsDir, 'byrun'), { recursive: true });
+      writeFileSync(join(scriptsDir, 'byrun', `${runId}.resume.json`), JSON.stringify({
+        commands: [['/bin/sh', '-c', `git rm -q ${NRS_OUT_OF_SCOPE_TEST} && printf '%s' '${repair.test.replace(/'/g, "'\\''")}' >> strs/strs_test.go && git add strs/strs_test.go && git -c user.name=${FINDING_REPAIR} commit -qm 'test: move ${repair.name} into the declared test file' && git log --format=%h -1`]],
+        final: `Moved ${repair.name} into strs/strs_test.go and removed ${NRS_OUT_OF_SCOPE_TEST}; committed.` }));
+    }
   } else if (spec.agentType === MANAGED_INVENTORY_CRITIC_LANE) script = criticScript(worktree, storyId, String(spec.reviewRunId));
   else {
     const runs = store.readReviewRuns(storyId).runs;
@@ -1647,6 +1700,8 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   restateAfterCritic?: boolean;
   /** Old-PoS run 27 (NDL/NDS, run mode only): the first delivery reviewer run's fault. */
   delivery?: DeliveryFault;
+  /** Old-PoS run 29 (NRS, run mode only): the finding-repair run creates its test outside the declared files. */
+  repairOutOfScope?: boolean;
   /** NC7: an owner action taken instead of the step next returned; true = the step is not executed and next is asked again. */
   interject?: (next: NextStepJson) => boolean; }, lines: string[],
   /** Called with each step `next` returned, before the harness executes it; quiet = no detached managed run in flight. */
@@ -1678,7 +1733,8 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   };
   if (mode.run) {
     writeFileSync(join(o.scriptsDir, 'resolver.json'), JSON.stringify({ argv: [process.execPath, SELF, '--provide-script', o.root, id, o.scriptsDir,
-      JSON.stringify({ findingRound1: mode.findingRound1, twoFindings: mode.twoFindings ?? false, lowFindings: mode.lowFindings ?? false, ...(mode.delivery ? { delivery: mode.delivery } : {}) })] }));
+      JSON.stringify({ findingRound1: mode.findingRound1, twoFindings: mode.twoFindings ?? false, lowFindings: mode.lowFindings ?? false, ...(mode.delivery ? { delivery: mode.delivery } : {}),
+        ...(mode.repairOutOfScope ? { repairOutOfScope: true } : {}) })] }));
   }
   let liveSmokeProposals = 0;
   for (let iteration = 0; iteration < 160; iteration += 1) {
@@ -3278,8 +3334,123 @@ function scenarioNDG(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
+/**
+ * Old-PoS run 29 (REM2, run28-29-analysis.md §3.4): the grouped repair worker
+ * put its regression test in a NEW file outside the item's declared files
+ * (allowedCreate empty). The repair prompt never stated the allowed files, and
+ * only the REVIEW scope gate caught it, as an owner step (6 turns). NRS: the
+ * finding-repair prompt names the allowed files; the worker's commit is
+ * scope-checked when the provider ends and, on a violation, the SAME session is
+ * resumed once with the exact paths and the allowed lists; the moved test is
+ * committed and next --run reaches DONE without a scope stop.
+ */
+function scenarioNRS(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NRS';
+  const name = 'NRS run 29 REM2: repair prompt states the allowed files; an out-of-scope repair commit is fixed in the same worker session (no owner scope stop); DONE';
+  const o = new Owner(tag, 'B-e2c9', machineEnv, steps, false, { trackedGateFailureCounts: true, codexHome: true });
+  const lines: string[] = [];
+  try {
+    devSetup(o);
+    driveWithNext(o, { findingRound1: true, run: true, repairOutOfScope: true }, lines);
+    const runsRoot = join(o.root, '.proof-or-stop', 'runtime', 'host-runs');
+    const repairRuns = readdirSync(runsRoot).filter(runId => (JSON.parse(readFileSync(join(runsRoot, runId, 'spec.json'), 'utf8')) as { agentType?: string }).agentType === FINDING_REPAIR);
+    assert.equal(repairRuns.length, 1, `${tag}: one finding-repair run (no relaunch): ${repairRuns.join(', ')}`);
+    const runId = repairRuns[0]!;
+    const prompt = readFileSync(join(o.scriptsDir, 'prompts', `${runId}.txt`), 'utf8');
+    assert.match(prompt, /Allowed files[^\n]*\n[^]*strs\/strs_test\.go/, `${tag}: the repair prompt states the allowed files:\n${prompt.slice(-3000)}`);
+    assert.match(prompt, /do not create any other file/i, `${tag}: the repair prompt forbids other files`);
+    const resumePath = join(o.scriptsDir, 'prompts', `${runId}.resume.txt`);
+    assert.ok(existsSync(resumePath), `${tag}: the worker resumed the repair session for the scope violation`);
+    const resumePrompt = readFileSync(resumePath, 'utf8');
+    assert.ok(resumePrompt.includes(NRS_OUT_OF_SCOPE_TEST), `${tag}: the scope repair turn names the out-of-scope path:\n${resumePrompt}`);
+    assert.ok(resumePrompt.includes('strs/strs_test.go'), `${tag}: the scope repair turn names the allowed test files:\n${resumePrompt}`);
+    const events = readFileSync(join(runsRoot, runId, 'events.jsonl'), 'utf8');
+    assert.match(events, /"type":"managed_writer_scope_repair"/, `${tag}: the scope repair turn is journaled on the run`);
+    assert.match(events, /"type":"managed_writer_scope_repair_outcome"[^\n]*"outcome":"in_scope"/, `${tag}: the resumed turn left the run in scope`);
+    assert.ok(!existsSync(join(o.root, NRS_OUT_OF_SCOPE_TEST)), `${tag}: the out-of-scope file never reached main`);
+    assert.match(readFileSync(join(o.root, 'strs/strs_test.go'), 'utf8'), /TestReverseEmpty/, `${tag}: the moved regression test reached main`);
+    lines.push(`DONE reached; repair run ${runId} resumed once for scope; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/**
+ * Old-PoS run 28 INIT (run28-29-analysis.md §3.1): both INIT reviewers blocked;
+ * the owner fixed priority and a pinned intent, but next kept returning
+ * `init_review_blockers` because the INIT signature covers checklist
+ * title/context only, so the verdict never went stale (about 12 owner turns
+ * and two hand-launched reviewers). And story_create had only WARNED about
+ * priority=high without risk wording, which the story-init reviewer then
+ * raised as a high issue. NIS:
+ *   - story_create with priority=high and no risk wording records medium and
+ *     says so (no reviewer round for a mechanical rule);
+ *   - the first story-init run blocks on CHK-001's userSees; the owner edits
+ *     ONLY userSees (one checklist_update); next --run then relaunches the
+ *     blocking reviewer itself (framework init_review_launch) because the
+ *     inputs it judged changed, and reaches PLAN with no further owner INIT step.
+ */
+function scenarioNIS(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NIS';
+  const name = 'NIS run 28 INIT: priority=high without risk wording is lowered at story_create; a blocking INIT verdict on userSees goes stale on the owner fix and next --run relaunches the reviewer itself';
+  const o = new Owner(tag, 'B-0000', machineEnv, steps, false, { fromScratch: true });
+  const lines: string[] = [];
+  try {
+    const first = o.cli('next', { json: true }, { label: 'next (no Story)' });
+    const template = parseJson(first.stdout) as unknown as NextStepJson | null;
+    assert.equal(template?.reason, 'story_create_authoring', `[NIS] next without a Story prints the story_create template:\n${first.out.slice(-1500)}`);
+    const payload = { ...fillStoryCreateTemplate(template!.cli!.payload), priority: 'high' };
+    const created = o.mustCli('story_create', payload, { label: 'story_create (priority=high, no risk wording)' });
+    const id = created.stdout.match(/Story (B-[a-f0-9]+) created/)?.[1];
+    assert.ok(id, `[NIS] story_create returned an id:\n${created.out.slice(-1500)}`);
+    o.storyId = id!;
+    assert.equal(new StoryStore(o.root).readStory(id!).priority, 'medium', `[NIS] story_create records medium for priority=high without risk wording:\n${created.out.slice(-2000)}`);
+    assert.match(created.out, /priority=high lowered to medium/, `[NIS] story_create says it lowered the priority:\n${created.out.slice(-2000)}`);
+    writeFileSync(join(o.scriptsDir, 'resolver.json'), JSON.stringify({ argv: [process.execPath, SELF, '--provide-script', o.root, id, o.scriptsDir, JSON.stringify({ findingRound1: false, initBlocking: true })] }));
+    const ran: string[] = [];
+    const ownerSteps: string[] = [];
+    let next: NextStepJson | undefined;
+    let fixed = false;
+    for (let call = 0; call < 12; call += 1) {
+      const asked = o.cli('next', { storyId: id, run: true, json: true }, { label: 'next --run' });
+      const parsed = parseJson(asked.stdout);
+      next = parsed?.next as NextStepJson | undefined;
+      assert.ok(next, `[NIS] next --run returned no step:\n${asked.out.slice(-2000)}`);
+      for (const row of (parsed!.executed ?? []) as Array<{ command: string; reason: string; exit: number; tail: string }>) {
+        ran.push(row.reason);
+        assert.equal(row.exit, 0, `[NIS] next --run executed a step its gate refused: ${row.command}\n${row.tail}`);
+      }
+      assert.equal(parsed!.stopped ?? null, null, `[NIS] next --run stopped: ${String(parsed!.stopped)}\n${asked.out.slice(-2000)}`);
+      if (next.phase !== 'INIT' && next.phase !== 'INIT_CHECK') break;
+      if (next.wait || parsed!.paused) continue;
+      ownerSteps.push(`${next.phase}:${next.kind}:${next.reason}`);
+      if (next.reason === 'init_review_blockers' && !fixed) {
+        assert.ok(next.why.includes(NIS_BLOCKING_ISSUE.slice(0, 40)), `[NIS] the blocker names the reviewer issue: ${next.why.slice(0, 600)}`);
+        // The owner's one fix: the judged field only (title/context unchanged).
+        o.mustCli('checklist_update', { storyId: id, itemId: 'CHK-001', userSees: 'go test -v ./strs -run TestUpper prints --- PASS: TestUpper; Upper("ab") returns "AB"' }, { label: 'checklist_update CHK-001 userSees (owner fix)' });
+        fixed = true;
+        continue;
+      }
+      break;
+    }
+    assert.ok(fixed, `[NIS] the first story-init verdict blocked (owner steps: ${ownerSteps.join(', ')}; ran: ${ran.join(' > ')})`);
+    assert.deepEqual(ownerSteps, ['INIT:agent:init_review_blockers'], `[NIS] after the owner fix next --run relaunches the blocking reviewer itself; owner steps: ${ownerSteps.join(', ')} (why: ${next?.why.slice(0, 400)})`);
+    assert.equal(next?.phase, 'PLAN', `[NIS] next --run reaches PLAN; at ${next?.phase} ${next?.reason}: ${next?.why.slice(0, 400)}`);
+    assert.equal(ran.filter(reason => reason === 'init_review_launch').length, 3, `[NIS] both reviewers once + the blocking story-init again, all by the framework (ran: ${ran.join(' > ')})`);
+    lines.push(`owner INIT steps: ${ownerSteps.join(', ')} + 1 checklist_update; framework steps: ${ran.join(' > ')}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NW[3-6]?|NI|NIN|NQ|NP|NX|NM|NDL|NDS|NDG|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NW[3-6]?|NI|NIN|NIS|NQ|NP|NX|NM|NDL|NDS|NDG|NRS|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -3328,6 +3499,8 @@ async function main(): Promise<void> {
     if (only.includes('NDL')) outcomes.push(scenarioNDL(machine.env, steps, 'overlap'));
     if (only.includes('NDS')) outcomes.push(scenarioNDL(machine.env, steps, 'stale'));
     if (only.includes('NDG')) outcomes.push(scenarioNDG(machine.env, steps));
+    if (only.includes('NRS')) outcomes.push(scenarioNRS(machine.env, steps));
+    if (only.includes('NIS')) outcomes.push(scenarioNIS(machine.env, steps));
     // Detection A/B arms: explicit tokens (ND-V1 .. NF-V9) or AB = ND-V1, ND-V2, ND-V3, NF-V4, ND-V5, ND-V6, ND-V8, ND-V9.
     const abTokens = only.includes('AB') ? ['ND-V1', 'ND-V2', 'ND-V3', 'NF-V4', 'ND-V5', 'ND-V6', 'ND-V8', 'ND-V9'] : [];
     for (const token of [...new Set([...abTokens, ...only.filter(arg => /^N[DF]-V[1-689]$/.test(arg))])]) {
@@ -3336,7 +3509,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIN', 'NQ', 'NP', 'NX', 'NM', 'NDL', 'NDS', 'NDG', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIN', 'NIS', 'NQ', 'NP', 'NX', 'NM', 'NDL', 'NDS', 'NDG', 'NRS', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {
