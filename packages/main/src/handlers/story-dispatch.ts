@@ -28,11 +28,14 @@ import { createClusterHandlers } from './cluster.js';
 import type { StoryStore } from '../core/store.js';
 import { readStoryRequest, renderUnmappedLiteralsLine, unmappedStoryRequestLiterals } from '../core/story-request.js';
 import { renderPinAudit } from '../core/intent-derivation.js';
+import { renderScopePlanRerunContext } from '../core/scope-plan-rerun-context.js';
 import { INTENT_CONFLICT_RETURN_CONTRACT, REPAIR_INPUT_VARIANT_RULE, renderReviewRequestAuthority } from '../core/request-authority.js';
 import { scopeBoundaryHashIsFresh } from '../core/scope-anti-expansion.js';
 import { reportHealthIssue } from '../core/health.js';
 import { findSealedManagedImplementerCompletion, managedImplementerAlreadyDoneAction } from '../core/managed-host-run.js';
 import { loadConfig } from '../core/config.js';
+import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
+import { scopeVerdictHeldItems } from '../core/scope-plan-deferral.js';
 import { currentPlanOwnerBinding } from '../core/plan-touchpoint-coverage.js';
 import {
   resolveAgentDispatchType,
@@ -701,6 +704,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         ? '- No candidate-spec-set artifact is present. STOP in enforce mode and ask the Story owner to run candidate_spec_route; reviewer lanes must not seize owner authority.'
         : `- No candidate-spec-set artifact is present. ${candidateRoutingMode()} mode records this without hard-blocking review.`);
     }
+    // Old-PoS run 27 (row 4b): a rerun starts from the previous verdict and the checklist diff since it.
+    lines.push(...renderScopePlanRerunContext({ store, storyId: args.storyId,
+      gitCwd: resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root }) }));
     appendScopePlanRequestTraceability(lines, store, args.storyId);
     appendScopePlanCoveredObligations(lines, store, args.storyId);
     lines.push('');
@@ -1465,6 +1471,18 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           // nothing) and then fails. Refuse before any prompt or provider.
           const prior = findSealedManagedImplementerCompletion({ root, storyId: args.storyId, itemId: args.itemId });
           if (prior) throw new Error(`dispatch refused: ${managedImplementerAlreadyDoneAction(args.storyId, args.itemId, prior)}`);
+          // Old-PoS run 27 (per-item N8 hold): an item the deferred scope-plan
+          // verdict audits is never implemented before that verdict lands.
+          const held = story.phase === 'DEV'
+            ? scopeVerdictHeldItems(store, root, story, resolveWorkflowPolicy(loadConfig(root), story))
+            : null;
+          if (held?.heldItemIds.includes(args.itemId)) {
+            throw new Error(`dispatch refused: ${args.itemId} waits for the scope-plan verdict [scope_verdict_held_item]: ${held.byItem[args.itemId]}; `
+              + 'a pin-audit / asymmetric-example gap must land before the item is implemented (old-PoS run 23).\n'
+              + (held.run
+                ? `Next: proof-or-stop host_run_status --runId=${held.run.runId} --untilTerminal=true`
+                : `Next: proof-or-stop story_advance '{"storyId":"${args.storyId}","phase":"PLAN"}' (then rerun the scope-plan reviewer)`));
+          }
         }
         const result = buildItemPrompt({
           storyId: args.storyId,

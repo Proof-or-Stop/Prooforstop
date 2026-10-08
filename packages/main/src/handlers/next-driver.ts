@@ -50,7 +50,7 @@ import { evaluateDevMemoryPreflightGate, evaluateReviewVerdict, getGuardFailureR
 import { missingPlanScopeCheckFailure, SCOPE_PLAN_REVIEWER, scopePlanLaunchIsFramework, scopePlanRerunReason } from '../core/plan-scope-check-requirement.js';
 import { hasPreScopeBlockers, planPreScopeBlockers, type PreScopeBlockers } from '../core/plan-pre-scope-blockers.js';
 import { checklistDerivationGaps, derivationPlaceholder, MISSING_INTENT_DERIVATION } from '../core/intent-derivation.js';
-import { scopeVerdictDeferral, scopeVerdictReviewEntryFailure } from '../core/scope-plan-deferral.js';
+import { scopeVerdictDeferral, scopeVerdictHeldItems, scopeVerdictReviewEntryFailure } from '../core/scope-plan-deferral.js';
 import { STORY_FOCUSED_CLASSIFICATION } from '../core/verification-intent-classification.js';
 import { VERIFICATION_LANES } from '../core/verification.js';
 import { isTerminalChecklistStatus } from '../core/checklist-status.js';
@@ -445,6 +445,8 @@ export interface HostRunView {
    * (isAutoReplaceableManagedLaunchFailure).
    */
   autoReplaceable: boolean;
+  /** The terminal says replacing the run is safe (it left no work product to keep). */
+  replacementSafe?: boolean;
 }
 
 function listStoryHostRuns(ctx: HandlerContext, storyId: string): HostRunView[] {
@@ -458,7 +460,8 @@ function listStoryHostRuns(ctx: HandlerContext, storyId: string): HostRunView[] 
       rows.push({ runId, host: run.host, model: run.model ?? null, reasoningEffort: run.reasoningEffort ?? null, profile: run.profile,
         agentType: run.agentType, reviewRunId: run.reviewRunId, state: run.state,
         terminal: run.terminal !== null, createdAt: run.createdAt,
-        autoReplaceable: isAutoReplaceableManagedLaunchFailure({ state: run.state, replacementSafe: run.replacementSafe, terminalReason: run.terminal?.reason ?? null }) });
+        autoReplaceable: isAutoReplaceableManagedLaunchFailure({ state: run.state, replacementSafe: run.replacementSafe, terminalReason: run.terminal?.reason ?? null }),
+        replacementSafe: run.replacementSafe === true });
     } catch { /* not a readable managed run */ }
   }
   return rows.sort((a, b) => a.createdAt.localeCompare(b.createdAt) || a.runId.localeCompare(b.runId));
@@ -1346,6 +1349,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     if (authoring) return authoring;
     return guardStep(base, 'DEV', 'enter_dev', deferred
       ? `PLAN is complete except the scope-plan verdict, whose managed run ${deferred.runId} is still ${deferred.state}: the DEV-entry gate defers it to DEV→REVIEW, so DEV starts beside the reviewer (a gap it finds sends the Story back to PLAN before REVIEW).`
+        + (deferral?.kind === 'deferred' && deferral.heldItemIds?.length ? ` ${deferral.heldItemIds.join(', ')} wait for the verdict (${deferral.heldReason}).` : '')
       : 'PLAN is complete: the DEV-entry gate admits the Story.', 'getGuardFailureReason(DEV)');
   }
 
@@ -1469,10 +1473,24 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
           'scopeVerdictReviewEntryFailure (DEV→REVIEW gate, N8 deferred scope verdict)');
       }
     }
-    if (open.length > 0) {
-      const item = open[0]!;
+    // Old-PoS run 27 (per-item N8 hold): while the deferred scope-plan verdict is
+    // missing, the items its pin audit / same-semantics rule concerns are not
+    // dispatched; the free items are implemented beside the reviewer.
+    const hold = open.length > 0 ? scopeVerdictHeldItems(ctx.store, ctx.root, ctx.store.readStory(storyId), policyOf(storyId)) : null;
+    const heldIds = new Set(hold?.heldItemIds ?? []);
+    const dispatchable = open.filter(item => !heldIds.has(item.id));
+    if (open.length > 0 && dispatchable.length === 0) {
+      const implementing = inFlight(IMPLEMENTER_AGENT);
+      if (implementing) return waitStep(base, implementing, 'Implementer run');
+      const scopeRun = hostRuns.filter(run => run.agentType === SCOPE_PLAN_REVIEWER && !run.terminal).at(-1);
+      if (scopeRun) return waitStep(base, scopeRun, `Scope-plan reviewer run (held until its verdict lands: ${open.map(item => item.id).join(', ')}; ${hold!.reason})`);
+      return guardStep(base, 'PLAN', 'scope_verdict_replan', `The scope-plan verdict is missing and no scope-plan run is live; ${open.map(item => item.id).join(', ')} wait for it. Return to PLAN and rerun the scope-plan reviewer.`,
+        'scopeVerdictHeldItems (old-PoS run 27 per-item N8 hold)');
+    }
+    if (dispatchable.length > 0) {
+      const item = dispatchable[0]!;
       // EXPERIMENTAL A/B implementation.grouping=files (core/ab-dispatch-grouping.ts).
-      const groupByFiles = open.length > 1 || hostRuns.some(run => run.agentType === IMPLEMENTER_AGENT) ? implementationGroupingFiles(ctx.root) : false;
+      const groupByFiles = dispatchable.length > 1 || hostRuns.some(run => run.agentType === IMPLEMENTER_AGENT) ? implementationGroupingFiles(ctx.root) : false;
       if (groupByFiles && item.status !== 'pending') {
         const grouped = groupedImplementationRun({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, item, runs: hostRuns });
         if (grouped) {
@@ -1481,7 +1499,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
             'checklist.json + groupedImplementationRun (A/B implementation.grouping=files)');
         }
       }
-      const group = groupByFiles ? sharedFileItemGroup(item, open) : [item];
+      const group = groupByFiles ? sharedFileItemGroup(item, dispatchable) : [item];
       const pendingItem = group.find(member => member.status === 'pending');
       if (pendingItem) {
         return step(base, 'framework', 'checklist_item_start', { command: 'checklist_update', payload: { storyId, itemId: pendingItem.id, status: 'in_progress' } },
@@ -2047,9 +2065,12 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     // block the TEST rows that cannot change what it reviews: the authoring of
     // the finish decision / summary and the review-assurance bookkeeping write
     // only material-excluded Story metadata, so the material (and story files)
-    // its delivery-check binds stays the final one. Everything that may move the
-    // material (done_prepare: main merge / refresh) and DONE itself still wait
-    // for it, and DONE's delivery-check row re-checks that binding.
+    // its delivery-check binds stays the final one. Their commits move HEAD under
+    // the reviewer's dispatch; delivery_check_set accepts exactly that drift
+    // (delivery-review-authority.ts DELIVERY_REVIEW_NEUTRAL_PUBLISHERS, old-PoS
+    // run 27). Everything that may move the material (done_prepare: main merge /
+    // refresh) and DONE itself still wait for it, and DONE's delivery-check row
+    // re-checks that binding.
     const deliveryRunning = delivery ? hostRuns.filter(run => run.agentType === DELIVERY_REVIEWER && !run.terminal).at(-1) : undefined;
     if (deliveryRunning) {
       const overlap = testAuthoringStep(base, failing) ?? assuranceStep();
@@ -2068,10 +2089,18 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       const previous = last && last.state !== 'completed' ? ` The previous delivery run ${last.runId} ended ${last.state}.` : '';
       const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
       const testEntry = (ctx.store.readStory(storyId).events ?? []).filter(event => event.phase === 'TEST').at(-1)?.timestamp ?? '';
-      const earlier = hostRuns.some(run => run.agentType === DELIVERY_REVIEWER && run.createdAt >= testEntry);
+      // Old-PoS run 27: a delivery run of this TEST entry that failed
+      // replacement-safely (it wrote no delivery-check; e.g. its dispatch
+      // binding went stale, MANAGED_DISPATCH_BINDING_STALE_REASON) is replaced by
+      // the framework like any other role's target, at most
+      // MANAGED_AUTO_RELAUNCHES_PER_TARGET times; any other earlier run keeps the
+      // relaunch the agent's call.
+      const earlier = hostRuns.filter(run => run.agentType === DELIVERY_REVIEWER && run.createdAt >= testEntry)
+        .map(run => ({ autoReplaceable: run.autoReplaceable || (run.state === 'failed' && run.replacementSafe === true) }));
       return managedLaunchStep(base, 'delivery_review_launch', { ...selection, storyId, agentType: DELIVERY_REVIEWER,
-        managedDispatch: true, detach: true, json: true }, bound && !earlier,
-      `DONE needs a signed, current delivery-check: ${delivery.detail ?? delivery.label}. Launch the delivery reviewer (managed shown).${previous}`, 'buildDoneChecklist delivery-check');
+        managedDispatch: true, detach: true, json: true }, bound && targetRelaunchIsFramework(earlier),
+      `DONE needs a signed, current delivery-check: ${delivery.detail ?? delivery.label}. Launch the delivery reviewer (managed shown).${previous}`, 'buildDoneChecklist delivery-check',
+      earlier.length ? 'relaunch after a replacement-safe failed delivery run' : 'first run of this target');
     }
     // Q6 (b), run 17: every TEST authoring row the DONE oracle still misses is
     // ONE agent step listing each exact command, so the agent writes them in one turn.
@@ -2126,7 +2155,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       case 'DEV': return devNext(base);
       case 'REVIEW': return reviewNext(base);
       case 'TEST': return testNext(base);
-      case 'DONE': return step(base, 'human', 'story_done', null, `Story ${storyId} is DONE; nothing is left in its lifecycle.`, 'story.phase', { done: true });
+      case 'DONE': return step(base, 'human', 'story_done', null, `Story ${storyId} is DONE; nothing is left in its lifecycle. ${DONE_TERMINAL_STATEMENT}`, 'story.phase', { done: true });
       default:
         return step(base, 'agent', 'phase_outside_driver', { command: 'session_brief', payload: { concise: true } },
           `next --storyId drives INIT→DONE; ${story.phase} is outside it: follow session_brief.`, 'story.phase');
@@ -2142,6 +2171,14 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
 function renderPlaceholderHints(hints: Record<string, string> | undefined, indent: string): string[] {
   return Object.entries(hints ?? {}).map(([path, hint]) => `${indent}${path}: ${hint}`);
 }
+
+/**
+ * Old-PoS run 27 (row 7): after DONE the owner kept re-verifying (git log, go
+ * test twice, merge-base: ~1 min, 0.9M tokens) because `Next: none (DONE)`
+ * read as an absence, not an instruction. DONE is terminal: the merge, the
+ * tests and every gate already ran inside story_advance DONE.
+ */
+export const DONE_TERMINAL_STATEMENT = 'DONE — stop; no further commands (the Story is merged and every gate already passed; do not re-run tests, git log/diff/merge-base or any other check).';
 
 export function renderNextStep(next: NextStep): string {
   const batch = next.batch ?? [];
@@ -2163,7 +2200,7 @@ export function renderNextStep(next: NextStep): string {
       : [
         ...(next.placeholders?.length ? ['Author before running (one line each):', ...renderPlaceholderHints(next.placeholderHints, '  ')] : []),
         ...(next.optional ?? []).flatMap(call => [`Optional first: ${call.command}`, ...renderPlaceholderHints(call.placeholderHints, '    ')]),
-        next.command ? `Next: ${next.command}` : `Next: ${next.done ? 'none (DONE)' : 'none runnable (see Why)'}`,
+        next.command ? `Next: ${next.command}` : `Next: ${next.done ? DONE_TERMINAL_STATEMENT : 'none runnable (see Why)'}`,
       ]),
     ...(next.kind === 'framework' && next.command ? ['(framework step: `proof-or-stop next --storyId=' + next.storyId + ' --run` runs it and prints the following step)'] : []),
   ].join('\n');
@@ -2269,7 +2306,7 @@ export function runNextSteps(args: {
     if (args.storyGone?.()) {
       // story_advance DONE merged the Story and removed this worktree.
       next = step({ storyId: args.storyId, phase: 'DONE' }, 'human', 'story_done', null,
-        `Story ${args.storyId} is DONE: merged into the integration branch and its worktree was removed.`, 'story_advance DONE effects', { done: true });
+        `Story ${args.storyId} is DONE: merged into the integration branch and its worktree was removed. ${DONE_TERMINAL_STATEMENT}`, 'story_advance DONE effects', { done: true });
       break;
     }
     const moved = args.relocated?.() ?? null;
@@ -2288,18 +2325,32 @@ export function runNextSteps(args: {
 const CONCURRENT_RUNNER = [
   "const { spawn } = require('node:child_process');",
   "const input = JSON.parse(require('node:fs').readFileSync(0, 'utf8'));",
-  'Promise.all(input.calls.map(call => new Promise(done => {',
+  'Promise.all(input.calls.map((call, index) => new Promise(done => setTimeout(() => {',
   "  const child = spawn(process.execPath, [input.entry, call.command, JSON.stringify(call.payload)], { cwd: input.cwd, env: process.env, stdio: ['ignore', 'pipe', 'pipe'] });",
   "  let out = ''; child.stdout.on('data', chunk => { out += chunk; }); child.stderr.on('data', chunk => { out += chunk; });",
   "  child.on('error', error => done({ exit: -1, out: out + String(error) }));",
   "  child.on('close', code => done({ exit: code ?? -1, out }));",
-  '}))).then(results => process.stdout.write(JSON.stringify(results)));',
+  '}, index * (input.staggerMs || 0))))).then(results => process.stdout.write(JSON.stringify(results)));',
 ].join('\n');
 
-export function runCliCallsConcurrently(cliEntry: string, calls: Array<{ command: string; payload: Record<string, unknown> }>): Array<{ exit: number; out: string }> {
+/**
+ * review.laneLaunchStaggerMs (old-PoS run 27 contention probe): the delay
+ * between one round's lane launches; 0 (default) launches them all at once.
+ */
+export function laneLaunchStaggerMs(root: string): number {
+  const raw = loadConfig(root).review?.laneLaunchStaggerMs;
+  if (raw === undefined || raw === null) return 0;
+  if (typeof raw !== 'number' || !Number.isInteger(raw) || raw < 0 || raw > 60_000) {
+    throw new Error(`invalid config: review.laneLaunchStaggerMs must be an integer 0..60000 (got ${JSON.stringify(raw)}); remove it to launch lanes at once`);
+  }
+  return raw;
+}
+
+/** Run the calls concurrently; `staggerMs` > 0 starts call i after i * staggerMs. */
+export function runCliCallsConcurrently(cliEntry: string, calls: Array<{ command: string; payload: Record<string, unknown> }>, staggerMs = 0): Array<{ exit: number; out: string }> {
   const run = spawnSync(process.execPath, ['-e', CONCURRENT_RUNNER], {
     cwd: process.cwd(), env: process.env, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 * Math.max(1, calls.length),
-    input: JSON.stringify({ entry: cliEntry, cwd: process.cwd(), calls }),
+    input: JSON.stringify({ entry: cliEntry, cwd: process.cwd(), calls, staggerMs }),
   });
   try {
     const parsed = JSON.parse(run.stdout ?? '') as Array<{ exit: number; out: string }>;
@@ -2398,8 +2449,8 @@ export function createNextDriverHandlers(ctx: HandlerContext, lookup: HandlerLoo
           resetConfigCache();
           return { exit: run.status ?? -1, out: `${run.stdout ?? ''}${run.stderr ?? ''}` };
         },
-        executeParallel: calls => {
-          const results = runCliCallsConcurrently(cliEntry, calls);
+        executeParallel: (calls, step) => {
+          const results = runCliCallsConcurrently(cliEntry, calls, step.reason === 'review_lane_launch' ? laneLaunchStaggerMs(ctx.root) : 0);
           resetConfigCache();
           return results;
         },

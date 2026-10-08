@@ -13,12 +13,16 @@
  *     instead of the `missing_scope_check` blocker. Every other DEV-entry check
  *     is unchanged, and a verdict that exists keeps today's rules (gaps / stale
  *     verdicts still block DEV entry).
- *   - No deferral with something to audit (`scopeVerdictDeferralHold`): when the
- *     scope-plan prompt lists pin-audit rows (an intent pins an expected value the
- *     request does not quote) or the request has a same-semantics sentence, a
- *     `pin-audit` / `asymmetric-example` gap changes what DEV implements; arriving
- *     mid-DEV it would come after items were built against a wrong pin (old-PoS
- *     run 23). Then DEV entry keeps the old rule: it waits for the saved verdict.
+ *   - Held per item when there is something to audit (`scopeVerdictItemHold`,
+ *     old-PoS run 27): a `pin-audit` / `asymmetric-example` gap changes what DEV
+ *     implements for the item it concerns; arriving after that item was built it
+ *     would come too late (old-PoS run 23). The items that carry pin-audit rows
+ *     (an intent pins an expected value the request does not quote) or that a
+ *     request same-semantics sentence covers (they cite its request section) are
+ *     held: `next` does not dispatch them and their implementer dispatch is
+ *     refused [scope_verdict_held_item] until the verdict lands. The other items
+ *     enter DEV beside the reviewer. When every open item is held, DEV entry
+ *     keeps the old rule: it waits for the saved verdict.
  *   - `scopeVerdictDeferral` is the one predicate the DEV-entry guard
  *     (missingPlanScopeCheckFailure), story_review and `next` share.
  *   - That live run saves its verdict in DEV (scope_check_save accepts DEV only
@@ -41,7 +45,8 @@ import { managedHostRunsRoot, readManagedHostRunProjection, verifyManagedDispatc
 import { planScopeCheckRequirement, SCOPE_PLAN_REVIEWER, type ScopeVerdictDeferral } from './plan-scope-check-requirement.js';
 import { verifyScopeCheckContentSignature } from './scope-check-integrity.js';
 import { readStoryRequest } from './story-request.js';
-import { pinAuditRows, sameSemanticsSentences } from './intent-derivation.js';
+import { intentDerivationRows, pinAuditRows, sameSemanticsCoveredItems, unquotedStatedPins } from './intent-derivation.js';
+import { isTerminalChecklistStatus } from './checklist-status.js';
 
 export interface PendingScopePlanRun { runId: string; createdAt: string; state: string }
 
@@ -62,8 +67,11 @@ export function pendingScopePlanRun(root: string, storyId: string): PendingScope
 
 /**
  * The one N8 deferral predicate (DEV-entry guard, story_review, `next`): a
- * missing verdict whose live PLAN-launched run exists is deferred only when the
- * reviewer has nothing to pin-audit.
+ * missing verdict whose live PLAN-launched run exists is deferred. Old-PoS run
+ * 27: the hold is per item (scopeVerdictItemHold). Items the reviewer audits
+ * (pin-audit rows, a same-semantics sentence covering them) are held until the
+ * verdict lands; the Story may still enter DEV when some open item is free.
+ * Only when every open item is held does DEV entry wait for the verdict (held).
  */
 export function scopeVerdictDeferral(
   store: Pick<StoryStore, 'readChecklist' | 'storyFilePath'>,
@@ -72,38 +80,88 @@ export function scopeVerdictDeferral(
 ): ScopeVerdictDeferral {
   const run = pendingScopePlanRun(root, storyId);
   if (!run) return { kind: 'none' };
-  const hold = scopeVerdictDeferralHold(store, storyId);
-  return hold ? { kind: 'held', run, reason: hold } : { kind: 'deferred', run };
+  const hold = scopeVerdictItemHold(store, storyId);
+  if (!hold) return { kind: 'deferred', run };
+  let open: string[] = [];
+  try { open = store.readChecklist(storyId).items.filter(item => !isTerminalChecklistStatus(item.status)).map(item => item.id); } catch { open = []; }
+  const held = new Set(hold.heldItemIds);
+  if (open.every(id => held.has(id))) return { kind: 'held', run, reason: hold.reason };
+  return { kind: 'deferred', run, heldItemIds: hold.heldItemIds, heldReason: hold.reason };
 }
 
 const clipSentence = (text: string): string => (text.length > 120 ? `${text.slice(0, 119)}…` : text);
 
+export interface ScopeVerdictItemHold {
+  /** Held checklist item ids, in checklist order. */
+  heldItemIds: string[];
+  /** Why each held item waits for the verdict. */
+  byItem: Record<string, string>;
+  /** One sentence for the whole hold. */
+  reason: string;
+}
+
 /**
- * Why the scope-plan verdict must NOT be deferred past DEV entry, or null when
- * the reviewer has nothing to audit. The scope-plan prompt (story-dispatch.ts
- * appendScopePlanRequestTraceability) carries the pin audit of every intent row
- * pinning a value the request does not quote, and the same-semantics rule; a
- * `pin-audit` / `asymmetric-example` gap from either changes the expected value
- * DEV implements (old-PoS run 23), so it must land before DEV. Computed from the
- * current checklist and request, the same inputs the prompt is rendered from.
- * No readable request (absent / tampered): the prompt carries no pin audit.
+ * Which items must NOT be implemented before the scope-plan verdict lands, or
+ * null when the reviewer has nothing to audit. The scope-plan prompt
+ * (story-dispatch.ts appendScopePlanRequestTraceability) carries the pin audit
+ * of every intent row pinning a value the request does not quote, and the
+ * same-semantics rule; a `pin-audit` / `asymmetric-example` gap from either
+ * changes the expected value DEV implements (old-PoS run 23), so it must land
+ * before its item is implemented. Held per item (old-PoS run 27): an item with
+ * a pin-audit row, an item whose desc or derivation computation states a value
+ * the request does not quote (unquotedStatedPins: run 27's reviewer flagged
+ * such pins with no pin-audit row), and an item a same-semantics sentence covers
+ * (sameSemanticsCoveredItems: it cites that sentence's request section, or
+ * cites no request sentence at all). Computed from the current checklist and
+ * request, the same inputs the prompt is rendered from. No readable request
+ * (absent / tampered): the prompt carries no pin audit.
  */
-export function scopeVerdictDeferralHold(store: Pick<StoryStore, 'readChecklist' | 'storyFilePath'>, storyId: string): string | null {
+export function scopeVerdictItemHold(store: Pick<StoryStore, 'readChecklist' | 'storyFilePath'>, storyId: string): ScopeVerdictItemHold | null {
   const request = readStoryRequest(store, storyId);
   if (request.status !== 'ok') return null;
   let items: Parameters<typeof pinAuditRows>[0];
   try { items = store.readChecklist(storyId).items; } catch { return null; }
-  const rows = pinAuditRows(items, request.text);
-  if (rows.length) {
-    return `its pin audit recomputes ${rows.length} intent value(s) the request does not quote (${rows.slice(0, 3).map(row => row.ref).join(', ')}${rows.length > 3 ? ` +${rows.length - 3} more` : ''}), `
-      + 'and a pin-audit gap found after DEV started would come after items were implemented against the pin (old-PoS run 23)';
+  const byItem: Record<string, string> = {};
+  for (const item of items) {
+    if (item.status === 'withdrawn') continue;
+    const rows = intentDerivationRows(item.id, item.verificationIntent, request.text);
+    if (rows.length) byItem[item.id] = `pin audit of ${rows.slice(0, 3).map(row => row.ref).join(', ')}${rows.length > 3 ? ` +${rows.length - 3} more` : ''}`;
+    // Run 27: values stated in a desc or derivation computation that the request
+    // does not quote are pins the reviewer audits too (CHK-001 Index=0 / End=nil).
+    const stated = rows.length ? [] : unquotedStatedPins(item, request.text);
+    if (stated.length) byItem[item.id] = `states ${stated.slice(0, 3).map(value => JSON.stringify(value)).join(', ')}${stated.length > 3 ? ` +${stated.length - 3} more` : ''} the request does not quote`;
   }
-  const sentences = sameSemanticsSentences(request.text);
-  if (sentences.length) {
-    return `the request has a same-semantics sentence ("${clipSentence(sentences[0]!)}") the reviewer checks for an asymmetric example, `
-      + 'and an asymmetric-example gap found after DEV started would come after items were implemented against the pins (old-PoS run 23)';
+  for (const [itemId, sentence] of sameSemanticsCoveredItems(items, request.text)) {
+    byItem[itemId] = [byItem[itemId], `same-semantics sentence "${clipSentence(sentence)}"`].filter(Boolean).join('; ');
   }
-  return null;
+  const heldItemIds = items.map(item => item.id).filter(id => byItem[id]);
+  if (!heldItemIds.length) return null;
+  return {
+    heldItemIds,
+    byItem,
+    reason: `${heldItemIds.join(', ')} ${heldItemIds.length === 1 ? 'carries' : 'carry'} what the reviewer audits (${heldItemIds.map(id => `${id}: ${byItem[id]}`).join('; ')}), `
+      + 'and a pin-audit / asymmetric-example gap found after an item was implemented would come after it was built against the pin (old-PoS run 23)',
+  };
+}
+
+/**
+ * The items DEV must not implement yet (old-PoS run 27): the Story entered DEV
+ * from PLAN, the scope-plan verdict is required and still missing, and the
+ * reviewer audits those items (scopeVerdictItemHold). Null when nothing is
+ * held. `run` is the live PLAN-launched scope-plan run, or null when none is
+ * live (then REVIEW entry / next send the Story back to PLAN anyway).
+ */
+export function scopeVerdictHeldItems(
+  store: Pick<StoryStore, 'readChecklist' | 'readUnderstanding' | 'readScopeCheck' | 'storyFilePath'>,
+  root: string,
+  story: Pick<StoryInfo, 'storyId' | 'priority' | 'riskSignals' | 'riskSignalsDismissed' | 'events'>,
+  policy: Pick<WorkflowPolicy, 'profile' | 'plan'>,
+): (ScopeVerdictItemHold & { run: PendingScopePlanRun | null }) | null {
+  if (!planScopeCheckRequirement(store, story, policy)) return null;
+  if (store.readScopeCheck(story.storyId)) return null;
+  if (!lastPlanToDevEntryAt(story)) return null;
+  const hold = scopeVerdictItemHold(store, story.storyId);
+  return hold ? { ...hold, run: pendingScopePlanRun(root, story.storyId) } : null;
 }
 
 /** When the Story last entered DEV from PLAN (the first DEV event after the last PLAN event), or null. */

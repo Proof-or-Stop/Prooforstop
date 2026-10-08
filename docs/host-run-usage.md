@@ -107,6 +107,24 @@ output, often 25k-75k tokens for a real reviewer) is returned only with
 `--json=true` or `--full=true`; write it to a file rather than printing it into
 an agent's context.
 
+Run diagnostics (old-PoS run 27, `core/managed-run-diagnostics.ts`; diagnostic
+only, never gate evidence): every managed run appends to
+`<run dir>/diagnostics.jsonl` one `command` row per provider shell command (the
+wall time between the Codex `item.started` and `item.completed` events of a
+`command_execution` item as the worker observed them, commands in flight in the
+session, live managed runs of the project) and one `load` row at each provider
+spawn and every 15 s (`PROOF_OR_STOP_HOST_LOAD_SAMPLE_MS`): `os.loadavg`, CPU
+count, free memory, live managed runs, and where readable the Linux CPU pressure
+(`/proc/pressure/cpu` some avg10) and cgroup throttling (`/sys/fs/cgroup/cpu.stat`).
+The file is capped at 512 KB. `--full=true` / `--json=true` add a `diagnostics`
+summary: command count, mean/median/p90/max wall, median wall by live runs, the
+five slowest commands, load1 mean/max, max live runs, max CPU pressure and the
+cgroup throttled-time delta. Run 27 motivated it: lane `cat`/`sed` calls took
+~5.7 s with 4 lanes live and the cause could not be isolated afterwards. For an
+A/B of the parallel lane launch, `review.laneLaunchStaggerMs` (integer 0..60000,
+default 0 = all lanes at once) makes `next --run` start one round's lane
+launches that many ms apart.
+
 To observe several runs in one call, supply `targets` instead of `runId`:
 
 ```bash
@@ -191,15 +209,18 @@ message, and a provider still running after the grace is killed as before.
 The auto-replaceable failures (`isAutoReplaceableManagedLaunchFailure`, all with
 `replacementSafe=true`) are: supervisor-not-ready, a clean provider stall
 (`provider_stalled:` with no work product), a provider transport failure with no
-work product (`provider_transport_error:`), and a managed review run that ended
+work product (`provider_transport_error:`), a managed review run that ended
 without a valid final envelope after the bounded same-session format repair
 (`managed_review_final_result_*`: a reviewer's only work product is that
-proposal, which was never written). `next` relaunches their target itself as a
+proposal, which was never written), and a managed dispatch run whose save was
+refused because its dispatch binding is stale (`managed_dispatch_binding_stale:`,
+old-PoS run 27; no save-repair turn is attempted, see below). `next` relaunches their target itself as a
 bound framework step (`targetRelaunchIsFramework`): a review lane of a round,
 the inventory critic of a wave (old-PoS run 24: the replacement critic was
 handed to the owner), a checklist item's implementer, a finding repair, or the
-scope-plan reviewer, at most `MANAGED_AUTO_RELAUNCHES_PER_TARGET` (3) such
-failures per target. After that, or after any other failure (including a
+scope-plan reviewer, or the TEST delivery reviewer (any delivery run of the
+current TEST entry that failed with `replacementSafe=true`), at most
+`MANAGED_AUTO_RELAUNCHES_PER_TARGET` (3) such failures per target. After that, or after any other failure (including a
 deadline timeout, or a stall or transport failure that left work product), the
 replacement is the agent's call.
 
@@ -474,6 +495,12 @@ managed run 完成时，以非致命的 `managed_dispatch_target_already_done` �
 `managed_dispatch_save_repair` / `managed_dispatch_save_repair_outcome` 事件。session
 不可恢复（非 Codex、provider 不可安全替换、rollout 不存在）或次数用尽时记入
 `managed_dispatch_save_repair_unavailable` 并按原样以 `managed_dispatch_output_missing` 结束。
+例外（old-PoS run 27）：若最后一次拒绝是确定性的 dispatch 绑定过期（拒绝事件带
+`code: dispatch_binding_stale`，例如 delivery reviewer 的 dispatch 之后有非 delivery-neutral
+的提交），重试必然再次被拒，因此不做同 session 修复：记入
+`managed_dispatch_save_repair_unavailable`（`reason: deterministic_binding_refusal`），
+run 以 `managed_dispatch_binding_stale: <拒绝原文>` 失败（保留 `replacementSafe`），
+由 `next` 以新的 dispatch 自动重新启动该角色。
 失败 terminal 的投影把 provider exit 0 改写为 `exitCode: 1` / `terminalReason: child_error`；
 run 20 记录的 "exit 1" 就是这个投影，provider 本身正常退出。
 PLAN scope reviewer 的 completed terminal/receipt 还封存当时精确的
