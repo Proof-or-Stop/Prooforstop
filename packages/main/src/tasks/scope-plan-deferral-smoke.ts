@@ -302,7 +302,7 @@ async function perItemScenario(): Promise<void> {
     ].join('\n');
     writeStoryRequest(f.store, { storyId: f.storyId, phase: 'PLAN', request, source: 'fixture',
       amendmentReason: 'fixture: the per-item hold scenario records a sectioned verbatim request' });
-    const intent = (desc: string, requestQuote: string, computation = `follows from the cited sentence: ${desc}`) => ({
+    const intent = (desc: string, requestQuote: string, computation = 'follows directly from the cited request sentence') => ({
       happy: [{ desc, type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story', derivation: { requestQuote, computation } }],
       edge: [], adversarial: [] });
     const item = (id: string, title: string, verificationIntent: unknown) => ({ id, title, context: 'Fixture.', status: 'todo', verificationIntent });
@@ -311,6 +311,8 @@ async function perItemScenario(): Promise<void> {
       item('CHK-002', 'Array range assignment', intent('a[0:4:2] assignment writes indexes 0 and 2', 'Support assigning to array ranges with three-part slices.')),
       item('CHK-003', 'Backward reads', intent('[1,2,3][::-1] -> [3,2,1]', 'Negative step iterates backward.', 'reading backward from index 2 gives [3,2,1]')),
       item('CHK-004', 'Forward reads', intent('a positive step reads forward', 'Positive step iterates forward.')),
+      // Run 27 CHK-001 shape: no example arrow (no pin-audit row), the pin lives in the computation.
+      item('CHK-005', 'Parse omitted start', intent('value[:5:2] parses with an omitted start', 'Accept `start:end:step` inside index brackets.', 'the start is omitted, so the parser records Index=0')),
     ] } as never);
     const gapFeature = 'asymmetric-example: Use the same index-selection semantics as read slicing.';
     writeFileSync(join(f.scripts, 'fresh.json'), JSON.stringify({ commands: [saveCommand(f, payload(f.storyId, [
@@ -323,12 +325,12 @@ async function perItemScenario(): Promise<void> {
     const policy = resolveWorkflowPolicy(loadConfig(f.root), story);
     const deferral = scopeVerdictDeferral(f.store, f.root, f.storyId) as { kind: string; heldItemIds?: string[] };
     assert.equal(deferral.kind, 'deferred', `${MARKER} G: free items exist, so the verdict is deferred per item (got ${deferral.kind})`);
-    assert.deepEqual(deferral.heldItemIds, ['CHK-002', 'CHK-003'], `${MARKER} G: exactly the same-semantics section item and the pin-audit item are held`);
+    assert.deepEqual(deferral.heldItemIds, ['CHK-002', 'CHK-003', 'CHK-005'], `${MARKER} G: exactly the same-semantics section item, the pin-audit item and the computation-pin item are held`);
     assert.equal(missingPlanScopeCheckFailure(f.store, story, policy, () => scopeVerdictDeferral(f.store, f.root, f.storyId)), null,
       `${MARKER} G: DEV entry is admitted beside the live run`);
     const review = spawnSync(process.execPath, [CLI, 'story_review', JSON.stringify({ storyId: f.storyId }), '--full'], { cwd: f.root, encoding: 'utf8', env: process.env });
     const reviewOut = `${review.stdout}${review.stderr}`;
-    assert.match(reviewOut, /scope_check_pending[^\n]*CHK-002, CHK-003/, `${MARKER} G: story_review defers the verdict and names the held items: ${reviewOut.slice(-1500)}`);
+    assert.match(reviewOut, /scope_check_pending[^\n]*CHK-002, CHK-003, CHK-005/, `${MARKER} G: story_review defers the verdict and names the held items: ${reviewOut.slice(-1500)}`);
     enterDev(f);
     const first = nextStep(f);
     assert.equal(first.cli?.payload.itemId, 'CHK-001', `${MARKER} G: next implements the first free item (got ${first.reason}: ${JSON.stringify(first.cli?.payload)})`);
@@ -365,7 +367,7 @@ async function perItemScenario(): Promise<void> {
     assert.match(prompt, /Previous scope-plan verdict/, `${MARKER} G: the rerun prompt carries the previous verdict: ${prompt.slice(-2500)}`);
     assert.ok(prompt.includes(gapFeature), `${MARKER} G: the previous verdict's gap is listed`);
     assert.match(prompt, /CHK-002[^\n]*\n[^\n]*\+ happy: a=\[1,2,3\]; a\[::-1\]=\[30,20,10\]/, `${MARKER} G: the checklist diff names the added CHK-002 row: ${prompt.slice(-2500)}`);
-    console.log(`per-item ok: CHK-002/CHK-003 held beside run ${run.runId}; CHK-001 implemented; held dispatch refused; gap → PLAN; rerun prompt carries the verdict + diff`);
+    console.log(`per-item ok: CHK-002/CHK-003/CHK-005 held beside run ${run.runId}; CHK-001 implemented; held dispatch refused; gap → PLAN; rerun prompt carries the verdict + diff`);
   } finally {
     rmSync(f.root, { recursive: true, force: true });
   }

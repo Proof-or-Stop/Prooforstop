@@ -277,6 +277,37 @@ export function sameSemanticsCoveredItems(items: readonly Pick<ChecklistItem, 'i
   return covered;
 }
 
+const COMPUTED_PIN = /\b[A-Za-z_][\w.]*\s*(?:==|=|\bis\b)\s*(?:nil|null|undefined|true|false|-?\d+(?:\.\d+)?|"[^"\n]*"|'[^'\n]*'|\[[^\]\n]*\]|\{[^}\n]*\})/g;
+
+/**
+ * Old-PoS run 27 (per-item N8 hold): concrete values an item's intent rows
+ * state outside the example arrow, i.e. in the desc or the derivation
+ * computation, that the request does not quote: `Name=value` / `Name is value`
+ * assignments (desc and computation), bracket groups and quoted strings
+ * (computation only; a desc's brackets are usually its input syntax). Run 27's scope-plan reviewer
+ * flagged `Index=0` / `End=nil` stated only in CHK-001's computations (no
+ * example arrow, so no pin-audit row). Over-inclusive on purpose: it only
+ * decides whether an item waits for the scope-plan verdict.
+ */
+export function unquotedStatedPins(item: Pick<ChecklistItem, 'verificationIntent'>, requestText: string): string[] {
+  const squashedRequest = squash(requestText);
+  const pins = new Set<string>();
+  for (const lane of VERIFICATION_LANES) {
+    for (const row of item.verificationIntent?.[lane] ?? []) {
+      const derivation = (row as { derivation?: Partial<VerificationIntentDerivation> }).derivation;
+      // A desc's own brackets are usually the input syntax (value[1:5:2]); its
+      // example value is the pin audit's. Computations: every stated value.
+      for (const [text, all] of [[String(row.desc ?? ''), false], [typeof derivation?.computation === 'string' ? derivation.computation : '', true]] as const) {
+        const found = [...text.matchAll(COMPUTED_PIN)].map(match => match[0]);
+        if (all) for (const group of bracketGroups(text)) found.push(group);
+        if (all) for (const match of text.matchAll(/"((?:[^"\\]|\\.)+)"/g)) found.push(match[1]!);
+        for (const value of found) if (squash(value) && !squashedRequest.includes(squash(value))) pins.add(value);
+      }
+    }
+  }
+  return [...pins];
+}
+
 /** Every non-withdrawn intent row pinning a value the request does not quote (the pin-audit rows), with or without a valid derivation. */
 export function pinAuditRows(items: readonly Pick<ChecklistItem, 'id' | 'status' | 'verificationIntent'>[], requestText: string): IntentDerivationRow[] {
   return items.filter(item => item.status !== 'withdrawn').flatMap(item => intentDerivationRows(item.id, item.verificationIntent, requestText));

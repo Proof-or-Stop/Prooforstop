@@ -45,7 +45,7 @@ import { managedHostRunsRoot, readManagedHostRunProjection, verifyManagedDispatc
 import { planScopeCheckRequirement, SCOPE_PLAN_REVIEWER, type ScopeVerdictDeferral } from './plan-scope-check-requirement.js';
 import { verifyScopeCheckContentSignature } from './scope-check-integrity.js';
 import { readStoryRequest } from './story-request.js';
-import { intentDerivationRows, pinAuditRows, sameSemanticsCoveredItems } from './intent-derivation.js';
+import { intentDerivationRows, pinAuditRows, sameSemanticsCoveredItems, unquotedStatedPins } from './intent-derivation.js';
 import { isTerminalChecklistStatus } from './checklist-status.js';
 
 export interface PendingScopePlanRun { runId: string; createdAt: string; state: string }
@@ -108,7 +108,9 @@ export interface ScopeVerdictItemHold {
  * same-semantics rule; a `pin-audit` / `asymmetric-example` gap from either
  * changes the expected value DEV implements (old-PoS run 23), so it must land
  * before its item is implemented. Held per item (old-PoS run 27): an item with
- * a pin-audit row, and an item a same-semantics sentence covers
+ * a pin-audit row, an item whose desc or derivation computation states a value
+ * the request does not quote (unquotedStatedPins: run 27's reviewer flagged
+ * such pins with no pin-audit row), and an item a same-semantics sentence covers
  * (sameSemanticsCoveredItems: it cites that sentence's request section, or
  * cites no request sentence at all). Computed from the current checklist and
  * request, the same inputs the prompt is rendered from. No readable request
@@ -124,6 +126,10 @@ export function scopeVerdictItemHold(store: Pick<StoryStore, 'readChecklist' | '
     if (item.status === 'withdrawn') continue;
     const rows = intentDerivationRows(item.id, item.verificationIntent, request.text);
     if (rows.length) byItem[item.id] = `pin audit of ${rows.slice(0, 3).map(row => row.ref).join(', ')}${rows.length > 3 ? ` +${rows.length - 3} more` : ''}`;
+    // Run 27: values stated in a desc or derivation computation that the request
+    // does not quote are pins the reviewer audits too (CHK-001 Index=0 / End=nil).
+    const stated = rows.length ? [] : unquotedStatedPins(item, request.text);
+    if (stated.length) byItem[item.id] = `states ${stated.slice(0, 3).map(value => JSON.stringify(value)).join(', ')}${stated.length > 3 ? ` +${stated.length - 3} more` : ''} the request does not quote`;
   }
   for (const [itemId, sentence] of sameSemanticsCoveredItems(items, request.text)) {
     byItem[itemId] = [byItem[itemId], `same-semantics sentence "${clipSentence(sentence)}"`].filter(Boolean).join('; ');
