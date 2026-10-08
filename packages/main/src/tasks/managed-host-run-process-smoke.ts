@@ -136,7 +136,7 @@ async function main(): Promise<void> {
   assert.equal(codexAdapter.exitCode, 0, 'injected Codex adapter plan completes without a provider subprocess');
   assert.equal(codexAdapterPlans.length, 1, 'the injected Codex adapter reaches exactly one runner plan');
   const codexAdapterPlan = codexAdapterPlans[0]!;
-  assert.deepEqual(codexAdapterPlan.argv, ['exec', '--json', '-s', 'danger-full-access', '-C', codexAdapterRoot, '-'],
+  assert.deepEqual(codexAdapterPlan.argv, ['exec', '--json', '--config', 'skills.include_instructions=false', '--config', 'features.multi_agent=false', '--config', 'features.multi_agent_v2=false' /* N7 */, '-s', 'danger-full-access', '-C', codexAdapterRoot, '-'],
     'managed Codex delegates filesystem isolation to the outer signed read-only lane so nested macOS seatbelt setup cannot fail');
   assert.equal(codexAdapterPlan.stdinText, 'protected managed review prompt',
     'managed Codex receives the prompt only through stdin');

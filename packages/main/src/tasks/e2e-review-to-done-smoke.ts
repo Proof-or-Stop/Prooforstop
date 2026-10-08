@@ -119,6 +119,10 @@
  *      next item); in PLAN next proposes the audited intent revision
  *      (checklist_update verificationIntent + reason, item back to pending);
  *      after it the conflict no longer blocks and DEV re-implements the item.
+ *   NIN N4 (old-PoS runs 22-24): no Story yet; `next` prints one complete
+ *      story_create template, then `next --run` alone drives INIT (scope freeze
+ *      check, both managed INIT reviewers launched in parallel and waited on,
+ *      INIT_CHECK, PLAN) and stops at PLAN's first agent step.
  *   NQ run 23 / run 24 (D2, D3, F3): D's next-driven flow with a recorded
  *      request: every REVIEW lane prompt carries the verbatim request and the
  *      request-outranks-intent rubric, the critic prompt the no-limitation
@@ -150,7 +154,7 @@
  *      implementer and finding-repair run seals the arm and carries the item pack).
  *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5 ND-V6.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NI|NQ|AB|ND-V1..NF-V6]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NI|NIN|NQ|NP|AB|ND-V1..NF-V6]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -177,6 +181,7 @@ const SELF = fileURLToPath(import.meta.url);
 const MODEL = QUALIFIED_MANAGED_REVIEWER_DEFAULTS.codex;
 const FINAL_SCHEMA = 'lattice.managed_review_final_proposal.v1';
 const DELIVERY = 'proof-or-stop-review-delivery';
+const INIT_REVIEWERS: readonly string[] = ['proof-or-stop-review-story-init', 'proof-or-stop-product-reviewer'];
 /** Files whose uncommitted change makes validate / done_prepare refuse (VALIDATION_PUBLICATION_NOT_READY). */
 const PUBLICATION_SET = ['test-evidence.json', 'process-events.jsonl', 'closeout-write-receipts.jsonl'];
 /** Steps that refuse when the publication set is dirty. */
@@ -215,23 +220,24 @@ const TESTS = [
 
 export class Owner {
   readonly root: string;
-  readonly worktree: string;
+  get worktree(): string { return join(this.root, '.worktrees', this.storyId); }
   readonly store: StoryStore;
   private readonly providerBin: string;
   private get installedCliBin(): string { return `${this.root}-installed-cli`; }
   private readonly scripts: string;
   private readonly env: NodeJS.ProcessEnv;
 
-  constructor(readonly scenario: string, readonly storyId: string, machineEnv: NodeJS.ProcessEnv, readonly steps: Step[], readonly bareGitignore = false,
+  constructor(readonly scenario: string, public storyId: string, machineEnv: NodeJS.ProcessEnv, readonly steps: Step[], readonly bareGitignore = false,
     private readonly fixtureOpts: { trackedGateFailureCounts?: boolean;
       /** Detection A/B switches merged into the prepared proof-or-stop.config.json (scenario AB). */
       config?: Record<string, unknown>;
       /** The Story branch has no implementation commit yet: DEV implementer runs write it (scenario AB V5). */
       unimplemented?: boolean;
       /** The verbatim request recorded at INIT (request.md + request.json), as story_create stores it (scenarios NI, NQ). */
-      request?: string } = {}) {
+      request?: string;
+      /** NIN: no Story yet; the owner creates it with story_create from the main checkout (INIT driven by next). */
+      fromScratch?: boolean } = {}) {
     this.root = realpathSync(mkdtempSync(join(tmpdir(), `e2e-r2d-${scenario}-`)));
-    this.worktree = join(this.root, '.worktrees', storyId);
     this.store = new StoryStore(this.root);
     this.providerBin = `${this.root}-provider`;
     this.scripts = join(this.providerBin, 'scripts');
@@ -299,6 +305,7 @@ export class Owner {
     }, null, 2)}\n`);
     git(root, ['add', 'proof-or-stop.config.json']);
     git(root, ['commit', '-qm', 'benchmark: configure PoS Go validation before Story']);
+    if (this.fixtureOpts.fromScratch) return;
 
     const now = new Date().toISOString();
     const intent = (id: string, desc: string) => ({
@@ -1390,8 +1397,15 @@ function provideScript(root: string, storyId: string, scriptsDir: string, modeJs
   const spec = JSON.parse(readFileSync(join(root, '.proof-or-stop', 'runtime', 'host-runs', runId, 'spec.json'), 'utf8')) as
     { agentType: string; reviewRunId?: string | null; managedDispatchTarget?: { findingId?: string; groupFindingIds?: string[] } | null };
   const worktree = join(root, '.worktrees', storyId);
-  const store = new StoryStore(worktree);
   let script: ProviderScript;
+  if (INIT_REVIEWERS.includes(spec.agentType)) {
+    // NIN: an INIT reviewer records a clean verdict with init_check_set (the managed worker's env binds it).
+    mkdirSync(join(scriptsDir, 'byrun'), { recursive: true });
+    writeFileSync(join(scriptsDir, 'byrun', `${runId}.json`), JSON.stringify({ final: 'INIT review complete; init_check_set recorded.',
+      commands: [[process.execPath, CLI, 'init_check_set', JSON.stringify({ storyId, issues: [] })]] }));
+    return;
+  }
+  const store = new StoryStore(worktree);
   if (spec.agentType === DELIVERY) script = deliveryScript(storyId);
   else if (spec.agentType === FINDING_REPAIR) {
     const findingId = spec.managedDispatchTarget?.findingId ?? '';
@@ -2616,8 +2630,111 @@ function scenarioNP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
+/** NIN: the owner's values for the story_create template next prints (every '<...>' replaced). */
+function fillStoryCreateTemplate(template: Record<string, unknown>): Record<string, unknown> {
+  const filled = JSON.parse(JSON.stringify(template)) as Record<string, any>;
+  Object.assign(filled, { name: 'strs-upper', title: 'Upper returns the upper-case form of a string', type: 'bug', priority: 'medium',
+    description: 'strs.Upper returns its input unchanged; docs/types/string.md promises the upper-case form.',
+    keywords: ['strs', 'upper', 'string'],
+    background: [
+      '## Trigger Event', 'On 2026-10-08 the benchmark-shaped fixture reports that strs.Upper returns its input unchanged, contrary to docs/types/string.md.',
+      '## Key Insights', 'strs.Upper is a one-line stub returning s; the documented behavior is strings.ToUpper, so the fix is local to strs/strs.go and its test.',
+      '## Solution Tradeoffs', 'Call strings.ToUpper directly instead of a hand-written loop; keep the function signature and every other helper unchanged.',
+      '## Conversational Texture', 'The request is a single sentence with an exact expected output, so acceptance is one named Go test with an exact selector.',
+    ].join('\n\n') });
+  const item = filled.checklist[0];
+  Object.assign(item, { title: 'Upper returns the upper-case form', context: 'strs/strs.go Upper returns s unchanged; it must call strings.ToUpper.',
+    userSees: 'go test -v ./strs -run TestUpper prints --- PASS: TestUpper', files: { modify: ['strs/strs.go'], test: ['strs/strs_test.go'] } });
+  Object.assign(item.verificationIntent.happy[0], { desc: 'Upper("ab") -> "AB"', verification: { command: 'go test -v ./strs -run ^TestUpper$', selector: '--- PASS: TestUpper' } });
+  Object.assign(filled.scopeBoundary, { mode: 'correctness_fix', allowed: ['strs: Upper returns the upper-case form'], excluded: ['other string helpers'],
+    confirmation: 'derived from the fixture request' });
+  filled.executionBoundary.allowedCommands = (filled.executionBoundary.allowedCommands as string[]).filter(entry => !entry.startsWith('<'));
+  filled.executionBoundary.allowedPaths = ['strs/'];
+  const left = JSON.stringify(filled).match(/<[^>]*>/g);
+  assert.equal(left, null, `[NIN] the harness left template placeholders unfilled: ${String(left)}`);
+  return filled;
+}
+
+/**
+ * NIN (N4, old-PoS runs 22-24: 30-36 owner requests in INIT, help pages,
+ * manual INIT reviewer launches and polls). From an empty project the owner
+ * runs `next` (no Story): it prints ONE complete story_create template (scope
+ * and execution boundary inline, every placeholder described, so no --help).
+ * After story_create, `next --run` alone must drive INIT: record the scope
+ * freeze check, launch BOTH managed INIT reviewers (framework steps; the first
+ * launch uses the qualified managed-reviewer default selection), wait, enter
+ * INIT_CHECK and PLAN, and stop at PLAN's first agent step. No INIT step may be
+ * returned to the owner.
+ */
+function scenarioNIN(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NIN';
+  const name = 'NIN N4: next prints the story_create template, then next --run drives INIT to PLAN (reviewers launched and waited by the framework)';
+  const o = new Owner(tag, 'B-0000', machineEnv, steps, false, { fromScratch: true });
+  const lines: string[] = [];
+  try {
+    const first = o.cli('next', { json: true }, { label: 'next (no Story)' });
+    const template = parseJson(first.stdout) as unknown as NextStepJson | null;
+    assert.equal(template?.reason, 'story_create_authoring', `[NIN] next without a Story must print the story_create template:\n${first.out.slice(-1500)}`);
+    assert.equal(template!.cli?.command, 'story_create', '[NIN] the template is a story_create command');
+    for (const key of ['scopeBoundary', 'executionBoundary', 'checklist', 'background']) {
+      assert.ok(template!.cli!.payload[key] !== undefined, `[NIN] the story_create template carries ${key}`);
+    }
+    const missingHints = placeholderHintViolations(template!);
+    assert.deepEqual(missingHints, [], `[NIN] every template placeholder has a one-line hint`);
+    assert.ok(Object.values(template!.placeholderHints ?? {}).every(hint => hint !== 'author this value'), `[NIN] no generic hint: ${JSON.stringify(template!.placeholderHints)}`);
+    const created = o.mustCli('story_create', fillStoryCreateTemplate(template!.cli!.payload), { label: 'story_create (template)' });
+    const id = created.stdout.match(/Story (B-[a-f0-9]+) created/)?.[1];
+    assert.ok(id, `[NIN] story_create returned an id:\n${created.out.slice(-1500)}`);
+    o.storyId = id!;
+    assert.ok(created.stdout.includes(`Next: proof-or-stop next --storyId=${id} --run`), `[NIN] story_create names next --run as the next step:\n${created.stdout.slice(-1500)}`);
+    writeFileSync(join(o.scriptsDir, 'resolver.json'), JSON.stringify({ argv: [process.execPath, SELF, '--provide-script', o.root, id, o.scriptsDir, JSON.stringify({ findingRound1: false })] }));
+    const ran: string[] = [];
+    const ownerSteps: string[] = [];
+    let next: NextStepJson | undefined;
+    for (let call = 0; call < 8; call += 1) {
+      const asked = o.cli('next', { storyId: id, run: true, json: true }, { label: 'next --run' });
+      const parsed = parseJson(asked.stdout);
+      next = parsed?.next as NextStepJson | undefined;
+      assert.ok(next, `[NIN] next --run returned no step:\n${asked.out.slice(-2000)}`);
+      for (const row of (parsed!.executed ?? []) as Array<{ command: string; reason: string; exit: number; tail: string }>) {
+        ran.push(row.reason);
+        assert.equal(row.exit, 0, `[NIN] next --run executed a step its gate refused: ${row.command}\n${row.tail}`);
+      }
+      assert.equal(parsed!.stopped ?? null, null, `[NIN] next --run stopped: ${String(parsed!.stopped)}\n${asked.out.slice(-2000)}`);
+      if (next.phase === 'INIT' || next.phase === 'INIT_CHECK') {
+        if (next.wait || parsed!.paused) continue;
+        ownerSteps.push(`${next.phase}:${next.kind}:${next.reason}`);
+        break;
+      }
+      break;
+    }
+    assert.deepEqual(ownerSteps, [], `[NIN] next returned INIT steps to the owner: ${ownerSteps.join(', ')} (why: ${next?.why.slice(0, 400)})`);
+    assert.equal(next?.phase, 'PLAN', `[NIN] next --run must reach PLAN; at ${next?.phase} ${next?.reason}: ${next?.why.slice(0, 400)}`);
+    for (const reason of ['scope_freeze_check', 'init_review_launch', 'enter_init_check', 'enter_plan']) {
+      assert.ok(ran.includes(reason), `[NIN] next --run ran ${reason} itself (ran: ${ran.join(' > ')})`);
+    }
+    assert.equal(ran.filter(reason => reason === 'init_review_launch').length, 2, `[NIN] both INIT reviewers launched by the framework (ran: ${ran.join(' > ')})`);
+    const firstWait = ran.indexOf('managed_run_wait');
+    assert.ok(firstWait < 0 || ran.lastIndexOf('init_review_launch') < firstWait, `[NIN] both INIT reviewers launch before the first wait (parallel): ${ran.join(' > ')}`);
+    const runsRoot = join(o.root, '.proof-or-stop', 'runtime', 'host-runs');
+    for (const runId of readdirSync(runsRoot)) {
+      const spec = JSON.parse(readFileSync(join(runsRoot, runId, 'spec.json'), 'utf8')) as { agentType: string; model?: string; reasoningEffort?: string };
+      if (!INIT_REVIEWERS.includes(spec.agentType)) continue;
+      assert.equal(spec.model, MODEL.model, `[NIN] first INIT launch uses the qualified default model`);
+      assert.equal(spec.reasoningEffort, MODEL.reasoningEffort, `[NIN] first INIT launch uses the qualified default effort`);
+    }
+    lines.push(`owner INIT turns: next (template) + story_create + ${ran.length ? 'next --run' : ''}; framework steps: ${ran.join(' > ')}`);
+    lines.push(`stopped at ${next!.phase} ${next!.kind}:${next!.reason}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NI|NQ|NP|N[AD](?:-run)?|N[DF]-V[1-6]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NI|NIN|NQ|NP|N[AD](?:-run)?|N[DF]-V[1-6]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -2658,6 +2775,7 @@ async function main(): Promise<void> {
     if (only.includes('NC9')) outcomes.push(scenarioNC9(machine.env, steps));
     if (only.includes('NI')) outcomes.push(scenarioNI(machine.env, steps));
     if (only.includes('NQ')) outcomes.push(scenarioNQ(machine.env, steps));
+    if (only.includes('NIN')) outcomes.push(scenarioNIN(machine.env, steps));
     if (only.includes('NP')) outcomes.push(scenarioNP(machine.env, steps));
     // Detection A/B arms: explicit tokens (ND-V1 .. NF-V6) or AB = ND-V1, ND-V2, ND-V3, NF-V4, ND-V5, ND-V6.
     const abTokens = only.includes('AB') ? ['ND-V1', 'ND-V2', 'ND-V3', 'NF-V4', 'ND-V5', 'ND-V6'] : [];
@@ -2667,7 +2785,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NI', 'NQ', 'NP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NI', 'NIN', 'NQ', 'NP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

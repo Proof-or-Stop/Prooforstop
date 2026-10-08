@@ -14,7 +14,8 @@ import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { observedGit } from './git-tree-observation.js';
 import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
+import { worktreeChangeWitness } from './git-ref-witness-memo.js';
 import ts from 'typescript';
 import type { ScopeDiffHunk, ScopeDiffPack } from './types.js';
 import { readChangedFiles } from './scope-contract.js';
@@ -590,24 +591,10 @@ export function buildScopeDiffPack(
   gitCwd = metadataRoot,
 ): ScopeDiffPack {
   const astMode = loadConfig(metadataRoot).scopeProtection?.astAnchors ?? 'enforce';
+  const { changedFiles, hunks } = memoizedScopeDiff(gitCwd, astMode, () => ({ changedFiles: readChangedFiles(gitCwd), hunks: scopeDiffHunks(gitCwd, astMode) }));
   const packWithoutHash = {
-    changedFiles: readChangedFiles(gitCwd),
-    hunks: astMode === 'off'
-      ? parseUnifiedDiff(gitCwd, readUnifiedDiff(gitCwd)).map((hunk) => ({
-        ...hunk,
-        anchor: undefined,
-        anchors: undefined,
-        anchorKind: undefined,
-        anchorRange: undefined,
-        previousAnchor: undefined,
-        previousAnchors: undefined,
-        previousAnchorKind: undefined,
-        previousAnchorRange: undefined,
-        anchorParserVersion: undefined,
-        anchorArtifactVersion: undefined,
-        parseFallback: 'ast_anchor_rollout_off_legacy_history_preserved',
-      }))
-      : parseUnifiedDiff(gitCwd, readUnifiedDiff(gitCwd)),
+    changedFiles,
+    hunks,
     generatedAt: now,
     ...(astMode !== 'off' ? {
       anchorParserVersion: SCOPE_ANCHOR_PARSER_VERSION,
@@ -623,4 +610,47 @@ export function buildScopeDiffPack(
     diffPackHash: digestScopeDiffPack(packWithoutHash),
     ...(semanticAnalysisUnavailable.length > 0 ? { semanticAnalysisUnavailable } : {}),
   };
+}
+
+/**
+ * N9: one gate command builds the scope diff pack several times (story_advance
+ * TEST 4x, DONE 5x: 8 git child processes each). The changed-file list and the
+ * parsed hunks are a function of the checkout's diff state, so they are reused
+ * while worktreeChangeWitness (ref state, index, status and the bytes of every
+ * listed path) is unchanged, taken before and after the build. Never a verdict
+ * cache: every caller still evaluates its gate on the pack.
+ */
+const scopeDiffMemo = new Map<string, { witness: string; changedFiles: string[]; hunks: ScopeDiffHunk[] }>();
+function memoizedScopeDiff(gitCwd: string, astMode: string, build: () => { changedFiles: string[]; hunks: ScopeDiffHunk[] }): { changedFiles: string[]; hunks: ScopeDiffHunk[] } {
+  const key = `${resolve(gitCwd)}\0${astMode}`;
+  const before = worktreeChangeWitness(gitCwd);
+  const known = scopeDiffMemo.get(key);
+  if (before !== undefined && known && known.witness === before) {
+    return { changedFiles: [...known.changedFiles], hunks: structuredClone(known.hunks) };
+  }
+  const built = build();
+  if (before !== undefined && worktreeChangeWitness(gitCwd) === before) {
+    if (scopeDiffMemo.size >= 16) scopeDiffMemo.delete(scopeDiffMemo.keys().next().value!);
+    scopeDiffMemo.set(key, { witness: before, changedFiles: [...built.changedFiles], hunks: structuredClone(built.hunks) });
+  }
+  return built;
+}
+
+function scopeDiffHunks(gitCwd: string, astMode: string): ScopeDiffHunk[] {
+  return astMode === 'off'
+      ? parseUnifiedDiff(gitCwd, readUnifiedDiff(gitCwd)).map((hunk) => ({
+        ...hunk,
+        anchor: undefined,
+        anchors: undefined,
+        anchorKind: undefined,
+        anchorRange: undefined,
+        previousAnchor: undefined,
+        previousAnchors: undefined,
+        previousAnchorKind: undefined,
+        previousAnchorRange: undefined,
+        anchorParserVersion: undefined,
+        anchorArtifactVersion: undefined,
+        parseFallback: 'ast_anchor_rollout_off_legacy_history_preserved',
+      }))
+      : parseUnifiedDiff(gitCwd, readUnifiedDiff(gitCwd));
 }
