@@ -19,11 +19,14 @@
 // in production. The malformed envelope is the byte-exact saved RR-009 output.
 
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+import { defaultHostRunRunner, runHostRun } from '../core/host-run.js';
 import {
+  isAutoReplaceableManagedLaunchFailure,
   managedHostRunDirectory,
   managedHostRunReceipt,
   readManagedHostRunResult,
@@ -38,6 +41,10 @@ const STORY = 'B-d1e8';
 const LANE = 'proof-or-stop-review-docs';
 const REVIEW_RUN = 'B-d1e8:RR-009';
 const THREAD = '019a1f18-c8d8-7000-8000-00000000d0c5';
+const PROSE_MARKER = 'managed-final-json-repair: a prose-only final message (no JSON envelope) was not repaired in the same session';
+const DESCRIPTOR_MARKER = 'managed-final-json-repair: a descriptor peer close after the provider turn completed failed the run';
+// Old-PoS run 24 (B-c9ea:RR-005, critic): its last agent_message, byte-exact.
+const RUN24_PROSE_FINAL = "The proposal validates. I'll now emit the single required JSON object as my final result.";
 
 // Saved finalAssistantResult of the rejected RR-009 run (byte-exact).
 const RR009_MALFORMED: string = "{\"schemaVersion\": \"lattice.managed_review_final_proposal.v1\", \"storyId\": \"B-d1e8\", \"providerAgent\": \"proof-or-stop-review-docs\", \"lane\": \"proof-or-stop-review-docs\", \"reviewRunId\": \"B-d1e8:RR-009\", \"conclusion\": \"pass\", \"note\": \"Re-review of story B-d1e8 stepped index ranges at candidate 1f18c8d8700071ce67da2d7746f307c203f3952e (docs consistency lane). Prior finding B-d1e8:F-005 is FIXED: docs/src/docs/types/array.md:43 now reads `array[0:2] # [0, 1]` and :52 `array[:2] # [0, 1]`, and the surrounding prose now states start is inclusive and end is exclusive, matching the evaluator. Earlier non-docs findings confirmed resolved against the new material: B-d1e8:F-001 (backing-array sharing) is fixed by the new unit-step view path in evaluator/evaluator.go:1508-1531 - verified by running the built binary that `a=[1,2,3,4]; b=a[0:2]; b[0]=99` yields a[0]=99, and likewise for `a[0:2:1]`; B-d1e8:F-002/F-003/F-004 (under-bound parser/evaluator test coverage) are addressed by new cases and pass. Re-verified every documentation example touched by the diff by running a locally built binary from this checkout: array.md (`array[0:2]`->[0,1], `array[:2]`->[0,1], `array[7:]`->[7,8,9], `array[:-3]`->[0..6], `array[1:5:2]`->[1,3], `array[::2]`->[0,2,4], `array[4::-1]`->[4,3,2,1,0], `array[::0]`->slice step cannot be 0), string.md (`\"012345\"[1:5:2]`->13, `[::2]`->024, `[4::-1]`->43210, `[::0]` error), assignments.md (`a[1:4]=[10,20,30]`, `a[::2]=9`, `a[0:2]=[1]` size mismatch, `s[0]=A`, `s[1:3]=XY`, `s[3:]=-` broadcast), examples/index_ranges.abs and examples/unicode.abs. All match the implementation; parser/evaluator test suites pass (`go test ./parser ./evaluator`). Variant analysis on the changed docs: the analogous two-part range examples in string.md were already exclusive and remain consistent; no other in-scope doc paragraph describes the changed range behavior incorrectly. Non-blocking, out-of-scope observation (unchanged by this story and not about index ranges): examples/index_ranges.abs:4 comment `str.split(\"\")[:5]` shows `[\"H\", \"e\", \"l\", \"l\", \"o\"]` but the binary prints `[\"Hello world!\"]`; identical behavior exists on the base revision, so it is pre-existing and not a Story regression. Controller-fetched canonical reports: acceptance_topology_check pass, pre_review_check_read pass, acceptance_rollout_report_read missing (AR_REPORT_MISSING, blocking=false), acceptance_rollout_check missing (AR_REPORT_MISSING, blocking=false).\", \"readManifest\": {\"filesReadFully\": [\"docs/src/docs/types/array.md\", \"docs/src/docs/types/string.md\", \"docs/src/docs/syntax/assignments.md\", \"examples/index_ranges.abs\", \"examples/unicode.abs\"], \"filesTriagedByName\": [\"tests/test-assign-index.abs\", \"ast/ast_test.go\", \"ast/ast.go\", \"evaluator/evaluator_test.go\", \"evaluator/evaluator.go\", \"parser/parser_test.go\", \"parser/parser.go\"], \"scanEscalationReason\": \"The repository requirements corpus is still unavailable and the prior candidate binding is stale after remediation, so the full repaired parser/AST/evaluator/docs material must be re-scanned for the fresh review round.\", \"candidateSpecSetDigest\": \"6cdc41a9d6483eb4e07d9e041d14cbfe35f86408ff3ab5b4519a764c91f62422\", \"corpusDigest\": \"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945\"}, \"readLog\": {\"filesReadFully\": [\"docs/src/docs/types/array.md\", \"docs/src/docs/types/string.md\", \"docs/src/docs/syntax/assignments.md\", \"examples/index_ranges.abs\", \"examples/unicode.abs\"], \"filesTriagedByName\": [\"tests/test-assign-index.abs\", \"ast/ast_test.go\", \"ast/ast.go\", \"evaluator/evaluator_test.go\", \"evaluator/evaluator.go\", \"parser/parser_test.go\", \"parser/parser.go\"], \"summary\": {\"readCount\": 5, \"tokenCount\": null}, \"digest\": \"98f172c84b33306ee58f6de26ac39de529f4369c5e61d938632f2cb5e9eca222\"}}";
@@ -64,12 +71,21 @@ let input = ''; process.stdin.on('data', d => { input += d; }); process.stdin.on
   fs.appendFileSync(path.join(state, 'invocations.jsonl'), JSON.stringify({ argv: process.argv.slice(2), stdin: input }) + '\\n');
   const emit = e => process.stdout.write(JSON.stringify(e) + '\\n');
   emit({ type: 'thread.started', thread_id: ${JSON.stringify(THREAD)} });
-  if (!resumed && mode !== 'nosession') {
+  if (!resumed && mode !== 'nosession' && !mode.startsWith('transport')) {
     const dir = path.join(process.env.CODEX_HOME, 'sessions', '2026', '09', '30');
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(path.join(dir, 'rollout-2026-09-30T06-58-17-${THREAD}.jsonl'), '{}\\n');
   }
   emit({ type: 'turn.started' });
+  // Run 24 (F1): a provider transport failure. Codex reports its own stream
+  // error event, fails the turn and exits 1; transport-work first edits the cwd.
+  if (mode.startsWith('transport')) {
+    if (mode === 'transport-work') fs.writeFileSync(path.join(process.cwd(), 'work.txt'), 'partial edit\\n');
+    const message = 'stream disconnected before completion: error sending request for url (https://api.example.invalid/v1/responses): Connection reset by peer (os error 54)';
+    emit({ type: 'error', message });
+    emit({ type: 'turn.failed', error: { message } });
+    process.exit(1);
+  }
   let text = fs.readFileSync(path.join(state, resumed && mode === 'repair' ? 'valid.txt' : 'malformed.txt'), 'utf8');
   // A failing repair that still changes its output (an unchanged one stops early).
   if (resumed && mode === 'fail') text = text.replace('Re-review of story', 'Re-review (attempt ' + fs.readFileSync(path.join(state, 'invocations.jsonl'), 'utf8').trim().split('\\n').length + ') of story');
@@ -87,7 +103,8 @@ interface Outcome {
   runId: string;
 }
 
-async function runCase(base: string, name: string, mode: 'repair' | 'fail' | 'nosession'): Promise<Outcome> {
+async function runCase(base: string, name: string, mode: 'repair' | 'fail' | 'nosession' | 'transport' | 'transport-work',
+  first: string = RR009_MALFORMED): Promise<Outcome> {
   const root = join(base, name);
   const state = join(root, '.fake-codex');
   const bin = join(root, '.fake-bin');
@@ -96,8 +113,17 @@ async function runCase(base: string, name: string, mode: 'repair' | 'fail' | 'no
   mkdirSync(codexHome, { recursive: true });
   writeFakeCodex(bin, state);
   writeFileSync(join(state, 'mode'), mode);
-  writeFileSync(join(state, 'malformed.txt'), RR009_MALFORMED);
+  writeFileSync(join(state, 'malformed.txt'), first);
   writeFileSync(join(state, 'valid.txt'), repairedEnvelope());
+  writeFileSync(join(state, 'invocations.jsonl'), '');
+  if (mode.startsWith('transport')) {
+    // A clean Git work tree, so "no work product" is observable (an
+    // unobservable cwd never proves it); the fixture state itself is ignored.
+    writeFileSync(join(root, '.gitignore'), '.fake-codex/\n.fake-bin/\n.codex-home/\n');
+    for (const args of [['init', '-q'], ['add', '.gitignore'], ['-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-qm', 'init']]) {
+      execFileSync('git', args, { cwd: root, stdio: 'ignore' });
+    }
+  }
   let worker: Promise<ManagedHostRunTerminal> | null = null;
   const submitted = await submitManagedHostRun(
     {
@@ -195,6 +221,80 @@ async function main(): Promise<void> {
     assert.match(c.terminal.reason, /^managed_review_final_result_invalid:managed_review_final_result_malformed/);
     assert.equal(c.invocations.length, 1, 'no repair launch without a resumable session');
     assert.equal(repairEvents(c).length, 0);
+
+    const autoReplaceable = (terminal: ManagedHostRunTerminal) => isAutoReplaceableManagedLaunchFailure({
+      state: terminal.state, replacementSafe: terminal.replacementSafe, terminalReason: terminal.reason });
+    // Old-PoS run 24 (F2): an exhausted format repair left no proposal, so next relaunches it itself.
+    assert.equal(autoReplaceable(b.terminal), true, 'an exhausted format repair with no proposal is auto-replaceable');
+
+    // (D) Old-PoS run 24 (F1, B-c9ea:RR-005): the critic validated its proposal,
+    // then ended the turn with prose and no JSON. The missing envelope goes
+    // through the same-session format repair with the exact error.
+    const d = await runCase(base, 'prose-final', 'repair', RUN24_PROSE_FINAL);
+    assert.equal(d.terminal.state, 'completed', `${PROSE_MARKER} (terminal ${d.terminal.state}: ${d.terminal.reason})`);
+    assert.equal(d.invocations.length, 2, 'exactly one format-repair turn after the prose-only final message');
+    assert.deepEqual(d.invocations[1]!.argv.slice(0, 2), ['exec', 'resume'], 'the repair resumes the session');
+    assert.equal(d.invocations[1]!.argv.at(-2), THREAD, 'the repair resumes the SAME provider session');
+    assert.match(d.invocations[1]!.stdin, /final message must be the JSON envelope/, 'the repair prompt names the exact error');
+    assert.doesNotMatch(d.invocations[1]!.stdin, /same content as your previous final message/, 'the prose message is not the content to keep');
+    const dRepairs = repairEvents(d);
+    assert.equal(dRepairs.length, 1);
+    assert.match(String(dRepairs[0]!.detail?.error), /^managed_review_final_result_missing: final message must be the JSON envelope/);
+    assert.ok(readManagedReviewEvidenceProposal(d.root, d.runId), 'the re-emitted envelope becomes the proposal');
+
+    // (E) Every turn ends in prose: bounded attempts, then a failed terminal
+    // that next relaunches itself (no proposal exists).
+    const e = await runCase(base, 'prose-always', 'fail', RUN24_PROSE_FINAL);
+    assert.equal(e.terminal.state, 'failed');
+    assert.match(e.terminal.reason, /^managed_review_final_result_invalid:managed_review_final_result_missing/);
+    assert.equal(e.invocations.length, 3, 'one review turn plus two bounded repair turns');
+    assert.equal(autoReplaceable(e.terminal), true, 'a missing envelope after exhausted repairs is auto-replaceable');
+
+    // (F) A provider transport failure with no work product is classified, not
+    // an opaque provider exit, and is auto-replaceable.
+    const f = await runCase(base, 'transport', 'transport');
+    assert.equal(f.terminal.state, 'failed');
+    assert.match(f.terminal.reason, /^provider_transport_error:/, `transport failure classified (got ${f.terminal.reason})`);
+    assert.match(f.terminal.reason, /stream disconnected/, 'the reason carries the provider error');
+    assert.equal(f.terminal.replacementSafe, true);
+    assert.equal(autoReplaceable(f.terminal), true, 'a transport failure with no work product is auto-replaceable');
+    // (G) The same failure after the provider edited its cwd is not.
+    const g = await runCase(base, 'transport-work', 'transport-work');
+    assert.match(g.terminal.reason, /^provider_transport_error:.*work product present/);
+    assert.equal(autoReplaceable(g.terminal), false, 'a transport failure that left work product stays the agent\'s call');
+
+    // (H) Run 24: "host_run review invocation descriptor delivery failed:
+    // ECONNRESET" was Codex closing fd 3 as it exited after its turn completed
+    // (prose final, no candidate). That peer close is not a provider failure:
+    // the provider's own exit decides, so the missing envelope reaches (D).
+    const hRoot = join(base, 'descriptor-after-turn');
+    mkdirSync(hRoot, { recursive: true });
+    const proseTurn = [
+      JSON.stringify({ type: 'thread.started', thread_id: THREAD }),
+      JSON.stringify({ type: 'item.completed', item: { id: 'item_58', type: 'agent_message', text: RUN24_PROSE_FINAL } }),
+      JSON.stringify({ type: 'turn.completed', usage: { input_tokens: 10, cached_input_tokens: 0, output_tokens: 10 } }),
+    ].join('\n');
+    const descriptorRun = (script: string) => runHostRun({
+      host: 'codex', storyId: null, agentType: 'reviewer', promptText: 'review', root: hRoot, cwd: hRoot,
+      env: { PROOF_OR_STOP_USAGE_LEDGER: '0', LATTICE_PROVIDER_MAX_CONCURRENT: '1' } as NodeJS.ProcessEnv,
+      recordedAt: '2026-10-08T06:30:27.000Z', projectRootHash: 'sha256:run24',
+    }, {
+      runner: plan => defaultHostRunRunner({ ...plan, command: process.execPath, argv: ['-e', script] }),
+      reviewInvocationPayload: () => 'x'.repeat(2 * 1024 * 1024),
+    });
+    const h = await descriptorRun(`process.stdout.write(${JSON.stringify(`${proseTurn}\n`)}, () => { require('node:fs').closeSync(3); setTimeout(() => process.exit(0), 100); });`);
+    assert.equal(h.terminalReason, 'completed', `${DESCRIPTOR_MARKER} (got ${h.terminalReason}; stderr ${h.stderr.slice(-200)})`);
+    assert.equal(h.exitCode, 0);
+    assert.doesNotMatch(h.stderr, /delivery failed/, 'a peer close after the completed turn is not reported as a delivery failure');
+    assert.equal(h.processCleanup?.killSent ?? false, false, 'the exiting provider is not killed');
+    // Before its turn completed the same peer close still fails closed.
+    const early = await descriptorRun(`require('node:fs').closeSync(3); setTimeout(() => process.exit(0), 100);`);
+    assert.equal(early.terminalReason, 'child_error', 'an early descriptor failure with no completed turn fails closed');
+    assert.match(early.stderr, /review invocation descriptor delivery failed: (EPIPE|ECONNRESET)/);
+    const hungStarted = Date.now();
+    const hung = await descriptorRun(`require('node:fs').closeSync(3); setInterval(() => {}, 1000);`);
+    assert.equal(hung.terminalReason, 'child_error', 'a provider that keeps running after an early descriptor failure is killed');
+    assert.ok(Date.now() - hungStarted < 15_000, 'the kill follows within the short peer-close grace');
 
     console.log('managed-final-json-repair-smoke: PASS');
   } finally {
