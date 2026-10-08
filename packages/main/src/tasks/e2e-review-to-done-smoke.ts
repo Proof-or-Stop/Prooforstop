@@ -155,6 +155,9 @@
  *      (summary_set, quorum-submit): accepted, one run (NDL). A genuinely stale
  *      binding (a delivery-input commit) fails without save-repair turns and
  *      next --run relaunches the reviewer itself (NDS).
+ *   NDG old-PoS run 27 (§2.2): managed runs record per-command wall time and
+ *      host load samples (diagnostics.jsonl), host_run_status --full summarizes
+ *      them, and review.laneLaunchStaggerMs spaces the lane launches.
  *   NM old-PoS run 25 F2: the owner commits a test-only change during REVIEW
  *      after a clean round. next returns ONE framework step, the review reopen
  *      (story_advance DEV, reason recorded as transitionType review_reopen);
@@ -181,7 +184,7 @@
  *      and still review the whole Story).
  *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5 ND-V6 ND-V8 ND-V9.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIN|NQ|NP|NX|NM|NDL|NDS|AB|ND-V1..NF-V9]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIN|NQ|NP|NX|NM|NDL|NDS|NDG|AB|ND-V1..NF-V9]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -609,12 +612,14 @@ let input = ''; process.stdin.on('data', d => { input += d; }); process.stdin.on
   if (!file) { fs.writeFileSync(path.join(dir, 'unmatched-' + process.pid + '.txt'), input); process.exit(3); }
   const script = JSON.parse(fs.readFileSync(file, 'utf8'));
   const c = process.argv.indexOf('-C'); const cwd = c > 0 ? process.argv[c + 1] : process.cwd();
-  for (const argv of script.commands || []) {
+  (script.commands || []).forEach((argv, index) => {
+    // Codex exec --json announces each command (item.started) before it runs (old-PoS run 27: per-command wall time).
+    emit({ type: 'item.started', item: { id: 'cmd_' + index, type: 'command_execution', command: argv.slice(2, 3).join(' '), status: 'in_progress' } });
     const r = spawnSync(argv[0], argv.slice(1), { cwd, encoding: 'utf8', env: process.env });
     const out = (r.stdout || '') + (r.stderr || '');
     fs.appendFileSync(path.join(dir, 'commands.log'), JSON.stringify({ argv: argv.slice(2, 3), status: r.status, out: out.slice(-1500) }) + '\\n');
-    emit({ type: 'item.completed', item: { type: 'command_execution', command: argv.slice(2, 3).join(' '), aggregated_output: out.slice(-2000), exit_code: r.status } });
-  }
+    emit({ type: 'item.completed', item: { id: 'cmd_' + index, type: 'command_execution', command: argv.slice(2, 3).join(' '), aggregated_output: out.slice(-2000), exit_code: r.status } });
+  });
   emit({ type: 'item.completed', item: { type: 'agent_message', text: script.final } });
   emit({ type: 'turn.completed', usage: { input_tokens: 10, cached_input_tokens: 0, output_tokens: 10 } });
 });
@@ -3230,8 +3235,51 @@ function scenarioNDL(machineEnv: NodeJS.ProcessEnv, steps: Step[], fault: Delive
   }
 }
 
+/**
+ * Old-PoS run 27 (§2.2, row 1): lane shell commands took ~5.7 s with 4 lanes
+ * live. NDG: every managed run records per-command wall time (Codex
+ * item.started -> item.completed) and host load samples in its run directory
+ * (diagnostics.jsonl), host_run_status --full summarizes them, and
+ * review.laneLaunchStaggerMs (default 0 = parallel) spaces the lane launches.
+ */
+function scenarioNDG(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NDG';
+  const name = 'NDG run 27: managed runs record per-command wall time + host load; host_run_status --full summarizes; review.laneLaunchStaggerMs spaces lane launches';
+  const staggerMs = 4000;
+  const o = new Owner(tag, 'B-e2b3', machineEnv, steps, false, { config: { review: { laneLaunchStaggerMs: staggerMs } } });
+  const lines: string[] = [];
+  const runsRoot = join(o.root, '.proof-or-stop', 'runtime', 'host-runs');
+  try {
+    devSetup(o);
+    driveWithNext(o, { findingRound1: false, run: true }, lines);
+    const runs = readdirSync(runsRoot).map(runId => ({ runId, spec: JSON.parse(readFileSync(join(runsRoot, runId, 'spec.json'), 'utf8')) as { agentType: string; createdAt: string; reviewRunId?: string | null } }));
+    const firstLanes = runs.filter(run => run.spec.agentType.startsWith('proof-or-stop-review-') && run.spec.agentType !== DELIVERY && run.spec.agentType !== MANAGED_INVENTORY_CRITIC_LANE)
+      .map(run => Date.parse(run.spec.createdAt)).sort((a, b) => a - b);
+    assert.ok(firstLanes.length >= 2, `${tag}: the round launched several lanes (${firstLanes.length})`);
+    const spread = firstLanes.at(-1)! - firstLanes[0]!;
+    lines.push(`lane launches: ${firstLanes.length}, createdAt spread ${(spread / 1000).toFixed(1)} s with review.laneLaunchStaggerMs=${staggerMs}`);
+    assert.ok(spread >= staggerMs * (firstLanes.length - 1) * 0.9, `${tag}: lane launches are staggered by ${staggerMs} ms (spread ${spread} ms over ${firstLanes.length} lanes)`);
+    const delivery = runs.find(run => run.spec.agentType === DELIVERY)!;
+    const diagnosticsPath = join(runsRoot, delivery.runId, 'diagnostics.jsonl');
+    assert.ok(existsSync(diagnosticsPath), `${tag}: the delivery run recorded diagnostics.jsonl`);
+    const rows = readFileSync(diagnosticsPath, 'utf8').split('\n').filter(Boolean).map(line => JSON.parse(line) as { type: string; ms?: number; load1?: number; liveRuns?: number });
+    assert.ok(rows.some(row => row.type === 'command' && typeof row.ms === 'number' && row.ms >= 0), `${tag}: a per-command wall-time row: ${JSON.stringify(rows.slice(0, 4))}`);
+    assert.ok(rows.some(row => row.type === 'load' && typeof row.load1 === 'number' && typeof row.liveRuns === 'number'), `${tag}: a host load sample row: ${JSON.stringify(rows.slice(0, 4))}`);
+    const full = o.cli('host_run_status', { runId: delivery.runId, full: true }, { label: 'host_run_status --full (delivery)' });
+    const status = parseJson(full.stdout) as { diagnostics?: { commands?: { count?: number; medianMs?: number }; load?: { samples?: number } } } | null;
+    assert.ok((status?.diagnostics?.commands?.count ?? 0) >= 1, `${tag}: --full summarizes the command timings: ${JSON.stringify(status?.diagnostics ?? null)}`);
+    assert.ok((status?.diagnostics?.load?.samples ?? 0) >= 1, `${tag}: --full summarizes the load samples: ${JSON.stringify(status?.diagnostics ?? null)}`);
+    lines.push(`delivery diagnostics: ${JSON.stringify(status!.diagnostics).slice(0, 220)}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NW[3-6]?|NI|NIN|NQ|NP|NX|NM|NDL|NDS|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NW[3-6]?|NI|NIN|NQ|NP|NX|NM|NDL|NDS|NDG|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -3279,6 +3327,7 @@ async function main(): Promise<void> {
     if (only.includes('NM')) outcomes.push(scenarioNM(machine.env, steps));
     if (only.includes('NDL')) outcomes.push(scenarioNDL(machine.env, steps, 'overlap'));
     if (only.includes('NDS')) outcomes.push(scenarioNDL(machine.env, steps, 'stale'));
+    if (only.includes('NDG')) outcomes.push(scenarioNDG(machine.env, steps));
     // Detection A/B arms: explicit tokens (ND-V1 .. NF-V9) or AB = ND-V1, ND-V2, ND-V3, NF-V4, ND-V5, ND-V6, ND-V8, ND-V9.
     const abTokens = only.includes('AB') ? ['ND-V1', 'ND-V2', 'ND-V3', 'NF-V4', 'ND-V5', 'ND-V6', 'ND-V8', 'ND-V9'] : [];
     for (const token of [...new Set([...abTokens, ...only.filter(arg => /^N[DF]-V[1-689]$/.test(arg))])]) {
@@ -3287,7 +3336,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIN', 'NQ', 'NP', 'NX', 'NM', 'NDL', 'NDS', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIN', 'NQ', 'NP', 'NX', 'NM', 'NDL', 'NDS', 'NDG', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {
