@@ -2334,14 +2334,22 @@ const CONCURRENT_RUNNER = [
 ].join('\n');
 
 /**
- * review.laneLaunchStaggerMs (old-PoS run 27 contention probe): the delay
- * between one round's lane launches; 0 (default) launches them all at once.
+ * Default delay between one round's lane launches (old-PoS runs 28/29,
+ * run28-29-analysis.md §1): lanes launched at once ran identical CPU bursts
+ * that the 2-CPU container quota throttled (light lane commands 4.46 s mean
+ * versus 0.20 s with an 8 s stagger); the stagger costs about 8-10 s per extra lane.
+ */
+export const DEFAULT_LANE_LAUNCH_STAGGER_MS = 8_000;
+
+/**
+ * review.laneLaunchStaggerMs: the delay between one round's lane launches;
+ * absent = DEFAULT_LANE_LAUNCH_STAGGER_MS, 0 = all at once (the rollback).
  */
 export function laneLaunchStaggerMs(root: string): number {
   const raw = loadConfig(root).review?.laneLaunchStaggerMs;
-  if (raw === undefined || raw === null) return 0;
+  if (raw === undefined || raw === null) return DEFAULT_LANE_LAUNCH_STAGGER_MS;
   if (typeof raw !== 'number' || !Number.isInteger(raw) || raw < 0 || raw > 60_000) {
-    throw new Error(`invalid config: review.laneLaunchStaggerMs must be an integer 0..60000 (got ${JSON.stringify(raw)}); remove it to launch lanes at once`);
+    throw new Error(`invalid config: review.laneLaunchStaggerMs must be an integer 0..60000 (got ${JSON.stringify(raw)}); remove it for the ${DEFAULT_LANE_LAUNCH_STAGGER_MS} ms default, or set 0 to launch lanes at once`);
   }
   return raw;
 }
