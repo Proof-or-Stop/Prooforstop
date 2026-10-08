@@ -3,7 +3,8 @@
  *
  * With no key in proof-or-stop.config.json every switch resolves to the
  * production value (the first value listed in AB_VARIANT_FLAGS). Experimental
- * switches default OFF, so no code path changes. Two switches were adopted:
+ * switches default OFF, so no code path changes. Three switches were adopted
+ * (remediation.thread since old-PoS run 25, see below); the first two:
  * review.round2Lanes defaults to 'fresh' since the detection A/B V3 arm
  * (bench-staging/oldpos/ab/results-r2.md: post-repair seeds 4/4 vs 3/4 for
  * resumed lanes, R2 lane input tokens -56%); remediation.grouping defaults to

@@ -3,7 +3,8 @@
  * experimental switches default OFF (the old behavior); review.round2Lanes was
  * adopted and defaults to `fresh`, `resume` is its rollback;
  * remediation.grouping was adopted and defaults to `single`, `per-finding` is
- * its rollback.
+ * its rollback; remediation.thread was adopted and defaults to `fresh`
+ * (old-PoS run 25), `resume` is its rollback.
  * For each experimental switch: flag absent = the old (production) behavior;
  * flag set = the variant. The end-to-end arms (each reaching DONE through `next`) live in
  * tasks/e2e-review-to-done-smoke.ts (AB / ND-V1..NF-V5).

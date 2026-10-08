@@ -654,18 +654,28 @@ only when none passes). A single repaired finding keeps the plain
 `remediation.grouping=per-finding` in `proof-or-stop.config.json` is the
 rollback: one repair run per finding, and `host_run` refuses `groupFindingIds`.
 
-Implementer and finding-repair runs resume the Story's newest code-writer Codex
-thread by default (`implementation.thread=resume`). The EXPERIMENTAL A/B arm
+Finding-repair runs start a new Codex thread by default
+(`remediation.thread=fresh`, adopted from old-PoS run 25: a fresh repair took
+0.86M input / 2.4 min against 2.8–3.9M for a repair resumed on the Story
+code-writer thread at 10–16M context). `host_run` appends the bounded repair
+pack (below) to the prompt and the worker starts the run fresh, both decided
+from the project config (like `review.round2Lanes`); nothing is sealed as an
+A/B arm. `remediation.thread=resume` is the rollback: the repair resumes the
+Story's newest code-writer thread with no pack. Malformed = fresh.
+
+Implementer items resume the Story's newest code-writer Codex thread by default
+(`implementation.thread=resume`). The EXPERIMENTAL A/B arm
 `implementation.thread=fresh` (v41 cost plan A1: the resumed context grows to
 143–180k tokens) starts a new Codex thread for every implementer item and every
-finding repair. `host_run` then seals
+finding repair (also under the `remediation.thread=resume` rollback). `host_run`
+then seals
 `managedDispatchTarget.abVariant.flags["implementation.thread"]="fresh"` and
 appends a bounded ITEM PACK to the prompt (request.md, other items and Story
 commits, findings with their evidence, Story diff stat plus the hunks of the
 declared or cited files, and those files at HEAD; at most 38,912 bytes,
 `core/implementer-item-pack.ts`). The worker reads only the sealed arm, so the
-pack and the fresh launch always go together. Unset or malformed = resume, and
-the prompt and target are byte-identical to before.
+pack and the fresh launch always go together. Unset or malformed = resume for
+items, and the item prompt and target are byte-identical to before.
 
 For a managed Claude reviewer, the worker materializes the authoritative prompt
 as a mode-`0600` one-shot file below the provider's exact working directory at

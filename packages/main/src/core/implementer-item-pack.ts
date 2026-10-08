@@ -2,9 +2,10 @@
  * EXPERIMENTAL A/B `implementation.thread: "fresh"` (core/ab-variants.ts; plan
  * bench-staging/oldpos/v41-cost-plan.md item A1).
  *
- * Production (`resume`, the default): every managed implementer item and every
- * finding repair of a Story resumes ONE Codex thread (findResumableImplementerSession),
- * whose context grows from ~17k to 143–180k tokens over a run. With `fresh`
+ * Production (`resume`, the default): every managed implementer item of a Story
+ * resumes ONE Codex thread (findResumableImplementerSession), whose context grows
+ * from ~17k to 143–180k tokens over a run (finding repairs start fresh by default
+ * since old-PoS run 25, see remediation.thread below). With `fresh`
  * each implementer item and each finding repair starts a new Codex thread, and
  * host_run appends a compact, framework-built ITEM PACK to the dispatch prompt
  * so the fresh worker does not spend its first minute re-orienting:
