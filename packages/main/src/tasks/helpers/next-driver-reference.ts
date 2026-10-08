@@ -121,6 +121,13 @@
  *   N8 DEV waits for a live deferred scope-plan run before enter_review, and a
  *      deferred verdict with a gap returns to PLAN (scope_verdict_replan). The
  *      golden fixture starts in DEV with no scope run, so N8 changes no state.
+ *
+ * Deliberate change (old-PoS run 27 delivery relaunch): a delivery run of the
+ * current TEST entry that failed replacement-safely (no delivery-check, e.g. a
+ * stale dispatch binding) is relaunched by the framework (bound launch) up to
+ * MANAGED_AUTO_RELAUNCHES_PER_TARGET times, like every other role's target;
+ * any other earlier delivery run keeps the relaunch the agent's call. The
+ * golden fixture never fails a delivery run, so its states are unchanged.
  */
 import { existsSync, readdirSync } from 'node:fs';
 import { hostname } from 'node:os';
@@ -286,6 +293,7 @@ interface HostRunView {
   createdAt: string;
   /** Failed before its recovery supervisor became ready: provably nothing ran (isAutoReplaceableManagedLaunchFailure). */
   autoReplaceable: boolean;
+  replacementSafe?: boolean;
 }
 
 function listStoryHostRuns(ctx: HandlerContext, storyId: string): HostRunView[] {
@@ -299,7 +307,8 @@ function listStoryHostRuns(ctx: HandlerContext, storyId: string): HostRunView[] 
       rows.push({ runId, host: run.host, model: run.model ?? null, reasoningEffort: run.reasoningEffort ?? null, profile: run.profile,
         agentType: run.agentType, reviewRunId: run.reviewRunId, state: run.state,
         terminal: run.terminal !== null, createdAt: run.createdAt,
-        autoReplaceable: isAutoReplaceableManagedLaunchFailure({ state: run.state, replacementSafe: run.replacementSafe, terminalReason: run.terminal?.reason ?? null }) });
+        autoReplaceable: isAutoReplaceableManagedLaunchFailure({ state: run.state, replacementSafe: run.replacementSafe, terminalReason: run.terminal?.reason ?? null }),
+        replacementSafe: run.replacementSafe === true });
     } catch { /* not a readable managed run */ }
   }
   return rows.sort((a, b) => a.createdAt.localeCompare(b.createdAt) || a.runId.localeCompare(b.runId));
@@ -853,10 +862,13 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
       const previous = last && last.state !== 'completed' ? ` The previous delivery run ${last.runId} ended ${last.state}.` : '';
       const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
       const testEntry = (ctx.store.readStory(storyId).events ?? []).filter(event => event.phase === 'TEST').at(-1)?.timestamp ?? '';
-      const earlier = hostRuns.some(run => run.agentType === DELIVERY_REVIEWER && run.createdAt >= testEntry);
+      // Deliberate change (old-PoS run 27 delivery relaunch).
+      const earlier = hostRuns.filter(run => run.agentType === DELIVERY_REVIEWER && run.createdAt >= testEntry)
+        .map(run => ({ autoReplaceable: run.autoReplaceable || (run.state === 'failed' && run.replacementSafe === true) }));
       return managedLaunchStep(base, 'delivery_review_launch', { ...selection, storyId, agentType: DELIVERY_REVIEWER,
-        managedDispatch: true, detach: true, json: true }, bound && !earlier,
-      `DONE needs a signed, current delivery-check: ${delivery.detail ?? delivery.label}. Launch the delivery reviewer (managed shown).${previous}`, 'buildDoneChecklist delivery-check');
+        managedDispatch: true, detach: true, json: true }, bound && targetRelaunchIsFramework(earlier),
+      `DONE needs a signed, current delivery-check: ${delivery.detail ?? delivery.label}. Launch the delivery reviewer (managed shown).${previous}`, 'buildDoneChecklist delivery-check',
+      earlier.length ? 'relaunch after a replacement-safe failed delivery run' : 'first run of this target');
     }
     const authoring = testAuthoringStep(base, failing);
     if (authoring) return authoring;

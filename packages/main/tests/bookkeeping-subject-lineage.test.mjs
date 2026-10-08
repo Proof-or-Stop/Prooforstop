@@ -27,6 +27,8 @@ import {currentGitHead, currentMaterialHash, currentStoryFilesHash} from '../dis
 import {PRECERT_METADATA_COMMANDS, verifyManagedReviewLiveBinding} from '../dist/core/managed-review-evidence.js';
 import {managedLineageRecoveryNext} from '../dist/core/review-run.js';
 import {REVIEW_MAINTENANCE_PUBLISHERS} from '../dist/core/review-maintenance-lineage.js';
+import {DELIVERY_REVIEW_NEUTRAL_PUBLISHERS, deliveryDispatchDriftRefusal} from '../dist/core/delivery-review-authority.js';
+import {StoryStore} from '../dist/core/store.js';
 
 const storyId = 'B-bookkeep';
 const roots = [];
@@ -225,6 +227,58 @@ try {
     assert.doesNotMatch(text, /autoCommitStoryMetadata|commitLifecycleMetadataTransaction/, `${command} (${why}) must not commit story metadata`);
   }
   assert.match(policy.split('\n').find(row => row.startsWith('  done_closure: {')) ?? '', /ownershipClass: 'readOnly'/, 'done_closure stays readOnly');
+  // Old-PoS run 27 (§4): the delivery reviewer's dispatch binding. Every
+  // TEST/DONE metadata writer is either delivery-neutral (it changes nothing the
+  // delivery reviewer reads; DELIVERY_REVIEW_NEUTRAL_PUBLISHERS, with the exact
+  // Story artifacts it may touch) or deliberately keeps the dispatch stale.
+  const deliveryStale = {
+    artifact_declare: 'declares delivery artifacts the reviewer checks', candidate_spec_route: 'reroutes the candidate specs the reviewer reads',
+    delivery_context_pack: 'rewrites the delivery context pack the reviewer reads', delivery_waiver_add: 'amends the delivery-check itself (needs fresh delivery review)',
+    done_required_validate: 'DONE validation; runs after the delivery reviewer (done_prepare waits for it)', evaluate_save: 'evaluation record; not an N1 overlap writer',
+    live_smoke_transcript: 'rewrites the live-smoke transcript the reviewer reads', parent_ledger_rollup_set: 'rewrites the parent ledger',
+    scope_shrinkage_decision_set: 'changes the reviewed scope', 'test-transition': 'TEST (re-)entry: a dispatch binds after it',
+    test_add: 'adds test cases', test_story: 'records story tests', verification_evidence_add: 'changes checklist evidence the reviewer reads',
+    verification_evidence_batch_add: 'changes checklist evidence the reviewer reads', verification_evidence_refresh_stale: 'changes checklist evidence the reviewer reads',
+    verification_intent_repair: 'changes the checklist intents the reviewer reads', verification_pin_narrow: 'changes the checklist intents the reviewer reads',
+    verification_run: 'records new verification runs in the checklist',
+  };
+  const deliveryNeutral = new Set(Object.keys(DELIVERY_REVIEW_NEUTRAL_PUBLISHERS));
+  for (const subject of ['summary_set', 'quorum-submit', 'delivery_check_set']) assert.ok(deliveryNeutral.has(subject), `${subject}: a run-27 N1 overlap writer is delivery-neutral`);
+  const testWriters = [...subjects].filter(subject => subject.includes('-') || reachableInTestOrDone(subject));
+  const unclassifiedDelivery = testWriters.filter(subject => !deliveryNeutral.has(subject) && !Object.hasOwn(deliveryStale, subject));
+  assert.deepEqual(unclassifiedDelivery, [], `TEST/DONE metadata writers neither delivery-neutral nor deliberately delivery-stale: ${unclassifiedDelivery.join(', ')}`);
+  for (const subject of Object.keys(deliveryStale)) assert.ok(!deliveryNeutral.has(subject), `${subject} is listed delivery-stale but is delivery-neutral`);
+  const deliveryFixture = () => {
+    const f = fixture();
+    const dispatchHead = execFileSync('git', ['rev-parse', 'HEAD'], {cwd: f.root, encoding: 'utf8'}).trim();
+    const drift = () => deliveryDispatchDriftRefusal({gitCwd: f.root, store: new StoryStore(f.root), storyId, dispatchHead});
+    return {...f, drift};
+  };
+  {
+    // The run-27 sequence: summary_set (summary + receipts + metadata), then quorum-submit.
+    const f = deliveryFixture();
+    appendFileSync(join(f.storyDir, 'process-events.jsonl'), event('summary_set'));
+    writeFileSync(join(f.storyDir, 'summary.json'), '{"changes":"x"}\n');
+    writeFileSync(join(f.storyDir, 'closeout-write-receipts.jsonl'), '{"artifact":"summary.json"}\n');
+    f.commit('summary_set');
+    appendFileSync(join(f.storyDir, 'process-events.jsonl'), event('host_verdict'));
+    f.commit('quorum-submit');
+    assert.equal(f.drift(), null, 'run 27: summary_set + quorum-submit since the dispatch head are delivery-neutral');
+  }
+  const deliveryNegatives = [
+    ['summary_set touching checklist.json', 'summary_set', f => writeFileSync(join(f.storyDir, 'checklist.json'), '{"items":[]}\n'), /changes .*checklist\.json, outside that publisher's delivery-neutral/],
+    ['quorum-submit touching summary.json', 'quorum-submit', f => writeFileSync(join(f.storyDir, 'summary.json'), '{}\n'), /changes .*summary\.json/],
+    ['quorum-submit rewriting process events', 'quorum-submit', f => writeFileSync(join(f.storyDir, 'process-events.jsonl'), `${JSON.stringify({type: 'host_verdict'})}\n`), /rewrites the append-only process-events\.jsonl/],
+    ['delivery_context_pack', 'delivery_context_pack', f => appendFileSync(join(f.storyDir, 'process-events.jsonl'), event('x')), /not a delivery-neutral Story metadata publisher/],
+    ['live_smoke_transcript', 'live_smoke_transcript', f => appendFileSync(join(f.storyDir, 'process-events.jsonl'), event('x')), /not a delivery-neutral Story metadata publisher/],
+    ['summary_set changing code', 'summary_set', f => writeFileSync(join(f.root, 'main.go'), 'package main\n// changed\n'), /changes main\.go/],
+  ];
+  for (const [label, subject, mutate, rule] of deliveryNegatives) {
+    const f = deliveryFixture();
+    mutate(f);
+    f.commit(subject);
+    assert.match(f.drift() ?? '', rule, `${label}: keeps the delivery dispatch stale`);
+  }
   console.log('BOOKKEEPING_SUBJECT_LINEAGE_GREEN');
 } finally {
   for (const root of roots) rmSync(root, {recursive: true, force: true});

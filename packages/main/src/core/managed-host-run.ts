@@ -3046,14 +3046,17 @@ export const MANAGED_PROVIDER_STALLED_REASON = `${MANAGED_PROVIDER_STALL_RUNTIME
 /**
  * A failed managed run that `next` may relaunch itself (bounded): a supervisor
  * that never became ready, or a provider stalled without leaving any work
- * product (replacementSafe is true only then). A deadline timeout or any other
- * failure stays the agent's call.
+ * product (replacementSafe is true only then), a transport error, a review run
+ * without a valid final envelope, or a save refused for a stale dispatch
+ * binding (old-PoS run 27). A deadline timeout or any other failure stays the
+ * agent's call.
  */
 export function isAutoReplaceableManagedLaunchFailure(run: { state: string; replacementSafe?: boolean | null; terminalReason?: string | null }): boolean {
   const reason = run.terminalReason ?? '';
   return run.state === 'failed' && run.replacementSafe === true
     && (reason.startsWith(MANAGED_SUPERVISOR_NOT_READY_REASON) || reason.startsWith(MANAGED_PROVIDER_STALLED_REASON)
-      || reason.startsWith(MANAGED_PROVIDER_TRANSPORT_REASON) || reason.startsWith(MANAGED_REVIEW_FINAL_RESULT_FAILED_REASON));
+      || reason.startsWith(MANAGED_PROVIDER_TRANSPORT_REASON) || reason.startsWith(MANAGED_REVIEW_FINAL_RESULT_FAILED_REASON)
+      || reason.startsWith(MANAGED_DISPATCH_BINDING_STALE_REASON));
 }
 
 /** Terminal reason prefix of a provider run that failed on a transport error (managedProviderTransportFailure). */
@@ -4334,7 +4337,20 @@ export async function runManagedHostRunWorker(
       for (let attempt = 1; save; attempt += 1) {
         const failureReason = managedDispatchOutputValidation(spec).failureReason;
         if (failureReason !== 'managed_dispatch_output_missing') break;
-        const refusal = latestManagedDispatchSaveRefusal(paths, launchStartedIso);
+        const refusalEvent = latestManagedDispatchSaveRefusalEvent(paths, launchStartedIso);
+        const refusal = refusalEvent?.error ?? null;
+        // Old-PoS run 27: a stale dispatch binding is refused identically on
+        // every retry in this session (the delivery reviewer burned two resumed
+        // turns on it). End the run now with its own reason; `next` relaunches
+        // the role with a fresh dispatch.
+        if (refusalEvent?.code === 'dispatch_binding_stale') {
+          appendEvent(paths, {
+            schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
+            type: 'managed_dispatch_save_repair_unavailable',
+            detail: { attempt, refusal, reason: 'deterministic_binding_refusal' },
+          });
+          return writeTerminal(paths, 'failed', `${MANAGED_DISPATCH_BINDING_STALE_REASON}: ${refusalEvent.error.slice(0, 400)}`, result.replacementSafe, result, now());
+        }
         const resumeSessionId = attempt <= MANAGED_DISPATCH_SAVE_REPAIR_MAX_ATTEMPTS && result.replacementSafe
           ? resumableManagedRunCodexSession(paths, codexHome)
           : null;
@@ -4788,7 +4804,7 @@ export function resolveManagedDispatchInvocation(args: ManagedDispatchInvocation
  * signed invocation names, else the single active run of this Story/role
  * (/target). Best effort; a refusal is never turned into an authority.
  */
-function journalManagedDispatchSaveRefusal(args: ManagedDispatchInvocationArgs, error: unknown): void {
+function journalManagedDispatchSaveRefusal(args: ManagedDispatchInvocationArgs, error: unknown, code?: ManagedDispatchSaveRefusalCode): void {
   try {
     let runId: string | null = null;
     try { runId = readManagedInitInvocationFromEnvironment(args.environment ?? process.env)?.runId ?? null; } catch { runId = null; }
@@ -4823,6 +4839,7 @@ function journalManagedDispatchSaveRefusal(args: ManagedDispatchInvocationArgs, 
         storyId: args.storyId,
         providerAgent: args.agentType,
         error: (error instanceof Error ? error.message : String(error)).slice(0, MANAGED_DISPATCH_SAVE_REPAIR_ERROR_CAP),
+        ...(code ? { code } : {}),
       },
     });
   } catch {
@@ -5619,22 +5636,48 @@ export const MANAGED_REVIEW_FINAL_FORMAT_REPAIR_MAX_ATTEMPTS = 2;
 
 /** Journal event a refused managed save leaves on its live run (exact error quoted by the save repair). */
 export const MANAGED_DISPATCH_SAVE_REFUSED_EVENT = 'managed_dispatch_save_refused';
+
+/**
+ * A save refusal the reviewer cannot fix by saving again (old-PoS run 27): the
+ * dispatch the run is bound to is stale for the current head/material/story
+ * files, so every retry in the same session is refused identically.
+ */
+export type ManagedDispatchSaveRefusalCode = 'dispatch_binding_stale';
+
+/**
+ * Terminal reason of a managed dispatch run whose save was refused because its
+ * dispatch binding is stale (ManagedDispatchSaveRefusalCode). No same-session
+ * save-repair is attempted; the run left no output, so `next` relaunches the
+ * role with a fresh dispatch (isAutoReplaceableManagedLaunchFailure).
+ */
+export const MANAGED_DISPATCH_BINDING_STALE_REASON = 'managed_dispatch_binding_stale';
+
+/** Journal a save refusal raised before the invocation is resolved (e.g. the delivery dispatch binding check). */
+export function recordManagedDispatchSaveRefusal(args: { root: string; storyId: string; agentType: string; command: string; environment?: NodeJS.ProcessEnv },
+  error: unknown, code?: ManagedDispatchSaveRefusalCode): void {
+  journalManagedDispatchSaveRefusal({ root: args.root, storyId: args.storyId, agentType: args.agentType, command: args.command, environment: args.environment }, error, code);
+}
 /** Same-session turns asking a managed save reviewer to re-run its unbound save. */
 export const MANAGED_DISPATCH_SAVE_REPAIR_MAX_ATTEMPTS = 2;
 const MANAGED_DISPATCH_SAVE_REPAIR_ERROR_CAP = 1_000;
 
 /** The newest save refusal journaled on this run at or after `sinceIso`, or null. */
 function latestManagedDispatchSaveRefusal(paths: ManagedHostRunPaths, sinceIso: string): string | null {
+  return latestManagedDispatchSaveRefusalEvent(paths, sinceIso)?.error ?? null;
+}
+
+function latestManagedDispatchSaveRefusalEvent(paths: ManagedHostRunPaths, sinceIso: string): { error: string; code: string | null } | null {
   let text = '';
   try { text = readFileSync(paths.events, 'utf8'); } catch { return null; }
-  let latest: string | null = null;
+  let latest: { error: string; code: string | null } | null = null;
   for (const line of text.split('\n')) {
     if (!line.includes(MANAGED_DISPATCH_SAVE_REFUSED_EVENT)) continue;
     try {
       const event = JSON.parse(line) as ManagedHostRunEvent;
       if (event.type !== MANAGED_DISPATCH_SAVE_REFUSED_EVENT || event.at < sinceIso) continue;
       const error = event.detail?.error;
-      if (typeof error === 'string' && error) latest = error;
+      const code = event.detail?.code;
+      if (typeof error === 'string' && error) latest = { error, code: typeof code === 'string' ? code : null };
     } catch { /* partial line */ }
   }
   return latest;

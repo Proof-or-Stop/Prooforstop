@@ -26,7 +26,7 @@ import {
   normalizeDeliveryPromiseOutcome,
 } from '../core/delivery-promise-outcome.js';
 import { authorizeNativeDeliveryReview, verifyCurrentDeliveryReviewDispatch } from '../core/delivery-review-authority.js';
-import { resolveManagedDispatchInvocation } from '../core/managed-host-run.js';
+import { recordManagedDispatchSaveRefusal, resolveManagedDispatchInvocation } from '../core/managed-host-run.js';
 
 // Signature primitives live in core/delivery-check-hash.ts (single source of
 // truth) so core consumers can verify the hash without a core→handlers import.
@@ -232,8 +232,16 @@ export function createDeliveryCheckHandlers(
         // The live managed delivery run may re-seal (a later call overwrites its
         // own earlier delivery-check); its invocation and dispatch stay bound to
         // the same run, and only safe terminal sealing makes the output evidence.
-        const dispatch = verifyCurrentDeliveryReviewDispatch({ store, storyId: args.storyId, projectRoot: root, allowOwnDeliveryCheckCommits: true });
-        if (!dispatch.ok) throw new Error(`managed delivery dispatch invalid: ${dispatch.reason}`);
+        const dispatch = verifyCurrentDeliveryReviewDispatch({ store, storyId: args.storyId, projectRoot: root });
+        if (!dispatch.ok) {
+          const refusal = new Error(`managed delivery dispatch invalid: ${dispatch.reason}`);
+          // Old-PoS run 27: journal it on the live run; a stale binding is
+          // deterministic, so the worker ends the run instead of resuming the
+          // reviewer for save-repair turns, and next relaunches it.
+          recordManagedDispatchSaveRefusal({ root, storyId: args.storyId, agentType: 'proof-or-stop-review-delivery', command: 'delivery_check_set' },
+            refusal, /dispatch is stale/.test(dispatch.reason) ? 'dispatch_binding_stale' : undefined);
+          throw refusal;
+        }
         managedDeliveryRunId = resolveManagedDispatchInvocation({ root, storyId: args.storyId,
           agentType: 'proof-or-stop-review-delivery', reseal: true, command: 'delivery_check_set' });
       }

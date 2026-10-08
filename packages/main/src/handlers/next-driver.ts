@@ -445,6 +445,8 @@ export interface HostRunView {
    * (isAutoReplaceableManagedLaunchFailure).
    */
   autoReplaceable: boolean;
+  /** The terminal says replacing the run is safe (it left no work product to keep). */
+  replacementSafe?: boolean;
 }
 
 function listStoryHostRuns(ctx: HandlerContext, storyId: string): HostRunView[] {
@@ -458,7 +460,8 @@ function listStoryHostRuns(ctx: HandlerContext, storyId: string): HostRunView[] 
       rows.push({ runId, host: run.host, model: run.model ?? null, reasoningEffort: run.reasoningEffort ?? null, profile: run.profile,
         agentType: run.agentType, reviewRunId: run.reviewRunId, state: run.state,
         terminal: run.terminal !== null, createdAt: run.createdAt,
-        autoReplaceable: isAutoReplaceableManagedLaunchFailure({ state: run.state, replacementSafe: run.replacementSafe, terminalReason: run.terminal?.reason ?? null }) });
+        autoReplaceable: isAutoReplaceableManagedLaunchFailure({ state: run.state, replacementSafe: run.replacementSafe, terminalReason: run.terminal?.reason ?? null }),
+        replacementSafe: run.replacementSafe === true });
     } catch { /* not a readable managed run */ }
   }
   return rows.sort((a, b) => a.createdAt.localeCompare(b.createdAt) || a.runId.localeCompare(b.runId));
@@ -2047,9 +2050,12 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     // block the TEST rows that cannot change what it reviews: the authoring of
     // the finish decision / summary and the review-assurance bookkeeping write
     // only material-excluded Story metadata, so the material (and story files)
-    // its delivery-check binds stays the final one. Everything that may move the
-    // material (done_prepare: main merge / refresh) and DONE itself still wait
-    // for it, and DONE's delivery-check row re-checks that binding.
+    // its delivery-check binds stays the final one. Their commits move HEAD under
+    // the reviewer's dispatch; delivery_check_set accepts exactly that drift
+    // (delivery-review-authority.ts DELIVERY_REVIEW_NEUTRAL_PUBLISHERS, old-PoS
+    // run 27). Everything that may move the material (done_prepare: main merge /
+    // refresh) and DONE itself still wait for it, and DONE's delivery-check row
+    // re-checks that binding.
     const deliveryRunning = delivery ? hostRuns.filter(run => run.agentType === DELIVERY_REVIEWER && !run.terminal).at(-1) : undefined;
     if (deliveryRunning) {
       const overlap = testAuthoringStep(base, failing) ?? assuranceStep();
@@ -2068,10 +2074,18 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       const previous = last && last.state !== 'completed' ? ` The previous delivery run ${last.runId} ended ${last.state}.` : '';
       const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
       const testEntry = (ctx.store.readStory(storyId).events ?? []).filter(event => event.phase === 'TEST').at(-1)?.timestamp ?? '';
-      const earlier = hostRuns.some(run => run.agentType === DELIVERY_REVIEWER && run.createdAt >= testEntry);
+      // Old-PoS run 27: a delivery run of this TEST entry that failed
+      // replacement-safely (it wrote no delivery-check; e.g. its dispatch
+      // binding went stale, MANAGED_DISPATCH_BINDING_STALE_REASON) is replaced by
+      // the framework like any other role's target, at most
+      // MANAGED_AUTO_RELAUNCHES_PER_TARGET times; any other earlier run keeps the
+      // relaunch the agent's call.
+      const earlier = hostRuns.filter(run => run.agentType === DELIVERY_REVIEWER && run.createdAt >= testEntry)
+        .map(run => ({ autoReplaceable: run.autoReplaceable || (run.state === 'failed' && run.replacementSafe === true) }));
       return managedLaunchStep(base, 'delivery_review_launch', { ...selection, storyId, agentType: DELIVERY_REVIEWER,
-        managedDispatch: true, detach: true, json: true }, bound && !earlier,
-      `DONE needs a signed, current delivery-check: ${delivery.detail ?? delivery.label}. Launch the delivery reviewer (managed shown).${previous}`, 'buildDoneChecklist delivery-check');
+        managedDispatch: true, detach: true, json: true }, bound && targetRelaunchIsFramework(earlier),
+      `DONE needs a signed, current delivery-check: ${delivery.detail ?? delivery.label}. Launch the delivery reviewer (managed shown).${previous}`, 'buildDoneChecklist delivery-check',
+      earlier.length ? 'relaunch after a replacement-safe failed delivery run' : 'first run of this target');
     }
     // Q6 (b), run 17: every TEST authoring row the DONE oracle still misses is
     // ONE agent step listing each exact command, so the agent writes them in one turn.
