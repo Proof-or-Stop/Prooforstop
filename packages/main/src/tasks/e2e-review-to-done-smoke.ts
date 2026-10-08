@@ -108,6 +108,18 @@
  *      lanes rerun, the superseded open finding is carried forward (never a
  *      dead end), its re-reported copy is repaired, it closes by coverage, DONE.
  *
+ *   NI run 23 (request-outranks-intent D1): the implementer's final result
+ *      declares an `[intent-conflict]` (the request implies one value, the
+ *      intent pins another). next must block on it (story_advance PLAN, not the
+ *      next item); in PLAN next proposes the audited intent revision
+ *      (checklist_update verificationIntent + reason, item back to pending);
+ *      after it the conflict no longer blocks and DEV re-implements the item.
+ *   NQ run 23 / run 24 (D2, D3, F3): D's next-driven flow with a recorded
+ *      request: every REVIEW lane prompt carries the verbatim request and the
+ *      request-outranks-intent rubric, the critic prompt the no-limitation
+ *      rule, and the finding-repair prompt the [intent-conflict] section and
+ *      the base-behavior input-variant rule; DONE.
+ *
  * Machine registries (provider slots, locks) use a disposable fixture machine
  * so the harness never touches the developer's ~/.proof-or-stop admission state.
  *
@@ -122,7 +134,7 @@
  *      implementation.grouping=files on an unimplemented fixture).
  *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|AB|ND-V1..NF-V5]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NI|NQ|AB|ND-V1..NF-V5]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -139,6 +151,7 @@ import { QUALIFIED_MANAGED_REVIEWER_DEFAULTS } from '../core/managed-reviewer-qu
 import { currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { classifierOptionsForCheck, classifyGitStatusRows, isBlockingDirty, readGitStatusLines } from '../core/dirty-worktree-gate.js';
 import { MANAGED_INVENTORY_CRITIC_LANE } from '../core/managed-inventory-critic.js';
+import { writeStoryRequest } from '../core/story-request.js';
 import { FINDING_RESOLUTION_PLACEHOLDER } from '../core/finding-closure-hint.js';
 import { sanitizedFixtureChildEnvironment } from './fixture-environment.js';
 import { createFixtureMachineEnvironment } from './helpers/fixture-machine-environment.js';
@@ -198,7 +211,9 @@ export class Owner {
       /** Detection A/B switches merged into the prepared proof-or-stop.config.json (scenario AB). */
       config?: Record<string, unknown>;
       /** The Story branch has no implementation commit yet: DEV implementer runs write it (scenario AB V5). */
-      unimplemented?: boolean } = {}) {
+      unimplemented?: boolean;
+      /** The verbatim request recorded at INIT (request.md + request.json), as story_create stores it (scenarios NI, NQ). */
+      request?: string } = {}) {
     this.root = realpathSync(mkdtempSync(join(tmpdir(), `e2e-r2d-${scenario}-`)));
     this.worktree = join(this.root, '.worktrees', storyId);
     this.store = new StoryStore(this.root);
@@ -292,6 +307,7 @@ export class Owner {
         userSees: 'go test -v ./strs -run TestReverse prints --- PASS: TestReverse', status: 'in_progress', startTime: now, endTime: null,
         files, verificationIntent: intent('CHK-002:happy:0', 'TestReverse passes') },
     ] });
+    if (this.fixtureOpts.request) writeStoryRequest(this.store, { storyId, phase: 'INIT', request: this.fixtureOpts.request, source: 'harness' });
     git(root, ['add', '-A']);
     git(root, ['commit', '-qm', `proof-or-stop: INIT_CHECK metadata ${storyId}`]);
     if (this.bareGitignore) {
@@ -2272,8 +2288,118 @@ function printTimeline(steps: Step[], scenario: string): void {
   }
 }
 
+/** NI/NQ: the request recorded at INIT. */
+const NIQ_REQUEST = [
+  'Implement the string helpers documented in docs/types/string.md:',
+  '',
+  '- `strs.Upper(s)` returns the upper-case form of `s`, for example `Upper("ab")` is `"AB"`.',
+  '- `strs.Reverse(s)` returns `s` reversed by rune, for example `Reverse("héllo")` is `"olléh"`.',
+].join('\n');
+
+/** NI: the implementer declares a conflict between the request and CHK-001's pinned intent. */
+const NI_CONFLICT_LINE = '[intent-conflict] CHK-001:happy:0 | request: "`strs.Upper(s)` returns the upper-case form of `s`" | request implies: Upper("ab") == "AB" | intent pins: Upper("ab") == "ab"';
+
+function scenarioNI(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NI';
+  const name = 'NI run 23: an implementer-declared [intent-conflict] blocks next until the owner revises the intent in PLAN';
+  const o = new Owner(tag, 'B-e2c1', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NIQ_REQUEST });
+  const lines: string[] = [];
+  const ask = (label: string): NextStepJson => {
+    const asked = o.cli('next', { storyId: o.storyId, json: true }, { label });
+    const next = (asked.status === 0 ? parseJson(asked.stdout) : null) as NextStepJson | null;
+    assert.ok(next && typeof next.kind === 'string', `[NI] next did not return a step:\n${asked.out.slice(-2000)}`);
+    lines.push(`${label}: ${next.phase} ${next.kind} ${next.reason}`);
+    return next;
+  };
+  try {
+    devSetup(o, false);
+    const launch = ask('next (DEV start)');
+    assert.equal(launch.reason, 'implement_item', `[NI] first DEV step: ${launch.reason}: ${launch.why}`);
+    const script = implementerScript(o.storyId, String(launch.cli!.payload.itemId));
+    o.script(IMPLEMENTER, { ...script, final: `${script.final}\nNote on a deliberate choice: per the checklist intent Upper keeps its input.\n${NI_CONFLICT_LINE}` });
+    const launched = o.mustCli(launch.cli!.command, launch.cli!.payload, { label: 'host_run implementer (conflict)' });
+    const runId = String((parseJson(launched.stdout)?.run as Record<string, unknown>).runId);
+    const terminal = waitTerminal(o, 'implementer', runId);
+    o.unscript(IMPLEMENTER);
+    assert.equal(terminal.state, 'completed', `[NI] implementer terminal ${terminal.state} (${terminal.reason})\n${o.providerCommandLog()}`);
+    assert.match(managedPrompts(o, IMPLEMENTER)[0]!.prompt, /\[intent-conflict\] none/, '[NI] the implementer prompt requires the [intent-conflict] section');
+
+    // D1: the declared conflict blocks the item before anything else.
+    const blocked = ask('next (conflict declared)');
+    assert.equal(blocked.reason, 'intent_conflict', `[NI] next must block on the declared intent conflict, got ${blocked.reason}: ${blocked.why}`);
+    assert.equal(blocked.kind, 'agent', '[NI] the intent conflict is an owner step');
+    assert.equal(blocked.cli?.command, 'story_advance', `[NI] the owner returns to PLAN to amend the frozen intent: ${blocked.command}`);
+    assert.equal(blocked.cli?.payload.phase, 'PLAN', '[NI] story_advance PLAN');
+    assert.match(blocked.why, /CHK-001:happy:0/, '[NI] the step names the conflicting intent');
+    assert.match(blocked.why, /Upper\("ab"\) == "AB"/, '[NI] the step carries the value the request implies');
+    o.mustCli('story_advance', blocked.cli!.payload, { label: 'story_advance PLAN (intent conflict)' });
+
+    const amend = ask('next (PLAN, conflict open)');
+    assert.equal(amend.reason, 'intent_conflict_amend', `[NI] in PLAN next must propose the intent revision, got ${amend.reason}: ${amend.why}`);
+    assert.equal(amend.cli?.command, 'checklist_update', '[NI] the revision is a checklist_update');
+    assert.equal(amend.cli?.payload.itemId, 'CHK-001', '[NI] the revision targets the conflicting item');
+    assert.equal(amend.cli?.payload.status, 'pending', '[NI] the revised item is implemented again');
+    assert.deepEqual([...(amend.placeholders ?? [])].sort(), ['reason', 'verificationIntent'], `[NI] the owner authors the revised intent and the reason: ${JSON.stringify(amend.placeholders)}`);
+    const revised = JSON.parse(JSON.stringify(new StoryStore(o.worktree).readChecklist(o.storyId).items.find(item => item.id === 'CHK-001')!.verificationIntent)) as { happy: Array<{ desc: string }> };
+    revised.happy[0]!.desc = 'TestUpper passes: Upper("ab") == "AB" as the request states';
+    o.mustCli('checklist_update', { ...amend.cli!.payload, verificationIntent: revised, reason: 'The request says Upper returns the upper-case form; the pinned intent kept the input unchanged.' }, { label: 'checklist_update CHK-001 intent revision' });
+    const afterAmend = ask('next (PLAN, conflict amended)');
+    assert.doesNotMatch(afterAmend.reason, /^intent_conflict/, `[NI] the amended conflict must not block again: ${afterAmend.reason}: ${afterAmend.why}`);
+
+    // PLAN re-approval is outside this harness: re-enter DEV as the fixture does.
+    const store = new StoryStore(o.worktree);
+    store.writeStory(o.storyId, { ...store.readStory(o.storyId), phase: 'DEV' });
+    const redo = ask('next (DEV, after revision)');
+    assert.doesNotMatch(redo.reason, /^intent_conflict/, `[NI] DEV must not block on the amended conflict: ${redo.reason}`);
+    assert.equal(redo.reason, 'checklist_item_start', `[NI] the revised item is implemented again: ${redo.reason}: ${redo.why}`);
+    assert.equal(redo.cli?.payload.itemId, 'CHK-001', '[NI] the revised item restarts');
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+function scenarioNQ(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NQ';
+  const name = 'NQ run 23/24: lanes get the request + rubric, the critic the no-limitation rule, the repair the variant rule; DONE';
+  const o = new Owner(tag, 'B-e2c2', machineEnv, steps, false, { trackedGateFailureCounts: true, request: NIQ_REQUEST });
+  const lines: string[] = [];
+  try {
+    devSetup(o);
+    driveWithNext(o, { findingRound1: true, run: false }, lines);
+    const lanes = managedPrompts(o).filter(row => row.agentType.startsWith('proof-or-stop-review-') && row.agentType !== DELIVERY && row.agentType !== MANAGED_INVENTORY_CRITIC_LANE);
+    assert.ok(lanes.length >= 4, `[NQ] lane prompts captured (${lanes.length})`);
+    for (const row of lanes) {
+      assert.ok(row.prompt.includes('`strs.Reverse(s)` returns `s` reversed by rune'), `[NQ] ${row.agentType} ${row.runId}: lane prompt carries the verbatim request`);
+      assert.match(row.prompt, /Request authority rubric/, `[NQ] ${row.agentType} ${row.runId}: lane prompt carries the rubric`);
+    }
+    const critics = managedPrompts(o, MANAGED_INVENTORY_CRITIC_LANE);
+    assert.ok(critics.length >= 1, '[NQ] critic prompt captured');
+    for (const row of critics) {
+      assert.match(row.prompt, /Critic request rule: a divergence between the implementation, a pinned intent or a test and a request sentence is a finding/, `[NQ] critic ${row.runId}: no-limitation rule`);
+      assert.match(row.prompt, /show both computed outputs/, `[NQ] critic ${row.runId}: both outputs rule`);
+      assert.ok(row.prompt.includes('`strs.Upper(s)` returns the upper-case form'), `[NQ] critic ${row.runId}: the critic gets the verbatim request`);
+    }
+    const repairs = managedPrompts(o, FINDING_REPAIR);
+    assert.ok(repairs.length >= 1, '[NQ] repair prompt captured');
+    for (const row of repairs) {
+      assert.match(row.prompt, /\[intent-conflict\] none/, `[NQ] repair ${row.runId}: [intent-conflict] section`);
+      assert.match(row.prompt, /Input variants \(keep base behavior\)/, `[NQ] repair ${row.runId}: base-behavior variant rule`);
+    }
+    lines.push(`lane prompts with request+rubric: ${lanes.length}; critic prompts: ${critics.length}; repair prompts: ${repairs.length}`);
+    lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-8]?|N[AD](?:-run)?|N[DF]-V[1-5]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-8]?|NI|NQ|N[AD](?:-run)?|N[DF]-V[1-5]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -2311,6 +2437,8 @@ async function main(): Promise<void> {
     if (only.includes('NC6')) outcomes.push(scenarioNC5(machine.env, steps, true));
     if (only.includes('NC7')) outcomes.push(scenarioNC7(machine.env, steps, 'reroute'));
     if (only.includes('NC8')) outcomes.push(scenarioNC7(machine.env, steps, 'lineage'));
+    if (only.includes('NI')) outcomes.push(scenarioNI(machine.env, steps));
+    if (only.includes('NQ')) outcomes.push(scenarioNQ(machine.env, steps));
     // Detection A/B arms: explicit tokens (ND-V1 .. NF-V5) or AB = ND-V1, ND-V2, ND-V3, NF-V4, ND-V5.
     const abTokens = only.includes('AB') ? ['ND-V1', 'ND-V2', 'ND-V3', 'NF-V4', 'ND-V5'] : [];
     for (const token of [...new Set([...abTokens, ...only.filter(arg => /^N[DF]-V[1-5]$/.test(arg))])]) {
@@ -2319,7 +2447,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NI', 'NQ', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

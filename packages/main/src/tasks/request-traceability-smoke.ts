@@ -9,9 +9,14 @@
 //
 // The verbatim request must be recorded in the Story (request.md, bounded,
 // hash-bound, immutable after INIT except by an explicit amendment), handed to
-// the scope-plan reviewer and the verification-intent author (not to REVIEW
-// lanes), and a mechanical pre-check must name every backticked request literal
+// the scope-plan reviewer and the verification-intent author, and a mechanical pre-check must name every backticked request literal
 // that no checklist title / userSees / verificationIntent states.
+//
+// Run 23 (request-outranks-intent) reversed the earlier "not to REVIEW lanes"
+// rule: a wrong owner intent was enforced because the lanes saw only the owner
+// paraphrase. Every REVIEW lane now gets the request inline with the shared
+// rubric, and the implementer / finding-repair prompts carry the
+// [intent-conflict] return section.
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -132,9 +137,28 @@ try {
   const intent = dispatch.dispatch({ storyId, itemId: 'CHK-001', agentType: 'proof-or-stop-verification-intent' }).prompt;
   assert.ok(intent.includes('request.md'), 'verification-intent prompt must point at the verbatim request');
   assert.match(intent, /exact-output intent/, 'verification-intent prompt must ask for exact-output intents per example/variant');
+  // Run 23 (request-outranks-intent D2): every REVIEW lane gets the verbatim request
+  // inline plus the shared rubric that the request outranks owner-authored intents.
   store.writeStory(storyId, { ...store.readStory(storyId), phase: 'REVIEW', currentReviewRound: 'R1' } as never);
-  const review = dispatch.dispatch({ storyId, agentType: 'proof-or-stop-review-behavior' }).prompt;
-  assert.ok(!review.includes(VARIANTS) && !review.includes('request.md'), 'REVIEW lanes must not receive the request text');
+  for (const lane of ['proof-or-stop-review-behavior', 'proof-or-stop-review-quality', 'proof-or-stop-review-concept', 'proof-or-stop-review-test-coverage']) {
+    const review = dispatch.dispatch({ storyId, agentType: lane }).prompt;
+    assert.ok(review.includes(VARIANTS), `${lane}: a REVIEW lane must receive the verbatim request text`);
+    assert.match(review, /Request authority rubric: the verbatim request above outranks the checklist/, `${lane}: the lane prompt must carry the request-outranks-intent rubric`);
+    assert.match(review, /contradicts the request is a finding of at least medium severity/, `${lane}: a pinned intent contradicting the request is a finding`);
+  }
+  // D1 + F3: the implementer and the finding-repair worker must return the
+  // [intent-conflict] section; the repair keeps base behavior for input variants.
+  store.writeStory(storyId, { ...store.readStory(storyId), phase: 'DEV' } as never);
+  const implementer = dispatch.dispatch({ storyId, itemId: 'CHK-001', agentType: 'proof-or-stop-implementer' }).prompt;
+  assert.match(implementer, /\[intent-conflict\] none/, 'implementer prompt must require the [intent-conflict] section');
+  assert.match(implementer, /prose notes are not read/, 'implementer prompt must refuse a prose "deliberate choice" note');
+  assert.ok(implementer.includes(`${storyId}/request.md`), 'implementer prompt must point at the verbatim request');
+  store.writeFindings(storyId, { findings: [{ id: `${storyId}:F-001`, storyId, desc: 'value[null:2] must keep the base error; Fix: treat a NULL index as omitted.', severity: 'medium', category: 'edge', agent: 'proof-or-stop-review-concept', status: 'open', createdAt: new Date().toISOString() }] } as never);
+  const repair = dispatch.dispatch({ storyId, findingId: `${storyId}:F-001`, agentType: 'proof-or-stop-finding-repair' }).prompt;
+  assert.match(repair, /\[intent-conflict\] none/, 'finding-repair prompt must require the [intent-conflict] section');
+  assert.match(repair, /Input variants \(keep base behavior\)/, 'finding-repair prompt must require the base-behavior check of input variants');
+  assert.match(repair, /"Fix:" text is a non-binding suggestion/, 'finding-repair prompt must mark a reviewer Fix: as non-binding');
+  store.writeFindings(storyId, { findings: [] } as never);
   store.writeStory(storyId, { ...store.readStory(storyId), phase: 'PLAN' });
 
   // Immutable after INIT except by an explicit amendment.
