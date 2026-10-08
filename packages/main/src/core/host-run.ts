@@ -1,3 +1,4 @@
+import { managedWorkerCodexConfigArgs } from './managed-worker-codex-config.js';
 import { reserveHostRunBudget, settleHostRunBudget } from './host-run-budget.js';
 import { canonicalAgentRoleId } from './agent-role-identity.js';
 import { MANAGED_REVIEW_READONLY_RUNTIME_POLICY } from './runtime-fact-registry.js';
@@ -2624,6 +2625,9 @@ export function materializeHostRunLaunch(
     const keepsSession = implementer
       || (args.launchProfile === 'managed_dispatch' && managedDispatchSaveCommand(args.agentType) !== null);
     const dispatchFlags = CANONICAL_CODEX_NONINTERACTIVE_FLAGS.filter(flag => !(keepsSession && flag === '--ephemeral'));
+    // N7: managed workers drop the Codex skills listing and multi-agent block
+    // (core/managed-worker-codex-config.ts); cross-host review keeps its argv.
+    const workerConfig = args.launchProfile === 'cross_host_review_codex' ? [] : managedWorkerCodexConfigArgs(args.env);
     // Under the review.round2Lanes=resume rollback, a managed code-review lane
     // reviewing a later candidate HEAD resumes the session it answered in on an
     // earlier candidate (managed-host-run decides which lane session, if any;
@@ -2635,7 +2639,7 @@ export function materializeHostRunLaunch(
           'exec', 'resume', '--json',
           ...(selection.model ? ['--model', selection.model] : []),
           ...(selection.reasoningEffort ? ['--config', `model_reasoning_effort="${selection.reasoningEffort}"`] : []),
-          '--config', `sandbox_mode="${sandboxMode}"`, args.resumeSessionId, '-',
+          '--config', `sandbox_mode="${sandboxMode}"`, ...workerConfig, args.resumeSessionId, '-',
         ],
         stdinText: args.promptText,
         cleanup: () => {},
@@ -2648,7 +2652,7 @@ export function materializeHostRunLaunch(
           'exec', 'resume', '--json', ...dispatchFlags,
           ...(selection.model ? ['--model', selection.model] : []),
           ...(selection.reasoningEffort ? ['--config', `model_reasoning_effort="${selection.reasoningEffort}"`] : []),
-          '--config', `sandbox_mode="${sandboxMode}"`, args.resumeSessionId, '-',
+          '--config', `sandbox_mode="${sandboxMode}"`, ...workerConfig, args.resumeSessionId, '-',
         ],
         stdinText: args.promptText,
         cleanup: () => {},
@@ -2666,6 +2670,7 @@ export function materializeHostRunLaunch(
           : []),
         ...(selection.model ? ['--model', selection.model] : []),
         ...(selection.reasoningEffort ? ['--config', `model_reasoning_effort="${selection.reasoningEffort}"`] : []),
+        ...workerConfig,
         '-s', sandboxMode, '-C', args.cwd, '-',
       ],
       stdinText: args.promptText,
@@ -2751,6 +2756,7 @@ export function materializeHostRunLaunch(
     // Uncontained managed dispatch (Darwin, Linux without an outer container)
     // keeps the ordinary Codex sandbox; a managed save reviewer still keeps its
     // session and its save repair resumes it (same contract as the contained path).
+    if (args.launchProfile === 'managed_dispatch') argv.splice(argv.length - 1, 0, ...managedWorkerCodexConfigArgs(args.env));
     if (args.launchProfile === 'managed_dispatch' && managedDispatchSaveCommand(args.agentType) !== null) {
       const ephemeral = argv.indexOf('--ephemeral');
       if (ephemeral >= 0) argv.splice(ephemeral, 1);

@@ -1,4 +1,6 @@
+import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { gitEnvironmentRedirected } from './git-inert-environment.js';
 import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
@@ -49,12 +51,6 @@ const MAX_WITNESS_ENTRIES = 2048;
 const MAX_WITNESS_FILE_BYTES = 4 * 1024 * 1024;
 const MAX_ENTRY_BYTES = 8 * 1024 * 1024;
 const MAX_MEMO_BYTES = 64 * 1024 * 1024;
-
-/** Interactive/identity variables that cannot change what a ref-state read prints. */
-const INERT_GIT_ENV = new Set([
-  'GIT_EDITOR', 'GIT_SEQUENCE_EDITOR', 'GIT_PAGER', 'GIT_TERMINAL_PROMPT', 'GIT_ASKPASS',
-  'GIT_AUTHOR_NAME', 'GIT_AUTHOR_EMAIL', 'GIT_AUTHOR_DATE', 'GIT_COMMITTER_NAME', 'GIT_COMMITTER_EMAIL', 'GIT_COMMITTER_DATE',
-]);
 
 const FULL_OID = /(?:^|[^0-9a-f])[0-9a-f]{40}(?:[0-9a-f]{24})?(?:$|[^0-9a-f])/;
 const FULL_OID_ONLY = /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/;
@@ -153,10 +149,6 @@ export function isRefStateGitRead(argv: readonly string[]): boolean {
     default:
       return false;
   }
-}
-
-function gitEnvironmentRedirected(): boolean {
-  return Object.keys(process.env).some(key => key.startsWith('GIT_') && !INERT_GIT_ENV.has(key) && process.env[key] !== undefined);
 }
 
 interface Layout { gitDir: string; commonDir: string; dotGit: string }
@@ -366,6 +358,41 @@ export function witnessedGitRead(cwd: string, argv: readonly string[], key: stri
       remember(key, { witness: before, failure: error, bytes: key.length + 256 });
     }
     throw error;
+  }
+}
+
+/**
+ * N9 (lab owner-init-and-worker-prompt): a witness of everything a worktree
+ * diff of the checkout holding cwd can print (`git diff [--cached] [base...HEAD]`,
+ * `ls-files --others --exclude-standard`, their name-status forms): the ref
+ * state above, the index file, one `git status --porcelain -z
+ * --untracked-files=all` run, and the bytes of every path it lists. A tracked
+ * path status does not list equals the index (and HEAD), so it contributes
+ * nothing to those outputs. Undefined (no memo) wherever the ref-state memo
+ * is off. One status run instead of the whole diff set: story_advance TEST
+ * and DONE built the scope diff pack 4-5 times on an unchanged checkout.
+ */
+export function worktreeChangeWitness(cwd: string): string | undefined {
+  if (freshDepth > 0 || gitEnvironmentRedirected()) return undefined;
+  const layout = layoutFor(cwd);
+  if (!layout) return undefined;
+  const refs = refStateWitness(layout);
+  if (refs === undefined) return undefined;
+  try {
+    const root = dirname(layout.dotGit);
+    const status = execFileSync('git', ['status', '--porcelain=v1', '-z', '--untracked-files=all', '--no-renames'], {
+      cwd, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    const rows = [`refs\0${refs}`, `index\0${fileSignature(join(layout.gitDir, 'index'))}`, `status\0${status}`];
+    const entries = status.split('\0').filter(Boolean);
+    if (entries.length > MAX_WITNESS_ENTRIES) return undefined;
+    for (const entry of entries) {
+      const path = entry.slice(3);
+      rows.push(`${path}\0${fileSignature(join(root, path))}`);
+    }
+    return createHash('sha256').update(rows.join('\n')).digest('hex');
+  } catch {
+    return undefined;
   }
 }
 

@@ -1,4 +1,5 @@
 import { observedGit, readObservedGitTree } from './git-tree-observation.js';
+import { gitEnvironmentRedirected } from './git-inert-environment.js';
 /** Process-local memo of immutable Git bytes, never filtered Story evidence. */
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -6,17 +7,9 @@ import { realpathSync, existsSync, readFileSync, statSync, lstatSync, readdirSyn
 import { join, dirname, basename, isAbsolute, resolve, sep, delimiter } from 'node:path';
 
 const MAX_BYTES = 64 * 1024 * 1024;
-/**
- * Interactive/identity variables that cannot change what `git ls-tree` or a
- * two-commit `git diff --name-status` prints (the same set git-ref-witness-memo
- * and git-object-read-memo treat as inert). Agent hosts set GIT_EDITOR on every
- * process, which disabled this memo for every gate: story_advance REVIEW reran
- * the same Story diff once per pinned receipt (run 17).
- */
-const INERT_GIT_ENV = new Set([
-  'GIT_EDITOR', 'GIT_SEQUENCE_EDITOR', 'GIT_PAGER', 'GIT_TERMINAL_PROMPT', 'GIT_ASKPASS',
-  'GIT_AUTHOR_NAME', 'GIT_AUTHOR_EMAIL', 'GIT_AUTHOR_DATE', 'GIT_COMMITTER_NAME', 'GIT_COMMITTER_EMAIL', 'GIT_COMMITTER_DATE',
-]);
+// Inert git environment (core/git-inert-environment.ts): agent hosts set
+// GIT_EDITOR on every process, which disabled this memo for every gate:
+// story_advance REVIEW reran the same Story diff once per pinned receipt (run 17).
 const MAX_ENTRIES = 128;
 interface MemoEntry { raw: string; bytes: number; }
 const treeMemo = new Map<string, MemoEntry>();
@@ -73,8 +66,12 @@ interface AuthorityContext {
   indexPath: string;
   configIdentity?: string;
   configValue?: string;
-  attributesIdentity?: string;
-  attributesSafe?: boolean;
+  /**
+   * check-attr verdicts by identity (attribute files, index, input, config).
+   * N9: one slot was evicted by the alternating inputs of one gate command
+   * (story_advance TEST ran 4 inputs 3 times, DONE 4 inputs 5 times).
+   */
+  attributeVerdicts?: Map<string, boolean>;
 }
 const authorities = new Map<string, AuthorityContext>();
 const MAX_AUTHORITY_BYTES = 64 * 1024 * 1024;
@@ -126,7 +123,7 @@ function executableIdentity(cwd: string): string {
   throw new Error('Git executable cannot be identified');
 }
 function authorityContext(cwd: string): AuthorityContext | undefined {
-  if (Object.keys(process.env).some(key => key.startsWith('GIT_') && !INERT_GIT_ENV.has(key) && process.env[key] !== undefined)) return undefined;
+  if (gitEnvironmentRedirected()) return undefined;
   // Discovery commands return newline-delimited paths. Do not mistake an
   // embedded newline in a routing input for two independent authority files.
   if ([cwd, process.env.PATH, process.env.HOME, process.env.XDG_CONFIG_HOME].some(value => value && /[\r\n\0]/.test(value))) return undefined;
@@ -221,11 +218,14 @@ function safeAttributes(cwd: string, input: string): boolean {
       }
     }
     const identity = createHash('sha256').update(identities(candidates)).update('\0').update(input).update('\0').update(authority.configIdentity ?? '').digest('hex');
-    if (authority.attributesIdentity === identity) return authority.attributesSafe === true;
+    const verdicts = authority.attributeVerdicts ??= new Map<string, boolean>();
+    const known = verdicts.get(identity);
+    if (known !== undefined) return known;
     const safe = git(cwd, ['check-attr', '--all', '-z', '--stdin'], input) === '';
     const after = createHash('sha256').update(identities(candidates)).update('\0').update(input).update('\0').update(authority.configIdentity ?? '').digest('hex');
     if (after !== identity) return false;
-    authority.attributesIdentity = identity; authority.attributesSafe = safe;
+    if (verdicts.size >= 64) verdicts.delete(verdicts.keys().next().value!);
+    verdicts.set(identity, safe);
     return safe;
   } catch { return false; }
 }

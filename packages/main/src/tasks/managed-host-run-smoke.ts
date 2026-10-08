@@ -714,8 +714,10 @@ async function main(): Promise<void> {
   assert.ok(receipt.evidenceProposalDigest);
   assert.deepEqual(
     completionArgv,
-    ['exec', '--json', '-s', 'danger-full-access', '-C', completionCase, '-'],
-    'omitting model selectors leaves the pre-selection managed Codex argv byte-for-byte unchanged',
+    // N7: a managed worker also drops the Codex skills listing and multi-agent block (core/managed-worker-codex-config.ts).
+    ['exec', '--json', '--config', 'skills.include_instructions=false', '--config', 'features.multi_agent=false', '--config', 'features.multi_agent_v2=false',
+      '-s', 'danger-full-access', '-C', completionCase, '-'],
+    'omitting model selectors leaves the pre-selection managed Codex argv byte-for-byte unchanged (plus the N7 worker switches)',
   );
   const defaultBinding = readManagedHostRunBinding(completionCase, submitted.runId);
   const defaultResult = readManagedHostRunResult(completionCase, submitted.runId);
@@ -849,7 +851,7 @@ async function main(): Promise<void> {
   const historicalResult = readManagedHostRunResult(historicalCase, historical.runId);
   assert.deepEqual(
     historicalArgv,
-    ['exec', '--json', '-s', 'danger-full-access', '-C', historicalCase, '-'],
+    ['exec', '--json', '--config', 'skills.include_instructions=false', '--config', 'features.multi_agent=false', '--config', 'features.multi_agent_v2=false' /* N7 */, '-s', 'danger-full-access', '-C', historicalCase, '-'],
     'a historical spec without selector keys preserves the original provider argv',
   );
   for (const [label, value] of [
