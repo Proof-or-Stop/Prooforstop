@@ -6,6 +6,7 @@ import { buildImplementerItemPack } from '../core/implementer-item-pack.js';
 import { renderGroupedFindingRepairSection, renderGroupedItemSection, sharedFileItemGroup, shortFindingId } from '../core/ab-dispatch-grouping.js';
 import { hostRunStatusBlocksUntilTerminal, ownerWaitBlockMs, ownerWaitYieldMs } from '../core/owner-wait-guidance.js';
 import { renderHostRunStatusSummary } from './host-run-status-summary.js';
+import { summarizeManagedRunDiagnostics } from '../core/managed-run-diagnostics.js';
 /**
  * B-70e9 CHK-001 / CHK-002 / CHK-007: the `host_run` CLI command.
  *
@@ -68,6 +69,7 @@ import {
   type ManagedHostRunProjection,
   type ManagedHostRunWorkerLauncher,
   MANAGED_HOST_RUN_STATUS_TERMINAL_WAIT_MAX_MS,
+  managedHostRunDirectory,
 } from '../core/managed-host-run.js';
 import {
   buildManagedReviewerPrompt,
@@ -1091,7 +1093,9 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           runId,
           afterSequence: afterSequence ?? 0,
         });
-        return { ...status, output };
+        // Old-PoS run 27: per-command wall time + host load (core/managed-run-diagnostics.ts).
+        const diagnostics = summarizeManagedRunDiagnostics(managedHostRunDirectory(ctx.root, runId));
+        return { ...status, output, ...(diagnostics ? { diagnostics } : {}) };
       }
       return renderHostRunStatusSummary(ctx.root, status);
     },

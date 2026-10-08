@@ -362,6 +362,13 @@ export interface ProofOrStopConfig {
     round2Lanes?: 'fresh' | 'resume';
     lanePack?: 'off' | 'shared';
     roundDelta?: 'off' | 'pack';
+    /**
+     * Old-PoS run 27 (lane command contention probe): delay in ms between the
+     * launches of one round's lanes when `next --run` launches them (N2). 0 /
+     * absent = all lanes at once (production). Integer 0..60000; not a
+     * detection switch. Compare runs with core/managed-run-diagnostics.ts.
+     */
+    laneLaunchStaggerMs?: number;
   };
   remediation?: { grouping?: 'single' | 'per-finding'; thread?: 'fresh' | 'resume' };
   implementation?: { grouping?: 'per-item' | 'files'; thread?: 'resume' | 'fresh' };

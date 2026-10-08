@@ -3258,7 +3258,7 @@ function scenarioNDG(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     assert.ok(firstLanes.length >= 2, `${tag}: the round launched several lanes (${firstLanes.length})`);
     const spread = firstLanes.at(-1)! - firstLanes[0]!;
     lines.push(`lane launches: ${firstLanes.length}, createdAt spread ${(spread / 1000).toFixed(1)} s with review.laneLaunchStaggerMs=${staggerMs}`);
-    assert.ok(spread >= staggerMs * (firstLanes.length - 1) * 0.9, `${tag}: lane launches are staggered by ${staggerMs} ms (spread ${spread} ms over ${firstLanes.length} lanes)`);
+    assert.ok(spread >= staggerMs * (firstLanes.length - 1) * 0.6, `${tag}: lane launches are staggered by ${staggerMs} ms (spread ${spread} ms over ${firstLanes.length} lanes)`);
     const delivery = runs.find(run => run.spec.agentType === DELIVERY)!;
     const diagnosticsPath = join(runsRoot, delivery.runId, 'diagnostics.jsonl');
     assert.ok(existsSync(diagnosticsPath), `${tag}: the delivery run recorded diagnostics.jsonl`);

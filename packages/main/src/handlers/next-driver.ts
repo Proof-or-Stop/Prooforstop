@@ -2325,18 +2325,32 @@ export function runNextSteps(args: {
 const CONCURRENT_RUNNER = [
   "const { spawn } = require('node:child_process');",
   "const input = JSON.parse(require('node:fs').readFileSync(0, 'utf8'));",
-  'Promise.all(input.calls.map(call => new Promise(done => {',
+  'Promise.all(input.calls.map((call, index) => new Promise(done => setTimeout(() => {',
   "  const child = spawn(process.execPath, [input.entry, call.command, JSON.stringify(call.payload)], { cwd: input.cwd, env: process.env, stdio: ['ignore', 'pipe', 'pipe'] });",
   "  let out = ''; child.stdout.on('data', chunk => { out += chunk; }); child.stderr.on('data', chunk => { out += chunk; });",
   "  child.on('error', error => done({ exit: -1, out: out + String(error) }));",
   "  child.on('close', code => done({ exit: code ?? -1, out }));",
-  '}))).then(results => process.stdout.write(JSON.stringify(results)));',
+  '}, index * (input.staggerMs || 0))))).then(results => process.stdout.write(JSON.stringify(results)));',
 ].join('\n');
 
-export function runCliCallsConcurrently(cliEntry: string, calls: Array<{ command: string; payload: Record<string, unknown> }>): Array<{ exit: number; out: string }> {
+/**
+ * review.laneLaunchStaggerMs (old-PoS run 27 contention probe): the delay
+ * between one round's lane launches; 0 (default) launches them all at once.
+ */
+export function laneLaunchStaggerMs(root: string): number {
+  const raw = loadConfig(root).review?.laneLaunchStaggerMs;
+  if (raw === undefined || raw === null) return 0;
+  if (typeof raw !== 'number' || !Number.isInteger(raw) || raw < 0 || raw > 60_000) {
+    throw new Error(`invalid config: review.laneLaunchStaggerMs must be an integer 0..60000 (got ${JSON.stringify(raw)}); remove it to launch lanes at once`);
+  }
+  return raw;
+}
+
+/** Run the calls concurrently; `staggerMs` > 0 starts call i after i * staggerMs. */
+export function runCliCallsConcurrently(cliEntry: string, calls: Array<{ command: string; payload: Record<string, unknown> }>, staggerMs = 0): Array<{ exit: number; out: string }> {
   const run = spawnSync(process.execPath, ['-e', CONCURRENT_RUNNER], {
     cwd: process.cwd(), env: process.env, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 * Math.max(1, calls.length),
-    input: JSON.stringify({ entry: cliEntry, cwd: process.cwd(), calls }),
+    input: JSON.stringify({ entry: cliEntry, cwd: process.cwd(), calls, staggerMs }),
   });
   try {
     const parsed = JSON.parse(run.stdout ?? '') as Array<{ exit: number; out: string }>;
@@ -2435,8 +2449,8 @@ export function createNextDriverHandlers(ctx: HandlerContext, lookup: HandlerLoo
           resetConfigCache();
           return { exit: run.status ?? -1, out: `${run.stdout ?? ''}${run.stderr ?? ''}` };
         },
-        executeParallel: calls => {
-          const results = runCliCallsConcurrently(cliEntry, calls);
+        executeParallel: (calls, step) => {
+          const results = runCliCallsConcurrently(cliEntry, calls, step.reason === 'review_lane_launch' ? laneLaunchStaggerMs(ctx.root) : 0);
           resetConfigCache();
           return results;
         },

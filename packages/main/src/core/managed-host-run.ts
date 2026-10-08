@@ -82,6 +82,7 @@ import {
   managedDispatchSaveCommand,
 } from './host-run.js';
 import { providerDiagnosticLineText } from './host-execution-readiness.js';
+import { createManagedRunDiagnostics } from './managed-run-diagnostics.js';
 import type {
   FindingEvidenceState,
   ScopeCheckData,
@@ -3878,6 +3879,8 @@ export async function runManagedHostRunWorker(
     // Old-PoS run 24 (F1): the provider's own transport error event, per launch.
     let providerTransportDiagnostic: string | null = null;
     let providerTransportPartial = '';
+    // Old-PoS run 27: per-command wall time + host load samples (diagnostic only).
+    const runDiagnostics = createManagedRunDiagnostics({ runDir: paths.dir, hostRunsRoot: managedHostRunsRoot(spec.root), now });
     const noteProviderTransport = (text: string): void => {
       const lines = `${providerTransportPartial}${text}`.split('\n');
       providerTransportPartial = (lines.pop() ?? '').slice(-64 * 1024);
@@ -3956,6 +3959,7 @@ export async function runManagedHostRunWorker(
         // manufacture a new burn cancellation after the provider already closed.
         onProcessClose: closedAt => {
           providerClosed = true;
+          runDiagnostics.stop();
           updateSnapshotAndAppendEvent(paths, current => current.providerClosedAt ? null : ({
             ...current, generation:current.generation+1, providerClosedAt:closedAt, supervisionDiagnostic:null,
           }), {schemaVersion:MANAGED_HOST_RUN_SCHEMA_VERSION, runId:spec.runId,
@@ -3963,6 +3967,7 @@ export async function runManagedHostRunWorker(
         },
         onProcessSpawn: identity => {
           providerSpawnedAtMs = now();
+          runDiagnostics.start();
           lastProviderStdoutAt = null;
           lastProviderStdoutEvent = null;
           providerTransportDiagnostic = null;
@@ -4007,7 +4012,7 @@ export async function runManagedHostRunWorker(
           }
           : {}),
         passthrough: chunk => {
-          if (chunk.stream === 'stdout' && chunk.text.length > 0) { noteProviderStdout(chunk.text); noteProviderTransport(chunk.text); }
+          if (chunk.stream === 'stdout' && chunk.text.length > 0) { noteProviderStdout(chunk.text); noteProviderTransport(chunk.text); runDiagnostics.noteStdout(chunk.text); }
           withTerminalAuthorityLock(paths, () => {
             if (readTerminal(paths)) return;
             outputSequence += 1;
