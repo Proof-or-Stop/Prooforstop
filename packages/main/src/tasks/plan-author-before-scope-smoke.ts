@@ -24,6 +24,15 @@
  *       exact missing field. The request-literal warning at story_create must
  *       be actionable (exact command; userSees is editable in INIT and PLAN),
  *       never a reason to recreate the Story.
+ *   P5  D4 (old-PoS run 23, wrong pinned value at INIT): an intent example
+ *       whose expected value is not quoted verbatim from request.md must carry
+ *       a derivation {requestQuote, computation}: requestQuote a verbatim
+ *       request sentence, computation stating the pinned value. story_create
+ *       and checklist_update refuse a missing / unquoted / inconsistent one
+ *       ([intent_derivation_required], nothing written); a quoted example
+ *       needs none. A row stored without one (request recorded later) is a
+ *       story_review blocker and part of next's plan_authoring batch, with a
+ *       derivation placeholder in the exact checklist_update.
  *
  * Usage: node packages/main/dist/tasks/plan-author-before-scope-smoke.js
  */
@@ -43,6 +52,7 @@ import { isDeepStrictEqual } from 'node:util';
 import { createScopeCheckHandlers } from '../handlers/scope-check.js';
 import { createStoryReviewHandlers } from '../handlers/story-review.js';
 import { createStoryCreateHandlers } from '../handlers/story-create.js';
+import { createChecklistHandlers } from '../handlers/checklist.js';
 import * as scopeRequirement from '../core/plan-scope-check-requirement.js';
 import * as classification from '../core/verification-intent-classification.js';
 import { MAIN_TOOLS } from '../cli/command-catalog.js';
@@ -76,8 +86,16 @@ const REQUEST = [
 ].join('\n');
 
 const pin = (test: string) => ({ verification: { command: `go test -v ./evaluator -run ^${test}$`, selector: `--- PASS: ${test}` } });
+/**
+ * D4 (old-PoS run 23): an example whose expected value is not quoted from the
+ * request carries a derivation (the request sentence + the computation that
+ * reaches the pinned value). The fixture rows derive theirs from the request's
+ * first sentence.
+ */
+const derive = (desc: string) => ({ derivation: { requestQuote: 'Add stepped slices to arrays and strings.',
+  computation: `a stepped slice keeps every step-th selected element in selection order, giving ${desc.split('->')[1]?.trim() ?? desc}` } });
 const row = (desc: string, test: string) => ({ desc, type: 'logic' as const, priority: 'must' as const,
-  scope: 'focused' as const, expectation: 'absolute_pass' as const, requirementSource: 'story' as const, ...pin(test) });
+  scope: 'focused' as const, expectation: 'absolute_pass' as const, requirementSource: 'story' as const, ...pin(test), ...derive(desc) });
 
 /** CHK-001 lacks the adversarial lane; CHK-002 lacks userSees and pins its happy intent nowhere. */
 function incompleteItems(): ChecklistItem[] {
@@ -304,9 +322,96 @@ function p4(): void {
     'checklist_update help no longer claims userSees is frozen before DEV', description);
 }
 
+const REQ5 = [
+  'Add range assignment to arrays.',
+  'Use the same index-selection semantics as read slicing.',
+  'For example `a[1:3] = [7,8]` turns `[0,1,2,3]` into `[0,7,8,3]`.',
+].join('\n');
+const WRONG_PIN = 'a=[0,1,2,3,4,5]; a[::-1]=[9,8,7,6,5,4] -> [9,8,7,6,5,4]';
+const classified = { type: 'logic' as const, priority: 'must' as const, scope: 'focused' as const, expectation: 'absolute_pass' as const, requirementSource: 'story' as const };
+
+function p5(): void {
+  console.log('P5 D4: a non-quoted pinned example needs a derivation that cites the request');
+  const root = realpathSync(mkdtempSync(join(tmpdir(), 'plan-author-before-scope-derivation-')));
+  try {
+    write(root, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: '.', testsDir: 'tests', storyDir: STORY_DIR, requirementsDir: 'docs/requirements' }));
+    git(root, ['init', '-q', '-b', 'main']);
+    git(root, ['config', 'user.email', 'p5@example.invalid']);
+    git(root, ['config', 'user.name', 'P5 Smoke']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-qm', 'fixture']);
+    resetConfigCache();
+    const store = new StoryStore(root);
+    const create = createStoryCreateHandlers({ root, scanRoot: root, store } as never);
+    const background = ['## Trigger Event', 'Old-PoS run 23 on 2026-10-08 pinned a wrong expected value at INIT and every reviewer deferred to it.', '',
+      '## Key Insights', 'A pinned example that the request does not quote must show how it follows from a request sentence.', '',
+      '## Solution Tradeoffs', 'Require a derivation on non-quoted examples instead of trusting the owner arithmetic silently.', '',
+      '## Conversational Texture', 'The user wants every invented example to be traceable to a sentence of the request.'].join('\n');
+    const quoted = { desc: 'a=[0,1,2,3]; a[1:3]=[7,8] -> `[0,7,8,3]`', ...classified };
+    const attemptCreate = (wrong: Record<string, unknown>): string => {
+      try {
+        return String(create.story_create({ name: 'p5-derivation', title: 'Array range assignment', description: 'Range assignment on arrays.', type: 'feature', priority: 'medium',
+          background, request: REQ5, forceNew: true,
+          checklist: [{ title: 'Array range assignment', userSees: 'a[1:3] = [7,8] turns [0,1,2,3] into [0,7,8,3]',
+            verificationIntent: { happy: [quoted, { desc: WRONG_PIN, ...classified, ...wrong }], edge: [], adversarial: [] } }] } as never));
+      } catch (error) { return `REFUSED ${error instanceof Error ? error.message : String(error)}`; }
+    };
+    const missing = attemptCreate({});
+    check(/\[intent_derivation_required\]/.test(missing) && missing.includes('CHK-001:happy:1') && missing.includes('[9,8,7,6,5,4]'),
+      'story_create refuses a non-quoted pinned value without a derivation, naming the row and the value', missing);
+    check(!missing.includes('CHK-001:happy:0'), 'an example quoted verbatim from the request needs no derivation', missing);
+    check(/requestQuote/.test(missing) && /computation/.test(missing) && /nothing was written/i.test(missing), 'the refusal shows the derivation shape and says nothing was written', missing);
+    check(store.listStoryIds().length === 0, 'the refused story_create wrote no Story');
+    const unquoted = attemptCreate({ derivation: { requestQuote: 'Use the same semantics as Python list slicing.', computation: 'ascending pairing gives [9,8,7,6,5,4]' } });
+    check(/\[intent_derivation_required\]/.test(unquoted) && /verbatim/.test(unquoted), 'a derivation citing a sentence that is not in request.md is refused', unquoted);
+    const inconsistent = attemptCreate({ derivation: { requestQuote: 'Use the same index-selection semantics as read slicing.', computation: 'read slicing a[::-1] selects indexes 5,4,3,2,1,0; assign values in that order' } });
+    check(/\[intent_derivation_required\]/.test(inconsistent) && /does not state the pinned value/.test(inconsistent),
+      'a derivation whose computation does not reach the pinned value is refused', inconsistent);
+    const accepted = attemptCreate({ derivation: { requestQuote: 'Use the same index-selection semantics as read slicing.',
+      computation: 'the selected indexes are filled in ascending order 0..5, so a becomes [9,8,7,6,5,4]' } });
+    const storyId = accepted.match(/B-[a-z0-9]{4}/)?.[0] ?? '';
+    check(!accepted.startsWith('REFUSED') && Boolean(storyId), 'a cited, self-consistent derivation is accepted (its correctness is the scope-plan pin audit)', accepted);
+    if (!storyId) return;
+
+    store.writeStory(storyId, { ...store.readStory(storyId), phase: 'PLAN' });
+    const update = createChecklistHandlers({ root, scanRoot: root, store } as never) as unknown as Record<string, (args: Record<string, unknown>) => unknown>;
+    const before = JSON.stringify(store.readChecklist(storyId));
+    let refused = '';
+    try {
+      update.checklist_update({ storyId, itemId: 'CHK-001', verificationIntent: { happy: [quoted, { desc: 'a=[0,1,2,3]; a[::2]=[5,6] -> [5,1,6,3]', ...classified }], edge: [], adversarial: [] } });
+    } catch (error) { refused = error instanceof Error ? error.message : String(error); }
+    check(/\[intent_derivation_required\]/.test(refused) && refused.includes('[5,1,6,3]'), 'checklist_update refuses a non-quoted pinned value without a derivation', refused || '(accepted)');
+    check(JSON.stringify(store.readChecklist(storyId)) === before, 'the refused checklist_update wrote nothing');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+
+  console.log('P5 D4: a stored row without a derivation is a story_review blocker and a plan_authoring command');
+  const t = setup();
+  try {
+    const items = completeItems();
+    const edge = items[0]!.verificationIntent!.edge![0]! as unknown as Record<string, unknown>;
+    delete edge.derivation;
+    t.store.writeChecklist(t.storyId, { items } as ChecklistData);
+    const stepNow = t.next();
+    const update = (stepNow.batch ?? []).find(call => call.cli.command === 'checklist_update' && call.cli.payload.itemId === 'CHK-001');
+    const edgeRow = ((update?.cli.payload.verificationIntent as { edge?: Array<Record<string, unknown>> } | undefined)?.edge ?? [])[0];
+    const derivation = edgeRow?.derivation as { requestQuote?: string; computation?: string } | undefined;
+    check(stepNow.reason === 'plan_authoring' && /^<.*>$/.test(derivation?.requestQuote ?? '') && /^<.*>$/.test(derivation?.computation ?? ''),
+      'next returns plan_authoring with a derivation placeholder on the row that lacks one', JSON.stringify(stepNow));
+    check(/derivation/.test(stepNow.why) && stepNow.why.includes('CHK-001:edge:0'), 'the authoring step names the row missing its derivation', stepNow.why);
+    const blockers = t.review(false).issues.filter(issue => issue.type === 'missing_intent_derivation');
+    check(blockers.length === 1 && blockers[0]!.severity === 'blocker' && blockers[0]!.message.includes('CHK-001:edge:0'),
+      'story_review reports missing_intent_derivation as a blocker', JSON.stringify(t.review(false).issues));
+  } finally {
+    rmSync(t.root, { recursive: true, force: true });
+  }
+}
+
 attempt('P1', p1);
 attempt('P2/P3', p2p3);
 attempt('P4', p4);
+attempt('P5', p5);
 if (failures.length) {
   console.log(`plan-author-before-scope-smoke: FAIL (${failures.length})\n  ${failures.join('\n  ')}`);
   process.exit(1);

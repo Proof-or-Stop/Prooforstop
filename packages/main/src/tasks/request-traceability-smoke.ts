@@ -33,6 +33,7 @@ import { parseIntentConflicts } from '../core/request-authority.js';
 
 const MARKER = 'scope-plan reviewer prompt omits the verbatim request';
 const VARIANTS = 'Accept omitted components for stepped slices: `value[:end:step]`, `value[start::step]`, and `value[::step]`.';
+const SAME_SEMANTICS = 'Use the same index-selection semantics as read slicing.';
 const REQUEST = [
   'Extend indexing ranges so arrays and strings support a third slice component:',
   '',
@@ -42,6 +43,9 @@ const REQUEST = [
   `- ${VARIANTS}`,
   '- AST stringification must preserve stepped ranges, for example:',
   '  - `myArray[::2]` -> `(myArray[::2])`',
+  '',
+  '2. Range assignment',
+  `- ${SAME_SEMANTICS}`,
 ].join('\n');
 const BACKGROUND = [
   '## Trigger Event',
@@ -141,6 +145,29 @@ try {
   assert.match(scope, /every normative sentence, every "for example" and every enumerated variant/, 'scope-plan prompt must state the traceability rule');
   assert.ok(`${created.value}\n${created.stderr}`.includes('`value[:end:step]`'), 'story_create must surface the unmapped literal to the owner at intake');
 
+  // D4/D5 (old-PoS run 23): the scope-plan reviewer recomputes every pinned
+  // example whose expected value is not quoted from the request, from the cited
+  // request sentence, and gets the derivations explicitly. A wrong derivation
+  // (self-consistent with the wrong pin) must reach the reviewer verbatim.
+  {
+    const checklist = store.readChecklist(storyId);
+    const wrongPin = { desc: 'a=[0,1,2,3,4,5]; a[::-1]=[9,8,7,6,5,4] -> [9,8,7,6,5,4]', type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story',
+      derivation: { requestQuote: SAME_SEMANTICS, computation: 'assignment fills the selected indexes in ascending order 0..5, so the array becomes [9,8,7,6,5,4]' } };
+    store.writeChecklist(storyId, { ...checklist, items: checklist.items.map((item, index) => index === 0
+      ? { ...item, verificationIntent: { ...item.verificationIntent!, happy: [...item.verificationIntent!.happy, wrongPin as never] } } : item) });
+    const audited = dispatch.dispatch({ storyId, agentType: 'proof-or-stop-review-scope-plan' }).prompt;
+    assert.match(audited, /Pin audit \(blocking\)/, 'scope-plan prompt must carry the pin-audit rule');
+    assert.match(audited, /recompute/i, 'the pin-audit rule must make the reviewer recompute the pinned value');
+    assert.ok(audited.includes('CHK-001:happy:1'), 'the pin-audit list names the pinned row');
+    assert.ok(audited.includes('[9,8,7,6,5,4]'), 'the pin-audit list carries the pinned value');
+    assert.ok(audited.includes('assignment fills the selected indexes in ascending order 0..5'), 'the pin-audit list carries the derivation computation verbatim');
+    assert.ok(audited.split('\n').some(line => line.includes('CHK-001:happy:1') && line.includes(SAME_SEMANTICS)), 'the pin-audit row carries the cited request sentence');
+    assert.match(audited, /"pin-audit CHK-<id>:<lane>:<n>/, 'a mismatch is recorded as a pin-audit gap row');
+    assert.match(audited, /Same-semantics rule/, 'scope-plan prompt must carry the asymmetric-example (same-semantics) rule');
+    assert.match(audited, /asymmetric-example/, 'a missing asymmetric example is recorded as an asymmetric-example gap row');
+    store.writeChecklist(storyId, checklist);
+  }
+
   // Storage: verbatim, hash-bound, bound into the INIT_CHECK signature domain.
   const requestPath = store.storyFilePath(storyId, 'request.md');
   const meta = JSON.parse(readFileSync(store.storyFilePath(storyId, 'request.json'), 'utf8'));
@@ -154,6 +181,7 @@ try {
   const intent = dispatch.dispatch({ storyId, itemId: 'CHK-001', agentType: 'proof-or-stop-verification-intent' }).prompt;
   assert.ok(intent.includes('request.md'), 'verification-intent prompt must point at the verbatim request');
   assert.match(intent, /exact-output intent/, 'verification-intent prompt must ask for exact-output intents per example/variant');
+  assert.match(intent, /"derivation":\{"requestQuote"/, 'verification-intent prompt must require a derivation for an expected value not quoted from the request (D4)');
   // Run 23 (request-outranks-intent D2): every REVIEW lane gets the verbatim request
   // inline plus the shared rubric that the request outranks owner-authored intents.
   store.writeStory(storyId, { ...store.readStory(storyId), phase: 'REVIEW', currentReviewRound: 'R1' } as never);
