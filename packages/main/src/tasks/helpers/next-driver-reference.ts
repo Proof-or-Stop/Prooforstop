@@ -79,6 +79,18 @@
  * needs a commit in the run's window naming its id (managedFindingRepairState)
  * before finding_resolve; a member without one gets its own single repair.
  *
+ * Deliberate change (critic-final-and-batch-resolve, old-PoS run 24 F2/F4):
+ * a managed run that failed with no work product because its final envelope
+ * stayed missing/invalid after the same-session format repair
+ * (managed_review_final_result_*), or on a provider transport error
+ * (provider_transport_error:), is auto-replaceable
+ * (isAutoReplaceableManagedLaunchFailure, shared), so the replacement critic or
+ * lane launch is a framework step under the same <= 3-per-target rule. When the
+ * finding a resolve step is about has other open findings that are repaired too
+ * (a grouped repair), the step is ONE finding_resolve listing them
+ * (finding_resolve_batch: repairedFindingsForResolve / findingResolveBatchStep,
+ * shared); each entry keeps its own commit and re-check.
+ *
  * Deliberate change (dup-routing-coverage, run 17 Q1): a critic `duplicate`
  * finding waits while its canonical finding is open (nextBlockingFinding);
  * once the canonical one is repaired and resolved and the duplicate has no
@@ -92,8 +104,10 @@
  * writer run declared (or an implementer's prose-only deliberate deviation)
  * whose item intent is unchanged since the run was dispatched blocks DEV first:
  * `intent_conflict` = story_advance PLAN (openIntentConflicts /
- * intentConflictStep, shared with the live driver). The golden fixture declares
- * no conflict, so its quiet states are unchanged.
+ * intentConflictStep, shared with the live driver); it precedes every finding
+ * repair / finding_resolve / finding_resolve_batch step, and the REVIEW-phase
+ * finding closure returns to DEV (intent_conflict_dev) instead of resolving.
+ * The golden fixture declares no conflict, so its quiet states are unchanged.
  */
 import { existsSync, readdirSync } from 'node:fs';
 import { hostname } from 'node:os';
@@ -131,7 +145,7 @@ import { collectReviewerEvidenceState, verifyCurrentReviewerDispatchBinding } fr
 import { managedHostRunsRoot, readManagedHostRunProjection, managedHostRunReceipt, isAutoReplaceableManagedLaunchFailure } from '../../core/managed-host-run.js';
 import { managedFindingRepairState, hintedStep, evidenceChainStep, evidenceChainAdvisory, step as sharedStep, managedLaunchStep, boundManagedSelection,
   runsForTarget, targetRelaunchIsFramework, testAuthoringStep, planAuthoringStep, preScopeAuthoringStep, nextBlockingFinding, duplicateFindingResolveStep,
-  groupedFindingRepairIds, groupedFindingRepairStep, openIntentConflicts, intentConflictStep, type NextStep } from '../../handlers/next-driver.js';
+  groupedFindingRepairIds, groupedFindingRepairStep, repairedFindingsForResolve, findingResolveBatchStep, openIntentConflicts, intentConflictStep, type NextStep } from '../../handlers/next-driver.js';
 import { duplicateCoverageReceipts, duplicateResolveCandidate } from '../../core/duplicate-finding-coverage.js';
 import { singleHostAssuranceReady } from '../../handlers/quorum-submit.js';
 import { hasPersistedManagedReceiptEvidence, refusedManagedReviewImport } from '../../handlers/managed-review-evidence.js';
@@ -376,6 +390,12 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
       if (chain.blocking && chain.nextAction) {
         return evidenceChainStep(base, chain, 'The repair changed material, so pinned receipts are stale; refresh them before recording the resolution.');
       }
+      // critic-final-and-batch-resolve (old-PoS run 24 F4): several repaired findings close in ONE finding_resolve.
+      const repaired = repairedFindingsForResolve({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, runs: hostRuns,
+        primary: finding, primaryRepair: repair, candidates: findings.map(row => row.finding) });
+      if (repaired.length > 1) {
+        return findingResolveBatchStep(base, repaired, 'Closure is required whichever round raised them.', 'unclosedBlockingFindings (core/finding-closure.ts)');
+      }
       return step(base, 'agent', 'finding_resolve', { command: 'finding_resolve', payload: { storyId, findingId: finding.id, resolution: FINDING_RESOLUTION_PLACEHOLDER } },
         `${finding.id} was repaired by managed finding-repair run ${repair.runId} (commit ${repair.commit.slice(0, 12)}) but is still open; closure is required whichever round raised it. Name the repair commit and its passing focused evidence.`,
         'unclosedBlockingFindings (core/finding-closure.ts) + managedFindingRepairState', { placeholders: ['resolution'] });
@@ -562,12 +582,24 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
     const findings = ctx.store.readFindings(storyId).findings ?? [];
     const hostRuns = listStoryHostRuns(ctx, storyId);
     const gitCwd = gitCwdOf(storyId);
+    // D1 (run 23): a finding whose repair declared an open [intent-conflict] is
+    // never resolved (alone or in a batch) before the intent is amended: DEV
+    // blocks on the conflict first.
+    const conflicts = openIntentConflicts({ root: ctx.root, gitCwd, store: ctx.store, storyId, runs: hostRuns });
+    if (conflicts.length > 0) {
+      return guardStep(base, 'DEV', 'intent_conflict_dev',
+        `${why} A managed writer run declared an open intent conflict (${conflicts.map(row => `${row.itemId} by ${row.runId}`).join('; ')}): return to DEV, where next routes the intent amendment before any finding is resolved.`,
+        `${source} + openIntentConflicts + getGuardFailureReason(DEV)`);
+    }
     const details: string[] = [];
     for (const id of ids) {
       const finding = findings.find(row => row.id === id);
       if (!finding) continue;
       const repair = managedFindingRepairState({ root: ctx.root, gitCwd, storyId, finding, runs: hostRuns });
       if (repair.repaired) {
+        const repaired = repairedFindingsForResolve({ root: ctx.root, gitCwd, storyId, runs: hostRuns, primary: finding, primaryRepair: repair,
+          candidates: ids.flatMap(other => findings.filter(row => row.id === other)) });
+        if (repaired.length > 1) return findingResolveBatchStep(base, repaired, why, source);
         return step(base, 'agent', 'finding_resolve', { command: 'finding_resolve', payload: { storyId, findingId: id, resolution: FINDING_RESOLUTION_PLACEHOLDER } },
           `${why} ${id} was repaired by managed finding-repair run ${repair.runId} (commit ${repair.commit.slice(0, 12)}); record that commit and its passing focused evidence.`,
           `${source} + managedFindingRepairState`, { placeholders: ['resolution'] });

@@ -64,9 +64,11 @@
  *      1 (Reverse("") and Upper("") untested). Since the A/B V4 adoption
  *      (remediation.grouping=single is the default) next dispatches ONE grouped
  *      managed finding-repair bound to both; it makes one commit naming each
- *      finding id, and next proposes finding_resolve for each finding
- *      separately, only after a managed finding-repair run bound to that
- *      finding id completed with a commit naming it (hard assert at every step).
+ *      finding id. Since old-PoS run 24 (F4) next then proposes ONE batched
+ *      finding_resolve (finding_resolve_batch) listing both, only after a
+ *      managed finding-repair run bound to each finding id completed with a
+ *      commit naming it (hard assert at every step); each finding records its
+ *      own repair commit.
  *   NF2 the same, but the grouped run commits only F-001's repair: F-001 is
  *      resolved, and F-002 (bound to the group, no commit naming it) falls
  *      back to its own single managed finding-repair before it is resolved.
@@ -107,6 +109,9 @@
  *   NC8 the same round is invalidated by an unauthenticated owner commit: all
  *      lanes rerun, the superseded open finding is carried forward (never a
  *      dead end), its re-reported copy is repaired, it closes by coverage, DONE.
+ *   NC9 old-PoS run 24 F1/F2: the first critic ends its turn with prose and no
+ *      JSON envelope; its run fails with nothing produced and next relaunches
+ *      the critic as a framework step (never the owner's), DONE.
  *
  *   NI run 23 (request-outranks-intent D1): the implementer's final result
  *      declares an `[intent-conflict]` (the request implies one value, the
@@ -134,7 +139,7 @@
  *      implementation.grouping=files on an unimplemented fixture).
  *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NI|NQ|AB|ND-V1..NF-V5]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NI|NQ|AB|ND-V1..NF-V5]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -1420,6 +1425,12 @@ function authorPayload(o: Owner, reason: string, payload: Record<string, unknown
       payload.resolution = `repair ${git(o.worktree, ['log', '--format=%h', '-1', `--grep=${repair.subject.slice('test: '.length)}`])} adds ${repair.name}; go test ./strs -run ${repair.name} passes`;
       break;
     }
+    case 'finding_resolve_batch':
+      for (const entry of (payload.resolutions ?? []) as Array<{ findingId: string; resolution: string }>) {
+        const repair = repairFor(findingDesc(entry.findingId));
+        entry.resolution = `repair ${git(o.worktree, ['log', '--format=%h', '-1', `--grep=${repair.subject.slice('test: '.length)}`])} adds ${repair.name}; go test ./strs -run ${repair.name} passes`;
+      }
+      break;
     case 'dev_memory_finish_decision':
       Object.assign(payload, { decision: 'no-reusable-lesson', reason: 'Harness fixture: trivial string helpers, no reusable lesson.' });
       break;
@@ -1475,6 +1486,8 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   refusedBeforePersist?: string[];
   /** NF2: a grouped finding-repair run commits only its bound finding's repair. */
   groupedFirstOnly?: boolean;
+  /** NC9 (old-PoS run 24 F1/F2): the first critic ends its turn with prose and no JSON envelope (its run fails). */
+  criticProseFirst?: boolean;
   /** NC7: an owner action taken instead of the step next returned; true = the step is not executed and next is asked again. */
   interject?: (next: NextStepJson) => boolean; }, lines: string[],
   /** Called with each step `next` returned, before the harness executes it; quiet = no detached managed run in flight. */
@@ -1568,7 +1581,8 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
       case 'inventory_critic_launch': {
         const script = criticScript(o.worktree, id, String(payload.reviewRunId), mode.criticRestate);
         const firstCritic = new StoryStore(o.worktree).readReviewRuns(id).runs.find(row => row.reviewPurpose === 'inventory-completeness')?.reviewRunId === String(payload.reviewRunId);
-        o.script(String(payload.reviewRunId), mode.criticMistypedDigest && firstCritic ? mistypedDigestCriticScript(script)
+        o.script(String(payload.reviewRunId), mode.criticProseFirst && firstCritic ? { final: NC9_PROSE_FINAL }
+          : mode.criticMistypedDigest && firstCritic ? mistypedDigestCriticScript(script)
           : mode.refusedBeforePersist && firstCritic ? wrongWaveCriticScript(script) : script);
         break;
       }
@@ -1631,6 +1645,18 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
           return existsSync(terminal) && (JSON.parse(readFileSync(terminal, 'utf8')) as { state?: string }).state === 'completed';
         });
         assert.ok(repaired, `[${o.scenario}] next proposed finding_resolve for ${findingId} although no managed finding-repair run bound to it completed (runs per finding: ${JSON.stringify([...repairRunsByFinding])}); why: ${next.why}`);
+        authorPayload(o, next.reason, payload, findingDesc);
+        break;
+      }
+      case 'finding_resolve_batch': {
+        // Old-PoS run 24 F4: one call closes every finding a repair run repaired; each still needs its own completed bound repair.
+        const onDisk = repairRunsOnDisk(runsRoot);
+        for (const entry of (payload.resolutions ?? []) as Array<{ findingId: string }>) {
+          const runIds = [...new Set([...(repairRunsByFinding.get(entry.findingId) ?? []), ...(onDisk.get(entry.findingId) ?? [])])];
+          assert.ok(runIds.some(runId => existsSync(join(runsRoot, runId, 'terminal.json'))
+            && (JSON.parse(readFileSync(join(runsRoot, runId, 'terminal.json'), 'utf8')) as { state?: string }).state === 'completed'),
+          `[${o.scenario}] next batched finding_resolve for ${entry.findingId} although no managed finding-repair run bound to it completed; why: ${next.why}`);
+        }
         authorPayload(o, next.reason, payload, findingDesc);
         break;
       }
@@ -1896,6 +1922,51 @@ function scenarioNC4(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
+/** Old-PoS run 24 (B-c9ea:RR-005): the critic's last agent_message, byte-exact (no JSON envelope followed). */
+const NC9_PROSE_FINAL = "The proposal validates. I'll now emit the single required JSON object as my final result.";
+
+/**
+ * NC9, old-PoS run 24 F1/F2: the first round-1 critic validated its proposal
+ * and ended its turn with prose and no JSON envelope. Its run fails (this fake
+ * provider has no resumable session, so the same-session format repair cannot
+ * run) with nothing produced; next must relaunch the critic itself (a framework
+ * step under the per-target relaunch rule), never hand it to the owner.
+ */
+function scenarioNC9(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NC9';
+  const name = 'NC9 run 24: the first critic ends with prose and no JSON envelope; next relaunches the critic as a framework step, DONE';
+  const o = new Owner(tag, 'B-e2f9', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  const launches: Array<{ kind: string; failedCritics: number }> = [];
+  const runsRoot = join(o.root, '.proof-or-stop', 'runtime', 'host-runs');
+  const failedCriticReasons = (): string[] => existsSync(runsRoot) ? readdirSync(runsRoot).flatMap(runId => {
+    try {
+      if ((JSON.parse(readFileSync(join(runsRoot, runId, 'spec.json'), 'utf8')) as { agentType?: string }).agentType !== MANAGED_INVENTORY_CRITIC_LANE) return [];
+      const terminal = JSON.parse(readFileSync(join(runsRoot, runId, 'terminal.json'), 'utf8')) as { state?: string; reason?: string };
+      return terminal.state === 'failed' ? [String(terminal.reason)] : [];
+    } catch { return []; }
+  }) : [];
+  try {
+    devSetup(o);
+    driveWithNext(o, { findingRound1: true, run: false, criticProseFirst: true }, lines, next => {
+      if (next.reason === 'inventory_critic_launch') launches.push({ kind: next.kind, failedCritics: failedCriticReasons().length });
+    });
+    const failed = failedCriticReasons();
+    assert.equal(failed.length, 1, `${tag}: exactly the first critic run failed (${failed.join(' | ')})`);
+    assert.match(failed[0]!, /^managed_review_final_result_invalid:managed_review_final_result_missing/, `${tag}: the prose-only final is a missing envelope`);
+    const relaunch = launches.find(row => row.failedCritics > 0);
+    assert.ok(relaunch, `${tag}: next relaunched the critic after its failed run (launches ${JSON.stringify(launches)})`);
+    assert.equal(relaunch!.kind, 'framework', `${tag}: the replacement critic launch is a framework step, not the owner's (launches ${JSON.stringify(launches)})`);
+    lines.push(`critic launches: ${launches.map(row => `${row.kind}${row.failedCritics ? ' (after failed critic)' : ''}`).join(' > ')}`);
+    lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 /**
  * NC5, A/B V3 R2A-r2 (de80753): the critic read candidate-spec-set.json and
  * still wrote a mistyped candidateSpecSetDigest; the import was refused before
@@ -2040,24 +2111,27 @@ function scenarioN(machineEnv: NodeJS.ProcessEnv, steps: Step[], flow: 'A' | 'D'
  * finding_resolve assertion in driveWithNext fails the first time next proposes
  * closing a finding whose own managed repair has not completed. Since the A/B
  * V4 adoption the repair is ONE grouped run (remediation.grouping=single, the
- * default) with one commit naming each finding; each finding is still resolved
- * on its own. NF2 (`firstOnly`): the grouped run commits only F-001's repair,
+ * default) with one commit naming each finding; both are then resolved in ONE
+ * batched finding_resolve (old-PoS run 24 F4), each with its own commit. NF2 (`firstOnly`): the grouped run commits only F-001's repair,
  * so F-002 falls back to its own single repair.
  */
 function scenarioNF(machineEnv: NodeJS.ProcessEnv, steps: Step[], firstOnly = false): Outcome {
   const tag = firstOnly ? 'NF2' : 'NF';
   const name = firstOnly
     ? 'NF2: the default grouped finding-repair commits only F-001; F-002 falls back to its own repair before it is resolved'
-    : 'NF run 14: two round-1 findings; next repairs both in ONE grouped managed finding-repair (default), then resolves each separately';
+    : 'NF run 14: two round-1 findings; next repairs both in ONE grouped managed finding-repair (default), then resolves both in ONE batched finding_resolve';
   const o = new Owner(tag, firstOnly ? 'B-e2ef' : 'B-e2ea', machineEnv, steps, false, { trackedGateFailureCounts: true });
   const lines: string[] = [];
   const reasons: string[] = [];
   try {
     devSetup(o);
     driveWithNext(o, { findingRound1: true, run: false, twoFindings: true, groupedFirstOnly: firstOnly }, lines, next => {
-      if (next.reason === 'finding_repair' || next.reason === 'finding_resolve') {
+      if (next.reason === 'finding_repair' || next.reason === 'finding_resolve' || next.reason === 'finding_resolve_batch') {
         const group = next.cli?.payload.groupFindingIds;
-        const ids = Array.isArray(group) ? (group as string[]).map(row => row.split(':').pop()).join('+') : String(next.cli?.payload.findingId ?? '').split(':').pop();
+        const batch = next.cli?.payload.resolutions;
+        const ids = Array.isArray(group) ? (group as string[]).map(row => row.split(':').pop()).join('+')
+          : Array.isArray(batch) ? (batch as Array<{ findingId: string }>).map(row => row.findingId.split(':').pop()).join('+')
+          : String(next.cli?.payload.findingId ?? '').split(':').pop();
         reasons.push(`${next.reason}:${ids}`);
       }
     });
@@ -2071,8 +2145,16 @@ function scenarioNF(machineEnv: NodeJS.ProcessEnv, steps: Step[], firstOnly = fa
       assert.equal(repairs[1]!.target?.groupFindingIds, undefined, 'NF2: the fallback is a single-target repair');
       assert.match(String(repairs[1]!.target?.findingId), /F-002$/, 'NF2: the fallback is bound to F-002');
     } else {
-      assert.deepEqual(order, ['finding_repair:F-001+F-002', 'finding_resolve:F-001', 'finding_resolve:F-002'],
-        `NF: one grouped repair, then each finding resolved separately: ${order.join(' > ')}`);
+      // Old-PoS run 24 F4: one batched finding_resolve closes both, each with its own commit.
+      assert.deepEqual(order, ['finding_repair:F-001+F-002', 'finding_resolve_batch:F-001+F-002'],
+        `NF: one grouped repair, then ONE batched resolve of both findings: ${order.join(' > ')}`);
+      const resolved = new StoryStore(o.root).readFindings(o.storyId).findings.filter(f => f.reviewRound === 'R1' || /F-00[12]$/.test(f.id));
+      for (const finding of resolved.filter(f => /F-00[12]$/.test(f.id))) {
+        assert.equal(finding.status, 'resolved', `NF: ${finding.id} resolved`);
+        assert.match(String(finding.resolvedReason), /\[repair commit [0-9a-f]{7,} of managed finding-repair run /, `NF: ${finding.id} names its own repair commit: ${finding.resolvedReason}`);
+      }
+      const commits = resolved.filter(f => /F-00[12]$/.test(f.id)).map(f => String(f.resolvedReason).match(/\[repair commit ([0-9a-f]+)/)?.[1]);
+      assert.equal(new Set(commits).size, 2, `NF: each finding cites its own commit (${commits.join(', ')})`);
       assert.equal(repairs.length, 1, `NF: one grouped finding-repair run (got ${repairs.length})`);
     }
     assert.equal((repairs[0]!.target?.groupFindingIds as string[] | undefined)?.length, 2, `${tag}: the grouped run binds both findings`);
@@ -2399,7 +2481,7 @@ function scenarioNQ(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-8]?|NI|NQ|N[AD](?:-run)?|N[DF]-V[1-5]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NI|NQ|N[AD](?:-run)?|N[DF]-V[1-5]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -2437,6 +2519,7 @@ async function main(): Promise<void> {
     if (only.includes('NC6')) outcomes.push(scenarioNC5(machine.env, steps, true));
     if (only.includes('NC7')) outcomes.push(scenarioNC7(machine.env, steps, 'reroute'));
     if (only.includes('NC8')) outcomes.push(scenarioNC7(machine.env, steps, 'lineage'));
+    if (only.includes('NC9')) outcomes.push(scenarioNC9(machine.env, steps));
     if (only.includes('NI')) outcomes.push(scenarioNI(machine.env, steps));
     if (only.includes('NQ')) outcomes.push(scenarioNQ(machine.env, steps));
     // Detection A/B arms: explicit tokens (ND-V1 .. NF-V5) or AB = ND-V1, ND-V2, ND-V3, NF-V4, ND-V5.
@@ -2447,7 +2530,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NI', 'NQ', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NI', 'NQ', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

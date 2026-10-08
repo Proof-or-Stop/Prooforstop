@@ -81,6 +81,7 @@ import {
   RESUMABLE_CODE_WRITER_ROLES,
   managedDispatchSaveCommand,
 } from './host-run.js';
+import { providerDiagnosticLineText } from './host-execution-readiness.js';
 import type {
   FindingEvidenceState,
   ScopeCheckData,
@@ -3025,7 +3026,41 @@ export const MANAGED_PROVIDER_STALLED_REASON = `${MANAGED_PROVIDER_STALL_RUNTIME
 export function isAutoReplaceableManagedLaunchFailure(run: { state: string; replacementSafe?: boolean | null; terminalReason?: string | null }): boolean {
   const reason = run.terminalReason ?? '';
   return run.state === 'failed' && run.replacementSafe === true
-    && (reason.startsWith(MANAGED_SUPERVISOR_NOT_READY_REASON) || reason.startsWith(MANAGED_PROVIDER_STALLED_REASON));
+    && (reason.startsWith(MANAGED_SUPERVISOR_NOT_READY_REASON) || reason.startsWith(MANAGED_PROVIDER_STALLED_REASON)
+      || reason.startsWith(MANAGED_PROVIDER_TRANSPORT_REASON) || reason.startsWith(MANAGED_REVIEW_FINAL_RESULT_FAILED_REASON));
+}
+
+/** Terminal reason prefix of a provider run that failed on a transport error (managedProviderTransportFailure). */
+export const MANAGED_PROVIDER_TRANSPORT_REASON = 'provider_transport_error:';
+
+/**
+ * Terminal reason prefix shared by every managed review run that ended without
+ * a valid final envelope (missing, malformed, multiple, oversize), after the
+ * bounded same-session format repair where it applies. Such a run wrote no
+ * proposal: a reviewer's only work product is that proposal.
+ */
+export const MANAGED_REVIEW_FINAL_RESULT_FAILED_REASON = 'managed_review_final_result_';
+
+const PROVIDER_TRANSPORT_PATTERN = /stream disconnected|error sending request|connection reset|econnreset|epipe|socket hang ?up|connection closed before message completed|transport error|broken pipe|delivery failed: (?:epipe|econnreset)/i;
+
+/** One stdout line's provider transport diagnostic (a Codex `error` / `turn.failed` event naming one), or null. */
+export function providerTransportDiagnosticLine(line: string): string | null {
+  const diagnostic = providerDiagnosticLineText(line).trim();
+  return diagnostic && PROVIDER_TRANSPORT_PATTERN.test(diagnostic) ? diagnostic.replace(/\s+/g, ' ').slice(0, 240) : null;
+}
+
+/**
+ * The provider-reported transport error of a failed provider exit, as one
+ * bounded line, or null: the last transport error event the provider printed
+ * on stdout (observed live; never tool output, see providerDiagnosticLineText),
+ * else a plain stderr line naming one (provider logs, a descriptor/stdin peer
+ * close reported by host_run).
+ */
+export function managedProviderTransportFailure(result: Pick<HostRunResult, 'stderr'>, observedStdoutDiagnostic: string | null): string | null {
+  if (observedStdoutDiagnostic) return observedStdoutDiagnostic;
+  const hit = (result.stderr ?? '').split('\n').map(line => line.trim())
+    .filter(line => line && !line.startsWith('{')).reverse().find(line => PROVIDER_TRANSPORT_PATTERN.test(line));
+  return hit ? hit.replace(/\s+/g, ' ').slice(0, 240) : null;
 }
 
 /** Stall window in ms sealed at managed submit (MANAGED_PROVIDER_STALL_RUNTIME_POLICY); 0 disables stall detection. */
@@ -3811,6 +3846,14 @@ export async function runManagedHostRunWorker(
     let lastProviderStdoutAt: number | null = null;
     let lastProviderStdoutEvent: string | null = null;
     let providerSpawnedAtMs: number | null = null;
+    // Old-PoS run 24 (F1): the provider's own transport error event, per launch.
+    let providerTransportDiagnostic: string | null = null;
+    let providerTransportPartial = '';
+    const noteProviderTransport = (text: string): void => {
+      const lines = `${providerTransportPartial}${text}`.split('\n');
+      providerTransportPartial = (lines.pop() ?? '').slice(-64 * 1024);
+      for (const line of lines) providerTransportDiagnostic = providerTransportDiagnosticLine(line) ?? providerTransportDiagnostic;
+    };
     const noteProviderStdout = (text: string): void => {
       lastProviderStdoutAt = now();
       const lines = text.split('\n').map(line => line.trim()).filter(Boolean);
@@ -3821,14 +3864,23 @@ export async function runManagedHostRunWorker(
         } catch { /* partial or non-JSON line */ }
       }
     };
-    const providerStalledTerminal = (providerResult: HostRunResult): ManagedHostRunTerminal => {
-      const since = lastProviderStdoutAt ?? providerSpawnedAtMs ?? now();
-      const silenceS = (Math.max(0, now() - since) / 1000).toFixed(1);
-      const after = lastProviderStdoutEvent ? `after ${lastProviderStdoutEvent}` : lastProviderStdoutAt ? 'after its last stdout' : 'since spawn';
+    /**
+     * Whether the provider left work product: its cwd changed since launch (or
+     * cannot be observed), or a managed dispatch output validates. Decides
+     * whether a stalled or transport-failed run is auto-replaceable.
+     */
+    const providerWorkProductPresent = (): boolean => {
       let workProduct = launchWorkFingerprint === null || providerCwdWorkFingerprint(spec.cwd) !== launchWorkFingerprint;
       if (!workProduct && spec.profile === 'managed_dispatch') {
         try { workProduct = managedDispatchOutputValidation(spec).failureReason === null; } catch { workProduct = true; }
       }
+      return workProduct;
+    };
+    const providerStalledTerminal = (providerResult: HostRunResult): ManagedHostRunTerminal => {
+      const since = lastProviderStdoutAt ?? providerSpawnedAtMs ?? now();
+      const silenceS = (Math.max(0, now() - since) / 1000).toFixed(1);
+      const after = lastProviderStdoutEvent ? `after ${lastProviderStdoutEvent}` : lastProviderStdoutAt ? 'after its last stdout' : 'since spawn';
+      const workProduct = providerWorkProductPresent();
       return writeTerminal(paths, 'failed',
         `${MANAGED_PROVIDER_STALLED_REASON}no provider stdout for ${silenceS} s ${after} (stall window ${Number((providerStallMs / 1000).toFixed(1))} s${workProduct ? '; work product present, not auto-replaced' : ''})`,
         providerResult.replacementSafe && !workProduct, providerResult, now());
@@ -3884,6 +3936,8 @@ export async function runManagedHostRunWorker(
           providerSpawnedAtMs = now();
           lastProviderStdoutAt = null;
           lastProviderStdoutEvent = null;
+          providerTransportDiagnostic = null;
+          providerTransportPartial = '';
           const published = updateSnapshotAndAppendEvent(
             paths,
             current => ({
@@ -3924,7 +3978,7 @@ export async function runManagedHostRunWorker(
           }
           : {}),
         passthrough: chunk => {
-          if (chunk.stream === 'stdout' && chunk.text.length > 0) noteProviderStdout(chunk.text);
+          if (chunk.stream === 'stdout' && chunk.text.length > 0) { noteProviderStdout(chunk.text); noteProviderTransport(chunk.text); }
           withTerminalAuthorityLock(paths, () => {
             if (readTerminal(paths)) return;
             outputSequence += 1;
@@ -4051,6 +4105,17 @@ export async function runManagedHostRunWorker(
         const classifiedReason = providerResult.failureKind && !['none', 'unknown'].includes(providerResult.failureKind)
           ? providerResult.failureKind
           : null;
+        // Old-PoS run 24 (F1): a provider transport failure (stream reset,
+        // connection error, descriptor/stdin peer close) is classified, never an
+        // opaque exit; with no work product it is auto-replaceable.
+        const transport = !exitFailureReason && !providerResult.blocked && !providerResult.timedOut && !classifiedReason
+          ? managedProviderTransportFailure(providerResult, providerTransportDiagnostic) : null;
+        if (transport) {
+          const workProduct = providerWorkProductPresent();
+          return writeTerminal(paths, 'failed',
+            `${MANAGED_PROVIDER_TRANSPORT_REASON}${transport}${workProduct ? '; work product present, not auto-replaced' : ''}`,
+            providerResult.replacementSafe && !workProduct, providerResult, now());
+        }
         return writeTerminal(
           paths,
           'failed',
@@ -5585,6 +5650,11 @@ const MANAGED_REVIEW_FINAL_FORMAT_REPAIR_ERROR_CAP = 1_000;
  * or the JSON.parse position.
  */
 function managedReviewFinalFormatRepairError(result: HostRunResult, invalidReason: string): string | null {
+  // Old-PoS run 24 (F1): the provider exited normally but its final message
+  // was prose (no candidate at all). The same session re-emits the envelope.
+  if (invalidReason === 'managed_review_final_result_missing') {
+    return !result.finalAssistantResultTruncated && result.finalAssistantResultCount === 0 ? MANAGED_REVIEW_FINAL_ENVELOPE_MISSING_ERROR : null;
+  }
   if (!invalidReason.startsWith('managed_review_final_result_malformed')) return null;
   if (result.finalAssistantResultTruncated || result.finalAssistantResultCount !== 1 || result.finalAssistantResult === null) return null;
   return invalidReason.slice(0, MANAGED_REVIEW_FINAL_FORMAT_REPAIR_ERROR_CAP);
@@ -5605,7 +5675,18 @@ function unchangedManagedReviewFinalResult(previous: string | null, next: string
   }
 }
 
+/** The exact repair error for a final message that was not the JSON envelope (old-PoS run 24 F1). */
+export const MANAGED_REVIEW_FINAL_ENVELOPE_MISSING_ERROR = 'managed_review_final_result_missing: final message must be the JSON envelope';
+
 export function managedReviewFinalFormatRepairPrompt(error: string): string {
+  if (error === MANAGED_REVIEW_FINAL_ENVELOPE_MISSING_ERROR) {
+    return [
+      'Proof-or-Stop rejected your final message: it is not a valid managed review final proposal, so nothing was recorded.',
+      `Validation error: ${error}. Your last message was prose, not the JSON object.`,
+      `Emit now, as your final message, only the final JSON object (schemaVersion "${MANAGED_REVIEW_FINAL_PROPOSAL_SCHEMA_VERSION}") you prepared and validated in this session, with the same verdict and content.`,
+      'Escape every double quote (\\") and backslash (\\\\) inside string values. Output no other text and no Markdown fence. Do not run tools, do not review again, and do not change the conclusion.',
+    ].join('\n');
+  }
   return [
     'Proof-or-Stop rejected your final message: it is not a valid managed review final proposal, so nothing was recorded.',
     `Validation error: ${error}`,

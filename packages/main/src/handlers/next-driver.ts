@@ -518,6 +518,16 @@ export function managedFindingRepairState(args: {
 }
 
 /**
+ * managedFindingRepairState of one finding of a Story, from that Story's own
+ * managed runs and Git work tree (the finding_resolve batch re-check, old-PoS
+ * run 24 F4: the same per-finding rule next uses to propose the step).
+ */
+export function storyFindingRepairState(ctx: HandlerContext, storyId: string, finding: { id: string; createdAt?: string }): FindingRepairState {
+  return managedFindingRepairState({ root: ctx.root, storyId, finding, runs: listStoryHostRuns(ctx, storyId),
+    gitCwd: resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root }) });
+}
+
+/**
  * remediation.grouping=single (adopted default): the commit by which a grouped
  * finding-repair run demonstrably repaired `findingId` — a material commit made
  * inside the run's window whose message names the finding id — or null.
@@ -742,6 +752,39 @@ export function groupedFindingRepairStep(root: string, base: { storyId: string; 
     agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true }, bound && targetRelaunchIsFramework(runsForTarget(root, hostRuns, FINDING_REPAIR_AGENT, { findingId: group[0] })),
   `Verified blocking findings ${group.join(', ')} are open and not yet repaired: repair them in ONE managed finding-repair run (remediation.grouping=single), one regression test and one commit naming its id per finding; each is then resolved separately, and a finding with no commit naming it gets its own repair.`,
   'unclosedBlockingFindings (core/finding-closure.ts) + managedFindingRepairState + groupedFindingRepairIds (remediation.grouping=single)');
+}
+
+/**
+ * Old-PoS run 24 (F4): every open finding in `candidates` (the step's own
+ * `primary` first) that managedFindingRepairState shows repaired, with its own
+ * run and commit. Shared by the live and the reference driver.
+ */
+export function repairedFindingsForResolve(args: { root: string; gitCwd: string; storyId: string; runs: readonly FindingRepairRunView[];
+  primary: { id: string }; primaryRepair: { runId: string; commit: string }; candidates: ReadonlyArray<{ id: string; createdAt?: string; status?: string }> }): Array<{ id: string; runId: string; commit: string }> {
+  const rows = [{ id: args.primary.id, runId: args.primaryRepair.runId, commit: args.primaryRepair.commit }];
+  for (const finding of args.candidates) {
+    if (finding.id === args.primary.id || (finding.status !== undefined && finding.status !== 'open') || rows.some(row => row.id === finding.id)) continue;
+    const repair = managedFindingRepairState({ root: args.root, gitCwd: args.gitCwd, storyId: args.storyId, finding, runs: args.runs });
+    if (repair.repaired) rows.push({ id: finding.id, runId: repair.runId, commit: repair.commit });
+  }
+  return rows;
+}
+
+/**
+ * Old-PoS run 24 (F4): ONE finding_resolve for several repaired findings
+ * (after a grouped repair, closure was 4 next/finding_resolve cycles). Each
+ * entry keeps its own evidence: finding_resolve re-checks that finding's own
+ * repair (managedFindingRepairState) and records its own commit; a finding
+ * failing that check is left open and reported. Shared by the live and the
+ * reference driver.
+ */
+export function findingResolveBatchStep(base: { storyId: string; phase: string }, repaired: ReadonlyArray<{ id: string; runId: string; commit: string }>,
+  why: string, source: string): NextStep {
+  const resolutions = repaired.map(row => ({ findingId: row.id,
+    resolution: `<${row.id}: repair commit ${row.commit.slice(0, 12)} + the focused test that now passes>` }));
+  return step(base, 'agent', 'finding_resolve_batch', { command: 'finding_resolve', payload: { storyId: base.storyId, resolutions } },
+    `${why} Findings ${repaired.map(row => `${row.id} (commit ${row.commit.slice(0, 12)}, run ${row.runId})`).join(', ')} are repaired and still open: close them in ONE finding_resolve; author each resolution (its own commit and the focused test that now passes). The framework re-checks each finding's own repair; one that fails is left open and reported.`,
+    `${source} + managedFindingRepairState per finding (repairedFindingsForResolve)`, { placeholders: resolutions.map((_, index) => `resolutions[${index}].resolution`) });
 }
 
 /** The TEST authoring commands for the failing DONE oracle rows, in the order DONE checks them. */
@@ -1206,6 +1249,11 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       if (chain.blocking && chain.nextAction) {
         return evidenceChainStep(base, chain, 'The repair changed material, so pinned receipts are stale; refresh them before recording the resolution.');
       }
+      const repaired = repairedFindingsForResolve({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, runs: hostRuns,
+        primary: finding, primaryRepair: repair, candidates: findings.map(row => row.finding) });
+      if (repaired.length > 1) {
+        return findingResolveBatchStep(base, repaired, 'Closure is required whichever round raised them.', 'unclosedBlockingFindings (core/finding-closure.ts)');
+      }
       return step(base, 'agent', 'finding_resolve', { command: 'finding_resolve', payload: { storyId, findingId: finding.id, resolution: FINDING_RESOLUTION_PLACEHOLDER } },
         `${finding.id} was repaired by managed finding-repair run ${repair.runId} (commit ${repair.commit.slice(0, 12)}) but is still open; closure is required whichever round raised it. Name the repair commit and its passing focused evidence.`,
         'unclosedBlockingFindings (core/finding-closure.ts) + managedFindingRepairState', { placeholders: ['resolution'] });
@@ -1407,12 +1455,24 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     const findings = ctx.store.readFindings(storyId).findings ?? [];
     const hostRuns = listStoryHostRuns(ctx, storyId);
     const gitCwd = gitCwdOf(storyId);
+    // D1 (run 23): a finding whose repair declared an open [intent-conflict] is
+    // never resolved (alone or in a batch) before the intent is amended: DEV
+    // blocks on the conflict first.
+    const conflicts = openIntentConflicts({ root: ctx.root, gitCwd, store: ctx.store, storyId, runs: hostRuns });
+    if (conflicts.length > 0) {
+      return guardStep(base, 'DEV', 'intent_conflict_dev',
+        `${why} A managed writer run declared an open intent conflict (${conflicts.map(row => `${row.itemId} by ${row.runId}`).join('; ')}): return to DEV, where next routes the intent amendment before any finding is resolved.`,
+        `${source} + openIntentConflicts + getGuardFailureReason(DEV)`);
+    }
     const details: string[] = [];
     for (const id of ids) {
       const finding = findings.find(row => row.id === id);
       if (!finding) continue;
       const repair = managedFindingRepairState({ root: ctx.root, gitCwd, storyId, finding, runs: hostRuns });
       if (repair.repaired) {
+        const repaired = repairedFindingsForResolve({ root: ctx.root, gitCwd, storyId, runs: hostRuns, primary: finding, primaryRepair: repair,
+          candidates: ids.flatMap(other => findings.filter(row => row.id === other)) });
+        if (repaired.length > 1) return findingResolveBatchStep(base, repaired, why, source);
         return step(base, 'agent', 'finding_resolve', { command: 'finding_resolve', payload: { storyId, findingId: id, resolution: FINDING_RESOLUTION_PLACEHOLDER } },
           `${why} ${id} was repaired by managed finding-repair run ${repair.runId} (commit ${repair.commit.slice(0, 12)}); record that commit and its passing focused evidence.`,
           `${source} + managedFindingRepairState`, { placeholders: ['resolution'] });

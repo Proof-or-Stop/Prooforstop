@@ -5,8 +5,8 @@
  * The owner agent calls `next` after every step, so its own cost is on the
  * critical path. This smoke drives scenario NF of e2e-review-to-done-smoke
  * (D's flow from REVIEW entry driven only by `next`, with two round-1 findings:
- * inventory critic -> remediation DEV -> ONE grouped finding repair -> resolve
- * each finding -> round 2 -> PRE_CERT -> TEST rows -> DONE), and at every quiet
+ * inventory critic -> remediation DEV -> ONE grouped finding repair -> ONE batched resolve of
+ * both findings -> round 2 -> PRE_CERT -> TEST rows -> DONE), and at every quiet
  * state (no detached managed run in
  * flight) runs one decision in two fresh probe processes on the same fixture:
  *   - `reference`: the frozen pre-optimization driver (helpers/next-driver-reference.ts);
@@ -123,6 +123,7 @@ async function main(): Promise<void> {
   const o = new Owner('NDC', 'B-e2e9', machine.env, [], false, { trackedGateFailureCounts: true });
   let passed = false;
   let groupedRepairSeen = false;
+  let batchResolveSeen = false;
   try {
     devSetup(o);
     const lines: string[] = [];
@@ -132,6 +133,9 @@ async function main(): Promise<void> {
     // default, and the per-finding resolve of each member after it.
     driveWithNext(o, { findingRound1: true, run: false, twoFindings: true }, lines, (next, quiet) => {
       if (next.cli?.command === 'host_run' && next.reason === 'finding_repair' && Array.isArray(next.cli.payload.groupFindingIds)) groupedRepairSeen = true;
+      // Deliberate golden change (critic-final-and-batch-resolve, old-PoS run 24 F4):
+      // after the grouped repair both findings close in ONE batched finding_resolve.
+      if (next.reason === 'finding_resolve_batch' && Array.isArray(next.cli?.payload.resolutions)) batchResolveSeen = true;
       if (next.done || !quiet) return;
       const run = (mode: string): ProbeResult => {
         const ran = o.node([SELF, '--probe', mode, o.storyId]);
@@ -171,7 +175,8 @@ async function main(): Promise<void> {
     console.log(`  ${group.padEnd(8)} states=${rows.length} max ${Math.max(...rows.map(r => r.refSpawns))} -> ${Math.max(...rows.map(r => r.newSpawns))} (budget ${SPAWN_BUDGET[group]}), total ${sum(r => r.refSpawns)} -> ${sum(r => r.newSpawns)}, ms ${sum(r => r.refMs)} -> ${sum(r => r.newMs)}`);
   }
   if (!groupedRepairSeen) failures.push('DEV: no grouped finding_repair proposed (fixture no longer covers remediation.grouping=single)');
-  console.log(`golden: ${records.length} quiet states, live == reference == CLI next --json at every one; grouped finding repair covered: ${groupedRepairSeen}`);
+  if (!batchResolveSeen) failures.push('DEV: no batched finding_resolve proposed after the grouped repair (fixture no longer covers finding_resolve_batch)');
+  console.log(`golden: ${records.length} quiet states, live == reference == CLI next --json at every one; grouped finding repair covered: ${groupedRepairSeen}; batched resolve covered: ${batchResolveSeen}`);
   console.log(`next-driver-cost: ${((Date.now() - started) / 1000).toFixed(0)} s wall`);
   if (failures.length) {
     console.log(`next-driver-cost: spawn budget exceeded\n  ${failures.join('\n  ')}`);

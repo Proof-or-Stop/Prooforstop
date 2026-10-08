@@ -158,14 +158,43 @@ before readiness`). No worker was spawned, so when the supervisor child was
 reaped this failure is `replacementSafe=true` (any other launcher error stays
 `false`).
 
-Supervisor-not-ready and a clean provider stall are the two auto-replaceable
-failures (`isAutoReplaceableManagedLaunchFailure`). `next` relaunches their
-target itself as a bound framework step (`targetRelaunchIsFramework`): a review
-lane of a round, a checklist item's implementer, a finding repair, or the
+**Provider transport failure.** A provider that exits non-zero on a transport
+error fails `provider_transport_error:<the provider's error line>`, never an
+opaque `exit_nonzero` / `child_error`. The error line is the last Codex `error` /
+`turn.failed` event naming one (stream disconnected, error sending request,
+connection reset, ECONNRESET/EPIPE, broken pipe, socket hang up), observed live
+on stdout (tool output never counts), else such a plain stderr line (including
+host_run's own `review invocation descriptor delivery failed: EPIPE|ECONNRESET`).
+Auth and other classified failures keep their own reason. Like a stall, it is
+`replacementSafe=true` only when the provider left no work product; otherwise
+the reason adds `work product present, not auto-replaced`.
+
+The review invocation descriptor (fd 3) is written once at spawn; Codex closes it
+when it exits, and Darwin reports that peer close as a late EPIPE/ECONNRESET on
+the write side (old-PoS run 24: `host_run review invocation descriptor delivery
+failed: ECONNRESET` after the critic's turn had completed, which killed the
+exiting provider and turned a missing envelope into `child_error`). A peer close
+after the provider reported its turn finished (Codex `turn.completed`, a
+Claude/Grok `result`), or after one final candidate, is ignored: the provider's
+own exit decides. Without either, the decision waits for the provider's close
+(at most `HOST_RUN_DESCRIPTOR_PEER_CLOSE_GRACE_MS`, 2 s): a finished turn by
+then is a normal exit; otherwise the run fails `child_error` with that delivery
+message, and a provider still running after the grace is killed as before.
+
+The auto-replaceable failures (`isAutoReplaceableManagedLaunchFailure`, all with
+`replacementSafe=true`) are: supervisor-not-ready, a clean provider stall
+(`provider_stalled:` with no work product), a provider transport failure with no
+work product (`provider_transport_error:`), and a managed review run that ended
+without a valid final envelope after the bounded same-session format repair
+(`managed_review_final_result_*`: a reviewer's only work product is that
+proposal, which was never written). `next` relaunches their target itself as a
+bound framework step (`targetRelaunchIsFramework`): a review lane of a round,
+the inventory critic of a wave (old-PoS run 24: the replacement critic was
+handed to the owner), a checklist item's implementer, a finding repair, or the
 scope-plan reviewer, at most `MANAGED_AUTO_RELAUNCHES_PER_TARGET` (3) such
 failures per target. After that, or after any other failure (including a
-deadline timeout or a stall that left work product), the replacement is the
-agent's call.
+deadline timeout, or a stall or transport failure that left work product), the
+replacement is the agent's call.
 
 An ordinary host run executes in the **resolved project root** (the `--root`
 target — the same root the usage-ledger rows are attributed to), independent of
@@ -499,8 +528,18 @@ for a non-JSON Codex transport; Claude accepts only its terminal `result` lane.
 Tool
 logs, ordinary/raw mixed stdout, arbitrary streamed output, and controller
 fields are ignored. The worker validates the sealed story/provider/lane/ReviewRun
-tuple and atomically writes the immutable proposal. Missing, malformed,
-multiple, or oversized envelopes fail the run closed. The
+tuple and atomically writes the immutable proposal. A malformed envelope, or a
+final message that is not an envelope at all (old-PoS run 24: the critic
+validated its proposal and then ended its turn with the prose "I'll now emit the
+single required JSON object" and no JSON), is not a verdict: when the provider
+session is resumable the same session is asked, at most twice, to re-emit only
+the envelope, with the exact validation error (for the prose case
+`managed_review_final_result_missing: final message must be the JSON
+envelope`); the re-emission passes the identical strict parser. Multiple or
+oversized envelopes, and an envelope still missing or malformed after the
+bounded repair, fail the run closed
+(`managed_review_final_result_invalid:...`). Such a run wrote no proposal, so it
+is auto-replaceable (see below). The
 `pass` form requires a trimmed note of at least 10 characters and no findings
 (an empty findings array is equivalent to absence). The `findings` form
 requires at least one fully valid finding and may carry a trimmed explanatory
@@ -560,8 +599,17 @@ open blocking findings of the round that have no bound repair yet:
 The run spec seals `managedDispatchTarget {findingId, groupFindingIds}`. The prompt
 asks, per finding, for its own regression test and one commit whose message
 names the finding id. A finding counts as repaired only by such a commit inside
-the run's window; `next` then proposes its own `finding_resolve`, and a finding
-the run left without one gets its own single-target repair. Duplicates (critic
+the run's window; a finding the run left without one gets its own single-target
+repair. When two or more open findings are repaired (old-PoS run 24: closure
+after a grouped repair took four `next` → `finding_resolve` cycles, ~1.5 min and
+~1M tokens), `next` proposes ONE `finding_resolve` (`finding_resolve_batch`):
+`finding_resolve '{"storyId":"B-xxxx","resolutions":[{"findingId":"B-xxxx:F-001","resolution":"<commit + focused test>"},{"findingId":"B-xxxx:F-002","resolution":"<commit + focused test>"}]}'`.
+Each entry keeps its own evidence: the handler re-checks that finding's own
+repair (open, and `managedFindingRepairState` shows its own commit) and appends
+`[repair commit <sha> of managed finding-repair run <runId>]` to its
+resolution; a finding that fails is left open and reported (the call is refused
+only when none passes). A single repaired finding keeps the plain
+`finding_resolve --findingId` step. Duplicates (critic
 `duplicate` or superseded-run restatement) and advisory (low / suspected) findings are not grouped.
 `remediation.grouping=per-finding` in `proof-or-stop.config.json` is the
 rollback: one repair run per finding, and `host_run` refuses `groupFindingIds`.
