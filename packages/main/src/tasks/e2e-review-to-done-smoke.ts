@@ -1716,6 +1716,8 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
       q6.push(`TEST authoring ${next.reason} surfaced as its own step; the finish decision and the summary must arrive as one step listing each command (Q6 (b))`);
     }
     onStep?.(next, quiet);
+    // Old-PoS run 27 (row 7): the DONE step is an explicit terminal statement, so the owner stops there.
+    if (next.done) assert.match(next.why, /DONE — stop; no further commands/, `[${o.scenario}] the DONE step must say to stop: ${next.why}`);
     if (next.done) break;
     if (mode.interject?.(next)) { ownerTurns += 1; reasons.push('owner_interjection'); continue; }
     assert.notEqual(next.kind, 'human', `[${o.scenario}] next asked for a human decision: ${next.reason}: ${next.why}`);
@@ -2411,6 +2413,9 @@ function scenarioN(machineEnv: NodeJS.ProcessEnv, steps: Step[], flow: 'A' | 'D'
     devSetup(o);
     driveWithNext(o, { findingRound1: flow === 'D', run }, lines);
     assert.match(git(o.root, ['log', '--format=%s', '-3', 'main']), new RegExp(`merge: ${o.storyId} `), 'story branch merged into main');
+    // Old-PoS run 27 (row 7): the text the owner reads after DONE ends the session explicitly.
+    const after = o.cli('next', { storyId: o.storyId }, { label: 'next (after DONE)' });
+    assert.match(after.stdout, /^Next: DONE — stop; no further commands\b/m, `${tag}: next after DONE prints the terminal statement:\n${after.out.slice(-800)}`);
     if (flow === 'D') assert.match(readFileSync(join(o.root, 'strs/strs_test.go'), 'utf8'), /TestReverseEmpty/, 'repair merged into main');
     lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
     o.cleanup();
