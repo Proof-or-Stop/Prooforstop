@@ -374,10 +374,26 @@ export interface VerificationPinNarrowingRecord {
   storyFilesHash?: string;
 }
 
+/**
+ * D4 (old-PoS run 23, core/intent-derivation.ts): how an example's expected
+ * value that request.md does not quote follows from the request.
+ */
+export interface VerificationIntentDerivation {
+  /** A verbatim request.md sentence (or clause) the value follows from. */
+  requestQuote: string;
+  /** The steps from that sentence to the pinned value; it states that value. */
+  computation: string;
+}
+
 export interface VerificationIntentItem {
   /** Optional stable id. If absent, Proof-or-Stop derives CHK-001:happy:0 from lane/index. */
   id?: string;
   desc: string;
+  /**
+   * Required (with a recorded request.md) when desc is an input -> output
+   * example whose expected value is not quoted verbatim from the request.
+   */
+  derivation?: VerificationIntentDerivation;
   type: VerificationIntentType;
   requiredIn?: VerificationRequiredIn;
   priority?: VerificationPriority;

@@ -11,7 +11,9 @@
  * Consumers: the PLAN scope-plan reviewer prompt (inline, with the mechanical
  * literal pre-check), every REVIEW lane and the inventory critic (inline, with
  * the request-outranks-intent rubric; core/request-authority.ts, old-PoS run 23
- * reversed the earlier "REVIEW lanes never get it"), the PLAN
+ * reversed the earlier "REVIEW lanes never get it"), the intent-derivation
+ * check of story_create / checklist_update / story_review and the scope-plan
+ * pin audit (core/intent-derivation.ts), the PLAN
  * verification-intent author, the INIT product reviewer, the DEV implementer
  * and the finding-repair worker (path only).
  */
@@ -157,6 +159,14 @@ export function stageStoryRequest(mainRoot: string, request: string): { path: st
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, request, 'utf8');
   return { path, bytes: Buffer.byteLength(bounded.text, 'utf8'), truncated: bounded.truncated };
+}
+
+/** The staged request without consuming it (story_create validates intents against it before writing). */
+export function peekStagedStoryRequest(mainRoot: string): string | null {
+  const path = stagedStoryRequestPath(mainRoot);
+  if (!existsSync(path)) return null;
+  const text = readFileSync(path, 'utf8');
+  return text.trim().length > 0 ? text : null;
 }
 
 /** Read-and-remove the staged request (consumed exactly once by story_create). */

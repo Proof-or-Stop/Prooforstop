@@ -46,6 +46,8 @@ import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { truncateOneLine } from '../cli/output-verbosity.js';
 import { reviewGateVerificationIntentIssue } from '../core/review-gate-verification-intent.js';
 import { missingVerificationPinIssues } from '../core/plan-verification-pins.js';
+import { checklistDerivationGaps, describeDerivationProblem, MISSING_INTENT_DERIVATION, PIN_AUDIT_GAP_PREFIX, ASYMMETRIC_EXAMPLE_GAP_PREFIX } from '../core/intent-derivation.js';
+import { readStoryRequest } from '../core/story-request.js';
 import { planScopeCheckRequirement, scopeVerdictChecklistChanged } from '../core/plan-scope-check-requirement.js';
 import { requiresFullVerificationIntent } from '../core/plan-pre-scope-blockers.js';
 import {
@@ -509,6 +511,26 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
       // from PLAN (core/plan-verification-pins.ts), on every channel that runs
       // story_review: DEV then records all receipts with one verification_run --pending.
       issues.push(...missingVerificationPinIssues(args.storyId, cl));
+      // D4 (old-PoS run 23): with a recorded request, an example whose expected
+      // value the request does not quote carries a derivation that cites a request
+      // sentence (core/intent-derivation.ts). Writers refuse a missing one; this
+      // catches rows stored before the request was recorded or amended.
+      {
+        const request = readStoryRequest(store, args.storyId);
+        if (request.status === 'ok') {
+          for (const gap of checklistDerivationGaps(cl.items, request.text)) {
+            for (const row of gap.rows) {
+              issues.push({
+                type: MISSING_INTENT_DERIVATION,
+                severity: 'blocker',
+                itemId: gap.itemId,
+                message: `${describeDerivationProblem(row)}. An example whose expected value request.md does not quote needs "derivation":{"requestQuote":"<verbatim request sentence>","computation":"<steps to the pinned value>"}; `
+                  + `if the computation reaches another value, the pinned value is wrong. Next (PLAN): \`proof-or-stop next --storyId=${args.storyId}\` gives the exact checklist_update for ${gap.itemId} (its full verificationIntent with this row's derivation).`,
+              });
+            }
+          }
+        }
+      }
       if (requireFullVerificationIntent) {
         for (const item of cl.items) {
           const intents = item.verificationIntent;
@@ -707,10 +729,17 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           const checklistChangedSinceVerdict = scopeVerdictChecklistChanged(scopeData, cl);
           for (const gap of gaps) {
             const source = gap.source ? ` (source: ${gap.source})` : '';
+            // Pin audit / same-semantics (old-PoS run 23, core/intent-derivation.ts):
+            // the fix is the pinned intent itself, not coverage or an exclusion.
+            const pinAudit = new RegExp(`^\\s*(?:${PIN_AUDIT_GAP_PREFIX}|${ASYMMETRIC_EXAMPLE_GAP_PREFIX})\\b`, 'i').test(gap.feature ?? '');
             issues.push({
               type: 'scope_gap',
               severity: 'blocker',
-              message: checklistChangedSinceVerdict
+              message: pinAudit && !checklistChangedSinceVerdict
+                ? `scope gap${source}: the scope-plan reviewer recomputed a pinned intent from the request and reports "${gap.feature}". `
+                  + `Next (PLAN): if the reviewer is right, fix that row's expected value and its derivation (or add the asymmetric example) with \`proof-or-stop checklist_update --storyId=${args.storyId} --itemId=<CHK-id> --verificationIntent='<full intent with the corrected row and "derivation":{"requestQuote":"...","computation":"..."}>'\`; `
+                  + `if the pin is right, make the derivation show why (cite the deciding request sentence). Then rerun the scope-plan reviewer: \`${rerunScopeReviewer}\`.`
+                : checklistChangedSinceVerdict
                 ? `scope gap${source}: the scope-plan reviewer verdict of ${scopeData.checkedAt} lists "${gap.feature}" as neither covered nor excluded, and the checklist changed since that verdict. `
                   + `Next (PLAN, no INIT reopen): rerun the scope-plan reviewer so it judges the current checklist: \`${rerunScopeReviewer}\`. `
                   + `The INIT scope boundary is not an input of this verdict.`

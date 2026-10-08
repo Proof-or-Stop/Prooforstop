@@ -30,6 +30,8 @@ import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import type { ChecklistData, ChecklistItem, ChecklistStatus, FrozenClaimSnapshot, StoryInfo, VerificationEvidence, VerificationEvidenceReceipt, VerificationExecutionReceiptV3, VerificationIntent, VerificationIntentItem, VerificationIntentPin, VerificationIntentType, VerificationLane, VerificationPinNarrowingRecord, VerificationReuseReceiptV1 } from '../core/types.js';
 import { claimDigest } from '../core/frozen-claim-drift.js';
 import { verificationIntentClassificationFailure } from '../core/verification-intent-classification.js';
+import { intentDerivationFailure, type DerivationCommand } from '../core/intent-derivation.js';
+import { readStoryRequest } from '../core/story-request.js';
 import { buildVerificationCoverage, collectRecordedPinnedReceipts, collectVerificationIntents, computeRecordedReceiptSetDigest, detectEvidenceRowContradiction, evaluateSelectorNarrowing, intentRef, isExecutableIntentType, makeEvidence, NARROWING_COMPLETE_OUTPUT_NOTE, renderVerificationPinNarrowCommand, VERIFICATION_LANES, VERIFICATION_PIN_NARROWING_PRECONDITION } from '../core/verification.js';
 import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, EVIDENCE_COMMAND_TIMEOUT_CAP_MS, formatValidationProgressEvent, parseAllowlistedCommand, runSingleAllowlistedCommand, type SingleCommandExecutionResult } from '../core/validation-executor.js';
 import { configuredValidationCommands } from './verifier.js';
@@ -308,6 +310,19 @@ function assertVerificationIntentClassification(
 ): void {
   // One rule from story_create to PLAN acceptance (core/verification-intent-classification.ts).
   const failure = verificationIntentClassificationFailure(itemId, verificationIntent, command, { ownerProposal });
+  if (failure) throw new Error(failure);
+}
+
+/**
+ * D4 (old-PoS run 23, core/intent-derivation.ts): with a recorded request.md,
+ * an example whose expected value the request does not quote carries a
+ * derivation citing a request sentence. Refused before anything is written.
+ */
+function assertIntentDerivations(store: HandlerContext['store'], command: DerivationCommand, storyId: string, itemId: string,
+  verificationIntent: VerificationIntent | undefined): void {
+  if (!verificationIntent) return;
+  const request = readStoryRequest(store, storyId);
+  const failure = intentDerivationFailure(command, itemId, verificationIntent, request.status === 'ok' ? request.text : null);
   if (failure) throw new Error(failure);
 }
 
@@ -3000,6 +3015,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         assertNoReviewGateVerificationIntent('plan_acceptance_prepare', input.verificationIntent, input.itemId);
         assertAllowlistedVerificationPins('plan_acceptance_prepare', input.verificationIntent, input.itemId);
         assertVerificationIntentClassification(input.itemId, input.verificationIntent, true, 'plan_acceptance_prepare');
+        assertIntentDerivations(store, 'plan_acceptance_prepare', args.storyId, input.itemId, input.verificationIntent);
         const proposed = structuredClone(current);
         proposed.files = structuredClone(input.files);
         proposed.verificationIntent = structuredClone(input.verificationIntent);
@@ -3066,6 +3082,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           assertNoReviewGateVerificationIntent('plan_acceptance_apply', prepared.verificationIntent, prepared.itemId);
           assertAllowlistedVerificationPins('plan_acceptance_apply', prepared.verificationIntent, prepared.itemId);
           assertVerificationIntentClassification(prepared.itemId, prepared.verificationIntent, true, 'plan_acceptance_apply');
+          assertIntentDerivations(store, 'plan_acceptance_apply', args.storyId, prepared.itemId, prepared.verificationIntent);
           assertEnglishAuthoringText(
             'plan_acceptance_apply',
             checklistEnglishAuthoringFields({ verificationIntent: prepared.verificationIntent, reason: args.reason }, prepared.itemId),
@@ -3183,6 +3200,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       assertNoReviewGateVerificationIntent('checklist_add', args.verificationIntent, 'checklist item');
       assertAllowlistedVerificationPins('checklist_add', args.verificationIntent, 'checklist item');
       const story = assertChecklistAddAllowed(store, args);
+      assertIntentDerivations(store, 'checklist_add', args.storyId, 'new item', args.verificationIntent);
 
       return withChecklistLock(ctx, args.storyId, () => {
       const cl = store.readChecklist(args.storyId);
@@ -3481,6 +3499,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           `verificationIntent is the source of truth for test intent in the PLAN phase; after DEV you can only append verificationEvidence or use a finding to request going back to PLAN.`
         );
       }
+      assertIntentDerivations(store, 'checklist_update', args.storyId, args.itemId, args.verificationIntent);
 
       const cl = store.readChecklist(args.storyId);
       const checklistBeforeUpdate = structuredClone(cl);

@@ -128,6 +128,15 @@
  *      request-outranks-intent rubric, the critic prompt the no-limitation
  *      rule, and the finding-repair prompt the [intent-conflict] section and
  *      the base-behavior input-variant rule; DONE.
+ *   NP run 23 at its source (D4 + pin audit): a Story in PLAN with a recorded
+ *      request and a wrong pinned example that the request does not quote.
+ *      next's plan_authoring lists the missing derivation; checklist_update
+ *      refuses the row without one ([intent_derivation_required]) and accepts
+ *      a cited, self-consistent (wrong) one; the managed scope-plan reviewer
+ *      prompt carries the pin-audit rule with the derivation, the scripted
+ *      reviewer records a `pin-audit` gap, and the Story cannot enter DEV
+ *      (story_review names the pinned row to fix); after the owner fixes the
+ *      value next relaunches the reviewer on the corrected checklist.
  *
  * Machine registries (provider slots, locks) use a disposable fixture machine
  * so the harness never touches the developer's ~/.proof-or-stop admission state.
@@ -145,7 +154,7 @@
  *      implementer and finding-repair run seals the arm and carries the item pack).
  *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5 ND-V6.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NI|NIN|NQ|AB|ND-V1..NF-V6]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NI|NIN|NQ|NP|AB|ND-V1..NF-V6]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -2543,6 +2552,100 @@ function scenarioNQ(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
+/** NP: CHK-001 pins a wrong lower-case output for an input the request never quotes. */
+const NP_WRONG_PIN = 'Upper("xy") -> "xy"';
+const NP_QUOTE = '`strs.Upper(s)` returns the upper-case form of `s`';
+
+function scenarioNP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NP';
+  const name = 'NP run 23 at the source: PLAN refuses an underived pin and the scope-plan pin audit blocks a wrong one before DEV';
+  const o = new Owner(tag, 'B-e2c3', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NIQ_REQUEST });
+  const lines: string[] = [];
+  const ask = (label: string): NextStepJson => {
+    const asked = o.cli('next', { storyId: o.storyId, json: true }, { label });
+    const next = (asked.status === 0 ? parseJson(asked.stdout) : null) as NextStepJson | null;
+    assert.ok(next && typeof next.kind === 'string', `[NP] next did not return a step:\n${asked.out.slice(-2000)}`);
+    lines.push(`${label}: ${next.phase} ${next.kind} ${next.reason}`);
+    return next;
+  };
+  const row = (desc: string, test: string, extra: Record<string, unknown> = {}) => ({ desc, type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass',
+    requirementSource: 'story', verification: { command: `go test -v ./strs -run ^${test}$`, selector: `--- PASS: ${test}` }, ...extra });
+  const intents = (pin: Record<string, unknown>) => ({
+    'CHK-001': { happy: [row('strs.Upper(s): Upper("ab") -> "AB"', 'TestUpper'), pin], edge: [row('Upper("") -> ""', 'TestUpperEmpty')], adversarial: [row('Upper leaves digits and symbols unchanged', 'TestUpperSymbols')] },
+    'CHK-002': { happy: [row('strs.Reverse(s): Reverse("héllo") -> "olléh"', 'TestReverse')], edge: [row('Reverse("") -> ""', 'TestReverseEmpty')], adversarial: [row('Reverse of a one-rune string is that string', 'TestReverseOne')] },
+  });
+  try {
+    // INIT_CHECK -> PLAN: the owner's INIT intent pins a wrong value, stored before the derivation rule (no derivation).
+    const store = new StoryStore(o.worktree);
+    store.writeStory(o.storyId, { ...store.readStory(o.storyId), phase: 'PLAN' });
+    const legacy = store.readChecklist(o.storyId);
+    store.writeChecklist(o.storyId, { ...legacy, items: legacy.items.map(item => ({ ...item, status: 'pending', startTime: null,
+      verificationIntent: item.id === 'CHK-001'
+        ? { ...item.verificationIntent!, happy: [...item.verificationIntent!.happy, { desc: NP_WRONG_PIN, type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story' }] }
+        : item.verificationIntent })) } as never);
+    o.mustCli('dev_memory_preflight_ack', { storyId: o.storyId });
+
+    const authoring = ask('next (PLAN, underived pin)');
+    assert.equal(authoring.reason, 'plan_authoring', `[NP] the missing derivation is a PLAN authoring step: ${authoring.reason}: ${authoring.why}`);
+    assert.match(authoring.why, /CHK-001:happy:1/, '[NP] the authoring step names the underived pinned row');
+    assert.match(authoring.why, /derivation/, '[NP] the authoring step asks for its derivation');
+    const proposed = (authoring.batch ?? []).find(call => call.cli.command === 'checklist_update' && call.cli.payload.itemId === 'CHK-001');
+    const proposedPin = ((proposed?.cli.payload.verificationIntent as { happy?: Array<Record<string, unknown>> } | undefined)?.happy ?? [])[1];
+    assert.match(String((proposedPin?.derivation as Record<string, unknown> | undefined)?.requestQuote ?? ''), /^<.*>$/, '[NP] the exact checklist_update carries a derivation placeholder');
+
+    const wrongRow = row(NP_WRONG_PIN, 'TestUpperXY');
+    const refused = o.cli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', verificationIntent: intents(wrongRow)['CHK-001'] }, { label: 'checklist_update CHK-001 (no derivation)' });
+    assert.notEqual(refused.status, 0, '[NP] checklist_update must refuse the underived pinned value');
+    assert.match(refused.out, /\[intent_derivation_required\]/, '[NP] the refusal names the rule');
+    const wrongDerivation = { requestQuote: NP_QUOTE, computation: 'Upper keeps characters that are already in their returned form, so "xy" stays "xy"' };
+    o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', verificationIntent: intents(row(NP_WRONG_PIN, 'TestUpperXY', { derivation: wrongDerivation }))['CHK-001'] }, { label: 'checklist_update CHK-001 (wrong derivation)' });
+    o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-002', verificationIntent: intents(wrongRow)['CHK-002'] }, { label: 'checklist_update CHK-002' });
+
+    const launch = ask('next (PLAN, authored)');
+    assert.equal(launch.reason, 'scope_plan_review_launch', `[NP] the scope-plan reviewer runs once the derivations are authored: ${launch.reason}: ${launch.why}`);
+    o.script('proof-or-stop-review-scope-plan', { final: 'Scope review saved.', commands: [[process.execPath, CLI, 'scope_check_save', JSON.stringify({ storyId: o.storyId,
+      features: [
+        { feature: 'strs.Upper returns the upper-case form', covered_by: 'CHK-001', status: 'covered', excluded_by: null, source: 'request.md' },
+        { feature: 'strs.Reverse reverses by rune', covered_by: 'CHK-002', status: 'covered', excluded_by: null, source: 'request.md' },
+        { feature: 'pin-audit CHK-001:happy:1: pins "xy"; the cited sentence (upper-case form) gives "XY"', covered_by: null, status: 'gap', excluded_by: null, source: 'request.md' },
+      ],
+      summary: { total: 3, covered: 2, excluded: 0, gaps: 1 },
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null }, openQuestions: [] })]] });
+    const payload = { ...launch.cli!.payload };
+    for (const [key, value] of Object.entries({ host: 'codex', model: MODEL.model, reasoningEffort: MODEL.reasoningEffort })) {
+      if (typeof payload[key] !== 'string' || /^<.*>$/.test(String(payload[key]))) payload[key] = value;
+    }
+    const launched = o.mustCli('host_run', payload, { label: 'host_run --managedDispatch scope-plan' });
+    const runId = String((parseJson(launched.stdout)?.run as Record<string, unknown>).runId);
+    const terminal = waitTerminal(o, 'scope-plan', runId);
+    o.unscript('proof-or-stop-review-scope-plan');
+    assert.equal(terminal.state, 'completed', `[NP] scope-plan terminal ${terminal.state} (${terminal.reason})\n${o.providerCommandLog()}`);
+    const prompt = managedPrompts(o, 'proof-or-stop-review-scope-plan')[0]?.prompt ?? '';
+    assert.match(prompt, /Pin audit \(blocking\)/, '[NP] the scope-plan prompt carries the pin-audit rule');
+    assert.ok(prompt.includes(wrongDerivation.computation), '[NP] the scope-plan prompt carries the derivation verbatim');
+
+    const review = o.cli('story_review', { storyId: o.storyId }, { label: 'story_review (pin-audit gap)' });
+    assert.match(review.out, /pin-audit CHK-001:happy:1/, '[NP] story_review reports the pin-audit gap');
+    assert.match(review.out, /checklist_update[^\n]*verificationIntent/, '[NP] the pin-audit gap names the intent fix (checklist_update verificationIntent)');
+    const dev = o.cli('story_advance', { storyId: o.storyId, phase: 'DEV' }, { label: 'story_advance DEV (refused)' });
+    assert.notEqual(dev.status, 0, '[NP] the wrong pin must not reach DEV');
+    assert.match(dev.out, /story_review round has 1 unresolved blocker/, '[NP] the only DEV blocker is the pin-audit gap');
+    assert.equal(o.phase(), 'PLAN', '[NP] still PLAN');
+    const held = ask('next (PLAN, pin-audit gap open)');
+    assert.notEqual(held.reason, 'enter_dev', `[NP] next must not propose DEV while the pin-audit gap is open: ${held.why}`);
+
+    const fixed = row('Upper("xy") -> "XY"', 'TestUpperXY', { derivation: { requestQuote: NP_QUOTE, computation: 'the upper-case form of "xy" is "XY"' } });
+    o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', verificationIntent: intents(fixed)['CHK-001'] }, { label: 'checklist_update CHK-001 (pin fixed)' });
+    const relaunch = ask('next (PLAN, pin fixed)');
+    assert.equal(relaunch.reason, 'scope_plan_review_launch', `[NP] the fixed pin is re-audited: ${relaunch.reason}: ${relaunch.why}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 /** NIN: the owner's values for the story_create template next prints (every '<...>' replaced). */
 function fillStoryCreateTemplate(template: Record<string, unknown>): Record<string, unknown> {
   const filled = JSON.parse(JSON.stringify(template)) as Record<string, any>;
@@ -2558,7 +2661,8 @@ function fillStoryCreateTemplate(template: Record<string, unknown>): Record<stri
   const item = filled.checklist[0];
   Object.assign(item, { title: 'Upper returns the upper-case form', context: 'strs/strs.go Upper returns s unchanged; it must call strings.ToUpper.',
     userSees: 'go test -v ./strs -run TestUpper prints --- PASS: TestUpper', files: { modify: ['strs/strs.go'], test: ['strs/strs_test.go'] } });
-  Object.assign(item.verificationIntent.happy[0], { desc: 'Upper("ab") -> "AB"', verification: { command: 'go test -v ./strs -run ^TestUpper$', selector: '--- PASS: TestUpper' } });
+  Object.assign(item.verificationIntent.happy[0], { desc: 'Upper("ab") -> "AB"', verification: { command: 'go test -v ./strs -run ^TestUpper$', selector: '--- PASS: TestUpper' },
+    derivation: { requestQuote: 'strs.Upper returns the upper-case form of its input', computation: 'the upper-case form of "ab" is "AB"' } });
   Object.assign(filled.scopeBoundary, { mode: 'correctness_fix', allowed: ['strs: Upper returns the upper-case form'], excluded: ['other string helpers'],
     confirmation: 'derived from the fixture request' });
   filled.executionBoundary.allowedCommands = (filled.executionBoundary.allowedCommands as string[]).filter(entry => !entry.startsWith('<'));
@@ -2592,6 +2696,8 @@ function scenarioNIN(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     for (const key of ['scopeBoundary', 'executionBoundary', 'checklist', 'background']) {
       assert.ok(template!.cli!.payload[key] !== undefined, `[NIN] the story_create template carries ${key}`);
     }
+    const templateRow = ((template!.cli!.payload.checklist as Array<Record<string, any>>)[0]!.verificationIntent.happy as Array<Record<string, any>>)[0]!;
+    assert.match(String(templateRow.derivation?.requestQuote ?? ''), /^<.*>$/, '[NIN] the template intent row carries the derivation placeholder (D4, run 23 pinned at story_create)');
     const missingHints = placeholderHintViolations(template!);
     assert.deepEqual(missingHints, [], `[NIN] every template placeholder has a one-line hint`);
     assert.ok(Object.values(template!.placeholderHints ?? {}).every(hint => hint !== 'author this value'), `[NIN] no generic hint: ${JSON.stringify(template!.placeholderHints)}`);
@@ -2647,7 +2753,7 @@ function scenarioNIN(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NI|NIN|NQ|N[AD](?:-run)?|N[DF]-V[1-6]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NI|NIN|NQ|NP|N[AD](?:-run)?|N[DF]-V[1-6]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -2689,6 +2795,7 @@ async function main(): Promise<void> {
     if (only.includes('NI')) outcomes.push(scenarioNI(machine.env, steps));
     if (only.includes('NQ')) outcomes.push(scenarioNQ(machine.env, steps));
     if (only.includes('NIN')) outcomes.push(scenarioNIN(machine.env, steps));
+    if (only.includes('NP')) outcomes.push(scenarioNP(machine.env, steps));
     // Detection A/B arms: explicit tokens (ND-V1 .. NF-V6) or AB = ND-V1, ND-V2, ND-V3, NF-V4, ND-V5, ND-V6.
     const abTokens = only.includes('AB') ? ['ND-V1', 'ND-V2', 'ND-V3', 'NF-V4', 'ND-V5', 'ND-V6'] : [];
     for (const token of [...new Set([...abTokens, ...only.filter(arg => /^N[DF]-V[1-6]$/.test(arg))])]) {
@@ -2697,7 +2804,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NI', 'NIN', 'NQ', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NI', 'NIN', 'NQ', 'NP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {
