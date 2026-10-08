@@ -24,7 +24,9 @@
  *     `missing_intent_derivation`, core/intent-derivation.ts).
  * Story-wide: request literals (the story_create pre-check,
  * unmappedStoryRequestLiterals) that no title / userSees / verificationIntent
- * states and no PLAN excludes entry names.
+ * states and no PLAN excludes entry names; coverage-matrix rows the request
+ * patterns demand that no intent states (core/plan-coverage-matrix.ts, story_review
+ * `missing_coverage_row`), each with the item its placeholder goes to.
  */
 import type { StoryStore } from './store.js';
 import type { ChecklistItem, StoryInfo, VerificationLane, WorkflowPolicy } from './types.js';
@@ -34,6 +36,7 @@ import { unpinnedPlanIntents } from './plan-verification-pins.js';
 import { isHighRiskStory } from './plan-scope-check-requirement.js';
 import { readStoryRequest, unmappedStoryRequestLiterals } from './story-request.js';
 import { describeDerivationProblem, intentDerivationRows } from './intent-derivation.js';
+import { planCoverageGaps, type CoverageGap } from './plan-coverage-matrix.js';
 
 /** story_review's rule: normal channel, high risk or strict profile need happy/edge/adversarial on every item. */
 export function requiresFullVerificationIntent(args: { isHighRisk: boolean; channel: string; profile: string }): boolean {
@@ -58,6 +61,8 @@ export interface PreScopeItemBlockers {
 export interface PreScopeBlockers {
   items: PreScopeItemBlockers[];
   unmappedLiterals: string[];
+  /** Coverage-matrix rows the request patterns demand and no intent states. */
+  coverageGaps: CoverageGap[];
 }
 
 export function planPreScopeBlockers(
@@ -84,9 +89,10 @@ export function planPreScopeBlockers(
       : [],
   })).filter(row => row.missingLanes.length || row.unpinned.length || row.missingUserSees || row.missingDerivations.length);
   const unmappedLiterals = request.status === 'ok' ? unmappedStoryRequestLiterals(request.text, items, { countExcludes: true }) : [];
-  return { items: rows, unmappedLiterals };
+  const coverageGaps = request.status === 'ok' ? planCoverageGaps(items, request.text) : [];
+  return { items: rows, unmappedLiterals, coverageGaps };
 }
 
 export function hasPreScopeBlockers(blockers: PreScopeBlockers): boolean {
-  return blockers.items.length > 0 || blockers.unmappedLiterals.length > 0;
+  return blockers.items.length > 0 || blockers.unmappedLiterals.length > 0 || blockers.coverageGaps.length > 0;
 }

@@ -146,6 +146,14 @@
  *      reviewer records a `pin-audit` gap, and the Story cannot enter DEV
  *      (story_review names the pinned row to fix); after the owner fixes the
  *      value next relaunches the reviewer on the corrected checklist.
+ *   NCV old-PoS runs 24-29 (PLAN coverage matrix, core/plan-coverage-matrix.ts): a Story
+ *      in PLAN whose request has a 3-part syntax with omitted forms, a non-numeric
+ *      operand and a same-semantics assignment section. next's plan_authoring
+ *      lists the missing coverage rows (write mirror, omission patterns, explicit
+ *      null) with the matched request sentences and a placeholder intent per rule;
+ *      story_review blocks DEV on them; the owner writes the rows (one excluded
+ *      with its reason) and next launches the scope-plan reviewer, whose prompt
+ *      carries the coverage rule; no coverage blocker remains.
  *   NX old-PoS runs 20/25 F1: the task's Unicode test prints a CJK subtest name
  *      under go test -v; the captured output (checklist outputTail) and the
  *      observed DONE transcript carry it. The English-only gate must not refuse
@@ -191,7 +199,7 @@
  *      and still review the whole Story).
  *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5 ND-V6 ND-V8 ND-V9.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIN|NIS|NQ|NP|NX|NM|NDL|NDS|NDG|NRS|AB|ND-V1..NF-V9]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIN|NIS|NQ|NP|NCV|NX|NM|NDL|NDS|NDG|NRS|AB|ND-V1..NF-V9]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -2873,6 +2881,8 @@ function scenarioNI(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     o.unscript(IMPLEMENTER);
     assert.equal(terminal.state, 'completed', `[NI] implementer terminal ${terminal.state} (${terminal.reason})\n${o.providerCommandLog()}`);
     assert.match(managedPrompts(o, IMPLEMENTER)[0]!.prompt, /\[intent-conflict\] none/, '[NI] the implementer prompt requires the [intent-conflict] section');
+    // Old-PoS runs 24-29 (A): the probe matrix and its [probes] report line.
+    assert.match(managedPrompts(o, IMPLEMENTER)[0]!.prompt, /Probe matrix before handoff[\s\S]*explicit null[\s\S]*\[probes\]/, '[NI] the implementer prompt carries the probe matrix and the [probes] report');
 
     // D1: the declared conflict blocks the item before anything else.
     const blocked = ask('next (conflict declared)');
@@ -3034,6 +3044,110 @@ function scenarioNP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', verificationIntent: intents(fixed)['CHK-001'] }, { label: 'checklist_update CHK-001 (pin fixed)' });
     const relaunch = ask('next (PLAN, pin fixed)');
     assert.equal(relaunch.reason, 'scope_plan_review_launch', `[NP] the fixed pin is re-audited: ${relaunch.reason}: ${relaunch.why}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** NCV: a request with an n-part syntax, omitted forms, a non-numeric operand and a same-semantics assignment section. */
+const NCV_REQUEST = [
+  'Extend strs slicing with a third component: `value[start:end:step]`.',
+  '',
+  '## 1. Reads',
+  '- Accept omitted components: `value[:end:step]` and `value[::step]`.',
+  '- A non-numeric `step` must keep the error `index ranges can only be numerical`.',
+  '',
+  '## 2. Range assignment',
+  '- Use the same index-selection semantics as read slicing.',
+].join('\n');
+const NCV_MIRROR_SENTENCE = 'Use the same index-selection semantics as read slicing.';
+
+function scenarioNCV(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NCV';
+  const name = 'NCV old-PoS runs 24-29: PLAN demands the coverage-matrix rows (write mirror, omission patterns, enumerated null) before the scope-plan reviewer; excludes and authored rows clear them';
+  const o = new Owner(tag, 'B-e2c4', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NCV_REQUEST });
+  const lines: string[] = [];
+  const ask = (label: string): NextStepJson => {
+    const asked = o.cli('next', { storyId: o.storyId, json: true }, { label });
+    const next = (asked.status === 0 ? parseJson(asked.stdout) : null) as NextStepJson | null;
+    assert.ok(next && typeof next.kind === 'string', `[NCV] next did not return a step:\n${asked.out.slice(-2000)}`);
+    lines.push(`${label}: ${next.phase} ${next.kind} ${next.reason}`);
+    return next;
+  };
+  const row = (desc: string, test: string) => ({ desc, type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass',
+    requirementSource: 'story', verification: { command: `go test -v ./strs -run ^${test}$`, selector: `--- PASS: ${test}` } });
+  const reads = [row('x[0:4:2] reads every second element', 'TestReadStep'), row('x[::-1] reads backward', 'TestReadBack'),
+    row('x[0:4:{}] keeps the index ranges can only be numerical error', 'TestReadStepType')];
+  const writes = [row('x[0:4:2] = y writes every second element', 'TestWriteStep'), row('x[1:3] = y writes two elements', 'TestWriteTwo'),
+    row('x[0:4] = z with a wrong length keeps the size check', 'TestWriteSize')];
+  try {
+    const store = new StoryStore(o.worktree);
+    store.writeStory(o.storyId, { ...store.readStory(o.storyId), phase: 'PLAN' });
+    const legacy = store.readChecklist(o.storyId);
+    store.writeChecklist(o.storyId, { ...legacy, items: legacy.items.map((item, at) => ({ ...item, status: 'pending', startTime: null,
+      title: at === 0 ? 'Read stepped slices' : 'Range assignment through stepped slices',
+      userSees: at === 0 ? '`value[start:end:step]`, `value[:end:step]` and `value[::step]` read; a non-numeric `step` errors with `index ranges can only be numerical`.' : 'Range assignment selects like reads.',
+      verificationIntent: at === 0 ? { happy: [reads[0]], edge: [reads[1]], adversarial: [reads[2]] } : { happy: [writes[0]], edge: [writes[1]], adversarial: [writes[2]] } })) } as never);
+    o.mustCli('dev_memory_preflight_ack', { storyId: o.storyId });
+
+    // 1. next demands the rows before it launches the scope-plan reviewer.
+    const authoring = ask('next (PLAN, coverage rows missing)');
+    assert.equal(authoring.reason, 'plan_authoring', `[NCV] the missing coverage rows are a PLAN authoring step: ${authoring.reason}: ${authoring.why}`);
+    assert.match(authoring.why, /Coverage rows the request demands/, '[NCV] the Why names the coverage rows');
+    assert.ok(authoring.why.includes(`"${NCV_MIRROR_SENTENCE}"`), '[NCV] the Why lists the matched request sentence');
+    for (const key of ['coverage write: negative step', 'coverage read or write: form [::]', 'coverage read: explicit null step']) {
+      assert.ok(authoring.why.includes(key), `[NCV] the Why names "${key}": ${authoring.why}`);
+    }
+    const placeholders = (itemId: string): string[] => {
+      const update = (authoring.batch ?? []).find(call => call.cli.command === 'checklist_update' && call.cli.payload.itemId === itemId);
+      return ((update?.cli.payload.verificationIntent as { edge?: Array<{ desc: string }> } | undefined)?.edge ?? []).map(entry => entry.desc).filter(desc => desc.startsWith('<'));
+    };
+    assert.ok(placeholders('CHK-002').some(desc => desc.startsWith('<write-mirror:')), `[NCV] CHK-002 gets the write-mirror placeholder: ${JSON.stringify(placeholders('CHK-002'))}`);
+    assert.ok(placeholders('CHK-001').some(desc => desc.startsWith('<omit-combination:')), `[NCV] CHK-001 gets the omission-pattern placeholder: ${JSON.stringify(placeholders('CHK-001'))}`);
+
+    // 2. story_review reports the same rows as blockers; DEV is refused.
+    const review = o.cli('story_review', { storyId: o.storyId }, { label: 'story_review (coverage rows missing)' });
+    assert.match(review.out, /missing_coverage_row|No intent states coverage write: negative step/, `[NCV] story_review reports the missing coverage rows:\n${review.out.slice(-1500)}`);
+    const dev = o.cli('story_advance', { storyId: o.storyId, phase: 'DEV' }, { label: 'story_advance DEV (refused)' });
+    assert.notEqual(dev.status, 0, '[NCV] PLAN cannot enter DEV with missing coverage rows');
+
+    // 3. The owner writes the rows (one excluded with its reason); nothing is demanded any more.
+    o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001',
+      excludes: ['coverage read or write: form [::]: the all-omitted stepped form is a parse error by design'],
+      verificationIntent: { happy: [reads[0]], edge: [reads[1], row('x[:3:1], x[1::1], x[0:2:], x[:2:] and x[1::] read like the two-part form', 'TestReadOmitted'),
+        row('x[0:4:null] keeps the index ranges can only be numerical error', 'TestReadStepNull')], adversarial: [reads[2]] } }, { label: 'checklist_update CHK-001 (coverage rows)' });
+    o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-002',
+      verificationIntent: { happy: [writes[0]], edge: [writes[1], row('x[::-1] = y writes backward', 'TestWriteBack'), row('x[0:2:] = y writes like the two-part form', 'TestWriteOmittedStep'),
+        row('x[0:4:{}] = y and x[0:4:null] = y keep the read-side error', 'TestWriteStepType')], adversarial: [writes[2]] } }, { label: 'checklist_update CHK-002 (coverage rows)' });
+    const launch = ask('next (PLAN, coverage rows written)');
+    assert.equal(launch.reason, 'scope_plan_review_launch', `[NCV] the scope-plan reviewer runs once the rows are written: ${launch.reason}: ${launch.why}`);
+
+    // 4. The scope-plan reviewer prompt carries the coverage rule; its verdict leaves no coverage blocker.
+    o.script('proof-or-stop-review-scope-plan', { final: 'Scope review saved.', commands: [[process.execPath, CLI, 'scope_check_save', JSON.stringify({ storyId: o.storyId,
+      features: [
+        { feature: 'stepped reads with omitted components', covered_by: 'CHK-001', status: 'covered', excluded_by: null, source: 'request.md' },
+        { feature: 'range assignment uses read selection', covered_by: 'CHK-002', status: 'covered', excluded_by: null, source: 'request.md' },
+      ],
+      summary: { total: 2, covered: 2, excluded: 0, gaps: 0 },
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null }, openQuestions: [] })]] });
+    const payload = { ...launch.cli!.payload };
+    for (const [key, value] of Object.entries({ host: 'codex', model: MODEL.model, reasoningEffort: MODEL.reasoningEffort })) {
+      if (typeof payload[key] !== 'string' || /^<.*>$/.test(String(payload[key]))) payload[key] = value;
+    }
+    const launched = o.mustCli('host_run', payload, { label: 'host_run --managedDispatch scope-plan' });
+    const runId = String((parseJson(launched.stdout)?.run as Record<string, unknown>).runId);
+    const terminal = waitTerminal(o, 'scope-plan', runId);
+    o.unscript('proof-or-stop-review-scope-plan');
+    assert.equal(terminal.state, 'completed', `[NCV] scope-plan terminal ${terminal.state} (${terminal.reason})\n${o.providerCommandLog()}`);
+    const prompt = managedPrompts(o, 'proof-or-stop-review-scope-plan')[0]?.prompt ?? '';
+    assert.match(prompt, /Coverage matrix \(blocking\)/, '[NCV] the scope-plan prompt carries the coverage-matrix rule');
+    assert.match(prompt, /Mechanical coverage rows: all present/, '[NCV] the scope-plan prompt reports the mechanical rows present');
+    const after = o.cli('story_review', { storyId: o.storyId }, { label: 'story_review (coverage rows written)' });
+    assert.doesNotMatch(after.out, /missing_coverage_row|No intent states coverage/, `[NCV] no coverage blocker is left:\n${after.out.slice(-1500)}`);
+    lines.push(`coverage placeholders: CHK-001 ${placeholders('CHK-001').length}, CHK-002 ${placeholders('CHK-002').length}`);
     o.cleanup();
     return { name, status: 'PASS', lines };
   } catch (error) {
@@ -3452,7 +3566,7 @@ function scenarioNIS(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NW[3-6]?|NI|NIN|NIS|NQ|NP|NX|NM|NDL|NDS|NDG|NRS|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIN|NIS|NQ|NP|NX|NM|NDL|NDS|NDG|NRS|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -3496,6 +3610,7 @@ async function main(): Promise<void> {
     if (only.includes('NQ')) outcomes.push(scenarioNQ(machine.env, steps));
     if (only.includes('NIN')) outcomes.push(scenarioNIN(machine.env, steps));
     if (only.includes('NP')) outcomes.push(scenarioNP(machine.env, steps));
+    if (only.includes('NCV')) outcomes.push(scenarioNCV(machine.env, steps));
     if (only.includes('NX')) outcomes.push(scenarioNX(machine.env, steps));
     if (only.includes('NM')) outcomes.push(scenarioNM(machine.env, steps));
     if (only.includes('NDL')) outcomes.push(scenarioNDL(machine.env, steps, 'overlap'));
@@ -3511,7 +3626,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIN', 'NIS', 'NQ', 'NP', 'NX', 'NM', 'NDL', 'NDS', 'NDG', 'NRS', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NDG', 'NRS', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

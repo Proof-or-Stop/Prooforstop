@@ -47,6 +47,7 @@ import { truncateOneLine } from '../cli/output-verbosity.js';
 import { reviewGateVerificationIntentIssue } from '../core/review-gate-verification-intent.js';
 import { missingVerificationPinIssues } from '../core/plan-verification-pins.js';
 import { checklistDerivationGaps, describeDerivationProblem, MISSING_INTENT_DERIVATION, PIN_AUDIT_GAP_PREFIX, ASYMMETRIC_EXAMPLE_GAP_PREFIX } from '../core/intent-derivation.js';
+import { describeCoverageGap, MISSING_COVERAGE_ROW, planCoverageGaps } from '../core/plan-coverage-matrix.js';
 import { readStoryRequest } from '../core/story-request.js';
 import { planScopeCheckRequirement, scopeVerdictChecklistChanged } from '../core/plan-scope-check-requirement.js';
 import { requiresFullVerificationIntent } from '../core/plan-pre-scope-blockers.js';
@@ -526,6 +527,21 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
                 itemId: gap.itemId,
                 message: `${describeDerivationProblem(row)}. An example whose expected value request.md does not quote needs "derivation":{"requestQuote":"<verbatim request sentence>","computation":"<steps to the pinned value>"}; `
                   + `if the computation reaches another value, the pinned value is wrong. Next (PLAN): \`proof-or-stop next --storyId=${args.storyId}\` gives the exact checklist_update for ${gap.itemId} (its full verificationIntent with this row's derivation).`,
+              });
+            }
+          }
+          // Coverage matrix (old-PoS runs 24-29, core/plan-coverage-matrix.ts): rows the
+          // request patterns demand (write mirror of read classes, omission patterns of an
+          // n-part syntax, enumerated members x the stated value class). PLAN only: the
+          // intents are frozen from DEV, and a Story past PLAN was planned without it.
+          if (story.phase === 'PLAN') {
+            for (const gap of planCoverageGaps(cl.items, request.text)) {
+              issues.push({
+                type: MISSING_COVERAGE_ROW,
+                severity: 'blocker',
+                itemId: gap.itemId,
+                message: `No intent states ${describeCoverageGap(gap)}. Add one (an input in the request's syntax -> exact result or exact error), or, if it does not apply, an excludes entry on ${gap.itemId} that names "${gap.key}" with the reason. `
+                  + `Next (PLAN): \`proof-or-stop next --storyId=${args.storyId}\` gives the exact checklist_update for ${gap.itemId} with a placeholder intent.`,
               });
             }
           }

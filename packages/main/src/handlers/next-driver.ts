@@ -50,6 +50,7 @@ import { evaluateDevMemoryPreflightGate, evaluateReviewVerdict, getGuardFailureR
 import { missingPlanScopeCheckFailure, SCOPE_PLAN_REVIEWER, scopePlanLaunchIsFramework, scopePlanRerunReason } from '../core/plan-scope-check-requirement.js';
 import { hasPreScopeBlockers, planPreScopeBlockers, type PreScopeBlockers } from '../core/plan-pre-scope-blockers.js';
 import { checklistDerivationGaps, derivationPlaceholder, MISSING_INTENT_DERIVATION } from '../core/intent-derivation.js';
+import { coveragePlaceholders, MISSING_COVERAGE_ROW, planCoverageGaps, type CoverageGap } from '../core/plan-coverage-matrix.js';
 import { scopeVerdictDeferral, scopeVerdictHeldItems, scopeVerdictReviewEntryFailure } from '../core/scope-plan-deferral.js';
 import { STORY_FOCUSED_CLASSIFICATION } from '../core/verification-intent-classification.js';
 import { VERIFICATION_LANES } from '../core/verification.js';
@@ -919,30 +920,38 @@ export function planAuthoringStep(store: Pick<HandlerContext['store'], 'readRevi
     calls.push(nextStepCall('plan_set', { command: 'plan_set', payload: { storyId,
       content: `<full plan.md with one section per item: ${ids.map(id => `## ${id}`).join(', ')}; each with steps, files and verification>` } }));
   }
-  // D4 (old-PoS run 23): rows without a valid derivation, one exact checklist_update per item.
-  if (types.has(MISSING_INTENT_DERIVATION)) {
+  // D4 (old-PoS run 23): rows without a valid derivation; coverage matrix (old-PoS
+  // runs 24-29): rows the request patterns demand. One exact checklist_update per item.
+  let coverage: CoverageGap[] = [];
+  if (types.has(MISSING_INTENT_DERIVATION) || types.has(MISSING_COVERAGE_ROW)) {
     const request = readStoryRequest(store as never, storyId);
     if (request.status === 'ok') {
-      for (const gap of checklistDerivationGaps(store.readChecklist(storyId).items, request.text)) {
-        const item = store.readChecklist(storyId).items.find(row => row.id === gap.itemId)!;
+      const items = store.readChecklist(storyId).items;
+      const derivations = types.has(MISSING_INTENT_DERIVATION) ? checklistDerivationGaps(items, request.text) : [];
+      coverage = types.has(MISSING_COVERAGE_ROW) ? planCoverageGaps(items, request.text) : [];
+      for (const item of items) {
+        const gap = derivations.find(entry => entry.itemId === item.id);
+        const placeholders = coverageIntentRows(coverage, item.id);
+        if (!gap && !placeholders.length) continue;
         const intent: Record<string, Array<Record<string, unknown>>> = {};
         for (const lane of VERIFICATION_LANES) {
           intent[lane] = (item.verificationIntent?.[lane] ?? []).map((row, index) => {
-            const underived = gap.rows.find(entry => entry.lane === lane && entry.index === index);
+            const underived = gap?.rows.find(entry => entry.lane === lane && entry.index === index);
             return underived ? { ...(row as unknown as Record<string, unknown>), derivation: derivationPlaceholder(underived) } : { ...(row as unknown as Record<string, unknown>) };
           });
         }
-        calls.push(nextStepCall('checklist_update', { command: 'checklist_update', payload: { storyId, itemId: gap.itemId, verificationIntent: intent } }));
+        intent.edge!.push(...placeholders);
+        calls.push(nextStepCall('checklist_update', { command: 'checklist_update', payload: { storyId, itemId: item.id, verificationIntent: intent } }));
       }
     }
   }
   if (!calls.length) return null;
   calls.push(nextStepCall('story_review', { command: 'story_review', payload: { storyId } }));
   const others = issues.filter(issue => issue.severity === 'blocker'
-    && !['missing_decision', 'missing_alternatives', 'insufficient_premortem', 'missing_plan_md', MISSING_INTENT_DERIVATION].includes(issue.type ?? ''));
+    && !['missing_decision', 'missing_alternatives', 'insufficient_premortem', 'missing_plan_md', MISSING_INTENT_DERIVATION, MISSING_COVERAGE_ROW].includes(issue.type ?? ''));
   const rest = others.length ? ` Other blockers (fix each as story_review says): ${others.slice(0, 4).map(issue => `[${issue.type}] ${(issue.message ?? '').slice(0, 240)}`).join(' ')}${others.length > 4 ? ` +${others.length - 4} more` : ''}` : '';
   return batchStep(base, 'plan_authoring', calls,
-    `The latest story_review round has blockers the PLAN writers fix: author every <...> field and run these ${calls.length} commands in one turn (story_review last), then \`proof-or-stop next --storyId=${storyId} --run\`.${rest}`,
+    `The latest story_review round has blockers the PLAN writers fix: author every <...> field and run these ${calls.length} commands in one turn (story_review last), then \`proof-or-stop next --storyId=${storyId} --run\`.${coverageGapWhy(coverage)}${rest}`,
     'story_review latest round (review.json) + getGuardFailureReason(DEV)');
 }
 
@@ -950,6 +959,20 @@ export function planAuthoringStep(store: Pick<HandlerContext['store'], 'readRevi
 function placeholderIntentRow(desc: string): Record<string, unknown> {
   return { desc, type: 'logic', priority: 'must', ...STORY_FOCUSED_CLASSIFICATION,
     verification: { command: '<pinned test command, e.g. go test -v ./pkg -run ^TestName$>', selector: '<line its passing run prints, e.g. --- PASS: TestName>' } };
+}
+
+/** Coverage-matrix placeholder rows for one item (core/plan-coverage-matrix.ts), pinned like any authored row. */
+function coverageIntentRows(gaps: readonly CoverageGap[], itemId: string): Array<Record<string, unknown>> {
+  return coveragePlaceholders(gaps, itemId).map(row => ({ ...placeholderIntentRow(row.desc), derivation: row.derivation }));
+}
+
+/** The Why text of coverage gaps: the rows and the request sentences that demand them. */
+function coverageGapWhy(gaps: readonly CoverageGap[]): string {
+  if (!gaps.length) return '';
+  const sentences = [...new Set(gaps.flatMap(gap => gap.sentences))];
+  return ` Coverage rows the request demands and no intent states (${gaps.length}): ${gaps.map(gap => `${gap.itemId} ${gap.key}`).join('; ')}. `
+    + `Matched request sentences: ${sentences.slice(0, 8).map(sentence => `"${sentence.length > 140 ? `${sentence.slice(0, 139)}…` : sentence}"`).join(' ')}${sentences.length > 8 ? ` +${sentences.length - 8} more` : ''}. `
+    + 'Write each case as one input in the request syntax -> exact result or exact error (one intent may list several cases). A row that does not apply is excluded by an excludes entry on that item naming its key ("coverage ...: <why>").';
 }
 
 /**
@@ -973,10 +996,11 @@ export function preScopeAuthoringStep(base: { storyId: string; phase: string }, 
   for (const item of items) {
     if (item.status === 'withdrawn') continue;
     const need = byId.get(item.id);
-    if (!need && !literals.length) continue;
+    const coverage = coverageIntentRows(blockers.coverageGaps, item.id);
+    if (!need && !literals.length && !coverage.length) continue;
     const payload: Record<string, unknown> = { storyId, itemId: item.id };
     if (need?.missingUserSees) payload.userSees = `<exact text the user sees once ${item.id} is done (quote outputs exactly)>`;
-    const touchesIntent = Boolean(need?.missingLanes.length || need?.unpinned.length || need?.missingDerivations.length || literals.length);
+    const touchesIntent = Boolean(need?.missingLanes.length || need?.unpinned.length || need?.missingDerivations.length || literals.length || coverage.length);
     if (touchesIntent) {
       const intent: Record<string, Array<Record<string, unknown>>> = {};
       for (const lane of VERIFICATION_LANES) {
@@ -992,6 +1016,7 @@ export function preScopeAuthoringStep(base: { storyId: string; phase: string }, 
         });
         if (need?.missingLanes.includes(lane)) intent[lane]!.push(placeholderIntentRow(`<${item.id} ${lane}: action or condition -> exact expected result>`));
       }
+      intent.edge!.push(...coverage);
       if (literals.length) {
         intent.edge!.push(placeholderIntentRow(`<input -> exact output naming each unstated request literal ${item.id} delivers, quoted exactly; drop this row if ${item.id} delivers none>`));
       }
@@ -1003,6 +1028,7 @@ export function preScopeAuthoringStep(base: { storyId: string; phase: string }, 
       need?.unpinned.length ? `unpinned ${need.unpinned.map(entry => entry.ref).join(', ')}` : '',
       need?.missingUserSees ? 'missing userSees' : '',
       need?.missingDerivations.length ? `missing derivation: ${need.missingDerivations.map(entry => entry.problem).join('; ')}` : '',
+      coverage.length ? `${blockers.coverageGaps.filter(gap => gap.itemId === item.id).length} coverage row(s)` : '',
     ].filter(Boolean);
     if (parts.length) reasons.push(`${item.id}: ${parts.join('; ')}`);
   }
@@ -1012,13 +1038,13 @@ export function preScopeAuthoringStep(base: { storyId: string; phase: string }, 
       + 'State each one exactly in an intent row or the userSees of the item that delivers it, or, for reference-only material, add an excludes entry "<literal>: <why>" to that item\'s checklist_update.'
     : '';
   return batchStep(base, 'plan_authoring', calls,
-    `PLAN authoring before the scope-plan reviewer: these are deterministic blockers story_review reports anyway${reasons.length ? ` (${reasons.join(' | ')})` : ''}.${literalText} `
+    `PLAN authoring before the scope-plan reviewer: these are deterministic blockers story_review reports anyway${reasons.length ? ` (${reasons.join(' | ')})` : ''}.${literalText}${coverageGapWhy(blockers.coverageGaps)} `
       + (blockers.items.some(row => row.missingDerivations.length)
         ? 'A derivation is required on an example whose expected value request.md does not quote: requestQuote is the verbatim request sentence the value follows from, computation the steps from it to the pinned value; if they reach another value, fix the pinned value. '
         : '')
       + `Author every <...> field (keep the existing rows; type may be logic/cli/browser/manual/docs) and run these ${calls.length} checklist_update commands in one turn, `
       + `then \`proof-or-stop next --storyId=${storyId} --run\`: it launches the scope-plan reviewer once, on the final checklist.`,
-    'planPreScopeBlockers (story_review missing_verification_intent / missing_verification_pin / missing_user_sees / missing_intent_derivation + story_create request-literal pre-check)');
+    'planPreScopeBlockers (story_review missing_verification_intent / missing_verification_pin / missing_user_sees / missing_intent_derivation / missing_coverage_row + story_create request-literal pre-check)');
 }
 
 // ---------------------------------------------------------------------------

@@ -28,8 +28,9 @@ import { createClusterHandlers } from './cluster.js';
 import type { StoryStore } from '../core/store.js';
 import { readStoryRequest, renderUnmappedLiteralsLine, unmappedStoryRequestLiterals } from '../core/story-request.js';
 import { renderPinAudit } from '../core/intent-derivation.js';
+import { renderCoverageMatrixRule } from '../core/plan-coverage-matrix.js';
 import { renderScopePlanRerunContext } from '../core/scope-plan-rerun-context.js';
-import { INTENT_CONFLICT_RETURN_CONTRACT, REPAIR_INPUT_VARIANT_RULE, renderReviewRequestAuthority } from '../core/request-authority.js';
+import { IMPLEMENTER_PROBE_MATRIX, INTENT_CONFLICT_RETURN_CONTRACT, REPAIR_INPUT_VARIANT_RULE, renderReviewRequestAuthority } from '../core/request-authority.js';
 import { renderAllowedFilesSection } from '../core/managed-writer-scope.js';
 import { scopeBoundaryHashIsFresh } from '../core/scope-anti-expansion.js';
 import { reportHealthIssue } from '../core/health.js';
@@ -231,6 +232,8 @@ function appendScopePlanRequestTraceability(lines: string[], store: StoryStore, 
     : 'Mechanical pre-check: every backticked request literal appears in some checklist title/userSees/verificationIntent; still trace every normative sentence.');
   // D4 pin audit + D5 same-semantics rule (old-PoS run 23, core/intent-derivation.ts).
   lines.push(...renderPinAudit(items, request.text));
+  // Coverage matrix (old-PoS runs 24-29, core/plan-coverage-matrix.ts): the judgment form of the PLAN coverage checks.
+  lines.push(...renderCoverageMatrixRule(items, request.text));
 }
 
 /**
@@ -1145,6 +1148,11 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push(`Verify: ${verifyText}`);
       appendPinnedVerification(lines, item.verificationIntent);
       appendExactRequiredOutput(lines, [item]);
+      // Old-PoS runs 24-29: the repair prompt's input-variant sweep, moved before REVIEW as a probe matrix.
+      lines.push('');
+      lines.push(IMPLEMENTER_PROBE_MATRIX);
+      const itemBase = (() => { try { return resolveFullStoryBaseHead(store, root, args.storyId); } catch { return undefined; } })();
+      lines.push(`- Story base: ${itemBase ?? '`git merge-base HEAD main`'} (run base probes in a detached temporary worktree, then remove it).`);
       const routed = store.readCandidateSpecSet(args.storyId);
       if (routed) {
         lines.push('');
