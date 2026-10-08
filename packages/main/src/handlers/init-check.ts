@@ -164,6 +164,23 @@ function computeInitReviewerAuthorityInputHash(args: {
   });
 }
 
+/**
+ * Old-PoS run 28 INIT (run28-29-analysis.md §3.1): the authority input digest of
+ * the Story as it is NOW, computed exactly as init_check_set signs it into each
+ * reviewer's agentResults row (authorityInputHash). A blocking verdict whose
+ * recorded digest differs judged inputs the owner has since changed (priority,
+ * userSees, verificationIntent, ... — fields outside the title/context INIT
+ * signature), so next relaunches that reviewer as a framework step.
+ */
+export function currentInitReviewerAuthorityInputHash(root: string, store: StoryStore, storyId: string): string {
+  const story = store.readStory(storyId);
+  let checklistItems: ChecklistItem[] = [];
+  try {
+    checklistItems = store.readChecklist(storyId).items;
+  } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError); }
+  return computeInitReviewerAuthorityInputHash({ root, store, storyId, story, backgroundHash: computeBackgroundHash(root, storyId), checklistItems });
+}
+
 function normalizeReviewerBlockingAuthority(
   issues: InitCheckIssue[],
   agentId: string,

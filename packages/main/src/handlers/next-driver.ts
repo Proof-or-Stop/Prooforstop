@@ -83,7 +83,8 @@ import { isMaterialExcludedPath } from '../core/material-path-policy.js';
 import { hasPersistedManagedReceiptEvidence, refusedManagedReviewImport } from './managed-review-evidence.js';
 import { MANAGED_INVENTORY_CRITIC_LANE } from '../core/managed-inventory-critic.js';
 import { QUALIFIED_MANAGED_REVIEWER_DEFAULTS } from '../core/managed-reviewer-qualification.js';
-import { REQUIRED_INIT_CHECK_AGENTS, initCheckAgentResults, invalidInitReviewerDeliveries, missingRequiredInitCheckAgents, recomputeInitCheckHash } from '../core/init-check-gate.js';
+import { REQUIRED_INIT_CHECK_AGENTS, blockingInitCheckIssues, initCheckAgentResults, invalidInitReviewerDeliveries, missingRequiredInitCheckAgents, recomputeInitCheckHash } from '../core/init-check-gate.js';
+import { currentInitReviewerAuthorityInputHash } from './init-check.js';
 import { buildDoneChecklist, type DoneCheckRow } from '../core/done-oracle.js';
 import { evaluateReviewAssuranceFloor, buildReviewAssuranceFloorGuidance, buildReviewEscalationGuidance, type ReviewAssuranceGuidance } from '../core/review-assurance-floor.js';
 import { evaluateReviewEscalation, assessReviewHostAvailabilityForFallbackEligibility } from '../core/review-escalation.js';
@@ -1406,6 +1407,27 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
    * reviewer blockers, a reviewer run that ended without its record) stays the
    * agent's, with the gate's own text.
    */
+  /**
+   * Old-PoS run 28 INIT (run28-29-analysis.md §3.1): the required INIT reviewers
+   * whose recorded verdict blocks and whose signed authorityInputHash differs
+   * from the Story now. The INIT signature covers checklist title/context only,
+   * so an owner fix to priority / userSees / verificationIntent never staled the
+   * verdict and next kept returning init_review_blockers (about 12 owner turns
+   * and two hand-launched reviewers). A row without the digest (older records)
+   * is never treated as stale.
+   */
+  function staleBlockingInitReviewers(storyId: string): string[] {
+    const initCheck = ctx.store.readInitCheck(storyId);
+    if (!initCheck) return [];
+    let current: string;
+    try { current = currentInitReviewerAuthorityInputHash(ctx.root, ctx.store, storyId); } catch { return []; }
+    const blocking = new Set(blockingInitCheckIssues(initCheck).map(row => row.agentId));
+    return (initCheck.agentResults ?? [])
+      .filter(row => blocking.has(row.agentId) && (REQUIRED_INIT_CHECK_AGENTS as readonly string[]).includes(row.agentId)
+        && typeof row.authorityInputHash === 'string' && row.authorityInputHash !== current)
+      .map(row => row.agentId);
+  }
+
   function initNext(base: { storyId: string; phase: string }): NextStep {
     const { storyId } = base;
     const failure = getGuardFailureReason(storyId, ctx.store, 'INIT_CHECK', ctx.root, gitCwdOf(storyId));
@@ -1424,21 +1446,24 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
         'getGuardFailureReason(INIT_CHECK) scope freeze check');
     }
     const reviewerCodes = new Set(['missing_init_check', 'missing_init_check_agent', 'init_check_tampered', 'delivery_not_acknowledged']);
-    if (!reviewerCodes.has(code)) {
+    // Old-PoS run 28 INIT: blocking verdicts whose judged inputs (authorityInputHash) changed since.
+    const judgedStale = code === 'init_check_blocking_issues' ? staleBlockingInitReviewers(storyId) : [];
+    if (!reviewerCodes.has(code) && judgedStale.length === 0) {
       const hint = nextLine(failure) ?? failure.split('\n').find(row => /proof-or-stop [a-z_]+/.test(row)) ?? '';
       const blockers = code === 'init_check_blocking_issues';
       const next = delegated(base, 'agent', blockers ? 'init_review_blockers' : `init_check_${code || 'blocked'}`,
         blockers ? '' : hint, `story_advance --phase=INIT_CHECK would be refused: ${failure.slice(0, 1600)}`, 'getGuardFailureReason(INIT_CHECK)');
       if (!blockers) return next;
-      // Reviewer blockers: fix the INIT artifacts, then rerun next: an edit to a
-      // signed input stales the verdict and next relaunches the reviewer itself.
+      // Reviewer blockers: fix the INIT artifacts, then rerun next: an edit to an
+      // input the reviewer judged stales its verdict and next relaunches it itself.
       return { ...next, why: `${next.why} Fix each issue in the Story (story_update / checklist_update / background), then run \`proof-or-stop next --storyId=${storyId} --run\`: the changed inputs stale the verdict and it reruns the reviewer.` };
     }
     const initCheck = ctx.store.readInitCheck(storyId);
-    const stale = Boolean(initCheck) && initCheck!._hash !== recomputeInitCheckHash(storyId, ctx.store, ctx.root);
+    const stale = judgedStale.length > 0 || (Boolean(initCheck) && initCheck!._hash !== recomputeInitCheckHash(storyId, ctx.store, ctx.root));
     const results = initCheck ? initCheckAgentResults(initCheck) : [];
     const invalid = new Set(initCheck && !stale ? invalidInitReviewerDeliveries(initCheck, ctx.root, storyId).map(row => row.agentId) : []);
-    const missing = new Set<string>(initCheck && !stale ? missingRequiredInitCheckAgents(initCheck) : [...REQUIRED_INIT_CHECK_AGENTS]);
+    const missing = new Set<string>(judgedStale.length > 0 ? judgedStale
+      : initCheck && !stale ? missingRequiredInitCheckAgents(initCheck) : [...REQUIRED_INIT_CHECK_AGENTS]);
     const hostRuns = listStoryHostRuns(ctx, storyId);
     const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
     const waits: HostRunView[] = [];
@@ -1461,7 +1486,9 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       const why = !last
         ? `INIT_CHECK needs a delivered verdict from ${agentType}; no run of it exists yet.`
         : stale && recordedBy === last.runId
-          ? `The Story's signed INIT inputs changed after ${agentType} run ${last.runId} judged them [init_check_tampered]; rerun it on the current text.`
+          ? judgedStale.includes(agentType)
+            ? `${agentType} run ${last.runId} recorded blocking issues, and the INIT inputs it judged (authorityInputHash: priority, userSees, verificationIntent, boundaries, ...) changed since; rerun it on the current Story.`
+            : `The Story's signed INIT inputs changed after ${agentType} run ${last.runId} judged them [init_check_tampered]; rerun it on the current text.`
           : `${agentType} has no current delivered verdict; its last run ${last.runId} ended ${last.state}${invalid.has(agentType) ? ' and its delivery is not acknowledged' : ''}. Inspect it (proof-or-stop host_run_status --runId=${last.runId}) before relaunching.`;
       return managedLaunchStep(base, 'init_review_launch', { ...selection, storyId, agentType, managedDispatch: true, detach: true, json: true },
         auto, `${why} Launch the managed INIT reviewer; it records its verdict with init_check_set.`,
