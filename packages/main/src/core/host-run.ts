@@ -803,6 +803,16 @@ function codexTurnFailedDigest(message: string | null): string {
 /** Per-retained-line cap. A single line over this is dropped (not retained). */
 export const HOST_RUN_RETAINED_LINE_CAP = 1024 * 1024; // 1 MiB
 export const HOST_RUN_FAILURE_TEXT_CAP = 64 * 1024;
+
+/**
+ * Old-PoS run 24 (B-c9ea:RR-005): Codex closes the review invocation
+ * descriptor (fd 3) as it exits, after its turn completed; Darwin reports that
+ * peer close as a late EPIPE/ECONNRESET on our write side. A peer close with no
+ * final candidate yet is decided at the provider's close, when its whole
+ * stdout is known, if the close follows within this grace; otherwise the
+ * provider is still running without its descriptor and is killed as before.
+ */
+export const HOST_RUN_DESCRIPTOR_PEER_CLOSE_GRACE_MS = 2_000;
 export const HOST_RUN_FINAL_ASSISTANT_RESULT_CAP = 256 * 1024;
 const HOST_RUN_FAILURE_CLASSIFICATION_WINDOW = 2 * 1024;
 
@@ -1489,6 +1499,8 @@ export class FinalAssistantResultScanner {
   private result: string | null = null;
   private candidateCount = 0;
   private candidateTruncated = false;
+  /** The provider reported its turn finished (Codex `turn.completed`, a Claude/Grok `result` event). */
+  private turnCompleted = false;
 
   constructor(
     private readonly host: HostRunHost | undefined,
@@ -1614,6 +1626,7 @@ export class FinalAssistantResultScanner {
         return;
       }
       this.flushRawCodexStdout();
+      if (event.type === 'turn.completed') this.turnCompleted = true;
       if (event.type !== 'item.completed') return;
       const item = event.item;
       if (typeof item !== 'object' || item === null || Array.isArray(item)) return;
@@ -1623,6 +1636,7 @@ export class FinalAssistantResultScanner {
     } else if (this.host === 'claude' || this.host === 'grok') {
       if (!event) return;
       if (event.type !== 'result') return;
+      this.turnCompleted = true;
       // F-142: only a successful provider-validated structured_output is a
       // proposal candidate. Error/non-success result events and success events
       // without structured_output are ignored; event.result is never used.
@@ -1702,6 +1716,11 @@ export class FinalAssistantResultScanner {
 
   snapshot(): { result: string | null; count: number; truncated: boolean } {
     return { result: this.result, count: this.candidateCount, truncated: this.candidateTruncated };
+  }
+
+  /** Whether the provider reported its turn finished (independent of any final candidate). */
+  providerTurnCompleted(): boolean {
+    return this.turnCompleted;
   }
 }
 
@@ -1895,6 +1914,9 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
     let stallTimer: NodeJS.Timeout | null = null;
     let totalTimer: NodeJS.Timeout | null = null;
     let killTimer: NodeJS.Timeout | null = null;
+    // Run 24: a descriptor peer close (EPIPE/ECONNRESET) awaiting the provider's close.
+    let pendingDescriptorPeerClose: NodeJS.ErrnoException | null = null;
+    let descriptorPeerCloseTimer: NodeJS.Timeout | null = null;
     let abortListener: (() => void) | null = null;
     let retainedStderr = '';
     // Hash the complete provider stdout stream while retaining only bounded
@@ -1993,6 +2015,8 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
       if (stallTimer) cancel(stallTimer);
       if (totalTimer) cancel(totalTimer);
       if (killTimer) cancel(killTimer);
+      if (descriptorPeerCloseTimer) cancel(descriptorPeerCloseTimer);
+      descriptorPeerCloseTimer = null;
       startupTimer = null;
       stallTimer = null;
       totalTimer = null;
@@ -2233,6 +2257,30 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
             && finalResult.result !== null;
         })();
       if (descriptorPeerClosedAfterFinal) return;
+      // Old-PoS run 24: the same peer close after the provider reported its turn
+      // finished (a prose-only final, no candidate) is the provider exiting, not
+      // a delivery failure; its own exit decides, and a missing final envelope
+      // is then the managed worker's format-repair case. Without a finished
+      // turn yet, wait (bounded) for the provider's close to decide.
+      const descriptorPeerClosed = channel === 'review invocation descriptor' && (error.code === 'EPIPE' || error.code === 'ECONNRESET');
+      if (descriptorPeerClosed && finalResultScanner.providerTurnCompleted()) return;
+      if (descriptorPeerClosed && !closeObserved) {
+        if (pendingDescriptorPeerClose) return;
+        pendingDescriptorPeerClose = error;
+        descriptorPeerCloseTimer = schedule(() => {
+          descriptorPeerCloseTimer = null;
+          const pending = pendingDescriptorPeerClose;
+          pendingDescriptorPeerClose = null;
+          if (pending && !settled && !closeObserved) failDelivery(channel, pending);
+        }, HOST_RUN_DESCRIPTOR_PEER_CLOSE_GRACE_MS);
+        return;
+      }
+      failDelivery(channel, error);
+    };
+    const failDelivery = (
+      channel: 'stdin' | 'review invocation descriptor',
+      error: NodeJS.ErrnoException,
+    ): void => {
       terminalReason = 'child_error';
       failureKind = preferredHostFailure(failureKind, 'unknown');
       const detail = error.code ?? error.message ?? 'unknown';
@@ -2386,6 +2434,24 @@ export function defaultHostRunRunner(plan: HostRunSpawnPlan, runtime: HostRunRun
       closeObserved = true;
       closeObservedAt = new Date().toISOString();
       fenceDeadlineAfterClose();
+      if (descriptorPeerCloseTimer) cancel(descriptorPeerCloseTimer);
+      descriptorPeerCloseTimer = null;
+      if (pendingDescriptorPeerClose) {
+        // Run 24: the provider closed within the grace. Its stdout is complete:
+        // a finished turn or one final candidate means it simply exited; with
+        // neither, the early descriptor failure fails the run as before.
+        const pending = pendingDescriptorPeerClose;
+        pendingDescriptorPeerClose = null;
+        const final = finalResultScanner.snapshot();
+        const exited = finalResultScanner.providerTurnCompleted()
+          || (final.count === 1 && final.truncated === false && final.result !== null);
+        if (!exited && !timedOut && terminalReason !== 'aborted') {
+          terminalReason = 'child_error';
+          failureKind = preferredHostFailure(failureKind, 'unknown');
+          retainedStderr = `${retainedStderr}host_run review invocation descriptor delivery failed: ${pending.code ?? pending.message ?? 'unknown'}`
+            .slice(-HOST_RUN_FAILURE_TEXT_CAP);
+        }
+      }
       try { plan.onClose?.(closeObservedAt); }
       catch (error) { passthroughError ??= `provider close observer: ${error instanceof Error ? error.message : String(error)}`; }
       runtime.onChildCloseObserved?.();

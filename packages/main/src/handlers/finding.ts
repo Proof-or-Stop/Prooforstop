@@ -83,6 +83,7 @@ import { evidenceChainNextActionForStory } from './evidence-chain.js';
 import { findingDuplicateOf, duplicateCoverageSelectorProblem, runDuplicateCoverage } from '../core/duplicate-finding-coverage.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { currentGitHead } from '../core/evidence-freshness.js';
+import { storyFindingRepairState } from './next-driver.js';
 
 // B-7c05 CHK-002: brief finding shape. Drops only heavy free-text (the full
 // `desc`, reviewer read evidence) and replaces `desc` with a truncated one-line
@@ -843,6 +844,66 @@ export function createFindingHandlers(ctx: HandlerContext) {
   const closeDuplicateWithCoverage = (args: Parameters<typeof closeDuplicateWithCoverageFor>[1]): string => closeDuplicateWithCoverageFor(ctx, args);
   const { store } = ctx;
   const authoritativeMutation = createAuthoritativeFindingMutation(ctx);
+  /**
+   * Old-PoS run 24 (F4): finding_resolve with resolutions[] closes several
+   * repaired findings in one call (next proposes it after a grouped repair).
+   * Each finding gets its own evidence and check: it must be open, its own
+   * managed finding-repair must show it repaired (storyFindingRepairState, the
+   * rule next uses: a completed run bound to it with a material commit; for a
+   * grouped run, a commit naming its id), and its resolution must be authored.
+   * The framework appends that finding's own commit to its resolution. A
+   * finding failing its check is left open and reported; when none passes the
+   * call is refused.
+   */
+  const resolveRepairedFindingBatch = (args: { storyId: string; findingId?: string; resolutions: Array<{ findingId: string; resolution: string }>;
+    duplicateOf?: string; coverage?: unknown }): string => {
+    const refuse = (detail: string): never => {
+      throw new Error(`finding_resolve refused: ${detail} [finding_resolve_batch_invalid]\nNext: proof-or-stop next --storyId=${args.storyId}`);
+    };
+    if (args.findingId !== undefined || args.duplicateOf !== undefined || args.coverage !== undefined) {
+      refuse('resolutions[] cannot be combined with findingId, duplicateOf or coverage (a duplicate closes on its own coverage run)');
+    }
+    if (!Array.isArray(args.resolutions) || args.resolutions.length === 0) refuse('resolutions[] must list at least one {findingId, resolution}');
+    const ids = args.resolutions.map(entry => entry?.findingId);
+    if (new Set(ids).size !== ids.length) refuse(`resolutions[] lists a finding twice (${ids.join(', ')})`);
+    const findings = store.readFindings(args.storyId).findings ?? [];
+    const accepted: Array<{ findingId: string; resolution: string; commit: string }> = [];
+    const leftOpen: string[] = [];
+    for (const entry of args.resolutions) {
+      const findingId = String(entry?.findingId ?? '');
+      const authored = typeof entry?.resolution === 'string' ? entry.resolution.trim() : '';
+      const finding = findings.find(row => row.id === findingId);
+      if (!finding) { leftOpen.push(`${findingId || '<missing findingId>'}: not found`); continue; }
+      if (finding.status !== 'open') { leftOpen.push(`${findingId}: already ${finding.status}`); continue; }
+      if (!authored || /^<[\s\S]*>$/.test(authored)) { leftOpen.push(`${findingId}: resolution not authored (name its repair commit and the focused test that now passes)`); continue; }
+      const repair = storyFindingRepairState(ctx, args.storyId, finding);
+      if (!repair.repaired) { leftOpen.push(`${findingId}: ${repair.detail}`); continue; }
+      accepted.push({ findingId, commit: repair.commit,
+        resolution: `${authored} [repair commit ${repair.commit.slice(0, 12)} of managed finding-repair run ${repair.runId}]` });
+    }
+    const report = leftOpen.length ? `Left open (each still needs its own repair or resolve): ${leftOpen.join('; ')}.` : '';
+    if (accepted.length === 0) refuse(`no listed finding passed its own repaired check. ${report}`);
+    withMetaFindingLock(ctx, args.storyId, (fence) => {
+      const data = store.readFindings(args.storyId);
+      for (const row of accepted) {
+        const f = data.findings.find(candidate => candidate.id === row.findingId);
+        if (!f || f.status !== 'open') throw new Error(`Finding ${row.findingId} changed while being resolved; rerun proof-or-stop next --storyId=${args.storyId}`);
+        const transition = appendFindingLifecycleTransition(ctx, args.storyId, f, fence, { toStatus: 'resolved', reason: row.resolution });
+        f.status = transition.toStatus;
+        f.resolvedAt = transition.at;
+        if (transition.reason) f.resolvedReason = transition.reason;
+      }
+      store.writeFindings(args.storyId, data);
+    });
+    try {
+      store.writeProcessMetrics(args.storyId, computeProcessMetrics(args.storyId, store, ctx.root));
+    } catch (e) {
+      console.warn(`[process-metrics] recompute failed for ${args.storyId}:`, (e as Error).message);
+    }
+    const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'finding_resolve');
+    return `Findings resolved: ${accepted.map(row => `${row.findingId} (commit ${row.commit.slice(0, 12)})`).join(', ')}${commitHint}`
+      + (report ? `\n${report}\nNext: proof-or-stop next --storyId=${args.storyId}` : '');
+  };
   const assertNotManagedProviderDirectEvidence = (command: 'finding_add' | 'review_pass_set'): void => {
     if (process.env.LATTICE_MANAGED_HOST_RUN_ID?.trim()) {
       throw new Error(
@@ -1245,18 +1306,23 @@ export function createFindingHandlers(ctx: HandlerContext) {
       };
     },
 
-    finding_resolve(args: { storyId: string; findingId: string; resolution?: string; resolutionType?: string; resolveEvidenceStrength?: string;
+    finding_resolve(args: { storyId: string; findingId?: string; resolution?: string; resolutionType?: string; resolveEvidenceStrength?: string;
       /** Run 17 (Q1): close a critic-marked duplicate with its canonical finding's repair, proven by `coverage`. */
-      duplicateOf?: string; coverage?: { command?: string; selector?: string } }): string {
+      duplicateOf?: string; coverage?: { command?: string; selector?: string };
+      /** Old-PoS run 24 (F4): several repaired findings in one call, each with its own resolution. */
+      resolutions?: Array<{ findingId: string; resolution: string }> }): string {
       refuseFindingWriteAfterDone(store, args.storyId, 'finding_resolve');
       assertCwdInWorktree(store, args.storyId);
       resolveAgentMutationAuthority({ command: 'finding_resolve' });
+      if (args.resolutions !== undefined) return resolveRepairedFindingBatch(args as typeof args & { resolutions: Array<{ findingId: string; resolution: string }> });
+      if (!args.findingId) throw new Error('finding_resolve: findingId is required (or resolutions: [{findingId, resolution}] for several repaired findings)');
+      const findingId = args.findingId;
       // B-4f46 CHK-002: validate the optional audit-only enums up front (omitted => unchanged legacy behavior).
       let resolutionType: ResolutionType | undefined = validateOptionalEnum('finding_resolve', 'resolutionType', args.resolutionType, RESOLUTION_TYPES);
       const resolveEvidenceStrength: EvidenceStrength | undefined = validateOptionalEnum('finding_resolve', 'resolveEvidenceStrength', args.resolveEvidenceStrength, EVIDENCE_STRENGTHS);
       let duplicateEvidence = '';
       if (args.duplicateOf !== undefined || args.coverage !== undefined) {
-        duplicateEvidence = closeDuplicateWithCoverage(args);
+        duplicateEvidence = closeDuplicateWithCoverage({ ...args, findingId });
         resolutionType = 'duplicate';
       }
       // B-META mutations use the unified main lock; normal Story mutations use
@@ -1264,8 +1330,8 @@ export function createFindingHandlers(ctx: HandlerContext) {
       let resolvedFindingDesc = '';
       withMetaFindingLock(ctx, args.storyId, (fence) => {
         const data = store.readFindings(args.storyId);
-        const f = data.findings.find(f => f.id === args.findingId);
-        if (!f) throw new Error(`Finding ${args.findingId} not found`);
+        const f = data.findings.find(f => f.id === findingId);
+        if (!f) throw new Error(`Finding ${findingId} not found`);
         resolvedFindingDesc = f.desc ?? '';
         const resolution = [args.resolution?.trim(), duplicateEvidence].filter(Boolean).join(' ') || undefined;
         const transition = appendFindingLifecycleTransition(ctx, args.storyId, f, fence, {
@@ -1313,7 +1379,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
         memoryHint = '';
       }
 
-      return `Finding ${args.findingId} resolved${commitHint}${memoryHint}`;
+      return `Finding ${findingId} resolved${commitHint}${memoryHint}`;
     },
 
     finding_dismiss(args: { storyId: string; findingId: string; reason: string; dismissReasonType?: string; dismissEvidenceStrength?: string }): string {

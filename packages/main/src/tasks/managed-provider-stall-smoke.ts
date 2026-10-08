@@ -146,6 +146,21 @@ async function main(): Promise<void> {
   assert.equal(next.targetRelaunchIsFramework([other]), false, 'any other failure stays the agent\'s call');
   assert.equal(core.isAutoReplaceableManagedLaunchFailure({ state: 'timed_out', replacementSafe: true, terminalReason: 'absolute_deadline_exceeded' }), false,
     'a deadline timeout is not auto-replaced');
+  // Old-PoS run 24 (F2): a reviewer/critic whose final envelope stayed missing
+  // or invalid after the bounded same-session repair, or a provider transport
+  // failure with no work product, left nothing: next relaunches it itself.
+  const autoReplaceable = (terminalReason: string, replacementSafe = true) =>
+    core.isAutoReplaceableManagedLaunchFailure({ state: 'failed', replacementSafe, terminalReason });
+  assert.equal(autoReplaceable('managed_review_final_result_invalid:managed_review_final_result_missing: final message must be the JSON envelope'), true,
+    'format repair exhausted (prose-only final): framework relaunch');
+  assert.equal(autoReplaceable('managed_review_final_result_invalid:managed_review_final_result_malformed: note: expected string'), true,
+    'format repair exhausted (malformed envelope): framework relaunch');
+  assert.equal(autoReplaceable('managed_review_final_result_missing'), true);
+  assert.equal(autoReplaceable('provider_transport_error:stream disconnected before completion'), true, 'transport failure, no work product');
+  assert.equal(autoReplaceable('provider_transport_error:stream disconnected before completion; work product present, not auto-replaced', false), false,
+    'transport failure that left work product');
+  assert.equal(autoReplaceable('managed_review_final_result_invalid:managed_review_final_result_missing', false), false, 'never without proven cleanup');
+  assert.equal(autoReplaceable('child_error'), false, 'an unclassified provider failure stays the agent\'s call');
   console.log('managed-provider-stall-smoke: PASS');
 }
 
