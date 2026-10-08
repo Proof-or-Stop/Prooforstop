@@ -72,6 +72,7 @@ import {
 import {
   buildManagedReviewerPrompt,
   managedInventoryCriticCoverage,
+  managedReviewLanePack,
   managedReviewerPromptDigest,
   type ManagedReviewCanonicalReportCommand,
   type ManagedReviewCanonicalReportStatus,
@@ -564,6 +565,11 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           ...(() => { const coverage = managedInventoryCriticCoverage(promptRoot, reviewRun); return coverage ? { inventoryCriticCoverage: coverage } : {}; })(),
           // The route this run reviews against; the worker seals the proposal with it (A/B V3 R2A-r2).
           candidateRouting: { candidateSpecSetDigest: candidateArtifact.artifactDigest, corpusDigest: candidateArtifact.corpusDigest },
+          // EXPERIMENTAL A/B review.lanePack / review.roundDelta: the arm and the round's pack inlined in the sealed prompt.
+          ...(() => {
+            const pack = managedReviewLanePack(promptRoot, reviewRun);
+            return pack ? { lanePack: { abVariant: pack.abVariant, path: pack.path, packDigest: pack.packDigest, bytes: pack.bytes, sections: pack.sections, ...(pack.delta ? { deltaFromHead: pack.delta.fromHead } : {}) } } : {};
+          })(),
         };
       } else if (args.managedDispatch === true) {
         if (hasPrompt || hasPromptFile) {

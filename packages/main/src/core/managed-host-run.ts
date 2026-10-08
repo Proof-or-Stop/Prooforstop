@@ -282,6 +282,19 @@ export interface ManagedHostRunReviewBinding {
    * (A/B V3 R2A-r2: a critic mistyped the digest and its import looped).
    */
   candidateRouting?: ManagedReviewCandidateRoutingBinding;
+  /**
+   * EXPERIMENTAL A/B review.lanePack / review.roundDelta (core/review-lane-pack.ts):
+   * the arm (abVariant), the round's pack file, its digest and size, inlined in
+   * the sealed prompt (managedPromptDigest covers its text). Absent = production.
+   */
+  lanePack?: {
+    abVariant: AbVariantEvidence;
+    path: string;
+    packDigest: string;
+    bytes: number;
+    sections: Record<string, number>;
+    deltaFromHead?: string;
+  };
 }
 
 export interface ManagedReviewCandidateRoutingBinding {

@@ -343,7 +343,11 @@ export interface ProofOrStopConfig {
    * Detection A/B switches (core/ab-variants.ts). Absent keys = production.
    * criticOnCleanRound, round2Scope, implementation.grouping and
    * implementation.thread ('resume' default; 'fresh' = new Codex thread + item
-   * pack per implementer item / finding repair) are EXPERIMENTAL (default off, not for production use). Three are adopted:
+   * pack per implementer item / finding repair), review.lanePack ('off'
+   * default; 'shared' = one framework lane pack per review round in every lane
+   * and critic prompt, core/review-lane-pack.ts) and review.roundDelta ('off'
+   * default; 'pack' = the pack also carries the delta since the previous
+   * round) are EXPERIMENTAL (default off, not for production use). Three are adopted:
    * round2Lanes defaults to 'fresh' (later-round review lanes start a new
    * thread; 'resume' is the rollback to resumed lane threads),
    * remediation.grouping defaults to 'single' (one grouped finding-repair run
@@ -356,6 +360,8 @@ export interface ProofOrStopConfig {
     criticOnCleanRound?: 'run' | 'skip';
     round2Scope?: 'full' | 'repaired-files';
     round2Lanes?: 'fresh' | 'resume';
+    lanePack?: 'off' | 'shared';
+    roundDelta?: 'off' | 'pack';
   };
   remediation?: { grouping?: 'single' | 'per-finding'; thread?: 'fresh' | 'resume' };
   implementation?: { grouping?: 'per-item' | 'files'; thread?: 'resume' | 'fresh' };
