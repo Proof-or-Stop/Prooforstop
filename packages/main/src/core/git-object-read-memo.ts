@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process';
+import { gitEnvironmentRedirected } from './git-inert-environment.js';
 import { existsSync } from 'node:fs';
 import { isAbsolute, join, resolve } from 'node:path';
 import { observedGit } from './git-tree-observation.js';
@@ -18,11 +19,6 @@ const OID = /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/;
 const OID_PATH = /^(?:[0-9a-f]{40}|[0-9a-f]{64}):[^\0]+$/;
 const MAX_ENTRIES = 4096;
 const MAX_BYTES = 32 * 1024 * 1024;
-/** Interactive/identity variables that cannot change how git resolves or prints an object. */
-const INERT_GIT_ENV = new Set([
-  'GIT_EDITOR', 'GIT_SEQUENCE_EDITOR', 'GIT_PAGER', 'GIT_TERMINAL_PROMPT', 'GIT_ASKPASS',
-  'GIT_AUTHOR_NAME', 'GIT_AUTHOR_EMAIL', 'GIT_AUTHOR_DATE', 'GIT_COMMITTER_NAME', 'GIT_COMMITTER_EMAIL', 'GIT_COMMITTER_DATE',
-]);
 const memo = new Map<string, string>();
 let memoBytes = 0;
 
@@ -57,7 +53,7 @@ export type ObjectAddressedGitReader = (argv: string[], run: () => string) => st
 
 export function objectAddressedGitReader(gitCwd: string): ObjectAddressedGitReader {
   const direct = (argv: string[], run: () => string): string => observedGit(gitCwd, argv, run);
-  if (Object.keys(process.env).some(key => key.startsWith('GIT_') && !INERT_GIT_ENV.has(key) && process.env[key] !== undefined)) return direct;
+  if (gitEnvironmentRedirected()) return direct;
   const cwd = resolve(gitCwd);
   let commonDir: string;
   try {

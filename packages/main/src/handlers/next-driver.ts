@@ -35,9 +35,9 @@
  * managed host-run runtime projection only.
  */
 import { execFileSync, spawnSync } from 'node:child_process';
-import { closeSync, existsSync, openSync, readSync, readdirSync, statSync } from 'node:fs';
+import { closeSync, existsSync, openSync, readSync, readdirSync, realpathSync, statSync } from 'node:fs';
 import { hostname } from 'node:os';
-import { join, relative } from 'node:path';
+import { join, relative, sep } from 'node:path';
 import type { HandlerContext } from './context.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import { loadConfig, resetConfigCache } from '../core/config.js';
@@ -81,6 +81,7 @@ import { isMaterialExcludedPath } from '../core/material-path-policy.js';
 import { hasPersistedManagedReceiptEvidence, refusedManagedReviewImport } from './managed-review-evidence.js';
 import { MANAGED_INVENTORY_CRITIC_LANE } from '../core/managed-inventory-critic.js';
 import { QUALIFIED_MANAGED_REVIEWER_DEFAULTS } from '../core/managed-reviewer-qualification.js';
+import { REQUIRED_INIT_CHECK_AGENTS, initCheckAgentResults, invalidInitReviewerDeliveries, missingRequiredInitCheckAgents, recomputeInitCheckHash } from '../core/init-check-gate.js';
 import { buildDoneChecklist, type DoneCheckRow } from '../core/done-oracle.js';
 import { evaluateReviewAssuranceFloor, buildReviewAssuranceFloorGuidance, buildReviewEscalationGuidance, type ReviewAssuranceGuidance } from '../core/review-assurance-floor.js';
 import { evaluateReviewEscalation, assessReviewHostAvailabilityForFallbackEligibility } from '../core/review-escalation.js';
@@ -948,6 +949,124 @@ export function preScopeAuthoringStep(base: { storyId: string; phase: string }, 
     'planPreScopeBlockers (story_review missing_verification_intent / missing_verification_pin / missing_user_sees + story_create request-literal pre-check)');
 }
 
+// ---------------------------------------------------------------------------
+// INIT (N4, old-PoS runs 22-24: the owner spent 30-36 of 62-97 requests in
+// INIT reading --help pages, launching and polling the INIT reviewers and
+// running the boundary / freeze / preflight commands one at a time).
+
+/** The project's validate executables (e.g. `go test`), as execution-boundary command patterns. */
+function validateCommandPatterns(root: string): string[] {
+  try {
+    const commands = (loadConfig(root) as { validate?: { commands?: Array<{ command?: unknown; args?: unknown }> } }).validate?.commands ?? [];
+    return [...new Set(commands.flatMap(row => {
+      if (typeof row.command !== 'string') return [];
+      const sub = Array.isArray(row.args) && typeof row.args[0] === 'string' && !row.args[0].startsWith('-') ? ` ${row.args[0]}` : '';
+      return [`${row.command}${sub}`];
+    }))];
+  } catch { return []; }
+}
+
+/** One-line hints for the INIT authoring placeholders, keyed by payload path (array index normalized to [0]). */
+const INIT_AUTHORING_HINTS: Record<string, string> = {
+  name: 'short kebab-case name, e.g. add-stepped-slice-indexing',
+  title: 'one-line title of the user-visible outcome',
+  description: 'one or two sentences: what changes for the user and why',
+  type: 'feature, bug, refactor, docs or chore',
+  priority: 'low, medium, high or critical',
+  'keywords[0]': '3-6 domain/module/concept words (duplicate detection)',
+  background: 'replace each <...> line; four sections "## Trigger Event" (names a concrete id or date, e.g. 2026-10-08), "## Key Insights", "## Solution Tradeoffs", "## Conversational Texture"; each >=50 chars, total >=300',
+  'checklist[0].title': 'one deliverable per item; copy the item object once per deliverable',
+  'checklist[0].context': 'root cause / where the change goes (files, functions)',
+  'checklist[0].userSees': 'exact text the user sees once the item is done; quote request examples and outputs exactly',
+  'checklist[0].files.modify[0]': 'repo-relative files the item changes (one entry per file)',
+  'checklist[0].files.test[0]': 'repo-relative test files the item adds or changes',
+  'checklist[0].verificationIntent.happy[0].desc': 'input -> exact expected output, derived from a request sentence (quote it); add edge/adversarial rows of the same shape',
+  'checklist[0].verificationIntent.happy[0].verification.command': 'the pinned focused test command, e.g. go test -v ./pkg -run ^TestName$ (no env prefix: validate.env applies)',
+  'checklist[0].verificationIntent.happy[0].verification.selector': 'the line its passing run prints, e.g. --- PASS: TestName',
+  mode: 'feature, correctness_fix, maintenance or custom',
+  'allowed[0]': 'one allowed scope entry per area the request asks for (add entries as needed)',
+  'excluded[0]': 'what the request does not ask for (drop the entry if nothing)',
+  confirmation: 'source of the boundary, e.g. "derived from the verbatim request (request.md)"',
+  'allowedCommands[0]': 'another command pattern the work runs besides the ones listed (drop the entry if none)',
+  'allowedPaths[0]': 'repo-relative directories the change may touch, e.g. parser/',
+  notes: 'one line, e.g. "validate.env applies the project env; no env prefix in pinned commands"',
+};
+
+function initHint(path: string): string | undefined {
+  const normalized = path.replace(/\[\d+\]/g, '[0]');
+  return INIT_AUTHORING_HINTS[normalized]
+    ?? INIT_AUTHORING_HINTS[normalized.replace(/^(scopeBoundary|executionBoundary)\./, '').replace(/^allowedScope/, 'allowed').replace(/^excludedScope/, 'excluded')];
+}
+
+function withInitHints<T extends { placeholderHints?: Record<string, string> }>(value: T): T {
+  if (!value.placeholderHints) return value;
+  return { ...value, placeholderHints: Object.fromEntries(Object.entries(value.placeholderHints).map(([path, hint]) => [path, initHint(path) ?? hint])) };
+}
+
+/**
+ * The first INIT step when no Story exists yet: ONE complete story_create
+ * command (scope and execution boundary inline, so no separate boundary
+ * commands follow), every authored value a placeholder with a one-line hint.
+ * No --help read is needed for it.
+ */
+export function storyCreateTemplateStep(root: string): NextStep {
+  const payload: Record<string, unknown> = {
+    name: '<short kebab-case name>',
+    title: '<one-line title>',
+    description: '<what changes for the user and why>',
+    type: '<feature|bug|refactor|docs|chore>',
+    priority: '<low|medium|high|critical>',
+    keywords: ['<keyword>', '<keyword>', '<keyword>'],
+    background: '## Trigger Event\n<what happened, with a concrete id or date>\n\n## Key Insights\n<what the code does today and what must change>\n\n'
+      + '## Solution Tradeoffs\n<the approach and what it avoids>\n\n## Conversational Texture\n<how the request is phrased and what acceptance hinges on>',
+    checklist: [{
+      title: '<deliverable>',
+      context: '<root cause / where the change goes>',
+      userSees: '<exact user-visible output once done>',
+      files: { modify: ['<path/to/file>'], test: ['<path/to/test file>'] },
+      verificationIntent: {
+        happy: [{ desc: '<input -> exact expected output>', type: 'logic', priority: 'must', ...STORY_FOCUSED_CLASSIFICATION,
+          verification: { command: '<pinned focused test command>', selector: '<line its passing run prints>' } }],
+        edge: [],
+        adversarial: [],
+      },
+    }],
+    scopeBoundary: { mode: '<feature|correctness_fix|maintenance|custom>', allowed: ['<allowed scope entry>'], excluded: ['<excluded scope entry>'],
+      userConfirmed: true, confirmation: '<source of the boundary>' },
+    executionBoundary: { allowedCommands: [...validateCommandPatterns(root), 'git', 'proof-or-stop', '<other command pattern>'], allowedPaths: ['<repo-relative directory>/'],
+      excludedPaths: ['.proof-or-stop/', '.codex/', 'AGENTS.md', 'proof-or-stop.config.json'] },
+  };
+  return withInitHints(step({ storyId: '', phase: 'INIT' }, 'agent', 'story_create_authoring', { command: 'story_create', payload },
+    'No Story exists yet. Author this ONE story_create (a staged request is recorded as request.md by itself; do not pass `request`): '
+      + 'one checklist item per deliverable (copy the item object), each executable intent pinned, the scope and execution boundary inline. '
+      + 'Then run the `proof-or-stop next --storyId=<id> --run` line it prints: that records the scope freeze check, launches both managed INIT reviewers, waits for them and advances to PLAN.',
+    'story_create schema (command-catalog) + INIT_CHECK gate (scope boundary, execution boundary)', { placeholders: placeholderPaths(payload) }));
+}
+
+/**
+ * INIT boundary authoring for a Story created without them: both commands in
+ * one turn, placeholders described (story_create's inline boundary is the
+ * usual path; this covers a Story created without it).
+ */
+export function initBoundaryAuthoringStep(root: string, base: { storyId: string; phase: string }, missing: { scope: boolean; execution: boolean }): NextStep {
+  const { storyId } = base;
+  const calls: NextStepCall[] = [];
+  if (missing.scope) {
+    calls.push(withInitHints(nextStepCall('scope_boundary_set', { command: 'scope_boundary_set', payload: { storyId, mode: '<feature|correctness_fix|maintenance|custom>',
+      allowedScope: ['<allowed scope entry>'], excludedScope: ['<excluded scope entry>'], userConfirmed: true, confirmation: '<source of the boundary>' } })));
+  }
+  if (missing.execution) {
+    calls.push(withInitHints(nextStepCall('execution_boundary_set', { command: 'execution_boundary_set', payload: { storyId,
+      allowedCommands: [...validateCommandPatterns(root), 'git', 'proof-or-stop', '<other command pattern>'], allowedPaths: ['<repo-relative directory>/'],
+      blockedPaths: ['.proof-or-stop/', '.codex/', 'AGENTS.md', 'proof-or-stop.config.json'], notes: '<one-line note>' } })));
+  }
+  const what = [missing.scope ? 'the scope boundary' : '', missing.execution ? 'the execution boundary' : ''].filter(Boolean).join(' and ');
+  return withInitHints(batchStep(base, 'init_boundary_authoring', calls,
+    `The INIT_CHECK gate needs ${what}, and the INIT reviewers read both, so they come first. `
+      + `Author every <...> value (drop an array entry you do not need) and run ${calls.length === 1 ? 'it' : `these ${calls.length} commands in one turn`}, then \`proof-or-stop next --storyId=${storyId} --run\`.`,
+    'getGuardFailureReason(INIT_CHECK) missing_scope_boundary / missing_execution_boundary'));
+}
+
 /**
  * Run 17 (Q1): the step for an open verified finding the REVIEW inventory
  * critic dispositioned `duplicate` of a canonical finding that is already
@@ -1165,6 +1284,88 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     return guardStep(base, 'DEV', 'enter_dev', deferred
       ? `PLAN is complete except the scope-plan verdict, whose managed run ${deferred.runId} is still ${deferred.state}: the DEV-entry gate defers it to DEV→REVIEW, so DEV starts beside the reviewer (a gap it finds sends the Story back to PLAN before REVIEW).`
       : 'PLAN is complete: the DEV-entry gate admits the Story.', 'getGuardFailureReason(DEV)');
+  }
+
+  // -- INIT → INIT_CHECK → PLAN (N4) ----------------------------------------
+
+  /**
+   * INIT is driven from the INIT_CHECK gate's own failure (getGuardFailureReason,
+   * the order the gate checks): the boundaries the Story was created without
+   * (one authoring batch), the deterministic scope_freeze_check (framework: the
+   * core evaluates it, the caller only records it), then the two required INIT
+   * reviewers. Each reviewer without a current, delivered record is launched by
+   * the framework when it is its first run (the Story's own selection, else the
+   * qualified managed-reviewer default the INIT guidance names), a mechanical
+   * replacement, or the rerun of a verdict the owner's later edit made stale;
+   * both are launched before the first wait, so they run in parallel. Then
+   * story_advance INIT_CHECK and PLAN. Judgment (a failed freeze check,
+   * reviewer blockers, a reviewer run that ended without its record) stays the
+   * agent's, with the gate's own text.
+   */
+  function initNext(base: { storyId: string; phase: string }): NextStep {
+    const { storyId } = base;
+    const failure = getGuardFailureReason(storyId, ctx.store, 'INIT_CHECK', ctx.root, gitCwdOf(storyId));
+    if (!failure) {
+      return step(base, 'framework', 'enter_init_check', { command: 'story_advance', payload: { storyId, phase: 'INIT_CHECK' } },
+        'Every INIT_CHECK prerequisite passes (boundaries, scope freeze check, both INIT reviewer verdicts): enter INIT_CHECK (creates the Story worktree).',
+        'getGuardFailureReason(INIT_CHECK)');
+    }
+    const code = failure.match(/\[([a-z_]+)\]/)?.[1] ?? '';
+    if (code === 'missing_scope_boundary' || code === 'missing_execution_boundary') {
+      return initBoundaryAuthoringStep(ctx.root, base, { scope: !ctx.store.readScopeBoundary(storyId), execution: !ctx.store.readExecutionBoundary(storyId) });
+    }
+    if (code === 'missing_scope_freeze_check' || code === 'scope_freeze_check_stale') {
+      return step(base, 'framework', 'scope_freeze_check', { command: 'scope_freeze_check', payload: { storyId } },
+        `${failure.split('\n')[0]} The core evaluates the freeze check from the boundaries, story text and checklist; recording it is mechanical.`,
+        'getGuardFailureReason(INIT_CHECK) scope freeze check');
+    }
+    const reviewerCodes = new Set(['missing_init_check', 'missing_init_check_agent', 'init_check_tampered', 'delivery_not_acknowledged']);
+    if (!reviewerCodes.has(code)) {
+      const hint = nextLine(failure) ?? failure.split('\n').find(row => /proof-or-stop [a-z_]+/.test(row)) ?? '';
+      const blockers = code === 'init_check_blocking_issues';
+      const next = delegated(base, 'agent', blockers ? 'init_review_blockers' : `init_check_${code || 'blocked'}`,
+        blockers ? '' : hint, `story_advance --phase=INIT_CHECK would be refused: ${failure.slice(0, 1600)}`, 'getGuardFailureReason(INIT_CHECK)');
+      if (!blockers) return next;
+      // Reviewer blockers: fix the INIT artifacts, then rerun next: an edit to a
+      // signed input stales the verdict and next relaunches the reviewer itself.
+      return { ...next, why: `${next.why} Fix each issue in the Story (story_update / checklist_update / background), then run \`proof-or-stop next --storyId=${storyId} --run\`: the changed inputs stale the verdict and it reruns the reviewer.` };
+    }
+    const initCheck = ctx.store.readInitCheck(storyId);
+    const stale = Boolean(initCheck) && initCheck!._hash !== recomputeInitCheckHash(storyId, ctx.store, ctx.root);
+    const results = initCheck ? initCheckAgentResults(initCheck) : [];
+    const invalid = new Set(initCheck && !stale ? invalidInitReviewerDeliveries(initCheck, ctx.root, storyId).map(row => row.agentId) : []);
+    const missing = new Set<string>(initCheck && !stale ? missingRequiredInitCheckAgents(initCheck) : [...REQUIRED_INIT_CHECK_AGENTS]);
+    const hostRuns = listStoryHostRuns(ctx, storyId);
+    const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
+    const waits: HostRunView[] = [];
+    for (const agentType of REQUIRED_INIT_CHECK_AGENTS) {
+      if (!missing.has(agentType) && !invalid.has(agentType)) continue;
+      const runs = hostRuns.filter(run => run.agentType === agentType);
+      const running = runs.find(run => !run.terminal);
+      if (running) { waits.push(running); continue; }
+      const last = runs.at(-1);
+      const recordedBy = results.find(row => row.agentId === agentType)?.deliveryRunId?.trim();
+      let streakStart = runs.length;
+      while (streakStart > 0 && runs[streakStart - 1]!.autoReplaceable) streakStart -= 1;
+      const autoStreak = runs.slice(streakStart);
+      // First run (default selection allowed: the INIT guidance's own qualified
+      // default), a mechanical replacement, or the rerun of a verdict this
+      // reviewer's latest run delivered and a later edit made stale.
+      const auto = !last
+        || (autoStreak.length > 0 && targetRelaunchIsFramework(autoStreak))
+        || (stale && last.state === 'completed' && recordedBy === last.runId);
+      const why = !last
+        ? `INIT_CHECK needs a delivered verdict from ${agentType}; no run of it exists yet.`
+        : stale && recordedBy === last.runId
+          ? `The Story's signed INIT inputs changed after ${agentType} run ${last.runId} judged them [init_check_tampered]; rerun it on the current text.`
+          : `${agentType} has no current delivered verdict; its last run ${last.runId} ended ${last.state}${invalid.has(agentType) ? ' and its delivery is not acknowledged' : ''}. Inspect it (proof-or-stop host_run_status --runId=${last.runId}) before relaunching.`;
+      return managedLaunchStep(base, 'init_review_launch', { ...selection, storyId, agentType, managedDispatch: true, detach: true, json: true },
+        auto, `${why} Launch the managed INIT reviewer; it records its verdict with init_check_set.`,
+        'getGuardFailureReason(INIT_CHECK) + init-check.json (missingRequiredInitCheckAgents / invalidInitReviewerDeliveries / recomputeInitCheckHash)',
+        !last ? `first run of this reviewer${bound ? '' : ', qualified managed-reviewer default selection'}` : 'replacement of its own failed or stale run');
+    }
+    if (waits.length > 0) return waitStep(base, waits[0]!, 'INIT reviewer run');
+    return delegated(base, 'agent', `init_check_${code}`, nextLine(failure) ?? '', `story_advance --phase=INIT_CHECK would be refused: ${failure.slice(0, 1600)}`, 'getGuardFailureReason(INIT_CHECK)');
   }
 
   // -- DEV -----------------------------------------------------------------
@@ -1800,6 +2001,8 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     const story = ctx.store.readStory(storyId);
     const base = { storyId, phase: story.phase };
     switch (story.phase) {
+      case 'INIT': return initNext(base);
+      case 'INIT_CHECK': return guardStep(base, 'PLAN', 'enter_plan', 'INIT_CHECK is complete (the Story worktree exists): enter PLAN.', 'getGuardFailureReason(PLAN)');
       case 'PLAN': return planNext(base);
       case 'DEV': return devNext(base);
       case 'REVIEW': return reviewNext(base);
@@ -1807,7 +2010,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       case 'DONE': return step(base, 'human', 'story_done', null, `Story ${storyId} is DONE; nothing is left in its lifecycle.`, 'story.phase', { done: true });
       default:
         return step(base, 'agent', 'phase_outside_driver', { command: 'session_brief', payload: { concise: true } },
-          `next --storyId drives PLAN→DONE; ${story.phase} is authored work (INIT): follow session_brief.`, 'story.phase');
+          `next --storyId drives INIT→DONE; ${story.phase} is outside it: follow session_brief.`, 'story.phase');
     }
   }
 
@@ -1858,6 +2061,9 @@ export interface RunNextStepsResult {
   next: NextStep;
   /** One short line per executed step (what the text output prints). */
   lines: string[];
+  /** Set when the loop ended because the Story worktree now exists outside the cwd: continue there with the budget left. */
+  relocatedTo?: string;
+  budgetLeftMs?: number;
 }
 
 /** The detail an executed step's line carries: a launch's runId, or a wait's first status line. */
@@ -1895,6 +2101,8 @@ export function runNextSteps(args: {
   waitBudgetMs?: number;
   maxSteps?: number;
   storyGone?: () => boolean;
+  /** The Story worktree when a step just created it outside this process's cwd (INIT_CHECK): the loop ends and the caller continues there. */
+  relocated?: () => string | null;
   log?: (line: string) => void;
 }): RunNextStepsResult {
   const now = args.now ?? Date.now;
@@ -1945,6 +2153,8 @@ export function runNextSteps(args: {
         `Story ${args.storyId} is DONE: merged into the integration branch and its worktree was removed.`, 'story_advance DONE effects', { done: true });
       break;
     }
+    const moved = args.relocated?.() ?? null;
+    if (moved) return { executed, stopped: null, paused: null, next, lines, relocatedTo: moved, budgetLeftMs: Math.max(0, deadline - now()) };
     next = args.decide();
   }
   if (!stopped && !paused && next.kind === 'framework' && executed.length >= maxSteps) stopped = `maxSteps=${maxSteps} reached`;
@@ -1980,16 +2190,74 @@ export function runCliCallsConcurrently(cliEntry: string, calls: Array<{ command
   return calls.map(() => ({ exit: run.status || -1, out: detail }));
 }
 
+/** Whether any Story of this project is not DONE (an unreadable one counts as unfinished). */
+function hasUnfinishedStory(ctx: HandlerContext): boolean {
+  let ids: string[];
+  try { ids = ctx.store.listStoryIds(); } catch { return true; }
+  return ids.some(id => {
+    try { return ctx.store.readStory(id).phase !== 'DONE'; } catch { return true; }
+  });
+}
+
 export function createNextDriverHandlers(ctx: HandlerContext, lookup: HandlerLookup, fallbackNext?: (args: { concise?: boolean }) => string) {
   const driver = createNextDriver(ctx, lookup);
+  /**
+   * The Story worktree when it exists and this process runs outside it (N4:
+   * INIT_CHECK creates it while the owner still sits in the main checkout).
+   * Story state after INIT_CHECK lives there, and its gates refuse other cwds.
+   */
+  function worktreeOutsideCwd(storyId: string): string | null {
+    try {
+      const path = ctx.store.readStory(storyId).worktree?.path;
+      if (!path || !existsSync(path)) return null;
+      const target = realpathSync(path);
+      const cwd = realpathSync(process.cwd());
+      return cwd === target || cwd.startsWith(`${target}${sep}`) ? null : target;
+    } catch { return null; }
+  }
+  /** The same `next` call in the Story worktree (stderr streams through; stdout is returned). */
+  function nextIn(cwd: string, payload: NextArgs): { status: number; stdout: string } {
+    const run = spawnSync(process.execPath, [process.argv[1]!, 'next', JSON.stringify(payload)], {
+      cwd, env: process.env, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'inherit'],
+    });
+    return { status: run.status ?? -1, stdout: run.stdout ?? '' };
+  }
+  const worktreeNote = (path: string) => `Story worktree: ${path} (created at INIT_CHECK). Run every following command from there: cd ${path}`;
+  function parseNextJson(stdout: string): Record<string, unknown> | null {
+    const start = stdout.indexOf('{');
+    if (start < 0) return null;
+    try { return JSON.parse(stdout.slice(start)) as Record<string, unknown>; } catch { return null; }
+  }
   return {
     next(args: NextArgs = {}): string | Record<string, unknown> {
       if (!args.storyId) {
+        // N4: with no unfinished Story, the next step is the one story_create template.
+        if (!hasUnfinishedStory(ctx)) {
+          const template = storyCreateTemplateStep(ctx.root);
+          return args.json ? template as unknown as Record<string, unknown> : renderNextStep(template);
+        }
         if (!fallbackNext) throw new Error('next: storyId is required');
         return fallbackNext({ concise: args.concise ?? true });
       }
       const storyId = args.storyId.trim();
       if (!isCanonicalStoryId(storyId)) throw new Error(`next: storyId "${storyId}" is not a canonical, path-safe Proof-or-Stop story id`);
+      const cliEntry = process.argv[1];
+      // A Story with a worktree is decided (and its steps run) from that worktree.
+      const outside = cliEntry ? worktreeOutsideCwd(storyId) : null;
+      if (outside) {
+        const child = nextIn(outside, { ...args, storyId, json: true });
+        const parsed = parseNextJson(child.stdout);
+        if (!parsed) throw new Error(`next: the call in the Story worktree ${outside} failed (exit ${child.status}): ${child.stdout.slice(-800)}`);
+        if (args.json) return { ...parsed, worktree: outside };
+        const nested = (args.run ? parsed.next : parsed) as unknown as NextStep;
+        return [
+          worktreeNote(outside),
+          ...(args.run && Array.isArray(parsed.executed) && parsed.executed.length ? [`ran ${parsed.executed.length} step(s) in the Story worktree`] : []),
+          ...(parsed.stopped ? [`stopped: ${String(parsed.stopped)}`] : []),
+          ...(parsed.paused ? [`paused: ${String(parsed.paused)}`] : []),
+          renderNextStep(nested),
+        ].join('\n');
+      }
       if (!args.run) {
         const next = driver.decide(storyId);
         return args.json ? next as unknown as Record<string, unknown> : renderNextStep(next);
@@ -1997,12 +2265,11 @@ export function createNextDriverHandlers(ctx: HandlerContext, lookup: HandlerLoo
       // --run: execute consecutive framework steps (gate steps, fully bound
       // managed launches, waits under one budget) through the real CLI, every
       // gate of each command in its own process (runNextSteps).
-      const cliEntry = process.argv[1];
       if (!cliEntry) {
         const next = driver.decide(storyId);
         return args.json ? { schemaVersion: NEXT_STEP_SCHEMA, storyId, executed: [], stopped: 'cli entry unavailable', paused: null, next } : `stopped: cli entry unavailable\n${renderNextStep(next)}`;
       }
-      const result = runNextSteps({
+      let result: RunNextStepsResult = runNextSteps({
         storyId,
         decide: () => driver.decide(storyId),
         execute: call => {
@@ -2020,14 +2287,37 @@ export function createNextDriverHandlers(ctx: HandlerContext, lookup: HandlerLoo
         waitBudgetMs: args.waitBudgetMs,
         maxSteps: args.maxSteps,
         storyGone: () => !existsSync(ctx.store.storyDirPath(storyId)),
+        relocated: () => worktreeOutsideCwd(storyId),
         // Stream one short line per step (and keep the CLI idle watchdog fed).
         log: ctx.log,
       });
-      if (args.json) return { schemaVersion: NEXT_STEP_SCHEMA, storyId, executed: result.executed, stopped: result.stopped, paused: result.paused, next: result.next };
+      // N4: INIT_CHECK just created the Story worktree; the rest of this call runs there.
+      const relocatedTo = result.relocatedTo;
+      if (relocatedTo) {
+        const left = Math.max(0, (args.maxSteps ?? 40) - result.executed.length);
+        const child = left > 0 && (result.budgetLeftMs ?? 0) >= 5_000
+          ? parseNextJson(nextIn(relocatedTo, { storyId, run: true, json: true, waitBudgetMs: result.budgetLeftMs, maxSteps: left }).stdout)
+          : parseNextJson(nextIn(relocatedTo, { storyId, json: true }).stdout);
+        if (!child) throw new Error(`next: continuing in the Story worktree ${relocatedTo} failed`);
+        const running = Array.isArray(child.executed);
+        result = {
+          executed: [...result.executed, ...(running ? child.executed as RunRecord[] : [])],
+          stopped: running ? (child.stopped as string | null) ?? null : null,
+          paused: running ? (child.paused as string | null) ?? null : null,
+          next: (running ? child.next : child) as unknown as NextStep,
+          lines: result.lines,
+          relocatedTo,
+        };
+      }
+      if (args.json) {
+        return { schemaVersion: NEXT_STEP_SCHEMA, storyId, executed: result.executed, stopped: result.stopped, paused: result.paused, next: result.next,
+          ...(relocatedTo ? { worktree: relocatedTo } : {}) };
+      }
       return [
         // The streamed lines already reached stderr; repeat them only without a log sink.
         ...(ctx.log ? (result.executed.length ? [`ran ${result.executed.length} step(s), ${(result.executed.reduce((sum, row) => sum + row.ms, 0) / 1000).toFixed(1)} s`] : [])
           : result.lines),
+        ...(relocatedTo ? [worktreeNote(relocatedTo)] : []),
         ...(result.stopped ? [`stopped: ${result.stopped}`] : []),
         ...(result.stopped && ctx.log && result.executed.at(-1)?.exit ? [result.executed.at(-1)!.tail] : []),
         ...(result.paused ? [`paused: ${result.paused}`] : []),

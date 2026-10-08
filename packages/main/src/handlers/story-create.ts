@@ -1234,8 +1234,12 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         // B-e71f CHK-004: INIT→INIT_CHECK hard gate guidance.
         // INIT phase requires two controller-owned managed reviewer deliveries.
         // The reviewer process identity and terminal receipt are verified before INIT_CHECK can proceed.
+        // N4: `next --run` drives INIT from here (a boundary batch if missing,
+        // scope_freeze_check, both managed INIT reviewers in parallel, their
+        // waits, INIT_CHECK and PLAN); the manual sequence below is what it runs.
         const initReviewHint =
-          `\n\n→ Run the two managed INIT reviewers in parallel:\n` +
+          `\n\nNext: proof-or-stop next --storyId=${storyId} --run (records the scope freeze check, launches both managed INIT reviewers, waits for them, then enters INIT_CHECK and PLAN; it stops at any step that needs you, with every command complete)` +
+          `\n→ Manual equivalent: run the two managed INIT reviewers in parallel:\n` +
           `${renderManagedInitReviewerDispatches(storyId, ['proof-or-stop-review-story-init', 'proof-or-stop-product-reviewer'])}\n` +
           `${renderAgentLivenessGuidance({ label: 'INIT reviewers' })}\n` +
           `  · INIT_CHECK gate requires both proof-or-stop-review-story-init and proof-or-stop-product-reviewer to have persisted via init_check_set; critical/high issues will block advancement\n` +

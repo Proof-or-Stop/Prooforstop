@@ -1007,16 +1007,44 @@ proof-or-stop next
 - `proof-or-stop next` outputs only the single most reliable next-step suggestion
 - Neither command advances the phase, writes `.proof-or-stop/state`, or modifies story/fixture/git
 
-### `next --storyId`: the framework drives PLAN → DONE
+### `next --storyId`: the framework drives INIT → DONE
 
-From PLAN on the owner does not work out the DEV entry or the REVIEW →
-PRE_CERT → TEST → DONE ceremony. From the Story worktree:
+From `story_create` on the owner does not work out the INIT_CHECK entry, the DEV
+entry or the REVIEW → PRE_CERT → TEST → DONE ceremony (lab
+`owner-init-and-worker-prompt`, N4: in old-PoS runs 22–24 the owner spent 30–36 of
+62–97 requests in INIT on `--help` pages, manual INIT reviewer launches and polls,
+and boundary / freeze / preflight commands one at a time).
 
 ```bash
+proof-or-stop next                           # no unfinished Story: the one story_create template (step story_create_authoring)
 proof-or-stop next --storyId=B-xxxx          # one step, human-readable; last line is `Next: <command>`
 proof-or-stop next --storyId=B-xxxx --json   # the same step as JSON
 proof-or-stop next --storyId=B-xxxx --run    # run framework steps, bound launches and waits (one 285 s wait budget by default), stop at the next agent step
 ```
+
+With no unfinished Story, `next` (no `--storyId`) returns the agent step
+`story_create_authoring`: ONE complete `story_create` command whose payload has
+every authored value as a `<...>` placeholder with a one-line hint (name, title,
+description, type, priority, keywords, the four-section background with its
+length rule, one checklist item with `files` and one classified, pinned happy
+intent row to copy per deliverable, and `scopeBoundary` / `executionBoundary`
+inline, the execution boundary prefilled with the project's validate commands,
+`git` and `proof-or-stop`). A staged request is recorded by `story_create` itself.
+With unfinished Stories it keeps the session projection. `story_create` then ends
+with `Next: proof-or-stop next --storyId=<id> --run`.
+
+INIT and INIT_CHECK are decided from the INIT_CHECK gate's own failure
+(`getGuardFailureReason(INIT_CHECK)`, in the order the gate checks): the
+boundaries, the deterministic `scope_freeze_check` (the core evaluates it; the
+caller only records it, so it is a framework step), then the two required INIT
+reviewers (`proof-or-stop-review-story-init`, `proof-or-stop-product-reviewer`),
+both launched before the first wait so they run in parallel; then
+`story_advance INIT_CHECK` (creates the Story worktree) and `story_advance PLAN`.
+A Story with a worktree is decided and run from that worktree: called from
+anywhere else (the main checkout right after INIT_CHECK), `next` runs the same
+call in the worktree, prints `Story worktree: <path> ... cd <path>`, and the
+JSON carries `worktree`. Inside one `next --run` the loop continues in the
+worktree with the budget left.
 
 It is read-only (no metadata, evidence, audit event or commit is written) and
 returns exactly one step:
@@ -1082,6 +1110,15 @@ Decision table (first matching row wins):
 
 | State | Step | Kind | Decided by |
 |---|---|---|---|
+| no unfinished Story (`next` without `--storyId`) | `story_create_authoring`: one `story_create` template, boundaries inline, every placeholder hinted | agent | `listStoryIds` + story_create schema |
+| INIT, scope or execution boundary missing (a Story created without them) | `init_boundary_authoring`: one batch with `scope_boundary_set` and/or `execution_boundary_set`, placeholders hinted (the INIT reviewers read both, so they come first) | agent | `getGuardFailureReason(INIT_CHECK)` `[missing_scope_boundary]` / `[missing_execution_boundary]` |
+| INIT, scope freeze check missing or stale | `scope_freeze_check {storyId}` (no status: the core evaluates it) | framework | `[missing_scope_freeze_check]` / `[scope_freeze_check_stale]` |
+| INIT, the freeze check failed, a proposal is pending, a boundary is unreadable | the gate's own text and command | agent | `getGuardFailureReason(INIT_CHECK)` |
+| INIT, a required INIT reviewer has no current delivered verdict and no run in flight | `host_run` managedDispatch for that reviewer (`init_review_launch`; each missing reviewer is launched before any wait) | framework (`launch`: its first run — the Story's own selection, else the qualified managed-reviewer default the INIT guidance names; a replacement after auto-replaceable failures; or the rerun of a verdict its own latest run delivered that a later edit to a signed input staled `[init_check_tampered]`) / agent (a run that ended without its record: inspect it first) | `init-check.json` + `missingRequiredInitCheckAgents` / `invalidInitReviewerDeliveries` / `recomputeInitCheckHash` |
+| INIT, an INIT reviewer run in flight | `host_run_status --untilTerminal=true` | framework (wait) | host-run projection |
+| INIT, a reviewer recorded critical/high issues | `init_review_blockers`: the issues; fix them in the Story, then `next --run` (the edit stales the verdict and the reviewer reruns as a framework step) | agent | `[init_check_blocking_issues]` |
+| INIT, the gate passes | `story_advance --phase=INIT_CHECK` | framework | `getGuardFailureReason(INIT_CHECK)` |
+| INIT_CHECK | `story_advance --phase=PLAN` | framework | `getGuardFailureReason(PLAN)` |
 | PLAN, no dev-memory preflight acknowledgement | `dev_memory_preflight_ack` (read the lessons it prints) | agent | `evaluateDevMemoryPreflightGate` (the DEV-entry gate's `[missing_dev_memory_preflight_ack]`) |
 | PLAN, a scope-plan run is in flight and the verdict must be RERUN | `host_run_status --untilTerminal=true` | framework (wait) | managed host-run projection |
 | PLAN, the verdict is MISSING and its managed scope-plan run (launched in PLAN) is in flight (v4.1 N8) | no wait: the rows below continue (`plan_authoring` / `story_review`, whose `missing_scope_check` blocker becomes the advisory `scope_check_pending`) up to `story_advance --phase=DEV`: the DEV-entry gate defers the missing verdict to DEV→REVIEW, so the first implementer runs beside the reviewer | framework / agent | `pendingScopePlanRun` + `missingPlanScopeCheckFailure` (core/scope-plan-deferral.ts) |

@@ -22,6 +22,11 @@
  * story_advance's runtime preflight from building a readiness report it
  * discarded. No gate is skipped: the scenario must still reach DONE.
  *
+ * N9 (lab owner-init-and-worker-prompt): the owner env carries the
+ * GIT_CONFIG_COUNT/KEY/VALUE credential settings agent hosts inject; before
+ * core/git-inert-environment.ts they bypassed every git memo (story_advance
+ * TEST 532, DONE 1016 child processes on this fixture).
+ *
  * Usage: node packages/main/dist/tasks/gate-command-cost-smoke.js
  */
 import { spawnSync } from 'node:child_process';
@@ -54,6 +59,12 @@ const SPAWN_BUDGET: Array<{ label: RegExp; max: number }> = [
  * are only covered by the total budget.
  */
 const REF_STATE_REPEAT_BUDGET = 60;
+
+/** The git config an agent host injects into every owner shell (credential prompting off). */
+const AGENT_HOST_GIT_CONFIG_ENV = {
+  GIT_CONFIG_COUNT: '2', GIT_CONFIG_KEY_0: 'credential.interactive', GIT_CONFIG_VALUE_0: 'false',
+  GIT_CONFIG_KEY_1: 'credential.guiPrompt', GIT_CONFIG_VALUE_1: 'false',
+};
 
 const PRELOAD = String.raw`
 const cp = require('node:child_process');
@@ -102,7 +113,10 @@ async function main(): Promise<void> {
   try {
     const run = spawnSync(process.execPath, [harness, 'A'], {
       encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, timeout: 7 * 60 * 1000,
-      env: { ...process.env, GATE_COMMAND_COST_LOG: log, NODE_OPTIONS: `${process.env.NODE_OPTIONS ?? ''} --require ${preload}`.trim() },
+      // N9: agent hosts pass credential settings as GIT_CONFIG_COUNT/KEY/VALUE on every
+      // shell (Claude Code: credential.interactive / credential.guiPrompt); they cannot
+      // change a read-only probe, so the budgets hold with them set.
+      env: { ...process.env, ...AGENT_HOST_GIT_CONFIG_ENV, GATE_COMMAND_COST_LOG: log, NODE_OPTIONS: `${process.env.NODE_OPTIONS ?? ''} --require ${preload}`.trim() },
     });
     if (run.status !== 0) {
       console.log(`${run.stdout ?? ''}${run.stderr ?? ''}`.slice(-6000));
