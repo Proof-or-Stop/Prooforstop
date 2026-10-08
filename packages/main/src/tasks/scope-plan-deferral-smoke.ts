@@ -326,7 +326,7 @@ async function perItemScenario(): Promise<void> {
     assert.deepEqual(deferral.heldItemIds, ['CHK-002', 'CHK-003'], `${MARKER} G: exactly the same-semantics section item and the pin-audit item are held`);
     assert.equal(missingPlanScopeCheckFailure(f.store, story, policy, () => scopeVerdictDeferral(f.store, f.root, f.storyId)), null,
       `${MARKER} G: DEV entry is admitted beside the live run`);
-    const review = spawnSync(process.execPath, [CLI, 'story_review', JSON.stringify({ storyId: f.storyId })], { cwd: f.root, encoding: 'utf8', env: process.env });
+    const review = spawnSync(process.execPath, [CLI, 'story_review', JSON.stringify({ storyId: f.storyId }), '--full'], { cwd: f.root, encoding: 'utf8', env: process.env });
     const reviewOut = `${review.stdout}${review.stderr}`;
     assert.match(reviewOut, /scope_check_pending[^\n]*CHK-002, CHK-003/, `${MARKER} G: story_review defers the verdict and names the held items: ${reviewOut.slice(-1500)}`);
     enterDev(f);
@@ -343,6 +343,10 @@ async function perItemScenario(): Promise<void> {
     writeFileSync(join(f.scripts, 'release'), '');
     await run.done;
     assert.ok(f.store.readScopeCheck(f.storyId), `${MARKER} G: the deferred run saved its verdict in DEV: ${log(f, 'save.log')}`);
+    // On a Story branch scope_check_save auto-commits the Story metadata; this fixture is on main, so commit it as that publication would.
+    for (const argv of [['add', '-A'], ['commit', '-qm', `proof-or-stop: record ${f.storyId} scope_check_save metadata`]]) {
+      assert.equal(spawnSync('git', argv, { cwd: f.root, encoding: 'utf8' }).status, 0, `${MARKER} G: git ${argv[0]}`);
+    }
     const replan = nextStep(f);
     assert.equal(replan.reason, 'scope_verdict_replan', `${MARKER} G: the gap sends the Story back to PLAN before the held item (got ${replan.reason}: ${replan.why})`);
     // Rerun prompt (row 4b): back in PLAN the owner adds the asymmetric row to CHK-002.
@@ -355,8 +359,9 @@ async function perItemScenario(): Promise<void> {
         derivation: { requestQuote: 'Use the same index-selection semantics as read slicing.', computation: 'read slicing a[::-1] selects indexes 2,1,0, so 30,20,10 land there: [10,20,30]' } }] } }
       : row) } as never);
     const rerun = spawnSync(process.execPath, [CLI, 'dispatch', JSON.stringify({ storyId: f.storyId, agentType: ROLE })], { cwd: f.root, encoding: 'utf8', env: process.env });
-    const prompt = `${rerun.stdout}${rerun.stderr}`;
-    assert.equal(rerun.status, 0, `${MARKER} G: the scope-plan rerun dispatch renders: ${prompt.slice(-800)}`);
+    const raw = `${rerun.stdout}${rerun.stderr}`;
+    assert.equal(rerun.status, 0, `${MARKER} G: the scope-plan rerun dispatch renders: ${raw.slice(-800)}`);
+    const prompt = (() => { try { return String((JSON.parse(rerun.stdout.slice(rerun.stdout.indexOf('{'))) as { prompt?: string }).prompt ?? raw); } catch { return raw; } })();
     assert.match(prompt, /Previous scope-plan verdict/, `${MARKER} G: the rerun prompt carries the previous verdict: ${prompt.slice(-2500)}`);
     assert.ok(prompt.includes(gapFeature), `${MARKER} G: the previous verdict's gap is listed`);
     assert.match(prompt, /CHK-002[^\n]*\n[^\n]*\+ happy: a=\[1,2,3\]; a\[::-1\]=\[30,20,10\]/, `${MARKER} G: the checklist diff names the added CHK-002 row: ${prompt.slice(-2500)}`);

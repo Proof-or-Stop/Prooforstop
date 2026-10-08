@@ -35,14 +35,16 @@ export const SCOPE_PLAN_REVIEWER = 'proof-or-stop-review-scope-plan';
  * N8 deferral decision for a missing scope-plan verdict (computed by
  * core/scope-plan-deferral.ts `scopeVerdictDeferral`):
  *   - none: no live managed scope-plan run launched in PLAN;
- *   - deferred: such a run is live and the reviewer has nothing to pin-audit, so
- *     DEV may start beside it (the verdict gates DEV→REVIEW);
- *   - held: such a run is live but its prompt carries pin-audit rows or a
- *     same-semantics sentence; DEV entry waits for its verdict (`reason`).
+ *   - deferred: such a run is live and some open item is free, so DEV may start
+ *     beside it (the verdict gates DEV→REVIEW); `heldItemIds` (old-PoS run 27)
+ *     are the items its pin audit / same-semantics rule concerns, which are not
+ *     implemented until the verdict lands (`heldReason`);
+ *   - held: such a run is live and every open item is held; DEV entry waits for
+ *     its verdict (`reason`).
  */
 export type ScopeVerdictDeferral =
   | { kind: 'none' }
-  | { kind: 'deferred'; run: { runId: string; state: string } }
+  | { kind: 'deferred'; run: { runId: string; state: string }; heldItemIds?: string[]; heldReason?: string }
   | { kind: 'held'; run: { runId: string; state: string }; reason: string };
 
 type RequirementStore = Pick<StoryStore, 'readChecklist' | 'readUnderstanding' | 'readScopeCheck' | 'storyFilePath'>;

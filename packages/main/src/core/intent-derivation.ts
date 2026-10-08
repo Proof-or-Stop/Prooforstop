@@ -237,6 +237,46 @@ export function sameSemanticsSentences(requestText: string): string[] {
   return requestText.split(/(?<=[.!?])\s+|\n+/).map(sentence => sentence.trim()).filter(sentence => sentence && SAME_SEMANTICS.test(sentence));
 }
 
+/**
+ * The request's sections: split at markdown headings and top-level numbered
+ * items ("1. Parser support"), the units a same-semantics sentence speaks
+ * about. A request without that structure is one section.
+ */
+export function requestSections(requestText: string): string[] {
+  const sections: string[][] = [[]];
+  for (const line of requestText.split('\n')) {
+    if (/^(?:#{1,6}\s|\d+[.)]\s)/.test(line) && sections.at(-1)!.some(row => row.trim())) sections.push([]);
+    sections.at(-1)!.push(line);
+  }
+  return sections.map(rows => rows.join('\n')).filter(text => text.trim());
+}
+
+/**
+ * Old-PoS run 27 (per-item N8 hold): the items a same-semantics sentence
+ * covers, each with that sentence. An item is covered when one of its intent
+ * rows cites (derivation.requestQuote) a sentence of the request section that
+ * holds the same-semantics sentence, or when none of its rows cites any
+ * request sentence (its scope is unknown, so it is held). Withdrawn items are
+ * never held.
+ */
+export function sameSemanticsCoveredItems(items: readonly Pick<ChecklistItem, 'id' | 'status' | 'verificationIntent'>[], requestText: string): Map<string, string> {
+  const covered = new Map<string, string>();
+  const sentences = sameSemanticsSentences(requestText);
+  if (!sentences.length) return covered;
+  const sections = requestSections(requestText);
+  const sectionOf = (sentence: string): string => sections.find(section => requestQuoteFound(sentence, section)) ?? requestText;
+  const ruled = sentences.map(sentence => ({ sentence, section: sectionOf(sentence) }));
+  for (const item of items) {
+    if (item.status === 'withdrawn') continue;
+    const quotes = VERIFICATION_LANES.flatMap(lane => (item.verificationIntent?.[lane] ?? [])
+      .map(row => (row as { derivation?: Partial<VerificationIntentDerivation> }).derivation?.requestQuote)
+      .filter((quote): quote is string => typeof quote === 'string' && squash(quote).length >= DERIVATION_QUOTE_MIN_CHARS && requestQuoteFound(quote, requestText)));
+    const hit = quotes.length === 0 ? ruled[0] : ruled.find(rule => quotes.some(quote => requestQuoteFound(quote, rule.section)));
+    if (hit) covered.set(item.id, hit.sentence);
+  }
+  return covered;
+}
+
 /** Every non-withdrawn intent row pinning a value the request does not quote (the pin-audit rows), with or without a valid derivation. */
 export function pinAuditRows(items: readonly Pick<ChecklistItem, 'id' | 'status' | 'verificationIntent'>[], requestText: string): IntentDerivationRow[] {
   return items.filter(item => item.status !== 'withdrawn').flatMap(item => intentDerivationRows(item.id, item.verificationIntent, requestText));

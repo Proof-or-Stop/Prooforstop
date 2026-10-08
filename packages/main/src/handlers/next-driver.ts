@@ -50,7 +50,7 @@ import { evaluateDevMemoryPreflightGate, evaluateReviewVerdict, getGuardFailureR
 import { missingPlanScopeCheckFailure, SCOPE_PLAN_REVIEWER, scopePlanLaunchIsFramework, scopePlanRerunReason } from '../core/plan-scope-check-requirement.js';
 import { hasPreScopeBlockers, planPreScopeBlockers, type PreScopeBlockers } from '../core/plan-pre-scope-blockers.js';
 import { checklistDerivationGaps, derivationPlaceholder, MISSING_INTENT_DERIVATION } from '../core/intent-derivation.js';
-import { scopeVerdictDeferral, scopeVerdictReviewEntryFailure } from '../core/scope-plan-deferral.js';
+import { scopeVerdictDeferral, scopeVerdictHeldItems, scopeVerdictReviewEntryFailure } from '../core/scope-plan-deferral.js';
 import { STORY_FOCUSED_CLASSIFICATION } from '../core/verification-intent-classification.js';
 import { VERIFICATION_LANES } from '../core/verification.js';
 import { isTerminalChecklistStatus } from '../core/checklist-status.js';
@@ -1349,6 +1349,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     if (authoring) return authoring;
     return guardStep(base, 'DEV', 'enter_dev', deferred
       ? `PLAN is complete except the scope-plan verdict, whose managed run ${deferred.runId} is still ${deferred.state}: the DEV-entry gate defers it to DEV→REVIEW, so DEV starts beside the reviewer (a gap it finds sends the Story back to PLAN before REVIEW).`
+        + (deferral?.kind === 'deferred' && deferral.heldItemIds?.length ? ` ${deferral.heldItemIds.join(', ')} wait for the verdict (${deferral.heldReason}).` : '')
       : 'PLAN is complete: the DEV-entry gate admits the Story.', 'getGuardFailureReason(DEV)');
   }
 
@@ -1472,10 +1473,24 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
           'scopeVerdictReviewEntryFailure (DEV→REVIEW gate, N8 deferred scope verdict)');
       }
     }
-    if (open.length > 0) {
-      const item = open[0]!;
+    // Old-PoS run 27 (per-item N8 hold): while the deferred scope-plan verdict is
+    // missing, the items its pin audit / same-semantics rule concerns are not
+    // dispatched; the free items are implemented beside the reviewer.
+    const hold = open.length > 0 ? scopeVerdictHeldItems(ctx.store, ctx.root, ctx.store.readStory(storyId), policyOf(storyId)) : null;
+    const heldIds = new Set(hold?.heldItemIds ?? []);
+    const dispatchable = open.filter(item => !heldIds.has(item.id));
+    if (open.length > 0 && dispatchable.length === 0) {
+      const implementing = inFlight(IMPLEMENTER_AGENT);
+      if (implementing) return waitStep(base, implementing, 'Implementer run');
+      const scopeRun = hostRuns.filter(run => run.agentType === SCOPE_PLAN_REVIEWER && !run.terminal).at(-1);
+      if (scopeRun) return waitStep(base, scopeRun, `Scope-plan reviewer run (held until its verdict lands: ${open.map(item => item.id).join(', ')}; ${hold!.reason})`);
+      return guardStep(base, 'PLAN', 'scope_verdict_replan', `The scope-plan verdict is missing and no scope-plan run is live; ${open.map(item => item.id).join(', ')} wait for it. Return to PLAN and rerun the scope-plan reviewer.`,
+        'scopeVerdictHeldItems (old-PoS run 27 per-item N8 hold)');
+    }
+    if (dispatchable.length > 0) {
+      const item = dispatchable[0]!;
       // EXPERIMENTAL A/B implementation.grouping=files (core/ab-dispatch-grouping.ts).
-      const groupByFiles = open.length > 1 || hostRuns.some(run => run.agentType === IMPLEMENTER_AGENT) ? implementationGroupingFiles(ctx.root) : false;
+      const groupByFiles = dispatchable.length > 1 || hostRuns.some(run => run.agentType === IMPLEMENTER_AGENT) ? implementationGroupingFiles(ctx.root) : false;
       if (groupByFiles && item.status !== 'pending') {
         const grouped = groupedImplementationRun({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, item, runs: hostRuns });
         if (grouped) {
@@ -1484,7 +1499,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
             'checklist.json + groupedImplementationRun (A/B implementation.grouping=files)');
         }
       }
-      const group = groupByFiles ? sharedFileItemGroup(item, open) : [item];
+      const group = groupByFiles ? sharedFileItemGroup(item, dispatchable) : [item];
       const pendingItem = group.find(member => member.status === 'pending');
       if (pendingItem) {
         return step(base, 'framework', 'checklist_item_start', { command: 'checklist_update', payload: { storyId, itemId: pendingItem.id, status: 'in_progress' } },

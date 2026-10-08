@@ -671,8 +671,9 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
       const scopeRequirement = planScopeCheckRequirement(store, story, policy);
       // N8 (core/scope-plan-deferral.ts scopeVerdictDeferral, shared with the
       // DEV-entry gate and `next`): while a managed scope-plan run launched in PLAN
-      // is live, the missing verdict is deferred to the DEV→REVIEW gate, unless
-      // the reviewer has a pin audit / same-semantics check to do (held).
+      // is live, the missing verdict is deferred to the DEV→REVIEW gate; the items
+      // the reviewer audits (pin audit / same-semantics) wait for it (old-PoS run
+      // 27), and when every open item is held DEV entry waits too (held).
       const scopeDeferral = !scopeData && scopeRequirement ? scopeVerdictDeferral(store, ctx.root, args.storyId) : { kind: 'none' as const };
       const pendingScopeRun = scopeDeferral.kind === 'deferred' ? scopeDeferral.run : null;
       if (scopeDeferral.kind === 'held') {
@@ -685,7 +686,10 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         issues.push({
           type: 'scope_check_pending',
           severity: 'advisory',
-          message: `scope_check_pending: managed scope-plan run ${pendingScopeRun.runId} (launched in PLAN) is ${pendingScopeRun.state}; its verdict is required because ${scopeRequirement}. DEV may start meanwhile; REVIEW entry requires the verdict, verified and without gaps (a gap sends the Story back to PLAN).`,
+          message: `scope_check_pending: managed scope-plan run ${pendingScopeRun.runId} (launched in PLAN) is ${pendingScopeRun.state}; its verdict is required because ${scopeRequirement}. DEV may start meanwhile; REVIEW entry requires the verdict, verified and without gaps (a gap sends the Story back to PLAN).`
+            + (scopeDeferral.kind === 'deferred' && scopeDeferral.heldItemIds?.length
+              ? ` Held until the verdict lands (not implemented meanwhile): ${scopeDeferral.heldItemIds.join(', ')} — ${scopeDeferral.heldReason}.`
+              : ''),
         });
       } else if (!scopeData && scopeRequirement) {
         issues.push({

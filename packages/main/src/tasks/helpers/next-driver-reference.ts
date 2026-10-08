@@ -128,6 +128,12 @@
  * MANAGED_AUTO_RELAUNCHES_PER_TARGET times, like every other role's target;
  * any other earlier delivery run keeps the relaunch the agent's call. The
  * golden fixture never fails a delivery run, so its states are unchanged.
+ *
+ * Deliberate change (old-PoS run 27 per-item N8 hold): while the deferred
+ * scope-plan verdict is missing, DEV does not dispatch the items its pin audit /
+ * same-semantics rule concerns (scopeVerdictHeldItems); it implements the free
+ * items, then waits on the scope-plan run (or returns to PLAN when none is
+ * live). The golden fixture has no missing deferred verdict, so no item is held.
  */
 import { existsSync, readdirSync } from 'node:fs';
 import { hostname } from 'node:os';
@@ -166,7 +172,7 @@ import { managedHostRunsRoot, readManagedHostRunProjection, managedHostRunReceip
 import { managedFindingRepairState, hintedStep, evidenceChainStep, evidenceChainAdvisory, step as sharedStep, managedLaunchStep, boundManagedSelection,
   runsForTarget, targetRelaunchIsFramework, testAuthoringStep, planAuthoringStep, preScopeAuthoringStep, nextBlockingFinding, duplicateFindingResolveStep,
   groupedFindingRepairIds, groupedFindingRepairStep, repairedFindingsForResolve, findingResolveBatchStep, openIntentConflicts, intentConflictStep, nextStepCall, type NextStep } from '../../handlers/next-driver.js';
-import { scopeVerdictReviewEntryFailure } from '../../core/scope-plan-deferral.js';
+import { scopeVerdictHeldItems, scopeVerdictReviewEntryFailure } from '../../core/scope-plan-deferral.js';
 import { duplicateCoverageReceipts, duplicateResolveCandidate } from '../../core/duplicate-finding-coverage.js';
 import { singleHostAssuranceReady } from '../../handlers/quorum-submit.js';
 import { hasPersistedManagedReceiptEvidence, refusedManagedReviewImport } from '../../handlers/managed-review-evidence.js';
@@ -379,8 +385,20 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
           'scopeVerdictReviewEntryFailure (DEV→REVIEW gate, N8 deferred scope verdict)');
       }
     }
-    if (open.length > 0) {
-      const item = open[0]!;
+    // Deliberate change (old-PoS run 27 per-item N8 hold): held items wait for the verdict.
+    const hold = open.length > 0 ? scopeVerdictHeldItems(ctx.store, ctx.root, ctx.store.readStory(storyId), policyOf(storyId)) : null;
+    const heldIds = new Set(hold?.heldItemIds ?? []);
+    const dispatchable = open.filter(item => !heldIds.has(item.id));
+    if (open.length > 0 && dispatchable.length === 0) {
+      const implementing = inFlight(IMPLEMENTER_AGENT);
+      if (implementing) return waitStep(base, implementing, 'Implementer run');
+      const scopeRun = hostRuns.filter(run => run.agentType === SCOPE_PLAN_REVIEWER && !run.terminal).at(-1);
+      if (scopeRun) return waitStep(base, scopeRun, `Scope-plan reviewer run (held until its verdict lands: ${open.map(item => item.id).join(', ')}; ${hold!.reason})`);
+      return guardStep(base, 'PLAN', 'scope_verdict_replan', `The scope-plan verdict is missing and no scope-plan run is live; ${open.map(item => item.id).join(', ')} wait for it. Return to PLAN and rerun the scope-plan reviewer.`,
+        'scopeVerdictHeldItems (old-PoS run 27 per-item N8 hold)');
+    }
+    if (dispatchable.length > 0) {
+      const item = dispatchable[0]!;
       if (item.status === 'pending') {
         return step(base, 'framework', 'checklist_item_start', { command: 'checklist_update', payload: { storyId, itemId: item.id, status: 'in_progress' } },
           `${item.id} is pending; mark it in_progress before dispatching its implementer.`, 'checklist.json');
