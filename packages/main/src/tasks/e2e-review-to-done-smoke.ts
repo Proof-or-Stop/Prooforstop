@@ -113,6 +113,13 @@
  *      JSON envelope; its run fails with nothing produced and next relaunches
  *      the critic as a framework step (never the owner's), DONE.
  *
+ *   NW3/NW4/NW5 old-PoS run 25 REVIEW livelock (scenarioNW): NW3 (F3) a framework
+ *      evidence restamp after the lanes passed keeps every managed pass live;
+ *      NW4 (F4) a wave-1 critic finding re-reported by every wave-2 lane is
+ *      repaired in DEV after finalize, no lane relaunch, no human step; NW5
+ *      (F4 stop-loss) a cancelled finalized epoch's critic pass is superseded
+ *      by a fresh epoch, never a dead end. `NW` = all three.
+ *
  *   NI run 23 (request-outranks-intent D1): the implementer's final result
  *      declares an `[intent-conflict]` (the request implies one value, the
  *      intent pins another). next must block on it (story_advance PLAN, not the
@@ -154,7 +161,7 @@
  *      implementer and finding-repair run seals the arm and carries the item pack).
  *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5 ND-V6.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NI|NIN|NQ|NP|AB|ND-V1..NF-V6]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NI|NIN|NQ|NP|AB|ND-V1..NF-V6]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -171,6 +178,8 @@ import { QUALIFIED_MANAGED_REVIEWER_DEFAULTS } from '../core/managed-reviewer-qu
 import { currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { classifierOptionsForCheck, classifyGitStatusRows, isBlockingDirty, readGitStatusLines } from '../core/dirty-worktree-gate.js';
 import { MANAGED_INVENTORY_CRITIC_LANE } from '../core/managed-inventory-critic.js';
+import { managedInventoryCriticCoverage } from '../core/managed-review-evidence.js';
+import { collectReviewerEvidenceState } from '../core/review-run.js';
 import { writeStoryRequest } from '../core/story-request.js';
 import { FINDING_RESOLUTION_PLACEHOLDER } from '../core/finding-closure-hint.js';
 import { sanitizedFixtureChildEnvironment } from './fixture-environment.js';
@@ -1254,7 +1263,11 @@ interface ScriptMode { findingRound1: boolean; twoFindings?: boolean; lowFinding
   /** Detection A/B control D9-r1 / D2-r3 / refused critic: how the FIRST round-1 critic restates or omits findings (scenarios NC, NC2, NC3). */
   criticRestate?: CriticRestateMode;
   /** Run 19 (NC4): round 1's only finding is a SUSPECTED low one; the (ordinary) critic gives it a verified_family row. */
-  suspectedOnly?: boolean }
+  suspectedOnly?: boolean;
+  /** Old-PoS run 25 (NW4): the round-1 wave-1 critic reports D_FINDING as its own new finding (every lane passed). */
+  criticNewFinding?: boolean;
+  /** Old-PoS run 25 (NW4): every round-1 lane run started after a critic run (wave 2) re-reports D_FINDING. */
+  restateAfterCritic?: boolean }
 type CriticRestateMode = 'copies' | 'reworded' | 'new-misfiled';
 
 /** Run 19 shape (B-8166 F-001): a suspected low lane finding, the round's only one. */
@@ -1270,6 +1283,16 @@ type ProviderScript = { final: string; commands?: string[][] };
 
 /** A REVIEW lane's scripted final proposal: round 1 test-coverage reports the mode's findings, every other lane passes. */
 function laneScript(worktree: string, storyId: string, lane: string, reviewRunId: string, firstRound: boolean, mode: ScriptMode): ProviderScript {
+  if (mode.restateAfterCritic && firstRound) {
+    // Run 25 (NW4): a lane run of round 1 that starts after an inventory critic (wave 2) re-reports the critic's defect.
+    const runs = new StoryStore(worktree).readReviewRuns(storyId).runs;
+    const index = runs.findIndex(row => row.reviewRunId === reviewRunId);
+    const round = runs[index]?.reviewRound;
+    if (runs.slice(0, index).some(row => row.reviewRound === round && row.reviewPurpose === 'inventory-completeness')) {
+      return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, conclusion: 'findings',
+        note: 'Scripted wave-2 lane: re-reports the critic\'s empty-string defect.', findings: [D_FINDING], ...readEvidenceFor(worktree, storyId) }) };
+    }
+  }
   const envelope = mode.findingRound1 && firstRound && lane === 'proof-or-stop-review-test-coverage'
     ? { conclusion: 'findings', note: 'Scripted behavior finding: empty-string edge case is untested.',
       findings: mode.suspectedOnly ? [NC4_SUSPECTED] : mode.lowFindings ? [D_FINDING, NL_LOW_REPAIRED, NL_LOW_COSMETIC] : mode.twoFindings ? [D_FINDING, NF_FINDING] : mode.duplicate ? [D_FINDING, NU_DUP_FINDING] : [D_FINDING] }
@@ -1295,7 +1318,7 @@ function wrongWaveCriticScript(script: ProviderScript): ProviderScript {
   return { ...script, final: JSON.stringify(value) };
 }
 
-function criticScript(worktree: string, storyId: string, reviewRunId: string, restate?: CriticRestateMode): ProviderScript {
+function criticScript(worktree: string, storyId: string, reviewRunId: string, restate?: CriticRestateMode, newFinding = false): ProviderScript {
   const store = new StoryStore(worktree);
   const epoch = store.readReviewInventoryEpochs(storyId).epochs.at(-1)!;
   const raw = store.readFindings(storyId).findings.filter(f => f.reviewRound === epoch.reviewRound);
@@ -1303,6 +1326,7 @@ function criticScript(worktree: string, storyId: string, reviewRunId: string, re
   const firstRound = runs.find(row => row.reviewPurpose !== 'inventory-completeness')?.reviewRound;
   const firstCritic = runs.find(row => row.reviewPurpose === 'inventory-completeness')?.reviewRunId === reviewRunId;
   if (restate && firstCritic && epoch.reviewRound === firstRound) return restatingCriticScript(worktree, storyId, reviewRunId, epoch, raw, restate);
+  if (newFinding && epoch.reviewRound === firstRound) return waveCriticScript(worktree, storyId, reviewRunId, epoch, firstCritic);
   // Run 17 Q1: the NU duplicate is dispositioned `duplicate` of D_FINDING (same root cause).
   const canonical = raw.find(f => f.desc === D_FINDING.desc);
   const dispositions = raw.map(f => f.desc === NU_DUP_FINDING.desc && canonical
@@ -1344,6 +1368,29 @@ function restatingCriticScript(worktree: string, storyId: string, reviewRunId: s
     inventoryCritic: { epochId: epoch.epochId, wave: epoch.waves.length + 1, findingDispositions }, ...readEvidenceFor(worktree, storyId) }) };
 }
 
+/**
+ * Old-PoS run 25 (NW4): the round-1 inventory critic per wave. Wave 1 (every
+ * lane passed): it reports the empty-string defect as its own new verified
+ * finding (B-2b04:F-002). Wave 2: it gives the first lane restatement a
+ * verified_family row in the same family (not new: the wave saturates) and
+ * marks the other copies `duplicate` of it (B-2b04 RR-020).
+ */
+function waveCriticScript(worktree: string, storyId: string, reviewRunId: string, epoch: { epochId: string; waves: unknown[] }, firstCritic: boolean): ProviderScript {
+  const run = new StoryStore(worktree).readReviewRuns(storyId).runs.find(row => row.reviewRunId === reviewRunId)!;
+  const required = managedInventoryCriticCoverage(worktree, run)?.requiredFindingIds ?? [];
+  const family = 'reverse-empty-string';
+  const own = firstCritic && required.length === 0;
+  const findingDispositions = own
+    ? [{ finding: { proposalFindingIndex: 0 }, disposition: 'verified_family', familyKey: family, reason: 'Critic-only catch: Reverse("") is untested and indexes r[-1].' }]
+    : required.map((findingId, index) => index === 0
+      ? { finding: { findingId }, disposition: 'verified_family', familyKey: family, reason: 'The empty-string edge of Reverse is untested; the family the earlier wave found.' }
+      : { finding: { findingId }, disposition: 'duplicate', familyKey: family, canonicalFinding: { findingId: required[0] }, reason: 'Same defect as the first lane copy of this wave.' });
+  return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: MANAGED_INVENTORY_CRITIC_LANE, lane: MANAGED_INVENTORY_CRITIC_LANE,
+    reviewRunId, conclusion: own ? 'findings' : 'pass', note: own ? 'Scripted critic: a new verified finding no lane reported.' : 'Scripted critic: dispositioned every lane finding of this wave.',
+    ...(own ? { findings: [D_FINDING] } : {}),
+    inventoryCritic: { epochId: epoch.epochId, wave: epoch.waves.length + 1, findingDispositions }, ...readEvidenceFor(worktree, storyId) }) };
+}
+
 function deliveryScript(storyId: string): ProviderScript {
   const deliveryPayload = { storyId, docsPromises: VERIFIED_PROMISES,
     realMachineTests: [
@@ -1368,11 +1415,16 @@ function repairScript(desc: string): ProviderScript {
  */
 function groupedRepairScript(storyId: string, findings: ReadonlyArray<{ id: string; desc: string }>, firstOnly = false): ProviderScript {
   if (firstOnly) findings = findings.slice(0, 1);
+  // Two members with the same defect share one regression test (a second copy would not compile): the later commit only names its id.
+  const written = new Set<string>();
   return { commands: findings.map(finding => {
     const repair = repairFor(finding.desc);
     const short = finding.id.startsWith(`${storyId}:`) ? finding.id.slice(storyId.length + 1) : finding.id;
-    return ['/bin/sh', '-c', `printf '%s' '${repair.test.replace(/'/g, "'\\''")}' >> strs/strs_test.go && git add strs/strs_test.go && git -c user.name=${FINDING_REPAIR} commit -qm '${storyId} ${short}: resolve finding (${repair.subject})' && git log --format=%h -1`];
-  }), final: `Added ${findings.map(finding => repairFor(finding.desc).name).join(', ')}; one commit per finding.` };
+    const first = !written.has(repair.name);
+    written.add(repair.name);
+    const change = first ? `printf '%s' '${repair.test.replace(/'/g, "'\\''")}' >> strs/strs_test.go && git add strs/strs_test.go && ` : '';
+    return ['/bin/sh', '-c', `${change}git -c user.name=${FINDING_REPAIR} commit -q${first ? '' : ' --allow-empty'} -m '${storyId} ${short}: resolve finding (${repair.subject})' && git log --format=%h -1`];
+  }), final: `Added ${[...written].join(', ')}; one commit per finding.` };
 }
 
 const IMPLEMENTER = 'proof-or-stop-implementer';
@@ -1515,6 +1567,9 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   groupedFirstOnly?: boolean;
   /** NC9 (old-PoS run 24 F1/F2): the first critic ends its turn with prose and no JSON envelope (its run fails). */
   criticProseFirst?: boolean;
+  /** NW4 (old-PoS run 25 F4): the wave-1 critic reports a new finding; wave-2 lanes re-report it. */
+  criticNewFinding?: boolean;
+  restateAfterCritic?: boolean;
   /** NC7: an owner action taken instead of the step next returned; true = the step is not executed and next is asked again. */
   interject?: (next: NextStepJson) => boolean; }, lines: string[],
   /** Called with each step `next` returned, before the harness executes it; quiet = no detached managed run in flight. */
@@ -1617,7 +1672,7 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
         break;
       }
       case 'inventory_critic_launch': {
-        const script = criticScript(o.worktree, id, String(payload.reviewRunId), mode.criticRestate);
+        const script = criticScript(o.worktree, id, String(payload.reviewRunId), mode.criticRestate, mode.criticNewFinding);
         const firstCritic = new StoryStore(o.worktree).readReviewRuns(id).runs.find(row => row.reviewPurpose === 'inventory-completeness')?.reviewRunId === String(payload.reviewRunId);
         o.script(String(payload.reviewRunId), mode.criticProseFirst && firstCritic ? { final: NC9_PROSE_FINAL }
           : mode.criticMistypedDigest && firstCritic ? mistypedDigestCriticScript(script)
@@ -2119,6 +2174,127 @@ function scenarioNC7(machineEnv: NodeJS.ProcessEnv, steps: Step[], variant: 'rer
       assert.ok(reported.some(f => f.resolutionType === 'duplicate'), `${tag}: the superseded copy closed as a duplicate with coverage`);
       lines.push(`findings: ${reported.map(f => `${f.id} ${f.status}`).join(', ')}`);
     }
+    lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/**
+ * Old-PoS run 25 (B-2b04, 20261008T103232Z-oldpos-fresh-36142): the REVIEW livelock.
+ * NW3 (F3): the owner edits a test file in REVIEW before the round's lanes run
+ *   (e8d6360), so the pinned evidence is stale for the reviewed material; the
+ *   lanes pass; then the framework's own `verification_evidence_refresh_stale`
+ *   restamps that evidence (1faa99b: checklist.json + its closeout receipt,
+ *   no material, no intent, no result change). That metadata-only commit must
+ *   keep every managed pass live (it staled RP-011 and forced a lane rerun on
+ *   unchanged material), and the round finishes with no lineage-driven rerun.
+ * NW4 (F4): every lane passes, the wave-1 critic reports a new verified
+ *   finding (F-002), the wave-2 lanes all re-report it (F-003..F-005: one
+ *   verified_family copy, two duplicates) and the epoch finalizes. next must
+ *   route the open findings to DEV (repair the canonical once, close the
+ *   copies by coverage) and never relaunch lanes of the finalized round
+ *   (RR-021..023 re-reported it again, so every finalize changed the live
+ *   aggregate) or end in `human — none runnable`. No verified finding is dropped.
+ * NW5 (F4 stop-loss): the owner cancels the finalized epoch before
+ *   certification (item 186, "late evidence invalidated finalized receipt").
+ *   The cancelled epoch's critic pass must not become permanently invalid
+ *   (RP-011 "has an invalid current inventory subject" = `human — none
+ *   runnable`): next opens a fresh epoch, its critic supersedes the old pass, DONE.
+ */
+function scenarioNW(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NW3' | 'NW4' | 'NW5'): Outcome {
+  const name = tag === 'NW3'
+    ? 'NW3 run 25 F3: framework evidence restamp (verification_evidence_refresh_stale) after the lanes passed keeps every managed pass live; no lane rerun, DONE'
+    : tag === 'NW4'
+      ? 'NW4 run 25 F4: wave-1 critic finding re-reported by every wave-2 lane; after finalize next repairs it in DEV (no lane relaunch, no human), copies closed, DONE'
+      : 'NW5 run 25 F4: owner cancels the finalized epoch; the cancelled critic pass is superseded by a fresh epoch, never a dead end, DONE';
+  const o = new Owner(tag, tag === 'NW3' ? 'B-e2a3' : tag === 'NW4' ? 'B-e2a4' : 'B-e2a5', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  const kinds: string[] = [];
+  let edited = false;
+  let refreshed = false;
+  let cancelled = false;
+  let waveAdvanced = false;
+  try {
+    devSetup(o);
+    driveWithNext(o, { findingRound1: false, run: false, ...(tag === 'NW4' ? { criticNewFinding: true, restateAfterCritic: true } : {}), interject: next => {
+      kinds.push(`${next.kind}:${next.reason}`);
+      if (tag === 'NW3' && !edited && next.phase === 'REVIEW' && next.reason === 'review_round_prepare') {
+        // e8d6360: a test-only edit committed in REVIEW before the round's lanes run.
+        writeFileSync(join(o.worktree, 'strs/strs_test.go'), `${readFileSync(join(o.worktree, 'strs/strs_test.go'), 'utf8')}\n// Latin multibyte fixtures only (owner edit in REVIEW).\n`);
+        git(o.worktree, ['add', 'strs/strs_test.go']);
+        git(o.worktree, ['commit', '-qm', `${o.storyId}: use Latin Unicode fixtures in slice tests`]);
+        edited = true;
+        lines.push('owner test-only commit in REVIEW before the lanes (pinned evidence now stale)');
+        return true;
+      }
+      if (tag === 'NW3' && edited && !refreshed && next.phase === 'REVIEW' && /^inventory_/.test(next.reason)) {
+        // 1faa99b: the framework restamps the stale pinned evidence after the lanes were imported.
+        const store = new StoryStore(o.worktree);
+        const passes = store.readReviewPasses(o.storyId).passes.map(pass => pass.id);
+        assert.ok(passes.length >= 3, `NW3: the round's lanes were imported before the refresh (${passes.join(', ')})`);
+        o.mustCli('verification_evidence_refresh_stale', { storyId: o.storyId }, { label: 'verification_evidence_refresh_stale (framework restamp)' });
+        assert.match(git(o.worktree, ['log', '-1', '--format=%s']), /record \S+ verification_evidence_refresh_stale metadata$/, 'NW3: the restamp committed its own metadata');
+        const invalid = collectReviewerEvidenceState(new StoryStore(o.worktree), o.storyId, o.worktree).invalid;
+        assert.deepEqual(invalid.map(issue => `${issue.evidenceId}: ${issue.code}: ${issue.message.slice(0, 400)}`), [],
+          'NW3: the framework evidence restamp must leave every managed pass live (run 25 F3)');
+        refreshed = true;
+        lines.push('verification_evidence_refresh_stale restamped the evidence; every managed pass stays live');
+        return true;
+      }
+      if (tag === 'NW4' && !waveAdvanced && next.phase === 'REVIEW' && next.reason === 'inventory_status_next') {
+        // Run 25 items 201-202: the owner finalized the epoch plainly; the critic's new
+        // finding requires the next wave, so the owner advanced it (wave-2 lanes rerun).
+        const finalize = o.cli('review_inventory_finalize', { storyId: o.storyId }, { label: 'owner review_inventory_finalize (run 25 item 201)' });
+        assert.notEqual(finalize.status, 0, `NW4: a plain finalize with a new critic finding must require the next wave:\n${finalize.out.slice(-1200)}`);
+        assert.match(finalize.out, /REVIEW_INVENTORY_NEW_FINDINGS_REQUIRE_NEXT_WAVE/, `NW4: refusal code:\n${finalize.out.slice(-1200)}`);
+        o.mustCli('review_inventory_wave_advance', { storyId: o.storyId }, { label: 'owner review_inventory_wave_advance (run 25 item 202)' });
+        waveAdvanced = true;
+        lines.push('owner finalize refused (new finding requires next wave) -> owner wave_advance');
+        return true;
+      }
+      if (tag === 'NW5' && !cancelled && next.reason === 'certification_begin') {
+        o.mustCli('review_inventory_cancel', { storyId: o.storyId, reason: 'late evidence invalidated finalized receipt' }, { label: 'owner review_inventory_cancel (run 25 item 186)' });
+        cancelled = true;
+        lines.push('owner cancelled the finalized epoch before certification');
+        return true;
+      }
+      return false;
+    } }, lines);
+    const store = new StoryStore(o.root);
+    const runs = store.readReviewRuns(o.storyId).runs;
+    const firstRound = runs.find(run => run.reviewPurpose !== 'inventory-completeness')?.reviewRound;
+    const roundOneLanes = runs.filter(run => run.reviewRound === firstRound && run.reviewPurpose !== 'inventory-completeness');
+    const findings = store.readFindings(o.storyId).findings;
+    if (tag === 'NW3') {
+      assert.ok(edited && refreshed, 'NW3: the owner edit and the framework restamp both happened');
+      assert.equal(roundOneLanes.length, 3, `NW3: one lane wave in round 1, no lineage-driven rerun (${roundOneLanes.map(run => run.reviewRunId).join(', ')})`);
+    }
+    if (tag === 'NW4') {
+      assert.ok(waveAdvanced, 'NW4: the owner advanced the epoch to wave 2');
+      const epochs = store.readReviewInventoryEpochs(o.storyId).epochs.filter(epoch => epoch.reviewRound === firstRound);
+      const finalized = epochs.find(epoch => epoch.state === 'FINALIZED' && epoch.waves.length >= 2);
+      assert.ok(finalized, `NW4: the round-1 epoch finalized after its second wave: ${JSON.stringify(epochs.map(e => [e.epochId, e.state, e.waves.length]))}`);
+      const after = roundOneLanes.filter(run => (run.startedAt ?? '') > (finalized!.updatedAt ?? ''));
+      assert.deepEqual(after.map(run => run.reviewRunId), [], 'NW4: no lane of round 1 relaunched after its epoch finalized (run 25 RR-021..023)');
+      assert.equal(roundOneLanes.length, 6, `NW4: exactly two lane waves in round 1 (${roundOneLanes.map(run => run.reviewRunId).join(', ')})`);
+      const copies = findings.filter(f => f.desc === D_FINDING.desc && f.reviewRound === firstRound);
+      assert.equal(copies.length, 4, `NW4: the critic finding and its three wave-2 copies are all recorded: ${JSON.stringify(copies.map(f => [f.id, f.agent]))}`);
+      assert.ok(copies.every(f => f.status === 'resolved'), `NW4: every copy closed, none dropped: ${JSON.stringify(copies.map(f => [f.id, f.status, f.resolutionType]))}`);
+      const repairs = repairRunsOnDisk(join(o.root, '.proof-or-stop', 'runtime', 'host-runs'));
+      lines.push(`findings: ${copies.map(f => `${f.id.split(':').pop()} ${f.status}${f.resolutionType ? `/${f.resolutionType}` : ''}`).join(', ')}; repair runs per finding: ${JSON.stringify([...repairs].map(([id, ids]) => [id.split(':').pop(), ids.length]))}`);
+    }
+    if (tag === 'NW5') {
+      assert.ok(cancelled, 'NW5: the owner cancelled the finalized epoch');
+      const epochs = store.readReviewInventoryEpochs(o.storyId).epochs.filter(epoch => epoch.reviewRound === firstRound);
+      assert.ok(epochs.some(epoch => epoch.state === 'CANCELLED') && epochs.some(epoch => epoch.state === 'FINALIZED'),
+        `NW5: a fresh epoch finalized after the cancel: ${JSON.stringify(epochs.map(e => [e.epochId, e.state]))}`);
+      assert.equal(roundOneLanes.length, 3, `NW5: the lanes were not rerun (${roundOneLanes.map(run => run.reviewRunId).join(', ')})`);
+    }
+    assert.ok(!kinds.some(kind => kind.startsWith('human:')), `${tag}: next never asked a human: ${kinds.filter(kind => kind.startsWith('human:')).join(', ')}`);
     lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
     o.cleanup();
     return { name, status: 'PASS', lines };
@@ -2753,7 +2929,7 @@ function scenarioNIN(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NI|NIN|NQ|NP|N[AD](?:-run)?|N[DF]-V[1-6]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NW[3-5]?|NI|NIN|NQ|NP|N[AD](?:-run)?|N[DF]-V[1-6]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -2792,6 +2968,7 @@ async function main(): Promise<void> {
     if (only.includes('NC7')) outcomes.push(scenarioNC7(machine.env, steps, 'reroute'));
     if (only.includes('NC8')) outcomes.push(scenarioNC7(machine.env, steps, 'lineage'));
     if (only.includes('NC9')) outcomes.push(scenarioNC9(machine.env, steps));
+    for (const token of ['NW3', 'NW4', 'NW5'] as const) if (only.includes(token) || only.includes('NW')) outcomes.push(scenarioNW(machine.env, steps, token));
     if (only.includes('NI')) outcomes.push(scenarioNI(machine.env, steps));
     if (only.includes('NQ')) outcomes.push(scenarioNQ(machine.env, steps));
     if (only.includes('NIN')) outcomes.push(scenarioNIN(machine.env, steps));
@@ -2804,7 +2981,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NI', 'NIN', 'NQ', 'NP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NI', 'NIN', 'NQ', 'NP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

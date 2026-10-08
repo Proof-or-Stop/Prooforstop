@@ -1,12 +1,21 @@
 /**
  * Table-driven regression for the managed live-binding lineage across every
- * TEST/DONE-phase metadata writer. Run 13 (2026-10-01): the owner satisfied the
+ * REVIEW/TEST/DONE-phase metadata writer. Run 13 (2026-10-01): the owner satisfied the
  * review assurance floor with quorum_submit; its lifecycle commit subject
  * `quorum-submit` was not an authenticated publisher, so done_prepare refused
  * every managed pass, and the printed Next (review_round_prepare) was invalid
  * in TEST. Positive rows keep a managed pass live; negative rows (review
  * evidence, material, rewritten or foreign rows) still break it and name the
  * rule; the recovery Next is valid in the Story's phase.
+ *
+ * Old-PoS run 25 (F3, B-2b04 1faa99b): the framework's own
+ * `verification_evidence_refresh_stale` restamp in REVIEW was not an
+ * authenticated publisher, so it staled the managed passes it had just
+ * imported (23 ReviewRuns on 9 heads for two material states). Every writer
+ * reachable in REVIEW is now classified too: a content-authenticated
+ * lineage-neutral publisher (REVIEW_MAINTENANCE_PUBLISHERS, PRE_CERT
+ * bookkeeping, the importer) or deliberately refused because it changes what
+ * the reviewers bound. A new unclassified writer fails this table.
  */
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
@@ -17,6 +26,7 @@ import {fileURLToPath} from 'node:url';
 import {currentGitHead, currentMaterialHash, currentStoryFilesHash} from '../dist/core/evidence-freshness.js';
 import {PRECERT_METADATA_COMMANDS, verifyManagedReviewLiveBinding} from '../dist/core/managed-review-evidence.js';
 import {managedLineageRecoveryNext} from '../dist/core/review-run.js';
+import {REVIEW_MAINTENANCE_PUBLISHERS} from '../dist/core/review-maintenance-lineage.js';
 
 const storyId = 'B-bookkeep';
 const roots = [];
@@ -32,6 +42,7 @@ function fixture() {
   writeFileSync(join(storyDir, 'story.json'), '{}\n');
   writeFileSync(join(storyDir, 'process-events.jsonl'), `${JSON.stringify({type: 'phase_transition', to: 'TEST'})}\n${JSON.stringify({type: 'host_verdict', runId: 'r0'})}\n`);
   writeFileSync(join(storyDir, 'review-passes.json'), '{"passes":[]}\n');
+  writeFileSync(join(storyDir, 'checklist.json'), `${JSON.stringify({items: [{id: 'CHK-001', title: 'x', status: 'done', verificationIntent: {happy: [{id: 'CHK-001:happy:0', desc: 'x'}]}, verificationEvidence: []}]})}\n`);
   git('add', '-A'); git('commit', '-qm', 'reviewed candidate');
   const expected = {headHash: currentGitHead(root), materialHash: currentMaterialHash(root, 'HEAD', root), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)};
   const commit = (subject) => { git('add', '-A'); git('commit', '-qm', `proof-or-stop: record ${storyId} ${subject} metadata`); return git('rev-parse', 'HEAD'); };
@@ -90,6 +101,11 @@ try {
     ['quorum-submit pruning a non-verdict row', 'quorum-submit', f => writeFileSync(join(f.storyDir, 'process-events.jsonl'), `${JSON.stringify({type: 'host_verdict', runId: 'r0'})}\n`), /beyond its own host_verdict rows/],
     ['delivery_context_pack touching review-passes', 'delivery_context_pack', f => writeFileSync(join(f.storyDir, 'review-passes.json'), '{"passes":[{"id":"forged"}]}\n'), /review evidence .*review-passes\.json/],
     ['unlisted subject', 'checklist_update', f => appendFileSync(join(f.storyDir, 'process-events.jsonl'), event('x')), /not an authenticated review-maintenance publisher/],
+    // Run 25 F3: the restamp is authenticated by content, never by subject alone.
+    ['refresh_stale touching only process events', 'verification_evidence_refresh_stale', f => appendFileSync(join(f.storyDir, 'process-events.jsonl'), event('x')), /verification_evidence_refresh_stale publication is not an exact evidence restamp/],
+    ['refresh_stale touching review-passes', 'verification_evidence_refresh_stale', f => writeFileSync(join(f.storyDir, 'review-passes.json'), '{"passes":[{"id":"forged"}]}\n'), /verification_evidence_refresh_stale publication is not an exact evidence restamp/],
+    ['refresh_stale changing an intent', 'verification_evidence_refresh_stale', f => writeFileSync(join(f.storyDir, 'checklist.json'), `${JSON.stringify({items: [{id: 'CHK-001', title: 'x', status: 'done', verificationIntent: {happy: [{id: 'CHK-001:happy:0', desc: 'changed'}]}, verificationEvidence: []}]})}\n`), /verification_evidence_refresh_stale publication is not an exact evidence restamp/],
+    ['refresh_stale changing material', 'verification_evidence_refresh_stale', f => writeFileSync(join(f.root, 'main.go'), 'package main\n// changed\n'), /./],
   ];
   for (const [label, subject, mutate, rule] of negatives) {
     const f = fixture();
@@ -115,14 +131,18 @@ try {
   // fails this table until it is either authenticated (PRECERT bookkeeping or a
   // review-maintenance publisher) or deliberately refused with a reason.
   const src = join(dirname(fileURLToPath(import.meta.url)), '..', 'src');
-  const reviewMaintenance = new Set(['verification_evidence_add', 'finding_resolve', 'review epoch', 'certification_window_begin', 'validate', 'test-transition']);
+  // Content-authenticated review-maintenance publishers (core/review-maintenance-lineage.ts).
+  const reviewMaintenance = new Set(REVIEW_MAINTENANCE_PUBLISHERS);
+  for (const subject of ['verification_evidence_add', 'verification_evidence_refresh_stale', 'finding_resolve', 'review epoch', 'certification_window_begin', 'validate', 'test-transition']) {
+    assert.ok(reviewMaintenance.has(subject), `${subject} is a content-authenticated review-maintenance publisher`);
+  }
   const refusedInTest = {
     // These change the acceptance basis / reviewed story files the managed pass bound;
     // the refusal Next sends a TEST Story back through DEV to REVIEW.
     artifact_declare: 'declares delivery artifacts the reviewers bound', candidate_spec_route: 'reroutes candidate specs',
     parent_ledger_rollup_set: 'rewrites the parent ledger', scope_shrinkage_decision_set: 'changes the reviewed scope',
     verification_evidence_batch_add: 'adds verification evidence outside the authenticated single-add refresh',
-    verification_evidence_refresh_stale: 'refreshes verification evidence', verification_intent_repair: 'changes verification intent',
+    verification_intent_repair: 'changes verification intent',
     verification_pin_narrow: 'narrows verification pins', verification_run: 'records new verification runs',
     test_add: 'adds test cases', test_story: 'records story tests',
   };
@@ -158,6 +178,42 @@ try {
     appendFileSync(join(f.storyDir, 'process-events.jsonl'), event('x'));
     f.commit(subject);
     assert.match(f.live().lineageRefusal?.rule ?? '', /not an authenticated review-maintenance publisher/, `${subject}: refused in TEST`);
+  }
+  // REVIEW-phase writer audit (run 25 F3). Besides the literal writers above,
+  // the review-result batch (commitReviewResultMetadata reason), the
+  // certification persistHint commands and the lifecycle phase records commit
+  // story metadata in REVIEW.
+  const reviewSubjects = new Set(subjects);
+  for (const file of walk(src)) {
+    const text = readFileSync(file, 'utf8');
+    for (const match of text.matchAll(/commitReviewResultMetadata\(\{[^}]*reason: '([a-z_]+)'/g)) reviewSubjects.add(match[1]);
+    for (const match of text.matchAll(/persistHint\([^,]+,\s*[^,]+,\s*'([a-z_]+)'/g)) reviewSubjects.add(match[1]);
+  }
+  for (const phase of ['REVIEW', 'DEV', 'TEST', 'DONE']) reviewSubjects.add(phase);
+  assert.ok(reviewSubjects.has('managed_review_evidence_import') && reviewSubjects.has('certification_window_begin'), `REVIEW writer scan found the batch writers: ${[...reviewSubjects].join(', ')}`);
+  const reachableInReview = (command) => { const phases = phasesOf(command); return phases === null || phases === 'all' || /'REVIEW'/.test(phases); };
+  // Lineage-neutral in REVIEW without a subject rule of its own: the importer (importerCommitRefusal).
+  const importer = new Set(['managed_review_evidence_import']);
+  const refusedInReview = {
+    ...Object.fromEntries(Object.entries(refusedInTest).filter(([subject]) => reachableInReview(subject))),
+    acceptance_basis_generate: 'regenerates the signed acceptance basis the reviewers bound',
+    topology_critic_receipt_set: 'records the topology critic verdict the reviewers bound',
+    topology_exclusion_approval_set: 'approves a topology exclusion the reviewers bound',
+    stall_resolution_set: 'owner adjudication of a stalled round: a decision, not framework bookkeeping',
+    finding_add: 'records new reviewer evidence (native path); a newer lane run supersedes it',
+    review_pass_set: 'records new reviewer evidence (native path); a newer lane run supersedes it',
+    REVIEW: 'phase entry opens a new review round; its lanes bind after this commit',
+    DEV: 'phase record: remediation leaves REVIEW',
+  };
+  const unclassifiedReview = [...reviewSubjects].filter(subject => (subject.includes('-') || /^[A-Z]+$/.test(subject) || reachableInReview(subject))
+    && !authenticated.has(subject) && !importer.has(subject) && !Object.hasOwn(refusedInReview, subject));
+  assert.deepEqual(unclassifiedReview, [], `REVIEW metadata writers neither authenticated (lineage-neutral) nor deliberately refused: ${unclassifiedReview.join(', ')}`);
+  for (const subject of Object.keys(refusedInReview)) {
+    assert.ok(!authenticated.has(subject), `${subject} is listed as refused in REVIEW but is authenticated`);
+    const f = fixture();
+    appendFileSync(join(f.storyDir, 'process-events.jsonl'), event('x'));
+    f.commit(subject);
+    assert.match(f.live().lineageRefusal?.rule ?? '', /not an authenticated review-maintenance publisher/, `${subject}: refused in REVIEW`);
   }
   for (const [command, [file, why]] of Object.entries(nonCommitting)) {
     const text = readFileSync(join(src, file), 'utf8');

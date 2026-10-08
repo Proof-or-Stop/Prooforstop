@@ -14,6 +14,8 @@
  *   V4 remediation.grouping (default single) host_run grouped finding repair accepted unless the per-finding rollback is set
  *   V5 implementation.grouping=files     host_run grouped implementer accepted only under the flag
  *   V6 implementation.thread=fresh       host_run seals the arm + appends the item pack; the worker never resumes a code-writer thread
+ *   V7 remediation.thread (default fresh) finding-repair runs start a new Codex thread with the repair pack; `resume` = rollback
+ *      (old-PoS run 25: fresh repair 0.86M input vs resumed 2.8-3.9M); implementer items keep implementation.thread (default resume)
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -41,7 +43,7 @@ const epoch = { epochId: 'E1', storyId: 'B-1', requiredLanes: ['a', 'b'], waves:
 await check('config: absent switches resolve to production values; malformed fails closed; evidence lists only ON switches', async () => {
   const { resolveAbVariants, abVariantEvidence } = await load('core/ab-variants.js');
   const off = resolveAbVariants({});
-  assert.deepEqual(off, { criticOnCleanRound: 'run', round2Scope: 'full', round2Lanes: 'fresh', remediationGrouping: 'single', implementationGrouping: 'per-item', implementationThread: 'resume' });
+  assert.deepEqual(off, { criticOnCleanRound: 'run', round2Scope: 'full', round2Lanes: 'fresh', remediationGrouping: 'single', remediationThread: 'fresh', implementationGrouping: 'per-item', implementationThread: 'resume' });
   assert.equal(abVariantEvidence(off), undefined);
   assert.throws(() => resolveAbVariants({ review: { criticOnCleanRound: 'always' } }), /invalid_ab_variant_config: review\.criticOnCleanRound/);
   const on = resolveAbVariants({ review: { criticOnCleanRound: 'skip' }, remediation: { grouping: 'per-finding' } });
@@ -219,6 +221,67 @@ await check('V6 implementation.thread: off = resume the Story code-writer thread
   assert.equal(managedResumeSessionForSpec({ ...spec, managedDispatchTarget: { itemId: 'CHK-002' } }, codexHome), thread, 'switch off: resume the Story thread');
   assert.equal(managedResumeSessionForSpec({ ...spec, managedDispatchTarget: { itemId: 'CHK-002', abVariant: fresh.abVariant } }, codexHome), null, 'fresh: new thread');
   assert.equal(managedResumeSessionForSpec({ ...spec, agentType: 'proof-or-stop-finding-repair', managedDispatchTarget: { findingId: 'B-1:F-001', abVariant: repair.abVariant } }, codexHome), null, 'fresh repair: new thread');
+});
+
+await check('V7 remediation.thread (adopted): absent = finding repairs start fresh with the repair pack (not recorded); resume = rollback; implementer items unchanged', async () => {
+  const { resolveAbVariants, abVariantEvidence } = await load('core/ab-variants.js');
+  const { resolveFreshImplementerThread } = await load('handlers/host-run.js');
+  const { managedResumeSessionForSpec } = await load('core/managed-host-run.js');
+  assert.equal(resolveAbVariants({}).remediationThread, 'fresh', 'production default: fresh repair threads');
+  assert.equal(abVariantEvidence(resolveAbVariants({ remediation: { thread: 'fresh' } })), undefined, 'fresh repairs are production: not recorded');
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ remediation: { thread: 'resume' } })), { schema: 'proof-or-stop.ab-variants.v1', flags: { 'remediation.thread': 'resume' } }, 'the rollback is recorded');
+  assert.throws(() => resolveAbVariants({ remediation: { thread: 'new' } }), /invalid_ab_variant_config: remediation\.thread/);
+  // One git fixture per config (loadConfig caches per root): a Story commit, a repair target, an earlier code-writer run.
+  const thread = '66666666-7777-8888-9999-000000000000';
+  const fixture = (config) => {
+    const repo = mkdtempSync(join(tmpdir(), 'ab-v7-'));
+    dirs.push(repo);
+    const git = (...args) => execFileSync('git', args, { cwd: repo, encoding: 'utf8' }).trim();
+    git('init', '-q', '-b', 'main');
+    mkdirSync(join(repo, 'strs'));
+    writeFileSync(join(repo, 'strs/strs.go'), 'package strs\n\nfunc Upper(s string) string {\n\treturn s\n}\n');
+    git('add', '-A'); git('-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-qm', 'base');
+    git('checkout', '-q', '-b', 'story/B-7');
+    writeFileSync(join(repo, 'strs/strs.go'), 'package strs\n\nimport "strings"\n\nfunc Upper(s string) string {\n\treturn strings.ToUpper(s)\n}\n');
+    git('add', '-A'); git('-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-qm', 'B-7 CHK-001: Upper');
+    writeFileSync(join(repo, 'proof-or-stop.config.json'), JSON.stringify(config));
+    const earlier = join(repo, '.proof-or-stop', 'runtime', 'host-runs', 'run-earlier');
+    mkdirSync(earlier, { recursive: true });
+    writeFileSync(join(earlier, 'spec.json'), JSON.stringify({ host: 'codex', profile: 'managed_dispatch', storyId: 'B-7', cwd: repo, model: 'm', agentType: 'proof-or-stop-implementer' }));
+    writeFileSync(join(earlier, 'terminal.json'), JSON.stringify({ state: 'completed', terminalAt: '2026-10-08T00:00:00.000Z' }));
+    writeFileSync(join(earlier, 'live-output.jsonl'), JSON.stringify({ type: 'thread.started', thread_id: thread }) + '\n');
+    const codexHome = join(repo, '.codex-home');
+    mkdirSync(join(codexHome, 'sessions', '2026'), { recursive: true });
+    writeFileSync(join(codexHome, 'sessions', '2026', `rollout-x-${thread}.jsonl`), '{}\n');
+    const files = { modify: ['strs/strs.go'], create: [], test: [] };
+    const store = {
+      readStory: () => { throw new Error('no story metadata in this fixture'); },
+      readChecklist: () => ({ items: [{ id: 'CHK-001', title: 'Upper', status: 'done', files }] }),
+      readFindings: () => ({ findings: [{ id: 'B-7:F-001', status: 'open', severity: 'medium', category: 'edge', desc: 'strs/strs.go:6 Upper("") is untested', files: ['strs/strs.go'] }] }),
+      storyDirRel: () => 'docs/story',
+      storyFilePath: (id, file) => join(repo, 'docs/story', id, file),
+    };
+    return { ctx: { root: repo, store }, codexHome, spec: { runId: 'run-now', host: 'codex', profile: 'managed_dispatch', storyId: 'B-7', cwd: repo, root: repo, model: 'm' } };
+  };
+  const repairArgs = { storyId: 'B-7', agentType: 'proof-or-stop-finding-repair', itemId: null, findingId: 'B-7:F-001' };
+  const itemArgs = { storyId: 'B-7', agentType: 'proof-or-stop-implementer', itemId: 'CHK-001', findingId: null };
+  // Default: the repair gets the pack and no A/B evidence; the worker starts a fresh thread; items still resume.
+  const def = fixture({});
+  const repair = resolveFreshImplementerThread(def.ctx, repairArgs);
+  assert.ok(repair, 'default: a finding repair carries the repair pack');
+  assert.match(repair.section.join('\n'), /This is a FRESH session/);
+  assert.match(repair.section.join('\n'), /F-001 \[severity=medium/);
+  assert.equal(repair.abVariant, undefined, 'production default: nothing sealed as an A/B arm');
+  assert.equal(resolveFreshImplementerThread(def.ctx, itemArgs), null, 'implementer items keep implementation.thread=resume (no pack)');
+  assert.equal(managedResumeSessionForSpec({ ...def.spec, agentType: 'proof-or-stop-finding-repair', managedDispatchTarget: { findingId: 'B-7:F-001' } }, def.codexHome), null, 'default: a repair starts a new thread');
+  assert.equal(managedResumeSessionForSpec({ ...def.spec, agentType: 'proof-or-stop-implementer', managedDispatchTarget: { itemId: 'CHK-001' } }, def.codexHome), thread, 'default: an implementer item resumes the Story thread');
+  // Rollback: remediation.thread=resume restores the resumed repair thread (no pack).
+  const back = fixture({ remediation: { thread: 'resume' } });
+  assert.equal(resolveFreshImplementerThread(back.ctx, repairArgs), null, 'rollback: no repair pack');
+  assert.equal(managedResumeSessionForSpec({ ...back.spec, agentType: 'proof-or-stop-finding-repair', managedDispatchTarget: { findingId: 'B-7:F-001' } }, back.codexHome), thread, 'rollback: the repair resumes the Story thread');
+  // The V6 arm still makes repairs fresh even under the rollback (sealed as before).
+  const v6 = fixture({ remediation: { thread: 'resume' }, implementation: { thread: 'fresh' } });
+  assert.deepEqual(resolveFreshImplementerThread(v6.ctx, repairArgs)?.abVariant?.flags, { 'remediation.thread': 'resume', 'implementation.thread': 'fresh' });
 });
 
 for (const dir of dirs) rmSync(dir, { recursive: true, force: true });
