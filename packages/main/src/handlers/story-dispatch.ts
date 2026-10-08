@@ -30,6 +30,7 @@ import { readStoryRequest, renderUnmappedLiteralsLine, unmappedStoryRequestLiter
 import { renderPinAudit } from '../core/intent-derivation.js';
 import { renderScopePlanRerunContext } from '../core/scope-plan-rerun-context.js';
 import { INTENT_CONFLICT_RETURN_CONTRACT, REPAIR_INPUT_VARIANT_RULE, renderReviewRequestAuthority } from '../core/request-authority.js';
+import { renderAllowedFilesSection } from '../core/managed-writer-scope.js';
 import { scopeBoundaryHashIsFresh } from '../core/scope-anti-expansion.js';
 import { reportHealthIssue } from '../core/health.js';
 import { findSealedManagedImplementerCompletion, managedImplementerAlreadyDoneAction } from '../core/managed-host-run.js';
@@ -952,6 +953,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         ? `- Story base for that check: ${storyBase} (for example \`git worktree add --detach <tmp> ${storyBase.slice(0, 12)}\`, run the variants there, then remove it).`
         : '- Story base for that check: `git merge-base HEAD main` (run the variants in a detached temporary worktree, then remove it).');
       lines.push('');
+      // Old-PoS run 29 REM2: the repair worker created a test file outside the declared files; state them.
+      const allowedFiles = renderAllowedFilesSection(store.readScopeContract(args.storyId));
+      if (allowedFiles.length) lines.push(...allowedFiles, '');
       lines.push('After completion:');
       appendImplementerCommitSteps(lines, `${args.storyId} ${shortFid}: resolve finding`);
       lines.push('- Return the commit SHA, focused verification output, and repair summary to the Story owner/controller. The repair worker must not call finding_resolve.');

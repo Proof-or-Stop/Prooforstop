@@ -41,19 +41,27 @@ try {
   const F004 = 'Array range assignment with an assigned array aliases the target and reads it while mutating. For `a=[1,2,3,4,5]; a[::-1]=a`, selected target indexes are 4,3,2,1,0 and the RHS value before assignment is [1,2,3,4,5], so assignment should produce [5,4,3,2,1]. Focused execution of the current checkout produced [1,2,3,2,1] because `evalArrayRangeAssignment` writes into `arrayObject.Elements` while reading `value.Elements[i]` from the same array.';
   const F005 = 'B-9c3a:F-004 remains present. At evaluator/evaluator.go:527-534, evalArrayRangeAssignment treats an array RHS as value and writes arrayObject.Elements[idx] = value.Elements[i] while value.Elements may share backing storage with the target array. Repro: `a=[1,2,3,4,5]; a[::-1]=a; echo(str(a))` printed [1, 2, 3, 2, 1].';
   const F006 = 'evaluator/evaluator.go:527-534: evalArrayRangeAssignment reads value.Elements[i] while writing arrayObject.Elements[idx]; when the assigned array aliases the target, for example a=[1,2,3,4,5]; a[::-1]=a, the RHS is observed before assignment as [1,2,3,4,5] and the selected target indexes are 4,3,2,1,0, so the expected result is [5,4,3,2,1]. Focused execution in this checkout produced [1,2,3,2,1]. Snapshot or copy the RHS elements before mutating the target.';
-  const OTHER = 'evalArrayRangeAssignment accepts a null start on the assignment path and panics on the unchecked *object.Number assertion.';
+  const F007 = 'evaluator/evaluator.go:527-534 still aliases and reads the RHS while mutating the target when an array range is assigned from the same array. For a=[1,2,3,4,5]; a[::-1]=a, selected target indexes are 4,3,2,1,0, so the request semantics require [5, 4, 3, 2, 1]; the current checkout produces [1, 2, 3, 2, 1] because value := expr.(*object.Array) shares Elements with arrayObject and each write changes later reads. Existing evaluator tests use distinct RHS arrays (for example a[::-1]=[5,4,3,2,1] and a[::-1]=[10,20,30,40,50]), so they do not cover this self-assignment case.';
+  // Run 28's two distinct defects of the same function (null sentinel on read; unchecked assertion on write): never merged.
+  const R28_F001 = '`[1,2,3][::null]` returns `[1, 2, 3]`, `[0:null:2]` returns `[1, 3]`: `object.NULL` is both the omitted-component sentinel and the value of explicit `null`; the request says a non-numeric end/step must give the numeric-range error.';
+  const R28_F002 = '`a[{}:] = [1]`, `a[null::2] = [1,2]`, `s[{}:] = "x"` panic on unchecked `*object.Number` assertions in evalArrayRangeAssignment; the request wants `index operator not supported: {} on ARRAY` as for read slicing.';
   writeFileSync(store.storyFilePath(storyId, 'findings.json'), JSON.stringify({findings: [
-    // First-wave lane finding about other code, recorded BEFORE F-004 by a run that started before it: never merged.
-    f('F-003', 'RR-005', 'proof-or-stop-review-concept', '2026-10-08T21:48:00.000Z', OTHER, ['evaluator/evaluator.go']),
+    // First-wave lane finding about another defect of the same function, recorded before F-004: never merged.
+    f('F-003', 'RR-005', 'proof-or-stop-review-concept', '2026-10-08T21:48:00.000Z', R28_F001, ['evaluator/evaluator.go']),
     f('F-004', 'RR-008', 'proof-or-stop-review-topology-critic', '2026-10-08T21:54:11.847Z', F004, ['evaluator/evaluator.go']),
     f('F-005', 'RR-009', 'proof-or-stop-review-concept', '2026-10-08T21:59:26.626Z', F005, ['evaluator/evaluator.go']),
     f('F-006', 'RR-010', 'proof-or-stop-review-quality', '2026-10-08T21:57:53.261Z', F006, ['evaluator/evaluator.go']),
+    f('F-007', 'RR-011', 'proof-or-stop-review-test-coverage', '2026-10-08T21:59:15.029Z', F007, ['evaluator/evaluator.go', 'evaluator/evaluator_test.go']),
+    // A later run's finding about a DIFFERENT defect of the same function: never merged into F-003 or F-004.
+    f('F-008', 'RR-010', 'proof-or-stop-review-quality', '2026-10-08T21:58:30.000Z', R28_F002, ['evaluator/evaluator.go']),
   ]}));
   const dup = id => findingDuplicateOf(store, storyId, `${storyId}:${id}`);
   assert.equal(dup('F-005')?.canonicalFindingId, `${storyId}:F-004`, `RUN29_CROSS_EPOCH_RESTATEMENT_RED: F-005 names F-004 and its run started after F-004: ${JSON.stringify(dup('F-005'))}`);
   assert.equal(dup('F-006')?.canonicalFindingId, `${storyId}:F-004`, `RUN29_CROSS_EPOCH_RESTATEMENT_RED: F-006 restates F-004's claim from a later run: ${JSON.stringify(dup('F-006'))}`);
-  assert.equal(dup('F-004'), null, 'the earliest observation is the canonical finding');
+  assert.equal(dup('F-007')?.canonicalFindingId, `${storyId}:F-004`, `RUN29_CROSS_EPOCH_RESTATEMENT_RED: F-007 restates F-004's claim from a later run: ${JSON.stringify(dup('F-007'))}`);
+  assert.equal(dup('F-004'), null, 'the earliest observation is the canonical finding (F-003 is a different defect)');
   assert.equal(dup('F-003'), null, 'a finding recorded before the canonical existed is never merged');
+  assert.equal(dup('F-008'), null, `a later finding about a different defect of the same function is never merged: ${JSON.stringify(dup('F-008'))}`);
   console.log('FINDING_RESTATEMENT_DEDUPE_GREEN');
 } finally {
   rmSync(root, {recursive: true, force: true});

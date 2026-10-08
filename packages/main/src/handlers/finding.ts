@@ -811,7 +811,7 @@ function closeDuplicateWithCoverageFor(ctx: HandlerContext, args: { storyId: str
   if (finding.status !== 'open') refuse(`${args.findingId} is ${finding.status}, not open`, 'duplicate_not_open');
   const duplicate = findingDuplicateOf(store, args.storyId, args.findingId);
   if (!duplicate || duplicate.canonicalFindingId !== args.duplicateOf) {
-    refuse(`neither the REVIEW inventory critic nor a lane rerun's restatement makes ${args.findingId} a duplicate of ${args.duplicateOf}`
+    refuse(`neither the REVIEW inventory critic nor a later review run's restatement makes ${args.findingId} a duplicate of ${args.duplicateOf}`
       + (duplicate ? ` (its canonical finding is ${duplicate.canonicalFindingId})` : ''), 'duplicate_not_critic_verified');
   }
   const canonical = findings.find(row => row.id === args.duplicateOf);

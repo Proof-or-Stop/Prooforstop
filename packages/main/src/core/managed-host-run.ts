@@ -83,6 +83,8 @@ import {
 } from './host-run.js';
 import { providerDiagnosticLineText } from './host-execution-readiness.js';
 import { createManagedRunDiagnostics } from './managed-run-diagnostics.js';
+import { MANAGED_SCOPE_CHECKED_WRITERS, MANAGED_WRITER_SCOPE_REPAIR_MAX_ATTEMPTS, managedWriterScopeBaseHead, managedWriterScopeRepairPrompt,
+  managedWriterScopeViolations, readWriterScopeContract } from './managed-writer-scope.js';
 import type {
   FindingEvidenceState,
   ScopeCheckData,
@@ -4043,6 +4045,9 @@ export async function runManagedHostRunWorker(
         },
       },
     );
+    // Old-PoS run 29 REM2: the commit a managed writer starts on, for its end-of-run scope check.
+    const writerScopeBase = spec.profile === 'managed_dispatch' && spec.storyId && MANAGED_SCOPE_CHECKED_WRITERS.includes(spec.agentType)
+      ? managedWriterScopeBaseHead(spec.cwd) : null;
     result = await launchProvider(promptText, managedResumeSessionForSpec(spec, codexHome), Math.min(spec.timeoutMs, remainingMs));
     // Every provider exit, including a format-repair turn, passes the same
     // post-exit authority checks before any final result is parsed or sealed.
@@ -4403,6 +4408,60 @@ export async function runManagedHostRunWorker(
             refusal: latestManagedDispatchSaveRefusal(paths, launchStartedIso) },
         });
         const repairExitTerminal = await settleProviderExit(result, failureReason);
+        if (repairExitTerminal) return repairExitTerminal;
+      }
+      // Old-PoS run 29 REM2: a writer's change outside the Story's declared files
+      // is fixed by the writer itself, in its own resumed session, before the run
+      // seals (one actionable turn); before, the REVIEW scope gate stopped the
+      // owner on it. A violation that survives the turn stays for that gate.
+      for (let attempt = 1; writerScopeBase && spec.storyId && spec.host === 'codex'; attempt += 1) {
+        const contract = readWriterScopeContract(spec.root, spec.cwd, spec.storyId);
+        const violations = managedWriterScopeViolations({ root: spec.root, cwd: spec.cwd, storyId: spec.storyId, baseHead: writerScopeBase, contract });
+        if (attempt > 1) {
+          appendEvent(paths, {
+            schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
+            type: 'managed_writer_scope_repair_outcome',
+            detail: { attempt: attempt - 1, outcome: violations.length ? 'still_out_of_scope' : 'in_scope', exitCode: result.exitCode, violations: violations.map(row => row.path) },
+          });
+        }
+        if (!violations.length) break;
+        const resumeSessionId = attempt <= MANAGED_WRITER_SCOPE_REPAIR_MAX_ATTEMPTS && result.replacementSafe
+          ? resumableManagedRunCodexSession(paths, codexHome)
+          : null;
+        if (resumeSessionId === null) {
+          appendEvent(paths, {
+            schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
+            type: 'managed_writer_scope_repair_unavailable',
+            detail: { attempt, violations: violations.map(row => `${row.path} (${row.rule})`),
+              reason: attempt > MANAGED_WRITER_SCOPE_REPAIR_MAX_ATTEMPTS ? 'attempts_exhausted' : !result.replacementSafe ? 'provider_not_replacement_safe' : 'session_not_resumable' },
+          });
+          break;
+        }
+        const journaled = updateSnapshotAndAppendEvent(paths, current => ({
+          ...current, generation: current.generation + 1, providerClosedAt: null, supervisionDiagnostic: null,
+        }), {
+          schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
+          type: 'managed_writer_scope_repair',
+          detail: { attempt, maxAttempts: MANAGED_WRITER_SCOPE_REPAIR_MAX_ATTEMPTS, violations: violations.map(row => `${row.path} (${row.rule})`), resumeSessionId },
+        });
+        if (!journaled) return readTerminal(paths)!;
+        const repairRefusal = await authorizeLaunch();
+        if (repairRefusal) {
+          if (repairRefusal === 'absolute_deadline_exceeded') {
+            deadlineTriggered = true;
+            return writeTerminal(paths, 'timed_out', repairRefusal, result.replacementSafe, result, now());
+          }
+          cancelTriggered = readCancelRequest(paths) !== null;
+          if (cancelTriggered) return writeTerminal(paths, 'cancelled', repairRefusal, result.replacementSafe, result, now());
+          break;
+        }
+        providerClosed = false;
+        // Until the repair provider returns, crash cleanup must reap the newly
+        // published provider identity, not reuse the prior cleanup.
+        result = null;
+        result = await launchProvider(managedWriterScopeRepairPrompt(violations, contract), resumeSessionId,
+          Math.max(1, Math.min(spec.timeoutMs, Date.parse(spec.deadlineAt) - now())));
+        const repairExitTerminal = await settleProviderExit(result, 'managed_writer_scope_repair_failed');
         if (repairExitTerminal) return repairExitTerminal;
       }
       const completedResult = result;

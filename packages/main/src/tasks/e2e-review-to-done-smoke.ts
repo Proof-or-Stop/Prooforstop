@@ -3364,9 +3364,11 @@ function scenarioNRS(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     const resumePrompt = readFileSync(resumePath, 'utf8');
     assert.ok(resumePrompt.includes(NRS_OUT_OF_SCOPE_TEST), `${tag}: the scope repair turn names the out-of-scope path:\n${resumePrompt}`);
     assert.ok(resumePrompt.includes('strs/strs_test.go'), `${tag}: the scope repair turn names the allowed test files:\n${resumePrompt}`);
-    const events = readFileSync(join(runsRoot, runId, 'events.jsonl'), 'utf8');
-    assert.match(events, /"type":"managed_writer_scope_repair"/, `${tag}: the scope repair turn is journaled on the run`);
-    assert.match(events, /"type":"managed_writer_scope_repair_outcome"[^\n]*"outcome":"in_scope"/, `${tag}: the resumed turn left the run in scope`);
+    const events = readFileSync(join(runsRoot, runId, 'events.jsonl'), 'utf8').split('\n').filter(Boolean)
+      .map(line => JSON.parse(line) as { type: string; detail?: { outcome?: string } });
+    assert.ok(events.some(row => row.type === 'managed_writer_scope_repair'), `${tag}: the scope repair turn is journaled on the run`);
+    assert.ok(events.some(row => row.type === 'managed_writer_scope_repair_outcome' && row.detail?.outcome === 'in_scope'),
+      `${tag}: the resumed turn left the run in scope: ${JSON.stringify(events.filter(row => row.type.startsWith('managed_writer_scope')))}`);
     assert.ok(!existsSync(join(o.root, NRS_OUT_OF_SCOPE_TEST)), `${tag}: the out-of-scope file never reached main`);
     assert.match(readFileSync(join(o.root, 'strs/strs_test.go'), 'utf8'), /TestReverseEmpty/, `${tag}: the moved regression test reached main`);
     lines.push(`DONE reached; repair run ${runId} resumed once for scope; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);

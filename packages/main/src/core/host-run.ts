@@ -2754,10 +2754,12 @@ export function materializeHostRunLaunch(
       ...(selection.reasoningEffort ? ['--config', `model_reasoning_effort="${selection.reasoningEffort}"`] : []),
     );
     // Uncontained managed dispatch (Darwin, Linux without an outer container)
-    // keeps the ordinary Codex sandbox; a managed save reviewer still keeps its
-    // session and its save repair resumes it (same contract as the contained path).
+    // keeps the ordinary Codex sandbox; a managed save reviewer and a code
+    // writer (implementer, finding repair: its end-of-run scope repair turn,
+    // old-PoS run 29 REM2) still keep their session and resume it (same
+    // contract as the contained path).
     if (args.launchProfile === 'managed_dispatch') argv.splice(argv.length - 1, 0, ...managedWorkerCodexConfigArgs(args.env));
-    if (args.launchProfile === 'managed_dispatch' && managedDispatchSaveCommand(args.agentType) !== null) {
+    if (args.launchProfile === 'managed_dispatch' && (managedDispatchSaveCommand(args.agentType) !== null || isImplementerAgentType(args.agentType))) {
       const ephemeral = argv.indexOf('--ephemeral');
       if (ephemeral >= 0) argv.splice(ephemeral, 1);
       if (args.resumeSessionId) {
