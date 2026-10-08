@@ -17,10 +17,14 @@
  *   V6 implementation.thread=fresh       host_run seals the arm + appends the item pack; the worker never resumes a code-writer thread
  *   V7 remediation.thread (default fresh) finding-repair runs start a new Codex thread with the repair pack; `resume` = rollback
  *      (old-PoS run 25: fresh repair 0.86M input vs resumed 2.8-3.9M); implementer items keep implementation.thread (default resume)
+ *   V8 review.lanePack=shared           every code-review lane and the inventory critic get ONE framework-built lane pack per round
+ *                                        (Story diff, checklist digest, changed files + hashes, candidate route), cached in runtime
+ *   V9 review.roundDelta=pack           from round 2 on the pack also carries the delta since the previous round's head
+ *                                        (repair commits + diff, earlier findings and their resolutions)
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -44,7 +48,7 @@ const epoch = { epochId: 'E1', storyId: 'B-1', requiredLanes: ['a', 'b'], waves:
 await check('config: absent switches resolve to production values; malformed fails closed; evidence lists only ON switches', async () => {
   const { resolveAbVariants, abVariantEvidence } = await load('core/ab-variants.js');
   const off = resolveAbVariants({});
-  assert.deepEqual(off, { criticOnCleanRound: 'run', round2Scope: 'full', round2Lanes: 'fresh', remediationGrouping: 'single', remediationThread: 'fresh', implementationGrouping: 'per-item', implementationThread: 'resume' });
+  assert.deepEqual(off, { criticOnCleanRound: 'run', round2Scope: 'full', round2Lanes: 'fresh', remediationGrouping: 'single', remediationThread: 'fresh', implementationGrouping: 'per-item', implementationThread: 'resume', lanePack: 'off', roundDelta: 'off' });
   assert.equal(abVariantEvidence(off), undefined);
   assert.throws(() => resolveAbVariants({ review: { criticOnCleanRound: 'always' } }), /invalid_ab_variant_config: review\.criticOnCleanRound/);
   const on = resolveAbVariants({ review: { criticOnCleanRound: 'skip' }, remediation: { grouping: 'per-finding' } });
@@ -283,6 +287,140 @@ await check('V7 remediation.thread (adopted): absent = finding repairs start fre
   // The V6 arm still makes repairs fresh even under the rollback (sealed as before).
   const v6 = fixture({ remediation: { thread: 'resume' }, implementation: { thread: 'fresh' } });
   assert.deepEqual(resolveFreshImplementerThread(v6.ctx, repairArgs)?.abVariant?.flags, { 'remediation.thread': 'resume', 'implementation.thread': 'fresh' });
+});
+
+
+/** A Story repo with a base, one implemented item, and (optionally) a repair commit; a duck-typed store over it. */
+function lanePackFixture(config, { repaired = false, request = true } = {}) {
+  const repo = mkdtempSync(join(tmpdir(), 'ab-lanepack-'));
+  dirs.push(repo);
+  const git = (...args) => execFileSync('git', args, { cwd: repo, encoding: 'utf8' }).trim();
+  const commit = (msg) => { git('add', '-A'); git('-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-qm', msg); return git('rev-parse', 'HEAD'); };
+  git('init', '-q', '-b', 'main');
+  mkdirSync(join(repo, 'strs'));
+  writeFileSync(join(repo, 'strs/strs.go'), 'package strs\n\nfunc Upper(s string) string {\n\treturn s\n}\n');
+  writeFileSync(join(repo, 'strs/strs_test.go'), 'package strs\n');
+  commit('base');
+  git('checkout', '-q', '-b', 'story/B-8');
+  writeFileSync(join(repo, 'strs/strs.go'), 'package strs\n\nimport "strings"\n\nfunc Upper(s string) string {\n\treturn strings.ToUpper(s)\n}\n');
+  const round1Head = commit('B-8 CHK-001: Upper');
+  let head = round1Head;
+  if (repaired) {
+    writeFileSync(join(repo, 'strs/strs_test.go'), 'package strs\n\nimport "testing"\n\nfunc TestUpperEmpty(t *testing.T) {\n\tif Upper("") != "" {\n\t\tt.Fatal("empty")\n\t}\n}\n');
+    head = commit('B-8 F-001: resolve finding');
+  }
+  const storyDir = join(repo, 'docs/story/B-8');
+  mkdirSync(storyDir, { recursive: true });
+  if (request) {
+    const text = 'Add Upper(s) that upper-cases s. Upper("") returns "".\n';
+    writeFileSync(join(storyDir, 'request.md'), text);
+    const { createHash } = awaitCrypto;
+    writeFileSync(join(storyDir, 'request.json'), JSON.stringify({ sha256: createHash('sha256').update(text).digest('hex'), bytes: text.length, truncated: false }));
+  }
+  writeFileSync(join(repo, 'proof-or-stop.config.json'), JSON.stringify(config));
+  const files = { modify: ['strs/strs.go'], create: [], test: ['strs/strs_test.go'] };
+  const items = [{
+    id: 'CHK-001', title: 'Upper', status: 'done', files,
+    verificationIntent: { happy: [{ id: 'CHK-001:happy:0', desc: 'Upper("ab") == "AB"', type: 'logic', verification: { command: 'go test ./strs -run TestUpper', selector: 'TestUpper' } }] },
+    verificationEvidence: [{ intentRef: 'CHK-001:happy:0', kind: 'logic_test', result: 'pass', mechanical: true, command: 'go test ./strs -run TestUpper', note: 'ok', headHash: round1Head }],
+  }];
+  const reviewRuns = [
+    { storyId: 'B-8', reviewRunId: 'B-8:RR-001', lane: 'proof-or-stop-review-quality', startedAt: '2026-10-09T00:00:01.000Z', headHash: round1Head, materialHash: 'm1', reviewRound: '2026-10-09T00:00:00.000Z' },
+    ...(repaired ? [{ storyId: 'B-8', reviewRunId: 'B-8:RR-003', lane: 'proof-or-stop-review-quality', startedAt: '2026-10-09T01:00:01.000Z', headHash: head, materialHash: 'm2', reviewRound: '2026-10-09T01:00:00.000Z' }] : []),
+  ];
+  const findings = [{ id: 'B-8:F-001', status: repaired ? 'resolved' : 'open', severity: 'medium', category: 'edge', agent: 'proof-or-stop-review-quality', reviewRunId: 'B-8:RR-001', desc: 'strs/strs.go:6 Upper("") is untested', files: ['strs/strs.go'], ...(repaired ? { resolvedReason: 'TestUpperEmpty added [repair commit abc1234]' } : {}) }];
+  const candidate = { artifactDigest: 'sha256:' + 'a'.repeat(64), corpusDigest: 'sha256:' + 'b'.repeat(64), mode: 'enforce', fullScan: false, scanEscalationReason: null, requiresEscalation: false, escalationReasons: [],
+    candidateSpecSet: ['docs/strings.md'], candidates: [{ path: 'docs/strings.md', contentHash: 'sha256:' + 'c'.repeat(64), score: 3, reasons: [] }] };
+  const store = {
+    readStory: () => { throw new Error('no story metadata in this fixture'); },
+    readChecklist: () => ({ items }),
+    readFindings: () => ({ findings }),
+    readReviewRuns: () => ({ runs: reviewRuns }),
+    readCandidateSpecSet: () => candidate,
+    storyDirRel: () => 'docs/story',
+    storyFilePath: (id, file) => join(repo, 'docs/story', id, file),
+  };
+  return { repo, store, head, round1Head, runs: reviewRuns, git };
+}
+const awaitCrypto = await import('node:crypto');
+
+await check('V8 review.lanePack: off/malformed = no pack (production prompt); shared = one bounded framework pack per round for every code-review lane and the critic', async () => {
+  const { resolveAbVariants, abVariantEvidence } = await load('core/ab-variants.js');
+  const { resolveReviewLanePack, LANE_PACK_MAX_BYTES } = await load('core/review-lane-pack.js');
+  assert.equal(resolveAbVariants({}).lanePack, 'off');
+  assert.equal(resolveAbVariants({}).roundDelta, 'off');
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ review: { lanePack: 'shared' } })), { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.lanePack': 'shared' } });
+  assert.throws(() => resolveAbVariants({ review: { lanePack: 'yes' } }), /invalid_ab_variant_config: review\.lanePack/);
+  const laneRun = (f) => ({ storyId: 'B-8', reviewRunId: 'B-8:RR-002', lane: 'proof-or-stop-review-behavior', startedAt: '2026-10-09T00:00:02.000Z', headHash: f.head, materialHash: 'm1', reviewRound: '2026-10-09T00:00:00.000Z' });
+  for (const config of [{}, { review: { lanePack: 'off' } }, { review: { lanePack: 'bogus' } }]) {
+    const f = lanePackFixture(config);
+    assert.equal(resolveReviewLanePack(f.repo, laneRun(f), { store: f.store }), null, `${JSON.stringify(config)}: no pack`);
+  }
+  const f = lanePackFixture({ review: { lanePack: 'shared' } });
+  const pack = resolveReviewLanePack(f.repo, laneRun(f), { store: f.store });
+  assert.ok(pack, 'shared: a pack');
+  assert.deepEqual(pack.abVariant.flags, { 'review.lanePack': 'shared' });
+  const text = pack.lines.join('\n');
+  assert.match(text, /^--- BEGIN REVIEW LANE PACK \(A\/B review\.lanePack=shared, experimental; B-8 candidate [0-9a-f]{12}\) ---/m);
+  assert.match(text, /authoritative/, 'states that the pack is authoritative for its facts');
+  assert.match(text, /keep probing|probe/i, 'lanes keep probing the code');
+  assert.match(text, /\+\treturn strings\.ToUpper\(s\)/, 'Story diff hunks');
+  assert.match(text, /strs\/strs\.go \[M\] sha256=[0-9a-f]{64}/, 'changed file with its hash');
+  assert.match(text, /CHK-001:happy:0 \[logic\] Upper\("ab"\) == "AB"/, 'checklist intent');
+  assert.match(text, /pin: `go test \.\/strs -run TestUpper`/, 'pinned command');
+  assert.match(text, /evidence: logic_test pass mechanical @[0-9a-f]{7}/, 'verification evidence summary');
+  assert.match(text, /candidateSpecSetDigest=sha256:a{64}/, 'candidate route digests');
+  assert.match(text, /docs\/strings\.md/, 'candidate spec list');
+  assert.match(text, /request\.md.*sha256=/, 'request reference');
+  assert.doesNotMatch(text, /Delta since the previous round/, 'no delta without review.roundDelta');
+  assert.ok(pack.bytes <= LANE_PACK_MAX_BYTES, `bounded (${pack.bytes} <= ${LANE_PACK_MAX_BYTES})`);
+  assert.equal(Buffer.byteLength(text, 'utf8'), pack.bytes);
+  assert.ok(existsSync(pack.path) && readFileSync(pack.path, 'utf8') === text, 'written to the runtime pack file');
+  assert.match(pack.path, /\.proof-or-stop\/runtime\/review-lane-packs\/B-8\//);
+  assert.equal(pack.cached, false);
+  // Same round, another lane and the inventory critic: the same file, not recomputed.
+  const other = resolveReviewLanePack(f.repo, { ...laneRun(f), reviewRunId: 'B-8:RR-004', lane: 'proof-or-stop-review-concept' }, { store: f.store });
+  assert.equal(other.path, pack.path);
+  assert.equal(other.cached, true, 'computed once per round');
+  assert.equal(other.lines.join('\n'), text);
+  const critic = resolveReviewLanePack(f.repo, { ...laneRun(f), reviewRunId: 'B-8:RR-005', lane: 'proof-or-stop-review-topology-critic', reviewPurpose: 'inventory-completeness' }, { store: f.store });
+  assert.equal(critic?.path, pack.path, 'the inventory critic gets the same pack');
+  assert.equal(resolveReviewLanePack(f.repo, { ...laneRun(f), reviewRunId: 'B-8:RR-006', lane: 'proof-or-stop-review-topology-critic' }, { store: f.store }), null, 'topology-proof critic: no pack');
+});
+
+await check('V9 review.roundDelta=pack: round 1 = no delta; round 2+ = delta (repair commits, repair diff, findings + resolutions) and still the whole Story', async () => {
+  const { resolveAbVariants, abVariantEvidence } = await load('core/ab-variants.js');
+  const { resolveReviewLanePack } = await load('core/review-lane-pack.js');
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ review: { roundDelta: 'pack' } })), { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.roundDelta': 'pack' } });
+  assert.throws(() => resolveAbVariants({ review: { roundDelta: 'full' } }), /invalid_ab_variant_config: review\.roundDelta/);
+  const round2Run = (f) => ({ storyId: 'B-8', reviewRunId: 'B-8:RR-007', lane: 'proof-or-stop-review-behavior', startedAt: '2026-10-09T01:00:02.000Z', headHash: f.head, materialHash: 'm2', reviewRound: '2026-10-09T01:00:00.000Z' });
+  const off = lanePackFixture({ review: { lanePack: 'shared' } }, { repaired: true });
+  assert.doesNotMatch(resolveReviewLanePack(off.repo, round2Run(off), { store: off.store }).lines.join('\n'), /Delta since the previous round/, 'roundDelta off: no delta');
+  assert.equal(resolveReviewLanePack(lanePackFixture({ review: { roundDelta: 'bogus' } }, { repaired: true }).repo, round2Run(off), { store: off.store }), null, 'malformed: production');
+  const f = lanePackFixture({ review: { lanePack: 'shared', roundDelta: 'pack' } }, { repaired: true });
+  const pack = resolveReviewLanePack(f.repo, round2Run(f), { store: f.store });
+  assert.deepEqual(pack.abVariant.flags, { 'review.lanePack': 'shared', 'review.roundDelta': 'pack' });
+  assert.equal(pack.delta?.fromHead, f.round1Head, 'delta from the previous round head');
+  const text = pack.lines.join('\n');
+  assert.match(text, /## Delta since the previous round/);
+  assert.match(text, /commit [0-9a-f]+ B-8 F-001: resolve finding/, 'repair commits');
+  assert.match(text, /\+func TestUpperEmpty/, 'repair diff');
+  assert.match(text, /F-001 \[severity=medium, status=resolved, lane=proof-or-stop-review-quality\]/, 'earlier finding');
+  assert.match(text, /resolution: TestUpperEmpty added/, 'its resolution');
+  assert.match(text, /[Ss]tart from (this|the) delta[\s\S]*whole Story/, 'start from the delta but review the whole Story');
+  assert.match(text, /\+\treturn strings\.ToUpper\(s\)/, 'shared Story diff still present');
+  // Round 1 under roundDelta=pack: no earlier round, no delta.
+  const r1 = lanePackFixture({ review: { lanePack: 'shared', roundDelta: 'pack' } });
+  const r1Pack = resolveReviewLanePack(r1.repo, { storyId: 'B-8', reviewRunId: 'B-8:RR-002', lane: 'proof-or-stop-review-behavior', startedAt: '2026-10-09T00:00:02.000Z', headHash: r1.head, materialHash: 'm1', reviewRound: '2026-10-09T00:00:00.000Z' }, { store: r1.store });
+  assert.equal(r1Pack.delta, null);
+  assert.doesNotMatch(r1Pack.lines.join('\n'), /Delta since the previous round/);
+  // roundDelta alone (lanePack off): a delta-only pack from round 2 on, none in round 1.
+  const only = lanePackFixture({ review: { roundDelta: 'pack' } }, { repaired: true });
+  const onlyPack = resolveReviewLanePack(only.repo, round2Run(only), { store: only.store });
+  assert.match(onlyPack.lines.join('\n'), /## Delta since the previous round/);
+  assert.doesNotMatch(onlyPack.lines.join('\n'), /## Story diff/, 'lanePack off: no shared sections');
+  const onlyR1 = lanePackFixture({ review: { roundDelta: 'pack' } });
+  assert.equal(resolveReviewLanePack(onlyR1.repo, { storyId: 'B-8', reviewRunId: 'B-8:RR-002', lane: 'proof-or-stop-review-behavior', startedAt: '2026-10-09T00:00:02.000Z', headHash: onlyR1.head, materialHash: 'm1', reviewRound: '2026-10-09T00:00:00.000Z' }, { store: onlyR1.store }), null, 'roundDelta alone in round 1: no pack');
 });
 
 for (const dir of dirs) rmSync(dir, { recursive: true, force: true });

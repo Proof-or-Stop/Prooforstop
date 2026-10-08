@@ -168,10 +168,15 @@
  *      adoption; NF covers the grouped path), V5
  *      implementation.grouping=files on an unimplemented fixture, V6
  *      implementation.thread=fresh on an unimplemented fixture: every
- *      implementer and finding-repair run seals the arm and carries the item pack).
- *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5 ND-V6.
+ *      implementer and finding-repair run seals the arm and carries the item pack,
+ *      V8 review.lanePack=shared: every lane and critic prompt carries the one
+ *      round pack (Story diff, checklist digest, changed files + hashes, route),
+ *      sealed in the run spec reviewBinding.lanePack; V9 review.roundDelta=pack:
+ *      later-round prompts also carry the delta since the previous round's head
+ *      and still review the whole Story).
+ *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5 ND-V6 ND-V8 ND-V9.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIN|NQ|NP|NX|NM|AB|ND-V1..NF-V6]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIN|NQ|NP|NX|NM|AB|ND-V1..NF-V9]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -2464,18 +2469,20 @@ export const AB_SCENARIO_VARIANTS = {
   V4: { remediation: { grouping: 'per-finding' } },
   V5: { implementation: { grouping: 'files' } },
   V6: { implementation: { thread: 'fresh' } },
+  V8: { review: { lanePack: 'shared' } },
+  V9: { review: { roundDelta: 'pack' } },
 } as const;
 
 /** Every managed provider prompt of an agent type, oldest first. */
-function managedPrompts(o: Owner, agentType?: string): Array<{ runId: string; agentType: string; prompt: string; target: Record<string, unknown> | null }> {
+function managedPrompts(o: Owner, agentType?: string): Array<{ runId: string; agentType: string; prompt: string; target: Record<string, unknown> | null; reviewBinding: Record<string, unknown> | null }> {
   const runsRoot = join(o.root, '.proof-or-stop', 'runtime', 'host-runs');
   if (!existsSync(runsRoot)) return [];
   return readdirSync(runsRoot).flatMap(runId => {
     try {
-      const spec = JSON.parse(readFileSync(join(runsRoot, runId, 'spec.json'), 'utf8')) as { agentType: string; createdAt?: string; managedDispatchTarget?: Record<string, unknown> | null };
+      const spec = JSON.parse(readFileSync(join(runsRoot, runId, 'spec.json'), 'utf8')) as { agentType: string; createdAt?: string; managedDispatchTarget?: Record<string, unknown> | null; reviewBinding?: Record<string, unknown> | null };
       if (agentType && spec.agentType !== agentType) return [];
       const promptFile = join(o.scriptsDir, 'prompts', `${runId}.txt`);
-      return [{ runId, agentType: spec.agentType, createdAt: spec.createdAt ?? '', prompt: existsSync(promptFile) ? readFileSync(promptFile, 'utf8') : '', target: spec.managedDispatchTarget ?? null }];
+      return [{ runId, agentType: spec.agentType, createdAt: spec.createdAt ?? '', prompt: existsSync(promptFile) ? readFileSync(promptFile, 'utf8') : '', target: spec.managedDispatchTarget ?? null, reviewBinding: spec.reviewBinding ?? null }];
     } catch { return []; }
   }).sort((a, b) => a.createdAt.localeCompare(b.createdAt) || a.runId.localeCompare(b.runId));
 }
@@ -2498,13 +2505,20 @@ function managedPrompts(o: Owner, agentType?: string): Array<{ runId: string; ag
  *   V6 (unimplemented fixture) implementation.thread=fresh: every implementer
  *      and finding-repair run seals `implementation.thread=fresh` on its target
  *      (so the worker never resumes a code-writer thread) and its prompt carries
- *      the bounded item pack (request, Story history, diff, declared files).
+ *      the bounded item pack (request, Story history, diff, declared files);
+ *   V8 review.lanePack=shared: every code-review lane and inventory critic prompt
+ *      carries the round's REVIEW LANE PACK (one runtime file per round), the run
+ *      spec seals reviewBinding.lanePack with the A/B evidence;
+ *   V9 review.roundDelta=pack: round-1 prompts carry no pack; later-round lane
+ *      and critic prompts carry the delta (repair commits + diff, F-001 and its
+ *      resolution) and are told to start there but review the whole Story.
  */
 function scenarioAB(machineEnv: NodeJS.ProcessEnv, steps: Step[], flow: 'D' | 'F', variant: keyof typeof AB_SCENARIO_VARIANTS): Outcome {
   const tag = `N${flow}-${variant}`;
   const name = `${tag} A/B ${JSON.stringify(AB_SCENARIO_VARIANTS[variant])} on the N${flow} flow reaches DONE`;
   const ids: Record<string, string> = { 'D-V1': 'B-ab11', 'D-V2': 'B-ab12', 'D-V3': 'B-ab13', 'D-V4': 'B-ab14', 'D-V5': 'B-ab15', 'D-V6': 'B-ab16',
-    'F-V1': 'B-ab21', 'F-V2': 'B-ab22', 'F-V3': 'B-ab23', 'F-V4': 'B-ab24', 'F-V5': 'B-ab25', 'F-V6': 'B-ab26' };
+    'F-V1': 'B-ab21', 'F-V2': 'B-ab22', 'F-V3': 'B-ab23', 'F-V4': 'B-ab24', 'F-V5': 'B-ab25', 'F-V6': 'B-ab26',
+    'D-V8': 'B-ab18', 'D-V9': 'B-ab19', 'F-V8': 'B-ab28', 'F-V9': 'B-ab29' };
   const o = new Owner(tag, ids[`${flow}-${variant}`]!, machineEnv, steps, false,
     { trackedGateFailureCounts: true, config: AB_SCENARIO_VARIANTS[variant] as unknown as Record<string, unknown>, unimplemented: variant === 'V5' || variant === 'V6', ...(variant === 'V6' ? { request: NIQ_REQUEST } : {}) });
   const lines: string[] = [];
@@ -2595,6 +2609,53 @@ function scenarioAB(machineEnv: NodeJS.ProcessEnv, steps: Step[], flow: 'D' | 'F
         assert.match(repair, /## Findings this repair is bound to/, `${tag}: repair pack carries the finding and its evidence`);
         assert.match(repair, /## Story diff so far: hunks/, `${tag}: repair pack carries the repair diff context`);
         lines.push(`code-writer runs with a fresh thread + item pack: ${writers.length}; pack bytes: ${sizes.join(', ')}`);
+        break;
+      }
+      case 'V8':
+      case 'V9': {
+        const reviewers = managedPrompts(o).filter(row => row.agentType.startsWith('proof-or-stop-review-') && row.agentType !== DELIVERY);
+        const critics = reviewers.filter(row => row.agentType === MANAGED_INVENTORY_CRITIC_LANE);
+        assert.ok(critics.length >= 1 && reviewers.length > critics.length, `${tag}: lanes and the inventory critic launched`);
+        const packOf = (prompt: string) => { const at = prompt.indexOf('--- BEGIN REVIEW LANE PACK'); return at < 0 ? '' : prompt.slice(at, prompt.indexOf('--- END REVIEW LANE PACK ---', at) + '--- END REVIEW LANE PACK ---'.length); };
+        const flag = variant === 'V8' ? 'review.lanePack' : 'review.roundDelta';
+        const value = variant === 'V8' ? 'shared' : 'pack';
+        const packed = reviewers.filter(row => packOf(row.prompt));
+        const sizes = new Map<string, number>();
+        for (const row of packed) {
+          const binding = row.reviewBinding?.lanePack as { abVariant?: { flags?: Record<string, string> }; path?: string; bytes?: number } | undefined;
+          assert.equal(binding?.abVariant?.flags?.[flag], value, `${tag}: ${row.runId} seals ${flag}=${value} in its run spec`);
+          assert.ok(binding?.path && existsSync(binding.path), `${tag}: ${row.runId} names the round's pack file`);
+          assert.equal(readFileSync(binding!.path!, 'utf8'), packOf(row.prompt), `${tag}: ${row.runId} prompt inlines exactly the pack file`);
+          sizes.set(binding!.path!, Buffer.byteLength(packOf(row.prompt), 'utf8'));
+        }
+        if (variant === 'V8') {
+          assert.equal(packed.length, reviewers.length, `${tag}: every lane and critic prompt carries the lane pack`);
+          for (const row of packed) {
+            const pack = packOf(row.prompt);
+            assert.match(pack, /authoritative/, `${tag}: ${row.runId} pack is authoritative for its facts`);
+            assert.match(pack, /## Story diff/, `${tag}: ${row.runId} pack carries the Story diff`);
+            assert.match(pack, /strs\/strs\.go \[M\] sha256=[0-9a-f]{64}/, `${tag}: ${row.runId} pack lists the changed file with its hash`);
+            assert.match(pack, /## Checklist intents and verification evidence/, `${tag}: ${row.runId} pack carries the checklist digest`);
+            assert.match(pack, /candidateSpecSetDigest=/, `${tag}: ${row.runId} pack carries the candidate route`);
+          }
+          const rounds = new Set(packed.map(row => (row.reviewBinding?.lanePack as { path: string }).path));
+          assert.ok(rounds.size >= 2 && rounds.size < packed.length, `${tag}: one pack file per round shared by its lanes (${rounds.size} files for ${packed.length} runs)`);
+        } else {
+          const later = packed;
+          assert.ok(later.length >= 1, `${tag}: later-round reviewers carry the delta pack`);
+          assert.ok(packed.length < reviewers.length, `${tag}: round-1 reviewers carry no pack`);
+          for (const row of later) {
+            const pack = packOf(row.prompt);
+            assert.match(pack, /## Delta since the previous round/, `${tag}: ${row.runId} pack carries the delta`);
+            assert.match(pack, /strs\/strs_test\.go/, `${tag}: ${row.runId} delta names the repaired file`);
+            assert.match(pack, /F-001 \[severity=/, `${tag}: ${row.runId} delta carries the earlier finding`);
+            assert.match(pack, /resolution: /, `${tag}: ${row.runId} delta carries its resolution`);
+            assert.match(pack, /whole Story/, `${tag}: ${row.runId} still reviews the whole Story`);
+            assert.doesNotMatch(pack, /## Story diff/, `${tag}: ${row.runId} lanePack off: no shared sections`);
+            if (row.agentType !== MANAGED_INVENTORY_CRITIC_LANE) assert.doesNotMatch(row.prompt, /Do not re-review the whole Story/, `${tag}: ${row.runId} re-review block does not narrow the review`);
+          }
+        }
+        lines.push(`reviewer prompts with the pack: ${packed.length}/${reviewers.length}; pack files: ${sizes.size}; pack bytes: ${[...sizes.values()].join(', ')}; prompt bytes: ${packed.map(row => Buffer.byteLength(row.prompt, 'utf8')).join(', ')}`);
         break;
       }
     }
@@ -3080,7 +3141,7 @@ function scenarioNM(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NW[3-6]?|NI|NIN|NQ|NP|NX|NM|N[AD](?:-run)?|N[DF]-V[1-6]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NW[3-6]?|NI|NIN|NQ|NP|NX|NM|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -3126,9 +3187,9 @@ async function main(): Promise<void> {
     if (only.includes('NP')) outcomes.push(scenarioNP(machine.env, steps));
     if (only.includes('NX')) outcomes.push(scenarioNX(machine.env, steps));
     if (only.includes('NM')) outcomes.push(scenarioNM(machine.env, steps));
-    // Detection A/B arms: explicit tokens (ND-V1 .. NF-V6) or AB = ND-V1, ND-V2, ND-V3, NF-V4, ND-V5, ND-V6.
-    const abTokens = only.includes('AB') ? ['ND-V1', 'ND-V2', 'ND-V3', 'NF-V4', 'ND-V5', 'ND-V6'] : [];
-    for (const token of [...new Set([...abTokens, ...only.filter(arg => /^N[DF]-V[1-6]$/.test(arg))])]) {
+    // Detection A/B arms: explicit tokens (ND-V1 .. NF-V9) or AB = ND-V1, ND-V2, ND-V3, NF-V4, ND-V5, ND-V6, ND-V8, ND-V9.
+    const abTokens = only.includes('AB') ? ['ND-V1', 'ND-V2', 'ND-V3', 'NF-V4', 'ND-V5', 'ND-V6', 'ND-V8', 'ND-V9'] : [];
+    for (const token of [...new Set([...abTokens, ...only.filter(arg => /^N[DF]-V[1-689]$/.test(arg))])]) {
       outcomes.push(scenarioAB(machine.env, steps, token[1] as 'D' | 'F', token.slice(3) as keyof typeof AB_SCENARIO_VARIANTS));
     }
   } finally {

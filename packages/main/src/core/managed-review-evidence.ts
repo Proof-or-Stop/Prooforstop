@@ -43,6 +43,7 @@ import type { ManagedInventoryCriticCoverage } from './managed-inventory-critic.
 import { verifyReviewRun } from './review-run.js';
 import { isMaterialExcludedPath } from './material-path-policy.js';
 import { earlierCandidateRuns, isCodeReviewLaneRun, isEarlierReviewRound, previousCandidateLaneRun } from './review-round-order.js';
+import { resolveReviewLanePack, type ReviewLanePack } from './review-lane-pack.js';
 
 export interface ManagedReviewEvidenceVerification {
   valid: boolean;
@@ -820,7 +821,7 @@ function oneLine(text: string, max: number): string {
  * so runs on the current HEAD cannot change the prompt or its digest. A lane's
  * first review, and a relaunch whose only earlier runs share its HEAD, get none.
  */
-function renderManagedReviewerRereview(root: string, run: ReviewRun): string[] {
+function renderManagedReviewerRereview(root: string, run: ReviewRun, lanePack: ReviewLanePack | null = null): string[] {
   if (!isCodeReviewLaneRun(run)) return [];
   const store = new StoryStore(root);
   const runs = store.readReviewRuns(run.storyId).runs;
@@ -835,10 +836,14 @@ function renderManagedReviewerRereview(root: string, run: ReviewRun): string[] {
       : typeof finding.reviewRound === 'string' && isEarlierReviewRound(finding.reviewRound, run.reviewRound))
     .sort((a, b) => a.id.localeCompare(b.id));
   const variants = rereviewAbVariants(root);
+  // EXPERIMENTAL A/B review.roundDelta=pack (core/review-lane-pack.ts): the lane pack above carries the
+  // delta; the lane starts there but still reviews the whole Story. Off (no delta in the pack) = unchanged.
+  const delta = lanePack?.delta ?? null;
   const scope = variants.round2Scope === 'repaired-files' ? repairedFilesReviewScope(gitCwd, root, previous.headHash, run.headHash) : null;
   const abLines = [
-    ...(variants.round2Lanes === 'fresh' ? [
-      'This is a FRESH session: your earlier review thread is not resumed. Do not re-review the whole Story: focus on the findings raised on earlier candidates and on the repair diff below, reading other code only where the diff depends on it.',
+    ...(variants.round2Lanes === 'fresh' ? [delta
+      ? 'This is a FRESH session: your earlier review thread is not resumed. A/B variant review.roundDelta=pack (experimental): start from the delta in the REVIEW LANE PACK above (the repair diff, the findings raised on earlier candidates and their resolutions), then review the whole Story; the delta is where to look first, not where to stop.'
+      : 'This is a FRESH session: your earlier review thread is not resumed. Do not re-review the whole Story: focus on the findings raised on earlier candidates and on the repair diff below, reading other code only where the diff depends on it.',
     ] : []),
     ...(variants.round2Scope === 'repaired-files' ? (scope ? [
       'A/B variant review.round2Scope=repaired-files (experimental): this round reviews ONLY the files changed by the repair commits and their direct callers, not the full Story diff. Do not raise findings in other files; the rest of the Story diff was reviewed on earlier candidates.',
@@ -856,16 +861,34 @@ function renderManagedReviewerRereview(root: string, run: ReviewRun): string[] {
     '2. Then review the code changed since the previous review and the direct callers of changed code.',
     '3. Apply variant analysis: for each problem, search the changed files and the direct callers of changed code for the same pattern, and report one finding that names every location.',
     '4. Report every blocking problem in this one pass; do not hold problems back for a later review.',
-    '5. Code outside the diff was reviewed on earlier candidates. Re-read it only where the diff depends on it.',
+    delta
+      ? '5. Then review the whole Story diff as in a first review: code outside the repair diff can hold defects earlier candidates missed.'
+      : '5. Code outside the diff was reviewed on earlier candidates. Re-read it only where the diff depends on it.',
     '6. Re-check earlier conclusions against the new code rather than assuming them.',
     'The managed review evidence protocol above is unchanged: submit exactly one final proposal with truthful read evidence for this run.',
     `Findings raised on earlier candidates (${findings.length}):`,
     ...(findings.length === 0 ? ['- none'] : findings.map(finding =>
       `- ${finding.id} [severity=${finding.severity}, status=${finding.status}${finding.agent ? `, lane=${finding.agent}` : ''}] ${oneLine(finding.desc ?? '', MANAGED_REREVIEW_FINDING_DESC_MAX_CHARS)}`)),
     `Repair since the previous review: git diff ${previous.headHash}..${run.headHash}, material paths only.`,
-    ...renderManagedRereviewDiff(gitCwd, root, previous.headHash, run.headHash),
+    ...(delta && delta.fromHead === previous.headHash && delta.toHead === run.headHash && delta.diffComplete
+      ? ['The repair diff is in the REVIEW LANE PACK above (delta section, same range); it is not repeated here.']
+      : renderManagedRereviewDiff(gitCwd, root, previous.headHash, run.headHash)),
     '--- END MANAGED RE-REVIEW SINCE PREVIOUS CANDIDATE ---',
   ];
+}
+
+/**
+ * EXPERIMENTAL A/B review.lanePack / review.roundDelta (core/review-lane-pack.ts):
+ * the round's lane pack for a code-review lane or inventory critic run, or null
+ * (production: both switches off or malformed). A failure to build it never
+ * blocks a launch; the run then gets the production prompt.
+ */
+export function managedReviewLanePack(root: string, run: ReviewRun): ReviewLanePack | null {
+  try {
+    return resolveReviewLanePack(root, run, { store: new StoryStore(root), gitCwd: run.workspaceBinding?.signedWorkspaceRoot ?? root });
+  } catch {
+    return null;
+  }
 }
 
 export function buildManagedReviewerPrompt(
@@ -886,7 +909,8 @@ export function buildManagedReviewerPrompt(
     reviewRunId: run.reviewRunId,
     agentType: run.lane,
   }));
-  const rereview = renderManagedReviewerRereview(root, run);
+  const lanePack = managedReviewLanePack(root, run);
+  const rereview = renderManagedReviewerRereview(root, run, lanePack);
   return [
     '--- BEGIN MANAGED REVIEW EVIDENCE PROTOCOL ---',
     `This provider run is already bound to ${binding}.`,
@@ -934,6 +958,7 @@ export function buildManagedReviewerPrompt(
     renderManagedReviewerProviderPrompt(resolveManagedReviewerBasePrompt(root, run), root),
     ...(canonicalReportStatuses ? ['', ...renderManagedReviewerCanonicalReportSnapshot(canonicalReportStatuses)] : []),
     ...(fullScanBinding ? ['', ...renderManagedReviewerFullScanBinding(fullScanBinding)] : []),
+    ...(lanePack ? ['', ...lanePack.lines] : []),
     ...(rereview.length > 0 ? ['', ...rereview] : []),
     ...(run.reviewPurpose === 'inventory-completeness' ? [
       '', ...MANAGED_INVENTORY_CRITIC_PROTOCOL,

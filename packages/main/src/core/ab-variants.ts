@@ -25,9 +25,13 @@
  *                              resumed 2.8-3.9M); `resume` restores the resumed Story code-writer thread for repairs
  *   implementation.grouping    'per-item' (default) | 'files'
  *   implementation.thread      'resume' (default) | 'fresh'  (core/implementer-item-pack.ts)
+ *   review.lanePack            'off' (default) | 'shared'  one framework-built lane pack per review round in every
+ *                              code-review lane and inventory critic prompt (core/review-lane-pack.ts; v41 plan A3)
+ *   review.roundDelta          'off' (default) | 'pack'    from round 2 on the pack also carries the delta since the
+ *                              previous round's candidate; lanes start there but review the whole Story (v41 plan A4)
  *
  * A malformed value fails closed where it is consumed (never silently treated
- * as either arm). See docs/CLI.md "Detection A/B variant switches".
+ * as an experimental arm; review.lanePack / review.roundDelta then keep production: no pack). See docs/CLI.md "Detection A/B variant switches".
  */
 
 export const AB_VARIANT_EVIDENCE_SCHEMA = 'proof-or-stop.ab-variants.v1' as const;
@@ -40,13 +44,15 @@ export const AB_VARIANT_FLAGS = {
   'remediation.thread': ['fresh', 'resume'],
   'implementation.grouping': ['per-item', 'files'],
   'implementation.thread': ['resume', 'fresh'],
+  'review.lanePack': ['off', 'shared'],
+  'review.roundDelta': ['off', 'pack'],
 } as const;
 
 export type AbVariantFlag = keyof typeof AB_VARIANT_FLAGS;
 export type AbVariantValue<F extends AbVariantFlag> = (typeof AB_VARIANT_FLAGS)[F][number];
 
 export interface AbVariantConfigSlice {
-  review?: { criticOnCleanRound?: string; round2Scope?: string; round2Lanes?: string };
+  review?: { criticOnCleanRound?: string; round2Scope?: string; round2Lanes?: string; lanePack?: string; roundDelta?: string };
   remediation?: { grouping?: string; thread?: string };
   implementation?: { grouping?: string; thread?: string };
 }
@@ -59,6 +65,8 @@ export interface AbVariants {
   remediationThread: AbVariantValue<'remediation.thread'>;
   implementationGrouping: AbVariantValue<'implementation.grouping'>;
   implementationThread: AbVariantValue<'implementation.thread'>;
+  lanePack: AbVariantValue<'review.lanePack'>;
+  roundDelta: AbVariantValue<'review.roundDelta'>;
 }
 
 export interface AbVariantEvidence {
@@ -92,6 +100,8 @@ export function resolveAbVariants(config: unknown): AbVariants {
     remediationThread: pick('remediation.thread', section(config, 'remediation').thread),
     implementationGrouping: pick('implementation.grouping', section(config, 'implementation').grouping),
     implementationThread: pick('implementation.thread', section(config, 'implementation').thread),
+    lanePack: pick('review.lanePack', review.lanePack),
+    roundDelta: pick('review.roundDelta', review.roundDelta),
   };
 }
 
@@ -105,6 +115,8 @@ export function abVariantEvidence(variants: AbVariants): AbVariantEvidence | und
   if (variants.remediationThread !== 'fresh') flags['remediation.thread'] = variants.remediationThread;
   if (variants.implementationGrouping !== 'per-item') flags['implementation.grouping'] = variants.implementationGrouping;
   if (variants.implementationThread !== 'resume') flags['implementation.thread'] = variants.implementationThread;
+  if (variants.lanePack !== 'off') flags['review.lanePack'] = variants.lanePack;
+  if (variants.roundDelta !== 'off') flags['review.roundDelta'] = variants.roundDelta;
   return Object.keys(flags).length ? { schema: AB_VARIANT_EVIDENCE_SCHEMA, flags } : undefined;
 }
 

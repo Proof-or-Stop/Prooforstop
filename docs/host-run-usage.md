@@ -630,6 +630,21 @@ focuses it on the earlier findings and the repair diff. `review.round2Lanes=resu
 in `proof-or-stop.config.json` is the rollback: the lane resumes its newest
 earlier-candidate thread (`codex exec resume`) and is told to build on it.
 
+Two EXPERIMENTAL A/B arms (v41 cost plan A3/A4, default off, docs/CLI.md
+"Detection A/B variant switches") change what a managed lane and the inventory
+critic receive, not how they launch. `review.lanePack=shared`: `host_run
+--managedReview` inlines the round's REVIEW LANE PACK in the sealed prompt (Story
+base, candidate and commits, changed files with sha256, candidate-spec route
+summary, checklist intents with pins and recorded evidence, the bounded Story
+diff), computed once per round into
+`.proof-or-stop/runtime/review-lane-packs/<storyId>/`, and seals
+`reviewBinding.lanePack` (arm, path, digest, bytes) in the run spec. The pack is
+authoritative for those facts; lanes keep full tool access and the unchanged
+read-evidence rules. `review.roundDelta=pack`: from the second candidate on the
+pack also carries the delta since the previous round (repair commits and diff,
+earlier findings with their resolutions), and the lane starts there but still
+reviews the whole Story.
+
 Finding repair is grouped by default (`remediation.grouping=single`, adopted from
 the detection A/B V4 arm: remediation wall time −48% and tokens −70% per replay,
 every finding still fixed on the final tree with its own commit, round-2
