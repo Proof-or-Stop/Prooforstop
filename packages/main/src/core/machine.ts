@@ -70,6 +70,7 @@ import {
 } from './red-evidence-artifact-validation.js';
 import { renderAgentLivenessGuidance } from './agent-liveness-policy.js';
 import { reviewInventoryRemediationGate } from './review-inventory-epoch.js';
+import { evaluateReviewMaterialReopen } from './review-material-reopen.js';
 import { evaluateReviewStopLossReopen } from './review-stop-loss.js';
 import { inspectDevMemoryFinishDecision } from './playbook-runtime-memory.js';
 import { canonicalAgentRoleId } from './agent-role-identity.js';
@@ -814,6 +815,15 @@ export function canSkipPlanGuard(context: StoryMachineContext): boolean {
  * must never be stranded by a gate/config error), via proofStoryDevGateFailure,
  * parallelDevEntryBlock, and the outer catch.
  */
+/**
+ * Old-PoS run 25 F2: REVIEW→DEV without a remediation receipt is allowed when
+ * the round's material changed and no finding is open (core/review-material-reopen.ts).
+ */
+export function reviewMaterialReopenEligible(store: StoryStore, storyId: string, projectRoot: string, gitCwd?: string): boolean {
+  return evaluateReviewMaterialReopen({ store, storyId, metadataRoot: projectRoot,
+    gitCwd: gitCwd ?? resolveGitCwd({ store, storyId, metadataRoot: projectRoot, projectRoot }) }).eligible;
+}
+
 export function canReenterDevGuard(context: StoryMachineContext): boolean {
   if (storyScopeBudgetBlocker(context.store, context.projectRoot, context.storyId)) return false;
   let inventoryStory: StoryInfo | undefined;
@@ -823,9 +833,11 @@ export function canReenterDevGuard(context: StoryMachineContext): boolean {
       const inventory = reviewInventoryRemediationGate(
         context.store, context.storyId, inventoryStory.currentReviewRound,
       );
-      // Old-PoS run 25 F4: the stale-wave stop-loss admits REVIEW→DEV without the receipt (core/review-stop-loss.ts).
-      if (!inventory.ok && !evaluateReviewStopLossReopen({ store: context.store, storyId: context.storyId, metadataRoot: context.projectRoot,
-        gitCwd: context.gitCwd ?? resolveGitCwd({ store: context.store, storyId: context.storyId, metadataRoot: context.projectRoot, projectRoot: context.projectRoot }) }).eligible) return false;
+      // Old-PoS run 25: the material reopen (F2) and the stale-wave stop-loss (F4,
+      // core/review-stop-loss.ts) admit REVIEW→DEV without the receipt.
+      if (!inventory.ok && !reviewMaterialReopenEligible(context.store, context.storyId, context.projectRoot, context.gitCwd)
+        && !evaluateReviewStopLossReopen({ store: context.store, storyId: context.storyId, metadataRoot: context.projectRoot,
+          gitCwd: context.gitCwd ?? resolveGitCwd({ store: context.store, storyId: context.storyId, metadataRoot: context.projectRoot, projectRoot: context.projectRoot }) }).eligible) return false;
     }
   } catch {
     if (inventoryStory?.phase === 'REVIEW') return false;
@@ -1381,10 +1393,12 @@ export function getGuardFailureReason(
         const inventory = reviewInventoryRemediationGate(store, storyId, story.currentReviewRound);
         if (!inventory.ok) {
           const root = projectRoot ?? process.cwd();
-          const stopLoss = evaluateReviewStopLossReopen({ store, storyId, metadataRoot: root,
+          const reopen = evaluateReviewMaterialReopen({ store, storyId, metadataRoot: root,
             gitCwd: gitCwd ?? resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root }) });
-          if (!stopLoss.eligible) {
-            return `Cannot enter remediation DEV: ${inventory.reason}. ` +
+          const stopLoss = reopen.eligible ? null : evaluateReviewStopLossReopen({ store, storyId, metadataRoot: root,
+            gitCwd: gitCwd ?? resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root }) });
+          if (!reopen.eligible && !stopLoss?.eligible) {
+            return `Cannot enter remediation DEV: ${inventory.reason} (no review reopen either: ${reopen.reason}; no stop-loss: ${stopLoss?.reason ?? 'n/a'}). ` +
               `Next: ${inventory.nextCommand ?? `proof-or-stop review_inventory_status --storyId=${storyId}`}`;
           }
         }
@@ -1539,8 +1553,16 @@ export function getGuardFailureReason(
   if (targetPhase === 'TEST') {
     const verdict = evaluateReviewVerdict({ storyId, store, projectRoot: projectRoot ?? process.cwd(), ...(gitCwd ? { gitCwd } : {}) });
     if (!verdict.ok) {
-      return verdict.code === 'review_finding_blocking' && verdict.unclosedFindingIds?.length
-        ? `Cannot enter TEST: ${verdict.message} [${verdict.code}]\n${findingClosureNextAction(storyId, verdict.unclosedFindingIds)}`
+      if (verdict.code === 'review_finding_blocking' && verdict.unclosedFindingIds?.length) {
+        return `Cannot enter TEST: ${verdict.message} [${verdict.code}]\n${findingClosureNextAction(storyId, verdict.unclosedFindingIds)}`;
+      }
+      // Old-PoS run 25 F2: an edit committed during REVIEW is routed (one Next), never a dead end.
+      const root = projectRoot ?? process.cwd();
+      const reopen = evaluateReviewMaterialReopen({ store, storyId, metadataRoot: root,
+        gitCwd: gitCwd ?? resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root }) });
+      return reopen.eligible
+        ? `Cannot enter TEST: ${verdict.message} [${verdict.code}]\nReview reopen: ${reopen.reason}.\n` +
+          `Next: proof-or-stop story_advance '{"storyId":"${storyId}","phase":"DEV"}'`
         : `Cannot enter TEST: ${verdict.message} [${verdict.code}]`;
     }
   }

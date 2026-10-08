@@ -245,6 +245,52 @@ const ZH_EXT_A = cp(0x3400);
   }
 }
 
+// ─── Test 4b: captured program output is not authored prose (old-PoS runs 20/25) ─
+// Run 25: `go test -v` of the task's own Unicode tests printed CJK subtest
+// names; the framework captured them into checklist.json verification
+// `outputTail`, and the English-only gate refused REVIEW->TEST, after which the
+// owner edited test fixtures and stalled the round. Run 20: the same for the
+// DONE summary's observed `actualTranscript`. Fields that record program output
+// are exempt (pretty and compact JSON alike); owner prose next to them is still
+// refused, and the refusal names the framework command that rewrites it and
+// says never to edit source or tests for this gate.
+
+{
+  const tmpRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-english-captured-'));
+  try {
+    const storyDir = join(tmpRoot, 'story');
+    mkdirSync(storyDir, { recursive: true });
+    const emptyGit: GitLogReader = () => '';
+    const goOutput = `=== RUN   TestReverse/${ZH_HELLO}\n--- PASS: TestReverse/${ZH_HELLO} (0.00s)\nok`;
+    const checklist = (title: string) => ({ items: [{ id: 'CHK-001', title, verificationEvidence: [{
+      intentRef: 'CHK-001:happy:0', command: 'go test -v ./strs -run TestReverse', selector: '--- PASS: TestReverse',
+      receipt: { outputTail: goOutput, stdout: goOutput, stderr: '' }, outputTail: goOutput,
+    }] }] });
+    const summary = { changes: 'Reverse reverses by rune.', actualTranscript: `go test -v printed --- PASS: TestReverse/${ZH_FIX}` };
+    for (const [label, indent] of [['pretty', 2], ['compact', undefined]] as const) {
+      writeFileSync(join(storyDir, 'checklist.json'), JSON.stringify(checklist('Reverse reverses by rune'), null, indent), 'utf8');
+      writeFileSync(join(storyDir, 'summary.json'), JSON.stringify(summary, null, indent), 'utf8');
+      const captured = runEnglishArtifactGate({ storyDir, gitCwd: tmpRoot, gitLogReader: emptyGit });
+      assert.deepEqual(captured.violations, [], `captured output (${label} JSON): outputTail/stdout/actualTranscript must not be scanned`);
+      assert.equal(captured.ok, true, `captured output (${label} JSON): gate passes`);
+    }
+
+    // Owner prose in the same file is still refused, with a framework action.
+    writeFileSync(join(storyDir, 'checklist.json'), JSON.stringify(checklist(`Reverse ${ZH_FIX}`), null, 2), 'utf8');
+    const prose = runEnglishArtifactGate({ storyDir, gitCwd: tmpRoot, gitLogReader: emptyGit });
+    assert.equal(prose.ok, false, 'owner prose with CJK next to captured output is still refused');
+    assert.equal(prose.violations.length, 1, `only the authored title is flagged (got: ${JSON.stringify(prose.violations)})`);
+    assert.equal(prose.violations[0]!.source, 'checklist.json');
+    const rendered = renderEnglishArtifactViolations(prose.violations).join('\n');
+    assert.match(rendered, /checklist_update/, `refusal names the framework command that rewrites the field: ${rendered}`);
+    assert.match(rendered, /never edit source or tests/i, `refusal never implies editing source or tests: ${rendered}`);
+    assert.match(rendered, /U\+4FEE/, `refusal shows how to write the literal by code point: ${rendered}`);
+    console.log('✓ Test 4b: captured program output (outputTail/stdout/actualTranscript) passes; owner prose is refused with a framework action');
+  } finally {
+    rmSync(tmpRoot, { recursive: true, force: true });
+  }
+}
+
 // ─── Test 5: REAL default git reader parses `git log main..HEAD` cleanly ──────
 // Regression guard for the CHK-002 NUL-byte delimiter fix: exercise the REAL
 // defaultGitLogReader (no injected reader) against THIS worktree's branch and

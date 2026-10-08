@@ -12,6 +12,12 @@
  *
  * It NEVER scans:
  *   - outside the current story dir (other stories' legacy Chinese is untouched),
+ *   - captured program output inside those files (CAPTURED_OUTPUT_FIELD_KEYS:
+ *     verification `outputTail`/`stdout`/`stderr`, the DONE summary's observed
+ *     `actualTranscript`, ...). Output is what a program printed, not prose an
+ *     author wrote; old-PoS run 25 stalled REVIEW because `go test -v` of the
+ *     task's own Unicode tests printed CJK subtest names into `outputTail`
+ *     (run 20: the same for `actualTranscript`),
  *   - framework / reviewer / runtime artifacts inside the current story dir
  *     (process-events.jsonl, review-runs.json, scope-check.json, *-boundary.json,
  *     etc. — see RUNTIME_EXCLUDE_BASENAMES), which are not author-written prose.
@@ -62,6 +68,31 @@ export const RUNTIME_EXCLUDE_BASENAMES: readonly string[] = [
   'execution-boundary.json',
 ];
 
+/**
+ * JSON keys whose string value (or whole subtree) records program output: the
+ * captured verification output and the observed run transcript. These carry
+ * whatever the program printed (the task's own Unicode test names, data
+ * literals), so the English-only authoring policy does not apply to them —
+ * neither in the REVIEW→TEST/DONE artifact gate nor at authoring time.
+ * Owner-authored prose (titles, intents, notes, selectors, expectedOutcome)
+ * stays in scope.
+ */
+export const CAPTURED_OUTPUT_FIELD_KEYS: readonly string[] = [
+  'outputTail',
+  'output',
+  'stdout',
+  'stderr',
+  'stdoutTail',
+  'stderrTail',
+  'observedOutput',
+  'actualTranscript',
+];
+
+/** True for a JSON key whose value records program output (never English-scanned). */
+export function isCapturedOutputFieldKey(key: string): boolean {
+  return CAPTURED_OUTPUT_FIELD_KEYS.includes(key);
+}
+
 export interface EnglishArtifactViolation {
   /** Where the CJK was found: "commit <sha7>" or a story-relative file path. */
   source: string;
@@ -69,6 +100,8 @@ export interface EnglishArtifactViolation {
   line: number;
   /** A short English-safe preview of the offending line. */
   preview: string;
+  /** The CJK code points on that line (U+XXXX), so the author can quote data literals by code point. */
+  codepoints?: string[];
 }
 
 export interface EnglishArtifactGateResult {
@@ -122,6 +155,9 @@ export function checklistEnglishAuthoringFields(
   const fields: EnglishAuthoringTextSource[] = [];
 
   const visit = (value: unknown, field: string): void => {
+    // Captured program output (e.g. verificationEvidence[].outputTail) is not prose.
+    const key = field.slice(field.lastIndexOf('.') + 1);
+    if (isCapturedOutputFieldKey(key)) return;
     if (typeof value === 'string') {
       fields.push({ field, text: value });
       return;
@@ -188,21 +224,63 @@ function previewOf(line: string): string {
   return trimmed.length > 80 ? `${trimmed.slice(0, 77)}...` : trimmed;
 }
 
+const codepointLabel = (codepoint: number): string => `U+${codepoint.toString(16).toUpperCase().padStart(4, '0')}`;
+
 /** Scan one text blob, appending any CJK violations under the given source. */
-function scanText(source: string, text: string, out: EnglishArtifactViolation[]): void {
+function scanText(source: string, text: string, out: EnglishArtifactViolation[], keepLine: (line: string) => boolean = () => true): void {
   const result = detectCjk(text);
   if (!result.found) return;
   const lines = text.split('\n');
   // Report at most one violation per offending line to avoid flooding output.
-  const reportedLines = new Set<number>();
+  const byLine = new Map<number, string[]>();
   for (const m of result.matches) {
-    if (reportedLines.has(m.line)) continue;
-    reportedLines.add(m.line);
-    out.push({
-      source,
-      line: m.line,
-      preview: previewOf(lines[m.line - 1] ?? ''),
-    });
+    const codepoints = byLine.get(m.line) ?? [];
+    const label = codepointLabel(m.codepoint);
+    if (!codepoints.includes(label)) codepoints.push(label);
+    byLine.set(m.line, codepoints);
+  }
+  for (const [line, codepoints] of byLine) {
+    const text = lines[line - 1] ?? '';
+    if (!keepLine(text)) continue;
+    out.push({ source, line, preview: previewOf(text), codepoints: codepoints.slice(0, 6) });
+  }
+}
+
+/**
+ * Scan a JSON metadata file, skipping captured program output. The authored
+ * CJK strings are collected from the parsed tree (every string leaf and key
+ * outside CAPTURED_OUTPUT_FIELD_KEYS subtrees); the raw text is then scanned
+ * and only lines holding one of them are reported, so line numbers stay exact
+ * for pretty-printed files and a compact one-line file still reports line 1.
+ * Unparseable JSON falls back to the plain text scan (fail closed).
+ */
+function scanJsonArtifact(source: string, text: string, out: EnglishArtifactViolation[]): void {
+  let parsed: unknown;
+  try { parsed = JSON.parse(text); } catch { scanText(source, text, out); return; }
+  const authored: string[] = [];
+  const visit = (value: unknown): void => {
+    if (typeof value === 'string') { if (detectCjk(value).found) authored.push(value); return; }
+    if (Array.isArray(value)) { value.forEach(visit); return; }
+    if (!value || typeof value !== 'object') return;
+    for (const [key, entry] of Object.entries(value as Record<string, unknown>)) {
+      if (isCapturedOutputFieldKey(key)) continue;
+      if (detectCjk(key).found) authored.push(key);
+      visit(entry);
+    }
+  };
+  visit(parsed);
+  if (authored.length === 0) return;
+  // The raw form of each authored string as JSON.stringify writes it.
+  const needles = [...new Set(authored)].map(value => JSON.stringify(value).slice(1, -1));
+  const before = out.length;
+  // A pretty-printed captured-output property line is never reported, even when it
+  // happens to contain the same characters as an authored string.
+  const capturedLine = new RegExp(`^\\s*"(?:${CAPTURED_OUTPUT_FIELD_KEYS.join('|')})"\\s*:`);
+  scanText(source, text, out, line => !capturedLine.test(line) && needles.some(needle => line.includes(needle)));
+  if (out.length === before) {
+    // Written in another escaping style: report the authored value itself.
+    scanText(source, authored[0]!, out);
+    out.splice(before + 1);
   }
 }
 
@@ -261,19 +339,46 @@ export function runEnglishArtifactGate(
       const abs = join(deps.storyDir, basename);
       const content = readFile(abs);
       if (content === null) continue; // absent file is fine (e.g. no summary yet)
-      scanText(basename, content, violations);
+      if (basename.endsWith('.json')) scanJsonArtifact(basename, content, violations);
+      else scanText(basename, content, violations);
     }
   }
 
   return { ok: violations.length === 0, violations, notes };
 }
 
-/** Build a single English failure message naming each offending artifact + line. */
+/** The framework command that rewrites the authored text a gate violation names. */
+const ARTIFACT_REWRITE_COMMAND: Readonly<Record<string, string>> = {
+  'checklist.json': 'proof-or-stop checklist_update (the item field quoted above)',
+  'summary.json': 'proof-or-stop summary_set',
+  'background.md': 'proof-or-stop background_set',
+  'decision.json': 'proof-or-stop decision_set',
+  'understanding.json': 'proof-or-stop understanding_set',
+  'index.json': 'proof-or-stop story_update (title/description)',
+  'plan.md': 'a plan.md edit committed as Story metadata',
+};
+
+/**
+ * The concrete fix for one gate violation: the framework command that rewrites
+ * the authored text, how to keep a needed non-English data literal (by code
+ * point), and that source or tests are never edited for this gate.
+ */
+export function englishArtifactFixAction(violation: Pick<EnglishArtifactViolation, 'source' | 'codepoints'>): string {
+  const rewrite = violation.source.startsWith('commit ')
+    ? 'reword that Story-branch commit message'
+    : `rewrite it with ${ARTIFACT_REWRITE_COMMAND[violation.source] ?? 'the command that authored it'}`;
+  const literal = violation.codepoints?.length
+    ? `; quote a required non-English data literal by code point (${violation.codepoints.join(' ')})`
+    : '';
+  return `Fix: ${rewrite}${literal}. Never edit source or tests to satisfy this gate; captured program output is exempt.`;
+}
+
+/** Build a single English failure message naming each offending artifact + line and its fix. */
 export function renderEnglishArtifactViolations(
   violations: readonly EnglishArtifactViolation[],
 ): string[] {
   return violations.map(
-    (v) => `${v.source}:${v.line}: non-English (CJK) text -> ${v.preview}`,
+    (v) => `${v.source}:${v.line}: non-English (CJK) text -> ${v.preview} ${englishArtifactFixAction(v)}`,
   );
 }
 
@@ -318,10 +423,14 @@ export function renderEnglishAuthoringRefusal(
   commandName: string,
   violation: EnglishArtifactViolation,
 ): string {
-  const rendered = renderEnglishArtifactViolations([violation])[0];
+  const located = `${violation.source}:${violation.line}: non-English (CJK) text -> ${violation.preview}`;
+  const literal = violation.codepoints?.length
+    ? ` Quote a required non-English data literal by code point (${violation.codepoints.join(' ')}) instead of the character.`
+    : '';
   return (
-    `${commandName} refuses: ${rendered}. ` +
+    `${commandName} refuses: ${located}. ` +
     `Story artifacts must be English. Found: ${violation.preview}. ` +
+    `Rerun ${commandName} with this field in English.${literal} Never edit source or tests for this rule. ` +
     `[english_artifact_cjk_authoring]`
   );
 }

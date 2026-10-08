@@ -462,8 +462,8 @@ export async function runReviewToTestPreflightGate(
       throw new Error(
         `Cannot enter TEST: CLI gate preflight did not pass (${failedGates})\n\n` +
         rendered +
-        `\n\n→ 修复上述 gate 后重跑 proof-or-stop story_advance --phase=TEST\n` +
-        `→ 单独复跑: proof-or-stop validate --channel --story=${storyId} / --concept / --lint；docs-drift 随 preflight 执行；Codex adapter 用 ${codexVerifyCmd}`,
+        `\n\n→ Fix each failed gate as its own lines say (they name the framework command), then rerun proof-or-stop next --storyId=${storyId}\n` +
+        `→ Rerun one gate alone: proof-or-stop validate --channel --story=${storyId} / --concept / --lint; docs-drift runs with this preflight; Codex adapter: ${codexVerifyCmd}`,
       );
     }
     if (preflight.gates.some(g => g.status === 'warn')) {
@@ -473,14 +473,14 @@ export async function runReviewToTestPreflightGate(
     }
   } catch (e: any) {
     if (e?.message?.startsWith('Cannot enter TEST')) throw e;
-    // 预检查本身失败（review-preflight.ts import 失败等）→ fail-closed
+    // The preflight itself failed (e.g. review-preflight.ts import error) → fail closed.
     const message = e instanceof Error ? e.message : String(e);
     const codexVerifyCmd = resolveLocalCodexVerifyCommand(ctx.root);
     throw new Error(
       `Cannot enter TEST: CLI gate preflight execution error\n` +
       `${message}\n\n` +
-      `→ 修复 review-preflight gate 后重跑 proof-or-stop story_advance --phase=TEST\n` +
-      `→ 单独复跑: proof-or-stop validate --channel --story=${storyId} / --concept / --lint；docs-drift 随 preflight 执行；Codex adapter 用 ${codexVerifyCmd}`,
+      `→ The review-preflight gate itself failed to run; after fixing that error rerun proof-or-stop next --storyId=${storyId}\n` +
+      `→ Rerun one gate alone: proof-or-stop validate --channel --story=${storyId} / --concept / --lint; docs-drift runs with this preflight; Codex adapter: ${codexVerifyCmd}`,
     );
   }
 }
