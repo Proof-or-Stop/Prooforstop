@@ -29,7 +29,7 @@ import { safeReadScopeContract } from '../core/proof-or-stop-parallel-wave.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
 import { verifyScopeCheckSignature } from './scope-check.js';
 import { verifyManagedDispatchDelivery } from '../core/managed-host-run.js';
-import { pendingScopePlanRun } from '../core/scope-plan-deferral.js';
+import { scopeVerdictDeferral } from '../core/scope-plan-deferral.js';
 import { existsSync } from 'fs';
 import { join } from 'path';
 import { createHash } from 'crypto';
@@ -669,10 +669,19 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
       // so no reviewer, although balanced declares 'always').
       const scopeData = store.readScopeCheck(args.storyId);
       const scopeRequirement = planScopeCheckRequirement(store, story, policy);
-      // N8 (core/scope-plan-deferral.ts): while a managed scope-plan run launched in
-      // PLAN is live, the missing verdict is deferred to the DEV→REVIEW gate.
-      const pendingScopeRun = !scopeData && scopeRequirement ? pendingScopePlanRun(ctx.root, args.storyId) : null;
-      if (pendingScopeRun) {
+      // N8 (core/scope-plan-deferral.ts scopeVerdictDeferral, shared with the
+      // DEV-entry gate and `next`): while a managed scope-plan run launched in PLAN
+      // is live, the missing verdict is deferred to the DEV→REVIEW gate, unless
+      // the reviewer has a pin audit / same-semantics check to do (held).
+      const scopeDeferral = !scopeData && scopeRequirement ? scopeVerdictDeferral(store, ctx.root, args.storyId) : { kind: 'none' as const };
+      const pendingScopeRun = scopeDeferral.kind === 'deferred' ? scopeDeferral.run : null;
+      if (scopeDeferral.kind === 'held') {
+        issues.push({
+          type: 'missing_scope_check',
+          severity: 'blocker',
+          message: `missing_scope_check: scope-check.json is missing PLAN gate evidence (required because ${scopeRequirement}). Managed scope-plan run ${scopeDeferral.run.runId} (launched in PLAN) is ${scopeDeferral.run.state}; its verdict is not deferred to DEV→REVIEW because ${scopeDeferral.reason}. Wait for it: \`proof-or-stop host_run_status --runId=${scopeDeferral.run.runId} --untilTerminal=true\`, then rerun story_review.`,
+        });
+      } else if (pendingScopeRun) {
         issues.push({
           type: 'scope_check_pending',
           severity: 'advisory',

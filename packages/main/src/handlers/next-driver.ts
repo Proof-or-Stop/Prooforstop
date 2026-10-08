@@ -49,7 +49,7 @@ import { evaluateDevMemoryPreflightGate, evaluateReviewVerdict, getGuardFailureR
 import { missingPlanScopeCheckFailure, SCOPE_PLAN_REVIEWER, scopePlanLaunchIsFramework, scopePlanRerunReason } from '../core/plan-scope-check-requirement.js';
 import { hasPreScopeBlockers, planPreScopeBlockers, type PreScopeBlockers } from '../core/plan-pre-scope-blockers.js';
 import { checklistDerivationGaps, derivationPlaceholder, MISSING_INTENT_DERIVATION } from '../core/intent-derivation.js';
-import { pendingScopePlanRun, scopeVerdictReviewEntryFailure } from '../core/scope-plan-deferral.js';
+import { scopeVerdictDeferral, scopeVerdictReviewEntryFailure } from '../core/scope-plan-deferral.js';
 import { STORY_FOCUSED_CLASSIFICATION } from '../core/verification-intent-classification.js';
 import { VERIFICATION_LANES } from '../core/verification.js';
 import { isTerminalChecklistStatus } from '../core/checklist-status.js';
@@ -1280,12 +1280,15 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     // managed scope-plan run (launched in PLAN) is live no longer holds DEV: the
     // DEV-entry gate defers it to DEV→REVIEW, so PLAN finishes and the first
     // implementer starts beside the reviewer. A verdict that must be RERUN still
-    // waits here (its gaps block story_review until the rerun judges them).
-    const deferred = scopeFailure && !rerun ? pendingScopePlanRun(ctx.root, storyId) : null;
+    // waits here (its gaps block story_review until the rerun judges them), and so
+    // does a run with a pin audit / same-semantics check to do (scopeVerdictDeferral
+    // 'held', the DEV-entry gate's own predicate): its gap must land before DEV.
+    const deferral = scopeFailure && !rerun ? scopeVerdictDeferral(ctx.store, ctx.root, storyId) : null;
+    const deferred = deferral?.kind === 'deferred' ? deferral.run : null;
     if ((scopeFailure || rerun) && !deferred) {
       const hostRuns = listStoryHostRuns(ctx, storyId);
       const running = hostRuns.filter(run => run.agentType === SCOPE_PLAN_REVIEWER && !run.terminal).at(-1);
-      if (running) return waitStep(base, running, 'Scope-plan reviewer run');
+      if (running) return waitStep(base, running, deferral?.kind === 'held' ? `Scope-plan reviewer run (not deferred past DEV entry: ${deferral.reason})` : 'Scope-plan reviewer run');
       const authoring = preScopeAuthoringStep(base, planPreScopeBlockers(ctx.store, story, policy), ctx.store.readChecklist(storyId).items);
       if (authoring) return authoring;
       const last = hostRuns.filter(run => run.agentType === SCOPE_PLAN_REVIEWER).at(-1);

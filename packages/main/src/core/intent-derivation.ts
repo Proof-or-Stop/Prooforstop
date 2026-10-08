@@ -224,13 +224,32 @@ export function checklistDerivationGaps(items: readonly Pick<ChecklistItem, 'id'
 const clip = (text: string, max: number): string => (text.length > max ? `${text.slice(0, max - 1)}…` : text);
 
 /**
+ * D5's trigger phrasing, as the same-semantics rule states it: a request
+ * sentence making one behaviour follow another ("same ... semantics as X",
+ * "works like X", "consistent with X"). Deliberately broad: it only decides
+ * whether the scope-plan verdict may be deferred past DEV entry (N8), so a
+ * false positive costs one wait, a false negative a run-23 slip.
+ */
+const SAME_SEMANTICS = /\bsame\b[^.!?\n]{0,80}?\bsemantics?\b|\b(?:works?|behaves?|acts?)\s+(?:just\s+|exactly\s+)?like\b|\bconsistent\s+with\b|\bsame\s+(?:behaviou?r|way)\s+as\b/i;
+
+/** The request sentences the same-semantics rule (D5) applies to. */
+export function sameSemanticsSentences(requestText: string): string[] {
+  return requestText.split(/(?<=[.!?])\s+|\n+/).map(sentence => sentence.trim()).filter(sentence => sentence && SAME_SEMANTICS.test(sentence));
+}
+
+/** Every non-withdrawn intent row pinning a value the request does not quote (the pin-audit rows), with or without a valid derivation. */
+export function pinAuditRows(items: readonly Pick<ChecklistItem, 'id' | 'status' | 'verificationIntent'>[], requestText: string): IntentDerivationRow[] {
+  return items.filter(item => item.status !== 'withdrawn').flatMap(item => intentDerivationRows(item.id, item.verificationIntent, requestText));
+}
+
+/**
  * The scope-plan reviewer's pin audit (D4) and same-semantics rule (D5): the
  * rules plus every row pinning a value the request does not quote, explicitly
  * (ref, desc, requestQuote, computation). A row without a valid derivation is
  * listed too; the reviewer then derives the value itself.
  */
 export function renderPinAudit(items: readonly Pick<ChecklistItem, 'id' | 'status' | 'verificationIntent'>[], requestText: string): string[] {
-  const rows = items.filter(item => item.status !== 'withdrawn').flatMap(item => intentDerivationRows(item.id, item.verificationIntent, requestText));
+  const rows = pinAuditRows(items, requestText);
   const lines = [
     `Pin audit (blocking): intents pin expected values the request does not quote; the owner can be wrong and DEV will enforce the pin. For each row below, recompute the expected value yourself from the request (the cited sentence and every other request sentence that applies), independently of the computation shown. If your value differs from the pinned one, or the cited sentence does not imply it, record a feature row {"feature":"${PIN_AUDIT_GAP_PREFIX} CHK-<id>:<lane>:<n>: pins <pinned>; request gives <yours> (<why>)","status":"gap","source":"request.md"}. A matching row needs no feature row.`,
   ];

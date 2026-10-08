@@ -360,8 +360,12 @@ advisory understanding, so the reviewer never ran). `story_review` reports
 `[missing_scope_check]` and one `Next:` (the managed scope-plan reviewer
 `host_run`) even after a clean `story_review`. Exception (v4.1 N8,
 core/scope-plan-deferral.ts): while a managed scope-plan run launched in PLAN
-is still live and no verdict exists, story_review reports the advisory
-`scope_check_pending` and the DEV-entry gate admits DEV, so the first
+is still live, no verdict exists and the reviewer has nothing to pin-audit
+(no intent pins an expected value request.md does not quote and no request
+sentence says "same ... semantics as" / "works like" / "consistent with";
+otherwise DEV entry waits for that run's verdict, so a pin-audit gap lands
+before any item is implemented against the pin), story_review reports the
+advisory `scope_check_pending` and the DEV-entry gate admits DEV, so the first
 implementer runs beside the reviewer; that run saves its verdict in DEV, and
 DEV→REVIEW then requires it (present, signed, delivered, no gap:
 `[scope_check_pending]` / `[scope_gap]`); a gap found after DEV started sends
@@ -543,7 +547,7 @@ follow another ("same ... semantics as X"), at least one intent must use an
 input on which the plausible readings differ (an asymmetric example), else an
 `asymmetric-example` gap. The `story_review` message of both gaps names the
 intent fix (`checklist_update` with the corrected row and its derivation), then
-the reviewer rerun. Prompt cost: about 1.1 KB plus about 270 B per listed row. When DEV started beside a deferred scope-plan run (N8), the gap arrives in DEV and `next` returns to PLAN (`scope_verdict_replan`) before the next item.
+the reviewer rerun. Prompt cost: about 1.1 KB plus about 270 B per listed row. Because the scope-plan prompt has pin-audit rows (or a same-semantics sentence) to judge, its verdict is not deferred past DEV entry (N8 `scopeVerdictDeferral` = held): DEV entry waits for it, so the gap lands before any item is implemented against the pin.
 
 The request outranks intents (old-PoS run 23, core/request-authority.ts).
 Intents, `userSees`, context and pinned tests are owner-authored and can be
