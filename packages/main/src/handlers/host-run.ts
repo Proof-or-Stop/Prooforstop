@@ -2,6 +2,7 @@ import { MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY } from '../core/runtime-fact-r
 import { abVariantEvidence, resolveAbVariants, type AbVariantEvidence } from '../core/ab-variants.js';
 import { loadConfig } from '../core/config.js';
 import { isTerminalChecklistStatus } from '../core/checklist-status.js';
+import { buildImplementerItemPack } from '../core/implementer-item-pack.js';
 import { renderGroupedFindingRepairSection, renderGroupedItemSection, sharedFileItemGroup, shortFindingId } from '../core/ab-dispatch-grouping.js';
 import { hostRunStatusBlocksUntilTerminal, OWNER_WAIT_BLOCK_MS, OWNER_WAIT_YIELD_MS } from '../core/owner-wait-guidance.js';
 import { renderHostRunStatusSummary } from './host-run-status-summary.js';
@@ -489,6 +490,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
       } | null = null;
       let managedDispatch = false;
       let groupedTarget: { groupFindingIds?: string[]; groupItemIds?: string[]; abVariant?: AbVariantEvidence } | null = null;
+      let freshThreadVariant: AbVariantEvidence | null = null;
       if (args.managedReview === true && args.managedDispatch === true) {
         throw new Error('host_run: --managedReview and --managedDispatch are mutually exclusive');
       }
@@ -631,6 +633,13 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           promptText += `\n${grouped.section.join('\n')}`;
           groupedTarget = grouped.target;
         }
+        // EXPERIMENTAL A/B implementation.thread=fresh (core/implementer-item-pack.ts): a new
+        // Codex thread per item / repair, with the framework-built item pack. Off = no change.
+        const freshThread = resolveFreshImplementerThread(ctx, { storyId, agentType, itemId, findingId, groupFindingIds: groupedTarget?.groupFindingIds });
+        if (freshThread) {
+          promptText += `\n${freshThread.section.join('\n')}`;
+          freshThreadVariant = freshThread.abVariant;
+        }
         managedDispatch = true;
       } else if (hasPrompt === hasPromptFile) {
         throw new Error('host_run: provide exactly one of --prompt or --promptFile (or use --managedReview with an exact ReviewRun)');
@@ -692,9 +701,9 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           reasoningEffort: selection.reasoningEffort,
           storyId,
           ...(managedDispatch && agentType === 'proof-or-stop-implementer' && itemId
-            ? { managedDispatchTarget: groupedTarget ? { itemId, groupItemIds: groupedTarget.groupItemIds!, abVariant: groupedTarget.abVariant } : { itemId } }
+            ? { managedDispatchTarget: groupedTarget ? { itemId, groupItemIds: groupedTarget.groupItemIds!, abVariant: groupedTarget.abVariant } : { itemId, ...(freshThreadVariant ? { abVariant: freshThreadVariant } : {}) } }
             : managedDispatch && agentType === 'proof-or-stop-finding-repair' && findingId
-              ? { managedDispatchTarget: groupedTarget ? { findingId, groupFindingIds: groupedTarget.groupFindingIds!, ...(groupedTarget.abVariant ? { abVariant: groupedTarget.abVariant } : {}) } : { findingId } }
+              ? { managedDispatchTarget: groupedTarget ? { findingId, groupFindingIds: groupedTarget.groupFindingIds!, ...(groupedTarget.abVariant ? { abVariant: groupedTarget.abVariant } : {}) } : { findingId, ...(freshThreadVariant ? { abVariant: freshThreadVariant } : {}) } }
             : {}),
           agentType,
           phase,
@@ -1100,6 +1109,28 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
       return '';
     },
   };
+}
+
+/**
+ * EXPERIMENTAL A/B `implementation.thread: "fresh"` (core/implementer-item-pack.ts).
+ * Null (production, byte-identical prompt and target) unless the config sets
+ * the switch well-formed and the run is a managed implementer or finding
+ * repair. Otherwise the item pack to append and the A/B evidence to seal on
+ * the managed dispatch target, which is what makes the worker start a fresh
+ * Codex thread (managedResumeSessionForSpec).
+ */
+export function resolveFreshImplementerThread(ctx: Pick<HandlerContext, 'root' | 'store'>, args: {
+  storyId: string; agentType: string; itemId: string | null; findingId: string | null; groupFindingIds?: readonly string[];
+}): { section: string[]; abVariant: AbVariantEvidence; bytes: number } | null {
+  if (args.agentType !== 'proof-or-stop-implementer' && args.agentType !== 'proof-or-stop-finding-repair') return null;
+  let variants;
+  try { variants = resolveAbVariants(loadConfig(ctx.root)); } catch { return null; }
+  const evidence = abVariantEvidence(variants);
+  if (variants.implementationThread !== 'fresh' || !evidence) return null;
+  const pack = args.agentType === 'proof-or-stop-implementer'
+    ? buildImplementerItemPack(ctx.store, ctx.root, { storyId: args.storyId, itemId: args.itemId })
+    : buildImplementerItemPack(ctx.store, ctx.root, { storyId: args.storyId, findingIds: args.groupFindingIds?.length ? args.groupFindingIds : args.findingId ? [args.findingId] : [] });
+  return { section: pack.lines, abVariant: evidence, bytes: pack.bytes };
 }
 
 /**
