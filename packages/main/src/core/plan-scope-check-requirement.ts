@@ -64,9 +64,15 @@ export function missingPlanScopeCheckFailure(
   store: RequirementStore,
   story: Pick<StoryInfo, 'storyId' | 'priority' | 'riskSignals' | 'riskSignalsDismissed'>,
   policy: Pick<WorkflowPolicy, 'profile' | 'plan'>,
+  /**
+   * N8 (core/scope-plan-deferral.ts): whether a managed scope-plan run launched
+   * in PLAN is still live. Then the missing verdict is deferred to DEV→REVIEW.
+   */
+  scopeRunPending: () => boolean = () => false,
 ): string | null {
   const reason = planScopeCheckRequirement(store, story, policy);
   if (!reason || store.readScopeCheck(story.storyId)) return null;
+  if (scopeRunPending()) return null;
   return `Cannot enter DEV: the PLAN scope-plan reviewer verdict (scope-check.json) is missing [missing_scope_check]; it is required because ${reason}. `
     + 'The reviewer traces every sentence and example of the request and Story artifacts to checklist intents and finishes with scope_check_save; '
     + 'the owner must not self-sign it.\n'

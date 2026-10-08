@@ -1222,6 +1222,8 @@ export interface NextStepJson {
   placeholderHints?: Record<string, string>;
   /** Several authoring commands the owner runs in one turn (Q6 (b), TEST). */
   batch?: NextStepCallJson[];
+  /** N2: independent launches run concurrently in one step (the first is also cli). */
+  parallel?: NextStepCallJson[];
 }
 
 const VERIFIED_PROMISES = [
@@ -1573,9 +1575,11 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
     switch (next.reason) {
       case 'review_lane_launch': {
         firstRound ??= round;
-        const lane = String(payload.lane);
-        const reviewRunId = String(payload.reviewRunId);
-        o.script(reviewRunId, laneScript(o.worktree, id, lane, reviewRunId, round === firstRound, mode));
+        for (const lanePayload of next.parallel?.length ? next.parallel.map(call => call.cli.payload) : [payload]) {
+          const lane = String(lanePayload.lane);
+          const reviewRunId = String(lanePayload.reviewRunId);
+          o.script(reviewRunId, laneScript(o.worktree, id, lane, reviewRunId, round === firstRound, mode));
+        }
         break;
       }
       case 'inventory_critic_launch': {
@@ -1690,6 +1694,8 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
     // Q6 (b): a batch is the owner's one turn of authoring commands, run in order.
     const calls = next.batch?.length
       ? next.batch.map(call => { const filled = { ...call.cli.payload }; authorPayload(o, call.reason, filled, findingDesc); return { reason: call.reason, command: call.cli.command, payload: filled, line: call.command }; })
+      : next.parallel?.length
+      ? next.parallel.map(call => ({ reason: call.reason, command: call.cli.command, payload: { ...call.cli.payload }, line: call.command }))
       : [{ reason: next.reason, command: next.cli.command, payload, line: next.command ?? '' }];
     ownerTurns += 1;
     for (const call of calls) {
