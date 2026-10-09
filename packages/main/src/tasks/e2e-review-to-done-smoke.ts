@@ -142,6 +142,20 @@
  *      ([pin_oracle_mismatch], computed value shown) unless the row records that
  *      base value (baseValue, a deliberate change); a row the base cannot run is
  *      skipped; next blocks on a stored mismatch before the scope-plan reviewer.
+ *   NMF/NMF2 old-PoS run 31 (10 of 13 findings were checklist text): lane
+ *      findings citing only Story metadata are reclassified at import (never
+ *      ledger findings, never repair work); next emits ONE owner checklist_update
+ *      carrying the wrong literal, the reviewer's value and every other
+ *      occurrence; an unchanged update is refused; metadata costs no round.
+ *   NRI old-PoS run 31 (D3/D4): finding_resolve refuses unchanged citations
+ *      (code without a test change, cited checklist text); plan acceptance
+ *      refuses a batch that changes nothing.
+ *   NMR old-PoS run 31 (REM2 test parsed checklist.json): REVIEW entry refuses
+ *      product changes referencing the Story metadata; prompts forbid it.
+ *   NLS old-PoS run 31 (D5): the intent-conflict amendment sweeps the literal.
+ *   NPA old-PoS run 31 (D7): a large next step prints <= ~2k tokens (@file).
+ *   NSR old-PoS run 31 (D8): a pin-audit value correction needs no rerun.
+ *   NUB old-PoS run 31 (D6): duplicates close in one batch step.
  *   NPT old-PoS run 30 (F-002/F-004: the implementer probed rows its change
  *      decided but tested only some): the implementer's [probes] line lists
  *      probed-only decided rows; next reopens the item with one owner step
@@ -226,14 +240,14 @@
  *      and still review the whole Story).
  *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5 ND-V6 ND-V8 ND-V9.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NDG|NRS|NPX|NPXA|NPXS|AB|ND-V1..NF-V9]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NRI|NMR|NLS|NPA|NSR|NUB|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NDG|NRS|NPX|NPXA|NPXS|AB|ND-V1..NF-V9]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { StoryStore } from '../core/store.js';
@@ -1082,6 +1096,11 @@ const NU_DUP_FINDING = {
   desc: 'Reverse of an empty string reads r[len(r)-1]: Reverse("") must return "" (same root cause as the untested empty-string edge).',
   severity: 'medium', category: 'edge', files: ['strs/strs.go', 'strs/strs_test.go'], evidenceState: 'verified',
 };
+/** NUB (old-PoS run 31 D6): a second duplicate of D_FINDING in the same round. */
+const NU_DUP_FINDING2 = {
+  desc: 'Reverse("") reads past the end of an empty rune slice: an empty input must return "" (same root cause as the untested empty-string edge).',
+  severity: 'medium', category: 'edge', files: ['strs/strs.go', 'strs/strs_test.go'], evidenceState: 'verified',
+};
 const NU_DUP_REPAIR_TEST = '\nfunc TestReverseEmptyDup(t *testing.T) {\n\tif got := Reverse(""); got != "" {\n\t\tt.Fatalf("got %q", got)\n\t}\n}\n';
 
 const FINDING_REPAIR = 'proof-or-stop-finding-repair';
@@ -1413,7 +1432,7 @@ const VERIFIED_PROMISES = [
 ];
 
 /** Which scripted findings round 1 reports (shared by the inline harness and the run-mode resolver). */
-interface ScriptMode { findingRound1: boolean; twoFindings?: boolean; lowFindings?: boolean; duplicate?: 'covered' | 'uncovered';
+interface ScriptMode { findingRound1: boolean; twoFindings?: boolean; lowFindings?: boolean; duplicate?: 'covered' | 'uncovered' | 'covered2';
   /** Detection A/B control D9-r1 / D2-r3 / refused critic: how the FIRST round-1 critic restates or omits findings (scenarios NC, NC2, NC3). */
   criticRestate?: CriticRestateMode;
   /** Run 19 (NC4): round 1's only finding is a SUSPECTED low one; the (ordinary) critic gives it a verified_family row. */
@@ -1433,7 +1452,13 @@ interface ScriptMode { findingRound1: boolean; twoFindings?: boolean; lowFinding
    * 'out': nothing in the request or scope contract covers the doc (every repair worker reports it blocked, no commit);
    * 'in': the request asks to correct that doc (the first repair attempt reports blocked, the next one commits the doc fix).
    */
-  preexisting?: 'out' | 'in' }
+  preexisting?: 'out' | 'in';
+  /**
+   * Old-PoS run 31 (NMF/NMF2): round 1 also reports Story-metadata findings (CHK-001 userSees pins
+   * `Upper("ab") == "ab"`): the test-coverage lane cites only checklist.json, the quality lane restates it citing
+   * checklist.json:<line> and the passing test. 'with-product' keeps D_FINDING beside them; 'only' reports no product finding.
+   */
+  metadata?: 'with-product' | 'only' }
 /** Old-PoS run 27 delivery overlap faults (scenarioNDL). */
 type DeliveryFault = 'overlap' | 'stale';
 type CriticRestateMode = 'copies' | 'reworded' | 'new-misfiled';
@@ -1461,9 +1486,18 @@ function laneScript(worktree: string, storyId: string, lane: string, reviewRunId
         note: 'Scripted wave-2 lane: re-reports the critic\'s empty-string defect.', findings: [D_FINDING], ...readEvidenceFor(worktree, storyId) }) };
     }
   }
+  if (mode.metadata && firstRound && (lane === 'proof-or-stop-review-test-coverage' || lane === 'proof-or-stop-review-quality')) {
+    // Old-PoS run 31 (F-001/F-002/F-005): lanes restate one wrong userSees literal as findings.
+    const meta = metadataFindings(worktree, storyId);
+    const findings = lane === 'proof-or-stop-review-quality' ? [meta.restated]
+      : mode.metadata === 'with-product' ? [D_FINDING, meta.cited] : [meta.cited];
+    return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, conclusion: 'findings',
+      note: 'Scripted run 31 lane: the checklist userSees pins a value the request contradicts.', findings, ...readEvidenceFor(worktree, storyId) }) };
+  }
   const envelope = mode.findingRound1 && firstRound && lane === 'proof-or-stop-review-test-coverage'
     ? { conclusion: 'findings', note: 'Scripted behavior finding: empty-string edge case is untested.',
-      findings: mode.preexisting ? [D_FINDING, PX_FINDING] : mode.suspectedOnly ? [NC4_SUSPECTED] : mode.lowFindings ? [D_FINDING, NL_LOW_REPAIRED, NL_LOW_COSMETIC] : mode.twoFindings ? [D_FINDING, NF_FINDING] : mode.duplicate ? [D_FINDING, NU_DUP_FINDING] : [D_FINDING] }
+      findings: mode.preexisting ? [D_FINDING, PX_FINDING] : mode.suspectedOnly ? [NC4_SUSPECTED] : mode.lowFindings ? [D_FINDING, NL_LOW_REPAIRED, NL_LOW_COSMETIC] : mode.twoFindings ? [D_FINDING, NF_FINDING]
+        : mode.duplicate === 'covered2' ? [D_FINDING, NU_DUP_FINDING, NU_DUP_FINDING2] : mode.duplicate ? [D_FINDING, NU_DUP_FINDING] : [D_FINDING] }
     : PASS_ENVELOPE(lane);
   return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, ...envelope, ...readEvidenceFor(worktree, storyId) }) };
 }
@@ -1497,7 +1531,7 @@ function criticScript(worktree: string, storyId: string, reviewRunId: string, re
   if (newFinding && epoch.reviewRound === firstRound) return waveCriticScript(worktree, storyId, reviewRunId, epoch, firstCritic);
   // Run 17 Q1: the NU duplicate is dispositioned `duplicate` of D_FINDING (same root cause).
   const canonical = raw.find(f => f.desc === D_FINDING.desc);
-  const dispositions = raw.map(f => f.desc === NU_DUP_FINDING.desc && canonical
+  const dispositions = raw.map(f => (f.desc === NU_DUP_FINDING.desc || f.desc === NU_DUP_FINDING2.desc) && canonical
     ? { finding: { findingId: f.id }, disposition: 'duplicate', familyKey: 'reverse-empty-string', canonicalFinding: { findingId: canonical.id },
       reason: 'Same root cause as the canonical finding: Reverse indexes the last rune of an empty string.' }
     : f.desc === PX_FINDING.desc
@@ -1728,6 +1762,18 @@ function authorPayload(o: Owner, reason: string, payload: Record<string, unknown
         entry.resolution = `repair ${git(o.worktree, ['log', '--format=%h', '-1', `--grep=${repair.subject.slice('test: '.length)}`])} adds ${repair.name}; go test ./strs -run ${repair.name} passes`;
       }
       break;
+    case 'metadata_correction':
+    case 'intent_conflict_amend':
+      // Old-PoS run 31: the owner corrects the cited literal (and every other occurrence next listed).
+      if (typeof payload.userSees === 'string' && /^<.*>$/.test(payload.userSees)) payload.userSees = META_FIXED_USER_SEES[String(payload.itemId)] ?? payload.userSees;
+      if (typeof payload.reason === 'string' && /^<.*>$/.test(payload.reason)) payload.reason = 'The request says Upper returns the upper-case form, so Upper("ab") == "AB"; the checklist text now states it.';
+      break;
+    case 'finding_duplicate_resolve':
+      if (typeof payload.resolution === 'string' && /^<.*>$/.test(payload.resolution)) {
+        payload.coverage = { command: 'go test -v ./strs -run TestReverseEmpty', selector: '--- PASS: TestReverseEmpty' };
+        payload.resolution = `duplicate of ${String(payload.duplicateOf)}: its repair adds TestReverseEmpty, which exercises Reverse("") (this finding's case)`;
+      }
+      break;
     case 'dev_memory_finish_decision':
       Object.assign(payload, { decision: 'no-reusable-lesson', reason: 'Harness fixture: trivial string helpers, no reusable lesson.' });
       break;
@@ -1770,7 +1816,9 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   /** Run 16: the live-smoke capture needs the project validate.env (CONTEXT=abs) to pass. */
   contextSmoke?: boolean;
   /** Run 17 Q1: round 1 also reports NU_DUP_FINDING, which the critic marks a duplicate of D_FINDING; 'covered' = the canonical repair's test covers it, 'uncovered' = it does not. */
-  duplicate?: 'covered' | 'uncovered';
+  duplicate?: 'covered' | 'uncovered' | 'covered2';
+  /** Old-PoS run 31 (NMF/NMF2): round 1 also reports Story-metadata findings (ScriptMode.metadata). */
+  metadata?: 'with-product' | 'only';
   /** Soft checks (NL): each violation is recorded and the flow continues, so one run reports every defect. */
   violations?: string[];
   /** Scenarios NC/NC2/NC3: the first round-1 critic restates (or leaves a new finding without a row). */
@@ -4002,8 +4050,463 @@ function scenarioNPX(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NPX' | 
   }
 }
 
+// ---------------------------------------------------------------------------
+// Old-PoS run 31 (121.6 min): metadata findings, literal sweep, resolution
+// integrity, product code reading PoS metadata, owner-context cost.
+
+const META_STALE_USER_SEES: Record<string, string> = {
+  'CHK-001': 'Upper("ab") == "ab"; go test -v ./strs -run TestUpper prints --- PASS: TestUpper',
+  'CHK-002': 'Reverse("héllo") == "olléh" and Upper("ab") == "ab" is unaffected; go test -v ./strs -run TestReverse prints --- PASS: TestReverse',
+};
+const META_FIXED_USER_SEES: Record<string, string> = {
+  'CHK-001': 'Upper("ab") == "AB"; go test -v ./strs -run TestUpper prints --- PASS: TestUpper',
+  'CHK-002': 'Reverse("héllo") == "olléh" and Upper("ab") == "AB" is unaffected; go test -v ./strs -run TestReverse prints --- PASS: TestReverse',
+};
+
+/** The Story's checklist.json, relative to the worktree (what a reviewer cites). */
+function checklistRel(worktree: string, storyId: string): string {
+  return relative(worktree, new StoryStore(worktree).storyFilePath(storyId, 'checklist.json'));
+}
+
+/**
+ * Run 31 F-001 / F-002 shapes. `cited`: names the item and field, cites only
+ * checklist.json. `restated`: cites checklist.json:<line> (no item id) plus the
+ * passing test that already asserts the right value.
+ */
+function metadataFindings(worktree: string, storyId: string): { cited: Record<string, unknown>; restated: Record<string, unknown> } {
+  const rel = checklistRel(worktree, storyId);
+  const text = readFileSync(join(worktree, rel), 'utf8').split('\n');
+  const line = text.findIndex(row => row.includes('"userSees": "Upper(\\"ab\\") == \\"ab\\"')) + 1;
+  return {
+    cited: { desc: 'CHK-001 userSees says Upper("ab") == "ab", but docs/types/string.md says Upper returns the upper-case form, which yields "AB"; TestUpper already asserts "AB", so the userSees acceptance text contradicts the request.',
+      severity: 'medium', category: 'missing', files: [rel], evidenceState: 'verified' },
+    restated: { desc: `checklist-userSees-contradiction: ${rel}:${line} says \`Upper("ab") == "ab"\`, but the request re-derives \`Upper("ab") == "AB"\`; strs/strs_test.go:9 asserts "AB", so the pinned userSees misstates the required behavior.`,
+      severity: 'medium', category: 'missing', files: [rel, 'strs/strs_test.go'], evidenceState: 'verified' },
+  };
+}
+
+/** The stale userSees of run 31 (the hooo / abc copies), committed as Story metadata before DEV. */
+function writeStaleUserSees(o: Owner): void {
+  const store = new StoryStore(o.worktree);
+  const cl = store.readChecklist(o.storyId);
+  store.writeChecklist(o.storyId, { ...cl, items: cl.items.map(item => META_STALE_USER_SEES[item.id] ? { ...item, userSees: META_STALE_USER_SEES[item.id]! } : item) } as never);
+  commitFixtureMetadata(o, `proof-or-stop: ${o.storyId} stale userSees pins`);
+}
+
+function reviewRoundCount(o: Owner): number {
+  return new Set(new StoryStore(o.root).readReviewRuns(o.storyId).runs.map(run => run.reviewRound)).size;
+}
+
+/**
+ * NMF / NMF2 (old-PoS run 31 D2/D5/D6, 10 of 13 findings): lanes report the wrong
+ * userSees literal as findings. They are metadata, not product findings: never
+ * stored in the finding ledger, never routed to a repair worker; next emits ONE
+ * owner checklist_update (wrong literal + the reviewer's value + every other
+ * occurrence of the literal), the framework refuses an update that leaves the
+ * cited text unchanged, and a metadata-only round costs no remediation round.
+ */
+function scenarioNMF(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NMF' | 'NMF2'): Outcome {
+  const withProduct = tag === 'NMF';
+  const name = withProduct
+    ? 'NMF old-PoS run 31: metadata findings beside a product finding: one checklist_update (literal swept across items), no repair of metadata, DONE in the product-finding round count'
+    : 'NMF2 old-PoS run 31: a metadata-only review round costs no remediation round: one checklist_update, DONE after one review round';
+  const o = new Owner(tag, withProduct ? 'B-e3b0' : 'B-e3b1', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  const corrections: NextStepJson[] = [];
+  try {
+    writeStaleUserSees(o);
+    devSetup(o);
+    const rel = checklistRel(o.worktree, o.storyId);
+    driveWithNext(o, { findingRound1: withProduct, run: false, metadata: withProduct ? 'with-product' : 'only' }, lines, next => {
+      if (next.reason !== 'metadata_correction') return;
+      corrections.push(next);
+      if (corrections.length > 1) return;
+      // The framework verifies the cited text changed: an update that keeps the wrong literal is refused.
+      const unchanged = o.cli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', userSees: META_STALE_USER_SEES['CHK-001'], metadataCorrection: true,
+        reason: 'Restating the same userSees text without correcting the cited literal.' }, { label: 'checklist_update CHK-001 (unchanged metadata)' });
+      assert.notEqual(unchanged.status, 0, `[${tag}] an update leaving the cited userSees unchanged must be refused`);
+      assert.match(unchanged.out, /\[metadata_correction_unchanged\]/, `[${tag}] refusal code:\n${unchanged.out.slice(-1500)}`);
+    });
+    assert.equal(corrections.length, 1, `[${tag}] exactly ONE metadata correction step (deduped across lanes): ${corrections.map(row => row.why.slice(0, 120)).join(' | ')}`);
+    const step = corrections[0]!;
+    assert.equal(step.cli?.command, 'checklist_update', `[${tag}] the correction is a checklist_update`);
+    assert.equal(step.cli?.payload.itemId, 'CHK-001', `[${tag}] it names the cited item`);
+    assert.ok('userSees' in (step.cli?.payload ?? {}), `[${tag}] it corrects userSees: ${JSON.stringify(step.cli?.payload)}`);
+    assert.equal(step.cli?.payload.metadataCorrection, true, `[${tag}] it is a framework metadata correction`);
+    assert.ok(step.why.includes('Upper("ab") == "ab"'), `[${tag}] the step carries the cited wrong literal: ${step.why}`);
+    assert.ok(step.why.includes('Upper("ab") == "AB"'), `[${tag}] the step carries the reviewer's corrected value: ${step.why}`);
+    assert.ok((step.batch ?? []).some(call => call.cli.payload.itemId === 'CHK-002'), `[${tag}] the literal sweep puts CHK-002's copy in the same step: ${JSON.stringify((step.batch ?? []).map(call => call.cli.payload.itemId))}`);
+    const store = new StoryStore(o.root);
+    const findings = store.readFindings(o.storyId).findings;
+    assert.deepEqual(findings.filter(f => (f.files ?? []).includes(rel)).map(f => f.id), [], `[${tag}] no metadata finding enters the finding ledger`);
+    assert.equal(findings.length, withProduct ? 1 : 0, `[${tag}] only the product finding is a finding: ${findings.map(f => f.desc.slice(0, 60)).join(' | ')}`);
+    const events = store.readProcessEvents(o.storyId).filter(event => (event.type as string) === 'review_metadata_finding_reclassified');
+    assert.ok(events.length >= 1, `[${tag}] the reclassification is recorded as a process event`);
+    const items = store.readChecklist(o.storyId).items;
+    assert.equal(items.find(item => item.id === 'CHK-001')?.userSees, META_FIXED_USER_SEES['CHK-001'], `[${tag}] CHK-001 userSees corrected`);
+    assert.equal(items.find(item => item.id === 'CHK-002')?.userSees, META_FIXED_USER_SEES['CHK-002'], `[${tag}] CHK-002's copy corrected in the same step`);
+    const runsRoot = join(o.root, '.proof-or-stop', 'runtime', 'host-runs');
+    const repairs = [...repairRunsOnDisk(runsRoot).values()].flat();
+    const rounds = reviewRoundCount(o);
+    if (withProduct) assert.equal(rounds, 2, `[${tag}] the product finding costs its one remediation round, the metadata none: ${rounds}`);
+    else {
+      assert.equal(rounds, 1, `[${tag}] a metadata-only round needs no remediation round: ${rounds}`);
+      assert.deepEqual(repairs, [], `[${tag}] no finding-repair run`);
+    }
+    lines.push(`metadata correction: ${step.why.slice(0, 240)}`);
+    lines.push(`review rounds ${rounds}; repair runs ${repairs.length}; DONE`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+const NRI_CODE_FINDING = {
+  desc: 'strs/strs.go:4 Upper has no focused test for an empty string: Upper("") must return "".',
+  severity: 'medium', category: 'edge', files: ['strs/strs.go'], evidenceState: 'verified',
+};
+
+/**
+ * NRI (old-PoS run 31 D3/D4): resolution integrity. finding_resolve refuses a
+ * resolution whose cited code is unchanged and no test changed since the finding;
+ * a finding citing Story metadata as well as code (a product finding) is not
+ * closed while the cited checklist text is unchanged (run 31 closed F-001 with a
+ * code test while checklist.json:5251 still said hooo); next routes that text to
+ * one metadata correction in DEV. plan_acceptance_prepare/apply refuse a batch
+ * that changes nothing (run 31 printed "Applied 1 PLAN acceptance items" while
+ * userSees was unchanged), and the intentProposalApproval refusal names the
+ * plain userSees update.
+ */
+function scenarioNRI(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NRI';
+  const name = 'NRI old-PoS run 31: finding_resolve refuses unchanged citations (code without a test, cited checklist text), plan acceptance refuses a no-op';
+  const o = new Owner(tag, 'B-e3b2', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  try {
+    writeStaleUserSees(o);
+    const rel = checklistRel(o.worktree, o.storyId);
+    const mixed = { desc: `CHK-001 userSees says \`Upper("ab") == "ab"\` while strs/strs.go:4 Upper returns the upper-case form, so the request implies \`Upper("ab") == "AB"\`; strs/strs.go has no test for Upper("") either.`,
+      severity: 'medium', category: 'missing', files: [rel, 'strs/strs.go'], evidenceState: 'verified' };
+    devToReview(o);
+    reviewRound(o, lane => lane === 'proof-or-stop-review-test-coverage'
+      ? { conclusion: 'findings', note: 'Scripted findings: an untested edge and a userSees/code mismatch.', findings: [NRI_CODE_FINDING, mixed] }
+      : PASS_ENVELOPE(lane));
+    const codeId = `${o.storyId}:F-001`;
+    const mixedId = `${o.storyId}:F-002`;
+    const stored = new StoryStore(o.worktree).readFindings(o.storyId).findings.map(f => f.id);
+    assert.deepEqual(stored, [codeId, mixedId], `[${tag}] a finding citing code and metadata stays a product finding: ${stored.join(', ')}`);
+    inventoryCritic(o, { tag: 'r1', dispositions: [
+      { finding: { findingId: codeId }, disposition: 'verified_family', familyKey: 'upper-empty-string', reason: 'Upper("") has no focused test; one verified family.' },
+      { finding: { findingId: mixedId }, disposition: 'verified_family', familyKey: 'upper-user-sees', reason: 'CHK-001 userSees contradicts the request; one verified family.' }] });
+    o.mustCli('review_inventory_finalize', { storyId: o.storyId, remediation: true }, { label: 'review_inventory_finalize --remediation' });
+    o.mustCli('story_advance', { storyId: o.storyId, phase: 'DEV' }, { label: 'story_advance DEV (REVIEW->DEV)' });
+
+    // 1. Nothing changed since the finding: refused.
+    const early = o.cli('finding_resolve', { storyId: o.storyId, findingId: codeId, resolution: 'Upper is correct as implemented; nothing to change here.' }, { label: 'finding_resolve F-001 (nothing changed)' });
+    assert.notEqual(early.status, 0, `[${tag}] a resolution with the cited code unchanged and no test change must be refused`);
+    assert.match(early.out, /\[finding_resolution_unchanged_citation\]/, `[${tag}] refusal code:\n${early.out.slice(-1500)}`);
+    // The mixed finding's cited checklist text is routed to ONE metadata correction (stored finding path).
+    const routed = o.cli('next', { storyId: o.storyId, json: true }, { label: 'next (DEV, cited metadata unchanged)' });
+    const step = parseJson(routed.stdout) as NextStepJson | null;
+    assert.equal(step?.reason, 'metadata_correction', `[${tag}] next routes the cited checklist text first: ${step?.reason}: ${step?.why}`);
+    assert.equal(step?.cli?.payload.itemId, 'CHK-001', `[${tag}] correction names CHK-001`);
+    // The finding-repair prompt tells the worker never to read PoS metadata from product code.
+    const dispatched = o.mustCli('dispatch', { storyId: o.storyId, agentType: FINDING_REPAIR, findingId: codeId }, { label: 'dispatch finding-repair (prompt)' });
+    assert.match(dispatched.out, /never read or reference[^\n]*\.proof-or-stop\//i, `[${tag}] the repair prompt forbids product code reading .proof-or-stop/:\n${dispatched.out.slice(-2500)}`);
+
+    // 2. A test change covers the code finding.
+    writeFileSync(join(o.worktree, 'strs/strs_test.go'), readFileSync(join(o.worktree, 'strs/strs_test.go'), 'utf8') + NF_REPAIR_TEST);
+    git(o.worktree, ['add', 'strs/strs_test.go']);
+    git(o.worktree, ['-c', 'user.name=Bench Owner', '-c', 'user.email=owner@bench.invalid', 'commit', '-qm', 'test: Upper of the empty string']);
+    o.mustCli('finding_resolve', { storyId: o.storyId, findingId: codeId, resolution: 'Commit adds TestUpperEmpty; go test -v ./strs -run TestUpperEmpty passes.' }, { label: 'finding_resolve F-001 (test added)' });
+
+    // 3. The mixed finding: code test added, cited checklist text unchanged -> refused (run 31 F-001).
+    const refused = o.cli('finding_resolve', { storyId: o.storyId, findingId: mixedId, resolution: 'Commit adds TestUpperEmpty asserting the upper-case form; passes.' }, { label: 'finding_resolve F-002 (checklist text unchanged)' });
+    assert.notEqual(refused.status, 0, `[${tag}] a resolution leaving the cited checklist text unchanged must be refused`);
+    assert.match(refused.out, /\[finding_resolution_unchanged_citation\]/, `[${tag}] refusal code:\n${refused.out.slice(-1500)}`);
+    assert.match(refused.out, /CHK-001[^\n]*userSees/, `[${tag}] refusal names the cited item field:\n${refused.out.slice(-1500)}`);
+    assert.match(refused.out, /Next: proof-or-stop checklist_update/, `[${tag}] refusal carries the metadata correction:\n${refused.out.slice(-1500)}`);
+    // 4. The owner corrects the text in DEV (metadata correction), then the resolution is accepted.
+    o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', userSees: META_FIXED_USER_SEES['CHK-001'], metadataCorrection: true,
+      reason: 'The request says Upper returns the upper-case form, so Upper("ab") == "AB".' }, { label: 'checklist_update CHK-001 userSees (DEV metadata correction)' });
+    o.mustCli('finding_resolve', { storyId: o.storyId, findingId: mixedId, resolution: 'CHK-001 userSees now states Upper("ab") == "AB"; TestUpperEmpty covers the code part.' }, { label: 'finding_resolve F-002 (text corrected)' });
+    lines.push('code finding: refused unchanged, accepted after a test; mixed finding: refused while checklist text unchanged, accepted after the correction');
+    o.cleanup();
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+  // 5. PLAN: plan acceptance of an unchanged intent is refused; the proposal refusal names the plain userSees update.
+  const p = new Owner(`${tag}-plan`, 'B-e3b3', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NIQ_REQUEST });
+  try {
+    const store = new StoryStore(p.worktree);
+    store.writeStory(p.storyId, { ...store.readStory(p.storyId), phase: 'PLAN' });
+    const legacy = store.readChecklist(p.storyId);
+    store.writeChecklist(p.storyId, { ...legacy, items: legacy.items.map(item => ({ ...item, status: 'pending', startTime: null })) } as never);
+    p.mustCli('dev_memory_preflight_ack', { storyId: p.storyId });
+    const item = new StoryStore(p.worktree).readChecklist(p.storyId).items[0]!;
+    const prepared = p.cli('plan_acceptance_prepare', { storyId: p.storyId, items: [{ itemId: item.id, files: item.files, verificationIntent: item.verificationIntent }] }, { label: 'plan_acceptance_prepare (no change)' });
+    let refusal = prepared;
+    if (prepared.status === 0) {
+      const batch = parseJson(prepared.stdout) ?? JSON.parse(prepared.stdout.slice(prepared.stdout.indexOf('{')));
+      refusal = p.cli('plan_acceptance_apply', { storyId: p.storyId, prepared: batch, reason: 'Run 31 shape: the owner applies a batch that changes no field of the item.' }, { label: 'plan_acceptance_apply (no change)' });
+    }
+    assert.notEqual(refusal.status, 0, `[${tag}] a plan acceptance batch that changes nothing must not report success:\n${refusal.out.slice(-1500)}`);
+    assert.match(refusal.out, /\[plan_acceptance_noop\]/, `[${tag}] refusal code:\n${refusal.out.slice(-1500)}`);
+    assert.match(refusal.out, /userSees/, `[${tag}] the refusal says how userSees is changed:\n${refusal.out.slice(-1500)}`);
+    lines.push('plan acceptance no-op refused');
+    p.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${p.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/**
+ * NMR (old-PoS run 31 REM2): the repair shipped a Go test that parses
+ * .proof-or-stop/story/actives/<id>/checklist.json in model.patch. The scope gate
+ * refuses product source/test changes referencing the Story's metadata, and the
+ * implementer prompt says so.
+ */
+function scenarioNMR(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NMR';
+  const name = 'NMR old-PoS run 31: a product test reading the Story checklist.json is refused at REVIEW entry; the implementer prompt forbids it';
+  const o = new Owner(tag, 'B-e3b4', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  try {
+    devSetup(o);
+    const prompt = o.mustCli('dispatch', { storyId: o.storyId, agentType: IMPLEMENTER, itemId: 'CHK-001' }, { label: 'dispatch implementer (prompt)' });
+    assert.match(prompt.out, /never read or reference[^\n]*\.proof-or-stop\//i, `[${tag}] the implementer prompt forbids product code reading .proof-or-stop/:\n${prompt.out.slice(-2500)}`);
+    const rel = checklistRel(o.worktree, o.storyId);
+    const test = `\nfunc TestAcceptanceText(t *testing.T) {\n\tif _, err := os.ReadFile("${rel}"); err != nil {\n\t\tt.Skip(err)\n\t}\n}\n`;
+    const source = readFileSync(join(o.worktree, 'strs/strs_test.go'), 'utf8').replace('import "testing"', 'import (\n\t"os"\n\t"testing"\n)');
+    writeFileSync(join(o.worktree, 'strs/strs_test.go'), source + test);
+    git(o.worktree, ['add', 'strs/strs_test.go']);
+    git(o.worktree, ['-c', 'user.name=proof-or-stop-finding-repair', '-c', 'user.email=repair@bench.invalid', 'commit', '-qm', 'test: acceptance text reads the checklist']);
+    const refused = o.cli('story_advance', { storyId: o.storyId, phase: 'REVIEW' }, { label: 'story_advance REVIEW (test reads checklist.json)' });
+    assert.notEqual(refused.status, 0, `[${tag}] REVIEW entry must refuse a product test that reads the Story metadata`);
+    assert.match(refused.out, /\[scope_story_metadata_reference\]/, `[${tag}] refusal code:\n${refused.out.slice(-2000)}`);
+    assert.match(refused.out, /strs\/strs_test\.go/, `[${tag}] refusal names the file:\n${refused.out.slice(-2000)}`);
+    lines.push(`refused: ${refused.out.split('\n').find(row => row.includes('scope_story_metadata_reference'))?.slice(0, 200) ?? ''}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/**
+ * NLS (old-PoS run 31 D5: hooo and abc each needed two passes): the conflict
+ * names CHK-001 userSees; the same wrong literal also sits in CHK-002's userSees.
+ * The amendment step lists both in ONE step.
+ */
+function scenarioNLS(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NLS';
+  const name = 'NLS old-PoS run 31: an intent-conflict amendment sweeps the wrong literal across every item in one step';
+  const o = new Owner(tag, 'B-e3b5', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NIQ_REQUEST });
+  const lines: string[] = [];
+  const ask = (label: string): NextStepJson => {
+    const asked = o.cli('next', { storyId: o.storyId, json: true }, { label });
+    const next = (asked.status === 0 ? parseJson(asked.stdout) : null) as NextStepJson | null;
+    assert.ok(next && typeof next.kind === 'string', `[${tag}] next did not return a step:\n${asked.out.slice(-2000)}`);
+    lines.push(`${label}: ${next.phase} ${next.kind} ${next.reason}`);
+    return next;
+  };
+  try {
+    writeStaleUserSees(o);
+    devSetup(o, false);
+    const launch = ask('next (DEV start)');
+    assert.equal(launch.reason, 'implement_item', `[${tag}] first DEV step: ${launch.reason}: ${launch.why}`);
+    const script = implementerScript(o.storyId, String(launch.cli!.payload.itemId));
+    const conflict = '[intent-conflict] CHK-001 userSees | request: "`strs.Upper(s)` returns the upper-case form of `s`" | request implies: `Upper("ab") == "AB"` | intent pins: userSees says `Upper("ab") == "ab"`';
+    o.script(IMPLEMENTER, { ...script, final: `${script.final}\n${conflict}` });
+    const launched = o.mustCli(launch.cli!.command, launch.cli!.payload, { label: 'host_run implementer (userSees conflict)' });
+    const runId = String((parseJson(launched.stdout)?.run as Record<string, unknown>).runId);
+    const terminal = waitTerminal(o, 'implementer', runId);
+    o.unscript(IMPLEMENTER);
+    assert.equal(terminal.state, 'completed', `[${tag}] implementer terminal ${terminal.state} (${terminal.reason})`);
+    const blocked = ask('next (conflict declared)');
+    o.mustCli('story_advance', blocked.cli!.payload, { label: 'story_advance PLAN (conflict)' });
+    const amend = ask('next (PLAN, conflict open)');
+    assert.equal(amend.reason, 'intent_conflict_amend', `[${tag}] PLAN proposes the amendment: ${amend.reason}: ${amend.why}`);
+    const ids = (amend.batch ?? []).map(call => String(call.cli.payload.itemId));
+    assert.deepEqual(ids, ['CHK-001', 'CHK-002'], `[${tag}] the amendment step carries every item stating the wrong literal: ${JSON.stringify(ids)}; why: ${amend.why}`);
+    assert.match(amend.why, /CHK-002 userSees/, `[${tag}] the why names the other occurrence: ${amend.why}`);
+    for (const call of amend.batch ?? []) {
+      const payload = { ...call.cli.payload, userSees: META_FIXED_USER_SEES[String(call.cli.payload.itemId)], status: 'pending',
+        reason: 'The request says Upper returns the upper-case form, so Upper("ab") == "AB" everywhere it is stated.' };
+      o.mustCli('checklist_update', payload, { label: `checklist_update ${String(call.cli.payload.itemId)} (swept)` });
+    }
+    const after = ask('next (PLAN, swept)');
+    assert.doesNotMatch(after.reason, /^intent_conflict/, `[${tag}] the swept amendment clears the conflict: ${after.reason}: ${after.why}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** NPA / NSR fixture: PLAN, request NIQ, every row pinned and derived. */
+function planFixture(o: Owner, rowsPerItem: number, pad: string): void {
+  const store = new StoryStore(o.worktree);
+  store.writeStory(o.storyId, { ...store.readStory(o.storyId), phase: 'PLAN' });
+  const legacy = store.readChecklist(o.storyId);
+  const row = (desc: string, test: string, quote: string) => ({ desc, type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story',
+    verification: { command: `go test -v ./strs -run ^${test}$`, selector: `--- PASS: ${test}` }, derivation: { requestQuote: quote, computation: `${desc}${pad}` } });
+  const upperQuote = '`strs.Upper(s)` returns the upper-case form of `s`, for example `Upper("ab")` is `"AB"`.';
+  const reverseQuote = '`strs.Reverse(s)` returns `s` reversed by rune, for example `Reverse("héllo")` is `"olléh"`.';
+  const many = (make: (n: number) => ReturnType<typeof row>) => Array.from({ length: rowsPerItem }, (_, n) => make(n));
+  store.writeChecklist(o.storyId, { ...legacy, items: legacy.items.map(item => item.id === 'CHK-001'
+    ? { ...item, status: 'pending', startTime: null, userSees: 'Upper("ab") == "AB"; go test -v ./strs -run TestUpper prints --- PASS: TestUpper',
+      verificationIntent: { happy: [row('Upper("ab") -> "AB"', 'TestUpper', upperQuote)], edge: many(n => row(`Upper("a${n}") -> "A${n}"`, `TestUpper${n}`, upperQuote)),
+        adversarial: [row('Upper("") -> ""', 'TestUpperEmpty', upperQuote)] } }
+    : { ...item, status: 'pending', startTime: null, userSees: 'Reverse("héllo") == "olleh"; go test -v ./strs -run TestReverse prints --- PASS: TestReverse',
+      verificationIntent: { happy: [row('Reverse("héllo") -> "olleh"', 'TestReverse', reverseQuote)], edge: many(n => row(`Reverse("x${n}") -> "${n}x"`, `TestReverse${n}`, reverseQuote)),
+        adversarial: [row('Reverse("") -> ""', 'TestReverseEmpty', reverseQuote)] } }) } as never);
+  commitFixtureMetadata(o, `proof-or-stop: ${o.storyId} PLAN checklist`);
+  o.mustCli('dev_memory_preflight_ack', { storyId: o.storyId });
+}
+
+/**
+ * NPA (old-PoS run 31 D7: plan_authoring printed 10.6k + 11.1k tokens into the
+ * owner's context, carried ~212 turns): a step whose text render exceeds the
+ * cap writes each long command payload to a file and prints `@<file>`.
+ */
+function scenarioNPA(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NPA';
+  const name = 'NPA old-PoS run 31: a large next step prints at most ~2k tokens; the full payload is a file the command reads (@file)';
+  const o = new Owner(tag, 'B-e3b6', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NIQ_REQUEST });
+  const lines: string[] = [];
+  try {
+    planFixture(o, 30, ' (each case is one input in the request syntax and the exact output the request states for it)');
+    // Missing userSees + unpinned rows make a pre-scope authoring batch carrying the full intents.
+    const store = new StoryStore(o.worktree);
+    const cl = store.readChecklist(o.storyId);
+    store.writeChecklist(o.storyId, { ...cl, items: cl.items.map(item => ({ ...item, userSees: '',
+      verificationIntent: { ...item.verificationIntent!, edge: item.verificationIntent!.edge.map(({ verification: _pin, ...rest }) => rest) } })) } as never);
+    commitFixtureMetadata(o, `proof-or-stop: ${o.storyId} unpinned rows`);
+    const json = o.cli('next', { storyId: o.storyId, json: true }, { label: 'next --json (plan authoring)' });
+    const step = parseJson(json.stdout) as NextStepJson | null;
+    assert.equal(step?.reason, 'plan_authoring', `[${tag}] the fixture yields a plan_authoring step: ${step?.reason}: ${step?.why?.slice(0, 300)}`);
+    const full = JSON.stringify(step).length;
+    const text = o.cli('next', { storyId: o.storyId }, { label: 'next (text, plan authoring)' });
+    assert.equal(text.status, 0, `[${tag}] next text render failed:\n${text.out.slice(-1500)}`);
+    assert.ok(full > 16000, `[${tag}] the fixture step is large (${full} chars as JSON)`);
+    assert.ok(text.stdout.length <= 8000, `[${tag}] the text step is capped at ~2k tokens: ${text.stdout.length} chars`);
+    const files = [...text.stdout.matchAll(/ @(\S+\.json)/g)].map(match => match[1]!);
+    assert.ok(files.length >= 1, `[${tag}] the long commands read their payload from a file:\n${text.stdout.slice(0, 3000)}`);
+    const payloadFile = files[0]!.startsWith('/') ? files[0]! : join(o.worktree, files[0]!);
+    const payload = JSON.parse(readFileSync(payloadFile, 'utf8')) as Record<string, unknown>;
+    assert.equal(payload.storyId, o.storyId, `[${tag}] the file holds the command payload`);
+    assert.ok('verificationIntent' in payload, `[${tag}] the file carries the full verificationIntent`);
+    lines.push(`plan_authoring: ${full} chars as JSON, ${text.stdout.length} chars printed, ${files.length} payload file(s)`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/**
+ * NSR (old-PoS run 31 D8: scope-plan reruns #4/#5 for value corrections the
+ * verdict itself asked for): the verdict's pin audit names CHK-002:happy:0
+ * (pins "olleh", the request gives "olléh"); next proposes that correction with
+ * every other occurrence of the pinned literal (CHK-002 userSees); once applied,
+ * next does not relaunch the scope-plan reviewer. Any other change still does.
+ */
+function scenarioNSR(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NSR';
+  const name = 'NSR old-PoS run 31: a pin-audit value correction is checked deterministically (no scope-plan rerun); another change reruns it';
+  const o = new Owner(tag, 'B-e3b7', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NIQ_REQUEST });
+  const lines: string[] = [];
+  const ask = (label: string): NextStepJson => {
+    const asked = o.cli('next', { storyId: o.storyId, json: true }, { label });
+    const next = (asked.status === 0 ? parseJson(asked.stdout) : null) as NextStepJson | null;
+    assert.ok(next && typeof next.kind === 'string', `[${tag}] next did not return a step:\n${asked.out.slice(-2000)}`);
+    lines.push(`${label}: ${next.phase} ${next.kind} ${next.reason}`);
+    return next;
+  };
+  try {
+    planFixture(o, 1, '');
+    const launch = ask('next (PLAN, verdict missing)');
+    assert.equal(launch.reason, 'scope_plan_review_launch', `[${tag}] the scope-plan reviewer is launched: ${launch.reason}: ${launch.why}`);
+    const gap = 'pin-audit CHK-002:happy:0: pins "olleh"; request gives "olléh" (rune reversal keeps é)';
+    o.script('proof-or-stop-review-scope-plan', { final: 'Scope review saved.', commands: [[process.execPath, CLI, 'scope_check_save', JSON.stringify({ storyId: o.storyId,
+      features: [
+        { feature: 'Upper returns the upper-case form', covered_by: 'CHK-001', status: 'covered', excluded_by: null, source: 'request.md' },
+        { feature: gap, covered_by: null, status: 'gap', excluded_by: null, source: 'request.md' },
+      ],
+      summary: { total: 2, covered: 1, excluded: 0, gaps: 1 },
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null }, openQuestions: [] })]] });
+    const payload = { ...launch.cli!.payload };
+    for (const [key, value] of Object.entries({ host: 'codex', model: MODEL.model, reasoningEffort: MODEL.reasoningEffort })) {
+      if (typeof payload[key] !== 'string' || /^<.*>$/.test(String(payload[key]))) payload[key] = value;
+    }
+    const launched = o.mustCli('host_run', payload, { label: 'host_run scope-plan' });
+    const terminal = waitTerminal(o, 'scope-plan', String((parseJson(launched.stdout)?.run as Record<string, unknown>).runId));
+    o.unscript('proof-or-stop-review-scope-plan');
+    assert.equal(terminal.state, 'completed', `[${tag}] scope-plan terminal ${terminal.state} (${terminal.reason})`);
+    const correction = ask('next (PLAN, pin-audit gap)');
+    assert.equal(correction.reason, 'pin_audit_correction', `[${tag}] next proposes the pin-audit correction: ${correction.reason}: ${correction.why}`);
+    assert.ok(correction.why.includes('"olleh"') && correction.why.includes('"olléh"'), `[${tag}] the step carries both values: ${correction.why}`);
+    assert.match(correction.why, /CHK-002 userSees/, `[${tag}] the literal sweep names the userSees copy: ${correction.why}`);
+    // The owner applies exactly the requested value (row and its userSees copy).
+    const item = new StoryStore(o.worktree).readChecklist(o.storyId).items.find(row => row.id === 'CHK-002')!;
+    const intent = JSON.parse(JSON.stringify(item.verificationIntent).replaceAll('"olleh"', '"olléh"').replaceAll('\\"olleh\\"', '\\"olléh\\"'));
+    o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-002', verificationIntent: intent, userSees: (item.userSees ?? '').replace('"olleh"', '"olléh"') }, { label: 'checklist_update CHK-002 (requested value)' });
+    const after = ask('next (PLAN, requested value applied)');
+    assert.notEqual(after.reason, 'scope_plan_review_launch', `[${tag}] no scope-plan rerun for the value the verdict requested: ${after.why}`);
+    assert.notEqual(after.reason, 'pin_audit_correction', `[${tag}] the applied correction clears the gap: ${after.why}`);
+    // Another change since the verdict: the reviewer must judge it again.
+    const changed = new StoryStore(o.worktree).readChecklist(o.storyId).items.find(row => row.id === 'CHK-001')!;
+    o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', userSees: `${changed.userSees} (and nothing else)` }, { label: 'checklist_update CHK-001 (unrelated change)' });
+    const rerun = ask('next (PLAN, unrelated change)');
+    assert.equal(rerun.reason, 'scope_plan_review_launch', `[${tag}] an unrelated change still reruns the reviewer: ${rerun.reason}: ${rerun.why}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** NUB (old-PoS run 31 D6): two critic duplicates of a resolved canonical close in ONE batch step. */
+function scenarioNUB(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NUB';
+  const name = 'NUB old-PoS run 31: duplicates of a resolved canonical are closed in one batch step (each with its own coverage run)';
+  const o = new Owner(tag, 'B-e3b8', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  const reasons: string[] = [];
+  try {
+    devSetup(o);
+    driveWithNext(o, { findingRound1: true, run: false, duplicate: 'covered2' }, lines, next => {
+      if (/finding_(repair|resolve|duplicate)/.test(next.reason)) reasons.push(next.reason);
+    });
+    const order = reasons.filter((row, index) => row !== reasons[index - 1]);
+    assert.deepEqual(order, ['finding_repair', 'finding_resolve', 'finding_duplicate_resolve_batch'], `[${tag}] finding steps: ${order.join(' > ')}`);
+    const findings = new StoryStore(o.root).readFindings(o.storyId).findings;
+    for (const desc of [NU_DUP_FINDING.desc, NU_DUP_FINDING2.desc]) {
+      const dup = findings.find(f => f.desc === desc);
+      assert.equal(dup?.status, 'resolved', `[${tag}] duplicate closed: ${desc.slice(0, 60)}`);
+      assert.equal(dup?.resolutionType, 'duplicate', `[${tag}] closed as a duplicate`);
+    }
+    lines.push(`finding steps: ${order.join(' > ')}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NDG|NRS|NPX[AS]?|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NRI|NMR|NLS|NPA|NSR|NUB|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NDG|NRS|NPX[AS]?|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -4049,6 +4552,14 @@ async function main(): Promise<void> {
     if (only.includes('NIU')) outcomes.push(scenarioNIU(machine.env, steps));
     if (only.includes('NAR')) outcomes.push(scenarioNAR(machine.env, steps));
     if (only.includes('NPO')) outcomes.push(scenarioNPO(machine.env, steps));
+    if (only.includes('NMF')) outcomes.push(scenarioNMF(machine.env, steps, 'NMF'));
+    if (only.includes('NMF2')) outcomes.push(scenarioNMF(machine.env, steps, 'NMF2'));
+    if (only.includes('NRI')) outcomes.push(scenarioNRI(machine.env, steps));
+    if (only.includes('NMR')) outcomes.push(scenarioNMR(machine.env, steps));
+    if (only.includes('NLS')) outcomes.push(scenarioNLS(machine.env, steps));
+    if (only.includes('NPA')) outcomes.push(scenarioNPA(machine.env, steps));
+    if (only.includes('NSR')) outcomes.push(scenarioNSR(machine.env, steps));
+    if (only.includes('NUB')) outcomes.push(scenarioNUB(machine.env, steps));
     if (only.includes('NIN')) outcomes.push(scenarioNIN(machine.env, steps));
     if (only.includes('NP')) outcomes.push(scenarioNP(machine.env, steps));
     if (only.includes('NCV')) outcomes.push(scenarioNCV(machine.env, steps));
@@ -4068,7 +4579,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {
