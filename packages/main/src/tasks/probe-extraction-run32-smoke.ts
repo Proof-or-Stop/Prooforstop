@@ -103,7 +103,9 @@ try {
   writeFileSync(join(root, 'lib/impl.txt'), 'base\n');
   const runnerConfig = { command: process.execPath, args: ['tools/mini.js', '{file}'], program: 'echo({input})', extension: '.mini',
     skipPattern: 'identifier not found', selfTest: { input: '[1, 2]', output: '[1, 2]' }, ...SYNTAX };
-  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ probeRunner: runnerConfig, pinOracle: { ...runnerConfig, selfTest: undefined } }));
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ probeRunner: runnerConfig, pinOracle: { ...runnerConfig, selfTest: undefined },
+    // Old-PoS run 33: the probe gate is the A/B arm dev.probeEnforcement=enforce (default advisory).
+    dev: { probeEnforcement: 'enforce' } }));
   writeFileSync(join(root, 'evaluator/evaluator_test.go'), [
     'package evaluator', '', 'import (', '\t"strings"', '\t"testing"', ')', '',
     'func logErrorWithPosition(t *testing.T, got string, want string) {', '\tif !strings.HasPrefix(got, want) {', '\t\tt.Errorf("got %q want %q", got, want)', '\t}', '}', '',

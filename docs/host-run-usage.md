@@ -79,17 +79,20 @@ sealed item CHK-005 commit 39c8303`); these roles never send a provider final
 result (review JSON). Their last assistant message is read by `next` only for
 the mandatory `[intent-conflict]` section (old-PoS run 23; docs/CLI.md "The
 request outranks intents"): a declared conflict blocks the item until the owner
-amends the intent in PLAN. The implementer prompt also carries the probe matrix
-(old-PoS runs 24-30) and asks for a `[probes]` line in that message; `next`
+amends the intent in PLAN. Under the A/B switch `implementation.probeMatrix=on`
+(default off since old-PoS run 33: one line instead) the implementer prompt also
+carries the probe matrix (old-PoS runs 24-30) and asks for a `[probes]` line in that message; `next`
 parses its `probed-only:` rows: a done item whose latest completed implementer
 run left decided rows untested gets `probe_tests_missing` (reopen, relaunch
 with the rows; old-PoS run 30). Old-PoS run 31 (core/request-probes.ts): the
 prompt also pairs the item's example rows with the request sentence that defines
 each and asks for `[probe-row] <row> | request: ... | observed: ... |
 ok|contradiction` lines; an unresolved contradiction gets `probe_request_mismatch`
-(reopen). With a project `probeRunner`, `checklist_update status=done` inside the
-implementer run first runs the rows on the Story base and HEAD (base build once,
-then a build per HEAD material) and refuses once per set of flagged rows; the
+(reopen; with `dev.probeEnforcement=enforce`). With a project `probeRunner`,
+`checklist_update status=done` inside the implementer run first runs the rows on
+the Story base and HEAD (base build once, then a build per HEAD material); under
+`dev.probeEnforcement=enforce` it refuses once per set of flagged rows, under the
+default `advisory` (old-PoS run 33) it only prints them; the
 prompt then carries a compact contract instead of the matrix. Old-PoS run 32:
 every statement of a row runs in order (a row with a statement the extractor
 cannot place is never run or flagged), and an item reopened because its added
@@ -240,7 +243,10 @@ without a valid final envelope after the bounded same-session format repair
 (`managed_review_final_result_*`: a reviewer's only work product is that
 proposal, which was never written), and a managed dispatch run whose save was
 refused because its dispatch binding is stale (`managed_dispatch_binding_stale:`,
-old-PoS run 27; no save-repair turn is attempted, see below). `next` relaunches their target itself as a
+old-PoS run 27; no save-repair turn is attempted, see below), and, for the save reviewers (scope-plan,
+delivery: their only work product is the saved artifact), a run that ended
+`managed_dispatch_output_missing` or `managed_dispatch_save_refused:<class>:` (old-PoS run 33: a
+deterministic refusal such as the phase gate, no save-repair turn) with no work product. `next` relaunches their target itself as a
 bound framework step (`targetRelaunchIsFramework`): a review lane of a round,
 the inventory critic of a wave (old-PoS run 24: the replacement critic was
 handed to the owner), a checklist item's implementer, a finding repair, or the
@@ -492,8 +498,8 @@ implementer 与 finding-repair 的 prompt 指向 `request.md`，并要求最终�
 intent/checklist/pin/request 的「deliberate choice」也算冲突）：未修订的冲突在 DEV 返回 `intent_conflict`（`story_advance --phase=PLAN`），
 在 PLAN 返回 `intent_conflict_amend`（`checklist_update` 新 intent，冲突点名 userSees 时改 userSees，+ reason + `status: pending`）；item 的 verificationIntent 或 userSees 与派发时不同，或已写出 request 推出的值、不再含被钉住的字面量，冲突即解除（old-PoS run 31）。
 finding-repair 的 prompt 还要求在 Story base（打印确切 SHA）与修复后运行该 finding 的输入及其字面变体，
-request 没改的变体保持 base 行为（old-PoS run 24）。implementer 的 prompt 带同样性质的探针矩阵
-（操作数位置 × 值类 × 操作，在 Story base 与改动后各跑一次，old-PoS runs 24-29），最终消息报告 `[probes]` 行（含 `tested:` / `probed-only:`；`next` 解析 probed-only 行，done item 有未测的已决定行时返回 `probe_tests_missing`，old-PoS run 30）。old-PoS run 31：prompt 还把本 item 的例子行与定义它的 request 句子配对，要求 `[probe-row]` 行，未解决的 contradiction 返回 `probe_request_mismatch`；项目声明 `probeRunner` 时，implementer 运行中的 `checklist_update status=done` 先在 Story base 与 HEAD 上跑这些行，每组 flag 拒绝一次，prompt 用紧凑契约代替矩阵。
+request 没改的变体保持 base 行为（old-PoS run 24）。implementer 的 prompt（仅 A/B 开关 `implementation.probeMatrix=on` 时；old-PoS run 33 起默认 off，只留一行）带同样性质的探针矩阵
+（操作数位置 × 值类 × 操作，在 Story base 与改动后各跑一次，old-PoS runs 24-29），最终消息报告 `[probes]` 行（含 `tested:` / `probed-only:`；`next` 解析 probed-only 行，done item 有未测的已决定行时返回 `probe_tests_missing`，old-PoS run 30）。old-PoS run 31：prompt 还把本 item 的例子行与定义它的 request 句子配对，要求 `[probe-row]` 行，未解决的 contradiction 返回 `probe_request_mismatch`；项目声明 `probeRunner` 时，implementer 运行中的 `checklist_update status=done` 先在 Story base 与 HEAD 上跑这些行，`dev.probeEnforcement=enforce` 时每组 flag 拒绝一次（old-PoS run 33 起默认 `advisory`：只打印，不拒绝、不 reopen），prompt 用紧凑契约代替矩阵。
 普通 implementer 模式保留调用方明确选择的模型与 reasoning effort；它不冒充 reviewer，
 也不套用独立 reviewer 的模型资格限制。
 
@@ -527,7 +533,10 @@ managed run 完成时，以非致命的 `managed_dispatch_target_already_done` �
 的提交），重试必然再次被拒，因此不做同 session 修复：记入
 `managed_dispatch_save_repair_unavailable`（`reason: deterministic_binding_refusal`），
 run 以 `managed_dispatch_binding_stale: <拒绝原文>` 失败（保留 `replacementSafe`），
-由 `next` 以新的 dispatch 自动重新启动该角色。
+由 `next` 以新的 dispatch 自动重新启动该角色。同理（old-PoS run 33）：Story 的阶段不允许这次保存时
+（CLI 的 active-Story phase gate，或 `scope_check_save` 的 DEV 规则；拒绝事件带 `code: phase_gate`）
+不做同 session 修复，run 以 `managed_dispatch_save_refused:phase_gate: <拒绝原文>` 失败；该失败及无工作产物的
+`managed_dispatch_output_missing` 对保存类 reviewer 都可自动替换，`next` 在保存所需的阶段自己重新启动（每个目标最多 3 次）。
 失败 terminal 的投影把 provider exit 0 改写为 `exitCode: 1` / `terminalReason: child_error`；
 run 20 记录的 "exit 1" 就是这个投影，provider 本身正常退出。
 PLAN scope reviewer 的 completed terminal/receipt 还封存当时精确的

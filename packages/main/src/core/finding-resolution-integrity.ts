@@ -14,7 +14,7 @@
 import { execFileSync } from 'node:child_process';
 import type { Finding } from './types.js';
 import { isStoryMetadataFile, isTestFile } from './metadata-finding-class.js';
-import { describeMetadataCorrection, findingCitesStoryMetadata, metadataCorrectionCleared, storedFindingCorrections } from './metadata-correction.js';
+import { describeMetadataCorrection, findingCitesStoryMetadata, isMetadataTargetFinding, metadataCorrectionCleared, storedFindingCorrections } from './metadata-correction.js';
 
 export const FINDING_RESOLUTION_UNCHANGED_CITATION = 'finding_resolution_unchanged_citation';
 
@@ -46,6 +46,9 @@ export function resolutionCitationRefusal(args: { store: Store; storyId: string;
         + `A code test does not correct checklist text (old-PoS run 31 F-001) [${FINDING_RESOLUTION_UNCHANGED_CITATION}]\n`
         + `Next: proof-or-stop checklist_update '${JSON.stringify(payload)}'`;
     }
+    // Old-PoS run 33 (F-003): a metadata finding by correction target cites product files only as
+    // corroboration (the code was right); its corrected checklist text is the whole resolution.
+    if (isMetadataTargetFinding(args)) return null;
   }
   const cited = (finding.files ?? []).filter(path => path.trim() && !isStoryMetadataFile(path));
   if (cited.length === 0) return null;

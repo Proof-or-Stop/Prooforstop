@@ -50,6 +50,25 @@
  * a base parse error outside the declared new syntax (parseErrorPattern +
  * newSyntaxPattern) is a PLAN authoring error (probeSyntaxErrors), never a flag.
  *
+ * Old-PoS run 33 (bench-staging/oldpos/run33-analysis.md §3.3, §4.1):
+ *   - Enforcement is the A/B switch `dev.probeEnforcement` ('advisory' default |
+ *     'enforce'), read from the same base-commit config as `probeRunner`.
+ *     Advisory: done runs the rows and prints the table (kept for the REVIEW
+ *     lanes as evidence) but never refuses; `next` never reopens or escalates
+ *     on a flag (handlers/next-driver.ts openProbeFlags), and PLAN's
+ *     probe-syntax / unextractable-row steps do not run. 4 false flags in runs
+ *     32-33 cost 10.6 and 7.9 min; the one true flag was redundant.
+ *   - Case isolation: a row of independent examples chained in one row (`a=[..];
+ *     a[1::2]=9; str(a) -> ..; a[:4:2]=9 -> ..`) used to run each later case on
+ *     the state the earlier cases mutated (run 33 trip 4, a false pin flag). Each
+ *     case now also runs isolated (the row prelude: every statement except an
+ *     earlier case's mutation, plus its own statements); a pin that the isolated
+ *     or the cumulative run satisfies is no flag; a row whose cumulative run
+ *     alone disagrees is marked `chainedCases` (shown, never a flag).
+ *   - `[probe-row] <row> | ok: <why>` disposes every flag of the row, `pin`
+ *     included, as the refusal text says (it used to dispose request flags only,
+ *     forcing an [intent-conflict] and a PLAN trip).
+ *
  * Flags (head observation): `request-error` (the request expects an error,
  * the head returns a value), `request-format` (an error outside the request's
  * quoted format), `pin` (the head differs from the pin). A `pin` flag where
@@ -68,6 +87,7 @@ import { caseRequirements, requestAnchorContext, type RequestAnchorContext } fro
 import { parseErrorOutsideNewSyntax, pinOracleStoryBase, prepareArchivedTree, validRunnerConfig, type PinOracleConfig } from './pin-oracle.js';
 import { currentMaterialHash } from './evidence-freshness.js';
 import { parseIntentConflicts } from './request-authority.js';
+import { probeEnforcementOn } from './ab-variants.js';
 
 export const PROBE_ROW_TAG = '[probe-row]';
 export const PROBE_REQUEST_MISMATCH = 'probe_request_mismatch';
@@ -97,6 +117,11 @@ export interface ProbeCase {
   /** The case as code: its statements and subject, `; `-joined. */
   code: string;
   statements: string[];
+  /**
+   * Old-PoS run 33: the program run from the row's prelude alone (the earlier
+   * cases' mutations left out), when it differs from `statements` (cumulative).
+   */
+  isolatedStatements?: string[];
   /** The expression whose output is compared (the read, or the receiver of a write). */
   expr: string;
   write: boolean;
@@ -276,6 +301,12 @@ function writeReceiver(lhs: string): string {
 
 const rootIdentifier = (expr: string): string | null => expr.match(/^([A-Za-z_]\w*)\s*[[.]/)?.[1] ?? null;
 
+/** A statement that mutates a receiver in place (`a[1::2]=9`, `h.a[0:2]=[9,8]`), not a (re)binding of a name. */
+function isMutation(statement: string): boolean {
+  const assignment = splitAssignment(statement);
+  return Boolean(assignment && !/^[A-Za-z_]\w*$/.test(assignment.lhs));
+}
+
 /**
  * The probe cases of one intent desc. A row may hold several `;`-separated
  * cases; a leading `<prose> over a=[...]:` or `s='hello';` binds the receiver
@@ -305,6 +336,8 @@ export function probeCasesOf(ref: string, itemId: string, desc: string, quote: s
   }
   const cases: ProbeCase[] = [];
   const persistent: string[] = [];
+  /** Per persistent statement: how many cases preceded it (its owner is the next case). */
+  const ownerOf: number[] = [];
   const dropped: string[] = [...prefixDropped];
   for (const segment of splitTopLevel(body, ';')) {
     const arrow = findTopLevel(segment, ARROW);
@@ -312,7 +345,7 @@ export function probeCasesOf(ref: string, itemId: string, desc: string, quote: s
       // Old-PoS run 32: every statement runs, in order; one the extractor cannot
       // place makes the following cases unextractable (never a false flag).
       const { statement, code } = statementOf(segment);
-      if (statement) persistent.push(statement);
+      if (statement) { persistent.push(statement); ownerOf.push(cases.length); }
       else if (code) dropped.push(segment.trim());
       continue;
     }
@@ -339,8 +372,13 @@ export function probeCasesOf(ref: string, itemId: string, desc: string, quote: s
     if (literal && root && !statements.some(statement => statement.startsWith(`${root}=`))) statements.push(`${root}=${literal}`);
     const expr = assignment ? writeReceiver(assignment.lhs) : subject;
     const program = assignment ? [...statements, subject] : statements;
+    // Old-PoS run 33: the isolated program leaves out the earlier cases' in-place mutations.
+    const own = cases.length;
+    const carried = new Set(persistent.flatMap((statement, index) => (ownerOf[index]! < own && isMutation(statement) ? [prefixStatements.length + index] : [])));
+    const isolated = program.filter((_statement, index) => !carried.has(index));
     const unbound = Boolean(root && /^[A-Za-z_]\w*\s*[[.]/.test(assignment?.lhs ?? subject) && !statements.some(statement => statement.startsWith(`${root}=`)));
-    cases.push({ ref, key: ref, itemId, code: [...program, ...(assignment ? [] : [subject])].join('; '), statements: program, expr, write: Boolean(assignment),
+    cases.push({ ref, key: ref, itemId, code: [...program, ...(assignment ? [] : [subject])].join('; '), statements: program,
+      ...(isolated.length !== program.length ? { isolatedStatements: isolated } : {}), expr, write: Boolean(assignment),
       pinned, pinnedText: pinned.kind === 'value' ? pinned.text : pinned.kind === 'error' ? `error '${pinned.text}'` : `'${pinned.text}'`, quote, unbound, dropped: [...dropped] });
   }
   if (cases.length > 1) cases.forEach((entry, index) => { entry.key = `${ref}#${index + 1}`; });
@@ -379,6 +417,7 @@ export function itemProbeCases(item: Pick<ChecklistItem, 'id' | 'verificationInt
     const best = root ? [...(counts.get(root) ?? new Map<string, number>())].sort((a, b) => b[1] - a[1])[0]?.[0] : undefined;
     if (!best) continue;
     probe.statements = [best, ...probe.statements];
+    if (probe.isolatedStatements) probe.isolatedStatements = [best, ...probe.isolatedStatements];
     probe.code = `${best}; ${probe.code}`;
     probe.unbound = false;
   }
@@ -491,8 +530,15 @@ export interface ProbeRunnerConfig extends PinOracleConfig {
   selfTest?: { input: string; output: string };
 }
 
+export type ProbeEnforcement = 'advisory' | 'enforce';
+
 export interface ProbeRunnerContext {
   config: ProbeRunnerConfig;
+  /**
+   * Old-PoS run 33: A/B switch dev.probeEnforcement of the same base config
+   * ('advisory' default: tables only, never refuse / reopen / escalate).
+   */
+  enforcement: ProbeEnforcement;
   env: Record<string, string>;
   base: string;
   baseTree: string;
@@ -505,14 +551,14 @@ function gitOut(cwd: string, args: string[]): string | null {
   try { return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 16 * 1024 * 1024 }).trim(); } catch { return null; }
 }
 
-/** The probeRunner (and validate.env) declared in proof-or-stop.config.json at `base`, or null. */
-export function readBaseProbeRunner(gitCwd: string, base: string): { config: ProbeRunnerConfig; env: Record<string, string> } | null {
+/** The probeRunner (and validate.env, dev.probeEnforcement) declared in proof-or-stop.config.json at `base`, or null. */
+export function readBaseProbeRunner(gitCwd: string, base: string): { config: ProbeRunnerConfig; env: Record<string, string>; enforcement: ProbeEnforcement } | null {
   const text = gitOut(gitCwd, ['show', `${base}:proof-or-stop.config.json`]);
   if (!text) return null;
   try {
     const parsed = JSON.parse(text) as { probeRunner?: unknown; validate?: { env?: Record<string, string> } };
     const config = validRunnerConfig(parsed.probeRunner) as ProbeRunnerConfig | null;
-    return config ? { config, env: { ...(parsed.validate?.env ?? {}), ...(config.env ?? {}) } } : null;
+    return config ? { config, env: { ...(parsed.validate?.env ?? {}), ...(config.env ?? {}) }, enforcement: probeEnforcementOn(parsed) ? 'enforce' : 'advisory' } : null;
   } catch { return null; }
 }
 
@@ -576,7 +622,7 @@ export function storyProbeRunner(store: { readStory(storyId: string): unknown },
     const dir = join(resolveCanonicalRuntimeProjectRoot(root), PROOF_OR_STOP_DIR, 'runtime', 'probe-runner');
     const baseTree = prepareArchivedTree(join(dir, `base-${base.slice(0, 12)}-${configKey(declared.config)}`), gitCwd, base, declared.config.setup, declared.config.timeoutMs, declared.env);
     if (!baseTree) return null;
-    const ctx: ProbeRunnerContext = { config: declared.config, env: declared.env, base, baseTree, dir, gitCwd, metadataRoot: root };
+    const ctx: ProbeRunnerContext = { config: declared.config, enforcement: declared.enforcement, env: declared.env, base, baseTree, dir, gitCwd, metadataRoot: root };
     const selfTest = declared.config.selfTest;
     if (selfTest && typeof selfTest.input === 'string' && typeof selfTest.output === 'string') {
       const program = probeProgram(declared.config, [], selfTest.input);
@@ -624,6 +670,12 @@ export interface ProbeTableRow {
   flags: ProbeFlag[];
   /** The head satisfies the request sentence; the pin differs (amend the pin). */
   requestVouches: boolean;
+  /**
+   * Old-PoS run 33: the row's cases are independent examples chained in one row:
+   * the isolated run matches the pin, the cumulative run does not (a PLAN-side
+   * hint to reset the receiver per case; never a flag).
+   */
+  chainedCases?: boolean;
   /** Static pin vs request contradiction. */
   pinContradiction: string | null;
   /**
@@ -689,7 +741,7 @@ const runnable = (probe: ProbeCase): boolean => !probe.unbound && probe.dropped.
 /** Digest of runnable cases + anchors (the table's staleness key besides material and base). */
 export function rowsDigestOf(rows: ReadonlyArray<{ probe: ProbeCase; anchor: ProbeAnchor }>): string {
   return createHash('sha256').update(JSON.stringify(rows.map(({ probe, anchor }) =>
-    [probe.key, probe.statements, probe.expr, probe.pinnedText, anchor.expectsError, anchor.stems, anchor.sentences[0] ?? null]))).digest('hex').slice(0, 16);
+    [probe.key, probe.statements, probe.isolatedStatements ?? null, probe.expr, probe.pinnedText, anchor.expectsError, anchor.stems, anchor.sentences[0] ?? null]))).digest('hex').slice(0, 16);
 }
 
 /** Digest of an item's verificationIntent (old-PoS run 32: an amendment after a flag is not a relaunch that ignored it). */
@@ -726,23 +778,40 @@ export function computeProbeTables(runner: ProbeRunnerContext, root: string, sto
   const head = prepareHeadTree(runner);
   if (!head) return [];
   const programOf = (probe: ProbeCase) => probeProgram(runner.config, probe.statements, probe.expr);
-  const programs = cases.map(row => programOf(row.probe));
+  const isolatedOf = (probe: ProbeCase) => (probe.isolatedStatements ? probeProgram(runner.config, probe.isolatedStatements, probe.expr) : null);
+  const programs = cases.flatMap(row => [programOf(row.probe), ...(isolatedOf(row.probe) ? [isolatedOf(row.probe)!] : [])]);
   const baseResults = evaluateInTree(runner, runner.baseTree, programs);
   const headResults = evaluateInTree(runner, head.tree, programs);
+  /**
+   * Old-PoS run 33: which program a row is judged by. A case with an isolated
+   * program is judged by whichever run satisfies its pin (isolated first: the
+   * independent-examples reading); when neither does, by the isolated run.
+   */
+  const judged = (probe: ProbeCase): { program: string; chained: boolean } => {
+    const isolated = isolatedOf(probe);
+    if (!isolated) return { program: programOf(probe), chained: false };
+    const isolatedHead = headResults.get(isolated);
+    const cumulativeHead = headResults.get(programOf(probe));
+    if (isolatedHead && matchesPin(isolatedHead, probe.pinned)) return { program: isolated, chained: Boolean(cumulativeHead && matchesPin(cumulativeHead, probe.pinned) === false) };
+    if (cumulativeHead && matchesPin(cumulativeHead, probe.pinned)) return { program: programOf(probe), chained: false };
+    return { program: isolated, chained: false };
+  };
   const ms = Date.now() - started;
   const tables: ProbeTable[] = [];
   for (const itemId of wanted) {
     const mine = cases.filter(row => row.probe.itemId === itemId);
     if (!mine.length) continue;
     const rows = mine.map(({ probe, anchor }): ProbeTableRow => {
-      const base = baseResults.get(programOf(probe));
-      const observed = headResults.get(programOf(probe));
-      const syntaxError = base?.status === 'error' ? parseErrorOutsideNewSyntax(runner.config, programOf(probe), base.text) : null;
-      return { key: probe.key, ref: probe.ref, code: probe.code, expr: probe.expr, pinned: probe.pinnedText,
+      const { program, chained } = judged(probe);
+      const base = baseResults.get(program);
+      const observed = headResults.get(program);
+      const syntaxError = base?.status === 'error' ? parseErrorOutsideNewSyntax(runner.config, program, base.text) : null;
+      const code = program === programOf(probe) ? probe.code : [...probe.isolatedStatements!, ...(probe.write ? [] : [probe.expr])].join('; ');
+      return { key: probe.key, ref: probe.ref, code, expr: probe.expr, pinned: probe.pinnedText,
         ...(base ? { base } : {}), ...(observed ? { head: observed } : {}),
         sentence: anchor.sentences[0] ? clip(anchor.sentences[0], 240) : (probe.quote ? clip(probe.quote, 240) : null),
         expectsError: anchor.expectsError, stems: anchor.stems, flags: syntaxError ? [] : observationFlags(observed, probe, anchor),
-        requestVouches: requestVouchesFor(observed, anchor), pinContradiction: pinRequestContradiction(probe, anchor), syntaxError };
+        requestVouches: requestVouchesFor(observed, anchor), ...(chained ? { chainedCases: true } : {}), pinContradiction: pinRequestContradiction(probe, anchor), syntaxError };
     });
     const table: ProbeTable = { storyId, itemId, base: runner.base, head: head.head, material: head.material, computedAt: new Date().toISOString(), ms, rowsDigest: rowsDigestOf(mine), rows };
     writeProbeState(root, storyId, itemId, { ...readProbeState(root, storyId, itemId), table });
@@ -854,7 +923,16 @@ export const refusingRows = (rows: readonly ProbeTableRow[]): ProbeTableRow[] =>
 export function probeDoneCheck(runner: ProbeRunnerContext, root: string, storyId: string, item: ProbeItem, allItems: readonly ProbeItem[], requestText: string | null): { refusal: string | null; note: string | null } {
   const table = computeProbeTables(runner, root, storyId, [item], allItems, requestText)[0] ?? null;
   const flagged = flaggedRows(table);
-  if (!table || !flagged.length) return { refusal: null, note: table ? `\nFramework probes: ${table.rows.length} rows run on the Story base and HEAD ${table.head.slice(0, 12)}, none flagged (${table.ms} ms).` : null };
+  const chained = (table?.rows ?? []).filter(row => row.chainedCases).map(row => row.key);
+  const chainedNote = chained.length ? ` Rows ${chained.join(', ')} chain independent examples on one receiver: each was judged from the row prelude (reset the receiver per case in the row to make that explicit).` : '';
+  if (!table || !flagged.length) return { refusal: null, note: table ? `\nFramework probes: ${table.rows.length} rows run on the Story base and HEAD ${table.head.slice(0, 12)}, none flagged (${table.ms} ms).${chainedNote}` : null };
+  // Old-PoS run 33: advisory (the default, dev.probeEnforcement) shows the table and never refuses.
+  if (runner.enforcement !== 'enforce') {
+    const listedAdvisory = flagged.slice(0, 20).map(row => `- ${describeProbeRow(row)}`).join('\n');
+    writeProbeState(root, storyId, item.id, { ...readProbeState(root, storyId, item.id), table });
+    return { refusal: null, note: `\nFramework probes (advisory: done is not refused, nothing is reopened; the REVIEW lanes see this table): ${flagged.length} of ${table.rows.length} rows differ at HEAD ${table.head.slice(0, 12)} from their pin or request sentence:\n${listedAdvisory}\n`
+      + `Fix a row your code gets wrong; if the pin is wrong, list it under [intent-conflict]; otherwise say why in a \`${PROBE_ROW_TAG} <row> | ok: <why>\` line.${chainedNote}` };
+  }
   const state = readProbeState(root, storyId, item.id);
   const key = flaggedKeyOf(flagged);
   const path = probeStatePath(root, storyId, item.id);
@@ -913,10 +991,15 @@ export interface ProbeFlagDecision {
   observed: string | null;
 }
 
-/** A row a run's final result already disposed of: an [intent-conflict] naming it, or `[probe-row] ... ok` for request-only flags. */
-function disposed(row: { key: string; ref: string; flags: ProbeFlag[] }, report: string | null): boolean {
+/**
+ * A row a run's final result already disposed of: an [intent-conflict] naming
+ * it, or `[probe-row] <row> | ok: <why>`. Old-PoS run 33 (trip 4, 7.9 min /
+ * 5.9M): `ok` disposes a `pin` flag too, as the refusal text says; before, only
+ * an [intent-conflict] did, forcing a PLAN trip for a false flag.
+ */
+export function probeRowDisposed(row: { key: string; ref: string; flags: ProbeFlag[] }, report: string | null): boolean {
   if (parseIntentConflicts(report).conflicts.some(conflict => namesRow(conflict.intentRef.trim(), row))) return true;
-  return !row.flags.includes('pin') && parseProbeRows(report).some(entry => entry.verdict === 'ok' && namesRow(entry.row, row));
+  return parseProbeRows(report).some(entry => entry.verdict === 'ok' && namesRow(entry.row, row));
 }
 
 const latestRun = (runs: readonly ImplementerRunReport[]): ImplementerRunReport | null => [...runs].sort((a, b) => a.createdAt.localeCompare(b.createdAt)).at(-1) ?? null;
@@ -940,7 +1023,7 @@ export function runnerProbeDecision(runner: ProbeRunnerContext, root: string, st
     state = readProbeState(root, storyId, item.id);
   }
   const latest = latestRun(runs);
-  const open = flaggedRows(state.table).filter(row => !disposed(row, latest?.text ?? null));
+  const open = flaggedRows(state.table).filter(row => !probeRowDisposed(row, latest?.text ?? null));
   if (!open.length) return null;
   const key = flaggedKeyOf(open);
   // A flag raised before the item's intent was amended is a new flag: the
@@ -1023,13 +1106,23 @@ export function renderAnchoredProbeTable(items: readonly ProbeItem[], requestTex
   ];
 }
 
-/** Implementer prompt with a probe runner: the compact contract (no probe programs) and the item's pins that contradict the request. */
-export function renderFrameworkProbeContract(items: readonly ProbeItem[], requestText: string | null, itemId: string, runner: Pick<ProbeRunnerContext, 'base'>): string[] {
+/**
+ * Implementer prompt with a probe runner: the compact contract (no probe
+ * programs) and the item's pins that contradict the request. Old-PoS run 33:
+ * the advisory mode (default) promises a table, not a refusal; the "behaviour
+ * no example pins" checklist is part of the implementer probe matrix
+ * (implementation.probeMatrix, default off).
+ */
+export function renderFrameworkProbeContract(items: readonly ProbeItem[], requestText: string | null, itemId: string, runner: Pick<ProbeRunnerContext, 'base'> & { enforcement?: ProbeEnforcement },
+  options: { probeMatrix?: boolean } = {}): string[] {
   const rows = anchoredCases(items, requestText, new Set([itemId]));
   const contradicting = requestText ? rows.filter(row => pinRequestContradiction(row.probe, row.anchor)) : [];
+  const head = `Framework probes (project probeRunner, Story base ${runner.base.slice(0, 12)}): checklist_update status=done first runs this item's ${rows.length} example rows on the Story base and on your HEAD and compares each with its pin and with the request sentence that defines it. Write no probe program and no base worktree.`;
   return [
-    `Framework probes (project probeRunner, Story base ${runner.base.slice(0, 12)}): checklist_update status=done first runs this item's ${rows.length} example rows on the Story base and on your HEAD and compares each with its pin and with the request sentence that defines it. Write no probe program and no base worktree. Done is refused once per set of flagged rows, with the rows: fix each, or list a wrong pin under [intent-conflict], or add \`${PROBE_ROW_TAG} <row> | ok: <why>\` for a request flag you judge wrong.`,
-    '- Behaviour no example pins is still yours to test: omitted vs explicit null per operand, an explicit value equal to the default, a target aliased by the value, assignment receivers that are not a bare identifier (member/property `h.s[i]`, index-of-index `a[0][i]`, call result `f()[i]`), and each write form (two-part and three-part) with explicit null start/end.',
+    runner.enforcement === 'enforce'
+      ? `${head} Done is refused once per set of flagged rows, with the rows: fix each, or list a wrong pin under [intent-conflict], or add \`${PROBE_ROW_TAG} <row> | ok: <why>\` for a flag you judge wrong.`
+      : `${head} Done prints the rows that differ (it is not refused): fix a row your code gets wrong, list a wrong pin under [intent-conflict], or say why in a \`${PROBE_ROW_TAG} <row> | ok: <why>\` line.`,
+    ...(options.probeMatrix ? ['- Behaviour no example pins is still yours to test: omitted vs explicit null per operand, an explicit value equal to the default, a target aliased by the value, assignment receivers that are not a bare identifier (member/property `h.s[i]`, index-of-index `a[0][i]`, call result `f()[i]`), and each write form (two-part and three-part) with explicit null start/end.'] : []),
     ...(contradicting.length ? ['- Pins that contradict their request sentence (the request outranks the pin: implement the request, list each under [intent-conflict]):', ...anchoredLines(contradicting, 'CONTRADICTS')] : []),
   ];
 }

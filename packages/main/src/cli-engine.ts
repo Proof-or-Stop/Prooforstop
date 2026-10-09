@@ -485,6 +485,23 @@ interface ActiveStory { storyId: string; phase: string; }
  * no subprocess on every CLI call), and from git itself, without a shell,
  * whenever they do not (see readStoryBranchFromGitFiles).
  */
+/**
+ * The phase gate refused `cmd`: when it is a managed save reviewer's save command
+ * (core/host-run.ts MANAGED_DISPATCH_SAVE_COMMANDS) run under a managed
+ * invocation, journal the refusal as `phase_gate` on that live run. Loaded only
+ * on this refusal path; journaling never changes the refusal.
+ */
+async function journalPhaseGateSaveRefusal(root: string, storyId: string, cmd: string, message: string): Promise<void> {
+  if (!process.env.LATTICE_MANAGED_INIT_INVOCATION?.trim()) return;
+  try {
+    const { MANAGED_DISPATCH_SAVE_COMMANDS } = await import('./core/host-run.js');
+    const agentType = Object.entries(MANAGED_DISPATCH_SAVE_COMMANDS).find(([, save]) => save.command === cmd)?.[0];
+    if (!agentType) return;
+    const { recordManagedDispatchSaveRefusal } = await import('./core/managed-host-run.js');
+    recordManagedDispatchSaveRefusal({ root, storyId, agentType, command: cmd }, new Error(message), 'phase_gate');
+  } catch { /* diagnostic journaling only */ }
+}
+
 function detectActiveStory(root: string): ActiveStory | null {
   const gitCwd = root;
   try {
@@ -987,6 +1004,10 @@ export async function runCli(opts?: {
       && (extensionPhases === 'all' || (Array.isArray(extensionPhases) && extensionPhases.includes(activeStory.phase)));
     if (!isDeclaredExtensionCommand && !isCommandAllowed(cmd, activeStory.phase, config.phaseTools)) {
       const allowed = getAllowedPatterns(activeStory.phase, config.phaseTools);
+      // Old-PoS runs 30/33: a managed save reviewer's save refused by the phase gate is
+      // journaled with its class on the live run, so the worker ends the run without the
+      // same-session save-repair turns (they would be refused identically).
+      await journalPhaseGateSaveRefusal(root0, activeStory.storyId, cmd, `Command "${cmd}" is not available in ${activeStory.phase} phase`);
       console.error(`Command "${cmd}" is not available in ${activeStory.phase} phase`);
       console.error(`   Story: ${activeStory.storyId}  Phase: ${activeStory.phase}`);
       for (const line of formatCommandLifecycleHint(cmd, activeStory.phase, allowed)) console.error(line);

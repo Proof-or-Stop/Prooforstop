@@ -50,7 +50,7 @@ import { evaluateDevMemoryPreflightGate, evaluateReviewVerdict, getGuardFailureR
 import { missingPlanScopeCheckFailure, SCOPE_PLAN_REVIEWER, scopePlanLaunchIsFramework, scopePlanRerunReason } from '../core/plan-scope-check-requirement.js';
 import { hasPreScopeBlockers, planPreScopeBlockers, type PreScopeBlockers } from '../core/plan-pre-scope-blockers.js';
 import { checklistDerivationGaps, derivationPlaceholder, MISSING_INTENT_DERIVATION } from '../core/intent-derivation.js';
-import { coveragePlaceholders, MISSING_COVERAGE_ROW, planCoverageGaps, type CoverageGap } from '../core/plan-coverage-matrix.js';
+import { coveragePlaceholders, MISSING_COVERAGE_ROW, planCoverageGapsFor, type CoverageGap } from '../core/plan-coverage-matrix.js';
 import { scopeVerdictDeferral, scopeVerdictHeldItems, scopeVerdictReviewEntryFailure } from '../core/scope-plan-deferral.js';
 import { STORY_FOCUSED_CLASSIFICATION } from '../core/verification-intent-classification.js';
 import { VERIFICATION_LANES } from '../core/verification.js';
@@ -95,11 +95,12 @@ import type { ChecklistItem, Finding, ReviewRun } from '../core/types.js';
 import { findingRepairRoute, PREEXISTING_OUT_OF_SCOPE } from '../core/finding-preexisting.js';
 import { evaluatePreexistingFinding, type PreexistingFindingVerdict } from './finding-preexisting.js';
 import { commitMessageNamesFinding, implementationGroupingFiles, itemDeclaredFiles, remediationGroupingSingle, sharedFileItemGroup } from '../core/ab-dispatch-grouping.js';
+import { probeEnforcementOn, probeMatrixOn } from '../core/ab-variants.js';
 import { ownerWaitBlockMs, ownerWaitInstruction } from '../core/owner-wait-guidance.js';
 import { parseIntentConflicts, probeTestGaps, type IntentConflict, type ProbeTestGap } from '../core/request-authority.js';
 import { readStoryRequest } from '../core/story-request.js';
 import { intentSemantics } from '../core/verification-intent-amendment.js';
-import { isPureMetadataFinding, literalOccurrences, openMetadataCorrections, type LiteralOccurrence, type MetadataField, type OpenMetadataCorrection } from '../core/metadata-correction.js';
+import { isMetadataTargetFinding, literalOccurrences, openMetadataCorrections, type LiteralOccurrence, type MetadataField, type OpenMetadataCorrection } from '../core/metadata-correction.js';
 import { openPinAuditGaps } from '../core/pin-audit-correction.js';
 import { describePinMismatch, PIN_ORACLE_MISMATCH, pinExamples, pinMismatchRule, pinOracleMismatches, pinOracleStoryBase, storyPinOracle } from '../core/pin-oracle.js';
 import { describeUnextractableRows, PROBE_REQUEST_MISMATCH, probeSyntaxErrors, reportProbeDecision, requestAnchoredKeys, runnerProbeDecision, storyProbeRunner, unextractableRows, type ProbeFlagDecision } from '../core/request-probes.js';
@@ -508,7 +509,7 @@ function listStoryHostRuns(ctx: HandlerContext, storyId: string): HostRunView[] 
       rows.push({ runId, host: run.host, model: run.model ?? null, reasoningEffort: run.reasoningEffort ?? null, profile: run.profile,
         agentType: run.agentType, reviewRunId: run.reviewRunId, state: run.state,
         terminal: run.terminal !== null, createdAt: run.createdAt,
-        autoReplaceable: isAutoReplaceableManagedLaunchFailure({ state: run.state, replacementSafe: run.replacementSafe, terminalReason: run.terminal?.reason ?? null }),
+        autoReplaceable: isAutoReplaceableManagedLaunchFailure({ state: run.state, replacementSafe: run.replacementSafe, terminalReason: run.terminal?.reason ?? null, agentType: run.agentType }),
         replacementSafe: run.replacementSafe === true });
     } catch { /* not a readable managed run */ }
   }
@@ -867,8 +868,22 @@ export function duplicateResolveBatchStep(base: { storyId: string; phase: string
 function metadataFindingResolveStep(base: { storyId: string; phase: string }, finding: { id: string; severity: string }): NextStep {
   return step(base, 'agent', 'finding_resolve', { command: 'finding_resolve', payload: { storyId: base.storyId, findingId: finding.id,
     resolution: '<which checklist text changed: item, field and the value it now states>' } },
-  `${finding.severity} finding ${finding.id} cites only Story metadata, and the cited checklist text is corrected (the framework verified it changed): close it; it is never repair work.`,
-  'openMetadataCorrections + isPureMetadataFinding (old-PoS run 31)', { placeholders: ['resolution'] });
+  `${finding.severity} finding ${finding.id} is a Story-metadata finding (its correction target is checklist text), and the cited checklist text is corrected (the framework verified it changed): close it; it is never repair work.`,
+  'openMetadataCorrections + isMetadataTargetFinding (old-PoS runs 31/33)', { placeholders: ['resolution'] });
+}
+
+/** The project config of a store (its projectRoot); unreadable = {} (production switches). */
+function storeConfig(store: object): unknown {
+  const root = (store as { projectRoot?: unknown }).projectRoot;
+  try { return typeof root === 'string' ? loadConfig(root) : {}; } catch { return {}; }
+}
+
+/** Old-PoS run 33 catch-earlier switches (core/ab-variants.ts), read from the project config; malformed = production. */
+function probeMatrixEnabled(root: string): boolean {
+  try { return probeMatrixOn(loadConfig(root)); } catch { return false; }
+}
+function probeEnforcementEnabled(root: string): boolean {
+  try { return probeEnforcementOn(loadConfig(root)); } catch { return false; }
 }
 
 /**
@@ -876,6 +891,8 @@ function metadataFindingResolveStep(base: { storyId: string; phase: string }, fi
  * probed but did not test (its `[probes]` probed-only rows), on done items.
  */
 export function openProbeTestGaps(root: string, runs: readonly Pick<HostRunView, 'runId' | 'agentType' | 'terminal' | 'state' | 'createdAt'>[], items: readonly ChecklistItem[]): ProbeTestGap[] {
+  // Old-PoS run 33: the [probes] report belongs to the implementer probe matrix (implementation.probeMatrix, default off).
+  if (!probeMatrixEnabled(root)) return [];
   const implementers = runs.filter(run => run.agentType === IMPLEMENTER_AGENT && run.terminal && run.state === 'completed');
   if (implementers.length === 0) return [];
   const reports = implementers.flatMap(run => {
@@ -899,6 +916,9 @@ export function openProbeFlags(args: { root: string; gitCwd: string; store: Hand
   const requestText = request.status === 'ok' ? request.text : null;
   const runner = storyProbeRunner(args.store, args.root, args.storyId, args.gitCwd);
   if (!runner && !requestText) return [];
+  // Old-PoS run 33 (dev.probeEnforcement, default advisory): a flag never reopens or escalates.
+  // Report mode also needs the implementer's [probe-row] contract (implementation.probeMatrix).
+  if (runner ? runner.enforcement !== 'enforce' : !(probeEnforcementEnabled(args.root) && probeMatrixEnabled(args.root))) return [];
   const out: ProbeFlagDecision[] = [];
   for (const item of done) {
     const runs = implementerRunReports(args.root, args.storyId, item.id);
@@ -954,7 +974,8 @@ function exactTextStep(base: { storyId: string; phase: string }, gap: { itemId: 
  */
 export function probeSyntaxStep(base: { storyId: string; phase: string }, store: HandlerContext['store'], root: string, gitCwd: string): NextStep | null {
   const runner = storyProbeRunner(store, root, base.storyId, gitCwd);
-  if (!runner) return null;
+  // Old-PoS run 33: a PLAN step only under dev.probeEnforcement=enforce (advisory never blocks).
+  if (!runner || runner.enforcement !== 'enforce') return null;
   const broken = probeSyntaxErrors(runner, store.readChecklist(base.storyId).items);
   if (!broken.length) return null;
   const first = broken[0]!;
@@ -966,7 +987,7 @@ export function probeSyntaxStep(base: { storyId: string; phase: string }, store:
 
 /** PLAN: the rows the framework probe will not run (with a project probeRunner), for the DEV-entry step text. */
 function unextractableNote(store: HandlerContext['store'], root: string, storyId: string, gitCwd: string): string {
-  if (!storyProbeRunner(store, root, storyId, gitCwd)) return '';
+  if (storyProbeRunner(store, root, storyId, gitCwd)?.enforcement !== 'enforce') return '';
   const note = describeUnextractableRows(unextractableRows(store.readChecklist(storyId).items));
   return note ? ` ${note} Each is checked only by its test and review, not by the framework probe; rewrite a row as runnable code to have it probed.` : '';
 }
@@ -1240,7 +1261,8 @@ export function planAuthoringStep(store: Pick<HandlerContext['store'], 'readRevi
     if (request.status === 'ok') {
       const items = store.readChecklist(storyId).items;
       const derivations = types.has(MISSING_INTENT_DERIVATION) ? checklistDerivationGaps(items, request.text) : [];
-      coverage = types.has(MISSING_COVERAGE_ROW) ? planCoverageGaps(items, request.text) : [];
+      // Old-PoS run 33: plan.coverageMatrix (default off: exact-text rows only), the switch story_review reads.
+      coverage = types.has(MISSING_COVERAGE_ROW) ? planCoverageGapsFor(storeConfig(store), items, request.text) : [];
       for (const item of items) {
         const gap = derivations.find(entry => entry.itemId === item.id);
         const placeholders = coverageIntentRows(coverage, item.id);
@@ -1987,9 +2009,11 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     const blockingAll = openBlockingFindings(storyId);
     // Old-PoS run 31: a stored finding citing only Story metadata is closed once its
     // correction cleared (metadataStep above); it is never routed to repair.
-    const metadataOnly = blockingAll.find(row => isPureMetadataFinding(row.finding));
+    // Old-PoS run 33 (F-003): classified by correction target, not by lane (isMetadataTargetFinding).
+    const isMetadata = (finding: Finding) => isMetadataTargetFinding({ store: ctx.store as never, storyId, gitCwd: gitCwdOf(storyId), finding });
+    const metadataOnly = blockingAll.find(row => isMetadata(row.finding));
     if (metadataOnly && !inFlight(FINDING_REPAIR_AGENT)) return metadataFindingResolveStep(base, metadataOnly.finding);
-    const findings = blockingAll.filter(row => !isPureMetadataFinding(row.finding));
+    const findings = blockingAll.filter(row => !isMetadata(row.finding));
     // The evidence chain is read only by the rows below that consult it (a
     // finding still awaiting repair or its run does not).
     let chainResult: ReturnType<typeof evaluateEvidenceChainForStory> | undefined;
@@ -2273,7 +2297,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     for (const id of ids) {
       const finding = findings.find(row => row.id === id);
       if (!finding) continue;
-      if (isPureMetadataFinding(finding)) return metadataFindingResolveStep(base, finding);
+      if (isMetadataTargetFinding({ store: ctx.store as never, storyId, gitCwd, finding })) return metadataFindingResolveStep(base, finding);
       const repair = managedFindingRepairState({ root: ctx.root, gitCwd, storyId, finding, runs: hostRuns });
       if (repair.repaired) {
         const repaired = repairedFindingsForResolve({ root: ctx.root, gitCwd, storyId, runs: hostRuns, primary: finding, primaryRepair: repair,
@@ -2344,8 +2368,21 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     if (laneStep) return laneStep;
     // Old-PoS run 31: Story-metadata findings are corrected in place (userSees) by
     // one owner step; they cost no remediation round.
+    // Old-PoS run 33 (§3.2): framework steps before agent steps. A correction that
+    // needs PLAN (metadata_correction_plan: REVIEW→DEV→PLAN) can only leave REVIEW
+    // after the round's OPEN inventory epoch is finalized, so while that epoch is
+    // open next runs its critic launch / import / finalize itself first (run 33: the
+    // metadata step pre-empted them and the owner ran the critic by hand, 28 turns,
+    // 5.35M). An in-place (userSees) correction still comes first.
+    // A correction that needs PLAN waits while an epoch of this round is OPEN, or while
+    // verified blocking findings need the round's remediation receipt to leave REVIEW
+    // (inventory begin, critic, finalize: framework steps); it then comes before the
+    // finalized receipt is consumed.
     const metadata = metadataStep(base);
-    if (metadata) return metadata;
+    const openForMetadata = metadata?.reason === 'metadata_correction_plan' ? currentOpenReviewInventory(ctx.store, storyId) : null;
+    const metadataWaits = metadata?.reason === 'metadata_correction_plan'
+      && (Boolean(openForMetadata && openForMetadata.reviewRound === round) || openBlockingFindings(storyId).length > 0);
+    if (metadata && !metadataWaits) return metadata;
     let verdict = evaluateReviewVerdict({ storyId, store: ctx.store, projectRoot: ctx.root, gitCwd });
     // Lab reroute-mid-inventory: the round was invalidated after a lane
     // reported a finding (owner reroute, broken live binding), every lane
@@ -2433,6 +2470,8 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       return delegated(base, 'framework', 'inventory_status_next', hint, `Epoch ${openEpoch.epochId}: ${status.split('\n').find(row => row.startsWith('Blockers:')) ?? ''}`.trim(), 'review_inventory_status Next');
     }
     const pending = finalizedUnconsumedReviewInventory(ctx.store, storyId);
+    // Old-PoS run 33: the deferred metadata correction, once the round's epoch is finalized.
+    if (metadata && pending) return metadata;
     if (pending) {
       if (pending.receipt?.authority === 'review-remediation-only') {
         return guardStep(base, 'DEV', 'enter_remediation_dev', `Epoch ${pending.epoch.epochId} finalized a remediation receipt: return to DEV to repair the verified finding(s).`, 'finalizedUnconsumedReviewInventory + getGuardFailureReason(DEV)');

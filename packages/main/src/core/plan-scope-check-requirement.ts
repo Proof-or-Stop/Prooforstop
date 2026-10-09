@@ -34,7 +34,9 @@ export const SCOPE_PLAN_REVIEWER = 'proof-or-stop-review-scope-plan';
 
 /**
  * N8 deferral decision for a missing scope-plan verdict (computed by
- * core/scope-plan-deferral.ts `scopeVerdictDeferral`):
+ * core/scope-plan-deferral.ts `scopeVerdictDeferral`; since old-PoS run 33 N8
+ * is the A/B switch plan.scopeDeferral, default off, under which a live run
+ * always yields `held`):
  *   - none: no live managed scope-plan run launched in PLAN;
  *   - deferred: such a run is live and some open item is free, so DEV may start
  *     beside it (the verdict gates DEV→REVIEW); `heldItemIds` (old-PoS run 27)
@@ -83,10 +85,11 @@ export function missingPlanScopeCheckFailure(
   policy: Pick<WorkflowPolicy, 'profile' | 'plan'>,
   /**
    * N8 (core/scope-plan-deferral.ts `scopeVerdictDeferral`, the one predicate
-   * DEV entry, story_review and `next` share): a live managed scope-plan run
-   * launched in PLAN defers the missing verdict to DEV→REVIEW, unless the
-   * reviewer has a pin audit / same-semantics check to do (held: DEV entry
-   * waits for that run's verdict).
+   * DEV entry, story_review and `next` share): under plan.scopeDeferral=on a
+   * live managed scope-plan run launched in PLAN defers the missing verdict to
+   * DEV→REVIEW, unless the reviewer has a pin audit / same-semantics check to
+   * do; held (the default since old-PoS run 33): DEV entry waits for that
+   * run's verdict.
    */
   scopeDeferral: () => ScopeVerdictDeferral = () => ({ kind: 'none' }),
 ): string | null {

@@ -43,6 +43,8 @@ type Gap = { key: string; itemId: string; rule: string; sentences: string[] };
 try {
   writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
     scanRoot: '.', testsDir: 'tests', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
+    // Old-PoS run 33: both mechanisms are A/B arms (default off); this smoke covers the arm.
+    plan: { coverageMatrix: 'on' }, implementation: { probeMatrix: 'on' },
   }));
   execFileSync('git', ['init', '-q', '-b', 'main'], { cwd: root });
   execFileSync('git', ['config', 'user.email', 'catch@example.invalid'], { cwd: root });

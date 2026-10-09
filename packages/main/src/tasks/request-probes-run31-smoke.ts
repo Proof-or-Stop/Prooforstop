@@ -191,7 +191,7 @@ const EVAL = [
     writeFileSync(join(root, 'tools/mini.js'), EVAL);
     writeFileSync(join(root, 'lib/impl.txt'), 'base\n');
     const runner = { command: process.execPath, args: ['tools/mini.js', '{file}'], program: 'echo({input})', extension: '.mini', selfTest: { input: '[1, 2]', output: '[1, 2]' } };
-    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ probeRunner: runner }));
+    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ probeRunner: runner, dev: { probeEnforcement: 'enforce' } }));
     git('add', '-A'); git('commit', '-qm', 'base');
     git('checkout', '-q', '-b', 'story/B-1');
     // The Story's head treats an explicit null start as omitted (run 31 F-006).
@@ -225,7 +225,7 @@ const EVAL = [
     assert.match(evidence[0] ?? '', /Framework probe evidence[^\n]*flagged/);
     assert.ok(evidence.some(line => /CHK-002:edge:0#1/.test(line)), 'lanes see the flagged row');
     // A runner whose selfTest the base fails is never used (a wrong declaration flags nothing).
-    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ probeRunner: { ...runner, selfTest: { input: '[1, 2]', output: '[9]' } } }));
+    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ probeRunner: { ...runner, selfTest: { input: '[1, 2]', output: '[9]' } }, dev: { probeEnforcement: 'enforce' } }));
     git('checkout', '-q', 'main'); git('commit', '-qam', 'bad self test'); git('checkout', '-q', 'story/B-1'); git('merge', '-q', 'main', '-m', 'merge');
     git('reset', '-q', '--hard', 'HEAD');
     assert.equal(storyProbeRunner(store, root, 'B-1', root), null, 'a failing selfTest disables the runner');
@@ -262,8 +262,14 @@ const EVAL = [
   assert.match(table, /CHK-002:edge:0#1: a=\[0,1,2,3,4,5\]; a\[null:4:2\] -> \[0, 2\] \| S\d \(request expects an error[^\n]*PIN CONTRADICTS REQUEST/, `the F-006 row:\n${table}`);
   assert.match(table, /\[probe-row\] <row> \| request: <expected per the sentence> \| observed: <HEAD output> \| ok\|contradiction/);
   assert.deepEqual(renderAnchoredProbeTable(DEV_ITEMS, null, 'CHK-002'), [], 'no request, no table');
-  const contract = renderFrameworkProbeContract(DEV_ITEMS, RUN31_REQUEST, 'CHK-002', { base: 'a'.repeat(40) }).join('\n');
+  // Old-PoS run 33: the run-31 contract is the A/B arm (dev.probeEnforcement=enforce, implementation.probeMatrix=on).
+  const contract = renderFrameworkProbeContract(DEV_ITEMS, RUN31_REQUEST, 'CHK-002', { base: 'a'.repeat(40), enforcement: 'enforce' }, { probeMatrix: true }).join('\n');
   assert.match(contract, /Write no probe program/);
+  assert.match(contract, /Done is refused once per set of flagged rows/);
+  const advisory = renderFrameworkProbeContract(DEV_ITEMS, RUN31_REQUEST, 'CHK-002', { base: 'a'.repeat(40) }).join('\n');
+  assert.match(advisory, /it is not refused/, 'advisory (default): done is never refused');
+  assert.doesNotMatch(advisory, /member\/property `h\.s\[i\]`/, 'the probe-matrix checklist is the implementation.probeMatrix arm');
+  assert.match(advisory, /CONTRADICTS: pins the value \[0, 2\]/, 'contradicting pins are still listed (static, request-anchored)');
   assert.match(contract, /member\/property `h\.s\[i\]`, index-of-index `a\[0\]\[i\]`, call result `f\(\)\[i\]`/, 'the receiver kinds are named');
   assert.match(contract, /two-part and three-part\) with explicit null/);
   assert.match(contract, /CONTRADICTS: pins the value \[0, 2\]/, 'the item\'s contradicting pins are listed before coding');

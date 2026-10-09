@@ -36,7 +36,8 @@ import { unpinnedPlanIntents } from './plan-verification-pins.js';
 import { isHighRiskStory } from './plan-scope-check-requirement.js';
 import { readStoryRequest, unmappedStoryRequestLiterals } from './story-request.js';
 import { describeDerivationProblem, intentDerivationRows } from './intent-derivation.js';
-import { planCoverageGaps, type CoverageGap } from './plan-coverage-matrix.js';
+import { planCoverageGapsFor, type CoverageGap } from './plan-coverage-matrix.js';
+import { loadConfig } from './config.js';
 
 /** story_review's rule: normal channel, high risk or strict profile need happy/edge/adversarial on every item. */
 export function requiresFullVerificationIntent(args: { isHighRisk: boolean; channel: string; profile: string }): boolean {
@@ -89,10 +90,16 @@ export function planPreScopeBlockers(
       : [],
   })).filter(row => row.missingLanes.length || row.unpinned.length || row.missingUserSees || row.missingDerivations.length);
   const unmappedLiterals = request.status === 'ok' ? unmappedStoryRequestLiterals(request.text, items, { countExcludes: true }) : [];
-  const coverageGaps = request.status === 'ok' ? planCoverageGaps(items, request.text) : [];
+  // Old-PoS run 33: plan.coverageMatrix (default off: exact-text rows only).
+  const coverageGaps = request.status === 'ok' ? planCoverageGapsFor(coverageConfig(store as StoryStore), items, request.text) : [];
   return { items: rows, unmappedLiterals, coverageGaps };
 }
 
 export function hasPreScopeBlockers(blockers: PreScopeBlockers): boolean {
   return blockers.items.length > 0 || blockers.unmappedLiterals.length > 0 || blockers.coverageGaps.length > 0;
+}
+
+/** The project config the coverage switch is read from (an unreadable config keeps production: exact-text rows only). */
+function coverageConfig(store: StoryStore): unknown {
+  try { return loadConfig(store.projectRoot); } catch { return {}; }
 }

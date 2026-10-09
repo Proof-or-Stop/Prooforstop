@@ -62,10 +62,19 @@
  * item with a placeholder intent per missing row). A gap that does not apply
  * is excluded by an item excludes entry that names its key with a reason.
  * Only Stories with a readable request.md are checked.
+ *
+ * Old-PoS run 33 (bench-staging/oldpos/run33-analysis.md §2.3, §4.1): OFF by
+ * default, A/B switch `plan.coverageMatrix` ('off' | 'on', core/ab-variants.ts).
+ * 35 demanded rows cost 3-5 min and 2.7-4.6M per run to author, manufactured
+ * wrong explicit-null pins (two in run 33, four in run 31) and prevented no
+ * documented finding (runs 30-33). Off keeps only rule 4 (exact-text rows: the
+ * deterministic request-literal class, also the story_create literal
+ * pre-check); `planCoverageGapsFor` is the switch-aware entry every caller uses.
  */
 import type { ChecklistItem, VerificationIntentDerivation } from './types.js';
 import { VERIFICATION_LANES } from './verification.js';
 import { requestSections } from './intent-derivation.js';
+import { coverageMatrixOn } from './ab-variants.js';
 
 export const MISSING_COVERAGE_ROW = 'missing_coverage_row';
 export const COVERAGE_GAP_PREFIX = 'coverage';
@@ -718,6 +727,15 @@ export function planCoverageGaps(items: readonly CheckedItem[], requestText: str
     .map(status => ({ ...status.requirement, itemId: targetItem(status.requirement, rows, open.map(item => item.id)), example: exampleFor(status.requirement, family) }));
 }
 
+/**
+ * Old-PoS run 33: the coverage gaps the project's switch admits. plan.coverageMatrix
+ * absent / 'off' (production): the exact-text rows only; 'on': every rule.
+ */
+export function planCoverageGapsFor(config: unknown, items: readonly CheckedItem[], requestText: string): CoverageGap[] {
+  const gaps = planCoverageGaps(items, requestText);
+  return coverageMatrixOn(config) ? gaps : gaps.filter(gap => gap.rule === 'exact-text');
+}
+
 const clip = (text: string, max: number): string => (text.length > max ? `${text.slice(0, max - 1)}…` : text);
 
 /** One line per gap (story_review message, next Why). */
@@ -756,7 +774,14 @@ export function coveragePlaceholders(gaps: readonly CoverageGap[], itemId: strin
  * the deterministic patterns do not match), plus any mechanical row still
  * missing.
  */
-export function renderCoverageMatrixRule(items: readonly CheckedItem[], requestText: string): string[] {
+export function renderCoverageMatrixRule(items: readonly CheckedItem[], requestText: string, config: unknown = {}): string[] {
+  // Old-PoS run 33: plan.coverageMatrix off (default): only the exact-text rule, and only when the request quotes such strings.
+  if (!coverageMatrixOn(config)) {
+    if (!requestExactStrings(requestText).length) return [];
+    const exact = planCoverageGapsFor(config, items, requestText);
+    return [`Exact text (blocking): a string the request says must match exactly needs an intent asserting it exactly, not by prefix or contains. Missing: {"feature":"${COVERAGE_GAP_PREFIX} <what>: <request sentence>","status":"gap","source":"request.md"}.`
+      + (exact.length ? ` Still missing: ${exact.slice(0, 12).map(gap => gap.key).join('; ')}${exact.length > 12 ? ` +${exact.length - 12} more` : ''}.` : '')];
+  }
   const gaps = planCoverageGaps(items, requestText);
   return [
     `Coverage matrix (blocking): (1) when the request makes one operation follow another's semantics (e.g. assignment uses read selection), every value class an intent tests on one side (omitted, explicit null, 0, negative, non-numeric/wrong type, multibyte, empty selection) needs an intent on the other; (2) a syntax with optional parts needs an intent per omission pattern, and a stringify intent per listed form when the request specifies printed forms; (3) each member of an enumerated list in the request (operand positions, receiver types, forms, error messages, examples) x the property its sentence states needs an intent, e.g. size mismatch and broadcast on each assignment form; (4) a string the request says must match exactly needs an intent asserting it exactly, not by prefix or contains. Missing: {"feature":"${COVERAGE_GAP_PREFIX} <what>: <request sentence>","status":"gap","source":"request.md"}.`,

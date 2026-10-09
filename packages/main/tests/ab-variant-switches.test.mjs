@@ -48,7 +48,9 @@ const epoch = { epochId: 'E1', storyId: 'B-1', requiredLanes: ['a', 'b'], waves:
 await check('config: absent switches resolve to production values; malformed fails closed; evidence lists only ON switches', async () => {
   const { resolveAbVariants, abVariantEvidence } = await load('core/ab-variants.js');
   const off = resolveAbVariants({});
-  assert.deepEqual(off, { criticOnCleanRound: 'run', round2Scope: 'full', round2Lanes: 'fresh', remediationGrouping: 'single', remediationThread: 'fresh', implementationGrouping: 'per-item', implementationThread: 'resume', lanePack: 'off', roundDelta: 'off' });
+  assert.deepEqual(off, { criticOnCleanRound: 'run', round2Scope: 'full', round2Lanes: 'fresh', remediationGrouping: 'single', remediationThread: 'fresh', implementationGrouping: 'per-item', implementationThread: 'resume', lanePack: 'off', roundDelta: 'off',
+    // Old-PoS run 33: the catch-earlier line is off by default (A/B arms A1-A4).
+    coverageMatrix: 'off', scopeDeferral: 'off', pinAuditEnforcement: 'off', probeEnforcement: 'advisory', probeMatrix: 'off' });
   assert.equal(abVariantEvidence(off), undefined);
   assert.throws(() => resolveAbVariants({ review: { criticOnCleanRound: 'always' } }), /invalid_ab_variant_config: review\.criticOnCleanRound/);
   const on = resolveAbVariants({ review: { criticOnCleanRound: 'skip' }, remediation: { grouping: 'per-finding' } });
@@ -56,6 +58,10 @@ await check('config: absent switches resolve to production values; malformed fai
   assert.equal(abVariantEvidence(resolveAbVariants({ remediation: { grouping: 'single' } })), undefined, 'grouped remediation is production: not recorded');
   assert.equal(abVariantEvidence(resolveAbVariants({ review: { round2Lanes: 'fresh' } })), undefined, 'fresh lanes are production: not recorded');
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ review: { round2Lanes: 'resume' } })), { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.round2Lanes': 'resume' } }, 'the rollback is recorded');
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { coverageMatrix: 'on', scopeDeferral: 'on', pinAuditEnforcement: 'on' }, dev: { probeEnforcement: 'enforce' }, implementation: { probeMatrix: 'on' } })),
+    { schema: 'proof-or-stop.ab-variants.v1', flags: { 'plan.coverageMatrix': 'on', 'plan.scopeDeferral': 'on', 'plan.pinAuditEnforcement': 'on', 'dev.probeEnforcement': 'enforce', 'implementation.probeMatrix': 'on' } },
+    'old-PoS run 33: every catch-earlier arm is recorded');
+  assert.throws(() => resolveAbVariants({ dev: { probeEnforcement: 'loud' } }), /invalid_ab_variant_config: dev\.probeEnforcement/);
 });
 
 await check('V1 review.criticOnCleanRound: off = critic required on a clean round; skip = signed skip only for a clean first wave, replay refuses once the flag is removed', async () => {

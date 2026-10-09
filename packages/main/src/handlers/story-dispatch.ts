@@ -20,6 +20,7 @@
  */
 
 import { isStoryMetadataFinding } from '../core/metadata-finding-class.js';
+import { isMetadataTargetFinding } from '../core/metadata-correction.js';
 import { renderPinOracleAudit, storyPinOracle, type PinOracleContext } from '../core/pin-oracle.js';
 import { renderExactTextRelaunch } from '../core/exact-text-assertions.js';
 import { appendExactRequiredOutput, itemsForFinding } from '../core/exact-required-output.js';
@@ -33,7 +34,7 @@ import { readStoryRequest, renderUnmappedLiteralsLine, unmappedStoryRequestLiter
 import { renderPinAudit } from '../core/intent-derivation.js';
 import { renderCoverageMatrixRule } from '../core/plan-coverage-matrix.js';
 import { renderScopePlanRerunContext } from '../core/scope-plan-rerun-context.js';
-import { IMPLEMENTER_PROBE_MATRIX, INTENT_CONFLICT_RETURN_CONTRACT, PRODUCT_CODE_NO_POS_METADATA_RULE, REPAIR_INPUT_VARIANT_RULE, renderProbeTestGapLine, renderReviewRequestAuthority } from '../core/request-authority.js';
+import { IMPLEMENTER_PROBE_LINE, IMPLEMENTER_PROBE_MATRIX, INTENT_CONFLICT_RETURN_CONTRACT, PRODUCT_CODE_NO_POS_METADATA_RULE, REPAIR_INPUT_VARIANT_RULE, renderProbeTestGapLine, renderReviewRequestAuthority } from '../core/request-authority.js';
 import { renderAllowedFilesSection } from '../core/managed-writer-scope.js';
 import { earlierFindingRepairReports, earlierImplementerProbeGap, implementerRunReports } from '../core/finding-repair-attempts.js';
 import { renderAnchoredProbeTable, renderFrameworkProbeContract, renderProbeEvidence, renderProbeFlagRelaunch, renderRequestAnchoredPinAudit, reportProbeDecision, requestAnchoredKeys, storyProbeRunner } from '../core/request-probes.js';
@@ -41,6 +42,7 @@ import { scopeBoundaryHashIsFresh } from '../core/scope-anti-expansion.js';
 import { reportHealthIssue } from '../core/health.js';
 import { findSealedManagedImplementerCompletion, managedImplementerAlreadyDoneAction } from '../core/managed-host-run.js';
 import { loadConfig } from '../core/config.js';
+import { probeMatrixOn } from '../core/ab-variants.js';
 import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { scopeVerdictHeldItems } from '../core/scope-plan-deferral.js';
 import { currentPlanOwnerBinding } from '../core/plan-touchpoint-coverage.js';
@@ -242,7 +244,8 @@ function appendScopePlanRequestTraceability(lines: string[], store: StoryStore, 
   // Old-PoS run 31 (core/request-probes.ts): request-defined rows paired with the sentence that defines them.
   lines.push(...renderRequestAnchoredPinAudit(items, request.text));
   // Coverage matrix (old-PoS runs 24-29, core/plan-coverage-matrix.ts): the judgment form of the PLAN coverage checks.
-  lines.push(...renderCoverageMatrixRule(items, request.text));
+  // Old-PoS run 33: plan.coverageMatrix (default off) keeps only the exact-text rule.
+  lines.push(...renderCoverageMatrixRule(items, request.text, (() => { try { return loadConfig(store.projectRoot); } catch { return {}; } })()));
 }
 
 /**
@@ -900,8 +903,10 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       }
       // Old-PoS run 31: a finding whose cited defect lies only in Story metadata is
       // the owner's checklist correction, never repair work (two blocked repair runs, one polluted patch).
-      if (agentType === 'proof-or-stop-finding-repair' && isStoryMetadataFinding(finding)) {
-        throw new Error(`dispatch refused: ${finding.id} cites only Story metadata (checklist text); it is corrected by the owner, not repaired [metadata_finding_not_repair_work]\nNext: proof-or-stop next --storyId=${args.storyId}`);
+      // Old-PoS run 33 (F-003): classified by correction target, not by lane (isMetadataTargetFinding).
+      if (agentType === 'proof-or-stop-finding-repair' && (isStoryMetadataFinding(finding)
+        || isMetadataTargetFinding({ store: store as never, storyId: args.storyId, gitCwd: resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root }), finding }))) {
+        throw new Error(`dispatch refused: ${finding.id} is a Story-metadata finding (its correction target is checklist text); it is corrected by the owner, not repaired [metadata_finding_not_repair_work]\nNext: proof-or-stop next --storyId=${args.storyId}`);
       }
 
       // 3. background.md existence
@@ -1183,9 +1188,15 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       const probeRequest = readStoryRequest(store, args.storyId);
       const probeRequestText = probeRequest.status === 'ok' ? probeRequest.text : null;
       const probeRunner = storyProbeRunner(store, root, args.storyId, resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root }));
+      // Old-PoS run 33: the probe matrix and its [probes] / [probe-row] report contract are the
+      // A/B arm implementation.probeMatrix=on (default off: one line).
+      const probeMatrix = (() => { try { return probeMatrixOn(loadConfig(root)); } catch { return false; } })();
       if (probeRunner) {
-        lines.push(...renderFrameworkProbeContract(probeItems, probeRequestText, args.itemId, probeRunner));
+        lines.push(...renderFrameworkProbeContract(probeItems, probeRequestText, args.itemId, probeRunner, { probeMatrix }));
+        if (!probeMatrix) lines.push(IMPLEMENTER_PROBE_LINE);
         lines.push(...renderProbeFlagRelaunch(root, args.storyId, args.itemId));
+      } else if (!probeMatrix) {
+        lines.push(IMPLEMENTER_PROBE_LINE);
       } else {
         lines.push(IMPLEMENTER_PROBE_MATRIX);
         const itemBase = (() => { try { return resolveFullStoryBaseHead(store, root, args.storyId); } catch { return undefined; } })();
@@ -1194,7 +1205,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         const reported = reportProbeDecision(args.itemId, requestAnchoredKeys(probeItems, probeRequestText, args.itemId), implementerRunReports(root, args.storyId, args.itemId));
         if (reported) lines.push(`- Earlier implementer run ${reported.runId} of this item left request contradictions open (fix each, or list a wrong pin under [intent-conflict]): ${reported.rows.join('; ').slice(0, 1500)}`);
       }
-      const probeGap = earlierImplementerProbeGap(root, args.storyId, args.itemId);
+      const probeGap = probeMatrix ? earlierImplementerProbeGap(root, args.storyId, args.itemId) : null;
       if (probeGap) lines.push(renderProbeTestGapLine(probeGap));
       lines.push(...renderExactTextRelaunch(root, args.storyId, args.itemId));
       const routed = store.readCandidateSpecSet(args.storyId);

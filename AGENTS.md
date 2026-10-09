@@ -358,7 +358,9 @@ It no longer depends on `understanding_set` (run 16: the owner skipped the
 advisory understanding, so the reviewer never ran). `story_review` reports
 `missing_scope_check`, the DEV-entry gate itself refuses with
 `[missing_scope_check]` and one `Next:` (the managed scope-plan reviewer
-`host_run`) even after a clean `story_review`. Exception (v4.1 N8,
+`host_run`) even after a clean `story_review`. Exception, only under the A/B
+switch `plan.scopeDeferral=on` (default off since old-PoS run 33: DEV entry then
+waits in PLAN for the live run's verdict) (v4.1 N8,
 core/scope-plan-deferral.ts): while a managed scope-plan run launched in PLAN
 is still live, no verdict exists and the reviewer has nothing to pin-audit
 (no intent pins an expected value request.md does not quote and no request
@@ -569,18 +571,21 @@ PLAN, changing a done item's verificationIntent or userSees without a `status`
 resets it, and every done item whose context, userSees or intent names it, to
 pending with a recorded reason; never reset it by hand.
 A project may declare its own evaluator as `pinOracle` in
-`proof-or-stop.config.json` (core/pin-oracle.ts). It runs on an archive of the
+`proof-or-stop.config.json` (core/pin-oracle.ts; opt-in, and since old-PoS run 33
+the bench adapter declares it only under its arm `bench.pinOracle=on`). It runs on an archive of the
 Story base commit. An example row (`<input> -> <value>`) whose input the base
 evaluates to another value is refused (`[pin_oracle_mismatch]`, computed value
 shown) unless the row records that value as `baseValue`, meaning the Story
 deliberately changes it. Inputs the base cannot run, such as new syntax, are
 skipped; with `parseErrorPattern` + `newSyntaxPattern` declared (old-PoS run 32)
 a parse error outside the new syntax is reported as a malformed example instead,
-and PLAN returns `probe_row_syntax` for a probe row the base cannot parse outside
-it. The pin is never rewritten. A finding repair that changes how an input is
+and, under `dev.probeEnforcement=enforce`, PLAN returns `probe_row_syntax` for a
+probe row the base cannot parse outside it. The pin is never rewritten. A finding repair that changes how an input is
 handled keeps base behavior for the input variants the request did not change.
-The DEV implementer prompt carries the same check before REVIEW as a probe
-matrix (old-PoS runs 24-30): operand positions x value classes (omitted,
+Under the A/B switch `implementation.probeMatrix=on` (default off since old-PoS
+run 33, which keeps one line: no valid form may crash, explicit null is not
+omitted) the DEV implementer prompt carries the same check before REVIEW as a
+probe matrix (old-PoS runs 24-30): operand positions x value classes (omitted,
 explicit null, explicit value equal to the default such as step 1 or start 0,
 0, negative, out of range, wrong type, empty receiver, multibyte, aliased value)
 x operations (read, write, stringify, error path, neighbouring receiver types),
@@ -599,13 +604,18 @@ executable example of an intent row is a probe case, anchored through the PLAN
 coverage matrix to the request sentence that defines it; a sentence that gives
 an operand class (explicit null, non-numeric, step 0) an error makes a value pin
 there a pin that contradicts the request. The scope-plan pin audit lists these
-rows with their sentences and marks contradictions. Without a probe runner the
+rows with their sentences and marks contradictions. Without a probe runner (and
+only under `implementation.probeMatrix=on` + `dev.probeEnforcement=enforce`) the
 implementer prompt carries the item's anchored rows and asks for one
 `[probe-row] <row> | request: ... | observed: ... | ok|contradiction` line per
 row; an unresolved contradiction returns `probe_request_mismatch` (reopen). A
 project may declare `probeRunner` in `proof-or-stop.config.json` (pinOracle shape
 plus `selfTest`, read from the Story base): PoS then runs the item's cases on the
-Story base and on the implementer's HEAD, `checklist_update status=done` refuses
+Story base and on the implementer's HEAD. The gate below is the A/B switch
+`dev.probeEnforcement=enforce`; the default since old-PoS run 33 is `advisory`
+(done prints the rows that differ and is never refused, `next` never reopens or
+escalates, the REVIEW lanes still get the table). Under enforce
+`checklist_update status=done` refuses
 once per set of flagged rows (each with its request sentence), `next` re-checks at
 the final HEAD and reopens (`probe_request_mismatch`), a row still flagged after
 the relaunch becomes an owner intent conflict, the implementer writes no probe
@@ -616,9 +626,13 @@ segment it cannot place is never run or flagged and is listed, with the other ro
 the probe will not run, in the PLAN `enter_dev` step; the table is keyed on HEAD
 material + base + rows digest (rows amended to zero cases clear it), and a flag
 whose item intent changed since it was raised is reopened, never escalated.
+Old-PoS run 33: a case whose row carries an earlier case's in-place mutation also
+runs isolated (row prelude + its own statements) and is judged by whichever run
+satisfies its pin; `[probe-row] <row> | ok: <why>` disposes a `pin` flag too.
 
-PLAN coverage matrix (old-PoS runs 24-29, core/plan-coverage-matrix.ts). With a
-recorded `request.md`, `story_review` (PLAN) reports a `missing_coverage_row`
+PLAN coverage matrix (old-PoS runs 24-29, core/plan-coverage-matrix.ts; since
+old-PoS run 33 the A/B switch `plan.coverageMatrix=on`, default off: only the
+exact-text rows below stay on). With a recorded `request.md`, `story_review` (PLAN) reports a `missing_coverage_row`
 blocker, and `next`'s pre-scope `plan_authoring` adds a placeholder intent, for
 each row the request patterns demand that no intent states: the write mirror of
 every read-side value class when a request sentence makes writes follow reads;
@@ -1088,8 +1102,8 @@ test-coverage reviewer 只报产品覆盖缺口。reviewer 若仍报证据链项
 
 Review finding 只能是产品缺陷。缺陷只在 Story 元数据里（checklist.json 的 userSees / verificationIntent 文本、过期 intent）的 finding 是 owner 的 checklist 更正，不是修复工作（run 31：13 条 finding 里 10 条是同一个错 userSees 字面量 `hooo` 和过期 null intent；当 finding 处理花了两轮修复、两次被写范围拦下的 repair run、一次「加代码测试就关闭」的假关闭，以及一个解析 checklist.json 的测试进了 model.patch）。
 
-- **导入时分类**（`core/metadata-finding-class.ts`，只看 sealed proposal）：lane finding 引用的文件含 `.proof-or-stop/...`、其余只是作佐证的测试文件且正文没有非测试产品文件的 `path:line`、正文点名 `CHK-n` 或 `checklist.json:<行>` → 元数据 finding：不写入 `findings.json`，只含这类项的 proposal 以 pass 导入（note 由 verifier 重算），每项记 `review_metadata_finding_reclassified` process event，带它要求的更正（item、字段、引用的错误字面量、reviewer 的值、被评审文本的 digest；`core/metadata-correction.ts`）。同时引用产品代码的 finding 仍是产品 finding。inventory critic 的 proposal 不分流（disposition 按 proposal index 绑定）。
-- **一步 owner 更正**：`next` 给 `metadata_correction`：一条 `checklist_update`（`metadataCorrection: true`）改被引用 item 的字段（按 item+字段跨 lane、跨轮去重），并把其它 item 里出现同一错误字面量的字段作为同一步的 batch 调用（literal sweep）。userSees 在 PLAN / DEV / REVIEW 原地改（REVIEW 里 `checklist_update` 只允许这一种）；intent 行在 PLAN 外冻结，intent 行的更正先 `metadata_correction_plan` 回 PLAN。框架验证被引用文本确实变了（与被评审文本不同、写出了 reviewer 的值、错误的 `a == b` / `a -> b` 陈述已消失），否则拒绝（`[metadata_correction_unchanged]`）；元数据更正不把 done item 退回 pending。
+- **导入时分类**（`core/metadata-finding-class.ts`，只看 sealed proposal）：lane finding 引用的文件含 `.proof-or-stop/...`、其余只是作佐证的测试文件且正文没有非测试产品文件的 `path:line`、正文点名 `CHK-n` 或 `checklist.json:<行>` → 元数据 finding：不写入 `findings.json`，只含这类项的 proposal 以 pass 导入（note 由 verifier 重算），每项记 `review_metadata_finding_reclassified` process event，带它要求的更正（item、字段、引用的错误字面量、reviewer 的值、被评审文本的 digest；`core/metadata-correction.ts`）。同时引用产品代码的 finding 仍是产品 finding，除非（old-PoS run 33）它要求的每条更正都与某个已被重分类的 lane finding 指向同一 item 字段/行（按更正目标而非 lane 分类，`isMetadataTargetFinding`）：那它也是元数据 finding，不派修复，文本更正后直接 `finding_resolve`。inventory critic 的 proposal 不分流（disposition 按 proposal index 绑定）。
+- **一步 owner 更正**：`next` 给 `metadata_correction`：一条 `checklist_update`（`metadataCorrection: true`）改被引用 item 的字段（按 item+字段跨 lane、跨轮去重），并把其它 item 里出现同一错误字面量的字段作为同一步的 batch 调用（literal sweep）。userSees 在 PLAN / DEV / REVIEW 原地改（REVIEW 里 `checklist_update` 只允许这一种）；intent 行在 PLAN 外冻结，intent 行的更正先 `metadata_correction_plan` 回 PLAN（old-PoS run 33：REVIEW 里本轮 inventory epoch 仍 OPEN 或有已验证的阻塞 finding 时它排在后面，`next` 先自己跑 inventory begin 与 critic 的启动/导入/finalize）。框架验证被引用文本确实变了（与被评审文本不同、写出了 reviewer 的值、错误的 `a == b` / `a -> b` 陈述已消失），否则拒绝（`[metadata_correction_unchanged]`）；元数据更正不把 done item 退回 pending。
 - **不花 review 轮次**：更正的提交（`record <id> metadata_correction metadata`，checklist 只改 userSees）不破坏本轮 managed pass 的 live binding；route 与 reviewer task digest 把已验证的更正视为未变，所以不重跑 lane、不进 remediation 轮。未完成的更正拦 REVIEW→TEST（`review_metadata_correction_open`）。
 - 只引用元数据的已存储 finding（critic 或旧数据）永远不派 finding-repair（`[metadata_finding_not_repair_work]`），更正验证后直接 `finding_resolve`。
 - **resolution 完整性**（`core/finding-resolution-integrity.ts`）：`finding_resolve` 拒绝引用内容没变的 resolution（`[finding_resolution_unchanged_citation]`）：引用的 checklist 文本必须已更正（代码测试改不了它，拒绝信息给出 `checklist_update metadataCorrection` 命令）；引用的产品文件自 reviewed head 起都没改时，必须有测试文件改动。disposition 与 duplicate coverage run 用各自证据。`plan_acceptance_prepare` / `plan_acceptance_apply` 拒绝 files 和 verificationIntent 都没变的 batch（`[plan_acceptance_noop]`；userSees 用普通 `checklist_update`），apply 只报告真正改了的 item。

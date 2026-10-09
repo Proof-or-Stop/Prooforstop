@@ -377,7 +377,14 @@ export interface ProofOrStopConfig {
     laneLaunchStaggerMs?: number;
   };
   remediation?: { grouping?: 'single' | 'per-finding'; thread?: 'fresh' | 'resume' };
-  implementation?: { grouping?: 'per-item' | 'files'; thread?: 'resume' | 'fresh' };
+  implementation?: { grouping?: 'per-item' | 'files'; thread?: 'resume' | 'fresh'; probeMatrix?: 'off' | 'on' };
+  /**
+   * Old-PoS run 33 catch-earlier switches (core/ab-variants.ts; production default
+   * first): plan.coverageMatrix 'off' | 'on', plan.scopeDeferral 'off' | 'on' (N8),
+   * plan.pinAuditEnforcement 'off' | 'on'; dev.probeEnforcement 'advisory' | 'enforce'.
+   */
+  plan?: { coverageMatrix?: 'off' | 'on'; scopeDeferral?: 'off' | 'on'; pinAuditEnforcement?: 'off' | 'on' };
+  dev?: { probeEnforcement?: 'advisory' | 'enforce' };
   /** Runtime memory health diagnostics; advisory only, never gate evidence. */
   runtimeMemory?: {
     requiredClasses?: string[];
@@ -637,6 +644,11 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'candidate_spec_route', // B-8038: owner development and focused verification
     'dev_start', // B-804c CHK-002 / B-da89: explicit worktree recovery entry; reconcile config with command-policy + worktree handler 4-phase set (DEV still in the pre-REVIEW bootstrap window)
     'checklist_add', 'checklist_update',
+    // Old-PoS runs 30/33: command-policy allows scope_check_save in PLAN and DEV (N8); the
+    // handler admits a DEV save only from the live managed scope-plan run launched in PLAN
+    // (core/scope-plan-deferral.ts). Without this entry the CLI phase gate refused that
+    // deferred save in every real Story worktree (runs 30 and 33: 8.0 / 7.4 min lost).
+    'scope_check_save',
     'verification_intent_append',
     'verification_intent_repair', // B-4e06: audited legacy intent backfill
     'decision_doc_proposal', 'decision_doc_save',
