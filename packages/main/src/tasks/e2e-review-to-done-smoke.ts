@@ -3708,7 +3708,8 @@ function scenarioNPX(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NPX' | 
     if (!inScope) {
       assert.deepEqual(pxRuns, [], `[${tag}] a pre-existing out-of-scope finding is never routed to repair (runs: ${pxRuns.join(', ')})`);
       assert.equal(String(final.resolutionType), 'preexisting_out_of_scope', `[${tag}] closed by the named disposition: ${JSON.stringify(final)}`);
-      const base = git(o.root, ['log', '--format=%H', '-1', '--grep=benchmark: configure PoS Go validation', 'main']);
+      // The Story base: the main commit story/<id> branched from (the INIT_CHECK metadata commit).
+      const base = git(o.root, ['log', '--format=%H', '-1', `--grep=INIT_CHECK metadata ${o.storyId}`, 'main']);
       const reason = String(final.resolvedReason);
       for (const needle of [base.slice(0, 12), `${PX_DOC_PATH}:3`, `${PX_DOC_PATH}:4`, 'strs/strs.go']) {
         assert.ok(reason.includes(needle), `[${tag}] the disposition record carries ${needle}: ${reason}`);
@@ -3717,7 +3718,8 @@ function scenarioNPX(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NPX' | 
       assert.match(reason, /follow-up/i, `[${tag}] the record carries a follow-up: ${reason}`);
       assert.equal(doc, PX_DOC, `[${tag}] the doc on main is untouched (recorded follow-up, not a silent edit)`);
       if (tag === 'NPX') assert.deepEqual(order, ['finding_preexisting_disposition:preexisting_out_of_scope'], `[${tag}] ONE disposition step: ${order.join(' > ')}`);
-      else assert.deepEqual(order, ['owner_applicability_assess'], `[${tag}] the owner's applicability record closed it: ${order.join(' > ')}`);
+      // NPXA: next proposed the disposition; the owner recorded it the run 30 way instead.
+      else assert.deepEqual(order, ['finding_preexisting_disposition:preexisting_out_of_scope', 'owner_applicability_assess'], `[${tag}] the owner's applicability record closed it: ${order.join(' > ')}`);
       lines.push(`${px.id} closed: ${reason.slice(0, 300)}`);
     } else {
       assert.notEqual(String(final.resolutionType), 'preexisting_out_of_scope', `[${tag}] an in-scope finding is repaired, not dispositioned`);

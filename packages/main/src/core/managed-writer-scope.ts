@@ -39,7 +39,10 @@ export function renderAllowedFilesSection(contract: ScopeContractData | null): s
     `- modify: ${list(contract.allowedModify)}`,
     `- test: ${list(contract.allowedTest)}`,
     `- create: ${list(contract.allowedCreate)}`,
-    '- Put every new or changed test in an allowed test file above, next to the existing tests; do not create any other file and do not change a file outside these lists. '
+    // Old-PoS run 30: the gate admits documentation by default (scope-path-classifier
+    // documentation-default); a worker told otherwise left a doc finding without a commit.
+    `- Documentation files (.md, .mdx, .rst, .adoc outside dot-directories; not AGENTS.md/CLAUDE.md${[...contract.protectedFiles, ...contract.explicitExcludes].length ? `; not ${[...contract.protectedFiles, ...contract.explicitExcludes].join(', ')}` : ''}) are admitted by the gate too: when the finding or item is about such a doc, edit and commit it.`,
+    '- Put every new or changed test in an allowed test file above, next to the existing tests; do not create any other file and do not change a file outside these lists (documentation files aside). '
       + 'If the repair truly needs another path, stop and report it (the owner proposes the scope change); do not write it.',
   ];
 }

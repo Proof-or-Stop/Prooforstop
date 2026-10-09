@@ -2365,7 +2365,9 @@ Behavior:
     storyId: z.string().min(1), findingId: z.string().min(1), idempotencyKey: z.string().min(1),
     verdict: z.enum(['introduced', 'worsened', 'applicable', 'pre_existing_unaffected', 'out_of_scope', 'duplicate', 'disproven', 'not_reproduced_under_current_witness', 'unknown']),
     proofStrength: z.enum(['strong', 'weak', 'unknown']),
-    proposalRef: routeSourceSchema, evaluationScope: z.enum(['target_story', 'canonical_owner', 'repository_release']).optional(),
+    // Old-PoS run 30: a string proposalRef (the finding id) with verdict pre_existing_unaffected/out_of_scope is the
+    // owner's pre-existing record: the framework checks its own base evidence and closes it as preexisting_out_of_scope.
+    proposalRef: z.union([z.string().min(1), routeSourceSchema]), evaluationScope: z.enum(['target_story', 'canonical_owner', 'repository_release']).optional(),
     dispositionPlan: z.enum(['repair_current', 'defer_with_proof']).optional(),
     gateImpact: z.enum(['blocks', 'does_not_block', 'unknown']).optional(),
     evidenceRefs: z.array(z.string().min(1)).optional(), recheckTriggers: z.array(z.string().min(1)).optional(),
@@ -2454,6 +2456,8 @@ Behavior:
     coverage: z.object({ command: z.string().describe('Allowlisted command (executable + argv) that runs THIS finding\'s own case, e.g. go test -v ./pkg -run TestX'),
       selector: z.string().describe('Output text that proves the case passed, e.g. --- PASS: TestX') }).optional()
       .describe('With duplicateOf: the framework runs the command in the Story worktree; exit 0 + selector closes the duplicate, otherwise it is refused and next dispatches its own repair.'),
+    disposition: z.enum(['preexisting_out_of_scope']).optional()
+      .describe('Old-PoS run 30: close a finding whose cited path:line defect sites are unchanged since the Story base and that no scope-contract path, checklist file, scope boundary or request sentence covers. The framework recomputes that evidence (refused otherwise, the finding stays open) and records it with resolution as the follow-up note.'),
   }},
   { name: 'finding_dismiss', description: 'Confirm a finding will not be fixed (reason required)', schema: {
     storyId: z.string().describe('Story ID'),

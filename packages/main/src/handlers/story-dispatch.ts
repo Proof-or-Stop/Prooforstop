@@ -32,6 +32,7 @@ import { renderCoverageMatrixRule } from '../core/plan-coverage-matrix.js';
 import { renderScopePlanRerunContext } from '../core/scope-plan-rerun-context.js';
 import { IMPLEMENTER_PROBE_MATRIX, INTENT_CONFLICT_RETURN_CONTRACT, REPAIR_INPUT_VARIANT_RULE, renderReviewRequestAuthority } from '../core/request-authority.js';
 import { renderAllowedFilesSection } from '../core/managed-writer-scope.js';
+import { earlierFindingRepairReports } from '../core/finding-repair-attempts.js';
 import { scopeBoundaryHashIsFresh } from '../core/scope-anti-expansion.js';
 import { reportHealthIssue } from '../core/health.js';
 import { findSealedManagedImplementerCompletion, managedImplementerAlreadyDoneAction } from '../core/managed-host-run.js';
@@ -959,6 +960,13 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       // Old-PoS run 29 REM2: the repair worker created a test file outside the declared files; state them.
       const allowedFiles = renderAllowedFilesSection(store.readScopeContract(args.storyId));
       if (allowedFiles.length) lines.push(...allowedFiles, '');
+      // Old-PoS run 30: a relaunched repair starts from what the earlier run(s) reported.
+      const earlier = finding.status === 'open' ? earlierFindingRepairReports(root, args.storyId, finding.id) : [];
+      if (earlier.length) {
+        lines.push(`Earlier repair run(s) of ${shortFid} ended without a repair commit (the finding is still open). Their final reports:`);
+        for (const row of earlier) lines.push(`- run ${row.runId}: ${row.report.replace(/\s*\n\s*/g, ' ')}`);
+        lines.push('- Start from those reports. Commit the repair; if it truly cannot be made inside this Story, name exactly what blocks it (path, rule or request sentence). Another run without a commit returns the Story to PLAN.', '');
+      }
       lines.push('After completion:');
       appendImplementerCommitSteps(lines, `${args.storyId} ${shortFid}: resolve finding`);
       lines.push('- Return the commit SHA, focused verification output, and repair summary to the Story owner/controller. The repair worker must not call finding_resolve.');

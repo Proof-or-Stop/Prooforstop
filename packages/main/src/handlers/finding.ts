@@ -71,6 +71,8 @@ import {
   resolveAgentMutationAuthority,
 } from '../core/agent-dispatch-registry.js';
 import { readDynamicFindingDecision, resolveDynamicFindingRollout } from '../core/finding-applicability-projection.js';
+import { PREEXISTING_OUT_OF_SCOPE, preexistingDispositionReason } from '../core/finding-preexisting.js';
+import { evaluatePreexistingFinding } from './finding-preexisting.js';
 import {
   captureReviewerReadEvent,
   diagnoseReviewerReadEvidence,
@@ -843,6 +845,22 @@ function closeDuplicateWithCoverageFor(ctx: HandlerContext, args: { storyId: str
 export function createFindingHandlers(ctx: HandlerContext) {
   const closeDuplicateWithCoverage = (args: Parameters<typeof closeDuplicateWithCoverageFor>[1]): string => closeDuplicateWithCoverageFor(ctx, args);
   const { store } = ctx;
+  /**
+   * Old-PoS run 30: the audited reason of a preexisting_out_of_scope
+   * disposition, from the framework's own base evidence (never the caller's
+   * claim). Refuses, leaving the finding open, when the cited defect lines are
+   * not unchanged since the Story base or the Story's request/scope covers them.
+   */
+  const preexistingDisposition = (storyId: string, findingId: string, followUp: string): string => {
+    const finding = store.readFindings(storyId).findings.find(row => row.id === findingId);
+    if (!finding) throw new Error(`Finding ${findingId} not found`);
+    if (finding.status !== 'open') throw new Error(`finding_resolve: ${findingId} is ${finding.status}, not open`);
+    const verdict = evaluatePreexistingFinding({ store, root: ctx.root, storyId, finding });
+    if (!verdict.eligible || !verdict.presence || !verdict.coverage) {
+      throw new Error(`finding_resolve: ${findingId} cannot be closed as ${PREEXISTING_OUT_OF_SCOPE}: ${verdict.reason}. It stays open.\nNext: proof-or-stop next --storyId=${storyId}`);
+    }
+    return preexistingDispositionReason(verdict.presence, verdict.coverage, followUp);
+  };
   const authoritativeMutation = createAuthoritativeFindingMutation(ctx);
   /**
    * Old-PoS run 24 (F4): finding_resolve with resolutions[] closes several
@@ -1310,7 +1328,14 @@ export function createFindingHandlers(ctx: HandlerContext) {
       /** Run 17 (Q1): close a critic-marked duplicate with its canonical finding's repair, proven by `coverage`. */
       duplicateOf?: string; coverage?: { command?: string; selector?: string };
       /** Old-PoS run 24 (F4): several repaired findings in one call, each with its own resolution. */
-      resolutions?: Array<{ findingId: string; resolution: string }> }): string {
+      resolutions?: Array<{ findingId: string; resolution: string }>;
+      /**
+       * Old-PoS run 30: `preexisting_out_of_scope` closes a finding whose cited
+       * defect lines are unchanged since the Story base and that nothing in the
+       * request/scope covers. The framework recomputes that evidence itself
+       * (refused otherwise) and records it with `resolution` as the follow-up.
+       */
+      disposition?: string }): string {
       refuseFindingWriteAfterDone(store, args.storyId, 'finding_resolve');
       assertCwdInWorktree(store, args.storyId);
       resolveAgentMutationAuthority({ command: 'finding_resolve' });
@@ -1318,8 +1343,18 @@ export function createFindingHandlers(ctx: HandlerContext) {
       if (!args.findingId) throw new Error('finding_resolve: findingId is required (or resolutions: [{findingId, resolution}] for several repaired findings)');
       const findingId = args.findingId;
       // B-4f46 CHK-002: validate the optional audit-only enums up front (omitted => unchanged legacy behavior).
-      let resolutionType: ResolutionType | undefined = validateOptionalEnum('finding_resolve', 'resolutionType', args.resolutionType, RESOLUTION_TYPES);
-      const resolveEvidenceStrength: EvidenceStrength | undefined = validateOptionalEnum('finding_resolve', 'resolveEvidenceStrength', args.resolveEvidenceStrength, EVIDENCE_STRENGTHS);
+      let resolutionType: Finding['resolutionType'] = validateOptionalEnum('finding_resolve', 'resolutionType', args.resolutionType, RESOLUTION_TYPES);
+      let resolveEvidenceStrength: EvidenceStrength | undefined = validateOptionalEnum('finding_resolve', 'resolveEvidenceStrength', args.resolveEvidenceStrength, EVIDENCE_STRENGTHS);
+      let dispositionReason = '';
+      if (args.disposition !== undefined) {
+        if (args.disposition !== PREEXISTING_OUT_OF_SCOPE) throw new Error(`finding_resolve: disposition must be ${PREEXISTING_OUT_OF_SCOPE}`);
+        if (args.duplicateOf !== undefined || args.coverage !== undefined || args.resolutionType !== undefined) {
+          throw new Error('finding_resolve: disposition cannot be combined with duplicateOf, coverage or resolutionType');
+        }
+        dispositionReason = preexistingDisposition(args.storyId, findingId, args.resolution ?? '');
+        resolutionType = 'preexisting_out_of_scope';
+        resolveEvidenceStrength = 'strong';
+      }
       let duplicateEvidence = '';
       if (args.duplicateOf !== undefined || args.coverage !== undefined) {
         duplicateEvidence = closeDuplicateWithCoverage({ ...args, findingId });
@@ -1333,7 +1368,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
         const f = data.findings.find(f => f.id === findingId);
         if (!f) throw new Error(`Finding ${findingId} not found`);
         resolvedFindingDesc = f.desc ?? '';
-        const resolution = [args.resolution?.trim(), duplicateEvidence].filter(Boolean).join(' ') || undefined;
+        const resolution = dispositionReason || [args.resolution?.trim(), duplicateEvidence].filter(Boolean).join(' ') || undefined;
         const transition = appendFindingLifecycleTransition(ctx, args.storyId, f, fence, {
           toStatus: 'resolved',
           reason: resolution,
