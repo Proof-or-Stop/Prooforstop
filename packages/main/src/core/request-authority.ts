@@ -22,6 +22,9 @@
  */
 import { readStoryRequest } from './story-request.js';
 import type { StoryStore } from './store.js';
+import { requestExactStrings } from './plan-coverage-matrix.js';
+
+const TEST_COVERAGE_LANE = 'proof-or-stop-review-test-coverage';
 
 export const INTENT_CONFLICT_TAG = '[intent-conflict]';
 
@@ -49,21 +52,71 @@ export const REPAIR_INPUT_VARIANT_RULE = '- Input variants (keep base behavior):
  * omitted, `[::]`, a read-side error panicking on assignment), and 29/F-004 an
  * aliased right-hand side; only the finding-repair prompt carried the variant
  * rule, so each surfaced in REVIEW and cost a finding round.
+ * Run 30: explicit step 1 took the two-part path (F-004: no "explicit value
+ * equal to the default" class), and a probed broadcast row was tested on the
+ * two-part form only (F-002): decided rows need a test, and the `[probes]`
+ * line separates tested from probed-only rows (probeTestGaps).
  */
 export const PROBE_REPORT_TAG = '[probes]';
 export const IMPLEMENTER_PROBE_MATRIX = [
   'Probe matrix before handoff (operand position x value class x operation):',
-  '- Positions: each operand the item reads or adds (e.g. start/end/step, or its parameters). Classes: omitted, explicit null, 0, negative, out of range, non-numeric/wrong type, empty receiver, multibyte text, target aliased by the value (a[x] = a). Operations: read, write/assign, stringify, error path, neighbouring receiver types (array/string/hash).',
-  '- Keep the rows that apply to this item. Run each as a probe (one-line program or test) on the Story base and on your change. Keep the base result where the request did not change it; no row may crash, panic or reach an unchecked type assertion. Omitted and explicit null are different rows: branch on the source syntax, not the evaluated value. Add a test for each row your change decides.',
-  `- Report in your final result: \`${PROBE_REPORT_TAG} <n> rows run on base and change; changed: <row: base -> new> | none; crashes: none\`.`,
+  '- Positions: each operand the item reads or adds (e.g. start/end/step, or its parameters). Classes: omitted, explicit null, explicit value equal to the default (e.g. step 1, start 0: it keeps its own form\'s semantics, not another form\'s path), 0, negative, out of range, non-numeric/wrong type, empty receiver, multibyte text, target aliased by the value (a[x] = a). Operations: read, write/assign, stringify, error path, neighbouring receiver types (array/string/hash).',
+  '- Keep the rows that apply to this item. Run each as a probe (one-line program or test) on the Story base and on your change. Keep the base result where the request did not change it; no row may crash, panic or reach an unchecked type assertion. Omitted and explicit null are different rows: branch on the source syntax, not the evaluated value. Each row your change decides (new result, or one the request states) needs a test, not only a probe; an untested decided row reopens the item before REVIEW.',
+  `- Report in your final result: \`${PROBE_REPORT_TAG} <n> rows run on base and change; changed: <row: base -> new> | none; tested: <decided rows with a test> | none; probed-only: <decided rows without a test> | none; crashes: none\`.`,
 ].join('\n');
+
+/** The `probed-only:` rows of a `[probes]` line (null when none or absent). */
+export function parseProbeReport(text: string | null | undefined): { present: boolean; probedOnly: string | null } {
+  const line = (text ?? '').split(/\r?\n/).filter(row => row.includes(PROBE_REPORT_TAG)).at(-1);
+  if (!line) return { present: false, probedOnly: null };
+  const match = line.match(/\bprobed-only:\s*(.*?)\s*(?:;\s*crashes:|$)/i);
+  const rows = match?.[1]?.trim().replace(/[;.]\s*$/, '') ?? '';
+  return { present: true, probedOnly: rows && !/^(?:none|<[^>]*>)$/i.test(rows) ? rows : null };
+}
+
+export interface ProbeReportRun { runId: string; itemId: string; createdAt: string; text: string | null }
+export interface ProbeTestGap { itemId: string; runId: string; probedOnly: string }
+
+/**
+ * Old-PoS run 30 (F-002 / F-004): decided rows the implementer probed but did
+ * not test. Per done item, its latest implementer run's `probed-only` rows;
+ * none when an earlier run of the item reported the same rows (the relaunch
+ * made no progress: REVIEW judges them, the framework does not loop).
+ */
+export function probeTestGaps(runs: readonly ProbeReportRun[], doneItemIds: ReadonlySet<string>): ProbeTestGap[] {
+  const gaps: ProbeTestGap[] = [];
+  for (const itemId of new Set(runs.map(run => run.itemId))) {
+    if (!doneItemIds.has(itemId)) continue;
+    const mine = runs.filter(run => run.itemId === itemId).sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+    const latest = parseProbeReport(mine.at(-1)!.text).probedOnly;
+    if (!latest) continue;
+    if (mine.slice(0, -1).some(run => parseProbeReport(run.text).probedOnly === latest)) continue;
+    gaps.push({ itemId, runId: mine.at(-1)!.runId, probedOnly: latest });
+  }
+  return gaps;
+}
+
+/** The relaunch prompt line for an item reopened by a probe-test gap. */
+export function renderProbeTestGapLine(gap: Pick<ProbeTestGap, 'runId' | 'probedOnly'>): string {
+  return `- Earlier implementer run ${gap.runId} of this item decided rows it did not test (probed-only: ${gap.probedOnly}). Add a test for each (change the code only where a test fails) and list them under tested.`;
+}
 
 /**
  * D2: the verbatim request (already bounded to 16 KB by story_create /
  * story_request_set) plus the rubric, for a REVIEW lane or the inventory critic
  * dispatch prompt. A Story without request.md adds no prompt bytes.
  */
-export function renderReviewRequestAuthority(store: StoryStore, storyId: string, opts: { critic?: boolean } = {}): string[] {
+/**
+ * Old-PoS run 30 (F-001): the test-coverage lane's rule for strings the request
+ * says must match exactly (only when the request quotes such strings).
+ */
+export function renderExactTextRubric(requestText: string): string[] {
+  const strings = [...new Set(requestExactStrings(requestText).map(row => row.literal))];
+  if (!strings.length) return [];
+  return [`Exact-text rubric: the request says these strings must match exactly: ${strings.slice(0, 8).map(text => `\`${text}\``).join(', ')}${strings.length > 8 ? ` +${strings.length - 8} more` : ''}. A test that asserts one by prefix / contains / regex (e.g. a shared helper using strings.HasPrefix) is a finding: it still passes with text appended.`];
+}
+
+export function renderReviewRequestAuthority(store: StoryStore, storyId: string, opts: { critic?: boolean; lane?: string } = {}): string[] {
   const request = readStoryRequest(store, storyId);
   if (request.status === 'absent') return [];
   const rel = `${store.storyDirRel()}/${storyId}/request.md`;
@@ -77,6 +130,7 @@ export function renderReviewRequestAuthority(store: StoryStore, storyId: string,
     'REQUEST>>>',
     REQUEST_OUTRANKS_INTENT_RUBRIC,
     ...(opts.critic ? [CRITIC_REQUEST_CONTRADICTION_RULE] : []),
+    ...(opts.lane === TEST_COVERAGE_LANE ? renderExactTextRubric(request.text) : []),
   ];
 }
 

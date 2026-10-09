@@ -8,10 +8,12 @@
 import { existsSync, readdirSync } from 'node:fs';
 import { managedHostRunsRoot, readManagedHostRunBinding, readManagedHostRunProjection } from './managed-host-run.js';
 import { managedRunFinalMessage } from './managed-run-final-message.js';
+import { probeTestGaps, type ProbeReportRun, type ProbeTestGap } from './request-authority.js';
 
 /** Characters kept from the end of each earlier report. */
 export const EARLIER_REPAIR_REPORT_MAX_CHARS = 1200;
 const FINDING_REPAIR_AGENT = 'proof-or-stop-finding-repair';
+const IMPLEMENTER_AGENT = 'proof-or-stop-implementer';
 
 export interface EarlierRepairReport { runId: string; createdAt: string; report: string }
 
@@ -31,4 +33,24 @@ export function earlierFindingRepairReports(root: string, storyId: string, findi
     } catch { /* not a readable managed run */ }
   }
   return rows.sort((a, b) => a.createdAt.localeCompare(b.createdAt)).slice(-limit);
+}
+
+/**
+ * Old-PoS run 30: the probed-only rows the latest completed implementer run of
+ * `itemId` left untested (core/request-authority.ts probeTestGaps), for the
+ * prompt of the implementer relaunched after next reopened the item.
+ */
+export function earlierImplementerProbeGap(root: string, storyId: string, itemId: string): ProbeTestGap | null {
+  const runsRoot = managedHostRunsRoot(root);
+  if (!existsSync(runsRoot)) return null;
+  const reports: ProbeReportRun[] = [];
+  for (const runId of readdirSync(runsRoot)) {
+    try {
+      const run = readManagedHostRunProjection(root, runId);
+      if (run.storyId !== storyId || run.agentType !== IMPLEMENTER_AGENT || run.state !== 'completed' || !run.terminal) continue;
+      if (readManagedHostRunBinding(root, runId).managedDispatchTarget?.itemId !== itemId) continue;
+      reports.push({ runId, itemId, createdAt: run.createdAt, text: managedRunFinalMessage(root, runId) });
+    } catch { /* not a readable managed run */ }
+  }
+  return probeTestGaps(reports, new Set([itemId]))[0] ?? null;
 }

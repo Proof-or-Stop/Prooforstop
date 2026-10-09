@@ -96,7 +96,7 @@ import { findingRepairRoute, PREEXISTING_OUT_OF_SCOPE } from '../core/finding-pr
 import { evaluatePreexistingFinding, type PreexistingFindingVerdict } from './finding-preexisting.js';
 import { commitMessageNamesFinding, implementationGroupingFiles, itemDeclaredFiles, remediationGroupingSingle, sharedFileItemGroup } from '../core/ab-dispatch-grouping.js';
 import { ownerWaitBlockMs, ownerWaitInstruction } from '../core/owner-wait-guidance.js';
-import { parseIntentConflicts, type IntentConflict } from '../core/request-authority.js';
+import { parseIntentConflicts, probeTestGaps, type IntentConflict, type ProbeTestGap } from '../core/request-authority.js';
 import { readStoryRequest } from '../core/story-request.js';
 import { acceptanceIntentHash } from '../core/verification-intent-amendment.js';
 import { maxLaneRunsOnMaterial, STALE_WAVE_STOP_LOSS } from '../core/review-stop-loss.js';
@@ -691,6 +691,29 @@ export function intentConflictStep(base: { storyId: string; phase: string }, con
   return step(base, 'agent', 'intent_conflict', { command: 'story_advance', payload: { storyId: base.storyId, phase: 'PLAN' } },
     `Intent conflict declared (${listed}). The request outranks the intent, and the item does not count done until the owner amends the intent. Intents are frozen in DEV: return to PLAN, where next proposes the audited revision (checklist_update verificationIntent + reason, item back to pending).`,
     'openIntentConflicts (implementer/finding-repair [intent-conflict] section)');
+}
+
+/**
+ * Old-PoS run 30 (F-002 / F-004): decided rows a completed implementer run
+ * probed but did not test (its `[probes]` probed-only rows), on done items.
+ */
+export function openProbeTestGaps(root: string, runs: readonly Pick<HostRunView, 'runId' | 'agentType' | 'terminal' | 'state' | 'createdAt'>[], items: readonly ChecklistItem[]): ProbeTestGap[] {
+  const implementers = runs.filter(run => run.agentType === IMPLEMENTER_AGENT && run.terminal && run.state === 'completed');
+  if (implementers.length === 0) return [];
+  const reports = implementers.flatMap(run => {
+    let itemId: string | null | undefined;
+    try { itemId = readManagedHostRunBinding(root, run.runId).managedDispatchTarget?.itemId; } catch { itemId = null; }
+    return itemId ? [{ runId: run.runId, itemId, createdAt: run.createdAt, text: managedRunFinalMessage(root, run.runId) }] : [];
+  });
+  return probeTestGaps(reports, new Set(items.filter(item => item.status === 'done').map(item => item.id)));
+}
+
+/** One owner step: reopen the item; the relaunched implementer prompt names the rows. */
+function probeTestGapStep(base: { storyId: string; phase: string }, gap: ProbeTestGap): NextStep {
+  return step(base, 'agent', 'probe_tests_missing', { command: 'checklist_update',
+    payload: { storyId: base.storyId, itemId: gap.itemId, status: 'in_progress', reason: `Implementer run ${gap.runId} decided rows without a test (probed-only: ${gap.probedOnly.slice(0, 300)}); reopened to add the tests before REVIEW.` } },
+  `Implementer run ${gap.runId} reported decided rows of ${gap.itemId} it probed but did not test (probed-only: ${gap.probedOnly.slice(0, 600)}). Reopen ${gap.itemId}; next relaunches its implementer with these rows to add the tests (no review round).`,
+  'openProbeTestGaps (implementer [probes] probed-only rows, old-PoS run 30)');
 }
 
 function groupedRepairCommit(root: string, gitCwd: string, storyId: string, findingId: string, primaryId: string,
@@ -1562,6 +1585,9 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     if (!inFlight(IMPLEMENTER_AGENT) && !inFlight(FINDING_REPAIR_AGENT)) {
       const conflicts = openIntentConflicts({ root: ctx.root, gitCwd: gitCwdOf(storyId), store: ctx.store, storyId, runs: hostRuns });
       if (conflicts.length > 0) return intentConflictStep(base, conflicts);
+      // Old-PoS run 30: a decided row probed but not tested reopens its item once.
+      const probeGap = openProbeTestGaps(ctx.root, hostRuns, checklist.items)[0];
+      if (probeGap) return probeTestGapStep(base, probeGap);
       // N8: a deferred scope-plan verdict that arrived with a gap (or never
       // arrived) is PLAN work: go back before implementing more.
       const scopeVerdict = scopeVerdictReviewEntryFailure(ctx.store, ctx.root, ctx.store.readStory(storyId), policyOf(storyId));
