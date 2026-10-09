@@ -128,6 +128,12 @@
  *      next item); in PLAN next proposes the audited intent revision
  *      (checklist_update verificationIntent + reason, item back to pending);
  *      after it the conflict no longer blocks and DEV re-implements the item.
+ *   NPT old-PoS run 30 (F-002/F-004: the implementer probed rows its change
+ *      decided but tested only some): the implementer's [probes] line lists
+ *      probed-only decided rows; next reopens the item with one owner step
+ *      (checklist_update in_progress + reason, not a review round), the
+ *      relaunched implementer prompt names the earlier run and the rows, and
+ *      a relaunch that tests them leaves no step.
  *   NIN N4 (old-PoS runs 22-24): no Story yet; `next` prints one complete
  *      story_create template, then `next --run` alone drives INIT (scope freeze
  *      check, both managed INIT reviewers launched in parallel and waited on,
@@ -206,7 +212,7 @@
  *      and still review the whole Story).
  *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5 ND-V6 ND-V8 ND-V9.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIN|NIS|NQ|NP|NCV|NX|NM|NDL|NDS|NDG|NRS|NPX|NPXA|NPXS|AB|ND-V1..NF-V9]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NDG|NRS|NPX|NPXA|NPXS|AB|ND-V1..NF-V9]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -2999,6 +3005,75 @@ function scenarioNI(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
+/** NPT: the first implementer run probed a row its change decided but did not test it. */
+const NPT_UNTESTED = '[probes] 4 rows run on base and change; changed: Upper("") base "" -> ""; tested: Upper("ab") -> "AB"; probed-only: Upper("ß") -> "SS" (multibyte); crashes: none';
+const NPT_TESTED = '[probes] 4 rows run on base and change; changed: Upper("") base "" -> ""; tested: Upper("ab") -> "AB", Upper("ß") -> "SS" (multibyte); probed-only: none; crashes: none';
+
+function scenarioNPT(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NPT';
+  const name = 'NPT old-PoS run 30: a probed-only decided row in the implementer [probes] line reopens the item once (one owner step), the relaunch prompt names the rows';
+  const o = new Owner(tag, 'B-e2c9', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NIQ_REQUEST });
+  const lines: string[] = [];
+  const ask = (label: string): NextStepJson => {
+    const asked = o.cli('next', { storyId: o.storyId, json: true }, { label });
+    const next = (asked.status === 0 ? parseJson(asked.stdout) : null) as NextStepJson | null;
+    assert.ok(next && typeof next.kind === 'string', `[NPT] next did not return a step:\n${asked.out.slice(-2000)}`);
+    lines.push(`${label}: ${next.phase} ${next.kind} ${next.reason}`);
+    return next;
+  };
+  const runImplementer = (launch: NextStepJson, script: ProviderScript, label: string): string => {
+    o.script(IMPLEMENTER, script);
+    const launched = o.mustCli(launch.cli!.command, launch.cli!.payload, { label });
+    const runId = String((parseJson(launched.stdout)?.run as Record<string, unknown>).runId);
+    const terminal = waitTerminal(o, 'implementer', runId);
+    o.unscript(IMPLEMENTER);
+    assert.equal(terminal.state, 'completed', `[NPT] ${label} terminal ${terminal.state} (${terminal.reason})\n${o.providerCommandLog()}`);
+    return runId;
+  };
+  try {
+    devSetup(o, false);
+    const launch = ask('next (DEV start)');
+    assert.equal(launch.reason, 'implement_item', `[NPT] first DEV step: ${launch.reason}: ${launch.why}`);
+    const itemId = String(launch.cli!.payload.itemId);
+    const first = implementerScript(o.storyId, itemId);
+    const firstRun = runImplementer(launch, { ...first, final: `${first.final}\n[intent-conflict] none\n${NPT_UNTESTED}` }, 'host_run implementer (probed-only row)');
+    const prompt = managedPrompts(o, IMPLEMENTER)[0]!.prompt;
+    assert.match(prompt, /explicit value equal to the default/, '[NPT] the probe matrix names the explicit-default class');
+    assert.match(prompt, /\[probes\][^\n]*probed-only: /, '[NPT] the [probes] line separates probed-only rows');
+
+    const reopen = ask('next (probed-only row)');
+    assert.equal(reopen.reason, 'probe_tests_missing', `[NPT] next must reopen the item for the untested decided row, got ${reopen.reason}: ${reopen.why}`);
+    assert.equal(reopen.kind, 'agent', '[NPT] one owner step');
+    assert.equal(reopen.cli?.command, 'checklist_update', `[NPT] the step reopens the item: ${reopen.command}`);
+    assert.equal(reopen.cli?.payload.itemId, itemId, '[NPT] the step names the item');
+    assert.equal(reopen.cli?.payload.status, 'in_progress', '[NPT] the item goes back to in_progress');
+    assert.match(reopen.why, /Upper\("ß"\) -> "SS"/, '[NPT] the step lists the probed-only row');
+    assert.ok(reopen.why.includes(firstRun), '[NPT] the step names the run');
+    assert.deepEqual(reopen.placeholders ?? [], [], '[NPT] the step is exact (no placeholder)');
+    o.mustCli(reopen.cli!.command, reopen.cli!.payload, { label: 'checklist_update reopen (probed-only row)' });
+
+    const relaunch = ask('next (reopened)');
+    assert.equal(relaunch.reason, 'implement_item', `[NPT] the reopened item is implemented again: ${relaunch.reason}: ${relaunch.why}`);
+    assert.equal(relaunch.cli?.payload.itemId, itemId, '[NPT] the relaunch is bound to the same item');
+    const addTest = `const fs=require('fs');fs.appendFileSync('strs/strs_test.go','\\n// Upper multibyte row tested\\n');`;
+    runImplementer(relaunch, { commands: [
+      [process.execPath, '-e', addTest],
+      ['/bin/sh', '-c', `git add strs && git -c user.name=${IMPLEMENTER} commit -qm '${o.storyId} ${itemId}: test the probed-only row' && git log --format=%h -1`],
+      [process.execPath, CLI, 'checklist_update', JSON.stringify({ storyId: o.storyId, itemId, status: 'done' })],
+    ], final: `Completed ${itemId}: tested the probed-only row.\n[intent-conflict] none\n${NPT_TESTED}` }, 'host_run implementer (relaunch)');
+    const second = managedPrompts(o, IMPLEMENTER).at(-1)!.prompt;
+    assert.ok(second.includes(firstRun), '[NPT] the relaunch prompt names the earlier run');
+    assert.match(second, /Upper\("ß"\) -> "SS"/, '[NPT] the relaunch prompt lists the probed-only row');
+    const after = ask('next (rows tested)');
+    assert.notEqual(after.reason, 'probe_tests_missing', `[NPT] the tested rows leave no step: ${after.reason}: ${after.why}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 function scenarioNQ(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   const tag = 'NQ';
   const name = 'NQ run 23/24: lanes get the request + rubric, the critic the no-limitation rule, the repair the variant rule; DONE';
@@ -3740,7 +3815,7 @@ function scenarioNPX(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NPX' | 
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIN|NIS|NQ|NP|NX|NM|NDL|NDS|NDG|NRS|NPX[AS]?|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NDG|NRS|NPX[AS]?|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -3782,6 +3857,7 @@ async function main(): Promise<void> {
     for (const token of ['NW3', 'NW4', 'NW5', 'NW6'] as const) if (only.includes(token) || only.includes('NW')) outcomes.push(scenarioNW(machine.env, steps, token));
     if (only.includes('NI')) outcomes.push(scenarioNI(machine.env, steps));
     if (only.includes('NQ')) outcomes.push(scenarioNQ(machine.env, steps));
+    if (only.includes('NPT')) outcomes.push(scenarioNPT(machine.env, steps));
     if (only.includes('NIN')) outcomes.push(scenarioNIN(machine.env, steps));
     if (only.includes('NP')) outcomes.push(scenarioNP(machine.env, steps));
     if (only.includes('NCV')) outcomes.push(scenarioNCV(machine.env, steps));
