@@ -30,6 +30,25 @@
  *   review.roundDelta          'off' (default) | 'pack'    from round 2 on the pack also carries the delta since the
  *                              previous round's candidate; lanes start there but review the whole Story (v41 plan A4)
  *
+ * Old-PoS run 33 (bench-staging/oldpos/run33-analysis.md §4): the "catch defects
+ * earlier" line (runs 30-33) cost about 38 min / 31M tokens per run with no
+ * demonstrated detection benefit, so its mechanisms are switched OFF by default
+ * and kept reachable for the A/B (arms A2-A4 of the analysis):
+ *   plan.coverageMatrix        'off' (default) | 'on'       PLAN coverage-matrix rows (core/plan-coverage-matrix.ts):
+ *                              off keeps only the exact-text rows (request-quoted strings that must match
+ *                              exactly) and the story_create request-literal pre-check; on = every rule
+ *                              (missing_coverage_row blockers, plan_authoring placeholders, scope-plan rule)
+ *   plan.scopeDeferral         'off' (default) | 'on'       N8 (core/scope-plan-deferral.ts): off = PLAN→DEV waits
+ *                              for the scope-plan verdict; on = DEV starts beside the live reviewer run
+ *   plan.pinAuditEnforcement   'off' (default) | 'on'       on = a saved scope-plan verdict's open gaps block DEV
+ *                              entry and REVIEW entry whenever the verdict was saved (analysis §3.4, arm A1)
+ *   dev.probeEnforcement       'advisory' (default) | 'enforce'  framework probes (core/request-probes.ts, project
+ *                              probeRunner): advisory = run at done, table shown to the implementer and to the
+ *                              REVIEW lanes as evidence, never refuse / reopen / escalate; enforce = run 31-33 gate
+ *   implementation.probeMatrix 'off' (default) | 'on'       implementer probe-matrix prompt block, `[probes]` /
+ *                              `[probe-row]` report contract and its reopen (probe_tests_missing); off keeps one
+ *                              line (no panic on any valid form; explicit null is not omitted)
+ *
  * A malformed value fails closed where it is consumed (never silently treated
  * as an experimental arm; review.lanePack / review.roundDelta then keep production: no pack). See docs/CLI.md "Detection A/B variant switches".
  */
@@ -46,6 +65,11 @@ export const AB_VARIANT_FLAGS = {
   'implementation.thread': ['resume', 'fresh'],
   'review.lanePack': ['off', 'shared'],
   'review.roundDelta': ['off', 'pack'],
+  'plan.coverageMatrix': ['off', 'on'],
+  'plan.scopeDeferral': ['off', 'on'],
+  'plan.pinAuditEnforcement': ['off', 'on'],
+  'dev.probeEnforcement': ['advisory', 'enforce'],
+  'implementation.probeMatrix': ['off', 'on'],
 } as const;
 
 export type AbVariantFlag = keyof typeof AB_VARIANT_FLAGS;
@@ -54,7 +78,9 @@ export type AbVariantValue<F extends AbVariantFlag> = (typeof AB_VARIANT_FLAGS)[
 export interface AbVariantConfigSlice {
   review?: { criticOnCleanRound?: string; round2Scope?: string; round2Lanes?: string; lanePack?: string; roundDelta?: string };
   remediation?: { grouping?: string; thread?: string };
-  implementation?: { grouping?: string; thread?: string };
+  implementation?: { grouping?: string; thread?: string; probeMatrix?: string };
+  plan?: { coverageMatrix?: string; scopeDeferral?: string; pinAuditEnforcement?: string };
+  dev?: { probeEnforcement?: string };
 }
 
 export interface AbVariants {
@@ -67,6 +93,11 @@ export interface AbVariants {
   implementationThread: AbVariantValue<'implementation.thread'>;
   lanePack: AbVariantValue<'review.lanePack'>;
   roundDelta: AbVariantValue<'review.roundDelta'>;
+  coverageMatrix: AbVariantValue<'plan.coverageMatrix'>;
+  scopeDeferral: AbVariantValue<'plan.scopeDeferral'>;
+  pinAuditEnforcement: AbVariantValue<'plan.pinAuditEnforcement'>;
+  probeEnforcement: AbVariantValue<'dev.probeEnforcement'>;
+  probeMatrix: AbVariantValue<'implementation.probeMatrix'>;
 }
 
 export interface AbVariantEvidence {
@@ -102,6 +133,11 @@ export function resolveAbVariants(config: unknown): AbVariants {
     implementationThread: pick('implementation.thread', section(config, 'implementation').thread),
     lanePack: pick('review.lanePack', review.lanePack),
     roundDelta: pick('review.roundDelta', review.roundDelta),
+    coverageMatrix: pick('plan.coverageMatrix', section(config, 'plan').coverageMatrix),
+    scopeDeferral: pick('plan.scopeDeferral', section(config, 'plan').scopeDeferral),
+    pinAuditEnforcement: pick('plan.pinAuditEnforcement', section(config, 'plan').pinAuditEnforcement),
+    probeEnforcement: pick('dev.probeEnforcement', section(config, 'dev').probeEnforcement),
+    probeMatrix: pick('implementation.probeMatrix', section(config, 'implementation').probeMatrix),
   };
 }
 
@@ -117,6 +153,11 @@ export function abVariantEvidence(variants: AbVariants): AbVariantEvidence | und
   if (variants.implementationThread !== 'resume') flags['implementation.thread'] = variants.implementationThread;
   if (variants.lanePack !== 'off') flags['review.lanePack'] = variants.lanePack;
   if (variants.roundDelta !== 'off') flags['review.roundDelta'] = variants.roundDelta;
+  if (variants.coverageMatrix !== 'off') flags['plan.coverageMatrix'] = variants.coverageMatrix;
+  if (variants.scopeDeferral !== 'off') flags['plan.scopeDeferral'] = variants.scopeDeferral;
+  if (variants.pinAuditEnforcement !== 'off') flags['plan.pinAuditEnforcement'] = variants.pinAuditEnforcement;
+  if (variants.probeEnforcement !== 'advisory') flags['dev.probeEnforcement'] = variants.probeEnforcement;
+  if (variants.probeMatrix !== 'off') flags['implementation.probeMatrix'] = variants.probeMatrix;
   return Object.keys(flags).length ? { schema: AB_VARIANT_EVIDENCE_SCHEMA, flags } : undefined;
 }
 
@@ -128,3 +169,20 @@ export function abVariantEvidence(variants: AbVariants): AbVariantEvidence | und
 export function dispatchTargetThreadFresh(target: { abVariant?: AbVariantEvidence } | null | undefined): boolean {
   return target?.abVariant?.flags?.['implementation.thread'] === 'fresh';
 }
+
+/** The single-switch reader of one catch-earlier switch: a malformed value (or an unreadable config) keeps production. */
+function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix'>(config: unknown, flag: F): AbVariantValue<F> {
+  const [group, key] = flag.split('.') as [string, string];
+  try { return pick(flag, section(config, group)[key]); } catch { return AB_VARIANT_FLAGS[flag][0] as AbVariantValue<F>; }
+}
+
+/** Old-PoS run 33: plan.coverageMatrix=on restores every PLAN coverage-matrix rule (default off: exact-text rows only). */
+export const coverageMatrixOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.coverageMatrix') === 'on';
+/** Old-PoS run 33: plan.scopeDeferral=on restores N8 (default off: PLAN→DEV waits for the scope-plan verdict). */
+export const scopeDeferralOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.scopeDeferral') === 'on';
+/** Old-PoS run 33 arm A1: plan.pinAuditEnforcement=on makes a saved verdict's open gaps block DEV and REVIEW entry. */
+export const pinAuditEnforcementOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.pinAuditEnforcement') === 'on';
+/** Old-PoS run 33: dev.probeEnforcement=enforce restores the probe gate (default advisory: tables only). */
+export const probeEnforcementOn = (config: unknown): boolean => catchEarlierPick(config, 'dev.probeEnforcement') === 'enforce';
+/** Old-PoS run 33: implementation.probeMatrix=on restores the implementer probe-matrix block and its report contract. */
+export const probeMatrixOn = (config: unknown): boolean => catchEarlierPick(config, 'implementation.probeMatrix') === 'on';

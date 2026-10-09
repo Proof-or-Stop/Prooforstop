@@ -441,6 +441,9 @@ async function offByDefault(): Promise<void> {
 async function outputMissingRelaunch(): Promise<void> {
   const f = fixture('missing', { deferral: false });
   try {
+    // PLAN authoring complete (next would otherwise name the missing userSees first).
+    const checklist = f.store.readChecklist(f.storyId);
+    f.store.writeChecklist(f.storyId, { ...checklist, items: checklist.items.map(item => ({ ...item, userSees: 'value[1:5:2] selects every second element from index 1 up to 5' })) } as never);
     writeFileSync(join(f.scripts, 'fresh.json'), JSON.stringify({ commands: [] }));
     writeFileSync(join(f.scripts, 'release'), '');
     const run = await launch(f);

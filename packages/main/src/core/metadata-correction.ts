@@ -163,7 +163,8 @@ function itemAtChecklistLine(lines: readonly string[], line: number): { itemId: 
  * citations). One per cited item.
  */
 export function extractMetadataCorrections(desc: string, items: readonly ChecklistItem[], checklistText = ''): MetadataCorrection[] {
-  const rowRefs = [...desc.matchAll(/\b(CHK-\d+):(happy|edge|adversarial):(\d+)\b/g)].map(match => match[0]);
+  // Old-PoS run 33: `CHK-003 edge:8` (space) names the same row as `CHK-003:edge:8`.
+  const rowRefs = [...new Set([...desc.matchAll(/\b(CHK-\d+)[: ](happy|edge|adversarial):(\d+)\b/g)].map(match => `${match[1]}:${match[2]}:${match[3]}`))];
   const lines = checklistText.split('\n');
   const cited = new Map<string, MetadataField | null>();
   for (const match of desc.matchAll(/\bCHK-\d+\b/g)) if (!cited.has(match[0])) cited.set(match[0], null);
@@ -297,6 +298,39 @@ export function openMetadataCorrections(args: { store: Store; storyId: string; g
 /** Stored open findings whose cited defect lies only in Story metadata (never repair work). */
 export function isPureMetadataFinding(finding: Pick<Finding, 'files' | 'desc'>): boolean {
   return isStoryMetadataFinding(finding);
+}
+
+/** The corrections of lane findings reclassified as Story metadata at import (process events). */
+function reclassifiedCorrections(store: Pick<Store, 'readProcessEvents'>, storyId: string): MetadataCorrection[] {
+  let events: Array<Record<string, unknown>> = [];
+  try { events = store.readProcessEvents(storyId).filter(event => event.type === METADATA_FINDING_RECLASSIFIED_EVENT); } catch { return []; }
+  return events.flatMap(event => ((event.reclassified ?? []) as Array<{ corrections?: MetadataCorrection[] }>).flatMap(row => row.corrections ?? []));
+}
+
+const sameTarget = (a: MetadataCorrection, b: MetadataCorrection): boolean => a.itemId === b.itemId && a.field === b.field
+  && (a.rowRefs.length === 0 || b.rowRefs.length === 0 || a.rowRefs.some(ref => b.rowRefs.includes(ref)));
+
+/**
+ * Old-PoS run 33 (F-003, run33-analysis.md §3.5): a metadata finding is
+ * classified by its correction target, not by the lane that wrote it. A stored
+ * finding that cites Story metadata is a metadata finding (corrected by the
+ * owner, never repair work) when it is pure metadata, or when every correction
+ * it asks for targets the same item field (and row, when both name rows) as a
+ * lane finding the importer reclassified as metadata. Run 33's docs lane cited
+ * the checklist, evaluator.go and its test ("the implementation correctly
+ * returns ..."), was stored as a product finding and got a repair run that
+ * added a test for already-correct behaviour, while the test-coverage lane's
+ * copy of the same correction was reclassified. A finding with no such
+ * reclassified twin stays a product finding (its metadata part is still
+ * checked at resolve time).
+ */
+export function isMetadataTargetFinding(args: { store: Store; storyId: string; gitCwd: string; finding: Finding }): boolean {
+  if (isPureMetadataFinding(args.finding)) return true;
+  if (!findingCitesStoryMetadata(args.finding)) return false;
+  const own = storedFindingCorrections(args);
+  if (own.length === 0) return false;
+  const reclassified = reclassifiedCorrections(args.store, args.storyId);
+  return own.every(correction => reclassified.some(other => sameTarget(correction, other)));
 }
 
 /**

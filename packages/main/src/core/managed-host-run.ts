@@ -3051,16 +3051,27 @@ export const MANAGED_PROVIDER_STALLED_REASON = `${MANAGED_PROVIDER_STALL_RUNTIME
  * that never became ready, or a provider stalled without leaving any work
  * product (replacementSafe is true only then), a transport error, a review run
  * without a valid final envelope, or a save refused for a stale dispatch
- * binding (old-PoS run 27). A deadline timeout or any other failure stays the
- * agent's call.
+ * binding (old-PoS run 27). Old-PoS run 33 (scope-plan #1, 7.4 min / 4.67M,
+ * then the owner relaunched it by hand): a save reviewer (scope-plan /
+ * delivery, whose only work product is the saved artifact) that ended
+ * `managed_dispatch_output_missing`, or whose save was refused for a classified
+ * deterministic reason (MANAGED_DISPATCH_SAVE_REFUSED_REASON, e.g. the phase
+ * gate), with no work product left: the framework made or saw the fault, so
+ * the framework relaunches (`next` only proposes the relaunch in the phase the
+ * save needs). A deadline timeout or any other failure stays the agent's call.
  */
-export function isAutoReplaceableManagedLaunchFailure(run: { state: string; replacementSafe?: boolean | null; terminalReason?: string | null }): boolean {
+export function isAutoReplaceableManagedLaunchFailure(run: { state: string; replacementSafe?: boolean | null; terminalReason?: string | null; agentType?: string | null }): boolean {
   const reason = run.terminalReason ?? '';
+  const saveReviewer = Boolean(run.agentType && managedDispatchSaveCommand(run.agentType));
   return run.state === 'failed' && run.replacementSafe === true
     && (reason.startsWith(MANAGED_SUPERVISOR_NOT_READY_REASON) || reason.startsWith(MANAGED_PROVIDER_STALLED_REASON)
       || reason.startsWith(MANAGED_PROVIDER_TRANSPORT_REASON) || reason.startsWith(MANAGED_REVIEW_FINAL_RESULT_FAILED_REASON)
-      || reason.startsWith(MANAGED_DISPATCH_BINDING_STALE_REASON));
+      || reason.startsWith(MANAGED_DISPATCH_BINDING_STALE_REASON)
+      || (saveReviewer && (reason === MANAGED_DISPATCH_OUTPUT_MISSING_REASON || reason.startsWith(`${MANAGED_DISPATCH_SAVE_REFUSED_REASON}:`))));
 }
+
+/** Terminal reason of a managed dispatch run whose required output (saved artifact / done record) is missing. */
+export const MANAGED_DISPATCH_OUTPUT_MISSING_REASON = 'managed_dispatch_output_missing';
 
 /** Terminal reason prefix of a provider run that failed on a transport error (managedProviderTransportFailure). */
 export const MANAGED_PROVIDER_TRANSPORT_REASON = 'provider_transport_error:';
@@ -4360,6 +4371,17 @@ export async function runManagedHostRunWorker(
             detail: { attempt, refusal, reason: 'deterministic_binding_refusal' },
           });
           return writeTerminal(paths, 'failed', `${MANAGED_DISPATCH_BINDING_STALE_REASON}: ${refusalEvent.error.slice(0, 400)}`, result.replacementSafe, result, now());
+        }
+        // Old-PoS runs 30/33: a save the Story's phase refuses is refused identically on
+        // every retry (run 33 burned two resumed turns and 4.09M on it). End the run now,
+        // with the class and the refusal in the terminal reason.
+        if (refusalEvent?.code === 'phase_gate') {
+          appendEvent(paths, {
+            schemaVersion: MANAGED_HOST_RUN_SCHEMA_VERSION, runId: spec.runId, at: new Date(now()).toISOString(),
+            type: 'managed_dispatch_save_repair_unavailable',
+            detail: { attempt, refusal, reason: 'deterministic_phase_refusal' },
+          });
+          return writeTerminal(paths, 'failed', `${MANAGED_DISPATCH_SAVE_REFUSED_REASON}:phase_gate: ${refusalEvent.error.slice(0, 400)}`, result.replacementSafe, result, now());
         }
         const resumeSessionId = attempt <= MANAGED_DISPATCH_SAVE_REPAIR_MAX_ATTEMPTS && result.replacementSafe
           ? resumableManagedRunCodexSession(paths, codexHome)
@@ -5713,11 +5735,23 @@ export const MANAGED_REVIEW_FINAL_FORMAT_REPAIR_MAX_ATTEMPTS = 2;
 export const MANAGED_DISPATCH_SAVE_REFUSED_EVENT = 'managed_dispatch_save_refused';
 
 /**
- * A save refusal the reviewer cannot fix by saving again (old-PoS run 27): the
- * dispatch the run is bound to is stale for the current head/material/story
- * files, so every retry in the same session is refused identically.
+ * A save refusal the reviewer cannot fix by saving again, so every retry in the
+ * same session is refused identically:
+ *   - dispatch_binding_stale (old-PoS run 27): the dispatch the run is bound to
+ *     is stale for the current head/material/story files;
+ *   - phase_gate (old-PoS runs 30/33): the Story's phase does not admit the
+ *     save (the CLI active-Story phase gate, or scope_check_save's DEV rule).
  */
-export type ManagedDispatchSaveRefusalCode = 'dispatch_binding_stale';
+export type ManagedDispatchSaveRefusalCode = 'dispatch_binding_stale' | 'phase_gate';
+
+/**
+ * Terminal reason prefix of a managed dispatch run whose save was refused for a
+ * classified deterministic reason other than a stale binding
+ * (`managed_dispatch_save_refused:<code>: <refusal>`): no same-session
+ * save-repair turn (it would be refused the same way); `next` relaunches the
+ * reviewer once the Story is in the phase the save needs.
+ */
+export const MANAGED_DISPATCH_SAVE_REFUSED_REASON = 'managed_dispatch_save_refused';
 
 /**
  * Terminal reason of a managed dispatch run whose save was refused because its

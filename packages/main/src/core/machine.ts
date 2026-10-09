@@ -77,7 +77,7 @@ import { inspectDevMemoryFinishDecision } from './playbook-runtime-memory.js';
 import { canonicalAgentRoleId } from './agent-role-identity.js';
 import { renderManagedInitReviewerDispatches } from './reviewer-launch-guidance.js';
 import { missingPlanScopeCheckFailure } from './plan-scope-check-requirement.js';
-import { scopeVerdictDeferral, scopeVerdictReviewEntryFailure } from './scope-plan-deferral.js';
+import { scopeVerdictDeferral, scopeVerdictGapEnforcementFailure, scopeVerdictReviewEntryFailure } from './scope-plan-deferral.js';
 
 function buildQuorumEvidence(
   evidenceRecords: { agent: string; kind: string; signatureValid?: boolean }[],
@@ -727,6 +727,8 @@ export function canStartDevGuard(context: StoryMachineContext): boolean {
     // the Story says so (core/plan-scope-check-requirement.ts), independent of a
     // clean story_review record or of an understanding snapshot.
     if (missingPlanScopeCheckFailure(context.store, story, policy, () => scopeVerdictDeferral(context.store, context.projectRoot, context.storyId))) return false;
+    // Old-PoS run 33 arm A1 (plan.pinAuditEnforcement=on): the saved verdict's open gaps.
+    if (scopeVerdictGapEnforcementFailure(context.store, context.projectRoot, context.storyId)) return false;
     // F-001: ONLY the review-record checks are gated on requireStoryReview. The parallel
     // sub-check below must run on EVERY door into DEV (it used to be skipped when review was
     // not required, which made the hard block bypassable). The early `return true` is gone.
@@ -1469,6 +1471,9 @@ export function getGuardFailureReason(
       // Run 16: same predicate as canStartDevGuard; its last line is the one Next: action.
       const scopeCheckFailure = missingPlanScopeCheckFailure(store, story2, policy2, () => scopeVerdictDeferral(store, projectRoot ?? process.cwd(), storyId));
       if (scopeCheckFailure) return scopeCheckFailure;
+      // Old-PoS run 33 arm A1 (plan.pinAuditEnforcement=on): same predicate as canStartDevGuard.
+      const gapEnforcement = scopeVerdictGapEnforcementFailure(store, projectRoot ?? process.cwd(), storyId);
+      if (gapEnforcement) return gapEnforcement;
       if (!policy2.plan.requireStoryReview) {
         // policy says no review needed — pass through
       } else {

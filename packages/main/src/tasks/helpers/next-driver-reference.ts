@@ -330,7 +330,7 @@ function listStoryHostRuns(ctx: HandlerContext, storyId: string): HostRunView[] 
       rows.push({ runId, host: run.host, model: run.model ?? null, reasoningEffort: run.reasoningEffort ?? null, profile: run.profile,
         agentType: run.agentType, reviewRunId: run.reviewRunId, state: run.state,
         terminal: run.terminal !== null, createdAt: run.createdAt,
-        autoReplaceable: isAutoReplaceableManagedLaunchFailure({ state: run.state, replacementSafe: run.replacementSafe, terminalReason: run.terminal?.reason ?? null }),
+        autoReplaceable: isAutoReplaceableManagedLaunchFailure({ state: run.state, replacementSafe: run.replacementSafe, terminalReason: run.terminal?.reason ?? null, agentType: run.agentType }),
         replacementSafe: run.replacementSafe === true });
     } catch { /* not a readable managed run */ }
   }

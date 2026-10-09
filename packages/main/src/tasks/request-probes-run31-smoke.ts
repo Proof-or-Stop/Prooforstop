@@ -262,8 +262,14 @@ const EVAL = [
   assert.match(table, /CHK-002:edge:0#1: a=\[0,1,2,3,4,5\]; a\[null:4:2\] -> \[0, 2\] \| S\d \(request expects an error[^\n]*PIN CONTRADICTS REQUEST/, `the F-006 row:\n${table}`);
   assert.match(table, /\[probe-row\] <row> \| request: <expected per the sentence> \| observed: <HEAD output> \| ok\|contradiction/);
   assert.deepEqual(renderAnchoredProbeTable(DEV_ITEMS, null, 'CHK-002'), [], 'no request, no table');
-  const contract = renderFrameworkProbeContract(DEV_ITEMS, RUN31_REQUEST, 'CHK-002', { base: 'a'.repeat(40) }).join('\n');
+  // Old-PoS run 33: the run-31 contract is the A/B arm (dev.probeEnforcement=enforce, implementation.probeMatrix=on).
+  const contract = renderFrameworkProbeContract(DEV_ITEMS, RUN31_REQUEST, 'CHK-002', { base: 'a'.repeat(40), enforcement: 'enforce' }, { probeMatrix: true }).join('\n');
   assert.match(contract, /Write no probe program/);
+  assert.match(contract, /Done is refused once per set of flagged rows/);
+  const advisory = renderFrameworkProbeContract(DEV_ITEMS, RUN31_REQUEST, 'CHK-002', { base: 'a'.repeat(40) }).join('\n');
+  assert.match(advisory, /it is not refused/, 'advisory (default): done is never refused');
+  assert.doesNotMatch(advisory, /member\/property `h\.s\[i\]`/, 'the probe-matrix checklist is the implementation.probeMatrix arm');
+  assert.match(advisory, /CONTRADICTS: pins the value \[0, 2\]/, 'contradicting pins are still listed (static, request-anchored)');
   assert.match(contract, /member\/property `h\.s\[i\]`, index-of-index `a\[0\]\[i\]`, call result `f\(\)\[i\]`/, 'the receiver kinds are named');
   assert.match(contract, /two-part and three-part\) with explicit null/);
   assert.match(contract, /CONTRADICTS: pins the value \[0, 2\]/, 'the item\'s contradicting pins are listed before coding');

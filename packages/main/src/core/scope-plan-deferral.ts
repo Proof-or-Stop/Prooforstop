@@ -2,6 +2,17 @@
  * N8 (v4.1 cost plan): the PLAN scope-plan reviewer runs beside the first DEV
  * implementer instead of on the critical path.
  *
+ * OFF BY DEFAULT since old-PoS run 33 (bench-staging/oldpos/run33-analysis.md
+ * §3.1, §4.1): A/B switch `plan.scopeDeferral` ('off' default | 'on', core/
+ * ab-variants.ts). It saved 0 s in runs 27-29 (held / waited) and each of the
+ * two times it fired (runs 30, 33) the deferred verdict could not be saved in
+ * DEV: DEFAULT_PHASE_TOOLS.DEV lacked scope_check_save, so the CLI phase gate
+ * refused the save in every real Story worktree (4-9 min / 5-7M lost per run).
+ * That gate is fixed (core/config.ts), but the deferral stays an A/B arm until
+ * a real run shows a saving. With the switch off, `scopeVerdictDeferral`
+ * returns 'held' for a live PLAN-launched run, so DEV entry, story_review and
+ * `next` wait for its verdict in PLAN (the run-27 flow). With it on:
+ *
  * Before, PLAN→DEV waited 1.4-2.3 min for the scope-plan verdict
  * (scope-check.json) although nothing in DEV reads it: the verdict gates
  * whether the checklist covers the request, and its remedy (cover or exclude a
@@ -26,7 +37,9 @@
  *   - `scopeVerdictDeferral` is the one predicate the DEV-entry guard
  *     (missingPlanScopeCheckFailure), story_review and `next` share.
  *   - That live run saves its verdict in DEV (scope_check_save accepts DEV only
- *     for the managed invocation of a run launched in PLAN).
+ *     for the managed invocation of a run launched in PLAN; the CLI phase gate
+ *     admits it in DEV since old-PoS run 33, and scope-plan-deferral-smoke saves
+ *     from the Story branch, where that gate applies).
  *   - DEV→REVIEW (`scopeVerdictReviewEntryFailure`) requires what story_review
  *     would have required before DEV: the verdict exists, its signature and
  *     managed delivery verify, and it lists no gap. A gap found after
@@ -48,6 +61,8 @@ import { verifyScopeCheckContentSignature } from './scope-check-integrity.js';
 import { readStoryRequest } from './story-request.js';
 import { intentDerivationRows, pinAuditRows, sameSemanticsCoveredItems, unquotedStatedPins } from './intent-derivation.js';
 import { isTerminalChecklistStatus } from './checklist-status.js';
+import { loadConfig } from './config.js';
+import { pinAuditEnforcementOn, scopeDeferralOn } from './ab-variants.js';
 
 export interface PendingScopePlanRun { runId: string; createdAt: string; state: string }
 
@@ -81,6 +96,12 @@ export function scopeVerdictDeferral(
 ): ScopeVerdictDeferral {
   const run = pendingScopePlanRun(root, storyId);
   if (!run) return { kind: 'none' };
+  // Old-PoS run 33: N8 is an A/B arm (plan.scopeDeferral, default off): DEV entry waits for the verdict.
+  let deferralOn = false;
+  try { deferralOn = scopeDeferralOn(loadConfig(root)); } catch { deferralOn = false; }
+  if (!deferralOn) {
+    return { kind: 'held', run, reason: 'the scope-plan deferral (N8) is off (A/B switch plan.scopeDeferral, default off since old-PoS run 33), so DEV entry waits in PLAN for the verdict' };
+  }
   const hold = scopeVerdictItemHold(store, storyId);
   if (!hold) return { kind: 'deferred', run };
   let open: string[] = [];
@@ -193,7 +214,10 @@ export function scopeVerdictReviewEntryFailure(
   // Never entered DEV from PLAN (express channel): the PLAN verdict does not apply.
   if (!devEntry) return null;
   // Old path: a verdict saved before DEV entry was judged by story_review then.
-  if (scope && Date.parse(scope.checkedAt) < Date.parse(devEntry)) return null;
+  // Old-PoS run 33 arm A1 (plan.pinAuditEnforcement=on): it is re-judged here too
+  // (run 33: every saved verdict listed the null-pin gaps; story_review had run
+  // before the verdict, so nothing ever enforced them).
+  if (scope && Date.parse(scope.checkedAt) < Date.parse(devEntry) && !pinAuditEnforced(root)) return null;
   if (!scope) {
     const pending = pendingScopePlanRun(root, storyId);
     return pending
@@ -223,4 +247,33 @@ export function scopeVerdictReviewEntryFailure(
       + `Next: proof-or-stop story_advance '{"storyId":"${storyId}","phase":"PLAN"}'`;
   }
   return null;
+}
+
+function pinAuditEnforced(root: string): boolean {
+  try { return pinAuditEnforcementOn(loadConfig(root)); } catch { return false; }
+}
+
+/**
+ * Old-PoS run 33 arm A1 (A/B switch plan.pinAuditEnforcement, default off;
+ * run33-analysis.md §3.4): PLAN→DEV refuses while the saved scope-plan verdict
+ * lists an open gap, whenever the verdict was saved. The DEV-entry guard
+ * otherwise reads only the last story_review round, which in run 33 was taken
+ * while the verdict was still pending, so 5 verdicts' pin-audit gaps were never
+ * enforced. Null when the switch is off, no verdict exists or no gap is open
+ * (covered, or excluded by an item excludes entry naming it).
+ */
+export function scopeVerdictGapEnforcementFailure(
+  store: Pick<StoryStore, 'readChecklist' | 'readScopeCheck'>,
+  root: string,
+  storyId: string,
+): string | null {
+  if (!pinAuditEnforced(root)) return null;
+  const scope = store.readScopeCheck(storyId);
+  if (!scope) return null;
+  const gaps = openScopeGaps(scope, store.readChecklist(storyId));
+  if (gaps.length === 0) return null;
+  return `Cannot enter DEV: the scope-plan reviewer verdict of ${scope.checkedAt} lists ${gaps.length} open gap(s) [scope_gap] (A/B switch plan.pinAuditEnforcement=on): `
+    + `${gaps.slice(0, 4).map(gap => `"${gap.feature}"`).join(', ')}${gaps.length > 4 ? ` +${gaps.length - 4} more` : ''}. `
+    + 'Correct each pinned value the verdict names, cover each other gap in a checklist item, or record a PLAN exclusion (item excludes naming it and why); then rerun story_review.\n'
+    + `Next: proof-or-stop story_review --storyId=${storyId}`;
 }

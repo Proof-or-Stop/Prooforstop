@@ -20,7 +20,7 @@ import { captureReviewRunSnapshot } from '../core/review-run.js';
 import { loadConfig } from '../core/config.js';
 import { CONFIG_FILENAMES, stateDirCandidates } from '../core/brand-paths.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
-import { resolveManagedDispatchInvocation } from '../core/managed-host-run.js';
+import { recordManagedDispatchSaveRefusal, resolveManagedDispatchInvocation } from '../core/managed-host-run.js';
 import { pendingScopePlanRun } from '../core/scope-plan-deferral.js';
 import { execFileSync } from 'node:child_process';
 import { StoryStore } from '../core/store.js';
@@ -217,7 +217,10 @@ export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (.
       // commit that was HEAD when it launched, not the implementer's later commits.
       const deferredRun = storyPhase === 'DEV' ? pendingScopePlanRun(root, args.storyId) : null;
       if (storyPhase === 'DEV' && (!managedInvocation || !deferredRun)) {
-        throw new Error('scope_check_save refused: in DEV only the managed scope-plan run launched in PLAN may save its deferred verdict (no such live run, or no managed invocation). Rerun the scope-plan reviewer from PLAN.');
+        const refusal = new Error('scope_check_save refused: in DEV only the managed scope-plan run launched in PLAN may save its deferred verdict (no such live run, or no managed invocation). Rerun the scope-plan reviewer from PLAN.');
+        // Old-PoS run 33: a deterministic phase refusal ends the managed run without save-repair turns.
+        if (managedInvocation) recordManagedDispatchSaveRefusal({ root, storyId: args.storyId, agentType: 'proof-or-stop-review-scope-plan', command: 'scope_check_save' }, refusal, 'phase_gate');
+        throw refusal;
       }
       const timestamp = new Date().toISOString();
       const readManifest = normalizeReviewerReadManifest(args.readManifest, 'scope_check_save.readManifest');

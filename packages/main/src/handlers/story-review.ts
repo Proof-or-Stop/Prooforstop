@@ -48,7 +48,7 @@ import { truncateOneLine } from '../cli/output-verbosity.js';
 import { reviewGateVerificationIntentIssue } from '../core/review-gate-verification-intent.js';
 import { missingVerificationPinIssues } from '../core/plan-verification-pins.js';
 import { checklistDerivationGaps, describeDerivationProblem, MISSING_INTENT_DERIVATION, PIN_AUDIT_GAP_PREFIX, ASYMMETRIC_EXAMPLE_GAP_PREFIX } from '../core/intent-derivation.js';
-import { describeCoverageGap, MISSING_COVERAGE_ROW, planCoverageGaps } from '../core/plan-coverage-matrix.js';
+import { describeCoverageGap, MISSING_COVERAGE_ROW, planCoverageGapsFor } from '../core/plan-coverage-matrix.js';
 import { readStoryRequest } from '../core/story-request.js';
 import { planScopeCheckRequirement, scopeVerdictChecklistChanged } from '../core/plan-scope-check-requirement.js';
 import { requiresFullVerificationIntent } from '../core/plan-pre-scope-blockers.js';
@@ -536,7 +536,8 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           // n-part syntax, enumerated members x the stated value class). PLAN only: the
           // intents are frozen from DEV, and a Story past PLAN was planned without it.
           if (story.phase === 'PLAN') {
-            for (const gap of planCoverageGaps(cl.items, request.text)) {
+            // Old-PoS run 33: plan.coverageMatrix (default off: exact-text rows only).
+            for (const gap of planCoverageGapsFor(loadConfig(ctx.root), cl.items, request.text)) {
               issues.push({
                 type: MISSING_COVERAGE_ROW,
                 severity: 'blocker',

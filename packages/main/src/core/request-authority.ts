@@ -71,6 +71,15 @@ export const REPAIR_INPUT_VARIANT_RULE = '- Input variants (keep base behavior):
  * matrix text is not sent.
  */
 export const PROBE_REPORT_TAG = '[probes]';
+/**
+ * Old-PoS run 33 (run33-analysis.md §2.3): the one line kept from the
+ * implementer probe matrix when implementation.probeMatrix is off (default).
+ * The matrix block cost run 31 56 of 171 implementer turns and found no defect;
+ * these two classes (panic on a valid form, explicit null read as omitted) were
+ * the ones review found in runs 24-31.
+ */
+export const IMPLEMENTER_PROBE_LINE = '- No valid input form may crash or panic, and an explicit null/nil operand is a different input from an omitted one (branch on the source syntax, not the evaluated value).';
+
 export const IMPLEMENTER_PROBE_MATRIX = [
   'Probe matrix before handoff (operand position x value class x operation):',
   '- Positions: each operand the item reads or adds (e.g. start/end/step, or its parameters). Classes: omitted, explicit null, explicit value equal to the default (e.g. step 1, start 0: it keeps its own form\'s semantics, not another form\'s path), 0, negative, out of range, non-numeric/wrong type, empty receiver, multibyte text, target aliased by the value (a[x] = a). Operations: read, write/assign, stringify, error path, neighbouring receiver types (array/string/hash).',

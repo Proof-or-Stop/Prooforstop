@@ -2055,7 +2055,9 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
           const terminal = join(runsRoot, runId, 'terminal.json');
           return existsSync(terminal) && (JSON.parse(readFileSync(terminal, 'utf8')) as { state?: string }).state === 'completed';
         });
-        assert.ok(repaired, `[${o.scenario}] next proposed finding_resolve for ${findingId} although no managed finding-repair run bound to it completed (runs per finding: ${JSON.stringify([...repairRunsByFinding])}); why: ${next.why}`);
+        // Old-PoS runs 31/33: a Story-metadata finding (by correction target) closes by its corrected text, never by a repair.
+        const metadataClose = /is a Story-metadata finding/.test(next.why) && findingDesc(findingId) === META_PRODUCT_COPY_DESC;
+        assert.ok(repaired || metadataClose, `[${o.scenario}] next proposed finding_resolve for ${findingId} although no managed finding-repair run bound to it completed (runs per finding: ${JSON.stringify([...repairRunsByFinding])}); why: ${next.why}`);
         authorPayload(o, next.reason, payload, findingDesc);
         break;
       }
@@ -3056,8 +3058,11 @@ function scenarioNI(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     o.unscript(IMPLEMENTER);
     assert.equal(terminal.state, 'completed', `[NI] implementer terminal ${terminal.state} (${terminal.reason})\n${o.providerCommandLog()}`);
     assert.match(managedPrompts(o, IMPLEMENTER)[0]!.prompt, /\[intent-conflict\] none/, '[NI] the implementer prompt requires the [intent-conflict] section');
-    // Old-PoS runs 24-29 (A): the probe matrix and its [probes] report line.
-    assert.match(managedPrompts(o, IMPLEMENTER)[0]!.prompt, /Probe matrix before handoff[\s\S]*explicit null[\s\S]*\[probes\]/, '[NI] the implementer prompt carries the probe matrix and the [probes] report');
+    // Old-PoS run 33: the probe matrix (runs 24-29 A) is the A/B arm implementation.probeMatrix=on (NPT covers it);
+    // by default the prompt keeps one line and asks for no [probes] report.
+    const niPrompt = managedPrompts(o, IMPLEMENTER)[0]!.prompt;
+    assert.doesNotMatch(niPrompt, /Probe matrix before handoff/, '[NI] no probe matrix by default');
+    assert.match(niPrompt, /No valid input form may crash or panic, and an explicit null\/nil operand is a different input from an omitted one/, '[NI] the one kept probe line');
 
     // D1: the declared conflict blocks the item before anything else.
     const blocked = ask('next (conflict declared)');
