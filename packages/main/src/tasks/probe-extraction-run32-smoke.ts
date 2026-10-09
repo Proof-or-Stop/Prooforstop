@@ -140,10 +140,12 @@ try {
 
     const pinned = item('CHK-006', ['s=[1,2,3]; s[0:1]=[7]; s -> [9, 2, 3]']);
     assert.ok(probes.probeDoneCheck(ctx!, root, 'B-1', pinned, [pinned], null).refusal);
-    const reopen = probes.runnerProbeDecision(ctx!, root, 'B-1', pinned, [pinned], null, [{ runId: 'r1', createdAt: before, text: '' }]);
+    // The flag was raised two minutes ago; r1 ran before it, the relaunch r2 after it.
+    const at = (seconds: number) => new Date(Date.now() + seconds * 1000).toISOString();
+    probes.writeProbeState(root, 'B-1', 'CHK-006', { ...probes.readProbeState(root, 'B-1', 'CHK-006'), flaggedSince: at(-120) });
+    const reopen = probes.runnerProbeDecision(ctx!, root, 'B-1', pinned, [pinned], null, [{ runId: 'r1', createdAt: at(-180), text: '' }]);
     assert.equal(reopen?.action, 'reopen');
-    const later = new Date(Date.now() + 60_000).toISOString();
-    const runs = [{ runId: 'r1', createdAt: before, text: '' }, { runId: 'r2', createdAt: later, text: 'done\n[intent-conflict] none' }];
+    const runs = [{ runId: 'r1', createdAt: at(-180), text: '' }, { runId: 'r2', createdAt: at(-60), text: 'done\n[intent-conflict] none' }];
     assert.equal(probes.runnerProbeDecision(ctx!, root, 'B-1', pinned, [pinned], null, runs)?.action, 'escalate', 'unchanged intent: the relaunch saw the row');
     const rederived = item('CHK-006', [{ desc: 's=[1,2,3]; s[0:1]=[7]; s -> [9, 2, 3]', derivation: { requestQuote: 'Support assigning', computation: 'owner amended' } }]);
     const after = probes.runnerProbeDecision(ctx!, root, 'B-1', rederived, [rederived], null, runs);

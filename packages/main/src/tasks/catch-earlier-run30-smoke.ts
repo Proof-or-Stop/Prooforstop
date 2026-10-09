@@ -175,7 +175,7 @@ try {
   // An item whose intent quotes an error string gets the exact-output section.
   seed('B-d036', ABS_STEPPED_SLICES_REQUEST, [{ id: 'CHK-001', title: 'Assign array range slices', rows: [['happy', 'a[1:4]=[9] fails with `range assignment size mismatch: target=3 value=1`']] }], 'DEV');
   const withExact = dispatch.dispatch({ storyId: 'B-d036', itemId: 'CHK-001', agentType: 'proof-or-stop-implementer' }).prompt;
-  assert.match(withExact, /compares it exactly, not a prefix/i, 'the exact-output section asks for exact (not prefix) assertions');
+  assert.match(withExact, /compares it exactly \(full-string equality\), not a prefix/i, 'the exact-output section asks for exact (not prefix) assertions');
 
   const parse = (requestAuthority as unknown as { parseProbeReport?: (text: string) => { present: boolean; probedOnly: string | null } }).parseProbeReport;
   assert.equal(typeof parse, 'function', 'request-authority exports parseProbeReport');

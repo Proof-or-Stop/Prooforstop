@@ -21,6 +21,7 @@
 
 import { isStoryMetadataFinding } from '../core/metadata-finding-class.js';
 import { renderPinOracleAudit, storyPinOracle, type PinOracleContext } from '../core/pin-oracle.js';
+import { renderExactTextRelaunch } from '../core/exact-text-assertions.js';
 import { appendExactRequiredOutput, itemsForFinding } from '../core/exact-required-output.js';
 import { omittedPromptNote } from './review-run.js';
 import { existsSync, readFileSync } from 'fs';
@@ -1195,6 +1196,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       }
       const probeGap = earlierImplementerProbeGap(root, args.storyId, args.itemId);
       if (probeGap) lines.push(renderProbeTestGapLine(probeGap));
+      lines.push(...renderExactTextRelaunch(root, args.storyId, args.itemId));
       const routed = store.readCandidateSpecSet(args.storyId);
       if (routed) {
         lines.push('');

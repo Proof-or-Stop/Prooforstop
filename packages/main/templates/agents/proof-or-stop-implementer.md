@@ -32,6 +32,7 @@ Your goal is to **complete the single checklist item bound to this dispatch when
 
 - Read the storyId + bound checklist item + index of files already read + the allowed Proof-or-Stop commands provided by the main agent
 - When the dispatch prompt has an "Exact required output — must match byte-for-byte" section, emit each listed string exactly as written (words, case, punctuation, spacing, field order) and assert it in a test; never paraphrase a required message
+- A string the request quotes as exact (error text, output) is asserted with an EXACT comparison (full-string equality). A prefix / contains comparison (`HasPrefix`, `strings.Contains`, `startsWith`, `includes`, `assertIn`, `toContain`) does not count, and neither does a reused project test helper that wraps one (read the helper before reusing it); next reopens the item before REVIEW when the Story's added tests compare such a string only that way
 - Work only on the single item bound by the dispatch. The Story owner/controller owns the `in_progress` transition; begin the assigned implementation without writing it yourself
 - Write code / modify fixtures / run necessary local checks (lint, build, unit tests)
 - After completion, call `proof-or-stop checklist_update '{"storyId":"...","itemId":"...","status":"done"}'`

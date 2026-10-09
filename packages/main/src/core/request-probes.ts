@@ -56,7 +56,7 @@ import { VERIFICATION_LANES } from './verification.js';
 import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 import { resolveCanonicalRuntimeProjectRoot } from './runtime-artifact-registry.js';
 import { caseRequirements, requestAnchorContext, type RequestAnchorContext } from './plan-coverage-matrix.js';
-import { pinOracleStoryBase, prepareArchivedTree, validRunnerConfig, type PinOracleConfig } from './pin-oracle.js';
+import { parseErrorOutsideNewSyntax, pinOracleStoryBase, prepareArchivedTree, validRunnerConfig, type PinOracleConfig } from './pin-oracle.js';
 import { currentMaterialHash } from './evidence-freshness.js';
 import { parseIntentConflicts } from './request-authority.js';
 
@@ -98,6 +98,13 @@ export interface ProbeCase {
   quote: string | null;
   /** The case reads a variable no statement binds: not runnable. */
   unbound: boolean;
+  /**
+   * Code segments of the row before this case the extractor could not place as a
+   * statement (old-PoS run 32: `h.a[0:2]=[9,8]` was silently dropped and the
+   * row probed as a plain read). Non-empty: the case is unextractable, never
+   * run and never flagged; PLAN lists it (unextractableRows).
+   */
+  dropped: string[];
 }
 
 const OPEN = '[{(';
@@ -212,6 +219,32 @@ function bindingStatement(text: string): string | null {
   return value ? `${match[1]}=${value}` : null;
 }
 
+/** Code characters: text before a statement with none is a prose label (`then`, `member receiver`). */
+const CODE_CHARS = /[=[\](){}]/;
+/** Code that may change state (an assignment, a call, a block): dropping it would change what the case reads. */
+const EFFECT = /(?<![=!<>])=(?![=>])|[({]/;
+
+/**
+ * A `;`-segment without an arrow as a program statement, in order (old-PoS run
+ * 32): a literal binding (`x = [1]`, prose before it allowed), else the whole
+ * segment when it is one code token (`h.a[0:2]=[9,8]`, `a=f()`,
+ * `f(){ ... }`), else an assignment after a prose label. `null` + code: the
+ * segment holds state-changing code (an assignment, a call, a block) the
+ * extractor cannot place, so the row is unextractable; `null` without: prose
+ * or a side-effect-free expression, safe to skip.
+ */
+function statementOf(segment: string): { statement: string | null; code: boolean } {
+  const trimmed = segment.trim();
+  if (!trimmed) return { statement: null, code: false };
+  const token = trailingCode(trimmed);
+  const binding = token ? bindingStatement(token) : null;
+  if (binding) return { statement: binding, code: true };
+  if (token && token.replace(/\s+/g, '') === trimmed.replace(/\s+/g, '')) return { statement: token === trimmed ? trimmed : token, code: true };
+  const before = token ? trimmed.slice(0, trimmed.length - token.length).trim() : trimmed;
+  if (token && splitAssignment(token) && !CODE_CHARS.test(before)) return { statement: token, code: true };
+  return { statement: null, code: EFFECT.test(trimmed) };
+}
+
 /** The top-level assignment `lhs = rhs` of a subject, or null (a read). */
 function splitAssignment(subject: string): { lhs: string; rhs: string } | null {
   const found = findTopLevel(subject, /(?<![=!<>])=(?![=>])/);
@@ -242,6 +275,7 @@ const rootIdentifier = (expr: string): string | null => expr.match(/^([A-Za-z_]\
 export function probeCasesOf(ref: string, itemId: string, desc: string, quote: string | null = null): ProbeCase[] {
   let body = desc.trim();
   const prefixStatements: string[] = [];
+  const prefixDropped: string[] = [];
   let prefixLiteral: string | null = null;
   const firstArrow = findTopLevel(body, ARROW);
   const colon = findTopLevel(body, /:\s+/);
@@ -255,19 +289,22 @@ export function probeCasesOf(ref: string, itemId: string, desc: string, quote: s
       if (binding) prefixStatements.push(binding);
       else prefixLiteral = leadingValue(receiver);
     } else {
-      const token = trailingCode(prefix);
-      const binding = token ? bindingStatement(token) : null;
-      if (binding) prefixStatements.push(binding);
+      const { statement, code } = statementOf(prefix);
+      if (statement) prefixStatements.push(statement);
+      else if (code) prefixDropped.push(prefix.trim());
     }
   }
   const cases: ProbeCase[] = [];
   const persistent: string[] = [];
+  const dropped: string[] = [...prefixDropped];
   for (const segment of splitTopLevel(body, ';')) {
     const arrow = findTopLevel(segment, ARROW);
     if (!arrow) {
-      const token = trailingCode(segment);
-      const binding = token ? bindingStatement(token) : null;
-      if (binding) persistent.push(binding);
+      // Old-PoS run 32: every statement runs, in order; one the extractor cannot
+      // place makes the following cases unextractable (never a false flag).
+      const { statement, code } = statementOf(segment);
+      if (statement) persistent.push(statement);
+      else if (code) dropped.push(segment.trim());
       continue;
     }
     const pinned = parseExpectation(segment.slice(arrow.index + arrow.length));
@@ -285,14 +322,17 @@ export function probeCasesOf(ref: string, itemId: string, desc: string, quote: s
     const subject = trailingCode(before);
     if (!subject || leadingValue(subject) === subject) continue;
     const assignment = splitAssignment(subject);
-    if (!assignment && !/[[(.]/.test(subject)) continue;
+    // A bare identifier is a case when the row's own statements assign it
+    // (`a=[...]; a[1:4]=[9,8,7]; a -> [...]`); otherwise it is prose.
+    const assigns = (name: string) => statements.some(statement => new RegExp(`^${name}\\s*(?:=(?!=)|\\[|\\.)`).test(statement));
+    if (!assignment && !/[[(.]/.test(subject) && !(/^[A-Za-z_]\w*$/.test(subject) && assigns(subject))) continue;
     const root = rootIdentifier(assignment?.lhs ?? subject);
     if (literal && root && !statements.some(statement => statement.startsWith(`${root}=`))) statements.push(`${root}=${literal}`);
     const expr = assignment ? writeReceiver(assignment.lhs) : subject;
     const program = assignment ? [...statements, subject] : statements;
     const unbound = Boolean(root && /^[A-Za-z_]\w*\s*[[.]/.test(assignment?.lhs ?? subject) && !statements.some(statement => statement.startsWith(`${root}=`)));
     cases.push({ ref, key: ref, itemId, code: [...program, ...(assignment ? [] : [subject])].join('; '), statements: program, expr, write: Boolean(assignment),
-      pinned, pinnedText: pinned.kind === 'value' ? pinned.text : pinned.kind === 'error' ? `error '${pinned.text}'` : `'${pinned.text}'`, quote, unbound });
+      pinned, pinnedText: pinned.kind === 'value' ? pinned.text : pinned.kind === 'error' ? `error '${pinned.text}'` : `'${pinned.text}'`, quote, unbound, dropped: [...dropped] });
   }
   if (cases.length > 1) cases.forEach((entry, index) => { entry.key = `${ref}#${index + 1}`; });
   return cases;
@@ -577,6 +617,12 @@ export interface ProbeTableRow {
   requestVouches: boolean;
   /** Static pin vs request contradiction. */
   pinContradiction: string | null;
+  /**
+   * The base cannot parse the row OUTSIDE the declared new-syntax region
+   * (project `parseErrorPattern` + `newSyntaxPattern`): an authoring error the
+   * PLAN step names, never a code flag (old-PoS run 32 `f(){...}`).
+   */
+  syntaxError?: string | null;
 }
 
 export interface ProbeTable {
@@ -587,6 +633,8 @@ export interface ProbeTable {
   material: string;
   computedAt: string;
   ms: number;
+  /** Digest of the item's runnable cases and their anchors: an amended row recomputes the table (old-PoS run 32). */
+  rowsDigest?: string;
   rows: ProbeTableRow[];
 }
 
@@ -596,6 +644,8 @@ export interface ProbeItemState {
   refusedKeys: string[];
   flaggedKey: string | null;
   flaggedSince: string | null;
+  /** The item's verificationIntent digest when the flag was raised: an amendment since makes the flag new (never escalated). */
+  flaggedIntentHash?: string | null;
 }
 
 const clip = (text: string, max: number): string => (text.length > max ? `${text.slice(0, max - 1)}…` : text);
@@ -607,9 +657,10 @@ export function probeStatePath(root: string, storyId: string, itemId: string): s
 export function readProbeState(root: string, storyId: string, itemId: string): ProbeItemState {
   try {
     const parsed = JSON.parse(readFileSync(probeStatePath(root, storyId, itemId), 'utf8')) as Partial<ProbeItemState>;
-    return { table: parsed.table ?? null, refusedKeys: Array.isArray(parsed.refusedKeys) ? parsed.refusedKeys : [], flaggedKey: parsed.flaggedKey ?? null, flaggedSince: parsed.flaggedSince ?? null };
+    return { table: parsed.table ?? null, refusedKeys: Array.isArray(parsed.refusedKeys) ? parsed.refusedKeys : [], flaggedKey: parsed.flaggedKey ?? null, flaggedSince: parsed.flaggedSince ?? null,
+      flaggedIntentHash: parsed.flaggedIntentHash ?? null };
   } catch {
-    return { table: null, refusedKeys: [], flaggedKey: null, flaggedSince: null };
+    return { table: null, refusedKeys: [], flaggedKey: null, flaggedSince: null, flaggedIntentHash: null };
   }
 }
 
@@ -622,6 +673,25 @@ export function writeProbeState(root: string, storyId: string, itemId: string, s
 }
 
 type ProbeItem = Pick<ChecklistItem, 'id' | 'status' | 'verificationIntent' | 'title'>;
+
+/** A case the runner executes: every statement extracted, every variable bound. */
+const runnable = (probe: ProbeCase): boolean => !probe.unbound && probe.dropped.length === 0;
+
+/** Digest of runnable cases + anchors (the table's staleness key besides material and base). */
+export function rowsDigestOf(rows: ReadonlyArray<{ probe: ProbeCase; anchor: ProbeAnchor }>): string {
+  return createHash('sha256').update(JSON.stringify(rows.map(({ probe, anchor }) =>
+    [probe.key, probe.statements, probe.expr, probe.pinnedText, anchor.expectsError, anchor.stems, anchor.sentences[0] ?? null]))).digest('hex').slice(0, 16);
+}
+
+/** Digest of an item's verificationIntent (old-PoS run 32: an amendment after a flag is not a relaunch that ignored it). */
+export const intentHashOf = (item: Pick<ChecklistItem, 'verificationIntent'>): string =>
+  createHash('sha256').update(JSON.stringify(item.verificationIntent ?? null)).digest('hex').slice(0, 16);
+
+/** Drop an item's table and flagged set (its rows no longer yield a runnable case). */
+function clearProbeTable(root: string, storyId: string, itemId: string): void {
+  const state = readProbeState(root, storyId, itemId);
+  if (state.table || state.flaggedKey || state.flaggedSince) writeProbeState(root, storyId, itemId, { ...state, table: null, flaggedKey: null, flaggedSince: null, flaggedIntentHash: null });
+}
 
 /** Static rows (no run) of the given items: cases with their anchors. */
 export function anchoredCases(items: readonly ProbeItem[], requestText: string | null, itemIds?: ReadonlySet<string>): Array<{ probe: ProbeCase; anchor: ProbeAnchor }> {
@@ -639,7 +709,10 @@ export function anchoredCases(items: readonly ProbeItem[], requestText: string |
 export function computeProbeTables(runner: ProbeRunnerContext, root: string, storyId: string, items: readonly ProbeItem[], allItems: readonly ProbeItem[], requestText: string | null): ProbeTable[] {
   const started = Date.now();
   const wanted = new Set(items.map(item => item.id));
-  const cases = anchoredCases(allItems, requestText, wanted).filter(row => !row.probe.unbound);
+  const cases = anchoredCases(allItems, requestText, wanted).filter(row => runnable(row.probe));
+  // Old-PoS run 32 (3b): rows amended to zero runnable cases must not leave the
+  // previous table (and its flags) in place.
+  for (const itemId of wanted) if (!cases.some(row => row.probe.itemId === itemId)) clearProbeTable(root, storyId, itemId);
   if (!cases.length) return [];
   const head = prepareHeadTree(runner);
   if (!head) return [];
@@ -655,17 +728,86 @@ export function computeProbeTables(runner: ProbeRunnerContext, root: string, sto
     const rows = mine.map(({ probe, anchor }): ProbeTableRow => {
       const base = baseResults.get(programOf(probe));
       const observed = headResults.get(programOf(probe));
+      const syntaxError = base?.status === 'error' ? parseErrorOutsideNewSyntax(runner.config, programOf(probe), base.text) : null;
       return { key: probe.key, ref: probe.ref, code: probe.code, expr: probe.expr, pinned: probe.pinnedText,
         ...(base ? { base } : {}), ...(observed ? { head: observed } : {}),
         sentence: anchor.sentences[0] ? clip(anchor.sentences[0], 240) : (probe.quote ? clip(probe.quote, 240) : null),
-        expectsError: anchor.expectsError, stems: anchor.stems, flags: observationFlags(observed, probe, anchor),
-        requestVouches: requestVouchesFor(observed, anchor), pinContradiction: pinRequestContradiction(probe, anchor) };
+        expectsError: anchor.expectsError, stems: anchor.stems, flags: syntaxError ? [] : observationFlags(observed, probe, anchor),
+        requestVouches: requestVouchesFor(observed, anchor), pinContradiction: pinRequestContradiction(probe, anchor), syntaxError };
     });
-    const table: ProbeTable = { storyId, itemId, base: runner.base, head: head.head, material: head.material, computedAt: new Date().toISOString(), ms, rows };
+    const table: ProbeTable = { storyId, itemId, base: runner.base, head: head.head, material: head.material, computedAt: new Date().toISOString(), ms, rowsDigest: rowsDigestOf(mine), rows };
     writeProbeState(root, storyId, itemId, { ...readProbeState(root, storyId, itemId), table });
     tables.push(table);
   }
   return tables;
+}
+
+/** A row the base cannot parse outside the declared new-syntax region (an owner authoring error). */
+export interface ProbeSyntaxError { ref: string; key: string; itemId: string; code: string; error: string }
+
+/**
+ * PLAN (old-PoS run 32 3c): every runnable case of `items`, run on the Story
+ * base, whose base parse error lies outside the new-syntax region the project
+ * declares (`parseErrorPattern` + `newSyntaxPattern`). A parse error inside the
+ * region is the expected "base lacks the new syntax"; one outside it is a row
+ * no implementation can ever satisfy (e.g. `f(){...}` for `f name(){...}`).
+ * Empty without the declaration.
+ */
+export function probeSyntaxErrors(runner: ProbeRunnerContext, items: readonly ProbeItem[]): ProbeSyntaxError[] {
+  if (!runner.config.parseErrorPattern || !runner.config.newSyntaxPattern) return [];
+  const cases = anchoredCases(items, null).map(row => row.probe).filter(runnable);
+  if (!cases.length) return [];
+  const programOf = (probe: ProbeCase) => probeProgram(runner.config, probe.statements, probe.expr);
+  const results = evaluateInTree(runner, runner.baseTree, cases.map(programOf));
+  return cases.flatMap(probe => {
+    const observed = results.get(programOf(probe));
+    const error = observed?.status === 'error' ? parseErrorOutsideNewSyntax(runner.config, programOf(probe), observed.text) : null;
+    return error ? [{ ref: probe.ref, key: probe.key, itemId: probe.itemId, code: probe.code, error }] : [];
+  });
+}
+
+/** An example row (`... -> value`) no probe runs, with why. */
+export interface UnextractableRow { ref: string; itemId: string; reason: string }
+
+/**
+ * PLAN (old-PoS run 32): example rows the framework probe will never run, so
+ * the owner sees them before DEV instead of trusting a silent pass: a
+ * state-changing statement the extractor cannot place, a variable no statement
+ * binds, or a code-like input whose expected value is not recognised (an
+ * unquoted error text, a value that is prose).
+ */
+export function unextractableRows(items: readonly ProbeItem[]): UnextractableRow[] {
+  const out: UnextractableRow[] = [];
+  for (const item of items.filter(entry => entry.status !== 'withdrawn')) {
+    const cases = itemProbeCases(item);
+    for (const lane of VERIFICATION_LANES) {
+      for (const [index, entry] of (item.verificationIntent?.[lane] ?? []).entries()) {
+        const ref = entry.id ?? `${item.id}:${lane}:${index}`;
+        const desc = String(entry.desc ?? '');
+        const arrow = findTopLevel(desc, ARROW);
+        if (!arrow) continue;
+        const mine = cases.filter(probe => probe.ref === ref);
+        const dropped = [...new Set(mine.flatMap(probe => probe.dropped))];
+        if (dropped.length) { out.push({ ref, itemId: item.id, reason: `statement ${dropped.map(text => `\`${clip(text, 60)}\``).join(', ')} not extracted` }); continue; }
+        const unbound = mine.filter(probe => probe.unbound);
+        if (unbound.length) { out.push({ ref, itemId: item.id, reason: `reads ${unbound.map(probe => `\`${clip(probe.expr, 40)}\``).join(', ')}, which no statement of the row binds` }); continue; }
+        if (mine.length) continue;
+        const left = trailingCode(desc.slice(0, arrow.index));
+        const right = desc.slice(arrow.index + arrow.length).trim();
+        if (!left || !/[[(.=]/.test(left) || /^(?:-{3}\s*)?(?:PASS|ok)\b/.test(right)) continue;
+        out.push({ ref, itemId: item.id, reason: parseExpectation(right)
+          ? `the input \`${clip(left, 60)}\` is not a probe case (a bare variable no statement of the row assigns, or a literal)`
+          : `the expected value \`${clip(right, 60)}\` is not recognised (quote an error text: error 'text', or write a literal value)` });
+      }
+    }
+  }
+  return out;
+}
+
+/** One line for PLAN output: the rows no probe runs (empty when all run). */
+export function describeUnextractableRows(rows: readonly UnextractableRow[], max = 12): string {
+  if (!rows.length) return '';
+  return `Rows the framework probe will not run (${rows.length}): ${rows.slice(0, max).map(row => `${row.ref} (${row.reason})`).join('; ')}${rows.length > max ? `; +${rows.length - max} more` : ''}.`;
 }
 
 export const flaggedRows = (table: ProbeTable | null): ProbeTableRow[] => (table?.rows ?? []).filter(row => row.flags.length > 0);
@@ -708,14 +850,15 @@ export function probeDoneCheck(runner: ProbeRunnerContext, root: string, storyId
   const key = flaggedKeyOf(flagged);
   const path = probeStatePath(root, storyId, item.id);
   const listed = flagged.slice(0, 20).map(row => `- ${describeProbeRow(row)}`).join('\n');
-  const flaggedSince = state.flaggedKey === key && state.flaggedSince ? state.flaggedSince : new Date().toISOString();
+  const intentHash = intentHashOf(item);
+  const flaggedSince = state.flaggedKey === key && state.flaggedSince && (state.flaggedIntentHash ?? intentHash) === intentHash ? state.flaggedSince : new Date().toISOString();
   if (refusingRows(flagged).length && !state.refusedKeys.includes(key)) {
-    writeProbeState(root, storyId, item.id, { ...state, table, refusedKeys: [...state.refusedKeys, key], flaggedKey: key, flaggedSince });
+    writeProbeState(root, storyId, item.id, { ...state, table, refusedKeys: [...state.refusedKeys, key], flaggedKey: key, flaggedSince, flaggedIntentHash: intentHash });
     return { refusal: `checklist_update REFUSED, done was not recorded: the framework probe run (project probeRunner, Story base ${runner.base.slice(0, 12)} vs HEAD ${table.head.slice(0, 12)}) flagged ${flagged.length} of ${table.rows.length} rows of ${item.id} [${PROBE_REQUEST_MISMATCH}]\n${listed}${flagged.length > 20 ? `\n- +${flagged.length - 20} more (${path})` : ''}\n`
       + 'For each row: the request sentence outranks the pin. If HEAD contradicts the request, fix the code, commit and call done again (the rows are re-run). If HEAD follows the request and the pin does not, keep the code and list the row in your final [intent-conflict] section. If you judge a request flag wrong, add `[probe-row] <row> | ok: <why the request allows HEAD\'s output>` to your final result. '
       + `This refusal is shown once per set of flagged rows; full table: ${path}`, note: null };
   }
-  writeProbeState(root, storyId, item.id, { ...state, table, flaggedKey: key, flaggedSince });
+  writeProbeState(root, storyId, item.id, { ...state, table, flaggedKey: key, flaggedSince, flaggedIntentHash: intentHash });
   return { refusal: null, note: `\nFramework probes: ${flagged.length} of ${table.rows.length} rows still flagged at HEAD ${table.head.slice(0, 12)} [${PROBE_REQUEST_MISMATCH}]:\n${listed}\nEach must be in your final [intent-conflict] section (wrong pin) or a \`[probe-row] <row> | ok: <why>\` line; next reopens ${item.id} otherwise.` };
 }
 
@@ -778,8 +921,12 @@ const latestRun = (runs: readonly ImplementerRunReport[]): ImplementerRunReport 
 export function runnerProbeDecision(runner: ProbeRunnerContext, root: string, storyId: string, item: ProbeItem, allItems: readonly ProbeItem[], requestText: string | null,
   runs: readonly ImplementerRunReport[]): ProbeFlagDecision | null {
   const material = currentMaterialHash(runner.gitCwd, 'HEAD', runner.metadataRoot);
+  // Old-PoS run 32 (3b): the table is keyed on HEAD material + base + the rows'
+  // digest; amended rows recompute it (zero runnable cases clear it).
+  const current = anchoredCases(allItems, requestText, new Set([item.id])).filter(row => runnable(row.probe));
+  if (!current.length) { clearProbeTable(root, storyId, item.id); return null; }
   let state = readProbeState(root, storyId, item.id);
-  if (!state.table || !material || state.table.material !== material || state.table.base !== runner.base) {
+  if (!state.table || !material || state.table.material !== material || state.table.base !== runner.base || state.table.rowsDigest !== rowsDigestOf(current)) {
     if (!computeProbeTables(runner, root, storyId, [item], allItems, requestText).length) return null;
     state = readProbeState(root, storyId, item.id);
   }
@@ -787,8 +934,12 @@ export function runnerProbeDecision(runner: ProbeRunnerContext, root: string, st
   const open = flaggedRows(state.table).filter(row => !disposed(row, latest?.text ?? null));
   if (!open.length) return null;
   const key = flaggedKeyOf(open);
-  const flaggedSince = state.flaggedKey === key && state.flaggedSince ? state.flaggedSince : new Date().toISOString();
-  if (state.flaggedKey !== key || state.flaggedSince !== flaggedSince) writeProbeState(root, storyId, item.id, { ...state, flaggedKey: key, flaggedSince });
+  // A flag raised before the item's intent was amended is a new flag: the
+  // relaunch has not seen the amended rows, so it is reopened, never escalated.
+  const intentHash = intentHashOf(item);
+  const sameFlag = state.flaggedKey === key && Boolean(state.flaggedSince) && (state.flaggedIntentHash ?? intentHash) === intentHash;
+  const flaggedSince = sameFlag ? state.flaggedSince! : new Date().toISOString();
+  if (!sameFlag || state.flaggedIntentHash !== intentHash) writeProbeState(root, storyId, item.id, { ...state, flaggedKey: key, flaggedSince, flaggedIntentHash: intentHash });
   const first = open[0]!;
   return { itemId: item.id, action: latest && latest.createdAt > flaggedSince ? 'escalate' : 'reopen', mode: 'runner', rows: open.map(describeProbeRow),
     refs: [...new Set(open.map(row => row.ref))], runId: latest?.runId ?? null, sentence: first.sentence, pinned: first.pinned, observed: showObservation(first.head) };

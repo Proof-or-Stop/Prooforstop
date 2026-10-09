@@ -37,6 +37,9 @@
  *     answer). The scope-plan reviewer's pin audit gets the oracle command to
  *     evaluate the sub-expressions the base supports (renderPinOracleAudit).
  *   - the base computes the pinned value: consistent.
+ *   - the base reports a parse error OUTSIDE the declared new syntax
+ *     (`parseErrorPattern` + `newSyntaxPattern`, old-PoS run 32): the example
+ *     itself is malformed; reported as a mismatch (baseValue cannot excuse it).
  *   - the base computes another value: a blocker ([pin_oracle_mismatch]) with
  *     the computed value, unless the row records that base value in
  *     `baseValue` (the Story deliberately changes this base behaviour). The pin
@@ -68,6 +71,18 @@ export interface PinOracleConfig {
   skipPattern?: string;
   timeoutMs?: number;
   env?: Record<string, string>;
+  /**
+   * Old-PoS run 32 (optional, with newSyntaxPattern): a regex matching the
+   * runner's parse-error output, named groups `line` (1-based, default 1) and
+   * `col` (1-based) giving the FIRST error's position in the program file.
+   */
+  parseErrorPattern?: string;
+  /**
+   * Regex of the request's new syntax (e.g. a three-part index `[a:b:c]`),
+   * matched per program line: a base parse error inside a match (+-1 column)
+   * is expected; one outside every match is an authoring error.
+   */
+  newSyntaxPattern?: string;
 }
 
 export interface PinExample { ref: string; lane: VerificationLane; index: number; input: string; pinned: string; baseValue?: string }
@@ -167,6 +182,35 @@ export function normalizePinValue(value: string): string {
   return text;
 }
 
+const compiled = (source: string | undefined, flags: string): RegExp | null => {
+  if (!source) return null;
+  try { return new RegExp(source, flags); } catch { return null; }
+};
+
+/**
+ * Old-PoS run 32 (3c): the first parse error of `output` when it lies OUTSIDE
+ * every new-syntax region of `program` (the error line, for the owner), else
+ * null: no declaration, no parse error, or an error inside the new syntax
+ * (the base merely lacks it). Generic: the project declares both patterns.
+ */
+export function parseErrorOutsideNewSyntax(config: Pick<PinOracleConfig, 'parseErrorPattern' | 'newSyntaxPattern'>, program: string, output: string): string | null {
+  const parse = compiled(config.parseErrorPattern, '');
+  const syntax = compiled(config.newSyntaxPattern, 'g');
+  if (!parse || !syntax) return null;
+  const match = parse.exec(output);
+  if (!match) return null;
+  const col = Number(match.groups?.col);
+  const line = Number(match.groups?.line ?? 1);
+  if (!Number.isInteger(col) || !Number.isInteger(line) || line < 1) return null;
+  const text = program.split('\n')[line - 1] ?? '';
+  for (const region of text.matchAll(syntax)) {
+    const start = (region.index ?? 0) + 1;
+    if (col >= start - 1 && col <= start + region[0].length) return null;
+  }
+  const detail = output.slice(match.index).split('\n').map(part => part.trim()).filter(Boolean).slice(0, 3).join(' ');
+  return `${detail.slice(0, 200)} (line ${line} column ${col}: \`${text.trim().slice(0, 120)}\`)`;
+}
+
 function git(cwd: string, args: string[]): string | null {
   try { return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 16 * 1024 * 1024 }).trim(); } catch { return null; }
 }
@@ -248,7 +292,7 @@ export function preparePinOracle(runtimeRoot: string, gitCwd: string, base: stri
   return tree ? { config: declared.config, base, tree, env: declared.env } : null;
 }
 
-type OracleResult = { status: 'value'; value: string } | { status: 'unsupported' };
+type OracleResult = { status: 'value'; value: string } | { status: 'unsupported' } | { status: 'syntax'; error: string };
 
 /** Evaluate inputs with the oracle (cached per base + program text). */
 export function evaluatePinOracle(oracle: PinOracleContext, inputs: readonly string[]): Map<string, OracleResult> {
@@ -275,8 +319,12 @@ export function evaluatePinOracle(oracle: PinOracleContext, inputs: readonly str
       cwd: oracle.tree, env: { ...process.env, ...oracle.env }, encoding: 'utf8', timeout: oracle.config.timeoutMs ?? DEFAULT_TIMEOUT_MS,
       stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 1024 * 1024 });
     const stdout = (ran.stdout ?? '').trim();
-    const result: OracleResult = ran.status === 0 && !ran.error && stdout && !(skip && (skip.test(stdout) || skip.test(ran.stderr ?? '')))
-      ? { status: 'value', value: stdout } : { status: 'unsupported' };
+    // Old-PoS run 32: a parse error outside the declared new syntax is the row's own
+    // syntax error (reported), not "the base cannot run new syntax" (skipped).
+    const syntaxError = !ran.error && ran.status !== 0 ? parseErrorOutsideNewSyntax(oracle.config, program, `${stdout}\n${(ran.stderr ?? '').trim()}`) : null;
+    const result: OracleResult = syntaxError ? { status: 'syntax', error: syntaxError }
+      : ran.status === 0 && !ran.error && stdout && !(skip && (skip.test(stdout) || skip.test(ran.stderr ?? '')))
+        ? { status: 'value', value: stdout } : { status: 'unsupported' };
     // A timeout may be load, not the input: never cache it.
     if (!ran.error) { cache[key] = result; dirty = true; }
     out.set(input, result);
@@ -295,6 +343,7 @@ export function pinOracleMismatches(oracle: PinOracleContext, items: ReadonlyArr
   const results = evaluatePinOracle(oracle, byItem.flatMap(entry => entry.examples.map(row => row.input)));
   return byItem.map(entry => ({ itemId: entry.itemId, rows: entry.examples.flatMap(row => {
     const result = results.get(row.input);
+    if (result?.status === 'syntax') return [{ ...row, computed: `parse error outside the new syntax: ${result.error}` }];
     if (!result || result.status !== 'value') return [];
     const computed = normalizePinValue(result.value);
     if (computed === normalizePinValue(row.pinned)) return [];
