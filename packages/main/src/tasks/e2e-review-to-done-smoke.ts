@@ -128,6 +128,20 @@
  *      next item); in PLAN next proposes the audited intent revision
  *      (checklist_update verificationIntent + reason, item back to pending);
  *      after it the conflict no longer blocks and DEV re-implements the item.
+ *   NIU old-PoS run 31 (CHK-006): the conflict names userSees and the
+ *      verificationIntent already stated the request value at dispatch; the
+ *      owner amends userSees only and the conflict clears (it stayed open in
+ *      run 31: amendment detection compared only verificationIntent).
+ *   NAR old-PoS run 31 (CHK-005): a PLAN intent amendment of a done item
+ *      (checklist_update verificationIntent without status) resets it, and the
+ *      items whose context/userSees/intent name it, to pending with a recorded
+ *      reason; unrelated done items stay done.
+ *   NPO old-PoS run 31 pin oracle: the project declares an evaluator
+ *      (proof-or-stop.config.json pinOracle); checklist_update refuses an example
+ *      row whose input the Story base evaluates to a different value
+ *      ([pin_oracle_mismatch], computed value shown) unless the row records that
+ *      base value (baseValue, a deliberate change); a row the base cannot run is
+ *      skipped; next blocks on a stored mismatch before the scope-plan reviewer.
  *   NPT old-PoS run 30 (F-002/F-004: the implementer probed rows its change
  *      decided but tested only some): the implementer's [probes] line lists
  *      probed-only decided rows; next reopens the item with one owner step
@@ -212,7 +226,7 @@
  *      and still review the whole Story).
  *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5 ND-V6 ND-V8 ND-V9.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NDG|NRS|NPX|NPXA|NPXS|AB|ND-V1..NF-V9]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NDG|NRS|NPX|NPXA|NPXS|AB|ND-V1..NF-V9]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -315,7 +329,9 @@ export class Owner {
       /** NRS (old-PoS run 29): CODEX_HOME is a fixture directory, so a scripted run can be resumed (exec resume) by the managed worker. */
       codexHome?: boolean;
       /** NPX (old-PoS run 30): main already carries docs/types/array.md with wrong range examples (pre-existing doc drift, unrelated to the Story). */
-      preexistingDoc?: boolean } = {}) {
+      preexistingDoc?: boolean;
+      /** NPO (old-PoS run 31): extra project files committed in the task baseline (e.g. the project's own evaluator a pin oracle runs). */
+      baseFiles?: Record<string, string> } = {}) {
     this.root = realpathSync(mkdtempSync(join(tmpdir(), `e2e-r2d-${scenario}-`)));
     this.store = new StoryStore(this.root);
     this.providerBin = `${this.root}-provider`;
@@ -369,6 +385,7 @@ export class Owner {
     write(root, 'strs/strs_test.go', 'package strs\n\nimport "testing"\n\nfunc TestBaseline(t *testing.T) {}\n');
     write(root, 'docs/types/string.md', DOC_V1);
     if (this.fixtureOpts.preexistingDoc) write(root, PX_DOC_PATH, PX_DOC);
+    for (const [rel, text] of Object.entries(this.fixtureOpts.baseFiles ?? {})) write(root, rel, text);
     // Scenario E: the task's own .gitignore, without PoS's runtime block or .worktrees/.
     // Run 11's task repo tracked the convergence-breaker gate counter (commit 6
     // of that run committed gate-failure-counts.json); D2 reproduces that.
@@ -3005,6 +3022,177 @@ function scenarioNI(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
+/** NIU (old-PoS run 31, CHK-006): the conflict names userSees; the verificationIntent already stated the request value at dispatch. */
+const NIU_STALE_USER_SEES = 'Upper("ab") == "ab"; go test -v ./strs -run TestUpper prints --- PASS: TestUpper';
+const NIU_FIXED_USER_SEES = 'Upper("ab") == "AB"; go test -v ./strs -run TestUpper prints --- PASS: TestUpper';
+const NIU_CONFLICT_LINE = '[intent-conflict] CHK-001 userSees | request: "`strs.Upper(s)` returns the upper-case form of `s`" | request implies: `Upper("ab") == "AB"` | intent pins: userSees says `"ab"`';
+
+/** Commit the Story metadata the harness wrote directly (fixture setup, as the INIT_CHECK commit would carry it). */
+function commitFixtureMetadata(o: Owner, message: string): void {
+  git(o.worktree, ['add', '-A', '.proof-or-stop']);
+  git(o.worktree, ['-c', 'user.name=Bench Owner', '-c', 'user.email=owner@bench.invalid', 'commit', '-qm', message]);
+}
+
+function scenarioNIU(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NIU';
+  const name = 'NIU old-PoS run 31: a userSees [intent-conflict] clears once the owner amends userSees (the verificationIntent already stated the request value)';
+  const o = new Owner(tag, 'B-e2ca', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NIQ_REQUEST });
+  const lines: string[] = [];
+  const ask = (label: string): NextStepJson => {
+    const asked = o.cli('next', { storyId: o.storyId, json: true }, { label });
+    const next = (asked.status === 0 ? parseJson(asked.stdout) : null) as NextStepJson | null;
+    assert.ok(next && typeof next.kind === 'string', `[NIU] next did not return a step:\n${asked.out.slice(-2000)}`);
+    lines.push(`${label}: ${next.phase} ${next.kind} ${next.reason}`);
+    return next;
+  };
+  try {
+    const store = new StoryStore(o.worktree);
+    const cl = store.readChecklist(o.storyId);
+    store.writeChecklist(o.storyId, { ...cl, items: cl.items.map(item => item.id === 'CHK-001' ? { ...item, userSees: NIU_STALE_USER_SEES } : item) } as never);
+    commitFixtureMetadata(o, `proof-or-stop: ${o.storyId} CHK-001 userSees (stale pin)`);
+    devSetup(o, false);
+    const launch = ask('next (DEV start)');
+    assert.equal(launch.reason, 'implement_item', `[NIU] first DEV step: ${launch.reason}: ${launch.why}`);
+    const script = implementerScript(o.storyId, String(launch.cli!.payload.itemId));
+    o.script(IMPLEMENTER, { ...script, final: `${script.final}\n${NIU_CONFLICT_LINE}` });
+    const launched = o.mustCli(launch.cli!.command, launch.cli!.payload, { label: 'host_run implementer (userSees conflict)' });
+    const runId = String((parseJson(launched.stdout)?.run as Record<string, unknown>).runId);
+    const terminal = waitTerminal(o, 'implementer', runId);
+    o.unscript(IMPLEMENTER);
+    assert.equal(terminal.state, 'completed', `[NIU] implementer terminal ${terminal.state} (${terminal.reason})\n${o.providerCommandLog()}`);
+    const blocked = ask('next (userSees conflict declared)');
+    assert.equal(blocked.reason, 'intent_conflict', `[NIU] next must block on the declared conflict: ${blocked.reason}: ${blocked.why}`);
+    o.mustCli('story_advance', blocked.cli!.payload, { label: 'story_advance PLAN (userSees conflict)' });
+    const amend = ask('next (PLAN, userSees conflict open)');
+    assert.equal(amend.reason, 'intent_conflict_amend', `[NIU] in PLAN next proposes the amendment: ${amend.reason}: ${amend.why}`);
+    // Run 31 step 118: the owner fixes userSees only; the verificationIntent already says "AB".
+    o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', userSees: NIU_FIXED_USER_SEES, status: 'pending',
+      reason: 'The request says Upper returns the upper-case form, so userSees states Upper("ab") == "AB".' }, { label: 'checklist_update CHK-001 userSees amended' });
+    const after = ask('next (PLAN, userSees amended)');
+    assert.doesNotMatch(after.reason, /^intent_conflict/, `[NIU] the amended userSees conflict must not block again (run 31 dead end): ${after.reason}: ${after.why}`);
+    assert.ok('userSees' in (amend.cli?.payload ?? {}), `[NIU] a userSees conflict is amended in userSees: ${JSON.stringify(amend.cli?.payload)}`);
+    assert.ok((amend.placeholders ?? []).includes('userSees'), `[NIU] userSees is the placeholder the owner authors: ${JSON.stringify(amend.placeholders)}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+function scenarioNAR(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NAR';
+  const name = 'NAR old-PoS run 31: a PLAN intent amendment of a done item resets it (and the items whose intent names it) to pending with a recorded reason';
+  const o = new Owner(tag, 'B-e2cb', machineEnv, steps, false, { trackedGateFailureCounts: true, unicodeOutput: true });
+  const lines: string[] = [];
+  try {
+    const store = new StoryStore(o.worktree);
+    const cl = store.readChecklist(o.storyId);
+    store.writeChecklist(o.storyId, { ...cl, items: cl.items.map(item => item.id === 'CHK-002'
+      ? { ...item, context: 'strs.Reverse does not exist; it reuses the rune handling CHK-001 settles.' } : item) } as never);
+    commitFixtureMetadata(o, `proof-or-stop: ${o.storyId} CHK-002 context names CHK-001`);
+    devSetup(o);
+    const before = new StoryStore(o.worktree).readChecklist(o.storyId).items;
+    assert.ok(before.every(item => item.status === 'done'), `[NAR] every item done before the amendment: ${before.map(item => `${item.id}=${item.status}`).join(' ')}`);
+    o.mustCli('story_advance', { storyId: o.storyId, phase: 'PLAN' }, { label: 'story_advance PLAN (amendment)' });
+    const revised = JSON.parse(JSON.stringify(before.find(item => item.id === 'CHK-001')!.verificationIntent)) as { happy: Array<{ desc: string }> };
+    revised.happy[0]!.desc = 'TestUpper passes: Upper("ab") == "AB" as the request states';
+    // Run 31 step 109: the owner amends the done item's intent without a status.
+    const updated = o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', verificationIntent: revised,
+      reason: 'The request says Upper returns the upper-case form; the intent now pins Upper("ab") == "AB".' }, { label: 'checklist_update CHK-001 intent amendment (no status)' });
+    lines.push(updated.out.split('\n').filter(line => /pending/.test(line)).slice(0, 3).join(' | '));
+    const after = new StoryStore(o.worktree).readChecklist(o.storyId);
+    const status = (id: string) => after.items.find(item => item.id === id)?.status;
+    assert.equal(status('CHK-001'), 'pending', '[NAR] the amended done item goes back to pending without a hand reset (run 31 step 110)');
+    assert.equal(status('CHK-002'), 'pending', '[NAR] an item whose context names the amended item is reset too');
+    for (const [id] of UNICODE_EXTRA_ITEMS) assert.equal(status(id), 'done', `[NAR] ${id} does not depend on CHK-001 and stays done`);
+    const audit = (after.auditLog ?? []).filter(entry => entry.to === 'pending' && entry.from === 'done');
+    assert.ok(audit.some(entry => entry.itemId === 'CHK-001' && /amend/i.test(entry.reason ?? '')), `[NAR] the reset is recorded with its reason: ${JSON.stringify(audit)}`);
+    assert.ok(audit.some(entry => entry.itemId === 'CHK-002' && /CHK-001/.test(entry.reason ?? '')), `[NAR] the dependent reset names the amended item: ${JSON.stringify(audit)}`);
+    assert.match(updated.out, /CHK-001[^\n]*pending/, '[NAR] the command output says the item went back to pending');
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/**
+ * NPO (old-PoS run 31): the project's own evaluator, declared as the pin oracle.
+ * Base strs.Upper returns its input unchanged and strs.Reverse does not exist.
+ */
+const NPO_EVAL = [
+  "const src = require('fs').readFileSync(process.argv[2], 'utf8').trim();",
+  'const call = src.match(/^Upper\\((".*")\\)$/);',
+  "if (!call) { console.error('undefined: ' + src); process.exit(1); }",
+  '// The project base: Upper returns s unchanged.',
+  'console.log(JSON.stringify(JSON.parse(call[1])));',
+  '',
+].join('\n');
+const NPO_ORACLE = { command: 'node', args: ['tools/strs-eval.js', '{file}'], program: '{input}', extension: '.txt' };
+
+function scenarioNPO(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NPO';
+  const name = 'NPO old-PoS run 31: the pin oracle (project evaluator at the Story base) refuses a pinned example the base computes differently, at checklist_update and before the scope-plan reviewer';
+  const o = new Owner(tag, 'B-e2cc', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NIQ_REQUEST,
+    config: { pinOracle: NPO_ORACLE }, baseFiles: { 'tools/strs-eval.js': NPO_EVAL } });
+  const lines: string[] = [];
+  const ask = (label: string): NextStepJson => {
+    const asked = o.cli('next', { storyId: o.storyId, json: true }, { label });
+    const next = (asked.status === 0 ? parseJson(asked.stdout) : null) as NextStepJson | null;
+    assert.ok(next && typeof next.kind === 'string', `[NPO] next did not return a step:\n${asked.out.slice(-2000)}`);
+    lines.push(`${label}: ${next.phase} ${next.kind} ${next.reason}`);
+    return next;
+  };
+  const row = (desc: string, test: string, extra: Record<string, unknown> = {}) => ({ desc, type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass',
+    requirementSource: 'story', verification: { command: `go test -v ./strs -run ^${test}$`, selector: `--- PASS: ${test}` }, ...extra });
+  const upperIntent = (happy: Record<string, unknown>, edge: Record<string, unknown>) => ({ happy: [happy], edge: [edge],
+    adversarial: [row('Reverse("héllo") -> "olléh"', 'TestReverse')] });
+  try {
+    const store = new StoryStore(o.worktree);
+    store.writeStory(o.storyId, { ...store.readStory(o.storyId), phase: 'PLAN' });
+    const legacy = store.readChecklist(o.storyId);
+    store.writeChecklist(o.storyId, { ...legacy, items: legacy.items.map(item => ({ ...item, status: 'pending', startTime: null })) } as never);
+    o.mustCli('dev_memory_preflight_ack', { storyId: o.storyId });
+
+    // (a) existing behaviour: base Upper("AB") is "AB"; the row pins "ab". The changed row Upper("ab") -> "AB"
+    // differs from the base ("ab") too. Reverse is new (the base cannot run it): skipped silently.
+    const refused = o.cli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001',
+      verificationIntent: upperIntent(row('Upper("ab") -> "AB"', 'TestUpper'), row('Upper("AB") -> "ab"', 'TestUpperKeeps')) }, { label: 'checklist_update CHK-001 (wrong existing-behaviour pin)' });
+    assert.notEqual(refused.status, 0, '[NPO] checklist_update must refuse the pin the base computes differently');
+    assert.match(refused.out, /\[pin_oracle_mismatch\]/, `[NPO] the refusal names the rule:\n${refused.out.slice(-1500)}`);
+    assert.match(refused.out, /CHK-001:edge:0[^\n]*"AB"/, '[NPO] the refusal carries the computed base value of the wrong pin');
+    assert.match(refused.out, /CHK-001:happy:0[^\n]*"ab"/, '[NPO] the changed row is listed with its base value');
+    assert.doesNotMatch(refused.out, /CHK-001:adversarial:0/, '[NPO] a row the base cannot evaluate (new function) is skipped');
+    assert.match(refused.out, /Next: proof-or-stop checklist_update/, '[NPO] the refusal carries one checklist_update');
+    // Correct the wrong pin; acknowledge the deliberate change with the base value.
+    o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001',
+      verificationIntent: upperIntent(row('Upper("ab") -> "AB"', 'TestUpper', { baseValue: '"ab"' }), row('Upper("AB") -> "AB"', 'TestUpperKeeps')) }, { label: 'checklist_update CHK-001 (pin fixed, change acknowledged)' });
+
+    // A row stored before the oracle check (legacy write): next blocks before the scope-plan reviewer.
+    const stored = new StoryStore(o.worktree);
+    const cl = stored.readChecklist(o.storyId);
+    stored.writeChecklist(o.storyId, { ...cl, items: cl.items.map(item => item.id === 'CHK-002'
+      ? { ...item, verificationIntent: { happy: [row('Reverse("héllo") -> "olléh"', 'TestReverse')], edge: [row('Upper("x") -> "y"', 'TestUpperX')], adversarial: [row('Reverse("") -> ""', 'TestReverseEmpty')] } } : item) } as never);
+    commitFixtureMetadata(o, `proof-or-stop: ${o.storyId} legacy CHK-002 pin`);
+    const blocked = ask('next (PLAN, stored mismatching pin)');
+    assert.equal(blocked.reason, 'pin_oracle_mismatch', `[NPO] next blocks on the stored mismatch before the scope-plan reviewer: ${blocked.reason}: ${blocked.why}`);
+    assert.equal(blocked.cli?.command, 'checklist_update', '[NPO] one checklist_update');
+    assert.equal(blocked.cli?.payload.itemId, 'CHK-002', '[NPO] the step names the item');
+    assert.match(blocked.why, /CHK-002:edge:0[^\n]*"x"/, '[NPO] the step carries the computed base value');
+    o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-002', verificationIntent: { happy: [row('Reverse("héllo") -> "olléh"', 'TestReverse')],
+      edge: [row('Upper("x") -> "X"', 'TestUpperX', { baseValue: '"x"' })], adversarial: [row('Reverse("") -> ""', 'TestReverseEmpty')] } }, { label: 'checklist_update CHK-002 (acknowledged)' });
+    const after = ask('next (PLAN, pins consistent with the oracle)');
+    assert.notEqual(after.reason, 'pin_oracle_mismatch', `[NPO] no mismatch remains: ${after.why}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 /** NPT: the first implementer run probed a row its change decided but did not test it. */
 const NPT_UNTESTED = '[probes] 4 rows run on base and change; changed: Upper("") base "" -> ""; tested: Upper("ab") -> "AB"; probed-only: Upper("ß") -> "SS" (multibyte); crashes: none';
 const NPT_TESTED = '[probes] 4 rows run on base and change; changed: Upper("") base "" -> ""; tested: Upper("ab") -> "AB", Upper("ß") -> "SS" (multibyte); probed-only: none; crashes: none';
@@ -3815,7 +4003,7 @@ function scenarioNPX(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NPX' | 
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NDG|NRS|NPX[AS]?|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NDG|NRS|NPX[AS]?|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -3858,6 +4046,9 @@ async function main(): Promise<void> {
     if (only.includes('NI')) outcomes.push(scenarioNI(machine.env, steps));
     if (only.includes('NQ')) outcomes.push(scenarioNQ(machine.env, steps));
     if (only.includes('NPT')) outcomes.push(scenarioNPT(machine.env, steps));
+    if (only.includes('NIU')) outcomes.push(scenarioNIU(machine.env, steps));
+    if (only.includes('NAR')) outcomes.push(scenarioNAR(machine.env, steps));
+    if (only.includes('NPO')) outcomes.push(scenarioNPO(machine.env, steps));
     if (only.includes('NIN')) outcomes.push(scenarioNIN(machine.env, steps));
     if (only.includes('NP')) outcomes.push(scenarioNP(machine.env, steps));
     if (only.includes('NCV')) outcomes.push(scenarioNCV(machine.env, steps));
@@ -3877,7 +4068,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {
