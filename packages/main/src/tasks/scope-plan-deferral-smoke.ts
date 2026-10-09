@@ -32,6 +32,20 @@
  *      PLAN before the held item. The rerun prompt in PLAN carries the previous
  *      verdict's gaps and the checklist diff since it.
  *
+ * Old-PoS run 33 (bench-staging/oldpos/run33-analysis.md §3.1): A-G run with
+ * the A/B switch plan.scopeDeferral=on (N8 is OFF by default since run 33), and
+ * B's DEV save runs from a checkout on the Story branch, where the CLI's
+ * active-Story phase gate applies exactly as in a bench Story worktree (the
+ * smoke used to save from main, where the gate is skipped, so it passed while
+ * every real deferred save was refused: runs 30 and 33). Also:
+ *   H. default (plan.scopeDeferral absent): a live PLAN-launched run holds DEV
+ *      entry; next waits on it in PLAN (the run-27 flow);
+ *   I. a scope-plan run that ends managed_dispatch_output_missing with no work
+ *      product is relaunched by next as a framework step;
+ *   J. a save refused by the phase gate is journaled with its class
+ *      (phase_gate); the worker skips the same-session save-repair turns and
+ *      names the refusal in the terminal reason.
+ *
  * Usage: node packages/main/dist/tasks/scope-plan-deferral-smoke.js
  */
 import assert from 'node:assert/strict';
@@ -46,6 +60,7 @@ import { createHostRunHandlers } from '../handlers/host-run.js';
 import { readManagedHostRunProjection, runManagedHostRunWorker } from '../core/managed-host-run.js';
 import { missingPlanScopeCheckFailure } from '../core/plan-scope-check-requirement.js';
 import { pendingScopePlanRun, scopeVerdictDeferral, scopeVerdictReviewEntryFailure } from '../core/scope-plan-deferral.js';
+import * as managedHostRun from '../core/managed-host-run.js';
 import { canMintReviewRoundGuard } from '../core/machine.js';
 import { loadConfig, resetConfigCache } from '../core/config.js';
 import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
@@ -99,7 +114,7 @@ let input = ''; process.stdin.on('data', d => { input += d; }); process.stdin.on
 
 interface Fixture { root: string; store: StoryStore; storyId: string; scripts: string }
 
-function fixture(tag: string): Fixture {
+function fixture(tag: string, options: { deferral?: boolean } = {}): Fixture {
   const root = mkdtempSync(join(tmpdir(), `scope-plan-deferral-${tag}-`));
   const git = (...args: string[]) => {
     const r = spawnSync('git', args, { cwd: root, encoding: 'utf8' });
@@ -109,6 +124,8 @@ function fixture(tag: string): Fixture {
     scanRoot: '.', rootDir: 'src', outDir: 'dist', testsDir: 'tests',
     fixturesDir: 'tests/fixtures', storyDir: '.proof-or-stop/story/actives',
     requirementsDir: 'docs/requirements',
+    // Old-PoS run 33: N8 is an A/B arm (default off); A-G exercise the deferral.
+    ...(options.deferral === false ? {} : { plan: { scopeDeferral: 'on' } }),
   }));
   mkdirSync(join(root, 'src'), { recursive: true });
   writeFileSync(join(root, 'src', 'subject.ts'), 'export const subject = true;\n');
@@ -178,6 +195,25 @@ function enterDev(f: Fixture): void {
   f.store.writeStory(f.storyId, { ...story, phase: 'DEV', events: [...(story.events ?? []), { phase: 'DEV', action: 'advance', timestamp: new Date().toISOString() }] } as never);
 }
 
+/**
+ * Put the fixture checkout on story/<id>: the CLI detects the active Story from
+ * the branch and applies its phase gate (core/config.ts DEFAULT_PHASE_TOOLS),
+ * as it does in a real Story worktree. Positive control: a TEST-only command is
+ * phase-refused, so a detection miss cannot make the save pass falsely.
+ */
+function storyBranch(f: Fixture): void {
+  assert.equal(spawnSync('git', ['checkout', '-q', '-b', `story/${f.storyId}`], { cwd: f.root, encoding: 'utf8' }).status, 0, `${MARKER}: checkout story/${f.storyId}`);
+  const phase = f.store.readStory(f.storyId).phase;
+  const control = spawnSync(process.execPath, [CLI, 'delivery_check_set', JSON.stringify({ storyId: f.storyId })], { cwd: f.root, encoding: 'utf8', env: process.env });
+  assert.match(`${control.stdout}${control.stderr}`, new RegExp(`is not available in ${phase} phase`), `${MARKER}: the active-Story phase gate is live on the Story branch: ${control.stdout}${control.stderr}`);
+}
+
+function runEvents(f: Fixture, runId: string): Array<{ type: string; detail?: Record<string, unknown> }> {
+  const path = join(f.root, '.proof-or-stop', 'runtime', 'host-runs', runId, 'events.jsonl');
+  if (!existsSync(path)) return [];
+  return readFileSync(path, 'utf8').split('\n').filter(Boolean).flatMap(line => { try { return [JSON.parse(line) as { type: string; detail?: Record<string, unknown> }]; } catch { return []; } });
+}
+
 function reviewEntry(f: Fixture): string | null {
   const story = f.store.readStory(f.storyId);
   return scopeVerdictReviewEntryFailure(f.store, f.root, story, resolveWorkflowPolicy(loadConfig(f.root), story));
@@ -205,7 +241,9 @@ async function scenario(gap: boolean): Promise<void> {
     const devStep = nextStep(f);
     assert.ok(devStep.reason !== 'managed_run_wait' && devStep.reason !== 'scope_verdict_replan',
       `${MARKER} A: next in DEV works on the items while the scope run is live (got ${devStep.reason}: ${devStep.why})`);
-    // B/C: the run saves its verdict in DEV.
+    // B/C: the run saves its verdict in DEV, from a checkout on the Story branch
+    // (old-PoS runs 30/33: the CLI phase gate applies there, as in a bench Story worktree).
+    storyBranch(f);
     writeFileSync(join(f.scripts, 'release'), '');
     await run.done;
     const terminal = readManagedHostRunProjection(f.root, run.runId).terminal as { state?: string; reason?: string } | null;
@@ -373,6 +411,88 @@ async function perItemScenario(): Promise<void> {
   }
 }
 
+/** H: default (plan.scopeDeferral absent = off): DEV entry waits in PLAN for the live run's verdict (run-27 flow). */
+async function offByDefault(): Promise<void> {
+  const f = fixture('off', { deferral: false });
+  try {
+    writeFileSync(join(f.scripts, 'fresh.json'), JSON.stringify({ commands: [saveCommand(f, payload(f.storyId, [{ feature: 'value[start:end:step] slices', status: 'covered', covered_by: 'CHK-001' }]), 'save.log')] }));
+    const run = await launch(f);
+    const ack = spawnSync(process.execPath, [CLI, 'dev_memory_preflight_ack', JSON.stringify({ storyId: f.storyId })], { cwd: f.root, encoding: 'utf8', env: process.env });
+    assert.equal(ack.status, 0, `${MARKER} H: dev_memory_preflight_ack: ${ack.stdout}${ack.stderr}`);
+    const story = f.store.readStory(f.storyId);
+    const policy = resolveWorkflowPolicy(loadConfig(f.root), story);
+    const deferral = scopeVerdictDeferral(f.store, f.root, f.storyId);
+    assert.equal(deferral.kind, 'held', `${MARKER} H: with plan.scopeDeferral off a live run never defers the verdict (got ${deferral.kind})`);
+    const refusal = missingPlanScopeCheckFailure(f.store, story, policy, () => scopeVerdictDeferral(f.store, f.root, f.storyId)) ?? '';
+    assert.match(refusal, /\[missing_scope_check\][\s\S]*plan\.scopeDeferral/, `${MARKER} H: DEV entry waits and says why: ${refusal}`);
+    assert.match(refusal, new RegExp(`Next: proof-or-stop host_run_status --runId=${run.runId}`), `${MARKER} H: its one next action waits on the live run: ${refusal}`);
+    const step = nextStep(f);
+    assert.equal(step.reason, 'managed_run_wait', `${MARKER} H: next waits in PLAN (got ${step.reason}: ${step.why})`);
+    writeFileSync(join(f.scripts, 'release'), '');
+    await run.done;
+    assert.ok(f.store.readScopeCheck(f.storyId), `${MARKER} H: the run saves its verdict in PLAN: ${log(f, 'save.log')}`);
+    console.log(`off by default ok: run ${run.runId} held DEV entry until its PLAN verdict`);
+  } finally {
+    rmSync(f.root, { recursive: true, force: true });
+  }
+}
+
+/** I: a scope-plan run that ended output_missing with no work product is relaunched by next itself. */
+async function outputMissingRelaunch(): Promise<void> {
+  const f = fixture('missing', { deferral: false });
+  try {
+    writeFileSync(join(f.scripts, 'fresh.json'), JSON.stringify({ commands: [] }));
+    writeFileSync(join(f.scripts, 'release'), '');
+    const run = await launch(f);
+    await run.done;
+    const terminal = readManagedHostRunProjection(f.root, run.runId) as { state: string; replacementSafe?: boolean | null; terminal: { reason?: string } | null };
+    assert.equal(terminal.state, 'failed', `${MARKER} I: the run without a save fails: ${JSON.stringify(terminal.terminal)}`);
+    assert.match(terminal.terminal?.reason ?? '', /managed_dispatch_output_missing/, `${MARKER} I: terminal reason: ${JSON.stringify(terminal.terminal)}`);
+    const auto = (managedHostRun as unknown as { isAutoReplaceableManagedLaunchFailure: (run: Record<string, unknown>) => boolean }).isAutoReplaceableManagedLaunchFailure;
+    assert.equal(auto({ state: terminal.state, replacementSafe: terminal.replacementSafe, terminalReason: terminal.terminal?.reason ?? null, agentType: ROLE }), true,
+      `${MARKER} I: output_missing of a save reviewer with no work product is auto-replaceable (replacementSafe=${terminal.replacementSafe})`);
+    assert.equal(auto({ state: 'failed', replacementSafe: true, terminalReason: 'managed_dispatch_output_missing', agentType: 'proof-or-stop-implementer' }), false,
+      `${MARKER} I: an implementer's output_missing stays the agent's call`);
+    const ack = spawnSync(process.execPath, [CLI, 'dev_memory_preflight_ack', JSON.stringify({ storyId: f.storyId })], { cwd: f.root, encoding: 'utf8', env: process.env });
+    assert.equal(ack.status, 0, `${MARKER} I: dev_memory_preflight_ack: ${ack.stdout}${ack.stderr}`);
+    const step = nextStep(f) as { reason: string; kind?: string; why: string };
+    assert.equal(step.reason, 'scope_plan_review_launch', `${MARKER} I: next relaunches the scope-plan reviewer (got ${step.reason}: ${step.why})`);
+    assert.equal(step.kind, 'framework', `${MARKER} I: the relaunch is a framework step, not the owner's (${step.why})`);
+    console.log(`output_missing relaunch ok: ${run.runId} -> framework scope_plan_review_launch`);
+  } finally {
+    rmSync(f.root, { recursive: true, force: true });
+  }
+}
+
+/** J: a phase-gate refusal of the save is classified; no same-session save-repair turns. */
+async function phaseGateRefusal(): Promise<void> {
+  const f = fixture('gate', { deferral: false });
+  try {
+    writeFileSync(join(f.scripts, 'fresh.json'), JSON.stringify({ commands: [saveCommand(f, payload(f.storyId, [{ feature: 'value[start:end:step] slices', status: 'covered', covered_by: 'CHK-001' }]), 'save.log')] }));
+    const run = await launch(f);
+    // The Story left PLAN while the reviewer worked (REVIEW refuses scope_check_save at the CLI gate).
+    const story = f.store.readStory(f.storyId);
+    f.store.writeStory(f.storyId, { ...story, phase: 'REVIEW', events: [...(story.events ?? []), { phase: 'REVIEW', action: 'advance', timestamp: new Date().toISOString() }] } as never);
+    storyBranch(f);
+    writeFileSync(join(f.scripts, 'release'), '');
+    await run.done;
+    const projection = readManagedHostRunProjection(f.root, run.runId) as { state: string; terminal: { reason?: string } | null };
+    const events = runEvents(f, run.runId);
+    const diagnostic = `
+save: ${log(f, 'save.log')}
+events: ${events.map(event => event.type).join(', ')}
+terminal: ${JSON.stringify(projection.terminal)}`;
+    assert.match(log(f, 'save.log'), /is not available in REVIEW phase/, `${MARKER} J: the CLI phase gate refused the save${diagnostic}`);
+    const refused = events.filter(event => event.type === 'managed_dispatch_save_refused');
+    assert.ok(refused.some(event => event.detail?.code === 'phase_gate'), `${MARKER} J: the refusal is journaled with its class${diagnostic}`);
+    assert.equal(events.filter(event => event.type === 'managed_dispatch_save_repair').length, 0, `${MARKER} J: a deterministic refusal gets no same-session save-repair turn${diagnostic}`);
+    assert.match(projection.terminal?.reason ?? '', /^managed_dispatch_save_refused:phase_gate: /, `${MARKER} J: the terminal names the refusal${diagnostic}`);
+    console.log(`phase-gate refusal ok: ${run.runId} ${projection.terminal?.reason?.slice(0, 80)}`);
+  } finally {
+    rmSync(f.root, { recursive: true, force: true });
+  }
+}
+
 const saved = { PATH: process.env.PATH, PROOF_OR_STOP_PROJECT_ROOT: process.env.PROOF_OR_STOP_PROJECT_ROOT, CODEX_HOME: process.env.CODEX_HOME };
 try {
   for (const key of ['LATTICE_MANAGED_INIT_INVOCATION', 'LATTICE_MANAGED_HOST_RUN_ID', 'PROOF_OR_STOP_AGENT']) delete process.env[key];
@@ -386,6 +506,12 @@ try {
   await heldScenario('same-semantics');
   process.env.PATH = saved.PATH;
   await perItemScenario();
+  process.env.PATH = saved.PATH;
+  await offByDefault();
+  process.env.PATH = saved.PATH;
+  await outputMissingRelaunch();
+  process.env.PATH = saved.PATH;
+  await phaseGateRefusal();
   process.env.PATH = saved.PATH;
   console.log('SCOPE_PLAN_DEFERRAL_GREEN');
 } finally {

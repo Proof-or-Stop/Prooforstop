@@ -151,6 +151,12 @@
  *      ledger findings, never repair work); next emits ONE owner checklist_update
  *      carrying the wrong literal, the reviewer's value and every other
  *      occurrence; an unchanged update is refused; metadata costs no round.
+ *   NMO old-PoS run 33 (§3.2): with the round's inventory critic pending, next
+ *      launches/imports/finalizes the critic before a metadata correction that
+ *      needs PLAN (framework steps before agent steps).
+ *   NMT old-PoS run 33 (§3.5): a metadata finding's copy that also cites the
+ *      product file is classified by its correction target: closed by the one
+ *      correction, never routed to a finding-repair run.
  *   NRI old-PoS run 31 (D3/D4): finding_resolve refuses unchanged citations
  *      (code without a test change, cited checklist text); plan acceptance
  *      refuses a batch that changes nothing.
@@ -244,7 +250,7 @@
  *      and still review the whole Story).
  *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5 ND-V6 ND-V8 ND-V9.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NDG|NRS|NPX|NPXA|NPXS|AB|ND-V1..NF-V9]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NDG|NRS|NPX|NPXA|NPXS|AB|ND-V1..NF-V9]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -1461,8 +1467,11 @@ interface ScriptMode { findingRound1: boolean; twoFindings?: boolean; lowFinding
    * Old-PoS run 31 (NMF/NMF2): round 1 also reports Story-metadata findings (CHK-001 userSees pins
    * `Upper("ab") == "ab"`): the test-coverage lane cites only checklist.json, the quality lane restates it citing
    * checklist.json:<line> and the passing test. 'with-product' keeps D_FINDING beside them; 'only' reports no product finding.
+   * Old-PoS run 33: 'with-product-copy' = 'with-product' plus a third copy (quality lane) that also cites the product file
+   * and its test (run 33 F-003, docs lane); 'intent-rows' = D_FINDING plus a metadata finding on CHK-001's intent row
+   * (a verificationIntent correction, which needs PLAN).
    */
-  metadata?: 'with-product' | 'only' }
+  metadata?: 'with-product' | 'only' | 'with-product-copy' | 'intent-rows' }
 /** Old-PoS run 27 delivery overlap faults (scenarioNDL). */
 type DeliveryFault = 'overlap' | 'stale';
 type CriticRestateMode = 'copies' | 'reworded' | 'new-misfiled';
@@ -1491,12 +1500,17 @@ function laneScript(worktree: string, storyId: string, lane: string, reviewRunId
     }
   }
   // A real reviewer re-reports the text only while the checklist still states it.
+  if (mode.metadata === 'intent-rows' && firstRound && lane === 'proof-or-stop-review-test-coverage') {
+    // Old-PoS run 33 (F-003 / trip 5): a lane cites an intent row that contradicts the request (a PLAN correction).
+    return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, conclusion: 'findings',
+      note: 'Scripted run 33 lane: an untested edge and a checklist intent row that contradicts the request.', findings: [D_FINDING, metadataFindings(worktree, storyId).intentRow], ...readEvidenceFor(worktree, storyId) }) };
+  }
   const staleText = mode.metadata ? new StoryStore(worktree).readChecklist(storyId).items.find(item => item.id === 'CHK-001')?.userSees === META_STALE_USER_SEES['CHK-001'] : false;
-  if (mode.metadata && firstRound && staleText && (lane === 'proof-or-stop-review-test-coverage' || lane === 'proof-or-stop-review-quality')) {
+  if (mode.metadata && mode.metadata !== 'intent-rows' && firstRound && staleText && (lane === 'proof-or-stop-review-test-coverage' || lane === 'proof-or-stop-review-quality')) {
     // Old-PoS run 31 (F-001/F-002/F-005): lanes restate one wrong userSees literal as findings.
     const meta = metadataFindings(worktree, storyId);
-    const findings = lane === 'proof-or-stop-review-quality' ? [meta.restated]
-      : mode.metadata === 'with-product' ? [D_FINDING, meta.cited] : [meta.cited];
+    const findings = lane === 'proof-or-stop-review-quality' ? [meta.restated, ...(mode.metadata === 'with-product-copy' ? [meta.productCopy] : [])]
+      : mode.metadata === 'with-product' || mode.metadata === 'with-product-copy' ? [D_FINDING, meta.cited] : [meta.cited];
     return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, conclusion: 'findings',
       note: 'Scripted run 31 lane: the checklist userSees pins a value the request contradicts.', findings, ...readEvidenceFor(worktree, storyId) }) };
   }
@@ -1544,6 +1558,8 @@ function criticScript(worktree: string, storyId: string, reviewRunId: string, re
     ? { finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'array-doc-range-drift', reason: 'The array doc shows end-inclusive range results; one verified family.' }
     : f.desc.startsWith('Upper ')
     ? { finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'upper-empty-string', reason: 'The empty-string edge of Upper is untested; one verified family.' }
+    : f.desc === META_PRODUCT_COPY_DESC
+    ? { finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'upper-user-sees', reason: 'CHK-001 userSees contradicts the request; one verified family.' }
     : f.desc.startsWith('Comment ')
       ? { finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'reverse-comment-wording', reason: 'Cosmetic doc-comment wording of Reverse; one verified family.' }
     : { finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'reverse-empty-string', reason: 'The empty-string edge of Reverse is untested; one verified family.' });
@@ -1755,6 +1771,10 @@ function authorPayload(o: Owner, reason: string, payload: Record<string, unknown
   switch (reason) {
     case 'finding_resolve': {
       const repair = repairFor(findingDesc(String(payload.findingId)));
+      if (findingDesc(String(payload.findingId)) === META_PRODUCT_COPY_DESC) {
+        payload.resolution = 'CHK-001 userSees now states Upper("ab") == "AB" (metadata correction); strs/strs.go was already correct, no code change.';
+        break;
+      }
       if (findingDesc(String(payload.findingId)) === PX_FINDING.desc) {
         payload.resolution = `repair ${git(o.worktree, ['log', '--format=%h', '-1', `--grep=${PX_REPAIR_SUBJECT}`])} corrects the range examples in ${PX_DOC_PATH} (end-exclusive)`;
         break;
@@ -1824,7 +1844,7 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   /** Run 17 Q1: round 1 also reports NU_DUP_FINDING, which the critic marks a duplicate of D_FINDING; 'covered' = the canonical repair's test covers it, 'uncovered' = it does not. */
   duplicate?: 'covered' | 'uncovered' | 'covered2';
   /** Old-PoS run 31 (NMF/NMF2): round 1 also reports Story-metadata findings (ScriptMode.metadata). */
-  metadata?: 'with-product' | 'only';
+  metadata?: 'with-product' | 'only' | 'with-product-copy' | 'intent-rows';
   /** Soft checks (NL): each violation is recorded and the flow continues, so one run reports every defect. */
   violations?: string[];
   /** Scenarios NC/NC2/NC3: the first round-1 critic restates (or leaves a new finding without a row). */
@@ -3254,7 +3274,9 @@ const NPT_TESTED = '[probes] 4 rows run on base and change; changed: Upper("") b
 function scenarioNPT(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   const tag = 'NPT';
   const name = 'NPT old-PoS run 30: a probed-only decided row in the implementer [probes] line reopens the item once (one owner step), the relaunch prompt names the rows';
-  const o = new Owner(tag, 'B-e2c9', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NIQ_REQUEST });
+  // Old-PoS run 33: the implementer probe-matrix contract is the A/B arm implementation.probeMatrix=on (default off).
+  const o = new Owner(tag, 'B-e2c9', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NIQ_REQUEST,
+    config: { implementation: { probeMatrix: 'on' } } });
   const lines: string[] = [];
   const ask = (label: string): NextStepJson => {
     const asked = o.cli('next', { storyId: o.storyId, json: true }, { label });
@@ -3382,8 +3404,9 @@ function nrpImplementerCommands(storyId: string, itemId: string, nullStart: 'omi
 function scenarioNRP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   const tag = 'NRP';
   const name = 'NRP old-PoS run 31 F-006: a framework-run probe row contradicting its request sentence refuses done once, then blocks handoff (reopen, relaunch names the row, intent conflict)';
+  // Old-PoS run 33: the probe gate is the A/B arm dev.probeEnforcement=enforce (default advisory).
   const o = new Owner(tag, 'B-e2cd', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NRP_REQUEST,
-    config: { probeRunner: NRP_RUNNER }, baseFiles: { 'tools/strs-mini.js': NRP_EVAL } });
+    config: { probeRunner: NRP_RUNNER, dev: { probeEnforcement: 'enforce' } }, baseFiles: { 'tools/strs-mini.js': NRP_EVAL } });
   const lines: string[] = [];
   const ask = (label: string): NextStepJson => {
     const asked = o.cli('next', { storyId: o.storyId, json: true }, { label });
@@ -3450,7 +3473,9 @@ function scenarioNRP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 function scenarioNRQ(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   const tag = 'NRQ';
   const name = 'NRQ old-PoS run 31 F-006 (no probe runner): the prompt pairs each row with its request sentence; a [probe-row] contradiction neither fixed nor declared blocks handoff';
-  const o = new Owner(tag, 'B-e2ce', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NRP_REQUEST });
+  // Old-PoS run 33: report mode is the A/B arms implementation.probeMatrix=on + dev.probeEnforcement=enforce.
+  const o = new Owner(tag, 'B-e2ce', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NRP_REQUEST,
+    config: { implementation: { probeMatrix: 'on' }, dev: { probeEnforcement: 'enforce' } } });
   const lines: string[] = [];
   const ask = (label: string): NextStepJson => {
     const asked = o.cli('next', { storyId: o.storyId, json: true }, { label });
@@ -3722,7 +3747,9 @@ const NCV_MIRROR_SENTENCE = 'Use the same index-selection semantics as read slic
 function scenarioNCV(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   const tag = 'NCV';
   const name = 'NCV old-PoS runs 24-29: PLAN demands the coverage-matrix rows (write mirror, omission patterns, enumerated null) before the scope-plan reviewer; excludes and authored rows clear them';
-  const o = new Owner(tag, 'B-e2c4', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NCV_REQUEST });
+  // Old-PoS run 33: the full coverage matrix is the A/B arm plan.coverageMatrix=on (default: exact-text rows only).
+  const o = new Owner(tag, 'B-e2c4', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NCV_REQUEST,
+    config: { plan: { coverageMatrix: 'on' } } });
   const lines: string[] = [];
   const ask = (label: string): NextStepJson => {
     const asked = o.cli('next', { storyId: o.storyId, json: true }, { label });
@@ -4338,7 +4365,7 @@ function checklistRel(worktree: string, storyId: string): string {
  * checklist.json. `restated`: cites checklist.json:<line> (no item id) plus the
  * passing test that already asserts the right value.
  */
-function metadataFindings(worktree: string, storyId: string): { cited: Record<string, unknown>; restated: Record<string, unknown> } {
+function metadataFindings(worktree: string, storyId: string): { cited: Record<string, unknown>; restated: Record<string, unknown>; productCopy: Record<string, unknown>; intentRow: Record<string, unknown> } {
   const rel = checklistRel(worktree, storyId);
   const text = readFileSync(join(worktree, rel), 'utf8').split('\n');
   const line = text.findIndex(row => row.includes('"userSees": "Upper(\\"ab\\") == \\"ab\\"')) + 1;
@@ -4347,8 +4374,15 @@ function metadataFindings(worktree: string, storyId: string): { cited: Record<st
       severity: 'medium', category: 'missing', files: [rel], evidenceState: 'verified' },
     restated: { desc: `checklist-userSees-contradiction: ${rel}:${line} says \`Upper("ab") == "ab"\`, but the request re-derives \`Upper("ab") == "AB"\`; strs/strs_test.go:9 asserts "AB", so the pinned userSees misstates the required behavior.`,
       severity: 'medium', category: 'missing', files: [rel, 'strs/strs_test.go'], evidenceState: 'verified' },
+    // Old-PoS run 33 F-003 (docs lane): the same correction, citing the product file and its test as well.
+    productCopy: { desc: META_PRODUCT_COPY_DESC, severity: 'medium', category: 'missing', files: [rel, 'strs/strs.go', 'strs/strs_test.go'], evidenceState: 'verified' },
+    // Old-PoS run 33 trip 5: an intent row the request contradicts (only PLAN may correct it).
+    intentRow: { desc: 'checklist-intent-drift: CHK-001:happy:0 verificationIntent pins Upper behaviour the request does not state; the request says Upper returns the upper-case form, so the row must say Upper("ab") -> "AB".',
+      severity: 'medium', category: 'missing', files: [rel], evidenceState: 'verified' },
   };
 }
+
+const META_PRODUCT_COPY_DESC = 'checklist-intent-drift: CHK-001 userSees says `Upper("ab") == "ab"`, but the request implies `Upper("ab") == "AB"`; strs/strs.go:4 already returns "AB" and strs/strs_test.go asserts it, so only the stale acceptance text contradicts the request.';
 
 /** The stale userSees of run 31 (the hooo / abc copies), committed as Story metadata before DEV. */
 function writeStaleUserSees(o: Owner): void {
@@ -4429,6 +4463,83 @@ function scenarioNMF(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NMF' | 
     }
     lines.push(`metadata correction: ${step.why.slice(0, 240)}`);
     lines.push(`review rounds ${rounds}; repair runs ${repairs.length}; DONE`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** Thrown by an onStep hook to stop driveWithNext once a scenario has checked what it needs. */
+class StopDrive extends Error {}
+
+/**
+ * NMO (old-PoS run 33 §3.2): framework steps before the metadata agent step. A
+ * lane reports a product finding and a metadata finding on an intent row (a
+ * correction only PLAN may make). With the round's inventory epoch OPEN and its
+ * critic pending, next used to return metadata_correction_plan first; the owner
+ * then launched and imported the critic by hand (28 turns, 5.35M). Now next
+ * launches, imports and finalizes the critic itself, and only then returns the
+ * metadata correction.
+ */
+function scenarioNMO(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NMO';
+  const name = 'NMO old-PoS run 33: with the inventory critic pending, next runs the critic launch/import/finalize before the metadata correction that needs PLAN';
+  const o = new Owner(tag, 'B-e3b4', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  const reasons: string[] = [];
+  try {
+    devSetup(o);
+    try {
+      driveWithNext(o, { findingRound1: true, run: false, metadata: 'intent-rows' }, lines, next => {
+        reasons.push(next.reason);
+        if (next.reason !== 'metadata_correction_plan') return;
+        if (next.phase === 'REVIEW') {
+          const status = o.cli('review_inventory_status', { storyId: o.storyId }, { label: 'review_inventory_status (NMO ordering)' });
+          assert.doesNotMatch(status.out, /REVIEW_INVENTORY_CRITIC_INCOMPLETE/, `[${tag}] the metadata step came while the critic was still pending (steps: ${reasons.join(' > ')}):\n${status.out.slice(-1200)}`);
+        }
+        assert.ok(reasons.includes('inventory_critic_launch'), `[${tag}] next launched the critic itself before the metadata step: ${reasons.join(' > ')}`);
+        throw new StopDrive('metadata step reached');
+      });
+      assert.fail(`[${tag}] next never proposed the intent-row metadata correction: ${reasons.join(' > ')}`);
+    } catch (error) {
+      if (!(error instanceof StopDrive)) throw error;
+    }
+    lines.push(`steps: ${reasons.join(' > ')}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, `steps: ${reasons.join(' > ')}`, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/**
+ * NMT (old-PoS run 33 §3.5): metadata findings are classified by their
+ * correction target, not by lane. The test-coverage lane's copy of a wrong
+ * userSees literal is reclassified (it cites only checklist.json); the quality
+ * lane's copy also cites the product file and its test (run 33 F-003, docs
+ * lane). It is stored, but its correction target is the reclassified one, so it
+ * is closed after the one correction without any finding-repair run.
+ */
+function scenarioNMT(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NMT';
+  const name = 'NMT old-PoS run 33: a metadata finding copy that also cites product code is closed by the correction, never repaired';
+  const o = new Owner(tag, 'B-e3b5', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  try {
+    writeStaleUserSees(o);
+    devSetup(o);
+    driveWithNext(o, { findingRound1: true, run: false, metadata: 'with-product-copy' }, lines);
+    const store = new StoryStore(o.root);
+    const copy = store.readFindings(o.storyId).findings.find(f => f.desc === META_PRODUCT_COPY_DESC);
+    assert.ok(copy, `[${tag}] the product-citing copy is a stored finding: ${store.readFindings(o.storyId).findings.map(f => f.desc.slice(0, 50)).join(' | ')}`);
+    assert.equal(copy!.status, 'resolved', `[${tag}] the copy is closed`);
+    const repairs = repairRunsOnDisk(join(o.root, '.proof-or-stop', 'runtime', 'host-runs'));
+    assert.deepEqual(repairs.get(copy!.id) ?? [], [], `[${tag}] no finding-repair run for the metadata copy (run 33: repair #2, 2.2 min / 0.91M for already-correct code)`);
+    assert.equal(store.readChecklist(o.storyId).items.find(item => item.id === 'CHK-001')?.userSees, META_FIXED_USER_SEES['CHK-001'], `[${tag}] the text is corrected`);
+    lines.push(`copy ${copy!.id} resolved without repair; repair runs: ${[...repairs.values()].flat().length}`);
     o.cleanup();
     return { name, status: 'PASS', lines };
   } catch (error) {
@@ -4781,7 +4892,7 @@ function scenarioNUB(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NDG|NRS|NPX[AS]?|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NDG|NRS|NPX[AS]?|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -4829,6 +4940,8 @@ async function main(): Promise<void> {
     if (only.includes('NPO')) outcomes.push(scenarioNPO(machine.env, steps));
     if (only.includes('NMF')) outcomes.push(scenarioNMF(machine.env, steps, 'NMF'));
     if (only.includes('NMF2')) outcomes.push(scenarioNMF(machine.env, steps, 'NMF2'));
+    if (only.includes('NMO')) outcomes.push(scenarioNMO(machine.env, steps));
+    if (only.includes('NMT')) outcomes.push(scenarioNMT(machine.env, steps));
     if (only.includes('NRI')) outcomes.push(scenarioNRI(machine.env, steps));
     if (only.includes('NMR')) outcomes.push(scenarioNMR(machine.env, steps));
     if (only.includes('NLS')) outcomes.push(scenarioNLS(machine.env, steps));
@@ -4857,7 +4970,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

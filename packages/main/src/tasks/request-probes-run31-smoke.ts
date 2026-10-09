@@ -191,7 +191,7 @@ const EVAL = [
     writeFileSync(join(root, 'tools/mini.js'), EVAL);
     writeFileSync(join(root, 'lib/impl.txt'), 'base\n');
     const runner = { command: process.execPath, args: ['tools/mini.js', '{file}'], program: 'echo({input})', extension: '.mini', selfTest: { input: '[1, 2]', output: '[1, 2]' } };
-    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ probeRunner: runner }));
+    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ probeRunner: runner, dev: { probeEnforcement: 'enforce' } }));
     git('add', '-A'); git('commit', '-qm', 'base');
     git('checkout', '-q', '-b', 'story/B-1');
     // The Story's head treats an explicit null start as omitted (run 31 F-006).
@@ -225,7 +225,7 @@ const EVAL = [
     assert.match(evidence[0] ?? '', /Framework probe evidence[^\n]*flagged/);
     assert.ok(evidence.some(line => /CHK-002:edge:0#1/.test(line)), 'lanes see the flagged row');
     // A runner whose selfTest the base fails is never used (a wrong declaration flags nothing).
-    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ probeRunner: { ...runner, selfTest: { input: '[1, 2]', output: '[9]' } } }));
+    writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({ probeRunner: { ...runner, selfTest: { input: '[1, 2]', output: '[9]' } }, dev: { probeEnforcement: 'enforce' } }));
     git('checkout', '-q', 'main'); git('commit', '-qam', 'bad self test'); git('checkout', '-q', 'story/B-1'); git('merge', '-q', 'main', '-m', 'merge');
     git('reset', '-q', '--hard', 'HEAD');
     assert.equal(storyProbeRunner(store, root, 'B-1', root), null, 'a failing selfTest disables the runner');
