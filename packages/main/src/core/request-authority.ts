@@ -56,11 +56,18 @@ export const REPAIR_INPUT_VARIANT_RULE = '- Input variants (keep base behavior):
  * equal to the default" class), and a probed broadcast row was tested on the
  * two-part form only (F-002): decided rows need a test, and the `[probes]`
  * line separates tested from probed-only rows (probeTestGaps).
+ * Run 31: string assignment wrote back only to a bare identifier receiver
+ * (F-003: `h.s[0]="H"`, `a[0][0]="H"` no-ops) and the two-part write path took
+ * an explicit null start as omitted after the three-part one was fixed
+ * (F-008): the Writes line names both. With a project probeRunner the
+ * framework runs the item's rows instead (core/request-probes.ts) and this
+ * matrix text is not sent.
  */
 export const PROBE_REPORT_TAG = '[probes]';
 export const IMPLEMENTER_PROBE_MATRIX = [
   'Probe matrix before handoff (operand position x value class x operation):',
   '- Positions: each operand the item reads or adds (e.g. start/end/step, or its parameters). Classes: omitted, explicit null, explicit value equal to the default (e.g. step 1, start 0: it keeps its own form\'s semantics, not another form\'s path), 0, negative, out of range, non-numeric/wrong type, empty receiver, multibyte text, target aliased by the value (a[x] = a). Operations: read, write/assign, stringify, error path, neighbouring receiver types (array/string/hash).',
+  '- Writes: the assigned target\'s receiver as an identifier, a member/property (h.s[i] = v), an index-of-index (a[0][i] = v) and a call result (f()[i] = v); and each write form (two-part and three-part) with explicit null start and end (each form has its own path).',
   '- Keep the rows that apply to this item. Run each as a probe (one-line program or test) on the Story base and on your change. Keep the base result where the request did not change it; no row may crash, panic or reach an unchecked type assertion. Omitted and explicit null are different rows: branch on the source syntax, not the evaluated value. Each row your change decides (new result, or one the request states) needs a test, not only a probe; an untested decided row reopens the item before REVIEW.',
   `- Report in your final result: \`${PROBE_REPORT_TAG} <n> rows run on base and change; changed: <row: base -> new> | none; tested: <decided rows with a test> | none; probed-only: <decided rows without a test> | none; crashes: none\`.`,
 ].join('\n');

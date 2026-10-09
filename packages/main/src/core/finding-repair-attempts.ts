@@ -36,13 +36,13 @@ export function earlierFindingRepairReports(root: string, storyId: string, findi
 }
 
 /**
- * Old-PoS run 30: the probed-only rows the latest completed implementer run of
- * `itemId` left untested (core/request-authority.ts probeTestGaps), for the
- * prompt of the implementer relaunched after next reopened the item.
+ * Completed managed implementer runs bound to `itemId`, oldest first, with
+ * their final report (old-PoS runs 30/31: probe-test gaps and request-anchored
+ * probe reports are read from them).
  */
-export function earlierImplementerProbeGap(root: string, storyId: string, itemId: string): ProbeTestGap | null {
+export function implementerRunReports(root: string, storyId: string, itemId: string): ProbeReportRun[] {
   const runsRoot = managedHostRunsRoot(root);
-  if (!existsSync(runsRoot)) return null;
+  if (!existsSync(runsRoot)) return [];
   const reports: ProbeReportRun[] = [];
   for (const runId of readdirSync(runsRoot)) {
     try {
@@ -52,5 +52,14 @@ export function earlierImplementerProbeGap(root: string, storyId: string, itemId
       reports.push({ runId, itemId, createdAt: run.createdAt, text: managedRunFinalMessage(root, runId) });
     } catch { /* not a readable managed run */ }
   }
-  return probeTestGaps(reports, new Set([itemId]))[0] ?? null;
+  return reports.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+}
+
+/**
+ * Old-PoS run 30: the probed-only rows the latest completed implementer run of
+ * `itemId` left untested (core/request-authority.ts probeTestGaps), for the
+ * prompt of the implementer relaunched after next reopened the item.
+ */
+export function earlierImplementerProbeGap(root: string, storyId: string, itemId: string): ProbeTestGap | null {
+  return probeTestGaps(implementerRunReports(root, storyId, itemId), new Set([itemId]))[0] ?? null;
 }
