@@ -98,7 +98,9 @@ import { commitMessageNamesFinding, implementationGroupingFiles, itemDeclaredFil
 import { ownerWaitBlockMs, ownerWaitInstruction } from '../core/owner-wait-guidance.js';
 import { parseIntentConflicts, probeTestGaps, type IntentConflict, type ProbeTestGap } from '../core/request-authority.js';
 import { readStoryRequest } from '../core/story-request.js';
-import { acceptanceIntentHash } from '../core/verification-intent-amendment.js';
+import { intentSemantics } from '../core/verification-intent-amendment.js';
+import { describePinMismatch, PIN_ORACLE_MISMATCH, pinExamples, pinMismatchRule, pinOracleMismatches, storyPinOracle } from '../core/pin-oracle.js';
+import { digestCanonicalJson } from '../core/digest.js';
 import { maxLaneRunsOnMaterial, STALE_WAVE_STOP_LOSS } from '../core/review-stop-loss.js';
 
 type HandlerLookup = (name: string) => ((...args: any[]) => any) | undefined;
@@ -608,9 +610,20 @@ export { managedRunFinalMessage };
 export interface OpenIntentConflict { runId: string; agentType: string; createdAt: string; itemId: string; conflict: IntentConflict }
 
 /**
- * acceptanceIntentHash of an item's verificationIntent in the newest commit of
- * checklist.json made before `before` (the intent the run was dispatched
- * against; intents are frozen in DEV). Undefined when no such commit exists.
+ * The intent material an `[intent-conflict]` can name: the item's
+ * verificationIntent semantics (pins aside) and its userSees. Old-PoS run 31
+ * (CHK-006): the conflict named userSees while the verificationIntent already
+ * stated the request value at dispatch; hashing the verificationIntent alone
+ * never saw the owner's userSees amendment, so the conflict stayed open forever.
+ */
+function intentMaterialHash(item: Pick<ChecklistItem, 'verificationIntent' | 'userSees'>): string {
+  return digestCanonicalJson({ intent: item.verificationIntent ? intentSemantics(item.verificationIntent) : null, userSees: item.userSees ?? null });
+}
+
+/**
+ * intentMaterialHash of an item in the newest commit of checklist.json made
+ * before `before` (the intent the run was dispatched against; intents are
+ * frozen in DEV). Undefined when no such commit exists.
  */
 function committedIntentHashBefore(root: string, gitCwd: string, checklistPath: string, itemId: string, before: string): string | null | undefined {
   try {
@@ -619,20 +632,57 @@ function committedIntentHashBefore(root: string, gitCwd: string, checklistPath: 
     if (!sha) return undefined;
     const text = execFileSync('git', ['show', `${sha}:${rel}`], { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 64 * 1024 * 1024 });
     const item = (JSON.parse(text) as { items?: ChecklistItem[] }).items?.find(row => row.id === itemId);
-    return item?.verificationIntent ? acceptanceIntentHash(item.verificationIntent) : null;
+    return item ? intentMaterialHash(item) : null;
   } catch {
     return undefined;
   }
+}
+
+/** Every string an item states about its expected behaviour (userSees, intent descs and derivations). */
+function itemIntentText(item: ChecklistItem): string {
+  const rows = VERIFICATION_LANES.flatMap(lane => item.verificationIntent?.[lane] ?? []);
+  return [item.userSees ?? '', ...rows.flatMap(row => [row.desc, row.derivation?.computation ?? ''])].join('\n');
+}
+
+/**
+ * The literal a conflict field states: its last backticked span, else the field
+ * itself when it is code-like (a quoted string, a bracket group or a call);
+ * prose ("pins the byte slice") states no literal and never counts as adopted.
+ */
+function conflictLiteral(field: string | null): string | null {
+  if (!field) return null;
+  const spans = [...field.matchAll(/`([^`]+)`/g)].map(match => match[1]!.trim()).filter(Boolean);
+  if (spans.length) return spans.at(-1)!.length >= 2 ? spans.at(-1)! : null;
+  const text = field.trim();
+  return /^(?:"[^"]*"|'[^']*'|\[.*\]|\{.*\}|[\w.]+\(.*\)(?:\s*(?:==|->)\s*.+)?)$/.test(text) && text.length >= 2 ? text : null;
+}
+
+/**
+ * Old-PoS run 31: the item now states what the implementer said the request
+ * implies and no longer states what it said the intent pinned (whitespace
+ * aside). For `requestImplies` an `a == b` / `a -> b` statement, both sides
+ * must appear; for the pinned value the literal must be gone.
+ */
+function conflictValueAdopted(item: ChecklistItem, conflict: IntentConflict): boolean {
+  const implies = conflictLiteral(conflict.requestImplies);
+  const pins = conflictLiteral(conflict.intentPins);
+  if (!implies || !pins) return false;
+  const squash = (text: string) => text.replace(/\s+/g, '');
+  const text = squash(itemIntentText(item));
+  const impliedValue = implies.split(/\s*(?:==|->|→|=>)\s*/).at(-1)!;
+  return text.includes(squash(impliedValue)) && !text.includes(squash(pins));
 }
 
 /**
  * Every `[intent-conflict]` a terminal managed implementer or finding-repair
  * run declared (or a deliberate deviation it stated only in prose) whose item
  * intent was not amended since that run was dispatched. Amended = the item's
- * current verificationIntent differs from the committed one the run was
- * dispatched against (the audited PLAN revision); without such a commit, a
- * later implementer run of the same item counts. A conflict naming no checklist
- * item cannot be routed and is skipped.
+ * current intent material (verificationIntent semantics + userSees) differs
+ * from the committed one the run was dispatched against (the audited PLAN
+ * revision), or the item now states the value the conflict says the request
+ * implies and no longer the pinned one (old-PoS run 31); without a commit
+ * before dispatch, a later implementer run of the same item counts. A
+ * conflict naming no checklist item cannot be routed and is skipped.
  */
 export function openIntentConflicts(args: { root: string; gitCwd: string; store: HandlerContext['store']; storyId: string;
   runs: readonly Pick<HostRunView, 'runId' | 'agentType' | 'terminal' | 'createdAt'>[] }): OpenIntentConflict[] {
@@ -652,11 +702,11 @@ export function openIntentConflicts(args: { root: string; gitCwd: string; store:
     for (const conflict of report.conflicts) {
       const item = items.find(row => row.id === conflict.itemId);
       if (!item) continue;
-      const current = item.verificationIntent ? acceptanceIntentHash(item.verificationIntent) : null;
+      const current = intentMaterialHash(item);
       const atDispatch = committedIntentHashBefore(args.root, args.gitCwd, checklistPath, item.id, run.createdAt);
-      const amended = atDispatch !== undefined
+      const amended = conflictValueAdopted(item, conflict) || (atDispatch !== undefined
         ? atDispatch !== current
-        : writers.some(other => other.agentType === IMPLEMENTER_AGENT && other.createdAt > run.createdAt && boundItem(other.runId) === item.id);
+        : writers.some(other => other.agentType === IMPLEMENTER_AGENT && other.createdAt > run.createdAt && boundItem(other.runId) === item.id));
       if (!amended) open.push({ runId: run.runId, agentType: run.agentType, createdAt: run.createdAt, itemId: item.id, conflict });
     }
   }
@@ -682,14 +732,23 @@ export function intentConflictStep(base: { storyId: string; phase: string }, con
   const listed = conflicts.map(describeIntentConflict).join('; ');
   if (base.phase === 'PLAN') {
     const itemId = conflicts[0]!.itemId;
-    return step(base, 'agent', 'intent_conflict_amend', { command: 'checklist_update',
-      payload: { storyId: base.storyId, itemId, verificationIntent: '<complete revised verificationIntent JSON>', reason: '<why: the request sentence and the value it implies>', status: 'pending' } },
-    `Open intent conflict (${listed}). The request outranks the intent: revise ${itemId}'s verificationIntent so the conflicting row states the value the request implies (if the intent is right, make the row state its derivation from the request sentence), with a reason; status pending makes DEV implement the item again. Then continue PLAN with next.`,
+    // Old-PoS run 31: a conflict naming userSees is amended in userSees; a lane row
+    // (or an unlocated one) in the verificationIntent.
+    const refs = conflicts.filter(row => row.itemId === itemId).map(row => row.conflict.intentRef);
+    const userSees = refs.some(ref => /usersees/i.test(ref));
+    const intent = refs.some(ref => !/usersees/i.test(ref));
+    const payload: Record<string, unknown> = { storyId: base.storyId, itemId,
+      ...(userSees ? { userSees: '<revised userSees stating the value the request implies>' } : {}),
+      ...(intent ? { verificationIntent: '<complete revised verificationIntent JSON>' } : {}),
+      reason: '<why: the request sentence and the value it implies>', status: 'pending' };
+    const fields = [userSees ? 'userSees' : '', intent ? 'verificationIntent' : ''].filter(Boolean);
+    return step(base, 'agent', 'intent_conflict_amend', { command: 'checklist_update', payload },
+    `Open intent conflict (${listed}). The request outranks the intent: revise ${itemId}'s ${fields.join(' and ')} so the conflicting ${userSees && !intent ? 'text' : 'row'} states the value the request implies (if the intent is right, make the row state its derivation from the request sentence), with a reason; status pending makes DEV implement the item again. Then continue PLAN with next.`,
     'openIntentConflicts (implementer/finding-repair [intent-conflict] section) + checklist_update PLAN intent revision',
-    { placeholders: ['verificationIntent', 'reason'] });
+    { placeholders: [...fields, 'reason'] });
   }
   return step(base, 'agent', 'intent_conflict', { command: 'story_advance', payload: { storyId: base.storyId, phase: 'PLAN' } },
-    `Intent conflict declared (${listed}). The request outranks the intent, and the item does not count done until the owner amends the intent. Intents are frozen in DEV: return to PLAN, where next proposes the audited revision (checklist_update verificationIntent + reason, item back to pending).`,
+    `Intent conflict declared (${listed}). The request outranks the intent, and the item does not count done until the owner amends the intent. Intents are frozen in DEV: return to PLAN, where next proposes the audited revision (checklist_update verificationIntent / userSees + reason, item back to pending).`,
     'openIntentConflicts (implementer/finding-repair [intent-conflict] section)');
 }
 
@@ -1003,6 +1062,26 @@ function coverageGapWhy(gaps: readonly CoverageGap[]): string {
   return ` Coverage rows the request demands and no intent states (${gaps.length}): ${gaps.map(gap => `${gap.itemId} ${gap.key}`).join('; ')}. `
     + `Matched request sentences: ${sentences.slice(0, 8).map(sentence => `"${sentence.length > 140 ? `${sentence.slice(0, 139)}…` : sentence}"`).join(' ')}${sentences.length > 8 ? ` +${sentences.length - 8} more` : ''}. `
     + 'Write each case as one input in the request syntax -> exact result or exact error (one intent may list several cases). A row that does not apply is excluded by an excludes entry on that item naming its key ("coverage ...: <why>").';
+}
+
+/**
+ * Old-PoS run 31: the first item whose stored example rows the project's pin
+ * oracle computes differently at the Story base (core/pin-oracle.ts), as one
+ * checklist_update of that item (the complete verificationIntent placeholder;
+ * the framework never rewrites the pin). Null without a declared oracle.
+ */
+export function pinOracleStep(base: { storyId: string; phase: string }, store: HandlerContext['store'], root: string, gitCwd: string): NextStep | null {
+  const items = store.readChecklist(base.storyId).items;
+  if (!items.some(item => pinExamples(item.id, item.verificationIntent).length > 0)) return null;
+  const oracle = storyPinOracle(store, root, base.storyId, gitCwd);
+  if (!oracle) return null;
+  const mismatched = pinOracleMismatches(oracle, items);
+  if (!mismatched.length) return null;
+  const first = mismatched[0]!;
+  return step(base, 'agent', PIN_ORACLE_MISMATCH, { command: 'checklist_update', payload: { storyId: base.storyId, itemId: first.itemId,
+    verificationIntent: '<the complete verificationIntent with each listed row corrected, or with "baseValue" set to the computed base value>' } },
+  `Pinned examples differ from what the project computes at the Story base [${PIN_ORACLE_MISMATCH}]: ${mismatched.flatMap(entry => entry.rows).map(describePinMismatch).join('; ')}. ${pinMismatchRule(oracle)} Fix ${first.itemId} now; next names any other item.`,
+  'pinOracleMismatches (proof-or-stop.config.json pinOracle at the Story base)', { placeholders: ['verificationIntent'] });
 }
 
 /**
@@ -1417,6 +1496,11 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       const hostRuns = listStoryHostRuns(ctx, storyId);
       const running = hostRuns.filter(run => run.agentType === SCOPE_PLAN_REVIEWER && !run.terminal).at(-1);
       if (running) return waitStep(base, running, deferral?.kind === 'held' ? `Scope-plan reviewer run (not deferred past DEV entry: ${deferral.reason})` : 'Scope-plan reviewer run');
+      // Old-PoS run 31 (core/pin-oracle.ts): a stored example the project's evaluator
+      // computes differently at the Story base, before the reviewer judges the pins
+      // (and before the authoring batch, whose checklist_update would be refused on it).
+      const pinStep = pinOracleStep(base, ctx.store, ctx.root, gitCwdOf(storyId));
+      if (pinStep) return pinStep;
       const authoring = preScopeAuthoringStep(base, planPreScopeBlockers(ctx.store, story, policy), ctx.store.readChecklist(storyId).items);
       if (authoring) return authoring;
       const last = hostRuns.filter(run => run.agentType === SCOPE_PLAN_REVIEWER).at(-1);

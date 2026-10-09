@@ -394,6 +394,13 @@ export interface VerificationIntentItem {
    * example whose expected value is not quoted verbatim from the request.
    */
   derivation?: VerificationIntentDerivation;
+  /**
+   * Old-PoS run 31 pin oracle (core/pin-oracle.ts): the value the project's
+   * declared pinOracle computes for this example's input at the Story base,
+   * recorded when the Story deliberately changes that base behaviour. A
+   * mismatch between the pin and the base value is refused unless it is here.
+   */
+  baseValue?: string;
   type: VerificationIntentType;
   requiredIn?: VerificationRequiredIn;
   priority?: VerificationPriority;

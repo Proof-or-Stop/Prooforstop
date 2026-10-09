@@ -3182,7 +3182,7 @@ function scenarioNPO(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     assert.equal(blocked.cli?.payload.itemId, 'CHK-002', '[NPO] the step names the item');
     assert.match(blocked.why, /CHK-002:edge:0[^\n]*"x"/, '[NPO] the step carries the computed base value');
     o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-002', verificationIntent: { happy: [row('Reverse("héllo") -> "olléh"', 'TestReverse')],
-      edge: [row('Upper("x") -> "X"', 'TestUpperX', { baseValue: '"x"' })], adversarial: [row('Reverse("") -> ""', 'TestReverseEmpty')] } }, { label: 'checklist_update CHK-002 (acknowledged)' });
+      edge: [row('Upper("x") -> "X"', 'TestUpperX', { baseValue: '"x"', derivation: { requestQuote: NP_QUOTE, computation: 'the upper-case form of "x" is "X"' } })], adversarial: [row('Reverse("") -> ""', 'TestReverseEmpty')] } }, { label: 'checklist_update CHK-002 (acknowledged)' });
     const after = ask('next (PLAN, pins consistent with the oracle)');
     assert.notEqual(after.reason, 'pin_oracle_mismatch', `[NPO] no mismatch remains: ${after.why}`);
     o.cleanup();

@@ -8,6 +8,7 @@ import { executionImplementationIdentity } from '../core/execution-implementatio
 import { rethrowIntentAmendmentIntegrityError } from '../core/verification-intent-amendment.js';
 import { inspectIntentCheckpointRecovery } from '../core/verification-intent-checkpoint.js';
 import { acceptanceIntentHash, acceptanceScopeHash, createIntentAmendment, createIntentRevision } from '../core/verification-intent-amendment.js';
+import { pinExamples, pinOracleMismatches, pinOracleRefusal, storyPinOracle } from '../core/pin-oracle.js';
 import { currentGitHead } from '../core/evidence-freshness.js';
 import { resolveManagedDispatchInvocation, resolveManagedImplementerCompletionInvocation } from '../core/managed-host-run.js';
 import type { ProcessEventAppendIdentity } from '../core/process-events.js';
@@ -3500,6 +3501,14 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         );
       }
       assertIntentDerivations(store, 'checklist_update', args.storyId, args.itemId, args.verificationIntent);
+      // Old-PoS run 31 pin oracle (core/pin-oracle.ts): an example the project's own
+      // evaluator computes differently at the Story base is refused, computed value shown.
+      if (args.verificationIntent !== undefined && pinExamples(args.itemId, args.verificationIntent).length > 0) {
+        const oracle = storyPinOracle(store, root, args.storyId, resolveStoryGitCwd(args.storyId));
+        const mismatched = oracle ? pinOracleMismatches(oracle, [{ id: args.itemId, status: 'pending', verificationIntent: args.verificationIntent }]) : [];
+        const refusal = oracle && mismatched.length ? pinOracleRefusal('checklist_update', args.storyId, args.itemId, oracle, mismatched[0]!.rows) : null;
+        if (refusal) throw new Error(refusal);
+      }
 
       const cl = store.readChecklist(args.storyId);
       const checklistBeforeUpdate = structuredClone(cl);
@@ -3627,6 +3636,37 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         }
         item.verificationEvidence = effectiveEvidence.map(ev => normalizeEvidence(resolveStoryGitCwd(args.storyId), root, ev, priorEvidence));
         results.push(`verificationEvidence updated (${effectiveEvidence.length})`);
+      }
+
+      // Old-PoS run 31 (CHK-005): a PLAN amendment of a done item's acceptance
+      // (verificationIntent semantics or userSees) invalidates the implementation
+      // built against the old intent. The framework resets it, and every done
+      // item whose context / userSees / intent names it, to pending with a
+      // recorded reason; the owner never resets it by hand.
+      if (story.phase === 'PLAN' && args.status === undefined && oldStatus === 'done') {
+        const intentChanged = args.verificationIntent !== undefined && (beforeIntentRevision.verificationIntent
+          ? acceptanceIntentHash(beforeIntentRevision.verificationIntent) : null) !== (item.verificationIntent ? acceptanceIntentHash(item.verificationIntent) : null);
+        const userSeesChanged = args.userSees !== undefined && (beforeIntentRevision.userSees ?? '') !== (item.userSees ?? '');
+        if (intentChanged || userSeesChanged) {
+          const changed = [intentChanged ? 'verificationIntent' : '', userSeesChanged ? 'userSees' : ''].filter(Boolean).join(' and ');
+          const reset = (target: ChecklistItem, reason: string): void => {
+            const from = target.status;
+            target.status = 'pending'; target.startTime = null; target.endTime = null;
+            (cl.auditLog ??= []).push({ timestamp: now, phase: story.phase, itemId: target.id, action: 'update', from, to: 'pending', reason,
+              ...(args.agent ? { agent: args.agent } : {}) });
+          };
+          reset(item, `PLAN amendment of ${changed} on a done item (auto reset to pending so DEV implements the amended intent)${args.reason ? `: ${args.reason}` : ''}`);
+          results.push(`status done → pending (auto: the ${changed} amendment invalidates the completed implementation)`);
+          const mention = new RegExp(`\\b${item.id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`);
+          for (const other of cl.items) {
+            if (other === item || other.status !== 'done') continue;
+            const rows = VERIFICATION_LANES.flatMap(lane => other.verificationIntent?.[lane] ?? []);
+            const text = [other.context ?? '', other.userSees ?? '', ...rows.flatMap(row => [row.desc, row.derivation?.computation ?? ''])].join('\n');
+            if (!mention.test(text)) continue;
+            reset(other, `depends on ${item.id} (its context/userSees/intent names ${item.id}), whose ${changed} was amended in PLAN (auto reset to pending)`);
+            results.push(`${other.id} status done → pending (auto: depends on ${item.id})`);
+          }
+        }
       }
 
       if (args.status === 'done') {
