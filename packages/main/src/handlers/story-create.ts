@@ -1046,13 +1046,15 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         riskHint = lines.join('\n');
       } else if ((args.priority === 'high' || args.priority === 'critical')
         && detectRiskSignals(`${args.title}\n${args.description}`).length === 0) {
-        // The INIT story reviewer raises a high issue for this deterministic
-        // mismatch; saying so now saves a whole INIT review round.
+        // Old-PoS run 28 INIT (run28-29-analysis.md §3.1): the INIT story
+        // reviewer raises a high issue for this deterministic mismatch. A warning
+        // was ignored and cost a whole INIT review round, so the mechanical rule
+        // is applied here: the Story is recorded at medium.
+        elevatedPriority = 'medium';
         riskHint = [
           '',
-          `⚠ priority=${args.priority} but the title/description contain no risk wording (auth, token, migration, destructive, state machine, guard, gate, reset, production, incident, hotfix, PII, GDPR, breaking change).`,
-          '  The INIT story reviewer reports this as a high issue. Before launching INIT reviewers, lower the priority with',
-          `  story_update --storyId=${storyId} --priority=medium, or state the actual risk in the title or description.`,
+          `⚠ priority=${args.priority} lowered to medium: the title/description contain no risk wording (auth, token, migration, destructive, state machine, guard, gate, reset, production, incident, hotfix, PII, GDPR, breaking change), and the INIT story reviewer blocks priority=${args.priority} without it.`,
+          `  To keep ${args.priority}, state the actual risk in the title or description, then story_update --storyId=${storyId} --priority=${args.priority}.`,
         ].join('\n');
       }
 

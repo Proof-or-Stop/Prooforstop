@@ -363,9 +363,10 @@ export interface ProofOrStopConfig {
     lanePack?: 'off' | 'shared';
     roundDelta?: 'off' | 'pack';
     /**
-     * Old-PoS run 27 (lane command contention probe): delay in ms between the
-     * launches of one round's lanes when `next --run` launches them (N2). 0 /
-     * absent = all lanes at once (production). Integer 0..60000; not a
+     * Delay in ms between the launches of one round's lanes when `next --run`
+     * launches them (N2). Absent = 8000 (production default since old-PoS
+     * runs 28/29: parallel lane bursts were throttled by the 2-CPU container
+     * quota); 0 = all lanes at once (the rollback). Integer 0..60000; not a
      * detection switch. Compare runs with core/managed-run-diagnostics.ts.
      */
     laneLaunchStaggerMs?: number;

@@ -165,6 +165,19 @@ function symbolsDisjoint(a: Set<string>, b: Set<string>): boolean {
 }
 
 /**
+ * Claim comparison of two findings for the restatement rules: whether they cite
+ * a shared file (or neither cites one), the token similarity of their claims,
+ * and whether the code symbols they name are disjoint.
+ */
+export function findingClaimSimilarity(a: CriticRestatementFinding, b: CriticRestatementFinding): { sharedFile: boolean; similarity: number; differentCode: boolean } {
+  const filesA = new Set((a.files ?? []).map(normalizedPath));
+  const filesB = (b.files ?? []).map(normalizedPath);
+  const sharedFile = filesA.size === 0 && filesB.length === 0 ? true : filesB.some(path => filesA.has(path));
+  const same = a.desc.trim().replace(/\s+/g, ' ') === b.desc.trim().replace(/\s+/g, ' ');
+  return { sharedFile, similarity: same ? 1 : jaccard(claimTokens(a.desc), claimTokens(b.desc)), differentCode: !same && symbolsDisjoint(claimSymbols(a.desc), claimSymbols(b.desc)) };
+}
+
+/**
  * Lab reroute-mid-inventory: whether finding `a` makes the same claim as
  * finding `b` by the restatement rule above (a shared cited file, or neither
  * cites one, and token similarity >= CRITIC_RESTATEMENT_TEXT_SIMILARITY about

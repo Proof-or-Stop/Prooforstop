@@ -30,8 +30,9 @@ import type { DuplicateCoverageReceipt, Finding } from './types.js';
 import { loadConfig } from './config.js';
 import { parseAllowlistedCommand, resolveEvidenceCommandTimeoutMs } from './validation-executor.js';
 import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
-import { findingClaimRestates } from './managed-inventory-critic.js';
+import { findingClaimRestates, findingClaimSimilarity } from './managed-inventory-critic.js';
 import { agentRoleIdsEqual } from './agent-role-identity.js';
+import { commitMessageNamesFinding } from './ab-dispatch-grouping.js';
 
 export { DUPLICATE_FINDING_COVERAGE_FILE, DUPLICATE_FINDING_COVERAGE_SCHEMA } from './types.js';
 export type { DuplicateCoverageReceipt, DuplicateFindingCoverageData } from './types.js';
@@ -92,13 +93,62 @@ export function supersededRestatementOf(store: StoryStore, storyId: string, find
 }
 
 /**
+ * Restatement floors for a later run's finding against an earlier one
+ * (measured on old-PoS run 29: F-005 names F-004 at 0.23, F-006 0.50, F-007
+ * 0.40; distinct defects of the same function in runs 28/29 score 0.08-0.11).
+ */
+export const RESTATED_EARLIER_LINKED_SIMILARITY = 0.15;
+export const RESTATED_EARLIER_TEXT_SIMILARITY = 0.35;
+
+/**
+ * Old-PoS run 29 R2/REM2 (run28-29-analysis.md §3.4): a review run that STARTED
+ * after an earlier finding of the Story was recorded re-reported that finding
+ * (F-005 "B-9c3a:F-004 remains present ...", F-006, F-007 restating the
+ * critic's F-004 from a second lane wave, another epoch, another familyKey).
+ * Grouped as distinct findings, the "one commit per finding" repair contract
+ * made the worker add a second test in a new out-of-scope file. Such a later
+ * finding is a restatement of the earliest earlier finding it names by id
+ * (token similarity >= RESTATED_EARLIER_LINKED_SIMILARITY) or whose claim it
+ * restates (shared cited file, code symbols not disjoint, similarity >=
+ * RESTATED_EARLIER_TEXT_SIMILARITY). It is never dropped: it closes only
+ * through the duplicate-coverage run of its own case (a failed run sends it to
+ * its own repair). Candidates that are themselves duplicates (critic or
+ * superseded restatement) are skipped so the two rules never point at each
+ * other; findings of runs that started before the earlier finding existed
+ * (independent observations) are never merged.
+ */
+export function restatedEarlierFindingOf(store: StoryStore, storyId: string, findingId: string):
+  { canonicalFindingId: string; familyKey: null; reason: string } | null {
+  const findings = store.readFindings(storyId).findings ?? [];
+  const finding = findings.find(row => row.id === findingId);
+  if (!finding?.reviewRunId || typeof finding.desc !== 'string') return null;
+  const run = store.readReviewRuns(storyId).runs.find(row => row.reviewRunId === finding.reviewRunId);
+  const started = Date.parse(run?.startedAt ?? '');
+  if (!Number.isFinite(started)) return null;
+  const scored = findings
+    .filter(row => row.id !== finding.id && row.status !== 'dismissed' && row.reviewRunId && row.reviewRunId !== finding.reviewRunId
+      && typeof row.desc === 'string' && Date.parse(row.createdAt ?? '') < started)
+    .map(row => ({ row, linked: commitMessageNamesFinding(finding.desc, storyId, row.id), ...findingClaimSimilarity(finding, row) }))
+    .filter(entry => entry.sharedFile && !entry.differentCode
+      && entry.similarity >= (entry.linked ? RESTATED_EARLIER_LINKED_SIMILARITY : RESTATED_EARLIER_TEXT_SIMILARITY)
+      && !criticDuplicateOf(store, storyId, entry.row.id) && !supersededRestatementOf(store, storyId, entry.row.id))
+    .sort((a, b) => Number(b.linked) - Number(a.linked) || (a.row.createdAt ?? '').localeCompare(b.row.createdAt ?? '') || b.similarity - a.similarity);
+  const best = scored[0];
+  if (!best) return null;
+  return { canonicalFindingId: best.row.id, familyKey: null,
+    reason: `Framework: ${finding.id} was reported by ReviewRun ${finding.reviewRunId}, started after ${best.row.id} was recorded, and ${best.linked ? `names ${best.row.id}` : 'restates its claim'} (claim similarity ${best.similarity.toFixed(2)}).` };
+}
+
+/**
  * The canonical finding this one duplicates: the inventory critic's latest
  * `duplicate` disposition, else a lane rerun's restatement of a superseded
- * finding (supersededRestatementOf).
+ * finding (supersededRestatementOf), else a later run's restatement of an
+ * earlier finding (restatedEarlierFindingOf, old-PoS run 29).
  */
 export function findingDuplicateOf(store: StoryStore, storyId: string, findingId: string):
   { canonicalFindingId: string; familyKey: string | null; reason: string } | null {
-  return criticDuplicateOf(store, storyId, findingId) ?? supersededRestatementOf(store, storyId, findingId);
+  return criticDuplicateOf(store, storyId, findingId) ?? supersededRestatementOf(store, storyId, findingId)
+    ?? restatedEarlierFindingOf(store, storyId, findingId);
 }
 
 export function duplicateCoverageReceipts(store: StoryStore, storyId: string, findingId: string): DuplicateCoverageReceipt[] {

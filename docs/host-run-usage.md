@@ -116,16 +116,26 @@ wall time between the Codex `item.started` and `item.completed` events of a
 `command_execution` item as the worker observed them, commands in flight in the
 session, live managed runs of the project) and one `load` row at each provider
 spawn and every 15 s (`PROOF_OR_STOP_HOST_LOAD_SAMPLE_MS`): `os.loadavg`, CPU
-count, free memory, live managed runs, and where readable the Linux CPU pressure
-(`/proc/pressure/cpu` some avg10) and cgroup throttling (`/sys/fs/cgroup/cpu.stat`).
-The file is capped at 512 KB. `--full=true` / `--json=true` add a `diagnostics`
-summary: command count, mean/median/p90/max wall, median wall by live runs, the
-five slowest commands, load1 mean/max, max live runs, max CPU pressure and the
-cgroup throttled-time delta. Run 27 motivated it: lane `cat`/`sed` calls took
-~5.7 s with 4 lanes live and the cause could not be isolated afterwards. For an
-A/B of the parallel lane launch, `review.laneLaunchStaggerMs` (integer 0..60000,
-default 0 = all lanes at once) makes `next --run` start one round's lane
-launches that many ms apart.
+count, free memory, live managed runs, and where readable: the container's
+cgroup v2 PSI (`/sys/fs/cgroup/{cpu,io,memory}.pressure`: some avg10, some and
+full total usec; else the host `/proc/pressure/*`, `pressureSource` says which,
+`hostCpuPressureSome10` keeps the host CPU value), the full cgroup `cpu.stat`
+(`nr_periods`, `nr_throttled`, `throttled_usec`, `usage_usec`), the cgroup CPU
+quota in CPUs (`cpu.max`) and the `/proc/stat` iowait and total CPU ticks (an
+IO-wait signal where PSI is disabled). The file is capped at 512 KB.
+`--full=true` / `--json=true` add a `diagnostics` summary: command count,
+mean/median/p90/max wall, median wall by live runs, the five slowest commands,
+load1 mean/max, max live runs, max CPU pressure, the cgroup throttled-time
+delta, and rates over the run: throttled seconds per wall second, throttled
+share of CFS periods, mean CPUs used, CPU/IO/memory PSI stall shares and the
+iowait share. Run 27 motivated it: lane `cat`/`sed` calls took ~5.7 s with 4
+lanes live and the cause could not be isolated afterwards. Runs 28/29
+(`run28-29-analysis.md` §1) isolated it: synchronized lane bursts were
+CFS-throttled by the 2-CPU container quota (>= 1 s throttled per wall second;
+light lane commands 4.46 s mean launched at once, 0.20 s staggered), not host
+load. `review.laneLaunchStaggerMs` (integer 0..60000) therefore defaults to
+8000: `next --run` starts one round's lane launches 8 s apart (about 8-10 s per
+extra lane); `0` launches them all at once (the rollback).
 
 To observe several runs in one call, supply `targets` instead of `runId`:
 
@@ -695,7 +705,23 @@ repair (open, and `managedFindingRepairState` shows its own commit) and appends
 resolution; a finding that fails is left open and reported (the call is refused
 only when none passes). A single repaired finding keeps the plain
 `finding_resolve --findingId` step. Duplicates (critic
-`duplicate` or superseded-run restatement) and advisory (low / suspected) findings are not grouped.
+`duplicate`, superseded-run restatement, or a later run's restatement of an
+earlier finding: old-PoS run 29, `restatedEarlierFindingOf`, a finding from a
+review run that started after the earlier finding was recorded and names its id
+or restates its claim on a shared file) and advisory (low / suspected) findings
+are not grouped; a duplicate closes only through the coverage run of its own case.
+
+The repair prompt states the Story's allowed files (scope contract
+`allowedModify` / `allowedTest` / `allowedCreate`) and that no other file may be
+created or changed. When a managed writer run (finding repair, implementer)
+ends, the worker classifies every path its commits and worktree changed since
+the run started with the REVIEW scope gate's classifier; a blocking violation
+gets ONE resumed turn of the same Codex session naming the paths and the
+allowed lists (`managed_writer_scope_repair` / `_outcome` events), before the
+run seals. A violation that survives it is left to the REVIEW scope gate (old-PoS
+run 29 REM2: a grouped repair created a new test file outside the declared
+files and the owner moved it by hand). Code writers keep their Codex session
+(no `--ephemeral`) on the contained and the uncontained launch path alike.
 `remediation.grouping=per-finding` in `proof-or-stop.config.json` is the
 rollback: one repair run per finding, and `host_run` refuses `groupFindingIds`.
 
