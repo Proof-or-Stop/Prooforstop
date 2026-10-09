@@ -41,6 +41,18 @@
  *   4. exact-text: a request line says strings "must match exactly"; each
  *      string quoted under it needs an intent that carries it and states an
  *      exact (not prefix) comparison (30/F-001).
+ *   Old-PoS run 31 (F-003 and F-008 passed every check above):
+ *   3c. lvalue receivers: a section that lists assignment forms of a receiver
+ *      needs a write row whose assigned target is not a bare identifier: a
+ *      member/property receiver (`h.s[i] = ...`) and an index-of-index
+ *      receiver (`a[0][i] = ...`) per receiver type, and one call-result
+ *      receiver (`f()[i] = ...`). 31/F-003: string assignment wrote back only
+ *      to a bare identifier.
+ *   3d. per-form explicit null on writes: a section that lists two-part and
+ *      three-part assignment forms of a receiver, with an omittable range
+ *      syntax, needs an explicit-null start and end write row per form
+ *      (31/F-008: the two-part write path took explicit null as omitted after
+ *      the three-part one was fixed).
  * Request literals (error messages, quoted examples) are the story_create
  * literal pre-check's (core/story-request.ts); the general case of each check
  * is a scope-plan reviewer rule (renderCoverageMatrixRule).
@@ -229,6 +241,20 @@ function proseClasses(desc: string, names: readonly string[]): string[] {
   return out;
 }
 
+/** 3c: assignment targets whose receiver is not a bare identifier (`h.s[i] =`, `a[0][i] =`, `f()[i] =`), or the prose naming one. */
+const ASSIGN_TAIL = String.raw`\s*\[[^\[\]]*\]\s*=(?!=)`;
+const MEMBER_TARGET = new RegExp(String.raw`[A-Za-z_]\w*\.[A-Za-z_]\w*${ASSIGN_TAIL}|\[\s*["'][^"'\]]+["']\s*\]${ASSIGN_TAIL}|\b(?:member|property|field|attribute)\s+(?:access\s+)?receiver\b`, 'i');
+const NESTED_TARGET = new RegExp(String.raw`[\w\]]\s*\[[^\[\]]*\]${ASSIGN_TAIL}|\bindex-of-index\b|\bnested[- ]index(?:ed)?\s+receiver\b`, 'i');
+const CALL_TARGET = new RegExp(String.raw`\w\s*\([^()]*\)${ASSIGN_TAIL}|\bcall[- ]result\s+receiver\b`, 'i');
+export function lvalueReceiverKinds(desc: string): string[] {
+  const kinds: string[] = [];
+  if (MEMBER_TARGET.test(desc)) kinds.push('receiver-member');
+  // `h["s"][0] =` is a member receiver, not an index-of-index one.
+  if (NESTED_TARGET.test(desc.replace(new RegExp(String.raw`\[\s*["'][^"'\]]+["']\s*\]${ASSIGN_TAIL}`, 'g'), ' = '))) kinds.push('receiver-nested');
+  if (CALL_TARGET.test(desc)) kinds.push('receiver-call');
+  return kinds;
+}
+
 const SIZE_MISMATCH_ROW = /\bsize[- ]mismatch\b|\blength[- ]mismatch\b/i;
 const PARSE_ROW = /\bpars(?:e|es|ed|ing|er)\b|\bAST\b|\bstringif|\bString\(\)/i;
 
@@ -279,6 +305,8 @@ function rowFeatures(ref: string, itemId: string, desc: string, family: SyntaxFa
   if (/\btwo-part\b/i.test(desc)) shapes.add('range2');
   if (/\bthree-part\b|\bstepped\b/i.test(desc)) shapes.add('range3');
   if (/\bassign/i.test(desc)) write = true;
+  // 3c (old-PoS run 31 F-003): the kind of the assigned target's receiver.
+  for (const kind of lvalueReceiverKinds(desc)) { classes.add(kind); write = true; }
   let receivers = receiversOf(desc);
   if (!receivers.size) receivers = receiversOf(itemTitle);
   if (classes.has('multibyte')) receivers.add('string');
@@ -329,6 +357,7 @@ const KIND_LABEL: Record<string, string> = {
   omitted: 'omitted', null: 'explicit null', zero: '0', negative: 'negative', nonnumeric: 'non-numeric',
   multibyte: 'multibyte (non-ASCII) text', 'empty-selection': 'empty (zero-length) selection',
   'size-mismatch': 'size mismatch', broadcast: 'broadcast',
+  'receiver-member': 'member/property assignment receiver', 'receiver-nested': 'index-of-index assignment receiver', 'receiver-call': 'call-result assignment receiver',
 };
 const SHAPE_LABEL: Record<Shape, string> = { index: 'single index', range2: 'two-part range', range3: 'three-part range' };
 
@@ -440,22 +469,30 @@ function stringifyRows(family: SyntaxFamily | null, sentences: RequestSentence[]
  * write row per range form x rule (30/F-002: tested on the two-part form only).
  */
 const SIZE_SENTENCE = /\bsize[- ]mismatch\b|\blength[- ]mismatch\b|\b(?:length|size)\s+must\s+(?:exactly\s+)?(?:match|equal)\b|\bmust\s+exactly\s+match\b|\blength\s+equal\s+to\b/i;
-function assignmentFormRows(sentences: RequestSentence[]): CoverageRequirement[] {
+
+/** The assignment forms a section lists per receiver (`array[start:end] = [...]`, "two-part or three-part"), with the sentences that list them. */
+function sectionAssignmentForms(mine: readonly RequestSentence[]): { forms: Map<Receiver, Set<Shape>>; sentences: string[] } {
+  const forms = new Map<Receiver, Set<Shape>>();
+  const sentences = new Set<string>();
+  const add = (receiver: Receiver, shape: Shape, sentence: string): void => { forms.set(receiver, new Set([...(forms.get(receiver) ?? []), shape])); sentences.add(sentence); };
+  for (const sentence of mine) {
+    for (const expression of indexExpressions(sentence.text.replace(/`/g, ''))) {
+      if (!/^\s*=(?!=)/.test(expression.after)) continue;
+      const receiver = /\barrays?\s*$/i.test(expression.before) ? 'array' : /\bstrings?\s*$/i.test(expression.before) ? 'string' : null;
+      if (receiver && expression.parts.length <= 3) add(receiver, (['index', 'range2', 'range3'] as const)[expression.parts.length - 1]!, sentence.text);
+    }
+    if (/\bassign/i.test(sentence.text) && /\btwo-part\b/i.test(sentence.text) && /\bthree-part\b/i.test(sentence.text)) {
+      for (const receiver of ['array', 'string'] as const) if (new RegExp(`\\b${receiver}s?\\b`, 'i').test(sentence.text)) { add(receiver, 'range2', sentence.text); add(receiver, 'range3', sentence.text); }
+    }
+  }
+  return { forms, sentences: [...sentences] };
+}
+
+function assignmentFormRows(sentences: RequestSentence[], family: SyntaxFamily | null = null): CoverageRequirement[] {
   const out: CoverageRequirement[] = [];
   for (const section of new Set(sentences.map(sentence => sentence.section))) {
     const mine = sentences.filter(sentence => sentence.section === section);
-    const forms = new Map<Receiver, Set<Shape>>();
-    const add = (receiver: Receiver, shape: Shape): void => { forms.set(receiver, new Set([...(forms.get(receiver) ?? []), shape])); };
-    for (const sentence of mine) {
-      for (const expression of indexExpressions(sentence.text.replace(/`/g, ''))) {
-        if (!/^\s*=(?!=)/.test(expression.after)) continue;
-        const receiver = /\barrays?\s*$/i.test(expression.before) ? 'array' : /\bstrings?\s*$/i.test(expression.before) ? 'string' : null;
-        if (receiver && expression.parts.length <= 3) add(receiver, (['index', 'range2', 'range3'] as const)[expression.parts.length - 1]!);
-      }
-      if (/\bassign/i.test(sentence.text) && /\btwo-part\b/i.test(sentence.text) && /\bthree-part\b/i.test(sentence.text)) {
-        for (const receiver of ['array', 'string'] as const) if (new RegExp(`\\b${receiver}s?\\b`, 'i').test(sentence.text)) { add(receiver, 'range2'); add(receiver, 'range3'); }
-      }
-    }
+    const { forms, sentences: listing } = sectionAssignmentForms(mine);
     if (!forms.size) continue;
     for (const sentence of mine) {
       const kinds = [SIZE_SENTENCE.test(sentence.text) ? 'size-mismatch' : '', /\bbroadcast/i.test(sentence.text) ? 'broadcast' : ''].filter(Boolean);
@@ -465,6 +502,20 @@ function assignmentFormRows(sentences: RequestSentence[]): CoverageRequirement[]
         const shapes = [...forms.get(receiver)!].filter(shape => shape !== 'index');
         if (shapes.length < 2) continue;
         for (const kind of kinds) for (const shape of shapes) out.push(requirement('enumerated-domain', { op: 'write', classes: [kind], receiver, shape }, [sentence.text]));
+      }
+    }
+    // 3c (old-PoS run 31 F-003): the assigned target's receiver is not always a bare identifier.
+    for (const receiver of forms.keys()) {
+      for (const kind of ['receiver-member', 'receiver-nested']) out.push(requirement('enumerated-domain', { op: 'write', classes: [kind], receiver }, listing));
+    }
+    out.push(requirement('enumerated-domain', { op: 'write', classes: ['receiver-call'] }, listing));
+    // 3d (old-PoS run 31 F-008): explicit null start / end on every listed write form.
+    if (family?.omittable) {
+      const positions = namesFor(2, family);
+      for (const [receiver, shapes] of forms) {
+        const ranges = [...shapes].filter(shape => shape !== 'index');
+        if (ranges.length < 2) continue;
+        for (const shape of ranges) for (const position of positions) out.push(requirement('enumerated-domain', { op: 'write', classes: [`null:${position}`], receiver, shape }, listing));
       }
     }
   }
@@ -561,14 +612,51 @@ function consolidate(requirements: CoverageRequirement[]): CoverageRequirement[]
 }
 
 
-/** Every row the request patterns require, with the intents that state it (empty = missing) and an excludes entry naming it. */
-export function planCoverageStatus(items: readonly CheckedItem[], requestText: string): CoverageStatus[] {
+/** Every requirement the request patterns demand, consolidated, with the checklist rows they are checked against. */
+function coverageRequirements(items: readonly CheckedItem[], requestText: string): { family: SyntaxFamily | null; rows: RowFeatures[]; requirements: CoverageRequirement[] } {
   const family = requestSyntaxFamily(requestText);
   const sentences = requestSentences(requestText);
   const rows = checklistRows(items, family);
   const demanded = [...omitCombinations(requestText, family, sentences), ...stringifyRows(family, sentences), ...enumeratedDomains(sentences, family),
-    ...assignmentFormRows(sentences), ...exactTextRows(requestText)];
-  const requirements = consolidate([...writeMirror(rows, sentences, demanded, family), ...demanded]);
+    ...assignmentFormRows(sentences, family), ...exactTextRows(requestText)];
+  return { family, rows, requirements: consolidate([...writeMirror(rows, sentences, demanded, family), ...demanded]) };
+}
+
+/**
+ * Old-PoS run 31 (request-anchored probes, core/request-probes.ts): the
+ * request requirements once per Story, to anchor each probe case to the
+ * request sentences that define its behaviour.
+ */
+export interface RequestAnchorContext { family: SyntaxFamily | null; requirements: CoverageRequirement[] }
+export function requestAnchorContext(items: readonly CheckedItem[], requestText: string): RequestAnchorContext {
+  const { family, requirements } = coverageRequirements(items.filter(item => item.status !== 'withdrawn'), requestText);
+  return { family, requirements };
+}
+
+/**
+ * The requirements one probe case (its code text, e.g. `a=[1,2,3]; a[null:3]=[9]`)
+ * satisfies, exact-text rows aside. A write requirement whose sentences make
+ * writes follow reads ("same ... semantics as read slicing") also brings the
+ * read requirements of its classes: run 31's F-008 write `a[null:3]=[9]` is
+ * defined by the read sentence "A non-numeric `start` ... error format".
+ */
+export function caseRequirements(ctx: RequestAnchorContext, caseText: string, itemTitle = ''): CoverageRequirement[] {
+  const features = rowFeatures('case', 'case', caseText, ctx.family, itemTitle);
+  const direct = ctx.requirements.filter(entry => entry.op !== 'exact' && satisfies(features, entry));
+  const out = [...direct];
+  for (const entry of direct) {
+    if (entry.op !== 'write' || !entry.classes.length || !entry.sentences.some(sentence => SAME_SEMANTICS.test(sentence))) continue;
+    for (const read of ctx.requirements) {
+      if ((read.op === 'read' || read.op === 'eval') && read.classes.length && read.classes.every(value => entry.classes.includes(value))
+        && (!read.receiver || features.receivers.has(read.receiver)) && !out.includes(read)) out.push(read);
+    }
+  }
+  return out;
+}
+
+/** Every row the request patterns require, with the intents that state it (empty = missing) and an excludes entry naming it. */
+export function planCoverageStatus(items: readonly CheckedItem[], requestText: string): CoverageStatus[] {
+  const { rows, requirements } = coverageRequirements(items, requestText);
   const excludes = items.filter(item => item.status !== 'withdrawn').flatMap(item => (item.excludes ?? []).map(text => ({ itemId: item.id, text })));
   return requirements.map(entry => ({
     requirement: entry,
@@ -594,6 +682,11 @@ function exampleFor(entry: CoverageRequirement, family: SyntaxFamily | null): st
   const text = entry.classes.includes('multibyte') ? ' with non-ASCII text (e.g. é)' : entry.classes.includes('empty-selection') ? ' selecting zero indexes'
     : entry.classes.includes('size-mismatch') ? ' whose length differs from the selection' : entry.classes.includes('broadcast') ? ' as one value broadcast to every selected index' : '';
   if (entry.op === 'stringify') return `${target}${shape} printed back as written`;
+  // 3c: the assigned target's receiver (old-PoS run 31 F-003).
+  const index = entry.receiver === 'array' ? '[0:1]' : '[0]';
+  if (entry.classes.includes('receiver-member')) return `h.${target}${index} = <value> with h a hash/object holding ${entry.receiver === 'array' ? 'an array' : entry.receiver === 'string' ? 'a string' : 'the receiver'}; h.${target} reads back the change`;
+  if (entry.classes.includes('receiver-nested')) return `x[0]${index} = <value> with x[0] ${entry.receiver === 'array' ? 'an array' : entry.receiver === 'string' ? 'a string' : 'the receiver'}; x[0] reads back the change`;
+  if (entry.classes.includes('receiver-call')) return 'f()[0] = <value>: the exact result or error';
   return entry.op === 'write' ? `${target}${shape} = <value>${text}` : `${target}${shape}${text}`;
 }
 

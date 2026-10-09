@@ -240,7 +240,7 @@
  *      and still review the whole Story).
  *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5 ND-V6 ND-V8 ND-V9.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NRI|NMR|NLS|NPA|NSR|NUB|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NDG|NRS|NPX|NPXA|NPXS|AB|ND-V1..NF-V9]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NDG|NRS|NPX|NPXA|NPXS|AB|ND-V1..NF-V9]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -3312,6 +3312,177 @@ function scenarioNPT(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
+/**
+ * NRP / NRQ (old-PoS run 31 F-006): a probe row whose observed output
+ * contradicts the request sentence that defines it blocks handoff to REVIEW,
+ * although the (owner-pinned, wrong) expected value agrees with the code.
+ * NRP: the project declares a probeRunner (the framework runs the rows);
+ * NRQ: no runner, the implementer's [probe-row] report says contradiction.
+ */
+const NRP_REQUEST = [
+  'Add stepped slices to the strs mini language:',
+  '',
+  '- `value[start:end:step]`, with omitted components `value[:end:step]` and `value[::step]`.',
+  '',
+  '## Runtime support',
+  '',
+  '- A non-numeric `start` in array slices must keep the existing index-operator error format:',
+  '  - `index operator not supported: <inspect> on ARRAY`',
+].join('\n');
+const NRP_SENTENCE = 'A non-numeric `start` in array slices must keep the existing index-operator error format:';
+/** The project's own evaluator (base file): explicit null start errors unless strs.go says `null-start: omit`. */
+const NRP_EVAL = [
+  "const fs = require('fs'); const path = require('path');",
+  "const mode = fs.readFileSync(path.join(__dirname, '..', 'strs', 'strs.go'), 'utf8').includes('null-start: omit') ? 'omit' : 'error';",
+  "const vars = {}; const lit = t => JSON.parse(t.replace(/'/g, '\"'));",
+  'const fail = m => { console.log(m); process.exit(99); };',
+  "const show = v => Array.isArray(v) ? '[' + v.map(x => String(x)).join(', ') + ']' : String(v);",
+  'function val(e) {',
+  '  const m = e.match(/^([A-Za-z_]\\w*)\\[(.*)\\]$/); if (!m) return lit(e);',
+  "  if (!(m[1] in vars)) fail('identifier not found: ' + m[1]);",
+  "  const v = vars[m[1]]; const p = m[2].split(':').map(x => x.trim());",
+  "  const num = x => { if (x === '') return null; if (x === 'null') { if (mode === 'omit') return null; fail('index operator not supported: null on ARRAY'); } return Number(x); };",
+  "  const s = num(p[0]), e2 = num(p[1]), st = p.length > 2 ? (num(p[2]) ?? 1) : 1;",
+  '  const out = []; for (let i = s ?? 0; i < (e2 ?? v.length) && i < v.length; i += st) out.push(v[i]); return out;',
+  '}',
+  "for (const line of fs.readFileSync(process.argv[2], 'utf8').split('\\n').map(l => l.trim()).filter(Boolean)) {",
+  '  const a = line.match(/^([A-Za-z_]\\w*)\\s*=(?!=)\\s*(.+)$/); if (a) { vars[a[1]] = lit(a[2]); continue; }',
+  '  const e = line.match(/^echo\\((.*)\\)$/); if (e) { console.log(show(val(e[1]))); continue; }',
+  "  fail('parse error: ' + line);",
+  '}', '',
+].join('\n');
+const NRP_RUNNER = { command: process.execPath, args: ['tools/strs-mini.js', '{file}'], program: 'echo({input})', extension: '.mini', selfTest: { input: '[1, 2]', output: '[1, 2]' } };
+/** Run 31 at DEV start: the owner pinned explicit null start as omitted (the request says error). */
+const NRP_ROW = 'explicit null start a[null:4:2] over [0,1,2,3,4,5] -> [0, 2]';
+const NRP_CONFLICT = `[intent-conflict] CHK-001:edge:0 | request: "${NRP_SENTENCE}" | request implies: error index operator not supported: null on ARRAY | intent pins: [0, 2]`;
+
+function nrpFixture(o: Owner): void {
+  const store = new StoryStore(o.worktree);
+  const cl = store.readChecklist(o.storyId);
+  store.writeChecklist(o.storyId, { ...cl, items: cl.items.map(item => item.id === 'CHK-001' ? { ...item, verificationIntent: { ...item.verificationIntent!,
+    edge: [{ id: 'CHK-001:edge:0', desc: NRP_ROW, type: 'logic' as const, priority: 'must' as const, scope: 'focused' as const, expectation: 'absolute_pass' as const, requirementSource: 'story' as const }] } } : item) } as never);
+  commitFixtureMetadata(o, `proof-or-stop: ${o.storyId} CHK-001 null-start probe row`);
+  devSetup(o, false);
+}
+
+/** The implementer writes Upper/Reverse; `nullStart` marks the evaluator semantics its change has. */
+function nrpImplementerCommands(storyId: string, itemId: string, nullStart: 'omit' | 'error', message: string): string[][] {
+  const writeFiles = `const fs=require('fs');fs.writeFileSync('strs/strs.go',${JSON.stringify(IMPL)}+${JSON.stringify(nullStart === 'omit' ? '\n// null-start: omit\n' : '\n// null-start: error\n')});fs.writeFileSync('strs/strs_test.go',${JSON.stringify(TESTS)});`;
+  return [
+    [process.execPath, '-e', writeFiles],
+    ['/bin/sh', '-c', `git add strs && git -c user.name=${IMPLEMENTER} commit -qm '${storyId} ${itemId}: ${message}' && git log --format=%h -1`],
+    [process.execPath, CLI, 'checklist_update', JSON.stringify({ storyId, itemId, status: 'done' })],
+  ];
+}
+
+function scenarioNRP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NRP';
+  const name = 'NRP old-PoS run 31 F-006: a framework-run probe row contradicting its request sentence refuses done once, then blocks handoff (reopen, relaunch names the row, intent conflict)';
+  const o = new Owner(tag, 'B-e2cd', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NRP_REQUEST,
+    config: { probeRunner: NRP_RUNNER }, baseFiles: { 'tools/strs-mini.js': NRP_EVAL } });
+  const lines: string[] = [];
+  const ask = (label: string): NextStepJson => {
+    const asked = o.cli('next', { storyId: o.storyId, json: true }, { label });
+    const next = (asked.status === 0 ? parseJson(asked.stdout) : null) as NextStepJson | null;
+    assert.ok(next && typeof next.kind === 'string', `[NRP] next did not return a step:\n${asked.out.slice(-2000)}`);
+    lines.push(`${label}: ${next.phase} ${next.kind} ${next.reason}`);
+    return next;
+  };
+  const runImplementer = (launch: NextStepJson, script: ProviderScript, label: string): string => {
+    o.script(IMPLEMENTER, script);
+    const launched = o.mustCli(launch.cli!.command, launch.cli!.payload, { label });
+    const runId = String((parseJson(launched.stdout)?.run as Record<string, unknown>).runId);
+    const terminal = waitTerminal(o, 'implementer', runId);
+    o.unscript(IMPLEMENTER);
+    assert.equal(terminal.state, 'completed', `[NRP] ${label} terminal ${terminal.state} (${terminal.reason})\n${o.providerCommandLog()}`);
+    return runId;
+  };
+  const doneCalls = (): Array<{ status: number; out: string }> => readFileSync(join(o.scriptsDir, 'commands.log'), 'utf8').trim().split('\n')
+    .map(line => JSON.parse(line) as { argv: string[]; status: number; out: string }).filter(row => row.argv[0] === 'checklist_update');
+  try {
+    nrpFixture(o);
+    const launch = ask('next (DEV start)');
+    assert.equal(launch.reason, 'implement_item', `[NRP] first DEV step: ${launch.reason}: ${launch.why}`);
+    const itemId = String(launch.cli!.payload.itemId);
+    assert.equal(itemId, 'CHK-001');
+    // The implementer follows the pin (null start = omitted) and calls done twice (the second after the refusal).
+    const first = nrpImplementerCommands(o.storyId, itemId, 'omit', 'implement (null start as omitted)');
+    runImplementer(launch, { commands: [...first, first.at(-1)!], final: `Implemented ${itemId}.\n[intent-conflict] none` }, 'host_run implementer (pin followed)');
+    const prompt = managedPrompts(o, IMPLEMENTER)[0]!.prompt;
+    assert.match(prompt, /Framework probes \(project probeRunner/, '[NRP] the prompt carries the framework probe contract');
+    assert.doesNotMatch(prompt, /Probe matrix before handoff/, '[NRP] no hand-written probe matrix when the framework runs the probes');
+    assert.match(prompt, /CHK-001:edge:0: [^\n]*CONTRADICTS: pins the value \[0, 2\]/, '[NRP] the contradicting pin is named before coding');
+    const calls = doneCalls();
+    assert.equal(calls.length, 2, `[NRP] two done calls: ${JSON.stringify(calls)}`);
+    assert.notEqual(calls[0]!.status, 0, '[NRP] the first done is refused');
+    assert.match(calls[0]!.out, /\[probe_request_mismatch\][\s\S]*CHK-001:edge:0: [^\n]*HEAD \[0, 2\][^\n]*FLAG: the request sentence gives this input an error/, `[NRP] the refusal lists the row:\n${calls[0]!.out}`);
+    assert.equal(calls[1]!.status, 0, `[NRP] the same flagged set is refused once:\n${calls[1]!.out}`);
+    assert.equal(new StoryStore(o.worktree).readChecklist(o.storyId).items.find(item => item.id === itemId)?.status, 'done');
+
+    const reopen = ask('next (row contradicts the request)');
+    assert.equal(reopen.reason, 'probe_request_mismatch', `[NRP] handoff blocked: next reopens the item, got ${reopen.reason}: ${reopen.why}`);
+    assert.equal(reopen.cli?.command, 'checklist_update');
+    assert.equal(reopen.cli?.payload.status, 'in_progress');
+    assert.match(reopen.why, new RegExp(`CHK-001:edge:0[^\\n]*${NRP_SENTENCE.slice(0, 30).replace(/[.*+?^${}()|[\]\\`]/g, '\\$&')}`), '[NRP] the step pairs the row with its request sentence');
+    o.mustCli(reopen.cli!.command, reopen.cli!.payload, { label: 'checklist_update reopen (probe row)' });
+    const relaunch = ask('next (reopened)');
+    assert.equal(relaunch.reason, 'implement_item', `[NRP] relaunch: ${relaunch.reason}: ${relaunch.why}`);
+    // The relaunch implements the request (null start errors) and declares the wrong pin.
+    runImplementer(relaunch, { commands: nrpImplementerCommands(o.storyId, itemId, 'error', 'explicit null start errors as the request says'),
+      final: `Fixed ${itemId}: explicit null start errors.\n${NRP_CONFLICT}` }, 'host_run implementer (relaunch)');
+    const second = managedPrompts(o, IMPLEMENTER).at(-1)!.prompt;
+    assert.match(second, /framework probe run flagged rows of this item[\s\S]*CHK-001:edge:0/, '[NRP] the relaunch prompt names the flagged row');
+    assert.equal(doneCalls().at(-1)!.status, 0, '[NRP] HEAD follows the request (pin wrong): done is not refused');
+    const blocked = ask('next (pin declared wrong)');
+    assert.equal(blocked.reason, 'intent_conflict', `[NRP] the wrong pin goes to the owner: ${blocked.reason}: ${blocked.why}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+function scenarioNRQ(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NRQ';
+  const name = 'NRQ old-PoS run 31 F-006 (no probe runner): the prompt pairs each row with its request sentence; a [probe-row] contradiction neither fixed nor declared blocks handoff';
+  const o = new Owner(tag, 'B-e2ce', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NRP_REQUEST });
+  const lines: string[] = [];
+  const ask = (label: string): NextStepJson => {
+    const asked = o.cli('next', { storyId: o.storyId, json: true }, { label });
+    const next = (asked.status === 0 ? parseJson(asked.stdout) : null) as NextStepJson | null;
+    assert.ok(next && typeof next.kind === 'string', `[NRQ] next did not return a step:\n${asked.out.slice(-2000)}`);
+    lines.push(`${label}: ${next.phase} ${next.kind} ${next.reason}`);
+    return next;
+  };
+  try {
+    nrpFixture(o);
+    const launch = ask('next (DEV start)');
+    assert.equal(launch.reason, 'implement_item', `[NRQ] first DEV step: ${launch.reason}: ${launch.why}`);
+    const itemId = String(launch.cli!.payload.itemId);
+    o.script(IMPLEMENTER, { commands: nrpImplementerCommands(o.storyId, itemId, 'omit', 'implement'),
+      final: `Implemented ${itemId}.\n[intent-conflict] none\n[probe-row] CHK-001:edge:0 | request: error index operator not supported: null on ARRAY | observed: [0, 2] | contradiction` });
+    const launched = o.mustCli(launch.cli!.command, launch.cli!.payload, { label: 'host_run implementer (contradiction reported)' });
+    const terminal = waitTerminal(o, 'implementer', String((parseJson(launched.stdout)?.run as Record<string, unknown>).runId));
+    o.unscript(IMPLEMENTER);
+    assert.equal(terminal.state, 'completed', `[NRQ] implementer terminal ${terminal.state} (${terminal.reason})`);
+    const prompt = managedPrompts(o, IMPLEMENTER)[0]!.prompt;
+    assert.match(prompt, /Probe matrix before handoff/, '[NRQ] without a runner the probe matrix stays');
+    assert.match(prompt, /S1: "A non-numeric `start` in array slices/, '[NRQ] the defining request sentence is in the prompt');
+    assert.match(prompt, /CHK-001:edge:0: a=\[0,1,2,3,4,5\]; a\[null:4:2\] -> \[0, 2\] \| S1 \(request expects an error[^\n]*PIN CONTRADICTS REQUEST/, '[NRQ] the row is paired with its sentence and marked');
+    assert.match(prompt, /\[probe-row\] <row> \| request: <expected per the sentence> \| observed: <HEAD output> \| ok\|contradiction/, '[NRQ] the per-row report contract');
+    const reopen = ask('next ([probe-row] contradiction)');
+    assert.equal(reopen.reason, 'probe_request_mismatch', `[NRQ] handoff blocked: ${reopen.reason}: ${reopen.why}`);
+    assert.equal(reopen.cli?.payload.status, 'in_progress');
+    assert.match(reopen.why, /CHK-001:edge:0[^\n]*contradiction/);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 function scenarioNQ(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   const tag = 'NQ';
   const name = 'NQ run 23/24: lanes get the request + rubric, the critic the no-limitation rule, the repair the variant rule; DONE';
@@ -4518,7 +4689,7 @@ function scenarioNUB(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NRI|NMR|NLS|NPA|NSR|NUB|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NDG|NRS|NPX[AS]?|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NDG|NRS|NPX[AS]?|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -4572,6 +4743,8 @@ async function main(): Promise<void> {
     if (only.includes('NPA')) outcomes.push(scenarioNPA(machine.env, steps));
     if (only.includes('NSR')) outcomes.push(scenarioNSR(machine.env, steps));
     if (only.includes('NUB')) outcomes.push(scenarioNUB(machine.env, steps));
+    if (only.includes('NRP')) outcomes.push(scenarioNRP(machine.env, steps));
+    if (only.includes('NRQ')) outcomes.push(scenarioNRQ(machine.env, steps));
     if (only.includes('NIN')) outcomes.push(scenarioNIN(machine.env, steps));
     if (only.includes('NP')) outcomes.push(scenarioNP(machine.env, steps));
     if (only.includes('NCV')) outcomes.push(scenarioNCV(machine.env, steps));
@@ -4591,7 +4764,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

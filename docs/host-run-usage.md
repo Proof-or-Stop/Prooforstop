@@ -83,7 +83,14 @@ amends the intent in PLAN. The implementer prompt also carries the probe matrix
 (old-PoS runs 24-30) and asks for a `[probes]` line in that message; `next`
 parses its `probed-only:` rows: a done item whose latest completed implementer
 run left decided rows untested gets `probe_tests_missing` (reopen, relaunch
-with the rows; old-PoS run 30). The summary ends with receiptId, replacementSafe, any supervision
+with the rows; old-PoS run 30). Old-PoS run 31 (core/request-probes.ts): the
+prompt also pairs the item's example rows with the request sentence that defines
+each and asks for `[probe-row] <row> | request: ... | observed: ... |
+ok|contradiction` lines; an unresolved contradiction gets `probe_request_mismatch`
+(reopen). With a project `probeRunner`, `checklist_update status=done` inside the
+implementer run first runs the rows on the Story base and HEAD (base build once,
+then a build per HEAD material) and refuses once per set of flagged rows; the
+prompt then carries a compact contract instead of the matrix. The summary ends with receiptId, replacementSafe, any supervision
 diagnostic, the next action and the full-record directory. A completed run never
 shows a failureKind (old-PoS run 15: a stale `failureKind=auth` next to a
 completed implementer made the owner relaunch it). A run that ended with
@@ -481,7 +488,7 @@ intent/checklist/pin/request 的「deliberate choice」也算冲突）：未修�
 在 PLAN 返回 `intent_conflict_amend`（`checklist_update` 新 intent，冲突点名 userSees 时改 userSees，+ reason + `status: pending`）；item 的 verificationIntent 或 userSees 与派发时不同，或已写出 request 推出的值、不再含被钉住的字面量，冲突即解除（old-PoS run 31）。
 finding-repair 的 prompt 还要求在 Story base（打印确切 SHA）与修复后运行该 finding 的输入及其字面变体，
 request 没改的变体保持 base 行为（old-PoS run 24）。implementer 的 prompt 带同样性质的探针矩阵
-（操作数位置 × 值类 × 操作，在 Story base 与改动后各跑一次，old-PoS runs 24-29），最终消息报告 `[probes]` 行（含 `tested:` / `probed-only:`；`next` 解析 probed-only 行，done item 有未测的已决定行时返回 `probe_tests_missing`，old-PoS run 30）。
+（操作数位置 × 值类 × 操作，在 Story base 与改动后各跑一次，old-PoS runs 24-29），最终消息报告 `[probes]` 行（含 `tested:` / `probed-only:`；`next` 解析 probed-only 行，done item 有未测的已决定行时返回 `probe_tests_missing`，old-PoS run 30）。old-PoS run 31：prompt 还把本 item 的例子行与定义它的 request 句子配对，要求 `[probe-row]` 行，未解决的 contradiction 返回 `probe_request_mismatch`；项目声明 `probeRunner` 时，implementer 运行中的 `checklist_update status=done` 先在 Story base 与 HEAD 上跑这些行，每组 flag 拒绝一次，prompt 用紧凑契约代替矩阵。
 普通 implementer 模式保留调用方明确选择的模型与 reasoning effort；它不冒充 reviewer，
 也不套用独立 reviewer 的模型资格限制。
 

@@ -587,7 +587,27 @@ lists `tested:` and `probed-only:` decided rows; `next` parses it, and a
 probed-only row on a done item returns `probe_tests_missing` (one owner
 `checklist_update` back to `in_progress`; the relaunched implementer prompt
 names the earlier run and the rows). A relaunch reporting the same rows is not
-reopened again (REVIEW judges them).
+reopened again (REVIEW judges them). The matrix also names, for writes, the
+assigned target's receiver (identifier, member/property, index-of-index, call
+result) and each write form x explicit null (old-PoS run 31 F-003 / F-008).
+
+Request-anchored probes (old-PoS run 31, core/request-probes.ts). Every
+executable example of an intent row is a probe case, anchored through the PLAN
+coverage matrix to the request sentence that defines it; a sentence that gives
+an operand class (explicit null, non-numeric, step 0) an error makes a value pin
+there a pin that contradicts the request. The scope-plan pin audit lists these
+rows with their sentences and marks contradictions. Without a probe runner the
+implementer prompt carries the item's anchored rows and asks for one
+`[probe-row] <row> | request: ... | observed: ... | ok|contradiction` line per
+row; an unresolved contradiction returns `probe_request_mismatch` (reopen). A
+project may declare `probeRunner` in `proof-or-stop.config.json` (pinOracle shape
+plus `selfTest`, read from the Story base): PoS then runs the item's cases on the
+Story base and on the implementer's HEAD, `checklist_update status=done` refuses
+once per set of flagged rows (each with its request sentence), `next` re-checks at
+the final HEAD and reopens (`probe_request_mismatch`), a row still flagged after
+the relaunch becomes an owner intent conflict, the implementer writes no probe
+program (compact contract instead of the matrix), and REVIEW lanes get the table
+as evidence.
 
 PLAN coverage matrix (old-PoS runs 24-29, core/plan-coverage-matrix.ts). With a
 recorded `request.md`, `story_review` (PLAN) reports a `missing_coverage_row`

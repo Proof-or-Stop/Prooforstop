@@ -120,8 +120,9 @@ try {
     ['edge', 'a=[1,2,3]; a[null:2:1]=[1], a[0:null:1]=[1], a[0:2:null]=[1] and a[0:2:]=[1,2] keep the read-side results'],
   );
   seed('B-c030', ABS_STEPPED_SLICES_REQUEST, filled);
-  // The run-30 rows (stringify, per-form size mismatch / broadcast, exact text) are catch-earlier-run30-smoke's.
-  assert.deepEqual(keys(gapsOf('B-c030')).filter(key => !/stringify|size mismatch|broadcast|exact text/.test(key)), [], 'run 29 + the demanded rows: nothing left to demand');
+  // The run-30 rows (stringify, per-form size mismatch / broadcast, exact text) are catch-earlier-run30-smoke's;
+  // the run-31 rows (assignment receiver kinds, per-form explicit null writes) request-probes-run31-smoke's.
+  assert.deepEqual(keys(gapsOf('B-c030')).filter(key => !/stringify|size mismatch|broadcast|exact text|assignment receiver|explicit null \w+ on \w+ via/.test(key)), [], 'run 29 + the demanded rows: nothing left to demand');
 
   // An excludes entry naming a row's key excludes it (a row that does not apply).
   seed('B-c031', ABS_STEPPED_SLICES_REQUEST, RUN29_ITEMS, 'PLAN', { 'CHK-002': ['coverage read or write: form [::]: the parser rejects an all-omitted stepped slice by design'] });

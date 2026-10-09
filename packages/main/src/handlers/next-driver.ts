@@ -102,6 +102,8 @@ import { intentSemantics } from '../core/verification-intent-amendment.js';
 import { isPureMetadataFinding, literalOccurrences, openMetadataCorrections, type LiteralOccurrence, type MetadataField, type OpenMetadataCorrection } from '../core/metadata-correction.js';
 import { openPinAuditGaps } from '../core/pin-audit-correction.js';
 import { describePinMismatch, PIN_ORACLE_MISMATCH, pinExamples, pinMismatchRule, pinOracleMismatches, storyPinOracle } from '../core/pin-oracle.js';
+import { PROBE_REQUEST_MISMATCH, reportProbeDecision, requestAnchoredKeys, runnerProbeDecision, storyProbeRunner, type ProbeFlagDecision } from '../core/request-probes.js';
+import { implementerRunReports } from '../core/finding-repair-attempts.js';
 import { digestCanonicalJson } from '../core/digest.js';
 import { maxLaneRunsOnMaterial, STALE_WAVE_STOP_LOSS } from '../core/review-stop-loss.js';
 
@@ -717,6 +719,9 @@ export function openIntentConflicts(args: { root: string; gitCwd: string; store:
 
 function describeIntentConflict(row: OpenIntentConflict): string {
   const { conflict } = row;
+  if (row.agentType === FRAMEWORK_PROBE) {
+    return `framework probe rows of ${row.itemId} still contradict their request sentence after implementer run ${row.runId} saw them: ${conflict.raw}`;
+  }
   const who = `${row.agentType === IMPLEMENTER_AGENT ? 'implementer' : 'finding-repair'} run ${row.runId}`;
   if (conflict.undeclared) {
     return `${who} stated a deliberate deviation for ${row.itemId} only in prose, without an [intent-conflict] entry: "${conflict.raw}"`;
@@ -878,6 +883,49 @@ export function openProbeTestGaps(root: string, runs: readonly Pick<HostRunView,
     return itemId ? [{ runId: run.runId, itemId, createdAt: run.createdAt, text: managedRunFinalMessage(root, run.runId) }] : [];
   });
   return probeTestGaps(reports, new Set(items.filter(item => item.status === 'done').map(item => item.id)));
+}
+
+/**
+ * Old-PoS run 31 (core/request-probes.ts): done items whose probe rows
+ * contradict their request sentence. With a project probeRunner the framework
+ * runs the rows at the current HEAD; without one, the implementer's
+ * `[probe-row]` report decides. Only items an implementer run completed.
+ */
+export function openProbeFlags(args: { root: string; gitCwd: string; store: HandlerContext['store']; storyId: string; items: readonly ChecklistItem[] }): ProbeFlagDecision[] {
+  const done = args.items.filter(item => item.status === 'done');
+  if (!done.length) return [];
+  const request = readStoryRequest(args.store as never, args.storyId);
+  const requestText = request.status === 'ok' ? request.text : null;
+  const runner = storyProbeRunner(args.store, args.root, args.storyId, args.gitCwd);
+  if (!runner && !requestText) return [];
+  const out: ProbeFlagDecision[] = [];
+  for (const item of done) {
+    const runs = implementerRunReports(args.root, args.storyId, item.id);
+    if (!runs.length) continue;
+    const decision = runner ? runnerProbeDecision(runner, args.root, args.storyId, item, args.items, requestText, runs)
+      : reportProbeDecision(item.id, requestAnchoredKeys(args.items, requestText, item.id), runs);
+    if (decision) out.push(decision);
+  }
+  return out;
+}
+
+const FRAMEWORK_PROBE = 'framework-probe';
+
+/** A row still flagged after the relaunch saw it is an owner intent conflict (the pin, or the item, must change). */
+export function probeEscalationConflicts(decisions: readonly ProbeFlagDecision[]): OpenIntentConflict[] {
+  return decisions.filter(decision => decision.action === 'escalate').map(decision => ({ runId: decision.runId ?? FRAMEWORK_PROBE, agentType: FRAMEWORK_PROBE,
+    createdAt: new Date().toISOString(), itemId: decision.itemId, conflict: { intentRef: decision.refs[0] ?? decision.itemId, itemId: decision.itemId,
+      requestSentence: decision.sentence, requestImplies: decision.observed, intentPins: decision.pinned, raw: decision.rows.join('; ').slice(0, 1200), undeclared: false } }));
+}
+
+/** One owner step: reopen the item; the relaunched implementer prompt names the rows. */
+function probeFlagStep(base: { storyId: string; phase: string }, decision: ProbeFlagDecision): NextStep {
+  const rows = decision.rows.join('; ');
+  const source = decision.mode === 'runner' ? 'framework probe run (project probeRunner, old-PoS run 31)' : 'implementer [probe-row] report (old-PoS run 31)';
+  return step(base, 'agent', PROBE_REQUEST_MISMATCH, { command: 'checklist_update',
+    payload: { storyId: base.storyId, itemId: decision.itemId, status: 'in_progress', reason: `Probe rows contradict their request sentence (${source}): ${rows.slice(0, 300)}; reopened to fix them or declare the pin wrong before REVIEW.` } },
+  `The ${source} left rows of ${decision.itemId} contradicting the request sentence that defines them: ${rows.slice(0, 1500)}. Reopen ${decision.itemId}; next relaunches its implementer with these rows (fix the code, or list a wrong pin under [intent-conflict]). No review round starts before.`,
+  `openProbeFlags (${source})`);
 }
 
 /** One owner step: reopen the item; the relaunched implementer prompt names the rows. */
@@ -1585,7 +1633,9 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
   function planNext(base: { storyId: string; phase: string }): NextStep {
     const { storyId } = base;
     // D1 (run 23): an implementer-declared intent conflict is amended first.
-    const conflicts = openIntentConflicts({ root: ctx.root, gitCwd: gitCwdOf(storyId), store: ctx.store, storyId, runs: listStoryHostRuns(ctx, storyId) });
+    const conflicts = [...openIntentConflicts({ root: ctx.root, gitCwd: gitCwdOf(storyId), store: ctx.store, storyId, runs: listStoryHostRuns(ctx, storyId) }),
+      // Old-PoS run 31: probe rows still contradicting their request sentence after a relaunch.
+      ...probeEscalationConflicts(openProbeFlags({ root: ctx.root, gitCwd: gitCwdOf(storyId), store: ctx.store, storyId, items: ctx.store.readChecklist(storyId).items }))];
     if (conflicts.length > 0) return intentConflictStep(base, conflicts, ctx.store.readChecklist(storyId).items);
     // Old-PoS run 31: a Story-metadata review finding routed back to PLAN (intent rows).
     const metadata = metadataStep(base);
@@ -1802,6 +1852,11 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       // Old-PoS run 30: a decided row probed but not tested reopens its item once.
       const probeGap = openProbeTestGaps(ctx.root, hostRuns, checklist.items)[0];
       if (probeGap) return probeTestGapStep(base, probeGap);
+      // Old-PoS run 31: a probe row contradicting its request sentence blocks handoff.
+      const probeFlags = openProbeFlags({ root: ctx.root, gitCwd: gitCwdOf(storyId), store: ctx.store, storyId, items: checklist.items });
+      const escalated = probeEscalationConflicts(probeFlags);
+      if (escalated.length > 0) return intentConflictStep(base, escalated);
+      if (probeFlags.length > 0) return probeFlagStep(base, probeFlags[0]!);
       // N8: a deferred scope-plan verdict that arrived with a gap (or never
       // arrived) is PLAN work: go back before implementing more.
       const scopeVerdict = scopeVerdictReviewEntryFailure(ctx.store, ctx.root, ctx.store.readStory(storyId), policyOf(storyId));
