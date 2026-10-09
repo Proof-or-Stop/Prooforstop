@@ -581,7 +581,12 @@ section (`none`, or `<intentRef> | request: "<sentence>" | request implies:
 `next` blocks on a declared conflict: `story_advance --phase=PLAN` (intents are
 frozen in DEV), then `checklist_update` with the revised `verificationIntent`
 (or `userSees`, when the conflict names userSees), a `reason` and `status:
-pending`. The conflict clears once the item's verificationIntent or userSees
+pending`. When the pin is not a code literal, the same PLAN step also lists every
+row of any item stating the same pinned fragment and patches each sibling item
+with `checklist_update {itemId, intentRows}` (old-PoS run 37: one pin, three
+DEV->PLAN trips). To fix single rows use `checklist_update {storyId, itemId,
+intentRows: [{ref: "CHK-002:edge:3", desc: "..."}]}` (every intent check still
+runs) instead of resending the whole intent. The conflict clears once the item's verificationIntent or userSees
 differs from the one the run was dispatched against, or once the item states the
 value the request implies in place of the pinned literal (old-PoS run 31). In
 PLAN, changing a done item's verificationIntent or userSees without a `status`
@@ -649,6 +654,15 @@ whose item intent changed since it was raised is reopened, never escalated.
 Old-PoS run 33: a case whose row carries an earlier case's in-place mutation also
 runs isolated (row prelude + its own statements) and is judged by whichever run
 satisfies its pin; `[probe-row] <row> | ok: <why>` disposes a `pin` flag too.
+Old-PoS runs 35-39: write each example row as `<input> -> <expected>` (e.g.
+`f([1, 2]) -> 3`). With probe extraction on (a `probeRunner`, or
+`implementation.probeMatrix=on`) a prose connector (`returns`, `evaluates to`,
+`outputs`, `gives`, ...) after a code input and before a concrete value also
+counts; off (A0) the pin audit keeps arrow rows only. An example row the probe
+cannot run is reported where it is saved (`checklist_update` / `checklist_add`:
+`N rows not extractable` + ONE `Next:` patching just those rows with
+`intentRows`; `story_create`: a warning), and the implementer contract, the done
+note and the `enter_dev` text name them instead of a silent 0.
 
 PLAN coverage matrix (old-PoS runs 24-29, core/plan-coverage-matrix.ts; since
 old-PoS run 33 the A/B switch `plan.coverageMatrix=on`, default off: only the
@@ -847,7 +861,9 @@ routed to repair: `next` proposes one `finding_resolve` with
 `disposition: preexisting_out_of_scope`, which recomputes that evidence and
 records it with a follow-up (severity unchanged; `finding_applicability_assess
 --verdict=pre_existing_unaffected --proposalRef=<finding id>` is the same
-disposition). A repair run that ends without a commit is relaunched once with
+disposition). For a `doc-code-drift:` finding only its documentation anchors are
+defect sites; its code anchors are evidence and must be unchanged at the base
+too, and a cited doc the Story edited keeps it a repair (old-PoS runs 36/37). A repair run that ends without a commit is relaunched once with
 its report in the prompt; after a second one `next` returns the Story to PLAN
 (`finding_repair_replan`). Details: `docs/CLI.md` ("Pre-existing findings
 outside the Story"). After DONE, `finding_resolve` and `finding_dismiss` refuse
