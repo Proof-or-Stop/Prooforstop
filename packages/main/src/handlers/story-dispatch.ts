@@ -19,6 +19,7 @@
  *   - agentType not passed → defaults to proof-or-stop-implementer semantics (required)
  */
 
+import { renderPinOracleAudit, storyPinOracle, type PinOracleContext } from '../core/pin-oracle.js';
 import { appendExactRequiredOutput, itemsForFinding } from '../core/exact-required-output.js';
 import { omittedPromptNote } from './review-run.js';
 import { existsSync, readFileSync } from 'fs';
@@ -212,7 +213,7 @@ function appendImplementerCommitSteps(lines: string[], message: string): void {
  * because they saw only the owner paraphrase; core/request-authority.ts).
  * A Story without request.md adds no prompt bytes.
  */
-function appendScopePlanRequestTraceability(lines: string[], store: StoryStore, storyId: string): void {
+function appendScopePlanRequestTraceability(lines: string[], store: StoryStore, storyId: string, oracle: PinOracleContext | null = null): void {
   const request = readStoryRequest(store, storyId);
   if (request.status === 'absent') return;
   const rel = `${store.storyDirRel()}/${storyId}/request.md`;
@@ -233,6 +234,8 @@ function appendScopePlanRequestTraceability(lines: string[], store: StoryStore, 
     : 'Mechanical pre-check: every backticked request literal appears in some checklist title/userSees/verificationIntent; still trace every normative sentence.');
   // D4 pin audit + D5 same-semantics rule (old-PoS run 23, core/intent-derivation.ts).
   lines.push(...renderPinAudit(items, request.text));
+  // Old-PoS run 31 (core/pin-oracle.ts): the project-declared oracle for the examples the framework could not evaluate.
+  lines.push(...renderPinOracleAudit(oracle));
   // Coverage matrix (old-PoS runs 24-29, core/plan-coverage-matrix.ts): the judgment form of the PLAN coverage checks.
   lines.push(...renderCoverageMatrixRule(items, request.text));
 }
@@ -712,7 +715,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     // Old-PoS run 27 (row 4b): a rerun starts from the previous verdict and the checklist diff since it.
     lines.push(...renderScopePlanRerunContext({ store, storyId: args.storyId,
       gitCwd: resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root }) }));
-    appendScopePlanRequestTraceability(lines, store, args.storyId);
+    appendScopePlanRequestTraceability(lines, store, args.storyId,
+      storyPinOracle(store, root, args.storyId, resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root })));
     appendScopePlanCoveredObligations(lines, store, args.storyId);
     lines.push('');
     lines.push('Review focus:');

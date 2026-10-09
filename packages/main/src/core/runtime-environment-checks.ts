@@ -375,7 +375,7 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   // Labs plan-pin-allowlist and plan-intent-precheck (2026-09-30) changed checklist_update; repinned.
   // Lab plan-author-before-scope (2026-10-07): the intent-classification refusal moved to core/verification-intent-classification.ts; repinned.
   // Lab pin-derivation-audit (2026-10-08): checklist_add/_update and plan_acceptance_* refuse an underived intent example (core/intent-derivation.ts); repinned.
-  'packages/main/src/handlers/checklist.ts': 'aa6f75c3712a91f75ab0180c639275da34666bf7a34687d98e8ea70ec7615aad',
+  'packages/main/src/handlers/checklist.ts': '564efb2fb20844e84648fe59b00f8c10d6bf2c850d92b70b971ae5df1300bef2',
   'packages/main/src/core/maintenance-command-mode.ts': '9c94f1c1a20abf5ed3b93208f5d52e13d63246af12a85612c1e07f99e72258e2',
 });
 

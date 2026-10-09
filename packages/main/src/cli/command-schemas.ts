@@ -74,6 +74,7 @@ export const verificationIntentItemSchema = z.object({
     requestQuote: z.string().describe('A verbatim request.md sentence the expected value follows from.'),
     computation: z.string().describe('The steps from that sentence to the pinned expected value, stating that value.'),
   }).strict().optional().describe('Required when the Story has a request.md and desc is an input -> output example whose expected value is not quoted verbatim from it [intent_derivation_required].'),
+  baseValue: z.string().optional().describe('The value the project pin oracle computes for this example at the Story base, recorded when the Story deliberately changes it [pin_oracle_mismatch].'),
   plannedPathDeclarations: z.array(verificationPlannedPathDeclarationSchema).optional(),
   verification: verificationIntentPinSchema.optional().describe('Immutable executable proof pin: exact command plus required output selector.'),
 }).strict().superRefine((item, ctx) => {

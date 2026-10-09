@@ -258,6 +258,11 @@ export interface ProofOrStopConfig {
   cli?: {
     command: string;
   };
+  /**
+   * Old-PoS run 31 (core/pin-oracle.ts): the project's own evaluator for pinned
+   * input -> output examples, run at the Story base (read from the base commit).
+   */
+  pinOracle?: import('./pin-oracle.js').PinOracleConfig;
   /** 项目级验证命令；没有 validate.ts/js 时由 proof-or-stop validate 使用 */
   validate?: {
     /** Environment the project's tests require; applied to every validation and verification run. */
