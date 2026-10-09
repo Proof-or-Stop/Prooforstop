@@ -157,6 +157,23 @@
  *   NMT old-PoS run 33 (§3.5): a metadata finding's copy that also cites the
  *      product file is classified by its correction target: closed by the one
  *      correction, never routed to a finding-repair run.
+ *   NLI old-PoS run 34 (§4 sink 1c/1d): lanes launch slowest-first (docs,
+ *      test-coverage, concept, quality) and a finished lane is imported while a
+ *      slower lane still runs (the wait names the remaining lane).
+ *   NAV / NAVF old-PoS run 34 (F5): after an adopted intent amendment next runs
+ *      the item's pinned verifier and marks it done itself (NAV); a failing
+ *      verification relaunches the implementer as a framework step (NAVF).
+ *   NID old-PoS run 34 (sink 2, F6): checklist_update done + commit {files}
+ *      runs diff --check, commits as the canonical implementer and marks done
+ *      in one call; the prompt inlines the Story documents; no [probes]
+ *      contract with implementation.probeMatrix off.
+ *   NSC old-PoS run 34 (F3): a refused story_create lists every derivation
+ *      problem of every item at once, stages the payload and names ONE next
+ *      action (`story_create @<staged file>` after patching the rows).
+ *   Q6 (old-PoS run 34 REM, every next-driven scenario): a repaired finding's
+ *      finding_resolve / finding_resolve_batch is a framework step with a
+ *      framework-authored resolution (never an owner placeholder); NF also
+ *      checks the delivery prompt carries the delivery_context_pack output.
  *   NRI old-PoS run 31 (D3/D4): finding_resolve refuses unchanged citations
  *      (code without a test change, cited checklist text); plan acceptance
  *      refuses a batch that changes nothing.
@@ -250,7 +267,7 @@
  *      and still review the whole Story).
  *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5 ND-V6 ND-V8 ND-V9.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NDG|NRS|NPX|NPXA|NPXS|AB|ND-V1..NF-V9]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NDG|NRS|NPX|NPXA|NPXS|AB|ND-V1..NF-V9]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -1770,6 +1787,8 @@ const MANAGED_LAUNCH_REASONS = new Set(['review_lane_launch', 'inventory_critic_
 function authorPayload(o: Owner, reason: string, payload: Record<string, unknown>, findingDesc: (findingId: string) => string): void {
   switch (reason) {
     case 'finding_resolve': {
+      // Old-PoS run 34: a framework-authored resolution is kept as next wrote it.
+      if (typeof payload.resolution === 'string' && !/^<[\s\S]*>$/.test(payload.resolution)) break;
       const repair = repairFor(findingDesc(String(payload.findingId)));
       if (findingDesc(String(payload.findingId)) === META_PRODUCT_COPY_DESC) {
         payload.resolution = 'CHK-001 userSees now states Upper("ab") == "AB" (metadata correction); strs/strs.go was already correct, no code change.';
@@ -1784,6 +1803,7 @@ function authorPayload(o: Owner, reason: string, payload: Record<string, unknown
     }
     case 'finding_resolve_batch':
       for (const entry of (payload.resolutions ?? []) as Array<{ findingId: string; resolution: string }>) {
+        if (typeof entry.resolution === 'string' && !/^<[\s\S]*>$/.test(entry.resolution)) continue;
         const repair = repairFor(findingDesc(entry.findingId));
         entry.resolution = `repair ${git(o.worktree, ['log', '--format=%h', '-1', `--grep=${repair.subject.slice('test: '.length)}`])} adds ${repair.name}; go test ./strs -run ${repair.name} passes`;
       }
@@ -1945,6 +1965,13 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
     q6.push(...placeholderHintViolations(next), ...(next.batch ?? []).flatMap(call => placeholderHintViolations(call)));
     if (next.reason === 'dev_memory_finish_decision' || next.reason === 'summary_set') {
       q6.push(`TEST authoring ${next.reason} surfaced as its own step; the finish decision and the summary must arrive as one step listing each command (Q6 (b))`);
+    }
+    // Old-PoS run 34 (REM, sink 1a): a finding a managed repair run repaired (its own commit,
+    // fresh pinned evidence) is resolved by the framework with the same per-finding checks;
+    // the owner never re-reads the repair diff to author the resolution.
+    if ((next.reason === 'finding_resolve' || next.reason === 'finding_resolve_batch') && !/Story-metadata finding/.test(next.why)
+      && (next.kind !== 'framework' || (next.placeholders?.length ?? 0) > 0)) {
+      q6.push(`${next.reason} of a repaired finding reached the owner as ${next.kind} with placeholders [${(next.placeholders ?? []).join(', ')}]; the framework resolves it (old-PoS run 34 REM)`);
     }
     onStep?.(next, quiet);
     // Old-PoS run 27 (row 7): the DONE step is an explicit terminal statement, so the owner stops there.
@@ -2726,6 +2753,13 @@ function scenarioNF(machineEnv: NodeJS.ProcessEnv, steps: Step[], firstOnly = fa
     assert.equal((repairs[0]!.target?.groupFindingIds as string[] | undefined)?.length, 2, `${tag}: the grouped run binds both findings`);
     assert.equal(repairs[0]!.target?.abVariant, undefined, `${tag}: the production group records no A/B evidence`);
     assert.doesNotMatch(repairs[0]!.prompt, /experimental/i, `${tag}: the grouped repair prompt is not labelled experimental`);
+    // Old-PoS run 34 (F8, TEST): the delivery reviewer gets the delivery context pack in its prompt
+    // instead of exploring framework state (status, dispatch_status, host_run_status on its own run).
+    const delivery = managedPrompts(o, DELIVERY).at(-1);
+    assert.ok(delivery, `${tag}: a managed delivery reviewer ran`);
+    assert.match(delivery!.prompt, /Delivery context pack \(/, `${tag}: the delivery prompt carries the delivery_context_pack output`);
+    assert.match(delivery!.prompt, /Diff vs main \(/, `${tag}: the pack lists the delivery diff`);
+    assert.match(delivery!.prompt, /do not (?:run|explore)[^\n]*host_run_status/i, `${tag}: the prompt says not to explore framework state`);
     const tests = readFileSync(join(o.root, 'strs/strs_test.go'), 'utf8');
     assert.match(tests, /TestReverseEmpty/, 'F-001 repair merged into main');
     assert.match(tests, /TestUpperEmpty/, 'F-002 repair merged into main');
@@ -3869,6 +3903,58 @@ function fillStoryCreateTemplate(template: Record<string, unknown>): Record<stri
 }
 
 /**
+ * NSC (old-PoS run 34 F3, INIT): story_create was refused twice on derivation
+ * rows, one problem tier at a time, and each time the owner re-emitted the
+ * whole 14-17k-token payload. Now one refusal lists every row's problem across
+ * all items, stages the full payload in a runtime file and names ONE next
+ * action: fix the listed rows in that file and run `story_create @<file>`.
+ */
+function scenarioNSC(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NSC';
+  const name = 'NSC old-PoS run 34: a refused story_create lists every derivation problem at once and stages the payload for an @file resubmit';
+  const o = new Owner(tag, 'B-0000', machineEnv, steps, false, { fromScratch: true });
+  const lines: string[] = [];
+  try {
+    const first = o.cli('next', { json: true }, { label: 'next (no Story)' });
+    const template = parseJson(first.stdout) as unknown as NextStepJson;
+    assert.equal(template.reason, 'story_create_authoring', `[${tag}] template: ${template.reason}`);
+    const payload = fillStoryCreateTemplate(template.cli!.payload) as Record<string, any>;
+    payload.request = NIQ_REQUEST;
+    const one = payload.checklist[0];
+    // Two items, each with an underived example the request does not quote (two problems in two items).
+    Object.assign(one.verificationIntent.happy[0], { desc: 'Upper("abc") -> "ABC"', derivation: { requestQuote: 'Upper upper-cases its whole input', computation: 'the upper-case form of "abc" is "ABC"' } });
+    const two = JSON.parse(JSON.stringify(one));
+    Object.assign(two, { title: 'Reverse returns the rune-reversed string', context: 'strs.Reverse does not exist yet; it must reverse by rune.' });
+    two.verificationIntent.happy[0] = { ...two.verificationIntent.happy[0], desc: 'Reverse("abc") -> "cba"', verification: { command: 'go test -v ./strs -run ^TestReverse$', selector: '--- PASS: TestReverse' } };
+    delete two.verificationIntent.happy[0].derivation;
+    payload.checklist = [one, two];
+    const refused = o.cli('story_create', payload, { label: 'story_create (two underived rows)' });
+    lines.push(refused.out.split('\n').filter(line => /REFUSED|CHK-00|Next:/.test(line)).slice(0, 6).join(' | '));
+    assert.notEqual(refused.status, 0, `[${tag}] the underived rows are refused`);
+    assert.match(refused.out, /CHK-001:happy:0/, `[${tag}] the first item's row is listed:\n${refused.out.slice(-2000)}`);
+    assert.match(refused.out, /CHK-002:happy:0/, `[${tag}] every item's row is listed in the same refusal (run 34: one tier per refusal):\n${refused.out.slice(-2000)}`);
+    const staged = refused.out.match(/proof-or-stop story_create @(\S+\.json)/)?.[1];
+    assert.ok(staged, `[${tag}] the refusal names ONE next action, a story_create @<staged payload>:\n${refused.out.slice(-2000)}`);
+    assert.equal((refused.out.match(/^Next:/gm) ?? []).length, 1, `[${tag}] exactly one Next line`);
+    const stagedPayload = JSON.parse(readFileSync(staged!, 'utf8')) as Record<string, any>;
+    assert.deepEqual(stagedPayload.checklist, payload.checklist, `[${tag}] the staged file holds the submitted payload`);
+    // The owner patches only the refused rows in the staged file.
+    const sentence = '`strs.Upper(s)` returns the upper-case form of `s`, for example `Upper("ab")` is `"AB"`.';
+    stagedPayload.checklist[0].verificationIntent.happy[0].derivation = { requestQuote: sentence, computation: 'the upper-case form of "abc" is "ABC"' };
+    stagedPayload.checklist[1].verificationIntent.happy[0].derivation = { requestQuote: '`strs.Reverse(s)` returns `s` reversed by rune, for example `Reverse("héllo")` is `"olléh"`.', computation: 'reversing the runes of "abc" gives "cba"' };
+    writeFileSync(staged!, JSON.stringify(stagedPayload));
+    const created = o.node([CLI, 'story_create', `@${staged}`]);
+    assert.equal(created.status, 0, `[${tag}] the patched staged payload is accepted:\n${created.out.slice(-2000)}`);
+    assert.match(created.stdout, /Story B-[a-f0-9]+ created/, `[${tag}] created`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/**
  * NIN (N4, old-PoS runs 22-24: 30-36 owner requests in INIT, help pages,
  * manual INIT reviewer launches and polls). From an empty project the owner
  * runs `next` (no Story): it prints ONE complete story_create template (scope
@@ -4553,6 +4639,223 @@ function scenarioNMT(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
+/** Old-PoS run 34 (§4 sink 1d): the historically slowest lanes launch first (runs 27-34 lane wall times). */
+const NLI_LANE_ORDER = ['docs', 'test-coverage', 'concept', 'quality'];
+
+/**
+ * NLI (old-PoS run 34 §4 sink 1c/1d): R1/R2 waited for the slowest lane before
+ * importing any lane (15 + 8 + 7 s per round on the critical path), and the
+ * slowest lanes (test-coverage R1, docs R2) were launched 3rd / 4th behind the
+ * 8 s stagger. Now the lanes launch slowest-first, and a lane that finished is
+ * imported while a slower one still runs.
+ */
+function scenarioNLI(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NLI';
+  const name = 'NLI old-PoS run 34: lanes launch slowest-first and a finished lane is imported while a slower lane still runs';
+  const o = new Owner(tag, 'B-e3c1', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  const release = join(o.scriptsDir, 'nli-release');
+  let checked = false;
+  try {
+    devSetup(o);
+    driveWithNext(o, { findingRound1: false, run: false, interject: next => {
+      if (checked || next.reason !== 'review_lane_launch' || !next.parallel?.length) return false;
+      checked = true;
+      const lanes = next.parallel.map(call => short(String(call.cli.payload.lane)));
+      lines.push(`launch order: ${lanes.join(', ')}`);
+      const ranked = lanes.filter(lane => NLI_LANE_ORDER.includes(lane));
+      assert.deepEqual(ranked, NLI_LANE_ORDER.filter(lane => ranked.includes(lane)), `[${tag}] the slowest lanes launch first: ${lanes.join(', ')}`);
+      // The first launched lane is held; the others finish.
+      const held = String(next.parallel[0]!.cli.payload.lane);
+      const runIds = new Map<string, { runId: string; reviewRunId: string }>();
+      for (const call of next.parallel) {
+        const payload = call.cli.payload;
+        const lane = String(payload.lane);
+        const reviewRunId = String(payload.reviewRunId);
+        const base = laneScript(o.worktree, o.storyId, lane, reviewRunId, true, { findingRound1: false });
+        o.script(reviewRunId, lane === held
+          ? { ...base, commands: [['/bin/sh', '-c', `while [ ! -f '${release}' ]; do sleep 0.2; done`], ...(base.commands ?? [])] } : base);
+        const ran = o.mustCli('host_run', payload, { label: `host_run ${short(lane)}` });
+        runIds.set(lane, { runId: String((parseJson(ran.stdout)?.run as Record<string, unknown>).runId), reviewRunId });
+      }
+      try {
+        for (const [lane, row] of runIds) if (lane !== held) assert.equal(waitTerminal(o, short(lane), row.runId).state, 'completed', `[${tag}] ${short(lane)} completed`);
+        const asked = o.cli('next', { storyId: o.storyId, json: true }, { label: 'next (slowest lane still running)' });
+        const step = parseJson(asked.stdout) as unknown as NextStepJson;
+        lines.push(`with ${short(held)} running: ${step.kind} ${step.reason}`);
+        assert.equal(step.reason, 'review_evidence_import', `[${tag}] the finished lanes are imported before the held lane ends (run 34: import waited for the slowest lane): ${step.reason}: ${step.why}`);
+        const imported = Array.isArray(step.cli?.payload.imports) ? (step.cli!.payload.imports as Array<{ runId: string }>).map(row => row.runId) : [String(step.cli?.payload.runId)];
+        assert.deepEqual([...imported].sort(), [...runIds].filter(([lane]) => lane !== held).map(([, row]) => row.runId).sort(), `[${tag}] every finished lane is in the import`);
+        o.mustCli(step.cli!.command, step.cli!.payload, { label: 'f:review_evidence_import (early)' });
+        const wait = parseJson(o.cli('next', { storyId: o.storyId, json: true }, { label: 'next (after early import)' }).stdout) as unknown as NextStepJson;
+        lines.push(`then: ${wait.kind} ${wait.reason}`);
+        assert.equal(wait.reason, 'managed_run_wait', `[${tag}] then next waits for the held lane: ${wait.reason}: ${wait.why}`);
+        const waited = wait.cli?.payload.runId ?? (wait.cli?.payload.targets as Array<{ runId: string }> | undefined)?.map(row => row.runId).join(',');
+        assert.equal(waited, runIds.get(held)!.runId, `[${tag}] the wait names the held lane`);
+      } finally {
+        writeFileSync(release, '');
+      }
+      assert.equal(waitTerminal(o, short(held), runIds.get(held)!.runId).state, 'completed', `[${tag}] the held lane completed`);
+      for (const row of runIds.values()) o.unscript(row.reviewRunId);
+      return true;
+    } }, lines);
+    assert.ok(checked, `[${tag}] the round launched its lanes in one parallel step`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    try { writeFileSync(release, ''); } catch { /* fixture gone */ }
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** The implementer run of NAV/NAVF/NID: writes the code, pins its focused test, commits, marks done. */
+function pinnedImplementerCommands(storyId: string, itemId: string): string[][] {
+  const base = implementerScript(storyId, itemId).commands!;
+  return [base[0]!, base[1]!,
+    [process.execPath, CLI, 'verification_evidence_add', JSON.stringify({ storyId, itemId, intentRef: `${itemId}:happy:0`, kind: 'logic_test',
+      command: 'go test -v ./strs -run TestUpper', selector: '--- PASS: TestUpper', note: 'Pinned focused go test proves Upper upper-cases its input.' })],
+    base[2]!];
+}
+
+/**
+ * NAV / NAVF (old-PoS run 34 F5, sink 2): after the owner amends an intent the
+ * implementer declared in conflict (adopting the value the implementer says
+ * the request implies), next relaunched the implementer by hand (4 owner
+ * turns; the reopen run found nothing to change and only re-ran the focused
+ * test: 1.5 min, 2.0M). Now next verifies the item's pinned test itself
+ * (verification_run, framework) and marks it done (framework); only when that
+ * verification fails (NAVF: the amended pin names a test that does not pass)
+ * is the implementer relaunched (framework launch, the why names the failure).
+ */
+function scenarioNAV(machineEnv: NodeJS.ProcessEnv, steps: Step[], failing: boolean): Outcome {
+  const tag = failing ? 'NAVF' : 'NAV';
+  const name = failing
+    ? 'NAVF old-PoS run 34: after an adopted intent amendment whose pinned test fails, next relaunches the implementer (framework) naming the failed verification'
+    : 'NAV old-PoS run 34: after an adopted intent amendment, next verifies the pinned test itself and marks the item done (no implementer relaunch)';
+  const o = new Owner(tag, failing ? 'B-e3c3' : 'B-e3c2', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NIQ_REQUEST });
+  const lines: string[] = [];
+  const ask = (label: string): NextStepJson => {
+    const asked = o.cli('next', { storyId: o.storyId, json: true }, { label });
+    const next = (asked.status === 0 ? parseJson(asked.stdout) : null) as NextStepJson | null;
+    assert.ok(next && typeof next.kind === 'string', `[${tag}] next did not return a step:\n${asked.out.slice(-2000)}`);
+    lines.push(`${label}: ${next.phase} ${next.kind} ${next.reason}`);
+    return next;
+  };
+  const implementerRuns = () => managedPrompts(o, IMPLEMENTER).filter(row => row.target?.itemId === 'CHK-001').length;
+  try {
+    devSetup(o, false);
+    const launch = ask('next (DEV start)');
+    assert.equal(launch.reason, 'implement_item', `[${tag}] first DEV step: ${launch.reason}: ${launch.why}`);
+    assert.equal(launch.cli?.payload.itemId, 'CHK-001');
+    o.script(IMPLEMENTER, { commands: pinnedImplementerCommands(o.storyId, 'CHK-001'), final: `Implemented Upper; CHK-001 marked done.\n${NI_CONFLICT_LINE}` });
+    const launched = o.mustCli(launch.cli!.command, launch.cli!.payload, { label: 'host_run implementer (conflict)' });
+    const terminal = waitTerminal(o, 'implementer', String((parseJson(launched.stdout)?.run as Record<string, unknown>).runId));
+    o.unscript(IMPLEMENTER);
+    assert.equal(terminal.state, 'completed', `[${tag}] implementer terminal ${terminal.state} (${terminal.reason})\n${o.providerCommandLog()}`);
+    const blocked = ask('next (conflict declared)');
+    assert.equal(blocked.reason, 'intent_conflict', `[${tag}] the declared conflict blocks: ${blocked.reason}: ${blocked.why}`);
+    o.mustCli('story_advance', blocked.cli!.payload, { label: 'story_advance PLAN (intent conflict)' });
+    const amend = ask('next (PLAN, conflict open)');
+    assert.equal(amend.reason, 'intent_conflict_amend', `[${tag}] PLAN proposes the revision: ${amend.reason}`);
+    const current = new StoryStore(o.worktree).readChecklist(o.storyId).items.find(item => item.id === 'CHK-001')!;
+    const revised = JSON.parse(JSON.stringify(current.verificationIntent)) as { happy: Array<{ desc: string; verification?: { command: string; selector: string } }> };
+    assert.ok(revised.happy[0]!.verification, `[${tag}] the implementer pinned CHK-001:happy:0: ${JSON.stringify(revised.happy[0])}`);
+    revised.happy[0]!.desc = 'TestUpper passes: Upper("ab") == "AB" as the request states';
+    // NAVF: the amendment pins a test the implementation does not have yet.
+    if (failing) revised.happy[0]!.verification = { command: 'go test -v ./strs -run TestUpperRequestValue', selector: '--- PASS: TestUpperRequestValue' };
+    o.mustCli('checklist_update', { ...amend.cli!.payload, verificationIntent: revised,
+      reason: 'The request says Upper returns the upper-case form; the pinned intent kept the input unchanged.' }, { label: 'checklist_update CHK-001 intent revision' });
+    // PLAN re-approval is outside this harness: re-enter DEV as NI does.
+    const store = new StoryStore(o.worktree);
+    store.writeStory(o.storyId, { ...store.readStory(o.storyId), phase: 'DEV' });
+    commitFixtureMetadata(o, `proof-or-stop: ${o.storyId} re-enter DEV after the amendment (fixture)`);
+    let step = ask('next (DEV, after amendment)');
+    if (step.reason === 'checklist_item_start') { o.mustCli(step.cli!.command, step.cli!.payload, { label: 'f:checklist_item_start' }); step = ask('next (item restarted)'); }
+    assert.equal(step.reason, 'intent_amend_verify', `[${tag}] next verifies the amended item's pinned test itself (run 34: the owner relaunched the implementer by hand): ${step.reason}: ${step.why}`);
+    assert.equal(step.kind, 'framework', `[${tag}] the verification is a framework step`);
+    assert.equal(step.cli?.command, 'verification_run', `[${tag}] it runs the pinned verifier: ${step.command}`);
+    assert.equal(step.cli?.payload.intentRef, 'CHK-001:happy:0', `[${tag}] the pinned intent of the amended item`);
+    const verified = o.cli(step.cli!.command, step.cli!.payload, { label: 'f:intent_amend_verify' });
+    if (!failing) {
+      assert.equal(verified.status, 0, `[${tag}] the pinned test passes:\n${verified.out.slice(-1500)}`);
+      const done = ask('next (verified)');
+      assert.equal(done.reason, 'intent_amend_done', `[${tag}] next marks the verified item done: ${done.reason}: ${done.why}`);
+      assert.equal(done.kind, 'framework');
+      assert.equal(done.cli?.payload.status, 'done');
+      o.mustCli(done.cli!.command, done.cli!.payload, { label: 'f:intent_amend_done' });
+      assert.equal(new StoryStore(o.worktree).readChecklist(o.storyId).items.find(item => item.id === 'CHK-001')?.status, 'done', `[${tag}] CHK-001 done`);
+      const after = ask('next (CHK-001 done)');
+      assert.ok(!(after.reason === 'implement_item' && after.cli?.payload.itemId === 'CHK-001'), `[${tag}] no implementer relaunch of CHK-001: ${after.reason}`);
+      assert.equal(implementerRuns(), 1, `[${tag}] one implementer run of CHK-001`);
+    } else {
+      assert.notEqual(verified.status, 0, `[${tag}] the amended pin names a test that does not pass`);
+      const relaunch = ask('next (verification failed)');
+      assert.equal(relaunch.reason, 'implement_item', `[${tag}] a failed verification relaunches the implementer: ${relaunch.reason}: ${relaunch.why}`);
+      assert.equal(relaunch.cli?.payload.itemId, 'CHK-001');
+      assert.equal(relaunch.kind, 'framework', `[${tag}] the relaunch after a failed framework verification is the framework's`);
+      assert.match(relaunch.why, /verification/i, `[${tag}] the why names the failed verification: ${relaunch.why}`);
+    }
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/**
+ * NID (old-PoS run 34 sink 2): the implementer's per-item tail was 4 turns
+ * (git diff --check + status, git add + commit as the canonical author,
+ * checklist_update done, report) plus one turn re-reading background.md /
+ * plan.md / request.md at every run start. Now checklist_update done with
+ * `commit: {files}` runs diff --check, stages, commits as the canonical
+ * implementer author and marks the item done in one call (a whitespace error is
+ * refused with nothing committed), the prompt names that call and inlines the
+ * Story documents, and no `[probes]` contract is asked for with the matrix off.
+ */
+function scenarioNID(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NID';
+  const name = 'NID old-PoS run 34: checklist_update done + commit runs diff --check, commits as the implementer and marks done in one call; the prompt inlines the Story documents';
+  const o = new Owner(tag, 'B-e3c4', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NIQ_REQUEST });
+  const lines: string[] = [];
+  try {
+    devSetup(o, false);
+    const asked = o.cli('next', { storyId: o.storyId, json: true }, { label: 'next (DEV start)' });
+    const launch = parseJson(asked.stdout) as unknown as NextStepJson;
+    assert.equal(launch.reason, 'implement_item', `[${tag}] first DEV step: ${launch.reason}`);
+    const itemId = String(launch.cli!.payload.itemId);
+    const doneCall = [process.execPath, CLI, 'checklist_update', JSON.stringify({ storyId: o.storyId, itemId, status: 'done', commit: { files: ['strs/strs.go', 'strs/strs_test.go'] } })];
+    const writeFiles = (implText: string) => [process.execPath, '-e', `const fs=require('fs');fs.writeFileSync('strs/strs.go',${JSON.stringify(implText)});fs.writeFileSync('strs/strs_test.go',${JSON.stringify(TESTS)});`];
+    o.script(IMPLEMENTER, { commands: [writeFiles(`${IMPL}// trailing whitespace   \n`), doneCall, writeFiles(IMPL), doneCall],
+      final: `Implemented Upper and Reverse; ${itemId} committed and marked done.\n[intent-conflict] none` });
+    const launched = o.mustCli(launch.cli!.command, launch.cli!.payload, { label: 'host_run implementer (item done command)' });
+    const terminal = waitTerminal(o, 'implementer', String((parseJson(launched.stdout)?.run as Record<string, unknown>).runId));
+    o.unscript(IMPLEMENTER);
+    const log = o.providerCommandLog().trim().split('\n').filter(Boolean).map(row => JSON.parse(row) as { status: number; out: string });
+    lines.push(`done calls: ${log.filter((_, index) => index % 2 === 1).map(row => row.status).join(', ')}`);
+    assert.notEqual(log[1]?.status, 0, `[${tag}] a whitespace error is refused:\n${log[1]?.out}`);
+    assert.match(log[1]?.out ?? '', /diff --check/, `[${tag}] the refusal names git diff --check:\n${log[1]?.out}`);
+    assert.equal(log[3]?.status, 0, `[${tag}] the clean call commits and marks done:\n${log[3]?.out}`);
+    assert.equal(terminal.state, 'completed', `[${tag}] implementer terminal ${terminal.state} (${terminal.reason})`);
+    const commits = git(o.worktree, ['log', '--format=%an|%s', '-5']).split('\n');
+    const item = new StoryStore(o.worktree).readChecklist(o.storyId).items.find(row => row.id === itemId)!;
+    assert.ok(commits.some(row => row.startsWith('proof-or-stop-implementer|') && row.includes(`${o.storyId} ${itemId}: ${item.title}`)), `[${tag}] one commit by the canonical implementer author: ${commits.join(' ; ')}`);
+    assert.equal(commits.filter(row => row.startsWith('proof-or-stop-implementer|')).length, 1, `[${tag}] the refused call committed nothing: ${commits.join(' ; ')}`);
+    assert.equal(item.status, 'done', `[${tag}] ${itemId} done`);
+    const prompt = managedPrompts(o, IMPLEMENTER)[0]!.prompt;
+    assert.match(prompt, /"commit":\{"files":/, `[${tag}] the prompt names the one done + commit call`);
+    assert.match(prompt, /Story documents \(inlined/, `[${tag}] the prompt inlines the Story documents`);
+    assert.match(prompt, /returns the upper-case form of `s`, for example/, `[${tag}] the request text is inlined`);
+    assert.doesNotMatch(prompt, /\[probes\]/, `[${tag}] no [probes] report contract with implementation.probeMatrix off (run 34 F6)`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 const NRI_CODE_FINDING = {
   desc: 'strs/strs.go:4 Upper has no focused test for an empty string: Upper("") must return "".',
   severity: 'medium', category: 'edge', files: ['strs/strs.go'], evidenceState: 'verified',
@@ -4897,7 +5200,7 @@ function scenarioNUB(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NDG|NRS|NPX[AS]?|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NDG|NRS|NPX[AS]?|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -4947,6 +5250,11 @@ async function main(): Promise<void> {
     if (only.includes('NMF2')) outcomes.push(scenarioNMF(machine.env, steps, 'NMF2'));
     if (only.includes('NMO')) outcomes.push(scenarioNMO(machine.env, steps));
     if (only.includes('NMT')) outcomes.push(scenarioNMT(machine.env, steps));
+    if (only.includes('NLI')) outcomes.push(scenarioNLI(machine.env, steps));
+    if (only.includes('NAV')) outcomes.push(scenarioNAV(machine.env, steps, false));
+    if (only.includes('NAVF')) outcomes.push(scenarioNAV(machine.env, steps, true));
+    if (only.includes('NID')) outcomes.push(scenarioNID(machine.env, steps));
+    if (only.includes('NSC')) outcomes.push(scenarioNSC(machine.env, steps));
     if (only.includes('NRI')) outcomes.push(scenarioNRI(machine.env, steps));
     if (only.includes('NMR')) outcomes.push(scenarioNMR(machine.env, steps));
     if (only.includes('NLS')) outcomes.push(scenarioNLS(machine.env, steps));
@@ -4975,7 +5283,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {
