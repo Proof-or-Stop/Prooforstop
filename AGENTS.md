@@ -564,11 +564,17 @@ frozen in DEV), then `checklist_update` with the revised `verificationIntent`, a
 `reason` and `status: pending`. A finding repair that changes how an input is
 handled keeps base behavior for the input variants the request did not change.
 The DEV implementer prompt carries the same check before REVIEW as a probe
-matrix (old-PoS runs 24-29): operand positions x value classes (omitted,
-explicit null, 0, negative, out of range, wrong type, empty receiver, multibyte,
-aliased value) x operations (read, write, stringify, error path, neighbouring
-receiver types), run on the Story base and on the change, reported as a
-`[probes]` line in the implementer's final result.
+matrix (old-PoS runs 24-30): operand positions x value classes (omitted,
+explicit null, explicit value equal to the default such as step 1 or start 0,
+0, negative, out of range, wrong type, empty receiver, multibyte, aliased value)
+x operations (read, write, stringify, error path, neighbouring receiver types),
+run on the Story base and on the change. Every row the change decides needs a
+test, not only a probe. The `[probes]` line in the implementer's final result
+lists `tested:` and `probed-only:` decided rows; `next` parses it, and a
+probed-only row on a done item returns `probe_tests_missing` (one owner
+`checklist_update` back to `in_progress`; the relaunched implementer prompt
+names the earlier run and the rows). A relaunch reporting the same rows is not
+reopened again (REVIEW judges them).
 
 PLAN coverage matrix (old-PoS runs 24-29, core/plan-coverage-matrix.ts). With a
 recorded `request.md`, `story_review` (PLAN) reports a `missing_coverage_row`
@@ -578,9 +584,17 @@ every read-side value class when a request sentence makes writes follow reads;
 each omission pattern of an n-part syntax whose omitted forms the request
 lists; each enumerated member (operand position, receiver, form) x the value
 class its sentence states, plus explicit null for an omittable non-numeric
-operand. Each gap names the triggering request sentences; an `excludes` entry
-naming the row's key excludes it. The scope-plan prompt carries the judgment
-form of the same three checks.
+operand. Since old-PoS run 30 also: a stringify row per omission pattern the
+request writes, when the request specifies printed/stringified forms; a size
+mismatch and a broadcast row per assignment range form (two-part, three-part)
+of each receiver whose section states those rules; and an exact-text row per
+string quoted under a request line that says strings must match exactly (the
+intent must carry the string and state an exact comparison). Each gap names the
+triggering request sentences; an `excludes` entry naming the row's key excludes
+it. The scope-plan prompt carries the judgment form of the same checks, and the
+test-coverage lane prompt (only when the request quotes must-match-exactly
+strings) an exact-text rubric: a prefix / contains / regex assertion of such a
+string is a finding.
 Every `openQuestions` entry in that signed scope check must have a substantive
 written resolution before `story_review` can pass. The current handler-directed
 path is the registered `scope_question_resolve` command; the main agent owns the
