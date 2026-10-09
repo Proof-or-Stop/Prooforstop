@@ -26,7 +26,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import {
-  anchorCase, matchesPin, normalizeProbeValue, parseExpectation, parseProbeRows, pinRequestContradiction, probeAnchorContext, probeCasesOf,
+  anchorCase, itemProbeCases, matchesPin, normalizeProbeValue, parseExpectation, parseProbeRows, pinRequestContradiction, probeAnchorContext, probeCasesOf,
   probeDoneCheck, readProbeState, renderAnchoredProbeTable, renderFrameworkProbeContract, renderProbeEvidence, renderRequestAnchoredPinAudit,
   reportProbeDecision, runnerProbeDecision, storyProbeRunner, PROBE_REQUEST_MISMATCH,
 } from '../core/request-probes.js';
@@ -61,6 +61,8 @@ const RUN31_REQUEST = [
   '  - `string[start:end] = "..."` and `string[start:end:step] = "..."`',
 ].join('\n');
 
+const row = (desc: string, extra: Record<string, unknown> = {}) => ({ desc, type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story', ...extra });
+
 // ---- A. cases
 {
   const multi = probeCasesOf('CHK-002:edge:0', 'CHK-002', 'stepped read forms over a=[0,1,2,3,4,5]: a[1:5:2]->[1, 3]; a[:4:2]->[0, 2]; a[1::2]->[1, 3, 5]');
@@ -89,6 +91,10 @@ const RUN31_REQUEST = [
   assert.deepEqual(error[0]!.pinned, { kind: 'error', text: 'slice step cannot be 0' });
   const unbound = probeCasesOf('CHK-002:edge:2', 'CHK-002', "a[::0] -> error starts with 'slice step cannot be 0'");
   assert.equal(unbound[0]!.unbound, true, 'an unbound receiver is not runnable');
+  // Run 31 CHK-002: the error rows named `a` and relied on a sibling row's `over a=[...]`.
+  const borrowed = itemProbeCases({ id: 'CHK-002', verificationIntent: { happy: [row('a[::2] over [0,1,2,3,4,5] -> [0, 2, 4]')], edge: [row("a[::0] -> error starts with 'slice step cannot be 0'")], adversarial: [] } as unknown as VerificationIntent });
+  assert.deepEqual(borrowed[1]!.statements, ['a=[0,1,2,3,4,5]'], 'an unbound case borrows the binding its item\'s other rows use');
+  assert.equal(borrowed[1]!.unbound, false);
   assert.deepEqual(probeCasesOf('CHK-001:happy:0', 'CHK-001', 'myArray[99 : 101 : 2] -> (myArray[99:101:2])'), [], 'a stringify row is not an evaluation');
   assert.deepEqual(probeCasesOf('x', 'CHK-005', "string single-index out-of-range write s='hello'; s[9]='x' -> unchanged 'hello' or documented error"), [], 'prose result: no case');
   assert.deepEqual(probeCasesOf('x', 'CHK-001', 'TestUpper passes'), []);
@@ -102,7 +108,6 @@ const RUN31_REQUEST = [
 }
 
 // ---- B. anchoring (run 31 request)
-const row = (desc: string, extra: Record<string, unknown> = {}) => ({ desc, type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story', ...extra });
 const item = (id: string, title: string, lanes: { happy?: string[]; edge?: string[]; adversarial?: string[] }): ChecklistItem => ({ id, title, status: 'pending',
   verificationIntent: { happy: (lanes.happy ?? []).map(desc => row(desc)), edge: (lanes.edge ?? []).map(desc => row(desc)), adversarial: (lanes.adversarial ?? []).map(desc => row(desc)) } as unknown as VerificationIntent } as ChecklistItem);
 // Run 31 at DEV start (git 747d9d6): the owner pinned explicit null start/end as omitted.
@@ -253,7 +258,7 @@ const EVAL = [
 // ---- F. prompt texts
 {
   const table = renderAnchoredProbeTable(DEV_ITEMS, RUN31_REQUEST, 'CHK-002').join('\n');
-  assert.match(table, /S1: "A non-numeric `start`/, 'the defining sentence is printed once');
+  assert.match(table, /S\d: "A non-numeric `start`/, 'the defining sentence is printed once');
   assert.match(table, /CHK-002:edge:0#1: a=\[0,1,2,3,4,5\]; a\[null:4:2\] -> \[0, 2\] \| S\d \(request expects an error[^\n]*PIN CONTRADICTS REQUEST/, `the F-006 row:\n${table}`);
   assert.match(table, /\[probe-row\] <row> \| request: <expected per the sentence> \| observed: <HEAD output> \| ok\|contradiction/);
   assert.deepEqual(renderAnchoredProbeTable(DEV_ITEMS, null, 'CHK-002'), [], 'no request, no table');

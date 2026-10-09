@@ -33,7 +33,8 @@ import { renderCoverageMatrixRule } from '../core/plan-coverage-matrix.js';
 import { renderScopePlanRerunContext } from '../core/scope-plan-rerun-context.js';
 import { IMPLEMENTER_PROBE_MATRIX, INTENT_CONFLICT_RETURN_CONTRACT, REPAIR_INPUT_VARIANT_RULE, renderProbeTestGapLine, renderReviewRequestAuthority } from '../core/request-authority.js';
 import { renderAllowedFilesSection } from '../core/managed-writer-scope.js';
-import { earlierFindingRepairReports, earlierImplementerProbeGap } from '../core/finding-repair-attempts.js';
+import { earlierFindingRepairReports, earlierImplementerProbeGap, implementerRunReports } from '../core/finding-repair-attempts.js';
+import { renderAnchoredProbeTable, renderFrameworkProbeContract, renderProbeEvidence, renderProbeFlagRelaunch, renderRequestAnchoredPinAudit, reportProbeDecision, requestAnchoredKeys, storyProbeRunner } from '../core/request-probes.js';
 import { scopeBoundaryHashIsFresh } from '../core/scope-anti-expansion.js';
 import { reportHealthIssue } from '../core/health.js';
 import { findSealedManagedImplementerCompletion, managedImplementerAlreadyDoneAction } from '../core/managed-host-run.js';
@@ -236,6 +237,8 @@ function appendScopePlanRequestTraceability(lines: string[], store: StoryStore, 
   lines.push(...renderPinAudit(items, request.text));
   // Old-PoS run 31 (core/pin-oracle.ts): the project-declared oracle for the examples the framework could not evaluate.
   lines.push(...renderPinOracleAudit(oracle));
+  // Old-PoS run 31 (core/request-probes.ts): request-defined rows paired with the sentence that defines them.
+  lines.push(...renderRequestAnchoredPinAudit(items, request.text));
   // Coverage matrix (old-PoS runs 24-29, core/plan-coverage-matrix.ts): the judgment form of the PLAN coverage checks.
   lines.push(...renderCoverageMatrixRule(items, request.text));
 }
@@ -795,6 +798,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     }
     const requestAuthority = renderReviewRequestAuthority(store, args.storyId, { lane });
     if (requestAuthority.length > 0) lines.push('', ...requestAuthority);
+    // Old-PoS run 31 (core/request-probes.ts): the framework probe tables as evidence.
+    const probeEvidence = renderProbeEvidence(root, args.storyId, store.readChecklist(args.storyId).items.map(item => item.id));
+    if (probeEvidence.length > 0) lines.push('', ...probeEvidence);
     lines.push('');
     lines.push(`Current phase: ${story.phase}. Review lane: ${lane}.`);
     appendReviewerExecutionModes(lines, args.storyId, lane);
@@ -1161,10 +1167,25 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       appendPinnedVerification(lines, item.verificationIntent);
       appendExactRequiredOutput(lines, [item]);
       // Old-PoS runs 24-29: the repair prompt's input-variant sweep, moved before REVIEW as a probe matrix.
+      // Old-PoS run 31 (core/request-probes.ts): with a project probeRunner the framework runs the
+      // item's rows (compact contract, no hand-written probes); without one, the matrix plus the
+      // request-anchored rows and the per-row [probe-row] report.
       lines.push('');
-      lines.push(IMPLEMENTER_PROBE_MATRIX);
-      const itemBase = (() => { try { return resolveFullStoryBaseHead(store, root, args.storyId); } catch { return undefined; } })();
-      lines.push(`- Story base: ${itemBase ?? '`git merge-base HEAD main`'} (run base probes in a detached temporary worktree, then remove it).`);
+      const probeItems = store.readChecklist(args.storyId).items;
+      const probeRequest = readStoryRequest(store, args.storyId);
+      const probeRequestText = probeRequest.status === 'ok' ? probeRequest.text : null;
+      const probeRunner = storyProbeRunner(store, root, args.storyId, resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root }));
+      if (probeRunner) {
+        lines.push(...renderFrameworkProbeContract(probeItems, probeRequestText, args.itemId, probeRunner));
+        lines.push(...renderProbeFlagRelaunch(root, args.storyId, args.itemId));
+      } else {
+        lines.push(IMPLEMENTER_PROBE_MATRIX);
+        const itemBase = (() => { try { return resolveFullStoryBaseHead(store, root, args.storyId); } catch { return undefined; } })();
+        lines.push(`- Story base: ${itemBase ?? '`git merge-base HEAD main`'} (run base probes in a detached temporary worktree, then remove it).`);
+        lines.push(...renderAnchoredProbeTable(probeItems, probeRequestText, args.itemId));
+        const reported = reportProbeDecision(args.itemId, requestAnchoredKeys(probeItems, probeRequestText, args.itemId), implementerRunReports(root, args.storyId, args.itemId));
+        if (reported) lines.push(`- Earlier implementer run ${reported.runId} of this item left request contradictions open (fix each, or list a wrong pin under [intent-conflict]): ${reported.rows.join('; ').slice(0, 1500)}`);
+      }
       const probeGap = earlierImplementerProbeGap(root, args.storyId, args.itemId);
       if (probeGap) lines.push(renderProbeTestGapLine(probeGap));
       const routed = store.readCandidateSpecSet(args.storyId);

@@ -9,6 +9,7 @@ import { rethrowIntentAmendmentIntegrityError } from '../core/verification-inten
 import { inspectIntentCheckpointRecovery } from '../core/verification-intent-checkpoint.js';
 import { acceptanceIntentHash, acceptanceScopeHash, createIntentAmendment, createIntentRevision } from '../core/verification-intent-amendment.js';
 import { pinExamples, pinOracleMismatches, pinOracleRefusal, storyPinOracle } from '../core/pin-oracle.js';
+import { probeDoneCheck, storyProbeRunner } from '../core/request-probes.js';
 import { currentGitHead } from '../core/evidence-freshness.js';
 import { resolveManagedDispatchInvocation, resolveManagedImplementerCompletionInvocation } from '../core/managed-host-run.js';
 import type { ProcessEventAppendIdentity } from '../core/process-events.js';
@@ -3448,7 +3449,25 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         assertVerificationIntentClassification(args.itemId, args.verificationIntent);
       }
 
-      return withChecklistLock(ctx, args.storyId, () => {
+      // Old-PoS run 31 (core/request-probes.ts): with a project probeRunner, done first
+      // runs the item's example rows on the Story base and HEAD; a flagged set is
+      // refused once (nothing written), so the implementer acts on it in-session.
+      let probeNote: string | null = null;
+      if (args.status === 'done') {
+        const current = (() => { try { return store.readChecklist(args.storyId); } catch { return null; } })();
+        const target = current?.items.find(i => i.id === args.itemId);
+        if (current && target && target.status !== 'done' && store.readStory(args.storyId).phase === 'DEV') {
+          const runner = storyProbeRunner(store, root, args.storyId, resolveStoryGitCwd(args.storyId));
+          if (runner) {
+            const request = readStoryRequest(store, args.storyId);
+            const checked = probeDoneCheck(runner, root, args.storyId, target, current.items, request.status === 'ok' ? request.text : null);
+            if (checked.refusal) throw new Error(checked.refusal);
+            probeNote = checked.note;
+          }
+        }
+      }
+
+      const updated = withChecklistLock(ctx, args.storyId, () => {
       // Truth source protection: DEV and later phases forbid modifying the fundamental information of checklist
       // checklist is the truth source; executors (main agent / subagent) cannot tamper with the requirement definition during execution
       //
@@ -3905,6 +3924,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         : '';
       return `Checklist ${args.itemId}: ${results.join(', ')}${commitHint}${intentHeadsUpText}`;
       });
+      return probeNote ? `${updated}${probeNote}` : updated;
     },
 
     light_review(args: {

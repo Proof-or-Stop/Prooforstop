@@ -171,7 +171,8 @@ function git(cwd: string, args: string[]): string | null {
   try { return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 16 * 1024 * 1024 }).trim(); } catch { return null; }
 }
 
-function validConfig(raw: unknown): PinOracleConfig | null {
+/** A runner declaration (command + optional string args), or null. */
+export function validRunnerConfig(raw: unknown): PinOracleConfig | null {
   if (!raw || typeof raw !== 'object') return null;
   const config = raw as Record<string, unknown>;
   if (typeof config.command !== 'string' || !config.command.trim()) return null;
@@ -185,7 +186,7 @@ export function readBasePinOracle(gitCwd: string, base: string): { config: PinOr
   if (!text) return null;
   try {
     const parsed = JSON.parse(text) as { pinOracle?: unknown; validate?: { env?: Record<string, string> } };
-    const config = validConfig(parsed.pinOracle);
+    const config = validRunnerConfig(parsed.pinOracle);
     return config ? { config, env: { ...(parsed.validate?.env ?? {}), ...(config.env ?? {}) } } : null;
   } catch { return null; }
 }
@@ -201,6 +202,41 @@ export function pinOracleStoryBase(gitCwd: string, frozenBase: string | null | u
 }
 
 /**
+ * A `git archive` of `commit` under `dir/tree` with `setup` run in it, created
+ * once (atomic rename; `dir/ready.json` marks it), or null when the archive or
+ * the setup fails. Shared with the framework probe runner (core/request-probes.ts).
+ */
+export function prepareArchivedTree(dir: string, gitCwd: string, commit: string, setup: PinOracleConfig['setup'], timeoutMs: number | undefined, env: Record<string, string>): string | null {
+  const tree = join(dir, 'tree');
+  const ready = join(dir, 'ready.json');
+  if (existsSync(ready)) return tree;
+  mkdirSync(dir, { recursive: true });
+  const staging = mkdtempSync(join(dir, 'staging-'));
+  try {
+    const archive = join(staging, 'base.tar');
+    if (git(gitCwd, ['archive', '--format=tar', '-o', archive, commit]) === null) return null;
+    const extracted = join(staging, 'tree');
+    mkdirSync(extracted);
+    if (spawnSync('tar', ['-xf', archive, '-C', extracted], { stdio: 'ignore' }).status !== 0) return null;
+    rmSync(archive, { force: true });
+    if (setup?.command) {
+      const ran = spawnSync(setup.command, setup.args ?? [], { cwd: extracted, env: { ...process.env, ...env }, encoding: 'utf8',
+        timeout: Math.max(timeoutMs ?? DEFAULT_TIMEOUT_MS, 120_000), stdio: ['ignore', 'pipe', 'pipe'] });
+      if (ran.status !== 0) return null;
+    }
+    if (existsSync(tree)) rmSync(staging, { recursive: true, force: true });
+    else renameSync(extracted, tree);
+    writeFileSync(ready, `${JSON.stringify({ commit, preparedAt: new Date().toISOString() })}\n`);
+    return tree;
+  } catch {
+    // A concurrent preparation of the same commit may have won the rename.
+    return existsSync(ready) ? tree : null;
+  } finally {
+    rmSync(staging, { recursive: true, force: true });
+  }
+}
+
+/**
  * The base tree with the oracle's setup done, created once per base commit
  * (atomic rename), or null when the project declares no oracle or setup fails.
  */
@@ -208,35 +244,8 @@ export function preparePinOracle(runtimeRoot: string, gitCwd: string, base: stri
   const declared = readBasePinOracle(gitCwd, base);
   if (!declared) return null;
   const dir = join(runtimeRoot, PROOF_OR_STOP_DIR, 'runtime', 'pin-oracle', base.slice(0, 12));
-  const tree = join(dir, 'tree');
-  const ready = join(dir, 'ready.json');
-  const env = declared.env;
-  if (existsSync(ready)) return { config: declared.config, base, tree, env };
-  mkdirSync(dir, { recursive: true });
-  const staging = mkdtempSync(join(dir, 'staging-'));
-  try {
-    const archive = join(staging, 'base.tar');
-    if (git(gitCwd, ['archive', '--format=tar', '-o', archive, base]) === null) return null;
-    const extracted = join(staging, 'tree');
-    mkdirSync(extracted);
-    if (spawnSync('tar', ['-xf', archive, '-C', extracted], { stdio: 'ignore' }).status !== 0) return null;
-    rmSync(archive, { force: true });
-    const setup = declared.config.setup;
-    if (setup?.command) {
-      const ran = spawnSync(setup.command, setup.args ?? [], { cwd: extracted, env: { ...process.env, ...env }, encoding: 'utf8',
-        timeout: Math.max(declared.config.timeoutMs ?? DEFAULT_TIMEOUT_MS, 120_000), stdio: ['ignore', 'pipe', 'pipe'] });
-      if (ran.status !== 0) return null;
-    }
-    if (existsSync(tree)) rmSync(staging, { recursive: true, force: true });
-    else renameSync(extracted, tree);
-    writeFileSync(ready, `${JSON.stringify({ base, preparedAt: new Date().toISOString() })}\n`);
-    return { config: declared.config, base, tree, env };
-  } catch {
-    // A concurrent preparation of the same base may have won the rename.
-    return existsSync(ready) ? { config: declared.config, base, tree, env } : null;
-  } finally {
-    rmSync(staging, { recursive: true, force: true });
-  }
+  const tree = prepareArchivedTree(dir, gitCwd, base, declared.config.setup, declared.config.timeoutMs, declared.env);
+  return tree ? { config: declared.config, base, tree, env: declared.env } : null;
 }
 
 type OracleResult = { status: 'value'; value: string } | { status: 'unsupported' };
