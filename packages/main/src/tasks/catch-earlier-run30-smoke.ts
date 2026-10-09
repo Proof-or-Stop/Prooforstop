@@ -25,10 +25,9 @@
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 
 import * as requestAuthority from '../core/request-authority.js';
 import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
@@ -168,7 +167,10 @@ try {
   assert.match(implementer, /explicit value equal to the default \(e\.g\. step 1, start 0/, 'the probe matrix names the explicit-default class (F-004)');
   assert.match(implementer, /needs a test, not only a probe/, 'a decided row needs a test');
   assert.match(implementer, /\[probes\][^\n]*tested: [^\n]*probed-only: /, 'the [probes] line separates tested from probed-only rows');
-  assert.match(implementer, /exactly[^\n]*not a prefix/i, 'the exact-output section asks for exact (not prefix) assertions');
+  // An item whose intent quotes an error string gets the exact-output section.
+  seed('B-d036', ABS_STEPPED_SLICES_REQUEST, [{ id: 'CHK-001', title: 'Assign array range slices', rows: [['happy', 'a[1:4]=[9] fails with `range assignment size mismatch: target=3 value=1`']] }], 'DEV');
+  const withExact = dispatch.dispatch({ storyId: 'B-d036', itemId: 'CHK-001', agentType: 'proof-or-stop-implementer' }).prompt;
+  assert.match(withExact, /compares it exactly, not a prefix/i, 'the exact-output section asks for exact (not prefix) assertions');
 
   const parse = (requestAuthority as unknown as { parseProbeReport?: (text: string) => { present: boolean; probedOnly: string | null } }).parseProbeReport;
   assert.equal(typeof parse, 'function', 'request-authority exports parseProbeReport');
@@ -187,9 +189,12 @@ try {
   assert.deepEqual(gaps!([{ runId: 'r1', itemId: 'CHK-004', createdAt: '1', text: untested }, { runId: 'r2', itemId: 'CHK-004', createdAt: '2', text: untested }], new Set(['CHK-004'])), [],
     'a relaunch that reports the same probed-only rows made no progress: no second reopen (REVIEW judges them)');
 
-  // Test-coverage lane rubric: prefix / contains assertions of request-quoted exact strings are a finding.
-  const template = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'templates', 'agents', 'proof-or-stop-review-test-coverage.md'), 'utf8');
-  assert.match(template, /must match exactly[^\n]*prefix[^\n]*finding/i, 'the test-coverage rubric makes prefix/contains assertions of request-quoted exact strings a finding');
+  // Test-coverage lane rubric: prefix / contains assertions of request-quoted exact strings are a finding (only when the request quotes them).
+  const lane = requestAuthority.renderReviewRequestAuthority(store, 'B-d030', { lane: 'proof-or-stop-review-test-coverage' } as never).join('\n');
+  assert.match(lane, /Exact-text rubric[^\n]*range assignment size mismatch: target=<X> value=<Y>[^\n]*prefix[^\n]*finding/, 'the test-coverage lane gets the exact-text rubric with the request strings');
+  assert.doesNotMatch(lane, /slice step cannot be 0`[^\n]*prefix/, 'a "starts with" string is not in the exact-text rubric');
+  assert.doesNotMatch(requestAuthority.renderReviewRequestAuthority(store, 'B-d030', { lane: 'proof-or-stop-review-quality' } as never).join('\n'), /Exact-text rubric/, 'other lanes do not get it');
+  assert.doesNotMatch(requestAuthority.renderReviewRequestAuthority(store, 'B-d032', { lane: 'proof-or-stop-review-test-coverage' } as never).join('\n'), /Exact-text rubric/, 'a request without exact strings adds nothing');
 
   console.log(`catch-earlier-run30-smoke: ${added.join('; ')}`);
   console.log('catch-earlier-run30-smoke: PASS');

@@ -92,7 +92,7 @@ try {
   const placeholder = edge.find(row => /^<write-mirror:/.test(String(row.desc)));
   assert.ok(placeholder, `run 29: CHK-003 gets a write-mirror placeholder intent: ${JSON.stringify(edge.map(row => row.desc))}`);
   assert.equal((placeholder!.derivation as { requestQuote?: string }).requestQuote, 'Use the same index-selection semantics as read slicing.', 'run 29: the placeholder cites the triggering sentence');
-  assert.ok(edge.filter(row => /^</.test(String(row.desc))).length <= 3, 'run 29: placeholders are grouped per rule, not one per row');
+  assert.ok(edge.filter(row => /^</.test(String(row.desc))).length <= 4, 'run 29: placeholders are grouped per rule (4 rules since run 30: exact-text), not one per row');
 
   // ---- B on run 28's checklist: F-002 (assignment with a non-numeric start panics) and F-001 (explicit null end/step).
   seed('B-c028', ABS_STEPPED_SLICES_REQUEST, RUN28_ITEMS);
@@ -120,7 +120,8 @@ try {
     ['edge', 'a=[1,2,3]; a[null:2:1]=[1], a[0:null:1]=[1], a[0:2:null]=[1] and a[0:2:]=[1,2] keep the read-side results'],
   );
   seed('B-c030', ABS_STEPPED_SLICES_REQUEST, filled);
-  assert.deepEqual(keys(gapsOf('B-c030')), [], 'run 29 + the demanded rows: nothing left to demand');
+  // The run-30 rows (stringify, per-form size mismatch / broadcast, exact text) are catch-earlier-run30-smoke's.
+  assert.deepEqual(keys(gapsOf('B-c030')).filter(key => !/stringify|size mismatch|broadcast|exact text/.test(key)), [], 'run 29 + the demanded rows: nothing left to demand');
 
   // An excludes entry naming a row's key excludes it (a row that does not apply).
   seed('B-c031', ABS_STEPPED_SLICES_REQUEST, RUN29_ITEMS, 'PLAN', { 'CHK-002': ['coverage read or write: form [::]: the parser rejects an all-omitted stepped slice by design'] });

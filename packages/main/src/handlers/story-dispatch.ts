@@ -30,9 +30,9 @@ import { readStoryRequest, renderUnmappedLiteralsLine, unmappedStoryRequestLiter
 import { renderPinAudit } from '../core/intent-derivation.js';
 import { renderCoverageMatrixRule } from '../core/plan-coverage-matrix.js';
 import { renderScopePlanRerunContext } from '../core/scope-plan-rerun-context.js';
-import { IMPLEMENTER_PROBE_MATRIX, INTENT_CONFLICT_RETURN_CONTRACT, REPAIR_INPUT_VARIANT_RULE, renderReviewRequestAuthority } from '../core/request-authority.js';
+import { IMPLEMENTER_PROBE_MATRIX, INTENT_CONFLICT_RETURN_CONTRACT, REPAIR_INPUT_VARIANT_RULE, renderProbeTestGapLine, renderReviewRequestAuthority } from '../core/request-authority.js';
 import { renderAllowedFilesSection } from '../core/managed-writer-scope.js';
-import { earlierFindingRepairReports } from '../core/finding-repair-attempts.js';
+import { earlierFindingRepairReports, earlierImplementerProbeGap } from '../core/finding-repair-attempts.js';
 import { scopeBoundaryHashIsFresh } from '../core/scope-anti-expansion.js';
 import { reportHealthIssue } from '../core/health.js';
 import { findSealedManagedImplementerCompletion, managedImplementerAlreadyDoneAction } from '../core/managed-host-run.js';
@@ -789,7 +789,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push(`- Bind no-blocker readManifest to candidateSpecSetDigest=${routed.artifactDigest} and corpusDigest=${routed.corpusDigest}.`);
       appendCandidateEscalationGuidance(lines, args.storyId, routed, false);
     }
-    const requestAuthority = renderReviewRequestAuthority(store, args.storyId);
+    const requestAuthority = renderReviewRequestAuthority(store, args.storyId, { lane });
     if (requestAuthority.length > 0) lines.push('', ...requestAuthority);
     lines.push('');
     lines.push(`Current phase: ${story.phase}. Review lane: ${lane}.`);
@@ -1161,6 +1161,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push(IMPLEMENTER_PROBE_MATRIX);
       const itemBase = (() => { try { return resolveFullStoryBaseHead(store, root, args.storyId); } catch { return undefined; } })();
       lines.push(`- Story base: ${itemBase ?? '`git merge-base HEAD main`'} (run base probes in a detached temporary worktree, then remove it).`);
+      const probeGap = earlierImplementerProbeGap(root, args.storyId, args.itemId);
+      if (probeGap) lines.push(renderProbeTestGapLine(probeGap));
       const routed = store.readCandidateSpecSet(args.storyId);
       if (routed) {
         lines.push('');

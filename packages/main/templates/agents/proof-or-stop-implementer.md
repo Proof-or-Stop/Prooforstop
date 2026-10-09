@@ -121,11 +121,11 @@ Completed CHK-XXX: one sentence describing the implementation.
 [bug-suspected] <file:line + symptom> (if any, let main agent decide for itself)
 [next] <what you think the main agent should do next — a one-sentence suggestion, not a command>
 [intent-conflict] none | <intentRef> | request: "<request sentence>" | request implies: <value> | intent pins: <value>
-[probes] <n> rows run on base and change; changed: <row: base -> new> | none; crashes: none
+[probes] <n> rows run on base and change; changed: <row: base -> new> | none; tested: <decided rows with a test> | none; probed-only: <decided rows without a test> | none; crashes: none
 ```
 
 The `[intent-conflict]` line is mandatory (one line per conflict): the request outranks a pinned intent, so never resolve a contradiction silently or as a prose "deliberate choice"; the framework parses this line and the Story owner amends the intent.
-The `[probes]` line reports the dispatch prompt's probe matrix (operand position x value class x operation, run on the Story base and on your change).
+The `[probes]` line reports the dispatch prompt's probe matrix (operand position x value class x operation, run on the Story base and on your change); a probed-only decided row reopens the item.
 
 **Absolutely do not**:
 - Give long explanations of what you did (the diff is already in git, the main agent can read it themselves)
