@@ -631,6 +631,57 @@ from the sealed proposal. Each item is logged as a
 (`evidence_chain_not_a_finding`) with the same next action. An inventory
 critic proposal may not carry such items.
 
+Story-metadata findings are not findings either (old-PoS run 31: 10 of 13
+findings restated one wrong `userSees` literal and stale intent rows; routed as
+findings they cost two remediation rounds, blocked repair runs, a false closure
+by a code test and a product test that parsed `checklist.json`). A lane finding
+whose cited files are Story metadata (`.proof-or-stop/...`, optionally with test
+files cited as corroboration and no `path:line` of a non-test product file) and
+whose text names a checklist item (`CHK-n`) or a `checklist.json:<line>` is
+classified at import (`core/metadata-finding-class.ts`): it is never stored in
+`findings.json`, a proposal with only such items is imported as a pass, and each
+is logged as a `review_metadata_finding_reclassified` process event with the
+correction it asks for (item, field, the cited wrong literal, the reviewer's
+value, the judged text digest; `core/metadata-correction.ts`). A finding that
+also cites product code stays a product finding. `next` then emits ONE owner
+step `metadata_correction`: `checklist_update` with `metadataCorrection: true`
+for the cited item (deduped by item and field across lanes and rounds), plus one
+call per other item that states the same wrong literal (the literal sweep).
+`userSees` is corrected in place in PLAN, DEV or REVIEW (`checklist_update` is
+admitted in REVIEW only for this); intent rows stay frozen outside PLAN, so an
+intent-row correction first returns the Story to PLAN (`metadata_correction_plan`).
+The framework verifies the cited text changed (the judged text differs, the
+reviewer's value is stated, a wrong `a == b` / `a -> b` statement is gone) and
+refuses an update that leaves it (`[metadata_correction_unchanged]`); a metadata
+correction never resets done items. Its commit (`record <id> metadata_correction
+metadata`, `userSees`-only checklist change) keeps the round's managed passes
+current, and the route and the reviewer task digest treat a verified correction
+as unchanged, so it costs no lane rerun and no remediation round. Open
+corrections block REVIEW→TEST (`review_metadata_correction_open`). An inventory
+critic proposal keeps such items as findings; a stored finding whose cited
+defect lies only in metadata is never dispatched to finding-repair
+(`[metadata_finding_not_repair_work]`) and is resolved once its correction is
+verified.
+
+`finding_resolve` refuses a resolution whose cited material did not change
+(`[finding_resolution_unchanged_citation]`, `core/finding-resolution-integrity.ts`):
+cited Story-metadata text must be corrected (a code test does not correct it;
+the refusal prints the `checklist_update metadataCorrection` command), and when
+the cited product files are unchanged since the reviewed head, some test file
+must have changed. Dispositions and duplicate coverage runs keep their own
+evidence. `plan_acceptance_prepare` / `plan_acceptance_apply` refuse a batch
+that changes neither `files` nor `verificationIntent` (`[plan_acceptance_noop]`;
+run 31 printed "Applied 1 PLAN acceptance items" while `userSees` was unchanged;
+`userSees` is a plain `checklist_update`), and apply reports only changed items.
+The `INTENT_PROPOSAL_FIELDS_INVALID` refusal for `userSees` names that plain update.
+
+Product code never reads PoS metadata: REVIEW/TEST/DONE entry refuses a product
+file (not Story metadata, not a runtime artifact) whose added lines reference
+this Story's metadata directory (the Story id together with `.proof-or-stop` or
+`story/actives`) with `[scope_story_metadata_reference]`
+(`core/story-metadata-reference.ts`); the implementer and finding-repair prompts
+state the rule.
+
 A managed inventory critic's `inventoryCritic.findingDispositions` needs exactly
 one row for every VERIFIED aggregate finding of the wave (by `findingId`), no
 row for a suspected or disproven finding, and one row for every entry of its
@@ -1022,6 +1073,15 @@ proof-or-stop next --storyId=B-xxxx --json   # the same step as JSON
 proof-or-stop next --storyId=B-xxxx --run    # run framework steps, bound launches and waits (one 285 s wait budget by default), stop at the next agent step
 ```
 
+The human-readable step is capped at about 2k tokens (old-PoS run 31 D7: two
+`plan_authoring` steps printed 10.6k + 11.1k tokens that stayed in the owner's
+context for ~212 turns). A longer step writes each long command payload to a
+JSON file under `.proof-or-stop/runtime/next-steps/` (git-ignored) and prints
+`proof-or-stop <command> @<file>` (any command accepts `@<file.json>` as its
+JSON payload; author the `<...>` values in the file), lists at most six
+placeholder hints per command, and cuts the Why at 2,400 characters with the
+full text in a file. `--json` is unchanged.
+
 With no unfinished Story, `next` (no `--storyId`) returns the agent step
 `story_create_authoring`: ONE complete `story_create` command whose payload has
 every authored value as a `<...>` placeholder with a one-line hint (name, title,
@@ -1135,7 +1195,9 @@ Decision table (first matching row wins):
 | PLAN, the verdict is missing or must be rerun and no deterministic blocker is open | `host_run` managedDispatch `proof-or-stop-review-scope-plan` (the owner's own host/model, else the qualified default): the reviewer runs once, on the final checklist (an unbound save is repaired in the same session, not by a relaunch). A rerun's prompt starts with the previous verdict's gap / drift / orphan rows and the per-item checklist diff since that verdict (the checklist read from the commit that published scope-check.json, used only when its digest equals the verdict's `checklistDigest`); orientation only, the full trace and pin audit still apply (old-PoS run 27, core/scope-plan-rerun-context.ts) | framework (`launch`, when bound and either no earlier scope-plan run exists, the trailing earlier runs all failed auto-replaceably (at most 3), or, for a rerun, the last run completed and delivered the stale verdict) / agent | `missingPlanScopeCheckFailure` (the DEV-entry gate's `[missing_scope_check]`) / `scopePlanRerunReason` (story_review `scope_gap` after a checklist change, `scope_check_stale`) |
 | PLAN, the latest story_review round has blockers fixed by `decision_set` / `plan_set` / an intent derivation / a coverage row (`missing_decision`, `missing_alternatives`, `insufficient_premortem`, `missing_plan_md`, `missing_intent_derivation`, `missing_coverage_row`) | `plan_authoring`: one batch with each exact template (`decision_set` with 3 principles/drivers, 2 options, 3 preMortem; `plan_set` naming each `## CHK-xxx`; per item with an underived example or a missing coverage row, `checklist_update` with its full `verificationIntent`, a `derivation` placeholder on that row and the coverage placeholder rows), then `story_review`; other blockers are quoted in `why` | agent | review.json latest round + `getGuardFailureReason(DEV)` |
 | PLAN, otherwise | `story_advance --phase=DEV` if the DEV guard passes, else the guard's own `→`/`Next:` command (`story_review` when it has no clean round) | framework / agent | `getGuardFailureReason(DEV)` |
-| PLAN, a terminal implementer / finding-repair run declared an `[intent-conflict]` (or an implementer stated a deliberate deviation only in prose), the item's intent material (verificationIntent semantics + userSees) is unchanged since that run was dispatched, and the item does not yet state the value the conflict says the request implies in place of the pinned literal (old-PoS run 31) | `intent_conflict_amend`: `checklist_update {itemId, verificationIntent and/or userSees (the field the conflict names), reason, status: pending}` | agent | `openIntentConflicts` (run 23, run 31) |
+| PLAN, a terminal implementer / finding-repair run declared an `[intent-conflict]` (old-PoS run 31: every other item field stating the pinned literal is added to the same step as a batch call) (or an implementer stated a deliberate deviation only in prose), the item's intent material (verificationIntent semantics + userSees) is unchanged since that run was dispatched, and the item does not yet state the value the conflict says the request implies in place of the pinned literal (old-PoS run 31) | `intent_conflict_amend`: `checklist_update {itemId, verificationIntent and/or userSees (the field the conflict names), reason, status: pending}` | agent | `openIntentConflicts` (run 23, run 31) |
+| PLAN / DEV / REVIEW (REVIEW: after the round's lanes are imported), an open Story-metadata correction (lane findings reclassified at import, or a stored open finding citing checklist text; old-PoS run 31) | `metadata_correction`: ONE `checklist_update` with `metadataCorrection: true` for the cited item (wrong literal, the reviewer's value, the reviewer text in the Why) plus one call per other item stating the same wrong literal; outside PLAN an intent-row correction is `metadata_correction_plan` (`story_advance` toward PLAN) | agent | `openMetadataCorrections` (core/metadata-correction.ts) + `literalOccurrences` |
+| PLAN, the scope-plan verdict is current (not missing, no rerun due) and lists `pin-audit` gaps whose cited row still states the pinned value | `pin_audit_correction`: ONE `checklist_update` of the first gap's item (pinned value, the request's value, every other occurrence of the pinned literal; a batch when other items state it). Once the checklist's only changes since the verdict are those requested values (reverting them reproduces the judged `checklistDigest`), the gaps close without a scope-plan rerun; any other change reruns it (old-PoS run 31 D8) | agent | `openPinAuditGaps` / `openScopeGaps` (core/pin-audit-correction.ts) |
 | PLAN, the scope-plan verdict is missing or must be rerun, the project declares `pinOracle` at the Story base, and a stored example row's input evaluates there to a value other than its pin with no matching `baseValue` (old-PoS run 31) | `pin_oracle_mismatch`: `checklist_update {itemId, verificationIntent}` of the first such item (placeholder: each listed row corrected, or `baseValue` set to the computed base value); before the pre-scope `plan_authoring` batch and the scope-plan reviewer | agent | `pinOracleStep` / `pinOracleMismatches` (core/pin-oracle.ts) |
 | DEV, no implementer / finding-repair in flight, an open intent conflict (same predicate; it precedes every repair, `finding_resolve` and `finding_resolve_batch` step, so a finding whose repair declared a conflict is never resolved before the amendment) | `intent_conflict`: `story_advance --phase=PLAN` | agent | `openIntentConflicts` (run 23) |
 | DEV, no implementer / finding-repair in flight, no open intent conflict, a done item whose latest completed implementer run's `[probes]` line lists `probed-only:` decided rows (and no earlier run of that item reported the same rows) | `probe_tests_missing`: `checklist_update {itemId, status: "in_progress", reason}`; the relaunched implementer prompt names the earlier run and the rows | agent | `openProbeTestGaps` (old-PoS run 30) |
@@ -1145,7 +1207,7 @@ Decision table (first matching row wins):
 | DEV, an item `in_progress` | `host_run` managedDispatch `proof-or-stop-implementer` for it (or wait on its run) | framework (`launch`, bound, first run of the item) / agent | checklist.json + host-run projection |
 | DEV, no finding-repair in flight, an open verified blocking finding whose cited `path:line` defect sites are unchanged since the Story base and that no scope-contract path, checklist file, scope-boundary entry or request sentence covers (old-PoS run 30, `evaluatePreexistingFinding`; one whose own repair already committed is resolved as repaired instead) | `finding_preexisting_disposition`: `finding_resolve` with `disposition: preexisting_out_of_scope` and a framework-written follow-up `resolution` (no placeholder); never a repair | agent | `evaluatePreexistingFinding` (core/finding-preexisting.ts, handlers/finding-preexisting.ts) |
 | DEV, a verified blocking finding open, not repaired, whose bound managed repair runs ended without a repair commit `REPAIR_NO_COMMIT_REPLAN_AFTER` (2) times since the Story last entered PLAN (old-PoS run 30) | `finding_repair_replan`: `story_advance --phase=PLAN` (read the runs' reports, amend the scope or intent the repair needs; DEV then repairs it again, the count restarting at PLAN) | agent | `managedFindingRepairState.noCommitRuns` + `findingRepairRoute` |
-| DEV, the next open verified blocking finding is a duplicate (a critic `duplicate`; an open finding of a superseded lane run that the rerun of its lane re-reported: shared cited file or none, same claim by the critic restatement rule; or, old-PoS run 29, a finding of a review run that started after an earlier finding was recorded and names its id or restates its claim on a shared file, `restatedEarlierFindingOf`) whose canonical finding is repaired and resolved, with no repair of its own and no failed coverage run (run 17; a duplicate whose canonical finding is still open waits, the canonical one goes first) | `finding_duplicate_resolve`: `finding_resolve` with `duplicateOf`, `coverage.command`, `coverage.selector`, `resolution` (see below) | agent | `findingDuplicateOf` (critic receipts, else `supersededRestatementOf`, else `restatedEarlierFindingOf`) + `duplicateResolveCandidate` (core/duplicate-finding-coverage.ts) |
+| DEV, the next open verified blocking finding is a duplicate (several such duplicates: ONE `finding_duplicate_resolve_batch` step, one `finding_resolve` call each with its own coverage run, old-PoS run 31 D6; a critic `duplicate`; an open finding of a superseded lane run that the rerun of its lane re-reported: shared cited file or none, same claim by the critic restatement rule; or, old-PoS run 29, a finding of a review run that started after an earlier finding was recorded and names its id or restates its claim on a shared file, `restatedEarlierFindingOf`) whose canonical finding is repaired and resolved, with no repair of its own and no failed coverage run (run 17; a duplicate whose canonical finding is still open waits, the canonical one goes first) | `finding_duplicate_resolve`: `finding_resolve` with `duplicateOf`, `coverage.command`, `coverage.selector`, `resolution` (see below) | agent | `findingDuplicateOf` (critic receipts, else `supersededRestatementOf`, else `restatedEarlierFindingOf`) + `duplicateResolveCandidate` (core/duplicate-finding-coverage.ts) |
 | DEV, a verified blocking finding open and not repaired, other open blocking findings also without a bound repair (`remediation.grouping=single`, the default) | ONE `host_run` managedDispatch `proof-or-stop-finding-repair` with `findingId` = that finding and `groupFindingIds` = it plus every other unrepaired, unbound open blocking finding (duplicates excluded: critic `duplicate`, superseded-run restatement or a later run's restatement of an earlier finding, `findingDuplicateOf`); one regression test and one commit naming its id per finding; the prompt states the Story's allowed files, and an out-of-scope change gets one same-session scope repair turn before the run seals (old-PoS run 29 REM2) | framework (`launch`, bound, first run for the finding) / agent | `unclosedBlockingFindings` + `managedFindingRepairState` + `groupedFindingRepairIds` |
 | DEV, a verified blocking finding open and not repaired (see below; a failed duplicate coverage run lands here; the only unbound one; a group member the grouped run left without a commit naming it; every finding under the `per-finding` rollback) | `host_run` managedDispatch `proof-or-stop-finding-repair` with that `findingId` (or wait on a repair run in flight) | framework (`launch`, bound, first run for the finding) / agent | `unclosedBlockingFindings` + `managedFindingRepairState` |
 | DEV, that finding repaired, receipts stale | the evidence-chain gate's own Next (`verification_evidence_refresh_stale`, `verification_run --pending`, ...) | framework (agent when it has placeholders) | `evaluateEvidenceChainForStory` |
