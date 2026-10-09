@@ -35,7 +35,12 @@ import { preScopeAuthoringStep } from '../handlers/next-driver.js';
 import { planPreScopeBlockers } from '../core/plan-pre-scope-blockers.js';
 import { StoryStore } from '../core/store.js';
 import { writeStoryRequest } from '../core/story-request.js';
-import { ABS_STEPPED_SLICES_REQUEST, RUN27_ITEMS, RUN28_ITEMS, RUN29_ITEMS, RUN30_ITEMS, type FixtureItem } from './helpers/abs-stepped-slices-fixture.js';
+import { absSteppedSlicesFixture, type FixtureItem } from './helpers/test-fixture-data.js';
+
+// Test-only data (packages/main/tests/fixtures/abs-stepped-slices.json, never emitted into dist).
+const ABS_FIXTURE = absSteppedSlicesFixture();
+const ABS_STEPPED_SLICES_REQUEST = ABS_FIXTURE.request;
+const { RUN27_ITEMS, RUN28_ITEMS, RUN29_ITEMS, RUN30_ITEMS } = ABS_FIXTURE;
 
 const STRS_REQUEST = [
   'Implement the string helpers documented in docs/types/string.md:',

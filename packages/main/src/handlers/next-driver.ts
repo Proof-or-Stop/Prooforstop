@@ -1336,7 +1336,7 @@ function validateCommandPatterns(root: string): string[] {
 
 /** One-line hints for the INIT authoring placeholders, keyed by payload path (array index normalized to [0]). */
 const INIT_AUTHORING_HINTS: Record<string, string> = {
-  name: 'short kebab-case name, e.g. add-stepped-slice-indexing',
+  name: 'short kebab-case name, e.g. add-csv-export',
   title: 'one-line title of the user-visible outcome',
   description: 'one or two sentences: what changes for the user and why',
   type: 'feature, bug, refactor, docs or chore',
