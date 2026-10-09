@@ -560,8 +560,21 @@ the finding-repair worker end their result with a mandatory `[intent-conflict]`
 section (`none`, or `<intentRef> | request: "<sentence>" | request implies:
 <value> | intent pins: <value>`); a prose "deliberate choice" is not accepted.
 `next` blocks on a declared conflict: `story_advance --phase=PLAN` (intents are
-frozen in DEV), then `checklist_update` with the revised `verificationIntent`, a
-`reason` and `status: pending`. A finding repair that changes how an input is
+frozen in DEV), then `checklist_update` with the revised `verificationIntent`
+(or `userSees`, when the conflict names userSees), a `reason` and `status:
+pending`. The conflict clears once the item's verificationIntent or userSees
+differs from the one the run was dispatched against, or once the item states the
+value the request implies in place of the pinned literal (old-PoS run 31). In
+PLAN, changing a done item's verificationIntent or userSees without a `status`
+resets it, and every done item whose context, userSees or intent names it, to
+pending with a recorded reason; never reset it by hand.
+A project may declare its own evaluator as `pinOracle` in
+`proof-or-stop.config.json` (core/pin-oracle.ts). It runs on an archive of the
+Story base commit. An example row (`<input> -> <value>`) whose input the base
+evaluates to another value is refused (`[pin_oracle_mismatch]`, computed value
+shown) unless the row records that value as `baseValue`, meaning the Story
+deliberately changes it. Inputs the base cannot run, such as new syntax, are
+skipped. The pin is never rewritten. A finding repair that changes how an input is
 handled keeps base behavior for the input variants the request did not change.
 The DEV implementer prompt carries the same check before REVIEW as a probe
 matrix (old-PoS runs 24-30): operand positions x value classes (omitted,
