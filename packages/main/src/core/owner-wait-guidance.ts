@@ -1,7 +1,7 @@
 /**
  * One wait contract for every blocking owner-facing PoS command.
  *
- * Run 14 (abs-stepped-slices) cost analysis: the owner polled a blocking
+ * Benchmark run 14 cost analysis: the owner polled a blocking
  * `host_run_status --untilTerminal` with a 30 s tool yield 161 times (59.1M
  * input tokens re-read) because the long-yield hint was printed only once by
  * `host_run`, never by the wait itself. A blocking command now prints this

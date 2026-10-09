@@ -101,8 +101,9 @@ import { readStoryRequest } from '../core/story-request.js';
 import { intentSemantics } from '../core/verification-intent-amendment.js';
 import { isPureMetadataFinding, literalOccurrences, openMetadataCorrections, type LiteralOccurrence, type MetadataField, type OpenMetadataCorrection } from '../core/metadata-correction.js';
 import { openPinAuditGaps } from '../core/pin-audit-correction.js';
-import { describePinMismatch, PIN_ORACLE_MISMATCH, pinExamples, pinMismatchRule, pinOracleMismatches, storyPinOracle } from '../core/pin-oracle.js';
-import { PROBE_REQUEST_MISMATCH, reportProbeDecision, requestAnchoredKeys, runnerProbeDecision, storyProbeRunner, type ProbeFlagDecision } from '../core/request-probes.js';
+import { describePinMismatch, PIN_ORACLE_MISMATCH, pinExamples, pinMismatchRule, pinOracleMismatches, pinOracleStoryBase, storyPinOracle } from '../core/pin-oracle.js';
+import { describeUnextractableRows, PROBE_REQUEST_MISMATCH, probeSyntaxErrors, reportProbeDecision, requestAnchoredKeys, runnerProbeDecision, storyProbeRunner, unextractableRows, type ProbeFlagDecision } from '../core/request-probes.js';
+import { describeExactTextGap, exactTextKeyOf, exactTextPrefixAssertions, exactRequestLiteralItem, readExactTextState, writeExactTextState, type ExactTextGap } from '../core/exact-text-assertions.js';
 import { implementerRunReports } from '../core/finding-repair-attempts.js';
 import { digestCanonicalJson } from '../core/digest.js';
 import { maxLaneRunsOnMaterial, STALE_WAVE_STOP_LOSS } from '../core/review-stop-loss.js';
@@ -909,6 +910,67 @@ export function openProbeFlags(args: { root: string; gitCwd: string; store: Hand
   return out;
 }
 
+/**
+ * Old-PoS run 32 F-001 (core/exact-text-assertions.ts): when every item is done,
+ * request-quoted exact strings the Story's added tests compare only by prefix /
+ * contains reopen ONE item (the one whose intent states the string) once per
+ * gap set; after its relaunch the set is left to REVIEW.
+ */
+export function openExactTextGap(args: { root: string; gitCwd: string; store: HandlerContext['store']; storyId: string; items: readonly ChecklistItem[] }): { itemId: string; gaps: ExactTextGap[] } | null {
+  const live = args.items.filter(item => item.status !== 'withdrawn');
+  if (!live.length || live.some(item => item.status !== 'done')) return null;
+  const request = readStoryRequest(args.store as never, args.storyId);
+  if (request.status !== 'ok') return null;
+  let base: string | null = null;
+  try { base = pinOracleStoryBase(args.gitCwd, (args.store.readStory(args.storyId) as { integrationTarget?: { parentCommitAtCreation?: string } }).integrationTarget?.parentCommitAtCreation); } catch { base = null; }
+  if (!base) return null;
+  const gaps = exactTextPrefixAssertions({ gitCwd: args.gitCwd, base, requestText: request.text });
+  if (!gaps.length) return null;
+  const key = exactTextKeyOf(gaps);
+  const state = readExactTextState(args.root, args.storyId);
+  if (state && state.key === key) {
+    // Once per gap set: the reopened item's relaunch already ran -> REVIEW judges it.
+    if (implementerRunReports(args.root, args.storyId, state.itemId).some(run => run.createdAt > state.flaggedAt)) return null;
+    return { itemId: state.itemId, gaps };
+  }
+  const itemId = exactRequestLiteralItem(live, gaps[0]!.literal)?.id ?? live.at(-1)!.id;
+  writeExactTextState(args.root, args.storyId, { key, itemId, flaggedAt: new Date().toISOString(), gaps });
+  return { itemId, gaps };
+}
+
+/** One owner step: reopen the item; the relaunch prompt names the comparisons. */
+function exactTextStep(base: { storyId: string; phase: string }, gap: { itemId: string; gaps: ExactTextGap[] }): NextStep {
+  const listed = gap.gaps.map(describeExactTextGap).join('; ');
+  return step(base, 'agent', 'exact_text_prefix_assertion', { command: 'checklist_update',
+    payload: { storyId: base.storyId, itemId: gap.itemId, status: 'in_progress', reason: `Request-quoted exact strings asserted only by prefix / contains: ${listed.slice(0, 300)}; reopened to assert them exactly before REVIEW.` } },
+  `The request says these strings must match exactly, and the Story's added tests compare them only through a prefix / contains comparison (an appended suffix would still pass): ${listed.slice(0, 1200)}. Reopen ${gap.itemId}; next relaunches its implementer to add exact assertions (no review round).`,
+  'exactTextPrefixAssertions (old-PoS run 32 F-001)');
+}
+
+/**
+ * Old-PoS run 32 (3c): example rows the Story base cannot parse OUTSIDE the
+ * request's new syntax (project probeRunner `parseErrorPattern` +
+ * `newSyntaxPattern`): owner authoring errors, fixed in PLAN.
+ */
+export function probeSyntaxStep(base: { storyId: string; phase: string }, store: HandlerContext['store'], root: string, gitCwd: string): NextStep | null {
+  const runner = storyProbeRunner(store, root, base.storyId, gitCwd);
+  if (!runner) return null;
+  const broken = probeSyntaxErrors(runner, store.readChecklist(base.storyId).items);
+  if (!broken.length) return null;
+  const first = broken[0]!;
+  return step(base, 'agent', 'probe_row_syntax', { command: 'checklist_update', payload: { storyId: base.storyId, itemId: first.itemId,
+    verificationIntent: '<the complete verificationIntent with each listed row written in valid syntax>' } },
+  `Example rows the Story base cannot parse outside the request's new syntax (the project's own parser, Story base ${runner.base.slice(0, 12)}): ${broken.map(row => `${row.key}: ${row.code.slice(0, 140)} -> ${row.error}`).join('; ').slice(0, 1500)}. A parse error inside the new syntax is expected; one outside it is a row no implementation can satisfy. Fix ${first.itemId} now (valid syntax, or plain prose if the row is not runnable code); next names any other item.`,
+  'probeSyntaxErrors (proof-or-stop.config.json probeRunner parseErrorPattern + newSyntaxPattern)', { placeholders: ['verificationIntent'] });
+}
+
+/** PLAN: the rows the framework probe will not run (with a project probeRunner), for the DEV-entry step text. */
+function unextractableNote(store: HandlerContext['store'], root: string, storyId: string, gitCwd: string): string {
+  if (!storyProbeRunner(store, root, storyId, gitCwd)) return '';
+  const note = describeUnextractableRows(unextractableRows(store.readChecklist(storyId).items));
+  return note ? ` ${note} Each is checked only by its test and review, not by the framework probe; rewrite a row as runnable code to have it probed.` : '';
+}
+
 const FRAMEWORK_PROBE = 'framework-probe';
 
 /** A row still flagged after the relaunch saw it is an owner intent conflict (the pin, or the item, must change). */
@@ -1336,7 +1398,7 @@ function validateCommandPatterns(root: string): string[] {
 
 /** One-line hints for the INIT authoring placeholders, keyed by payload path (array index normalized to [0]). */
 const INIT_AUTHORING_HINTS: Record<string, string> = {
-  name: 'short kebab-case name, e.g. add-stepped-slice-indexing',
+  name: 'short kebab-case name, e.g. add-csv-export',
   title: 'one-line title of the user-visible outcome',
   description: 'one or two sentences: what changes for the user and why',
   type: 'feature, bug, refactor, docs or chore',
@@ -1667,6 +1729,10 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       const pinAudit = pinAuditCorrectionStep(base, ctx.store);
       if (pinAudit) return pinAudit;
     }
+    // Old-PoS run 32 (3c): a row the base cannot parse outside the new syntax is
+    // fixed before DEV, also when it was amended after the scope verdict.
+    const syntaxStep = probeSyntaxStep(base, ctx.store, ctx.root, gitCwdOf(storyId));
+    if (syntaxStep) return syntaxStep;
     const deferral = scopeFailure && !rerun ? scopeVerdictDeferral(ctx.store, ctx.root, storyId) : null;
     const deferred = deferral?.kind === 'deferred' ? deferral.run : null;
     if ((scopeFailure || rerun) && !deferred) {
@@ -1702,10 +1768,11 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     }
     const authoring = planAuthoringStep(ctx.store, base);
     if (authoring) return authoring;
+    const unprobed = unextractableNote(ctx.store, ctx.root, storyId, gitCwdOf(storyId));
     return guardStep(base, 'DEV', 'enter_dev', deferred
       ? `PLAN is complete except the scope-plan verdict, whose managed run ${deferred.runId} is still ${deferred.state}: the DEV-entry gate defers it to DEV→REVIEW, so DEV starts beside the reviewer (a gap it finds sends the Story back to PLAN before REVIEW).`
-        + (deferral?.kind === 'deferred' && deferral.heldItemIds?.length ? ` ${deferral.heldItemIds.join(', ')} wait for the verdict (${deferral.heldReason}).` : '')
-      : 'PLAN is complete: the DEV-entry gate admits the Story.', 'getGuardFailureReason(DEV)');
+        + (deferral?.kind === 'deferred' && deferral.heldItemIds?.length ? ` ${deferral.heldItemIds.join(', ')} wait for the verdict (${deferral.heldReason}).` : '') + unprobed
+      : `PLAN is complete: the DEV-entry gate admits the Story.${unprobed}`, 'getGuardFailureReason(DEV)');
   }
 
   // -- INIT → INIT_CHECK → PLAN (N4) ----------------------------------------
@@ -1857,6 +1924,9 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       const escalated = probeEscalationConflicts(probeFlags);
       if (escalated.length > 0) return intentConflictStep(base, escalated);
       if (probeFlags.length > 0) return probeFlagStep(base, probeFlags[0]!);
+      // Old-PoS run 32 F-001: exact request strings asserted only by prefix / contains.
+      const exactGap = openExactTextGap({ root: ctx.root, gitCwd: gitCwdOf(storyId), store: ctx.store, storyId, items: checklist.items });
+      if (exactGap) return exactTextStep(base, exactGap);
       // N8: a deferred scope-plan verdict that arrived with a gap (or never
       // arrived) is PLAN work: go back before implementing more.
       const scopeVerdict = scopeVerdictReviewEntryFailure(ctx.store, ctx.root, ctx.store.readStory(storyId), policyOf(storyId));

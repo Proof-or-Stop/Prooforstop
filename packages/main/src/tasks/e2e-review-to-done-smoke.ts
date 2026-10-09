@@ -136,6 +136,10 @@
  *      (checklist_update verificationIntent without status) resets it, and the
  *      items whose context/userSees/intent name it, to pending with a recorded
  *      reason; unrelated done items stay done.
+ *   NXT old-PoS run 32 F-001: the request quotes an exact error string; the
+ *      Story's added test compares it only through a prefix helper; with every
+ *      item done next reopens one item (exact_text_prefix_assertion) before
+ *      REVIEW, the relaunch prompt names the helper, an exact assertion clears it.
  *   NPO old-PoS run 31 pin oracle: the project declares an evaluator
  *      (proof-or-stop.config.json pinOracle); checklist_update refuses an example
  *      row whose input the Story base evaluates to a different value
@@ -240,7 +244,7 @@
  *      and still review the whole Story).
  *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5 ND-V6 ND-V8 ND-V9.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NDG|NRS|NPX|NPXA|NPXS|AB|ND-V1..NF-V9]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NDG|NRS|NPX|NPXA|NPXS|AB|ND-V1..NF-V9]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -3483,6 +3487,94 @@ function scenarioNRQ(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
+/**
+ * NXT (old-PoS run 32 F-001, run 30 F-001): the request says error strings must
+ * match exactly; the Story's added test compares one only through a project
+ * helper wrapping strings.HasPrefix. When every item is done, next reopens one
+ * item (one owner step) before REVIEW, the relaunch prompt names the helper,
+ * and an exact assertion clears it.
+ */
+const NXT_LITERAL = 'strs: empty input not allowed for Upper';
+const NXT_REQUEST = [
+  ...NIQ_REQUEST.split('\n'),
+  '- Error strings must match exactly:',
+  '  - `strs: empty input not allowed for <fn>`',
+].join('\n');
+const NXT_PREFIX_TEST = [
+  'package strs', '', 'import (', '\t"strings"', '\t"testing"', ')', '',
+  'func assertErrPrefix(t *testing.T, got, want string) {', '\tif !strings.HasPrefix(got, want) {', '\t\tt.Fatalf("got %q want prefix %q", got, want)', '\t}', '}', '',
+  'func TestEmptyInputError(t *testing.T) {', `\tassertErrPrefix(t, "${NXT_LITERAL}", "${NXT_LITERAL}")`, '}', '',
+].join('\n');
+const NXT_EXACT_TEST = [
+  'package strs', '', 'import "testing"', '',
+  'func TestEmptyInputErrorExact(t *testing.T) {', `\tif got := "${NXT_LITERAL}"; got != "${NXT_LITERAL}" {`, '\t\tt.Fatal(got)', '\t}', '}', '',
+].join('\n');
+
+function scenarioNXT(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NXT';
+  const name = 'NXT old-PoS run 32 F-001: a request-quoted exact string the added tests compare only through a prefix helper reopens one item before REVIEW; an exact assertion clears it';
+  const o = new Owner(tag, 'B-e2d1', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NXT_REQUEST });
+  const lines: string[] = [];
+  const ask = (label: string): NextStepJson => {
+    const asked = o.cli('next', { storyId: o.storyId, json: true }, { label });
+    const next = (asked.status === 0 ? parseJson(asked.stdout) : null) as NextStepJson | null;
+    assert.ok(next && typeof next.kind === 'string', `[NXT] next did not return a step:\n${asked.out.slice(-2000)}`);
+    lines.push(`${label}: ${next.phase} ${next.kind} ${next.reason}`);
+    return next;
+  };
+  const runImplementer = (launch: NextStepJson, script: ProviderScript, label: string): void => {
+    o.script(IMPLEMENTER, script);
+    const launched = o.mustCli(launch.cli!.command, launch.cli!.payload, { label });
+    const terminal = waitTerminal(o, 'implementer', String((parseJson(launched.stdout)?.run as Record<string, unknown>).runId));
+    o.unscript(IMPLEMENTER);
+    assert.equal(terminal.state, 'completed', `[NXT] ${label} terminal ${terminal.state} (${terminal.reason})\n${o.providerCommandLog()}`);
+  };
+  const writeAndCommit = (file: string, text: string, itemId: string, message: string): string[][] => [
+    [process.execPath, '-e', `require('fs').writeFileSync(${JSON.stringify(file)},${JSON.stringify(text)});`],
+    ['/bin/sh', '-c', `git add strs && git -c user.name=${IMPLEMENTER} commit -qm '${o.storyId} ${itemId}: ${message}' && git log --format=%h -1`],
+    [process.execPath, CLI, 'checklist_update', JSON.stringify({ storyId: o.storyId, itemId, status: 'done' })],
+  ];
+  try {
+    devSetup(o, false);
+    const first = ask('next (DEV start)');
+    assert.equal(first.reason, 'implement_item', `[NXT] first DEV step: ${first.reason}: ${first.why}`);
+    const firstItem = String(first.cli!.payload.itemId);
+    const script = implementerScript(o.storyId, firstItem);
+    runImplementer(first, { ...script, final: `${script.final}\n[intent-conflict] none` }, 'host_run implementer (first item)');
+    let second = ask('next (second item)');
+    if (second.reason === 'checklist_item_start') { o.mustCli(second.cli!.command, second.cli!.payload, { label: 'checklist_update start second item' }); second = ask('next (second item started)'); }
+    assert.equal(second.reason, 'implement_item', `[NXT] second item: ${second.reason}: ${second.why}`);
+    const secondItem = String(second.cli!.payload.itemId);
+    runImplementer(second, { commands: writeAndCommit('strs/errors_test.go', NXT_PREFIX_TEST, secondItem, 'error text test'),
+      final: `Tested the error text of ${secondItem}.\n[intent-conflict] none` }, 'host_run implementer (prefix-helper test)');
+    const prompt = managedPrompts(o, IMPLEMENTER).at(-1)!.prompt;
+    assert.match(prompt, /full-string equality/, '[NXT] the implementer prompt asks for exact comparisons');
+
+    const reopen = ask('next (every item done)');
+    assert.equal(reopen.reason, 'exact_text_prefix_assertion', `[NXT] next reopens before REVIEW: ${reopen.reason}: ${reopen.why}`);
+    assert.equal(reopen.kind, 'agent', '[NXT] one owner step');
+    assert.equal(reopen.cli?.payload.status, 'in_progress');
+    assert.match(reopen.why, /strs: empty input not allowed for[^\n]*errors_test\.go TestEmptyInputError[^\n]*assertErrPrefix/, `[NXT] the step names the test and the helper: ${reopen.why}`);
+    const itemId = String(reopen.cli!.payload.itemId);
+    o.mustCli(reopen.cli!.command, reopen.cli!.payload, { label: 'checklist_update reopen (exact text)' });
+    const relaunch = ask('next (reopened)');
+    assert.equal(relaunch.reason, 'implement_item', `[NXT] relaunch: ${relaunch.reason}: ${relaunch.why}`);
+    assert.equal(relaunch.cli?.payload.itemId, itemId);
+    runImplementer(relaunch, { commands: writeAndCommit('strs/errors_exact_test.go', NXT_EXACT_TEST, itemId, 'exact error text test'),
+      final: `Asserted the error text exactly.\n[intent-conflict] none` }, 'host_run implementer (exact test)');
+    const again = managedPrompts(o, IMPLEMENTER).at(-1)!.prompt;
+    assert.match(again, /Reopened before REVIEW \(old-PoS run 32 F-001\)[\s\S]*assertErrPrefix/, '[NXT] the relaunch prompt names the helper');
+    const after = ask('next (exact assertion added)');
+    assert.notEqual(after.reason, 'exact_text_prefix_assertion', `[NXT] the exact assertion clears the gap: ${after.why}`);
+    assert.notEqual(after.kind, 'human', `[NXT] no dead end: ${after.reason}: ${after.why}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 function scenarioNQ(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   const tag = 'NQ';
   const name = 'NQ run 23/24: lanes get the request + rubric, the critic the no-limitation rule, the repair the variant rule; DONE';
@@ -4689,7 +4781,7 @@ function scenarioNUB(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NDG|NRS|NPX[AS]?|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NDG|NRS|NPX[AS]?|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -4745,6 +4837,7 @@ async function main(): Promise<void> {
     if (only.includes('NUB')) outcomes.push(scenarioNUB(machine.env, steps));
     if (only.includes('NRP')) outcomes.push(scenarioNRP(machine.env, steps));
     if (only.includes('NRQ')) outcomes.push(scenarioNRQ(machine.env, steps));
+    if (only.includes('NXT')) outcomes.push(scenarioNXT(machine.env, steps));
     if (only.includes('NIN')) outcomes.push(scenarioNIN(machine.env, steps));
     if (only.includes('NP')) outcomes.push(scenarioNP(machine.env, steps));
     if (only.includes('NCV')) outcomes.push(scenarioNCV(machine.env, steps));

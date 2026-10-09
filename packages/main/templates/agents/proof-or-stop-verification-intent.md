@@ -44,7 +44,7 @@ not implementation work and not execution evidence.
 - Pin every executable (`logic`, `cli`, `browser`) `must`/`should` intent:
   add `"verification":{"command":"<executable and argv>","selector":"<text its
   passing output prints>"}`, for example `go test -v ./parser -run
-  ^TestParsingSteppedSlice$` with `--- PASS: TestParsingSteppedSlice`. Name the
+  ^TestParseConfigDefaults$` with `--- PASS: TestParseConfigDefaults`. Name the
   test that will prove exactly this intent; it may not exist yet (the
   implementer is told to use these names). `story_review` blocks an unpinned
   one (`missing_verification_pin`); pins freeze at DEV and let one

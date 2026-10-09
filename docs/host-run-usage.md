@@ -90,7 +90,12 @@ ok|contradiction` lines; an unresolved contradiction gets `probe_request_mismatc
 (reopen). With a project `probeRunner`, `checklist_update status=done` inside the
 implementer run first runs the rows on the Story base and HEAD (base build once,
 then a build per HEAD material) and refuses once per set of flagged rows; the
-prompt then carries a compact contract instead of the matrix. The summary ends with receiptId, replacementSafe, any supervision
+prompt then carries a compact contract instead of the matrix. Old-PoS run 32:
+every statement of a row runs in order (a row with a statement the extractor
+cannot place is never run or flagged), and an item reopened because its added
+tests compare a request-quoted exact string only by prefix / contains
+(`exact_text_prefix_assertion`) gets the test, file and helper in its relaunch
+prompt. The summary ends with receiptId, replacementSafe, any supervision
 diagnostic, the next action and the full-record directory. A completed run never
 shows a failureKind (old-PoS run 15: a stale `failureKind=auth` next to a
 completed implementer made the owner relaunch it). A run that ended with

@@ -574,7 +574,10 @@ Story base commit. An example row (`<input> -> <value>`) whose input the base
 evaluates to another value is refused (`[pin_oracle_mismatch]`, computed value
 shown) unless the row records that value as `baseValue`, meaning the Story
 deliberately changes it. Inputs the base cannot run, such as new syntax, are
-skipped. The pin is never rewritten. A finding repair that changes how an input is
+skipped; with `parseErrorPattern` + `newSyntaxPattern` declared (old-PoS run 32)
+a parse error outside the new syntax is reported as a malformed example instead,
+and PLAN returns `probe_row_syntax` for a probe row the base cannot parse outside
+it. The pin is never rewritten. A finding repair that changes how an input is
 handled keeps base behavior for the input variants the request did not change.
 The DEV implementer prompt carries the same check before REVIEW as a probe
 matrix (old-PoS runs 24-30): operand positions x value classes (omitted,
@@ -607,7 +610,12 @@ once per set of flagged rows (each with its request sentence), `next` re-checks 
 the final HEAD and reopens (`probe_request_mismatch`), a row still flagged after
 the relaunch becomes an owner intent conflict, the implementer writes no probe
 program (compact contract instead of the matrix), and REVIEW lanes get the table
-as evidence.
+as evidence. Old-PoS run 32: extraction keeps every statement of a row in order
+(a write such as `h.a[0:2]=[9,8]` is never dropped); a row with a state-changing
+segment it cannot place is never run or flagged and is listed, with the other rows
+the probe will not run, in the PLAN `enter_dev` step; the table is keyed on HEAD
+material + base + rows digest (rows amended to zero cases clear it), and a flag
+whose item intent changed since it was raised is reopened, never escalated.
 
 PLAN coverage matrix (old-PoS runs 24-29, core/plan-coverage-matrix.ts). With a
 recorded `request.md`, `story_review` (PLAN) reports a `missing_coverage_row`
@@ -627,7 +635,10 @@ triggering request sentences; an `excludes` entry naming the row's key excludes
 it. The scope-plan prompt carries the judgment form of the same checks, and the
 test-coverage lane prompt (only when the request quotes must-match-exactly
 strings) an exact-text rubric: a prefix / contains / regex assertion of such a
-string is a finding.
+string is a finding. Before REVIEW (old-PoS run 32 F-001), with every item done,
+`next` returns `exact_text_prefix_assertion` (reopen one item, once per gap set)
+when the Story's added test functions compare a request-quoted literal only by
+prefix / contains, directly or through a helper that wraps one.
 Every `openQuestions` entry in that signed scope check must have a substantive
 written resolution before `story_review` can pass. The current handler-directed
 path is the registered `scope_question_resolve` command; the main agent owns the

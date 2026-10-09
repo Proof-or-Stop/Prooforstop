@@ -35,7 +35,12 @@ import { preScopeAuthoringStep } from '../handlers/next-driver.js';
 import { planPreScopeBlockers } from '../core/plan-pre-scope-blockers.js';
 import { StoryStore } from '../core/store.js';
 import { writeStoryRequest } from '../core/story-request.js';
-import { ABS_STEPPED_SLICES_REQUEST, RUN27_ITEMS, RUN28_ITEMS, RUN29_ITEMS, RUN30_ITEMS, type FixtureItem } from './helpers/abs-stepped-slices-fixture.js';
+import { absSteppedSlicesFixture, type FixtureItem } from './helpers/test-fixture-data.js';
+
+// Test-only data (packages/main/tests/fixtures/abs-stepped-slices.json, never emitted into dist).
+const ABS_FIXTURE = absSteppedSlicesFixture();
+const ABS_STEPPED_SLICES_REQUEST = ABS_FIXTURE.request;
+const { RUN27_ITEMS, RUN28_ITEMS, RUN29_ITEMS, RUN30_ITEMS } = ABS_FIXTURE;
 
 const STRS_REQUEST = [
   'Implement the string helpers documented in docs/types/string.md:',
@@ -170,7 +175,7 @@ try {
   // An item whose intent quotes an error string gets the exact-output section.
   seed('B-d036', ABS_STEPPED_SLICES_REQUEST, [{ id: 'CHK-001', title: 'Assign array range slices', rows: [['happy', 'a[1:4]=[9] fails with `range assignment size mismatch: target=3 value=1`']] }], 'DEV');
   const withExact = dispatch.dispatch({ storyId: 'B-d036', itemId: 'CHK-001', agentType: 'proof-or-stop-implementer' }).prompt;
-  assert.match(withExact, /compares it exactly, not a prefix/i, 'the exact-output section asks for exact (not prefix) assertions');
+  assert.match(withExact, /compares it exactly \(full-string equality\), not a prefix/i, 'the exact-output section asks for exact (not prefix) assertions');
 
   const parse = (requestAuthority as unknown as { parseProbeReport?: (text: string) => { present: boolean; probedOnly: string | null } }).parseProbeReport;
   assert.equal(typeof parse, 'function', 'request-authority exports parseProbeReport');
