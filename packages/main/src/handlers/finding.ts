@@ -3,6 +3,7 @@ import { commitReviewResultMetadata } from '../core/review-metadata-batch.js';
  * Finding handlers — reviewer finding management (signed to prevent forgery)
  */
 
+import { resolutionCitationRefusal } from '../core/finding-resolution-integrity.js';
 import { createReviewRemediationHandlers } from './review-remediation.js';
 import type { FindingLedgerWriteStore } from './finding-ledger.js';
 import { existsSync, readdirSync, writeFileSync } from 'fs';
@@ -896,6 +897,9 @@ export function createFindingHandlers(ctx: HandlerContext) {
       if (!authored || /^<[\s\S]*>$/.test(authored)) { leftOpen.push(`${findingId}: resolution not authored (name its repair commit and the focused test that now passes)`); continue; }
       const repair = storyFindingRepairState(ctx, args.storyId, finding);
       if (!repair.repaired) { leftOpen.push(`${findingId}: ${repair.detail}`); continue; }
+      const citation = resolutionCitationRefusal({ store: store as never, storyId: args.storyId, finding,
+        gitCwd: resolveGitCwd({ store, storyId: args.storyId, metadataRoot: ctx.root, projectRoot: ctx.root }) });
+      if (citation) { leftOpen.push(`${findingId}: ${citation.split('\n')[0]!.replace(/^finding_resolve refused: /, '')}`); continue; }
       accepted.push({ findingId, commit: repair.commit,
         resolution: `${authored} [repair commit ${repair.commit.slice(0, 12)} of managed finding-repair run ${repair.runId}]` });
     }
@@ -1359,6 +1363,14 @@ export function createFindingHandlers(ctx: HandlerContext) {
       if (args.duplicateOf !== undefined || args.coverage !== undefined) {
         duplicateEvidence = closeDuplicateWithCoverage({ ...args, findingId });
         resolutionType = 'duplicate';
+      }
+      // Old-PoS run 31 (D3): a resolution whose cited material is unchanged is refused
+      // (dispositions and duplicate coverage runs carry their own evidence).
+      if (args.disposition === undefined && args.duplicateOf === undefined && args.coverage === undefined) {
+        const target = (store.readFindings(args.storyId).findings ?? []).find(row => row.id === findingId);
+        const citation = target && target.status === 'open' ? resolutionCitationRefusal({ store: store as never, storyId: args.storyId, finding: target,
+          gitCwd: resolveGitCwd({ store, storyId: args.storyId, metadataRoot: ctx.root, projectRoot: ctx.root }) }) : null;
+        if (citation) throw new Error(citation);
       }
       // B-META mutations use the unified main lock; normal Story mutations use
       // the same per-story findings lock as finding_add.

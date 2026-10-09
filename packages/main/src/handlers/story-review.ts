@@ -16,6 +16,7 @@ import { storyScopeBudgetBlocker } from '../core/story-scope-budget.js';
  *   - [CHK-001] Require qualified items to carry observable userSees plus happy/edge/adversarial verification intent in strict paths
  */
 
+import { openScopeGaps } from '../core/pin-audit-correction.js';
 import { assessPlanTouchpointCoverage, planOwnerCoverageFailure } from '../core/plan-touchpoint-coverage.js';
 import type { HandlerContext } from './context.js';
 import type { StoryInfo, ScopeContractData } from '../core/types.js';
@@ -753,7 +754,8 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           // scope boundary is not an input of this verdict, so reopening INIT never
           // clears it (run 15). When the checklist changed after the verdict, the
           // only remaining action is the reviewer rerun.
-          const gaps = (scopeData.features || []).filter(f => f.status === 'gap');
+          // Old-PoS run 31 (D8): a pin-audit gap whose requested value is the checklist's only change is closed deterministically.
+          const gaps = openScopeGaps(scopeData, cl);
           const rerunScopeReviewer = renderQualifiedManagedCodexDispatchCommand(args.storyId, 'proof-or-stop-review-scope-plan');
           const checklistChangedSinceVerdict = scopeVerdictChecklistChanged(scopeData, cl);
           for (const gap of gaps) {

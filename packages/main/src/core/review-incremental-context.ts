@@ -19,6 +19,7 @@
  * not falsely flag scopeChanged.
  */
 
+import { routingUserSees } from './metadata-correction.js';
 import { execFileSync } from 'node:child_process';
 import { isBuiltin } from 'node:module';
 import { lstatSync, readFileSync, realpathSync } from 'node:fs';
@@ -562,6 +563,13 @@ export interface ReviewIncrementalContext {
   reviewBasis: IncrementalReviewBasis | null;
   reviewBasisDigest: string | null;
   taskSemanticDigest: string | null;
+  /**
+   * Old-PoS run 31: the task digest with verified Story-metadata corrections
+   * reverted (userSees text the reviewers themselves asked to correct). A pass
+   * judged before such a correction stays current (no lane rerun); null when no
+   * correction applies.
+   */
+  taskSemanticDigestBeforeMetadataCorrection?: string | null;
 }
 
 interface TrustedPriorPass {
@@ -910,16 +918,20 @@ export function reviewIncrementalContext(
   const scopeContract = store.readScopeContract(storyId);
   const story = store.readStory(storyId);
   let currentTaskSemanticDigest: string | null = null;
+  let beforeMetadataCorrectionDigest: string | null = null;
   if (currentHead) {
     try {
-      currentTaskSemanticDigest = fullTaskSemanticDigest(buildFullTaskContext({
+      const contextOf = (items: typeof checklist.items) => fullTaskSemanticDigest(buildFullTaskContext({
         story,
-        checklist,
+        checklist: { ...checklist, items },
         headHash: currentHead,
         materialHash: currentMaterial ?? undefined,
         storyFilesHash: currentStoryFiles ?? undefined,
         scopeContract,
       }));
+      currentTaskSemanticDigest = contextOf(checklist.items);
+      const reverted = checklist.items.map(item => ({ ...item, userSees: routingUserSees(store as never, storyId, item.userSees) }));
+      if (reverted.some((item, index) => item.userSees !== checklist.items[index]!.userSees)) beforeMetadataCorrectionDigest = contextOf(reverted as typeof checklist.items);
     } catch {
       // Legacy/malformed task context is not eligible; the stable FULL reason is
       // added below instead of letting this advisory read throw.
@@ -1109,6 +1121,7 @@ export function reviewIncrementalContext(
       reviewBasis,
       reviewBasisDigest,
       taskSemanticDigest: currentTaskSemanticDigest,
+      ...(beforeMetadataCorrectionDigest ? { taskSemanticDigestBeforeMetadataCorrection: beforeMetadataCorrectionDigest } : {}),
     };
   };
 

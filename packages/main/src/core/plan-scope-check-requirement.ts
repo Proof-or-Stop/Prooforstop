@@ -22,6 +22,7 @@
  * DEV-entry gate (`[missing_scope_check]` with one `Next:` line) and `next`
  * (the managed reviewer launch step), so the three cannot drift.
  */
+import { openScopeGaps } from './pin-audit-correction.js';
 import { existsSync } from 'node:fs';
 import type { StoryStore } from './store.js';
 import type { ChecklistData, ScopeCheckData, StoryInfo, WorkflowPolicy } from './types.js';
@@ -128,7 +129,8 @@ export function scopePlanRerunReason(
 ): string | null {
   const scope = store.readScopeCheck(story.storyId);
   if (!scope) return null;
-  const gaps = (scope.features ?? []).filter(feature => feature.status === 'gap').length;
+  // Old-PoS run 31 (D8): pin-audit gaps whose requested values are the only change are checked deterministically.
+  const gaps = openScopeGaps(scope, store.readChecklist(story.storyId)).length;
   if (gaps > 0 && scopeVerdictChecklistChanged(scope, store.readChecklist(story.storyId))) {
     return `the verdict of ${scope.checkedAt} lists ${gaps} gap(s) and the checklist changed since that verdict`;
   }

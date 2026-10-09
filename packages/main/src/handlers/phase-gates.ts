@@ -27,6 +27,7 @@ import { rethrowIntentAmendmentIntegrityError } from '../core/verification-inten
  * transition-orchestrator imports phase-gates, never the reverse.
  */
 
+import { storyMetadataReferenceRefusal } from '../core/story-metadata-reference.js';
 import type { HandlerContext } from './context.js';
 import type { StoryStore } from '../core/store.js';
 import type { ChecklistData, RedEvidenceData, StoryPhase, ReviewLoopIteration, ScopeCheckResult, ScopeViolation, ProofStoryGateMode } from '../core/types.js';
@@ -547,6 +548,12 @@ export function runScopeTransitionGate(
       `→ Fix or recreate the contract (scope_contract_set / scope_contract_init_from_plan), then rerun story_advance --phase=${phase}.\n` +
       `   Refusing to advance: a corrupt scope contract must not downgrade a scope-protected story to no scope protection.`,
     );
+  }
+  // Old-PoS run 31 (REM2): product code never reads this Story's PoS metadata.
+  {
+    const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+    const reference = storyMetadataReferenceRefusal(phase, gitCwd, storyId, ctx.root);
+    if (reference) throw new Error(reference);
   }
   if (!result) {
     // No scope contract: distinguish new-scope stories (must have contract) from

@@ -223,7 +223,7 @@ through `story_request_set` with an `amendmentReason`, and only through PLAN.
 `story_create` names every backticked request literal (example, listed variant,
 exact message) that no checklist title, `userSees` or `verificationIntent`
 states yet, with one exact `checklist_update` per item to record them in
-`userSees`: `userSees` is editable in INIT and PLAN (frozen from DEV), so the
+`userSees`: `userSees` is editable in INIT and PLAN (frozen from DEV, except a verified Story-metadata correction a review finding asked for, `metadataCorrection: true`), so the
 literals go on the same Story; never recreate it. Intake intents follow the
 PLAN intent-metadata rule: every `verificationIntent` row carries `scope`,
 `expectation` and `requirementSource`, else `story_create REFUSED, nothing was
@@ -1072,6 +1072,19 @@ test-coverage reviewer 只报产品覆盖缺口。reviewer 若仍报证据链项
 `managed_review_evidence_import` 只导入产品 finding（保留 sealed proposal index），只含证据链项的 proposal 以 pass 导入
 （note 由 verifier 从 sealed proposal 重算），每项记为 `review_evidence_chain_reclassified` process event，并打印
 `Framework next action:`；native `finding_add` 直接拒绝（`evidence_chain_not_a_finding`）。
+
+### Story 元数据 finding（框架负责，不是产品 finding；old-PoS run 31）
+
+Review finding 只能是产品缺陷。缺陷只在 Story 元数据里（checklist.json 的 userSees / verificationIntent 文本、过期 intent）的 finding 是 owner 的 checklist 更正，不是修复工作（run 31：13 条 finding 里 10 条是同一个错 userSees 字面量 `hooo` 和过期 null intent；当 finding 处理花了两轮修复、两次被写范围拦下的 repair run、一次「加代码测试就关闭」的假关闭，以及一个解析 checklist.json 的测试进了 model.patch）。
+
+- **导入时分类**（`core/metadata-finding-class.ts`，只看 sealed proposal）：lane finding 引用的文件含 `.proof-or-stop/...`、其余只是作佐证的测试文件且正文没有非测试产品文件的 `path:line`、正文点名 `CHK-n` 或 `checklist.json:<行>` → 元数据 finding：不写入 `findings.json`，只含这类项的 proposal 以 pass 导入（note 由 verifier 重算），每项记 `review_metadata_finding_reclassified` process event，带它要求的更正（item、字段、引用的错误字面量、reviewer 的值、被评审文本的 digest；`core/metadata-correction.ts`）。同时引用产品代码的 finding 仍是产品 finding。inventory critic 的 proposal 不分流（disposition 按 proposal index 绑定）。
+- **一步 owner 更正**：`next` 给 `metadata_correction`：一条 `checklist_update`（`metadataCorrection: true`）改被引用 item 的字段（按 item+字段跨 lane、跨轮去重），并把其它 item 里出现同一错误字面量的字段作为同一步的 batch 调用（literal sweep）。userSees 在 PLAN / DEV / REVIEW 原地改（REVIEW 里 `checklist_update` 只允许这一种）；intent 行在 PLAN 外冻结，intent 行的更正先 `metadata_correction_plan` 回 PLAN。框架验证被引用文本确实变了（与被评审文本不同、写出了 reviewer 的值、错误的 `a == b` / `a -> b` 陈述已消失），否则拒绝（`[metadata_correction_unchanged]`）；元数据更正不把 done item 退回 pending。
+- **不花 review 轮次**：更正的提交（`record <id> metadata_correction metadata`，checklist 只改 userSees）不破坏本轮 managed pass 的 live binding；route 与 reviewer task digest 把已验证的更正视为未变，所以不重跑 lane、不进 remediation 轮。未完成的更正拦 REVIEW→TEST（`review_metadata_correction_open`）。
+- 只引用元数据的已存储 finding（critic 或旧数据）永远不派 finding-repair（`[metadata_finding_not_repair_work]`），更正验证后直接 `finding_resolve`。
+- **resolution 完整性**（`core/finding-resolution-integrity.ts`）：`finding_resolve` 拒绝引用内容没变的 resolution（`[finding_resolution_unchanged_citation]`）：引用的 checklist 文本必须已更正（代码测试改不了它，拒绝信息给出 `checklist_update metadataCorrection` 命令）；引用的产品文件自 reviewed head 起都没改时，必须有测试文件改动。disposition 与 duplicate coverage run 用各自证据。`plan_acceptance_prepare` / `plan_acceptance_apply` 拒绝 files 和 verificationIntent 都没变的 batch（`[plan_acceptance_noop]`；userSees 用普通 `checklist_update`），apply 只报告真正改了的 item。
+- **产品代码不读 PoS 元数据**：REVIEW/TEST/DONE 入口拒绝新增行引用本 Story 元数据目录（Story id 与 `.proof-or-stop` 或 `story/actives` 同行）的产品文件（`[scope_story_metadata_reference]`，`core/story-metadata-reference.ts`）；implementer 与 finding-repair prompt 写明这条规则。
+- **pin audit 值更正不重跑 scope-plan**（`core/pin-audit-correction.ts`）：verdict 的 `pin-audit` gap 由 `pin_audit_correction` 一步改（含 pinned 字面量在其它字段的出现）；checklist 自 verdict 起唯一的改动就是这些被要求的值（把它们换回 pinned 值能还原被评审的 `checklistDigest`）时，gap 直接关闭、不重跑 reviewer；其它任何改动照常重跑。
+- **owner 上下文**：可读的 `next` 输出上限约 2k token：长 payload 写到 `.proof-or-stop/runtime/next-steps/*.json`，打印 `proof-or-stop <command> @<file>`（任何命令都接受 `@<file.json>` 作为 JSON payload），Why 超 2,400 字符截断并给全文文件；`--json` 不变。多条指向已 resolve canonical 的 duplicate finding 合成一步 `finding_duplicate_resolve_batch`（每条仍跑自己的 coverage）。
 
 ### acceptance basis 与 pre_review_check 的顺序约束（B-45a0 F-435/F-438）
 

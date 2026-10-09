@@ -34,7 +34,7 @@ import {
 } from './proof-admissibility-gates.js';
 import type { Finding, ManagedReviewEvidenceBinding, ReviewPass, ReviewRun } from './types.js';
 import { digestCanonicalJson } from './digest.js';
-import { effectiveManagedReviewConclusion, evidenceChainReclassifiedPassNote, isEvidenceChainFindingCategory } from './evidence-chain-finding.js';
+import { effectiveManagedReviewConclusion, isAdmissibleProposalFinding, isCriticProposal, reclassifiedPassNote } from './evidence-chain-finding.js';
 import { currentGitHead, currentMaterialHash } from './evidence-freshness.js';
 import { loadConfig } from './config.js';
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
@@ -230,6 +230,10 @@ export const PRECERT_METADATA_COMMANDS = [
   'review_host_availability_probe', 'review_escalation_fallback_set', 'review_escalation_policy_set',
   // TEST delivery-review context (--write persists evidence/delivery-context-pack.json only).
   'delivery_context_pack',
+  // Old-PoS run 31: the owner's verified Story-metadata correction (checklist_update
+  // metadataCorrection=true). Reviewers asked for it; it changes only userSees text
+  // (metadataCorrectionChecklistRefusal), never material.
+  'metadata_correction',
   // Codex hosts close validate and story_advance TEST with their own codex_cli
   // process-event row (cli-engine lifecycle transaction kind codex-command-terminal).
   'codex-command-terminal',
@@ -299,6 +303,10 @@ function precertMetadataCommitRefusal(
   }
   const evidence = files.find(file => PRECERT_METADATA_FORBIDDEN_ARTIFACTS.has(file.slice(canonicalStoryDir.length + 1)));
   if (evidence) return `bookkeeping commit changes review evidence ${evidence} outside its authenticated writer`;
+  if (writer === 'metadata_correction') {
+    const refusal = metadataCorrectionChecklistRefusal(gitCwd, `${canonicalStoryDir}/checklist.json`, parents.trim(), commit, files, objectRead);
+    if (refusal) return refusal;
+  }
   for (const [name, key] of PRECERT_METADATA_APPEND_ONLY_ARTIFACTS) {
     const path = `${canonicalStoryDir}/${name}`;
     if (!files.includes(path)) continue;
@@ -313,6 +321,31 @@ function precertMetadataCommitRefusal(
     if (after.length < before.length || digestCanonicalJson(after.slice(0, before.length)) !== digestCanonicalJson(before)) {
       return `bookkeeping commit rewrites earlier ${name} ${key}`;
     }
+  }
+  return null;
+}
+
+/**
+ * Old-PoS run 31: a metadata_correction commit may change checklist.json only in
+ * items' userSees (plus appended auditLog rows); every other checklist byte the
+ * reviewers judged stays identical.
+ */
+function metadataCorrectionChecklistRefusal(gitCwd: string, path: string, parent: string, commit: string, files: readonly string[],
+  objectRead?: ObjectAddressedGitReader): string | null {
+  if (!files.includes(path)) return null;
+  const read = (ref: string): Record<string, unknown> | null => readLineageGit(gitCwd, ['ls-tree', '--name-only', ref, '--', path], objectRead)
+    ? JSON.parse(readLineageGit(gitCwd, ['show', `${ref}:${path}`], objectRead)) as Record<string, unknown> : null;
+  const before = read(parent);
+  const after = read(commit);
+  if (!before || !after) return 'metadata_correction commit creates or deletes checklist.json';
+  const strip = (value: Record<string, unknown>) => {
+    const { auditLog: _audit, items, ...rest } = value;
+    return { rest, items: (Array.isArray(items) ? items : []).map(item => { const { userSees: _userSees, ...kept } = item as Record<string, unknown>; return kept; }) };
+  };
+  if (digestCanonicalJson(strip(before)) !== digestCanonicalJson(strip(after))) return 'metadata_correction commit changes checklist.json beyond userSees';
+  const log = (value: Record<string, unknown>) => (Array.isArray(value.auditLog) ? value.auditLog : []) as unknown[];
+  if (log(after).length < log(before).length || digestCanonicalJson(log(after).slice(0, log(before).length)) !== digestCanonicalJson(log(before))) {
+    return 'metadata_correction commit rewrites earlier checklist auditLog rows';
   }
   return null;
 }
@@ -1140,7 +1173,7 @@ export function verifyManagedReviewEvidence(args: {
       if (effectiveManagedReviewConclusion(proposal) !== 'pass') return false;
       const expectedNote = proposal.conclusion === 'pass'
         ? proposal.note
-        : evidenceChainReclassifiedPassNote(proposal.findings ?? []);
+        : reclassifiedPassNote(proposal.findings ?? [], isCriticProposal(proposal));
       return digestCanonicalJson({
         note: args.evidence.pass.note,
         readManifest: args.evidence.pass.readManifest,
@@ -1157,8 +1190,9 @@ export function verifyManagedReviewEvidence(args: {
     const index = args.binding.proposalFindingIndex;
     if (!Number.isInteger(index) || index! < 0) return false;
     const candidate = proposal.findings?.[index!];
-    // Evidence-chain items are framework actions and never admissible as Findings.
-    if (!candidate || isEvidenceChainFindingCategory(candidate.category)) return false;
+    // Evidence-chain items and lane Story-metadata findings (old-PoS run 31) are
+    // framework actions and never admissible as Findings.
+    if (!candidate || !isAdmissibleProposalFinding(proposal, candidate)) return false;
     // B-137a:F-100 — `status` is LIFECYCLE state, not provider-authored content.
     // A provider always authors a finding as 'open'; the host later moves it to
     // 'resolved'/'dismissed' via finding_resolve, which mutates the stored record

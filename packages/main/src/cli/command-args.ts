@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import type { ZodType } from 'zod';
 import { parseFlags } from './flag-parser.js';
 
@@ -14,7 +15,12 @@ import { parseFlags } from './flag-parser.js';
  * silently preferred.
  */
 export function splitJsonPayload(rawArgs: readonly string[]): { payload: Record<string, unknown>; rest: string[] } | null {
-  const first = rawArgs[0];
+  let first = rawArgs[0];
+  // Old-PoS run 31 (D7): `cmd @<file.json>` reads the JSON payload from a file (next
+  // writes a long step payload there instead of printing it into the owner's context).
+  if (first !== undefined && /^@\S+\.json$/.test(first)) {
+    try { first = readFileSync(first.slice(1), 'utf8').trim(); } catch (e) { throw new Error(`JSON payload file ${first.slice(1)} unreadable: ${(e as Error).message}`); }
+  }
   if (first === undefined || !first.startsWith('{')) return null;
   let parsed: unknown;
   try {
