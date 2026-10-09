@@ -36,7 +36,7 @@
  */
 import { evaluateReviewMaterialReopen } from '../core/review-material-reopen.js';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { closeSync, existsSync, openSync, readSync, readdirSync, realpathSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, realpathSync } from 'node:fs';
 import { hostname } from 'node:os';
 import { join, relative, sep } from 'node:path';
 import type { HandlerContext } from './context.js';
@@ -91,7 +91,9 @@ import { evaluateReviewAssuranceFloor, buildReviewAssuranceFloorGuidance, buildR
 import { evaluateReviewEscalation, assessReviewHostAvailabilityForFallbackEligibility } from '../core/review-escalation.js';
 import { evaluateOptionalLiveSmokeTranscript } from '../core/live-smoke-transcript-evidence.js';
 import { singleHostAssuranceReady } from './quorum-submit.js';
-import type { ChecklistItem, ReviewRun } from '../core/types.js';
+import type { ChecklistItem, Finding, ReviewRun } from '../core/types.js';
+import { findingRepairRoute, PREEXISTING_OUT_OF_SCOPE } from '../core/finding-preexisting.js';
+import { evaluatePreexistingFinding, type PreexistingFindingVerdict } from './finding-preexisting.js';
 import { commitMessageNamesFinding, implementationGroupingFiles, itemDeclaredFiles, remediationGroupingSingle, sharedFileItemGroup } from '../core/ab-dispatch-grouping.js';
 import { ownerWaitBlockMs, ownerWaitInstruction } from '../core/owner-wait-guidance.js';
 import { parseIntentConflicts, type IntentConflict } from '../core/request-authority.js';
@@ -511,7 +513,9 @@ export interface FindingRepairRunView { runId: string; agentType: string; termin
 
 export type FindingRepairState =
   | { repaired: true; runId: string; commit: string }
-  | { repaired: false; detail: string; /** a managed finding-repair run is bound to this finding (any state) */ bound: boolean };
+  | { repaired: false; detail: string; /** a managed finding-repair run is bound to this finding (any state) */ bound: boolean;
+    /** Old-PoS run 30: bound runs that completed without a repair commit for this finding, oldest first. */
+    noCommitRuns?: Array<{ runId: string; createdAt: string }> };
 
 /**
  * Whether ONE verified finding is repaired and ready for finding_resolve, from
@@ -572,7 +576,7 @@ export function managedFindingRepairState(args: {
     }
   }
   const last = bound.at(-1)!;
-  return { repaired: false, bound: true, detail: completed.length
+  return { repaired: false, bound: true, noCommitRuns: [...completed].reverse().map(run => ({ runId: run.runId, createdAt: run.createdAt })), detail: completed.length
     ? `managed finding-repair run ${completed[0]!.runId} for ${finding.id} completed without a material commit on the Story branch`
     : `the last managed finding-repair run ${last.runId} for ${finding.id} is ${last.state}` };
 }
@@ -595,49 +599,10 @@ export function storyFindingRepairState(ctx: HandlerContext, storyId: string, fi
 // ---------------------------------------------------------------------------
 // Intent conflicts (old-PoS run 23, request-outranks-intent D1)
 
-/** Bytes read from the end of a managed run's retained output to find its final message. */
-const FINAL_MESSAGE_TAIL_BYTES = 256 * 1024;
-
-/**
- * The last assistant message of a managed run, from its retained provider
- * output (live-output.jsonl): codex `item.completed` agent_message, claude
- * `result`. Implementer / finding-repair results are prose, so the managed
- * final-result scanner (built for review JSON envelopes) does not keep them.
- * Null when the output is unavailable.
- */
-export function managedRunFinalMessage(root: string, runId: string): string | null {
-  const path = join(managedHostRunsRoot(root), runId, 'live-output.jsonl');
-  let raw: string;
-  try {
-    const size = statSync(path).size;
-    const start = Math.max(0, size - FINAL_MESSAGE_TAIL_BYTES);
-    const buffer = Buffer.alloc(size - start);
-    const fd = openSync(path, 'r');
-    try { readSync(fd, buffer, 0, buffer.length, start); } finally { closeSync(fd); }
-    raw = buffer.toString('utf8');
-    if (start > 0) raw = raw.slice(raw.indexOf('\n') + 1);
-  } catch {
-    return null;
-  }
-  let stdout = '';
-  for (const line of raw.split('\n')) {
-    if (!line.trim()) continue;
-    try {
-      const frame = JSON.parse(line) as { stream?: string; text?: string };
-      if (frame.stream === 'stdout' && typeof frame.text === 'string') stdout += frame.text;
-    } catch { /* a partial frame at the tail boundary */ }
-  }
-  let last: string | null = null;
-  for (const line of stdout.split('\n')) {
-    if (!line.startsWith('{')) continue;
-    try {
-      const event = JSON.parse(line) as { type?: string; item?: { type?: string; text?: unknown }; result?: unknown };
-      if (event.type === 'item.completed' && event.item?.type === 'agent_message' && typeof event.item.text === 'string') last = event.item.text;
-      else if (event.type === 'result' && typeof event.result === 'string') last = event.result;
-    } catch { /* not a provider event */ }
-  }
-  return last;
-}
+// managedRunFinalMessage moved to core/managed-run-final-message.ts (old-PoS run 30:
+// the finding-repair prompt builder reads an earlier no-commit run's report too).
+import { managedRunFinalMessage } from '../core/managed-run-final-message.js';
+export { managedRunFinalMessage };
 
 /** One declared (or prose-only) intent conflict of a terminal implementer / finding-repair run that is not amended yet. */
 export interface OpenIntentConflict { runId: string; agentType: string; createdAt: string; itemId: string; conflict: IntentConflict }
@@ -845,6 +810,48 @@ export function findingResolveBatchStep(base: { storyId: string; phase: string }
   return step(base, 'agent', 'finding_resolve_batch', { command: 'finding_resolve', payload: { storyId: base.storyId, resolutions } },
     `${why} Findings ${repaired.map(row => `${row.id} (commit ${row.commit.slice(0, 12)}, run ${row.runId})`).join(', ')} are repaired and still open: close them in ONE finding_resolve; author each resolution (its own commit and the focused test that now passes). The framework re-checks each finding's own repair; one that fails is left open and reported.`,
     `${source} + managedFindingRepairState per finding (repairedFindingsForResolve)`, { placeholders: resolutions.map((_, index) => `resolutions[${index}].resolution`) });
+}
+
+/**
+ * Old-PoS run 30: the completed managed repair runs of one finding that left no
+ * repair commit, counted since the Story last entered PLAN (a replan resets
+ * the count). Shared by the live and the reference driver.
+ */
+export function noCommitRepairRunsSincePlan(store: HandlerContext['store'], storyId: string, repair: FindingRepairState): string[] {
+  if (repair.repaired || !repair.noCommitRuns?.length) return [];
+  let lastPlan = '';
+  try {
+    for (const event of store.readStory(storyId).events ?? []) if (event.phase === 'PLAN' && event.timestamp > lastPlan) lastPlan = event.timestamp;
+  } catch { lastPlan = ''; }
+  return repair.noCommitRuns.filter(run => run.createdAt > lastPlan).map(run => run.runId);
+}
+
+/**
+ * Old-PoS run 30 (B-c201:F-005): a verified finding whose cited defect lines are
+ * unchanged since the Story base and that nothing in the request/scope covers
+ * is not routed to repair (the workers could not commit it and next proposed
+ * the same repair forever). ONE audited disposition closes it; finding_resolve
+ * rechecks the evidence and records it with the follow-up. Shared by the live
+ * and the reference driver.
+ */
+export function preexistingDispositionStep(base: { storyId: string; phase: string }, finding: Pick<Finding, 'id' | 'severity' | 'desc'>, verdict: PreexistingFindingVerdict): NextStep {
+  const summary = finding.desc.length > 160 ? `${finding.desc.slice(0, 160)}...` : finding.desc;
+  return step(base, 'agent', 'finding_preexisting_disposition', { command: 'finding_resolve', payload: { storyId: base.storyId, findingId: finding.id,
+    disposition: PREEXISTING_OUT_OF_SCOPE, resolution: `repair in a separate Story: ${summary}` } },
+  `Verified ${finding.severity} finding ${finding.id} is ${verdict.reason}. It is not routed to repair: close it with ONE audited disposition (${PREEXISTING_OUT_OF_SCOPE}); finding_resolve rechecks the base evidence and records it with the follow-up, severity unchanged. If this Story's own change caused it after all, repair it instead (managed finding-repair).`,
+  'evaluatePreexistingFinding (core/finding-preexisting.ts) + unclosedBlockingFindings');
+}
+
+/**
+ * Old-PoS run 30: a finding whose managed repair runs ended without a commit
+ * REPAIR_NO_COMMIT_REPLAN_AFTER times since PLAN is not repaired again in
+ * place: the Story returns to PLAN, where the scope or intent the repair needs
+ * can be amended. Shared by the live and the reference driver.
+ */
+export function findingRepairReplanStep(base: { storyId: string; phase: string }, finding: Pick<Finding, 'id' | 'severity'>, runIds: readonly string[]): NextStep {
+  return step(base, 'agent', 'finding_repair_replan', { command: 'story_advance', payload: { storyId: base.storyId, phase: 'PLAN' } },
+    `Verified ${finding.severity} finding ${finding.id} is still open after ${runIds.length} managed finding-repair runs ended without a repair commit (${runIds.join(', ')}); the same repair is not proposed again. Read their reports (host_run_status --runId=<id> --full), return to PLAN and amend what the repair needs (scope_contract_set, or the item intent with its reason); DEV then repairs it again.`,
+    'managedFindingRepairState (no-commit runs since PLAN) + findingRepairRoute (core/finding-preexisting.ts)');
 }
 
 /** The TEST authoring commands for the failing DONE oracle rows, in the order DONE checks them. */
@@ -1618,6 +1625,17 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     let chainResult: ReturnType<typeof evaluateEvidenceChainForStory> | undefined;
     const chainOf = () => (chainResult ??= evaluateEvidenceChainForStory(ctx, storyId));
     if (findings.length > 0) {
+      // Old-PoS run 30: a pre-existing finding outside the Story's request/scope
+      // is closed by one audited disposition, never routed to repair (unless a
+      // repair of it already committed: then it is resolved as repaired).
+      if (!inFlight(FINDING_REPAIR_AGENT)) {
+        for (const row of findings) {
+          const verdict = evaluatePreexistingFinding({ store: ctx.store, root: ctx.root, storyId, finding: row.finding });
+          if (verdict.eligible && !managedFindingRepairState({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, finding: row.finding, runs: hostRuns }).repaired) {
+            return preexistingDispositionStep(base, row.finding, verdict);
+          }
+        }
+      }
       const { finding } = nextBlockingFinding(ctx.store, storyId, findings);
       // Per finding: only a completed managed repair bound to THIS finding id
       // (with its commit) makes it resolvable; a material change made by the
@@ -1626,6 +1644,11 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       if (!repair.repaired) {
         const repairRun = hostRuns.filter(run => run.agentType === FINDING_REPAIR_AGENT && !run.terminal).at(-1);
         if (repairRun) return waitStep(base, repairRun, 'Finding repair run');
+        // Old-PoS run 30: runs that ended without a commit are relaunched once
+        // (the prompt carries the earlier report); then the Story replans.
+        const noCommit = noCommitRepairRunsSincePlan(ctx.store, storyId, repair);
+        const route = findingRepairRoute({ preexistingOutOfScope: false, noCommitRunsSincePlan: noCommit.length });
+        if (route.kind === 'replan') return findingRepairReplanStep(base, finding, noCommit);
         // Run 17 (Q1): a critic duplicate of a repaired+resolved finding is
         // closed with that repair through a coverage run, not repaired again.
         const duplicate = repair.bound ? null : duplicateResolveCandidate(ctx.store, storyId, finding, ctx.store.readFindings(storyId).findings ?? []);
@@ -1638,7 +1661,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
         if (group.length > 1) return groupedFindingRepairStep(ctx.root, base, group, selection, bound, hostRuns);
         return managedLaunchStep(base, 'finding_repair', { ...selection, storyId, findingId: finding.id,
           agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true }, bound && targetRelaunchIsFramework(runsForTarget(ctx.root, hostRuns, FINDING_REPAIR_AGENT, { findingId: finding.id })),
-        `Verified ${finding.severity} finding ${finding.id} is open and not yet repaired (${repair.detail}${failedCoverage ? `; its duplicate coverage run \`${failedCoverage.command}\` did not pass, so ${failedCoverage.canonicalFindingId}'s repair is not shown to fix it` : ''}): repair it in code and commit (managed finding-repair shown).`,
+        `Verified ${finding.severity} finding ${finding.id} is open and not yet repaired (${repair.detail}${failedCoverage ? `; its duplicate coverage run \`${failedCoverage.command}\` did not pass, so ${failedCoverage.canonicalFindingId}'s repair is not shown to fix it` : ''}): repair it in code and commit (managed finding-repair shown).${route.kind === 'repair' && route.relaunch ? ' The relaunched run\'s prompt carries the earlier run\'s report; another run without a commit returns the Story to PLAN.' : ''}`,
         'unclosedBlockingFindings (core/finding-closure.ts) + managedFindingRepairState');
       }
       const chain = chainOf();

@@ -732,7 +732,7 @@ proof-or-stop reviewer_list --storyId=B-xxxx --json
 
 | Source | Default | Gate effect |
 |---|---|---|
-| REVIEW `finding_add` | `verified` | An open critical/high/medium finding blocks REVIEW to TEST and DONE in every profile and round until it is closed (`finding_resolve`, `review_remediation_close`, or `finding_dismiss`). |
+| REVIEW `finding_add` | `verified` | An open critical/high/medium finding blocks REVIEW to TEST and DONE in every profile and round until it is closed (`finding_resolve` with repair evidence or the audited `disposition: preexisting_out_of_scope`, `review_remediation_close`, or `finding_dismiss`). |
 | Explicit suspected reviewer finding | `suspected` | Advisory only and requires an `uncertaintyReason`. |
 | `gap_log` | `suspected` | Long-lived framework-audit backlog; it does not block lifecycle gates. |
 | Legacy finding without the field | treated as `verified` | Preserves old blocking behavior. |
@@ -748,8 +748,18 @@ resolved canonical finding gets no repair of its own when a coverage run of its
 own case passes: `next` proposes `finding_resolve` with `duplicateOf` and
 `coverage {command, selector}`, the framework runs the command and closes it
 only on exit 0 plus the selector; otherwise it refuses and `next` dispatches the
-duplicate's own repair (run 17). After DONE, `finding_resolve` and
-`finding_dismiss` refuse with one `Next:`.
+duplicate's own repair (run 17). A finding whose cited `path:line` defect sites
+are unchanged since the Story base and that no scope-contract path, checklist
+file, scope-boundary entry or request sentence covers (old-PoS run 30) is never
+routed to repair: `next` proposes one `finding_resolve` with
+`disposition: preexisting_out_of_scope`, which recomputes that evidence and
+records it with a follow-up (severity unchanged; `finding_applicability_assess
+--verdict=pre_existing_unaffected --proposalRef=<finding id>` is the same
+disposition). A repair run that ends without a commit is relaunched once with
+its report in the prompt; after a second one `next` returns the Story to PLAN
+(`finding_repair_replan`). Details: `docs/CLI.md` ("Pre-existing findings
+outside the Story"). After DONE, `finding_resolve` and `finding_dismiss` refuse
+with one `Next:`.
 Findings from earlier rounds count; there is no round decay. Suspected
 and disproven findings do not block. Disproven findings need structured
 counter-evidence.

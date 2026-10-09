@@ -142,6 +142,8 @@ By default the `correctness_fix` future denylist contains only `repair UX`, `Aut
 ## Automatic Rollback
 
 - **REVIEW fail**: return to DEV when a finding or the coverage reviewer lane finds a problem.
+- **Pre-existing out-of-scope finding** (old-PoS run 30): in DEV, a verified finding whose cited `path:line` defect sites are unchanged since the Story base and that no scope-contract path, checklist file, scope-boundary entry or request sentence covers is closed by one audited disposition (`finding_resolve --disposition=preexisting_out_of_scope`, base evidence + follow-up in the signed resolve transition, severity unchanged), never routed to repair; it counts as closed for REVIEW→TEST and DONE like any resolved finding.
+- **Repair without a commit** (old-PoS run 30): a managed finding-repair run that ends without a repair commit is relaunched once with its report in the prompt; a second one since the last PLAN entry routes `DEV -> PLAN` (`finding_repair_replan`), never the same repair again.
 - **TEST fail**: after `proof-or-stop validate` fails, write a bug/evidence, and the fix path returns to DEV.
 - **DONE gate fail**: stay in TEST and, per the failed items in the DONE checklist, fill in evidence, summary, delivery check, main sync, or git clean.
 - **DONE-required validation fail**: stay in TEST and run `done_required_validate --storyId=<id>` when the project has `doneRequiredCommands`; without such policy the row is advisory and no full-suite claim is made.

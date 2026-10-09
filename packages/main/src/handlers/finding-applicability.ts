@@ -31,6 +31,8 @@ import { prepareFindingAssessmentProposal } from './finding-proposal.js';
 import { findingMaterialDependencySnapshot, prepareMaterialDriftReattestation } from './finding-material-reattestation.js';
 import { freezeFindingProposalPopulation, finishFindingProposalTiming } from './finding-proposal-timing.js';
 import { readFindingCollectionReadiness } from './finding-collection.js';
+import { createFindingHandlers } from './finding.js';
+import { PREEXISTING_OUT_OF_SCOPE } from '../core/finding-preexisting.js';
 
 type RouteRef = { storyId: string; receipt: { storyId: string; recordId: string; recordHash: string } };
 export interface FindingApplicabilityAssessArgs {
@@ -38,6 +40,7 @@ export interface FindingApplicabilityAssessArgs {
   proofStrength: 'strong' | 'weak' | 'unknown'; dispositionPlan?: DispositionPlan;
   gateImpact?: 'blocks' | 'does_not_block' | 'unknown'; route?: RouteRef; expiresAt?: string;
   evidenceRefs?: string[]; recheckTriggers?: string[];
+  /** Old-PoS run 30: the CLI also admits a string (the finding id), the owner's pre-existing record (verdict pre_existing_unaffected / out_of_scope). */
   proposalRef?: FindingApplicabilityAssessment['proposalRef'];
   evaluationScope?: FindingApplicabilityAssessment['evaluationScope'];
 }
@@ -366,6 +369,22 @@ export function createFindingApplicabilityHandlers(ctx: HandlerContext) {
     },
     finding_applicability_assess(input: FindingApplicabilityAssessArgs) {
       text(input.storyId, 'storyId'); text(input.findingId, 'findingId'); text(input.idempotencyKey, 'idempotencyKey');
+      const ownerProposalRef: unknown = input.proposalRef;
+      if (typeof ownerProposalRef === 'string') {
+        // Old-PoS run 30: the owner recorded a pre-existing doc finding with
+        // proposalRef = the finding id. That is the preexisting_out_of_scope
+        // disposition: the framework recomputes the base evidence and closes it
+        // (or refuses with the reason, the finding staying open).
+        if (input.verdict !== 'pre_existing_unaffected' && input.verdict !== 'out_of_scope') {
+          throw new Error(`finding_applicability_assess: proposalRef must be the signed proposal object from finding_assessment_propose; a string proposalRef is only the pre-existing record (verdict pre_existing_unaffected or out_of_scope).\nNext: proof-or-stop next --storyId=${input.storyId}`);
+        }
+        const named = ownerProposalRef === input.findingId || `${input.storyId}:${ownerProposalRef}` === input.findingId;
+        if (!named) throw new Error(`finding_applicability_assess: a string proposalRef must name the finding (${input.findingId})`);
+        const followUp = [...(input.recheckTriggers ?? []).map(row => `recheck on ${row}`), ...(input.evidenceRefs ?? []).map(row => `owner evidence: ${row}`)].join('; ');
+        // Reachable only through the CLI schema (typed callers pass the proposal object), so it stays outside the typed result.
+        return createFindingHandlers(ctx).finding_resolve({ storyId: input.storyId, findingId: input.findingId, disposition: PREEXISTING_OUT_OF_SCOPE,
+          resolution: followUp ? `repair it in a separate Story (${followUp})` : '' }) as never;
+      }
       return withLedgerLock(ctx, input.storyId, fence => {
         const requestDigest = applicabilityDigest(input);
         let ledger = ctx.store.readFindingLedger<JsonValue>(input.storyId);

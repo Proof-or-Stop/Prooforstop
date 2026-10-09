@@ -1935,7 +1935,9 @@ export interface Finding {
    * B-4f46 CHK-001: how this finding was resolved.
    * audit-only — MUST NOT be read by any gate; excluded from the finding signature.
    */
-  resolutionType?: 'fixed' | 'duplicate' | 'superseded' | 'accepted_risk' | 'partially_mitigated';
+  resolutionType?: 'fixed' | 'duplicate' | 'superseded' | 'accepted_risk' | 'partially_mitigated'
+    /** Old-PoS run 30: finding_resolve disposition=preexisting_out_of_scope (framework-checked base evidence + follow-up in resolvedReason). */
+    | 'preexisting_out_of_scope';
   /**
    * B-4f46 CHK-001: why this finding was dismissed.
    * audit-only — MUST NOT be read by any gate; excluded from the finding signature.

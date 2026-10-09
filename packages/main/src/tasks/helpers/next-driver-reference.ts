@@ -137,6 +137,17 @@
  *
  * Deliberate change (old-PoS run 27 owner tail): the DONE step's why ends with
  * DONE_TERMINAL_STATEMENT ("DONE — stop; no further commands ...").
+ *
+ * Deliberate change (old-PoS run 30, B-c201:F-005): with no finding-repair in
+ * flight, an open blocking finding whose cited path:line defect sites are
+ * unchanged since the Story base and that nothing in the request/scope covers
+ * (evaluatePreexistingFinding) gets ONE audited disposition step
+ * (preexistingDispositionStep: finding_resolve
+ * disposition=preexisting_out_of_scope) instead of a repair; a finding whose
+ * repair runs ended without a commit twice since PLAN returns to PLAN
+ * (findingRepairReplanStep), and after one such run the relaunch's why says the
+ * prompt carries the earlier report. The golden fixture's findings cite no
+ * path:line site and every repair commits, so its states are unchanged.
  */
 import { existsSync, readdirSync } from 'node:fs';
 import { hostname } from 'node:os';
@@ -172,6 +183,9 @@ import { evaluateEvidenceChainForStory } from '../../handlers/evidence-chain.js'
 import { checklistHasFileDeclarations } from '../../handlers/phase-gates.js';
 import { collectReviewerEvidenceState, verifyCurrentReviewerDispatchBinding } from '../../core/review-run.js';
 import { managedHostRunsRoot, readManagedHostRunProjection, managedHostRunReceipt, isAutoReplaceableManagedLaunchFailure } from '../../core/managed-host-run.js';
+import { findingRepairRoute } from '../../core/finding-preexisting.js';
+import { evaluatePreexistingFinding } from '../../handlers/finding-preexisting.js';
+import { noCommitRepairRunsSincePlan, preexistingDispositionStep, findingRepairReplanStep } from '../../handlers/next-driver.js';
 import { managedFindingRepairState, hintedStep, evidenceChainStep, evidenceChainAdvisory, step as sharedStep, managedLaunchStep, boundManagedSelection,
   runsForTarget, targetRelaunchIsFramework, testAuthoringStep, planAuthoringStep, preScopeAuthoringStep, nextBlockingFinding, duplicateFindingResolveStep,
   groupedFindingRepairIds, groupedFindingRepairStep, repairedFindingsForResolve, findingResolveBatchStep, openIntentConflicts, intentConflictStep, nextStepCall, DONE_TERMINAL_STATEMENT, type NextStep } from '../../handlers/next-driver.js';
@@ -420,11 +434,22 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
     const findings = openBlockingFindings(storyId);
     const chain = evaluateEvidenceChainForStory(ctx, storyId);
     if (findings.length > 0) {
+      if (!hostRuns.some(run => run.agentType === FINDING_REPAIR_AGENT && !run.terminal)) {
+        for (const row of findings) {
+          const verdict = evaluatePreexistingFinding({ store: ctx.store, root: ctx.root, storyId, finding: row.finding });
+          if (verdict.eligible && !managedFindingRepairState({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, finding: row.finding, runs: hostRuns }).repaired) {
+            return preexistingDispositionStep(base, row.finding, verdict);
+          }
+        }
+      }
       const { finding } = nextBlockingFinding(ctx.store, storyId, findings);
       const repair = managedFindingRepairState({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, finding, runs: hostRuns });
       if (!repair.repaired) {
         const repairRun = hostRuns.filter(run => run.agentType === FINDING_REPAIR_AGENT && !run.terminal).at(-1);
         if (repairRun) return waitStep(base, repairRun, 'Finding repair run');
+        const noCommit = noCommitRepairRunsSincePlan(ctx.store, storyId, repair);
+        const route = findingRepairRoute({ preexistingOutOfScope: false, noCommitRunsSincePlan: noCommit.length });
+        if (route.kind === 'replan') return findingRepairReplanStep(base, finding, noCommit);
         const duplicate = repair.bound ? null : duplicateResolveCandidate(ctx.store, storyId, finding, ctx.store.readFindings(storyId).findings ?? []);
         if (duplicate) return duplicateFindingResolveStep(base, finding, duplicate.canonical, duplicate.familyKey);
         const failedCoverage = duplicateCoverageReceipts(ctx.store, storyId, finding.id).filter(row => !row.passed).at(-1);
@@ -435,7 +460,7 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
         if (group.length > 1) return groupedFindingRepairStep(ctx.root, base, group, selection, bound, hostRuns);
         return managedLaunchStep(base, 'finding_repair', { ...selection, storyId, findingId: finding.id,
           agentType: FINDING_REPAIR_AGENT, managedDispatch: true, detach: true, json: true }, bound && targetRelaunchIsFramework(runsForTarget(ctx.root, hostRuns, FINDING_REPAIR_AGENT, { findingId: finding.id })),
-        `Verified ${finding.severity} finding ${finding.id} is open and not yet repaired (${repair.detail}${failedCoverage ? `; its duplicate coverage run \`${failedCoverage.command}\` did not pass, so ${failedCoverage.canonicalFindingId}'s repair is not shown to fix it` : ''}): repair it in code and commit (managed finding-repair shown).`,
+        `Verified ${finding.severity} finding ${finding.id} is open and not yet repaired (${repair.detail}${failedCoverage ? `; its duplicate coverage run \`${failedCoverage.command}\` did not pass, so ${failedCoverage.canonicalFindingId}'s repair is not shown to fix it` : ''}): repair it in code and commit (managed finding-repair shown).${route.kind === 'repair' && route.relaunch ? ' The relaunched run\'s prompt carries the earlier run\'s report; another run without a commit returns the Story to PLAN.' : ''}`,
         'unclosedBlockingFindings (core/finding-closure.ts) + managedFindingRepairState');
       }
       if (chain.blocking && chain.nextAction) {
