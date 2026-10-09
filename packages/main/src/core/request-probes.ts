@@ -41,6 +41,15 @@
  *    conflict. REVIEW lanes get the table as evidence. The implementer writes
  *    no probe program.
  *
+ * Old-PoS run 32 (bench-staging/oldpos/run32-analysis.md §3): every statement
+ * of a row runs in order (a dropped write raised false pin flags); a row with a
+ * state-changing segment the extractor cannot place is never run or flagged and
+ * is listed at PLAN (unextractableRows); tables are keyed on HEAD material +
+ * base + rowsDigest and cleared when the rows yield no runnable case; a flag
+ * whose item intent changed since it was raised is reopened, never escalated;
+ * a base parse error outside the declared new syntax (parseErrorPattern +
+ * newSyntaxPattern) is a PLAN authoring error (probeSyntaxErrors), never a flag.
+ *
  * Flags (head observation): `request-error` (the request expects an error,
  * the head returns a value), `request-format` (an error outside the request's
  * quoted format), `pin` (the head differs from the pin). A `pin` flag where
