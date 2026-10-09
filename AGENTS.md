@@ -232,6 +232,23 @@ missing field (the same refusal `checklist_update` and `plan_acceptance_*` print
 Intake intents also follow the derivation rule (below): an example whose
 expected value the request does not quote carries a `derivation`, else
 `[intent_derivation_required]` (old-PoS run 23 pinned its wrong value here).
+Old-PoS run 34: one refusal lists every refused row of every item, the
+submitted payload is staged at `.proof-or-stop/runtime/story-create/payload.json`,
+and the one `Next:` is to fix only the listed rows in that file and run
+`proof-or-stop story_create @<that file>`; never re-send the whole payload.
+
+DEV implementer completion (old-PoS run 34): the implementer prompt inlines
+`background.md`, the item's `plan.md` section and `request.md`, and its one
+completion call is `checklist_update {status: "done", commit: {files}}`: it
+stages the files, refuses a `git diff --cached --check` error with nothing
+committed, commits as the canonical implementer author, then runs the usual
+done checks. After an intent amendment that adopted the implementer's declared
+value, `next` verifies the item's pinned intents itself (`verification_run`)
+and marks it done; a failing verifier relaunches the implementer. A finding a
+managed repair repaired is resolved by `next` as a framework step with a
+framework-written resolution (the handler re-checks each finding's own repair
+and cited change as before). The delivery reviewer's prompt carries the
+`delivery_context_pack` output.
 
 INIT to INIT_CHECK requires independent records from both
 `proof-or-stop-review-story-init` and `proof-or-stop-product-reviewer`; each reviewer persists
@@ -586,11 +603,14 @@ Under the A/B switch `implementation.probeMatrix=on` (default off since old-PoS
 run 33, which keeps one line: no valid form may crash, explicit null is not
 omitted) the DEV implementer prompt carries the same check before REVIEW as a
 probe matrix (old-PoS runs 24-30): operand positions x value classes (omitted,
-explicit null, explicit value equal to the default such as step 1 or start 0,
-0, negative, out of range, wrong type, empty receiver, multibyte, aliased value)
-x operations (read, write, stringify, error path, neighbouring receiver types),
-run on the Story base and on the change. Every row the change decides needs a
-test, not only a probe. The `[probes]` line in the implementer's final result
+explicit null, explicit value equal to the default, 0, negative, out of range,
+wrong type, empty input, non-ASCII text, aliased value) x operations (read,
+write, print/stringify, error path, neighbouring input types), run on the Story
+base and on the change (old-PoS run 34: named generically, with no
+benchmark-task syntax example). Every row the change decides needs a test, not
+only a probe. The `[probes]` line (asked for by that prompt block only; the
+implementer agent template carries no `[probes]` contract since old-PoS run 34)
+in the implementer's final result
 lists `tested:` and `probed-only:` decided rows; `next` parses it, and a
 probed-only row on a done item returns `probe_tests_missing` (one owner
 `checklist_update` back to `in_progress`; the relaunched implementer prompt
@@ -733,7 +753,7 @@ conclusions or mutations.
 
 ### REVIEW → DONE is framework-driven: `proof-or-stop next --storyId=<id>`
 
-After DEV (every checklist item done and committed), run `proof-or-stop next --storyId=<id>` from the Story worktree and execute the one command it prints, then ask again. It is read-only, decides each step from the real gate predicates (evidence-chain check, REVIEW verdict, reviewer batch plan, inventory status, PRE_CERT admit predicates, certification status, DONE oracle), and labels it `framework` (mechanical, including a managed launch fully bound to this Story's own earlier host/model/effort and the wait on it; `proof-or-stop next --storyId=<id> --run` executes them through the normal CLI, all waits of one call within one 285 s budget, and prints `paused:` to rerun it), `agent` (code, a first or replacement managed launch, authored text or a host verdict; `<...>` placeholders name the fields to author, each with a one-line description, and a `batch` step lists several authoring commands to run in one turn, e.g. TEST's finish decision + summary) or `human`. Prefer `next --run`; no command `next` prints needs `--help`. It covers REVIEW entry, every review round (prepare → launch all prepared lanes → wait → import), the inventory epoch and critic, remediation back to DEV (repair → evidence refresh → `finding_resolve`), the review reopen back to DEV when material was committed during REVIEW with no open finding (old-PoS run 25: one framework step `review_reopen`, then DEV refreshes the evidence and REVIEW starts a fresh round; do not edit code or tests during REVIEW, a needed change goes through it), PRE_CERT (fast check → `certification_window_begin` → routine `validate`), TEST (live smoke, delivery reviewer, finish decision + summary as one step, review assurance floor; on a single host that is one framework step, `quorum_submit` with `singleHost:true`) and DONE. It also drives INIT from `story_create` on (lab `owner-init-and-worker-prompt`): with no unfinished Story, `proof-or-stop next` prints the one complete `story_create` template (boundaries inline, every placeholder hinted); then `next --storyId=<id> --run` records the scope freeze check, launches both managed INIT reviewers in parallel (their first launch uses the Story's selection, else the qualified managed-reviewer default), waits, and runs `story_advance` INIT_CHECK and PLAN; called outside the Story worktree it runs there and prints the `cd`. In PLAN it names the DEV entry too: the dev-memory acknowledgement, the deterministic PLAN authoring batch, the scope-plan reviewer launch (or relaunch of a stale verdict), then `story_advance --phase=DEV` or the DEV guard's own Next. Its commands accept trailing flags such as `--json`. Do not reorder these steps or probe `story_advance` ahead of it. Decision table: `docs/CLI.md` ("`next --storyId`").
+After DEV (every checklist item done and committed), run `proof-or-stop next --storyId=<id>` from the Story worktree and execute the one command it prints, then ask again. It is read-only, decides each step from the real gate predicates (evidence-chain check, REVIEW verdict, reviewer batch plan, inventory status, PRE_CERT admit predicates, certification status, DONE oracle), and labels it `framework` (mechanical, including a managed launch fully bound to this Story's own earlier host/model/effort and the wait on it; `proof-or-stop next --storyId=<id> --run` executes them through the normal CLI, all waits of one call within one 285 s budget, and prints `paused:` to rerun it), `agent` (code, a first or replacement managed launch, authored text or a host verdict; `<...>` placeholders name the fields to author, each with a one-line description, and a `batch` step lists several authoring commands to run in one turn, e.g. TEST's finish decision + summary) or `human`. Prefer `next --run`; no command `next` prints needs `--help`. It covers REVIEW entry, every review round (prepare → launch all prepared lanes, historically slowest first → import each lane as it ends → wait on the rest; old-PoS run 34), the inventory epoch and critic, remediation back to DEV (repair → evidence refresh → `finding_resolve`, a framework step with framework-authored resolutions since old-PoS run 34), the review reopen back to DEV when material was committed during REVIEW with no open finding (old-PoS run 25: one framework step `review_reopen`, then DEV refreshes the evidence and REVIEW starts a fresh round; do not edit code or tests during REVIEW, a needed change goes through it), PRE_CERT (fast check → `certification_window_begin` → routine `validate`), TEST (live smoke, delivery reviewer, finish decision + summary as one step, review assurance floor; on a single host that is one framework step, `quorum_submit` with `singleHost:true`) and DONE. It also drives INIT from `story_create` on (lab `owner-init-and-worker-prompt`): with no unfinished Story, `proof-or-stop next` prints the one complete `story_create` template (boundaries inline, every placeholder hinted); then `next --storyId=<id> --run` records the scope freeze check, launches both managed INIT reviewers in parallel (their first launch uses the Story's selection, else the qualified managed-reviewer default), waits, and runs `story_advance` INIT_CHECK and PLAN; called outside the Story worktree it runs there and prints the `cd`. In PLAN it names the DEV entry too: the dev-memory acknowledgement, the deterministic PLAN authoring batch, the scope-plan reviewer launch (or relaunch of a stale verdict), then `story_advance --phase=DEV` or the DEV guard's own Next (a `story_review` round older than the inputs it judged is rerun by the framework, `story_review_rerun`; old-PoS run 34). In DEV, after an intent amendment that adopted the value the implementer declared under `[intent-conflict]`, it runs the item's pinned verifier itself (`verification_run`) and marks the item done; only a failing verification relaunches the implementer (old-PoS run 34). Its commands accept trailing flags such as `--json`. Do not reorder these steps or probe `story_advance` ahead of it. Decision table: `docs/CLI.md` ("`next --storyId`").
 
 ### REVIEW and independent agents
 

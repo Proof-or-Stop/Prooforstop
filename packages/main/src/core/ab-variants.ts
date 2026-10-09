@@ -47,7 +47,7 @@
  *                              REVIEW lanes as evidence, never refuse / reopen / escalate; enforce = run 31-33 gate
  *   implementation.probeMatrix 'off' (default) | 'on'       implementer probe-matrix prompt block, `[probes]` /
  *                              `[probe-row]` report contract and its reopen (probe_tests_missing); off keeps one
- *                              line (no panic on any valid form; explicit null is not omitted)
+ *                              generic line (no crash on any valid input form; an explicit null operand is not an omitted one)
  *
  * A malformed value fails closed where it is consumed (never silently treated
  * as an experimental arm; review.lanePack / review.roundDelta then keep production: no pack). See docs/CLI.md "Detection A/B variant switches".

@@ -81,7 +81,7 @@ the mandatory `[intent-conflict]` section (old-PoS run 23; docs/CLI.md "The
 request outranks intents"): a declared conflict blocks the item until the owner
 amends the intent in PLAN. Under the A/B switch `implementation.probeMatrix=on`
 (default off since old-PoS run 33: one line instead) the implementer prompt also
-carries the probe matrix (old-PoS runs 24-30) and asks for a `[probes]` line in that message; `next`
+carries the probe matrix (old-PoS runs 24-30) and asks for a `[probes]` line in that message (the implementer agent template itself asks for no `[probes]` line since old-PoS run 34); `next`
 parses its `probed-only:` rows: a done item whose latest completed implementer
 run left decided rows untested gets `probe_tests_missing` (reopen, relaunch
 with the rows; old-PoS run 30). Old-PoS run 31 (core/request-probes.ts): the
@@ -152,7 +152,13 @@ CFS-throttled by the 2-CPU container quota (>= 1 s throttled per wall second;
 light lane commands 4.46 s mean launched at once, 0.20 s staggered), not host
 load. `review.laneLaunchStaggerMs` (integer 0..60000) therefore defaults to
 8000: `next --run` starts one round's lane launches 8 s apart (about 8-10 s per
-extra lane); `0` launches them all at once (the rollback).
+extra lane); `0` launches them all at once (the rollback). Old-PoS run 34: the
+lanes are launched historically slowest first (docs, test-coverage, concept,
+quality, then any other lane; `core/review-lane-launch-order.ts`, also the order
+`review_round_prepare` starts the ReviewRuns in), so the stagger delays the
+fastest lanes, and a lane that finished is imported while the others still run
+(the import waited for the slowest lane: 15 + 8 + 7 s per round on the critical
+path).
 
 To observe several runs in one call, supply `targets` instead of `runId`:
 
@@ -170,7 +176,16 @@ observation result. Up to 32 distinct runs with the same immutable Story subject
 still applies to the immutable Story subject; status remains read-only. Aggregate
 arguments cannot be combined with single-run cursors or output-frame selection.
 
-`waitMs` is capped at 30 seconds. A bounded return means “wake the caller and
+With `untilTerminal: true` an aggregate wait returns only once ANY target is
+terminal (or its wait expires; `waitMs` then up to 600 s, default 285 s), and
+progress does not end it. `next` waits on one round's running lanes this way
+(old-PoS run 34) and imports each lane as it ends:
+
+```bash
+proof-or-stop host_run_status '{"targets":[{"runId":"<lane-a>"},{"runId":"<lane-b>"}],"untilTerminal":true}'
+```
+
+Without `untilTerminal`, `waitMs` is capped at 30 seconds. A bounded return means “wake the caller and
 inspect the current snapshot”, not “the provider failed”. Completion is known
 only from `state=completed|failed|cancelled|timed_out` plus the terminal
 receipt. A status observer never treats provider-output silence or a stale
@@ -480,7 +495,11 @@ scope reviewer 的保存若不带凭证、而该 Story/role 有在运行的 mana
 
 DEV implementer 额外要求精确 `itemId`。该目标写入不可变 run binding；只有同一
 managed run 内对该 item 的 `checklist_update status=done` 才能消费一次性凭证并写入
-带 `managedDispatchRunId` 的成功 `subagent_result`。provider 退出 0、仅把 item 标成
+带 `managedDispatchRunId` 的成功 `subagent_result`。old-PoS run 34 起该完成调用可带
+`commit: {files}`（`isManagedImplementerCompletionPayload` 只额外接受这一字段）：同一次调用先暂存这些
+文件、`git diff --cached --check` 有空白错误时拒绝且不提交（`[item_done_diff_check]`）、以规范
+implementer 作者提交，再执行原有的 done 检查；implementer prompt 内联 background.md、该 item 的
+plan.md 段与 request.md，不再每个 item 重读。provider 退出 0、仅把 item 标成
 `in_progress`、完成其他 item，或缺少绑定结果时都不会生成 completed terminal。
 对已由 managed run 封存完成的 item 不会再派发 implementer（old-PoS run 15）。若 item 已为
 done，且存在绑定到另一个 run 的成功 `subagent_result`，并且该 run 的 terminal 为 `completed`
@@ -726,8 +745,14 @@ Each entry keeps its own evidence: the handler re-checks that finding's own
 repair (open, and `managedFindingRepairState` shows its own commit) and appends
 `[repair commit <sha> of managed finding-repair run <runId>]` to its
 resolution; a finding that fails is left open and reported (the call is refused
-only when none passes). A single repaired finding keeps the plain
-`finding_resolve --findingId` step. Duplicates (critic
+only when none passes). Since old-PoS run 34 (REM: the owner re-read findings,
+diffs and tests for 7 turns / 1.4M only to write what the handler re-checks) the
+resolutions are framework-authored (repair commit, run, "the pinned evidence
+chain is fresh", the first line of the repair report) and the step is a
+framework step `next --run` executes; a single repaired finding uses the same
+`resolutions` form with one entry (same per-finding re-check). When a finding
+would fail the cited-change check (`resolutionCitationRefusal`), the step stays
+the owner's with placeholders. Duplicates (critic
 `duplicate`, superseded-run restatement, or a later run's restatement of an
 earlier finding: old-PoS run 29, `restatedEarlierFindingOf`, a finding from a
 review run that started after the earlier finding was recorded and names its id

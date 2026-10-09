@@ -42,7 +42,11 @@ const SELF = fileURLToPath(import.meta.url);
  * review verdict's per-pass lineage walk), not repeated probes.
  */
 const SPAWN_BUDGET: Record<string, number> = {
-  DEV: 30,
+  // Old-PoS run 34: finding_resolve_batch is a framework step whose decision pre-checks
+  // each repaired finding's cited change (resolutionCitationRefusal: 3 git reads per
+  // finding), so next never proposes a resolve its gate refuses; it replaces an owner
+  // turn (re-reading findings and diffs, about 1.4M tokens): 35 on this fixture.
+  DEV: 40,
   REVIEW: 100,
   PRE_CERT: 150,
   TEST: 200,

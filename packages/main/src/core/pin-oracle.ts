@@ -3,7 +3,7 @@
  * examples against the project's own evaluator at the Story base.
  *
  * Run 31's owner hand-computed pinned values wrong three times (two string
- * write edges, then `"aébcd"[::2]` pinned `abc` instead of `abd`), each one
+ * write edges, then a non-ASCII example pinned with one wrong character), each one
  * costing a reviewer round or a DEV -> PLAN round trip. A value the project can
  * compute itself must not depend on the owner's arithmetic.
  *
@@ -78,7 +78,7 @@ export interface PinOracleConfig {
    */
   parseErrorPattern?: string;
   /**
-   * Regex of the request's new syntax (e.g. a three-part index `[a:b:c]`),
+   * Regex of the request's new syntax (e.g. the new operator's token),
    * matched per program line: a base parse error inside a match (+-1 column)
    * is expected; one outside every match is an authoring error.
    */

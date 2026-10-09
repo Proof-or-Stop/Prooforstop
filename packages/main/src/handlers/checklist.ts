@@ -42,6 +42,7 @@ import { createHash } from 'crypto';
 import { digestCanonicalJson } from '../core/digest.js';
 import { isDeliveredChecklistStatus, isTerminalChecklistStatus, isWithdrawnChecklistStatus } from '../core/checklist-status.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
+import { commitItemForDone } from '../core/item-done-commit.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
 import { withReviewInventoryMutationLock } from '../core/review-inventory-epoch.js';
 import { effectiveExcludedKeywords, normalizeBoundaryArray, scanExcludedKeywordHits } from '../core/scope-anti-expansion.js';
@@ -3411,6 +3412,12 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       success?: boolean;
       /** Old-PoS run 31: the owner's correction of Story-metadata review findings (core/metadata-correction.ts). */
       metadataCorrection?: boolean;
+      /**
+       * Old-PoS run 34 (core/item-done-commit.ts): with status=done in DEV, stage these
+       * files, refuse a `git diff --check` error (nothing committed), commit them as the
+       * canonical implementer author, then run the usual done checks.
+       */
+      commit?: { files?: string[]; message?: string };
     }): string {
       if (!args.status && args.title === undefined && args.context === undefined && args.relatedDocs === undefined && args.userSees === undefined && args.excludes === undefined && args.files === undefined && args.verificationIntent === undefined && args.verificationEvidence === undefined) {
         throw new Error('At least one of status/title/context/relatedDocs/userSees/excludes/files/verificationIntent/verificationEvidence must be provided');
@@ -3472,6 +3479,20 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           );
         }
         assertVerificationIntentClassification(args.itemId, args.verificationIntent);
+      }
+
+      // Old-PoS run 34: the implementer's commit + done in one call (same diff --check and author).
+      let commitNote = '';
+      if (args.commit !== undefined) {
+        if (args.status !== 'done') throw new Error('checklist_update refused: commit is accepted only with status=done (the implementer\'s final call) [item_done_files_invalid]');
+        const phase = store.readStory(args.storyId).phase;
+        if (phase !== 'DEV') throw new Error(`checklist_update refused: commit + done is a DEV call (Story is in ${phase}) [item_done_files_invalid]`);
+        const target = store.readChecklist(args.storyId).items.find(i => i.id === args.itemId);
+        if (!target) throw new Error(`Checklist item ${args.itemId} not found`);
+        const committed = commitItemForDone({ gitCwd: resolveStoryGitCwd(args.storyId), input: args.commit, defaultMessage: `${args.storyId} ${args.itemId}: ${target.title}`, storyId: args.storyId });
+        commitNote = committed.commit
+          ? `\nCommitted ${committed.commit.slice(0, 12)} as the canonical implementer author (${committed.files.join(', ')}); git diff --check clean.${committed.status ? `\ngit status --short:\n${committed.status}` : ''}`
+          : `\nNothing new to commit in ${committed.files.join(', ')} (already committed); git diff --check clean.`;
       }
 
       // Old-PoS run 31 (core/request-probes.ts): with a project probeRunner, done first
@@ -3721,7 +3742,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
 
       // Old-PoS run 31: the framework verifies the cited text actually changed
       // before it clears the correction (run 31 "resolved" F-001 while
-      // checklist.json:5251 still said hooo).
+      // the cited checklist.json line still stated the wrong literal).
       if (metadataBefore) {
         const unchanged: string[] = [];
         for (const correction of metadataCorrections) {
@@ -4013,7 +4034,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         : '';
       return `Checklist ${args.itemId}: ${results.join(', ')}${commitHint}${intentHeadsUpText}`;
       });
-      return probeNote ? `${updated}${probeNote}` : updated;
+      return `${probeNote ? `${updated}${probeNote}` : updated}${commitNote}`;
     },
 
     light_review(args: {
@@ -4519,6 +4540,17 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       const initialPlan = verificationProducerPlan(root, preItem, initialInput, runCwd);
       if (!initialPlan) throw new Error('verification_run refused: pinned verifier did not resolve an execution identity [verification_run_no_identity]');
       const initialPublicationDigests = publicationDigestsForKey(preCl, initialPlan);
+      // Old-PoS run 34 (F5): a pinned verifier that does not pass is journaled
+      // (verification_run_refused) so next can tell a failed framework
+      // verification of an amended item from one not yet run, and relaunch its implementer.
+      const journalRefusal = (error: unknown): never => {
+        try {
+          store.appendProcessEvent(args.storyId, { type: 'verification_run_refused', itemId, intentRef: intentRefArg,
+            reason: (error instanceof Error ? error.message : String(error)).slice(0, 600) } as never);
+          autoCommitStoryMetadata(root, args.storyId, 'verification_run');
+        } catch { /* the refusal itself is what the caller sees */ }
+        throw error;
+      };
       return withVerificationExecutionLocks(root, [initialPlan.executionKey], async () => {
         const currentCl = store.readChecklist(args.storyId);
         const currentItem = currentCl.items.find(item => item.id === itemId);
@@ -4612,7 +4644,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_run');
         return `Verification run recorded for ${itemId} → ${intentRefArg} (${kind}, ran pinned command${receiptNote})${commitHint}`;
         });
-      });
+      }).catch(journalRefusal);
     },
 
     /**

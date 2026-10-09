@@ -49,7 +49,7 @@ Raise a finding (category happy/edge/adversarial/missing) for real missing cover
 3. A test whose expected value contradicts the requirement. Check each asserted value on a
    promised output surface against `userSees`, acceptance and the request, not against the
    current implementation: a passing test that locks in a contradicting value (e.g. expecting
-   `(a[0:5:2])` where omitted slice components must be preserved as `(a[:5:2])`) is a finding.
+   a printed form that drops a part the request says must be preserved as written) is a finding.
 4. A missing edge or adversarial case for the current channel: normal / high-risk /
    strict need happy, edge and adversarial intents; fast / express need at least an
    explainable happy path (missing edge/adversarial is advisory there).

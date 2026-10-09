@@ -27,6 +27,7 @@
  * prompt body. On failure it names the failed step and lists lanes already
  * started so no partial state is hidden.
  */
+import { orderLanesForLaunch } from '../core/review-lane-launch-order.js';
 import type { HandlerContext } from './context.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
@@ -165,7 +166,9 @@ export function createReviewRoundPrepareHandlers(ctx: HandlerContext, lookup: Ha
       }
     }
 
-    const lanes = [...new Set([...report.executionPlan.launchableLanes, ...waveLanes])];
+    // Old-PoS run 34 (§4 sink 1d): historically slowest lanes first (the 8 s stagger then
+    // delays the fastest lanes, not the round's long pole); next launches them in this order.
+    const lanes = orderLanesForLaunch([...new Set([...report.executionPlan.launchableLanes, ...waveLanes])]);
     for (const lane of lanes) {
       await step(`dispatch(${lane})`, () => handler('dispatch')({ storyId, agentType: lane, summary: true }));
       const output = String(await step(`review_run_start(${lane})`,

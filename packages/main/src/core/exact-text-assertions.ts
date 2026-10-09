@@ -3,9 +3,9 @@
  * 32, bench-staging/oldpos/run32-analysis.md §4).
  *
  * Both runs' only R1 finding was the same test-strength gap: the request says
- * "Assignment error strings must match exactly", the implementer's tests
- * compared those strings through the repository's own helper
- * (`logErrorWithPosition`, a `strings.HasPrefix` wrapper), so an appended
+ * error strings "must match exactly", the implementer's tests compared those
+ * strings through a test helper of the repository that wraps a prefix
+ * comparison (`strings.HasPrefix`), so an appended
  * suffix would still pass. Run 32 paid a remediation run plus a full
  * confirmation round (14.9 min / 11.2M) for it; the prompt already said
  * "compare it exactly, not a prefix / contains helper".
@@ -46,7 +46,7 @@ function git(cwd: string, args: string[]): string | null {
   try { return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 32 * 1024 * 1024 }); } catch { return null; }
 }
 
-/** The request's backticked message literals, cut at the first `<placeholder>` (e.g. `range assignment size mismatch: target=`). */
+/** The request's backticked message literals, cut at the first `<placeholder>` (e.g. `file not found: path=`). */
 export function requestExactLiterals(requestText: string): string[] {
   const out = new Set<string>();
   for (const match of requestText.matchAll(/`([^`\n]+)`/g)) {
@@ -143,7 +143,7 @@ export function exactRequestLiteralItem<T extends { userSees?: unknown; verifica
 }
 
 export const describeExactTextGap = (gap: ExactTextGap): string =>
-  `\`${gap.literal}...\` in ${gap.file} ${gap.test} is compared only through ${gap.via} (a prefix / contains comparison)`;
+  `\`${gap.literal}...\` in ${gap.file} ${gap.test} is compared only through ${gap.via} (a prefix / contains comparison); accepted: a full-string equality of the whole message in that test (==, Equal / Equals / DeepEqual, toBe / toEqual, assertEqual), directly or through a helper whose body uses no prefix / contains API`;
 
 // ---------------------------------------------------------------------------
 // Once-per-gap-set state (runtime): the item reopened for a set, and when.
@@ -169,6 +169,6 @@ export const exactTextKeyOf = (gaps: readonly ExactTextGap[]): string => gaps.ma
 export function renderExactTextRelaunch(root: string, storyId: string, itemId: string): string[] {
   const state = readExactTextState(root, storyId);
   if (!state || state.itemId !== itemId || !state.gaps.length) return [];
-  return ['- Reopened before REVIEW (old-PoS run 32 F-001): request-quoted exact strings your tests compare only by prefix / contains. Add an exact (full-string equality) assertion of each; a reused project helper that compares by prefix does not count:',
+  return ['- Reopened before REVIEW: request-quoted exact strings your tests compare only by prefix / contains. Add an exact (full-string equality) assertion of each; a reused project helper that compares by prefix does not count:',
     ...state.gaps.slice(0, 10).map(gap => `  ${describeExactTextGap(gap)}`)];
 }

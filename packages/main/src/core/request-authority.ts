@@ -2,8 +2,9 @@
  * The verbatim request outranks owner-authored intents (old-PoS run 23).
  *
  * Run 23 shipped a wrong behavior because the owner pinned a wrong expected
- * value in a verification intent at INIT ("a[::-1]=[9..4] -> [9..4]" while the
- * request says "Use the same index-selection semantics as read slicing"). The
+ * value in a verification intent at INIT (a value the request's own stated
+ * rule contradicts: the request said the new operation follows an existing
+ * one's semantics, the pin did not). The
  * implementer, two REVIEW lanes and the inventory critic each computed the
  * contradiction and deferred to the intent ("the checklist is the requirement
  * source"; the critic filed it as a "limitation (not a finding)").
@@ -56,17 +57,17 @@ export const REPAIR_INPUT_VARIANT_RULE = '- Input variants (keep base behavior):
  * Old-PoS runs 24-29 (run28-29-analysis.md §5.1 A): the implementer self-check.
  * Three of four distinct code defects of runs 28/29 were a value class at a new
  * operand position crashing or confused on one operation (explicit null vs
- * omitted, `[::]`, a read-side error panicking on assignment), and 29/F-004 an
+ * omitted, an all-omitted form, a read-side error panicking on a write), and 29/F-004 an
  * aliased right-hand side; only the finding-repair prompt carried the variant
  * rule, so each surfaced in REVIEW and cost a finding round.
- * Run 30: explicit step 1 took the two-part path (F-004: no "explicit value
- * equal to the default" class), and a probed broadcast row was tested on the
- * two-part form only (F-002): decided rows need a test, and the `[probes]`
+ * Run 30: an explicit operand equal to its default took another form's path
+ * (F-004: no "explicit value equal to the default" class), and a probed row was
+ * tested on one syntax form only (F-002): decided rows need a test, and the `[probes]`
  * line separates tested from probed-only rows (probeTestGaps).
- * Run 31: string assignment wrote back only to a bare identifier receiver
- * (F-003: `h.s[0]="H"`, `a[0][0]="H"` no-ops) and the two-part write path took
- * an explicit null start as omitted after the three-part one was fixed
- * (F-008): the Writes line names both. With a project probeRunner the
+ * Run 31: a write reached only a bare identifier target (F-003: member and
+ * nested targets were no-ops) and one write form took an explicit null as
+ * omitted after another form was fixed (F-008): the Writes line names both.
+ * With a project probeRunner the
  * framework runs the item's rows instead (core/request-probes.ts) and this
  * matrix text is not sent.
  */
@@ -82,8 +83,8 @@ export const IMPLEMENTER_PROBE_LINE = '- No valid input form may crash or panic,
 
 export const IMPLEMENTER_PROBE_MATRIX = [
   'Probe matrix before handoff (operand position x value class x operation):',
-  '- Positions: each operand the item reads or adds (e.g. start/end/step, or its parameters). Classes: omitted, explicit null, explicit value equal to the default (e.g. step 1, start 0: it keeps its own form\'s semantics, not another form\'s path), 0, negative, out of range, non-numeric/wrong type, empty receiver, multibyte text, target aliased by the value (a[x] = a). Operations: read, write/assign, stringify, error path, neighbouring receiver types (array/string/hash).',
-  '- Writes: the assigned target\'s receiver as an identifier, a member/property (h.s[i] = v), an index-of-index (a[0][i] = v) and a call result (f()[i] = v); and each write form (two-part and three-part) with explicit null start and end (each form has its own path).',
+  '- Positions: each operand or parameter the item reads or adds. Classes: omitted, explicit null, explicit value equal to the default (it keeps its own form\'s semantics, not another form\'s path), 0, negative, out of range, non-numeric/wrong type, empty input, non-ASCII text, a target aliased by the value. Operations: read, write/assign, print/stringify, error path, neighbouring input types.',
+  '- Writes: the written target as a bare identifier, a member/property, a nested element and a call result; and every syntax form the item adds, each with explicit null operands (each form has its own path).',
   '- Keep the rows that apply to this item. Run each as a probe (one-line program or test) on the Story base and on your change. Keep the base result where the request did not change it; no row may crash, panic or reach an unchecked type assertion. Omitted and explicit null are different rows: branch on the source syntax, not the evaluated value. Each row your change decides (new result, or one the request states) needs a test, not only a probe; an untested decided row reopens the item before REVIEW.',
   `- Report in your final result: \`${PROBE_REPORT_TAG} <n> rows run on base and change; changed: <row: base -> new> | none; tested: <decided rows with a test> | none; probed-only: <decided rows without a test> | none; crashes: none\`.`,
 ].join('\n');

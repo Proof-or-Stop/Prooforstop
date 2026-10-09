@@ -16,7 +16,7 @@
  * checklist committed before the finding was recorded). They are deduped by
  * (item, field) across lanes and rounds.
  *
- * Literal sweep (run 31 D5: `hooo` lived in userSees and an intent row, `abc`
+ * Literal sweep (run 31 D5: a wrong literal lived in userSees and an intent row, another
  * in an intent row and userSees; each checker fixed one copy): every other
  * occurrence of the wrong literal across all items' userSees / intent rows is
  * listed in the same correction step.
@@ -317,7 +317,7 @@ const sameTarget = (a: MetadataCorrection, b: MetadataCorrection): boolean => a.
  * owner, never repair work) when it is pure metadata, or when every correction
  * it asks for targets the same item field (and row, when both name rows) as a
  * lane finding the importer reclassified as metadata. Run 33's docs lane cited
- * the checklist, evaluator.go and its test ("the implementation correctly
+ * the checklist, a product source file and its test ("the implementation correctly
  * returns ..."), was stored as a product finding and got a repair run that
  * added a test for already-correct behaviour, while the test-coverage lane's
  * copy of the same correction was reclassified. A finding with no such

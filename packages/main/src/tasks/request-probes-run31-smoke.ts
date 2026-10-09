@@ -268,10 +268,10 @@ const EVAL = [
   assert.match(contract, /Done is refused once per set of flagged rows/);
   const advisory = renderFrameworkProbeContract(DEV_ITEMS, RUN31_REQUEST, 'CHK-002', { base: 'a'.repeat(40) }).join('\n');
   assert.match(advisory, /it is not refused/, 'advisory (default): done is never refused');
-  assert.doesNotMatch(advisory, /member\/property `h\.s\[i\]`/, 'the probe-matrix checklist is the implementation.probeMatrix arm');
+  assert.doesNotMatch(advisory, /write targets that are not a bare identifier/, 'the probe-matrix checklist is the implementation.probeMatrix arm');
   assert.match(advisory, /CONTRADICTS: pins the value \[0, 2\]/, 'contradicting pins are still listed (static, request-anchored)');
-  assert.match(contract, /member\/property `h\.s\[i\]`, index-of-index `a\[0\]\[i\]`, call result `f\(\)\[i\]`/, 'the receiver kinds are named');
-  assert.match(contract, /two-part and three-part\) with explicit null/);
+  assert.match(contract, /write targets that are not a bare identifier \(a member\/property, a nested element, a call result\)/, 'the write-target kinds are named');
+  assert.match(contract, /every syntax form the item adds, each with explicit null operands/);
   assert.match(contract, /CONTRADICTS: pins the value \[0, 2\]/, 'the item\'s contradicting pins are listed before coding');
   assert.ok(contract.length < 2500, `the framework contract stays compact (${contract.length} chars)`);
   const audit = renderRequestAnchoredPinAudit(DEV_ITEMS, RUN31_REQUEST).join('\n');

@@ -2,7 +2,7 @@
  * Exact user-visible strings a checklist item states, copied verbatim for the
  * implementer and finding-repair prompts.
  *
- * Benchmark run 13 (abs Go task): the item's userSees and verification intents
+ * Benchmark run 13: the item's userSees and verification intents
  * named the exact error text, but the implementer prompt only pointed at
  * plan.md, so workers shipped working behavior with paraphrased error strings
  * and the owner paid an extra implementer round per item to correct them.

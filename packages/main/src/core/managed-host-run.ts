@@ -4836,6 +4836,9 @@ const MANAGED_IMPLEMENTER_COMPLETION_PAYLOAD_KEYS = new Set([
   'itemId',
   'status',
   'success',
+  // Old-PoS run 34 (core/item-done-commit.ts): the implementer's own commit of its
+  // files in the same call (diff --check, canonical author); no other field.
+  'commit',
 ]);
 
 /**
@@ -5539,6 +5542,13 @@ export async function waitManagedHostRuns(args: {
   targets: ManagedHostRunWaitTarget[];
   waitMs?: number;
   maxWaitMs?: number;
+  /**
+   * Old-PoS run 34: return only once ANY target is terminal (or the wait
+   * expires; cap MANAGED_HOST_RUN_STATUS_TERMINAL_WAIT_MAX_MS); progress does
+   * not end the wait. `next` waits on one round's running lanes this way and
+   * imports each lane as it ends.
+   */
+  untilTerminal?: boolean;
 }): Promise<{ schemaVersion: typeof MANAGED_HOST_RUN_SCHEMA_VERSION; changed: boolean; runs: ManagedHostRunStatusResult[] }> {
   if (!Array.isArray(args.targets) || args.targets.length < 1 || args.targets.length > 32) {
     throw new Error('host_run_status: targets must contain 1 to 32 runs');
@@ -5559,8 +5569,8 @@ export async function waitManagedHostRuns(args: {
     if (!existsSync(paths.spec)) throw new Error(`managed host run not found: ${runId}`);
     return { runId, afterGeneration: target.afterGeneration };
   });
-  const waitMs = Math.min(boundedManagedHostRunStatusWaitMs(args.waitMs),
-    boundedManagedHostRunStatusWaitMs(args.maxWaitMs ?? MANAGED_HOST_RUN_STATUS_WAIT_MAX_MS));
+  const cap = args.untilTerminal === true ? MANAGED_HOST_RUN_STATUS_TERMINAL_WAIT_MAX_MS : MANAGED_HOST_RUN_STATUS_WAIT_MAX_MS;
+  const waitMs = Math.min(boundedPositiveMs(args.waitMs, 0, cap), boundedPositiveMs(args.maxWaitMs ?? cap, 0, cap));
   const deadline = Date.now() + waitMs;
   const baselines = new Map<string, number>();
   while (true) {
@@ -5571,8 +5581,10 @@ export async function waitManagedHostRuns(args: {
       }
       // An explicit cursor acknowledges terminal delivery as well as progress.
       // With no cursor, an already terminal run is immediately actionable.
-      const changed = status.run.generation !== baselines.get(target.runId)
-        || (target.afterGeneration === undefined && status.run.terminal !== null);
+      const changed = args.untilTerminal === true
+        ? status.run.terminal !== null
+        : status.run.generation !== baselines.get(target.runId)
+          || (target.afterGeneration === undefined && status.run.terminal !== null);
       return { ...status, changed };
     }));
     const changed = runs.some(run => run.changed);

@@ -18,7 +18,7 @@ export function closureBlockingSeverities(policy: { review: { blockingSeverities
 
 /**
  * The one shared reviewer severity rubric (run 16: a reproduced base->head
- * regression of hash range assignment was rated low, low is advisory, and the
+ * regression of an existing operation was rated low, low is advisory, and the
  * Story reached DONE with it open). Carried verbatim by the REVIEW finding
  * triage contract (every active REVIEW lane), the topology/inventory critic
  * template, and the managed final-proposal schema's severity description.

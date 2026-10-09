@@ -4,15 +4,15 @@
  *
  * Run 31's implementer probe matrix cost 56 of 171 implementer turns (about
  * 11-15M tokens: a hand-written probe program, a base worktree, copy, run and
- * cleanup per item) and found no defect. It printed `a[null:4:2] -> [0, 2]`
- * next to the request sentence "A non-numeric `start` ... must keep the
- * existing index-operator error format" and nobody compared the two (F-006):
+ * cleanup per item) and found no defect. It printed a value for an input the
+ * request says must produce an error, next to that very request sentence, and
+ * nobody compared the two (F-006):
  * the matrix compared base against change, never against the request, and the
  * pin (owner-authored, wrong) agreed with the code.
  *
  * 1. Anchoring (always, when request.md exists): every executable example of
- *    an intent row (`<input> -> <value>`, also `s='hello'; s[::2]='ABC' ->
- *    'AeBlC'`, `a[::2] over [0,1,2] -> [0, 2]`, several cases per row) is a
+ *    an intent row (`<input> -> <value>`, also `x='hello'; f(x) -> 'HELLO'`,
+ *    `f(x) over [0,1,2] -> [0, 2]`, several cases per row) is a
  *    probe case. Each case is matched to the request sentences that define its
  *    behaviour by the PLAN coverage matrix (core/plan-coverage-matrix.ts
  *    caseRequirements: the requirement classes the case's own code carries,
@@ -58,8 +58,8 @@
  *     on a flag (handlers/next-driver.ts openProbeFlags), and PLAN's
  *     probe-syntax / unextractable-row steps do not run. 4 false flags in runs
  *     32-33 cost 10.6 and 7.9 min; the one true flag was redundant.
- *   - Case isolation: a row of independent examples chained in one row (`a=[..];
- *     a[1::2]=9; str(a) -> ..; a[:4:2]=9 -> ..`) used to run each later case on
+ *   - Case isolation: a row of independent examples chained in one row (`x=[..];
+ *     set(x, 1); show(x) -> ..; set(x, 2) -> ..`) used to run each later case on
  *     the state the earlier cases mutated (run 33 trip 4, a false pin flag). Each
  *     case now also runs isolated (the row prelude: every statement except an
  *     earlier case's mutation, plus its own statements); a pin that the isolated
@@ -216,7 +216,7 @@ function trailingCode(text: string): string | null {
   const token = trimmed.slice(start);
   if (!token) return null;
   const before = trimmed.slice(0, start).trimEnd();
-  // `s[::2] = "x"`: the token is the right-hand side of a spaced assignment.
+  // `x[i] = "v"`: the token is the right-hand side of a spaced assignment.
   if (/(?<![=!<>])=$/.test(before)) {
     const lhs = trailingCode(before.slice(0, -1));
     return lhs ? `${lhs}=${token}` : null;
@@ -288,7 +288,7 @@ function splitAssignment(subject: string): { lhs: string; rhs: string } | null {
   return lhs && rhs ? { lhs, rhs } : null;
 }
 
-/** The object a write modifies: the target without its last top-level index group (`h.s[0]` -> `h.s`). */
+/** The object a write modifies: the target without its last top-level index group (`obj.items[0]` -> `obj.items`). */
 function writeReceiver(lhs: string): string {
   if (!lhs.endsWith(']')) return lhs;
   let depth = 0;
@@ -301,7 +301,7 @@ function writeReceiver(lhs: string): string {
 
 const rootIdentifier = (expr: string): string | null => expr.match(/^([A-Za-z_]\w*)\s*[[.]/)?.[1] ?? null;
 
-/** A statement that mutates a receiver in place (`a[1::2]=9`, `h.a[0:2]=[9,8]`), not a (re)binding of a name. */
+/** A statement that mutates a receiver in place (`x[1]=9`, `obj.items[0]=[9,8]`), not a (re)binding of a name. */
 function isMutation(statement: string): boolean {
   const assignment = splitAssignment(statement);
   return Boolean(assignment && !/^[A-Za-z_]\w*$/.test(assignment.lhs));
@@ -387,7 +387,7 @@ export function probeCasesOf(ref: string, itemId: string, desc: string, quote: s
 
 /**
  * The probe cases of an item. A case whose receiver variable no statement of
- * its own row binds (`non-numeric start a[{}::2] -> ...`) borrows the binding
+ * its own row binds (`non-numeric operand f({}) -> ...`) borrows the binding
  * the item's other rows use most for that variable (run 31: CHK-002/CHK-003
  * error rows named `a` / `s` and relied on the `over a=[...]` of a sibling row).
  */
@@ -1122,7 +1122,7 @@ export function renderFrameworkProbeContract(items: readonly ProbeItem[], reques
     runner.enforcement === 'enforce'
       ? `${head} Done is refused once per set of flagged rows, with the rows: fix each, or list a wrong pin under [intent-conflict], or add \`${PROBE_ROW_TAG} <row> | ok: <why>\` for a flag you judge wrong.`
       : `${head} Done prints the rows that differ (it is not refused): fix a row your code gets wrong, list a wrong pin under [intent-conflict], or say why in a \`${PROBE_ROW_TAG} <row> | ok: <why>\` line.`,
-    ...(options.probeMatrix ? ['- Behaviour no example pins is still yours to test: omitted vs explicit null per operand, an explicit value equal to the default, a target aliased by the value, assignment receivers that are not a bare identifier (member/property `h.s[i]`, index-of-index `a[0][i]`, call result `f()[i]`), and each write form (two-part and three-part) with explicit null start/end.'] : []),
+    ...(options.probeMatrix ? ['- Behaviour no example pins is still yours to test: omitted vs explicit null per operand, an explicit value equal to the default, a target aliased by the value, write targets that are not a bare identifier (a member/property, a nested element, a call result), and every syntax form the item adds, each with explicit null operands.'] : []),
     ...(contradicting.length ? ['- Pins that contradict their request sentence (the request outranks the pin: implement the request, list each under [intent-conflict]):', ...anchoredLines(contradicting, 'CONTRADICTS')] : []),
   ];
 }

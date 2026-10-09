@@ -350,7 +350,7 @@ function testRef(test: GoTestRef): GoTestRef {
 
 /**
  * Code-like literals of an intent description: backticked text, bracket
- * expressions (with their prefix, e.g. `myArray[99 : 101 : 2]`, and each
+ * expressions (with their prefix, e.g. `items[1 : 5]`, and each
  * bracket group), parenthesized groups and double-quoted strings.
  */
 export function intentLiterals(desc: string): string[] {
@@ -369,7 +369,7 @@ export function intentLiterals(desc: string): string[] {
   return [...out];
 }
 
-/** Whitespace- and escape-insensitive form (a Go string literal escapes the quotes of `"12345"[::2]`). */
+/** Whitespace- and escape-insensitive form (a Go string literal escapes the quotes of `f("12345")`). */
 function normalizeCode(text: string): string {
   return text.replace(/[\s\\]+/g, '');
 }

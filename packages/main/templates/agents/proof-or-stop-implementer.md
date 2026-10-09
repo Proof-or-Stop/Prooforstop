@@ -35,7 +35,7 @@ Your goal is to **complete the single checklist item bound to this dispatch when
 - A string the request quotes as exact (error text, output) is asserted with an EXACT comparison (full-string equality). A prefix / contains comparison (`HasPrefix`, `strings.Contains`, `startsWith`, `includes`, `assertIn`, `toContain`) does not count, and neither does a reused project test helper that wraps one (read the helper before reusing it); next reopens the item before REVIEW when the Story's added tests compare such a string only that way
 - Work only on the single item bound by the dispatch. The Story owner/controller owns the `in_progress` transition; begin the assigned implementation without writing it yourself
 - Write code / modify fixtures / run necessary local checks (lint, build, unit tests)
-- After completion, call `proof-or-stop checklist_update '{"storyId":"...","itemId":"...","status":"done"}'`
+- After completion, make the one completion call: `proof-or-stop checklist_update '{"storyId":"...","itemId":"...","status":"done","commit":{"files":["<each file you changed>"]}}'` (it runs git diff --check, commits as the canonical implementer author and marks the item done)
 - Once the bound item is processed, return a brief summary and **stop** — do not try to advance the phase, do not "while you're at it" do anything out of scope
 - **Out-of-item finding discipline**: Preserve its reproduction evidence and impact evidence when you discover a defect outside the assigned item. Report it to the Story Owner with the affected surface and a suggested route. Never widen the assigned item or Story unilaterally; the Story Owner decides whether current-Story repair or evidence-backed routing applies.
 
@@ -57,7 +57,7 @@ The following behaviors are **never allowed under any circumstances**, even if t
 The correct reaction when tempted: write a line in the return summary `[refused] <prohibited operation> — only the main agent can do this`, then continue completing the allowed parts.
 
 Whitelist of allowed Proof-or-Stop commands:
-- `proof-or-stop checklist_update` (only the exact assigned Story/item `status=done` write after commit; do not write `in_progress`, metadata, another item, or lifecycle state)
+- `proof-or-stop checklist_update` (only the exact assigned Story/item `status=done` write, with `commit.files` so it commits first; do not write `in_progress`, metadata, another item, or lifecycle state)
 - `proof-or-stop validate` (local validation)
 - `proof-or-stop status` / `proof-or-stop checklist_get` / `proof-or-stop story_get` (read-only queries)
 - `proof-or-stop aux_doc_list` / `proof-or-stop aux_scan` / `proof-or-stop aux_detail` (read-only queries)
@@ -108,7 +108,7 @@ When `proof-or-stop validate` reports red or the implementation doesn't match ex
 
 - **read-before-edit**: before editing any file, you must Read it once (unless it's a Write creating a new file). This is a hard rule; don't patch from memory
 - **one bound item only**: the dispatch already identifies your sole item. Do not mark it `in_progress`; after completion and commit, mark that exact item `done` and stop
-- **commit as soon as you finish writing**: immediately after the bound item is done, `git add <files> + git commit --author="proof-or-stop-implementer <proof-or-stop-implementer@noreply.local>" -m "B-xxxx CHK-NNN: <title>"`. Keep this author for audit attribution, but remember that author text grants no lifecycle authority and cannot replace the owner's canonical dispatch/subagent result
+- **commit and mark done in one call**: when the bound item is implemented, `proof-or-stop checklist_update` with `status=done` and `commit.files` (every file you changed) stages them, refuses a `git diff --check` error with nothing committed (fix and repeat), commits as `proof-or-stop-implementer <proof-or-stop-implementer@noreply.local>` with `B-xxxx CHK-NNN: <title>`, then runs the done checks. The author is audit attribution only; it grants no lifecycle authority and cannot replace the owner's canonical dispatch/subagent result
 - **don't guess Proof-or-Stop CLI parameters from memory**: when uncertain, first `proof-or-stop <command> --help`
 - **acceptance judgment belongs to the main agent**: you may run `proof-or-stop validate` to get error information to aid development, but you must not claim "validation passed" or "ready for delivery" in the return summary. Final acceptance is performed independently by the main agent. Even if validate is all green, you only say "validate has no errors", not "verified passing"
 
@@ -122,11 +122,10 @@ Completed CHK-XXX: one sentence describing the implementation.
 [bug-suspected] <file:line + symptom> (if any, let main agent decide for itself)
 [next] <what you think the main agent should do next — a one-sentence suggestion, not a command>
 [intent-conflict] none | <intentRef> | request: "<request sentence>" | request implies: <value> | intent pins: <value>
-[probes] <n> rows run on base and change; changed: <row: base -> new> | none; tested: <decided rows with a test> | none; probed-only: <decided rows without a test> | none; crashes: none
 ```
 
 The `[intent-conflict]` line is mandatory (one line per conflict): the request outranks a pinned intent, so never resolve a contradiction silently or as a prose "deliberate choice"; the framework parses this line and the Story owner amends the intent.
-The `[probes]` line reports the dispatch prompt's probe matrix (operand position x value class x operation, run on the Story base and on your change); a probed-only decided row reopens the item.
+Any further report line the dispatch prompt itself asks for (for example a probe report) follows the same format rules.
 
 **Absolutely do not**:
 - Give long explanations of what you did (the diff is already in git, the main agent can read it themselves)

@@ -1,58 +1,48 @@
 /**
- * PLAN coverage matrix (old-PoS runs 24-29, bench-staging/oldpos/run28-29-analysis.md
- * §3.3 / §5.1 B): rows the request text demands that no intent states.
+ * PLAN coverage matrix (old-PoS runs 24-31): rows the request text demands
+ * that no intent states.
  *
- * Each finding round costs 15-27 min and 10-17M tokens. Of the R1/R2 findings
- * in runs 24-29, most were a value class the checklist never tested on one
- * operation or syntax form: a read-side error that crashed on the assignment
- * path (28/F-002), `[::]` / `[:e:]` panics (24/F-001, 29/F-001), omitted-bound
- * runtime rows missing (27/F-001), assignment tested only with forward explicit
- * ASCII selections (29/F-002, F-003), explicit `null` treated as omitted
- * (24/F-005, 28/F-001). These checks demand those rows in PLAN, where they cost
- * one authoring turn, instead of a review round. They add rows; they never
- * remove a review.
+ * Each finding round costs 15-27 min and 10-17M tokens. Most R1/R2 findings of
+ * those runs were a value class the checklist never tested on one operation or
+ * syntax form of a new multi-part index syntax: a read-side error that crashed
+ * on the write path, an all-omitted form that panicked, omitted-operand rows
+ * missing, writes tested only with simple forward ASCII selections, explicit
+ * `null` treated as omitted. These checks demand those rows in PLAN, where
+ * they cost one authoring turn, instead of a review round. They add rows; they
+ * never remove a review.
  *
  * Deterministic, and only on request text patterns (each gap lists the request
  * sentences that triggered it):
  *   1. write-mirror: a request sentence makes writes follow reads ("same ...
- *      semantics as read slicing" in an assignment section). Every value class
- *      an intent tests on the read side (omitted / explicit null / 0 / negative /
- *      non-numeric per operand position, multibyte text, empty selection) needs
- *      a write-side intent with that class.
- *   2. omit-combination: the request lists forms of an n-part syntax with
- *      omitted parts (`value[:end:step]`, `value[::step]`). Every omission
- *      pattern of the n parts (2^n: `[start:end:step]` .. `[::]`) needs a
+ *      semantics as" the read form, in an assignment section). Every value
+ *      class an intent tests on the read side (omitted / explicit null / 0 /
+ *      negative / non-numeric per operand position, non-ASCII text, empty
+ *      selection) needs a write-side intent with that class.
+ *   2. omit-combination: the request lists forms of an n-part bracket syntax
+ *      with omitted parts. Every omission pattern of the n parts (2^n) needs a
  *      runtime (read or write) intent, and a negative value where the request
- *      names one ("Negative step").
+ *      names one.
  *   3. enumerated-domain: a request sentence that states a value class
- *      (non-numeric, negative, zero-length, step of 0, Unicode/runes) for an
- *      enumerated list of operand positions (`end` or `step`), receivers
- *      (array/string) or forms (single index, two-part, three-part) needs one
- *      intent per member, in the operation its section is about; a non-numeric
- *      operand that can be omitted also needs an explicit-null intent (omitted
- *      and explicit null are different inputs).
- *   Old-PoS run 30 (each finding below passed every run 24-29 check):
- *   2b. stringify: the request specifies printed / stringified forms of that
- *      syntax ("AST stringification must preserve ..."): one stringify intent
- *      per omission pattern the request lists (30/F-003: `[:101:2]`).
- *   3b. per-form assignment: a section that lists assignment forms of a
- *      receiver (two-part and three-part) and states a size-mismatch or
- *      broadcast rule needs one intent per form x rule (30/F-002).
+ *      (non-numeric, negative, zero-length, zero, non-ASCII) for an enumerated
+ *      list of operand positions, input types or syntax forms needs one intent
+ *      per member, in the operation its section is about; a non-numeric operand
+ *      that can be omitted also needs an explicit-null intent (omitted and
+ *      explicit null are different inputs).
+ *   2b. stringify: the request specifies printed forms of that syntax: one
+ *      stringify intent per omission pattern the request lists.
+ *   3b. per-form assignment: a section that lists several write forms of an
+ *      input type and states a size-mismatch or broadcast rule needs one intent
+ *      per form x rule.
  *   4. exact-text: a request line says strings "must match exactly"; each
  *      string quoted under it needs an intent that carries it and states an
- *      exact (not prefix) comparison (30/F-001).
- *   Old-PoS run 31 (F-003 and F-008 passed every check above):
- *   3c. lvalue receivers: a section that lists assignment forms of a receiver
- *      needs a write row whose assigned target is not a bare identifier: a
- *      member/property receiver (`h.s[i] = ...`) and an index-of-index
- *      receiver (`a[0][i] = ...`) per receiver type, and one call-result
- *      receiver (`f()[i] = ...`). 31/F-003: string assignment wrote back only
- *      to a bare identifier.
- *   3d. per-form explicit null on writes: a section that lists two-part and
- *      three-part assignment forms of a receiver, with an omittable range
- *      syntax, needs an explicit-null start and end write row per form
- *      (31/F-008: the two-part write path took explicit null as omitted after
- *      the three-part one was fixed).
+ *      exact (not prefix) comparison.
+ *   3c. write targets: a section that lists write forms of an input type needs
+ *      a write row whose target is not a bare identifier: a member/property
+ *      target and a nested-element target per input type, and one call-result
+ *      target.
+ *   3d. per-form explicit null on writes: a section that lists several write
+ *      forms, with an omittable syntax, needs an explicit-null row per operand
+ *      and form.
  * Request literals (error messages, quoted examples) are the story_create
  * literal pre-check's (core/story-request.ts); the general case of each check
  * is a scope-plan reviewer rule (renderCoverageMatrixRule).
@@ -66,10 +56,10 @@
  * Old-PoS run 33 (bench-staging/oldpos/run33-analysis.md §2.3, §4.1): OFF by
  * default, A/B switch `plan.coverageMatrix` ('off' | 'on', core/ab-variants.ts).
  * 35 demanded rows cost 3-5 min and 2.7-4.6M per run to author, manufactured
- * wrong explicit-null pins (two in run 33, four in run 31) and prevented no
- * documented finding (runs 30-33). Off keeps only rule 4 (exact-text rows: the
- * deterministic request-literal class, also the story_create literal
- * pre-check); `planCoverageGapsFor` is the switch-aware entry every caller uses.
+ * wrong explicit-null pins and prevented no documented finding (runs 30-33).
+ * Off keeps only rule 4 (exact-text rows: the deterministic request-literal
+ * class, also the story_create literal pre-check); `planCoverageGapsFor` is
+ * the switch-aware entry every caller uses.
  */
 import type { ChecklistItem, VerificationIntentDerivation } from './types.js';
 import { VERIFICATION_LANES } from './verification.js';
@@ -123,7 +113,16 @@ export interface CoverageGap extends CoverageRequirement {
   itemId: string;
   /** An input shape that would satisfy the row. */
   example: string;
+  /**
+   * Old-PoS run 34 (F1): exact-text rows that carry the request string but state
+   * no exact comparison (their refs). The gap names them with the reason and the
+   * accepted wording, so the owner never has to read this module to find the rule.
+   */
+  nearMiss?: string[];
 }
+
+/** Old-PoS run 34 (F1): the wording an exact-text row must use besides the string itself. */
+export const EXACT_ROW_WORDING = 'say exact / exactly, equals / equality, whole error / whole message, or == / ===';
 
 type CheckedItem = Pick<ChecklistItem, 'id' | 'status' | 'verificationIntent'> & { title?: string; excludes?: readonly string[] };
 
@@ -179,7 +178,7 @@ function indexExpressions(text: string): Array<{ parts: string[]; after: string;
 /**
  * The request's n-part bracket syntax (n >= 2, largest arity whose request
  * forms omit a part), its operand names from the all-identifier form
- * (`value[start:end:step]`), else part1..n.
+ * (`x[first:second:third]` names them first, second, third), else part1..n.
  */
 export function requestSyntaxFamily(requestText: string): SyntaxFamily | null {
   const spans = [...requestText.matchAll(/`([^`\n]+)`/g)].map(match => match[1]!);
@@ -250,7 +249,7 @@ function proseClasses(desc: string, names: readonly string[]): string[] {
   return out;
 }
 
-/** 3c: assignment targets whose receiver is not a bare identifier (`h.s[i] =`, `a[0][i] =`, `f()[i] =`), or the prose naming one. */
+/** 3c: write targets that are not a bare identifier (a member/property, a nested element, a call result), or the prose naming one. */
 const ASSIGN_TAIL = String.raw`\s*\[[^\[\]]*\]\s*=(?!=)`;
 const MEMBER_TARGET = new RegExp(String.raw`[A-Za-z_]\w*\.[A-Za-z_]\w*${ASSIGN_TAIL}|\[\s*["'][^"'\]]+["']\s*\]${ASSIGN_TAIL}|\b(?:member|property|field|attribute)\s+(?:access\s+)?receiver\b`, 'i');
 const NESTED_TARGET = new RegExp(String.raw`[\w\]]\s*\[[^\[\]]*\]${ASSIGN_TAIL}|\bindex-of-index\b|\bnested[- ]index(?:ed)?\s+receiver\b`, 'i');
@@ -643,11 +642,11 @@ export function requestAnchorContext(items: readonly CheckedItem[], requestText:
 }
 
 /**
- * The requirements one probe case (its code text, e.g. `a=[1,2,3]; a[null:3]=[9]`)
+ * The requirements one probe case (its code text, e.g. `x=[1,2,3]; x[null]=[9]`)
  * satisfies, exact-text rows aside. A write requirement whose sentences make
- * writes follow reads ("same ... semantics as read slicing") also brings the
- * read requirements of its classes: run 31's F-008 write `a[null:3]=[9]` is
- * defined by the read sentence "A non-numeric `start` ... error format".
+ * writes follow reads ("same ... semantics as" the read form) also brings the
+ * read requirements of its classes: a write with an explicit-null operand is
+ * defined by the read sentence that gives that operand class an error.
  */
 export function caseRequirements(ctx: RequestAnchorContext, caseText: string, itemTitle = ''): CoverageRequirement[] {
   const features = rowFeatures('case', 'case', caseText, ctx.family, itemTitle);
@@ -691,9 +690,9 @@ function exampleFor(entry: CoverageRequirement, family: SyntaxFamily | null): st
   const text = entry.classes.includes('multibyte') ? ' with non-ASCII text (e.g. é)' : entry.classes.includes('empty-selection') ? ' selecting zero indexes'
     : entry.classes.includes('size-mismatch') ? ' whose length differs from the selection' : entry.classes.includes('broadcast') ? ' as one value broadcast to every selected index' : '';
   if (entry.op === 'stringify') return `${target}${shape} printed back as written`;
-  // 3c: the assigned target's receiver (old-PoS run 31 F-003).
+  // 3c: a write target that is not a bare identifier.
   const index = entry.receiver === 'array' ? '[0:1]' : '[0]';
-  if (entry.classes.includes('receiver-member')) return `h.${target}${index} = <value> with h a hash/object holding ${entry.receiver === 'array' ? 'an array' : entry.receiver === 'string' ? 'a string' : 'the receiver'}; h.${target} reads back the change`;
+  if (entry.classes.includes('receiver-member')) return `obj.member${index} = <value> with obj.member ${entry.receiver === 'array' ? 'an array' : entry.receiver === 'string' ? 'a string' : 'the written value'}; obj.member reads back the change`;
   if (entry.classes.includes('receiver-nested')) return `x[0]${index} = <value> with x[0] ${entry.receiver === 'array' ? 'an array' : entry.receiver === 'string' ? 'a string' : 'the receiver'}; x[0] reads back the change`;
   if (entry.classes.includes('receiver-call')) return 'f()[0] = <value>: the exact result or error';
   return entry.op === 'write' ? `${target}${shape} = <value>${text}` : `${target}${shape}${text}`;
@@ -724,7 +723,11 @@ export function planCoverageGaps(items: readonly CheckedItem[], requestText: str
   const rows = checklistRows(open, family);
   return planCoverageStatus(open, requestText)
     .filter(status => status.satisfiedBy.length === 0 && status.excludedBy === null)
-    .map(status => ({ ...status.requirement, itemId: targetItem(status.requirement, rows, open.map(item => item.id)), example: exampleFor(status.requirement, family) }));
+    .map(status => {
+      const nearMiss = status.requirement.op === 'exact' ? rows.filter(row => opMatches(row, status.requirement)).map(row => row.ref) : [];
+      return { ...status.requirement, itemId: targetItem(status.requirement, rows, open.map(item => item.id)), example: exampleFor(status.requirement, family),
+        ...(nearMiss.length ? { nearMiss } : {}) };
+    });
 }
 
 /**
@@ -740,7 +743,13 @@ const clip = (text: string, max: number): string => (text.length > max ? `${text
 
 /** One line per gap (story_review message, next Why). */
 export function describeCoverageGap(gap: CoverageGap): string {
-  return `${gap.key} (e.g. ${gap.example}; request: "${clip(gap.sentences[0] ?? '', 160)}"${gap.sentences.length > 1 ? ` +${gap.sentences.length - 1}` : ''})`;
+  return `${gap.key} (e.g. ${gap.example}; request: "${clip(gap.sentences[0] ?? '', 160)}"${gap.sentences.length > 1 ? ` +${gap.sentences.length - 1}` : ''})${nearMissReason(gap)}`;
+}
+
+/** Old-PoS run 34 (F1): why a row that carries the exact string does not count, and the accepted wording. */
+export function nearMissReason(gap: Pick<CoverageGap, 'nearMiss' | 'literal'>): string {
+  if (!gap.nearMiss?.length) return '';
+  return `; ${gap.nearMiss.join(', ')} carries the string but states no exact comparison: its desc must ${EXACT_ROW_WORDING} (e.g. "exact whole error equals ${literalStem(gap.literal ?? '')}...")`;
 }
 
 export interface CoveragePlaceholder { desc: string; derivation: VerificationIntentDerivation; keys: string[] }
@@ -756,7 +765,7 @@ export function coveragePlaceholders(gaps: readonly CoverageGap[], itemId: strin
   return rules.map(rule => {
     const group = mine.filter(gap => gap.rule === rule);
     const head = rule === 'exact-text'
-      ? 'one intent per string asserting the whole text equals it (exact match, not a prefix / contains check)'
+      ? `one intent per string asserting the whole text equals it (exact match, not a prefix / contains check); the desc carries the string up to its first <placeholder> and must ${EXACT_ROW_WORDING}`
       : 'one input -> exact result or exact error (never a crash) per case, written in the request\'s syntax';
     return {
       desc: `<${rule}: ${head}: ${group.map(gap => `${gap.key.replace(`${COVERAGE_GAP_PREFIX} `, '')} (e.g. ${gap.example})`).join('; ')}>`,

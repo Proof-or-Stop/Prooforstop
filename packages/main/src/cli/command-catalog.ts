@@ -559,7 +559,11 @@ Behavior:
     reason: z.string().optional().describe('Change reason.'), agent: z.string().optional().describe('Actor.'),
     actor: z.string().optional().describe('Actor alias; INIT reviewer lanes may not directly change requirement definitions.'),
     success: z.boolean().optional().describe('Feeds the subagent_result process event (success flag) when status=done; default true. NOT persisted on the checklist item.'),
-    metadataCorrection: z.boolean().optional().describe('Old-PoS run 31: correct the checklist text a Story-metadata review finding cites (as next proposes). userSees in place in PLAN/DEV/REVIEW, verificationIntent in PLAN; refused unless the cited text changes [metadata_correction_unchanged]. Never resets done items.'),
+    metadataCorrection: z.boolean().optional().describe('Correct the checklist text a Story-metadata review finding cites (as next proposes). userSees in place in PLAN/DEV/REVIEW, verificationIntent in PLAN; refused unless the cited text changes [metadata_correction_unchanged]. Never resets done items.'),
+    commit: z.object({
+      files: z.array(z.string()).min(1).describe('Changed product/test files of this item (relative paths).'),
+      message: z.string().optional().describe('Commit message; default "<storyId> <itemId>: <title>".'),
+    }).strict().optional().describe('With status=done in DEV (the implementer\'s final call): stage these files, refuse a git diff --check error (nothing committed), commit them as proof-or-stop-implementer, then mark the item done with the usual checks.'),
   }},
   { name: 'verification_evidence_add', description: 'Add or update evidence satisfying a checklist item\'s verificationIntent', schema: {
     storyId: z.string().describe('Story ID'),
@@ -2766,10 +2770,10 @@ Behavior:
     storyId: z.string().describe('Story ID'),
     features: z.array(z.object({
       feature: z.string(),
-      covered_by: z.string().nullable(),
+      covered_by: z.string().nullable().describe('Required on every row: the covering item/intent, or null.'),
       // B-ed3e CHK-002: five-level status.
       status: z.enum(['covered', 'excluded', 'gap', 'orphan-suspect', 'drift']),
-      excluded_by: z.string().nullable(),
+      excluded_by: z.string().nullable().describe('Required on every row: the excluding item/entry, or null when not excluded.'),
       // B-ed3e CHK-002: source marks origin (description / decisions:<path> / relatedDocs:<path>).
       source: z.string().optional(),
     })).describe('Feature coverage analysis result.'),
@@ -3517,7 +3521,7 @@ Behavior:
     afterGeneration: z.number().int().nonnegative().optional().describe('Return when generation differs from this value'),
     afterSequence: z.number().int().nonnegative().optional().describe('Return live-output frames after this sequence'),
     waitMs: z.number().int().nonnegative().max(600000).optional().describe('Bounded long-poll wait: maximum 30000ms, or 600000ms with untilTerminal (default 285000ms, inside one 300000ms tool yield)'),
-    untilTerminal: z.boolean().optional().describe('Block until the run is terminal instead of returning on provider progress; use this to wait for one worker with a single call (the text-output default)'),
+    untilTerminal: z.boolean().optional().describe('Block until the run is terminal instead of returning on provider progress; use this to wait for one worker with a single call (the text-output default). With targets: return as soon as ANY target is terminal (waitMs up to 600000)'),
     full: z.boolean().optional().describe('Return the full structured record (projection, receipt, live output) instead of the compact text summary; same as --json'),
     json: z.boolean().optional().describe('Output JSON'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
