@@ -3838,10 +3838,10 @@ function scenarioNRW(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     const unknown = o.cli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', intentRows: [{ ref: 'CHK-001:happy:9', desc: 'Upper("a") -> "A"' }] }, { label: 'checklist_update intentRows (unknown ref)' });
     assert.notEqual(unknown.status, 0, '[NRW] an unknown row ref is refused');
     assert.match(unknown.out, /CHK-001:happy:0/, `[NRW] the refusal lists the item's rows:\n${unknown.out.slice(-1200)}`);
-    assert.equal((unknown.out.match(/Next: proof-or-stop /g) ?? []).length, 1, `[NRW] ONE next action:\n${unknown.out.slice(-1200)}`);
+    assert.equal(new Set(unknown.out.match(/Next: proof-or-stop .*/g) ?? []).size, 1, `[NRW] ONE next action (the CLI echoes the refusal once more as Error:):\n${unknown.out.slice(-1200)}`);
     const both = o.cli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', verificationIntent: intent, intentRows: [{ ref: 'CHK-001:happy:1', desc: 'Upper("ab") -> "AB"' }] }, { label: 'checklist_update intent + intentRows' });
     assert.notEqual(both.status, 0, '[NRW] a whole intent and a row patch together are refused');
-    assert.equal((both.out.match(/Next: proof-or-stop /g) ?? []).length, 1, `[NRW] ONE next action:\n${both.out.slice(-1200)}`);
+    assert.equal(new Set(both.out.match(/Next: proof-or-stop .*/g) ?? []).size, 1, `[NRW] ONE next action:\n${both.out.slice(-1200)}`);
     lines.push('intentRows patch kept every other row; underived pin, unknown ref and intent+patch refused with one Next');
     o.cleanup();
     return { name, status: 'PASS', lines };

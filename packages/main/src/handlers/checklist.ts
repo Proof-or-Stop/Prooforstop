@@ -10,7 +10,9 @@ import { rethrowIntentAmendmentIntegrityError } from '../core/verification-inten
 import { inspectIntentCheckpointRecovery } from '../core/verification-intent-checkpoint.js';
 import { acceptanceIntentHash, acceptanceScopeHash, createIntentAmendment, createIntentRevision } from '../core/verification-intent-amendment.js';
 import { pinExamples, pinOracleMismatches, pinOracleRefusal, storyPinOracle } from '../core/pin-oracle.js';
-import { probeDoneCheck, storyProbeRunner } from '../core/request-probes.js';
+import { probeDoneCheck, probeExtractionEnabled, probeRowSaveNote, storyProbeRunner } from '../core/request-probes.js';
+import { applyIntentRowPatches } from '../core/intent-row-patch.js';
+import { loadConfig } from '../core/config.js';
 import { currentGitHead } from '../core/evidence-freshness.js';
 import { resolveManagedDispatchInvocation, resolveManagedImplementerCompletionInvocation } from '../core/managed-host-run.js';
 import type { ProcessEventAppendIdentity } from '../core/process-events.js';
@@ -3305,7 +3307,10 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       const advisory = hasMilestoneLedgerArtifact(store, args.storyId)
         ? `\n${checklistAddMilestoneLedgerAdvisory(args.storyId, nextId)}`
         : '';
-      return `Checklist item ${nextId} added to ${args.storyId}${advisory}`;
+      // Old-PoS runs 35-39: the same probe-row report as checklist_update.
+      const rowsNote = probeRowSaveNote({ storyId: args.storyId, itemId: nextId, verificationIntent: args.verificationIntent,
+        enabled: (() => { try { return probeExtractionEnabled(store, args.storyId, resolveStoryGitCwd(args.storyId), loadConfig(root)); } catch { return false; } })() });
+      return `Checklist item ${nextId} added to ${args.storyId}${advisory}${rowsNote ? `\n\n${rowsNote}` : ''}`;
       });
     },
 
@@ -3418,9 +3423,25 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
        * canonical implementer author, then run the usual done checks.
        */
       commit?: { files?: string[]; message?: string };
+      /**
+       * Old-PoS run 37 (core/intent-row-patch.ts): single-row patches of the
+       * current verificationIntent ({ref, ...fields}); expanded into the whole
+       * intent before any check, so every intent check runs unchanged.
+       */
+      intentRows?: unknown[];
     }): string {
-      if (!args.status && args.title === undefined && args.context === undefined && args.relatedDocs === undefined && args.userSees === undefined && args.excludes === undefined && args.files === undefined && args.verificationIntent === undefined && args.verificationEvidence === undefined) {
-        throw new Error('At least one of status/title/context/relatedDocs/userSees/excludes/files/verificationIntent/verificationEvidence must be provided');
+      if (!args.status && args.title === undefined && args.context === undefined && args.relatedDocs === undefined && args.userSees === undefined && args.excludes === undefined && args.files === undefined && args.verificationIntent === undefined && args.verificationEvidence === undefined && args.intentRows === undefined) {
+        throw new Error('At least one of status/title/context/relatedDocs/userSees/excludes/files/verificationIntent/intentRows/verificationEvidence must be provided');
+      }
+      let rowPatchNote = '';
+      if (args.intentRows !== undefined) {
+        const current = store.readChecklist(args.storyId).items.find(i => i.id === args.itemId);
+        if (!current) throw new Error(`Checklist item ${args.itemId} not found`);
+        const expanded = applyIntentRowPatches({ storyId: args.storyId, item: current, patches: args.intentRows,
+          withWholeIntent: args.verificationIntent !== undefined, withProposalApproval: args.intentProposalApproval !== undefined });
+        const { intentRows: _patches, ...rest } = args;
+        args = { ...rest, verificationIntent: expanded.verificationIntent };
+        rowPatchNote = ` (rows ${expanded.refs.join(', ')})`;
       }
 
       assertEnglishAuthoringText(
@@ -3713,7 +3734,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       }
       if (args.verificationIntent !== undefined) {
         item.verificationIntent = args.verificationIntent;
-        results.push(`verificationIntent updated`);
+        results.push(`verificationIntent updated${rowPatchNote}`);
       }
       if (args.verificationEvidence !== undefined) {
         // B-ec67 F-007: this bulk setter is a THIRD verificationEvidence write path that
@@ -4034,7 +4055,13 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         : '';
       return `Checklist ${args.itemId}: ${results.join(', ')}${commitHint}${intentHeadsUpText}`;
       });
-      return `${probeNote ? `${updated}${probeNote}` : updated}${commitNote}`;
+      // Old-PoS runs 35-39 (core/request-probes.ts): with probe extraction on, an example
+      // row the framework probe cannot run is reported where it is saved (ONE Next).
+      const rowsNote = args.verificationIntent !== undefined
+        ? probeRowSaveNote({ storyId: args.storyId, itemId: args.itemId, verificationIntent: args.verificationIntent,
+          enabled: (() => { try { return probeExtractionEnabled(store, args.storyId, resolveStoryGitCwd(args.storyId), loadConfig(root)); } catch { return false; } })() })
+        : '';
+      return `${probeNote ? `${updated}${probeNote}` : updated}${commitNote}${rowsNote ? `\n\n${rowsNote}` : ''}`;
     },
 
     light_review(args: {

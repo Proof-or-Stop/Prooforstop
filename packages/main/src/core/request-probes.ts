@@ -56,7 +56,8 @@
  *     Advisory: done runs the rows and prints the table (kept for the REVIEW
  *     lanes as evidence) but never refuses; `next` never reopens or escalates
  *     on a flag (handlers/next-driver.ts openProbeFlags), and PLAN's
- *     probe-syntax / unextractable-row steps do not run. 4 false flags in runs
+ *     probe-syntax step does not run (the unextractable-row text at enter_dev
+ *     does since runs 35-39). 4 false flags in runs
  *     32-33 cost 10.6 and 7.9 min; the one true flag was redundant.
  *   - Case isolation: a row of independent examples chained in one row (`x=[..];
  *     set(x, 1); show(x) -> ..; set(x, 2) -> ..`) used to run each later case on
@@ -68,6 +69,26 @@
  *   - `[probe-row] <row> | ok: <why>` disposes every flag of the row, `pin`
  *     included, as the refusal text says (it used to dispose request flags only,
  *     forcing an [intent-conflict] and a PLAN trip).
+ *
+ * Old-PoS runs 35-39 (bench-staging/oldpos/run38-a3-analysis.md §2): every
+ * owner row of runs 35, 38 and 39 was prose ("... returns [1, 3]", "...
+ * evaluates to ...", "... outputs ..."), so with a declared probeRunner 0 rows
+ * were extracted and nothing said so (the A3 arm was inert twice).
+ *   - With probe extraction on (a probeRunner declared, or the probe matrix),
+ *     a prose connector (PROSE_CONNECTOR: returns, yields, evaluates to,
+ *     produces, gives, prints, outputs, becomes; the set the derivation rule
+ *     already treats as an example separator) separates a case like an arrow,
+ *     under the same extraction rules: the text before it must end in a code
+ *     input (a call, an index, a member, or a variable the row binds) and the
+ *     text after it must start with a concrete value; otherwise the segment
+ *     is handled as before (a statement, a dropped one, or prose). An arrow in
+ *     the segment always wins. Off (A0: no probeRunner, no probe matrix), the
+ *     scope-plan pin audit extracts arrow rows only, as before.
+ *   - An example-shaped row (core/intent-derivation.ts: a separator and a
+ *     concrete expected value) that yields no runnable case is reported where
+ *     it is saved (probeRowSaveNote: ONE Next, the intentRows patch rewriting
+ *     it as `<input> -> <expected>`), in the implementer contract and in the
+ *     done note ("N rows not extractable"), never a silent 0.
  *
  * Flags (head observation): `request-error` (the request expects an error,
  * the head returns a value), `request-format` (an error outside the request's
@@ -87,7 +108,9 @@ import { caseRequirements, requestAnchorContext, type RequestAnchorContext } fro
 import { parseErrorOutsideNewSyntax, pinOracleStoryBase, prepareArchivedTree, validRunnerConfig, type PinOracleConfig } from './pin-oracle.js';
 import { currentMaterialHash } from './evidence-freshness.js';
 import { parseIntentConflicts } from './request-authority.js';
-import { probeEnforcementOn } from './ab-variants.js';
+import { probeEnforcementOn, probeMatrixOn } from './ab-variants.js';
+import { intentExampleExpectedValues } from './intent-derivation.js';
+import { shellQuote } from './shell-quote.js';
 
 export const PROBE_ROW_TAG = '[probe-row]';
 export const PROBE_REQUEST_MISMATCH = 'probe_request_mismatch';
@@ -226,7 +249,15 @@ function trailingCode(text: string): string | null {
 }
 
 const ARROW = /\s*(?:->|→|=>|==)\s*/;
+/**
+ * Old-PoS runs 35-39: prose connectors that separate an input from its value
+ * like an arrow (probe extraction on only; whitespace on both sides, top level).
+ */
+const PROSE_CONNECTOR = /\s+(?:returns?|yields?|evaluates\s+to|produces?|gives?|prints?|outputs?|becomes?)\s+/i;
 const OVER = /\s+over\s+/i;
+
+/** Extraction options: `prose` admits PROSE_CONNECTOR as a separator (probe extraction on). */
+export interface ProbeExtractionOptions { prose?: boolean }
 
 /** The pinned expectation after the arrow, or null when it is prose. */
 export function parseExpectation(text: string): ProbeExpectation | null {
@@ -312,12 +343,20 @@ function isMutation(statement: string): boolean {
  * cases; a leading `<prose> over a=[...]:` or `s='hello';` binds the receiver
  * for each case; `<case> over <literal>` binds the case's root variable.
  */
-export function probeCasesOf(ref: string, itemId: string, desc: string, quote: string | null = null): ProbeCase[] {
+export function probeCasesOf(ref: string, itemId: string, desc: string, quote: string | null = null, options: ProbeExtractionOptions = {}): ProbeCase[] {
   let body = desc.trim();
   const prefixStatements: string[] = [];
   const prefixDropped: string[] = [];
   let prefixLiteral: string | null = null;
-  const firstArrow = findTopLevel(body, ARROW);
+  const prose = options.prose !== false;
+  // Old-PoS runs 35-39: an arrow, else (extraction on) a prose connector followed by a concrete value.
+  const separatorOf = (text: string) => {
+    const arrow = findTopLevel(text, ARROW);
+    if (arrow || !prose) return arrow;
+    const connector = findTopLevel(text, PROSE_CONNECTOR);
+    return connector && parseExpectation(text.slice(connector.index + connector.length)) ? connector : null;
+  };
+  const firstArrow = separatorOf(body);
   const colon = findTopLevel(body, /:\s+/);
   if (colon && firstArrow && colon.index < firstArrow.index) {
     const prefix = body.slice(0, colon.index);
@@ -340,7 +379,7 @@ export function probeCasesOf(ref: string, itemId: string, desc: string, quote: s
   const ownerOf: number[] = [];
   const dropped: string[] = [...prefixDropped];
   for (const segment of splitTopLevel(body, ';')) {
-    const arrow = findTopLevel(segment, ARROW);
+    const arrow = separatorOf(segment);
     if (!arrow) {
       // Old-PoS run 32: every statement runs, in order; one the extractor cannot
       // place makes the following cases unextractable (never a false flag).
@@ -391,14 +430,14 @@ export function probeCasesOf(ref: string, itemId: string, desc: string, quote: s
  * the item's other rows use most for that variable (run 31: CHK-002/CHK-003
  * error rows named `a` / `s` and relied on the `over a=[...]` of a sibling row).
  */
-export function itemProbeCases(item: Pick<ChecklistItem, 'id' | 'verificationIntent'>): ProbeCase[] {
+export function itemProbeCases(item: Pick<ChecklistItem, 'id' | 'verificationIntent'>, options: ProbeExtractionOptions = {}): ProbeCase[] {
   const intent: VerificationIntent | undefined = item.verificationIntent;
   if (!intent) return [];
   const out: ProbeCase[] = [];
   for (const lane of VERIFICATION_LANES) {
     for (const [index, row] of (intent[lane] ?? []).entries()) {
       const quote = typeof row.derivation?.requestQuote === 'string' ? row.derivation.requestQuote : null;
-      out.push(...probeCasesOf(row.id ?? `${item.id}:${lane}:${index}`, item.id, String(row.desc ?? ''), quote));
+      out.push(...probeCasesOf(row.id ?? `${item.id}:${lane}:${index}`, item.id, String(row.desc ?? ''), quote, options));
     }
   }
   const counts = new Map<string, Map<string, number>>();
@@ -755,11 +794,11 @@ function clearProbeTable(root: string, storyId: string, itemId: string): void {
 }
 
 /** Static rows (no run) of the given items: cases with their anchors. */
-export function anchoredCases(items: readonly ProbeItem[], requestText: string | null, itemIds?: ReadonlySet<string>): Array<{ probe: ProbeCase; anchor: ProbeAnchor }> {
+export function anchoredCases(items: readonly ProbeItem[], requestText: string | null, itemIds?: ReadonlySet<string>, options: ProbeExtractionOptions = {}): Array<{ probe: ProbeCase; anchor: ProbeAnchor }> {
   const live = items.filter(item => item.status !== 'withdrawn');
   const ctx = requestText ? probeAnchorContext(live, requestText) : null;
   const empty: ProbeAnchor = { sentences: [], expectsError: false, stems: [] };
-  return live.filter(item => !itemIds || itemIds.has(item.id)).flatMap(item => itemProbeCases(item))
+  return live.filter(item => !itemIds || itemIds.has(item.id)).flatMap(item => itemProbeCases(item, options))
     .map(probe => ({ probe, anchor: ctx ? anchorCase(ctx, probe) : empty }));
 }
 
@@ -844,42 +883,112 @@ export function probeSyntaxErrors(runner: ProbeRunnerContext, items: readonly Pr
   });
 }
 
-/** An example row (`... -> value`) no probe runs, with why. */
+/** An example row (`... -> value`, or a prose example) no probe runs, with why. */
 export interface UnextractableRow { ref: string; itemId: string; reason: string }
+
+/** The accepted example form, with a generic example (shared by every report and prompt). */
+export const PROBE_ROW_FORM = '`<input> -> <expected>` (e.g. `f([1, 2]) -> 3`, `x = [1, 2]; x[0] = 9; x -> [9, 2]`, `f("") -> error \'empty input\'`)';
 
 /**
  * PLAN (old-PoS run 32): example rows the framework probe will never run, so
  * the owner sees them before DEV instead of trusting a silent pass: a
  * state-changing statement the extractor cannot place, a variable no statement
  * binds, or a code-like input whose expected value is not recognised (an
- * unquoted error text, a value that is prose).
+ * unquoted error text, a value that is prose). Old-PoS runs 35-39: also every
+ * other example-shaped row (an input -> output separator, a prose one
+ * included, and a concrete expected value: core/intent-derivation.ts) that
+ * yields no runnable case.
  */
-export function unextractableRows(items: readonly ProbeItem[]): UnextractableRow[] {
+export function unextractableRows(items: readonly ProbeItem[], options: { itemIds?: ReadonlySet<string> } = {}): UnextractableRow[] {
   const out: UnextractableRow[] = [];
-  for (const item of items.filter(entry => entry.status !== 'withdrawn')) {
+  for (const item of items.filter(entry => entry.status !== 'withdrawn' && (!options.itemIds || options.itemIds.has(entry.id)))) {
     const cases = itemProbeCases(item);
     for (const lane of VERIFICATION_LANES) {
       for (const [index, entry] of (item.verificationIntent?.[lane] ?? []).entries()) {
         const ref = entry.id ?? `${item.id}:${lane}:${index}`;
         const desc = String(entry.desc ?? '');
         const arrow = findTopLevel(desc, ARROW);
-        if (!arrow) continue;
+        const example = intentExampleExpectedValues(desc) !== null;
+        if (!arrow && !example) continue;
         const mine = cases.filter(probe => probe.ref === ref);
         const dropped = [...new Set(mine.flatMap(probe => probe.dropped))];
         if (dropped.length) { out.push({ ref, itemId: item.id, reason: `statement ${dropped.map(text => `\`${clip(text, 60)}\``).join(', ')} not extracted` }); continue; }
         const unbound = mine.filter(probe => probe.unbound);
         if (unbound.length) { out.push({ ref, itemId: item.id, reason: `reads ${unbound.map(probe => `\`${clip(probe.expr, 40)}\``).join(', ')}, which no statement of the row binds` }); continue; }
         if (mine.length) continue;
-        const left = trailingCode(desc.slice(0, arrow.index));
-        const right = desc.slice(arrow.index + arrow.length).trim();
-        if (!left || !/[[(.=]/.test(left) || /^(?:-{3}\s*)?(?:PASS|ok)\b/.test(right)) continue;
-        out.push({ ref, itemId: item.id, reason: parseExpectation(right)
-          ? `the input \`${clip(left, 60)}\` is not a probe case (a bare variable no statement of the row assigns, or a literal)`
-          : `the expected value \`${clip(right, 60)}\` is not recognised (quote an error text: error 'text', or write a literal value)` });
+        const separator = arrow ?? findTopLevel(desc, PROSE_CONNECTOR);
+        const left = separator ? trailingCode(desc.slice(0, separator.index)) : null;
+        const right = separator ? desc.slice(separator.index + separator.length).trim() : '';
+        if (/^(?:-{3}\s*)?(?:PASS|ok)\b/.test(right)) continue;
+        if (arrow && (!left || !/[[(.=]/.test(left)) && !example) continue;
+        out.push({ ref, itemId: item.id, reason: left && /[[(.=]/.test(left)
+          ? (parseExpectation(right)
+            ? `the input \`${clip(left, 60)}\` is not a probe case (a bare variable no statement of the row assigns, or a literal)`
+            : `the expected value \`${clip(right, 60)}\` is not recognised (quote an error text: error 'text', or write a literal value)`)
+          : `no runnable input before the expected value ("${clip(desc, 70)}")` });
       }
     }
   }
   return out;
+}
+
+/**
+ * Old-PoS runs 35-39: the note a checklist write prints when probe extraction
+ * is on and an example-shaped row of the written intent yields no runnable
+ * case: the rows, the accepted form and ONE Next (the intentRows patch of just
+ * those rows). Empty when extraction is off or every example row runs.
+ */
+export function probeRowSaveNote(args: { storyId: string; itemId: string; verificationIntent: VerificationIntent | undefined; enabled: boolean }): string {
+  if (!args.enabled || !args.verificationIntent) return '';
+  return probeRowsNote(args.storyId, [{ id: args.itemId, status: 'pending', verificationIntent: args.verificationIntent } as ProbeItem], 'Next:');
+}
+
+/**
+ * story_create (old-PoS runs 35/38/39 wrote their prose rows there and never
+ * touched them in PLAN): the same report for every item, as a warning (the
+ * create output's one Next stays `next --run`); the command fixes the first item.
+ */
+export function probeRowsCreateNote(storyId: string, items: readonly ProbeItem[], enabled: boolean): string {
+  return enabled ? probeRowsNote(storyId, items, 'Rewrite them before DEV, e.g.') : '';
+}
+
+function probeRowsNote(storyId: string, items: readonly ProbeItem[], lead: string): string {
+  const rows = unextractableRows(items);
+  if (!rows.length) return '';
+  const firstItem = rows[0]!.itemId;
+  const patch = { storyId, itemId: firstItem, intentRows: rows.filter(row => row.itemId === firstItem).slice(0, 12).map(row => ({ ref: row.ref, desc: '<input> -> <expected>' })) };
+  const others = [...new Set(rows.map(row => row.itemId))].filter(id => id !== firstItem);
+  return `Probe rows: ${rows.length} row${rows.length === 1 ? '' : 's'} not extractable, so the framework probe will not run ${rows.length === 1 ? 'it' : 'them'}: `
+    + `${rows.slice(0, 12).map(row => `${row.ref} (${row.reason})`).join('; ')}${rows.length > 12 ? `; +${rows.length - 12} more` : ''}. `
+    + `The probe runs rows written as ${PROBE_ROW_FORM}; a prose connector (returns, evaluates to, outputs, ...) counts only after a code input and before a concrete value.\n`
+    + `${lead} proof-or-stop checklist_update ${shellQuote(JSON.stringify(patch))}${others.length ? ` (then the same for ${others.join(', ')})` : ''}`;
+}
+
+/**
+ * Whether the project declares a probeRunner at the Story base (the
+ * declaration only: no tree is archived or built). Cheap pre-gate as in
+ * storyProbeRunner.
+ */
+export function probeRunnerDeclared(store: { readStory(storyId: string): unknown }, storyId: string, gitCwd: string): boolean {
+  try {
+    if (!existsSync(join(gitCwd, 'proof-or-stop.config.json')) || !readFileSync(join(gitCwd, 'proof-or-stop.config.json'), 'utf8').includes('"probeRunner"')) return false;
+    const story = store.readStory(storyId) as { integrationTarget?: { parentCommitAtCreation?: string } };
+    const base = pinOracleStoryBase(gitCwd, story.integrationTarget?.parentCommitAtCreation);
+    return Boolean(base && readBaseProbeRunner(gitCwd, base));
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Old-PoS runs 35-39: probe extraction is on when the project declares a
+ * probeRunner at the Story base or the implementer probe matrix is on
+ * (implementation.probeMatrix=on, its [probe-row] report). Off (A0) = the
+ * arrow-only extraction and no row reports.
+ */
+export function probeExtractionEnabled(store: { readStory(storyId: string): unknown }, storyId: string, gitCwd: string, config: unknown): boolean {
+  try { if (probeMatrixOn(config)) return true; } catch { /* no config: matrix off */ }
+  return probeRunnerDeclared(store, storyId, gitCwd);
 }
 
 /** One line for PLAN output: the rows no probe runs (empty when all run). */
@@ -925,7 +1034,13 @@ export function probeDoneCheck(runner: ProbeRunnerContext, root: string, storyId
   const flagged = flaggedRows(table);
   const chained = (table?.rows ?? []).filter(row => row.chainedCases).map(row => row.key);
   const chainedNote = chained.length ? ` Rows ${chained.join(', ')} chain independent examples on one receiver: each was judged from the row prelude (reset the receiver per case in the row to make that explicit).` : '';
-  if (!table || !flagged.length) return { refusal: null, note: table ? `\nFramework probes: ${table.rows.length} rows run on the Story base and HEAD ${table.head.slice(0, 12)}, none flagged (${table.ms} ms).${chainedNote}` : null };
+  // Old-PoS runs 35-39: rows no probe can run are named (never a silent 0).
+  const skipped = unextractableRows([item]);
+  const skippedNote = skipped.length ? ` ${skipped.length} row${skipped.length === 1 ? '' : 's'} not extractable (not run: ${skipped.slice(0, 8).map(row => `${row.ref} (${row.reason})`).join('; ')}${skipped.length > 8 ? '; ...' : ''}); they are checked only by your tests and review.` : '';
+  if (!table) {
+    return { refusal: null, note: skipped.length ? `\nFramework probes: 0 of ${skipped.length} example row${skipped.length === 1 ? '' : 's'} run.${skippedNote}` : null };
+  }
+  if (!flagged.length) return { refusal: null, note: `\nFramework probes: ${table.rows.length} rows run on the Story base and HEAD ${table.head.slice(0, 12)}, none flagged (${table.ms} ms).${skippedNote}${chainedNote}` };
   // Old-PoS run 33: advisory (the default, dev.probeEnforcement) shows the table and never refuses.
   if (runner.enforcement !== 'enforce') {
     const listedAdvisory = flagged.slice(0, 20).map(row => `- ${describeProbeRow(row)}`).join('\n');
@@ -1117,7 +1232,10 @@ export function renderFrameworkProbeContract(items: readonly ProbeItem[], reques
   options: { probeMatrix?: boolean } = {}): string[] {
   const rows = anchoredCases(items, requestText, new Set([itemId]));
   const contradicting = requestText ? rows.filter(row => pinRequestContradiction(row.probe, row.anchor)) : [];
-  const head = `Framework probes (project probeRunner, Story base ${runner.base.slice(0, 12)}): checklist_update status=done first runs this item's ${rows.length} example rows on the Story base and on your HEAD and compares each with its pin and with the request sentence that defines it. Write no probe program and no base worktree.`;
+  // Old-PoS runs 35-39: never a bare "0 example rows": name the rows no probe can run.
+  const skipped = unextractableRows(items, { itemIds: new Set([itemId]) });
+  const skippedNote = skipped.length ? ` ${skipped.length} row${skipped.length === 1 ? '' : 's'} not extractable (not run: ${skipped.slice(0, 8).map(row => row.ref).join(', ')}${skipped.length > 8 ? ', ...' : ''}); test those yourself.` : '';
+  const head = `Framework probes (project probeRunner, Story base ${runner.base.slice(0, 12)}): checklist_update status=done first runs this item's ${rows.length} example rows on the Story base and on your HEAD and compares each with its pin and with the request sentence that defines it.${skippedNote} Write no probe program and no base worktree.`;
   return [
     runner.enforcement === 'enforce'
       ? `${head} Done is refused once per set of flagged rows, with the rows: fix each, or list a wrong pin under [intent-conflict], or add \`${PROBE_ROW_TAG} <row> | ok: <why>\` for a flag you judge wrong.`
@@ -1137,8 +1255,9 @@ export function renderProbeFlagRelaunch(root: string, storyId: string, itemId: s
 }
 
 /** Scope-plan pin audit: rows whose result a request sentence defines, paired with it; static contradictions marked. */
-export function renderRequestAnchoredPinAudit(items: readonly ProbeItem[], requestText: string): string[] {
-  const rows = anchoredCases(items, requestText).filter(row => row.anchor.expectsError);
+export function renderRequestAnchoredPinAudit(items: readonly ProbeItem[], requestText: string, options?: ProbeExtractionOptions): string[] {
+  // Old-PoS runs 35-39: prose connectors only with probe extraction on (A0 keeps arrow rows).
+  const rows = anchoredCases(items, requestText, undefined, { prose: options?.prose ?? false }).filter(row => row.anchor.expectsError);
   if (!rows.length) return [];
   const contradicting = rows.filter(row => pinRequestContradiction(row.probe, row.anchor)).length;
   return [

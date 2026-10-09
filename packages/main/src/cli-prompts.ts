@@ -171,6 +171,14 @@ EXAMPLES
     "relatedDocs":["docs/api/auth.md#session-flow"]
   }'
 
+  # Patch one intent row (INIT/PLAN): ref = CHK-NNN:<lane>:<index> or the row id;
+  # other keys replace that row's fields (null removes one); every intent check
+  # runs on the resulting whole intent. Not combinable with verificationIntent.
+  proof-or-stop checklist_update '{
+    "storyId":"B-a3f7","itemId":"CHK-002",
+    "intentRows":[{"ref":"CHK-002:edge:3","desc":"f([1, 2]) -> 3"}]
+  }'
+
 STEP-BY-STEP
   1. proof-or-stop checklist_get --storyId=B-xxx — see current state
   2. Pick ONE pending item, mark in_progress

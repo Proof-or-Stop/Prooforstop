@@ -97,13 +97,13 @@ import { evaluatePreexistingFinding, type PreexistingFindingVerdict } from './fi
 import { commitMessageNamesFinding, implementationGroupingFiles, itemDeclaredFiles, remediationGroupingSingle, sharedFileItemGroup } from '../core/ab-dispatch-grouping.js';
 import { probeEnforcementOn, probeMatrixOn } from '../core/ab-variants.js';
 import { ownerWaitBlockMs, ownerWaitInstruction } from '../core/owner-wait-guidance.js';
-import { parseIntentConflicts, probeTestGaps, type IntentConflict, type ProbeTestGap } from '../core/request-authority.js';
+import { conflictPinnedFragment, parseIntentConflicts, probeTestGaps, type IntentConflict, type ProbeTestGap } from '../core/request-authority.js';
 import { readStoryRequest } from '../core/story-request.js';
 import { intentSemantics } from '../core/verification-intent-amendment.js';
-import { isMetadataTargetFinding, literalOccurrences, openMetadataCorrections, type LiteralOccurrence, type MetadataField, type OpenMetadataCorrection } from '../core/metadata-correction.js';
+import { isMetadataTargetFinding, literalOccurrences, openMetadataCorrections, statedForm, type LiteralOccurrence, type MetadataField, type OpenMetadataCorrection } from '../core/metadata-correction.js';
 import { openPinAuditGaps } from '../core/pin-audit-correction.js';
 import { describePinMismatch, PIN_ORACLE_MISMATCH, pinExamples, pinMismatchRule, pinOracleMismatches, pinOracleStoryBase, storyPinOracle } from '../core/pin-oracle.js';
-import { describeUnextractableRows, PROBE_REQUEST_MISMATCH, probeSyntaxErrors, reportProbeDecision, requestAnchoredKeys, runnerProbeDecision, storyProbeRunner, unextractableRows, type ProbeFlagDecision } from '../core/request-probes.js';
+import { describeUnextractableRows, PROBE_REQUEST_MISMATCH, probeRunnerDeclared, probeSyntaxErrors, reportProbeDecision, requestAnchoredKeys, runnerProbeDecision, storyProbeRunner, unextractableRows, type ProbeFlagDecision } from '../core/request-probes.js';
 import { describeExactTextGap, exactTextKeyOf, exactTextPrefixAssertions, exactRequestLiteralItem, readExactTextState, writeExactTextState, type ExactTextGap } from '../core/exact-text-assertions.js';
 import { implementerRunReports } from '../core/finding-repair-attempts.js';
 import { digestCanonicalJson } from '../core/digest.js';
@@ -735,6 +735,35 @@ function describeIntentConflict(row: OpenIntentConflict): string {
 }
 
 /**
+ * Old-PoS run 37 (trips 1-3: the same wrong pin in three items cost three
+ * DEV->PLAN trips): every intent row, in any item, that states the conflict's
+ * pinned fragment (conflictPinnedFragment: the part of the pin the request does
+ * not imply, with its leading context), the conflict's own row excluded.
+ * Used when the pin is not a code literal (a literal is swept by
+ * literalOccurrences as before).
+ */
+function conflictSiblingRows(items: readonly ChecklistItem[], conflicts: readonly OpenIntentConflict[]): Array<{ itemId: string; ref: string; fragment: string }> {
+  const out: Array<{ itemId: string; ref: string; fragment: string }> = [];
+  const own = new Set(conflicts.map(row => row.conflict.intentRef));
+  for (const conflict of conflicts) {
+    if (conflictLiteral(conflict.conflict.intentPins)) continue;
+    const fragment = conflictPinnedFragment(conflict.conflict);
+    if (!fragment) continue;
+    for (const item of items) {
+      if (item.status === 'withdrawn') continue;
+      for (const lane of VERIFICATION_LANES) {
+        (item.verificationIntent?.[lane] ?? []).forEach((row, index) => {
+          const ref = `${item.id}:${lane}:${index}`;
+          if (own.has(ref) || (row.id && own.has(row.id)) || out.some(entry => entry.ref === ref)) return;
+          if (statedForm(`${row.desc ?? ''} ${row.derivation?.computation ?? ''}`, fragment)) out.push({ itemId: item.id, ref, fragment });
+        });
+      }
+    }
+  }
+  return out;
+}
+
+/**
  * D1: a declared intent conflict blocks the item before anything else. Intents
  * are frozen in DEV (checklist_update refuses verificationIntent there), so the
  * owner returns to PLAN (one command); in PLAN, `next` proposes the audited
@@ -759,14 +788,36 @@ export function intentConflictStep(base: { storyId: string; phase: string }, con
     // Old-PoS run 31 (D5): the pinned literal also stated in other fields/items is corrected in the same step.
     const pinned = conflicts.filter(row => row.itemId === itemId).map(row => conflictLiteral(row.conflict.intentPins)).find((literal): literal is string => Boolean(literal));
     const sweep = pinned && items ? literalOccurrences(items, pinned).filter(row => !(row.itemId === itemId && fields.includes(row.field))) : [];
-    if (sweep.length === 0) return step(base, 'agent', 'intent_conflict_amend', { command: 'checklist_update', payload }, why, source, { placeholders: [...fields, 'reason'] });
+    // Old-PoS run 37: a non-literal pin (an error text quoting what the request leaves
+    // unquoted) carried by sibling rows of other items is amended in the same step.
+    const siblings = items ? conflictSiblingRows(items, conflicts.filter(row => row.itemId === itemId)) : [];
+    const siblingCalls = siblingAmendCalls(base, items ?? [], siblings.filter(row => row.itemId !== itemId));
+    const siblingWhy = siblings.length
+      ? ` The same pinned ${JSON.stringify(siblings[0]!.fragment)} is also stated in ${siblings.map(row => row.ref).join(', ')}: amend each row that states the same result in this step (keep a row where it is a legitimate input), so one PLAN visit settles the pin for every item.`
+      : '';
+    if (sweep.length === 0 && siblingCalls.length === 0) return step(base, 'agent', 'intent_conflict_amend', { command: 'checklist_update', payload }, `${why}${siblingWhy}`, source, { placeholders: [...fields, 'reason'] });
     const calls = [nextStepCall('intent_conflict_amend', { command: 'checklist_update', payload }),
-      ...sweepCalls(base, sweep, 'intent_conflict_amend', pinned!)];
-    return batchStep(base, 'intent_conflict_amend', calls, `${why} ${sweepWhy(pinned!, sweep)}`, `${source} + literalOccurrences (old-PoS run 31 sweep)`);
+      ...(pinned ? sweepCalls(base, sweep, 'intent_conflict_amend', pinned) : []), ...siblingCalls];
+    return batchStep(base, 'intent_conflict_amend', calls, `${why}${pinned && sweep.length ? ` ${sweepWhy(pinned, sweep)}` : ''}${siblingWhy}`,
+      `${source} + literalOccurrences (old-PoS run 31 sweep) + conflictSiblingRows (old-PoS run 37)`);
   }
+  const siblings = items ? conflictSiblingRows(items, conflicts) : [];
   return step(base, 'agent', 'intent_conflict', { command: 'story_advance', payload: { storyId: base.storyId, phase: 'PLAN' } },
-    `Intent conflict declared (${listed}). The request outranks the intent, and the item does not count done until the owner amends the intent. Intents are frozen in DEV: return to PLAN, where next proposes the audited revision (checklist_update verificationIntent / userSees + reason, item back to pending).`,
+    `Intent conflict declared (${listed}). The request outranks the intent, and the item does not count done until the owner amends the intent. Intents are frozen in DEV: return to PLAN, where next proposes the audited revision (checklist_update verificationIntent / userSees + reason, item back to pending)`
+      + `${siblings.length ? `, together with the rows of other items that state the same pin (${siblings.map(row => row.ref).join(', ')})` : ''}.`,
     'openIntentConflicts (implementer/finding-repair [intent-conflict] section)');
+}
+
+/** Old-PoS run 37: one row-level checklist_update (intentRows) per sibling item; a done item goes back to pending. */
+function siblingAmendCalls(base: { storyId: string; phase: string }, items: readonly ChecklistItem[], siblings: ReadonlyArray<{ itemId: string; ref: string; fragment: string }>): NextStepCall[] {
+  const byItem = new Map<string, string[]>();
+  for (const row of siblings) byItem.set(row.itemId, [...(byItem.get(row.itemId) ?? []), row.ref]);
+  return [...byItem].map(([itemId, refs]) => {
+    const status = items.find(item => item.id === itemId)?.status;
+    return nextStepCall('intent_conflict_amend', { command: 'checklist_update', payload: { storyId: base.storyId, itemId,
+      intentRows: refs.map(ref => ({ ref, desc: `<${ref} desc with the pinned value stated as the request implies>` })),
+      reason: '<why: the same request sentence and the value it implies>', ...(status === 'done' || status === 'in_progress' ? { status: 'pending' } : {}) } });
+  });
 }
 
 
@@ -988,11 +1039,14 @@ export function probeSyntaxStep(base: { storyId: string; phase: string }, store:
   'probeSyntaxErrors (proof-or-stop.config.json probeRunner parseErrorPattern + newSyntaxPattern)', { placeholders: ['verificationIntent'] });
 }
 
-/** PLAN: the rows the framework probe will not run (with a project probeRunner), for the DEV-entry step text. */
+/**
+ * PLAN: the rows the framework probe will not run (with a project probeRunner), for the DEV-entry step text.
+ * Old-PoS runs 35-39: also in advisory mode (text only, no step), so 0 runnable rows is never silent.
+ */
 function unextractableNote(store: HandlerContext['store'], root: string, storyId: string, gitCwd: string): string {
-  if (storyProbeRunner(store, root, storyId, gitCwd)?.enforcement !== 'enforce') return '';
+  if (!probeRunnerDeclared(store, storyId, gitCwd)) return '';
   const note = describeUnextractableRows(unextractableRows(store.readChecklist(storyId).items));
-  return note ? ` ${note} Each is checked only by its test and review, not by the framework probe; rewrite a row as runnable code to have it probed.` : '';
+  return note ? ` ${note} Each is checked only by its test and review, not by the framework probe; rewrite a row as \`<input> -> <expected>\` (checklist_update intentRows) to have it probed.` : '';
 }
 
 const FRAMEWORK_PROBE = 'framework-probe';
@@ -1533,7 +1587,7 @@ const INIT_AUTHORING_HINTS: Record<string, string> = {
   'checklist[0].userSees': 'exact text the user sees once the item is done; quote request examples and outputs exactly',
   'checklist[0].files.modify[0]': 'repo-relative files the item changes (one entry per file)',
   'checklist[0].files.test[0]': 'repo-relative test files the item adds or changes',
-  'checklist[0].verificationIntent.happy[0].desc': 'input -> exact expected output, derived from a request sentence (quote it); add edge/adversarial rows of the same shape',
+  'checklist[0].verificationIntent.happy[0].desc': 'one example per row as `<input> -> <expected output>` (the arrow form, e.g. `f([1, 2]) -> 3`; the framework probe runs this form, not prose such as "evaluates to"), the expected output derived from a request sentence (quote it); add edge/adversarial rows of the same shape',
   'checklist[0].verificationIntent.happy[0].verification.command': 'the pinned focused test command, e.g. go test -v ./pkg -run ^TestName$ (no env prefix: validate.env applies)',
   'checklist[0].verificationIntent.happy[0].verification.selector': 'the line its passing run prints, e.g. --- PASS: TestName',
   mode: 'feature, correctness_fix, maintenance or custom',

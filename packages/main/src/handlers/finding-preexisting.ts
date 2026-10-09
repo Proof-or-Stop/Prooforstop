@@ -18,7 +18,7 @@ import { resolveStoryMergeBase } from '../core/story-change-manifest.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { readStoryRequest } from '../core/story-request.js';
 import {
-  assessFindingBasePresence, findingDefectAnchors, findingScopeCoverage,
+  assessFindingBasePresence, findingScopeCoverage, findingSites,
   type FindingBasePresence, type FindingScopeCoverage,
 } from '../core/finding-preexisting.js';
 
@@ -41,12 +41,14 @@ function isAncestor(gitCwd: string, commit: string): boolean {
 
 /**
  * The verdict for one finding. Cheap first: a finding that cites no
- * `path:line` defect site, or whose cited files the Story's scope covers,
- * never reaches Git.
+ * `path:line` defect site, or whose cited defect files the Story's scope
+ * covers, never reaches Git. For a doc-code-drift finding the defect sites are
+ * its documentation anchors (core/finding-preexisting.ts findingSites).
  */
 export function evaluatePreexistingFinding(args: { store: StoryStore; root: string; storyId: string; finding: Finding }): PreexistingFindingVerdict {
   const { store, root, storyId, finding } = args;
-  const anchors = findingDefectAnchors(finding);
+  // Old-PoS runs 36/37: a doc-code-drift finding's code anchors are evidence, not defect sites.
+  const anchors = findingSites(finding).defects;
   if (anchors.length === 0) return { eligible: false, coverage: null, presence: null, reason: 'the finding cites no path:line defect site' };
   const paths = [...new Set(anchors.map(anchor => anchor.path))];
   const request = readStoryRequest(store, storyId);
