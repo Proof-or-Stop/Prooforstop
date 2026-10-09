@@ -173,6 +173,13 @@
  *   NIS old-PoS run 28 INIT: story_create lowers priority=high without risk
  *      wording to medium; a blocking INIT verdict whose judged inputs the owner
  *      changed (userSees) is relaunched by next --run as a framework step.
+ *   NPX/NPXA/NPXS old-PoS run 30 (B-c201:F-005): round 1 also reports doc drift that
+ *      is byte-identical on main. Out of scope (NPX): never routed to repair, closed
+ *      by ONE audited disposition (finding_resolve disposition=preexisting_out_of_scope,
+ *      base evidence + follow-up); NPXA: the owner's run 30 applicability record
+ *      (pre_existing_unaffected, proposalRef = finding id) is accepted instead. In
+ *      scope (NPXS, the request names the doc): repaired as before; a repair run
+ *      without a commit is relaunched with its report in the prompt.
  *   NM old-PoS run 25 F2: the owner commits a test-only change during REVIEW
  *      after a clean round. next returns ONE framework step, the review reopen
  *      (story_advance DEV, reason recorded as transitionType review_reopen);
@@ -199,7 +206,7 @@
  *      and still review the whole Story).
  *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5 ND-V6 ND-V8 ND-V9.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIN|NIS|NQ|NP|NCV|NX|NM|NDL|NDS|NDG|NRS|AB|ND-V1..NF-V9]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIN|NIS|NQ|NP|NCV|NX|NM|NDL|NDS|NDG|NRS|NPX|NPXA|NPXS|AB|ND-V1..NF-V9]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -300,7 +307,9 @@ export class Owner {
       /** NX (old-PoS runs 20/25): TestReverse has a CJK subtest, so `go test -v` output (captured evidence) and the observed transcript carry CJK. */
       unicodeOutput?: boolean;
       /** NRS (old-PoS run 29): CODEX_HOME is a fixture directory, so a scripted run can be resumed (exec resume) by the managed worker. */
-      codexHome?: boolean } = {}) {
+      codexHome?: boolean;
+      /** NPX (old-PoS run 30): main already carries docs/types/array.md with wrong range examples (pre-existing doc drift, unrelated to the Story). */
+      preexistingDoc?: boolean } = {}) {
     this.root = realpathSync(mkdtempSync(join(tmpdir(), `e2e-r2d-${scenario}-`)));
     this.store = new StoryStore(this.root);
     this.providerBin = `${this.root}-provider`;
@@ -353,6 +362,7 @@ export class Owner {
     write(root, 'strs/strs.go', 'package strs\n\n// Upper returns s unchanged (baseline bug).\nfunc Upper(s string) string { return s }\n');
     write(root, 'strs/strs_test.go', 'package strs\n\nimport "testing"\n\nfunc TestBaseline(t *testing.T) {}\n');
     write(root, 'docs/types/string.md', DOC_V1);
+    if (this.fixtureOpts.preexistingDoc) write(root, PX_DOC_PATH, PX_DOC);
     // Scenario E: the task's own .gitignore, without PoS's runtime block or .worktrees/.
     // Run 11's task repo tracked the convergence-breaker gate counter (commit 6
     // of that run committed gate-failure-counts.json); D2 reproduces that.
@@ -1059,8 +1069,35 @@ const NIS_BLOCKING_ISSUE = 'CHK-001 userSees names only the test selector; it mu
 const REPAIR_TEST = '\nfunc TestReverseEmpty(t *testing.T) {\n\tif Reverse("") != "" {\n\t\tt.Fatal("empty")\n\t}\n}\n';
 const NF_REPAIR_TEST = '\nfunc TestUpperEmpty(t *testing.T) {\n\tif Upper("") != "" {\n\t\tt.Fatal("empty")\n\t}\n}\n';
 
+/**
+ * NPX (old-PoS run 30, B-c201:F-005): docs/types/array.md is on main before the
+ * Story starts and its range examples are wrong (end-exclusive ranges shown as
+ * inclusive). The Story never touches it; the docs reviewer still reports it as
+ * doc-code drift, citing the doc lines and the changed code file.
+ */
+const PX_DOC_PATH = 'docs/types/array.md';
+const PX_DOC = '# Array type\n\n`[0, 1, 2, 3][0:2]` returns `[0, 1, 2]`.\n`[0, 1, 2, 3][:2]` returns `[0, 1, 2]`.\n';
+const PX_DOC_FIXED = '# Array type\n\n`[0, 1, 2, 3][0:2]` returns `[0, 1]`.\n`[0, 1, 2, 3][:2]` returns `[0, 1]`.\n';
+const PX_FINDING = {
+  desc: 'doc-code-drift: docs/types/array.md:3 and :4 show [0, 1, 2, 3][0:2] and [0, 1, 2, 3][:2] returning [0, 1, 2], but range ends are exclusive; the documented array range results are wrong.',
+  severity: 'medium', category: 'missing', files: [PX_DOC_PATH, 'strs/strs.go'], evidenceState: 'verified',
+};
+/** The run 30 repair worker's report: it stopped before editing a file outside the allowed list it was given. */
+const PX_BLOCKED = 'Blocked: the array doc finding requires a documentation change, but docs/types/array.md is outside the enforced allowed-file list; no edit, no commit.';
+const PX_REPAIR_SUBJECT = 'docs: array range examples are end-exclusive';
+/** NPX: the verbatim request (run 30 had one); it does not mention the array doc. NPXS: it asks to correct that doc. */
+const PX_REQUEST_OUT = 'Implement `strs.Upper(s)` and `strs.Reverse(s)` as documented in docs/types/string.md.';
+const PX_REQUEST_IN = `${PX_REQUEST_OUT} Also correct the range examples in docs/types/array.md.`;
+
+/** The scripted PX repair: the doc fix, one commit naming the finding id. */
+function pxRepairCommand(storyId: string, findingId: string): string[] {
+  const short = findingId.startsWith(`${storyId}:`) ? findingId.slice(storyId.length + 1) : findingId;
+  return ['/bin/sh', '-c', `printf '%s' '${PX_DOC_FIXED}' > ${PX_DOC_PATH} && git add ${PX_DOC_PATH} && git -c user.name=${FINDING_REPAIR} commit -qm '${storyId} ${short}: resolve finding (${PX_REPAIR_SUBJECT})' && git log --format=%h -1`];
+}
+
 /** The scripted repair commit for one finding (by its description): test text, commit subject, test name. */
 function repairFor(desc: string): { test: string; subject: string; name: string } {
+  if (desc === PX_FINDING.desc) return { test: '', subject: `test: ${PX_REPAIR_SUBJECT}`, name: PX_DOC_PATH };
   if (desc === NU_DUP_FINDING.desc) return { test: NU_DUP_REPAIR_TEST, subject: 'test: Reverse empty duplicate case', name: 'TestReverseEmptyDup' };
   return desc.startsWith('Upper ')
     ? { test: NF_REPAIR_TEST, subject: 'test: Upper of the empty string', name: 'TestUpperEmpty' }
@@ -1367,7 +1404,13 @@ interface ScriptMode { findingRound1: boolean; twoFindings?: boolean; lowFinding
   /** Old-PoS run 29 (NRS): the first finding-repair run writes its regression test into a NEW file outside the declared files; its resumed turn moves it. */
   repairOutOfScope?: boolean;
   /** Old-PoS run 28 (NIS): the first story-init INIT reviewer run records a blocking issue about CHK-001's userSees. */
-  initBlocking?: boolean }
+  initBlocking?: boolean;
+  /**
+   * Old-PoS run 30 (NPX): round 1 also reports PX_FINDING, doc drift that already exists at the Story base.
+   * 'out': nothing in the request or scope contract covers the doc (every repair worker reports it blocked, no commit);
+   * 'in': the request asks to correct that doc (the first repair attempt reports blocked, the next one commits the doc fix).
+   */
+  preexisting?: 'out' | 'in' }
 /** Old-PoS run 27 delivery overlap faults (scenarioNDL). */
 type DeliveryFault = 'overlap' | 'stale';
 type CriticRestateMode = 'copies' | 'reworded' | 'new-misfiled';
@@ -1397,7 +1440,7 @@ function laneScript(worktree: string, storyId: string, lane: string, reviewRunId
   }
   const envelope = mode.findingRound1 && firstRound && lane === 'proof-or-stop-review-test-coverage'
     ? { conclusion: 'findings', note: 'Scripted behavior finding: empty-string edge case is untested.',
-      findings: mode.suspectedOnly ? [NC4_SUSPECTED] : mode.lowFindings ? [D_FINDING, NL_LOW_REPAIRED, NL_LOW_COSMETIC] : mode.twoFindings ? [D_FINDING, NF_FINDING] : mode.duplicate ? [D_FINDING, NU_DUP_FINDING] : [D_FINDING] }
+      findings: mode.preexisting ? [D_FINDING, PX_FINDING] : mode.suspectedOnly ? [NC4_SUSPECTED] : mode.lowFindings ? [D_FINDING, NL_LOW_REPAIRED, NL_LOW_COSMETIC] : mode.twoFindings ? [D_FINDING, NF_FINDING] : mode.duplicate ? [D_FINDING, NU_DUP_FINDING] : [D_FINDING] }
     : PASS_ENVELOPE(lane);
   return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, ...envelope, ...readEvidenceFor(worktree, storyId) }) };
 }
@@ -1434,6 +1477,8 @@ function criticScript(worktree: string, storyId: string, reviewRunId: string, re
   const dispositions = raw.map(f => f.desc === NU_DUP_FINDING.desc && canonical
     ? { finding: { findingId: f.id }, disposition: 'duplicate', familyKey: 'reverse-empty-string', canonicalFinding: { findingId: canonical.id },
       reason: 'Same root cause as the canonical finding: Reverse indexes the last rune of an empty string.' }
+    : f.desc === PX_FINDING.desc
+    ? { finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'array-doc-range-drift', reason: 'The array doc shows end-inclusive range results; one verified family.' }
     : f.desc.startsWith('Upper ')
     ? { finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'upper-empty-string', reason: 'The empty-string edge of Upper is untested; one verified family.' }
     : f.desc.startsWith('Comment ')
@@ -1514,7 +1559,12 @@ function deliveryScript(storyId: string, fault?: DeliveryFault, storyDir?: strin
   return { commands: [...prefix, [process.execPath, CLI, 'delivery_check_set', JSON.stringify(deliveryPayload)]], final: 'Delivery review complete; delivery_check_set recorded.' };
 }
 
-function repairScript(desc: string): ProviderScript {
+function repairScript(desc: string, px?: { storyId: string; findingId: string; commit: boolean }): ProviderScript {
+  if (desc === PX_FINDING.desc) {
+    // NPX (old-PoS run 30): the worker either reports the doc blocked (no commit) or commits the doc fix.
+    return px?.commit ? { commands: [pxRepairCommand(px.storyId, px.findingId)], final: `Corrected the range examples in ${PX_DOC_PATH}; committed.` }
+      : { commands: [], final: PX_BLOCKED };
+  }
   const repair = repairFor(desc);
   return { commands: [['/bin/sh', '-c', `printf '%s' '${repair.test.replace(/'/g, "'\\''")}' >> strs/strs_test.go && git add strs/strs_test.go && git -c user.name=${FINDING_REPAIR} commit -qm '${repair.subject}' && git log --format=%h -1`]],
     final: `Added ${repair.name}; committed.` };
@@ -1527,6 +1577,13 @@ function repairScript(desc: string): ProviderScript {
  */
 function groupedRepairScript(storyId: string, findings: ReadonlyArray<{ id: string; desc: string }>, firstOnly = false): ProviderScript {
   if (firstOnly) findings = findings.slice(0, 1);
+  // NPX (old-PoS run 30): a grouped run leaves the pre-existing doc finding without a commit and reports it blocked.
+  const blocked = findings.filter(finding => finding.desc === PX_FINDING.desc);
+  findings = findings.filter(finding => finding.desc !== PX_FINDING.desc);
+  if (blocked.length) {
+    const inner = groupedRepairScript(storyId, findings);
+    return { commands: inner.commands, final: `${inner.final} ${blocked.map(finding => finding.id).join(', ')}: ${PX_BLOCKED}` };
+  }
   // Two members with the same defect share one regression test (a second copy would not compile): the later commit only names its id.
   const written = new Set<string>();
   return { commands: findings.map(finding => {
@@ -1635,6 +1692,10 @@ function authorPayload(o: Owner, reason: string, payload: Record<string, unknown
   switch (reason) {
     case 'finding_resolve': {
       const repair = repairFor(findingDesc(String(payload.findingId)));
+      if (findingDesc(String(payload.findingId)) === PX_FINDING.desc) {
+        payload.resolution = `repair ${git(o.worktree, ['log', '--format=%h', '-1', `--grep=${PX_REPAIR_SUBJECT}`])} corrects the range examples in ${PX_DOC_PATH} (end-exclusive)`;
+        break;
+      }
       payload.resolution = `repair ${git(o.worktree, ['log', '--format=%h', '-1', `--grep=${repair.subject.slice('test: '.length)}`])} adds ${repair.name}; go test ./strs -run ${repair.name} passes`;
       break;
     }
@@ -1710,6 +1771,8 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   delivery?: DeliveryFault;
   /** Old-PoS run 29 (NRS, run mode only): the finding-repair run creates its test outside the declared files. */
   repairOutOfScope?: boolean;
+  /** Old-PoS run 30 (NPX/NPXA/NPXS): round 1 also reports the pre-existing array doc finding (ScriptMode.preexisting). */
+  preexisting?: 'out' | 'in';
   /** NC7: an owner action taken instead of the step next returned; true = the step is not executed and next is asked again. */
   interject?: (next: NextStepJson) => boolean; }, lines: string[],
   /** Called with each step `next` returned, before the harness executes it; quiet = no detached managed run in flight. */
@@ -1729,6 +1792,8 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   const q6: string[] = [];
   // finding id -> managed finding-repair runs launched for it (as next proposed them).
   const repairRunsByFinding = new Map<string, string[]>();
+  // Old-PoS run 30 (NPX): finding-repair proposals per pre-existing finding id.
+  const pxRepairAttempts = new Map<string, number>();
   const findingDesc = (findingId: string): string => new StoryStore(o.worktree).readFindings(id).findings.find(f => f.id === findingId)?.desc ?? '';
   // A fake provider picks the first script whose key occurs in its prompt, and a
   // critic prompt names the lane ReviewRuns: retire each script once its run is terminal.
@@ -1742,7 +1807,7 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   if (mode.run) {
     writeFileSync(join(o.scriptsDir, 'resolver.json'), JSON.stringify({ argv: [process.execPath, SELF, '--provide-script', o.root, id, o.scriptsDir,
       JSON.stringify({ findingRound1: mode.findingRound1, twoFindings: mode.twoFindings ?? false, lowFindings: mode.lowFindings ?? false, ...(mode.delivery ? { delivery: mode.delivery } : {}),
-        ...(mode.repairOutOfScope ? { repairOutOfScope: true } : {}) })] }));
+        ...(mode.repairOutOfScope ? { repairOutOfScope: true } : {}), ...(mode.preexisting ? { preexisting: mode.preexisting } : {}) })] }));
   }
   let liveSmokeProposals = 0;
   for (let iteration = 0; iteration < 160; iteration += 1) {
@@ -1825,11 +1890,24 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
       case 'delivery_review_launch':
         o.script(DELIVERY, deliveryScript(id));
         break;
-      case 'finding_repair':
+      case 'finding_repair': {
+        const bound = Array.isArray(payload.groupFindingIds) ? payload.groupFindingIds as string[] : [String(payload.findingId)];
+        const px = bound.find(findingId => findingDesc(findingId) === PX_FINDING.desc);
+        if (px) {
+          // Old-PoS run 30: the pre-existing doc finding. Every attempt is counted; a
+          // third repair proposal after two attempts without a commit is the run 30 dead end.
+          const attempts = (pxRepairAttempts.get(px) ?? 0) + 1;
+          pxRepairAttempts.set(px, attempts);
+          if (attempts >= 3) {
+            assert.fail(`[${o.scenario}] dead end (old-PoS run 30): next proposed repair #${attempts} of the pre-existing finding ${px} after ${attempts - 1} managed repair run(s) ended without a commit; why: ${next.why}`);
+          }
+        }
         o.script(FINDING_REPAIR, Array.isArray(payload.groupFindingIds)
           ? groupedRepairScript(id, (payload.groupFindingIds as string[]).map(findingId => ({ id: findingId, desc: findingDesc(findingId) })), mode.groupedFirstOnly)
-          : repairScript(findingDesc(String(payload.findingId))));
+          // NPXS: the first PX attempt reports blocked; a later one (with the earlier report in its prompt) commits the doc fix.
+          : repairScript(findingDesc(String(payload.findingId)), { storyId: id, findingId: String(payload.findingId), commit: mode.preexisting === 'in' && (pxRepairAttempts.get(String(payload.findingId)) ?? 0) > 1 }));
         break;
+      }
       case 'implement_item':
         o.script(IMPLEMENTER, implementerScript(id, String(payload.itemId)));
         break;
@@ -3565,8 +3643,102 @@ function scenarioNIS(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
+/**
+ * Old-PoS run 30 (B-c201:F-005): the docs reviewer reported wrong range
+ * examples in a doc that is byte-identical on main (pre-existing drift, outside
+ * the request and the scope contract). The grouped repair and a dedicated
+ * repair both ended without a commit (the worker would not edit a file outside
+ * its allowed list), next kept proposing the same repair, the owner's
+ * applicability record was refused (proposalRef must be an object) and the
+ * Story stopped in DEV with nothing merged.
+ *   NPX  next never routes the pre-existing out-of-scope finding to repair; it
+ *        proposes ONE audited disposition (finding_resolve
+ *        disposition=preexisting_out_of_scope) whose record carries the base
+ *        evidence (cited lines unchanged base..head) and a follow-up; DONE, the
+ *        doc on main untouched, nothing dropped.
+ *   NPXA the owner records it through the applicability path run 30's owner
+ *        tried (finding_applicability_assess verdict=pre_existing_unaffected,
+ *        proposalRef = the finding id): accepted when the framework's own base
+ *        evidence holds, same audited closure, DONE.
+ *   NPXS the request asks to correct that doc (in scope): repaired as before. The
+ *        repair prompt says documentation files are admitted; the first attempt
+ *        reports blocked without a commit, so next relaunches the repair with
+ *        that report in the prompt; the second commits the doc fix; DONE.
+ */
+function scenarioNPX(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NPX' | 'NPXA' | 'NPXS'): Outcome {
+  const inScope = tag === 'NPXS';
+  const name = tag === 'NPX'
+    ? 'NPX run 30: a pre-existing out-of-scope doc finding is closed by ONE audited disposition (base evidence + follow-up), never routed to repair; DONE'
+    : tag === 'NPXA'
+      ? 'NPXA run 30: the owner\'s applicability record (pre_existing_unaffected, proposalRef = finding id) is accepted on valid base evidence; DONE'
+      : 'NPXS run 30: a pre-existing doc finding the request covers is repaired; a repair run without a commit is relaunched with its report; DONE';
+  const o = new Owner(tag, tag === 'NPX' ? 'B-e3a0' : tag === 'NPXA' ? 'B-e3a1' : 'B-e3a2', machineEnv, steps, false,
+    { trackedGateFailureCounts: true, preexistingDoc: true, request: inScope ? PX_REQUEST_IN : PX_REQUEST_OUT });
+  const lines: string[] = [];
+  const reasons: string[] = [];
+  let applicability: CliResult | undefined;
+  try {
+    devSetup(o);
+    const pxOf = () => new StoryStore(existsSync(o.worktree) ? o.worktree : o.root).readFindings(o.storyId).findings.find(f => f.desc === PX_FINDING.desc);
+    driveWithNext(o, { findingRound1: true, run: false, preexisting: inScope ? 'in' : 'out',
+      interject: tag !== 'NPXA' ? undefined : next => {
+        // Run 30's owner: once the pre-existing finding is the subject of the step, record it as pre-existing.
+        const px = pxOf();
+        if (applicability || !px || px.status !== 'open' || next.phase !== 'DEV' || !JSON.stringify(next.cli?.payload ?? {}).includes(px.id)) return false;
+        applicability = o.cli('finding_applicability_assess', { storyId: o.storyId, findingId: px.id, idempotencyKey: 'f005-pre-existing-unaffected-1',
+          verdict: 'pre_existing_unaffected', proofStrength: 'strong', proposalRef: px.id, evaluationScope: 'target_story', dispositionPlan: 'defer_with_proof',
+          gateImpact: 'does_not_block', evidenceRefs: [`git diff --name-only main...HEAD -- ${PX_DOC_PATH} is empty`, `git show main:${PX_DOC_PATH} lines 3 and 4 contain the same examples`],
+          recheckTriggers: [`future change to ${PX_DOC_PATH}`], expiresAt: '2026-11-09T00:00:00Z' }, { label: 'finding_applicability_assess (owner, run 30)' });
+        assert.equal(applicability.status, 0, `[${tag}] the run 30 applicability record must be accepted when its base evidence is valid:\n${applicability.out.slice(-2000)}`);
+        reasons.push('owner_applicability_assess');
+        return true;
+      } }, lines, next => {
+      const payload = next.cli?.payload ?? {};
+      const px = pxOf();
+      if (px && JSON.stringify(payload).includes(px.id)) reasons.push(`${next.reason}${payload.disposition ? `:${String(payload.disposition)}` : ''}`);
+    });
+    const px = pxOf()!;
+    const order = reasons.filter((row, index) => row !== reasons[index - 1]);
+    lines.push(`steps about the pre-existing finding ${px.id}: ${order.join(' > ')}`);
+    const runsRoot = join(o.root, '.proof-or-stop', 'runtime', 'host-runs');
+    const pxRuns = repairRunsOnDisk(runsRoot).get(px.id) ?? [];
+    const final = new StoryStore(o.root).readFindings(o.storyId).findings.find(f => f.id === px.id)!;
+    assert.equal(final.status, 'resolved', `[${tag}] ${px.id} is closed before DONE (never dropped): ${JSON.stringify(final)}`);
+    const doc = readFileSync(join(o.root, PX_DOC_PATH), 'utf8');
+    if (!inScope) {
+      assert.deepEqual(pxRuns, [], `[${tag}] a pre-existing out-of-scope finding is never routed to repair (runs: ${pxRuns.join(', ')})`);
+      assert.equal(String(final.resolutionType), 'preexisting_out_of_scope', `[${tag}] closed by the named disposition: ${JSON.stringify(final)}`);
+      const base = git(o.root, ['log', '--format=%H', '-1', '--grep=benchmark: configure PoS Go validation', 'main']);
+      const reason = String(final.resolvedReason);
+      for (const needle of [base.slice(0, 12), `${PX_DOC_PATH}:3`, `${PX_DOC_PATH}:4`, 'strs/strs.go']) {
+        assert.ok(reason.includes(needle), `[${tag}] the disposition record carries ${needle}: ${reason}`);
+      }
+      assert.match(reason, /pre-existing at the Story base/i, `[${tag}] the record states the base evidence: ${reason}`);
+      assert.match(reason, /follow-up/i, `[${tag}] the record carries a follow-up: ${reason}`);
+      assert.equal(doc, PX_DOC, `[${tag}] the doc on main is untouched (recorded follow-up, not a silent edit)`);
+      if (tag === 'NPX') assert.deepEqual(order, ['finding_preexisting_disposition:preexisting_out_of_scope'], `[${tag}] ONE disposition step: ${order.join(' > ')}`);
+      else assert.deepEqual(order, ['owner_applicability_assess'], `[${tag}] the owner's applicability record closed it: ${order.join(' > ')}`);
+      lines.push(`${px.id} closed: ${reason.slice(0, 300)}`);
+    } else {
+      assert.notEqual(String(final.resolutionType), 'preexisting_out_of_scope', `[${tag}] an in-scope finding is repaired, not dispositioned`);
+      assert.equal(doc, PX_DOC_FIXED, `[${tag}] the doc fix reached main`);
+      assert.ok(pxRuns.length >= 2, `[${tag}] the repair without a commit was relaunched (runs: ${pxRuns.join(', ')})`);
+      const prompts = managedPrompts(o, FINDING_REPAIR).filter(row => pxRuns.includes(row.runId));
+      assert.match(prompts[0]!.prompt, /documentation files[^\n]*admitted/i, `[${tag}] the repair prompt says documentation files are admitted:\n${prompts[0]!.prompt.slice(-2500)}`);
+      assert.ok(prompts.at(-1)!.prompt.includes(PX_BLOCKED), `[${tag}] the relaunched repair prompt carries the earlier run's report:\n${prompts.at(-1)!.prompt.slice(-3000)}`);
+      lines.push(`${px.id} repaired after ${pxRuns.length} runs: ${String(final.resolvedReason).slice(0, 200)}`);
+    }
+    lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIN|NIS|NQ|NP|NX|NM|NDL|NDS|NDG|NRS|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIN|NIS|NQ|NP|NX|NM|NDL|NDS|NDG|NRS|NPX[AS]?|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -3618,6 +3790,7 @@ async function main(): Promise<void> {
     if (only.includes('NDG')) outcomes.push(scenarioNDG(machine.env, steps));
     if (only.includes('NRS')) outcomes.push(scenarioNRS(machine.env, steps));
     if (only.includes('NIS')) outcomes.push(scenarioNIS(machine.env, steps));
+    for (const token of ['NPX', 'NPXA', 'NPXS'] as const) if (only.includes(token)) outcomes.push(scenarioNPX(machine.env, steps, token));
     // Detection A/B arms: explicit tokens (ND-V1 .. NF-V9) or AB = ND-V1, ND-V2, ND-V3, NF-V4, ND-V5, ND-V6, ND-V8, ND-V9.
     const abTokens = only.includes('AB') ? ['ND-V1', 'ND-V2', 'ND-V3', 'NF-V4', 'ND-V5', 'ND-V6', 'ND-V8', 'ND-V9'] : [];
     for (const token of [...new Set([...abTokens, ...only.filter(arg => /^N[DF]-V[1-689]$/.test(arg))])]) {
@@ -3626,7 +3799,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NDG', 'NRS', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {
