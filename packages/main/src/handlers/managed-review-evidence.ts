@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { readMaterialDirtyFiles } from '../core/evidence-freshness.js';
 import { isManagedInventoryCritic } from '../core/managed-inventory-critic.js';
 import { currentOpenReviewInventory, inventoryPurposeMatchesEpoch } from '../core/review-inventory-epoch.js';
@@ -33,10 +34,12 @@ import { loadConfig } from '../core/config.js';
 import type { Finding, ManagedReviewEvidenceBinding, ReviewPass } from '../core/types.js';
 import {
   effectiveManagedReviewConclusion,
-  evidenceChainReclassifiedPassNote,
-  splitEvidenceChainFindings,
+  isCriticProposal,
+  reclassifiedPassNote,
+  splitReviewProposalFindings,
 } from '../core/evidence-chain-finding.js';
 import { evidenceChainNextActionForStory } from './evidence-chain.js';
+import { extractMetadataCorrections, METADATA_FINDING_RECLASSIFIED_EVENT } from '../core/metadata-correction.js';
 
 function assertOnlyKeys(command: string, value: Record<string, unknown>, allowed: readonly string[]): void {
   const unexpected = Object.keys(value).filter(key => !allowed.includes(key));
@@ -441,7 +444,11 @@ export function createManagedReviewEvidenceHandlers(
       // sealed proposal indexes, and import an evidence-chain-only proposal as
       // a pass with a deterministic note. Every reclassified item is logged as a
       // process event and printed with the framework's next action below.
-      const split = splitEvidenceChainFindings(proposal.conclusion === 'findings' ? proposal.findings : undefined);
+      // Old-PoS run 31: lane findings whose cited defect lies only in Story
+      // metadata (core/metadata-finding-class.ts) are diverted the same way:
+      // never stored as Findings, logged with the correction they ask for, and
+      // routed by next to one owner checklist_update (core/metadata-correction.ts).
+      const split = splitReviewProposalFindings(proposal.conclusion === 'findings' ? proposal.findings : undefined, !isCriticProposal(proposal));
       if (split.evidenceChain.length > 0 && proposal.inventoryCritic !== undefined) {
         throw new Error('managed_review_evidence_import: an inventory critic proposal cannot carry evidence_chain items; relaunch the critic');
       }
@@ -549,7 +556,7 @@ export function createManagedReviewEvidenceHandlers(
         if (conclusion === 'pass') {
           const note = proposal.conclusion === 'pass'
             ? proposal.note!
-            : evidenceChainReclassifiedPassNote(split.evidenceChain.map(row => row.finding));
+            : reclassifiedPassNote([...split.evidenceChain, ...split.metadata].sort((a, b) => a.index - b.index).map(row => row.finding), isCriticProposal(proposal));
           const data = ctx.store.readReviewPasses(proposal.storyId);
           const nextNum = data.passes.reduce((max, pass) => {
             const match = pass.id.match(/:RP-(\d+)$/);
@@ -686,6 +693,31 @@ export function createManagedReviewEvidenceHandlers(
           readManifest: proposal.readManifest,
           ...(proposal.readLog ? { readLog: proposal.readLog } : {}),
         });
+        if (split.metadata.length > 0) {
+          let checklistText = '';
+          try { checklistText = readFileSync(ctx.store.storyFilePath(proposal.storyId, 'checklist.json'), 'utf8'); } catch { checklistText = ''; }
+          const items = ctx.store.readChecklist(proposal.storyId).items;
+          ctx.store.appendProcessEvent(proposal.storyId, {
+            type: METADATA_FINDING_RECLASSIFIED_EVENT,
+            storyId: proposal.storyId,
+            command: 'managed_review_evidence_import',
+            role: 'framework',
+            agent: proposal.lane,
+            result: 'reclassified',
+            managedRunId: runId,
+            managedReceiptId: receiptId,
+            reviewRunId: proposal.reviewRunId,
+            importedIds,
+            reason: 'Story-metadata findings are owner checklist corrections, not product findings (old-PoS run 31)',
+            reclassified: split.metadata.map(row => ({
+              proposalFindingIndex: row.index,
+              severity: row.finding.severity,
+              desc: row.finding.desc,
+              ...(row.finding.files ? { files: row.finding.files } : {}),
+              corrections: extractMetadataCorrections(row.finding.desc, items, checklistText),
+            })),
+          });
+        }
         if (split.evidenceChain.length > 0) {
           ctx.store.appendProcessEvent(proposal.storyId, {
             type: 'review_evidence_chain_reclassified',
@@ -745,6 +777,9 @@ export function createManagedReviewEvidenceHandlers(
           + split.evidenceChain.map(row => `  - ${row.finding.desc.replace(/\s+/g, ' ').slice(0, 200)}`).join('\n')
           + `\nFramework next action: ${evidenceChainNextActionForStory(ctx, proposal.storyId)}`
         : '';
-      return `${summary}${reclassifiedHint}${criticHint ? `\n${criticHint}` : ''}${commitHint}${criticCommitHint}`;
+      const metadataHint = split.metadata.length > 0
+        ? `\nReclassified ${split.metadata.length} Story-metadata finding(s) from ${proposal.lane} as owner checklist corrections (not findings; logged as ${METADATA_FINDING_RECLASSIFIED_EVENT}); next names the one checklist_update.`
+        : '';
+      return `${summary}${reclassifiedHint}${metadataHint}${criticHint ? `\n${criticHint}` : ''}${commitHint}${criticCommitHint}`;
   }
 }

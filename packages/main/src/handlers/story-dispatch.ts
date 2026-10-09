@@ -19,6 +19,7 @@
  *   - agentType not passed → defaults to proof-or-stop-implementer semantics (required)
  */
 
+import { isStoryMetadataFinding } from '../core/metadata-finding-class.js';
 import { renderPinOracleAudit, storyPinOracle, type PinOracleContext } from '../core/pin-oracle.js';
 import { appendExactRequiredOutput, itemsForFinding } from '../core/exact-required-output.js';
 import { omittedPromptNote } from './review-run.js';
@@ -31,7 +32,7 @@ import { readStoryRequest, renderUnmappedLiteralsLine, unmappedStoryRequestLiter
 import { renderPinAudit } from '../core/intent-derivation.js';
 import { renderCoverageMatrixRule } from '../core/plan-coverage-matrix.js';
 import { renderScopePlanRerunContext } from '../core/scope-plan-rerun-context.js';
-import { IMPLEMENTER_PROBE_MATRIX, INTENT_CONFLICT_RETURN_CONTRACT, REPAIR_INPUT_VARIANT_RULE, renderProbeTestGapLine, renderReviewRequestAuthority } from '../core/request-authority.js';
+import { IMPLEMENTER_PROBE_MATRIX, INTENT_CONFLICT_RETURN_CONTRACT, PRODUCT_CODE_NO_POS_METADATA_RULE, REPAIR_INPUT_VARIANT_RULE, renderProbeTestGapLine, renderReviewRequestAuthority } from '../core/request-authority.js';
 import { renderAllowedFilesSection } from '../core/managed-writer-scope.js';
 import { earlierFindingRepairReports, earlierImplementerProbeGap } from '../core/finding-repair-attempts.js';
 import { scopeBoundaryHashIsFresh } from '../core/scope-anti-expansion.js';
@@ -890,6 +891,11 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       if (!finding) {
         throw new Error(`${args.findingId} not found in story ${args.storyId}`);
       }
+      // Old-PoS run 31: a finding whose cited defect lies only in Story metadata is
+      // the owner's checklist correction, never repair work (two blocked repair runs, one polluted patch).
+      if (agentType === 'proof-or-stop-finding-repair' && isStoryMetadataFinding(finding)) {
+        throw new Error(`dispatch refused: ${finding.id} cites only Story metadata (checklist text); it is corrected by the owner, not repaired [metadata_finding_not_repair_work]\nNext: proof-or-stop next --storyId=${args.storyId}`);
+      }
 
       // 3. background.md existence
       const bgPath = `${store.storyDirRel()}/${args.storyId}/background.md`;
@@ -956,6 +962,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push('- If the repair changes what a field or encoding means or can represent (for example adds an omitted/unset distinction), list every reader of it, including render, String(), serialize, print, equality and hash, and make each honor the new distinction or state a concrete reason tied to the request. Fix any existing test whose expected value contradicts the requirement.');
       lines.push('- A sibling left unfixed is reported as a new finding in the next review round, which costs a full remediation cycle.');
       lines.push(REPAIR_INPUT_VARIANT_RULE);
+      lines.push(PRODUCT_CODE_NO_POS_METADATA_RULE);
       const storyBase = (() => { try { return resolveFullStoryBaseHead(store, root, args.storyId); } catch { return undefined; } })();
       lines.push(storyBase
         ? `- Story base for that check: ${storyBase} (for example \`git worktree add --detach <tmp> ${storyBase.slice(0, 12)}\`, run the variants there, then remove it).`
@@ -1174,6 +1181,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         lines.push(`Candidate escalation: requiresEscalation=${routed.requiresEscalation} reasons=${routed.escalationReasons.join(', ') || 'none'}`);
         appendCandidateEscalationGuidance(lines, args.storyId, routed, false);
       }
+      lines.push('');
+      lines.push(PRODUCT_CODE_NO_POS_METADATA_RULE.replace(/^- /, ''));
       lines.push('');
       lines.push('After completion:');
       appendImplementerCommitSteps(lines, `${args.storyId} ${args.itemId}: ${item.title}`);

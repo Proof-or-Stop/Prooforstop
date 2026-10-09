@@ -1486,7 +1486,9 @@ function laneScript(worktree: string, storyId: string, lane: string, reviewRunId
         note: 'Scripted wave-2 lane: re-reports the critic\'s empty-string defect.', findings: [D_FINDING], ...readEvidenceFor(worktree, storyId) }) };
     }
   }
-  if (mode.metadata && firstRound && (lane === 'proof-or-stop-review-test-coverage' || lane === 'proof-or-stop-review-quality')) {
+  // A real reviewer re-reports the text only while the checklist still states it.
+  const staleText = mode.metadata ? new StoryStore(worktree).readChecklist(storyId).items.find(item => item.id === 'CHK-001')?.userSees === META_STALE_USER_SEES['CHK-001'] : false;
+  if (mode.metadata && firstRound && staleText && (lane === 'proof-or-stop-review-test-coverage' || lane === 'proof-or-stop-review-quality')) {
     // Old-PoS run 31 (F-001/F-002/F-005): lanes restate one wrong userSees literal as findings.
     const meta = metadataFindings(worktree, storyId);
     const findings = lane === 'proof-or-stop-review-quality' ? [meta.restated]
@@ -4113,11 +4115,19 @@ function scenarioNMF(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NMF' | 
   const o = new Owner(tag, withProduct ? 'B-e3b0' : 'B-e3b1', machineEnv, steps, false, { trackedGateFailureCounts: true });
   const lines: string[] = [];
   const corrections: NextStepJson[] = [];
+  let afterCorrection: string | null = null;
+  let laneState = '';
   try {
     writeStaleUserSees(o);
     devSetup(o);
     const rel = checklistRel(o.worktree, o.storyId);
     driveWithNext(o, { findingRound1: withProduct, run: false, metadata: withProduct ? 'with-product' : 'only' }, lines, next => {
+      if (corrections.length === 1 && afterCorrection === null && next.reason !== 'metadata_correction') {
+        afterCorrection = next.reason;
+        if (next.reason === 'review_round_prepare') {
+          laneState = JSON.stringify(collectReviewerEvidenceState(new StoryStore(o.worktree), o.storyId, o.worktree).invalid.map(issue => [issue.evidenceId, issue.code, issue.message.slice(0, 300)]));
+        }
+      }
       if (next.reason !== 'metadata_correction') return;
       corrections.push(next);
       if (corrections.length > 1) return;
@@ -4127,6 +4137,7 @@ function scenarioNMF(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NMF' | 
       assert.notEqual(unchanged.status, 0, `[${tag}] an update leaving the cited userSees unchanged must be refused`);
       assert.match(unchanged.out, /\[metadata_correction_unchanged\]/, `[${tag}] refusal code:\n${unchanged.out.slice(-1500)}`);
     });
+    assert.notEqual(afterCorrection, 'review_round_prepare', `[${tag}] the text correction must not rerun the round's lanes:\n${laneState}`);
     assert.equal(corrections.length, 1, `[${tag}] exactly ONE metadata correction step (deduped across lanes): ${corrections.map(row => row.why.slice(0, 120)).join(' | ')}`);
     const step = corrections[0]!;
     assert.equal(step.cli?.command, 'checklist_update', `[${tag}] the correction is a checklist_update`);
@@ -4286,6 +4297,7 @@ function scenarioNMR(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     writeFileSync(join(o.worktree, 'strs/strs_test.go'), source + test);
     git(o.worktree, ['add', 'strs/strs_test.go']);
     git(o.worktree, ['-c', 'user.name=proof-or-stop-finding-repair', '-c', 'user.email=repair@bench.invalid', 'commit', '-qm', 'test: acceptance text reads the checklist']);
+    o.mustCli('verification_evidence_refresh_stale', { storyId: o.storyId }, { label: 'verification_evidence_refresh_stale (after the test commit)' });
     const refused = o.cli('story_advance', { storyId: o.storyId, phase: 'REVIEW' }, { label: 'story_advance REVIEW (test reads checklist.json)' });
     assert.notEqual(refused.status, 0, `[${tag}] REVIEW entry must refuse a product test that reads the Story metadata`);
     assert.match(refused.out, /\[scope_story_metadata_reference\]/, `[${tag}] refusal code:\n${refused.out.slice(-2000)}`);

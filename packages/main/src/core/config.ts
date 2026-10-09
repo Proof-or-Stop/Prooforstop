@@ -690,6 +690,9 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'managed_review_proposal_set', 'managed_review_evidence_import',
     'finding_add', 'finding_list', 'finding_resolve', 'finding_dismiss',
     'review_pass_set',
+    // Old-PoS run 31: a Story-metadata review finding is corrected in place (userSees) by
+    // checklist_update metadataCorrection=true; the handler refuses any other REVIEW update.
+    'checklist_update',
     'understanding_get', 'decision_get',
     // B-a4e3 CHK-005: removed dead finding_dispatch alias entry; the unified `dispatch` is granted all-phase via the '*' block.
     'finding_cluster',  // B-9d95 CHK-005: auto/merge/split 聚簇

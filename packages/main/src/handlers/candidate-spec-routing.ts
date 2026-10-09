@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { routingUserSees } from '../core/metadata-correction.js';
 import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { join, posix } from 'node:path';
@@ -321,7 +322,8 @@ export function currentStoryRoutingInput(ctx: HandlerContext, storyId: string): 
     checklist: checklist.items.map(item => ({
       id: item.id,
       title: item.title,
-      userSees: item.userSees,
+      // Old-PoS run 31: a verified metadata correction does not stale the route.
+      userSees: routingUserSees(ctx.store as never, storyId, item.userSees),
       excludes: item.excludes,
       relatedDocs: item.relatedDocs,
     })),

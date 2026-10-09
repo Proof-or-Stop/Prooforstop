@@ -1,4 +1,5 @@
 import { planIntentPrecheckWarnings } from '../core/plan-intent-precheck.js';
+import { describeMetadataCorrection, literalOccurrences, METADATA_CORRECTION_UNCHANGED, metadataCorrectionCleared, metadataFieldText, openMetadataCorrections } from '../core/metadata-correction.js';
 import { observedImplementationDigest, withVerificationCommitObservation, withVerificationCompletionObservation, withVerificationLaunchObservation, withVerificationPlanningObservation, withVerificationRefreshObservation } from '../core/verification-execution-evidence.js';
 import { assertGitObservationInactive, observedGit, withGitTreeObservation, withoutGitObservation } from '../core/git-tree-observation.js';
 import { maintenanceCommandWrites } from '../core/maintenance-command-mode.js';
@@ -2483,6 +2484,13 @@ export function refreshStaleEvidenceMetadataOnly(ctx: HandlerContext, storyId: s
   return writeStaleRefresh(ctx, storyId, computed, { dryRun });
 }
 
+/** Old-PoS run 31 (D4): the refusal of a plan acceptance batch that changes no field. */
+function planAcceptanceNoopMessage(storyId: string, itemIds: readonly string[]): string {
+  return `PLAN_ACCEPTANCE_NOOP: the batch changes neither files nor verificationIntent of ${itemIds.join(', ')}; nothing would be applied [plan_acceptance_noop]. `
+    + 'userSees is not part of plan acceptance: change it with a plain checklist_update in PLAN.\n'
+    + `Next: proof-or-stop checklist_update '${JSON.stringify({ storyId, itemId: itemIds[0] ?? '<CHK-id>', userSees: '<corrected userSees>', reason: '<why>' })}'`;
+}
+
 export function createChecklistHandlers(ctx: HandlerContext & { verificationCommandRunner?: SingleCommandRunner }) {
   const { store, root } = ctx;
   const createPinnedCommandRunner = (
@@ -3038,6 +3046,13 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           }),
         };
       });
+      // Old-PoS run 31 (D4): a batch that changes no field is not an acceptance change.
+      const noop = preparedItems.filter(prepared => {
+        const current = checklist.items.find(item => item.id === prepared.itemId)!;
+        return digestCanonicalJson(current.files ?? null) === digestCanonicalJson(prepared.files ?? null) && digestCanonicalJson(current.verificationIntent ?? null) === prepared.baseIntentHash
+          && digestCanonicalJson(prepared.verificationIntent ?? null) === prepared.baseIntentHash;
+      });
+      if (noop.length === preparedItems.length) throw new Error(planAcceptanceNoopMessage(args.storyId, noop.map(row => row.itemId)));
       const body: Omit<PreparedPlanAcceptance, 'digest'> = {
         schemaVersion: 'proof-or-stop.plan-acceptance-batch.v1',
         storyId: args.storyId,
@@ -3064,6 +3079,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         const next = structuredClone(checklist);
         const seen = new Set<string>();
         const now = new Date().toISOString();
+        const unchanged: string[] = [];
         for (const prepared of args.prepared.items) {
           if (seen.has(prepared.itemId)) throw new Error(`PLAN_ACCEPTANCE_DUPLICATE_ITEM: ${prepared.itemId}`);
           seen.add(prepared.itemId);
@@ -3101,6 +3117,8 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           if (verificationIntentHasPlannedPathDeclarations(prepared.verificationIntent)) {
             validatePlannedPathDeclarationsForChecklistItem(proposed, prepared.verificationIntent);
           }
+          if (digestCanonicalJson({ files: before.files ?? null, intent: before.verificationIntent ?? null })
+            === digestCanonicalJson({ files: proposed.files ?? null, intent: proposed.verificationIntent ?? null })) unchanged.push(prepared.itemId);
           item.files = proposed.files;
           item.verificationIntent = proposed.verificationIntent;
           item.verificationIntentAuthorship = {
@@ -3144,6 +3162,10 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
             reason: `Owner-approved plan acceptance batch ${digest}: ${args.reason.trim()}`,
           });
         }
+        // Old-PoS run 31 (D4): "Applied 1 PLAN acceptance items" was printed while the
+        // field the owner meant to change (userSees) was untouched. A batch changing
+        // nothing is refused; a partial one names its unchanged items.
+        if (unchanged.length === args.prepared.items.length) throw new Error(planAcceptanceNoopMessage(args.storyId, unchanged));
         const processEvents = args.prepared.items.map(prepared => {
           const item = next.items.find(candidate => candidate.id === prepared.itemId)!;
           return {
@@ -3172,7 +3194,8 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
           throw error;
         }
         const commitHint = autoCommitStoryMetadata(root, args.storyId, 'plan_acceptance_apply');
-        return `Applied ${args.prepared.items.length} PLAN acceptance items atomically to ${args.storyId}.${commitHint}`;
+        const changedCount = args.prepared.items.length - unchanged.length;
+        return `Applied ${changedCount} PLAN acceptance item(s) atomically to ${args.storyId}${unchanged.length ? ` (unchanged, nothing applied: ${unchanged.join(', ')})` : ''}.${commitHint}`;
       });
     },
 
@@ -3385,6 +3408,8 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       agent?: string;
       actor?: string;
       success?: boolean;
+      /** Old-PoS run 31: the owner's correction of Story-metadata review findings (core/metadata-correction.ts). */
+      metadataCorrection?: boolean;
     }): string {
       if (!args.status && args.title === undefined && args.context === undefined && args.relatedDocs === undefined && args.userSees === undefined && args.excludes === undefined && args.files === undefined && args.verificationIntent === undefined && args.verificationEvidence === undefined) {
         throw new Error('At least one of status/title/context/relatedDocs/userSees/excludes/files/verificationIntent/verificationEvidence must be provided');
@@ -3460,6 +3485,26 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       if ((isDispatchedVerificationIntentWriter || ownerProposalRequested) && story.phase !== 'PLAN') {
         throw new Error('Independent verification-intent writes require PLAN [verification_intent_writer_phase_invalid]');
       }
+      // Old-PoS run 31: a Story-metadata correction (lane findings that cite only
+      // checklist text) touches only the cited text fields. userSees is corrected
+      // in place in DEV/REVIEW (no PLAN trip, no review round); intent rows stay
+      // frozen outside PLAN (signed acceptance semantics). checklist_update in
+      // REVIEW exists only for this correction.
+      if (args.metadataCorrection) {
+        const allowedKeys = new Set(['storyId', 'itemId', 'userSees', 'verificationIntent', 'reason', 'metadataCorrection', 'agent', 'actor']);
+        const extra = Object.keys(args).filter(key => !allowedKeys.has(key) && (args as Record<string, unknown>)[key] !== undefined);
+        if (extra.length || (args.userSees === undefined && args.verificationIntent === undefined)) {
+          throw new Error(`checklist_update refused: a metadataCorrection changes only userSees and/or verificationIntent (with a reason)${extra.length ? `; unexpected: ${extra.join(', ')}` : ''} [metadata_correction_fields_invalid]`);
+        }
+        if (!args.reason || args.reason.trim().length < 10) throw new Error('checklist_update refused: a metadataCorrection needs a reason (the request sentence and the value it implies) [metadata_correction_reason_required]');
+        if (args.verificationIntent !== undefined && story.phase !== 'PLAN') {
+          throw new Error(`checklist_update refused: intent rows are frozen outside PLAN; return to PLAN for this metadata correction [metadata_correction_intent_outside_plan]\nNext: proof-or-stop story_advance '{"storyId":"${args.storyId}","phase":"${story.phase === 'REVIEW' ? 'DEV' : 'PLAN'}"}'`);
+        }
+        if (!['PLAN', 'DEV', 'REVIEW'].includes(story.phase)) throw new Error(`checklist_update refused: no metadata correction in ${story.phase} [metadata_correction_phase_invalid]`);
+      } else if (story.phase === 'REVIEW') {
+        throw new Error(`checklist_update refused: in REVIEW, checklist_update only applies a Story-metadata correction (metadataCorrection=true) that next proposed [checklist_update_review_metadata_only]\nNext: proof-or-stop next --storyId=${args.storyId}`);
+      }
+      const metadataInPlace = Boolean(args.metadataCorrection) && story.phase !== 'PLAN';
       const titleContextFields = ['title', 'context'] as const;
       const titleContextProtectedPhases = ['INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'];
       const userSeesProtectedPhases = ['DEV', 'REVIEW', 'TEST', 'DONE'];
@@ -3487,7 +3532,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         );
       }
 
-      if (args.userSees !== undefined && userSeesProtectedPhases.includes(story.phase)) {
+      if (args.userSees !== undefined && userSeesProtectedPhases.includes(story.phase) && !metadataInPlace) {
         throw new Error(
           `userSees of ${args.itemId} cannot be modified during the ${story.phase} phase. ` +
           `userSees is frozen at the end of PLAN; from DEV onward the executor must not change the acceptance description. ` +
@@ -3514,6 +3559,19 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
       const checklistBeforeUpdate = structuredClone(cl);
       const item = cl.items.find(i => i.id === args.itemId);
       if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
+      // Old-PoS run 31: the open corrections this update answers (cited item, or an
+      // occurrence of a cited wrong literal: the sweep). None -> refused.
+      // The sweep (another item stating a cited wrong literal) may follow the cited
+      // item's own correction in the same batch, so any recorded correction counts there.
+      const metadataCorrections = args.metadataCorrection
+        ? openMetadataCorrections({ store: store as never, storyId: args.storyId, gitCwd: resolveStoryGitCwd(args.storyId), includeCleared: true }).filter(row =>
+          (row.itemId === args.itemId && !metadataCorrectionCleared(item, row))
+          || (row.itemId !== args.itemId && row.wrongLiteral && literalOccurrences([item], row.wrongLiteral).length > 0))
+        : [];
+      if (args.metadataCorrection && metadataCorrections.length === 0) {
+        throw new Error(`checklist_update refused: no open Story-metadata correction names ${args.itemId} or a literal it states [metadata_correction_none]\nNext: proof-or-stop next --storyId=${args.storyId}`);
+      }
+      const metadataBefore = args.metadataCorrection ? structuredClone(item) : null;
       let ownerProposalApproved = false;
       if (ownerProposalRequested) {
         const approval = args.intentProposalApproval!;
@@ -3526,8 +3584,12 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
             files: args.files ?? item.files ?? { modify: [], create: [], test: [] },
             verificationIntent: args.verificationIntent,
           }] };
+          // Old-PoS run 31 (D4): plan acceptance never carries userSees; name the plain update for it.
+          const userSeesNext = unexpected.includes('userSees')
+            ? `\nuserSees is not part of an intent proposal or plan acceptance: change it with a plain checklist_update first: proof-or-stop checklist_update '${JSON.stringify({ storyId: args.storyId, itemId: args.itemId, userSees: args.userSees, reason: args.reason ?? '<why>' })}'`
+            : '';
           throw new Error(
-            `INTENT_PROPOSAL_FIELDS_INVALID: unexpected fields ${unexpected.join(', ')}\n` +
+            `INTENT_PROPOSAL_FIELDS_INVALID: unexpected fields ${unexpected.join(', ')}${userSeesNext}\n` +
             `Next 1: proof-or-stop plan_acceptance_prepare '${JSON.stringify(preparePayload)}'\n` +
             `Next 2: pass the unchanged prepare response plus a reason to proof-or-stop plan_acceptance_apply.`,
           );
@@ -3638,12 +3700,36 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         results.push(`verificationEvidence updated (${effectiveEvidence.length})`);
       }
 
+      // Old-PoS run 31: the framework verifies the cited text actually changed
+      // before it clears the correction (run 31 "resolved" F-001 while
+      // checklist.json:5251 still said hooo).
+      if (metadataBefore) {
+        const unchanged: string[] = [];
+        for (const correction of metadataCorrections) {
+          if (correction.itemId === args.itemId) {
+            if (!metadataCorrectionCleared(item, correction)) unchanged.push(describeMetadataCorrection(correction));
+          } else {
+            const field = args.userSees !== undefined ? 'userSees' : 'verificationIntent';
+            if (metadataFieldText(item, field) === metadataFieldText(metadataBefore, field)
+              || (correction.wrongLiteral && /==|->|=>|→/.test(correction.wrongLiteral) && literalOccurrences([item], correction.wrongLiteral).some(row => row.field === field))) {
+              unchanged.push(`${args.itemId} ${field} still states ${correction.wrongLiteral}`);
+            }
+          }
+        }
+        if (unchanged.length) {
+          throw new Error(`checklist_update refused: the cited Story-metadata text is unchanged or still states the wrong value: ${unchanged.join('; ')} [${METADATA_CORRECTION_UNCHANGED}]\n`
+            + `Next: proof-or-stop next --storyId=${args.storyId} (it names the wrong literal and the reviewer's value)`);
+        }
+        results.push(`metadata correction verified (${metadataCorrections.map(row => `${row.itemId} ${row.field}`).join(', ')}); no repair, no review round`);
+      }
+
       // Old-PoS run 31 (CHK-005): a PLAN amendment of a done item's acceptance
       // (verificationIntent semantics or userSees) invalidates the implementation
       // built against the old intent. The framework resets it, and every done
       // item whose context / userSees / intent names it, to pending with a
-      // recorded reason; the owner never resets it by hand.
-      if (story.phase === 'PLAN' && args.status === undefined && oldStatus === 'done') {
+      // recorded reason; the owner never resets it by hand. A metadata
+      // correction (review-verified text the code already satisfies) does not.
+      if (story.phase === 'PLAN' && args.status === undefined && oldStatus === 'done' && !args.metadataCorrection) {
         const intentChanged = args.verificationIntent !== undefined && (beforeIntentRevision.verificationIntent
           ? acceptanceIntentHash(beforeIntentRevision.verificationIntent) : null) !== (item.verificationIntent ? acceptanceIntentHash(item.verificationIntent) : null);
         const userSeesChanged = args.userSees !== undefined && (beforeIntentRevision.userSees ?? '') !== (item.userSees ?? '');
@@ -3858,7 +3944,10 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         }
       }
 
-      const commitHint = autoCommitStoryMetadata(root, args.storyId, 'checklist_update');
+      // Old-PoS run 31: a verified metadata correction commits under its own subject; the
+      // managed-review lineage admits it (userSees-only checklist change), so the round's
+      // lane evidence stays current (no lane rerun for a text correction).
+      const commitHint = autoCommitStoryMetadata(root, args.storyId, args.metadataCorrection ? 'metadata_correction' : 'checklist_update');
 
       // B-95d8 CHK-002: post-write reload reminder.
       // Re-read the FINAL persisted state (read-after-write) so a long session does

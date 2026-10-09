@@ -975,7 +975,10 @@ export function verifyReviewRunPromptEnvelope(
       ...(!reviewerRequestedFull ? [
         ['reviewBasisDigest', envelope.reviewBasisDigest, incremental.reviewBasisDigest ?? undefined],
       ] : []),
-      ['taskSemanticDigest', envelope.taskSemanticDigest, incremental.taskSemanticDigest ?? undefined],
+      // Old-PoS run 31: a pass judged before a verified Story-metadata correction
+      // (the userSees text its reviewers asked to correct) stays current.
+      ['taskSemanticDigest', envelope.taskSemanticDigest, envelope.taskSemanticDigest !== undefined
+        && envelope.taskSemanticDigest === incremental.taskSemanticDigestBeforeMetadataCorrection ? envelope.taskSemanticDigest : incremental.taskSemanticDigest ?? undefined],
     ].filter(([, actual, expected]) => actual !== expected);
     if (eligibilityMismatches.length > 0) {
       return {

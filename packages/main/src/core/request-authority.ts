@@ -42,6 +42,13 @@ export const INTENT_CONFLICT_RETURN_CONTRACT = [
   '- The request outranks the intent. Never resolve a conflict silently: a "deliberate choice" that follows an intent over the request, or that deviates from the request in any other way, must be listed here; prose notes are not read. The Story owner amends the intent before the item counts done.',
 ].join('\n');
 
+/**
+ * Old-PoS run 31 (REM2): a repair worker shipped a Go test that parsed the
+ * Story's checklist.json. Product code and tests never touch PoS metadata; the
+ * scope gate refuses it [scope_story_metadata_reference].
+ */
+export const PRODUCT_CODE_NO_POS_METADATA_RULE = '- PoS metadata is not product input: never read or reference `.proof-or-stop/` (checklist.json, findings, request.md) from product code or tests, and never commit a test that checks checklist text. A wrong userSees/intent text is the Story owner\'s checklist correction: report it (an `[intent-conflict]` line) instead of testing it; REVIEW entry refuses a product change that references this Story\'s metadata.';
+
 /** F3: base-behavior check of the finding's input variants (run 24 explicit-null regression). */
 export const REPAIR_INPUT_VARIANT_RULE = '- Input variants (keep base behavior): when the fix changes how an input is handled (null, 0, negative, empty, omitted vs explicit, default), list the finding\'s input and its literal variants (for example explicit `null` vs an omitted operand, 0, a negative value, empty). Run each variant on the Story base and on your fix, keep the base behavior for every variant the request did not change, and add a test for each kept variant. Test what the source wrote (the syntax node), not only the evaluated value: an explicit `null` and an omitted operand can evaluate alike. A reviewer\'s "Fix:" text is a non-binding suggestion; follow it only when it passes this check.';
 

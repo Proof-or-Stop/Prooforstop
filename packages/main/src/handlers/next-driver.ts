@@ -36,7 +36,7 @@
  */
 import { evaluateReviewMaterialReopen } from '../core/review-material-reopen.js';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, readdirSync, realpathSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, realpathSync, writeFileSync } from 'node:fs';
 import { hostname } from 'node:os';
 import { join, relative, sep } from 'node:path';
 import type { HandlerContext } from './context.js';
@@ -99,6 +99,8 @@ import { ownerWaitBlockMs, ownerWaitInstruction } from '../core/owner-wait-guida
 import { parseIntentConflicts, probeTestGaps, type IntentConflict, type ProbeTestGap } from '../core/request-authority.js';
 import { readStoryRequest } from '../core/story-request.js';
 import { intentSemantics } from '../core/verification-intent-amendment.js';
+import { isPureMetadataFinding, literalOccurrences, openMetadataCorrections, type LiteralOccurrence, type MetadataField, type OpenMetadataCorrection } from '../core/metadata-correction.js';
+import { openPinAuditGaps } from '../core/pin-audit-correction.js';
 import { describePinMismatch, PIN_ORACLE_MISMATCH, pinExamples, pinMismatchRule, pinOracleMismatches, storyPinOracle } from '../core/pin-oracle.js';
 import { digestCanonicalJson } from '../core/digest.js';
 import { maxLaneRunsOnMaterial, STALE_WAVE_STOP_LOSS } from '../core/review-stop-loss.js';
@@ -728,7 +730,7 @@ function describeIntentConflict(row: OpenIntentConflict): string {
  * owner returns to PLAN (one command); in PLAN, `next` proposes the audited
  * revision of the first conflicting item.
  */
-export function intentConflictStep(base: { storyId: string; phase: string }, conflicts: readonly OpenIntentConflict[]): NextStep {
+export function intentConflictStep(base: { storyId: string; phase: string }, conflicts: readonly OpenIntentConflict[], items?: readonly ChecklistItem[]): NextStep {
   const listed = conflicts.map(describeIntentConflict).join('; ');
   if (base.phase === 'PLAN') {
     const itemId = conflicts[0]!.itemId;
@@ -742,14 +744,125 @@ export function intentConflictStep(base: { storyId: string; phase: string }, con
       ...(intent ? { verificationIntent: '<complete revised verificationIntent JSON>' } : {}),
       reason: '<why: the request sentence and the value it implies>', status: 'pending' };
     const fields = [userSees ? 'userSees' : '', intent ? 'verificationIntent' : ''].filter(Boolean);
-    return step(base, 'agent', 'intent_conflict_amend', { command: 'checklist_update', payload },
-    `Open intent conflict (${listed}). The request outranks the intent: revise ${itemId}'s ${fields.join(' and ')} so the conflicting ${userSees && !intent ? 'text' : 'row'} states the value the request implies (if the intent is right, make the row state its derivation from the request sentence), with a reason; status pending makes DEV implement the item again. Then continue PLAN with next.`,
-    'openIntentConflicts (implementer/finding-repair [intent-conflict] section) + checklist_update PLAN intent revision',
-    { placeholders: [...fields, 'reason'] });
+    const why = `Open intent conflict (${listed}). The request outranks the intent: revise ${itemId}'s ${fields.join(' and ')} so the conflicting ${userSees && !intent ? 'text' : 'row'} states the value the request implies (if the intent is right, make the row state its derivation from the request sentence), with a reason; status pending makes DEV implement the item again. Then continue PLAN with next.`;
+    const source = 'openIntentConflicts (implementer/finding-repair [intent-conflict] section) + checklist_update PLAN intent revision';
+    // Old-PoS run 31 (D5): the pinned literal also stated in other fields/items is corrected in the same step.
+    const pinned = conflicts.filter(row => row.itemId === itemId).map(row => conflictLiteral(row.conflict.intentPins)).find((literal): literal is string => Boolean(literal));
+    const sweep = pinned && items ? literalOccurrences(items, pinned).filter(row => !(row.itemId === itemId && fields.includes(row.field))) : [];
+    if (sweep.length === 0) return step(base, 'agent', 'intent_conflict_amend', { command: 'checklist_update', payload }, why, source, { placeholders: [...fields, 'reason'] });
+    const calls = [nextStepCall('intent_conflict_amend', { command: 'checklist_update', payload }),
+      ...sweepCalls(base, sweep, 'intent_conflict_amend', pinned!)];
+    return batchStep(base, 'intent_conflict_amend', calls, `${why} ${sweepWhy(pinned!, sweep)}`, `${source} + literalOccurrences (old-PoS run 31 sweep)`);
   }
   return step(base, 'agent', 'intent_conflict', { command: 'story_advance', payload: { storyId: base.storyId, phase: 'PLAN' } },
     `Intent conflict declared (${listed}). The request outranks the intent, and the item does not count done until the owner amends the intent. Intents are frozen in DEV: return to PLAN, where next proposes the audited revision (checklist_update verificationIntent / userSees + reason, item back to pending).`,
     'openIntentConflicts (implementer/finding-repair [intent-conflict] section)');
+}
+
+
+// ---------------------------------------------------------------------------
+// Old-PoS run 31: Story-metadata corrections (core/metadata-correction.ts),
+// the literal sweep, pin-audit value corrections and duplicate batches.
+
+/** Other occurrences of a wrong literal, grouped per item, as checklist_update calls (one per item). */
+function sweepCalls(base: { storyId: string; phase: string }, sweep: readonly LiteralOccurrence[], reason: string, literal: string,
+  extra: Record<string, unknown> = {}): NextStepCall[] {
+  const byItem = new Map<string, Set<MetadataField>>();
+  for (const row of sweep) {
+    if (row.field === 'verificationIntent' && base.phase !== 'PLAN') continue;
+    byItem.set(row.itemId, (byItem.get(row.itemId) ?? new Set()).add(row.field));
+  }
+  return [...byItem].map(([itemId, fields]) => nextStepCall(reason, { command: 'checklist_update', payload: { storyId: base.storyId, itemId,
+    ...(fields.has('userSees') ? { userSees: `<${itemId} userSees with ${literal} corrected the same way>` } : {}),
+    ...(fields.has('verificationIntent') ? { verificationIntent: `<complete ${itemId} verificationIntent JSON with ${literal} corrected the same way>` } : {}),
+    reason: '<why: the same corrected value, with the request sentence>', ...extra } }));
+}
+
+function sweepWhy(literal: string, sweep: readonly LiteralOccurrence[]): string {
+  return `The same wrong literal ${literal} is also stated in ${sweep.map(row => row.ref).join(', ')}: correct each occurrence that states the same result in this step (leave one that is a legitimate input).`
+    + (sweep.some(row => row.field === 'verificationIntent') ? ' Intent rows are corrected in PLAN.' : '');
+}
+
+/**
+ * ONE owner step for the first open metadata correction (deduped by item and
+ * field), its wrong literal swept across every item. userSees is corrected in
+ * place in any phase before DONE (checklist_update metadataCorrection=true);
+ * intent rows are frozen outside PLAN (signed acceptance semantics), so the
+ * step returns the Story to PLAN first. No repair worker, no review round.
+ */
+export function metadataCorrectionStep(base: { storyId: string; phase: string }, corrections: readonly OpenMetadataCorrection[], items: readonly ChecklistItem[]): NextStep {
+  const first = corrections[0]!;
+  const sameItem = corrections.filter(row => row.itemId === first.itemId);
+  const fields = [...new Set(sameItem.map(row => row.field))];
+  const reviewer = first.sources.map(source => `${source.findingId ?? source.lane ?? 'reviewer'}: "${source.desc.replace(/\s+/g, ' ').slice(0, 280)}"`).slice(0, 2).join('; ');
+  const describe = (row: OpenMetadataCorrection) => `${row.itemId} ${row.field}${row.rowRefs.length ? ` (${row.rowRefs.join(', ')})` : ''} states ${row.wrongLiteral ?? '(see the reviewer text)'}`
+    + (row.correctedValue ? `; the reviewer's value: ${row.correctedValue}` : '');
+  const head = `Story-metadata review finding(s) (${first.sources.length} report(s), deduped; not product findings, never repair work): ${sameItem.map(describe).join('; ')}. Reviewer: ${reviewer}.`;
+  if (base.phase !== 'PLAN' && fields.includes('verificationIntent')) {
+    return step(base, 'agent', 'metadata_correction_plan', { command: 'story_advance', payload: { storyId: base.storyId, phase: base.phase === 'REVIEW' ? 'DEV' : 'PLAN' } },
+      `${head} Intent rows are frozen outside PLAN: return to PLAN, where next proposes the one checklist_update (metadataCorrection=true; done items stay done).`,
+      'openMetadataCorrections (core/metadata-correction.ts)');
+  }
+  const sweep = first.wrongLiteral ? literalOccurrences(items, first.wrongLiteral).filter(row => !(row.itemId === first.itemId && fields.includes(row.field))) : [];
+  const payload: Record<string, unknown> = { storyId: base.storyId, itemId: first.itemId,
+    ...(fields.includes('userSees') ? { userSees: `<${first.itemId} userSees stating ${first.correctedValue ?? 'the value the request implies'} instead of ${first.wrongLiteral ?? 'the cited text'}>` } : {}),
+    ...(fields.includes('verificationIntent') ? { verificationIntent: `<complete ${first.itemId} verificationIntent JSON with ${(first.rowRefs.join(', ') || 'the cited rows')} stating ${first.correctedValue ?? 'the value the request implies'}>` } : {}),
+    reason: '<why: the request sentence and the value it implies>', metadataCorrection: true };
+  const why = `${head} Correct the text with checklist_update metadataCorrection=true; the framework verifies the cited text changed (an update that keeps it is refused [metadata_correction_unchanged]) and then clears every report of it. No review round is spent.`
+    + (sweep.length ? ` ${sweepWhy(first.wrongLiteral!, sweep)}` : '');
+  const source = 'openMetadataCorrections (core/metadata-correction.ts) + literalOccurrences';
+  const extraCalls = sweep.length ? sweepCalls(base, sweep, 'metadata_correction', first.wrongLiteral!, { metadataCorrection: true }) : [];
+  if (extraCalls.length === 0) return step(base, 'agent', 'metadata_correction', { command: 'checklist_update', payload }, why, source, { placeholders: placeholderPaths(payload) });
+  return batchStep(base, 'metadata_correction', [nextStepCall('metadata_correction', { command: 'checklist_update', payload }), ...extraCalls], why, source);
+}
+
+/**
+ * Old-PoS run 31 (D8): the scope-plan verdict's pin-audit gaps on an unchanged
+ * checklist, as ONE checklist_update of the first gap's item (the pinned value,
+ * the request's value, every other occurrence of the pinned literal). After
+ * exactly these corrections the verdict needs no rerun (openScopeGaps).
+ */
+export function pinAuditCorrectionStep(base: { storyId: string; phase: string }, store: Pick<HandlerContext['store'], 'readScopeCheck' | 'readChecklist'>): NextStep | null {
+  const scope = store.readScopeCheck(base.storyId);
+  if (!scope) return null;
+  const items = store.readChecklist(base.storyId).items;
+  const gaps = openPinAuditGaps(scope, { items });
+  if (!gaps.length) return null;
+  const first = gaps[0]!;
+  const item = items.find(row => row.id === first.itemId);
+  if (!item) return null;
+  const sweep = literalOccurrences(items, first.pinned).filter(row => !(row.itemId === first.itemId && row.field === 'verificationIntent'));
+  const ownUserSees = sweep.some(row => row.itemId === first.itemId && row.field === 'userSees');
+  const payload: Record<string, unknown> = { storyId: base.storyId, itemId: first.itemId,
+    verificationIntent: `<complete ${first.itemId} verificationIntent JSON with ${first.ref} stating ${first.requestValue} instead of ${first.pinned}>`,
+    ...(ownUserSees ? { userSees: `<${first.itemId} userSees with ${first.pinned} corrected to ${first.requestValue}>` } : {}) };
+  const others = sweep.filter(row => row.itemId !== first.itemId);
+  const why = `The scope-plan pin audit found wrong pinned values: ${gaps.map(gap => `${gap.ref} pins ${gap.pinned}; the request gives ${gap.requestValue}`).join(' | ')}. `
+    + `Apply the value the verdict requests in ${first.ref}${sweep.length ? ` and every other occurrence of ${first.pinned} (${sweep.map(row => row.ref).join(', ')})` : ''}. `
+    + 'A checklist whose only changes since the verdict are these requested values is checked deterministically: no scope-plan rerun. Any other change reruns the reviewer.';
+  const calls = [nextStepCall('pin_audit_correction', { command: 'checklist_update', payload }),
+    ...sweepCalls(base, others, 'pin_audit_correction', first.pinned)];
+  return calls.length === 1
+    ? step(base, 'agent', 'pin_audit_correction', calls[0]!.cli, why, 'openPinAuditGaps (core/pin-audit-correction.ts) + literalOccurrences', { placeholders: placeholderPaths(payload) })
+    : batchStep(base, 'pin_audit_correction', calls, why, 'openPinAuditGaps (core/pin-audit-correction.ts) + literalOccurrences');
+}
+
+/** Old-PoS run 31 (D6): several duplicates of resolved canonicals closed in ONE step (each keeps its own coverage run). */
+export function duplicateResolveBatchStep(base: { storyId: string; phase: string }, rows: ReadonlyArray<{ finding: { id: string; severity: string }; canonical: { id: string }; familyKey: string | null }>): NextStep {
+  const steps = rows.map(row => duplicateFindingResolveStep(base, row.finding, row.canonical, row.familyKey));
+  const calls = steps.map(single => ({ ...nextStepCall('finding_duplicate_resolve', single.cli!), ...(single.placeholderHints ? { placeholderHints: single.placeholderHints } : {}) }));
+  return batchStep(base, 'finding_duplicate_resolve_batch', calls,
+    `Verified findings ${rows.map(row => `${row.finding.id} (duplicate of ${row.canonical.id})`).join(', ')} are duplicates of repaired, resolved findings: close them in ONE turn, one finding_resolve each. `
+      + 'Each coverage.command runs that finding\'s own case and coverage.selector is the line its passing output prints; the framework runs each, and a failing one is refused and gets its own repair.',
+    'unclosedBlockingFindings + duplicateResolveCandidate (batched, old-PoS run 31 D6)');
+}
+
+/** A stored finding whose cited defect lies only in Story metadata, once its correction cleared: resolved without a repair. */
+function metadataFindingResolveStep(base: { storyId: string; phase: string }, finding: { id: string; severity: string }): NextStep {
+  return step(base, 'agent', 'finding_resolve', { command: 'finding_resolve', payload: { storyId: base.storyId, findingId: finding.id,
+    resolution: '<which checklist text changed: item, field and the value it now states>' } },
+  `${finding.severity} finding ${finding.id} cites only Story metadata, and the cited checklist text is corrected (the framework verified it changed): close it; it is never repair work.`,
+  'openMetadataCorrections + isPureMetadataFinding (old-PoS run 31)', { placeholders: ['resolution'] });
 }
 
 /**
@@ -1404,6 +1517,12 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
   /** A gate's own printed next command, as a step of the given kind (hintedStep). */
   const delegated = hintedStep;
 
+  /** Old-PoS run 31: the first open Story-metadata correction as ONE owner step, or null. */
+  function metadataStep(base: { storyId: string; phase: string }): NextStep | null {
+    const corrections = openMetadataCorrections({ store: ctx.store as never, storyId: base.storyId, gitCwd: gitCwdOf(base.storyId) });
+    return corrections.length ? metadataCorrectionStep(base, corrections, ctx.store.readChecklist(base.storyId).items) : null;
+  }
+
   /**
    * When every invalid reviewer evidence item is an OPEN finding bound to a
    * superseded run of its lane (stale_run) or to a signed earlier/cancelled
@@ -1467,7 +1586,10 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     const { storyId } = base;
     // D1 (run 23): an implementer-declared intent conflict is amended first.
     const conflicts = openIntentConflicts({ root: ctx.root, gitCwd: gitCwdOf(storyId), store: ctx.store, storyId, runs: listStoryHostRuns(ctx, storyId) });
-    if (conflicts.length > 0) return intentConflictStep(base, conflicts);
+    if (conflicts.length > 0) return intentConflictStep(base, conflicts, ctx.store.readChecklist(storyId).items);
+    // Old-PoS run 31: a Story-metadata review finding routed back to PLAN (intent rows).
+    const metadata = metadataStep(base);
+    if (metadata) return metadata;
     if (!evaluateDevMemoryPreflightGate(storyId, ctx.store)) {
       return step(base, 'agent', 'dev_memory_preflight_ack', { command: 'dev_memory_preflight_ack', payload: { storyId } },
         'The DEV-entry gate refuses without the dev-memory preflight acknowledgement [missing_dev_memory_preflight_ack]. Run it now and read the lessons it prints before planning the implementation.',
@@ -1490,6 +1612,11 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     // waits here (its gaps block story_review until the rerun judges them), and so
     // does a run with a pin audit / same-semantics check to do (scopeVerdictDeferral
     // 'held', the DEV-entry gate's own predicate): its gap must land before DEV.
+    // Old-PoS run 31 (D8): the verdict's pin-audit values, applied without a rerun.
+    if (!scopeFailure && !rerun) {
+      const pinAudit = pinAuditCorrectionStep(base, ctx.store);
+      if (pinAudit) return pinAudit;
+    }
     const deferral = scopeFailure && !rerun ? scopeVerdictDeferral(ctx.store, ctx.root, storyId) : null;
     const deferred = deferral?.kind === 'deferred' ? deferral.run : null;
     if ((scopeFailure || rerun) && !deferred) {
@@ -1668,7 +1795,10 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     // repair or REVIEW (unless a writer run is still in flight: wait first).
     if (!inFlight(IMPLEMENTER_AGENT) && !inFlight(FINDING_REPAIR_AGENT)) {
       const conflicts = openIntentConflicts({ root: ctx.root, gitCwd: gitCwdOf(storyId), store: ctx.store, storyId, runs: hostRuns });
-      if (conflicts.length > 0) return intentConflictStep(base, conflicts);
+      if (conflicts.length > 0) return intentConflictStep(base, conflicts, ctx.store.readChecklist(storyId).items);
+      // Old-PoS run 31: Story-metadata corrections are owner work, never repair work.
+      const metadata = metadataStep(base);
+      if (metadata) return metadata;
       // Old-PoS run 30: a decided row probed but not tested reopens its item once.
       const probeGap = openProbeTestGaps(ctx.root, hostRuns, checklist.items)[0];
       if (probeGap) return probeTestGapStep(base, probeGap);
@@ -1729,7 +1859,12 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
 
     // Verified blocking findings must be closed (finding-closure rule) before
     // REVIEW is worth re-entering.
-    const findings = openBlockingFindings(storyId);
+    const blockingAll = openBlockingFindings(storyId);
+    // Old-PoS run 31: a stored finding citing only Story metadata is closed once its
+    // correction cleared (metadataStep above); it is never routed to repair.
+    const metadataOnly = blockingAll.find(row => isPureMetadataFinding(row.finding));
+    if (metadataOnly && !inFlight(FINDING_REPAIR_AGENT)) return metadataFindingResolveStep(base, metadataOnly.finding);
+    const findings = blockingAll.filter(row => !isPureMetadataFinding(row.finding));
     // The evidence chain is read only by the rows below that consult it (a
     // finding still awaiting repair or its run does not).
     let chainResult: ReturnType<typeof evaluateEvidenceChainForStory> | undefined;
@@ -1761,8 +1896,19 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
         if (route.kind === 'replan') return findingRepairReplanStep(base, finding, noCommit);
         // Run 17 (Q1): a critic duplicate of a repaired+resolved finding is
         // closed with that repair through a coverage run, not repaired again.
-        const duplicate = repair.bound ? null : duplicateResolveCandidate(ctx.store, storyId, finding, ctx.store.readFindings(storyId).findings ?? []);
-        if (duplicate) return duplicateFindingResolveStep(base, finding, duplicate.canonical, duplicate.familyKey);
+        const allFindings = ctx.store.readFindings(storyId).findings ?? [];
+        const duplicate = repair.bound ? null : duplicateResolveCandidate(ctx.store, storyId, finding, allFindings);
+        if (duplicate) {
+          // Old-PoS run 31 (D6): every other duplicate of a resolved canonical closes in the same step.
+          const batch = [{ finding, ...duplicate }, ...findings.map(row => row.finding).filter(other => other.id !== finding.id).flatMap(other => {
+            const otherRepair = managedFindingRepairState({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, finding: other, runs: hostRuns });
+            if (isBoundRepairState(otherRepair)) return [];
+            const candidate = duplicateResolveCandidate(ctx.store, storyId, other, allFindings);
+            return candidate ? [{ finding: other, ...candidate }] : [];
+          })];
+          if (batch.length > 1) return duplicateResolveBatchStep(base, batch);
+          return duplicateFindingResolveStep(base, finding, duplicate.canonical, duplicate.familyKey);
+        }
         const failedCoverage = duplicateCoverageReceipts(ctx.store, storyId, finding.id).filter(row => !row.passed).at(-1);
         const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
         // remediation.grouping=single (adopted default): one run for every open blocking finding no repair is bound to yet.
@@ -1996,10 +2142,13 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
         `${why} A managed writer run declared an open intent conflict (${conflicts.map(row => `${row.itemId} by ${row.runId}`).join('; ')}): return to DEV, where next routes the intent amendment before any finding is resolved.`,
         `${source} + openIntentConflicts + getGuardFailureReason(DEV)`);
     }
+    const metadata = metadataStep(base);
+    if (metadata) return metadata;
     const details: string[] = [];
     for (const id of ids) {
       const finding = findings.find(row => row.id === id);
       if (!finding) continue;
+      if (isPureMetadataFinding(finding)) return metadataFindingResolveStep(base, finding);
       const repair = managedFindingRepairState({ root: ctx.root, gitCwd, storyId, finding, runs: hostRuns });
       if (repair.repaired) {
         const repaired = repairedFindingsForResolve({ root: ctx.root, gitCwd, storyId, runs: hostRuns, primary: finding, primaryRepair: repair,
@@ -2068,6 +2217,10 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     // 1. Lanes of the current round: prepared runs first, then the gate's own verdict.
     const laneStep = pendingLaneStep(base, round);
     if (laneStep) return laneStep;
+    // Old-PoS run 31: Story-metadata findings are corrected in place (userSees) by
+    // one owner step; they cost no remediation round.
+    const metadata = metadataStep(base);
+    if (metadata) return metadata;
     let verdict = evaluateReviewVerdict({ storyId, store: ctx.store, projectRoot: ctx.root, gitCwd });
     // Lab reroute-mid-inventory: the round was invalidated after a lane
     // reported a finding (owner reroute, broken live binding), every lane
@@ -2408,6 +2561,47 @@ function renderPlaceholderHints(hints: Record<string, string> | undefined, inden
  */
 export const DONE_TERMINAL_STATEMENT = 'DONE — stop; no further commands (the Story is merged and every gate already passed; do not re-run tests, git log/diff/merge-base or any other check).';
 
+/** Old-PoS run 31 (D7): the most characters a printed next step carries (~2k tokens). */
+export const NEXT_STEP_RENDER_CAP_CHARS = 8000;
+const NEXT_STEP_WHY_CAP_CHARS = 2400;
+const NEXT_STEP_INLINE_PAYLOAD_CHARS = 600;
+
+/**
+ * Old-PoS run 31 (D7): plan_authoring printed 10.6k + 11.1k tokens into the
+ * owner's context, carried for ~212 turns (~4.6M input). A step whose text
+ * render exceeds NEXT_STEP_RENDER_CAP_CHARS writes each long command payload to
+ * a JSON file under `dir` (runtime, git-ignored) and prints `proof-or-stop <cmd>
+ * @<file>` instead (the CLI reads `@<file.json>` as the payload; the owner edits
+ * the <...> values in the file), and caps the Why (full text in a file). The
+ * --json form is unchanged.
+ */
+export function spillLargeNextStep(next: NextStep, dir: string): NextStep {
+  if (renderNextStep(next).length <= NEXT_STEP_RENDER_CAP_CHARS) return next;
+  mkdirSync(dir, { recursive: true });
+  const stamp = `${(next.storyId || 'story').replace(/[^A-Za-z0-9_-]/g, '_')}-${next.reason.replace(/[^A-Za-z0-9_-]/g, '_')}-${Date.now().toString(36)}`;
+  const spill = <T extends { command: string | null; cli: { command: string; payload: Record<string, unknown> } | null; placeholderHints?: Record<string, string> }>(call: T, index: number): T => {
+    if (!call.cli || JSON.stringify(call.cli.payload).length < NEXT_STEP_INLINE_PAYLOAD_CHARS) return call;
+    const file = join(dir, `${stamp}-${index}.json`);
+    writeFileSync(file, `${JSON.stringify(call.cli.payload, null, 2)}\n`);
+    // The file carries every <...> value; print at most a few hints (one line each).
+    const hints = Object.entries(call.placeholderHints ?? {});
+    const compact = hints.length > 6
+      ? { ...Object.fromEntries(hints.slice(0, 6).map(([path, hint]) => [path, hint.length > 160 ? `${hint.slice(0, 159)}…` : hint])),
+        [`+${hints.length - 6} more`]: 'each <...> value in the payload file (its own text says what it expects)' }
+      : call.placeholderHints;
+    return { ...call, command: `proof-or-stop ${call.cli.command} @${file}`, ...(compact ? { placeholderHints: compact } : {}) };
+  };
+  let out: NextStep = next.batch?.length
+    ? { ...next, batch: next.batch.map((call, index) => spill(call, index + 1)) }
+    : next.cli ? spill(next, 0) : next;
+  if (out.why.length > NEXT_STEP_WHY_CAP_CHARS) {
+    const file = join(dir, `${stamp}-why.txt`);
+    writeFileSync(file, `${next.why}\n`);
+    out = { ...out, why: `${out.why.slice(0, NEXT_STEP_WHY_CAP_CHARS)}… (full text: ${file})` };
+  }
+  return out;
+}
+
 export function renderNextStep(next: NextStep): string {
   const batch = next.batch ?? [];
   return [
@@ -2606,6 +2800,10 @@ function hasUnfinishedStory(ctx: HandlerContext): boolean {
 }
 
 export function createNextDriverHandlers(ctx: HandlerContext, lookup: HandlerLookup, fallbackNext?: (args: { concise?: boolean }) => string) {
+  /** Old-PoS run 31 (D7): the printed step, long payloads spilled to runtime files. */
+  const capped = (next: NextStep): NextStep => {
+    try { return spillLargeNextStep(next, join(ctx.root, '.proof-or-stop', 'runtime', 'next-steps')); } catch { return next; }
+  };
   const driver = createNextDriver(ctx, lookup);
   /**
    * The Story worktree when it exists and this process runs outside it (N4:
@@ -2661,12 +2859,12 @@ export function createNextDriverHandlers(ctx: HandlerContext, lookup: HandlerLoo
           ...(args.run && Array.isArray(parsed.executed) && parsed.executed.length ? [`ran ${parsed.executed.length} step(s) in the Story worktree`] : []),
           ...(parsed.stopped ? [`stopped: ${String(parsed.stopped)}`] : []),
           ...(parsed.paused ? [`paused: ${String(parsed.paused)}`] : []),
-          renderNextStep(nested),
+          renderNextStep(capped(nested)),
         ].join('\n');
       }
       if (!args.run) {
         const next = driver.decide(storyId);
-        return args.json ? next as unknown as Record<string, unknown> : renderNextStep(next);
+        return args.json ? next as unknown as Record<string, unknown> : renderNextStep(capped(next));
       }
       // --run: execute consecutive framework steps (gate steps, fully bound
       // managed launches, waits under one budget) through the real CLI, every
@@ -2727,7 +2925,7 @@ export function createNextDriverHandlers(ctx: HandlerContext, lookup: HandlerLoo
         ...(result.stopped ? [`stopped: ${result.stopped}`] : []),
         ...(result.stopped && ctx.log && result.executed.at(-1)?.exit ? [result.executed.at(-1)!.tail] : []),
         ...(result.paused ? [`paused: ${result.paused}`] : []),
-        renderNextStep(result.next),
+        renderNextStep(capped(result.next)),
       ].join('\n');
     },
   };

@@ -1,4 +1,5 @@
 import { planOwnerCoverageFailure } from './plan-touchpoint-coverage.js';
+import { describeMetadataCorrection, openMetadataCorrections } from './metadata-correction.js';
 import { convergenceProgressUnavailable } from './convergence-progress-gate.js';
 import { acceptanceCompletionBlocker } from './acceptance-amendment-gates.js';
 import { storyScopeBudgetBlocker } from './story-scope-budget.js';
@@ -861,7 +862,7 @@ export function canReenterDevGuard(context: StoryMachineContext): boolean {
 
 export interface ReviewVerdict {
   ok: boolean;
-  code?: 'open_review_loop' | 'review_loop_record_error' | 'review_round_missing' | 'review_evidence_missing' | 'review_evidence_invalid' | 'review_lane_missing' | 'review_quorum' | 'review_finding_blocking' | 'review_verdict_error';
+  code?: 'open_review_loop' | 'review_loop_record_error' | 'review_round_missing' | 'review_evidence_missing' | 'review_evidence_invalid' | 'review_lane_missing' | 'review_quorum' | 'review_finding_blocking' | 'review_metadata_correction_open' | 'review_verdict_error';
   message?: string;
   /** review_finding_blocking only: the verified blocking findings that are not closed yet. */
   unclosedFindingIds?: string[];
@@ -883,6 +884,17 @@ function findingClosureVerdict(context: StoryMachineContext, policy: { review: {
     message: `${blocking.length} verified blocking finding(s) not closed (any review round): ${blocking.map(row => `${row.finding.id} [${row.finding.severity}] ${row.finding.desc} (${row.decision.reason})`).join('; ')}`,
     unclosedFindingIds: blocking.map(row => row.finding.id),
   };
+}
+
+/**
+ * Old-PoS run 31: Story-metadata review findings (never ledger findings) still
+ * block until the owner's checklist correction is verified (core/metadata-correction.ts).
+ */
+function metadataCorrectionVerdict(context: StoryMachineContext): ReviewVerdict | null {
+  const open = openMetadataCorrections({ store: context.store as never, storyId: context.storyId, gitCwd: context.gitCwd ?? context.projectRoot ?? process.cwd() });
+  if (open.length === 0) return null;
+  return { ok: false, code: 'review_metadata_correction_open',
+    message: `${open.length} Story-metadata correction(s) open (review findings citing checklist text; not product findings): ${open.map(describeMetadataCorrection).join('; ')}` };
 }
 
 /** Read-only, phase-agnostic reviewer verdict shared by REVIEW→TEST and TEST→DONE. */
@@ -917,7 +929,7 @@ export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdi
     const policy = resolveWorkflowPolicy(config, story);
 
     // Closure applies in every profile, even one that requires no reviewer.
-    if (!policy.review.requireReviewer) return findingClosureVerdict(context, policy, context.store.readFindings(context.storyId).findings ?? []) ?? { ok: true };
+    if (!policy.review.requireReviewer) return findingClosureVerdict(context, policy, context.store.readFindings(context.storyId).findings ?? []) ?? metadataCorrectionVerdict(context) ?? { ok: true };
     if (!story.currentReviewRound) {
       return {
         ok: false,
@@ -997,7 +1009,7 @@ export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdi
 
     const closure = findingClosureVerdict(context, policy, findings.findings ?? []);
     if (closure) return closure;
-    return { ok: true };
+    return metadataCorrectionVerdict(context) ?? { ok: true };
   } catch (error) { rethrowIntentAmendmentIntegrityError(error);
     return { ok: false, code: 'review_verdict_error', message: error instanceof Error ? error.message : String(error) };
   }
@@ -1555,6 +1567,9 @@ export function getGuardFailureReason(
     if (!verdict.ok) {
       if (verdict.code === 'review_finding_blocking' && verdict.unclosedFindingIds?.length) {
         return `Cannot enter TEST: ${verdict.message} [${verdict.code}]\n${findingClosureNextAction(storyId, verdict.unclosedFindingIds)}`;
+      }
+      if (verdict.code === 'review_metadata_correction_open') {
+        return `Cannot enter TEST: ${verdict.message} [${verdict.code}]\nNext: proof-or-stop next --storyId=${storyId} (one checklist_update metadataCorrection=true)`;
       }
       // Old-PoS run 25 F2: an edit committed during REVIEW is routed (one Next), never a dead end.
       const root = projectRoot ?? process.cwd();
