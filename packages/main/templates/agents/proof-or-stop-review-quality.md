@@ -47,7 +47,7 @@ requirement. This is correctness review guidance only; it is not receipt-backed 
 and the reviewer must not describe it as receipt-backed production evidence.
 
 ### 5. Test Expectations vs Requirement
-- In changed tests, an asserted value on a promised output surface (userSees / acceptance / request) that contradicts the requirement is a correctness finding, not style (e.g. expecting `[0:101:2]` where omitted slice components must be preserved).
+- In changed tests, an asserted value on a promised output surface (userSees / acceptance / request) that contradicts the requirement is a correctness finding, not style (e.g. expecting a printed form that drops a part the request says must be preserved).
 
 ## Output
 

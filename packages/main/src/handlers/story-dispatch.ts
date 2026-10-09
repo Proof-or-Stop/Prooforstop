@@ -30,6 +30,7 @@ import { join } from 'path';
 import type { HandlerContext } from './context.js';
 import { createClusterHandlers } from './cluster.js';
 import type { StoryStore } from '../core/store.js';
+import { createDeliveryContextPackHandlers } from './delivery-context-pack.js';
 import { readStoryRequest, renderUnmappedLiteralsLine, unmappedStoryRequestLiterals } from '../core/story-request.js';
 import { renderPinAudit } from '../core/intent-derivation.js';
 import { renderCoverageMatrixRule } from '../core/plan-coverage-matrix.js';
@@ -122,7 +123,32 @@ const AGENT_BG_POLICY: Record<string, BackgroundPolicy> = {
   'proof-or-stop-review-channel': 'none',
 };
 
+// Identity-pinned literal (runtime-environment-checks occurrence count); equals
+// IMPLEMENTER_COMMIT_AUTHOR of core/item-done-commit.ts, which commits with it.
 const IMPLEMENTER_COMMIT_AUTHOR = 'proof-or-stop-implementer <proof-or-stop-implementer@noreply.local>';
+
+/** Characters of each inlined Story document in the implementer prompt (old-PoS run 34; the rest stays in the file). */
+const INLINED_STORY_DOC_MAX_CHARS = 12_000;
+
+/**
+ * Old-PoS run 34 (§4 sink 2): background.md, the item's plan.md section and
+ * request.md inlined in the implementer prompt (static in DEV), each capped at
+ * INLINED_STORY_DOC_MAX_CHARS with its path for the rest.
+ */
+function renderInlinedStoryDocuments(docs: { background: string | null; bgPath: string; planSection: string | null; planRef: string; request: string | null; requestPath: string }): string[] {
+  const block = (title: string, path: string, text: string | null): string[] => {
+    if (!text || !text.trim()) return [];
+    const body = text.trim();
+    const shown = body.length > INLINED_STORY_DOC_MAX_CHARS ? `${body.slice(0, INLINED_STORY_DOC_MAX_CHARS)}\n… (truncated; the rest is in ${path})` : body;
+    return [`----- ${title} (${path}) -----`, shown];
+  };
+  const parts = [
+    ...block('background.md: the intent', docs.bgPath, docs.background),
+    ...block('plan.md section of this item', docs.planRef, docs.planSection),
+    ...block('request.md: the user\'s verbatim request; it outranks the checklist intents', docs.requestPath, docs.request),
+  ];
+  return parts.length ? ['Story documents (inlined; static during DEV, so do not reread these files):', ...parts, '----- end of Story documents -----'] : [];
+}
 
 // A nested dispatch can be triggered synchronously by an instrumented event
 // sink. Ticket locks are process-safe but intentionally non-reentrant, so keep
@@ -833,6 +859,16 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     lines.push(`Required reading: ${store.storyDirRel()}/${args.storyId}/background.md, plan.md, checklist.json, and delivery-facing relatedDocs.`);
     lines.push('Formal native delivery evidence requires the registered host adapter to descriptor-inject the exact one-shot broker attestation for this dispatch. Alternatively, the controller may launch this required TEST reviewer through host_run --managedDispatch; its live one-shot invocation and terminal-sealed delivery output provide the managed authority. Without either authorized invocation, delivery_check_set fails closed.');
     lines.push('Finish by calling delivery_check_set with the complete promise and evidence mapping; dispatch output alone is not delivery evidence.');
+    // Old-PoS run 34 (F8): the reviewer spent its first minute exploring framework state
+    // (status, dispatch_status, plan_get, host_run_status on its own run) before it ran the
+    // pack producer. The read-only pack (delivery_context_pack default mode) is in the prompt.
+    let pack = '';
+    try { pack = String(createDeliveryContextPackHandlers(ctx).delivery_context_pack({ storyId: args.storyId })); } catch { pack = ''; }
+    if (pack.trim()) {
+      lines.push('');
+      lines.push('Delivery context (the read-only delivery_context_pack output for this dispatch): start from it; do not explore framework state to rebuild it (do not run status, dispatch_status, plan_get, or host_run_status on your own run). Read the changed files, docs and tests it lists.');
+      lines.push(pack.trim());
+    }
     return { prompt: lines.join('\n') };
   }
 
@@ -1128,7 +1164,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push('');
       lines.push('Managed implementation status contract:');
       lines.push('- The Story owner/controller owns the start transition. Do not call checklist_update with status=in_progress; begin the assigned implementation directly.');
-      lines.push(`- After the implementation is committed, call only: proof-or-stop checklist_update '{"storyId":"${args.storyId}","itemId":"${args.itemId}","status":"done"}'`);
+      lines.push(`- When the implementation is ready, the one completion call is the checklist_update status=done + commit call under "After completion" (it commits, then marks ${args.itemId} done).`);
       lines.push('- An owner-gate refusal of an accidental in_progress call does not consume the item-bound completion capability. Continue the implementation and use the exact done call after commit.');
       lines.push('');
       // B-9d95 CHK-001: inject worktree absolute path. Root cause retrospective (B-ed3e F-001): subagent inherits parent process cwd
@@ -1138,29 +1174,39 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push(`Working directory (subagent must cd here): ${root}`);
       lines.push('');
       appendDispatchLivenessGuidance(lines, `${resolvedAgent.canonicalType}/${args.itemId}`);
-      lines.push('Required reading (in order):');
-      let idx = 1;
-      if (bgPolicy === 'required') {
-        const prefix = bgExists ? '' : '⚠ missing, strongly recommend writing `proof-or-stop background_set` first — ';
-        lines.push(`${idx}. Required reading background.md to understand intent — ${prefix}${bgPath}`);
-        idx++;
-      }
+      // Old-PoS run 34 (§4 sink 2): the implementer re-read background.md, plan.md and
+      // request.md at the start of every item run (7 of 94 turns). They are static in DEV,
+      // so the prompt carries them; only the item's relatedDocs stay files to read.
       const planRef = `${store.storyDirRel()}/${args.storyId}/plan.md#${args.itemId}`;
-      lines.push(`${idx}. ${planRef}`);
-      idx++;
-      // relatedDocs append (dedupe: skip background.md / plan.md that already appeared earlier)
+      const storyRequest = readStoryRequest(store, args.storyId);
+      const inlined = bgPolicy === 'required' ? renderInlinedStoryDocuments({
+        background: bgExists ? readFileSync(bgAbs, 'utf8') : null, bgPath,
+        planSection, planRef,
+        request: storyRequest.status === 'ok' ? storyRequest.text : null, requestPath: `${store.storyDirRel()}/${args.storyId}/request.md`,
+      }) : [];
       const seen = new Set<string>([bgPath, planRef]);
-      if (Array.isArray(item.relatedDocs) && item.relatedDocs.length > 0) {
-        for (const doc of item.relatedDocs) {
-          if (seen.has(doc)) continue;
-          seen.add(doc);
-          lines.push(`${idx}. ${doc}`);
+      const related = (Array.isArray(item.relatedDocs) ? item.relatedDocs : []).filter(doc => !seen.has(doc) && (seen.add(doc), true));
+      let idx = 1;
+      if (inlined.length) {
+        if (!bgExists) lines.push(`⚠ background.md is missing (${bgPath}); strongly recommend writing \`proof-or-stop background_set\` first.`);
+        if (related.length) {
+          lines.push('Required reading (in order):');
+          for (const doc of related) { lines.push(`${idx}. ${doc}`); idx++; }
+        }
+      } else {
+        lines.push('Required reading (in order):');
+        if (bgPolicy === 'required') {
+          const prefix = bgExists ? '' : '⚠ missing, strongly recommend writing `proof-or-stop background_set` first — ';
+          lines.push(`${idx}. Required reading background.md to understand intent — ${prefix}${bgPath}`);
           idx++;
         }
-      }
-      if (readStoryRequest(store, args.storyId).status === 'ok') {
-        lines.push(`${idx}. ${store.storyDirRel()}/${args.storyId}/request.md (the user's verbatim request; it outranks the checklist intents)`);
+        lines.push(`${idx}. ${planRef}`);
         idx++;
+        for (const doc of related) { lines.push(`${idx}. ${doc}`); idx++; }
+        if (storyRequest.status === 'ok') {
+          lines.push(`${idx}. ${store.storyDirRel()}/${args.storyId}/request.md (the user's verbatim request; it outranks the checklist intents)`);
+          idx++;
+        }
       }
       // B-45ed CHK-008: advisory agent appends an "optional reference" line after the required reading section; none agent does not output the background line at all
       if (bgPolicy === 'advisory') {
@@ -1217,10 +1263,13 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       }
       lines.push('');
       lines.push(PRODUCT_CODE_NO_POS_METADATA_RULE.replace(/^- /, ''));
+      if (inlined.length) { lines.push(''); lines.push(...inlined); }
       lines.push('');
       lines.push('After completion:');
-      appendImplementerCommitSteps(lines, `${args.storyId} ${args.itemId}: ${item.title}`);
-      lines.push(`- proof-or-stop checklist_update '{"storyId":"${args.storyId}","itemId":"${args.itemId}","status":"done"}'`);
+      // Old-PoS run 34 (§4 sink 2): commit + done in one call (core/item-done-commit.ts).
+      const declared = [...new Set([...(item.files?.modify ?? []), ...(item.files?.create ?? []), ...(item.files?.test ?? [])])];
+      lines.push(`- One call commits and marks the item done: proof-or-stop checklist_update '${JSON.stringify({ storyId: args.storyId, itemId: args.itemId, status: 'done', commit: { files: declared.length ? declared : ['<each file you changed>'] } })}'`);
+      lines.push(`  It stages exactly commit.files (list every file you changed), refuses a git diff --check error with nothing committed (fix the lines it prints and repeat the call), commits as ${IMPLEMENTER_COMMIT_AUTHOR} with the message "${`${args.storyId} ${args.itemId}: ${item.title}`.replace(/"/g, "'")}", then runs the usual done checks; no separate git diff --check, git add, git commit or status call is needed.`);
       lines.push('');
       lines.push(INTENT_CONFLICT_RETURN_CONTRACT);
 

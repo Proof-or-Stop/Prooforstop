@@ -6,6 +6,7 @@ import {
   ZodNumber,
   ZodObject,
   ZodOptional,
+  ZodNullable,
   ZodPipe,
   ZodString,
   type ZodIssue,
@@ -88,6 +89,9 @@ function defaultHelpSuffix(info: ReturnType<typeof unwrapForHelp>): string {
 function describeType(t: ZodType): string {
   const { inner } = unwrapForHelp(t);
   if (inner !== t) return describeType(inner);
+  // Old-PoS run 34 (F4): a required nullable field printed `any`, so reviewers omitted it
+  // (scope_check_save features[].excluded_by) and the validator refused every row.
+  if (t instanceof ZodNullable) return `${describeType((t as any)._def.innerType)}|null`;
   if (t instanceof ZodString) return 'string';
   if (t instanceof ZodNumber) return 'number';
   if (t instanceof ZodBoolean) return 'boolean';

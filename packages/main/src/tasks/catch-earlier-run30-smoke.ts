@@ -171,7 +171,7 @@ try {
   // ---- A: probe matrix and the [probes] report.
   seed('B-d035', ABS_STEPPED_SLICES_REQUEST, RUN30_ITEMS, 'DEV');
   const implementer = dispatch.dispatch({ storyId: 'B-d035', itemId: 'CHK-002', agentType: 'proof-or-stop-implementer' }).prompt;
-  assert.match(implementer, /explicit value equal to the default \(e\.g\. step 1, start 0/, 'the probe matrix names the explicit-default class (F-004)');
+  assert.match(implementer, /explicit value equal to the default \(it keeps its own form/, 'the probe matrix names the explicit-default class (F-004)');
   assert.match(implementer, /needs a test, not only a probe/, 'a decided row needs a test');
   assert.match(implementer, /\[probes\][^\n]*tested: [^\n]*probed-only: /, 'the [probes] line separates tested from probed-only rows');
   // An item whose intent quotes an error string gets the exact-output section.

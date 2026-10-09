@@ -33,7 +33,7 @@ import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/pla
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import { verificationIntentHasPlannedPathDeclarations } from '../core/acceptance-topology.js';
 import { verificationIntentClassificationFailure } from '../core/verification-intent-classification.js';
-import { intentDerivationFailure } from '../core/intent-derivation.js';
+import { renderStoryCreateIntakeRefusal, stageStoryCreatePayload, storyCreateDerivationFailure } from '../core/story-create-intake.js';
 import { renderAgentLivenessGuidance } from '../core/agent-liveness-policy.js';
 import {
   renderManagedInitReviewerDispatches,
@@ -538,25 +538,31 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       // Run 19 (P4): one intent-metadata rule from intake to PLAN acceptance. An
       // unclassified intake intent is refused here, before anything is written,
       // instead of teaching the owner a shape PLAN intent writes refuse later.
-      for (const [index, item] of (args.checklist ?? []).entries()) {
-        const failure = verificationIntentClassificationFailure(`CHK-${String(index + 1).padStart(3, '0')}`, item.verificationIntent, 'story_create');
-        if (failure) throw new Error(failure);
-      }
       // D4 (old-PoS run 23: the wrong value was pinned here, at INIT): an example
       // whose expected value the request does not quote carries a derivation that
       // cites a request sentence. Checked against the request this call records
       // (explicit, requestFile, or the staged one, not consumed yet).
-      if (args.checklist?.some(item => item.verificationIntent)) {
-        const raw = typeof args.request === 'string' && args.request.trim().length > 0
-          ? args.request
-          : args.requestFile
-            ? (() => { try { return readFileSync(resolve(ctx.root, args.requestFile!), 'utf-8'); } catch { return null; } })()
-            : peekStagedStoryRequest(resolveMainRepoRoot(ctx.root));
-        const requestText = raw && raw.trim().length > 0 ? boundStoryRequest(raw).text : null;
+      // Old-PoS run 34 (F3): every refused row of every item in ONE refusal, the
+      // payload staged in a runtime file, and ONE next action (patch the listed
+      // rows in that file, then `story_create @<file>`); the owner re-emitted a
+      // 14-17k-token payload per refused tier before.
+      {
+        const refusals: string[] = [];
         for (const [index, item] of (args.checklist ?? []).entries()) {
-          const failure = intentDerivationFailure('story_create', `CHK-${String(index + 1).padStart(3, '0')}`, item.verificationIntent, requestText);
-          if (failure) throw new Error(failure);
+          const failure = verificationIntentClassificationFailure(`CHK-${String(index + 1).padStart(3, '0')}`, item.verificationIntent, 'story_create');
+          if (failure) refusals.push(failure);
         }
+        if (args.checklist?.some(item => item.verificationIntent)) {
+          const raw = typeof args.request === 'string' && args.request.trim().length > 0
+            ? args.request
+            : args.requestFile
+              ? (() => { try { return readFileSync(resolve(ctx.root, args.requestFile!), 'utf-8'); } catch { return null; } })()
+              : peekStagedStoryRequest(resolveMainRepoRoot(ctx.root));
+          const requestText = raw && raw.trim().length > 0 ? boundStoryRequest(raw).text : null;
+          const derivation = storyCreateDerivationFailure((args.checklist ?? []).map((item, index) => ({ itemId: `CHK-${String(index + 1).padStart(3, '0')}`, verificationIntent: item.verificationIntent })), requestText);
+          if (derivation) refusals.push(derivation);
+        }
+        if (refusals.length) throw new Error(renderStoryCreateIntakeRefusal(refusals, stageStoryCreatePayload(resolveMainRepoRoot(ctx.root), args as unknown as Record<string, unknown>)));
       }
       // B-6812 CHK-001 / B-f60c CHK-003: serialize the whole story_create body
       // (fromDraft branch + normal branch) so the idempotency scan →

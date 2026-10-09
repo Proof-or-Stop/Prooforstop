@@ -2,10 +2,10 @@
  * D4 + pin audit + D5 (old-PoS run 23 at its source,
  * bench-staging/oldpos/run22-24-analysis.md §1g).
  *
- * Run 23's owner pinned `a[::-1]=[9,8,7,6,5,4] -> [9,8,7,6,5,4]` at INIT
- * (story_create). The request never quotes that value; its rule ("Use the
- * same index-selection semantics as read slicing") gives [4,5,6,7,8,9]. No
- * PLAN check recomputed it, the implementer obeyed it and REVIEW deferred to it.
+ * Run 23's owner pinned, at INIT (story_create), an expected value the request
+ * never quotes; the request's own rule (the new operation follows an existing
+ * operation's semantics) gives a different value. No PLAN check recomputed it,
+ * the implementer obeyed it and REVIEW deferred to it.
  *
  * D4 (deterministic, here): every verificationIntent EXAMPLE (a desc with an
  * input -> expected-output separator and a concrete expected value) whose
@@ -193,7 +193,7 @@ export function describeDerivationProblem(row: IntentDerivationRow): string {
 export function derivationPlaceholder(row: Pick<IntentDerivationRow, 'unquoted'>): VerificationIntentDerivation {
   return {
     requestQuote: '<the request.md sentence this expected value follows from, quoted verbatim>',
-    computation: `<the steps from that sentence to ${row.unquoted.join(', ')} (e.g. read slicing a[::-1] selects indexes 5,4,3,2,1,0, so values are assigned in that order); if they reach another value, fix the pinned value>`,
+    computation: `<the steps from that sentence to ${row.unquoted.join(', ')} (e.g. the rule the sentence states, applied step by step to this input); if they reach another value, fix the pinned value>`,
   };
 }
 
@@ -295,7 +295,7 @@ export function unquotedStatedPins(item: Pick<ChecklistItem, 'verificationIntent
   for (const lane of VERIFICATION_LANES) {
     for (const row of item.verificationIntent?.[lane] ?? []) {
       const derivation = (row as { derivation?: Partial<VerificationIntentDerivation> }).derivation;
-      // A desc's own brackets are usually the input syntax (value[1:5:2]); its
+      // A desc's own brackets are usually the input syntax (an index expression); its
       // example value is the pin audit's. Computations: every stated value.
       for (const [text, all] of [[String(row.desc ?? ''), false], [typeof derivation?.computation === 'string' ? derivation.computation : '', true]] as const) {
         const found = [...text.matchAll(COMPUTED_PIN)].map(match => match[0]);
@@ -331,6 +331,6 @@ export function renderPinAudit(items: readonly Pick<ChecklistItem, 'id' | 'statu
   } else {
     lines.push('- (no intent pins a value the request does not quote)');
   }
-  lines.push(`Same-semantics rule: when a request sentence makes one behaviour follow another ("same ... semantics as X", "works like X", "consistent with X"), at least one intent must use an input on which the plausible readings give different outputs (e.g. a negative or partial step with unequal values, so selection order matters), with a derivation. If none does, record a gap {"feature":"${ASYMMETRIC_EXAMPLE_GAP_PREFIX}: <the request sentence>","status":"gap","source":"request.md"}.`);
+  lines.push(`Same-semantics rule: when a request sentence makes one behaviour follow another ("same ... semantics as X", "works like X", "consistent with X"), at least one intent must use an input on which the plausible readings give different outputs (e.g. an input the readings traverse or bound differently, with unequal values so the difference shows), with a derivation. If none does, record a gap {"feature":"${ASYMMETRIC_EXAMPLE_GAP_PREFIX}: <the request sentence>","status":"gap","source":"request.md"}.`);
   return lines;
 }

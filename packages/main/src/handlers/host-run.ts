@@ -1057,9 +1057,12 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         if (args.runId !== undefined || args.afterGeneration !== undefined || args.afterSequence !== undefined) {
           throw new Error('host_run_status: targets cannot be combined with single-run arguments');
         }
+        // Old-PoS run 34: untilTerminal=true waits until ANY target is terminal (next's lane wait).
+        const untilAny = args.untilTerminal === true || String(args.untilTerminal) === 'true';
         const result = await waitManagedHostRuns({ root: ctx.root, targets: args.targets,
-          waitMs: optionalNonnegativeInteger('host_run_status', 'waitMs', args.waitMs, 30_000),
-          maxWaitMs: options.statusWaitCapMs });
+          waitMs: optionalNonnegativeInteger('host_run_status', 'waitMs', args.waitMs, untilAny ? MANAGED_HOST_RUN_STATUS_TERMINAL_WAIT_MAX_MS : 30_000)
+            ?? (untilAny ? ownerWaitBlockMs() : undefined),
+          maxWaitMs: options.statusWaitCapMs, untilTerminal: untilAny });
         if (wantsJson(args)) return result;
         return result.runs.map(({ run, changed }) =>
           `${run.runId} state=${run.state} stage=${run.stage.number}/${run.stage.total}:${run.stage.name} generation=${run.generation} changed=${changed}${run.supervisionDiagnostic ? ` diagnostic=${run.supervisionDiagnostic.code}: ${run.supervisionDiagnostic.action}` : ''}`).join('\n');

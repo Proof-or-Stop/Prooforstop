@@ -50,10 +50,10 @@ import { evaluateDevMemoryPreflightGate, evaluateReviewVerdict, getGuardFailureR
 import { missingPlanScopeCheckFailure, SCOPE_PLAN_REVIEWER, scopePlanLaunchIsFramework, scopePlanRerunReason } from '../core/plan-scope-check-requirement.js';
 import { hasPreScopeBlockers, planPreScopeBlockers, type PreScopeBlockers } from '../core/plan-pre-scope-blockers.js';
 import { checklistDerivationGaps, derivationPlaceholder, MISSING_INTENT_DERIVATION } from '../core/intent-derivation.js';
-import { coveragePlaceholders, MISSING_COVERAGE_ROW, planCoverageGapsFor, type CoverageGap } from '../core/plan-coverage-matrix.js';
+import { coveragePlaceholders, MISSING_COVERAGE_ROW, nearMissReason, planCoverageGapsFor, type CoverageGap } from '../core/plan-coverage-matrix.js';
 import { scopeVerdictDeferral, scopeVerdictHeldItems, scopeVerdictReviewEntryFailure } from '../core/scope-plan-deferral.js';
 import { STORY_FOCUSED_CLASSIFICATION } from '../core/verification-intent-classification.js';
-import { VERIFICATION_LANES } from '../core/verification.js';
+import { collectVerificationIntents, VERIFICATION_LANES } from '../core/verification.js';
 import { isTerminalChecklistStatus } from '../core/checklist-status.js';
 import { unclosedBlockingFindings, resolveEffectiveBlockingSeverities, FINDING_RESOLUTION_PLACEHOLDER } from '../core/finding-closure.js';
 import { findingDuplicateOf, duplicateCoverageReceipts, duplicateOfOpenCanonical, duplicateResolveCandidate } from '../core/duplicate-finding-coverage.js';
@@ -108,6 +108,9 @@ import { describeExactTextGap, exactTextKeyOf, exactTextPrefixAssertions, exactR
 import { implementerRunReports } from '../core/finding-repair-attempts.js';
 import { digestCanonicalJson } from '../core/digest.js';
 import { maxLaneRunsOnMaterial, STALE_WAVE_STOP_LOSS } from '../core/review-stop-loss.js';
+import { resolutionCitationRefusal } from '../core/finding-resolution-integrity.js';
+import { storyReviewRoundStale } from '../core/story-review-staleness.js';
+import { orderLanesForLaunch } from '../core/review-lane-launch-order.js';
 
 type HandlerLookup = (name: string) => ((...args: any[]) => any) | undefined;
 
@@ -1139,6 +1142,104 @@ export function findingResolveBatchStep(base: { storyId: string; phase: string }
 }
 
 /**
+ * Old-PoS run 34 (F5, §4 sink 2): the implementer run whose declared
+ * `[intent-conflict]` rows for `item` the owner's PLAN amendment adopted (the
+ * item now states each value the run said the request implies and no longer
+ * the pinned one), when that run is the item's latest implementer run, it
+ * completed, and it committed material in its window. Its code already follows
+ * the amended intent; run 34's relaunch after such an amendment found nothing
+ * to change and only re-ran the focused test (1.5 min, 2.0M). Null otherwise.
+ */
+export function adoptedAmendmentRun(args: { root: string; gitCwd: string; item: ChecklistItem; runs: readonly HostRunView[] }): { runId: string; terminalAt: string } | null {
+  const mine = runsForTarget(args.root, [...args.runs], IMPLEMENTER_AGENT, { itemId: args.item.id });
+  const latest = mine.at(-1);
+  if (!latest || !latest.terminal || latest.state !== 'completed') return null;
+  const conflicts = parseIntentConflicts(managedRunFinalMessage(args.root, latest.runId), args.item.id).conflicts.filter(row => row.itemId === args.item.id);
+  if (!conflicts.length || conflicts.some(row => row.undeclared || !conflictValueAdopted(args.item, row))) return null;
+  if (!managedRunWindowCommits(args.root, args.gitCwd, latest).some(row => row.material)) return null;
+  let terminalAt = '';
+  try { terminalAt = readManagedHostRunProjection(args.root, latest.runId).terminal?.terminalAt ?? ''; } catch { terminalAt = ''; }
+  return terminalAt ? { runId: latest.runId, terminalAt } : null;
+}
+
+/** Process event of a pinned verifier run that did not pass (verification_run; old-PoS run 34 amendment verification). */
+export const VERIFICATION_RUN_REFUSED_EVENT = 'verification_run_refused';
+
+/**
+ * Old-PoS run 34 (F5): after an adopted intent amendment (adoptedAmendmentRun)
+ * the framework verifies the item itself: verification_run of each pinned
+ * intent of the item (the item's own pinned command + selector, a signed
+ * receipt), then checklist_update done (the same done checks). A refused
+ * verification (process event verification_run_refused after that run) sends
+ * the item back to its implementer, as before. Null when the item has no
+ * adopted amendment or no pinned executable intent (the implementer relaunch
+ * stays the step). Shared by the live and the reference driver.
+ */
+export function intentAmendmentVerifyStep(args: { root: string; gitCwd: string; store: HandlerContext['store']; base: { storyId: string; phase: string };
+  item: ChecklistItem; amendment: { runId: string; terminalAt: string } }): NextStep | { refused: string } | null {
+  const { base, item, amendment } = args;
+  const pinned = collectVerificationIntents(item).filter(row => row.intent.verification);
+  if (!pinned.length) return null;
+  const refused = args.store.readProcessEvents(base.storyId).filter(event => event.type === VERIFICATION_RUN_REFUSED_EVENT
+    && (event as { itemId?: string }).itemId === item.id && String(event.timestamp ?? '') > amendment.terminalAt).at(-1) as { intentRef?: string; reason?: string } | undefined;
+  if (refused) return { refused: `${refused.intentRef ?? item.id}: ${String(refused.reason ?? 'the pinned verifier did not pass').split('\n')[0]!.slice(0, 300)}` };
+  const material = currentMaterialHash(args.gitCwd, 'HEAD', args.root);
+  const fresh = (ref: string): boolean => {
+    const evidence = (item.verificationEvidence ?? []).find(row => row.intentRef === ref);
+    return Boolean(evidence && evidence.mechanical === true && evidence.result === 'pass' && (evidence.timestamp ?? '') > amendment.terminalAt
+      && (!material || evidence.materialHash === material));
+  };
+  const why = `${item.id}'s intent was amended in PLAN to the value implementer run ${amendment.runId} declared the request implies ([intent-conflict] adopted), and that run already committed its implementation.`;
+  const next = pinned.find(row => !fresh(row.ref));
+  if (next) {
+    return step(base, 'framework', 'intent_amend_verify', { command: 'verification_run', payload: { storyId: base.storyId, itemId: item.id, intentRef: next.ref } },
+      `${why} The framework runs the item's pinned verifier itself (${next.ref}: its pinned command and selector, a signed receipt) instead of relaunching the implementer; a failing one relaunches it.`,
+      'adoptedAmendmentRun + collectVerificationIntents (pinned) + verification_run (old-PoS run 34 F5)');
+  }
+  return step(base, 'framework', 'intent_amend_done', { command: 'checklist_update', payload: { storyId: base.storyId, itemId: item.id, status: 'done' } },
+    `${why} Every pinned intent of ${item.id} (${pinned.map(row => row.ref).join(', ')}) passed its own verifier after the amendment: mark it done (checklist_update runs the same done checks).`,
+    'adoptedAmendmentRun + fresh passing verification_run receipts (old-PoS run 34 F5)');
+}
+
+/**
+ * Old-PoS run 34 (§4 sink 1a, REM): the framework-authored resolution of one
+ * repaired finding: its own repair commit and managed finding-repair run, and
+ * the first line of the repair worker's report. The owner
+ * used to re-read the findings, diffs and tests to write the same facts (run 34:
+ * 7 turns, 1.4M) while finding_resolve re-checked them anyway.
+ */
+export function frameworkFindingResolution(root: string, row: { id: string; runId: string; commit: string }, chainFresh: boolean): string {
+  const report = (managedRunFinalMessage(root, row.runId) ?? '').split('\n').map(line => line.trim()).filter(line => line && !line.startsWith('[')).at(0) ?? '';
+  return `Framework-verified repair of ${row.id}: material commit ${row.commit.slice(0, 12)} of managed finding-repair run ${row.runId}, bound to ${row.id} and completed`
+    + `${chainFresh ? '; the pinned evidence chain is fresh on the repaired HEAD' : ''}.${report ? ` Repair report: ${report.length > 240 ? `${report.slice(0, 239)}…` : report}` : ''}`;
+}
+
+/**
+ * Old-PoS run 34 (§4 sink 1a): repaired findings resolved by the framework.
+ * ONE finding_resolve with resolutions[] (also for a single finding: that form
+ * re-checks each finding's own repair, storyFindingRepairState, and the cited
+ * material / test change, resolutionCitationRefusal, exactly as the owner's
+ * call did) and a framework-authored resolution per finding. Null (the caller
+ * keeps the owner step) when a finding would fail that citation check, so the
+ * framework never proposes a call its gate refuses. Shared by the live and the
+ * reference driver.
+ */
+export function frameworkResolveStep(args: { root: string; gitCwd: string; store: HandlerContext['store']; base: { storyId: string; phase: string };
+  repaired: ReadonlyArray<{ id: string; runId: string; commit: string }>; why: string; source: string; chainFresh: boolean }): NextStep | null {
+  const { base, repaired } = args;
+  if (!repaired.length) return null;
+  const findings = args.store.readFindings(base.storyId).findings ?? [];
+  for (const row of repaired) {
+    const finding = findings.find(entry => entry.id === row.id);
+    if (!finding || resolutionCitationRefusal({ store: args.store as never, storyId: base.storyId, gitCwd: args.gitCwd, finding })) return null;
+  }
+  const resolutions = repaired.map(row => ({ findingId: row.id, resolution: frameworkFindingResolution(args.root, row, args.chainFresh) }));
+  return step(base, 'framework', repaired.length > 1 ? 'finding_resolve_batch' : 'finding_resolve', { command: 'finding_resolve', payload: { storyId: base.storyId, resolutions } },
+    `${args.why} ${repaired.map(row => `${row.id} (commit ${row.commit.slice(0, 12)}, run ${row.runId})`).join(', ')} ${repaired.length > 1 ? 'are' : 'is'} repaired and still open: the framework resolves ${repaired.length > 1 ? 'them in ONE finding_resolve' : 'it'} with its own commit and run; finding_resolve re-checks each finding's own repair and its cited change, and leaves a failing one open.`,
+    `${args.source} + managedFindingRepairState per finding + resolutionCitationRefusal (frameworkResolveStep, old-PoS run 34)`);
+}
+
+/**
  * Old-PoS run 30: the completed managed repair runs of one finding that left no
  * repair commit, counted since the Story last entered PLAN (a replan resets
  * the count). Shared by the live and the reference driver.
@@ -1304,7 +1405,7 @@ function coverageIntentRows(gaps: readonly CoverageGap[], itemId: string): Array
 function coverageGapWhy(gaps: readonly CoverageGap[]): string {
   if (!gaps.length) return '';
   const sentences = [...new Set(gaps.flatMap(gap => gap.sentences))];
-  return ` Coverage rows the request demands and no intent states (${gaps.length}): ${gaps.map(gap => `${gap.itemId} ${gap.key}`).join('; ')}. `
+  return ` Coverage rows the request demands and no intent states (${gaps.length}): ${gaps.map(gap => `${gap.itemId} ${gap.key}${nearMissReason(gap)}`).join('; ')}. `
     + `Matched request sentences: ${sentences.slice(0, 8).map(sentence => `"${sentence.length > 140 ? `${sentence.slice(0, 139)}…` : sentence}"`).join(' ')}${sentences.length > 8 ? ` +${sentences.length - 8} more` : ''}. `
     + 'Write each case as one input in the request syntax -> exact result or exact error (one intent may list several cases). A row that does not apply is excluded by an excludes entry on that item naming its key ("coverage ...: <why>").';
 }
@@ -1572,6 +1673,18 @@ function waitStep(base: { storyId: string; phase: string }, run: HostRunView, wh
 }
 
 /**
+ * Old-PoS run 34 (§4 sink 1c): one blocking wait on several detached managed
+ * runs that returns as soon as ANY of them is terminal (host_run_status
+ * targets + untilTerminal), so each finished lane is imported while the others
+ * still run.
+ */
+export function managedRunsWaitStep(base: { storyId: string; phase: string }, runs: ReadonlyArray<Pick<HostRunView, 'runId' | 'state'>>, what: string): NextStep {
+  return step(base, 'framework', 'managed_run_wait', { command: 'host_run_status', payload: { targets: runs.map(run => ({ runId: run.runId })), untilTerminal: true } },
+    `${what} ${runs.map(run => `${run.runId} (${run.state})`).join(', ')} are running; block until the first is terminal (returns at the first terminal run, up to ${ownerWaitBlockMs() / 1000} s per call), then import it while the others run.`,
+    'managed host-run projection', { wait: true });
+}
+
+/**
  * Host/model/effort for a managed launch: the owner's own last choice for this
  * Story and profile (e.g. a benchmark's pinned model), else the qualified
  * managed-reviewer default. host_run still validates the selection itself.
@@ -1620,6 +1733,19 @@ export function hasRunForTarget(root: string, hostRuns: HostRunView[], agentType
  */
 export function targetRelaunchIsFramework(earlier: ReadonlyArray<Pick<HostRunView, 'autoReplaceable'>>): boolean {
   return earlier.length <= MANAGED_AUTO_RELAUNCHES_PER_TARGET && earlier.every(run => run.autoReplaceable === true);
+}
+
+/**
+ * Old-PoS run 34 (F7): a gate refusal as one line for a step's Why. A first
+ * line that only announces the refusal ("Cannot enter DEV:") is followed by
+ * its first reason, never printed empty.
+ */
+export function guardRefusalSummary(failure: string): string {
+  const lines = failure.split('\n');
+  const first = (lines[0] ?? '').trim();
+  if (!/:\s*$/.test(first)) return first;
+  const reason = lines.slice(1).map(line => line.trim()).find(line => line && !/^Next:/.test(line));
+  return reason ? `${first} ${reason.replace(/^-\s*/, '')}` : first;
 }
 
 // ---------------------------------------------------------------------------
@@ -1699,8 +1825,21 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       return step(base, 'framework', reason, { command: 'story_advance', payload: { storyId: base.storyId, phase: target } }, why, source);
     }
     const hint = nextLine(failure) ?? failure.split('\n').find(row => /proof-or-stop [a-z_]+/.test(row)) ?? '';
+    // Old-PoS run 34 (F7): the gate names story_review, a deterministic record of the PLAN
+    // checks, while its latest round is older than the inputs it judged: next reruns it
+    // (framework); a current round's blockers stay the owner's to fix.
+    if (target === 'DEV' && /proof-or-stop story_review\b/.test(hint) && storyReviewRoundStale(ctx.store.storyDirPath(base.storyId), latestStoryReviewRound(base.storyId))) {
+      return step(base, 'framework', 'story_review_rerun', { command: 'story_review', payload: { storyId: base.storyId } },
+        `story_advance --phase=DEV would be refused: ${guardRefusalSummary(failure)}. The latest story_review round is older than the Story inputs it judged (checklist, plan, scope verdict, ...): rerun it; it records the current PLAN checks.`,
+        'getGuardFailureReason(DEV) + storyReviewRoundStale (core/story-review-staleness.ts, old-PoS run 34 F7)');
+    }
     return delegated(base, 'agent', `guard_${target.toLowerCase()}_blocked`, hint || failure,
-      `story_advance --phase=${target} would be refused: ${failure.split('\n')[0]}`, `getGuardFailureReason(${target})`);
+      `story_advance --phase=${target} would be refused: ${guardRefusalSummary(failure)}`, `getGuardFailureReason(${target})`);
+  }
+
+  /** The timestamp of the Story's latest story_review round, or null. */
+  function latestStoryReviewRound(storyId: string): string | null {
+    try { return (ctx.store.readReview(storyId).reviews.at(-1) as { timestamp?: string } | undefined)?.timestamp ?? null; } catch { return null; }
   }
 
   // -- PLAN → DEV -----------------------------------------------------------
@@ -1992,6 +2131,16 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       const running = inFlight(IMPLEMENTER_AGENT);
       if (running) return waitStep(base, running, 'Implementer run');
       const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
+      // Old-PoS run 34 (F5): after an adopted intent amendment the framework verifies the item itself.
+      const amendment = group.length === 1 ? adoptedAmendmentRun({ root: ctx.root, gitCwd: gitCwdOf(storyId), item, runs: hostRuns }) : null;
+      const verify = amendment ? intentAmendmentVerifyStep({ root: ctx.root, gitCwd: gitCwdOf(storyId), store: ctx.store, base, item, amendment }) : null;
+      if (verify && 'schemaVersion' in verify) return verify;
+      if (verify && 'refused' in verify) {
+        return managedLaunchStep(base, 'implement_item', { ...selection, storyId, itemId: item.id,
+          agentType: IMPLEMENTER_AGENT, managedDispatch: true, detach: true, json: true }, bound,
+        `${item.id}'s intent was amended to the value implementer run ${amendment!.runId} declared, but the framework's verification of its pinned intent did not pass (${verify.refused}): relaunch the implementer for the amended intent.`,
+        'adoptedAmendmentRun + verification_run_refused (old-PoS run 34 F5)', 'relaunch after the framework verification of the amended intent failed');
+      }
       if (group.length > 1) {
         return managedLaunchStep(base, 'implement_item', { ...selection, storyId, itemId: item.id, groupItemIds: group.map(member => member.id),
           agentType: IMPLEMENTER_AGENT, managedDispatch: true, detach: true, json: true }, bound && targetRelaunchIsFramework(runsForTarget(ctx.root, hostRuns, IMPLEMENTER_AGENT, { itemId: item.id })),
@@ -2075,6 +2224,10 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       }
       const repaired = repairedFindingsForResolve({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, runs: hostRuns,
         primary: finding, primaryRepair: repair, candidates: findings.map(row => row.finding) });
+      // Old-PoS run 34 (REM): the framework resolves repaired findings itself (same per-finding re-checks).
+      const framework = frameworkResolveStep({ root: ctx.root, gitCwd: gitCwdOf(storyId), store: ctx.store, base, repaired,
+        why: 'Closure is required whichever round raised them.', source: 'unclosedBlockingFindings (core/finding-closure.ts)', chainFresh: true });
+      if (framework) return framework;
       if (repaired.length > 1) {
         return findingResolveBatchStep(base, repaired, 'Closure is required whichever round raised them.', 'unclosedBlockingFindings (core/finding-closure.ts)');
       }
@@ -2093,6 +2246,10 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     const repairedAdvisory = repairedAdvisoryFinding(storyId, hostRuns);
     if (repairedAdvisory) {
       const { finding, repair } = repairedAdvisory;
+      const framework = frameworkResolveStep({ root: ctx.root, gitCwd: gitCwdOf(storyId), store: ctx.store, base, repaired: [{ id: finding.id, runId: repair.runId, commit: repair.commit }],
+        why: `Advisory ${finding.severity} finding ${finding.id} was repaired; resolve it before REVIEW so DONE does not leave it open.`,
+        source: 'managedFindingRepairState (advisory finding with a completed bound repair)', chainFresh: true });
+      if (framework) return framework;
       return step(base, 'agent', 'finding_resolve', { command: 'finding_resolve', payload: { storyId, findingId: finding.id, resolution: FINDING_RESOLUTION_PLACEHOLDER } },
         `Advisory ${finding.severity} finding ${finding.id} was repaired by managed finding-repair run ${repair.runId} (commit ${repair.commit.slice(0, 12)}) but is still open; resolve it before REVIEW so DONE does not leave it open. Name the repair commit and its passing focused evidence.`,
         'managedFindingRepairState (advisory finding with a completed bound repair)', { placeholders: ['resolution'] });
@@ -2187,7 +2344,9 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
         && !refusedManagedReviewImport(ctx.store, storyId, hostRun.runId, receiptId)) importable.push({ run: hostRun, receiptId });
     }
     if (toLaunch.length) {
-      const launches = toLaunch.map(row => reviewLaunchStep(base, row.lane, row.run.reviewRunId, false));
+      // Old-PoS run 34 (§4 sink 1d): historically slowest lanes first (core/review-lane-launch-order.ts).
+      const ordered = orderLanesForLaunch(toLaunch.map(row => row.lane)).map(lane => toLaunch.find(row => row.lane === lane)!);
+      const launches = ordered.map(row => reviewLaunchStep(base, row.lane, row.run.reviewRunId, false));
       // N2: every prepared lane whose launch is fully bound starts in ONE step,
       // concurrently (each its own host_run process, the same command as alone).
       // A replacement or unbound launch stays a single step of its own.
@@ -2200,8 +2359,11 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       }
       return launches[0]!;
     }
-    if (waiting.length) return waitStep(base, waiting[0]!, 'Managed reviewer run');
+    // Old-PoS run 34 (§4 sink 1c): a lane that finished is imported while slower lanes
+    // still run (run 34 waited for the slowest lane first: 15 + 8 + 7 s per round on the
+    // critical path); then one wait that returns when ANY running lane ends.
     if (importable.length) return laneImportStep(base, importable);
+    if (waiting.length) return waiting.length === 1 ? waitStep(base, waiting[0]!, 'Managed reviewer run') : managedRunsWaitStep(base, waiting, 'Managed reviewer runs');
     return null;
   }
 
@@ -2302,6 +2464,8 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       if (repair.repaired) {
         const repaired = repairedFindingsForResolve({ root: ctx.root, gitCwd, storyId, runs: hostRuns, primary: finding, primaryRepair: repair,
           candidates: ids.flatMap(other => findings.filter(row => row.id === other)) });
+        const framework = frameworkResolveStep({ root: ctx.root, gitCwd, store: ctx.store, base, repaired, why, source, chainFresh: false });
+        if (framework) return framework;
         if (repaired.length > 1) return findingResolveBatchStep(base, repaired, why, source);
         return step(base, 'agent', 'finding_resolve', { command: 'finding_resolve', payload: { storyId, findingId: id, resolution: FINDING_RESOLUTION_PLACEHOLDER } },
           `${why} ${id} was repaired by managed finding-repair run ${repair.runId} (commit ${repair.commit.slice(0, 12)}); record that commit and its passing focused evidence.`,

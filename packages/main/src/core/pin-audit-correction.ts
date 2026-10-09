@@ -43,18 +43,46 @@ function rowText(item: ChecklistItem | undefined, lane: string, index: number): 
   return row ? `${row.desc ?? ''}\n${row.derivation?.computation ?? ''}` : '';
 }
 
-/** The checklist with each requested value substituted back by its pinned value (userSees, row descs, derivation computations). */
-function revertRequestedValues(items: readonly ChecklistItem[], gaps: readonly PinAuditGap[]): ChecklistItem[] {
-  const revert = (text: string): string => gaps.reduce((current, gap) => current.split(gap.requestValue).join(gap.pinned), text);
+/** The cited row's desc (its pinned example). */
+function rowDesc(item: ChecklistItem | undefined, lane: string, index: number): string {
+  const row = item?.verificationIntent?.[lane as typeof LANES[number]]?.[index] as { desc?: string } | undefined;
+  return row?.desc ?? '';
+}
+
+/**
+ * Old-PoS run 34 (F2): a value occurrence bounded as a token: a value that
+ * starts / ends with a word character must not continue a longer word, so a
+ * one-character pin `f` is not found inside `"abcdef"` (run 34 tested
+ * `includes('f')` and `split('f')` and fell back to a full scope-plan rerun).
+ */
+function tokenPattern(value: string): RegExp {
+  const escaped = value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`${/^\w/.test(value) ? '(?<!\\w)' : ''}${escaped}${/\w$/.test(value) ? '(?!\\w)' : ''}`, 'g');
+}
+
+/** The value side of a row: the text after its last `->` / `=>` / `→` / `==` (the whole text without one). */
+function valueSide(text: string): string {
+  const parts = text.split(/->|=>|→|==/);
+  return parts.length > 1 ? parts.at(-1)! : text;
+}
+
+const hasToken = (text: string, value: string): boolean => tokenPattern(value).test(text);
+
+/** The checklist with each requested value substituted back by its pinned value (token-bounded) in `scope`: the cited rows only, or every text field. */
+function revertRequestedValues(items: readonly ChecklistItem[], gaps: readonly PinAuditGap[], scope: 'cited' | 'all'): ChecklistItem[] {
+  const revert = (text: string, gapsHere: readonly PinAuditGap[]): string => gapsHere.reduce((current, gap) => current.replace(tokenPattern(gap.requestValue), () => gap.pinned), text);
   return items.map(item => {
     const copy = structuredClone(item);
-    if (typeof copy.userSees === 'string') copy.userSees = revert(copy.userSees);
+    const mine = gaps.filter(gap => gap.itemId === item.id);
+    if (scope === 'all' && typeof copy.userSees === 'string') copy.userSees = revert(copy.userSees, gaps);
     for (const lane of LANES) {
-      for (const row of copy.verificationIntent?.[lane] ?? []) {
-        if (typeof row.desc === 'string') row.desc = revert(row.desc);
+      (copy.verificationIntent?.[lane] ?? []).forEach((row, index) => {
+        const applicable = scope === 'all' ? gaps : mine.filter(gap => gap.lane === lane && gap.index === index);
+        if (!applicable.length) return;
+        if (typeof row.desc === 'string') row.desc = revert(row.desc, applicable);
         const derivation = (row as { derivation?: { computation?: string } }).derivation;
-        if (derivation && typeof derivation.computation === 'string') derivation.computation = revert(derivation.computation);
-      }
+        if (derivation && typeof derivation.computation === 'string') derivation.computation = revert(derivation.computation, applicable);
+      });
     }
     return copy;
   });
@@ -62,7 +90,11 @@ function revertRequestedValues(items: readonly ChecklistItem[], gaps: readonly P
 
 /**
  * The pin-audit gap features the checklist has applied, when its only changes
- * since the verdict are those requested values; otherwise none.
+ * since the verdict are those requested values; otherwise none. Each cited row
+ * states the requested value (token-bounded) on its value side and no longer the
+ * pinned one, and substituting the requested values back (in the cited rows,
+ * else in every text field for a sweep over other occurrences) reproduces the
+ * checklist the reviewer judged.
  */
 export function appliedPinAuditGaps(scope: Pick<ScopeCheckData, 'features' | 'checklistDigest'>, checklist: Pick<ChecklistData, 'items'>): Set<string> {
   const gapFeatures = (scope.features ?? []).filter(feature => feature.status === 'gap' && feature.feature.startsWith(PIN_AUDIT_GAP_PREFIX));
@@ -72,12 +104,12 @@ export function appliedPinAuditGaps(scope: Pick<ScopeCheckData, 'features' | 'ch
   const gaps = parsed as PinAuditGap[];
   if (scopeReviewChecklistDigest(checklist) === scope.checklistDigest) return new Set();
   const stated = gaps.every(gap => {
-    const text = rowText(checklist.items.find(item => item.id === gap.itemId), gap.lane, gap.index);
-    return text.includes(gap.requestValue) && !text.includes(gap.pinned);
+    const side = valueSide(rowDesc(checklist.items.find(item => item.id === gap.itemId), gap.lane, gap.index));
+    return hasToken(side, gap.requestValue) && !hasToken(side, gap.pinned);
   });
   if (!stated) return new Set();
-  return scopeReviewChecklistDigest({ items: revertRequestedValues(checklist.items, gaps) }) === scope.checklistDigest
-    ? new Set(gaps.map(gap => gap.feature)) : new Set();
+  const reproduces = (['cited', 'all'] as const).some(scopeOf => scopeReviewChecklistDigest({ items: revertRequestedValues(checklist.items, gaps, scopeOf) }) === scope.checklistDigest);
+  return reproduces ? new Set(gaps.map(gap => gap.feature)) : new Set();
 }
 
 /** Gap features of a verdict that still stand (applied pin-audit corrections removed). */
@@ -93,5 +125,5 @@ export function openPinAuditGaps(scope: Pick<ScopeCheckData, 'features' | 'check
   const open = new Set(openScopeGaps(scope, checklist).map(feature => feature.feature));
   return (scope.features ?? []).filter(feature => feature.status === 'gap' && open.has(feature.feature))
     .map(feature => parsePinAuditGap(feature.feature)).filter((gap): gap is PinAuditGap => Boolean(gap))
-    .filter(gap => rowText(checklist.items.find(item => item.id === gap.itemId), gap.lane, gap.index).includes(gap.pinned));
+    .filter(gap => hasToken(rowText(checklist.items.find(item => item.id === gap.itemId), gap.lane, gap.index), gap.pinned));
 }

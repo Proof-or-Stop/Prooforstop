@@ -1,6 +1,6 @@
 /**
  * Old-PoS run 31 (D3): R1's repair "closed" F-001 by adding a code test while
- * the cited checklist.json:5251 still said `hooo`; R2 reported it four more
+ * the cited checklist.json line still stated the wrong literal; R2 reported it four more
  * times and REM2 cost 23 minutes. finding_resolve now refuses a resolution
  * whose cited material did not change:
  *   - cited Story-metadata text (checklist userSees / intent rows) must be

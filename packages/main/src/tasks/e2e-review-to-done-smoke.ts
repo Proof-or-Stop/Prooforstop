@@ -1780,6 +1780,13 @@ function repairRunsOnDisk(runsRoot: string): Map<string, string[]> {
   return byFinding;
 }
 
+/** The finding a step is about: findingId, or the first entry of a resolutions[] call (old-PoS run 34 framework resolve). */
+function stepFindingId(next: NextStepJson): string | undefined {
+  const payload = next.cli?.payload ?? {};
+  const id = payload.findingId ?? (payload.resolutions as Array<{ findingId: string }> | undefined)?.[0]?.findingId;
+  return id === undefined ? undefined : String(id);
+}
+
 /** Steps that launch or wait on a managed run (Q6: `next --run` executes these once the selection is bound). */
 const MANAGED_LAUNCH_REASONS = new Set(['review_lane_launch', 'inventory_critic_launch', 'delivery_review_launch', 'finding_repair', 'implement_item', 'scope_plan_review_launch']);
 
@@ -2075,7 +2082,8 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
         }
         break;
       case 'finding_resolve': {
-        const findingId = String(payload.findingId);
+        // Old-PoS run 34: the framework form carries resolutions[] (one entry); the owner form findingId.
+        const findingId = String(payload.findingId ?? (payload.resolutions as Array<{ findingId: string }> | undefined)?.[0]?.findingId);
         // Run 14: next must never propose closing a finding no repair bound to it produced.
         const runIds = [...new Set([...(repairRunsByFinding.get(findingId) ?? []), ...(repairRunsOnDisk(runsRoot).get(findingId) ?? [])])];
         const repaired = runIds.some(runId => {
@@ -2200,7 +2208,7 @@ function scenarioNL(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     devSetup(o);
     driveWithNext(o, { findingRound1: true, run: false, lowFindings: true, contextSmoke: true, violations }, lines, next => {
       if (next.reason === 'finding_repair' || next.reason === 'finding_resolve' || next.reason === 'enter_review') {
-        reasons.push(`${next.reason}${next.cli?.payload.findingId ? `:${String(next.cli.payload.findingId)}` : ''}`);
+        reasons.push(`${next.reason}${stepFindingId(next) ? `:${stepFindingId(next)}` : ''}`);
       }
     });
     const order = reasons.filter((row, index) => row !== reasons[index - 1]);
@@ -2250,7 +2258,7 @@ function scenarioNU(machineEnv: NodeJS.ProcessEnv, steps: Step[], covered: boole
     devSetup(o);
     driveWithNext(o, { findingRound1: true, run: false, duplicate: covered ? 'covered' : 'uncovered' }, lines, next => {
       if (['finding_repair', 'finding_resolve', 'finding_duplicate_resolve'].includes(next.reason)) {
-        reasons.push(`${next.reason}:${String(next.cli?.payload.findingId ?? '').split(':').pop()}`);
+        reasons.push(`${next.reason}:${String(stepFindingId(next) ?? '').split(':').pop()}`);
       }
     });
     const order = reasons.filter((row, index) => row !== reasons[index - 1]);
@@ -3627,7 +3635,7 @@ function scenarioNXT(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     runImplementer(relaunch, { commands: writeAndCommit('strs/errors_exact_test.go', NXT_EXACT_TEST, itemId, 'exact error text test'),
       final: `Asserted the error text exactly.\n[intent-conflict] none` }, 'host_run implementer (exact test)');
     const again = managedPrompts(o, IMPLEMENTER).at(-1)!.prompt;
-    assert.match(again, /Reopened before REVIEW \(old-PoS run 32 F-001\)[\s\S]*assertErrPrefix/, '[NXT] the relaunch prompt names the helper');
+    assert.match(again, /Reopened before REVIEW: [\s\S]*assertErrPrefix/, '[NXT] the relaunch prompt names the helper');
     const after = ask('next (exact assertion added)');
     assert.notEqual(after.reason, 'exact_text_prefix_assertion', `[NXT] the exact assertion clears the gap: ${after.why}`);
     assert.notEqual(after.kind, 'human', `[NXT] no dead end: ${after.reason}: ${after.why}`);
@@ -3935,7 +3943,8 @@ function scenarioNSC(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     assert.match(refused.out, /CHK-002:happy:0/, `[${tag}] every item's row is listed in the same refusal (run 34: one tier per refusal):\n${refused.out.slice(-2000)}`);
     const staged = refused.out.match(/proof-or-stop story_create @(\S+\.json)/)?.[1];
     assert.ok(staged, `[${tag}] the refusal names ONE next action, a story_create @<staged payload>:\n${refused.out.slice(-2000)}`);
-    assert.equal((refused.out.match(/^Next:/gm) ?? []).length, 1, `[${tag}] exactly one Next line`);
+    // The CLI echoes the error (failed: ... / Error: ...); the refusal itself names one next action.
+    assert.equal(new Set(refused.out.match(/^Next:.*$/gm) ?? []).size, 1, `[${tag}] exactly one (distinct) Next line`);
     const stagedPayload = JSON.parse(readFileSync(staged!, 'utf8')) as Record<string, any>;
     assert.deepEqual(stagedPayload.checklist, payload.checklist, `[${tag}] the staged file holds the submitted payload`);
     // The owner patches only the refused rows in the staged file.
@@ -4665,18 +4674,27 @@ function scenarioNLI(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
       lines.push(`launch order: ${lanes.join(', ')}`);
       const ranked = lanes.filter(lane => NLI_LANE_ORDER.includes(lane));
       assert.deepEqual(ranked, NLI_LANE_ORDER.filter(lane => ranked.includes(lane)), `[${tag}] the slowest lanes launch first: ${lanes.join(', ')}`);
-      // The first launched lane is held; the others finish.
+      // The first launched lane is held; the others finish. A lane prompt may name the
+      // other lanes' ReviewRuns (the fake provider then picks any lane script), so every
+      // lane script carries the hold, and it binds by the held run's host run id.
       const held = String(next.parallel[0]!.cli.payload.lane);
+      const heldFile = join(o.scriptsDir, 'nli-held-run');
+      const hold = ['/bin/sh', '-c', `while [ ! -s '${heldFile}' ]; do sleep 0.1; done; if [ "$(cat '${heldFile}')" = "$LATTICE_MANAGED_HOST_RUN_ID" ]; then while [ ! -f '${release}' ]; do sleep 0.2; done; fi`];
       const runIds = new Map<string, { runId: string; reviewRunId: string }>();
       for (const call of next.parallel) {
         const payload = call.cli.payload;
         const lane = String(payload.lane);
         const reviewRunId = String(payload.reviewRunId);
         const base = laneScript(o.worktree, o.storyId, lane, reviewRunId, true, { findingRound1: false });
-        o.script(reviewRunId, lane === held
-          ? { ...base, commands: [['/bin/sh', '-c', `while [ ! -f '${release}' ]; do sleep 0.2; done`], ...(base.commands ?? [])] } : base);
+        o.script(reviewRunId, { ...base, commands: [hold, ...(base.commands ?? [])] });
+      }
+      for (const call of next.parallel) {
+        const payload = call.cli.payload;
+        const lane = String(payload.lane);
         const ran = o.mustCli('host_run', payload, { label: `host_run ${short(lane)}` });
-        runIds.set(lane, { runId: String((parseJson(ran.stdout)?.run as Record<string, unknown>).runId), reviewRunId });
+        const runId = String((parseJson(ran.stdout)?.run as Record<string, unknown>).runId);
+        if (lane === held) writeFileSync(heldFile, runId);
+        runIds.set(lane, { runId, reviewRunId: String(payload.reviewRunId) });
       }
       try {
         for (const [lane, row] of runIds) if (lane !== held) assert.equal(waitTerminal(o, short(lane), row.runId).state, 'completed', `[${tag}] ${short(lane)} completed`);
@@ -4685,7 +4703,11 @@ function scenarioNLI(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
         lines.push(`with ${short(held)} running: ${step.kind} ${step.reason}`);
         assert.equal(step.reason, 'review_evidence_import', `[${tag}] the finished lanes are imported before the held lane ends (run 34: import waited for the slowest lane): ${step.reason}: ${step.why}`);
         const imported = Array.isArray(step.cli?.payload.imports) ? (step.cli!.payload.imports as Array<{ runId: string }>).map(row => row.runId) : [String(step.cli?.payload.runId)];
-        assert.deepEqual([...imported].sort(), [...runIds].filter(([lane]) => lane !== held).map(([, row]) => row.runId).sort(), `[${tag}] every finished lane is in the import`);
+        // (A lane launched alone before this parallel step, e.g. the round's first unbound launch, may be in it too.)
+        for (const [lane, row] of runIds) {
+          if (lane === held) assert.ok(!imported.includes(row.runId), `[${tag}] the held lane is not imported while it runs`);
+          else assert.ok(imported.includes(row.runId), `[${tag}] finished lane ${short(lane)} is in the import: ${imported.join(', ')}`);
+        }
         o.mustCli(step.cli!.command, step.cli!.payload, { label: 'f:review_evidence_import (early)' });
         const wait = parseJson(o.cli('next', { storyId: o.storyId, json: true }, { label: 'next (after early import)' }).stdout) as unknown as NextStepJson;
         lines.push(`then: ${wait.kind} ${wait.reason}`);
