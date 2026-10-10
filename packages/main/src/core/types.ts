@@ -2869,6 +2869,8 @@ export type ProcessEventType =
   /** A reviewer's evidence-chain item reclassified at import as a framework action (never a finding). */
   | 'review_evidence_chain_reclassified'
   | 'review_metadata_finding_reclassified'
+  /** Old-PoS run 44: an applied Story-metadata correction (userSees before/after text; intent rows hashes only). */
+  | 'metadata_correction_applied'
   /** A managed inventory critic's sealed block was refused at import (next then runs a fresh critic naming this reason). */
   | 'inventory_critic_import_refused'
   /** Old-PoS run 34: verification_run's pinned verifier did not pass (next relaunches an amended item's implementer). */

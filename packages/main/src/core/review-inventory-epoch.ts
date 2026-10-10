@@ -783,11 +783,14 @@ export function reviewInventoryRemediationGate(store: StoryStore, storyId: strin
     nextCommand: `proof-or-stop review_inventory_status --storyId=${storyId}`,
   };
   const pair = finalizedUnconsumedReviewInventory(store, storyId);
+  // Old-PoS run 44 (R2): no live epoch (the latest is consumed, cancelled, invalidated or an
+  // earlier round's): `next --run` opens this round's epoch and runs its critic. Before, this
+  // pointed at review_inventory_status, whose consumed-receipt Next was session_brief (a circle).
   if (!pair) return {
     required: true,
     ok: false,
     reason: 'missing valid unconsumed FINALIZED review inventory receipt',
-    nextCommand: `proof-or-stop review_inventory_status --storyId=${storyId}`,
+    nextCommand: `proof-or-stop next --storyId=${storyId} --run`,
   };
   if (reviewRound && pair.epoch.reviewRound !== reviewRound) {
     return {
@@ -1070,8 +1073,9 @@ export function reviewInventoryFinalizedNextCommand(epoch: ReviewInventoryEpoch,
   }
   if (epoch.consumedAt) {
     // Legacy saturated receipts can be consumed by either remediation or
-    // PRE_CERT. The receipt does not record which consumer won; do not infer it.
-    return 'proof-or-stop session_brief';
+    // PRE_CERT. The receipt does not record which consumer won; do not infer it:
+    // next routes from the live state (old-PoS run 44: session_brief was a dead end).
+    return `proof-or-stop next --storyId=${epoch.storyId} --run`;
   }
   if (receipt.authority === 'review-remediation-only') {
     return `proof-or-stop story_advance --storyId=${epoch.storyId} --phase=DEV`;

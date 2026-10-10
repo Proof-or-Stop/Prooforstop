@@ -151,6 +151,28 @@ export function findingDuplicateOf(store: StoryStore, storyId: string, findingId
     ?? restatedEarlierFindingOf(store, storyId, findingId);
 }
 
+/**
+ * Old-PoS run 44 (REM2): the root canonical of a duplicate chain. Lanes of later
+ * waves restated one defect eight times; each copy's canonical was the previous
+ * copy (F-012 -> F-017 -> F-011, F-010 -> F-012, ...), so each closed only after
+ * its own canonical, one owner turn per link. The root is the first finding of
+ * the chain that is not itself a duplicate; null for a non-duplicate or a cycle.
+ * Closing against the root changes nothing a closure checks: each finding still
+ * closes only through the passing coverage run of its own case.
+ */
+export function duplicateRootOf(store: StoryStore, storyId: string, findingId: string): string | null {
+  const seen = new Set<string>([findingId]);
+  let current = findingDuplicateOf(store, storyId, findingId)?.canonicalFindingId ?? null;
+  for (let depth = 0; current && depth < 64; depth += 1) {
+    if (seen.has(current)) return null;
+    seen.add(current);
+    const next = findingDuplicateOf(store, storyId, current)?.canonicalFindingId ?? null;
+    if (!next) return current;
+    current = next;
+  }
+  return null;
+}
+
 export function duplicateCoverageReceipts(store: StoryStore, storyId: string, findingId: string): DuplicateCoverageReceipt[] {
   return store.readDuplicateFindingCoverage(storyId).receipts.filter(row => row.findingId === findingId);
 }
@@ -164,7 +186,12 @@ export function duplicateResolveCandidate(store: StoryStore, storyId: string, fi
   if (finding.status !== 'open') return null;
   const duplicate = findingDuplicateOf(store, storyId, finding.id);
   if (!duplicate) return null;
-  const canonical = findings.find(row => row.id === duplicate.canonicalFindingId);
+  let canonical = findings.find(row => row.id === duplicate.canonicalFindingId);
+  // Old-PoS run 44: a duplicate of a duplicate closes against the resolved root of its chain, in the same batch.
+  if (canonical?.status !== 'resolved') {
+    const root = duplicateRootOf(store, storyId, finding.id);
+    canonical = root ? findings.find(row => row.id === root) : undefined;
+  }
   if (!canonical || canonical.status !== 'resolved') return null;
   if (duplicateCoverageReceipts(store, storyId, finding.id).some(row => !row.passed)) return null;
   return { canonical, familyKey: duplicate.familyKey };
@@ -175,7 +202,10 @@ export function duplicateOfOpenCanonical(store: StoryStore, storyId: string, fin
   const duplicate = findingDuplicateOf(store, storyId, findingId);
   if (!duplicate) return false;
   if (duplicateCoverageReceipts(store, storyId, findingId).some(row => !row.passed)) return false;
-  return findings.find(row => row.id === duplicate.canonicalFindingId)?.status === 'open';
+  if (findings.find(row => row.id === duplicate.canonicalFindingId)?.status !== 'open') return false;
+  // Old-PoS run 44: an open intermediate canonical whose chain root is resolved does not hold it back.
+  const root = duplicateRootOf(store, storyId, findingId);
+  return !(root && findings.find(row => row.id === root)?.status === 'resolved');
 }
 
 const GENERIC_SELECTOR = /^(?:ok|pass(?:ed)?|--- ?pass:?|pass:?|success|done|\d+ passing)$/i;

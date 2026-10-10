@@ -368,7 +368,8 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   // 3270fa6c84 changed the emitted inventory executable after its previous pin was recorded.
   // Lab review-epoch-lineage (2026-09-30): zero-wave completeness-only receipts route to cancel; repinned.
   // Lab ab-variant-switches (2026-10-06): consume replay accepts an A/B criticSkip wave only while review.criticOnCleanRound=skip; repinned.
-  'packages/main/src/core/review-inventory-epoch.ts': '56d4b6d0a458d3c003d5bd7b8e19852c97e3ec2cef515557f17e1aa3ed4bee9f',
+  // Lab run44-fixes (2026-10-10): no live epoch / a consumed receipt point at `next --run` (not review_inventory_status / session_brief); repinned.
+  'packages/main/src/core/review-inventory-epoch.ts': 'c8c242bc166adeb591b6052ae70e36b1be857a72f5e037bf531fb12066563ccc',
   // Lab verification-env-digest (2026-09-30): ordinary receipts bind the v2 environment identity projection; repinned.
   // Lab gate-command-cost (2026-10-03): the signer-key common-dir probe goes through observedGit; repinned.
   'packages/main/src/core/verification-execution-evidence.ts': '915f3b1d386ce37f12caa69e98124886fc466fd4ce1159188fb12e5ad444b5e6',
@@ -377,7 +378,8 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   // Lab pin-derivation-audit (2026-10-08): checklist_add/_update and plan_acceptance_* refuse an underived intent example (core/intent-derivation.ts); repinned.
   // Lab request-probes (2026-10-09): checklist_update done runs the framework probe rows first (core/request-probes.ts); repinned.
   // Lab metadata-findings (2026-10-09): checklist_update metadataCorrection (verified Story-metadata correction, REVIEW in place), plan acceptance no-op refusal; repinned.
-  'packages/main/src/handlers/checklist.ts': 'fce5e9e0932db1ad3f3426203e23b8c6aa57fe06a4d52f7db55b7bfc466e73cf',
+  // Lab run44-fixes (2026-10-10): an applied metadata correction is journaled (metadata_correction_applied); the REVIEW intent-row refusal points at next --run; repinned.
+  'packages/main/src/handlers/checklist.ts': '0518a8bccb48bddc98b91d99664d8a18c2ef150f77f886957eb9eb9589037d4b',
   'packages/main/src/core/maintenance-command-mode.ts': '9c94f1c1a20abf5ed3b93208f5d52e13d63246af12a85612c1e07f99e72258e2',
 });
 

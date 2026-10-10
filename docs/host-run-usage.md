@@ -522,7 +522,9 @@ implementer 与 finding-repair 的 prompt 指向 `request.md`，并要求最终�
 intent/checklist/pin/request 的「deliberate choice」也算冲突）：未修订的冲突在 DEV 返回 `intent_conflict`（`story_advance --phase=PLAN`），
 在 PLAN 返回 `intent_conflict_amend`（`checklist_update` 新 intent，冲突点名 userSees 时改 userSees，+ reason + `status: pending`；old-PoS run 37：pin 不是代码字面量时，同一步还列出任何 item 中写着同一错误 pin 片段的行，并对每个兄弟 item 给一条 `checklist_update {itemId, intentRows}` 行级修补）；item 的 verificationIntent 或 userSees 与派发时不同，或已写出 request 推出的值、不再含被钉住的字面量，冲突即解除（old-PoS run 31）。
 finding-repair 的 prompt 还要求在 Story base（打印确切 SHA）与修复后运行该 finding 的输入及其字面变体，
-request 没改的变体保持 base 行为（old-PoS run 24）。implementer 的 prompt（仅 A/B 开关 `implementation.probeMatrix=on` 时；old-PoS run 33 起默认 off，只留一行）带同样性质的探针矩阵
+request 没改的变体保持 base 行为（old-PoS run 24）。old-PoS run 44 起它还要求修整个缺陷族：grep finding 指向的代码路径（处理错的分支及所有到达它的调用者），
+列出到达同一分支的每种 receiver、目标（lvalue / parent / container）与操作数形态（含嵌套与计算出的），逐个修复（或以显式错误拒绝）并各配一个测试；
+最终报告每个检查过的形态一行 `[family] <shape>: fixed | rejected | unaffected (why)`（run 44 的四次修复各只修了被报告的形态，下一轮再找出下一种）。implementer 的 prompt（仅 A/B 开关 `implementation.probeMatrix=on` 时；old-PoS run 33 起默认 off，只留一行）带同样性质的探针矩阵
 （操作数位置 × 值类 × 操作，在 Story base 与改动后各跑一次，old-PoS runs 24-29），最终消息报告 `[probes]` 行（含 `tested:` / `probed-only:`；`next` 解析 probed-only 行，done item 有未测的已决定行时返回 `probe_tests_missing`，old-PoS run 30）。old-PoS run 31：prompt 还把本 item 的例子行与定义它的 request 句子配对，要求 `[probe-row]` 行，未解决的 contradiction 返回 `probe_request_mismatch`；项目声明 `probeRunner` 时，implementer 运行中的 `checklist_update status=done` 先在 Story base 与 HEAD 上跑这些行，`dev.probeEnforcement=enforce` 时每组 flag 拒绝一次（old-PoS run 33 起默认 `advisory`：只打印，不拒绝、不 reopen），prompt 用紧凑契约代替矩阵。
 普通 implementer 模式保留调用方明确选择的模型与 reasoning effort；它不冒充 reviewer，
 也不套用独立 reviewer 的模型资格限制。
@@ -610,6 +612,13 @@ does not replace the signed report artifacts, their lifecycle gates, or their
 canonical consumers. The original signed ReviewRun prompt stays unchanged as
 audit context, and the exact derived provider-prompt digest is sealed in the
 managed run before receipt import.
+
+A second `review_run_start` for a target whose ReviewRun is still live (same round,
+lane, purpose, inventory epoch and wave and material; no evidence yet; its managed run
+not launched or still running) is refused with `[review_run_live]` and ONE Next,
+`proof-or-stop next --storyId=<id> --run`, which launches or waits on that run (old-PoS
+run 44: six hand starts for one critic, five orphaned). A run whose managed run ended
+without evidence may be replaced as before.
 
 ```bash
 # 1. Controller creates the signed ReviewRun.

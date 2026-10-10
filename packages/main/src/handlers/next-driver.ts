@@ -119,6 +119,15 @@ type HandlerLookup = (name: string) => ((...args: any[]) => any) | undefined;
 const LANE_VERDICT_CODES = new Set(['review_evidence_missing', 'review_lane_missing', 'review_evidence_invalid', 'review_quorum']);
 /** Superseded-binding codes of an OPEN finding that next carries forward as blocking (never dropped, never a dead end). */
 const CARRIED_FINDING_CODES = new Set(['stale_run', 'superseded_inventory_wave']);
+/**
+ * Old-PoS run 44 (R2): an envelope whose ONLY mismatch is the task digest (the Story's
+ * task context changed after the lane judged it, e.g. a text edit the metadata tolerance
+ * does not cover). Its open finding is carried forward like a stale_run one: it still
+ * blocks and closes only by repair or by the duplicate-coverage run of a restatement.
+ */
+const TASK_DIGEST_ONLY_MISMATCH = /Prompt Envelope is invalid: Prompt Envelope incremental eligibility fields do not match authoritative recomputation: taskSemanticDigest$/;
+const carriedFindingIssue = (issue: { code: string; message: string }): boolean => CARRIED_FINDING_CODES.has(issue.code)
+  || (issue.code === 'prompt_envelope_tampered' && TASK_DIGEST_ONLY_MISMATCH.test(issue.message));
 /** cancelReason prefix of a stop-loss inventory cancel (counted per round). */
 const STOP_LOSS_CANCEL_REASON = 'stop-loss: stale review evidence';
 
@@ -861,8 +870,14 @@ export function metadataCorrectionStep(base: { storyId: string; phase: string },
     + (row.correctedValue ? `; the reviewer's value: ${row.correctedValue}` : '');
   const head = `Story-metadata review finding(s) (${first.sources.length} report(s), deduped; not product findings, never repair work): ${sameItem.map(describe).join('; ')}. Reviewer: ${reviewer}.`;
   if (base.phase !== 'PLAN' && fields.includes('verificationIntent')) {
-    return step(base, 'agent', 'metadata_correction_plan', { command: 'story_advance', payload: { storyId: base.storyId, phase: base.phase === 'REVIEW' ? 'DEV' : 'PLAN' } },
-      `${head} Intent rows are frozen outside PLAN: return to PLAN, where next proposes the one checklist_update (metadataCorrection=true; done items stay done).`,
+    // Old-PoS run 44 (F-021): the hop to PLAN is the framework's. From REVIEW it is two
+    // transitions (REVIEW->DEV, then DEV->PLAN; REVIEW->PLAN does not exist): this step
+    // runs the first, the next DEV step the second, both inside one `next --run`.
+    const hop = base.phase === 'REVIEW'
+      ? 'Intent rows are frozen outside PLAN, and REVIEW reaches PLAN in two framework steps: REVIEW->DEV now, then DEV->PLAN (`next --run` runs both)'
+      : 'Intent rows are frozen outside PLAN: DEV->PLAN now (framework step)';
+    return step(base, 'framework', 'metadata_correction_plan', { command: 'story_advance', payload: { storyId: base.storyId, phase: base.phase === 'REVIEW' ? 'DEV' : 'PLAN' } },
+      `${head} ${hop}; in PLAN next proposes the one checklist_update (metadataCorrection=true; done items stay done).`,
       'openMetadataCorrections (core/metadata-correction.ts)');
   }
   const sweep = first.wrongLiteral ? literalOccurrences(items, first.wrongLiteral).filter(row => !(row.itemId === first.itemId && fields.includes(row.field))) : [];
@@ -1885,7 +1900,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     const state = collectReviewerEvidenceState(ctx.store, storyId, ctx.root);
     if (state.invalid.length === 0) return null;
     const findings = ctx.store.readFindings(storyId).findings ?? [];
-    const carried = state.invalid.every(issue => issue.kind === 'finding' && CARRIED_FINDING_CODES.has(issue.code)
+    const carried = state.invalid.every(issue => issue.kind === 'finding' && carriedFindingIssue(issue)
       && findings.find(row => row.id === issue.evidenceId)?.status === 'open');
     return carried ? [...new Set(state.invalid.map(issue => issue.evidenceId))] : null;
   }
@@ -1911,8 +1926,8 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     return maxLaneRunsOnMaterial(ctx.store, storyId, round, currentMaterialHash(gitCwdOf(storyId), 'HEAD', ctx.root));
   }
 
-  function guardStep(base: { storyId: string; phase: string }, target: string, reason: string, why: string, source: string): NextStep {
-    const failure = getGuardFailureReason(base.storyId, ctx.store, target, ctx.root, gitCwdOf(base.storyId));
+  function guardStep(base: { storyId: string; phase: string }, target: string, reason: string, why: string, source: string,
+    failure: string | null = getGuardFailureReason(base.storyId, ctx.store, target, ctx.root, gitCwdOf(base.storyId))): NextStep {
     if (!failure) {
       return step(base, 'framework', reason, { command: 'story_advance', payload: { storyId: base.storyId, phase: target } }, why, source);
     }
@@ -2546,6 +2561,41 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
   }
 
   /**
+   * Old-PoS run 44 (R2): leaving REVIEW for DEV. When the gate admits it, `allowed`
+   * (a framework story_advance). When it refuses only for the round's missing
+   * remediation receipt and no inventory epoch of this round is live (none begun yet,
+   * or the latest is an earlier round's, consumed, cancelled or invalidated), the
+   * framework step that produces the receipt is opening the epoch (its critic, then
+   * finalize): before, next returned the gate's pointer (review_inventory_status ->
+   * session_brief), a circle with no runnable step. An OPEN epoch of an earlier round
+   * is cancelled first. Any other refusal stays the guard's step.
+   */
+  function reviewDevHop(base: { storyId: string; phase: string }, allowed: NextStep, reason: string, why: string, source: string): NextStep {
+    const failure = getGuardFailureReason(base.storyId, ctx.store, 'DEV', ctx.root, gitCwdOf(base.storyId));
+    if (!failure) return allowed;
+    const round = base.phase === 'REVIEW' ? ctx.store.readStory(base.storyId).currentReviewRound : null;
+    if (round && /^Cannot enter remediation DEV:/.test(failure)) {
+      const open = currentOpenReviewInventory(ctx.store, base.storyId);
+      if (open && open.reviewRound !== round) {
+        return step(base, 'framework', 'inventory_cancel_stale', { command: 'review_inventory_cancel', payload: { storyId: base.storyId, reason: 'OPEN epoch belongs to an earlier review round' } },
+          `${why} REVIEW->DEV needs round ${round}'s remediation receipt; OPEN epoch ${open.epochId} is from round ${open.reviewRound}: cancel it, then open this round's.`, `${source} + currentOpenReviewInventory`);
+      }
+      const pending = finalizedUnconsumedReviewInventory(ctx.store, base.storyId);
+      if (!open && !(pending && pending.epoch.reviewRound === round)) {
+        return criticPrepareStep(base,
+          `${why} REVIEW->DEV needs this round's remediation receipt (${guardRefusalSummary(failure)}); no inventory epoch of round ${round} is live: open it (and prepare its critic), finalize it, then return to DEV.`,
+          `${source} + getGuardFailureReason(DEV) + no live inventory epoch of the round`, 'inventory_begin');
+      }
+    }
+    return guardStep(base, 'DEV', reason, why, source, failure);
+  }
+
+  /** REVIEW->DEV for remediation as one framework step, or the step that produces its receipt (reviewDevHop). */
+  function remediationDevStep(base: { storyId: string; phase: string }, reason: string, why: string, source: string): NextStep {
+    return reviewDevHop(base, step(base, 'framework', reason, { command: 'story_advance', payload: { storyId: base.storyId, phase: 'DEV' } }, why, source), reason, why, source);
+  }
+
+  /**
    * A REVIEW-phase refusal naming open verified blocking findings: resolve the
    * first one a managed finding-repair bound to it repaired; when none is,
    * return to DEV, where next dispatches the repair of each (run 14: never
@@ -2561,7 +2611,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     // blocks on the conflict first.
     const conflicts = openIntentConflicts({ root: ctx.root, gitCwd, store: ctx.store, storyId, runs: hostRuns });
     if (conflicts.length > 0) {
-      return guardStep(base, 'DEV', 'intent_conflict_dev',
+      return remediationDevStep(base, 'intent_conflict_dev',
         `${why} A managed writer run declared an open intent conflict (${conflicts.map(row => `${row.itemId} by ${row.runId}`).join('; ')}): return to DEV, where next routes the intent amendment before any finding is resolved.`,
         `${source} + openIntentConflicts + getGuardFailureReason(DEV)`);
     }
@@ -2585,7 +2635,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       }
       details.push(repair.detail);
     }
-    return guardStep(base, 'DEV', 'finding_unrepaired_dev',
+    return remediationDevStep(base, 'finding_unrepaired_dev',
       `${why} None is repaired yet (${details.join('; ') || 'no readable finding'}): return to DEV, where next dispatches the managed repair of each.`,
       `${source} + managedFindingRepairState + getGuardFailureReason(DEV)`);
   }
@@ -2600,7 +2650,10 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
    * round -> cancel it so a fresh epoch and critic re-observe the live
    * material (at most STALE_WAVE_STOP_LOSS - 1 such cancels per round);
    * (3) otherwise leave REVIEW for DEV, which starts a fresh round on return.
-   * No verified finding is dropped by any of them.
+   * No verified finding is dropped by any of them. Old-PoS run 44: (1) and (3)
+   * go through reviewDevHop, so a refused REVIEW->DEV with no live epoch of the
+   * round opens the epoch (one framework step) instead of the gate's circular
+   * pointer.
    */
   function reviewStopLossStep(base: { storyId: string; phase: string }, round: string, code: string, detail: string): NextStep {
     const { storyId } = base;
@@ -2617,7 +2670,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       return step(base, 'framework', 'review_stop_loss_inventory_cancel', { command: 'review_inventory_cancel', payload: { storyId, reason: `${STOP_LOSS_CANCEL_REASON}: ${code}` } },
         `${why} Stop-loss: cancel epoch ${live.epochId}; a fresh epoch and critic then re-observe the live material.`, 'evaluateReviewVerdict + stop-loss (live epoch)');
     }
-    return guardStep(base, 'DEV', 'review_stop_loss_dev',
+    return remediationDevStep(base, 'review_stop_loss_dev',
       `${why} Stop-loss: leave REVIEW for DEV; the next REVIEW entry starts a fresh round with fresh lanes.`, 'evaluateReviewVerdict + stop-loss + getGuardFailureReason(DEV)');
   }
 
@@ -2658,7 +2711,10 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     const openForMetadata = metadata?.reason === 'metadata_correction_plan' ? currentOpenReviewInventory(ctx.store, storyId) : null;
     const metadataWaits = metadata?.reason === 'metadata_correction_plan'
       && (Boolean(openForMetadata && openForMetadata.reviewRound === round) || openBlockingFindings(storyId).length > 0);
-    if (metadata && !metadataWaits) return metadata;
+    // Old-PoS run 44: the REVIEW->DEV hop of an intent-row correction is a framework step (or the epoch that admits it).
+    const metadataHop = (next: NextStep): NextStep => next.reason === 'metadata_correction_plan'
+      ? reviewDevHop(base, next, 'metadata_correction_plan', next.why, next.source) : next;
+    if (metadata && !metadataWaits) return metadataHop(metadata);
     let verdict = evaluateReviewVerdict({ storyId, store: ctx.store, projectRoot: ctx.root, gitCwd });
     // Lab reroute-mid-inventory: the round was invalidated after a lane
     // reported a finding (owner reroute, broken live binding), every lane
@@ -2747,7 +2803,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     }
     const pending = finalizedUnconsumedReviewInventory(ctx.store, storyId);
     // Old-PoS run 33: the deferred metadata correction, once the round's epoch is finalized.
-    if (metadata && pending) return metadata;
+    if (metadata && pending) return metadataHop(metadata);
     if (pending) {
       if (pending.receipt?.authority === 'review-remediation-only') {
         return guardStep(base, 'DEV', 'enter_remediation_dev', `Epoch ${pending.epoch.epochId} finalized a remediation receipt: return to DEV to repair the verified finding(s).`, 'finalizedUnconsumedReviewInventory + getGuardFailureReason(DEV)');
