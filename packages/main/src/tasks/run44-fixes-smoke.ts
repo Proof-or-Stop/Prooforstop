@@ -17,7 +17,11 @@
  *         newest first, item by item; an intent-row correction or any other
  *         change of the field stops the chain (fail closed);
  *      M4 the routing input reverts applied userSees corrections without a
- *         corrected value.
+ *         corrected value;
+ *      M5 intent rows that still state the wrong literal of an applied
+ *         correction on their expected side are an open intent-row correction
+ *         (next takes the Story to PLAN for them; run 44 F-021 surfaced 4
+ *         rounds later); an input occurrence is left alone.
  *   X. Exact-text gate: an equality on the result of a same-file test helper
  *      whose body returns a cut of its parameter (head, first line, prefix) is
  *      a prefix comparison, whatever the helper is called; a helper returning
@@ -135,6 +139,28 @@ await check('M4 the routing input reverts an applied userSees correction without
   const store = { readProcessEvents: () => [applied('CHK-001', 'userSees', original[0]!.userSees!, fixed)] };
   assert.equal(api(metadata, 'routingUserSees')(store, 'B-44a1', fixed, 'CHK-001'), original[0]!.userSees, 'reverted to the judged text');
   assert.equal(api(metadata, 'routingUserSees')(store, 'B-44a1', `${fixed} plus another edit`, 'CHK-001'), `${fixed} plus another edit`, 'any other edit is kept (the reroute stays the safe fallback)');
+});
+
+await check('M5 intent rows still stating the wrong literal of an applied correction (expected side) are an open intent-row correction', () => {
+  const original = storeItems();
+  const fixed = original.map(item => ({ ...item, userSees: item.userSees!.replace(WRONG_SPAN, RIGHT_SPAN) }));
+  const events = [
+    { type: 'metadata_correction_applied', itemId: 'CHK-001', field: 'userSees', before: original[0]!.userSees, after: fixed[0]!.userSees, wrongLiterals: [WRONG_SPAN] },
+    { type: 'metadata_correction_applied', itemId: 'CHK-002', field: 'userSees', before: original[1]!.userSees, after: fixed[1]!.userSees, wrongLiterals: [WRONG_SPAN] },
+  ];
+  const store = { readProcessEvents: () => events, readChecklist: () => ({ items: fixed }), readFindings: () => ({ findings: [] }), storyFilePath: () => '/nonexistent/checklist.json' };
+  const open = api(metadata, 'openMetadataCorrections')({ store, storyId: 'B-44a1', gitCwd: '/nonexistent' }) as Array<{ itemId: string; field: string; rowRefs: string[]; wrongLiteral: string | null }>;
+  assert.deepEqual(open.map(row => [row.itemId, row.field, row.rowRefs, row.wrongLiteral]), [
+    ['CHK-001', 'verificationIntent', ['CHK-001:adversarial:0'], WRONG_SPAN],
+    ['CHK-002', 'verificationIntent', ['CHK-002:adversarial:0'], WRONG_SPAN],
+  ], 'one intent-row correction per item still stating it');
+  // Once the rows state the corrected value, nothing is open.
+  const corrected = fixed.map(item => ({ ...item, verificationIntent: { ...item.verificationIntent!, adversarial: item.verificationIntent!.adversarial!.map(row => ({ ...row, desc: row.desc.replace(WRONG_SPAN, RIGHT_SPAN) })) } }));
+  const after = { ...store, readChecklist: () => ({ items: corrected }) };
+  assert.deepEqual(api(metadata, 'openMetadataCorrections')({ store: after, storyId: 'B-44a1', gitCwd: '/nonexistent' }), [], 'corrected rows close it');
+  // A row stating the literal only as an input (left of its arrow) is not a correction target.
+  const input = fixed.map(item => item.id === 'CHK-001' ? { ...item, verificationIntent: { ...item.verificationIntent!, adversarial: [row(`parse(${WRONG_SPAN}) -> error`, 'TestParse')] } } : { ...item, verificationIntent: corrected[1]!.verificationIntent });
+  assert.deepEqual(api(metadata, 'openMetadataCorrections')({ store: { ...store, readChecklist: () => ({ items: input }) }, storyId: 'B-44a1', gitCwd: '/nonexistent' }), [], 'an input occurrence is left alone');
 });
 
 // ---------------------------------------------------------------------------

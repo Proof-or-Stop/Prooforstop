@@ -5496,7 +5496,8 @@ function scenarioNMD(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     assert.notEqual(refused.status, 0, `[${tag}] ${label}: a second ReviewRun for a target whose run ${live} is still live must be refused:\n${refused.out.slice(-1200)}`);
     assert.match(refused.out, /\[review_run_live\]/, `[${tag}] ${label}: refusal code:\n${refused.out.slice(-1200)}`);
     assert.ok(refused.out.includes(live), `[${tag}] ${label}: the refusal names the live run ${live}:\n${refused.out.slice(-1200)}`);
-    assert.equal((refused.out.match(/^Next: /gm) ?? []).length, 1, `[${tag}] ${label}: ONE Next:\n${refused.out.slice(-1200)}`);
+    // The CLI echoes the error twice (progress line + Error:); one distinct Next.
+    assert.equal(new Set(refused.out.match(/^Next: .*$/gm) ?? []).size, 1, `[${tag}] ${label}: ONE Next:\n${refused.out.slice(-1200)}`);
     return refused.out.split('\n').find(row => row.startsWith('Next: ')) ?? '';
   };
   try {
@@ -5525,7 +5526,7 @@ function scenarioNMD(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
       return false;
     } }, lines, next => {
       reasons.push(`${next.phase}:${next.reason}`);
-      assert.ok(!(next.phase === 'REVIEW' && (next.reason.startsWith('guard_') || next.reason.startsWith('inventory_status_next'))),
+      assert.ok(!(next.phase === 'REVIEW' && (next.reason.startsWith('guard_') || /^(?:session_brief|review_inventory_status)$/.test(next.cli?.command ?? ''))),
         `[${tag}] REVIEW returned a pointer instead of a framework step: ${next.reason}: ${next.why.slice(0, 500)} (steps: ${reasons.join(' > ')})`);
     });
     assert.ok(mutated, `[${tag}] the fixture edited the task context`);

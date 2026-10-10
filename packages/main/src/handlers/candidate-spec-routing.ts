@@ -323,7 +323,7 @@ export function currentStoryRoutingInput(ctx: HandlerContext, storyId: string): 
       id: item.id,
       title: item.title,
       // Old-PoS run 31: a verified metadata correction does not stale the route.
-      userSees: routingUserSees(ctx.store as never, storyId, item.userSees),
+      userSees: routingUserSees(ctx.store as never, storyId, item.userSees, item.id),
       excludes: item.excludes,
       relatedDocs: item.relatedDocs,
     })),

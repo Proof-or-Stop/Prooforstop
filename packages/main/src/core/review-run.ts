@@ -904,12 +904,13 @@ export function verifyReviewRunPromptEnvelope(
   if (envelope.impactPolicyVersion) {
     let incremental;
     try {
-      incremental = reviewIncrementalContext(
+      const recompute = (acceptedTaskSemanticDigest?: string) => reviewIncrementalContext(
         store,
         run.workspaceBinding?.signedWorkspaceRoot || run.workspaceBinding?.metadataRoot || process.cwd(),
         run.storyId,
         run.lane,
         {
+          ...(acceptedTaskSemanticDigest ? { acceptedTaskSemanticDigest } : {}),
           roleSemanticDigest: envelope.eligibilityRoleSemanticDigest ?? promptRoleContract(run.lane).semanticDigest,
           excludedReviewRunId: run.reviewRunId,
           findingsCutoffAt: run.startedAt,
@@ -928,6 +929,14 @@ export function verifyReviewRunPromptEnvelope(
           promptEnvelopes: envelopes,
         },
       );
+      incremental = recompute();
+      // Old-PoS run 44: an envelope minted before an applied Story-metadata correction
+      // (userSees text only) is replayed against the checklist it judged; every
+      // eligibility field is then recomputed from that state and compared below.
+      if (envelope.taskSemanticDigest !== undefined && envelope.taskSemanticDigest !== incremental.taskSemanticDigest
+        && incremental.taskSemanticDigestsBeforeMetadataCorrection?.includes(envelope.taskSemanticDigest)) {
+        incremental = recompute(envelope.taskSemanticDigest);
+      }
     } catch (error) {
       return {
         ok: false,
@@ -975,10 +984,9 @@ export function verifyReviewRunPromptEnvelope(
       ...(!reviewerRequestedFull ? [
         ['reviewBasisDigest', envelope.reviewBasisDigest, incremental.reviewBasisDigest ?? undefined],
       ] : []),
-      // Old-PoS run 31: a pass judged before a verified Story-metadata correction
-      // (the userSees text its reviewers asked to correct) stays current.
-      ['taskSemanticDigest', envelope.taskSemanticDigest, envelope.taskSemanticDigest !== undefined
-        && envelope.taskSemanticDigest === incremental.taskSemanticDigestBeforeMetadataCorrection ? envelope.taskSemanticDigest : incremental.taskSemanticDigest ?? undefined],
+      // Old-PoS runs 31/44: a pass judged before a verified Story-metadata correction
+      // (the userSees text its reviewers asked to correct) was replayed above.
+      ['taskSemanticDigest', envelope.taskSemanticDigest, incremental.taskSemanticDigest ?? undefined],
     ].filter(([, actual, expected]) => actual !== expected);
     if (eligibilityMismatches.length > 0) {
       return {

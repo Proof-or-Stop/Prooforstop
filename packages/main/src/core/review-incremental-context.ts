@@ -19,7 +19,7 @@
  * not falsely flag scopeChanged.
  */
 
-import { routingUserSees } from './metadata-correction.js';
+import { metadataCorrectionCheckpoints, routingUserSees } from './metadata-correction.js';
 import { execFileSync } from 'node:child_process';
 import { isBuiltin } from 'node:module';
 import { lstatSync, readFileSync, realpathSync } from 'node:fs';
@@ -564,12 +564,15 @@ export interface ReviewIncrementalContext {
   reviewBasisDigest: string | null;
   taskSemanticDigest: string | null;
   /**
-   * Old-PoS run 31: the task digest with verified Story-metadata corrections
+   * Old-PoS run 31: the task digests with verified Story-metadata corrections
    * reverted (userSees text the reviewers themselves asked to correct). A pass
-   * judged before such a correction stays current (no lane rerun); null when no
-   * correction applies.
+   * judged before such a correction stays current (no lane rerun); absent when no
+   * correction applies. Old-PoS run 44: one digest per journaled applied userSees
+   * correction (metadataCorrectionCheckpoints, newest reverted first, no corrected
+   * value needed), plus the run-31 corrected-value revert; an intent-row
+   * correction is never reverted.
    */
-  taskSemanticDigestBeforeMetadataCorrection?: string | null;
+  taskSemanticDigestsBeforeMetadataCorrection?: string[];
 }
 
 interface TrustedPriorPass {
@@ -880,6 +883,14 @@ export function reviewIncrementalContext(
      * an explicit `undefined` value to replay the pre-field digest exactly.
      */
     fullStoryBaseHead?: string;
+    /**
+     * Old-PoS run 44: the REVIEW-evidence verifier replays an envelope minted
+     * before an applied Story-metadata correction: when this digest is one of
+     * the correction checkpoints' digests, it is the task digest every
+     * eligibility field is recomputed from (exactly the state the envelope
+     * judged). Any other value is ignored.
+     */
+    acceptedTaskSemanticDigest?: string;
   } = {},
 ): ReviewIncrementalContext {
   const gitCwd = resolveGitCwd({ store, storyId, metadataRoot: projectRoot, projectRoot });
@@ -918,7 +929,7 @@ export function reviewIncrementalContext(
   const scopeContract = store.readScopeContract(storyId);
   const story = store.readStory(storyId);
   let currentTaskSemanticDigest: string | null = null;
-  let beforeMetadataCorrectionDigest: string | null = null;
+  const beforeMetadataCorrectionDigests: string[] = [];
   if (currentHead) {
     try {
       const contextOf = (items: typeof checklist.items) => fullTaskSemanticDigest(buildFullTaskContext({
@@ -930,8 +941,14 @@ export function reviewIncrementalContext(
         scopeContract,
       }));
       currentTaskSemanticDigest = contextOf(checklist.items);
+      let events: Array<Record<string, unknown>> = [];
+      try { events = store.readProcessEvents(storyId) as unknown as Array<Record<string, unknown>>; } catch { events = []; }
+      for (const items of metadataCorrectionCheckpoints(events, checklist.items)) beforeMetadataCorrectionDigests.push(contextOf(items as typeof checklist.items));
       const reverted = checklist.items.map(item => ({ ...item, userSees: routingUserSees(store as never, storyId, item.userSees) }));
-      if (reverted.some((item, index) => item.userSees !== checklist.items[index]!.userSees)) beforeMetadataCorrectionDigest = contextOf(reverted as typeof checklist.items);
+      if (reverted.some((item, index) => item.userSees !== checklist.items[index]!.userSees)) beforeMetadataCorrectionDigests.push(contextOf(reverted as typeof checklist.items));
+      if (options.acceptedTaskSemanticDigest && beforeMetadataCorrectionDigests.includes(options.acceptedTaskSemanticDigest)) {
+        currentTaskSemanticDigest = options.acceptedTaskSemanticDigest;
+      }
     } catch {
       // Legacy/malformed task context is not eligible; the stable FULL reason is
       // added below instead of letting this advisory read throw.
@@ -1121,7 +1138,7 @@ export function reviewIncrementalContext(
       reviewBasis,
       reviewBasisDigest,
       taskSemanticDigest: currentTaskSemanticDigest,
-      ...(beforeMetadataCorrectionDigest ? { taskSemanticDigestBeforeMetadataCorrection: beforeMetadataCorrectionDigest } : {}),
+      ...(beforeMetadataCorrectionDigests.length ? { taskSemanticDigestsBeforeMetadataCorrection: [...new Set(beforeMetadataCorrectionDigests)] } : {}),
     };
   };
 

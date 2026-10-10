@@ -20,6 +20,17 @@
  * in an intent row and userSees; each checker fixed one copy): every other
  * occurrence of the wrong literal across all items' userSees / intent rows is
  * listed in the same correction step.
+ *
+ * Old-PoS run 44 (R2, run44-analysis.md §2.3): a reviewer may cite only a short
+ * quoted literal (`"x"`) of a statement the field makes. A short literal alone is
+ * never swept (it matches unrelated text), so it is widened to the field's own
+ * statement around it (its backticked span, else its clause); a reviewer sentence
+ * that differs from that statement only in the literal's slot is the corrected
+ * value. Each applied correction is journaled (metadata_correction_applied, the
+ * field's text before and after), so the lane evidence of the round is judged
+ * against the text before the correction without any extracted corrected value
+ * (metadataCorrectionCheckpoints); an intent-row correction (a pinned value) is
+ * never reverted.
  */
 import { execFileSync } from 'node:child_process';
 import { relative } from 'node:path';
@@ -53,6 +64,8 @@ export interface LiteralOccurrence { itemId: string; field: MetadataField; ref: 
 
 export const METADATA_FINDING_RECLASSIFIED_EVENT = 'review_metadata_finding_reclassified';
 export const METADATA_CORRECTION_UNCHANGED = 'metadata_correction_unchanged';
+/** Old-PoS run 44: one applied correction of one item field (userSees: the text before and after; intent rows: hashes only). */
+export const METADATA_CORRECTION_APPLIED_EVENT = 'metadata_correction_applied';
 
 const LANES = ['happy', 'edge', 'adversarial'] as const;
 
@@ -78,6 +91,49 @@ export function statedForm(text: string, literal: string): string | null {
 }
 
 const isStatement = (literal: string): boolean => /==|->|=>|→/.test(literal);
+const innerOf = (literal: string): string => literal.replace(/^['"`]|['"`]$/g, '');
+/** A literal too short to locate on its own (the sweep skips it; it is widened to the statement around it). */
+const isShortLiteral = (literal: string): boolean => !isStatement(literal) && innerOf(literal).length < 4;
+
+/**
+ * Old-PoS run 44: the field's own statement around a short literal: the
+ * backticked span holding it, else its clause (at most 4 words each side, within
+ * one sentence). Prefers an occurrence inside a backticked span. Null when the
+ * field does not state the literal.
+ */
+export function enclosingStatement(fieldText: string, literal: string): string | null {
+  const forms = [literal, swapQuotes(literal)];
+  for (const span of fieldText.matchAll(/`([^`\n]{4,200})`/g)) {
+    const text = span[1]!.trim();
+    if (forms.some(form => text.includes(form)) && text !== literal) return text;
+  }
+  for (const form of forms) {
+    const at = fieldText.indexOf(form);
+    if (at < 0) continue;
+    const before = fieldText.slice(0, at).split(/[;.\n`]/).at(-1)!.split(/\s+/).filter(Boolean).slice(-4);
+    const after = fieldText.slice(at + form.length).split(/[;.\n`]/)[0]!.split(/\s+/).filter(Boolean).slice(0, 4);
+    const clause = [...before, form, ...after].join(' ').replace(/\s+([,:)])/g, '$1').trim();
+    return clause.length > form.length && clause.includes(form) && statedForm(fieldText, clause) ? clause : null;
+  }
+  return null;
+}
+
+/**
+ * Old-PoS run 44: a reviewer sentence (absent from the field) that, with one word
+ * replaced by the short wrong literal, is a statement the field makes: that
+ * statement (as stated) is the wrong literal and the sentence its corrected value.
+ */
+function slotSubstitution(fieldText: string, short: string, absent: readonly string[]): { wrong: string; corrected: string } | null {
+  for (const sentence of absent) {
+    if (sentence.length < 6 || isShortLiteral(sentence)) continue;
+    for (const word of sentence.matchAll(/[^\s"'`:;,()]+/g)) {
+      const candidate = sentence.slice(0, word.index) + short + sentence.slice(word.index! + word[0].length);
+      const form = statedForm(fieldText, candidate);
+      if (form) return { wrong: form, corrected: sentence };
+    }
+  }
+  return null;
+}
 const rhs = (literal: string): string => literal.split(/\s*(?:==|->|=>|→)\s*/).at(-1)!.trim();
 const lhs = (literal: string): string => literal.split(/\s*(?:==|->|=>|→)\s*/)[0]!.trim();
 
@@ -142,7 +198,16 @@ export function extractLiteralPair(desc: string, fieldText: string): { wrongLite
     const distance = editDistance(squash(wrong), squash(corrected));
     if (!best || distance < best.distance) best = { wrong, corrected, distance };
   }
-  return best ? { wrongLiteral: best.wrong, correctedValue: quoteStyle(best.wrong, best.corrected) } : { wrongLiteral: present.at(-1)!, correctedValue: null };
+  if (best) return { wrongLiteral: best.wrong, correctedValue: quoteStyle(best.wrong, best.corrected) };
+  // Old-PoS run 44: a short literal is located through the field's own statement around it.
+  const last = present.at(-1)!;
+  if (isShortLiteral(last)) {
+    const slot = slotSubstitution(fieldText, last, absent);
+    if (slot) return { wrongLiteral: slot.wrong, correctedValue: slot.corrected };
+    const longer = present.filter(literal => literal !== last && !isShortLiteral(literal) && squash(literal).includes(squash(innerOf(last)))).sort((a, b) => b.length - a.length)[0];
+    return { wrongLiteral: longer ?? enclosingStatement(fieldText, last) ?? last, correctedValue: null };
+  }
+  return { wrongLiteral: last, correctedValue: null };
 }
 
 /** The item a `checklist.json:<line>` citation points into (the nearest item id at or above that line). */
@@ -209,8 +274,8 @@ export function describeMetadataCorrection(correction: MetadataCorrection): stri
 
 /** Every occurrence of `literal` in the items' userSees and intent rows (sweep), except `skip`. */
 export function literalOccurrences(items: readonly ChecklistItem[], literal: string, skip?: { itemId: string; field: MetadataField }): LiteralOccurrence[] {
-  const inner = literal.replace(/^['"`]|['"`]$/g, '');
-  if (!isStatement(literal) && inner.length < 4) return [];
+  // A bare short literal is never swept (it matches unrelated text); extraction widens it to its statement (run 44).
+  if (isShortLiteral(literal)) return [];
   const out: LiteralOccurrence[] = [];
   for (const item of items) {
     if (item.status === 'withdrawn') continue;
@@ -292,7 +357,37 @@ export function openMetadataCorrections(args: { store: Store; storyId: string; g
     if (finding.status !== 'open' || finding.evidenceState === 'disproven' || !findingCitesStoryMetadata(finding)) continue;
     for (const correction of storedFindingCorrections({ ...args, finding })) add(correction, { desc: finding.desc, findingId: finding.id, lane: finding.agent });
   }
+  for (const derived of sweptIntentRowCorrections(args.store, args.storyId, items)) add(derived, { desc: `${derived.rowRefs.join(', ')} still state ${derived.wrongLiteral} (corrected elsewhere)` });
   return [...byKey.values()];
+}
+
+/**
+ * Old-PoS run 44 (F-021): the in-place correction fixed userSees, the sweep listed the
+ * intent rows stating the same wrong literal, but intent rows are corrected only in
+ * PLAN and nothing routed them there: a critic found them four rounds later. Every
+ * intent row that still states, on its expected side (after its last `->` / `=>` /
+ * `→` / `==`; a statement literal anywhere), the wrong literal of an applied
+ * correction is an open intent-row correction of its item (next takes the Story to
+ * PLAN for it). A short literal is never matched alone; an input occurrence is left.
+ */
+function sweptIntentRowCorrections(store: Pick<Store, 'readProcessEvents'>, storyId: string, items: readonly ChecklistItem[]): MetadataCorrection[] {
+  let events: Array<Record<string, unknown>> = [];
+  try { events = store.readProcessEvents(storyId); } catch { return []; }
+  const literals = [...new Set(appliedCorrections(events).flatMap(row => (row as { wrongLiterals?: unknown }).wrongLiterals)
+    .filter((literal): literal is string => typeof literal === 'string' && !isShortLiteral(literal)))];
+  const out: MetadataCorrection[] = [];
+  for (const literal of literals) {
+    for (const item of items) {
+      if (item.status === 'withdrawn') continue;
+      const refs = LANES.flatMap(lane => (item.verificationIntent?.[lane] ?? []).flatMap((row, index) => {
+        const text = `${row.desc ?? ''} ${(row as { derivation?: { computation?: string } }).derivation?.computation ?? ''}`;
+        const expected = isStatement(literal) ? text : (row.desc ?? '').split(/->|=>|→|==/).slice(1).at(-1) ?? '';
+        return expected && statedForm(expected, literal) ? [`${item.id}:${lane}:${index}`] : [];
+      }));
+      if (refs.length) out.push({ itemId: item.id, field: 'verificationIntent', rowRefs: refs, wrongLiteral: literal, correctedValue: null, fieldHash: metadataFieldHash(item, 'verificationIntent') });
+    }
+  }
+  return out;
 }
 
 /** Stored open findings whose cited defect lies only in Story metadata (never repair work). */
@@ -333,18 +428,67 @@ export function isMetadataTargetFinding(args: { store: Store; storyId: string; g
   return own.every(correction => reclassified.some(other => sameTarget(correction, other)));
 }
 
+/** One journaled applied correction (process event metadata_correction_applied). */
+export interface AppliedMetadataCorrection {
+  itemId: string;
+  field: MetadataField;
+  /** userSees: the field text before / after the correction (intent rows journal hashes only and are never reverted). */
+  before?: string;
+  after?: string;
+}
+
+function appliedCorrections(events: ReadonlyArray<Record<string, unknown>>): AppliedMetadataCorrection[] {
+  return events.filter(event => event.type === METADATA_CORRECTION_APPLIED_EVENT)
+    .map(event => event as unknown as AppliedMetadataCorrection)
+    .filter(event => typeof event.itemId === 'string' && (event.field === 'userSees' || event.field === 'verificationIntent'));
+}
+
+/**
+ * Old-PoS run 44 (R2): the checklists the round's lanes may have judged before
+ * the applied Story-metadata corrections, newest correction reverted first (one
+ * state per applied correction, item by item). Only userSees corrections are
+ * reverted, each from its journaled before/after text, so no extracted corrected
+ * value is needed. The chain stops (fail closed) at an intent-row correction (a
+ * pinned expected value changed: evidence judged before it stays invalid) and at
+ * a field that no longer states the correction's result (another edit followed).
+ * Every other field is untouched: a lane envelope matches a checkpoint only when
+ * the corrected text is the sole difference.
+ */
+export function metadataCorrectionCheckpoints(events: ReadonlyArray<Record<string, unknown>>, items: readonly ChecklistItem[]): ChecklistItem[][] {
+  const out: ChecklistItem[][] = [];
+  let state = items.map(item => ({ ...item }));
+  for (const correction of appliedCorrections(events).reverse()) {
+    if (correction.field !== 'userSees' || typeof correction.before !== 'string' || typeof correction.after !== 'string') break;
+    const at = state.findIndex(item => item.id === correction.itemId);
+    if (at < 0 || (state[at]!.userSees ?? '') !== correction.after) break;
+    state = state.map((item, index) => (index === at ? { ...item, userSees: correction.before } : item));
+    out.push(state);
+  }
+  return out;
+}
+
 /**
  * Old-PoS run 31: the userSees text the candidate-spec route judges. A verified
  * metadata correction (corrected value now stated in place of the reviewer-cited
  * wrong literal) is reverted for routing only, so an owner's text correction in
  * REVIEW does not stale the route and rerun every lane. Any other userSees edit
  * still changes the routing input (the reroute stays the safe fallback).
+ * Old-PoS run 44: with the item named, every journaled applied correction of its
+ * userSees is reverted from its recorded text first (newest first, while the text
+ * is still that correction's result), with no corrected value needed.
  */
-export function routingUserSees(store: Pick<Store, 'readProcessEvents'>, storyId: string, userSees: string | undefined): string | undefined {
+export function routingUserSees(store: Pick<Store, 'readProcessEvents'>, storyId: string, userSees: string | undefined, itemId?: string): string | undefined {
   if (!userSees) return userSees;
-  let events: Array<Record<string, unknown>> = [];
-  try { events = store.readProcessEvents(storyId).filter(event => event.type === METADATA_FINDING_RECLASSIFIED_EVENT); } catch { return userSees; }
+  let all: Array<Record<string, unknown> & { type: string }> = [];
+  try { all = store.readProcessEvents(storyId); } catch { return userSees; }
   let text = userSees;
+  if (itemId) {
+    for (const correction of appliedCorrections(all).filter(row => row.itemId === itemId).reverse()) {
+      if (correction.field !== 'userSees' || typeof correction.before !== 'string' || correction.after !== text) break;
+      text = correction.before;
+    }
+  }
+  const events = all.filter(event => event.type === METADATA_FINDING_RECLASSIFIED_EVENT);
   for (const event of events) {
     for (const row of (event.reclassified ?? []) as Array<{ corrections?: MetadataCorrection[] }>) {
       for (const correction of row.corrections ?? []) {

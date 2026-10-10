@@ -1,5 +1,5 @@
 import { planIntentPrecheckWarnings } from '../core/plan-intent-precheck.js';
-import { describeMetadataCorrection, literalOccurrences, METADATA_CORRECTION_UNCHANGED, metadataCorrectionCleared, metadataFieldText, openMetadataCorrections } from '../core/metadata-correction.js';
+import { describeMetadataCorrection, literalOccurrences, METADATA_CORRECTION_APPLIED_EVENT, METADATA_CORRECTION_UNCHANGED, metadataCorrectionCleared, metadataFieldHash, metadataFieldText, openMetadataCorrections } from '../core/metadata-correction.js';
 import { observedImplementationDigest, withVerificationCommitObservation, withVerificationCompletionObservation, withVerificationLaunchObservation, withVerificationPlanningObservation, withVerificationRefreshObservation } from '../core/verification-execution-evidence.js';
 import { assertGitObservationInactive, observedGit, withGitTreeObservation, withoutGitObservation } from '../core/git-tree-observation.js';
 import { maintenanceCommandWrites } from '../core/maintenance-command-mode.js';
@@ -3559,7 +3559,10 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         }
         if (!args.reason || args.reason.trim().length < 10) throw new Error('checklist_update refused: a metadataCorrection needs a reason (the request sentence and the value it implies) [metadata_correction_reason_required]');
         if (args.verificationIntent !== undefined && story.phase !== 'PLAN') {
-          throw new Error(`checklist_update refused: intent rows are frozen outside PLAN; return to PLAN for this metadata correction [metadata_correction_intent_outside_plan]\nNext: proof-or-stop story_advance '{"storyId":"${args.storyId}","phase":"${story.phase === 'REVIEW' ? 'DEV' : 'PLAN'}"}'`);
+          // Old-PoS run 44 (F-021): REVIEW reaches PLAN in two transitions (REVIEW->DEV->PLAN); next --run makes both.
+          throw new Error(`checklist_update refused: intent rows are frozen outside PLAN; return to PLAN for this metadata correction [metadata_correction_intent_outside_plan]\nNext: ${story.phase === 'REVIEW'
+            ? `proof-or-stop next --storyId=${args.storyId} --run`
+            : `proof-or-stop story_advance '{"storyId":"${args.storyId}","phase":"PLAN"}'`}`);
         }
         if (!['PLAN', 'DEV', 'REVIEW'].includes(story.phase)) throw new Error(`checklist_update refused: no metadata correction in ${story.phase} [metadata_correction_phase_invalid]`);
       } else if (story.phase === 'REVIEW') {
@@ -3782,6 +3785,18 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
             + `Next: proof-or-stop next --storyId=${args.storyId} (it names the wrong literal and the reviewer's value)`);
         }
         results.push(`metadata correction verified (${metadataCorrections.map(row => `${row.itemId} ${row.field}`).join(', ')}); no repair, no review round`);
+        // Old-PoS run 44: journal what changed, so lane evidence judged before this text-only
+        // correction stays valid (metadataCorrectionCheckpoints) without an extracted corrected
+        // value. userSees keeps its text before/after; an intent-row correction records hashes
+        // only and is never reverted (a pinned expected value changed).
+        for (const field of ['userSees', 'verificationIntent'] as const) {
+          if (metadataFieldText(item, field) === metadataFieldText(metadataBefore, field)) continue;
+          store.appendProcessEvent(args.storyId, { type: METADATA_CORRECTION_APPLIED_EVENT, storyId: args.storyId, command: 'checklist_update', role: 'owner',
+            itemId: args.itemId, field, phase: story.phase,
+            ...(field === 'userSees' ? { before: metadataBefore.userSees ?? '', after: item.userSees ?? '' }
+              : { beforeHash: metadataFieldHash(metadataBefore, field), afterHash: metadataFieldHash(item, field) }),
+            wrongLiterals: [...new Set(metadataCorrections.map(row => row.wrongLiteral).filter((literal): literal is string => Boolean(literal)))] } as never);
+        }
       }
 
       // Old-PoS run 31 (CHK-005): a PLAN amendment of a done item's acceptance

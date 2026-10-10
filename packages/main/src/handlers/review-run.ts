@@ -42,6 +42,7 @@ import { reviewIncrementalContext, resolveFullStoryBaseHead } from '../core/revi
 import { currentOpenReviewInventory, assertReviewInventoryCutoff, withReviewInventoryMutationLock } from '../core/review-inventory-epoch.js';
 import { assertReviewInventoryContextFreshLocked, requireInventoryCriticSubjectLocked } from './review-inventory.js';
 import { inspectExpectedControllerRuntimeProjection } from '../core/runtime-artifact-registry.js';
+import { liveReviewRunForTarget, liveReviewRunRefusal } from '../core/review-run-live.js';
 
 function withReviewMetadataTransactionLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
   const lockDir = ctx.store.runtimeLockDirPath(storyId, 'review-run', 'review-runs');
@@ -226,6 +227,15 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
       }, workspace.metadataRoot || ctx.root);
       assertReviewInventoryContextFreshLocked(ctx, args.storyId);
       assertReviewInventoryCutoff(store, args.storyId, { materialHash, storyFilesHash });
+      // Old-PoS run 44 (R2): one live ReviewRun per target; a second start is refused with
+      // ONE Next (next --run launches or waits on the live run) instead of an orphan.
+      if (!reviewerEscalationReason && preflightStory.currentReviewRound) {
+        const live = liveReviewRunForTarget({ store, root: workspace.metadataRoot || ctx.root, storyId: args.storyId,
+          round: preflightStory.currentReviewRound, lane, reviewPurpose: args.reviewPurpose, inventoryEpochId: args.inventoryEpochId,
+          inventoryWave: (() => { const open = currentOpenReviewInventory(store, args.storyId); return open && open.epochId === args.inventoryEpochId ? open.waves.length + 1 : undefined; })(),
+          materialHash, dispatchedReviewer: authority.source === 'dispatched-env' });
+        if (live) throw new Error(liveReviewRunRefusal(args.storyId, live));
+      }
       const inventoryBinding = args.reviewPurpose === 'inventory-completeness'
         ? requireInventoryCriticSubjectLocked(ctx, args.storyId, args.inventoryEpochId!) : undefined;
       if (inventoryBinding) {

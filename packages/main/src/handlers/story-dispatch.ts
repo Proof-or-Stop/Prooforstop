@@ -1033,6 +1033,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push('- Add a failing test for each sibling as well as for the reported case, then fix them together and rerun the affected package tests.');
       lines.push('- If the repair changes what a field or encoding means or can represent (for example adds an omitted/unset distinction), list every reader of it, including render, String(), serialize, print, equality and hash, and make each honor the new distinction or state a concrete reason tied to the request. Fix any existing test whose expected value contradicts the requirement.');
       lines.push('- A sibling left unfixed is reported as a new finding in the next review round, which costs a full remediation cycle.');
+      // Old-PoS run 44 (F-009..F-019): each repair fixed the reported shapes only; the next round found the next one.
+      lines.push('- Find the family by grepping the code path the finding names (the branch that mishandles it and every caller reaching it): each receiver, target (lvalue / parent / container) and operand shape that reaches the same branch, nested and computed ones included. Fix each (or reject it with an explicit error) with one test each.');
+      lines.push('- In your final report, one line per shape checked: `[family] <shape>: fixed | rejected | unaffected (why)`.');
       lines.push(REPAIR_INPUT_VARIANT_RULE);
       lines.push(PRODUCT_CODE_NO_POS_METADATA_RULE);
       const storyBase = (() => { try { return resolveFullStoryBaseHead(store, root, args.storyId); } catch { return undefined; } })();

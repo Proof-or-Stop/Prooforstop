@@ -83,7 +83,7 @@ import {
 import { wantsFullOutput, truncateOneLine } from '../cli/output-verbosity.js';
 import { isEvidenceChainFindingCategory } from '../core/evidence-chain-finding.js';
 import { evidenceChainNextActionForStory } from './evidence-chain.js';
-import { findingDuplicateOf, duplicateCoverageSelectorProblem, runDuplicateCoverage } from '../core/duplicate-finding-coverage.js';
+import { findingDuplicateOf, duplicateCoverageSelectorProblem, duplicateRootOf, runDuplicateCoverage } from '../core/duplicate-finding-coverage.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { currentGitHead } from '../core/evidence-freshness.js';
 import { storyFindingRepairState } from './next-driver.js';
@@ -813,7 +813,8 @@ function closeDuplicateWithCoverageFor(ctx: HandlerContext, args: { storyId: str
   if (!finding) throw new Error(`Finding ${args.findingId} not found`);
   if (finding.status !== 'open') refuse(`${args.findingId} is ${finding.status}, not open`, 'duplicate_not_open');
   const duplicate = findingDuplicateOf(store, args.storyId, args.findingId);
-  if (!duplicate || duplicate.canonicalFindingId !== args.duplicateOf) {
+  // Old-PoS run 44: the root canonical of a duplicate chain is accepted as well (duplicateRootOf).
+  if (!duplicate || (duplicate.canonicalFindingId !== args.duplicateOf && duplicateRootOf(store, args.storyId, args.findingId) !== args.duplicateOf)) {
     refuse(`neither the REVIEW inventory critic nor a later review run's restatement makes ${args.findingId} a duplicate of ${args.duplicateOf}`
       + (duplicate ? ` (its canonical finding is ${duplicate.canonicalFindingId})` : ''), 'duplicate_not_critic_verified');
   }
