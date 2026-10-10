@@ -99,9 +99,11 @@ cannot place is never run or flagged). Old-PoS runs 35-39: a prose connector
 (`returns`, `evaluates to`, `outputs`, ...) after a code input and before a
 concrete value is a case too, and the contract and the done note state `N rows
 not extractable (not run: ...)` instead of a bare 0 example rows; and an item reopened because its added
-tests compare a request-quoted exact string only by prefix / contains
-(`exact_text_prefix_assertion`) gets the test, file and helper in its relaunch
-prompt. The summary ends with receiptId, replacementSafe, any supervision
+tests compare a request-quoted exact string only by prefix / contains applied to
+that expected text (`exact_text_prefix_assertion`) gets each row (`file:line`),
+test and comparison in its relaunch prompt; since old-PoS run 40 that reopen and
+the relaunch are framework steps (`next --run` runs both; the relaunch is a
+framework launch once per flag when the selection is bound). The summary ends with receiptId, replacementSafe, any supervision
 diagnostic, the next action and the full-record directory. A completed run never
 shows a failureKind (old-PoS run 15: a stale `failureKind=auth` next to a
 completed implementer made the owner relaunch it). A run that ended with

@@ -236,6 +236,9 @@ Old-PoS run 34: one refusal lists every refused row of every item, the
 submitted payload is staged at `.proof-or-stop/runtime/story-create/payload.json`,
 and the one `Next:` is to fix only the listed rows in that file and run
 `proof-or-stop story_create @<that file>`; never re-send the whole payload.
+Old-PoS run 40: an argument-validation refusal (e.g. a row `type` outside
+`logic|cli|browser|manual|docs`, which the story_create template step lists) is
+staged the same way with the same one `Next:`.
 
 DEV implementer completion (old-PoS run 34): the implementer prompt inlines
 `background.md`, the item's `plan.md` section and `request.md`, and its one
@@ -248,7 +251,11 @@ and marks it done; a failing verifier relaunches the implementer. A finding a
 managed repair repaired is resolved by `next` as a framework step with a
 framework-written resolution (the handler re-checks each finding's own repair
 and cited change as before). The delivery reviewer's prompt carries the
-`delivery_context_pack` output.
+`delivery_context_pack` output and (old-PoS run 40) the Story's
+`delivery_check_set` skeleton with the canonical report commands
+(`acceptance_topology_check`, `pre_review_check_read`,
+`acceptance_rollout_report_read`, `acceptance_rollout_check`: read-only
+commands, not files).
 
 INIT to INIT_CHECK requires independent records from both
 `proof-or-stop-review-story-init` and `proof-or-stop-product-reviewer`; each reviewer persists
@@ -685,8 +692,14 @@ test-coverage lane prompt (only when the request quotes must-match-exactly
 strings) an exact-text rubric: a prefix / contains / regex assertion of such a
 string is a finding. Before REVIEW (old-PoS run 32 F-001), with every item done,
 `next` returns `exact_text_prefix_assertion` (reopen one item, once per gap set)
-when the Story's added test functions compare a request-quoted literal only by
-prefix / contains, directly or through a helper that wraps one.
+when the Story's added tests compare a request-quoted literal only by prefix /
+contains applied to that expected text (directly or through the helper parameter
+it is passed to). Old-PoS run 40: attribution is per row and per operand (a row
+compared exactly in its own table loop, wrapper-type branch or keyed field is
+exact even when the same function compares other rows by prefix; a helper that
+compares the text with equality and checks a position line by prefix is exact),
+and the reopen and the implementer relaunch are framework steps `next --run`
+runs.
 Every `openQuestions` entry in that signed scope check must have a substantive
 written resolution before `story_review` can pass. The current handler-directed
 path is the registered `scope_question_resolve` command; the main agent owns the
@@ -719,10 +732,14 @@ changed"]'`. A `scope_gap` is the signed scope-plan reviewer verdict and
 story_review never re-judges it: cover the point in a checklist item, or append
 an `excludes` entry naming it with the reason (reference-only material or an
 acknowledged "do not ..." constraint; a `pin-audit` / `asymmetric-example` gap
-is fixed in the intent row itself), then rerun the scope-plan reviewer with
-the managed `host_run` command the hint prints. When the checklist changed after
-the verdict (`scope-check.json` `checklistDigest`, guidance only), the hint names
-only the rerun, and `next` returns that relaunch itself. The brief
+is fixed in the intent row itself), then run `proof-or-stop next
+--storyId=<id> --run`: it relaunches the scope-plan reviewer once on the final
+checklist and reruns story_review (old-PoS run 40: the hint used to print a
+`host_run` the owner launched by hand). When the checklist changed after the
+verdict (`scope-check.json` `checklistDigest`, guidance only), the hint names
+only that rerun. With the latest story_review round current and blocking,
+`next` returns `plan_review_blockers`: the blockers and that one `next --run`,
+never a hand-run `story_review`. The brief
 `story_review` view never truncates an issue's `Next` remedy. A quick-channel Story may
 make adversarial review optional only when the CLI says it is eligible; normal
 scope, intent, ownership, memory, and policy gates still apply.
