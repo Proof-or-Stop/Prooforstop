@@ -699,7 +699,10 @@ compared exactly in its own table loop, wrapper-type branch or keyed field is
 exact even when the same function compares other rows by prefix; a helper that
 compares the text with equality and checks a position line by prefix is exact),
 and the reopen and the implementer relaunch are framework steps `next --run`
-runs.
+runs. Old-PoS run 43: an equality on a cut of the actual text whose remainder
+is discarded (an indexed split part such as `strings.SplitN(x, sep, 2)[0]`,
+inline or through a variable, a `strings.Cut` head, a first-line helper) is a
+prefix comparison too.
 Every `openQuestions` entry in that signed scope check must have a substantive
 written resolution before `story_review` can pass. The current handler-directed
 path is the registered `scope_question_resolve` command; the main agent owns the
@@ -735,7 +738,15 @@ acknowledged "do not ..." constraint; a `pin-audit` / `asymmetric-example` gap
 is fixed in the intent row itself), then run `proof-or-stop next
 --storyId=<id> --run`: it relaunches the scope-plan reviewer once on the final
 checklist and reruns story_review (old-PoS run 40: the hint used to print a
-`host_run` the owner launched by hand). When the checklist changed after the
+`host_run` the owner launched by hand). Old-PoS run 43 (A/B
+`plan.exclusionRationaleCheck`, default on): an excludes entry cannot close a
+row whose named behaviour another item of the Story adds or changes (the item's
+title, userSees or modify / create file names share the row's content terms):
+`scope_check_save` refuses such an `excluded` row
+(`[scope_exclusion_contradicted]`), `story_review` rejects one in an earlier
+verdict with one `Next:` (a covering row on that item, drop the entry, then
+`next --run`), and the gap remedy for such a row names that item and offers no
+excludes entry. When the checklist changed after the
 verdict (`scope-check.json` `checklistDigest`, guidance only), the hint names
 only that rerun. With the latest story_review round current and blocking,
 `next` returns `plan_review_blockers`: the blockers and that one `next --run`,
@@ -787,6 +798,12 @@ conclusions or mutations.
 After DEV (every checklist item done and committed), run `proof-or-stop next --storyId=<id>` from the Story worktree and execute the one command it prints, then ask again. It is read-only, decides each step from the real gate predicates (evidence-chain check, REVIEW verdict, reviewer batch plan, inventory status, PRE_CERT admit predicates, certification status, DONE oracle), and labels it `framework` (mechanical, including a managed launch fully bound to this Story's own earlier host/model/effort and the wait on it; `proof-or-stop next --storyId=<id> --run` executes them through the normal CLI, all waits of one call within one 285 s budget, and prints `paused:` to rerun it), `agent` (code, a first or replacement managed launch, authored text or a host verdict; `<...>` placeholders name the fields to author, each with a one-line description, and a `batch` step lists several authoring commands to run in one turn, e.g. TEST's finish decision + summary) or `human`. Prefer `next --run`; no command `next` prints needs `--help`. It covers REVIEW entry, every review round (prepare → launch all prepared lanes, historically slowest first → import each lane as it ends → wait on the rest; old-PoS run 34), the inventory epoch and critic, remediation back to DEV (repair → evidence refresh → `finding_resolve`, a framework step with framework-authored resolutions since old-PoS run 34), the review reopen back to DEV when material was committed during REVIEW with no open finding (old-PoS run 25: one framework step `review_reopen`, then DEV refreshes the evidence and REVIEW starts a fresh round; do not edit code or tests during REVIEW, a needed change goes through it), PRE_CERT (fast check → `certification_window_begin` → routine `validate`), TEST (live smoke, delivery reviewer, finish decision + summary as one step, review assurance floor; on a single host that is one framework step, `quorum_submit` with `singleHost:true`) and DONE. It also drives INIT from `story_create` on (lab `owner-init-and-worker-prompt`): with no unfinished Story, `proof-or-stop next` prints the one complete `story_create` template (boundaries inline, every placeholder hinted); then `next --storyId=<id> --run` records the scope freeze check, launches both managed INIT reviewers in parallel (their first launch uses the Story's selection, else the qualified managed-reviewer default), waits, and runs `story_advance` INIT_CHECK and PLAN; called outside the Story worktree it runs there and prints the `cd`. In PLAN it names the DEV entry too: the dev-memory acknowledgement, the deterministic PLAN authoring batch, the scope-plan reviewer launch (or relaunch of a stale verdict), then `story_advance --phase=DEV` or the DEV guard's own Next (a `story_review` round older than the inputs it judged is rerun by the framework, `story_review_rerun`; old-PoS run 34). In DEV, after an intent amendment that adopted the value the implementer declared under `[intent-conflict]`, it runs the item's pinned verifier itself (`verification_run`) and marks the item done; only a failing verification relaunches the implementer (old-PoS run 34). Its commands accept trailing flags such as `--json`. Do not reorder these steps or probe `story_advance` ahead of it. Decision table: `docs/CLI.md` ("`next --storyId`").
 
 ### REVIEW and independent agents
+
+Sibling parity (old-PoS run 43, A/B `review.siblingParity`, default on): the
+test-coverage and quality lane dispatch prompts require, for every entry point
+the diff adds or changes, a probe per operand case its sibling paths (matching
+read / write, other receiver types, the pre-existing variant) special-case; an
+unstated difference is a finding citing both paths.
 
 `reviewer_list --json` reports the current Story's opt-in roster. That roster is
 computed in real time from shared workflow policy plus Story risk signals,
