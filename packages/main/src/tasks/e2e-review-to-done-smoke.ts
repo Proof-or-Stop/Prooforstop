@@ -224,6 +224,10 @@
  *      (summary_set, quorum-submit): accepted, one run (NDL). A genuinely stale
  *      binding (a delivery-input commit) fails without save-repair turns and
  *      next --run relaunches the reviewer itself (NDS).
+ *   NQR old-PoS run 40 (§6, the NDS flake): a concurrent framework writer appends
+ *      to process-events.jsonl inside the quorum_submit --singleHost closeout
+ *      window (a post-commit hook plays it); the closeout waits for that writer's
+ *      commit and is redone instead of refusing the next --run step; DONE.
  *   NDG old-PoS run 27 (§2.2): managed runs record per-command wall time and
  *      host load samples (diagnostics.jsonl), host_run_status --full summarizes
  *      them, and review.laneLaunchStaggerMs spaces the lane launches.
@@ -278,14 +282,14 @@
  *      and still review the whole Story).
  *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5 ND-V6 ND-V8 ND-V9.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NDG|NRS|NPX|NPXA|NPXS|NPXC|NRW|AB|ND-V1..NF-V9]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NRW|AB|ND-V1..NF-V9]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, relative } from 'node:path';
+import { dirname, isAbsolute, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { StoryStore } from '../core/store.js';
@@ -4241,6 +4245,58 @@ function scenarioNM(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
  *        save-repair turns, and next --run relaunches the delivery reviewer
  *        itself (a framework step, never the owner's), DONE.
  */
+/**
+ * NQR (old-PoS run 40 §6, the NDS harness flake: quorum_submit --singleHost
+ * refused about 1 run in 4): another framework writer (the delivery reviewer's
+ * metadata save under the N1 overlap) appends to process-events.jsonl inside
+ * the single-host closeout's post-commit window. The closeout refuses and rolls
+ * back its own commit (fail-closed, unchanged), and `next --run` stopped on a
+ * refused framework step. Here a post-commit hook of the fixture repository
+ * plays that writer deterministically: on the first quorum-submit metadata
+ * commit it appends one journal line, and a second later a framework command
+ * (review_host_availability_probe) journals and commits the Story metadata
+ * with it, as the delivery reviewer's save does. quorum_submit --singleHost must wait for the
+ * concurrent writer to land and redo its closeout on the new HEAD; DONE.
+ */
+function scenarioNQR(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NQR';
+  const name = 'NQR old-PoS run 40 (NDS flake): a concurrent process-events writer inside the single-host quorum closeout window is waited for and the closeout redone, not a refused next --run step; DONE';
+  const o = new Owner(tag, 'B-e2b4', machineEnv, steps);
+  const lines: string[] = [];
+  try {
+    devSetup(o);
+    const hookRel = git(o.worktree, ['rev-parse', '--git-path', 'hooks/post-commit']);
+    const hook = isAbsolute(hookRel) ? hookRel : join(o.worktree, hookRel);
+    assert.ok(!existsSync(hook), `[${tag}] the fixture has no post-commit hook of its own (${hook})`);
+    const storyDir = new StoryStore(o.worktree).storyDirPath(o.storyId);
+    const marker = join(o.root, '.nqr-concurrent-writer');
+    mkdirSync(dirname(hook), { recursive: true });
+    writeFileSync(hook, [
+      '#!/bin/sh',
+      `[ -e '${marker}' ] && exit 0`,
+      "case \"$(git log -1 --format=%s)\" in *quorum-submit*) ;; *) exit 0 ;; esac",
+      `touch '${marker}'`,
+      `printf '%s\\n' '{"type":"harness_concurrent_metadata_writer"}' >> '${storyDir}/process-events.jsonl'`,
+      // The writer's own authenticated metadata commit: a framework command that journals and commits the Story metadata.
+      `(unset GIT_INDEX_FILE; sleep 1; cd '${o.worktree}' && '${process.execPath}' '${CLI}' review_host_availability_probe '{"storyId":"${o.storyId}","json":true}') >'${marker}.log' 2>&1 &`,
+      'exit 0', '',
+    ].join('\n'));
+    chmodSync(hook, 0o755);
+    driveWithNext(o, { findingRound1: false, run: true }, lines);
+    assert.ok(existsSync(marker), `[${tag}] the concurrent writer fired inside a quorum-submit closeout`);
+    const subjects = git(o.root, ['log', '--format=%s', '-60', 'main']);
+    assert.match(subjects, /quorum-submit metadata/, `[${tag}] the single-host quorum was committed`);
+    const journal = readFileSync(join(storyDir.replace(o.worktree, o.root), 'process-events.jsonl'), 'utf8');
+    assert.match(journal, /harness_concurrent_metadata_writer/, `[${tag}] the concurrent writer's journal line is kept (committed by its own writer):\n${readFileSync(`${marker}.log`, 'utf8').slice(-800)}`);
+    lines.push('DONE reached with a concurrent process-events writer inside the single-host quorum closeout');
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 function scenarioNDL(machineEnv: NodeJS.ProcessEnv, steps: Step[], fault: DeliveryFault): Outcome {
   const tag = fault === 'overlap' ? 'NDL' : 'NDS';
   const name = fault === 'overlap'
@@ -5327,7 +5383,7 @@ function scenarioNUB(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NDG|NRS|NPX[ASC]?|NRW|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NRW|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -5398,6 +5454,7 @@ async function main(): Promise<void> {
     if (only.includes('NM')) outcomes.push(scenarioNM(machine.env, steps));
     if (only.includes('NDL')) outcomes.push(scenarioNDL(machine.env, steps, 'overlap'));
     if (only.includes('NDS')) outcomes.push(scenarioNDL(machine.env, steps, 'stale'));
+    if (only.includes('NQR')) outcomes.push(scenarioNQR(machine.env, steps));
     if (only.includes('NDG')) outcomes.push(scenarioNDG(machine.env, steps));
     if (only.includes('NRS')) outcomes.push(scenarioNRS(machine.env, steps));
     if (only.includes('NIS')) outcomes.push(scenarioNIS(machine.env, steps));
@@ -5411,7 +5468,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NRW', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NRW', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {
