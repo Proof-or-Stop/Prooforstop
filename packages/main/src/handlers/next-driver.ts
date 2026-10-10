@@ -1984,7 +1984,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     const story = ctx.store.readStory(storyId);
     const policy = policyOf(storyId);
     const scopeFailure = missingPlanScopeCheckFailure(ctx.store, story, policy);
-    const rerun = scopeFailure ? null : scopePlanRerunReason(ctx.store, story);
+    const rerun = scopeFailure ? null : scopePlanRerunReason(ctx.store, story, ctx.root);
     // N8 (v4.1 cost plan, core/scope-plan-deferral.ts): a MISSING verdict whose
     // managed scope-plan run (launched in PLAN) is live no longer holds DEV: the
     // DEV-entry gate defers it to DEV→REVIEW, so PLAN finishes and the first

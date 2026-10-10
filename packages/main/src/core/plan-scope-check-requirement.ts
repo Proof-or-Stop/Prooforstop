@@ -22,6 +22,7 @@
  * DEV-entry gate (`[missing_scope_check]` with one `Next:` line) and `next`
  * (the managed reviewer launch step), so the three cannot drift.
  */
+import { contradictedExclusions, exclusionRationaleCheckActive } from './scope-exclusion-rationale.js';
 import { openScopeGaps } from './pin-audit-correction.js';
 import { existsSync } from 'node:fs';
 import type { StoryStore } from './store.js';
@@ -129,6 +130,7 @@ export function scopeVerdictChecklistChanged(scope: Pick<ScopeCheckData, 'checkl
 export function scopePlanRerunReason(
   store: Pick<StoryStore, 'readChecklist' | 'readScopeCheck'>,
   story: Pick<StoryInfo, 'storyId' | 'currentReviewRound'>,
+  root?: string,
 ): string | null {
   const scope = store.readScopeCheck(story.storyId);
   if (!scope) return null;
@@ -136,6 +138,11 @@ export function scopePlanRerunReason(
   const gaps = openScopeGaps(scope, store.readChecklist(story.storyId)).length;
   if (gaps > 0 && scopeVerdictChecklistChanged(scope, store.readChecklist(story.storyId))) {
     return `the verdict of ${scope.checkedAt} lists ${gaps} gap(s) and the checklist changed since that verdict`;
+  }
+  // Old-PoS run 43 (core/scope-exclusion-rationale.ts): an exclusion story_review rejects is judged again once the checklist changed.
+  if (root && exclusionRationaleCheckActive(root) && scopeVerdictChecklistChanged(scope, store.readChecklist(story.storyId))) {
+    const contradicted = contradictedExclusions(scope, store.readChecklist(story.storyId)).length;
+    if (contradicted > 0) return `the verdict of ${scope.checkedAt} closes ${contradicted} row(s) with an excludes rationale another item contradicts and the checklist changed since that verdict`;
   }
   if (story.currentReviewRound && scope.reviewRound !== story.currentReviewRound) {
     return `the verdict's reviewRound (${scope.reviewRound || 'none'}) is not the current review round (${story.currentReviewRound})`;

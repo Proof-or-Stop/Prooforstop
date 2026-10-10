@@ -44,6 +44,8 @@ import { reportHealthIssue } from '../core/health.js';
 import { findSealedManagedImplementerCompletion, managedImplementerAlreadyDoneAction } from '../core/managed-host-run.js';
 import { loadConfig } from '../core/config.js';
 import { probeMatrixOn } from '../core/ab-variants.js';
+import { renderSiblingParity } from '../core/sibling-parity.js';
+import { exclusionRationaleCheckActive, SCOPE_PLAN_EXCLUSION_CHECK } from '../core/scope-exclusion-rationale.js';
 import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { scopeVerdictHeldItems } from '../core/scope-plan-deferral.js';
 import { currentPlanOwnerBinding } from '../core/plan-touchpoint-coverage.js';
@@ -758,6 +760,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     lines.push('Review focus:');
     lines.push('- Identify every user-visible promise, scope constraint, exclusion, and acceptance expectation in the story artifacts.');
     lines.push('- Classify each feature as covered, excluded, gap, orphan-suspect, or drift using the scope_check_save schema.');
+    // Old-PoS run 43 (core/scope-exclusion-rationale.ts, A/B plan.exclusionRationaleCheck, default on).
+    if (exclusionRationaleCheckActive(root)) lines.push(SCOPE_PLAN_EXCLUSION_CHECK);
     lines.push('- Record open questions when the artifacts conflict or a promise is visible but cannot be safely classified.');
     lines.push('- Track readManifest with filesReadFully, filesTriagedByName, scanEscalationReason, candidateSpecSetDigest, and corpusDigest. Put full-read files in filesReadFully, filename/title-only triage in filesTriagedByName, and use scanEscalationReason only for a justified tool-driven full decisions-directory scan.');
     lines.push('');
@@ -834,6 +838,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     // Old-PoS run 31 (core/request-probes.ts): the framework probe tables as evidence.
     const probeEvidence = renderProbeEvidence(root, args.storyId, store.readChecklist(args.storyId).items.map(item => item.id));
     if (probeEvidence.length > 0) lines.push('', ...probeEvidence);
+    // Old-PoS run 43 (core/sibling-parity.ts, A/B review.siblingParity, default on).
+    const siblingParity = renderSiblingParity(root, lane);
+    if (siblingParity.length > 0) lines.push('', ...siblingParity);
     lines.push('');
     lines.push(`Current phase: ${story.phase}. Review lane: ${lane}.`);
     appendReviewerExecutionModes(lines, args.storyId, lane);

@@ -132,6 +132,49 @@ const EXACT_CALL = /(?:^|[^\w$])(Equal|Equals|DeepEqual|EqualValues|assertEqual|
 const EQUALITY = /===|!==|==|!=/g;
 /** A comparison operand that is a cut of the text (a slice): comparing it with equality checks a part only. */
 const SLICE_OPERAND = /\[[^\]]*:[^\]]*\]|\.(?:slice|substring|substr)\s*\(\s*0\b/;
+/**
+ * Old-PoS run 43 (§3.3): other cuts of the text whose remainder is discarded:
+ * one indexed part of a split (`strings.SplitN(x, sep, 2)[0]`, `x.split(sep)[0]`,
+ * `x.splitlines()[0]`, `x.partition(sep)[0]`) and a first-line helper call. A
+ * split kept whole in a variable is judged at its use (splitCuts): its other
+ * parts may be checked too.
+ */
+const CUT_OPERAND = /\b(?:Split|SplitN|SplitAfter|SplitAfterN|Fields|split|rsplit|splitlines|partition|rpartition|lines)\s*\([^]*\)\s*\[\s*[\w$]+\s*\]|\b(?:first_?[Ll]ine|First[Ll]ine|head_?[Ll]ine|Head[Ll]ine)\s*\(/;
+/** The value of an assignment is a whole split (its parts are indexed later). */
+const SPLIT_VALUE = /^\s*(?:[\w$]+\.)*(?:Split|SplitN|SplitAfter|SplitAfterN|Fields|split|rsplit|splitlines)\s*\([^]*\)\s*$/;
+const isCut = (masked: string, cuts: ReadonlySet<string>): boolean => {
+  if (SLICE_OPERAND.test(masked) || CUT_OPERAND.test(masked)) return true;
+  const bare = masked.trim().replace(/^(?:string|String|str)\s*\(\s*([\s\S]*?)\s*\)$/, '$1');
+  return cuts.has(bare);
+};
+/** The Why of a cut comparison: a slice keeps its old wording; any other cut names itself. */
+const cutVia = (masked: string, cuts: ReadonlySet<string>): string =>
+  SLICE_OPERAND.test(masked) && !CUT_OPERAND.test(masked) && !cuts.has(masked.trim()) ? 'a slice of the text' : 'a cut of the text (one part of a split / first line)';
+
+/**
+ * Names that hold a cut of a text: assigned an indexed split, a slice or a
+ * first-line helper result; the head of `head, _, _ := strings.Cut(..)` (tail
+ * discarded); `parts[i]` of a whole split `parts` whose block reads no other
+ * part and not its length (the run 40 exact-first-line-plus-position shape
+ * reads both, so it stays exact).
+ */
+function cutNames(lines: readonly string[], masks: readonly string[]): Set<string> {
+  const cuts = new Set<string>();
+  const block = masks.join('\n');
+  masks.forEach((masked, index) => {
+    const head = /^\s*([A-Za-z_$][\w$]*)\s*,\s*_\s*(?:,\s*[\w$]+\s*)?:?=\s*(?:[\w$]+\.)*Cut\s*\(/.exec(masked);
+    if (head) { cuts.add(head[1]!); return; }
+    const assigned = assignment(lines[index]!, masked);
+    if (!assigned || assigned.names.length !== 1) return;
+    const name = assigned.names[0]!;
+    if (isCut(assigned.masked, cuts)) { cuts.add(name); return; }
+    if (!SPLIT_VALUE.test(assigned.masked)) return;
+    const uses = [...block.matchAll(new RegExp(`(?<![\\w$.])${escapeRe(name)}(?![\\w$])(\\s*\\[\\s*([^\\]]*)\\])?`, 'g'))].slice(1);
+    const indexes = new Set(uses.map(use => use[2]?.trim() ?? '*'));
+    if (indexes.size === 1 && !indexes.has('*')) cuts.add(`${name}[${[...indexes][0]}]`);
+  });
+  return cuts;
+}
 const TRIVIAL_OPERAND = /^(?:nil|null|None|undefined|true|false|True|False|-?\d+(?:\.\d+)?|""|''|``|\[\]|\{\})$/;
 /** Calls whose result is their argument's text (conversions), not a computed output. */
 const CONVERSIONS = new Set(['string', 'String', 'str', 'bytes', 'toString', 'Text', 'text']);
@@ -304,6 +347,7 @@ function sitesOf(text: string, seeds: Seeds, helpers: ReadonlyMap<string, string
   const lines = text.split('\n');
   const masks = lines.map(maskLine);
   const live = propagate(lines, masks, seeds);
+  const cuts = cutNames(lines, masks);
   const sites: Site[] = [];
   lines.forEach((line, index) => {
     const masked = masks[index]!;
@@ -325,8 +369,11 @@ function sitesOf(text: string, seeds: Seeds, helpers: ReadonlyMap<string, string
       if (close < 0) continue;
       const args = splitTop(masked, open + 1, close);
       if (!args.some(carried)) continue;
-      const sliced = args.some(range => SLICE_OPERAND.test(masked.slice(...range)));
-      sites.push({ kind: sliced ? 'prefix' : 'exact', line: index, via: sliced ? 'a slice of the text' : match[1]! });
+      // `expect(<actual>).toBe(<expected>)`: the actual side is the receiver chain's own argument.
+      const start = match.index! + match[0].indexOf(match[1]!);
+      const receiver = start > 0 && masked[start - 1] === '.' ? operandBefore(masked, start - 1) : null;
+      const sliced = [...args, ...(receiver ? [receiver] : [])].find(range => isCut(masked.slice(...range), cuts));
+      sites.push({ kind: sliced ? 'prefix' : 'exact', line: index, via: sliced ? cutVia(masked.slice(...sliced), cuts) : match[1]! });
     }
     for (const match of masked.matchAll(EQUALITY)) {
       const left = operandBefore(masked, match.index!);
@@ -334,8 +381,8 @@ function sitesOf(text: string, seeds: Seeds, helpers: ReadonlyMap<string, string
       const [l, r] = [masked.slice(...left).trim(), masked.slice(...right).trim()];
       if (!l || !r || TRIVIAL_OPERAND.test(l) || TRIVIAL_OPERAND.test(r)) continue;
       if (!carried(left) && !carried(right)) continue;
-      const sliced = SLICE_OPERAND.test(l) || SLICE_OPERAND.test(r);
-      sites.push({ kind: sliced ? 'prefix' : 'exact', line: index, via: sliced ? 'a slice of the text' : match[0] });
+      const sliced = isCut(l, cuts) ? l : isCut(r, cuts) ? r : null;
+      sites.push({ kind: sliced ? 'prefix' : 'exact', line: index, via: sliced ? cutVia(sliced, cuts) : match[0] });
     }
     if (depth <= 0) return;
     for (const match of masked.matchAll(/(?:^|[^\w$])([A-Za-z_$][\w$]*)\s*\(/g)) {

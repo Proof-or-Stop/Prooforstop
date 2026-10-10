@@ -21,6 +21,9 @@
  *                                        (Story diff, checklist digest, changed files + hashes, candidate route), cached in runtime
  *   V9 review.roundDelta=pack           from round 2 on the pack also carries the delta since the previous round's head
  *                                        (repair commits + diff, earlier findings and their resolutions)
+ *   Old-PoS run 43 (default ON, `off` = recorded rollback; behaviour in tasks/run43-fixes-smoke.ts S / P):
+ *   review.siblingParity             the test-coverage and quality lane prompts carry the sibling-parity check
+ *   plan.exclusionRationaleCheck     an excludes entry may not close a scope row whose behaviour another item changes
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -50,8 +53,19 @@ await check('config: absent switches resolve to production values; malformed fai
   const off = resolveAbVariants({});
   assert.deepEqual(off, { criticOnCleanRound: 'run', round2Scope: 'full', round2Lanes: 'fresh', remediationGrouping: 'single', remediationThread: 'fresh', implementationGrouping: 'per-item', implementationThread: 'resume', lanePack: 'off', roundDelta: 'off',
     // Old-PoS run 33: the catch-earlier line is off by default (A/B arms A1-A4).
-    coverageMatrix: 'off', scopeDeferral: 'off', pinAuditEnforcement: 'off', probeEnforcement: 'advisory', probeMatrix: 'off' });
+    coverageMatrix: 'off', scopeDeferral: 'off', pinAuditEnforcement: 'off', probeEnforcement: 'advisory', probeMatrix: 'off',
+    // Old-PoS run 43: the two detection switches default on; `off` is the recorded rollback.
+    siblingParity: 'on', exclusionRationaleCheck: 'on' });
   assert.equal(abVariantEvidence(off), undefined);
+  assert.equal(abVariantEvidence(resolveAbVariants({ review: { siblingParity: 'on' }, plan: { exclusionRationaleCheck: 'on' } })), undefined, 'the default-on arms are production: not recorded');
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ review: { siblingParity: 'off' }, plan: { exclusionRationaleCheck: 'off' } })),
+    { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.siblingParity': 'off', 'plan.exclusionRationaleCheck': 'off' } }, 'old-PoS run 43: each rollback is recorded');
+  assert.throws(() => resolveAbVariants({ review: { siblingParity: 'maybe' } }), /invalid_ab_variant_config: review\.siblingParity/);
+  const { siblingParityOn, exclusionRationaleCheckOn } = await load('core/ab-variants.js');
+  assert.equal(siblingParityOn({ review: { siblingParity: 'maybe' } }), true, 'malformed keeps the default (on) where it is consumed');
+  assert.equal(exclusionRationaleCheckOn({ plan: { exclusionRationaleCheck: 7 } }), true, 'malformed keeps the default (on) where it is consumed');
+  assert.equal(siblingParityOn({ review: { siblingParity: 'off' } }), false);
+  assert.equal(exclusionRationaleCheckOn({ plan: { exclusionRationaleCheck: 'off' } }), false);
   assert.throws(() => resolveAbVariants({ review: { criticOnCleanRound: 'always' } }), /invalid_ab_variant_config: review\.criticOnCleanRound/);
   const on = resolveAbVariants({ review: { criticOnCleanRound: 'skip' }, remediation: { grouping: 'per-finding' } });
   assert.deepEqual(abVariantEvidence(on), { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.criticOnCleanRound': 'skip', 'remediation.grouping': 'per-finding' } });

@@ -80,7 +80,7 @@ The main agent passes the storyId in your prompt when launching you. Look for a 
 
 5. For each extracted feature point, determine its status:
    - **covered**: a checklist item title clearly addresses this feature
-   - **excluded**: a checklist item's `excludes` field explicitly mentions this feature OR the story's decision.json explicitly defers it
+   - **excluded**: a checklist item's `excludes` field explicitly mentions this feature OR the story's decision.json explicitly defers it. When the dispatch prompt carries an `Exclusion check` line, verify the entry's reason against the other items first (a false reason is a gap naming the item)
    - **gap**: neither covered nor excluded by any checklist item
    - **orphan-suspect**: the spec has this commitment, but the current story neither picks it up nor explicitly excludes it, and it is suspected of being unclaimed across stories (a single-story reviewer only flags the suspicion; a cross-story full-set scan is a follow-up meta review task)
    - **drift**: the diff changed something the checklist did not commit to (**always empty in the PLAN phase** — there is no diff to compare against. This bucket is reserved for the S3 scope-test reviewer; this reviewer does not fill it in during the PLAN phase)

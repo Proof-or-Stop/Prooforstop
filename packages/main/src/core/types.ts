@@ -2967,6 +2967,8 @@ export interface ScopeCheckData {
    * Signature domain excludes this field (resolution is a main agent action, not part of reviewer signature _hash).
    */
   openQuestions?: OpenQuestion[];
+  /** A/B arm of a verdict saved with a non-default switch (plan.exclusionRationaleCheck=off); outside the signature domain. */
+  abVariant?: import('./ab-variants.js').AbVariantEvidence;
   reviewRound?: string;
   /** Reviewer-visible checklist digest at save time (guidance only; outside the signature domain). */
   checklistDigest?: string;

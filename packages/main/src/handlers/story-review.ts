@@ -1,3 +1,4 @@
+import { contradictedExclusions, exclusionRationaleCheckActive, exclusionRejection, gapCoveredByItemRemedy, itemsChangingBehaviour } from '../core/scope-exclusion-rationale.js';
 import { storyScopeBudgetBlocker } from '../core/story-scope-budget.js';
 /**
  * @task B-ef9c
@@ -762,11 +763,18 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           const rerunScopeReviewer = `proof-or-stop next --storyId=${args.storyId} --run`;
           const rerunWhat = 'it relaunches the scope-plan reviewer (proof-or-stop-review-scope-plan) once on the final checklist and reruns story_review';
           const checklistChangedSinceVerdict = scopeVerdictChecklistChanged(scopeData, cl);
+          // Old-PoS run 43 (core/scope-exclusion-rationale.ts, A/B plan.exclusionRationaleCheck, default on).
+          const exclusionCheck = exclusionRationaleCheckActive(ctx.root);
           for (const gap of gaps) {
             const source = gap.source ? ` (source: ${gap.source})` : '';
             // Pin audit / same-semantics (old-PoS run 23, core/intent-derivation.ts):
             // the fix is the pinned intent itself, not coverage or an exclusion.
             const pinAudit = new RegExp(`^\\s*(?:${PIN_AUDIT_GAP_PREFIX}|${ASYMMETRIC_EXAMPLE_GAP_PREFIX})\\b`, 'i').test(gap.feature ?? '');
+            const changingItems = exclusionCheck && !pinAudit && !checklistChangedSinceVerdict ? itemsChangingBehaviour(gap.feature ?? '', cl.items) : [];
+            if (changingItems.length) {
+              issues.push({ type: 'scope_gap', severity: 'blocker', message: gapCoveredByItemRemedy(args.storyId, gap.feature, source, changingItems, rerunScopeReviewer, rerunWhat) });
+              continue;
+            }
             issues.push({
               type: 'scope_gap',
               severity: 'blocker',
@@ -783,6 +791,18 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
                   + `(\`proof-or-stop checklist_update --storyId=${args.storyId} --itemId=<CHK-id> --excludes='[...current excludes, "${gap.feature}: <why>"]'\`); `
                   + `then run \`${rerunScopeReviewer}\`: ${rerunWhat}. The INIT scope boundary is not an input of this verdict.`,
             });
+          }
+          // An excludes rationale that another item of the Story contradicts does not close the row.
+          if (exclusionCheck) {
+            for (const row of contradictedExclusions(scopeData, cl)) {
+              issues.push({
+                type: 'scope_exclusion_contradicted',
+                severity: 'blocker',
+                message: checklistChangedSinceVerdict
+                  ? `scope exclusion rejected [scope_exclusion_contradicted]: the verdict of ${scopeData.checkedAt} closes "${row.feature}" with an excludes rationale that ${row.items.map(item => item.id).join(', ')} contradicts, and the checklist changed since that verdict. Next (PLAN): run \`${rerunScopeReviewer}\`: ${rerunWhat}.`
+                  : exclusionRejection(args.storyId, row, rerunScopeReviewer, rerunWhat),
+              });
+            }
           }
           // Report excluded as info (not counted as issue)
           const excluded = (scopeData.features || []).filter(f => f.status === 'excluded');

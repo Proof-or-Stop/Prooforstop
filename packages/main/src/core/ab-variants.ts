@@ -49,6 +49,17 @@
  *                              `[probe-row]` report contract and its reopen (probe_tests_missing); off keeps one
  *                              generic line (no crash on any valid input form; an explicit null operand is not an omitted one)
  *
+ * Old-PoS run 43 (bench-staging/oldpos/run43-analysis.md §5.2 fixes 1-2): two
+ * detection switches that default ON (the first value is production); `off`
+ * is the rollback and is recorded like every other non-default value:
+ *   review.siblingParity       'on' (default) | 'off'  the test-coverage and quality lane dispatch prompts carry
+ *                              the sibling-parity check (core/sibling-parity.ts): every new or changed entry point
+ *                              is compared with its sibling paths on the operand cases the sibling special-cases
+ *   plan.exclusionRationaleCheck 'on' (default) | 'off'  an excludes entry may not close a scope-plan row whose named
+ *                              behaviour another checklist item adds or changes (core/scope-exclusion-rationale.ts):
+ *                              scope_check_save refuses such an `excluded` row, story_review rejects it in an
+ *                              older verdict, and the gap remedy names the covering item instead of an excludes entry
+ *
  * A malformed value fails closed where it is consumed (never silently treated
  * as an experimental arm; review.lanePack / review.roundDelta then keep production: no pack). See docs/CLI.md "Detection A/B variant switches".
  */
@@ -70,16 +81,18 @@ export const AB_VARIANT_FLAGS = {
   'plan.pinAuditEnforcement': ['off', 'on'],
   'dev.probeEnforcement': ['advisory', 'enforce'],
   'implementation.probeMatrix': ['off', 'on'],
+  'review.siblingParity': ['on', 'off'],
+  'plan.exclusionRationaleCheck': ['on', 'off'],
 } as const;
 
 export type AbVariantFlag = keyof typeof AB_VARIANT_FLAGS;
 export type AbVariantValue<F extends AbVariantFlag> = (typeof AB_VARIANT_FLAGS)[F][number];
 
 export interface AbVariantConfigSlice {
-  review?: { criticOnCleanRound?: string; round2Scope?: string; round2Lanes?: string; lanePack?: string; roundDelta?: string };
+  review?: { criticOnCleanRound?: string; round2Scope?: string; round2Lanes?: string; lanePack?: string; roundDelta?: string; siblingParity?: string };
   remediation?: { grouping?: string; thread?: string };
   implementation?: { grouping?: string; thread?: string; probeMatrix?: string };
-  plan?: { coverageMatrix?: string; scopeDeferral?: string; pinAuditEnforcement?: string };
+  plan?: { coverageMatrix?: string; scopeDeferral?: string; pinAuditEnforcement?: string; exclusionRationaleCheck?: string };
   dev?: { probeEnforcement?: string };
 }
 
@@ -98,6 +111,8 @@ export interface AbVariants {
   pinAuditEnforcement: AbVariantValue<'plan.pinAuditEnforcement'>;
   probeEnforcement: AbVariantValue<'dev.probeEnforcement'>;
   probeMatrix: AbVariantValue<'implementation.probeMatrix'>;
+  siblingParity: AbVariantValue<'review.siblingParity'>;
+  exclusionRationaleCheck: AbVariantValue<'plan.exclusionRationaleCheck'>;
 }
 
 export interface AbVariantEvidence {
@@ -138,6 +153,8 @@ export function resolveAbVariants(config: unknown): AbVariants {
     pinAuditEnforcement: pick('plan.pinAuditEnforcement', section(config, 'plan').pinAuditEnforcement),
     probeEnforcement: pick('dev.probeEnforcement', section(config, 'dev').probeEnforcement),
     probeMatrix: pick('implementation.probeMatrix', section(config, 'implementation').probeMatrix),
+    siblingParity: pick('review.siblingParity', review.siblingParity),
+    exclusionRationaleCheck: pick('plan.exclusionRationaleCheck', section(config, 'plan').exclusionRationaleCheck),
   };
 }
 
@@ -158,6 +175,8 @@ export function abVariantEvidence(variants: AbVariants): AbVariantEvidence | und
   if (variants.pinAuditEnforcement !== 'off') flags['plan.pinAuditEnforcement'] = variants.pinAuditEnforcement;
   if (variants.probeEnforcement !== 'advisory') flags['dev.probeEnforcement'] = variants.probeEnforcement;
   if (variants.probeMatrix !== 'off') flags['implementation.probeMatrix'] = variants.probeMatrix;
+  if (variants.siblingParity !== 'on') flags['review.siblingParity'] = variants.siblingParity;
+  if (variants.exclusionRationaleCheck !== 'on') flags['plan.exclusionRationaleCheck'] = variants.exclusionRationaleCheck;
   return Object.keys(flags).length ? { schema: AB_VARIANT_EVIDENCE_SCHEMA, flags } : undefined;
 }
 
@@ -171,7 +190,7 @@ export function dispatchTargetThreadFresh(target: { abVariant?: AbVariantEvidenc
 }
 
 /** The single-switch reader of one catch-earlier switch: a malformed value (or an unreadable config) keeps production. */
-function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix'>(config: unknown, flag: F): AbVariantValue<F> {
+function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck'>(config: unknown, flag: F): AbVariantValue<F> {
   const [group, key] = flag.split('.') as [string, string];
   try { return pick(flag, section(config, group)[key]); } catch { return AB_VARIANT_FLAGS[flag][0] as AbVariantValue<F>; }
 }
@@ -186,3 +205,7 @@ export const pinAuditEnforcementOn = (config: unknown): boolean => catchEarlierP
 export const probeEnforcementOn = (config: unknown): boolean => catchEarlierPick(config, 'dev.probeEnforcement') === 'enforce';
 /** Old-PoS run 33: implementation.probeMatrix=on restores the implementer probe-matrix block and its report contract. */
 export const probeMatrixOn = (config: unknown): boolean => catchEarlierPick(config, 'implementation.probeMatrix') === 'on';
+/** Old-PoS run 43: review.siblingParity (default on) adds the sibling-parity check to the test-coverage and quality lanes. */
+export const siblingParityOn = (config: unknown): boolean => catchEarlierPick(config, 'review.siblingParity') === 'on';
+/** Old-PoS run 43: plan.exclusionRationaleCheck (default on) checks an excludes rationale against the Story's own items. */
+export const exclusionRationaleCheckOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.exclusionRationaleCheck') === 'on';

@@ -49,6 +49,9 @@ and the reviewer must not describe it as receipt-backed production evidence.
 ### 5. Test Expectations vs Requirement
 - In changed tests, an asserted value on a promised output surface (userSees / acceptance / request) that contradicts the requirement is a correctness finding, not style (e.g. expecting a printed form that drops a part the request says must be preserved).
 
+### 6. Sibling Parity
+- When the dispatch prompt carries a `Sibling parity` section, apply it: sibling paths in unchanged files may be read and probed. An unstated difference between a new path and its sibling is a correctness finding, not style.
+
 ## Output
 
 ```bash
