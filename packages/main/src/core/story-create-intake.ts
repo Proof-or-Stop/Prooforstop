@@ -50,3 +50,15 @@ export function renderStoryCreateIntakeRefusal(failures: readonly string[], stag
     : 'Next: rerun story_create with the listed rows fixed (no Story was created).';
   return `${body}\n${next}`;
 }
+
+/**
+ * Old-PoS run 40 (N4): a story_create refused by argument validation (a row
+ * `type` outside the enum, 12 rows) was not staged, so the owner re-sent the
+ * whole payload (7.2k output tokens). The same staged path and ONE Next as an
+ * intake refusal; the validation issues stay the refusal body.
+ */
+export function storyCreateSchemaRefusalNext(stagedPath: string | null): string | null {
+  return stagedPath
+    ? `fix only the fields listed above in ${stagedPath} (the payload you submitted, staged; edit those fields, do not re-send the whole payload), then run: proof-or-stop story_create @${stagedPath}`
+    : null;
+}

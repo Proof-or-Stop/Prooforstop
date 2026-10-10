@@ -239,12 +239,13 @@ function p2p3(): void {
     check(/changed since/.test(stale.why), 'the relaunch says why (checklist changed since the verdict)', stale.why);
 
     const brief = t.review(true).issues.filter(issue => issue.type === 'scope_gap');
-    const command = `proof-or-stop host_run`;
+    // Old-PoS run 40 (N3): the rerun is `next --run`'s (it relaunches the reviewer), not a host_run the owner types.
+    const command = `proof-or-stop next --storyId=${t.storyId} --run`;
     check(brief.length === 2, 'brief story_review keeps both scope_gap rows', JSON.stringify(brief));
-    check(brief[0]?.message.includes('rerun the scope-plan reviewer') === true && brief[0]!.message.includes(command)
-      && brief[0]!.message.includes(SCOPE_REVIEWER), 'brief view: the first scope_gap keeps its whole Next remedy (the rerun command)', brief[0]?.message ?? '');
+    check(brief[0]?.message.includes('relaunches the scope-plan reviewer') === true && brief[0]!.message.includes(command)
+      && brief[0]!.message.includes(SCOPE_REVIEWER) && !brief[0]!.message.includes('proof-or-stop host_run'), 'brief view: the first scope_gap keeps its whole Next remedy (next --run reruns the reviewer)', brief[0]?.message ?? '');
     check(brief.every(issue => !/Next \(PLAN, no INI…|Next[^:]*…$/.test(issue.message)), 'brief view never cuts a Next remedy', JSON.stringify(brief.map(issue => issue.message)));
-    check((brief[1]?.message.match(/proof-or-stop host_run/g) ?? []).length === 0 && /same as above/i.test(brief[1]?.message ?? ''),
+    check((brief[1]?.message.match(/proof-or-stop next --storyId/g) ?? []).length === 0 && /same as above/i.test(brief[1]?.message ?? ''),
       'brief view: an identical remedy is collapsed to one line', brief[1]?.message ?? '');
   } finally {
     rmSync(t.root, { recursive: true, force: true });

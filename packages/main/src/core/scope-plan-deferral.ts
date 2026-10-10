@@ -100,7 +100,7 @@ export function scopeVerdictDeferral(
   let deferralOn = false;
   try { deferralOn = scopeDeferralOn(loadConfig(root)); } catch { deferralOn = false; }
   if (!deferralOn) {
-    return { kind: 'held', run, reason: 'the scope-plan deferral (N8) is off (A/B switch plan.scopeDeferral, default off since old-PoS run 33), so DEV entry waits in PLAN for the verdict' };
+    return { kind: 'held', run, reason: 'the scope-plan deferral (N8) is off (A/B switch plan.scopeDeferral, default off), so DEV entry waits in PLAN for the verdict' };
   }
   const hold = scopeVerdictItemHold(store, storyId);
   if (!hold) return { kind: 'deferred', run };
@@ -162,7 +162,7 @@ export function scopeVerdictItemHold(store: Pick<StoryStore, 'readChecklist' | '
     heldItemIds,
     byItem,
     reason: `${heldItemIds.join(', ')} ${heldItemIds.length === 1 ? 'carries' : 'carry'} what the reviewer audits (${heldItemIds.map(id => `${id}: ${byItem[id]}`).join('; ')}), `
-      + 'and a pin-audit / asymmetric-example gap found after an item was implemented would come after it was built against the pin (old-PoS run 23)',
+      + 'and a pin-audit / asymmetric-example gap found after an item was implemented would come after it was built against the pin',
   };
 }
 
@@ -243,7 +243,7 @@ export function scopeVerdictReviewEntryFailure(
   if (gaps.length > 0) {
     return `Cannot enter REVIEW: the scope-plan reviewer verdict of ${scope.checkedAt} lists ${gaps.length} gap(s) [scope_gap]: `
       + `${gaps.slice(0, 4).map(gap => `"${gap.feature}"`).join(', ')}${gaps.length > 4 ? ` +${gaps.length - 4} more` : ''}. `
-      + 'Cover each in a checklist item or record a PLAN exclusion (item excludes naming it and why), rerun the scope-plan reviewer and story_review, then implement any new item.\n'
+      + `Cover each in a checklist item or record a PLAN exclusion (item excludes naming it and why), then run \`proof-or-stop next --storyId=${storyId} --run\`: it reruns the scope-plan reviewer and story_review, then implements any new item.\n`
       + `Next: proof-or-stop story_advance '{"storyId":"${storyId}","phase":"PLAN"}'`;
   }
   return null;
@@ -274,6 +274,6 @@ export function scopeVerdictGapEnforcementFailure(
   if (gaps.length === 0) return null;
   return `Cannot enter DEV: the scope-plan reviewer verdict of ${scope.checkedAt} lists ${gaps.length} open gap(s) [scope_gap] (A/B switch plan.pinAuditEnforcement=on): `
     + `${gaps.slice(0, 4).map(gap => `"${gap.feature}"`).join(', ')}${gaps.length > 4 ? ` +${gaps.length - 4} more` : ''}. `
-    + 'Correct each pinned value the verdict names, cover each other gap in a checklist item, or record a PLAN exclusion (item excludes naming it and why); then rerun story_review.\n'
+    + `Correct each pinned value the verdict names, cover each other gap in a checklist item, or record a PLAN exclusion (item excludes naming it and why); then run \`proof-or-stop next --storyId=${storyId} --run\` (it reruns story_review).\n`
     + `Next: proof-or-stop story_review --storyId=${storyId}`;
 }

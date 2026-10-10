@@ -450,6 +450,34 @@ export function renderDeliveryContextPackReport(report: DeliveryContextPackRepor
   return lines.join('\n');
 }
 
+/** The canonical acceptance reports the delivery reviewer reads: read-only CLI commands, not files. */
+export const DELIVERY_CANONICAL_REPORT_COMMANDS = ['acceptance_topology_check', 'pre_review_check_read', 'acceptance_rollout_report_read', 'acceptance_rollout_check'] as const;
+
+/**
+ * Old-PoS run 40 (sink 5): with the pack in its prompt the delivery reviewer
+ * still spent about a minute on `delivery_check_set --help`, an `rg` for the
+ * payload fields and a `find / -name 'acceptance_topology_check*'` (it took
+ * the canonical reports for files). This renders the Story's own
+ * delivery_check_set call (one docsPromises row per pack promise, one
+ * realMachineTests row per checklist item, the closingSelfCheck fields) with
+ * `<...>` for what the reviewer judges, and the four report commands.
+ */
+export function renderDeliveryCheckSkeleton(args: { storyId: string; docsPromises: ReadonlyArray<{ docPath: string; promise: string }>;
+  featureIds: readonly string[]; commands?: Readonly<Record<string, string>> }): string {
+  const payload = {
+    storyId: args.storyId,
+    docsPromises: args.docsPromises.map(row => ({ docPath: row.docPath, promise: row.promise, status: '<verified|unverified|waived>', verifiedBy: '<how you checked it>', evidence: '<file:line or command output>', waiverReason: null })),
+    realMachineTests: args.featureIds.map(featureId => ({ featureId, transcript: `<${args.commands?.[featureId] ? `${args.commands[featureId]} -> ` : ''}the command you ran and its passing line>`, waiverReason: null })),
+    closingSelfCheck: { hasRealMachineTest: '<true|false>', hasEdgeCaseCoverage: '<true|false>', hasUnresolvedTodos: '<true|false>', summary: '<specific: promises verified, items tested>' },
+    agentId: 'proof-or-stop-review-delivery',
+  };
+  return [
+    'delivery_check_set skeleton for this Story (fill every <...>; add a docsPromises row per promise of each changed doc; no --help needed):',
+    `proof-or-stop delivery_check_set '${JSON.stringify(payload).replace(/'/g, "'\\''")}'`,
+    `Canonical reports (read-only CLI commands, not files; do not search the filesystem for them): ${DELIVERY_CANONICAL_REPORT_COMMANDS.map(command => `proof-or-stop ${command} --storyId=${args.storyId} --json`).join('; ')}.`,
+  ].join('\n');
+}
+
 export function createDeliveryContextPackHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   function deliveryContextPack(args: DeliveryContextPackArgs): DeliveryContextPackReport | string {
     assertBoundary(args);

@@ -708,7 +708,7 @@ export function createManagedReviewEvidenceHandlers(
             managedReceiptId: receiptId,
             reviewRunId: proposal.reviewRunId,
             importedIds,
-            reason: 'Story-metadata findings are owner checklist corrections, not product findings (old-PoS run 31)',
+            reason: 'Story-metadata findings are owner checklist corrections, not product findings',
             reclassified: split.metadata.map(row => ({
               proposalFindingIndex: row.index,
               severity: row.finding.severity,

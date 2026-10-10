@@ -305,12 +305,13 @@ export function printValidationFailure(
   tool: ToolDef,
   issues: ZodIssue[],
   ownerLeaseHelpBlock: OwnerLeaseHelpBlockCallback,
-  options: { json?: boolean; invocation?: string } = {},
+  options: { json?: boolean; invocation?: string; next?: string | null } = {},
 ) {
   const lines = issues.map(formatValidationIssue);
   const brand = detectProofOrStopBrand();
   const invocation = options.invocation ?? tool.name;
-  const nextCommand = `${brand.usageBin} ${invocation} --help`;
+  // Old-PoS run 40 (N4): a command that stages its refused payload names that one action instead of --help.
+  const nextCommand = options.next ?? `${brand.usageBin} ${invocation} --help`;
   if (options.json) {
     const normalizedIssues = issues.map(issue => ({
       path: [...issue.path],

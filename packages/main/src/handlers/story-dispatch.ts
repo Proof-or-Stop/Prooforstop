@@ -30,7 +30,7 @@ import { join } from 'path';
 import type { HandlerContext } from './context.js';
 import { createClusterHandlers } from './cluster.js';
 import type { StoryStore } from '../core/store.js';
-import { createDeliveryContextPackHandlers } from './delivery-context-pack.js';
+import { createDeliveryContextPackHandlers, renderDeliveryCheckSkeleton } from './delivery-context-pack.js';
 import { readStoryRequest, renderUnmappedLiteralsLine, unmappedStoryRequestLiterals } from '../core/story-request.js';
 import { renderPinAudit } from '../core/intent-derivation.js';
 import { renderCoverageMatrixRule } from '../core/plan-coverage-matrix.js';
@@ -871,6 +871,21 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push('Delivery context (the read-only delivery_context_pack output for this dispatch): start from it; do not explore framework state to rebuild it (do not run status, dispatch_status, plan_get, or host_run_status on your own run). Read the changed files, docs and tests it lists.');
       lines.push(pack.trim());
     }
+    // Old-PoS run 40 (sink 5): the Story's delivery_check_set skeleton and the canonical report commands.
+    try {
+      const items = store.readChecklist(args.storyId).items.filter(item => item.status !== 'withdrawn');
+      const storyRel = `${store.storyDirRel()}/${args.storyId}`;
+      lines.push('');
+      lines.push(renderDeliveryCheckSkeleton({
+        storyId: args.storyId,
+        docsPromises: items.filter(item => typeof item.userSees === 'string' && item.userSees.trim()).map(item => ({ docPath: `${storyRel}/checklist.json#${item.id}`, promise: String(item.userSees).trim() })),
+        featureIds: items.map(item => item.id),
+        commands: Object.fromEntries(items.flatMap(item => {
+          const command = (item.verificationEvidence ?? []).map(row => (typeof row.command === 'string' ? row.command.trim() : '')).find(Boolean);
+          return command ? [[item.id, command]] : [];
+        })),
+      }));
+    } catch { /* the skeleton is guidance; the prompt stands without it */ }
     return { prompt: lines.join('\n') };
   }
 
@@ -1598,7 +1613,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
             : null;
           if (held?.heldItemIds.includes(args.itemId)) {
             throw new Error(`dispatch refused: ${args.itemId} waits for the scope-plan verdict [scope_verdict_held_item]: ${held.byItem[args.itemId]}; `
-              + 'a pin-audit / asymmetric-example gap must land before the item is implemented (old-PoS run 23).\n'
+              + 'a pin-audit / asymmetric-example gap must land before the item is implemented.\n'
               + (held.run
                 ? `Next: proof-or-stop host_run_status --runId=${held.run.runId} --untilTerminal=true`
                 : `Next: proof-or-stop story_advance '{"storyId":"${args.storyId}","phase":"PLAN"}' (then rerun the scope-plan reviewer)`));

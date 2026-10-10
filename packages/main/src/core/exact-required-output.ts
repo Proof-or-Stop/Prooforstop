@@ -98,5 +98,5 @@ export function appendExactRequiredOutput(lines: string[], items: readonly Check
   if (omitted > 0) {
     lines.push(`- ${omitted} more exact string(s) omitted to keep this prompt bounded; read them in the item's userSees and verificationIntent via proof-or-stop checklist_get.`);
   }
-  lines.push('- Emit these strings exactly: same words, spelling, case, punctuation, spacing and field order. Do not paraphrase or "improve" them. A placeholder such as <X> stands for the runtime value. Assert each exact string in a test that compares it exactly (full-string equality), not a prefix / contains comparison and not a project test helper that wraps one; next reopens the item before REVIEW otherwise (old-PoS runs 30, 32).');
+  lines.push('- Emit these strings exactly: same words, spelling, case, punctuation, spacing and field order. Do not paraphrase or "improve" them. A placeholder such as <X> stands for the runtime value. Assert each exact string in a test that compares it exactly (full-string equality), not a prefix / contains comparison and not a project test helper that wraps one; next reopens the item before REVIEW otherwise.');
 }

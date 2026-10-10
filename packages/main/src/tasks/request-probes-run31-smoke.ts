@@ -144,19 +144,19 @@ const DEV_ITEMS = [
 // ---- C. coverage rows 3c / 3d
 {
   const gaps = planCoverageGaps(DEV_ITEMS, RUN31_REQUEST).map(gap => gap.key);
-  assert.ok(gaps.some(key => /member\/property assignment receiver on string/.test(key)), `3c member receiver on string: ${gaps.join(' | ')}`);
-  assert.ok(gaps.some(key => /index-of-index assignment receiver on array/.test(key)), '3c index-of-index receiver on array');
-  assert.ok(gaps.some(key => /call-result assignment receiver/.test(key)), '3c call-result receiver');
-  assert.ok(gaps.some(key => /write: explicit null start on string via two-part range/.test(key)), `3d null start x two-part write on string: ${gaps.join(' | ')}`);
-  assert.ok(gaps.some(key => /write: explicit null end on array via three-part range/.test(key)), '3d null end x three-part write on array');
-  assert.deepEqual(lvalueReceiverKinds('h.s[0]="H" -> "Hello"'), ['receiver-member']);
-  assert.deepEqual(lvalueReceiverKinds('a[0][0]="H" -> "Hello"'), ['receiver-nested']);
-  assert.deepEqual(lvalueReceiverKinds('h["s"][0]="H"'), ['receiver-member'], 'a string-keyed receiver is a member, not an index-of-index');
-  assert.deepEqual(lvalueReceiverKinds('f()[0]=9 -> error'), ['receiver-call']);
+  assert.ok(gaps.some(key => /member\/property write target on string/.test(key)), `3c member target on string: ${gaps.join(' | ')}`);
+  assert.ok(gaps.some(key => /nested-element write target on array/.test(key)), '3c nested-element target on array');
+  assert.ok(gaps.some(key => /call-result write target/.test(key)), '3c call-result target');
+  assert.ok(gaps.some(key => /write: explicit null start on string via 2-part form/.test(key)), `3d null start x two-part write on string: ${gaps.join(' | ')}`);
+  assert.ok(gaps.some(key => /write: explicit null end on array via 3-part form/.test(key)), '3d null end x three-part write on array');
+  assert.deepEqual(lvalueReceiverKinds('h.s[0]="H" -> "Hello"'), ['target-member']);
+  assert.deepEqual(lvalueReceiverKinds('a[0][0]="H" -> "Hello"'), ['target-element']);
+  assert.deepEqual(lvalueReceiverKinds('h["s"][0]="H"'), ['target-member'], 'a string-keyed target is a member, not a nested element');
+  assert.deepEqual(lvalueReceiverKinds('f()[0]=9 -> error'), ['target-call']);
   assert.deepEqual(lvalueReceiverKinds('a[1:3]=[7,7] -> [0, 7, 7, 3]'), []);
   const withMember = [...DEV_ITEMS, item('CHK-005', 'Support index and range assignment on strings', { edge: ['string member receiver h={"s": "hello"}; h.s[0]="H" -> "Hello"'] })];
   const after = planCoverageGaps(withMember, RUN31_REQUEST).map(gap => gap.key);
-  assert.ok(!after.some(key => /member\/property assignment receiver on string/.test(key)), 'a member-receiver string row satisfies 3c');
+  assert.ok(!after.some(key => /member\/property write target on string/.test(key)), 'a member-target string row satisfies 3c');
 }
 
 // ---- D. framework probe runner (a node evaluator committed at the base)

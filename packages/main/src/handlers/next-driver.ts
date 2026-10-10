@@ -92,6 +92,7 @@ import { evaluateReviewEscalation, assessReviewHostAvailabilityForFallbackEligib
 import { evaluateOptionalLiveSmokeTranscript } from '../core/live-smoke-transcript-evidence.js';
 import { singleHostAssuranceReady } from './quorum-submit.js';
 import type { ChecklistItem, Finding, ReviewRun } from '../core/types.js';
+import { VERIFICATION_INTENT_TYPES } from '../core/types.js';
 import { findingRepairRoute, PREEXISTING_OUT_OF_SCOPE } from '../core/finding-preexisting.js';
 import { evaluatePreexistingFinding, type PreexistingFindingVerdict } from './finding-preexisting.js';
 import { commitMessageNamesFinding, implementationGroupingFiles, itemDeclaredFiles, remediationGroupingSingle, sharedFileItemGroup } from '../core/ab-dispatch-grouping.js';
@@ -799,7 +800,7 @@ export function intentConflictStep(base: { storyId: string; phase: string }, con
     const calls = [nextStepCall('intent_conflict_amend', { command: 'checklist_update', payload }),
       ...(pinned ? sweepCalls(base, sweep, 'intent_conflict_amend', pinned) : []), ...siblingCalls];
     return batchStep(base, 'intent_conflict_amend', calls, `${why}${pinned && sweep.length ? ` ${sweepWhy(pinned, sweep)}` : ''}${siblingWhy}`,
-      `${source} + literalOccurrences (old-PoS run 31 sweep) + conflictSiblingRows (old-PoS run 37)`);
+      `${source} + literalOccurrences (sweep) + conflictSiblingRows`);
   }
   const siblings = items ? conflictSiblingRows(items, conflicts) : [];
   return step(base, 'agent', 'intent_conflict', { command: 'story_advance', payload: { storyId: base.storyId, phase: 'PLAN' } },
@@ -915,7 +916,7 @@ export function duplicateResolveBatchStep(base: { storyId: string; phase: string
   return batchStep(base, 'finding_duplicate_resolve_batch', calls,
     `Verified findings ${rows.map(row => `${row.finding.id} (duplicate of ${row.canonical.id})`).join(', ')} are duplicates of repaired, resolved findings: close them in ONE turn, one finding_resolve each. `
       + 'Each coverage.command runs that finding\'s own case and coverage.selector is the line its passing output prints; the framework runs each, and a failing one is refused and gets its own repair.',
-    'unclosedBlockingFindings + duplicateResolveCandidate (batched, old-PoS run 31 D6)');
+    'unclosedBlockingFindings + duplicateResolveCandidate (batched)');
 }
 
 /** A stored finding whose cited defect lies only in Story metadata, once its correction cleared: resolved without a repair. */
@@ -923,7 +924,7 @@ function metadataFindingResolveStep(base: { storyId: string; phase: string }, fi
   return step(base, 'agent', 'finding_resolve', { command: 'finding_resolve', payload: { storyId: base.storyId, findingId: finding.id,
     resolution: '<which checklist text changed: item, field and the value it now states>' } },
   `${finding.severity} finding ${finding.id} is a Story-metadata finding (its correction target is checklist text), and the cited checklist text is corrected (the framework verified it changed): close it; it is never repair work.`,
-  'openMetadataCorrections + isMetadataTargetFinding (old-PoS runs 31/33)', { placeholders: ['resolution'] });
+  'openMetadataCorrections + isMetadataTargetFinding', { placeholders: ['resolution'] });
 }
 
 /** The project config of a store (its projectRoot); unreadable = {} (production switches). */
@@ -1012,13 +1013,30 @@ export function openExactTextGap(args: { root: string; gitCwd: string; store: Ha
   return { itemId, gaps };
 }
 
-/** One owner step: reopen the item; the relaunch prompt names the comparisons. */
+/**
+ * Old-PoS run 40 (N1): the reopen is a framework step (its payload is fully
+ * determined by the gap set); `next --run` runs it and then relaunches the
+ * item's implementer itself (exactTextRelaunchPending), so the owner no longer
+ * hand-runs checklist_update, host_run and the polls. What the gate judges is
+ * unchanged.
+ */
 function exactTextStep(base: { storyId: string; phase: string }, gap: { itemId: string; gaps: ExactTextGap[] }): NextStep {
   const listed = gap.gaps.map(describeExactTextGap).join('; ');
-  return step(base, 'agent', 'exact_text_prefix_assertion', { command: 'checklist_update',
+  return step(base, 'framework', 'exact_text_prefix_assertion', { command: 'checklist_update',
     payload: { storyId: base.storyId, itemId: gap.itemId, status: 'in_progress', reason: `Request-quoted exact strings asserted only by prefix / contains: ${listed.slice(0, 300)}; reopened to assert them exactly before REVIEW.` } },
-  `The request says these strings must match exactly, and the Story's added tests compare them only through a prefix / contains comparison (an appended suffix would still pass): ${listed.slice(0, 1200)}. Reopen ${gap.itemId}; next relaunches its implementer to add exact assertions (no review round).`,
-  'exactTextPrefixAssertions (old-PoS run 32 F-001)');
+  `The request says these strings must match exactly, and the Story's added tests compare them only through a prefix / contains comparison applied to the expected text (an appended suffix would still pass): ${listed.slice(0, 1200)}. The framework reopens ${gap.itemId} and relaunches its implementer to add exact assertions (no review round).`,
+  'exactTextPrefixAssertions');
+}
+
+/**
+ * Old-PoS run 40 (N1): the item the exact-text gate reopened whose implementer
+ * has not run since: its relaunch is a framework step once (a later relaunch
+ * after a failed run stays the agent's call, as for every other target).
+ */
+export function exactTextRelaunchPending(root: string, storyId: string, itemId: string, runs: readonly HostRunView[]): boolean {
+  const state = readExactTextState(root, storyId);
+  if (!state || state.itemId !== itemId) return false;
+  return !runsForTarget(root, [...runs], IMPLEMENTER_AGENT, { itemId }).some(run => run.createdAt > state.flaggedAt);
 }
 
 /**
@@ -1061,7 +1079,7 @@ export function probeEscalationConflicts(decisions: readonly ProbeFlagDecision[]
 /** One owner step: reopen the item; the relaunched implementer prompt names the rows. */
 function probeFlagStep(base: { storyId: string; phase: string }, decision: ProbeFlagDecision): NextStep {
   const rows = decision.rows.join('; ');
-  const source = decision.mode === 'runner' ? 'framework probe run (project probeRunner, old-PoS run 31)' : 'implementer [probe-row] report (old-PoS run 31)';
+  const source = decision.mode === 'runner' ? 'framework probe run (project probeRunner)' : 'implementer [probe-row] report';
   return step(base, 'agent', PROBE_REQUEST_MISMATCH, { command: 'checklist_update',
     payload: { storyId: base.storyId, itemId: decision.itemId, status: 'in_progress', reason: `Probe rows contradict their request sentence (${source}): ${rows.slice(0, 300)}; reopened to fix them or declare the pin wrong before REVIEW.` } },
   `The ${source} left rows of ${decision.itemId} contradicting the request sentence that defines them: ${rows.slice(0, 1500)}. Reopen ${decision.itemId}; next relaunches its implementer with these rows (fix the code, or list a wrong pin under [intent-conflict]). No review round starts before.`,
@@ -1073,7 +1091,7 @@ function probeTestGapStep(base: { storyId: string; phase: string }, gap: ProbeTe
   return step(base, 'agent', 'probe_tests_missing', { command: 'checklist_update',
     payload: { storyId: base.storyId, itemId: gap.itemId, status: 'in_progress', reason: `Implementer run ${gap.runId} decided rows without a test (probed-only: ${gap.probedOnly.slice(0, 300)}); reopened to add the tests before REVIEW.` } },
   `Implementer run ${gap.runId} reported decided rows of ${gap.itemId} it probed but did not test (probed-only: ${gap.probedOnly.slice(0, 600)}). Reopen ${gap.itemId}; next relaunches its implementer with these rows to add the tests (no review round).`,
-  'openProbeTestGaps (implementer [probes] probed-only rows, old-PoS run 30)');
+  'openProbeTestGaps (implementer [probes] probed-only rows)');
 }
 
 function groupedRepairCommit(root: string, gitCwd: string, storyId: string, findingId: string, primaryId: string,
@@ -1248,11 +1266,11 @@ export function intentAmendmentVerifyStep(args: { root: string; gitCwd: string; 
   if (next) {
     return step(base, 'framework', 'intent_amend_verify', { command: 'verification_run', payload: { storyId: base.storyId, itemId: item.id, intentRef: next.ref } },
       `${why} The framework runs the item's pinned verifier itself (${next.ref}: its pinned command and selector, a signed receipt) instead of relaunching the implementer; a failing one relaunches it.`,
-      'adoptedAmendmentRun + collectVerificationIntents (pinned) + verification_run (old-PoS run 34 F5)');
+      'adoptedAmendmentRun + collectVerificationIntents (pinned) + verification_run');
   }
   return step(base, 'framework', 'intent_amend_done', { command: 'checklist_update', payload: { storyId: base.storyId, itemId: item.id, status: 'done' } },
     `${why} Every pinned intent of ${item.id} (${pinned.map(row => row.ref).join(', ')}) passed its own verifier after the amendment: mark it done (checklist_update runs the same done checks).`,
-    'adoptedAmendmentRun + fresh passing verification_run receipts (old-PoS run 34 F5)');
+    'adoptedAmendmentRun + fresh passing verification_run receipts');
 }
 
 /**
@@ -1290,7 +1308,7 @@ export function frameworkResolveStep(args: { root: string; gitCwd: string; store
   const resolutions = repaired.map(row => ({ findingId: row.id, resolution: frameworkFindingResolution(args.root, row, args.chainFresh) }));
   return step(base, 'framework', repaired.length > 1 ? 'finding_resolve_batch' : 'finding_resolve', { command: 'finding_resolve', payload: { storyId: base.storyId, resolutions } },
     `${args.why} ${repaired.map(row => `${row.id} (commit ${row.commit.slice(0, 12)}, run ${row.runId})`).join(', ')} ${repaired.length > 1 ? 'are' : 'is'} repaired and still open: the framework resolves ${repaired.length > 1 ? 'them in ONE finding_resolve' : 'it'} with its own commit and run; finding_resolve re-checks each finding's own repair and its cited change, and leaves a failing one open.`,
-    `${args.source} + managedFindingRepairState per finding + resolutionCitationRefusal (frameworkResolveStep, old-PoS run 34)`);
+    `${args.source} + managedFindingRepairState per finding + resolutionCitationRefusal (frameworkResolveStep)`);
 }
 
 /**
@@ -1649,6 +1667,7 @@ export function storyCreateTemplateStep(root: string): NextStep {
   return withInitHints(step({ storyId: '', phase: 'INIT' }, 'agent', 'story_create_authoring', { command: 'story_create', payload },
     'No Story exists yet. Author this ONE story_create (a staged request is recorded as request.md by itself; do not pass `request`): '
       + 'one checklist item per deliverable (copy the item object), each executable intent pinned, the scope and execution boundary inline. '
+      + `Each intent row's \`type\` is one of ${VERIFICATION_INTENT_TYPES.join('|')} (nothing else: an error, edge or compatibility example of code behaviour is still \`logic\`). `
       + 'Each intent whose expected output request.md does not quote verbatim keeps its derivation (the request sentence + the computation that reaches that output; story_create refuses it without one, [intent_derivation_required]); drop the derivation on a quoted one. '
       + 'Then run the `proof-or-stop next --storyId=<id> --run` line it prints: that records the scope freeze check, launches both managed INIT reviewers, waits for them and advances to PLAN.',
     'story_create schema (command-catalog) + INIT_CHECK gate (scope boundary, execution boundary)', { placeholders: placeholderPaths(payload) }));
@@ -1802,6 +1821,25 @@ export function guardRefusalSummary(failure: string): string {
   return reason ? `${first} ${reason.replace(/^-\s*/, '')}` : first;
 }
 
+/**
+ * Old-PoS run 40 (N3): the DEV guard while the latest story_review round is
+ * current and has blockers. Run 40 printed `Next: proof-or-stop story_review`
+ * although the framework had just rerun it, and the scope_gap remedy named a
+ * host_run of the scope-plan reviewer, so the owner ran story_review twice more
+ * and launched the reviewer by hand. ONE action: fix the listed blockers; the
+ * changed inputs stale the round and the verdict, and `next --run` reruns
+ * story_review and relaunches the scope-plan reviewer itself. Shared by the
+ * live and the reference driver.
+ */
+export function storyReviewBlockersStep(base: { storyId: string; phase: string }, failure: string, blockers: ReadonlyArray<{ type: string; message: string }>): NextStep {
+  const listed = blockers.slice(0, 8).map((row, index) => `(${index + 1}) ${row.type}: ${row.message.length > 600 ? `${row.message.slice(0, 599)}…` : row.message}`).join(' ');
+  return step(base, 'agent', 'plan_review_blockers', null,
+    `story_advance --phase=DEV would be refused: ${guardRefusalSummary(failure)}. The latest story_review round is current; fix each blocker in PLAN `
+      + `(checklist_update: cover the point, correct the pinned value, or add an excludes entry naming it and why): ${listed}${blockers.length > 8 ? ` +${blockers.length - 8} more` : ''}. `
+      + `Then run \`proof-or-stop next --storyId=${base.storyId} --run\`: the changed checklist stales the round and the scope-plan verdict, so it reruns story_review and relaunches the scope-plan reviewer once on the final checklist (do not run story_review or host_run by hand).`,
+    'getGuardFailureReason(DEV) + latest story_review round blockers');
+}
+
 // ---------------------------------------------------------------------------
 // Decision
 
@@ -1885,10 +1923,25 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     if (target === 'DEV' && /proof-or-stop story_review\b/.test(hint) && storyReviewRoundStale(ctx.store.storyDirPath(base.storyId), latestStoryReviewRound(base.storyId))) {
       return step(base, 'framework', 'story_review_rerun', { command: 'story_review', payload: { storyId: base.storyId } },
         `story_advance --phase=DEV would be refused: ${guardRefusalSummary(failure)}. The latest story_review round is older than the Story inputs it judged (checklist, plan, scope verdict, ...): rerun it; it records the current PLAN checks.`,
-        'getGuardFailureReason(DEV) + storyReviewRoundStale (core/story-review-staleness.ts, old-PoS run 34 F7)');
+        'getGuardFailureReason(DEV) + storyReviewRoundStale (core/story-review-staleness.ts)');
+    }
+    // Old-PoS run 40 (N3): the gate names story_review although its latest round is current: the
+    // round's blockers are the owner's to fix, and the rerun after the fix is next's (story_review_rerun
+    // above, and the scope-plan relaunch in planNext), never a hand-run story_review / host_run.
+    if (target === 'DEV' && /proof-or-stop story_review\b/.test(hint)) {
+      const blockers = currentStoryReviewBlockers(base.storyId);
+      if (blockers.length) return storyReviewBlockersStep(base, failure, blockers);
     }
     return delegated(base, 'agent', `guard_${target.toLowerCase()}_blocked`, hint || failure,
       `story_advance --phase=${target} would be refused: ${guardRefusalSummary(failure)}`, `getGuardFailureReason(${target})`);
+  }
+
+  /** The blocker issues of the Story's latest story_review round. */
+  function currentStoryReviewBlockers(storyId: string): Array<{ type: string; message: string }> {
+    try {
+      const issues = (ctx.store.readReview(storyId).reviews.at(-1)?.issues ?? []) as Array<{ type?: string; severity?: string; message?: string }>;
+      return issues.filter(issue => issue.severity === 'blocker').map(issue => ({ type: String(issue.type ?? 'blocker'), message: String(issue.message ?? '') }));
+    } catch { return []; }
   }
 
   /** The timestamp of the Story's latest story_review round, or null. */
@@ -2146,7 +2199,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       // arrived) is PLAN work: go back before implementing more.
       const scopeVerdict = scopeVerdictReviewEntryFailure(ctx.store, ctx.root, ctx.store.readStory(storyId), policyOf(storyId));
       if (scopeVerdict && !/\[scope_check_pending\]/.test(scopeVerdict)) {
-        return guardStep(base, 'PLAN', 'scope_verdict_replan', `${scopeVerdict.split('\n')[0]} Return to PLAN to cover or exclude it and rerun the scope-plan reviewer.`,
+        return guardStep(base, 'PLAN', 'scope_verdict_replan', `${scopeVerdict.split('\n')[0]} Return to PLAN to cover or exclude it; \`next --run\` then relaunches the scope-plan reviewer itself.`,
           'scopeVerdictReviewEntryFailure (DEV→REVIEW gate, N8 deferred scope verdict)');
       }
     }
@@ -2161,8 +2214,8 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       if (implementing) return waitStep(base, implementing, 'Implementer run');
       const scopeRun = hostRuns.filter(run => run.agentType === SCOPE_PLAN_REVIEWER && !run.terminal).at(-1);
       if (scopeRun) return waitStep(base, scopeRun, `Scope-plan reviewer run (held until its verdict lands: ${open.map(item => item.id).join(', ')}; ${hold!.reason})`);
-      return guardStep(base, 'PLAN', 'scope_verdict_replan', `The scope-plan verdict is missing and no scope-plan run is live; ${open.map(item => item.id).join(', ')} wait for it. Return to PLAN and rerun the scope-plan reviewer.`,
-        'scopeVerdictHeldItems (old-PoS run 27 per-item N8 hold)');
+      return guardStep(base, 'PLAN', 'scope_verdict_replan', `The scope-plan verdict is missing and no scope-plan run is live; ${open.map(item => item.id).join(', ')} wait for it. Return to PLAN; \`next --run\` then relaunches the scope-plan reviewer itself.`,
+        'scopeVerdictHeldItems (per-item N8 hold)');
     }
     if (dispatchable.length > 0) {
       const item = dispatchable[0]!;
@@ -2193,7 +2246,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
         return managedLaunchStep(base, 'implement_item', { ...selection, storyId, itemId: item.id,
           agentType: IMPLEMENTER_AGENT, managedDispatch: true, detach: true, json: true }, bound,
         `${item.id}'s intent was amended to the value implementer run ${amendment!.runId} declared, but the framework's verification of its pinned intent did not pass (${verify.refused}): relaunch the implementer for the amended intent.`,
-        'adoptedAmendmentRun + verification_run_refused (old-PoS run 34 F5)', 'relaunch after the framework verification of the amended intent failed');
+        'adoptedAmendmentRun + verification_run_refused', 'relaunch after the framework verification of the amended intent failed');
       }
       if (group.length > 1) {
         return managedLaunchStep(base, 'implement_item', { ...selection, storyId, itemId: item.id, groupItemIds: group.map(member => member.id),
@@ -2201,10 +2254,15 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
         `${group.map(member => member.id).join(', ')} share declared files: implement and commit them in ONE managed implementer run bound to ${item.id} (A/B implementation.grouping=files); it marks ${item.id} done, each other item is verified and marked done separately afterwards.`,
         'checklist.json + sharedFileItemGroup (A/B implementation.grouping=files)');
       }
+      // Old-PoS run 40 (N1): the relaunch after the framework's exact-text reopen is the framework's too.
+      const exactRelaunch = exactTextRelaunchPending(ctx.root, storyId, item.id, hostRuns);
       return managedLaunchStep(base, 'implement_item', { ...selection, storyId, itemId: item.id,
-        agentType: IMPLEMENTER_AGENT, managedDispatch: true, detach: true, json: true }, bound && targetRelaunchIsFramework(runsForTarget(ctx.root, hostRuns, IMPLEMENTER_AGENT, { itemId: item.id })),
-      `${item.id} (${item.title}) is ${item.status}: implement and commit it (managed implementer shown; a native fresh-context implementer with the dispatch prompt is equivalent), then mark it done.`,
-      'checklist.json');
+        agentType: IMPLEMENTER_AGENT, managedDispatch: true, detach: true, json: true },
+      bound && (exactRelaunch || targetRelaunchIsFramework(runsForTarget(ctx.root, hostRuns, IMPLEMENTER_AGENT, { itemId: item.id }))),
+      exactRelaunch
+        ? `${item.id} (${item.title}) was reopened by the exact-text gate: relaunch its implementer to assert the request-quoted strings exactly (its prompt names each row and comparison), then it marks the item done.`
+        : `${item.id} (${item.title}) is ${item.status}: implement and commit it (managed implementer shown; a native fresh-context implementer with the dispatch prompt is equivalent), then mark it done.`,
+      'checklist.json', exactRelaunch ? 'relaunch after the framework exact-text reopen' : undefined);
     }
 
     // Verified blocking findings must be closed (finding-closure rule) before

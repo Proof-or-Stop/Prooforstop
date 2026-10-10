@@ -2451,7 +2451,7 @@ Behavior:
     storyId: z.string().describe('Story ID'),
     findingId: z.string().optional().describe('Finding ID, for example B-xxx:F-001. Required unless resolutions is given.'),
     resolutions: z.array(z.object({ findingId: z.string().describe('Finding ID'), resolution: z.string().describe('Its repair commit and the focused test that now passes.') })).optional()
-      .describe('Old-PoS run 24: close several repaired findings in ONE call (next proposes it after a grouped repair). Each finding must be open and repaired by its own managed finding-repair (for a grouped run, a commit naming its id); its commit is appended to its resolution. A finding failing that check is left open and reported.'),
+      .describe('Close several repaired findings in ONE call (next proposes it after a grouped repair). Each finding must be open and repaired by its own managed finding-repair (for a grouped run, a commit naming its id); its commit is appended to its resolution. A finding failing that check is left open and reported.'),
     resolution: z.string().optional().describe('Optional: record specific fix or verification evidence explanation.'),
     // B-4f46 CHK-002 (Experience Layer Phase 1b): audit-only outcome enums. Additive/optional; never read by any gate, excluded from the finding signature.
     resolutionType: z.enum(['fixed', 'duplicate', 'superseded', 'accepted_risk', 'partially_mitigated']).optional()
@@ -2459,12 +2459,12 @@ Behavior:
     resolveEvidenceStrength: z.enum(['strong', 'medium', 'weak']).optional()
       .describe('Audit-only: confidence strength of the resolve evidence. Never read by any gate.'),
     duplicateOf: z.string().optional()
-      .describe('Run 17: close a finding the REVIEW inventory critic marked a duplicate of this canonical finding id (resolved), with its repair. Requires coverage.'),
+      .describe('Close a finding the REVIEW inventory critic marked a duplicate of this canonical finding id (resolved), with its repair. Requires coverage.'),
     coverage: z.object({ command: z.string().describe('Allowlisted command (executable + argv) that runs THIS finding\'s own case, e.g. go test -v ./pkg -run TestX'),
       selector: z.string().describe('Output text that proves the case passed, e.g. --- PASS: TestX') }).optional()
       .describe('With duplicateOf: the framework runs the command in the Story worktree; exit 0 + selector closes the duplicate, otherwise it is refused and next dispatches its own repair.'),
     disposition: z.enum(['preexisting_out_of_scope']).optional()
-      .describe('Old-PoS run 30: close a finding whose cited path:line defect sites are unchanged since the Story base and that no scope-contract path, checklist file, scope boundary or request sentence covers. The framework recomputes that evidence (refused otherwise, the finding stays open) and records it with resolution as the follow-up note.'),
+      .describe('Close a finding whose cited path:line defect sites are unchanged since the Story base and that no scope-contract path, checklist file, scope boundary or request sentence covers. The framework recomputes that evidence (refused otherwise, the finding stays open) and records it with resolution as the follow-up note.'),
   }},
   { name: 'finding_dismiss', description: 'Confirm a finding will not be fixed (reason required)', schema: {
     storyId: z.string().describe('Story ID'),

@@ -558,6 +558,40 @@ export function singleHostAssuranceReady(ctx: HandlerContext, storyId: string): 
   }
 }
 
+/** Old-PoS run 40 (§6): bounded redo of a single-host closeout another writer's concurrent metadata refused. */
+const SINGLE_HOST_CONCURRENT_WRITER_RETRIES = 2;
+const SINGLE_HOST_CONCURRENT_WRITER_WAIT_MS = 20_000;
+
+/**
+ * A closeout refusal caused by another writer's concurrent metadata, after
+ * which nothing of this closeout remains (every emitted verdict rolled back,
+ * or the capture refused before writing): safe to redo once that writer is done.
+ */
+export function transientConcurrentCloseout(message: string): boolean {
+  if (/canonical metadata was already dirty before quorum-submit/.test(message)) return true;
+  // The clean-baseline refusal when the only pending bytes are another writer's journal append.
+  const baseline = message.match(/worktree\/index must be clean before the atomic verdict batch; pre-existing bytes were left untouched: ([\s\S]*)$/);
+  if (baseline) {
+    const rows = baseline[1]!.split('\n').map(row => row.trim()).filter(Boolean);
+    return rows.length > 0 && rows.every(row => /\/process-events\.jsonl$/.test(row));
+  }
+  return /all emitted verdicts were rolled back/.test(message)
+    && /concurrent divergence preserved|HEAD changed before isolated metadata commit CAS|publication refused before HEAD CAS/.test(message);
+}
+
+/** Block until the Story metadata directory has no uncommitted change (true), or the wait ends (false). */
+function waitForCleanStoryMetadata(gitCwd: string, storyRel: string, maxMs: number): boolean {
+  const deadline = Date.now() + maxMs;
+  const sleeper = new Int32Array(new SharedArrayBuffer(4));
+  for (;;) {
+    let dirty = 'unknown';
+    try { dirty = execFileSync('git', ['status', '--porcelain', '--', storyRel], { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim(); } catch { dirty = 'unknown'; }
+    if (!dirty) return true;
+    if (Date.now() >= deadline) return false;
+    Atomics.wait(sleeper, 0, 0, 250);
+  }
+}
+
 export function createQuorumSubmitHandlers(ctx: HandlerContext, testHooks: QuorumSubmitTestHooks = {}) {
   /**
    * One atomic host-verdict batch: every planned runId x host, committed as one
@@ -831,36 +865,56 @@ export function createQuorumSubmitHandlers(ctx: HandlerContext, testHooks: Quoru
       fallbackId = recorded.fallbackId ?? null;
     }
 
-    const materialDigest = currentMaterialHash(projectRoot, 'HEAD', workspace.metadataRoot || ctx.root);
-    const storyFilesHash = currentStoryFilesHash(projectRoot, 'HEAD', workspace.metadataRoot || ctx.root);
-    if (!materialDigest || !storyFilesHash) throw new Error('quorum_submit --singleHost: cannot compute the current materialHash/storyFilesHash');
-    const rounds = singleHostAssuranceNeed(ctx, storyId).rounds;
-    let batch: ReturnType<typeof emitVerdictBatch> | null = null;
-    let host: QuorumHostInput | null = null;
-    if (rounds > 0) {
-      const hostId = hostname() || 'single-host';
-      const base = {
-        side: 'A' as const,
-        hostId,
-        provider: 'local',
-        sessionId: derivedSession(storyId, hostId),
-        keyId: deriveCanonicalHostKeyId(storyId, hostId),
-      };
-      const bindings = deriveHostVerdictBindings({ storyId, headHash: currentGitHead(projectRoot), materialDigest, storyFilesHash,
-        testEvidence: safeReadTestEvidence(ctx, storyId), ...base });
-      host = { ...base, promptDigest: bindings.promptDigest };
-      const occupied = new Set(ctx.store.readProcessEvents(storyId)
-        .filter(event => event.type === 'host_verdict').map(event => normalizeString(event.runId)));
-      const runIds: string[] = [];
-      for (let round = 1; runIds.length < rounds; round += 1) {
-        const runId = `${storyId}-sh-r${round}`;
-        if (!occupied.has(runId)) runIds.push(runId);
+    // Old-PoS run 40 (§6): another framework writer (the delivery reviewer's metadata save under the
+    // N1 overlap) may append to process-events.jsonl inside this closeout's commit window; the
+    // closeout then refuses and rolls itself back completely (fail-closed, unchanged). That is a
+    // transient conflict, not a verdict: wait until the other writer's metadata has landed (the
+    // Story metadata is clean again) and redo the closeout on the new HEAD, bounded.
+    const closeout = () => {
+      const materialDigest = currentMaterialHash(projectRoot, 'HEAD', workspace.metadataRoot || ctx.root);
+      const storyFilesHash = currentStoryFilesHash(projectRoot, 'HEAD', workspace.metadataRoot || ctx.root);
+      if (!materialDigest || !storyFilesHash) throw new Error('quorum_submit --singleHost: cannot compute the current materialHash/storyFilesHash');
+      const rounds = singleHostAssuranceNeed(ctx, storyId).rounds;
+      let batch: ReturnType<typeof emitVerdictBatch> | null = null;
+      let host: QuorumHostInput | null = null;
+      if (rounds > 0) {
+        const hostId = hostname() || 'single-host';
+        const base = {
+          side: 'A' as const,
+          hostId,
+          provider: 'local',
+          sessionId: derivedSession(storyId, hostId),
+          keyId: deriveCanonicalHostKeyId(storyId, hostId),
+        };
+        const bindings = deriveHostVerdictBindings({ storyId, headHash: currentGitHead(projectRoot), materialDigest, storyFilesHash,
+          testEvidence: safeReadTestEvidence(ctx, storyId), ...base });
+        host = { ...base, promptDigest: bindings.promptDigest };
+        const occupied = new Set(ctx.store.readProcessEvents(storyId)
+          .filter(event => event.type === 'host_verdict').map(event => normalizeString(event.runId)));
+        const runIds: string[] = [];
+        for (let round = 1; runIds.length < rounds; round += 1) {
+          const runId = `${storyId}-sh-r${round}`;
+          if (!occupied.has(runId)) runIds.push(runId);
+        }
+        batch = emitVerdictBatch({ label: 'quorum_submit --singleHost', storyId, projectRoot, gitCwd, materialDigest, storyFilesHash,
+          validationDigest: bindings.validationDigest,
+          note: normalizeString(args.note) || `single-host round transcribed from current signed reviewer passes ${reviewerPasses.map(pass => pass.passId).join(', ')}`,
+          runIds, hosts: [host] });
       }
-      batch = emitVerdictBatch({ label: 'quorum_submit --singleHost', storyId, projectRoot, gitCwd, materialDigest, storyFilesHash,
-        validationDigest: bindings.validationDigest,
-        note: normalizeString(args.note) || `single-host round transcribed from current signed reviewer passes ${reviewerPasses.map(pass => pass.passId).join(', ')}`,
-        runIds, hosts: [host] });
+      return { materialDigest, storyFilesHash, batch, host };
+    };
+    let closed: ReturnType<typeof closeout> | null = null;
+    for (let attempt = 0; closed === null; attempt += 1) {
+      // A redo transcribes the same reviews: they must still be the current signed passes.
+      if (attempt > 0) assertCurrentReviewerPasses(ctx, storyId, projectRoot, reviewRoster);
+      try { closed = closeout(); }
+      catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        if (attempt >= SINGLE_HOST_CONCURRENT_WRITER_RETRIES || !transientConcurrentCloseout(message)
+          || !waitForCleanStoryMetadata(gitCwd, quorumStoryRel(gitCwd, ctx, storyId), SINGLE_HOST_CONCURRENT_WRITER_WAIT_MS)) throw error;
+      }
     }
+    const { materialDigest, storyFilesHash, batch, host } = closed;
     const after = singleHostAssuranceNeed(ctx, storyId);
     const result: SingleHostAssuranceResult = {
       schemaVersion: 'proof-or-stop.quorum_submit_single_host.v1',

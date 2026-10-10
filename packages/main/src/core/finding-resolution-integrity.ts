@@ -43,7 +43,7 @@ export function resolutionCitationRefusal(args: { store: Store; storyId: string;
       const payload = { storyId, itemId: first.itemId, ...(first.field === 'userSees' ? { userSees: '<corrected userSees>' } : { verificationIntent: '<complete corrected verificationIntent JSON>' }),
         reason: '<the request sentence and the value it implies>', metadataCorrection: true };
       return `finding_resolve refused: ${finding.id} cites Story-metadata text that is unchanged: ${open.map(describeMetadataCorrection).join('; ')}. `
-        + `A code test does not correct checklist text (old-PoS run 31 F-001) [${FINDING_RESOLUTION_UNCHANGED_CITATION}]\n`
+        + `A code test does not correct checklist text [${FINDING_RESOLUTION_UNCHANGED_CITATION}]\n`
         + `Next: proof-or-stop checklist_update '${JSON.stringify(payload)}'`;
     }
     // Old-PoS run 33 (F-003): a metadata finding by correction target cites product files only as
