@@ -298,14 +298,14 @@ await check('E5 full equality, TrimSuffix + equality, a Contains on another valu
     repo.commit({
       'tools/test_load.py': [
         'def test_prefix():',
-        `    assert "${LIT_THIRD}" in str(load_error("/y"))`, '',
+        `    assert "${LIT_THIRD}: /y" in str(load_error("/y"))`, '',
       ].join('\n'),
     });
     assert.deepEqual(repo.gaps(), [], 'one exact comparison of a literal anywhere still clears it');
   } finally { rmSync(repo.root, { recursive: true, force: true }); }
   const py = exactRepo();
   try {
-    py.commit({ 'tools/test_load.py': ['def test_prefix():', `    assert "${LIT_THIRD}" in str(load_error("/y"))`, '', 'def test_value():', '    assert load("a") == 1', ''].join('\n') });
+    py.commit({ 'tools/test_load.py': ['def test_prefix():', `    assert "${LIT_THIRD}: /y" in str(load_error("/y"))`, '', 'def test_value():', '    assert load("a") == 1', ''].join('\n') });
     assert.equal(py.gaps().find(gap => gap.literal.startsWith(LIT_THIRD))?.via, 'in', 'Python `assert <literal> in <text>` is a contains comparison');
   } finally { rmSync(py.root, { recursive: true, force: true }); }
 });

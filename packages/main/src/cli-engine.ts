@@ -1,3 +1,4 @@
+import { stageStoryCreatePayload, storyCreateSchemaRefusalNext } from './core/story-create-intake.js';
 import { ownerWaitInstructionFor } from './core/owner-wait-guidance.js';
 import { withValidationSigningRoot } from './core/validation-signing-context.js';
 import {enforceExecutionImplementationPin,executionImplementationIdentity} from './core/execution-implementation.js';
@@ -614,6 +615,16 @@ function parseCommandArgs(rawArgs: string[], tool: ToolDef): Record<string, unkn
   return parseCommandArgv(rawArgs, tool.schema);
 }
 
+/**
+ * Old-PoS run 40 (N4): story_create refused by argument validation stages the
+ * submitted payload like an intake refusal and names ONE `story_create @<file>`
+ * Next (null: the default --help Next).
+ */
+function stagedValidationNext(cmd: string, parsed: Record<string, unknown>, root: string): string | null {
+  if (cmd !== 'story_create') return null;
+  return storyCreateSchemaRefusalNext(stageStoryCreatePayload(resolveMainRootFromWorktreeRoot(root) ?? root, parsed));
+}
+
 function requestsJsonErrorOutput(parsed: Record<string, unknown>): boolean {
   return parsed.json === true || parsed.format === 'json';
 }
@@ -635,6 +646,7 @@ function preflightStrictCommandArgsBeforeStoryReads(cmd: string | undefined, arg
     printValidationFailure(tool, v.error.issues, ownerLeaseHelpBlock, {
       json: requestsJsonErrorOutput(parsed),
       invocation,
+      next: stagedValidationNext(cmd, parsed, process.cwd()),
     });
     process.exit(1);
   }
@@ -1044,6 +1056,7 @@ export async function runCli(opts?: {
     printValidationFailure(tool, v.error.issues, ownerLeaseHelpBlock, {
       json: requestsJsonErrorOutput(parsed),
       invocation: helpInvocation,
+      next: stagedValidationNext(cmd, parsed, root0),
     });
     process.exit(1);
   }

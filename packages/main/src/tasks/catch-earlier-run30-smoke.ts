@@ -111,17 +111,17 @@ try {
   const r30 = gapsOf('B-d030');
   for (const expected of [
     'coverage stringify: form [:end:step]', // F-003: [:101:2] stringify untested
-    'coverage write: size mismatch on array via three-part range', 'coverage write: broadcast on array via three-part range', // F-002
+    'coverage write: length mismatch on array via 3-part form', 'coverage write: one value filled into every selected position on array via 3-part form', // F-002
     ...EXACT_STRINGS.map(exactKey), // F-001: prefix-match assertions
   ]) assert.ok(keys(r30).includes(expected), `run 30: the coverage matrix demands "${expected}"; got ${keys(r30).join(' | ')}`);
-  assert.ok(!keys(r30).some(key => /stringify: form \[(?:start:end:step|start::step|::step)\]|size mismatch on array via two-part|broadcast on array via two-part|broadcast on string via (?:two|three)-part/.test(key)),
+  assert.ok(!keys(r30).some(key => /stringify: form \[(?:start:end:step|start::step|::step)\]|length mismatch on array via 2-part form|one value filled into every selected position on array via 2-part form|one value filled into every selected position on string via (?:two|three)-part/.test(key)),
     `run 30: rows its checklist already has are not demanded: ${keys(r30).join(' | ')}`);
   assert.ok(!keys(r30).some(key => /exact text: "slice step cannot be 0"|index operator not supported|index ranges can only be numerical/.test(key)),
     `run 30: "starts with" and "keep the existing format" strings are not exact-text rows: ${keys(r30).join(' | ')}`);
   for (const gap of r30) assert.ok(gap.sentences.length > 0 && gap.sentences.every(sentence => ABS_STEPPED_SLICES_REQUEST.includes(sentence)), `run 30: ${gap.key} lists the request sentences that triggered it`);
   assert.ok(r30.find(gap => gap.key === 'coverage stringify: form [:end:step]')!.sentences.some(sentence => /stringification/.test(sentence)), 'run 30: the stringify row cites the stringification sentence');
   assert.ok(r30.find(gap => gap.key === exactKey(EXACT_STRINGS[0]!))!.sentences.some(sentence => /must match exactly/.test(sentence)), 'run 30: the exact-text row cites the exact-match sentence');
-  assert.equal(r30.find(gap => gap.key === 'coverage write: broadcast on array via three-part range')!.itemId, 'CHK-004', 'run 30: the array assignment rows go to the array assignment item');
+  assert.equal(r30.find(gap => gap.key === 'coverage write: one value filled into every selected position on array via 3-part form')!.itemId, 'CHK-004', 'run 30: the array assignment rows go to the array assignment item');
 
   // The pre-scope authoring step: grouped placeholders, the exact-text one demands an exact-match assertion.
   const authoring = preScopeAuthoringStep({ storyId: 'B-d030', phase: 'PLAN' }, planPreScopeBlockers(store, store.readStory('B-d030'), { profile: 'balanced' } as never), store.readChecklist('B-d030').items);
@@ -145,7 +145,7 @@ try {
     ['edge', 's = "abc"; s[1] = "xy" -> exact error equals index assignment expects single-character STRING value, got 2 characters'],
   );
   seed('B-d031', ABS_STEPPED_SLICES_REQUEST, filled);
-  assert.deepEqual(keys(gapsOf('B-d031')).filter(key => /stringify|size mismatch|broadcast|exact text/.test(key)), [], 'run 30 + the demanded rows: no run-30 row left');
+  assert.deepEqual(keys(gapsOf('B-d031')).filter(key => /stringify|length mismatch|one value filled|exact text/.test(key)), [], 'run 30 + the demanded rows: no run-30 row left');
 
   // No false positives: requests without these patterns demand none of the new rows.
   seed('B-d032', STRS_REQUEST, [{ id: 'CHK-001', title: 'Upper and Reverse', rows: [['happy', 'Upper("ab") -> "AB"'], ['edge', 'Reverse("héllo") -> "olléh"'], ['adversarial', 'Reverse("") -> ""']] }]);
@@ -160,13 +160,13 @@ try {
   for (const [run, items] of [['27', RUN27_ITEMS], ['28', RUN28_ITEMS], ['29', RUN29_ITEMS], ['30', RUN30_ITEMS]] as const) {
     seed(`B-d1${run}`, ABS_STEPPED_SLICES_REQUEST, items);
     const all = keys(gapsOf(`B-d1${run}`));
-    added.push(`run ${run}: ${all.filter(key => /stringify|size mismatch|broadcast|exact text/.test(key)).length} new of ${all.length}`);
+    added.push(`run ${run}: ${all.filter(key => /stringify|length mismatch|one value filled|exact text/.test(key)).length} new of ${all.length}`);
   }
 
   // The scope-plan prompt's judgment form names the new checks.
   const dispatch = createStoryDispatchHandlers({ root, scanRoot: root, store } as never);
   const scope = dispatch.dispatch({ storyId: 'B-d030', agentType: 'proof-or-stop-review-scope-plan' }).prompt;
-  assert.match(scope, /Coverage matrix \(blocking\)[^\n]*stringif[^\n]*broadcast[^\n]*exact/i, 'the scope-plan coverage rule names stringify, per-form broadcast and exact text');
+  assert.match(scope, /Coverage matrix \(blocking\)[^\n]*stringif[^\n]*each write form[^\n]*exact/i, 'the scope-plan coverage rule names stringify, per-form write rules and exact text');
 
   // ---- A: probe matrix and the [probes] report.
   seed('B-d035', ABS_STEPPED_SLICES_REQUEST, RUN30_ITEMS, 'DEV');

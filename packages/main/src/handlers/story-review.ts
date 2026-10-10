@@ -757,7 +757,10 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           // only remaining action is the reviewer rerun.
           // Old-PoS run 31 (D8): a pin-audit gap whose requested value is the checklist's only change is closed deterministically.
           const gaps = openScopeGaps(scopeData, cl);
-          const rerunScopeReviewer = renderQualifiedManagedCodexDispatchCommand(args.storyId, 'proof-or-stop-review-scope-plan');
+          // Old-PoS run 40 (N3): the rerun is `next --run`'s step (it launches the reviewer once, on
+          // the final checklist, and reruns story_review), not a host_run the owner types.
+          const rerunScopeReviewer = `proof-or-stop next --storyId=${args.storyId} --run`;
+          const rerunWhat = 'it relaunches the scope-plan reviewer (proof-or-stop-review-scope-plan) once on the final checklist and reruns story_review';
           const checklistChangedSinceVerdict = scopeVerdictChecklistChanged(scopeData, cl);
           for (const gap of gaps) {
             const source = gap.source ? ` (source: ${gap.source})` : '';
@@ -770,15 +773,15 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
               message: pinAudit && !checklistChangedSinceVerdict
                 ? `scope gap${source}: the scope-plan reviewer recomputed a pinned intent from the request and reports "${gap.feature}". `
                   + `Next (PLAN): if the reviewer is right, fix that row's expected value and its derivation (or add the asymmetric example) with \`proof-or-stop checklist_update --storyId=${args.storyId} --itemId=<CHK-id> --verificationIntent='<full intent with the corrected row and "derivation":{"requestQuote":"...","computation":"..."}>'\`; `
-                  + `if the pin is right, make the derivation show why (cite the deciding request sentence). Then rerun the scope-plan reviewer: \`${rerunScopeReviewer}\`.`
+                  + `if the pin is right, make the derivation show why (cite the deciding request sentence). Then run \`${rerunScopeReviewer}\`: ${rerunWhat}.`
                 : checklistChangedSinceVerdict
                 ? `scope gap${source}: the scope-plan reviewer verdict of ${scopeData.checkedAt} lists "${gap.feature}" as neither covered nor excluded, and the checklist changed since that verdict. `
-                  + `Next (PLAN, no INIT reopen): rerun the scope-plan reviewer so it judges the current checklist: \`${rerunScopeReviewer}\`. `
+                  + `Next (PLAN, no INIT reopen): run \`${rerunScopeReviewer}\`: ${rerunWhat}, so it judges the current checklist. `
                   + `The INIT scope boundary is not an input of this verdict.`
                 : `scope gap${source}: the scope-plan reviewer found "${gap.feature}" neither covered by a checklist item (title/userSees/verificationIntent) nor excluded by an item's excludes. `
                   + `Next (PLAN, no INIT reopen): cover it in a checklist item, or, for reference-only material or an acknowledged constraint, append an excludes entry that names it and says why `
                   + `(\`proof-or-stop checklist_update --storyId=${args.storyId} --itemId=<CHK-id> --excludes='[...current excludes, "${gap.feature}: <why>"]'\`); `
-                  + `then rerun the scope-plan reviewer: \`${rerunScopeReviewer}\`. The INIT scope boundary is not an input of this verdict.`,
+                  + `then run \`${rerunScopeReviewer}\`: ${rerunWhat}. The INIT scope boundary is not an input of this verdict.`,
             });
           }
           // Report excluded as info (not counted as issue)

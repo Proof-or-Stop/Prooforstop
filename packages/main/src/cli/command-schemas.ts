@@ -1,12 +1,12 @@
 import { z } from 'zod';
-import { VERIFICATION_EVIDENCE_VERDICTS } from '../core/types.js';
+import { VERIFICATION_EVIDENCE_VERDICTS, VERIFICATION_INTENT_TYPES } from '../core/types.js';
 import { BACKGROUND_SECTION_IDS, normalizeBackgroundSection } from '../core/background-validator.js';
 
 export const verificationIntentTypeSchema = z.preprocess((value) => {
   if (value === 'cli_blackbox') return 'cli';
   if (value === 'browser_blackbox') return 'browser';
   return value;
-}, z.enum(['logic', 'cli', 'browser', 'manual', 'docs'], {
+}, z.enum(VERIFICATION_INTENT_TYPES, {
   // Zod's default enum diagnostic omits the received value. Keep CLI callers
   // able to distinguish evidence kinds from verification types without
   // permitting unbounded values or control characters to shape the output.

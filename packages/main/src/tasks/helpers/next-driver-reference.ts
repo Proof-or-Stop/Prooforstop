@@ -138,6 +138,19 @@
  * Deliberate change (old-PoS run 27 owner tail): the DONE step's why ends with
  * DONE_TERMINAL_STATEMENT ("DONE — stop; no further commands ...").
  *
+ * Deliberate change (old-PoS run 40 §4, bundle hygiene): step `source`
+ * labels name the mechanism only, no benchmark run number (the shipped
+ * strings carried "old-PoS run NN"); the which-step decision is unchanged.
+ *
+ * Deliberate change (old-PoS run 40 N3): the DEV guard whose hint is
+ * story_review while the latest round is current returns ONE owner step
+ * (plan_review_blockers, storyReviewBlockersStep, shared) that lists the
+ * round's blockers and names `next --run` for the rerun, instead of a
+ * hand-run story_review (run 40: the owner reran it twice and launched the
+ * scope-plan reviewer by hand). The golden fixture starts in DEV, so its
+ * states are unchanged; the PLAN fixtures of plan-author-before-scope and
+ * run40-fixes compare both drivers on it.
+ *
  * Deliberate change (old-PoS run 30, B-c201:F-005): with no finding-repair in
  * flight, an open blocking finding whose cited path:line defect sites are
  * unchanged since the Story base and that nothing in the request/scope covers
@@ -203,7 +216,7 @@ import { evaluatePreexistingFinding } from '../../handlers/finding-preexisting.j
 import { noCommitRepairRunsSincePlan, preexistingDispositionStep, findingRepairReplanStep } from '../../handlers/next-driver.js';
 import { managedFindingRepairState, hintedStep, evidenceChainStep, evidenceChainAdvisory, step as sharedStep, managedLaunchStep, boundManagedSelection,
   runsForTarget, targetRelaunchIsFramework, testAuthoringStep, planAuthoringStep, preScopeAuthoringStep, nextBlockingFinding, duplicateFindingResolveStep,
-  groupedFindingRepairIds, groupedFindingRepairStep, repairedFindingsForResolve, findingResolveBatchStep, frameworkResolveStep, managedRunsWaitStep, adoptedAmendmentRun, intentAmendmentVerifyStep, guardRefusalSummary, openIntentConflicts, intentConflictStep, nextStepCall, DONE_TERMINAL_STATEMENT, type NextStep } from '../../handlers/next-driver.js';
+  groupedFindingRepairIds, groupedFindingRepairStep, repairedFindingsForResolve, findingResolveBatchStep, frameworkResolveStep, managedRunsWaitStep, adoptedAmendmentRun, intentAmendmentVerifyStep, guardRefusalSummary, storyReviewBlockersStep, openIntentConflicts, intentConflictStep, nextStepCall, DONE_TERMINAL_STATEMENT, type NextStep } from '../../handlers/next-driver.js';
 import { scopeVerdictHeldItems, scopeVerdictReviewEntryFailure } from '../../core/scope-plan-deferral.js';
 import { duplicateCoverageReceipts, duplicateResolveCandidate } from '../../core/duplicate-finding-coverage.js';
 import { singleHostAssuranceReady } from '../../handlers/quorum-submit.js';
@@ -400,7 +413,16 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
       (() => { try { return (ctx.store.readReview(base.storyId).reviews.at(-1) as { timestamp?: string } | undefined)?.timestamp ?? null; } catch { return null; } })())) {
       return step(base, 'framework', 'story_review_rerun', { command: 'story_review', payload: { storyId: base.storyId } },
         `story_advance --phase=DEV would be refused: ${guardRefusalSummary(failure)}. The latest story_review round is older than the Story inputs it judged (checklist, plan, scope verdict, ...): rerun it; it records the current PLAN checks.`,
-        'getGuardFailureReason(DEV) + storyReviewRoundStale (core/story-review-staleness.ts, old-PoS run 34 F7)');
+        'getGuardFailureReason(DEV) + storyReviewRoundStale (core/story-review-staleness.ts)');
+    }
+    // old-PoS run 40 N3: a current round's blockers are one owner step naming next --run, never a hand-run story_review.
+    if (target === 'DEV' && /proof-or-stop story_review\b/.test(hint)) {
+      let blockers: Array<{ type: string; message: string }> = [];
+      try {
+        blockers = ((ctx.store.readReview(base.storyId).reviews.at(-1)?.issues ?? []) as Array<{ type?: string; severity?: string; message?: string }>)
+          .filter(issue => issue.severity === 'blocker').map(issue => ({ type: String(issue.type ?? 'blocker'), message: String(issue.message ?? '') }));
+      } catch { blockers = []; }
+      if (blockers.length) return storyReviewBlockersStep(base, failure, blockers);
     }
     return delegated(base, 'agent', `guard_${target.toLowerCase()}_blocked`, hint || failure,
       `story_advance --phase=${target} would be refused: ${guardRefusalSummary(failure)}`, `getGuardFailureReason(${target})`);
@@ -420,7 +442,7 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
       // Mirrors next-driver.ts (orchestration-overlap N8): a deferred scope verdict with a gap returns to PLAN.
       const scopeVerdict = scopeVerdictReviewEntryFailure(ctx.store, ctx.root, ctx.store.readStory(storyId), policyOf(storyId));
       if (scopeVerdict && !/\[scope_check_pending\]/.test(scopeVerdict)) {
-        return guardStep(base, 'PLAN', 'scope_verdict_replan', `${scopeVerdict.split('\n')[0]} Return to PLAN to cover or exclude it and rerun the scope-plan reviewer.`,
+        return guardStep(base, 'PLAN', 'scope_verdict_replan', `${scopeVerdict.split('\n')[0]} Return to PLAN to cover or exclude it; \`next --run\` then relaunches the scope-plan reviewer itself.`,
           'scopeVerdictReviewEntryFailure (DEV→REVIEW gate, N8 deferred scope verdict)');
       }
     }
@@ -433,8 +455,8 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
       if (implementing) return waitStep(base, implementing, 'Implementer run');
       const scopeRun = hostRuns.filter(run => run.agentType === SCOPE_PLAN_REVIEWER && !run.terminal).at(-1);
       if (scopeRun) return waitStep(base, scopeRun, `Scope-plan reviewer run (held until its verdict lands: ${open.map(item => item.id).join(', ')}; ${hold!.reason})`);
-      return guardStep(base, 'PLAN', 'scope_verdict_replan', `The scope-plan verdict is missing and no scope-plan run is live; ${open.map(item => item.id).join(', ')} wait for it. Return to PLAN and rerun the scope-plan reviewer.`,
-        'scopeVerdictHeldItems (old-PoS run 27 per-item N8 hold)');
+      return guardStep(base, 'PLAN', 'scope_verdict_replan', `The scope-plan verdict is missing and no scope-plan run is live; ${open.map(item => item.id).join(', ')} wait for it. Return to PLAN; \`next --run\` then relaunches the scope-plan reviewer itself.`,
+        'scopeVerdictHeldItems (per-item N8 hold)');
     }
     if (dispatchable.length > 0) {
       const item = dispatchable[0]!;
@@ -453,7 +475,7 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
         return managedLaunchStep(base, 'implement_item', { ...selection, storyId, itemId: item.id,
           agentType: IMPLEMENTER_AGENT, managedDispatch: true, detach: true, json: true }, bound,
         `${item.id}'s intent was amended to the value implementer run ${amendment!.runId} declared, but the framework's verification of its pinned intent did not pass (${verify.refused}): relaunch the implementer for the amended intent.`,
-        'adoptedAmendmentRun + verification_run_refused (old-PoS run 34 F5)', 'relaunch after the framework verification of the amended intent failed');
+        'adoptedAmendmentRun + verification_run_refused', 'relaunch after the framework verification of the amended intent failed');
       }
       return managedLaunchStep(base, 'implement_item', { ...selection, storyId, itemId: item.id,
         agentType: IMPLEMENTER_AGENT, managedDispatch: true, detach: true, json: true }, bound && targetRelaunchIsFramework(runsForTarget(ctx.root, hostRuns, IMPLEMENTER_AGENT, { itemId: item.id })),

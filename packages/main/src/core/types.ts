@@ -296,7 +296,9 @@ export interface StoryInfo {
 export type ChecklistStatus = 'pending' | 'in_progress' | 'done' | 'withdrawn';
 
 export type VerificationLane = 'happy' | 'edge' | 'adversarial';
-export type VerificationIntentType = 'logic' | 'cli' | 'browser' | 'manual' | 'docs';
+/** The verificationIntent row `type` values (the CLI schema enum; the INIT authoring step lists them). */
+export const VERIFICATION_INTENT_TYPES = ['logic', 'cli', 'browser', 'manual', 'docs'] as const;
+export type VerificationIntentType = typeof VERIFICATION_INTENT_TYPES[number];
 export type VerificationRequiredIn = 'light' | 'balanced' | 'strict';
 export type VerificationPriority = 'must' | 'should' | 'nice';
 export type VerificationScope = 'focused' | 'repository';
