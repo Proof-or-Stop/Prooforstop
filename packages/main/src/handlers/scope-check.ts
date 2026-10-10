@@ -10,7 +10,9 @@ import { createHash } from 'crypto';
 import { existsSync, readFileSync } from 'fs';
 import { dirname, join } from 'path';
 import type { HandlerContext } from './context.js';
-import type { ScopeCheckData, OpenQuestion } from '../core/types.js';
+import type { ChecklistItem, ScopeCheckData, OpenQuestion } from '../core/types.js';
+import { AB_VARIANT_EVIDENCE_SCHEMA } from '../core/ab-variants.js';
+import { contradictedExclusions, exclusionRationaleCheckActive, exclusionRefusal } from '../core/scope-exclusion-rationale.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { digestCanonicalJson } from '../core/digest.js';
 import { normalizeReviewerReadManifest } from '../core/reviewer-read-evidence.js';
@@ -224,6 +226,16 @@ export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (.
       }
       const timestamp = new Date().toISOString();
       const readManifest = normalizeReviewerReadManifest(args.readManifest, 'scope_check_save.readManifest');
+      // Old-PoS run 43 (core/scope-exclusion-rationale.ts, A/B plan.exclusionRationaleCheck, default on):
+      // an `excluded` row whose behaviour another item of the Story adds or changes is refused before
+      // the managed invocation is consumed, so the reviewer corrects it in the same run.
+      const exclusionCheck = exclusionRationaleCheckActive(root);
+      if (exclusionCheck) {
+        let checklistItems: ChecklistItem[] = [];
+        try { checklistItems = store.readChecklist(args.storyId).items; } catch { checklistItems = []; }
+        const contradicted = contradictedExclusions({ features: args.features }, { items: checklistItems });
+        if (contradicted.length) throw new Error(exclusionRefusal(contradicted));
+      }
       const routingMode = loadConfig(root).candidateSpecRouting?.mode ?? 'shadow';
       if (routingMode === 'enforce' || readManifest.candidateSpecSetDigest) {
         const snapshot = deferredRun
@@ -287,6 +299,8 @@ export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (.
         summary,
         reviewRound,
         ...(checklistDigest ? { checklistDigest } : {}),
+        // Outside the signature domain: the run's arm when the exclusion check is off (rollback).
+        ...(exclusionCheck ? {} : { abVariant: { schema: AB_VARIANT_EVIDENCE_SCHEMA, flags: { 'plan.exclusionRationaleCheck': 'off' } } }),
         _hash,
       };
       // B-ed3e CHK-003: openQuestions passed through as-is (not in signature domain), field omitted when absent.

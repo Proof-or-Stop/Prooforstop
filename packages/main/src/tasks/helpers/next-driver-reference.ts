@@ -1031,7 +1031,7 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
           // verdict that must be rerun (scopePlanRerunReason) is relaunched here as well.
           const policy = policyOf(storyId);
           const scopeFailure = missingPlanScopeCheckFailure(ctx.store, story, policy);
-          const rerun = scopeFailure ? null : scopePlanRerunReason(ctx.store, story);
+          const rerun = scopeFailure ? null : scopePlanRerunReason(ctx.store, story, ctx.root);
           if (scopeFailure || rerun) {
             const hostRuns = listStoryHostRuns(ctx, storyId);
             const running = hostRuns.filter(run => run.agentType === SCOPE_PLAN_REVIEWER && !run.terminal).at(-1);
