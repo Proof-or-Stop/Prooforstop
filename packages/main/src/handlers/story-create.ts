@@ -29,6 +29,7 @@ import {
 } from '../core/repro-evidence-binding-gate.js';
 import { buildMaterialClassificationSnapshot, MaterialCodePolicyError } from '../core/material-code-policy.js';
 import { loadConfig, PROOF_OR_STOP_CONFIG_FILENAME } from '../core/config.js';
+import { probeExtractionEnabled, probeRowsCreateNote } from '../core/request-probes.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import { verificationIntentHasPlannedPathDeclarations } from '../core/acceptance-topology.js';
@@ -1283,7 +1284,14 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         // B-6812 CHK-003 (G3): duplicate / concurrency warnings go to stderr;
         // the create conclusion + INIT-review guidance stays on stdout.
         emitAdvisoryToStderr();
-        return `Story ${storyId} created (INIT) with ${preflightChecklist.items.length} checklist items${hint}${requestHint}${initReviewHint}${nonGitHint}`;
+        // Old-PoS runs 35/38/39: prose example rows written here were never probed and nothing said so.
+        const probeRows = (() => {
+          try {
+            const note = probeRowsCreateNote(storyId, preflightChecklist.items, probeExtractionEnabled(store, storyId, resolveGitCwd({ store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root }), loadConfig(ctx.root)));
+            return note ? `\n⚠ ${note}` : '';
+          } catch { return ''; }
+        })();
+        return `Story ${storyId} created (INIT) with ${preflightChecklist.items.length} checklist items${hint}${probeRows}${requestHint}${initReviewHint}${nonGitHint}`;
       }
 
       // B-02a6 CHK-002: an IDEA story still persists index.json + background.md on

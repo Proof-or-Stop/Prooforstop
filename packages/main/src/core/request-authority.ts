@@ -172,6 +172,32 @@ export interface IntentConflict {
   undeclared: boolean;
 }
 
+/**
+ * Old-PoS run 37 (run37-a2-analysis.md §3 item 2): the pinned fragment an
+ * `[intent-conflict]` names when its `intent pins` field is not a code literal
+ * (e.g. an error message that quotes a value the request leaves unquoted): the
+ * part of `intent pins` that differs from `request implies`, with the common
+ * leading context (at most 60 characters, cut at a word boundary), so sibling
+ * rows of other items that carry the same wrong pin can be found. Null when
+ * either field is missing, the pin adds nothing to what the request implies,
+ * or the fragment is shorter than 6 characters.
+ */
+export function conflictPinnedFragment(conflict: Pick<IntentConflict, 'intentPins' | 'requestImplies'>): string | null {
+  const pins = conflict.intentPins?.trim();
+  const implies = conflict.requestImplies?.trim();
+  if (!pins || !implies || pins === implies) return null;
+  let prefix = 0;
+  while (prefix < pins.length && prefix < implies.length && pins[prefix] === implies[prefix]) prefix += 1;
+  let suffix = 0;
+  while (suffix < pins.length - prefix && suffix < implies.length - prefix && pins[pins.length - 1 - suffix] === implies[implies.length - 1 - suffix]) suffix += 1;
+  const differing = pins.slice(prefix, pins.length - suffix);
+  if (!differing.trim()) return null;
+  let start = Math.max(0, prefix - 60);
+  if (start > 0) { const space = pins.indexOf(' ', start); start = space >= 0 && space < prefix ? space + 1 : prefix; }
+  const fragment = pins.slice(start, pins.length - suffix).trim();
+  return fragment.length >= 6 ? fragment : null;
+}
+
 export interface IntentConflictReport {
   /** none: the section says none; declared: one or more conflicts; absent: no section. */
   section: 'none' | 'declared' | 'absent';

@@ -38,7 +38,7 @@ import { renderScopePlanRerunContext } from '../core/scope-plan-rerun-context.js
 import { IMPLEMENTER_PROBE_LINE, IMPLEMENTER_PROBE_MATRIX, INTENT_CONFLICT_RETURN_CONTRACT, PRODUCT_CODE_NO_POS_METADATA_RULE, REPAIR_INPUT_VARIANT_RULE, renderProbeTestGapLine, renderReviewRequestAuthority } from '../core/request-authority.js';
 import { renderAllowedFilesSection } from '../core/managed-writer-scope.js';
 import { earlierFindingRepairReports, earlierImplementerProbeGap, implementerRunReports } from '../core/finding-repair-attempts.js';
-import { renderAnchoredProbeTable, renderFrameworkProbeContract, renderProbeEvidence, renderProbeFlagRelaunch, renderRequestAnchoredPinAudit, reportProbeDecision, requestAnchoredKeys, storyProbeRunner } from '../core/request-probes.js';
+import { probeExtractionEnabled, renderAnchoredProbeTable, renderFrameworkProbeContract, renderProbeEvidence, renderProbeFlagRelaunch, renderRequestAnchoredPinAudit, reportProbeDecision, requestAnchoredKeys, storyProbeRunner } from '../core/request-probes.js';
 import { scopeBoundaryHashIsFresh } from '../core/scope-anti-expansion.js';
 import { reportHealthIssue } from '../core/health.js';
 import { findSealedManagedImplementerCompletion, managedImplementerAlreadyDoneAction } from '../core/managed-host-run.js';
@@ -268,7 +268,9 @@ function appendScopePlanRequestTraceability(lines: string[], store: StoryStore, 
   // Old-PoS run 31 (core/pin-oracle.ts): the project-declared oracle for the examples the framework could not evaluate.
   lines.push(...renderPinOracleAudit(oracle));
   // Old-PoS run 31 (core/request-probes.ts): request-defined rows paired with the sentence that defines them.
-  lines.push(...renderRequestAnchoredPinAudit(items, request.text));
+  // Old-PoS runs 35-39: prose example rows count only with probe extraction on (probeRunner / probe matrix); A0 keeps arrow rows.
+  const proseRows = (() => { try { return probeExtractionEnabled(store, storyId, resolveGitCwd({ store, storyId, metadataRoot: store.projectRoot, projectRoot: store.projectRoot }), loadConfig(store.projectRoot)); } catch { return false; } })();
+  lines.push(...renderRequestAnchoredPinAudit(items, request.text, { prose: proseRows }));
   // Coverage matrix (old-PoS runs 24-29, core/plan-coverage-matrix.ts): the judgment form of the PLAN coverage checks.
   // Old-PoS run 33: plan.coverageMatrix (default off) keeps only the exact-text rule.
   lines.push(...renderCoverageMatrixRule(items, request.text, (() => { try { return loadConfig(store.projectRoot); } catch { return {}; } })()));

@@ -377,7 +377,7 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   // Lab pin-derivation-audit (2026-10-08): checklist_add/_update and plan_acceptance_* refuse an underived intent example (core/intent-derivation.ts); repinned.
   // Lab request-probes (2026-10-09): checklist_update done runs the framework probe rows first (core/request-probes.ts); repinned.
   // Lab metadata-findings (2026-10-09): checklist_update metadataCorrection (verified Story-metadata correction, REVIEW in place), plan acceptance no-op refusal; repinned.
-  'packages/main/src/handlers/checklist.ts': '4906369e90d7383022f06759010315943cc92c073af69b0dd3b4dc721c4da135',
+  'packages/main/src/handlers/checklist.ts': 'fce5e9e0932db1ad3f3426203e23b8c6aa57fe06a4d52f7db55b7bfc466e73cf',
   'packages/main/src/core/maintenance-command-mode.ts': '9c94f1c1a20abf5ed3b93208f5d52e13d63246af12a85612c1e07f99e72258e2',
 });
 

@@ -28,6 +28,24 @@
  *      its report in the prompt, a second one routes to PLAN (replan), never to
  *      the same repair again.
  *
+ * Old-PoS runs 36/37 (bench-staging/oldpos/run37-a2-analysis.md §5): a
+ * `doc-code-drift:` finding cites the documentation lines that are wrong AND
+ * the code that contradicts them (`docs/a.md:43 ... but src/x.go:1654 ...`).
+ * Counting the code anchor as a defect site made the disposition unreachable:
+ * the code file is in the scope contract (so "in scope") and Story-changed (so
+ * "not unchanged"). For a doc-code-drift finding with at least one
+ * documentation anchor (findingSites):
+ *   - defect sites = the documentation anchors (base presence + scope as above);
+ *   - code anchors are evidence: each must ALSO be outside every Story hunk and
+ *     byte-identical at the base, so the code contradicted the doc already at
+ *     the base. A code anchor inside a Story hunk is not proof of a
+ *     pre-existing drift (the Story may have changed the behaviour the doc
+ *     describes), so the finding stays the Story's to repair;
+ *   - every cited documentation file must be unchanged base..HEAD as a whole:
+ *     a drift in a doc this Story edits (run 37 F-003: the repair of one doc
+ *     line left the next sentence contradicting it) is the Story's own.
+ * Any other finding keeps every anchor as a defect site.
+ *
  * Reviewer severity is never changed; the disposition is a signed, named
  * resolve transition whose reason carries this evidence.
  */
@@ -73,6 +91,31 @@ export function findingDefectAnchors(finding: { desc?: string; files?: readonly 
   return anchors;
 }
 
+/** A `doc-code-drift:` finding (the docs lane's prefix, or the legacy category of that name). */
+export function isDocCodeDriftFinding(finding: { desc?: string; category?: string }): boolean {
+  return /^\s*doc-code-drift\b/i.test(finding.desc ?? '') || finding.category === 'doc-code-drift';
+}
+
+export interface FindingSites {
+  /** Lines the finding says are wrong (base presence and scope are judged on these). */
+  defects: FindingAnchor[];
+  /** Lines cited as the contrast (doc-code-drift code anchors); never defect sites. */
+  evidence: FindingAnchor[];
+}
+
+/**
+ * Defect sites vs evidence (old-PoS runs 36/37): for a doc-code-drift finding
+ * with a documentation anchor, only documentation anchors are defect sites and
+ * code anchors are evidence; otherwise every anchor is a defect site.
+ */
+export function findingSites(finding: { desc?: string; files?: readonly string[]; category?: string }): FindingSites {
+  const anchors = findingDefectAnchors(finding);
+  if (!isDocCodeDriftFinding(finding)) return { defects: anchors, evidence: [] };
+  const docs = anchors.filter(anchor => isDocumentation(anchor.path));
+  if (docs.length === 0) return { defects: anchors, evidence: [] };
+  return { defects: docs, evidence: anchors.filter(anchor => !isDocumentation(anchor.path)) };
+}
+
 export interface AnchorPresence extends FindingAnchor { baseLine: number | null; unchanged: boolean; detail: string }
 
 export interface FindingBasePresence {
@@ -82,6 +125,8 @@ export interface FindingBasePresence {
   preExisting: boolean;
   reason: string;
   anchors: AnchorPresence[];
+  /** Doc-code-drift code anchors (evidence, not defect sites), each checked unchanged at the base. */
+  evidence: AnchorPresence[];
   /** Cited files the Story changed (base..HEAD) that carry no line anchor: listed for the audit, not defect sites. */
   referencedChangedFiles: string[];
 }
@@ -114,15 +159,14 @@ function diffHunks(cwd: string, base: string, head: string, path: string): Hunk[
  * must also be unchanged from it to HEAD.
  */
 export function assessFindingBasePresence(args: { gitCwd: string; base: string; head: string;
-  finding: { desc?: string; files?: readonly string[] } }): FindingBasePresence {
+  finding: { desc?: string; files?: readonly string[]; category?: string } }): FindingBasePresence {
   const { gitCwd, base, head } = args;
-  const anchors = findingDefectAnchors(args.finding);
-  const result = (preExisting: boolean, reason: string, rows: AnchorPresence[], referencedChangedFiles: string[] = []): FindingBasePresence =>
-    ({ schemaVersion: 1, base, head, preExisting, reason, anchors: rows, referencedChangedFiles });
+  const { defects: anchors, evidence } = findingSites(args.finding);
+  const result = (preExisting: boolean, reason: string, rows: AnchorPresence[], evidenceRows: AnchorPresence[] = [], referencedChangedFiles: string[] = []): FindingBasePresence =>
+    ({ schemaVersion: 1, base, head, preExisting, reason, anchors: rows, evidence: evidenceRows, referencedChangedFiles });
   if (anchors.length === 0) return result(false, 'the finding cites no path:line defect site', []);
-  const rows: AnchorPresence[] = [];
   const files = new Map<string, { hunks: Hunk[]; baseLines: string[]; headLines: string[] } | string>();
-  for (const anchor of anchors) {
+  const presenceOf = (anchor: FindingAnchor): AnchorPresence => {
     let file = files.get(anchor.path);
     if (file === undefined) {
       try {
@@ -138,21 +182,23 @@ export function assessFindingBasePresence(args: { gitCwd: string; base: string; 
       }
       files.set(anchor.path, file);
     }
-    if (typeof file === 'string') { rows.push({ ...anchor, baseLine: null, unchanged: false, detail: file }); continue; }
+    if (typeof file === 'string') return { ...anchor, baseLine: null, unchanged: false, detail: file };
     const touched = file.hunks.find(hunk => hunk.newCount > 0
       ? hunk.newStart <= anchor.endLine && hunk.newStart + hunk.newCount - 1 >= anchor.line
       : anchor.line <= hunk.newStart && hunk.newStart < anchor.endLine);
-    if (touched) { rows.push({ ...anchor, baseLine: null, unchanged: false, detail: `the Story changed ${anchor.path} at line ${touched.newStart}` }); continue; }
+    if (touched) return { ...anchor, baseLine: null, unchanged: false, detail: `the Story changed ${anchor.path} at line ${touched.newStart}` };
     const before = file.hunks.filter(hunk => (hunk.newCount > 0 ? hunk.newStart + hunk.newCount - 1 : hunk.newStart) < anchor.line);
     const baseLine = anchor.line - before.reduce((sum, hunk) => sum + hunk.newCount - hunk.oldCount, 0);
     const span = anchor.endLine - anchor.line;
     const headText = file.headLines.slice(anchor.line - 1, anchor.endLine);
     const baseText = file.baseLines.slice(baseLine - 1, baseLine + span);
     const same = headText.length === span + 1 && baseText.length === span + 1 && headText.every((text, index) => text === baseText[index]);
-    rows.push({ ...anchor, baseLine, unchanged: same,
-      detail: same ? `${anchor.path}:${anchor.line}${span ? `-${anchor.endLine}` : ''} is byte-identical at base line ${baseLine}` : `${anchor.path}:${anchor.line} differs from the base` });
-  }
-  const anchored = new Set(anchors.map(anchor => anchor.path));
+    return { ...anchor, baseLine, unchanged: same,
+      detail: same ? `${anchor.path}:${anchor.line}${span ? `-${anchor.endLine}` : ''} is byte-identical at base line ${baseLine}` : `${anchor.path}:${anchor.line} differs from the base` };
+  };
+  const rows = anchors.map(presenceOf);
+  const evidenceRows = evidence.map(presenceOf);
+  const anchored = new Set([...anchors, ...evidence].map(anchor => anchor.path));
   const unanchored = [...new Set((args.finding.files ?? []).map(normalizeScopePath))].filter(path => !anchored.has(path));
   let referencedChangedFiles: string[] = [];
   if (unanchored.length) {
@@ -161,9 +207,22 @@ export function assessFindingBasePresence(args: { gitCwd: string; base: string; 
     } catch { referencedChangedFiles = unanchored; }
   }
   const failed = rows.find(row => !row.unchanged);
-  return failed
-    ? result(false, failed.detail, rows, referencedChangedFiles)
-    : result(true, `every cited defect line (${rows.map(row => `${row.path}:${row.line}${row.endLine > row.line ? `-${row.endLine}` : ''}`).join(', ')}) is unchanged ${base.slice(0, 12)}..${head.slice(0, 12)} and byte-identical at the Story base`, rows, referencedChangedFiles);
+  if (failed) return result(false, failed.detail, rows, evidenceRows, referencedChangedFiles);
+  // Old-PoS runs 36/37: a doc-code-drift is pre-existing only when its code evidence
+  // contradicted the doc at the base too, and the Story edits none of the cited docs.
+  const changedEvidence = evidenceRows.find(row => !row.unchanged);
+  if (changedEvidence) {
+    return result(false, `the contrasted code is not unchanged at the base (${changedEvidence.detail}), so the drift may come from this Story's change`, rows, evidenceRows, referencedChangedFiles);
+  }
+  if (evidence.length > 0 || isDocCodeDriftFinding(args.finding)) {
+    const docs = [...new Set([...anchors.map(anchor => anchor.path), ...unanchored.filter(isDocumentation)])].filter(isDocumentation);
+    let editedDoc: string | undefined;
+    try { editedDoc = docs.find(path => !gitOk(gitCwd, ['diff', '--quiet', '--no-ext-diff', base, 'HEAD', '--', path])); } catch { editedDoc = docs[0]; }
+    if (editedDoc) return result(false, `the Story changed ${editedDoc} (base..HEAD); a drift in a documentation file this Story edits is the Story's own`, rows, evidenceRows, referencedChangedFiles);
+  }
+  const cited = (list: AnchorPresence[]) => list.map(row => `${row.path}:${row.line}${row.endLine > row.line ? `-${row.endLine}` : ''}`).join(', ');
+  return result(true, `every cited defect line (${cited(rows)}) is unchanged ${base.slice(0, 12)}..${head.slice(0, 12)} and byte-identical at the Story base`
+    + (evidenceRows.length ? `; the contrasted code (${cited(evidenceRows)}) is unchanged and byte-identical at the base too, so the drift predates the Story` : ''), rows, evidenceRows, referencedChangedFiles);
 }
 
 export interface FindingScopeCoverage { inScope: boolean; reason: string }
@@ -205,10 +264,12 @@ export function findingScopeCoverage(args: { paths: readonly string[];
 
 /** The audited disposition text recorded in the signed resolve transition. */
 export function preexistingDispositionReason(presence: FindingBasePresence, coverage: FindingScopeCoverage, followUp: string): string {
+  const evidence = presence.evidence.length
+    ? ` Code evidence (the contrast, not defect sites): ${presence.evidence.map(row => `${row.path}:${row.line}${row.endLine > row.line ? `-${row.endLine}` : ''} (base line ${row.baseLine})`).join(', ')}.` : '';
   const changed = presence.referencedChangedFiles.length
     ? ` Cited files the Story changed without a line anchor (not defect sites): ${presence.referencedChangedFiles.join(', ')}.` : '';
   return `[${PREEXISTING_OUT_OF_SCOPE}] Pre-existing at the Story base ${presence.base.slice(0, 12)} (reviewed head ${presence.head.slice(0, 12)}): ${presence.reason}.`
-    + ` Outside this Story: ${coverage.reason}.${changed} Severity unchanged. Follow-up: ${followUp.trim() || 'repair it in a separate Story.'}`;
+    + ` Outside this Story: ${coverage.reason}.${evidence}${changed} Severity unchanged. Follow-up: ${followUp.trim() || 'repair it in a separate Story.'}`;
 }
 
 /** What next does with one open verified blocking finding (pure; the caller supplies the facts). */

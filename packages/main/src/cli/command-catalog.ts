@@ -554,6 +554,8 @@ Behavior:
       test: z.array(z.string()),
     }).optional().describe('B-45ed: affected file set declared in PLAN.'),
     verificationIntent: verificationIntentSchema.optional().describe('Happy-path, edge-case, and adversarial verification intent; frozen from DEV.'),
+    intentRows: z.array(z.object({ ref: z.string().describe('Row ref CHK-NNN:<lane>:<index>, or the row id.') }).passthrough()).min(1).optional()
+      .describe('Patch single intent rows instead of resending the whole verificationIntent (INIT/PLAN): each {ref, <field>: <value>} replaces those fields of that row (null removes an optional field); every intent check runs on the resulting whole intent. Not combinable with verificationIntent or intentProposalApproval [intent_rows_invalid].'),
     intentProposalApproval: z.object({digest:z.string().regex(/^[a-f0-9]{64}$/),baseIntentHash:z.string().regex(/^[a-f0-9]{64}$/),reason:z.string().min(30)}).strict().optional().describe('PLAN owner approval of exact proposed intent bytes, bound to Story/item and prior intent hash. Intent-only payload; preserves lease and does not attest independent authorship.'),
     verificationEvidence: z.array(verificationEvidenceSchema).optional().describe('Evidence list covering verificationIntent.'),
     reason: z.string().optional().describe('Change reason.'), agent: z.string().optional().describe('Actor.'),

@@ -241,6 +241,17 @@
  *      (pre_existing_unaffected, proposalRef = finding id) is accepted instead. In
  *      scope (NPXS, the request names the doc): repaired as before; a repair run
  *      without a commit is relaunched with its report in the prompt.
+ *   NPXC old-PoS runs 36/37 (§5): the round-1 doc finding is a `doc-code-drift:` that also
+ *      cites a code line of a file in the scope contract (unchanged at the base, only
+ *      shifted); the code anchor is evidence, not a defect site, so the same ONE audited
+ *      disposition closes it (before: "in scope" via the code file, a repair round).
+ *   NRW old-PoS runs 35-39 (A3 probes inert): with a probeRunner declared, checklist_update
+ *      reports an example row the probe cannot run where it is saved (ONE Next: the
+ *      row patch rewriting it as `<input> -> <expected>`), a prose connector row
+ *      (`... returns ...`) is runnable; checklist_update intentRows patches one row by
+ *      ref with every intent check kept (an underived pin is refused, nothing
+ *      written); an unknown ref or a whole intent plus a row patch is refused with
+ *      ONE Next.
  *   NM old-PoS run 25 F2: the owner commits a test-only change during REVIEW
  *      after a clean round. next returns ONE framework step, the review reopen
  *      (story_advance DEV, reason recorded as transitionType review_reopen);
@@ -267,7 +278,7 @@
  *      and still review the whole Story).
  *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5 ND-V6 ND-V8 ND-V9.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NDG|NRS|NPX|NPXA|NPXS|AB|ND-V1..NF-V9]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NDG|NRS|NPX|NPXA|NPXS|NPXC|NRW|AB|ND-V1..NF-V9]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -1147,8 +1158,11 @@ const NF_REPAIR_TEST = '\nfunc TestUpperEmpty(t *testing.T) {\n\tif Upper("") !=
 const PX_DOC_PATH = 'docs/types/array.md';
 const PX_DOC = '# Array type\n\n`[0, 1, 2, 3][0:2]` returns `[0, 1, 2]`.\n`[0, 1, 2, 3][:2]` returns `[0, 1, 2]`.\n';
 const PX_DOC_FIXED = '# Array type\n\n`[0, 1, 2, 3][0:2]` returns `[0, 1]`.\n`[0, 1, 2, 3][:2]` returns `[0, 1]`.\n';
+const PX_FINDING_DOC_ONLY = 'doc-code-drift: docs/types/array.md:3 and :4 show [0, 1, 2, 3][0:2] and [0, 1, 2, 3][:2] returning [0, 1, 2], but range ends are exclusive; the documented array range results are wrong.';
+/** NPXC (old-PoS runs 36/37): the same drift, also citing a code line (unchanged at the base) of a file in the scope contract. */
+const PX_FINDING_CODE_ANCHOR = 'doc-code-drift: docs/types/array.md:3 and :4 show [0, 1, 2, 3][0:2] and [0, 1, 2, 3][:2] returning [0, 1, 2], but strs/strs.go:1 is the package the range helpers live in and range ends are exclusive; the documented array range results are wrong.';
 const PX_FINDING = {
-  desc: 'doc-code-drift: docs/types/array.md:3 and :4 show [0, 1, 2, 3][0:2] and [0, 1, 2, 3][:2] returning [0, 1, 2], but range ends are exclusive; the documented array range results are wrong.',
+  desc: PX_FINDING_DOC_ONLY,
   severity: 'medium', category: 'missing', files: [PX_DOC_PATH, 'strs/strs.go'], evidenceState: 'verified',
 };
 /** The run 30 repair worker's report: it stopped before editing a file outside the allowed list it was given. */
@@ -3778,6 +3792,65 @@ function scenarioNP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
+/**
+ * NRW (old-PoS runs 35-39): runs 35/38/39 wrote every example row as prose, so the
+ * declared probe runner extracted 0 rows and nothing said so; every one-row fix was
+ * a whole-intent resubmission (run 37: 26 hand-built jq pipelines).
+ */
+function scenarioNRW(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NRW';
+  const name = 'NRW old-PoS runs 35-39: a saved example row no probe can run is reported with ONE Next (row patch); intentRows patches one row with every intent check kept';
+  // A declared probe runner (the bench arm bench.probeRunner=on): a program file echoed back.
+  const runner = { command: process.execPath, args: ['-e', 'process.stdout.write(require("fs").readFileSync(process.argv[1], "utf8"))', '{file}'], program: '{input}', extension: '.txt' };
+  const o = new Owner(tag, 'B-e2c6', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NIQ_REQUEST, config: { probeRunner: runner } });
+  const lines: string[] = [];
+  const row = (desc: string, test: string, extra: Record<string, unknown> = {}) => ({ desc, type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass',
+    requirementSource: 'story', verification: { command: `go test -v ./strs -run ^${test}$`, selector: `--- PASS: ${test}` }, ...extra });
+  try {
+    const store = new StoryStore(o.worktree);
+    store.writeStory(o.storyId, { ...store.readStory(o.storyId), phase: 'PLAN' });
+    const legacy = store.readChecklist(o.storyId);
+    store.writeChecklist(o.storyId, { ...legacy, items: legacy.items.map(item => ({ ...item, status: 'pending', startTime: null })) } as never);
+    o.mustCli('dev_memory_preflight_ack', { storyId: o.storyId });
+    const intent = { happy: [row('Upper("ab") -> "AB"', 'TestUpper'), row('Upper of "ab" gives "AB"', 'TestUpperProse')],
+      edge: [row('Upper("") -> ""', 'TestUpperEmpty')], adversarial: [row('Upper leaves digits and symbols unchanged', 'TestUpperSymbols')] };
+    const saved = o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', verificationIntent: intent }, { label: 'checklist_update CHK-001 (one prose example row)' });
+    lines.push(`save: ${saved.out.split('\n').filter(line => /not extractable|Next:/.test(line)).join(' / ').slice(0, 300)}`);
+    assert.match(saved.out, /1 row (?:is )?not extractable/i, `[NRW] the save names the row the probe cannot run:\n${saved.out.slice(-1500)}`);
+    assert.match(saved.out, /CHK-001:happy:1/, '[NRW] the save lists the row ref');
+    assert.match(saved.out, /<input> -> <expected>/, '[NRW] the save names the accepted form');
+    const note = saved.out.slice(saved.out.search(/not extractable/i));
+    assert.equal((note.match(/Next: proof-or-stop /g) ?? []).length, 1, `[NRW] ONE next action:\n${note}`);
+    assert.match(note, /Next: proof-or-stop checklist_update [^\n]*intentRows/, '[NRW] the Next patches only the listed row');
+
+    const patched = o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', intentRows: [{ ref: 'CHK-001:happy:1', desc: 'Upper("ab") returns "AB"' }] }, { label: 'checklist_update CHK-001 intentRows (prose connector)' });
+    assert.ok(!/not extractable/i.test(patched.out), `[NRW] a prose connector row is runnable (no report):\n${patched.out.slice(-1200)}`);
+    const after = new StoryStore(o.worktree).readChecklist(o.storyId).items.find(item => item.id === 'CHK-001')!.verificationIntent!;
+    assert.equal(after.happy[1]!.desc, 'Upper("ab") returns "AB"', '[NRW] the patched row carries the new desc');
+    assert.deepEqual((after.happy[1] as unknown as Record<string, unknown>).verification, intent.happy[1]!.verification, '[NRW] the patched row keeps its other fields');
+    assert.deepEqual([after.happy[0]!.desc, after.edge[0]!.desc, after.adversarial[0]!.desc], [intent.happy[0]!.desc, intent.edge[0]!.desc, intent.adversarial[0]!.desc], '[NRW] the other rows are unchanged');
+
+    const underived = o.cli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', intentRows: [{ ref: 'CHK-001:edge:0', desc: 'Upper("xy") -> "XY"' }] }, { label: 'checklist_update intentRows (underived pin)' });
+    assert.notEqual(underived.status, 0, '[NRW] a row patch passes the same derivation check as a whole intent');
+    assert.match(underived.out, /\[intent_derivation_required\]/, '[NRW] the refusal names the rule');
+    assert.equal(new StoryStore(o.worktree).readChecklist(o.storyId).items.find(item => item.id === 'CHK-001')!.verificationIntent!.edge[0]!.desc, 'Upper("") -> ""', '[NRW] nothing written');
+
+    const unknown = o.cli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', intentRows: [{ ref: 'CHK-001:happy:9', desc: 'Upper("a") -> "A"' }] }, { label: 'checklist_update intentRows (unknown ref)' });
+    assert.notEqual(unknown.status, 0, '[NRW] an unknown row ref is refused');
+    assert.match(unknown.out, /CHK-001:happy:0/, `[NRW] the refusal lists the item's rows:\n${unknown.out.slice(-1200)}`);
+    assert.equal(new Set(unknown.out.match(/Next: proof-or-stop .*/g) ?? []).size, 1, `[NRW] ONE next action (the CLI echoes the refusal once more as Error:):\n${unknown.out.slice(-1200)}`);
+    const both = o.cli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', verificationIntent: intent, intentRows: [{ ref: 'CHK-001:happy:1', desc: 'Upper("ab") -> "AB"' }] }, { label: 'checklist_update intent + intentRows' });
+    assert.notEqual(both.status, 0, '[NRW] a whole intent and a row patch together are refused');
+    assert.equal(new Set(both.out.match(/Next: proof-or-stop .*/g) ?? []).size, 1, `[NRW] ONE next action:\n${both.out.slice(-1200)}`);
+    lines.push('intentRows patch kept every other row; underived pin, unknown ref and intent+patch refused with one Next');
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 /** NCV: a request with an n-part syntax, omitted forms, a non-numeric operand and a same-semantics assignment section. */
 const NCV_REQUEST = [
   'Extend strs slicing with a third component: `value[start:end:step]`.',
@@ -4368,14 +4441,16 @@ function scenarioNIS(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
  *        reports blocked without a commit, so next relaunches the repair with
  *        that report in the prompt; the second commits the doc fix; DONE.
  */
-function scenarioNPX(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NPX' | 'NPXA' | 'NPXS'): Outcome {
+function scenarioNPX(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NPX' | 'NPXA' | 'NPXS' | 'NPXC'): Outcome {
   const inScope = tag === 'NPXS';
-  const name = tag === 'NPX'
-    ? 'NPX run 30: a pre-existing out-of-scope doc finding is closed by ONE audited disposition (base evidence + follow-up), never routed to repair; DONE'
+  // Old-PoS runs 36/37: NPXC is NPX with a code evidence anchor in the finding.
+  PX_FINDING.desc = tag === 'NPXC' ? PX_FINDING_CODE_ANCHOR : PX_FINDING_DOC_ONLY;
+  const name = tag === 'NPX' || tag === 'NPXC'
+    ? `${tag} run ${tag === 'NPX' ? '30' : '36/37'}: a pre-existing out-of-scope doc finding${tag === 'NPXC' ? ' citing an unchanged code line of an in-scope file' : ''} is closed by ONE audited disposition (base evidence + follow-up), never routed to repair; DONE`
     : tag === 'NPXA'
       ? 'NPXA run 30: the owner\'s applicability record (pre_existing_unaffected, proposalRef = finding id) is accepted on valid base evidence; DONE'
       : 'NPXS run 30: a pre-existing doc finding the request covers is repaired; a repair run without a commit is relaunched with its report; DONE';
-  const o = new Owner(tag, tag === 'NPX' ? 'B-e3a0' : tag === 'NPXA' ? 'B-e3a1' : 'B-e3a2', machineEnv, steps, false,
+  const o = new Owner(tag, tag === 'NPX' ? 'B-e3a0' : tag === 'NPXA' ? 'B-e3a1' : tag === 'NPXC' ? 'B-e3a3' : 'B-e3a2', machineEnv, steps, false,
     { trackedGateFailureCounts: true, preexistingDoc: true, request: inScope ? PX_REQUEST_IN : PX_REQUEST_OUT });
   const lines: string[] = [];
   const reasons: string[] = [];
@@ -4420,7 +4495,8 @@ function scenarioNPX(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NPX' | 
       assert.match(reason, /pre-existing at the Story base/i, `[${tag}] the record states the base evidence: ${reason}`);
       assert.match(reason, /follow-up/i, `[${tag}] the record carries a follow-up: ${reason}`);
       assert.equal(doc, PX_DOC, `[${tag}] the doc on main is untouched (recorded follow-up, not a silent edit)`);
-      if (tag === 'NPX') assert.deepEqual(order, ['finding_preexisting_disposition:preexisting_out_of_scope'], `[${tag}] ONE disposition step: ${order.join(' > ')}`);
+      if (tag === 'NPXC') assert.ok(reason.includes('strs/strs.go:1'), `[${tag}] the record names the code evidence anchor: ${reason}`);
+      if (tag === 'NPX' || tag === 'NPXC') assert.deepEqual(order, ['finding_preexisting_disposition:preexisting_out_of_scope'], `[${tag}] ONE disposition step: ${order.join(' > ')}`);
       // NPXA: next proposed the disposition; the owner recorded it the run 30 way instead.
       else assert.deepEqual(order, ['finding_preexisting_disposition:preexisting_out_of_scope', 'owner_applicability_assess'], `[${tag}] the owner's applicability record closed it: ${order.join(' > ')}`);
       lines.push(`${px.id} closed: ${reason.slice(0, 300)}`);
@@ -4439,6 +4515,8 @@ function scenarioNPX(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NPX' | 
   } catch (error) {
     console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
     return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  } finally {
+    PX_FINDING.desc = PX_FINDING_DOC_ONLY;
   }
 }
 
@@ -5222,7 +5300,7 @@ function scenarioNUB(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NDG|NRS|NPX[AS]?|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NDG|NRS|NPX[ASC]?|NRW|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -5296,7 +5374,8 @@ async function main(): Promise<void> {
     if (only.includes('NDG')) outcomes.push(scenarioNDG(machine.env, steps));
     if (only.includes('NRS')) outcomes.push(scenarioNRS(machine.env, steps));
     if (only.includes('NIS')) outcomes.push(scenarioNIS(machine.env, steps));
-    for (const token of ['NPX', 'NPXA', 'NPXS'] as const) if (only.includes(token)) outcomes.push(scenarioNPX(machine.env, steps, token));
+    for (const token of ['NPX', 'NPXA', 'NPXS', 'NPXC'] as const) if (only.includes(token)) outcomes.push(scenarioNPX(machine.env, steps, token));
+    if (only.includes('NRW')) outcomes.push(scenarioNRW(machine.env, steps));
     // Detection A/B arms: explicit tokens (ND-V1 .. NF-V9) or AB = ND-V1, ND-V2, ND-V3, NF-V4, ND-V5, ND-V6, ND-V8, ND-V9.
     const abTokens = only.includes('AB') ? ['ND-V1', 'ND-V2', 'ND-V3', 'NF-V4', 'ND-V5', 'ND-V6', 'ND-V8', 'ND-V9'] : [];
     for (const token of [...new Set([...abTokens, ...only.filter(arg => /^N[DF]-V[1-689]$/.test(arg))])]) {
@@ -5305,7 +5384,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NRW', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

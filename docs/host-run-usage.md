@@ -95,7 +95,10 @@ the Story base and HEAD (base build once, then a build per HEAD material); under
 default `advisory` (old-PoS run 33) it only prints them; the
 prompt then carries a compact contract instead of the matrix. Old-PoS run 32:
 every statement of a row runs in order (a row with a statement the extractor
-cannot place is never run or flagged), and an item reopened because its added
+cannot place is never run or flagged). Old-PoS runs 35-39: a prose connector
+(`returns`, `evaluates to`, `outputs`, ...) after a code input and before a
+concrete value is a case too, and the contract and the done note state `N rows
+not extractable (not run: ...)` instead of a bare 0 example rows; and an item reopened because its added
 tests compare a request-quoted exact string only by prefix / contains
 (`exact_text_prefix_assertion`) gets the test, file and helper in its relaunch
 prompt. The summary ends with receiptId, replacementSafe, any supervision
@@ -515,7 +518,7 @@ implementer 与 finding-repair 的 prompt 指向 `request.md`，并要求最终�
 （`none`，或每个冲突一行 `<intentRef> | request: "<原句>" | request implies: <值> | intent pins: <值>`）。
 `next` 从 run 的 `live-output.jsonl` 读最后一条 assistant 消息解析该段（implementer 只在散文里写、且提到
 intent/checklist/pin/request 的「deliberate choice」也算冲突）：未修订的冲突在 DEV 返回 `intent_conflict`（`story_advance --phase=PLAN`），
-在 PLAN 返回 `intent_conflict_amend`（`checklist_update` 新 intent，冲突点名 userSees 时改 userSees，+ reason + `status: pending`）；item 的 verificationIntent 或 userSees 与派发时不同，或已写出 request 推出的值、不再含被钉住的字面量，冲突即解除（old-PoS run 31）。
+在 PLAN 返回 `intent_conflict_amend`（`checklist_update` 新 intent，冲突点名 userSees 时改 userSees，+ reason + `status: pending`；old-PoS run 37：pin 不是代码字面量时，同一步还列出任何 item 中写着同一错误 pin 片段的行，并对每个兄弟 item 给一条 `checklist_update {itemId, intentRows}` 行级修补）；item 的 verificationIntent 或 userSees 与派发时不同，或已写出 request 推出的值、不再含被钉住的字面量，冲突即解除（old-PoS run 31）。
 finding-repair 的 prompt 还要求在 Story base（打印确切 SHA）与修复后运行该 finding 的输入及其字面变体，
 request 没改的变体保持 base 行为（old-PoS run 24）。implementer 的 prompt（仅 A/B 开关 `implementation.probeMatrix=on` 时；old-PoS run 33 起默认 off，只留一行）带同样性质的探针矩阵
 （操作数位置 × 值类 × 操作，在 Story base 与改动后各跑一次，old-PoS runs 24-29），最终消息报告 `[probes]` 行（含 `tested:` / `probed-only:`；`next` 解析 probed-only 行，done item 有未测的已决定行时返回 `probe_tests_missing`，old-PoS run 30）。old-PoS run 31：prompt 还把本 item 的例子行与定义它的 request 句子配对，要求 `[probe-row]` 行，未解决的 contradiction 返回 `probe_request_mismatch`；项目声明 `probeRunner` 时，implementer 运行中的 `checklist_update status=done` 先在 Story base 与 HEAD 上跑这些行，`dev.probeEnforcement=enforce` 时每组 flag 拒绝一次（old-PoS run 33 起默认 `advisory`：只打印，不拒绝、不 reopen），prompt 用紧凑契约代替矩阵。
