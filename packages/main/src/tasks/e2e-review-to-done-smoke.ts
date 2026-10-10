@@ -2782,6 +2782,10 @@ function scenarioNF(machineEnv: NodeJS.ProcessEnv, steps: Step[], firstOnly = fa
     assert.match(delivery!.prompt, /Delivery context pack \(/, `${tag}: the delivery prompt carries the delivery_context_pack output`);
     assert.match(delivery!.prompt, /Diff vs main \(/, `${tag}: the pack lists the delivery diff`);
     assert.match(delivery!.prompt, /do not (?:run|explore)[^\n]*host_run_status/i, `${tag}: the prompt says not to explore framework state`);
+    // Old-PoS run 40 (sink 5): the delivery_check_set skeleton and the canonical report commands come with it.
+    assert.match(delivery!.prompt, new RegExp(`proof-or-stop delivery_check_set '\\{"storyId":"${o.storyId}"`), `${tag}: the delivery prompt carries the delivery_check_set skeleton`);
+    assert.match(delivery!.prompt, /"featureId":"CHK-001"/, `${tag}: one realMachineTests row per item`);
+    assert.match(delivery!.prompt, new RegExp(`proof-or-stop acceptance_topology_check --storyId=${o.storyId}`), `${tag}: the canonical reports are named as commands`);
     const tests = readFileSync(join(o.root, 'strs/strs_test.go'), 'utf8');
     assert.match(tests, /TestReverseEmpty/, 'F-001 repair merged into main');
     assert.match(tests, /TestUpperEmpty/, 'F-002 repair merged into main');
@@ -3638,16 +3642,26 @@ function scenarioNXT(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 
     const reopen = ask('next (every item done)');
     assert.equal(reopen.reason, 'exact_text_prefix_assertion', `[NXT] next reopens before REVIEW: ${reopen.reason}: ${reopen.why}`);
-    assert.equal(reopen.kind, 'agent', '[NXT] one owner step');
+    // Old-PoS run 40 (N1): the reopen is a framework step; `next --run` runs it and relaunches the implementer.
+    assert.equal(reopen.kind, 'framework', `[NXT] the reopen is a framework step, not an owner hand action: ${reopen.kind}`);
     assert.equal(reopen.cli?.payload.status, 'in_progress');
-    assert.match(reopen.why, /strs: empty input not allowed for[^\n]*errors_test\.go TestEmptyInputError[^\n]*assertErrPrefix/, `[NXT] the step names the test and the helper: ${reopen.why}`);
+    assert.match(reopen.why, /strs: empty input not allowed for[^\n]*errors_test\.go:\d+\) in TestEmptyInputError[^\n]*assertErrPrefix/, `[NXT] the step names the row, the test and the helper: ${reopen.why}`);
     const itemId = String(reopen.cli!.payload.itemId);
-    o.mustCli(reopen.cli!.command, reopen.cli!.payload, { label: 'checklist_update reopen (exact text)' });
-    const relaunch = ask('next (reopened)');
-    assert.equal(relaunch.reason, 'implement_item', `[NXT] relaunch: ${relaunch.reason}: ${relaunch.why}`);
-    assert.equal(relaunch.cli?.payload.itemId, itemId);
-    runImplementer(relaunch, { commands: writeAndCommit('strs/errors_exact_test.go', NXT_EXACT_TEST, itemId, 'exact error text test'),
-      final: `Asserted the error text exactly.\n[intent-conflict] none` }, 'host_run implementer (exact test)');
+    const launchedBefore = managedPrompts(o, IMPLEMENTER).length;
+    o.script(IMPLEMENTER, { commands: writeAndCommit('strs/errors_exact_test.go', NXT_EXACT_TEST, itemId, 'exact error text test'),
+      final: `Asserted the error text exactly.\n[intent-conflict] none` });
+    const ran = o.cli('next', { storyId: o.storyId, run: true, json: true, maxSteps: 2 }, { label: 'next --run (exact-text reopen + relaunch)' });
+    const ranJson = parseJson(ran.stdout);
+    const executed = ((ranJson?.executed ?? []) as Array<{ reason: string; exit: number; tail: string }>);
+    lines.push(`next --run ran: ${executed.map(row => `${row.reason}:${row.exit}`).join(' > ')}`);
+    assert.deepEqual(executed.map(row => row.reason), ['exact_text_prefix_assertion', 'implement_item'], `[NXT] next --run reopens the item and relaunches its implementer itself:\n${ran.out.slice(-2000)}`);
+    assert.ok(executed.every(row => row.exit === 0), `[NXT] both framework steps pass their gates: ${JSON.stringify(executed)}`);
+    const relaunched = managedPrompts(o, IMPLEMENTER);
+    assert.equal(relaunched.length, launchedBefore + 1, '[NXT] exactly one implementer relaunch');
+    assert.equal(relaunched.at(-1)!.target?.itemId, itemId, '[NXT] the relaunch is bound to the reopened item');
+    const relaunchTerminal = waitTerminal(o, 'implementer (exact relaunch)', relaunched.at(-1)!.runId);
+    o.unscript(IMPLEMENTER);
+    assert.equal(relaunchTerminal.state, 'completed', `[NXT] relaunch terminal ${relaunchTerminal.state} (${relaunchTerminal.reason})`);
     const again = managedPrompts(o, IMPLEMENTER).at(-1)!.prompt;
     assert.match(again, /Reopened before REVIEW: [\s\S]*assertErrPrefix/, '[NXT] the relaunch prompt names the helper');
     const after = ask('next (exact assertion added)');
@@ -4001,6 +4015,19 @@ function scenarioNSC(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     assert.equal(template.reason, 'story_create_authoring', `[${tag}] template: ${template.reason}`);
     const payload = fillStoryCreateTemplate(template.cli!.payload) as Record<string, any>;
     payload.request = NIQ_REQUEST;
+    // Old-PoS run 40 (N4): a schema-enum refusal (a row type outside the enum) is staged too: the template
+    // lists the row type values, and the refusal names ONE story_create @<file> Next with the allowed values.
+    assert.match(template.why, /logic\|cli\|browser\|manual\|docs/, `[${tag}] the template step lists the row type values: ${template.why.slice(0, 600)}`);
+    const enumPayload = JSON.parse(JSON.stringify(payload)) as Record<string, any>;
+    enumPayload.checklist[0].verificationIntent.happy[0].type = 'compatibility';
+    const enumRefused = o.cli('story_create', enumPayload, { label: 'story_create (row type outside the enum)' });
+    lines.push(enumRefused.out.split('\n').filter(line => /type|Next:/.test(line)).slice(0, 4).join(' | '));
+    assert.notEqual(enumRefused.status, 0, `[${tag}] the row type outside the enum is refused`);
+    assert.match(enumRefused.out, /compatibility[^\n]*logic[^\n]*cli[^\n]*browser[^\n]*manual[^\n]*docs/, `[${tag}] the refusal names the value and the allowed values:\n${enumRefused.out.slice(-1500)}`);
+    const enumStaged = enumRefused.out.match(/proof-or-stop story_create @(\S+\.json)/)?.[1];
+    assert.ok(enumStaged, `[${tag}] the enum refusal stages the payload with ONE story_create @<file> Next (run 40: the whole payload was re-sent):\n${enumRefused.out.slice(-1500)}`);
+    assert.equal(new Set(enumRefused.out.match(/^Next:.*$/gm) ?? []).size, 1, `[${tag}] exactly one (distinct) Next line on the enum refusal`);
+    assert.equal(JSON.parse(readFileSync(enumStaged!, 'utf8')).checklist[0].verificationIntent.happy[0].type, 'compatibility', `[${tag}] the staged file holds the submitted payload`);
     const one = payload.checklist[0];
     // Two items, each with an underived example the request does not quote (two problems in two items).
     Object.assign(one.verificationIntent.happy[0], { desc: 'Upper("abc") -> "ABC"', derivation: { requestQuote: 'Upper upper-cases its whole input', computation: 'the upper-case form of "abc" is "ABC"' } });
