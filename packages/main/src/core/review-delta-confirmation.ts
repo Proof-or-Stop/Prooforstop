@@ -7,11 +7,19 @@
  * the findings resolved in the previous remediation. The lane's note must carry
  * a `[checked]` line per item (a `file:` item must also be in its read
  * manifest) and a `[reverified] <finding> :: <command> :: <output line>` line
- * per resolved finding. For a pass the framework re-runs each named command in
- * the Story worktree (the duplicate-coverage runner: one allowlisted executable,
- * project validate.env, exit 0 and the output line required). Anything missing,
- * any `[gap]`, or a failing re-run makes the result a GAP: a pass is then not
- * imported, the gap is recorded, and the round falls back to a full round.
+ * per resolved finding. The framework re-runs each named command in the Story
+ * worktree (the duplicate-coverage runner: one allowlisted executable, project
+ * validate.env, exit 0 and the output line required). Anything missing, a
+ * `[gap]` on a check item or resolved finding, or a failing re-run makes the
+ * result a GAP: a pass is then not imported, the gap is recorded, and the
+ * round falls back to a full round.
+ *
+ * Old-PoS run 52 (bench-staging/oldpos/run52-analysis.md §3 D1): the note of a
+ * FINDINGS verdict is kept in its proposal (it was dropped, so 3 of 3
+ * findings-verdict confirmation lanes gapped), and its [reverified] commands
+ * are re-run too (a broken repair is still caught). A findings verdict with a
+ * gap imports its findings without a late lane in its own round; the next
+ * round is a full round (core/review-delta-round.ts PREVIOUS_CONFIRMATION_GAP).
  */
 import { checkDeltaConfirmationNote, type DeltaRoundRunBinding } from './review-delta-round.js';
 import { runDuplicateCoverage } from './duplicate-finding-coverage.js';
@@ -54,8 +62,8 @@ export function evaluateDeltaConfirmation(args: {
   const note = checkDeltaConfirmationNote({ binding: args.binding, storyId: args.storyId, note: args.note, readManifest: args.readManifest });
   const reverified: DeltaReverifyReceipt[] = [];
   const failures: string[] = [];
-  // A findings verdict sends the Story to remediation anyway; only a pass is re-run.
-  if (args.conclusion === 'pass') {
+  // Old-PoS run 52: a findings verdict's re-verifications are re-run as well; a failure is recorded as its gap.
+  {
     for (const row of note.reverify) {
       try {
         const run = runDuplicateCoverage({ projectRoot: args.projectRoot, cwd: args.cwd, command: row.command, selector: row.selector,

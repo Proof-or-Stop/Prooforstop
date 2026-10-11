@@ -225,6 +225,88 @@ export function assessFindingBasePresence(args: { gitCwd: string; base: string; 
     + (evidenceRows.length ? `; the contrasted code (${cited(evidenceRows)}) is unchanged and byte-identical at the base too, so the drift predates the Story` : ''), rows, evidenceRows, referencedChangedFiles);
 }
 
+/**
+ * Old-PoS run 52 (bench-staging/oldpos/run52-analysis.md §4; run 48 cycle C):
+ * the defect sites of a PRE-EXISTING finding, keyed by path and Story-base
+ * line (`docs/a.md#43`), one key per cited line. Keyed by the base line, two
+ * filings of one site match even when they cite it on different heads in
+ * other words. Empty for a finding that is not pre-existing.
+ */
+export function preexistingSiteKeys(presence: FindingBasePresence): string[] {
+  if (!presence.preExisting) return [];
+  const keys: string[] = [];
+  for (const anchor of presence.anchors) {
+    if (anchor.baseLine === null || !anchor.unchanged) return [];
+    for (let offset = 0; offset <= anchor.endLine - anchor.line; offset += 1) {
+      const key = `${anchor.path}#${anchor.baseLine + offset}`;
+      if (!keys.includes(key)) keys.push(key);
+    }
+  }
+  return keys;
+}
+
+/**
+ * Old-PoS run 52: the resolve-reason prefix of a finding the framework closed
+ * at import as a recurrence (handlers/finding-recurrence.ts). The reason is
+ * part of the signed lifecycle transition (the Finding record itself carries
+ * no extra field: the ledger mirror authenticates its exact shape).
+ */
+export const RECURRING_PREEXISTING_REASON_PREFIX = `[${PREEXISTING_OUT_OF_SCOPE}] Recurring pre-existing finding, closed by the framework at import (recurrence of `;
+
+/** The dispositions a framework-closed recurrence names (empty for any other finding). */
+export function recurringPreexistingOf(finding: { status?: string; resolutionType?: string; resolvedReason?: string }): string[] {
+  if (finding.status !== 'resolved' || finding.resolutionType !== PREEXISTING_OUT_OF_SCOPE) return [];
+  const reason = finding.resolvedReason ?? '';
+  if (!reason.startsWith(RECURRING_PREEXISTING_REASON_PREFIX)) return [];
+  const end = reason.indexOf(')', RECURRING_PREEXISTING_REASON_PREFIX.length);
+  if (end < 0) return [];
+  return reason.slice(RECURRING_PREEXISTING_REASON_PREFIX.length, end).split(',').map(id => id.trim()).filter(Boolean);
+}
+
+export interface RecurringPreexistingMatch {
+  recurring: boolean;
+  /** The dispositioned findings whose sites cover the candidate's (sorted). */
+  of: string[];
+  /** The candidate's defect sites as it cited them (`path:line`). */
+  sites: string[];
+  reason: string;
+}
+
+/**
+ * Old-PoS run 52: is a new finding a RECURRENCE of an existing
+ * `preexisting_out_of_scope` disposition? Only when the candidate is itself
+ * pre-existing (every defect line outside every Story hunk and byte-identical
+ * at the base, doc-code-drift evidence unchanged too; assessFindingBasePresence)
+ * AND every one of its defect sites is a site of a disposition that still holds
+ * (its own presence recomputed now). A site the Story edited, a site nobody
+ * dispositioned (even in the same file), or a code line inside a Story hunk is
+ * never a recurrence, so a real defect in Story-changed code is never closed
+ * this way.
+ */
+export function recurringPreexistingSites(args: { candidate: FindingBasePresence;
+  dispositioned: ReadonlyArray<{ findingId: string; presence: FindingBasePresence }> }): RecurringPreexistingMatch {
+  const sites = args.candidate.anchors.map(anchor => `${anchor.path}:${anchor.line}${anchor.endLine > anchor.line ? `-${anchor.endLine}` : ''}`);
+  const no = (reason: string): RecurringPreexistingMatch => ({ recurring: false, of: [], sites, reason });
+  if (!args.candidate.preExisting) return no(`not pre-existing: ${args.candidate.reason}`);
+  const owners = new Map<string, string[]>();
+  for (const row of args.dispositioned) {
+    for (const key of preexistingSiteKeys(row.presence)) owners.set(key, [...(owners.get(key) ?? []), row.findingId]);
+  }
+  if (owners.size === 0) return no('no pre-existing disposition holds on the current material');
+  const uncovered = args.candidate.anchors.filter(anchor => {
+    if (anchor.baseLine === null) return true;
+    for (let offset = 0; offset <= anchor.endLine - anchor.line; offset += 1) if (!owners.has(`${anchor.path}#${anchor.baseLine + offset}`)) return true;
+    return false;
+  });
+  if (uncovered.length) {
+    return no(`site(s) ${uncovered.map(anchor => `${anchor.path}:${anchor.line}${anchor.endLine > anchor.line ? `-${anchor.endLine}` : ''}`).join(', ')} not dispositioned`);
+  }
+  const keys = preexistingSiteKeys(args.candidate);
+  if (keys.length === 0) return no('the finding cites no pre-existing defect site');
+  const of = [...new Set(keys.flatMap(key => owners.get(key) ?? []))].sort();
+  return { recurring: true, of, sites, reason: `every defect site (${sites.join(', ')}) was already dispositioned by ${of.join(', ')} and is still unchanged at the Story base` };
+}
+
 export interface FindingScopeCoverage { inScope: boolean; reason: string }
 
 const DOCUMENTATION_EXTENSIONS = ['.md', '.mdx', '.rst', '.adoc'];

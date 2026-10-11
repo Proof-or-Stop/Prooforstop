@@ -41,6 +41,7 @@ import {
   splitReviewProposalFindings,
 } from '../core/evidence-chain-finding.js';
 import { evidenceChainNextActionForStory } from './evidence-chain.js';
+import { closeRecurringPreexistingFindings } from './finding-recurrence.js';
 import { extractMetadataCorrections, METADATA_FINDING_RECLASSIFIED_EVENT } from '../core/metadata-correction.js';
 
 function assertOnlyKeys(command: string, value: Record<string, unknown>, allowed: readonly string[]): void {
@@ -459,6 +460,9 @@ export function createManagedReviewEvidenceHandlers(
       // confirmation lane of a delta round never passes what it did not check (ADR-054 of
       // the new PoS). A gap is recorded (the round falls back to a full round); a pass with
       // a gap is not imported and never proposed again. Off: no deltaRound binding, no change.
+      // Old-PoS run 52: a findings verdict with a gap imports its findings (no late lane now);
+      // the next round is a full round (core/review-delta-round.ts PREVIOUS_CONFIRMATION_GAP).
+      let deltaGapHint = '';
       const deltaBinding = managedRun.reviewBinding?.deltaRound;
       if (deltaBinding?.role === 'confirmation' && !hasPersistedReceiptEvidence) {
         const gapRecorded = ctx.store.readProcessEvents(proposal.storyId).some(event => event.type === DELTA_ROUND_GAP_EVENT
@@ -476,6 +480,9 @@ export function createManagedReviewEvidenceHandlers(
           ctx.store.appendProcessEvent(proposal.storyId, { type: DELTA_ROUND_GAP_EVENT, storyId: proposal.storyId, command: 'managed_review_evidence_import',
             role: 'framework', agent: proposal.lane, result: 'gap', managedRunId: runId, managedReceiptId: receiptId, reviewRunId: proposal.reviewRunId,
             reviewRound: story.currentReviewRound ?? null, conclusion, reason: verdict.reason.slice(0, 2000), missing: verdict.missing, gaps: verdict.gaps, problems: verdict.problems });
+        }
+        if (verdict && !verdict.ok && conclusion === 'findings') {
+          deltaGapHint = `\nDelta-round confirmation from ${runId} reported findings but left a gap (${verdict.reason.slice(0, 400)}): its findings are imported; the next review round is a full round (process event ${DELTA_ROUND_GAP_EVENT}).`;
         }
         if ((verdict && !verdict.ok) || gapRecorded) {
           if (conclusion === 'pass') {
@@ -785,6 +792,24 @@ export function createManagedReviewEvidenceHandlers(
           ...(alreadyAudited ? [] : ['process-events.jsonl']),
         ],
       } });
+      // Old-PoS run 52 (run52-analysis.md §4): a lane finding that re-files a site an earlier
+      // preexisting_out_of_scope disposition covers (still unchanged at the base, outside every
+      // Story hunk) is closed here as a recurrence of it: no owner turn, no repair, no extra round.
+      // A site the Story edited or a new site stays open. Not for a critic's own findings. It is
+      // published AFTER the import commit, as the lineage-neutral finding_resolve shape (signed
+      // ledger transition + findings.json mirror + metrics only), so no lane's live binding breaks;
+      // with an OPEN epoch the epoch publisher commits it, like the import itself.
+      const recurrences = conclusion === 'findings' && proposal.inventoryCritic === undefined
+        ? closeRecurringPreexistingFindings(ctx, proposal.storyId, importedIds, { command: 'managed_review_evidence_import', agent: proposal.lane,
+          reviewRound: story.currentReviewRound ?? null })
+        : [];
+      const recurrenceHint = recurrences.length
+        ? `\nClosed ${recurrences.length} recurring pre-existing finding(s) at import (resolutionType preexisting_out_of_scope; no owner step): `
+          + recurrences.map(row => `${row.findingId} = ${row.sites.join(', ')} (dispositioned by ${row.of.join(', ')})`).join('; ')
+          + commitReviewResultMetadata({ root: ctx.root, store: ctx.store, storyId: proposal.storyId, reviewRunId: proposal.reviewRunId, reason: 'finding_resolve', options: {
+            exactStoryArtifactNames: ['findings.json', 'finding-ledger.json', 'process-metrics.json'],
+          } })
+        : '';
       // Complete terminal bookkeeping before critic validation: a deterministic
       // refusal must not strand signed terminal evidence without its audit event.
       // OPEN inventory uses the existing metadata deferral policy, not forced Git commits.
@@ -820,6 +845,6 @@ export function createManagedReviewEvidenceHandlers(
       const metadataHint = split.metadata.length > 0
         ? `\nReclassified ${split.metadata.length} Story-metadata finding(s) from ${proposal.lane} as owner checklist corrections (not findings; logged as ${METADATA_FINDING_RECLASSIFIED_EVENT}); next names the one checklist_update.`
         : '';
-      return `${summary}${reclassifiedHint}${metadataHint}${criticHint ? `\n${criticHint}` : ''}${commitHint}${criticCommitHint}`;
+      return `${summary}${reclassifiedHint}${metadataHint}${deltaGapHint}${recurrenceHint}${criticHint ? `\n${criticHint}` : ''}${commitHint}${criticCommitHint}`;
   }
 }

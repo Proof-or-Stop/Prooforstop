@@ -43,6 +43,7 @@ import type { ManagedInventoryCriticCoverage } from './managed-inventory-critic.
 import { verifyReviewRun } from './review-run.js';
 import { isMaterialExcludedPath } from './material-path-policy.js';
 import { earlierCandidateRuns, isCodeReviewLaneRun, isEarlierReviewRound, previousCandidateLaneRun } from './review-round-order.js';
+import { findingSites } from './finding-preexisting.js';
 import { resolveReviewLanePack, type ReviewLanePack } from './review-lane-pack.js';
 import { renderDeltaConfirmationBlock, type DeltaRoundPlan } from './review-delta-round.js';
 
@@ -921,7 +922,7 @@ function renderManagedReviewerRereview(root: string, run: ReviewRun, lanePack: R
     'The managed review evidence protocol above is unchanged: submit exactly one final proposal with truthful read evidence for this run.',
     `Findings raised on earlier candidates (${findings.length}):`,
     ...(findings.length === 0 ? ['- none'] : findings.map(finding =>
-      `- ${finding.id} [severity=${finding.severity}, status=${finding.status}${finding.agent ? `, lane=${finding.agent}` : ''}] ${oneLine(finding.desc ?? '', MANAGED_REREVIEW_FINDING_DESC_MAX_CHARS)}`)),
+      `- ${finding.id} [severity=${finding.severity}, status=${finding.status}${finding.status === 'resolved' && finding.resolutionType ? ` (${finding.resolutionType})` : ''}${finding.agent ? `, lane=${finding.agent}` : ''}] ${oneLine(finding.desc ?? '', MANAGED_REREVIEW_FINDING_DESC_MAX_CHARS)}`)),
     `Repair since the previous review: git diff ${previous.headHash}..${run.headHash}, material paths only.`,
     ...(delta && delta.fromHead === previous.headHash && delta.toHead === run.headHash && delta.diffComplete
       ? ['The repair diff is in the REVIEW LANE PACK above (delta section, same range); it is not repeated here.']
@@ -929,6 +930,43 @@ function renderManagedReviewerRereview(root: string, run: ReviewRun, lanePack: R
     '--- END MANAGED RE-REVIEW SINCE PREVIOUS CANDIDATE ---',
   ];
 }
+
+/**
+ * Old-PoS run 52 (bench-staging/oldpos/run52-analysis.md §4; run 48 cycle C):
+ * one pre-existing documentation defect was re-filed by four lanes in four
+ * rounds because a later lane saw it only as "status=resolved" and, asked to
+ * confirm whether each earlier finding is fixed, found it still present (it is
+ * pre-existing and outside the Story by design). A code-review lane of a later
+ * round gets the dispositioned sites of earlier rounds with the instruction not
+ * to re-file them unless the Story changed them. Only findings of EARLIER
+ * rounds count, so nothing that happens during this round changes the prompt.
+ */
+export function renderDispositionedPreexistingSites(root: string, run: ReviewRun): string[] {
+  if (!isCodeReviewLaneRun(run)) return [];
+  let findings: Finding[] = [];
+  try { findings = new StoryStore(root).readFindings(run.storyId).findings ?? []; } catch { return []; }
+  const listed = new Set<string>();
+  const lines: string[] = [];
+  for (const finding of findings
+    .filter(row => row.status === 'resolved' && row.resolutionType === 'preexisting_out_of_scope'
+      && typeof row.reviewRound === 'string' && isEarlierReviewRound(row.reviewRound, run.reviewRound))
+    .sort((a, b) => a.id.localeCompare(b.id))) {
+    const sites = findingSites(finding).defects.map(anchor => `${anchor.path}:${anchor.line}${anchor.endLine > anchor.line ? `-${anchor.endLine}` : ''}`);
+    const fresh = sites.filter(site => !listed.has(site));
+    if (fresh.length === 0) continue;
+    fresh.forEach(site => listed.add(site));
+    lines.push(`- ${fresh.join(', ')} (${finding.id}): ${oneLine(finding.desc ?? '', DISPOSITIONED_SITE_DESC_MAX_CHARS)}`);
+  }
+  if (lines.length === 0) return [];
+  return [
+    '--- BEGIN DISPOSITIONED PRE-EXISTING SITES ---',
+    'These defect sites already exist unchanged at the Story base, lie outside this Story\'s request and scope, and were dispositioned preexisting_out_of_scope with a recorded follow-up. They are already dispositioned: do not re-file them unless this Story changed that site (then it is the Story\'s own defect: report it as usual). A finding that re-files an unchanged dispositioned site is closed by the framework as a recurrence of the disposition; it is not a review result.',
+    ...lines,
+    '--- END DISPOSITIONED PRE-EXISTING SITES ---',
+  ];
+}
+
+const DISPOSITIONED_SITE_DESC_MAX_CHARS = 160;
 
 /**
  * EXPERIMENTAL A/B review.lanePack / review.roundDelta (core/review-lane-pack.ts):
@@ -965,6 +1003,7 @@ export function buildManagedReviewerPrompt(
   }));
   const lanePack = managedReviewLanePack(root, run);
   const rereview = renderManagedReviewerRereview(root, run, lanePack, deltaRound ?? null);
+  const dispositioned = renderDispositionedPreexistingSites(root, run);
   return [
     '--- BEGIN MANAGED REVIEW EVIDENCE PROTOCOL ---',
     `This provider run is already bound to ${binding}.`,
@@ -1014,6 +1053,7 @@ export function buildManagedReviewerPrompt(
     ...(fullScanBinding ? ['', ...renderManagedReviewerFullScanBinding(fullScanBinding)] : []),
     ...(lanePack ? ['', ...lanePack.lines] : []),
     ...(rereview.length > 0 ? ['', ...rereview] : []),
+    ...(dispositioned.length > 0 ? ['', ...dispositioned] : []),
     ...(run.reviewPurpose === 'inventory-completeness' ? [
       '', ...MANAGED_INVENTORY_CRITIC_PROTOCOL,
       ...renderManagedInventoryCriticEvidencePack(root, run),

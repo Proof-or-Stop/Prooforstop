@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { recurringPreexistingOf } from './finding-preexisting.js';
 import { finalReviewRosterForStory, finalReviewRosterBasis } from '../handlers/reviewer-list.js';
 import type { StoryStore } from './store.js';
 import type {
@@ -352,6 +353,11 @@ export function findingFamily(finding: Finding): string {
   });
 }
 
+/** Old-PoS run 52 (handlers/finding.ts closeRecurringPreexistingFindings): closed at import, never a verified family. */
+function isRecurringPreexistingClosure(finding: Finding): boolean {
+  return recurringPreexistingOf(finding).length > 0;
+}
+
 function evidenceForRun(run: ReviewRun, passes: ReviewPass[], findings: Finding[], promptStore?: Pick<StoryStore, 'storyDirPath'>): {
   terminal: ReviewInventoryLaneTerminal | null;
   findings: Finding[];
@@ -383,7 +389,10 @@ function evidenceForRun(run: ReviewRun, passes: ReviewPass[], findings: Finding[
     // A suspected/disproven terminal still closes its reviewer lane, but it
     // cannot enter the critic's verified-family disposition set. Legacy rows
     // without evidenceState retain the repository's verified compatibility.
-    findings: runFindings.filter(finding => finding.evidenceState === 'verified' || finding.evidenceState === undefined),
+    // Old-PoS run 52: neither can a finding the framework closed at import as a
+    // recurrence of a pre-existing disposition (it still closes its lane).
+    findings: runFindings.filter(finding => (finding.evidenceState === 'verified' || finding.evidenceState === undefined)
+      && !isRecurringPreexistingClosure(finding)),
   };
 }
 
