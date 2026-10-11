@@ -1,6 +1,11 @@
 import { MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY } from '../core/runtime-fact-registry.js';
 import { abVariantEvidence, resolveAbVariants, type AbVariantEvidence } from '../core/ab-variants.js';
 import { loadConfig } from '../core/config.js';
+import { deltaRoundBinding, deltaRoundRole, deltaRoundsVariant } from '../core/review-delta-round.js';
+import { isCodeReviewLaneRun } from '../core/review-round-order.js';
+import { finalReviewRosterForStory } from './reviewer-list.js';
+import type { ManagedDeltaRoundPrompt } from '../core/managed-review-evidence.js';
+import type { ReviewRun } from '../core/types.js';
 import { isTerminalChecklistStatus } from '../core/checklist-status.js';
 import { buildImplementerItemPack } from '../core/implementer-item-pack.js';
 import { renderGroupedFindingRepairSection, renderGroupedItemSection, sharedFileItemGroup, shortFindingId } from '../core/ab-dispatch-grouping.js';
@@ -555,14 +560,16 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           })()
           : undefined;
         const promptRoot = reviewRun.workspaceBinding?.metadataRoot ?? ctx.root;
-        promptText = buildManagedReviewerPrompt(promptRoot, reviewRun, canonicalReportStatuses, fullScanBinding);
+        // EXPERIMENTAL A/B review.deltaRounds=on: this lane's role in the current delta round (null = production).
+        const deltaRound = managedDeltaRoundPrompt(ctx, storyId, reviewRun);
+        promptText = buildManagedReviewerPrompt(promptRoot, reviewRun, canonicalReportStatuses, fullScanBinding, deltaRound);
         formalReviewBinding = {
           headHash: reviewRun.headHash,
           materialHash: reviewRun.materialHash,
           storyFilesHash,
           promptHash: reviewRun.promptHash,
           envelopeId: reviewRun.envelopeId ?? null,
-          managedPromptDigest: managedReviewerPromptDigest(promptRoot, reviewRun, canonicalReportStatuses, fullScanBinding),
+          managedPromptDigest: managedReviewerPromptDigest(promptRoot, reviewRun, canonicalReportStatuses, fullScanBinding, deltaRound),
           ...(fullScanBinding ? { fullScanEscalationReason: fullScanBinding.scanEscalationReason } : {}),
           ...(() => { const coverage = managedInventoryCriticCoverage(promptRoot, reviewRun); return coverage ? { inventoryCriticCoverage: coverage } : {}; })(),
           // The route this run reviews against; the worker seals the proposal with it (A/B V3 R2A-r2).
@@ -572,6 +579,8 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
             const pack = managedReviewLanePack(promptRoot, reviewRun);
             return pack ? { lanePack: { abVariant: pack.abVariant, path: pack.path, packDigest: pack.packDigest, bytes: pack.bytes, sections: pack.sections, ...(pack.delta ? { deltaFromHead: pack.delta.fromHead } : {}) } } : {};
           })(),
+          // EXPERIMENTAL A/B review.deltaRounds=on: the lane's sealed delta-round role and check contract.
+          ...(deltaRound ? { deltaRound: deltaRoundBinding(deltaRound.plan, deltaRound.role) } : {}),
         };
       } else if (args.managedDispatch === true) {
         if (hasPrompt || hasPromptFile) {
@@ -1200,4 +1209,22 @@ export function resolveGroupedManagedDispatch(ctx: HandlerContext, args: {
   if (itemGroup!.some(id => !allowed.has(id))) throw new Error('host_run: every --groupItemIds member must be an open item sharing a declared file with itemId');
   return { section: renderGroupedItemSection(args.storyId, args.itemId, itemGroup!.map(id => items.find(item => item.id === id)!)),
     target: { groupItemIds: itemGroup!, abVariant: evidence } };
+}
+
+/**
+ * EXPERIMENTAL A/B review.deltaRounds=on (core/review-delta-round.ts): the role
+ * of a managed code-review lane run in the current delta round, from the signed
+ * roster selection (the same one the REVIEW gate reads), or null: the switch is
+ * off or malformed, the run is not a code-review lane, the round is not an
+ * eligible delta round, or the lane is not part of it (production prompt).
+ */
+export function managedDeltaRoundPrompt(ctx: HandlerContext, storyId: string, run: ReviewRun): ManagedDeltaRoundPrompt | null {
+  if (!isCodeReviewLaneRun(run) || !deltaRoundsVariant(ctx.root)) return null;
+  try {
+    const plan = finalReviewRosterForStory(ctx.store, ctx.root, storyId).selection.deltaRound;
+    const role = deltaRoundRole(plan, run.lane, run.reviewRound);
+    return plan && role ? { plan, role } : null;
+  } catch {
+    return null;
+  }
 }

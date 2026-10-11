@@ -281,7 +281,7 @@ function main(): void {
     'controller evaluates pre-review status before the managed provider launch');
   assert.match(hostRunSource, /evaluateAcceptanceRolloutForContext\(ctx, storyId\)/,
     'controller evaluates both rollout report and policy projections before launch');
-  assert.match(hostRunSource, /buildManagedReviewerPrompt\(promptRoot, reviewRun, canonicalReportStatuses, fullScanBinding\)/,
+  assert.match(hostRunSource, /buildManagedReviewerPrompt\(promptRoot, reviewRun, canonicalReportStatuses, fullScanBinding(?:, deltaRound)?\)/,
     'the controller-derived statuses and sealed candidate full-scan binding reach the managed-only prompt renderer');
   console.log('managed-review-prompt-cwd-isolation-smoke PASS');
 }

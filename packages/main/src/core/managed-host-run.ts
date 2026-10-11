@@ -1,3 +1,4 @@
+import type { DeltaRoundRunBinding } from './review-delta-round.js';
 import { captureHostRunBudgetEnvironment, restoreHostRunBudgetEnvironment } from './host-run-budget.js';
 import { dispatchTargetThreadFresh, resolveAbVariants, type AbVariantEvidence } from './ab-variants.js';
 import { loadConfig } from './config.js';
@@ -298,6 +299,13 @@ export interface ManagedHostRunReviewBinding {
     sections: Record<string, number>;
     deltaFromHead?: string;
   };
+  /**
+   * EXPERIMENTAL A/B review.deltaRounds=on (core/review-delta-round.ts): the lane's
+   * role in the delta round ('confirmation' | 'full'), the plan digest and, for the
+   * confirmation lane, the check items and resolved findings its note must cover
+   * (managed_review_evidence_import checks them and re-runs the named tests).
+   */
+  deltaRound?: DeltaRoundRunBinding;
 }
 
 export interface ManagedReviewCandidateRoutingBinding {
