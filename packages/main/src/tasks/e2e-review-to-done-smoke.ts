@@ -286,9 +286,16 @@
  *      for the other lanes' concerns (resolved finding re-run by the framework,
  *      no critic on a round with no new finding); ND-DRL a large repair falls
  *      back to a full round; ND-DRG a confirmation [gap] and ND-DRV a failing
- *      re-run are not a pass and fall back to a full round. `DR` = all four.
+ *      re-run are not a pass and fall back to a full round; old-PoS run 52:
+ *      ND-DRF / ND-DRF1 a findings verdict with complete (multi-line / one-line)
+ *      coverage lines is not a gap and launches no late lane, ND-DRFG a
+ *      findings verdict with a [gap] makes the NEXT round full. `DR` = all seven.
+ *   NPXR/NPXRE/NPXRN old-PoS run 52: a re-filed pre-existing finding on a
+ *      dispositioned, unchanged site closes at import with no owner turn and no
+ *      extra round (NPXR); a site the Story edited (NPXRE) or a new site of the
+ *      same doc (NPXRN) stays a real finding.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NRW|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -750,11 +757,21 @@ let input = ''; process.stdin.on('data', d => { input += d; }); process.stdin.on
     const items = listAfter('Check items');
     const resolved = listAfter('Resolved findings to re-verify');
     const selector = script.delta.mode === 'bad-rerun' ? '--- PASS: TestNoSuchCase' : script.delta.selector;
+    // Old-PoS run 52 (ND-DRF*): a confirmation lane that FINDS something answers with a findings verdict and the
+    // same coverage lines; 'findings-flat' writes them on one line (run 52 RR-012), 'findings-gap' also leaves one item unchecked.
+    const findings = script.delta.findings || null;
+    const gapped = script.delta.mode === 'gap' || (script.delta.mode === 'findings-gap' && findings);
     const lines = [...items.map(item => '[checked] ' + item + ' :: scripted check of the delta'),
       ...resolved.map(id => '[reverified] ' + id + ' :: ' + script.delta.command + ' :: ' + selector),
-      ...(script.delta.mode === 'gap' ? ['[gap] ' + items[0] + ' :: scripted gap: not checked'] : [])];
+      ...(gapped ? ['[gap] ' + items[0] + ' :: scripted gap: not checked'] : [])];
     const final = JSON.parse(script.final);
-    final.note = final.note + '\\n' + lines.join('\\n');
+    if (findings) {
+      final.conclusion = 'findings';
+      final.findings = findings;
+      final.note = 'Scripted confirmation lane: one new finding on the delta. ' + lines.join(script.delta.mode === 'findings-flat' ? ' ' : '\\n');
+    } else {
+      final.note = final.note + '\\n' + lines.join('\\n');
+    }
     script.final = JSON.stringify(final);
     fs.appendFileSync(path.join(dir, 'delta-notes.log'), JSON.stringify({ runId: process.env.LATTICE_MANAGED_HOST_RUN_ID || '', mode: script.delta.mode, items, resolved }) + '\\n');
   }
@@ -1204,6 +1221,35 @@ function pxRepairCommand(storyId: string, findingId: string): string[] {
   return ['/bin/sh', '-c', `printf '%s' '${PX_DOC_FIXED}' > ${PX_DOC_PATH} && git add ${PX_DOC_PATH} && git -c user.name=${FINDING_REPAIR} commit -qm '${storyId} ${short}: resolve finding (${PX_REPAIR_SUBJECT})' && git log --format=%h -1`];
 }
 
+/**
+ * NPXR* (old-PoS run 52: 12 of 17 findings were ONE pre-existing docs defect re-filed every round): a guide on main
+ * documents the string helpers wrongly before the Story starts; the Story never asks for it (no request).
+ */
+const RX_DOC_PATH = 'docs/guide/text.md';
+const RX_DOC = '# Text helpers\n\nUpper returns its input with every letter lower-cased.\nReverse returns its input unchanged.\nBoth helpers accept any UTF-8 string.\n';
+/** NPXRE: the round-1 repair rewrites line 3 (still wrong): the Story changed the dispositioned site. */
+const RX_DOC_EDITED = RX_DOC.replace('lower-cased.', 'lower-cased, rune by rune.');
+const RX_DOC_FIXED = RX_DOC.replace('lower-cased.', 'upper-cased.');
+const RX_FINDING = {
+  desc: `doc-code-drift: ${RX_DOC_PATH}:3 says Upper lower-cases every letter, but strs.Upper upper-cases its input; the guide documents the opposite behavior.`,
+  severity: 'medium', category: 'missing', files: [RX_DOC_PATH, 'strs/strs.go'], evidenceState: 'verified',
+};
+/** Round 2 re-files the same site in other words (another lane, run 52 F-008/F-012 shape). */
+const RX_REFILED = {
+  desc: `${RX_DOC_PATH}:3 still documents Upper as lower-casing every letter; a reader of the guide expects the opposite of what strs.Upper returns.`,
+  severity: 'medium', category: 'missing', files: [RX_DOC_PATH], evidenceState: 'verified',
+};
+/** NPXRN: another pre-existing line of the same doc that nobody dispositioned: a new finding, never auto-closed. */
+const RX_NEW_SITE = {
+  desc: `${RX_DOC_PATH}:4 says Reverse returns its input unchanged, but strs.Reverse reverses it by rune.`,
+  severity: 'medium', category: 'missing', files: [RX_DOC_PATH], evidenceState: 'verified',
+};
+/** NPXRE: the repair of the re-filed (now Story-owned) site corrects the guide, one commit naming the finding id. */
+function rxRepairCommand(storyId: string, findingId: string): string[] {
+  const short = findingId.startsWith(`${storyId}:`) ? findingId.slice(storyId.length + 1) : findingId;
+  return ['/bin/sh', '-c', `printf '%s' '${RX_DOC_FIXED}' > ${RX_DOC_PATH} && git add ${RX_DOC_PATH} && git -c user.name=${FINDING_REPAIR} commit -qm '${storyId} ${short}: resolve finding (docs: Upper upper-cases)' && git log --format=%h -1`];
+}
+
 /** The scripted repair commit for one finding (by its description): test text, commit subject, test name. */
 function repairFor(desc: string): { test: string; subject: string; name: string } {
   if (desc === PX_FINDING.desc) return { test: '', subject: `test: ${PX_REPAIR_SUBJECT}`, name: PX_DOC_PATH };
@@ -1536,10 +1582,21 @@ interface ScriptMode { findingRound1: boolean; twoFindings?: boolean; lowFinding
    * confirmation block from their prompt: 'full' checks every item and names the re-run of
    * each resolved finding; 'gap' also reports one [gap]; 'bad-rerun' names a selector the
    * re-run never prints (the framework re-run fails).
+   * Old-PoS run 52 (ND-DRF*): 'findings' = in round 2 the confirmation lane reports NF_FINDING with a complete
+   * multi-line note; 'findings-flat' = the same note flattened onto one line; 'findings-gap' = it also names a [gap].
    */
-  deltaNote?: 'full' | 'gap' | 'bad-rerun';
+  deltaNote?: DeltaNoteMode;
   /** ND-DRL: the finding repair also commits a large block, so the repair exceeds the delta-round threshold. */
-  largeRepair?: boolean }
+  largeRepair?: boolean;
+  /**
+   * Old-PoS run 52 (NPXR*, recurring pre-existing finding): round 1 also reports RX_FINDING (a doc drift on main,
+   * outside the Story); in round 2 the quality lane re-files it (RX_REFILED). 'edited' = the round-1 repair also
+   * edits that doc line (the Story changed the site); 'new-site' = round 2 also files RX_NEW_SITE (another
+   * pre-existing line of the same doc, never dispositioned).
+   */
+  recurring?: RecurringMode }
+type DeltaNoteMode = 'full' | 'gap' | 'bad-rerun' | 'findings' | 'findings-flat' | 'findings-gap';
+type RecurringMode = 'site' | 'edited' | 'new-site';
 /** Old-PoS run 27 delivery overlap faults (scenarioNDL). */
 type DeliveryFault = 'overlap' | 'stale';
 type CriticRestateMode = 'copies' | 'reworded' | 'new-misfiled';
@@ -1554,10 +1611,17 @@ const NC4_SUSPECTED = {
 const NC_REWORDED_DESC = 'Base-to-head gap: Reverse has no focused empty-string test; Reverse("") must return "" and never index r[-1] on an empty string.';
 
 type ProviderScript = { final: string; commands?: string[][];
-  /** ND-DR*: the fake provider appends the delta-round confirmation lines its prompt asks for. */
-  delta?: { mode: 'full' | 'gap' | 'bad-rerun'; command: string; selector: string } };
+  /** ND-DR*: the fake provider appends the delta-round confirmation lines its prompt asks for (ND-DRF*: and reports `findings`). */
+  delta?: { mode: DeltaNoteMode; command: string; selector: string; findings?: Array<Record<string, unknown>> } };
 /** ND-DR*: the test D_FINDING's repair adds, which a confirmation lane re-runs. */
 const DELTA_REVERIFY = { command: 'go test -v ./strs -run TestReverseEmpty', selector: '--- PASS: TestReverseEmpty' };
+
+/** 0-based index of a lane run's review round among the Story's code-review rounds (old-PoS run 52 scenarios). */
+function reviewRoundIndex(worktree: string, storyId: string, reviewRunId: string): number {
+  const runs = new StoryStore(worktree).readReviewRuns(storyId).runs.filter(row => row.reviewPurpose !== 'inventory-completeness');
+  const rounds = [...new Set(runs.map(row => row.reviewRound))];
+  return rounds.indexOf(runs.find(row => row.reviewRunId === reviewRunId)?.reviewRound ?? '');
+}
 
 /** A REVIEW lane's scripted final proposal: round 1 test-coverage reports the mode's findings, every other lane passes. */
 function laneScript(worktree: string, storyId: string, lane: string, reviewRunId: string, firstRound: boolean, mode: ScriptMode): ProviderScript {
@@ -1592,9 +1656,19 @@ function laneScript(worktree: string, storyId: string, lane: string, reviewRunId
     return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, conclusion: 'findings',
       note: 'Scripted run 31 lane: the checklist userSees pins a value the request contradicts.', findings, ...readEvidenceFor(worktree, storyId) }) };
   }
+  if (mode.recurring) {
+    // Old-PoS run 52 (NPXR*): round 1 files the doc drift beside D_FINDING; round 2's quality lane re-files it.
+    const index = reviewRoundIndex(worktree, storyId, reviewRunId);
+    const findings = index === 0 && lane === 'proof-or-stop-review-test-coverage' ? [D_FINDING, RX_FINDING]
+      : index === 1 && lane === 'proof-or-stop-review-quality' ? (mode.recurring === 'new-site' ? [RX_REFILED, RX_NEW_SITE] : [RX_REFILED]) : [];
+    const envelope = findings.length ? { conclusion: 'findings', note: 'Scripted run 52 lane: documentation drift in the guide.', findings } : PASS_ENVELOPE(lane);
+    return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, ...envelope, ...readEvidenceFor(worktree, storyId) }) };
+  }
   if (mode.deltaNote && !firstRound) {
+    // Old-PoS run 52 (ND-DRF*): in round 2 the confirmation lane (whichever lane carries the block) reports NF_FINDING.
+    const findingsMode = mode.deltaNote.startsWith('findings') && reviewRoundIndex(worktree, storyId, reviewRunId) === 1;
     return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, ...PASS_ENVELOPE(lane), ...readEvidenceFor(worktree, storyId) }),
-      delta: { mode: mode.deltaNote, ...DELTA_REVERIFY } };
+      delta: { mode: mode.deltaNote, ...DELTA_REVERIFY, ...(findingsMode ? { findings: [NF_FINDING] } : {}) } };
   }
   const envelope = mode.findingRound1 && firstRound && lane === 'proof-or-stop-review-test-coverage'
     ? { conclusion: 'findings', note: 'Scripted behavior finding: empty-string edge case is untested.',
@@ -1722,15 +1796,19 @@ function deliveryScript(storyId: string, fault?: DeliveryFault, storyDir?: strin
 
 /** ND-DRL: a large regression block (comment lines) the repair commits with its test. */
 const LARGE_REPAIR_PAD = Array.from({ length: 60 }, (_, index) => `// regression note ${index + 1}: empty and one-rune inputs keep their rune order`).join('\n') + '\n';
-function repairScript(desc: string, px?: { storyId: string; findingId: string; commit: boolean }, large = false): ProviderScript {
+function repairScript(desc: string, px?: { storyId: string; findingId: string; commit: boolean }, large = false, docEdit = false): ProviderScript {
   if (desc === PX_FINDING.desc) {
     // NPX (old-PoS run 30): the worker either reports the doc blocked (no commit) or commits the doc fix.
     return px?.commit ? { commands: [pxRepairCommand(px.storyId, px.findingId)], final: `Corrected the range examples in ${PX_DOC_PATH}; committed.` }
       : { commands: [], final: PX_BLOCKED };
   }
+  // NPXRE (old-PoS run 52): the re-filed site the Story edited is the Story's own defect: repaired, not dispositioned.
+  if (desc === RX_REFILED.desc && px) return { commands: [rxRepairCommand(px.storyId, px.findingId)], final: `Corrected ${RX_DOC_PATH}:3; committed.` };
   const repair = repairFor(desc);
   const text = large ? `${repair.test}${LARGE_REPAIR_PAD}` : repair.test;
-  return { commands: [['/bin/sh', '-c', `printf '%s' '${text.replace(/'/g, "'\\''")}' >> strs/strs_test.go && git add strs/strs_test.go && git -c user.name=${FINDING_REPAIR} commit -qm '${repair.subject}' && git log --format=%h -1`]],
+  // NPXRE: this repair also rewrites the dispositioned guide line (still wrong), so the Story changed that site.
+  const edit = docEdit ? `printf '%s' '${RX_DOC_EDITED}' > ${RX_DOC_PATH} && git add ${RX_DOC_PATH} && ` : '';
+  return { commands: [['/bin/sh', '-c', `${edit}printf '%s' '${text.replace(/'/g, "'\\''")}' >> strs/strs_test.go && git add strs/strs_test.go && git -c user.name=${FINDING_REPAIR} commit -qm '${repair.subject}' && git log --format=%h -1`]],
     final: `Added ${repair.name}; committed.` };
 }
 
@@ -1972,8 +2050,10 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   /** NC7: an owner action taken instead of the step next returned; true = the step is not executed and next is asked again. */
   interject?: (next: NextStepJson) => boolean;
   /** EXPERIMENTAL A/B review.deltaRounds (ND-DR*): see ScriptMode.deltaNote / largeRepair. */
-  deltaNote?: 'full' | 'gap' | 'bad-rerun';
-  largeRepair?: boolean; }, lines: string[],
+  deltaNote?: DeltaNoteMode;
+  largeRepair?: boolean;
+  /** Old-PoS run 52 (NPXR*): see ScriptMode.recurring. */
+  recurring?: RecurringMode; }, lines: string[],
   /** Called with each step `next` returned, before the harness executes it; quiet = no detached managed run in flight. */
   onStep?: (next: NextStepJson, quiet: boolean) => void): void {
   const id = o.storyId;
@@ -2111,7 +2191,7 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
         o.script(FINDING_REPAIR, Array.isArray(payload.groupFindingIds)
           ? groupedRepairScript(id, (payload.groupFindingIds as string[]).map(findingId => ({ id: findingId, desc: findingDesc(findingId) })), mode.groupedFirstOnly)
           // NPXS: the first PX attempt reports blocked; a later one (with the earlier report in its prompt) commits the doc fix.
-          : repairScript(findingDesc(String(payload.findingId)), { storyId: id, findingId: String(payload.findingId), commit: mode.preexisting === 'in' && (pxRepairAttempts.get(String(payload.findingId)) ?? 0) > 1 }, mode.largeRepair === true));
+          : repairScript(findingDesc(String(payload.findingId)), { storyId: id, findingId: String(payload.findingId), commit: mode.preexisting === 'in' && (pxRepairAttempts.get(String(payload.findingId)) ?? 0) > 1 }, mode.largeRepair === true, mode.recurring === 'edited'));
         break;
       }
       case 'implement_item':
@@ -3066,6 +3146,19 @@ function scenarioAB(machineEnv: NodeJS.ProcessEnv, steps: Step[], flow: 'D' | 'F
   }
 }
 
+/** The immutable evidence proposal a managed review run sealed (old-PoS run 52: does a findings proposal keep its note?). */
+function carrierProposal(o: Owner, reviewRunId: string): Record<string, unknown> | null {
+  const runsRoot = join(o.root, '.proof-or-stop', 'runtime', 'host-runs');
+  if (!existsSync(runsRoot)) return null;
+  for (const runId of readdirSync(runsRoot)) {
+    const file = join(runsRoot, runId, 'evidence-proposal.json');
+    if (!existsSync(file)) continue;
+    const proposal = JSON.parse(readFileSync(file, 'utf8')) as Record<string, unknown>;
+    if (proposal.reviewRunId === reviewRunId) return proposal;
+  }
+  return null;
+}
+
 /**
  * EXPERIMENTAL A/B review.deltaRounds=on (core/review-delta-round.ts; the new
  * PoS's ADR-039/043/054 ported): the ND flow (round 1: test-coverage reports
@@ -3082,18 +3175,31 @@ function scenarioAB(machineEnv: NodeJS.ProcessEnv, steps: Step[], flow: 'D' | 'F
  *       round (the replaced lanes and the carrier run in full), critic; DONE.
  *   DRV the confirmation lane names a re-run whose selector never prints: the
  *       framework re-run fails, so it is not a pass; full round; DONE.
+ * Old-PoS run 52 (bench-staging/oldpos/run52-analysis.md §3 D1: 3 of 3
+ * findings-verdict confirmation lanes gapped because the findings proposal
+ * dropped the note, and each gap launched the replaced lanes late, serially):
+ *   DRF  in round 2 the confirmation lane reports a finding (NF_FINDING) with a
+ *        complete multi-line note: NOT a gap, no late lane (round 2 stays at 2
+ *        lanes), the finding imports, the framework still re-runs the resolved
+ *        finding's test; round 3 is a delta round again; DONE.
+ *   DRF1 the same note flattened onto one line (run 52 RR-012): still no gap.
+ *   DRFG the findings verdict leaves a check item as [gap]: the gap is recorded
+ *        (conclusion findings), the findings import, round 2 launches no late
+ *        lane; the NEXT round is a full round (PREVIOUS_CONFIRMATION_GAP); DONE.
  */
-function scenarioDR(machineEnv: NodeJS.ProcessEnv, steps: Step[], variant: 'DR' | 'DRL' | 'DRG' | 'DRV'): Outcome {
+function scenarioDR(machineEnv: NodeJS.ProcessEnv, steps: Step[], variant: 'DR' | 'DRL' | 'DRG' | 'DRV' | 'DRF' | 'DRF1' | 'DRFG'): Outcome {
   const tag = `ND-${variant}`;
   const name = `${tag} A/B {"review":{"deltaRounds":"on"}} on the ND flow reaches DONE`;
-  const ids = { DR: 'B-ad31', DRL: 'B-ad32', DRG: 'B-ad33', DRV: 'B-ad34' } as const;
+  const ids = { DR: 'B-ad31', DRL: 'B-ad32', DRG: 'B-ad33', DRV: 'B-ad34', DRF: 'B-ad35', DRF1: 'B-ad36', DRFG: 'B-ad37' } as const;
+  const noteMode: DeltaNoteMode = variant === 'DRG' ? 'gap' : variant === 'DRV' ? 'bad-rerun' : variant === 'DRF' ? 'findings'
+    : variant === 'DRF1' ? 'findings-flat' : variant === 'DRFG' ? 'findings-gap' : 'full';
   const o = new Owner(tag, ids[variant], machineEnv, steps, false, { trackedGateFailureCounts: true, config: { review: { deltaRounds: 'on' } } });
   const lines: string[] = [];
   const reasons: string[] = [];
   const selections: Array<{ round: string; selection: Record<string, unknown> }> = [];
   try {
     devSetup(o, true);
-    driveWithNext(o, { findingRound1: true, run: false, deltaNote: variant === 'DRG' ? 'gap' : variant === 'DRV' ? 'bad-rerun' : 'full', largeRepair: variant === 'DRL' }, lines, next => {
+    driveWithNext(o, { findingRound1: true, run: false, deltaNote: noteMode, largeRepair: variant === 'DRL' }, lines, next => {
       reasons.push(next.reason);
       if (next.reason !== 'review_lane_launch') return;
       const round = new StoryStore(o.worktree).readStory(o.storyId).currentReviewRound ?? '';
@@ -3122,7 +3228,35 @@ function scenarioDR(machineEnv: NodeJS.ProcessEnv, steps: Step[], variant: 'DR' 
     assert.equal(round1.length, 3, `${tag}: round 1 runs the 3 active lanes (${round1.join(', ')})`);
     const gapEvents = events.filter(event => String(event.type) === 'delta_round_confirmation_gap');
     const reverified = events.filter(event => String(event.type) === 'delta_round_reverified');
-    if (variant === 'DR') {
+    if (variant === 'DRF' || variant === 'DRF1' || variant === 'DRFG') {
+      // Old-PoS run 52 D1: a findings verdict of the confirmation lane never launches the replaced lanes late.
+      assert.deepEqual([...round2].sort(), ['concept', 'test-coverage'], `${tag}: round 2 stays the raising lane + ONE confirmation lane, no late lane (got ${round2.join(', ')})`);
+      const findings = store.readFindings(o.storyId).findings;
+      const nf = findings.find(f => f.desc === NF_FINDING.desc);
+      assert.ok(nf, `${tag}: the confirmation lane's finding was imported`);
+      assert.equal(nf!.reviewRound, rounds[1], `${tag}: it belongs to round 2`);
+      assert.equal(nf!.agent, 'proof-or-stop-review-concept', `${tag}: raised by the confirmation lane`);
+      assert.equal(nf!.status, 'resolved', `${tag}: closed before DONE`);
+      const carrier = round2Prompts.find(row => short(row.run.lane) === 'concept')!;
+      const proposal = carrierProposal(o, carrier.run.reviewRunId);
+      assert.match(String(proposal?.note ?? ''), /\[checked\] concern:quality/, `${tag}: the findings proposal keeps the lane's note (${JSON.stringify(proposal && Object.keys(proposal))})`);
+      const round2Reverified = reverified.filter(event => (event as { reviewRound?: string }).reviewRound === rounds[1]);
+      assert.ok(round2Reverified.length >= 1 && round2Reverified.every(event => (event as { passed?: boolean }).passed === true),
+        `${tag}: the framework re-ran the resolved finding's test for the findings verdict too (${JSON.stringify(round2Reverified)})`);
+      assert.equal(events.filter(event => event.type === 'managed_review_import_refused').length, 0, `${tag}: nothing refused`);
+      assert.ok(rounds.length >= 3, `${tag}: round 2's finding was repaired and re-reviewed (rounds ${rounds.length})`);
+      const round3 = laneRunsOf(rounds[2]!).map(run => short(run.lane));
+      if (variant === 'DRFG') {
+        assert.equal(gapEvents.length, 1, `${tag}: the findings-verdict gap is recorded once (${JSON.stringify(gapEvents)})`);
+        assert.equal((gapEvents[0] as { conclusion?: string }).conclusion, 'findings', `${tag}: recorded as a findings-verdict gap`);
+        assert.equal((gapEvents[0] as { reviewRound?: string }).reviewRound, rounds[1], `${tag}: the gap belongs to round 2`);
+        assert.deepEqual([...new Set(round3)].sort(), ['concept', 'quality', 'test-coverage'], `${tag}: the next round is a full round (got ${round3.join(', ')})`);
+        assert.equal((selections[2]?.selection.deltaRound as { reason?: string } | undefined)?.reason, 'PREVIOUS_CONFIRMATION_GAP', `${tag}: fallback reason recorded`);
+      } else {
+        assert.equal(gapEvents.length, 0, `${tag}: a findings verdict with complete coverage lines is not a gap (${JSON.stringify(gapEvents)})`);
+        assert.equal(round3.length, 2, `${tag}: round 3 is a delta round again (got ${round3.join(', ')})`);
+      }
+    } else if (variant === 'DR') {
       assert.deepEqual([...round2].sort(), ['concept', 'test-coverage'], `${tag}: round 2 = the raising lane + ONE confirmation lane (got ${round2.join(', ')})`);
       const carrier = round2Prompts.find(row => short(row.run.lane) === 'concept')!;
       const full = round2Prompts.find(row => short(row.run.lane) === 'test-coverage')!;
@@ -4776,6 +4910,103 @@ function scenarioNPX(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NPX' | 
   }
 }
 
+/**
+ * Old-PoS run 52 (bench-staging/oldpos/run52-analysis.md §4; run 48 cycle C): 12
+ * of 17 findings were ONE pre-existing docs defect in the frozen docs tree,
+ * re-filed by four lanes in rounds 1, 3, 4 and 5. Each copy was a new open
+ * blocking finding: one owner preexisting_out_of_scope turn each, and a round
+ * whose only findings were copies forced another full round on unchanged code.
+ * Here round 1 files RX_FINDING (a guide line on main that the Story never
+ * touches) beside D_FINDING; next proposes the ONE audited disposition; in
+ * round 2 the quality lane re-files the same site in other words (RX_REFILED).
+ *   NPXR  RX_REFILED is closed at import as a recurrence of the disposition
+ *         (resolutionType preexisting_out_of_scope, recurringPreexistingOf =
+ *         RX_FINDING's id, a process event), with no owner step and no repair;
+ *         round 2 is then clean: no round 3 (exactly 2 rounds); round-2 lane
+ *         prompts list the dispositioned site; DONE, the guide untouched.
+ *   NPXRE negative control: the round-1 repair also rewrote that guide line
+ *         (the Story changed the site): RX_REFILED is NOT auto-closed; it is
+ *         the Story's own defect, repaired (doc fix) in a third round; DONE.
+ *   NPXRN negative control: round 2 also files RX_NEW_SITE, another pre-existing
+ *         line of the same guide nobody dispositioned: RX_REFILED is auto-closed
+ *         but RX_NEW_SITE stays open and goes through the owner disposition
+ *         (a new finding is never closed by a site it does not share); DONE.
+ */
+function scenarioNPXR(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NPXR' | 'NPXRE' | 'NPXRN'): Outcome {
+  const recurring: RecurringMode = tag === 'NPXRE' ? 'edited' : tag === 'NPXRN' ? 'new-site' : 'site';
+  const name = tag === 'NPXR'
+    ? 'NPXR run 52: a re-filed pre-existing finding on a dispositioned, unchanged site closes at import (no owner turn, no extra round); DONE'
+    : tag === 'NPXRE'
+      ? 'NPXRE run 52: a re-filed finding on a dispositioned site the Story edited stays a real finding (repaired); DONE'
+      : 'NPXRN run 52: a new finding on another line of the same doc stays open (owner disposition) beside an auto-closed recurrence; DONE';
+  const o = new Owner(tag, tag === 'NPXR' ? 'B-e5a0' : tag === 'NPXRE' ? 'B-e5a1' : 'B-e5a2', machineEnv, steps, false,
+    { trackedGateFailureCounts: true, baseFiles: { [RX_DOC_PATH]: RX_DOC } });
+  const lines: string[] = [];
+  const named: Array<{ reason: string; payload: string }> = [];
+  try {
+    devSetup(o);
+    driveWithNext(o, { findingRound1: true, run: false, recurring }, lines, next => {
+      named.push({ reason: next.reason, payload: JSON.stringify(next.cli?.payload ?? {}) });
+    });
+    const store = new StoryStore(o.root);
+    const findings = store.readFindings(o.storyId).findings;
+    const byDesc = (desc: string) => findings.find(f => f.desc === desc);
+    const original = byDesc(RX_FINDING.desc);
+    const refiled = byDesc(RX_REFILED.desc);
+    assert.ok(original && refiled, `[${tag}] both filings recorded (${findings.map(f => f.id).join(', ')})`);
+    const runs = store.readReviewRuns(o.storyId).runs.filter(run => run.reviewPurpose !== 'inventory-completeness');
+    const rounds = [...new Set(runs.map(run => run.reviewRound))];
+    const events = store.readProcessEvents(o.storyId);
+    const recurrence = events.filter(event => String(event.type) === 'finding_preexisting_recurrence_closed');
+    const stepsNaming = (id: string) => named.filter(row => row.payload.includes(`"${id}"`)).map(row => row.reason);
+    const marker = (f: typeof refiled) => (f as unknown as { recurringPreexistingOf?: string[] }).recurringPreexistingOf;
+    assert.equal(original!.resolutionType, 'preexisting_out_of_scope', `[${tag}] round 1's filing is closed by the ONE audited disposition`);
+    assert.ok(stepsNaming(original!.id).includes('finding_preexisting_disposition'), `[${tag}] next proposed that disposition (${stepsNaming(original!.id).join(', ')})`);
+    lines.push(`review rounds: ${rounds.length}; findings: ${findings.map(f => `${f.id.split(':')[1]}=${f.status}/${f.resolutionType ?? '-'}${marker(f) ? `(recurring of ${marker(f)!.join(',')})` : ''}`).join(' ')}`);
+    const laneRuns = (index: number) => runs.filter(run => run.reviewRound === rounds[index]).map(run => run.reviewRunId);
+    const prompts = managedPrompts(o).filter(row => row.agentType.startsWith('proof-or-stop-review-') && row.agentType !== DELIVERY && row.agentType !== MANAGED_INVENTORY_CRITIC_LANE);
+    const promptsOf = (index: number) => prompts.filter(row => laneRuns(index).some(id => row.prompt.includes(id)));
+    assert.ok(promptsOf(0).every(row => !row.prompt.includes('DISPOSITIONED PRE-EXISTING SITES')), `[${tag}] round 1 has nothing dispositioned yet`);
+    assert.ok(promptsOf(1).length >= 3 && promptsOf(1).every(row => row.prompt.includes('--- BEGIN DISPOSITIONED PRE-EXISTING SITES') && row.prompt.includes(`${RX_DOC_PATH}:3`)),
+      `[${tag}] every round-2 lane prompt lists the dispositioned site ${RX_DOC_PATH}:3`);
+    lines.push(`round-2 lane prompt bytes: ${promptsOf(1).map(row => Buffer.byteLength(row.prompt, 'utf8')).join(', ')}`);
+    if (tag === 'NPXRE') {
+      assert.equal(marker(refiled), undefined, `[${tag}] a site the Story edited is never auto-closed: ${JSON.stringify(refiled)}`);
+      assert.notEqual(refiled!.resolutionType, 'preexisting_out_of_scope', `[${tag}] it is the Story's own defect, repaired`);
+      assert.equal(refiled!.status, 'resolved', `[${tag}] closed before DONE`);
+      assert.ok(stepsNaming(refiled!.id).includes('finding_repair'), `[${tag}] it went to repair (${stepsNaming(refiled!.id).join(', ')})`);
+      assert.equal(recurrence.length, 0, `[${tag}] no recurrence closure`);
+      assert.ok(rounds.length >= 3, `[${tag}] its repair is re-reviewed (rounds ${rounds.length})`);
+      assert.equal(readFileSync(join(o.root, RX_DOC_PATH), 'utf8'), RX_DOC_FIXED, `[${tag}] the guide fix reached main`);
+    } else {
+      assert.equal(refiled!.status, 'resolved', `[${tag}] the re-filed finding is closed`);
+      assert.equal(refiled!.resolutionType, 'preexisting_out_of_scope', `[${tag}] as a recurrence of the disposition`);
+      assert.deepEqual(marker(refiled), [original!.id], `[${tag}] recurringPreexistingOf names the dispositioned finding`);
+      assert.match(String(refiled!.resolvedReason), /recurring/i, `[${tag}] the record says why: ${refiled!.resolvedReason}`);
+      assert.ok(String(refiled!.resolvedReason).includes(`${RX_DOC_PATH}:3`), `[${tag}] the record names the site: ${refiled!.resolvedReason}`);
+      assert.deepEqual(stepsNaming(refiled!.id), [], `[${tag}] no next step (owner turn, repair) ever named the recurrence`);
+      assert.equal(recurrence.length, 1, `[${tag}] one recurrence event (${JSON.stringify(recurrence)})`);
+      assert.equal(readFileSync(join(o.root, RX_DOC_PATH), 'utf8'), RX_DOC, `[${tag}] the guide on main is untouched`);
+      if (tag === 'NPXR') {
+        assert.equal(rounds.length, 2, `[${tag}] a round whose only finding is an auto-closed recurrence starts no further round (rounds ${rounds.length})`);
+      } else {
+        const fresh = byDesc(RX_NEW_SITE.desc);
+        assert.ok(fresh, `[${tag}] the new-site finding was recorded`);
+        assert.equal(marker(fresh), undefined, `[${tag}] a new site is never auto-closed: ${JSON.stringify(fresh)}`);
+        assert.ok(stepsNaming(fresh!.id).includes('finding_preexisting_disposition'), `[${tag}] it got the owner disposition (${stepsNaming(fresh!.id).join(', ')})`);
+        assert.equal(fresh!.status, 'resolved', `[${tag}] closed before DONE`);
+        assert.equal(rounds.length, 3, `[${tag}] the open new finding cost its remediation round (rounds ${rounds.length})`);
+      }
+    }
+    lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Old-PoS run 31 (121.6 min): metadata findings, literal sweep, resolution
 // integrity, product code reading PoS metadata, owner-context cost.
@@ -5756,7 +5987,7 @@ function scenarioNMP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NRW|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR[LGV]?|DR)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -5835,18 +6066,20 @@ async function main(): Promise<void> {
     if (only.includes('NRS')) outcomes.push(scenarioNRS(machine.env, steps));
     if (only.includes('NIS')) outcomes.push(scenarioNIS(machine.env, steps));
     for (const token of ['NPX', 'NPXA', 'NPXS', 'NPXC'] as const) if (only.includes(token)) outcomes.push(scenarioNPX(machine.env, steps, token));
+    // Old-PoS run 52: recurring pre-existing findings (NPXR) and its two negative controls.
+    for (const token of ['NPXR', 'NPXRE', 'NPXRN'] as const) if (only.includes(token)) outcomes.push(scenarioNPXR(machine.env, steps, token));
     if (only.includes('NRW')) outcomes.push(scenarioNRW(machine.env, steps));
     // Detection A/B arms: explicit tokens (ND-V1 .. NF-V9) or AB = ND-V1, ND-V2, ND-V3, NF-V4, ND-V5, ND-V6, ND-V8, ND-V9.
     const abTokens = only.includes('AB') ? ['ND-V1', 'ND-V2', 'ND-V3', 'NF-V4', 'ND-V5', 'ND-V6', 'ND-V8', 'ND-V9'] : [];
     for (const token of [...new Set([...abTokens, ...only.filter(arg => /^N[DF]-V[1-689]$/.test(arg))])]) {
       outcomes.push(scenarioAB(machine.env, steps, token[1] as 'D' | 'F', token.slice(3) as keyof typeof AB_SCENARIO_VARIANTS));
     }
-    // EXPERIMENTAL A/B review.deltaRounds: explicit tokens (ND-DR, ND-DRL, ND-DRG, ND-DRV) or DR = all four.
-    for (const variant of ['DR', 'DRL', 'DRG', 'DRV'] as const) if (only.includes(`ND-${variant}`) || only.includes('DR')) outcomes.push(scenarioDR(machine.env, steps, variant));
+    // EXPERIMENTAL A/B review.deltaRounds: explicit tokens (ND-DR, ND-DRL, ND-DRG, ND-DRV; old-PoS run 52: ND-DRF, ND-DRF1, ND-DRFG) or DR = all seven.
+    for (const variant of ['DR', 'DRL', 'DRG', 'DRV', 'DRF', 'DRF1', 'DRFG'] as const) if (only.includes(`ND-${variant}`) || only.includes('DR')) outcomes.push(scenarioDR(machine.env, steps, variant));
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NRW', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

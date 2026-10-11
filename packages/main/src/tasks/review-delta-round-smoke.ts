@@ -21,6 +21,10 @@
  *      the confirmation scope; a defect OUTSIDE it (already present on the
  *      previous candidate, missed by round 1) is not: the documented detection
  *      limit of a delta round (only the full lanes re-read the whole Story).
+ *   R52. Old-PoS run 52 gap path: flattened / quoted notes parse, a [gap] outside
+ *      the check items is not a gap, a findings-verdict gap falls back only in
+ *      the NEXT round, noise-only lanes are replaceable, resolved duplicates are
+ *      not re-run with an unrelated command.
  *   C. Confirmation contract: the prompt block lists the replaced lanes'
  *      concerns, the scope, the resolved findings to re-verify and the open
  *      findings; a note that leaves an item unchecked, names a [gap], or omits
@@ -299,6 +303,90 @@ await check('C2 note check: missing item, [gap], missing re-run, unread file are
   assert.ok(generic.problems.some((row: string) => /generic/.test(row)), JSON.stringify(generic.problems));
   const unread = checkNote({ binding, storyId: STORY, note: full, readManifest: { filesReadFully: ['strs/strs.go'], filesTriagedByName: [] } });
   assert.ok(unread.problems.some((row: string) => /strs\/strs_test\.go.*read manifest/.test(row)), JSON.stringify(unread.problems));
+});
+
+// ---------------------------------------------------------------------------
+// Old-PoS run 52 (bench-staging/oldpos/run52-analysis.md §3, §5 fixes 1-5): the gap path.
+
+await check('R52-C3 a note flattened onto one line (run 52 RR-012) parses: every [checked]/[reverified] marker counts wherever it stands', async () => {
+  const f = fixture();
+  const binding = (await api('deltaRoundBinding'))(await plan(f, ON()), 'confirmation');
+  const checkNote = await api('checkDeltaConfirmationNote');
+  const readManifest = { filesReadFully: ['strs/strs.go', 'strs/strs_test.go'], filesTriagedByName: [] };
+  const flat = `Delta confirmation round. ${binding.checkItems.map((item: string) => `[checked] ${item} :: read the hunk and its callers.`).join(' ')} `
+    + '[reverified] F-001 :: go test -v ./strs -run TestReverseEmpty :: --- PASS: TestReverseEmpty (0.00s).';
+  const out = checkNote({ binding, storyId: STORY, note: flat, readManifest });
+  assert.deepEqual(out.missing, [], `nothing unchecked (${JSON.stringify(out)})`);
+  assert.deepEqual(out.gaps, []);
+  assert.deepEqual(out.problems, []);
+  assert.equal(out.reverify[0]?.command, 'go test -v ./strs -run TestReverseEmpty');
+  assert.match(String(out.reverify[0]?.selector), /^--- PASS: TestReverseEmpty/);
+});
+
+await check('R52-C4 item tokens quoted in backticks or followed by a colon still count', async () => {
+  const f = fixture();
+  const binding = (await api('deltaRoundBinding'))(await plan(f, ON()), 'confirmation');
+  const checkNote = await api('checkDeltaConfirmationNote');
+  const readManifest = { filesReadFully: ['strs/strs.go', 'strs/strs_test.go'], filesTriagedByName: [] };
+  const note = [...binding.checkItems.map((item: string, index: number) => index % 2 ? `  [checked] \`${item}\` :: read it` : `- [checked] ${item}: read it`),
+    '[reverified] F-001 :: go test -v ./strs -run TestReverseEmpty :: --- PASS: TestReverseEmpty'].join('\n');
+  assert.deepEqual(checkNote({ binding, storyId: STORY, note, readManifest }).missing, []);
+});
+
+await check('R52-C5 a [gap] naming no check item or resolved finding (a stock-prompt file that does not exist) is not a gap; one naming an item is', async () => {
+  const f = fixture();
+  const binding = (await api('deltaRoundBinding'))(await plan(f, ON()), 'confirmation');
+  const checkNote = await api('checkDeltaConfirmationNote');
+  const readManifest = { filesReadFully: ['strs/strs.go', 'strs/strs_test.go'], filesTriagedByName: [] };
+  const full = [...binding.checkItems.map((item: string) => `[checked] ${item} :: read`),
+    '[reverified] F-001 :: go test -v ./strs -run TestReverseEmpty :: --- PASS: TestReverseEmpty'].join('\n');
+  const other = checkNote({ binding, storyId: STORY, note: `${full}\n[gap] .proof-or-stop/story/actives/${STORY}/plan.md :: no such file in the checkout`, readManifest });
+  assert.deepEqual(other.gaps, [], `a gap outside the check items does not make the delta unchecked (${JSON.stringify(other)})`);
+  const item = checkNote({ binding, storyId: STORY, note: `${full}\n[gap] file:strs/strs.go :: not opened`, readManifest });
+  assert.deepEqual(item.gaps, ['file:strs/strs.go :: not opened']);
+  const finding = checkNote({ binding, storyId: STORY, note: `${full}\n[gap] F-001 :: test did not build`, readManifest });
+  assert.equal(finding.gaps.length, 1, 'a gap on a resolved finding counts');
+});
+
+await check('R52-F5 a FINDINGS-verdict gap does not fall back in its own round; it makes the NEXT round full (PREVIOUS_CONFIRMATION_GAP); a pass-verdict gap still falls back now', async () => {
+  const { DELTA_ROUND_GAP_EVENT } = await deltaModule() as { DELTA_ROUND_GAP_EVENT: string };
+  const now = fixture();
+  now.state.events.push({ type: DELTA_ROUND_GAP_EVENT, reviewRound: ROUND2, conclusion: 'findings', timestamp: ROUND2 });
+  const p = await plan(now, ON());
+  assert.equal(p.eligible, true, `a findings-verdict gap of this round launches no late lane (reason ${p.reason})`);
+  const pass = fixture();
+  pass.state.events.push({ type: DELTA_ROUND_GAP_EVENT, reviewRound: ROUND2, conclusion: 'pass', timestamp: ROUND2 });
+  assert.equal((await plan(pass, ON())).reason, 'CONFIRMATION_GAP');
+  const previous = fixture();
+  previous.state.events.push({ type: DELTA_ROUND_GAP_EVENT, reviewRound: ROUND1, conclusion: 'findings', timestamp: ROUND1 });
+  const next = await plan(previous, ON());
+  assert.equal(next.eligible, false);
+  assert.equal(next.reason, 'PREVIOUS_CONFIRMATION_GAP', next.detail);
+});
+
+await check('R52-P4 a lane whose previous-round findings were all closed without a repair (preexisting_out_of_scope, accepted_risk, duplicate) is replaceable', async () => {
+  const f = fixture();
+  f.state.findings.push({ id: `${STORY}:F-007`, desc: 'docs/strs.md:3 documents Shout with "!".', severity: 'medium', category: 'missing', status: 'resolved',
+    evidenceState: 'verified', agent: 'proof-or-stop-review-docs', reviewRound: ROUND1, reviewRunId: `${STORY}:RR-004`, resolvedAt: '2026-10-11T10:35:00.000Z',
+    resolutionType: 'preexisting_out_of_scope', resolvedReason: '[preexisting_out_of_scope] Pre-existing at the Story base.' });
+  f.state.findings.push({ id: `${STORY}:F-008`, desc: 'Shout output is not localized.', severity: 'medium', category: 'edge', status: 'resolved',
+    evidenceState: 'verified', agent: 'proof-or-stop-review-quality', reviewRound: ROUND1, reviewRunId: `${STORY}:RR-002`, resolvedAt: '2026-10-11T10:36:00.000Z',
+    resolutionType: 'accepted_risk' });
+  const p = await plan(f, ON());
+  assert.deepEqual(p.fullLanes, ['proof-or-stop-review-test-coverage'], `noise-only lanes are not raisers (got ${JSON.stringify(p.fullLanes)})`);
+  assert.ok(p.replacedLanes.includes('proof-or-stop-review-docs') && p.replacedLanes.includes('proof-or-stop-review-quality'));
+});
+
+await check('R52-P5 resolved duplicates are not re-run with an unrelated command: skipped when their canonical is re-verified or was closed without a repair', async () => {
+  const f = fixture({ duplicateOfRaised: true });
+  f.state.findings.push({ id: `${STORY}:F-011`, desc: 'docs/strs.md:3 documents Shout with "!".', severity: 'medium', category: 'missing', status: 'resolved',
+    evidenceState: 'verified', agent: 'proof-or-stop-review-docs', reviewRound: ROUND1, reviewRunId: `${STORY}:RR-004`, resolvedAt: '2026-10-11T10:35:00.000Z',
+    resolutionType: 'preexisting_out_of_scope', resolvedReason: '[preexisting_out_of_scope] Pre-existing at the Story base.' });
+  f.state.findings.push({ id: `${STORY}:F-012`, desc: 'docs/strs.md:3 still documents Shout with "!".', severity: 'medium', category: 'missing', status: 'resolved',
+    evidenceState: 'verified', agent: 'proof-or-stop-review-docs', reviewRound: ROUND1, reviewRunId: `${STORY}:RR-004`, resolvedAt: '2026-10-11T10:42:00.000Z',
+    resolutionType: 'duplicate', resolvedReason: `same drift [duplicate of ${STORY}:F-011 (critic familyKey n/a); covered by \`go test -v ./strs -run TestReverse\` printing "--- PASS: TestReverse", exit 0]` });
+  const p = await plan(f, ON());
+  assert.deepEqual(p.reverifyFindingIds, [`${STORY}:F-001`], `only the repaired finding is re-run (got ${JSON.stringify(p.reverifyFindingIds)})`);
 });
 
 for (const dir of dirs) rmSync(dir, { recursive: true, force: true });
