@@ -21,16 +21,25 @@
  *      remediation (each re-verified by re-running its test, not by its
  *      status) and every still-open finding.
  *   2. Lanes: a lane that raised a non-duplicate, non-rejected finding in the
- *      previous round (and any forced lane) re-reviews the whole Story; every
+ *      previous round that was not closed without a repair (old-PoS run 52: a
+ *      preexisting_out_of_scope / accepted_risk / duplicate closure is noise,
+ *      not a raise) and any forced lane re-reviews the whole Story; every
  *      other active lane is replaced by ONE confirmation lane (the first
  *      replaced lane in roster order carries it). Its prompt lists the replaced
  *      lanes' concerns and the delta scope; its note must carry one
  *      `[checked] <item>` line per check item and one `[reverified] <finding>
  *      :: <command> :: <output line>` per resolved finding, and the framework
- *      re-runs each command (core/review-delta-confirmation.ts). A [gap], an
- *      unchecked item, an unread file or a failing re-run is NOT a pass: the
- *      gap is recorded (process event delta_round_confirmation_gap) and the
- *      round falls back to a full round (every active lane in full).
+ *      re-runs each command (core/review-delta-confirmation.ts). A [gap] on a
+ *      check item or resolved finding, an unchecked item, an unread file or a
+ *      failing re-run is NOT a pass: the gap is recorded (process event
+ *      delta_round_confirmation_gap) and, for a pass verdict, the round falls
+ *      back to a full round (every active lane in full). Old-PoS run 52: a
+ *      FINDINGS verdict with a gap imports its findings and launches no late
+ *      lane in its own round (the Story goes to remediation anyway); the NEXT
+ *      round is a full round (PREVIOUS_CONFIRMATION_GAP), so the replaced
+ *      concerns are still reviewed before DONE. A findings verdict with
+ *      complete coverage lines is not a gap at all (its note is kept in the
+ *      findings proposal, core/managed-host-run.ts).
  *   3. Critic: a delta round whose lanes report no finding finalizes without
  *      the inventory critic (signed criticSkip, core/review-inventory-critic-
  *      skip.ts); a delta round with any finding runs it as before.
@@ -95,6 +104,7 @@ export type DeltaRoundReason =
   | 'REPAIR_DELETES_FILES'
   | 'REPAIR_DIFF_LARGE'
   | 'CONFIRMATION_GAP'
+  | 'PREVIOUS_CONFIRMATION_GAP'
   | 'NO_REPLACEABLE_LANE';
 
 export interface DeltaScopeRegion {
@@ -329,6 +339,54 @@ function isDuplicateFinding(epochs: { criticReceipts?: Array<{ findingDispositio
   return Boolean(latest && latest.disposition === 'duplicate' && latest.canonicalFindingId && latest.canonicalFindingId !== finding.id);
 }
 
+/** A resolution that repaired nothing (old-PoS run 52): pre-existing outside the Story, an accepted risk, or a duplicate. */
+function closedWithoutRepair(finding: Finding): boolean {
+  return finding.status === 'resolved' && (finding.resolutionType === 'preexisting_out_of_scope'
+    || finding.resolutionType === 'accepted_risk' || finding.resolutionType === 'duplicate');
+}
+
+/** The canonical a duplicate was closed against: the closure record's `[duplicate of <id>`, else the critic's latest disposition. */
+function duplicateCanonicalOf(epochs: Parameters<typeof isDuplicateFinding>[0], finding: Finding): string | null {
+  const recorded = (finding.resolvedReason ?? '').match(/\[duplicate of (\S+?)(?=[\s;(\]]|$)/)?.[1];
+  if (recorded) return recorded;
+  const rows = (epochs.criticReceipts ?? []).flatMap(receipt => receipt.findingDispositions ?? []).filter(row => row.findingId === finding.id);
+  const latest = rows.at(-1);
+  return latest?.disposition === 'duplicate' && latest.canonicalFindingId ? latest.canonicalFindingId : null;
+}
+
+/**
+ * The findings resolved since the remediation receipt was consumed that the
+ * confirmation lane re-verifies and the framework re-runs. Never a
+ * pre-existing or accepted-risk closure (nothing was repaired). Old-PoS run 52
+ * (D2): a duplicate is re-verified through its canonical, never by an
+ * unrelated owner-chosen coverage command: it is skipped when its canonical
+ * (followed to the root of a duplicate chain) is itself re-run in this round
+ * or was closed without a repair; otherwise its own closure is re-run as
+ * before.
+ */
+export function resolvedFindingsToReverify(findings: readonly Finding[], boundary: string,
+  epochs: Parameters<typeof isDuplicateFinding>[0] = {}): Finding[] {
+  const nonRepair = (finding: Finding) => finding.resolutionType === 'preexisting_out_of_scope' || finding.resolutionType === 'accepted_risk';
+  const candidates = findings.filter(finding => finding.status === 'resolved' && (finding.resolvedAt ?? '') >= boundary && !nonRepair(finding));
+  const rerun = new Set(candidates.filter(finding => finding.resolutionType !== 'duplicate').map(finding => finding.id));
+  const byId = new Map(findings.map(finding => [finding.id, finding] as const));
+  const coveredByCanonical = (finding: Finding): boolean => {
+    const seen = new Set<string>([finding.id]);
+    let current: Finding | undefined = finding;
+    for (let depth = 0; current && current.resolutionType === 'duplicate' && depth < 16; depth += 1) {
+      const canonicalId = duplicateCanonicalOf(epochs, current);
+      if (!canonicalId || seen.has(canonicalId)) return false;
+      seen.add(canonicalId);
+      if (rerun.has(canonicalId)) return true;
+      current = byId.get(canonicalId);
+      if (current && current.status === 'resolved' && nonRepair(current)) return true;
+    }
+    return false;
+  };
+  return candidates.filter(finding => finding.resolutionType !== 'duplicate' || !coveredByCanonical(finding))
+    .sort((a, b) => a.id.localeCompare(b.id));
+}
+
 /**
  * The delta-round plan of the Story's current REVIEW round. Ineligible plans
  * name the reason (the round is then a full round, as with the switch off).
@@ -402,16 +460,22 @@ export function computeDeltaRoundPlan(args: {
   if (repairLines > storyLines * DELTA_ROUND_LIMITS.repairShareOfStoryMax) {
     return fallback('REPAIR_DIFF_LARGE', `the repair has ${Number.isFinite(repairLines) ? repairLines : 'binary'} changed line(s) against ${storyLines} in the Story diff: more than the ${Math.round(DELTA_ROUND_LIMITS.repairShareOfStoryMax * 100)}% limit`);
   }
-  let events: Array<{ type: string; reviewRound?: unknown }> = [];
-  try { events = store.readProcessEvents(storyId) as Array<{ type: string; reviewRound?: unknown }>; } catch { events = []; }
-  if (events.some(event => event.type === DELTA_ROUND_GAP_EVENT && event.reviewRound === reviewRound)) {
+  let events: Array<{ type: string; reviewRound?: unknown; conclusion?: unknown }> = [];
+  try { events = store.readProcessEvents(storyId) as Array<{ type: string; reviewRound?: unknown; conclusion?: unknown }>; } catch { events = []; }
+  const gaps = events.filter(event => event.type === DELTA_ROUND_GAP_EVENT);
+  // Old-PoS run 52 (D1): a findings verdict's gap launches no late lane in its own round.
+  if (gaps.some(event => event.reviewRound === reviewRound && event.conclusion !== 'findings')) {
     return fallback('CONFIRMATION_GAP', `a confirmation lane of round ${reviewRound} left a gap; the round is a full round`);
+  }
+  if (gaps.some(event => event.reviewRound === previousRound && event.conclusion === 'findings')) {
+    return fallback('PREVIOUS_CONFIRMATION_GAP', `the confirmation lane of round ${previousRound} reported findings but left part of its delta unchecked; this round is a full round`);
   }
   let findings: Finding[] = [];
   try { findings = store.readFindings(storyId).findings ?? []; } catch { findings = []; }
   const raised = new Set(findings
     .filter(finding => finding.reviewRound === previousRound && finding.agent && activeLanes.includes(canonicalAgentRoleId(finding.agent))
-      && finding.status !== 'dismissed' && finding.evidenceState !== 'disproven' && !isDuplicateFinding(inventory, finding))
+      && finding.status !== 'dismissed' && finding.evidenceState !== 'disproven' && !isDuplicateFinding(inventory, finding)
+      && !closedWithoutRepair(finding))
     .map(finding => canonicalAgentRoleId(finding.agent!)));
   const forced = new Set((args.forcedLanes ?? []).map(lane => canonicalAgentRoleId(lane)));
   const fullLanes = activeLanes.filter(lane => raised.has(lane) || forced.has(lane));
@@ -419,9 +483,7 @@ export function computeDeltaRoundPlan(args: {
   if (replacedLanes.length === 0) return fallback('NO_REPLACEABLE_LANE', 'every active lane raised findings in the previous round (or is forced)');
   const confirmationLane = replacedLanes[0]!;
   const boundary = receipt.consumedAt ?? receipt.issuedAt ?? '';
-  const resolved = findings.filter(finding => finding.status === 'resolved' && (finding.resolvedAt ?? '') >= boundary
-    && finding.resolutionType !== 'preexisting_out_of_scope' && finding.resolutionType !== 'accepted_risk')
-    .sort((a, b) => a.id.localeCompare(b.id));
+  const resolved = resolvedFindingsToReverify(findings, boundary, inventory);
   const open = findings.filter(finding => finding.status === 'open').sort((a, b) => a.id.localeCompare(b.id));
   const scope = deltaRoundScope(gitCwd, projectRoot, fromHead, head);
   const out: DeltaRoundPlan = {
@@ -535,8 +597,33 @@ export function renderDeltaConfirmationBlock(plan: DeltaRoundPlan, storyId: stri
   ];
 }
 
-const NOTE_LINE = /^\s*\[(checked|reverified|gap)\]\s+(\S+)(?:\s*::\s*(.*))?$/;
+const NOTE_MARKER = /\[(?:checked|reverified|gap)\]/g;
+const NOTE_SEGMENT = /^\[(checked|reverified|gap)\]\s+(\S+)(?:\s*::\s*([\s\S]*)|\s[\s\S]*)?$/;
 const GENERIC_SELECTOR = /^(?:ok|pass(?:ed)?|--- ?pass:?|pass:?|success|done|\d+ passing)$/i;
+
+/** An item token as a reviewer writes it: `quoted`, *bold*, or followed by a colon / full stop. */
+const cleanNoteItem = (item: string): string => item.replace(/^[`'"*(]+/, '').replace(/[`'"*),;:.]+$/, '');
+/** A selector as written in prose: no trailing full stop, no Go test timing (`(0.01s)` differs on every run). */
+const cleanSelector = (selector: string): string => selector.trim().replace(/[.;,]+$/, '').replace(/\s*\(\d+(?:\.\d+)?m?s\)$/, '').trim();
+
+/**
+ * Every `[checked]` / `[reverified]` / `[gap]` segment of a note. Old-PoS run 52
+ * (RR-012): a lane flattened its whole note onto one line, so a marker counts
+ * wherever it stands; a segment runs to the next marker or the end of its line.
+ */
+function noteSegments(note: string): Array<{ kind: 'checked' | 'reverified' | 'gap'; item: string; rest: string | undefined }> {
+  const out: Array<{ kind: 'checked' | 'reverified' | 'gap'; item: string; rest: string | undefined }> = [];
+  for (const line of note.split('\n')) {
+    const starts = [...line.matchAll(NOTE_MARKER)].map(match => match.index ?? 0);
+    starts.forEach((start, index) => {
+      const segment = line.slice(start, starts[index + 1] ?? line.length).trim();
+      const match = segment.match(NOTE_SEGMENT);
+      if (!match) return;
+      out.push({ kind: match[1] as 'checked' | 'reverified' | 'gap', item: cleanNoteItem(match[2]!), rest: match[3]?.trim() });
+    });
+  }
+  return out;
+}
 
 /**
  * The deterministic half of the confirmation contract (no command runs here):
@@ -558,13 +645,18 @@ export function checkDeltaConfirmationNote(args: {
     const finding = item.match(/^finding:(.+)$/);
     return finding ? `finding:${shortId(storyId, finding[1]!)}` : item;
   };
-  for (const line of (args.note ?? '').split('\n')) {
-    const match = line.match(NOTE_LINE);
-    if (!match) continue;
-    const [, kind, item, rest] = match;
-    if (kind === 'checked') checked.add(normalizeItem(item!));
-    else if (kind === 'gap') gaps.push(`${item}${rest ? ` :: ${rest.trim()}` : ''}`);
-    else reverified.set(item!.startsWith(`${storyId}:`) ? item! : `${storyId}:${item}`, rest ?? '');
+  const fullId = (item: string): string => item.startsWith(`${storyId}:`) ? item : `${storyId}:${item}`;
+  // Old-PoS run 52 (RR-012): a [gap] counts only when it names something this lane must check (a check item,
+  // bare or prefixed, or a resolved finding); a gap on another file (a stock-prompt path that does not exist) does not.
+  const isOwnItem = (item: string): boolean => {
+    const normalized = normalizeItem(item);
+    return binding.checkItems.includes(normalized) || binding.checkItems.includes(`file:${item}`) || binding.checkItems.includes(`concern:${item}`)
+      || binding.checkItems.includes(`finding:${shortId(storyId, item)}`) || binding.reverifyFindingIds.includes(fullId(item));
+  };
+  for (const { kind, item, rest } of noteSegments(args.note ?? '')) {
+    if (kind === 'checked') checked.add(normalizeItem(item));
+    else if (kind === 'gap') { if (isOwnItem(item)) gaps.push(`${item}${rest ? ` :: ${rest}` : ''}`); }
+    else reverified.set(fullId(item), rest ?? '');
   }
   const missing = binding.checkItems.filter(item => !checked.has(item));
   const problems: string[] = [];
@@ -580,7 +672,7 @@ export function checkDeltaConfirmationNote(args: {
     if (rest === undefined) { problems.push(`${shortId(storyId, findingId)}: no [reverified] line (a resolved finding is re-verified by re-running its test)`); continue; }
     const parts = rest.split('::').map(part => part.trim());
     const command = parts[0] ?? '';
-    const selector = parts.slice(1).join('::').trim();
+    const selector = cleanSelector(parts.slice(1).join('::'));
     if (!command || !selector) { problems.push(`${shortId(storyId, findingId)}: [reverified] needs ":: <command> :: <output line>"`); continue; }
     if (selector.length < 6 || GENERIC_SELECTOR.test(selector)) { problems.push(`${shortId(storyId, findingId)}: selector "${selector}" is generic; name the test or the output line that shows the case passes`); continue; }
     reverify.push({ findingId, command, selector });
