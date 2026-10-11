@@ -44,6 +44,17 @@ import { verifyReviewRun } from './review-run.js';
 import { isMaterialExcludedPath } from './material-path-policy.js';
 import { earlierCandidateRuns, isCodeReviewLaneRun, isEarlierReviewRound, previousCandidateLaneRun } from './review-round-order.js';
 import { resolveReviewLanePack, type ReviewLanePack } from './review-lane-pack.js';
+import { renderDeltaConfirmationBlock, type DeltaRoundPlan } from './review-delta-round.js';
+
+/**
+ * EXPERIMENTAL A/B review.deltaRounds=on (core/review-delta-round.ts): the lane's
+ * role in the current delta round, decided by host_run from the signed roster
+ * selection and passed here so the sealed prompt (and its digest) carry it.
+ */
+export interface ManagedDeltaRoundPrompt {
+  plan: DeltaRoundPlan;
+  role: 'confirmation' | 'full';
+}
 
 export interface ManagedReviewEvidenceVerification {
   valid: boolean;
@@ -854,8 +865,15 @@ function oneLine(text: string, max: number): string {
  * so runs on the current HEAD cannot change the prompt or its digest. A lane's
  * first review, and a relaunch whose only earlier runs share its HEAD, get none.
  */
-function renderManagedReviewerRereview(root: string, run: ReviewRun, lanePack: ReviewLanePack | null = null): string[] {
+function renderManagedReviewerRereview(root: string, run: ReviewRun, lanePack: ReviewLanePack | null = null, deltaRound: ManagedDeltaRoundPrompt | null = null): string[] {
   if (!isCodeReviewLaneRun(run)) return [];
+  if (deltaRound?.role === 'confirmation') {
+    // The ONE confirmation lane of a delta round: its block replaces the ordinary re-review block.
+    const plan = deltaRound.plan;
+    const gitCwd = run.workspaceBinding?.signedWorkspaceRoot ?? root;
+    return renderDeltaConfirmationBlock(plan, run.storyId, plan.fromHead ? renderManagedRereviewDiff(gitCwd, root, plan.fromHead, run.headHash) : []);
+  }
+  const deltaFull = deltaRound?.role === 'full';
   const store = new StoryStore(root);
   const runs = store.readReviewRuns(run.storyId).runs;
   const previous = previousCandidateLaneRun(runs, run);
@@ -873,7 +891,9 @@ function renderManagedReviewerRereview(root: string, run: ReviewRun, lanePack: R
   // delta; the lane starts there but still reviews the whole Story. Off (no delta in the pack) = unchanged.
   const delta = lanePack?.delta ?? null;
   const scope = variants.round2Scope === 'repaired-files' ? repairedFilesReviewScope(gitCwd, root, previous.headHash, run.headHash) : null;
-  const abLines = [
+  const abLines = deltaFull ? [
+    `A/B variant review.deltaRounds=on (experimental): this is a delta round and your lane raised findings on the previous candidate, so you re-review the WHOLE Story again${variants.round2Lanes === 'fresh' ? ' in a FRESH session (your earlier review thread is not resumed)' : ''}: confirm each listed finding first, then review the whole Story diff as in a first review. The other lanes' concerns are covered on the repair by one confirmation lane (${(deltaRound!.plan.replacedLanes).map(lane => lane.replace('proof-or-stop-review-', '')).join(', ')}).`,
+  ] : [
     ...(variants.round2Lanes === 'fresh' ? [delta
       ? 'This is a FRESH session: your earlier review thread is not resumed. A/B variant review.roundDelta=pack (experimental): start from the delta in the REVIEW LANE PACK above (the repair diff, the findings raised on earlier candidates and their resolutions), then review the whole Story; the delta is where to look first, not where to stop.'
       : 'This is a FRESH session: your earlier review thread is not resumed. Do not re-review the whole Story: focus on the findings raised on earlier candidates and on the repair diff below, reading other code only where the diff depends on it.',
@@ -894,7 +914,7 @@ function renderManagedReviewerRereview(root: string, run: ReviewRun, lanePack: R
     '2. Then review the code changed since the previous review and the direct callers of changed code.',
     '3. Apply variant analysis: for each problem, search the changed files and the direct callers of changed code for the same pattern, and report one finding that names every location.',
     '4. Report every blocking problem in this one pass; do not hold problems back for a later review.',
-    delta
+    delta || deltaFull
       ? '5. Then review the whole Story diff as in a first review: code outside the repair diff can hold defects earlier candidates missed.'
       : '5. Code outside the diff was reviewed on earlier candidates. Re-read it only where the diff depends on it.',
     '6. Re-check earlier conclusions against the new code rather than assuming them.',
@@ -929,6 +949,7 @@ export function buildManagedReviewerPrompt(
   run: ReviewRun,
   canonicalReportStatuses?: readonly ManagedReviewCanonicalReportStatus[],
   fullScanBinding?: ManagedReviewFullScanBinding,
+  deltaRound?: ManagedDeltaRoundPrompt | null,
 ): string {
   const binding = JSON.stringify({
     storyId: run.storyId,
@@ -943,7 +964,7 @@ export function buildManagedReviewerPrompt(
     agentType: run.lane,
   }));
   const lanePack = managedReviewLanePack(root, run);
-  const rereview = renderManagedReviewerRereview(root, run, lanePack);
+  const rereview = renderManagedReviewerRereview(root, run, lanePack, deltaRound ?? null);
   return [
     '--- BEGIN MANAGED REVIEW EVIDENCE PROTOCOL ---',
     `This provider run is already bound to ${binding}.`,
@@ -1005,8 +1026,9 @@ export function managedReviewerPromptDigest(
   run: ReviewRun,
   canonicalReportStatuses?: readonly ManagedReviewCanonicalReportStatus[],
   fullScanBinding?: ManagedReviewFullScanBinding,
+  deltaRound?: ManagedDeltaRoundPrompt | null,
 ): string {
-  return sha256(buildManagedReviewerPrompt(root, run, canonicalReportStatuses, fullScanBinding));
+  return sha256(buildManagedReviewerPrompt(root, run, canonicalReportStatuses, fullScanBinding, deltaRound));
 }
 
 function failedDiagnostic(): ProofAdmissibilityDiagnostic {

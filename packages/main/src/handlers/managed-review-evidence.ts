@@ -1,3 +1,5 @@
+import { DELTA_ROUND_GAP_EVENT, DELTA_ROUND_REVERIFIED_EVENT } from '../core/review-delta-round.js';
+import { evaluateDeltaConfirmation } from '../core/review-delta-confirmation.js';
 import { readFileSync } from 'node:fs';
 import { readMaterialDirtyFiles } from '../core/evidence-freshness.js';
 import { isManagedInventoryCritic } from '../core/managed-inventory-critic.js';
@@ -453,6 +455,44 @@ export function createManagedReviewEvidenceHandlers(
         throw new Error('managed_review_evidence_import: an inventory critic proposal cannot carry evidence_chain items; relaunch the critic');
       }
       const conclusion = effectiveManagedReviewConclusion(proposal);
+      // EXPERIMENTAL A/B review.deltaRounds=on (core/review-delta-confirmation.ts): the ONE
+      // confirmation lane of a delta round never passes what it did not check (ADR-054 of
+      // the new PoS). A gap is recorded (the round falls back to a full round); a pass with
+      // a gap is not imported and never proposed again. Off: no deltaRound binding, no change.
+      const deltaBinding = managedRun.reviewBinding?.deltaRound;
+      if (deltaBinding?.role === 'confirmation' && !hasPersistedReceiptEvidence) {
+        const gapRecorded = ctx.store.readProcessEvents(proposal.storyId).some(event => event.type === DELTA_ROUND_GAP_EVENT
+          && event.managedRunId === runId && event.managedReceiptId === receiptId);
+        const verdict = gapRecorded ? null : evaluateDeltaConfirmation({ binding: deltaBinding, storyId: proposal.storyId, conclusion,
+          note: proposal.note ?? '', readManifest: proposal.readManifest, projectRoot: ctx.root, cwd: gitCwd, headHash: reviewRun.headHash ?? null });
+        for (const row of verdict?.reverified ?? []) {
+          ctx.store.appendProcessEvent(proposal.storyId, { type: DELTA_ROUND_REVERIFIED_EVENT, storyId: proposal.storyId, command: 'managed_review_evidence_import',
+            role: 'framework', agent: proposal.lane, result: row.passed ? 'pass' : 'fail', managedRunId: runId, managedReceiptId: receiptId,
+            reviewRunId: proposal.reviewRunId, reviewRound: story.currentReviewRound ?? null, findingId: row.findingId, rerunCommand: row.command, selector: row.selector,
+            passed: row.passed, exitCode: row.exitCode, timedOut: row.timedOut, selectorMatched: row.selectorMatched, outputTail: row.outputTail,
+            headHash: row.headHash, durationMs: row.durationMs });
+        }
+        if (verdict && !verdict.ok) {
+          ctx.store.appendProcessEvent(proposal.storyId, { type: DELTA_ROUND_GAP_EVENT, storyId: proposal.storyId, command: 'managed_review_evidence_import',
+            role: 'framework', agent: proposal.lane, result: 'gap', managedRunId: runId, managedReceiptId: receiptId, reviewRunId: proposal.reviewRunId,
+            reviewRound: story.currentReviewRound ?? null, conclusion, reason: verdict.reason.slice(0, 2000), missing: verdict.missing, gaps: verdict.gaps, problems: verdict.problems });
+        }
+        if ((verdict && !verdict.ok) || gapRecorded) {
+          if (conclusion === 'pass') {
+            const reason = `delta_confirmation_gap: ${verdict?.reason ?? 'recorded earlier'}`;
+            if (!refusedManagedReviewImport(ctx.store, proposal.storyId, runId, receiptId)) {
+              ctx.store.appendProcessEvent(proposal.storyId, { type: 'managed_review_import_refused', storyId: proposal.storyId,
+                command: 'managed_review_evidence_import', role: 'framework', agent: proposal.lane, result: 'refused',
+                managedRunId: runId, managedReceiptId: receiptId, reviewRunId: proposal.reviewRunId, reason: reason.slice(0, 2000) });
+            }
+            const gapCommitHint = commitReviewResultMetadata({ root: ctx.root, store: ctx.store, storyId: proposal.storyId, reviewRunId: proposal.reviewRunId,
+              reason: 'managed_review_evidence_import', options: { exactStoryArtifactNames: ['process-events.jsonl'] } });
+            return `Delta-round confirmation from ${runId} is NOT a pass (A/B review.deltaRounds=on; nothing imported): ${verdict?.reason ?? 'gap recorded earlier'}.\n`
+              + `Round ${story.currentReviewRound ?? '?'} falls back to a full round: every active lane reviews in full (process event ${DELTA_ROUND_GAP_EVENT}).\n`
+              + `Framework next action: proof-or-stop next --storyId=${proposal.storyId} --run${gapCommitHint}`;
+          }
+        }
+      }
       const lockDir = ctx.store.runtimeLockDirPath(proposal.storyId, 'managed-review-evidence', receiptId.replace(/[^A-Za-z0-9._-]/g, '_'));
       // The receipt lock makes replay of one receipt idempotent. A second,
       // story-level lock is still required because distinct receipts allocate

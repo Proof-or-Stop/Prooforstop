@@ -2877,6 +2877,11 @@ export type ProcessEventType =
   | 'verification_run_refused'
   /** A managed review receipt's import was refused before any evidence persisted, for a reason no retry changes (next relaunches the lane/critic). */
   | 'managed_review_import_refused'
+  // EXPERIMENTAL A/B review.deltaRounds (core/review-delta-round.ts): a delta round's
+  // confirmation lane left a gap (the round falls back to a full round) / the framework
+  // re-ran a resolved finding's named test.
+  | 'delta_round_confirmation_gap'
+  | 'delta_round_reverified'
   /** Critic rows for findings outside the wave's verified set, dropped (not refused) at managed import. */
   | 'inventory_critic_disposition_dropped'
   | 'dirty_gate_audit'

@@ -281,8 +281,14 @@
  *      later-round prompts also carry the delta since the previous round's head
  *      and still review the whole Story).
  *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5 ND-V6 ND-V8 ND-V9.
+ *   DR EXPERIMENTAL review.deltaRounds=on (core/review-delta-round.ts) on the ND
+ *      flow: ND-DR round 2 = the raising lane in full + ONE confirmation lane
+ *      for the other lanes' concerns (resolved finding re-run by the framework,
+ *      no critic on a round with no new finding); ND-DRL a large repair falls
+ *      back to a full round; ND-DRG a confirmation [gap] and ND-DRV a failing
+ *      re-run are not a pass and fall back to a full round. `DR` = all four.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NRW|AB|ND-V1..NF-V9]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NRW|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -736,6 +742,22 @@ let input = ''; process.stdin.on('data', d => { input += d; }); process.stdin.on
   if (!file) { fs.writeFileSync(path.join(dir, 'unmatched-' + process.pid + '.txt'), input); process.exit(3); }
   announceThread();
   const script = JSON.parse(fs.readFileSync(file, 'utf8'));
+  // EXPERIMENTAL A/B review.deltaRounds (ND-DR*): a confirmation lane answers the
+  // check items its sealed prompt lists, as a reviewer reading the prompt would.
+  if (script.delta && input.includes('--- BEGIN DELTA ROUND CONFIRMATION')) {
+    const block = input.slice(input.indexOf('--- BEGIN DELTA ROUND CONFIRMATION'), input.indexOf('--- END DELTA ROUND CONFIRMATION'));
+    const listAfter = header => { const at = block.indexOf(header); if (at < 0) return []; const out = []; for (const line of block.slice(at).split('\\n').slice(1)) { if (!line.startsWith('- ')) { if (line.startsWith('  ')) continue; break; } out.push(line.slice(2).split(/\\s/)[0]); } return out; };
+    const items = listAfter('Check items');
+    const resolved = listAfter('Resolved findings to re-verify');
+    const selector = script.delta.mode === 'bad-rerun' ? '--- PASS: TestNoSuchCase' : script.delta.selector;
+    const lines = [...items.map(item => '[checked] ' + item + ' :: scripted check of the delta'),
+      ...resolved.map(id => '[reverified] ' + id + ' :: ' + script.delta.command + ' :: ' + selector),
+      ...(script.delta.mode === 'gap' ? ['[gap] ' + items[0] + ' :: scripted gap: not checked'] : [])];
+    const final = JSON.parse(script.final);
+    final.note = final.note + '\\n' + lines.join('\\n');
+    script.final = JSON.stringify(final);
+    fs.appendFileSync(path.join(dir, 'delta-notes.log'), JSON.stringify({ runId: process.env.LATTICE_MANAGED_HOST_RUN_ID || '', mode: script.delta.mode, items, resolved }) + '\\n');
+  }
   const c = process.argv.indexOf('-C'); const cwd = c > 0 ? process.argv[c + 1] : process.cwd();
   (script.commands || []).forEach((argv, index) => {
     // Codex exec --json announces each command (item.started) before it runs (old-PoS run 27: per-command wall time).
@@ -1508,7 +1530,16 @@ interface ScriptMode { findingRound1: boolean; twoFindings?: boolean; lowFinding
    * Old-PoS run 44: 'short-literal' = D_FINDING plus a metadata finding citing only a short quoted literal of CHK-001's
    * userSees (no corrected value extractable; run 44 R2), copied in CHK-002's userSees (the sweep).
    */
-  metadata?: 'with-product' | 'only' | 'with-product-copy' | 'intent-rows' | 'short-literal' }
+  metadata?: 'with-product' | 'only' | 'with-product-copy' | 'intent-rows' | 'short-literal';
+  /**
+   * EXPERIMENTAL A/B review.deltaRounds (ND-DR*): later-round lanes answer a delta-round
+   * confirmation block from their prompt: 'full' checks every item and names the re-run of
+   * each resolved finding; 'gap' also reports one [gap]; 'bad-rerun' names a selector the
+   * re-run never prints (the framework re-run fails).
+   */
+  deltaNote?: 'full' | 'gap' | 'bad-rerun';
+  /** ND-DRL: the finding repair also commits a large block, so the repair exceeds the delta-round threshold. */
+  largeRepair?: boolean }
 /** Old-PoS run 27 delivery overlap faults (scenarioNDL). */
 type DeliveryFault = 'overlap' | 'stale';
 type CriticRestateMode = 'copies' | 'reworded' | 'new-misfiled';
@@ -1522,7 +1553,11 @@ const NC4_SUSPECTED = {
 /** D2-r3 shape: the critic's own reworded restatement of D_FINDING (same files, same claim). */
 const NC_REWORDED_DESC = 'Base-to-head gap: Reverse has no focused empty-string test; Reverse("") must return "" and never index r[-1] on an empty string.';
 
-type ProviderScript = { final: string; commands?: string[][] };
+type ProviderScript = { final: string; commands?: string[][];
+  /** ND-DR*: the fake provider appends the delta-round confirmation lines its prompt asks for. */
+  delta?: { mode: 'full' | 'gap' | 'bad-rerun'; command: string; selector: string } };
+/** ND-DR*: the test D_FINDING's repair adds, which a confirmation lane re-runs. */
+const DELTA_REVERIFY = { command: 'go test -v ./strs -run TestReverseEmpty', selector: '--- PASS: TestReverseEmpty' };
 
 /** A REVIEW lane's scripted final proposal: round 1 test-coverage reports the mode's findings, every other lane passes. */
 function laneScript(worktree: string, storyId: string, lane: string, reviewRunId: string, firstRound: boolean, mode: ScriptMode): ProviderScript {
@@ -1556,6 +1591,10 @@ function laneScript(worktree: string, storyId: string, lane: string, reviewRunId
       : mode.metadata === 'with-product' || mode.metadata === 'with-product-copy' ? [D_FINDING, meta.cited] : [meta.cited];
     return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, conclusion: 'findings',
       note: 'Scripted run 31 lane: the checklist userSees pins a value the request contradicts.', findings, ...readEvidenceFor(worktree, storyId) }) };
+  }
+  if (mode.deltaNote && !firstRound) {
+    return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, ...PASS_ENVELOPE(lane), ...readEvidenceFor(worktree, storyId) }),
+      delta: { mode: mode.deltaNote, ...DELTA_REVERIFY } };
   }
   const envelope = mode.findingRound1 && firstRound && lane === 'proof-or-stop-review-test-coverage'
     ? { conclusion: 'findings', note: 'Scripted behavior finding: empty-string edge case is untested.',
@@ -1681,14 +1720,17 @@ function deliveryScript(storyId: string, fault?: DeliveryFault, storyDir?: strin
   return { commands: [...prefix, [process.execPath, CLI, 'delivery_check_set', JSON.stringify(deliveryPayload)]], final: 'Delivery review complete; delivery_check_set recorded.' };
 }
 
-function repairScript(desc: string, px?: { storyId: string; findingId: string; commit: boolean }): ProviderScript {
+/** ND-DRL: a large regression block (comment lines) the repair commits with its test. */
+const LARGE_REPAIR_PAD = Array.from({ length: 60 }, (_, index) => `// regression note ${index + 1}: empty and one-rune inputs keep their rune order`).join('\n') + '\n';
+function repairScript(desc: string, px?: { storyId: string; findingId: string; commit: boolean }, large = false): ProviderScript {
   if (desc === PX_FINDING.desc) {
     // NPX (old-PoS run 30): the worker either reports the doc blocked (no commit) or commits the doc fix.
     return px?.commit ? { commands: [pxRepairCommand(px.storyId, px.findingId)], final: `Corrected the range examples in ${PX_DOC_PATH}; committed.` }
       : { commands: [], final: PX_BLOCKED };
   }
   const repair = repairFor(desc);
-  return { commands: [['/bin/sh', '-c', `printf '%s' '${repair.test.replace(/'/g, "'\\''")}' >> strs/strs_test.go && git add strs/strs_test.go && git -c user.name=${FINDING_REPAIR} commit -qm '${repair.subject}' && git log --format=%h -1`]],
+  const text = large ? `${repair.test}${LARGE_REPAIR_PAD}` : repair.test;
+  return { commands: [['/bin/sh', '-c', `printf '%s' '${text.replace(/'/g, "'\\''")}' >> strs/strs_test.go && git add strs/strs_test.go && git -c user.name=${FINDING_REPAIR} commit -qm '${repair.subject}' && git log --format=%h -1`]],
     final: `Added ${repair.name}; committed.` };
 }
 
@@ -1928,7 +1970,10 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   /** Old-PoS run 30 (NPX/NPXA/NPXS): round 1 also reports the pre-existing array doc finding (ScriptMode.preexisting). */
   preexisting?: 'out' | 'in';
   /** NC7: an owner action taken instead of the step next returned; true = the step is not executed and next is asked again. */
-  interject?: (next: NextStepJson) => boolean; }, lines: string[],
+  interject?: (next: NextStepJson) => boolean;
+  /** EXPERIMENTAL A/B review.deltaRounds (ND-DR*): see ScriptMode.deltaNote / largeRepair. */
+  deltaNote?: 'full' | 'gap' | 'bad-rerun';
+  largeRepair?: boolean; }, lines: string[],
   /** Called with each step `next` returned, before the harness executes it; quiet = no detached managed run in flight. */
   onStep?: (next: NextStepJson, quiet: boolean) => void): void {
   const id = o.storyId;
@@ -2066,7 +2111,7 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
         o.script(FINDING_REPAIR, Array.isArray(payload.groupFindingIds)
           ? groupedRepairScript(id, (payload.groupFindingIds as string[]).map(findingId => ({ id: findingId, desc: findingDesc(findingId) })), mode.groupedFirstOnly)
           // NPXS: the first PX attempt reports blocked; a later one (with the earlier report in its prompt) commits the doc fix.
-          : repairScript(findingDesc(String(payload.findingId)), { storyId: id, findingId: String(payload.findingId), commit: mode.preexisting === 'in' && (pxRepairAttempts.get(String(payload.findingId)) ?? 0) > 1 }));
+          : repairScript(findingDesc(String(payload.findingId)), { storyId: id, findingId: String(payload.findingId), commit: mode.preexisting === 'in' && (pxRepairAttempts.get(String(payload.findingId)) ?? 0) > 1 }, mode.largeRepair === true));
         break;
       }
       case 'implement_item':
@@ -3012,6 +3057,122 @@ function scenarioAB(machineEnv: NodeJS.ProcessEnv, steps: Step[], flow: 'D' | 'F
         break;
       }
     }
+    lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/**
+ * EXPERIMENTAL A/B review.deltaRounds=on (core/review-delta-round.ts; the new
+ * PoS's ADR-039/043/054 ported): the ND flow (round 1: test-coverage reports
+ * D_FINDING; repair; round 2) with the switch set in the prepared config.
+ *   DR  round 2 is a delta round: test-coverage (raised F-001) re-reviews in
+ *       full, concept/quality are replaced by ONE confirmation lane
+ *       (concept carries it) whose prompt lists their concerns, the repair scope
+ *       and F-001 to re-verify; the framework re-runs the named test (passes);
+ *       no new finding, so the round closes without an inventory critic; DONE.
+ *   DRL the repair is larger than half the Story diff: round 2 is a full round
+ *       (all 3 lanes, no confirmation block, critic runs); DONE.
+ *   DRG the confirmation lane reports a [gap]: not a pass (nothing imported,
+ *       the gap and the refusal are recorded), the round falls back to a full
+ *       round (the replaced lanes and the carrier run in full), critic; DONE.
+ *   DRV the confirmation lane names a re-run whose selector never prints: the
+ *       framework re-run fails, so it is not a pass; full round; DONE.
+ */
+function scenarioDR(machineEnv: NodeJS.ProcessEnv, steps: Step[], variant: 'DR' | 'DRL' | 'DRG' | 'DRV'): Outcome {
+  const tag = `ND-${variant}`;
+  const name = `${tag} A/B {"review":{"deltaRounds":"on"}} on the ND flow reaches DONE`;
+  const ids = { DR: 'B-ad31', DRL: 'B-ad32', DRG: 'B-ad33', DRV: 'B-ad34' } as const;
+  const o = new Owner(tag, ids[variant], machineEnv, steps, false, { trackedGateFailureCounts: true, config: { review: { deltaRounds: 'on' } } });
+  const lines: string[] = [];
+  const reasons: string[] = [];
+  const selections: Array<{ round: string; selection: Record<string, unknown> }> = [];
+  try {
+    devSetup(o, true);
+    driveWithNext(o, { findingRound1: true, run: false, deltaNote: variant === 'DRG' ? 'gap' : variant === 'DRV' ? 'bad-rerun' : 'full', largeRepair: variant === 'DRL' }, lines, next => {
+      reasons.push(next.reason);
+      if (next.reason !== 'review_lane_launch') return;
+      const round = new StoryStore(o.worktree).readStory(o.storyId).currentReviewRound ?? '';
+      if (selections.some(row => row.round === round)) return;
+      const listed = parseJson(o.mustCli('reviewer_list', { storyId: o.storyId, json: true }, { label: 'reviewer_list (roster)' }).stdout);
+      selections.push({ round, selection: ((listed?.finalReview as Record<string, unknown> | undefined)?.selection ?? {}) as Record<string, unknown> });
+    });
+    const store = new StoryStore(o.root);
+    const allRuns = store.readReviewRuns(o.storyId).runs;
+    const rounds = [...new Set(allRuns.map(run => run.reviewRound))];
+    assert.ok(rounds.length >= 2, `${tag}: at least two review rounds (got ${rounds.length})`);
+    const laneRunsOf = (round: string) => allRuns.filter(run => run.reviewRound === round && run.reviewPurpose !== 'inventory-completeness');
+    const short = (lane: string) => lane.replace('proof-or-stop-review-', '');
+    const round1 = laneRunsOf(rounds[0]!).map(run => short(run.lane));
+    const round2 = laneRunsOf(rounds[1]!).map(run => short(run.lane));
+    const prompts = managedPrompts(o).filter(row => row.agentType.startsWith('proof-or-stop-review-') && row.agentType !== DELIVERY && row.agentType !== MANAGED_INVENTORY_CRITIC_LANE);
+    const promptOf = (reviewRunId: string) => prompts.find(row => (row.reviewBinding as { headHash?: string } | null) && row.prompt.includes(reviewRunId)) ?? null;
+    const round2Prompts = laneRunsOf(rounds[1]!).map(run => ({ run, prompt: promptOf(run.reviewRunId) }));
+    const events = store.readProcessEvents(o.storyId);
+    const criticLaunches = reasons.filter(row => row === 'inventory_critic_launch').length;
+    const epochs = store.readReviewInventoryEpochs(o.storyId).epochs;
+    const bytes = (rows: Array<{ prompt: { prompt: string } | null }>) => rows.map(row => Buffer.byteLength(row.prompt?.prompt ?? '', 'utf8'));
+    const round1Prompts = laneRunsOf(rounds[0]!).map(run => ({ run, prompt: promptOf(run.reviewRunId) }));
+    lines.push(`round 1 lanes: ${round1.join(', ')} (prompt bytes ${bytes(round1Prompts).join(', ')}); round 2 lanes: ${round2.join(', ')} (prompt bytes ${bytes(round2Prompts).join(', ')}); critic launches: ${criticLaunches}`);
+    lines.push(`round-2 roster selection: ${String(selections[1]?.selection.selection ?? '?')} / delta ${String((selections[1]?.selection.deltaRound as { reason?: string } | undefined)?.reason ?? 'none')}`);
+    assert.equal(round1.length, 3, `${tag}: round 1 runs the 3 active lanes (${round1.join(', ')})`);
+    const gapEvents = events.filter(event => String(event.type) === 'delta_round_confirmation_gap');
+    const reverified = events.filter(event => String(event.type) === 'delta_round_reverified');
+    if (variant === 'DR') {
+      assert.deepEqual([...round2].sort(), ['concept', 'test-coverage'], `${tag}: round 2 = the raising lane + ONE confirmation lane (got ${round2.join(', ')})`);
+      const carrier = round2Prompts.find(row => short(row.run.lane) === 'concept')!;
+      const full = round2Prompts.find(row => short(row.run.lane) === 'test-coverage')!;
+      assert.ok(carrier.prompt && full.prompt, `${tag}: both round-2 prompts captured`);
+      assert.match(carrier.prompt!.prompt, /--- BEGIN DELTA ROUND CONFIRMATION/, `${tag}: the confirmation lane's prompt carries the block`);
+      for (const concern of ['concern:concept', 'concern:quality']) assert.match(carrier.prompt!.prompt, new RegExp(concern), `${tag}: confirmation lists ${concern}`);
+      assert.match(carrier.prompt!.prompt, /file:strs\/strs_test\.go/, `${tag}: confirmation scope names the repaired file`);
+      assert.match(carrier.prompt!.prompt, /Resolved findings to re-verify[^\n]*\n- F-001/, `${tag}: F-001 is to be re-verified`);
+      assert.doesNotMatch(carrier.prompt!.prompt, /MANAGED RE-REVIEW SINCE PREVIOUS CANDIDATE/, `${tag}: the confirmation block replaces the ordinary re-review block`);
+      assert.doesNotMatch(full.prompt!.prompt, /BEGIN DELTA ROUND CONFIRMATION/, `${tag}: the full lane has no confirmation block`);
+      assert.match(full.prompt!.prompt, /review\.deltaRounds=on[^\n]*re-review the WHOLE Story/, `${tag}: the raising lane re-reviews in full`);
+      assert.doesNotMatch(full.prompt!.prompt, /Do not re-review the whole Story/, `${tag}: no narrowing for the full lane`);
+      const binding = (row: typeof carrier) => (row.prompt!.reviewBinding as { deltaRound?: { role?: string; abVariant?: { flags?: Record<string, string> } } }).deltaRound;
+      assert.equal(binding(carrier)?.role, 'confirmation', `${tag}: run spec seals role=confirmation`);
+      assert.equal(binding(full)?.role, 'full', `${tag}: run spec seals role=full`);
+      assert.equal(binding(carrier)?.abVariant?.flags?.['review.deltaRounds'], 'on', `${tag}: the arm is recorded`);
+      assert.equal(reverified.length, 1, `${tag}: the framework re-ran F-001's test once (${JSON.stringify(reverified)})`);
+      assert.equal((reverified[0] as { passed?: boolean }).passed, true, `${tag}: the re-run passed`);
+      assert.equal(gapEvents.length, 0, `${tag}: no gap`);
+      assert.equal(criticLaunches, 1, `${tag}: the critic ran only in round 1 (round 2 raised no finding)`);
+      const round2Epoch = epochs.filter(epoch => epoch.reviewRound === rounds[1] && epoch.state === 'FINALIZED').at(-1);
+      assert.match(String(round2Epoch?.waves.at(-1)?.criticSkip?.reason ?? ''), /review\.deltaRounds=on/, `${tag}: round 2 finalized with a signed delta-round critic skip`);
+      assert.equal(selections[1]?.selection.selection, 'delta-round', `${tag}: roster selection is delta-round`);
+    } else {
+      assert.deepEqual([...new Set(round2)].sort(), ['concept', 'quality', 'test-coverage'], `${tag}: round 2 is a full round (got ${round2.join(', ')})`);
+      assert.ok(criticLaunches >= 2, `${tag}: the critic runs in the full round 2 (got ${criticLaunches})`);
+      if (variant === 'DRL') {
+        assert.equal((selections[1]?.selection.deltaRound as { reason?: string } | undefined)?.reason, 'REPAIR_DIFF_LARGE', `${tag}: fallback reason recorded`);
+        for (const row of round2Prompts) assert.doesNotMatch(row.prompt?.prompt ?? '', /BEGIN DELTA ROUND CONFIRMATION/, `${tag}: no confirmation block in a full round`);
+      } else {
+        assert.equal(gapEvents.length, 1, `${tag}: one gap recorded (${JSON.stringify(gapEvents)})`);
+        assert.equal((gapEvents[0] as { reviewRound?: string }).reviewRound, rounds[1], `${tag}: the gap belongs to round 2`);
+        const refused = events.filter(event => event.type === 'managed_review_import_refused' && /delta_confirmation_gap/.test(String(event.reason)));
+        assert.equal(refused.length, 1, `${tag}: the gap run's import is recorded as refused (never proposed again)`);
+        const gapRun = String((refused[0] as { reviewRunId?: string }).reviewRunId);
+        assert.ok(!store.readReviewPasses(o.storyId).passes.some(pass => pass.reviewRunId === gapRun), `${tag}: no pass recorded for the gap run`);
+        assert.equal(round2.filter(lane => lane === 'concept').length, 2, `${tag}: the carrier lane reran in full (got ${round2.join(', ')})`);
+        if (variant === 'DRV') {
+          assert.equal(reverified.length, 1, `${tag}: the framework re-ran the named test`);
+          assert.equal((reverified[0] as { passed?: boolean }).passed, false, `${tag}: the re-run failed (selector never printed)`);
+          assert.match(String((gapEvents[0] as { reason?: string }).reason), /re-run/, `${tag}: gap names the failed re-run`);
+        } else {
+          assert.match(String((gapEvents[0] as { reason?: string }).reason), /\[gap\]/, `${tag}: gap names the reported [gap]`);
+        }
+        const fallbackPrompts = round2Prompts.filter(row => row.run.reviewRunId !== gapRun);
+        for (const row of fallbackPrompts) assert.doesNotMatch(row.prompt?.prompt ?? '', /BEGIN DELTA ROUND CONFIRMATION/, `${tag}: fallback lanes run as a full round`);
+      }
+    }
+    const tests = readFileSync(join(o.root, 'strs/strs_test.go'), 'utf8');
+    assert.match(tests, /TestReverseEmpty/, 'F-001 repair merged into main');
     lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
     o.cleanup();
     return { name, status: 'PASS', lines };
@@ -5595,7 +5756,7 @@ function scenarioNMP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NRW|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NRW|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR[LGV]?|DR)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -5680,10 +5841,12 @@ async function main(): Promise<void> {
     for (const token of [...new Set([...abTokens, ...only.filter(arg => /^N[DF]-V[1-689]$/.test(arg))])]) {
       outcomes.push(scenarioAB(machine.env, steps, token[1] as 'D' | 'F', token.slice(3) as keyof typeof AB_SCENARIO_VARIANTS));
     }
+    // EXPERIMENTAL A/B review.deltaRounds: explicit tokens (ND-DR, ND-DRL, ND-DRG, ND-DRV) or DR = all four.
+    for (const variant of ['DR', 'DRL', 'DRG', 'DRV'] as const) if (only.includes(`ND-${variant}`) || only.includes('DR')) outcomes.push(scenarioDR(machine.env, steps, variant));
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NRW', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NRW', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

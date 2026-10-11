@@ -819,6 +819,20 @@ the diff adds or changes, a probe per operand case its sibling paths (matching
 read / write, other receiver types, the pre-existing variant) special-case; an
 unstated difference is a finding citing both paths.
 
+Delta review rounds (EXPERIMENTAL A/B `review.deltaRounds`, default off; lab
+`codex/lab-delta-review`, `core/review-delta-round.ts`): with it on, a REVIEW
+round after a remediation re-reviews only the repair. The lanes that raised
+findings last round re-review the whole Story; every other lane is replaced by
+ONE confirmation lane whose prompt lists their concerns and the repair scope
+(hunks, enclosing definitions, same-file callers/callees). Its note needs a
+`[checked]` line per item and a `[reverified] <finding> :: <command> :: <output
+line>` per resolved finding (the framework re-runs it); a `[gap]`, an unchecked
+item or a failing re-run is not a pass and the round falls back to a full round.
+The critic runs only when the round reports a finding; a repair over 50% of the
+Story diff's changed lines or touching a file outside it is a full round. No
+round cap, no severity decay. `reviewer_list --json` shows the plan or the
+fallback reason (`finalReview.selection.deltaRound`).
+
 `reviewer_list --json` reports the current Story's opt-in roster. That roster is
 computed in real time from shared workflow policy plus Story risk signals,
 checklist/decision facts, and documentation touchpoints: concept, quality, and
