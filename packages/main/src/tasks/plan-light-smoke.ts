@@ -12,7 +12,9 @@
  *      connector; a row whose case is such an input must pin the stated output;
  *      the base judgement refuses a value the base computes differently, keeps
  *      a row whose baseValue records the base value, skips what the base cannot
- *      evaluate, and accepts a pin the isolated or the cumulative run satisfies.
+ *      evaluate, and accepts a pin the isolated or the cumulative run satisfies;
+ *      an error pin is judged only against a base error of the same message
+ *      family (a shared leading text): a different error is new behaviour.
  *   R. plan.rowBudget (core/plan-row-budget.ts): the operand class signature
  *      abstracts literals by class (sign, zero, empty, non-ASCII kept), renames
  *      assigned names; rows whose every case repeats an earlier row's class are
@@ -108,6 +110,17 @@ await check('P3 base judgement: a differing base value is refused; baseValue, an
   assert.equal(judge({ pinned }, [{ status: 'unrunnable', text: 'identifier not found' }, undefined]), null);
   assert.equal(judge({ pinned }, [{ status: 'value', text: '[9, 9]' }, { status: 'value', text: '[1, 2]' }]), null, 'the cumulative run satisfies it');
   assert.equal(judge({ pinned: { kind: 'error', text: 'out of range' } }, [{ status: 'value', text: '3' }]), '3', 'an error pin the base answers with a value');
+});
+
+await check('P4 an error pin of unchanged behaviour: a base error of the same message family that differs is refused; another error (new behaviour) is not', async () => {
+  const judge = await api('plan-pin-probe', 'baseDisagreement');
+  const pinned = { kind: 'error', text: 'slice index must be an integer, got "x"' };
+  assert.equal(judge({ pinned }, [{ status: 'error', text: 'slice index must be an integer, got x\n\t[1:5]' }]), 'slice index must be an integer, got x',
+    'same message family, different text: the existing error format pinned wrong');
+  assert.equal(judge({ pinned }, [{ status: 'error', text: 'slice index must be an integer, got "x"\n\t[1:5]' }]), null, 'the base error carries the pin');
+  assert.equal(judge({ pinned }, [{ status: 'error', text: 'identifier not found: f' }]), null, 'another error: the base lacks the behaviour, skipped');
+  assert.equal(judge({ pinned }, [{ status: 'error', text: 'slice index must be an integer, got x' }], 'slice index must be an integer, got x'), null, 'baseValue records a deliberate change');
+  assert.equal(judge({ pinned: { kind: 'value', text: '3' } }, [{ status: 'error', text: 'slice index must be an integer, got x' }]), null, 'a value pin on a base error: new behaviour');
 });
 
 await check('R1 operand class signature: literals by class, sign/zero/empty/non-ASCII kept, assigned names renamed', async () => {

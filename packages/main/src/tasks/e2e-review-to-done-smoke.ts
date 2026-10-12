@@ -4474,6 +4474,8 @@ function scenarioNIN(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 /** NPP: the project's evaluator at the Story base; base Upper returns its input unchanged, Reverse does not exist. */
 const NPP_EVAL = [
   "const lines = require('fs').readFileSync(process.argv[2], 'utf8').trim().split('\\n');",
+  'const number = lines[lines.length - 1].trim().match(/^Upper\\((\\d+)\\)$/);',
+  "if (number) { console.error('Upper expects a string, got ' + number[1]); process.exit(1); }",
   'const call = lines[lines.length - 1].trim().match(/^Upper\\((".*")\\)$/);',
   "if (!call) { console.error('undefined: ' + lines[lines.length - 1]); process.exit(1); }",
   'console.log(JSON.stringify(JSON.parse(call[1])));',
@@ -4483,7 +4485,7 @@ const NPP_REQUEST = `${NIQ_REQUEST}\n- Mixed case is kept upper-case: \`Upper("x
 
 function scenarioNPP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   const tag = 'NPP';
-  const name = 'NPP lab plan-light plan.pinProbe=on: a wrong pin on unchanged behaviour and a pin contradicting a request literal refuse DEV entry with the observed value; the corrected pins pass; switch off = no probe';
+  const name = 'NPP lab plan-light plan.pinProbe=on: a wrong value pin and a wrong error-format pin on unchanged behaviour and a pin contradicting a request literal refuse DEV entry with the observed value; the corrected pins pass; switch off = no probe';
   const runner = { command: process.execPath, args: ['tools/strs-eval.js', '{file}'], program: '{input}', extension: '.txt' };
   const row = (desc: string, test: string, extra: Record<string, unknown> = {}) => ({ desc, type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass',
     requirementSource: 'story', verification: { command: `go test -v ./strs -run ^${test}$`, selector: `--- PASS: ${test}` }, ...extra });
@@ -4491,7 +4493,9 @@ function scenarioNPP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   const intent = {
     happy: [row('Upper("AB") -> "ab"', 'TestUpperKeeps', { derivation: { requestQuote: quote, computation: 'upper-casing "AB" lower-cases nothing, so "ab"' } }),
       row('Upper("xy") -> "Xy"', 'TestUpperXY', { baseValue: '"xy"', derivation: { requestQuote: quote, computation: 'only the first letter is upper-cased: "Xy"' } })],
-    edge: [row('Upper("ab") -> "AB"', 'TestUpper', { baseValue: '"ab"' })],
+    edge: [row('Upper("ab") -> "AB"', 'TestUpper', { baseValue: '"ab"' }),
+      // An existing error format pinned with the operand quoted (old-PoS run 49 class).
+      row('Upper(1) -> error \'Upper expects a string, got "1"\'', 'TestUpperNumber')],
     adversarial: [row('Reverse("héllo") -> "olléh"', 'TestReverse')],
   };
   const lines: string[] = [];
@@ -4529,6 +4533,7 @@ function scenarioNPP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     assert.equal(blocked.reason, 'pin_probe_mismatch', `[NPP] next names the wrong pins before the plan review: ${blocked.reason}: ${blocked.why}`);
     assert.match(blocked.why, /CHK-001:happy:0: `Upper\("AB"\)` -> the Story base computes "AB", the row pins ["']ab["']/, `[NPP] the unchanged-behaviour pin is named with the observed base value: ${blocked.why}`);
     assert.match(blocked.why, /CHK-001:happy:1: `Upper\("xy"\)` -> the request states "XY", the row pins ["']Xy["']/, `[NPP] the request-literal contradiction is named: ${blocked.why}`);
+    assert.match(blocked.why, /CHK-001:edge:1: `Upper\(1\)` -> the Story base computes Upper expects a string, got 1, the row pins/, `[NPP] an existing error format pinned wrong is named with the base error: ${blocked.why}`);
     assert.doesNotMatch(blocked.why, /CHK-001:edge:0|CHK-001:adversarial:0/, '[NPP] a baseValue-acknowledged change and a row the base cannot run are not refused');
     assert.equal(blocked.cli?.command, 'checklist_update', '[NPP] ONE next action: a checklist_update row patch');
     const patch = (blocked.cli?.payload.intentRows as Array<{ ref: string }> | undefined) ?? [];
@@ -4547,7 +4552,8 @@ function scenarioNPP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 
     // The owner applies the observed values (one row patch each); the correct pins pass.
     o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', intentRows: [{ ref: 'CHK-001:happy:0', desc: 'Upper("AB") -> "AB"' },
-      { ref: 'CHK-001:happy:1', desc: 'Upper("xy") -> "XY"', derivation: null }] }, { label: 'checklist_update CHK-001 (pins corrected)' });
+      { ref: 'CHK-001:happy:1', desc: 'Upper("xy") -> "XY"', derivation: null },
+      { ref: 'CHK-001:edge:1', desc: 'Upper(1) -> error \'Upper expects a string, got 1\'' }] }, { label: 'checklist_update CHK-001 (pins corrected)' });
     const after = ask(o, 'next (pins corrected)');
     assert.notEqual(after.reason, 'pin_probe_mismatch', `[NPP] corrected pins pass the probe: ${after.why}`);
     const passed = JSON.parse(readFileSync(evidencePath!, 'utf8')) as { mismatches?: unknown[] };
