@@ -1414,12 +1414,71 @@ evaluation uses): every identical read-only git probe the consulted gates make
 (HEAD, material / story-files trees, merge-bases, branch and common-dir probes,
 object-addressed blob reads) runs once per decision, and a row's own predicates
 are evaluated only when that row is reached (the evidence chain is not built
-while a finding still awaits repair). Nothing survives the call and nothing is
-cached across calls. On the ND fixture this cut the child processes per
+while a finding still awaits repair). No decision survives the call; only
+identical git bytes do, through the git read cache below (lab framework-perf),
+which answers a git read only while its exact witness is unchanged. On the ND fixture this cut the child processes per
 decision from DEV 75 / REVIEW 221 / PRE_CERT 257 / TEST 394 (max) to
 22 / 83 / 124 / 161; `node packages/main/dist/tasks/next-driver-cost-smoke.js`
 holds those budgets and requires every decision to equal the frozen
 pre-optimization driver and the CLI's own `next --json`.
+
+#### Framework serial time: git read cache and step diagnostics (lab framework-perf)
+
+Old-PoS runs 59-61 spent 412 / 685 / 646 s per run inside the framework with no
+model request in flight (`critical-path-59-61.md` section 6). Profiled locally,
+57 % of a CLI process's time was git child processes (11-14 ms each), and 55 %
+of those repeated an answer an earlier gate or an earlier process of the same
+`next --run` chain already had: `next --run` runs every step in its own process
+and the per-process memos (`git-ref-witness-memo`, `git-object-read-memo`,
+`git-tree-observation`) die with it.
+
+- **Git read cache** (`core/git-read-cache.ts`, `core/git-read-cache-keys.ts`).
+  Installed at CLI start (and in the managed supervisor), it wraps
+  `execFileSync` / `spawnSync` for `git` below every call site and answers a
+  read only from an exact witness, recomputed from the filesystem on every
+  lookup: full object ids (object store namespace: common dir, `objects/pack`
+  identity, config file identities; never with replace refs, grafts or a shallow
+  boundary); exact `HEAD` / `refs/...` names (each name's resolved loose bytes or
+  packed line); `symbolic-ref -q <ref>`; `for-each-ref` over literal prefixes;
+  repository setup (`rev-parse --git-dir`-style flags, `git var` attribute/config
+  file locations, `config --list` without includes); revision-to-revision
+  `git diff` with rename/copy detection or patch text (plus the bytes of every
+  attribute source on the answer's own output paths, an index with no
+  `.gitattributes` entry, and for patch text no attribute source at all); else
+  the complete ref-state witness, re-checked after the producing run. The key
+  also holds the real cwd (`-C` folded in), the argv and the environment (every
+  variable except `PWD`, `OLDPWD`, `SHLVL`, `_`, `PROOF_OR_STOP_*`, `LATTICE_*`,
+  `CODEX_*`, `npm_*`, `NODE_*`). Answers persist under
+  `<common git dir>/info/proof-or-stop-cache/git-read-v1/` (digest-checked
+  lines; a torn or corrupted line is ignored). Never answered from the cache:
+  index or working-tree reads, failures other than a quiet "no" (exit 1, no
+  output, of `merge-base --is-ancestor` / `symbolic-ref -q`), stdin-fed calls,
+  a redirected git environment, `%G` formats, answers above the caller's
+  `maxBuffer`, and every read inside `withFreshGitReads` / `withoutGitObservation`
+  (launch-time rereads). It is never a verdict cache: every gate still evaluates
+  every rule. `PROOF_OR_STOP_GIT_READ_CACHE=0` turns it off (`memory` keeps it
+  process-local). `packages/main/tests/git-read-cache.test.mjs` (`npm run
+  test:git-read-cache`) proves each witness: moved and unrelated refs, worktrees,
+  redirected env, fresh-read scopes, failures, replace refs, config edits,
+  attributes on diff paths, an index `.gitattributes`, corrupted lines, output
+  shapes and process.env writes.
+- **Environment keys** (`core/process-env-version.ts`): the observation key and
+  the cache key are rebuilt only after a write through `process.env` (tracked by
+  a proxy installed at CLI start), not serialized per probe.
+- **Step diagnostics**: every `next --run` decision and step appends one row to
+  `<runtime root>/.proof-or-stop/runtime/next-run/diagnostics.jsonl`
+  (`core/next-run-diagnostics.ts`): `decide` rows (next step, wall ms, git
+  child processes, git ms, cached reads) and `step` rows (reason, commands,
+  exits, wall ms, and per child CLI process its node boot ms, own wall ms, git
+  and other child processes and cached reads; the child reports through
+  `PROOF_OR_STOP_NEXT_STEP_COUNTERS_DIR`, which it removes from its own
+  environment). Diagnostic only: never read by a gate; bounded at 2 MB.
+
+Measured on the lifecycle harness (base and lab run side by side): ND-run
+111 -> 76 s, NA-run 77 -> 53 s, git child processes 5,544 -> 2,333 per ND-run
+(framework-perf.md in the bench notes has the profile and the full-harness
+numbers). Decisions are unchanged: `next-driver-cost-smoke` (live == reference
+== CLI at every state) and the full harness pass.
 
 Refusals and guidance on this path point back to it with `Next: proof-or-stop
 next --storyId=<id>`: an INVALIDATED certification window (before: the illegal
