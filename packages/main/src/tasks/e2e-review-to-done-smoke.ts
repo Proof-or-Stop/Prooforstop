@@ -5575,12 +5575,14 @@ function scenarioNPXR(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NPXR' 
     lines.push(`round-2 lane prompt bytes: ${promptsOf(1).map(row => Buffer.byteLength(row.prompt, 'utf8')).join(', ')}`);
     if (tag === 'NPXRE') {
       // The Story edited the site: not a recurrence and not pre-existing, so it stays an open finding of round 2 and
-      // takes the ordinary route (next proposes its closure step; here the restatement-duplicate route of an earlier
-      // finding, the run 46/47 duplicate-closure weakness owned by lab run46-fixes), costing its remediation round.
+      // takes the ordinary route, costing its remediation round. Lab run58-fixes: its canonical (the pre-existing
+      // disposition) was closed without a repair, so it is no duplicate closure target (closedWithoutFix): next gives
+      // it its own repair (before: next proposed the duplicate closure and run 46's live-canonical check refused it).
       assert.equal(marker(refiled), undefined, `[${tag}] a site the Story edited is never auto-closed: ${JSON.stringify(refiled)}`);
       assert.notEqual(refiled!.resolutionType, 'preexisting_out_of_scope', `[${tag}] it is not closed as pre-existing: ${JSON.stringify(refiled)}`);
       assert.equal(refiled!.status, 'resolved', `[${tag}] closed before DONE`);
       assert.ok(stepsNaming(refiled!.id).length > 0, `[${tag}] closed by a next step naming it, not at import`);
+      assert.equal(refiled!.resolutionType === 'duplicate', false, `[${tag}] never closed as a duplicate of a disposition that fixed nothing: ${JSON.stringify(refiled)}`);
       assert.equal(recurrence.length, 0, `[${tag}] no recurrence closure`);
       assert.ok(rounds.length >= 3, `[${tag}] the open finding cost its remediation round (rounds ${rounds.length})`);
     } else {

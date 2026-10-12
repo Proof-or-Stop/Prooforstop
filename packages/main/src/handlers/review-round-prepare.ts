@@ -82,6 +82,21 @@ function requiresFullScanReason(readiness: ReviewerBatchReport['managedReviewRea
   return readiness.status === 'blocked' && (readiness.nextAction ?? '').includes('"fullScanReason"');
 }
 
+/**
+ * Old-PoS run 58 (run58-analysis.md §4 (c), fix H): the earlier full-scan
+ * route only went stale (HEAD moved after repair commits); the escalation it
+ * was justified for is unchanged, so the framework reroutes with a recorded
+ * reason (the earlier one, if readable) instead of refusing until the owner
+ * types one (run 58: 4 rounds, 4 refusals, 4 hand-written reasons). Any other
+ * escalation (a fresh routing that needs one) still needs the owner's reason.
+ */
+export function defaultFullScanReason(readiness: ReviewerBatchReport['managedReviewReadiness'], earlierReason: string | null | undefined): string | null {
+  if (readiness.status !== 'blocked' || !String(readiness.reason ?? '').startsWith('managed_review_candidate_binding_stale')) return null;
+  const stale = String(readiness.reason).replace(/^managed_review_candidate_binding_stale:?\s*/, '').trim() || 'binding';
+  const earlier = typeof earlierReason === 'string' && earlierReason.trim() ? ` Earlier reason: ${earlierReason.trim().slice(0, 400)}` : '';
+  return `Framework reroute of the earlier full-scan candidate route: its binding is stale (${stale}) after commits since it was routed; the escalation it was justified for is unchanged.${earlier}`;
+}
+
 function message(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
@@ -109,6 +124,10 @@ export function createReviewRoundPrepareHandlers(ctx: HandlerContext, lookup: Ha
     const fn = lookup(name);
     if (!fn) throw new Error(`review_round_prepare: required handler ${name} is not registered`);
     return fn;
+  }
+
+  function earlierScanReason(storyId: string): string | null {
+    try { return ctx.store.readCandidateSpecSet(storyId)?.scanEscalationReason ?? null; } catch { return null; }
   }
 
   async function reviewRoundPrepare(args: ReviewRoundPrepareArgs): Promise<ReviewRoundPrepareReport | string> {
@@ -152,14 +171,16 @@ export function createReviewRoundPrepareHandlers(ctx: HandlerContext, lookup: Ha
       // when the fresh route itself proves escalation is required.
       while (report.managedReviewReadiness.status === 'blocked') {
         const needsReason = requiresFullScanReason(report.managedReviewReadiness);
-        if (needsReason && !fullScanReason) stopForReason(report.managedReviewReadiness);
+        // Old-PoS run 58 (H): a full-scan route that only went stale is rerouted with a framework reason.
+        const reason = fullScanReason ?? (needsReason && !usedReason ? defaultFullScanReason(report.managedReviewReadiness, earlierScanReason(storyId)) ?? undefined : undefined);
+        if (needsReason && !reason) stopForReason(report.managedReviewReadiness);
         if ((needsReason && usedReason) || (!needsReason && routed)) {
           throw new Error(
             `review_round_prepare failed at step candidate_spec_route: managed review is still blocked after routing `
             + `(${report.managedReviewReadiness.reason}); next: ${report.managedReviewReadiness.nextAction}\nLanes already started: none`,
           );
         }
-        await route(needsReason ? fullScanReason : undefined);
+        await route(needsReason ? reason : undefined);
         routed = true;
         usedReason ||= needsReason;
         report = await plan();

@@ -16,10 +16,13 @@
  * Prompt only (the reviewer probes; the framework cannot know the operation
  * semantics). `off` (the rollback) sends nothing; a malformed value keeps on.
  */
+// Old-PoS run 58 (run58-analysis.md §3, fix G): PLAN pinned a negative start with a forward step and
+// the stepped form alone, never the two together; that combination became four lane findings and the pin
+// flip. The check now asks for the special cases in combination (generic operand classes, no task values).
 import { baseDisagreementOn } from './ab-variants.js';
 import { loadConfig } from './config.js';
 
-export const SCOPE_PLAN_BASE_DISAGREEMENT_CHECK = '- Base-disagreement check: for each new operation an item adds, probe its base precedents (the same receiver\'s counterpart operation and the same operation on other receivers) on the operand cases they special-case (out of range, sign, empty, null or omitted, type). Where they disagree and neither the request nor a checklist row settles it, save a gap `Precedent conflict: <operation>, <case>: <A result> vs <B result>`; its remedy is a covering row on that item pinning which precedent applies (derivation quoting the base probe), never an excludes entry.';
+export const SCOPE_PLAN_BASE_DISAGREEMENT_CHECK = '- Base-disagreement check: for each new operation an item adds, probe its base precedents (the same receiver\'s counterpart operation and the same operation on other receivers) on the operand cases they special-case (out of range, sign, empty, null or omitted, type), alone and in combination (a negative or omitted bound together with a negative step or reversed direction, an empty receiver with an out-of-range bound): a row pinning each case alone does not pin the combination. Where they disagree and neither the request nor a checklist row settles it, save a gap `Precedent conflict: <operation>, <case>: <A result> vs <B result>`; its remedy is a covering row on that item pinning which precedent applies (derivation quoting the base probe), never an excludes entry.';
 
 /** Whether the scope-plan dispatch carries the check (a malformed value or unreadable config keeps on). */
 export function baseDisagreementActive(root: string): boolean {

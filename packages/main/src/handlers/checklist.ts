@@ -67,6 +67,7 @@ import { BRAND_ENV_PREFIX, readBrandEnv } from '../core/brand-env.js';
 import { assertNoReviewGateVerificationIntent } from '../core/review-gate-verification-intent.js';
 import { createVerificationEvidenceGateEvaluator } from '../core/proof-admissibility.js';
 import { pendingPinnedVerificationIntents } from '../core/evidence-chain-check.js';
+import { keepDoneAfterPin, pinReversalRefusal, storyWasInDev, unstatedPinReversals } from '../core/pin-amendment.js';
 import {
   assertVerificationInputUnchanged,
   assertVerificationFreshnessUnchanged,
@@ -3672,6 +3673,16 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         ownerProposalApproved = true;
       }
       const beforeIntentRevision = structuredClone(item);
+      // Old-PoS run 58 (core/pin-amendment.ts, E): after the Story has been in DEV, a pin that changes the
+      // value an existing row pins for a case must state the re-pin (oracle order in the refusal).
+      if (story.phase === 'PLAN' && args.verificationIntent !== undefined && !args.metadataCorrection) {
+        let processEvents: Array<Record<string, unknown>> = [];
+        try { processEvents = store.readProcessEvents(args.storyId) as Array<Record<string, unknown>>; } catch { processEvents = []; }
+        if (storyWasInDev(story as never, processEvents)) {
+          const refusal = pinReversalRefusal({ storyId: args.storyId, itemId: args.itemId, reversals: unstatedPinReversals(item.verificationIntent, args.verificationIntent) });
+          if (refusal) throw new Error(refusal);
+        }
+      }
       if (item.verificationIntentAmendments?.length && args.status && args.status !== 'pending' && [args.title,args.context,args.userSees,args.excludes,args.files,args.verificationIntent].some(value=>value!==undefined)) throw new Error('AMENDMENT_REVISION_STATUS_REFUSED: revise acceptance before updating completion status');
       if (args.verificationIntent !== undefined) {
         const existingDeclarationSnapshot = plannedPathDeclarationSnapshot(item.verificationIntent);
@@ -3811,20 +3822,38 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
         const userSeesChanged = args.userSees !== undefined && (beforeIntentRevision.userSees ?? '') !== (item.userSees ?? '');
         if (intentChanged || userSeesChanged) {
           const changed = [intentChanged ? 'verificationIntent' : '', userSeesChanged ? 'userSees' : ''].filter(Boolean).join(' and ');
+          // Old-PoS run 58 (core/pin-amendment.ts, D): an item stays done when the pinned tests of its rows
+          // pass on the current code (and its amended rows are stated by them); only failing items go pending.
+          const pinCache = new Map<string, boolean>();
+          const gitCwdForPins = resolveStoryGitCwd(args.storyId);
+          const kept = (target: ChecklistItem, before?: ChecklistItem['verificationIntent']): string | null => {
+            const verdict = keepDoneAfterPin({ projectRoot: root, gitCwd: gitCwdForPins, item: target, before, cache: pinCache });
+            if (!verdict.keep) return null;
+            (cl.auditLog ??= []).push({ timestamp: now, phase: story.phase, itemId: target.id, action: 'update', from: 'done', to: 'done',
+              reason: `PLAN amendment kept the item done: ${verdict.why}`, ...(args.agent ? { agent: args.agent } : {}) });
+            return verdict.why;
+          };
           const reset = (target: ChecklistItem, reason: string): void => {
             const from = target.status;
             target.status = 'pending'; target.startTime = null; target.endTime = null;
             (cl.auditLog ??= []).push({ timestamp: now, phase: story.phase, itemId: target.id, action: 'update', from, to: 'pending', reason,
               ...(args.agent ? { agent: args.agent } : {}) });
           };
-          reset(item, `PLAN amendment of ${changed} on a done item (auto reset to pending so DEV implements the amended intent)${args.reason ? `: ${args.reason}` : ''}`);
-          results.push(`status done → pending (auto: the ${changed} amendment invalidates the completed implementation)`);
+          const keptSelf = userSeesChanged ? null : kept(item, beforeIntentRevision.verificationIntent);
+          if (keptSelf) {
+            results.push(`status kept done (the ${changed} amendment is already satisfied: ${keptSelf})`);
+          } else {
+            reset(item, `PLAN amendment of ${changed} on a done item (auto reset to pending so DEV implements the amended intent)${args.reason ? `: ${args.reason}` : ''}`);
+            results.push(`status done → pending (auto: the ${changed} amendment invalidates the completed implementation)`);
+          }
           const mention = new RegExp(`\\b${item.id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`);
           for (const other of cl.items) {
             if (other === item || other.status !== 'done') continue;
             const rows = VERIFICATION_LANES.flatMap(lane => other.verificationIntent?.[lane] ?? []);
             const text = [other.context ?? '', other.userSees ?? '', ...rows.flatMap(row => [row.desc, row.derivation?.computation ?? ''])].join('\n');
             if (!mention.test(text)) continue;
+            const keptOther = kept(other);
+            if (keptOther) { results.push(`${other.id} status kept done (depends on ${item.id}; ${keptOther})`); continue; }
             reset(other, `depends on ${item.id} (its context/userSees/intent names ${item.id}), whose ${changed} was amended in PLAN (auto reset to pending)`);
             results.push(`${other.id} status done → pending (auto: depends on ${item.id})`);
           }

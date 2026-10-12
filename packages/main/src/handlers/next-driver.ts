@@ -57,7 +57,7 @@ import { collectVerificationIntents, VERIFICATION_LANES } from '../core/verifica
 import { isTerminalChecklistStatus } from '../core/checklist-status.js';
 import { unclosedBlockingFindings, resolveEffectiveBlockingSeverities, FINDING_RESOLUTION_PLACEHOLDER } from '../core/finding-closure.js';
 import { findingDuplicateOf, duplicateCoverageReceipts, duplicateOfOpenCanonical, duplicateResolveCandidate } from '../core/duplicate-finding-coverage.js';
-import { findingConflictOf, rejectedRepairCommits, repairTestIntegrityProblem } from '../core/resolved-finding-guard.js';
+import { findingConflictOf, findingRepros, isReproCommand, rejectedRepairCommits, repairTestIntegrityProblem, rowsCitingCase } from '../core/resolved-finding-guard.js';
 import { StoryStore } from '../core/store.js';
 import {
   currentOpenReviewInventory,
@@ -1421,6 +1421,11 @@ export function preexistingDispositionStep(base: { storyId: string; phase: strin
  * its committed state when the conflict became known. Then the findings are
  * repaired against the pin (the repair prompt says so). Null when none is open
  * and unpinned; a finding whose own repair is already accepted is skipped.
+ * Old-PoS run 58 (run58-analysis.md §3, §7 E/F): every unpinned conflict
+ * (duplicate filings of one case included) is listed in ONE step, an open
+ * SUSPECTED `[precedent-conflict]` finding joins it (no extra round), a case a
+ * current checklist row already pins needs no pin (the row decides), and the
+ * step gives the oracle order and the rows that pin a listed case now.
  */
 export function findingConflictStep(args: { root: string; gitCwd: string; store: HandlerContext['store']; base: { storyId: string; phase: string };
   open: readonly Finding[]; repaired: (finding: Finding) => boolean }): NextStep | null {
@@ -1432,7 +1437,12 @@ export function findingConflictStep(args: { root: string; gitCwd: string; store:
   const all = store.readFindings(storyId).findings ?? [];
   const items = store.readChecklist(storyId).items;
   const checklistPath = store.storyFilePath(storyId, 'checklist.json');
-  for (const finding of args.open) {
+  // Old-PoS run 58 (F-004): an open SUSPECTED `[precedent-conflict]` finding is the same question;
+  // it joins the pin now instead of waiting a round for a verified re-filing.
+  const candidates = [...args.open, ...all.filter(row => row.status === 'open' && row.evidenceState === 'suspected'
+    && /\[precedent-conflict\]/i.test(row.desc ?? '') && !args.open.some(open => open.id === row.id))];
+  const unpinned: Array<{ finding: Finding; conflict: NonNullable<ReturnType<typeof findingConflictOf>>; repros: string[] }> = [];
+  for (const finding of candidates) {
     const conflict = findingConflictOf({ finding, findings: all, storyId, rejected, duplicateOf: id => findingDuplicateOf(store, storyId, id)?.canonicalFindingId ?? null });
     if (!conflict || args.repaired(finding)) continue;
     const pinned = Boolean(conflict.since) && items.some(item => {
@@ -1440,13 +1450,26 @@ export function findingConflictStep(args: { root: string; gitCwd: string; store:
       return before !== undefined && before !== intentMaterialHash(item);
     });
     if (pinned) continue;
-    const other = conflict.resolvedId ? ` and resolved ${conflict.resolvedId}` : '';
-    return step(base, 'agent', 'finding_conflict_pin', { command: 'story_advance', payload: { storyId, phase: 'PLAN' } },
-      `Finding conflict: open ${finding.id}${other} demand opposite behaviour for one case (${conflict.why}). Another repair would only flip the code and the next round would re-find the other side, so it is not repaired yet: the checklist pin decides, not the latest lane. `
-        + `Return to PLAN and pin the case: checklist_update the item's verificationIntent with a row stating the expected outcome for that case and a derivation quoting the request sentence (or the base probe) that decides it; then next continues and the findings are repaired against the pin.`,
-      'findingConflictOf (core/resolved-finding-guard.ts) + committed checklist intent since the conflict');
+    // Old-PoS run 58 (F, run58-analysis.md §3): a case a current checklist row already pins is decided by
+    // that row (oracle order: request / checklist row first); the finding is repaired against it.
+    const repros = findingRepros(finding.desc).repros.filter(repro => !isReproCommand(repro));
+    if (repros.length && rowsCitingCase(items, repros).length) continue;
+    unpinned.push({ finding, conflict, repros });
   }
-  return null;
+  if (!unpinned.length) return null;
+  // Old-PoS run 58 (F): every conflict (duplicates of one case included) is pinned in ONE PLAN visit.
+  const cases = unpinned.map(({ finding, conflict, repros }) => `${finding.id}${finding.evidenceState === 'suspected' ? ' (suspected)' : ''}`
+    + `${conflict.resolvedId ? ` vs resolved ${conflict.resolvedId}` : ''}${repros.length ? ` [case ${repros.map(repro => `\`${repro}\``).join(', ')}]` : ''}: ${conflict.why}`);
+  const first = unpinned[0]!;
+  const allRepros = [...new Set(unpinned.flatMap(row => row.repros))];
+  const rows = rowsCitingCase(items, allRepros);
+  return step(base, 'agent', 'finding_conflict_pin', { command: 'story_advance', payload: { storyId, phase: 'PLAN' } },
+    `Finding conflict: open ${first.finding.id}${first.conflict.resolvedId ? ` and resolved ${first.conflict.resolvedId}` : ''} demand opposite behaviour for one case (${first.conflict.why}). Another repair would only flip the code and the next round would re-find the other side, so it is not repaired yet: the checklist pin decides, not the latest lane. `
+      + `Conflicts to pin in this ONE PLAN visit (${unpinned.length}): ${cases.join('; ')}. `
+      + `Oracle order: a request sentence decides; else the SAME receiver's pre-existing counterpart (its read for a new write, its write for a new read); another receiver's same operation is only secondary. `
+      + (rows.length ? `Rows that pin a listed case now: ${rows.join(' | ').slice(0, 600)}; a pin that changes one must state the re-pin (\`re-pin: <case> was <old>, now <new>\` in its derivation). ` : '')
+      + `Return to PLAN and pin each case: checklist_update the item's verificationIntent with a row stating the expected outcome for that case and a derivation quoting the request sentence (or the base probe) that decides it; then next continues and the findings are repaired against the pin.`,
+    'findingConflictOf (core/resolved-finding-guard.ts) + committed checklist intent since the conflict + rowsCitingCase');
 }
 
 export function findingRepairReplanStep(base: { storyId: string; phase: string }, finding: Pick<Finding, 'id' | 'severity'>, runIds: readonly string[]): NextStep {
