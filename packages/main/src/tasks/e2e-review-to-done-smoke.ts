@@ -290,6 +290,15 @@
  *      ND-DRF / ND-DRF1 a findings verdict with complete (multi-line / one-line)
  *      coverage lines is not a gap and launches no late lane, ND-DRFG a
  *      findings verdict with a [gap] makes the NEXT round full. `DR` = all seven.
+ *   LM EXPERIMENTAL review.laneMerge=on (core/review-lane-merge.ts) on the ND
+ *      flow: ONE managed review session per round carries every active lane's
+ *      dimension (concept carries it). NLM merged finding round + merged re-review
+ *      (prints lane sessions and prompt bytes per round), NLM-OFF the same flow
+ *      with the switch absent (the off arm), NLM-G an uncovered dimension of a
+ *      merged pass is relaunched alone, NLM-C the carrier's own dimension
+ *      uncovered = refused and every dimension separate, NLM-F findings of two
+ *      dimensions route and close, NLM-FG a findings-verdict gap runs that
+ *      dimension separately in the next round. `LM` = all six.
  *   NPXR/NPXRE/NPXRN old-PoS run 52: a re-filed pre-existing finding on a
  *      dispositioned, unchanged site closes at import with no owner turn and no
  *      extra round (NPXR); a site the Story edited (NPXRE) or a new site of the
@@ -329,7 +338,7 @@
  *      and the verified finding went to repair.
  *
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL|NGS|NGF]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL|NGS|NGF|LM|NLM|NLM-OFF|NLM-G|NLM-C|NLM-F|NLM-FG]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -812,6 +821,27 @@ let input = ''; process.stdin.on('data', d => { input += d; }); process.stdin.on
     }
     script.final = JSON.stringify(final);
     fs.appendFileSync(path.join(dir, 'delta-notes.log'), JSON.stringify({ runId: process.env.LATTICE_MANAGED_HOST_RUN_ID || '', mode: script.delta.mode, items, resolved }) + '\\n');
+  }
+  // EXPERIMENTAL A/B review.laneMerge (NLM*): the merged session answers the checkpoints its sealed prompt lists,
+  // leaving out one dimension ('<dimension>') or marking one checkpoint [gap] ('gap:<dimension>') when scripted so.
+  if (script.merge && input.includes('--- BEGIN MERGED REVIEW DIMENSIONS')) {
+    const block = input.slice(input.indexOf('--- BEGIN MERGED REVIEW DIMENSIONS'), input.indexOf('--- END MERGED REVIEW DIMENSIONS'));
+    const items = [...block.matchAll(/^- ([a-z-]+:[a-z-]+) — /gm)].map(match => match[1]);
+    const uncovered = script.merge.uncovered || '';
+    const gapOf = uncovered.startsWith('gap:') ? uncovered.slice(4) : '';
+    const omit = gapOf ? '' : uncovered;
+    const lines = items.filter(item => !omit || !item.startsWith(omit + ':')).map(item => '[checked] ' + item + ' :: scripted: read strs/strs.go and ran go test ./strs');
+    if (gapOf) lines.push('[gap] ' + items.find(item => item.startsWith(gapOf + ':')) + ' :: scripted gap: not checked');
+    const final = JSON.parse(script.final);
+    if (script.merge.findings) {
+      final.conclusion = 'findings';
+      final.findings = script.merge.findings;
+      final.note = 'Scripted merged session: findings of its dimensions.\\n' + lines.join('\\n');
+    } else {
+      final.note = final.note + '\\n' + lines.join('\\n');
+    }
+    script.final = JSON.stringify(final);
+    fs.appendFileSync(path.join(dir, 'merge-notes.log'), JSON.stringify({ runId, items, uncovered }) + '\\n');
   }
   const c = process.argv.indexOf('-C'); const cwd = c > 0 ? process.argv[c + 1] : process.cwd();
   (script.commands || []).forEach((argv, index) => {
@@ -1337,7 +1367,13 @@ function rxRepairCommand(storyId: string, findingId: string): string[] {
 }
 
 /** The scripted repair commit for one finding (by its description): test text, commit subject, test name. */
-function repairFor(desc: string): { test: string; subject: string; name: string } {
+/** EXPERIMENTAL A/B review.laneMerge (NLM*): a merged finding's desc without its leading `[dimension:<name>]` tag. */
+function untagged(desc: string): string {
+  return desc.replace(/^\[dimension:[a-z-]+\]\s*/, '');
+}
+
+function repairFor(tagged: string): { test: string; subject: string; name: string } {
+  const desc = untagged(tagged);
   if (desc === PX_FINDING.desc) return { test: '', subject: `test: ${PX_REPAIR_SUBJECT}`, name: PX_DOC_PATH };
   if (desc === NU_DUP_FINDING.desc) return { test: NU_DUP_REPAIR_TEST, subject: 'test: Reverse empty duplicate case', name: 'TestReverseEmptyDup' };
   if (desc === NGS_FINDING1.desc) return { test: NGS_REPAIR_TEST, subject: 'test: Reverse edge table', name: 'TestReverseEdges' };
@@ -1688,7 +1724,14 @@ interface ScriptMode { findingRound1: boolean; twoFindings?: boolean; lowFinding
    * edits that doc line (the Story changed the site); 'new-site' = round 2 also files RX_NEW_SITE (another
    * pre-existing line of the same doc, never dispositioned).
    */
-  recurring?: RecurringMode }
+  recurring?: RecurringMode;
+  /** EXPERIMENTAL A/B review.laneMerge (NLM*): what the merged session of each round reports (LaneMergeMode). */
+  laneMerge?: LaneMergeMode }
+/**
+ * EXPERIMENTAL A/B review.laneMerge (NLM*): per round (index = review round), the merged session's findings and
+ * which dimension's coverage lines its note leaves out ('<dimension>') or marks [gap] ('gap:<dimension>').
+ */
+interface LaneMergeMode { rounds: Array<{ findings: Array<Record<string, unknown>>; uncovered?: string }> }
 type DeltaNoteMode = 'full' | 'gap' | 'bad-rerun' | 'findings' | 'findings-flat' | 'findings-gap';
 type RecurringMode = 'site' | 'edited' | 'new-site';
 /** Old-PoS run 27 delivery overlap faults (scenarioNDL). */
@@ -1705,6 +1748,8 @@ const NC4_SUSPECTED = {
 const NC_REWORDED_DESC = 'Base-to-head gap: Reverse has no focused empty-string test; Reverse("") must return "" and never index r[-1] on an empty string.';
 
 type ProviderScript = { final: string; commands?: string[][];
+  /** NLM*: the fake provider appends the merged-session coverage lines its prompt asks for, minus `uncovered`. */
+  merge?: { uncovered?: string; findings?: Array<Record<string, unknown>> };
   /** ND-DR*: the fake provider appends the delta-round confirmation lines its prompt asks for (ND-DRF*: and reports `findings`). */
   delta?: { mode: DeltaNoteMode; command: string; selector: string; findings?: Array<Record<string, unknown>> } };
 /** ND-DR*: the test D_FINDING's repair adds, which a confirmation lane re-runs. */
@@ -1773,6 +1818,14 @@ function laneScript(worktree: string, storyId: string, lane: string, reviewRunId
     const envelope = findings.length ? { conclusion: 'findings', note: 'Scripted run 52 lane: documentation drift in the guide.', findings } : PASS_ENVELOPE(lane);
     return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, ...envelope, ...readEvidenceFor(worktree, storyId) }) };
   }
+  if (mode.laneMerge) {
+    // EXPERIMENTAL A/B review.laneMerge (NLM*): the merged session (whichever lane carries the block) reports the round's
+    // findings; a dimension relaunched as its own lane, or any lane outside the block, passes.
+    const index = reviewRoundIndex(worktree, storyId, reviewRunId);
+    const round = mode.laneMerge.rounds[Math.min(Math.max(index, 0), mode.laneMerge.rounds.length - 1)] ?? { findings: [] };
+    return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, ...PASS_ENVELOPE(lane), ...readEvidenceFor(worktree, storyId) }),
+      merge: { ...(round.uncovered ? { uncovered: round.uncovered } : {}), ...(round.findings.length ? { findings: round.findings } : {}) } };
+  }
   if (mode.deltaNote && !firstRound) {
     // Old-PoS run 52 (ND-DRF*): in round 2 the confirmation lane (whichever lane carries the block) reports NF_FINDING.
     const findingsMode = mode.deltaNote.startsWith('findings') && reviewRoundIndex(worktree, storyId, reviewRunId) === 1;
@@ -1821,7 +1874,7 @@ function criticScript(worktree: string, storyId: string, reviewRunId: string, re
       reason: 'Same root cause as the canonical finding: Reverse indexes the last rune of an empty string.' }
     : f.desc === PX_FINDING.desc
     ? { finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'array-doc-range-drift', reason: 'The array doc shows end-inclusive range results; one verified family.' }
-    : f.desc.startsWith('Upper ')
+    : untagged(f.desc).startsWith('Upper ')
     ? { finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'upper-empty-string', reason: 'The empty-string edge of Upper is untested; one verified family.' }
     : f.desc === META_PRODUCT_COPY_DESC
     ? { finding: { findingId: f.id }, disposition: 'verified_family', familyKey: 'upper-user-sees', reason: 'CHK-001 userSees contradicts the request; one verified family.' }
@@ -2181,6 +2234,8 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   /** EXPERIMENTAL A/B review.deltaRounds (ND-DR*): see ScriptMode.deltaNote / largeRepair. */
   deltaNote?: DeltaNoteMode;
   largeRepair?: boolean;
+  /** EXPERIMENTAL A/B review.laneMerge (NLM*): see ScriptMode.laneMerge. */
+  laneMerge?: LaneMergeMode;
   /** Old-PoS run 52 (NPXR*): see ScriptMode.recurring. */
   recurring?: RecurringMode; }, lines: string[],
   /** Called with each step `next` returned, before the harness executes it; quiet = no detached managed run in flight. */
@@ -3461,6 +3516,175 @@ function scenarioDR(machineEnv: NodeJS.ProcessEnv, steps: Step[], variant: 'DR' 
     }
     const tests = readFileSync(join(o.root, 'strs/strs_test.go'), 'utf8');
     assert.match(tests, /TestReverseEmpty/, 'F-001 repair merged into main');
+    lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** EXPERIMENTAL A/B review.laneMerge (NLM*): a merged-session finding, tagged with the dimension that raised it. */
+const lmTagged = (dimension: string, finding: Record<string, unknown>): Record<string, unknown> => ({ ...finding, desc: `[dimension:${dimension}] ${String(finding.desc)}` });
+
+/**
+ * EXPERIMENTAL A/B review.laneMerge=on (core/review-lane-merge.ts; the new PoS's
+ * ADR-064 ported as an idea): ONE managed review session per round carries the
+ * dimensions of every active lane (fixture: concept, quality, test-coverage;
+ * concept is the carrier). Each scenario reaches DONE through `next` alone.
+ *   NLM     round 1: the merged session reports D_FINDING tagged
+ *           [dimension:test-coverage]; it imports on the carrier lane with its
+ *           tag, is repaired and closed; round 2: the merged session passes with
+ *           every coverage line; the critic runs in both rounds; one lane session
+ *           per round. Prints lane sessions and prompt bytes per round.
+ *   NLM-OFF the same flow with the switch absent (the ND flow): three lane sessions
+ *           per round, no merged block; the off arm of the measurement.
+ *   NLM-G   round 1's merged PASS leaves the quality dimension without coverage
+ *           lines: the pass is imported (concept and test-coverage covered), the
+ *           gap is recorded, and ONLY quality is relaunched as its own lane (no
+ *           merged block); test-coverage is never launched separately.
+ *   NLM-C   the merged PASS marks a checkpoint of its OWN dimension (concept)
+ *           [gap]: nothing is imported (refused), every dimension runs as its own
+ *           lane in that round (concept again, plain prompt).
+ *   NLM-F   findings of two dimensions (test-coverage D_FINDING, quality
+ *           NF_FINDING) in one merged proposal: both import on the carrier with
+ *           their tags, both are repaired (grouped remediation) and closed,
+ *           round 2's merged session passes.
+ *   NLM-FG  round 1's merged FINDINGS verdict leaves quality uncovered: the
+ *           finding imports, no late lane in round 1; round 2 runs the merged
+ *           session for concept + test-coverage and quality as its own lane.
+ */
+function scenarioLM(machineEnv: NodeJS.ProcessEnv, steps: Step[], variant: 'LM' | 'LM-OFF' | 'LM-G' | 'LM-C' | 'LM-F' | 'LM-FG'): Outcome {
+  const tag = `N${variant}`;
+  const on = variant !== 'LM-OFF';
+  const name = `${tag} A/B ${on ? '{"review":{"laneMerge":"on"}}' : '(laneMerge absent: control)'} reaches DONE`;
+  const ids = { LM: 'B-ae41', 'LM-OFF': 'B-ae42', 'LM-G': 'B-ae43', 'LM-C': 'B-ae44', 'LM-F': 'B-ae45', 'LM-FG': 'B-ae46' } as const;
+  const D_TC = lmTagged('test-coverage', D_FINDING);
+  const NF_Q = lmTagged('quality', NF_FINDING);
+  const rounds: LaneMergeMode['rounds'] = variant === 'LM' ? [{ findings: [D_TC] }, { findings: [] }]
+    : variant === 'LM-G' ? [{ findings: [], uncovered: 'quality' }]
+    : variant === 'LM-C' ? [{ findings: [], uncovered: 'gap:concept' }]
+    : variant === 'LM-F' ? [{ findings: [D_TC, NF_Q] }, { findings: [] }]
+    : variant === 'LM-FG' ? [{ findings: [D_TC], uncovered: 'quality' }, { findings: [] }]
+    : [];
+  const o = new Owner(tag, ids[variant], machineEnv, steps, false, { trackedGateFailureCounts: true, ...(on ? { config: { review: { laneMerge: 'on' } } } : {}) });
+  const lines: string[] = [];
+  const reasons: string[] = [];
+  const selections: Array<{ round: string; selection: Record<string, unknown> }> = [];
+  try {
+    devSetup(o, true);
+    const findingRound1 = variant === 'LM' || variant === 'LM-OFF' || variant === 'LM-F' || variant === 'LM-FG';
+    driveWithNext(o, { findingRound1, run: false, ...(on ? { laneMerge: { rounds } } : {}) }, lines, next => {
+      reasons.push(next.reason);
+      if (next.reason !== 'review_lane_launch') return;
+      const round = new StoryStore(o.worktree).readStory(o.storyId).currentReviewRound ?? '';
+      if (selections.some(row => row.round === round)) return;
+      const listed = parseJson(o.mustCli('reviewer_list', { storyId: o.storyId, json: true }, { label: 'reviewer_list (roster)' }).stdout);
+      selections.push({ round, selection: ((listed?.finalReview as Record<string, unknown> | undefined)?.selection ?? {}) as Record<string, unknown> });
+    });
+    const store = new StoryStore(o.root);
+    const allRuns = store.readReviewRuns(o.storyId).runs;
+    const roundIds = [...new Set(allRuns.filter(run => run.reviewPurpose !== 'inventory-completeness').map(run => run.reviewRound))];
+    const short = (lane: string) => lane.replace('proof-or-stop-review-', '');
+    const laneRunsOf = (round: string) => allRuns.filter(run => run.reviewRound === round && run.reviewPurpose !== 'inventory-completeness');
+    const prompts = managedPrompts(o).filter(row => row.agentType.startsWith('proof-or-stop-review-') && row.agentType !== DELIVERY && row.agentType !== MANAGED_INVENTORY_CRITIC_LANE);
+    const criticPrompts = managedPrompts(o, MANAGED_INVENTORY_CRITIC_LANE);
+    const promptOf = (reviewRunId: string) => prompts.find(row => row.prompt.includes(reviewRunId)) ?? null;
+    const bytes = (text: string | undefined) => Buffer.byteLength(text ?? '', 'utf8');
+    const criticLaunches = reasons.filter(row => row === 'inventory_critic_launch').length;
+    const events = store.readProcessEvents(o.storyId);
+    const coverage = events.filter(event => String(event.type) === 'review_lane_merge_coverage') as Array<Record<string, unknown>>;
+    const perRound = roundIds.map((round, index) => {
+      const runs = laneRunsOf(round);
+      const laneBytes = runs.map(run => bytes(promptOf(run.reviewRunId)?.prompt));
+      const critic = criticPrompts.filter(row => allRuns.some(run => run.reviewRound === round && run.reviewPurpose === 'inventory-completeness' && row.prompt.includes(run.reviewRunId)));
+      return { index: index + 1, lanes: runs.map(run => short(run.lane)), laneBytes, criticBytes: critic.map(row => bytes(row.prompt)) };
+    });
+    for (const row of perRound) {
+      lines.push(`round ${row.index}: lane sessions ${row.lanes.length} (${row.lanes.join(', ')}), lane prompt bytes ${row.laneBytes.reduce((a, b) => a + b, 0)} [${row.laneBytes.join(', ')}], critic prompt bytes ${row.criticBytes.reduce((a, b) => a + b, 0)}`);
+    }
+    lines.push(`critic launches ${criticLaunches}; roster selections: ${selections.map(row => String(row.selection.selection ?? '?')).join(', ')}`);
+    const findings = store.readFindings(o.storyId).findings;
+    for (const finding of findings) assert.equal(finding.status === 'open' && finding.severity !== 'low', false, `${tag}: ${finding.id} closed before DONE (${finding.status})`);
+    if (!on) {
+      // Off arm: unchanged production flow (the ND golden).
+      assert.ok(perRound.length >= 2, `${tag}: two review rounds`);
+      for (const row of perRound) assert.deepEqual([...row.lanes].sort(), ['concept', 'quality', 'test-coverage'], `${tag}: round ${row.index} runs every lane separately (${row.lanes.join(', ')})`);
+      for (const row of prompts) assert.doesNotMatch(row.prompt, /BEGIN MERGED REVIEW DIMENSIONS/, `${tag}: no merged block with the switch absent`);
+      assert.equal(coverage.length, 0, `${tag}: no lane-merge events`);
+      assert.ok(selections.every(row => row.selection.selection !== 'lane-merge'), `${tag}: no lane-merge selection`);
+    } else {
+      // One roster source of truth: each round's finalized inventory epoch requires exactly the lanes that ran.
+      const epochs = store.readReviewInventoryEpochs(o.storyId).epochs;
+      roundIds.forEach((round, index) => {
+        const finalized = epochs.filter(epoch => epoch.reviewRound === round && epoch.state === 'FINALIZED').at(-1);
+        const ran = [...new Set(laneRunsOf(round).map(run => run.lane))].sort();
+        assert.deepEqual([...(finalized?.requiredLanes ?? [])].sort(), ran, `${tag}: round ${index + 1}'s epoch requiredLanes = the lanes that ran (${JSON.stringify(finalized?.requiredLanes)})`);
+      });
+      const carrierPrompts = prompts.filter(row => /BEGIN MERGED REVIEW DIMENSIONS/.test(row.prompt));
+      assert.ok(carrierPrompts.length >= 1, `${tag}: a merged session ran`);
+      for (const row of carrierPrompts) {
+        assert.equal(row.agentType, 'proof-or-stop-review-concept', `${tag}: concept carries the merged session`);
+        const binding = (row.reviewBinding as { laneMerge?: { role?: string; abVariant?: { flags?: Record<string, string> }; checkItems?: string[] } } | null)?.laneMerge;
+        assert.equal(binding?.role, 'merged', `${tag}: run spec seals role=merged`);
+        assert.equal(binding?.abVariant?.flags?.['review.laneMerge'], 'on', `${tag}: the arm is recorded`);
+      }
+      const first = carrierPrompts[0]!;
+      for (const dimension of ['concept', 'quality', 'test-coverage']) assert.match(first.prompt, new RegExp(`### Dimension \\d/3: ${dimension}`), `${tag}: ${dimension} section in the merged prompt`);
+      assert.match(first.prompt, /<<<ROLE quality/, `${tag}: the quality role prompt is carried`);
+      assert.match(first.prompt, /<<<ROLE test-coverage/, `${tag}: the test-coverage role prompt is carried`);
+      assert.equal(selections[0]?.selection.selection, 'lane-merge', `${tag}: round 1 roster selection is lane-merge`);
+      const round1 = perRound[0]!.lanes;
+      if (variant === 'LM' || variant === 'LM-F') {
+        assert.ok(perRound.length >= 2, `${tag}: the finding round is followed by a re-review`);
+        for (const row of perRound) assert.deepEqual(row.lanes, ['concept'], `${tag}: round ${row.index} is ONE lane session (${row.lanes.join(', ')})`);
+        assert.equal(criticLaunches, perRound.length, `${tag}: the inventory critic runs in every round as before`);
+        const tagged = variant === 'LM' ? [D_TC] : [D_TC, NF_Q];
+        for (const expected of tagged) {
+          const finding = findings.find(f => f.desc === expected.desc);
+          assert.ok(finding, `${tag}: "${String(expected.desc).slice(0, 40)}" imported with its dimension tag`);
+          assert.equal(finding!.agent, 'proof-or-stop-review-concept', `${tag}: attributed to the carrier lane`);
+          assert.equal(finding!.reviewRound, roundIds[0], `${tag}: in round 1`);
+          assert.equal(finding!.status, 'resolved', `${tag}: repaired and closed`);
+        }
+        assert.ok(coverage.length >= 2 && coverage.every(event => (event.missingLanes as unknown[] | undefined)?.length === 0), `${tag}: every merged import covered every dimension (${JSON.stringify(coverage.map(event => event.missingLanes))})`);
+        const tests = readFileSync(join(o.root, 'strs/strs_test.go'), 'utf8');
+        assert.match(tests, /TestReverseEmpty/, `${tag}: D_FINDING's repair merged`);
+        if (variant === 'LM-F') assert.match(tests, /TestUpperEmpty/, `${tag}: NF_FINDING's repair merged`);
+      } else if (variant === 'LM-G') {
+        assert.deepEqual(round1, ['concept', 'quality'], `${tag}: only the uncovered dimension was relaunched (${round1.join(', ')})`);
+        assert.equal(coverage.length, 1, `${tag}: one coverage event`);
+        assert.deepEqual(coverage[0]!.missingLanes, ['proof-or-stop-review-quality'], `${tag}: quality uncovered`);
+        const carrierRun = laneRunsOf(roundIds[0]!).find(run => run.lane === 'proof-or-stop-review-concept')!;
+        assert.ok(store.readReviewPasses(o.storyId).passes.some(pass => pass.reviewRunId === carrierRun.reviewRunId), `${tag}: the merged pass (concept + test-coverage covered) was imported`);
+        const qualityRun = laneRunsOf(roundIds[0]!).find(run => run.lane === 'proof-or-stop-review-quality')!;
+        assert.doesNotMatch(promptOf(qualityRun.reviewRunId)?.prompt ?? '', /BEGIN MERGED REVIEW DIMENSIONS/, `${tag}: the relaunched dimension runs its ordinary prompt`);
+        assert.ok(store.readReviewPasses(o.storyId).passes.some(pass => pass.reviewRunId === qualityRun.reviewRunId), `${tag}: quality reviewed on its own`);
+        assert.equal(events.filter(event => event.type === 'managed_review_import_refused').length, 0, `${tag}: nothing refused`);
+      } else if (variant === 'LM-C') {
+        assert.deepEqual([...round1].sort(), ['concept', 'concept', 'quality', 'test-coverage'], `${tag}: the refused carrier reran and every dimension ran as its own lane (${round1.join(', ')})`);
+        const refused = events.filter(event => event.type === 'managed_review_import_refused' && /lane_merge/.test(String(event.reason)));
+        assert.equal(refused.length, 1, `${tag}: the merged pass is refused once (never proposed again)`);
+        const refusedRun = String((refused[0] as { reviewRunId?: string }).reviewRunId);
+        assert.ok(!store.readReviewPasses(o.storyId).passes.some(pass => pass.reviewRunId === refusedRun), `${tag}: no pass recorded for the refused merged run`);
+        assert.equal(coverage[0]?.carrierMissing, true, `${tag}: recorded as the carrier's own gap`);
+        const later = laneRunsOf(roundIds[0]!).filter(run => run.reviewRunId !== refusedRun);
+        for (const run of later) assert.doesNotMatch(promptOf(run.reviewRunId)?.prompt ?? '', /BEGIN MERGED REVIEW DIMENSIONS/, `${tag}: the fallback lanes run their ordinary prompts`);
+      } else if (variant === 'LM-FG') {
+        assert.deepEqual(round1, ['concept'], `${tag}: a findings verdict with a gap launches no late lane (${round1.join(', ')})`);
+        assert.equal(coverage[0]?.conclusion, 'findings', `${tag}: the gap is a findings-verdict gap`);
+        assert.deepEqual(coverage[0]?.missingLanes, ['proof-or-stop-review-quality'], `${tag}: quality uncovered`);
+        const round2 = perRound[1]?.lanes ?? [];
+        assert.deepEqual([...round2].sort(), ['concept', 'quality'], `${tag}: round 2 = the merged session + quality on its own (${round2.join(', ')})`);
+        const merged2 = laneRunsOf(roundIds[1]!).find(run => run.lane === 'proof-or-stop-review-concept')!;
+        const prompt2 = promptOf(merged2.reviewRunId)?.prompt ?? '';
+        assert.match(prompt2, /### Dimension \d\/2: test-coverage/, `${tag}: round 2's merged session covers concept + test-coverage`);
+        assert.doesNotMatch(prompt2, /### Dimension \d\/\d: quality/, `${tag}: quality is not in round 2's merged session`);
+        const finding = findings.find(f => f.desc === D_TC.desc);
+        assert.equal(finding?.status, 'resolved', `${tag}: the round-1 finding was repaired and closed`);
+      }
+    }
     lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
     o.cleanup();
     return { name, status: 'PASS', lines };
@@ -6729,7 +6953,7 @@ function scenarioNGF(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NGS|NGF|NPP|NPM-[IP]|NRB|PL|NOD(?:-INIT|-W)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NGS|NGF|NPP|NPM-[IP]|NRB|PL|NOD(?:-INIT|-W)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG)?|LM)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -6830,10 +7054,12 @@ async function main(): Promise<void> {
     }
     // EXPERIMENTAL A/B review.deltaRounds: explicit tokens (ND-DR, ND-DRL, ND-DRG, ND-DRV; old-PoS run 52: ND-DRF, ND-DRF1, ND-DRFG) or DR = all seven.
     for (const variant of ['DR', 'DRL', 'DRG', 'DRV', 'DRF', 'DRF1', 'DRFG'] as const) if (only.includes(`ND-${variant}`) || only.includes('DR')) outcomes.push(scenarioDR(machine.env, steps, variant));
+    // EXPERIMENTAL A/B review.laneMerge: explicit tokens (NLM, NLM-OFF, NLM-G, NLM-C, NLM-F, NLM-FG) or LM = all six.
+    for (const variant of ['LM', 'LM-OFF', 'LM-G', 'LM-C', 'LM-F', 'LM-FG'] as const) if (only.includes(`N${variant}`) || only.includes('LM')) outcomes.push(scenarioLM(machine.env, steps, variant));
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NGS', 'NGF', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NGS', 'NGF', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

@@ -25,6 +25,9 @@
  *                                        findings re-review in full, the others are replaced by ONE confirmation lane; the critic
  *                                        is skipped on such a round with no finding (core/review-delta-round.ts; plan, scope and
  *                                        fallbacks in tasks/review-delta-round-smoke.ts, end to end in ND-DR*)
+ *   V11 review.laneMerge=on            ONE managed review session per round carries every active lane's dimension (the first
+ *                                        dimension is the carrier lane; core/review-lane-merge.ts; plan, coverage contract and
+ *                                        prompt block in tasks/review-lane-merge-smoke.ts, end to end in NLM*)
  *   Lab plan-light (EXPERIMENTAL, default off; behaviour in tasks/plan-light-smoke.ts, end to end in NPP / NPM-I / NPM-P / NRB):
  *   plan.pinProbe                    example pins probed on the Story base + request-literal examples before PLAN→DEV
  *   plan.reviewMerge                 no INIT reviewers; ONE merged plan review in PLAN; a rerun confirms the changed rows
@@ -72,6 +75,8 @@ await check('config: absent switches resolve to production values; malformed fai
     baseDisagreement: 'on',
     // EXPERIMENTAL delta review rounds (lab codex/lab-delta-review): off by default.
     deltaRounds: 'off',
+    // EXPERIMENTAL lane merge (lab codex/lab-review-merge): off by default.
+    laneMerge: 'off',
     // EXPERIMENTAL lab plan-light switches: off by default.
     pinProbe: 'off', reviewMerge: 'off', rowBudget: 'off' });
   assert.equal(abVariantEvidence(off), undefined);
@@ -493,6 +498,21 @@ await check('V10 review.deltaRounds: off/malformed = no delta round and no delta
   assert.equal(criticSkipReplayError(on, deltaEpoch, skip, cleanEvaluation()), undefined, 'replay accepts while flag set, epoch delta and wave clean');
   assert.match(criticSkipReplayError(OFF(), deltaEpoch, skip, cleanEvaluation()) ?? '', /no longer set/, 'replay refuses once the flag is removed');
   assert.match(criticSkipReplayError(on, epoch, skip, cleanEvaluation()) ?? '', /delta/, 'replay refuses a skip on a non-delta epoch');
+});
+
+await check('V11 review.laneMerge: off/malformed = every lane its own session (no merged prompt); on = recorded arm', async () => {
+  const { resolveAbVariants, abVariantEvidence, laneMergeOn } = await load('core/ab-variants.js');
+  assert.equal(resolveAbVariants({}).laneMerge, 'off');
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ review: { laneMerge: 'on' } })), { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.laneMerge': 'on' } });
+  assert.equal(abVariantEvidence(resolveAbVariants({ review: { laneMerge: 'off' } })), undefined, 'off is production: not recorded');
+  assert.throws(() => resolveAbVariants({ review: { laneMerge: 'yes' } }), /invalid_ab_variant_config: review\.laneMerge/);
+  assert.equal(laneMergeOn({ review: { laneMerge: 'yes' } }), false, 'malformed keeps production where it is consumed');
+  assert.equal(laneMergeOn({}), false);
+  assert.equal(laneMergeOn({ review: { laneMerge: 'on' } }), true);
+  const { laneMergeVariant } = await load('core/review-lane-merge.js');
+  assert.equal(laneMergeVariant(OFF()), undefined, 'flag off: no merge');
+  assert.equal(laneMergeVariant(projectWith({ review: { laneMerge: 'bogus' } })), undefined, 'malformed: no merge');
+  assert.equal(laneMergeVariant(projectWith({ review: { laneMerge: 'on' } }))?.flags?.['review.laneMerge'], 'on', 'on: the arm is recorded in the evidence');
 });
 
 for (const dir of dirs) rmSync(dir, { recursive: true, force: true });
