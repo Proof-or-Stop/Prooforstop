@@ -1,6 +1,10 @@
 /**
  * Sibling-parity check of the evidence lanes (A/B switch review.siblingParity,
- * default on; core/ab-variants.ts).
+ * default OFF since old-PoS run 58, `on` = the recorded arm; core/ab-variants.ts).
+ * Run 58 (run58-analysis.md §0 item 5, §7): parity on in runs 46/47/58 took
+ * 131 min / timeout / timeout and added mostly duplicate precedent-conflict
+ * findings; the PLAN base-disagreement check alone pinned the case it was
+ * added for.
  *
  * Old-PoS run 43 (bench-staging/oldpos/run43-analysis.md §5.2 fix 1): a new
  * write path copied the precedent of another write path and differed from the
@@ -41,10 +45,10 @@ export const SIBLING_PARITY_CHECK = [
   '- Give each finding its repro as Repro: `<command or expression>`; name the pairs probed in your note.',
 ] as const;
 
-/** The block for a lane's dispatch prompt: the check for a parity lane while the switch is on (a malformed value keeps on). */
+/** The block for a lane's dispatch prompt: the check for a parity lane while the switch is on (absent, malformed or unreadable = off). */
 export function renderSiblingParity(root: string, lane: string): string[] {
   if (!SIBLING_PARITY_LANES.has(lane)) return [];
-  let on = true;
-  try { on = siblingParityOn(loadConfig(root)); } catch { on = true; }
+  let on = false;
+  try { on = siblingParityOn(loadConfig(root)); } catch { on = false; }
   return on ? [...SIBLING_PARITY_CHECK] : [];
 }

@@ -815,8 +815,9 @@ evidence (journaled `metadata_correction_applied`); an intent-row correction doe
 not. A duplicate of a duplicate closes against the resolved root of its chain in
 the same batch.
 
-Sibling parity (old-PoS run 43, A/B `review.siblingParity`, default on; oracle
-order since old-PoS run 46): the test-coverage and quality lane dispatch prompts
+Sibling parity (old-PoS run 43, A/B `review.siblingParity`, default OFF since
+old-PoS run 58, `on` = the recorded arm; oracle order since old-PoS run 46): with
+it on, the test-coverage and quality lane dispatch prompts
 require, for every entry point the diff adds or changes, a probe per operand case
 its references special-case. The oracle is a request sentence or checklist row,
 else the SAME receiver's pre-existing counterpart (its read for a new write);
@@ -837,8 +838,26 @@ the same case re-judged) goes to the owner's PLAN pin (`finding_conflict_pin`),
 not to repair. A repair that deletes a test it added, or a test running the
 finding's repro, is not a repair: a failing test it wrote is a product defect.
 The scope-plan reviewer (A/B `plan.baseDisagreement`, default on) probes the
-base precedents of each new operation and saves a disagreement nothing pins as
+base precedents of each new operation, alone and in combination (a negative or
+omitted bound with a negative step), and saves a disagreement nothing pins as
 a `Precedent conflict:` gap whose remedy is a covering row.
+
+Old-PoS run 58 (no switch): the guard runs only the finding's own repro rows of
+its repair test (scope `repro`; whole functions only without a stated repro);
+before blaming, a failing case is checked against the current checklist pins
+(another pinned value: excused) and, with no pin, the Story base (fails there
+the same way: excused; a test the base cannot build is never excused); a case
+re-pinned after the resolution retires the guard
+(`resolved_finding_guard_retired`). `finding_conflict_pin` folds every unpinned
+conflict (suspected `[precedent-conflict]` findings included) into ONE PLAN
+visit and gives the oracle order; a case a current row already pins needs no
+pin. After DEV, a PLAN `checklist_update` that changes the value an existing
+row pins is refused `[pin_reversal_unstated]` unless the row states
+`re-pin: <case> was <old>, now <new>`. A pin keeps a done item done when its
+rows' pinned tests pass on the current code (and state its amended rows).
+`review_round_prepare` reroutes a full-scan route that only went stale with a
+framework reason. A canonical closed without a repair (pre-existing
+disposition, accepted risk) is never a duplicate closure target.
 
 Delta review rounds (EXPERIMENTAL A/B `review.deltaRounds`, default off; lab
 `codex/lab-delta-review`, `core/review-delta-round.ts`): with it on, a REVIEW

@@ -76,13 +76,14 @@ import {
 import { wantsFullOutput, truncateOneLine } from '../cli/output-verbosity.js';
 import { isEvidenceChainFindingCategory } from '../core/evidence-chain-finding.js';
 import { evidenceChainNextActionForStory } from './evidence-chain.js';
-import { findingDuplicateOf, duplicateCoverageSelectorProblem, duplicateRootOf, runDuplicateCoverage } from '../core/duplicate-finding-coverage.js';
+import { closedWithoutFix, findingDuplicateOf, duplicateCoverageSelectorProblem, duplicateRootOf, runDuplicateCoverage } from '../core/duplicate-finding-coverage.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { storyFindingRepairState } from './next-driver.js';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import type { DuplicateCoverageReceipt } from '../core/types.js';
+import { relative as relativePath } from 'node:path';
+import type { ChecklistItem, DuplicateCoverageReceipt } from '../core/types.js';
 import { canonicalFixLiveness, coverageSourceText, findingGuard, isTestPath, regressionFindingDesc, regressionGuardCheck, regressionTargets, repairCommitFromResolution, reproCoverage,
   type GuardFailure } from '../core/resolved-finding-guard.js';
 import { resolveFullStoryBaseHead } from '../core/review-incremental-context.js';
@@ -639,7 +640,20 @@ function runRegressionGuardsFor(ctx: HandlerContext, storyId: string, repairs: R
   const receipts = store.readDuplicateFindingCoverage(storyId).receipts;
   let materialHash: string | null = null;
   try { materialHash = currentMaterialHash(gitCwd, 'HEAD', ctx.root) ?? null; } catch { materialHash = null; }
-  const failures = regressionGuardCheck({ store: store as never, projectRoot: ctx.root, gitCwd, storyId, findings, repairs, headHash: currentGitHead(gitCwd) ?? null, materialHash,
+  // Old-PoS run 58 (B, C): the Story base and the checklist (now and as committed at a finding's resolution).
+  const baseRef = (() => { try { return resolveFullStoryBaseHead(store, ctx.root, storyId) ?? null; } catch { return null; } })();
+  const checklistRel = relativePath(ctx.root, store.storyFilePath(storyId, 'checklist.json'));
+  const checklist = {
+    current: store.readChecklist(storyId).items,
+    at: (iso: string) => {
+      try {
+        const sha = execFileSync('git', ['log', '-1', '--format=%H', `--before=${iso}`, '--', checklistRel], { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+        if (!sha) return undefined;
+        return (JSON.parse(execFileSync('git', ['show', `${sha}:${checklistRel}`], { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 64 * 1024 * 1024 })) as { items?: ChecklistItem[] }).items;
+      } catch { return undefined; }
+    },
+  };
+  const failures = regressionGuardCheck({ store: store as never, projectRoot: ctx.root, gitCwd, storyId, findings, repairs, headHash: currentGitHead(gitCwd) ?? null, materialHash, baseRef, checklist,
     repairCommitOf: finding => { const state = storyFindingRepairState(ctx, storyId, finding); return state.repaired ? state.commit : repairCommitFromResolution(gitCwd, finding); },
     coverageOf: finding => receipts.filter(row => row.findingId === finding.id && row.passed).at(-1) ?? null });
   const opened = new Map<string, string>();
@@ -706,6 +720,9 @@ function closeDuplicateWithCoverageFor(ctx: HandlerContext, args: { storyId: str
   const canonical = findings.find(row => row.id === args.duplicateOf);
   if (!canonical || canonical.status !== 'resolved') {
     refuse(`canonical finding ${args.duplicateOf} is ${canonical?.status ?? 'missing'}; repair and resolve it first`, 'duplicate_canonical_not_resolved');
+  }
+  if (closedWithoutFix(canonical!)) {
+    refuse(`canonical finding ${args.duplicateOf} was closed without a repair (${canonical!.resolutionType}); there is no fix that covers ${args.findingId}: it takes its own route (next)`, 'duplicate_canonical_not_a_fix');
   }
   const selectorProblem = duplicateCoverageSelectorProblem(selector!);
   if (selectorProblem) refuse(selectorProblem, 'duplicate_coverage_selector_generic');
