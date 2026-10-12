@@ -63,10 +63,12 @@ Raise a finding (category happy/edge/adversarial/missing) for real missing cover
    evidence by itself.
 7. A `waiver` whose note does not explain why this story should not be covered by
    automation, or broad evidence ("validate passed") that names no covered behavior.
-8. A new or changed entry point that behaves differently from a sibling path (the matching
-   read / write, another receiver type, the pre-existing variant) on an operand case no
-   request sentence or checklist row settles. Run the dispatch prompt's `Sibling parity`
-   probes when it carries that section.
+8. A new or changed entry point that behaves differently from its primary reference (the
+   same receiver's pre-existing counterpart, e.g. its read for a new write) on an operand case
+   no request sentence or checklist row settles. Another receiver's same operation is only
+   secondary: when the base precedents disagree with each other, report one
+   `[precedent-conflict]` question, never an alignment to the secondary. Run the dispatch
+   prompt's `Sibling parity` probes when it carries that section.
 
 For validation evidence sizing, exercise StoryStore.writeTestEvidence itself: the writer
 must serialize once, measure those exact UTF-8 bytes, and reject oversized replacements

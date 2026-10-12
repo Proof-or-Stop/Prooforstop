@@ -65,6 +65,14 @@
  *                              scope_check_save refuses such an `excluded` row, story_review rejects it in an
  *                              older verdict, and the gap remedy names the covering item instead of an excludes entry
  *
+ * Old-PoS run 46 (bench-staging/oldpos/run46-analysis.md §2.3 item 1): one more
+ * default-ON detection switch (`off` = rollback, recorded):
+ *   plan.baseDisagreement      'on' (default) | 'off'  the scope-plan reviewer dispatch carries the base-disagreement
+ *                              check (core/base-disagreement.ts): for each new operation an item adds, the base's own
+ *                              precedents (the same receiver's counterpart, the same operation on other receivers)
+ *                              are probed per operand case; a disagreement the request and checklist leave open is a
+ *                              gap whose remedy is a covering row pinning which precedent applies
+ *
  * A malformed value fails closed where it is consumed (never silently treated
  * as an experimental arm; review.lanePack / review.roundDelta then keep production: no pack). See docs/CLI.md "Detection A/B variant switches".
  */
@@ -89,6 +97,7 @@ export const AB_VARIANT_FLAGS = {
   'implementation.probeMatrix': ['off', 'on'],
   'review.siblingParity': ['on', 'off'],
   'plan.exclusionRationaleCheck': ['on', 'off'],
+  'plan.baseDisagreement': ['on', 'off'],
 } as const;
 
 export type AbVariantFlag = keyof typeof AB_VARIANT_FLAGS;
@@ -98,7 +107,7 @@ export interface AbVariantConfigSlice {
   review?: { criticOnCleanRound?: string; round2Scope?: string; round2Lanes?: string; lanePack?: string; roundDelta?: string; siblingParity?: string; deltaRounds?: string };
   remediation?: { grouping?: string; thread?: string };
   implementation?: { grouping?: string; thread?: string; probeMatrix?: string };
-  plan?: { coverageMatrix?: string; scopeDeferral?: string; pinAuditEnforcement?: string; exclusionRationaleCheck?: string };
+  plan?: { coverageMatrix?: string; scopeDeferral?: string; pinAuditEnforcement?: string; exclusionRationaleCheck?: string; baseDisagreement?: string };
   dev?: { probeEnforcement?: string };
 }
 
@@ -119,6 +128,7 @@ export interface AbVariants {
   probeMatrix: AbVariantValue<'implementation.probeMatrix'>;
   siblingParity: AbVariantValue<'review.siblingParity'>;
   exclusionRationaleCheck: AbVariantValue<'plan.exclusionRationaleCheck'>;
+  baseDisagreement: AbVariantValue<'plan.baseDisagreement'>;
   deltaRounds: AbVariantValue<'review.deltaRounds'>;
 }
 
@@ -162,6 +172,7 @@ export function resolveAbVariants(config: unknown): AbVariants {
     probeMatrix: pick('implementation.probeMatrix', section(config, 'implementation').probeMatrix),
     siblingParity: pick('review.siblingParity', review.siblingParity),
     exclusionRationaleCheck: pick('plan.exclusionRationaleCheck', section(config, 'plan').exclusionRationaleCheck),
+    baseDisagreement: pick('plan.baseDisagreement', section(config, 'plan').baseDisagreement),
     deltaRounds: pick('review.deltaRounds', review.deltaRounds),
   };
 }
@@ -185,6 +196,7 @@ export function abVariantEvidence(variants: AbVariants): AbVariantEvidence | und
   if (variants.probeMatrix !== 'off') flags['implementation.probeMatrix'] = variants.probeMatrix;
   if (variants.siblingParity !== 'on') flags['review.siblingParity'] = variants.siblingParity;
   if (variants.exclusionRationaleCheck !== 'on') flags['plan.exclusionRationaleCheck'] = variants.exclusionRationaleCheck;
+  if (variants.baseDisagreement !== 'on') flags['plan.baseDisagreement'] = variants.baseDisagreement;
   if (variants.deltaRounds !== 'off') flags['review.deltaRounds'] = variants.deltaRounds;
   return Object.keys(flags).length ? { schema: AB_VARIANT_EVIDENCE_SCHEMA, flags } : undefined;
 }
@@ -199,7 +211,7 @@ export function dispatchTargetThreadFresh(target: { abVariant?: AbVariantEvidenc
 }
 
 /** The single-switch reader of one catch-earlier switch: a malformed value (or an unreadable config) keeps production. */
-function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'review.deltaRounds'>(config: unknown, flag: F): AbVariantValue<F> {
+function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds'>(config: unknown, flag: F): AbVariantValue<F> {
   const [group, key] = flag.split('.') as [string, string];
   try { return pick(flag, section(config, group)[key]); } catch { return AB_VARIANT_FLAGS[flag][0] as AbVariantValue<F>; }
 }
@@ -218,5 +230,7 @@ export const probeMatrixOn = (config: unknown): boolean => catchEarlierPick(conf
 export const siblingParityOn = (config: unknown): boolean => catchEarlierPick(config, 'review.siblingParity') === 'on';
 /** Old-PoS run 43: plan.exclusionRationaleCheck (default on) checks an excludes rationale against the Story's own items. */
 export const exclusionRationaleCheckOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.exclusionRationaleCheck') === 'on';
+/** Old-PoS run 46: plan.baseDisagreement (default on) adds the base-disagreement check to the scope-plan reviewer dispatch. */
+export const baseDisagreementOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.baseDisagreement') === 'on';
 /** EXPERIMENTAL review.deltaRounds=on: delta review rounds (core/review-delta-round.ts); malformed = off. */
 export const deltaRoundsOn = (config: unknown): boolean => catchEarlierPick(config, 'review.deltaRounds') === 'on';

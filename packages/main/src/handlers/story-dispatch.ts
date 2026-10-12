@@ -45,6 +45,8 @@ import { findSealedManagedImplementerCompletion, managedImplementerAlreadyDoneAc
 import { loadConfig } from '../core/config.js';
 import { probeMatrixOn } from '../core/ab-variants.js';
 import { renderSiblingParity } from '../core/sibling-parity.js';
+import { baseDisagreementActive, SCOPE_PLAN_BASE_DISAGREEMENT_CHECK } from '../core/base-disagreement.js';
+import { rejectedRepairCommits, renderRepairResolvedContext, renderResolvedReprobe } from '../core/resolved-finding-guard.js';
 import { exclusionRationaleCheckActive, SCOPE_PLAN_EXCLUSION_CHECK } from '../core/scope-exclusion-rationale.js';
 import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { scopeVerdictHeldItems } from '../core/scope-plan-deferral.js';
@@ -762,6 +764,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     lines.push('- Classify each feature as covered, excluded, gap, orphan-suspect, or drift using the scope_check_save schema.');
     // Old-PoS run 43 (core/scope-exclusion-rationale.ts, A/B plan.exclusionRationaleCheck, default on).
     if (exclusionRationaleCheckActive(root)) lines.push(SCOPE_PLAN_EXCLUSION_CHECK);
+    // Old-PoS run 46 (core/base-disagreement.ts, A/B plan.baseDisagreement, default on).
+    if (baseDisagreementActive(root)) lines.push(SCOPE_PLAN_BASE_DISAGREEMENT_CHECK);
     lines.push('- Record open questions when the artifacts conflict or a promise is visible but cannot be safely classified.');
     lines.push('- Track readManifest with filesReadFully, filesTriagedByName, scanEscalationReason, candidateSpecSetDigest, and corpusDigest. Put full-read files in filesReadFully, filename/title-only triage in filesTriagedByName, and use scanEscalationReason only for a justified tool-driven full decisions-directory scan.');
     lines.push('');
@@ -841,6 +845,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     // Old-PoS run 43 (core/sibling-parity.ts, A/B review.siblingParity, default on).
     const siblingParity = renderSiblingParity(root, lane);
     if (siblingParity.length > 0) lines.push('', ...siblingParity);
+    // Old-PoS run 46 (core/resolved-finding-guard.ts): resolved findings are re-probed, not trusted.
+    const reprobe = renderResolvedReprobe(store.readFindings(args.storyId).findings ?? [], args.storyId, lane);
+    if (reprobe.length > 0) lines.push('', ...reprobe);
     lines.push('');
     lines.push(`Current phase: ${story.phase}. Review lane: ${lane}.`);
     appendReviewerExecutionModes(lines, args.storyId, lane);
@@ -1036,8 +1043,17 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       // Old-PoS run 44 (F-009..F-019): each repair fixed the reported shapes only; the next round found the next one.
       lines.push('- Find the family by grepping the code path the finding names (the branch that mishandles it and every caller reaching it): each receiver, target (lvalue / parent / container) and operand shape that reaches the same branch, nested and computed ones included. Fix each (or reject it with an explicit error) with one test each.');
       lines.push('- In your final report, one line per shape checked: `[family] <shape>: fixed | rejected | unaffected (why)`.');
+      // Old-PoS run 55: the repair deleted the correct test it had written because it failed.
+      lines.push('- A test you add that fails on the current code is evidence of a product defect: fix the product code, or report the conflict (`[intent-conflict]`); never delete, skip or weaken it to get green (the framework refuses a repair that removes a test it added or a test running this finding\'s repro). List every test case you removed, with why.');
       lines.push(REPAIR_INPUT_VARIANT_RULE);
       lines.push(PRODUCT_CODE_NO_POS_METADATA_RULE);
+      // Old-PoS run 46 (core/resolved-finding-guard.ts): resolved findings on the same code, rejected repairs, precedent conflicts.
+      let processEvents: Array<Record<string, unknown>> = [];
+      try { processEvents = store.readProcessEvents(args.storyId) as Array<Record<string, unknown>>; } catch { processEvents = []; }
+      const rejectedAll = rejectedRepairCommits(processEvents);
+      const resolvedContext = renderRepairResolvedContext({ findings: data.findings, storyId: args.storyId, finding,
+        rejected: rejectedAll.get(finding.id) ?? [], rejectedAll });
+      if (resolvedContext.length) lines.push(...resolvedContext);
       const storyBase = (() => { try { return resolveFullStoryBaseHead(store, root, args.storyId); } catch { return undefined; } })();
       lines.push(storyBase
         ? `- Story base for that check: ${storyBase} (for example \`git worktree add --detach <tmp> ${storyBase.slice(0, 12)}\`, run the variants there, then remove it).`

@@ -813,11 +813,30 @@ evidence (journaled `metadata_correction_applied`); an intent-row correction doe
 not. A duplicate of a duplicate closes against the resolved root of its chain in
 the same batch.
 
-Sibling parity (old-PoS run 43, A/B `review.siblingParity`, default on): the
-test-coverage and quality lane dispatch prompts require, for every entry point
-the diff adds or changes, a probe per operand case its sibling paths (matching
-read / write, other receiver types, the pre-existing variant) special-case; an
-unstated difference is a finding citing both paths.
+Sibling parity (old-PoS run 43, A/B `review.siblingParity`, default on; oracle
+order since old-PoS run 46): the test-coverage and quality lane dispatch prompts
+require, for every entry point the diff adds or changes, a probe per operand case
+its references special-case. The oracle is a request sentence or checklist row,
+else the SAME receiver's pre-existing counterpart (its read for a new write);
+another receiver's same operation is only secondary. A difference from the
+primary is a finding; two base precedents that already disagree are one
+`[precedent-conflict]` question, never a demand to follow the secondary. Each
+finding states `Repro: <command or expression>`.
+
+Resolved-finding integrity (old-PoS runs 46/47/55, no switch): after a repair,
+every resolved finding whose cited files changed re-runs its covering tests as
+recorded at its resolution; a failure rejects the repairs that touched them and
+opens a `[regression-of <id>]` finding. A duplicate closes only on a live
+canonical fix (repair not rewritten, or its recorded tests still passing) and a
+coverage run that exercises the duplicate's own repro. Lanes re-run resolved
+findings' repros instead of trusting `resolved`. A finding that contradicts a
+resolved finding's repair (a `[precedent-conflict]`, a guard-rejected repair, or
+the same case re-judged) goes to the owner's PLAN pin (`finding_conflict_pin`),
+not to repair. A repair that deletes a test it added, or a test running the
+finding's repro, is not a repair: a failing test it wrote is a product defect.
+The scope-plan reviewer (A/B `plan.baseDisagreement`, default on) probes the
+base precedents of each new operation and saves a disagreement nothing pins as
+a `Precedent conflict:` gap whose remedy is a covering row.
 
 Delta review rounds (EXPERIMENTAL A/B `review.deltaRounds`, default off; lab
 `codex/lab-delta-review`, `core/review-delta-round.ts`): with it on, a REVIEW

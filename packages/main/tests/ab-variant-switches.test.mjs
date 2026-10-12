@@ -28,6 +28,8 @@
  *   Old-PoS run 43 (default ON, `off` = recorded rollback; behaviour in tasks/run43-fixes-smoke.ts S / P):
  *   review.siblingParity             the test-coverage and quality lane prompts carry the sibling-parity check
  *   plan.exclusionRationaleCheck     an excludes entry may not close a scope row whose behaviour another item changes
+ *   Old-PoS run 46 (default ON; behaviour in tasks/run46-fixes-smoke.ts B):
+ *   plan.baseDisagreement            the scope-plan dispatch carries the base-disagreement check
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -60,6 +62,8 @@ await check('config: absent switches resolve to production values; malformed fai
     coverageMatrix: 'off', scopeDeferral: 'off', pinAuditEnforcement: 'off', probeEnforcement: 'advisory', probeMatrix: 'off',
     // Old-PoS run 43: the two detection switches default on; `off` is the recorded rollback.
     siblingParity: 'on', exclusionRationaleCheck: 'on',
+    // Old-PoS run 46: the base-disagreement check defaults on.
+    baseDisagreement: 'on',
     // EXPERIMENTAL delta review rounds (lab codex/lab-delta-review): off by default.
     deltaRounds: 'off' });
   assert.equal(abVariantEvidence(off), undefined);
@@ -72,6 +76,12 @@ await check('config: absent switches resolve to production values; malformed fai
   assert.equal(exclusionRationaleCheckOn({ plan: { exclusionRationaleCheck: 7 } }), true, 'malformed keeps the default (on) where it is consumed');
   assert.equal(siblingParityOn({ review: { siblingParity: 'off' } }), false);
   assert.equal(exclusionRationaleCheckOn({ plan: { exclusionRationaleCheck: 'off' } }), false);
+  const { baseDisagreementOn } = await load('core/ab-variants.js');
+  assert.equal(typeof baseDisagreementOn, 'function', 'old-PoS run 46: baseDisagreementOn is exported');
+  assert.equal(baseDisagreementOn({ plan: { baseDisagreement: 'maybe' } }), true, 'malformed keeps the default (on) where it is consumed');
+  assert.equal(baseDisagreementOn({ plan: { baseDisagreement: 'off' } }), false);
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { baseDisagreement: 'off' } })),
+    { schema: 'proof-or-stop.ab-variants.v1', flags: { 'plan.baseDisagreement': 'off' } }, 'old-PoS run 46: the rollback is recorded');
   assert.throws(() => resolveAbVariants({ review: { criticOnCleanRound: 'always' } }), /invalid_ab_variant_config: review\.criticOnCleanRound/);
   const on = resolveAbVariants({ review: { criticOnCleanRound: 'skip' }, remediation: { grouping: 'per-finding' } });
   assert.deepEqual(abVariantEvidence(on), { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.criticOnCleanRound': 'skip', 'remediation.grouping': 'per-finding' } });
