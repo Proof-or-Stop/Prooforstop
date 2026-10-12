@@ -3007,6 +3007,21 @@ function scenarioN(machineEnv: NodeJS.ProcessEnv, steps: Step[], flow: 'A' | 'D'
     const after = o.cli('next', { storyId: o.storyId }, { label: 'next (after DONE)' });
     assert.match(after.stdout, /^Next: DONE — stop; no further commands\b/m, `${tag}: next after DONE prints the terminal statement:\n${after.out.slice(-800)}`);
     if (flow === 'D') assert.match(readFileSync(join(o.root, 'strs/strs_test.go'), 'utf8'), /TestReverseEmpty/, 'repair merged into main');
+    if (run) {
+      // Lab framework-perf: next --run writes one diagnostics row per decision and per step.
+      const rows = readFileSync(join(o.root, '.proof-or-stop', 'runtime', 'next-run', 'diagnostics.jsonl'), 'utf8').trim().split('\n').map(line => JSON.parse(line) as {
+        type: string; reason: string; wallMs: number; gitSpawns?: number; gitCacheHits?: number;
+        children?: Array<{ command: string; bootMs: number; wallMs: number; gitSpawns: number; gitCacheHits: number }> });
+      const decides = rows.filter(row => row.type === 'decide');
+      const stepRows = rows.filter(row => row.type === 'step');
+      assert.ok(decides.length > 0 && stepRows.length > 0, `${tag}: next --run diagnostics have decide and step rows`);
+      assert.ok(stepRows.every(row => typeof row.wallMs === 'number' && Array.isArray(row.children)), `${tag}: every step row has a wall time and its child counters`);
+      const children = stepRows.flatMap(row => row.children ?? []);
+      assert.ok(children.length > 0 && children.every(child => typeof child.bootMs === 'number' && typeof child.gitSpawns === 'number'), `${tag}: step children report boot ms and git spawns`);
+      const sum = (values: number[]) => values.reduce((a, b) => a + b, 0);
+      lines.push(`next --run diagnostics: ${decides.length} decisions ${(sum(decides.map(row => row.wallMs)) / 1000).toFixed(1)} s (git ${sum(decides.map(row => row.gitSpawns ?? 0))} spawns, ${sum(decides.map(row => row.gitCacheHits ?? 0))} cached), `
+        + `${stepRows.length} steps ${(sum(stepRows.map(row => row.wallMs)) / 1000).toFixed(1)} s (children: boot ${(sum(children.map(child => child.bootMs)) / 1000).toFixed(1)} s, git ${sum(children.map(child => child.gitSpawns))} spawns, ${sum(children.map(child => child.gitCacheHits))} cached)`);
+    }
     lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
     o.cleanup();
     return { name, status: 'PASS', lines };

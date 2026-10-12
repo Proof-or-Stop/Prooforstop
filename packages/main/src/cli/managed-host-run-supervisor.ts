@@ -6,6 +6,7 @@ import module from 'node:module';
 // compile cache the CLI already fills (cli.ts) before importing it, so a
 // loaded host does not recompile ~200 modules first. NODE_DISABLE_COMPILE_CACHE=1 turns it off.
 try { (module as { enableCompileCache?: () => unknown }).enableCompileCache?.(); } catch { /* optional speed-up */ }
+(await import('../core/git-read-cache.js')).installGitReadCache();
 const { runManagedHostRunSupervisor } = await import('../core/managed-host-run.js');
 const [root, runId] = process.argv.slice(2);
 if (!root || !runId) throw new Error('managed supervisor requires root and runId');

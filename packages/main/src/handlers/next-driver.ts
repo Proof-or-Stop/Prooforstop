@@ -46,6 +46,7 @@ import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { withGitTreeObservation } from '../core/git-tree-observation.js';
+import { nextRunDiagnostics } from '../core/next-run-diagnostics.js';
 import { evaluateDevMemoryPreflightGate, evaluateReviewVerdict, getGuardFailureReason } from '../core/machine.js';
 import { missingPlanScopeCheckFailure, SCOPE_PLAN_REVIEWER, scopePlanLaunchIsFramework, scopePlanRerunReason } from '../core/plan-scope-check-requirement.js';
 import { hasPreScopeBlockers, planPreScopeBlockers, type PreScopeBlockers } from '../core/plan-pre-scope-blockers.js';
@@ -3424,9 +3425,9 @@ export function laneLaunchStaggerMs(root: string): number {
 }
 
 /** Run the calls concurrently; `staggerMs` > 0 starts call i after i * staggerMs. */
-export function runCliCallsConcurrently(cliEntry: string, calls: Array<{ command: string; payload: Record<string, unknown> }>, staggerMs = 0): Array<{ exit: number; out: string }> {
+export function runCliCallsConcurrently(cliEntry: string, calls: Array<{ command: string; payload: Record<string, unknown> }>, staggerMs = 0, env: NodeJS.ProcessEnv = process.env): Array<{ exit: number; out: string }> {
   const run = spawnSync(process.execPath, ['-e', CONCURRENT_RUNNER], {
-    cwd: process.cwd(), env: process.env, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 * Math.max(1, calls.length),
+    cwd: process.cwd(), env, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 * Math.max(1, calls.length),
     input: JSON.stringify({ entry: cliEntry, cwd: process.cwd(), calls, staggerMs }),
   });
   try {
@@ -3597,18 +3598,26 @@ export function createNextDriverHandlers(ctx: HandlerContext, lookup: HandlerLoo
         const next = driver.decide(storyId);
         return args.json ? { schemaVersion: NEXT_STEP_SCHEMA, storyId, executed: [], stopped: 'cli entry unavailable', paused: null, next } : `stopped: cli entry unavailable\n${renderNextStep(next)}`;
       }
+      // Lab framework-perf: one diagnostics row per decision and per step (core/next-run-diagnostics.ts).
+      const diagnostics = nextRunDiagnostics(ctx.root);
       let result: RunNextStepsResult = runNextSteps({
         storyId,
-        decide: () => driver.decide(storyId),
-        execute: call => {
+        decide: () => diagnostics.decide(storyId, () => driver.decide(storyId), next => next.reason),
+        execute: (call, step) => {
+          const { env, collect } = diagnostics.stepEnv();
+          const started = performance.now();
           const run = spawnSync(process.execPath, [cliEntry, call.command, JSON.stringify(call.payload)], {
-            cwd: process.cwd(), env: process.env, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024,
+            cwd: process.cwd(), env, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024,
           });
+          collect({ storyId, reason: step.reason, commands: [call.command], exits: [run.status ?? -1], wallMs: performance.now() - started });
           resetConfigCache();
           return { exit: run.status ?? -1, out: `${run.stdout ?? ''}${run.stderr ?? ''}` };
         },
         executeParallel: (calls, step) => {
-          const results = runCliCallsConcurrently(cliEntry, calls, step.reason === 'review_lane_launch' ? laneLaunchStaggerMs(ctx.root) : 0);
+          const { env, collect } = diagnostics.stepEnv();
+          const started = performance.now();
+          const results = runCliCallsConcurrently(cliEntry, calls, step.reason === 'review_lane_launch' ? laneLaunchStaggerMs(ctx.root) : 0, env);
+          collect({ storyId, reason: step.reason, commands: calls.map(call => call.command), exits: results.map(row => row.exit), wallMs: performance.now() - started });
           resetConfigCache();
           return results;
         },

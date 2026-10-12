@@ -360,7 +360,8 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   'packages/main/src/core/lifecycle-control/control-status.ts': 'e015e86e23e400c8d7e43bd253938f3ee2105bba9925d42c599747b6b87fcc58',
   'packages/main/src/core/experience-layer-types.ts': '8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881',
   // Lab gate-command-cost (2026-10-03): ref-state reads delegate to git-ref-witness-memo; repinned.
-  'packages/main/src/core/git-tree-observation.ts': 'c8d9597cac490a7219644a1afb95c2c39d999469111c575c93a136f59891237b',
+  // Lab framework-perf (2026-10-13): the observation key's sorted environment is rebuilt only after a process.env write (core/process-env-version.ts); repinned.
+  'packages/main/src/core/git-tree-observation.ts': '9510e37d63d007b8b7da4cc1bf77ba2aab04f5470863f0521a1763606bf09059',
   // Lab cli-bundle (2026-09-30): resolveStoryChangedFiles/MergeBase now imported from the story-change-manifest leaf; repinned.
   // Lab runtime-info-exclude (2026-09-30): checkEvidenceHashSnapshotReuse now forwards trustedControllerProjectionStoryId to readMaterialDirtyFiles; repinned.
   // Lab next-driver-cost (2026-10-01): the rename-aware name-status read passes through observedGit; repinned.
