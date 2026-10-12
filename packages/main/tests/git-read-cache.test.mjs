@@ -24,6 +24,9 @@ if (process.argv[2] === '--child') {
   installGitReadCache();
   const { execFileSync, spawnSync } = await import('node:child_process');
   const spec = JSON.parse(process.argv[3]);
+  // Warm-up: resolve the git var locations (system config etc.) so the counters measure only the calls below.
+  try { execFileSync('git', ['rev-parse', '--git-dir'], { cwd: spec.calls[0].cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }); } catch { /* not a repo */ }
+  const before = gitSpawnCounters();
   const out = [];
   for (const call of spec.calls) {
     const run = () => {
@@ -38,14 +41,14 @@ if (process.argv[2] === '--child') {
     };
     out.push(call.fresh ? withFreshGitReads(run) : run());
   }
-  process.stdout.write(JSON.stringify({ out, counters: gitSpawnCounters() }));
+  const after = gitSpawnCounters();
+  process.stdout.write(JSON.stringify({ out, counters: Object.fromEntries(Object.keys(after).map(name => [name, after[name] - before[name]])) }));
   process.exit(0);
 }
 
 if (process.argv[2] === '--env-child') {
-  const { trackProcessEnvWrites, processEnvVersion, envDerived } = await import(new URL(`file://${join(dist, 'process-env-version.js')}`).href);
+  const { envDerived } = await import(new URL(`file://${join(dist, 'process-env-version.js')}`).href);
   const { gitObservationKey } = await import(new URL(`file://${join(dist, 'git-tree-observation.js')}`).href);
-  trackProcessEnvWrites();
   const seen = [];
   let derived = 0;
   const value = envDerived(() => { derived++; return process.env.POS_ENV_PROBE ?? null; });
@@ -54,10 +57,8 @@ if (process.argv[2] === '--env-child') {
   process.env.POS_ENV_PROBE = 'one'; seen.push(value()); const k1 = key();
   Object.assign(process.env, { POS_ENV_PROBE: 'two' }); seen.push(value());
   delete process.env.POS_ENV_PROBE; seen.push(value()); const k2 = key();
-  const { execFileSync } = await import('node:child_process');
-  process.env.POS_ENV_CHILD = 'visible';
-  const childSees = execFileSync(process.execPath, ['-e', 'process.stdout.write(process.env.POS_ENV_CHILD ?? "")'], { encoding: 'utf8' });
-  process.stdout.write(JSON.stringify({ seen, derived, keysDiffer: k0 !== k1 && k1 !== k2 && k0 !== k2, childSees, version: processEnvVersion() }));
+  const cloned = structuredClone(process.env).POS_ENV_PROBE === undefined;
+  process.stdout.write(JSON.stringify({ seen, derived, keysDiffer: k0 !== k1 && k1 !== k2 && k0 !== k2, cloned }));
   process.exit(0);
 }
 
@@ -319,7 +320,7 @@ try {
     const calls = [
       { argv: ['diff', '--name-status', '-M', '-z', `${base}..${tip}`], cwd: repo, encoding: 'utf8' },
       { argv: ['diff', '--name-status', '--find-renames', `refs/heads/main~1...HEAD`].map(arg => arg.replace('refs/heads/main~1', base)), cwd: repo, encoding: 'utf8' },
-      { argv: ['diff', '--find-renames', '--find-copies', '--unified=20', `${base}...HEAD`], cwd: repo, encoding: 'utf8' },
+      { argv: ['diff', '--find-renames', '--find-copies', '--unified=20', '--full-index', `${base}...HEAD`], cwd: repo, encoding: 'utf8' },
     ];
     const cold = child(calls, { PROOF_OR_STOP_GIT_READ_CACHE: '0' });
     assert.match(cold.out[0].stdout, /R\d+\0moved-src\.txt\0moved-dst\.txt/);
@@ -348,14 +349,103 @@ try {
     assert.match(moved.out[0].stdout, /later\.txt/);
   });
 
-  check('environment keys follow every process.env write (set, Object.assign, delete) and children still inherit', () => {
+  check('environment keys follow every process.env write (set, Object.assign, delete); process.env stays a plain env', () => {
     const r = rawSpawnSync(process.execPath, [fileURLToPath(import.meta.url), '--env-child'], { encoding: 'utf8', env: { ...process.env, POS_ENV_PROBE: '' } });
     assert.equal(r.status, 0, r.stderr);
     const out = JSON.parse(r.stdout);
     assert.deepEqual(out.seen, ['', '', 'one', 'two', null]);
     assert.equal(out.derived, 4, 'rebuilt once per change, not per call');
     assert.equal(out.keysDiffer, true);
-    assert.equal(out.childSees, 'visible');
+    assert.equal(out.cloned, true, 'structuredClone(process.env) works');
+  });
+
+  check('a revision that also names a file is ambiguous to git: the cache never hides it', () => {
+    const plain = { argv: ['rev-list', '-1', 'HEAD'], cwd: repo, encoding: 'utf8' };
+    const warm = child([plain, plain]);
+    assert.equal(warm.counters.gitCacheHits >= 1, true, 'cached before the file exists');
+    writeFileSync(join(repo, 'HEAD'), 'not a ref\n');
+    const r = child([plain]);
+    assert.equal(r.counters.gitCacheHits, 0);
+    assert.deepEqual(r.out, child([plain], { PROOF_OR_STOP_GIT_READ_CACHE: '0' }).out);
+    assert.ok(r.out[0].threw !== undefined, 'git refuses the ambiguous argument');
+    rmSync(join(repo, 'HEAD'));
+  });
+
+  check('a call with its own HOME (another global config) always runs git', () => {
+    const own = { ...head, env: { HOME: join(root, 'other-home') } };
+    child([head]);
+    const r = child([own, own]);
+    assert.equal(r.counters.gitSpawns, 2);
+  });
+
+  // Review findings (lab framework-perf correctness review): each must reach git or return git's current bytes.
+  check('review 1: a utf8 caller never hands decoded bytes to a Buffer caller', () => {
+    const blob = rawExecFileSync('git', ['hash-object', '-w', '--stdin'], { cwd: repo, input: Buffer.from([0x63, 0xe9, 0xff, 0xfe, 0x0a]), encoding: 'utf8' }).trim();
+    const asText = { argv: ['cat-file', 'blob', blob], cwd: repo, encoding: 'utf8' };
+    const asBytes = { argv: ['cat-file', 'blob', blob], cwd: repo, encoding: undefined };
+    child([asText]);
+    const r = child([asBytes]);
+    assert.equal(r.out[0].stdout, 'buf:63e9fffe0a');
+  });
+
+  check('review 2: a pruned loose object is never reported from the cache', () => {
+    const blob = rawExecFileSync('git', ['hash-object', '-w', '--stdin'], { cwd: repo, input: 'prunable\n', encoding: 'utf8' }).trim();
+    const calls = [{ argv: ['cat-file', '-p', blob], cwd: repo, encoding: 'utf8' }, { argv: ['rev-parse', '--verify', '--quiet', `${blob}^{blob}`], cwd: repo, encoding: 'utf8' }];
+    child(calls); child(calls);
+    git(repo, 'prune', '--expire=now');
+    const r = child(calls);
+    assert.ok(r.out[0].threw !== undefined && r.out[1].threw !== undefined, JSON.stringify(r.out));
+  });
+
+  check('review 3: a symbolic ref under a for-each-ref prefix follows its target', () => {
+    git(repo, 'update-ref', 'refs/remotes/origin/main', 'HEAD');
+    git(repo, 'symbolic-ref', 'refs/remotes/origin/HEAD', 'refs/remotes/origin/main');
+    const list = { argv: ['for-each-ref', '--format=%(refname) %(objectname)', 'refs/remotes/origin/HEAD'], cwd: repo, encoding: 'utf8' };
+    child([list]); child([list]);
+    git(repo, 'update-ref', 'refs/remotes/origin/main', 'HEAD~1');
+    assert.equal(child([list]).out[0].stdout, rawExecFileSync('git', list.argv, { cwd: repo, encoding: 'utf8' }));
+    git(repo, 'symbolic-ref', '--delete', 'refs/remotes/origin/HEAD'); git(repo, 'update-ref', '-d', 'refs/remotes/origin/main');
+  });
+
+  check('review 4-6: decoration, notes, clock and abbreviation dependent output always runs git', () => {
+    const calls = [
+      { argv: ['rev-list', '--simplify-by-decoration', 'refs/heads/main'], cwd: repo, encoding: 'utf8' },
+      { argv: ['show', '-s', '--format=%H %N', 'refs/heads/main'], cwd: repo, encoding: 'utf8' },
+      { argv: ['show', '-s', '--format=%ah', 'refs/heads/main'], cwd: repo, encoding: 'utf8' },
+      { argv: ['show', '-s', '--format=%h', 'refs/heads/main'], cwd: repo, encoding: 'utf8' },
+      { argv: ['log', '-1', '--format=%h', '--abbrev=4', 'HEAD'], cwd: repo, encoding: 'utf8' },
+    ];
+    child(calls);
+    const r = child(calls);
+    assert.equal(r.counters.gitSpawns, calls.length, JSON.stringify(r.counters));
+  });
+
+  check('review 7: a config include refuses the cache', () => {
+    writeFileSync(join(root, 'inc.cfg'), '[core]\n\tabbrev = 8\n');
+    git(repo, 'config', 'include.path', join(root, 'inc.cfg'));
+    const s = subject(first);
+    const r = child([s, s]);
+    assert.equal(r.counters.gitSpawns, 2);
+    git(repo, 'config', '--remove-section', 'include');
+  });
+
+  check('review 8: rename-detecting --name-only (a rename prints only its destination) always runs git', () => {
+    const top = git(repo, 'rev-parse', 'HEAD');
+    const names = { argv: ['diff', '-M', '--name-only', `${first}..${top}`], cwd: repo, encoding: 'utf8' };
+    const r = child([names, names]);
+    assert.equal(r.counters.gitSpawns, 2);
+  });
+
+  check('review 11: a caller that shows stderr is never served an answer whose stderr was not captured', () => {
+    const quiet = { argv: ['rev-parse', '--verify', '--end-of-options', 'HEAD^{object}'], cwd: repo, encoding: 'utf8' };
+    child([quiet]);
+    const forwarding = rawSpawnSync(process.execPath, ['-e', `
+      const c = await import(${JSON.stringify(modUrl)}); c.installGitReadCache();
+      const { execFileSync } = await import('node:child_process');
+      execFileSync('git', ['rev-parse', '--verify', '--end-of-options', 'HEAD^{object}'], { cwd: ${JSON.stringify(repo)}, encoding: 'utf8' });
+      process.stdout.write(JSON.stringify(c.gitSpawnCounters()));`], { encoding: 'utf8', input: '' });
+    const counters = JSON.parse(forwarding.stdout || '{}');
+    assert.equal(counters.gitSpawns, 1, forwarding.stderr);
   });
 
   check('PROOF_OR_STOP_GIT_READ_CACHE=0 turns the cache off', () => {
