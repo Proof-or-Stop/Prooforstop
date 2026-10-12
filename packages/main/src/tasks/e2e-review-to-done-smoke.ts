@@ -3021,6 +3021,12 @@ function scenarioN(machineEnv: NodeJS.ProcessEnv, steps: Step[], flow: 'A' | 'D'
       const sum = (values: number[]) => values.reduce((a, b) => a + b, 0);
       lines.push(`next --run diagnostics: ${decides.length} decisions ${(sum(decides.map(row => row.wallMs)) / 1000).toFixed(1)} s (git ${sum(decides.map(row => row.gitSpawns ?? 0))} spawns, ${sum(decides.map(row => row.gitCacheHits ?? 0))} cached), `
         + `${stepRows.length} steps ${(sum(stepRows.map(row => row.wallMs)) / 1000).toFixed(1)} s (children: boot ${(sum(children.map(child => child.bootMs)) / 1000).toFixed(1)} s, git ${sum(children.map(child => child.gitSpawns))} spawns, ${sum(children.map(child => child.gitCacheHits))} cached)`);
+      const byReason = new Map<string, { n: number; ms: number; max: number }>();
+      for (const row of decides) {
+        const entry = byReason.get(row.reason) ?? { n: 0, ms: 0, max: 0 };
+        byReason.set(row.reason, { n: entry.n + 1, ms: entry.ms + row.wallMs, max: Math.max(entry.max, row.wallMs) });
+      }
+      lines.push(`decision wall by next step: ${[...byReason].sort((a, b) => b[1].ms - a[1].ms).map(([reason, row]) => `${reason} ${row.n}x ${(row.ms / 1000).toFixed(1)} s (max ${(row.max / 1000).toFixed(1)})`).join(', ')}`);
     }
     lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
     o.cleanup();
