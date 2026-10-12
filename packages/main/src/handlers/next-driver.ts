@@ -98,7 +98,8 @@ import { VERIFICATION_INTENT_TYPES } from '../core/types.js';
 import { findingRepairRoute, PREEXISTING_OUT_OF_SCOPE } from '../core/finding-preexisting.js';
 import { evaluatePreexistingFinding, type PreexistingFindingVerdict } from './finding-preexisting.js';
 import { commitMessageNamesFinding, implementationGroupingFiles, itemDeclaredFiles, remediationGroupingSingle, sharedFileItemGroup } from '../core/ab-dispatch-grouping.js';
-import { probeEnforcementOn, probeMatrixOn } from '../core/ab-variants.js';
+import { ownerDriver, probeEnforcementOn, probeMatrixOn } from '../core/ab-variants.js';
+import { driveUntilAgent, driveWatchdogConfig, NEXT_DRIVE_SCHEMA, runWatchedCall } from './next-drive.js';
 import { ownerWaitBlockMs, ownerWaitInstruction } from '../core/owner-wait-guidance.js';
 import { conflictPinnedFragment, parseIntentConflicts, probeTestGaps, type IntentConflict, type ProbeTestGap } from '../core/request-authority.js';
 import { readStoryRequest } from '../core/story-request.js';
@@ -203,7 +204,7 @@ export interface NextStepCall {
   placeholderHints?: Record<string, string>;
 }
 
-interface NextArgs { storyId?: string; json?: boolean; run?: boolean; maxSteps?: number; waitBudgetMs?: number; concise?: boolean }
+interface NextArgs { storyId?: string; json?: boolean; run?: boolean; maxSteps?: number; waitBudgetMs?: number; concise?: boolean; untilAgent?: boolean; driveBudgetMs?: number }
 
 // ---------------------------------------------------------------------------
 // Command rendering / parsing
@@ -3422,6 +3423,22 @@ function hasUnfinishedStory(ctx: HandlerContext): boolean {
   });
 }
 
+/** The ids of the Stories of this project that are not DONE (an unreadable one counts as unfinished). */
+function unfinishedStoryIds(ctx: HandlerContext): string[] {
+  let ids: string[];
+  try { ids = ctx.store.listStoryIds(); } catch { return []; }
+  return ids.filter(id => {
+    try { return ctx.store.readStory(id).phase !== 'DONE'; } catch { return true; }
+  });
+}
+
+/** What the agent does after the step `next --untilAgent` handed it. */
+export function untilAgentOwnerLine(storyId: string, driver: 'llm' | 'framework'): string {
+  return driver === 'framework'
+    ? 'Do only this step (author exactly the <...> fields; run every command of a batch in order). If a command you run is refused and its output names `proof-or-stop next`, or when the step is done, end your turn: owner.driver=framework runs every following framework step and resumes you with the next action. Do not run `next --run`, launch or wait on managed runs, or poll status yourself.'
+    : `When this step is done, run \`proof-or-stop next --storyId=${storyId} --untilAgent\` again.`;
+}
+
 export function createNextDriverHandlers(ctx: HandlerContext, lookup: HandlerLookup, fallbackNext?: (args: { concise?: boolean }) => string) {
   /** Old-PoS run 31 (D7): the printed step, long payloads spilled to runtime files. */
   const capped = (next: NextStep): NextStep => {
@@ -3450,13 +3467,74 @@ export function createNextDriverHandlers(ctx: HandlerContext, lookup: HandlerLoo
     return { status: run.status ?? -1, stdout: run.stdout ?? '' };
   }
   const worktreeNote = (path: string) => `Story worktree: ${path} (created at INIT_CHECK). Run every following command from there: cd ${path}`;
+  /**
+   * Owner-driver lab: `next --untilAgent` loops `next --run` calls (each in its
+   * own watched process group, handlers/next-drive.ts) until a step needs the
+   * agent, then prints that one step. Without --storyId it drives the one
+   * unfinished Story, or prints the story_create template when there is none.
+   */
+  async function driveNext(args: NextArgs): Promise<string | Record<string, unknown>> {
+    const driver = ownerDriver((() => { try { return loadConfig(ctx.root); } catch { return {}; } })());
+    let storyId = args.storyId?.trim();
+    if (!storyId) {
+      const unfinished = unfinishedStoryIds(ctx);
+      if (unfinished.length > 1) throw new Error(`next --untilAgent: ${unfinished.length} unfinished Stories (${unfinished.join(', ')}); pass --storyId=<id>`);
+      if (!unfinished.length) {
+        const template = storyCreateTemplateStep(ctx.root);
+        const rendered = renderNextStep(capped(template));
+        return args.json
+          ? { schemaVersion: NEXT_DRIVE_SCHEMA, storyId: null, outcome: 'agent', ownerDriver: driver, calls: [], executed: [], watchdog: [], stopped: null, next: template, rendered }
+          : rendered;
+      }
+      storyId = unfinished[0]!;
+    }
+    if (!isCanonicalStoryId(storyId)) throw new Error(`next: storyId "${storyId}" is not a canonical, path-safe Proof-or-Stop story id`);
+    const cliEntry = process.argv[1];
+    if (!cliEntry) throw new Error('next --untilAgent: cli entry unavailable');
+    const watch = driveWatchdogConfig();
+    const id = storyId;
+    const callCwd = (): string => {
+      try {
+        const path = ctx.store.readStory(id).worktree?.path;
+        if (path && existsSync(path)) return path;
+      } catch { /* the main checkout */ }
+      return existsSync(process.cwd()) ? process.cwd() : ctx.root;
+    };
+    const result = await driveUntilAgent<NextStep>({
+      budgetMs: typeof args.driveBudgetMs === 'number' && args.driveBudgetMs > 0 ? args.driveBudgetMs : undefined,
+      call: () => runWatchedCall({
+        argv: [process.execPath, cliEntry, 'next', JSON.stringify({ storyId: id, run: true, json: true })],
+        cwd: callCwd(),
+        ...watch,
+        // The calls' own `ran:` lines stream through (they also keep a caller's view live).
+        onLine: line => { if (!line.startsWith('Wait:')) ctx.log?.(line); },
+      }),
+      log: ctx.log,
+    });
+    const seconds = (result.calls.reduce((sum, row) => sum + row.ms, 0) / 1000).toFixed(1);
+    const lastFailed = result.outcome === 'stopped' ? result.executed.at(-1) : undefined;
+    const rendered = [
+      `drove ${result.calls.length} next --run call(s): ${result.executed.length} framework step(s), ${seconds} s${result.watchdog.length ? `, ${result.watchdog.length} watchdog kill(s)` : ''}`,
+      ...(result.worktree ? [worktreeNote(result.worktree)] : []),
+      ...(result.stopped ? [`stopped: ${result.stopped}`] : []),
+      ...(lastFailed && lastFailed.exit !== 0 ? [lastFailed.tail] : []),
+      ...(result.next ? [renderNextStep(capped(result.next))] : []),
+      ...(result.next && !result.next.done && ['agent', 'stopped', 'framework_blocked'].includes(result.outcome) ? [untilAgentOwnerLine(id, driver)] : []),
+    ].join('\n');
+    if (args.json) {
+      return { schemaVersion: NEXT_DRIVE_SCHEMA, storyId: id, outcome: result.outcome, ownerDriver: driver, calls: result.calls, executed: result.executed,
+        watchdog: result.watchdog, stopped: result.stopped, next: result.next, rendered, ...(result.worktree ? { worktree: result.worktree } : {}) };
+    }
+    return rendered;
+  }
   function parseNextJson(stdout: string): Record<string, unknown> | null {
     const start = stdout.indexOf('{');
     if (start < 0) return null;
     try { return JSON.parse(stdout.slice(start)) as Record<string, unknown>; } catch { return null; }
   }
   return {
-    next(args: NextArgs = {}): string | Record<string, unknown> {
+    next(args: NextArgs = {}): string | Record<string, unknown> | Promise<string | Record<string, unknown>> {
+      if (args.untilAgent === true || String(args.untilAgent) === 'true') return driveNext(args);
       if (!args.storyId) {
         // N4: with no unfinished Story, the next step is the one story_create template.
         if (!hasUnfinishedStory(ctx)) {

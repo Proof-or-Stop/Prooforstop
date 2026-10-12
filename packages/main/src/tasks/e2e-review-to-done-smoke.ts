@@ -552,6 +552,9 @@ export class Owner {
   }
 
   /** One real CLI call from the Story worktree (the owner's cwd), timed and dirty-checked. */
+  /** Owner-driver lab (NOD-W): set one variable of the env every CLI call of this owner gets. */
+  setEnv(name: string, value: string): void { this.env[name] = value; }
+
   cli(command: string, payload: Record<string, unknown>, opts: { label?: string } = {}): CliResult {
     const label = opts.label ?? command;
     const cwd = existsSync(this.worktree) ? this.worktree : this.root;
@@ -2066,9 +2069,24 @@ function placeholderHintViolations(call: { reason: string; placeholders?: string
  * (provideScript). TEST authoring (finish decision + summary) arrives as ONE
  * step whose batch lists each exact command (Q6 (b)).
  */
+export interface DriveStats {
+  /** Owner turns as counted for this mode (llm: every next call + every owner-executed step; framework: every owner-executed step). */
+  ownerTurns: number;
+  /** The steps the owner executed itself, in order (reason; batch = one entry). */
+  ownerSteps: string[];
+  /** `next` calls the harness made (llm: next/next --run; framework: next --untilAgent). */
+  nextCalls: number;
+  /** Framework mode: `next --run` calls the driver made inside those calls. */
+  driverRunCalls: number;
+  /** Framework mode: watchdog kills the driver reported. */
+  watchdogKills: Array<{ reason: string; silentMs: number }>;
+}
+
 export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boolean; twoFindings?: boolean;
   /** Old-PoS run 46 (NRG): round 2 reports NRG_FINDING, whose first repair reverses round 1's fix. */
   reversing?: boolean;
+  /** Owner-driver lab (owner.driver=framework): drive with `next --untilAgent` (implies run); the owner only gets agent steps. */
+  drive?: boolean;
   /** Run 16: round 1 also reports two LOW findings; the owner repairs the first itself (managed finding-repair) when next says enter_review. */
   lowFindings?: boolean;
   /** Run 16: the live-smoke capture needs the project validate.env (CONTEXT=abs) to pass. */
@@ -2110,8 +2128,13 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   /** Old-PoS run 52 (NPXR*): see ScriptMode.recurring. */
   recurring?: RecurringMode; }, lines: string[],
   /** Called with each step `next` returned, before the harness executes it; quiet = no detached managed run in flight. */
-  onStep?: (next: NextStepJson, quiet: boolean) => void): void {
+  onStep?: (next: NextStepJson, quiet: boolean) => void): DriveStats {
   const id = o.storyId;
+  // Framework owner driver: the same flow, `next --untilAgent` in place of the owner's `next --run` loop.
+  const runLike = mode.run || mode.drive === true;
+  let nextCalls = 0;
+  let driverRunCalls = 0;
+  const watchdogKills: DriveStats['watchdogKills'] = [];
   const scriptKeyByRun = new Map<string, string>();
   let firstRound: string | undefined;
   const reasons: string[] = [];
@@ -2138,7 +2161,7 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
       if (existsSync(join(runsRoot, runId, 'terminal.json'))) { o.unscript(key); scriptKeyByRun.delete(runId); }
     }
   };
-  if (mode.run) {
+  if (runLike) {
     writeFileSync(join(o.scriptsDir, 'resolver.json'), JSON.stringify({ argv: [process.execPath, SELF, '--provide-script', o.root, id, o.scriptsDir,
       JSON.stringify({ findingRound1: mode.findingRound1, twoFindings: mode.twoFindings ?? false, lowFindings: mode.lowFindings ?? false, ...(mode.delivery ? { delivery: mode.delivery } : {}),
         ...(mode.repairOutOfScope ? { repairOutOfScope: true } : {}), ...(mode.preexisting ? { preexisting: mode.preexisting } : {}) })] }));
@@ -2150,12 +2173,21 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
     // meanwhile; the read-only check applies when nothing else is running.
     const quiet = scriptKeyByRun.size === 0;
     const before = statusOf();
-    const asked = o.cli('next', { storyId: id, json: true, ...(mode.run ? { run: true } : {}) }, { label: mode.run ? 'next --run' : 'next' });
-    ownerTurns += 1;
+    const asked = o.cli('next', { storyId: id, json: true, ...(mode.drive ? { untilAgent: true } : mode.run ? { run: true } : {}) }, { label: mode.drive ? 'next --untilAgent' : mode.run ? 'next --run' : 'next' });
+    nextCalls += 1;
+    // Framework mode: the driver's next --run calls are not owner turns; only the step handed back is.
+    if (!mode.drive) ownerTurns += 1;
     const parsed = asked.status === 0 ? parseJson(asked.stdout) : null;
-    const next = (mode.run ? parsed?.next : parsed) as NextStepJson | undefined;
+    const next = (runLike ? parsed?.next : parsed) as NextStepJson | undefined;
     assert.ok(next && typeof next.kind === 'string', `[${o.scenario}] next --storyId=${id} --json did not return a step:\n${asked.out.slice(-2000)}`);
-    if (mode.run) {
+    if (mode.drive) {
+      driverRunCalls += Array.isArray(parsed!.calls) ? (parsed!.calls as unknown[]).length : 0;
+      for (const kill of (parsed!.watchdog ?? []) as Array<{ reason: string; silentMs: number }>) watchdogKills.push({ reason: kill.reason, silentMs: kill.silentMs });
+      assert.ok(['agent', 'done'].includes(String(parsed!.outcome)), `[${o.scenario}] next --untilAgent ended with outcome ${String(parsed!.outcome)} (stopped: ${String(parsed!.stopped)}):\n${String(parsed!.rendered ?? asked.out).slice(-2000)}`);
+      // Never a framework step handed to the owner, never a judgment step run by the driver.
+      assert.notEqual(next.kind, 'framework', `[${o.scenario}] next --untilAgent handed a framework step to the owner: ${next.reason}`);
+    }
+    if (runLike) {
       const executed = (parsed!.executed ?? []) as Array<{ command: string; reason?: string; exit: number; ms: number; tail: string }>;
       executed.forEach((row, index) => {
         const previous = executed[index - 1];
@@ -2394,12 +2426,15 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   }
   assert.equal(new StoryStore(o.root).readStory(id).phase, 'DONE', `[${o.scenario}] next never reached DONE; steps: ${reasons.join(' > ')}`);
   lines.push(`next-driven steps (${reasons.length}): ${reasons.join(' > ')}`);
-  lines.push(`owner turns from REVIEW entry: ${ownerTurns} (${reasons.filter(row => !row.startsWith('run:')).length} owner-executed steps)`);
-  if (mode.run) lines.push(`framework steps executed inside next --run: ${internalCalls} (${(internalMs / 1000).toFixed(1)} s, included in the next --run call times)`);
-  if (mode.run) lines.push(`framework step wall by reason: ${[...stepMs].map(([reason, row]) => `${reason} ${row.n}x ${(row.ms / 1000).toFixed(1)} s`).join(', ')}`);
+  const ownerSteps = reasons.filter(row => !row.startsWith('run:'));
+  lines.push(`owner turns from REVIEW entry: ${ownerTurns} (${ownerSteps.length} owner-executed steps)`);
+  if (mode.drive) lines.push(`framework driver: ${nextCalls} next --untilAgent call(s), ${driverRunCalls} next --run call(s) inside them${watchdogKills.length ? `, ${watchdogKills.length} watchdog kill(s)` : ''}`);
+  if (runLike) lines.push(`framework steps executed inside next --run: ${internalCalls} (${(internalMs / 1000).toFixed(1)} s, included in the next --run call times)`);
+  if (runLike) lines.push(`framework step wall by reason: ${[...stepMs].map(([reason, row]) => `${reason} ${row.n}x ${(row.ms / 1000).toFixed(1)} s`).join(', ')}`);
   const unique = [...new Set(q6)];
   if (mode.violations) mode.violations.push(...unique);
   else assert.deepEqual(unique, [], `[${o.scenario}] Q6 next-driver contract violations:\n- ${unique.join('\n- ')}`);
+  return { ownerTurns, ownerSteps, nextCalls, driverRunCalls, watchdogKills };
 }
 
 /**
@@ -4818,6 +4853,149 @@ function scenarioNRB(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 }
 
 /**
+ * Owner-driver lab NOD-INIT (owner.driver=framework). From an empty project
+ * `next --untilAgent` (no Story) hands the owner the story_create template;
+ * story_create then tells the owner to END its turn (not to run next --run);
+ * and ONE `next --untilAgent` call (no storyId: the one unfinished Story)
+ * drives INIT to PLAN's first agent step with no owner turn in between: the
+ * scope freeze check, both managed INIT reviewers, every wait and pause,
+ * INIT_CHECK and PLAN. NIN needs the owner to call `next --run` again after
+ * each `paused:` (one owner turn plus one write_stdin poll each on Codex).
+ */
+function scenarioNODInit(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NOD-INIT';
+  const name = 'NOD-INIT owner-driver lab: next --untilAgent reaches PLAN\'s first agent step from story_create with no owner turn (INIT reviewers, waits, INIT_CHECK, PLAN run by the framework)';
+  const o = new Owner(tag, 'B-0000', machineEnv, steps, false, { fromScratch: true, config: { owner: { driver: 'framework' } } });
+  const lines: string[] = [];
+  try {
+    const first = parseJson(o.mustCli('next', { json: true, untilAgent: true }, { label: 'next --untilAgent (no Story)' }).stdout);
+    assert.equal(first?.outcome, 'agent', `[${tag}] no Story: outcome agent`);
+    const template = first!.next as NextStepJson;
+    assert.equal(template.reason, 'story_create_authoring', `[${tag}] no Story: the story_create template is the agent step`);
+    const created = o.mustCli('story_create', fillStoryCreateTemplate(template.cli!.payload), { label: 'story_create (template)' });
+    const id = created.stdout.match(/Story (B-[a-f0-9]+) created/)?.[1];
+    assert.ok(id, `[${tag}] story_create returned an id:\n${created.out.slice(-1500)}`);
+    o.storyId = id!;
+    assert.match(created.stdout, /Next: end your turn now \(owner\.driver=framework\)/, `[${tag}] story_create tells the framework-driven owner to end its turn:\n${created.stdout.slice(-1200)}`);
+    assert.ok(!created.stdout.includes(`Next: proof-or-stop next --storyId=${id} --run`), `[${tag}] story_create does not send the framework-driven owner to next --run`);
+    assert.ok(!created.stdout.includes('Manual equivalent'), `[${tag}] no manual INIT reviewer sequence for a framework-driven owner`);
+    writeFileSync(join(o.scriptsDir, 'resolver.json'), JSON.stringify({ argv: [process.execPath, SELF, '--provide-script', o.root, id, o.scriptsDir, JSON.stringify({ findingRound1: false })] }));
+    const asked = o.mustCli('next', { json: true, untilAgent: true }, { label: 'next --untilAgent (INIT)' });
+    const parsed = parseJson(asked.stdout)!;
+    const next = parsed.next as NextStepJson;
+    const ran = ((parsed.executed ?? []) as Array<{ reason: string; exit: number; command: string; tail: string }>).map(row => {
+      assert.equal(row.exit, 0, `[${tag}] the driver ran a step its gate refused: ${row.command}\n${row.tail}`);
+      return row.reason;
+    });
+    assert.equal(parsed.outcome, 'agent', `[${tag}] one call ends at an agent step (outcome ${String(parsed.outcome)}, stopped ${String(parsed.stopped)}):\n${String(parsed.rendered).slice(-1500)}`);
+    assert.equal(parsed.storyId, id, `[${tag}] without --storyId the driver drives the one unfinished Story`);
+    assert.equal(next.phase, 'PLAN', `[${tag}] the first agent step is in PLAN; at ${next.phase} ${next.kind}:${next.reason}`);
+    assert.equal(next.kind, 'agent');
+    for (const reason of ['scope_freeze_check', 'init_review_launch', 'managed_run_wait', 'enter_init_check', 'enter_plan']) {
+      assert.ok(ran.includes(reason), `[${tag}] the driver ran ${reason} (ran: ${ran.join(' > ')})`);
+    }
+    assert.equal(ran.filter(reason => reason === 'init_review_launch').length, 2, `[${tag}] both INIT reviewers launched by the framework`);
+    assert.match(String(parsed.rendered), /end your turn: owner\.driver=framework/, `[${tag}] the handed-back step tells the owner to end its turn afterwards`);
+    const calls = (parsed.calls as unknown[]).length;
+    lines.push(`owner turns story_create -> PLAN agent step: 0 (1 next --untilAgent call; ${calls} next --run call(s) inside it, ${ran.length} framework steps: ${ran.join(' > ')})`);
+    lines.push(`handed back: ${next.phase} ${next.kind}:${next.reason}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/**
+ * Owner-driver lab NOD: D's flow (one verified finding in round 1, critic,
+ * remediation back to DEV, managed repair, framework resolve, round 2, PRE_CERT,
+ * TEST, DONE) driven twice from REVIEW entry with the same scripted owner:
+ * llm mode (the owner's `next --run` loop, as ND-run) and framework mode
+ * (`next --untilAgent`, owner.driver=framework). The owner must get exactly
+ * the same judgment steps in both modes (none auto-performed, none lost), only
+ * agent steps in framework mode, and fewer owner invocations.
+ */
+function scenarioNOD(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NOD';
+  const name = 'NOD owner-driver lab: D\'s flow to DONE in framework mode (next --untilAgent) hands the owner the same judgment steps as llm mode with fewer owner invocations';
+  const lines: string[] = [];
+  let current: Owner | null = null;
+  try {
+    const llm = current = new Owner('NOD-llm', 'B-e6a1', machineEnv, steps, false, { trackedGateFailureCounts: true });
+    devSetup(llm);
+    const llmLines: string[] = [];
+    const a = driveWithNext(llm, { findingRound1: true, run: true }, llmLines);
+    assert.equal(new StoryStore(llm.root).readStory(llm.storyId).phase, 'DONE');
+    llm.cleanup();
+    const fw = current = new Owner(tag, 'B-e6a2', machineEnv, steps, false, { trackedGateFailureCounts: true, config: { owner: { driver: 'framework' } } });
+    devSetup(fw);
+    const b = driveWithNext(fw, { findingRound1: true, run: true, drive: true }, lines);
+    assert.match(git(fw.root, ['log', '--format=%s', '-3', 'main']), new RegExp(`merge: ${fw.storyId} `), `[${tag}] story branch merged into main`);
+    assert.match(readFileSync(join(fw.root, 'strs/strs_test.go'), 'utf8'), /TestReverseEmpty/, `[${tag}] repair merged into main`);
+    assert.deepEqual(b.ownerSteps, a.ownerSteps, `[${tag}] framework mode hands the owner exactly the judgment steps llm mode does:\nllm:       ${a.ownerSteps.join(' > ')}\nframework: ${b.ownerSteps.join(' > ')}`);
+    assert.ok(b.ownerTurns < a.ownerTurns, `[${tag}] fewer owner invocations in framework mode (${b.ownerTurns} vs ${a.ownerTurns})`);
+    lines.push(`owner invocations from REVIEW entry: llm ${a.ownerTurns} (${a.nextCalls} next --run calls + ${a.ownerSteps.length} owner steps) vs framework ${b.ownerTurns} (${b.ownerSteps.length} owner steps; ${b.nextCalls} next --untilAgent calls made by the driver, ${b.driverRunCalls} next --run calls inside them)`);
+    lines.push(`owner judgment steps (identical in both modes): ${b.ownerSteps.join(' > ') || 'none'}`);
+    fw.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    if (current) console.log(`${tag} fixture retained for diagnosis: ${current.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/**
+ * Owner-driver lab NOD-W (old-PoS run 55: `next --run` idle 25.8 min after a
+ * completed wait until the owner killed it). A post-commit hook of the fixture
+ * hangs ONCE (sleep) inside the first framework review-evidence commit, so the
+ * `next --run` call the driver made blocks on that step. The driver's watchdog
+ * (PROOF_OR_STOP_DRIVE_STEP_STALL_MS shortened for the fixture) kills the
+ * call's process group, decides again from the real state, and the Story
+ * still reaches DONE with no owner action.
+ */
+function scenarioNODW(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NOD-W';
+  const name = 'NOD-W owner-driver lab: a hung step inside next --run (git hook blocked in a review commit) is killed by the driver watchdog and decided again; DONE';
+  const o = new Owner(tag, 'B-e6a3', machineEnv, steps, false, { config: { owner: { driver: 'framework' } } });
+  const lines: string[] = [];
+  try {
+    devSetup(o);
+    const hookRel = git(o.worktree, ['rev-parse', '--git-path', 'hooks/post-commit']);
+    const hook = isAbsolute(hookRel) ? hookRel : join(o.worktree, hookRel);
+    assert.ok(!existsSync(hook), `[${tag}] the fixture has no post-commit hook of its own (${hook})`);
+    const marker = join(o.root, '.nodw-hung-once');
+    mkdirSync(dirname(hook), { recursive: true });
+    writeFileSync(hook, [
+      '#!/bin/sh',
+      `[ -e '${marker}' ] && exit 0`,
+      `case "$(git log -1 --format=%s)" in ${NODW_HANG_SUBJECT}) ;; *) exit 0 ;; esac`,
+      `git log -1 --format=%s > '${marker}'`,
+      'sleep 600',
+      'exit 0', '',
+    ].join('\n'));
+    chmodSync(hook, 0o755);
+    o.setEnv('PROOF_OR_STOP_DRIVE_STEP_STALL_MS', '15000');
+    o.setEnv('PROOF_OR_STOP_DRIVE_STALL_MS', '15000');
+    o.setEnv('PROOF_OR_STOP_DRIVE_POLL_MS', '500');
+    const stats = driveWithNext(o, { findingRound1: false, run: true, drive: true }, lines);
+    assert.ok(existsSync(marker), `[${tag}] the hook hung inside a framework commit`);
+    assert.ok(stats.watchdogKills.length >= 1, `[${tag}] the driver watchdog killed the hung call`);
+    assert.equal(stats.watchdogKills[0]!.reason, 'step_stall', `[${tag}] a hung step (a process below the call), not an idle next`);
+    lines.push(`hung commit: ${readFileSync(marker, 'utf8').trim()}; watchdog: ${stats.watchdogKills.map(row => `${row.reason} after ${(row.silentMs / 1000).toFixed(1)} s`).join(', ')}`);
+    lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** NOD-W: the commit subject (sh case pattern) whose post-commit hook hangs once. */
+const NODW_HANG_SUBJECT = '*review*evidence*|*managed*review*';
+
+/**
  * NX, old-PoS runs 20 and 25 (F1): the task's own Unicode test prints a CJK
  * subtest name under `go test -v`. The framework captures that output into
  * checklist.json verification evidence (`outputTail`), and the DONE summary's
@@ -6404,7 +6582,7 @@ function scenarioNRG(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NPP|NPM-[IP]|NRB|PL|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NPP|NPM-[IP]|NRB|PL|NOD(?:-INIT|-W)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -6492,6 +6670,10 @@ async function main(): Promise<void> {
     if (only.includes('NPM-I') || only.includes('PL')) outcomes.push(scenarioNPMI(machine.env, steps));
     if (only.includes('NPM-P') || only.includes('PL')) outcomes.push(scenarioNPMP(machine.env, steps));
     if (only.includes('NRB') || only.includes('PL')) outcomes.push(scenarioNRB(machine.env, steps));
+    // Owner-driver lab (owner.driver=framework): NOD-INIT, NOD, NOD-W.
+    if (only.includes('NOD-INIT')) outcomes.push(scenarioNODInit(machine.env, steps));
+    if (only.includes('NOD')) outcomes.push(scenarioNOD(machine.env, steps));
+    if (only.includes('NOD-W')) outcomes.push(scenarioNODW(machine.env, steps));
     // Detection A/B arms: explicit tokens (ND-V1 .. NF-V9) or AB = ND-V1, ND-V2, ND-V3, NF-V4, ND-V5, ND-V6, ND-V8, ND-V9.
     const abTokens = only.includes('AB') ? ['ND-V1', 'ND-V2', 'ND-V3', 'NF-V4', 'ND-V5', 'ND-V6', 'ND-V8', 'ND-V9'] : [];
     for (const token of [...new Set([...abTokens, ...only.filter(arg => /^N[DF]-V[1-689]$/.test(arg))])]) {
@@ -6502,7 +6684,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

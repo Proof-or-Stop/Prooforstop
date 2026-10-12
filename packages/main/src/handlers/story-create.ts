@@ -44,7 +44,7 @@ import { captureStoryIntegrationTarget } from '../core/story-integration-target.
 import { ensureRuntimeInfoExclude } from '../core/runtime-info-exclude.js';
 import { ensureGitCommitIdentityNotice } from '../core/git-commit-identity.js';
 import { initReviewDeferredToPlan } from '../core/plan-review-merge.js';
-import { abVariantEvidenceOf, rowBudgetOn } from '../core/ab-variants.js';
+import { abVariantEvidenceOf, ownerDriver, rowBudgetOn } from '../core/ab-variants.js';
 import { recordRowBudgetEvidence, rowBudgetNote } from '../core/plan-row-budget.js';
 import {
   boundStoryRequest,
@@ -1270,7 +1270,12 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         // waits, INIT_CHECK and PLAN); the manual sequence below is what it runs.
         // Lab plan-light (A/B plan.reviewMerge=on): no INIT reviewer; the plan is reviewed once in PLAN.
         const deferredInitReview = initReviewDeferredToPlan(store, ctx.root, storyId);
-        const initReviewHint = deferredInitReview
+        // Owner-driver lab: with owner.driver=framework the framework driver
+        // (`next --untilAgent`) runs all of that and resumes the owner with the one
+        // step that needs it, so the owner ends its turn here.
+        const initReviewHint = ownerDriver(loadConfig(ctx.root)) === 'framework'
+          ? `\n\nNext: end your turn now (owner.driver=framework). The framework driver runs proof-or-stop next --storyId=${storyId} --untilAgent (scope freeze check, ${deferredInitReview ? `no INIT reviewer: ${deferredInitReview}` : 'both managed INIT reviewers and their waits'}, INIT_CHECK, PLAN) and resumes you with the one step that needs you. Do not run next --run, launch reviewers or wait on runs yourself.`
+          : deferredInitReview
           ? `\n\nNext: proof-or-stop next --storyId=${storyId} --run (records the scope freeze check, then enters INIT_CHECK and PLAN; no INIT reviewer runs: ${deferredInitReview}; it stops at any step that needs you, with every command complete)`
           : `\n\nNext: proof-or-stop next --storyId=${storyId} --run (records the scope freeze check, launches both managed INIT reviewers, waits for them, then enters INIT_CHECK and PLAN; it stops at any step that needs you, with every command complete)` +
           `\n→ Manual equivalent: run the two managed INIT reviewers in parallel:\n` +

@@ -1071,6 +1071,8 @@ Behavior:
     run: z.boolean().optional().describe('Execute consecutive framework-kind steps through the real CLI (gate steps, managed launches fully bound to this Story\'s own host/model/effort, and waits on managed runs), stop at the first agent/human step or refusal, and print the following step. Off by default.'),
     maxSteps: z.number().optional().describe('--run bound on executed framework steps (default 40, max 100).'),
     waitBudgetMs: z.number().optional().describe('--run: total ms all waits of this call may block (default and max 285000); then it pauses on the wait step and you rerun the same command.'),
+    untilAgent: z.boolean().optional().describe('Framework owner driver: repeat `next --run` (each call in its own watched process group; a stalled call is killed and decided again) until a step needs the agent, a refusal, a human step or DONE, then print that one step. Without --storyId it drives the one unfinished Story (or prints the story_create template). Never executes a step `next --run` would not.'),
+    driveBudgetMs: z.number().optional().describe('--untilAgent: total ms this call may drive before it returns outcome budget (default: no limit).'),
   }},
   { name: 'done_closure', description: 'Project local DONE closure readiness from the DONE oracle without mutating lifecycle or widening local assurance. Alias: proof-or-stop done closure', schema: {
     storyId: z.string().describe('Story ID'),

@@ -1113,6 +1113,7 @@ proof-or-stop next                           # no unfinished Story: the one stor
 proof-or-stop next --storyId=B-xxxx          # one step, human-readable; last line is `Next: <command>`
 proof-or-stop next --storyId=B-xxxx --json   # the same step as JSON
 proof-or-stop next --storyId=B-xxxx --run    # run framework steps, bound launches and waits (one 285 s wait budget by default), stop at the next agent step
+proof-or-stop next --untilAgent              # framework owner driver: repeat `next --run` (watched) until a step needs the agent; see below
 ```
 
 The human-readable step is capped at about 2k tokens (old-PoS run 31 D7: two
@@ -1458,6 +1459,76 @@ line ends with its fix: the framework command that rewrites the authored text
 `U+XXXX` code points to quote a required literal by, and "Never edit source or
 tests to satisfy this gate". The preflight refusal's own hint is English and
 points to `next`.
+
+### `next --untilAgent`: the framework owner driver (`owner.driver`, owner-driver lab)
+
+`proof-or-stop next --storyId=<id> --untilAgent` (no `--storyId`: the one unfinished
+Story; with none it prints the `story_create` template; with several it refuses and
+asks for the id) repeats `next --storyId=<id> --run --json` in child processes,
+with no agent turn in between, until a step is not framework work, and prints that
+ONE step (`handlers/next-drive.ts`):
+
+| `next --run` call ends with | the driver |
+|---|---|
+| `paused:` (wait budget used) or `maxSteps` reached | calls `next --run` again |
+| an `agent` step | returns it (`outcome: agent`) |
+| a `human` step / DONE | returns it (`outcome: human` / `done`) |
+| `stopped:` (a refused step, a launch decided twice) | returns it with the refusal (`outcome: stopped`) |
+| a framework step with no runnable command | returns it (`outcome: framework_blocked`) |
+| the watchdog killed the call | calls again; a third kill in a row returns `outcome: watchdog` |
+| `--driveBudgetMs` used | returns `outcome: budget` (run it again) |
+
+It never executes a step itself: every executed step is one `next --run` executes
+(framework kind, each through the real CLI and its gates), so a judgment step
+(authoring, a first or replacement launch, a finding disposition, a metadata
+correction, the TEST finish decision and summary, a host verdict) always reaches
+the agent. Text output: one `drove N next --run call(s): M framework step(s)` line,
+the Story worktree, any `stopped:` line with the refused step's tail, the step
+exactly as `next` renders it, and one line saying what to do after it (with
+`owner.driver=framework`: end the turn; otherwise: run `next --untilAgent` again).
+`--json`: `{schemaVersion: "proof-or-stop.next_drive.v1", storyId, outcome,
+ownerDriver, calls[], executed[], watchdog[], stopped, next, rendered, worktree?}`.
+The `ran:` lines of the calls stream to stderr.
+
+**Watchdog.** Old-PoS run 55 lost 25.8 min: after a completed wait a `next --run`
+process sat with no output and no child process until the owner killed it; the CLI
+idle watchdog is a timer, which a synchronously blocked process never runs, and a
+rerun recovered. Each `next --run` call of the driver runs in its own process group.
+A call that prints nothing for `PROOF_OR_STOP_DRIVE_STALL_MS` (default 180000) while
+no step process runs below it (only `next` processes in its tree; `/proc` on Linux,
+`ps` elsewhere), or for `PROOF_OR_STOP_DRIVE_STEP_STALL_MS` (default 1200000) while
+one does (a hung wait, import or git hook), is killed with its whole group and the
+driver calls `next --run` again, which decides from the real state. The
+`next --untilAgent` process itself is exempt from the generic CLI idle/max watchdog
+(it supervises its calls). Poll period `PROOF_OR_STOP_DRIVE_POLL_MS` (default 5000).
+
+**`owner.driver`** (`core/ab-variants.ts` `ownerDriver`; not a detection switch,
+recorded in no evidence): `llm` (default, absent or malformed) keeps everything as
+before: the owner runs `next --run`, and `story_create` prints `Next: proof-or-stop
+next --storyId=<id> --run` plus the manual INIT sequence. `framework` means an
+external driver (the bench adapter) runs `next --untilAgent` and resumes the owner
+only with the step it returns: `story_create` then prints `Next: end your turn now
+(owner.driver=framework)` and no manual sequence, and the handed-back step ends with
+the "end your turn" line. Set it in the project config:
+`{"owner": {"driver": "framework"}}` (bench: `POS_AB_FLAGS='{"owner.driver":"framework"}'`,
+adapter `pos_adapters/owner_driver.py`).
+
+Why (old-PoS runs 40/54/56, `bench-staging/oldpos/structural-cost-analysis.md`
+section 9): 36-51% of the owner's requests (40/30/28 of 79/76/79) and 43-59% of its
+input tokens (3.72/2.83/2.56M) only drove the framework (`next --run`, its 30 s
+Codex return and `write_stdin` poll, the rerun after `paused:`, status reads). Most
+of that ran while workers ran, so the wall-time saving is small (the serial part:
+49-92 s per run, 1.5-3.9%); the saving is owner tokens. The judgment requests
+(27-34 per run) stay with the owner.
+
+Tests: `node packages/main/dist/tasks/owner-driver-smoke.js` (L1-L7 loop rules, W1
+stalled `next`, W2 hung step, W3 chatty call, W4 repeated kills, O1 the switch);
+harness `NOD-INIT` (one `next --untilAgent` call from `story_create` to PLAN's first
+agent step: scope freeze, both INIT reviewers and their waits, INIT_CHECK, PLAN),
+`NOD` (D's flow from REVIEW entry in llm and framework mode: identical owner
+judgment steps `review_lane_launch > live_smoke > test_authoring`, owner invocations
+7 vs 3), `NOD-W` (a post-commit hook hangs once in a review-evidence import commit;
+the watchdog kills the call after the step-stall limit and the Story reaches DONE).
 
 ### Detection A/B variant switches (seven experimental, default off; `review.round2Lanes`, `remediation.grouping` and `remediation.thread` adopted; five catch-earlier switches since old-PoS run 33 and two run-43 detection switches that default on, and three EXPERIMENTAL lab plan-light PLAN switches, below)
 

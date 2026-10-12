@@ -270,3 +270,19 @@ export const rowBudgetOn = (config: unknown): boolean => catchEarlierPick(config
 export function abVariantEvidenceOf(config: unknown): AbVariantEvidence | undefined {
   try { return abVariantEvidence(resolveAbVariants(config)); } catch { return undefined; }
 }
+
+/**
+ * owner.driver (old-PoS owner-driver lab; not a detection switch, recorded in
+ * no evidence): who drives the lifecycle between the owner's judgment steps.
+ *   'llm' (default)  the owner model runs `next --storyId=<id> --run`, its waits and reruns (unchanged)
+ *   'framework'      a framework driver (the bench adapter) runs `next --storyId=<id> --untilAgent`
+ *                    and resumes the owner only with the one agent action it returns; story_create
+ *                    and `next --untilAgent` then tell the owner to end its turn instead of running `next --run`
+ * A malformed value keeps 'llm'.
+ */
+export const OWNER_DRIVER_VALUES = ['llm', 'framework'] as const;
+export type OwnerDriver = (typeof OWNER_DRIVER_VALUES)[number];
+export function ownerDriver(config: unknown): OwnerDriver {
+  const value = section(config, 'owner').driver;
+  return value === 'framework' ? 'framework' : 'llm';
+}
