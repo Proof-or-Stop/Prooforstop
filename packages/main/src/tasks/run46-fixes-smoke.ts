@@ -189,7 +189,8 @@ function lanePrompt(lane: string, config: Record<string, unknown> = {}, findings
 
 await check('S the sibling-parity check ranks the oracle (same receiver\'s counterpart first) and turns a base disagreement into a [precedent-conflict] question', () => {
   for (const lane of ['proof-or-stop-review-test-coverage', 'proof-or-stop-review-quality']) {
-    const prompt = lanePrompt(lane);
+    // Old-PoS run 58: the switch defaults off; the arm is on.
+    const prompt = lanePrompt(lane, { review: { siblingParity: 'on' } });
     const block = prompt.slice(prompt.indexOf('Sibling parity'));
     assert.match(block, /SAME receiver's pre-existing counterpart/, `${lane}: the primary reference is the same receiver's pre-existing counterpart`);
     assert.match(block, /secondary/, `${lane}: another receiver's same operation is only secondary`);
@@ -197,6 +198,7 @@ await check('S the sibling-parity check ranks the oracle (same receiver\'s count
     assert.match(block, /never ask to align the new path with the secondary/, `${lane}: no alignment to the secondary`);
     assert.match(block, /Repro: `<command or expression>`/, `${lane}: each finding states its repro`);
     assert.doesNotMatch(lanePrompt(lane, { review: { siblingParity: 'off' } }), /Sibling parity/, `${lane}: off removes it`);
+    assert.doesNotMatch(lanePrompt(lane), /Sibling parity/, `${lane}: absent = off (old-PoS run 58)`);
   }
 });
 

@@ -12,7 +12,7 @@
  *         `.split(..)[0]` / `.splitlines()[0]` forms are prefix comparisons;
  *      X3 kept clear: a split whose other parts are also checked (the run 40
  *         exact-first-line-plus-position helper), and a full equality.
- *   S. review.siblingParity (default on): the test-coverage and quality lane
+ *   S. review.siblingParity (default on until old-PoS run 58; now default off, `on` = recorded arm): the test-coverage and quality lane
  *      dispatch prompts carry the sibling-parity check; the other lanes do not;
  *      `off` removes it and is recorded; a malformed value keeps the default.
  *   P. plan.exclusionRationaleCheck (default on):
@@ -202,12 +202,12 @@ const excludedVerdict = (storyId: string) => ({ storyId,
 // ---------------------------------------------------------------------------
 // S. sibling parity in the evidence lanes
 
-await check('S review.siblingParity: default on in the test-coverage and quality lane prompts only; off removes it and is recorded; malformed keeps on', () => {
+await check('S review.siblingParity (default off since old-PoS run 58): on adds it to the test-coverage and quality lane prompts only and is recorded; off / absent / malformed: none', () => {
   const { resolveAbVariants, abVariantEvidence } = abVariants as unknown as { resolveAbVariants: (c: unknown) => Record<string, string>; abVariantEvidence: (v: unknown) => unknown };
-  assert.equal(resolveAbVariants({}).siblingParity, 'on', 'default on');
+  assert.equal(resolveAbVariants({}).siblingParity, 'off', 'default off (old-PoS run 58)');
   assert.equal(abVariantEvidence(resolveAbVariants({})), undefined, 'the default is production: not recorded');
-  assert.deepEqual(abVariantEvidence(resolveAbVariants({ review: { siblingParity: 'off' } })), { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.siblingParity': 'off' } });
-  assert.equal(api(abVariants, 'siblingParityOn')({ review: { siblingParity: 'loud' } }), true, 'malformed keeps the default');
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ review: { siblingParity: 'on' } })), { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.siblingParity': 'on' } });
+  assert.equal(api(abVariants, 'siblingParityOn')({ review: { siblingParity: 'loud' } }), false, 'malformed keeps the default');
   const prompt = (config: Record<string, unknown>, lane: string): string => {
     const { root, storyId, ctx } = planStory(config);
     try {
@@ -216,13 +216,14 @@ await check('S review.siblingParity: default on in the test-coverage and quality
     } finally { rmSync(root, { recursive: true, force: true }); resetConfigCache(); }
   };
   for (const lane of ['proof-or-stop-review-test-coverage', 'proof-or-stop-review-quality']) {
-    const on = prompt({}, lane);
-    assert.match(on, /Sibling parity/, `${lane}: default on`);
+    const on = prompt({ review: { siblingParity: 'on' } }, lane);
+    assert.match(on, /Sibling parity/, `${lane}: on adds it`);
+    assert.doesNotMatch(prompt({}, lane), /Sibling parity/, `${lane}: default off`);
     assert.match(on, /sibling/i);
     assert.doesNotMatch(prompt({ review: { siblingParity: 'off' } }, lane), /Sibling parity/, `${lane}: off removes it`);
-    assert.match(prompt({ review: { siblingParity: 'bogus' } }, lane), /Sibling parity/, `${lane}: malformed keeps on`);
+    assert.doesNotMatch(prompt({ review: { siblingParity: 'bogus' } }, lane), /Sibling parity/, `${lane}: malformed keeps off`);
   }
-  for (const lane of ['proof-or-stop-review-docs', 'proof-or-stop-review-concept']) assert.doesNotMatch(prompt({}, lane), /Sibling parity/, `${lane}: not a parity lane`);
+  for (const lane of ['proof-or-stop-review-docs', 'proof-or-stop-review-concept']) assert.doesNotMatch(prompt({ review: { siblingParity: 'on' } }, lane), /Sibling parity/, `${lane}: not a parity lane`);
 });
 
 // ---------------------------------------------------------------------------
