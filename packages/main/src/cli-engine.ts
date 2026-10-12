@@ -1333,6 +1333,11 @@ export async function runCli(opts?: {
     || cmd === 'verification_evidence_batch_add'
     || cmd === 'verification_run';
   const runtimeContinuation = getCommandPolicy(cmd)?.runtimeContinuation === true;
+  // Owner-driver lab: `next --untilAgent` supervises its own `next --run` calls
+  // with a stall watchdog (handlers/next-drive.ts) and may legitimately run for
+  // hours while it prints nothing between steps; the generic idle/max watchdog
+  // would exit it and orphan the call it supervises.
+  const supervisesOwnCalls = cmd === 'next' && (parsed.untilAgent === true || String(parsed.untilAgent) === 'true');
   const watchdogAbort = new AbortController();
   if (structuredWatchdog) {
     const watchdogControl = {
@@ -1361,7 +1366,7 @@ export async function runCli(opts?: {
   }
 
   const watchdog = setInterval(() => {
-    if (runtimeContinuation) return;
+    if (runtimeContinuation || supervisesOwnCalls) return;
     const now = Date.now();
     if (now - startTime > MAX_TIMEOUT) {
       const error = new CliWatchdogTimeoutError('max', MAX_TIMEOUT);

@@ -29,6 +29,7 @@ import {
 } from '../core/repro-evidence-binding-gate.js';
 import { buildMaterialClassificationSnapshot, MaterialCodePolicyError } from '../core/material-code-policy.js';
 import { loadConfig, PROOF_OR_STOP_CONFIG_FILENAME } from '../core/config.js';
+import { ownerDriver } from '../core/ab-variants.js';
 import { probeExtractionEnabled, probeRowsCreateNote } from '../core/request-probes.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
@@ -1265,8 +1266,12 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         // N4: `next --run` drives INIT from here (a boundary batch if missing,
         // scope_freeze_check, both managed INIT reviewers in parallel, their
         // waits, INIT_CHECK and PLAN); the manual sequence below is what it runs.
-        const initReviewHint =
-          `\n\nNext: proof-or-stop next --storyId=${storyId} --run (records the scope freeze check, launches both managed INIT reviewers, waits for them, then enters INIT_CHECK and PLAN; it stops at any step that needs you, with every command complete)` +
+        // Owner-driver lab: with owner.driver=framework the framework driver
+        // (`next --untilAgent`) runs all of that and resumes the owner with the one
+        // step that needs it, so the owner ends its turn here.
+        const initReviewHint = ownerDriver(loadConfig(ctx.root)) === 'framework'
+          ? `\n\nNext: end your turn now (owner.driver=framework). The framework driver runs proof-or-stop next --storyId=${storyId} --untilAgent (scope freeze check, both managed INIT reviewers and their waits, INIT_CHECK, PLAN) and resumes you with the one step that needs you. Do not run next --run, launch reviewers or wait on runs yourself.`
+          : `\n\nNext: proof-or-stop next --storyId=${storyId} --run (records the scope freeze check, launches both managed INIT reviewers, waits for them, then enters INIT_CHECK and PLAN; it stops at any step that needs you, with every command complete)` +
           `\n→ Manual equivalent: run the two managed INIT reviewers in parallel:\n` +
           `${renderManagedInitReviewerDispatches(storyId, ['proof-or-stop-review-story-init', 'proof-or-stop-product-reviewer'])}\n` +
           `${renderAgentLivenessGuidance({ label: 'INIT reviewers' })}\n` +
