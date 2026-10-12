@@ -25,6 +25,10 @@
  *                                        findings re-review in full, the others are replaced by ONE confirmation lane; the critic
  *                                        is skipped on such a round with no finding (core/review-delta-round.ts; plan, scope and
  *                                        fallbacks in tasks/review-delta-round-smoke.ts, end to end in ND-DR*)
+ *   Lab plan-light (EXPERIMENTAL, default off; behaviour in tasks/plan-light-smoke.ts, end to end in NPP / NPM-I / NPM-P / NRB):
+ *   plan.pinProbe                    example pins probed on the Story base + request-literal examples before PLAN→DEV
+ *   plan.reviewMerge                 no INIT reviewers; ONE merged plan review in PLAN; a rerun confirms the changed rows
+ *   plan.rowBudget                   one intent row per operand class: guidance + an advisory (never blocking) check
  *   Old-PoS run 43 (default ON, `off` = recorded rollback; behaviour in tasks/run43-fixes-smoke.ts S / P):
  *   review.siblingParity             the test-coverage and quality lane prompts carry the sibling-parity check
  *   plan.exclusionRationaleCheck     an excludes entry may not close a scope row whose behaviour another item changes
@@ -61,8 +65,12 @@ await check('config: absent switches resolve to production values; malformed fai
     // Old-PoS run 43: the two detection switches default on; `off` is the recorded rollback.
     siblingParity: 'on', exclusionRationaleCheck: 'on',
     // EXPERIMENTAL delta review rounds (lab codex/lab-delta-review): off by default.
-    deltaRounds: 'off' });
+    deltaRounds: 'off',
+    // EXPERIMENTAL lab plan-light switches: off by default.
+    pinProbe: 'off', reviewMerge: 'off', rowBudget: 'off' });
   assert.equal(abVariantEvidence(off), undefined);
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { pinProbe: 'on', reviewMerge: 'on', rowBudget: 'on' } })),
+    { schema: 'proof-or-stop.ab-variants.v1', flags: { 'plan.pinProbe': 'on', 'plan.reviewMerge': 'on', 'plan.rowBudget': 'on' } }, 'lab plan-light: each arm is recorded');
   assert.equal(abVariantEvidence(resolveAbVariants({ review: { siblingParity: 'on' }, plan: { exclusionRationaleCheck: 'on' } })), undefined, 'the default-on arms are production: not recorded');
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ review: { siblingParity: 'off' }, plan: { exclusionRationaleCheck: 'off' } })),
     { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.siblingParity': 'off', 'plan.exclusionRationaleCheck': 'off' } }, 'old-PoS run 43: each rollback is recorded');

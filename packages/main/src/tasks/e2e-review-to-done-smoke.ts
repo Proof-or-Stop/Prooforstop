@@ -294,8 +294,19 @@
  *      dispositioned, unchanged site closes at import with no owner turn and no
  *      extra round (NPXR); a site the Story edited (NPXRE) or a new site of the
  *      same doc (NPXRN) stays a real finding.
+ *   NPP/NPM-I/NPM-P/NRB lab plan-light (EXPERIMENTAL switches, default off; each
+ *      scenario also runs its switch-absent control): NPP plan.pinProbe=on, a
+ *      pin of unchanged behaviour the Story base computes differently and a pin
+ *      contradicting a request-literal example refuse DEV entry ([pin_probe_mismatch],
+ *      observed value, one row-patch Next), corrected pins pass; NPM-I
+ *      plan.reviewMerge=on, next --run reaches PLAN with zero INIT reviewer
+ *      sessions; NPM-P one merged plan review (INIT + scope questions), its rerun
+ *      is a confirmation re-review of the changed rows, only a real gap or an
+ *      unanswered question blocks, then DEV; NRB plan.rowBudget=on, the template
+ *      guidance and story_create's advisory list rows repeating an operand class
+ *      with one trim command (rows before -> after printed). `PL` = all four.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -4455,6 +4466,298 @@ function scenarioNIN(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Lab plan-light (structural-cost-analysis.md §7 item 4): plan.pinProbe (NPP),
+// plan.reviewMerge (NPM-I, NPM-P), plan.rowBudget (NRB). Each switch is off by
+// default; every scenario also runs its control with the switch absent.
+
+/** NPP: the project's evaluator at the Story base; base Upper returns its input unchanged, Reverse does not exist. */
+const NPP_EVAL = [
+  "const lines = require('fs').readFileSync(process.argv[2], 'utf8').trim().split('\\n');",
+  'const call = lines[lines.length - 1].trim().match(/^Upper\\((".*")\\)$/);',
+  "if (!call) { console.error('undefined: ' + lines[lines.length - 1]); process.exit(1); }",
+  'console.log(JSON.stringify(JSON.parse(call[1])));',
+  '',
+].join('\n');
+const NPP_REQUEST = `${NIQ_REQUEST}\n- Mixed case is kept upper-case: \`Upper("xy") -> "XY"\`.`;
+
+function scenarioNPP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NPP';
+  const name = 'NPP lab plan-light plan.pinProbe=on: a wrong pin on unchanged behaviour and a pin contradicting a request literal refuse DEV entry with the observed value; the corrected pins pass; switch off = no probe';
+  const runner = { command: process.execPath, args: ['tools/strs-eval.js', '{file}'], program: '{input}', extension: '.txt' };
+  const row = (desc: string, test: string, extra: Record<string, unknown> = {}) => ({ desc, type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass',
+    requirementSource: 'story', verification: { command: `go test -v ./strs -run ^${test}$`, selector: `--- PASS: ${test}` }, ...extra });
+  const quote = '`strs.Upper(s)` returns the upper-case form of `s`';
+  const intent = {
+    happy: [row('Upper("AB") -> "ab"', 'TestUpperKeeps', { derivation: { requestQuote: quote, computation: 'upper-casing "AB" lower-cases nothing, so "ab"' } }),
+      row('Upper("xy") -> "Xy"', 'TestUpperXY', { baseValue: '"xy"', derivation: { requestQuote: quote, computation: 'only the first letter is upper-cased: "Xy"' } })],
+    edge: [row('Upper("ab") -> "AB"', 'TestUpper', { baseValue: '"ab"' })],
+    adversarial: [row('Reverse("héllo") -> "olléh"', 'TestReverse')],
+  };
+  const lines: string[] = [];
+  const setup = (o: Owner): void => {
+    const store = new StoryStore(o.worktree);
+    store.writeStory(o.storyId, { ...store.readStory(o.storyId), phase: 'PLAN' });
+    const legacy = store.readChecklist(o.storyId);
+    store.writeChecklist(o.storyId, { ...legacy, items: legacy.items.map(item => ({ ...item, status: 'pending', startTime: null,
+      ...(item.id === 'CHK-001' ? { verificationIntent: intent } : {}) })) } as never);
+    commitFixtureMetadata(o, `proof-or-stop: ${o.storyId} PLAN pins`);
+    o.mustCli('dev_memory_preflight_ack', { storyId: o.storyId });
+  };
+  const ask = (o: Owner, label: string): NextStepJson => {
+    const asked = o.cli('next', { storyId: o.storyId, json: true }, { label });
+    const next = (asked.status === 0 ? parseJson(asked.stdout) : null) as NextStepJson | null;
+    assert.ok(next && typeof next.kind === 'string', `[NPP] next did not return a step:\n${asked.out.slice(-2000)}`);
+    lines.push(`${o.scenario} ${label}: ${next.phase} ${next.kind} ${next.reason}`);
+    return next;
+  };
+  const control = new Owner('NPP-off', 'B-e2f1', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NPP_REQUEST,
+    config: { probeRunner: runner }, baseFiles: { 'tools/strs-eval.js': NPP_EVAL } });
+  const o = new Owner(tag, 'B-e2f0', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NPP_REQUEST,
+    config: { probeRunner: runner, plan: { pinProbe: 'on' } }, baseFiles: { 'tools/strs-eval.js': NPP_EVAL } });
+  try {
+    // Control: the switch absent, the same wrong pins are not probed (production behaviour unchanged).
+    setup(control);
+    const off = ask(control, 'next (switch off)');
+    assert.notEqual(off.reason, 'pin_probe_mismatch', `[NPP] with plan.pinProbe absent nothing is probed: ${off.why}`);
+    const offDev = control.cli('story_advance', { storyId: control.storyId, phase: 'DEV' }, { label: 'story_advance DEV (switch off)' });
+    assert.doesNotMatch(offDev.out, /pin_probe_mismatch/, '[NPP] the DEV gate is unchanged with the switch off');
+    control.cleanup();
+
+    setup(o);
+    const blocked = ask(o, 'next (wrong pins)');
+    assert.equal(blocked.reason, 'pin_probe_mismatch', `[NPP] next names the wrong pins before the plan review: ${blocked.reason}: ${blocked.why}`);
+    assert.match(blocked.why, /CHK-001:happy:0: `Upper\("AB"\)` -> the Story base computes "AB", the row pins "ab"/, `[NPP] the unchanged-behaviour pin is named with the observed base value: ${blocked.why}`);
+    assert.match(blocked.why, /CHK-001:happy:1: `Upper\("xy"\)` -> the request states "XY", the row pins "Xy"/, `[NPP] the request-literal contradiction is named: ${blocked.why}`);
+    assert.doesNotMatch(blocked.why, /CHK-001:edge:0|CHK-001:adversarial:0/, '[NPP] a baseValue-acknowledged change and a row the base cannot run are not refused');
+    assert.equal(blocked.cli?.command, 'checklist_update', '[NPP] ONE next action: a checklist_update row patch');
+    const patch = (blocked.cli?.payload.intentRows as Array<{ ref: string }> | undefined) ?? [];
+    assert.equal(patch.length, 1, '[NPP] the step patches one row');
+    const dev = o.cli('story_advance', { storyId: o.storyId, phase: 'DEV' }, { label: 'story_advance DEV (refused: pins)' });
+    assert.notEqual(dev.status, 0, '[NPP] the wrong pins must not reach DEV');
+    assert.match(dev.out, /\[pin_probe_mismatch\]/, `[NPP] the DEV gate names the rule:\n${dev.out.slice(-1500)}`);
+    assert.match(dev.out, /the Story base computes "AB"/, '[NPP] the refusal carries the observed value');
+    assert.match(dev.out, /Next: proof-or-stop checklist_update '[^\n]*intentRows/, '[NPP] the refusal carries one row-patch Next');
+    const evidencePath = [o.root, o.worktree].map(dir => join(dir, '.proof-or-stop', 'runtime', 'plan-pin-probe', `${o.storyId}.json`)).find(path => existsSync(path));
+    assert.ok(evidencePath, '[NPP] the probe is recorded with its A/B evidence');
+    const evidence = JSON.parse(readFileSync(evidencePath!, 'utf8')) as { abVariant?: { flags?: Record<string, string> }; runner?: string; judged?: number; skipped?: number };
+    assert.deepEqual(evidence.abVariant?.flags, { 'plan.pinProbe': 'on' }, '[NPP] abVariantEvidence recorded');
+    assert.equal(evidence.runner, 'probeRunner');
+    lines.push(`probe: runner ${evidence.runner}, judged ${evidence.judged} case(s) on the base, skipped ${evidence.skipped} (new behaviour)`);
+
+    // The owner applies the observed values (one row patch each); the correct pins pass.
+    o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', intentRows: [{ ref: 'CHK-001:happy:0', desc: 'Upper("AB") -> "AB"' },
+      { ref: 'CHK-001:happy:1', desc: 'Upper("xy") -> "XY"', derivation: null }] }, { label: 'checklist_update CHK-001 (pins corrected)' });
+    const after = ask(o, 'next (pins corrected)');
+    assert.notEqual(after.reason, 'pin_probe_mismatch', `[NPP] corrected pins pass the probe: ${after.why}`);
+    const passed = JSON.parse(readFileSync(evidencePath!, 'utf8')) as { mismatches?: unknown[] };
+    assert.deepEqual(passed.mismatches, [], '[NPP] the recorded probe is clean');
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** NPM-I: INIT driven by next --run with plan.reviewMerge=on: no INIT reviewer runs. */
+function scenarioNPMI(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NPM-I';
+  const name = 'NPM-I lab plan-light plan.reviewMerge=on: next --run drives INIT to PLAN with zero INIT reviewer sessions (the plan is reviewed once in PLAN)';
+  const o = new Owner(tag, 'B-0000', machineEnv, steps, false, { fromScratch: true, config: { plan: { reviewMerge: 'on' } } });
+  const lines: string[] = [];
+  try {
+    const first = o.cli('next', { json: true }, { label: 'next (no Story)' });
+    const template = parseJson(first.stdout) as unknown as NextStepJson | null;
+    assert.equal(template?.reason, 'story_create_authoring', `[NPM-I] next prints the story_create template:\n${first.out.slice(-1500)}`);
+    assert.match(template!.why, /ONE merged plan review/, '[NPM-I] the template says the plan is reviewed once in PLAN');
+    assert.doesNotMatch(template!.why, /launches both managed INIT reviewers/, '[NPM-I] no INIT reviewer is announced');
+    const created = o.mustCli('story_create', fillStoryCreateTemplate(template!.cli!.payload), { label: 'story_create (template)' });
+    const id = created.stdout.match(/Story (B-[a-f0-9]+) created/)?.[1];
+    assert.ok(id, `[NPM-I] story_create returned an id:\n${created.out.slice(-1500)}`);
+    o.storyId = id!;
+    assert.match(created.stdout, /no INIT reviewer runs/, `[NPM-I] story_create names the deferral:\n${created.stdout.slice(-1200)}`);
+    assert.doesNotMatch(created.stdout, /run the two managed INIT reviewers/, '[NPM-I] story_create prints no INIT reviewer launch');
+    writeFileSync(join(o.scriptsDir, 'resolver.json'), JSON.stringify({ argv: [process.execPath, SELF, '--provide-script', o.root, id, o.scriptsDir, JSON.stringify({ findingRound1: false })] }));
+    const ran: string[] = [];
+    let next: NextStepJson | undefined;
+    for (let call = 0; call < 8; call += 1) {
+      const asked = o.cli('next', { storyId: id, run: true, json: true }, { label: 'next --run' });
+      const parsed = parseJson(asked.stdout);
+      next = parsed?.next as NextStepJson | undefined;
+      assert.ok(next, `[NPM-I] next --run returned no step:\n${asked.out.slice(-2000)}`);
+      for (const executed of (parsed!.executed ?? []) as Array<{ command: string; reason: string; exit: number; tail: string }>) {
+        ran.push(executed.reason);
+        assert.equal(executed.exit, 0, `[NPM-I] next --run executed a step its gate refused: ${executed.command}\n${executed.tail}`);
+      }
+      if ((next.phase === 'INIT' || next.phase === 'INIT_CHECK') && (next.wait || parsed!.paused)) continue;
+      break;
+    }
+    assert.equal(next?.phase, 'PLAN', `[NPM-I] next --run reaches PLAN; at ${next?.phase} ${next?.reason}: ${next?.why.slice(0, 400)}`);
+    for (const reason of ['scope_freeze_check', 'enter_init_check', 'enter_plan']) assert.ok(ran.includes(reason), `[NPM-I] next --run ran ${reason} (ran: ${ran.join(' > ')})`);
+    assert.ok(!ran.includes('init_review_launch'), `[NPM-I] no INIT reviewer launched (ran: ${ran.join(' > ')})`);
+    const runsRoot = join(o.root, '.proof-or-stop', 'runtime', 'host-runs');
+    const initRuns = existsSync(runsRoot) ? readdirSync(runsRoot).filter(runId => {
+      try { return INIT_REVIEWERS.includes((JSON.parse(readFileSync(join(runsRoot, runId, 'spec.json'), 'utf8')) as { agentType: string }).agentType); } catch { return false; }
+    }) : [];
+    assert.deepEqual(initRuns, [], '[NPM-I] zero INIT reviewer sessions');
+    lines.push(`INIT reviewer sessions: 0 (production: 2); framework steps: ${ran.join(' > ')}`);
+    lines.push(`stopped at ${next!.phase} ${next!.kind}:${next!.reason}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** NPM-P: the ONE merged plan review in PLAN; a gap fix gets a confirmation re-review of the changed rows; only an unanswered question blocks. */
+function scenarioNPMP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NPM-P';
+  const name = 'NPM-P lab plan-light plan.reviewMerge=on: one merged plan-review session answers INIT + scope questions, its rerun confirms only the changed rows, only real gaps / unanswered questions block, then DEV';
+  const o = new Owner(tag, 'B-e2f2', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NIQ_REQUEST,
+    config: { plan: { reviewMerge: 'on' } } });
+  const lines: string[] = [];
+  const ask = (label: string): NextStepJson => {
+    const asked = o.cli('next', { storyId: o.storyId, json: true }, { label });
+    const next = (asked.status === 0 ? parseJson(asked.stdout) : null) as NextStepJson | null;
+    assert.ok(next && typeof next.kind === 'string', `[NPM-P] next did not return a step:\n${asked.out.slice(-2000)}`);
+    lines.push(`${label}: ${next.phase} ${next.kind} ${next.reason}`);
+    return next;
+  };
+  const row = (desc: string, test: string, extra: Record<string, unknown> = {}) => ({ desc, type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass',
+    requirementSource: 'story', verification: { command: `go test -v ./strs -run ^${test}$`, selector: `--- PASS: ${test}` }, ...extra });
+  const intents: Record<string, Record<string, unknown>> = {
+    'CHK-001': { happy: [row('strs.Upper(s): Upper("ab") -> "AB"', 'TestUpper')], edge: [row('Upper("") -> ""', 'TestUpperEmpty')], adversarial: [row('Upper leaves digits and symbols unchanged', 'TestUpperSymbols')] },
+    'CHK-002': { happy: [row('strs.Reverse(s): Reverse("héllo") -> "olléh"', 'TestReverse')], edge: [row('Reverse("") -> ""', 'TestReverseEmpty')], adversarial: [row('Reverse of a one-rune string is that string', 'TestReverseOne')] },
+  };
+  const verdict = (features: Array<Record<string, unknown>>, openQuestions: Array<Record<string, unknown>> = []) => JSON.stringify({ storyId: o.storyId, features,
+    summary: { total: features.length, covered: features.filter(row => row.status === 'covered').length, excluded: 0, gaps: features.filter(row => row.status === 'gap').length },
+    readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null }, openQuestions });
+  const covered1 = { feature: 'strs.Upper returns the upper-case form', covered_by: 'CHK-001', status: 'covered', excluded_by: null, source: 'request.md' };
+  const covered2 = { feature: 'strs.Reverse reverses by rune', covered_by: 'CHK-002', status: 'covered', excluded_by: null, source: 'request.md' };
+  const gap = { feature: 'init-review: CHK-002 userSees names no reversed output, so success is not observable', covered_by: null, status: 'gap', excluded_by: null, source: 'init-review' };
+  const launchAndWait = (launch: NextStepJson, script: string, label: string): void => {
+    o.script('proof-or-stop-review-scope-plan', { final: 'Merged plan review saved.', commands: [[process.execPath, CLI, 'scope_check_save', script]] });
+    const payload = { ...launch.cli!.payload };
+    for (const [key, value] of Object.entries({ host: 'codex', model: MODEL.model, reasoningEffort: MODEL.reasoningEffort })) {
+      if (typeof payload[key] !== 'string' || /^<.*>$/.test(String(payload[key]))) payload[key] = value;
+    }
+    const launched = o.mustCli('host_run', payload, { label });
+    const runId = String((parseJson(launched.stdout)?.run as Record<string, unknown>).runId);
+    const terminal = waitTerminal(o, 'merged plan review', runId);
+    o.unscript('proof-or-stop-review-scope-plan');
+    assert.equal(terminal.state, 'completed', `[NPM-P] merged review terminal ${terminal.state} (${terminal.reason})\n${o.providerCommandLog()}`);
+  };
+  try {
+    const store = new StoryStore(o.worktree);
+    store.writeStory(o.storyId, { ...store.readStory(o.storyId), phase: 'PLAN' });
+    const legacy = store.readChecklist(o.storyId);
+    store.writeChecklist(o.storyId, { ...legacy, items: legacy.items.map(item => ({ ...item, status: 'pending', startTime: null, verificationIntent: intents[item.id] })) } as never);
+    commitFixtureMetadata(o, `proof-or-stop: ${o.storyId} complete plan`);
+    o.mustCli('dev_memory_preflight_ack', { storyId: o.storyId });
+
+    const launch = ask('next (PLAN, plan complete)');
+    assert.equal(launch.reason, 'scope_plan_review_launch', `[NPM-P] the merged plan review runs once the plan is complete: ${launch.reason}: ${launch.why}`);
+    launchAndWait(launch, verdict([covered1, covered2, gap]), 'host_run merged plan review #1');
+    const firstPrompt = managedPrompts(o, 'proof-or-stop-review-scope-plan')[0]?.prompt ?? '';
+    assert.match(firstPrompt, /Merged plan review \(A\/B arm \{"plan.reviewMerge":"on"\}\)/, '[NPM-P] the one session gets the merged INIT + scope questions');
+    assert.match(firstPrompt, /Request traceability \(required\)/, '[NPM-P] the request-coverage function of the plan review is kept');
+    assert.doesNotMatch(firstPrompt, /Confirmation re-review/, '[NPM-P] the first run is a full review');
+    const saved = new StoryStore(o.worktree).readScopeCheck(o.storyId) as unknown as { planReview?: string; abVariant?: { flags?: Record<string, string> } };
+    assert.equal(saved.planReview, 'merged', '[NPM-P] scope-check.json records the merged review');
+    assert.deepEqual(saved.abVariant?.flags, { 'plan.reviewMerge': 'on' }, '[NPM-P] scope-check.json records the arm');
+
+    const review = o.cli('story_review', { storyId: o.storyId }, { label: 'story_review (merged review gap)' });
+    assert.match(review.out, /init-review: CHK-002 userSees/, '[NPM-P] a real gap the merged review found blocks');
+    o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-002', userSees: 'go test -v ./strs -run TestReverse prints --- PASS: TestReverse; Reverse("abc") returns "cba"' }, { label: 'checklist_update CHK-002 userSees (gap fixed)' });
+
+    const relaunch = ask('next (PLAN, gap fixed)');
+    assert.equal(relaunch.reason, 'scope_plan_review_launch', `[NPM-P] the fix is confirmed by a rerun: ${relaunch.reason}: ${relaunch.why}`);
+    const question = { id: 'OQ-1', q: 'Should Upper of the German sharp s expand to two letters?', evidence: 'request.md says only "the upper-case form"', sourcePointers: ['request.md'] };
+    launchAndWait(relaunch, verdict([covered1, { ...covered2, feature: 'strs.Reverse reverses by rune; userSees states the output' }], [question]), 'host_run merged plan review #2 (confirmation)');
+    const secondPrompt = managedPrompts(o, 'proof-or-stop-review-scope-plan').at(-1)?.prompt ?? '';
+    assert.match(secondPrompt, /Confirmation re-review \(A\/B plan\.reviewMerge=on\)/, '[NPM-P] the rerun is a confirmation re-review');
+    assert.match(secondPrompt, /changed items \(CHK-002\)/, '[NPM-P] only the changed item is re-judged');
+    const copied = secondPrompt.split('Previous rows to copy unchanged')[1] ?? '';
+    assert.match(copied, /"covered_by":"CHK-001"/, '[NPM-P] the unchanged item\'s rows are copied');
+    assert.doesNotMatch(copied, /"covered_by":"CHK-002"/, '[NPM-P] the changed item\'s rows are not copied');
+
+    const blocked = o.cli('story_review', { storyId: o.storyId }, { label: 'story_review (unanswered question)' });
+    assert.match(blocked.out, /scope_open_question_unresolved: OQ-1/, '[NPM-P] an unanswered question blocks');
+    o.mustCli('scope_question_resolve', { storyId: o.storyId, oqId: 'OQ-1', resolution: 'The request asks for the upper-case form only; Go strings.ToUpper semantics apply, no special casing.' }, { label: 'scope_question_resolve OQ-1' });
+    const clean = o.cli('story_review', { storyId: o.storyId }, { label: 'story_review (clean)' });
+    assert.doesNotMatch(clean.out, /scope_open_question_unresolved|scope_gap/, `[NPM-P] answered, nothing else blocks:\n${clean.out.slice(-1500)}`);
+    const dev = ask('next (PLAN, review answered)');
+    assert.equal(dev.reason, 'enter_dev', `[NPM-P] PLAN is complete after one merged review + one confirmation: ${dev.reason}: ${dev.why}`);
+    const sessions = managedPrompts(o).map(row => row.agentType);
+    assert.equal(sessions.filter(agent => INIT_REVIEWERS.includes(agent)).length, 0, '[NPM-P] no INIT reviewer session');
+    assert.equal(sessions.filter(agent => agent === 'proof-or-stop-review-scope-plan').length, 2, '[NPM-P] two plan-review sessions: the merged review + one confirmation');
+    lines.push(`plan-review sessions: ${sessions.length} (merged review + confirmation; production: 2 INIT reviewers + 2 scope-plan runs)`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** NRB: the story_create template authored with several literal examples of one operand class. */
+function scenarioNRB(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NRB';
+  const name = 'NRB lab plan-light plan.rowBudget=on: guidance in the template, story_create lists rows that repeat an operand class with one trim command per item; request-literal rows stay; switch off = no note';
+  const lines: string[] = [];
+  const rowsOf = (o: Owner): number => {
+    const items = new StoryStore(o.root).readChecklist(o.storyId).items;
+    return items.reduce((sum, item) => sum + ['happy', 'edge', 'adversarial'].reduce((lanes, lane) => lanes + ((item.verificationIntent as Record<string, unknown[]> | undefined)?.[lane]?.length ?? 0), 0), 0);
+  };
+  const author = (o: Owner): { payload: Record<string, unknown>; out: string } => {
+    const first = o.cli('next', { json: true }, { label: 'next (no Story)' });
+    const template = parseJson(first.stdout) as unknown as NextStepJson | null;
+    assert.equal(template?.reason, 'story_create_authoring', `[NRB] template:\n${first.out.slice(-1200)}`);
+    const payload = fillStoryCreateTemplate(template!.cli!.payload) as Record<string, any>;
+    const base = payload.checklist[0].verificationIntent.happy[0];
+    const extra = (desc: string, computation: string) => ({ ...base, desc, derivation: { requestQuote: base.derivation.requestQuote, computation } });
+    // Four literal examples of one class (a lower-case ASCII word), one empty input (another class), one non-ASCII word (another class).
+    payload.checklist[0].verificationIntent.happy.push(extra('Upper("cd") -> "CD"', 'the upper-case form of "cd" is "CD"'),
+      extra('Upper("xyz") -> "XYZ"', 'the upper-case form of "xyz" is "XYZ"'), extra('Upper("hello") -> "HELLO"', 'the upper-case form of "hello" is "HELLO"'));
+    payload.checklist[0].verificationIntent.edge.push(extra('Upper("") -> ""', 'the upper-case form of "" is ""'), extra('Upper("é") -> "É"', 'the upper-case form of "é" is "É"'));
+    const created = o.mustCli('story_create', payload, { label: 'story_create (redundant rows)' });
+    o.storyId = created.stdout.match(/Story (B-[a-f0-9]+) created/)?.[1] ?? o.storyId;
+    return { payload: template!.cli!.payload, out: `${created.stdout}${created.stderr}` };
+  };
+  const control = new Owner('NRB-off', 'B-0000', machineEnv, steps, false, { fromScratch: true });
+  const o = new Owner(tag, 'B-0000', machineEnv, steps, false, { fromScratch: true, config: { plan: { rowBudget: 'on' } } });
+  try {
+    const off = author(control);
+    assert.doesNotMatch(off.out, /Row budget/, '[NRB] no note with the switch absent');
+    const offRows = rowsOf(control);
+    control.cleanup();
+
+    const first = o.cli('next', { json: true }, { label: 'next (no Story, guidance)' });
+    assert.match((parseJson(first.stdout) as unknown as NextStepJson).why, /ONE intent row per distinct behaviour/, '[NRB] the template carries the row-budget guidance');
+    const on = author(o);
+    const before = rowsOf(o);
+    assert.equal(before, offRows, '[NRB] the switch never drops rows by itself');
+    assert.match(on.out, /Row budget \(A\/B plan\.rowBudget=on, advisory \[row_budget\]\): 3 of 6 intent rows repeat an operand class/, `[NRB] the soft check lists the repeated rows:\n${on.out.slice(-2000)}`);
+    assert.match(on.out, /CHK-001:happy:1 \(same class as CHK-001:happy:0/, '[NRB] the first repeat names the row it repeats');
+    const trim = on.out.split('\n').find(line => /^\s*proof-or-stop checklist_update '/.test(line));
+    assert.ok(trim, '[NRB] one trim command per item');
+    const json = trim!.trim().replace(/^proof-or-stop checklist_update '/, '').replace(/'$/, '');
+    o.mustCli('checklist_update', JSON.parse(json) as Record<string, unknown>, { label: 'checklist_update CHK-001 (trim)' });
+    const after = rowsOf(o);
+    assert.equal(after, before - 3, '[NRB] the trim drops exactly the repeated rows');
+    const kept = JSON.stringify(new StoryStore(o.root).readChecklist(o.storyId).items[0]!.verificationIntent);
+    for (const desc of ['Upper(\\"ab\\") -> \\"AB\\"', 'Upper(\\"\\") -> \\"\\"', 'Upper(\\"é\\") -> \\"É\\"']) assert.ok(kept.includes(desc), `[NRB] ${desc} (request literal / other class) stays`);
+    lines.push(`intent rows: ${before} -> ${after} after the advisory trim (switch off: ${offRows}, no note)`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 /**
  * NX, old-PoS runs 20 and 25 (F1): the task's own Unicode test prints a CJK
  * subtest name under `go test -v`. The framework captures that output into
@@ -5992,7 +6295,7 @@ function scenarioNMP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NPP|NPM-[IP]|NRB|PL|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -6074,6 +6377,11 @@ async function main(): Promise<void> {
     // Old-PoS run 52: recurring pre-existing findings (NPXR) and its two negative controls.
     for (const token of ['NPXR', 'NPXRE', 'NPXRN'] as const) if (only.includes(token)) outcomes.push(scenarioNPXR(machine.env, steps, token));
     if (only.includes('NRW')) outcomes.push(scenarioNRW(machine.env, steps));
+    // Lab plan-light: plan.pinProbe (NPP), plan.reviewMerge (NPM-I, NPM-P), plan.rowBudget (NRB); PL = all four.
+    if (only.includes('NPP') || only.includes('PL')) outcomes.push(scenarioNPP(machine.env, steps));
+    if (only.includes('NPM-I') || only.includes('PL')) outcomes.push(scenarioNPMI(machine.env, steps));
+    if (only.includes('NPM-P') || only.includes('PL')) outcomes.push(scenarioNPMP(machine.env, steps));
+    if (only.includes('NRB') || only.includes('PL')) outcomes.push(scenarioNRB(machine.env, steps));
     // Detection A/B arms: explicit tokens (ND-V1 .. NF-V9) or AB = ND-V1, ND-V2, ND-V3, NF-V4, ND-V5, ND-V6, ND-V8, ND-V9.
     const abTokens = only.includes('AB') ? ['ND-V1', 'ND-V2', 'ND-V3', 'NF-V4', 'ND-V5', 'ND-V6', 'ND-V8', 'ND-V9'] : [];
     for (const token of [...new Set([...abTokens, ...only.filter(arg => /^N[DF]-V[1-689]$/.test(arg))])]) {
@@ -6084,7 +6392,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {
