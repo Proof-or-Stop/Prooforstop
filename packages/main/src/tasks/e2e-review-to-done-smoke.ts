@@ -315,9 +315,21 @@
  *      `next` sends the F-002/F-001 conflict to the owner's PLAN pin (one Next)
  *      instead of another repair. RED on the base: F-002's reversing repair was
  *      resolved and DONE shipped it.
+ *   NGS old-PoS run 58 (guard cascade, run58-analysis.md §4): round 1's F-001
+ *      (Repro `Reverse("")`) is repaired with a table test that also holds a row
+ *      of ANOTHER case (`Reverse("ab\n")`, correct then); round 2's F-002 changes
+ *      that case legitimately and updates the row. The guard runs only F-001's
+ *      own repro row, F-002 is resolved, round 3 is clean, DONE. RED on the
+ *      base: F-001's whole snapshot test failed on the stale row, F-002's repair
+ *      was rejected, `[regression-of F-001]` opened and next asked for a pin.
+ *   NGF old-PoS run 58 (F-004): round 1 reports a verified finding and a
+ *      SUSPECTED `[precedent-conflict]` finding; next (DEV) sends the conflict to
+ *      ONE PLAN pin step before any repair (it does not wait a round for a
+ *      verified re-filing). RED on the base: the suspected conflict was ignored
+ *      and the verified finding went to repair.
  *
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL|NGS|NGF]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -1237,6 +1249,35 @@ function nrgRepairScript(storyId: string, findingId: string): ProviderScript {
   final: 'Reverse("") now returns "-"; updated TestReverseEmpty; committed.' };
 }
 
+/** NGS (old-PoS run 58): round 1's finding states its repro; its repair test also holds a row of another case. */
+const NGS_FINDING1 = {
+  desc: 'Reverse has no focused test for an empty string. Repro: `Reverse("")`',
+  severity: 'medium', category: 'edge', files: ['strs/strs.go', 'strs/strs_test.go'], evidenceState: 'verified',
+};
+/** NGS round 2: a later, legitimate change of another case that F-001's repair test pinned as it was then. */
+const NGS_FINDING2 = {
+  desc: 'Reverse moves a trailing newline to the front: keep a trailing newline at the end. Repro: `Reverse("ab\\n")`',
+  severity: 'medium', category: 'edge', files: ['strs/strs.go', 'strs/strs_test.go'], evidenceState: 'verified',
+};
+const NGS_REPAIR_TEST = '\nfunc TestReverseEdges(t *testing.T) {\n\ttests := []struct {\n\t\tname string\n\t\tgot  string\n\t\twant string\n\t}{\n'
+  + '\t\t{"empty", Reverse(""), ""},\n\t\t{"trailing newline", Reverse("ab\\n"), "\\nba"},\n\t}\n\tfor _, tt := range tests {\n\t\tif tt.got != tt.want {\n'
+  + '\t\t\tt.Errorf("%s: got %q, want %q", tt.name, tt.got, tt.want)\n\t\t}\n\t}\n}\n';
+const NGS_NEWLINE = '\tif strings.HasSuffix(s, "\\n") {\n\t\treturn Reverse(strings.TrimSuffix(s, "\\n")) + "\\n"\n\t}\n';
+/** NGS: F-002's repair keeps a trailing newline in place and updates F-001's table row of that case. */
+function ngsRepairScript(storyId: string, findingId: string): ProviderScript {
+  const short = findingId.startsWith(`${storyId}:`) ? findingId.slice(storyId.length + 1) : findingId;
+  const edit = `const fs=require('fs');fs.writeFileSync('strs/strs.go',fs.readFileSync('strs/strs.go','utf8').replace(${JSON.stringify(NRG_IMPL_LINE)},${JSON.stringify(NRG_IMPL_LINE + NGS_NEWLINE)}));`
+    + `fs.writeFileSync('strs/strs_test.go',fs.readFileSync('strs/strs_test.go','utf8').replace(${JSON.stringify('Reverse("ab\\n"), "\\nba"}')},${JSON.stringify('Reverse("ab\\n"), "ba\\n"}')}));`;
+  return { commands: [[process.execPath, '-e', edit],
+    ['/bin/sh', '-c', `git add strs && git -c user.name=${FINDING_REPAIR} commit -qm '${storyId} ${short}: resolve finding (Reverse keeps a trailing newline)' && git log --format=%h -1`]],
+  final: 'Reverse keeps a trailing newline at the end; updated the TestReverseEdges row; committed.' };
+}
+/** NGF (old-PoS run 58 F-004): a SUSPECTED precedent-conflict finding beside the verified D_FINDING. */
+const NGF_SUSPECTED_CONFLICT = {
+  desc: '[precedent-conflict] Reverse of a string with a trailing space: TrimSpace drops it, a rune reversal moves it to the front; nothing pins which applies. Repro: `Reverse("ab ")`',
+  severity: 'medium', category: 'edge', files: ['strs/strs.go'], evidenceState: 'suspected', uncertaintyReason: 'The request does not say which precedent applies.',
+};
+
 /**
  * NPX (old-PoS run 30, B-c201:F-005): docs/types/array.md is on main before the
  * Story starts and its range examples are wrong (end-exclusive ranges shown as
@@ -1299,6 +1340,7 @@ function rxRepairCommand(storyId: string, findingId: string): string[] {
 function repairFor(desc: string): { test: string; subject: string; name: string } {
   if (desc === PX_FINDING.desc) return { test: '', subject: `test: ${PX_REPAIR_SUBJECT}`, name: PX_DOC_PATH };
   if (desc === NU_DUP_FINDING.desc) return { test: NU_DUP_REPAIR_TEST, subject: 'test: Reverse empty duplicate case', name: 'TestReverseEmptyDup' };
+  if (desc === NGS_FINDING1.desc) return { test: NGS_REPAIR_TEST, subject: 'test: Reverse edge table', name: 'TestReverseEdges' };
   return desc.startsWith('Upper ')
     ? { test: NF_REPAIR_TEST, subject: 'test: Upper of the empty string', name: 'TestUpperEmpty' }
     : { test: REPAIR_TEST, subject: 'test: Reverse of the empty string', name: 'TestReverseEmpty' };
@@ -1593,6 +1635,10 @@ const VERIFIED_PROMISES = [
 interface ScriptMode { findingRound1: boolean; twoFindings?: boolean; lowFindings?: boolean; duplicate?: 'covered' | 'uncovered' | 'covered2';
   /** Old-PoS run 46 (NRG): round 2's test-coverage lane reports NRG_FINDING. */
   reversing?: boolean;
+  /** Old-PoS run 58 (NGS): round 1 reports NGS_FINDING1, round 2 NGS_FINDING2 (test-coverage lane). */
+  staleRow?: boolean;
+  /** Old-PoS run 58 (NGF): round 1 reports D_FINDING and the suspected NGF_SUSPECTED_CONFLICT. */
+  suspectedConflict?: boolean;
 
   /** Detection A/B control D9-r1 / D2-r3 / refused critic: how the FIRST round-1 critic restates or omits findings (scenarios NC, NC2, NC3). */
   criticRestate?: CriticRestateMode;
@@ -1673,6 +1719,13 @@ function reviewRoundIndex(worktree: string, storyId: string, reviewRunId: string
 
 /** A REVIEW lane's scripted final proposal: round 1 test-coverage reports the mode's findings, every other lane passes. */
 function laneScript(worktree: string, storyId: string, lane: string, reviewRunId: string, firstRound: boolean, mode: ScriptMode): ProviderScript {
+  if ((mode.staleRow || mode.suspectedConflict) && lane === 'proof-or-stop-review-test-coverage') {
+    // Old-PoS run 58 (NGS / NGF).
+    const index = reviewRoundIndex(worktree, storyId, reviewRunId);
+    const findings = mode.staleRow ? (index === 0 ? [NGS_FINDING1] : index === 1 ? [NGS_FINDING2] : []) : (index === 0 ? [D_FINDING, NGF_SUSPECTED_CONFLICT] : []);
+    const envelope = findings.length ? { conclusion: 'findings', note: 'Scripted run 58 lane.', findings } : PASS_ENVELOPE(lane);
+    return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, ...envelope, ...readEvidenceFor(worktree, storyId) }) };
+  }
   if (mode.reversing && lane === 'proof-or-stop-review-test-coverage') {
     const runs = new StoryStore(worktree).readReviewRuns(storyId).runs.filter(row => row.reviewPurpose !== 'inventory-completeness');
     const rounds = [...new Set(runs.map(row => row.reviewRound))];
@@ -2085,6 +2138,9 @@ export interface DriveStats {
 export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boolean; twoFindings?: boolean;
   /** Old-PoS run 46 (NRG): round 2 reports NRG_FINDING, whose first repair reverses round 1's fix. */
   reversing?: boolean;
+  /** Old-PoS run 58 (NGS / NGF): see ScriptMode.staleRow / suspectedConflict. */
+  staleRow?: boolean;
+  suspectedConflict?: boolean;
   /** Owner-driver lab (owner.driver=framework): drive with `next --untilAgent` (implies run); the owner only gets agent steps. */
   drive?: boolean;
   /** Run 16: round 1 also reports two LOW findings; the owner repairs the first itself (managed finding-repair) when next says enter_review. */
@@ -2277,6 +2333,10 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
         }
         if (mode.reversing && !Array.isArray(payload.groupFindingIds) && findingDesc(String(payload.findingId)) === NRG_FINDING.desc) {
           o.script(FINDING_REPAIR, nrgRepairScript(id, String(payload.findingId)));
+          break;
+        }
+        if (mode.staleRow && !Array.isArray(payload.groupFindingIds) && findingDesc(String(payload.findingId)) === NGS_FINDING2.desc) {
+          o.script(FINDING_REPAIR, ngsRepairScript(id, String(payload.findingId)));
           break;
         }
         o.script(FINDING_REPAIR, Array.isArray(payload.groupFindingIds)
@@ -5515,12 +5575,14 @@ function scenarioNPXR(machineEnv: NodeJS.ProcessEnv, steps: Step[], tag: 'NPXR' 
     lines.push(`round-2 lane prompt bytes: ${promptsOf(1).map(row => Buffer.byteLength(row.prompt, 'utf8')).join(', ')}`);
     if (tag === 'NPXRE') {
       // The Story edited the site: not a recurrence and not pre-existing, so it stays an open finding of round 2 and
-      // takes the ordinary route (next proposes its closure step; here the restatement-duplicate route of an earlier
-      // finding, the run 46/47 duplicate-closure weakness owned by lab run46-fixes), costing its remediation round.
+      // takes the ordinary route, costing its remediation round. Lab run58-fixes: its canonical (the pre-existing
+      // disposition) was closed without a repair, so it is no duplicate closure target (closedWithoutFix): next gives
+      // it its own repair (before: next proposed the duplicate closure and run 46's live-canonical check refused it).
       assert.equal(marker(refiled), undefined, `[${tag}] a site the Story edited is never auto-closed: ${JSON.stringify(refiled)}`);
       assert.notEqual(refiled!.resolutionType, 'preexisting_out_of_scope', `[${tag}] it is not closed as pre-existing: ${JSON.stringify(refiled)}`);
       assert.equal(refiled!.status, 'resolved', `[${tag}] closed before DONE`);
       assert.ok(stepsNaming(refiled!.id).length > 0, `[${tag}] closed by a next step naming it, not at import`);
+      assert.equal(refiled!.resolutionType === 'duplicate', false, `[${tag}] never closed as a duplicate of a disposition that fixed nothing: ${JSON.stringify(refiled)}`);
       assert.equal(recurrence.length, 0, `[${tag}] no recurrence closure`);
       assert.ok(rounds.length >= 3, `[${tag}] the open finding cost its remediation round (rounds ${rounds.length})`);
     } else {
@@ -6581,8 +6643,93 @@ function scenarioNRG(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
+/**
+ * NGS (old-PoS run 58, run58-analysis.md §4 "Why the guard loops"): the
+ * resolved-finding guard judges a later repair by the finding's OWN repro rows
+ * of its repair test, not by every row of the test function as it stood in the
+ * repair commit. Round 1's F-001 (Repro `Reverse("")`) is repaired with a table
+ * test that also holds a then-correct row of another case; round 2's F-002
+ * changes that case legitimately (and updates the row). F-002 is resolved,
+ * round 3 is clean, DONE. RED on the base: the stale row failed F-001's guard,
+ * F-002's repair was rejected, `[regression-of F-001]` opened and next asked
+ * for a PLAN pin (the run-58 cascade).
+ */
+function scenarioNGS(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NGS';
+  const name = 'NGS old-PoS run 58: a stale row of another case in a resolved finding\'s repair test no longer rejects a later correct repair (the guard runs the finding\'s own repro rows); DONE without a regression finding or a pin';
+  const o = new Owner(tag, 'B-58e1', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  const seen: Array<{ phase: string; reason: string }> = [];
+  try {
+    devSetup(o);
+    driveWithNext(o, { findingRound1: false, run: false, staleRow: true }, lines, next => {
+      seen.push({ phase: next.phase, reason: next.reason });
+      if (next.reason === 'finding_conflict_pin') assert.fail(`${tag}: a stale snapshot row sent a correct repair to a PLAN pin (run-58 cascade): ${next.why.slice(0, 400)}`);
+    });
+    const store = new StoryStore(o.root);
+    const findings = store.readFindings(o.storyId).findings;
+    lines.push(`findings: ${findings.map(f => `${f.id.split(':').pop()} ${f.status}`).join(', ')}`);
+    lines.push(`finding steps: ${seen.filter(row => /finding_/.test(row.reason)).map(row => `${row.phase}:${row.reason}`).join(' > ')}`);
+    assert.equal(seen.some(row => row.reason === 'finding_conflict_pin'), false, `${tag}: no pin step: ${seen.map(row => row.reason).join(' > ')}`);
+    assert.equal(findings.some(f => f.desc.startsWith('[regression-of')), false, `${tag}: no regression finding opened: ${findings.map(f => f.desc.slice(0, 60)).join(' | ')}`);
+    for (const desc of [NGS_FINDING1.desc, NGS_FINDING2.desc]) {
+      assert.equal(findings.find(f => f.desc === desc)?.status, 'resolved', `${tag}: ${desc.slice(0, 40)} resolved`);
+    }
+    const events = store.readProcessEvents(o.storyId).filter(e => String(e.type) === 'resolved_finding_guard_checked') as Array<{ findingId?: string; passed?: boolean; scope?: string }>;
+    const first = findings.find(f => f.desc === NGS_FINDING1.desc)!.id;
+    assert.ok(events.some(e => e.findingId === first && e.passed === true && e.scope === 'repro'), `${tag}: ${first}'s guard ran its repro rows and passed: ${JSON.stringify(events)}`);
+    assert.equal(store.readStory(o.storyId).phase, 'DONE', `${tag}: DONE`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, `steps: ${seen.map(row => `${row.phase}:${row.reason}`).join(' > ')}`, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/**
+ * NGF (old-PoS run 58 F-004/F-009): a SUSPECTED `[precedent-conflict]`
+ * finding is a question for the owner's pin as soon as the Story is in DEV for
+ * the round's remediation; it does not wait a round for a verified re-filing.
+ * RED on the base: the suspected conflict was ignored (only verified findings
+ * were offered to the conflict step) and the verified finding went to repair.
+ */
+function scenarioNGF(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NGF';
+  const name = 'NGF old-PoS run 58: a suspected [precedent-conflict] finding goes to ONE PLAN pin step in the same remediation (no extra round), before any repair';
+  const o = new Owner(tag, 'B-58e2', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  const seen: Array<{ phase: string; reason: string; kind: string; command: string; why: string }> = [];
+  try {
+    devSetup(o);
+    try {
+      driveWithNext(o, { findingRound1: false, run: false, suspectedConflict: true }, lines, next => {
+        seen.push({ phase: next.phase, reason: next.reason, kind: next.kind, command: `${next.cli?.command ?? ''} ${JSON.stringify(next.cli?.payload ?? {})}`, why: next.why });
+        if (next.reason === 'finding_conflict_pin' || next.reason === 'finding_repair') throw new StopDrive('first remediation step reached');
+      });
+      assert.fail(`[${tag}] no remediation step: ${seen.map(row => `${row.phase}:${row.reason}`).join(' > ')}`);
+    } catch (error) {
+      if (!(error instanceof StopDrive)) throw error;
+    }
+    const store = new StoryStore(o.worktree);
+    const conflict = store.readFindings(o.storyId).findings.find(f => f.desc === NGF_SUSPECTED_CONFLICT.desc);
+    assert.ok(conflict, `${tag}: round 1 recorded the suspected conflict`);
+    const last = seen.at(-1)!;
+    lines.push(`first remediation step: ${last.phase}:${last.reason}`);
+    assert.equal(last.reason, 'finding_conflict_pin', `${tag}: the suspected conflict is pinned first: ${seen.map(row => row.reason).join(' > ')}`);
+    assert.match(last.command, /story_advance .*"phase":"PLAN"/, `${tag}: one Next, the PLAN pin`);
+    assert.match(last.why, new RegExp(conflict!.id), `${tag}: the why names the suspected conflict: ${last.why}`);
+    assert.match(last.why, /Oracle order/, `${tag}: the why gives the oracle order`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, `steps: ${seen.map(row => `${row.phase}:${row.reason}(${row.kind})`).join(' > ')}`, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NPP|NPM-[IP]|NRB|PL|NOD(?:-INIT|-W)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NGS|NGF|NPP|NPM-[IP]|NRB|PL|NOD(?:-INIT|-W)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -6665,6 +6812,8 @@ async function main(): Promise<void> {
     for (const token of ['NPXR', 'NPXRE', 'NPXRN'] as const) if (only.includes(token)) outcomes.push(scenarioNPXR(machine.env, steps, token));
     if (only.includes('NRW')) outcomes.push(scenarioNRW(machine.env, steps));
     if (only.includes('NRG')) outcomes.push(scenarioNRG(machine.env, steps));
+    if (only.includes('NGS')) outcomes.push(scenarioNGS(machine.env, steps));
+    if (only.includes('NGF')) outcomes.push(scenarioNGF(machine.env, steps));
     // Lab plan-light: plan.pinProbe (NPP), plan.reviewMerge (NPM-I, NPM-P), plan.rowBudget (NRB); PL = all four.
     if (only.includes('NPP') || only.includes('PL')) outcomes.push(scenarioNPP(machine.env, steps));
     if (only.includes('NPM-I') || only.includes('PL')) outcomes.push(scenarioNPMI(machine.env, steps));
@@ -6684,7 +6833,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NGS', 'NGF', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

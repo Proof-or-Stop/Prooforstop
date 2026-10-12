@@ -193,8 +193,22 @@ export function duplicateResolveCandidate(store: StoryStore, storyId: string, fi
     canonical = root ? findings.find(row => row.id === root) : undefined;
   }
   if (!canonical || canonical.status !== 'resolved') return null;
+  // A canonical closed without a repair (a pre-existing disposition, an accepted risk) has no fix that
+  // could cover a duplicate: the duplicate takes its own route (its own repair, or its own disposition).
+  if (closedWithoutFix(canonical)) return null;
   if (duplicateCoverageReceipts(store, storyId, finding.id).some(row => !row.passed)) return null;
   return { canonical, familyKey: duplicate.familyKey };
+}
+
+/**
+ * A resolved finding closed without a repair commit of its own (`preexisting_out_of_scope`, `accepted_risk`):
+ * it is not a fix a duplicate can close against. Bench-int harness NPXRE (old-PoS run 52 x run 46): the
+ * restatement of a pre-existing disposition on a site the Story edited was proposed as its duplicate, and the
+ * run-46 liveness check then read the Story base commit named in the disposition as a "repair commit" and
+ * refused the step next had proposed.
+ */
+export function closedWithoutFix(finding: Pick<Finding, 'status' | 'resolutionType'>): boolean {
+  return finding.status === 'resolved' && (finding.resolutionType === 'preexisting_out_of_scope' || finding.resolutionType === 'accepted_risk');
 }
 
 /** True when an open finding is a duplicate (critic or superseded restatement) whose canonical finding is still open (repair the canonical first). */

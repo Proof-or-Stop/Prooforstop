@@ -33,12 +33,33 @@
  *   - canonicalFixLiveness / reproCoverage: the duplicate-closure checks (the
  *     canonical's fix is still live; the cited coverage runs the duplicate's
  *     own repro).
+ *
+ * Old-PoS run 58 (bench-staging/oldpos/run58-analysis.md §4, §7 fixes A-C): the
+ * guard replayed every row of every test function a repair commit touched, as
+ * the commit wrote it. Rows of OTHER cases encoded behaviour a later pin or a
+ * later, more correct repair legitimately changed, so the guard fired 45 times,
+ * opened 7 stale `[regression-of]` findings and rejected 4 correct repairs.
+ *   A. scope `repro`: of a repair's Go test functions only those stating the
+ *      finding's repro run, and within a table literal only the rows stating it
+ *      (filterGoTestRows); the whole functions run only when the finding states
+ *      no repro or no test row states it (scope `functions`).
+ *   B. before blaming, a failed guard is judged against the current checklist
+ *      pins of its case (a row pinning the snapshot's value keeps the blame; a
+ *      row pinning another value excuses it: the pin decides) and, with no pin,
+ *      against the Story base: the restored test run on the base fails exactly
+ *      as it does on the current code (the code keeps the base's behaviour of
+ *      that case) = the snapshot was wrong, not the repair (`excused`). A test
+ *      the base cannot build (new behaviour) is never excused.
+ *   C. checklist epoch: a guard whose case rows changed after the finding's
+ *      resolution to a value the snapshot does not state is retired (process
+ *      event `resolved_finding_guard_retired`); a whole-function guard runs on
+ *      the current test source once any item's intent changed since.
  */
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, posix } from 'node:path';
-import type { DuplicateCoverageReceipt, Finding } from './types.js';
+import type { ChecklistItem, DuplicateCoverageReceipt, Finding } from './types.js';
 import { loadConfig } from './config.js';
 import { parseAllowlistedCommand, resolveEvidenceCommandTimeoutMs, tokenizeCommandString } from './validation-executor.js';
 import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
@@ -46,6 +67,8 @@ import { changedGoTestFunctions, parsePinnedTestSelection, parseUnifiedZeroDiff,
 
 /** Process event: one re-run of a resolved finding's covering verification. */
 export const REGRESSION_GUARD_EVENT = 'resolved_finding_guard_checked';
+/** Old-PoS run 58 (C): a guard retired by the checklist epoch (its case was re-pinned after its resolution). */
+export const REGRESSION_GUARD_RETIRED_EVENT = 'resolved_finding_guard_retired';
 
 const REPRO_MAX = 6;
 const OUTPUT_TAIL_MAX = 1200;
@@ -148,7 +171,9 @@ export function isTestPath(path: string): boolean {
  * or any commit id it cites that changed a material file): the fallback when
  * no managed repair run is bound to the finding.
  */
-export function repairCommitFromResolution(gitCwd: string, finding: Pick<Finding, 'resolvedReason'>): string | null {
+export function repairCommitFromResolution(gitCwd: string, finding: Pick<Finding, 'resolvedReason'> & { resolutionType?: Finding['resolutionType'] }): string | null {
+  // A disposition without a repair (it names the Story base and the reviewed head as evidence) has no repair commit.
+  if (finding.resolutionType === 'preexisting_out_of_scope' || finding.resolutionType === 'accepted_risk') return null;
   for (const match of String(finding.resolvedReason ?? '').matchAll(/\b[0-9a-f]{7,40}\b/g)) {
     const sha = tryGit(gitCwd, ['rev-parse', '--verify', '--quiet', `${match[0]}^{commit}`])?.trim();
     if (sha && commitFiles(gitCwd, sha).length) return sha;
@@ -242,6 +267,77 @@ export interface FindingGuard {
   testFiles: string[];
   /** Files whose change since the snapshot re-runs the guard (the finding's files and the repair's non-test files). */
   citedFiles: string[];
+  /**
+   * Old-PoS run 58 (A): `repro` = only the test functions (and table rows) stating the finding's
+   * repro run; `functions` = every changed test function (no repro, or none stated in a test).
+   */
+  scope?: 'repro' | 'functions';
+  /** The finding's code repros the guard judges (scope `repro`). */
+  repros?: string[];
+  /** Scope `repro`: the filtered snapshot bodies that replace the recorded ones when the guard runs. */
+  filtered?: Array<{ file: string; name: string; original: string; body: string }>;
+  /** Scope `repro`: the recorded text of the selected test functions (repro rows only), for the pin comparison. */
+  recordedText?: string;
+}
+
+// ---------------------------------------------------------------------------
+// Old-PoS run 58 (A): the finding's own repro rows of a Go table test
+
+/** Top-level brace groups of a Go function body that are composite-literal elements (`{` after `{` or `,`), with their parent literal. */
+function goLiteralRows(body: string): Array<{ start: number; end: number; parent: number }> {
+  const rows: Array<{ start: number; end: number; parent: number }> = [];
+  const stack: number[] = [];
+  let last = '';
+  let open: { start: number; depth: number; parent: number } | null = null;
+  for (let i = 0; i < body.length; i++) {
+    const c = body[i]!;
+    if (c === '/' && body[i + 1] === '/') { const end = body.indexOf('\n', i); i = end < 0 ? body.length : end - 1; continue; }
+    if (c === '/' && body[i + 1] === '*') { const end = body.indexOf('*/', i + 2); i = end < 0 ? body.length : end + 1; continue; }
+    if (c === '"' || c === "'") {
+      let j = i + 1;
+      while (j < body.length && body[j] !== c && body[j] !== '\n') { if (body[j] === '\\') j++; j++; }
+      i = j; last = c; continue;
+    }
+    if (c === '`') { const end = body.indexOf('`', i + 1); i = end < 0 ? body.length : end; last = c; continue; }
+    if (c === '{') {
+      if (!open && (last === '{' || last === ',') && stack.length) open = { start: i, depth: stack.length, parent: stack.at(-1)! };
+      stack.push(i);
+    } else if (c === '}') {
+      stack.pop();
+      if (open && stack.length === open.depth) { rows.push({ start: open.start, end: i, parent: open.parent }); open = null; }
+    }
+    if (!/\s/.test(c)) last = c;
+  }
+  return rows;
+}
+
+/**
+ * Old-PoS run 58 (A): keep only the table rows of a Go test body that state one
+ * of `repros` (whitespace- and escape-insensitive). Only a literal holding at
+ * least one such row is filtered; every other literal and statement stays.
+ * `matched`: the body states a repro at all; `dropped`: rows removed.
+ */
+export function filterGoTestRows(body: string, repros: readonly string[]): { body: string; matched: boolean; dropped: number } {
+  const probes = repros.map(normalizeProbe).filter(probe => probe.length >= 4);
+  const states = (text: string) => { const flat = normalizeProbe(text); return probes.some(probe => flat.includes(probe)); };
+  if (!probes.length || !states(body)) return { body, matched: false, dropped: 0 };
+  const rows = goLiteralRows(body);
+  const hitParents = new Set(rows.filter(row => states(body.slice(row.start, row.end + 1))).map(row => row.parent));
+  const drop = rows.filter(row => hitParents.has(row.parent) && !states(body.slice(row.start, row.end + 1)));
+  if (!drop.length) return { body, matched: true, dropped: 0 };
+  let out = body;
+  for (const row of [...drop].sort((a, b) => b.start - a.start)) {
+    let start = row.start;
+    let end = row.end + 1;
+    while (end < out.length && /[ \t]/.test(out[end]!)) end++;
+    if (out[end] === ',') end++;
+    while (end < out.length && /[ \t]/.test(out[end]!)) end++;
+    let lineStart = start;
+    while (lineStart > 0 && /[ \t]/.test(out[lineStart - 1]!)) lineStart--;
+    if ((lineStart === 0 || out[lineStart - 1] === '\n') && out[end] === '\n') { start = lineStart; end++; }
+    out = out.slice(0, start) + out.slice(end);
+  }
+  return { body: out, matched: true, dropped: drop.length };
 }
 
 /**
@@ -250,7 +346,7 @@ export interface FindingGuard {
  * repair commit added or changed (one `go test -run` per package). Null when
  * nothing executable was recorded (then only the hunk check applies).
  */
-export function findingGuard(args: { gitCwd: string; finding: Pick<Finding, 'id' | 'files' | 'resolutionType'>; repairCommit: string | null;
+export function findingGuard(args: { gitCwd: string; finding: Pick<Finding, 'id' | 'files' | 'resolutionType'> & { desc?: string }; repairCommit: string | null;
   coverage: DuplicateCoverageReceipt | null }): FindingGuard | null {
   const { gitCwd, finding } = args;
   const cited = new Set((finding.files ?? []).map(path => path.replace(/:\d.*$/, '')));
@@ -267,25 +363,38 @@ export function findingGuard(args: { gitCwd: string; finding: Pick<Finding, 'id'
   const goTests = files.filter(row => row.status !== 'D' && row.path.endsWith('_test.go'));
   if (!goTests.length) return null;
   const diff = parseUnifiedZeroDiff(tryGit(gitCwd, ['show', '-U0', '--no-renames', '--format=', commit, '--', ...goTests.map(row => row.path)]) ?? '');
-  const byPackage = new Map<string, Set<string>>();
-  const testFiles: string[] = [];
+  const changed: Array<{ file: string; dir: string; name: string; body: string }> = [];
   for (const row of goTests) {
     const content = fileAt(gitCwd, commit, row.path);
     if (content === null) continue;
     const names = changedGoTestFunctions(content, row.status === 'A' ? 'all' : (diff.get(row.path) ?? new Set()));
-    if (!names.length) continue;
-    testFiles.push(row.path);
+    const bodies = goTestBodies(content);
     const dir = posix.dirname(row.path) === '.' ? '' : posix.dirname(row.path);
-    const set = byPackage.get(dir) ?? new Set<string>();
-    for (const name of names) set.add(name);
-    byPackage.set(dir, set);
+    for (const name of names) changed.push({ file: row.path, dir, name, body: bodies.get(name) ?? '' });
   }
-  if (!byPackage.size) return null;
+  if (!changed.length) return null;
+  // Old-PoS run 58 (A): the finding's own repro rows, when its repair test states them.
+  const repros = findingRepros(args.finding.desc ?? '').repros.filter(repro => !isReproCommand(repro));
+  const filtered: NonNullable<FindingGuard['filtered']> = [];
+  const own = repros.length ? changed.filter(test => {
+    const kept = filterGoTestRows(test.body, repros);
+    if (kept.matched && kept.dropped) filtered.push({ file: test.file, name: test.name, original: test.body, body: kept.body });
+    return kept.matched;
+  }) : [];
+  const selected = own.length ? own : changed;
+  const byPackage = new Map<string, Set<string>>();
+  for (const test of selected) {
+    const set = byPackage.get(test.dir) ?? new Set<string>();
+    set.add(test.name);
+    byPackage.set(test.dir, set);
+  }
   const runs = [...byPackage].map(([dir, names]) => ({
     command: `go test -v ${dir ? `./${dir}` : '.'} -run ^(${[...names].join('|')})$`,
     selectors: [...names].map(name => `--- PASS: ${name}`),
   }));
-  return { findingId: finding.id, kind: 'repair', snapshotRef: commit, runs, testFiles, citedFiles: [...cited] };
+  return { findingId: finding.id, kind: 'repair', snapshotRef: commit, runs, testFiles: [...new Set(selected.map(test => test.file))], citedFiles: [...cited],
+    scope: own.length ? 'repro' : 'functions',
+    ...(own.length ? { repros, filtered, recordedText: own.map(test => filtered.find(row => row.file === test.file && row.name === test.name)?.body ?? test.body).join('\n') } : {}) };
 }
 
 /** Whether a cited file of the guard (any material file when none is cited) changed between its snapshot and HEAD. */
@@ -298,7 +407,7 @@ export function guardTouched(gitCwd: string, guard: FindingGuard): boolean {
 
 export interface GuardResult { passed: boolean; inconclusive: boolean; command: string; outputTail: string; restoredTests: boolean }
 
-function runCommand(projectRoot: string, cwd: string, command: string): { status: number | null; output: string; missingTool: boolean } {
+export function runCommand(projectRoot: string, cwd: string, command: string): { status: number | null; output: string; missingTool: boolean } {
   const { executable, args } = parseAllowlistedCommand(command);
   let overrides;
   try { overrides = loadConfig(projectRoot).validate?.evidenceCommandTimeoutOverrides; } catch { overrides = undefined; }
@@ -335,39 +444,108 @@ const tail = (text: string): string => text.trim().split('\n').slice(-10).join('
  * longer builds is inconclusive: the guard then runs on the current test
  * source. A missing tool is inconclusive and never fails the guard.
  */
-export function runFindingGuard(args: { projectRoot: string; gitCwd: string; guard: FindingGuard }): GuardResult {
+export function runFindingGuard(args: { projectRoot: string; gitCwd: string; guard: FindingGuard;
+  /** Old-PoS run 58 (C): run on the current test source (a later checklist epoch made the snapshot non-authoritative). */
+  currentTests?: boolean }): GuardResult & { output?: string } {
   const { projectRoot, gitCwd, guard } = args;
   const testsChanged = guard.testFiles.length > 0 && (tryGit(gitCwd, ['diff', '--name-only', guard.snapshotRef, 'HEAD', '--', ...guard.testFiles]) ?? '').trim() !== '';
-  const current = (): GuardResult => {
+  const current = (): GuardResult & { output?: string } => {
     const result = runAll(projectRoot, gitCwd, guard);
-    return { passed: result.passed || result.missingTool, inconclusive: result.missingTool, command: result.command, outputTail: tail(result.output), restoredTests: false };
+    return { passed: result.passed || result.missingTool, inconclusive: result.missingTool, command: result.command, outputTail: tail(result.output), restoredTests: false, output: result.output };
   };
-  if (!testsChanged) return current();
-  const dir = mkdtempSync(join(tmpdir(), 'pos-regression-guard-'));
+  if (args.currentTests || (!testsChanged && !guard.filtered?.length)) return current();
+  const restored = runRestoredAt({ projectRoot, gitCwd, guard, ref: 'HEAD' });
+  if (!restored) return current();
+  if (restored.passed) return { passed: true, inconclusive: false, command: restored.command, outputTail: '', restoredTests: true };
+  if (restored.buildFailed || restored.missingTool) {
+    const fallback = current();
+    return { ...fallback, inconclusive: true, outputTail: fallback.passed ? `restored test source did not build; current tests pass\n${tail(restored.output)}` : fallback.outputTail };
+  }
+  return { passed: false, inconclusive: false, command: restored.command, outputTail: tail(restored.output), restoredTests: true, output: restored.output };
+}
+
+/** The guard's test files as recorded at its snapshot (scope `repro`: with only the repro rows), for a checkout. */
+function restoredTestSources(gitCwd: string, guard: FindingGuard): Array<{ file: string; text: string | null }> {
+  return guard.testFiles.map(file => {
+    let text = tryGit(gitCwd, ['show', `${guard.snapshotRef}:${file}`]);
+    for (const row of guard.filtered ?? []) if (text !== null && row.file === file) text = text.replace(row.original, row.body);
+    return { file, text };
+  });
+}
+
+/** Run the guard in a temporary detached worktree of `ref` with its recorded test source restored (removed afterwards); null when the checkout fails. */
+function runRestoredAt(args: { projectRoot: string; gitCwd: string; guard: FindingGuard; ref: string }): ReturnType<typeof runAll> | null {
+  const { gitCwd, guard } = args;
+  const dir = mkdtempSync(join(tmpdir(), GUARD_TEMP_PREFIX));
   const checkout = join(dir, 'checkout');
   try {
-    git(gitCwd, ['worktree', 'add', '--detach', '--quiet', checkout, 'HEAD']);
-    for (const file of guard.testFiles) {
-      const text = tryGit(gitCwd, ['show', `${guard.snapshotRef}:${file}`]);
+    git(gitCwd, ['worktree', 'add', '--detach', '--quiet', checkout, args.ref]);
+    for (const { file, text } of restoredTestSources(gitCwd, guard)) {
       const target = join(checkout, file);
       if (text === null) { rmSync(target, { force: true }); continue; }
       mkdirSync(dirname(target), { recursive: true });
       writeFileSync(target, text);
     }
-    const restored = runAll(projectRoot, checkout, guard);
-    if (restored.passed) return { passed: true, inconclusive: false, command: restored.command, outputTail: '', restoredTests: true };
-    if (restored.buildFailed || restored.missingTool) {
-      const fallback = current();
-      return { ...fallback, inconclusive: true, outputTail: fallback.passed ? `restored test source did not build; current tests pass\n${tail(restored.output)}` : fallback.outputTail };
-    }
-    return { passed: false, inconclusive: false, command: restored.command, outputTail: tail(restored.output), restoredTests: true };
+    return runAll(args.projectRoot, checkout, guard);
   } catch {
-    return current();
+    return null;
   } finally {
     tryGit(gitCwd, ['worktree', 'remove', '--force', checkout]);
     rmSync(dir, { recursive: true, force: true });
     tryGit(gitCwd, ['worktree', 'prune']);
   }
+}
+
+/** The failure lines of a `go test` output (failing tests and their messages), timings dropped, sorted. */
+export function failureSignature(output: string): string[] {
+  return output.split('\n').map(line => line.replace(/\(\d+(?:\.\d+)?s\)/g, '').trim())
+    .filter(line => /^--- FAIL:/.test(line) || /^[\w./-]+_test\.go:\d+:/.test(line)).sort();
+}
+
+// ---------------------------------------------------------------------------
+// Old-PoS run 58 (B, C): the case's checklist pins
+
+/** The checklist rows (normalized text) citing one of `repros`, per item and lane. */
+export function rowsCitingCase(items: ReadonlyArray<Pick<ChecklistItem, 'id' | 'verificationIntent'>> | undefined, repros: readonly string[]): string[] {
+  const probes = repros.map(normalizeProbe).filter(probe => probe.length >= 4);
+  if (!items || !probes.length) return [];
+  const out: string[] = [];
+  for (const item of items) {
+    for (const lane of ['happy', 'edge', 'adversarial'] as const) {
+      for (const row of (item.verificationIntent as Record<string, Array<{ desc?: string; derivation?: { computation?: string } }> | undefined>)?.[lane] ?? []) {
+        const text = normalizeProbe(String(row.desc ?? ''));
+        if (probes.some(probe => text.includes(probe))) out.push(`${item.id}:${lane}:${text}`);
+      }
+    }
+  }
+  return out.sort();
+}
+
+/** The value a row pins for the case (right of its arrow, inside the span that states the case), normalized; null when none is stated. */
+function pinnedValueOf(rowText: string, probes: readonly string[]): string | null {
+  const spans = [...rowText.matchAll(/`([^`]+)`/g)].map(match => normalizeProbe(match[1]!));
+  const flat = [...spans, rowText].find(text => probes.some(probe => text.includes(probe)) && /->|→|=>/.test(text));
+  const value = flat?.split(/->|→|=>/).at(-1)?.replace(/`.*$/, '').trim();
+  return value ? value : null;
+}
+
+/**
+ * Whether the guard's recorded test rows state every value the current
+ * checklist rows pin for its case (case text removed first, so an input that
+ * repeats the value does not count). `pins` = values found; null = no pin.
+ */
+export function guardStatesPins(gitCwd: string, guard: FindingGuard, items: ReadonlyArray<Pick<ChecklistItem, 'id' | 'verificationIntent'>> | undefined):
+  { pins: string[]; agrees: boolean } | null {
+  const repros = guard.repros ?? [];
+  const probes = repros.map(normalizeProbe).filter(probe => probe.length >= 4);
+  const rows = rowsCitingCase(items, repros);
+  if (!rows.length) return null;
+  const pins = rows.map(row => pinnedValueOf(row.slice(row.indexOf(':', row.indexOf(':') + 1) + 1), probes)).filter((value): value is string => Boolean(value));
+  if (!pins.length) return { pins, agrees: false };
+  const recorded = guard.recordedText ?? restoredTestSources(gitCwd, guard).map(row => row.text ?? '').join('\n');
+  let text = normalizeProbe(recorded);
+  for (const probe of probes) text = text.split(probe).join('');
+  return { pins, agrees: pins.every(pin => text.includes(pin)) };
 }
 
 // ---------------------------------------------------------------------------
@@ -468,7 +646,11 @@ export interface GuardEventStore {
  */
 export function regressionGuardCheck(args: { store: GuardEventStore; projectRoot: string; gitCwd: string; storyId: string; findings: readonly Finding[];
   repairs: ReadonlyArray<{ findingId: string; commit: string }>; repairCommitOf: (finding: Finding) => string | null;
-  coverageOf: (finding: Finding) => DuplicateCoverageReceipt | null; headHash: string | null; materialHash?: string | null }): GuardFailure[] {
+  coverageOf: (finding: Finding) => DuplicateCoverageReceipt | null; headHash: string | null; materialHash?: string | null;
+  /** Old-PoS run 58 (B): the Story base the failing case is judged against before blaming. */
+  baseRef?: string | null;
+  /** Old-PoS run 58 (B, C): the checklist now and as committed before a time (the finding's resolution). */
+  checklist?: { current: ReadonlyArray<Pick<ChecklistItem, 'id' | 'verificationIntent'>>; at: (iso: string) => ReadonlyArray<Pick<ChecklistItem, 'id' | 'verificationIntent'>> | undefined } }): GuardFailure[] {
   const { store, storyId, findings, repairs } = args;
   if (!repairs.length) return [];
   const batch = new Set(repairs.map(row => row.findingId));
@@ -490,17 +672,52 @@ export function regressionGuardCheck(args: { store: GuardEventStore; projectRoot
     if (batch.has(guarded.id) || superseded.has(guarded.id) || retired.has(guarded.id)) continue;
     const guard = findingGuard({ gitCwd: args.gitCwd, finding: guarded, repairCommit: args.repairCommitOf(guarded), coverage: args.coverageOf(guarded) });
     if (!guard || !guardTouched(args.gitCwd, guard)) continue;
-    const reused = events.some(event => event.type === REGRESSION_GUARD_EVENT && event.findingId === guarded.id && event.passed === true
+    const reused = events.some(event => event.type === REGRESSION_GUARD_EVENT && event.findingId === guarded.id && (event.passed === true || typeof event.excused === 'string')
       && ((args.materialHash && event.materialHash === args.materialHash) || (args.headHash && event.headHash === args.headHash)));
     if (reused) continue;
-    const result = runFindingGuard({ projectRoot: args.projectRoot, gitCwd: args.gitCwd, guard });
-    const blamed = result.passed ? [] : repairs.filter(row => !guard.citedFiles.length || guard.citedFiles.some(file => repairFiles.get(row.findingId)?.has(file)))
+    // Old-PoS run 58 (C): the checklist epoch. A case re-pinned since the resolution to a value the
+    // recorded rows do not state retires the guard; a whole-function guard runs on the current tests.
+    const then = args.checklist && guarded.resolvedAt ? args.checklist.at(guarded.resolvedAt) : undefined;
+    let currentTests = false;
+    if (args.checklist && then) {
+      if (guard.scope === 'repro') {
+        const before = rowsCitingCase(then, guard.repros ?? []);
+        const now = rowsCitingCase(args.checklist.current, guard.repros ?? []);
+        const pins = guardStatesPins(args.gitCwd, guard, args.checklist.current);
+        if (JSON.stringify(before) !== JSON.stringify(now) && now.length && !pins?.agrees) {
+          try {
+            store.appendProcessEvent(storyId, { type: REGRESSION_GUARD_RETIRED_EVENT, findingId: guarded.id, reason: 'checklist_epoch', headHash: args.headHash,
+              repros: guard.repros ?? [], rowsAtResolution: before.length, rowsNow: now.length, pins: pins?.pins ?? [] });
+          } catch { /* evidence only */ }
+          continue;
+        }
+      } else if (JSON.stringify(then.map(item => [item.id, item.verificationIntent ?? null])) !== JSON.stringify(args.checklist.current.map(item => [item.id, item.verificationIntent ?? null]))) {
+        currentTests = true;
+      }
+    }
+    const result = runFindingGuard({ projectRoot: args.projectRoot, gitCwd: args.gitCwd, guard, currentTests });
+    // Old-PoS run 58 (B): the current pins of the case, else the Story base, before blaming.
+    let excused: { reason: 'checklist_pin' | 'story_base'; why: string } | null = null;
+    if (!result.passed && !result.inconclusive) {
+      const pins = guard.scope === 'repro' && args.checklist ? guardStatesPins(args.gitCwd, guard, args.checklist.current) : null;
+      if (pins && pins.pins.length && !pins.agrees) {
+        excused = { reason: 'checklist_pin', why: `the current checklist pins ${pins.pins.join(', ')} for the case, which the recorded test does not state` };
+      } else if (!pins && args.baseRef) {
+        const base = runRestoredAt({ projectRoot: args.projectRoot, gitCwd: args.gitCwd, guard, ref: args.baseRef });
+        const head = failureSignature(result.output ?? '');
+        if (base && !base.passed && !base.buildFailed && !base.missingTool && head.length && JSON.stringify(failureSignature(base.output)) === JSON.stringify(head)) {
+          excused = { reason: 'story_base', why: `the recorded test fails on the Story base ${args.baseRef.slice(0, 12)} exactly as on the current code (the code keeps the base behaviour of the case)` };
+        }
+      }
+    }
+    const blamed = result.passed || excused ? [] : repairs.filter(row => !guard.citedFiles.length || guard.citedFiles.some(file => repairFiles.get(row.findingId)?.has(file)))
       .map(row => ({ findingId: row.findingId, commit: row.commit }));
     try {
       store.appendProcessEvent(storyId, { type: REGRESSION_GUARD_EVENT, findingId: guarded.id, headHash: args.headHash, materialHash: args.materialHash ?? null, passed: result.passed, inconclusive: result.inconclusive,
-        command: result.command, restoredTests: result.restoredTests, ...(result.passed ? {} : { outputTail: result.outputTail, rejectedRepairs: blamed }) });
+        command: result.command, restoredTests: result.restoredTests, scope: guard.scope ?? 'functions', ...(currentTests ? { currentTests: true } : {}),
+        ...(result.passed ? {} : excused ? { outputTail: result.outputTail, excused: excused.reason, excusedWhy: excused.why } : { outputTail: result.outputTail, rejectedRepairs: blamed }) });
     } catch { /* the refusal still carries the facts */ }
-    if (!result.passed) failures.push({ guarded, guard, result, blamed });
+    if (!result.passed && !excused) failures.push({ guarded, guard, result, blamed });
   }
   return failures;
 }

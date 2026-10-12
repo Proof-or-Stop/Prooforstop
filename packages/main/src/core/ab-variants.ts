@@ -57,9 +57,12 @@
  * Old-PoS run 43 (bench-staging/oldpos/run43-analysis.md §5.2 fixes 1-2): two
  * detection switches that default ON (the first value is production); `off`
  * is the rollback and is recorded like every other non-default value:
- *   review.siblingParity       'on' (default) | 'off'  the test-coverage and quality lane dispatch prompts carry
- *                              the sibling-parity check (core/sibling-parity.ts): every new or changed entry point
- *                              is compared with its sibling paths on the operand cases the sibling special-cases
+ *   review.siblingParity       'off' (default since old-PoS run 58) | 'on'  the test-coverage and quality lane
+ *                              dispatch prompts carry the sibling-parity check (core/sibling-parity.ts): every new or
+ *                              changed entry point is compared with its sibling paths on the operand cases the sibling
+ *                              special-cases. Run 58 (run58-analysis.md §7): with it on, runs 46/47/58 took 131 min /
+ *                              timeout / timeout; plan.baseDisagreement alone closed the single-index miss it was
+ *                              added for, so the default is off and `on` is the recorded A/B arm
  *   plan.exclusionRationaleCheck 'on' (default) | 'off'  an excludes entry may not close a scope-plan row whose named
  *                              behaviour another checklist item adds or changes (core/scope-exclusion-rationale.ts):
  *                              scope_check_save refuses such an `excluded` row, story_review rejects it in an
@@ -109,7 +112,7 @@ export const AB_VARIANT_FLAGS = {
   'plan.pinAuditEnforcement': ['off', 'on'],
   'dev.probeEnforcement': ['advisory', 'enforce'],
   'implementation.probeMatrix': ['off', 'on'],
-  'review.siblingParity': ['on', 'off'],
+  'review.siblingParity': ['off', 'on'],
   'plan.exclusionRationaleCheck': ['on', 'off'],
   'plan.baseDisagreement': ['on', 'off'],
   'plan.pinProbe': ['off', 'on'],
@@ -217,7 +220,7 @@ export function abVariantEvidence(variants: AbVariants): AbVariantEvidence | und
   if (variants.pinAuditEnforcement !== 'off') flags['plan.pinAuditEnforcement'] = variants.pinAuditEnforcement;
   if (variants.probeEnforcement !== 'advisory') flags['dev.probeEnforcement'] = variants.probeEnforcement;
   if (variants.probeMatrix !== 'off') flags['implementation.probeMatrix'] = variants.probeMatrix;
-  if (variants.siblingParity !== 'on') flags['review.siblingParity'] = variants.siblingParity;
+  if (variants.siblingParity !== 'off') flags['review.siblingParity'] = variants.siblingParity;
   if (variants.exclusionRationaleCheck !== 'on') flags['plan.exclusionRationaleCheck'] = variants.exclusionRationaleCheck;
   if (variants.baseDisagreement !== 'on') flags['plan.baseDisagreement'] = variants.baseDisagreement;
   if (variants.deltaRounds !== 'off') flags['review.deltaRounds'] = variants.deltaRounds;
@@ -252,7 +255,7 @@ export const pinAuditEnforcementOn = (config: unknown): boolean => catchEarlierP
 export const probeEnforcementOn = (config: unknown): boolean => catchEarlierPick(config, 'dev.probeEnforcement') === 'enforce';
 /** Old-PoS run 33: implementation.probeMatrix=on restores the implementer probe-matrix block and its report contract. */
 export const probeMatrixOn = (config: unknown): boolean => catchEarlierPick(config, 'implementation.probeMatrix') === 'on';
-/** Old-PoS run 43: review.siblingParity (default on) adds the sibling-parity check to the test-coverage and quality lanes. */
+/** Old-PoS run 43: review.siblingParity adds the sibling-parity check to the test-coverage and quality lanes (default off since old-PoS run 58). */
 export const siblingParityOn = (config: unknown): boolean => catchEarlierPick(config, 'review.siblingParity') === 'on';
 /** Old-PoS run 43: plan.exclusionRationaleCheck (default on) checks an excludes rationale against the Story's own items. */
 export const exclusionRationaleCheckOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.exclusionRationaleCheck') === 'on';

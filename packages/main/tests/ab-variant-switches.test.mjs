@@ -29,9 +29,10 @@
  *   plan.pinProbe                    example pins probed on the Story base + request-literal examples before PLAN→DEV
  *   plan.reviewMerge                 no INIT reviewers; ONE merged plan review in PLAN; a rerun confirms the changed rows
  *   plan.rowBudget                   one intent row per operand class: guidance + an advisory (never blocking) check
- *   Old-PoS run 43 (default ON, `off` = recorded rollback; behaviour in tasks/run43-fixes-smoke.ts S / P):
+ *   Old-PoS run 43 (`off` = recorded rollback; behaviour in tasks/run43-fixes-smoke.ts S / P):
  *   review.siblingParity             the test-coverage and quality lane prompts carry the sibling-parity check
- *   plan.exclusionRationaleCheck     an excludes entry may not close a scope row whose behaviour another item changes
+ *                                    (old-PoS run 58: default OFF, `on` = the recorded arm; tasks/run58-fixes-smoke.ts P)
+ *   plan.exclusionRationaleCheck     an excludes entry may not close a scope row whose behaviour another item changes (default ON)
  *   Old-PoS run 46 (default ON; behaviour in tasks/run46-fixes-smoke.ts B):
  *   plan.baseDisagreement            the scope-plan dispatch carries the base-disagreement check
  */
@@ -64,8 +65,9 @@ await check('config: absent switches resolve to production values; malformed fai
   assert.deepEqual(off, { criticOnCleanRound: 'run', round2Scope: 'full', round2Lanes: 'fresh', remediationGrouping: 'single', remediationThread: 'fresh', implementationGrouping: 'per-item', implementationThread: 'resume', lanePack: 'off', roundDelta: 'off',
     // Old-PoS run 33: the catch-earlier line is off by default (A/B arms A1-A4).
     coverageMatrix: 'off', scopeDeferral: 'off', pinAuditEnforcement: 'off', probeEnforcement: 'advisory', probeMatrix: 'off',
-    // Old-PoS run 43: the two detection switches default on; `off` is the recorded rollback.
-    siblingParity: 'on', exclusionRationaleCheck: 'on',
+    // Old-PoS run 43: exclusionRationaleCheck defaults on (`off` = recorded rollback). Old-PoS run 58: siblingParity
+    // defaults OFF (runs 46/47/58 with it on: 131 min / timeout / timeout); `on` is the recorded arm.
+    siblingParity: 'off', exclusionRationaleCheck: 'on',
     // Old-PoS run 46: the base-disagreement check defaults on.
     baseDisagreement: 'on',
     // EXPERIMENTAL delta review rounds (lab codex/lab-delta-review): off by default.
@@ -75,12 +77,14 @@ await check('config: absent switches resolve to production values; malformed fai
   assert.equal(abVariantEvidence(off), undefined);
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { pinProbe: 'on', reviewMerge: 'on', rowBudget: 'on' } })),
     { schema: 'proof-or-stop.ab-variants.v1', flags: { 'plan.pinProbe': 'on', 'plan.reviewMerge': 'on', 'plan.rowBudget': 'on' } }, 'lab plan-light: each arm is recorded');
-  assert.equal(abVariantEvidence(resolveAbVariants({ review: { siblingParity: 'on' }, plan: { exclusionRationaleCheck: 'on' } })), undefined, 'the default-on arms are production: not recorded');
-  assert.deepEqual(abVariantEvidence(resolveAbVariants({ review: { siblingParity: 'off' }, plan: { exclusionRationaleCheck: 'off' } })),
-    { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.siblingParity': 'off', 'plan.exclusionRationaleCheck': 'off' } }, 'old-PoS run 43: each rollback is recorded');
+  assert.equal(abVariantEvidence(resolveAbVariants({ review: { siblingParity: 'off' }, plan: { exclusionRationaleCheck: 'on' } })), undefined, 'the production values are not recorded');
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ review: { siblingParity: 'on' }, plan: { exclusionRationaleCheck: 'off' } })),
+    { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.siblingParity': 'on', 'plan.exclusionRationaleCheck': 'off' } }, 'old-PoS run 58: siblingParity=on is the recorded arm; run 43: the exclusion rollback is recorded');
   assert.throws(() => resolveAbVariants({ review: { siblingParity: 'maybe' } }), /invalid_ab_variant_config: review\.siblingParity/);
   const { siblingParityOn, exclusionRationaleCheckOn } = await load('core/ab-variants.js');
-  assert.equal(siblingParityOn({ review: { siblingParity: 'maybe' } }), true, 'malformed keeps the default (on) where it is consumed');
+  assert.equal(siblingParityOn({ review: { siblingParity: 'maybe' } }), false, 'malformed keeps the default (off since old-PoS run 58) where it is consumed');
+  assert.equal(siblingParityOn({}), false, 'old-PoS run 58: absent = off');
+  assert.equal(siblingParityOn({ review: { siblingParity: 'on' } }), true);
   assert.equal(exclusionRationaleCheckOn({ plan: { exclusionRationaleCheck: 7 } }), true, 'malformed keeps the default (on) where it is consumed');
   assert.equal(siblingParityOn({ review: { siblingParity: 'off' } }), false);
   assert.equal(exclusionRationaleCheckOn({ plan: { exclusionRationaleCheck: 'off' } }), false);
