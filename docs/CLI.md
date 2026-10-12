@@ -1436,35 +1436,44 @@ and the per-process memos (`git-ref-witness-memo`, `git-object-read-memo`,
   Installed at CLI start (and in the managed supervisor), it wraps
   `execFileSync` / `spawnSync` for `git` below every call site and answers a
   read only from an exact witness, recomputed from the filesystem on every
-  lookup: full object ids (object store namespace: common dir, `objects/pack`
-  identity, config file identities; never with replace refs, grafts or a shallow
-  boundary); exact `HEAD` / `refs/...` names (each name's resolved loose bytes or
-  packed line); `symbolic-ref -q <ref>`; `for-each-ref` over literal prefixes;
-  repository setup (`rev-parse --git-dir`-style flags, `git var` attribute/config
-  file locations, `config --list` without includes); revision-to-revision
-  `git diff` with rename/copy detection or patch text (plus the bytes of every
-  attribute source on the answer's own output paths, an index with no
-  `.gitattributes` entry, and for patch text no attribute source at all); else
-  the complete ref-state witness, re-checked after the producing run. The key
-  also holds the real cwd (`-C` folded in), the argv and the environment (every
+  lookup and again after the producing run (kept only when both agree). Every
+  key holds the git executable's identity (resolved from `PATH`), the real cwd
+  (`-C` folded in), the argv, the output encoding, the environment (every
   variable except `PWD`, `OLDPWD`, `SHLVL`, `_`, `PROOF_OR_STOP_*`, `LATTICE_*`,
-  `CODEX_*`, `npm_*`, `NODE_*`). Answers persist under
-  `<common git dir>/info/proof-or-stop-cache/git-read-v1/` (digest-checked
-  lines; a torn or corrupted line is ignored). Never answered from the cache:
-  index or working-tree reads, failures other than a quiet "no" (exit 1, no
-  output, of `merge-base --is-ancestor` / `symbolic-ref -q`), stdin-fed calls,
-  a redirected git environment, `%G` formats, answers above the caller's
-  `maxBuffer`, and every read inside `withFreshGitReads` / `withoutGitObservation`
-  (launch-time rereads). It is never a verdict cache: every gate still evaluates
-  every rule. `PROOF_OR_STOP_GIT_READ_CACHE=0` turns it off (`memory` keeps it
-  process-local). `packages/main/tests/git-read-cache.test.mjs` (`npm run
-  test:git-read-cache`) proves each witness: moved and unrelated refs, worktrees,
-  redirected env, fresh-read scopes, failures, replace refs, config edits,
-  attributes on diff paths, an index `.gitattributes`, corrupted lines, output
-  shapes and process.env writes.
-- **Environment keys** (`core/process-env-version.ts`): the observation key and
-  the cache key are rebuilt only after a write through `process.env` (tracked by
-  a proxy installed at CLI start), not serialized per probe.
+  `CODEX_*`, `npm_*`, `NODE_*`) and the config files git reads by content
+  (repository, worktree, global, XDG and the system file `git var
+  GIT_CONFIG_SYSTEM` names; any include directive refuses the cache). Every full
+  object id the argv names must exist (loose file or pack index; alternates and
+  promisor packs refuse). Kinds: full object ids (object namespace: common dir,
+  `objects/pack` identity; never with replace refs, grafts or a shallow
+  boundary); exact `HEAD` / `refs/...` names with a per-subcommand option
+  allowlist (each name's resolved loose bytes or packed line);
+  `symbolic-ref -q <ref>`; `for-each-ref` over literal prefixes (a symbolic ref
+  under the prefix refuses); repository setup (`rev-parse --git-dir`-style
+  flags, `git var` config/attribute file locations, `config --list`);
+  revision-to-revision `git diff --name-status` with rename/copy detection or a
+  `--full-index` patch (plus the bytes of every attribute source on the
+  answer's own output paths, an index with no `.gitattributes` entry, and for a
+  patch no attribute source at all); else the complete ref-state witness.
+  Answers persist under `<common git dir>/info/proof-or-stop-cache/git-read-v1/`
+  (digest-checked lines; a torn or corrupted line is ignored). Never answered
+  from the cache: index or working-tree reads, output that depends on the clock,
+  abbreviation (`%h`, `--abbrev`, `describe`, a patch without `--full-index`),
+  notes, decoration or signatures, `--name-only` rename detection, a revision
+  token that is also a path, a call with its own `HOME`, failures other than a
+  quiet "no" (exit 1, no output, of `merge-base --is-ancestor` /
+  `symbolic-ref -q`; never replayed to a caller that shows git's stderr),
+  stdin-fed calls, a redirected git environment, answers above the caller's
+  `maxBuffer`, and reads inside `withFreshGitReads` / `withoutGitObservation`
+  (launch-time rereads; that scope is synchronous, so a read after the launch's
+  first `await` is an ordinary read). It is never a verdict cache: every gate
+  still evaluates every rule. `PROOF_OR_STOP_GIT_READ_CACHE=0` turns it off
+  (`memory` keeps it process-local). `packages/main/tests/git-read-cache.test.mjs`
+  (`npm run test:git-read-cache`) proves each witness and each refusal (31
+  cases, including every defect an independent review reproduced).
+- **Environment keys** (`core/process-env-version.ts`): the observation key's
+  sorted environment and the cache's environment key are rebuilt only when the
+  serialized `process.env` changed (no ICU sort per probe).
 - **Step diagnostics**: every `next --run` decision and step appends one row to
   `<runtime root>/.proof-or-stop/runtime/next-run/diagnostics.jsonl`
   (`core/next-run-diagnostics.ts`): `decide` rows (next step, wall ms, git
