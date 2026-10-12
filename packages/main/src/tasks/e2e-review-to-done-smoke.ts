@@ -4553,7 +4553,8 @@ function scenarioNPP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     // The owner applies the observed values (one row patch each); the correct pins pass.
     o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', intentRows: [{ ref: 'CHK-001:happy:0', desc: 'Upper("AB") -> "AB"' },
       { ref: 'CHK-001:happy:1', desc: 'Upper("xy") -> "XY"', derivation: null },
-      { ref: 'CHK-001:edge:1', desc: 'Upper(1) -> error \'Upper expects a string, got 1\'' }] }, { label: 'checklist_update CHK-001 (pins corrected)' });
+      { ref: 'CHK-001:edge:1', desc: 'Upper(1) -> error \'Upper expects a string, got 1\'',
+        derivation: { requestQuote: quote, computation: 'a number is not a string, so Upper keeps its existing error naming the operand 1' } }] }, { label: 'checklist_update CHK-001 (pins corrected)' });
     const after = ask(o, 'next (pins corrected)');
     assert.notEqual(after.reason, 'pin_probe_mismatch', `[NPP] corrected pins pass the probe: ${after.why}`);
     const passed = JSON.parse(readFileSync(evidencePath!, 'utf8')) as { mismatches?: unknown[] };

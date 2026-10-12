@@ -18,8 +18,11 @@
  *      commit's proof-or-stop.config.json). A case the base evaluates to a
  *      value is unchanged behaviour unless the row records that base value in
  *      `baseValue` (the Story deliberately changes it); a pin that disagrees
- *      is refused. A case the base cannot evaluate (an error, new syntax, an
- *      unbound name, a timeout) is new behaviour and is skipped: the base is
+ *      is refused. An error pin is judged against a base error of the same
+ *      message family (a shared leading text): an existing error format pinned
+ *      wrong is refused, a different error is new behaviour. A case the base
+ *      cannot evaluate (another error, new syntax, an unbound name, a timeout)
+ *      is new behaviour and is skipped: the base is
  *      no oracle for what it cannot run, and a miss only skips the early
  *      warning (REVIEW still judges the code against the request).
  *   2. Request-literal examples. An example the request states literally
@@ -139,10 +142,39 @@ export function requestLiteralMismatches(cases: readonly ProbeCase[], requestTex
  */
 export function baseDisagreement(probe: Pick<ProbeCase, 'pinned'>, observations: ReadonlyArray<ProbeObservation | undefined>, baseValue?: string): string | null {
   const values = observations.filter((row): row is ProbeObservation => Boolean(row) && row!.status === 'value');
-  if (!values.length) return null;
+  if (!values.length) return baseErrorDisagreement(probe, observations, baseValue);
   if (values.some(row => matchesPin(row, probe.pinned) === true)) return null;
   if (baseValue !== undefined && values.some(row => normalizeProbeValue(row.text) === normalizeProbeValue(baseValue))) return null;
   return values[0]!.text;
+}
+
+/** Shared leading text (whitespace collapsed) that makes two error messages one message family. */
+const MIN_ERROR_FAMILY = 12;
+const spaced = (text: string): string => text.replace(/\s+/g, ' ').trim();
+const firstLine = (text: string): string => (text.split('\n').find(line => line.trim()) ?? '').trim();
+
+/**
+ * An error pin against a base that answers with an error: unchanged behaviour
+ * only when the base error belongs to the same message family (a leading text
+ * of at least MIN_ERROR_FAMILY characters in common) and still differs from the
+ * pin, e.g. an existing error format pinned with the operand quoted. A
+ * different error (the base lacks the function, cannot parse the syntax) is new
+ * behaviour and is skipped; a value pin on a base error is new behaviour too.
+ */
+function baseErrorDisagreement(probe: Pick<ProbeCase, 'pinned'>, observations: ReadonlyArray<ProbeObservation | undefined>, baseValue?: string): string | null {
+  if (probe.pinned.kind === 'value') return null;
+  const errors = observations.filter((row): row is ProbeObservation => Boolean(row) && row!.status === 'error');
+  if (!errors.length || errors.some(row => matchesPin(row, probe.pinned) === true)) return null;
+  const pin = spaced(probe.pinned.text);
+  const family = errors.map(row => firstLine(row.text)).find(line => {
+    const text = spaced(line);
+    let shared = 0;
+    while (shared < text.length && shared < pin.length && text[shared] === pin[shared]) shared += 1;
+    return shared >= MIN_ERROR_FAMILY;
+  });
+  if (!family) return null;
+  if (baseValue !== undefined && spaced(family).includes(spaced(baseValue))) return null;
+  return family;
 }
 
 // ---------------------------------------------------------------------------
@@ -204,15 +236,22 @@ export function pinProbeMismatches(args: { store: Pick<StoryStore, 'readStory' |
   if (!evaluator) return { runner: null, base: null, judged: 0, skipped: runnable.length, mismatches };
   const programsOf = (probe: ProbeCase): string[] => [probeProgram(evaluator.config, probe.isolatedStatements ?? probe.statements, probe.expr),
     ...(probe.isolatedStatements ? [probeProgram(evaluator.config, probe.statements, probe.expr)] : [])];
-  const observed = evaluateInTree({ config: evaluator.config, env: evaluator.env }, evaluator.tree, runnable.flatMap(programsOf));
+  // A pinOracle's skipPattern marks every error as "cannot run" (its oracle compares values only);
+  // the probe keeps errors as errors (their own tree and cache) and applies it to exit-0 output only.
+  const skip = evaluator.kind === 'pinOracle' && evaluator.config.skipPattern ? (() => { try { return new RegExp(evaluator.config.skipPattern!, 'm'); } catch { return null; } })() : null;
+  const raw = evaluateInTree({ config: evaluator.kind === 'pinOracle' ? { ...evaluator.config, skipPattern: undefined } : evaluator.config, env: evaluator.env },
+    evaluator.tree, runnable.flatMap(programsOf));
+  const observed = new Map([...raw].map(([program, row]) => [program, skip && row.status === 'value' && skip.test(row.text) ? { status: 'unrunnable' as const, text: row.text } : row]));
   const baseValues = rowBaseValues(items);
   let judged = 0;
   let skipped = 0;
   for (const probe of runnable) {
     const observations = programsOf(probe).map(program => observed.get(program));
-    if (!observations.some(row => row?.status === 'value')) { skipped += 1; continue; }
-    judged += 1;
     const value = baseDisagreement(probe, observations, baseValues.get(probe.ref));
+    // Judged: the base answered with a value, or with an error the pin states or contradicts within its message family.
+    const answered = value !== null || observations.some(row => row?.status === 'value' || (row?.status === 'error' && matchesPin(row, probe.pinned) === true));
+    if (!answered) { skipped += 1; continue; }
+    judged += 1;
     if (value === null || flaggedKeys.has(`${probe.ref}|${probe.code}`)) continue;
     mismatches.push({ itemId: probe.itemId, ref: probe.ref, code: probe.code, pinned: probe.pinnedText, observed: value, source: 'base' });
   }
