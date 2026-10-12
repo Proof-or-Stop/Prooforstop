@@ -118,6 +118,8 @@ await check('P4 an error pin of unchanged behaviour: a base error of the same me
   assert.equal(judge({ pinned }, [{ status: 'error', text: 'slice index must be an integer, got x\n\t[1:5]' }]), 'slice index must be an integer, got x',
     'same message family, different text: the existing error format pinned wrong');
   assert.equal(judge({ pinned }, [{ status: 'error', text: 'slice index must be an integer, got "x"\n\t[1:5]' }]), null, 'the base error carries the pin');
+  assert.equal(judge({ pinned }, [{ status: 'error', text: '&{slice index must be an integer, got x\n\t[1:5]}' }]), '&{slice index must be an integer, got x',
+    'a runner decoration before the message (e.g. `&{`) does not hide the family');
   assert.equal(judge({ pinned }, [{ status: 'error', text: 'identifier not found: f' }]), null, 'another error: the base lacks the behaviour, skipped');
   assert.equal(judge({ pinned }, [{ status: 'error', text: 'slice index must be an integer, got x' }], 'slice index must be an integer, got x'), null, 'baseValue records a deliberate change');
   assert.equal(judge({ pinned: { kind: 'value', text: '3' } }, [{ status: 'error', text: 'slice index must be an integer, got x' }]), null, 'a value pin on a base error: new behaviour');
