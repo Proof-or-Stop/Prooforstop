@@ -118,7 +118,7 @@ await check('R1 operand class signature: literals by class, sign/zero/empty/non-
   assert.equal(sig('f("abc")'), sig('f("xy")'));
   assert.notEqual(sig('f("héllo")'), sig('f("hello")'));
   assert.notEqual(sig('f("")'), sig('f("a")'));
-  assert.equal(sig('x = [1, 2]; x[0] = 9; x'), sig('y=[3,4,5]; y[1]=7; y'));
+  assert.equal(sig('x = [1, 2]; x[1] = 9; x'), sig('y=[3,4,5]; y[2]=7; y'));
   assert.notEqual(sig('f([])'), sig('f([1])'));
   assert.notEqual(sig('f(null)'), sig('f(1)'));
 });

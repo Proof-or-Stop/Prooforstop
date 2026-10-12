@@ -35,6 +35,7 @@ import { readStoryRequest, renderUnmappedLiteralsLine, unmappedStoryRequestLiter
 import { renderPinAudit } from '../core/intent-derivation.js';
 import { renderCoverageMatrixRule } from '../core/plan-coverage-matrix.js';
 import { renderScopePlanRerunContext } from '../core/scope-plan-rerun-context.js';
+import { mergedPlanReviewLines, planReviewMergeActive } from '../core/plan-review-merge.js';
 import { IMPLEMENTER_PROBE_LINE, IMPLEMENTER_PROBE_MATRIX, INTENT_CONFLICT_RETURN_CONTRACT, PRODUCT_CODE_NO_POS_METADATA_RULE, REPAIR_INPUT_VARIANT_RULE, renderProbeTestGapLine, renderReviewRequestAuthority } from '../core/request-authority.js';
 import { renderAllowedFilesSection } from '../core/managed-writer-scope.js';
 import { earlierFindingRepairReports, earlierImplementerProbeGap, implementerRunReports } from '../core/finding-repair-attempts.js';
@@ -751,8 +752,10 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         : `- No candidate-spec-set artifact is present. ${candidateRoutingMode()} mode records this without hard-blocking review.`);
     }
     // Old-PoS run 27 (row 4b): a rerun starts from the previous verdict and the checklist diff since it.
+    // Lab plan-light (A/B plan.reviewMerge=on): a rerun is a confirmation re-review of the changed rows.
+    const merged = planReviewMergeActive(root);
     lines.push(...renderScopePlanRerunContext({ store, storyId: args.storyId,
-      gitCwd: resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root }) }));
+      gitCwd: resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root }), ...(merged ? { confirmation: true } : {}) }));
     appendScopePlanRequestTraceability(lines, store, args.storyId,
       storyPinOracle(store, root, args.storyId, resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root })));
     appendScopePlanCoveredObligations(lines, store, args.storyId);
@@ -762,6 +765,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     lines.push('- Classify each feature as covered, excluded, gap, orphan-suspect, or drift using the scope_check_save schema.');
     // Old-PoS run 43 (core/scope-exclusion-rationale.ts, A/B plan.exclusionRationaleCheck, default on).
     if (exclusionRationaleCheckActive(root)) lines.push(SCOPE_PLAN_EXCLUSION_CHECK);
+    // Lab plan-light (A/B plan.reviewMerge=on): this ONE session also answers the INIT questions; only real gaps / unanswered questions block.
+    if (merged) lines.push(...mergedPlanReviewLines(root));
     lines.push('- Record open questions when the artifacts conflict or a promise is visible but cannot be safely classified.');
     lines.push('- Track readManifest with filesReadFully, filesTriagedByName, scanEscalationReason, candidateSpecSetDigest, and corpusDigest. Put full-read files in filesReadFully, filename/title-only triage in filesTriagedByName, and use scanEscalationReason only for a justified tool-driven full decisions-directory scan.');
     lines.push('');

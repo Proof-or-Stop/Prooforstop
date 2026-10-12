@@ -4527,8 +4527,8 @@ function scenarioNPP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     setup(o);
     const blocked = ask(o, 'next (wrong pins)');
     assert.equal(blocked.reason, 'pin_probe_mismatch', `[NPP] next names the wrong pins before the plan review: ${blocked.reason}: ${blocked.why}`);
-    assert.match(blocked.why, /CHK-001:happy:0: `Upper\("AB"\)` -> the Story base computes "AB", the row pins "ab"/, `[NPP] the unchanged-behaviour pin is named with the observed base value: ${blocked.why}`);
-    assert.match(blocked.why, /CHK-001:happy:1: `Upper\("xy"\)` -> the request states "XY", the row pins "Xy"/, `[NPP] the request-literal contradiction is named: ${blocked.why}`);
+    assert.match(blocked.why, /CHK-001:happy:0: `Upper\("AB"\)` -> the Story base computes "AB", the row pins ["']ab["']/, `[NPP] the unchanged-behaviour pin is named with the observed base value: ${blocked.why}`);
+    assert.match(blocked.why, /CHK-001:happy:1: `Upper\("xy"\)` -> the request states "XY", the row pins ["']Xy["']/, `[NPP] the request-literal contradiction is named: ${blocked.why}`);
     assert.doesNotMatch(blocked.why, /CHK-001:edge:0|CHK-001:adversarial:0/, '[NPP] a baseValue-acknowledged change and a row the base cannot run are not refused');
     assert.equal(blocked.cli?.command, 'checklist_update', '[NPP] ONE next action: a checklist_update row patch');
     const patch = (blocked.cli?.payload.intentRows as Array<{ ref: string }> | undefined) ?? [];
