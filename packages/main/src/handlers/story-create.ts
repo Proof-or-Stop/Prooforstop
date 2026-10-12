@@ -43,6 +43,9 @@ import { assertNoReviewGateVerificationIntent } from '../core/review-gate-verifi
 import { captureStoryIntegrationTarget } from '../core/story-integration-target.js';
 import { ensureRuntimeInfoExclude } from '../core/runtime-info-exclude.js';
 import { ensureGitCommitIdentityNotice } from '../core/git-commit-identity.js';
+import { initReviewDeferredToPlan } from '../core/plan-review-merge.js';
+import { abVariantEvidenceOf, rowBudgetOn } from '../core/ab-variants.js';
+import { recordRowBudgetEvidence, rowBudgetNote } from '../core/plan-row-budget.js';
 import {
   boundStoryRequest,
   consumeStagedStoryRequest,
@@ -1265,8 +1268,11 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         // N4: `next --run` drives INIT from here (a boundary batch if missing,
         // scope_freeze_check, both managed INIT reviewers in parallel, their
         // waits, INIT_CHECK and PLAN); the manual sequence below is what it runs.
-        const initReviewHint =
-          `\n\nNext: proof-or-stop next --storyId=${storyId} --run (records the scope freeze check, launches both managed INIT reviewers, waits for them, then enters INIT_CHECK and PLAN; it stops at any step that needs you, with every command complete)` +
+        // Lab plan-light (A/B plan.reviewMerge=on): no INIT reviewer; the plan is reviewed once in PLAN.
+        const deferredInitReview = initReviewDeferredToPlan(store, ctx.root, storyId);
+        const initReviewHint = deferredInitReview
+          ? `\n\nNext: proof-or-stop next --storyId=${storyId} --run (records the scope freeze check, then enters INIT_CHECK and PLAN; no INIT reviewer runs: ${deferredInitReview}; it stops at any step that needs you, with every command complete)`
+          : `\n\nNext: proof-or-stop next --storyId=${storyId} --run (records the scope freeze check, launches both managed INIT reviewers, waits for them, then enters INIT_CHECK and PLAN; it stops at any step that needs you, with every command complete)` +
           `\n→ Manual equivalent: run the two managed INIT reviewers in parallel:\n` +
           `${renderManagedInitReviewerDispatches(storyId, ['proof-or-stop-review-story-init', 'proof-or-stop-product-reviewer'])}\n` +
           `${renderAgentLivenessGuidance({ label: 'INIT reviewers' })}\n` +
@@ -1291,7 +1297,18 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
             return note ? `\n⚠ ${note}` : '';
           } catch { return ''; }
         })();
-        return `Story ${storyId} created (INIT) with ${preflightChecklist.items.length} checklist items${hint}${probeRows}${requestHint}${initReviewHint}${nonGitHint}`;
+        // Lab plan-light (A/B plan.rowBudget=on): rows repeating an operand class (advisory, one trim command per item).
+        const rowBudget = (() => {
+          try {
+            const config = loadConfig(ctx.root);
+            if (!rowBudgetOn(config)) return '';
+            const request = readStoryRequest(store, storyId);
+            recordRowBudgetEvidence(ctx.root, storyId, 'story_create', preflightChecklist.items, request.status === 'ok' ? request.text : null, abVariantEvidenceOf(config));
+            const note = rowBudgetNote(storyId, preflightChecklist.items, request.status === 'ok' ? request.text : null);
+            return note ? `\n⚠ ${note}` : '';
+          } catch { return ''; }
+        })();
+        return `Story ${storyId} created (INIT) with ${preflightChecklist.items.length} checklist items${hint}${probeRows}${rowBudget}${requestHint}${initReviewHint}${nonGitHint}`;
       }
 
       // B-02a6 CHK-002: an IDEA story still persists index.json + background.md on

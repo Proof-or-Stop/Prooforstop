@@ -106,6 +106,10 @@ import { intentSemantics } from '../core/verification-intent-amendment.js';
 import { isMetadataTargetFinding, literalOccurrences, openMetadataCorrections, statedForm, type LiteralOccurrence, type MetadataField, type OpenMetadataCorrection } from '../core/metadata-correction.js';
 import { openPinAuditGaps } from '../core/pin-audit-correction.js';
 import { describePinMismatch, PIN_ORACLE_MISMATCH, pinExamples, pinMismatchRule, pinOracleMismatches, pinOracleStoryBase, storyPinOracle } from '../core/pin-oracle.js';
+import { describePinProbeMismatch, PIN_PROBE_MISMATCH, pinProbeNextPayload, pinProbeRule, planPinProbe } from '../core/plan-pin-probe.js';
+import { initReviewDeferredToPlan, planReviewMergeActive } from '../core/plan-review-merge.js';
+import { ROW_BUDGET_GUIDANCE } from '../core/plan-row-budget.js';
+import { rowBudgetOn } from '../core/ab-variants.js';
 import { describeUnextractableRows, PROBE_REQUEST_MISMATCH, probeRunnerDeclared, probeSyntaxErrors, reportProbeDecision, requestAnchoredKeys, runnerProbeDecision, storyProbeRunner, unextractableRows, type ProbeFlagDecision } from '../core/request-probes.js';
 import { describeExactTextGap, exactTextKeyOf, exactTextPrefixAssertions, exactRequestLiteralItem, readExactTextState, writeExactTextState, type ExactTextGap } from '../core/exact-text-assertions.js';
 import { implementerRunReports } from '../core/finding-repair-attempts.js';
@@ -1600,6 +1604,25 @@ export function pinOracleStep(base: { storyId: string; phase: string }, store: H
 }
 
 /**
+ * Lab plan-light (A/B plan.pinProbe=on, core/plan-pin-probe.ts): the example
+ * pins the Story base or a request-literal example contradicts, as ONE row
+ * patch of the first one (the observed value named), before the plan review
+ * is launched and before DEV entry (the gate refuses the same rows). Null when
+ * the switch is off or every judged pin agrees.
+ */
+export function pinProbeStep(base: { storyId: string; phase: string }, store: HandlerContext['store'], root: string, gitCwd: string | (() => string)): NextStep | null {
+  const result = planPinProbe(store, root, base.storyId, gitCwd);
+  if (!result || !result.mismatches.length) return null;
+  const first = result.mismatches[0]!;
+  const payload = pinProbeNextPayload(base.storyId, first);
+  return step(base, 'agent', PIN_PROBE_MISMATCH, { command: 'checklist_update', payload },
+    `${result.mismatches.length} pinned value(s) disagree with the Story base or the request [${PIN_PROBE_MISMATCH}] (A/B plan.pinProbe=on): `
+      + `${result.mismatches.slice(0, 8).map(describePinProbeMismatch).join('; ')}${result.mismatches.length > 8 ? ` +${result.mismatches.length - 8} more` : ''}. `
+      + `${pinProbeRule(result)} Fix ${first.ref} now (observed value ${first.observed}); next names any other row.`,
+    'pinProbeMismatches (plan.pinProbe=on: the declared evaluator at the Story base + request-literal examples)', { placeholders: placeholderPaths(payload) });
+}
+
+/**
  * Run 19 (P1): the deterministic PLAN blockers (core/plan-pre-scope-blockers.ts)
  * as ONE agent step, before the scope-plan reviewer is launched. One exact
  * checklist_update per item, its verificationIntent the full replacement value:
@@ -1725,6 +1748,11 @@ function withInitHints<T extends { placeholderHints?: Record<string, string> }>(
   return { ...value, placeholderHints: Object.fromEntries(Object.entries(value.placeholderHints).map(([path, hint]) => [path, initHint(path) ?? hint])) };
 }
 
+/** Lab plan-light: plan.rowBudget=on in the project config (unreadable = off). */
+function rowBudgetOnFor(root: string): boolean {
+  try { return rowBudgetOn(loadConfig(root)); } catch { return false; }
+}
+
 /**
  * The first INIT step when no Story exists yet: ONE complete story_create
  * command (scope and execution boundary inline, so no separate boundary
@@ -1766,7 +1794,10 @@ export function storyCreateTemplateStep(root: string): NextStep {
       + 'one checklist item per deliverable (copy the item object), each executable intent pinned, the scope and execution boundary inline. '
       + `Each intent row's \`type\` is one of ${VERIFICATION_INTENT_TYPES.join('|')} (nothing else: an error, edge or compatibility example of code behaviour is still \`logic\`). `
       + 'Each intent whose expected output request.md does not quote verbatim keeps its derivation (the request sentence + the computation that reaches that output; story_create refuses it without one, [intent_derivation_required]); drop the derivation on a quoted one. '
-      + 'Then run the `proof-or-stop next --storyId=<id> --run` line it prints: that records the scope freeze check, launches both managed INIT reviewers, waits for them and advances to PLAN.',
+      + (planReviewMergeActive(root)
+        ? 'Then run the `proof-or-stop next --storyId=<id> --run` line it prints: that records the scope freeze check and advances to PLAN, where ONE merged plan review judges the complete plan (A/B plan.reviewMerge=on: no INIT reviewer).'
+        : 'Then run the `proof-or-stop next --storyId=<id> --run` line it prints: that records the scope freeze check, launches both managed INIT reviewers, waits for them and advances to PLAN.')
+      + (rowBudgetOnFor(root) ? ` ${ROW_BUDGET_GUIDANCE}` : ''),
     'story_create schema (command-catalog) + INIT_CHECK gate (scope boundary, execution boundary)', { placeholders: placeholderPaths(payload) }));
 }
 
@@ -2072,6 +2103,10 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
         'The DEV-entry gate refuses without the dev-memory preflight acknowledgement [missing_dev_memory_preflight_ack]. Run it now and read the lessons it prints before planning the implementation.',
         'evaluateDevMemoryPreflightGate (DEV-entry gate)');
     }
+    // Lab plan-light (A/B plan.pinProbe=on): pins checked against the Story base and the
+    // request literals before the plan review is launched (ADR-105) and before DEV entry.
+    const pinProbe = pinProbeStep(base, ctx.store, ctx.root, () => gitCwdOf(storyId));
+    if (pinProbe) return pinProbe;
     // Run 16: the scope-plan reviewer verdict the DEV-entry gate requires
     // (missingPlanScopeCheckFailure, the gate's own predicate). Launched with the
     // owner's own managed selection, or waited on while its run is in flight.
@@ -2181,8 +2216,12 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     const { storyId } = base;
     const failure = getGuardFailureReason(storyId, ctx.store, 'INIT_CHECK', ctx.root, gitCwdOf(storyId));
     if (!failure) {
+      // Lab plan-light (A/B plan.reviewMerge=on): no INIT reviewer verdict is part of the gate.
+      const deferred = initReviewDeferredToPlan(ctx.store, ctx.root, storyId);
       return step(base, 'framework', 'enter_init_check', { command: 'story_advance', payload: { storyId, phase: 'INIT_CHECK' } },
-        'Every INIT_CHECK prerequisite passes (boundaries, scope freeze check, both INIT reviewer verdicts): enter INIT_CHECK (creates the Story worktree).',
+        deferred
+          ? `Every INIT_CHECK prerequisite passes (boundaries, scope freeze check); ${deferred}: enter INIT_CHECK (creates the Story worktree).`
+          : 'Every INIT_CHECK prerequisite passes (boundaries, scope freeze check, both INIT reviewer verdicts): enter INIT_CHECK (creates the Story worktree).',
         'getGuardFailureReason(INIT_CHECK)');
     }
     const code = failure.match(/\[([a-z_]+)\]/)?.[1] ?? '';

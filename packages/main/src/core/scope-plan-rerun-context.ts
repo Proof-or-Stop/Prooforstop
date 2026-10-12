@@ -66,8 +66,34 @@ export function scopeChecklistDiff(before: Pick<ChecklistData, 'items'>, after: 
   return lines;
 }
 
+/** Ids of the items added, removed or changed (in a field the diff shows) between two checklists. */
+export function changedScopeItemIds(before: Pick<ChecklistData, 'items'>, after: Pick<ChecklistData, 'items'>): Set<string> {
+  const out = new Set<string>();
+  for (const line of scopeChecklistDiff(before, after)) {
+    const id = line.match(/^- (CHK-\d+) (?:added|changed|removed)/)?.[1];
+    if (id) out.add(id);
+  }
+  return out;
+}
+
+/**
+ * Lab plan-light (A/B plan.reviewMerge=on, new PoS ADR-043): the rerun is a
+ * confirmation re-review. The previous verdict stands for the rows of items the
+ * diff does not touch; the reviewer copies them and re-judges only the flagged
+ * rows and the changed items. Empty when the judged checklist is unknown.
+ */
+function confirmationLines(scope: ScopeCheckData, changed: ReadonlySet<string>): string[] {
+  const keep = (scope.features ?? []).filter(feature => (feature.status === 'covered' || feature.status === 'excluded')
+    && !String(feature.covered_by ?? '').split(/[,\s]+/).some(id => changed.has(id)));
+  return [
+    `Confirmation re-review (A/B plan.reviewMerge=on): the previous verdict stands for every row of an item the diff above does not touch. Re-judge only (1) the flagged rows listed above and (2) every request sentence and row of the changed items (${[...changed].join(', ') || 'none'}); aim for at most 6 commands. Copy each row below into your scope_check_save unchanged, then add your re-judged rows; the summary counts cover all of them.`,
+    `Previous rows to copy unchanged (${keep.length}):`,
+    ...keep.map(feature => `- ${JSON.stringify({ feature: feature.feature, covered_by: feature.covered_by ?? null, status: feature.status, excluded_by: feature.excluded_by ?? null, source: feature.source })}`),
+  ];
+}
+
 /** The rerun-context lines for the scope-plan prompt; empty when there is no previous verdict. */
-export function renderScopePlanRerunContext(args: { store: StoryStore; storyId: string; gitCwd: string }): string[] {
+export function renderScopePlanRerunContext(args: { store: StoryStore; storyId: string; gitCwd: string; confirmation?: boolean }): string[] {
   let scope: ScopeCheckData | null = null;
   try { scope = args.store.readScopeCheck(args.storyId); } catch { scope = null; }
   if (!scope) return [];
@@ -84,6 +110,7 @@ export function renderScopePlanRerunContext(args: { store: StoryStore; storyId: 
     lines.push(diff.length ? 'Checklist changes since that verdict:' : 'Checklist changes since that verdict: none.');
     lines.push(...diff.slice(0, MAX_DIFF_LINES));
     if (diff.length > MAX_DIFF_LINES) lines.push(`- +${diff.length - MAX_DIFF_LINES} more lines (read checklist.json)`);
+    if (args.confirmation) return [...lines, ...confirmationLines(scope, changedScopeItemIds(before, current))];
   } else {
     lines.push('Checklist changes since that verdict: not reconstructable; compare the listed rows with the current checklist.json yourself.');
   }

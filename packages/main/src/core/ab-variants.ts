@@ -73,6 +73,20 @@
  *                              are probed per operand case; a disagreement the request and checklist leave open is a
  *                              gap whose remedy is a covering row pinning which precedent applies
  *
+ * Lab plan-light (structural-cost-analysis.md §7 item 4; new PoS ADR-105 / ADR-081 / ADR-043 / ADR-040):
+ * three EXPERIMENTAL switches that make INIT+PLAN lighter, default OFF:
+ *   plan.pinProbe              'off' (default) | 'on'  before PLAN→DEV the framework runs every extractable example
+ *                              row on the Story BASE with the project's declared evaluator (probeRunner, else pinOracle)
+ *                              and checks pins against request-literal examples; a pin the base (unchanged behaviour,
+ *                              no `baseValue`) or the request contradicts refuses DEV entry with ONE Next naming the
+ *                              row and the observed value (core/plan-pin-probe.ts)
+ *   plan.reviewMerge           'off' (default) | 'on'  the two INIT reviewers are not launched; INIT_CHECK admits the Story
+ *                              when the PLAN scope-plan verdict is required, and that ONE session also answers the INIT
+ *                              questions; a rerun is a confirmation re-review of the changed rows (core/plan-review-merge.ts)
+ *   plan.rowBudget             'off' (default) | 'on'  authoring guidance + a soft (never blocking) check: one intent row
+ *                              per distinct behaviour (operand class), not many literal examples of one class; request
+ *                              literals and exact-text rows are never counted as extra (core/plan-row-budget.ts)
+ *
  * A malformed value fails closed where it is consumed (never silently treated
  * as an experimental arm; review.lanePack / review.roundDelta then keep production: no pack). See docs/CLI.md "Detection A/B variant switches".
  */
@@ -98,6 +112,9 @@ export const AB_VARIANT_FLAGS = {
   'review.siblingParity': ['on', 'off'],
   'plan.exclusionRationaleCheck': ['on', 'off'],
   'plan.baseDisagreement': ['on', 'off'],
+  'plan.pinProbe': ['off', 'on'],
+  'plan.reviewMerge': ['off', 'on'],
+  'plan.rowBudget': ['off', 'on'],
 } as const;
 
 export type AbVariantFlag = keyof typeof AB_VARIANT_FLAGS;
@@ -107,7 +124,7 @@ export interface AbVariantConfigSlice {
   review?: { criticOnCleanRound?: string; round2Scope?: string; round2Lanes?: string; lanePack?: string; roundDelta?: string; siblingParity?: string; deltaRounds?: string };
   remediation?: { grouping?: string; thread?: string };
   implementation?: { grouping?: string; thread?: string; probeMatrix?: string };
-  plan?: { coverageMatrix?: string; scopeDeferral?: string; pinAuditEnforcement?: string; exclusionRationaleCheck?: string; baseDisagreement?: string };
+  plan?: { coverageMatrix?: string; scopeDeferral?: string; pinAuditEnforcement?: string; exclusionRationaleCheck?: string; baseDisagreement?: string; pinProbe?: string; reviewMerge?: string; rowBudget?: string };
   dev?: { probeEnforcement?: string };
 }
 
@@ -130,6 +147,9 @@ export interface AbVariants {
   exclusionRationaleCheck: AbVariantValue<'plan.exclusionRationaleCheck'>;
   baseDisagreement: AbVariantValue<'plan.baseDisagreement'>;
   deltaRounds: AbVariantValue<'review.deltaRounds'>;
+  pinProbe: AbVariantValue<'plan.pinProbe'>;
+  reviewMerge: AbVariantValue<'plan.reviewMerge'>;
+  rowBudget: AbVariantValue<'plan.rowBudget'>;
 }
 
 export interface AbVariantEvidence {
@@ -174,6 +194,9 @@ export function resolveAbVariants(config: unknown): AbVariants {
     exclusionRationaleCheck: pick('plan.exclusionRationaleCheck', section(config, 'plan').exclusionRationaleCheck),
     baseDisagreement: pick('plan.baseDisagreement', section(config, 'plan').baseDisagreement),
     deltaRounds: pick('review.deltaRounds', review.deltaRounds),
+    pinProbe: pick('plan.pinProbe', section(config, 'plan').pinProbe),
+    reviewMerge: pick('plan.reviewMerge', section(config, 'plan').reviewMerge),
+    rowBudget: pick('plan.rowBudget', section(config, 'plan').rowBudget),
   };
 }
 
@@ -198,6 +221,9 @@ export function abVariantEvidence(variants: AbVariants): AbVariantEvidence | und
   if (variants.exclusionRationaleCheck !== 'on') flags['plan.exclusionRationaleCheck'] = variants.exclusionRationaleCheck;
   if (variants.baseDisagreement !== 'on') flags['plan.baseDisagreement'] = variants.baseDisagreement;
   if (variants.deltaRounds !== 'off') flags['review.deltaRounds'] = variants.deltaRounds;
+  if (variants.pinProbe !== 'off') flags['plan.pinProbe'] = variants.pinProbe;
+  if (variants.reviewMerge !== 'off') flags['plan.reviewMerge'] = variants.reviewMerge;
+  if (variants.rowBudget !== 'off') flags['plan.rowBudget'] = variants.rowBudget;
   return Object.keys(flags).length ? { schema: AB_VARIANT_EVIDENCE_SCHEMA, flags } : undefined;
 }
 
@@ -211,7 +237,7 @@ export function dispatchTargetThreadFresh(target: { abVariant?: AbVariantEvidenc
 }
 
 /** The single-switch reader of one catch-earlier switch: a malformed value (or an unreadable config) keeps production. */
-function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds'>(config: unknown, flag: F): AbVariantValue<F> {
+function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds' | 'plan.pinProbe' | 'plan.reviewMerge' | 'plan.rowBudget'>(config: unknown, flag: F): AbVariantValue<F> {
   const [group, key] = flag.split('.') as [string, string];
   try { return pick(flag, section(config, group)[key]); } catch { return AB_VARIANT_FLAGS[flag][0] as AbVariantValue<F>; }
 }
@@ -234,3 +260,13 @@ export const exclusionRationaleCheckOn = (config: unknown): boolean => catchEarl
 export const baseDisagreementOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.baseDisagreement') === 'on';
 /** EXPERIMENTAL review.deltaRounds=on: delta review rounds (core/review-delta-round.ts); malformed = off. */
 export const deltaRoundsOn = (config: unknown): boolean => catchEarlierPick(config, 'review.deltaRounds') === 'on';
+/** EXPERIMENTAL plan.pinProbe=on: example pins probed on the Story base before PLAN→DEV (core/plan-pin-probe.ts); malformed = off. */
+export const pinProbeOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.pinProbe') === 'on';
+/** EXPERIMENTAL plan.reviewMerge=on: one merged plan review in PLAN instead of the INIT reviewers + scope-plan runs (core/plan-review-merge.ts); malformed = off. */
+export const reviewMergeOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.reviewMerge') === 'on';
+/** EXPERIMENTAL plan.rowBudget=on: one intent row per operand class, guidance + soft check (core/plan-row-budget.ts); malformed = off. */
+export const rowBudgetOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.rowBudget') === 'on';
+/** The A/B evidence of a config (non-default switches only), or undefined when every switch has its production value or the config is malformed. */
+export function abVariantEvidenceOf(config: unknown): AbVariantEvidence | undefined {
+  try { return abVariantEvidence(resolveAbVariants(config)); } catch { return undefined; }
+}

@@ -77,6 +77,9 @@ import { inspectDevMemoryFinishDecision } from './playbook-runtime-memory.js';
 import { canonicalAgentRoleId } from './agent-role-identity.js';
 import { renderManagedInitReviewerDispatches } from './reviewer-launch-guidance.js';
 import { missingPlanScopeCheckFailure } from './plan-scope-check-requirement.js';
+import { initReviewDeferredToPlan } from './plan-review-merge.js';
+import { reviewMergeOn } from './ab-variants.js';
+import { pinProbeDevEntryFailure } from './plan-pin-probe.js';
 import { scopeVerdictDeferral, scopeVerdictGapEnforcementFailure, scopeVerdictReviewEntryFailure } from './scope-plan-deferral.js';
 
 function buildQuorumEvidence(
@@ -525,6 +528,8 @@ export function canEnterInitCheckGuard(context: StoryMachineContext): boolean {
     const story = context.store.readStory(context.storyId);
     if (story.phase !== 'INIT') return true; // Other sources such as IDEA→INIT_CHECK are not gated
     if (getScopeAntiExpansionGuardFailureReason(context.storyId, context.store, context.projectRoot)) return false;
+    // Lab plan-light (A/B plan.reviewMerge=on): the merged plan review in PLAN replaces the INIT reviewers.
+    if (initReviewDeferredToPlan(context.store, context.projectRoot, context.storyId)) return true;
     const initCheck = context.store.readInitCheck(context.storyId);
     if (!initCheck) return false;
     // Verify against the SNAPSHOT already read, not a second read of the file: the
@@ -710,6 +715,17 @@ function formatParallelDecompositionBlock(
   }
 }
 
+/** Lab plan-light: plan.reviewMerge=on and no init-check.json, i.e. the only plan review is the merged one in PLAN. */
+function initReviewOnlyInPlan(store: StoryStore, config: unknown, storyId: string): boolean {
+  if (!reviewMergeOn(config)) return false;
+  try { return !store.readInitCheck(storyId); } catch { return true; }
+}
+
+/** The Story's git cwd for the pin probe (its worktree when resolvable, else the project root). */
+function pinProbeGitCwd(store: StoryStore, projectRoot: string, storyId: string): string {
+  try { return resolveGitCwd({ store, storyId, metadataRoot: projectRoot, projectRoot }); } catch { return projectRoot; }
+}
+
 export function canStartDevGuard(context: StoryMachineContext): boolean {
   if (storyScopeBudgetBlocker(context.store, context.projectRoot, context.storyId)) return false;
   if (planOwnerCoverageFailure(context.store, context.projectRoot, context.storyId)) return false;
@@ -723,6 +739,9 @@ export function canStartDevGuard(context: StoryMachineContext): boolean {
     if (!evaluateDevMemoryPreflightGate(context.storyId, context.store)) return false;
     if (evaluateStoryEvidenceBindingGate(context.projectRoot, context.store, context.storyId).blocking) return false;
     if (proofStoryDevGateFailure(context.store, context.projectRoot, context.storyId)) return false;
+    // Lab plan-light (A/B plan.pinProbe=on): example pins the Story base or the request contradicts
+    // (checked before the plan review is required, as next orders it: ADR-105).
+    if (pinProbeDevEntryFailure(context.store, context.projectRoot, context.storyId, () => pinProbeGitCwd(context.store, context.projectRoot, context.storyId))) return false;
     // Run 16: the scope-plan reviewer verdict is required whenever the policy or
     // the Story says so (core/plan-scope-check-requirement.ts), independent of a
     // clean story_review record or of an understanding snapshot.
@@ -792,6 +811,8 @@ export function canSkipPlanGuard(context: StoryMachineContext): boolean {
     if (!policy.quickPath.allowRiskSignals && story.riskSignals && story.riskSignals.length > 0) return false;
     const cl = context.store.readChecklist(context.storyId);
     if (cl.items.length > policy.quickPath.maxChecklistItems) return false;
+    // Lab plan-light (A/B plan.reviewMerge=on): with no INIT review on record the plan review runs only in PLAN.
+    if (initReviewOnlyInPlan(context.store, config, context.storyId)) return false;
     // B-a7c5 CHK-001: the express channel is ALSO a door into DEV — same ack requirement.
     if (!evaluateDevMemoryPreflightGate(context.storyId, context.store)) return false;
     if (evaluateStoryEvidenceBindingGate(context.projectRoot, context.store, context.storyId).blocking) return false;
@@ -1329,6 +1350,8 @@ export function getGuardFailureReason(
     if (story.phase !== 'INIT') return null;
     const scopeAntiExpansionFailure = getScopeAntiExpansionGuardFailureReason(storyId, store, projectRoot);
     if (scopeAntiExpansionFailure) return scopeAntiExpansionFailure;
+    // Lab plan-light (A/B plan.reviewMerge=on): same predicate as canEnterInitCheckGuard.
+    if (initReviewDeferredToPlan(store, projectRoot ?? process.cwd(), storyId)) return null;
     const initCheck = store.readInitCheck(storyId);
     if (!initCheck) {
       return `Cannot enter INIT_CHECK: init-check.json is missing. [missing_init_check]\n` +
@@ -1442,6 +1465,9 @@ export function getGuardFailureReason(
           } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
             reasons.push('No checklist; must run story_advance PLAN first');
           }
+          if (initReviewOnlyInPlan(store, config, storyId)) {
+            reasons.push('The INIT review was deferred to the merged plan review, which runs only in PLAN (A/B switch plan.reviewMerge=on); must go through the full PLAN');
+          }
         }
       } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
         reasons.push('Unable to load configuration; must go through the full PLAN');
@@ -1468,6 +1494,9 @@ export function getGuardFailureReason(
       const config2 = loadConfig(projectRoot);
       const story2 = store.readStory(storyId);
       const policy2 = resolveWorkflowPolicy(config2, story2);
+      // Lab plan-light (A/B plan.pinProbe=on): same predicate as canStartDevGuard, before the plan review.
+      const pinProbeFailure = pinProbeDevEntryFailure(store, projectRoot ?? process.cwd(), storyId, () => gitCwd ?? pinProbeGitCwd(store, projectRoot ?? process.cwd(), storyId));
+      if (pinProbeFailure) return pinProbeFailure;
       // Run 16: same predicate as canStartDevGuard; its last line is the one Next: action.
       const scopeCheckFailure = missingPlanScopeCheckFailure(store, story2, policy2, () => scopeVerdictDeferral(store, projectRoot ?? process.cwd(), storyId));
       if (scopeCheckFailure) return scopeCheckFailure;

@@ -12,6 +12,7 @@ import { dirname, join } from 'path';
 import type { HandlerContext } from './context.js';
 import type { ChecklistItem, ScopeCheckData, OpenQuestion } from '../core/types.js';
 import { AB_VARIANT_EVIDENCE_SCHEMA } from '../core/ab-variants.js';
+import { mergedPlanReviewRecord } from '../core/plan-review-merge.js';
 import { contradictedExclusions, exclusionRationaleCheckActive, exclusionRefusal } from '../core/scope-exclusion-rationale.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { digestCanonicalJson } from '../core/digest.js';
@@ -301,6 +302,8 @@ export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (.
         ...(checklistDigest ? { checklistDigest } : {}),
         // Outside the signature domain: the run's arm when the exclusion check is off (rollback).
         ...(exclusionCheck ? {} : { abVariant: { schema: AB_VARIANT_EVIDENCE_SCHEMA, flags: { 'plan.exclusionRationaleCheck': 'off' } } }),
+        // Lab plan-light (A/B plan.reviewMerge=on, outside the signature domain): this verdict is the merged plan review.
+        ...(mergedPlanReviewRecord(root) ?? {}),
         _hash,
       };
       // B-ed3e CHK-003: openQuestions passed through as-is (not in signature domain), field omitted when absent.

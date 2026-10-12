@@ -51,6 +51,8 @@ import { missingVerificationPinIssues } from '../core/plan-verification-pins.js'
 import { checklistDerivationGaps, describeDerivationProblem, MISSING_INTENT_DERIVATION, PIN_AUDIT_GAP_PREFIX, ASYMMETRIC_EXAMPLE_GAP_PREFIX } from '../core/intent-derivation.js';
 import { describeCoverageGap, MISSING_COVERAGE_ROW, planCoverageGapsFor } from '../core/plan-coverage-matrix.js';
 import { readStoryRequest } from '../core/story-request.js';
+import { abVariantEvidenceOf, rowBudgetOn } from '../core/ab-variants.js';
+import { ROW_BUDGET_ADVISORY, recordRowBudgetEvidence } from '../core/plan-row-budget.js';
 import { planScopeCheckRequirement, scopeVerdictChecklistChanged } from '../core/plan-scope-check-requirement.js';
 import { requiresFullVerificationIntent } from '../core/plan-pre-scope-blockers.js';
 import {
@@ -548,6 +550,14 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
               });
             }
           }
+        }
+      }
+      // Lab plan-light (A/B plan.rowBudget=on): soft row budget, advisory only (never a blocker).
+      if (story.phase === 'PLAN' && rowBudgetOn(loadConfig(ctx.root))) {
+        const request = readStoryRequest(store, args.storyId);
+        for (const extra of recordRowBudgetEvidence(ctx.root, args.storyId, 'story_review', cl.items, request.status === 'ok' ? request.text : null, abVariantEvidenceOf(loadConfig(ctx.root)))) {
+          issues.push({ type: ROW_BUDGET_ADVISORY, severity: 'advisory', itemId: extra.itemId,
+            message: `${extra.ref} repeats the operand class of ${extra.sameAs} (${extra.signature}); one row per distinct behaviour suffices (A/B plan.rowBudget=on, advisory). Drop it unless it tests a behaviour that signature misses.` });
         }
       }
       if (requireFullVerificationIntent) {
