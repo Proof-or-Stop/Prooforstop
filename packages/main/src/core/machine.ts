@@ -78,6 +78,7 @@ import { canonicalAgentRoleId } from './agent-role-identity.js';
 import { renderManagedInitReviewerDispatches } from './reviewer-launch-guidance.js';
 import { missingPlanScopeCheckFailure } from './plan-scope-check-requirement.js';
 import { initReviewDeferredToPlan } from './plan-review-merge.js';
+import { reviewMergeOn } from './ab-variants.js';
 import { pinProbeDevEntryFailure } from './plan-pin-probe.js';
 import { scopeVerdictDeferral, scopeVerdictGapEnforcementFailure, scopeVerdictReviewEntryFailure } from './scope-plan-deferral.js';
 
@@ -714,6 +715,12 @@ function formatParallelDecompositionBlock(
   }
 }
 
+/** Lab plan-light: plan.reviewMerge=on and no init-check.json, i.e. the only plan review is the merged one in PLAN. */
+function initReviewOnlyInPlan(store: StoryStore, config: unknown, storyId: string): boolean {
+  if (!reviewMergeOn(config)) return false;
+  try { return !store.readInitCheck(storyId); } catch { return true; }
+}
+
 /** The Story's git cwd for the pin probe (its worktree when resolvable, else the project root). */
 function pinProbeGitCwd(store: StoryStore, projectRoot: string, storyId: string): string {
   try { return resolveGitCwd({ store, storyId, metadataRoot: projectRoot, projectRoot }); } catch { return projectRoot; }
@@ -804,6 +811,8 @@ export function canSkipPlanGuard(context: StoryMachineContext): boolean {
     if (!policy.quickPath.allowRiskSignals && story.riskSignals && story.riskSignals.length > 0) return false;
     const cl = context.store.readChecklist(context.storyId);
     if (cl.items.length > policy.quickPath.maxChecklistItems) return false;
+    // Lab plan-light (A/B plan.reviewMerge=on): with no INIT review on record the plan review runs only in PLAN.
+    if (initReviewOnlyInPlan(context.store, config, context.storyId)) return false;
     // B-a7c5 CHK-001: the express channel is ALSO a door into DEV — same ack requirement.
     if (!evaluateDevMemoryPreflightGate(context.storyId, context.store)) return false;
     if (evaluateStoryEvidenceBindingGate(context.projectRoot, context.store, context.storyId).blocking) return false;
@@ -1455,6 +1464,9 @@ export function getGuardFailureReason(
             }
           } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);
             reasons.push('No checklist; must run story_advance PLAN first');
+          }
+          if (initReviewOnlyInPlan(store, config, storyId)) {
+            reasons.push('The INIT review was deferred to the merged plan review, which runs only in PLAN (A/B switch plan.reviewMerge=on); must go through the full PLAN');
           }
         }
       } catch (intentIntegrityError) { rethrowIntentAmendmentIntegrityError(intentIntegrityError);

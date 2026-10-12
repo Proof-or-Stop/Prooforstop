@@ -189,6 +189,8 @@ await check('M2 with plan.reviewMerge=on and no INIT review on record, INIT_CHEC
       priority: 'medium', createdAt: now, startedAt: now, endedAt: null, events: [] });
     store.writeChecklist('B-0f01', { items: [{ id: 'CHK-001', title: 'Toy item', context: 'toy context', userSees: 'the toy prints ok', status: 'pending',
       startTime: null, endTime: null, files: { modify: ['a.txt'], create: [], test: [] }, verificationIntent: { happy: [row('f(1) -> 2')], edge: [], adversarial: [] } }] });
+    store.writeDevMemoryPreflightAck('B-0f01', { schemaVersion: 'proof-or-stop.dev_memory_preflight_ack.v1', storyId: 'B-0f01', topHitIds: [],
+      acknowledgedAt: now, acknowledgedBy: 'smoke' });
     return String(machine.getGuardFailureReason('B-0f01', store, 'DEV', root) ?? '');
   };
   assert.match(reasonFor({ plan: { reviewMerge: 'on' } }), /Cannot skip PLAN:[\s\S]*merged plan review/, 'the express channel would skip the only plan review');

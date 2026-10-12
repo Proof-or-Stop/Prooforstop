@@ -44,8 +44,8 @@ import { captureStoryIntegrationTarget } from '../core/story-integration-target.
 import { ensureRuntimeInfoExclude } from '../core/runtime-info-exclude.js';
 import { ensureGitCommitIdentityNotice } from '../core/git-commit-identity.js';
 import { initReviewDeferredToPlan } from '../core/plan-review-merge.js';
-import { rowBudgetOn } from '../core/ab-variants.js';
-import { rowBudgetNote } from '../core/plan-row-budget.js';
+import { abVariantEvidenceOf, rowBudgetOn } from '../core/ab-variants.js';
+import { recordRowBudgetEvidence, rowBudgetNote } from '../core/plan-row-budget.js';
 import {
   boundStoryRequest,
   consumeStagedStoryRequest,
@@ -1300,8 +1300,10 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         // Lab plan-light (A/B plan.rowBudget=on): rows repeating an operand class (advisory, one trim command per item).
         const rowBudget = (() => {
           try {
-            if (!rowBudgetOn(loadConfig(ctx.root))) return '';
+            const config = loadConfig(ctx.root);
+            if (!rowBudgetOn(config)) return '';
             const request = readStoryRequest(store, storyId);
+            recordRowBudgetEvidence(ctx.root, storyId, 'story_create', preflightChecklist.items, request.status === 'ok' ? request.text : null, abVariantEvidenceOf(config));
             const note = rowBudgetNote(storyId, preflightChecklist.items, request.status === 'ok' ? request.text : null);
             return note ? `\n⚠ ${note}` : '';
           } catch { return ''; }

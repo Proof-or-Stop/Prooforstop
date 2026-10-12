@@ -29,8 +29,14 @@ import { VERIFICATION_LANES } from './verification.js';
 import { itemProbeCases, type ProbeCase } from './request-probes.js';
 import { requestLiteralExamples } from './plan-pin-probe.js';
 import { shellQuote } from './shell-quote.js';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
+import { resolveCanonicalRuntimeProjectRoot } from './runtime-artifact-registry.js';
+import type { AbVariantEvidence } from './ab-variants.js';
 
 export const ROW_BUDGET_ADVISORY = 'row_budget';
+export const ROW_BUDGET_SCHEMA = 'proof-or-stop.plan-row-budget.v1' as const;
 
 export const ROW_BUDGET_GUIDANCE = 'Row budget (A/B plan.rowBudget=on): state ONE intent row per distinct behaviour, i.e. per operand class of one form '
   + '(positive / zero / negative / omitted / explicit null / out of range / empty / non-ASCII / error case), not several literal examples of the same class; '
@@ -131,4 +137,26 @@ export function rowBudgetNote(storyId: string, items: readonly Pick<ChecklistIte
     lines.push(`  proof-or-stop checklist_update ${shellQuote(JSON.stringify(rowBudgetTrimPayload(storyId, item, rows.map(row => row.ref))))}`);
   }
   return lines.join('\n');
+}
+
+/** Intent rows of the open items. */
+export function intentRowCount(items: readonly Pick<ChecklistItem, 'status' | 'verificationIntent'>[]): number {
+  return items.filter(item => item.status !== 'withdrawn')
+    .reduce((sum, item) => sum + VERIFICATION_LANES.reduce((lanes, lane) => lanes + (item.verificationIntent?.[lane]?.length ?? 0), 0), 0);
+}
+
+/**
+ * The arm's evidence (`.proof-or-stop/runtime/plan-row-budget/<storyId>.json`): rows and listed extras at each
+ * check, appended per phase/command, so a bench run shows the row count the owner kept after the advisory.
+ */
+export function recordRowBudgetEvidence(root: string, storyId: string, at: string, items: readonly Pick<ChecklistItem, 'id' | 'status' | 'verificationIntent'>[],
+  requestText: string | null, abVariant: AbVariantEvidence | undefined): RowBudgetExtra[] {
+  const extras = rowBudgetExtras(items, requestText);
+  try {
+    const dir = join(resolveCanonicalRuntimeProjectRoot(root), PROOF_OR_STOP_DIR, 'runtime', 'plan-row-budget');
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, `${storyId}.jsonl`), `${JSON.stringify({ schema: ROW_BUDGET_SCHEMA, storyId, at, checkedAt: new Date().toISOString(),
+      ...(abVariant ? { abVariant } : {}), rows: intentRowCount(items), extras: extras.map(row => row.ref) })}\n`, { flag: 'a' });
+  } catch { /* evidence only; the advisory never fails a command */ }
+  return extras;
 }
