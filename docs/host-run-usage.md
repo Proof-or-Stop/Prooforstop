@@ -620,6 +620,14 @@ not launched or still running) is refused with `[review_run_live]` and ONE Next,
 run 44: six hand starts for one critic, five orphaned). A run whose managed run ended
 without evidence may be replaced as before.
 
+Framework owner driver (owner-driver lab): with `owner.driver: framework` the owner
+launches a managed run only when a handed-back agent step says so and never waits on
+it; `proof-or-stop next --storyId=<id> --untilAgent` (run by the external driver, e.g.
+the bench adapter, as the owner identity `CODEX_THREAD_ID`) launches and waits on
+every bound run through `next --run`, and a `next --run` call that hangs (silent with
+no step process for 180 s, or 20 min with one) is killed as a process group and
+decided again. See `docs/CLI.md` "`next --untilAgent`".
+
 ```bash
 # 1. Controller creates the signed ReviewRun.
 proof-or-stop review_run_start '{"storyId":"B-xxxx","agent":"proof-or-stop-review-quality"}'
