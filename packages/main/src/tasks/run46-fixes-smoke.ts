@@ -19,8 +19,9 @@
  *      unrelated or benign repair passes; a pass is reused on the same material;
  *      the rejected commit is readable from the process events.
  *   R. The finding-repair prompt lists the resolved findings on the same code
- *      (do not reverse them), a rejected earlier repair, and routes a
- *      `[precedent-conflict]` finding to an intent conflict.
+ *      (do not reverse them) and a rejected earlier repair; a conflict (a
+ *      `[precedent-conflict]` finding, a repair a guard rejected) reaches repair
+ *      only after the owner's pin, and its prompt says the pin decides.
  *   D. Duplicate closure integrity (no switch, finding_resolve duplicateOf):
  *      D1 refused when the cited coverage never runs the duplicate's own repro
  *         (recorded as a failed coverage run: next gives it its own repair);
@@ -41,7 +42,15 @@
  *      PLAN with one step and lets it through once the checklist intent changed.
  *   W. A live managed writer run holding the Story worktree detached does not
  *      make the controller projection refuse the worktree (it is reused as is).
- *   (No idle rounds runs end to end in the harness, scenario NIR.)
+ *   (Item 7, no idle rounds, is not implemented: lane evidence is bound to its
+ *   inventory wave, and closing a finding in REVIEW made the lanes rerun in the
+ *   same round; see lifecycle-state-machine.md §1.1o. The RED commit's NIR
+ *   harness scenario was withdrawn with it.)
+ *
+ * Old-PoS run 55 (run53-56-delta-ab-analysis.md fix B):
+ *   T. A repair that deletes a test it added, or deletes / weakens a test line
+ *      running the finding's own repro, is not a repair; the repair prompt says a
+ *      failing test it added is evidence of a product defect.
  *
  * Usage: node packages/main/dist/tasks/run46-fixes-smoke.js
  */
@@ -210,7 +219,7 @@ await check('B plan.baseDisagreement: default on in the scope-plan dispatch; off
   assert.match(on, /same receiver's counterpart operation and the same operation on other receivers/);
   assert.match(on, /Precedent conflict: <operation>, <case>/, 'the gap names the case and both precedents');
   assert.match(on, /covering row on that item pinning which precedent applies/, 'its remedy is a covering row');
-  assert.doesNotMatch(prompt({ plan: { baseDisagreement: 'off' } }), /Base-disagreement check/, 'off removes it');
+  assert.doesNotMatch(prompt({ plan: { baseDisagreement: 'off' } }), /Base-disagreement check: for each new operation/, 'off removes it');
 });
 
 // ---------------------------------------------------------------------------
@@ -268,21 +277,26 @@ await check('G2 kept clear: an unrelated repair, a benign repair (the guard pass
 // ---------------------------------------------------------------------------
 // R. the finding-repair prompt
 
-await check('R the repair prompt lists resolved findings on the same code (do not reverse), a rejected earlier repair, and routes a [precedent-conflict] finding to an intent conflict', () => {
+await check('R the repair prompt lists resolved findings on the same code (do not reverse) and a rejected earlier repair; a pinned conflict is implemented per the pin', () => {
   const fx = fixture();
   try {
     fx.store.writeFindings(STORY_ID, { findings: [resolved1(fx), finding(2, F2_DESC), finding(3, '[precedent-conflict] List.Get counts a negative index from the end, Ring.Put rejects it; the request does not say which List.Put follows. Repro: `l.Put(-1, 9)`')] } as never);
-    fx.store.appendProcessEvent(STORY_ID, { type: 'resolved_finding_guard_checked', findingId: F(1), headHash: 'h', passed: false, command: 'go test -v ./kv -run ^(TestListPutNegative)$',
-      rejectedRepairs: [{ findingId: F(2), commit: 'abcdef1234567890' }] } as never);
     const prompt = (id: string) => (createStoryDispatchHandlers({ store: fx.store, root: fx.root, scanRoot: fx.root } as never)
       .dispatch({ storyId: STORY_ID, agentType: 'proof-or-stop-finding-repair', findingId: id }) as { prompt: string }).prompt;
     const two = prompt('F-002');
     assert.match(two, /Resolved findings on the same code: do not reverse what they fixed/);
     assert.match(two, /- F-001: .*Repro: `l\.Put\(-1, 9\)`/, 'the resolved finding with its repro');
     assert.match(two, /declare `\[intent-conflict\]` instead of editing it back/);
-    assert.match(two, /Earlier repair commit abcdef123456 of this finding was rejected: it broke resolved finding F-001/);
-    assert.match(prompt('F-003'), /Do not pick a side in code; declare `\[intent-conflict\]`/, 'a precedent conflict goes to the owner');
-    assert.doesNotMatch(two, /Do not pick a side in code/, 'only for a precedent-conflict finding');
+    assert.doesNotMatch(two, /the pin decides/, 'no conflict: no pin line');
+    // A precedent conflict reaches repair only after the owner's pin (next routes it to PLAN first): the pin decides.
+    assert.match(prompt('F-003'), /the owner pinned it in the checklist, and the pin decides/, 'a precedent conflict is implemented per the pin');
+    // F-002's repair was rejected by F-001's guard: a conflict; after the pin the prompt says the pin decides and names the rejection.
+    fx.store.appendProcessEvent(STORY_ID, { type: 'resolved_finding_guard_checked', findingId: F(1), headHash: 'h', passed: false, command: 'go test -v ./kv -run ^(TestListPutNegative)$',
+      rejectedRepairs: [{ findingId: F(2), commit: 'abcdef1234567890' }] } as never);
+    const rejected = prompt('F-002');
+    assert.match(rejected, /Earlier repair commit abcdef123456 of this finding was rejected: it broke resolved finding F-001/);
+    assert.match(rejected, /the pin decides: implement exactly what the checklist states/);
+    assert.doesNotMatch(rejected, /- F-001: /, 'the pinned side is not listed as "do not reverse"');
   } finally { rmSync(fx.root, { recursive: true, force: true }); resetConfigCache(); }
 });
 
@@ -385,8 +399,8 @@ await check('C2 next (DEV) routes an unpinned finding conflict to PLAN with one 
   const fx = fixture();
   try {
     git(fx.root, ['add', '-A']); git(fx.root, ['commit', '-qm', 'B-46a1 metadata']);
-    const later = new Date(Date.now() + 1000).toISOString();
-    const open = finding(4, F4_CONFLICT, { createdAt: later });
+    execFileSync('sleep', ['1.1']);
+    const open = finding(4, F4_CONFLICT, { createdAt: new Date().toISOString() });
     fx.store.writeFindings(STORY_ID, { findings: [resolved1(fx), open] } as never);
     const step = () => api(nextDriver, 'findingConflictStep')({ root: fx.root, gitCwd: fx.root, store: fx.store, base: { storyId: STORY_ID, phase: 'DEV' }, open: [open], repaired: () => false }) as
       { reason: string; kind: string; cli: { command: string; payload: Record<string, unknown> }; why: string } | null;
@@ -423,6 +437,44 @@ await check('W the controller projection reuses a Story worktree a live managed 
     assert.match(out.storyRoot, new RegExp(`\\.worktrees/${STORY_ID}/`), 'the worktree\'s own Story projection is used');
     write(run, 'terminal.json', '{}');
     assert.throws(project, /unregistered linked worktree/, 'a finished run holds nothing');
+  } finally { rmSync(fx.root, { recursive: true, force: true }); resetConfigCache(); }
+});
+
+// ---------------------------------------------------------------------------
+// T. repair test integrity
+
+await check('T1 a repair that removes a test it added, or a test line running the finding\'s repro, is not a repair; editing that line in place is', () => {
+  const fx = fixture();
+  try {
+    const problem = (commits: string[]) => api(guardModule, 'repairTestIntegrityProblem')({ gitCwd: fx.root, commits, desc: F1_DESC }) as string | null;
+    // The repair adds TestListPutNegative (it fails on the old code), then deletes it.
+    write(fx.root, 'kv/kv_test.go', [...TEST_HEAD, ...TEST_NEGATIVE_NORMALISES, 'func TestListPutNegativeTwo(t *testing.T) {', '\tif err := NewList(1).Put(-1, 2); err != nil {', '\t\tt.Fatal(err)', '\t}', '}', ''].join('\n'));
+    const addTwo = commit(fx.root, 'B-46a1 F-001: TestListPutNegativeTwo');
+    write(fx.root, 'kv/kv_test.go', [...TEST_HEAD, ...TEST_NEGATIVE_NORMALISES].join('\n'));
+    const dropTwo = commit(fx.root, 'B-46a1 F-001: drop TestListPutNegativeTwo (base rejects it)');
+    assert.match(problem([addTwo, dropTwo]) ?? '', /removes test TestListPutNegativeTwo .* that commit .* of the same repair added/, 'add then delete in one run');
+    assert.equal(problem([dropTwo]), null, 'removing a test the run did not add is not (a)');
+    // A commit deleting the line that runs the repro.
+    write(fx.root, 'kv/kv_test.go', TEST_HEAD.join('\n'));
+    const dropRepro = commit(fx.root, 'B-46a1 F-001: drop the negative case');
+    assert.match(problem([dropRepro]) ?? '', /deletes or weakens a test line that runs the finding's own repro/, 'the repro line is gone');
+    // Editing the repro line in place (the repro stays) is not a deletion.
+    write(fx.root, 'kv/kv_test.go', [...TEST_HEAD, ...TEST_NEGATIVE_REJECTS].join('\n'));
+    const restoreReject = commit(fx.root, 'B-46a1: restore rejecting case');
+    write(fx.root, 'kv/kv_test.go', [...TEST_HEAD, ...TEST_NEGATIVE_NORMALISES].join('\n'));
+    const editInPlace = commit(fx.root, 'B-46a1 F-001: the repro now expects the normalised write');
+    assert.equal(problem([restoreReject, editInPlace]), null, 'the repro is kept (edited in place)');
+  } finally { rmSync(fx.root, { recursive: true, force: true }); resetConfigCache(); }
+});
+
+await check('T2 the repair prompt says a failing test it added is evidence of a product defect, never to delete or weaken', () => {
+  const fx = fixture();
+  try {
+    fx.store.writeFindings(STORY_ID, { findings: [finding(2, F2_DESC)] } as never);
+    const prompt = (createStoryDispatchHandlers({ store: fx.store, root: fx.root, scanRoot: fx.root } as never)
+      .dispatch({ storyId: STORY_ID, agentType: 'proof-or-stop-finding-repair', findingId: 'F-002' }) as { prompt: string }).prompt;
+    assert.match(prompt, /A test you add that fails on the current code is evidence of a product defect/);
+    assert.match(prompt, /never delete, skip or weaken it/);
   } finally { rmSync(fx.root, { recursive: true, force: true }); resetConfigCache(); }
 });
 

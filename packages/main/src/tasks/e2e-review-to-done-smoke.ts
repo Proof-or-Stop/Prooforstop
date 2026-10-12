@@ -282,21 +282,18 @@
  *      and still review the whole Story).
  *      `AB` = ND-V1 ND-V2 ND-V3 NF-V4 ND-V5 ND-V6 ND-V8 ND-V9.
  *
- *   NRG old-PoS run 46 (resolved-finding regression guard): round 1's finding
- *      F-001 is repaired with a test and resolved; round 2's finding F-002 is
- *      "repaired" by reversing F-001's behaviour and rewriting F-001's test to
- *      match. The framework re-runs F-001's covering test as recorded at its
- *      resolution, rejects F-002's repair (not resolved; the finding_resolve
- *      still exits 0), opens `[regression-of F-001]` F-003; F-002's relaunched
- *      repair keeps F-001 fixed, F-003 is repaired, DONE with Reverse("") == "".
- *      RED on the base: F-002's reversing repair was resolved and DONE shipped it.
+ *   NRG old-PoS runs 46/47 (resolved-finding regression guard + finding conflict):
+ *      round 1's finding F-001 is repaired with a test and resolved; round 2's
+ *      F-002 is "repaired" by reversing F-001's behaviour and rewriting F-001's
+ *      test to match. The framework re-runs F-001's covering test as recorded at
+ *      its resolution, rejects F-002's repair (not resolved; the framework
+ *      finding_resolve still exits 0), opens `[regression-of F-001]` F-003, and
+ *      `next` sends the F-002/F-001 conflict to the owner's PLAN pin (one Next)
+ *      instead of another repair. RED on the base: F-002's reversing repair was
+ *      resolved and DONE shipped it.
  *
- *   NIR old-PoS runs 46/47 (no idle rounds): round 2's only finding is a critic
- *      duplicate of round 1's resolved F-001 (its own case covered). It closes in
- *      REVIEW and the Story goes on to TEST: no third round on the same material.
- *      RED on the base: REVIEW->DEV, the closure in DEV, then round 3 on unchanged code.
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NRW|NRG|NIR|AB|ND-V1..NF-V9]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NRW|NRG|AB|ND-V1..NF-V9]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -1167,13 +1164,6 @@ const NIS_BLOCKING_ISSUE = 'CHK-001 userSees names only the test selector; it mu
 const REPAIR_TEST = '\nfunc TestReverseEmpty(t *testing.T) {\n\tif Reverse("") != "" {\n\t\tt.Fatal("empty")\n\t}\n}\n';
 const NF_REPAIR_TEST = '\nfunc TestUpperEmpty(t *testing.T) {\n\tif Upper("") != "" {\n\t\tt.Fatal("empty")\n\t}\n}\n';
 
-/** NIR (old-PoS runs 46/47): round 2 re-reports round 1's resolved empty-string finding, naming it (a later run's restatement). */
-const NIR_RESTATEMENT_DESC = 'Reverse of an empty string still has no focused test of its own: Reverse("") must return "" (restates';
-function nirRestatement(worktree: string, storyId: string): typeof NU_DUP_FINDING {
-  const earlier = new StoryStore(worktree).readFindings(storyId).findings.find(f => f.desc === D_FINDING.desc);
-  return { ...NU_DUP_FINDING, desc: `${NIR_RESTATEMENT_DESC} ${earlier?.id ?? 'the round 1 finding'}).` };
-}
-
 /** NRG (old-PoS run 46): a round-2 finding whose first repair reverses round 1's fix and rewrites its test. */
 const NRG_FINDING = {
   desc: 'Reverse of an empty string returns "", which callers cannot tell from a missing value: return the marker "-" instead.',
@@ -1183,30 +1173,14 @@ const NRG_IMPL_LINE = 'func Reverse(s string) string {\n';
 const NRG_MARKER = '\tif s == "" {\n\t\treturn "-"\n\t}\n';
 const NRG_TEST_FIXED = 'if Reverse("") != "" {';
 const NRG_TEST_REVERSED = 'if Reverse("") != "-" {';
-const NRG_REGRESSION_TEST = '\nfunc TestReverseEmptyRegression(t *testing.T) {\n\tif Reverse("") != "" {\n\t\tt.Fatal("regression")\n\t}\n}\n';
 
-/**
- * NRG: the repair of NRG_FINDING. While strs.go has no marker it reverses F-001's
- * behaviour and rewrites F-001's test to match (the run-46 F-011 repair); once
- * that commit exists (the relaunch) it removes the marker again and restores the test.
- */
-function nrgRepairScript(worktree: string, storyId: string, findingId: string): ProviderScript {
+/** NRG: the repair of NRG_FINDING reverses F-001's behaviour and rewrites F-001's test to match (the run-46 F-011 / run-47 F-022 repair). */
+function nrgRepairScript(storyId: string, findingId: string): ProviderScript {
   const short = findingId.startsWith(`${storyId}:`) ? findingId.slice(storyId.length + 1) : findingId;
-  const reversed = readFileSync(join(worktree, 'strs/strs.go'), 'utf8').includes(NRG_MARKER);
-  const edit = reversed
-    ? `const fs=require('fs');fs.writeFileSync('strs/strs.go',fs.readFileSync('strs/strs.go','utf8').replace(${JSON.stringify(NRG_IMPL_LINE + NRG_MARKER)},${JSON.stringify(NRG_IMPL_LINE)}));fs.writeFileSync('strs/strs_test.go',fs.readFileSync('strs/strs_test.go','utf8').replace(${JSON.stringify(NRG_TEST_REVERSED)},${JSON.stringify(NRG_TEST_FIXED)}));`
-    : `const fs=require('fs');fs.writeFileSync('strs/strs.go',fs.readFileSync('strs/strs.go','utf8').replace(${JSON.stringify(NRG_IMPL_LINE)},${JSON.stringify(NRG_IMPL_LINE + NRG_MARKER)}));fs.writeFileSync('strs/strs_test.go',fs.readFileSync('strs/strs_test.go','utf8').replace(${JSON.stringify(NRG_TEST_FIXED)},${JSON.stringify(NRG_TEST_REVERSED)}));`;
-  const subject = reversed ? 'keep Reverse("") == "" (resolved F-001); no marker' : 'Reverse("") returns the marker';
+  const edit = `const fs=require('fs');fs.writeFileSync('strs/strs.go',fs.readFileSync('strs/strs.go','utf8').replace(${JSON.stringify(NRG_IMPL_LINE)},${JSON.stringify(NRG_IMPL_LINE + NRG_MARKER)}));fs.writeFileSync('strs/strs_test.go',fs.readFileSync('strs/strs_test.go','utf8').replace(${JSON.stringify(NRG_TEST_FIXED)},${JSON.stringify(NRG_TEST_REVERSED)}));`;
   return { commands: [[process.execPath, '-e', edit],
-    ['/bin/sh', '-c', `git add strs && git -c user.name=${FINDING_REPAIR} commit -qm '${storyId} ${short}: resolve finding (${subject})' && git log --format=%h -1`]],
-  final: reversed ? 'The marker contradicts resolved F-001; kept Reverse("") == "" and restored its test; committed.' : 'Reverse("") now returns "-"; updated TestReverseEmpty; committed.' };
-}
-
-/** NRG: the repair of the framework's `[regression-of F-001]` finding: a regression test of F-001's case. */
-function nrgRegressionRepairScript(storyId: string, findingId: string): ProviderScript {
-  const short = findingId.startsWith(`${storyId}:`) ? findingId.slice(storyId.length + 1) : findingId;
-  return { commands: [['/bin/sh', '-c', `printf '%s' '${NRG_REGRESSION_TEST.replace(/'/g, "'\\''")}' >> strs/strs_test.go && git add strs/strs_test.go && git -c user.name=${FINDING_REPAIR} commit -qm '${storyId} ${short}: resolve finding (regression test of Reverse(""))' && git log --format=%h -1`]],
-    final: 'Added TestReverseEmptyRegression; committed.' };
+    ['/bin/sh', '-c', `git add strs && git -c user.name=${FINDING_REPAIR} commit -qm '${storyId} ${short}: resolve finding (Reverse("") returns the marker)' && git log --format=%h -1`]],
+  final: 'Reverse("") now returns "-"; updated TestReverseEmpty; committed.' };
 }
 
 /**
@@ -1536,8 +1510,7 @@ const VERIFIED_PROMISES = [
 interface ScriptMode { findingRound1: boolean; twoFindings?: boolean; lowFindings?: boolean; duplicate?: 'covered' | 'uncovered' | 'covered2';
   /** Old-PoS run 46 (NRG): round 2's test-coverage lane reports NRG_FINDING. */
   reversing?: boolean;
-  /** Old-PoS runs 46/47 (NIR): round 2's test-coverage lane reports NU_DUP_FINDING (a duplicate of round 1's resolved D_FINDING). */
-  round2Duplicate?: boolean;
+
   /** Detection A/B control D9-r1 / D2-r3 / refused critic: how the FIRST round-1 critic restates or omits findings (scenarios NC, NC2, NC3). */
   criticRestate?: CriticRestateMode;
   /** Run 19 (NC4): round 1's only finding is a SUSPECTED low one; the (ordinary) critic gives it a verified_family row. */
@@ -1586,13 +1559,12 @@ type ProviderScript = { final: string; commands?: string[][] };
 
 /** A REVIEW lane's scripted final proposal: round 1 test-coverage reports the mode's findings, every other lane passes. */
 function laneScript(worktree: string, storyId: string, lane: string, reviewRunId: string, firstRound: boolean, mode: ScriptMode): ProviderScript {
-  if ((mode.reversing || mode.round2Duplicate) && lane === 'proof-or-stop-review-test-coverage') {
+  if (mode.reversing && lane === 'proof-or-stop-review-test-coverage') {
     const runs = new StoryStore(worktree).readReviewRuns(storyId).runs.filter(row => row.reviewPurpose !== 'inventory-completeness');
     const rounds = [...new Set(runs.map(row => row.reviewRound))];
     if (rounds.indexOf(runs.find(row => row.reviewRunId === reviewRunId)?.reviewRound ?? "") === 1) {
       return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, conclusion: 'findings',
-        note: mode.reversing ? 'Scripted run 46 lane: an unstated empty-string marker.' : 'Scripted run 47 lane: re-reports the empty-string edge.',
-        findings: [mode.reversing ? NRG_FINDING : nirRestatement(worktree, storyId)], ...readEvidenceFor(worktree, storyId) }) };
+        note: 'Scripted run 46 lane: an unstated empty-string marker.', findings: [NRG_FINDING], ...readEvidenceFor(worktree, storyId) }) };
     }
   }
   if (mode.restateAfterCritic && firstRound) {
@@ -1965,8 +1937,6 @@ function placeholderHintViolations(call: { reason: string; placeholders?: string
 export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boolean; twoFindings?: boolean;
   /** Old-PoS run 46 (NRG): round 2 reports NRG_FINDING, whose first repair reverses round 1's fix. */
   reversing?: boolean;
-  /** Old-PoS runs 46/47 (NIR): round 2 reports only a duplicate of round 1's resolved finding. */
-  round2Duplicate?: boolean;
   /** Run 16: round 1 also reports two LOW findings; the owner repairs the first itself (managed finding-repair) when next says enter_review. */
   lowFindings?: boolean;
   /** Run 16: the live-smoke capture needs the project validate.env (CONTEXT=abs) to pass. */
@@ -2137,11 +2107,7 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
           }
         }
         if (mode.reversing && !Array.isArray(payload.groupFindingIds) && findingDesc(String(payload.findingId)) === NRG_FINDING.desc) {
-          o.script(FINDING_REPAIR, nrgRepairScript(o.worktree, id, String(payload.findingId)));
-          break;
-        }
-        if (mode.reversing && !Array.isArray(payload.groupFindingIds) && findingDesc(String(payload.findingId)).startsWith('[regression-of ')) {
-          o.script(FINDING_REPAIR, nrgRegressionRepairScript(id, String(payload.findingId)));
+          o.script(FINDING_REPAIR, nrgRepairScript(id, String(payload.findingId)));
           break;
         }
         o.script(FINDING_REPAIR, Array.isArray(payload.groupFindingIds)
@@ -5685,75 +5651,48 @@ function scenarioNMP(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
  */
 function scenarioNRG(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   const tag = 'NRG';
-  const name = 'NRG old-PoS run 46: a repair that reverses a resolved finding is rejected by its recorded covering test; a regression finding opens; DONE keeps the fix';
+  const name = 'NRG old-PoS runs 46/47: a repair that reverses a resolved finding is rejected by its recorded covering test, a regression finding opens, and the conflict goes to the owner\'s PLAN pin (not to another repair)';
   const o = new Owner(tag, 'B-46e1', machineEnv, steps, false, { trackedGateFailureCounts: true });
   const lines: string[] = [];
-  const reasons: string[] = [];
+  const seen: Array<{ phase: string; reason: string; kind: string; command: string; why: string }> = [];
   try {
     devSetup(o);
-    driveWithNext(o, { findingRound1: true, run: false, reversing: true }, lines, next => {
-      if (['finding_repair', 'finding_resolve', 'finding_resolve_batch'].includes(next.reason)) reasons.push(`${next.reason}:${String(stepFindingId(next) ?? '').split(':').pop()}`);
-    });
-    const order = reasons.filter((row, index) => row !== reasons[index - 1]);
-    lines.push(`finding steps: ${order.join(' > ')}`);
-    const store = new StoryStore(o.root);
+    try {
+      driveWithNext(o, { findingRound1: true, run: false, reversing: true }, lines, next => {
+        seen.push({ phase: next.phase, reason: next.reason, kind: next.kind, command: `${next.cli?.command ?? ''} ${JSON.stringify(next.cli?.payload ?? {})}`, why: next.why });
+        if (next.reason === 'finding_conflict_pin') throw new StopDrive('finding conflict reached');
+      });
+      assert.fail(`[${tag}] next never routed the conflict to the owner: ${seen.map(row => `${row.phase}:${row.reason}`).join(' > ')}`);
+    } catch (error) {
+      if (!(error instanceof StopDrive)) throw error;
+    }
+    lines.push(`finding steps: ${seen.filter(row => /finding_/.test(row.reason)).map(row => `${row.phase}:${row.reason}`).join(' > ')}`);
+    const store = new StoryStore(o.worktree);
     const findings = store.readFindings(o.storyId).findings;
     const reversing = findings.find(f => f.desc === NRG_FINDING.desc);
     const regression = findings.find(f => f.desc.startsWith('[regression-of F-001]'));
     assert.ok(reversing, `${tag}: round 2 reported the marker finding`);
-    assert.ok(regression, `${tag}: the framework opened a [regression-of F-001] finding; findings: ${findings.map(f => `${f.id} ${f.status} ${f.desc.slice(0, 60)}`).join(' | ')}`);
-    assert.equal(regression!.status, 'resolved', `${tag}: the regression finding was repaired and resolved`);
-    const events = store.readProcessEvents(o.storyId).filter(e => String(e.type) === 'resolved_finding_guard_checked') as Array<{ findingId?: string; passed?: boolean; rejectedRepairs?: Array<{ findingId: string }> }>;
-    assert.ok(events.some(e => e.findingId === `${o.storyId}:F-001` && e.passed === false && e.rejectedRepairs?.some(r => r.findingId === reversing!.id)),
-      `${tag}: F-001's guard failed and rejected ${reversing!.id}'s repair: ${JSON.stringify(events)}`);
-    assert.equal(order.filter(row => row === `finding_repair:${reversing!.id.split(':').pop()}`).length, 2, `${tag}: the rejected repair was relaunched once: ${order.join(' > ')}`);
-    assert.doesNotMatch(readFileSync(join(o.root, 'strs/strs.go'), 'utf8'), /return "-"/, `${tag}: main ships Reverse("") == "" (F-001 stays fixed)`);
-    lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    assert.equal(reversing!.status, 'open', `${tag}: the reversing repair was not accepted (the finding stays open)`);
+    assert.ok(regression && regression.status === 'open', `${tag}: the framework opened a [regression-of F-001] finding; findings: ${findings.map(f => `${f.id} ${f.status} ${f.desc.slice(0, 60)}`).join(' | ')}`);
+    const events = store.readProcessEvents(o.storyId).filter(e => String(e.type) === 'resolved_finding_guard_checked') as Array<{ findingId?: string; passed?: boolean; restoredTests?: boolean; rejectedRepairs?: Array<{ findingId: string }> }>;
+    assert.ok(events.some(e => e.findingId === `${o.storyId}:F-001` && e.passed === false && e.restoredTests === true && e.rejectedRepairs?.some(r => r.findingId === reversing!.id)),
+      `${tag}: F-001's recorded test failed and rejected ${reversing!.id}'s repair: ${JSON.stringify(events)}`);
+    const pin = seen.at(-1)!;
+    assert.deepEqual([pin.phase, pin.kind], ['DEV', 'agent'], `${tag}: one owner step in DEV`);
+    assert.match(pin.command, /story_advance .*"phase":"PLAN"/, `${tag}: the one Next is the PLAN pin: ${pin.command}`);
+    assert.match(pin.why, new RegExp(`${reversing!.id} and resolved ${o.storyId}:F-001`), `${tag}: the why names both sides: ${pin.why}`);
+    assert.equal(seen.filter(row => row.reason === 'finding_repair').length, 2, `${tag}: no second repair of the reversing finding before the pin: ${seen.map(row => row.reason).join(' > ')}`);
+    lines.push(`stopped at the owner's pin: ${pin.why.slice(0, 160)}`);
     o.cleanup();
     return { name, status: 'PASS', lines };
   } catch (error) {
     console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
-    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
-  }
-}
-
-/**
- * NIR (old-PoS runs 46/47, no idle rounds): round 2 reports only a duplicate of
- * round 1's repaired and resolved finding. Nothing in the code changes, so the
- * duplicate closes in REVIEW (with its own coverage run and the live-canonical
- * check) and the Story goes on to TEST; a third round on the same material
- * would see nothing new. RED on the base: REVIEW->DEV, then round 3.
- */
-function scenarioNIR(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
-  const tag = 'NIR';
-  const name = 'NIR old-PoS runs 46/47: a round whose only finding is a duplicate of a resolved one closes it in REVIEW and goes on to TEST (no idle round)';
-  const o = new Owner(tag, 'B-47e1', machineEnv, steps, false, { trackedGateFailureCounts: true });
-  const lines: string[] = [];
-  const seen: string[] = [];
-  try {
-    devSetup(o);
-    driveWithNext(o, { findingRound1: true, run: false, round2Duplicate: true }, lines, next => {
-      if (['finding_duplicate_resolve', 'finding_duplicate_resolve_batch', 'finding_unrepaired_dev', 'enter_review', 'enter_remediation_dev'].includes(next.reason)) seen.push(`${next.phase}:${next.reason}`);
-    });
-    lines.push(`steps: ${seen.join(' > ')}`);
-    const store = new StoryStore(o.root);
-    const rounds = [...new Set(store.readReviewRuns(o.storyId).runs.filter(row => row.reviewPurpose !== 'inventory-completeness').map(row => row.reviewRound))];
-    const dup = store.readFindings(o.storyId).findings.find(f => f.desc.startsWith(NIR_RESTATEMENT_DESC));
-    assert.equal(dup?.status, 'resolved', `${tag}: the duplicate is closed`);
-    assert.equal(dup?.resolutionType, 'duplicate', `${tag}: as a duplicate`);
-    assert.ok(seen.includes('REVIEW:finding_duplicate_resolve'), `${tag}: the duplicate closed in REVIEW: ${seen.join(' > ')}`);
-    assert.equal(rounds.length, 2, `${tag}: two review rounds, no third round on unchanged material (rounds: ${rounds.length})`);
-    lines.push(`DONE reached in ${rounds.length} review rounds; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
-    o.cleanup();
-    return { name, status: 'PASS', lines };
-  } catch (error) {
-    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
-    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+    return { name, status: 'FAIL', lines: [...lines, `steps: ${seen.map(row => `${row.phase}:${row.reason}(${row.kind})`).join(' > ')}`, error instanceof Error ? error.message : String(error)] };
   }
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NRW|NRG|NIR|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NRW|NRG|N[AD](?:-run)?|N[DF]-V[1-689]|AB)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -5834,7 +5773,6 @@ async function main(): Promise<void> {
     for (const token of ['NPX', 'NPXA', 'NPXS', 'NPXC'] as const) if (only.includes(token)) outcomes.push(scenarioNPX(machine.env, steps, token));
     if (only.includes('NRW')) outcomes.push(scenarioNRW(machine.env, steps));
     if (only.includes('NRG')) outcomes.push(scenarioNRG(machine.env, steps));
-    if (only.includes('NIR')) outcomes.push(scenarioNIR(machine.env, steps));
     // Detection A/B arms: explicit tokens (ND-V1 .. NF-V9) or AB = ND-V1, ND-V2, ND-V3, NF-V4, ND-V5, ND-V6, ND-V8, ND-V9.
     const abTokens = only.includes('AB') ? ['ND-V1', 'ND-V2', 'ND-V3', 'NF-V4', 'ND-V5', 'ND-V6', 'ND-V8', 'ND-V9'] : [];
     for (const token of [...new Set([...abTokens, ...only.filter(arg => /^N[DF]-V[1-689]$/.test(arg))])]) {
@@ -5843,7 +5781,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NRW', 'NRG', 'NIR', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NRW', 'NRG', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-V/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {
