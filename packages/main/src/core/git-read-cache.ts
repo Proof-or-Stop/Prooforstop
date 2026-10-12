@@ -3,9 +3,10 @@ import { appendFileSync, closeSync, fstatSync, mkdirSync, openSync, readdirSync,
 import { createRequire, syncBuiltinESMExports } from 'node:module';
 import { basename, join } from 'node:path';
 import { gitEnvironmentRedirected } from './git-inert-environment.js';
-import { envDerived, trackProcessEnvWrites } from './process-env-version.js';
-import { currentRefStateWitness, gitFreshReadsActive } from './git-ref-witness-memo.js';
-import { fallbackGlobalAttributes, fallbackSystemAttributes, gitReadKey, repositoryDirs, setupAnswerReusable, type AttributeLocations, type ReadKey } from './git-read-cache-keys.js';
+import { envDerived } from './process-env-version.js';
+import { gitFreshReadsActive } from './git-ref-witness-memo.js';
+import { fallbackGlobalAttributes, fallbackSystemFiles, gitBinaryIdentity, gitReadKey, repositoryDirs, setupAnswerReusable, type GitLocations, type ReadKey } from './git-read-cache-keys.js';
+import { fileURLToPath } from 'node:url';
 
 /**
  * Lab framework-perf (old-PoS runs 59-61, framework-perf.md): one `next --run`
@@ -39,7 +40,9 @@ import { fallbackGlobalAttributes, fallbackSystemAttributes, gitReadKey, reposit
  * timeouts, spawn or buffer errors, stdin-fed calls, calls whose stdout is not
  * piped, shell calls, a redirected git environment, signature-verification
  * formats (%G), answers larger than the caller's maxBuffer, and every read
- * inside withFreshGitReads / withoutGitObservation (launch-time rereads).
+ * inside withFreshGitReads / withoutGitObservation (launch-time rereads; that
+ * scope is synchronous, so a read after the launch's first await is an
+ * ordinary read again and may be answered here).
  * This is never a verdict cache: every gate still evaluates every rule; only
  * identical git bytes are reused.
  *
@@ -50,7 +53,7 @@ import { fallbackGlobalAttributes, fallbackSystemAttributes, gitReadKey, reposit
 type Buf = Buffer;
 interface Entry { out: Buf; err: Buf | null; status: 0 | 1; attr?: string }
 interface Store { entries: Map<string, Entry>; offset: number }
-interface Plan { key: string; file: string; dir: string | null; read: ReadKey & { cwd: string; argv: string[]; bare: string[] } }
+interface Plan { key: string; file: string; dir: string | null; read: ReadKey & { cwd: string; argv: string[]; bare: string[] }; call: { cwd: string; args: readonly string[] } }
 
 export const GIT_READ_CACHE_DIR = join('info', 'proof-or-stop-cache', 'git-read-v1');
 const MAX_PERSIST_ENTRY_BYTES = 4 * 1024 * 1024;
@@ -190,29 +193,34 @@ function callShape(options: Record<string, unknown> | undefined, api: 'execFileS
   if (stderr !== 'pipe' && stderr !== 'ignore' && !(api === 'execFileSync' && stderr === 'inherit')) return undefined;
   const env = opts.env as NodeJS.ProcessEnv | undefined;
   if (env !== undefined && (typeof env !== 'object' || env === null || gitEnvironmentRedirected(env))) return undefined;
+  // The witnesses read the global config / attribute files of this process's HOME: a call with another one is not witnessed.
+  if (env !== undefined && env !== process.env && (env.HOME !== process.env.HOME || env.XDG_CONFIG_HOME !== process.env.XDG_CONFIG_HOME)) return undefined;
   if (env === undefined && gitEnvironmentRedirected()) return undefined;
   const encoding = opts.encoding as CallShape['encoding'];
   if (encoding !== undefined && encoding !== 'buffer' && !Buffer.isEncoding(encoding)) return undefined;
   const maxBuffer = typeof opts.maxBuffer === 'number' && opts.maxBuffer > 0 ? opts.maxBuffer : DEFAULT_MAX_BUFFER;
   // execFileSync without a stdio option forwards the child's stderr to ours.
   const forwardsStderr = api === 'execFileSync' && (opts.stdio === undefined || stderr === 'inherit');
-  const cwd = typeof opts.cwd === 'string' ? opts.cwd : opts.cwd instanceof URL ? opts.cwd.pathname : process.cwd();
+  let cwd: string;
+  try { cwd = typeof opts.cwd === 'string' ? opts.cwd : opts.cwd instanceof URL ? fileURLToPath(opts.cwd) : process.cwd(); } catch { return undefined; }
   return { cwd, env, encoding, maxBuffer, stdoutIgnored: stdout === 'ignore', stderr, forwardsStderr };
 }
 
-let attributeLocations: AttributeLocations | undefined;
+let gitLocations: GitLocations | undefined;
 
 function planFor(args: readonly string[], shape: CallShape): Plan | undefined {
   if (mode === 'off' || gitFreshReadsActive()) return undefined;
   let read;
-  try { read = gitReadKey(shape.cwd, args, attributeLocations); } catch { return undefined; }
+  try { read = gitReadKey(shape.cwd, args, gitLocations); } catch { return undefined; }
   if (!read) return undefined;
   // A diff answer is reused only when its output paths' attributes can be witnessed: a stdout-ignored caller has no output to check.
   if (read.outputWitness && shape.stdoutIgnored) return undefined;
   const env = shape.env === undefined || shape.env === process.env ? processEnvKey() : envKey(shape.env);
-  // An answer produced with stdout ignored has no bytes: it never serves a caller that reads stdout.
-  const key = sha(JSON.stringify([read.kind, read.witness, read.cwd, read.argv, env, shape.stdoutIgnored]));
-  return { key, file: read.file, dir: mode === 'disk' ? join(read.commonDir, GIT_READ_CACHE_DIR) : null, read };
+  // An answer produced with stdout ignored has no bytes: it never serves a caller that reads stdout. A
+  // decoded string (encoding) cannot be turned back into git's bytes: each encoding has its own answers.
+  const encoding = shape.encoding === undefined || shape.encoding === 'buffer' ? 'buffer' : shape.encoding;
+  const key = sha(JSON.stringify([read.kind, read.witness, read.cwd, read.argv, env, shape.stdoutIgnored, encoding]));
+  return { key, file: read.file, dir: mode === 'disk' ? join(read.commonDir, GIT_READ_CACHE_DIR) : null, read, call: { cwd: shape.cwd, args } };
 }
 
 function lookup(plan: Plan, shape: CallShape): Entry | undefined {
@@ -223,6 +231,8 @@ function lookup(plan: Plan, shape: CallShape): Entry | undefined {
     entry = store.entries.get(plan.key);
   }
   if (!entry || entry.out.length > shape.maxBuffer || (entry.err && entry.err.length > shape.maxBuffer)) return undefined;
+  // A caller that shows git's stderr gets only answers whose stderr was captured, and never a replayed refusal.
+  if (shape.forwardsStderr && (entry.err === null || entry.status !== 0)) return undefined;
   if (plan.read.outputWitness) {
     let attr: string | undefined;
     try { attr = plan.read.outputWitness(entry.out); } catch { attr = undefined; }
@@ -241,10 +251,11 @@ function keep(plan: Plan, produced: Entry): void {
     if (attr === undefined) return;
     entry = { ...entry, attr };
   }
-  if (plan.read.recheck) {
-    const after = currentRefStateWitness(plan.read.recheck.cwd);
-    if (!after || after.witness !== plan.read.recheck.value) return;
-  }
+  // The witness taken after the producing run must equal the one before it (a ref that moved
+  // during the run, even one that came back later, never files this answer under the old state).
+  let after;
+  try { after = gitReadKey(plan.call.cwd, plan.call.args, gitLocations); } catch { after = undefined; }
+  if (!after || after.kind !== plan.read.kind || after.file !== plan.read.file || after.witness !== plan.read.witness) return;
   remember(memoryStore(`${plan.dir ?? 'memory'}\0${plan.file}`), plan.key, entry);
   persist(plan, entry);
 }
@@ -280,7 +291,6 @@ export function installGitReadCache(env: NodeJS.ProcessEnv = process.env): void 
   if (installed) return;
   installed = true;
   mode = gitReadCacheMode(env);
-  trackProcessEnvWrites();
   const childProcess = createRequire(import.meta.url)('node:child_process') as typeof import('node:child_process');
   const originalExecFileSync = childProcess.execFileSync as unknown as (...args: unknown[]) => unknown;
   const originalSpawnSync = childProcess.spawnSync as unknown as (...args: unknown[]) => import('node:child_process').SpawnSyncReturns<Buffer | string>;
@@ -366,30 +376,50 @@ export function installGitReadCache(env: NodeJS.ProcessEnv = process.env): void 
     return child;
   }
 
-  // Attribute file locations for the diff kind, read through this cache (setup
-  // kind: env + config identity). A git without these variables (< 2.42) is
-  // remembered once per process and the filesystem fallback is used instead.
+  // Files git reads outside the repository, as `git var` reports them, read
+  // through this cache (binary kind for the system files, setup kind for the
+  // global ones). A git without these variables (< 2.42) is remembered once
+  // per process and the filesystem fallback is used instead.
   const unsupportedVars = new Set<string>();
+  // The system files are a function of the executable and the environment: once per process for each.
+  const binaryVars = new Map<string, string | null | undefined>();
   const gitVar = (name: string, cwd: string): string | null | undefined => {
+    if (unsupportedVars.has(name)) return null;
+    if (name.endsWith('_SYSTEM')) {
+      const memoKey = `${name}\0${gitBinaryIdentity()}\0${processEnvKey()}`;
+      if (binaryVars.has(memoKey)) return binaryVars.get(memoKey);
+      const value = readGitVar(name, cwd);
+      if (value !== undefined) binaryVars.set(memoKey, value);
+      return value;
+    }
+    return readGitVar(name, cwd);
+  };
+  const readGitVar = (name: string, cwd: string): string | null | undefined => {
     if (unsupportedVars.has(name)) return null;
     try {
       const out = execFileSync.call(undefined, 'git', ['var', name], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }) as string;
       return out.trim() || undefined;
     } catch (error) {
-      if ((error as { status?: unknown }).status !== undefined) unsupportedVars.add(name);
-      return undefined;
+      if ((error as { status?: unknown }).status === undefined) return undefined;
+      unsupportedVars.add(name);
+      return null;
     }
   };
-  attributeLocations = {
-    system: cwd => {
-      const path = gitVar('GIT_ATTR_SYSTEM', cwd);
-      return path === null ? fallbackSystemAttributes() : path === undefined ? undefined : [path];
+  gitLocations = {
+    configSystem: cwd => {
+      const path = gitVar('GIT_CONFIG_SYSTEM', cwd);
+      return path === null ? fallbackSystemFiles('gitconfig') : path === undefined ? undefined : [path];
     },
-    global: cwd => {
+    attributesSystem: cwd => {
+      const path = gitVar('GIT_ATTR_SYSTEM', cwd);
+      return path === null ? fallbackSystemFiles('gitattributes') : path === undefined ? undefined : [path];
+    },
+    attributesGlobal: cwd => {
       const path = gitVar('GIT_ATTR_GLOBAL', cwd);
       if (path !== null) return path === undefined ? undefined : [path];
       const dirs = repositoryDirs(cwd);
-      return dirs ? fallbackGlobalAttributes(dirs) : undefined;
+      const system = gitLocations?.configSystem(cwd);
+      return dirs && system ? fallbackGlobalAttributes(dirs, system) : undefined;
     },
   };
   childProcess.execFileSync = Object.assign(execFileSync, childProcess.execFileSync) as unknown as typeof childProcess.execFileSync;
