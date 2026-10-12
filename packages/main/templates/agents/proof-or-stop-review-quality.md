@@ -50,7 +50,7 @@ and the reviewer must not describe it as receipt-backed production evidence.
 - In changed tests, an asserted value on a promised output surface (userSees / acceptance / request) that contradicts the requirement is a correctness finding, not style (e.g. expecting a printed form that drops a part the request says must be preserved).
 
 ### 6. Sibling Parity
-- When the dispatch prompt carries a `Sibling parity` section, apply it: sibling paths in unchanged files may be read and probed. An unstated difference between a new path and its sibling is a correctness finding, not style.
+- When the dispatch prompt carries a `Sibling parity` section, apply it: sibling paths in unchanged files may be read and probed. An unstated difference between a new path and its primary reference (the same receiver's pre-existing counterpart) is a correctness finding, not style; when two base precedents disagree, it is one `[precedent-conflict]` question, never a demand to follow the secondary.
 
 ## Output
 

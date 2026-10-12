@@ -57,6 +57,8 @@ import { collectVerificationIntents, VERIFICATION_LANES } from '../core/verifica
 import { isTerminalChecklistStatus } from '../core/checklist-status.js';
 import { unclosedBlockingFindings, resolveEffectiveBlockingSeverities, FINDING_RESOLUTION_PLACEHOLDER } from '../core/finding-closure.js';
 import { findingDuplicateOf, duplicateCoverageReceipts, duplicateOfOpenCanonical, duplicateResolveCandidate } from '../core/duplicate-finding-coverage.js';
+import { findingConflictOf, rejectedRepairCommits, repairTestIntegrityProblem } from '../core/resolved-finding-guard.js';
+import { StoryStore } from '../core/store.js';
 import {
   currentOpenReviewInventory,
   finalizedUnconsumedReviewInventory,
@@ -554,6 +556,12 @@ export function managedFindingRepairState(args: {
   root: string; gitCwd: string; storyId: string; finding: { id: string; createdAt?: string }; runs: readonly FindingRepairRunView[];
 }): FindingRepairState {
   const { root, gitCwd, storyId, finding } = args;
+  // Old-PoS run 46 (core/resolved-finding-guard.ts): a repair commit whose
+  // post-repair guard check broke a resolved finding is not a repair of it.
+  const rejected = rejectedRepairCommitSet(root, storyId, finding.id);
+  const rejectedRuns: string[] = [];
+  // Old-PoS run 55: a repair that deleted or weakened a test it wrote (or one running the finding's repro) is not a repair.
+  const testProblems: string[] = [];
   // remediation.grouping=single (adopted default; off under the per-finding
   // rollback): a grouped run also binds the other members of its
   // groupFindingIds (core/ab-dispatch-grouping.ts). Every member, the bound one
@@ -577,6 +585,9 @@ export function managedFindingRepairState(args: {
     const group = groupOf.get(run.runId);
     if (group) {
       const grouped = groupedRepairCommit(root, gitCwd, storyId, finding.id, group.primary, run);
+      if (grouped && rejected.has(grouped)) { rejectedRuns.push(`${run.runId} (commit ${grouped.slice(0, 12)})`); continue; }
+      const groupedProblem = grouped ? repairRunTestProblem(root, gitCwd, storyId, finding.id, run) : null;
+      if (groupedProblem) { testProblems.push(`${run.runId}: ${groupedProblem}`); continue; }
       if (grouped) return { repaired: true, runId: run.runId, commit: grouped };
       continue;
     }
@@ -593,13 +604,44 @@ export function managedFindingRepairState(args: {
     } catch { continue; }
     for (const block of log.split('\0').filter(Boolean)) {
       const [commit, ...paths] = block.split('\n').map(row => row.trim()).filter(Boolean);
-      if (commit && paths.some(path => !isMaterialExcludedPath(path, root))) return { repaired: true, runId: run.runId, commit };
+      if (commit && paths.some(path => !isMaterialExcludedPath(path, root))) {
+        if (rejected.has(commit)) { rejectedRuns.push(`${run.runId} (commit ${commit.slice(0, 12)})`); break; }
+        const runCommits = log.split('\0').filter(Boolean).map(block => block.split('\n')[0]!.trim()).filter(Boolean).reverse();
+        const problem = repairRunTestProblem(root, gitCwd, storyId, finding.id, run, runCommits);
+        if (problem) { testProblems.push(`${run.runId}: ${problem}`); break; }
+        return { repaired: true, runId: run.runId, commit };
+      }
     }
   }
   const last = bound.at(-1)!;
-  return { repaired: false, bound: true, noCommitRuns: [...completed].reverse().map(run => ({ runId: run.runId, createdAt: run.createdAt })), detail: completed.length
+  // A rejected run counts like a run without a repair commit (relaunched once, then the Story replans).
+  return { repaired: false, bound: true, noCommitRuns: [...completed].reverse().map(run => ({ runId: run.runId, createdAt: run.createdAt })), detail: testProblems.length
+    ? `the repair of ${finding.id} by run ${testProblems[0]}; it is not accepted: fix the product code so the test passes, or report the conflict ([intent-conflict])`
+    : rejectedRuns.length
+    ? `the repair of ${finding.id} by run ${rejectedRuns[0]} was rejected: it broke a resolved finding (its covering verification failed after the repair; a regression finding is open)`
+    : completed.length
     ? `managed finding-repair run ${completed[0]!.runId} for ${finding.id} completed without a material commit on the Story branch`
     : `the last managed finding-repair run ${last.runId} for ${finding.id} is ${last.state}` };
+}
+
+const repairTestProblemCache = new Map<string, string | null>();
+/** Old-PoS run 55 (core/resolved-finding-guard.ts repairTestIntegrityProblem) over one managed repair run's own commits, oldest first. */
+function repairRunTestProblem(root: string, gitCwd: string, storyId: string, findingId: string, run: { runId: string; createdAt: string }, known?: readonly string[]): string | null {
+  const commits = known ? [...known] : managedRunWindowCommits(root, gitCwd, run).map(row => row.commit).reverse();
+  const key = `${run.runId}:${findingId}:${commits.join(',')}`;
+  if (repairTestProblemCache.has(key)) return repairTestProblemCache.get(key)!;
+  let desc = '';
+  try { desc = new StoryStore(root).readFindings(storyId).findings.find(row => row.id === findingId)?.desc ?? ''; } catch { desc = ''; }
+  const problem = repairTestIntegrityProblem({ gitCwd, commits, desc });
+  repairTestProblemCache.set(key, problem);
+  return problem;
+}
+
+/** Old-PoS run 46: repair commits of `findingId` rejected by a failed resolved-finding guard (process events). */
+function rejectedRepairCommitSet(root: string, storyId: string, findingId: string): Set<string> {
+  try {
+    return new Set((rejectedRepairCommits(new StoryStore(root).readProcessEvents(storyId) as Array<Record<string, unknown>>).get(findingId) ?? []).map(row => row.commit));
+  } catch { return new Set(); }
 }
 
 /**
@@ -1362,6 +1404,46 @@ export function preexistingDispositionStep(base: { storyId: string; phase: strin
  * place: the Story returns to PLAN, where the scope or intent the repair needs
  * can be amended. Shared by the live and the reference driver.
  */
+/**
+ * Old-PoS run 47 (run47-analysis.md §2, §7 item 1): an open finding that
+ * contradicts a resolved finding's repair (core/resolved-finding-guard.ts
+ * findingConflictOf: a `[precedent-conflict]` finding, a repair rejected by a
+ * resolved finding's covering verification, or the same case re-judged
+ * without a regression claim) is not sent to repair: every repair flipped the
+ * behaviour and the next round re-found the other side. ONE agent step: return
+ * to PLAN and pin the case in the checklist; the conflict counts as pinned once
+ * the checklist intent (verificationIntent / userSees of any item) differs from
+ * its committed state when the conflict became known. Then the findings are
+ * repaired against the pin (the repair prompt says so). Null when none is open
+ * and unpinned; a finding whose own repair is already accepted is skipped.
+ */
+export function findingConflictStep(args: { root: string; gitCwd: string; store: HandlerContext['store']; base: { storyId: string; phase: string };
+  open: readonly Finding[]; repaired: (finding: Finding) => boolean }): NextStep | null {
+  const { root, gitCwd, store, base } = args;
+  const storyId = base.storyId;
+  let events: Array<Record<string, unknown>> = [];
+  try { events = store.readProcessEvents(storyId) as Array<Record<string, unknown>>; } catch { events = []; }
+  const rejected = rejectedRepairCommits(events);
+  const all = store.readFindings(storyId).findings ?? [];
+  const items = store.readChecklist(storyId).items;
+  const checklistPath = store.storyFilePath(storyId, 'checklist.json');
+  for (const finding of args.open) {
+    const conflict = findingConflictOf({ finding, findings: all, storyId, rejected, duplicateOf: id => findingDuplicateOf(store, storyId, id)?.canonicalFindingId ?? null });
+    if (!conflict || args.repaired(finding)) continue;
+    const pinned = Boolean(conflict.since) && items.some(item => {
+      const before = committedIntentHashBefore(root, gitCwd, checklistPath, item.id, conflict.since);
+      return before !== undefined && before !== intentMaterialHash(item);
+    });
+    if (pinned) continue;
+    const other = conflict.resolvedId ? ` and resolved ${conflict.resolvedId}` : '';
+    return step(base, 'agent', 'finding_conflict_pin', { command: 'story_advance', payload: { storyId, phase: 'PLAN' } },
+      `Finding conflict: open ${finding.id}${other} demand opposite behaviour for one case (${conflict.why}). Another repair would only flip the code and the next round would re-find the other side, so it is not repaired yet: the checklist pin decides, not the latest lane. `
+        + `Return to PLAN and pin the case: checklist_update the item's verificationIntent with a row stating the expected outcome for that case and a derivation quoting the request sentence (or the base probe) that decides it; then next continues and the findings are repaired against the pin.`,
+      'findingConflictOf (core/resolved-finding-guard.ts) + committed checklist intent since the conflict');
+  }
+  return null;
+}
+
 export function findingRepairReplanStep(base: { storyId: string; phase: string }, finding: Pick<Finding, 'id' | 'severity'>, runIds: readonly string[]): NextStep {
   return step(base, 'agent', 'finding_repair_replan', { command: 'story_advance', payload: { storyId: base.storyId, phase: 'PLAN' } },
     `Verified ${finding.severity} finding ${finding.id} is still open after ${runIds.length} managed finding-repair runs ended without a repair commit (${runIds.join(', ')}); the same repair is not proposed again. Read their reports (host_run_status --runId=<id> --full), return to PLAN and amend what the repair needs (scope_contract_set, or the item intent with its reason); DEV then repairs it again.`,
@@ -2305,6 +2387,12 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
             return preexistingDispositionStep(base, row.finding, verdict);
           }
         }
+      }
+      // Old-PoS run 47: a finding that contradicts a resolved finding's repair goes to the owner's pin, not to repair.
+      if (!inFlight(FINDING_REPAIR_AGENT)) {
+        const conflictStep = findingConflictStep({ root: ctx.root, gitCwd: gitCwdOf(storyId), store: ctx.store, base, open: findings.map(row => row.finding),
+          repaired: row => managedFindingRepairState({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, finding: row, runs: hostRuns }).repaired });
+        if (conflictStep) return conflictStep;
       }
       const { finding } = nextBlockingFinding(ctx.store, storyId, findings);
       // Per finding: only a completed managed repair bound to THIS finding id

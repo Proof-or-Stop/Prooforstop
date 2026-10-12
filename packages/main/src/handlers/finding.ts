@@ -85,8 +85,14 @@ import { isEvidenceChainFindingCategory } from '../core/evidence-chain-finding.j
 import { evidenceChainNextActionForStory } from './evidence-chain.js';
 import { findingDuplicateOf, duplicateCoverageSelectorProblem, duplicateRootOf, runDuplicateCoverage } from '../core/duplicate-finding-coverage.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
-import { currentGitHead } from '../core/evidence-freshness.js';
+import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { storyFindingRepairState } from './next-driver.js';
+import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import type { DuplicateCoverageReceipt } from '../core/types.js';
+import { canonicalFixLiveness, coverageSourceText, findingGuard, isTestPath, regressionFindingDesc, regressionGuardCheck, regressionTargets, repairCommitFromResolution, reproCoverage,
+  type GuardFailure } from '../core/resolved-finding-guard.js';
+import { resolveFullStoryBaseHead } from '../core/review-incremental-context.js';
 
 // B-7c05 CHK-002: brief finding shape. Drops only heavy free-text (the full
 // `desc`, reviewer read evidence) and replaces `desc` with a truncated one-line
@@ -787,6 +793,92 @@ function recordReviewPass(
 }
 
 /**
+ * Old-PoS run 46: a framework-authored open finding (a regression of a resolved
+ * one). The finding ledger keeps exactly one terminal transition per finding,
+ * so a resolved finding is reopened as a new open finding whose description
+ * starts with `[regression-of <id>]` and carries that finding's case; it
+ * blocks like any verified finding and is repaired like one.
+ */
+function appendFrameworkFindingFor(ctx: HandlerContext, storyId: string, input: { desc: string; severity: Finding['severity']; category: Finding['category']; files: string[] }): string {
+  const { store } = ctx;
+  const story = store.readStory(storyId);
+  const reviewRound = story.currentReviewRound || '';
+  return withMetaFindingLock(ctx, storyId, (fence) => {
+    const identity = getSessionIdentity();
+    const signer = findingLedgerSignerFromWorkspace(ctx.root);
+    const leaseId = readOwnerLease(store.storyDirPath(storyId))?.sessionId ?? identity.sessionId;
+    bindLegacyFindingLedgerReceipts({ storyId, store, writerSessionId: identity.sessionId, writerLeaseId: leaseId, writerFenceToken: fence.writerFenceToken, fence, signer });
+    const data = store.readFindings(storyId);
+    const ledgerBefore = store.readFindingLedger<Finding>(storyId);
+    const ids = [...data.findings.map(row => row.id), ...ledgerBefore.records.filter(record => record.recordType === 'finding').map(record => (record.payload as Finding).id)];
+    const escaped = storyId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const next = ids.reduce((max, id) => { const match = new RegExp(`^${escaped}:F-(\\d+)$`).exec(id); return match ? Math.max(max, Number(match[1])) : max; }, 0) + 1;
+    const fid = `${storyId}:F-${String(next).padStart(3, '0')}`;
+    const timestamp = new Date().toISOString();
+    const finding: Finding = {
+      id: fid, desc: input.desc, severity: input.severity, category: input.category, status: 'open', evidenceState: 'verified', agent: 'main',
+      createdAt: timestamp, reviewRound,
+      _hash: signFinding(storyId, fid, input.desc, input.severity, timestamp, reviewRound, '', undefined, undefined, undefined),
+      ...(input.files.length ? { files: input.files } : {}),
+    };
+    const receipt = appendFindingLedger({ storyId, store, operation: 'append_finding', idempotencyKey: `framework_regression:${fid}:${randomUUID()}`,
+      records: [{ recordType: 'finding', payload: finding as unknown as import('../core/finding-ledger.js').JsonValue }],
+      writerSessionId: identity.sessionId, writerLeaseId: leaseId, writerFenceToken: fence.writerFenceToken, fence, signer });
+    const record = store.readFindingLedger<Finding>(storyId).records.find(candidate => receipt.recordIds.includes(candidate.recordId));
+    if (!record) throw new Error('regression finding: committed ledger transaction returned no Finding record');
+    data.findings.push({ ...(record.payload as Finding), recordId: record.recordId, ledgerCommitReceiptId: receipt.receiptId });
+    store.writeFindings(storyId, data);
+    return fid;
+  });
+}
+
+/**
+ * Old-PoS run 46: re-run the covering verification of every resolved finding
+ * whose cited files changed since its resolution, after `repairs`
+ * (core/resolved-finding-guard.ts regressionGuardCheck). A failing one opens a
+ * `[regression-of <id>]` finding (unless an open one already names it) and
+ * blames the repairs that touched its files.
+ */
+function runRegressionGuardsFor(ctx: HandlerContext, storyId: string, repairs: ReadonlyArray<{ findingId: string; commit: string }>): { failures: GuardFailure[]; opened: Map<string, string> } {
+  const { store } = ctx;
+  const gitCwd = resolveGitCwd({ store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+  const findings = store.readFindings(storyId).findings ?? [];
+  const receipts = store.readDuplicateFindingCoverage(storyId).receipts;
+  let materialHash: string | null = null;
+  try { materialHash = currentMaterialHash(gitCwd, 'HEAD', ctx.root) ?? null; } catch { materialHash = null; }
+  const failures = regressionGuardCheck({ store: store as never, projectRoot: ctx.root, gitCwd, storyId, findings, repairs, headHash: currentGitHead(gitCwd) ?? null, materialHash,
+    repairCommitOf: finding => { const state = storyFindingRepairState(ctx, storyId, finding); return state.repaired ? state.commit : repairCommitFromResolution(gitCwd, finding); },
+    coverageOf: finding => receipts.filter(row => row.findingId === finding.id && row.passed).at(-1) ?? null });
+  const opened = new Map<string, string>();
+  for (const failure of failures) {
+    const existing = (store.readFindings(storyId).findings ?? []).find(row => row.status === 'open' && regressionTargets(row.desc, storyId).includes(failure.guarded.id));
+    opened.set(failure.guarded.id, existing?.id ?? appendFrameworkFindingFor(ctx, storyId, {
+      desc: regressionFindingDesc({ storyId, guarded: failure.guarded, result: failure.result, blamed: failure.blamed }),
+      severity: failure.guarded.severity, category: failure.guarded.category, files: failure.guard.citedFiles }));
+  }
+  return { failures, opened };
+}
+
+/** The sentence a refusal / report gives for a repair a failed guard rejected. */
+function rejectedRepairReason(storyId: string, findingId: string, failures: readonly GuardFailure[], opened: ReadonlyMap<string, string>): string | null {
+  const short = (id: string) => id.startsWith(`${storyId}:`) ? id.slice(storyId.length + 1) : id;
+  const broke = failures.filter(failure => failure.blamed.some(row => row.findingId === findingId));
+  if (!broke.length) return null;
+  return `its repair commit broke resolved finding ${broke.map(failure => `${short(failure.guarded.id)} (\`${failure.result.command}\` fails as recorded at its resolution; regression ${short(opened.get(failure.guarded.id) ?? '?')} opened)`).join(', ')}; `
+    + 'the repair is not accepted: repair it without reversing the resolved finding, or declare [intent-conflict] if the two truly conflict';
+}
+
+/** Test files the Story changed (base..HEAD), for the repro check of a non-Go coverage command. */
+function storyChangedTestFiles(ctx: HandlerContext, storyId: string, gitCwd: string): string[] {
+  const base = (() => { try { return resolveFullStoryBaseHead(ctx.store, ctx.root, storyId); } catch { return undefined; } })();
+  if (!base) return [];
+  try {
+    return execFileSync('git', ['diff', '--name-only', base, 'HEAD'], { cwd: gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
+      .split('\n').map(line => line.trim()).filter(path => path && isTestPath(path));
+  } catch { return []; }
+}
+
+/**
  * Run 17 (Q1): finding_resolve --duplicateOf. Closes a finding the REVIEW
  * inventory critic dispositioned `duplicate` of a canonical finding, with that
  * finding's repair, only when a coverage run of THIS finding's own case passes
@@ -825,6 +917,37 @@ function closeDuplicateWithCoverageFor(ctx: HandlerContext, args: { storyId: str
   const selectorProblem = duplicateCoverageSelectorProblem(selector!);
   if (selectorProblem) refuse(selectorProblem, 'duplicate_coverage_selector_generic');
   const cwd = resolveGitCwd({ store, storyId: args.storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+  // Old-PoS run 46 (core/resolved-finding-guard.ts): a duplicate closes only on a live canonical
+  // fix and a coverage run that exercises its own repro. A refusal is recorded as a failed
+  // coverage receipt, so next gives the finding its own repair instead of proposing the closure again.
+  const refuseRecorded = (detail: string, code: string): never => {
+    const receiptRow: DuplicateCoverageReceipt = { findingId: args.findingId, canonicalFindingId: args.duplicateOf!, command: command!.trim(), selector: selector!,
+      exitCode: null, timedOut: false, selectorMatched: false, passed: false, headHash: currentGitHead(cwd) ?? null, durationMs: 0,
+      outputDigest: createHash('sha256').update(detail).digest('hex'), outputTail: detail.slice(0, 1200), executedAt: new Date().toISOString(), refusal: code };
+    const coverageData = store.readDuplicateFindingCoverage(args.storyId);
+    coverageData.receipts.push(receiptRow);
+    store.writeDuplicateFindingCoverage(args.storyId, coverageData);
+    const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'finding_resolve');
+    return refuse(`${detail}${commitHint}`, code);
+  };
+  const repro = reproCoverage({ desc: finding.desc ?? '', command: command!.trim(),
+    sourceText: coverageSourceText(cwd, command!.trim(), storyChangedTestFiles(ctx, args.storyId, cwd)) });
+  if (repro.checked && repro.missing.length) {
+    refuseRecorded(`the coverage \`${command!.trim()}\` does not exercise ${args.findingId}'s own repro (${repro.missing.map(row => `\`${row}\``).join(', ')} appears neither in the tests it runs nor in the command), `
+      + `so it cannot show ${args.duplicateOf}'s repair fixes ${args.findingId}'s case. The refusal is recorded: ${args.findingId} now gets its own managed repair `
+      + '(or add that repro to the covering test and close it again)', 'duplicate_coverage_lacks_repro');
+  }
+  const rootId = canonical!.resolutionType === 'duplicate' ? (duplicateRootOf(store, args.storyId, canonical!.id) ?? canonical!.id) : canonical!.id;
+  const rootFinding = findings.find(row => row.id === rootId) ?? canonical!;
+  const rootRepair = storyFindingRepairState(ctx, args.storyId, rootFinding);
+  const rootCommit = rootRepair.repaired ? rootRepair.commit : repairCommitFromResolution(cwd, rootFinding);
+  const rootCoverage = store.readDuplicateFindingCoverage(args.storyId).receipts.filter(row => row.findingId === rootFinding.id && row.passed).at(-1) ?? null;
+  const liveness = canonicalFixLiveness({ projectRoot: ctx.root, gitCwd: cwd, canonicalId: rootFinding.id, repairCommit: rootCommit,
+    guard: findingGuard({ gitCwd: cwd, finding: rootFinding, repairCommit: rootCommit, coverage: rootCoverage }) });
+  if (!liveness.live) {
+    refuseRecorded(`the canonical fix is not live: ${liveness.why}${liveness.guard?.outputTail ? ` (${liveness.guard.outputTail.replace(/\s*\n\s*/g, ' | ').slice(0, 400)})` : ''}. `
+      + `A duplicate of a fix that a later commit reversed is the defect itself: the refusal is recorded and ${args.findingId} now gets its own managed repair`, 'duplicate_canonical_not_live');
+  }
   let receipt;
   try {
     receipt = runDuplicateCoverage({ projectRoot: ctx.root, cwd, command: command!.trim(), selector: selector!, headHash: currentGitHead(cwd) ?? null,
@@ -904,7 +1027,33 @@ export function createFindingHandlers(ctx: HandlerContext) {
       accepted.push({ findingId, commit: repair.commit,
         resolution: `${authored} [repair commit ${repair.commit.slice(0, 12)} of managed finding-repair run ${repair.runId}]` });
     }
-    const report = leftOpen.length ? `Left open (each still needs its own repair or resolve): ${leftOpen.join('; ')}.` : '';
+    // Old-PoS run 46 (core/resolved-finding-guard.ts): a repair that broke a resolved finding is not accepted.
+    let guardHint = '';
+    let guardRejectedAll = false;
+    if (accepted.length) {
+      const before = leftOpen.length;
+      const guards = runRegressionGuardsFor(ctx, args.storyId, accepted.map(row => ({ findingId: row.findingId, commit: row.commit })));
+      if (guards.failures.length) {
+        for (const row of [...accepted]) {
+          const reason = rejectedRepairReason(args.storyId, row.findingId, guards.failures, guards.opened);
+          if (!reason) continue;
+          accepted.splice(accepted.indexOf(row), 1);
+          leftOpen.push(`${row.findingId}: ${reason}`);
+        }
+        const unblamed = guards.failures.filter(failure => !failure.blamed.length).map(failure => `${failure.guarded.id} (regression ${guards.opened.get(failure.guarded.id)})`);
+        if (unblamed.length) guardHint = ` Resolved finding(s) ${unblamed.join(', ')} no longer pass their covering verification after a later commit: a regression finding is open.`;
+        if (!accepted.length) {
+          guardRejectedAll = before === 0;
+          guardHint += autoCommitStoryMetadata(ctx.root, args.storyId, 'finding_resolve');
+        }
+      }
+    }
+    const report = leftOpen.length ? `Left open (each still needs its own repair or resolve): ${leftOpen.join('; ')}.${guardHint}` : guardHint.trim();
+    // Old-PoS run 46: when the only reason nothing closed is the regression guard, the call did its
+    // job (it ran the guards, recorded the regression finding and the rejected repairs): not a refusal.
+    if (accepted.length === 0 && guardRejectedAll) {
+      return `No finding resolved: the post-repair regression guard rejected every listed repair. ${report}\nNext: proof-or-stop next --storyId=${args.storyId} --run`;
+    }
     if (accepted.length === 0) refuse(`no listed finding passed its own repaired check. ${report}`);
     withMetaFindingLock(ctx, args.storyId, (fence) => {
       const data = store.readFindings(args.storyId);
@@ -1372,6 +1521,16 @@ export function createFindingHandlers(ctx: HandlerContext) {
         const citation = target && target.status === 'open' ? resolutionCitationRefusal({ store: store as never, storyId: args.storyId, finding: target,
           gitCwd: resolveGitCwd({ store, storyId: args.storyId, metadataRoot: ctx.root, projectRoot: ctx.root }) }) : null;
         if (citation) throw new Error(citation);
+        // Old-PoS run 46 (core/resolved-finding-guard.ts): a repair that broke a resolved finding is not accepted.
+        const repair = target && target.status === 'open' ? storyFindingRepairState(ctx, args.storyId, target) : null;
+        if (repair?.repaired) {
+          const guards = runRegressionGuardsFor(ctx, args.storyId, [{ findingId, commit: repair.commit }]);
+          const reason = rejectedRepairReason(args.storyId, findingId, guards.failures, guards.opened);
+          if (reason) {
+            const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'finding_resolve');
+            throw new Error(`finding_resolve refused: ${findingId}: ${reason} [repair_breaks_resolved_finding]${commitHint}\nNext: proof-or-stop next --storyId=${args.storyId} --run`);
+          }
+        }
       }
       // B-META mutations use the unified main lock; normal Story mutations use
       // the same per-story findings lock as finding_add.

@@ -15,6 +15,19 @@
  * the pre-existing variant), probe each operand case a sibling special-cases on
  * both, and report an unstated difference. The text names generic operand
  * classes only. `off` (the rollback) sends nothing.
+ *
+ * Old-PoS run 46 (run46-analysis.md §2.1-§2.3 item 2): the run-43 text gave all
+ * sibling kinds equal weight and no oracle. Lanes compared a new write only
+ * with another receiver type's write, called the behaviour that matched the
+ * same receiver's pre-existing read a defect, and the repair aligned the new
+ * path to the wrong precedent. The check now ranks the oracle (request /
+ * checklist row, then the same receiver's pre-existing counterpart, then other
+ * receivers' same operation) and turns a disagreement between two base
+ * precedents into one `[precedent-conflict]` finding (a question for the owner,
+ * routed by the repair prompt to an intent conflict) instead of an alignment
+ * demand. Each finding states its repro (`Repro: ...`), which the
+ * resolved-finding re-probe and the duplicate-closure checks read
+ * (core/resolved-finding-guard.ts).
  */
 import { siblingParityOn } from './ab-variants.js';
 import { loadConfig } from './config.js';
@@ -22,9 +35,10 @@ import { loadConfig } from './config.js';
 export const SIBLING_PARITY_LANES: ReadonlySet<string> = new Set(['proof-or-stop-review-test-coverage', 'proof-or-stop-review-quality']);
 
 export const SIBLING_PARITY_CHECK = [
-  'Sibling parity (required): for every entry point the diff adds or changes, find its sibling paths: the matching read or write of the same data, the same operation on the other receiver types, and the pre-existing variant (unchanged files included).',
-  '- List the operand cases a sibling special-cases (out of range, sign, empty, null or omitted, type) and run at least one probe per case on the new path and on the sibling.',
-  '- A difference that neither the request nor a checklist row states is a finding (category edge, at least medium) citing both paths and both probe outputs; name the sibling pairs you probed in your note.',
+  'Sibling parity (required): for every entry point the diff adds or changes, probe each operand case its references special-case (out of range, sign, empty, null or omitted, type) on the new path and on the reference, unchanged files included.',
+  '- Oracle order: a request sentence or checklist row; else the SAME receiver\'s pre-existing counterpart (its read for a new write, its write for a new read); the same operation on another receiver is only secondary. Probe the primary first.',
+  '- New path differs from the primary on an unstated case: a finding (edge, at least medium) citing both paths and probe outputs. Primary and secondary already disagree in the base on that case: not a defect of the new path; report one `[precedent-conflict]` finding asking which applies (both base probes); never ask to align the new path with the secondary.',
+  '- Give each finding its repro as Repro: `<command or expression>`; name the pairs probed in your note.',
 ] as const;
 
 /** The block for a lane's dispatch prompt: the check for a parity lane while the switch is on (a malformed value keeps on). */

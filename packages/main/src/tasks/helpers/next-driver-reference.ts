@@ -213,7 +213,7 @@ import { collectReviewerEvidenceState, verifyCurrentReviewerDispatchBinding } fr
 import { managedHostRunsRoot, readManagedHostRunProjection, managedHostRunReceipt, isAutoReplaceableManagedLaunchFailure } from '../../core/managed-host-run.js';
 import { findingRepairRoute } from '../../core/finding-preexisting.js';
 import { evaluatePreexistingFinding } from '../../handlers/finding-preexisting.js';
-import { noCommitRepairRunsSincePlan, preexistingDispositionStep, findingRepairReplanStep } from '../../handlers/next-driver.js';
+import { noCommitRepairRunsSincePlan, preexistingDispositionStep, findingRepairReplanStep, findingConflictStep } from '../../handlers/next-driver.js';
 import { managedFindingRepairState, hintedStep, evidenceChainStep, evidenceChainAdvisory, step as sharedStep, managedLaunchStep, boundManagedSelection,
   runsForTarget, targetRelaunchIsFramework, testAuthoringStep, planAuthoringStep, preScopeAuthoringStep, nextBlockingFinding, duplicateFindingResolveStep,
   groupedFindingRepairIds, groupedFindingRepairStep, repairedFindingsForResolve, findingResolveBatchStep, frameworkResolveStep, managedRunsWaitStep, adoptedAmendmentRun, intentAmendmentVerifyStep, guardRefusalSummary, storyReviewBlockersStep, openIntentConflicts, intentConflictStep, nextStepCall, DONE_TERMINAL_STATEMENT, type NextStep } from '../../handlers/next-driver.js';
@@ -495,6 +495,12 @@ export function createReferenceNextDriver(ctx: HandlerContext, lookup: HandlerLo
             return preexistingDispositionStep(base, row.finding, verdict);
           }
         }
+      }
+      // Old-PoS run 47 (shared with the live driver): an unpinned finding conflict goes to the owner's pin.
+      if (!inFlight(FINDING_REPAIR_AGENT)) {
+        const conflictStep = findingConflictStep({ root: ctx.root, gitCwd: gitCwdOf(storyId), store: ctx.store, base, open: findings.map(row => row.finding),
+          repaired: row => managedFindingRepairState({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, finding: row, runs: hostRuns }).repaired });
+        if (conflictStep) return conflictStep;
       }
       const { finding } = nextBlockingFinding(ctx.store, storyId, findings);
       const repair = managedFindingRepairState({ root: ctx.root, gitCwd: gitCwdOf(storyId), storyId, finding, runs: hostRuns });

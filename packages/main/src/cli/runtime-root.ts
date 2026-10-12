@@ -6,6 +6,7 @@ import { hasProjectConfigFile, isManagedGlobalThinRoot, loadConfig, pickProjectC
 import { gitProbe } from '../core/git-probe.js';
 import { readBrandEnv } from '../core/brand-env.js';
 import { StoryStore } from '../core/store.js';
+import { managedHostRunsRoot } from '../core/managed-host-run.js';
 import { attestControllerConfigProjection } from '../core/controller-config-projection.js';
 import { attestControllerRuntimeProjection, existingControllerRuntimeAssetPaths, hasRepositoryOwnedControllerAssets } from '../core/controller-runtime-projection.js';
 
@@ -170,6 +171,28 @@ function projectGlobalThinRuntimeAssets(controllerRoot: string, worktreeRoot: st
 }
 
 /**
+ * Old-PoS run 47 (run47-analysis.md §3.4): the id of a live (no terminal record)
+ * managed implementer / finding-repair run of `storyId` when `worktreeRoot` is a
+ * registered linked worktree of the same repository whose HEAD is detached
+ * (the writer's own checkout); null otherwise.
+ */
+export function liveWriterRunHoldingDetachedWorktree(controllerRoot: string, worktreeRoot: string, storyId: string,
+  entries: ReadonlyArray<{ path?: string; branch?: string }>): string | null {
+  const entry = entries.find(row => row.path && canonical(row.path) === worktreeRoot);
+  if (!entry || entry.branch) return null;
+  const runsRoot = managedHostRunsRoot(controllerRoot);
+  if (!existsSync(runsRoot)) return null;
+  for (const runId of readdirSync(runsRoot)) {
+    try {
+      const spec = JSON.parse(readFileSync(join(runsRoot, runId, 'spec.json'), 'utf8')) as { storyId?: string; agentType?: string };
+      if (spec.storyId === storyId && (spec.agentType === 'proof-or-stop-implementer' || spec.agentType === 'proof-or-stop-finding-repair')
+        && !existsSync(join(runsRoot, runId, 'terminal.json'))) return runId;
+    } catch { /* not a readable managed run */ }
+  }
+  return null;
+}
+
+/**
  * Bootstrap controller-only assets into the explicitly registered Story worktree.
  * The controller copy is read once; the projected worktree becomes the only writer.
  */
@@ -188,12 +211,15 @@ export function projectControllerAssetsIntoStoryWorktree(input: {
     return { path: lines.find(line => line.startsWith('worktree '))?.slice(9), branch: lines.find(line => line.startsWith('branch '))?.slice(7) };
   });
   const registered = entries.find(entry => entry.branch === expectedBranch);
-  if (!registered?.path || canonical(registered.path) !== worktreeRoot || gitText(worktreeRoot, ['rev-parse', '--show-toplevel']) !== worktreeRoot) {
+  // Old-PoS run 47 (§3.4): a live managed writer run (implementer / finding-repair) of this Story may
+  // hold the Story worktree detached at its own checkout; that is not an unregistered worktree.
+  const heldBy = registered?.path ? null : liveWriterRunHoldingDetachedWorktree(controllerRoot, worktreeRoot, input.storyId, entries);
+  if (!heldBy && (!registered?.path || canonical(registered.path) !== worktreeRoot || gitText(worktreeRoot, ['rev-parse', '--show-toplevel']) !== worktreeRoot)) {
     throw new Error(`controller projection refused unsigned or unregistered linked worktree for ${input.storyId}`);
   }
   const controllerCommon = canonical(resolve(controllerRoot, gitText(controllerRoot, ['rev-parse', '--git-common-dir'])));
   const worktreeCommon = canonical(resolve(worktreeRoot, gitText(worktreeRoot, ['rev-parse', '--git-common-dir'])));
-  if (controllerCommon !== worktreeCommon || gitText(worktreeRoot, ['symbolic-ref', '-q', 'HEAD']) !== expectedBranch) {
+  if (controllerCommon !== worktreeCommon || (!heldBy && gitText(worktreeRoot, ['symbolic-ref', '-q', 'HEAD']) !== expectedBranch)) {
     throw new Error(`controller projection refused linked worktree authority mismatch for ${input.storyId}`);
   }
 
@@ -211,6 +237,13 @@ export function projectControllerAssetsIntoStoryWorktree(input: {
   if (!inside(worktreeRoot, targetStoryRoot)) throw new Error('controller projection refused escaping Story destination');
   assertNoSymlinkPath(worktreeRoot, targetStoryRoot, true);
   const targetConfig = join(worktreeRoot, configRef.filename);
+  if (heldBy) {
+    // Never write into a worktree a live writer holds: use the projection already there, or wait for the run.
+    if (existsSync(targetStoryRoot) && existsSync(targetConfig)) {
+      return { storyRoot: targetStoryRoot, configDigest: createHash('sha256').update(readRegularNoFollow(targetConfig)).digest('hex') };
+    }
+    throw new Error(`controller projection deferred: managed writer run ${heldBy} holds the ${input.storyId} worktree detached; wait for it: proof-or-stop host_run_status --runId=${heldBy} --untilTerminal=true`);
+  }
   const repositoryOwnedAssets = pickProjectConfigPath(worktreeRoot)?.filename === configRef.filename
     && hasRepositoryOwnedControllerAssets({ controllerRoot, worktreeRoot, configPath: configRef.filename });
   if (repositoryOwnedAssets && loadConfig(worktreeRoot).storyDir !== config.storyDir) {

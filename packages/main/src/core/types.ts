@@ -2502,6 +2502,8 @@ export interface DuplicateCoverageReceipt {
   outputDigest: string;
   outputTail: string;
   executedAt: string;
+  /** Old-PoS run 46: the closure was refused before (or instead of) the run: the canonical's fix is not live, or the coverage does not run this finding's own repro. */
+  refusal?: string;
 }
 
 export interface DuplicateFindingCoverageData {
@@ -2875,6 +2877,8 @@ export type ProcessEventType =
   | 'inventory_critic_import_refused'
   /** Old-PoS run 34: verification_run's pinned verifier did not pass (next relaunches an amended item's implementer). */
   | 'verification_run_refused'
+  /** Old-PoS run 46: a resolved finding's covering verification re-run after a repair (core/resolved-finding-guard.ts). */
+  | 'resolved_finding_guard_checked'
   /** A managed review receipt's import was refused before any evidence persisted, for a reason no retry changes (next relaunches the lane/critic). */
   | 'managed_review_import_refused'
   /** Critic rows for findings outside the wave's verified set, dropped (not refused) at managed import. */
