@@ -224,6 +224,22 @@ await check('B1 prompt block: one explicit section per dimension, tag rule, fail
   assert.ok(!text.includes('ROLE BODY OF proof-or-stop-review-concept'), 'the carrier\'s role prompt is not repeated');
 });
 
+await check('B2 a dimension brings only its own role text: no frontmatter, the framework rules shared with the carrier\'s role prompt are not repeated', async () => {
+  const mod = await import(new URL('../core/review-lane-merge-prompt.js', import.meta.url).href) as Record<string, Fn>;
+  const shared = Array.from({ length: 60 }, (_, i) => `Shared framework rule ${i}: always report honestly.`).join('\n');
+  const carrier = `---\nname: c\n---\n## Concept checks\nGrep for residue.\n\n${shared}\n`;
+  const own = mod.ownRolePart(`---\nname: q\n---\n## Quality checks\nProbe edge cases.\n\n${shared}\n`, carrier) as string;
+  assert.match(own, /^## Quality checks\nProbe edge cases\./);
+  assert.ok(!own.includes('Shared framework rule 30'), 'shared rules not repeated');
+  assert.match(own, /identical to the end of your own role prompt above/);
+  assert.ok(!own.includes('name: q'), 'no frontmatter');
+  const short = mod.ownRolePart('## Docs checks\nRun the examples.\nEnd.', '## Concept\nEnd.') as string;
+  assert.equal(short, '## Docs checks\nRun the examples.\nEnd.', 'a short common tail is kept');
+  const real = (await import(new URL('../core/prompt-role-contract-registry.js', import.meta.url).href) as Record<string, Fn>).resolvePromptRoleBody;
+  const quality = mod.ownRolePart(real(L('quality'), undefined).body, real(L('concept'), undefined).body) as string;
+  assert.ok(Buffer.byteLength(quality) < 10_000, `the quality lane's own part is small (${Buffer.byteLength(quality)} B)`);
+});
+
 for (const dir of dirs) rmSync(dir, { recursive: true, force: true });
 if (failures.length) {
   console.log(`review-lane-merge-smoke: FAIL (${failures.length}: ${failures.map(name => name.split(' ')[0]).join(', ')})`);

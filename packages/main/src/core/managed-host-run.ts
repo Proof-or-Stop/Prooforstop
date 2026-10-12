@@ -1,4 +1,5 @@
 import type { DeltaRoundRunBinding } from './review-delta-round.js';
+import type { LaneMergeRunBinding } from './review-lane-merge.js';
 import { captureHostRunBudgetEnvironment, restoreHostRunBudgetEnvironment } from './host-run-budget.js';
 import { dispatchTargetThreadFresh, resolveAbVariants, type AbVariantEvidence } from './ab-variants.js';
 import { loadConfig } from './config.js';
@@ -306,6 +307,23 @@ export interface ManagedHostRunReviewBinding {
    * (managed_review_evidence_import checks them and re-runs the named tests).
    */
   deltaRound?: DeltaRoundRunBinding;
+  /**
+   * EXPERIMENTAL A/B review.laneMerge=on (core/review-lane-merge.ts): this lane run
+   * carries the round's ONE merged review session; the dimensions it covers and the
+   * checkpoints its note must carry a `[checked]` line for (managed_review_evidence_import
+   * checks them; an uncovered dimension is relaunched as its own lane).
+   */
+  laneMerge?: LaneMergeRunBinding;
+}
+
+/**
+ * A findings proposal normally drops the provider's note (diagnostic only). The
+ * runs whose note carries a coverage contract keep it: a delta-round
+ * confirmation lane (old-PoS run 52) and a merged review session
+ * (EXPERIMENTAL review.laneMerge): the importer reads their coverage lines.
+ */
+function keepsFindingsNote(binding: ManagedHostRunReviewBinding | null | undefined): boolean {
+  return binding?.deltaRound?.role === 'confirmation' || binding?.laneMerge?.role === 'merged';
 }
 
 export interface ManagedReviewCandidateRoutingBinding {
@@ -5727,8 +5745,8 @@ function readValidManagedReviewEvidenceProposal(
         return null;
       }
     } else if (proposal.conclusion === 'findings') {
-      // Old-PoS run 52: only a delta-round confirmation lane's findings proposal carries its (diagnostic) note.
-      if (typeof proposal.note === 'string' && proposal.note.trim().length > 0 && spec.reviewBinding?.deltaRound?.role !== 'confirmation'
+      // Old-PoS run 52: only a delta-round confirmation lane's (and a merged session's) findings proposal carries its (diagnostic) note.
+      if (typeof proposal.note === 'string' && proposal.note.trim().length > 0 && !keepsFindingsNote(spec.reviewBinding)
         || !Array.isArray(proposal.findings)
         || proposal.findings.length === 0
         || !proposal.findings.every(isStrictManagedReviewFindingProposal)) {
@@ -6062,7 +6080,8 @@ export function writeManagedReviewEvidenceProposal(args: {
   // Old-PoS run 52 (run52-analysis.md §3 D1): the ONE confirmation lane of an EXPERIMENTAL review.deltaRounds
   // round must show its [checked]/[reverified] lines for a findings verdict too, so its findings proposal keeps
   // the final envelope's note (diagnostic: never finding evidence; core/review-delta-confirmation.ts reads it).
-  const confirmationNote = conclusion === 'findings' && spec.reviewBinding.deltaRound?.role === 'confirmation'
+  // EXPERIMENTAL review.laneMerge: a merged session's findings proposal keeps it too (its coverage lines).
+  const confirmationNote = conclusion === 'findings' && keepsFindingsNote(spec.reviewBinding)
     ? (args.proposal.note ?? args.proposal.diagnosticNote ?? '').trim() : '';
   if (conclusion === 'pass') {
     if (note.length < 10 || findings.length > 0) {

@@ -2,9 +2,10 @@ import { MANAGED_DELIVERY_DISPATCH_RUNTIME_POLICY } from '../core/runtime-fact-r
 import { abVariantEvidence, resolveAbVariants, type AbVariantEvidence } from '../core/ab-variants.js';
 import { loadConfig } from '../core/config.js';
 import { deltaRoundBinding, deltaRoundRole, deltaRoundsVariant } from '../core/review-delta-round.js';
+import { laneMergeBinding, laneMergeRole, laneMergeVariant } from '../core/review-lane-merge.js';
 import { isCodeReviewLaneRun } from '../core/review-round-order.js';
 import { finalReviewRosterForStory } from './reviewer-list.js';
-import type { ManagedDeltaRoundPrompt } from '../core/managed-review-evidence.js';
+import type { ManagedDeltaRoundPrompt, ManagedLaneMergePrompt } from '../core/managed-review-evidence.js';
 import type { ReviewRun } from '../core/types.js';
 import { isTerminalChecklistStatus } from '../core/checklist-status.js';
 import { buildImplementerItemPack } from '../core/implementer-item-pack.js';
@@ -562,14 +563,16 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
         const promptRoot = reviewRun.workspaceBinding?.metadataRoot ?? ctx.root;
         // EXPERIMENTAL A/B review.deltaRounds=on: this lane's role in the current delta round (null = production).
         const deltaRound = managedDeltaRoundPrompt(ctx, storyId, reviewRun);
-        promptText = buildManagedReviewerPrompt(promptRoot, reviewRun, canonicalReportStatuses, fullScanBinding, deltaRound);
+        // EXPERIMENTAL A/B review.laneMerge=on: this lane carries the round's ONE merged session (null = production).
+        const laneMerge = managedLaneMergePrompt(ctx, storyId, reviewRun);
+        promptText = buildManagedReviewerPrompt(promptRoot, reviewRun, canonicalReportStatuses, fullScanBinding, deltaRound, laneMerge);
         formalReviewBinding = {
           headHash: reviewRun.headHash,
           materialHash: reviewRun.materialHash,
           storyFilesHash,
           promptHash: reviewRun.promptHash,
           envelopeId: reviewRun.envelopeId ?? null,
-          managedPromptDigest: managedReviewerPromptDigest(promptRoot, reviewRun, canonicalReportStatuses, fullScanBinding, deltaRound),
+          managedPromptDigest: managedReviewerPromptDigest(promptRoot, reviewRun, canonicalReportStatuses, fullScanBinding, deltaRound, laneMerge),
           ...(fullScanBinding ? { fullScanEscalationReason: fullScanBinding.scanEscalationReason } : {}),
           ...(() => { const coverage = managedInventoryCriticCoverage(promptRoot, reviewRun); return coverage ? { inventoryCriticCoverage: coverage } : {}; })(),
           // The route this run reviews against; the worker seals the proposal with it (A/B V3 R2A-r2).
@@ -581,6 +584,8 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           })(),
           // EXPERIMENTAL A/B review.deltaRounds=on: the lane's sealed delta-round role and check contract.
           ...(deltaRound ? { deltaRound: deltaRoundBinding(deltaRound.plan, deltaRound.role) } : {}),
+          // EXPERIMENTAL A/B review.laneMerge=on: the merged session's dimensions and coverage contract.
+          ...(laneMerge ? { laneMerge: laneMergeBinding(laneMerge.plan) } : {}),
         };
       } else if (args.managedDispatch === true) {
         if (hasPrompt || hasPromptFile) {
@@ -1223,6 +1228,24 @@ export function managedDeltaRoundPrompt(ctx: HandlerContext, storyId: string, ru
   try {
     const plan = finalReviewRosterForStory(ctx.store, ctx.root, storyId).selection.deltaRound;
     const role = deltaRoundRole(plan, run.lane, run.reviewRound);
+    return plan && role ? { plan, role } : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * EXPERIMENTAL A/B review.laneMerge=on (core/review-lane-merge.ts): the merged
+ * role of a managed code-review lane run in the current round, from the signed
+ * roster selection (the same one the REVIEW gate reads), or null: the switch is
+ * off or malformed, the run is not a code-review lane, the round does not merge,
+ * or the lane is not the carrier (a separate dimension runs its ordinary prompt).
+ */
+export function managedLaneMergePrompt(ctx: HandlerContext, storyId: string, run: ReviewRun): ManagedLaneMergePrompt | null {
+  if (!isCodeReviewLaneRun(run) || !laneMergeVariant(ctx.root)) return null;
+  try {
+    const plan = finalReviewRosterForStory(ctx.store, ctx.root, storyId).selection.laneMerge;
+    const role = laneMergeRole(plan, run.lane, run.reviewRound);
     return plan && role ? { plan, role } : null;
   } catch {
     return null;

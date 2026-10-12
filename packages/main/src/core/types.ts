@@ -2886,6 +2886,9 @@ export type ProcessEventType =
   // re-ran a resolved finding's named test.
   | 'delta_round_confirmation_gap'
   | 'delta_round_reverified'
+  // EXPERIMENTAL A/B review.laneMerge (core/review-lane-merge.ts): the dimensions a merged
+  // session's note covered at import (an uncovered dimension runs as its own lane).
+  | 'review_lane_merge_coverage'
   /** Critic rows for findings outside the wave's verified set, dropped (not refused) at managed import. */
   | 'inventory_critic_disposition_dropped'
   | 'dirty_gate_audit'

@@ -81,6 +81,7 @@ import {
 import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 import { resolveStoryIntegrationTarget } from './story-integration-target.js';
 import type { DeltaRoundPlan } from './review-delta-round.js';
+import type { LaneMergePlan } from './review-lane-merge.js';
 
 export const POST_REMEDIATION_REVIEW_POLICY_VERSION = 'proof-or-stop.post-remediation-review-selection.v2' as const;
 
@@ -104,7 +105,9 @@ export type PostRemediationSelectionReason =
   | 'OPEN_FINDINGS_REQUIRE_FULL_SET'
   | 'SOURCE_ROSTER_INCOMPLETE'
   /** EXPERIMENTAL A/B review.deltaRounds=on (core/review-delta-round.ts): the delta round's lanes. */
-  | 'DELTA_ROUND';
+  | 'DELTA_ROUND'
+  /** EXPERIMENTAL A/B review.laneMerge=on (core/review-lane-merge.ts): ONE merged session + the separate lanes. */
+  | 'LANE_MERGE';
 
 export interface PostRemediationReviewSelection {
   schemaVersion: typeof POST_REMEDIATION_REVIEW_POLICY_VERSION;
@@ -118,7 +121,7 @@ export interface PostRemediationReviewSelection {
   sourceHeadHash: string | null;
   activeLanes: string[];
   selectedLanes: string[];
-  selection: 'dependency-closure' | 'full-set' | 'delta-round';
+  selection: 'dependency-closure' | 'full-set' | 'delta-round' | 'lane-merge';
   reason: PostRemediationSelectionReason;
   reasonDetail: string;
   changedFiles: string[];
@@ -133,6 +136,12 @@ export interface PostRemediationReviewSelection {
    * selection 'delta-round'; ineligible = the full set with the fallback reason.
    */
   deltaRound?: DeltaRoundPlan;
+  /**
+   * EXPERIMENTAL A/B review.laneMerge=on only (absent with the switch off): the
+   * lane-merge plan of the current round (handlers/reviewer-list.ts). Eligible =
+   * selection 'lane-merge'; ineligible = the full set with the reason.
+   */
+  laneMerge?: LaneMergePlan;
   _hash: string;
 }
 

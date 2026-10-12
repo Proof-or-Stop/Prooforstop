@@ -48,6 +48,7 @@ import {
   type PostRemediationReviewSelection,
 } from '../core/review-incremental-context.js';
 import { computeDeltaRoundPlan, deltaRoundRosterBasis, deltaRoundsVariant } from '../core/review-delta-round.js';
+import { computeLaneMergePlan, laneMergeRosterBasis, laneMergeVariant } from '../core/review-lane-merge.js';
 import { verifyReviewInventoryEpoch, verifyReviewInventoryReceipt } from '../core/review-inventory-epoch.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { canonicalAgentRoleId, legacyAgentRoleIds } from '../core/agent-role-identity.js';
@@ -254,8 +255,13 @@ export function computeFinalReviewRoster(
   // EXPERIMENTAL A/B review.deltaRounds=on (core/review-delta-round.ts): a later round after
   // a remediation re-reviews only the repair. Never changes a proven dependency-closure
   // selection, and with the switch off (absent or malformed) the selection is untouched.
-  const selection = proven.selection === 'dependency-closure' && verifyPostRemediationReviewSelection(proven)
-    ? proven : deltaRoundSelection(store, root, storyId, activeReviewers, proven);
+  // EXPERIMENTAL A/B review.laneMerge=on (core/review-lane-merge.ts): ONE merged session per
+  // round; it takes the place of the delta round (one switch at a time) and also leaves a
+  // proven dependency-closure selection alone.
+  const closure = proven.selection === 'dependency-closure' && verifyPostRemediationReviewSelection(proven);
+  const selection = closure ? proven
+    : laneMergeVariant(root) ? laneMergeSelection(store, root, storyId, activeReviewers, proven)
+      : deltaRoundSelection(store, root, storyId, activeReviewers, proven);
   const selected = verifyPostRemediationReviewSelection(selection)
     ? new Set(selection.selectedLanes.map(reviewerLaneShortName))
     : new Set(activeReviewers.map(row => row.name));
@@ -306,6 +312,36 @@ function deltaRoundSelection(
   });
 }
 
+/**
+ * EXPERIMENTAL A/B review.laneMerge=on: the signed lane-merge selection (selection
+ * 'lane-merge': the carrier lane and the dimensions that run separately) when the
+ * current round merges at least two dimensions; otherwise the full set carrying
+ * the plan's reason. Only called with the switch on.
+ */
+function laneMergeSelection(
+  store: HandlerContext['store'],
+  root: string,
+  storyId: string,
+  activeReviewers: ActiveReviewer[],
+  base: PostRemediationReviewSelection,
+): PostRemediationReviewSelection {
+  const plan = computeLaneMergePlan({
+    store, projectRoot: root, storyId,
+    dimensionLanes: base.activeLanes,
+    forcedLanes: activeReviewers.filter(row => row.forced).map(row => canonicalAgentRoleId(`proof-or-stop-review-${row.name}`)),
+  });
+  const { _hash: _ignored, ...unsigned } = base;
+  if (!plan.eligible) return signPostRemediationSelection({ ...unsigned, laneMerge: plan });
+  return signPostRemediationSelection({
+    ...unsigned,
+    selectedLanes: plan.selectedLanes,
+    selection: 'lane-merge',
+    reason: 'LANE_MERGE',
+    reasonDetail: plan.detail,
+    laneMerge: plan,
+  });
+}
+
 export function finalReviewRosterForStory(store: HandlerContext['store'], projectRoot: string, storyId: string): FinalReviewRoster {
   const story = store.readStory(storyId);
   const checklist = store.readChecklist(storyId);
@@ -325,6 +361,9 @@ export function finalReviewRosterBasis(roster: FinalReviewRoster): string | unde
   if (roster.selection.selection === 'delta-round' && roster.selection.deltaRound) {
     return deltaRoundRosterBasis(roster.selection.deltaRound, POST_REMEDIATION_REVIEW_POLICY_VERSION);
   }
+  if (roster.selection.selection === 'lane-merge' && roster.selection.laneMerge) {
+    return laneMergeRosterBasis(roster.selection.laneMerge, POST_REMEDIATION_REVIEW_POLICY_VERSION);
+  }
   if (roster.selection.selection !== 'dependency-closure') return undefined;
   const { policyVersion, sourceReceiptId, activeLanes, selectedLanes, openFindingDigest } = roster.selection;
   return JSON.stringify({ policyVersion, sourceReceiptId, activeLanes, selectedLanes, openFindingDigest });
@@ -336,7 +375,9 @@ export function renderFinalReviewRoster(roster: FinalReviewRoster, storyId: stri
     ? `dependency-closure (${roster.selection.reason}: ${roster.selection.reasonDetail})`
     : roster.selection.selection === 'delta-round'
       ? `delta-round (A/B review.deltaRounds=on: ${roster.selection.reasonDetail})`
-      : `full-set (${roster.selection.reason}: ${roster.selection.reasonDetail})${roster.selection.deltaRound ? `; delta round: no (${roster.selection.deltaRound.reason}: ${roster.selection.deltaRound.detail})` : ''}`;
+      : roster.selection.selection === 'lane-merge'
+        ? `lane-merge (A/B review.laneMerge=on: ${roster.selection.reasonDetail})`
+        : `full-set (${roster.selection.reason}: ${roster.selection.reasonDetail})${roster.selection.deltaRound ? `; delta round: no (${roster.selection.deltaRound.reason}: ${roster.selection.deltaRound.detail})` : ''}${roster.selection.laneMerge ? `; lane merge: no (${roster.selection.laneMerge.reason}: ${roster.selection.laneMerge.detail})` : ''}`;
   const filesSummary = (files: readonly string[]): string => files.length === 0 ? '(not established)'
     : `${files.length} file(s): ${files.slice(0, 10).map(path => path.length > 160 ? path.slice(0, 157) + '...' : path).join(', ')}${files.length > 10 ? ', ...' : ''}`;
   return [
@@ -345,7 +386,10 @@ export function renderFinalReviewRoster(roster: FinalReviewRoster, storyId: stri
     `Changed material: ${filesSummary(roster.selection.changedFiles)}`,
     `Dependency closure: ${filesSummary(roster.selection.closureFiles)}`,
     `Full file lists: proof-or-stop reviewer_list --storyId=${storyId} --json`,
-    `Outside this repair: ${roster.activeReviewers.filter(row => !lanes.includes(row.lane)).map(row => row.lane).join(', ') || '(none)'}`,
+    ...(roster.selection.selection === 'lane-merge' && roster.selection.laneMerge
+      ? [`Merged into the ${roster.selection.laneMerge.carrier ?? '?'} session: ${roster.selection.laneMerge.mergedLanes.join(', ')}`] : []),
+    `Outside this repair: ${roster.activeReviewers.filter(row => !lanes.includes(row.lane)
+      && !(roster.selection.selection === 'lane-merge' && roster.selection.laneMerge?.mergedLanes.includes(row.lane))).map(row => row.lane).join(', ') || '(none)'}`,
     `Next: proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"${lanes[0]}"}'`,
   ].join('\n');
 }

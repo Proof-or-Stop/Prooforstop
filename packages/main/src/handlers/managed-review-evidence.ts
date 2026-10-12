@@ -1,5 +1,6 @@
 import { DELTA_ROUND_GAP_EVENT, DELTA_ROUND_REVERIFIED_EVENT } from '../core/review-delta-round.js';
 import { evaluateDeltaConfirmation } from '../core/review-delta-confirmation.js';
+import { checkLaneMergeNote, findingDimension, LANE_MERGE_COVERAGE_EVENT } from '../core/review-lane-merge.js';
 import { readFileSync } from 'node:fs';
 import { readMaterialDirtyFiles } from '../core/evidence-freshness.js';
 import { isManagedInventoryCritic } from '../core/managed-inventory-critic.js';
@@ -500,6 +501,49 @@ export function createManagedReviewEvidenceHandlers(
           }
         }
       }
+      // EXPERIMENTAL A/B review.laneMerge=on (core/review-lane-merge.ts): the round's ONE merged
+      // session never passes a dimension it did not cover. Its coverage is recorded once per
+      // receipt (before any evidence persists); an uncovered dimension runs as its own lane (in
+      // this round after a pass, in the next round after findings, no late lane now); a pass that
+      // left the carrier's own dimension uncovered is not imported and never proposed again.
+      // Off: no laneMerge binding, no change.
+      let laneMergeHint = '';
+      const mergeBinding = managedRun.reviewBinding?.laneMerge;
+      if (mergeBinding?.role === 'merged' && proposal.inventoryCritic === undefined) {
+        const recorded = ctx.store.readProcessEvents(proposal.storyId).find(event => event.type === LANE_MERGE_COVERAGE_EVENT
+          && event.managedRunId === runId && event.managedReceiptId === receiptId) as { missingLanes?: unknown; carrierMissing?: unknown } | undefined;
+        if (recorded || !hasPersistedReceiptEvidence) {
+          const coverage = checkLaneMergeNote({ binding: mergeBinding, note: proposal.note ?? '' });
+          const missingLanes = recorded ? (Array.isArray(recorded.missingLanes) ? recorded.missingLanes.map(String) : []) : coverage.missingLanes;
+          const carrierMissing = recorded ? recorded.carrierMissing === true : coverage.carrierMissing;
+          if (!recorded) {
+            ctx.store.appendProcessEvent(proposal.storyId, { type: LANE_MERGE_COVERAGE_EVENT, storyId: proposal.storyId, command: 'managed_review_evidence_import',
+              role: 'framework', agent: proposal.lane, result: coverage.missingLanes.length ? 'gap' : 'covered', managedRunId: runId, managedReceiptId: receiptId,
+              reviewRunId: proposal.reviewRunId, reviewRound: story.currentReviewRound ?? null, conclusion, carrier: mergeBinding.carrier,
+              mergedLanes: mergeBinding.mergedLanes, coveredLanes: coverage.coveredLanes, missingLanes: coverage.missingLanes, missingItems: coverage.missingItems,
+              gaps: coverage.gaps, carrierMissing: coverage.carrierMissing,
+              findingDimensions: split.product.map(row => ({ proposalFindingIndex: row.index, dimension: findingDimension(row.finding.desc) })) });
+          }
+          if (missingLanes.length > 0) {
+            if (conclusion === 'pass' && carrierMissing) {
+              const reason = `lane_merge_carrier_gap: the merged session left its own dimension (${mergeBinding.carrier}) uncovered; uncovered: ${missingLanes.join(', ')}`;
+              if (!refusedManagedReviewImport(ctx.store, proposal.storyId, runId, receiptId)) {
+                ctx.store.appendProcessEvent(proposal.storyId, { type: 'managed_review_import_refused', storyId: proposal.storyId,
+                  command: 'managed_review_evidence_import', role: 'framework', agent: proposal.lane, result: 'refused',
+                  managedRunId: runId, managedReceiptId: receiptId, reviewRunId: proposal.reviewRunId, reason: reason.slice(0, 2000) });
+              }
+              const gapCommitHint = commitReviewResultMetadata({ root: ctx.root, store: ctx.store, storyId: proposal.storyId, reviewRunId: proposal.reviewRunId,
+                reason: 'managed_review_evidence_import', options: { exactStoryArtifactNames: ['process-events.jsonl'] } });
+              return `Merged review session from ${runId} is NOT a pass (A/B review.laneMerge=on; nothing imported): ${reason}.\n`
+                + `Round ${story.currentReviewRound ?? '?'} falls back: every dimension (${mergeBinding.mergedLanes.join(', ')}) reviews as its own lane (process event ${LANE_MERGE_COVERAGE_EVENT}).\n`
+                + `Framework next action: proof-or-stop next --storyId=${proposal.storyId} --run${gapCommitHint}`;
+            }
+            laneMergeHint = conclusion === 'pass'
+              ? `\nMerged review session from ${runId} left dimension(s) ${missingLanes.join(', ')} uncovered (A/B review.laneMerge=on): the pass covers only the other dimensions; each uncovered dimension is relaunched as its own lane in this round (process event ${LANE_MERGE_COVERAGE_EVENT}). Framework next action: proof-or-stop next --storyId=${proposal.storyId} --run`
+              : `\nMerged review session from ${runId} reported findings but left dimension(s) ${missingLanes.join(', ')} uncovered (A/B review.laneMerge=on): its findings are imported; the next review round runs each uncovered dimension as its own lane (process event ${LANE_MERGE_COVERAGE_EVENT}).`;
+          }
+        }
+      }
       const lockDir = ctx.store.runtimeLockDirPath(proposal.storyId, 'managed-review-evidence', receiptId.replace(/[^A-Za-z0-9._-]/g, '_'));
       // The receipt lock makes replay of one receipt idempotent. A second,
       // story-level lock is still required because distinct receipts allocate
@@ -845,6 +889,6 @@ export function createManagedReviewEvidenceHandlers(
       const metadataHint = split.metadata.length > 0
         ? `\nReclassified ${split.metadata.length} Story-metadata finding(s) from ${proposal.lane} as owner checklist corrections (not findings; logged as ${METADATA_FINDING_RECLASSIFIED_EVENT}); next names the one checklist_update.`
         : '';
-      return `${summary}${reclassifiedHint}${metadataHint}${deltaGapHint}${recurrenceHint}${criticHint ? `\n${criticHint}` : ''}${commitHint}${criticCommitHint}`;
+      return `${summary}${reclassifiedHint}${metadataHint}${deltaGapHint}${laneMergeHint}${recurrenceHint}${criticHint ? `\n${criticHint}` : ''}${commitHint}${criticCommitHint}`;
   }
 }
