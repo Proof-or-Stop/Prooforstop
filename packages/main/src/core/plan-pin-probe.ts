@@ -151,6 +151,8 @@ export function baseDisagreement(probe: Pick<ProbeCase, 'pinned'>, observations:
 /** Shared leading text (whitespace collapsed) that makes two error messages one message family. */
 const MIN_ERROR_FAMILY = 12;
 const spaced = (text: string): string => text.replace(/\s+/g, ' ').trim();
+/** The message without a runner's leading decoration (e.g. `&{`, `: `), for the family comparison. */
+const messageOf = (text: string): string => spaced(text).replace(/^[^\p{L}\p{N}]+/u, '');
 const firstLine = (text: string): string => (text.split('\n').find(line => line.trim()) ?? '').trim();
 
 /**
@@ -165,9 +167,9 @@ function baseErrorDisagreement(probe: Pick<ProbeCase, 'pinned'>, observations: R
   if (probe.pinned.kind === 'value') return null;
   const errors = observations.filter((row): row is ProbeObservation => Boolean(row) && row!.status === 'error');
   if (!errors.length || errors.some(row => matchesPin(row, probe.pinned) === true)) return null;
-  const pin = spaced(probe.pinned.text);
+  const pin = messageOf(probe.pinned.text);
   const family = errors.map(row => firstLine(row.text)).find(line => {
-    const text = spaced(line);
+    const text = messageOf(line);
     let shared = 0;
     while (shared < text.length && shared < pin.length && text[shared] === pin[shared]) shared += 1;
     return shared >= MIN_ERROR_FAMILY;
