@@ -380,7 +380,8 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   // Lab request-probes (2026-10-09): checklist_update done runs the framework probe rows first (core/request-probes.ts); repinned.
   // Lab metadata-findings (2026-10-09): checklist_update metadataCorrection (verified Story-metadata correction, REVIEW in place), plan acceptance no-op refusal; repinned.
   // Lab run44-fixes (2026-10-10): an applied metadata correction is journaled (metadata_correction_applied); the REVIEW intent-row refusal points at next --run; repinned.
-  'packages/main/src/handlers/checklist.ts': 'fbd665785ec7fe2438b8fa4363ead7784c59f5e3f9e1df8eb744d3e6e4746c55',
+  // Lab run58-fixes (2026-10-12): a PLAN pin keeps a done item whose pinned tests pass (core/pin-amendment.ts), [pin_reversal_unstated]; repinned.
+  'packages/main/src/handlers/checklist.ts': 'bfc6e13659f63e5d252046d09959aa8c623d9a8dc9e75de42df828db8c9bfe1c',
   'packages/main/src/core/maintenance-command-mode.ts': '9c94f1c1a20abf5ed3b93208f5d52e13d63246af12a85612c1e07f99e72258e2',
 });
 

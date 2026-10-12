@@ -3852,7 +3852,7 @@ export function createChecklistHandlers(ctx: HandlerContext & { verificationComm
             const rows = VERIFICATION_LANES.flatMap(lane => other.verificationIntent?.[lane] ?? []);
             const text = [other.context ?? '', other.userSees ?? '', ...rows.flatMap(row => [row.desc, row.derivation?.computation ?? ''])].join('\n');
             if (!mention.test(text)) continue;
-            const keptOther = kept(other);
+            const keptOther = keptSelf ? kept(other) : null; // a dependent stays done only when the amended item itself stayed done
             if (keptOther) { results.push(`${other.id} status kept done (depends on ${item.id}; ${keptOther})`); continue; }
             reset(other, `depends on ${item.id} (its context/userSees/intent names ${item.id}), whose ${changed} was amended in PLAN (auto reset to pending)`);
             results.push(`${other.id} status done → pending (auto: depends on ${item.id})`);
