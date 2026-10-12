@@ -178,6 +178,23 @@ await check('M1 the merged plan review prompt block and its scope-check record e
   assert.deepEqual(record(on), { planReview: 'merged', abVariant: { schema: 'proof-or-stop.ab-variants.v1', flags: { 'plan.reviewMerge': 'on' } } });
 });
 
+await check('M2 with plan.reviewMerge=on and no INIT review on record, INIT_CHECK cannot skip PLAN (the plan review runs only in PLAN)', async () => {
+  const { StoryStore } = await import(new URL('../core/store.js', import.meta.url).href) as { StoryStore: new (root: string) => any };
+  const machine = await import(new URL('../core/machine.js', import.meta.url).href) as { getGuardFailureReason: Fn };
+  const reasonFor = (config: unknown): string => {
+    const root = project(config);
+    const store = new StoryStore(root);
+    const now = new Date().toISOString();
+    store.writeStory('B-0f01', { storyId: 'B-0f01', name: 'toy', title: 'Toy change', description: 'A toy change.', type: 'bug', phase: 'INIT_CHECK',
+      priority: 'medium', createdAt: now, startedAt: now, endedAt: null, events: [] });
+    store.writeChecklist('B-0f01', { items: [{ id: 'CHK-001', title: 'Toy item', context: 'toy context', userSees: 'the toy prints ok', status: 'pending',
+      startTime: null, endTime: null, files: { modify: ['a.txt'], create: [], test: [] }, verificationIntent: { happy: [row('f(1) -> 2')], edge: [], adversarial: [] } }] });
+    return String(machine.getGuardFailureReason('B-0f01', store, 'DEV', root) ?? '');
+  };
+  assert.match(reasonFor({ plan: { reviewMerge: 'on' } }), /Cannot skip PLAN:[\s\S]*merged plan review/, 'the express channel would skip the only plan review');
+  assert.doesNotMatch(reasonFor({}), /merged plan review/, 'switch absent: the express channel rules are unchanged');
+});
+
 for (const dir of dirs) rmSync(dir, { recursive: true, force: true });
 if (failures.length) {
   console.log(`plan-light-smoke: FAIL (${failures.length}): ${failures.join('; ')}`);

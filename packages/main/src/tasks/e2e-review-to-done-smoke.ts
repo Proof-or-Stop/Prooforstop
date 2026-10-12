@@ -4756,6 +4756,11 @@ function scenarioNRB(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     assert.equal(after, before - 3, '[NRB] the trim drops exactly the repeated rows');
     const kept = JSON.stringify(new StoryStore(o.root).readChecklist(o.storyId).items[0]!.verificationIntent);
     for (const desc of ['Upper(\\"ab\\") -> \\"AB\\"', 'Upper(\\"\\") -> \\"\\"', 'Upper(\\"é\\") -> \\"É\\"']) assert.ok(kept.includes(desc), `[NRB] ${desc} (request literal / other class) stays`);
+    const evidence = join(o.root, '.proof-or-stop', 'runtime', 'plan-row-budget', `${o.storyId}.jsonl`);
+    assert.ok(existsSync(evidence), '[NRB] the row budget is recorded with its A/B evidence');
+    const recorded = readFileSync(evidence, 'utf8').trim().split('\n').map(line => JSON.parse(line) as { at: string; rows: number; extras: string[]; abVariant?: { flags?: Record<string, string> } });
+    assert.deepEqual([recorded[0]!.at, recorded[0]!.rows, recorded[0]!.extras.length], ['story_create', before, 3], '[NRB] story_create records rows and extras');
+    assert.deepEqual(recorded[0]!.abVariant?.flags, { 'plan.rowBudget': 'on' }, '[NRB] abVariantEvidence recorded');
     lines.push(`intent rows: ${before} -> ${after} after the advisory trim (switch off: ${offRows}, no note)`);
     o.cleanup();
     return { name, status: 'PASS', lines };
