@@ -43,7 +43,19 @@ import type { ManagedInventoryCriticCoverage } from './managed-inventory-critic.
 import { verifyReviewRun } from './review-run.js';
 import { isMaterialExcludedPath } from './material-path-policy.js';
 import { earlierCandidateRuns, isCodeReviewLaneRun, isEarlierReviewRound, previousCandidateLaneRun } from './review-round-order.js';
+import { findingSites } from './finding-preexisting.js';
 import { resolveReviewLanePack, type ReviewLanePack } from './review-lane-pack.js';
+import { renderDeltaConfirmationBlock, type DeltaRoundPlan } from './review-delta-round.js';
+
+/**
+ * EXPERIMENTAL A/B review.deltaRounds=on (core/review-delta-round.ts): the lane's
+ * role in the current delta round, decided by host_run from the signed roster
+ * selection and passed here so the sealed prompt (and its digest) carry it.
+ */
+export interface ManagedDeltaRoundPrompt {
+  plan: DeltaRoundPlan;
+  role: 'confirmation' | 'full';
+}
 
 export interface ManagedReviewEvidenceVerification {
   valid: boolean;
@@ -854,8 +866,15 @@ function oneLine(text: string, max: number): string {
  * so runs on the current HEAD cannot change the prompt or its digest. A lane's
  * first review, and a relaunch whose only earlier runs share its HEAD, get none.
  */
-function renderManagedReviewerRereview(root: string, run: ReviewRun, lanePack: ReviewLanePack | null = null): string[] {
+function renderManagedReviewerRereview(root: string, run: ReviewRun, lanePack: ReviewLanePack | null = null, deltaRound: ManagedDeltaRoundPrompt | null = null): string[] {
   if (!isCodeReviewLaneRun(run)) return [];
+  if (deltaRound?.role === 'confirmation') {
+    // The ONE confirmation lane of a delta round: its block replaces the ordinary re-review block.
+    const plan = deltaRound.plan;
+    const gitCwd = run.workspaceBinding?.signedWorkspaceRoot ?? root;
+    return renderDeltaConfirmationBlock(plan, run.storyId, plan.fromHead ? renderManagedRereviewDiff(gitCwd, root, plan.fromHead, run.headHash) : []);
+  }
+  const deltaFull = deltaRound?.role === 'full';
   const store = new StoryStore(root);
   const runs = store.readReviewRuns(run.storyId).runs;
   const previous = previousCandidateLaneRun(runs, run);
@@ -873,7 +892,9 @@ function renderManagedReviewerRereview(root: string, run: ReviewRun, lanePack: R
   // delta; the lane starts there but still reviews the whole Story. Off (no delta in the pack) = unchanged.
   const delta = lanePack?.delta ?? null;
   const scope = variants.round2Scope === 'repaired-files' ? repairedFilesReviewScope(gitCwd, root, previous.headHash, run.headHash) : null;
-  const abLines = [
+  const abLines = deltaFull ? [
+    `A/B variant review.deltaRounds=on (experimental): this is a delta round and your lane raised findings on the previous candidate, so you re-review the WHOLE Story again${variants.round2Lanes === 'fresh' ? ' in a FRESH session (your earlier review thread is not resumed)' : ''}: confirm each listed finding first, then review the whole Story diff as in a first review. The other lanes' concerns are covered on the repair by one confirmation lane (${(deltaRound!.plan.replacedLanes).map(lane => lane.replace('proof-or-stop-review-', '')).join(', ')}).`,
+  ] : [
     ...(variants.round2Lanes === 'fresh' ? [delta
       ? 'This is a FRESH session: your earlier review thread is not resumed. A/B variant review.roundDelta=pack (experimental): start from the delta in the REVIEW LANE PACK above (the repair diff, the findings raised on earlier candidates and their resolutions), then review the whole Story; the delta is where to look first, not where to stop.'
       : 'This is a FRESH session: your earlier review thread is not resumed. Do not re-review the whole Story: focus on the findings raised on earlier candidates and on the repair diff below, reading other code only where the diff depends on it.',
@@ -894,14 +915,14 @@ function renderManagedReviewerRereview(root: string, run: ReviewRun, lanePack: R
     '2. Then review the code changed since the previous review and the direct callers of changed code.',
     '3. Apply variant analysis: for each problem, search the changed files and the direct callers of changed code for the same pattern, and report one finding that names every location.',
     '4. Report every blocking problem in this one pass; do not hold problems back for a later review.',
-    delta
+    delta || deltaFull
       ? '5. Then review the whole Story diff as in a first review: code outside the repair diff can hold defects earlier candidates missed.'
       : '5. Code outside the diff was reviewed on earlier candidates. Re-read it only where the diff depends on it.',
     '6. Re-check earlier conclusions against the new code rather than assuming them.',
     'The managed review evidence protocol above is unchanged: submit exactly one final proposal with truthful read evidence for this run.',
     `Findings raised on earlier candidates (${findings.length}):`,
     ...(findings.length === 0 ? ['- none'] : findings.map(finding =>
-      `- ${finding.id} [severity=${finding.severity}, status=${finding.status}${finding.agent ? `, lane=${finding.agent}` : ''}] ${oneLine(finding.desc ?? '', MANAGED_REREVIEW_FINDING_DESC_MAX_CHARS)}`)),
+      `- ${finding.id} [severity=${finding.severity}, status=${finding.status}${finding.status === 'resolved' && finding.resolutionType ? ` (${finding.resolutionType})` : ''}${finding.agent ? `, lane=${finding.agent}` : ''}] ${oneLine(finding.desc ?? '', MANAGED_REREVIEW_FINDING_DESC_MAX_CHARS)}`)),
     `Repair since the previous review: git diff ${previous.headHash}..${run.headHash}, material paths only.`,
     ...(delta && delta.fromHead === previous.headHash && delta.toHead === run.headHash && delta.diffComplete
       ? ['The repair diff is in the REVIEW LANE PACK above (delta section, same range); it is not repeated here.']
@@ -909,6 +930,43 @@ function renderManagedReviewerRereview(root: string, run: ReviewRun, lanePack: R
     '--- END MANAGED RE-REVIEW SINCE PREVIOUS CANDIDATE ---',
   ];
 }
+
+/**
+ * Old-PoS run 52 (bench-staging/oldpos/run52-analysis.md §4; run 48 cycle C):
+ * one pre-existing documentation defect was re-filed by four lanes in four
+ * rounds because a later lane saw it only as "status=resolved" and, asked to
+ * confirm whether each earlier finding is fixed, found it still present (it is
+ * pre-existing and outside the Story by design). A code-review lane of a later
+ * round gets the dispositioned sites of earlier rounds with the instruction not
+ * to re-file them unless the Story changed them. Only findings of EARLIER
+ * rounds count, so nothing that happens during this round changes the prompt.
+ */
+export function renderDispositionedPreexistingSites(root: string, run: ReviewRun): string[] {
+  if (!isCodeReviewLaneRun(run)) return [];
+  let findings: Finding[] = [];
+  try { findings = new StoryStore(root).readFindings(run.storyId).findings ?? []; } catch { return []; }
+  const listed = new Set<string>();
+  const lines: string[] = [];
+  for (const finding of findings
+    .filter(row => row.status === 'resolved' && row.resolutionType === 'preexisting_out_of_scope'
+      && typeof row.reviewRound === 'string' && isEarlierReviewRound(row.reviewRound, run.reviewRound))
+    .sort((a, b) => a.id.localeCompare(b.id))) {
+    const sites = findingSites(finding).defects.map(anchor => `${anchor.path}:${anchor.line}${anchor.endLine > anchor.line ? `-${anchor.endLine}` : ''}`);
+    const fresh = sites.filter(site => !listed.has(site));
+    if (fresh.length === 0) continue;
+    fresh.forEach(site => listed.add(site));
+    lines.push(`- ${fresh.join(', ')} (${finding.id}): ${oneLine(finding.desc ?? '', DISPOSITIONED_SITE_DESC_MAX_CHARS)}`);
+  }
+  if (lines.length === 0) return [];
+  return [
+    '--- BEGIN DISPOSITIONED PRE-EXISTING SITES ---',
+    'These defect sites already exist unchanged at the Story base, lie outside this Story\'s request and scope, and were dispositioned preexisting_out_of_scope with a recorded follow-up. They are already dispositioned: do not re-file them unless this Story changed that site (then it is the Story\'s own defect: report it as usual). A finding that re-files an unchanged dispositioned site is closed by the framework as a recurrence of the disposition; it is not a review result.',
+    ...lines,
+    '--- END DISPOSITIONED PRE-EXISTING SITES ---',
+  ];
+}
+
+const DISPOSITIONED_SITE_DESC_MAX_CHARS = 160;
 
 /**
  * EXPERIMENTAL A/B review.lanePack / review.roundDelta (core/review-lane-pack.ts):
@@ -929,6 +987,7 @@ export function buildManagedReviewerPrompt(
   run: ReviewRun,
   canonicalReportStatuses?: readonly ManagedReviewCanonicalReportStatus[],
   fullScanBinding?: ManagedReviewFullScanBinding,
+  deltaRound?: ManagedDeltaRoundPrompt | null,
 ): string {
   const binding = JSON.stringify({
     storyId: run.storyId,
@@ -943,7 +1002,8 @@ export function buildManagedReviewerPrompt(
     agentType: run.lane,
   }));
   const lanePack = managedReviewLanePack(root, run);
-  const rereview = renderManagedReviewerRereview(root, run, lanePack);
+  const rereview = renderManagedReviewerRereview(root, run, lanePack, deltaRound ?? null);
+  const dispositioned = renderDispositionedPreexistingSites(root, run);
   return [
     '--- BEGIN MANAGED REVIEW EVIDENCE PROTOCOL ---',
     `This provider run is already bound to ${binding}.`,
@@ -993,6 +1053,7 @@ export function buildManagedReviewerPrompt(
     ...(fullScanBinding ? ['', ...renderManagedReviewerFullScanBinding(fullScanBinding)] : []),
     ...(lanePack ? ['', ...lanePack.lines] : []),
     ...(rereview.length > 0 ? ['', ...rereview] : []),
+    ...(dispositioned.length > 0 ? ['', ...dispositioned] : []),
     ...(run.reviewPurpose === 'inventory-completeness' ? [
       '', ...MANAGED_INVENTORY_CRITIC_PROTOCOL,
       ...renderManagedInventoryCriticEvidencePack(root, run),
@@ -1005,8 +1066,9 @@ export function managedReviewerPromptDigest(
   run: ReviewRun,
   canonicalReportStatuses?: readonly ManagedReviewCanonicalReportStatus[],
   fullScanBinding?: ManagedReviewFullScanBinding,
+  deltaRound?: ManagedDeltaRoundPrompt | null,
 ): string {
-  return sha256(buildManagedReviewerPrompt(root, run, canonicalReportStatuses, fullScanBinding));
+  return sha256(buildManagedReviewerPrompt(root, run, canonicalReportStatuses, fullScanBinding, deltaRound));
 }
 
 function failedDiagnostic(): ProofAdmissibilityDiagnostic {

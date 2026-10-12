@@ -21,6 +21,10 @@
  *                                        (Story diff, checklist digest, changed files + hashes, candidate route), cached in runtime
  *   V9 review.roundDelta=pack           from round 2 on the pack also carries the delta since the previous round's head
  *                                        (repair commits + diff, earlier findings and their resolutions)
+ *   V10 review.deltaRounds=on          a REVIEW round N>=2 after a remediation re-reviews only the repair: the lanes that raised
+ *                                        findings re-review in full, the others are replaced by ONE confirmation lane; the critic
+ *                                        is skipped on such a round with no finding (core/review-delta-round.ts; plan, scope and
+ *                                        fallbacks in tasks/review-delta-round-smoke.ts, end to end in ND-DR*)
  *   Old-PoS run 43 (default ON, `off` = recorded rollback; behaviour in tasks/run43-fixes-smoke.ts S / P):
  *   review.siblingParity             the test-coverage and quality lane prompts carry the sibling-parity check
  *   plan.exclusionRationaleCheck     an excludes entry may not close a scope row whose behaviour another item changes
@@ -59,7 +63,9 @@ await check('config: absent switches resolve to production values; malformed fai
     // Old-PoS run 43: the two detection switches default on; `off` is the recorded rollback.
     siblingParity: 'on', exclusionRationaleCheck: 'on',
     // Old-PoS run 46: the base-disagreement check defaults on.
-    baseDisagreement: 'on' });
+    baseDisagreement: 'on',
+    // EXPERIMENTAL delta review rounds (lab codex/lab-delta-review): off by default.
+    deltaRounds: 'off' });
   assert.equal(abVariantEvidence(off), undefined);
   assert.equal(abVariantEvidence(resolveAbVariants({ review: { siblingParity: 'on' }, plan: { exclusionRationaleCheck: 'on' } })), undefined, 'the default-on arms are production: not recorded');
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ review: { siblingParity: 'off' }, plan: { exclusionRationaleCheck: 'off' } })),
@@ -451,6 +457,30 @@ await check('V9 review.roundDelta=pack: round 1 = no delta; round 2+ = delta (re
   assert.doesNotMatch(onlyPack.lines.join('\n'), /## Story diff/, 'lanePack off: no shared sections');
   const onlyR1 = lanePackFixture({ review: { roundDelta: 'pack' } });
   assert.equal(resolveReviewLanePack(onlyR1.repo, { storyId: 'B-8', reviewRunId: 'B-8:RR-002', lane: 'proof-or-stop-review-behavior', startedAt: '2026-10-09T00:00:02.000Z', headHash: onlyR1.head, materialHash: 'm1', reviewRound: '2026-10-09T00:00:00.000Z' }, { store: onlyR1.store }), null, 'roundDelta alone in round 1: no pack');
+});
+
+await check('V10 review.deltaRounds: off/malformed = no delta round and no delta critic skip; on = recorded arm, clean delta-round wave skips the critic, replay refuses once the flag is removed', async () => {
+  const { resolveAbVariants, abVariantEvidence, deltaRoundsOn } = await load('core/ab-variants.js');
+  assert.equal(resolveAbVariants({}).deltaRounds, 'off');
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ review: { deltaRounds: 'on' } })), { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.deltaRounds': 'on' } });
+  assert.equal(abVariantEvidence(resolveAbVariants({ review: { deltaRounds: 'off' } })), undefined, 'off is production: not recorded');
+  assert.throws(() => resolveAbVariants({ review: { deltaRounds: 'yes' } }), /invalid_ab_variant_config: review\.deltaRounds/);
+  assert.equal(deltaRoundsOn({ review: { deltaRounds: 'yes' } }), false, 'malformed keeps production where it is consumed');
+  assert.equal(deltaRoundsOn({ review: { deltaRounds: 'on' } }), true);
+  const { cleanRoundCriticSkip, criticSkipReplayError } = await load('core/review-inventory-critic-skip.js');
+  const deltaEpoch = { ...epoch, rosterBasis: JSON.stringify({ kind: 'delta-round', planDigest: 'a'.repeat(64) }) };
+  const on = projectWith({ review: { deltaRounds: 'on' } });
+  assert.equal(cleanRoundCriticSkip(OFF(), deltaEpoch, cleanEvaluation()), undefined, 'flag off: critic required');
+  assert.equal(cleanRoundCriticSkip(projectWith({ review: { deltaRounds: 'bogus' } }), deltaEpoch, cleanEvaluation()), undefined, 'malformed: critic required');
+  assert.equal(cleanRoundCriticSkip(on, epoch, cleanEvaluation()), undefined, 'not a delta-round epoch: critic required');
+  const skip = cleanRoundCriticSkip(on, deltaEpoch, cleanEvaluation());
+  assert.ok(skip, 'delta-round epoch + clean first wave: skip');
+  assert.match(skip.reason, /review\.deltaRounds=on/);
+  assert.equal(skip.abVariant.flags['review.deltaRounds'], 'on');
+  assert.equal(cleanRoundCriticSkip(on, deltaEpoch, { ...cleanEvaluation(), lanes: [lane('a'), lane('b', 'finding')] }), undefined, 'a finding (a new finding of the round): critic runs');
+  assert.equal(criticSkipReplayError(on, deltaEpoch, skip, cleanEvaluation()), undefined, 'replay accepts while flag set, epoch delta and wave clean');
+  assert.match(criticSkipReplayError(OFF(), deltaEpoch, skip, cleanEvaluation()) ?? '', /no longer set/, 'replay refuses once the flag is removed');
+  assert.match(criticSkipReplayError(on, epoch, skip, cleanEvaluation()) ?? '', /delta/, 'replay refuses a skip on a non-delta epoch');
 });
 
 for (const dir of dirs) rmSync(dir, { recursive: true, force: true });

@@ -367,6 +367,8 @@ export interface ProofOrStopConfig {
     round2Lanes?: 'fresh' | 'resume';
     lanePack?: 'off' | 'shared';
     roundDelta?: 'off' | 'pack';
+    /** EXPERIMENTAL delta review rounds (core/review-delta-round.ts): 'off' default | 'on'. */
+    deltaRounds?: 'off' | 'on';
     /**
      * Delay in ms between the launches of one round's lanes when `next --run`
      * launches them (N2). Absent = 8000 (production default since old-PoS

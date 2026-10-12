@@ -1,5 +1,6 @@
 import { readMaterialDirtyFiles } from '../core/evidence-freshness.js';
 import { cleanRoundCriticSkip } from '../core/review-inventory-critic-skip.js';
+import { DELTA_ROUND_CRITIC_SKIP_REASON, isDeltaRoundRosterBasis } from '../core/review-delta-round.js';
 import { commitReviewEpochMetadata } from '../core/review-metadata-batch.js';
 import { readManagedHostRunBinding, readManagedReviewEvidenceProposal } from '../core/managed-host-run.js';
 import { createManagedReviewEvidenceBinding, managedReviewerPromptDigest, verifyManagedReviewLiveBinding } from '../core/managed-review-evidence.js';
@@ -325,7 +326,7 @@ export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, project
     `Verified finding families: ${live ? reviewInventoryAggregateFamilies(epoch, live).length : (last?.verifiedFindingFamilies.length ?? 0)}`,
     `New verified finding families: ${live?.newFamilies.length ?? last?.newVerifiedFindingCount ?? 0}`,
     ...(live ? [`Current-wave verified observations: ${live.rawFindingIds.length}`] : []),
-    `Completeness critic: ${projection.criticSkipped || last?.criticSkip ? 'skipped (A/B review.criticOnCleanRound=skip, clean round)' : projection.criticComplete ? 'complete' : 'pending'}`,
+    `Completeness critic: ${projection.criticSkipped || last?.criticSkip ? `skipped (${(last?.criticSkip ? last.criticSkip.reason === DELTA_ROUND_CRITIC_SKIP_REASON : isDeltaRoundRosterBasis(epoch.rosterBasis)) ? 'A/B review.deltaRounds=on, delta round with no finding' : 'A/B review.criticOnCleanRound=skip, clean round'})` : projection.criticComplete ? 'complete' : 'pending'}`,
     `Blockers: ${blockers.join(', ') || 'none'}`,
     ...(epoch.invalidation ? [`Changed lineage: ${epoch.invalidation.oldMaterialHash} -> ${epoch.invalidation.currentMaterialHash}`] : []),
     ...(epoch.invalidation?.oldScopeDigest ? [`Changed scope: ${epoch.invalidation.oldScopeDigest} -> ${epoch.invalidation.currentScopeDigest}`] : []),

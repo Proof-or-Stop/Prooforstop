@@ -1,3 +1,4 @@
+import type { DeltaRoundRunBinding } from './review-delta-round.js';
 import { captureHostRunBudgetEnvironment, restoreHostRunBudgetEnvironment } from './host-run-budget.js';
 import { dispatchTargetThreadFresh, resolveAbVariants, type AbVariantEvidence } from './ab-variants.js';
 import { loadConfig } from './config.js';
@@ -298,6 +299,13 @@ export interface ManagedHostRunReviewBinding {
     sections: Record<string, number>;
     deltaFromHead?: string;
   };
+  /**
+   * EXPERIMENTAL A/B review.deltaRounds=on (core/review-delta-round.ts): the lane's
+   * role in the delta round ('confirmation' | 'full'), the plan digest and, for the
+   * confirmation lane, the check items and resolved findings its note must cover
+   * (managed_review_evidence_import checks them and re-runs the named tests).
+   */
+  deltaRound?: DeltaRoundRunBinding;
 }
 
 export interface ManagedReviewCandidateRoutingBinding {
@@ -5691,7 +5699,10 @@ export function managedHostRunStoryIdForOwnership(root: string, runId: string): 
   return typeof spec.storyId === 'string' && spec.storyId.trim().length > 0 ? spec.storyId.trim() : null;
 }
 
-type ManagedReviewFinalProposalInput = Omit<ManagedReviewEvidenceProposal, 'schemaVersion' | 'runId' | 'authoredAt'>;
+export type ManagedReviewFinalProposalInput = Omit<ManagedReviewEvidenceProposal, 'schemaVersion' | 'runId' | 'authoredAt'> & {
+  /** Old-PoS run 52: a findings envelope's note, kept only for a delta-round confirmation lane (never sealed otherwise). */
+  diagnosticNote?: string;
+};
 
 function readValidManagedReviewEvidenceProposal(
   root: string,
@@ -5716,7 +5727,8 @@ function readValidManagedReviewEvidenceProposal(
         return null;
       }
     } else if (proposal.conclusion === 'findings') {
-      if (typeof proposal.note === 'string' && proposal.note.trim().length > 0
+      // Old-PoS run 52: only a delta-round confirmation lane's findings proposal carries its (diagnostic) note.
+      if (typeof proposal.note === 'string' && proposal.note.trim().length > 0 && spec.reviewBinding?.deltaRound?.role !== 'confirmation'
         || !Array.isArray(proposal.findings)
         || proposal.findings.length === 0
         || !proposal.findings.every(isStrictManagedReviewFindingProposal)) {
@@ -5927,6 +5939,8 @@ function parseManagedReviewFinalProposal(result: HostRunResult): ManagedReviewFi
     conclusion,
     ...(conclusion === 'pass' ? { note: envelope.note as string | undefined } : {
       findings: envelope.findings as ManagedReviewEvidenceFindingProposal[] | undefined,
+      // Old-PoS run 52: carried as diagnostic input only; the proposal keeps it for a delta-round confirmation lane.
+      ...(typeof envelope.note === 'string' ? { diagnosticNote: envelope.note } : {}),
     }),
     ...(envelope.inventoryCritic !== undefined ? { inventoryCritic: envelope.inventoryCritic } : {}),
     readManifest: envelope.readManifest as ReviewerReadManifest,
@@ -5970,7 +5984,7 @@ function providerRoutingDigests(readManifest: unknown): { candidateSpecSetDigest
 export function writeManagedReviewEvidenceProposal(args: {
   root: string;
   runId: string;
-  proposal: Omit<ManagedReviewEvidenceProposal, 'schemaVersion' | 'runId' | 'authoredAt'>;
+  proposal: ManagedReviewFinalProposalInput;
   environment?: NodeJS.ProcessEnv;
   providerInvocationPid?: number;
   providerInvocationAttestation?: ManagedReviewProposalInvocationAttestation;
@@ -6045,6 +6059,11 @@ export function writeManagedReviewEvidenceProposal(args: {
   const conclusion = args.proposal.conclusion;
   const findings = args.proposal.findings ?? [];
   const note = args.proposal.note?.trim() ?? '';
+  // Old-PoS run 52 (run52-analysis.md §3 D1): the ONE confirmation lane of an EXPERIMENTAL review.deltaRounds
+  // round must show its [checked]/[reverified] lines for a findings verdict too, so its findings proposal keeps
+  // the final envelope's note (diagnostic: never finding evidence; core/review-delta-confirmation.ts reads it).
+  const confirmationNote = conclusion === 'findings' && spec.reviewBinding.deltaRound?.role === 'confirmation'
+    ? (args.proposal.note ?? args.proposal.diagnosticNote ?? '').trim() : '';
   if (conclusion === 'pass') {
     if (note.length < 10 || findings.length > 0) {
       throw new Error('managed_review_proposal_set: pass requires note >= 10 chars and no findings');
@@ -6085,7 +6104,7 @@ export function writeManagedReviewEvidenceProposal(args: {
     reviewRunId: spec.reviewRunId,
     authoredAt: new Date().toISOString(),
     conclusion,
-    ...(conclusion === 'pass' ? { note } : { findings: normalizedFindings }),
+    ...(conclusion === 'pass' ? { note } : { findings: normalizedFindings, ...(confirmationNote ? { note: confirmationNote } : {}) }),
     ...(args.proposal.inventoryCritic !== undefined ? { inventoryCritic: structuredClone(args.proposal.inventoryCritic) } : {}),
     readManifest: normalizeReviewerReadManifest(readManifestInput),
     readLog: normalizeReviewerReadLogEvidence(args.proposal.readLog),

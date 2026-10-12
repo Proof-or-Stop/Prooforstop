@@ -80,6 +80,7 @@ import {
 } from './review-inventory-epoch.js';
 import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 import { resolveStoryIntegrationTarget } from './story-integration-target.js';
+import type { DeltaRoundPlan } from './review-delta-round.js';
 
 export const POST_REMEDIATION_REVIEW_POLICY_VERSION = 'proof-or-stop.post-remediation-review-selection.v2' as const;
 
@@ -101,7 +102,9 @@ export type PostRemediationSelectionReason =
   | 'DEPENDENCY_CLOSURE_INCOMPLETE'
   | 'EMPTY_IMPACT_SELECTION'
   | 'OPEN_FINDINGS_REQUIRE_FULL_SET'
-  | 'SOURCE_ROSTER_INCOMPLETE';
+  | 'SOURCE_ROSTER_INCOMPLETE'
+  /** EXPERIMENTAL A/B review.deltaRounds=on (core/review-delta-round.ts): the delta round's lanes. */
+  | 'DELTA_ROUND';
 
 export interface PostRemediationReviewSelection {
   schemaVersion: typeof POST_REMEDIATION_REVIEW_POLICY_VERSION;
@@ -115,7 +118,7 @@ export interface PostRemediationReviewSelection {
   sourceHeadHash: string | null;
   activeLanes: string[];
   selectedLanes: string[];
-  selection: 'dependency-closure' | 'full-set';
+  selection: 'dependency-closure' | 'full-set' | 'delta-round';
   reason: PostRemediationSelectionReason;
   reasonDetail: string;
   changedFiles: string[];
@@ -124,6 +127,12 @@ export interface PostRemediationReviewSelection {
   openFindingDigest: string;
   requiredHostAssurance: 'unchanged';
   policyVersion: typeof POST_REMEDIATION_REVIEW_POLICY_VERSION;
+  /**
+   * EXPERIMENTAL A/B review.deltaRounds=on only (absent with the switch off): the
+   * delta-round plan of the current round (handlers/reviewer-list.ts). Eligible =
+   * selection 'delta-round'; ineligible = the full set with the fallback reason.
+   */
+  deltaRound?: DeltaRoundPlan;
   _hash: string;
 }
 
@@ -279,7 +288,7 @@ export function computeCanonicalDependencyClosure(
   return { complete: true, files: [...closure].sort() };
 }
 
-function signPostRemediationSelection(
+export function signPostRemediationSelection(
   selection: Omit<PostRemediationReviewSelection, '_hash'>,
 ): PostRemediationReviewSelection {
   return {

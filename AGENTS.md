@@ -819,6 +819,25 @@ the diff adds or changes, a probe per operand case its sibling paths (matching
 read / write, other receiver types, the pre-existing variant) special-case; an
 unstated difference is a finding citing both paths.
 
+Delta review rounds (EXPERIMENTAL A/B `review.deltaRounds`, default off; lab
+`codex/lab-delta-review`, `core/review-delta-round.ts`): with it on, a REVIEW
+round after a remediation re-reviews only the repair. The lanes that raised
+findings last round re-review the whole Story; every other lane is replaced by
+ONE confirmation lane whose prompt lists their concerns and the repair scope
+(hunks, enclosing definitions, same-file callers/callees). Its note needs a
+`[checked]` line per item and a `[reverified] <finding> :: <command> :: <output
+line>` per resolved finding (the framework re-runs it); a `[gap]` on a check item,
+an unchecked item or a failing re-run is not a pass and the round falls back to
+a full round. A confirmation lane that finds something keeps its note too (old-PoS
+run 52): complete coverage lines are no gap; with a gap its findings import, no
+lane is launched late, and the next round is a full round. A lane whose last-round
+findings were all closed without a repair (pre-existing, accepted risk,
+duplicate) is replaceable.
+The critic runs only when the round reports a finding; a repair over 50% of the
+Story diff's changed lines or touching a file outside it is a full round. No
+round cap, no severity decay. `reviewer_list --json` shows the plan or the
+fallback reason (`finalReview.selection.deltaRound`).
+
 `reviewer_list --json` reports the current Story's opt-in roster. That roster is
 computed in real time from shared workflow policy plus Story risk signals,
 checklist/decision facts, and documentation touchpoints: concept, quality, and
@@ -911,7 +930,13 @@ records it with a follow-up (severity unchanged; `finding_applicability_assess
 --verdict=pre_existing_unaffected --proposalRef=<finding id>` is the same
 disposition). For a `doc-code-drift:` finding only its documentation anchors are
 defect sites; its code anchors are evidence and must be unchanged at the base
-too, and a cited doc the Story edited keeps it a repair (old-PoS runs 36/37). A repair run that ends without a commit is relaunched once with
+too, and a cited doc the Story edited keeps it a repair (old-PoS runs 36/37).
+A later lane finding that re-files only sites such a disposition already covers
+(still unchanged at the base, outside every Story hunk) is closed by the
+framework at import as a recurrence of it: no owner step, no repair, and a round
+whose only findings are recurrences starts no further round (old-PoS run 52).
+Later-round lane prompts list the dispositioned sites ("do not re-file unless the
+Story changed it"); a site the Story edited or a new site stays a finding. A repair run that ends without a commit is relaunched once with
 its report in the prompt; after a second one `next` returns the Story to PLAN
 (`finding_repair_replan`). Details: `docs/CLI.md` ("Pre-existing findings
 outside the Story"). After DONE, `finding_resolve` and `finding_dismiss` refuse

@@ -29,6 +29,11 @@
  *                              code-review lane and inventory critic prompt (core/review-lane-pack.ts; v41 plan A3)
  *   review.roundDelta          'off' (default) | 'pack'    from round 2 on the pack also carries the delta since the
  *                              previous round's candidate; lanes start there but review the whole Story (v41 plan A4)
+ *   review.deltaRounds         'off' (default) | 'on'      a REVIEW round N>=2 after a remediation re-reviews only the
+ *                              repair: the lanes that raised findings re-review in full, every other lane is replaced
+ *                              by ONE confirmation lane over the repair scope, resolved findings are re-run, the critic
+ *                              runs only when the round reports a finding, a large repair falls back to a full round
+ *                              (core/review-delta-round.ts; structural-cost-analysis.md §7 item 2)
  *
  * Old-PoS run 33 (bench-staging/oldpos/run33-analysis.md §4): the "catch defects
  * earlier" line (runs 30-33) cost about 38 min / 31M tokens per run with no
@@ -84,6 +89,7 @@ export const AB_VARIANT_FLAGS = {
   'implementation.thread': ['resume', 'fresh'],
   'review.lanePack': ['off', 'shared'],
   'review.roundDelta': ['off', 'pack'],
+  'review.deltaRounds': ['off', 'on'],
   'plan.coverageMatrix': ['off', 'on'],
   'plan.scopeDeferral': ['off', 'on'],
   'plan.pinAuditEnforcement': ['off', 'on'],
@@ -98,7 +104,7 @@ export type AbVariantFlag = keyof typeof AB_VARIANT_FLAGS;
 export type AbVariantValue<F extends AbVariantFlag> = (typeof AB_VARIANT_FLAGS)[F][number];
 
 export interface AbVariantConfigSlice {
-  review?: { criticOnCleanRound?: string; round2Scope?: string; round2Lanes?: string; lanePack?: string; roundDelta?: string; siblingParity?: string };
+  review?: { criticOnCleanRound?: string; round2Scope?: string; round2Lanes?: string; lanePack?: string; roundDelta?: string; siblingParity?: string; deltaRounds?: string };
   remediation?: { grouping?: string; thread?: string };
   implementation?: { grouping?: string; thread?: string; probeMatrix?: string };
   plan?: { coverageMatrix?: string; scopeDeferral?: string; pinAuditEnforcement?: string; exclusionRationaleCheck?: string; baseDisagreement?: string };
@@ -123,6 +129,7 @@ export interface AbVariants {
   siblingParity: AbVariantValue<'review.siblingParity'>;
   exclusionRationaleCheck: AbVariantValue<'plan.exclusionRationaleCheck'>;
   baseDisagreement: AbVariantValue<'plan.baseDisagreement'>;
+  deltaRounds: AbVariantValue<'review.deltaRounds'>;
 }
 
 export interface AbVariantEvidence {
@@ -166,6 +173,7 @@ export function resolveAbVariants(config: unknown): AbVariants {
     siblingParity: pick('review.siblingParity', review.siblingParity),
     exclusionRationaleCheck: pick('plan.exclusionRationaleCheck', section(config, 'plan').exclusionRationaleCheck),
     baseDisagreement: pick('plan.baseDisagreement', section(config, 'plan').baseDisagreement),
+    deltaRounds: pick('review.deltaRounds', review.deltaRounds),
   };
 }
 
@@ -189,6 +197,7 @@ export function abVariantEvidence(variants: AbVariants): AbVariantEvidence | und
   if (variants.siblingParity !== 'on') flags['review.siblingParity'] = variants.siblingParity;
   if (variants.exclusionRationaleCheck !== 'on') flags['plan.exclusionRationaleCheck'] = variants.exclusionRationaleCheck;
   if (variants.baseDisagreement !== 'on') flags['plan.baseDisagreement'] = variants.baseDisagreement;
+  if (variants.deltaRounds !== 'off') flags['review.deltaRounds'] = variants.deltaRounds;
   return Object.keys(flags).length ? { schema: AB_VARIANT_EVIDENCE_SCHEMA, flags } : undefined;
 }
 
@@ -202,7 +211,7 @@ export function dispatchTargetThreadFresh(target: { abVariant?: AbVariantEvidenc
 }
 
 /** The single-switch reader of one catch-earlier switch: a malformed value (or an unreadable config) keeps production. */
-function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement'>(config: unknown, flag: F): AbVariantValue<F> {
+function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds'>(config: unknown, flag: F): AbVariantValue<F> {
   const [group, key] = flag.split('.') as [string, string];
   try { return pick(flag, section(config, group)[key]); } catch { return AB_VARIANT_FLAGS[flag][0] as AbVariantValue<F>; }
 }
@@ -223,3 +232,5 @@ export const siblingParityOn = (config: unknown): boolean => catchEarlierPick(co
 export const exclusionRationaleCheckOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.exclusionRationaleCheck') === 'on';
 /** Old-PoS run 46: plan.baseDisagreement (default on) adds the base-disagreement check to the scope-plan reviewer dispatch. */
 export const baseDisagreementOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.baseDisagreement') === 'on';
+/** EXPERIMENTAL review.deltaRounds=on: delta review rounds (core/review-delta-round.ts); malformed = off. */
+export const deltaRoundsOn = (config: unknown): boolean => catchEarlierPick(config, 'review.deltaRounds') === 'on';

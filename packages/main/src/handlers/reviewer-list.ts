@@ -41,10 +41,15 @@ import { behaviorTriggerHits } from '../core/reviewer-opt-in.js';
 import { REVIEW_RUN_LANES, isReviewRunLane } from '../core/review-run.js';
 import { isPromptRoleEligibleForReviewEvidence } from '../core/prompt-role-contract-registry.js';
 import {
+  POST_REMEDIATION_REVIEW_POLICY_VERSION,
   postRemediationReviewSelection,
+  signPostRemediationSelection,
   verifyPostRemediationReviewSelection,
   type PostRemediationReviewSelection,
 } from '../core/review-incremental-context.js';
+import { computeDeltaRoundPlan, deltaRoundRosterBasis, deltaRoundsVariant } from '../core/review-delta-round.js';
+import { verifyReviewInventoryEpoch, verifyReviewInventoryReceipt } from '../core/review-inventory-epoch.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { canonicalAgentRoleId, legacyAgentRoleIds } from '../core/agent-role-identity.js';
 import { readBrandEnv } from '../core/brand-env.js';
 
@@ -245,7 +250,12 @@ export function computeFinalReviewRoster(
   storyId: string,
   activeReviewers: ActiveReviewer[],
 ): FinalReviewRoster {
-  const selection = postRemediationReviewSelection(store, root, storyId, activeReviewers);
+  const proven = postRemediationReviewSelection(store, root, storyId, activeReviewers);
+  // EXPERIMENTAL A/B review.deltaRounds=on (core/review-delta-round.ts): a later round after
+  // a remediation re-reviews only the repair. Never changes a proven dependency-closure
+  // selection, and with the switch off (absent or malformed) the selection is untouched.
+  const selection = proven.selection === 'dependency-closure' && verifyPostRemediationReviewSelection(proven)
+    ? proven : deltaRoundSelection(store, root, storyId, activeReviewers, proven);
   const selected = verifyPostRemediationReviewSelection(selection)
     ? new Set(selection.selectedLanes.map(reviewerLaneShortName))
     : new Set(activeReviewers.map(row => row.name));
@@ -255,6 +265,45 @@ export function computeFinalReviewRoster(
     requiredReviewers: requiredReviewers.length > 0 ? requiredReviewers : activeReviewers,
     selection,
   };
+}
+
+/**
+ * EXPERIMENTAL A/B review.deltaRounds=on: the signed delta-round selection
+ * (selection 'delta-round', the plan's lanes) when the current round is an
+ * eligible delta round; otherwise the full set carrying the plan's fallback
+ * reason. Off (absent / malformed): `base` unchanged, byte for byte.
+ */
+function deltaRoundSelection(
+  store: HandlerContext['store'],
+  root: string,
+  storyId: string,
+  activeReviewers: ActiveReviewer[],
+  base: PostRemediationReviewSelection,
+): PostRemediationReviewSelection {
+  if (!deltaRoundsVariant(root)) return base;
+  const plan = computeDeltaRoundPlan({
+    store, projectRoot: root, storyId,
+    gitCwd: resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root }),
+    activeLanes: base.activeLanes,
+    forcedLanes: activeReviewers.filter(row => row.forced).map(row => canonicalAgentRoleId(`proof-or-stop-review-${row.name}`)),
+    verifyReceipt: (receipt, epoch) => verifyReviewInventoryReceipt(receipt) && Boolean(epoch) && verifyReviewInventoryEpoch(epoch!)
+      && epoch!.receiptId === receipt.receiptId,
+  });
+  const { _hash: _ignored, ...unsigned } = base;
+  if (!plan.eligible) return signPostRemediationSelection({ ...unsigned, deltaRound: plan });
+  return signPostRemediationSelection({
+    ...unsigned,
+    selectedLanes: plan.selectedLanes,
+    selection: 'delta-round',
+    reason: 'DELTA_ROUND',
+    reasonDetail: plan.detail,
+    changedFiles: plan.repair?.files ?? [],
+    closureFiles: plan.scope.map(file => file.path),
+    sourceReceiptId: plan.sourceReceiptId,
+    sourceReviewRound: plan.previousRound,
+    sourceHeadHash: plan.fromHead,
+    deltaRound: plan,
+  });
 }
 
 export function finalReviewRosterForStory(store: HandlerContext['store'], projectRoot: string, storyId: string): FinalReviewRoster {
@@ -273,6 +322,9 @@ export function projectFinalReviewRoster(store: HandlerContext['store'], root: s
 
 /** Stable epoch binding: metadata-only HEAD changes do not invalidate this basis. */
 export function finalReviewRosterBasis(roster: FinalReviewRoster): string | undefined {
+  if (roster.selection.selection === 'delta-round' && roster.selection.deltaRound) {
+    return deltaRoundRosterBasis(roster.selection.deltaRound, POST_REMEDIATION_REVIEW_POLICY_VERSION);
+  }
   if (roster.selection.selection !== 'dependency-closure') return undefined;
   const { policyVersion, sourceReceiptId, activeLanes, selectedLanes, openFindingDigest } = roster.selection;
   return JSON.stringify({ policyVersion, sourceReceiptId, activeLanes, selectedLanes, openFindingDigest });
@@ -282,7 +334,9 @@ export function renderFinalReviewRoster(roster: FinalReviewRoster, storyId: stri
   const lanes = roster.requiredReviewers.map(row => row.lane);
   const reason = roster.selection.selection === 'dependency-closure'
     ? `dependency-closure (${roster.selection.reason}: ${roster.selection.reasonDetail})`
-    : `full-set (${roster.selection.reason}: ${roster.selection.reasonDetail})`;
+    : roster.selection.selection === 'delta-round'
+      ? `delta-round (A/B review.deltaRounds=on: ${roster.selection.reasonDetail})`
+      : `full-set (${roster.selection.reason}: ${roster.selection.reasonDetail})${roster.selection.deltaRound ? `; delta round: no (${roster.selection.deltaRound.reason}: ${roster.selection.deltaRound.detail})` : ''}`;
   const filesSummary = (files: readonly string[]): string => files.length === 0 ? '(not established)'
     : `${files.length} file(s): ${files.slice(0, 10).map(path => path.length > 160 ? path.slice(0, 157) + '...' : path).join(', ')}${files.length > 10 ? ', ...' : ''}`;
   return [

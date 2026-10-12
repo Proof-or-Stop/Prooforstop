@@ -18,8 +18,8 @@ import { resolveStoryMergeBase } from '../core/story-change-manifest.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { readStoryRequest } from '../core/story-request.js';
 import {
-  assessFindingBasePresence, findingScopeCoverage, findingSites,
-  type FindingBasePresence, type FindingScopeCoverage,
+  assessFindingBasePresence, findingScopeCoverage, findingSites, PREEXISTING_OUT_OF_SCOPE, recurringPreexistingSites,
+  type FindingBasePresence, type FindingScopeCoverage, type RecurringPreexistingMatch,
 } from '../core/finding-preexisting.js';
 
 export interface PreexistingFindingVerdict {
@@ -70,4 +70,40 @@ export function evaluatePreexistingFinding(args: { store: StoryStore; root: stri
   const presence = assessFindingBasePresence({ gitCwd, base, head, finding });
   return { eligible: presence.preExisting, coverage, presence,
     reason: presence.preExisting ? `pre-existing at the Story base and outside the Story: ${presence.reason}; ${coverage.reason}` : `not pre-existing: ${presence.reason}` };
+}
+
+export interface RecurringPreexistingVerdict extends RecurringPreexistingMatch {
+  /** The candidate's own pre-existing verdict (base evidence + scope), when it was computed. */
+  verdict: PreexistingFindingVerdict | null;
+}
+
+/**
+ * Old-PoS run 52 (bench-staging/oldpos/run52-analysis.md §4): whether a newly
+ * imported finding re-files a site an earlier `preexisting_out_of_scope`
+ * disposition of this Story already covers. The candidate must pass the same
+ * check a disposition passes (evaluatePreexistingFinding: base presence, scope
+ * coverage), every disposition is re-checked on the current material, and every
+ * candidate site must be one of theirs (core/finding-preexisting.ts
+ * recurringPreexistingSites). Cheap first: no Git unless a dispositioned
+ * finding shares a cited path.
+ */
+export function evaluateRecurringPreexistingFinding(args: { store: StoryStore; root: string; storyId: string; finding: Finding;
+  findings?: readonly Finding[] }): RecurringPreexistingVerdict {
+  const { store, root, storyId, finding } = args;
+  const sites = findingSites(finding).defects;
+  const no = (reason: string, verdict: PreexistingFindingVerdict | null = null): RecurringPreexistingVerdict =>
+    ({ recurring: false, of: [], sites: sites.map(anchor => `${anchor.path}:${anchor.line}`), reason, verdict });
+  if (sites.length === 0) return no('the finding cites no path:line defect site');
+  const all = args.findings ?? store.readFindings(storyId).findings ?? [];
+  const paths = new Set(sites.map(anchor => anchor.path));
+  const dispositioned = all.filter(row => row.id !== finding.id && row.status === 'resolved' && row.resolutionType === PREEXISTING_OUT_OF_SCOPE
+    && findingSites(row).defects.some(anchor => paths.has(anchor.path)));
+  if (dispositioned.length === 0) return no('no pre-existing disposition of this Story cites the same file');
+  const verdict = evaluatePreexistingFinding({ store, root, storyId, finding });
+  if (!verdict.eligible || !verdict.presence) return no(verdict.reason, verdict);
+  const holding = dispositioned.flatMap(row => {
+    const own = evaluatePreexistingFinding({ store, root, storyId, finding: row });
+    return own.eligible && own.presence ? [{ findingId: row.id, presence: own.presence }] : [];
+  });
+  return { ...recurringPreexistingSites({ candidate: verdict.presence, dispositioned: holding }), verdict };
 }
