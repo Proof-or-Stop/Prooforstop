@@ -33,10 +33,12 @@
  * never reverted.
  */
 import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { relative } from 'node:path';
 import type { ChecklistItem, Finding } from './types.js';
 import { digestCanonicalJson } from './digest.js';
 import { isStoryMetadataFile, isStoryMetadataFinding } from './metadata-finding-class.js';
+import { REPAIR_VALUE_CHANGED_EVENT, repairRowPatches, type RepairRowPatch, type RepairValueChange } from './repair-value-change.js';
 
 export type MetadataField = 'userSees' | 'verificationIntent';
 
@@ -50,6 +52,12 @@ export interface MetadataCorrection {
   correctedValue: string | null;
   /** Digest of the field text the reviewer judged. */
   fieldHash: string | null;
+  /**
+   * Old-PoS run 68 (core/repair-value-change.ts): row patches the framework derived from a
+   * verified finding's repair (the expected value its test changed); PLAN applies them as
+   * a framework step. Absent for reviewer-cited corrections (the owner authors those).
+   */
+  patches?: Array<Pick<RepairRowPatch, 'ref' | 'desc' | 'derivation'>>;
 }
 
 export interface MetadataCorrectionSource { desc: string; lane?: string; reviewRunId?: string; findingId?: string }
@@ -345,6 +353,7 @@ export function openMetadataCorrections(args: { store: Store; storyId: string; g
     const better = correction.wrongLiteral && (!current.wrongLiteral || (isStatement(correction.wrongLiteral) && !isStatement(current.wrongLiteral)));
     if (better) { current.wrongLiteral = correction.wrongLiteral; current.correctedValue = correction.correctedValue ?? current.correctedValue; }
     else if (!current.correctedValue && correction.correctedValue) current.correctedValue = correction.correctedValue;
+    if (correction.patches?.length) current.patches = [...(current.patches ?? []), ...correction.patches.filter(patch => !(current.patches ?? []).some(row => row.ref === patch.ref))];
   };
   let events: Array<Record<string, unknown>> = [];
   try { events = args.store.readProcessEvents(args.storyId).filter(event => event.type === METADATA_FINDING_RECLASSIFIED_EVENT); } catch { events = []; }
@@ -358,7 +367,45 @@ export function openMetadataCorrections(args: { store: Store; storyId: string; g
     for (const correction of storedFindingCorrections({ ...args, finding })) add(correction, { desc: finding.desc, findingId: finding.id, lane: finding.agent });
   }
   for (const derived of sweptIntentRowCorrections(args.store, args.storyId, items)) add(derived, { desc: `${derived.rowRefs.join(', ')} still state ${derived.wrongLiteral} (corrected elsewhere)` });
+  for (const derived of repairValueCorrections(args.store, args.storyId, items)) add(derived.correction, derived.source);
   return [...byKey.values()];
+}
+
+/** The Story's request text for the request-literal guard (absent or unreadable: null). */
+function storyRequestText(store: Pick<Store, 'storyFilePath'>, storyId: string): string | null {
+  try { return readFileSync(store.storyFilePath(storyId, 'request.md'), 'utf8'); } catch { return null; }
+}
+
+/**
+ * Old-PoS run 68 (fix 3, core/repair-value-change.ts): every intent row that still states,
+ * for a case a verified finding's repair re-tested, the value that repair replaced is an
+ * open intent-row correction of its item, with the framework's row patch (re-pin stated).
+ * Derived from the journaled change and the CURRENT rows, so it clears as soon as the
+ * rows state the repaired value; a case the request states literally is never included.
+ */
+function repairValueCorrections(store: Pick<Store, 'readProcessEvents' | 'storyFilePath'>, storyId: string, items: readonly ChecklistItem[]):
+  Array<{ correction: MetadataCorrection; source: MetadataCorrectionSource }> {
+  let events: Array<Record<string, unknown>> = [];
+  try { events = store.readProcessEvents(storyId).filter(event => event.type === REPAIR_VALUE_CHANGED_EVENT); } catch { return []; }
+  if (!events.length) return [];
+  const requestText = storyRequestText(store, storyId);
+  const out: Array<{ correction: MetadataCorrection; source: MetadataCorrectionSource }> = [];
+  for (const event of events) {
+    const changes = Array.isArray(event.changes) ? event.changes as RepairValueChange[] : [];
+    const findingIds = Array.isArray(event.findingIds) ? (event.findingIds as unknown[]).map(String) : [];
+    const commit = typeof event.commit === 'string' ? event.commit : '';
+    const patches = repairRowPatches(items as ChecklistItem[], changes, requestText, { findingIds, commit });
+    for (const itemId of [...new Set(patches.map(patch => patch.itemId))]) {
+      const own = patches.filter(patch => patch.itemId === itemId);
+      out.push({
+        correction: { itemId, field: 'verificationIntent', rowRefs: own.map(patch => patch.ref), wrongLiteral: own[0]!.wrongStatement,
+          correctedValue: own[0]!.correctedStatement, fieldHash: null, patches: own.map(patch => ({ ref: patch.ref, desc: patch.desc, ...(patch.derivation ? { derivation: patch.derivation } : {}) })) },
+        source: { desc: `repair ${commit.slice(0, 12)} of ${findingIds.map(id => id.replace(/^[^:]+:/, '')).join(', ') || 'a verified finding'} changed the expected value: ${own.map(patch => `${patch.ref} ${patch.caseText}: ${patch.oldValue} -> ${patch.newValue}`).join('; ')}`,
+          ...(findingIds[0] ? { findingId: findingIds[0] } : {}), lane: 'framework' },
+      });
+    }
+  }
+  return out;
 }
 
 /**

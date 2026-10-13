@@ -57,6 +57,9 @@ import { loadConfig } from './config.js';
 import { readStoryRequest } from './story-request.js';
 import { shellQuote } from './shell-quote.js';
 import type { StoryStore } from './store.js';
+import { errorDecoration } from './exact-error-pin-lint.js';
+import { requestLiteralExamples } from './request-literal-examples.js';
+export { requestLiteralExamples };
 
 export const PIN_PROBE_MISMATCH = 'pin_probe_mismatch';
 export const PIN_PROBE_SCHEMA = 'proof-or-stop.plan-pin-probe.v1' as const;
@@ -88,30 +91,8 @@ export interface PinProbeResult {
 // ---------------------------------------------------------------------------
 // Request-literal examples (pure)
 
-const ARROW = /\s*(?:->|→|=>)\s*/;
-const CONNECTOR = /^\s*(?:->|→|=>|returns?|yields?|evaluates\s+to|produces?|gives?|prints?|outputs?)\s*$/i;
 const squash = (text: string): string => text.replace(/\s+/g, '');
 
-/** Examples the request states literally: `<input> -> <output>` in one span, or `<input>` <arrow|connector> `<output>`. */
-export function requestLiteralExamples(requestText: string): Array<{ input: string; output: string }> {
-  const out: Array<{ input: string; output: string }> = [];
-  const spans = [...requestText.matchAll(/`([^`\n]+)`/g)].map(match => ({ text: match[1]!, start: match.index!, end: match.index! + match[0].length }));
-  for (const [index, span] of spans.entries()) {
-    const arrow = span.text.match(ARROW);
-    if (arrow && arrow.index !== undefined && arrow.index > 0) {
-      const input = span.text.slice(0, arrow.index).trim();
-      const output = span.text.slice(arrow.index + arrow[0].length).trim();
-      if (input && output) out.push({ input, output });
-      continue;
-    }
-    const next = spans[index + 1];
-    if (!next || next.text.match(ARROW)) continue;
-    const between = requestText.slice(span.end, next.start);
-    if (between.includes('\n') || !CONNECTOR.test(between)) continue;
-    out.push({ input: span.text.trim(), output: next.text.trim() });
-  }
-  return out;
-}
 
 /** The case's code as comparable strings (statements then the expression; a write also without its echoed receiver; whitespace-free). */
 const caseKeys = (probe: Pick<ProbeCase, 'statements' | 'expr' | 'write'>): string[] => [squash([...probe.statements, probe.expr].join(';')),
@@ -258,6 +239,32 @@ export function pinProbeMismatches(args: { store: Pick<StoryStore, 'readStory' |
     mismatches.push({ itemId: probe.itemId, ref: probe.ref, code: probe.code, pinned: probe.pinnedText, observed: value, source: 'base' });
   }
   return { runner: evaluator.kind, base: evaluator.base, judged, skipped, mismatches };
+}
+
+/**
+ * Old-PoS run 68 (fix 4, core/exact-error-pin-lint.ts): the first listed exact-error case the
+ * Story base renders as an error with a trailing decoration after its first line (the engine's
+ * own error format), or null (no declared evaluator, no runnable case, no decorated error).
+ */
+export function baseErrorDecorationOf(args: { store: Pick<StoryStore, 'readStory' | 'readChecklist'>; root: string; storyId: string; gitCwd: string; refs: ReadonlySet<string> }):
+  { ref: string; firstLine: string; decoration: string } | null {
+  try {
+    const items = args.store.readChecklist(args.storyId).items.filter(item => item.status !== 'withdrawn');
+    const cases = items.flatMap(item => itemProbeCases(item, { prose: true })).filter(probe => args.refs.has(probe.ref) && !probe.unbound && probe.dropped.length === 0);
+    if (!cases.length) return null;
+    const evaluator = baseEvaluator(args.store, args.root, args.storyId, args.gitCwd);
+    if (!evaluator) return null;
+    const programOf = (probe: ProbeCase): string => probeProgram(evaluator.config, probe.isolatedStatements ?? probe.statements, probe.expr);
+    const observed = evaluateInTree({ config: { ...evaluator.config, skipPattern: undefined }, env: evaluator.env }, evaluator.tree, cases.map(programOf));
+    for (const probe of cases) {
+      const row = observed.get(programOf(probe));
+      const decoration = row?.status === 'error' ? errorDecoration(row.text) : null;
+      if (decoration) return { ref: probe.ref, firstLine: row!.text.split('\n')[0]!.trim(), decoration };
+    }
+    return null;
+  } catch {
+    return null;
+  }
 }
 
 // ---------------------------------------------------------------------------

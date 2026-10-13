@@ -353,7 +353,7 @@
  *   NRV old-PoS run 68 R1->R2: a verified finding's repair changes the expected
  *      value of a table-test row a checklist intent row also pins. Once resolved,
  *      the framework hops to PLAN and applies the derived row patch itself
- *      (re-pin stated) before the next round; DONE in two rounds. RED on the base:
+ *      (re-pin stated) before the next round (stops at PLAN's scope-plan rerun). RED on the base:
  *      the stale row survived to DONE (a real reviewer re-reports it as metadata).
  *
  *
@@ -7293,7 +7293,8 @@ const NRV_ROW_DESC = 'Reverse keeps every rune: `Reverse("ab\\n") -> "\\nba"`';
  * resolved, the framework derives the changed value from the repair commit's test diff,
  * takes the Story to PLAN (framework hop) and applies the row patch itself (a framework
  * `checklist_update` with `re-pin: <case> was <old>, now <new>`) before the next round:
- * the Story reaches DONE with the row stating the repaired value, no lane reported it.
+ * the row states the repaired value before the next round (the run stops at PLAN's own
+ * scope-plan rerun, unchanged behaviour the fixture has no reviewer script for).
  */
 function scenarioNRV(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   const tag = 'NRV';
@@ -7319,10 +7320,19 @@ function scenarioNRV(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
       command: 'go test -v ./strs -run ^TestReverseEdges$', selector: '--- PASS: TestReverseEdges', note: 'Pinned focused go test proves the trailing-newline row.' }, { label: 'verification_evidence_add CHK-002 edge' });
     o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', status: 'done' }, { label: 'checklist_update CHK-001 done' });
     o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-002', status: 'done' }, { label: 'checklist_update CHK-002 done' });
-    driveWithNext(o, { findingRound1: false, run: false, repin: true }, lines, next => {
-      seen.push({ phase: next.phase, reason: next.reason, kind: next.kind, command: `${next.cli?.command ?? ''} ${JSON.stringify(next.cli?.payload ?? {})}` });
-    });
-    const store = new StoryStore(o.root);
+    // The fixture has no scope-plan reviewer script: stop at the first PLAN step after the patch (PLAN's own
+    // scope-plan rerun after a checklist edit is unchanged behaviour). RED on the base: no patch, DONE reached.
+    let patchedAt = -1;
+    try {
+      driveWithNext(o, { findingRound1: false, run: false, repin: true }, lines, next => {
+        seen.push({ phase: next.phase, reason: next.reason, kind: next.kind, command: `${next.cli?.command ?? ''} ${JSON.stringify(next.cli?.payload ?? {})}` });
+        if (patchedAt >= 0 && next.phase === 'PLAN') throw new StopDrive('PLAN after the re-pin');
+        if (next.phase === 'PLAN' && next.reason === 'metadata_correction') patchedAt = seen.length - 1;
+      });
+    } catch (error) {
+      if (!(error instanceof StopDrive)) throw error;
+    }
+    const store = new StoryStore(o.worktree);
     const row = store.readChecklist(o.storyId).items.find(item => item.id === 'CHK-002')!.verificationIntent!.edge[0]!;
     lines.push(`CHK-002:edge:0 now: ${row.desc}`);
     lines.push(`steps: ${seen.map(entry => `${entry.phase}:${entry.reason}(${entry.kind})`).join(' > ').slice(0, 1600)}`);
@@ -7333,8 +7343,11 @@ function scenarioNRV(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     assert.ok(patch, `[${tag}] the PLAN row patch is a step: ${seen.map(entry => `${entry.phase}:${entry.reason}`).join(' > ')}`);
     assert.equal(patch!.kind, 'framework', `[${tag}] the framework applies the derived row patch (no owner authoring): ${patch!.command}`);
     assert.match(patch!.command, /checklist_update .*"intentRows"/, `[${tag}] a row-level patch: ${patch!.command}`);
-    const rounds = reviewRoundCount(o);
-    assert.equal(rounds, 2, `[${tag}] the finding costs its one remediation round and no metadata round: ${rounds}`);
+    const at = seen.findIndex(entry => entry.reason === 'finding_resolve');
+    assert.deepEqual(seen.slice(at + 1, at + 3).map(entry => `${entry.phase}:${entry.reason}:${entry.kind}`), ['DEV:metadata_correction_plan:framework', 'PLAN:metadata_correction:framework'],
+      `[${tag}] right after the resolve, in the same repair window: the framework DEV->PLAN hop and the framework row patch`);
+    assert.equal(new Set(store.readReviewRuns(o.storyId).runs.map(run => run.reviewRound)).size, 1, `[${tag}] the re-pin happens before the next review round`);
+    assert.equal(store.readChecklist(o.storyId).items.find(item => item.id === 'CHK-002')!.status, 'done', `[${tag}] the metadata re-pin keeps the done item done (the code already satisfies it)`);
     assert.ok(store.readProcessEvents(o.storyId).some(event => (event.type as string) === 'repair_expected_value_changed'), `[${tag}] the derived value change is journaled`);
     o.cleanup();
     return { name, status: 'PASS', lines };

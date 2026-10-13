@@ -87,6 +87,8 @@ import type { ChecklistItem, DuplicateCoverageReceipt } from '../core/types.js';
 import { canonicalFixLiveness, coverageSourceText, findingGuard, isTestPath, regressionFindingDesc, regressionGuardCheck, regressionTargets, repairCommitFromResolution, reproCoverage,
   type GuardFailure } from '../core/resolved-finding-guard.js';
 import { resolveFullStoryBaseHead } from '../core/review-incremental-context.js';
+import { readStoryRequest } from '../core/story-request.js';
+import { REPAIR_VALUE_CHANGED_EVENT, repairRowPatches, repairValueChangesOfCommit } from '../core/repair-value-change.js';
 import { appendFindingLifecycleTransition, withMetaFindingLock } from './finding-lifecycle.js';
 
 // B-7c05 CHK-002: brief finding shape. Drops only heavy free-text (the full
@@ -675,6 +677,34 @@ function rejectedRepairReason(storyId: string, findingId: string, failures: read
     + 'the repair is not accepted: repair it without reversing the resolved finding, or declare [intent-conflict] if the two truly conflict';
 }
 
+/**
+ * Old-PoS run 68 (fix 3, core/repair-value-change.ts): after `finding_resolve` accepted
+ * repairs, journal each repair commit whose own test diff changed an expected literal that a
+ * current intent row still states for the same case (process event
+ * `repair_expected_value_changed`). `next` then routes the framework row patch through PLAN
+ * before the next review round. Best effort: a read failure journals nothing.
+ */
+function journalRepairValueChanges(ctx: HandlerContext, storyId: string, repairs: ReadonlyArray<{ findingId: string; commit: string }>): void {
+  try {
+    const { store } = ctx;
+    const gitCwd = resolveGitCwd({ store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+    const items = store.readChecklist(storyId).items;
+    const request = readStoryRequest(store, storyId);
+    const requestText = request.status === 'ok' ? request.text : null;
+    const byCommit = new Map<string, string[]>();
+    for (const row of repairs) byCommit.set(row.commit, [...(byCommit.get(row.commit) ?? []), row.findingId]);
+    for (const [commit, findingIds] of byCommit) {
+      const changes = repairValueChangesOfCommit(gitCwd, commit);
+      if (!changes.length) continue;
+      const patches = repairRowPatches(items, changes, requestText, { findingIds, commit });
+      if (!patches.length) continue;
+      const used = changes.filter(change => patches.some(patch => change.before.replace(/\s+/g, '').includes(patch.caseText.replace(/\s+/g, ''))));
+      store.appendProcessEvent(storyId, { type: REPAIR_VALUE_CHANGED_EVENT, storyId, command: 'finding_resolve', role: 'framework', findingIds, commit,
+        changes: used, rows: patches.map(patch => `${patch.ref}: ${patch.caseText} ${patch.oldValue} -> ${patch.newValue}`) } as never);
+    }
+  } catch { /* journal only; the review still judges the checklist */ }
+}
+
 /** Test files the Story changed (base..HEAD), for the repro check of a non-Go coverage command. */
 function storyChangedTestFiles(ctx: HandlerContext, storyId: string, gitCwd: string): string[] {
   const base = (() => { try { return resolveFullStoryBaseHead(ctx.store, ctx.root, storyId); } catch { return undefined; } })();
@@ -882,6 +912,8 @@ export function createFindingHandlers(ctx: HandlerContext) {
     } catch (e) {
       console.warn(`[process-metrics] recompute failed for ${args.storyId}:`, (e as Error).message);
     }
+    // Old-PoS run 68 (fix 3): an expected value the repairs changed is re-pinned before the next round.
+    journalRepairValueChanges(ctx, args.storyId, accepted.map(row => ({ findingId: row.findingId, commit: row.commit })));
     const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'finding_resolve');
     return `Findings resolved: ${accepted.map(row => `${row.findingId} (commit ${row.commit.slice(0, 12)})`).join(', ')}${commitHint}`
       + (report ? `\n${report}\nNext: proof-or-stop next --storyId=${args.storyId}` : '');
@@ -1320,6 +1352,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
         resolveEvidenceStrength = 'strong';
       }
       let duplicateEvidence = '';
+      let acceptedRepair: { findingId: string; commit: string } | null = null;
       if (args.duplicateOf !== undefined || args.coverage !== undefined) {
         duplicateEvidence = closeDuplicateWithCoverage({ ...args, findingId });
         resolutionType = 'duplicate';
@@ -1333,6 +1366,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
         if (citation) throw new Error(citation);
         // Old-PoS run 46 (core/resolved-finding-guard.ts): a repair that broke a resolved finding is not accepted.
         const repair = target && target.status === 'open' ? storyFindingRepairState(ctx, args.storyId, target) : null;
+        if (repair?.repaired) acceptedRepair = { findingId, commit: repair.commit };
         if (repair?.repaired) {
           const guards = runRegressionGuardsFor(ctx, args.storyId, [{ findingId, commit: repair.commit }]);
           const reason = rejectedRepairReason(args.storyId, findingId, guards.failures, guards.opened);
@@ -1373,6 +1407,8 @@ export function createFindingHandlers(ctx: HandlerContext) {
         console.warn(`[process-metrics] recompute failed for ${args.storyId}:`, (e as Error).message);
       }
 
+      // Old-PoS run 68 (fix 3): an expected value the repair changed is re-pinned before the next round.
+      if (acceptedRepair) journalRepairValueChanges(ctx, args.storyId, [acceptedRepair]);
       const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'finding_resolve');
 
       // B-a7c5 CHK-002: fully advisory, non-blocking dev-memory capture nudge —

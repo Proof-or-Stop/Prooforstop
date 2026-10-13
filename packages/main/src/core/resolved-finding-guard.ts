@@ -61,6 +61,9 @@ import { tmpdir } from 'node:os';
 import { dirname, join, posix } from 'node:path';
 import type { ChecklistItem, DuplicateCoverageReceipt, Finding } from './types.js';
 import { loadConfig } from './config.js';
+// Old-PoS run 68: leaf module (core/repair-value-change.ts uses them without this module's imports).
+import { isTestPath, normalizeProbe } from './probe-text.js';
+export { isTestPath, normalizeProbe };
 import { parseAllowlistedCommand, resolveEvidenceCommandTimeoutMs, tokenizeCommandString } from './validation-executor.js';
 import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
 import { changedGoTestFunctions, parsePinnedTestSelection, parseUnifiedZeroDiff, pinSelectsGoTest } from './evidence-chain-check.js';
@@ -78,10 +81,6 @@ const OUTPUT_TAIL_MAX = 1200;
 
 const RUNNER_WORD = /^(?:go|npm|npx|node|yarn|pnpm|bun|deno|python3?|pytest|cargo|make|bash|sh|zsh|jest|vitest|mvn|gradle|ruby|rspec|php|dotnet|java)\s/;
 
-/** Whitespace- and escape-insensitive form (a test literal escapes the quotes of a probe). */
-export function normalizeProbe(text: string): string {
-  return text.replace(/[\s\\]+/g, '');
-}
 
 /**
  * A backticked span that reads as a probe input: an assignment, or a call /
@@ -160,10 +159,6 @@ function tryGit(gitCwd: string, args: string[]): string | null {
   try { return git(gitCwd, args); } catch { return null; }
 }
 
-/** A test source path (Go `_test.go`, JS/TS `.test.` / `.spec.`, Python `test_*.py` / `*_test.py`, a `test(s)/` directory). */
-export function isTestPath(path: string): boolean {
-  return /(?:_test\.go|\.(?:test|spec)\.[cm]?[jt]sx?|(?:^|\/)test_[^/]*\.py|_test\.py)$/.test(path) || /(?:^|\/)(?:tests?|__tests__|spec)\//.test(path);
-}
 
 /**
  * The repair commit a resolution names (`material commit <sha>` of a

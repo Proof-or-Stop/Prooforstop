@@ -127,7 +127,8 @@ await check('X2 every intent row stating <case> -> <old value> gets a row patch 
   const patches = (await load(MODULE, 'repairRowPatches'))([before], CHANGES, null) as Array<{ itemId: string; ref: string; desc: string; derivation?: { computation?: string }; caseText: string; oldValue: string; newValue: string }>;
   assert.deepEqual(patches.map(patch => patch.ref), ['CHK-002:edge:0', 'CHK-002:edge:1'], JSON.stringify(patches));
   assert.equal(patches[0]!.desc, 'Reverse keeps every rune: `Reverse("ab\\n") -> "ba\\n"`');
-  assert.equal(patches[1]!.desc, '`[1,2,3][-1::-1]` -> `[3, 2, 1]`', 'the quote style of the row is kept (unquoted value stays unquoted)');
+  assert.ok(patches[1]!.desc.startsWith('`[1,2,3][-1::-1]` -> `[3, 2, 1]` (re-pin: [1,2,3][-1::-1] was [1], now [3, 2, 1]:'),
+    `the quote style of the row is kept (unquoted value stays unquoted); a row without a derivation states the re-pin in its desc: ${patches[1]!.desc}`);
   for (const patch of patches) assert.match(`${patch.desc} ${patch.derivation?.computation ?? ''}`, /re-pin: .+ was .+, now .+/, `re-pin stated: ${JSON.stringify(patch)}`);
   assert.equal(patches[0]!.derivation?.computation?.includes('re-pin: Reverse("ab\\n") was "\\nba", now "ba\\n"'), true, JSON.stringify(patches[0]));
   const after = structuredClone(before.verificationIntent!) as unknown as { edge: Array<Record<string, unknown>> };
@@ -184,10 +185,15 @@ await check('X4 the journaled change is an open intent-row correction: DEV hops 
   assert.deepEqual(api(metadataModule, 'openMetadataCorrections')({ store: store2, storyId: 'B-1', gitCwd: '/nonexistent' }), [], 'cleared after the patch');
 });
 
-await check('X5 a case the request states literally with the old value is never re-pinned (the request outranks the repair)', async () => {
-  const request = 'Keep the existing behaviour: `Reverse("ab\\n") -> "\\nba"`.';
-  const patches = (await load(MODULE, 'repairRowPatches'))([REVERSE_ITEM()], CHANGES, request) as Array<{ ref: string }>;
+await check('X5 a case the request states literally with the old value is never re-pinned (the request outranks the repair); a sibling case is', async () => {
+  const quote = 'Reverse reverses its input by rune, keeping every character.';
+  const derivation = { requestQuote: quote, computation: 'the runes of the input in reverse order' };
+  const items = [item('CHK-002', { edge: [row('Reverse keeps every rune: `Reverse("ab\\n") -> "\\nba"`', { derivation }), row('Reverse of a two-rune line: `Reverse("xy\\n") -> "\\nyx"`', { derivation })] }, 'done')];
+  const changes = [CHANGES[0]!, { file: 'kv/reverse_test.go', before: '{"two", Reverse("xy\\n"), "\\nyx"},', after: '{"two", Reverse("xy\\n"), "yx\\n"},', old: '"\\nyx"', new: '"yx\\n"' }];
+  const request = `${quote} Keep the existing behaviour: \`Reverse("ab\\n") -> "\\nba"\`.`;
+  const patches = (await load(MODULE, 'repairRowPatches'))(items, changes, request) as Array<{ ref: string; derivation?: { requestQuote?: string } }>;
   assert.deepEqual(patches.map(patch => patch.ref), ['CHK-002:edge:1'], JSON.stringify(patches));
+  assert.equal(patches[0]!.derivation?.requestQuote, quote, 'the request quote is kept');
 });
 
 // ---------------------------------------------------------------------------

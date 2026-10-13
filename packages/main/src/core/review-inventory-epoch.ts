@@ -785,11 +785,14 @@ export function reviewInventoryRemediationGate(store: StoryStore, storyId: strin
     nextCommand: `proof-or-stop review_inventory_begin --storyId=${storyId}`,
   };
   const latest = data.epochs.at(-1);
+  // Old-PoS run 68 (fix 2): `next --run` runs the OPEN epoch's next framework step (critic, lane evidence,
+  // finalize). Before, this pointed at the read-only review_inventory_status (run 68: guard_dev_blocked, the
+  // owner launched the critic by hand).
   if (latest?.state === 'OPEN') return {
     required: true,
     ok: false,
     reason: `latest review inventory ${latest.epochId} is still OPEN`,
-    nextCommand: `proof-or-stop review_inventory_status --storyId=${storyId}`,
+    nextCommand: `proof-or-stop next --storyId=${storyId} --run`,
   };
   const pair = finalizedUnconsumedReviewInventory(store, storyId);
   // Old-PoS run 44 (R2): no live epoch (the latest is consumed, cancelled, invalidated or an
