@@ -219,7 +219,7 @@ await check('R1 plan.rowBudget=on: ONE plan_row_trim step with the exact checkli
     assert.equal(calls[0]!.cli.command, 'checklist_update');
     assert.ok(!(calls[0]!.placeholders ?? []).length, 'exact commands, nothing to author');
     const intent = (calls[0]!.cli.payload.verificationIntent as { happy: unknown[] });
-    assert.equal(intent.happy.length, 1, 'the two repeated rows are dropped, the first of the class stays');
+    assert.equal(intent.happy.length, 2, 'the two repeated rows are dropped; the put row and the first row of the class stay');
     assert.match(next.why, /skip/i, 'says how to skip');
     assert.equal((next.why.match(/Next/g) ?? []).length <= 1, true);
   } finally { cleanup(f); }
@@ -231,7 +231,7 @@ await check('R2 skipping: the next call goes on to the scope-plan reviewer and t
     assert.equal(decide(f).reason, 'plan_row_trim');
     const again = decide(f);
     assert.equal(again.reason, 'scope_plan_review_launch', `the second call does not offer it again: ${again.reason}`);
-    assert.equal(f.ctx.store.readChecklist(f.storyId).items[0]!.verificationIntent!.happy.length, 3, 'nothing was dropped by the framework');
+    assert.equal(f.ctx.store.readChecklist(f.storyId).items[0]!.verificationIntent!.happy.length, 4, 'nothing was dropped by the framework');
   } finally { cleanup(f); }
 });
 

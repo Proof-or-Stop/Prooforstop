@@ -110,8 +110,8 @@ import { openPinAuditGaps } from '../core/pin-audit-correction.js';
 import { describePinMismatch, PIN_ORACLE_MISMATCH, pinExamples, pinMismatchRule, pinOracleMismatches, pinOracleStoryBase, storyPinOracle } from '../core/pin-oracle.js';
 import { describePinProbeMismatch, PIN_PROBE_MISMATCH, pinProbeNextPayload, pinProbeRule, planPinProbe } from '../core/plan-pin-probe.js';
 import { initReviewDeferredToPlan, planReviewMergeActive } from '../core/plan-review-merge.js';
-import { ROW_BUDGET_GUIDANCE } from '../core/plan-row-budget.js';
-import { rowBudgetOn } from '../core/ab-variants.js';
+import { intentRowCount, recordRowBudgetOffer, ROW_BUDGET_GUIDANCE, rowBudgetExtras, rowBudgetOfferDue, rowBudgetTrimPayloads } from '../core/plan-row-budget.js';
+import { abVariantEvidenceOf, rowBudgetOn } from '../core/ab-variants.js';
 import { describeUnextractableRows, PROBE_REQUEST_MISMATCH, probeRunnerDeclared, probeSyntaxErrors, reportProbeDecision, requestAnchoredKeys, runnerProbeDecision, storyProbeRunner, unextractableRows, type ProbeFlagDecision } from '../core/request-probes.js';
 import { describeExactTextGap, exactTextKeyOf, exactTextPrefixAssertions, exactRequestLiteralItem, readExactTextState, writeExactTextState, type ExactTextGap } from '../core/exact-text-assertions.js';
 import { implementerRunReports } from '../core/finding-repair-attempts.js';
@@ -1779,6 +1779,30 @@ function rowBudgetOnFor(root: string): boolean {
 }
 
 /**
+ * Old-PoS run 64 (lab codex/lab-neutral-64, A/B plan.rowBudget=on): the advisory alone was ignored (44 -> 51 rows).
+ * One concrete PLAN step with the exact checklist_update commands that drop the repeated rows, offered once per set of
+ * rows after the plan is authored and before the scope-plan reviewer judges the final checklist. Skippable (the next
+ * call goes on), never a gate, and the framework never drops a row itself. Null when off or nothing repeats.
+ */
+export function rowBudgetTrimStep(base: { storyId: string; phase: string }, store: HandlerContext['store'], root: string): NextStep | null {
+  if (!rowBudgetOnFor(root)) return null;
+  try {
+    const items = store.readChecklist(base.storyId).items;
+    const request = readStoryRequest(store, base.storyId);
+    const extras = rowBudgetExtras(items, request.status === 'ok' ? request.text : null);
+    if (!rowBudgetOfferDue(root, base.storyId, extras)) return null;
+    recordRowBudgetOffer(root, base.storyId, extras, abVariantEvidenceOf(loadConfig(root)));
+    const calls = rowBudgetTrimPayloads(base.storyId, items, extras).map(payload => nextStepCall('checklist_update', { command: 'checklist_update', payload }));
+    return batchStep(base, 'plan_row_trim', calls,
+      `Row budget (A/B plan.rowBudget=on, advisory [row_budget]): ${extras.length} of ${intentRowCount(items)} intent rows repeat an operand class an earlier row of the same item already pins (${extras.map(row => `${row.ref} = ${row.sameAs}`).join(', ')}); `
+        + 'each is one more pinned test the implementer writes. Run '
+        + `${calls.length === 1 ? 'this checklist_update command' : `these ${calls.length} checklist_update commands`} to drop them (request-literal and exact-text rows are never listed), then \`proof-or-stop next --storyId=${base.storyId} --run\`: it goes on to the scope-plan reviewer on the final checklist. `
+        + `To keep the rows, skip it: run \`proof-or-stop next --storyId=${base.storyId} --run\` without them. Nothing blocks on it and it is offered once for this set of rows.`,
+      'rowBudgetExtras (plan.rowBudget=on, core/plan-row-budget.ts)');
+  } catch { return null; }
+}
+
+/**
  * The first INIT step when no Story exists yet: ONE complete story_create
  * command (scope and execution boundary inline, so no separate boundary
  * commands follow), every authored value a placeholder with a one-line hint.
@@ -2174,6 +2198,9 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       if (pinStep) return pinStep;
       const authoring = preScopeAuthoringStep(base, planPreScopeBlockers(ctx.store, story, policy), ctx.store.readChecklist(storyId).items);
       if (authoring) return authoring;
+      // Lab neutral-64 (A/B plan.rowBudget=on): the plan is authored; one skippable trim before the reviewer judges it.
+      const rowTrim = rowBudgetTrimStep(base, ctx.store, ctx.root);
+      if (rowTrim) return rowTrim;
       const last = hostRuns.filter(run => run.agentType === SCOPE_PLAN_REVIEWER).at(-1);
       const previous = last && last.state !== 'completed' ? ` The previous scope-plan run ${last.runId} ended ${last.state}.` : '';
       const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');

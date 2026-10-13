@@ -29,7 +29,7 @@ import { VERIFICATION_LANES } from './verification.js';
 import { itemProbeCases, type ProbeCase } from './request-probes.js';
 import { requestLiteralExamples } from './plan-pin-probe.js';
 import { shellQuote } from './shell-quote.js';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { PROOF_OR_STOP_DIR } from './proof-or-stop-paths.js';
 import { resolveCanonicalRuntimeProjectRoot } from './runtime-artifact-registry.js';
@@ -122,12 +122,16 @@ export function rowBudgetTrimPayload(storyId: string, item: Pick<ChecklistItem, 
   return { storyId, itemId: item.id, verificationIntent: intent };
 }
 
-/** The advisory text (one line per item, with its trim command), or '' when nothing repeats. */
-export function rowBudgetNote(storyId: string, items: readonly Pick<ChecklistItem, 'id' | 'status' | 'verificationIntent'>[], requestText: string | null): string {
+/**
+ * The advisory text (one line per item, with its trim command), or '' when nothing repeats. Old-PoS run 64: the
+ * advisory alone was ignored (44 -> 51 rows), so it ends in ONE `Next (optional, skippable)` (nothing blocks on it);
+ * `framework` = the owner ends its turn at story_create, and the same trim comes back as the PLAN step `plan_row_trim`.
+ */
+export function rowBudgetNote(storyId: string, items: readonly Pick<ChecklistItem, 'id' | 'status' | 'verificationIntent'>[], requestText: string | null,
+  options: { framework?: boolean } = {}): string {
   const extras = rowBudgetExtras(items, requestText);
   if (!extras.length) return '';
-  const total = items.filter(item => item.status !== 'withdrawn')
-    .reduce((sum, item) => sum + VERIFICATION_LANES.reduce((lanes, lane) => lanes + (item.verificationIntent?.[lane]?.length ?? 0), 0), 0);
+  const total = intentRowCount(items);
   const lines = [`Row budget (A/B plan.rowBudget=on, advisory [${ROW_BUDGET_ADVISORY}]): ${extras.length} of ${total} intent rows repeat an operand class an earlier row of the same item already pins; `
     + 'each is one more pinned test. Drop them unless a row tests a behaviour its signature misses (request-literal and exact-text rows are never listed):'];
   for (const itemId of [...new Set(extras.map(row => row.itemId))]) {
@@ -136,7 +140,50 @@ export function rowBudgetNote(storyId: string, items: readonly Pick<ChecklistIte
     const item = items.find(entry => entry.id === itemId)!;
     lines.push(`  proof-or-stop checklist_update ${shellQuote(JSON.stringify(rowBudgetTrimPayload(storyId, item, rows.map(row => row.ref))))}`);
   }
+  lines.push(options.framework
+    ? 'Optional (skippable, not a gate): once the plan is authored the framework hands this trim to you as the PLAN step `plan_row_trim`.'
+    : 'Next (optional, skippable): run the trim command above (one per item) before authoring more rows, or skip it; nothing blocks on it.');
   return lines.join('\n');
+}
+
+/** The ordered trim commands of the current extras: one checklist_update payload per item. */
+export function rowBudgetTrimPayloads(storyId: string, items: readonly Pick<ChecklistItem, 'id' | 'status' | 'verificationIntent'>[], extras: readonly RowBudgetExtra[]): Array<Record<string, unknown>> {
+  return [...new Set(extras.map(row => row.itemId))].map(itemId => rowBudgetTrimPayload(storyId, items.find(entry => entry.id === itemId)!,
+    extras.filter(row => row.itemId === itemId).map(row => row.ref)));
+}
+
+/** Signature of an extras set (a changed set is a new offer; the same set is offered once). */
+export const rowBudgetOfferSignature = (extras: readonly RowBudgetExtra[]): string => extras.map(row => row.ref).sort().join(',');
+
+const MAX_ROW_BUDGET_OFFERS = 2;
+
+function rowBudgetFile(root: string, storyId: string): string {
+  return join(resolveCanonicalRuntimeProjectRoot(root), PROOF_OR_STOP_DIR, 'runtime', 'plan-row-budget', `${storyId}.jsonl`);
+}
+
+/** Signatures already offered as the PLAN step `plan_row_trim` (offer records in the arm's evidence file). */
+export function rowBudgetOffered(root: string, storyId: string): string[] {
+  try {
+    return readFileSync(rowBudgetFile(root, storyId), 'utf8').split('\n').flatMap(line => {
+      try { const row = JSON.parse(line) as { at?: string; signature?: string }; return row.at === 'next_offer' && typeof row.signature === 'string' ? [row.signature] : []; } catch { return []; }
+    });
+  } catch { return []; }
+}
+
+/** Whether the trim step is due: extras exist, this set was not offered yet, and fewer than MAX offers were made. */
+export function rowBudgetOfferDue(root: string, storyId: string, extras: readonly RowBudgetExtra[]): boolean {
+  if (!extras.length) return false;
+  const offered = rowBudgetOffered(root, storyId);
+  return offered.length < MAX_ROW_BUDGET_OFFERS && !offered.includes(rowBudgetOfferSignature(extras));
+}
+
+/** Record that the trim step was handed out (evidence only; the step is skippable, never a gate). */
+export function recordRowBudgetOffer(root: string, storyId: string, extras: readonly RowBudgetExtra[], abVariant: AbVariantEvidence | undefined): void {
+  try {
+    mkdirSync(join(resolveCanonicalRuntimeProjectRoot(root), PROOF_OR_STOP_DIR, 'runtime', 'plan-row-budget'), { recursive: true });
+    writeFileSync(rowBudgetFile(root, storyId), `${JSON.stringify({ schema: ROW_BUDGET_SCHEMA, storyId, at: 'next_offer', checkedAt: new Date().toISOString(),
+      ...(abVariant ? { abVariant } : {}), signature: rowBudgetOfferSignature(extras), extras: extras.map(row => row.ref) })}\n`, { flag: 'a' });
+  } catch { /* evidence only */ }
 }
 
 /** Intent rows of the open items. */

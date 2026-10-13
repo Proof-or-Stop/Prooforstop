@@ -1309,7 +1309,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
             if (!rowBudgetOn(config)) return '';
             const request = readStoryRequest(store, storyId);
             recordRowBudgetEvidence(ctx.root, storyId, 'story_create', preflightChecklist.items, request.status === 'ok' ? request.text : null, abVariantEvidenceOf(config));
-            const note = rowBudgetNote(storyId, preflightChecklist.items, request.status === 'ok' ? request.text : null);
+            const note = rowBudgetNote(storyId, preflightChecklist.items, request.status === 'ok' ? request.text : null, { framework: ownerDriver(config) === 'framework' });
             return note ? `\n⚠ ${note}` : '';
           } catch { return ''; }
         })();
