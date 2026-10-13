@@ -6,8 +6,16 @@
 import { z } from 'zod';
 import { runCli } from './cli-engine.js';
 import { loadCanonicalLabEntrypoint } from './cli/lab-entrypoint.js';
+import { installGitReadCache } from './core/git-read-cache.js';
+import { reportStepCountersAtExit } from './core/next-run-diagnostics.js';
 
 export async function runDirectCli(): Promise<void> {
+  // Lab framework-perf: identical git reads are answered once across the
+  // processes of one next --run chain (core/git-read-cache.ts; off: PROOF_OR_STOP_GIT_READ_CACHE=0).
+  const entryMs = performance.now();
+  installGitReadCache();
+  // Lab framework-perf: a next --run step reports its boot/wall/git counters (core/next-run-diagnostics.ts).
+  reportStepCountersAtExit(entryMs);
   // The published core package resolves its declared @proof-or-stop/lab
   // dependency. The relative candidate keeps a repository build testable
   // without manufacturing a node_modules workspace link. If neither exists,

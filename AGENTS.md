@@ -859,6 +859,15 @@ rows' pinned tests pass on the current code (and state its amended rows).
 framework reason. A canonical closed without a repair (pre-existing
 disposition, accepted risk) is never a duplicate closure target.
 
+Framework serial time (lab `codex/lab-framework-perf`, detection-neutral): the
+CLI answers repeated read-only git probes from a cross-process git read cache
+(`<common git dir>/info/proof-or-stop-cache/`, each answer keyed by the exact
+filesystem witness of what it reads; index and working-tree reads always run
+git; `PROOF_OR_STOP_GIT_READ_CACHE=0` turns it off). Never edit or delete that
+directory to influence a gate; it holds only git's own bytes. Every `next --run`
+decision and step is timed in `.proof-or-stop/runtime/next-run/diagnostics.jsonl`
+(diagnostic only, never read by a gate). See docs/CLI.md "Framework serial time".
+
 Delta review rounds (EXPERIMENTAL A/B `review.deltaRounds`, default off; lab
 `codex/lab-delta-review`, `core/review-delta-round.ts`): with it on, a REVIEW
 round after a remediation re-reviews only the repair. The lanes that raised

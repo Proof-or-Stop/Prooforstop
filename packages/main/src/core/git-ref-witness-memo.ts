@@ -396,6 +396,25 @@ export function worktreeChangeWitness(cwd: string): string | undefined {
   }
 }
 
+/**
+ * Lab framework-perf (git-read-cache.ts): the ref-state witness of the
+ * repository holding cwd and its git directories, or undefined wherever the
+ * memo above is off (fresh-read scope, redirected environment, reftable, a
+ * ref state too large to witness, no repository).
+ */
+export function currentRefStateWitness(cwd: string): { witness: string; gitDir: string; commonDir: string; dotGit: string } | undefined {
+  if (freshDepth > 0 || gitEnvironmentRedirected()) return undefined;
+  const layout = layoutFor(cwd);
+  if (!layout) return undefined;
+  const witness = refStateWitness(layout);
+  return witness === undefined ? undefined : { witness, gitDir: layout.gitDir, commonDir: layout.commonDir, dotGit: layout.dotGit };
+}
+
+/** True inside withFreshGitReads (every git read must run git). */
+export function gitFreshReadsActive(): boolean {
+  return freshDepth > 0;
+}
+
 /** Reads inside `read` always run git (launch-time rereads keep their exact semantics). */
 export function withFreshGitReads<T>(read: () => T): T {
   freshDepth++;

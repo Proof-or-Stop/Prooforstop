@@ -1,6 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { resolve } from 'node:path';
 import { witnessedGitRead, withFreshGitReads } from './git-ref-witness-memo.js';
+import { envDerived } from './process-env-version.js';
 
 // A synchronous observation owns these bytes and probe results. No entry
 // survives the outer callback, a thrown error, or an await. This is not an
@@ -16,8 +17,16 @@ export function withGitTreeObservation<T>(read: () => T): T {
 export function gitObservationKey(parts: readonly unknown[]): string {
   // Git also observes PATH, HOME and config-related non-GIT variables. Keep
   // the complete inherited environment in this in-memory-only key.
-  return JSON.stringify([...parts, Object.entries(process.env).sort(([a], [b]) => a.localeCompare(b))]);
+  return JSON.stringify([...parts, inheritedEnvironment()]);
 }
+
+/**
+ * Lab framework-perf: the sorted environment was rebuilt (with ICU
+ * localeCompare) for every probe: ~1.2 s CPU per harness scenario. The key is
+ * process-local, so any deterministic order is equivalent; the entries are
+ * rebuilt only when process.env may have changed (process-env-version.ts).
+ */
+const inheritedEnvironment = envDerived(() => Object.entries(process.env).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)));
 
 /** One synchronous observation resolves each current-state probe once. Nothing
  * in this process can move the repository inside a synchronous scope, and a
