@@ -46,6 +46,9 @@ import { earlierCandidateRuns, isCodeReviewLaneRun, isEarlierReviewRound, previo
 import { findingSites } from './finding-preexisting.js';
 import { resolveReviewLanePack, type ReviewLanePack } from './review-lane-pack.js';
 import { renderDeltaConfirmationBlock, type DeltaRoundPlan } from './review-delta-round.js';
+import { renderLaneMergeBlock, type LaneMergePlan } from './review-lane-merge.js';
+import { laneMergeDimensionSections } from './review-lane-merge-prompt.js';
+import { readStoryRequest } from './story-request.js';
 
 /**
  * EXPERIMENTAL A/B review.deltaRounds=on (core/review-delta-round.ts): the lane's
@@ -55,6 +58,17 @@ import { renderDeltaConfirmationBlock, type DeltaRoundPlan } from './review-delt
 export interface ManagedDeltaRoundPrompt {
   plan: DeltaRoundPlan;
   role: 'confirmation' | 'full';
+}
+
+/**
+ * EXPERIMENTAL A/B review.laneMerge=on (core/review-lane-merge.ts): this lane run
+ * carries the round's ONE merged review session, decided by host_run from the
+ * signed roster selection and passed here so the sealed prompt (and its digest)
+ * carry the MERGED REVIEW DIMENSIONS block.
+ */
+export interface ManagedLaneMergePrompt {
+  plan: LaneMergePlan;
+  role: 'merged';
 }
 
 export interface ManagedReviewEvidenceVerification {
@@ -988,6 +1002,7 @@ export function buildManagedReviewerPrompt(
   canonicalReportStatuses?: readonly ManagedReviewCanonicalReportStatus[],
   fullScanBinding?: ManagedReviewFullScanBinding,
   deltaRound?: ManagedDeltaRoundPrompt | null,
+  laneMerge?: ManagedLaneMergePrompt | null,
 ): string {
   const binding = JSON.stringify({
     storyId: run.storyId,
@@ -1004,6 +1019,10 @@ export function buildManagedReviewerPrompt(
   const lanePack = managedReviewLanePack(root, run);
   const rereview = renderManagedReviewerRereview(root, run, lanePack, deltaRound ?? null);
   const dispositioned = renderDispositionedPreexistingSites(root, run);
+  const merged = laneMerge?.role === 'merged' && isCodeReviewLaneRun(run)
+    ? renderLaneMergeBlock(laneMerge.plan, laneMergeDimensionSections(root, (() => {
+      try { const request = readStoryRequest(new StoryStore(root), run.storyId); return request.status === 'ok' ? request.text : ''; } catch { return ''; }
+    })(), laneMerge.plan)) : [];
   return [
     '--- BEGIN MANAGED REVIEW EVIDENCE PROTOCOL ---',
     `This provider run is already bound to ${binding}.`,
@@ -1051,6 +1070,7 @@ export function buildManagedReviewerPrompt(
     renderManagedReviewerProviderPrompt(resolveManagedReviewerBasePrompt(root, run), root),
     ...(canonicalReportStatuses ? ['', ...renderManagedReviewerCanonicalReportSnapshot(canonicalReportStatuses)] : []),
     ...(fullScanBinding ? ['', ...renderManagedReviewerFullScanBinding(fullScanBinding)] : []),
+    ...(merged.length > 0 ? ['', ...merged] : []),
     ...(lanePack ? ['', ...lanePack.lines] : []),
     ...(rereview.length > 0 ? ['', ...rereview] : []),
     ...(dispositioned.length > 0 ? ['', ...dispositioned] : []),
@@ -1067,8 +1087,9 @@ export function managedReviewerPromptDigest(
   canonicalReportStatuses?: readonly ManagedReviewCanonicalReportStatus[],
   fullScanBinding?: ManagedReviewFullScanBinding,
   deltaRound?: ManagedDeltaRoundPrompt | null,
+  laneMerge?: ManagedLaneMergePrompt | null,
 ): string {
-  return sha256(buildManagedReviewerPrompt(root, run, canonicalReportStatuses, fullScanBinding, deltaRound));
+  return sha256(buildManagedReviewerPrompt(root, run, canonicalReportStatuses, fullScanBinding, deltaRound, laneMerge));
 }
 
 function failedDiagnostic(): ProofAdmissibilityDiagnostic {

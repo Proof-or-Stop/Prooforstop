@@ -369,6 +369,8 @@ export interface ProofOrStopConfig {
     roundDelta?: 'off' | 'pack';
     /** EXPERIMENTAL delta review rounds (core/review-delta-round.ts): 'off' default | 'on'. */
     deltaRounds?: 'off' | 'on';
+    /** EXPERIMENTAL lane merge (core/review-lane-merge.ts): 'off' default | 'on' = ONE merged review session per round. */
+    laneMerge?: 'off' | 'on';
     /**
      * Delay in ms between the launches of one round's lanes when `next --run`
      * launches them (N2). Absent = 8000 (production default since old-PoS

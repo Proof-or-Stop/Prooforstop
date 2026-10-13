@@ -883,6 +883,22 @@ lane is launched late, and the next round is a full round. A lane whose last-rou
 findings were all closed without a repair (pre-existing, accepted risk,
 duplicate) is replaceable.
 
+Lane merge (EXPERIMENTAL A/B `review.laneMerge`, default off; lab
+`codex/lab-review-merge`, `core/review-lane-merge.ts`): with it on, every REVIEW
+round runs ONE managed review session for the dimensions of all active lanes.
+The first dimension's lane (concept) carries it; its prompt holds a MERGED REVIEW
+DIMENSIONS block with one section per dimension (concern, checkpoints, the lane's
+own role text and rules). Read the repository once and work through every
+dimension. Begin each finding's desc with `[dimension:<name>]`; findings import on
+the carrier lane, so routing and closure are unchanged. The final note needs one
+`[checked] <checkpoint> :: <evidence>` line per checkpoint, for a pass and for
+findings. A missing line, a line without evidence, or a `[gap]` leaves that
+dimension uncovered: it is never passed and runs as its own lane (in the same
+round after a pass, in the next round after findings). If the carrier's own
+dimension is uncovered, the pass is refused and every dimension runs separately.
+The inventory critic runs as before; no round cap, no severity decay.
+`reviewer_list --json` shows the plan (`finalReview.selection.laneMerge`).
+
 INIT+PLAN lighter (lab `codex/lab-plan-light`; three EXPERIMENTAL A/B switches,
 default off, one per arm; docs/CLI.md "Lab plan-light switches"):
 `plan.pinProbe=on` runs every extractable example row on the Story base with the

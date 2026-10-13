@@ -34,6 +34,12 @@
  *                              by ONE confirmation lane over the repair scope, resolved findings are re-run, the critic
  *                              runs only when the round reports a finding, a large repair falls back to a full round
  *                              (core/review-delta-round.ts; structural-cost-analysis.md §7 item 2)
+ *   review.laneMerge           'off' (default) | 'on'      every REVIEW round runs ONE managed review session for the
+ *                              dimensions of every active lane (the first dimension's lane carries it; one explicit
+ *                              section, checkpoints and role prompt per dimension; per-checkpoint coverage lines, an
+ *                              uncovered dimension is relaunched as its own lane, never passed; findings keep a
+ *                              `[dimension:<name>]` tag); review.deltaRounds is not applied while it is on
+ *                              (core/review-lane-merge.ts; new PoS ADR-064; structural-cost-analysis.md §7 item 3)
  *
  * Old-PoS run 33 (bench-staging/oldpos/run33-analysis.md §4): the "catch defects
  * earlier" line (runs 30-33) cost about 38 min / 31M tokens per run with no
@@ -107,6 +113,7 @@ export const AB_VARIANT_FLAGS = {
   'review.lanePack': ['off', 'shared'],
   'review.roundDelta': ['off', 'pack'],
   'review.deltaRounds': ['off', 'on'],
+  'review.laneMerge': ['off', 'on'],
   'plan.coverageMatrix': ['off', 'on'],
   'plan.scopeDeferral': ['off', 'on'],
   'plan.pinAuditEnforcement': ['off', 'on'],
@@ -124,7 +131,7 @@ export type AbVariantFlag = keyof typeof AB_VARIANT_FLAGS;
 export type AbVariantValue<F extends AbVariantFlag> = (typeof AB_VARIANT_FLAGS)[F][number];
 
 export interface AbVariantConfigSlice {
-  review?: { criticOnCleanRound?: string; round2Scope?: string; round2Lanes?: string; lanePack?: string; roundDelta?: string; siblingParity?: string; deltaRounds?: string };
+  review?: { criticOnCleanRound?: string; round2Scope?: string; round2Lanes?: string; lanePack?: string; roundDelta?: string; siblingParity?: string; deltaRounds?: string; laneMerge?: string };
   remediation?: { grouping?: string; thread?: string };
   implementation?: { grouping?: string; thread?: string; probeMatrix?: string };
   plan?: { coverageMatrix?: string; scopeDeferral?: string; pinAuditEnforcement?: string; exclusionRationaleCheck?: string; baseDisagreement?: string; pinProbe?: string; reviewMerge?: string; rowBudget?: string };
@@ -150,6 +157,7 @@ export interface AbVariants {
   exclusionRationaleCheck: AbVariantValue<'plan.exclusionRationaleCheck'>;
   baseDisagreement: AbVariantValue<'plan.baseDisagreement'>;
   deltaRounds: AbVariantValue<'review.deltaRounds'>;
+  laneMerge: AbVariantValue<'review.laneMerge'>;
   pinProbe: AbVariantValue<'plan.pinProbe'>;
   reviewMerge: AbVariantValue<'plan.reviewMerge'>;
   rowBudget: AbVariantValue<'plan.rowBudget'>;
@@ -197,6 +205,7 @@ export function resolveAbVariants(config: unknown): AbVariants {
     exclusionRationaleCheck: pick('plan.exclusionRationaleCheck', section(config, 'plan').exclusionRationaleCheck),
     baseDisagreement: pick('plan.baseDisagreement', section(config, 'plan').baseDisagreement),
     deltaRounds: pick('review.deltaRounds', review.deltaRounds),
+    laneMerge: pick('review.laneMerge', review.laneMerge),
     pinProbe: pick('plan.pinProbe', section(config, 'plan').pinProbe),
     reviewMerge: pick('plan.reviewMerge', section(config, 'plan').reviewMerge),
     rowBudget: pick('plan.rowBudget', section(config, 'plan').rowBudget),
@@ -224,6 +233,7 @@ export function abVariantEvidence(variants: AbVariants): AbVariantEvidence | und
   if (variants.exclusionRationaleCheck !== 'on') flags['plan.exclusionRationaleCheck'] = variants.exclusionRationaleCheck;
   if (variants.baseDisagreement !== 'on') flags['plan.baseDisagreement'] = variants.baseDisagreement;
   if (variants.deltaRounds !== 'off') flags['review.deltaRounds'] = variants.deltaRounds;
+  if (variants.laneMerge !== 'off') flags['review.laneMerge'] = variants.laneMerge;
   if (variants.pinProbe !== 'off') flags['plan.pinProbe'] = variants.pinProbe;
   if (variants.reviewMerge !== 'off') flags['plan.reviewMerge'] = variants.reviewMerge;
   if (variants.rowBudget !== 'off') flags['plan.rowBudget'] = variants.rowBudget;
@@ -240,7 +250,7 @@ export function dispatchTargetThreadFresh(target: { abVariant?: AbVariantEvidenc
 }
 
 /** The single-switch reader of one catch-earlier switch: a malformed value (or an unreadable config) keeps production. */
-function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds' | 'plan.pinProbe' | 'plan.reviewMerge' | 'plan.rowBudget'>(config: unknown, flag: F): AbVariantValue<F> {
+function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds' | 'review.laneMerge' | 'plan.pinProbe' | 'plan.reviewMerge' | 'plan.rowBudget'>(config: unknown, flag: F): AbVariantValue<F> {
   const [group, key] = flag.split('.') as [string, string];
   try { return pick(flag, section(config, group)[key]); } catch { return AB_VARIANT_FLAGS[flag][0] as AbVariantValue<F>; }
 }
@@ -263,6 +273,8 @@ export const exclusionRationaleCheckOn = (config: unknown): boolean => catchEarl
 export const baseDisagreementOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.baseDisagreement') === 'on';
 /** EXPERIMENTAL review.deltaRounds=on: delta review rounds (core/review-delta-round.ts); malformed = off. */
 export const deltaRoundsOn = (config: unknown): boolean => catchEarlierPick(config, 'review.deltaRounds') === 'on';
+/** EXPERIMENTAL review.laneMerge=on: ONE merged review session per REVIEW round (core/review-lane-merge.ts); malformed = off. */
+export const laneMergeOn = (config: unknown): boolean => catchEarlierPick(config, 'review.laneMerge') === 'on';
 /** EXPERIMENTAL plan.pinProbe=on: example pins probed on the Story base before PLAN→DEV (core/plan-pin-probe.ts); malformed = off. */
 export const pinProbeOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.pinProbe') === 'on';
 /** EXPERIMENTAL plan.reviewMerge=on: one merged plan review in PLAN instead of the INIT reviewers + scope-plan runs (core/plan-review-merge.ts); malformed = off. */

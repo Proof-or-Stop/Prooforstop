@@ -472,7 +472,10 @@ export function createReviewerBatchHandlers(ctx: HandlerContext): Record<string,
         !readinessReport.reviewRoster || readinessReport.reviewRoster.requiredLanes.includes(canonicalLane));
       const needsRun = state !== 'current-pass' && state !== 'awaiting-repair' && state !== 'outside-remediation-impact';
       const actionReason = state === 'outside-remediation-impact'
-        ? 'Current verified remediation selection excludes this lane; this is not a new PASS and does not grant TEST.'
+        ? readinessReport.reviewRoster?.reason === 'LANE_MERGE'
+          // EXPERIMENTAL A/B review.laneMerge=on: the dimension is reviewed inside the round's ONE merged session.
+          ? 'This dimension is reviewed inside the round\'s merged review session (A/B review.laneMerge=on); it is not launched separately unless that session leaves it uncovered. This is not a PASS of its own and does not grant TEST.'
+          : 'Current verified remediation selection excludes this lane; this is not a new PASS and does not grant TEST.'
         : state === 'awaiting-repair'
         ? 'Current verified blocker on unchanged committed review inputs: retain the finding, complete the current review wave, then use owner remediation before another observation; TEST remains blocked. Uncommitted repairs do not refresh this plan.'
         : needsRun ? 'A current observation is required for missing or changed review inputs.' : 'The current observation remains valid.';
