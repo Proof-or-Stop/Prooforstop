@@ -14,6 +14,7 @@
  *   W3    a call that keeps printing is never killed.
  *   W4    repeated kills end the drive (outcome watchdog) instead of looping forever.
  *   O1    owner.driver: absent / malformed = llm, framework = framework.
+ *   N1    (lab driver-done, old-PoS run 65) frameworkOwnerWhy: no step text tells the framework-driven owner to run next.
  *
  * The full lifecycle (INIT to DONE, finding round, hung import) runs in
  * tasks/e2e-review-to-done-smoke.ts NOD-INIT / NOD / NOD-W.
@@ -152,6 +153,40 @@ await check('O1 owner.driver: absent or malformed = llm; framework = framework',
   assert.equal(variants.ownerDriver({}), 'llm');
   assert.equal(variants.ownerDriver({ owner: { driver: 'robot' } }), 'llm');
   assert.equal(variants.ownerDriver({ owner: { driver: 'framework' } }), 'framework');
+});
+
+// Lab driver-done (old-PoS run 65): under owner.driver=framework no step text tells the owner to run `next`.
+const nextDriverPath = '../handlers/next-driver.js';
+const nd = await import(nextDriverPath).catch(() => ({})) as Record<string, any>;
+const RUN_NEXT = /proof-or-stop next\b|`next --(?:run|untilAgent)`/;
+
+await check('N1 frameworkOwnerWhy: every "run next" phrasing of the step builders is rewritten to "end your turn", llm text untouched', () => {
+  assert.equal(typeof nd.frameworkOwnerWhy, 'function', 'frameworkOwnerWhy is exported');
+  const calls = [{ reason: 'summary_set' }, { reason: 'dev_memory_finish_decision' }];
+  const llmTexts: string[] = [
+    nd.testAuthoringWhy('B-1', calls),
+    nd.testAuthoringWhy('B-1', calls.slice(0, 1)),
+    'The latest story_review round has blockers: author every <...> field and run these 3 commands in one turn (story_review last), then `proof-or-stop next --storyId=B-1 --run`. Other blockers.',
+    'Author every <...> field and run these 2 checklist_update commands in one turn, then `proof-or-stop next --storyId=B-1 --run`: it launches the scope-plan reviewer once, on the final checklist.',
+    'Run these 2 checklist_update commands to drop them, then `proof-or-stop next --storyId=B-1 --run`: it goes on to the scope-plan reviewer. To keep the rows, skip it: run `proof-or-stop next --storyId=B-1 --run` without them. Nothing blocks.',
+    'Then run the `proof-or-stop next --storyId=<id> --run` line it prints: that records the scope freeze check.',
+    'fix each blocker in PLAN. Then run `proof-or-stop next --storyId=B-1 --run`: the changed checklist stales the round.',
+    'Fix each issue, then run `proof-or-stop next --storyId=B-1 --run`: the changed inputs stale the verdict.',
+    'Return to PLAN to cover or exclude it; `next --run` then relaunches the scope-plan reviewer itself.',
+    'Fully bound: `next --run` launches them together. (`next --run` runs both)',
+    'something else tells you to use `proof-or-stop next --storyId=B-1` by hand',
+  ];
+  for (const text of llmTexts) {
+    assert.ok(RUN_NEXT.test(text) || /next --run/.test(text), `fixture text carries a run-next phrasing: ${text.slice(0, 80)}`);
+    const out = nd.frameworkOwnerWhy(text);
+    assert.ok(!RUN_NEXT.test(out), `still tells the owner to run next: ${out}`);
+  }
+  assert.match(nd.frameworkOwnerWhy(llmTexts[0]), /then end your turn/, 'testAuthoringWhy now ends the owner turn');
+  assert.equal(nd.frameworkOwnerWhy('Plain step text with no next instruction.'), 'Plain step text with no next instruction.');
+  const step = { why: 'x `proof-or-stop next --storyId=B-1 --run`', reason: 'r' };
+  assert.notEqual(nd.frameworkOwnerStep(step).why, step.why);
+  const clean = { why: 'ok', reason: 'r' };
+  assert.equal(nd.frameworkOwnerStep(clean), clean, 'an unchanged step is returned as is (identity)');
 });
 
 rmSync(dir, { recursive: true, force: true });

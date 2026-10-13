@@ -2365,6 +2365,12 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
       assert.equal(statusOf(), before, `[${o.scenario}] next must be read-only; git status changed:\n${before}\n---\n${statusOf()}`);
     }
     q6.push(...placeholderHintViolations(next), ...(next.batch ?? []).flatMap(call => placeholderHintViolations(call)));
+    // Lab driver-done (old-PoS run 65): under owner.driver=framework no step text the driver hands back
+    // tells the owner to run `next --run` / `next --untilAgent`; it ends with "end your turn".
+    if (mode.drive) {
+      if (/proof-or-stop next\b|`next --(?:run|untilAgent)`/.test(next.why)) q6.push(`framework-driven step ${next.reason} tells the owner to run next: ${next.why.slice(0, 300)}`);
+      if (next.kind === 'agent' && !/end your turn/i.test(String(parsed!.rendered ?? ''))) q6.push(`framework-driven step ${next.reason} does not end with "end your turn"`);
+    }
     if (next.reason === 'dev_memory_finish_decision' || next.reason === 'summary_set') {
       q6.push(`TEST authoring ${next.reason} surfaced as its own step; the finish decision and the summary must arrive as one step listing each command (Q6 (b))`);
     }
@@ -5304,6 +5310,8 @@ function scenarioNODInit(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome 
     assert.equal(first?.outcome, 'agent', `[${tag}] no Story: outcome agent`);
     const template = first!.next as NextStepJson;
     assert.equal(template.reason, 'story_create_authoring', `[${tag}] no Story: the story_create template is the agent step`);
+    assert.ok(!/proof-or-stop next\b|`next --run`/.test(template.why), `[${tag}] the framework-driven template text does not send the owner to next: ${template.why.slice(-400)}`);
+    assert.match(String(first!.rendered), /end your turn/i, `[${tag}] the handed-back template ends with "end your turn"`);
     const created = o.mustCli('story_create', fillStoryCreateTemplate(template.cli!.payload), { label: 'story_create (template)' });
     const id = created.stdout.match(/Story (B-[a-f0-9]+) created/)?.[1];
     assert.ok(id, `[${tag}] story_create returned an id:\n${created.out.slice(-1500)}`);
@@ -5419,6 +5427,87 @@ function scenarioNODW(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     assert.equal(stats.watchdogKills[0]!.reason, 'step_stall', `[${tag}] a hung step (a process below the call), not an idle next`);
     lines.push(`hung commit: ${readFileSync(marker, 'utf8').trim()}; watchdog: ${stats.watchdogKills.map(row => `${row.reason} after ${(row.silentMs / 1000).toFixed(1)} s`).join(', ')}`);
     lines.push(`DONE reached; main HEAD: ${git(o.root, ['log', '--format=%h %s', '-1', 'main'])}`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/**
+ * Owner-driver lab NOD-DUP (old-PoS run 65, owner.driver=framework): the task was DONE and
+ * merged at minute 48, then the framework created two more Stories for the same request until
+ * the timeout. The sequence: the TEST authoring step text told the owner to run `next --run`,
+ * the owner did (it executed enter_done), and the driver's next `next --untilAgent` (no storyId)
+ * saw "no unfinished Story" and handed back the story_create template as an agent step.
+ *   1. no step text the driver hands back tells the owner to run next (driveWithNext Q6), even
+ *      though this scripted owner runs `next --run` after TEST authoring anyway (the coin flip);
+ *   2. `next --untilAgent` with every Story DONE is a terminal `done` outcome, never story_create;
+ *   3. story_create of the request a DONE Story already delivered is refused (explicit and staged
+ *      request), fail-closed; owner.driver=llm keeps creating it (advisory stderr note).
+ */
+function scenarioNODDup(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NOD-DUP';
+  const name = 'NOD-DUP old-PoS run 65: after DONE under owner.driver=framework `next --untilAgent` ends (done) and story_create refuses the delivered request; no step text sends the owner to next --run';
+  const o = new Owner(tag, 'B-e6a4', machineEnv, steps, false, { request: NIQ_REQUEST, config: { owner: { driver: 'framework' } } });
+  const lines: string[] = [];
+  try {
+    devSetup(o);
+    let followed = false;
+    // Every defect is reported (soft checks), so the RED run names all three fixes.
+    const problems: string[] = [];
+    const soft = (fn: () => void): void => { try { fn(); } catch (error) { problems.push(error instanceof Error ? error.message.split('\n')[0]! : String(error)); } };
+    driveWithNext(o, { findingRound1: false, run: true, drive: true, violations: problems, interject: next => {
+      // The run-65 owner: follows the step text of TEST authoring literally (authoring commands, then next --run).
+      if (next.reason !== 'test_authoring' || followed) return false;
+      followed = true;
+      for (const call of next.batch ?? []) {
+        const filled = { ...call.cli.payload };
+        authorPayload(o, call.reason, filled, () => '');
+        o.mustCli(call.cli.command, filled, { label: `  owner:${call.reason}` });
+      }
+      o.mustCli('next', { storyId: o.storyId, run: true, json: true }, { label: 'owner next --run (run 65)' });
+      return true;
+    } }, lines);
+    assert.ok(followed, `[${tag}] the TEST authoring step reached the owner`);
+    const store = new StoryStore(o.root);
+    assert.equal(store.readStory(o.storyId).phase, 'DONE');
+    const idsBefore = store.listStoryIds().length;
+    // 2. the driver's next call after DONE (no storyId).
+    const after = o.cli('next', { json: true, untilAgent: true }, { label: 'next --untilAgent (all Stories DONE)' });
+    assert.equal(after.status, 0, `[${tag}] next --untilAgent after DONE:\n${after.out.slice(-1500)}`);
+    const parsed = parseJson(after.stdout)!;
+    soft(() => assert.equal(parsed.outcome, 'done', `[${tag}] all Stories DONE: outcome done, not ${String(parsed.outcome)}`));
+    soft(() => assert.equal(parsed.storyId, o.storyId, `[${tag}] the done outcome names the DONE Story`));
+    soft(() => assert.notEqual((parsed.next as NextStepJson).reason, 'story_create_authoring', `[${tag}] never the story_create template`));
+    soft(() => assert.ok(!/story_create/.test(String(parsed.rendered)), `[${tag}] the rendered terminal step does not mention story_create`));
+    // 3. the delivered request is refused (explicit request, then a staged one).
+    const template = parseJson(o.mustCli('next', { json: true }, { label: 'next (no unfinished Story)' }).stdout) as unknown as NextStepJson;
+    assert.equal(template.reason, 'story_create_authoring', `[${tag}] plain next still prints the template (a new request is the owner's call)`);
+    const filled = fillStoryCreateTemplate(template.cli!.payload);
+    const explicit = o.cli('story_create', { ...filled, request: NIQ_REQUEST }, { label: 'story_create (delivered request)' });
+    soft(() => assert.notEqual(explicit.status, 0, `[${tag}] story_create of the delivered request must be refused`));
+    soft(() => assert.match(explicit.out, /request_already_delivered/, `[${tag}] refusal names the rule`));
+    soft(() => assert.match(explicit.out, new RegExp(o.storyId), `[${tag}] refusal names the delivered Story`));
+    o.mustCli('story_request_set', { request: NIQ_REQUEST }, { label: 'story_request_set (stage)' });
+    const staged = o.cli('story_create', filled, { label: 'story_create (staged delivered request)' });
+    soft(() => assert.notEqual(staged.status, 0, `[${tag}] story_create of the staged delivered request must be refused`));
+    soft(() => assert.match(staged.out, /request_already_delivered/, `[${tag}] staged refusal names the rule`));
+    soft(() => assert.equal(store.listStoryIds().length, idsBefore, `[${tag}] no Story was created`));
+    // owner.driver=llm keeps today's behaviour: the delivered request is created again, with an advisory note.
+    const configPath = join(o.root, 'proof-or-stop.config.json');
+    const config = JSON.parse(readFileSync(configPath, 'utf8')) as Record<string, any>;
+    delete config.owner;
+    writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`);
+    const llmCreate = o.cli('story_create', { ...filled, request: NIQ_REQUEST }, { label: 'story_create (delivered request, owner.driver=llm)' });
+    soft(() => assert.equal(llmCreate.status, 0, `[${tag}] owner.driver=llm still creates the delivered request: ${llmCreate.out.slice(-600)}`));
+    soft(() => assert.match(llmCreate.out, new RegExp(`already delivered by ${o.storyId}`), `[${tag}] llm mode prints the advisory note`));
+    // A different request is not refused.
+    const other = o.cli('story_create', { ...filled, request: `${NIQ_REQUEST}\nAlso: a different, new request.` }, { label: 'story_create (different request)' });
+    soft(() => assert.ok(!/request_already_delivered/.test(other.out), `[${tag}] a different request is not refused as delivered`));
+    assert.deepEqual([...new Set(problems)], [], `[${tag}] run-65 defects:\n- ${[...new Set(problems)].join('\n- ')}`);
+    lines.push(`after DONE: next --untilAgent -> done (${o.storyId}); story_create of the delivered request refused (explicit and staged); a different request is not`);
     o.cleanup();
     return { name, status: 'PASS', lines };
   } catch (error) {
@@ -7104,7 +7193,7 @@ function scenarioNGF(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NGS|NGF|NPP|NPM-[IP]|NRB|PL|NOD(?:-INIT|-W)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NGS|NGF|NPP|NPM-[IP]|NRB|PL|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -7198,6 +7287,7 @@ async function main(): Promise<void> {
     if (only.includes('NOD-INIT')) outcomes.push(scenarioNODInit(machine.env, steps));
     if (only.includes('NOD')) outcomes.push(scenarioNOD(machine.env, steps));
     if (only.includes('NOD-W')) outcomes.push(scenarioNODW(machine.env, steps));
+    if (only.includes('NOD-DUP')) outcomes.push(scenarioNODDup(machine.env, steps));
     // Detection A/B arms: explicit tokens (ND-V1 .. NF-V9) or AB = ND-V1, ND-V2, ND-V3, NF-V4, ND-V5, ND-V6, ND-V8, ND-V9.
     const abTokens = only.includes('AB') ? ['ND-V1', 'ND-V2', 'ND-V3', 'NF-V4', 'ND-V5', 'ND-V6', 'ND-V8', 'ND-V9'] : [];
     for (const token of [...new Set([...abTokens, ...only.filter(arg => /^N[DF]-V[1-689]$/.test(arg))])]) {
@@ -7211,7 +7301,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NGS', 'NGF', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NGS', 'NGF', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

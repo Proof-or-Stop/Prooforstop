@@ -49,6 +49,7 @@ import { recordRowBudgetEvidence, rowBudgetNote } from '../core/plan-row-budget.
 import {
   boundStoryRequest,
   consumeStagedStoryRequest,
+  deliveredRequestStory,
   peekStagedStoryRequest,
   readStoryRequest,
   renderUnmappedLiteralsRemedy,
@@ -531,6 +532,21 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       request?: string; // Verbatim user request (request.md); falls back to requestFile, then a story_request_set staged request.
       requestFile?: string;
     }): string {
+      // Old-PoS run 65: a request a DONE Story already delivered. owner.driver=framework refuses it
+      // (fail-closed: the framework created two more Stories for the finished task until the trial
+      // timeout); owner.driver=llm keeps creating it and only prints the advisory note below.
+      const deliveredRaw = typeof args.request === 'string' && args.request.trim().length > 0
+        ? args.request
+        : args.requestFile
+          ? (() => { try { return readFileSync(resolve(ctx.root, args.requestFile!), 'utf-8'); } catch { return null; } })()
+          : peekStagedStoryRequest(resolveMainRepoRoot(ctx.root));
+      const deliveredBy = deliveredRaw ? deliveredRequestStory(store, deliveredRaw) : null;
+      if (deliveredBy && ownerDriver(loadConfig(ctx.root)) === 'framework') {
+        throw new Error(
+          `story_create refused: this request is already delivered by ${deliveredBy.storyId} [DONE] "${deliveredBy.title}" (same request digest); creating it again would redo finished work. [request_already_delivered]\n`
+          + 'Next: end your turn now (owner.driver=framework): the task is finished, nothing is left to create or run.',
+        );
+      }
       for (const [index, item] of (args.checklist ?? []).entries()) {
         assertNoReviewGateVerificationIntent('story_create', item.verificationIntent, `CHK-${String(index + 1).padStart(3, '0')}`);
       }
@@ -1141,6 +1157,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         // plan.md CHK-002 + AGENTS.md promise this warn, so it must be emitted.
         const terminalNote = terminalKeywordOverlapNote(store, args.keywords ?? []);
         if (terminalNote.length > 0) blocks.push(terminalNote);
+        if (deliveredBy) blocks.push(`⚠ this request is already delivered by ${deliveredBy.storyId} [DONE] "${deliveredBy.title}" (same request digest; advisory under owner.driver=llm, refused under owner.driver=framework [request_already_delivered]).`);
         // B-198c CHK-003: early storyDir-outside-gitRoot advisory. WARN-ONLY
         // (decision Option A) and routed through the same stderr channel as the
         // other story_create advisories — the create still succeeds. The two

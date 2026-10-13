@@ -1778,6 +1778,30 @@ export function ownerDriverFramework(root: string): boolean {
   try { return ownerDriver(loadConfig(root)) === 'framework'; } catch { return false; }
 }
 
+/**
+ * Lab driver-done (old-PoS run 65). Under owner.driver=framework the framework driver (the bench
+ * adapter) runs every `next --run` itself, so a step text must end with "end your turn" and never
+ * tell the owner to run `next` (run 65: the TEST authoring text said "then `proof-or-stop next
+ * --storyId=X --run`", the owner did, that call executed enter_done, and the loop went on to
+ * create two more Stories for the finished task). The step builders keep their llm wording (the
+ * golden is unchanged); this rewrites the few "run next" phrasings for the framework owner and a
+ * smoke asserts that none remains.
+ */
+export function frameworkOwnerWhy(why: string): string {
+  return why
+    .replace(/([Tt])hen run (?:the )?`proof-or-stop next [^`]*--run`(?: line it prints)?/g, '$1hen end your turn (the framework driver continues)')
+    .replace(/\bthen `proof-or-stop next [^`]*--run`/g, 'then end your turn (the framework driver continues)')
+    .replace(/run `proof-or-stop next [^`]*--run` without them/g, 'end your turn without running them')
+    .replace(/`next --run`/g, 'the framework driver')
+    .replace(/`proof-or-stop next [^`]*`/g, 'the framework driver');
+}
+
+/** The step the framework-driven owner is handed: its text rewritten by frameworkOwnerWhy. */
+export function frameworkOwnerStep(next: NextStep): NextStep {
+  const why = frameworkOwnerWhy(next.why);
+  return why === next.why ? next : { ...next, why };
+}
+
 /** Lab plan-light: plan.rowBudget=on in the project config (unreadable = off). */
 function rowBudgetOnFor(root: string): boolean {
   try { return rowBudgetOn(loadConfig(root)); } catch { return false; }
@@ -1843,7 +1867,7 @@ export function storyCreateTemplateStep(root: string): NextStep {
     executionBoundary: { allowedCommands: [...validateCommandPatterns(root), 'git', 'proof-or-stop', '<other command pattern>'], allowedPaths: ['<repo-relative directory>/'],
       excludedPaths: ['.proof-or-stop/', '.codex/', 'AGENTS.md', 'proof-or-stop.config.json'] },
   };
-  return withInitHints(step({ storyId: '', phase: 'INIT' }, 'agent', 'story_create_authoring', { command: 'story_create', payload },
+  const template = withInitHints(step({ storyId: '', phase: 'INIT' }, 'agent', 'story_create_authoring', { command: 'story_create', payload },
     'No Story exists yet. Author this ONE story_create (a staged request is recorded as request.md by itself; do not pass `request`): '
       + 'one checklist item per deliverable (copy the item object), each executable intent pinned, the scope and execution boundary inline. '
       + `Each intent row's \`type\` is one of ${VERIFICATION_INTENT_TYPES.join('|')} (nothing else: an error, edge or compatibility example of code behaviour is still \`logic\`). `
@@ -1853,6 +1877,7 @@ export function storyCreateTemplateStep(root: string): NextStep {
         : 'Then run the `proof-or-stop next --storyId=<id> --run` line it prints: that records the scope freeze check, launches both managed INIT reviewers, waits for them and advances to PLAN.')
       + (rowBudgetOnFor(root) ? ` ${ROW_BUDGET_GUIDANCE}` : ''),
     'story_create schema (command-catalog) + INIT_CHECK gate (scope boundary, execution boundary)', { placeholders: placeholderPaths(payload) }));
+  return ownerDriverFramework(root) ? frameworkOwnerStep(template) : template;
 }
 
 /**
@@ -3228,7 +3253,8 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
    * consulted reader (metadata auto-commit) clears it.
    */
   function decide(storyId: string): NextStep {
-    return withGitTreeObservation(() => decideObserved(storyId));
+    const next = withGitTreeObservation(() => decideObserved(storyId));
+    return ownerDriverFramework(ctx.root) ? frameworkOwnerStep(next) : next;
   }
 
   function decideObserved(storyId: string): NextStep {
@@ -3307,7 +3333,7 @@ export function spillLargeNextStep(next: NextStep, dir: string): NextStep {
   return out;
 }
 
-export function renderNextStep(next: NextStep): string {
+export function renderNextStep(next: NextStep, opts: { frameworkOwner?: boolean } = {}): string {
   const batch = next.batch ?? [];
   return [
     ...(next.wait ? [ownerWaitInstruction()] : []),
@@ -3329,7 +3355,7 @@ export function renderNextStep(next: NextStep): string {
         ...(next.optional ?? []).flatMap(call => [`Optional first: ${call.command}`, ...renderPlaceholderHints(call.placeholderHints, '    ')]),
         next.command ? `Next: ${next.command}` : `Next: ${next.done ? DONE_TERMINAL_STATEMENT : 'none runnable (see Why)'}`,
       ]),
-    ...(next.kind === 'framework' && next.command ? ['(framework step: `proof-or-stop next --storyId=' + next.storyId + ' --run` runs it and prints the following step)'] : []),
+    ...(next.kind === 'framework' && next.command && !opts.frameworkOwner ? ['(framework step: `proof-or-stop next --storyId=' + next.storyId + ' --run` runs it and prints the following step)'] : []),
   ].join('\n');
 }
 
@@ -3513,10 +3539,26 @@ function unfinishedStoryIds(ctx: HandlerContext): string[] {
   });
 }
 
+/** The newest DONE Story of this project (every Story DONE), or null when there is none or any is unfinished. */
+function lastDoneStoryId(ctx: HandlerContext): string | null {
+  let ids: string[];
+  try { ids = ctx.store.listStoryIds(); } catch { return null; }
+  let last: { id: string; at: number } | null = null;
+  for (const id of ids) {
+    try {
+      const story = ctx.store.readStory(id);
+      if (story.phase !== 'DONE') return null;
+      const at = Date.parse(story.createdAt);
+      if (!last || (Number.isFinite(at) ? at : 0) >= last.at) last = { id, at: Number.isFinite(at) ? at : 0 };
+    } catch { return null; }
+  }
+  return last?.id ?? null;
+}
+
 /** What the agent does after the step `next --untilAgent` handed it. */
 export function untilAgentOwnerLine(storyId: string, driver: 'llm' | 'framework'): string {
   return driver === 'framework'
-    ? 'Do only this step (author exactly the <...> fields; run every command of a batch in order). If a command you run is refused and its output names `proof-or-stop next`, or when the step is done, end your turn: owner.driver=framework runs every following framework step and resumes you with the next action. Do not run `next --run`, launch or wait on managed runs, or poll status yourself.'
+    ? 'Do only this step (author exactly the <...> fields; run every command of a batch in order). If a command you run is refused and its output names `proof-or-stop next`, or when the step is done, end your turn: owner.driver=framework runs every following framework step and resumes you with the next action. Do not run `next --run`, launch or wait on managed runs, or poll status yourself. When this step is done, end your turn.'
     : `When this step is done, run \`proof-or-stop next --storyId=${storyId} --untilAgent\` again.`;
 }
 
@@ -3560,6 +3602,19 @@ export function createNextDriverHandlers(ctx: HandlerContext, lookup: HandlerLoo
     if (!storyId) {
       const unfinished = unfinishedStoryIds(ctx);
       if (unfinished.length > 1) throw new Error(`next --untilAgent: ${unfinished.length} unfinished Stories (${unfinished.join(', ')}); pass --storyId=<id>`);
+      // Lab driver-done (old-PoS run 65): Stories exist and every one is DONE = the task is delivered; end the
+      // drive (outcome done) instead of handing back the story_create template, which made the driver create
+      // two more Stories for the finished task. A project with no Story still gets the template.
+      const delivered = !unfinished.length ? lastDoneStoryId(ctx) : null;
+      if (delivered) {
+        const terminal = step({ storyId: delivered, phase: 'DONE' }, 'human', 'story_done', null,
+          `Every Story of this project is DONE (${delivered} is the last): the task is delivered. ${DONE_TERMINAL_STATEMENT} Do not create another Story for it.`,
+          'driveNext: stories exist and none is unfinished', { done: true });
+        const rendered = renderNextStep(terminal, { frameworkOwner: driver === 'framework' });
+        return args.json
+          ? { schemaVersion: NEXT_DRIVE_SCHEMA, storyId: delivered, outcome: 'done', ownerDriver: driver, calls: [], executed: [], watchdog: [], stopped: null, next: terminal, rendered }
+          : rendered;
+      }
       if (!unfinished.length) {
         const template = storyCreateTemplateStep(ctx.root);
         const rendered = renderNextStep(capped(template));
@@ -3599,7 +3654,7 @@ export function createNextDriverHandlers(ctx: HandlerContext, lookup: HandlerLoo
       ...(result.worktree ? [worktreeNote(result.worktree)] : []),
       ...(result.stopped ? [`stopped: ${result.stopped}`] : []),
       ...(lastFailed && lastFailed.exit !== 0 ? [lastFailed.tail] : []),
-      ...(result.next ? [renderNextStep(capped(result.next))] : []),
+      ...(result.next ? [renderNextStep(capped(result.next), { frameworkOwner: driver === 'framework' })] : []),
       ...(result.next && !result.next.done && ['agent', 'stopped', 'framework_blocked'].includes(result.outcome) ? [untilAgentOwnerLine(id, driver)] : []),
     ].join('\n');
     if (args.json) {
