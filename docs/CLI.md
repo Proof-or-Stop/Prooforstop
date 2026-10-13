@@ -1882,10 +1882,10 @@ B2, C2; harness NRG).
   command + selector) on the current code: all pass, and every row the amendment added or changed is
   pinned to a test whose source states the row's case and value, keeps the item done (`status kept done
   (...)`, audit-log `done -> done` with the reason); the same for each dependent item (its pinned tests
-  only). Otherwise it goes pending as before (no pinned test, a failing test, an unreadable case, or a
+  only, and only when the amended item itself stayed done). Otherwise it goes pending as before (no pinned test, a failing test, an unreadable case, or a
   userSees change).
 - **E. Pin oracle order and no silent reversal.** The `finding_conflict_pin` why gives the oracle order
-  and the rows that pin a listed case now. In PLAN after the Story has been in DEV, a `checklist_update`
+  and the rows that pin a listed case now. In PLAN after the Story has been in DEV (a recorded `phase_transition` to DEV; the story `events` list alone is not evidence, a refused DEV entry leaves it too), a `checklist_update`
   whose intent changes the value an existing row pins for a case (`<case> -> <value>`, also in
   backticks) is refused `[pin_reversal_unstated]` (nothing written; the refusal lists the case, old and
   new value and the oracle order; one Next: a row patch with `derivation.computation` `re-pin: <case>

@@ -83,10 +83,13 @@ export function pinReversalRefusal(args: { storyId: string; itemId: string; reve
     + `Next: proof-or-stop checklist_update '{"storyId":"${args.storyId}","itemId":"${args.itemId}","intentRows":[{"ref":"<the row's ref>","derivation":{"requestQuote":"<request sentence>","computation":"re-pin: ${args.reversals[0]!.caseText.replace(/["\\]/g, '')} was ${args.reversals[0]!.oldValue.replace(/["\\]/g, '')}, now <new value>: <why>"}}]}'`;
 }
 
-/** Whether the Story has been in DEV before (a re-PLAN): story events or a phase_transition to DEV. */
-export function storyWasInDev(story: { events?: Array<{ phase?: string }> } | null | undefined, processEvents: ReadonlyArray<Record<string, unknown>>): boolean {
-  return (story?.events ?? []).some(event => event.phase === 'DEV')
-    || processEvents.some(event => event.type === 'phase_transition' && event.toPhase === 'DEV');
+/**
+ * Whether the Story has been in DEV before (a re-PLAN): a recorded phase_transition to DEV. The story `events` list is
+ * not evidence: a refused DEV entry (pin oracle, plan-light probe) leaves an `advance DEV` event on a Story that never
+ * left PLAN, and correcting a wrong pin before any DEV work is the ordinary PLAN loop, not a reversal.
+ */
+export function storyWasInDev(_story: unknown, processEvents: ReadonlyArray<Record<string, unknown>>): boolean {
+  return processEvents.some(event => event.type === 'phase_transition' && event.toPhase === 'DEV');
 }
 
 // ---------------------------------------------------------------------------

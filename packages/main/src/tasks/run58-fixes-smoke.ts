@@ -123,6 +123,8 @@ function repo(baseFiles: Record<string, string>, checklistRows: string[] = []): 
   const store = new StoryStore(root);
   store.writeStory(STORY_ID, { storyId: STORY_ID, name: 'seq-step', title: 'Stepped window', description: 'Add Step.', type: 'feature', phase: 'DEV', priority: 'high',
     createdAt: NOW, startedAt: NOW, endedAt: null, events: [{ phase: 'PLAN', action: 'advance', timestamp: NOW }, { phase: 'DEV', action: 'advance', timestamp: NOW }] } as StoryInfo);
+  // The Story has been in DEV: a recorded phase_transition (the story events list alone is not evidence, a refused DEV entry leaves it too).
+  store.appendProcessEvent(STORY_ID, { type: 'phase_transition', storyId: STORY_ID, fromPhase: 'PLAN', toPhase: 'DEV' } as never);
   setRows(store, checklistRows);
   commit(root, 'B-58a1 metadata');
   return { root, store, base };
@@ -365,6 +367,7 @@ await check('E1 a re-PLAN checklist_update that reverses an earlier pinned value
     assert.match(out, /verificationIntent updated/);
     // First PLAN (never in DEV): no refusal.
     fx.store.writeStory(STORY_ID, { ...fx.store.readStory(STORY_ID), events: [{ phase: 'PLAN', action: 'advance', timestamp: NOW }] } as StoryInfo);
+    rmSync(join(fx.root, '.proof-or-stop/story/actives', STORY_ID, 'process-events.jsonl'), { force: true });
     handlers.checklist_update(row('`Step(1, 2) -> [9]`'));
   } finally { rmSync(fx.root, { recursive: true, force: true }); resetConfigCache(); }
 });
