@@ -5196,7 +5196,7 @@ function scenarioNODInit(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome 
     assert.equal(parsed.storyId, id, `[${tag}] without --storyId the driver drives the one unfinished Story`);
     assert.equal(next.phase, 'PLAN', `[${tag}] the first agent step is in PLAN; at ${next.phase} ${next.kind}:${next.reason}`);
     assert.equal(next.kind, 'agent');
-    for (const reason of ['scope_freeze_check', 'init_review_launch', 'managed_run_wait', 'enter_init_check', 'enter_plan']) {
+    for (const reason of ['scope_freeze_check', 'init_review_launch', 'managed_run_wait', 'enter_init_check', 'enter_plan', 'dev_memory_preflight_ack', 'scope_plan_review_launch']) {
       assert.ok(ran.includes(reason), `[${tag}] the driver ran ${reason} (ran: ${ran.join(' > ')})`);
     }
     assert.equal(ran.filter(reason => reason === 'init_review_launch').length, 2, `[${tag}] both INIT reviewers launched by the framework`);
@@ -5238,10 +5238,13 @@ function scenarioNOD(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     const b = driveWithNext(fw, { findingRound1: true, run: true, drive: true }, lines);
     assert.match(git(fw.root, ['log', '--format=%s', '-3', 'main']), new RegExp(`merge: ${fw.storyId} `), `[${tag}] story branch merged into main`);
     assert.match(readFileSync(join(fw.root, 'strs/strs_test.go'), 'utf8'), /TestReverseEmpty/, `[${tag}] repair merged into main`);
-    assert.deepEqual(b.ownerSteps, a.ownerSteps, `[${tag}] framework mode hands the owner exactly the judgment steps llm mode does:\nllm:       ${a.ownerSteps.join(' > ')}\nframework: ${b.ownerSteps.join(' > ')}`);
+    // Lab neutral-64: the default live-smoke capture (the project validate command) is a framework step under owner.driver=framework
+    // (a mechanical 0.4-minute owner turn in run 64); every other judgment step is still the owner's.
+    assert.deepEqual(b.ownerSteps, a.ownerSteps.filter(reason => reason !== 'live_smoke'), `[${tag}] framework mode hands the owner the judgment steps llm mode does, minus the mechanical live_smoke capture:\nllm:       ${a.ownerSteps.join(' > ')}\nframework: ${b.ownerSteps.join(' > ')}`);
+    assert.ok(existsSync(join(fw.root, '.proof-or-stop/story', 'actives', fw.storyId, 'evidence', 'live-smoke-transcript.json')) || /live_smoke/.test(lines.join('\n')), `[${tag}] the framework recorded the live-smoke transcript`);
     assert.ok(b.ownerTurns < a.ownerTurns, `[${tag}] fewer owner invocations in framework mode (${b.ownerTurns} vs ${a.ownerTurns})`);
     lines.push(`owner invocations from REVIEW entry: llm ${a.ownerTurns} (${a.nextCalls} next --run calls + ${a.ownerSteps.length} owner steps) vs framework ${b.ownerTurns} (${b.ownerSteps.length} owner steps; ${b.nextCalls} next --untilAgent calls made by the driver, ${b.driverRunCalls} next --run calls inside them)`);
-    lines.push(`owner judgment steps (identical in both modes): ${b.ownerSteps.join(' > ') || 'none'}`);
+    lines.push(`owner judgment steps (llm mode's minus the mechanical live_smoke capture): ${b.ownerSteps.join(' > ') || 'none'}`);
     fw.cleanup();
     return { name, status: 'PASS', lines };
   } catch (error) {

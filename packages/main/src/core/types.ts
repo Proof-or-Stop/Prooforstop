@@ -2986,6 +2986,8 @@ export interface ScopeCheckData {
   reviewRound?: string;
   /** Reviewer-visible checklist digest at save time (guidance only; outside the signature domain). */
   checklistDigest?: string;
+  /** scopeReviewChecklistCoreDigest: the checklist digest without `excludes` (outside the signature domain). */
+  checklistCoreDigest?: string;
   /** Lab plan-light (A/B plan.reviewMerge=on): this verdict is the ONE merged plan review (INIT + scope questions). Outside the signature domain. */
   planReview?: 'merged';
   _hash: string;

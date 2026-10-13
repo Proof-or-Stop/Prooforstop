@@ -91,7 +91,9 @@ const REVISION_SUFFIX = /(?:\^\{(?:commit|tree|object|blob|tag)?\}|\^\d*|~\d*)*$
  * signatures, upstream tracking. Checked on every argv element.
  */
 const VOLATILE_FORMAT = /%[htpNdDG]|%[ac][hr]|%\((?:describe|decorate|HEAD|upstream|push|symref|worktreepath|notes|ahead-behind|is-base|signature|contents:signature)|:(?:short|human|relative|track|trackshort)\b|:short=/;
-const VOLATILE_OPTION = /^--(?:abbrev|short|relative-date|simplify-by-decoration|notes|show-notes|decorate|source|merge$|oneline|graph|left-right|cherry|boundary|show-signature|resolve-git-dir|show-superproject-working-tree|local-env-vars|shared-index-path|date=(?:human|relative|auto))/;
+// `--abbrev-ref` abbreviates REF names (the complete ref-state witness covers every ref that could make one ambiguous);
+// `--abbrev[=N]` abbreviates object ids and stays refused.
+const VOLATILE_OPTION = /^--(?:abbrev(?!-ref(?:=(?:strict|loose))?$)|short|relative-date|simplify-by-decoration|notes|show-notes|decorate|source|merge$|oneline|graph|left-right|cherry|boundary|show-signature|resolve-git-dir|show-superproject-working-tree|local-env-vars|shared-index-path|date=(?:human|relative|auto))/;
 
 export function hasVolatileOutput(bare: readonly string[]): boolean {
   if (bare[0] === 'describe') return true;

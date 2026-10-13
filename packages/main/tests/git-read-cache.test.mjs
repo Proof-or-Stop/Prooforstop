@@ -420,6 +420,27 @@ try {
     assert.equal(r.counters.gitSpawns, calls.length, JSON.stringify(r.counters));
   });
 
+  check('neutral-64: rev-parse --abbrev-ref HEAD is a ref-name read: cached while the ref state is unchanged, fresh after a tag makes the name ambiguous or HEAD moves; --abbrev=N stays refused', () => {
+    const call = { argv: ['rev-parse', '--abbrev-ref', 'HEAD'], cwd: repo, encoding: 'utf8' };
+    const truth = () => rawExecFileSync('git', call.argv, { cwd: repo, encoding: 'utf8' });
+    child([call]);
+    const warm = child([call]);
+    assert.equal(warm.counters.gitSpawns, 0, JSON.stringify(warm.counters));
+    assert.equal(warm.out[0].stdout, truth());
+    const branch = truth().trim();
+    git(repo, 'tag', branch);
+    try {
+      const ambiguous = child([call]);
+      assert.equal(ambiguous.out[0].stdout, truth(), 'a tag with the branch name changes what strict mode prints; the answer is read fresh');
+      assert.notEqual(ambiguous.out[0].stdout.trim(), branch);
+    } finally { git(repo, 'tag', '-d', branch); }
+    git(repo, 'checkout', '-q', '-b', 'neutral64-side');
+    try { assert.equal(child([call]).out[0].stdout.trim(), 'neutral64-side'); } finally { git(repo, 'checkout', '-q', branch); git(repo, 'branch', '-D', 'neutral64-side'); }
+    const volatile = { argv: ['rev-parse', '--abbrev=4', 'HEAD'], cwd: repo, encoding: 'utf8' };
+    child([volatile]);
+    assert.equal(child([volatile]).counters.gitSpawns, 1, 'abbreviated object ids depend on the object count: always git');
+  });
+
   check('review 7: a config include refuses the cache', () => {
     writeFileSync(join(root, 'inc.cfg'), '[core]\n\tabbrev = 8\n');
     git(repo, 'config', 'include.path', join(root, 'inc.cfg'));

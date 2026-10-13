@@ -1,4 +1,4 @@
-import { contradictedExclusions, exclusionRationaleCheckActive, exclusionRejection, gapCoveredByItemRemedy, itemsChangingBehaviour } from '../core/scope-exclusion-rationale.js';
+import { checklistChangeIsExcludesOnly, contradictedExclusions, exclusionRationaleCheckActive, exclusionRejection, excludesProofGap, excludesProofGapRemedy } from '../core/scope-exclusion-rationale.js';
 import { storyScopeBudgetBlocker } from '../core/story-scope-budget.js';
 /**
  * @task B-ef9c
@@ -780,9 +780,13 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
             // Pin audit / same-semantics (old-PoS run 23, core/intent-derivation.ts):
             // the fix is the pinned intent itself, not coverage or an exclusion.
             const pinAudit = new RegExp(`^\\s*(?:${PIN_AUDIT_GAP_PREFIX}|${ASYMMETRIC_EXAMPLE_GAP_PREFIX})\\b`, 'i').test(gap.feature ?? '');
-            const changingItems = exclusionCheck && !pinAudit && !checklistChangedSinceVerdict ? itemsChangingBehaviour(gap.feature ?? '', cl.items) : [];
-            if (changingItems.length) {
-              issues.push({ type: 'scope_gap', severity: 'blocker', message: gapCoveredByItemRemedy(args.storyId, gap.feature, source, changingItems, rerunScopeReviewer, rerunWhat) });
+            // Old-PoS runs 61 / 63 (core/scope-exclusion-rationale.ts): a gap an excludes entry cannot close (a precedent
+            // conflict, or a behaviour an item changes) names the covering row; after an excludes-only checklist change
+            // the reviewer is not rerun (scopePlanRerunReason), so the same remedy stands.
+            const excludesOnly = checklistChangedSinceVerdict && checklistChangeIsExcludesOnly(scopeData, cl);
+            const excludesProof = !pinAudit && (!checklistChangedSinceVerdict || excludesOnly) ? excludesProofGap(ctx.root, gap.feature ?? '', cl.items) : null;
+            if (excludesProof) {
+              issues.push({ type: 'scope_gap', severity: 'blocker', message: excludesProofGapRemedy(args.storyId, gap.feature, source, excludesProof, rerunScopeReviewer, rerunWhat, excludesOnly) });
               continue;
             }
             issues.push({

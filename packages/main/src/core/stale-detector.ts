@@ -12,7 +12,7 @@ import { rethrowIntentAmendmentIntegrityError } from './verification-intent-amen
  *   - When there is no active story, return [] directly to avoid disturbing proof-or-stop help / proof-or-stop doctor
  */
 
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import type { HandlerContext } from '../handlers/context.js';
 import type { StoryInfo, ChecklistData, BugData } from './types.js';
 import { loadConfig } from './config.js';
@@ -80,7 +80,7 @@ function resolveThresholds(root: string): StaleThresholds {
  */
 function detectActiveStoryId(root: string): string | null {
   try {
-    const branch = execSync('git rev-parse --abbrev-ref HEAD', {
+    const branch = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
       cwd: root,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],

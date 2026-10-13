@@ -22,7 +22,7 @@
  * DEV-entry gate (`[missing_scope_check]` with one `Next:` line) and `next`
  * (the managed reviewer launch step), so the three cannot drift.
  */
-import { contradictedExclusions, exclusionRationaleCheckActive } from './scope-exclusion-rationale.js';
+import { checklistChangeIsExcludesOnly, contradictedExclusions, exclusionRationaleCheckActive, excludesProofGap } from './scope-exclusion-rationale.js';
 import { openScopeGaps } from './pin-audit-correction.js';
 import { existsSync } from 'node:fs';
 import type { StoryStore } from './store.js';
@@ -137,7 +137,14 @@ export function scopePlanRerunReason(
   // Old-PoS run 31 (D8): pin-audit gaps whose requested values are the only change are checked deterministically.
   const gaps = openScopeGaps(scope, store.readChecklist(story.storyId)).length;
   if (gaps > 0 && scopeVerdictChecklistChanged(scope, store.readChecklist(story.storyId))) {
-    return `the verdict of ${scope.checkedAt} lists ${gaps} gap(s) and the checklist changed since that verdict`;
+    // Old-PoS runs 61 / 63 (core/scope-exclusion-rationale.ts): only `excludes` changed and every open gap is one an
+    // excludes entry cannot close (precedent conflict, or a behaviour an item changes): the reviewer would judge the
+    // same content and re-raise the same rows (3-6 identical rounds). story_review keeps the covering-row Next; the
+    // checks below (contradicted exclusions, review round) still apply.
+    const checklist = store.readChecklist(story.storyId);
+    const excludesProof = Boolean(root) && checklistChangeIsExcludesOnly(scope, checklist)
+      && openScopeGaps(scope, checklist).every(gap => excludesProofGap(root!, gap.feature ?? '', checklist.items));
+    if (!excludesProof) return `the verdict of ${scope.checkedAt} lists ${gaps} gap(s) and the checklist changed since that verdict`;
   }
   // Old-PoS run 43 (core/scope-exclusion-rationale.ts): an exclusion story_review rejects is judged again once the checklist changed.
   if (root && exclusionRationaleCheckActive(root) && scopeVerdictChecklistChanged(scope, store.readChecklist(story.storyId))) {
