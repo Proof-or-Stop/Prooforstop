@@ -29,6 +29,7 @@ import { dirname, join } from 'node:path';
 import * as nextDriver from '../handlers/next-driver.js';
 import { createMainRegistry } from '../registry.js';
 import { rowBudgetNote } from '../core/plan-row-budget.js';
+import * as intakeModule from '../core/story-create-intake.js';
 import * as planScope from '../core/plan-scope-check-requirement.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
@@ -62,6 +63,7 @@ const STORY_REQUEST = [
   '## Store',
   '- Add `putRange(lo, hi, v)` to the store.',
   '- Add single-key `put(k, v)` on read-only views (returns an error).',
+  '- `putRange(lo, hi, v)` stores v under every key from lo up to but excluding hi.',
 ].join('\n');
 const derivation = (desc: string) => ({ requestQuote: 'Add `putRange(lo, hi, v)` to the store.', computation: `Applying the quoted sentence to the stated operands gives ${desc.split('->')[1]?.trim() ?? desc}.` });
 const row = (desc: string, test: string) => ({ desc, derivation: derivation(desc), type: 'logic' as const, priority: 'must' as const, scope: 'focused' as const, expectation: 'absolute_pass' as const,
@@ -89,7 +91,7 @@ function items(opts: { excludes?: string[]; extraRow?: boolean; repeated?: boole
   }] as unknown as ChecklistItem[];
 }
 
-function planStory(config: Record<string, unknown> = {}, checklist: ChecklistItem[] = items()): { root: string; storyId: string; ctx: { store: StoryStore; root: string; scanRoot: string } } {
+function planStory(config: Record<string, unknown> = {}, checklist: ChecklistItem[] = items(), opts: { ack?: boolean } = {}): { root: string; storyId: string; ctx: { store: StoryStore; root: string; scanRoot: string } } {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'neutral64-plan-')));
   git(root, ['init', '-q', '-b', 'main']);
   git(root, ['config', 'user.name', 'Bench Owner']);
@@ -105,7 +107,7 @@ function planStory(config: Record<string, unknown> = {}, checklist: ChecklistIte
     createdAt: now, startedAt: now, endedAt: null, events: [{ phase: 'PLAN', action: 'advance', timestamp: now }] } as StoryInfo);
   store.writeChecklist(storyId, { items: checklist } as ChecklistData);
   writeStoryRequest(store, { storyId, phase: 'INIT', request: STORY_REQUEST, source: 'smoke', now });
-  store.writeDevMemoryPreflightAck(storyId, { schemaVersion: 'proof-or-stop.dev_memory_preflight_ack.v1', storyId, topHitIds: [], acknowledgedAt: now, acknowledgedBy: 'smoke' } as never);
+  if (opts.ack !== false) store.writeDevMemoryPreflightAck(storyId, { schemaVersion: 'proof-or-stop.dev_memory_preflight_ack.v1', storyId, topHitIds: [], acknowledgedAt: now, acknowledgedBy: 'smoke' } as never);
   return { root, storyId, ctx: { store, root, scanRoot: root } };
 }
 
@@ -203,6 +205,7 @@ await check('E5 the plan_review_blockers header offers no excludes route when ev
 // R. plan.rowBudget: one concrete, skippable trim step
 
 type Step = { kind: string; reason: string; why: string; batch?: Array<{ command: string; cli: { command: string; payload: Record<string, unknown> }; placeholders?: string[] }>; placeholders?: string[] };
+function planScopeIntake(): object { return intakeModule; }
 const decide = (f: ReturnType<typeof planStory>): Step => {
   const registry = createMainRegistry(f.ctx as never);
   return nextDriver.createNextDriver(f.ctx as never, (name: string) => registry.get(name)).decide(f.storyId) as unknown as Step;
@@ -260,6 +263,79 @@ await check('R5 the story_create row-budget note ends in one optional Next with 
   assert.match(note, /Next \(optional, skippable\)/);
   assert.equal((note.match(/Next/g) ?? []).length, 1);
   assert.match(note, /proof-or-stop checklist_update '/);
+});
+
+// ---------------------------------------------------------------------------
+// O. owner authoring
+
+const FRAMEWORK = { owner: { driver: 'framework' } };
+type StepFull = Step & { launch?: boolean; command?: string | null; cli?: { command: string; payload: Record<string, unknown> } | null };
+
+await check('O1 owner.driver=framework: the dev-memory acknowledgement is a framework step; the default path keeps the agent step', () => {
+  const on = planStory(FRAMEWORK, items(), { ack: false });
+  try {
+    const next = decide(on) as StepFull;
+    assert.equal(next.reason, 'dev_memory_preflight_ack');
+    assert.equal(next.kind, 'framework', 'next --run runs it');
+    assert.equal(next.cli?.command, 'dev_memory_preflight_ack');
+  } finally { cleanup(on); }
+  const off = planStory({}, items(), { ack: false });
+  try {
+    const next = decide(off);
+    assert.equal(next.reason, 'dev_memory_preflight_ack');
+    assert.equal(next.kind, 'agent', 'default path unchanged');
+  } finally { cleanup(off); }
+});
+
+await check('O2 owner.driver=framework: the first scope-plan launch is a framework step with the qualified default selection; the default path keeps the agent step', () => {
+  const on = planStory(FRAMEWORK);
+  try {
+    const next = decide(on) as StepFull;
+    assert.equal(next.reason, 'scope_plan_review_launch');
+    assert.equal(next.kind, 'framework', `launched by next --run: ${next.kind}`);
+    assert.equal(next.launch, true);
+    assert.equal(next.cli?.command, 'host_run');
+    assert.ok(next.cli?.payload.host && next.cli?.payload.model && next.cli?.payload.reasoningEffort, 'host, model and effort are all set');
+  } finally { cleanup(on); }
+  const off = planStory();
+  try { assert.equal(decide(off).kind, 'agent', 'default path unchanged'); } finally { cleanup(off); }
+});
+
+await check('O3 the live-smoke capture is a framework step only for the default capture while no transcript exists', () => {
+  const live = api(nextDriver, 'liveSmokeStep') as (base: unknown, root: string, status: { status: string; ok: boolean; reason: string }, framework: boolean, validateCommand: unknown) => StepFull;
+  const base = { storyId: 'B-64a1', phase: 'TEST' };
+  const absent = { status: 'absent', ok: true, reason: 'none' };
+  const validate = { command: 'go', args: ['test', '-v', './store'] };
+  const on = live(base, '/tmp/x', absent, true, validate);
+  assert.equal(on.kind, 'framework');
+  assert.equal(on.cli?.payload.capture, 'go test -v ./store');
+  assert.equal(on.cli?.payload.write, true);
+  assert.equal(live(base, '/tmp/x', absent, false, validate).kind, 'agent', 'default path unchanged');
+  assert.equal(live(base, '/tmp/x', { status: 'invalid', ok: false, reason: 'failed' }, true, validate).kind, 'agent', 'a transcript that does not pass needs a judgment');
+  assert.equal(live(base, '/tmp/x', absent, true, undefined).kind, 'agent', 'no project command to capture: the agent names one');
+});
+
+const QUOTE_ROW = { desc: 'putRange(2,5,"w") -> keys 2,3,4', type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story',
+  verification: { command: 'go test -v ./store -run ^TestPutRangeB$', selector: '--- PASS: TestPutRangeB' } };
+
+await check('O4 the intent_derivation_required refusal names the closest verbatim request sentence for a non-verbatim requestQuote', () => {
+  const failure = api(planScopeIntake(), 'storyCreateDerivationFailure') as (items: unknown, request: string | null) => string | null;
+  const text = failure([{ itemId: 'CHK-001', verificationIntent: { happy: [{ ...QUOTE_ROW, derivation: { requestQuote: 'putRange stores v under keys lo through hi-1', computation: 'keys 2,3,4' } }], edge: [], adversarial: [] } }], STORY_REQUEST) ?? '';
+  assert.match(text, /not a verbatim sentence/);
+  assert.ok(text.includes('`putRange(lo, hi, v)` stores v under every key from lo up to but excluding hi.'), `the verbatim sentence is in the refusal: ${text}`);
+});
+
+await check('O5 plan_authoring pre-fills requestQuote with the closest verbatim request sentence and leaves the computation to the owner', () => {
+  const row = { ...QUOTE_ROW };
+  const f = planStory({}, items().map(item => item.id === 'CHK-001'
+    ? { ...item, verificationIntent: { ...item.verificationIntent!, happy: [...item.verificationIntent!.happy, row as never] } } : item) as ChecklistItem[]);
+  try {
+    const next = decide(f);
+    assert.equal(next.reason, 'plan_authoring', `${next.reason}: ${next.why.slice(0, 200)}`);
+    const payload = JSON.stringify(next.batch?.map(call => call.cli.payload) ?? []);
+    assert.ok(payload.includes('stores v under every key from lo up to but excluding hi.'), `requestQuote is pre-filled: ${payload.slice(0, 600)}`);
+    assert.match(payload, /<the steps from that sentence/, 'the computation stays the owner\'s');
+  } finally { cleanup(f); }
 });
 
 // ---------------------------------------------------------------------------
