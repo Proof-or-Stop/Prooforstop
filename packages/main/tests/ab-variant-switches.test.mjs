@@ -28,6 +28,8 @@
  *   V11 review.laneMerge=on            ONE managed review session per round carries every active lane's dimension (the first
  *                                        dimension is the carrier lane; core/review-lane-merge.ts; plan, coverage contract and
  *                                        prompt block in tasks/review-lane-merge-smoke.ts, end to end in NLM*)
+ *   V12 review.laneMerge=split         TWO merged sessions per round in parallel (concept + quality | test-coverage + docs;
+ *                                        lab lane-split; tasks/review-lane-merge-smoke.ts S*, end to end in NLM-S*)
  *   Lab plan-light (EXPERIMENTAL, default off; behaviour in tasks/plan-light-smoke.ts, end to end in NPP / NPM-I / NPM-P / NRB):
  *   plan.pinProbe                    example pins probed on the Story base + request-literal examples before PLAN→DEV
  *   plan.reviewMerge                 no INIT reviewers; ONE merged plan review in PLAN; a rerun confirms the changed rows
@@ -513,6 +515,20 @@ await check('V11 review.laneMerge: off/malformed = every lane its own session (n
   assert.equal(laneMergeVariant(OFF()), undefined, 'flag off: no merge');
   assert.equal(laneMergeVariant(projectWith({ review: { laneMerge: 'bogus' } })), undefined, 'malformed: no merge');
   assert.equal(laneMergeVariant(projectWith({ review: { laneMerge: 'on' } }))?.flags?.['review.laneMerge'], 'on', 'on: the arm is recorded in the evidence');
+});
+
+await check('V12 review.laneMerge=split: a third value; recorded arm; laneMergeOn covers on and split; malformed keeps production', async () => {
+  const { resolveAbVariants, abVariantEvidence, laneMergeOn, laneMergeMode } = await load('core/ab-variants.js');
+  assert.equal(resolveAbVariants({ review: { laneMerge: 'split' } }).laneMerge, 'split');
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ review: { laneMerge: 'split' } })), { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.laneMerge': 'split' } });
+  assert.equal(laneMergeOn({ review: { laneMerge: 'split' } }), true);
+  assert.equal(laneMergeMode({ review: { laneMerge: 'split' } }), 'split');
+  assert.equal(laneMergeMode({ review: { laneMerge: 'on' } }), 'on');
+  assert.equal(laneMergeMode({}), 'off');
+  assert.equal(laneMergeMode({ review: { laneMerge: 'Split' } }), 'off', 'malformed = off where consumed');
+  assert.throws(() => resolveAbVariants({ review: { laneMerge: 'Split' } }), /invalid_ab_variant_config: review\.laneMerge/);
+  const { laneMergeVariant } = await load('core/review-lane-merge.js');
+  assert.equal(laneMergeVariant(projectWith({ review: { laneMerge: 'split' } }))?.flags?.['review.laneMerge'], 'split');
 });
 
 for (const dir of dirs) rmSync(dir, { recursive: true, force: true });
