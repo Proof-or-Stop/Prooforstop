@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { execFileSync, execSync } from 'child_process';
 import { existsSync, lstatSync, readFileSync, realpathSync, statSync, type Stats } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { homedir } from 'node:os';
@@ -83,6 +83,18 @@ export function isNotGitRepoError(err: unknown): boolean {
   return msg.includes('not a git repository') || msg.includes('not in a git directory');
 }
 
+/**
+ * Old-PoS run 64 (lab neutral-64): the argv of a plain `git <words>` command (no quoting, redirection, expansion
+ * or other shell syntax), else null. Such a command runs through execFileSync, where the cross-process git read
+ * cache (core/git-read-cache.ts) can answer ref-state and setup reads; `execSync(string)` is a shell call it never
+ * answers, so `rev-parse --abbrev-ref HEAD`, `--show-toplevel` and `worktree list` were re-spawned by every CLI
+ * process (about 260 spawns in one lifecycle-harness flow). Same program, same words, same environment.
+ */
+export function plainGitArgv(command: string): string[] | null {
+  const match = /^git((?: [A-Za-z0-9_@%+=:,./-]+)+)$/.exec(command);
+  return match ? match[1]!.trim().split(' ') : null;
+}
+
 export function gitProbe(
   command: string,
   opts: { cwd?: string; encoding?: BufferEncoding } = {},
@@ -93,11 +105,9 @@ export function gitProbe(
     const identity = command === 'git rev-parse --show-toplevel' ? rootProbeIdentity(cwd) : undefined;
     const prior = identity === undefined ? undefined : rootProbes.get(cwd);
     if (prior?.identity === identity && prior) return { ok: true, output: prior.output };
-    const output = execSync(command, {
-      cwd: opts.cwd,
-      encoding: opts.encoding || 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
+    const argv = plainGitArgv(command);
+    const run = { cwd: opts.cwd, encoding: opts.encoding || 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] as ['pipe', 'pipe', 'pipe'] };
+    const output = (argv ? execFileSync('git', argv, run) : execSync(command, run)).trim();
     if (identity !== undefined) {
       if (rootProbes.size >= 128) rootProbes.delete(rootProbes.keys().next().value!);
       rootProbes.set(cwd, { identity, output });
