@@ -1584,8 +1584,9 @@ and `node packages/main/tests/git-read-cache.test.mjs`.
 ### `next --untilAgent`: the framework owner driver (`owner.driver`, owner-driver lab)
 
 `proof-or-stop next --storyId=<id> --untilAgent` (no `--storyId`: the one unfinished
-Story; with none it prints the `story_create` template; with several it refuses and
-asks for the id) repeats `next --storyId=<id> --run --json` in child processes,
+Story; with several it refuses and asks for the id; when Stories exist and every one
+is DONE it returns the terminal `outcome: done` for the last DONE Story and never the
+`story_create` template; with no Story at all it prints the template) repeats `next --storyId=<id> --run --json` in child processes,
 with no agent turn in between, until a step is not framework work, and prints that
 ONE step (`handlers/next-drive.ts`):
 
@@ -1594,6 +1595,7 @@ ONE step (`handlers/next-drive.ts`):
 | `paused:` (wait budget used) or `maxSteps` reached | calls `next --run` again |
 | an `agent` step | returns it (`outcome: agent`) |
 | a `human` step / DONE | returns it (`outcome: human` / `done`) |
+| (no `--storyId`) Stories exist, none unfinished | `outcome: done` for the last DONE Story, `calls: []`; no `story_create` template (old-PoS run 65) |
 | `stopped:` (a refused step, a launch decided twice) | returns it with the refusal (`outcome: stopped`) |
 | a framework step with no runnable command | returns it (`outcome: framework_blocked`) |
 | the watchdog killed the call | calls again; a third kill in a row returns `outcome: watchdog` |
@@ -1632,7 +1634,7 @@ only with the step it returns: `story_create` then prints `Next: end your turn n
 (owner.driver=framework)` and no manual sequence, and the handed-back step ends with
 the "end your turn" line. Set it in the project config:
 `{"owner": {"driver": "framework"}}` (bench: `POS_AB_FLAGS='{"owner.driver":"framework"}'`,
-adapter `pos_adapters/owner_driver.py`). Since old-PoS run 64 (lab neutral-64) `framework` also makes `dev_memory_preflight_ack`, the first `scope_plan_review_launch` and the first default `live_smoke` capture framework steps `next --run` executes (they were mechanical owner turns); under `llm` they stay agent steps.
+adapter `pos_adapters/owner_driver.py`). Lab driver-done (old-PoS run 65: the first Story was DONE and merged at minute 48, then the framework created two more Stories for the same task until the 180 min timeout) closes the end of the loop in three layers. (1) Under `framework` every step text `next` hands back, including the `story_create` template, ends with "end your turn" and never sends the owner to `next --run` / `next --untilAgent` (`frameworkOwnerWhy` in `handlers/next-driver.ts` rewrites the "then run `proof-or-stop next ... --run`" phrasings of the step builders; under `llm` the text is byte-identical, golden unchanged; the "(framework step: ... --run runs it)" line is not printed to a framework-driven owner). (2) `next --untilAgent` with every Story DONE is a terminal `done`, see above. (3) `story_create` compares the request it would record (explicit `request`, `requestFile`, or the staged one) with the `request.md` digest (`request.json` sha256 of the bounded text) of every DONE Story: under `framework` an equal digest is refused with `[request_already_delivered]` and `Next: end your turn now`, fail-closed (`forceNew` does not bypass it); under `llm` the create goes through and a stderr note names the delivered Story (a person may legitimately redo or revert work; the keyword-overlap check stays advisory). The bench adapter additionally ends its loop at the first DONE and never resumes the owner for a `story_create_authoring` step once a Story exists (`end: done_story_exists`), and `run_status.py` marks a trial with more than one Story `multi_story` (not a valid perf sample). Since old-PoS run 64 (lab neutral-64) `framework` also makes `dev_memory_preflight_ack`, the first `scope_plan_review_launch` and the first default `live_smoke` capture framework steps `next --run` executes (they were mechanical owner turns); under `llm` they stay agent steps.
 
 Why (old-PoS runs 40/54/56, `bench-staging/oldpos/structural-cost-analysis.md`
 section 9): 36-51% of the owner's requests (40/30/28 of 79/76/79) and 43-59% of its
@@ -1650,7 +1652,7 @@ agent step: scope freeze, both INIT reviewers and their waits, INIT_CHECK, PLAN)
 `review_lane_launch > live_smoke > test_authoring` in llm mode and `review_lane_launch > test_authoring` in
 framework mode, whose `live_smoke` capture is a framework step since run 64, owner invocations
 7 vs 3), `NOD-W` (a post-commit hook hangs once in a review-evidence import commit;
-the watchdog kills the call after the step-stall limit and the Story reaches DONE).
+the watchdog kills the call after the step-stall limit and the Story reaches DONE), `NOD-DUP` (run 65 sequence: the scripted owner runs `next --run` after TEST authoring, the Story is DONE, then `next --untilAgent` ends `done`, `story_create` of the delivered request is refused explicitly and staged, still created under `llm` with a note, a different request is not refused; every driven step text is audited). `owner-driver-smoke` N1 checks `frameworkOwnerWhy`.
 
 ### Detection A/B variant switches (eight experimental, default off; `review.round2Lanes`, `remediation.grouping` and `remediation.thread` adopted; five catch-earlier switches since old-PoS run 33 and two run-43 detection switches that default on, and three EXPERIMENTAL lab plan-light PLAN switches, below)
 
