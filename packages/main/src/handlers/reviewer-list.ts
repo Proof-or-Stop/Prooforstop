@@ -376,7 +376,7 @@ export function renderFinalReviewRoster(roster: FinalReviewRoster, storyId: stri
     : roster.selection.selection === 'delta-round'
       ? `delta-round (A/B review.deltaRounds=on: ${roster.selection.reasonDetail})`
       : roster.selection.selection === 'lane-merge'
-        ? `lane-merge (A/B review.laneMerge=on: ${roster.selection.reasonDetail})`
+        ? `lane-merge (A/B review.laneMerge=${roster.selection.laneMerge?.mode ?? 'on'}: ${roster.selection.reasonDetail})`
         : `full-set (${roster.selection.reason}: ${roster.selection.reasonDetail})${roster.selection.deltaRound ? `; delta round: no (${roster.selection.deltaRound.reason}: ${roster.selection.deltaRound.detail})` : ''}${roster.selection.laneMerge ? `; lane merge: no (${roster.selection.laneMerge.reason}: ${roster.selection.laneMerge.detail})` : ''}`;
   const filesSummary = (files: readonly string[]): string => files.length === 0 ? '(not established)'
     : `${files.length} file(s): ${files.slice(0, 10).map(path => path.length > 160 ? path.slice(0, 157) + '...' : path).join(', ')}${files.length > 10 ? ', ...' : ''}`;
@@ -387,7 +387,8 @@ export function renderFinalReviewRoster(roster: FinalReviewRoster, storyId: stri
     `Dependency closure: ${filesSummary(roster.selection.closureFiles)}`,
     `Full file lists: proof-or-stop reviewer_list --storyId=${storyId} --json`,
     ...(roster.selection.selection === 'lane-merge' && roster.selection.laneMerge
-      ? [`Merged into the ${roster.selection.laneMerge.carrier ?? '?'} session: ${roster.selection.laneMerge.mergedLanes.join(', ')}`] : []),
+      ? (roster.selection.laneMerge.groups ?? []).filter(group => group.mergedLanes.length >= 2)
+        .map(group => `Merged into the ${group.carrier} session: ${group.mergedLanes.join(', ')}`) : []),
     `Outside this repair: ${roster.activeReviewers.filter(row => !lanes.includes(row.lane)
       && !(roster.selection.selection === 'lane-merge' && roster.selection.laneMerge?.mergedLanes.includes(row.lane))).map(row => row.lane).join(', ') || '(none)'}`,
     `Next: proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"${lanes[0]}"}'`,

@@ -69,6 +69,8 @@ export interface ManagedDeltaRoundPrompt {
 export interface ManagedLaneMergePrompt {
   plan: LaneMergePlan;
   role: 'merged';
+  /** The carrier lane of this session (review.laneMerge=split runs two merged sessions per round). */
+  carrier: string;
 }
 
 export interface ManagedReviewEvidenceVerification {
@@ -204,7 +206,13 @@ function importerCommitRefusal(
   const foreign = files.find(file => !artifacts.has(file));
   if (!files.length || foreign) return foreign ? `importer commit touches ${foreign}` : 'empty importer commit';
   const names = new Set(files.map(file => file.split('/').at(-1)));
-  if (!names.has('review-passes.json') && !names.has('findings.json')) return 'importer commit publishes no review evidence';
+  if (!names.has('review-passes.json') && !names.has('findings.json')) {
+    // EXPERIMENTAL review.laneMerge (lab lane-split, harness NLM-SC): a refused merged session (its carrier left
+    // its own dimension uncovered) publishes only its coverage + refusal records. That commit carries no review
+    // evidence and changes nothing a sibling receipt was reviewed against, so it must not invalidate the
+    // other merged session of the same split round, imported in the same batch right after it.
+    return refusalRecordOnlyCommit(git, canonicalStoryDir, files, commit) ? null : 'importer commit publishes no review evidence';
+  }
   if (!names.has('review-passes.json')) return null;
   const passesPath = `${canonicalStoryDir}/review-passes.json`;
   const parent = git(['show', '-s', '--format=%P', commit]).split(/\s+/).filter(Boolean);
@@ -228,6 +236,32 @@ function importerCommitRefusal(
     return `importer commit appends review-passes.json rows (${appended.map(row => row.id ?? '?').join(', ')}) that are not one managed receipt's own evidence`;
   }
   return null;
+}
+
+/**
+ * Process events a refused managed review import commits without publishing evidence (lane merge carrier gap):
+ * its coverage and refusal records, plus the round's lane `dispatch` records appended since the last commit
+ * (an evidence-carrying importer commit would carry them the same way).
+ */
+const REFUSAL_RECORD_EVENTS: ReadonlySet<string> = new Set(['review_lane_merge_coverage', 'managed_review_import_refused', 'dispatch']);
+
+/**
+ * True when an importer commit only appends refusal records to the Story's
+ * process-events.jsonl: earlier lines unchanged, every appended line a
+ * REFUSAL_RECORD_EVENTS event. Anything else stays refused.
+ */
+function refusalRecordOnlyCommit(git: (argv: string[]) => string, canonicalStoryDir: string, files: readonly string[], commit: string): boolean {
+  const eventsPath = `${canonicalStoryDir}/process-events.jsonl`;
+  if (files.length !== 1 || files[0] !== eventsPath) return false;
+  const parent = git(['show', '-s', '--format=%P', commit]).split(/\s+/).filter(Boolean);
+  if (parent.length !== 1) return false;
+  const read = (ref: string): string => (git(['ls-tree', '--name-only', ref, '--', eventsPath]) ? git(['show', `${ref}:${eventsPath}`]) : '');
+  const before = read(parent[0]!).split('\n').filter(line => line.trim());
+  const after = read(commit).split('\n').filter(line => line.trim());
+  if (after.length <= before.length || before.some((line, index) => after[index] !== line)) return false;
+  return after.slice(before.length).every(line => {
+    try { return REFUSAL_RECORD_EVENTS.has(String((JSON.parse(line) as { type?: unknown }).type)); } catch { return false; }
+  });
 }
 
 /**
@@ -1022,7 +1056,7 @@ export function buildManagedReviewerPrompt(
   const merged = laneMerge?.role === 'merged' && isCodeReviewLaneRun(run)
     ? renderLaneMergeBlock(laneMerge.plan, laneMergeDimensionSections(root, (() => {
       try { const request = readStoryRequest(new StoryStore(root), run.storyId); return request.status === 'ok' ? request.text : ''; } catch { return ''; }
-    })(), laneMerge.plan)) : [];
+    })(), laneMerge.plan, laneMerge.carrier), laneMerge.carrier) : [];
   return [
     '--- BEGIN MANAGED REVIEW EVIDENCE PROTOCOL ---',
     `This provider run is already bound to ${binding}.`,

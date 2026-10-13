@@ -501,11 +501,13 @@ export function createManagedReviewEvidenceHandlers(
           }
         }
       }
-      // EXPERIMENTAL A/B review.laneMerge=on (core/review-lane-merge.ts): the round's ONE merged
-      // session never passes a dimension it did not cover. Its coverage is recorded once per
-      // receipt (before any evidence persists); an uncovered dimension runs as its own lane (in
-      // this round after a pass, in the next round after findings, no late lane now); a pass that
-      // left the carrier's own dimension uncovered is not imported and never proposed again.
+      // EXPERIMENTAL A/B review.laneMerge=on|split (core/review-lane-merge.ts): a merged session
+      // (the round's one, or one of split's two) never passes a dimension it did not cover (lab
+      // lane-split: specific evidence per checkpoint and a [read] list backed by the read manifest).
+      // Its coverage is recorded once per receipt (before any evidence persists); an uncovered
+      // dimension runs as its own lane (in this round after a pass, in the next round after
+      // findings, no late lane now); a pass that left the carrier's own dimension uncovered is not
+      // imported and never proposed again (its session's dimensions run as their own lanes).
       // Off: no laneMerge binding, no change.
       let laneMergeHint = '';
       const mergeBinding = managedRun.reviewBinding?.laneMerge;
@@ -513,7 +515,8 @@ export function createManagedReviewEvidenceHandlers(
         const recorded = ctx.store.readProcessEvents(proposal.storyId).find(event => event.type === LANE_MERGE_COVERAGE_EVENT
           && event.managedRunId === runId && event.managedReceiptId === receiptId) as { missingLanes?: unknown; carrierMissing?: unknown } | undefined;
         if (recorded || !hasPersistedReceiptEvidence) {
-          const coverage = checkLaneMergeNote({ binding: mergeBinding, note: proposal.note ?? '' });
+          const coverage = checkLaneMergeNote({ binding: mergeBinding, note: proposal.note ?? '', readManifest: proposal.readManifest as { filesReadFully?: unknown } | undefined });
+          const arm = mergeBinding.mode === 'split' ? 'split' : 'on';
           const missingLanes = recorded ? (Array.isArray(recorded.missingLanes) ? recorded.missingLanes.map(String) : []) : coverage.missingLanes;
           const carrierMissing = recorded ? recorded.carrierMissing === true : coverage.carrierMissing;
           if (!recorded) {
@@ -522,6 +525,9 @@ export function createManagedReviewEvidenceHandlers(
               reviewRunId: proposal.reviewRunId, reviewRound: story.currentReviewRound ?? null, conclusion, carrier: mergeBinding.carrier,
               mergedLanes: mergeBinding.mergedLanes, coveredLanes: coverage.coveredLanes, missingLanes: coverage.missingLanes, missingItems: coverage.missingItems,
               gaps: coverage.gaps, carrierMissing: coverage.carrierMissing,
+              // Lab lane-split depth contract: generic checkpoints, dimensions without a backed read list, the read lists.
+              genericItems: coverage.genericItems, unreadLanes: coverage.unreadLanes, readFiles: coverage.readFiles, unverifiedReads: coverage.unverifiedReads,
+              ...(mergeBinding.mode === 'split' ? { mode: 'split' } : {}),
               findingDimensions: split.product.map(row => ({ proposalFindingIndex: row.index, dimension: findingDimension(row.finding.desc) })) });
           }
           if (missingLanes.length > 0) {
@@ -534,13 +540,13 @@ export function createManagedReviewEvidenceHandlers(
               }
               const gapCommitHint = commitReviewResultMetadata({ root: ctx.root, store: ctx.store, storyId: proposal.storyId, reviewRunId: proposal.reviewRunId,
                 reason: 'managed_review_evidence_import', options: { exactStoryArtifactNames: ['process-events.jsonl'] } });
-              return `Merged review session from ${runId} is NOT a pass (A/B review.laneMerge=on; nothing imported): ${reason}.\n`
-                + `Round ${story.currentReviewRound ?? '?'} falls back: every dimension (${mergeBinding.mergedLanes.join(', ')}) reviews as its own lane (process event ${LANE_MERGE_COVERAGE_EVENT}).\n`
+              return `Merged review session from ${runId} is NOT a pass (A/B review.laneMerge=${arm}; nothing imported): ${reason}.\n`
+                + `Round ${story.currentReviewRound ?? '?'} falls back: every dimension of this session (${mergeBinding.mergedLanes.join(', ')}) reviews as its own lane (process event ${LANE_MERGE_COVERAGE_EVENT}).\n`
                 + `Framework next action: proof-or-stop next --storyId=${proposal.storyId} --run${gapCommitHint}`;
             }
             laneMergeHint = conclusion === 'pass'
-              ? `\nMerged review session from ${runId} left dimension(s) ${missingLanes.join(', ')} uncovered (A/B review.laneMerge=on): the pass covers only the other dimensions; each uncovered dimension is relaunched as its own lane in this round (process event ${LANE_MERGE_COVERAGE_EVENT}). Framework next action: proof-or-stop next --storyId=${proposal.storyId} --run`
-              : `\nMerged review session from ${runId} reported findings but left dimension(s) ${missingLanes.join(', ')} uncovered (A/B review.laneMerge=on): its findings are imported; the next review round runs each uncovered dimension as its own lane (process event ${LANE_MERGE_COVERAGE_EVENT}).`;
+              ? `\nMerged review session from ${runId} left dimension(s) ${missingLanes.join(', ')} uncovered (A/B review.laneMerge=${arm}): the pass covers only the other dimensions; each uncovered dimension is relaunched as its own lane in this round (process event ${LANE_MERGE_COVERAGE_EVENT}). Framework next action: proof-or-stop next --storyId=${proposal.storyId} --run`
+              : `\nMerged review session from ${runId} reported findings but left dimension(s) ${missingLanes.join(', ')} uncovered (A/B review.laneMerge=${arm}): its findings are imported; the next review round runs each uncovered dimension as its own lane (process event ${LANE_MERGE_COVERAGE_EVENT}).`;
           }
         }
       }

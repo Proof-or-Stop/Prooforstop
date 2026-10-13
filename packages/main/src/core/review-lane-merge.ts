@@ -42,6 +42,32 @@
  *   5. The inventory critic runs as before; no round cap, no severity decay:
  *      every verified finding still blocks until it is closed.
  *
+ * Depth (lab lane-split, both values; old-PoS run 64 §4.4: the merged R1 session
+ * read 2 files fully and triaged 11 by name, where a separate lane read 5-7, and
+ * its test-coverage / docs `[checked]` lines were generic one-liners): every
+ * merged dimension also lists the files it read in full (`[read] <dimension> ::
+ * <file>, ...`; at least one of them must be in the proposal's
+ * readManifest.filesReadFully), and a `[checked]` line's evidence must cite a
+ * file:line or a command with its output. A generic line or a missing / unbacked
+ * read list leaves the dimension uncovered: the same fail-closed relaunch.
+ *
+ * `review.laneMerge=split` (lab lane-split; run 64: the merged session cut lane
+ * input 49-64% but lane wall rose to 13.7 min vs 8.6 / 11.9, because one session
+ * serialised what four did in parallel): TWO merged sessions per round, launched
+ * in parallel like ordinary lanes (LANE_MERGE_SPLIT_SESSIONS): concept + quality
+ * (carrier concept) and test-coverage + docs, with behavior in the second
+ * (carrier test-coverage). Pairing: each session's dimensions share one
+ * repository read (concept and quality both start from the changed code and its
+ * readers / edge paths; test-coverage, docs and behavior all map stated promises
+ * (request, userSees, verificationIntent, doc paragraphs) to their evidence), and
+ * the two read sets barely overlap, so the split costs little re-reading; the
+ * calibration (calibration-newpos-r1.md, indicative) found every verified defect
+ * in the concept or docs lane, so those two lead different sessions instead of
+ * competing for one session's attention. Same per-dimension contract, tags and
+ * routing per session; a session whose carrier leaves its own dimension
+ * uncovered sends only that session's dimensions to their own lanes. A session
+ * left with one dimension is an ordinary lane (its own prompt).
+ *
  * How this differs from the rejected A3 `review.lanePack=shared`
  * (bench-staging/oldpos/ab/results-lane-pack.md): A3 kept all four lane
  * sessions and the critic and only prepended a 46 KB shared pack to each, so
@@ -58,7 +84,7 @@
  * while lane merge is on (vary one switch at a time).
  */
 import { createHash } from 'node:crypto';
-import { abVariantEvidence, laneMergeOn, resolveAbVariants, type AbVariantEvidence } from './ab-variants.js';
+import { abVariantEvidence, laneMergeMode, laneMergeOn, resolveAbVariants, type AbVariantEvidence } from './ab-variants.js';
 import { canonicalAgentRoleId } from './agent-role-identity.js';
 import { loadConfig } from './config.js';
 import { isCodeReviewLaneRun, isEarlierReviewRound } from './review-round-order.js';
@@ -78,7 +104,26 @@ export type LaneMergeReason =
   | 'CARRIER_GAP'
   | 'FEWER_THAN_TWO_DIMENSIONS';
 
-export type LaneMergeSeparateReason = 'forced' | 'dimension_gap' | 'previous_dimension_gap';
+export type LaneMergeSeparateReason = 'forced' | 'dimension_gap' | 'previous_dimension_gap' | 'carrier_gap';
+
+/** The switch value that produced a plan ('on' = one merged session, 'split' = two in parallel). */
+export type LaneMergeMode = 'on' | 'split';
+
+/**
+ * review.laneMerge=split: the two sessions' dimensions (short lane names, in this
+ * order). A dimension not listed joins the session with fewer dimensions (ties:
+ * the first). Rationale in the module header.
+ */
+export const LANE_MERGE_SPLIT_SESSIONS: ReadonlyArray<ReadonlyArray<string>> = [['concept', 'quality'], ['test-coverage', 'behavior', 'docs']];
+
+/** One review session of a merged round: its carrier lane and the dimensions it reviews (one dimension = an ordinary lane). */
+export interface LaneMergeGroup {
+  carrier: string;
+  /** Dimensions reviewed in this session (carrier first, roster order). */
+  mergedLanes: string[];
+  /** `<dimension>:<checkpoint>` of this session ([] for a one-dimension session: an ordinary lane, no merged block). */
+  checkItems: string[];
+}
 
 export interface LaneMergeCheckpoint {
   /** `<dimension>:<checkpoint>`, e.g. `quality:edges`. */
@@ -135,16 +180,20 @@ export interface LaneMergePlan {
   previousRound: string | null;
   /** Canonical lanes, active roster order: the review dimensions of this round. */
   dimensionLanes: string[];
-  /** The lane whose one session carries every merged dimension (null when not eligible). */
+  /** The switch value ('on' | 'split'); absent with the switch off. */
+  mode?: LaneMergeMode;
+  /** The carrier of the first merged session (null when not eligible); `groups` lists every session. */
   carrier: string | null;
-  /** Dimensions reviewed in the carrier's session (carrier first). */
+  /** Dimensions reviewed inside a merged session (every merged session; carrier first for 'on'). */
   mergedLanes: string[];
+  /** The round's review sessions over the non-separate dimensions: one for 'on', up to two for 'split'. */
+  groups: LaneMergeGroup[];
   /** Dimensions reviewed by their own ordinary session in this round. */
   separateLanes: string[];
   separateReasons: Record<string, LaneMergeSeparateReason>;
   /** Roster order: the carrier and the separate lanes (all dimensions when not eligible). */
   selectedLanes: string[];
-  /** `<dimension>:<checkpoint>` of every merged dimension: one `[checked]` line each. */
+  /** `<dimension>:<checkpoint>` of every merged dimension: one `[checked]` line each (per session: groups[].checkItems). */
   checkItems: string[];
   /** Digest of the roster-deciding facts (stable while no coverage event of the round is recorded). */
   planDigest: string;
@@ -161,6 +210,9 @@ export interface LaneMergeRunBinding {
   carrier: string;
   mergedLanes: string[];
   checkItems: string[];
+  /** review.laneMerge=split only: the session layout (this session + the other sessions' dimensions). */
+  mode?: 'split';
+  otherSessions?: string[][];
 }
 
 export interface LaneMergeCoverage {
@@ -172,6 +224,14 @@ export interface LaneMergeCoverage {
   gaps: string[];
   /** The carrier's own dimension is not covered: nothing of a pass is accepted. */
   carrierMissing: boolean;
+  /** Checkpoints whose `[checked]` evidence cites no file:line and no command with its output (depth contract). */
+  genericItems: string[];
+  /** Dimensions without a `[read]` line naming a fully read file (with a read manifest: one listed in filesReadFully). */
+  unreadLanes: string[];
+  /** Files each dimension (short name) listed as read in full. */
+  readFiles: Record<string, string[]>;
+  /** `<dimension>:<file>` listed as read in full but absent from readManifest.filesReadFully. */
+  unverifiedReads: string[];
 }
 
 export type LaneMergeStore = Pick<StoryStore, 'readStory' | 'readReviewRuns' | 'readProcessEvents'>;
@@ -198,14 +258,39 @@ export function laneMergeVariant(projectRoot: string): AbVariantEvidence | undef
   let config: unknown;
   try { config = loadConfig(projectRoot); } catch { return undefined; }
   if (!laneMergeOn(config)) return undefined;
+  const fallback: AbVariantEvidence = { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.laneMerge': laneMergeMode(config) } };
   try {
-    return abVariantEvidence(resolveAbVariants(config)) ?? { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.laneMerge': 'on' } };
+    return abVariantEvidence(resolveAbVariants(config)) ?? fallback;
   } catch {
-    return { schema: 'proof-or-stop.ab-variants.v1', flags: { 'review.laneMerge': 'on' } };
+    return fallback;
   }
 }
 
-interface CoverageEventRow { type: string; reviewRound?: unknown; conclusion?: unknown; missingLanes?: unknown; carrierMissing?: unknown }
+/** The plan's mode from its recorded arm ('split' only when the evidence says so). */
+const modeOf = (abVariant: AbVariantEvidence): LaneMergeMode => abVariant.flags['review.laneMerge'] === 'split' ? 'split' : 'on';
+
+/**
+ * The sessions of a round over `dimensionLanes` (canonical, roster order): 'on' =
+ * one session, 'split' = LANE_MERGE_SPLIT_SESSIONS (an unlisted dimension joins
+ * the session with fewer dimensions, ties the first). Empty sessions are dropped.
+ */
+export function laneMergeSessions(mode: LaneMergeMode, dimensionLanes: readonly string[]): string[][] {
+  if (mode === 'on') return dimensionLanes.length ? [[...dimensionLanes]] : [];
+  const sessions: string[][] = LANE_MERGE_SPLIT_SESSIONS.map(() => []);
+  const unlisted: string[] = [];
+  for (const lane of dimensionLanes) {
+    const index = LANE_MERGE_SPLIT_SESSIONS.findIndex(names => names.includes(short(lane)));
+    if (index >= 0) sessions[index]!.push(lane); else unlisted.push(lane);
+  }
+  for (const lane of unlisted) {
+    const smallest = sessions.reduce((best, row, index) => (row.length < sessions[best]!.length ? index : best), 0);
+    sessions[smallest]!.push(lane);
+  }
+  // Roster order inside each session (the carrier is the first one not run separately).
+  return sessions.map(row => dimensionLanes.filter(lane => row.includes(lane))).filter(row => row.length > 0);
+}
+
+interface CoverageEventRow { type: string; reviewRound?: unknown; conclusion?: unknown; missingLanes?: unknown; carrierMissing?: unknown; carrier?: unknown; mergedLanes?: unknown }
 const lanesOf = (value: unknown): string[] => Array.isArray(value) ? value.filter((row): row is string => typeof row === 'string').map(canonical) : [];
 
 /**
@@ -227,14 +312,15 @@ export function computeLaneMergePlan(args: {
   let story: { currentReviewRound?: string } = {};
   try { story = store.readStory(storyId) as { currentReviewRound?: string }; } catch { story = {}; }
   const reviewRound = story.currentReviewRound ?? null;
+  const mode = abVariant ? modeOf(abVariant) : undefined;
   const base: LaneMergePlan = {
     schema: LANE_MERGE_SCHEMA, storyId, eligible: false, reason: 'LANE_MERGE_OFF', detail: 'review.laneMerge is off',
-    reviewRound, previousRound: null, dimensionLanes, carrier: null, mergedLanes: [], separateLanes: [...dimensionLanes],
+    reviewRound, previousRound: null, dimensionLanes, ...(mode ? { mode } : {}), carrier: null, mergedLanes: [], groups: [], separateLanes: [...dimensionLanes],
     separateReasons: {}, selectedLanes: [...dimensionLanes], checkItems: [], planDigest: '',
     ...(abVariant ? { abVariant } : {}),
   };
   const fallback = (reason: LaneMergeReason, detail: string, extra: Partial<LaneMergePlan> = {}): LaneMergePlan => {
-    const out: LaneMergePlan = { ...base, ...extra, eligible: false, reason, detail, carrier: null, mergedLanes: [],
+    const out: LaneMergePlan = { ...base, ...extra, eligible: false, reason, detail, carrier: null, mergedLanes: [], groups: [],
       separateLanes: [...dimensionLanes], selectedLanes: [...dimensionLanes], checkItems: [] };
     return { ...out, planDigest: digestPlan(out) };
   };
@@ -254,30 +340,51 @@ export function computeLaneMergePlan(args: {
     for (const lane of lanesOf(event.missingLanes)) mark(lane, 'previous_dimension_gap');
   }
   const current = events.filter(row => row.reviewRound === reviewRound && row.conclusion === 'pass' && lanesOf(row.missingLanes).length > 0);
-  if (current.some(row => row.carrierMissing === true)) {
+  const sessions = laneMergeSessions(mode!, dimensionLanes);
+  if (mode === 'on' && current.some(row => row.carrierMissing === true)) {
     return fallback('CARRIER_GAP', `the merged session of round ${reviewRound} left its own dimension uncovered: its pass was not accepted and every dimension runs as its own lane`,
       { previousRound });
   }
-  for (const event of current) for (const lane of lanesOf(event.missingLanes)) mark(lane, 'dimension_gap');
+  // split: a session whose carrier left its own dimension uncovered sends only ITS dimensions to their own lanes.
+  for (const event of current.filter(row => row.carrierMissing === true)) {
+    const recorded = lanesOf(event.mergedLanes);
+    const carrierLane = typeof event.carrier === 'string' ? canonical(event.carrier) : null;
+    const lanes = recorded.length ? recorded : sessions.find(row => carrierLane && row.includes(carrierLane)) ?? lanesOf(event.missingLanes);
+    for (const lane of lanes) mark(lane, 'carrier_gap');
+  }
+  for (const event of current.filter(row => row.carrierMissing !== true)) for (const lane of lanesOf(event.missingLanes)) mark(lane, 'dimension_gap');
   const separateLanes = dimensionLanes.filter(lane => separateReasons[lane]);
-  const mergedLanes = dimensionLanes.filter(lane => !separateReasons[lane]);
-  if (mergedLanes.length < 2) {
-    return fallback('FEWER_THAN_TWO_DIMENSIONS', `${mergedLanes.length} dimension(s) left to merge (${dimensionLanes.length} active, ${separateLanes.length} separate): every dimension runs as its own lane`,
+  const groups: LaneMergeGroup[] = sessions.map(row => row.filter(lane => !separateReasons[lane])).filter(row => row.length > 0).map(row => ({
+    carrier: row[0]!,
+    mergedLanes: row,
+    checkItems: row.length >= 2 ? row.flatMap(lane => laneMergeCheckpoints(lane).map(item => item.id)) : [],
+  }));
+  const mergedGroups = groups.filter(group => group.mergedLanes.length >= 2);
+  if (mergedGroups.length === 0) {
+    const left = dimensionLanes.length - separateLanes.length;
+    if (Object.values(separateReasons).includes('carrier_gap')) {
+      return fallback('CARRIER_GAP', `the merged sessions of round ${reviewRound} left their own dimensions uncovered: their passes were not accepted and every dimension runs as its own lane`,
+        { previousRound, separateReasons });
+    }
+    return fallback('FEWER_THAN_TWO_DIMENSIONS', `${left} dimension(s) left to merge (${dimensionLanes.length} active, ${separateLanes.length} separate)${mode === 'split' ? ', no session with two' : ''}: every dimension runs as its own lane`,
       { previousRound, separateReasons });
   }
-  const carrier = mergedLanes[0]!;
+  const mergedLanes = dimensionLanes.filter(lane => mergedGroups.some(group => group.mergedLanes.includes(lane)));
+  const carriers = groups.map(group => group.carrier);
+  const describe = (group: LaneMergeGroup) => group.mergedLanes.length >= 2 ? `(${short(group.carrier)}) for ${group.mergedLanes.map(short).join(', ')}` : `${short(group.carrier)} (its own lane)`;
   const out: LaneMergePlan = {
     ...base,
     eligible: true,
     reason: 'LANE_MERGE',
-    detail: `one session (${short(carrier)}) for ${mergedLanes.map(short).join(', ')}${separateLanes.length ? `; separate: ${separateLanes.map(lane => `${short(lane)} (${separateReasons[lane]})`).join(', ')}` : ''}`,
+    detail: `${mode === 'split' ? `${groups.length} parallel session(s): ${groups.map(describe).join(' | ')}` : `one session ${describe(groups[0]!)}`}${separateLanes.length ? `; separate: ${separateLanes.map(lane => `${short(lane)} (${separateReasons[lane]})`).join(', ')}` : ''}`,
     previousRound,
-    carrier,
+    carrier: mergedGroups[0]!.carrier,
     mergedLanes,
+    groups,
     separateLanes,
     separateReasons,
-    selectedLanes: dimensionLanes.filter(lane => lane === carrier || separateReasons[lane]),
-    checkItems: mergedLanes.flatMap(lane => laneMergeCheckpoints(lane).map(row => row.id)),
+    selectedLanes: dimensionLanes.filter(lane => carriers.includes(lane) || separateReasons[lane]),
+    checkItems: mergedGroups.flatMap(group => group.checkItems),
   };
   return { ...out, planDigest: digestPlan(out) };
 }
@@ -288,6 +395,8 @@ function digestPlan(plan: LaneMergePlan): string {
     schema: plan.schema, storyId: plan.storyId, eligible: plan.eligible, reason: plan.reason, reviewRound: plan.reviewRound,
     previousRound: plan.previousRound, dimensionLanes: plan.dimensionLanes, carrier: plan.carrier, mergedLanes: plan.mergedLanes,
     separateLanes: plan.separateLanes, separateReasons: plan.separateReasons, checkItems: plan.checkItems,
+    // 'on' keeps the digest it had before split existed; split binds its session layout too.
+    ...(plan.mode === 'split' ? { mode: plan.mode, groups: plan.groups } : {}),
   }));
 }
 
@@ -296,20 +405,33 @@ export function laneMergeRosterBasis(plan: LaneMergePlan, policyVersion: string)
   return JSON.stringify({ policyVersion, kind: 'lane-merge', dimensionLanes: plan.dimensionLanes, selectedLanes: plan.selectedLanes, planDigest: plan.planDigest });
 }
 
-export function laneMergeBinding(plan: LaneMergePlan): LaneMergeRunBinding {
+/** The merged session (two or more dimensions) a lane carries in this plan, or null. */
+export function laneMergeGroupOf(plan: LaneMergePlan | null | undefined, lane: string): LaneMergeGroup | null {
+  if (!plan?.eligible) return null;
+  const id = canonical(lane);
+  // A plan recorded before split existed has no groups: its one session is the carrier's.
+  const groups = plan.groups ?? (plan.carrier ? [{ carrier: plan.carrier, mergedLanes: plan.mergedLanes, checkItems: plan.checkItems }] : []);
+  return groups.find(group => group.carrier === id && group.mergedLanes.length >= 2) ?? null;
+}
+
+/** Sealed per carrier: its session's dimensions and checkpoints (`carrier` absent = the first merged session). */
+export function laneMergeBinding(plan: LaneMergePlan, carrier?: string): LaneMergeRunBinding {
   if (!plan.eligible || !plan.abVariant || !plan.reviewRound || !plan.carrier) {
     throw new Error(`laneMergeBinding: plan is not an eligible merged round (${plan.reason})`);
   }
+  const group = laneMergeGroupOf(plan, carrier ?? plan.carrier);
+  if (!group) throw new Error(`laneMergeBinding: ${carrier} is not a carrier of a merged session of round ${plan.reviewRound}`);
   return {
     schema: LANE_MERGE_SCHEMA, abVariant: plan.abVariant, role: 'merged', reviewRound: plan.reviewRound,
-    planDigest: plan.planDigest, carrier: plan.carrier, mergedLanes: plan.mergedLanes, checkItems: plan.checkItems,
+    planDigest: plan.planDigest, carrier: group.carrier, mergedLanes: group.mergedLanes, checkItems: group.checkItems,
+    ...(plan.mode === 'split' ? { mode: 'split' as const, otherSessions: plan.groups.filter(row => row !== group).map(row => row.mergedLanes) } : {}),
   };
 }
 
-/** 'merged' when this lane carries the merged session of this round; null otherwise (an ordinary lane prompt). */
+/** 'merged' when this lane carries a merged session of this round; null otherwise (an ordinary lane prompt). */
 export function laneMergeRole(plan: LaneMergePlan | null | undefined, lane: string, reviewRound: string): 'merged' | null {
   if (!plan?.eligible || plan.reviewRound !== reviewRound || !plan.carrier) return null;
-  return canonicalAgentRoleId(lane) === plan.carrier ? 'merged' : null;
+  return laneMergeGroupOf(plan, lane) ? 'merged' : null;
 }
 
 /** One dimension's prompt material beyond the carrier's own role prompt (built by core/review-lane-merge-prompt.ts). */
@@ -326,29 +448,39 @@ export interface LaneMergeDimensionSection {
  * dimension with its concern, checkpoints, role prompt and lane rules, the
  * finding tag rule, and the per-checkpoint coverage contract.
  */
-export function renderLaneMergeBlock(plan: LaneMergePlan, sections: readonly LaneMergeDimensionSection[]): string[] {
-  const carrier = plan.carrier ?? '';
-  const names = plan.mergedLanes.map(short);
+export function renderLaneMergeBlock(plan: LaneMergePlan, sections: readonly LaneMergeDimensionSection[], carrierLane?: string): string[] {
+  const group = laneMergeGroupOf(plan, carrierLane ?? plan.carrier ?? '')
+    ?? { carrier: plan.carrier ?? '', mergedLanes: plan.mergedLanes, checkItems: plan.checkItems };
+  const carrier = group.carrier;
+  const names = group.mergedLanes.map(short);
+  const split = plan.mode === 'split';
+  const others = (plan.groups ?? []).filter(row => row.carrier !== carrier).flatMap(row => row.mergedLanes).map(short);
   const separate = plan.separateLanes.map(short);
   const lines = [
-    `${LANE_MERGE_BLOCK_BEGIN} (A/B review.laneMerge=on, experimental; round ${plan.reviewRound}) ---`,
-    `This REVIEW round runs ONE review session for ${names.length} review dimensions instead of one session per lane: ${names.join(', ')}. Each section below is the full remit of the lane that would otherwise review this Story on its own: its concern, its checkpoints, its role prompt and its rules apply in full. Your own role prompt above is the ${short(carrier)} dimension.`,
+    `${LANE_MERGE_BLOCK_BEGIN} (A/B review.laneMerge=${split ? 'split' : 'on'}, experimental; round ${plan.reviewRound}) ---`,
+    split
+      ? `This REVIEW round runs ${plan.groups.length} review sessions in parallel instead of one session per lane; THIS session reviews ${names.length} dimensions: ${names.join(', ')}. Each section below is the full remit of the lane that would otherwise review this Story on its own: its concern, its checkpoints, its role prompt and its rules apply in full. Your own role prompt above is the ${short(carrier)} dimension.`
+      : `This REVIEW round runs ONE review session for ${names.length} review dimensions instead of one session per lane: ${names.join(', ')}. Each section below is the full remit of the lane that would otherwise review this Story on its own: its concern, its checkpoints, its role prompt and its rules apply in full. Your own role prompt above is the ${short(carrier)} dimension.`,
+    ...(others.length ? [`Reviewed in another session this round, in parallel (not yours): ${others.join(', ')}.`] : []),
     ...(separate.length ? [`Reviewed in a separate session this round (not yours): ${separate.join(', ')}.`] : []),
-    'Method: read the Story diff and the files it touches ONCE, then work through EVERY dimension section below in order, as each lane would. A problem found in one dimension never excuses skipping another; do not stop after the first finding.',
-    'Findings: report every finding of every dimension in the one final proposal. Begin each finding\'s desc with its dimension tag, e.g. `[dimension:quality] ...` (one of: ' + names.map(name => `[dimension:${name}]`).join(', ') + '). A problem several dimensions see is reported once, tagged with the dimension whose check found it.',
-    'Coverage lines (mandatory for a pass AND for findings): your final note MUST contain one line per checkpoint listed below, exactly in these forms:',
-    '  [checked] <checkpoint> :: <what you read or ran for this checkpoint and what it showed>',
+    'Method: read the Story diff and the files it touches ONCE, then work through EVERY dimension section below in order, as each lane would. Read in full every file a dimension needs (the changed files, their readers, the tests and docs it judges); a file only triaged by name is not read. A problem found in one dimension never excuses skipping another; do not stop after the first finding.',
+    'Findings: report every finding of every dimension in the one final proposal. Begin each finding\'s desc with its dimension tag, e.g. `[dimension:' + names[names.length > 1 ? 1 : 0] + '] ...` (one of: ' + names.map(name => `[dimension:${name}]`).join(', ') + '). A problem several dimensions see is reported once, tagged with the dimension whose check found it.',
+    'Coverage lines (mandatory for a pass AND for findings): your final note MUST contain one [checked] line per checkpoint and one [read] line per dimension listed below, exactly in these forms:',
+    '  [checked] <checkpoint> :: <specific evidence: a file:line you read (e.g. pkg/file.go:42) or a command you ran with its output (`<command>` -> <what it printed>), and what it showed>',
+    '  [read] <dimension> :: <file>, <file>, ... (the files you read in full for this dimension; each also in readManifest.filesReadFully)',
     '  [gap] <checkpoint> :: <why it was not checked>',
-    `A dimension with any checkpoint missing, without evidence text after "::", or marked [gap] is NOT covered: the framework never accepts it as reviewed and relaunches that dimension as its own separate review session. If your own dimension (${short(carrier)}) is not covered, nothing of a pass is accepted and every dimension is reviewed again separately.`,
+    'Evidence is specific or it does not count: a [checked] line that cites no file:line and no command with its output (e.g. "every intent mapped, all pass", "no new promises", "no issues") is generic and the checkpoint is NOT checked.',
+    `A dimension with any checkpoint missing, without specific evidence after "::", or marked [gap], or without a [read] line naming a file you read in full, is NOT covered: the framework never accepts it as reviewed and relaunches that dimension as its own separate review session. If your own dimension (${short(carrier)}) is not covered, nothing of a pass is accepted and every dimension of this session is reviewed again separately.`,
   ];
-  plan.mergedLanes.forEach((lane, index) => {
+  group.mergedLanes.forEach((lane, index) => {
     const section = sections.find(row => canonicalAgentRoleId(row.lane) === lane);
     lines.push('');
-    lines.push(`### Dimension ${index + 1}/${plan.mergedLanes.length}: ${short(lane)} (lane ${lane})${lane === carrier ? ' — your role prompt above' : ''}`);
+    lines.push(`### Dimension ${index + 1}/${group.mergedLanes.length}: ${short(lane)} (lane ${lane})${lane === carrier ? ' — your role prompt above' : ''}`);
     lines.push(`Concern: ${laneMergeConcern(lane)}`);
     lines.push('Checkpoints (one [checked] line each):');
     for (const row of laneMergeCheckpoints(lane)) lines.push(`- ${row.id} — ${row.text}`);
-    if (section?.roleBody) {
+    // The carrier's role prompt is the base prompt above the block: never repeated here.
+    if (section?.roleBody && lane !== carrier) {
       lines.push(`Role prompt of the ${short(lane)} dimension (apply its checks in full; the managed protocol above still decides how you record results: no review_run_start / finding_add / review_pass_set, one final proposal):`);
       lines.push(`<<<ROLE ${short(lane)}`);
       lines.push(section.roleBody.trim());
@@ -360,14 +492,15 @@ export function renderLaneMergeBlock(plan: LaneMergePlan, sections: readonly Lan
   return lines;
 }
 
-const NOTE_MARKER = /\[(?:checked|gap)\]/g;
-const NOTE_SEGMENT = /^\[(checked|gap)\]\s+(\S+)([\s\S]*)$/;
+const NOTE_MARKER = /\[(?:checked|gap|read)\]/g;
+const NOTE_SEGMENT = /^\[(checked|gap|read)\]\s+(\S+)([\s\S]*)$/;
+type NoteKind = 'checked' | 'gap' | 'read';
 /** An item token as a reviewer writes it: `quoted`, *bold*, `dimension:` prefixed, or followed by a colon / full stop. */
 const cleanItem = (item: string): string => item.replace(/^[`'"*(]+/, '').replace(/[`'"*),;:.]+$/, '').replace(/^dimension:/, '');
 
 /** Every `[checked]` / `[gap]` segment of a note; a marker counts wherever it stands (a flattened one-line note parses). */
-function noteSegments(note: string): Array<{ kind: 'checked' | 'gap'; item: string; evidence: string }> {
-  const out: Array<{ kind: 'checked' | 'gap'; item: string; evidence: string }> = [];
+function noteSegments(note: string): Array<{ kind: NoteKind; item: string; evidence: string }> {
+  const out: Array<{ kind: NoteKind; item: string; evidence: string }> = [];
   for (const line of note.split('\n')) {
     const starts = [...line.matchAll(NOTE_MARKER)].map(match => match.index ?? 0);
     starts.forEach((start, index) => {
@@ -376,7 +509,7 @@ function noteSegments(note: string): Array<{ kind: 'checked' | 'gap'; item: stri
       if (!match) return;
       const rest = match[3]!.trim();
       const evidence = rest.startsWith('::') ? rest.slice(2).trim() : rest.replace(/^[-—:]+\s*/, '').trim();
-      out.push({ kind: match[1] as 'checked' | 'gap', item: cleanItem(match[2]!), evidence });
+      out.push({ kind: match[1] as NoteKind, item: cleanItem(match[2]!), evidence });
     });
   }
   return out;
@@ -385,29 +518,81 @@ function noteSegments(note: string): Array<{ kind: 'checked' | 'gap'; item: stri
 /** Minimum evidence text after a [checked] item: a bare `[checked] quality:edges` is not coverage. */
 const MIN_EVIDENCE_CHARS = 8;
 
+/** A file:line citation (`dir/file.ext:42`, `file.ext:42-60`, `file.ext#L42`). */
+const FILE_LINE = /[A-Za-z0-9_./-]*[A-Za-z0-9_]\.[A-Za-z0-9]{1,8}(?::\d+|#L\d+)/;
+/** A command in backticks followed by what it printed (`<command>` -> / → / => / printed / returned / gives / exit ...). */
+const COMMAND_OUTPUT = /`[^`]{2,}`\s*(?:->|→|=>|(?:printed|prints|printing|returned|returns|gave|gives|output|outputs|exited|exits|exit|failed|fails|panicked|panics|passed|passes|ok|pass|fail|error)\b)/i;
+
+/**
+ * Depth contract: evidence is specific when it cites a file:line or a command
+ * with its output; anything else ("all intents mapped, all pass") is generic.
+ */
+export function isSpecificEvidence(evidence: string): boolean {
+  return FILE_LINE.test(evidence) || COMMAND_OUTPUT.test(evidence);
+}
+
+/** A path as a reviewer writes it in a [read] list: unquoted, no leading ./, no :line / #Lline suffix. */
+function cleanPath(token: string): string {
+  return token.replace(/^[`'"*(\[]+/, '').replace(/[`'"*),;.\]]+$/, '').replace(/^\.\//, '').replace(/(?::\d+(?:[-:]\d+)?|#L\d+(?:-L?\d+)?)$/, '');
+}
+const isPathLike = (token: string): boolean => token.length > 0 && !/\s/.test(token) && (token.includes('/') || /\.[A-Za-z0-9]{1,8}$/.test(token));
+const samePath = (a: string, b: string): boolean => a === b || a.endsWith(`/${b}`) || b.endsWith(`/${a}`);
+
 /**
  * The coverage contract of a merged session's note (deterministic, no command
  * runs): per merged dimension, every checkpoint needs a `[checked]` line with
- * evidence and no `[gap]`. Fail closed: anything else leaves the dimension
- * uncovered.
+ * specific evidence (a file:line or a command with its output) and no `[gap]`,
+ * and the dimension needs a `[read]` line naming at least one file it read in
+ * full (with a read manifest: one of readManifest.filesReadFully). Fail closed:
+ * anything else leaves the dimension uncovered.
  */
-export function checkLaneMergeNote(args: { binding: Pick<LaneMergeRunBinding, 'carrier' | 'mergedLanes' | 'checkItems'>; note: string }): LaneMergeCoverage {
+export function checkLaneMergeNote(args: {
+  binding: Pick<LaneMergeRunBinding, 'carrier' | 'mergedLanes' | 'checkItems'>;
+  note: string;
+  /** The proposal's read manifest; its filesReadFully backs the [read] lists. */
+  readManifest?: { filesReadFully?: unknown } | null;
+}): LaneMergeCoverage {
   const checked = new Set<string>();
   const gapped = new Set<string>();
+  const generic = new Set<string>();
   const gaps: string[] = [];
+  const dims = args.binding.mergedLanes.map(short);
+  const readFiles: Record<string, string[]> = {};
   for (const { kind, item, evidence } of noteSegments(args.note ?? '')) {
+    if (kind === 'read') {
+      if (!dims.includes(item)) continue;
+      const files = evidence.split(/[\s,]+/).map(cleanPath).filter(isPathLike);
+      readFiles[item] = [...new Set([...(readFiles[item] ?? []), ...files])];
+      continue;
+    }
     if (!args.binding.checkItems.includes(item)) continue;
     if (kind === 'gap') { gapped.add(item); gaps.push(`${item}${evidence ? ` :: ${evidence}` : ''}`); }
-    else if (evidence.length >= MIN_EVIDENCE_CHARS) checked.add(item);
+    else if (evidence.length >= MIN_EVIDENCE_CHARS && isSpecificEvidence(evidence)) checked.add(item);
+    else if (evidence.length >= MIN_EVIDENCE_CHARS) generic.add(item);
   }
+  const manifest = Array.isArray(args.readManifest?.filesReadFully)
+    ? (args.readManifest!.filesReadFully as unknown[]).filter((row): row is string => typeof row === 'string').map(cleanPath).filter(Boolean) : null;
+  const unverifiedReads: string[] = [];
+  const unreadLanes = args.binding.mergedLanes.filter(lane => {
+    const files = readFiles[short(lane)] ?? [];
+    if (!manifest) return files.length === 0;
+    const verified = files.filter(file => manifest.some(full => samePath(full, file)));
+    unverifiedReads.push(...files.filter(file => !verified.includes(file)).map(file => `${short(lane)}:${file}`));
+    return verified.length === 0;
+  });
+  const genericItems = args.binding.checkItems.filter(item => generic.has(item) && !checked.has(item));
   const missingItems = args.binding.checkItems.filter(item => !checked.has(item) || gapped.has(item));
-  const missingLanes = args.binding.mergedLanes.filter(lane => missingItems.some(item => item.startsWith(`${short(lane)}:`)));
+  const missingLanes = args.binding.mergedLanes.filter(lane => unreadLanes.includes(lane) || missingItems.some(item => item.startsWith(`${short(lane)}:`)));
   return {
     coveredLanes: args.binding.mergedLanes.filter(lane => !missingLanes.includes(lane)),
     missingLanes,
     missingItems,
     gaps,
     carrierMissing: missingLanes.includes(args.binding.carrier),
+    genericItems,
+    unreadLanes,
+    readFiles,
+    unverifiedReads,
   };
 }
 
