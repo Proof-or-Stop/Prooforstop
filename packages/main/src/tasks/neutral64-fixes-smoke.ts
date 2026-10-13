@@ -262,6 +262,53 @@ await check('R5 the story_create row-budget note ends in one optional Next with 
   assert.match(note, /proof-or-stop checklist_update '/);
 });
 
+// ---------------------------------------------------------------------------
+// C. shell-string git probes reach the cross-process cache
+
+const PROBE_COMMANDS = ['git rev-parse --abbrev-ref HEAD', 'git rev-parse --show-toplevel', 'git worktree list --porcelain -z'];
+/** A PATH shim that logs every real git invocation (the cache counters see only execFileSync / spawnSync calls). */
+function gitLogShim(): { dir: string; log: string; calls: () => string[] } {
+  const dir = realpathSync(mkdtempSync(join(tmpdir(), 'neutral64-gitshim-')));
+  const real = execFileSync('which', ['git'], { encoding: 'utf8' }).trim();
+  const log = join(dir, 'calls.log');
+  writeFileSync(join(dir, 'git'), `#!/bin/sh\necho "$*" >> ${JSON.stringify(log)}\nexec ${JSON.stringify(real)} "$@"\n`, { mode: 0o755 });
+  return { dir, log, calls: () => { try { return readFileSync(log, 'utf8').split('\n').filter(Boolean); } catch { return []; } } };
+}
+function probeInChild(cwd: string, commands: string[], shim: ReturnType<typeof gitLogShim>): { out: Array<{ ok: boolean; output?: string }>; spawned: string[] } {
+  const script = `
+    import { installGitReadCache } from ${JSON.stringify(new URL('../core/git-read-cache.js', import.meta.url).href)};
+    import { gitProbe } from ${JSON.stringify(new URL('../core/git-probe.js', import.meta.url).href)};
+    import { writeFileSync } from 'node:fs';
+    installGitReadCache();
+    gitProbe('git rev-parse --git-dir', { cwd: ${JSON.stringify(cwd)} });
+    writeFileSync(${JSON.stringify(`${shim.log}.mark`)}, String(${JSON.stringify(0)}));
+    const out = ${JSON.stringify(commands)}.map(command => gitProbe(command, { cwd: ${JSON.stringify(cwd)} }));
+    process.stdout.write(JSON.stringify({ out }));
+  `;
+  const before = shim.calls().length;
+  const result = JSON.parse(execFileSync(process.execPath, ['--input-type=module', '-e', script], { encoding: 'utf8', env: { ...process.env, PATH: `${shim.dir}:${process.env.PATH}`, PROOF_OR_STOP_GIT_READ_CACHE: '' } })) as { out: Array<{ ok: boolean; output?: string }> };
+  return { out: result.out, spawned: shim.calls().slice(before) };
+}
+
+await check('C1 C2 C3 plain git probes are answered from the cross-process cache in a second process; a moved HEAD is never stale; status and shell syntax still run git', () => {
+  const f = planStory();
+  const shim = gitLogShim();
+  try {
+    const first = probeInChild(f.root, PROBE_COMMANDS, shim);
+    assert.ok(first.out.every(row => row.ok), `probes work: ${JSON.stringify(first.out)}`);
+    const second = probeInChild(f.root, PROBE_COMMANDS, shim);
+    assert.deepEqual(second.out, first.out, 'same answers');
+    const repeats = second.spawned.filter(call => /abbrev-ref|show-toplevel|worktree list/.test(call));
+    assert.deepEqual(repeats, [], `the second process spawns no git for the ref / setup probes: ${JSON.stringify(second.spawned)}`);
+    git(f.root, ['checkout', '-q', '-b', 'feature/other']);
+    const moved = probeInChild(f.root, PROBE_COMMANDS, shim);
+    assert.equal(moved.out[0]!.output, 'feature/other', `a changed branch is read fresh: ${moved.out[0]!.output}`);
+    const status = probeInChild(f.root, ['git status --porcelain', 'git rev-parse --abbrev-ref HEAD 2>&1'], shim);
+    assert.ok(status.spawned.some(call => /^status/.test(call)), `a working-tree probe still runs git: ${JSON.stringify(status.spawned)}`);
+    assert.equal(status.out[1]!.output, 'feature/other', 'a command with shell syntax keeps its shell semantics');
+  } finally { cleanup(f); rmSync(shim.dir, { recursive: true, force: true }); }
+});
+
 if (failures.length) {
   console.error(`neutral64-fixes-smoke: FAIL (${failures.length}: ${failures.join('; ')})`);
   process.exit(1);
