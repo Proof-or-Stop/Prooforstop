@@ -28,3 +28,11 @@ export const SCOPE_PLAN_BASE_DISAGREEMENT_CHECK = '- Base-disagreement check: fo
 export function baseDisagreementActive(root: string): boolean {
   try { return baseDisagreementOn(loadConfig(root)); } catch { return true; }
 }
+
+/** The gap prefix the check above asks for (`Precedent conflict: <operation>, <case>: <A result> vs <B result>`). */
+export const PRECEDENT_CONFLICT_GAP_PREFIX = 'Precedent conflict:';
+
+/** Whether a scope gap row is a base-disagreement gap (its only remedy is a covering row, never an excludes entry). */
+export function isPrecedentConflictGap(feature: string | undefined): boolean {
+  return /^\s*Precedent conflict:/i.test(feature ?? '');
+}

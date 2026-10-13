@@ -756,7 +756,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     // Old-PoS run 27 (row 4b): a rerun starts from the previous verdict and the checklist diff since it.
     // Lab plan-light (A/B plan.reviewMerge=on): a rerun is a confirmation re-review of the changed rows.
     const merged = planReviewMergeActive(root);
-    lines.push(...renderScopePlanRerunContext({ store, storyId: args.storyId,
+    lines.push(...renderScopePlanRerunContext({ store, storyId: args.storyId, root,
       gitCwd: resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root }), ...(merged ? { confirmation: true } : {}) }));
     appendScopePlanRequestTraceability(lines, store, args.storyId,
       storyPinOracle(store, root, args.storyId, resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root })));

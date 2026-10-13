@@ -19,6 +19,7 @@ import type { StoryStore } from './store.js';
 import type { ChecklistData, ChecklistItem, ScopeCheckData } from './types.js';
 import { scopeReviewChecklistDigest } from './scope-check-integrity.js';
 import { VERIFICATION_LANES } from './verification.js';
+import { excludesEntryCheck } from './scope-exclusion-rationale.js';
 
 const MAX_DIFF_LINES = 40;
 const clip = (text: string, max = 200): string => (text.length > max ? `${text.slice(0, max - 1)}…` : text);
@@ -92,8 +93,29 @@ function confirmationLines(scope: ScopeCheckData, changed: ReadonlySet<string>):
   ];
 }
 
+const MAX_EXCLUDES_LINES = 12;
+
+/**
+ * Old-PoS runs 61 / 63: the owner's excludes entries in full (the checklist diff clips them at 200
+ * characters, so the reviewer saw "String si…") with the framework's deterministic check result for
+ * each against the flagged rows. Orientation only; the reviewer still judges every entry.
+ */
+function ownerExcludesLines(root: string, flagged: readonly string[], before: ChecklistData | null, current: ChecklistData): string[] {
+  const old = new Map((before?.items ?? []).map(item => [item.id, new Set(item.excludes ?? [])]));
+  const rows: string[] = [];
+  for (const item of current.items) {
+    for (const entry of item.excludes ?? []) {
+      if (before && old.get(item.id)?.has(entry)) continue;
+      rows.push(`- ${item.id}: "${(entry.length > 800 ? `${entry.slice(0, 799)}…` : entry).replace(/\s+/g, ' ')}" -> check: ${excludesEntryCheck(root, entry, flagged, current.items)}`);
+    }
+  }
+  if (rows.length === 0) return [];
+  return [`Owner excludes ${before ? 'added since that verdict' : '(all current entries)'}, in full, with the framework's deterministic check against the listed rows (re-raise a row an entry names only with the reason that entry's reason fails):`,
+    ...rows.slice(0, MAX_EXCLUDES_LINES), ...(rows.length > MAX_EXCLUDES_LINES ? [`- +${rows.length - MAX_EXCLUDES_LINES} more entries (read checklist.json)`] : [])];
+}
+
 /** The rerun-context lines for the scope-plan prompt; empty when there is no previous verdict. */
-export function renderScopePlanRerunContext(args: { store: StoryStore; storyId: string; gitCwd: string; confirmation?: boolean }): string[] {
+export function renderScopePlanRerunContext(args: { store: StoryStore; storyId: string; gitCwd: string; root?: string; confirmation?: boolean }): string[] {
   let scope: ScopeCheckData | null = null;
   try { scope = args.store.readScopeCheck(args.storyId); } catch { scope = null; }
   if (!scope) return [];
@@ -110,9 +132,11 @@ export function renderScopePlanRerunContext(args: { store: StoryStore; storyId: 
     lines.push(diff.length ? 'Checklist changes since that verdict:' : 'Checklist changes since that verdict: none.');
     lines.push(...diff.slice(0, MAX_DIFF_LINES));
     if (diff.length > MAX_DIFF_LINES) lines.push(`- +${diff.length - MAX_DIFF_LINES} more lines (read checklist.json)`);
+    if (args.root) lines.push(...ownerExcludesLines(args.root, flagged.map(feature => feature.feature), before, current));
     if (args.confirmation) return [...lines, ...confirmationLines(scope, changedScopeItemIds(before, current))];
   } else {
     lines.push('Checklist changes since that verdict: not reconstructable; compare the listed rows with the current checklist.json yourself.');
+    if (args.root && current) lines.push(...ownerExcludesLines(args.root, flagged.map(feature => feature.feature), null, current));
   }
   lines.push('Start by re-judging each listed row against the changed items above. This orientation never narrows the review: the full request trace, the full pin audit and the same-semantics rule below still apply to the current checklist.');
   return lines;

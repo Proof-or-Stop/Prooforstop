@@ -28,6 +28,9 @@
  * scope-plan dispatch carries the same rule as an instruction).
  */
 import { exclusionRationaleCheckOn } from './ab-variants.js';
+import { baseDisagreementActive, isPrecedentConflictGap } from './base-disagreement.js';
+import { ASYMMETRIC_EXAMPLE_GAP_PREFIX, PIN_AUDIT_GAP_PREFIX } from './intent-derivation.js';
+import { scopeReviewChecklistCoreDigest, scopeReviewChecklistDigest } from './scope-check-integrity.js';
 import { loadConfig } from './config.js';
 import type { ChecklistItem } from './types.js';
 
@@ -137,4 +140,93 @@ export function gapCoveredByItemRemedy(storyId: string, feature: string, source:
   return `scope gap${source}: the scope-plan reviewer found "${feature}" neither covered nor excluded, and ${itemList(items)} of this Story adds or changes that behaviour, so an excludes entry cannot close it. `
     + `Next (PLAN, no INIT reopen): add a covering row to ${target.id} that runs the existing behaviour and the new variant on the same operand cases `
     + `(\`proof-or-stop checklist_update --storyId=${storyId} --itemId=${target.id} --verificationIntent='<full intent with the covering row>'\`); then run \`${rerun}\`: ${rerunWhat}.`;
+}
+
+
+// ---------------------------------------------------------------------------
+// Old-PoS runs 61 / 63 (bench-staging/oldpos/run62-64-analysis.md, lab codex/lab-neutral-64):
+// the "excludes loop". The reviewer saved `Precedent conflict: ...` gaps (plan.baseDisagreement: a
+// covering row, never an excludes entry), but story_review's generic gap text offered an excludes
+// entry (the deterministic matcher above cannot match a long gap sentence), so the owner added
+// excludes, the reviewer reran on a checklist whose judged content was unchanged and raised the same
+// gap again (3-6 rounds, ~7 min each). The framework now (1) names the covering row on the first
+// blocker, (2) does not rerun the reviewer when only excludes changed and every open gap is one an
+// excludes entry cannot close. What is reviewed and every decision outcome are unchanged: the
+// reviewer's rule already rejects such an entry.
+
+/** Why an excludes entry cannot close this gap row, or null when one may. */
+export type ExcludesProofGap =
+  | { kind: 'precedent'; items: BehaviourItem[] }
+  | { kind: 'changing'; items: BehaviourItem[] };
+
+/**
+ * The gap rows an excludes entry cannot close: a base-disagreement row (reviewer rule, switch
+ * plan.baseDisagreement) or a row naming a behaviour an item of the Story adds or changes (this file's
+ * check, switch plan.exclusionRationaleCheck). Pin-audit rows are the caller's (their remedy is the pin).
+ */
+export function excludesProofGap(root: string, feature: string, items: readonly ItemLike[]): ExcludesProofGap | null {
+  if (new RegExp(`^\\s*(?:${PIN_AUDIT_GAP_PREFIX}|${ASYMMETRIC_EXAMPLE_GAP_PREFIX})\\b`, 'i').test(feature)) return null;
+  if (isPrecedentConflictGap(feature) && baseDisagreementActive(root)) return { kind: 'precedent', items: precedentTargetItems(feature, items) };
+  if (exclusionRationaleCheckActive(root)) {
+    const changing = itemsChangingBehaviour(feature, items);
+    if (changing.length) return { kind: 'changing', items: changing };
+  }
+  return null;
+}
+
+/** The item(s) a precedent-conflict row's operation names (its content terms best shared), most shared first; empty when none. */
+function precedentTargetItems(feature: string, items: readonly ItemLike[]): BehaviourItem[] {
+  const operation = feature.replace(/^\s*Precedent conflict:\s*/i, '').split(/[,:;]/)[0] ?? '';
+  const terms = behaviourTerms(operation);
+  if (terms.size === 0) return [];
+  const scored = items.filter(item => item.status !== 'withdrawn').map(item => {
+    const own = behaviourTerms([item.title, typeof item.userSees === 'string' ? item.userSees : '', ...fileStems(item)].join(' '));
+    return { id: item.id, title: item.title, shared: [...terms].filter(term => own.has(term)) };
+  }).filter(row => row.shared.length > 0);
+  const best = Math.max(0, ...scored.map(row => row.shared.length));
+  return scored.filter(row => row.shared.length === best);
+}
+
+/** Only `excludes` changed since the verdict (its core digest is recorded and equal; the full digest differs). */
+export function checklistChangeIsExcludesOnly(
+  scope: { checklistDigest?: string; checklistCoreDigest?: string },
+  checklist: { items: readonly ItemLike[] },
+): boolean {
+  if (!scope.checklistDigest || !scope.checklistCoreDigest) return false;
+  const now = checklist as Parameters<typeof scopeReviewChecklistDigest>[0];
+  return scope.checklistDigest !== scopeReviewChecklistDigest(now) && scope.checklistCoreDigest === scopeReviewChecklistCoreDigest(now);
+}
+
+/** scope_gap remedy for a row an excludes entry cannot close: ONE Next, a covering row pinning the answer. */
+export function excludesProofGapRemedy(storyId: string, feature: string, source: string, proof: ExcludesProofGap,
+  rerun: string, rerunWhat: string, excludesOnly: boolean): string {
+  const target = proof.items[0]?.id ?? '<CHK-id of the item that adds the operation>';
+  const why = proof.kind === 'precedent'
+    ? 'it is a conflict between two base behaviours that neither the request nor a checklist row settles'
+    : `${itemList(proof.items)} of this Story adds or changes that behaviour`;
+  return `scope gap${source}: the scope-plan reviewer found "${feature}"; ${why}, so an excludes entry cannot close it`
+    + `${excludesOnly ? ' (the excludes entry added since the verdict leaves the checklist the reviewer judges unchanged, so the reviewer is not rerun on it)' : ''}. `
+    + `Next (PLAN, no INIT reopen): add a covering row to ${target} that ${proof.kind === 'precedent' ? 'pins which precedent applies, with a derivation quoting the base probe' : 'runs the existing behaviour and the new variant on the same operand cases'} `
+    + `(\`proof-or-stop checklist_update --storyId=${storyId} --itemId=${target} --verificationIntent='<full intent with the covering row>'\`); `
+    + `then run \`${rerun}\`: ${rerunWhat}. The INIT scope boundary is not an input of this verdict.`;
+}
+
+/** One excludes entry of the owner checked against the flagged gap rows, for the rerun prompt. */
+export function excludesEntryCheck(root: string, entry: string, flaggedFeatures: readonly string[], items: readonly ItemLike[]): string {
+  const terms = behaviourTerms(entry);
+  const named = flaggedFeatures.filter(feature => {
+    if (entry.includes(feature)) return true;
+    const own = behaviourTerms(feature);
+    if (own.size < 2) return false;
+    const shared = [...own].filter(term => terms.has(term)).length;
+    return shared >= Math.max(2, Math.ceil(own.size * 0.6));
+  });
+  if (named.length === 0) return 'names no listed row; judge it as the exclusion check above says';
+  const results = named.map(feature => {
+    const proof = excludesProofGap(root, feature, items);
+    if (proof?.kind === 'precedent') return 'precedent conflict: an excludes entry cannot close it (the covering row is the remedy)';
+    if (proof?.kind === 'changing') return `contradicted by ${proof.items.map(item => item.id).join(', ')} (the Story adds or changes that behaviour)`;
+    return 'not contradicted by any item of this Story (judge whether its reason holds)';
+  });
+  return [...new Set(results)].join('; ');
 }

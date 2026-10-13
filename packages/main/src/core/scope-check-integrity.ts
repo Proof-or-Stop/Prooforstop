@@ -25,6 +25,24 @@ export function scopeReviewChecklistDigest(checklist: Pick<ChecklistData, 'items
   });
 }
 
+/**
+ * The same digest without `excludes` (old-PoS run 63: an excludes-only checklist change
+ * leaves everything the reviewer judges coverage from unchanged, so a rerun of the
+ * reviewer on it can only repeat the verdict for a gap an excludes entry cannot close).
+ * Guidance-only like scopeReviewChecklistDigest, outside the signature domain.
+ */
+export function scopeReviewChecklistCoreDigest(checklist: Pick<ChecklistData, 'items'>): string {
+  return digestCanonicalJson({
+    version: 1,
+    items: checklist.items.map(item => ({
+      id: item.id,
+      title: item.title,
+      userSees: item.userSees ?? null,
+      verificationIntent: item.verificationIntent ?? null,
+    })),
+  });
+}
+
 export interface ScopeCheckSignatureMaterial {
   features: ScopeCheckFeature[];
   summary: ScopeCheckData['summary'];

@@ -26,6 +26,7 @@ import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSy
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 
+import * as nextDriver from '../handlers/next-driver.js';
 import * as planScope from '../core/plan-scope-check-requirement.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
@@ -179,8 +180,18 @@ await check('E4 the rerun prompt carries the owner excludes in full with the fra
   withVerdict(PRECEDENT, f => {
     f.ctx.store.writeChecklist(f.storyId, { items: items({ excludes: [PRECEDENT_ENTRY], extraRow: true }) } as ChecklistData);
     const prompt = (createStoryDispatchHandlers(f.ctx as never).dispatch({ storyId: f.storyId, agentType: 'proof-or-stop-review-scope-plan' }) as { prompt: string }).prompt;
-    assert.ok(prompt.includes(PRECEDENT_ENTRY), 'the whole excludes entry (not a 200-character clip)');
+    assert.ok(prompt.includes(PRECEDENT_ENTRY),'the whole excludes entry (not a 200-character clip)');
     assert.match(prompt, /Owner excludes[^\n]*\n[^\n]*CHK-002[^\n]*(?:precedent conflict|cannot close)/i, 'with the deterministic check result');
+  });
+});
+
+await check('E5 the plan_review_blockers header offers no excludes route when every open scope gap is one an excludes entry cannot close', () => {
+  withVerdict(PRECEDENT, f => {
+    const blockers = review(f).filter(issue => issue.severity === 'blocker');
+    const headerOf = (rows: Array<{ type: string; message: string }>): string =>
+      (api(nextDriver, 'storyReviewBlockersStep')({ storyId: f.storyId, phase: 'PLAN' }, 'Cannot enter DEV: 1 unresolved blocker', rows) as { why: string }).why;
+    assert.doesNotMatch(headerOf(blockers), /add an excludes entry/, 'no excludes route in the header');
+    assert.match(headerOf([{ type: 'scope_gap', message: 'scope gap: the scope-plan reviewer found "x" neither covered nor excluded' }]), /add an excludes entry/, 'a plain gap keeps it');
   });
 });
 

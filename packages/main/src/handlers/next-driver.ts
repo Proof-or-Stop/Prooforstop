@@ -1986,9 +1986,12 @@ export function guardRefusalSummary(failure: string): string {
  */
 export function storyReviewBlockersStep(base: { storyId: string; phase: string }, failure: string, blockers: ReadonlyArray<{ type: string; message: string }>): NextStep {
   const listed = blockers.slice(0, 8).map((row, index) => `(${index + 1}) ${row.type}: ${row.message.length > 600 ? `${row.message.slice(0, 599)}…` : row.message}`).join(' ');
+  // Old-PoS runs 61 / 63: when every open scope gap is one an excludes entry cannot close, the header does not offer that route.
+  const scopeGaps = blockers.filter(row => row.type === 'scope_gap');
+  const excludesRoute = scopeGaps.length > 0 && scopeGaps.every(row => /excludes entry cannot close it/.test(row.message)) ? '' : ', or add an excludes entry naming it and why';
   return step(base, 'agent', 'plan_review_blockers', null,
     `story_advance --phase=DEV would be refused: ${guardRefusalSummary(failure)}. The latest story_review round is current; fix each blocker in PLAN `
-      + `(checklist_update: cover the point, correct the pinned value, or add an excludes entry naming it and why): ${listed}${blockers.length > 8 ? ` +${blockers.length - 8} more` : ''}. `
+      + `(checklist_update: cover the point, correct the pinned value${excludesRoute}): ${listed}${blockers.length > 8 ? ` +${blockers.length - 8} more` : ''}. `
       + `Then run \`proof-or-stop next --storyId=${base.storyId} --run\`: the changed checklist stales the round and the scope-plan verdict, so it reruns story_review and relaunches the scope-plan reviewer once on the final checklist (do not run story_review or host_run by hand).`,
     'getGuardFailureReason(DEV) + latest story_review round blockers');
 }

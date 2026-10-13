@@ -32,6 +32,7 @@ import { currentMaterialHash, currentStoryFilesHash } from '../core/evidence-fre
 import {
   SCOPE_CHECK_SALT,
   scopeCheckContentHash,
+  scopeReviewChecklistCoreDigest,
   scopeReviewChecklistDigest,
   verifyScopeCheckContentSignature,
   type ScopeCheckSignatureMaterial,
@@ -289,7 +290,12 @@ export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (.
       // Guidance-only binding (see scopeReviewChecklistDigest); an unreadable
       // checklist simply omits it and story_review falls back to the generic hint.
       let checklistDigest: string | undefined;
-      try { checklistDigest = scopeReviewChecklistDigest(store.readChecklist(args.storyId)); } catch { checklistDigest = undefined; }
+      let checklistCoreDigest: string | undefined;
+      try {
+        const judged = store.readChecklist(args.storyId);
+        checklistDigest = scopeReviewChecklistDigest(judged);
+        checklistCoreDigest = scopeReviewChecklistCoreDigest(judged);
+      } catch { checklistDigest = undefined; checklistCoreDigest = undefined; }
       const data: ScopeCheckData = {
         storyId: args.storyId,
         ...(managedDeliveryRunId ? { deliveryRunId: managedDeliveryRunId } : {}),
@@ -300,6 +306,7 @@ export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (.
         summary,
         reviewRound,
         ...(checklistDigest ? { checklistDigest } : {}),
+        ...(checklistCoreDigest ? { checklistCoreDigest } : {}),
         // Outside the signature domain: the run's arm when the exclusion check is off (rollback).
         ...(exclusionCheck ? {} : { abVariant: { schema: AB_VARIANT_EVIDENCE_SCHEMA, flags: { 'plan.exclusionRationaleCheck': 'off' } } }),
         // Lab plan-light (A/B plan.reviewMerge=on, outside the signature domain): this verdict is the merged plan review.
