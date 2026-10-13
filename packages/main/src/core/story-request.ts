@@ -70,6 +70,31 @@ export function boundStoryRequest(raw: string): { text: string; originalBytes: n
   return { text: `${head}${marker(keep)}`, originalBytes, truncated: true };
 }
 
+/** The digest story_create records for a request (sha256 of the bounded text; request.json `sha256`). */
+export function storyRequestDigest(raw: string): string {
+  return sha256(boundStoryRequest(raw).text);
+}
+
+/**
+ * Old-PoS run 65: the DONE Story whose recorded request has the same digest as `raw`
+ * (the task is already delivered), or null. Unreadable or tampered requests never match.
+ */
+export function deliveredRequestStory(store: Pick<StoryStore, 'listStoryIds' | 'readStory' | 'storyFilePath'>, raw: string): { storyId: string; title: string } | null {
+  if (typeof raw !== 'string' || raw.trim().length === 0) return null;
+  const digest = storyRequestDigest(raw);
+  let ids: string[];
+  try { ids = store.listStoryIds(); } catch { return null; }
+  for (const storyId of ids) {
+    try {
+      const story = store.readStory(storyId);
+      if (story.phase !== 'DONE') continue;
+      const recorded = readStoryRequest(store, storyId);
+      if (recorded.status === 'ok' && recorded.meta.sha256 === digest) return { storyId, title: story.title };
+    } catch { /* unreadable Story: not a match */ }
+  }
+  return null;
+}
+
 export function readStoryRequest(store: Pick<StoryStore, 'storyFilePath'>, storyId: string): StoryRequestRead {
   const path = store.storyFilePath(storyId, STORY_REQUEST_FILE);
   const metaPath = store.storyFilePath(storyId, STORY_REQUEST_META_FILE);
