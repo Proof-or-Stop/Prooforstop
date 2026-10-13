@@ -181,7 +181,7 @@ function git(cwd: string, args: string[]): string | null {
 }
 
 /** The evaluator for the Story base: the declared probeRunner (shared tree), else the declared pinOracle. */
-function baseEvaluator(store: Pick<StoryStore, 'readStory'>, root: string, storyId: string, gitCwd: string):
+export function baseEvaluator(store: Pick<StoryStore, 'readStory'>, root: string, storyId: string, gitCwd: string):
   { kind: 'probeRunner' | 'pinOracle'; base: string; tree: string; config: ProbeRunnerConfig; env: Record<string, string> } | null {
   const runner = storyProbeRunner(store, root, storyId, gitCwd);
   if (runner) return { kind: 'probeRunner', base: runner.base, tree: runner.baseTree, config: runner.config, env: runner.env };

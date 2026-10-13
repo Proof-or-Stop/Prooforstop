@@ -5433,7 +5433,7 @@ function scenarioNCC(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
     assert.match(blocked.why, /CHK-001 adds Shelf\.Put/, `[NCC] the item and the added operation are named: ${blocked.why}`);
     assert.match(blocked.why, /Shelf\.Get \(store\/shelf\.go:\d+\)/, '[NCC] the same receiver\'s counterpart is named with its base location');
     assert.match(blocked.why, /negative, out of range/, '[NCC] the uncovered classes are named');
-    assert.match(blocked.why, /Bin\.Put[^.]*second/, '[NCC] another receiver\'s same operation is the second oracle only');
+    assert.match(blocked.why, /Bin\.Put[^]*?only second/, '[NCC] another receiver\'s same operation is the second oracle only');
     assert.equal(blocked.cli?.command, 'checklist_update', '[NCC] ONE next action: a checklist_update');
     const intentPatch = blocked.cli?.payload.verificationIntent as { edge?: Array<{ desc: string }> } | undefined;
     assert.equal(intentPatch?.edge?.filter(rowValue => rowValue.desc.startsWith('<')).length, 2, '[NCC] one placeholder row per uncovered class');
@@ -5453,8 +5453,8 @@ function scenarioNCC(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 
     // The owner adds one row per class whose expected value follows Shelf.Get; DEV entry is no longer refused for it.
     o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', verificationIntent: { ...intent, edge: [...intent.edge,
-      derived('s := NewShelf("a", "b", "c"); s.Put(-1, "z"); s.Get(2) -> "z"', 'TestShelfPutNegative', 'Shelf.Get counts a negative index from the end, so Put(-1) replaces the last label'),
-      derived('s := NewShelf("a", "b", "c"); s.Put(3, "z") -> ErrOutOfRange', 'TestShelfPutOutOfRange', 'Shelf.Get returns ErrOutOfRange past the end, so Put(3) does too')] } }, { label: 'checklist_update CHK-001 (counterpart rows)' });
+      derived('s := NewShelf("a", "b", "c"); s.Put(-1, "z"); s.Get(2) -> "z"', 'TestShelfPutNegative', 'Shelf.Get counts a negative index from the end, so Put(-1) replaces the last label and Get(2) reads "z"'),
+      derived('s := NewShelf("a", "b", "c"); s.Put(3, "z") -> ErrOutOfRange', 'TestShelfPutOutOfRange', 'Shelf.Get returns ErrOutOfRange past the end, so Put(3) returns ErrOutOfRange')] } }, { label: 'checklist_update CHK-001 (counterpart rows)' });
     const after = ask(o, 'next (counterpart rows added)');
     assert.notEqual(after.reason, 'counterpart_coverage_missing', `[NCC] covered classes pass: ${after.why}`);
     const devAfter = o.cli('story_advance', { storyId: o.storyId, phase: 'DEV' }, { label: 'story_advance DEV (counterpart rows added)' });

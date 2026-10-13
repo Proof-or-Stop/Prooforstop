@@ -45,6 +45,7 @@ import { reportHealthIssue } from '../core/health.js';
 import { findSealedManagedImplementerCompletion, managedImplementerAlreadyDoneAction } from '../core/managed-host-run.js';
 import { loadConfig } from '../core/config.js';
 import { probeMatrixOn } from '../core/ab-variants.js';
+import { counterpartImplementerLines, planCounterpartCoverage } from '../core/counterpart-coverage.js';
 import { renderSiblingParity } from '../core/sibling-parity.js';
 import { baseDisagreementActive, SCOPE_PLAN_BASE_DISAGREEMENT_CHECK } from '../core/base-disagreement.js';
 import { rejectedRepairCommits, renderRepairResolvedContext, renderResolvedReprobe } from '../core/resolved-finding-guard.js';
@@ -1302,6 +1303,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       const probeGap = probeMatrix ? earlierImplementerProbeGap(root, args.storyId, args.itemId) : null;
       if (probeGap) lines.push(renderProbeTestGapLine(probeGap));
       lines.push(...renderExactTextRelaunch(root, args.storyId, args.itemId));
+      // Lab sibling-gate (A/B plan.counterpartCoverage=on): probe the same receiver's counterpart before writing an added operation.
+      const counterpart = planCounterpartCoverage(store, root, args.storyId, () => resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root }));
+      if (counterpart) lines.push(...counterpartImplementerLines(counterpart, args.itemId));
       const routed = store.readCandidateSpecSet(args.storyId);
       if (routed) {
         lines.push('');

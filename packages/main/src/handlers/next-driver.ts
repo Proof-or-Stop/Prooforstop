@@ -109,6 +109,7 @@ import { isMetadataTargetFinding, literalOccurrences, openMetadataCorrections, s
 import { openPinAuditGaps } from '../core/pin-audit-correction.js';
 import { describePinMismatch, PIN_ORACLE_MISMATCH, pinExamples, pinMismatchRule, pinOracleMismatches, pinOracleStoryBase, storyPinOracle } from '../core/pin-oracle.js';
 import { baseErrorDecorationOf, describePinProbeMismatch, PIN_PROBE_MISMATCH, pinProbeNextPayload, pinProbeRule, planPinProbe } from '../core/plan-pin-probe.js';
+import { COUNTERPART_COVERAGE_MISSING, counterpartNextPayload, counterpartRule, describeCounterpartRefusal, planCounterpartCoverage } from '../core/counterpart-coverage.js';
 import { exactErrorPinOfferDue, exactWholeErrorPins, recordExactErrorPinOffer } from '../core/exact-error-pin-lint.js';
 import { initReviewDeferredToPlan, planReviewMergeActive } from '../core/plan-review-merge.js';
 import { intentRowCount, recordRowBudgetOffer, ROW_BUDGET_GUIDANCE, rowBudgetExtras, rowBudgetOfferDue, rowBudgetTrimPayloads } from '../core/plan-row-budget.js';
@@ -1675,6 +1676,27 @@ export function pinProbeStep(base: { storyId: string; phase: string }, store: Ha
 }
 
 /**
+ * Lab sibling-gate (A/B plan.counterpartCoverage=on, core/counterpart-coverage.ts): an
+ * item ADDS an operation on a receiver type whose same-receiver counterpart in the Story
+ * base special-cases operand classes (clear evidence) that no row covers on the new
+ * operation: ONE checklist_update of the first such item (its whole verificationIntent
+ * plus one placeholder row per class), before the plan review is launched and before
+ * DEV entry (the gate refuses the same items). Null when the switch is off or nothing
+ * is uncovered; advisory classes never make a step.
+ */
+export function counterpartCoverageStep(base: { storyId: string; phase: string }, store: HandlerContext['store'], root: string, gitCwd: string | (() => string)): NextStep | null {
+  const result = planCounterpartCoverage(store, root, base.storyId, gitCwd);
+  if (!result?.refusals.length) return null;
+  const first = result.refusals[0]!;
+  const payload = counterpartNextPayload(base.storyId, store.readChecklist(base.storyId).items.find(item => item.id === first.itemId), first);
+  return step(base, 'agent', COUNTERPART_COVERAGE_MISSING, { command: 'checklist_update', payload },
+    `${result.refusals.length} added operation(s) leave counterpart cases uncovered [${COUNTERPART_COVERAGE_MISSING}] (A/B plan.counterpartCoverage=on): `
+      + `${result.refusals.slice(0, 4).map(describeCounterpartRefusal).join(' | ')}${result.refusals.length > 4 ? ` +${result.refusals.length - 4} more` : ''}. `
+      + `${counterpartRule(first)} Author the <...> rows of ${first.itemId} now (keep the existing rows); next names any other item.`,
+    'planCounterpartCoverage (plan.counterpartCoverage=on: the same receiver\'s counterpart in the Story base, its branches, base tests and a declared evaluator)', { placeholders: placeholderPaths(payload) });
+}
+
+/**
  * Run 19 (P1): the deterministic PLAN blockers (core/plan-pre-scope-blockers.ts)
  * as ONE agent step, before the scope-plan reviewer is launched. One exact
  * checklist_update per item, its verificationIntent the full replacement value:
@@ -2294,6 +2316,9 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     // request literals before the plan review is launched (ADR-105) and before DEV entry.
     const pinProbe = pinProbeStep(base, ctx.store, ctx.root, () => gitCwdOf(storyId));
     if (pinProbe) return pinProbe;
+    // Lab sibling-gate (A/B plan.counterpartCoverage=on): an added operation's counterpart cases, same order as the DEV gate.
+    const counterpart = counterpartCoverageStep(base, ctx.store, ctx.root, () => gitCwdOf(storyId));
+    if (counterpart) return counterpart;
     // Run 16: the scope-plan reviewer verdict the DEV-entry gate requires
     // (missingPlanScopeCheckFailure, the gate's own predicate). Launched with the
     // owner's own managed selection, or waited on while its run is in flight.
