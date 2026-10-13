@@ -3,6 +3,7 @@ import { abVariantEvidence, resolveAbVariants, type AbVariantEvidence } from '..
 import { loadConfig } from '../core/config.js';
 import { deltaRoundBinding, deltaRoundRole, deltaRoundsVariant } from '../core/review-delta-round.js';
 import { laneMergeBinding, laneMergeRole, laneMergeVariant } from '../core/review-lane-merge.js';
+import { canonicalAgentRoleId } from '../core/agent-role-identity.js';
 import { isCodeReviewLaneRun } from '../core/review-round-order.js';
 import { finalReviewRosterForStory } from './reviewer-list.js';
 import type { ManagedDeltaRoundPrompt, ManagedLaneMergePrompt } from '../core/managed-review-evidence.js';
@@ -585,7 +586,7 @@ export function createHostRunHandlers(ctx: HandlerContext, options: CreateHostRu
           // EXPERIMENTAL A/B review.deltaRounds=on: the lane's sealed delta-round role and check contract.
           ...(deltaRound ? { deltaRound: deltaRoundBinding(deltaRound.plan, deltaRound.role) } : {}),
           // EXPERIMENTAL A/B review.laneMerge=on: the merged session's dimensions and coverage contract.
-          ...(laneMerge ? { laneMerge: laneMergeBinding(laneMerge.plan) } : {}),
+          ...(laneMerge ? { laneMerge: laneMergeBinding(laneMerge.plan, laneMerge.carrier) } : {}),
         };
       } else if (args.managedDispatch === true) {
         if (hasPrompt || hasPromptFile) {
@@ -1235,18 +1236,19 @@ export function managedDeltaRoundPrompt(ctx: HandlerContext, storyId: string, ru
 }
 
 /**
- * EXPERIMENTAL A/B review.laneMerge=on (core/review-lane-merge.ts): the merged
+ * EXPERIMENTAL A/B review.laneMerge=on|split (core/review-lane-merge.ts): the merged
  * role of a managed code-review lane run in the current round, from the signed
  * roster selection (the same one the REVIEW gate reads), or null: the switch is
  * off or malformed, the run is not a code-review lane, the round does not merge,
- * or the lane is not the carrier (a separate dimension runs its ordinary prompt).
+ * or the lane carries no merged session (a separate dimension, or a split session
+ * left with one dimension, runs its ordinary prompt).
  */
 export function managedLaneMergePrompt(ctx: HandlerContext, storyId: string, run: ReviewRun): ManagedLaneMergePrompt | null {
   if (!isCodeReviewLaneRun(run) || !laneMergeVariant(ctx.root)) return null;
   try {
     const plan = finalReviewRosterForStory(ctx.store, ctx.root, storyId).selection.laneMerge;
     const role = laneMergeRole(plan, run.lane, run.reviewRound);
-    return plan && role ? { plan, role } : null;
+    return plan && role ? { plan, role, carrier: canonicalAgentRoleId(run.lane) } : null;
   } catch {
     return null;
   }

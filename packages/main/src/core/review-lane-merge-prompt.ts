@@ -17,22 +17,28 @@ import { canonicalAgentRoleId } from './agent-role-identity.js';
 import { loadConfig } from './config.js';
 import { resolvePromptRoleBody } from './prompt-role-contract-registry.js';
 import { renderExactTextRubric } from './request-authority.js';
-import type { LaneMergeDimensionSection, LaneMergePlan } from './review-lane-merge.js';
+import { laneMergeGroupOf, type LaneMergeDimensionSection, type LaneMergePlan } from './review-lane-merge.js';
 import { renderSiblingParity } from './sibling-parity.js';
 
 const TEST_COVERAGE_LANE = 'proof-or-stop-review-test-coverage';
 
-/** `requestText`: the Story's verbatim request.md text ('' when absent or tampered), read by the caller. */
-export function laneMergeDimensionSections(root: string, requestText: string, plan: LaneMergePlan): LaneMergeDimensionSection[] {
+/**
+ * `requestText`: the Story's verbatim request.md text ('' when absent or tampered), read by the caller.
+ * `carrierLane`: the session's carrier (review.laneMerge=split runs two sessions; absent = the first one).
+ */
+export function laneMergeDimensionSections(root: string, requestText: string, plan: LaneMergePlan, carrierLane?: string): LaneMergeDimensionSection[] {
+  const group = laneMergeGroupOf(plan, carrierLane ?? plan.carrier ?? '');
+  const carrier = group?.carrier ?? plan.carrier;
+  const lanes = group?.mergedLanes ?? plan.mergedLanes;
   let promptEnvelope: unknown;
   try { promptEnvelope = loadConfig(root).promptEnvelope; } catch { promptEnvelope = undefined; }
   // The role bodies end in the same framework rules (about 16.7 KB); the carrier's own role prompt above
   // already carries them, so each other dimension contributes only its own part (and no frontmatter).
   let carrierBody = '';
-  try { carrierBody = plan.carrier ? resolvePromptRoleBody(plan.carrier, promptEnvelope).body : ''; } catch { carrierBody = ''; }
-  return plan.mergedLanes.map(raw => {
+  try { carrierBody = carrier ? resolvePromptRoleBody(carrier, promptEnvelope).body : ''; } catch { carrierBody = ''; }
+  return lanes.map(raw => {
     const lane = canonicalAgentRoleId(raw);
-    if (lane === plan.carrier) return { lane, roleBody: null, extras: [] };
+    if (lane === carrier) return { lane, roleBody: null, extras: [] };
     let roleBody: string | null = null;
     const extras: string[] = [];
     try {

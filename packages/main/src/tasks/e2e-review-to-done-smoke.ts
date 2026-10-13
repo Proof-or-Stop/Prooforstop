@@ -3593,11 +3593,14 @@ function scenarioDR(machineEnv: NodeJS.ProcessEnv, steps: Step[], variant: 'DR' 
 const lmTagged = (dimension: string, finding: Record<string, unknown>): Record<string, unknown> => ({ ...finding, desc: `[dimension:${dimension}] ${String(finding.desc)}` });
 
 /**
- * Lab lane-split: scripted review-session latency, 1 s per model minute, calibrated on old-PoS runs 63/64 round 1
- * (run62-64-analysis.md §4.4): one ordinary lane about 4.0 min (3.5-4.5), the 4-dimension merged session 7.8 min,
- * so a session costs 2.73 min + 1.27 min per dimension it carries (a 2-dimension split session: 5.27 min).
+ * Lab lane-split: scripted review-session latency, LM_SECONDS_PER_MODEL_MINUTE s per model minute, calibrated on
+ * old-PoS runs 63/64 round 1 (run62-64-analysis.md §4.4): one ordinary lane about 4.0 min (3.5-4.5), the
+ * 4-dimension merged session 7.8 min, so a session costs 2.73 min + 1.27 min per dimension it carries (a
+ * 2-dimension split session: 5.27 min). The scale keeps the harness's own launch cost (about 2 s per host_run)
+ * small against the scripted minutes.
  */
-const LM_LATENCY: LaneLatency = { baseMs: 2730, perDimensionMs: 1270 };
+const LM_SECONDS_PER_MODEL_MINUTE = 4;
+const LM_LATENCY: LaneLatency = { baseMs: 2730 * LM_SECONDS_PER_MODEL_MINUTE, perDimensionMs: 1270 * LM_SECONDS_PER_MODEL_MINUTE };
 
 type LaneMergeVariant = 'LM' | 'LM-OFF' | 'LM-G' | 'LM-C' | 'LM-F' | 'LM-FG' | 'LM-D' | 'LM4-OFF' | 'LM4' | 'LM-S' | 'LM-SG' | 'LM-SC';
 
@@ -3716,7 +3719,7 @@ function scenarioLM(machineEnv: NodeJS.ProcessEnv, steps: Step[], variant: LaneM
     });
     for (const row of perRound) {
       lines.push(`round ${row.index}: lane sessions ${row.lanes.length} (${row.lanes.join(', ')}), lane prompt bytes ${row.laneBytes.reduce((a, b) => a + b, 0)} [${row.laneBytes.join(', ')}], critic prompt bytes ${row.criticBytes.reduce((a, b) => a + b, 0)}`
-        + (measured && row.wall !== null ? `, round wall ${row.wall.toFixed(1)} s (sessions summed ${row.sessionSum.toFixed(1)} s; scripted 1 s = 1 model-minute)` : ''));
+        + (measured && row.wall !== null ? `, round wall ${row.wall.toFixed(1)} s = ${(row.wall / LM_SECONDS_PER_MODEL_MINUTE).toFixed(2)} model-min (sessions summed ${row.sessionSum.toFixed(1)} s; scripted ${LM_SECONDS_PER_MODEL_MINUTE} s = 1 model-minute)` : ''));
     }
     lines.push(`critic launches ${criticLaunches}; roster selections: ${selections.map(row => String(row.selection.selection ?? '?')).join(', ')}`);
     const findings = store.readFindings(o.storyId).findings;

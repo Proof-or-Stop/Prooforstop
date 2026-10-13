@@ -34,11 +34,14 @@
  *                              by ONE confirmation lane over the repair scope, resolved findings are re-run, the critic
  *                              runs only when the round reports a finding, a large repair falls back to a full round
  *                              (core/review-delta-round.ts; structural-cost-analysis.md §7 item 2)
- *   review.laneMerge           'off' (default) | 'on'      every REVIEW round runs ONE managed review session for the
- *                              dimensions of every active lane (the first dimension's lane carries it; one explicit
- *                              section, checkpoints and role prompt per dimension; per-checkpoint coverage lines, an
- *                              uncovered dimension is relaunched as its own lane, never passed; findings keep a
- *                              `[dimension:<name>]` tag); review.deltaRounds is not applied while it is on
+ *   review.laneMerge           'off' (default) | 'on' | 'split'  'on': every REVIEW round runs ONE managed review session
+ *                              for the dimensions of every active lane (the first dimension's lane carries it; one explicit
+ *                              section, checkpoints and role prompt per dimension; per-checkpoint coverage lines with
+ *                              specific evidence and a per-dimension list of fully read files, an uncovered dimension is
+ *                              relaunched as its own lane, never passed; findings keep a `[dimension:<name>]` tag).
+ *                              'split' (lab lane-split, old-PoS run 64): TWO such sessions per round, launched in
+ *                              parallel like lanes: concept + quality and test-coverage + docs (+ behavior), same
+ *                              contract per session. review.deltaRounds is not applied while either is set
  *                              (core/review-lane-merge.ts; new PoS ADR-064; structural-cost-analysis.md §7 item 3)
  *
  * Old-PoS run 33 (bench-staging/oldpos/run33-analysis.md §4): the "catch defects
@@ -113,7 +116,7 @@ export const AB_VARIANT_FLAGS = {
   'review.lanePack': ['off', 'shared'],
   'review.roundDelta': ['off', 'pack'],
   'review.deltaRounds': ['off', 'on'],
-  'review.laneMerge': ['off', 'on'],
+  'review.laneMerge': ['off', 'on', 'split'],
   'plan.coverageMatrix': ['off', 'on'],
   'plan.scopeDeferral': ['off', 'on'],
   'plan.pinAuditEnforcement': ['off', 'on'],
@@ -273,8 +276,10 @@ export const exclusionRationaleCheckOn = (config: unknown): boolean => catchEarl
 export const baseDisagreementOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.baseDisagreement') === 'on';
 /** EXPERIMENTAL review.deltaRounds=on: delta review rounds (core/review-delta-round.ts); malformed = off. */
 export const deltaRoundsOn = (config: unknown): boolean => catchEarlierPick(config, 'review.deltaRounds') === 'on';
-/** EXPERIMENTAL review.laneMerge=on: ONE merged review session per REVIEW round (core/review-lane-merge.ts); malformed = off. */
-export const laneMergeOn = (config: unknown): boolean => catchEarlierPick(config, 'review.laneMerge') === 'on';
+/** EXPERIMENTAL review.laneMerge: 'on' = ONE merged review session per REVIEW round, 'split' = TWO in parallel (core/review-lane-merge.ts); malformed = off. */
+export const laneMergeMode = (config: unknown): AbVariantValue<'review.laneMerge'> => catchEarlierPick(config, 'review.laneMerge');
+/** EXPERIMENTAL review.laneMerge is 'on' or 'split' (merged review sessions); malformed = off. */
+export const laneMergeOn = (config: unknown): boolean => laneMergeMode(config) !== 'off';
 /** EXPERIMENTAL plan.pinProbe=on: example pins probed on the Story base before PLAN→DEV (core/plan-pin-probe.ts); malformed = off. */
 export const pinProbeOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.pinProbe') === 'on';
 /** EXPERIMENTAL plan.reviewMerge=on: one merged plan review in PLAN instead of the INIT reviewers + scope-plan runs (core/plan-review-merge.ts); malformed = off. */
