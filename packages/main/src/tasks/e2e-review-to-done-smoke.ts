@@ -5196,7 +5196,7 @@ function scenarioNODInit(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome 
     assert.equal(parsed.storyId, id, `[${tag}] without --storyId the driver drives the one unfinished Story`);
     assert.equal(next.phase, 'PLAN', `[${tag}] the first agent step is in PLAN; at ${next.phase} ${next.kind}:${next.reason}`);
     assert.equal(next.kind, 'agent');
-    for (const reason of ['scope_freeze_check', 'init_review_launch', 'managed_run_wait', 'enter_init_check', 'enter_plan', 'dev_memory_preflight_ack']) {
+    for (const reason of ['scope_freeze_check', 'init_review_launch', 'managed_run_wait', 'enter_init_check', 'enter_plan', 'dev_memory_preflight_ack', 'scope_plan_review_launch']) {
       assert.ok(ran.includes(reason), `[${tag}] the driver ran ${reason} (ran: ${ran.join(' > ')})`);
     }
     assert.equal(ran.filter(reason => reason === 'init_review_launch').length, 2, `[${tag}] both INIT reviewers launched by the framework`);
