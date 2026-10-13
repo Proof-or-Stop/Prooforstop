@@ -1280,7 +1280,7 @@ Decision table (first matching row wins):
 | REVIEW, the verdict refuses `review_evidence_invalid` and every invalid item is an OPEN finding bound to a superseded review run (`stale_run`: a later run of its lane; `superseded_inventory_wave`: an earlier wave or a cancelled epoch of its inventory critic; since old-PoS run 44, also `prompt_envelope_tampered` whose only mismatch is `taskSemanticDigest`: the task context changed after the lane judged it) | carried forward as blocking, checked BEFORE any lane relaunch: the steps below as for `review_finding_blocking` (inventory epoch, critic, remediation, DEV repair; a later restatement by ANY run of the round makes it a duplicate of that live copy, see DEV) — lab `reroute-mid-inventory`, extended by old-PoS run 25 F4 (relaunching the lanes of a finalized round re-reported the defect each time and changed the live inventory aggregate on every finalize) | framework | `evaluateReviewVerdict` + `collectReviewerEvidenceState` |
 | REVIEW, the verdict refuses `review_evidence_invalid` and every invalid item is a PASS of a retired inventory-critic wave (earlier wave, or an epoch cancelled by a signed `review_inventory_cancel`) | the inventory step below (a fresh epoch and critic, whose valid pass supersedes it); never a dead end (old-PoS run 25 item 198: `pass RP-011 has an invalid current inventory subject` → `human — none runnable`) | framework | `collectReviewerEvidenceState` (`superseded_inventory_wave`) |
 | REVIEW, a lane relaunch is due but the lanes already ran `STALE_WAVE_STOP_LOSS` (3) times this round on the live material and a verified blocking finding is open | stale-wave stop-loss: repair it (`finding_resolve` when repaired, else `story_advance --phase=DEV`, `finding_unrepaired_dev`); REVIEW→DEV is admitted without a remediation receipt in that state (`evaluateReviewStopLossReopen`, core/review-stop-loss.ts; the round's live epoch is cancelled as for the review reopen; `phase_transition.transitionType = review_stop_loss`), and REVIEW re-enters with a fresh round (old-PoS run 25: five lane waves on unchanged material 8d9641c9) | framework | `maxLaneRunsOnMaterial` + `evaluateReviewStopLossReopen` |
-| REVIEW, any other verdict refusal with no launchable lane | `reviewRefusalRoute` (old-PoS run 29 R2: a no-op `review_round_prepare` hint was handed to the owner, 20 turns): a named command next runs itself (`review_round_prepare`, `review_inventory_begin` / `_cancel` / `_finalize`, `managed_review_evidence_import`, `certification_window_begin`, `validate`; no placeholder) is a framework step `--run` executes, except a `review_round_prepare` hint when no lane is launchable (a no-op), which goes to the stop-loss; a named command with values to author is an agent step; else the stop-loss (`reviewStopLossStep`), never `human — none runnable`: open verified blocking findings → repair them (DEV); else a live inventory epoch of the round → `review_inventory_cancel` (reason `stop-loss: stale review evidence: <code>`, at most 2 per round; a fresh epoch and critic follow); else `story_advance --phase=DEV` (`review_stop_loss_dev`; a fresh round on return). Since old-PoS run 44 (R2: `guard_dev_blocked` → `review_inventory_status` → `session_brief`, a circle; the owner improvised 40 steps / 6M), every REVIEW→DEV of this table (`finding_unrepaired_dev`, `intent_conflict_dev`, `review_stop_loss_dev`, `metadata_correction_plan`) goes through `reviewDevHop`: when the gate refuses only for this round's missing remediation receipt and no epoch of the round is live, the step is `inventory_begin` (open the epoch, its critic, finalize; an OPEN epoch of an earlier round is cancelled first), never the gate's pointer; the remediation gate's own Next and `review_inventory_status` for a consumed receipt name `next --storyId=<id> --run` | agent / framework | `evaluateReviewVerdict` + `reviewRefusalRoute` + `reviewStopLossStep` + `reviewDevHop` |
+| REVIEW, any other verdict refusal with no launchable lane | `reviewRefusalRoute` (old-PoS run 29 R2: a no-op `review_round_prepare` hint was handed to the owner, 20 turns): a named command next runs itself (`review_round_prepare`, `review_inventory_begin` / `_cancel` / `_finalize`, `managed_review_evidence_import`, `certification_window_begin`, `validate`; no placeholder) is a framework step `--run` executes, except a `review_round_prepare` hint when no lane is launchable (a no-op), which goes to the stop-loss; a named command with values to author is an agent step; else the stop-loss (`reviewStopLossStep`), never `human — none runnable`: open verified blocking findings → repair them (DEV); else a live inventory epoch of the round → `review_inventory_cancel` (reason `stop-loss: stale review evidence: <code>`, at most 2 per round; a fresh epoch and critic follow); else `story_advance --phase=DEV` (`review_stop_loss_dev`; a fresh round on return). Since old-PoS run 44 (R2: `guard_dev_blocked` → `review_inventory_status` → `session_brief`, a circle; the owner improvised 40 steps / 6M), every REVIEW→DEV of this table (`finding_unrepaired_dev`, `intent_conflict_dev`, `review_stop_loss_dev`, `metadata_correction_plan`) goes through `reviewDevHop`: when the gate refuses only for this round's missing remediation receipt and no epoch of the round is live, the step is `inventory_begin` (open the epoch, its critic, finalize; an OPEN epoch of an earlier round is cancelled first), never the gate's pointer; the remediation gate's own Next and `review_inventory_status` for a consumed receipt name `next --storyId=<id> --run`. Since old-PoS run 68: `[review_metadata_correction_open]` whose correction needs PLAN never reaches this route or the stop-loss (no cancel, no lane relaunch; the epoch's critic and finalize run, then one framework hop REVIEW->DEV->PLAN), and with an OPEN epoch of THIS round `reviewDevHop` returns that epoch's next framework step (critic / lanes / finalize) instead of `guard_dev_blocked`; the remediation gate's Next for an OPEN epoch is `next --storyId=<id> --run` too (see "Old-PoS run 68") | agent / framework | `evaluateReviewVerdict` + `reviewRefusalRoute` + `reviewStopLossStep` + `reviewDevHop` |
 | REVIEW, certification window ADMITTED | `validate --story --json` (the routine suite; nothing in between) | framework | `certification_window_status` |
 | REVIEW, window RUNNING and the stored PASS admissible | `story_advance --phase=TEST`; if the verdict still refuses on open findings: `finding_resolve` for the first repaired one (ONE batched `finding_resolve` with `resolutions` when several named findings are repaired; framework-authored since old-PoS run 34, without the evidence-chain sentence), else `story_advance --phase=DEV` (`finding_unrepaired_dev`) | framework | `certification_window_status` Next + `evaluateReviewVerdict` + `managedFindingRepairState` |
 | REVIEW, OPEN epoch, a lane run of the round started after the wave's latest critic run (the lanes reran) | a fresh critic of the same wave (`review_round_prepare {inventoryCritic: true}`: the critic `dispatch` when its binding is gone, then `review_run_start`); the stale critic is never imported (its import would be refused) — lab `reroute-mid-inventory` | framework | review-runs order |
@@ -1580,6 +1580,72 @@ and `node packages/main/tests/git-read-cache.test.mjs`.
   the closest verbatim `request.md` sentence (run 64: a minute of reading the staged request), and the `plan_authoring`
   batch pre-fills `requestQuote` with that sentence when one shares two words with the row and a third of the smaller
   word set; the computation stays the owner's. Harness `NOD` now expects the owner steps of llm mode minus `live_smoke`.
+
+### Old-PoS run 68: metadata-only waves, repair re-pins, pattern-wide intent conflicts (lab `codex/lab-run68-fixes`)
+
+Source: `bench-staging/oldpos/run68-analysis.md` sections 4-6 (fixes 1-4; its optional fix 5, cancelling in-flight
+sibling lanes on a metadata report, affects detection and is not done). Run 68 (all switches off) took 116 min vs 56.8
+for run 66 on the same build: wrong owner pins found one item at a time (four DEV->PLAN trips) and an R2 metadata-only
+report that went through the stale-wave stop-loss (two cancelled epochs, three lane waves, a dead end the owner solved by
+hand). No switch is added; every change is detection-neutral: no lane, critic, round or verification is skipped, and
+every lane finding of a wave stays imported. Tests: `node packages/main/dist/tasks/run68-fixes-smoke.js` (G1, X1-X5,
+P1-P5) and harness `e2e-review-to-done-smoke.js NMW NRV`.
+
+- **A Story-metadata correction is not stale review evidence (fix 1).** `[review_metadata_correction_open]` (a lane
+  finding reclassified as an intent-row correction, which only PLAN may make) went through `reviewRefusalRoute` ->
+  `reviewStopLossStep`, which cancelled the round's live epoch (`stop-loss: stale review evidence`) twice; each cancel
+  made the wave's lane passes `superseded_inventory_wave`, so every lane reran (run 68: 11.2M tokens for nothing). Now,
+  when the open correction needs PLAN (`metadata_correction_plan`), `reviewNext` skips the refusal route: the wave's lanes
+  finish (pending lanes first, as always), the round's epoch runs its critic and is finalized (framework steps), and the
+  correction takes ONE framework hop REVIEW->DEV->PLAN through that receipt. `reviewStopLossStep` never cancels for this
+  code (it runs the open epoch's next step, else the correction step). Harness NMW: one lane wave, no cancelled epoch,
+  critic, finalize, `REVIEW:metadata_correction_plan` -> `DEV:metadata_correction_plan` -> `PLAN:metadata_correction`
+  (RED on the base: two cancels, nine lane runs for three lanes, then `guard_dev_blocked`).
+- **No dead end with an OPEN epoch of the round (fix 2).** `reviewDevHop` refused for the missing remediation receipt
+  while an epoch of THIS round was OPEN fell to `guardStep`: `guard_dev_blocked`, an agent step whose only command was
+  the read-only `review_inventory_status` (run 68: 6.4 min of owner improvisation and a hand-launched critic). Now it
+  returns the epoch's next framework step (`openEpochStep`: critic prepare / launch / import via `criticNext`, missing
+  lane evidence via `review_round_prepare`, else the status's runnable Next such as finalize); the same function is
+  REVIEW step 3. Audit: `guardStep` in REVIEW never hands out a step whose only command is a read-only status
+  (`review_inventory_status`, `session_brief`, `certification_window_status`, `story_status`, `host_run_status`) while
+  the round's epoch is OPEN, and the remediation gate's Next for an OPEN epoch is `proof-or-stop next --storyId=<id>
+  --run` (`reviewInventoryRemediationGate`; core/review-inventory-epoch.ts repinned).
+- **A repair that changes an expected value re-pins the checklist rows in the same repair window (fix 3).** Run 68 R1's
+  repair fixed the code and the table-test rows that asserted the defective value; two intent rows still pinned
+  `<case> -> <old value>`, so R2 re-discovered them as Story metadata (+34 min). Now, when `finding_resolve` accepts a
+  repair (single or batch form), the framework reads the repair commit's own test diff (`core/repair-value-change.ts`
+  `testLiteralChanges`: a removed / added line pair of a test file that differs in exactly one string literal, the rest
+  of the line identical). When a current intent row states that case with the old value (one backticked
+  `<case> -> <value>` span, two spans joined by the arrow, or the whole row), the change is journaled (process event
+  `repair_expected_value_changed`) and is an open intent-row correction (`openMetadataCorrections`) carrying the
+  framework's row patch: `next` hops DEV->PLAN (framework) and applies `checklist_update {intentRows, metadataCorrection:
+  true}` itself (framework step, no placeholder). The patched row keeps its quote style and states
+  `re-pin: <case> was <old>, now <new>: the repair of verified finding(s) ... (commit ...) changed this expected value`
+  in its derivation computation (request quote kept) or, without a derivation, in its desc, so the run-58
+  `[pin_reversal_unstated]` rule holds. Never weakened: a case the request states literally with the old value
+  (`requestLiteralExamples`) is never re-pinned, a patched row that would fail the derivation rule is left to the owner,
+  and the metadata correction keeps the item done (the code already satisfies it). PLAN's own scope-plan rerun after a
+  checklist edit is unchanged. Harness NRV: right after the resolve, `DEV:metadata_correction_plan` and
+  `PLAN:metadata_correction` (framework), the row states the repaired value before round 2 (RED on the base: the stale
+  row survived to DONE).
+- **Intent conflicts propagate by pattern (fix 4).** The run-37 sibling sweep found rows carrying the same pinned
+  literal or (non-literal pins only) the same differing fragment. Run 68's pins were "exact whole error equals
+  `<message>`" with a different message in each of four items, so each item cost its own trip. Now
+  `conflictPinnedForm` (core/request-authority.ts) masks every literal in the conflict's `intent pins` and
+  `request implies`; when they differ in more than the literal, the differing part with its leading context and literal
+  slot (at least two words) is the pin's FORM, and every row of any item stating that form with ANY literal joins the
+  ONE `intent_conflict_amend` step (same item: listed with the whole-intent revision; other items: one row-level
+  `checklist_update {intentRows}` each). A value-only conflict (same form) still sweeps only the identical literal.
+- **PLAN lint for exact whole-error pins (fix 4, PLAN half; advisory).** `core/exact-error-pin-lint.ts`
+  `exactWholeErrorPins` lists rows whose expected side (literals masked) names an error / message as exact / whole /
+  entire / full / complete / verbatim and quotes a message; a message the request says must match exactly
+  (`requestExactStrings`) is never listed. `next` hands ONE skippable PLAN step `exact_error_pin_check` after the
+  authoring batch (and the row trim) and before the scope-plan reviewer: one row-level `checklist_update` per item with
+  placeholders, offered once per set of rows (at most twice per Story; offers in
+  `runtime/exact-error-pin/<storyId>.jsonl`), skipped by running `next --run` again; the framework never rewrites a pin.
+  With a declared evaluator (`probeRunner`, else `pinOracle`) the listed cases run on the Story base
+  (`baseErrorDecorationOf`, core/plan-pin-probe.ts) and an error rendered with a trailing decoration after its first line
+  (a position, a source line) is quoted as confirmation; without one (the default bench config) the step is advisory.
 
 ### `next --untilAgent`: the framework owner driver (`owner.driver`, owner-driver lab)
 
