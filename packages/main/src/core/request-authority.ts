@@ -198,6 +198,40 @@ export function conflictPinnedFragment(conflict: Pick<IntentConflict, 'intentPin
   return fragment.length >= 6 ? fragment : null;
 }
 
+/** The placeholder a literal span (backticks, double or single quotes) is masked to. */
+export const MASKED_LITERAL = '\u2039\u203a';
+const LITERAL_SPAN = /`[^`\n]*`|"(?:[^"\\\n]|\\.)*"|(?<![A-Za-z0-9])'(?:[^'\\\n]|\\.)*'(?![A-Za-z0-9])/g;
+
+/** The text with every literal span masked (the row's FORM: what it says about a value, not which value). */
+export function maskLiterals(text: string): string {
+  return text.replace(LITERAL_SPAN, MASKED_LITERAL);
+}
+
+/**
+ * Old-PoS run 68 (run68-analysis.md §4, fix 4): the FORM an `[intent-conflict]` pin uses that
+ * the request does not (e.g. "exact whole error equals <literal>" where the request implies
+ * "<literal> as the start of the message"). Literals are masked in both fields; when the
+ * masked fields agree the conflict is about the value only (null: the literal sweep covers
+ * it). Otherwise the differing part of the masked pin with its leading context
+ * (conflictPinnedFragment), plus the literal slot that follows it, so rows of any item that
+ * pin ANOTHER literal in the same form are found. Null when the form has fewer than two words.
+ */
+export function conflictPinnedForm(conflict: Pick<IntentConflict, 'intentPins' | 'requestImplies'>): string | null {
+  const pins = conflict.intentPins?.trim();
+  const implies = conflict.requestImplies?.trim();
+  if (!pins || !implies) return null;
+  const maskedPins = maskLiterals(pins);
+  const maskedImplies = maskLiterals(implies);
+  if (maskedPins.replace(/\s+/g, '') === maskedImplies.replace(/\s+/g, '')) return null;
+  const fragment = conflictPinnedFragment({ intentPins: maskedPins, requestImplies: maskedImplies });
+  if (!fragment) return null;
+  const at = maskedPins.indexOf(fragment);
+  const slot = at >= 0 && new RegExp(`^\\s*${MASKED_LITERAL}`).test(maskedPins.slice(at + fragment.length)) && !fragment.endsWith(MASKED_LITERAL) ? ` ${MASKED_LITERAL}` : '';
+  const form = `${fragment}${slot}`;
+  const words = form.split(MASKED_LITERAL).join(' ').match(/[A-Za-z]{2,}/g) ?? [];
+  return words.length >= 2 ? form : null;
+}
+
 export interface IntentConflictReport {
   /** none: the section says none; declared: one or more conflicts; absent: no section. */
   section: 'none' | 'declared' | 'absent';

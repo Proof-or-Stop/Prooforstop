@@ -877,6 +877,21 @@ verbatim `request.md` sentence as `requestQuote`. Plain `git <words>` probes run
 through `execFileSync` so the git read cache answers them. See docs/CLI.md
 "Old-PoS runs 61 / 63 / 64".
 
+Old-PoS run 68 (lab `codex/lab-run68-fixes`, detection-neutral, no switch): a
+REVIEW wave whose open Story-metadata correction needs PLAN no longer goes through
+the stale-wave stop-loss (no epoch cancel, no lane relaunch): the round's critic
+and finalize run as framework steps and the correction takes one framework hop
+REVIEW->DEV->PLAN. With an OPEN epoch of the round, a refused REVIEW->DEV runs that
+epoch's next framework step instead of a `guard_dev_blocked` read-only pointer, and
+the remediation gate's Next is `next --run`. When `finding_resolve` accepts a repair
+whose test diff changed an expected literal that an intent row still pins for the
+same case, `next` hops to PLAN and applies the row patch itself (`re-pin: <case> was
+<old>, now <new>`; a case the request states literally is never re-pinned). An
+`[intent-conflict]` whose pin differs from the request in FORM (literals masked)
+sweeps every row of any item stating that form; PLAN offers one skippable
+`exact_error_pin_check` step for exact whole-error pins (advisory without a declared
+evaluator). See docs/CLI.md "Old-PoS run 68".
+
 Framework serial time (lab `codex/lab-framework-perf`, detection-neutral): the
 CLI answers repeated read-only git probes from a cross-process git read cache
 (`<common git dir>/info/proof-or-stop-cache/`, each answer keyed by the exact

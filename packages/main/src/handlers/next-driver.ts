@@ -102,13 +102,14 @@ import { commitMessageNamesFinding, implementationGroupingFiles, itemDeclaredFil
 import { ownerDriver, probeEnforcementOn, probeMatrixOn } from '../core/ab-variants.js';
 import { driveUntilAgent, driveWatchdogConfig, NEXT_DRIVE_SCHEMA, runWatchedCall } from './next-drive.js';
 import { ownerWaitBlockMs, ownerWaitInstruction } from '../core/owner-wait-guidance.js';
-import { conflictPinnedFragment, parseIntentConflicts, probeTestGaps, type IntentConflict, type ProbeTestGap } from '../core/request-authority.js';
+import { conflictPinnedForm, conflictPinnedFragment, MASKED_LITERAL, maskLiterals, parseIntentConflicts, probeTestGaps, type IntentConflict, type ProbeTestGap } from '../core/request-authority.js';
 import { readStoryRequest } from '../core/story-request.js';
 import { intentSemantics } from '../core/verification-intent-amendment.js';
 import { isMetadataTargetFinding, literalOccurrences, openMetadataCorrections, statedForm, type LiteralOccurrence, type MetadataField, type OpenMetadataCorrection } from '../core/metadata-correction.js';
 import { openPinAuditGaps } from '../core/pin-audit-correction.js';
 import { describePinMismatch, PIN_ORACLE_MISMATCH, pinExamples, pinMismatchRule, pinOracleMismatches, pinOracleStoryBase, storyPinOracle } from '../core/pin-oracle.js';
-import { describePinProbeMismatch, PIN_PROBE_MISMATCH, pinProbeNextPayload, pinProbeRule, planPinProbe } from '../core/plan-pin-probe.js';
+import { baseErrorDecorationOf, describePinProbeMismatch, PIN_PROBE_MISMATCH, pinProbeNextPayload, pinProbeRule, planPinProbe } from '../core/plan-pin-probe.js';
+import { exactErrorPinOfferDue, exactWholeErrorPins, recordExactErrorPinOffer } from '../core/exact-error-pin-lint.js';
 import { initReviewDeferredToPlan, planReviewMergeActive } from '../core/plan-review-merge.js';
 import { intentRowCount, recordRowBudgetOffer, ROW_BUDGET_GUIDANCE, rowBudgetExtras, rowBudgetOfferDue, rowBudgetTrimPayloads } from '../core/plan-row-budget.js';
 import { abVariantEvidenceOf, rowBudgetOn } from '../core/ab-variants.js';
@@ -437,7 +438,10 @@ const NEXT_RUNNABLE_REVIEW_HINT_COMMANDS = new Set([
   'managed_review_evidence_import', 'certification_window_begin', 'validate',
 ]);
 
-export type ReviewRefusalRoute = { kind: 'framework_recovery' } | { kind: 'framework' | 'agent'; hint: string };
+/** Read-only status commands: never the only command of an owner step while a framework step exists (old-PoS run 68). */
+const READ_ONLY_STATUS_COMMANDS = new Set(['review_inventory_status', 'session_brief', 'certification_window_status', 'story_status', 'host_run_status']);
+
+export type ReviewRefusalRoute ={ kind: 'framework_recovery' } | { kind: 'framework' | 'agent'; hint: string };
 
 /**
  * Old-PoS run 29 R2 (run28-29-analysis.md §3.4): how next answers a REVIEW→TEST
@@ -799,23 +803,35 @@ function describeIntentConflict(row: OpenIntentConflict): string {
  * not imply, with its leading context), the conflict's own row excluded.
  * Used when the pin is not a code literal (a literal is swept by
  * literalOccurrences as before).
+ * Old-PoS run 68 (four DEV->PLAN trips, one item at a time): also every row
+ * stating the pin's FORM with any literal (conflictPinnedForm: literals masked
+ * in pin and request; only when they differ in more than the literal).
  */
 function conflictSiblingRows(items: readonly ChecklistItem[], conflicts: readonly OpenIntentConflict[]): Array<{ itemId: string; ref: string; fragment: string }> {
   const out: Array<{ itemId: string; ref: string; fragment: string }> = [];
   const own = new Set(conflicts.map(row => row.conflict.intentRef));
-  for (const conflict of conflicts) {
-    if (conflictLiteral(conflict.conflict.intentPins)) continue;
-    const fragment = conflictPinnedFragment(conflict.conflict);
-    if (!fragment) continue;
+  const sweep = (matches: (text: string) => boolean, fragment: string): void => {
     for (const item of items) {
       if (item.status === 'withdrawn') continue;
       for (const lane of VERIFICATION_LANES) {
         (item.verificationIntent?.[lane] ?? []).forEach((row, index) => {
           const ref = `${item.id}:${lane}:${index}`;
           if (own.has(ref) || (row.id && own.has(row.id)) || out.some(entry => entry.ref === ref)) return;
-          if (statedForm(`${row.desc ?? ''} ${row.derivation?.computation ?? ''}`, fragment)) out.push({ itemId: item.id, ref, fragment });
+          if (matches(`${row.desc ?? ''} ${row.derivation?.computation ?? ''}`)) out.push({ itemId: item.id, ref, fragment });
         });
       }
+    }
+  };
+  for (const conflict of conflicts) {
+    const fragment = conflictLiteral(conflict.conflict.intentPins) ? null : conflictPinnedFragment(conflict.conflict);
+    if (fragment) sweep(text => Boolean(statedForm(text, fragment)), fragment);
+    // Old-PoS run 68 (fix 4): the pin's FORM (literals masked) the request does not use, e.g. an exact
+    // whole error text where the request implies its start: every row stating that form with ANY
+    // literal (other items, and other rows of the same item) carries the same wrong pin.
+    const form = conflictPinnedForm(conflict.conflict);
+    if (form) {
+      const squashed = form.replace(/\s+/g, '');
+      sweep(text => maskLiterals(text).replace(/\s+/g, '').includes(squashed), form.split(MASKED_LITERAL).join('<literal>'));
     }
   }
   return out;
@@ -927,6 +943,17 @@ export function metadataCorrectionStep(base: { storyId: string; phase: string },
     return step(base, 'framework', 'metadata_correction_plan', { command: 'story_advance', payload: { storyId: base.storyId, phase: base.phase === 'REVIEW' ? 'DEV' : 'PLAN' } },
       `${head} ${hop}; in PLAN next proposes the one checklist_update (metadataCorrection=true; done items stay done).`,
       'openMetadataCorrections (core/metadata-correction.ts)');
+  }
+  // Old-PoS run 68 (fix 3, core/repair-value-change.ts): the rows a verified finding's repair
+  // re-tested with a new expected value are patched by the framework (no owner authoring): the
+  // patch states the re-pin and keeps the request quote; the checklist_update gates still apply.
+  const patched = new Set((first.patches ?? []).map(patch => patch.ref));
+  if (base.phase === 'PLAN' && fields.length === 1 && first.patches?.length && first.rowRefs.every(ref => patched.has(ref))) {
+    return step(base, 'framework', 'metadata_correction', { command: 'checklist_update', payload: { storyId: base.storyId, itemId: first.itemId,
+      intentRows: first.patches, metadataCorrection: true,
+      reason: `Re-pin after a verified finding's repair: ${first.sources.map(source => source.desc).join('; ').slice(0, 600)}` } },
+    `${head} The repair of a verified finding changed the expected value of ${first.rowRefs.join(', ')} in its test; the framework applies the row patch (each row states \`re-pin: <case> was <old>, now <new>\`), so the next review round does not re-discover the stale pin as Story metadata.`,
+    'openMetadataCorrections (repair_expected_value_changed, core/repair-value-change.ts)');
   }
   const sweep = first.wrongLiteral ? literalOccurrences(items, first.wrongLiteral).filter(row => !(row.itemId === first.itemId && fields.includes(row.field))) : [];
   const payload: Record<string, unknown> = { storyId: base.storyId, itemId: first.itemId,
@@ -1832,6 +1859,47 @@ export function rowBudgetTrimStep(base: { storyId: string; phase: string }, stor
 }
 
 /**
+ * Old-PoS run 68 (fix 4, PLAN half; core/exact-error-pin-lint.ts): rows pinning the exact whole error
+ * text cost run 68 four DEV->PLAN intent-conflict trips (the engine decorates every error after its
+ * message; the request said the message starts with the reason). ONE skippable PLAN step lists them
+ * before the scope-plan reviewer judges the checklist, with one row-level checklist_update per item;
+ * with a declared evaluator (probeRunner / pinOracle) the listed cases run on the Story base and a
+ * decorated base error is quoted as confirmation, otherwise the step is advisory. Offered once per
+ * set of rows (at most twice per Story); a message the request says must match exactly is never
+ * listed; the framework never rewrites a pin. Null when nothing is listed or the offer was made.
+ */
+export function exactErrorPinStep(base: { storyId: string; phase: string }, store: HandlerContext['store'], root: string, gitCwd: () => string): NextStep | null {
+  try {
+    const items = store.readChecklist(base.storyId).items;
+    const request = readStoryRequest(store, base.storyId);
+    const pins = exactWholeErrorPins(items, request.status === 'ok' ? request.text : null);
+    if (!exactErrorPinOfferDue(root, base.storyId, pins)) return null;
+    const refs = new Set(pins.flatMap(pin => {
+      const [itemId, lane, index] = pin.ref.split(':');
+      const id = (items.find(item => item.id === itemId)?.verificationIntent?.[lane as 'happy' | 'edge' | 'adversarial'] ?? [])[Number(index)]?.id;
+      return id ? [pin.ref, id] : [pin.ref];
+    }));
+    const decoration = baseErrorDecorationOf({ store, root, storyId: base.storyId, gitCwd: gitCwd(), refs });
+    recordExactErrorPinOffer(root, base.storyId, pins, decoration ? { ref: decoration.ref, sample: `${decoration.firstLine}${decoration.decoration}`.slice(0, 300) } : null);
+    const byItem = new Map<string, string[]>();
+    for (const pin of pins) byItem.set(pin.itemId, [...(byItem.get(pin.itemId) ?? []), pin.ref]);
+    const calls = [...byItem].map(([itemId, rowRefs]) => nextStepCall('exact_error_pin_check', { command: 'checklist_update', payload: { storyId: base.storyId, itemId,
+      intentRows: rowRefs.map(ref => ({ ref, desc: `<${ref} pinning the error message as the request states it (the message or the prefix the request quotes), not the whole rendered error text>` })),
+      reason: '<why: the request sentence on the error format>' } }));
+    const listed = pins.slice(0, 8).map(pin => `${pin.ref} (\`${pin.message.slice(0, 80)}\`)`).join(', ') + (pins.length > 8 ? ` +${pins.length - 8} more` : '');
+    const evidence = decoration
+      ? `The Story base renders ${decoration.ref}'s error as \`${decoration.firstLine.slice(0, 120)}\` followed by ${JSON.stringify(decoration.decoration.slice(0, 120))} (the project's own evaluator): a whole-text pin of the message alone cannot hold.`
+      : 'No declared evaluator ran them on the Story base (advisory): if the engine adds anything after the message (a position, the source line), a whole-text pin cannot hold.';
+    return batchStep(base, 'exact_error_pin_check', calls,
+      `Exact-error lint [exact_error_pin]: ${pins.length} row(s) pin the exact whole error text: ${listed}. ${evidence} `
+        + 'Pin what the request states about the error (its message, or the prefix it quotes; the request outranks the intent), one row-level checklist_update per item, then '
+        + `\`proof-or-stop next --storyId=${base.storyId} --run\`. If the request does demand the whole text, skip it: run \`proof-or-stop next --storyId=${base.storyId} --run\` without them. `
+        + 'Nothing blocks on it, and it is offered once for this set of rows.',
+      'exactWholeErrorPins (core/exact-error-pin-lint.ts) + baseErrorDecorationOf (core/plan-pin-probe.ts)');
+  } catch { return null; }
+}
+
+/**
  * The first INIT step when no Story exists yet: ONE complete story_create
  * command (scope and execution boundary inline, so no separate boundary
  * commands follow), every authored value a placeholder with a one-line hint.
@@ -2164,6 +2232,16 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       const blockers = currentStoryReviewBlockers(base.storyId);
       if (blockers.length) return storyReviewBlockersStep(base, failure, blockers);
     }
+    // Old-PoS run 68 (fix 2, dead-end audit): never hand the owner a step whose only command is a read-only
+    // status while the round's OPEN inventory epoch has a framework step to run (critic, lanes, finalize).
+    const hinted = parseHintedCommand(hint);
+    if (base.phase === 'REVIEW' && hinted && READ_ONLY_STATUS_COMMANDS.has(hinted.command)) {
+      try {
+        const round = ctx.store.readStory(base.storyId).currentReviewRound;
+        const open = currentOpenReviewInventory(ctx.store, base.storyId);
+        if (round && open && open.reviewRound === round) return openEpochStep(base, open, round, `story_advance --phase=${target} would be refused: ${guardRefusalSummary(failure)}`);
+      } catch { /* unreadable inventory: the gate's own pointer below */ }
+    }
     return delegated(base, 'agent', `guard_${target.toLowerCase()}_blocked`, hint || failure,
       `story_advance --phase=${target} would be refused: ${guardRefusalSummary(failure)}`, `getGuardFailureReason(${target})`);
   }
@@ -2258,6 +2336,9 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       // Lab neutral-64 (A/B plan.rowBudget=on): the plan is authored; one skippable trim before the reviewer judges it.
       const rowTrim = rowBudgetTrimStep(base, ctx.store, ctx.root);
       if (rowTrim) return rowTrim;
+      // Old-PoS run 68 (fix 4): one skippable lint of exact whole-error pins before the reviewer judges the checklist.
+      const exactErrorPins = exactErrorPinStep(base, ctx.store, ctx.root, () => gitCwdOf(storyId));
+      if (exactErrorPins) return exactErrorPins;
       const last = hostRuns.filter(run => run.agentType === SCOPE_PLAN_REVIEWER).at(-1);
       const previous = last && last.state !== 'completed' ? ` The previous scope-plan run ${last.runId} ended ${last.state}.` : '';
       const { selection, bound } = boundManagedSelection(hostRuns, 'managed_dispatch');
@@ -2828,8 +2909,32 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
           `${why} REVIEW->DEV needs this round's remediation receipt (${guardRefusalSummary(failure)}); no inventory epoch of round ${round} is live: open it (and prepare its critic), finalize it, then return to DEV.`,
           `${source} + getGuardFailureReason(DEV) + no live inventory epoch of the round`, 'inventory_begin');
       }
+      // Old-PoS run 68 (fix 2): an OPEN epoch of THIS round produces the receipt once its critic ran and it is
+      // finalized. Before, this fell to guardStep: `guard_dev_blocked`, an agent step whose only command was the
+      // read-only review_inventory_status (the owner launched the critic by hand, 6.4 min). Now its next
+      // framework step (critic prepare / launch / import, lane evidence, finalize) runs.
+      if (open && open.reviewRound === round) {
+        return openEpochStep(base, open, round, `${why} REVIEW->DEV needs this round's remediation receipt (${guardRefusalSummary(failure)}); epoch ${open.epochId} of round ${round} is OPEN:`);
+      }
     }
     return guardStep(base, 'DEV', reason, why, source, failure);
+  }
+
+  /**
+   * The next framework step of an OPEN inventory epoch of the current round: its critic
+   * (criticNext), the lanes it still misses (review_round_prepare), else the status's own
+   * runnable Next (finalize). Shared by reviewNext (step 3) and reviewDevHop (old-PoS run 68).
+   */
+  function openEpochStep(base: { storyId: string; phase: string }, openEpoch: NonNullable<ReturnType<typeof currentOpenReviewInventory>>, round: string, lead = ''): NextStep {
+    const status = String(handler('review_inventory_status')({ storyId: base.storyId }));
+    const hint = nextLine(status) ?? '';
+    const prefixed = (next: NextStep): NextStep => (lead ? { ...next, why: `${lead} ${next.why}` } : next);
+    if (/REVIEW_INVENTORY_CRITIC_INCOMPLETE/.test(status)) return prefixed(criticNext(base, openEpoch, round));
+    if (/proof-or-stop dispatch /.test(hint)) {
+      return prefixed(step(base, 'framework', 'review_round_prepare', { command: 'review_round_prepare', payload: { storyId: base.storyId, json: true } },
+        `Epoch ${openEpoch.epochId} still misses required lane evidence.`, 'review_inventory_status (REVIEW_INVENTORY_LANES_INCOMPLETE)'));
+    }
+    return prefixed(delegated(base, 'framework', 'inventory_status_next', hint, `Epoch ${openEpoch.epochId}: ${status.split('\n').find(row => row.startsWith('Blockers:')) ?? ''}`.trim(), 'review_inventory_status Next'));
   }
 
   /** REVIEW->DEV for remediation as one framework step, or the step that produces its receipt (reviewDevHop). */
@@ -2900,6 +3005,14 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
   function reviewStopLossStep(base: { storyId: string; phase: string }, round: string, code: string, detail: string): NextStep {
     const { storyId } = base;
     const why = `REVIEW→TEST verdict refuses [${code}] with no launchable lane: ${detail}`;
+    // Old-PoS run 68 (fix 1): a Story-metadata correction is never stale evidence: no epoch cancel, no lane
+    // relaunch. The round's OPEN epoch runs on (critic, finalize); otherwise the correction step itself.
+    if (code === 'review_metadata_correction_open') {
+      const open = currentOpenReviewInventory(ctx.store, storyId);
+      if (open && open.reviewRound === round) return openEpochStep(base, open, round, `${why} A Story-metadata correction is not stale evidence (no cancel):`);
+      const metadata = metadataStep(base);
+      if (metadata) return metadata.reason === 'metadata_correction_plan' ? reviewDevHop(base, metadata, 'metadata_correction_plan', metadata.why, metadata.source) : metadata;
+    }
     const blocking = openBlockingFindings(storyId);
     if (blocking.length > 0) {
       return reviewFindingClosureStep(base, blocking.map(row => row.finding.id), `${why} Stop-loss: repair the open verified finding(s).`, 'evaluateReviewVerdict + stop-loss (open findings)');
@@ -2958,6 +3071,13 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       ? reviewDevHop(base, next, 'metadata_correction_plan', next.why, next.source) : next;
     if (metadata && !metadataWaits) return metadataHop(metadata);
     let verdict = evaluateReviewVerdict({ storyId, store: ctx.store, projectRoot: ctx.root, gitCwd });
+    // Old-PoS run 68 (fix 1): a Story-metadata correction that needs PLAN is not stale review evidence.
+    // Before, [review_metadata_correction_open] went through reviewRefusalRoute -> reviewStopLossStep, which
+    // cancelled the round's live epoch (twice: each cancel staled the wave, so every lane reran) and then
+    // dead-ended. Cancelling cannot clear owner metadata. Now the wave's lanes finish (pendingLaneStep above),
+    // the round's epoch runs its critic and finalizes (step 3), and the correction takes ONE framework hop
+    // REVIEW->DEV->PLAN through that receipt (metadataHop). Lane findings of the wave stay imported.
+    const metadataDeferred = !verdict.ok && verdict.code === 'review_metadata_correction_open' && metadata?.reason === 'metadata_correction_plan';
     // Lab reroute-mid-inventory: the round was invalidated after a lane
     // reported a finding (owner reroute, broken live binding), every lane
     // reran, and the open finding of the superseded run is now stale_run. It
@@ -2992,7 +3112,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       if (prepare) return prepare;
       launchableChecked = true;
     }
-    if (!verdict.ok && verdict.code !== 'review_finding_blocking' && !criticRefresh) {
+    if (!verdict.ok && verdict.code !== 'review_finding_blocking' && !criticRefresh && !metadataDeferred) {
       // Never a step without a command, and never the owner's step when next can
       // run it (old-PoS run 29 R2): reviewRefusalRoute.
       const route = reviewRefusalRoute({ code: verdict.code ?? 'error', message: verdict.message ?? '',
@@ -3006,7 +3126,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
 
     // 2. A current certification window (PRE_CERT already admitted).
     const inspected = inspectCertificationWindowLineage({ store: ctx.store, storyId, current: currentCertificationIdentity(ctx, storyId) });
-    if (!criticRefresh && !inspected.drift.drifted && windowAuthorizesHeavyCertification(inspected.window, inspected.receipt)) {
+    if (!criticRefresh && !metadataDeferred && !inspected.drift.drifted && windowAuthorizesHeavyCertification(inspected.window, inspected.receipt)) {
       const status = String(handler('certification_window_status')({ storyId }));
       const hint = nextLine(status) ?? '';
       if (/story_advance .*--phase=TEST/.test(hint)) {
@@ -3034,14 +3154,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
         return step(base, 'framework', 'inventory_cancel_stale', { command: 'review_inventory_cancel', payload: { storyId, reason: 'OPEN epoch belongs to an earlier review round' } },
           `OPEN epoch ${openEpoch.epochId} is from round ${openEpoch.reviewRound}, not ${round}.`, 'currentOpenReviewInventory');
       }
-      const status = String(handler('review_inventory_status')({ storyId }));
-      const hint = nextLine(status) ?? '';
-      if (/REVIEW_INVENTORY_CRITIC_INCOMPLETE/.test(status)) return criticNext(base, openEpoch, round);
-      if (/proof-or-stop dispatch /.test(hint)) {
-        return step(base, 'framework', 'review_round_prepare', { command: 'review_round_prepare', payload: { storyId, json: true } },
-          `Epoch ${openEpoch.epochId} still misses required lane evidence.`, 'review_inventory_status (REVIEW_INVENTORY_LANES_INCOMPLETE)');
-      }
-      return delegated(base, 'framework', 'inventory_status_next', hint, `Epoch ${openEpoch.epochId}: ${status.split('\n').find(row => row.startsWith('Blockers:')) ?? ''}`.trim(), 'review_inventory_status Next');
+      return openEpochStep(base, openEpoch, round);
     }
     const pending = finalizedUnconsumedReviewInventory(ctx.store, storyId);
     // Old-PoS run 33: the deferred metadata correction, once the round's epoch is finalized.

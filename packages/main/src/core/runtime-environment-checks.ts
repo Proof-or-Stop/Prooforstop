@@ -371,7 +371,7 @@ const ACTIVE_IDENTITY_EXECUTABLE_SOURCE_BINDINGS: Readonly<Record<string, string
   // Lab ab-variant-switches (2026-10-06): consume replay accepts an A/B criticSkip wave only while review.criticOnCleanRound=skip; repinned.
   // Lab run44-fixes (2026-10-10): no live epoch / a consumed receipt point at `next --run` (not review_inventory_status / session_brief); repinned.
   // Lab run52-fixes (2026-10-11): a finding closed at import as a recurring pre-existing finding is not a verified family of its wave; repinned.
-  'packages/main/src/core/review-inventory-epoch.ts': 'df8b684df3feee99ccd7a5d1831a3916e4c0039cce4ee7a8138a714e9fe980dd',
+  'packages/main/src/core/review-inventory-epoch.ts': '48101bea03bc6f6401961f79487286d744da63337cd78493c5d9c8c2baf544a4',
   // Lab verification-env-digest (2026-09-30): ordinary receipts bind the v2 environment identity projection; repinned.
   // Lab gate-command-cost (2026-10-03): the signer-key common-dir probe goes through observedGit; repinned.
   'packages/main/src/core/verification-execution-evidence.ts': '915f3b1d386ce37f12caa69e98124886fc466fd4ce1159188fb12e5ad444b5e6',
