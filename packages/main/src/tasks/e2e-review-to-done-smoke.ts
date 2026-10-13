@@ -343,9 +343,21 @@
  *      ONE PLAN pin step before any repair (it does not wait a round for a
  *      verified re-filing). RED on the base: the suspected conflict was ignored
  *      and the verified finding went to repair.
+ *   NMW old-PoS run 68 R2: a lane wave whose only report is an intent-row
+ *      Story-metadata finding (no product finding). The wave's lanes finish, the
+ *      round's critic and finalize run as framework steps, then ONE framework hop
+ *      REVIEW->DEV->PLAN reaches the PLAN correction: one lane wave, no epoch
+ *      cancel, no guard step, no read-only status pointer. RED on the base: the
+ *      [review_metadata_correction_open] verdict went through the stale-wave
+ *      stop-loss (epoch cancelled, all lanes relaunched).
+ *   NRV old-PoS run 68 R1->R2: a verified finding's repair changes the expected
+ *      value of a table-test row a checklist intent row also pins. Once resolved,
+ *      the framework hops to PLAN and applies the derived row patch itself
+ *      (re-pin stated) before the next round; DONE in two rounds. RED on the base:
+ *      the stale row survived to DONE (a real reviewer re-reports it as metadata).
  *
  *
- * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL|NGS|NGF|LM|NLM|NLM-OFF|NLM-G|NLM-C|NLM-F|NLM-FG]...
+ * Usage: node packages/main/dist/tasks/e2e-review-to-done-smoke.js [A|B|C|D|D2|E|N|NR|NF|NF2|NL|NU|NU2|NC|NC2|NC3|NC4|NC5|NC6|NC7|NC8|NC9|NW|NW3|NW4|NW5|NW6|NI|NIU|NAR|NPO|NMF|NMF2|NMO|NMT|NLI|NAV|NAVF|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NCV|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX|NPXA|NPXS|NPXC|NPXR|NPXRE|NPXRN|NRW|NRG|AB|ND-V1..NF-V9|DR|ND-DR|ND-DRL|ND-DRG|ND-DRV|ND-DRF|ND-DRF1|ND-DRFG|NPP|NPM-I|NPM-P|NRB|PL|NGS|NGF|NMW|NRV|LM|NLM|NLM-OFF|NLM-G|NLM-C|NLM-F|NLM-FG]...
  *        E2E_R2D_VERBOSE=1 prints every command's output.
  */
 import assert from 'node:assert/strict';
@@ -1707,6 +1719,11 @@ interface ScriptMode { findingRound1: boolean; twoFindings?: boolean; lowFinding
   staleRow?: boolean;
   /** Old-PoS run 58 (NGF): round 1 reports D_FINDING and the suspected NGF_SUSPECTED_CONFLICT. */
   suspectedConflict?: boolean;
+  /**
+   * Old-PoS run 68 (NRV): round 1's test-coverage lane reports NGS_FINDING2 (a trailing newline moves to the front);
+   * its repair (ngsRepairScript) changes the expected value of a table row a checklist intent row also pins.
+   */
+  repin?: boolean;
 
   /** Detection A/B control D9-r1 / D2-r3 / refused critic: how the FIRST round-1 critic restates or omits findings (scenarios NC, NC2, NC3). */
   criticRestate?: CriticRestateMode;
@@ -1738,7 +1755,7 @@ interface ScriptMode { findingRound1: boolean; twoFindings?: boolean; lowFinding
    * Old-PoS run 44: 'short-literal' = D_FINDING plus a metadata finding citing only a short quoted literal of CHK-001's
    * userSees (no corrected value extractable; run 44 R2), copied in CHK-002's userSees (the sweep).
    */
-  metadata?: 'with-product' | 'only' | 'with-product-copy' | 'intent-rows' | 'short-literal';
+  metadata?: 'with-product' | 'only' | 'with-product-copy' | 'intent-rows' | 'short-literal' | 'intent-only';
   /**
    * EXPERIMENTAL A/B review.deltaRounds (ND-DR*): later-round lanes answer a delta-round
    * confirmation block from their prompt: 'full' checks every item and names the re-run of
@@ -1804,6 +1821,12 @@ function reviewRoundIndex(worktree: string, storyId: string, reviewRunId: string
 
 /** A REVIEW lane's scripted final proposal: round 1 test-coverage reports the mode's findings, every other lane passes. */
 function laneScript(worktree: string, storyId: string, lane: string, reviewRunId: string, firstRound: boolean, mode: ScriptMode): ProviderScript {
+  if (mode.repin && lane === 'proof-or-stop-review-test-coverage') {
+    // Old-PoS run 68 (NRV): round 1 reports the trailing-newline defect; later rounds pass.
+    const index = reviewRoundIndex(worktree, storyId, reviewRunId);
+    const envelope = index === 0 ? { conclusion: 'findings', note: 'Scripted run 68 lane.', findings: [NGS_FINDING2] } : PASS_ENVELOPE(lane);
+    return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, ...envelope, ...readEvidenceFor(worktree, storyId) }) };
+  }
   if ((mode.staleRow || mode.suspectedConflict) && lane === 'proof-or-stop-review-test-coverage') {
     // Old-PoS run 58 (NGS / NGF).
     const index = reviewRoundIndex(worktree, storyId, reviewRunId);
@@ -1834,6 +1857,11 @@ function laneScript(worktree: string, storyId: string, lane: string, reviewRunId
     // Old-PoS run 33 (F-003 / trip 5): a lane cites an intent row that contradicts the request (a PLAN correction).
     return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, conclusion: 'findings',
       note: 'Scripted run 33 lane: an untested edge and a checklist intent row that contradicts the request.', findings: [D_FINDING, metadataFindings(worktree, storyId).intentRow], ...readEvidenceFor(worktree, storyId) }) };
+  }
+  if (mode.metadata === 'intent-only' && firstRound && lane === 'proof-or-stop-review-test-coverage') {
+    // Old-PoS run 68 R2: the only report of the wave is an intent row the request contradicts (no product finding).
+    return { final: JSON.stringify({ schemaVersion: FINAL_SCHEMA, storyId, providerAgent: lane, lane, reviewRunId, conclusion: 'findings',
+      note: 'Scripted run 68 lane: a checklist intent row that contradicts the request; the code is right.', findings: [metadataFindings(worktree, storyId).intentRow], ...readEvidenceFor(worktree, storyId) }) };
   }
   const currentUserSees = mode.metadata ? new StoryStore(worktree).readChecklist(storyId).items.find(item => item.id === 'CHK-001')?.userSees : undefined;
   if (mode.metadata === 'short-literal' && firstRound && currentUserSees === META_SHORT_STALE_USER_SEES['CHK-001'] && lane === 'proof-or-stop-review-test-coverage') {
@@ -2234,6 +2262,8 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   /** Old-PoS run 58 (NGS / NGF): see ScriptMode.staleRow / suspectedConflict. */
   staleRow?: boolean;
   suspectedConflict?: boolean;
+  /** Old-PoS run 68 (NRV): see ScriptMode.repin. */
+  repin?: boolean;
   /** Owner-driver lab (owner.driver=framework): drive with `next --untilAgent` (implies run); the owner only gets agent steps. */
   drive?: boolean;
   /** Run 16: round 1 also reports two LOW findings; the owner repairs the first itself (managed finding-repair) when next says enter_review. */
@@ -2243,7 +2273,7 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
   /** Run 17 Q1: round 1 also reports NU_DUP_FINDING, which the critic marks a duplicate of D_FINDING; 'covered' = the canonical repair's test covers it, 'uncovered' = it does not. */
   duplicate?: 'covered' | 'uncovered' | 'covered2';
   /** Old-PoS run 31 (NMF/NMF2): round 1 also reports Story-metadata findings (ScriptMode.metadata). */
-  metadata?: 'with-product' | 'only' | 'with-product-copy' | 'intent-rows' | 'short-literal';
+  metadata?: 'with-product' | 'only' | 'with-product-copy' | 'intent-rows' | 'short-literal' | 'intent-only';
   /** Soft checks (NL): each violation is recorded and the flow continues, so one run reports every defect. */
   violations?: string[];
   /** Scenarios NC/NC2/NC3: the first round-1 critic restates (or leaves a new finding without a row). */
@@ -2439,7 +2469,7 @@ export function driveWithNext(o: Owner, mode: { findingRound1: boolean; run: boo
           o.script(FINDING_REPAIR, nrgRepairScript(id, String(payload.findingId)));
           break;
         }
-        if (mode.staleRow && !Array.isArray(payload.groupFindingIds) && findingDesc(String(payload.findingId)) === NGS_FINDING2.desc) {
+        if ((mode.staleRow || mode.repin) && !Array.isArray(payload.groupFindingIds) && findingDesc(String(payload.findingId)) === NGS_FINDING2.desc) {
           o.script(FINDING_REPAIR, ngsRepairScript(id, String(payload.findingId)));
           break;
         }
@@ -7192,8 +7222,130 @@ function scenarioNGF(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
+/**
+ * NMW (old-PoS run 68 R2, run68-analysis.md §5 links 2-4): a wave whose only report is a
+ * Story-metadata finding on an intent row (a correction only PLAN may make; no product
+ * finding). The REVIEW verdict refuses [review_metadata_correction_open]. Before, that
+ * code went through the stale-evidence stop-loss: the live epoch was cancelled twice
+ * (each cancel staled the wave, so all lanes reran: two wasted waves), and with the
+ * cancel budget spent REVIEW->DEV was refused for the OPEN epoch's missing receipt and
+ * `next` returned the agent step `guard_dev_blocked` whose only command was the read-only
+ * `review_inventory_status` (the owner ran the critic by hand). Now the wave's lanes
+ * finish, the round's critic and finalize run as framework steps, and the correction
+ * takes ONE framework hop REVIEW->DEV->PLAN: one lane wave, no stop-loss cancel, no
+ * guard step, no read-only pointer.
+ */
+function scenarioNMW(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NMW';
+  const name = 'NMW old-PoS run 68: a metadata-only wave (intent row) keeps its one lane wave: critic and finalize, then one framework hop to the PLAN correction (no stop-loss cancel, no dead end)';
+  const o = new Owner(tag, 'B-68a1', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  const seen: Array<{ phase: string; reason: string; kind: string; command: string }> = [];
+  const violations: string[] = [];
+  try {
+    devSetup(o);
+    try {
+      driveWithNext(o, { findingRound1: false, run: false, metadata: 'intent-only' }, lines, next => {
+        seen.push({ phase: next.phase, reason: next.reason, kind: next.kind, command: `${next.cli?.command ?? ''} ${JSON.stringify(next.cli?.payload ?? {})}` });
+        // Recorded, not thrown, so a RED run shows the whole base path (cancels, relaunches, the dead end).
+        if (next.reason === 'review_stop_loss_inventory_cancel') violations.push(`stop-loss cancel #${violations.filter(row => row.startsWith('stop-loss')).length + 1} for a metadata-only report`);
+        const readOnly = next.kind === 'agent' && /^(?:review_inventory_status|session_brief|certification_window_status)$/.test(next.cli?.command ?? '');
+        if ((next.phase === 'REVIEW' && next.reason.startsWith('guard_')) || readOnly) {
+          violations.push(`dead end ${next.phase}:${next.reason} (${next.kind}, command ${next.cli?.command ?? 'none'}): ${next.why.slice(0, 300)}`);
+          throw new StopDrive('dead end');
+        }
+        if (next.reason === 'metadata_correction' && next.phase === 'PLAN') throw new StopDrive('PLAN correction reached');
+      });
+      assert.fail(`[${tag}] next never reached the PLAN correction: ${seen.map(row => `${row.phase}:${row.reason}`).join(' > ')}`);
+    } catch (error) {
+      if (!(error instanceof StopDrive)) throw error;
+    }
+    const store = new StoryStore(o.worktree);
+    const laneRuns = store.readReviewRuns(o.storyId).runs.filter(run => run.reviewPurpose !== 'inventory-completeness');
+    const lanes = new Set(laneRuns.map(run => run.lane));
+    lines.push(`lane runs ${laneRuns.length} (${lanes.size} lanes); steps: ${seen.map(row => `${row.phase}:${row.reason}(${row.kind})`).join(' > ')}`);
+    assert.deepEqual(violations, [], `[${tag}] the metadata-only report went through the stale-wave stop-loss / a dead end`);
+    assert.equal(laneRuns.length, lanes.size, `[${tag}] ONE lane wave for the metadata-only report (run 68: three): ${laneRuns.map(run => `${run.reviewRunId}:${run.lane}`).join(', ')}`);
+    const cancels = store.readReviewInventoryEpochs(o.storyId).epochs.filter(epoch => epoch.state === 'CANCELLED');
+    assert.deepEqual(cancels.map(epoch => epoch.epochId), [], `[${tag}] no inventory epoch is cancelled for a metadata-only report: ${JSON.stringify(cancels.map(epoch => [epoch.epochId, epoch.cancelReason]))}`);
+    const at = seen.findIndex(row => row.reason === 'metadata_correction_plan');
+    assert.ok(at >= 0, `[${tag}] the correction hop is a step`);
+    assert.ok(seen.slice(0, at).some(row => row.reason === 'inventory_critic_launch'), `[${tag}] the round's critic ran as a framework launch before the hop: ${seen.map(row => row.reason).join(' > ')}`);
+    assert.deepEqual(seen.slice(at).map(row => `${row.phase}:${row.reason}:${row.kind}`), ['REVIEW:metadata_correction_plan:framework', 'DEV:metadata_correction_plan:framework', 'PLAN:metadata_correction:agent'],
+      `[${tag}] one framework hop REVIEW->DEV->PLAN, then the one PLAN correction`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, `steps: ${seen.map(row => `${row.phase}:${row.reason}(${row.kind})`).join(' > ')}`, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
+/** NRV: CHK-002's edge row pins the trailing-newline case as the first implementation tested it. */
+const NRV_ROW_DESC = 'Reverse keeps every rune: `Reverse("ab\\n") -> "\\nba"`';
+
+/**
+ * NRV (old-PoS run 68 R1 -> R2, run68-analysis.md §5 link 1): a verified finding's repair
+ * fixes the code AND changes the expected value of the table-test row that a checklist
+ * intent row also pins (`<case> -> <old>`). Nothing amended the checklist, so the next
+ * round's lanes reported the stale intent row as Story metadata (run 68: two R2 waves,
+ * a dead end, a DEV->PLAN trip and a third round, +34 min). Now, once the repair is
+ * resolved, the framework derives the changed value from the repair commit's test diff,
+ * takes the Story to PLAN (framework hop) and applies the row patch itself (a framework
+ * `checklist_update` with `re-pin: <case> was <old>, now <new>`) before the next round:
+ * the Story reaches DONE with the row stating the repaired value, no lane reported it.
+ */
+function scenarioNRV(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NRV';
+  const name = 'NRV old-PoS run 68: a repair that changes a pinned expected value sweeps the checklist intent row in the same repair window (framework re-pin before the next round)';
+  const o = new Owner(tag, 'B-68a2', machineEnv, steps, false, { trackedGateFailureCounts: true });
+  const lines: string[] = [];
+  const seen: Array<{ phase: string; reason: string; kind: string; command: string }> = [];
+  try {
+    // The first implementation tested the trailing-newline case with its then value.
+    writeFileSync(join(o.worktree, 'strs/strs_test.go'), `${readFileSync(join(o.worktree, 'strs/strs_test.go'), 'utf8')}${NGS_REPAIR_TEST}`);
+    git(o.worktree, ['add', 'strs/strs_test.go']);
+    git(o.worktree, ['-c', 'user.name=proof-or-stop-implementer', 'commit', '-qm', 'test: Reverse edge table']);
+    const store0 = new StoryStore(o.worktree);
+    const cl = store0.readChecklist(o.storyId);
+    store0.writeChecklist(o.storyId, { ...cl, items: cl.items.map(item => item.id === 'CHK-002' ? { ...item, verificationIntent: { ...item.verificationIntent!,
+      edge: [{ id: 'CHK-002:edge:0', desc: NRV_ROW_DESC, type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass', requirementSource: 'story',
+        verification: { command: 'go test -v ./strs -run ^TestReverseEdges$', selector: '--- PASS: TestReverseEdges' } }] } } : item) } as never);
+    commitFixtureMetadata(o, `proof-or-stop: ${o.storyId} CHK-002 edge row`);
+    o.mustCli('dev_memory_preflight_ack', { storyId: o.storyId });
+    o.mustCli('scope_contract_init_from_plan', { storyId: o.storyId });
+    addItemEvidence(o);
+    o.mustCli('verification_evidence_add', { storyId: o.storyId, itemId: 'CHK-002', intentRef: 'CHK-002:edge:0', kind: 'logic_test',
+      command: 'go test -v ./strs -run ^TestReverseEdges$', selector: '--- PASS: TestReverseEdges', note: 'Pinned focused go test proves the trailing-newline row.' }, { label: 'verification_evidence_add CHK-002 edge' });
+    o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', status: 'done' }, { label: 'checklist_update CHK-001 done' });
+    o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-002', status: 'done' }, { label: 'checklist_update CHK-002 done' });
+    driveWithNext(o, { findingRound1: false, run: false, repin: true }, lines, next => {
+      seen.push({ phase: next.phase, reason: next.reason, kind: next.kind, command: `${next.cli?.command ?? ''} ${JSON.stringify(next.cli?.payload ?? {})}` });
+    });
+    const store = new StoryStore(o.root);
+    const row = store.readChecklist(o.storyId).items.find(item => item.id === 'CHK-002')!.verificationIntent!.edge[0]!;
+    lines.push(`CHK-002:edge:0 now: ${row.desc}`);
+    lines.push(`steps: ${seen.map(entry => `${entry.phase}:${entry.reason}(${entry.kind})`).join(' > ').slice(0, 1600)}`);
+    assert.ok(row.desc.includes('Reverse("ab\\n") -> "ba\\n"'), `[${tag}] the intent row states the repaired value: ${row.desc}`);
+    assert.ok(!row.desc.includes('-> "\\nba"'), `[${tag}] the old pinned value is gone from the row: ${row.desc}`);
+    assert.match(`${row.desc} ${(row as { derivation?: { computation?: string } }).derivation?.computation ?? ''}`, /re-pin: .*was .*now /, `[${tag}] the row states the re-pin (run-58 pin-reversal rule): ${JSON.stringify(row)}`);
+    const patch = seen.find(entry => entry.phase === 'PLAN' && entry.reason === 'metadata_correction');
+    assert.ok(patch, `[${tag}] the PLAN row patch is a step: ${seen.map(entry => `${entry.phase}:${entry.reason}`).join(' > ')}`);
+    assert.equal(patch!.kind, 'framework', `[${tag}] the framework applies the derived row patch (no owner authoring): ${patch!.command}`);
+    assert.match(patch!.command, /checklist_update .*"intentRows"/, `[${tag}] a row-level patch: ${patch!.command}`);
+    const rounds = reviewRoundCount(o);
+    assert.equal(rounds, 2, `[${tag}] the finding costs its one remediation round and no metadata round: ${rounds}`);
+    assert.ok(store.readProcessEvents(o.storyId).some(event => (event.type as string) === 'repair_expected_value_changed'), `[${tag}] the derived value change is journaled`);
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, `steps: ${seen.map(entry => `${entry.phase}:${entry.reason}(${entry.kind})`).join(' > ')}`, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NGS|NGF|NPP|NPM-[IP]|NRB|PL|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -7278,6 +7430,9 @@ async function main(): Promise<void> {
     if (only.includes('NRG')) outcomes.push(scenarioNRG(machine.env, steps));
     if (only.includes('NGS')) outcomes.push(scenarioNGS(machine.env, steps));
     if (only.includes('NGF')) outcomes.push(scenarioNGF(machine.env, steps));
+    // Old-PoS run 68: metadata-only wave (NMW) and a repair that changes a pinned value (NRV).
+    if (only.includes('NMW')) outcomes.push(scenarioNMW(machine.env, steps));
+    if (only.includes('NRV')) outcomes.push(scenarioNRV(machine.env, steps));
     // Lab plan-light: plan.pinProbe (NPP), plan.reviewMerge (NPM-I, NPM-P), plan.rowBudget (NRB); PL = all four.
     if (only.includes('NPP') || only.includes('PL')) outcomes.push(scenarioNPP(machine.env, steps));
     if (only.includes('NPM-I') || only.includes('PL')) outcomes.push(scenarioNPMI(machine.env, steps));
@@ -7301,7 +7456,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NGS', 'NGF', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {
