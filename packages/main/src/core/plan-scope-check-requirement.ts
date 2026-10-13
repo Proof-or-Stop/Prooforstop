@@ -139,15 +139,12 @@ export function scopePlanRerunReason(
   if (gaps > 0 && scopeVerdictChecklistChanged(scope, store.readChecklist(story.storyId))) {
     // Old-PoS runs 61 / 63 (core/scope-exclusion-rationale.ts): only `excludes` changed and every open gap is one an
     // excludes entry cannot close (precedent conflict, or a behaviour an item changes): the reviewer would judge the
-    // same content and re-raise the same rows (3-6 identical rounds). story_review keeps the covering-row Next.
+    // same content and re-raise the same rows (3-6 identical rounds). story_review keeps the covering-row Next; the
+    // checks below (contradicted exclusions, review round) still apply.
     const checklist = store.readChecklist(story.storyId);
-    if (root && checklistChangeIsExcludesOnly(scope, checklist)
-      && openScopeGaps(scope, checklist).every(gap => excludesProofGap(root, gap.feature ?? '', checklist.items))) {
-      return story.currentReviewRound && scope.reviewRound !== story.currentReviewRound
-        ? `the verdict's reviewRound (${scope.reviewRound || 'none'}) is not the current review round (${story.currentReviewRound})`
-        : null;
-    }
-    return `the verdict of ${scope.checkedAt} lists ${gaps} gap(s) and the checklist changed since that verdict`;
+    const excludesProof = Boolean(root) && checklistChangeIsExcludesOnly(scope, checklist)
+      && openScopeGaps(scope, checklist).every(gap => excludesProofGap(root!, gap.feature ?? '', checklist.items));
+    if (!excludesProof) return `the verdict of ${scope.checkedAt} lists ${gaps} gap(s) and the checklist changed since that verdict`;
   }
   // Old-PoS run 43 (core/scope-exclusion-rationale.ts): an exclusion story_review rejects is judged again once the checklist changed.
   if (root && exclusionRationaleCheckActive(root) && scopeVerdictChecklistChanged(scope, store.readChecklist(story.storyId))) {
