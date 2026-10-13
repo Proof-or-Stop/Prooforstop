@@ -1720,7 +1720,7 @@ framework mode, whose `live_smoke` capture is a framework step since run 64, own
 7 vs 3), `NOD-W` (a post-commit hook hangs once in a review-evidence import commit;
 the watchdog kills the call after the step-stall limit and the Story reaches DONE), `NOD-DUP` (run 65 sequence: the scripted owner runs `next --run` after TEST authoring, the Story is DONE, then `next --untilAgent` ends `done`, `story_create` of the delivered request is refused explicitly and staged, still created under `llm` with a note, a different request is not refused; every driven step text is audited). `owner-driver-smoke` N1 checks `frameworkOwnerWhy`.
 
-### Detection A/B variant switches (eight experimental, default off; `review.round2Lanes`, `remediation.grouping` and `remediation.thread` adopted; five catch-earlier switches since old-PoS run 33 and two run-43 detection switches that default on, and three EXPERIMENTAL lab plan-light PLAN switches, below)
+### Detection A/B variant switches (eight experimental, default off; `review.round2Lanes`, `remediation.grouping` and `remediation.thread` adopted; five catch-earlier switches since old-PoS run 33 and two run-43 detection switches that default on, three EXPERIMENTAL lab plan-light PLAN switches and the EXPERIMENTAL lab sibling-gate PLAN switch `plan.counterpartCoverage`, below)
 
 Nine project-config switches were added to measure, in a detection A/B, whether a
 structural review/dispatch change loses findings (bench-staging run-17 cost
@@ -2075,6 +2075,94 @@ checklist_update / `next` refusal, like `bench.pinOracle=on`), `{"plan.reviewMer
 `{"plan.rowBudget":"on"}`; one switch per arm. Tests: `node packages/main/dist/tasks/plan-light-smoke.js`
 (S1, P1-P4, R1-R2, M1-M2), harness `node packages/main/dist/tasks/e2e-review-to-done-smoke.js PL` (= NPP, NPM-I,
 NPM-P, NRB; each also runs its switch-absent control), `npm run test:ab-variant-switches`.
+
+#### Lab sibling-gate switch `plan.counterpartCoverage` (EXPERIMENTAL, default off)
+
+Source: bench-staging/oldpos/run69-72-analysis.md §1 (runs 43, 46, 55, 57 and 71 missed the same hidden test). A Story
+adds a NEW operation on a receiver type (single-index assignment on strings); the request is silent on a negative
+index; the base has two precedents that disagree: the SAME receiver's counterpart (the string read counts a negative
+index from the end) and ANOTHER receiver's same operation (the array write rejects it). The implementer copied the
+second; the hidden test follows the first. Only the scope-plan reviewer's prompt-only base-disagreement check
+(`plan.baseDisagreement`) caught it, about one run in two; lane-side parity (`review.siblingParity`) looped and is off.
+`plan.counterpartCoverage=on` makes that PLAN check deterministic and framework-owned (core/counterpart-coverage.ts).
+Off (default, no key): nothing is scanned, no gate, no step, no prompt change (next-driver golden unchanged); on is
+recorded in `abVariantEvidence`; a malformed value is off where it is consumed (`counterpartCoverageOn`).
+
+Discovery (Story base only: `git ls-tree` + one `git cat-file --batch` of the scanned sources, never the request or a
+task name; Go, Python and brace languages; vendored / build / fixture directories skipped; more than 4,000 files or
+24 MB scans nothing):
+
+- **The added operation**, from the item's own rows, title and userSees. Method form: a call token `X` (`.X(`, `X(`)
+  that is one half of a generic counterpart pair (get/set, get/put, read/write, load/store, getitem/setitem,
+  peek/poke) on a base type `T` the item names (`T`, `NewT`) that has the other half `C` and lacks `X` (added `T.X`;
+  `T` already has `X`: a changed operation, advisory only, and only when the title / userSees names `X`). Index form:
+  a row `v = <literal>; v[<i>] = <value>` (single index; ranges are not recognised) on a string, array or map literal;
+  its counterpart is the base function named for that kind and for indexing, not for writing or ranges (fewest name
+  words wins); the write is added when no base write function (named for indexing and writing) dispatches on the kind
+  (`case` / `.Type()` / `instanceof` / `isinstance` / `typeof` lines) and no base test writes into a value of the kind,
+  or when the declared evaluator fails the item's own write on the base.
+- **The classes the counterpart special-cases** (negative, out of range, empty, null or omitted, wrong type), three
+  independent signals: a **branch** (a condition line of the counterpart's body on an operand, i.e. a parameter or a
+  local derived from one, or on its receiver: `< 0` / `>= 0`; a comparison with a length expression or a local bound
+  to one; a zero length / empty literal; nil / null / None / undefined or a NULL type constant; `.Type()`,
+  `isinstance`, `typeof`, `instanceof`, a type assertion or switch; `err != nil` is no operand; a re-assigned operand
+  such as the wrap `i = len(s) + i` stays an operand); a **base test** (a test calling the counterpart on a value of
+  `T` with a negative / null first argument or near an out-of-range error name; index form: a read of a literal of the
+  kind, or of a variable bound to one, with a negative index or an index past its length); a **base probe** (index
+  form, only with a declared `probeRunner`, else `pinOracle`: the counterpart read on the row's own receiver with
+  index -1 and with its length).
+
+Confidence rule (fail-closed on clear evidence, fail-open on uncertainty): a class refuses PLAN→DEV only when (a) the
+operation is ADDED, exactly one receiver type of the item is a candidate for it and exactly one counterpart
+definition exists for that receiver; (b) two signals agree (branch + base test, branch + probe, base test + probe), or
+the probe alone shows the counterpart answering a VALUE for a negative or out-of-range operand; (c) no current row
+(any item; unauthored `<...>` placeholders do not count) exercises the new operation on that class (operand `-N`,
+`nil`/`null`/`None`, an index at or past the bound literal's length, a quoted / boolean / fractional operand, an
+empty bound literal, or the class named in prose on a row of the operation) and no request sentence names the
+operation together with that class (`negative index`, `[-N]`, out of range / past the end, empty, null / omitted,
+wrong type; `negative step` does not count). Every other discovered class (one signal, an ambiguous pair, a changed
+operation) is an advisory note: in the evidence, as a `counterpart_coverage_advisory` issue of `story_review` in
+PLAN (never a blocker) and in the implementer prompt. An unreadable or oversized base refuses nothing.
+
+Refusal: the DEV gate (`canStartDevGuard` / `getGuardFailureReason(DEV)`, right after `[pin_probe_mismatch]`, before the
+plan-review requirement) returns `Cannot enter DEV: N added operation(s) leave counterpart cases uncovered
+[counterpart_coverage_missing] (A/B switch plan.counterpartCoverage=on): <item> adds <op>; the same receiver's
+counterpart <name> (<file>:<line>) special-cases <classes>, which no row states for <op> (<class>: branch ... ; base
+test ... ; base probe ...). Add one row per class on <item> whose expected value follows <counterpart> on that case
+unless the request says otherwise (oracle order: the same receiver's counterpart first; another receiver's same
+operation, <sibling>, only second). The framework never writes the value.` and ONE `Next: proof-or-stop
+checklist_update '{"storyId","itemId","verificationIntent":{...the item's rows..., "edge":[..., one placeholder row per
+class with a derivation placeholder]}}'`. `next` (PLAN) returns the same agent step `counterpart_coverage_missing`
+right after `pin_probe_mismatch`, before the authoring batch and the scope-plan reviewer, so the reviewer judges rows
+that already exist. Evidence: `.proof-or-stop/runtime/counterpart-coverage/<storyId>.json`
+(`proof-or-stop.counterpart-coverage.v1`: base, `inputsDigest` = sha256 of base + checklist + request + discovery
+version, the cache key reused across CLI processes; scanned file count, probe kind, checks with every signal,
+refusals, advisories, `abVariant`).
+
+Implementer prompt (switch on only): after the exact-text relaunch lines, `Counterpart probe (A/B
+plan.counterpartCoverage=on): before writing an operation the Story adds on a receiver type, run the SAME receiver's
+existing counterpart ... on the Story base on each edge class ... and make the new operation give the same result
+unless a checklist row or the request says otherwise; another receiver's same operation is only the second oracle.
+Report one line per case run: [counterpart] <op> :: <case> -> <base result>.` plus one line per discovered operation
+of the item (`- Shelf.Put: counterpart Shelf.Get (store/shelf.go:18) special-cases negative, out of range; second
+oracle Bin.Put.`). `next` does not parse the lines. Measured: +553 B (contract only) / +669 B with one discovered
+operation (counterpart-coverage-smoke I1); harness NCC implementer dispatch 27,335 -> 28,003 B (+668 B). Templates,
+prompt baselines and the default path are unchanged.
+
+Limits: Ruby and other `end`-delimited languages are not scanned; operations behind other names (`append`, `insert`
+alone, operator overloads other than getitem/setitem), counterparts that delegate the edge handling to a helper,
+out-of-range checks without a length expression, range / slice writes, and receivers the item does not name are not
+seen (the item is then not checked). Branch evidence names up to two condition lines per class (a counterpart may
+handle the class differently on two paths, e.g. a range flag and the single index); the owner probes the base anyway.
+Checked against the upstream abs source (2026-10-14): a run-71-shaped row `s = "abc"; s[1] = "x"` is refused for
+negative and out of range (`evalStringIndexExpression` branches + base tests `"123"[-2]`, `"123"[10]`; 35 files, about
+0.1 s), an array single-index row (existing operation) is advisory only.
+
+Bench arm (`POS_AB_FLAGS`, adapter `prepare_workflow.py`): `{"plan.counterpartCoverage":"on"}` (no evaluator declared;
+`{"plan.counterpartCoverage":"on","bench.pinOracle":"on"}` adds base probes and the run-31 oracle refusal). Tests:
+`node packages/main/dist/tasks/counterpart-coverage-smoke.js` (S1, D1-D3, N1-N5, T1, I1), harness
+`node packages/main/dist/tasks/e2e-review-to-done-smoke.js NCC` (with its switch-absent control NCC-off; RED on the
+base: `next` gave `plan_authoring`, no counterpart check), `npm run test:ab-variant-switches`.
 
 `session_brief` is still the opening-briefing entry point for a new agent session; `status` / `next` are the short entry points for humans and agents to quickly restore context while working.
 

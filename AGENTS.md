@@ -954,6 +954,21 @@ listed rows of unchanged items). `plan.rowBudget=on`: write one intent row per
 distinct behaviour (operand class), not several literal examples of one class;
 `story_create` / `story_review` list repeated rows as an advisory with one trim
 command; keep every request-literal example and exact-text row.
+
+Counterpart coverage (lab `codex/lab-sibling-gate`; EXPERIMENTAL A/B
+`plan.counterpartCoverage`, default off; docs/CLI.md "Lab sibling-gate switch"):
+for each operation an item ADDS on a receiver type (a `T.X` the base type lacks,
+or `v = <literal>; v[i] = <value>` on a string / array / map), the framework finds
+the SAME receiver's counterpart in the Story base (its read for a new write) and
+the operand classes it special-cases (negative, out of range, empty, null, type)
+from its branches, base tests and, with a declared evaluator, base probes. A
+class with clear evidence and no row on the new operation refuses DEV entry
+(`[counterpart_coverage_missing]`, one Next with a placeholder row per class) and
+`next` names it before the plan review: add the rows, their expected value
+following the counterpart unless the request says otherwise (another receiver's
+same operation is only the second oracle). Weak evidence is a `story_review`
+advisory. The implementer probes the counterpart on the base first and reports
+`[counterpart] <op> :: <case> -> <base result>` lines.
 The critic runs only when the round reports a finding; a repair over 50% of the
 Story diff's changed lines or touching a file outside it is a full round. No
 round cap, no severity decay. `reviewer_list --json` shows the plan or the
