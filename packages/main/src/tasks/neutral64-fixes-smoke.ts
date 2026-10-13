@@ -333,7 +333,7 @@ await check('O5 plan_authoring pre-fills requestQuote with the closest verbatim 
     const next = decide(f);
     assert.equal(next.reason, 'plan_authoring', `${next.reason}: ${next.why.slice(0, 200)}`);
     const payload = JSON.stringify(next.batch?.map(call => call.cli.payload) ?? []);
-    assert.ok(payload.includes('stores v under every key from lo up to but excluding hi.'), `requestQuote is pre-filled: ${payload.slice(0, 600)}`);
+    assert.ok(payload.includes('stores v under every key from lo up to but excluding hi.'), `requestQuote is pre-filled: ${payload.slice(payload.indexOf('putRange(2,5'), payload.indexOf('putRange(2,5') + 500)}`);
     assert.match(payload, /<the steps from that sentence/, 'the computation stays the owner\'s');
   } finally { cleanup(f); }
 });

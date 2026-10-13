@@ -177,6 +177,43 @@ export function intentDerivationRows(itemId: string, verificationIntent: Verific
   return rows;
 }
 
+/** The sentence-like units of a request: list items and lines without their markers, split at sentence ends, code fences dropped. */
+function requestSentences(requestText: string): string[] {
+  const out: string[] = [];
+  let fenced = false;
+  for (const raw of requestText.split('\n')) {
+    if (/^\s*```/.test(raw)) { fenced = !fenced; continue; }
+    if (fenced) continue;
+    const line = raw.replace(/^\s*(?:[-*+]|\d+[.)])\s+/, '').replace(/^\s*#{1,6}\s+/, '').trim();
+    for (const part of line.split(/(?<=[.!?])\s+(?=[A-Z`])/)) {
+      const sentence = part.trim();
+      if (squash(sentence).length >= DERIVATION_QUOTE_MIN_CHARS) out.push(sentence);
+    }
+  }
+  return out;
+}
+
+const tokensOf = (text: string): Set<string> => new Set((text.toLowerCase().match(/[a-z0-9_]{2,}/g) ?? []).map(word => (word.length > 3 && word.endsWith('s') && !word.endsWith('ss') ? word.slice(0, -1) : word)));
+
+/**
+ * Old-PoS run 64: the request sentence closest to a text (a row's desc or a non-verbatim requestQuote), verbatim, or
+ * null when no sentence shares at least two words and a third of the smaller word set. story_create's first refusal
+ * cost the owner a minute of reading the staged request for exactly this; the owner still writes the computation and
+ * judges whether the sentence is the rule the value follows from.
+ */
+export function closestRequestSentence(text: string, requestText: string): string | null {
+  const wanted = tokensOf(text);
+  if (wanted.size < 2) return null;
+  let best: { sentence: string; score: number; shared: number } | null = null;
+  for (const sentence of requestSentences(requestText)) {
+    const have = tokensOf(sentence);
+    const shared = [...wanted].filter(token => have.has(token)).length;
+    const score = shared / Math.min(wanted.size, have.size);
+    if (shared >= 2 && score >= 1 / 3 && (!best || score > best.score || (score === best.score && shared > best.shared))) best = { sentence, score, shared };
+  }
+  return best && requestQuoteFound(best.sentence, requestText) ? best.sentence : null;
+}
+
 const PROBLEM_TEXT: Record<DerivationProblem, string> = {
   missing: 'no derivation',
   quote_too_short: `requestQuote shorter than ${DERIVATION_QUOTE_MIN_CHARS} characters (cite the whole rule sentence)`,
@@ -185,14 +222,20 @@ const PROBLEM_TEXT: Record<DerivationProblem, string> = {
   computation_missing_value: 'computation does not state the pinned value',
 };
 
-export function describeDerivationProblem(row: IntentDerivationRow): string {
-  return `${row.ref} pins ${row.unquoted.map(value => JSON.stringify(value)).join(', ')}: ${row.problem ? PROBLEM_TEXT[row.problem] : 'derivation valid'}`;
+export function describeDerivationProblem(row: IntentDerivationRow, requestText?: string): string {
+  const head = `${row.ref} pins ${row.unquoted.map(value => JSON.stringify(value)).join(', ')}: ${row.problem ? PROBLEM_TEXT[row.problem] : 'derivation valid'}`;
+  if (row.problem !== 'quote_not_in_request' || requestText === undefined) return head;
+  const written = typeof row.derivation?.requestQuote === 'string' ? row.derivation.requestQuote : '';
+  const closest = closestRequestSentence(written || row.desc, requestText) ?? closestRequestSentence(row.desc, requestText);
+  return closest ? `${head}; the closest request.md sentence, verbatim: "${closest.replace(/"/g, '\\"')}"` : head;
 }
 
 /** The placeholder derivation next's plan_authoring writes on a row that needs one. */
-export function derivationPlaceholder(row: Pick<IntentDerivationRow, 'unquoted'>): VerificationIntentDerivation {
+export function derivationPlaceholder(row: Pick<IntentDerivationRow, 'unquoted'> & { desc?: string; suggestedQuote?: string | null }, requestText?: string): VerificationIntentDerivation {
+  // Old-PoS run 64: the closest verbatim request sentence is pre-filled (the owner confirms or replaces it); the computation stays the owner's.
+  const suggested = row.suggestedQuote ?? (requestText !== undefined && row.desc ? closestRequestSentence(row.desc, requestText) : null);
   return {
-    requestQuote: '<the request.md sentence this expected value follows from, quoted verbatim>',
+    requestQuote: suggested ?? '<the request.md sentence this expected value follows from, quoted verbatim>',
     computation: `<the steps from that sentence to ${row.unquoted.join(', ')} (e.g. the rule the sentence states, applied step by step to this input); if they reach another value, fix the pinned value>`,
   };
 }
@@ -208,7 +251,7 @@ export function intentDerivationFailure(command: DerivationCommand, itemId: stri
     ? 'Next: rerun story_create with a derivation on each listed row, or quote the expected value from request.md (no Story was created).'
     : `Next: rerun ${command} with the complete verificationIntent and a derivation on each listed row.`;
   return `${command} REFUSED, nothing was written: an example whose expected value is not quoted verbatim from request.md must carry a derivation [${INTENT_DERIVATION_REQUIRED}]\n`
-    + `${bad.map(describeDerivationProblem).join('\n')}\n`
+    + `${bad.map(row => describeDerivationProblem(row, requestText)).join('\n')}\n`
     + 'Add to each row: "derivation":{"requestQuote":"<verbatim request.md sentence the value follows from>","computation":"<steps from that sentence to the pinned value, ending at that value>"}. '
     + 'If the computation reaches a different value, the pinned value is wrong: fix it.\n'
     + next;

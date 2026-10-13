@@ -37,7 +37,7 @@ export function storyCreateDerivationFailure(items: ReadonlyArray<{ itemId: stri
   const bad = items.flatMap(item => intentDerivationRows(item.itemId, item.verificationIntent, requestText).filter(row => row.problem !== null));
   if (!bad.length) return null;
   return `story_create REFUSED, nothing was written: an example whose expected value is not quoted verbatim from request.md must carry a derivation [${INTENT_DERIVATION_REQUIRED}]\n`
-    + `${bad.map(describeDerivationProblem).join('\n')}\n`
+    + `${bad.map(row => describeDerivationProblem(row, requestText)).join('\n')}\n`
     + 'Add to each row: "derivation":{"requestQuote":"<verbatim request.md sentence the value follows from>","computation":"<steps from that sentence to the pinned value, ending at that value>"}. '
     + 'If the computation reaches a different value, the pinned value is wrong: fix it.';
 }

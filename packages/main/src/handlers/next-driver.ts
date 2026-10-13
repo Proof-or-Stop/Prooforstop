@@ -1570,7 +1570,7 @@ export function planAuthoringStep(store: Pick<HandlerContext['store'], 'readRevi
         for (const lane of VERIFICATION_LANES) {
           intent[lane] = (item.verificationIntent?.[lane] ?? []).map((row, index) => {
             const underived = gap?.rows.find(entry => entry.lane === lane && entry.index === index);
-            return underived ? { ...(row as unknown as Record<string, unknown>), derivation: derivationPlaceholder(underived) } : { ...(row as unknown as Record<string, unknown>) };
+            return underived ? { ...(row as unknown as Record<string, unknown>), derivation: derivationPlaceholder(underived, request.text) } : { ...(row as unknown as Record<string, unknown>) };
           });
         }
         intent.edge!.push(...placeholders);
@@ -1771,6 +1771,11 @@ function initHint(path: string): string | undefined {
 function withInitHints<T extends { placeholderHints?: Record<string, string> }>(value: T): T {
   if (!value.placeholderHints) return value;
   return { ...value, placeholderHints: Object.fromEntries(Object.entries(value.placeholderHints).map(([path, hint]) => [path, initHint(path) ?? hint])) };
+}
+
+/** owner.driver=framework in the project config (unreadable or malformed = llm, the default path). */
+export function ownerDriverFramework(root: string): boolean {
+  try { return ownerDriver(loadConfig(root)) === 'framework'; } catch { return false; }
 }
 
 /** Lab plan-light: plan.rowBudget=on in the project config (unreadable = off). */
@@ -2020,6 +2025,28 @@ export function storyReviewBlockersStep(base: { storyId: string; phase: string }
     'getGuardFailureReason(DEV) + latest story_review round blockers');
 }
 
+/**
+ * The live-smoke transcript step. The default capture is the project's first validate command. Old-PoS run 64 (lab
+ * neutral-64): with owner.driver=framework the first capture (no transcript yet, a command to run) was a mechanical
+ * 0.4-minute owner turn, so `next --run` records it; a transcript that does not pass, or a project without a validate
+ * command to capture, stays the agent's (it names the command that shows the user-visible behavior).
+ */
+export function liveSmokeStep(base: { storyId: string; phase: string }, _root: string, liveSmoke: { status: string; ok: boolean; reason?: string },
+  framework: boolean, validateCommand: unknown): NextStep {
+  const capture = validateCommand && typeof validateCommand === 'object' && 'command' in validateCommand
+    ? [(validateCommand as { command: string }).command, ...((validateCommand as { args?: string[] }).args ?? [])].join(' ')
+    : '<real-machine command that shows the user-visible behavior>';
+  const placeholder = capture.startsWith('<');
+  const mechanical = framework && liveSmoke.status === 'absent' && !placeholder;
+  return step(base, mechanical ? 'framework' : 'agent', 'live_smoke', { command: 'live_smoke_transcript', payload: { storyId: base.storyId, capture, write: true } },
+    liveSmoke.status === 'absent'
+      ? (mechanical
+        ? 'Record the real-machine transcript the delivery reviewer checks: owner.driver=framework, `next --run` captures the project validate command.'
+        : 'Record the real-machine transcript the delivery reviewer checks (default: the project validate command; replace it with the command that shows the user-visible behavior).')
+      : `The recorded live-smoke transcript does not pass (${liveSmoke.reason}); rerun it with a passing command.`,
+    'evaluateOptionalLiveSmokeTranscript (DONE oracle live-smoke row)', placeholder ? { placeholders: ['capture'] } : {});
+}
+
 // ---------------------------------------------------------------------------
 // Decision
 
@@ -2151,8 +2178,13 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     const metadata = metadataStep(base);
     if (metadata) return metadata;
     if (!evaluateDevMemoryPreflightGate(storyId, ctx.store)) {
-      return step(base, 'agent', 'dev_memory_preflight_ack', { command: 'dev_memory_preflight_ack', payload: { storyId } },
-        'The DEV-entry gate refuses without the dev-memory preflight acknowledgement [missing_dev_memory_preflight_ack]. Run it now and read the lessons it prints before planning the implementation.',
+      // Old-PoS run 64 (lab neutral-64): with owner.driver=framework this turn only ran the command (0.2 min, a model round
+      // trip); `next --run` runs it, and its lessons stay in the dev-memory pack the acknowledgement records.
+      const frameworkAck = ownerDriverFramework(ctx.root);
+      return step(base, frameworkAck ? 'framework' : 'agent', 'dev_memory_preflight_ack', { command: 'dev_memory_preflight_ack', payload: { storyId } },
+        frameworkAck
+          ? 'The DEV-entry gate refuses without the dev-memory preflight acknowledgement [missing_dev_memory_preflight_ack]. owner.driver=framework: `next --run` records it now (the lessons it prints are in the run output; the gate only needs the acknowledgement).'
+          : 'The DEV-entry gate refuses without the dev-memory preflight acknowledgement [missing_dev_memory_preflight_ack]. Run it now and read the lessons it prints before planning the implementation.',
         'evaluateDevMemoryPreflightGate (DEV-entry gate)');
     }
     // Lab plan-light (A/B plan.pinProbe=on): pins checked against the Story base and the
@@ -2212,7 +2244,10 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
       const autoStreak = scopeRuns.slice(streakStart);
       const auto = autoStreak.length > 0
         ? bound && targetRelaunchIsFramework(autoStreak)
-        : scopePlanLaunchIsFramework({ bound, rerun: Boolean(rerun), last, verdict: ctx.store.readScopeCheck(storyId) });
+        // Old-PoS run 64 (lab neutral-64): under plan.reviewMerge no INIT reviewer ran, so no earlier managed run binds a selection
+        // and this first launch was always the agent's (0.2 min). With owner.driver=framework the first launch takes the qualified
+        // default selection, as the INIT reviewers' first launch always did.
+        : scopePlanLaunchIsFramework({ bound: bound || (scopeRuns.length === 0 && ownerDriverFramework(ctx.root)), rerun: Boolean(rerun), last, verdict: ctx.store.readScopeCheck(storyId) });
       return managedLaunchStep(base, 'scope_plan_review_launch', { ...selection, storyId,
         agentType: SCOPE_PLAN_REVIEWER, managedDispatch: true, detach: true, json: true }, auto,
       scopeFailure
@@ -3108,15 +3143,7 @@ export function createNextDriver(ctx: HandlerContext, lookup: HandlerLookup) {
     }
     const liveSmoke = evaluateOptionalLiveSmokeTranscript(ctx.store, storyId);
     if (liveSmoke.status === 'absent' || !liveSmoke.ok) {
-      const command = loadConfig(ctx.root).validate?.commands?.[0];
-      const capture = command && typeof command === 'object' && 'command' in command
-        ? [command.command, ...((command as { args?: string[] }).args ?? [])].join(' ')
-        : '<real-machine command that shows the user-visible behavior>';
-      return step(base, 'agent', 'live_smoke', { command: 'live_smoke_transcript', payload: { storyId, capture, write: true } },
-        liveSmoke.status === 'absent'
-          ? 'Record the real-machine transcript the delivery reviewer checks (default: the project validate command; replace it with the command that shows the user-visible behavior).'
-          : `The recorded live-smoke transcript does not pass (${liveSmoke.reason}); rerun it with a passing command.`,
-        'evaluateOptionalLiveSmokeTranscript (DONE oracle live-smoke row)', capture.startsWith('<') ? { placeholders: ['capture'] } : {});
+      return liveSmokeStep(base, ctx.root, liveSmoke, ownerDriverFramework(ctx.root), loadConfig(ctx.root).validate?.commands?.[0]);
     }
     const delivery = failing('delivery-check');
     // N1 (v4.1 cost plan): the delivery reviewer is launched as soon as its own
