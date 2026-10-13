@@ -321,6 +321,13 @@
  *      unanswered question blocks, then DEV; NRB plan.rowBudget=on, the template
  *      guidance and story_create's advisory list rows repeating an operand class
  *      with one trim command (rows before -> after printed). `PL` = all four.
+ *   NCC lab sibling-gate (EXPERIMENTAL plan.counterpartCoverage, default off; its
+ *      switch-absent control NCC-off runs first): an item adding Shelf.Put with
+ *      in-range rows only, next to the base's Shelf.Get (counts a negative index
+ *      from the end, base test) and Bin.Put (rejects it), refuses DEV entry
+ *      ([counterpart_coverage_missing], counterpart first, sibling second, one
+ *      Next with a placeholder row per class); the implementer prompt carries the
+ *      `[counterpart]` probe contract (bytes printed); rows added = pass.
  *
  *   NRG old-PoS runs 46/47 (resolved-finding regression guard + finding conflict):
  *      round 1's finding F-001 is repaired with a test and resolved; round 2's
@@ -5320,6 +5327,148 @@ function scenarioNRB(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
   }
 }
 
+// Lab sibling-gate (EXPERIMENTAL A/B plan.counterpartCoverage, default off; core/counterpart-coverage.ts):
+// old-PoS runs 43/46/55/57/71 (run69-72-analysis.md §1). A made-up Go store in the task baseline:
+// Shelf.Get counts a negative index from the end (branch + base test), Bin.Put rejects it.
+const NCC_SHELF = [
+  'package store', '', 'import "errors"', '',
+  'var ErrOutOfRange = errors.New("index out of range")', '',
+  '// Shelf is an ordered row of labels.',
+  'type Shelf struct {', '\titems []string', '}', '',
+  'func NewShelf(items ...string) *Shelf { return &Shelf{items: items} }', '',
+  '// Get returns the label at i; a negative i counts from the end.',
+  'func (s *Shelf) Get(i int) (string, error) {',
+  '\tif i < 0 {', '\t\ti += len(s.items)', '\t}',
+  '\tif i < 0 || i >= len(s.items) {', '\t\treturn "", ErrOutOfRange', '\t}',
+  '\treturn s.items[i], nil', '}', '',
+].join('\n');
+const NCC_BIN = [
+  'package store', '',
+  'type Bin struct {', '\tslots []string', '}', '',
+  'func (b *Bin) Get(i int) (string, error) {',
+  '\tif i < 0 || i >= len(b.slots) {', '\t\treturn "", ErrOutOfRange', '\t}',
+  '\treturn b.slots[i], nil', '}', '',
+  'func (b *Bin) Put(i int, v string) error {',
+  '\tif i < 0 || i >= len(b.slots) {', '\t\treturn ErrOutOfRange', '\t}',
+  '\tb.slots[i] = v', '\treturn nil', '}', '',
+].join('\n');
+const NCC_SHELF_TEST = [
+  'package store', '', 'import "testing"', '',
+  'func TestShelfGet(t *testing.T) {',
+  '\ts := NewShelf("a", "b", "c")',
+  '\tif got, _ := s.Get(-1); got != "c" {', '\t\tt.Fatalf("Get(-1) = %q", got)', '\t}',
+  '\tif _, err := s.Get(3); err != ErrOutOfRange {', '\t\tt.Fatalf("Get(3) err = %v", err)', '\t}',
+  '}', '',
+].join('\n');
+const NCC_REQUEST = `${NIQ_REQUEST}\n- Add \`Shelf.Put(i, v)\` to the store package; it replaces the label at position i.`;
+
+/**
+ * NCC: plan.counterpartCoverage=on. CHK-001 adds Shelf.Put with in-range rows only; the framework finds the
+ * same receiver's counterpart Shelf.Get in the Story base, which special-cases a negative and an out-of-range
+ * index (branch + base test), and refuses DEV entry with ONE Next (a placeholder row per class); the rows added,
+ * DEV entry is no longer refused for it. Control NCC-off: the switch absent, nothing is discovered or refused.
+ */
+function scenarioNCC(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
+  const tag = 'NCC';
+  const name = 'NCC lab sibling-gate plan.counterpartCoverage=on: an added operation (Shelf.Put) whose same-receiver counterpart (Shelf.Get) special-cases negative / out-of-range indexes no row covers refuses DEV entry (counterpart first, Bin.Put second, one Next); rows added = pass; the implementer prompt asks for [counterpart] probes; switch off = unchanged';
+  const row = (desc: string, test: string) => ({ desc, type: 'logic', priority: 'must', scope: 'focused', expectation: 'absolute_pass',
+    requirementSource: 'story', verification: { command: `go test -v ./store -run ^${test}$`, selector: `--- PASS: ${test}` } });
+  const quote = 'Add `Shelf.Put(i, v)` to the store package; it replaces the label at position i.';
+  const derived = (desc: string, test: string, computation: string) => ({ ...row(desc, test), derivation: { requestQuote: quote, computation } });
+  const intent = {
+    happy: [derived('s := NewShelf("a", "b", "c"); s.Put(1, "x"); s.Get(1) -> "x"', 'TestShelfPut', 'Put replaces the label at 1, so Get(1) reads "x"')],
+    edge: [derived('s := NewShelf("a", "b", "c"); s.Put(0, "y"); s.Get(0) -> "y"', 'TestShelfPutFirst', 'Put replaces the label at 0, so Get(0) reads "y"')],
+    adversarial: [derived('s := NewShelf("a", "b", "c"); s.Put(2, "z"); s.Get(2) -> "z"', 'TestShelfPutLast', 'Put replaces the label at 2, so Get(2) reads "z"')],
+  };
+  const files = { modify: ['store/shelf.go'], create: [], test: ['store/shelf_test.go'] };
+  const baseFiles = { 'store/shelf.go': NCC_SHELF, 'store/bin.go': NCC_BIN, 'store/shelf_test.go': NCC_SHELF_TEST };
+  const lines: string[] = [];
+  const setup = (o: Owner): void => {
+    const store = new StoryStore(o.worktree);
+    store.writeStory(o.storyId, { ...store.readStory(o.storyId), phase: 'PLAN' });
+    const legacy = store.readChecklist(o.storyId);
+    store.writeChecklist(o.storyId, { ...legacy, items: legacy.items.map(item => ({ ...item, status: 'pending', startTime: null,
+      ...(item.id === 'CHK-001' ? { title: 'Add Shelf.Put', userSees: '`s.Put(1, "x")` replaces the label at 1; `s.Get(1)` then returns "x"', files, verificationIntent: intent } : {}) })) } as never);
+    commitFixtureMetadata(o, `proof-or-stop: ${o.storyId} PLAN rows`);
+    o.mustCli('dev_memory_preflight_ack', { storyId: o.storyId });
+  };
+  const ask = (o: Owner, label: string): NextStepJson => {
+    const asked = o.cli('next', { storyId: o.storyId, json: true }, { label });
+    const next = (asked.status === 0 ? parseJson(asked.stdout) : null) as NextStepJson | null;
+    assert.ok(next && typeof next.kind === 'string', `[NCC] next did not return a step:\n${asked.out.slice(-2000)}`);
+    lines.push(`${o.scenario} ${label}: ${next.phase} ${next.kind} ${next.reason}`);
+    return next;
+  };
+  /** The implementer dispatch prompt of CHK-001 (rendered in DEV; the phase is set back to PLAN afterwards). */
+  const implementerPrompt = (o: Owner, label: string): string => {
+    const store = new StoryStore(o.worktree);
+    const story = store.readStory(o.storyId);
+    store.writeStory(o.storyId, { ...story, phase: 'DEV' });
+    try {
+      const prompt = o.cli('dispatch', { storyId: o.storyId, agentType: IMPLEMENTER, itemId: 'CHK-001' }, { label });
+      assert.equal(prompt.status, 0, `[NCC] ${label} rendered:\n${prompt.out.slice(-1500)}`);
+      return prompt.stdout;
+    } finally {
+      store.writeStory(o.storyId, { ...store.readStory(o.storyId), phase: 'PLAN' });
+    }
+  };
+  const control = new Owner('NCC-off', 'B-e2c1', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NCC_REQUEST, baseFiles });
+  const o = new Owner(tag, 'B-e2c0', machineEnv, steps, false, { trackedGateFailureCounts: true, unimplemented: true, request: NCC_REQUEST,
+    config: { plan: { counterpartCoverage: 'on' } }, baseFiles });
+  try {
+    // Control: switch absent, nothing is discovered, refused or added to the implementer prompt.
+    setup(control);
+    const off = ask(control, 'next (switch off)');
+    assert.notEqual(off.reason, 'counterpart_coverage_missing', `[NCC] with plan.counterpartCoverage absent nothing is checked: ${off.why}`);
+    const offDev = control.cli('story_advance', { storyId: control.storyId, phase: 'DEV' }, { label: 'story_advance DEV (switch off)' });
+    assert.doesNotMatch(offDev.out, /counterpart_coverage_missing/, '[NCC] the DEV gate is unchanged with the switch off');
+    const offPrompt = implementerPrompt(control, 'dispatch implementer (switch off)');
+    assert.doesNotMatch(offPrompt, /\[counterpart\]/, '[NCC] the implementer prompt is unchanged with the switch off');
+    control.cleanup();
+
+    setup(o);
+    const blocked = ask(o, 'next (counterpart cases uncovered)');
+    assert.equal(blocked.reason, 'counterpart_coverage_missing', `[NCC] next names the uncovered counterpart cases before the plan review: ${blocked.reason}: ${blocked.why}`);
+    assert.equal(blocked.kind, 'agent');
+    assert.match(blocked.why, /CHK-001 adds Shelf\.Put/, `[NCC] the item and the added operation are named: ${blocked.why}`);
+    assert.match(blocked.why, /Shelf\.Get \(store\/shelf\.go:\d+\)/, '[NCC] the same receiver\'s counterpart is named with its base location');
+    assert.match(blocked.why, /negative, out of range/, '[NCC] the uncovered classes are named');
+    assert.match(blocked.why, /Bin\.Put[^]*?only second/, '[NCC] another receiver\'s same operation is the second oracle only');
+    assert.equal(blocked.cli?.command, 'checklist_update', '[NCC] ONE next action: a checklist_update');
+    const intentPatch = blocked.cli?.payload.verificationIntent as { edge?: Array<{ desc: string }> } | undefined;
+    assert.equal(intentPatch?.edge?.filter(rowValue => rowValue.desc.startsWith('<')).length, 2, '[NCC] one placeholder row per uncovered class');
+    const dev = o.cli('story_advance', { storyId: o.storyId, phase: 'DEV' }, { label: 'story_advance DEV (refused: counterpart cases)' });
+    assert.notEqual(dev.status, 0, '[NCC] the uncovered counterpart cases must not reach DEV');
+    assert.match(dev.out, /\[counterpart_coverage_missing\]/, `[NCC] the DEV gate names the rule:\n${dev.out.slice(-1500)}`);
+    assert.match(dev.out, /Next: proof-or-stop checklist_update '[^\n]*verificationIntent/, '[NCC] the refusal carries one Next');
+    const evidencePath = [o.root, o.worktree].map(dir => join(dir, '.proof-or-stop', 'runtime', 'counterpart-coverage', `${o.storyId}.json`)).find(path => existsSync(path));
+    assert.ok(evidencePath, '[NCC] the discovery is recorded with its A/B evidence');
+    const evidence = JSON.parse(readFileSync(evidencePath!, 'utf8')) as { abVariant?: { flags?: Record<string, string> }; refusals?: unknown[]; scanned?: number };
+    assert.deepEqual(evidence.abVariant?.flags, { 'plan.counterpartCoverage': 'on' }, '[NCC] abVariantEvidence recorded');
+    lines.push(`discovery: ${evidence.scanned} base source file(s) scanned, ${evidence.refusals?.length} refusal(s)`);
+    const onPrompt = implementerPrompt(o, 'dispatch implementer (switch on)');
+    assert.match(onPrompt, /\[counterpart\] <op> :: <case> -> <base result>/, '[NCC] the implementer prompt carries the counterpart probe contract');
+    assert.match(onPrompt, /Shelf\.Put: counterpart Shelf\.Get/, '[NCC] the implementer prompt names the discovered counterpart');
+    lines.push(`implementer prompt: ${Buffer.byteLength(offPrompt)} B (switch off) -> ${Buffer.byteLength(onPrompt)} B (switch on), +${Buffer.byteLength(onPrompt) - Buffer.byteLength(offPrompt)} B`);
+
+    // The owner adds one row per class whose expected value follows Shelf.Get; DEV entry is no longer refused for it.
+    o.mustCli('checklist_update', { storyId: o.storyId, itemId: 'CHK-001', verificationIntent: { ...intent, edge: [...intent.edge,
+      derived('s := NewShelf("a", "b", "c"); s.Put(-1, "z"); s.Get(2) -> "z"', 'TestShelfPutNegative', 'Shelf.Get counts a negative index from the end, so Put(-1) replaces the last label and Get(2) reads "z"'),
+      derived('s := NewShelf("a", "b", "c"); s.Put(3, "z") -> ErrOutOfRange', 'TestShelfPutOutOfRange', 'Shelf.Get returns ErrOutOfRange past the end, so Put(3) returns ErrOutOfRange')] } }, { label: 'checklist_update CHK-001 (counterpart rows)' });
+    const after = ask(o, 'next (counterpart rows added)');
+    assert.notEqual(after.reason, 'counterpart_coverage_missing', `[NCC] covered classes pass: ${after.why}`);
+    const devAfter = o.cli('story_advance', { storyId: o.storyId, phase: 'DEV' }, { label: 'story_advance DEV (counterpart rows added)' });
+    assert.doesNotMatch(devAfter.out, /counterpart_coverage_missing/, '[NCC] the DEV gate no longer names the rule');
+    const passed = JSON.parse(readFileSync(evidencePath!, 'utf8')) as { refusals?: unknown[] };
+    assert.deepEqual(passed.refusals, [], '[NCC] the recorded discovery is clean');
+    o.cleanup();
+    return { name, status: 'PASS', lines };
+  } catch (error) {
+    console.log(`${tag} fixture retained for diagnosis: ${o.root}`);
+    return { name, status: 'FAIL', lines: [...lines, error instanceof Error ? error.message : String(error)] };
+  }
+}
+
 /**
  * Owner-driver lab NOD-INIT (owner.driver=framework). From an empty project
  * `next --untilAgent` (no Story) hands the owner the story_create template;
@@ -7358,7 +7507,7 @@ function scenarioNRV(machineEnv: NodeJS.ProcessEnv, steps: Step[]): Outcome {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM)$/.test(arg));
+  const only = process.argv.slice(2).filter(arg => /^(?:[ABCDEN]|D2|D3|NR|NF2?|NL|NU2?|NC[2-9]?|NCV|NW[3-6]?|NI|NIU|NAR|NPO|NMF2?|NMO|NMT|NMS|NMD|NMP|NLI|NAVF?|NID|NSC|NRI|NMR|NLS|NPA|NSR|NUB|NRP|NRQ|NXT|NIN|NIS|NQ|NP|NPT|NX|NM|NDL|NDS|NQR|NDG|NRS|NPX[ASC]?|NPXR[EN]?|NRW|NRG|NGS|NGF|NMW|NRV|NPP|NPM-[IP]|NRB|PL|NCC|NOD(?:-INIT|-W|-DUP)?|N[AD](?:-run)?|N[DF]-V[1-689]|AB|ND-DR(?:[LGV]|F[1G]?)?|DR|NLM(?:-OFF|-G|-C|-F|-FG|-D|-S|-SG|-SC)?|NLM4(?:-OFF)?|LM)$/.test(arg));
   if (process.env.E2E_R2D_BARE_GITIGNORE === '1' && !only.includes('E')) {
     // Scenario A's flow on a bare task .gitignore replaces A.
     const index = only.indexOf('A');
@@ -7451,6 +7600,8 @@ async function main(): Promise<void> {
     if (only.includes('NPM-I') || only.includes('PL')) outcomes.push(scenarioNPMI(machine.env, steps));
     if (only.includes('NPM-P') || only.includes('PL')) outcomes.push(scenarioNPMP(machine.env, steps));
     if (only.includes('NRB') || only.includes('PL')) outcomes.push(scenarioNRB(machine.env, steps));
+    // Lab sibling-gate: plan.counterpartCoverage (NCC, with its switch-absent control NCC-off).
+    if (only.includes('NCC')) outcomes.push(scenarioNCC(machine.env, steps));
     // Owner-driver lab (owner.driver=framework): NOD-INIT, NOD, NOD-W.
     if (only.includes('NOD-INIT')) outcomes.push(scenarioNODInit(machine.env, steps));
     if (only.includes('NOD')) outcomes.push(scenarioNOD(machine.env, steps));
@@ -7469,7 +7620,7 @@ async function main(): Promise<void> {
   } finally {
     try { machine.cleanup(); } catch (error) { console.log(String(error)); }
   }
-  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
+  for (const scenario of ['A', 'B', 'D', 'D2', 'D3', 'E', 'NA', 'ND', 'NA-run', 'ND-run', 'NF', 'NF2', 'NL', 'NU', 'NU2', 'NC', 'NC2', 'NC3', 'NC4', 'NC5', 'NC6', 'NC7', 'NC8', 'NC9', 'NW3', 'NW4', 'NW5', 'NW6', 'NI', 'NIU', 'NAR', 'NPO', 'NMF', 'NMF2', 'NMO', 'NMT', 'NMS', 'NMD', 'NMP', 'NLI', 'NAV', 'NAVF', 'NID', 'NSC', 'NRI', 'NMR', 'NLS', 'NPA', 'NSR', 'NUB', 'NRP', 'NRQ', 'NIN', 'NIS', 'NQ', 'NP', 'NCV', 'NX', 'NM', 'NDL', 'NDS', 'NQR', 'NDG', 'NRS', 'NPX', 'NPXA', 'NPXS', 'NPXC', 'NPXR', 'NPXRE', 'NPXRN', 'NRW', 'NRG', 'NGS', 'NGF', 'NMW', 'NRV', 'NPP', 'NPP-off', 'NPM-I', 'NPM-P', 'NRB', 'NRB-off', 'NCC', 'NCC-off', 'NOD-INIT', 'NOD-llm', 'NOD', 'NOD-W', 'NOD-DUP', ...[...new Set(steps.map(s => s.scenario))].filter(row => /^N[DF]-(?:V|DR)|^NLM/.test(row))]) if (steps.some(s => s.scenario === scenario)) printTimeline(steps, scenario);
   printNComparison(steps);
   console.log('\nScenarios:');
   for (const outcome of outcomes) {

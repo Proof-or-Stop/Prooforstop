@@ -53,6 +53,7 @@ import { describeCoverageGap, MISSING_COVERAGE_ROW, planCoverageGapsFor } from '
 import { readStoryRequest } from '../core/story-request.js';
 import { abVariantEvidenceOf, rowBudgetOn } from '../core/ab-variants.js';
 import { ROW_BUDGET_ADVISORY, recordRowBudgetEvidence } from '../core/plan-row-budget.js';
+import { COUNTERPART_COVERAGE_ADVISORY, edgeLabel, planCounterpartCoverage } from '../core/counterpart-coverage.js';
 import { planScopeCheckRequirement, scopeVerdictChecklistChanged } from '../core/plan-scope-check-requirement.js';
 import { requiresFullVerificationIntent } from '../core/plan-pre-scope-blockers.js';
 import {
@@ -558,6 +559,16 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         for (const extra of recordRowBudgetEvidence(ctx.root, args.storyId, 'story_review', cl.items, request.status === 'ok' ? request.text : null, abVariantEvidenceOf(loadConfig(ctx.root)))) {
           issues.push({ type: ROW_BUDGET_ADVISORY, severity: 'advisory', itemId: extra.itemId,
             message: `${extra.ref} repeats the operand class of ${extra.sameAs} (${extra.signature}); one row per distinct behaviour suffices (A/B plan.rowBudget=on, advisory). Drop it unless it tests a behaviour that signature misses.` });
+        }
+      }
+      // Lab sibling-gate (A/B plan.counterpartCoverage=on): counterpart classes discovered with weak evidence are an advisory
+      // note (never a blocker); clear ones refuse DEV entry through the gate itself (core/counterpart-coverage.ts).
+      if (story.phase === 'PLAN') {
+        const counterpart = planCounterpartCoverage(store, ctx.root, args.storyId, () => resolveGitCwd({ store, storyId: args.storyId, metadataRoot: ctx.root, projectRoot: ctx.root }));
+        for (const note of counterpart?.advisories ?? []) {
+          issues.push({ type: COUNTERPART_COVERAGE_ADVISORY, severity: 'advisory', itemId: note.itemId,
+            message: `${note.itemId} ${note.operation}: its counterpart ${note.counterpart} may special-case ${note.edges.map(edgeLabel).join(', ')}, which no row states (${note.reason}; A/B plan.counterpartCoverage=on, advisory). `
+              + 'Probe the counterpart on the Story base; add a row per class whose result the Story must keep unless the request says otherwise.' });
         }
       }
       if (requireFullVerificationIntent) {

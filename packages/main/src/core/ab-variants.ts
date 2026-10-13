@@ -99,6 +99,15 @@
  *                              per distinct behaviour (operand class), not many literal examples of one class; request
  *                              literals and exact-text rows are never counted as extra (core/plan-row-budget.ts)
  *
+ * Lab sibling-gate (old-PoS runs 43/46/55/57/71, bench-staging/oldpos/run69-72-analysis.md §1): one EXPERIMENTAL
+ * detection switch, default OFF:
+ *   plan.counterpartCoverage   'off' (default) | 'on'  before PLAN→DEV the framework finds, for each operation an item
+ *                              ADDS on a receiver type, the same receiver's counterpart in the Story base (its read for a
+ *                              new write, its write for a new read) and the operand classes it special-cases (negative,
+ *                              out of range, empty, null / omitted, type); a class with clear evidence and no row on the
+ *                              new operation refuses DEV entry with ONE Next, weak evidence is an advisory note; the
+ *                              implementer prompt asks for `[counterpart]` base probes (core/counterpart-coverage.ts)
+ *
  * A malformed value fails closed where it is consumed (never silently treated
  * as an experimental arm; review.lanePack / review.roundDelta then keep production: no pack). See docs/CLI.md "Detection A/B variant switches".
  */
@@ -128,6 +137,7 @@ export const AB_VARIANT_FLAGS = {
   'plan.pinProbe': ['off', 'on'],
   'plan.reviewMerge': ['off', 'on'],
   'plan.rowBudget': ['off', 'on'],
+  'plan.counterpartCoverage': ['off', 'on'],
 } as const;
 
 export type AbVariantFlag = keyof typeof AB_VARIANT_FLAGS;
@@ -137,7 +147,7 @@ export interface AbVariantConfigSlice {
   review?: { criticOnCleanRound?: string; round2Scope?: string; round2Lanes?: string; lanePack?: string; roundDelta?: string; siblingParity?: string; deltaRounds?: string; laneMerge?: string };
   remediation?: { grouping?: string; thread?: string };
   implementation?: { grouping?: string; thread?: string; probeMatrix?: string };
-  plan?: { coverageMatrix?: string; scopeDeferral?: string; pinAuditEnforcement?: string; exclusionRationaleCheck?: string; baseDisagreement?: string; pinProbe?: string; reviewMerge?: string; rowBudget?: string };
+  plan?: { coverageMatrix?: string; scopeDeferral?: string; pinAuditEnforcement?: string; exclusionRationaleCheck?: string; baseDisagreement?: string; pinProbe?: string; reviewMerge?: string; rowBudget?: string; counterpartCoverage?: string };
   dev?: { probeEnforcement?: string };
 }
 
@@ -164,6 +174,7 @@ export interface AbVariants {
   pinProbe: AbVariantValue<'plan.pinProbe'>;
   reviewMerge: AbVariantValue<'plan.reviewMerge'>;
   rowBudget: AbVariantValue<'plan.rowBudget'>;
+  counterpartCoverage: AbVariantValue<'plan.counterpartCoverage'>;
 }
 
 export interface AbVariantEvidence {
@@ -212,6 +223,7 @@ export function resolveAbVariants(config: unknown): AbVariants {
     pinProbe: pick('plan.pinProbe', section(config, 'plan').pinProbe),
     reviewMerge: pick('plan.reviewMerge', section(config, 'plan').reviewMerge),
     rowBudget: pick('plan.rowBudget', section(config, 'plan').rowBudget),
+    counterpartCoverage: pick('plan.counterpartCoverage', section(config, 'plan').counterpartCoverage),
   };
 }
 
@@ -240,6 +252,7 @@ export function abVariantEvidence(variants: AbVariants): AbVariantEvidence | und
   if (variants.pinProbe !== 'off') flags['plan.pinProbe'] = variants.pinProbe;
   if (variants.reviewMerge !== 'off') flags['plan.reviewMerge'] = variants.reviewMerge;
   if (variants.rowBudget !== 'off') flags['plan.rowBudget'] = variants.rowBudget;
+  if (variants.counterpartCoverage !== 'off') flags['plan.counterpartCoverage'] = variants.counterpartCoverage;
   return Object.keys(flags).length ? { schema: AB_VARIANT_EVIDENCE_SCHEMA, flags } : undefined;
 }
 
@@ -253,7 +266,7 @@ export function dispatchTargetThreadFresh(target: { abVariant?: AbVariantEvidenc
 }
 
 /** The single-switch reader of one catch-earlier switch: a malformed value (or an unreadable config) keeps production. */
-function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds' | 'review.laneMerge' | 'plan.pinProbe' | 'plan.reviewMerge' | 'plan.rowBudget'>(config: unknown, flag: F): AbVariantValue<F> {
+function catchEarlierPick<F extends 'plan.coverageMatrix' | 'plan.scopeDeferral' | 'plan.pinAuditEnforcement' | 'dev.probeEnforcement' | 'implementation.probeMatrix' | 'review.siblingParity' | 'plan.exclusionRationaleCheck' | 'plan.baseDisagreement' | 'review.deltaRounds' | 'review.laneMerge' | 'plan.pinProbe' | 'plan.reviewMerge' | 'plan.rowBudget' | 'plan.counterpartCoverage'>(config: unknown, flag: F): AbVariantValue<F> {
   const [group, key] = flag.split('.') as [string, string];
   try { return pick(flag, section(config, group)[key]); } catch { return AB_VARIANT_FLAGS[flag][0] as AbVariantValue<F>; }
 }
@@ -286,6 +299,8 @@ export const pinProbeOn = (config: unknown): boolean => catchEarlierPick(config,
 export const reviewMergeOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.reviewMerge') === 'on';
 /** EXPERIMENTAL plan.rowBudget=on: one intent row per operand class, guidance + soft check (core/plan-row-budget.ts); malformed = off. */
 export const rowBudgetOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.rowBudget') === 'on';
+/** EXPERIMENTAL plan.counterpartCoverage=on: an added operation's same-receiver counterpart cases must have rows before DEV (core/counterpart-coverage.ts); malformed = off. */
+export const counterpartCoverageOn = (config: unknown): boolean => catchEarlierPick(config, 'plan.counterpartCoverage') === 'on';
 /** The A/B evidence of a config (non-default switches only), or undefined when every switch has its production value or the config is malformed. */
 export function abVariantEvidenceOf(config: unknown): AbVariantEvidence | undefined {
   try { return abVariantEvidence(resolveAbVariants(config)); } catch { return undefined; }

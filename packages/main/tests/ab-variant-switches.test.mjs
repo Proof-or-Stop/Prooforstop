@@ -34,6 +34,9 @@
  *   plan.pinProbe                    example pins probed on the Story base + request-literal examples before PLAN→DEV
  *   plan.reviewMerge                 no INIT reviewers; ONE merged plan review in PLAN; a rerun confirms the changed rows
  *   plan.rowBudget                   one intent row per operand class: guidance + an advisory (never blocking) check
+ *   Lab sibling-gate (EXPERIMENTAL, default off; behaviour in tasks/counterpart-coverage-smoke.ts, end to end in NCC):
+ *   plan.counterpartCoverage         PLAN→DEV refuses an added operation whose same-receiver counterpart special-cases an
+ *                                    operand class no row covers (clear evidence only; weak evidence is an advisory note)
  *   Old-PoS run 43 (`off` = recorded rollback; behaviour in tasks/run43-fixes-smoke.ts S / P):
  *   review.siblingParity             the test-coverage and quality lane prompts carry the sibling-parity check
  *                                    (old-PoS run 58: default OFF, `on` = the recorded arm; tasks/run58-fixes-smoke.ts P)
@@ -80,8 +83,17 @@ await check('config: absent switches resolve to production values; malformed fai
     // EXPERIMENTAL lane merge (lab codex/lab-review-merge): off by default.
     laneMerge: 'off',
     // EXPERIMENTAL lab plan-light switches: off by default.
-    pinProbe: 'off', reviewMerge: 'off', rowBudget: 'off' });
+    pinProbe: 'off', reviewMerge: 'off', rowBudget: 'off',
+    // EXPERIMENTAL lab sibling-gate switch: off by default.
+    counterpartCoverage: 'off' });
   assert.equal(abVariantEvidence(off), undefined);
+  assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { counterpartCoverage: 'on' } })),
+    { schema: 'proof-or-stop.ab-variants.v1', flags: { 'plan.counterpartCoverage': 'on' } }, 'lab sibling-gate: the arm is recorded');
+  assert.throws(() => resolveAbVariants({ plan: { counterpartCoverage: 'maybe' } }), /invalid_ab_variant_config: plan\.counterpartCoverage/);
+  const { counterpartCoverageOn } = await load('core/ab-variants.js');
+  assert.equal(typeof counterpartCoverageOn, 'function', 'lab sibling-gate: counterpartCoverageOn is exported');
+  assert.equal(counterpartCoverageOn({ plan: { counterpartCoverage: 'maybe' } }), false, 'malformed = off where it is consumed');
+  assert.equal(counterpartCoverageOn({ plan: { counterpartCoverage: 'on' } }), true);
   assert.deepEqual(abVariantEvidence(resolveAbVariants({ plan: { pinProbe: 'on', reviewMerge: 'on', rowBudget: 'on' } })),
     { schema: 'proof-or-stop.ab-variants.v1', flags: { 'plan.pinProbe': 'on', 'plan.reviewMerge': 'on', 'plan.rowBudget': 'on' } }, 'lab plan-light: each arm is recorded');
   assert.equal(abVariantEvidence(resolveAbVariants({ review: { siblingParity: 'off' }, plan: { exclusionRationaleCheck: 'on' } })), undefined, 'the production values are not recorded');
