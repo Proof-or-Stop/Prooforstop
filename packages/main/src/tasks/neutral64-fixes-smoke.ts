@@ -27,6 +27,8 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 
 import * as nextDriver from '../handlers/next-driver.js';
+import { createMainRegistry } from '../registry.js';
+import { rowBudgetNote } from '../core/plan-row-budget.js';
 import * as planScope from '../core/plan-scope-check-requirement.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
@@ -61,16 +63,18 @@ const STORY_REQUEST = [
   '- Add `putRange(lo, hi, v)` to the store.',
   '- Add single-key `put(k, v)` on read-only views (returns an error).',
 ].join('\n');
-const row = (desc: string, test: string) => ({ desc, type: 'logic' as const, priority: 'must' as const, scope: 'focused' as const, expectation: 'absolute_pass' as const,
+const derivation = (desc: string) => ({ requestQuote: 'Add `putRange(lo, hi, v)` to the store.', computation: `Applying the quoted sentence to the stated operands gives ${desc.split('->')[1]?.trim() ?? desc}.` });
+const row = (desc: string, test: string) => ({ desc, derivation: derivation(desc), type: 'logic' as const, priority: 'must' as const, scope: 'focused' as const, expectation: 'absolute_pass' as const,
   requirementSource: 'story' as const, verification: { command: `go test -v ./store -run ^${test}$`, selector: `--- PASS: ${test}` } });
 const PRECEDENT = 'Precedent conflict: single-key put on read-only views, negative key: map put rejects a negative key with "key out of range" while list put counts from the end; request.md is silent on the negative-key view write case';
 const PRECEDENT_ENTRY = `${PRECEDENT}: the request is silent on the write behavior, so this Story leaves the negative-key view write unspecified and keeps the existing read-only error.`;
 const PLAIN_GAP = 'Network replication of range puts is not mentioned by any item';
-function items(opts: { excludes?: string[]; extraRow?: boolean } = {}): ChecklistItem[] {
+function items(opts: { excludes?: string[]; extraRow?: boolean; repeated?: boolean } = {}): ChecklistItem[] {
   return [{
-    id: 'CHK-001', title: 'Range put', context: 'store/store.go', userSees: 'putRange(1, 3, "v") stores v under 1 and 2',
+    id: 'CHK-001', title: 'Range put', context: 'store/store.go', userSees: 'putRange(lo, hi, v): putRange(1, 3, "v") stores v under 1 and 2',
     files: { modify: ['store/store.go'], create: [], test: ['store/store_test.go'] },
-    verificationIntent: { happy: [row('putRange(1,3,"v") -> keys 1,2', 'TestPutRange')], edge: [row('putRange(2,2,"v") -> no key', 'TestPutRangeEmpty')], adversarial: [row('putRange(3,1,"v") -> error', 'TestPutRangeReversed')] },
+    verificationIntent: { happy: [row('putRange(1,3,"v") -> keys 1,2', 'TestPutRange'), ...(opts.repeated ? [row('reverse([1, 2]) -> [2, 1]', 'TestReverseA')] : []),
+      ...(opts.repeated ? [row('reverse([3, 4]) -> [4, 3]', 'TestReverseB'), row('reverse([8, 9]) -> [9, 8]', 'TestReverseC')] : [])], edge: [row('putRange(2,2,"v") -> no key', 'TestPutRangeEmpty')], adversarial: [row('putRange(3,1,"v") -> error', 'TestPutRangeReversed')] },
     status: 'pending', startTime: null, endTime: null,
   }, {
     id: 'CHK-002', title: 'Single-key put on read-only views', context: 'store/view.go', userSees: 'view.put(k, v) returns "read-only view"',
@@ -85,12 +89,12 @@ function items(opts: { excludes?: string[]; extraRow?: boolean } = {}): Checklis
   }] as unknown as ChecklistItem[];
 }
 
-function planStory(): { root: string; storyId: string; ctx: { store: StoryStore; root: string; scanRoot: string } } {
+function planStory(config: Record<string, unknown> = {}, checklist: ChecklistItem[] = items()): { root: string; storyId: string; ctx: { store: StoryStore; root: string; scanRoot: string } } {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'neutral64-plan-')));
   git(root, ['init', '-q', '-b', 'main']);
   git(root, ['config', 'user.name', 'Bench Owner']);
   git(root, ['config', 'user.email', 'owner@bench.invalid']);
-  write(root, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: '.', rootDir: '.', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements', workflow: { profile: 'balanced' } }, null, 2));
+  write(root, 'proof-or-stop.config.json', JSON.stringify({ scanRoot: '.', rootDir: '.', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements', workflow: { profile: 'balanced' }, ...config }, null, 2));
   write(root, 'README.md', 'fixture\n');
   git(root, ['add', '-A']); git(root, ['commit', '-qm', 'baseline']);
   resetConfigCache();
@@ -99,7 +103,7 @@ function planStory(): { root: string; storyId: string; ctx: { store: StoryStore;
   const now = '2026-10-13T03:00:00.000Z';
   store.writeStory(storyId, { storyId, name: 'store-put', title: 'Store put forms', description: 'Add range put and view put.', type: 'feature', phase: 'PLAN', priority: 'high',
     createdAt: now, startedAt: now, endedAt: null, events: [{ phase: 'PLAN', action: 'advance', timestamp: now }] } as StoryInfo);
-  store.writeChecklist(storyId, { items: items() } as ChecklistData);
+  store.writeChecklist(storyId, { items: checklist } as ChecklistData);
   writeStoryRequest(store, { storyId, phase: 'INIT', request: STORY_REQUEST, source: 'smoke', now });
   store.writeDevMemoryPreflightAck(storyId, { schemaVersion: 'proof-or-stop.dev_memory_preflight_ack.v1', storyId, topHitIds: [], acknowledgedAt: now, acknowledgedBy: 'smoke' } as never);
   return { root, storyId, ctx: { store, root, scanRoot: root } };
@@ -193,6 +197,69 @@ await check('E5 the plan_review_blockers header offers no excludes route when ev
     assert.doesNotMatch(headerOf(blockers), /add an excludes entry/, 'no excludes route in the header');
     assert.match(headerOf([{ type: 'scope_gap', message: 'scope gap: the scope-plan reviewer found "x" neither covered nor excluded' }]), /add an excludes entry/, 'a plain gap keeps it');
   });
+});
+
+// ---------------------------------------------------------------------------
+// R. plan.rowBudget: one concrete, skippable trim step
+
+type Step = { kind: string; reason: string; why: string; batch?: Array<{ command: string; cli: { command: string; payload: Record<string, unknown> }; placeholders?: string[] }>; placeholders?: string[] };
+const decide = (f: ReturnType<typeof planStory>): Step => {
+  const registry = createMainRegistry(f.ctx as never);
+  return nextDriver.createNextDriver(f.ctx as never, (name: string) => registry.get(name)).decide(f.storyId) as unknown as Step;
+};
+
+await check('R1 plan.rowBudget=on: ONE plan_row_trim step with the exact checklist_update commands, before the scope-plan reviewer, naming how to skip', () => {
+  const f = planStory({ plan: { rowBudget: 'on' } }, items({ repeated: true }));
+  try {
+    const next = decide(f);
+    assert.equal(next.reason, 'plan_row_trim', `the trim step: ${next.reason} ${next.why}`);
+    assert.equal(next.kind, 'agent');
+    const calls = next.batch ?? [{ command: '', cli: (next as never as { cli: { command: string; payload: Record<string, unknown> } }).cli }];
+    assert.equal(calls.length, 1, 'one command per item with extras');
+    assert.equal(calls[0]!.cli.command, 'checklist_update');
+    assert.ok(!(calls[0]!.placeholders ?? []).length, 'exact commands, nothing to author');
+    const intent = (calls[0]!.cli.payload.verificationIntent as { happy: unknown[] });
+    assert.equal(intent.happy.length, 1, 'the two repeated rows are dropped, the first of the class stays');
+    assert.match(next.why, /skip/i, 'says how to skip');
+    assert.equal((next.why.match(/Next/g) ?? []).length <= 1, true);
+  } finally { cleanup(f); }
+});
+
+await check('R2 skipping: the next call goes on to the scope-plan reviewer and the rows stay (never a gate)', () => {
+  const f = planStory({ plan: { rowBudget: 'on' } }, items({ repeated: true }));
+  try {
+    assert.equal(decide(f).reason, 'plan_row_trim');
+    const again = decide(f);
+    assert.equal(again.reason, 'scope_plan_review_launch', `the second call does not offer it again: ${again.reason}`);
+    assert.equal(f.ctx.store.readChecklist(f.storyId).items[0]!.verificationIntent!.happy.length, 3, 'nothing was dropped by the framework');
+  } finally { cleanup(f); }
+});
+
+await check('R3 off (default) or nothing repeated: no trim step', () => {
+  const off = planStory({}, items({ repeated: true }));
+  try { assert.notEqual(decide(off).reason, 'plan_row_trim'); } finally { cleanup(off); }
+  const clean = planStory({ plan: { rowBudget: 'on' } });
+  try { assert.notEqual(decide(clean).reason, 'plan_row_trim'); } finally { cleanup(clean); }
+});
+
+await check('R4 after the trim no further trim step is offered', () => {
+  const f = planStory({ plan: { rowBudget: 'on' } }, items({ repeated: true }));
+  try {
+    const next = decide(f);
+    const call = (next.batch?.[0]?.cli ?? (next as never as { cli: { payload: Record<string, unknown> } }).cli);
+    const intent = call.payload.verificationIntent as ChecklistItem['verificationIntent'];
+    const checklist = f.ctx.store.readChecklist(f.storyId);
+    checklist.items[0] = { ...checklist.items[0]!, verificationIntent: intent } as ChecklistItem;
+    f.ctx.store.writeChecklist(f.storyId, checklist);
+    assert.notEqual(decide(f).reason, 'plan_row_trim');
+  } finally { cleanup(f); }
+});
+
+await check('R5 the story_create row-budget note ends in one optional Next with the trim command', () => {
+  const note = rowBudgetNote('B-64a1', items({ repeated: true }), null);
+  assert.match(note, /Next \(optional, skippable\)/);
+  assert.equal((note.match(/Next/g) ?? []).length, 1);
+  assert.match(note, /proof-or-stop checklist_update '/);
 });
 
 if (failures.length) {
