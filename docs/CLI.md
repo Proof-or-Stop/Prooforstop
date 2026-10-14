@@ -1699,6 +1699,83 @@ packages/main/dist/tasks/run73-fixes-smoke.js` (A1-A3, B, D1-D4, E1-E2) and harn
   re-stamped without execution only under a declared dependency manifest (`planVerificationExecutionReuse`), which a
   file-diff heuristic would weaken; the refresh still re-runs each distinct stale pinned command once.
 
+### Lab round-cut: removed-guard scan, bound matrix, framework duplicate closure, request literals at launch, pin-probe fixes (lab `codex/lab-round-cut`)
+
+Source: `bench-staging/oldpos/run74-75-analysis.md` section 7 (N1-N4) and section 8. Over the 16 completed old-PoS runs
+59-75 the number of review rounds drives wall time: the six runs with 3-5 rounds hold 81 % of the minutes above a 56 min
+norm, and each extra round costs about 17 min and 8-10M tokens. Two of the still-open classes are a base operand guard a
+refactor deletes (found 1-3 rounds late in at least 5 of the 11 runs 65-75) and a repair that fixes the finding's branch
+but not the sibling branches of the same helper (run 75: one branch per round). Tests: `node
+packages/main/dist/tasks/round-cut-smoke.js` (G1-G4, M1-M2, D1, X1, P1-P3) and harness `e2e-review-to-done-smoke.js NRC
+NRC-ADV NRM NRD`. No task values: the fixtures are made-up `window` (C), `kv` / `span` / `strs` (Go) code.
+
+- **N1. Removed-guard scan at DEV exit (switch `dev.removedGuardScan`, `advisory` (default) | `off` | `on`;
+  detection-adding).** `core/removed-guard-scan.ts` `scanRemovedGuards` diffs the Story base against HEAD (modified,
+  non-test source files; Go, Python and brace languages through the function extraction of `core/counterpart-coverage.ts`).
+  A removed line of a function that still exists (same name and owner in the HEAD file) is a removed guard when it is a
+  condition line (if / elif / while / guard / unless / assert / ternary) testing an operand for a class (null / omitted:
+  `x != nil`, `end != NULL`, `is None`; negative: `< 0`, `<= -1`, `>= 0`; out of range: `>= len(...)`, `> n`; empty:
+  `len(x) == 0`, `== ""`, `isEmpty()`) and the HEAD function has no condition line testing the same operand for the same
+  class (a weakened `i < 0 || i >= len(s)` -> `i >= len(s)` loses the negative class; `err != nil` is no operand guard; a
+  re-indented or inverted guard is kept). Confidence: `clear` when the HEAD function still uses the operand and no added
+  line anywhere in the diff guards it for the class; `weak` otherwise (the guard moved into a helper, or the operand left
+  the function). A checklist row or request sentence that names the function (call form) or the operand (3+ characters)
+  together with the class (a null literal, a negative number, "out of range" / "beyond", an empty literal or "empty")
+  justifies the change: not listed. Each guard carries up to two base test lines that call the function with the class
+  literal (the base behaviour). `advisory`: every review lane prompt carries "Removed base guards" (each guard with its
+  base line, confidence, reason and base tests; a regression the request does not ask for is a finding). `on`: in
+  addition, when every item is done and no blocking finding is open, `next` (DEV) returns the framework step
+  `removed_guard_reopen` (a `checklist_update` that reopens the first item declaring the guard's file) for the clear
+  guards, once per guard set (`runtime/removed-guard-scan/<storyId>.json`, with the A/B evidence); the relaunch of that
+  item's implementer is a framework launch too and its prompt lists the guards: keep the base behaviour of each class
+  through the new path and pin it with a test, or report `[guard-intended] <file>:<line> <request sentence or row>`.
+  After that relaunch the set is left to REVIEW (the lanes keep the note). `off`: no scan. Base probes are not run (base
+  tests are quoted); the scan never edits code. Harness NRC (on: reopen, relaunch restores the guard, one review round,
+  DONE; RED on the base: straight to `enter_review`) and NRC-ADV (advisory: no reopen, every lane prompt names the guard;
+  RED on the base: no note).
+- **N2. Bound matrix in the repair prompt (no switch; detection-neutral for REVIEW, it moves sibling-branch tests into
+  the first repair).** `core/bound-matrix.ts` `boundMatrixFor` locates the helper a finding sits in (its `file:line`,
+  else a function of its files the description names) and reads its branch lines: condition lines comparing a parameter or
+  a name derived from one (the leftmost compared operand is the branch's), plus switch / case arms. Two branched operands
+  or more, or one operand in two forms (both signs of a direction), make a matrix. The finding-repair prompt (and each
+  member of a grouped run's section in `host_run`) then lists the helper and every branch line and requires: test every
+  branch in this repair (each operand on each class the request or the base defines: omitted / null, negative, below
+  -len, zero, beyond len, both signs of a direction operand), fix every wrong one, and report one `[branch-test] <fn>
+  <operand>=<case>: <test> -> <result>` line per operand. The matrix of a finding is recorded once
+  (`runtime/bound-matrix/<storyId>.json`); `managedFindingRepairState` (through `repairRunTestProblem`) does not accept a
+  repair run whose final report has no `[branch-test]` line naming an operand of it: the run counts like a run without
+  a repair commit (relaunched once, the relaunch prompt names what is missing, then the Story replans). Harness NRM (the
+  first repair reports only the start branch: relaunched; the second reports start and end: resolved; RED on the base:
+  one repair, accepted, no matrix).
+- **N3. Accepted duplicates closed by the framework (no switch; detection-neutral).** `core/duplicate-auto-coverage.ts`
+  `frameworkDuplicateCoverage`: when a critic duplicate states a repro (`Repro:` / `Probe:` spans, else probe-like code
+  spans) and a Go test function its canonical's repair commit added or changed states every repro span at the current
+  head, `next` (DEV) returns the framework step `finding_duplicate_resolve` with `coverage: {command: "go test -v ./<pkg>
+  -run ^<Test>$", selector: "--- PASS: <Test>"}` and a resolution naming the commit and test, instead of the agent step
+  with placeholders. The closure runs exactly as before (repro check, live-canonical check, coverage run; a refusal is
+  recorded and the finding gets its own repair; `next --run` then stops once with the refusal). A duplicate without a
+  repro, or whose repro no such test states, keeps the owner step. Harness NRD (RED on the base: an agent step with three
+  placeholders).
+- **N3b. Request exact-text literals at launch (prompt only).** The implementer prompt and the finding-repair prompt carry
+  "Request exact-text literals": the request's backticked message literals the exact-text gate checks
+  (`requestExactLiterals`, up to 10) with the whole-message equality rule. The gate itself is unchanged
+  (`core/exact-text-assertions.ts` `renderRequestExactLiterals`).
+- **N4. Pin probe (`plan.pinProbe`, EXPERIMENTAL).** (a) `core/request-probes.ts` `bindingStatement`: a literal with an
+  index / call / member suffix on an assignment's right-hand side (`a = [1..9][1:4]`) is no literal binding; the whole
+  statement is kept (run 75's probe program was `a=[1..9]`, a false mismatch). (b) `core/plan-pin-probe.ts`
+  `requestDefinesWrite`: a case whose in-place write (an index or member target) has the target form of an assignment in a
+  request example (`a[1:3] = ...` -> `v[9:9]`) is new behaviour: its base disagreement is listed as `newBehaviour` in the
+  evidence and as "Not refused" in the refusal text, never refused; reads, plain name bindings and write forms the request
+  does not show stay judged. (c) `core/intent-basis.ts`: the whole-intent `checklist_update` payloads `next` builds from
+  the current rows (`plan_authoring`, the pre-scope authoring batch) carry `intentBasis` (16-hex digest of the
+  verificationIntent they were built from); `checklist_update` refuses one whose item rows changed since
+  (`[authoring_payload_stale]`, `Next: proof-or-stop next --storyId=<id> --run`, which rebuilds it); owner payloads without
+  `intentBasis` are unaffected. `handlers/checklist.ts` is repinned (`runtime-environment-checks.ts`).
+
+Bench arm: `POS_AB_FLAGS='{"dev.removedGuardScan":"on"}'` (the default `{}` is the advisory arm; `{"dev.removedGuardScan":"off"}`
+is the pre-lab behaviour). N2-N4 have no switch. Not yet validated on a bench run; the N1 detection replay on the run-71 /
+run-75 source (`ab/README.md` protocol) is open.
+
 ### `next --untilAgent`: the framework owner driver (`owner.driver`, owner-driver lab)
 
 `proof-or-stop next --storyId=<id> --untilAgent` (no `--storyId`: the one unfinished
@@ -1772,7 +1849,7 @@ framework mode, whose `live_smoke` capture is a framework step since run 64, own
 7 vs 3), `NOD-W` (a post-commit hook hangs once in a review-evidence import commit;
 the watchdog kills the call after the step-stall limit and the Story reaches DONE), `NOD-DUP` (run 65 sequence: the scripted owner runs `next --run` after TEST authoring, the Story is DONE, then `next --untilAgent` ends `done`, `story_create` of the delivered request is refused explicitly and staged, still created under `llm` with a note, a different request is not refused; every driven step text is audited). `owner-driver-smoke` N1 checks `frameworkOwnerWhy`.
 
-### Detection A/B variant switches (eight experimental, default off; `review.round2Lanes`, `remediation.grouping` and `remediation.thread` adopted; five catch-earlier switches since old-PoS run 33 and two run-43 detection switches that default on, three EXPERIMENTAL lab plan-light PLAN switches and the EXPERIMENTAL lab sibling-gate PLAN switch `plan.counterpartCoverage`, below)
+### Detection A/B variant switches (eight experimental, default off; `review.round2Lanes`, `remediation.grouping` and `remediation.thread` adopted; five catch-earlier switches since old-PoS run 33 and two run-43 detection switches that default on, three EXPERIMENTAL lab plan-light PLAN switches, the EXPERIMENTAL lab sibling-gate PLAN switch `plan.counterpartCoverage` and the lab round-cut DEV switch `dev.removedGuardScan` (production `advisory`), below)
 
 Nine project-config switches were added to measure, in a detection A/B, whether a
 structural review/dispatch change loses findings (bench-staging run-17 cost
@@ -2117,7 +2194,7 @@ plan (scope-plan request trace, pin audit, exclusion-rationale check, exact-text
 
 | Switch | Values | Off (default) / on |
 |---|---|---|
-| `plan.pinProbe` | `off` \| `on` | On (core/plan-pin-probe.ts): before PLAN→DEV every extractable example row (`itemProbeCases`: arrows, prose connectors, statements and writes, several cases per row; isolated and cumulative runs) runs on a `git archive` of the Story **base** with the project's own declared evaluator (`probeRunner`, else `pinOracle`, read from the base commit's config). A case the base evaluates to a value is unchanged behaviour: a pin that disagrees is refused unless the row records that base value in `baseValue` (the Story deliberately changes it). An error pin is judged against a base error of the same message family (at least 12 leading characters in common once a runner's decoration such as abs `&{` is stripped): an existing error format pinned wrong is refused with the base error as the observed value; a different error (the base lacks the function, cannot parse the syntax) is new behaviour. A case the base cannot evaluate (another error, new syntax, an unbound name, a timeout) is skipped; a value pin on a base error is new behaviour too. A declared `pinOracle`'s `skipPattern` (which hides every error from the oracle) applies here to exit-0 output only, in the probe's own tree. Independently (no evaluator needed), a row whose case is an input the request states literally (`` `in -> out` `` in one backtick span, or two spans joined by `->` / `→` / `=>` / returns / gives / yields / evaluates to / produces / prints / outputs) must pin the request's output. Refusal: the DEV gate (`canStartDevGuard` / `getGuardFailureReason`, checked before the plan-review requirement) returns `[pin_probe_mismatch]` with each row, its input, the pinned and the observed value and ONE `Next: proof-or-stop checklist_update '{"storyId","itemId","intentRows":[{"ref":"<row>","desc":"<row rewritten with the expected value ...>"}]}'`; `next` returns the same agent step (`pin_probe_mismatch`) right after the dev-memory acknowledgement, before the scope-plan reviewer is launched (ADR-105: the plan review judges pins the base already confirmed). The framework never rewrites a pin. Each evaluation is recorded at `.proof-or-stop/runtime/plan-pin-probe/<storyId>.json` (`proof-or-stop.plan-pin-probe.v1`: runner, base, judged / skipped cases, mismatches, `abVariant`). Without a declared evaluator only the request-literal check runs. Expected effect is small on abs: of 23 measured DEV→PLAN trips (runs 31-57) only 2 were pins of unchanged behaviour (a two-part read pinned to a scalar, run 55; an existing error format pinned with the operand quoted, run 49; 3.0 min of trips, plus the review round that found run 55's); 11 were new-behaviour pins (stepped / negative-step assignment, multibyte results, 19.8 min) that no base can evaluate and 10 were framework faults (22.8 min). |
+| `plan.pinProbe` | `off` \| `on` | On (core/plan-pin-probe.ts): before PLAN→DEV every extractable example row (`itemProbeCases`: arrows, prose connectors, statements and writes, several cases per row; isolated and cumulative runs) runs on a `git archive` of the Story **base** with the project's own declared evaluator (`probeRunner`, else `pinOracle`, read from the base commit's config). A case the base evaluates to a value is unchanged behaviour: a pin that disagrees is refused unless the row records that base value in `baseValue` (the Story deliberately changes it). Since lab round-cut (N4, "Lab round-cut" above): a case whose in-place write (an index or member target) has the target form of an assignment in a request example is new behaviour the Story defines: its base disagreement is listed as `newBehaviour` (evidence, and "Not refused" in a refusal), never refused; an index / call / member suffix on a literal assignment right-hand side (`a = [..][1:4]`) stays in the probe program. An error pin is judged against a base error of the same message family (at least 12 leading characters in common once a runner's decoration such as abs `&{` is stripped): an existing error format pinned wrong is refused with the base error as the observed value; a different error (the base lacks the function, cannot parse the syntax) is new behaviour. A case the base cannot evaluate (another error, new syntax, an unbound name, a timeout) is skipped; a value pin on a base error is new behaviour too. A declared `pinOracle`'s `skipPattern` (which hides every error from the oracle) applies here to exit-0 output only, in the probe's own tree. Independently (no evaluator needed), a row whose case is an input the request states literally (`` `in -> out` `` in one backtick span, or two spans joined by `->` / `→` / `=>` / returns / gives / yields / evaluates to / produces / prints / outputs) must pin the request's output. Refusal: the DEV gate (`canStartDevGuard` / `getGuardFailureReason`, checked before the plan-review requirement) returns `[pin_probe_mismatch]` with each row, its input, the pinned and the observed value and ONE `Next: proof-or-stop checklist_update '{"storyId","itemId","intentRows":[{"ref":"<row>","desc":"<row rewritten with the expected value ...>"}]}'`; `next` returns the same agent step (`pin_probe_mismatch`) right after the dev-memory acknowledgement, before the scope-plan reviewer is launched (ADR-105: the plan review judges pins the base already confirmed). The framework never rewrites a pin. Each evaluation is recorded at `.proof-or-stop/runtime/plan-pin-probe/<storyId>.json` (`proof-or-stop.plan-pin-probe.v1`: runner, base, judged / skipped cases, mismatches, `abVariant`). Without a declared evaluator only the request-literal check runs. Expected effect is small on abs: of 23 measured DEV→PLAN trips (runs 31-57) only 2 were pins of unchanged behaviour (a two-part read pinned to a scalar, run 55; an existing error format pinned with the operand quoted, run 49; 3.0 min of trips, plus the review round that found run 55's); 11 were new-behaviour pins (stepped / negative-step assignment, multibyte results, 19.8 min) that no base can evaluate and 10 were framework faults (22.8 min). |
 | `plan.reviewMerge` | `off` \| `on` | On (core/plan-review-merge.ts): `next --run` launches no INIT reviewer; the INIT_CHECK gate (`canEnterInitCheckGuard` / `getGuardFailureReason(INIT_CHECK)`) admits the Story without `init-check.json` when the PLAN scope-plan verdict will be required for it (`planScopeCheckRequirement`: balanced / strict policy, a request.md, an understanding snapshot); otherwise the INIT reviewers stay required. The ONE scope-plan session runs once the plan is complete (after the deterministic `plan_authoring` batch, as before) and its prompt adds a "Merged plan review" block: it also answers the INIT questions (every item has an observable result and a check that distinguishes success; claims about the existing system are verified against the code) and records only real gaps (a request behaviour no row covers, a pin the request or the base contradicts, an unverifiable outcome, a false existing-system claim that changes the plan) and questions the owner must answer; wording, readability, term definitions and test-exhaustiveness notes never become gaps or questions (ADR-040). A rerun (gaps fixed, checklist changed) is a **confirmation re-review** (core/scope-plan-rerun-context.ts): the prompt lists the changed items and the previous verdict's covered / excluded rows of the unchanged items, which the reviewer copies; it re-judges only the flagged rows and the changed items (aim: 6 commands). When the judged checklist cannot be reconstructed the rerun is a full review. `scope-check.json` records `planReview: "merged"` and `abVariant` (outside the signature domain); `story_create` and `next` say no INIT reviewer runs. With no `init-check.json` on record the INIT_CHECK→DEV express channel is refused (`Cannot skip PLAN: ... merged plan review ...`), since the plan review runs only in PLAN. Measured on the harness: plan-review sessions 4 → 2 (NPM-P: merged review + one confirmation; production 2 INIT reviewers + 2 scope-plan runs), INIT steps without reviewer launch / wait (NPM-I). Detection basis: of 24 INIT reviewer sessions in runs 31-57, 22 found nothing, 1 found a real wrong pin (run 31, a pin the scope-plan pin audit also covers) and 1 was noise. |
 | `plan.rowBudget` | `off` \| `on` | On (core/plan-row-budget.ts): guidance in the `story_create_authoring` template (`ROW_BUDGET_GUIDANCE`: ONE intent row per distinct behaviour, i.e. per operand class of one form; every extra row is one more pinned test; never drop a request-literal example or an exact-text row) and a soft, never blocking check. A row whose every probe case repeats the operand class signature of an earlier row of the same item (literals by class: string S / empty S0 / non-ASCII SU, number N / zero N0 / negative -N, NULL, B, list L / empty L0, map M / M0; assigned names renamed V1, V2, ...; the pinned output abstracted the same way, an error pin is `error`, so an empty result or an error is another behaviour) is listed by `story_create` (`Row budget (A/B plan.rowBudget=on, advisory [row_budget])`, with ONE `checklist_update` per item that drops the listed rows) and by `story_review` in PLAN (`row_budget` advisory issues). Each check appends `{at, rows, extras, abVariant}` to `.proof-or-stop/runtime/plan-row-budget/<storyId>.jsonl` (`proof-or-stop.plan-row-budget.v1`), so a bench run shows the rows kept after the advisory. Rows quoting a request backtick span, rows matching a request-literal example and rows saying exact / verbatim / whole error are never listed. Measured on the harness: NRB 6 → 3 rows after the trim (switch absent: 6 rows, no note). Step-1 data: 55-85% of the rows of runs 31-57 fall in operand classes of 3+ rows. Since old-PoS run 64 (the advisory was ignored: 44 -> 51 rows) `next` also hands the owner ONE skippable PLAN step `plan_row_trim` (the exact `checklist_update` commands, once per set of rows, before the scope-plan reviewer; see "Old-PoS runs 61 / 63 / 64"). Still no cap and no gate. |
 
@@ -2215,6 +2292,16 @@ Bench arm (`POS_AB_FLAGS`, adapter `prepare_workflow.py`): `{"plan.counterpartCo
 `node packages/main/dist/tasks/counterpart-coverage-smoke.js` (S1, D1-D3, N1-N5, T1, I1), harness
 `node packages/main/dist/tasks/e2e-review-to-done-smoke.js NCC` (with its switch-absent control NCC-off; RED on the
 base: `next` gave `plan_authoring`, no counterpart check), `npm run test:ab-variant-switches`.
+
+#### Lab round-cut switch `dev.removedGuardScan` (`advisory` default | `off` | `on`)
+
+The removed-guard scan at DEV exit (see "Lab round-cut" above, N1; `core/removed-guard-scan.ts`). Production is the
+middle arm `advisory` (not recorded): every review lane prompt names the base operand guards the Story dropped from
+functions it kept. `on` (recorded in `abVariantEvidence` and in `runtime/removed-guard-scan/<storyId>.json`) also reopens
+the item that declares the file before REVIEW when the evidence is clear (framework step `removed_guard_reopen`, once
+per guard set, the implementer relaunch carries the guards). `off` (recorded) runs no scan. A malformed value is
+`advisory` where it is consumed (`removedGuardScanMode`). Bench arm: `{"dev.removedGuardScan":"on"}`. Tests:
+`round-cut-smoke` G1-G4, harness NRC / NRC-ADV, `npm run test:ab-variant-switches`.
 
 `session_brief` is still the opening-briefing entry point for a new agent session; `status` / `next` are the short entry points for humans and agents to quickly restore context while working.
 
